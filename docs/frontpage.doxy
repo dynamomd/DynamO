@@ -1,8 +1,8 @@
 /*! \mainpage DYNAMO source code documentation
  *
  * The C++ code consists of several programs
- * - is_mdrun (mdrun.cpp) - The Simulator itself, runs trajectories and collects %data
- * - is_configmod (configmod.cpp) - The configuration editor/generator
+ * - dynarun (mdrun.cpp) - The Simulator itself, runs trajectories and collects %data
+ * -  dynamod (configmod.cpp) - The configuration editor/generator
  *
  * To start browsing the sources, it might be best to start at the
  * main() function in mdrun.cpp and branch out from there.
