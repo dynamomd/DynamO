@@ -1,6 +1,6 @@
 #!/bin/bash
-#  ISSS:- Event driven molecular dynamics simulator 
-#  http://www.marcusbannerman.co.uk/isss
+#  DYNAMO:- Event driven molecular dynamics simulator 
+#  http://www.marcusbannerman.co.uk/dynamo
 #  Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 #
 #  This program is free software: you can redistribute it and/or
@@ -33,6 +33,6 @@ fi
 oldPWD=$(pwd)
 cd /tmp
 echo $oldPWD/$1
-is_mdrun $oldPWD/$1 -c 0 -E -L Geomview 
+dynarun $oldPWD/$1 -c 0 -E -L Geomview 
 cd $oldPWD
 geomview /tmp/geomview.frame00000.list
