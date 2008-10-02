@@ -1,0 +1,178 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#include <iostream>
+#include <signal.h>
+#include <boost/program_options.hpp>
+using namespace std;
+using namespace boost;
+namespace po = boost::program_options;
+
+#include "../src/simulation/simulation.hpp"
+#include "../src/dynamics/BC/include.hpp"
+#include "../src/dynamics/dynamics.hpp"
+#include "../src/dynamics/systems/ghost.hpp"
+#include "../src/base/is_exception.hpp"
+#include "../src/schedulers/include.hpp"
+#include "../src/inputplugins/include.hpp"
+#include "../src/outputplugins/0partproperty/XMLconfig.hpp"
+#include "../src/datatypes/complex.hpp"
+
+CSimulation sim;
+
+int
+main(int argc, char *argv[])
+{
+  std::cout << "dynamod  Copyright (C) 2008  Marcus N Campbell Bannerman\n"
+	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
+	    << "This is free software, and you are welcome to redistribute it\n"
+	    << "under certain conditions. See the licence you obtained with\n"
+	    << "the code\n\n";
+  ////////////////////////PROGRAM OPTIONS!!!!!!!!!!!!!!!!!!!!!!!
+  try 
+    {
+      po::options_description allopts("General Options"), loadopts("Load Config File Options");
+      
+      allopts.add_options()
+	("help", "Produces this message")
+	("out-config-file,o", 
+	 po::value<string>()->default_value("config.out.xml.bz2"), 
+	 "Configuration output file.")
+	("random-seed,s", po::value<unsigned int>(),
+	 "Random seed for generator")
+	("packfrac,P", po::value<Iflt>(), 
+	 "Rescale lengths to set the packing fraction")
+	("rescale-T,r", po::value<Iflt>(), 
+	 "Rescale kinetic temperature to this value")
+	("zero-momentum,Z", "Zero the momentum")
+	("zero-com", "Zero the centre of mass")
+	("mirror-system,M",po::value<unsigned int>(), "Mirror the particle co-ordinates and velocities. Argument is dimension to reverse/mirror")
+	;
+
+      loadopts.add_options()
+	("config-file", po::value<string>(), 
+	 "Config file to initialise from (Non packer mode)")
+	;
+       
+      allopts.add(loadopts);
+      allopts.add(CIPPacker::getOptions());
+
+      po::positional_options_description p;
+      p.add("config-file", 1);
+      
+      po::variables_map vm;
+      po::store(po::command_line_parser(argc, argv).
+		options(allopts).positional(p).run(), vm);
+      po::notify(vm);
+      
+      if ((vm.count("help") 
+	   || (!vm.count("packer-mode") 
+	       && !vm.count("config-file")))
+	  && !vm.count("packer-mode-help"))
+	{
+	  cout << "Usage : dynamod <OPTION>...[CONFIG FILE]\n"
+	       << " Modifies a config file (if provided) or generates a new"
+	    " config file\n" << allopts << "\n";
+
+	  return 1;
+	}
+
+      if (vm.count("random-seed"))
+	sim.setRandSeed(vm["random-seed"].as<unsigned int>());
+      
+      ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
+      //Now load the config
+      sim.configLoaded();
+
+      if (!vm.count("config-file"))
+	{
+	  CIPPacker plug(vm, &sim);
+	  plug.initialise();
+
+	  std::cout << "\nMain: Finialising the packing routines";
+	  CInputPlugin(&sim, "Rescaler").zeroMomentum();
+	  CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
+	}
+      else
+	{
+	  CIPConfig XMLconfig(vm["config-file"].as<string>().c_str(), &sim);
+	  XMLconfig.initialise();	  
+	}
+  
+      sim.setTrajectoryLength(0);
+
+      if (vm.count("Thermostat"))
+	CIPPacker(vm, &sim).processThermostat();
+
+      sim.initialise();      
+
+      //Here we modify the sim accordingly      
+
+      if (vm.count("packfrac"))
+	CInputPlugin(&sim, "Resizer")
+	  .setPackFrac(vm["packfrac"].as<Iflt>());
+      
+      if (vm.count("zero-momentum"))
+	CInputPlugin(&sim, "MomentumZeroer")
+	  .zeroMomentum();	
+
+      if (vm.count("zero-com"))
+	CInputPlugin(&sim, "CentreOfMassZeroer")
+	  .zeroCentreOfMass();	
+
+      if (vm.count("rescale-T"))
+	CInputPlugin(&sim, "Rescaler")
+	  .rescaleVels(vm["rescale-T"].as<Iflt>());
+
+      if (vm.count("mirror-system"))
+	CInputPlugin(&sim, "Mirrorer").
+	  mirrorDirection(vm["mirror-system"].as<unsigned int>());
+
+
+      //Write out now we've changed the system
+      sim.getHistory() << "\nconfigmod run as so\n";
+      for (int i = 0; i< argc; i++)
+	sim.getHistory() << argv[i] << " ";
+      cout << "\nWriting out configuration";
+      sim.writeXMLfile(vm["out-config-file"].as<string>().c_str());
+      cout << "\n";
+    }
+  catch (DYNAMO::Exception &cep)
+    {
+      fflush(stdout);
+      cep << "\nReached Main Error Loop"
+	  << "\nOutputting results so far and shutting down"
+	  << "\nBad configuration written to config.error.xml";
+      std::cout << cep.what();
+
+
+      try
+	{
+	  sim.writeXMLfile("config.error.xml.bz2");
+	}
+      catch (DYNAMO::Exception &cep)
+	{
+	  cep << "\nFailed to output error config";
+	  std::cout << cep.what() << "\n";
+	}
+
+      std::cout << "\n";
+
+      return 1;
+    }
+
+  return 0;
+}

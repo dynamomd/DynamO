@@ -1,0 +1,332 @@
+#include <stdio.h>
+
+///////////////////////////////////////////////////////////////////////////
+//
+// Note: The floating point results will very from version to version that 
+//       reason probably lays on certain shortcuts that the compiler 
+//       optimization took. It may have done doubles rather than floats in
+//       some cases. But all the results are in the expected tolerance of
+//       the floating point numbers. You can force the compiler to only use
+//       floats, but this will be a waste of time.
+//
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// PRAGMAS
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// VECTOR
+///////////////////////////////////////////////////////////////////////////
+
+namespace vector
+{
+///////////////////////////////////////////////////////////////////////////
+// ARGUMENTS
+///////////////////////////////////////////////////////////////////////////
+
+    template< class ta_a >
+    class vecarg
+    {
+        const ta_a& Argv;
+    public:
+        inline vecarg( const ta_a& A ) : Argv( A ) {}
+        inline const float Evaluate( const int i ) const 
+        { return Argv.Evaluate( i ); }
+    };
+
+    template<> 
+    class vecarg< const float >
+    {
+        const float& Argv;
+    public:
+        inline vecarg( const float& A ) : Argv( A ) {}
+        inline const float Evaluate( const int i ) const 
+        { return Argv; }
+    };
+
+    template<> 
+    class vecarg< const int >
+    {
+        const int& Argv;
+    public:
+        inline vecarg( const int& A ) : Argv( A ) {}
+        inline const float Evaluate( const int i ) const 
+        { return (float)Argv; }
+    };
+
+///////////////////////////////////////////////////////////////////////////
+// EXPRESSIONS
+///////////////////////////////////////////////////////////////////////////
+
+    template< class ta_a, class ta_b, class ta_eval >
+    class vecexp_2
+    {
+        const vecarg<ta_a>   Arg1;
+        const vecarg<ta_b>   Arg2;
+
+    public:
+        inline vecexp_2( const ta_a& A1, const ta_b& A2 ) : Arg1( A1 ), Arg2( A2 ) {}
+        inline const float Evaluate ( const int i ) const
+        { return ta_eval::Evaluate( i, Arg1, Arg2 ); }
+    };
+
+    template< class ta_a, class ta_eval >
+    class vecexp_1
+    {
+        const vecarg<ta_a>   Arg1;
+
+    public:
+        inline vecexp_1( const ta_a& A1 ) : Arg1( A1 ) {}
+
+        inline const float Evaluate( const int i ) const
+        { return ta_eval::Evaluate( i, Arg1.Evaluate( i ) ); }
+    };
+
+///////////////////////////////////////////////////////////////////////////
+// BASE CLASS
+///////////////////////////////////////////////////////////////////////////
+
+    template< int ta_dimension, class T >
+    struct base : public T
+    {
+        inline       float&  operator[]( const int i )       { return ((float*)this)[i]; } 
+        inline const float   Evaluate  ( const int i ) const { return ((float*)this)[i]; }
+
+        //////////////////////////////////////////////////////////////////
+        // ASSIGMENT
+        //////////////////////////////////////////////////////////////////
+        template< class ta >
+        struct assigment
+        {
+            template< int I, class R>
+            struct recurse
+            {
+                enum { COUNTER = I+1 };
+
+                static inline void Assign( base<ta_dimension,T>& V, const ta& A ) 
+                {
+                    V[I] = A.Evaluate( I );
+                    recurse<COUNTER,int>::Assign( V, A );
+                }
+            };
+
+            template<class R> struct recurse<ta_dimension, R>
+            {
+                static inline void Assign( base<ta_dimension,T>& V, const ta& A ){}
+            };
+
+            static inline void Assign( base<ta_dimension,T>& V, const ta& A )
+            {
+	      recurse<0,int>::Assign( V, A );
+            }
+        };
+
+        template< class ta_type > inline
+        const base<ta_dimension,T>& operator = ( const ta_type& A )
+        {
+            assigment<ta_type>::Assign( *this, A );
+            return *this;
+        }
+        
+        //////////////////////////////////////////////////////////////////
+        // DOT PRODUCT
+        //////////////////////////////////////////////////////////////////
+        template< class ta, class tb >
+        struct dot_prod
+        {
+            template< int I, class R >
+            struct recurse
+            {
+                enum { COUNTER = I+1 };
+
+                static inline float Dot_Prod( const ta& A, const tb& B ) 
+                {
+                    return A.Evaluate( I ) * B.Evaluate( I ) +
+                        recurse<COUNTER,int>::Dot_Prod( A, B );
+                }
+            };
+
+            template< class R> 
+	    struct recurse<ta_dimension, R>
+            {
+                static inline float Dot_Prod( const ta& A, const tb& B )
+                {
+                    return 0;
+                }
+            };
+
+            static inline float Dot_Prod( const ta& A, const tb& B )
+            {
+                return recurse<0,int>::Dot_Prod( A, B );
+            }
+        };
+
+        template< class ta_type > inline
+        float Dot( const ta_type& A ) const
+        {
+            return dot_prod<base<ta_dimension,T>,ta_type>::Dot_Prod( *this, A );
+        }
+    };
+
+///////////////////////////////////////////////////////////////////////////
+// SUM
+///////////////////////////////////////////////////////////////////////////
+
+    struct sum
+    {
+        template< class ta_a, class ta_b > inline static 
+        const float Evaluate( const int i, const ta_a& A, const ta_b& B )
+        { return A.Evaluate(i) + B.Evaluate(i); }
+    };
+
+    template< class ta_c1, class ta_c2 > inline 
+    const vecexp_2< const ta_c1, const ta_c2, sum > 
+    operator + ( const ta_c1& Pa, const ta_c2& Pb )
+    {
+        return vecexp_2< const ta_c1, const ta_c2, sum >( Pa, Pb );
+    }
+
+///////////////////////////////////////////////////////////////////////////
+// DATA
+///////////////////////////////////////////////////////////////////////////
+
+    struct desc_xyz
+    {
+        float X, Y, Z;      
+    };
+
+    struct desc_xy
+    {
+        float X, Y;      
+    };
+
+    struct desc_uv
+    {
+        float U, V;      
+    };
+};
+
+///////////////////////////////////////////////////////////////////////////
+// VECTOR3
+///////////////////////////////////////////////////////////////////////////
+
+struct vector3 : public vector::base< 3, vector::desc_xyz >
+{
+    typedef vector::base< 3, vector::desc_xyz > base;
+
+    inline  vector3( const float x, const float y, const float z )
+    { X = z; Y = y; Z = z; }
+
+    template< class ta_type > inline
+    vector3& operator = ( const ta_type& A )
+    { base::operator = ( A ); return *this; }
+};
+
+///////////////////////////////////////////////////////////////////////////
+// VECTOR2
+///////////////////////////////////////////////////////////////////////////
+
+struct vector2 : public vector::base< 2, vector::desc_xy >
+{
+    typedef vector::base< 2, vector::desc_xy > base;
+
+    inline  vector2( const float x, const float y )
+    { X = x; Y = y; }
+
+    template< class ta_type > inline
+    vector2& operator = ( const ta_type& A )
+    { base::operator = ( A ); return *this; }
+};
+
+///////////////////////////////////////////////////////////////////////////
+// VECTOR3D
+///////////////////////////////////////////////////////////////////////////
+
+struct vector3d
+{
+    float X, Y, Z;
+
+    inline vector3d( void ){}
+    inline vector3d ( const float x, const float y, const float z )
+    { X = x; Y = y; Z = z; }
+
+    inline vector3d operator + ( const vector3d& A ) const
+    { return vector3d( X + A.X, Y + A.Y, Z + A.Z ); }                
+
+    inline vector3d operator + ( const float A ) const
+    { return vector3d( X + A, Y + A, Z + A ); }                
+
+    inline float Dot( const vector3d& A ) const
+    { return A.X*X + A.Y*Y + A.Z*Z; }
+};
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// TIMER STUFF
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// DO THE TRIALS
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+// Tomas'
+vector3     g_vA(1,1,1);
+vector3     g_vB(2,2,2);
+vector3     g_vC(3,3,3);
+vector3     g_vD(4,4,4);
+
+// Typical's
+vector3d    g_v3A(1,1,1);
+vector3d    g_v3B(2,2,2);
+vector3d    g_v3C(3,3,3);
+vector3d    g_v3D(4,4,4);
+
+
+int main()
+{
+  //for( int Test=0; Test<6; Test++ )
+  int Test=0;
+
+    {
+      int         i;
+      const int   Count = 100000000;
+      
+      
+      //////////////////////////////////////////////////////////
+      /*for( i=0; i< Count; i++ )
+        {
+	  if( Test == 0 ) g_vD = g_vA;
+	  if( Test == 1 ) g_vD = g_vD + g_vA;
+	  if( Test == 2 ) g_vD = g_vD + g_vA + g_vB;
+	  if( Test == 3 ) g_vD = g_vD + g_vA + g_vB + g_vC;
+	  if( Test == 4 ) g_vD = (g_vD + g_vA) + (g_vB + g_vC);
+	  if( Test == 5 ) g_vD = g_vB + g_vA.Dot( g_vA + (g_vB + g_vC) + g_vA  );
+	  BREAK;
+	  BREAK;
+	  }*/
+
+        //////////////////////////////////////////////////////////
+        for( i=0; i< Count; i++ )
+        {
+            if( Test == 0 ) g_v3D = g_v3A;
+            if( Test == 1 ) g_v3D = g_v3D + g_v3A;
+            if( Test == 2 ) g_v3D = g_v3D + g_v3A + g_v3B;
+            if( Test == 3 ) g_v3D = g_v3D + g_v3A + g_v3B + g_v3C;
+            if( Test == 4 ) g_v3D = (g_v3D + g_v3A) + (g_v3B + g_v3C);
+            if( Test == 5 ) g_v3D = g_v3B + g_v3A.Dot( g_v3A + (g_v3B + g_v3C) + g_v3A );
+	}
+
+        //////////////////////////////////////////////////////////
+
+        printf( "1) %f %f %f\n", g_vD.X,   g_vD.Y,   g_vD.Z   );
+        printf( "2) %f %f %f\n", g_v3D.X,  g_v3D.Y,  g_v3D.Z  );
+    }
+}
+

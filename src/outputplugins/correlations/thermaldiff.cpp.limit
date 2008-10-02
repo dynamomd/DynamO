@@ -1,0 +1,172 @@
+#include "thermaldiff.hpp"
+#include <boost/foreach.hpp>
+#include "../../dynamics/include.hpp"
+#include "../../dynamics/interactions/intEvent.hpp"
+
+COPThermalDiffusion::COPThermalDiffusion(const DYNAMO::SimData* tmp, XMLNode XML):
+  COPCorrelator<CVector<double> >(tmp,"ThermalDiffusion", XML),
+  delGsp1(0.0),
+  species1(NULL),
+  sysMom(0.0),
+  massFracSp1(1)
+{  
+  try 
+    {
+      try {
+	species1 = &Sim->Dynamics.getSpecies(boost::lexical_cast<std::string>(XML.getAttribute("Species")));
+      } catch (DYNAMO::Exception& nex)
+	{
+	  throw (nex << "Failed to find the species for the mutual diffusion\n");
+	}
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      I_throw() << "Failed a lexical cast in COPMutualDiffusion";
+    }
+}
+
+
+void 
+COPThermalDiffusion::initialise()
+{
+  COPCorrelator<CVector<double> >::initialise();
+  accG2.resize(CorrelatorLength, CVector<double>(0.0));
+  dt = getdt();
+  
+  double sysMass = 0.0;
+
+  //Sum up the constant Del G.
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    {
+      delGsp1 += part.getVelocity () * Sim->Dynamics.getParticleEnergy(part);
+      
+      sysMom += part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass();
+      sysMass += Sim->Dynamics.getSpecies(part).getMass();
+      
+      if (species1->isSpecies(part))
+	delGsp1 += part.getVelocity();      
+    }
+
+  delGsp1 *= species1->getMass();
+  
+  massFracSp1 = species1->getCount() * species1->getMass() / sysMass; 
+
+  I_cout() << "WARNING: This is only valid in the microcanonical ensemble!";
+}
+
+inline void 
+COPThermalDiffusion::output(xmlw::XmlStream &XML)
+{
+  XML << xmlw::tag("limitCorrelator")
+      << xmlw::attr("name") << name
+      << xmlw::attr("size") << accG2.size()
+      << xmlw::attr("dt") << dt/Sim->Dynamics.units().unitTime()
+      << xmlw::attr("LengthInMFT") << dt * accG2.size() / ptrMisc->getMFT()
+      << xmlw::attr("simFactor") << rescaleFactor()
+      << xmlw::attr("SampleCount") << count
+      << xmlw::chardata();
+  
+  double factor = rescaleFactor();
+  
+  for (unsigned int i = 0; i < accG2.size(); i++)
+    {
+      XML   << (1+i) * dt / Sim->Dynamics.units().unitTime()
+	    << "\t ";
+      
+      for (int j=0;j<NDIM;j++)
+	XML << accG2[i][j] * factor 
+	    << "\t ";
+      
+      XML << "\n";
+    }
+  
+  XML << xmlw::endtag("EinsteinCorrelator");
+}
+
+double 
+COPThermalDiffusion::rescaleFactor() 
+{ 
+  return 1.0
+    / (Sim->Dynamics.units().unitTime() //This line should be 1 however we have scaled the correlator time as well
+       * Sim->Dynamics.units().unitThermalDiffusion() * 2.0 
+       * count * ptrEnergy->getAvgkT()
+       * Sim->Dynamics.units().simVolume());
+}
+
+void 
+COPThermalDiffusion::stream(const double edt)
+{    
+  //Move the time forward
+  currentdt += edt;
+  
+  //Now test if we've gone over the step time
+  if (currentdt >= dt)
+    {
+      currentdt -= dt;
+      delG += constDelG * (edt - currentdt);
+      newG();
+      
+      //Now calculate the start of the new delG
+      delG = constDelG * currentdt;
+    }
+  else
+    delG += constDelG * edt;
+}
+
+void 
+COPThermalDiffusion::newG()
+{
+  //This ensures the list stays at accumilator size
+  if (G.size () == accG2.size ())
+    {
+      G.pop_back ();
+      G.push_front (delG);
+
+      accPass ();
+    }
+  else
+    G.push_front (delG);
+}
+
+void 
+COPThermalDiffusion::accPass()
+{
+  count++;
+  CVector<double> sum(0), sumsp1(0);
+  
+  std::list<CVector<double> >::iterator iptr = G.begin();
+
+  for (unsigned int index = 0; index < accG2.size(); index++)
+    {
+      sum += *iptr;
+      accG2[index] += sum * delGsp1;
+      iptr++;
+    }
+}
+
+inline CVector<double> 
+COPThermalDiffusion::impulseDelG(const C2ParticleData& PDat)
+{
+  return PDat.rij * PDat.particle1_.getDeltaeCalc();
+}
+
+void 
+COPThermalDiffusion::updateConstDelG(const C2ParticleData& PDat)
+{
+  updateConstDelG(PDat.particle1_);
+  updateConstDelG(PDat.particle2_);
+}
+
+void 
+COPThermalDiffusion::updateConstDelG(const C1ParticleData& PDat) 
+{
+  double p1E = Sim->Dynamics.getParticleEnergy(PDat.getParticle());
+  
+  constDelG += PDat.getParticle().getVelocity() * p1E 
+    - PDat.getOldVel() * (p1E - PDat.getDeltaeCalc());
+
+  sysMom += PDat.getDeltaP();
+  
+  if (&(PDat.getSpecies()) == species1)
+    delGsp1 += PDat.getDeltaP();
+}

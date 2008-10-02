@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<Plugins>
+  <Plugin Type="Energy"/>
+  <Plugin Type="Misc"/>
+  <Plugin Type="IntEnergyHist"/>
+  <Plugin Type="CollisionMatrix"/>	  
+  <Plugin Type="RadiusGyration"/>	  
+  <Plugin Type="Torsion"/>		  
+  <Plugin Type="ReplexTrace"/>                               
+</Plugins>
+<Testing>
+</Testing>
+<Disabled>
+  <Plugin Type="TinkerXYZ"/>	  
+  <Plugin Type="ReplexTrace"/>                               
+  <Plugin Type="Torsion"/>		  
+  <Plugin Type="Diffusion"/>                               
+  <Plugin Type="ReplexTrace"/>                               
+  <Plugin Type="EstTime"/>		                      
+  <Plugin Type="IntEnergyHist"/>	  
+  <Plugin Type="RadiusGyration"/>	  
+  <Plugin Type="Torsion"/>		  
+  <Plugin Type="Geomview"/>	  
+  <Plugin Type="Energy"/>		  
+  <Plugin Type="Misc"/>		  
+  <Plugin Type="ThermalConductivity"/>
+  <Plugin Type="ThermalDiffusion"/>  
+  <Plugin Type="Viscosity"/>	  
+  <Plugin Type="MutualDiffusion"/>	  
+  <Plugin Type="PackingFraction"/>	  
+  <Plugin Type="CollisionMatrix"/>	  
+  <Plugin Type="RdotV"/>		  
+  <Plugin Type="Momentum"/>	  
+  <Plugin Type="QMGA"/>		  
+  <Plugin Type="VTK"/>		  
+  <Plugin Type="VACF"/>              
+  <Plugin Type="Povray"/>
+  <Plugin Type="ContactMap"/>
+  <Plugin Type="OverlapTester"/>
+  <Plugin Type="CollDistCheck"/>
+  <Plugin Type="ChainBondAngles"/>
+</Disabled>

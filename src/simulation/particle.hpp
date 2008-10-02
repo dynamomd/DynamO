@@ -1,0 +1,67 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef PARTICLE_H
+#define PARTICLE_H
+
+#include "../datatypes/vector.hpp"
+
+class XMLNode;
+namespace xmlw
+{
+  class XmlStream;
+}
+
+class CParticle
+{
+public:
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CParticle&);
+  
+  inline CParticle (const CVector<> &position, 
+		    const CVector<> &velocity,
+		    const unsigned long& nID):
+    posVector(position), velVector(velocity), 
+    ID(nID), pecTime(0.0)
+  {}
+  
+  CParticle(const XMLNode&, unsigned long);
+  
+  inline bool operator==(const CParticle &p) const { return (this == &p); }
+  inline bool operator!=(const CParticle &p) const { return (this != &p); }
+  
+  inline const CVector<> &getPosition() const { return posVector; }
+  inline const CVector<> &getVelocity() const { return velVector; }
+  
+  inline CVector<> &getPosition() { return posVector; }
+  inline CVector<> &getVelocity() { return velVector; }
+  
+  inline const unsigned long &getID() const { return ID; };
+  inline const Iflt& getPecTime() const { return pecTime; }
+  inline Iflt& getPecTime() { return pecTime; }
+  
+  inline void scaleVelocity(const Iflt& vs) { velVector *= vs; }
+  inline void scalePosition(const Iflt& vs) { posVector *= vs; }
+  
+private:
+  
+  CVector<>posVector;
+  CVector<>velVector;
+  unsigned long ID;
+  Iflt pecTime;
+};
+
+#endif

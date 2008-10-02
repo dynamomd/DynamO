@@ -1,0 +1,74 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+#include "cell.hpp"
+
+struct CUBCC: public CUCell
+{
+  CUBCC(CVector<long> ncells, CVector<> ndimensions, CUCell* nextCell):
+    CUCell(nextCell),
+    cells(ncells),
+    dimensions(ndimensions)
+  {}
+
+  CVector<long> cells;
+  CVector<> dimensions;
+
+  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  {
+    std::vector<CVector<> > retval;
+
+    CVector<> cellWidth;
+    for (int iDim = 0; iDim < NDIM; ++iDim)
+      cellWidth[iDim] = dimensions[iDim] / cells[iDim];
+    
+    CVector<> position;
+    CVector<long> iterVec(0);
+    
+    while (iterVec[NDIM - 1] != cells[NDIM-1])
+      {      
+	for (int iDim = 0; iDim < NDIM; iDim++)
+	  position[iDim] = cellWidth[iDim] * static_cast<Iflt>(iterVec[iDim]) - 0.5 * dimensions[iDim] 
+	    + centre[iDim];
+	
+	BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position))
+	  retval.push_back(vec);
+	
+	for (int iDim = 0; iDim < NDIM; iDim++)
+	  position[iDim] += cellWidth[iDim]/2.0;
+	
+	BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position))
+	  retval.push_back(vec);
+	
+	//Now update the displacement vector
+	iterVec[0]++;
+	
+	for (int iDim = 1; iDim < NDIM; iDim++)
+	  {
+	    //This increments the next dimension along when
+	    if (iterVec[iDim - 1] == cells[iDim -1])
+	      {
+		iterVec[iDim - 1] = 0;
+		iterVec[iDim] += 1;
+	      }
+	  }
+      }
+    
+    return retval;
+  }
+};

@@ -1,0 +1,68 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "globEvent.hpp"
+#include "../../base/is_exception.hpp"
+#include "../../extcode/xmlwriter.hpp"
+#include "../../extcode/xmlParser.h"
+#include "../../simulation/particle.hpp"
+#include "../../base/is_simdata.hpp"
+#include "../units/units.hpp"
+#include "../interactions/intEvent.hpp"
+#include <cmath>
+
+CGlobEvent::CGlobEvent(const CParticle& part1, const Iflt &delt, 
+		       EEventType nType, const CGlobal& glob):
+  particle_(&part1), dt(delt), 
+  CType(nType), ptrGlobal(&glob)
+{}
+  
+CGlobEvent::CGlobEvent ():
+  particle_(NULL), dt(HUGE_VAL), CType(NONE),
+  ptrGlobal(NULL)
+{}
+
+const char * 
+CGlobEvent::getCollEnumName(EEventType a)
+{
+  return CIntEvent::getCollEnumName(a);
+}
+
+xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
+			    const CGlobEvent &coll)
+{
+  XML << xmlw::tag("Collision")
+      << xmlw::attr("p1ID") << coll.getParticle().getID()
+      << xmlw::attr("dt")   << coll.dt
+      << xmlw::endtag("Collision");
+  
+  return XML;
+}
+
+std::string 
+CGlobEvent::stringData(const DYNAMO::SimData* Sim) const
+{
+  std::ostringstream tmpstring;
+  tmpstring << "dt :" << dt / Sim->Dynamics.units().unitTime()
+	    << "\nType :" << getCollEnumName(CType)
+	    << "\nP1 :" << particle_->getID();
+    return tmpstring.str();
+}
+
+bool 
+CGlobEvent::areInvolved(const CIntEvent &coll) const 
+{ return (coll == *particle_); }

@@ -1,0 +1,52 @@
+using gcc ;
+
+project
+	: requirements <variant>debug:<define>DYNAMO_DEBUG 
+	  <define>DYNAMO_double_precsision <variant>release:<define>DYNAMO_Colour
+	  <variant>debug:<define>DYNAMO_DEBUG <link>static <runtime-link>static
+	: default-build release
+	: build-dir build-dir
+	;
+
+variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
+	<profiling>off ;
+
+variant colldebug : debug : <define>DYNAMO_CollDebug ;
+
+lib boost_program_options 
+    : : <name>boost_program_options-mt-s
+    ;
+
+exe dynareplex_opt 
+    : programs/replex_opt.cpp boost_program_options
+    : 
+    ;
+
+exe dynahist_rw 
+    : programs/hist_rw.cpp src//dynamo_core
+    :
+    ;
+
+exe dynarun 
+    : programs/mdrun.cpp src//dynamo_core/<link>static
+    :
+    ;
+
+exe dynamod 
+    : programs/configmod.cpp src//dynamo_core
+    : 
+    ;
+
+install install-bin 
+	: dynareplex_opt dynahist_rw dynarun dynamod 
+	: <location>bin
+	;
+	
+install install-lib 
+	: src//dynamo_core 
+	: <location>lib
+	;
+
+alias install : install-bin install-lib ;
+
+explicit install install-bin install-lib ;
