@@ -1,0 +1,37 @@
+#!/bin/bash
+#  ISSS:- Event driven molecular dynamics simulator 
+#  http://www.marcusbannerman.co.uk/isss
+#  Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#
+#  This program is free software: you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  version 3 as published by the Free Software Foundation.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+if [ $(whereis -b vmd | gawk '{ if (NF > 1) print 1; else print 0}') == 0 ]; then 
+    echo 'No vmd installed!' 
+    exit 
+fi
+
+if [ -z $1 ]; then
+    echo 'No input file specified!'
+    exit    
+fi
+
+if [ ! -e "$1" ]; then
+    echo 'Could not find the input file!'
+    exit
+fi
+
+oldPWD=$(pwd)
+cd /tmp
+echo $oldPWD/$1
+is_mdrun $oldPWD/$1 -c 0 -E -L TinkerXYZ
+cd $oldPWD
+vmd -f /tmp/tinker.frame00000.xyz /tmp/tinker.frame00000.r3d
