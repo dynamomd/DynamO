@@ -46,7 +46,7 @@ public:
     Engine(NULL)
   {}
 
-  /*! \brief Parses the command line options including engine specific options.
+  /*! \brief Parses the command line options, including any engine specific options.
    *
    * This function must know how to get the command line options for
    * all available engines. 
@@ -59,8 +59,8 @@ public:
    */
   boost::program_options::variables_map& parseOptions(int argc, char* argv[]);
 
-  /*! \brief Creates the Engine in the command line options and
-   *   initialises it.
+  /*! \brief Creates the specified Engine according to the command
+   *   line options and initialises it.
    */
   void initialise();
 

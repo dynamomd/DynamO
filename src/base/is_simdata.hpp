@@ -89,7 +89,7 @@ namespace DYNAMO
     mutable baseRNG ranGenerator;
     std::vector<smrtPlugPtr<COutputPlugin> > outputPlugins; 
     Iflt lastRunMFT; //The mean free time of the last simulation run
-    unsigned int simID;
+    size_t simID;
     ESimulationStatus status;
   };
 

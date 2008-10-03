@@ -507,8 +507,8 @@ void CEReplexer::runSimulation()
 	  //Run the simulations
 	  //This is reversed as the high temperature sims generally run longer
 	  for (unsigned int i = nSims; i != 0;)
-	    threads.invoke(task_noarg<CSimulation>
-			   (&Simulations[--i], &CSimulation::runSilentSimulation));
+	    threads.invoke(CThreadPool::task_noarg<CSimulation>
+			   (Simulations[--i], &CSimulation::runSilentSimulation));
 		  
 	  threads.wait();//This syncs the systems for the replica exchange
 		  
