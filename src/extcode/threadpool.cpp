@@ -21,42 +21,31 @@
 #include <iostream>
 
 CThreadPool::CThreadPool():
-  ExceptionThrown(false),
-  recoverable(false)
+  ExceptionThrown(false)
 {
   m_bStop = false;
-  m_threadCreated = NoOp();
   m_nextFunctor = m_waitingFunctors.end();
-  m_nMaxThreads = 0;
-}
-
-CThreadPool::CThreadPool(size_t nThreads)
-  : ExceptionThrown(false),
-    recoverable(false)
-{
-  m_bStop = false;
-  m_threadCreated = NoOp();
-  m_nextFunctor = m_waitingFunctors.end();
-    
-  m_nMaxThreads = 0;
-  if (nThreads)
-    setMaxThreads(nThreads);
 }
 
 void 
-CThreadPool::setMaxThreads(size_t x)
+CThreadPool::setThreadCount(size_t x)
 { 
-  if (m_nMaxThreads != 0)
-    I_throw() << "Cannot set the thread count twice!";
+  if (x == m_threads.size()) return;
   
-  if (x == 0)
-    return;
-  
-  m_nMaxThreads = x;
-  
-  boost::mutex::scoped_lock lock1(m_mutex);
-  
-  lock1.unlock();
+  if (x > m_threads.size())
+    {
+      for (size_t i=m_threads.size(); i < x; ++i)
+	m_threads.create_thread(beginThreadFunc(*this));
+
+      return;
+    }
+    
+  if (m_threads.size() != 0)
+    {
+      stop();
+      //All threads are dead, reset the kill switch
+      m_bStop = false;
+    }      
   
   for (size_t i=0; i<x; i++)
     m_threads.create_thread(beginThreadFunc(*this));
@@ -70,7 +59,7 @@ CThreadPool::~CThreadPool() throw()
 void 
 CThreadPool::wait()
 {
-  if (m_nMaxThreads)
+  if (m_threads.size())
     {
       //We are in threaded mode!
       boost::mutex::scoped_lock lock1(m_mutex);      
@@ -80,14 +69,7 @@ CThreadPool::wait()
 	}
       
       if (ExceptionThrown) 
-	if (recoverable)
-	  {
-	    recoverable = false;
-	    ExceptionThrown = false;
-	    I_throwRecoverable() << "Thread Exception found while waiting for tasks to finish";
-	  }
-	else
-	  I_throw() << "Thread Exception found while waiting for tasks to finish";
+	I_throw() << "Thread Exception found while waiting for tasks/threads to finish";
     }
   else
     {
@@ -118,8 +100,6 @@ CThreadPool::beginThread() throw()
 {
   try
     {
-      m_threadCreated();
-      
       boost::mutex::scoped_lock lock1(m_mutex);
       
       for(;;)
@@ -134,15 +114,13 @@ CThreadPool::beginThread() throw()
 	    }
 	  else
 	    {
-	      Container_T::iterator iter = m_nextFunctor;
-	      Functor_T &func = (*iter); 
-	      ++m_nextFunctor;
+	      std::list<Functor_T>::iterator iter = m_nextFunctor++;
 	      
 	      lock1.unlock();
 	      
 	      try
 		{
-		  (func)();
+		  (*iter)();
 		}
 	      catch(DYNAMO::Exception& cep)
 		{
@@ -152,7 +130,6 @@ CThreadPool::beginThread() throw()
 		  //Mark the main process to throw an exception as soon as possible
 		  boost::mutex::scoped_lock lock2(m_exception);
 		  ExceptionThrown = true;
-		  recoverable = cep.isRecoverable(); 
 		}
 	      
 	      lock1.lock();
@@ -180,14 +157,3 @@ CThreadPool::beginThread() throw()
       I_throw() << "THREAD: Major Threading Error, unidentified exception";  
     }
 }    
-
-void 
-CThreadPool::addFunctor(const Functor_T& func)
-{
-  if (m_nextFunctor == m_waitingFunctors.end())
-    {
-      m_waitingFunctors.push_back(func);
-      --m_nextFunctor;
-    } else	
-      m_waitingFunctors.push_back(func);
-}
