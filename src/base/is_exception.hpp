@@ -22,14 +22,16 @@
 #include <features.h>
 #include <boost/lexical_cast.hpp>
 
-# if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
-#   define __DYNAMO_EXCEPTION_FUNCTION	__PRETTY_FUNCTION__
-# else
-#  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
-#   define __DYNAMO_EXCEPTION_FUNCTION	__func__
+# ifndef DOXYGEN_SHOULD_IGNORE_THIS
+#  if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
+#    define __DYNAMO_EXCEPTION_FUNCTION	__PRETTY_FUNCTION__
 #  else
-#   define __DYNAMO_EXCEPTION_FUNCTION    '0'
-#   define __DYNAMO_NO_EXCEPTION_FUNCTION 1
+#   if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#    define __DYNAMO_EXCEPTION_FUNCTION	__func__
+#   else
+#    define __DYNAMO_EXCEPTION_FUNCTION 'Unknown Function'
+#    define __DYNAMO_NO_EXCEPTION_FUNCTION 1
+#   endif
 #  endif
 # endif
 

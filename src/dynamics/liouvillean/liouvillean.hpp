@@ -84,7 +84,7 @@ public:
   /*! \brief Collides a particle with a wall.
 
     \param e Elasticity of wall
-    \param vNorm Normal of the wall (vNorm \cdot v_1 must be negative)
+    \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative)
   */    
   virtual C1ParticleData runWallCollision(const CParticle&, 
 					  const CVector<>& vNorm,
@@ -93,11 +93,11 @@ public:
 
   /*! \brief Collides a particle with an Andersen thermostat wall.
     
-    This gives a p \prop v_{norm} \exp(v_{norm}^2) distribution
+    This gives a \f$ p \propto v_{norm} \exp(v_{norm}^2) \f$ distribution
     and gaussian tangent vectors
 
     \param sqrtT Square root of the Temperature of wall
-    \param vNorm Normal of the wall (vNorm \cdot v_1 must be negative)
+    \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative)
   */    
   virtual C1ParticleData runAndersenWallCollision(const CParticle&, 
 						  const CVector<>& vNorm,

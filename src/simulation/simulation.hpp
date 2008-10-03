@@ -15,10 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*! \file Particle.h
-\brief Contains the definitions for the Particle class code in Particle.cc
-*/
-
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
