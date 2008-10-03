@@ -17,33 +17,40 @@
 #include <iostream>
 #include <signal.h>
 #include <boost/program_options.hpp>
-using namespace std;
-using namespace boost;
-
-#include "../src/simulation/simulation.hpp"
-#include "../src/dynamics/dynamics.hpp"
-#include "../src/base/is_exception.hpp"
-#include "../src/schedulers/include.hpp"
-#include "../src/datatypes/complex.hpp"
 #include "../src/coordinator/coordinator.hpp"
 
-CCoordinator Sims;
+CCoordinator coord;
 
+/*! \file mdrun.cpp 
+ *
+ * Contains the main() function for dynarun.cpp
+
+ */
 void sig_handler_helper(int i)
 {
-  Sims.signal_handler(i);
+  coord.signal_handler(i);
 }
+
+/*! Just the starting point of the program
+ *
+ * This is the starting point for the dynarun program.  program. This
+ * merely registers some signal handlers and boots the CCoordinator
+ * class. The CCoordinator class is the true "main" function.
+ *
+ */
 
 int
 main(int argc, char *argv[])
 {
+  //Output the program licence
   std::cout << "dynarun  Copyright (C) 2008  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n\n";
 
-  //Register the signal handlers
+  //Register the signal handlers so we can respond to
+  //attempts/warnings that the program will be killed
   {
     //Build the handler response
     struct sigaction new_action, old_action;
@@ -56,30 +63,33 @@ main(int argc, char *argv[])
     if (old_action.sa_handler != SIG_IGN)
       sigaction (SIGINT, &new_action, NULL);
     
-    //SGE sends this before a SIGSTOP if -notify is passed to qsub
+    //Sun Grid Engine sends this before a SIGSTOP if -notify is passed
+    //to qsub
     sigaction (SIGUSR1, NULL, &old_action);
     if (old_action.sa_handler != SIG_IGN)
       sigaction (SIGUSR1, &new_action, NULL);
     
-    //SGE sends this before a SIGKILL if -notify is passed to qsub
+    //Sun Grid Engine sends this before a SIGKILL if -notify is passed
+    //to qsub
     sigaction (SIGUSR2, NULL, &old_action);
     if (old_action.sa_handler != SIG_IGN)
       sigaction (SIGUSR2, &new_action, NULL);
   }
 
+  //Run the simulation
   try 
     {      
-      Sims.parseOptions(argc,argv);
+      coord.parseOptions(argc,argv);
 
-      Sims.initialise();
+      coord.initialise();
       
-      Sims.runSimulation();
+      coord.runSimulation();
 
-      Sims.outputData();
+      coord.outputData();
 
-      Sims.outputConfigs();
+      coord.outputConfigs();
 
-      cout << "\n";
+      std::cout << "\n";
 
       return 0;
     }
