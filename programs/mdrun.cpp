@@ -14,31 +14,42 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/*! \file mdrun.cpp 
+ *
+ * \brief Contains the main() function for dynarun
+ *
+ * Although this contains the main() function, most of the behaviour peculiar
+ * to dynarun is carried out by the CCoordinator class.
+ */
+
 #include <iostream>
 #include <signal.h>
 #include <boost/program_options.hpp>
 #include "../src/coordinator/coordinator.hpp"
 
+/*! \brief The programs single instantiation of the simulation control class.
+ */
 CCoordinator coord;
 
-/*! \file mdrun.cpp 
- *
- * Contains the main() function for dynarun.cpp
 
+/*! \brief A function that merely wraps the CCoordinator::signal_handler.
+
+  \param sigtype The type of signal that has been recieved.
  */
-void sig_handler_helper(int i)
+void sig_handler_helper(int sigtype)
 {
-  coord.signal_handler(i);
+  coord.signal_handler(sigtype);
 }
 
-/*! Just the starting point of the program
+/*! \brief Starting point for the dynarun program.
  *
- * This is the starting point for the dynarun program.  program. This
- * merely registers some signal handlers and boots the CCoordinator
- * class. The CCoordinator class is the true "main" function.
+ * This merely registers some signal handlers and boots the
+ * CCoordinator class. The CCoordinator class is the true "main"
+ * function for the simulations.
  *
+ * \param argc The number of command line arguments.
+ * \param argv A pointer to the array of command line arguments.
  */
-
 int
 main(int argc, char *argv[])
 {

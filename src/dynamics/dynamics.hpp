@@ -179,7 +179,7 @@ public:
   //templates
   template<class T> void setPBC()
     {
-      if (p_BC != NULL)
+      if (p_BC.empty())
 	I_cout() << "Warning, resetting the BC's";
       
       p_BC.set_ptr(new T(Sim));

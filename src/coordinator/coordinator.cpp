@@ -14,6 +14,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/*! \file coordinator.cpp 
+ *
+ * \brief Contains the code for the CCoordinator class.
+ */
 
 #include "coordinator.hpp"
 #include "engine/include.hpp"
@@ -135,7 +139,12 @@ CCoordinator::parseOptions(int argc, char *argv[])
   if (vm.count("config-file") == 0)
     I_throw() << "No configuration files to load specified";
 
+  return vm;
+}
 
+void 
+CCoordinator::initialise()
+{
   switch (vm["engine"].as<size_t>())
     {
     case (1):
@@ -150,13 +159,7 @@ CCoordinator::parseOptions(int argc, char *argv[])
     default:
       I_throw() <<"Unknown Engine Selected"; 
     }
-
-  return vm;
-}
-
-void 
-CCoordinator::initialise()
-{
+  
   Engine->initialisation();
 }
 
