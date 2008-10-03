@@ -13,11 +13,11 @@ function HS_replex_test {
     done
 
     #Equilibration
-    dynarun --engine 2 -c 10000000000 -i 10 -f 600 \
+    dynarun --engine 2 $2 -c 10000000000 -i 10 -f 600 \
 	config.*.start.xml.bz2 > /dev/null
 
     #Production
-    dynarun --engine 2 -c 10000000000 -i 10 -f 1200 -L CollisionMatrix \
+    time dynarun --engine 2 $2 -c 10000000000 -i 10 -f 1200 -L CollisionMatrix \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     MFT1=$(bzcat output.0.xml.bz2 | xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
@@ -152,27 +152,19 @@ function cannon {
     rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
 }
 
-echo "Testing basic system, zero + infinite time events, hard sphere, PBC"
-for sched in "MultList" "FastSingle"; do
+for sched in "MultList" ; do #"FastSingle"
+    echo "Testing basic system, zero + infinite time events, hard sphere, PBC"
     cannon "$sched"
-done 
-
-echo "Testing global events (walls) and square wells"
-for sched in "MultList" "FastSingle"; do
+    echo "Testing global events (walls) and square wells"
     wallsw "$sched"
-done 
-
-echo "Testing global events (walls) and square wells with a Null compression"
-for sched in "MultList" "FastSingle"; do
+    echo "Testing global events (walls) and square wells with a " \
+	"Null compression"
     wallsw "$sched" "--engine 3 --growth-rate 0.0"
-done 
-
-echo "Testing compression of hard spheres"
-for sched in "MultList" "FastSingle"; do
+    echo "Testing compression of hard spheres"
     HS_compressiontest "$sched"
-done 
-
-echo "Testing replica exchange of hard spheres"
-for sched in "MultList" "FastSingle"; do
+    echo "Testing replica exchange of hard spheres"
     HS_replex_test "$sched"
 done 
+
+echo "Testing replica exchange with 2 threads"
+HS_replex_test "MultList" "-N2"
