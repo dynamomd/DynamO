@@ -88,7 +88,7 @@ public:
      * 
      * \param nobj A reference to the class to be called
      * \param nfunc The member function pointer to call on the nobj class
-     * \param D The single argument to the member function
+     * \param data The single argument to the member function
      */
     task_1arg(T *nobj, void (T::*nfunc)(D), D data): 
       jobData(data), obj(nobj), pfunc(nfunc) {}

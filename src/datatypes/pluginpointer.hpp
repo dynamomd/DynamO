@@ -58,11 +58,11 @@ class smrtPlugPtr
   /*! \brief A standard function to speed swapping pointers and pass
    * by val return statements.
    *
-   * \param plug1 The plugin with which to exhange the owned objects.
+   * \param p1 The plugin with which to exhange the owned objects.
    */
-  inline void swap(smrtPlugPtr<T>& plug1)
+  inline void swap(smrtPlugPtr<T>& p1)
   {
-      std::swap(plug1.obj, obj);    
+      std::swap(p1.obj, obj);    
   }
 
   /*! \brief A helper function to allow contained objects to be
@@ -71,14 +71,14 @@ class smrtPlugPtr
    * This is used in comparing the CSystem events as these can update every 
    * event.
    * 
-   * \param plug1 The LHS of the < operator
-   * \param plug2 The RHS of the < operator
+   * \param p1 The LHS of the < operator
+   * \param p2 The RHS of the < operator
    *   
    * \return True if plug1 < plug2
    */
   template<class A, class B>
-  friend inline bool operator<(const smrtPlugPtr<A>& plug1, 
-			       const smrtPlugPtr<B>& plug2);
+  friend inline bool operator<(const smrtPlugPtr<A>& p1, 
+			       const smrtPlugPtr<B>& p2);
 
   
   /*! \brief Allows a smrtPlugPtr to be RAII
