@@ -51,7 +51,14 @@ CIPConfig::initialise()
 	I_throw() << "Could not open XML configuration file";
 
       I_cout() << "Uncompressed XML input file " << fileName << " loading";
-      xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
+
+      try {
+	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
+      }
+      catch (DYNAMO::Exception)
+	{
+	  xMainNode=XMLNode::openFileHelper(fileName.c_str(), "ISSSconfig");
+	}
     }
   else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
     {
@@ -77,7 +84,14 @@ CIPConfig::initialise()
       fflush(stdout);
       
       XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
-      xMainNode = tmpNode.getChildNode("DYNAMOconfig");
+
+      try {
+	xMainNode = tmpNode.getChildNode("DYNAMOconfig");
+      }
+      catch (DYNAMO::Exception)
+	{
+	  xMainNode = tmpNode.getChildNode("ISSSconfig");
+	}
     }
   else
     I_throw() << "Unrecognised extension for input file";
