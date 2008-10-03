@@ -57,7 +57,7 @@ CEngine::CEngine(const boost::program_options::variables_map& nvm,
 void 
 CEngine::preSimInit()
 {
-  threads.setMaxThreads(vm["n-threads"].as<unsigned int>());
+  threads.setThreadCount(vm["n-threads"].as<unsigned int>());
 
   if (vm.count("out-config-file"))
     configFormat = vm["out-config-file"].as<std::string>();
