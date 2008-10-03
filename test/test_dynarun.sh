@@ -2,7 +2,7 @@
 
 function HS_replex_test {
     for i in $(seq 0 2); do
-	is_configmod -m 0 -C 3 -T $(echo "0.5*$i + 0.5" | bc -l) \
+	dynamod -m 0 -C 3 -T $(echo "0.5*$i + 0.5" | bc -l) \
 	    -o config.$i.start1.xml.bz2 > /dev/null
 
 	bzcat config.$i.start1.xml.bz2 | \
@@ -13,11 +13,11 @@ function HS_replex_test {
     done
 
     #Equilibration
-    is_mdrun --engine 2 -c 10000000000 -i 10 -f 600 \
+    dynarun --engine 2 -c 10000000000 -i 10 -f 600 \
 	config.*.start.xml.bz2 > /dev/null
 
     #Production
-    is_mdrun --engine 2 -c 10000000000 -i 10 -f 1200 -L CollisionMatrix \
+    dynarun --engine 2 -c 10000000000 -i 10 -f 1200 -L CollisionMatrix \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     MFT1=$(bzcat output.0.xml.bz2 | xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
@@ -62,7 +62,7 @@ function HS_replex_test {
 function HS_compressiontest { 
     #Compresses some N=256, rho=0.5 hard spheres in a fcc, which
     #should compress into a maximum packed FCC crystal quite rapidly
-    is_configmod -m0 -d0.5 -C 4 &> run.log
+    dynamod -m0 -d0.5 -C 4 &> run.log
 
     #Set the scheduler
     bzcat config.out.xml.bz2 | \
@@ -70,10 +70,10 @@ function HS_compressiontest {
 	| bzip2 > tmp.xml.bz2
 
     #Run the simulation
-    is_mdrun -c 100000 --engine 3 --growth-rate 100.0 $2 tmp.xml.bz2 &> run2.log
+    dynarun -c 100000 --engine 3 --growth-rate 100.0 $2 tmp.xml.bz2 &> run2.log
     cat run2.log >> run.log
     rm run2.log
-    is_mdrun -c 1 config.out.xml.bz2 &> run2.log
+    dynarun -c 1 config.out.xml.bz2 &> run2.log
     cat run2.log >> run.log
     rm run2.log
 
@@ -110,7 +110,7 @@ function wallsw {
     
     #Any multiple of 5 will/should always give the original configuration
     #doing 9995 as this stops any 2 periodicity
-    is_mdrun -c 9995 $2 tmp.xml.bz2 &> run.log
+    dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
     
     bzcat config.out.xml.bz2 | \
 	xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
@@ -134,7 +134,7 @@ function cannon {
 	xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
     
-    is_mdrun -c 1000 tmp.xml.bz2 &> run.log
+    dynarun -c 1000 tmp.xml.bz2 &> run.log
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 | \
