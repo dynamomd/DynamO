@@ -45,6 +45,7 @@
  * http://www.devguy.com/bb/viewtopic.php?p=1039
  *
  * \bug Check the licence on this class
+ * \bug Generalise the exception handling
  *
  */
 class CThreadPool
