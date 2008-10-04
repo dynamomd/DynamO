@@ -135,10 +135,10 @@ void
 CSFastSingle::initialise()
 {
   if (Sim->lN < 2)
-    I_throw() << "Not enough particles (need at least 2)";
+    D_throw() << "Not enough particles (need at least 2)";
   
   if (intEventQueue.size())
-    I_throw() << "Collision list Re-initialised!";
+    D_throw() << "Collision list Re-initialised!";
 
   initGlobalQueue();
   rebuildList();

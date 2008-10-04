@@ -68,7 +68,7 @@ CSMultListSpecial::initialise()
   const CInteraction* biggest = NULL;
   
   if (Sim->Dynamics.getInteractions().size() < 2)
-    I_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
+    D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
 
   //Find the largest interaction
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
@@ -85,10 +85,10 @@ CSMultListSpecial::initialise()
 	secondMaxDiam = intPtr->maxIntDist();
 
   if (dynamic_cast<const C2RSingle*>(biggest->getRange().get_ptr()) == NULL)
-    I_throw() << "For the MultListSpecial scheduler to work, the largest interaction must use 2Single to adapt a 1range to a 2range";
+    D_throw() << "For the MultListSpecial scheduler to work, the largest interaction must use 2Single to adapt a 1range to a 2range";
 
   if (static_cast<const CRRange*>(static_cast<const C2RSingle*>(biggest->getRange().get_ptr())->getRange().get_ptr()) == NULL)
-    I_throw() << "I'm being a pain I know but if the largest interaction was using 2Single and a 1Range it would be quicker";
+    D_throw() << "I'm being a pain I know but if the largest interaction was using 2Single and a 1Range it would be quicker";
 
   //We have the biggest interaction, steal its range pointer
   specialParticles = *(static_cast<const CRRange*>(static_cast<const C2RSingle*>(biggest->getRange().get_ptr())->getRange().get_ptr()));

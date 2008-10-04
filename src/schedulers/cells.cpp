@@ -55,7 +55,7 @@ CSCells::addCells(Iflt maxdiam, bool limitCells)
       cellCount[iDim] = static_cast<long>(Sim->aspectRatio[iDim] / maxdiam);
       
       if (cellCount[iDim] < 3)
-	I_throw() << "Not enough cells in " << static_cast<char>('x'+iDim) << " dimension, need 3+";
+	D_throw() << "Not enough cells in " << static_cast<char>('x'+iDim) << " dimension, need 3+";
 
       if (limitCells && cellCount[iDim] > 100)
 	{
@@ -309,11 +309,11 @@ CSCells::operator<<(const XMLNode& XML)
 	}
 	catch(...)
 	  {
-	    I_throw() << "Could not load the lambda value in cellular scheduler";
+	    D_throw() << "Could not load the lambda value in cellular scheduler";
 	  }
 
 	if (lambda < 0.0 || lambda > 1.0)
-	  I_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
+	  D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
       }
 }
 

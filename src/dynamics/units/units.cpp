@@ -50,5 +50,5 @@ CUnits::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"SW"))
     return new CUSW(XML, Sim);
   else
-   I_throw() << "Could not recognise the type of the units";
+   D_throw() << "Could not recognise the type of the units";
 }

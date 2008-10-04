@@ -156,7 +156,7 @@ class smrtPlugPtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	I_throw() << "Attempting to dereference a null pluginpointer";
+	D_throw() << "Attempting to dereference a null pluginpointer";
 #endif
   
       return obj; 
@@ -168,7 +168,7 @@ class smrtPlugPtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	I_throw() << "Attempting to dereference a null pluginpointer";
+	D_throw() << "Attempting to dereference a null pluginpointer";
 #endif
 
       return *obj; 
@@ -181,7 +181,7 @@ class smrtPlugPtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	I_throw() << "Attempting to dereference a null pluginpointer";
+	D_throw() << "Attempting to dereference a null pluginpointer";
 #endif
       T* objptr = obj;
       obj = NULL;
@@ -194,7 +194,7 @@ class smrtPlugPtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	I_throw() << "Attempting to dereference a null pluginpointer";
+	D_throw() << "Attempting to dereference a null pluginpointer";
 #endif
 
       return obj; 
@@ -206,7 +206,7 @@ class smrtPlugPtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	I_throw() << "Attempting to dereference a null pluginpointer";
+	D_throw() << "Attempting to dereference a null pluginpointer";
 #endif
       
       return *obj; 

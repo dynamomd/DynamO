@@ -25,21 +25,21 @@ C2RRings::C2RRings(unsigned long r1, unsigned long r2, unsigned long r3):
   range1(r1),range2(r2),interval(r3) 
 {
   if ((r2 - r1 + 1) % r3)
-    I_throw() << "Range of C2RRings does not split evenly into interval";
+    D_throw() << "Range of C2RRings does not split evenly into interval";
 }
 
 C2RRings::C2RRings(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0), interval(0)
 { 
   if (strcmp(XML.getAttribute("Range"),"Rings"))
-    I_throw() << "Attempting to load a rings from a non rings";
+    D_throw() << "Attempting to load a rings from a non rings";
   
   range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
   range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
   interval = boost::lexical_cast<unsigned long>(XML.getAttribute("Interval"));
 
   if ((range2-range1 + 1) % interval)
-    I_throw() << "Range of C2RChains does not split evenly into interval";
+    D_throw() << "Range of C2RChains does not split evenly into interval";
 }
 
 bool 
@@ -79,7 +79,7 @@ C2RRings::isInRange(const CParticle&p1, const CParticle&p2) const
 void 
 C2RRings::operator<<(const XMLNode&)
 {
-  I_throw() << "Due to problems with CRAll C2RRings::operator<< cannot work for this class";
+  D_throw() << "Due to problems with CRAll C2RRings::operator<< cannot work for this class";
 }
 
 void 

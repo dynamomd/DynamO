@@ -55,7 +55,7 @@ COPPovray::printImage()
   std::ofstream of((std::string("Povray.frame") + boost::lexical_cast<std::string>(frameCount++) + std::string(".pov")).c_str());
   
   if (!of.is_open())
-    I_throw() << "Could not open povray file for writing";
+    D_throw() << "Could not open povray file for writing";
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\

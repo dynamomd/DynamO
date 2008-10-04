@@ -27,7 +27,7 @@ CTChain::CTChain(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
   size_t Clength = (*ranges.begin())->size();
   BOOST_FOREACH(const smrtPlugPtr<CRange>& nRange, ranges)
     if (nRange->size() != Clength)
-      I_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
+      D_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
 		<< spName << "\"";
 }
 

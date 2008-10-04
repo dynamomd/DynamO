@@ -38,13 +38,13 @@ void
 CRSingle::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"Single"))
-    I_throw() << "Attempting to load CRSingle from non single";
+    D_throw() << "Attempting to load CRSingle from non single";
     try {
       ID = boost::lexical_cast<unsigned long>(XML.getAttribute("ID"));
     }
     catch (boost::bad_lexical_cast &)
       {
-	I_throw() << "Failed a lexical cast in CRRange";
+	D_throw() << "Failed a lexical cast in CRRange";
       }
 }
 

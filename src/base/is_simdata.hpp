@@ -62,7 +62,7 @@ namespace DYNAMO
 	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<const T*>(plugin.get_ptr());
 
-      I_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+      D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
     template<class T>
@@ -72,7 +72,7 @@ namespace DYNAMO
 	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<T*>(plugin.get_ptr());
 
-      I_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+      D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
     //Data structures

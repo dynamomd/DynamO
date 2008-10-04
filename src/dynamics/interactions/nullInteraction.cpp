@@ -39,7 +39,7 @@ void
 CINull::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"Null"))
-    I_throw() << "Attempting to load NullInteraction from " 
+    D_throw() << "Attempting to load NullInteraction from " 
 	      << XML.getAttribute("Type") <<" entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
@@ -50,7 +50,7 @@ CINull::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CINull";
+      D_throw() << "Failed a lexical cast in CINull";
     }
 }
 
@@ -78,7 +78,7 @@ CINull::getCollision(const CParticle &p1, const CParticle &p2) const
 
 C2ParticleData 
 CINull::runCollision(const CIntEvent &event) const
-{ I_throw() << "Null event trying to run a collision!"; }
+{ D_throw() << "Null event trying to run a collision!"; }
    
 void 
 CINull::outputXML(xmlw::XmlStream& XML) const

@@ -24,7 +24,7 @@ C2RChain::C2RChain(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"Chain"))
-    I_throw() << "Attempting to load a chain from a non chain";
+    D_throw() << "Attempting to load a chain from a non chain";
   
   range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
   range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
@@ -51,7 +51,7 @@ C2RChain::isInRange(const CParticle&p1, const CParticle&p2) const
 void 
 C2RChain::operator<<(const XMLNode&)
 {
-  I_throw() << "Due to problems with CRAll C2RChain operator<< cannot work for this class";
+  D_throw() << "Due to problems with CRAll C2RChain operator<< cannot work for this class";
 }
 
 void 

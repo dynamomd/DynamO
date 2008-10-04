@@ -37,7 +37,7 @@ void
 CRList::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"List"))
-    I_throw() << "Attempting to load CRList from non list";
+    D_throw() << "Attempting to load CRList from non list";
   try {
     
     XMLNode xSubNode;
@@ -47,7 +47,7 @@ CRList::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CRList";
+      D_throw() << "Failed a lexical cast in CRList";
     }
 }
 

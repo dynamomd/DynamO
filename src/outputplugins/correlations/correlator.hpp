@@ -65,7 +65,7 @@ class COPCorrelator: public COutputPlugin
       }
     catch (boost::bad_lexical_cast &)
       {
-	I_throw() << "Failed a lexical cast in COPCorrelator";
+	D_throw() << "Failed a lexical cast in COPCorrelator";
       }
 
   }

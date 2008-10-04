@@ -48,14 +48,14 @@ CIPConfig::initialise()
   if (std::string(fileName.end()-4, fileName.end()) == ".xml")
     {
       if (!boost::filesystem::exists(fileName))
-	I_throw() << "Could not open XML configuration file";
+	D_throw() << "Could not open XML configuration file";
 
       I_cout() << "Uncompressed XML input file " << fileName << " loading";
 
       try {
 	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
       }
-      catch (DYNAMO::Exception)
+      catch (std::exception&)
 	{
 	  xMainNode=XMLNode::openFileHelper(fileName.c_str(), "ISSSconfig");
 	}
@@ -63,7 +63,7 @@ CIPConfig::initialise()
   else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
     {
       if (!boost::filesystem::exists(fileName))
-	I_throw() << "Could not open XML configuration file";
+	D_throw() << "Could not open XML configuration file";
 
       io::filtering_istream inputFile;
       inputFile.push(io::bzip2_decompressor());
@@ -88,13 +88,13 @@ CIPConfig::initialise()
       try {
 	xMainNode = tmpNode.getChildNode("DYNAMOconfig");
       }
-      catch (DYNAMO::Exception)
+      catch (std::exception&)
 	{
 	  xMainNode = tmpNode.getChildNode("ISSSconfig");
 	}
     }
   else
-    I_throw() << "Unrecognised extension for input file";
+    D_throw() << "Unrecognised extension for input file";
 
   I_cout() << "Parsing XML file";
   XMLNode xSubNode= xMainNode.getChildNode("Simulation");
@@ -120,7 +120,7 @@ CIPConfig::initialise()
       Sim->Dynamics.getSystem("Thermostat");
       Sim->Ensemble.reset(new DYNAMO::CENVT(Sim));
     }
-    catch (DYNAMO::Exception)
+    catch (std::exception&)
       {
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
       }

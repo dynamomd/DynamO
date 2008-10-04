@@ -52,12 +52,12 @@ COPGeomview::printImage()
   Sim->Dynamics.Liouvillean().updateAllParticles();
 
   if ( asprintf(&fileName, "geomview.frame%05d.list", frameCount++) < 0)
-    I_throw() << "asprintf error in geomview";
+    D_throw() << "asprintf error in geomview";
   
   std::ofstream of(fileName);
   
   if (!of.is_open())
-    I_throw() << "Could not open geomview file for writing";
+    D_throw() << "Could not open geomview file for writing";
 
   of << "{LIST\n";
   

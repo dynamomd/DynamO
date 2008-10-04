@@ -150,23 +150,23 @@ main(int argc, char *argv[])
       sim.writeXMLfile(vm["out-config-file"].as<string>().c_str());
       cout << "\n";
     }
-  catch (DYNAMO::Exception &cep)
+  catch (std::exception &cep)
     {
       fflush(stdout);
-      cep << "\nReached Main Error Loop"
-	  << "\nOutputting results so far and shutting down"
-	  << "\nBad configuration written to config.error.xml";
-      std::cout << cep.what();
+      std::cout << "\nReached Main Error Loop"
+		<< "\nOutputting results so far and shutting down"
+		<< "\nBad configuration written to config.error.xml"
+		<< cep.what();
 
 
       try
 	{
 	  sim.writeXMLfile("config.error.xml.bz2");
 	}
-      catch (DYNAMO::Exception &cep)
+      catch (std::exception &cep)
 	{
-	  cep << "\nFailed to output error config";
-	  std::cout << cep.what() << "\n";
+	  std::cout << "\nFailed to output error config"
+		    << cep.what() << "\n";
 	}
 
       std::cout << "\n";

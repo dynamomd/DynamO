@@ -116,9 +116,9 @@ public:
       {
 	long i = static_cast<long>((x-origin)/binWidth);
 	if (i > static_cast<long>(data.size()))
-	  I_throw() << "Data too high, " << i;
+	  D_throw() << "Data too high, " << i;
 	if (i < 0)
-	  I_throw() << "Data too low, " << i;
+	  D_throw() << "Data too low, " << i;
 	
 	return data[i];
       }
@@ -126,9 +126,9 @@ public:
     T& operator[](const long &x)
       {
 	if (x > static_cast<long>(data.size()))
-	  I_throw() << "Data too high, " << x;
+	  D_throw() << "Data too high, " << x;
 	if (x < 0)
-	  I_throw() << "Data too low, " << x;
+	  D_throw() << "Data too low, " << x;
 	
 	return data[x];
       }
@@ -152,18 +152,18 @@ class CFuzzyArray2<CFuzzyArray2<T> >
     {
       long i = static_cast<long>((x-origin)/binWidth);
       if (i > static_cast<long>(data.size()))
-	I_throw() << "Data too high, " << i;
+	D_throw() << "Data too high, " << i;
       if (i < 0)
-	I_throw() << "Data too low, " << i;
+	D_throw() << "Data too low, " << i;
       return data[i];
     }
   
   CFuzzyArray2<T>& operator[](const long &x)
     {
       if (x > static_cast<long>(data.size()))
-	I_throw() << "Data too high, " << x;
+	D_throw() << "Data too high, " << x;
       if (x < 0)
-	I_throw() << "Data too low, " << x;
+	D_throw() << "Data too low, " << x;
       
       return data[x];
     }

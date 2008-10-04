@@ -46,7 +46,7 @@ void
 CISquareBond::operator<<(const XMLNode& XML)
 {
 if (strcmp(XML.getAttribute("Type"),"SquareBond"))
-  I_throw() << "Attempting to load SquareBond from non SquareBond entry";
+  D_throw() << "Attempting to load SquareBond from non SquareBond entry";
       
     range.set_ptr(C2Range::loadClass(XML,Sim));
       
@@ -64,7 +64,7 @@ if (strcmp(XML.getAttribute("Type"),"SquareBond"))
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CISquareWell";
+      D_throw() << "Failed a lexical cast in CISquareWell";
     }
 }
 
@@ -148,7 +148,7 @@ CISquareBond::getCollision(const CParticle &p1,
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
-	I_throw() << "Overlapping particles found" 
+	D_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() 
 		  << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
@@ -161,7 +161,7 @@ CISquareBond::getCollision(const CParticle &p1,
 
   //This line is commented out as compression dynamics can stop any event occuring
   /*else
-    I_throw() << "Captured in square bond, but the bull, he has escapade!";*/
+    D_throw() << "Captured in square bond, but the bull, he has escapade!";*/
   
  
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -174,7 +174,7 @@ CISquareBond::runCollision(const CIntEvent& event) const
     return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, 1.0, d2, BOUNCE);  
   else if (event.getType()==CORE)
     return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, 1.0, d2, CORE);  
-  else I_throw() << "Unrecognised collision type in squarebond executed\n"
+  else D_throw() << "Unrecognised collision type in squarebond executed\n"
 	 "TYPE " << event.getType();
 }
     

@@ -26,7 +26,6 @@
 #include "../dynamics/include.hpp"
 #include "../schedulers/scheduler.hpp"
 #include "../base/is_exception.hpp"
-#include "simimage.hpp"
 #include "../dynamics/include.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../outputplugins/outputplugin.hpp"
@@ -41,7 +40,6 @@
 
 CSimulation::CSimulation():
   Base_Class("Simulation",IC_green),
-  nImage(0),
   rebuildnColl(-1),
   localeps(0)
 {
@@ -64,7 +62,7 @@ CSimulation::setTickerPeriod(Iflt nP)
 {
    CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
   if (ptr == NULL)
-    I_throw() << "Could not find system ticker (maybe not required?)";
+    D_throw() << "Could not find system ticker (maybe not required?)";
 
   ptr->setTickerPeriod(nP*Dynamics.units().unitTime());
 }
@@ -83,10 +81,10 @@ void
 CSimulation::addGlobal(CGlobal* tmp)
 {
   if (tmp == NULL)
-    I_throw() << "Adding a NULL global";
+    D_throw() << "Adding a NULL global";
 
   if (status != CONFIG_LOADED)
-    I_throw() << "Cannot add global events now its initialised";
+    D_throw() << "Cannot add global events now its initialised";
 
   Dynamics.addGlobal(tmp);
 }
@@ -95,10 +93,10 @@ void
 CSimulation::addSystem(CSystem* tmp)
 {
   if (tmp == NULL)
-    I_throw() << "Adding a NULL systemEvent";
+    D_throw() << "Adding a NULL systemEvent";
 
   if (status != CONFIG_LOADED)
-    I_throw() << "Cannot add system events now it is initialised";
+    D_throw() << "Cannot add system events now it is initialised";
 
   Dynamics.addSystem(tmp);
 }
@@ -107,7 +105,7 @@ void
 CSimulation::addOutputPlugin(std::string Name)
 {
   if (status != INITIALISED)
-    I_throw() << "Cannot add plugins now";
+    D_throw() << "Cannot add plugins now";
   
   smrtPlugPtr<COutputPlugin> tempPlug(COutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);
@@ -125,11 +123,6 @@ CSimulation::setnPrint(unsigned long long newnPrint)
 }
 
 void 
-CSimulation::setnImage(unsigned long long newnImage)
-{ nImage = newnImage; }
-
-
-void 
 CSimulation::simShutdown()
 { lPrintLimiter = lMaxNColl = lNColl; }
 
@@ -140,85 +133,11 @@ CSimulation::setTrajectoryLength(unsigned long long newMaxColl)
   lMaxNColl = newMaxColl; 
 }
 
-CSimImage
-CSimulation::makeImage()
-{
-  if (status != PRODUCTION)
-    I_throw() << "Cannot makeImage(), bad sim state";
-
-  return CSimImage(dSysTime, lNColl, vParticleList, outputPlugins, Dynamics);
-}
-
-void
-CSimulation::restoreImage(const CSimImage &SI)
-{
-  if (status != PRODUCTION)
-    I_throw() << "Cannot restoreImage(), bad sim state";
-
- I_cout() << "Restoring Image from " 
-	    << SI.nColl << " collisions";
-  
-  //Clear the sim now
-  outputPlugins.clear();
-  vParticleList.clear();  
-
-  //Copy STL lists
-  vParticleList = std::vector<CParticle> (SI.particleList);
-
-  outputPlugins = SI.COPlugins; 
-
-  Dynamics = SI.dynamics;
-
-  //Misc sim data
-  dSysTime = SI.sysTime;
-  lNColl = SI.nColl;
-
-  ptrScheduler->rebuildList();
-
-  I_cout() << "Restored Image";
-}
-
-void 
-CSimulation::takeImage()
-{
-  if (status != PRODUCTION)
-    I_throw() << "Cannot takeImage(), bad sim state";
-
-  //Don't get carried away with imaging
-  if (simImages.size() > 5)
-    simImages.pop_front();
-
-  simImages.push_back(makeImage());
-}
-
-void 
-CSimulation::recoverImage()
-{
-  if (status != PRODUCTION)
-    I_throw() << "Cannot recoverImage(), bad sim state";
-
-  //Must select the image to recover
-
-  if (simImages.size() == 0)
-    I_throw() << "No Images to recover from!";
-
-  rebuildnColl = lNColl + 10;
-
-  //Discard the first image if possible, it might be too close to the event!
-  if (simImages.size() > 1)
-    simImages.pop_back();
-  
-  restoreImage(simImages.back());
-}
-
 void
 CSimulation::initialise()
 {
-  if (!nImage)
-    I_cout() << "Simulation imaging disabled";
-
   if (status != CONFIG_LOADED)
-    I_throw() << "Sim initialised at wrong time";
+    D_throw() << "Sim initialised at wrong time";
 
   localeps = -eps * Dynamics.units().unitTime();
 
@@ -227,7 +146,7 @@ CSimulation::initialise()
   I_cout() << "Initialising Simulation";  
 
   if (ptrScheduler == NULL)
-    I_throw() << "The scheduler has not been set!";      
+    D_throw() << "The scheduler has not been set!";      
   
   I_cout() << "Initialising the Dynamics";
   Dynamics.initialise();
@@ -240,10 +159,6 @@ CSimulation::initialise()
   if (lMaxNColl) //Only initialise the scheduler if we're simulating
     ptrScheduler->initialise();
   
-  if (nImage)
-    I_cout() << "Imaging frequency set to " 
-	     << nImage;
-  
   status = INITIALISED;
 }
 
@@ -251,119 +166,42 @@ void
 CSimulation::runSimulation(bool silentMode)
 {
   if (status != INITIALISED && status != PRODUCTION)
-    I_throw() << "Bad state for runSimulation()";
+    D_throw() << "Bad state for runSimulation()";
   status = PRODUCTION;
 
   if (silentMode)
-    {
-      if (nImage)
-	for (; lNColl < lMaxNColl; ++lNColl)
-	  {
-	    //If we've had an error rebuild the collision list every 5
-	    //collisions till we pass the difficult point
-	    if ((lNColl < rebuildnColl) && !(lNColl % 5))
-	      ptrScheduler->rebuildList();
-	
-	    try
-	      { executeEvent(); }
-	    catch (DYNAMO::Exception &cep)
-	      {
-		cep << "\nWhile executing collision "
-		    << lNColl;
-		if (!cep.isRecoverable())
-		  throw;
-	    
-		I_cout() << cep.what()
-			 << "Will attempt recovery"
-			 << "\nSimulation will run in rebuild mode till error is passed";
-		recoverImage();
-		continue;
-	      }
-	
-	    //Take an image if its time
-	    if (!(lNColl % nImage))
-	      takeImage();
-	  }
-      else
-	try
-	  {
-	    for (; lNColl < lMaxNColl; ++lNColl)
-	      executeEvent();
-	  }
-	catch (DYNAMO::Exception &cep)
-	  {
-	    cep << "\nWhile executing collision "
-		<< lNColl;
-	    throw ;
-	  }
-    }
-  else
-    if (nImage)
-      for (; lNColl < lMaxNColl; ++lNColl)
-	{
-	  //If we've had an error rebuild the collision list every 5
-	  //collisions till we pass the difficult point
-	  if ((lNColl < rebuildnColl) && !(lNColl % 5))
-	    ptrScheduler->rebuildList();
-	
-	  try
-	    { executeEvent(); }
-	  catch (DYNAMO::Exception &cep)
-	    {
-	      cep << "\nWhile executing collision "
-		  << lNColl;
-	      if (!cep.isRecoverable())
-		throw;
-	    
-	      I_cout() << cep.what()
-		       << "Will attempt recovery"
-		       << "\nSimulation will run in rebuild mode till error is passed";
-	      recoverImage();
-	      continue;
-	    }
-	
-	  //Take an image if its time
-	  if (!(lNColl % nImage))
-	    takeImage();
-	
-	  //Periodic work
-	  if (!((lNColl + 1) % lNPrint))
-	    {
-	      if (outputPlugins.size())
-		std::cout << "\n";
-	      //Print the screen data plugins
-	      BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-		Ptr->periodicOutput();
-	    
-	      fflush(stdout);
-	    }
-	}
-    else
+    try
       {
-	for (lPrintLimiter = lNColl + lNPrint; lNColl < lMaxNColl; 
-	     lPrintLimiter += lNPrint)
-	  try
-	    {
-	      for (; lNColl < lPrintLimiter; ++lNColl)
-		executeEvent();
-	    
-	      //Periodic work
-	      if (outputPlugins.size())
-		std::cout << "\n";
-	      //Print the screen data plugins
-	      BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-		Ptr->periodicOutput();
-	    
-	      fflush(stdout);
-	    }
-	  catch (DYNAMO::Exception &cep)
-	    {
-	      cep << "\nWhile executing collision "
-		  << lNColl;
-	      throw ;
-	    }
+	for (; lNColl < lMaxNColl; ++lNColl)
+	  executeEvent();
       }
-
+    catch (std::exception &cep)
+      {
+	D_throw() << "\nWhile executing collision "
+		  << lNColl << cep.what();
+      }
+  else
+    for (lPrintLimiter = lNColl + lNPrint; lNColl < lMaxNColl; 
+	 lPrintLimiter += lNPrint)
+      try
+	{
+	  for (; lNColl < lPrintLimiter; ++lNColl)
+	    executeEvent();
+	  
+	  //Periodic work
+	  if (outputPlugins.size())
+	    std::cout << "\n";
+	  //Print the screen data plugins
+	  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+	    Ptr->periodicOutput();
+	  
+	  fflush(stdout);
+	}
+      catch (std::exception &cep)
+	{
+	  D_throw() << "\nWhile executing collision "
+		    << lNColl << cep.what();
+	}
 }
 
 void 
@@ -371,7 +209,7 @@ CSimulation::executeEvent()
 {
 #ifdef DYNAMO_DEBUG 
   if (status != PRODUCTION)
-    I_throw() << "Attempted Collision execution at improper stage";
+    D_throw() << "Attempted Collision execution at improper stage";
 #endif
 
   switch (ptrScheduler->nextEventType())
@@ -385,7 +223,7 @@ CSimulation::executeEvent()
     case System:
 #ifdef DYNAMO_DEBUG
 	if (Dynamics.getSystemEvents().empty()) 
-		I_throw() << "A system event has been scheduled yet there are no system events";
+		D_throw() << "A system event has been scheduled yet there are no system events";
 #endif
       executeSysEvent();
       break;
@@ -417,11 +255,11 @@ CSimulation::executeIntEvent()
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
-    I_throw() << "A NAN Interaction collision time has been found"
+    D_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(this);
   
   if (iEvent.getdt() == HUGE_VAL)
-    I_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
 	      << iEvent.stringData(this);
 #endif
 
@@ -464,23 +302,23 @@ CSimulation::executeGlobEvent()
   CGlobEvent iEvent = ptrScheduler->earliestGlobEvent();
   
   if (iEvent.getType() == NONE)
-    I_throw() << "No global collision found\n"
+    D_throw() << "No global collision found\n"
 	      << iEvent.stringData(this);
   
   if (iEvent.getdt() < localeps)
     ++lReverseEvents;
 
   /*if (iEvent.getdt() < localeps)
-    I_throw() << "Reverse Time Global Collision!\n" 
+    D_throw() << "Reverse Time Global Collision!\n" 
     << iEvent.stringData(this); */
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
-    I_throw() << "A NAN Global collision time has been found\n"
+    D_throw() << "A NAN Global collision time has been found\n"
 	      << iEvent.stringData(this);
   
   if (iEvent.getdt() == HUGE_VAL)
-    I_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
 	      << iEvent.stringData(this);
 #endif
   
@@ -509,11 +347,11 @@ CSimulation::executeSysEvent()
   Iflt dt = sEvent.getdt();
   
   if (dt < localeps)
-    I_throw() << "Reverse Time system event!\n"; 
+    D_throw() << "Reverse Time system event!\n"; 
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
-    I_throw() << "A NAN system event time has been found";
+    D_throw() << "A NAN system event time has been found";
 #endif
 
     
@@ -563,7 +401,7 @@ CSimulation::configLoaded()
 {
   //Handled by an input plugin
   if (status != START)
-    I_throw() << "Loading config at wrong time";
+    D_throw() << "Loading config at wrong time";
   
   status = CONFIG_LOADED;
 }
@@ -573,7 +411,7 @@ CSimulation::loadXMLfile(const char *fileName)
 {
   //Handled by an input plugin
   if (status != START)
-    I_throw() << "Loading config at wrong time";
+    D_throw() << "Loading config at wrong time";
   
   CIPConfig XMLconfig(fileName,this);
   XMLconfig.initialise();
@@ -585,7 +423,7 @@ void
 CSimulation::writeXMLfile(const char *fileName)
 {
   if (status < INITIALISED || status == ERROR)
-    I_throw() << "Cannot write out configuration in this state";
+    D_throw() << "Cannot write out configuration in this state";
   
   //Particle data output handled by an output plugin
   COPConfig XMLconfig(this);
@@ -617,7 +455,7 @@ CSimulation::loadPlugins(std::string pluginFileName)
   XMLNode xMainNode;
 
   if (!boost::filesystem::exists(pluginFileName))
-    I_throw() << "Plugin file \"" << pluginFileName << "\" doesn't exist";
+    D_throw() << "Plugin file \"" << pluginFileName << "\" doesn't exist";
 
 
   if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
@@ -631,7 +469,7 @@ CSimulation::loadPlugins(std::string pluginFileName)
 	}
     }
   else
-    I_throw() << "plugin filename should end in .xml and be xml";
+    D_throw() << "plugin filename should end in .xml and be xml";
 }
 
 
@@ -639,7 +477,7 @@ void
 CSimulation::outputData(const char* filename)
 {
   if (status < INITIALISED || status == ERROR)
-    I_throw() << "Cannot output data when not initialised!";
+    D_throw() << "Cannot output data when not initialised!";
   
   namespace io = boost::iostreams;
   

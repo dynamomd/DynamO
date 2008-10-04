@@ -107,7 +107,7 @@ CInputPlugin::mirrorDirection(unsigned int iDim)
 void 
 CInputPlugin::setSimType(unsigned int i)
 {
-  if (!diamScale) I_throw() << "Diamscale not set!";
+  if (!diamScale) D_throw() << "Diamscale not set!";
   
   switch (i)
     {
@@ -166,7 +166,7 @@ CInputPlugin::setSimType(unsigned int i)
       }
       break;
     default:
-      I_throw() << "Unrecognised sim type";
+      D_throw() << "Unrecognised sim type";
     }
 }
 

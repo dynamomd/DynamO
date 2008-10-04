@@ -31,7 +31,7 @@ void
 COPBoundedQStats::initialise()
 {  
   if (dynamic_cast<const CSMultList *>(Sim->ptrScheduler) == NULL)
-    I_throw() << "Not a multiple list scheduler!";
+    D_throw() << "Not a multiple list scheduler!";
   
   CSSBoundedPQ& sorter(dynamic_cast<const CSMultList& >(*Sim->ptrScheduler).eventHeap);
   eventdist.resize(sorter.NLists() - 1,0);

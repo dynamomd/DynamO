@@ -53,7 +53,7 @@ CESingle::initialisation()
 
   if (!(vm.count("config-file")) || 
       (vm["config-file"].as<std::vector<std::string> >().size() != 1))
-    I_throw() << "You must only provide one input file in single mode";
+    D_throw() << "You must only provide one input file in single mode";
 
   setupSim(Simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
 

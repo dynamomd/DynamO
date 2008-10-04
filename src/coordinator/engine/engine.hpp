@@ -55,10 +55,10 @@ public:
   CEngine(const boost::program_options::variables_map& vm,
 	  std::string configFile, std::string outputFile);
   
-  /* \brief The trivial virtual destructor. */
+  /*! \brief The trivial virtual destructor. */
   virtual ~CEngine() {}
 
-  /* \brief A hook for the initialisation stage of an engine
+  /*! \brief A hook for the initialisation stage of an engine
    * 
    * This function should at the very least call in the following order
    * - preSimInit()
@@ -68,36 +68,61 @@ public:
    */
   virtual void initialisation() = 0;
 
-  /* \brief This hook is run before the engine is destroyed.
+  /*! \brief This hook is run before the engine is destroyed.
    *
-   * If the engine has data to output it should do it in this function.
+   * This is if the engine needs to change its state before shutting
+   * down.  
+   * E.g. the CECompressor needs to change the CLiouvillean
+   * back to the old one.
    */
   virtual void finaliseRun() = 0;
 
-  /* \brief Try to shut the engine down prematurely.
+  /*! \brief Try to shut the engine down prematurely.
    */
   virtual void forceShutdown() = 0;
 
-  /* \brief Called when the user requests the status of the currently running engine.
+  /*! \brief Called when the user requests the status of the currently running engine.
    *
    * Output minimal data that you would like to track here
    */
   virtual void printStatus() = 0;
 
+  /*! \brief The main simulation "loop"/call for the engine
+   *
+   * Some engines like the CEReplexer require a loop and it will be implemented here
+   */
   virtual void runSimulation() = 0;
 
+  /*! \brief Output any data collected during the run by the
+   * CSimulation's and the CEngine.
+   */
   virtual void outputData() = 0;
 
   virtual void outputConfigs() = 0;
   
   virtual void peekData() = 0;
   
-  static void getCommonOptions(boost::program_options::options_description&);
+  /*! \brief Add common options for all the engines to the options_description
+   *
+   * Each engine will define a similar static function to add their
+   * options.
+   *
+   * \param od The boost options description that the common engine
+   * options are to be added to.
+   */
+  static void getCommonOptions(boost::program_options::options_description& od);
   
 protected:
+  /*! \brief Code common to most engines pre simulation initialisation.
+   */
   virtual void preSimInit();
 
-  virtual void setupSim(CSimulation &, const std::string);
+  /*! \brief Code common to loading a CSimulation from a config file.
+   *
+   * \param Sim Simulation to set up.
+   * \param inFile Name of configuration file to load.
+   */
+  virtual void setupSim(CSimulation & Sim, const std::string inFile);
 
   virtual void postSimInit(CSimulation&);
 

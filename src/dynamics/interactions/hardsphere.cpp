@@ -48,7 +48,7 @@ void
 CIHardSphere::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"HardSphere"))
-    I_throw() << "Attempting to load Hardsphere from non hardsphere entry";
+    D_throw() << "Attempting to load Hardsphere from non hardsphere entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -65,7 +65,7 @@ CIHardSphere::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CIHardSphere";
+      D_throw() << "Failed a lexical cast in CIHardSphere";
     }
 }
 
@@ -99,7 +99,7 @@ CIHardSphere::getCollision(const CParticle &p1, const CParticle &p2) const
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
-	I_throw() << "Overlapping particles found" 
+	D_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
 #endif

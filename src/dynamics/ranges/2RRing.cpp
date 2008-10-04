@@ -24,7 +24,7 @@ C2RRing::C2RRing(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"Ring"))
-    I_throw() << "Attempting to load a ring from a non ring";
+    D_throw() << "Attempting to load a ring from a non ring";
   
   range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
   range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
@@ -70,7 +70,7 @@ C2RRing::isInRange(const CParticle&p1, const CParticle&p2) const
 void 
 C2RRing::operator<<(const XMLNode&)
 {
-  I_throw() << "Due to problems with CRAll C2RRing::operator<< cannot work for this class";
+  D_throw() << "Due to problems with CRAll C2RRing::operator<< cannot work for this class";
 }
 
 void 

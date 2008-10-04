@@ -47,7 +47,7 @@ struct CUFile: public CUCell
     if (std::string(fileName.end()-4, fileName.end()) == ".xml")
       {
 	if (!boost::filesystem::exists(fileName))
-	  I_throw() << "Could not open XML configuration file";
+	  D_throw() << "Could not open XML configuration file";
 	
 	std::cout << "Uncompressed XML input file " << fileName << " loading";
 	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
@@ -55,7 +55,7 @@ struct CUFile: public CUCell
     else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
       {
 	if (!boost::filesystem::exists(fileName))
-	  I_throw() << "Could not open XML configuration file";
+	  D_throw() << "Could not open XML configuration file";
 	
 	io::filtering_istream inputFile;
 	inputFile.push(io::bzip2_decompressor());
@@ -79,7 +79,7 @@ struct CUFile: public CUCell
 	xMainNode = tmpNode.getChildNode("DYNAMOconfig");
       }
     else
-      I_throw() << "Unrecognised extension for input file";
+      D_throw() << "Unrecognised extension for input file";
     
     std::cout << "Parsing XML file";
     XMLNode xSubNode = xMainNode.getChildNode("ParticleData");

@@ -104,7 +104,7 @@ main(int argc, char *argv[])
 
       return 0;
     }
-  catch (DYNAMO::Exception& cep)
+  catch (std::exception& cep)
     {
       fflush(stdout);
       std::cerr << cep.what();

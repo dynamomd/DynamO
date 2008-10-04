@@ -55,7 +55,7 @@ public:
   virtual unsigned long at(unsigned long i) const 
   { 
     if (i > endID - startID)
-      I_throw() << "Bad array access value in range.at()";
+      D_throw() << "Bad array access value in range.at()";
     
     return startID + i;
   }

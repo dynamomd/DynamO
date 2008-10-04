@@ -79,14 +79,14 @@ struct SimData
     if (std::string(fileName.end() - 4, fileName.end()) == ".xml")
       {
 	if (!boost::filesystem::exists(fileName))
-	  I_throw() << "Could not open XML configuration file";
+	  D_throw() << "Could not open XML configuration file";
 	
 	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "OutputData");
       }
     else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
       {
 	if (!boost::filesystem::exists(fileName))
-	  I_throw() << "Could not open XML configuration file";
+	  D_throw() << "Could not open XML configuration file";
 	
 	io::filtering_istream inputFile;
 	inputFile.push(io::bzip2_decompressor());
@@ -104,7 +104,7 @@ struct SimData
 	xMainNode = tmpNode.getChildNode("OutputData");
       }
     else
-      I_throw() << "Unrecognised extension for input file";
+      D_throw() << "Unrecognised extension for input file";
 
     //Now navigate to the histogram and load the data
     std::istringstream HistogramData(xMainNode.getChildNode("EnergyHist")
@@ -477,7 +477,7 @@ void solveWeightsRollerPiecemeal()
   SimulationData.front().new_logZ = SimulationData.front().logZ;
 
   if (vm["piecemeal"].as<size_t>() + 1 > SimulationData.size())
-    I_throw() << "Not enough data for that piecemeal roller solution";
+    D_throw() << "Not enough data for that piecemeal roller solution";
 
   std::list<SimData> StartList;
   std::list<SimData> FinalList;
@@ -573,7 +573,7 @@ main(int argc, char *argv[])
     
     if (vm.count("help") || !vm.count("data-file")) 
       {
-	I_throw() << "Usage : dynahist_rw <OPTION>...<data-file(s)>\n"
+	D_throw() << "Usage : dynahist_rw <OPTION>...<data-file(s)>\n"
 		  << "Determines the weighting functions for the histograms\n"
 		  << systemopts << "\n";
       }
@@ -648,7 +648,7 @@ main(int argc, char *argv[])
     outputMoments();
     
   }
-  catch (DYNAMO::Exception& cep)
+  catch (std::exception& cep)
     {
       fflush(stdout);
       std::cerr << cep.what() << "\nMAIN: Reached Main Error Loop\n";

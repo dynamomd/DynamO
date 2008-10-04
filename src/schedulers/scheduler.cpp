@@ -58,7 +58,7 @@ CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"FastSingle"))
     return new CSFastSingle(XML,Sim);
   else 
-    I_throw() << "Unknown type of Scheduler encountered";
+    D_throw() << "Unknown type of Scheduler encountered";
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 

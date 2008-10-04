@@ -67,7 +67,7 @@ public:
 
   virtual void operator<<(const XMLNode&) = 0;
   
-  virtual void rescaleTimes(Iflt) { I_throw() << "Not implemented yet"; }
+  virtual void rescaleTimes(Iflt) { D_throw() << "Not implemented yet"; }
 
 protected:
 

@@ -43,7 +43,7 @@ CSpecies::getIntPtr() const
 { 
 #ifdef DYNAMO_DEBUG
   if (IntPtr == NULL)
-    I_throw() << "Fetching an unset interaction pointer for a species";
+    D_throw() << "Fetching an unset interaction pointer for a species";
 #endif
 
   return IntPtr; 
@@ -57,7 +57,7 @@ void
 CSpecies::initialise()
 { 
   if (IntPtr == NULL)
-    I_throw() << "Species missing a matching interaction";
+    D_throw() << "Species missing a matching interaction";
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CSpecies& g)
@@ -78,7 +78,7 @@ CSpecies::operator<<(const XMLNode& XML)
     } 
     catch (boost::bad_lexical_cast &)
       {
-	I_throw() << "Failed a lexical cast in CSpecies";
+	D_throw() << "Failed a lexical cast in CSpecies";
       }
 
 }

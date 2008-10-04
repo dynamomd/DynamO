@@ -66,7 +66,7 @@ CSMultList::initialise()
 {
   if (Sim->Dynamics.BCTypeTest<CRLEBC>()
       || Sim->Dynamics.BCTypeTest<CSLEBC>())
-    I_throw() << "This scheduler isn't suitable for sheared systems";
+    D_throw() << "This scheduler isn't suitable for sheared systems";
 
 
   reinitialise(Sim->Dynamics.getLongestInteraction()); 
@@ -148,7 +148,7 @@ CSMultList::nextEventType() const
   
 #ifdef DYNAMO_DEBUG
   if (eventHeap.next_Data().empty())
-    I_throw() << "Next particle list is empty but top of list!";
+    D_throw() << "Next particle list is empty but top of list!";
 #endif  
   
   //First, sort through the interaction events, purging bad events
@@ -179,7 +179,7 @@ CSMultList::nextEventType() const
 	return Global;
 	break;
       default:
-	I_throw() << "Unknown event type!";
+	D_throw() << "Unknown event type!";
       }
      eventHeap.sort();
 

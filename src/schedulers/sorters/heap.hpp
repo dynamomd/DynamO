@@ -81,7 +81,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
     
     return data_stack[a]; 
@@ -91,7 +91,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
 
     return data_stack[a]; 
@@ -101,7 +101,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
 
     idType ID(0);
@@ -123,13 +123,13 @@ public:
 
 #ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 
     if (first == local_heap.end())
-      I_throw() << "Update called on an empty heap";
+      D_throw() << "Update called on an empty heap";
  
     if (idMap.empty())
-      I_throw() << "Heap not yet initialised";
+      D_throw() << "Heap not yet initialised";
 #endif
     
     unsigned long index = idMap[ID];
@@ -145,7 +145,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (idMap.empty())
-      I_throw() << "Heap not yet initialised";
+      D_throw() << "Heap not yet initialised";
 #endif
     return *local_heap.front().ptrData;
   }
@@ -154,7 +154,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (idMap.empty())
-      I_throw() << "Heap not yet initialised";
+      D_throw() << "Heap not yet initialised";
 #endif
     return data_stack[local_heap.front().pID];
   }
@@ -163,7 +163,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (idMap.empty())
-      I_throw() << "Heap not yet initialised";
+      D_throw() << "Heap not yet initialised";
 #endif
 
     return local_heap.front().pID;

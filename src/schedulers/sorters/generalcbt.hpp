@@ -69,7 +69,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
     
     return Min[a+1]; 
@@ -79,7 +79,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
 
     return Min[a+1]; 

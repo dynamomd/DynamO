@@ -60,24 +60,24 @@ COPTinkerXYZ::printImage()
 	gyrationData.push_back(COPRGyration::getGyrationEigenSystem(range,Sim));	    
 
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
-    I_throw() << "asprintf error in tinkerXYZ";
+    D_throw() << "asprintf error in tinkerXYZ";
   
   std::ofstream of(fileName);
   
   free(fileName);
 
   if ( asprintf(&fileName, "tinker.frame%05d.r3d", frameCount++) < 0)
-    I_throw() << "asprintf error in tinkerXYZ";
+    D_throw() << "asprintf error in tinkerXYZ";
 
   std::ofstream obj_of(fileName);
 
   free(fileName);
  
   if (!of.is_open())
-    I_throw() << "Could not open file for writing";
+    D_throw() << "Could not open file for writing";
 
   if (!obj_of.is_open())
-    I_throw() << "Could not open object file for writing";
+    D_throw() << "Could not open object file for writing";
 
   of << Sim->lN << "\nDYNAMO Tinker TXYZ file\n";
 

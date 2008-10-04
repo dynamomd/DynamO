@@ -41,7 +41,7 @@ COPVelDist::COPVelDist(DYNAMO::SimData* tmp):
 	return;
       }
   
-  I_throw() << "The Velocity distribution plugin requires COPKE <kinetic energy> plugin to be loaded to normalise correctly";
+  D_throw() << "The Velocity distribution plugin requires COPKE <kinetic energy> plugin to be loaded to normalise correctly";
 }
 
 COPVelDist::COPVelDist(const COPVelDist &C2):

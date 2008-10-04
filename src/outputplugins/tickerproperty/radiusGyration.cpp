@@ -57,14 +57,14 @@ COPRGyration::changeSystem(COutputPlugin* plug)
 
 #ifdef DYNAMO_DEBUG
   if (chains.size() != static_cast<COPRGyration*>(plug)->chains.size())
-    I_throw() << "Size mismatch when exchanging!";
+    D_throw() << "Size mismatch when exchanging!";
 #endif
 
   while (iPtr1 != chains.end())
     {
 #ifdef DYNAMO_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
-	I_throw() << "Name mismatch while replexing!";
+	D_throw() << "Name mismatch while replexing!";
 #endif
       std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
 
@@ -211,7 +211,7 @@ Iflt
 COPRGyration::CubaticOrderParameter(const std::list<CVector<> >& molAxis)
 {
   if (NDIM != 3)
-    I_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
+    D_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
 
   //Cubatic Order Parameter
   Iflt Q_cub[NDIM][NDIM][NDIM][NDIM];

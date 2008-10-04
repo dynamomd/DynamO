@@ -27,7 +27,7 @@ struct CUringRod: public CUCell
     pairchainlength(pcl),
     walklength(WL)
   {
-    if (pcl == 0) I_throw() << "Cant have zero chain length";
+    if (pcl == 0) D_throw() << "Cant have zero chain length";
   }
 
   size_t pairchainlength;  

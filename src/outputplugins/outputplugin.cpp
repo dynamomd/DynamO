@@ -126,6 +126,6 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPBoundedQStats(Sim);
 #endif
   else 
-    I_throw() << "Unknown type of OutputPlugin encountered\n"
+    D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;
 }

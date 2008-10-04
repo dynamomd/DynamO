@@ -26,7 +26,6 @@
 #include <boost/scoped_array.hpp>
 #include <list>
 
-class CSimImage;
 class CDynamics;
 class COutputPlugin;
 class CStreamTask;
@@ -98,12 +97,12 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   template <class T> T* addOutputPlugin()
     {
       if (status != INITIALISED)
-	I_throw() << "Cannot add plugins now";
+	D_throw() << "Cannot add plugins now";
 
       try {
 	//It's already in the simulation
 	return getOutputPlugin<T>();
-      } catch (DYNAMO::Exception&)
+      } catch (std::exception&)
 	{
 	  //Its not in the simulation, add it then
 	  smrtPlugPtr<COutputPlugin> tempPlug(new T(this));
@@ -128,20 +127,10 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   void executeGlobEvent();
   void executeSysEvent();
 
-  CSimImage makeImage();
-  void takeImage();
-  void recoverImage();
-  void restoreImage(const CSimImage &);
-  //void streamTaskInit();
-
-  std::list<CSimImage> simImages;  
   unsigned long long nImage;
   unsigned long long rebuildnColl;
   Iflt localeps;
 
-  //int nStreamTasks;
-  //Iflt streamdt;
-  //std::list<CStreamTask> streamTasks;
 };
 
 #endif

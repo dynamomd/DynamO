@@ -40,7 +40,7 @@ CBC::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new CSLEBC(XML,tmp);
       else 
-	I_throw() << "Unknown type of square boundary encountered";
+	D_throw() << "Unknown type of square boundary encountered";
     } 
   else if (!strcmp(XML.getAttribute("Shape"),"Rectangular"))
     {
@@ -51,9 +51,9 @@ CBC::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new CRLEBC(XML,tmp);
       else 
-	I_throw() << "Unknown type of rectangular boundary encountered";
+	D_throw() << "Unknown type of rectangular boundary encountered";
     }
   else
-    I_throw() << "Unknown shape of Boundary encountered";
+    D_throw() << "Unknown shape of Boundary encountered";
 
 }

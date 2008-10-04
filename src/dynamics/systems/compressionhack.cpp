@@ -34,7 +34,7 @@ CSCellHack::CSCellHack(DYNAMO::SimData* nSim, Iflt nGR):
 
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<CSCells*>(Sim->ptrScheduler) == NULL)
-    I_throw() << "Not a cellular scheduler!";
+    D_throw() << "Not a cellular scheduler!";
 #endif
 
   int minDiam = 0;
@@ -63,7 +63,7 @@ CSCellHack::runEvent()
 {
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<CSCells*>(Sim->ptrScheduler) == NULL)
-    I_throw() << "Not a cellular scheduler!";
+    D_throw() << "Not a cellular scheduler!";
 #endif
 
   I_cout() << "Rebuilding the cell list, coll = " << Sim->lNColl; 

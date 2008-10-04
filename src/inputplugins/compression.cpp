@@ -121,7 +121,7 @@ CIPCompression::limitPackingFraction(Iflt targetp)
   Iflt packfrac = PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
 
   if (targetp < packfrac)
-    I_throw() << "Target packing fraction is lower than current!";
+    D_throw() << "Target packing fraction is lower than current!";
   
   Sim->Dynamics.addSystem(new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) 
 					    - 1.0) / growthRate, 

@@ -156,7 +156,7 @@ COPCollMatrix::getName(const unsigned int& ID) const
     if (p.second == ID)
       return p.first;
 
-  I_throw() << "Cannot find the name for ID " << ID;
+  D_throw() << "Cannot find the name for ID " << ID;
 }
 
 
@@ -210,7 +210,7 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	//This currently works for all interactions
 	pressure += intPtr->hardCoreDiam() * mp1.second;
       }
-      catch (DYNAMO::Exception &)
+      catch (std::exception &)
 	{}
     else if (mp1.first.second == BOUNCE)
       try {
@@ -220,9 +220,9 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	    || (dynamic_cast<const CISWSequence*>(intPtr.get_ptr()) != NULL))
 	  pressure -= intPtr->maxIntDist() * mp1.second;
 	else
-	  I_throw() << "Could turn the BOUNCE interaction into a pressure!";
+	  D_throw() << "Could turn the BOUNCE interaction into a pressure!";
       }
-      catch (DYNAMO::Exception&)
+      catch (std::exception&)
 	{}
 
   pressure *= sqrt(PI / Sim->getOutputPlugin<COPKEnergy>()->getAvgkT()) / (2.0 * NDIM * Sim->lN * Sim->dSysTime);

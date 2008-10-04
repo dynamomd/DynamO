@@ -24,7 +24,7 @@ C2RPair::C2RPair(const XMLNode& XML, const DYNAMO::SimData* Sim):
 { 
 
   if (strcmp(XML.getAttribute("Range"),"Pair"))
-    I_throw() << "Attempting to load a pair from a non pair";
+    D_throw() << "Attempting to load a pair from a non pair";
   
   XMLNode xSubNode = XML.getChildNode("Range1");
   range1.set_ptr(CRange::loadClass(xSubNode, Sim));
@@ -45,7 +45,7 @@ C2RPair::isInRange(const CParticle&p1, const CParticle&p2) const
 void 
 C2RPair::operator<<(const XMLNode&)
 {
-  I_throw() << "Due to problems with CRAll C2RPair operator<< cannot work for this class";
+  D_throw() << "Due to problems with CRAll C2RPair operator<< cannot work for this class";
 }
 
 void 

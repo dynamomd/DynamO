@@ -39,7 +39,7 @@ CVector<T>::operator<<(const XMLNode &XML)
       }
       catch (boost::bad_lexical_cast &)
 	{
-	  I_throw() << "Failed a lexical cast in CVector";
+	  D_throw() << "Failed a lexical cast in CVector";
 	}
     }
 }

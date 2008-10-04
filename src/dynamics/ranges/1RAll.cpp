@@ -29,7 +29,7 @@ void
 CRAll::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"All"))
-    I_throw() << "Attempting to load CRAll from non All type";
+    D_throw() << "Attempting to load CRAll from non All type";
 }
 
 void 

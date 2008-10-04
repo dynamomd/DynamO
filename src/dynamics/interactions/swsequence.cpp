@@ -103,7 +103,7 @@ void
 CISWSequence::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
-    I_throw() << "Attempting to load SquareWell from non SquareWell entry";
+    D_throw() << "Attempting to load SquareWell from non SquareWell entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -175,7 +175,7 @@ CISWSequence::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CISWSequence";
+      D_throw() << "Failed a lexical cast in CISWSequence";
     }
 }
 
@@ -249,7 +249,7 @@ CISWSequence::getCollision(const CParticle &p1,
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
-	    I_throw() << "Overlapping particles found" 
+	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
@@ -266,11 +266,11 @@ CISWSequence::getCollision(const CParticle &p1,
       if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,ld2))
 	{
 	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
-	    I_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
+	    D_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
 	  else
-	    I_throw() << "Overlapping wells (but not registerd as captured) particles found" 
+	    D_throw() << "Overlapping wells (but not registerd as captured) particles found" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(ld2))/Sim->Dynamics.units().unitLength();
 	  
@@ -318,7 +318,7 @@ CISWSequence::runCollision(const CIntEvent &event) const
 	return retVal;
       }
     default:
-      I_throw() << "Unknown collision type";
+      D_throw() << "Unknown collision type";
     }
 }
 

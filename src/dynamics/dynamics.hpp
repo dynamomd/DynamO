@@ -98,7 +98,7 @@ public:
         return ptr->getCollision(p1,p2);
 #endif
     
-    I_throw() << "Could not find the right interaction to test for";
+    D_throw() << "Could not find the right interaction to test for";
   }
 
   CGlobEvent getEvent(const CParticle&) const;

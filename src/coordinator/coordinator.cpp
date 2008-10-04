@@ -137,7 +137,7 @@ CCoordinator::parseOptions(int argc, char *argv[])
     }
   
   if (vm.count("config-file") == 0)
-    I_throw() << "No configuration files to load specified";
+    D_throw() << "No configuration files to load specified";
 
   return vm;
 }
@@ -157,7 +157,7 @@ CCoordinator::initialise()
       Engine.set_ptr(new CECompressor(vm));
       break;
     default:
-      I_throw() <<"Unknown Engine Selected"; 
+      D_throw() <<"Unknown Engine Selected"; 
     }
   
   Engine->initialisation();

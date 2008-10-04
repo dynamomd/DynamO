@@ -172,10 +172,10 @@ public:
     nlists = tmpnlists;
     listWidth = nlists / scale;
     if (scale == HUGE_VAL)
-      I_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
+      D_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
 
     if (scale <= 0.0)
-      I_throw() << "Scale factor is zero or negative (negative collisions?)";
+      D_throw() << "Scale factor is zero or negative (negative collisions?)";
 
     if (nlists == 0)
       {
@@ -211,7 +211,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
     
     return Min[a+1].data; 
@@ -221,7 +221,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
-      I_throw() << "Heap not yet sized";
+      D_throw() << "Heap not yet sized";
 #endif
 
     return Min[a+1].data; 

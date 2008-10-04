@@ -151,7 +151,7 @@ class CVector
   {
 #ifdef DYNAMO_DEBUG
     if (NDIM != 3) 
-      I_throw() << "Cross product defined only in 3D";
+      D_throw() << "Cross product defined only in 3D";
 #endif
     
     CVector < T > tmpVec;

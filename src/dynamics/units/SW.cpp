@@ -73,7 +73,7 @@ void
 CUSW::operator<<(const XMLNode &XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SW"))
-    I_throw() << "Attempting to load CUSW from non elastic type";
+    D_throw() << "Attempting to load CUSW from non elastic type";
   
   try {
     UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
@@ -81,7 +81,7 @@ CUSW::operator<<(const XMLNode &XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CUSW";
+      D_throw() << "Failed a lexical cast in CUSW";
     }
 }
 

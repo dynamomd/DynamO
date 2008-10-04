@@ -35,7 +35,7 @@ CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)
   else if (!strcmp(XML.getAttribute("Range"),"List"))
     return new CRList(XML);
   else 
-    I_throw() << "Unknown type of Range encountered";
+    D_throw() << "Unknown type of Range encountered";
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CRange&g)
@@ -77,7 +77,7 @@ C2Range::loadClass(const XMLNode& XML , const DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Range"),"2All"))
     return new C2RAll(XML,Sim);
   else 
-    I_throw() << "Unknown type of C2Range encountered, " 
+    D_throw() << "Unknown type of C2Range encountered, " 
 	      << XML.getAttribute("Range");
 }
 

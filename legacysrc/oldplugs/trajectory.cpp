@@ -82,7 +82,7 @@ void
 COPTrajectory::output(xmlw::XmlStream &XML)
 {
   if (simType == 0)
-    I_throw() << "The simulation type is not set";
+    D_throw() << "The simulation type is not set";
 
   io::filtering_ostream file;
   file.push(io::bzip2_compressor());

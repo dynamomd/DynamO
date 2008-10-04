@@ -63,5 +63,5 @@ CSystem::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
   if (!strcmp(XML.getAttribute("Type"),"Andersen"))
     return new CSysGhost(XML,Sim);
   else
-    I_throw() << "Unknown type of System Interaction encountered";
+    D_throw() << "Unknown type of System Interaction encountered";
 }

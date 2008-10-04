@@ -23,7 +23,7 @@ void
 CUShear::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Shear"))
-    I_throw() << "Attempting to load CUShear from non shear type";
+    D_throw() << "Attempting to load CUShear from non shear type";
   
   try {
     UnitOfLength = 1.0 / boost::lexical_cast<Iflt>
@@ -31,7 +31,7 @@ CUShear::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CUElastic";
+      D_throw() << "Failed a lexical cast in CUElastic";
     }
 }
 

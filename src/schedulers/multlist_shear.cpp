@@ -51,7 +51,7 @@ CSMultListShear::initialise()
 {
   if (!Sim->Dynamics.BCTypeTest<CRLEBC>() 
       && !Sim->Dynamics.BCTypeTest<CSLEBC>())
-    I_throw() << "This scheduler isn't suitable for non-sheared systems\n" 
+    D_throw() << "This scheduler isn't suitable for non-sheared systems\n" 
       "it would work but you may as well use the normal multlist scheduler";
 
   reinitialise(Sim->Dynamics.getLongestInteraction()); 

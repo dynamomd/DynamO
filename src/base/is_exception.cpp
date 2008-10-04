@@ -19,35 +19,31 @@
 #include "is_stream_op.hpp"
 
 namespace DYNAMO {
-
-  Exception::Exception(int line, const char* file, const char* funcname, bool recov) throw():
-  message(""), 
-  recoverable(recov) 
-{
-  message += "\nException thrown at [";
-  message +=  boost::lexical_cast<std::string>(file);
-  message += ":"; 
-  message += boost::lexical_cast<std::string>(line); 
-  message += "]";
+  
+  exception::exception(int line, const char* file, const char* funcname) throw():
+    message("")
+  {
+    message += "\nException thrown at [";
+    message +=  boost::lexical_cast<std::string>(file);
+    message += ":"; 
+    message += boost::lexical_cast<std::string>(line); 
+    message += "]";
 #ifndef __DYNAMO_NO_EXCEPTION_FUNCTION
-  message += "\nIn ";
-  message += funcname;
+    message += "\nIn ";
+    message += funcname;
 #endif
-  message += "\n";
-}
+    message += "\n";
+  }
+  
+  const char *
+  exception::what() const throw()
+  {
+    formattedMsg = searchReplace(message,"\n",boost::lexical_cast<std::string>("\n") 
+				 + boost::lexical_cast<std::string>(IC_red) 
+				 + boost::lexical_cast<std::string>("Exception") 
+				 + boost::lexical_cast<std::string>(" :") 
+				 + boost::lexical_cast<std::string>(IC_reset));
 
-  std::string
-Exception::what() const throw()
-{
-  return searchReplace(message,"\n",boost::lexical_cast<std::string>("\n") 
-		       + boost::lexical_cast<std::string>(IC_red) 
-		       + boost::lexical_cast<std::string>("Exception") 
-		       + boost::lexical_cast<std::string>(" :") 
-		       + boost::lexical_cast<std::string>(IC_reset));
-}
-
-bool 
-Exception::isRecoverable() const
-{ return recoverable; }
-
+    return formattedMsg.c_str();
+  }
 }

@@ -49,7 +49,7 @@ void
 CISoftCore::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SoftCore"))
-    I_throw() << "Attempting to load SoftCore from non SoftCore entry";
+    D_throw() << "Attempting to load SoftCore from non SoftCore entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -67,7 +67,7 @@ CISoftCore::operator<<(const XMLNode& XML)
     CICapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)
-    { I_throw() << "Failed a lexical cast in CISoftCore"; }
+    { D_throw() << "Failed a lexical cast in CISoftCore"; }
 }
 
 CInteraction* 
@@ -124,7 +124,7 @@ CISoftCore::getCollision(const CParticle &p1,
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
-	I_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
+	D_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
 		  << "\nparticle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " 
 		  << (sqrt(colldat.r2) - sqrt(d2)) / Sim->Dynamics.units().unitLength();
@@ -162,7 +162,7 @@ CISoftCore::runCollision(const CIntEvent &event) const
 	return retVal;
       }
     default:
-      I_throw() << "Unknown collision type";
+      D_throw() << "Unknown collision type";
     }
 }
 

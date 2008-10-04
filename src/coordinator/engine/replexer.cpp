@@ -86,12 +86,12 @@ CEReplexer::initialisation()
       dynamic_cast<const DYNAMO::CENVT&>(*(Simulations[--i].getEnsemble()));
   }
   catch (std::bad_cast&)
-    { I_throw() << "One of the systems does not have an NVT ensemble"; }
+    { D_throw() << "One of the systems does not have an NVT ensemble"; }
   
   //Test a thermostat is available
   for (unsigned int i = 0; i < nSims; i++)
     if (Simulations[i].getSystem("Thermostat") == NULL)
-      I_throw() << "Could not find the Thermostat for system " << i 
+      D_throw() << "Could not find the Thermostat for system " << i 
 		<< "\nFilename " << vm["config-file"].as<std::vector<std::string> >()[i];
   
   //Set up the replex organisation
@@ -190,11 +190,11 @@ CEReplexer::preSimInit()
     }
 
   if (configFormat.find("%ID") == configFormat.npos)
-    I_throw() << "Replex mode, but format string for config file output"
+    D_throw() << "Replex mode, but format string for config file output"
       " doesnt contain %ID";
   
   if (outputFormat.find("%ID") == outputFormat.npos)
-    I_throw() << "Multiple configs loaded, but format string for output"
+    D_throw() << "Multiple configs loaded, but format string for output"
       " file doesnt contain %ID";  
 
   Simulations.reset(new CSimulation[nSims]);
@@ -333,7 +333,7 @@ CEReplexer::ReplexSwap(Replex_Mode_Type localMode)
 	    ReplexSwap(RandomPairs);
 	    break;
 	  default:
-	    I_throw() << "Error, randomly picked a replex move that doesn't exist";
+	    D_throw() << "Error, randomly picked a replex move that doesn't exist";
 	  }
       }
       break;
@@ -432,7 +432,7 @@ CEReplexer::AttemptSwap(unsigned int sim1ID, unsigned int sim2ID)
 	  {
 #ifdef DYNAMO_DEBUG
 	    if (typeid(*(*iPtr1)) != typeid(*(*iPtr2)))
-	      I_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
+	      D_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif
 
 	    (*iPtr1)->changeSystem(iPtr2->get_ptr());
@@ -526,7 +526,7 @@ void CEReplexer::runSimulation()
 		      
 #ifdef DYNAMO_DEBUG
 	      if (tmpRef == NULL)
-		I_throw() << "Could not find the time halt event error";
+		D_throw() << "Could not find the time halt event error";
 #endif			
 	      tmpRef->increasedt(vm["replex-interval"].as<Iflt>());
 		      

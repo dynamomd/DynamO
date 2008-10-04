@@ -30,7 +30,7 @@ TagView::loadfile(std::string fileName)
   if (std::string(fileName.end()-4, fileName.end()) == ".xml")
     {
       if (!boost::filesystem::exists(fileName))
-	I_throw() << "Could not open XML file";
+	D_throw() << "Could not open XML file";
       
       std::cout << "Uncompressed XML input file " << fileName << " loading";
       xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
@@ -38,7 +38,7 @@ TagView::loadfile(std::string fileName)
   else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
     {
       if (!boost::filesystem::exists(fileName))
-	I_throw() << "Could not open XML file";
+	D_throw() << "Could not open XML file";
       
       io::filtering_istream inputFile;
       inputFile.push(io::bzip2_decompressor());
@@ -58,7 +58,7 @@ TagView::loadfile(std::string fileName)
       xMainNode = tmpNode.getChildNode("OutputData");
     }
   else
-    I_throw() << "Unrecognised extension for input file";
+    D_throw() << "Unrecognised extension for input file";
   
   std::cout << "Parsing XML file";
   //XMLNode xSubNode= xMainNode.getChildNode("OutputData");

@@ -33,7 +33,7 @@ public:
   virtual void stream(Iflt) {}
 
   virtual CNParticleData runEvent()
-  { I_throw() << "You're running the null system event"; }
+  { D_throw() << "You're running the null system event"; }
 
   virtual void initialise() {}
 

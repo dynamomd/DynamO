@@ -68,14 +68,14 @@ void
 CUElastic::operator<<(const XMLNode &XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Elastic"))
-    I_throw() << "Attempting to load CUElastic from non elastic type";
+    D_throw() << "Attempting to load CUElastic from non elastic type";
   
   try {
     UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CUElastic";
+      D_throw() << "Failed a lexical cast in CUElastic";
     }
 }
 

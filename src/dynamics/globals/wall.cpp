@@ -81,7 +81,7 @@ CGWall::operator<<(const XMLNode& XML)
   } 
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CGWall";
+      D_throw() << "Failed a lexical cast in CGWall";
     }
 }
 

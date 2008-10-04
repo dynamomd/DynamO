@@ -35,7 +35,7 @@ COPReplexTrace::COPReplexTrace(const DYNAMO::SimData* t1):
 	       | std::ios::trunc);
 
   if (!tmpfile.is_open())
-    I_throw() << "Could not open temporary file!";
+    D_throw() << "Could not open temporary file!";
 }
 
 COPReplexTrace::~COPReplexTrace()
@@ -60,7 +60,7 @@ COPReplexTrace::COPReplexTrace(const COPReplexTrace& cop2):
 	       | std::ios::trunc);
 
   if (!tmpfile.is_open())
-    I_throw() << "Could not open temporary file!";
+    D_throw() << "Could not open temporary file!";
 
   //Copy the file stream
   cop2.tmpfile.seekg (0, std::ios::beg);
@@ -73,7 +73,7 @@ void
 COPReplexTrace::initialise() 
 { 
   if (!(tmpfile.is_open()))
-    I_throw() << "COPReplexTrace temp file unopened!";
+    D_throw() << "COPReplexTrace temp file unopened!";
 }
 
 void 

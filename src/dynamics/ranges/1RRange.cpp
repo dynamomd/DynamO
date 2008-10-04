@@ -28,14 +28,14 @@ void
 CRRange::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"Ranged"))
-    I_throw() << "Attempting to load CRRange from non range";
+    D_throw() << "Attempting to load CRRange from non range";
   try {
     startID = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
     endID = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CRRange";
+      D_throw() << "Failed a lexical cast in CRRange";
     }
 }
 

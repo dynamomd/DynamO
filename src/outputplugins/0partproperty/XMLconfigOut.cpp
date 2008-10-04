@@ -51,11 +51,12 @@ COPConfig::output(xmlw::XmlStream &XML)
       << xmlw::attr("Coll") << Sim->lMaxNColl
       << xmlw::attr("nCollPrint") << Sim->lNPrint;
 
+  //Allow this block to fail if need be
   try {
     XML << xmlw::attr("lastMFT") 
 	<< Sim->getOutputPlugin<COPMisc>()->getMFT();
   }
-  catch (DYNAMO::Exception&)
+  catch (std::exception&)
     {}
 
   XML << xmlw::endtag("Trajectory")

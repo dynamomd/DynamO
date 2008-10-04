@@ -49,7 +49,7 @@ COPVACF::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in COPVACF";
+      D_throw() << "Failed a lexical cast in COPVACF";
     }
   
 }

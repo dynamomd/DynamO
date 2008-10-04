@@ -35,31 +35,59 @@
 #  endif
 # endif
 
-#define I_throw() throw DYNAMO::Exception(__LINE__,__FILE__, __DYNAMO_EXCEPTION_FUNCTION)
-#define I_throwRecoverable() throw DYNAMO::Exception(__LINE__,__FILE__, __DYNAMO_EXCEPTION_FUNCTION, true)
+#define D_throw() throw DYNAMO::exception(__LINE__,__FILE__, __DYNAMO_EXCEPTION_FUNCTION)
 
 namespace DYNAMO
 {
-  class Exception
+  /*! \brief An exception class that works like a stream object.
+   *
+   * This class is thrown using the D_throw() macro like so :-
+   * D_throw() << "My custom line error";
+   *
+   * Remember to catch the exception class by reference!
+   */
+  class exception : public std::exception
   {
-  public:    
-    inline ~Exception() throw() {}
+  public:
     
-    Exception(int line, const char* file, const char* funcname, bool recov = false) throw();
+    inline ~exception() throw() {}
     
+    /*! \brief Constructor called by the D_throw() macro.
+     *
+     * \param line The line number in the source file.
+     * \param file The name of the source file.
+     * \param funcname The name of the function throwing the exception.
+     */
+    exception(int line, const char* file, const char* funcname) throw();
+    
+    /*! \brief The stream operator engine for the class
+     */
     template<class T>
-    Exception& operator<<(T m) 
+    exception& operator<<(const T& m) 
     { 
       message += boost::lexical_cast<std::string>(m);
       return *this;
     }
     
-    std::string what() const throw();
-    bool isRecoverable() const;
-    
+    /*! \brief Get the stored message from the class.
+     * 
+     * This message is not reentrant and is annoyingly C like. In a
+     * threaded environment this is still thread safe provided the
+     * exception try/catch statements are local to the thread, which
+     * CThreadPool ensures.
+     * 
+     * \bug Fix the non reentrant behaviour.
+     */
+    const char* what() const throw();
+
   private:
+    /*! \brief Stores the message of the exception.
+     */
     std::string message;
-    bool recoverable;
+
+    /*! \brief Stores the formatted message returned by what()
+     */
+    mutable std::string formattedMsg;
   }; 
 }
 

@@ -2221,7 +2221,7 @@ XMLNode XMLNode::getChildNode(XMLCSTR name, int *j) const
     }
     
     //  MB
-    I_throw() << "Could not find XML child node " << name 
+    D_throw() << "Could not find XML child node " << name 
 	      << ", in node " << getName();
     // /MB
     
@@ -2305,7 +2305,7 @@ XMLCSTR XMLNode::getAttribute(XMLCSTR lpszAttrib, int *j) const
     }
     
     //  MB
-    I_throw() << "Could not find XML attribute "<< lpszAttrib 
+    D_throw() << "Could not find XML attribute "<< lpszAttrib 
 	      << ", in node " << getName();
     // /MB
     return NULL;

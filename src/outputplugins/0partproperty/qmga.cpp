@@ -50,12 +50,12 @@ COPQMGA::printImage()
   Sim->Dynamics.Liouvillean().updateAllParticles();
 
   if ( asprintf(&fileName, "cnf.%04d", frameCount++) < 0)
-    I_throw() << "asprintf error in QMGA";
+    D_throw() << "asprintf error in QMGA";
   
   std::ofstream of(fileName);
   
   if (!of.is_open())
-    I_throw() << "Could not open QMGA file for writing";
+    D_throw() << "Could not open QMGA file for writing";
 
   of << Sim->lN << "\n"
      << Sim->aspectRatio[0] / Sim->Dynamics.units().unitLength() << "\n"

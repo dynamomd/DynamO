@@ -67,7 +67,7 @@ class COutputPlugin: public DYNAMO::SimBase_const
   { return updateOrder > OP.updateOrder; }
 
   virtual void changeSystem(COutputPlugin*) 
-  { I_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+  { D_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
 
   virtual void temperatureRescale(const double&)
   {}

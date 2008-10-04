@@ -54,7 +54,7 @@ CIntEvent::getCollEnumName(EEventType a)
     case STREAM:
       return "STREAM";
     default:
-      I_throw() << "Not a defined collision enumeration";
+      D_throw() << "Not a defined collision enumeration";
     }
 }
 

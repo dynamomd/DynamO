@@ -59,14 +59,14 @@ COPCContactMap::changeSystem(COutputPlugin* COPPlug)
       try {
 	const CTopology* tmpPtr = Sim->Dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
 	dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
-      } catch (DYNAMO::Exception)
+      } catch (std::exception&)
 	{
-	  I_throw() << "On changing the system COPCContactMap could not find the topology \"" 
+	  D_throw() << "On changing the system COPCContactMap could not find the topology \"" 
 		    << dat.chainPtr->getName() << "\"\n in the new system";
 	}
       
       if (dat.chainPtr == NULL)
-	I_throw() << "On changing the system COPCContactMap found the topology but failed to upcast!";
+	D_throw() << "On changing the system COPCContactMap found the topology but failed to upcast!";
     }
 }
 

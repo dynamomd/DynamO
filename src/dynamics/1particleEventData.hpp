@@ -39,7 +39,7 @@ public:
   { return oldVelVec; }
 
   inline CVector<> getOldPosition() const
-  { I_throw() << "Not yet Implemented"; }
+  { D_throw() << "Not yet Implemented"; }
 
   inline const CSpecies& getSpecies() const
   { return species_; }

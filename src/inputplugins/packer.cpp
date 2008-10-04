@@ -514,7 +514,7 @@ CIPPacker::initialise()
 	break;
       }
  default:
-      I_throw() << "Did not recognise the packer mode you wanted";
+      D_throw() << "Did not recognise the packer mode you wanted";
     }
 }
 
@@ -528,11 +528,11 @@ CIPPacker::processThermostat()
 
 	//Only one kind of thermostat so far!
 	if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
-	  I_throw() << "Could not upcast thermostat to Andersens";
+	  D_throw() << "Could not upcast thermostat to Andersens";
       
 	static_cast<const CSysGhost*>(thermostat)->setTemperature
 	  (vm["Thermostat"].as<Iflt>() * Sim->Dynamics.units().unitEnergy());
-      } catch (DYNAMO::Exception)
+      } catch (std::exception&)
 	{
 	  //No thermostat added yet
 	  Sim->Dynamics.addSystem
@@ -548,7 +548,7 @@ CIPPacker::processThermostat()
 	}      
     }
   else
-    I_throw() << "Thermostat option not set";
+    D_throw() << "Thermostat option not set";
 }
 
 std::vector<CVector<> >
@@ -576,7 +576,7 @@ CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 	  break;
 	}
       default:
-	I_throw() << "Not a valid packing type (--i1)";
+	D_throw() << "Not a valid packing type (--i1)";
       }
   
   sysPack->initialise();

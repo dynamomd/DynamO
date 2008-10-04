@@ -45,7 +45,7 @@ CTopology::operator<<(const XMLNode& XML)
     } 
     catch (boost::bad_lexical_cast &)
       {
-	I_throw() << "Failed a lexical cast in CTopology";
+	D_throw() << "Failed a lexical cast in CTopology";
       }
     
     for (int i = 0; i < XML.nChildNode(); i++)
@@ -69,5 +69,5 @@ CTopology::loadClass(const XMLNode& XML, DYNAMO::SimData* Sim, size_t ID)
   if (!strcmp(XML.getAttribute("Type"),"Chain"))
     return new CTChain(XML, Sim, ID);
   else 
-    I_throw() << "Unknown type of Topology encountered";
+    D_throw() << "Unknown type of Topology encountered";
 }

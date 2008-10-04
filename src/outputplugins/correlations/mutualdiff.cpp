@@ -55,7 +55,7 @@ COPMutualDiffusion::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in COPMutualDiffusion";
+      D_throw() << "Failed a lexical cast in COPMutualDiffusion";
     }
   
   try 
@@ -63,14 +63,15 @@ COPMutualDiffusion::operator<<(const XMLNode& XML)
       try {
 	species1 = &Sim->Dynamics.getSpecies(boost::lexical_cast<std::string>(XML.getAttribute("Species1")));
 	species2 = &Sim->Dynamics.getSpecies(boost::lexical_cast<std::string>(XML.getAttribute("Species2")));
-      } catch (DYNAMO::Exception& nex)
+      } catch (std::exception& nex)
 	{
-	  throw (nex << "Failed to find the species for the mutual diffusion\n");
+	  D_throw() << "Failed to find the species for the mutual diffusion\n"
+		    << nex.what();
 	}
     }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in COPMutualDiffusion";
+      D_throw() << "Failed a lexical cast in COPMutualDiffusion";
     }
 }
 

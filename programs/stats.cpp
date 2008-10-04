@@ -80,12 +80,12 @@ int main(int ac, char* av[])
       if (vm.count("input-file"))
         files = vm["input-file"].as<std::vector<std::string> >();
       else
-	  I_throw() << "No input files specified...exiting";
+	  D_throw() << "No input files specified...exiting";
 
       if (vm.count("tag"))
         tags = vm["tag"].as<std::vector<std::string> >();
       else
-	  I_throw() << "No tags specified...exiting";
+	  D_throw() << "No tags specified...exiting";
 
       XMLNode xMainNode, xBrowseNode;
       vector< vector<Iflt> > graphdata;
@@ -101,7 +101,7 @@ int main(int ac, char* av[])
 	  coutputFile.push(io::file_source(*iPtr));
 
 	  if (!(coutputFile.component<1,io::file_source>()->is_open()))
-	    I_throw() << "Could not open data file!";
+	    D_throw() << "Could not open data file!";
 	  
 	  string line,fileString;
 	  while(getline(coutputFile,line)) 

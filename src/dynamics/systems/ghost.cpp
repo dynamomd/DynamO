@@ -117,7 +117,7 @@ void
 CSysGhost::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Andersen"))
-    I_throw() << "Attempting to load Andersen from non Andersen entry"; 
+    D_throw() << "Attempting to load Andersen from non Andersen entry"; 
   
   try {
     meanFreeTime = boost::lexical_cast<Iflt>(XML.getAttribute("MFT"))
@@ -142,7 +142,7 @@ CSysGhost::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      I_throw() << "Failed a lexical cast in CGGlobal";
+      D_throw() << "Failed a lexical cast in CGGlobal";
     }
 }
 

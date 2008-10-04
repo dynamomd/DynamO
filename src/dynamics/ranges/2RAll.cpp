@@ -23,13 +23,13 @@
 C2RAll::C2RAll(const XMLNode& XML, const DYNAMO::SimData*)
 { 
   if (strcmp(XML.getAttribute("Range"),"2All"))
-    I_throw() << "Attempting to load a 2All from a non 2All";
+    D_throw() << "Attempting to load a 2All from a non 2All";
 }
 
 void 
 C2RAll::operator<<(const XMLNode&)
 {
-  I_throw() << "Due to problems with CRAll C2RAll operator<< cannot work for this class";
+  D_throw() << "Due to problems with CRAll C2RAll operator<< cannot work for this class";
 }
 
 void 

@@ -69,7 +69,7 @@ CThreadPool::wait()
 	}
       
       if (ExceptionThrown) 
-	I_throw() << "Thread Exception found while waiting for tasks/threads to finish";
+	D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
     }
   else
     {
@@ -122,10 +122,10 @@ CThreadPool::beginThread() throw()
 		{
 		  (*iter)();
 		}
-	      catch(DYNAMO::Exception& cep)
-		{
-		  cep << "\nError in thread, task threw an exception, Handling gracefully";
-		  std::cout << cep.what();
+	      catch(std::exception& cep)
+		{		  
+		  std::cout << "\nTHREAD :Error in thread, task threw an exception, Handling gracefully."
+			    << cep.what();
 		  
 		  //Mark the main process to throw an exception as soon as possible
 		  boost::mutex::scoped_lock lock2(m_exception);
@@ -142,18 +142,10 @@ CThreadPool::beginThread() throw()
 	    }
 	}
     }
-  catch (DYNAMO::Exception& p)
+  catch (std::exception& p)
     {
-      p << "\nTHREAD :Catastrophic Failure of thread!!! System will Hang, Aborting!";
-      std::cout << p.what();
+      std::cout << "\nTHREAD :Catastrophic Failure of thread!!! System will Hang, Aborting!"
+		<< p.what();
       throw;
-    }
-  catch(...)
-    {
-      // This is a real problem.  Since this thread is about to die, m_nThreads
-      // will be out of sync with the actual number of threads.  But this should
-      // not occur except when something really bad happens.
-      // not thread safe.. who cares
-      I_throw() << "THREAD: Major Threading Error, unidentified exception";  
     }
 }    

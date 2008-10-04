@@ -40,7 +40,7 @@ CSNull::stream(const Iflt)
 
 ENextEvent 
 CSNull::nextEventType() const
-{ I_throw() << "CSNull is not a real scheduler!"; }
+{ D_throw() << "CSNull is not a real scheduler!"; }
 
 void 
 CSNull::rebuildList() 

@@ -117,7 +117,7 @@ CICapture::isCaptured(const CParticle& p1, const CParticle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
-    I_throw() << "Particle is testing if it captured itself";
+    D_throw() << "Particle is testing if it captured itself";
 #endif 
 
   return (p1.getID() < p2.getID())
@@ -130,17 +130,17 @@ CICapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
-    I_throw() << "Particle captured itself";
+    D_throw() << "Particle captured itself";
 
   if (p1.getID() < p2.getID())
     {
       if  (captureMap[p1.getID()].count(p2.getID()))
-	I_throw() << "Insert found " << p1.getID()
+	D_throw() << "Insert found " << p1.getID()
 		  << " and " << p2.getID() << " in the capture map";
     }      
   else
     if  (captureMap[p2.getID()].count(p1.getID()))
-      I_throw() << "Insert found " << p2.getID() 
+      D_throw() << "Insert found " << p2.getID() 
 		<< " and " << p1.getID() << " in the capture map";
 #endif 
   
@@ -156,12 +156,12 @@ CICapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
-    I_throw() << "Particle disassociated itself";
+    D_throw() << "Particle disassociated itself";
 
   if  (!((p1.getID() < p2.getID())
 	 ? captureMap[p1.getID()].erase(p2.getID())
 	 : captureMap[p2.getID()].erase(p1.getID())))
-    I_throw() << "Erase did not find " << p2.getID() 
+    D_throw() << "Erase did not find " << p2.getID() 
 	      << " and " << p1.getID() << " in the capture map";    
 
 #else

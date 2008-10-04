@@ -47,7 +47,7 @@ COPCTorsion::changeSystem(COutputPlugin* plug)
   
 #ifdef DYNAMO_DEBUG
   if (chains.size() != static_cast<COPCTorsion*>(plug)->chains.size())
-    I_throw() << "CTorsion chain data size mismatch in replex exchange";
+    D_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
 
   std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
@@ -58,7 +58,7 @@ COPCTorsion::changeSystem(COutputPlugin* plug)
 
 #ifdef DYNAMO_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
-	I_throw() << "Chain name mismatch when swapping chain plugins";
+	D_throw() << "Chain name mismatch when swapping chain plugins";
 #endif
 
       std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
@@ -84,7 +84,7 @@ COPCTorsion::ticker()
 
 #ifdef DYNAMO_DEBUG
 	  if (NDIM != 3)
-	    I_throw() << "Not implemented chain curvature in non 3 dimensional systems";
+	    D_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif
 	  
 	  CVector<> tmp;

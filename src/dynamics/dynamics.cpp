@@ -71,7 +71,7 @@ CDynamics::getTopology(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find the topology " << name;
+  D_throw() << "Could not find the topology " << name;
 }
 
 const smrtPlugPtr<CTopology>& 
@@ -81,7 +81,7 @@ CDynamics::getTopology(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find the topology " << name;
+  D_throw() << "Could not find the topology " << name;
 }
 
 void 
@@ -119,7 +119,7 @@ CDynamics::getSpecies(const CParticle& p1) const
     if (ptr.isSpecies(p1))
       return ptr;
   
-  I_throw() << "Could not find the requested species"
+  D_throw() << "Could not find the requested species"
 	    << "\nID = " << p1.getID();
 }
 
@@ -137,7 +137,7 @@ CDynamics::getSpecies(std::string name) const
     if (ptr.getName() == name)
       return ptr;
   
-  I_throw() << "Could not find the " << name << " species"; 
+  D_throw() << "Could not find the " << name << " species"; 
 }
 
 smrtPlugPtr<CSystem>&
@@ -147,7 +147,7 @@ CDynamics::getSystem(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find system plugin";
+  D_throw() << "Could not find system plugin";
 }
 
 const smrtPlugPtr<CSystem>&
@@ -157,7 +157,7 @@ CDynamics::getSystem(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find system plugin";
+  D_throw() << "Could not find system plugin";
 }
 
 smrtPlugPtr<CGlobal>&
@@ -167,7 +167,7 @@ CDynamics::getGlobal(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find global plugin";
+  D_throw() << "Could not find global plugin";
 }
 
 const smrtPlugPtr<CGlobal>&
@@ -177,7 +177,7 @@ CDynamics::getGlobal(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find global plugin";
+  D_throw() << "Could not find global plugin";
 }
 
 smrtPlugPtr<CInteraction>&
@@ -187,7 +187,7 @@ CDynamics::getInteraction(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find interaction plugin";
+  D_throw() << "Could not find interaction plugin";
 }
 
 const smrtPlugPtr<CInteraction>&
@@ -197,7 +197,7 @@ CDynamics::getInteraction(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  I_throw() << "Could not find interaction plugin";
+  D_throw() << "Could not find interaction plugin";
 }
 
 void 
@@ -247,7 +247,7 @@ CDynamics::addSystemTicker()
 {
   BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
     if (ptr->getName() == "SystemTicker")
-      I_throw() << "System Ticker already exists";
+      D_throw() << "System Ticker already exists";
 
   addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
@@ -289,10 +289,10 @@ CDynamics::initialise()
 	if (ptr.isSpecies(part)) count++;
       
       if (count < 1)
-	I_throw() << "Particle ID=" << part.getID() << " has no species";
+	D_throw() << "Particle ID=" << part.getID() << " has no species";
 
       if (count > 1)
-	I_throw() << "Particle ID=" << part.getID() << " has more than one species";
+	D_throw() << "Particle ID=" << part.getID() << " has more than one species";
       count = 0;
     }
 
@@ -303,11 +303,11 @@ CDynamics::initialise()
       tot += ptr.getCount();
     
     if (tot < Sim->lN)
-      I_throw() << "The particle count according to the species definition is too low\n"
+      D_throw() << "The particle count according to the species definition is too low\n"
 		<< "discrepancy = " << tot - Sim->lN;
     
     if (tot > Sim->lN)
-      I_throw() << "The particle count according to the species definition is too high\n"
+      D_throw() << "The particle count according to the species definition is too high\n"
 		<< "discrepancy = " << tot - Sim->lN;
   }
 
@@ -349,7 +349,7 @@ CDynamics::getInteraction(const CParticle& p1, const CParticle& p2) const
     if (ptr->isInteraction(p1,p2))
       return ptr;
   
-  I_throw() << "Could not find the interaction requested";
+  D_throw() << "Could not find the interaction requested";
 }
 
 C2ParticleData

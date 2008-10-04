@@ -24,7 +24,7 @@ C2RChainGroups::C2RChainGroups(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0), length(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"ChainGroups"))
-    I_throw() << "Attempting to load a ChainGroups from a "
+    D_throw() << "Attempting to load a ChainGroups from a "
 	      << XML.getAttribute("Range");
   
   range1 = boost::lexical_cast<size_t>(XML.getAttribute("Start1"));
@@ -62,7 +62,7 @@ C2RChainGroups::isInRange(const CParticle&p1, const CParticle&p2) const
 void 
 C2RChainGroups::operator<<(const XMLNode&)
 {
-  I_throw() << "Due to problems with CRAll C2RChainGroups operator<<"
+  D_throw() << "Due to problems with CRAll C2RChainGroups operator<<"
     " cannot work for this class";
 }
 

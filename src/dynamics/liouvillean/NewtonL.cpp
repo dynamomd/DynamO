@@ -265,7 +265,7 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Ifl
   
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
-    I_throw() << "A nan dp has ocurred";
+    D_throw() << "A nan dp has ocurred";
 #endif
   
   //This function must edit particles so it overrides the const!

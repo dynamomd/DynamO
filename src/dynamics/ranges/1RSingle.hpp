@@ -47,7 +47,7 @@ public:
   virtual unsigned long at(unsigned long i) const 
   { 
     if (i != 0)
-      I_throw() << "Bad array access value in range.at()";
+      D_throw() << "Bad array access value in range.at()";
     
     return ID;
   }
