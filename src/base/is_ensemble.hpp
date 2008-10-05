@@ -14,7 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+/*! \file is_ensemble.hpp
+ * \brief Contains the definition of the CEnsemble class.
+ */
 #pragma once
 
 #include <boost/array.hpp>
@@ -33,6 +35,11 @@ class CSystem;
 namespace DYNAMO {
   class SimData;
 
+  /*! \brief This class specifies the simulation ensemble that the
+   * simulation is being performed in.
+   *
+   *
+   */
   class CEnsemble : public SimBase_const
   {
   public:

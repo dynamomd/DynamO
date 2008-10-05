@@ -25,48 +25,89 @@ namespace DYNAMO
 {
   struct SimData;
 
+  /*! \brief Associates a name and colour with a class.
+   * 
+   * This merely helps format screen output from a class.
+   */
   class Base_Class
   {
   public:
+    
+    /*! \brief Initialises the Base_Class
+     *
+     * \param aName The name of the class.
+     * \param aColor A terminal colour code to colour this classes name with.
+     */
     Base_Class(const char *aName, const char *aColor):
       name(aName),color(aColor) {};
     
+    /*! \brief A private stream to format the standard output stream. */
     Stream_Operator I_cout() const
     {
       return ((std::cout << Stream_Operator(name,color)) << "\n");
     }
 
+    /*! \brief A private stream to format the standard error stream. */
     Stream_Operator I_cerr() const
     {
       return ((std::cout << Stream_Operator(name,IC_red)) << "\n");
     }
     
   protected:
+    /*! \brief A pointer to a const definition of the class name. */
     const char* name;
+
+    /*! \brief A pointer to a const definition of the class terminal
+        colour. */
     const char* color;
   };
 
+  /*! \brief A Base_Class which contains a writable pointer to a
+   * SimData structure.
+   *
+   * This class must be able to change the SimData struct it points to.
+   */
   class SimBase: public Base_Class
   {
   public:
+    /*! \brief Constructor
+     *
+     * \param SD Pointer to the SimData struct
+     * \param aName The name of the class deriving from this
+     * \param aColor The colour of the output from this class.
+     */
     SimBase(SimData* const& SD,const char *aName, const char *aColor):
       Base_Class(aName,aColor),
       Sim(SD)    
     {};
     
   protected:
+    /*! \brief A writable pointer to a simulations data.*/
     SimData* Sim;
   };
   
+  /*! \brief Similar to the SimBase class except it contains a const
+   * pointer to a SimData struct.
+   *
+   * This class must be able to change the SimData struct it points to.
+   */
   class SimBase_const: public Base_Class
   {
   public:
-    SimBase_const(const SimData* const& SD, const char *aName, const char *aColor):
+    /*! \brief Constructor
+     *
+     * \param SD Const pointer to the SimData struct
+     * \param aName The name of the class deriving from this
+     * \param aColor The colour of the output from this class.
+     */
+    SimBase_const(const SimData* const& SD, const char *aName, 
+		  const char *aColor):
       Base_Class(aName,aColor),
       Sim(SD)
     {};
 
   protected:
+    /*! \brief A un-writable pointer to a simulations data.*/
     const SimData* Sim;
   };
 

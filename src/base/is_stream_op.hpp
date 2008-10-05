@@ -53,6 +53,7 @@
 
 namespace DYNAMO
 {
+  /*! \brief Can search and replace elements in a std::string. */
   inline std::string searchReplace(std::string in, const std::string& from, const std::string& to)
   {
     if (!in.empty())
@@ -72,39 +73,58 @@ namespace DYNAMO
       }
     return in;
   }
-
+ 
+  /*! \brief This stream operator replaces newline characters with a
+   * coloured name.
+   */
   class Stream_Operator
   {
   public:
+    /*! \brief Constructor.
+     *
+     * \param aName The name to insert after newline characters.
+     * \param aColor The terminal colour to set the names to.
+     */
     Stream_Operator(const char* const & aName, const char* const & aColor):
       name(aName),color(aColor) 
     {
       OutputStream = &std::cout;
     };
     
+    /*! \brief The engine for the stream operator.
+     */
     template<class T>
     const Stream_Operator& operator<<(T m) const
     { 
-      std::ostringstream tmp("");
-      tmp << m;
-      *OutputStream << nReplace(tmp.str());
+      *OutputStream << nReplace(boost::lexical_cast<std::string>(m));
       return *this;
     }
 
+    /*! \brief Associates the Stream_Operator with a stream.
+     *
+     * \bug Is this buggy as it must be performed first before output?
+     */
     friend Stream_Operator operator <<(std::ostream &os, Stream_Operator SO)
     {
       SO.OutputStream = &os;
       return SO;
     }
 
+    /*! Not really needed but is here. */
     std::ostream& getStream() const
     { return *OutputStream; }
     
   protected:
+    /*! \brief Name to insert after newlines.*/
     const char* const & name;
+    
+    /*! \brief Terminal colour code to set the name. */
     const char* const & color;
+    
+    /*! \brief Output stream to send the data to*/
     std::ostream *OutputStream;
 
+    /*! \brief Search and replace function for the stream operator*/
     std::string nReplace(const std::string &message) const
     {
       return searchReplace(message, "\n", boost::lexical_cast<std::string>("\n") 
@@ -116,15 +136,24 @@ namespace DYNAMO
     
   };
 
+  /*! \brief This stream operator colours text sent to the output
+      stream.
+   */
   class Colorise_Text_Stream_Operator
   {
   public:
+    /*! \brief Constructor
+     * \param aColor Terminal colour to set the output to.
+     */
     Colorise_Text_Stream_Operator(const char* const aColor):
       color(aColor)
     {
       OutputStream = &std::cout;
     };
     
+
+    /*! \brief Bypass engine for most output
+     */
     template<class T>
     const Colorise_Text_Stream_Operator& operator<<(T m) const
     { 
@@ -132,13 +161,16 @@ namespace DYNAMO
       return *this;
     }
     
+    /*! \brief Colourise char* output.
+     */
     const Colorise_Text_Stream_Operator& operator<<(const char *m) const
     { 
       *OutputStream << color << m << IC_reset;
       return *this;
     }
 
-
+    /*! \brief A method to change the underlying stream.
+     */
     friend Colorise_Text_Stream_Operator operator <<(std::ostream &os, Colorise_Text_Stream_Operator SO)
     {
       SO.OutputStream = &os;
@@ -146,7 +178,10 @@ namespace DYNAMO
     }
 
   protected:
+    /*! \brief Terminal code to set the colour. */
     const char* const color;
+    
+    /*! \brief Output stream to send data to. */
     std::ostream *OutputStream;
   };
 }
