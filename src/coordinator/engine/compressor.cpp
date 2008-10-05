@@ -33,8 +33,8 @@ CECompressor::getOptions(boost::program_options::options_description& opts)
   opts.add(ropts);
 }
 
-CECompressor::CECompressor(const boost::program_options::variables_map& nVM):
-  CESingle(nVM)
+CECompressor::CECompressor(const boost::program_options::variables_map& nVM, CThreadPool& tp):
+  CESingle(nVM, tp)
 {}
 
 void 

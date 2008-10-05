@@ -27,6 +27,7 @@
 #include <vector>
 #include "../datatypes/pluginpointer.hpp"
 #include "engine/engine.hpp"
+#include "../extcode/threadpool.hpp"
 
 /*! \brief The main class for the dynarun program.
  *
@@ -103,6 +104,12 @@ private:
   /*! \brief A smart pointer to the CEngine being run.
    */
   smrtPlugPtr<CEngine> Engine;
+
+  /*! \brief A thread pool to utilise multiple cores on the computational node.
+   *
+   * This CThreadPool is used/referenced by all code in a single dynarun process.
+   */
+  CThreadPool threads;
 };
 
 #endif

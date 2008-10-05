@@ -21,6 +21,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
+#include "../../extcode/threadpool.hpp"
 #include <fstream>
 #include <boost/random/uniform_int.hpp>
 
@@ -48,8 +49,9 @@ CEReplexer::getOptions(boost::program_options::options_description& opts)
   opts.add(ropts);
 }
 
-CEReplexer::CEReplexer(const boost::program_options::variables_map& nVm):
-  CEngine(nVm, "config.%ID.end.xml.bz2", "output.%ID.xml.bz2"),
+CEReplexer::CEReplexer(const boost::program_options::variables_map& nVm,
+		       CThreadPool& tp):
+  CEngine(nVm, "config.%ID.end.xml.bz2", "output.%ID.xml.bz2", tp),
   replicaEndTime(0),
   ReplexMode(RandomSelection),
   replexSwapCalls(0),
@@ -279,22 +281,22 @@ CEReplexer::ReplexSwap(Replex_Mode_Type localMode)
     case SinglePair:
       {
 	if (temperatureList.size() == 2)
-	  AttemptSwap(0);
+	  AttemptSwap(0, 1);
 	else  
 	  {
 	    //Select a image to mess with
 	    boost::uniform_int<unsigned int> tmpDist(0, temperatureList.size()-2);
-	    boost::variate_generator<DYNAMO::baseRNG&,
+	    size_t ID = boost::variate_generator<DYNAMO::baseRNG&,
 	      boost::uniform_int<unsigned int> >
-	      rPID(Simulations[0].ranGenerator, tmpDist);
-	    AttemptSwap(rPID());
+	      (Simulations[0].ranGenerator, tmpDist)();
+	    AttemptSwap(ID, ID+1);
 	  }
       }
       break;
     case AlternatingSequence:
       {
 	for (size_t i = (SeqSelect) ? 0 : 1; i < (nSims -1); i +=2)
-	  AttemptSwap(i);
+	  AttemptSwap(i, i+1);
 	
 	SeqSelect = !SeqSelect;
       }
@@ -377,7 +379,7 @@ CEReplexer::ReplexSwapTicker()
 }
 
 void 
-CEReplexer::AttemptSwap(unsigned int sim1ID, unsigned int sim2ID)
+CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 {
   CSimulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
   CSimulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];

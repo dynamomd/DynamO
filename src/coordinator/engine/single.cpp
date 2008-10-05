@@ -17,8 +17,8 @@
 
 #include "single.hpp"
 
-CESingle::CESingle(const boost::program_options::variables_map& nVM):
-  CEngine(nVM, "config.out.xml.bz2", "output.xml.bz2"),
+CESingle::CESingle(const boost::program_options::variables_map& nVM, CThreadPool& tp):
+  CEngine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
   peekMode(false)
 {}
 

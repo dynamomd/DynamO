@@ -14,38 +14,76 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/*! \file single.hpp
+ * \brief Contains the simulation CEngine CESingle
+ */
 
 #ifndef CESingle_H
 #define CESingle_H
 
 #include "engine.hpp"
 
+/*! \brief An CEngine for simulating a single system.
+ *
+ * This merely sets up and exectues a single CSimulation instance.
+ */
 class CESingle: public CEngine
 {
 public:
-  CESingle(const boost::program_options::variables_map&);
+  /*! \brief Only constructor.
+   *
+   * \param vm A reference to the CCoordinator's parsed command line variables.
+   * \para tp A reference to the thread pool of the dynarun instance.
+   */ 
+  CESingle(const boost::program_options::variables_map& vm, 
+	   CThreadPool& tp);
 
+  /*! \brief Trivial virtual destructor */
   virtual ~CESingle() {}
-
+  
+  /*! \brief There is no status to be printed other than what the
+   * CSimulation outputs.
+   */
   virtual void printStatus() {}
   
+  /*! \brief Just runs the CSimulation::runSimulation() loop and
+   * provides a peek functionality.
+   */
   virtual void runSimulation();
 
+  /*! \brief Just wraps the CSimulation::outputData(const char*) function.
+   */
   virtual void outputData();
   
+  /*! \brief Just wraps the CSimulation::writeXMLfile(const char*) function.
+   */
   virtual void outputConfigs();
 
+  /*! \brief No CEngine finalisation required.
+   */
   virtual void finaliseRun() {}
 
+  /*! \brief Just wraps the CSimulation::simShutdown() function.
+   */
   virtual void forceShutdown();
 
+  /*! \brief Performs the minimum steps to initialise a simulation.
+   */
   virtual void initialisation();
 
+  /*! \brief Triggers the peek mode in the loop.
+   */
   virtual void peekData();
 
 protected:
+  /*! \brief The single instance of a CSimulation required.
+   */
   CSimulation Simulation;
-  bool peekMode;
+  
+  /*! \brief If this is true, the CSimulation's end time will be reset
+   * and the CESingle run loop in runSimulation() will be repeated.
+   */
+ bool peekMode; 
 };
 
 #endif

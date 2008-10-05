@@ -48,17 +48,17 @@ CEngine::getCommonOptions(boost::program_options::options_description& opts)
 
 
 CEngine::CEngine(const boost::program_options::variables_map& nvm, 
-		 std::string configFile, std::string outputFile):
+		 std::string configFile, std::string outputFile,
+		 CThreadPool& tp):
   vm(nvm),
   configFormat(configFile),
-  outputFormat(outputFile)
+  outputFormat(outputFile),
+  threads(tp)
 {}
 
 void 
 CEngine::preSimInit()
 {
-  threads.setThreadCount(vm["n-threads"].as<unsigned int>());
-
   if (vm.count("out-config-file"))
     configFormat = vm["out-config-file"].as<std::string>();
   

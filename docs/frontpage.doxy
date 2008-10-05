@@ -1,37 +1,40 @@
 /*! \mainpage DYNAMO source code documentation
  *
- * The C++ code consists of several programs. dynarun and dynamod are very large
- * programs but share a common code base. This code base is in the src/ 
- * directory, but the unique parts of the programs are contained in the 
- * programs/ directory. The description of the programs are
+ * The C++ code consists of several programs. dynarun and dynamod are
+ * very large programs but share a common code base. This code base is
+ * in the src/ directory, but the unique parts of the programs are
+ * contained in the programs/ directory. The description of the
+ * programs are
  * 
- * - dynarun (programs/mdrun.cpp) - The simulation program, runs trajectories 
- * and collects/outputs data.
+ * - dynarun (programs/mdrun.cpp) - The simulation program, runs
+ * trajectories and collects/outputs data.
  * 
- * - dynamod (programs/configmod.cpp) - The configuration editor/generator.
+ * - dynamod (programs/configmod.cpp) - The configuration
+ * editor/generator.
  *
- * - dynahist_rw (programs/hist_rw.cpp) - Can perform histogram reweighting 
- * on output from a replica exchange/ parallel tempering program (see the 
- * simulation engine CEReplexer).
+ * - dynahist_rw (programs/hist_rw.cpp) - Can perform histogram
+ * reweighting on output from a replica exchange/ parallel tempering
+ * program (see the simulation engine CEReplexer).
  *
- * - dynareplex_opt (programs/replex_opt.cpp) - This is an implementation of the
- * replica exchange optimisation described by Katzgraber et al.
- * (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
+ * - dynareplex_opt (programs/replex_opt.cpp) - This is an
+ * implementation of the replica exchange optimisation described by
+ * Katzgraber et
+ * al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
  *
- * - dynaview (bin/dynaview) - A simple script to render a single configuration
- * using Geomview. The most complete viewer however it is quite slow for large 
- * systems.
+ * - dynaview (bin/dynaview) - A simple script to render a single
+ * configuration using Geomview. The most complete viewer however it
+ * is quite slow for large systems.
  *
- * - dynavmd (bin/dynavmd) - A simple script to render a single configuration 
- * using VMD. This very good at imaging bulk systems however we have no way of 
- * controlling the atom size at the moment. 
+ * - dynavmd (bin/dynavmd) - A simple script to render a single
+ * configuration using VMD. This very good at imaging bulk systems
+ * however we have no way of controlling the atom size at the moment.
  *
- * Unfortunately doxygen doesn't support multiple programs in one documentation,
- * thus only the main function of dynarun is available here. If you are looking
- * at the source code for the first time it is probably best to start in 
- * mdrun.cpp then branch out reading just the description of each class.
+ * Unfortunately doxygen doesn't support multiple programs in one
+ * documentation, thus only the main() function of dynarun is
+ * available here. If you are looking at the source code for the first
+ * time it is probably best to start here in main(), in mdrun.cpp then
+ * branch out reading just the description of each class.
  *
- * Alternatively if you wish to jump in, CSimulation::runSimulation() is the 
- * very inner loop of a single simulation.
- *
+ * Alternatively if you wish to jump in, CSimulation::runSimulation()
+ * is the very inner loop of a single simulation.
  */

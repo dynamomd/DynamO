@@ -85,7 +85,7 @@ CCoordinator::parseOptions(int argc, char *argv[])
   systemopts.add_options()
     ("help", "Produces this message")   
     ("n-threads,N", po::value<unsigned int>()->default_value(0), 
-     "Number of threads to spawn for concurrent processing")
+     "Number of threads to spawn for concurrent processing. (Only utilised by some engine/sim configurations)")
     ("out-config-file,o", po::value<std::string>(), 
      "Default config output file,(config.%ID.end.xml.bz2)")
     ("out-data-file", po::value<std::string>(), 
@@ -145,16 +145,18 @@ CCoordinator::parseOptions(int argc, char *argv[])
 void 
 CCoordinator::initialise()
 {
+  threads.setThreadCount(vm["n-threads"].as<unsigned int>());
+
   switch (vm["engine"].as<size_t>())
     {
     case (1):
-      Engine.set_ptr(new CESingle(vm));
+      Engine.set_ptr(new CESingle(vm, threads));
       break;
     case (2):
-      Engine.set_ptr(new CEReplexer(vm));
+      Engine.set_ptr(new CEReplexer(vm, threads));
       break;
     case (3):
-      Engine.set_ptr(new CECompressor(vm));
+      Engine.set_ptr(new CECompressor(vm, threads));
       break;
     default:
       D_throw() <<"Unknown Engine Selected"; 

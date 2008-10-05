@@ -24,7 +24,8 @@
 #include <boost/program_options.hpp>
 #include <boost/scoped_array.hpp>
 #include "../../simulation/simulation.hpp"
-#include "../../extcode/threadpool.hpp"
+
+class CThreadPool;
 
 /*! \brief An engine to control/manipulate one or more CSimulation's.
  *
@@ -51,9 +52,11 @@ public:
    * \param vm Reference to the parsed command line variables.
    * \param configFile A format string on how config files should be written out.
    * \param outputFile A format string on how output files should be written out.
+   * \param tp The processes CThreadPool for parallel processing.
    */
   CEngine(const boost::program_options::variables_map& vm,
-	  std::string configFile, std::string outputFile);
+	  std::string configFile, std::string outputFile,
+	  CThreadPool& tp);
   
   /*! \brief The trivial virtual destructor. */
   virtual ~CEngine() {}
@@ -77,19 +80,25 @@ public:
    */
   virtual void finaliseRun() = 0;
 
-  /*! \brief Try to shut the engine down prematurely.
+  /*! \brief Try to shut the engine down prematurely due to an
+   * interrupt being called.
+   *
+   * This function must be safe to call during an interrupt.
    */
   virtual void forceShutdown() = 0;
 
-  /*! \brief Called when the user requests the status of the currently running engine.
+  /*! \brief Called when the user requests the status of the currently
+   * running engine.
    *
-   * Output minimal data that you would like to track here
+   * Output minimal data that you would like to track here.
+   * This function must be safe to call during an interrupt.
    */
   virtual void printStatus() = 0;
 
   /*! \brief The main simulation "loop"/call for the engine
    *
-   * Some engines like the CEReplexer require a loop and it will be implemented here
+   * Some engines like the CEReplexer require a loop and it will be
+   * implemented here
    */
   virtual void runSimulation() = 0;
 
@@ -98,10 +107,18 @@ public:
    */
   virtual void outputData() = 0;
 
-  virtual void outputConfigs() = 0;
-  
+  /*! \brief Instruct the system to output its data using outputData()
+   * at the next available point, for mid simulation previews.
+   */
   virtual void peekData() = 0;
-  
+
+  /*! \brief Output the configurations of the CSimulation's and CEngine
+   * so the run can be continued.
+   *
+   * This function must be safe to call during an interrupt.
+   */
+  virtual void outputConfigs() = 0;
+    
   /*! \brief Add common options for all the engines to the options_description
    *
    * Each engine will define a similar static function to add their
@@ -119,17 +136,24 @@ protected:
 
   /*! \brief Code common to loading a CSimulation from a config file.
    *
-   * \param Sim Simulation to set up.
+   * \param Sim CSimulation to set up.
    * \param inFile Name of configuration file to load.
    */
   virtual void setupSim(CSimulation & Sim, const std::string inFile);
 
+  /*! \brief Once the CSimulation is loaded and initialised you may
+   * need to alter it/load plugins/initialise some CEngine datastruct.
+   */
   virtual void postSimInit(CSimulation&);
 
+  /*! \brief A reference to the CCoordinators parsed command line variables.
+   */
   const boost::program_options::variables_map& vm;
-  CThreadPool threads;
+    
   std::string configFormat;
   std::string outputFormat;
+
+  CThreadPool& threads;
 };
 
 #endif
