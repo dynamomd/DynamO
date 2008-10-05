@@ -121,6 +121,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPChainBondAngles(Sim);
   else if (!Name.compare("ChainBondLength"))
     return new COPChainBondLength(Sim);
+  else if (!Name.compare("ReverseEventsCheck"))
+    return new COPReverseEventsCheck(Sim);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
     return new COPBoundedQStats(Sim);

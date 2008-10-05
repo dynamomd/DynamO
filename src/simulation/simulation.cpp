@@ -47,16 +47,6 @@ CSimulation::CSimulation():
   std::cout << std::setprecision(std::numeric_limits<float>::digits10);
 }
 
-CSimulation::~CSimulation()
-{
-  if (double frac = static_cast<double>(lReverseEvents) 
-      / static_cast<double>(lNColl) > 0.01 && lNColl)
-    I_cerr() << "EEEEEEEK! Number of reverse events > 1 \% , =" << frac;
-  
-  I_cout() << lReverseEvents << " reverse events found";
-}
-
-
 void 
 CSimulation::setTickerPeriod(Iflt nP)
 {
@@ -250,9 +240,6 @@ CSimulation::executeIntEvent()
       return;
     }
     
-  if (iEvent.getdt() < localeps)
-    ++lReverseEvents;
-  
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
     D_throw() << "A NAN Interaction collision time has been found"
@@ -305,13 +292,6 @@ CSimulation::executeGlobEvent()
     D_throw() << "No global collision found\n"
 	      << iEvent.stringData(this);
   
-  if (iEvent.getdt() < localeps)
-    ++lReverseEvents;
-
-  /*if (iEvent.getdt() < localeps)
-    D_throw() << "Reverse Time Global Collision!\n" 
-    << iEvent.stringData(this); */
-  
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
     D_throw() << "A NAN Global collision time has been found\n"
@@ -346,14 +326,10 @@ CSimulation::executeSysEvent()
   //Must have dt copied here as we dont have systemEvent classes
   Iflt dt = sEvent.getdt();
   
-  if (dt < localeps)
-    D_throw() << "Reverse Time system event!\n"; 
-  
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
     D_throw() << "A NAN system event time has been found";
 #endif
-
     
   dSysTime += dt;
     

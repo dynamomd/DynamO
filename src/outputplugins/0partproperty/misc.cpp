@@ -134,7 +134,6 @@ COPMisc::output(xmlw::XmlStream &XML)
       << xmlw::tag("SimLength")
       << xmlw::attr("Collisions") << Sim->lNColl
       << xmlw::attr("Time") << Sim->dSysTime / Sim->Dynamics.units().unitTime()
-      << xmlw::attr("ReverseEvents") << Sim->lReverseEvents    
       << xmlw::endtag("SimLength")
     
       << xmlw::tag("Timing") 

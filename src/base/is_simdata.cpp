@@ -28,7 +28,6 @@ namespace DYNAMO
     lNPrint(50000),
     lPrintLimiter(0),
     lN(0),
-    lReverseEvents(0),
     ptrScheduler(NULL),
     Dynamics(this),
     aspectRatio(1.0),

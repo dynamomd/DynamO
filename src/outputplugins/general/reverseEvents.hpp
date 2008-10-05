@@ -15,7 +15,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "replexTrace.hpp"
-#include "colldistcheck.hpp"
-#include "reverseEvents.hpp"
+#ifndef COPReverseEventsCheck_HPP
+#define COPReverseEventsCheck_HPP
 
+#include "../outputplugin.hpp"
+
+class COPCollMatrix;
+
+class COPReverseEventsCheck: public COutputPlugin
+{
+public:
+  COPReverseEventsCheck(const DYNAMO::SimData*);
+
+  ~COPReverseEventsCheck() {}
+
+  void eventUpdate(const CIntEvent&, const C2ParticleData&);
+
+  void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  
+  void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+
+  COutputPlugin *Clone() const { return new COPReverseEventsCheck(*this); }
+
+  virtual void initialise();
+
+  virtual void output(xmlw::XmlStream&);
+
+private:
+
+  unsigned long lReverseEvents;
+  Iflt localeps;
+};
+
+#endif

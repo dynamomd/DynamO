@@ -80,7 +80,6 @@ namespace DYNAMO
     long double dSysTime;
     unsigned long long lNColl, lMaxNColl, lNPrint, lPrintLimiter;
     unsigned long lN;
-    size_t lReverseEvents;
     std::vector<CParticle> vParticleList;  
     std::ostringstream ssHistory;
     CScheduler *ptrScheduler;

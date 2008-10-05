@@ -20,6 +20,7 @@
 #include "../../dynamics/systems/tHalt.hpp"
 #include "../../dynamics/systems/schedMaintainer.hpp"
 #include "../../outputplugins/0partproperty/misc.hpp"
+#include "../../outputplugins/general/reverseEvents.hpp"
 
 void
 CEngine::getCommonOptions(boost::program_options::options_description& opts)
@@ -94,6 +95,8 @@ CEngine::setupSim(CSimulation& Sim, const std::string filename)
 void 
 CEngine::postSimInit(CSimulation& Sim)
 {
+  Sim.addOutputPlugin<COPReverseEventsCheck>();
+
   if (!vm.count("equilibrate"))
     //Just add the bare minimum outputplugin
     Sim.addOutputPlugin<COPMisc>();

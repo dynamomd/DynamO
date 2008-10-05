@@ -14,7 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+/*! \file simulation.hpp
+ * \brief Contains the definition of the CSimulation class.
+ */
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
@@ -30,14 +32,21 @@ class CDynamics;
 class COutputPlugin;
 class CStreamTask;
 
+/*! \brief A single simulation holding particles, dynamics and output
+ * plugins.
+ *
+ * This class is the typical realisation of a simulation program. It
+ * can pretty much perform a standard simulation without any other
+ * supporting class structure like the CEngine and CCoordinator. This
+ * class handles the interface to the simulation and also stores the
+ * CSimulation data by deriving from the SimData class.
+ *
+ *
+ */
 class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 {
  public:
-  friend class CReplex;
-
   CSimulation();
-
-  ~CSimulation();
 
   void initialise();
 
