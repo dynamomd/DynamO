@@ -30,7 +30,7 @@ COPReverseEventsCheck::COPReverseEventsCheck(const DYNAMO::SimData* t1):
 void
 COPReverseEventsCheck::initialise()
 {
-  localeps = eps * Sim->Dynamics.units().unitTime();
+  localeps = -eps * Sim->Dynamics.units().unitTime();
 }
 
 void 

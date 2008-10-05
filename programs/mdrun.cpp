@@ -23,6 +23,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <signal.h>
 #include <boost/program_options.hpp>
 #include "../src/coordinator/coordinator.hpp"
@@ -59,6 +60,9 @@ main(int argc, char *argv[])
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n\n";
+
+  //Reasonable precision for periodic output
+  std::cout << std::setprecision(std::numeric_limits<float>::digits10);
 
   //Register the signal handlers so we can respond to
   //attempts/warnings that the program will be killed

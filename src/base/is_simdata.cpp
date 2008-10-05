@@ -40,6 +40,5 @@ namespace DYNAMO
   SimData::~SimData()
   {
     if (ptrScheduler != NULL) delete ptrScheduler;
-    outputPlugins.clear();
   }
 }

@@ -39,18 +39,13 @@
 #include "../dynamics/systems/sysTicker.hpp"
 
 CSimulation::CSimulation():
-  Base_Class("Simulation",IC_green),
-  rebuildnColl(-1),
-  localeps(0)
-{
-  //Reasonable precision for periodic output
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10);
-}
+  Base_Class("Simulation",IC_green)
+{}
 
 void 
 CSimulation::setTickerPeriod(Iflt nP)
 {
-   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+  CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
   if (ptr == NULL)
     D_throw() << "Could not find system ticker (maybe not required?)";
 
@@ -128,8 +123,6 @@ CSimulation::initialise()
 {
   if (status != CONFIG_LOADED)
     D_throw() << "Sim initialised at wrong time";
-
-  localeps = -eps * Dynamics.units().unitTime();
 
   lN = vParticleList.size();
   

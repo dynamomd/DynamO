@@ -46,8 +46,15 @@ class CStreamTask;
 class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 {
  public:
+  /*! \brief Just initialises the Base_Class
+   */
   CSimulation();
 
+  /*! \brief Initialise the entire CSimulation and the SimData struct.
+   *
+   * Most classes will have an initialisation function and its up to
+   * this function to call them all and in the right order.
+   */
   void initialise();
 
   inline void runSilentSimulation() { runSimulation(true); }
@@ -135,11 +142,6 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   void executeIntEvent();
   void executeGlobEvent();
   void executeSysEvent();
-
-  unsigned long long nImage;
-  unsigned long long rebuildnColl;
-  Iflt localeps;
-
 };
 
 #endif
