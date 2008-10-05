@@ -33,7 +33,7 @@ public:
   /*! \brief Only constructor.
    *
    * \param vm A reference to the CCoordinator's parsed command line variables.
-   * \para tp A reference to the thread pool of the dynarun instance.
+   * \param tp A reference to the thread pool of the dynarun instance.
    */ 
   CESingle(const boost::program_options::variables_map& vm, 
 	   CThreadPool& tp);
