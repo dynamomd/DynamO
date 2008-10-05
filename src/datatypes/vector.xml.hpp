@@ -14,6 +14,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/*! \file vector.xml.hpp
+ *
+ * Contains the definition of the XML functions for a CVector
+ */
 
 #ifndef VECTOR_XML_H
 #define VECTOR_XML_H

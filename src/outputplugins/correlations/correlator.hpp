@@ -78,23 +78,23 @@ class COPCorrelator: public COutputPlugin
     //Now test if we've gone over the step time
     if (currentdt + edt >= dt)
       {
-	delG += constDelG * (dt - currentdt);
+	delG += constDelG * CVector<>(dt - currentdt);
 	newG (delG);
 	currentdt += edt - dt;
 
 	while (currentdt >= dt)
 	  {
-	    delG = constDelG * dt;
+	    delG = constDelG * CVector<>(dt);
 	    currentdt -= dt;
 	    newG(delG);
 	  }
 	//Now calculate the start of the new delG
-	delG = constDelG * currentdt;
+	delG = constDelG * CVector<>(currentdt);
       }
     else
       {
 	currentdt += edt;
-	delG += constDelG * edt;
+	delG += constDelG * CVector<>(edt);
       }
   }
 
@@ -134,7 +134,7 @@ class COPCorrelator: public COutputPlugin
     for (unsigned int i = 0; i < accG2.size(); i++)
       XML << xmlw::tag("data") << xmlw::attr("t")
 	  << (i+1) * dt / Sim->Dynamics.units().unitTime()
-	  << accG2[i] * factor
+	  << accG2[i] * CVector<>(factor)
 	  << xmlw::endtag("data");
     
     XML << xmlw::endtag("Correlator");
@@ -157,9 +157,9 @@ class COPCorrelator: public COutputPlugin
   }
   
  protected:  
-  virtual T impulseDelG(const C2ParticleData&) { return T(0); }
+  virtual T impulseDelG(const C2ParticleData&) { return T(0.0); }
 
-  virtual T impulseDelG(const C1ParticleData&) { return T(0); }
+  virtual T impulseDelG(const C1ParticleData&) { return T(0.0); }
   
   virtual T impulseDelG(const CNParticleData& ndat) 
   { 

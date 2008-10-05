@@ -40,7 +40,7 @@ struct CUMirror: public CUCell
   virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
   {
     //Must be placed at zero for the mirroring to work correctly
-    std::vector<CVector<> > retval(uc->placeObjects(0.0));
+    std::vector<CVector<> > retval(uc->placeObjects(CVector<>(0.0)));
 
     //Avoid dividing by zero, then distribute the images according to the fraction
     if (!(count1+count2) || (static_cast<double>(count1) / static_cast<double>(count1+count2) > fraction))

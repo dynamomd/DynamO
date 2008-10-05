@@ -14,6 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/*! \file vector.hpp
+ * Contains the non XML functions and definitions of the CVector class.
+ */
 
 #ifndef VECTOR_H
 #define VECTOR_H
@@ -29,20 +32,38 @@ namespace xmlw
   class XmlStream;
 }
 
+/*! \brief The simple NDIM vector class.
+ *
+ * This class is used alot for vector storage an operations. It seems
+ * to optimise to zero cost as it has resisted all my attempts to
+ * optimise it. I've currently tried templated/preprocessor unrolling
+ * and I failed at using liboil to take advantage of the systems MMX
+ * extensions etc.
+ *
+ * \bug Need to set the initialise all elements of a vector
+ * constructor (CVector(const T& fillItem)) to explicit so that it is
+ * obvious when a conversion is performed but this requires the
+ * correlators to be overhauled.
+ */
 template <typename T = Iflt> 
 class CVector
 {
  public:
+  /*! \brief The data of the vector.
+   */
   T data[NDIM];
 
+  /*! \brief The default initialisor for speed. */
   inline CVector() {}
     
+  /*! \brief Initialise all elements of the vector to a certain value. */
   inline CVector (const T& fillItem)
   {
     for (size_t i = 0; i < NDIM; ++i)
       data[i] = fillItem;
   }
   
+  /*! \brief Adds each dimension of the vectors seperately. */
   inline CVector<T> operator+ (const CVector < T > &v2) const
   {
     CVector < T > tmpVec;
@@ -53,6 +74,7 @@ class CVector
     return tmpVec;
   }
   
+  /*! \brief Adds each dimension of the vectors seperately. */
   inline CVector<T>& operator+= (const CVector < T > &v2)
   {
     for (size_t i = 0; i < NDIM; ++i)
@@ -61,6 +83,7 @@ class CVector
     return *this;
   }
   
+  /*! \brief Subtracts each dimension of the vectors seperately. */
   inline CVector < T > operator- (const CVector < T > &v2) const
   {
     CVector < T > tmpVec;
@@ -71,6 +94,7 @@ class CVector
     return tmpVec;
   }
   
+  /*! \brief Subtracts each dimension of the vectors seperately. */
   inline CVector<T>& operator-= (const CVector < T > &v2)
   {
     for (size_t i = 0; i < NDIM; ++i)
@@ -79,6 +103,7 @@ class CVector
     return *this;
   }
   
+  /*! \brief Multiplies each dimension of the vectors seperately. */
   inline CVector<T> operator* (const CVector < T > &v2) const
   {
     CVector < T > tmpVec;
@@ -89,6 +114,7 @@ class CVector
     return tmpVec;
   }
   
+  /*! \brief Multiplies each dimension of the vectors seperately. */
   inline CVector<T>& operator*= (const CVector < T > &v2)
   {
     for (size_t i = 0; i < NDIM; ++i)
@@ -97,6 +123,7 @@ class CVector
     return *this;
   }
   
+  /*! \brief Scales the vector by a factor */
   inline CVector<T> operator* (const T &val) const
   {
     CVector < T > tmpVec;
@@ -107,10 +134,12 @@ class CVector
     return tmpVec;
   }
   
+  /*! \brief Scales the vector by a factor */
   friend inline CVector<T> operator* (const T &val,
 				      const CVector<T>& vec)
   { return vec * val; }
   
+  /*! \brief Scales the vector by a factor */
   inline CVector<T>& operator*= (const T &val)
   {
     for (size_t i = 0; i < NDIM; ++i)
@@ -119,6 +148,7 @@ class CVector
     return *this;
   }
   
+  /*! \brief Divides the vector by a factor */
   inline CVector<T> operator/ (const CVector < T > &v2) const
   {
     CVector < T > tmpVec;
@@ -129,6 +159,7 @@ class CVector
     return tmpVec;
   }
   
+  /*! \brief Divides the vector by a factor */
   inline CVector < T > operator/ (const T &val) const
   {
     CVector < T > tmpVec;
@@ -139,6 +170,7 @@ class CVector
     return tmpVec;
   }
   
+  /*! \brief Divides the vector by a factor */
   inline CVector<T> operator/= (const T &val)
   {
     for (size_t i = 0; i < NDIM; ++i)
@@ -147,6 +179,7 @@ class CVector
     return *this;
   }
   
+  /*! \brief Only defined for 3d but outputs the cross product. */  
   inline CVector<T> Cross(const CVector<T> &val)
   {
 #ifdef DYNAMO_DEBUG
@@ -162,7 +195,7 @@ class CVector
     return tmpVec;
   }
   
-  // The dot product operator
+  /*! \brief The dot product operator. */
   inline T operator% (const CVector < T > &v2) const
   {
     T tmpVal = data[0] * v2.data[0];
@@ -172,11 +205,13 @@ class CVector
     return tmpVal;
   }
   
+  /*! \brief Returns a unit CVector of the current CVector*/
   inline CVector < T > unitVector() const
   {
     return (*this) / length();
   }
   
+  /*! \brief Returns the value of the vector dotted with itself.*/
   inline T square() const
   {
     T tmpVal(data[0] * data[0]);
@@ -187,9 +222,11 @@ class CVector
     return tmpVal;
   }
   
+  /*! \brief Returns the scalar length of the vector.*/
   inline T length() const
   { return std::sqrt(square()); }
   
+  /*! \brief Flips the CVector's direction. */
   inline CVector < T > operator-()const
   { 
     CVector < T > tmpVec;
@@ -200,16 +237,27 @@ class CVector
     return tmpVec;
   }
   
-  inline T & operator[] (const int &indx)
+  /*! \brief Non-const accessor to a dimension of the vector */
+  inline T & operator[] (const size_t &indx)
   {
+#ifdef DYNAMO_DEBUG
+    if (indx >= NDIM) D_throw() << "CVector out of bounds error";
+#endif
+
     return data[indx];
   }
   
-  inline const T & operator[] (const int &indx) const
+  /*! \brief const accessor to a dimension of the vector */
+  inline const T & operator[] (const size_t &indx) const
   {
+#ifdef DYNAMO_DEBUG
+    if (indx >= NDIM) D_throw() << "CVector out of bounds error";
+#endif
+
     return data[indx];
   }
   
+  /*! \brief Returns the dyadic product of two vectors.  */  
   inline CVector<CVector<T> > dyad(const CVector<T>& rightVec) const
   {    
     CVector<CVector<T> > tmpvec(0);
@@ -221,16 +269,20 @@ class CVector
     return tmpvec;
   }
   
+  /*! \brief Will load a CVector from an XMLNode.*/
   void operator<<(const XMLNode&);
   
+  /*! \brief A helper function to write out a CVector to an XMLStream*/
   template<class S>
   friend xmlw::XmlStream& 
   operator<<(xmlw::XmlStream&, const CVector<S>&);
   
+  /*! \brief A helper function to write out a CVector matrix to an XMLStream*/
   template<class S>
   friend xmlw::XmlStream& 
   operator<<(xmlw::XmlStream&, const CVector<CVector<S> >&);
 
+  /*! \brief A helper function to change the stored type of a vector. */
   template<class A>
   friend CVector<A>
   convertVec(const CVector<T>& old)
