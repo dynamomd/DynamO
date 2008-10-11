@@ -37,6 +37,8 @@ public:
 
   COutputPlugin *Clone() const { return new COPReverseEventsCheck(*this); }
 
+  virtual void changeSystem(COutputPlugin*) {}
+
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream&);
