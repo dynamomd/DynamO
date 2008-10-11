@@ -481,7 +481,7 @@ CDynamics::operator<<(const XMLNode& XML)
   xSubNode = xDynamics.getChildNode("Units");
   p_units.set_ptr(CUnits::loadUnits(xSubNode,Sim));
 
-  //Now load the BC part
+  //Now load the BC part, after the aspect ratio!
   xSubNode = xDynamics.getChildNode("BC");
   p_BC.set_ptr(CBC::loadClass(xSubNode, Sim));
 
