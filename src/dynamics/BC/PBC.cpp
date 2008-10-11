@@ -19,8 +19,8 @@
 #include "shapes.hpp"
 #include "../../extcode/xmlwriter.hpp"
 
-CSPBC::CSPBC(DYNAMO::SimData* tmp):
-  Base_Class("SPBC",IC_purple)
+CSPBC::CSPBC(const DYNAMO::SimData* tmp):
+  CSqBC(tmp, "SPBC", IC_purple)
 {
   Sim = tmp;
 }
@@ -41,8 +41,8 @@ void
 CSPBC::operator<<(const XMLNode&) 
 {}
 
-CRPBC::CRPBC(DYNAMO::SimData* tmp):
-  Base_Class("RPBC",IC_purple)
+CRPBC::CRPBC(const DYNAMO::SimData* tmp):
+  CRectBC(tmp, "RPBC", IC_purple)
 {
   Sim = tmp;
 }
@@ -63,8 +63,8 @@ CRPBC::Clone () const
 { return new CRPBC(*this); }
 
 
-CRNoXPBC::CRNoXPBC(DYNAMO::SimData* tmp):
-  Base_Class("RNoXPBC",IC_purple)
+CRNoXPBC::CRNoXPBC(const DYNAMO::SimData* tmp):
+  CRectBC(tmp, "RNoXPBC",IC_purple)
 {
   Sim = tmp;
 }

@@ -21,7 +21,13 @@
 #include "BC.hpp"
 #include "../../base/is_base.hpp"
 
-class CNullBC: virtual public CBC, public DYNAMO::Base_Class
+/*! \brief An infinite system boundary condition
+ * 
+ * Performs no rounding at the simulation boundaries. This is useful
+ * for isolated polymer simulations but you must remember that
+ * positions can overflow eventually.
+ */
+class CNullBC: virtual public CBC
 {
  public:
   CNullBC(const DYNAMO::SimData*);

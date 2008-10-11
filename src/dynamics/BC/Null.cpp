@@ -18,8 +18,8 @@
 #include "Null.hpp"
 #include "../../extcode/xmlwriter.hpp"
 
-CNullBC::CNullBC(const DYNAMO::SimData*):
-  Base_Class("NullBC", IC_purple)
+CNullBC::CNullBC(const DYNAMO::SimData* Sim):
+  CBC(Sim, "NullBC", IC_purple)
 { I_cout() << "No boundary condition loaded"; }
 
 CNullBC::~CNullBC() {}

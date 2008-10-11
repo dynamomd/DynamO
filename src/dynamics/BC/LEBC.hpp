@@ -21,12 +21,17 @@
 #include "shapes.hpp"
 #include "../../base/is_base.hpp"
 
-class CRLEBC: virtual public CRectBC, public DYNAMO::Base_Class
+/*! \brief A simple rectangular Lees-Edwards simple shear boundary
+ * condition.
+ *
+ * See the square version for more details (CSLEBC)
+ */
+class CRLEBC: virtual public CRectBC
 {
  public:
-  CRLEBC(DYNAMO::SimData*);
+  CRLEBC(const DYNAMO::SimData*);
 
-  CRLEBC(const XMLNode&, DYNAMO::SimData*);
+  CRLEBC(const XMLNode&, const DYNAMO::SimData*);
 
   virtual void outputXML(xmlw::XmlStream&) const;
 
@@ -43,15 +48,26 @@ class CRLEBC: virtual public CRectBC, public DYNAMO::Base_Class
   virtual void update(const Iflt&);
 
  protected:  
+  /*! \brief The current offset of the simulation boundary conditions.*/
   Iflt dxd;
 };
 
-class CSLEBC: virtual public CSqBC, public DYNAMO::Base_Class
+
+/*! \brief A simple square Lees-Edwards simple shear boundary condition.
+ * 
+ * This class implements the sliding brick boundary condtion. In this
+ * the simulation images above and below the primary image are set in
+ * motion. This affects the particle velocities and positions on a
+ * transition of the boundary.
+ *
+ * See CBC for a general description of the member functions.
+ */
+class CSLEBC: virtual public CSqBC
 {
  public:
-  CSLEBC(DYNAMO::SimData*);
+  CSLEBC(const DYNAMO::SimData*);
 
-  CSLEBC(const XMLNode&, DYNAMO::SimData*);
+  CSLEBC(const XMLNode&, const DYNAMO::SimData*);
 
   virtual void outputXML(xmlw::XmlStream&) const;
 
@@ -68,6 +84,7 @@ class CSLEBC: virtual public CSqBC, public DYNAMO::Base_Class
   virtual void update(const Iflt&);
 
  protected:  
+  /*! \brief The current offset of the simulation boundary conditions.*/
   Iflt dxd;
 };
 

@@ -22,53 +22,62 @@
 #include "../../base/is_simdata.hpp"
 #include <cmath> 
 #include <boost/preprocessor.hpp>
+#include "../../base/is_exception.hpp"
 
+#ifdef DYNAMO_double_precsision
+# define rintfunc rint
+#else
+# define rintfunc rintf
+#endif
+
+/*! \brief Just a simple class that implements rectangular system rounding.
+ *
+ * The definition between square and rectangular is only for
+ * optimisation purposes.
+ */
 class CRectBC: public CBC 
 {
+public:
+  CRectBC(const DYNAMO::SimData* const &SD, const char *aName, 
+      const char *aColor):
+    CBC(SD, aName, aColor)
+  {
+  }
+
 protected:
   //Not virtual as here ends the rounding definition
   inline void rounding(CVector<>& pos) const
   {
-
-#ifdef DYNAMO_double_precsision
-# define BOOST_PP_LOCAL_LIMITS (0, NDIM - 1)
-# define BOOST_PP_LOCAL_MACRO(n)			\
-    pos.data[n] -= Sim->aspectRatio[n] *	\
-      rint (pos.data[n]/Sim->aspectRatio[n]);
-    /**/
-    
-# include BOOST_PP_LOCAL_ITERATE()
-#else
-# define BOOST_PP_LOCAL_LIMITS (0, NDIM - 1)
-# define BOOST_PP_LOCAL_MACRO(n)			\
-    pos.data[n] -= Sim->aspectRatio[n] *	\
-      rintf (pos.data[n]/Sim->aspectRatio[n]);
-    /**/
-    
-# include BOOST_PP_LOCAL_ITERATE()
-#endif
+    for (size_t n = 0; n < NDIM; ++n)
+      pos.data[n] -= Sim->aspectRatio[n] *
+	rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
   }
 };
 
+/*! \brief Just a simple class that implements square system rounding.
+ *
+ * The definition between square and rectangular is only for
+ * optimisation purposes.
+ */
 class CSqBC: public CBC
 {  
+public:
+  CSqBC(const DYNAMO::SimData* const &SD, const char *aName, 
+	const char *aColor):
+    CBC(SD, aName, aColor)
+  {
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      if (Sim->aspectRatio[iDim] != 0)
+	D_throw() << "The simulation aspect ratio is not unity for the use of "
+	  "square PBC's";
+  }
+
 protected:
   //Not virtual as here ends the rounding definition
   inline void rounding(CVector<>& pos) const
   {
-#ifdef DYNAMO_double_precsision
-# define BOOST_PP_LOCAL_LIMITS (0, NDIM - 1)
-# define BOOST_PP_LOCAL_MACRO(n)			\
-      pos.data[n] -= rint (pos.data[n]);
-
-# include BOOST_PP_LOCAL_ITERATE()
-#else
-# define BOOST_PP_LOCAL_LIMITS (0, NDIM - 1)
-# define BOOST_PP_LOCAL_MACRO(n)			\
-      pos.data[n] -= rintf (pos.data[n]);
-
-# include BOOST_PP_LOCAL_ITERATE()
-#endif
+    for (size_t n = 0; n < NDIM; ++n)
+      pos.data[n] -= rintfunc (pos.data[n]);
   }
 };
 

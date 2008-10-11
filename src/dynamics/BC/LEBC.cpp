@@ -25,16 +25,16 @@
 #include "../../base/is_simdata.hpp"
 
 
-CRLEBC::CRLEBC(DYNAMO::SimData* tmp):
-  Base_Class("LEBC",IC_purple),
+CRLEBC::CRLEBC(const DYNAMO::SimData* tmp):
+  CRectBC(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
   I_cout() << "Rectangular Lee's Edwards BC loaded"; 
 }
 
-CRLEBC::CRLEBC(const XMLNode& XML, DYNAMO::SimData* tmp):
-  Base_Class("LEBC",IC_purple),
+CRLEBC::CRLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
+  CRectBC(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
@@ -114,16 +114,16 @@ CRLEBC::update(const Iflt& dt)
 
 /////////////////////////////Rectangular/////////////////////////////////////
 
-CSLEBC::CSLEBC(DYNAMO::SimData* tmp):
-  Base_Class("LEBC",IC_purple),
+CSLEBC::CSLEBC(const DYNAMO::SimData* tmp):
+  CSqBC(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
   I_cout() << "Square Lee's Edwards BC loaded"; 
 }
 
-CSLEBC::CSLEBC(const XMLNode& XML, DYNAMO::SimData* tmp):
-  Base_Class("LEBC",IC_purple),
+CSLEBC::CSLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
+  CSqBC(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;

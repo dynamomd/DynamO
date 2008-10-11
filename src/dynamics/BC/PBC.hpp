@@ -21,10 +21,14 @@
 #include "shapes.hpp"
 #include "../../base/is_base.hpp"
 
-class CSPBC: public CSqBC, public DYNAMO::Base_Class
+/*! \brief A simple cubic/square periodic boundary condition.
+ * 
+ * See the CBC base class for member descriptions.
+ */
+class CSPBC: public CSqBC
 {
 public:
-  CSPBC(DYNAMO::SimData*);
+  CSPBC(const DYNAMO::SimData*);
 
   void setPBC(CVector<>& pos) const
   { rounding(pos); }
@@ -37,10 +41,14 @@ public:
   virtual CBC* Clone () const;
 };
 
-class CRPBC: public CRectBC, public DYNAMO::Base_Class
+/*! \brief A simple rectangular periodic boundary condition.
+ * 
+ * See the CBC base class for member descriptions.
+ */
+class CRPBC: public CRectBC
 {
 public:
-  CRPBC(DYNAMO::SimData*);
+  CRPBC(const DYNAMO::SimData*);
 
   void setPBC(CVector<>& pos) const
   { rounding(pos); }
@@ -53,10 +61,16 @@ public:
   virtual CBC* Clone () const;
 };
 
-class CRNoXPBC: public CRectBC, public DYNAMO::Base_Class
+/*! \brief This class ignores the x direction but is periodic in others.
+ *
+ * Used to check that a system bounded by walls in the x direction has
+ * no leaks as these are not rounded and would show up in animations
+ * or inspections.
+ */
+class CRNoXPBC: public CRectBC
 {
 public:
-  CRNoXPBC(DYNAMO::SimData*);
+  CRNoXPBC(const DYNAMO::SimData*);
 
   void setPBC(CVector<>& pos) const
   { 
