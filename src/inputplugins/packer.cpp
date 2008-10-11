@@ -46,11 +46,14 @@ CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
 po::options_description 
 CIPPacker::getOptions()
 {
-  po::options_description retval("System Packer General Options"), hiddenopts("Packing Mode Options (description of each for each mode is given by --packer-mode-help)");
+  po::options_description retval("System Packer General Options"), 
+    hiddenopts("Packing Mode Options (description of each for each mode is "
+	       "given by --packer-mode-help)");
   
   retval.add_options()
     ("packer-mode,m", po::value<size_t>(), "Chooses the system to initialise")
-    ("packer-mode-help,h", "Outputs the possible packer modes and their options")
+    ("packer-mode-help,h", 
+     "Outputs the possible packer modes and their options")
     ("NCells,C", po::value<unsigned long>()->default_value(7), 
      "Number of unit cells to a dimension")
     ("xcell,x", po::value<unsigned long>(), 
@@ -59,7 +62,10 @@ CIPPacker::getOptions()
      "For rectlinear co-ordinates, number of unit cells in the y direction")
     ("zcell,z", po::value<unsigned long>(), 
      "For rectlinear co-ordinates, number of unit cells in the z direction")
-    ("density,d", po::value<Iflt>()->default_value(0.5), "System number density (init-mode > 1)")
+    ("rectangular-box", "This will cause the simulation box to be deformed so "
+     "that the x,y,z ecells specify the aspect ratio")
+    ("density,d", po::value<Iflt>()->default_value(0.5),
+     "System number density (init-mode > 1)")
     ("Thermostat,T", po::value<Iflt>(), 
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT")
     ;
@@ -89,9 +95,11 @@ CIPPacker::initialise()
       I_cout() << 
 	"Modes available:\n"
 	"  0: Monocomponent hard spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"\n"
 	"  1: Monocomponent square wells\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"\n"
 	"       --f1 : Lambda [1.5] (well width factor)\n"
 	"       --f2 : Well Depth (negative for square shoulders) [1]\n"
 	"  2: Random walk of an isolated attractive polymer\n"
@@ -100,13 +108,17 @@ CIPPacker::initialise()
 	"       --f2 : Well width factor [1.5]\n"
 	"       --f3 : Bond inner core [0.9]\n"
 	"       --f4 : Bond outer well [1.1]\n"
-	"       --s1 : HP sequence to use (eg 0001010) [defaults to homopolymer if unset]\n"
-	"  3: Load a config and pack it, you will need to reset the interactions etc.\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --s1 : HP sequence to use (eg 0001010) "
+	"[defaults to homopolymer if unset]\n"
+	"  3: Load a config and pack it, you will need to reset the"
+	" interactions etc.\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"\n"
 	"       --f1 : Chiral fraction (0-1) [Unloaded]\n"
 	"       --s1 : File to load and use as unit cell [config.out.xml.bz2]\n"
 	"  4: Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"\n"
 	"       --f1 : Inelasticity [1.0]\n"
 	"  5: Walk an isolated spiral/helix\n"
 	"       --i1 : Chain length [20]\n"
@@ -115,10 +127,12 @@ CIPPacker::initialise()
 	"       --f2 : Well width factor [1.5]\n"
 	"       --f3 : Bond inner core (>0) [0.9]\n"
 	"       --f4 : Bond outer well (>0) [1.1]\n"
-	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
+	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]"
+	"\n"
 	"  6: Monocomponent square wells confined by two walls\n"
 	"  7: Ring polymer, dropped as a straight rod\n"
-	"       --i1 : Chain length (number supplied is doubled, e.g. default of 10 gives a 20mer) [10]\n"
+	"       --i1 : Chain length (number supplied is doubled, "
+	"e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
 	"       --f2 : Bond outer well (>0) [1.05]\n"
 	"       --f3 : Well width factor [1.5]"
@@ -134,24 +148,44 @@ CIPPacker::initialise()
       {
 	//FCC simple cubic pack of hard spheres
 	//Pack the system, determine the number of particles
-	std::vector<CVector<> > latticeSites(standardPackingHelper(new CUParticle()));
+	std::vector<CVector<> > 
+	  latticeSites(standardPackingHelper(new CUParticle()));
+      	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
 	
-	double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), 1.0/3.0);
+	double particleDiam = pow(simVol * vm["density"].as<double>() 
+				  / latticeSites.size(), 1.0 / 3.0);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSMultList(Sim);
-	
-	Sim->Dynamics.setPBC<CSPBC>();
+
+
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0, 
 						      new C2RAll()
 						      ))->setName("Bulk");
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					  "Bulk"));
+
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -160,33 +194,43 @@ CIPPacker::initialise()
       {
 	//FCC simple cubic pack of hard spheres
 	//Pack the system, determine the number of particles
-	std::vector<CVector<> > latticeSites(standardPackingHelper(new CUParticle()));
+	std::vector<CVector<> > latticeSites(standardPackingHelper
+					     (new CUParticle()));
       
-        double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), 1.0/3.0);
+        double particleDiam = pow(vm["density"].as<double>() 
+				  / latticeSites.size(), 1.0/3.0);
 		
 	//Set up a standard simulation
 	//Just a square well system
 	Sim->ptrScheduler = new CSMultList(Sim);
+	
 	Sim->Dynamics.setPBC<CSPBC>();
+	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
+	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
 	double lambda = 1.5, wellDepth = 1.0;
+
 	if (vm.count("f1"))
 	  lambda = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
 	  wellDepth = vm["f2"].as<double>();
 
-	Sim->Dynamics.addInteraction(new CISquareWell(Sim, particleDiam, lambda, wellDepth, 1.0,
+	Sim->Dynamics.addInteraction(new CISquareWell(Sim, particleDiam, 
+						      lambda, wellDepth, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					  "Bulk"));
 	
 	unsigned long nParticles = 0;
+
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -195,16 +239,21 @@ CIPPacker::initialise()
       {
 	//Random walk an isolated attractive homopolymer
 	size_t chainlength = 20;
+
 	if (vm.count("i1"))
 	  chainlength = vm["i1"].as<size_t>();
 
 	double sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5);
+
 	if (vm.count("f1"))
 	  sigma = vm["f1"].as<double>();
+
 	if (vm.count("f2"))
 	  lambda = vm["f2"].as<double>();
+
 	if (vm.count("f3"))
 	  sigmin = vm["f3"].as<double>();
+
 	if (vm.count("f4"))
 	  sigmax = vm["f4"].as<double>();
 	
@@ -212,66 +261,90 @@ CIPPacker::initialise()
 	//to help with seriously overlapping wells
 	double diamScale = 1.0 / chainlength;
 	
-	CURandWalk sysPack(chainlength, (sigmin + 0.95*(sigmax - sigmin)) * diamScale, sigma * diamScale, new CUParticle());
+	CURandWalk sysPack(chainlength, (sigmin + 0.95 * (sigmax - sigmin)) 
+			   * diamScale, sigma * diamScale, new CUParticle());
+
 	sysPack.initialise();
+
 	//Drop them in the middle of the sim
-	std::vector<CVector<> > latticeSites(sysPack.placeObjects(CVector<>(0.0)));
+	std::vector<CVector<> > latticeSites(sysPack.placeObjects
+					     (CVector<>(0.0)));
 
 	//Set up the system now
 	Sim->ptrScheduler = new CSFastSingle(Sim);
+
 	Sim->Dynamics.setPBC<CNullBC>();
+
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
-	Sim->Dynamics.addInteraction(new CISquareBond(Sim, sigmin * diamScale, 
-						      sigmax / sigmin, new C2RChain(0, latticeSites.size()-1)
-						      )
+
+	Sim->Dynamics.addInteraction
+	  (new CISquareBond(Sim, sigmin * diamScale, 
+			    sigmax / sigmin,
+			    new C2RChain(0, latticeSites.size()-1)
+			    )
 				     )->setName("Bonds");
 
 	if (vm.count("s1"))
 	  {
 	    //A sequence has been supplied
 	    std::vector<size_t> seq;
+
 	    seq.resize(chainlength, 0);
 
 	    std::string stringseq = vm["s1"].as<std::string>();
 
 	    //Transcribe the sequence
 	    for (size_t i = 0; i < chainlength; ++i)	  
-	      seq[i] = boost::lexical_cast<size_t>(stringseq[i % stringseq.size()]);
+	      seq[i] = boost::lexical_cast<size_t>
+		(stringseq[i % stringseq.size()]);
 	    
 	    Sim->Dynamics.addInteraction
 	      (new CISWSequence(Sim, sigma * diamScale, lambda, 1.0, 
 				seq, new C2RAll()))->setName("Bulk");
 	    
-	    CISWSequence& interaction(static_cast<CISWSequence&>
-				      (*(Sim->Dynamics.getInteraction("Bulk"))));
+	    CISWSequence& interaction
+	      (static_cast<CISWSequence&>
+	       (*(Sim->Dynamics.getInteraction("Bulk"))));
 	    
 	    
 	    interaction.getAlphabet().at(0).at(0) = 1.0;
+
 	    interaction.getAlphabet().at(1).at(0) = 0.5;
+
 	    interaction.getAlphabet().at(0).at(1) = 0.5;
 	  }
 	else
-	  Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, lambda, 1.0, 
+	  Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
+							lambda, 1.0, 
 							1.0, 
 							new C2RAll()
 							))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
+					  "Bulk"));
+
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+
 	Sim->Dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
+
 	Sim->Dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
 	unsigned long nParticles = 0;
+
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec(), nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+
 	break;
       }
     case 3:
       {
-	//This packs a system using a file for the unit cell, the density should just be adjusted by hand
+	//This packs a system using a file for the unit cell, the
+	//density should just be adjusted by hand
 	std::string fileName("config.out.xml.bz2");
+
 	if (vm.count("s1"))
 	  fileName = vm["s1"].as<std::string>();
 
@@ -289,7 +362,7 @@ CIPPacker::initialise()
 					   fileName, new CUParticle()));
 	else
 	  tmpPtr = new CUFile(CVector<>(diamScale), fileName, new CUParticle());
-
+	
 	std::vector<CVector<> > latticeSites(standardPackingHelper(tmpPtr));
 	
 	//Set up the system now
@@ -301,14 +374,16 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0,latticeSites.size()-1), 1.0, "Bulk", 0, "Bulk"));
+	Sim->Dynamics.addSpecies
+	  (CSpecies(Sim, new CRRange(0,latticeSites.size()-1), 1.0, "Bulk", 0,
+		    "Bulk"));
 	
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
-
 	
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -317,25 +392,50 @@ CIPPacker::initialise()
       {
 	//FCC simple cubic pack of hard spheres with inelasticity and shearing
 	//Pack the system, determine the number of particles
-	std::vector<CVector<> > latticeSites(standardPackingHelper(new CUParticle()));
-	double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), 1.0/3.0);
+	std::vector<CVector<> > latticeSites
+	  (standardPackingHelper(new CUParticle()));
+
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	  }
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+
+	double particleDiam = pow(simVol * vm["density"].as<double>() 
+				  / latticeSites.size(), 1.0 / 3.0);
+
 	double alpha = 1.0;
+
 	if (vm.count("f1"))
 	  alpha = vm["f1"].as<double>();
-
+	
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSMultListShear(Sim);
-	Sim->Dynamics.setPBC<CSLEBC>();
+
+	if (vm.count("rectangular-box"))
+	  Sim->Dynamics.setPBC<CRLEBC>();
+	else
+	  Sim->Dynamics.setPBC<CSLEBC>();
+
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, alpha, 
 						      new C2RAll()
 						      ))->setName("Bulk");
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
+					  "Bulk"));
+
 	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
 	
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec(), nParticles++));
 
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->Dynamics.zeroMomentum(Sim->vParticleList);
@@ -349,22 +449,30 @@ CIPPacker::initialise()
       {
 	//Helix/spiral layout of molecules
 	size_t chainlength = 20;
+
 	if (vm.count("i1"))
 	  chainlength = vm["i1"].as<size_t>();
 
 	size_t ringlength = 9;
+
 	if (vm.count("i2"))
 	  ringlength = vm["i2"].as<size_t>();
 
-	double sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5), tightness(0.05);
+	double sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5), 
+	  tightness(0.05);
+
 	if (vm.count("f1"))
 	  sigma = vm["f1"].as<double>();
+
 	if (vm.count("f2"))
 	  lambda = vm["f2"].as<double>();
+
 	if (vm.count("f3"))
 	  sigmin = vm["f3"].as<double>();
+
 	if (vm.count("f4"))
 	  sigmax = vm["f4"].as<double>();
+
 	if (vm.count("f5"))
 	  tightness = vm["f5"].as<double>();
 	
@@ -374,33 +482,49 @@ CIPPacker::initialise()
 	
 	//Space the hard spheres 2% further apart than minimum and set
 	//the bonds to 2% max length to coil this as much as possible
-	CUHelix sysPack(chainlength, ringlength, (sigmin + tightness * (sigmax - sigmin)) * diamScale, (1.0 + tightness) * sigma * diamScale, new CUParticle());
+	CUHelix sysPack(chainlength, ringlength, 
+			(sigmin + tightness * (sigmax - sigmin)) * diamScale, 
+			(1.0 + tightness) * sigma * diamScale, 
+			new CUParticle());
+
 	sysPack.initialise();
 
 	//Drop them in the middle of the sim
-	std::vector<CVector<> > latticeSites(sysPack.placeObjects(CVector<>(0.0)));
+	std::vector<CVector<> > latticeSites
+	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
 	Sim->ptrScheduler = new CSFastSingle(Sim);
+
 	Sim->Dynamics.setPBC<CNullBC>();
+
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
-	Sim->Dynamics.addInteraction(new CISquareBond(Sim, sigmin * diamScale, 
-						      sigmax / sigmin, new C2RChain(0, latticeSites.size()-1)
-						      )
-				     )->setName("Bonds");
-	Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, lambda, 1.0, 
+
+	Sim->Dynamics.addInteraction
+	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 
+			    new C2RChain(0, latticeSites.size()-1)
+			    ))->setName("Bonds");
+
+	Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, 
+						      lambda, 1.0, 
 						      1.0, 
 						      new C2RAll()
 						      ))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
+					  "Bulk"));
+
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+
 	Sim->Dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
+
 	Sim->Dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
 	unsigned long nParticles = 0;
+
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -410,16 +534,19 @@ CIPPacker::initialise()
 	//FCC simple cubic pack of hard spheres and walls
 	//Pack the system, determine the number of particles
 	CVector<long> cells;
+
 	cells[0] = 3;
+
 	cells[1] = 5;
+
 	cells[2] = 5;
 
 	CVector<double> dimensions(1.0);
+
 	dimensions[0] = 0.45;
 	
 	boost::scoped_ptr<CUCell> sysPack(new CUFCC(cells, dimensions, 
 						    new CUParticle()));
-
 	Sim->aspectRatio[0] = 0.6;
 
 	std::vector<CVector<> > latticeSites(sysPack->placeObjects
@@ -451,12 +578,16 @@ CIPPacker::initialise()
 
 	double lambda = 1.5;
 
-	Sim->Dynamics.addInteraction(new CISquareWell(Sim, particleDiam, lambda, 1.0, 1.0,
+	Sim->Dynamics.addInteraction(new CISquareWell(Sim, particleDiam, lambda,
+						      1.0, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
+					  "Bulk"));
 	
 	unsigned long nParticles = 0;
+
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec(), nParticles++));
@@ -468,47 +599,66 @@ CIPPacker::initialise()
       {
 	//Just drops a ring polymer, you should crystalize it then
 	//pack it for bulk
+
 	size_t chainlength = 10;
+
 	if (vm.count("i1"))
 	  chainlength = vm["i1"].as<size_t>();
 
 	double sigma(1.0), sigmin(1.0), sigmax(1.05), lambda(1.5);
+
 	if (vm.count("f1"))
 	  sigmin = vm["f1"].as<double>();
+
 	if (vm.count("f2"))
 	  sigmax = vm["f2"].as<double>();
+
 	if (vm.count("f3"))
 	  lambda = vm["f3"].as<double>();
 	
 	double diamScale = 1.0 / (5+chainlength);
 	
-	CUringRod sysPack(chainlength, ((sigmax-sigmin)*0.95 + sigmin)*diamScale, new CUParticle());
+	CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
+			  * diamScale, new CUParticle());
+
 	sysPack.initialise();
 
 	//Drop them in the middle of the sim
-	std::vector<CVector<> > latticeSites(sysPack.placeObjects(CVector<>(0.0)));
+	std::vector<CVector<> > latticeSites
+	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
 	Sim->ptrScheduler = new CSFastSingle(Sim);
+
 	Sim->Dynamics.setPBC<CNullBC>();
+
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
-	Sim->Dynamics.addInteraction(new CISquareBond(Sim, sigmin * diamScale, 
-						      sigmax / sigmin, new C2RRing(0, latticeSites.size()-1)
-						      )
-				     )->setName("Bonds");
-	Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, lambda, 1.0, 
+
+	Sim->Dynamics.addInteraction
+	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
+			    new C2RRing(0, latticeSites.size()-1)
+			    ))->setName("Bonds");
+
+	Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, 
+						      lambda, 1.0, 
 						      1.0, 
 						      new C2RAll()
 						      ))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
+					  "Bulk"));
+
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+
 	Sim->Dynamics.addStructure(new CTChain(Sim, 1, "Ring"));
+
 	Sim->Dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
 	unsigned long nParticles = 0;
+
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), nParticles++));
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -551,28 +701,56 @@ CIPPacker::processThermostat()
     D_throw() << "Thermostat option not set";
 }
 
+CVector<> 
+CIPPacker::getNormalisedCellDimensions()
+{
+  CVector<long> cells = getCells();
+  size_t maxdim = 0;
+  
+  //Determine the biggest dimension
+  for (size_t iDim = 1; iDim < NDIM; ++iDim)
+    if (cells[iDim] > cells[maxdim])
+      maxdim = iDim;
+  
+  CVector<> retval;
+  
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    retval[iDim] = static_cast<Iflt>(cells[iDim])
+      / static_cast<Iflt>(cells[maxdim]);
+  
+  return retval;
+}
+
 std::vector<CVector<> >
 CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 {
   boost::scoped_ptr<CUCell> sysPack;
+
+  CVector<> boxDimensions(1.0);
+
+  if (vm.count("rectangular-box"))
+    {
+      boxDimensions = getNormalisedCellDimensions();
+    }
+
   if (!vm.count("i1"))
-    sysPack.reset(new CUFCC(getCells(), CVector<>(1.0), tmpPtr));
+    sysPack.reset(new CUFCC(getCells(), boxDimensions, tmpPtr));
   else
     switch (vm["i1"].as<size_t>())
       {
       case 0:
 	{
-	  sysPack.reset(new CUFCC(getCells(), CVector<>(1.0), tmpPtr));
+	  sysPack.reset(new CUFCC(getCells(), boxDimensions, tmpPtr));
 	  break;
 	}
       case 1:
 	{
-	  sysPack.reset(new CUBCC(getCells(), CVector<>(1.0), tmpPtr));
+	  sysPack.reset(new CUBCC(getCells(), boxDimensions, tmpPtr));
 	  break;
 	}
       case 2:
 	{
-	  sysPack.reset(new CUSC(getCells(), CVector<>(1.0), tmpPtr));
+	  sysPack.reset(new CUSC(getCells(), boxDimensions, tmpPtr));
 	  break;
 	}
       default:
@@ -587,10 +765,13 @@ CVector<long>
 CIPPacker::getCells()
 {
   CVector<long> cells(vm["NCells"].as<unsigned long>());
+
   if (vm.count("xcell"))
     cells[0] = vm["xcell"].as<unsigned long>();
+
   if (vm.count("ycell"))
     cells[1] = vm["ycell"].as<unsigned long>();
+
   if (vm.count("zcell"))
     cells[2] = vm["zcell"].as<unsigned long>();
 

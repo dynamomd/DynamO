@@ -38,6 +38,7 @@ class CIPPacker: public DYNAMO::SimBase
 
  protected:
   CVector<long> getCells();
+  CVector<> getNormalisedCellDimensions();
   CVector<> getRandVelVec();
   std::vector<CVector<> > standardPackingHelper(CUCell* );
 
