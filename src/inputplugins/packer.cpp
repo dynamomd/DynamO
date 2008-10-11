@@ -146,7 +146,7 @@ CIPPacker::initialise()
     {
     case 0:
       {
-	//FCC simple cubic pack of hard spheres
+	//Pack of hard spheres
 	//Pack the system, determine the number of particles
 	std::vector<CVector<> > 
 	  latticeSites(standardPackingHelper(new CUParticle()));
@@ -192,19 +192,30 @@ CIPPacker::initialise()
       }
     case 1:
       {
-	//FCC simple cubic pack of hard spheres
+	//Pack of square well molecules
 	//Pack the system, determine the number of particles
 	std::vector<CVector<> > latticeSites(standardPackingHelper
 					     (new CUParticle()));
-      
-        double particleDiam = pow(vm["density"].as<double>() 
+
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+        double particleDiam = pow(simVol * vm["density"].as<double>() 
 				  / latticeSites.size(), 1.0/3.0);
 		
 	//Set up a standard simulation
 	//Just a square well system
 	Sim->ptrScheduler = new CSMultList(Sim);
-	
-	Sim->Dynamics.setPBC<CSPBC>();
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
