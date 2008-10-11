@@ -67,7 +67,7 @@ public:
     CBC(SD, aName, aColor)
   {
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      if (Sim->aspectRatio[iDim] != 0)
+      if (Sim->aspectRatio[iDim] != 1.0)
 	D_throw() << "The simulation aspect ratio is not unity for the use of "
 	  "square PBC's";
   }
