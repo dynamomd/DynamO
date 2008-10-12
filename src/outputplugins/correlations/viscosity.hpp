@@ -25,6 +25,9 @@
 /*! \brief The Correlator class for the viscosity.*/
 class COPViscosity: public COutputPlugin //COPCorrelator<CVector<CVector<> > >
 {
+  typedef boost::array<Iflt, NDIM> col;
+  typedef boost::array<col, NDIM> matrix;
+  
 public:
   COPViscosity(const DYNAMO::SimData*, const XMLNode& XML);
 
@@ -40,26 +43,26 @@ public:
   
   virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
-  virtual void stream(const Iflt& edt);
+  virtual void stream(const Iflt&);
 
 protected:
-  inline CVector<CVector<> > impulseDelG(const C2ParticleData&);
-  inline CVector<CVector<> > impulseDelG(const CNParticleData&);
+  inline matrix impulseDelG(const C2ParticleData&);
+  inline matrix impulseDelG(const CNParticleData&);
 
   virtual void updateConstDelG(const C2ParticleData&);
   virtual void updateConstDelG(const C1ParticleData&);
   virtual void updateConstDelG(const CNParticleData&);
   
-  void newG(CVector<CVector<> >);
+  void newG(const matrix&);
   void accPass();
 
-  CVector<CVector<> > avgTrace;
-  boost::circular_buffer<CVector<CVector<> > > G;
-  std::vector<CVector<CVector<> > > accG2;
+  matrix avgTrace;
+  boost::circular_buffer<matrix> G;
+  std::vector<matrix> accG2;
 
   size_t count;
   Iflt dt, currentdt;
-  CVector<CVector<> > constDelG, delG;
+  matrix constDelG, delG;
 
   size_t currlen;
   bool notReady;
