@@ -57,7 +57,7 @@ class CVector
   inline CVector() {}
     
   /*! \brief Initialise all elements of the vector to a certain value. */
-  inline CVector (const T& fillItem)
+  inline explicit CVector(const T& fillItem)
   {
     for (size_t i = 0; i < NDIM; ++i)
       data[i] = fillItem;
@@ -260,7 +260,7 @@ class CVector
   /*! \brief Returns the dyadic product of two vectors.  */  
   inline CVector<CVector<T> > dyad(const CVector<T>& rightVec) const
   {    
-    CVector<CVector<T> > tmpvec(0);
+    CVector<CVector<T> > tmpvec(CVector<>(0));
 
     for (int iDim = 0; iDim < NDIM; iDim++)
       for (int jDim = 0; jDim < NDIM; jDim++)
