@@ -14,6 +14,32 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "vacf.hpp"
-#include "viscosity.hpp"
-#include "thermalCond.hpp"
+
+#ifndef COPTHERMALCOND_H
+#define COPTHERMALCOND_H
+
+#include "correlator.hpp"
+#include "../../datatypes/vector.hpp"
+
+/*! \brief The Correlator class for the Thermal Conductivity.*/
+class COPThermalCon: public COPCorrelator<CVector<> >
+{
+public:
+  COPThermalCon(const DYNAMO::SimData*, const XMLNode&);
+
+  virtual void initialise();
+
+  virtual void output(xmlw::XmlStream&);
+
+  virtual COutputPlugin* Clone() const { return new COPThermalCon(*this); }
+  
+protected:
+  virtual Iflt rescaleFactor();
+  
+  CVector<> impulseDelG(const C2ParticleData&);
+  
+  void updateConstDelG(const C2ParticleData&);
+};
+
+#endif
+
