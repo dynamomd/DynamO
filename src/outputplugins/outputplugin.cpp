@@ -85,14 +85,6 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPMisc(Sim);
   else if (!Name.compare("TinkerXYZ"))
     return new COPTinkerXYZ(Sim);
-  else if (!Name.compare("ThermalConductivity"))
-    return new COPThermalCon(Sim, XML);
-  else if (!Name.compare("ThermalDiffusion"))
-    return new   COPThermalDiffusion(Sim, XML);
-  else if (!Name.compare("Viscosity"))
-    return new COPViscosity(Sim, XML);
-  else if (!Name.compare("MutualDiffusion"))
-    return new COPMutualDiffusion(Sim, XML);
   else if (!Name.compare("PackingFraction"))
     return new COPPackingFraction(Sim);
   else if (!Name.compare("CollisionMatrix"))
@@ -107,8 +99,6 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
   else if (!Name.compare("VTK"))
     return new COPVTK(Sim);
 #endif
-  else if (!Name.compare("VACF"))
-    return new COPVACF(Sim,XML);
   else if (!Name.compare("Povray"))
     return new COPPovray(Sim);
   else if (!Name.compare("ContactMap"))
@@ -123,10 +113,24 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPChainBondLength(Sim);
   else if (!Name.compare("ReverseEventsCheck"))
     return new COPReverseEventsCheck(Sim);
+  else if (!Name.compare("VACF"))
+    return new COPVACF(Sim,XML);
+  else if (!Name.compare("Viscosity"))
+    return new COPViscosity(Sim, XML);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
     return new COPBoundedQStats(Sim);
 #endif
+  /*
+  else if (!Name.compare("ThermalConductivity"))
+    return new COPThermalCon(Sim, XML);
+  elxse if (!Name.compare("ThermalDiffusion"))
+    return new COPThermalDiffusion(Sim, XML);
+  else if (!Name.compare("MutualDiffusion"))
+    return new COPMutualDiffusion(Sim, XML);
+  else if (!Name.compare("VACF"))
+    return new COPVACF(Sim,XML);
+  */
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

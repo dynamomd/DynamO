@@ -193,13 +193,13 @@ COPVACF::output(xmlw::XmlStream& XML)
   Iflt factor = Sim->Dynamics.units().unitTime() 
     / (Sim->Dynamics.units().unitDiffusion() * count);
 
-  for (unsigned int i = 0; i < accG2.size(); i++)
+  for (size_t i = 0; i < accG2.size(); i++)
     {
       Iflt specCount = Sim->Dynamics.getSpecies()[i].getCount();
 
-      CVector<> acc = 0.5*(accG2[i][0] + accG2[i][accG2[i].size()-1]);
+      CVector<> acc = 0.5*(accG2[i].front() + accG2[i].back());
       
-      for (unsigned int j = 1; j < accG2[i].size() - 1; j++)
+      for (size_t j = 1; j < accG2[i].size() - 1; j++)
 	acc += accG2[i][j];
       
       acc *= factor * dt / (Sim->Dynamics.units().unitTime() * specCount);
@@ -224,7 +224,7 @@ COPVACF::output(xmlw::XmlStream& XML)
 	    XML << "\t" << accG2[i][j][iDim] * factor / specCount;
 	  XML << "\n";
 	}
-
+      
       XML << xmlw::endtag("Correlator");
     }
 }
