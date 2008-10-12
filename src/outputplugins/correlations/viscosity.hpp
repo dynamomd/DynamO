@@ -18,11 +18,12 @@
 #ifndef COPVISCOSITY_H
 #define COPVISCOSITY_H
 
-#include "correlator.hpp"
+#include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
+#include <boost/circular_buffer.hpp>
 
 /*! \brief The Correlator class for the viscosity.*/
-class COPViscosity: public COPCorrelator<CVector<CVector<> > >
+class COPViscosity: public COutputPlugin //COPCorrelator<CVector<CVector<> > >
 {
 public:
   COPViscosity(const DYNAMO::SimData*, const XMLNode& XML);
@@ -33,17 +34,37 @@ public:
   
   virtual COutputPlugin* Clone() const { return new COPViscosity(*this); }
   
-protected:
-  virtual Iflt rescaleFactor();
+  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
   
+  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  
+  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+
+  virtual void stream(const Iflt& edt);
+
+protected:
   inline CVector<CVector<> > impulseDelG(const C2ParticleData&);
+  inline CVector<CVector<> > impulseDelG(const CNParticleData&);
 
   virtual void updateConstDelG(const C2ParticleData&);
   virtual void updateConstDelG(const C1ParticleData&);
+  virtual void updateConstDelG(const CNParticleData&);
   
   void newG(CVector<CVector<> >);
+  void accPass();
 
   CVector<CVector<> > avgTrace;
+  boost::circular_buffer<CVector<CVector<> > > G;
+  std::vector<CVector<CVector<> > > accG2;
+
+  size_t count;
+  Iflt dt, currentdt;
+  CVector<CVector<> > constDelG, delG;
+
+  size_t currlen;
+  bool notReady;
+
+  size_t CorrelatorLength;
 };
 
 #endif
