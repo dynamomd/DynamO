@@ -22,8 +22,6 @@ COPVACF::COPVACF(const DYNAMO::SimData* tmp,const XMLNode& XML):
   count(0),
   dt(0),
   currentdt(0.0),
-  ptrEnergy(NULL),
-  ptrMisc(NULL),
   CorrelatorLength(100),
   currCorrLen(0),
   notReady(true)
@@ -32,12 +30,28 @@ COPVACF::COPVACF(const DYNAMO::SimData* tmp,const XMLNode& XML):
 }
 
 void 
+COPVACF::initialise()
+{
+  Sim->getOutputPlugin<COPMisc>();
+
+  dt = getdt();
+
+  G.resize(Sim->lN, boost::circular_buffer<CVector<> >(CorrelatorLength, CVector<>(0.0)));
+
+  accG2.resize(Sim->Dynamics.getSpecies().size());
+
+  BOOST_FOREACH(std::vector<CVector<> >& listref, accG2)
+    listref.resize(CorrelatorLength, CVector<>(0.0));
+}
+
+void 
 COPVACF::operator<<(const XMLNode& XML)
 {
   try 
     {
       if (XML.isAttributeSet("Length"))
-	CorrelatorLength = boost::lexical_cast<unsigned int>(XML.getAttribute("Length"));
+	CorrelatorLength = boost::lexical_cast<unsigned int>
+	  (XML.getAttribute("Length"));
 
       if (XML.isAttributeSet("dt"))
 	dt = Sim->Dynamics.units().unitTime() * 
@@ -50,8 +64,7 @@ COPVACF::operator<<(const XMLNode& XML)
   catch (boost::bad_lexical_cast &)
     {
       D_throw() << "Failed a lexical cast in COPVACF";
-    }
-  
+    }  
 }
 
 void 
@@ -96,16 +109,10 @@ COPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
     }
 }
 
-Iflt
-COPVACF::rescaleFactor()
-{
-  return Sim->Dynamics.units().unitTime() / (Sim->Dynamics.units().unitDiffusion() * count);
-}
-
 void 
 COPVACF::newG(const C1ParticleData& PDat)
 {
-  for (unsigned long i = 0; i < Sim->lN; ++i)
+  for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
   
   //Now correct the fact that the wrong velocity has been pushed
@@ -116,7 +123,7 @@ COPVACF::newG(const C1ParticleData& PDat)
     {
       if (++currCorrLen != CorrelatorLength)
 	return;
-
+      
       notReady = false;
     }
 
@@ -126,12 +133,15 @@ COPVACF::newG(const C1ParticleData& PDat)
 void 
 COPVACF::newG(const C2ParticleData& PDat)
 {
-  for (unsigned long i = 0; i < Sim->lN; i++)
+  for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
   
   //Now correct the fact that the wrong velocity has been pushed
-  G[PDat.particle1_.getParticle().getID()].front() = PDat.particle1_.getOldVel();
-  G[PDat.particle2_.getParticle().getID()].front() = PDat.particle2_.getOldVel();
+  G[PDat.particle1_.getParticle().getID()].front() 
+    = PDat.particle1_.getOldVel();
+
+  G[PDat.particle2_.getParticle().getID()].front() 
+    = PDat.particle2_.getOldVel();
 
   //This ensures the list gets to accumilator size
   if (notReady)
@@ -147,9 +157,9 @@ COPVACF::newG(const C2ParticleData& PDat)
 
 void 
 COPVACF::newG(const CNParticleData& PDat)
-{  //This ensures the list stays at accumilator size
-
-  for (unsigned long i = 0; i < Sim->lN; i++)
+{  
+  //This ensures the list stays at accumilator size
+  for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());
   
   //Go back and fix the pushes
@@ -158,8 +168,11 @@ COPVACF::newG(const CNParticleData& PDat)
   
   BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
     {
-      G[PDat2.particle1_.getParticle().getID()].front() = PDat2.particle1_.getOldVel();
-      G[PDat2.particle2_.getParticle().getID()].front() = PDat2.particle2_.getOldVel();
+      G[PDat2.particle1_.getParticle().getID()].front() 
+	= PDat2.particle1_.getOldVel();
+
+      G[PDat2.particle2_.getParticle().getID()].front() 
+	= PDat2.particle2_.getOldVel();
     }
 
   //This ensures the list gets to accumilator size
@@ -177,7 +190,8 @@ COPVACF::newG(const CNParticleData& PDat)
 void 
 COPVACF::output(xmlw::XmlStream& XML)
 {
-  Iflt factor = rescaleFactor();
+  Iflt factor = Sim->Dynamics.units().unitTime() 
+    / (Sim->Dynamics.units().unitDiffusion() * count);
 
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
@@ -195,14 +209,15 @@ COPVACF::output(xmlw::XmlStream& XML)
 	  << xmlw::attr("species") << Sim->Dynamics.getSpecies()[i].getName()
 	  << xmlw::attr("size") << accG2.size()
 	  << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
-	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size() / ptrMisc->getMFT()
+	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size() 
+	/ Sim->getOutputPlugin<COPMisc>()->getMFT()
 	  << xmlw::attr("simFactor") << factor / specCount
 	  << xmlw::attr("SampleCount") << count
 	  << xmlw::tag("Integral") << acc
 	  << xmlw::endtag("Integral")
 	  << xmlw::chardata();
             
-      for (unsigned int j = 0; j < accG2[i].size(); j++)
+      for (size_t j = 0; j < accG2[i].size(); ++j)
 	{
 	  XML << j * dt / Sim->Dynamics.units().unitTime();
 	  for (int iDim = 0; iDim < NDIM; iDim++)
@@ -212,21 +227,6 @@ COPVACF::output(xmlw::XmlStream& XML)
 
       XML << xmlw::endtag("Correlator");
     }
-}
-
-void 
-COPVACF::initialise()
-{
-  ptrEnergy = Sim->getOutputPlugin<COPKEnergy>();
-  ptrMisc = Sim->getOutputPlugin<COPMisc>();
-
-  dt = getdt();
-
-  G.resize(Sim->lN);
-  accG2.resize(Sim->Dynamics.getSpecies().size());
-
-  BOOST_FOREACH(std::vector<CVector<> >& listref, accG2)
-    listref.resize(CorrelatorLength, 0.0);
 }
 
 Iflt 
@@ -250,18 +250,11 @@ COPVACF::accPass()
   ++count;
   
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const unsigned int& ID, *spec.getRange())
+    BOOST_FOREACH(const size_t& ID, *spec.getRange())
     {
-      std::list<CVector<> >::iterator iPtr = G[ID].begin();
-      for (unsigned int j = 0; j < CorrelatorLength; ++j)
-	{
-	  accG2[spec.getID()][j] +=  G[ID].front() * (*iPtr);
-	  ++iPtr;
-	}
+      boost::circular_buffer<CVector<> >::iterator iPtr = G[ID].begin();
+
+      for (size_t j = 0; j < CorrelatorLength; ++j)
+	accG2[spec.getID()][j] +=  G[ID].front() * (*(iPtr++));
     }
-
-  //Throwaway old values now
-  BOOST_FOREACH(std::list<CVector<> >& listref, G)
-    listref.pop_back();
-
 }

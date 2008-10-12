@@ -19,7 +19,7 @@
 #define COPVACF_H
 
 #include "../outputplugin.hpp"
-#include <list>
+#include <boost/circular_buffer.hpp>
 #include <vector>
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
@@ -59,18 +59,13 @@ protected:
 
   Iflt getdt();
 
-  Iflt rescaleFactor();
-    
-  std::vector<std::list<CVector<> > > G;
+  std::vector<boost::circular_buffer<CVector<> > > G;
   std::vector<std::vector<CVector<> > > accG2;
   long count;
   Iflt dt, currentdt;
-
-  const COPKEnergy* ptrEnergy;
-  const COPMisc* ptrMisc;
   
-  unsigned int CorrelatorLength;
-  unsigned int currCorrLen;
+  size_t CorrelatorLength;
+  size_t currCorrLen;
   bool notReady;
 };
 
