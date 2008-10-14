@@ -121,6 +121,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPThermalCon(Sim, XML);
   else if (!Name.compare("MutualDiffusion"))
     return new COPMutualDiffusion(Sim, XML);
+  else if (!Name.compare("MFL"))
+    return new COPMFL(Sim);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
     return new COPBoundedQStats(Sim);

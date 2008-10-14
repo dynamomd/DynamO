@@ -15,7 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "kenergy.hpp"
-#include "uenergy.hpp"
-#include "momentum.hpp"
-#include "MFL.hpp"
+#ifndef COPMFL_H
+#define COPMFL_H
+
+#include "1partproperty.hpp"
+#include <vector>
+#include "../../datatypes/histogram.hpp"
+
+class COPMFL: public COP1PP
+{
+ public:
+  COPMFL(const DYNAMO::SimData*);
+
+  void A1ParticleChange(const C1ParticleData&);
+
+  void stream(const Iflt&) {}
+
+  void output(xmlw::XmlStream &); 
+
+  void periodicOutput() {}
+
+  virtual void initialise();
+
+  virtual COutputPlugin *Clone() const { return new COPMFL(*this); }
+
+ protected:
+  std::vector<Iflt> lastTime;
+  std::vector<C1DHistogram> data;
+};
+
+#endif
