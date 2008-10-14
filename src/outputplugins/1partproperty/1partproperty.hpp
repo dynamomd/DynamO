@@ -36,7 +36,7 @@ private:
 
   /* This class of plugins implement these functions */
   virtual void A1ParticleChange(const C1ParticleData&) = 0;
-  virtual void stream(Iflt) = 0;  
+  virtual void stream(const Iflt&) = 0;  
 };
 
 #endif

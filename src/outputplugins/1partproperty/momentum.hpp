@@ -31,7 +31,7 @@ class COPMomentum: public COP1PP
 
   void A1ParticleChange(const C1ParticleData&);
 
-  void stream(Iflt);  
+  void stream(const Iflt&);  
 
   void output(xmlw::XmlStream &); 
 

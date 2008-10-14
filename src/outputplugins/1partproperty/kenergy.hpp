@@ -30,7 +30,7 @@ class COPKEnergy: public COP1PP
 
   void A2ParticleChange(const C2ParticleData&);
 
-  void stream(Iflt);  
+  void stream(const Iflt&);  
 
   void output(xmlw::XmlStream &); 
 

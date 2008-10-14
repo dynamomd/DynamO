@@ -117,7 +117,7 @@ COPKEnergy::A2ParticleChange(const C2ParticleData& PDat)
 }
 
 void 
-COPKEnergy::stream(Iflt dt)
+COPKEnergy::stream(const Iflt& dt)
 {
   kTacc += kTCurrent * dt;
   kTsqAcc += kTCurrent * kTCurrent * dt;

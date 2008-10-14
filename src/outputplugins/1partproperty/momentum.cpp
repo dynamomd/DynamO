@@ -54,7 +54,7 @@ COPMomentum::A1ParticleChange(const C1ParticleData& PDat)
 }
 
 void 
-COPMomentum::stream(Iflt dt)
+COPMomentum::stream(const Iflt& dt)
 {
   typedef std::pair<const CSpecies* const, CVector<> > mypair;
   BOOST_FOREACH(mypair& dat, MomentumVal)

@@ -70,7 +70,7 @@ COPUEnergy::A2ParticleChange(const C2ParticleData& PDat)
 }
 
 void 
-COPUEnergy::stream(Iflt dt)
+COPUEnergy::stream(const Iflt& dt)
 {
   intEAcc += intECurrent * dt;
   intEsqAcc += intECurrent * intECurrent * dt;

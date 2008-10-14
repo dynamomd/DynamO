@@ -20,7 +20,7 @@
 #include "../extcode/xmlwriter.hpp"
 
 void 
-C1DHistogram::outputHistogram(xmlw::XmlStream & XML, Iflt scalex) const
+C1DHistogram::outputHistogram(xmlw::XmlStream& XML, Iflt scalex) const
 {
 
   XML << xmlw::tag("Histogram")

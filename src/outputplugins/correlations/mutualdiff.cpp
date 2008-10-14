@@ -28,8 +28,6 @@ COPMutualDiffusion::COPMutualDiffusion(const DYNAMO::SimData* tmp, const XMLNode
   currentdt(0.0),
   delGsp1(0.0),
   delGsp2(0.0),
-  species1(NULL),
-  species2(NULL),
   sysMom(0.0),
   massFracSp1(1),
   massFracSp2(1),
