@@ -15,8 +15,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "kenergy.hpp"
-#include "uenergy.hpp"
-#include "momentum.hpp"
-#include "MFL.hpp"
-#include "MFT.hpp"
+#ifndef COPMFT_H
+#define COPMFT_H
+
+#include "1partproperty.hpp"
+#include <vector>
+#include <boost/circular_buffer.hpp>
+#include "../../datatypes/histogram.hpp"
+
+class COPMFT: public COP1PP
+{
+ public:
+  COPMFT(const DYNAMO::SimData*);
+
+  void A1ParticleChange(const C1ParticleData&);
+
+  void stream(const Iflt&) {}
+
+  void output(xmlw::XmlStream &); 
+
+  void periodicOutput() {}
+
+  virtual void initialise();
+
+  virtual COutputPlugin *Clone() const { return new COPMFT(*this); }
+
+ protected:
+  const size_t collisionHistoryLength;
+
+  std::vector<boost::circular_buffer<Iflt> > lastTime;
+  std::vector<std::vector<C1DHistogram> > data;
+};
+
+#endif

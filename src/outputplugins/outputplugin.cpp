@@ -123,6 +123,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPMutualDiffusion(Sim, XML);
   else if (!Name.compare("MFL"))
     return new COPMFL(Sim);
+  else if (!Name.compare("MFT"))
+    return new COPMFT(Sim);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
     return new COPBoundedQStats(Sim);

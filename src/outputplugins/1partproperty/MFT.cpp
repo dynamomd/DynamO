@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MFL.hpp"
+#include "MFT.hpp"
 #include <boost/foreach.hpp>
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/dynamics.hpp"
@@ -23,48 +23,64 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPMFL::COPMFL(const DYNAMO::SimData* tmp):
-  COP1PP(tmp,"MeanFreeLength", 250)
+COPMFT::COPMFT(const DYNAMO::SimData* tmp):
+  COP1PP(tmp,"MeanFreeLength", 250),
+  collisionHistoryLength(10)
 {}
 
 void
-COPMFL::initialise()
+COPMFT::initialise()
 {
-  lastTime.resize(Sim->lN, 0.0);
-  data.resize(Sim->lN, C1DHistogram(Sim->Dynamics.units().unitLength() * 0.05));
+  lastTime.resize(Sim->lN, boost::circular_buffer<Iflt>(collisionHistoryLength, 0.0));
+  
+  std::vector<C1DHistogram> vecTemp;
+  
+  vecTemp.resize(collisionHistoryLength, 
+		 C1DHistogram(Sim->Dynamics.units().unitLength() * 0.05));
+  
+  data.resize(Sim->lN, vecTemp);
 }
 
 void 
-COPMFL::A1ParticleChange(const C1ParticleData& PDat)
+COPMFT::A1ParticleChange(const C1ParticleData& PDat)
 {
   //We ignore stuff that hasn't had an event yet
-  if (lastTime[PDat.getParticle().getID()] != 0.0)
-    {
-      data[PDat.getSpecies().getID()]
-	.addVal(PDat.getParticle().getVelocity().length() 
-	     * (Sim->dSysTime 
-		- lastTime[PDat.getParticle().getID()]));
-    }
+
+  for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
+    if (lastTime[PDat.getParticle().getID()][collN] != 0.0)
+      {
+	data[PDat.getSpecies().getID()][collN]
+	  .addVal(Sim->dSysTime 
+		  - lastTime[PDat.getParticle().getID()][collN]);
+      }
   
-  lastTime[PDat.getParticle().getID()] = Sim->dSysTime;
+  lastTime[PDat.getParticle().getID()].push_front(Sim->dSysTime);
 }
 
 void
-COPMFL::output(xmlw::XmlStream &XML)
+COPMFT::output(xmlw::XmlStream &XML)
 {
-  XML << xmlw::tag("MFL");
+  XML << xmlw::tag("MFT");
   
   for (size_t id = 0; id < data.size(); ++id)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
 	  << Sim->Dynamics.getSpecies()[id].getName();
+      
+      for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
+	{
+	  XML << xmlw::tag("Collisions")
+	      << xmlw::attr("val") << collN + 1;
 
-      data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
+	  data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
 
+	  XML << xmlw::tag("Collisions");
+	}
+	
       XML << xmlw::tag("Species");
     }
-
-  XML << xmlw::endtag("MFL");
+  
+  XML << xmlw::endtag("MFT");
 }
 
