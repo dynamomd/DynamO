@@ -30,80 +30,37 @@ COPCollMatrix::COPCollMatrix(const DYNAMO::SimData* tmp):
   totalCount(0),
   IDcounter(0)
 {
-  p2time.resize(Sim->lN, p2timeData(0.0, std::pair<unsigned int, EEventType>(0,NONE)));
+  lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NOEventClass), NONE)));
 }
 
 void 
 COPCollMatrix::initialise()
-{
-  Sim->getOutputPlugin<COPKEnergy>();
-}
+{}
 
 COPCollMatrix::~COPCollMatrix()
 {}
 
-size_t 
-COPCollMatrix::getID(const CInteraction& E) const
-{
-  std::map<const std::string, unsigned int>::const_iterator 
-    iPtr = intLookup.find(E.getName());
-
-  if (iPtr == intLookup.end())
-    {
-      intLookup.insert(std::make_pair(E.getName(), ++IDcounter));
-      return IDcounter;
-    }
-  else
-    return iPtr->second;
-}
-
-size_t 
-COPCollMatrix::getID(const CGlobal& E) const
-{
-  std::map<const std::string, unsigned int>::const_iterator 
-    iPtr = globLookup.find(E.getName());
-  
-  if (iPtr == globLookup.end())
-    {
-      globLookup.insert(std::make_pair(E.getName(), ++IDcounter));
-      return IDcounter;
-    }
-  else
-    return iPtr->second;
-}
-
-size_t 
-COPCollMatrix::getID(const CSystem& E) const
-{
-  std::map<const std::string, unsigned int>::const_iterator 
-    iPtr = sysLookup.find(E.getName());
-  
-  if (iPtr == sysLookup.end())
-    {
-      sysLookup.insert(std::make_pair(E.getName(), ++IDcounter));
-      return IDcounter;
-    }
-  else
-    return iPtr->second;
-}
-
 void 
 COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 {
-  newEvent(getID(iEvent.getInteraction()), iEvent.getParticle1(), iEvent.getType());
-  newEvent(getID(iEvent.getInteraction()), iEvent.getParticle2(), iEvent.getType());
+  newEvent(iEvent.getParticle1(), iEvent.getType(), 
+	   iEvent.getInteraction().getID(), InteractionClass);
+
+  newEvent(iEvent.getParticle2(), iEvent.getType(), 
+	   iEvent.getInteraction().getID(), InteractionClass);
 }
+
 
 void 
 COPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(getID(globEvent.getGlobal()),pData.getParticle(), pData.getType());  
+    newEvent(pData.getParticle(), pData.getType(), globEvent.getGlobal().getID(), GlobalClass);  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(getID(globEvent.getGlobal()), pData.particle1_.getParticle(), pData.getType());  
-      newEvent(getID(globEvent.getGlobal()), pData.particle2_.getParticle(), pData.getType());  
+      newEvent(pData.particle1_.getParticle(), pData.getType(), globEvent.getGlobal().getID(), GlobalClass);  
+      newEvent(pData.particle2_.getParticle(), pData.getType(), globEvent.getGlobal().getID(), GlobalClass);  
     }
 }
 
@@ -111,54 +68,52 @@ void
 COPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(getID(sysEvent), pData.getParticle(), pData.getType());  
+    newEvent(pData.getParticle(), pData.getType(), sysEvent.getID(), SystemClass);  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(getID(sysEvent), pData.particle1_.getParticle(), pData.getType());  
-      newEvent(getID(sysEvent), pData.particle2_.getParticle(), pData.getType());  
+      newEvent(pData.particle1_.getParticle(), pData.getType(), sysEvent.getID(), SystemClass);  
+      newEvent(pData.particle2_.getParticle(), pData.getType(), sysEvent.getID(), SystemClass);  
     } 
 }
 
+
 void 
-COPCollMatrix::newEvent(const unsigned int ID, const CParticle& part, EEventType etype)
+COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const size_t& ID, const eventClass& eclass)
 {
-  p2timeData& reftData = p2time[part.getID()];
-  if (p2time[part.getID()].second.first != 0)
-    {
-      counterData& refCount = counters[counterKey(std::pair<unsigned int, EEventType> (ID, etype),
-						  std::pair<unsigned int, EEventType> (reftData.second.first, 
-										       reftData.second.second))];
+  if (lastEvent[part.getID()].second.first.second != NOEventClass)
+    {      
+      counterData& refCount = counters[counterKey(eventKey(classKey(ID, eclass), etype),
+						  lastEvent[part.getID()].second)];
       
-      refCount.totalTime += Sim->dSysTime - reftData.first;
-      refCount.count++;
-      totalCount++;
+      refCount.totalTime += Sim->dSysTime - lastEvent[part.getID()].first;
+      ++(refCount.count);
+      ++(totalCount);
     }
   
-  reftData.first = Sim->dSysTime;
-  reftData.second = std::pair<unsigned int, EEventType>(ID, etype);
+  lastEvent[part.getID()].first = Sim->dSysTime;
+  lastEvent[part.getID()].second = eventKey(classKey(ID, eclass), etype);
 }
 
 std::string 
-COPCollMatrix::getName(const unsigned int& ID) const
+COPCollMatrix::getName(const classKey& key) const
 {
-  typedef std::pair<const std::string, unsigned int> localpair;
+  switch (key.second)
+    {
+    case InteractionClass:
+      return Sim->Dynamics.getInteractions()[key.first]->getName();
+      break;
+    case GlobalClass:
+      return Sim->Dynamics.getGlobals()[key.first]->getName();
+      break;
+    case SystemClass:
+      return Sim->Dynamics.getSystemEvents()[key.first]->getName();
+      break;
+    default:
+      D_throw() << "Collision matrix found an unknown event class";
+    }
 
-  BOOST_FOREACH(localpair& p,intLookup)
-    if (p.second == ID)
-      return p.first;
-
-  BOOST_FOREACH(localpair& p, globLookup)
-    if (p.second == ID)
-      return p.first;
-
-  BOOST_FOREACH(localpair& p, sysLookup)
-    if (p.second == ID)
-      return p.first;
-
-  D_throw() << "Cannot find the name for ID " << ID;
 }
-
 
 void
 COPCollMatrix::output(xmlw::XmlStream &XML)
@@ -166,10 +121,12 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
   
   XML << xmlw::tag("CollCounters") 
       << xmlw::tag("CollMatrix");  
-
-  std::map<std::pair<unsigned int, EEventType>, unsigned long> totmap;
   
-  BOOST_FOREACH(const counterElement& ele, counters)
+  std::map<eventKey, std::pair<unsigned long long, Iflt> > totmap;
+  
+  typedef std::pair<const counterKey, counterData> locPair;
+
+  BOOST_FOREACH(const locPair& ele, counters)
     {
       XML << xmlw::tag("Count")
 	  << xmlw::attr("Event") << CIntEvent::getCollEnumName(ele.first.first.second)
@@ -181,58 +138,30 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	  << xmlw::attr("mft") << ele.second.totalTime
 	/ (Sim->Dynamics.units().unitTime() * ((Iflt) ele.second.count))
 	  << xmlw::endtag("Count");
-      totmap[std::pair<unsigned int, EEventType>
-	     (ele.first.first.first,ele.first.first.second)] += ele.second.count;
+      
+      //Add the total count
+      totmap[ele.first.first].first += ele.second.count;
+
+      //Add the rate
+      totmap[ele.first.first].second += ((Iflt) ele.second.count) 
+	/ ele.second.totalTime;
     }
 
   XML << xmlw::endtag("CollMatrix")
       << xmlw::tag("Totals");
   
-  typedef std::pair<std::pair<const unsigned int, EEventType>, unsigned long> mappair;
+  typedef std::pair<eventKey, std::pair<unsigned long long, Iflt> > mappair;
+
   BOOST_FOREACH(const mappair& mp1, totmap)
     XML << xmlw::tag("TotCount")
 	<< xmlw::attr("Name") << getName(mp1.first.first)
 	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
-	<< xmlw::attr("Percent") << 100.0 * ((Iflt) mp1.second) / ((Iflt) totalCount)
-	<< xmlw::attr("Count") << mp1.second
-	<< xmlw::attr("MFT") << (Sim->dSysTime * Sim->lN) / mp1.second
+	<< xmlw::attr("Percent") << 100.0 * ((Iflt) mp1.second.first) / ((Iflt) totalCount)
+	<< xmlw::attr("Count") << mp1.second.first
+	<< xmlw::attr("MFT") << 1.0 / 
+    (mp1.second.second * Sim->Dynamics.units().unitTime())
 	<< xmlw::endtag("TotCount");
 
   XML << xmlw::endtag("Totals")
       << xmlw::endtag("CollCounters");
-
-  double pressure = 0.0;
-  BOOST_FOREACH(const mappair& mp1, totmap)
-    if (mp1.first.second == CORE)
-      //Check its an interaction
-      try {
-	const smrtPlugPtr<CInteraction>& intPtr(Sim->Dynamics.getInteraction(getName(mp1.first.first)));
-	//This currently works for all interactions
-	pressure += intPtr->hardCoreDiam() * mp1.second;
-      }
-      catch (std::exception &)
-	{}
-    else if (mp1.first.second == BOUNCE)
-      try {
-	const smrtPlugPtr<CInteraction>& intPtr(Sim->Dynamics.getInteraction(getName(mp1.first.first)));
-	if ((dynamic_cast<const CISquareBond*>(intPtr.get_ptr()) != NULL)
-	    || (dynamic_cast<const CISquareWell*>(intPtr.get_ptr()) != NULL)
-	    || (dynamic_cast<const CISWSequence*>(intPtr.get_ptr()) != NULL))
-	  pressure -= intPtr->maxIntDist() * mp1.second;
-	else
-	  D_throw() << "Could turn the BOUNCE interaction into a pressure!";
-      }
-      catch (std::exception&)
-	{}
-
-  pressure *= sqrt(PI / Sim->getOutputPlugin<COPKEnergy>()->getAvgkT()) / (2.0 * NDIM * Sim->lN * Sim->dSysTime);
-  pressure += 1.0;
-  //Now we have the compressibility, turn it into a pressure
-  pressure *= Sim->lN * Sim->getOutputPlugin<COPKEnergy>()->getAvgkT() / Sim->Dynamics.units().simVolume();
-
-  XML << xmlw::tag("IntPressure") << xmlw::attr("val")
-      << pressure / Sim->Dynamics.units().unitPressure()
-      << xmlw::endtag("IntPressure");
-  
-
 }

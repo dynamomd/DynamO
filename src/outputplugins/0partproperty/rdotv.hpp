@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPRdotV_H
+/*#ifndef COPRdotV_H
 #define COPRdotV_H
 
 #include "../outputplugin.hpp"
@@ -67,3 +67,4 @@ class COPRdotV: public COutputPlugin
 };
 
 #endif
+*/

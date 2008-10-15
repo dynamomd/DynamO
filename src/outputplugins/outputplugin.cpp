@@ -89,8 +89,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPPackingFraction(Sim);
   else if (!Name.compare("CollisionMatrix"))
     return new COPCollMatrix(Sim);
-  else if (!Name.compare("RdotV"))
-    return new COPRdotV(Sim);
+  /*else if (!Name.compare("RdotV"))
+    return new COPRdotV(Sim);*/
   else if (!Name.compare("Momentum"))
     return new COPMomentum(Sim);
   else if (!Name.compare("QMGA"))
@@ -105,8 +105,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPCContactMap(Sim);
   else if (!Name.compare("OverlapTester"))
     return new COPOverlapTest(Sim);
-  else if (!Name.compare("CollDistCheck"))
-    return new COPCollDistCheck(Sim);
+  /*else if (!Name.compare("CollDistCheck"))
+    return new COPCollDistCheck(Sim);*/
   else if (!Name.compare("ChainBondAngles"))
     return new COPChainBondAngles(Sim);
   else if (!Name.compare("ChainBondLength"))

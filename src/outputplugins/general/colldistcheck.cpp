@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "colldistcheck.hpp"
+/*#include "colldistcheck.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../0partproperty/collMatrix.hpp"
@@ -73,3 +73,4 @@ COPCollDistCheck::output(xmlw::XmlStream& XML)
   XML << xmlw::endtag("CollDistCheck");
 
 }
+*/

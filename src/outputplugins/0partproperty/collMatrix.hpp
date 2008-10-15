@@ -27,7 +27,17 @@ class CParticle;
 
 class COPCollMatrix: public COutputPlugin
 {
- public:
+private:
+  //! \brief This is to stop the use of maps
+  enum eventClass
+  {
+    NOEventClass, //!< This is the initial last event type for particles
+    InteractionClass,
+    GlobalClass,
+    SystemClass,
+  };
+  
+public:
   COPCollMatrix(const DYNAMO::SimData*);
   ~COPCollMatrix();
 
@@ -46,14 +56,13 @@ class COPCollMatrix: public COutputPlugin
   //This is fine to replica exchange as the interaction, global and system lookups are done using names
   virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPCollMatrix*>(plug)->Sim); }
   
-  size_t getID(const CInteraction&) const;
-  size_t getID(const CGlobal&) const;
-  size_t getID(const CSystem&) const;
-  std::string getName(const unsigned int&) const;
-
  protected:
-  void newEvent(const unsigned int, const CParticle&, EEventType);
+  void newEvent(const CParticle&, const EEventType&, const size_t&, const eventClass&);
 
+  typedef std::pair<size_t, eventClass> classKey;
+
+  std::string getName(const classKey&) const;
+  
   struct counterData
   {
     counterData():count(0),totalTime(0) {}
@@ -62,17 +71,19 @@ class COPCollMatrix: public COutputPlugin
   };
   
   unsigned long totalCount;
-  
-  mutable std::map<const std::string, unsigned int> intLookup;
-  mutable std::map<const std::string, unsigned int> globLookup;
-  mutable std::map<const std::string, unsigned int> sysLookup;
 
-  typedef std::pair<std::pair<unsigned int, EEventType>, std::pair<unsigned int, EEventType> > counterKey;
-  typedef std::pair<const counterKey, counterData> counterElement;
+
+  typedef std::pair<classKey, EEventType> eventKey;
+
+  typedef std::pair<eventKey, eventKey> counterKey;
+
+  
   std::map<counterKey, counterData> counters;
   
-  typedef std::pair<Iflt, std::pair<unsigned int, EEventType> > p2timeData;
-  std::vector<p2timeData> p2time; 
+  typedef std::pair<Iflt, eventKey> lastEventData;
+
+  std::vector<lastEventData> lastEvent; 
+
   mutable size_t IDcounter;
 };
 

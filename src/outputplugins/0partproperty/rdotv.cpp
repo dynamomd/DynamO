@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
 #include "rdotv.hpp"
 #include "../../dynamics/include.hpp"
 #include <boost/foreach.hpp>
@@ -78,3 +79,4 @@ COPRdotV::output(xmlw::XmlStream &XML)
   
   XML << xmlw::endtag("rdotV");
 }
+*/
