@@ -76,7 +76,7 @@ COPMFT::output(xmlw::XmlStream &XML)
 	  data[id][collN].outputHistogram
 	    (XML, 1.0 / Sim->Dynamics.units().unitTime());
 	  
-	  XML << xmlw::tag("Collisions");
+	  XML << xmlw::endtag("Collisions");
 	}
 	
       XML << xmlw::tag("Species");
