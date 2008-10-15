@@ -31,7 +31,7 @@ void
 COPMFL::initialise()
 {
   lastTime.resize(Sim->lN, 0.0);
-  data.resize(Sim->lN, C1DHistogram(Sim->Dynamics.units().unitLength() * 0.05));
+  data.resize(Sim->Dynamics.getSpecies().size(), C1DHistogram(Sim->Dynamics.units().unitLength() * 0.05));
 }
 
 void 
