@@ -79,7 +79,7 @@ COPMFT::output(xmlw::XmlStream &XML)
 	  XML << xmlw::endtag("Collisions");
 	}
 	
-      XML << xmlw::tag("Species");
+      XML << xmlw::endtag("Species");
     }
   
   XML << xmlw::endtag("MFT");
