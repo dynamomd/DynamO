@@ -47,7 +47,7 @@ class COPRdotV: public COutputPlugin
  protected:
   struct mapdata
   {
-    mapdata(): count(0), accRdotV(0.0), costheta(0.01) {}
+    mapdata(): count(0), accRdotV(0.0), costheta(0.005) {}
     
     unsigned long count;
 

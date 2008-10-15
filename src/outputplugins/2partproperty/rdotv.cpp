@@ -36,7 +36,7 @@ COPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
   mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent.getInteraction()))];
 
   ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
-  ref.costheta.addVal(pDat.rij.unitVector() % pDat.particle1_.getDeltaP().unitVector());
+  ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
 }
 
 void 
@@ -47,7 +47,8 @@ COPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
       mapdata& ref = rvdotacc[mapKey(globEvent.getType(), getClassKey(globEvent.getGlobal()))];
       
       ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
-      ref.costheta.addVal(pDat.rij.unitVector() % pDat.particle1_.getDeltaP().unitVector());
+
+      ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
     }
 }
 
@@ -59,7 +60,8 @@ COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const
       mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))];
       
       ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
-      ref.costheta.addVal(pDat.rij.unitVector() % pDat.particle1_.getDeltaP().unitVector());
+
+      ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
     } 
 }
 
@@ -77,7 +79,7 @@ COPRdotV::output(xmlw::XmlStream &XML)
 	  << CIntEvent::getCollEnumName(pair1.first.first)
 	  << xmlw::attr("EventName") 
 	  << getName(pair1.first.second, Sim)
-	  << xmlw::attr("Val") << pair1.second.getAvg()
+	  << xmlw::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
 	/ (Sim->Dynamics.units().unitVelocity() 
 	   * Sim->Dynamics.units().unitLength()
 	   * Sim->Dynamics.units().unitMass());
