@@ -43,7 +43,10 @@ class COPMFT: public COP1PP
  protected:
   const size_t collisionHistoryLength;
 
+  //! Each particles last collision times
   std::vector<boost::circular_buffer<Iflt> > lastTime;
+
+  //! A histogram for each species
   std::vector<std::vector<C1DHistogram> > data;
 };
 
