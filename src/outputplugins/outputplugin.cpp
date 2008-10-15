@@ -125,6 +125,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPMFL(Sim);
   else if (!Name.compare("MFT"))
     return new COPMFT(Sim);
+  else if (!Name.compare("CollEnergyChange"))
+    return new COPMFT(Sim);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
     return new COPBoundedQStats(Sim);
