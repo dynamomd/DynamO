@@ -22,20 +22,15 @@
 #include "../../dynamics/eventtypes.hpp"
 #include <map>
 #include <vector>
+#include "../eventtypetracking.hpp"
+
+using namespace EventTypeTracking;
 
 class CParticle;
 
 class COPCollMatrix: public COutputPlugin
 {
 private:
-  //! \brief This is to stop the use of maps
-  enum eventClass
-  {
-    NOEventClass, //!< This is the initial last event type for particles
-    InteractionClass,
-    GlobalClass,
-    SystemClass,
-  };
   
 public:
   COPCollMatrix(const DYNAMO::SimData*);
@@ -57,11 +52,7 @@ public:
   virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPCollMatrix*>(plug)->Sim); }
   
  protected:
-  void newEvent(const CParticle&, const EEventType&, const size_t&, const eventClass&);
-
-  typedef std::pair<size_t, eventClass> classKey;
-
-  std::string getName(const classKey&) const;
+  void newEvent(const CParticle&, const EEventType&, const classKey&);
   
   struct counterData
   {
@@ -71,7 +62,6 @@ public:
   };
   
   unsigned long totalCount;
-
 
   typedef std::pair<classKey, EEventType> eventKey;
 

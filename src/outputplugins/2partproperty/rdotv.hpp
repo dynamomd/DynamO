@@ -15,14 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*#ifndef COPRdotV_H
+#ifndef COPRdotV_H
 #define COPRdotV_H
 
 #include "../outputplugin.hpp"
-#include "../../dynamics/eventtypes.hpp"
+#include "../../datatypes/histogram.hpp"
+#include "../eventtypetracking.hpp"
 #include <map>
 
-class COPCollMatrix;
+using namespace EventTypeTracking;
 
 class COPRdotV: public COutputPlugin
 {
@@ -44,27 +45,27 @@ class COPRdotV: public COutputPlugin
   virtual COutputPlugin *Clone() const { return new COPRdotV(*this); };
   
  protected:
-  class mapdata
+  struct mapdata
   {
-  public:
-    mapdata(): count(0), accRdotV(0.0) {}
+    mapdata(): count(0), accRdotV(0.0), costheta(0.01) {}
     
     unsigned long count;
+
     Iflt accRdotV;
 
-    void addVal(Iflt dval)
-    { accRdotV += dval; count++; }
+    void addVal(const Iflt& dval)
+    { accRdotV += dval; ++count; }
 
-    Iflt getAvg()
+    Iflt getAvg() const
     { return accRdotV / count; }
+
+    C1DHistogram costheta;
   };
   
-  typedef std::pair<const std::pair<EEventType, size_t>, mapdata> mappair;
+  typedef std::pair<EEventType, classKey> mapKey;
 
-  std::map<std::pair<EEventType, size_t>, mapdata> rvdotacc;
-  
-  const COPCollMatrix* collMatrixPlug;
+  std::map<mapKey, mapdata> rvdotacc;
 };
 
 #endif
-*/
+

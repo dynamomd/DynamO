@@ -43,11 +43,9 @@ COPCollMatrix::~COPCollMatrix()
 void 
 COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 {
-  newEvent(iEvent.getParticle1(), iEvent.getType(), 
-	   iEvent.getInteraction().getID(), InteractionClass);
+  newEvent(iEvent.getParticle1(), iEvent.getType(), getClassKey(iEvent.getInteraction()));
 
-  newEvent(iEvent.getParticle2(), iEvent.getType(), 
-	   iEvent.getInteraction().getID(), InteractionClass);
+  newEvent(iEvent.getParticle2(), iEvent.getType(), getClassKey(iEvent.getInteraction()));
 }
 
 
@@ -55,12 +53,12 @@ void
 COPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle(), pData.getType(), globEvent.getGlobal().getID(), GlobalClass);  
+    newEvent(pData.getParticle(), pData.getType(), getClassKey(globEvent.getGlobal()));  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle(), pData.getType(), globEvent.getGlobal().getID(), GlobalClass);  
-      newEvent(pData.particle2_.getParticle(), pData.getType(), globEvent.getGlobal().getID(), GlobalClass);  
+      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(globEvent.getGlobal()));
+      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(globEvent.getGlobal()));
     }
 }
 
@@ -68,23 +66,22 @@ void
 COPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle(), pData.getType(), sysEvent.getID(), SystemClass);  
+    newEvent(pData.getParticle(), pData.getType(), getClassKey(sysEvent));
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle(), pData.getType(), sysEvent.getID(), SystemClass);  
-      newEvent(pData.particle2_.getParticle(), pData.getType(), sysEvent.getID(), SystemClass);  
+      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(sysEvent));  
+      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(sysEvent));  
     } 
 }
 
 
 void 
-COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const size_t& ID, const eventClass& eclass)
+COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const classKey& ck)
 {
   if (lastEvent[part.getID()].second.first.second != NOEventClass)
-    {      
-      counterData& refCount = counters[counterKey(eventKey(classKey(ID, eclass), etype),
-						  lastEvent[part.getID()].second)];
+    {
+      counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part.getID()].second)];
       
       refCount.totalTime += Sim->dSysTime - lastEvent[part.getID()].first;
       ++(refCount.count);
@@ -92,27 +89,7 @@ COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const si
     }
   
   lastEvent[part.getID()].first = Sim->dSysTime;
-  lastEvent[part.getID()].second = eventKey(classKey(ID, eclass), etype);
-}
-
-std::string 
-COPCollMatrix::getName(const classKey& key) const
-{
-  switch (key.second)
-    {
-    case InteractionClass:
-      return Sim->Dynamics.getInteractions()[key.first]->getName();
-      break;
-    case GlobalClass:
-      return Sim->Dynamics.getGlobals()[key.first]->getName();
-      break;
-    case SystemClass:
-      return Sim->Dynamics.getSystemEvents()[key.first]->getName();
-      break;
-    default:
-      D_throw() << "Collision matrix found an unknown event class";
-    }
-
+  lastEvent[part.getID()].second = eventKey(ck, etype);
 }
 
 void
@@ -130,9 +107,9 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Count")
 	  << xmlw::attr("Event") << CIntEvent::getCollEnumName(ele.first.first.second)
-	  << xmlw::attr("Name") << getName(ele.first.first.first)
+	  << xmlw::attr("Name") << getName(ele.first.first.first, Sim)
 	  << xmlw::attr("lastEvent") << CIntEvent::getCollEnumName(ele.first.second.second)
-	  << xmlw::attr("lastName") << getName(ele.first.second.first)
+	  << xmlw::attr("lastName") << getName(ele.first.second.first, Sim)
 	  << xmlw::attr("Percent") << 100.0 * ((Iflt) ele.second.count) 
 	/ ((Iflt) totalCount)
 	  << xmlw::attr("mft") << ele.second.totalTime
@@ -154,7 +131,7 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 
   BOOST_FOREACH(const mappair& mp1, totmap)
     XML << xmlw::tag("TotCount")
-	<< xmlw::attr("Name") << getName(mp1.first.first)
+	<< xmlw::attr("Name") << getName(mp1.first.first, Sim)
 	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
 	<< xmlw::attr("Percent") << 100.0 * ((Iflt) mp1.second.first) / ((Iflt) totalCount)
 	<< xmlw::attr("Count") << mp1.second.first

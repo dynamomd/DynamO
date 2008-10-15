@@ -37,10 +37,10 @@ class C1DHistogram
     sampleCount(0)
     {};
   
-  void addVal(Iflt val)
+  void addVal(const Iflt& val)
     {
-      data[val]++;
-      sampleCount++;
+      ++data[val];
+      ++sampleCount;
     }
   
   typedef std::pair<const long, unsigned long> lv1pair;

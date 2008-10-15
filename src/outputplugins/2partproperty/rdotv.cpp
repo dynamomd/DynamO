@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
+
 #include "rdotv.hpp"
 #include "../../dynamics/include.hpp"
 #include <boost/foreach.hpp>
@@ -23,20 +23,20 @@
 #include "../0partproperty/collMatrix.hpp"
 
 COPRdotV::COPRdotV(const DYNAMO::SimData* tmp):
-  COutputPlugin(tmp, "RdotV"),
-  collMatrixPlug(NULL)
+  COutputPlugin(tmp, "RdotV")
 {}
 
 void 
 COPRdotV::initialise()
-{
-  collMatrixPlug = Sim->getOutputPlugin<COPCollMatrix>();
-}
+{}
 
 void 
 COPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
-  rvdotacc[std::make_pair(iEvent.getType(),collMatrixPlug->getID(iEvent.getInteraction()))].addVal(pDat.rij % pDat.particle1_.getDeltaP());
+  mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent.getInteraction()))];
+
+  ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+  ref.costheta.addVal(pDat.rij.unitVector() % pDat.particle1_.getDeltaP().unitVector());
 }
 
 void 
@@ -44,7 +44,10 @@ COPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
-      rvdotacc[std::make_pair(globEvent.getType(), collMatrixPlug->getID(globEvent.getGlobal()))].addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      mapdata& ref = rvdotacc[mapKey(globEvent.getType(), getClassKey(globEvent.getGlobal()))];
+      
+      ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      ref.costheta.addVal(pDat.rij.unitVector() % pDat.particle1_.getDeltaP().unitVector());
     }
 }
 
@@ -53,7 +56,10 @@ COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
-      rvdotacc[std::make_pair(sysEvent.getType(), collMatrixPlug->getID(sysEvent))].addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))];
+      
+      ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      ref.costheta.addVal(pDat.rij.unitVector() % pDat.particle1_.getDeltaP().unitVector());
     } 
 }
 
@@ -61,22 +67,26 @@ void
 COPRdotV::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("rdotV");
+  
+  typedef std::pair<const mapKey, mapdata> mappair;
 
-  BOOST_FOREACH(mappair& pair1, rvdotacc)
+  BOOST_FOREACH(const mappair& pair1, rvdotacc)
     {
       XML << xmlw::tag("Element")
 	  << xmlw::attr("Type") 
 	  << CIntEvent::getCollEnumName(pair1.first.first)
 	  << xmlw::attr("EventName") 
-	  << collMatrixPlug->getName(pair1.first.second)
-	  << xmlw::attr("Val") << pair1.second.getAvg() 
+	  << getName(pair1.first.second, Sim)
+	  << xmlw::attr("Val") << pair1.second.getAvg()
 	/ (Sim->Dynamics.units().unitVelocity() 
 	   * Sim->Dynamics.units().unitLength()
-	   * Sim->Dynamics.units().unitMass())
-	  << xmlw::endtag("Element");
+	   * Sim->Dynamics.units().unitMass());
+      
+      pair1.second.costheta.outputHistogram(XML, 1.0);
+      
+      XML << xmlw::endtag("Element");
     }
   
   
-  XML << xmlw::endtag("rdotV");
+    XML << xmlw::endtag("rdotV");
 }
-*/

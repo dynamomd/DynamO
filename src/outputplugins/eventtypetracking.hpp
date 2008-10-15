@@ -15,13 +15,42 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "XMLconfig.hpp"
-#include "collMatrix.hpp"
-#include "msd.hpp"
-#include "eta.hpp"
-#include "misc.hpp"
-#include "packingfrac.hpp"
-#include "vtk.hpp"
-#include "qmga.hpp"
-#include "intEnergyHist.hpp"
-#include "boundedQstats.hpp"
+#pragma once
+
+#ifndef EventTypeTracking_H
+#define EventTypeTracking_H
+
+#include <utility>
+#include <string>
+
+namespace DYNAMO
+{
+  struct SimData;
+}
+
+class CInteraction;
+class CGlobal;
+class CSystem;
+
+namespace EventTypeTracking {
+  //! \brief This is to stop the use of maps
+  enum eventClass
+    {
+      NOEventClass, //!< This is the initial last event type for particles
+      InteractionClass,
+      GlobalClass,
+      SystemClass,
+    };
+  
+  typedef std::pair<size_t, eventClass> classKey;
+
+  std::string getName(const classKey&, const DYNAMO::SimData*);
+
+  classKey getClassKey(const CInteraction&);
+
+  classKey getClassKey(const CSystem&);
+
+  classKey getClassKey(const CGlobal&);
+};
+
+#endif
