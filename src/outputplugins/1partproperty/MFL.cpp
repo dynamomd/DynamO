@@ -73,7 +73,8 @@ COPMFL::output(xmlw::XmlStream &XML)
       data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
       
       XML << xmlw::tag("SLLOD");
-      data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
+      SLLODdata[id].outputHistogram
+	(XML, 1.0 / Sim->Dynamics.units().unitLength());
 
       XML << xmlw::endtag("Species");
     }
