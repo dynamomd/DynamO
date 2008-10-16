@@ -40,8 +40,11 @@ class COPMFL: public COP1PP
   virtual COutputPlugin *Clone() const { return new COPMFL(*this); }
 
  protected:
+
   std::vector<Iflt> lastTime;
+
   std::vector<C1DHistogram> data;
+  std::vector<C1DHistogram> SLLODdata;  
 };
 
 #endif

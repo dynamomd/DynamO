@@ -32,6 +32,7 @@ COPMFL::initialise()
 {
   lastTime.resize(Sim->lN, 0.0);
   data.resize(Sim->Dynamics.getSpecies().size(), C1DHistogram(Sim->Dynamics.units().unitLength() * 0.01));
+  SLLODdata.resize(Sim->Dynamics.getSpecies().size(), C1DHistogram(Sim->Dynamics.units().unitLength() * 0.01));
 }
 
 void 
@@ -42,6 +43,15 @@ COPMFL::A1ParticleChange(const C1ParticleData& PDat)
     {
       data[PDat.getSpecies().getID()]
 	.addVal(PDat.getParticle().getVelocity().length() 
+	     * (Sim->dSysTime 
+		- lastTime[PDat.getParticle().getID()]));
+
+      CVector<> vel = PDat.getParticle().getVelocity();
+
+      vel[0] += PDat.getParticle().getPosition()[1];
+
+      SLLODdata[PDat.getSpecies().getID()]
+	.addVal(vel.length() 
 	     * (Sim->dSysTime 
 		- lastTime[PDat.getParticle().getID()]));
     }
@@ -60,6 +70,9 @@ COPMFL::output(xmlw::XmlStream &XML)
 	  << xmlw::attr("Name")
 	  << Sim->Dynamics.getSpecies()[id].getName();
 
+      data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
+      
+      XML << xmlw::tag("SLLOD");
       data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
 
       XML << xmlw::endtag("Species");
