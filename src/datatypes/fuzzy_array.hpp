@@ -45,7 +45,10 @@ public:
     }
   
   T& operator[](const Iflt& x)
-    { return data[lround((x/binWidth)-0.5)]; }
+  { 
+    Iflt val = x/binWidth;
+    return data[static_cast<long>(val) - static_cast<long>(val < 0)]; 
+  }
 
   inline T &operator[](const long &x)
   {

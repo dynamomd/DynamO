@@ -68,7 +68,7 @@ COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const
 void
 COPRdotV::output(xmlw::XmlStream &XML)
 {
-  XML << xmlw::tag("rdotV");
+  XML << xmlw::tag("RdotV");
   
   typedef std::pair<const mapKey, mapdata> mappair;
 
@@ -90,5 +90,5 @@ COPRdotV::output(xmlw::XmlStream &XML)
     }
   
   
-    XML << xmlw::endtag("rdotV");
+    XML << xmlw::endtag("RdotV");
 }
