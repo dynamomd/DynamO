@@ -48,7 +48,7 @@ COPMFL::A1ParticleChange(const C1ParticleData& PDat)
 
       CVector<> vel = PDat.getParticle().getVelocity();
 
-      vel[0] += PDat.getParticle().getPosition()[1];
+      vel[0] -= PDat.getParticle().getPosition()[1];
 
       SLLODdata[PDat.getSpecies().getID()]
 	.addVal(vel.length() 
