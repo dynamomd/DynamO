@@ -36,7 +36,7 @@ COPMFT::initialise()
   std::vector<C1DHistogram> vecTemp;
   
   vecTemp.resize(collisionHistoryLength, 
-		 C1DHistogram(Sim->Dynamics.units().unitLength() * 0.05));
+		 C1DHistogram(Sim->Dynamics.units().unitLength() * 0.5));
   
   data.resize(Sim->Dynamics.getSpecies().size(), vecTemp);
 }
