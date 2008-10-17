@@ -135,7 +135,13 @@ CIPPacker::initialise()
 	"e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
 	"       --f2 : Bond outer well (>0) [1.05]\n"
-	"       --f3 : Well width factor [1.5]"
+	"       --f3 : Well width factor [1.5]\n"
+	"  8: Binary Hard Spheres\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"\n"
+	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
+	"       --f2 : Mass Ratio (B/A) [0.001]\n"
+	"       --f3 : Mol Fraction of large system (A) [0.95]"
 	;
 
       std::cout << "\n";
@@ -667,6 +673,81 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
+	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 8:
+      {
+	//Pack of hard spheres
+	//Pack the system, determine the number of particles
+	std::vector<CVector<> > 
+	  latticeSites(standardPackingHelper(new CUParticle()));
+      	
+	Iflt molFrac = 0.95, massFrac = 0.001, sizeRatio = 0.1;
+
+	if (vm.count("f1"))
+	  sizeRatio = vm["f1"].as<double>();
+
+	if (vm.count("f2"))
+	  massFrac = vm["f2"].as<double>();
+
+	if (vm.count("f3"))
+	  molFrac = vm["f3"].as<double>();
+		  
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				  / latticeSites.size(), 1.0 / 3.0);
+	
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSMultList(Sim);
+	
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	
+	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
+	size_t nB = latticeSites.size() - nA;
+
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, particleDiam, 1.0, 
+			    new C2RSingle(new CRRange(0, nA - 1)))
+	   )->setName("AAInt");
+	
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, 
+			    1.0, 
+			    new C2RPair(new CRRange(0, nA - 1),
+					new CRRange(nA, latticeSites.size()-1)))
+	   )->setName("ABInt");
+	
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0, 
+			    new C2RAll()))->setName("BBInt");
+
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A",
+					  0, "AAInt"));
+
+	Sim->Dynamics.addSpecies
+	  (CSpecies(Sim, new CRRange(nA, latticeSites.size()-1), 
+		    massFrac, "B", 0, "BBInt"));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
 						 nParticles++));
