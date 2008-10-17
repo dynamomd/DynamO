@@ -74,6 +74,10 @@ protected:
    */
   virtual void setupSim(CSimulation&, const std::string);
 
+  /*! \brief Override the default to insert the cell scheduler hack at the right time.
+   */
+  virtual void postSimInit(CSimulation&);
+
   /*! \brief A single CIPCompression plugin to manipulate the CSimulation.
    */
   smrtPlugPtr<CIPCompression> compressPlug;

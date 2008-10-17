@@ -47,16 +47,22 @@ CECompressor::preSimInit()
 }
 
 void 
+CECompressor::postSimInit(CSimulation& Sim)
+{
+  //This adds a system event to prevent the cellular scheduler 
+  //failing during compression
+  compressPlug->CellSchedulerHack();
+
+  CEngine::postSimInit(Sim);
+}
+
+void 
 CECompressor::setupSim(CSimulation& Sim, const std::string filename)
 {
   CESingle::setupSim(Sim,filename);
   
-  //This adds a system event to prevent the cellular scheduler 
-  //failing during compression
   compressPlug->MakeGrowth();
-        
-  compressPlug->CellSchedulerHack();
-    
+            
   if (vm.count("target-pack-frac"))
     compressPlug->limitPackingFraction
       (vm["target-pack-frac"].as<Iflt>());
