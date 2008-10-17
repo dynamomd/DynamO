@@ -227,10 +227,29 @@ CDynamics::addGlobal(CGlobal* newGlobal)
 void
 CDynamics::addSystem(CSystem* newSystem)
 {
+  if (Sim->status >= INITIALISED)
+    D_throw() << "Cannot add system events at this time,"
+      " try using addSystemLate"; 
+  
   smrtPlugPtr<CSystem> 
     tempPlug(newSystem);
   
   systems.push_back(tempPlug); 
+}
+
+void
+CDynamics::addSystemLate(CSystem* newSystem)
+{
+  if (Sim->status < INITIALISED)
+    D_throw() << "Cannot add system events using this when early!"
+      " try using addSystem"; 
+
+  smrtPlugPtr<CSystem> 
+    tempPlug(newSystem);
+  
+  systems.push_back(tempPlug); 
+
+  systems.back()->initialise(systems.size()-1);
 }
 
 void

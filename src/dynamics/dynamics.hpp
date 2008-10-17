@@ -69,6 +69,8 @@ public:
 
   void addSystem(CSystem*);
 
+  void addSystemLate(CSystem*);
+
   void addStructure(CTopology*);
 
   const CSpecies& getSpecies(const CParticle&) const;
