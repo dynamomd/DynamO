@@ -104,10 +104,12 @@ CIPCompression::CellSchedulerHack()
   
   //Rebulid the collision scheduler without the overlapping cells!
   oldLambda = tmpPtr->getLambda();
+
   tmpPtr->setLambda(0.0);
+
   //Add the system watcher
-  Sim->Dynamics.addSystem(new CSCellHack(Sim, growthRate 
-					 / Sim->Dynamics.units().unitTime()));
+  Sim->Dynamics.addSystemLate
+    (new CSCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
 }
 
 void 

@@ -27,29 +27,37 @@ CSCellHack::CSCellHack(DYNAMO::SimData* nSim, Iflt nGR):
   growthRate(nGR)
 {
   sysName = "CellularCompressionHack";
-  I_cout() << "Compression Hack Loaded";
+
   type = NON_EVENT;
+
   maxOrigDiam = Sim->Dynamics.getLongestInteraction();
-  dt = 0.0;
+
+  size_t minDiam = 0;
 
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<CSCells*>(Sim->ptrScheduler) == NULL)
     D_throw() << "Not a cellular scheduler!";
 #endif
-
-  int minDiam = 0;
     
   CVector<> cellDimensions = dynamic_cast<CSCells*>
     (Sim->ptrScheduler)->getCellDimensions();
   
-  for (int i = 1; i < NDIM; ++i)
+  for (size_t i = 1; i < NDIM; ++i)
     if (cellDimensions[i] < cellDimensions[minDiam])
       minDiam = i;
 
   dt = (cellDimensions[minDiam] / maxOrigDiam - 1.0) / growthRate;
 
-  I_cout() << "First halt scheduled for " << dt / Sim->Dynamics.units().unitTime();
-  I_cout() << "Gamma in sim units " << nGR;
+  I_cout() << "Compression Hack Loaded"
+	   << "\nCompression rate = " 
+	   << growthRate / Sim->Dynamics.units().unitTime()
+	   << "\nSim Units compression rate = " << growthRate
+	   << "\nMax diameter of interaction = " 
+	   << maxOrigDiam / Sim->Dynamics.units().unitLength()
+	   << "\nMinimum cell dimension = "
+	   << cellDimensions[minDiam] / Sim->Dynamics.units().unitLength()
+	   << "\nFirst halt scheduled for " 
+	   << dt / Sim->Dynamics.units().unitTime();
 }
 
 void 
