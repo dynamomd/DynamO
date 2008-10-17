@@ -268,7 +268,10 @@ CDynamics::addSystemTicker()
     if (ptr->getName() == "SystemTicker")
       D_throw() << "System Ticker already exists";
 
-  addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
+  if (Sim->status >= INITIALISED)
+    addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
+  else
+    addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
 
 void 

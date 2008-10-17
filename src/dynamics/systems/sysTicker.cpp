@@ -75,3 +75,14 @@ CSTicker::increasedt(Iflt ndt)
 { 
   dt += ndt * Sim->Dynamics.units().unitTime(); 
 }
+
+void 
+CSTicker::setTickerPeriod(const Iflt& nP)
+{ 
+  I_cout() << "Setting system ticker period to " 
+	   << nP / Sim->Dynamics.units().unitTime();
+
+  period = nP; 
+
+  dt = nP;
+}

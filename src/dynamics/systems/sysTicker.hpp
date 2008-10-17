@@ -39,12 +39,7 @@ public:
 
   void increasedt(Iflt);
 
-  void setTickerPeriod(Iflt nP)
-  { 
-    I_cout() << "Setting system ticker period to " << nP;
-    period = nP; 
-    dt = nP;
-  }
+  void setTickerPeriod(const Iflt&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const {}
