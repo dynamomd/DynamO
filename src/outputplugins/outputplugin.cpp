@@ -121,6 +121,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new COPThermalCon(Sim, XML);
   else if (!Name.compare("MutualDiffusion"))
     return new COPMutualDiffusion(Sim, XML);
+  else if (!Name.compare("ThermalDiffusion"))
+    return new COPThermalDiffusion(Sim, XML);
   else if (!Name.compare("MFL"))
     return new COPMFL(Sim);
   else if (!Name.compare("MFT"))
@@ -131,10 +133,6 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
   else if (!Name.compare("BoundedPQStats"))
     return new COPBoundedQStats(Sim);
 #endif
-  /*
-  else if (!Name.compare("ThermalDiffusion"))
-    return new COPThermalDiffusion(Sim, XML);
-  */
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

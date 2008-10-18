@@ -18,3 +18,4 @@
 #include "viscosity.hpp"
 #include "thermalCond.hpp"
 #include "mutualdiff.hpp"
+#include "thermaldiff.hpp"
