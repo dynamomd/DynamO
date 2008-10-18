@@ -71,9 +71,6 @@ class COPCorrelator: public COutputPlugin
 
   virtual void stream(const Iflt edt)
   {
-    //Move the time forward
-    //currentdt += edt;
-
     //Now test if we've gone over the step time
     if (currentdt + edt >= dt)
       {
@@ -87,6 +84,7 @@ class COPCorrelator: public COutputPlugin
 	    currentdt -= dt;
 	    newG(delG);
 	  }
+
 	//Now calculate the start of the new delG
 	delG = constDelG * currentdt;
       }
