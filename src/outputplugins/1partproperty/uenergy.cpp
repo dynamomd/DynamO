@@ -24,7 +24,7 @@
 #include "../../base/is_simdata.hpp"
 
 COPUEnergy::COPUEnergy(const DYNAMO::SimData* tmp):
-  COP1PP(tmp,"Energy", 250),
+  COP1PP(tmp,"UEnergy", 250),
   intECurrent(0.0),
   intEsqAcc(0.0),
   intEAcc(0.0)
