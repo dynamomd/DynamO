@@ -102,17 +102,21 @@ COPMisc::output(xmlw::XmlStream &XML)
 {
   std::time_t endTime;
   time(&endTime);
-
-  Iflt collpersec = ((Iflt) Sim->lNColl) / difftime(endTime, startTime); 
-
-  I_cout() << "Ended on " << ctime(&endTime);
   
-  I_cout() << "Total Collisions Executed " << Sim->lNColl;
-  I_cout() << "Avg Coll/s " << collpersec;
-
   //This must be seperate as ctime is not reentrant! :(
   std::string sTime(std::ctime(&startTime));
+  //A hack to remove the newline character at the end
+  sTime[sTime.size()-1] = ' ';
+  
   std::string eTime(std::ctime(&endTime));
+  //A hack to remove the newline character at the end
+  eTime[eTime.size()-1] = ' ';
+  
+  Iflt collpersec = ((Iflt) Sim->lNColl) / difftime(endTime, startTime); 
+
+  I_cout() << "Ended on " << eTime
+	   << "\nTotal Collisions Executed " << Sim->lNColl
+	   << "\nAvg Coll/s " << collpersec;
    
   XML << xmlw::tag("Misc")
       << xmlw::tag("Density")
