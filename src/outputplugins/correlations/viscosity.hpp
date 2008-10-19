@@ -57,8 +57,6 @@ protected:
   void accPass();
 
   matrix avgTrace;
-  boost::circular_buffer<matrix> G;
-  std::vector<matrix> accG2;
 
   size_t count;
   Iflt dt, currentdt;
@@ -68,6 +66,9 @@ protected:
   bool notReady;
 
   size_t CorrelatorLength;
+
+  boost::circular_buffer<matrix> G;
+  std::vector<matrix> accG2;
 };
 
 #endif

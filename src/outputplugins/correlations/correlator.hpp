@@ -35,6 +35,7 @@ class COPCorrelator: public COutputPlugin
  public:
   COPCorrelator(const DYNAMO::SimData* tmp,const char *aName, const XMLNode& XML):
     COutputPlugin(tmp, aName, 60), //Note the sort order set later
+    G(100),
     count(0),
     dt(0),
     currentdt(0.0),
