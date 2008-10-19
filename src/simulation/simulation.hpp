@@ -26,7 +26,6 @@
 #include "../base/is_exception.hpp"
 #include "../dynamics/dynamics.hpp"
 #include <boost/scoped_array.hpp>
-#include <list>
 
 class CDynamics;
 class COutputPlugin;
@@ -94,14 +93,14 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   long double getSysTime();
 
-  inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const { return Ensemble; }
+  inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const 
+  { return Ensemble; }
 
-  inline boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() { return Ensemble; }
+  inline boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() 
+  { return Ensemble; }
   
   std::ostringstream &getHistory()
-    {
-      return ssHistory;
-    }
+    { return ssHistory; }
 
   inline const unsigned long long &getnColl() const 
   { return lNColl; }
@@ -111,11 +110,6 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void addOutputPlugin(std::string);
   
-  template <class T> void setPBC()
-    {
-      Dynamics.setPBC<T>();
-    }
-
   void setTickerPeriod(Iflt);
   
  private:
