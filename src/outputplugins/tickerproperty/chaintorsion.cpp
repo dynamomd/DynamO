@@ -28,7 +28,7 @@
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPCTorsion::COPCTorsion(const DYNAMO::SimData* tmp):
+COPCTorsion::COPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Torsion")
 {}
 

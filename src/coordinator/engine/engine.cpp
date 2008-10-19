@@ -105,10 +105,10 @@ CEngine::postSimInit(CSimulation& Sim)
     BOOST_FOREACH(const std::string& tmpString, vm["load-plugin"].as<std::vector<std::string> >())
       Sim.addOutputPlugin(tmpString);
 
-  Sim.addOutputPlugin<COPReverseEventsCheck>();
+  Sim.addOutputPlugin("ReverseEventsCheck");
 
   if (!vm.count("equilibrate"))
     //Just add the bare minimum outputplugin
-    Sim.addOutputPlugin<COPMisc>();
+    Sim.addOutputPlugin("Misc");
 }
 

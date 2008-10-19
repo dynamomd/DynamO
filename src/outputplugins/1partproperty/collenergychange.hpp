@@ -25,7 +25,7 @@
 class COPCollEnergyChange: public COP1PP
 {
  public:
-  COPCollEnergyChange(const DYNAMO::SimData*);
+  COPCollEnergyChange(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 

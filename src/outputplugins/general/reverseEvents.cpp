@@ -20,7 +20,7 @@
 #include "../../dynamics/globals/globEvent.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 
-COPReverseEventsCheck::COPReverseEventsCheck(const DYNAMO::SimData* t1):
+COPReverseEventsCheck::COPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
   COutputPlugin(t1,"ReverseEventsChecker"),
   lReverseEvents(0),
   localeps(0)

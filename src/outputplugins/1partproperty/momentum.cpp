@@ -25,7 +25,7 @@
 #include "../../datatypes/vector.xml.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 
-COPMomentum::COPMomentum(const DYNAMO::SimData* tmp):
+COPMomentum::COPMomentum(const DYNAMO::SimData* tmp, const XMLNode&):
   COP1PP(tmp,"Momentum")
 {}
 

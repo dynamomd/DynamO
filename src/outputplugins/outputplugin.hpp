@@ -38,41 +38,41 @@ namespace xmlw
 
 class COutputPlugin: public DYNAMO::SimBase_const
 {
- public:
+public:
   COutputPlugin(const DYNAMO::SimData*, const char*, unsigned char order=100, const char *aColor=IC_blue);
-
+  
   inline virtual ~COutputPlugin() {}
-
+  
   virtual void initialise() = 0;
-
+  
   virtual void eventUpdate(const CIntEvent&, const C2ParticleData&) = 0;
-
+  
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&) = 0;
 
   virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) = 0;
-
+  
   virtual COutputPlugin *Clone() const = 0;
-
+  
   virtual void output(xmlw::XmlStream&);
-
+  
   virtual void periodicOutput();
-
+  
   static COutputPlugin* getPlugin(const XMLNode&, const DYNAMO::SimData*);
   static COutputPlugin* getPlugin(const std::string, const DYNAMO::SimData*);
   
   inline bool operator<(const COutputPlugin& OP) const
   { return updateOrder < OP.updateOrder; }
-
+  
   inline bool operator>(const COutputPlugin& OP) const
   { return updateOrder > OP.updateOrder; }
-
+  
   virtual void changeSystem(COutputPlugin*) 
   { D_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
-
+  
   virtual void temperatureRescale(const double&)
   {}
   
- protected:
+protected:
   DYNAMO::Colorise_Text_Stream_Operator I_Pcout() const;
   
   // This sets the order in which these things are updated
@@ -82,6 +82,11 @@ class COutputPlugin: public DYNAMO::SimBase_const
   //
   // Lets other plugins take data from plugins before/after they are updated
   unsigned char updateOrder;
+
+private:
+
+  template<class T> static COutputPlugin* 
+  testGeneratePlugin(const DYNAMO::SimData*, const XMLNode&);
 };
 
 #endif

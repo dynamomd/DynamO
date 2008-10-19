@@ -28,7 +28,7 @@ using namespace EventTypeTracking;
 class COPRdotV: public COutputPlugin
 {
  public:
-  COPRdotV(const DYNAMO::SimData*);
+  COPRdotV(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
   

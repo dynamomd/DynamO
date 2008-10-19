@@ -26,7 +26,7 @@
 class COPMFT: public COP1PP
 {
  public:
-  COPMFT(const DYNAMO::SimData*);
+  COPMFT(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 

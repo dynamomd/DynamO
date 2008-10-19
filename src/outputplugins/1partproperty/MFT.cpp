@@ -23,7 +23,7 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPMFT::COPMFT(const DYNAMO::SimData* tmp):
+COPMFT::COPMFT(const DYNAMO::SimData* tmp, const XMLNode&):
   COP1PP(tmp,"MeanFreeLength", 250),
   collisionHistoryLength(10)
 {}

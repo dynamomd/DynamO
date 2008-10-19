@@ -35,7 +35,7 @@ COPChainBondLength::Cdata::Cdata(size_t ID, size_t CL):
   BondLengths.resize(CL-1, C1DHistogram(0.0001));
 }
 
-COPChainBondLength::COPChainBondLength(const DYNAMO::SimData* tmp):
+COPChainBondLength::COPChainBondLength(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"ChainBondLength")
 {}
 

@@ -33,7 +33,7 @@ class COPCollMatrix: public COutputPlugin
 private:
   
 public:
-  COPCollMatrix(const DYNAMO::SimData*);
+  COPCollMatrix(const DYNAMO::SimData*, const XMLNode&);
   ~COPCollMatrix();
 
   virtual void initialise();

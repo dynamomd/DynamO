@@ -24,7 +24,7 @@
 class COPPackingFraction: public COutputPlugin
 {
  public:
-  COPPackingFraction(const DYNAMO::SimData*);
+  COPPackingFraction(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise() {}
 

@@ -24,7 +24,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../1partproperty/uenergy.hpp"
 
-COPIntEnergyHist::COPIntEnergyHist(const DYNAMO::SimData* tmp):
+COPIntEnergyHist::COPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode&):
   COPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before COPEnergy
   intEnergyHist(1.0),
   ptrCOPEnergy(NULL),

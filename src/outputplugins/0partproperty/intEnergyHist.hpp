@@ -26,7 +26,7 @@ class COPUEnergy;
 class COPIntEnergyHist: public COPCollTicker
 {
  public:
-  COPIntEnergyHist(const DYNAMO::SimData*);
+  COPIntEnergyHist(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPIntEnergyHist(*this); }

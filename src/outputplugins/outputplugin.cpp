@@ -86,7 +86,21 @@ COutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 	  XML.addAttribute(opName.c_str(), value_iter->c_str());	  
 	}
     }
+
   return getPlugin(XML,Sim);
+}
+
+template<class T> COutputPlugin* 
+COutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
+{
+  try {
+    Sim->getOutputPlugin<T>();
+    //It's already in the simulation
+    D_throw() << "Plugin is already loaded";
+  } catch (std::exception&)
+    {
+      return new T(Sim, XML);
+    }  
 }
 
 COutputPlugin* 
@@ -95,76 +109,76 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
   std::string Name = XML.getAttribute("Type");
 
   if (!Name.compare("MSD"))
-    return new COPMSD(Sim);
+    return testGeneratePlugin<COPMSD>(Sim, XML);
   else if (!Name.compare("PeriodicMSD"))
-    return new COPPeriodicMSD(Sim);
+    return testGeneratePlugin<COPPeriodicMSD>(Sim, XML);
   else if (!Name.compare("EstTime"))
-    return new COPETA(Sim);
+    return testGeneratePlugin<COPETA>(Sim, XML);
   else if (!Name.compare("ReplexTrace"))
-    return new COPReplexTrace(Sim);
+    return testGeneratePlugin<COPReplexTrace>(Sim, XML);
   else if (!Name.compare("IntEnergyHist"))
-    return new COPIntEnergyHist(Sim);
+    return testGeneratePlugin<COPIntEnergyHist>(Sim, XML);
   else if (!Name.compare("RadiusGyration"))
-    return new COPRGyration(Sim);
+    return testGeneratePlugin<COPRGyration>(Sim, XML);
   else if (!Name.compare("Torsion"))
-    return new COPCTorsion(Sim);
+    return testGeneratePlugin<COPCTorsion>(Sim, XML);
   else if (!Name.compare("Geomview"))
-    return new COPGeomview(Sim);
+    return testGeneratePlugin<COPGeomview>(Sim, XML);
   else if (!Name.compare("KEnergy"))
-    return new COPKEnergy(Sim);
+    return testGeneratePlugin<COPKEnergy>(Sim, XML);
   else if (!Name.compare("UEnergy"))
-    return new COPUEnergy(Sim);
+    return testGeneratePlugin<COPUEnergy>(Sim, XML);
   else if (!Name.compare("Misc"))
-    return new COPMisc(Sim);
+    return testGeneratePlugin<COPMisc>(Sim, XML);
   else if (!Name.compare("TinkerXYZ"))
-    return new COPTinkerXYZ(Sim);
+    return testGeneratePlugin<COPTinkerXYZ>(Sim, XML);
   else if (!Name.compare("PackingFraction"))
-    return new COPPackingFraction(Sim);
+    return testGeneratePlugin<COPPackingFraction>(Sim, XML);
   else if (!Name.compare("CollisionMatrix"))
-    return new COPCollMatrix(Sim);
+    return testGeneratePlugin<COPCollMatrix>(Sim, XML);
   else if (!Name.compare("RdotV"))
-    return new COPRdotV(Sim);
+    return testGeneratePlugin<COPRdotV>(Sim, XML);
   else if (!Name.compare("Momentum"))
-    return new COPMomentum(Sim);
+    return testGeneratePlugin<COPMomentum>(Sim, XML);
   else if (!Name.compare("QMGA"))
-    return new COPQMGA(Sim);
+    return testGeneratePlugin<COPQMGA>(Sim, XML);
 #ifdef DYNAMO_VTK
   else if (!Name.compare("VTK"))
-    return new COPVTK(Sim);
+    return testGeneratePlugin<COPVTK>(Sim, XML);
 #endif
   else if (!Name.compare("Povray"))
-    return new COPPovray(Sim);
+    return testGeneratePlugin<COPPovray>(Sim, XML);
   else if (!Name.compare("ContactMap"))
-    return new COPCContactMap(Sim);
+    return testGeneratePlugin<COPCContactMap>(Sim, XML);
   else if (!Name.compare("OverlapTester"))
-    return new COPOverlapTest(Sim);
+    return testGeneratePlugin<COPOverlapTest>(Sim, XML);
   /*else if (!Name.compare("CollDistCheck"))
-    return new COPCollDistCheck(Sim);*/
+    return testGeneratePlugin<COPCollDistCheck>(Sim, XML);*/
   else if (!Name.compare("ChainBondAngles"))
-    return new COPChainBondAngles(Sim);
+    return testGeneratePlugin<COPChainBondAngles>(Sim, XML);
   else if (!Name.compare("ChainBondLength"))
-    return new COPChainBondLength(Sim);
+    return testGeneratePlugin<COPChainBondLength>(Sim, XML);
   else if (!Name.compare("ReverseEventsCheck"))
-    return new COPReverseEventsCheck(Sim);
+    return testGeneratePlugin<COPReverseEventsCheck>(Sim, XML);
   else if (!Name.compare("VACF"))
-    return new COPVACF(Sim,XML);
+    return testGeneratePlugin<COPVACF>(Sim,XML);
   else if (!Name.compare("Viscosity"))
-    return new COPViscosity(Sim, XML);
+    return testGeneratePlugin<COPViscosity>(Sim, XML);
   else if (!Name.compare("ThermalConductivity"))
-    return new COPThermalCon(Sim, XML);
+    return testGeneratePlugin<COPThermalCon>(Sim, XML);
   else if (!Name.compare("MutualDiffusion"))
-    return new COPMutualDiffusion(Sim, XML);
+    return testGeneratePlugin<COPMutualDiffusion>(Sim, XML);
   else if (!Name.compare("ThermalDiffusion"))
-    return new COPThermalDiffusion(Sim, XML);
+    return testGeneratePlugin<COPThermalDiffusion>(Sim, XML);
   else if (!Name.compare("MFL"))
-    return new COPMFL(Sim);
+    return testGeneratePlugin<COPMFL>(Sim, XML);
   else if (!Name.compare("MFT"))
-    return new COPMFT(Sim);
+    return testGeneratePlugin<COPMFT>(Sim, XML);
   else if (!Name.compare("CollEnergyChange"))
-    return new COPCollEnergyChange(Sim);
+    return testGeneratePlugin<COPCollEnergyChange>(Sim, XML);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
-    return new COPBoundedQStats(Sim);
+    return testGeneratePlugin<COPBoundedQStats>(Sim, XML);
 #endif
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"

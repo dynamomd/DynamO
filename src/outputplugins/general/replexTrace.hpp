@@ -25,7 +25,7 @@
 class COPReplexTrace: public COutputPlugin
 {
 public:
-  COPReplexTrace(const DYNAMO::SimData*);
+  COPReplexTrace(const DYNAMO::SimData*, const XMLNode&);
 
   COPReplexTrace(const COPReplexTrace&);
 

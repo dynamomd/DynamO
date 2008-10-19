@@ -18,7 +18,7 @@
 #include "eta.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPETA::COPETA(const DYNAMO::SimData* tmp):
+COPETA::COPETA(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"EstTime", 249)
 {}
 

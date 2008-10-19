@@ -25,7 +25,7 @@
 class COPChainBondLength: public COPTicker
 {
  public:
-  COPChainBondLength(const DYNAMO::SimData*);
+  COPChainBondLength(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPChainBondLength(*this); }

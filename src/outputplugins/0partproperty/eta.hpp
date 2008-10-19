@@ -25,7 +25,7 @@
 class COPETA: public COutputPlugin
 {
  public:
-  COPETA(const DYNAMO::SimData*);
+  COPETA(const DYNAMO::SimData*, const XMLNode&);
 
   void periodicOutput();
 

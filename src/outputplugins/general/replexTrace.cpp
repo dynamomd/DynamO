@@ -20,7 +20,7 @@
 #include <boost/filesystem.hpp>
 #include "../../dynamics/include.hpp"
 
-COPReplexTrace::COPReplexTrace(const DYNAMO::SimData* t1):
+COPReplexTrace::COPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
   COutputPlugin(t1,"ReplexTrace"),
   filename(std::string("ReplexTrace.tmp.") 
 	   + boost::lexical_cast<std::string>(rand()))

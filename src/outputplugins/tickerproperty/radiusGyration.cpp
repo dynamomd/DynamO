@@ -33,7 +33,7 @@
 #include <fstream>
 #include <cmath>
 
-COPRGyration::COPRGyration(const DYNAMO::SimData* tmp):
+COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"GyrationRadius")
 {}
 

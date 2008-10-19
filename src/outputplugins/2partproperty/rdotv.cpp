@@ -22,7 +22,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/collMatrix.hpp"
 
-COPRdotV::COPRdotV(const DYNAMO::SimData* tmp):
+COPRdotV::COPRdotV(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp, "RdotV")
 {}
 

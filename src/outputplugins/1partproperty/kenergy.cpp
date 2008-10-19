@@ -23,7 +23,7 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPKEnergy::COPKEnergy(const DYNAMO::SimData* tmp):
+COPKEnergy::COPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
   COP1PP(tmp,"KEnergy", 250),
   sumPowerLoss(0.0),
   kTacc(0.0),

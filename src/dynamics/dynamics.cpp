@@ -203,6 +203,9 @@ CDynamics::getInteraction(std::string name) const
 void 
 CDynamics::addSpecies(CSpecies CSpe)
 {
+  if (Sim->status >= INITIALISED)
+    D_throw() << "Cannot add species after simulation initialisation";
+
   species.push_back(CSpe);
 
   BOOST_FOREACH(smrtPlugPtr<CInteraction>& intPtr , interactions)
@@ -218,6 +221,9 @@ CDynamics::addSpecies(CSpecies CSpe)
 void 
 CDynamics::addGlobal(CGlobal* newGlobal)
 {
+  if (Sim->status >= INITIALISED)
+    D_throw() << "Cannot add global events after simulation initialisation";
+
   smrtPlugPtr<CGlobal> 
     tempPlug(newGlobal);
   
@@ -255,6 +261,9 @@ CDynamics::addSystemLate(CSystem* newSystem)
 void
 CDynamics::addStructure(CTopology* newSystem)
 { 
+  if (Sim->status >= INITIALISED)
+    D_throw() << "Cannot add structure after simulation initialisation";
+
   smrtPlugPtr<CTopology> 
     tempPlug(newSystem);
   

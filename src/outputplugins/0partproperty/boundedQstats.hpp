@@ -26,7 +26,7 @@
 class COPBoundedQStats: public COPCollTicker
 {
  public:
-  COPBoundedQStats(const DYNAMO::SimData*);
+  COPBoundedQStats(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPBoundedQStats(*this); }

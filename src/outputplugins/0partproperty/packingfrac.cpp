@@ -17,7 +17,7 @@
 
 #include "packingfrac.hpp"
 
-COPPackingFraction::COPPackingFraction(const DYNAMO::SimData* tmp):
+COPPackingFraction::COPPackingFraction(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"PackingFraction")
 {}
 

@@ -27,7 +27,7 @@
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
 
-COPGeomview::COPGeomview(const DYNAMO::SimData* tmp):
+COPGeomview::COPGeomview(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Geomview"),
   frameCount(0)
 {

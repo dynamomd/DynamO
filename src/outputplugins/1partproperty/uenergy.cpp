@@ -23,7 +23,7 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPUEnergy::COPUEnergy(const DYNAMO::SimData* tmp):
+COPUEnergy::COPUEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
   COP1PP(tmp,"UEnergy", 250),
   intECurrent(0.0),
   intEsqAcc(0.0),

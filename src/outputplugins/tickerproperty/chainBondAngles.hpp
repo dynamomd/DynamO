@@ -25,7 +25,7 @@
 class COPChainBondAngles: public COPTicker
 {
  public:
-  COPChainBondAngles(const DYNAMO::SimData*);
+  COPChainBondAngles(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPChainBondAngles(*this); }

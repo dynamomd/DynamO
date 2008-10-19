@@ -25,7 +25,7 @@
 class COPMSD: public COutputPlugin
 {
  public:
-  COPMSD(const DYNAMO::SimData*);
+  COPMSD(const DYNAMO::SimData*, const XMLNode&);
   ~COPMSD();
 
   virtual void initialise();

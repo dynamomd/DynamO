@@ -24,8 +24,7 @@
 #include "../../dynamics/interactions/include.hpp"
 #include "../1partproperty/kenergy.hpp"
 
-
-COPCollMatrix::COPCollMatrix(const DYNAMO::SimData* tmp):
+COPCollMatrix::COPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"CollisionMatrix"),
   totalCount(0),
   IDcounter(0)

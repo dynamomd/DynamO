@@ -27,7 +27,7 @@
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
 
-COPPovray::COPPovray(const DYNAMO::SimData* tmp):
+COPPovray::COPPovray(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Povray"),
   frameCount(0)
 {

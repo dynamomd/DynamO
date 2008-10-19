@@ -26,7 +26,7 @@ class CTChain;
 class COPCTorsion: public COPTicker
 {
  public:
-  COPCTorsion(const DYNAMO::SimData*);
+  COPCTorsion(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPCTorsion(*this); }

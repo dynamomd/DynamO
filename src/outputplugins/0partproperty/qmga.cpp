@@ -24,7 +24,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPQMGA::COPQMGA(const DYNAMO::SimData* tmp):
+COPQMGA::COPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
   COPCollTicker(tmp,"COPQMGA"),
   frameCount(0)
 {

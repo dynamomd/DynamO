@@ -23,7 +23,7 @@
 class COPGeomview: public COPTicker
 {
  public:
-  COPGeomview(const DYNAMO::SimData*);
+  COPGeomview(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPGeomview(*this); }

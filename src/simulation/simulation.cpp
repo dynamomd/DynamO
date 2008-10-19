@@ -431,7 +431,7 @@ CSimulation::loadPlugins(std::string pluginFileName)
     {
       xMainNode=XMLNode::openFileHelper(pluginFileName.c_str(), "Plugins");
       smrtPlugPtr<COutputPlugin> tmpPlug(NULL);
-      for (int i = 0; i < xMainNode.nChildNode("Plugin"); i++)
+      for (int i = 0; i < xMainNode.nChildNode("Plugin"); ++i)
 	{
 	  tmpPlug.set_ptr(COutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
 	  outputPlugins.push_back(tmpPlug);

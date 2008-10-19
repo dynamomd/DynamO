@@ -27,7 +27,7 @@ class CSpecies;
 class COPMomentum: public COP1PP
 {
  public:
-  COPMomentum(const DYNAMO::SimData*);
+  COPMomentum(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 

@@ -208,7 +208,7 @@ void
 CEReplexer::postSimInit(CSimulation& Sim)
 {
   CEngine::postSimInit(Sim);
-  Sim.addOutputPlugin<COPUEnergy>();
+  Sim.addOutputPlugin("UEnergy");
 }
 
 void 

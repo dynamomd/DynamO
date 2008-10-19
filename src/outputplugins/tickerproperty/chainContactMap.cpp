@@ -37,7 +37,7 @@ COPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
     array[i] = 0;
 }
 
-COPCContactMap::COPCContactMap(const DYNAMO::SimData* tmp):
+COPCContactMap::COPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"ContactMap")
 {}
 

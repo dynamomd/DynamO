@@ -21,7 +21,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPBoundedQStats::COPBoundedQStats(const DYNAMO::SimData* tmp):
+COPBoundedQStats::COPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
   COPCollTicker(tmp,"BoundedPQstats"),
   treeSize(1),
   counter(0)

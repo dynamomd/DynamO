@@ -23,7 +23,7 @@
 class COPQMGA: public COPCollTicker
 {
  public:
-  COPQMGA(const DYNAMO::SimData*);
+  COPQMGA(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPQMGA(*this); }

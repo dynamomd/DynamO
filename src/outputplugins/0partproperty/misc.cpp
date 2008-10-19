@@ -22,7 +22,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPMisc::COPMisc(const DYNAMO::SimData* tmp):
+COPMisc::COPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"Misc",0),
   oldSysTime(0),
   dualEvents(0),

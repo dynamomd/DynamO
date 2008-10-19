@@ -25,7 +25,7 @@ class COPMSD;
 class COPPeriodicMSD: public COPTicker
 {
  public:
-  COPPeriodicMSD(const DYNAMO::SimData*);
+  COPPeriodicMSD(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 

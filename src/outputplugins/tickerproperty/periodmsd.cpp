@@ -24,7 +24,7 @@
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
 
-COPPeriodicMSD::COPPeriodicMSD(const DYNAMO::SimData* tmp):
+COPPeriodicMSD::COPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"PeriodicMSD"),
   TickerCount(0),
   ptrCOPMSD(NULL)

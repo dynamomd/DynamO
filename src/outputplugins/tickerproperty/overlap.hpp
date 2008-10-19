@@ -22,7 +22,7 @@
 class COPOverlapTest: public COPTicker
 {
  public:
-  COPOverlapTest(const DYNAMO::SimData*);
+  COPOverlapTest(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPOverlapTest(*this); }

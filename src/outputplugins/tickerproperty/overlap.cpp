@@ -22,7 +22,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPOverlapTest::COPOverlapTest(const DYNAMO::SimData* tmp):
+COPOverlapTest::COPOverlapTest(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"OverlapTester")
 {}
 

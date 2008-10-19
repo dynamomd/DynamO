@@ -24,7 +24,7 @@
 class COPMisc: public COutputPlugin
 {
 public:
-  COPMisc(const DYNAMO::SimData*);
+  COPMisc(const DYNAMO::SimData*, const XMLNode&);
   
   virtual void initialise();
   

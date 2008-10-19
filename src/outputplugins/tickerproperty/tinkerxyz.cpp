@@ -28,7 +28,8 @@
 #include "../../dynamics/ranges/2RList.hpp"
 #include "radiusGyration.hpp"
 #include "../../dynamics/topology/chain.hpp"
-COPTinkerXYZ::COPTinkerXYZ(const DYNAMO::SimData* tmp):
+
+COPTinkerXYZ::COPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"TinkerXYZ"),
   frameCount(0)
 {

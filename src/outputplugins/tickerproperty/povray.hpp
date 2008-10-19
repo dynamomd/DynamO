@@ -23,7 +23,7 @@
 class COPPovray: public COPTicker
 {
  public:
-  COPPovray(const DYNAMO::SimData*);
+  COPPovray(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPPovray(*this); }

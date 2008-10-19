@@ -37,7 +37,7 @@ COPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL):
   BondCorrelationsSamples.resize(CL-2, 0);
 }
 
-COPChainBondAngles::COPChainBondAngles(const DYNAMO::SimData* tmp):
+COPChainBondAngles::COPChainBondAngles(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"ChainBondAngles")
 {}
 

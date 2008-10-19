@@ -23,7 +23,7 @@
 class COPTinkerXYZ: public COPTicker
 {
  public:
-  COPTinkerXYZ(const DYNAMO::SimData*);
+  COPTinkerXYZ(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPTinkerXYZ(*this); }

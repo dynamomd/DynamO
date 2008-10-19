@@ -27,7 +27,7 @@ class CTChain;
 class COPRGyration: public COPTicker
 {
  public:
-  COPRGyration(const DYNAMO::SimData*);
+  COPRGyration(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPRGyration(*this); }

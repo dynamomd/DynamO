@@ -25,7 +25,7 @@ class COPCollMatrix;
 class COPReverseEventsCheck: public COutputPlugin
 {
 public:
-  COPReverseEventsCheck(const DYNAMO::SimData*);
+  COPReverseEventsCheck(const DYNAMO::SimData*, const XMLNode&);
 
   ~COPReverseEventsCheck() {}
 

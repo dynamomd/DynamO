@@ -23,7 +23,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
 
-COPMSD::COPMSD(const DYNAMO::SimData* tmp):
+COPMSD::COPMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"MSD")
 {}
 

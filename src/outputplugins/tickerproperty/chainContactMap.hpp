@@ -28,7 +28,7 @@ class CRange;
 class COPCContactMap: public COPTicker
 {
  public:
-  COPCContactMap(const DYNAMO::SimData*);
+  COPCContactMap(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPCContactMap(*this); }

@@ -109,25 +109,6 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   inline const ESimulationStatus& getStatus() const
   { return status; }
 
-  //Template member functions must be defined in the header file
-  template <class T> T* addOutputPlugin()
-    {
-      if (status != INITIALISED)
-	D_throw() << "Cannot add plugins now";
-
-      try {
-	//It's already in the simulation
-	return getOutputPlugin<T>();
-      } catch (std::exception&)
-	{
-	  //Its not in the simulation, add it then
-	  smrtPlugPtr<COutputPlugin> tempPlug(new T(this));
-	  outputPlugins.push_back( tempPlug );
-	  return static_cast<T*>(&(*(outputPlugins.back())));
-	}
-
-    }
-
   void addOutputPlugin(std::string);
   
   template <class T> void setPBC()
