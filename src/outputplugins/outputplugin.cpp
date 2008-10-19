@@ -95,12 +95,13 @@ COutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML
 {
   try {
     Sim->getOutputPlugin<T>();
-    //It's already in the simulation
-    D_throw() << "Plugin is already loaded";
   } catch (std::exception&)
     {
       return new T(Sim, XML);
     }  
+
+  //It's already in the simulation
+  D_throw() << "Plugin is already loaded";
 }
 
 COutputPlugin* 
