@@ -26,6 +26,7 @@
 #include "include.hpp"
 #include "correlations/include.hpp"
 #include "general/include.hpp"
+#include <boost/tokenizer.hpp>
 
 COutputPlugin::COutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsigned char order, const char *aColor):
   SimBase_const(tmp, aName, aColor),
@@ -49,10 +50,42 @@ COutputPlugin::I_Pcout() const
 }
 
 COutputPlugin* 
-COutputPlugin::getPlugin(std::string Name, const DYNAMO::SimData* Sim)
+COutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 {
   XMLNode XML = XMLNode::createXMLTopNode("Plugin");
-  XML.addAttribute("Type", Name.c_str());
+
+  typedef boost::tokenizer<boost::char_separator<char> > 
+    tokenizer;
+  
+  boost::char_separator<char> DetailsSep(":");
+  boost::char_separator<char> OptionsSep(",");
+  boost::char_separator<char> ValueSep("=", "", boost::keep_empty_tokens);
+
+  tokenizer tokens(Details, DetailsSep);
+  tokenizer::iterator details_iter = tokens.begin();
+  
+  XML.addAttribute("Type", details_iter->c_str());
+  ++details_iter;
+  if (details_iter != tokens.end())
+    {
+      tokenizer option_tokens(*details_iter, OptionsSep);
+
+      if (++details_iter != tokens.end())
+	D_throw() << "Two colons in outputplugin options " << *details_iter;
+
+      for (tokenizer::iterator options_iter = option_tokens.begin();
+	   options_iter != option_tokens.end(); ++options_iter)
+	{ 
+	  tokenizer value_tokens(*options_iter, ValueSep);
+	  
+	  tokenizer::iterator value_iter = value_tokens.begin();
+	  std::string opName(*value_iter);
+	  if (++value_iter == value_tokens.end())
+	    D_throw() << "Option " << opName << "with no value!";
+
+	  XML.addAttribute(opName.c_str(), value_iter->c_str());	  
+	}
+    }
   return getPlugin(XML,Sim);
 }
 
