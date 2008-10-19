@@ -96,13 +96,7 @@ CEngine::setupSim(CSimulation& Sim, const std::string filename)
 
 void 
 CEngine::postSimInit(CSimulation& Sim)
-{
-  Sim.addOutputPlugin<COPReverseEventsCheck>();
-
-  if (!vm.count("equilibrate"))
-    //Just add the bare minimum outputplugin
-    Sim.addOutputPlugin<COPMisc>();
-            
+{            
   if (vm.count("plugin-file"))
     //Just add the plugins
     Sim.loadPlugins(vm["plugin-file"].as<std::string>());
@@ -110,5 +104,11 @@ CEngine::postSimInit(CSimulation& Sim)
   if (vm.count("load-plugin"))
     BOOST_FOREACH(const std::string& tmpString, vm["load-plugin"].as<std::vector<std::string> >())
       Sim.addOutputPlugin(tmpString);
+
+  Sim.addOutputPlugin<COPReverseEventsCheck>();
+
+  if (!vm.count("equilibrate"))
+    //Just add the bare minimum outputplugin
+    Sim.addOutputPlugin<COPMisc>();
 }
 
