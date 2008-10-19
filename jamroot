@@ -2,8 +2,10 @@ using gcc ;
 
 project
 	: requirements <variant>debug:<define>DYNAMO_DEBUG 
-	  <define>DYNAMO_double_precsision <variant>release:<define>DYNAMO_Colour
-	  <variant>debug:<define>DYNAMO_DEBUG <link>static <runtime-link>static
+	  <define>DYNAMO_double_precsision 
+	  <variant>release:<define>DYNAMO_Colour
+	  <variant>release:<runtime-link>static
+	  <variant>debug:<define>DYNAMO_DEBUG <link>static 
 	: default-build release
 	: build-dir build-dir
 	;
