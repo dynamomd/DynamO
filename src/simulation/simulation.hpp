@@ -22,9 +22,6 @@
 
 #include "../base/is_base.hpp"
 #include "../base/is_simdata.hpp"
-#include "../datatypes/pluginpointer.hpp"
-#include "../base/is_exception.hpp"
-#include "../dynamics/dynamics.hpp"
 #include <boost/scoped_array.hpp>
 
 class CDynamics;
@@ -87,7 +84,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void initPlugins();
 
-  void setSimID(size_t n) { simID = n; }
+  void setSimID(const size_t& n) { simID = n; }
 
   CSystem* getSystem(std::string);
 
@@ -113,9 +110,13 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   void setTickerPeriod(Iflt);
   
  private:
+
   void executeEvent();
+
   void executeIntEvent();
+
   void executeGlobEvent();
+
   void executeSysEvent();
 };
 
