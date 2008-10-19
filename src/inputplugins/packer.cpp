@@ -720,7 +720,6 @@ CIPPacker::initialise()
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
 	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
-	size_t nB = latticeSites.size() - nA;
 
 	Sim->Dynamics.addInteraction
 	  (new CIHardSphere(Sim, particleDiam, 1.0, 
