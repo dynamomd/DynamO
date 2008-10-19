@@ -193,13 +193,13 @@ COPVACF::output(xmlw::XmlStream& XML)
   Iflt factor = Sim->Dynamics.units().unitTime() 
     / (Sim->Dynamics.units().unitDiffusion() * count);
 
-  for (size_t i = 0; i < accG2.size(); i++)
+  for (size_t i = 0; i < accG2.size(); ++i)
     {
       Iflt specCount = Sim->Dynamics.getSpecies()[i].getCount();
 
       CVector<> acc = 0.5*(accG2[i].front() + accG2[i].back());
       
-      for (size_t j = 1; j < accG2[i].size() - 1; j++)
+      for (size_t j = 1; j < accG2[i].size() - 1; ++j)
 	acc += accG2[i][j];
       
       acc *= factor * dt / (Sim->Dynamics.units().unitTime() * specCount);
@@ -251,10 +251,6 @@ COPVACF::accPass()
   
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec.getRange())
-    {
-      boost::circular_buffer<CVector<> >::iterator iPtr = G[ID].begin();
-
-      for (size_t j = 0; j < CorrelatorLength; ++j)
-	accG2[spec.getID()][j] +=  G[ID].front() * (*(iPtr++));
-    }
+    for (size_t j = 0; j < CorrelatorLength; ++j)
+      accG2[spec.getID()][j] +=  G[ID].front() * G[ID][j];
 }
