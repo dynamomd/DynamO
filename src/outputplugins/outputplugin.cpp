@@ -177,6 +177,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPMFT>(Sim, XML);
   else if (!Name.compare("CollEnergyChange"))
     return testGeneratePlugin<COPCollEnergyChange>(Sim, XML);
+  else if (!Name.compare("VelDist"))
+    return testGeneratePlugin<COPVelDist>(Sim, XML);
 #ifndef CBT
   else if (!Name.compare("BoundedPQStats"))
     return testGeneratePlugin<COPBoundedQStats>(Sim, XML);
