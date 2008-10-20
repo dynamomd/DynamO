@@ -23,7 +23,7 @@
 COPVelDist::COPVelDist(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
   COPTicker(tmp,"VelDist"),
-  binWidth(0.1)
+  binWidth(0.01)
 { operator<<(XML); }
 
 void 
@@ -77,15 +77,15 @@ COPVelDist::output(xmlw::XmlStream& XML)
 	  XML << xmlw::tag("Dimension")
 	      << xmlw::attr("val")
 	      << iDim;
-
+	  
 	  data[iDim][id].outputHistogram
 	    (XML, 1.0 / Sim->Dynamics.units().unitVelocity());
-
+	  
 	  XML << xmlw::endtag("Dimension");
 	}
-
+      
       XML << xmlw::endtag("Species");
     }
-
+  
   XML << xmlw::endtag("CollEnergyChange");
 }
