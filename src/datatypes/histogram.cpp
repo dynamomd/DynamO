@@ -42,25 +42,35 @@ C1DHistogram::outputHistogram(xmlw::XmlStream& XML, Iflt scalex) const
   XML << data.data.begin()->first * data.binWidth * scalex 
       << " " << 0 << "\n";
 
-  BOOST_FOREACH(const lv1pair &p1, data.data)
+  if (false)
     {
-      Iflt y = static_cast<Iflt>(p1.second)
-	/(data.binWidth * sampleCount * scalex);
-
-      if (p1.first - 1 != lastx)
-	XML << (lastx + 1) * data.binWidth * scalex  << " " << 0 << "\n"
-	    << p1.first * data.binWidth * scalex << " " << 0 << "\n";
+      BOOST_FOREACH(const lv1pair &p1, data.data)
+	{
+	  Iflt y = static_cast<Iflt>(p1.second)
+	    /(data.binWidth * sampleCount * scalex);
+	  
+	  if (p1.first - 1 != lastx)
+	    XML << (lastx + 1) * data.binWidth * scalex  << " " << 0 << "\n"
+		<< p1.first * data.binWidth * scalex << " " << 0 << "\n";
+	  
+	  XML << p1.first * data.binWidth * scalex << " " 
+	      << y << "\n"
+	      << (p1.first + 1) * data.binWidth * scalex 
+	      << " " << y << "\n";
+	  
+	  lastx = p1.first;
+	}
       
-      XML << p1.first * data.binWidth * scalex << " " 
-	  << y << "\n"
-	  << (p1.first + 1) * data.binWidth * scalex 
-	  << " " << y << "\n";
-
-      lastx = p1.first;
+      XML << (lastx + 1) * data.binWidth * scalex
+	  << " " << 0 << "\n";
+    } 
+  else 
+    {
+      BOOST_FOREACH(const lv1pair &p1, data.data)
+	XML << (p1.first + 0.5) * data.binWidth * scalex << " " 
+	    << static_cast<Iflt>(p1.second)
+	/(data.binWidth * sampleCount * scalex) << "\n";
     }
-  
-  XML << (lastx + 1) * data.binWidth * scalex
-      << " " << 0 << "\n";
   
   XML << xmlw::endtag("Histogram");
 }
