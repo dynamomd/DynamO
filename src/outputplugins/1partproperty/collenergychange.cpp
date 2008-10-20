@@ -25,7 +25,7 @@
 #include "../../dynamics/units/units.hpp"
 
 COPCollEnergyChange::COPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
-  COP1PP(tmp,"MeanFreeLength", 250),
+  COP1PP(tmp,"CollEnergyChange", 250),
   binWidth(0.001)
 { operator<<(XML); }
 
