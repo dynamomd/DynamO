@@ -82,31 +82,43 @@ C1DWeightHistogram::outputHistogram(xmlw::XmlStream & XML, Iflt scalex) const
       << xmlw::chardata();
   
 
-  //This gives pretty but not really useful drawings of histograms
-  long lastx = data.data.begin()->first - 1;
-  
-  XML << data.data.begin()->first * data.binWidth * scalex 
-      << " " << 0 << "\n";
-
-  BOOST_FOREACH(const lv1pair &p1, data.data)
+  if (false)
     {
-      Iflt y = static_cast<Iflt>(p1.second)
-	/(data.binWidth * sampleCount * scalex);
-
-      if (p1.first - 1 != lastx)
-	XML << (lastx + 1) * data.binWidth * scalex  << " " << 0 << "\n"
-	    << p1.first * data.binWidth * scalex << " " << 0 << "\n";
+      //This gives pretty but not really useful drawings of histograms
+      long lastx = data.data.begin()->first - 1;
       
-      XML << p1.first * data.binWidth * scalex << " " 
-	  << y << "\n"
-	  << (p1.first + 1) * data.binWidth * scalex 
-	  << " " << y << "\n";
+      XML << data.data.begin()->first * data.binWidth * scalex 
+	  << " " << 0 << "\n";
+      
+      BOOST_FOREACH(const lv1pair &p1, data.data)
+	{
+	  Iflt y = static_cast<Iflt>(p1.second)
+	    /(data.binWidth * sampleCount * scalex);
+	  
+	  if (p1.first - 1 != lastx)
+	    XML << (lastx + 1) * data.binWidth * scalex  << " " << 0 << "\n"
+		<< p1.first * data.binWidth * scalex << " " << 0 << "\n";
+	  
+	  XML << p1.first * data.binWidth * scalex << " " 
+	      << y << "\n"
+	      << (p1.first + 1) * data.binWidth * scalex 
+	      << " " << y << "\n";
+	  
+	  lastx = p1.first;
+	}
 
-      lastx = p1.first;
+      XML << lastx * data.binWidth * scalex
+	  << " " << 0 << "\n";
+
+    } else
+    {
+      //This gives mathmatically correct but not really pretty
+      BOOST_FOREACH(const lv1pair &p1, data.data)
+	XML << (p1.first + 0.5) * data.binWidth * scalex << " "
+	    << static_cast<Iflt>(p1.second)
+	/ (data.binWidth * sampleCount * scalex) << "\n";
     }
-  
-  XML << lastx * data.binWidth * scalex
-      << " " << 0 << "\n";
+
   
   XML << xmlw::endtag("WeightHistogram");
 }
