@@ -51,7 +51,7 @@ public:
   Iflt getDeltae() const
   {
     Iflt sum = 0.0;
-    for (int iDim = 0; iDim < NDIM; iDim++)
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
       sum += deltake[iDim];
     return sum;
   }
