@@ -37,7 +37,8 @@ COPKEnergy::changeSystem(COutputPlugin* Eplug)
   std::swap(Sim, static_cast<COPKEnergy*>(Eplug)->Sim);
 
   for (int iDim = 0; iDim < NDIM; ++iDim)
-    std::swap(kTCurrent[iDim], static_cast<COPKEnergy*>(Eplug)->kTCurrent[iDim]);
+    std::swap(kTCurrent[iDim], 
+	      static_cast<COPKEnergy*>(Eplug)->kTCurrent[iDim]);
 }
 
 void 
