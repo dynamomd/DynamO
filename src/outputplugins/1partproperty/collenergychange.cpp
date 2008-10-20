@@ -21,17 +21,35 @@
 #include "../../dynamics/dynamics.hpp"
 #include "../../dynamics/species/species.hpp"
 #include "../../dynamics/1particleEventData.hpp"
+#include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPCollEnergyChange::COPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&):
-  COP1PP(tmp,"MeanFreeLength", 250)
-{}
+COPCollEnergyChange::COPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
+  COP1PP(tmp,"MeanFreeLength", 250),
+  binWidth(0.001)
+{ operator<<(XML); }
+
+void 
+COPCollEnergyChange::operator<<(const XMLNode& XML)
+{
+  try {
+    if (XML.isAttributeSet("binWidth"))
+      binWidth = boost::lexical_cast<Iflt>(XML.getAttribute("binWidth"));
+      }
+  catch (std::exception& excep)
+    {
+      D_throw() << "Error while parsing " << name << "options\n"
+		<< excep.what();
+    }
+}
 
 void
 COPCollEnergyChange::initialise()
 {
+  I_cout() << "Bin width set to " << binWidth;
+
   data.resize(Sim->Dynamics.getSpecies().size(), 
-	      C1DHistogram(Sim->Dynamics.units().unitEnergy() * 0.05));
+	      C1DHistogram(Sim->Dynamics.units().unitEnergy() * binWidth));
 }
 
 void 
@@ -39,6 +57,16 @@ COPCollEnergyChange::A1ParticleChange(const C1ParticleData& PDat)
 {
   data[PDat.getSpecies().getID()]
     .addVal(PDat.getDeltae());
+}
+
+void 
+COPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
+{
+  data[PDat.particle1_.getSpecies().getID()]
+    .addVal(0.5 * PDat.getDeltae());
+
+  data[PDat.particle2_.getSpecies().getID()]
+    .addVal(0.5 * PDat.getDeltae());
 }
 
 void

@@ -29,6 +29,8 @@ class COPCollEnergyChange: public COP1PP
 
   void A1ParticleChange(const C1ParticleData&);
 
+  void A2ParticleChange(const C2ParticleData&);
+
   void stream(const Iflt&) {}
 
   void output(xmlw::XmlStream &); 
@@ -40,7 +42,11 @@ class COPCollEnergyChange: public COP1PP
   virtual COutputPlugin *Clone() const 
   { return new COPCollEnergyChange(*this); }
 
- protected:
+  void operator<<(const XMLNode&);
+
+ protected:  
+  Iflt binWidth; 
+
   std::vector<C1DHistogram> data;
 };
 
