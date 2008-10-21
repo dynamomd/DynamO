@@ -56,10 +56,10 @@ COPVelDist::ticker()
   BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp.getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      if (iDim == 1)
+      if (iDim == 0)
 	data[iDim][sp.getID()]
-	  .addVal(Sim->vParticleList[ID].getVelocity()[iDim] 
-		  - Sim->vParticleList[ID].getPosition()[iDim]);
+	  .addVal(Sim->vParticleList[ID].getVelocity()[0] 
+		  - Sim->vParticleList[ID].getPosition()[1]);
       else
 	data[iDim][sp.getID()]
 	  .addVal(Sim->vParticleList[ID].getVelocity()[iDim]);
@@ -78,7 +78,6 @@ COPVelDist::output(xmlw::XmlStream& XML)
      
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	{
-	  
 	  XML << xmlw::tag("Dimension")
 	      << xmlw::attr("val")
 	      << iDim;
