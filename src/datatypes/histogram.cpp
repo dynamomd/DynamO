@@ -26,7 +26,8 @@ C1DHistogram::outputHistogram(xmlw::XmlStream& XML, Iflt scalex) const
   XML << xmlw::tag("Histogram")
       << xmlw::attr("SampleCount")
       << sampleCount
-      << xmlw::attr("Dimension") << 1;
+      << xmlw::attr("Dimension") << 1
+      << xmlw::attr("BinWidth") << data.binWidth * scalex;
   
   Iflt avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
@@ -81,7 +82,8 @@ C1DWeightHistogram::outputHistogram(xmlw::XmlStream & XML, Iflt scalex) const
   XML << xmlw::tag("WeightHistogram")
       << xmlw::attr("TotalWeight")
       << sampleCount
-      << xmlw::attr("Dimension") << 1;
+      << xmlw::attr("Dimension") << 1
+      << xmlw::attr("BinWidth") << data.binWidth * scalex;
   
   Iflt avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
@@ -139,7 +141,8 @@ C1DWeightHistogram::outputClearHistogram(xmlw::XmlStream & XML, Iflt scalex) con
   XML << xmlw::tag("WeightHistogram")
       << xmlw::attr("TotalWeight")
       << sampleCount
-      << xmlw::attr("Dimension") << 1;
+      << xmlw::attr("Dimension") << 1
+      << xmlw::attr("BinWidth") << data.binWidth * scalex;
   
   Iflt avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
