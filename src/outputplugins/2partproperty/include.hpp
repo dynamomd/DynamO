@@ -16,3 +16,4 @@
 */
 
 #include "rdotv.hpp"
+#include "collisionCorrelator.hpp"

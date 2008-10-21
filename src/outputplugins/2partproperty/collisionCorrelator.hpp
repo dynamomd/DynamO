@@ -15,25 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COP2PP_HPP
-#define COP2PP_HPP
+#ifndef COPCollisionCorrelator_HPP
+#define COPCollisionCorrelator_HPP
 
-#include "../outputplugin.hpp"
+#include "2partproperty.hpp"
+#include <boost/circular_buffer.hpp>
+#include <vector>
 
-class COP2PP: public COutputPlugin
+class COPCollisionCorrelator: public COP2PP
 {
 public:
-  COP2PP(const DYNAMO::SimData*, const char*);
+  COPCollisionCorrelator(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+  virtual void initialise();
 
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual COutputPlugin* Clone() const 
+  { return new COPCollisionCorrelator(*this); }
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  void output(xmlw::XmlStream &XML);
+
+  void operator<<(const XMLNode&);
 
 private:
-  virtual void A2ParticleChange(const C2ParticleData&) = 0;
-  virtual void stream(const Iflt&) = 0;  
+
+  virtual void A2ParticleChange(const C2ParticleData&);
+
+  virtual void stream(const Iflt&) {}  
+
+  void performSweep(const size_t&, const size_t&, const size_t&);
+
+  size_t collisionHistoryLength;
+
+  std::vector<boost::circular_buffer<size_t> > partnerHist;
+  std::vector<std::vector<std::pair<size_t,size_t> > > counter;
 };
 
 #endif
