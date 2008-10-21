@@ -44,7 +44,6 @@ class COPMFL: public COP1PP
   std::vector<Iflt> lastTime;
 
   std::vector<C1DHistogram> data;
-  std::vector<C1DHistogram> SLLODdata;  
 };
 
 #endif
