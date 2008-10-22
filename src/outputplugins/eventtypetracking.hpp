@@ -39,7 +39,7 @@ namespace EventTypeTracking {
       NOEventClass, //!< This is the initial last event type for particles
       InteractionClass,
       GlobalClass,
-      SystemClass,
+      SystemClass
     };
   
   typedef std::pair<size_t, eventClass> classKey;
@@ -51,6 +51,6 @@ namespace EventTypeTracking {
   classKey getClassKey(const CSystem&);
 
   classKey getClassKey(const CGlobal&);
-};
+}
 
 #endif

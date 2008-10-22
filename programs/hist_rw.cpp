@@ -419,10 +419,10 @@ void solveWeightsPiecemeal()
       break;
 	
   //Start moving up first
-  int lower_ID = logZID, 
-    upper_ID = lower_ID + vm["piecemeal"].as<size_t>();
+  long lower_ID = logZID, 
+    upper_ID = logZID + vm["piecemeal"].as<size_t>();
 		
-  while (upper_ID <= TrueList.size())
+  while (upper_ID <= static_cast<long>(TrueList.size()))
     {
       std::cout << "\nPiece " << lower_ID << " to " << upper_ID - 1;
       piecemealRun(lower_ID, upper_ID, lower_ID);
@@ -431,7 +431,7 @@ void solveWeightsPiecemeal()
       upper_ID = lower_ID + vm["piecemeal"].as<size_t>();
     }
 
-  if (lower_ID != TrueList.size())
+  if (lower_ID != static_cast<long>(TrueList.size()))
     {
       //One last one
       upper_ID = TrueList.size();
