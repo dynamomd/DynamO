@@ -62,8 +62,6 @@ CGAndersenWall::getEvent(const CParticle& part) const
 CNParticleData
 CGAndersenWall::runEvent(const CGlobEvent& event) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(event.getParticle());
-
   return CNParticleData(Sim->Dynamics.Liouvillean().runAndersenWallCollision(event.getParticle(), vNorm, sqrtT));
 }
 
