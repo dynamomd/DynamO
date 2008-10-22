@@ -56,6 +56,32 @@ CLNewton::sphereOverlap(const CPDData& dat, const Iflt& d2) const
   return (dat.r2 - d2) < 0.0;
 }
 
+Iflt 
+CLNewton::getHalfBoxTraversalTime(const CParticle& part) const
+{
+  CVector<> rpos(part.getPosition());
+
+  CVector<> vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(rpos, vel);
+
+  Iflt retVal(std::signbit(vel[0]) ? ((-0.5) * Sim->aspectRatio[0]) / vel[0] 
+	      : (0.5 * Sim->aspectRatio[0]) / vel[0]);
+
+  for (int iDim = 1; iDim < NDIM; ++iDim)
+    {
+      Iflt tmpdt = std::signbit(vel[iDim]) ? ((-0.5) * Sim->aspectRatio[iDim]) / vel[iDim] 
+	: (0.5 * Sim->aspectRatio[iDim]) / vel[iDim];
+      
+      if (tmpdt < retVal)
+	retVal = tmpdt;
+    }
+  
+  retVal += part.getPecTime() + partPecTime;
+  
+  return retVal;
+}
+
 C1ParticleData 
 CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 {
@@ -134,6 +160,8 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
 			 const Iflt& sqrtT
 			 ) const
 {  
+  updateParticle(part);
+
   //This gives a completely new random unit vector with a properly
   //distributed Normal component. See Granular Simulation Book
   C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), WALL);

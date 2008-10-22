@@ -15,6 +15,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AndersenWall.hpp"
-#include "wall.hpp"
-#include "sentinel.hpp"
+#ifndef CGSentinel_HPP
+#define CGSentinel_HPP
+
+#include "global.hpp"
+
+class CGSentinel: public CGlobal
+{
+public:
+  CGSentinel(const XMLNode &, const DYNAMO::SimData*);
+
+  CGSentinel(const DYNAMO::SimData*);
+
+  virtual ~CGSentinel() {}
+
+  virtual CGlobal* Clone() const { return new CGSentinel(*this); }
+
+  virtual CGlobEvent getEvent(const CParticle &) const;
+
+  virtual CNParticleData runEvent(const CGlobEvent&) const;
+
+  virtual void initialise(size_t);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+};
+
+#endif

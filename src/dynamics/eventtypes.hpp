@@ -36,7 +36,9 @@ typedef enum {
   GAUSSIAN    , /*!< Reassignment from a gaussian*/
   HALT        , /*!< Call to halt the system*/
   STREAM      , /*!< Call to free stream the system an amount*/
-  NON_EVENT     /*!< Anything like a ticker, that is not part of the system dynamics*/
+  NON_EVENT,    /*!< Anything like a ticker, that is not part of the system dynamics*/
+  VIRTUAL       /*!< This is not an event yet it requires a
+                   recalculation of the particles collision list*/
 } EEventType;
 
 #endif

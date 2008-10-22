@@ -81,6 +81,13 @@ public:
 				const CVector<>&
 				  ) const = 0;
 
+  /*! \brief Determines when a particle has traveled half a box length
+      in any dimension.
+
+      This is used by CGSentinal to make sure no collisions are missed.
+  */
+  virtual Iflt getHalfBoxTraversalTime(const CParticle&) const = 0;
+
   /*! \brief Collides a particle with a wall.
 
     \param e Elasticity of wall
