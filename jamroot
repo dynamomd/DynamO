@@ -1,4 +1,4 @@
-path-constant BOOST_ROOT : . ;
+path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 project
 	: requirements <variant>debug:<define>DYNAMO_DEBUG 
