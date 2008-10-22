@@ -301,15 +301,18 @@ CSimulation::executeGlobEvent()
   
   //dynamics must be updated first
   Dynamics.stream(iEvent.getdt());
-  
+    
   //Run the collision and catch the data
   CNParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event update the scheduler and plugins
   ptrScheduler->update(iEvent.getParticle());
   
-  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-    Ptr->eventUpdate(iEvent,EDat);
+  if (iEvent.getType() != VIRTUAL)
+    BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+      Ptr->eventUpdate(iEvent,EDat);
+  else
+    --lNColl;
 }
 
 void 
