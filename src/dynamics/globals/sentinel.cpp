@@ -29,12 +29,15 @@ CGSentinel::CGSentinel(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
 {
   globName = "CollisionSentinel";
   operator<<(XML);
+
+  I_cout() << "Sentinel Loaded";
 }
 
 CGSentinel::CGSentinel(const DYNAMO::SimData* nSim):
   CGlobal(new CRAll(nSim), nSim)
 {
   globName = "CollisionSentinel";
+  I_cout() << "Sentinel Loaded";
 }
 
 CGlobEvent 

@@ -59,7 +59,7 @@ CLNewton::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 Iflt 
 CLNewton::getHalfBoxTraversalTime(const CParticle& part) const
 {
-  const Iflt boxfraction(0.2);
+  const Iflt boxfraction(0.1);
 
   CVector<> rpos(part.getPosition());
 
@@ -175,10 +175,11 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
   for (int iDim = 0; iDim < NDIM; iDim++)
     const_cast<CParticle&>(part).getVelocity()[iDim] = normal_sampler() * sqrtT;
   
-  const_cast<CParticle&>(part).getVelocity() -= vNorm * ((part.getVelocity() % vNorm) 
-							 + sqrtT * sqrt(-2.0*log(1.0-uniform_sampler())
-									/ Sim->Dynamics.getSpecies(part).getMass())
-							 );
+  const_cast<CParticle&>(part).getVelocity() 
+    -= vNorm * ((part.getVelocity() % vNorm) 
+		+ sqrtT * sqrt(-2.0*log(1.0-uniform_sampler())
+			       / Sim->Dynamics.getSpecies(part).getMass()));
+
   tmpDat.calcDeltaKE();
   
   return tmpDat; 
