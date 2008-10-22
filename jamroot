@@ -1,4 +1,4 @@
-using gcc ;
+path-constant BOOST_ROOT : . ;
 
 project
 	: requirements <variant>debug:<define>DYNAMO_DEBUG 
@@ -18,23 +18,19 @@ variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on
 
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
 
-lib boost_program_options 
-    : : <name>boost_program_options-mt-s
-    ;
-
 exe dynareplex_opt 
-    : programs/replex_opt.cpp boost_program_options
+    : programs/replex_opt.cpp boost//program_options
     : 
     ;
 
 exe dynahist_rw 
-    : programs/hist_rw.cpp src//dynamo_core
+    : programs/hist_rw.cpp src//dynamo_core/<link>static
     :
     ;
 
 exe dynarun 
     : programs/mdrun.cpp src//dynamo_core/<link>static
-    :
+    : 
     ;
 
 exe dynamod 
