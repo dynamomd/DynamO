@@ -29,16 +29,24 @@ COPThermalDiffusion::COPThermalDiffusion(const DYNAMO::SimData* tmp,
   species1(NULL),
   sysMom(0.0),
   massFracSp1(1)
-{  
+{
+  operator<<(XML);
+}
+
+void 
+COPThermalDiffusion::operator<<(const XMLNode& XML)
+{
   try 
     {
       try {
-	species1 = &Sim->Dynamics.getSpecies(boost::lexical_cast<std::string>(XML.getAttribute("Species")));
+	species1 = &Sim->Dynamics.getSpecies
+	  (boost::lexical_cast<std::string>(XML.getAttribute("Species")));
 	
 	COPCorrelator<CVector<> >::operator<<(XML);
+
       } catch (std::exception& nex)
 	{
-	  D_throw() << "Failed to find the species for the mutual diffusion\n"
+	  D_throw() << "The name of the Species must be specified"
 		  << nex.what();
 	}
     }
@@ -47,7 +55,6 @@ COPThermalDiffusion::COPThermalDiffusion(const DYNAMO::SimData* tmp,
       D_throw() << "Failed a lexical cast in COPMutualDiffusion";
     }
 }
-
 
 void 
 COPThermalDiffusion::initialise()

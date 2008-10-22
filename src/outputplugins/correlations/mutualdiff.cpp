@@ -73,7 +73,7 @@ COPMutualDiffusion::operator<<(const XMLNode& XML)
 
       } catch (std::exception& nex)
 	{
-	  D_throw() << "Failed to find the species for the mutual diffusion\n"
+	  D_throw() << "You must set Species1 and Species2 for mutal diffusion\n"
 		    << nex.what();
 	}
     }

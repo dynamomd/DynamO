@@ -32,7 +32,10 @@ public:
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual COutputPlugin* Clone() const { return new COPThermalDiffusion(*this); }
+  virtual COutputPlugin* Clone() const 
+  { return new COPThermalDiffusion(*this); }
+
+  void operator<<(const XMLNode&);
   
 protected:
   virtual Iflt rescaleFactor();
