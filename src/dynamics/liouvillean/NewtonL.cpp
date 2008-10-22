@@ -59,25 +59,26 @@ CLNewton::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 Iflt 
 CLNewton::getHalfBoxTraversalTime(const CParticle& part) const
 {
+  const Iflt boxfraction(1.0/3.0);
+
   CVector<> rpos(part.getPosition());
 
   CVector<> vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(rpos, vel);
 
-  Iflt retVal(std::signbit(vel[0]) ? ((-0.5) * Sim->aspectRatio[0]) / vel[0] 
-	      : (0.5 * Sim->aspectRatio[0]) / vel[0]);
+  Iflt retVal(std::signbit(vel[0]) ? ((-boxfraction) * Sim->aspectRatio[0]) 
+	      / vel[0] 
+	      : (boxfraction * Sim->aspectRatio[0]) / vel[0]);
 
   for (int iDim = 1; iDim < NDIM; ++iDim)
     {
-      Iflt tmpdt = std::signbit(vel[iDim]) ? ((-0.5) * Sim->aspectRatio[iDim]) / vel[iDim] 
-	: (0.5 * Sim->aspectRatio[iDim]) / vel[iDim];
+      Iflt tmpdt = std::signbit(vel[iDim]) ? ((-boxfraction) * Sim->aspectRatio[iDim]) / vel[iDim] 
+	: (boxfraction * Sim->aspectRatio[iDim]) / vel[iDim];
       
       if (tmpdt < retVal)
 	retVal = tmpdt;
     }
-  
-  retVal += part.getPecTime() + partPecTime;
   
   return retVal;
 }
