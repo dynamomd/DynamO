@@ -1,3 +1,4 @@
+using gcc ;
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 project
