@@ -20,10 +20,10 @@
 #include "../../dynamics/include.hpp"
 
 COPCollisionCorrelator::COPCollisionCorrelator(const DYNAMO::SimData* t1,
-					       const XMLNode&):
+					       const XMLNode& XML):
   COP2PP(t1,"CollisionCorrelator"),
-  collisionHistoryLength(10)
-{}
+  collisionHistoryLength(20)
+{ operator<<(XML); }
 
 void 
 COPCollisionCorrelator::operator<<(const XMLNode& XML)
@@ -102,8 +102,9 @@ COPCollisionCorrelator::output(xmlw::XmlStream &XML)
 	  << xmlw::chardata();
 
       for (size_t n = 0; n < collisionHistoryLength; ++n)
-	XML << n << " " << static_cast<Iflt>(counter[id][n].first) 
-	  / static_cast<Iflt>(counter[id][n].second)  << "\n";
+	XML << n + 1  << " " << static_cast<Iflt>(counter[id][n].first)
+	  / static_cast<Iflt>(counter[id][n].second)  
+	    << "\n";
 
       XML << xmlw::endtag("Species");
     }
