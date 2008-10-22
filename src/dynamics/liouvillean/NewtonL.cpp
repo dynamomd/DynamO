@@ -59,7 +59,7 @@ CLNewton::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 Iflt 
 CLNewton::getHalfBoxTraversalTime(const CParticle& part) const
 {
-  const Iflt boxfraction(1.0/3.0);
+  const Iflt boxfraction(0.2);
 
   CVector<> rpos(part.getPosition());
 

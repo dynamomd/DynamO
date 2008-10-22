@@ -68,6 +68,7 @@ CIPPacker::getOptions()
      "System number density (init-mode > 1)")
     ("Thermostat,T", po::value<Iflt>(), 
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT")
+    ("Sentinel,S", "Installs the collision sentinal to study low densities")
     ;
 
   hiddenopts.add_options()
@@ -757,6 +758,25 @@ CIPPacker::initialise()
  default:
       D_throw() << "Did not recognise the packer mode you wanted";
     }
+}
+
+void 
+CIPPacker::processSentinel()
+{
+  if (vm.count("Sentinel"))
+    {      
+      try {
+	Sim->Dynamics.getGlobal("CollisionSentinel");
+
+	I_cout() << "Sentinel is already present";
+
+      } catch (std::exception&)
+	{
+	  Sim->Dynamics.addGlobal(new CGSentinel(Sim));
+	}
+    }
+  else
+    D_throw() << "Sentinel option not set";  
 }
 
 void 

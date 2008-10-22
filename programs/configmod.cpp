@@ -59,7 +59,9 @@ main(int argc, char *argv[])
 	 "Rescale kinetic temperature to this value")
 	("zero-momentum,Z", "Zero the momentum")
 	("zero-com", "Zero the centre of mass")
-	("mirror-system,M",po::value<unsigned int>(), "Mirror the particle co-ordinates and velocities. Argument is dimension to reverse/mirror")
+	("mirror-system,M",po::value<unsigned int>(), 
+	 "Mirror the particle co-ordinates and velocities. Argument is "
+	 "dimension to reverse/mirror")
 	;
 
       loadopts.add_options()
@@ -116,6 +118,9 @@ main(int argc, char *argv[])
 
       if (vm.count("Thermostat"))
 	CIPPacker(vm, &sim).processThermostat();
+
+      if (vm.count("Sentinel"))
+	CIPPacker(vm, &sim).processSentinel();
 
       sim.initialise();      
 

@@ -36,6 +36,8 @@ class CIPPacker: public DYNAMO::SimBase
 
   void processThermostat();
 
+  void processSentinel();
+
  protected:
   CVector<long> getCells();
   CVector<> getNormalisedCellDimensions();

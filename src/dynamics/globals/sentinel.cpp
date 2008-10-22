@@ -27,13 +27,14 @@
 CGSentinel::CGSentinel(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   CGlobal(ptrSim)
 {
+  globName = "CollisionSentinel";
   operator<<(XML);
 }
 
 CGSentinel::CGSentinel(const DYNAMO::SimData* nSim):
   CGlobal(new CRAll(nSim), nSim)
 {
-  globName = "CollisionSentinal";
+  globName = "CollisionSentinel";
 }
 
 CGlobEvent 
