@@ -5,7 +5,10 @@ project
 	  <define>DYNAMO_double_precsision 
 	  <variant>release:<define>DYNAMO_Colour
 	  <variant>release:<runtime-link>static
-	  <variant>debug:<define>DYNAMO_DEBUG <link>static 
+	  <variant>debug:<define>DYNAMO_DEBUG <link>static
+	  #<toolset>gcc:<cxxflags>-ansi
+	  #<toolset>gcc:<cxxflags>-pedantic
+	  <toolset>gcc:<cxxflags>-Wno-long-long
 	: default-build release
 	: build-dir build-dir
 	;
