@@ -300,9 +300,6 @@ CSimulation::executeGlobEvent()
       //Do this to stop it being counted as an event
       --lNColl;
       Dynamics.runEvent(iEvent);
-
-      //TEMPORARY
-      ptrScheduler->update(iEvent.getParticle());
       //We return now to stop the system streaming
       return;
     }

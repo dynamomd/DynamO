@@ -52,6 +52,17 @@ CSFastSingle::rescaleTimes(Iflt scale)
     PDat.scaleTime(scale);
 }
 
+void 
+CSFastSingle::popVirtualEvent()
+{
+  D_throw() << "Not implemented";
+}
+
+void 
+CSFastSingle::pushAndUpdateVirtualEvent(const CParticle& part, const intPart& newevent)
+{
+  D_throw() << "Not implemented";
+}
 
 void 
 CSFastSingle::update(const CParticle& part)

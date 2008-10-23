@@ -47,6 +47,12 @@ public:
   virtual void stream(const Iflt);
   virtual void rescaleTimes(Iflt);
 
+  virtual void popVirtualEvent();
+
+  virtual void virtualCellNewNeighbour(const CParticle&, const CParticle&) {}
+
+  virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
+
 protected:
   CSMultList(const DYNAMO::SimData*, const char*);
 

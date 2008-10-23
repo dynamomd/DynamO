@@ -21,4 +21,5 @@
 #include "multlist.hpp"
 #include "multlist_special.hpp"
 #include "multlist_shear.hpp"
+#include "globalCellular.hpp"
 //#include "trajectory.hpp"

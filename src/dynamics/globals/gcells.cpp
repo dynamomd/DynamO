@@ -23,6 +23,7 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
+#include "../../schedulers/scheduler.hpp"
 
 CGCells::CGCells(const DYNAMO::SimData* nSim):
   CGlobal(new CRAll(nSim), nSim),
@@ -51,7 +52,30 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
 
 void 
 CGCells::operator<<(const XMLNode& XML)
-{}
+{
+  if (XML.isAttributeSet("lambda"))
+    {
+      try {
+	
+	lambda = boost::lexical_cast<Iflt>
+	  (XML.getAttribute("lambda"));
+	
+      }
+      catch(...)
+	{
+	  D_throw() << "Could not load the lambda value in cellular scheduler";
+	}
+      
+      if (lambda < 0.0 || lambda > 1.0)
+	D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
+    }
+}
+
+size_t 
+CGCells::getLocalCellID(const CParticle& part) const
+{
+  return partCellData[part.getID()].cell;
+}
 
 CGlobEvent 
 CGCells::getEvent(const CParticle& part) const
@@ -74,12 +98,19 @@ CGCells::runEvent(const CGlobEvent& event) const
 		    getSquareCellCollision3
 		    (part, cells[partCellData[part.getID()].cell].origin, 
 		     cellDimension));
-  int endCell;
+  size_t endCell;
+  size_t inPosition;
 
   if (std::signbit(part.getVelocity()[cellDirection])) 
-    endCell = cells[partCellData[part.getID()].cell].negCells[cellDirection];
+    {
+      endCell = cells[partCellData[part.getID()].cell].negCells[cellDirection];
+      inPosition = cells[cells[endCell].negCells[cellDirection]].coords[cellDirection];
+    }
   else
-    endCell = cells[partCellData[part.getID()].cell].posCells[cellDirection];
+    {
+      endCell = cells[partCellData[part.getID()].cell].posCells[cellDirection];
+      inPosition = cells[cells[endCell].posCells[cellDirection]].coords[cellDirection];
+    }
   
   //Debug section
 #ifdef DYNAMO_WallCollDebug
@@ -100,8 +131,21 @@ CGCells::runEvent(const CGlobEvent& event) const
 #endif  
 
   removeFromCell(part.getID());
-
   addToCell(part.getID(), endCell);
+
+  //Get rid of the virtual event that is next, update is delayed till
+  //after all events are added
+  Sim->ptrScheduler->popVirtualEvent();
+
+  //Particle has just arrived into a new cell warn the scheduler about
+  //its new neighbours so it can add them to the heap
+  BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
+    if (cells[nb].coords[cellDirection] == inPosition)
+      for (int next = cells[nb].list; next != -1; next = partCellData[next].next)
+	Sim->ptrScheduler->virtualCellNewNeighbour(part, Sim->vParticleList[next]);
+
+  //Push the next virtual event and update the heap
+  Sim->ptrScheduler->pushAndUpdateVirtualEvent(part, CGCells::getEvent(part));
 
   return CNParticleData();
 }
@@ -178,7 +222,7 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
 
   cells.resize(NCells); //Empty Cells created!
 
-  for (long id = 0; id < NCells; id++)
+  for (size_t id = 0; id < NCells; id++)
     {
       cells[id].coords = getCoordsFromID(id);
 
@@ -227,9 +271,13 @@ CGCells::init_cells()
 	    displacement[iDim] += 1;
 	  }
     }
+
+
+  for (size_t i = 0; i < NCells; ++i)
+    cells[i].neighbours.push_back(i);
   
   //Tell the cells about their neighbours
-  for (int i = 0; i < NCells; ++i) 
+  for (size_t i = 0; i < NCells; ++i)
     {
       //Tell about the neighbourhood
       BOOST_FOREACH(CVector<long> &neighbour, neighbourVectors)

@@ -23,6 +23,7 @@
 #include <vector>
 #include <list>
 #include "../../extcode/mathtemplates.hpp"
+#include "../../simulation/particle.hpp"
 
 class CGCells: public CGlobal
 {
@@ -52,6 +53,27 @@ public:
 
   void addCells(Iflt, bool limitCells = true);
 
+  size_t getLocalCellID(const CParticle&) const; 
+
+  inline const std::vector<size_t>& getCellNeighbourHood(const CParticle& part) const
+  {
+    return cells[partCellData[part.getID()].cell].neighbours;
+  }
+
+  inline const int& getCellLocalParticles(const size_t& id) const
+  { return cells[id].list; }
+
+  struct partCEntry
+  {
+    int prev;
+    int next;
+    int cell;
+  };
+
+  inline const partCEntry& getParticleData(const size_t& id) const
+  { return partCellData[id]; }
+
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
@@ -66,15 +88,15 @@ private:
   CVector<> cellDimension;
   CVector<> cellLatticeWidth;
   Iflt lambda;
-  long NCells;
+  size_t NCells;
 
   struct cellStruct
   {
     //Be smart about memory
     cellStruct():list(-1)
-    { neighbours.reserve(ctime_pow<NDIM,NDIM>::result - 1); }
+    { neighbours.reserve(ctime_pow<NDIM,NDIM>::result); }
 
-    std::vector<int> neighbours;
+    std::vector<size_t> neighbours;
     int list;
     CVector<> origin;
     CVector<long> coords;
@@ -83,13 +105,6 @@ private:
   };
 
   mutable std::vector<cellStruct> cells;
-
-  struct partCEntry
-  {
-    int prev;
-    int next;
-    int cell;
-  };
 
   mutable std::vector<partCEntry> partCellData;
 

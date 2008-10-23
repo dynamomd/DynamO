@@ -44,6 +44,12 @@ class CSFastSingle : public CScheduler
   const CGlobEvent earliestGlobEvent() const;
   void stream(const Iflt);
 
+  virtual void popVirtualEvent();
+
+  virtual void virtualCellNewNeighbour(const CParticle&, const CParticle&) {}
+
+  virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
+
  protected:
   virtual void outputXML(xmlw::XmlStream&) const;
   void initGlobalQueue();

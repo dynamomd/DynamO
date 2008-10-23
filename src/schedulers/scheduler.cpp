@@ -33,6 +33,8 @@ CScheduler::~CScheduler()
 CGlobEvent
 CScheduler::getGlobEvent(const CParticle& particle) const
 {
+  I_cout() << "This is buggy given global cellular transitions";
+
   CGlobEvent col1, col2;
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptrGlob, Sim->Dynamics.getGlobals())
     if (ptrGlob->isInteraction(particle))
@@ -57,6 +59,8 @@ CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new CSMultListShear(XML,Sim);
   else if (!strcmp(XML.getAttribute("Type"),"FastSingle"))
     return new CSFastSingle(XML,Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"GlobalCellular"))
+    return new CSGlobCellular(XML,Sim);
   else 
     D_throw() << "Unknown type of Scheduler encountered";
 }

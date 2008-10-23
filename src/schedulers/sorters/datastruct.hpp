@@ -26,6 +26,7 @@
 #include <boost/pool/pool_alloc.hpp>
 #include <queue>
 #include <deque>
+#include "../../dynamics/globals/global.hpp"
 
 //Datatype for a single event, stored in lists for each particle
 struct intPart
@@ -61,7 +62,7 @@ struct intPart
 
   inline intPart(const CGlobEvent& coll) throw():
     dt(coll.getdt()),
-    p2(0),
+    p2(coll.getGlobal().getID()),
     type(GLOBAL)
   {
     if (coll.getType() == NONE) type = NONE;

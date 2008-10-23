@@ -99,6 +99,20 @@ void
 CSMultList::rescaleTimes(Iflt scale)
 { eventHeap.rescaleTimes(scale); }
 
+
+void 
+CSMultList::popVirtualEvent()
+{
+  eventHeap[eventHeap.next_ID()].pop();
+}
+
+void 
+CSMultList::pushAndUpdateVirtualEvent(const CParticle& part, const intPart& newevent)
+{
+  eventHeap.push(newevent,part.getID());
+  eventHeap.update(part.getID());
+}
+
 void 
 CSMultList::update(const CParticle& part)
 {

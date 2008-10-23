@@ -51,6 +51,12 @@ public:
     update(part2);
   }
 
+  virtual void popVirtualEvent() = 0;
+
+  virtual void virtualCellNewNeighbour(const CParticle&, const CParticle&) =0; 
+
+  virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&) = 0;
+
   virtual void stream(const Iflt) = 0;
   
   virtual const CIntEvent earliestIntEvent() const = 0;
