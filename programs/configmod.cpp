@@ -116,11 +116,7 @@ main(int argc, char *argv[])
   
       sim.setTrajectoryLength(0);
 
-      if (vm.count("Thermostat"))
-	CIPPacker(vm, &sim).processThermostat();
-
-      if (vm.count("Sentinel"))
-	CIPPacker(vm, &sim).processSentinel();
+      CIPPacker(vm, &sim).processOptions();
 
       sim.initialise();      
 

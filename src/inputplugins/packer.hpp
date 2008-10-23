@@ -34,9 +34,7 @@ class CIPPacker: public DYNAMO::SimBase
 
   static po::options_description getOptions();
 
-  void processThermostat();
-
-  void processSentinel();
+  void processOptions();
 
  protected:
   CVector<long> getCells();

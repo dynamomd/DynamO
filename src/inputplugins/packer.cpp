@@ -69,6 +69,8 @@ CIPPacker::getOptions()
     ("Thermostat,T", po::value<Iflt>(), 
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT")
     ("Sentinel,S", "Installs the collision sentinal to study low densities")
+    ("GCells", "Installs the cellular division global event, required by some"
+     " plugins.")
     ;
 
   hiddenopts.add_options()
@@ -761,27 +763,34 @@ CIPPacker::initialise()
 }
 
 void 
-CIPPacker::processSentinel()
+CIPPacker::processOptions()
 {
+  if (vm.count("Sentinel"))
+    {      
+      try {
+	Sim->Dynamics.getGlobal("Cells");
+
+	I_cout() << "Cell globals are already present.";
+
+      } catch (std::exception&)
+	{
+	  Sim->Dynamics.addGlobal(new CGCells(Sim));
+	}
+    }
+
   if (vm.count("Sentinel"))
     {      
       try {
 	Sim->Dynamics.getGlobal("CollisionSentinel");
 
-	I_cout() << "Sentinel is already present";
+	I_cout() << "Sentinel is already present.";
 
       } catch (std::exception&)
 	{
 	  Sim->Dynamics.addGlobal(new CGSentinel(Sim));
 	}
     }
-  else
-    D_throw() << "Sentinel option not set";  
-}
 
-void 
-CIPPacker::processThermostat()
-{
   if (vm.count("Thermostat"))
     {      
       try {
@@ -808,8 +817,6 @@ CIPPacker::processThermostat()
 	  Sim->Ensemble.reset(new DYNAMO::CENVT(Sim));
 	}      
     }
-  else
-    D_throw() << "Thermostat option not set";
 }
 
 CVector<> 
