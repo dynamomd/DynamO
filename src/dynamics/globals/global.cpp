@@ -25,13 +25,13 @@
 #include "../ranges/1RAll.hpp"
 
 
-CGlobal::CGlobal(const DYNAMO::SimData* tmp):
-  SimBase_const(tmp,"GlobalInteraction",IC_blue),
+CGlobal::CGlobal(const DYNAMO::SimData* tmp, const char *name):
+  SimBase_const(tmp,name,IC_blue),
   range(new CRAll(tmp))
 {}
 
-CGlobal::CGlobal(CRange* nR, const DYNAMO::SimData* tmp):
-  SimBase_const(tmp, "GlobalInteraction",IC_blue),
+CGlobal::CGlobal(CRange* nR, const DYNAMO::SimData* tmp, const char *name):
+  SimBase_const(tmp, name,IC_blue),
   range(nR)
 {}
 

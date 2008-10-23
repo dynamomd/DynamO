@@ -34,7 +34,7 @@
 #include <cmath>
 
 CGAndersenWall::CGAndersenWall(const XMLNode& XML, const DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim),
+  CGlobal(ptrSim, "GlobalAndersenWall"),
   sqrtT(1.0)
 {
   operator<<(XML);
@@ -43,7 +43,7 @@ CGAndersenWall::CGAndersenWall(const XMLNode& XML, const DYNAMO::SimData* ptrSim
 CGAndersenWall::CGAndersenWall(const DYNAMO::SimData* nSim, Iflt nsqrtT,
 			       CVector<> nnorm, CVector<> norigin, 
 			       std::string nname, CRange* nRange):
-  CGlobal(nRange, nSim),
+  CGlobal(nRange, nSim, "GlobalAndersenWall"),
   vNorm(nnorm),
   vPosition(norigin),
   sqrtT(nsqrtT)

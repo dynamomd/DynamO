@@ -26,7 +26,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CGCells::CGCells(const DYNAMO::SimData* nSim):
-  CGlobal(new CRAll(nSim), nSim),
+  CGlobal(nSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
   lambda(0.9), //Default to higher overlap
@@ -38,7 +38,7 @@ CGCells::CGCells(const DYNAMO::SimData* nSim):
 }
 
 CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim),
+  CGlobal(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
   lambda(0.9), //Default to higher overlap
@@ -140,7 +140,7 @@ CGCells::runEvent(const CGlobEvent& event) const
   //Particle has just arrived into a new cell warn the scheduler about
   //its new neighbours so it can add them to the heap
   BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
-    if (cells[nb].coords[cellDirection] == inPosition)
+    if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
       for (int next = cells[nb].list; next != -1; next = partCellData[next].next)
 	Sim->ptrScheduler->virtualCellNewNeighbour(part, Sim->vParticleList[next]);
 

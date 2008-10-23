@@ -35,9 +35,9 @@ class CGlobEvent;
 class CGlobal: public DYNAMO::SimBase_const
 {
 public:
-  CGlobal(const DYNAMO::SimData*);
+  CGlobal(const DYNAMO::SimData*, const char *);
 
-  CGlobal(CRange*, const DYNAMO::SimData*);
+  CGlobal(CRange*, const DYNAMO::SimData*, const char *);
   
   virtual ~CGlobal() {}
 

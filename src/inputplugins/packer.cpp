@@ -177,8 +177,13 @@ CIPPacker::initialise()
 				  / latticeSites.size(), 1.0 / 3.0);
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSMultList(Sim);
 
+	//old scheduler
+	//Sim->ptrScheduler = new CSMultList(Sim);
+
+	//New scheduler and global
+	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->Dynamics.addGlobal(new CGCells(Sim));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
