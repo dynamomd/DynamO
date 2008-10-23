@@ -17,5 +17,4 @@
 
 #include "AndersenWall.hpp"
 #include "wall.hpp"
-#include "sentinel.hpp"
 #include "gcells.hpp"

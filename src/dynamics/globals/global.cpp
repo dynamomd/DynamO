@@ -59,8 +59,6 @@ CGlobal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
     return new CGAndersenWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Wall"))
     return new CGWall(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Sentinel"))
-    return new CGSentinel(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Cells"))
     return new CGCells(XML, Sim);
   else 
