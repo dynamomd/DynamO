@@ -32,26 +32,27 @@ struct intPart
 {
   inline intPart(Iflt ndt, int direction) throw():
     dt(ndt),
-    p2(NULL),
+    p2(0),
     type(CELL),
     collCounter2(direction)
   {}
   
-  inline intPart(Iflt ndt, EEventType nT, const CParticle* nID2, unsigned long long nCC2) throw():
+  inline intPart(Iflt ndt, EEventType nT, const CParticle& nID2, unsigned long long nCC2) throw():
     dt(ndt),
-    p2(nID2),
+    p2(nID2.getID()),
     type(nT),
     collCounter2(nCC2)
   {}
 
   inline intPart(Iflt ndt, EEventType nT) throw():
     dt(ndt),
+    p2(0),
     type(nT)
   {}
 
   inline intPart(const CIntEvent& coll, unsigned long long nCC2) throw():
     dt(coll.getdt()),
-    p2(&(coll.getParticle2())),
+    p2(coll.getParticle2().getID()),
     type(INTERACTION),
     collCounter2(nCC2)
   {    
@@ -60,6 +61,7 @@ struct intPart
 
   inline intPart(const CGlobEvent& coll) throw():
     dt(coll.getdt()),
+    p2(0),
     type(GLOBAL)
   {
     if (coll.getType() == NONE) type = NONE;
@@ -74,7 +76,7 @@ struct intPart
   inline void stream(Iflt ndt) throw() { dt -= ndt; }
 
   mutable Iflt dt;
-  const CParticle* p2;
+  size_t p2;
   EEventType type;
   unsigned long long collCounter2;
 };

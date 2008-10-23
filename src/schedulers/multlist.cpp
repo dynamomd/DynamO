@@ -43,7 +43,7 @@ const CIntEvent
 CSMultList::earliestIntEvent() const
 {
   return Sim->Dynamics.getEvent(Sim->vParticleList[eventHeap.next_ID()], 
-				*eventHeap.next_Data().top().p2);
+				Sim->vParticleList[eventHeap.next_Data().top().p2]);
 }
 
 const CGlobEvent
@@ -161,7 +161,8 @@ CSMultList::nextEventType() const
      switch (eventHeap.next_Data().top().type)
       {
       case INTERACTION:
-	if (eventHeap.next_Data().top().collCounter2 != eventCount[eventHeap.next_Data().top().p2->getID()])
+	if (eventHeap.next_Data().top().collCounter2 
+	    != eventCount[eventHeap.next_Data().top().p2])
 	  {
 #ifdef DYNAMO_UpdateCollDebug
 	    std::cerr << "\nEvent invalid, popping and updating" << eventHeap.next_dt();
