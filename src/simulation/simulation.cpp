@@ -295,6 +295,18 @@ CSimulation::executeGlobEvent()
 	      << iEvent.stringData(this);
 #endif
   
+  if (iEvent.getType() == VIRTUAL)
+    {
+      //Do this to stop it being counted as an event
+      --lNColl;
+      Dynamics.runEvent(iEvent);
+
+      //TEMPORARY
+      ptrScheduler->update(iEvent.getParticle());
+      //We return now to stop the system streaming
+      return;
+    }
+
   dSysTime += iEvent.getdt();
   
   ptrScheduler->stream(iEvent.getdt());
@@ -308,11 +320,8 @@ CSimulation::executeGlobEvent()
   //Now we're past the event update the scheduler and plugins
   ptrScheduler->update(iEvent.getParticle());
   
-  if (iEvent.getType() != VIRTUAL)
-    BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-      Ptr->eventUpdate(iEvent,EDat);
-  else
-    --lNColl;
+  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
 }
 
 void 

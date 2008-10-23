@@ -69,7 +69,23 @@ public:
   virtual intPart getSquareCellCollision(const CParticle&, 
 					 const CVector<>&, 
 					 const CVector<>&) const = 0;
+
+  /*! \brief Determines when the particle center will hit a bounding box.
+
+    Used by the cellular global for cell transistion.
+  */    
+  virtual Iflt getSquareCellCollision2(const CParticle&, 
+				       const CVector<>&, 
+				       const CVector<>&) const = 0;
   
+  /*! \brief Determines when the particle center will hit a bounding box.
+
+    Used by the cellular scheduler for cell transistion.
+  */    
+  virtual size_t getSquareCellCollision3(const CParticle&, 
+					 const CVector<>&, 
+					 const CVector<>&) const = 0;
+
   /*! \brief Determines when the particle center will hit a wall.
 
     Used by the cellular scheduler for cell transistion. Will

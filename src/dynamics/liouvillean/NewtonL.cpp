@@ -188,8 +188,7 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
 intPart
 CLNewton::getSquareCellCollision(const CParticle& part, 
 				 const CVector<>& origin, 
-				 const CVector<>& width
-				 ) const
+				 const CVector<>& width) const
 {
   CVector<> rpos(part.getPosition() - origin);
   CVector<> vel(part.getVelocity());
@@ -212,6 +211,60 @@ CLNewton::getSquareCellCollision(const CParticle& part,
   retVal.dt += part.getPecTime() + partPecTime;
   return retVal;
 }
+
+Iflt
+CLNewton::getSquareCellCollision2(const CParticle& part, 
+				 const CVector<>& origin, 
+				 const CVector<>& width) const
+{
+  CVector<> rpos(part.getPosition() - origin);
+  CVector<> vel(part.getVelocity());
+  Sim->Dynamics.BCs().setPBC(rpos, vel);
+  Iflt retVal(std::signbit(vel[0]) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
+
+  for (int iDim = 1; iDim < NDIM; iDim++)
+    {
+      Iflt tmpdt((std::signbit(vel[iDim]))
+		  ? -rpos[iDim]/vel[iDim] 
+		    : (width[iDim]-rpos[iDim]) / vel[iDim]);
+
+      if (tmpdt < retVal)
+	retVal = tmpdt;
+    }
+  
+  return retVal + part.getPecTime() + partPecTime;
+}
+
+size_t
+CLNewton::getSquareCellCollision3(const CParticle& part, 
+				 const CVector<>& origin, 
+				 const CVector<>& width) const
+{
+  CVector<> rpos(part.getPosition() - origin);
+  CVector<> vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(rpos, vel);
+
+  size_t retVal(0);
+  Iflt time(std::signbit(vel[0]) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
+  
+
+  for (size_t iDim = 1; iDim < NDIM; ++iDim)
+    {
+      Iflt tmpdt = ((std::signbit(vel[iDim])) 
+		  ? -rpos[iDim]/vel[iDim] 
+		  : (width[iDim]-rpos[iDim]) / vel[iDim]);
+
+      if (tmpdt < time)
+	{
+	  time = tmpdt;
+	  retVal = iDim;
+	}
+    }
+
+  return retVal;
+}
+
 
 C2ParticleData 
 CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, const EEventType& eType) const

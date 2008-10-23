@@ -39,6 +39,16 @@ public:
 					 const CVector<>&, 
 					 const CVector<>&
 					 ) const;
+
+  virtual Iflt getSquareCellCollision2(const CParticle&, 
+				       const CVector<>&, 
+				       const CVector<>&
+				       ) const;
+
+  virtual size_t getSquareCellCollision3(const CParticle&, 
+				       const CVector<>&, 
+				       const CVector<>&
+				       ) const;
   
   virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
   
