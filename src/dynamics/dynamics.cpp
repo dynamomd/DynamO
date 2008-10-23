@@ -521,38 +521,40 @@ void
 CDynamics::operator<<(const XMLNode& XML)
 {
   I_cout() << "Loading dynamics from XML";
-
+  
   XMLNode xDynamics=XML.getChildNode("Dynamics"), xSubNode;
-
+  
   //Load the aspect ratio
   if (xDynamics.hasChild("Aspect_Ratio"))
     {
       xSubNode = xDynamics.getChildNode("Aspect_Ratio");
       Sim->aspectRatio << xSubNode;
     }
-
+  
   xSubNode = xDynamics.getChildNode("Units");
   p_units.set_ptr(CUnits::loadUnits(xSubNode,Sim));
-
+  
   //Now load the BC part, after the aspect ratio!
   xSubNode = xDynamics.getChildNode("BC");
   p_BC.set_ptr(CBC::loadClass(xSubNode, Sim));
-
-  xSubNode = xDynamics.getChildNode("Topology");  
-  for (long i=0; i < xSubNode.nChildNode("Structure"); i++)
+  
+  if (xDynamics.hasChild("Topology"))
     {
-      smrtPlugPtr<CTopology> tempPlug(CTopology::loadClass(xSubNode.getChildNode("Structure",i),Sim,i));
-
-      topology.push_back(tempPlug);
+      xSubNode = xDynamics.getChildNode("Topology");  
+      for (long i=0; i < xSubNode.nChildNode("Structure"); i++)
+	{
+	  smrtPlugPtr<CTopology> tempPlug(CTopology::loadClass(xSubNode.getChildNode("Structure",i),Sim,i));
+	  topology.push_back(tempPlug);
+	}
     }
-
+  
   xSubNode = xDynamics.getChildNode("Genus");  
   for (long i=0; i < xSubNode.nChildNode("Species"); i++)
     species.push_back(CSpecies(xSubNode.getChildNode("Species",i),Sim,i));
-
+  
   xSubNode = xDynamics.getChildNode("Liouvillean");
   p_liouvillean.set_ptr(CLiouvillean::loadClass(xSubNode,Sim));  
-
+  
   xSubNode = xDynamics.getChildNode("Interactions");
   for (long i=0; i < xSubNode.nChildNode("Interaction"); i++)
     {
@@ -561,7 +563,8 @@ CDynamics::operator<<(const XMLNode& XML)
 								i),Sim));
       interactions.push_back(tempPlug);
     }  
-
+  
+  //Link the species and interactions
   BOOST_FOREACH(CSpecies& sp , species)
     BOOST_FOREACH(smrtPlugPtr<CInteraction>& intPtr , interactions)
     if (intPtr->isInteraction(sp))
@@ -569,35 +572,43 @@ CDynamics::operator<<(const XMLNode& XML)
 	sp.setIntPtr(intPtr.get_ptr());
 	break;
       }
-    
-  xSubNode = xDynamics.getChildNode("Globals");
   
-  for (long i = 0; i < xSubNode.nChildNode("Global"); ++i)
+  if (xDynamics.hasChild("Globals"))
     {
-      smrtPlugPtr<CGlobal> 
-	tempPlug(CGlobal::getClass(xSubNode.getChildNode("Global", i), Sim));
-      
-      globals.push_back(tempPlug);
+      xSubNode = xDynamics.getChildNode("Globals");  
+      for (long i = 0; i < xSubNode.nChildNode("Global"); ++i)
+	{
+	  smrtPlugPtr<CGlobal> 
+	    tempPlug(CGlobal::getClass(xSubNode.getChildNode("Global", i), Sim));
+	  
+	  globals.push_back(tempPlug);
+	}
     }
 
-  xSubNode = xDynamics.getChildNode("Locals");
-  
-  for (long i = 0; i < xSubNode.nChildNode("Local"); ++i)
+  if (xDynamics.hasChild("Locals"))
     {
-      smrtPlugPtr<CLocal> 
-	tempPlug(CLocal::getClass(xSubNode.getChildNode("Local", i), Sim));
+      xSubNode = xDynamics.getChildNode("Locals");
       
-      locals.push_back(tempPlug);
+      for (long i = 0; i < xSubNode.nChildNode("Local"); ++i)
+	{
+	  smrtPlugPtr<CLocal> 
+	    tempPlug(CLocal::getClass(xSubNode.getChildNode("Local", i), Sim));
+	  
+	  locals.push_back(tempPlug);
+	}
     }
-
-  xSubNode = xDynamics.getChildNode("SystemEvents");
   
-  for (long i=0; i < xSubNode.nChildNode("System"); i++)
+  if (xDynamics.hasChild("SystemEvents"))
     {
-      smrtPlugPtr<CSystem> 
-	tempPlug(CSystem::getClass(xSubNode.getChildNode("System",i),Sim));
+      xSubNode = xDynamics.getChildNode("SystemEvents");
       
-      systems.push_back(tempPlug);
+      for (long i=0; i < xSubNode.nChildNode("System"); i++)
+	{
+	  smrtPlugPtr<CSystem> 
+	    tempPlug(CSystem::getClass(xSubNode.getChildNode("System",i),Sim));
+	  
+	  systems.push_back(tempPlug);
+	}
     }
 }
 
@@ -623,7 +634,7 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
     XML << xmlw::tag("Species")
 	<< ptr
 	<< xmlw::endtag("Species");
-
+  
   XML << xmlw::endtag("Genus")
       << xmlw::tag("Topology");
   
@@ -631,16 +642,16 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
     XML << xmlw::tag("Structure")
 	<< ptr
 	<< xmlw::endtag("Structure");
-
+  
   XML << xmlw::endtag("Topology")
       << xmlw::tag("SystemEvents");
-
+  
   BOOST_FOREACH(const smrtPlugPtr<CSystem>& ptr, systems)
     XML << ptr;
   
   XML << xmlw::endtag("SystemEvents")
       << xmlw::tag("Globals");
-
+  
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptr, globals)
     XML << xmlw::tag("Global")
 	<< ptr
@@ -661,7 +672,7 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
     XML << xmlw::tag("Interaction")
 	<< ptr
 	<< xmlw::endtag("Interaction");
- 
+  
   XML << xmlw::endtag("Interactions")
       << xmlw::endtag("Dynamics");
 }
