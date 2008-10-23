@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGlobal_HPP
-#define CGlobal_HPP
+#ifndef CLocal_HPP
+#define CLocal_HPP
 
 #include <string>
 #include "../../datatypes/pluginpointer.hpp"
@@ -30,36 +30,36 @@ namespace xmlw
 }
 class CIntEvent;
 class CNParticleData;
-class CGlobEvent;
+class CLocalEvent;
 
-class CGlobal: public DYNAMO::SimBase_const
+class CLocal: public DYNAMO::SimBase_const
 {
 public:
-  CGlobal(const DYNAMO::SimData*, const char *);
+  CLocal(const DYNAMO::SimData*, const char *);
 
-  CGlobal(CRange*, const DYNAMO::SimData*, const char *);
+  CLocal(CRange*, const DYNAMO::SimData*, const char *);
   
-  virtual ~CGlobal() {}
+  virtual ~CLocal() {}
 
-  bool isInteraction(const CParticle &) const;
+  bool isInteraction(const CParticle&) const;
 
-  virtual CGlobal* Clone() const = 0; //{ return new COPBlank(*this); };
+  virtual CLocal* Clone() const = 0; //{ return new COPBlank(*this); };
 
-  virtual CGlobEvent getEvent(const CParticle &) const = 0;
+  virtual CLocalEvent getEvent(const CParticle&) const = 0;
 
-  virtual CNParticleData runEvent(const CGlobEvent&) const = 0;
+  virtual CNParticleData runEvent(const CLocalEvent&) const = 0;
 
   virtual void initialise(size_t) = 0;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CGlobal&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CLocal&);
 
-  static CGlobal* getClass(const XMLNode&, const DYNAMO::SimData*);
+  static CLocal* getClass(const XMLNode&, const DYNAMO::SimData*);
 
   virtual void operator<<(const XMLNode&) = 0;
 
-  void setName(const std::string& tmp) { globName = tmp; }
+  void setName(const std::string& tmp) { localName = tmp; }
 
-  const std::string& getName() const { return globName; }
+  const std::string& getName() const { return localName; }
 
   inline const size_t& getID() const { return ID; }
   
@@ -67,7 +67,7 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
   smrtPlugPtr<CRange> range;  
-  std::string globName;
+  std::string localName;
   size_t ID;
 };
 

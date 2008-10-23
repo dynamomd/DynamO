@@ -16,47 +16,46 @@
 */
 
 #include "include.hpp"
-#include "global.hpp"
+#include "local.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"
-#include "globEvent.hpp"
+#include "localEvent.hpp"
 #include "../ranges/1RAll.hpp"
 
 
-CGlobal::CGlobal(const DYNAMO::SimData* tmp, const char *name):
-  SimBase_const(tmp,name, IC_blue),
+CLocal::CLocal(const DYNAMO::SimData* tmp, const char *name):
+  SimBase_const(tmp,name,IC_blue),
   range(new CRAll(tmp))
 {}
 
-CGlobal::CGlobal(CRange* nR, const DYNAMO::SimData* tmp, const char *name):
-  SimBase_const(tmp, name, IC_blue),
+CLocal::CLocal(CRange* nR, const DYNAMO::SimData* tmp, const char *name):
+  SimBase_const(tmp, name,IC_blue),
   range(nR)
 {}
 
 bool 
-CGlobal::isInteraction(const CParticle &p1) const
+CLocal::isInteraction(const CParticle &p1) const
 {
   return range->isInRange(p1);
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CGlobal& g)
+			    const CLocal& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
-CGlobal* 
-CGlobal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
+CLocal* 
+CLocal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
 {
-  if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
+  /*if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
     return new CGAndersenWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Wall"))
     return new CGWall(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Cells"))
-    return new CGCells(XML, Sim);
-  else 
-    D_throw() << "Unknown type of Global Interaction encountered";
+    else */
+
+  D_throw() << "Unknown type of Global Interaction encountered";
 }
 

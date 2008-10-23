@@ -30,6 +30,7 @@ class CUnits;
 class CSpecies;
 class CGlobEvent;
 class CGlobal;
+class CLocal;
 class CSystem;
 class CTopology;
 class CParticle;
@@ -133,6 +134,10 @@ public:
   smrtPlugPtr<CGlobal>& getGlobal(std::string);
   const smrtPlugPtr<CGlobal>& getGlobal(std::string) const;
 
+  const std::vector<smrtPlugPtr<CLocal> >& getLocals() const;
+  smrtPlugPtr<CLocal>& getLocal(std::string);
+  const smrtPlugPtr<CLocal>& getLocal(std::string) const;
+
   const std::vector<CSpecies>& getSpecies() const;
   const CSpecies& getSpecies(std::string) const;
 
@@ -206,6 +211,7 @@ public:
 
   std::vector<smrtPlugPtr<CInteraction> > interactions;
   std::vector<smrtPlugPtr<CGlobal> > globals;
+  std::vector<smrtPlugPtr<CLocal> > locals;
   std::vector<smrtPlugPtr<CSystem> > systems;
   std::vector<smrtPlugPtr<CTopology> > topology;
   std::vector<CSpecies> species;

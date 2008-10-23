@@ -16,22 +16,13 @@
 */
 
 #include "dynamics.hpp"
+#include "include.hpp"
 #include <boost/foreach.hpp>
 #include "../datatypes/vector.hpp"
 #include "../datatypes/vector.xml.hpp"
-#include "species/species.hpp"
-#include "globals/global.hpp"
-#include "globals/globEvent.hpp"
-#include "interactions/interaction.hpp"
-#include "units/units.hpp"
-#include "BC/BC.hpp"
-#include "liouvillean/liouvillean.hpp"
-#include "topology/topology.hpp"
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "../base/is_exception.hpp"
-#include "interactions/intEvent.hpp"
-#include "systems/system.hpp"
 #include <cmath>
 #include "../base/is_simdata.hpp"
 #include "NparticleEventData.hpp"
@@ -99,6 +90,10 @@ CDynamics::getInteractions()
 const std::vector<smrtPlugPtr<CGlobal> >& 
 CDynamics::getGlobals() const
 { return globals; }
+
+const std::vector<smrtPlugPtr<CLocal> >& 
+CDynamics::getLocals() const
+{ return locals; }
 
 const std::vector<CSpecies> & 
 CDynamics::getSpecies() const
@@ -178,6 +173,26 @@ CDynamics::getGlobal(std::string name) const
       return sysPtr;
   
   D_throw() << "Could not find global plugin";
+}
+
+smrtPlugPtr<CLocal>&
+CDynamics::getLocal(std::string name)
+{
+  BOOST_FOREACH(smrtPlugPtr<CLocal>& sysPtr, locals)
+    if (sysPtr->getName() == name)
+      return sysPtr;
+  
+  D_throw() << "Could not find local plugin";
+}
+
+const smrtPlugPtr<CLocal>&
+CDynamics::getLocal(std::string name) const
+{
+  BOOST_FOREACH(const smrtPlugPtr<CLocal>& sysPtr, locals)
+    if (sysPtr->getName() == name)
+      return sysPtr;
+  
+  D_throw() << "Could not find local plugin";
 }
 
 smrtPlugPtr<CInteraction>&

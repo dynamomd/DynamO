@@ -14,18 +14,3 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "interactions/intEvent.hpp"
-#include "interactions/interaction.hpp"
-#include "units/units.hpp"
-#include "globals/globEvent.hpp"
-#include "globals/global.hpp"
-#include "locals/local.hpp"
-#include "locals/localEvent.hpp"
-#include "species/species.hpp"
-#include "BC/BC.hpp"
-#include "dynamics.hpp"
-#include "systems/system.hpp"
-#include "NparticleEventData.hpp"
-#include "topology/topology.hpp"
-#include "liouvillean/liouvillean.hpp"
