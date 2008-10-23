@@ -371,6 +371,11 @@ CDynamics::initialise()
 
   ID=0;
 
+  BOOST_FOREACH(smrtPlugPtr<CLocal>& ptr, locals)
+    ptr->initialise(ID++);
+
+  ID=0;
+
   BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
     ptr->initialise(ID++);
 }
@@ -420,7 +425,9 @@ void
 CDynamics::stream(const Iflt& dt)
 {
   p_BC->update(dt);
+
   p_liouvillean->stream(dt);
+
   BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
     ptr->stream(dt);
 }
@@ -573,6 +580,16 @@ CDynamics::operator<<(const XMLNode& XML)
       globals.push_back(tempPlug);
     }
 
+  xSubNode = xDynamics.getChildNode("Locals");
+  
+  for (long i = 0; i < xSubNode.nChildNode("Local"); ++i)
+    {
+      smrtPlugPtr<CLocal> 
+	tempPlug(CLocal::getClass(xSubNode.getChildNode("Local", i), Sim));
+      
+      locals.push_back(tempPlug);
+    }
+
   xSubNode = xDynamics.getChildNode("SystemEvents");
   
   for (long i=0; i < xSubNode.nChildNode("System"); i++)
@@ -630,6 +647,14 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
 	<< xmlw::endtag("Global");
   
   XML << xmlw::endtag("Globals")
+      << xmlw::tag("Locals");
+  
+  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, locals)
+    XML << xmlw::tag("Local")
+	<< ptr
+	<< xmlw::endtag("Local");
+  
+  XML << xmlw::endtag("Locals")
       << xmlw::tag("Interactions");
   
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
