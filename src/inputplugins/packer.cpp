@@ -68,7 +68,7 @@ CIPPacker::getOptions()
      "System number density (init-mode > 1)")
     ("Thermostat,T", po::value<Iflt>(), 
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT")
-    ("Sentinel,S", "Installs the collision sentinal to study low densities")
+    //("Sentinel,S", "Installs the collision sentinal to study low densities")
     ("GCells", "Installs the cellular division global event, required by some"
      " plugins.")
     ;
@@ -770,7 +770,7 @@ CIPPacker::initialise()
 void 
 CIPPacker::processOptions()
 {
-  if (vm.count("Sentinel"))
+  if (vm.count("GCells"))
     {      
       try {
 	Sim->Dynamics.getGlobal("Cells");
@@ -780,19 +780,6 @@ CIPPacker::processOptions()
       } catch (std::exception&)
 	{
 	  Sim->Dynamics.addGlobal(new CGCells(Sim));
-	}
-    }
-
-  if (vm.count("Sentinel"))
-    {      
-      try {
-	Sim->Dynamics.getGlobal("CollisionSentinel");
-
-	I_cout() << "Sentinel is already present.";
-
-      } catch (std::exception&)
-	{
-	  Sim->Dynamics.addGlobal(new CGSentinel(Sim));
 	}
     }
 

@@ -28,7 +28,7 @@
 #include "../units/units.hpp"
 
 CGWall::CGWall(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim),
+  CGlobal(ptrSim, "GlobalWall"),
   e(1.0)
 {
   operator<<(XML);
@@ -36,7 +36,7 @@ CGWall::CGWall(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
 
 CGWall::CGWall(const DYNAMO::SimData* nSim, Iflt ne, CVector<> nnorm, 
 	       CVector<> norigin, std::string nname, CRange* nRange):
-  CGlobal(nRange, nSim),
+  CGlobal(nRange, nSim, "GlobalWall"),
   vNorm(nnorm),
   vPosition(norigin),
   e(ne)
