@@ -37,12 +37,12 @@ struct intPart
     collCounter2(direction)
   {}
   
-  inline intPart(Iflt ndt, EEventType nT, const CParticle& nID2, unsigned long long nCC2) throw():
+  /*inline intPart(Iflt ndt, EEventType nT, const CParticle& nID2, unsigned long long nCC2) throw():
     dt(ndt),
     p2(nID2.getID()),
     type(nT),
     collCounter2(nCC2)
-  {}
+    {}*/
 
   inline intPart(Iflt ndt, EEventType nT) throw():
     dt(ndt),
