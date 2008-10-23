@@ -229,7 +229,12 @@ CIPPacker::initialise()
 		
 	//Set up a standard simulation
 	//Just a square well system
-	Sim->ptrScheduler = new CSMultList(Sim);
+	//old scheduler
+	//Sim->ptrScheduler = new CSMultList(Sim);
+
+	//New scheduler and global
+	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->Dynamics.addGlobal(new CGCells(Sim));
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
@@ -391,7 +396,13 @@ CIPPacker::initialise()
 	std::vector<CVector<> > latticeSites(standardPackingHelper(tmpPtr));
 	
 	//Set up the system now
-	Sim->ptrScheduler = new CSMultList(Sim);
+	//old scheduler
+	//Sim->ptrScheduler = new CSMultList(Sim);
+
+	//New scheduler and global
+	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->Dynamics.addGlobal(new CGCells(Sim));
+
 	Sim->Dynamics.setPBC<CSPBC>();
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
