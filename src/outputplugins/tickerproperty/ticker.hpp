@@ -25,9 +25,10 @@ class COPTicker: public COutputPlugin
 public:
   COPTicker(const DYNAMO::SimData*, const char*);
 
-  //Not virtual to stop you using them! ticker() is called by the sys event
+  //Non virtual to warn if you use them,
   void eventUpdate(const CIntEvent&, const C2ParticleData&) {}
   void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
+  void eventUpdate(const CLocalEvent&, const CNParticleData&) {}
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) {}
 
   virtual void output(xmlw::XmlStream&) {}

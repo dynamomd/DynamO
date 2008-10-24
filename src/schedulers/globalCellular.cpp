@@ -72,7 +72,7 @@ CSGlobCellular::earliestGlobEvent() const
     ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
 }
 
-const CGlobEvent
+const CLocalEvent
 CSGlobCellular::earliestLocalEvent() const
 {
 #ifdef DYNAMO_DEBUG
@@ -218,7 +218,7 @@ CSGlobCellular::nextEventType() const
 	return Global;
 	break;
       case LOCAL:
-	return local;
+	return Local;
 	break;
       default:
 	D_throw() << "Unknown event type!";

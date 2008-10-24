@@ -29,6 +29,8 @@ public:
 
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
 
+  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+
   virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
 
   virtual void output(xmlw::XmlStream&) {}

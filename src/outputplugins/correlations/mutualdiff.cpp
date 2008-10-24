@@ -105,6 +105,13 @@ COPMutualDiffusion::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& 
 }
 
 void 
+COPMutualDiffusion::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+{
+  stream(iEvent.getdt());
+  updateDelG(PDat);
+}
+
+void 
 COPMutualDiffusion::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
 { 
   stream(edt);

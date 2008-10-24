@@ -82,6 +82,20 @@ COPVACF::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
+COPVACF::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+{
+  //Move the time forward
+  currentdt += iEvent.getdt();
+  
+  //Now test if we've gone over the step time
+  while (currentdt >= dt)
+    {
+      currentdt -= dt;
+      newG(PDat);
+    }
+}
+
+void 
 COPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
 { 
   //Move the time forward

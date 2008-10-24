@@ -44,6 +44,18 @@ COP1PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat)
 }
 
 void 
+COP1PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
+{
+  stream(event.getdt());
+
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    A1ParticleChange(pData);
+  
+  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+    A2ParticleChange(pData);
+}
+
+void 
 COP1PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
 {
   stream(dt);

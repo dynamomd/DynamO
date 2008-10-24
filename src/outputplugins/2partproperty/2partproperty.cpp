@@ -41,6 +41,15 @@ COP2PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat)
 }
 
 void 
+COP2PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
+{
+  stream(event.getdt());
+
+  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+    A2ParticleChange(pData);
+}
+
+void 
 COP2PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
 {
   stream(dt);

@@ -52,12 +52,26 @@ void
 COPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle(), pData.getType(), getClassKey(globEvent.getGlobal()));  
+    newEvent(pData.getParticle(), pData.getType(), 
+	     getClassKey(globEvent));  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(globEvent.getGlobal()));
-      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(globEvent.getGlobal()));
+      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(globEvent));
+      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(globEvent));
+    }
+}
+
+void 
+COPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+{
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    newEvent(pData.getParticle(), pData.getType(), getClassKey(localEvent));  
+  
+  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+    {
+      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(localEvent));
+      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(localEvent));
     }
 }
 

@@ -82,6 +82,13 @@ COPMisc::eventUpdate(const CGlobEvent&, const CNParticleData& NDat)
 }
 
 void 
+COPMisc::eventUpdate(const CLocalEvent&, const CNParticleData& NDat)
+{
+  dualEvents += NDat.L2partChanges.size();
+  singleEvents += NDat.L1partChanges.size();
+}
+
+void 
 COPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat, 
 		     const Iflt&)
 {

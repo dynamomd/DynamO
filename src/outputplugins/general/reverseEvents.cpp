@@ -19,6 +19,7 @@
 #include "../../dynamics/units/units.hpp"
 #include "../../dynamics/globals/globEvent.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
+#include "../../dynamics/locals/localEvent.hpp"
 
 COPReverseEventsCheck::COPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
   COutputPlugin(t1,"ReverseEventsChecker"),
@@ -42,6 +43,13 @@ COPReverseEventsCheck::eventUpdate(const CIntEvent& eevent,
 
 void 
 COPReverseEventsCheck::eventUpdate(const CGlobEvent& eevent, 
+				   const CNParticleData&)
+{
+  if (eevent.getdt() < localeps) ++lReverseEvents;
+}
+
+void 
+COPReverseEventsCheck::eventUpdate(const CLocalEvent& eevent, 
 				   const CNParticleData&)
 {
   if (eevent.getdt() < localeps) ++lReverseEvents;

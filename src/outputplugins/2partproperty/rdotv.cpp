@@ -44,7 +44,22 @@ COPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
-      mapdata& ref = rvdotacc[mapKey(globEvent.getType(), getClassKey(globEvent.getGlobal()))];
+      mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
+				     getClassKey(globEvent))];
+      
+      ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+
+      ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
+    }
+}
+
+void 
+COPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+{
+  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+    {
+      mapdata& ref = rvdotacc[mapKey(localEvent.getType(), 
+				     getClassKey(localEvent))];
       
       ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
 

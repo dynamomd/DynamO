@@ -29,8 +29,9 @@ namespace DYNAMO
 }
 
 class CInteraction;
-class CGlobal;
+class CGlobEvent;
 class CSystem;
+class CLocalEvent;
 
 namespace EventTypeTracking {
   //! \brief This is to stop the use of maps
@@ -50,7 +51,9 @@ namespace EventTypeTracking {
 
   classKey getClassKey(const CSystem&);
 
-  classKey getClassKey(const CGlobal&);
+  classKey getClassKey(const CGlobEvent&);
+
+  classKey getClassKey(const CLocalEvent&);
 }
 
 #endif

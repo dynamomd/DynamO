@@ -35,6 +35,8 @@ public:
 
   void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
 
+  void eventUpdate(const CLocalEvent&, const CNParticleData&) {}
+
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) {}
 
   COutputPlugin *Clone() const { return new COPReplexTrace(*this); }

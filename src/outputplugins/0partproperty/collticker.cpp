@@ -39,6 +39,13 @@ COPCollTicker::eventUpdate(const CGlobEvent &event, const CNParticleData&)
 }
 
 void 
+COPCollTicker::eventUpdate(const CLocalEvent &event, const CNParticleData&) 
+{
+  stream(event.getdt());
+  ticker();
+}
+
+void 
 COPCollTicker::eventUpdate(const CSystem&, const CNParticleData&, const Iflt& dt)
 {
   stream(dt);

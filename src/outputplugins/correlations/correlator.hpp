@@ -103,6 +103,13 @@ class COPCorrelator: public COutputPlugin
     updateConstDelG(PDat);
   }
 
+  virtual void eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+  {
+    stream(iEvent.getdt());
+    delG += impulseDelG(PDat);
+    updateConstDelG(PDat);
+  }
+
   virtual void eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
   { 
     stream(edt);

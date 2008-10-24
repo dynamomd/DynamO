@@ -32,6 +32,8 @@ public:
   void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
   void eventUpdate(const CGlobEvent&, const CNParticleData&);
+
+  void eventUpdate(const CLocalEvent&, const CNParticleData&);
   
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
 
