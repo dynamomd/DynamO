@@ -23,7 +23,6 @@
 #include "localEvent.hpp"
 #include "../ranges/1RAll.hpp"
 
-
 CLocal::CLocal(const DYNAMO::SimData* tmp, const char *name):
   SimBase_const(tmp,name,IC_blue),
   range(new CRAll(tmp))
@@ -50,10 +49,8 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 CLocal* 
 CLocal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
 {
-  if (!strcmp(XML.getAttribute("Type"),"Sentinel"))
-    return new CLSentinel(XML, Sim);
-  /*else if (!strcmp(XML.getAttribute("Type"),"Wall"))
-    return new CGWall(XML, Sim);*/
+  if (!strcmp(XML.getAttribute("Type"),"Wall"))
+    return new CLWall(XML, Sim);
   else 
     D_throw() << "Unknown type of Local Interaction encountered";
 }

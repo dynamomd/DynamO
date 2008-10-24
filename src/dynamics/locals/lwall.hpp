@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLSentinel_HPP
-#define CLSentinel_HPP
+#ifndef CLWall_HPP
+#define CLWall_HPP
 
 #include "local.hpp"
 
-class CLSentinel: public CLocal
+class CLWall: public CLocal
 {
 public:
-  CLSentinel(const XMLNode&, const DYNAMO::SimData*);
+  CLWall(const XMLNode&, const DYNAMO::SimData*);
 
-  virtual ~CLSentinel() {}
+  virtual ~CLWall() {}
 
-  virtual CLocal* Clone() const { return new CLSentinel(*this); };
+  virtual CLocal* Clone() const { return new CLWall(*this); };
 
   virtual CLocalEvent getEvent(const CParticle&) const;
 
@@ -41,6 +41,10 @@ public:
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
+
+  CVector<> vNorm;
+  CVector<> vPosition;
+  Iflt e;
 };
 
 #endif
