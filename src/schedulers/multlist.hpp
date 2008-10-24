@@ -44,6 +44,8 @@ public:
   virtual ENextEvent nextEventType() const;
   virtual const CGlobEvent earliestGlobEvent() const;
   virtual const CIntEvent earliestIntEvent() const;
+  const CLocalEvent earliestLocalEvent() const
+  { D_throw() << "Not implemented"; }
   virtual void stream(const Iflt);
   virtual void rescaleTimes(Iflt);
 

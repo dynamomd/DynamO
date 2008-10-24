@@ -415,6 +415,12 @@ CDynamics::runEvent(const CGlobEvent &coll)
   return const_cast<CGlobEvent&>(coll).getGlobal().runEvent(coll);
 }
 
+CNParticleData
+CDynamics::runEvent(const CLocalEvent &coll)
+{
+  return locals[coll.getLocalID()]->runEvent(coll);
+}
+
 CDynamics::CDynamics(const CDynamics &dyn):
   SimBase(dyn),
   p_BC(dyn.p_BC), 

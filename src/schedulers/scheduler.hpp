@@ -25,9 +25,10 @@
 #include <vector>
 
 typedef enum {
-  Interaction , /*!< No collision occurs*/
-  Global      , /*!< Hard core collision*/
-  System        /*!< Well Event, could be Dissociation/bounce etc*/
+  Interaction , /*!< CInteraction event.*/
+  Global      , /*!< CGlobal event.*/
+  System      , /*!< CSystem event.*/
+  Local         /*!< CSystem event.*/  
 } ENextEvent;
 
 class CParticle;
@@ -62,6 +63,8 @@ public:
   virtual const CIntEvent earliestIntEvent() const = 0;
 
   virtual const CGlobEvent earliestGlobEvent() const = 0;
+
+  virtual const CLocalEvent earliestLocalEvent() const = 0;
 
   virtual ENextEvent nextEventType() const = 0;
 

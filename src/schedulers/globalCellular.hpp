@@ -45,6 +45,8 @@ public:
 
   virtual ENextEvent nextEventType() const;
 
+  virtual const CLocalEvent earliestLocalEvent() const;
+
   virtual const CGlobEvent earliestGlobEvent() const;
 
   virtual const CIntEvent earliestIntEvent() const;

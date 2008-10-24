@@ -209,6 +209,8 @@ CSimulation::executeEvent()
 		D_throw() << "A system event has been scheduled yet there are no system events";
 #endif
       executeSysEvent();
+    case Local:
+      executeLocalEvent();
       break;
     }
 }
@@ -280,6 +282,51 @@ void
 CSimulation::executeGlobEvent()
 {
   CGlobEvent iEvent = ptrScheduler->earliestGlobEvent();
+  
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(this);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(this);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(this);
+#endif
+  
+  if (iEvent.getType() == VIRTUAL)
+    {
+      //Do this to stop it being counted as an event
+      --lNColl;
+      Dynamics.runEvent(iEvent);
+      //We return now to stop the system streaming
+      return;
+    }
+
+  dSysTime += iEvent.getdt();
+  
+  ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Dynamics.stream(iEvent.getdt());
+    
+  //Run the collision and catch the data
+  CNParticleData EDat = Dynamics.runEvent(iEvent);
+  
+  //Now we're past the event update the scheduler and plugins
+  ptrScheduler->update(iEvent.getParticle());
+  
+  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
+}
+
+void 
+CSimulation::executeLocalEvent()
+{
+  CLocalEvent iEvent = ptrScheduler->earliestLocalEvent();
   
   if (iEvent.getType() == NONE)
     D_throw() << "No global collision found\n"
@@ -478,70 +525,3 @@ CSimulation::outputData(const char* filename)
 long double 
 CSimulation::getSysTime()
 { return dSysTime / Dynamics.units().unitTime(); }
-
-
-
-/* Obsolete
-
-void 
-CSimulation::setNThreads(size_t nT)
-{
-  I_cout() << "Thread count set to " << nT;
-  threadPool.setMaxThreads(nT);
-}
-
-void 
-CSimulation::streamTaskInit()
-{
-  //Handle a small or unset nStreamTasks
-  if (!(threadPool.getMaxThreads()))
-    {
-      nStreamTasks = 0;
-      I_cout() << "Not threaded, using a single stream task";
-      streamTasks.push_back(CStreamTask(vParticleList.begin(), 
-					vParticleList.end(),
-					this));
-      return;
-    }
-  else if (nStreamTasks == 0)
-    nStreamTasks = vParticleList.size()/10000;
-  
-  if (nStreamTasks == 0)
-    {
-      I_cout() << "Single threaded streaming enabled due to system size";
-      streamTasks.push_back(CStreamTask(vParticleList.begin(), 
-					vParticleList.end(),
-					this));
-      return;
-    }
-  
-  unsigned long step = vParticleList.size()/nStreamTasks;
-  
-  std::vector<CParticle>::iterator start = vParticleList.begin();
-
-  for (int i = 1; i < nStreamTasks; i++)
-    {
-      streamTasks.push_back(CStreamTask(start,start+step,this));
-      start += step;
-    }
-  
-  I_cout() << "Using " << nStreamTasks <<" streaming thread tasks";
-
-  streamTasks.push_back(CStreamTask(start,vParticleList.end(),this));
-}
-
-
-  //Wait before proceeding
-  //threadPool.wait();
-
-  I_cout() << "Generating thread streaming tasks";
-  streamTaskInit();
-
-
-void 
-CSimulation::setnStreamTasks(unsigned int x)
-{
-  I_cout() << "Number of StreamTasks set to " << x;
-  nStreamTasks = x; 
-}
-*/

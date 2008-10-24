@@ -45,8 +45,14 @@ CSGlobCellular::stream(const Iflt dt)
 const CIntEvent 
 CSGlobCellular::earliestIntEvent() const
 {
-  return Sim->Dynamics.getEvent(Sim->vParticleList[eventHeap.next_ID()], 
-				Sim->vParticleList[eventHeap.next_Data().top().p2]);
+#ifdef DYNAMO_DEBUG
+  if (eventHeap.next_Data.top().type != INTERACTION)
+    D_throw() << "The next event is not an Interaction event";
+#endif
+  
+  return Sim->Dynamics.getEvent
+    (Sim->vParticleList[eventHeap.next_ID()], 
+     Sim->vParticleList[eventHeap.next_Data().top().p2]);
 }
 
 void 
@@ -57,7 +63,24 @@ CSGlobCellular::operator<<(const XMLNode& XML)
 const CGlobEvent
 CSGlobCellular::earliestGlobEvent() const
 {
+#ifdef DYNAMO_DEBUG
+  if (eventHeap.next_Data.top().type != GLOBAL)
+    D_throw() << "The next event is not a Global event";
+#endif
+
   return Sim->Dynamics.getGlobals()[eventHeap.next_Data().top().p2]
+    ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
+}
+
+const CGlobEvent
+CSGlobCellular::earliestLocalEvent() const
+{
+#ifdef DYNAMO_DEBUG
+  if (eventHeap.next_Data.top().type != LOCAL)
+    D_throw() << "The next event is not a Local event";
+#endif
+
+  return Sim->Dynamics.getLocals()[eventHeap.next_Data().top().p2]
     ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
 }
 
@@ -193,6 +216,9 @@ CSGlobCellular::nextEventType() const
 	return Interaction;
       case GLOBAL:
 	return Global;
+	break;
+      case LOCAL:
+	return local;
 	break;
       default:
 	D_throw() << "Unknown event type!";

@@ -31,6 +31,7 @@ class CSpecies;
 class CGlobEvent;
 class CGlobal;
 class CLocal;
+class CLocalEvent;
 class CSystem;
 class CTopology;
 class CParticle;
@@ -86,6 +87,8 @@ public:
   C2ParticleData runEvent(const CIntEvent&);
   
   CNParticleData runEvent(const CGlobEvent&);
+
+  CNParticleData runEvent(const CLocalEvent&);
 
   inline CIntEvent getEvent(const CParticle &p1, const CParticle &p2) const
   {

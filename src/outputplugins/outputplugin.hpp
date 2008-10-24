@@ -49,6 +49,8 @@ public:
   
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&) = 0;
 
+  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&) = 0;
+
   virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) = 0;
   
   virtual COutputPlugin *Clone() const = 0;

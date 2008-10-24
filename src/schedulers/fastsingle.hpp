@@ -42,6 +42,9 @@ class CSFastSingle : public CScheduler
 
   const CIntEvent earliestIntEvent() const;
   const CGlobEvent earliestGlobEvent() const;
+  const CLocalEvent earliestLocalEvent() const
+  { D_throw() << "Not implemented"; }
+
   void stream(const Iflt);
 
   virtual void popVirtualEvent();
