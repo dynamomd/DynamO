@@ -46,14 +46,11 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  void init_cells();
-
   CVector<> getCellDimensions() const 
   { return cellDimension; }
 
-  void addCells(Iflt, bool limitCells = true);
-
-  size_t getLocalCellID(const CParticle&) const; 
+  inline size_t getLocalCellID(const CParticle& part) const
+  { return partCellData[part.getID()].cell; }
 
   inline const std::vector<size_t>& getCellNeighbourHood(const CParticle& part) const
   {
@@ -73,6 +70,23 @@ public:
   inline const partCEntry& getParticleData(const size_t& id) const
   { return partCellData[id]; }
 
+  struct cellStruct
+  {
+    //Be smart about memory
+    cellStruct():list(-1)
+    { neighbours.reserve(ctime_pow<NDIM,NDIM>::result); }
+
+    std::vector<size_t> neighbours;
+    std::vector<size_t> locals;    
+    int list;
+    CVector<> origin;
+    CVector<long> coords;
+    size_t posCells[NDIM]; 
+    size_t negCells[NDIM];
+  };
+
+  inline const cellStruct& getParticleCellData(const CParticle& part) const
+  { return cells[partCellData[part.getID()].cell]; }
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
@@ -83,26 +97,16 @@ private:
   CVector<long> getCoordsFromID(unsigned long) const; 
   long getID(CVector<>) const;
 
+  void addCells(Iflt, bool limitCells = true);
+  void init_cells();
+  void addLocalEvents();
+
   //Variables
   CVector<long> cellCount;
   CVector<> cellDimension;
   CVector<> cellLatticeWidth;
   Iflt lambda;
   size_t NCells;
-
-  struct cellStruct
-  {
-    //Be smart about memory
-    cellStruct():list(-1)
-    { neighbours.reserve(ctime_pow<NDIM,NDIM>::result); }
-
-    std::vector<size_t> neighbours;
-    int list;
-    CVector<> origin;
-    CVector<long> coords;
-    size_t posCells[NDIM]; 
-    size_t negCells[NDIM];
-  };
 
   mutable std::vector<cellStruct> cells;
 

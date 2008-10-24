@@ -24,6 +24,7 @@ typedef enum {
   CELL        , /*!< Marks cell transitions in the scheduler*/
   GLOBAL      , /*!< Marks all global events in the scheduler*/
   INTERACTION , /*!< Marks Interaction events in the scheduler*/
+  LOCAL       , /*!< Marks Local events in the scheduler*/
   /* These are real types of events outside the scheduler */
   NONE        , /*!< No collision occurs*/
   CORE        , /*!< Hard core collision*/

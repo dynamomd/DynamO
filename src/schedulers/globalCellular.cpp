@@ -33,6 +33,8 @@
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/gcells.hpp"
+#include "../dynamics/locals/local.hpp"
+#include "../dynamics/locals/localEvent.hpp"
 
 void 
 CSGlobCellular::stream(const Iflt dt)
@@ -212,9 +214,18 @@ CSGlobCellular::addNewEvents(const CParticle& part) const
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
       eventHeap.push(glob->getEvent(part), part.getID());
-  
+
   const CGCells& cells(*static_cast<const CGCells*>
 		       (Sim->Dynamics.getGlobals()[GlobCellID].get_ptr()));
+
+  //Add the local cell events
+  BOOST_FOREACH(const size_t& id, cells.getParticleCellData(part).locals)
+    {
+      const smrtPlugPtr<CLocal>& local(Sim->Dynamics.getLocals()[id]);
+      if (local->isInteraction(part))
+	eventHeap.push(local->getEvent(part), part.getID());
+    }
+      
 
   BOOST_FOREACH(const int& nb, cells.getCellNeighbourHood(part))
     for (int next = cells.getCellLocalParticles(nb);

@@ -24,6 +24,7 @@
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include "../locals/local.hpp"
 
 CGCells::CGCells(const DYNAMO::SimData* nSim):
   CGlobal(nSim, "GlobalCellularEvent"),
@@ -69,12 +70,6 @@ CGCells::operator<<(const XMLNode& XML)
       if (lambda < 0.0 || lambda > 1.0)
 	D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
     }
-}
-
-size_t 
-CGCells::getLocalCellID(const CParticle& part) const
-{
-  return partCellData[part.getID()].cell;
 }
 
 CGlobEvent 
@@ -164,6 +159,8 @@ CGCells::reinitialise(const Iflt& maxdiam)
 
   //Create the cells
   addCells(maxdiam, false);
+
+  addLocalEvents();
 }
 
 void
@@ -213,8 +210,10 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
   
   I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
 	   << cellCount[1] << "," << cellCount[2];
+
   I_cout() << "Cells dimension <x,y,z>  " << cellDimension[0] << ","
 	   << cellDimension[1] << "," << cellDimension[2];
+
   I_cout() << "Lattice spacing <x,y,z>  " << cellLatticeWidth[0] << ","
 	   << cellLatticeWidth[1] << "," << cellLatticeWidth[2];
 
@@ -297,6 +296,19 @@ CGCells::init_cells()
 	  cells[i].posCells[iDim] = getID(cells[i].coords + tmpvec);
 	  cells[i].negCells[iDim] = getID(cells[i].coords - tmpvec);
 	}
+    }
+}
+
+void 
+CGCells::addLocalEvents()
+{
+  BOOST_FOREACH(cellStruct& cell, cells)
+    {
+      cell.locals.clear();
+
+      BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
+	if (local->isInCell(cell.origin, cellDimension))
+	  cell.locals.push_back(local->getID());
     }
 }
 

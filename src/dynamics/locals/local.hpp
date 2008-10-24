@@ -22,6 +22,7 @@
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
+#include "../../datatypes/vector.hpp"
 
 class XMLNode;
 namespace xmlw
@@ -48,6 +49,8 @@ public:
   virtual CLocalEvent getEvent(const CParticle&) const = 0;
 
   virtual CNParticleData runEvent(const CLocalEvent&) const = 0;
+  
+  virtual bool isInCell(const CVector<>&, const CVector<>&) const = 0;
 
   virtual void initialise(size_t) = 0;
 

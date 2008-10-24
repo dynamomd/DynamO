@@ -21,6 +21,7 @@
 #include "../../dynamics/eventtypes.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../dynamics/globals/globEvent.hpp"
+#include "../../dynamics/locals/localEvent.hpp"
 #include <boost/foreach.hpp>
 #include <boost/pool/pool.hpp>
 #include <boost/pool/pool_alloc.hpp>
@@ -64,6 +65,14 @@ struct intPart
     dt(coll.getdt()),
     p2(coll.getGlobal().getID()),
     type(GLOBAL)
+  {
+    if (coll.getType() == NONE) type = NONE;
+  }
+
+  inline intPart(const CLocalEvent& coll) throw():
+    dt(coll.getdt()),
+    p2(coll.getLocalID()),
+    type(LOCAL)
   {
     if (coll.getType() == NONE) type = NONE;
   }
