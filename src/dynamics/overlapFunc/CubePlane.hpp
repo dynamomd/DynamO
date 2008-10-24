@@ -23,6 +23,11 @@ namespace DYNAMO
 {
   namespace OverlapFunctions
   {
+    /*! \brief Discovers if a cube and a plane intersect by testing
+     * which side of the plane the points of the cube lie on.
+     *
+     * This is used in the collision CLSentinel to install itself in cells
+     */
     bool CubePlane(const CVector<>& CubeOrigin, const CVector<>& CubeDimensions,
 		   const CVector<>& PlaneOrigin, const CVector<>& PlaneNormal)
     {

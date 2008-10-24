@@ -19,6 +19,7 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "localEvent.hpp"
 #include "../NparticleEventData.hpp"
+#include "../overlapFunc/CubePlane.hpp"
 
 CLSentinel::CLSentinel(const XMLNode&, const DYNAMO::SimData* tmp):
   CLocal(tmp, "GlobalSentinel")
@@ -39,7 +40,11 @@ CLSentinel::runEvent(const CLocalEvent&) const
 bool 
 CLSentinel::isInCell(const CVector<>& Origin, const CVector<>& CellDim) const
 {
-  return false;
+  CVector<> normal(0);
+  normal[0] = 1;
+
+  //Install a virtual free stream event in the x direction
+  return CubePlane(Origin, CellDim, CVector<>(0.0), normal);
 }
 
 void 
