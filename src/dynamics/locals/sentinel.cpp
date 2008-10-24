@@ -44,7 +44,8 @@ CLSentinel::isInCell(const CVector<>& Origin, const CVector<>& CellDim) const
   normal[0] = 1;
 
   //Install a virtual free stream event in the x direction
-  return CubePlane(Origin, CellDim, CVector<>(0.0), normal);
+  return DYNAMO::OverlapFunctions::CubePlane
+    (Origin, CellDim, CVector<>(0.0), normal);
 }
 
 void 

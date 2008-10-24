@@ -42,7 +42,7 @@ namespace DYNAMO
 	{
 	  CVector<> pointpos(relpos);
 	  
-	  for (size_t iDim(0); iDim < NDIM; ++NDIM)
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    if (counter[iDim]) pointpos[iDim] += CubeDimensions[iDim];
 
 	  if (std::signbit(pointpos % PlaneNormal) != OriginSign)
