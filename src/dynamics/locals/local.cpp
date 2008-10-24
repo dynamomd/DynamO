@@ -50,12 +50,11 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 CLocal* 
 CLocal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
 {
-  /*if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
-    return new CGAndersenWall(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Wall"))
-    return new CGWall(XML, Sim);
-    else */
-
-  D_throw() << "Unknown type of Global Interaction encountered";
+  if (!strcmp(XML.getAttribute("Type"),"Sentinel"))
+    return new CLSentinel(XML, Sim);
+  /*else if (!strcmp(XML.getAttribute("Type"),"Wall"))
+    return new CGWall(XML, Sim);*/
+  else 
+    D_throw() << "Unknown type of Local Interaction encountered";
 }
 

@@ -371,6 +371,7 @@ CDynamics::initialise()
 
   ID=0;
 
+  //Must be initialised after globals if CGCells is to be used
   BOOST_FOREACH(smrtPlugPtr<CLocal>& ptr, locals)
     ptr->initialise(ID++);
 

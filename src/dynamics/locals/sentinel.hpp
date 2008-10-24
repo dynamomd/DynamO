@@ -15,4 +15,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sentinel.hpp"
+#ifndef CLSentinel_HPP
+#define CLSentinel_HPP
+
+#include "local.hpp"
+
+class CLSentinel: public CLocal
+{
+public:
+  CLSentinel(const XMLNode&, const DYNAMO::SimData*);
+
+  virtual ~CLSentinel() {}
+
+  virtual CLocal* Clone() const { return new CLSentinel(*this); };
+
+  virtual CLocalEvent getEvent(const CParticle&) const;
+
+  virtual CNParticleData runEvent(const CLocalEvent&) const;
+  
+  virtual bool isInCell(const CVector<>&, const CVector<>&) const;
+
+  virtual void initialise(size_t);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+};
+
+#endif

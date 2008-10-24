@@ -59,7 +59,9 @@ public:
   }
 
   virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const = 0;
+
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const = 0;  
+
   virtual bool sphereOverlap(const CPDData&, const Iflt&) const = 0;
 
   /*! \brief Determines when the particle center will hit a bounding box.
