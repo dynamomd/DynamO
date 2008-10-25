@@ -24,6 +24,8 @@ class CLWall: public CLocal
 {
 public:
   CLWall(const XMLNode&, const DYNAMO::SimData*);
+  CLWall(const DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
+	 std::string, CRange*);
 
   virtual ~CLWall() {}
 

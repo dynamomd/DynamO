@@ -37,6 +37,7 @@
 #include "../base/is_simdata.hpp"
 #include "../dynamics/topology/include.hpp"
 #include "../base/is_ensemble.hpp"
+#include "../dynamics/locals/include.hpp"
 
 CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp): 
   SimBase(tmp,"SysPacker", IC_blue),
@@ -605,12 +606,19 @@ CIPPacker::initialise()
 	CVector<> norm(0), origin(0);
 	norm[0] = 1.0;
 	origin[0] = -0.25;
-	Sim->Dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin,
-					   "LowWall", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, 1.0, norm, origin,
+					  "LowWall", new CRAll(Sim)));
+	/*Sim->Dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin,
+	  "LowWall", new CRAll(Sim)));*/
+
 	norm[0] = -1.0;
 	origin[0] = 0.25;
-	Sim->Dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin, 
+	Sim->Dynamics.addLocal(new CLWall(Sim, 1.0, norm, origin, 
 					   "HighWall", new CRAll(Sim)));
+
+	/*Sim->Dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin, 
+	  "HighWall", new CRAll(Sim)));*/
 
 	double lambda = 1.5;
 

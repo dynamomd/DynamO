@@ -69,6 +69,8 @@ public:
   
   void addGlobal(CGlobal*);
 
+  void addLocal(CLocal*);
+
   void addSystem(CSystem*);
 
   void addSystemLate(CSystem*);

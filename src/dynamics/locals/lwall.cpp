@@ -23,6 +23,16 @@
 #include "../units/units.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
+CLWall::CLWall(const DYNAMO::SimData* nSim, Iflt ne, CVector<> nnorm, 
+	       CVector<> norigin, std::string nname, CRange* nRange):
+  CLocal(nRange, nSim, "LocalWall"),
+  vNorm(nnorm),
+  vPosition(norigin),
+  e(ne)
+{
+  localName = nname;
+}
+
 CLWall::CLWall(const XMLNode& XML, const DYNAMO::SimData* tmp):
   CLocal(tmp, "LocalWall")
 {

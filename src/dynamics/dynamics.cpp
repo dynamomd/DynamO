@@ -245,6 +245,18 @@ CDynamics::addGlobal(CGlobal* newGlobal)
   globals.push_back(tempPlug);
 }
 
+void 
+CDynamics::addLocal(CLocal* newLocal)
+{
+  if (Sim->status >= INITIALISED)
+    D_throw() << "Cannot add local events after simulation initialisation";
+
+  smrtPlugPtr<CLocal> 
+    tempPlug(newLocal);
+  
+  locals.push_back(tempPlug);
+}
+
 void
 CDynamics::addSystem(CSystem* newSystem)
 {
