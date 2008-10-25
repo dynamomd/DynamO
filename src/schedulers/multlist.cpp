@@ -42,23 +42,26 @@ CSMultList::stream(const Iflt dt)
 const CIntEvent 
 CSMultList::earliestIntEvent() const
 {
-  return Sim->Dynamics.getEvent(Sim->vParticleList[eventHeap.next_ID()], 
-				Sim->vParticleList[eventHeap.next_Data().top().p2]);
+#ifdef DYNAMO_DEBUG
+  if (eventHeap.next_Data.top().type != INTERACTION)
+    D_throw() << "The next event is not a Interaction event";
+#endif
+
+  return Sim->Dynamics.getEvent
+    (Sim->vParticleList[eventHeap.next_ID()], 
+     Sim->vParticleList[eventHeap.next_Data().top().p2]);
 }
 
 const CGlobEvent
 CSMultList::earliestGlobEvent() const
 {
-  CGlobEvent col1, col2;
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptrGlob, Sim->Dynamics.getGlobals())
-    if (ptrGlob->isInteraction(Sim->vParticleList[eventHeap.next_ID()]))
-      {
-	col1 = ptrGlob->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
-	if (col1 < col2)
-	  col2 = col1;
-      }
+#ifdef DYNAMO_DEBUG
+  if (eventHeap.next_Data.top().type != GLOBAL)
+    D_throw() << "The next event is not a Global event";
+#endif
 
-  return col2;
+  return Sim->Dynamics.getGlobals()[eventHeap.next_Data().top().p2]
+    ->getEvent(Sim->vParticleList[eventHeap.next_ID()]); 
 }
 
 void
@@ -210,8 +213,9 @@ void
 CSMultList::addNewEvents_init(const CParticle& part) const
 {
   //Add the global event
-  if (!Sim->Dynamics.getGlobals().empty())
-    eventHeap.push(getGlobEvent(part), part.getID());
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
+    if (glob->isInteraction(part))
+      eventHeap.push(glob->getEvent(part), part.getID());
   
   //Update the wall collision
   eventHeap.push(Sim->Dynamics.Liouvillean().
@@ -247,8 +251,9 @@ void
 CSMultList::addNewEvents(const CParticle& part) const
 {  
   //Add the global event
-  if (!Sim->Dynamics.getGlobals().empty())
-    eventHeap.push(getGlobEvent(part), part.getID());
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
+    if (glob->isInteraction(part))
+      eventHeap.push(glob->getEvent(part), part.getID());
     
   //Update the wall collision
   eventHeap.push(Sim->Dynamics.Liouvillean().

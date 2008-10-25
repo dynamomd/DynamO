@@ -67,11 +67,13 @@ CSFastSingle::pushAndUpdateVirtualEvent(const CParticle& part, const intPart& ne
 void 
 CSFastSingle::update(const CParticle& part)
 {  
-
+  
   //Update global event
   if (!globEventQueue.empty())
-    globEventQueue[part.getID()] = getGlobEvent(part);
-
+    {
+      D_throw() << "Cannot process globals yet";
+      //globEventQueue[part.getID()] = getGlobEvent(part);
+    }
 
   //Update any invalid events where this is part==particle2
   for (size_t id = 0; id < part.getID(); ++id)
@@ -169,17 +171,18 @@ CSFastSingle::stream(const Iflt dt)
 void 
 CSFastSingle::initGlobalQueue()
 {
+  D_throw() << "Fixme";
   //First check if there are any globals
   if (!(Sim->Dynamics.getGlobals().size()))
       return;
 
-  CGlobEvent e1,e2;
+  /*CGlobEvent e1,e2;
   //Ok, so lets test each particle against the global
   globEventQueue.clear();
   globEventQueue.resize(Sim->lN);
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    globEventQueue[part.getID()] = getGlobEvent(part);
+  globEventQueue[part.getID()] = getGlobEvent(part);*/
 }
 
 void

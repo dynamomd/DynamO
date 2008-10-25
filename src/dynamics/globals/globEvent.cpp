@@ -23,19 +23,15 @@
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"
 #include "../interactions/intEvent.hpp"
+#include "global.hpp"
 #include <cmath>
 
 CGlobEvent::CGlobEvent(const CParticle& part1, const Iflt &delt, 
 		       EEventType nType, const CGlobal& glob):
   particle_(&part1), dt(delt), 
-  CType(nType), ptrGlobal(&glob)
+  CType(nType), globalID(glob.getID())
 {}
   
-CGlobEvent::CGlobEvent ():
-  particle_(NULL), dt(HUGE_VAL), CType(NONE),
-  ptrGlobal(NULL)
-{}
-
 const char * 
 CGlobEvent::getCollEnumName(EEventType a)
 {

@@ -39,8 +39,6 @@ public:
   //A way to recover the collision name from a type at compile time
   static const char * getCollEnumName(EEventType);
 
-  CGlobEvent ();
-  
   CGlobEvent (const CParticle&, const Iflt&, 
 	      EEventType, const CGlobal&);
 
@@ -61,9 +59,9 @@ public:
   inline bool operator> (const CGlobEvent & C2) const 
     { return dt > C2.dt;}
 
-  inline void incrementTime(const Iflt deltat) {dt -= deltat; }
+  inline void incrementTime(const Iflt& deltat) {dt -= deltat; }
 
-  inline void addTime(const Iflt deltat) {dt += deltat; }
+  inline void addTime(const Iflt& deltat) {dt += deltat; }
 
   inline const CParticle& getParticle() const { return *particle_; }
 
@@ -76,7 +74,7 @@ public:
 
   std::string stringData(const DYNAMO::SimData*) const;
 
-  const CGlobal& getGlobal() const { return *ptrGlobal; } 
+  const size_t& getGlobalID() const { return globalID; } 
 
   inline void scaleTime(const Iflt& scale)
   { dt *= scale; }
@@ -85,7 +83,7 @@ protected:
   const CParticle*  particle_;
   Iflt dt;
   mutable EEventType CType;
-  const CGlobal* ptrGlobal;
+  const size_t globalID;
 };
 
 #endif

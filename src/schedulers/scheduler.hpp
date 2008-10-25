@@ -81,8 +81,6 @@ public:
 protected:
 
   virtual void outputXML(xmlw::XmlStream&) const = 0;
-
-  CGlobEvent getGlobEvent(const CParticle&) const;
 };
 
 #endif

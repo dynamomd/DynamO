@@ -63,7 +63,7 @@ struct intPart
 
   inline intPart(const CGlobEvent& coll) throw():
     dt(coll.getdt()),
-    p2(coll.getGlobal().getID()),
+    p2(coll.getGlobalID()),
     type(GLOBAL)
   {
     if (coll.getType() == NONE) type = NONE;

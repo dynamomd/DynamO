@@ -30,23 +30,6 @@
 CScheduler::~CScheduler()
 {}
 
-CGlobEvent
-CScheduler::getGlobEvent(const CParticle& particle) const
-{
-  I_cout() << "This is buggy given global cellular transitions";
-
-  CGlobEvent col1, col2;
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptrGlob, Sim->Dynamics.getGlobals())
-    if (ptrGlob->isInteraction(particle))
-      {
-	col1 = ptrGlob->getEvent(particle);
-	if (col1 < col2)
-	  col2 = col1;
-      }
-  
-  return col2;
-}
-
 CScheduler* 
 CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {

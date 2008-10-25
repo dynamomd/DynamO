@@ -107,10 +107,7 @@ public:
     D_throw() << "Could not find the right interaction to test for";
   }
 
-  CGlobEvent getEvent(const CParticle&) const;
-  
   void operator<<(const XMLNode&);
-
 
   void initialise();
   

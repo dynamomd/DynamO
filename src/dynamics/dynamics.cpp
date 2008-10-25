@@ -381,19 +381,6 @@ CDynamics::initialise()
     ptr->initialise(ID++);
 }
 
-CGlobEvent 
-CDynamics::getEvent(const CParticle &p1) const
-{
-  CGlobEvent tmp, retval;
-
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptr, globals)
-    if (ptr->isInteraction(p1))
-      if (retval > (tmp = ptr->getEvent(p1)) )
-	retval = tmp;
-
-  return retval;
-}
-
 const smrtPlugPtr<CInteraction>&
 CDynamics::getInteraction(const CParticle& p1, const CParticle& p2) const 
 {
@@ -413,7 +400,7 @@ CDynamics::runEvent(const CIntEvent &coll)
 CNParticleData
 CDynamics::runEvent(const CGlobEvent &coll)
 {
-  return const_cast<CGlobEvent&>(coll).getGlobal().runEvent(coll);
+  return globals[coll.getGlobalID()]->runEvent(coll);
 }
 
 CNParticleData
