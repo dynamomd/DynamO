@@ -46,7 +46,7 @@ const CIntEvent
 CSGlobCellular::earliestIntEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data.top().type != INTERACTION)
+  if (eventHeap.next_Data().top().type != INTERACTION)
     D_throw() << "The next event is not an Interaction event";
 #endif
   
@@ -64,7 +64,7 @@ const CGlobEvent
 CSGlobCellular::earliestGlobEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data.top().type != GLOBAL)
+  if (eventHeap.next_Data().top().type != GLOBAL)
     D_throw() << "The next event is not a Global event";
 #endif
 
@@ -76,7 +76,7 @@ const CLocalEvent
 CSGlobCellular::earliestLocalEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data.top().type != LOCAL)
+  if (eventHeap.next_Data().top().type != LOCAL)
     D_throw() << "The next event is not a Local event";
 #endif
 

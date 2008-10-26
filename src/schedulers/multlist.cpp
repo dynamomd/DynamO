@@ -43,7 +43,7 @@ const CIntEvent
 CSMultList::earliestIntEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data.top().type != INTERACTION)
+  if (eventHeap.next_Data().top().type != INTERACTION)
     D_throw() << "The next event is not a Interaction event";
 #endif
 
@@ -56,7 +56,7 @@ const CGlobEvent
 CSMultList::earliestGlobEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data.top().type != GLOBAL)
+  if (eventHeap.next_Data().top().type != GLOBAL)
     D_throw() << "The next event is not a Global event";
 #endif
 

@@ -209,6 +209,7 @@ CSimulation::executeEvent()
 		D_throw() << "A system event has been scheduled yet there are no system events";
 #endif
       executeSysEvent();
+      break;
     case Local:
       executeLocalEvent();
       break;
