@@ -20,16 +20,29 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
+#include "../../base/is_ensemble.hpp"
 
 COPThermalCon::COPThermalCon(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPCorrelator<CVector<> >(tmp,"ThermalConductivity", XML)
-{}
+{
+  
+}
 
 void 
 COPThermalCon::initialise()
 {
   COPCorrelator<CVector<> >::initialise();
   Sim->getOutputPlugin<COPKEnergy>();
+  
+  try {
+    dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
+  }
+  catch(std::exception)
+    {
+      D_throw() << "WARNING: This is only valid in the microcanonical"
+	" ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
+	"\n Essentially you need entropic data too for other ensembles";
+    }
 
   dt = getdt();
 
@@ -37,7 +50,6 @@ COPThermalCon::initialise()
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     constDelG += part.getVelocity () * Sim->Dynamics.getParticleEnergy(part);
 
-  I_cout() << "WARNING: This is only valid in the microcanonical ensemble!";
 }
 
 Iflt 

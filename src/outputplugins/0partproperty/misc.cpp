@@ -65,7 +65,12 @@ COPMisc::initialise()
   std::cout << ">";
 
   std::time(&startTime);
-  I_cout() << "Started on " << ctime(&startTime);
+
+  std::string sTime(std::ctime(&startTime));
+  //A hack to remove the newline character at the end
+  sTime[sTime.size()-1] = ' ';
+
+  I_cout() << "Started on " << sTime;
 }
 
 void 
