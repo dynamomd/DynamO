@@ -129,3 +129,18 @@ CIPCompression::limitPackingFraction(Iflt targetp)
 					    - 1.0) / growthRate, 
 				      "CompresionLimiter"));
 }
+
+void 
+CIPCompression::limitDensity(Iflt targetrho)
+{
+  //Get the avg molecular volume
+
+  Iflt volume = 0.0;
+  
+  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
+    volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
+  
+  Iflt molVol = PI * volume / (6.0 * Sim->lN);
+
+  limitPackingFraction(molVol * targetrho);
+}

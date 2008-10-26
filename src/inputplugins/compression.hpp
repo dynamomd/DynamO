@@ -65,6 +65,13 @@ class CIPCompression: public CInputPlugin
    */
   void limitPackingFraction(Iflt mxpf);
 
+  /*! \brief Limits the maximum density by installing a
+   *  CStHalt system event at the right time.
+   *
+   * \param mxrho The maximum number density allowed.
+   */
+  void limitDensity(Iflt mxrho);
+
   /*! \brief An expensive sanity check for the system.
    *
    * Ensures that the compression dynamics haven't corrupted the

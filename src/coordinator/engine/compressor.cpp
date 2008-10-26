@@ -28,14 +28,20 @@ CECompressor::getOptions(boost::program_options::options_description& opts)
     ("check-system", "Check that the system has not violated any interaction"
      " information")
     ("target-pack-frac",boost::program_options::value<Iflt>(),
-     "Target packing fraction that compression has to attain")
+     "Target packing fraction that compression has to attain to exit")
+    ("target-density",boost::program_options::value<Iflt>(),
+     "Target number density that compression has to attain to exit")
     ;
   opts.add(ropts);
 }
 
 CECompressor::CECompressor(const boost::program_options::variables_map& nVM, CThreadPool& tp):
   CESingle(nVM, tp)
-{}
+{
+  if (vm.count("target-pack-frac") && vm.count("target-density"))
+    D_throw() << "Shouldn't specify both the packing fraction and density.";
+    
+}
 
 void 
 CECompressor::preSimInit()
@@ -66,6 +72,9 @@ CECompressor::setupSim(CSimulation& Sim, const std::string filename)
   if (vm.count("target-pack-frac"))
     compressPlug->limitPackingFraction
       (vm["target-pack-frac"].as<Iflt>());
+  else if (vm.count("target-density"))
+    compressPlug->limitDensity
+      (vm["target-density"].as<Iflt>());
 
 }
 
