@@ -70,6 +70,8 @@ public:
 
   virtual void rebuildList() = 0;
 
+  virtual void notifyVirtualCellsReinit() {}
+
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CScheduler&);
 
   static CScheduler* getClass(const XMLNode&, const DYNAMO::SimData*);

@@ -41,6 +41,8 @@ public:
 
   virtual void initialise();
 
+  virtual void notifyVirtualCellsReinit();
+
   virtual void update(const CParticle&);
 
   virtual ENextEvent nextEventType() const;

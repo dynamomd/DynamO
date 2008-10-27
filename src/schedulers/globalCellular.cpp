@@ -84,6 +84,12 @@ CSGlobCellular::earliestLocalEvent() const
     ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
 }
 
+void 
+CSGlobCellular::notifyVirtualCellsReinit()
+{
+  initialise();
+}
+
 void
 CSGlobCellular::initialise()
 {

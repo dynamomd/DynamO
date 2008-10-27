@@ -29,7 +29,10 @@
 #include "../datatypes/vector.hpp"
 #include "../base/is_simdata.hpp"
 #include "../schedulers/cells.hpp"
+#include "../schedulers/globalCellular.hpp"
+#include "../dynamics/globals/gcells.hpp"
 #include "../dynamics/systems/compressionhack.hpp"
+#include "../dynamics/systems/globCellCompressionHack.hpp"
 #include "../dynamics/systems/tHalt.hpp"
 #include "../dynamics/species/species.hpp"
 
@@ -95,21 +98,33 @@ CIPCompression::checkOverlaps()
 void
 CIPCompression::CellSchedulerHack()
 {
-  CSCells* tmpPtr = dynamic_cast<CSCells*>(Sim->ptrScheduler);
-  if (tmpPtr == NULL)
+  if (dynamic_cast<CSCells*>(Sim->ptrScheduler) != NULL)
     {
-      I_cout() << "Cannot implement cellular compression hack, not cellular";
-      return;
+      //Rebulid the collision scheduler without the overlapping cells!
+      oldLambda = dynamic_cast<CSCells*>(Sim->ptrScheduler)->getLambda();
+      
+      dynamic_cast<CSCells*>(Sim->ptrScheduler)->setLambda(0.0);
+      
+      //Add the system watcher
+      Sim->Dynamics.addSystemLate
+	(new CSCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
     }
+  else if (dynamic_cast<CSGlobCellular*>(Sim->ptrScheduler) != NULL)
+    {
+      //Rebulid the collision scheduler without the overlapping cells!
+      CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
+
+      oldLambda = cells.getLambda();
+      cells.setLambda(0.0);
+      cells.initialise(cells.getID());
+      //Add the system watcher
+      Sim->Dynamics.addSystemLate
+	(new CSGlobCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
+    }
+  else
+    I_cout() << "No cellular device to fix";
+
   
-  //Rebulid the collision scheduler without the overlapping cells!
-  oldLambda = tmpPtr->getLambda();
-
-  tmpPtr->setLambda(0.0);
-
-  //Add the system watcher
-  Sim->Dynamics.addSystemLate
-    (new CSCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
 }
 
 void 

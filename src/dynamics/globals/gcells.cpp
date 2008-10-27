@@ -72,6 +72,12 @@ CGCells::operator<<(const XMLNode& XML)
     }
 }
 
+void 
+CGCells::setLambda(const Iflt& nL)
+{
+  lambda = nL;
+}
+
 CGlobEvent 
 CGCells::getEvent(const CParticle& part) const
 {
@@ -161,6 +167,8 @@ CGCells::reinitialise(const Iflt& maxdiam)
   addCells(maxdiam, false);
 
   addLocalEvents();
+
+  Sim->ptrScheduler->notifyVirtualCellsReinit();
 }
 
 void

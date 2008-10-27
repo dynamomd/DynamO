@@ -43,7 +43,11 @@ public:
   virtual void initialise(size_t);
 
   virtual void reinitialise(const Iflt&);
-
+  
+  void setLambda(const Iflt&);
+  inline const Iflt& getLambda() const { return lambda; }
+  inline const size_t& getID() const { return ID; }
+  
   virtual void operator<<(const XMLNode&);
 
   CVector<> getCellDimensions() const 
