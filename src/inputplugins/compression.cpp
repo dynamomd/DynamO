@@ -68,11 +68,19 @@ CIPCompression::RestoreSystem()
   //Required to finish off the compression dynamics
   Sim->Dynamics.Liouvillean().updateAllParticles();
 
-  {
-    CSCells* tmpPtr = dynamic_cast<CSCells*>(Sim->ptrScheduler);
-    if (tmpPtr != NULL)
-      tmpPtr->setLambda(oldLambda);
-  }
+
+  if (dynamic_cast<CSCells*>(Sim->ptrScheduler) != NULL)
+    {
+      dynamic_cast<CSCells*>(Sim->ptrScheduler)->setLambda(oldLambda);
+    }
+  else if (dynamic_cast<CSGlobCellular*>(Sim->ptrScheduler) != NULL)
+    {
+      //Rebulid the collision scheduler without the overlapping cells!
+      CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
+      cells.setLambda(oldLambda);
+    }
+  else
+    I_cout() << "No cellular device to fix";
 
   Sim->Dynamics.rescaleLengths(Sim->dSysTime * growthRate 
 			       / Sim->Dynamics.units().unitTime());
@@ -115,11 +123,15 @@ CIPCompression::CellSchedulerHack()
       CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
 
       oldLambda = cells.getLambda();
+
       cells.setLambda(0.0);
+
       cells.initialise(cells.getID());
+
       //Add the system watcher
       Sim->Dynamics.addSystemLate
-	(new CSGlobCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
+	(new CSGlobCellHack(Sim, growthRate 
+			    / Sim->Dynamics.units().unitTime()));
     }
   else
     I_cout() << "No cellular device to fix";
@@ -130,6 +142,7 @@ CIPCompression::CellSchedulerHack()
 void 
 CIPCompression::limitPackingFraction(Iflt targetp)
 {
+  I_cout() << "Limiting maximum packing fraction to " << targetp;
   Iflt volume = 0.0;
   
   BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
@@ -148,14 +161,18 @@ CIPCompression::limitPackingFraction(Iflt targetp)
 void 
 CIPCompression::limitDensity(Iflt targetrho)
 {
-  //Get the avg molecular volume
+  I_cout() << "Limiting maximum density to " << targetrho;
 
+  //Get the avg molecular volume
   Iflt volume = 0.0;
   
   BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
+    volume += std::pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
   
-  Iflt molVol = PI * volume / (6.0 * Sim->lN);
+  Iflt molVol = PI * volume / (6.0 * Sim->vParticleList.size()
+			       * Sim->Dynamics.units().unitVolume());
 
+  I_cout() << "Corresponding packing fraction for that density is "
+	   << molVol * targetrho;
   limitPackingFraction(molVol * targetrho);
 }
