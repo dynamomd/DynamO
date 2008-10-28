@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-if [ $(whereis -b vmd | gawk '{ if (NF > 1) print 1; else print 0}') == 0 ]; then 
+if [ $(whereis -b vmd | wc -w) -lt 2 ]; then 
     echo 'No vmd installed!' 
     exit 
 fi
