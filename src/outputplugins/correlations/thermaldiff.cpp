@@ -59,6 +59,16 @@ COPThermalDiffusion::operator<<(const XMLNode& XML)
 void 
 COPThermalDiffusion::initialise()
 {
+  try {
+    dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
+  }
+  catch(std::exception)
+    {
+      D_throw() << "WARNING: This is only valid in the microcanonical"
+	" ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
+	"\n Essentially you need entropic data too for other ensembles";
+    }
+
   COPCorrelator<CVector<> >::initialise();
   Sim->getOutputPlugin<COPKEnergy>();
   
@@ -82,8 +92,6 @@ COPThermalDiffusion::initialise()
   constDelGsp1 *= species1->getMass();
   
   massFracSp1 = species1->getCount() * species1->getMass() / sysMass; 
-
-  I_cout() << "WARNING: This is only valid in the microcanonical ensemble!";
 }
 
 inline void 
