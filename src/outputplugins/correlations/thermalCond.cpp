@@ -50,6 +50,7 @@ COPThermalCon::initialise()
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     constDelG += part.getVelocity () * Sim->Dynamics.getParticleEnergy(part);
 
+  I_cout() << "dt set to " << dt;
 }
 
 Iflt 

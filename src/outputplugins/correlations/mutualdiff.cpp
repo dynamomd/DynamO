@@ -201,6 +201,8 @@ COPMutualDiffusion::initialise()
 
   massFracSp2 = Sim->Dynamics.getSpecies()[species2].getCount() 
     * Sim->Dynamics.getSpecies()[species2].getMass() / sysMass;
+
+  I_cout() << "dt set to " << dt;
 }
 
 std::list<CVector<> > 

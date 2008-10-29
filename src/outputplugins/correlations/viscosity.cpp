@@ -71,6 +71,8 @@ COPViscosity::initialise()
 	constDelG[iDim][jDim] 
 	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
 	  * Sim->Dynamics.getSpecies(part).getMass();
+
+  I_cout() << "dt set to " << dt;
 }
 
 void 

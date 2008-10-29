@@ -92,6 +92,8 @@ COPThermalDiffusion::initialise()
   constDelGsp1 *= species1->getMass();
   
   massFracSp1 = species1->getCount() * species1->getMass() / sysMass; 
+
+  I_cout() << "dt set to " << dt;
 }
 
 inline void 

@@ -42,6 +42,8 @@ COPVACF::initialise()
 
   BOOST_FOREACH(std::vector<CVector<> >& listref, accG2)
     listref.resize(CorrelatorLength, CVector<>(0.0));
+
+  I_cout() << "dt set to " << dt;
 }
 
 void 
