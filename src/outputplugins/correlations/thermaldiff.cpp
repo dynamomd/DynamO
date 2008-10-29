@@ -182,6 +182,8 @@ COPThermalDiffusion::newG()
       
       notReady = false;
     }
+    
+    accPass();
 }
 
 void 
