@@ -47,6 +47,8 @@ public:
 
   virtual void stream(const Iflt&);
 
+  virtual void operator<<(const XMLNode&);
+
 protected:
   inline matrix impulseDelG(const C2ParticleData&);
   inline matrix impulseDelG(const CNParticleData&);

@@ -32,6 +32,8 @@ COPViscosity::COPViscosity(const DYNAMO::SimData* tmp, const XMLNode& XML):
   CorrelatorLength(100),
   G(100, matrix())
 {
+  operator<<(XML);
+
   matrix zero;
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -49,6 +51,29 @@ COPViscosity::COPViscosity(const DYNAMO::SimData* tmp, const XMLNode& XML):
 	delG[iDim][jDim] = 0.0;
 	constDelG[iDim][jDim] = 0.0;
       }
+}
+
+void 
+COPViscosity::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("Length"))
+	CorrelatorLength = boost::lexical_cast<unsigned int>
+	  (XML.getAttribute("Length"));
+
+      if (XML.isAttributeSet("dt"))
+	dt = Sim->Dynamics.units().unitTime() * 
+	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+      
+      if (XML.isAttributeSet("t"))
+	dt = Sim->Dynamics.units().unitTime() * 
+	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPVACF";
+    }  
 }
 
 void 
