@@ -73,6 +73,7 @@ COPThermalDiffusion::initialise()
   Sim->getOutputPlugin<COPKEnergy>();
   
   accG2.resize(CorrelatorLength, CVector<>(0.0));
+  Gsp1.resize(CorrelatorLength, CVector<>(0.0));
   dt = getdt();
   
   Iflt sysMass = 0.0;

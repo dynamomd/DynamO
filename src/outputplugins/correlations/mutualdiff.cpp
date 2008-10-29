@@ -180,11 +180,13 @@ COPMutualDiffusion::initialise()
   dt = getdt();
   
   Iflt sysMass = 0.0;
+
+  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
+    sysMass += sp.getMass() * sp.getCount();
   
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       sysMom += part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass();
-      sysMass += Sim->Dynamics.getSpecies(part).getMass();
       
       if (Sim->Dynamics.getSpecies()[species1].isSpecies(part))
 	delGsp1 += part.getVelocity();
@@ -196,11 +198,12 @@ COPMutualDiffusion::initialise()
   delGsp1 *= Sim->Dynamics.getSpecies()[species1].getMass();
   delGsp2 *= Sim->Dynamics.getSpecies()[species2].getMass();
   
-  massFracSp1 = Sim->Dynamics.getSpecies()[species1].getCount() 
-    * Sim->Dynamics.getSpecies()[species1].getMass() / sysMass; 
+  massFracSp1 = (Sim->Dynamics.getSpecies()[species1].getCount() 
+		 * Sim->Dynamics.getSpecies()[species1].getMass()) 
+    / sysMass; 
 
-  massFracSp2 = Sim->Dynamics.getSpecies()[species2].getCount() 
-    * Sim->Dynamics.getSpecies()[species2].getMass() / sysMass;
+  massFracSp2 = (Sim->Dynamics.getSpecies()[species2].getCount() 
+		 * Sim->Dynamics.getSpecies()[species2].getMass()) / sysMass;
 
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
