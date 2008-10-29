@@ -176,6 +176,7 @@ COPMutualDiffusion::initialise()
   Sim->getOutputPlugin<COPMisc>();
   
   accG.resize(CorrelatorLength, CVector<> (0.0));
+  G.resize(CorrelatorLength, CVector<>(0.0));
   dt = getdt();
   
   Iflt sysMass = 0.0;
