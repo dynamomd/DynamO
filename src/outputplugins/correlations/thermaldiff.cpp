@@ -93,7 +93,8 @@ COPThermalDiffusion::initialise()
   
   massFracSp1 = species1->getCount() * species1->getMass() / sysMass; 
 
-  I_cout() << "dt set to " << dt;
+  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  //  I_cout() << "dt set to " << dt;
 }
 
 inline void 

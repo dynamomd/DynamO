@@ -43,7 +43,7 @@ COPVACF::initialise()
   BOOST_FOREACH(std::vector<CVector<> >& listref, accG2)
     listref.resize(CorrelatorLength, CVector<>(0.0));
 
-  I_cout() << "dt set to " << dt;
+  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
 void 

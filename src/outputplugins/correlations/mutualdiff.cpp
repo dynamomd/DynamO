@@ -53,7 +53,7 @@ COPMutualDiffusion::operator<<(const XMLNode& XML)
 
 	if (XML.isAttributeSet("t"))
 	  dt = Sim->Dynamics.units().unitTime() * 
-	    boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+	    boost::lexical_cast<Iflt>(XML.getAttribute("t")) / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -202,7 +202,7 @@ COPMutualDiffusion::initialise()
   massFracSp2 = Sim->Dynamics.getSpecies()[species2].getCount() 
     * Sim->Dynamics.getSpecies()[species2].getMass() / sysMass;
 
-  I_cout() << "dt set to " << dt;
+  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
 std::list<CVector<> > 

@@ -97,7 +97,7 @@ COPViscosity::initialise()
 	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
 	  * Sim->Dynamics.getSpecies(part).getMass();
 
-  I_cout() << "dt set to " << dt;
+  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
 void 
