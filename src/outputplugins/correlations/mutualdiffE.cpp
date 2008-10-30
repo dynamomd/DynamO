@@ -124,28 +124,32 @@ COPMutualDiffusionE::stream(const Iflt edt)
 }
 
 void 
-COPMutualDiffusionE::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+COPMutualDiffusionE::eventUpdate(const CGlobEvent& iEvent,
+				 const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 void 
-COPMutualDiffusionE::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+COPMutualDiffusionE::eventUpdate(const CLocalEvent& iEvent, 
+				 const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 void 
-COPMutualDiffusionE::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+COPMutualDiffusionE::eventUpdate(const CSystem&, const CNParticleData& PDat,
+				 const Iflt& edt) 
 { 
   stream(edt);
   updateDelG(PDat);
 }
 
 void 
-COPMutualDiffusionE::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+COPMutualDiffusionE::eventUpdate(const CIntEvent& iEvent, 
+				 const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
@@ -154,7 +158,7 @@ COPMutualDiffusionE::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& 
 Iflt 
 COPMutualDiffusionE::rescaleFactor()
 {
-  return 1.0 / (Sim->Dynamics.units().unitTime()
+  return 0.5 / (Sim->Dynamics.units().unitTime()
 		* Sim->Dynamics.units().unitMutualDiffusion()
 		* count * Sim->Dynamics.units().simVolume()
 		* Sim->getOutputPlugin<COPKEnergy>()->getAvgkT());
