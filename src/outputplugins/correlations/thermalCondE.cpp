@@ -15,21 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "thermalCond.hpp"
+#include "thermalCondE.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include "../../base/is_ensemble.hpp"
 
-COPThermalCon::COPThermalCon(const DYNAMO::SimData* tmp, const XMLNode& XML):
+COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPCorrelator<CVector<> >(tmp,"ThermalConductivity", XML)
 {
   
 }
 
 void 
-COPThermalCon::initialise()
+COPThermalConductivityE::initialise()
 {
   COPCorrelator<CVector<> >::initialise();
   Sim->getOutputPlugin<COPKEnergy>();
@@ -54,7 +54,7 @@ COPThermalCon::initialise()
 }
 
 Iflt 
-COPThermalCon::rescaleFactor() 
+COPThermalConductivityE::rescaleFactor() 
 { 
   return Sim->Dynamics.units().unitk()
     / (Sim->Dynamics.units().unitTime() //This line should be 1 however we have scaled the correlator time as well
@@ -64,7 +64,7 @@ COPThermalCon::rescaleFactor()
 }
 
 inline void 
-COPThermalCon::output(xmlw::XmlStream &XML)
+COPThermalConductivityE::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
@@ -94,13 +94,13 @@ COPThermalCon::output(xmlw::XmlStream &XML)
 }
 
 inline CVector<> 
-COPThermalCon::impulseDelG(const C2ParticleData& PDat)
+COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaeCalc();
 }
 
 void 
-COPThermalCon::updateConstDelG(const C2ParticleData& PDat)
+COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
 {
   Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.particle1_.getParticle());
   Iflt p2E = Sim->Dynamics.getParticleEnergy(PDat.particle2_.getParticle());

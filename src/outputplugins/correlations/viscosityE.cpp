@@ -15,14 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "viscosity.hpp"
+#include "viscosityE.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../0partproperty/misc.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPViscosity::COPViscosity(const DYNAMO::SimData* tmp, const XMLNode& XML):
+COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COutputPlugin(tmp,"Viscosity", 60),
   count(0),
   dt(0),
@@ -54,7 +54,7 @@ COPViscosity::COPViscosity(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPViscosity::operator<<(const XMLNode& XML)
+COPViscosityE::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -77,7 +77,7 @@ COPViscosity::operator<<(const XMLNode& XML)
 }
 
 void 
-COPViscosity::initialise()
+COPViscosityE::initialise()
 {
   Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
@@ -101,7 +101,7 @@ COPViscosity::initialise()
 }
 
 void 
-COPViscosity::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+COPViscosityE::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
 
@@ -115,7 +115,7 @@ COPViscosity::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
-COPViscosity::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+COPViscosityE::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
 
@@ -129,7 +129,7 @@ COPViscosity::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat)
 }
   
 void 
-COPViscosity::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+COPViscosityE::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
 { 
   stream(edt);
 
@@ -143,7 +143,7 @@ COPViscosity::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt
 }
   
 void 
-COPViscosity::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+COPViscosityE::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
 
@@ -157,7 +157,7 @@ COPViscosity::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 }
 
 void 
-COPViscosity::stream(const Iflt& edt)
+COPViscosityE::stream(const Iflt& edt)
 {
   //Move the time forward
   //currentdt += edt;
@@ -201,7 +201,7 @@ COPViscosity::stream(const Iflt& edt)
 }
 
 void 
-COPViscosity::newG(const matrix& Gval)
+COPViscosityE::newG(const matrix& Gval)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -221,8 +221,8 @@ COPViscosity::newG(const matrix& Gval)
 }
 
 
-COPViscosity::matrix
-COPViscosity::impulseDelG(const C2ParticleData& colldat)
+COPViscosityE::matrix
+COPViscosityE::impulseDelG(const C2ParticleData& colldat)
 {
   matrix retval;
   
@@ -233,8 +233,8 @@ COPViscosity::impulseDelG(const C2ParticleData& colldat)
   return retval;
 }
 
-COPViscosity::matrix
-COPViscosity::impulseDelG(const CNParticleData& ndat) 
+COPViscosityE::matrix
+COPViscosityE::impulseDelG(const CNParticleData& ndat) 
 { 
   matrix acc;
   
@@ -255,7 +255,7 @@ COPViscosity::impulseDelG(const CNParticleData& ndat)
 }
 
 inline void 
-COPViscosity::output(xmlw::XmlStream &XML)
+COPViscosityE::output(xmlw::XmlStream &XML)
 {
   Iflt rescaleFactor = 1.0
     / (Sim->Dynamics.units().unitTime() 
@@ -347,7 +347,7 @@ COPViscosity::output(xmlw::XmlStream &XML)
 }
 
 void 
-COPViscosity::updateConstDelG(const C2ParticleData& PDat)
+COPViscosityE::updateConstDelG(const C2ParticleData& PDat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -365,7 +365,7 @@ COPViscosity::updateConstDelG(const C2ParticleData& PDat)
 }
 
 void 
-COPViscosity::updateConstDelG(const C1ParticleData& PDat)
+COPViscosityE::updateConstDelG(const C1ParticleData& PDat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -377,7 +377,7 @@ COPViscosity::updateConstDelG(const C1ParticleData& PDat)
 }
 
 void 
-COPViscosity::updateConstDelG(const CNParticleData& ndat)
+COPViscosityE::updateConstDelG(const CNParticleData& ndat)
 {
   BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
     updateConstDelG(dat);
@@ -387,7 +387,7 @@ COPViscosity::updateConstDelG(const CNParticleData& ndat)
 }
 
 void 
-COPViscosity::accPass()
+COPViscosityE::accPass()
 {
   ++count;
   matrix sum;

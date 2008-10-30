@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "thermaldiff.hpp"
+#include "thermaldiffE.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
 
-COPThermalDiffusion::COPThermalDiffusion(const DYNAMO::SimData* tmp,
+COPThermalDiffusionE::COPThermalDiffusionE(const DYNAMO::SimData* tmp,
 					 const XMLNode& XML):
   COPCorrelator<CVector<> >(tmp,"ThermalDiffusion", XML),
   constDelGsp1(0.0),
   delGsp1(0.0),
-  species1(NULL),
+  species1(0),
   sysMom(0.0),
   massFracSp1(1)
 {
@@ -34,13 +34,14 @@ COPThermalDiffusion::COPThermalDiffusion(const DYNAMO::SimData* tmp,
 }
 
 void 
-COPThermalDiffusion::operator<<(const XMLNode& XML)
+COPThermalDiffusionE::operator<<(const XMLNode& XML)
 {
   try 
     {
       try {
-	species1 = &Sim->Dynamics.getSpecies
-	  (boost::lexical_cast<std::string>(XML.getAttribute("Species")));
+	species1 = Sim->Dynamics.getSpecies
+	  (boost::lexical_cast<std::string>(XML.getAttribute("Species")))
+	  .getID();
 	
 	COPCorrelator<CVector<> >::operator<<(XML);
 
@@ -57,7 +58,7 @@ COPThermalDiffusion::operator<<(const XMLNode& XML)
 }
 
 void 
-COPThermalDiffusion::initialise()
+COPThermalDiffusionE::initialise()
 {
   try {
     dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
@@ -77,29 +78,29 @@ COPThermalDiffusion::initialise()
   dt = getdt();
   
   Iflt sysMass = 0.0;
+  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
+    sysMass += sp.getMass() * sp.getCount();
 
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       constDelG += part.getVelocity () * Sim->Dynamics.getParticleEnergy(part);
-      
       sysMom += part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass();
-      sysMass += Sim->Dynamics.getSpecies(part).getMass();
       
-      if (species1->isSpecies(part))
-	constDelGsp1 += part.getVelocity();      
+      if (Sim->Dynamics.getSpecies(part).getID() == species1)
+	constDelGsp1 += part.getVelocity();
     }
 
-  constDelGsp1 *= species1->getMass();
+  constDelGsp1 *= Sim->Dynamics.getSpecies()[species1].getMass();
   
-  massFracSp1 = species1->getCount() * species1->getMass() / sysMass; 
+  massFracSp1 = Sim->Dynamics.getSpecies()[species1].getCount() 
+    * Sim->Dynamics.getSpecies()[species1].getMass() / sysMass;
 
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
-  //  I_cout() << "dt set to " << dt;
 }
 
 inline void 
-COPThermalDiffusion::output(xmlw::XmlStream &XML)
+COPThermalDiffusionE::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
@@ -129,7 +130,7 @@ COPThermalDiffusion::output(xmlw::XmlStream &XML)
 }
 
 Iflt 
-COPThermalDiffusion::rescaleFactor() 
+COPThermalDiffusionE::rescaleFactor() 
 { 
   return 1.0
     / (Sim->Dynamics.units().unitTime() //This line should be 1 however we have scaled the correlator time as well
@@ -139,7 +140,7 @@ COPThermalDiffusion::rescaleFactor()
 }
 
 void 
-COPThermalDiffusion::stream(const Iflt edt)
+COPThermalDiffusionE::stream(const Iflt edt)
 {      
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
@@ -170,7 +171,7 @@ COPThermalDiffusion::stream(const Iflt edt)
 }
 
 void 
-COPThermalDiffusion::newG()
+COPThermalDiffusionE::newG()
 {
     //This ensures the list stays at accumilator size
   G.push_front (delG);
@@ -188,7 +189,7 @@ COPThermalDiffusion::newG()
 }
 
 void 
-COPThermalDiffusion::accPass()
+COPThermalDiffusionE::accPass()
 {
   ++count;
   CVector<> sum(0), sumsp1(0);
@@ -202,20 +203,20 @@ COPThermalDiffusion::accPass()
 }
 
 inline CVector<> 
-COPThermalDiffusion::impulseDelG(const C2ParticleData& PDat)
+COPThermalDiffusionE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaeCalc();
 }
 
 void 
-COPThermalDiffusion::updateConstDelG(const C2ParticleData& PDat)
+COPThermalDiffusionE::updateConstDelG(const C2ParticleData& PDat)
 {
   updateConstDelG(PDat.particle1_);
   updateConstDelG(PDat.particle2_);
 }
 
 void 
-COPThermalDiffusion::updateConstDelG(const C1ParticleData& PDat) 
+COPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat) 
 {
   Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.getParticle());
   
@@ -224,6 +225,6 @@ COPThermalDiffusion::updateConstDelG(const C1ParticleData& PDat)
 
   sysMom += PDat.getDeltaP();
   
-  if (species1->isSpecies(PDat.getParticle()))
+  if (PDat.getSpecies().getID() == species1)
     constDelGsp1 += PDat.getDeltaP();
 }

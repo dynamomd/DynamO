@@ -15,23 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPTHERMALCOND_H
-#define COPTHERMALCOND_H
+#ifndef COPThermalConductivityE_H
+#define COPThermalConductivityE_H
 
 #include "correlator.hpp"
 #include "../../datatypes/vector.hpp"
 
 /*! \brief The Correlator class for the Thermal Conductivity.*/
-class COPThermalCon: public COPCorrelator<CVector<> >
+class COPThermalConductivityE: public COPCorrelator<CVector<> >
 {
 public:
-  COPThermalCon(const DYNAMO::SimData*, const XMLNode&);
+  COPThermalConductivityE(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual COutputPlugin* Clone() const { return new COPThermalCon(*this); }
+  virtual COutputPlugin* Clone() const { return new COPThermalConductivityE(*this); }
   
 protected:
   virtual Iflt rescaleFactor();

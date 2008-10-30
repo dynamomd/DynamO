@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "vacf.hpp"
-#include "viscosity.hpp"
-#include "thermalCond.hpp"
-#include "mutualdiff.hpp"
-#include "thermaldiff.hpp"
+#include "viscosityE.hpp"
+#include "thermalCondE.hpp"
+#include "mutualdiffGK.hpp"
+#include "thermaldiffE.hpp"

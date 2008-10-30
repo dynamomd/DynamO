@@ -15,25 +15,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPThermalDiffusion_H
-#define COPThermalDiffusion_H
+#ifndef COPThermalDiffusionE_H
+#define COPThermalDiffusionE_H
 
 #include "correlator.hpp"
 #include "../../datatypes/vector.hpp"
 
 
 /*! \brief The Correlator class for the Thermal Conductivity.*/
-class COPThermalDiffusion: public COPCorrelator<CVector<> >
+class COPThermalDiffusionE: public COPCorrelator<CVector<> >
 {
 public:
-  COPThermalDiffusion(const DYNAMO::SimData*, const XMLNode&);
+  COPThermalDiffusionE(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream&);
 
   virtual COutputPlugin* Clone() const 
-  { return new COPThermalDiffusion(*this); }
+  { return new COPThermalDiffusionE(*this); }
 
   void operator<<(const XMLNode&);
   
@@ -56,7 +56,7 @@ protected:
   CVector<> constDelGsp1;
   CVector<> delGsp1;
   
-  const CSpecies* species1;
+  size_t species1;
   
   CVector<> sysMom;
 

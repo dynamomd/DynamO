@@ -163,14 +163,14 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPReverseEventsCheck>(Sim, XML);
   else if (!Name.compare("VACF"))
     return testGeneratePlugin<COPVACF>(Sim,XML);
-  else if (!Name.compare("Viscosity"))
-    return testGeneratePlugin<COPViscosity>(Sim, XML);
-  else if (!Name.compare("ThermalConductivity"))
-    return testGeneratePlugin<COPThermalCon>(Sim, XML);
-  else if (!Name.compare("MutualDiffusion"))
-    return testGeneratePlugin<COPMutualDiffusion>(Sim, XML);
-  else if (!Name.compare("ThermalDiffusion"))
-    return testGeneratePlugin<COPThermalDiffusion>(Sim, XML);
+  else if (!Name.compare("ViscosityE"))
+    return testGeneratePlugin<COPViscosityE>(Sim, XML);
+  else if (!Name.compare("ThermalConductivityE"))
+    return testGeneratePlugin<COPThermalConductivityE>(Sim, XML);
+  else if (!Name.compare("MutualDiffusionGK"))
+    return testGeneratePlugin<COPMutualDiffusionGK>(Sim, XML);
+  else if (!Name.compare("ThermalDiffusionE"))
+    return testGeneratePlugin<COPThermalDiffusionE>(Sim, XML);
   else if (!Name.compare("MFL"))
     return testGeneratePlugin<COPMFL>(Sim, XML);
   else if (!Name.compare("MFT"))
