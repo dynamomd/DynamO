@@ -23,7 +23,7 @@
 
 COPThermalDiffusionE::COPThermalDiffusionE(const DYNAMO::SimData* tmp,
 					 const XMLNode& XML):
-  COPCorrelator<CVector<> >(tmp,"ThermalDiffusion", XML),
+  COPCorrelator<CVector<> >(tmp,"ThermalDiffusionE", XML),
   constDelGsp1(0.0),
   delGsp1(0.0),
   species1(0),

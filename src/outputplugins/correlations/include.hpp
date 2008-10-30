@@ -18,4 +18,5 @@
 #include "viscosityE.hpp"
 #include "thermalCondE.hpp"
 #include "mutualdiffGK.hpp"
+#include "mutualdiffE.hpp"
 #include "thermaldiffE.hpp"

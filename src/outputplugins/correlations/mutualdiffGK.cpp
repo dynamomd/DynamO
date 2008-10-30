@@ -22,7 +22,7 @@
 #include "../../datatypes/vector.xml.hpp"
 
 COPMutualDiffusionGK::COPMutualDiffusionGK(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COutputPlugin(tmp, "MutualDiffusion", 60), //Note the sort order set later
+  COutputPlugin(tmp, "MutualDiffusionGK", 60), //Note the sort order set later
   count(0),
   dt(0),
   currentdt(0.0),
@@ -86,15 +86,20 @@ COPMutualDiffusionGK::operator<<(const XMLNode& XML)
 void 
 COPMutualDiffusionGK::stream(const Iflt edt)
 {
-  //Move the time forward
-  currentdt += edt;
-  
   //Now test if we've gone over the step time
-  if (currentdt >= dt)
+  if (currentdt + edt >= dt)
     {
-      currentdt -= dt;
       newG();
+      currentdt += edt - dt;
+      
+      while (currentdt >= dt)
+	{
+	  currentdt -= dt;
+	  newG();
+	}
     }
+  else
+    currentdt += edt;    
 }
 
 void 
@@ -157,9 +162,10 @@ COPMutualDiffusionGK::output(xmlw::XmlStream& XML)
       << xmlw::endtag("Integral")
       << xmlw::chardata();
     
+  //GK correlators start at 0
   for (size_t i = 0; i < accG.size(); i++)
     {
-      XML << (i + 1) * dt / Sim->Dynamics.units().unitTime();
+      XML << i * dt / Sim->Dynamics.units().unitTime();
       for (size_t j = 0; j < NDIM; j++)
 	XML << "\t" << accG[i][j] * factor;
       XML << "\n";

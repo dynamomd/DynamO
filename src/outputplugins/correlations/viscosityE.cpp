@@ -23,7 +23,7 @@
 #include "../../datatypes/vector.xml.hpp"
 
 COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COutputPlugin(tmp,"Viscosity", 60),
+  COutputPlugin(tmp,"ViscosityE", 60),
   count(0),
   dt(0),
   currentdt(0.0),

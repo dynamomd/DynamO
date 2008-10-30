@@ -23,7 +23,7 @@
 #include "../../base/is_ensemble.hpp"
 
 COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPCorrelator<CVector<> >(tmp,"ThermalConductivity", XML)
+  COPCorrelator<CVector<> >(tmp,"ThermalConductivityE", XML)
 {
   
 }
