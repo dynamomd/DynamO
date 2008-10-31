@@ -32,27 +32,28 @@
 //Datatype for a single event, stored in lists for each particle
 struct intPart
 {
-  inline intPart(Iflt ndt, int direction) throw():
+  inline intPart(const Iflt& ndt, const unsigned long long& direction) throw():
     dt(ndt),
     p2(0),
     type(CELL),
     collCounter2(direction)
   {}
   
-  /*inline intPart(Iflt ndt, EEventType nT, const CParticle& nID2, unsigned long long nCC2) throw():
+  inline intPart(const Iflt& ndt, const EEventType& nT, 
+		 const size_t& nID2, const unsigned long long& nCC2) throw():
     dt(ndt),
-    p2(nID2.getID()),
+    p2(nID2),
     type(nT),
     collCounter2(nCC2)
-    {}*/
+    {}
 
-  inline intPart(Iflt ndt, EEventType nT) throw():
+  inline intPart(const Iflt& ndt, const EEventType& nT) throw():
     dt(ndt),
     p2(0),
     type(nT)
   {}
 
-  inline intPart(const CIntEvent& coll, unsigned long long nCC2) throw():
+  inline intPart(const CIntEvent& coll, const unsigned long long& nCC2) throw():
     dt(coll.getdt()),
     p2(coll.getParticle2().getID()),
     type(INTERACTION),
@@ -83,7 +84,7 @@ struct intPart
   inline bool operator> (const intPart& ip) const throw()
   { return dt > ip.dt; }
 
-  inline void stream(Iflt ndt) throw() { dt -= ndt; }
+  inline void stream(const Iflt& ndt) throw() { dt -= ndt; }
 
   mutable Iflt dt;
   size_t p2;
