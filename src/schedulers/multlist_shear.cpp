@@ -189,5 +189,4 @@ CSMultListShear::cellEvent(const CParticle& part) const
   
   //This is slower! as I haven't used the normal updates for other
   //times, however, I just want this to work!
-  return;
 }
