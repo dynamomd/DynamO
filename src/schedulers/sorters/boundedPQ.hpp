@@ -23,8 +23,9 @@
 #include <iostream>
 #include "../../base/is_exception.hpp"
 #include "datastruct.hpp"
+#include "sorter.hpp"
 
-class CSSBoundedPQ
+class CSSBoundedPQ: public CSSorter
 {
 private:
   //Bounded priority queue variables and types
@@ -88,7 +89,7 @@ public:
     return tmpVec;
   }
 
-  void resize(size_t a)
+  void resize(const size_t& a)
   {
     clear();
     N = a;
@@ -193,7 +194,7 @@ public:
     orderNextEvent();
   }
 
-  inline void push(const intPart& tmpVal, const int& pID)
+  inline void push(const intPart& tmpVal, const size_t& pID)
   {
     tmpVal.dt += pecTime;
     Min[pID + 1].data.push(tmpVal);
@@ -225,14 +226,14 @@ public:
     return Min[a+1].data; 
   }
 
-  inline int next_ID() const { return CBT[1] - 1; }
+  inline size_t next_ID() const { return CBT[1] - 1; }
   inline pList& next_Data() { return Min[CBT[1]].data; }
   inline const pList& next_Data() const { return Min[CBT[1]].data; }
   inline Iflt next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
   inline void sort() { orderNextEvent(); }
 
-  inline void rescaleTimes(Iflt factor)
+  inline void rescaleTimes(const Iflt& factor)
   {
     BOOST_FOREACH(eventQEntry& dat, Min)
       dat.data.rescaleTimes(factor);
@@ -245,6 +246,7 @@ public:
   }
 
 private:
+  virtual CSSorter* Clone() const { return new CSSBoundedPQ(*this); };
   ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
   inline void insertInEventQ(int p)
   {

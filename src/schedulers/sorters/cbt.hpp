@@ -21,8 +21,9 @@
 #include <cmath>
 #include "../../base/is_exception.hpp"
 #include "datastruct.hpp"
+#include "sorter.hpp"
 
-class CSSCBT
+class CSSCBT: public CSSorter
 {
 private:
   std::vector<unsigned long> CBT;
