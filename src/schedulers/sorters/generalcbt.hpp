@@ -31,13 +31,6 @@ private:
   unsigned long NP, N;
 
 public:  
-  typedef typename std::vector<data>::iterator iterator;
-  typedef typename std::vector<data>::const_iterator const_iterator;
-
-  inline iterator begin() { return Min.begin(); }
-  inline const_iterator begin() const { return Min.begin(); }
-  inline iterator end() { return Min.end(); }
-  inline const_iterator end() const { return Min.end(); }
   inline size_t size() const { return Min.size(); }
   inline bool empty() const { return Min.empty(); }
 

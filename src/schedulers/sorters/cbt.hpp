@@ -36,7 +36,6 @@ public:
   typedef std::vector<pList>::iterator iterator;
   typedef std::vector<pList>::const_iterator const_iterator;
 
-
   inline iterator begin() { return Min.begin(); }
   inline const_iterator begin() const { return Min.begin(); }
   inline iterator end() { return Min.end(); }

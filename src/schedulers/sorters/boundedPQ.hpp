@@ -17,6 +17,7 @@
 
 #ifndef CSSBoundedPQ_H
 #define CSSBoundedPQ_H
+
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -55,9 +56,6 @@ public:
   ~CSSBoundedPQ() 
   { std::cout << "\nBPQ: Exception Events = " << exceptionCount << "\n"; }
   
-  typedef std::vector<pList>::iterator iterator;
-  typedef std::vector<pList>::const_iterator const_iterator;
-
   inline size_t size() const { return Min.size() - 1; }
   inline bool empty() const { return Min.empty(); }
 
