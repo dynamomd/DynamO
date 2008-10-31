@@ -1,0 +1,146 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "radialdist.hpp"
+#include <boost/foreach.hpp>
+#include "../../dynamics/include.hpp"
+#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include "../../extcode/mathtemplates.hpp"
+
+COPRadialDistribution::COPRadialDistribution(const DYNAMO::SimData* tmp, 
+		       const XMLNode& XML):
+  COPTicker(tmp,"RadialDistribution"),
+  binWidth(1.0),
+  length(100),
+  sampleCount(0)
+{ 
+  if (NDIM != 3)
+    D_throw() << "This plugin will not work as I've not correctly calculated "
+      "the volume of a shell";
+  operator<<(XML); 
+}
+
+void 
+COPRadialDistribution::operator<<(const XMLNode& XML)
+{
+  try {
+    if (XML.isAttributeSet("binWidth"))
+      binWidth = boost::lexical_cast<Iflt>(XML.getAttribute("binWidth")) 
+	* Sim->Dynamics.units().unitLength();
+    else
+      binWidth = 0.1 * Sim->Dynamics.units().unitLength();
+
+    if (XML.isAttributeSet("length"))
+      length = boost::lexical_cast<size_t>(XML.getAttribute("length"));
+    else
+      {
+	size_t mindir = 0;
+	for (size_t iDim = 1; iDim < NDIM; ++iDim)
+	  if (Sim->aspectRatio[iDim] > Sim->aspectRatio[mindir])
+	    mindir = iDim;
+	
+	//Times 2 as the max dist is half a box length
+	//+2 for rounding truncation and for a zero bin       
+	length = 2 
+	  + static_cast<size_t>(Sim->aspectRatio[mindir] / (2 * binWidth));
+      }
+
+    I_cout() << "Binwidth = " << binWidth / Sim->Dynamics.units().unitLength()
+	     << "\nLength = " << length;
+  }
+  catch (std::exception& excep)
+    {
+      D_throw() << "Error while parsing " << name << "options\n"
+		<< excep.what();
+    }
+}
+
+void 
+COPRadialDistribution::initialise()
+{
+  data.resize
+    (Sim->Dynamics.getSpecies().size(),
+     std::vector<std::vector<unsigned long> >
+     (Sim->Dynamics.getSpecies().size(),
+      std::vector<unsigned long>(length, 0))
+     );
+}
+
+void 
+COPRadialDistribution::ticker()
+{
+  ++sampleCount;
+  
+  Sim->Dynamics.Liouvillean().updateAllParticles();
+  BOOST_FOREACH(const CSpecies& sp1, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const CSpecies& sp2, Sim->Dynamics.getSpecies())
+    { BOOST_FOREACH(const size_t& p1, *sp1.getRange())
+	BOOST_FOREACH(const size_t& p2, *sp1.getRange())
+	{
+	  CVector<> rij = Sim->vParticleList[p1].getPosition()
+	    - Sim->vParticleList[p2].getPosition();
+
+	  Sim->Dynamics.BCs().setPBC(rij);
+
+	  size_t i = (long) (((rij.length())/binWidth) + 0.5);
+
+	  if (i < length)
+	      ++data[sp1.getID()][sp2.getID()][i];
+	}}
+}
+
+void
+COPRadialDistribution::output(xmlw::XmlStream& XML)
+{
+  XML << xmlw::tag("RadialDistribution")
+      << xmlw::attr("SampleCount")
+      << sampleCount;
+
+  
+  BOOST_FOREACH(const CSpecies& sp1, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const CSpecies& sp2, Sim->Dynamics.getSpecies())
+    {
+      Iflt density = sp2.getCount() / Sim->Dynamics.units().simVolume();
+
+      unsigned long originsTaken 
+	= sampleCount * sp2.getCount();
+
+      XML << xmlw::tag("Species")
+	  << xmlw::attr("Name1")
+	  << sp1.getName()
+      	  << xmlw::attr("Name2")
+	  << sp2.getName()
+	  << xmlw::chardata();
+      
+      for (size_t i = 0; i < length; ++i)
+	{
+	  Iflt radius = binWidth * i;
+	  Iflt volshell = (4.0 * PI * binWidth * radius * radius) +
+	    ((PI * binWidth * binWidth * binWidth) / 3.0);
+	  Iflt GR = static_cast<Iflt>(data[sp1.getID()][sp2.getID()][i])
+	    / (density * originsTaken * volshell);
+
+	  XML << radius / Sim->Dynamics.units().unitLength() << " " 
+	      << GR << "\n";
+	}
+
+
+      XML << xmlw::endtag("Species");
+    }
+  
+  XML << xmlw::endtag("RadialDistribution");
+}

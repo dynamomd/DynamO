@@ -15,15 +15,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
+#pragma once
+
+#include "ticker.hpp"
+#include "../../datatypes/histogram.hpp"
+
+class COPRadialDistribution: public COPTicker
+{
+ public:
+  COPRadialDistribution(const DYNAMO::SimData*, const XMLNode&);
+
+  virtual COutputPlugin *Clone() const
+  { return new COPRadialDistribution(*this); }
+
+  virtual void initialise();
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+  
+  virtual void output(xmlw::XmlStream&);
+
+  void operator<<(const XMLNode&);
+
+ protected:
+  Iflt binWidth;
+  size_t length;
+  unsigned long sampleCount;  
+  std::vector<std::vector<std::vector<unsigned long> > > data;
+};
