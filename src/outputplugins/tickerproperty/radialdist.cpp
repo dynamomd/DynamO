@@ -145,4 +145,11 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
     }
   
   XML << xmlw::endtag("RadialDistribution");
+
+  I_cout() << "Be warned, if a bin spans a hard core "
+    "\n(E.g a bin width of 0.1 will span an interaction diameter of 1 at bin"
+    "\n number 10 [bin r=(10 +- 0.5)*binwidth])"
+    "\nYou will find a reduced value of g(r) there. You must renormalise by"
+    "\nthe difference in the shell volumes, for the previous case it is just"
+    "\ngr=gr*2, then correct the bin centre by r=r+0.5*binWidth.";
 }
