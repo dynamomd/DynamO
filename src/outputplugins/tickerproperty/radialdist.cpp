@@ -89,7 +89,7 @@ COPRadialDistribution::ticker()
   BOOST_FOREACH(const CSpecies& sp1, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const CSpecies& sp2, Sim->Dynamics.getSpecies())
     { BOOST_FOREACH(const size_t& p1, *sp1.getRange())
-	BOOST_FOREACH(const size_t& p2, *sp1.getRange())
+	BOOST_FOREACH(const size_t& p2, *sp2.getRange())
 	{
 	  CVector<> rij = Sim->vParticleList[p1].getPosition()
 	    - Sim->vParticleList[p2].getPosition();
@@ -116,8 +116,7 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
     {
       Iflt density = sp2.getCount() / Sim->Dynamics.units().simVolume();
 
-      unsigned long originsTaken 
-	= sampleCount * sp2.getCount();
+      unsigned long originsTaken = sampleCount * sp1.getCount();
 
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name1")
@@ -126,7 +125,10 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
 	  << sp2.getName()
 	  << xmlw::chardata();
       
-      for (size_t i = 0; i < length; ++i)
+
+      //Skip zero as it is wrong due to particle self-self correaltions
+      //when sp1==sp2
+      for (size_t i = 1; i < length; ++i)
 	{
 	  Iflt radius = binWidth * i;
 	  Iflt volshell = (4.0 * PI * binWidth * radius * radius) +
