@@ -19,9 +19,12 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 
-COPCollDistCheck::COPCollDistCheck(const DYNAMO::SimData* t1, const XMLNode&):
-  COutputPlugin(t1,"CollDistCheck")
+COPCollDistCheck::COPCollDistCheck(const DYNAMO::SimData* t1, 
+				   const XMLNode& XML):
+  COutputPlugin(t1,"CollDistCheck"),
+  binwidth(0.01)
 {
+  operator<<(XML);
 }
 
 COPCollDistCheck::~COPCollDistCheck()
@@ -33,6 +36,21 @@ COPCollDistCheck::initialise()
 {}
 
 void 
+COPCollDistCheck::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("binwidth"))
+	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPCorrelator";
+    }
+  
+}
+
+void 
 COPCollDistCheck::eventUpdate(const CIntEvent& eevent, 
 			      const C2ParticleData& PDat)
 {
@@ -40,7 +58,7 @@ COPCollDistCheck::eventUpdate(const CIntEvent& eevent,
 			 eevent.getType());
   
   if (distList.find(locPair) == distList.end())
-    distList[locPair] = C1DHistogram(0.01 * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
  
   distList[locPair].addVal(PDat.rij.length());
 }
@@ -54,7 +72,7 @@ COPCollDistCheck::eventUpdate(const CGlobEvent& gEvent,
   
   if ((!PDat.L2partChanges.empty()) 
       && (distList.find(locPair) == distList.end()))
-    distList[locPair] = C1DHistogram(0.01 * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.length());
@@ -69,7 +87,7 @@ COPCollDistCheck::eventUpdate(const CLocalEvent& lEvent,
   
   if ((!PDat.L2partChanges.empty()) 
       && (distList.find(locPair) == distList.end()))
-    distList[locPair] = C1DHistogram(0.01 * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.length());
@@ -83,7 +101,7 @@ COPCollDistCheck::eventUpdate(const CSystem& sysEvent,
   
   if ((!PDat.L2partChanges.empty())
       && (distList.find(locPair) == distList.end()))
-    distList[locPair] = C1DHistogram(0.01 * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.length());

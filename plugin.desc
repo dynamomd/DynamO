@@ -1,0 +1,38 @@
+"BoundedPQStats",COPBoundedQStats,Instruments the bounded priority queue to test if the parameters are optimal and to compare against the original work of Paul (DOI:10.1016/j.jcp.2006.06.042), No options
+"ChainBondAngles",COPChainBondAngles, For every topology of a type Chain and with a length longer than two this plugin will give the correlation of the bond angle between two bonds seperated by X number of bonds, No options
+"ChainBondLength",COPChainBondLength, For every topology of a type Chventain this returns histograms of the average bond length for each pair/bond along the chain., binwidth sets the width of the bins of the bond angle histograms.
+"CollDistCheck",COPCollDistCheck, This is an error checking plugin. It histograms the distance that a pair interaction occurs at for each class and type of event. They should technically be all in one bin should the scheduler be deleting invalid events., binwidth sets how fine the histograms are in units of length with a default of 0.01
+"CollEnergyChange",COPCollEnergyChange, This histograms the average energy change on collision for each species. Only useful in granular systems/in thermostatted systems etc where an energy change occurs., binWidth sets the width of the energy histogram bins in reduced units, default is 0.001.
+"CollisionCorrelators",COPCollisionCorrelator, This marks the probability of a ring event occuring. Ring events are where a pair recollides again after a given number of events for one of the particles involved., length sets how long in collisions to track for each particle.
+"CollisionMatrix",COPCollMatrix, Complete mean flight time and mean free time of every type and class of event between all other type and class of events. Gives the correct mean time between collisions too as it ignores each particles first event, No options
+"ContactMap", COPCContactMap, For each chain topology this checks every monomer to see if they are "captured" in their interaction - if the interaction derives from the CICapture type. This prints a capture map or a contact map if the wells define contact regions on output., No options
+"EstTime",COPETA, A simple plugin that estimates the number of seconds till the run is complete. Only usefull if a maximum number of collisions has been specified and there is no irregular per collision load., No options
+"Geomview",COPGeomview, A class that renders the system to a file called geomview.frameXXXXX.list for the geomview program to load. XXXXXX marks the frame number and is limited to 1000 frames., No options
+"IntEnergyHist",COPIntEnergyHist, This histograms the system internal energy as a whole. This plugin gives the exact internal energy histogram over the simulation run and has no binwidth as it assumes the smallest energy step is 1., No options.
+"KEnergy",COPKEnergy, This tracks the kinetic energy of the system in each dimension including the power loss/gain per unit time., No options
+"MFL",COPMFL, Collects histograms on the mean free length of each species of particle, binwidth is the length of a single bin.
+"MFT",COPMFT,
+"MSD",COPMSD,
+"Misc",COPMisc,
+"Momentum",COPMomentum,
+"MutualDiffusionE",COPMutualDiffusionE,
+"MutualDiffusionGK",COPMutualDiffusionGK,
+"OverlapTester",COPOverlapTest,
+"PackingFraction",COPPackingFraction,
+"PeriodicMSD",COPPeriodicMSD,
+"Povray",COPPovray,
+"QMGA",COPQMGA,
+"RadialDistribution",COPRadialDistribution,
+"RadiusGyration",COPRGyration,
+"RdotV",COPRdotV,
+"ReplexTrace",COPReplexTrace,
+"ReverseEventsCheck",COPReverseEventsCheck,
+"ThermalConductivityE",COPThermalConductivityE,
+"ThermalDiffusionE",COPThermalDiffusionE,
+"TinkerXYZ",COPTinkerXYZ,
+"Torsion",COPCTorsion,
+"UEnergy",COPUEnergy,
+"VACF",COPVACF,
+"VTK",COPVTK,
+"VelDist",COPVelDist,
+"ViscosityE",COPViscosityE,

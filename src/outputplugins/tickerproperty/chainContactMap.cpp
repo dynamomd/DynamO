@@ -46,7 +46,8 @@ COPCContactMap::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), plugPtr->getMolecules().front()->size()));
+      chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
+			     plugPtr->getMolecules().front()->size()));
 }
 
 void 

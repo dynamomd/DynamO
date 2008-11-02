@@ -39,11 +39,15 @@ class COPMFL: public COP1PP
 
   virtual COutputPlugin *Clone() const { return new COPMFL(*this); }
 
+  virtual void operator<<(const XMLNode&);
+
  protected:
 
   std::vector<Iflt> lastTime;
 
   std::vector<C1DHistogram> data;
+
+  Iflt binwidth;
 };
 
 #endif

@@ -29,17 +29,35 @@
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/interactions/captures.hpp"
 
-COPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL):
+COPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, Iflt bw):
   chainID(ID)
 {
-  BondCorrelations.resize(CL-2, C1DHistogram(0.0001));
+  BondCorrelations.resize(CL-2, C1DHistogram(bw));
   BondCorrelationsAvg.resize(CL-2, 0);
   BondCorrelationsSamples.resize(CL-2, 0);
 }
 
-COPChainBondAngles::COPChainBondAngles(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"ChainBondAngles")
-{}
+COPChainBondAngles::COPChainBondAngles(const DYNAMO::SimData* tmp, 
+				       const XMLNode& XML):
+  COPTicker(tmp,"ChainBondAngles"),
+  binwidth(0.0001)
+{
+  operator<<(XML);
+}
+
+void 
+COPChainBondAngles::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("binwidth"))
+	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPChainBondAngles";
+    }
+}
 
 void 
 COPChainBondAngles::initialise()
@@ -48,7 +66,8 @@ COPChainBondAngles::initialise()
 		Sim->Dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(plugPtr->getID(), 
-			     plugPtr->getMolecules().front()->size()));
+			     plugPtr->getMolecules().front()->size(),
+			     binwidth));
 }
 
 void 

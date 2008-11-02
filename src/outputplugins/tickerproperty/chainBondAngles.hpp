@@ -41,12 +41,14 @@ class COPChainBondAngles: public COPTicker
   void temperatureRescale(const double&) {}
 
   virtual void output(xmlw::XmlStream&);
+
+  virtual void operator<<(const XMLNode&);
   
  protected:
 
   struct Cdata
   {
-    Cdata(size_t chainID, size_t CL);
+    Cdata(size_t, size_t, Iflt);
     const size_t chainID;
     std::vector<C1DHistogram> BondCorrelations;
     std::vector<Iflt> BondCorrelationsAvg;
@@ -54,7 +56,7 @@ class COPChainBondAngles: public COPTicker
   };
 
   std::list<Cdata> chains;
-
+  Iflt binwidth;
 };
 
 #endif

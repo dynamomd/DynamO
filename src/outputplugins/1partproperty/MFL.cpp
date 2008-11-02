@@ -23,15 +23,32 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPMFL::COPMFL(const DYNAMO::SimData* tmp, const XMLNode&):
-  COP1PP(tmp,"MeanFreeLength", 250)
-{}
+COPMFL::COPMFL(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  COP1PP(tmp,"MeanFreeLength", 250),
+  binwidth(0.01)
+{
+  operator<<(XML);
+}
+
+void 
+COPMFL::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("binwidth"))
+	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));      
+      }
+  catch (boost::bad_lexical_cast&)
+      {
+	D_throw() << "Failed a lexical cast in COPMFL";
+      }
+}
 
 void
 COPMFL::initialise()
 {
   lastTime.resize(Sim->lN, 0.0);
-  data.resize(Sim->Dynamics.getSpecies().size(), C1DHistogram(Sim->Dynamics.units().unitLength() * 0.01));
+  data.resize(Sim->Dynamics.getSpecies().size(), C1DHistogram(Sim->Dynamics.units().unitLength() * binwidth));
 }
 
 void 

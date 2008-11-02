@@ -48,11 +48,15 @@ public:
 
   virtual void output(xmlw::XmlStream&);
 
+  virtual void operator<<(const XMLNode&);
+
 private:
 
   typedef std::pair<classKey, EEventType> eventKey;
   
   std::map<eventKey, C1DHistogram> distList;
+  
+  Iflt binwidth;
 };
 
 #endif
