@@ -22,6 +22,7 @@
 
 #include <utility>
 #include <string>
+#include "../dynamics/eventtypes.hpp"
 
 namespace DYNAMO
 {
@@ -34,16 +35,9 @@ class CSystem;
 class CLocalEvent;
 
 namespace EventTypeTracking {
-  //! \brief This is to stop the use of maps
-  enum eventClass
-    {
-      NOEventClass, //!< This is the initial last event type for particles
-      InteractionClass,
-      GlobalClass,
-      SystemClass
-    };
   
-  typedef std::pair<size_t, eventClass> classKey;
+  //! Keeps the type of event (interaction etc) and the ID num
+  typedef std::pair<size_t, EEventType> classKey;
 
   std::string getName(const classKey&, const DYNAMO::SimData*);
 

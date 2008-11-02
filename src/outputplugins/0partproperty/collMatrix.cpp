@@ -29,7 +29,7 @@ COPCollMatrix::COPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
   totalCount(0),
   IDcounter(0)
 {
-  lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NOEventClass), NONE)));
+  lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
 }
 
 void 
@@ -42,9 +42,11 @@ COPCollMatrix::~COPCollMatrix()
 void 
 COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 {
-  newEvent(iEvent.getParticle1(), iEvent.getType(), getClassKey(iEvent.getInteraction()));
+  newEvent(iEvent.getParticle1(), iEvent.getType(), 
+	   getClassKey(iEvent.getInteraction()));
 
-  newEvent(iEvent.getParticle2(), iEvent.getType(), getClassKey(iEvent.getInteraction()));
+  newEvent(iEvent.getParticle2(), iEvent.getType(), 
+	   getClassKey(iEvent.getInteraction()));
 }
 
 
@@ -92,7 +94,7 @@ COPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, 
 void 
 COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const classKey& ck)
 {
-  if (lastEvent[part.getID()].second.first.second != NOEventClass)
+  if (lastEvent[part.getID()].second.first.second != NONE)
     {
       counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part.getID()].second)];
       

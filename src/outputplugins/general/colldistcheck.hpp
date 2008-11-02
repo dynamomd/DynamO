@@ -21,23 +21,26 @@
 #include "../outputplugin.hpp"
 #include <map>
 #include "../../datatypes/histogram.hpp"
+#include "../eventtypetracking.hpp"
+
+using namespace EventTypeTracking;
 
 class COPCollMatrix;
 
 class COPCollDistCheck: public COutputPlugin
 {
 public:
-  COPCollDistCheck(const DYNAMO::SimData*);
+  COPCollDistCheck(const DYNAMO::SimData*, const XMLNode&);
 
   ~COPCollDistCheck();
 
   void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
-  void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
+  void eventUpdate(const CGlobEvent&, const CNParticleData&);
 
-  void eventUpdate(const CLocalEvent&, const CNParticleData&) {}
+  void eventUpdate(const CLocalEvent&, const CNParticleData&);
   
-  void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) {}
+  void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
 
   COutputPlugin *Clone() const { return new COPCollDistCheck(*this); }
 
@@ -47,9 +50,9 @@ public:
 
 private:
 
-  const COPCollMatrix* ptrCM;
-  std::map<std::pair<size_t, EEventType>, C1DHistogram> distList;
+  typedef std::pair<classKey, EEventType> eventKey;
   
+  std::map<eventKey, C1DHistogram> distList;
 };
 
 #endif

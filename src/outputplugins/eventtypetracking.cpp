@@ -24,14 +24,17 @@ namespace EventTypeTracking {
   {
   switch (key.second)
     {
-    case InteractionClass:
+    case INTERACTION:
       return Sim->Dynamics.getInteractions()[key.first]->getName();
       break;
-    case GlobalClass:
+    case GLOBAL:
       return Sim->Dynamics.getGlobals()[key.first]->getName();
       break;
-    case SystemClass:
+    case SYSTEM:
       return Sim->Dynamics.getSystemEvents()[key.first]->getName();
+      break;
+    case LOCAL:
+      return Sim->Dynamics.getLocals()[key.first]->getName();
       break;
     default:
       D_throw() << "Collision matrix found an unknown event class";
@@ -40,20 +43,20 @@ namespace EventTypeTracking {
 
   classKey getClassKey(const CInteraction& i)
   {
-    return classKey(i.getID(), InteractionClass);
+    return classKey(i.getID(), INTERACTION);
   }
   classKey getClassKey(const CSystem& s)
   {
-    return classKey(s.getID(), SystemClass);
+    return classKey(s.getID(), SYSTEM);
   }
 
   classKey getClassKey(const CGlobEvent& g)
   {
-    return classKey(g.getGlobalID(), GlobalClass);
+    return classKey(g.getGlobalID(), GLOBAL);
   }
 
   classKey getClassKey(const CLocalEvent& g)
   {
-    return classKey(g.getLocalID(), GlobalClass);
+    return classKey(g.getLocalID(), LOCAL);
   }
 }

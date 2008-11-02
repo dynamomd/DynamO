@@ -68,7 +68,6 @@ public:
   typedef std::pair<classKey, EEventType> eventKey;
 
   typedef std::pair<eventKey, eventKey> counterKey;
-
   
   std::map<counterKey, counterData> counters;
   

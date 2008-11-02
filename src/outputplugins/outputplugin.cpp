@@ -153,8 +153,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPCContactMap>(Sim, XML);
   else if (!Name.compare("OverlapTester"))
     return testGeneratePlugin<COPOverlapTest>(Sim, XML);
-  /*else if (!Name.compare("CollDistCheck"))
-    return testGeneratePlugin<COPCollDistCheck>(Sim, XML);*/
+  else if (!Name.compare("CollDistCheck"))
+    return testGeneratePlugin<COPCollDistCheck>(Sim, XML);
   else if (!Name.compare("ChainBondAngles"))
     return testGeneratePlugin<COPChainBondAngles>(Sim, XML);
   else if (!Name.compare("ChainBondLength"))

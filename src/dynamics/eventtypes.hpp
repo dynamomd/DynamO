@@ -20,26 +20,34 @@
 
 //! \brief Event that occured
 typedef enum {
-  /* These should not be seen outside the scheduler*/
-  CELL        , /*!< Marks cell transitions in the scheduler*/
-  GLOBAL      , /*!< Marks all global events in the scheduler*/
-  INTERACTION , /*!< Marks Interaction events in the scheduler*/
-  LOCAL       , /*!< Marks Local events in the scheduler*/
-  /* These are real types of events outside the scheduler */
+  /* Generic names for events occuring*/
   NONE        , /*!< No collision occurs*/
-  CORE        , /*!< Hard core collision*/
-  WELL_IN     , /*!< Well Event, could be BOUNCE WELL_KEUP or WELL_KEDOWN*/
-  WELL_OUT    , /*!< Well Event, could be BOUNCE WELL_KEUP or WELL_KEDOWN*/
-  WELL_KEUP   , /*!< Well energy change where KE increases*/
-  WELL_KEDOWN , /*!< Well energy change where KE decreases*/
-  BOUNCE      , /*!< failed to exit/enter a well*/
-  WALL        , /*!< Wall event*/
-  GAUSSIAN    , /*!< Reassignment from a gaussian*/
-  HALT        , /*!< Call to halt the system*/
-  STREAM      , /*!< Call to free stream the system an amount*/
-  NON_EVENT,    /*!< Anything like a ticker, that is not part of the system dynamics*/
+  CELL        , /*!< Marks cell transitions.*/
+  GLOBAL      , /*!< Marks all global events.*/
+  INTERACTION , /*!< Marks Interaction events.*/
+  SYSTEM      , /*!< Marks System events.*/
+  LOCAL       , /*!< Marks Local events.*/
+  /* More specific flags for event types. */
+  CORE        , /*!< Hard core collision. */
+  WELL_IN     , /*!< Well Event, while spheres are heading toward each
+		  other. Could be BOUNCE WELL_KEUP or WELL_KEDOWN.*/
+  WELL_OUT    , /*!< Well Event, while spheres are heading away from
+		  each other could be BOUNCE WELL_KEUP or
+		  WELL_KEDOWN. */
+  WELL_KEUP   , /*!< Well event where Kinetic Energy increases. */
+  WELL_KEDOWN , /*!< Well event where Kinetic Energy decreases. */
+  BOUNCE      , /*!< Well event where the particles failed to change
+                   their kinetic energy due to some constraint. */
+  WALL        , /*!< Wall or other obstacle event. */
+  GAUSSIAN    , /*!< Reassignment from a gaussian, Andersen thermostat. */
+  HALT        , /*!< Call to halt the system. */
+  STREAM      , /*!< Call to free stream the system an amount. */
+  NON_EVENT,    /*!< Anything like a ticker, that is not part of the
+                   system dynamics. Does not require an update of the
+                   system in any way. */
   VIRTUAL       /*!< This is not an event yet it requires a
-                   recalculation of the particles collision list*/
+                   recalculation of the particles collision
+                   list. Possibly used in a sentinal */ 
 } EEventType;
 
 #endif
