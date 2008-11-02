@@ -39,9 +39,9 @@ class COPMFT: public COP1PP
   virtual void initialise();
 
   virtual COutputPlugin *Clone() const { return new COPMFT(*this); }
-
   
-
+  virtual void operator<<(const XMLNode&);
+  
  protected:
   size_t collisionHistoryLength;
   

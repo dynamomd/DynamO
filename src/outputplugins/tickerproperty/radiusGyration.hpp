@@ -53,6 +53,8 @@ class COPRGyration: public COPTicker
 
   static CVector<> NematicOrderParameter(const std::list<CVector<> >&);
   static Iflt CubaticOrderParameter(const std::list<CVector<> >&);
+
+  virtual void operator<<(const XMLNode&);
   
  protected:
 
@@ -77,7 +79,8 @@ class COPRGyration: public COPTicker
   };
 
   std::list<CTCdata> chains;
-  
+
+  Iflt binwidth1, binwidth2, binwidth3;  
 };
 
 #endif

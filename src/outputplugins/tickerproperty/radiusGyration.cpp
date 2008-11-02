@@ -33,9 +33,35 @@
 #include <fstream>
 #include <cmath>
 
-COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"GyrationRadius")
-{}
+COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  COPTicker(tmp,"GyrationRadius"),
+  binwidth1(0.01),
+  binwidth2(0.001),
+  binwidth3(0.01)
+{
+  operator<<(XML);
+}
+
+void 
+COPRGyration::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("binwidth1"))
+	binwidth1 = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth1"));
+
+      if (XML.isAttributeSet("binwidth2"))
+	binwidth2 = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth2"));
+
+      if (XML.isAttributeSet("binwidth3"))
+	binwidth3 = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth3"));
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPRGyration";
+    }
+  
+}
 
 void 
 COPRGyration::initialise()
@@ -44,8 +70,7 @@ COPRGyration::initialise()
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>
 			       (plugPtr.get_ptr()), 
-			       0.01 * Sim->Dynamics.units().unitLength(), 0.001, 0.01));
-
+			       binwidth1 * Sim->Dynamics.units().unitLength(), binwidth2, binwidth3));
 }
 
 void 

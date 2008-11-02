@@ -32,7 +32,7 @@ COPMFT::COPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPMFL::operator<<(const XMLNode& XML)
+COPMFT::operator<<(const XMLNode& XML)
 {
   try 
     {
