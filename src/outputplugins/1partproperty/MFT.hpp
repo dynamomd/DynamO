@@ -40,8 +40,12 @@ class COPMFT: public COP1PP
 
   virtual COutputPlugin *Clone() const { return new COPMFT(*this); }
 
+  
+
  protected:
-  const size_t collisionHistoryLength;
+  size_t collisionHistoryLength;
+  
+  Iflt binwidth;
 
   //! Each particles last collision times
   std::vector<boost::circular_buffer<Iflt> > lastTime;

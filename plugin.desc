@@ -10,15 +10,14 @@
 "Geomview",COPGeomview, A class that renders the system to a file called geomview.frameXXXXX.list for the geomview program to load. XXXXXX marks the frame number and is limited to 1000 frames., No options
 "IntEnergyHist",COPIntEnergyHist, This histograms the system internal energy as a whole. This plugin gives the exact internal energy histogram over the simulation run and has no binwidth as it assumes the smallest energy step is 1., No options.
 "KEnergy",COPKEnergy, This tracks the kinetic energy of the system in each dimension including the power loss/gain per unit time., No options
-"MFL",COPMFL, Collects histograms on the mean free length of each species of particle, binwidth is the length of a single bin.
-"MFT",COPMFT,
+"MFL",COPMFL, Collects histograms on the mean free length of each species of particle., binwidth is the length of a single bin.
+"MFT",COPMFT, Collects histograms on the mean free time between collisions for any number of events., binwidth sets the width of the histogram time bins. lengthsets up to how many collisions to track the mean free time for (10 is default)
 "MSD",COPMSD,
-"Misc",COPMisc,
-"Momentum",COPMomentum,
-"MutualDiffusionE",COPMutualDiffusionE,
-"MutualDiffusionGK",COPMutualDiffusionGK,
-"OverlapTester",COPOverlapTest,
-"PackingFraction",COPPackingFraction,
+"Misc",COPMisc, This plugin is usually loaded by default. It provides very basic information such as start and end times and a rough mean free time.  It also outputs the number of events as a periodic output.
+"Momentum",COPMomentum, Outputs the average momentum of each of the species., No options
+"MutualDiffusionE",COPMutualDiffusionE, The einstein form of the mutual diffusion transport coefficient for the solution., length is how many time steps to correlate over. dt is the length of a single time step. t is another way of specifying dt by setting the maximum time of the correlator. Species1 and species2 specify the name of the first and second species to track the mutual diffusion coefficient for and for this plugin it is symmetrical for speed ie D_{12} = D_{21}.
+"MutualDiffusionGK",COPMutualDiffusionGK, The Green Kubo form of the mutual diffusion transport coefficient for the solution., length is how many time steps to correlate over. dt is the length of a single time step. t is another way of specifying dt by setting the maximum time of the correlator. Species1 and species2 specify the name of the first and second species to track the mutual diffusion coefficient for and for this plugin you should add both D_{12} and D_{21} forms when 1!=2 and average over them.
+"OverlapTester",COPOverlapTest, This debugging plugin periodically tests the system for overlaps which are reported on screen, No Options
 "PeriodicMSD",COPPeriodicMSD,
 "Povray",COPPovray,
 "QMGA",COPQMGA,

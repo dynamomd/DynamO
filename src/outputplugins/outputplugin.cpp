@@ -133,8 +133,6 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPMisc>(Sim, XML);
   else if (!Name.compare("TinkerXYZ"))
     return testGeneratePlugin<COPTinkerXYZ>(Sim, XML);
-  else if (!Name.compare("PackingFraction"))
-    return testGeneratePlugin<COPPackingFraction>(Sim, XML);
   else if (!Name.compare("CollisionMatrix"))
     return testGeneratePlugin<COPCollMatrix>(Sim, XML);
   else if (!Name.compare("RdotV"))

@@ -23,20 +23,42 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPMFT::COPMFT(const DYNAMO::SimData* tmp, const XMLNode&):
+COPMFT::COPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COP1PP(tmp,"MeanFreeLength", 250),
-  collisionHistoryLength(10)
-{}
+  collisionHistoryLength(10),
+  binwidth(0.01)
+{
+  operator<<(XML);
+}
+
+void 
+COPMFL::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("binwidth"))
+	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+      
+      if (XML.isAttributeSet("length"))
+	collisionHistoryLength 
+	  = boost::lexical_cast<size_t>(XML.getAttribute("length"));
+    }
+  catch (boost::bad_lexical_cast&)
+    {
+      D_throw() << "Failed a lexical cast in COPMFL";
+    }
+}
 
 void
 COPMFT::initialise()
 {
-  lastTime.resize(Sim->lN, boost::circular_buffer<Iflt>(collisionHistoryLength, 0.0));
+  lastTime.resize(Sim->lN, 
+		  boost::circular_buffer<Iflt>(collisionHistoryLength, 0.0));
   
   std::vector<C1DHistogram> vecTemp;
   
   vecTemp.resize(collisionHistoryLength, 
-		 C1DHistogram(Sim->Dynamics.units().unitLength() * 0.5));
+		 C1DHistogram(Sim->Dynamics.units().unitTime() * binwidth));
   
   data.resize(Sim->Dynamics.getSpecies().size(), vecTemp);
 }
