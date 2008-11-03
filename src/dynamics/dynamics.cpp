@@ -512,10 +512,15 @@ void
 CDynamics::zeroMomentum(std::vector<CParticle> &pList)
 {  
   CVector<> sumMV (0), velvec;
-  
+ 
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( CParticle & Part, pList)
-    sumMV += Part.getVelocity() * getSpecies(Part).getMass();
+    {
+      CVector<> pos(Part.getPosition()), vel(Part.getVelocity());
+      BCs().setPBC(pos,vel);
+
+      sumMV += vel * getSpecies(Part).getMass();
+    }
   
   sumMV /= pList.size();
   
