@@ -55,7 +55,12 @@ COPMisc::initialise()
   
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
-    sumMV += Part.getVelocity() * Sim->Dynamics.getSpecies(Part).getMass();
+    {
+      CVector<> pos(Part.getPosition()), vel(Part.getVelocity());
+      Sim->Dynamics.BCs().setPBC(pos, vel);
+
+      sumMV += vel * Sim->Dynamics.getSpecies(Part).getMass();
+    }
   
   I_cout() << "Total momentum <x,y,z> <";
 
