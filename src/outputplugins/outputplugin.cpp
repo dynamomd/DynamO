@@ -179,6 +179,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPCollEnergyChange>(Sim, XML);
   else if (!Name.compare("VelDist"))
     return testGeneratePlugin<COPVelDist>(Sim, XML);
+  else if (!Name.compare("VelProfile"))
+    return testGeneratePlugin<COPVelProfile>(Sim, XML);
   else if (!Name.compare("RadialDistribution"))
     return testGeneratePlugin<COPRadialDistribution>(Sim, XML);
   else if (!Name.compare("CollisionCorrelators"))

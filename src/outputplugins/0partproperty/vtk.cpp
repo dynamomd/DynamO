@@ -26,7 +26,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../datatypes/field_array_vtk.hpp"
 
-COPVTK::COPVTK(const DYNAMO::SimData* tmp):
+COPVTK::COPVTK(const DYNAMO::SimData* tmp, const XMLNode&):
   COPCollTicker(tmp,"VTK"),
   Density(tmp), 
   Vsquared(tmp),
@@ -53,11 +53,12 @@ COPVTK::ticker()
 	  CVector<> position = Part.getPosition();
 
 	  Sim->Dynamics.BCs().setPBC(position);
+
 	  //Samples
-	  SampleCounter[position]++;
+	  ++SampleCounter[position];
 
 	  //Velocity Vectors
-	  Velocity[position] += Sim->Dynamics.getLabVelocity(Part);
+	  Velocity[position] += Part.getVelocity();
 	  
 	  //Density field
 	  Density[position] += 1.0;
@@ -75,7 +76,7 @@ COPVTK::output(xmlw::XmlStream&)
   vtkImageData* image = DYNAMO::getVTKImage(Sim);
 
   //Add the density
-  image->GetPointData()->AddArray(getVTKFloatField(Density, "Density", Sim->lN * imageCounter / (NBins * NBins * NBins * getNumberDensity())));
+  image->GetPointData()->AddArray(getVTKFloatField(Density, "Density", Sim->Dynamics.units().simVolume() * Sim->lN * imageCounter / (NBins * NBins * NBins)));
 
   //Add the sample counts for each cell
   image->GetPointData()->AddArray(getVTKIntField(SampleCounter,"Samples per Cell"));
@@ -121,13 +122,13 @@ COPVTK::output(xmlw::XmlStream&)
   image->GetPointData()->AddArray(getVTKField(VelocityYZPlaneNoX, "Velocity Field avg. over the x direction, no X component"));
   
   //Energy field
-  CFieldArray<CVector<> > Energy(Sim);
+  CFieldArray<Iflt > Energy(Sim);
   for (long z = 0; z < NBins; z++)
     for (long y = 0; y < NBins; y++)
       for (long x = 0; x < NBins; x++)
-	Energy[x][y][z] = (Vsquared[x][y][z]/SampleCounter[x][y][z]) 
+	Energy[x][y][z] = (Vsquared[x][y][z] / SampleCounter[x][y][z]) 
 	  - Velocity[x][y][z].square();
-  image->GetPointData()->AddArray(getVTKField(Energy,"Vsquared (Energy)"));
+  image->GetPointData()->AddArray(getVTKFloatField(Energy,"Vsquared (Energy)"));
   
   //Output this vtkImage to an xml file
   vtkXMLImageDataWriter *writer = vtkXMLImageDataWriter::New();
