@@ -22,6 +22,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../base/is_exception.hpp"
 #include "../species/species.hpp"
+#include <cstring>
 
 CInteraction::CInteraction(const DYNAMO::SimData* tmp, C2Range* nR):
   SimBase_const(tmp,"Interaction",IC_blue),
@@ -58,17 +59,17 @@ CInteraction::getRange() const
 CInteraction*
 CInteraction::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
-  if (!strcmp(XML.getAttribute("Type"),"HardSphere"))
+  if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
     return new CIHardSphere(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"SquareWell"))
+  else if (!std::strcmp(XML.getAttribute("Type"),"SquareWell"))
     return new CISquareWell(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
+  else if (!std::strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
     return new CISWSequence(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"SquareBond"))
+  else if (!std::strcmp(XML.getAttribute("Type"),"SquareBond"))
     return new CISquareBond(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"SoftCore"))
+  else if (!std::strcmp(XML.getAttribute("Type"),"SoftCore"))
     return new CISoftCore(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Null"))
+  else if (!std::strcmp(XML.getAttribute("Type"),"Null"))
     return new CINull(XML, Sim);
   else 
     D_throw() << "Unknown type of interaction encountered";

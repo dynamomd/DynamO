@@ -21,6 +21,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../base/is_exception.hpp"
 #include <cmath>
+#include <cstring>
 
 CUSW::CUSW(const DYNAMO::SimData* tmp):
   CUnits(tmp),
@@ -72,7 +73,7 @@ CUSW::Clone() const
 void 
 CUSW::operator<<(const XMLNode &XML)
 {
-  if (strcmp(XML.getAttribute("Type"),"SW"))
+  if (std::strcmp(XML.getAttribute("Type"),"SW"))
     D_throw() << "Attempting to load CUSW from non elastic type";
   
   try {

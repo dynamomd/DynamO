@@ -85,12 +85,6 @@ CSGlobCellular::earliestLocalEvent() const
     ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
 }
 
-void 
-CSGlobCellular::notifyVirtualCellsReinit()
-{
-  initialise();
-}
-
 void
 CSGlobCellular::initialise()
 {
@@ -127,10 +121,18 @@ CSGlobCellular::initialise()
   I_cout() << "BPQ: Scale Factor " << eventHeap.scaleFactor();
 #endif
   
-  //Register the new neighbour function with the cellular tracker  
-  static_cast<const CGCells&>(*(Sim->Dynamics.getGlobals()[GlobCellID]))
-    .registerCellTransitionNewNeighbourCallBack
-    (boost::bind(&CSGlobCellular::virtualCellNewNeighbour, this, _1, _2));
+  //Register the new neighbour function with the cellular tracker
+  if (!cellChange.connected())
+    cellChange 
+      = static_cast<const CGCells&>(*(Sim->Dynamics.getGlobals()[GlobCellID]))
+      .registerCellTransitionNewNeighbourCallBack
+      (boost::bind(&CSGlobCellular::virtualCellNewNeighbour, this, _1, _2));
+  
+  if (!reinit.connected())
+    reinit 
+      = static_cast<const CGCells&>(*(Sim->Dynamics.getGlobals()[GlobCellID]))
+      .registerReInitNotify
+      (boost::bind(&CSGlobCellular::initialise, this));
 }
 
 void 

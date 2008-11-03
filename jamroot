@@ -11,6 +11,7 @@ project
 	  #<toolset>gcc:<cxxflags>-ansi
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
+	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	: default-build release
 	: build-dir build-dir
 	;

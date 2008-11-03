@@ -20,6 +20,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../base/is_exception.hpp"
+#include <cstring>
 
 CUElastic::CUElastic(const DYNAMO::SimData* tmp): 
   CUnits(tmp),
@@ -67,7 +68,7 @@ CUElastic::rescaleLength(Iflt rs)
 void 
 CUElastic::operator<<(const XMLNode &XML)
 {
-  if (strcmp(XML.getAttribute("Type"),"Elastic"))
+  if (std::strcmp(XML.getAttribute("Type"),"Elastic"))
     D_throw() << "Attempting to load CUElastic from non elastic type";
   
   try {

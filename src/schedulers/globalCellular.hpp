@@ -24,6 +24,7 @@
 #include <boost/foreach.hpp>
 #include "sorters/boundedPQ.hpp"
 #include "sorters/cbt.hpp"
+#include <boost/signals.hpp>
 
 //Use to disable the bounded priority queue when debugging bad events
 //#define CBT
@@ -40,8 +41,6 @@ public:
   virtual void rebuildList() { initialise(); }
 
   virtual void initialise();
-
-  virtual void notifyVirtualCellsReinit();
 
   virtual void update(const CParticle&);
 
@@ -79,6 +78,9 @@ protected:
   mutable std::vector<unsigned long long> eventCount;
 
   size_t GlobCellID;
+
+  boost::signals::scoped_connection cellChange;
+  boost::signals::scoped_connection reinit;  
 };
 
 #endif

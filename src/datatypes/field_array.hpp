@@ -20,7 +20,6 @@
 
 #include "../base/is_base.hpp"
 #include "fuzzy_array.hpp"
-#include "field_array.hpp"
 #include "../datatypes/vector.hpp"
 #include "../base/is_simdata.hpp"
 

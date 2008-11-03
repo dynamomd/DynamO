@@ -51,6 +51,18 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
+CGCells::CGCells(const CGCells& g2):
+  CGlobal(g2.Sim, "GlobalCellularEvent"),
+  cellCount(0),
+  cellDimension(1.0),
+  lambda(0.9), //Default to higher overlap
+  NCells(0)	      
+{
+  globName = "Cells";
+
+  I_cout() << "WARNING: THIS CANNOT BE COPIED! WARNING!";
+}
+
 void 
 CGCells::operator<<(const XMLNode& XML)
 {
@@ -146,15 +158,13 @@ CGCells::runEvent(const CGlobEvent& event) const
     if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
       for (int next = cells[nb].list; next != -1; 
 	   next = partCellData[next].next)
-	BOOST_FOREACH(const NNfunc& func, sigNewNeighbourNotify)
-	  func(part, Sim->vParticleList[next]);
-
+	sigNewNeighbourNotify(part, Sim->vParticleList[next]);
+  
   //Push the next virtual event, this is the reason the scheduler
   //doesn't need a second callback
   Sim->ptrScheduler->pushAndUpdateVirtualEvent(part, CGCells::getEvent(part));
 
-  BOOST_FOREACH(const CCfunc& func, sigCellChangeNotify)
-    func(part, oldCell);
+  sigCellChangeNotify(part, oldCell);
   
   return CNParticleData();
 }
@@ -163,7 +173,7 @@ void
 CGCells::initialise(size_t nID)
 {
   ID=nID;
-  reinitialise(Sim->Dynamics.getLongestInteraction()); 
+  reinitialise(Sim->Dynamics.getLongestInteraction());
 }
 
 void
@@ -176,7 +186,7 @@ CGCells::reinitialise(const Iflt& maxdiam)
 
   addLocalEvents();
 
-  Sim->ptrScheduler->notifyVirtualCellsReinit();
+  ReInitNotify();
 }
 
 void
@@ -367,3 +377,4 @@ CGCells::getID(CVector<> pos) const
   
   return getID(temp);
 }
+

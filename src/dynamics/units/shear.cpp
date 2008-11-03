@@ -19,10 +19,12 @@
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../base/is_exception.hpp"
+#include <cstring>
+
 void 
 CUShear::operator<<(const XMLNode& XML)
 {
-  if (strcmp(XML.getAttribute("Type"),"Shear"))
+  if (std::strcmp(XML.getAttribute("Type"),"Shear"))
     D_throw() << "Attempting to load CUShear from non shear type";
   
   try {

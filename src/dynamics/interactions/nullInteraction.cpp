@@ -21,6 +21,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
+#include <cstring>
 
 CINull::CINull(const DYNAMO::SimData* tmp, C2Range* nR):
   CInteraction(tmp, nR) {}
@@ -38,7 +39,7 @@ CINull::initialise(size_t nID)
 void 
 CINull::operator<<(const XMLNode& XML)
 { 
-  if (strcmp(XML.getAttribute("Type"),"Null"))
+  if (std::strcmp(XML.getAttribute("Type"),"Null"))
     D_throw() << "Attempting to load NullInteraction from " 
 	      << XML.getAttribute("Type") <<" entry";
   

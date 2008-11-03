@@ -34,6 +34,8 @@ public:
 
   CGCells(const DYNAMO::SimData*);
 
+  CGCells(const CGCells&);
+
   virtual ~CGCells() {}
 
   virtual CGlobal* Clone() const 
@@ -98,15 +100,21 @@ public:
   inline const cellStruct& getParticleCellData(const CParticle& part) const
   { return cells[partCellData[part.getID()].cell]; }
 
-  inline void
-  registerCellTransitionCallBack 
-  (const boost::function<void (const CParticle&, const size_t&)>& func) const
-  { return sigCellChangeNotify.push_back(func); }
+  typedef boost::signal<void (const CParticle&, const size_t)>::slot_type CCfunc;
+  typedef boost::signal<void (const CParticle&, const CParticle&)>::slot_type NNfunc;
+  typedef boost::signal<void ()>::slot_type RIfunc;
 
-  inline void
-  registerCellTransitionNewNeighbourCallBack
-  (const boost::function<void (const CParticle&, const CParticle&)>& func) const
-  { return sigNewNeighbourNotify.push_back(func); }
+  inline boost::signals::connection
+  registerCellTransitionCallBack(const CCfunc& func) const
+  { return sigCellChangeNotify.connect(func); }
+
+  inline boost::signals::connection 
+  registerCellTransitionNewNeighbourCallBack(const NNfunc& func) const
+  { return sigNewNeighbourNotify.connect(func); }
+
+  inline boost::signals::connection 
+  registerReInitNotify(const RIfunc& func) const
+  { return ReInitNotify.connect(func); }
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
@@ -131,13 +139,10 @@ protected:
 
   mutable std::vector<partCEntry> partCellData;
 
-  typedef boost::function<void (const CParticle&, const size_t)> CCfunc;
-
-  typedef boost::function<void (const CParticle&, const CParticle&)> NNfunc;
-
-  mutable std::vector<CCfunc> sigCellChangeNotify;
-
-  mutable std::vector<NNfunc> sigNewNeighbourNotify;
+  //Signals
+  mutable boost::signal<void (const CParticle&, const size_t)> sigCellChangeNotify;
+  mutable boost::signal<void (const CParticle&, const CParticle&)> sigNewNeighbourNotify;
+  mutable boost::signal<void ()> ReInitNotify;
 
   inline void addToCell(const int& ID, const int& cellID) const
   {

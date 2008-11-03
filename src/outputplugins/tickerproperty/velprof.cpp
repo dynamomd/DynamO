@@ -26,7 +26,7 @@
 COPVelProfile::COPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"VelProfile"),
   samplesTaken(0),
-  binWidth(0.5),
+  binWidth(0.5)
 {
   if (NDIM != 3)
     D_throw() << "Terrible plugin for 3 dims only";
