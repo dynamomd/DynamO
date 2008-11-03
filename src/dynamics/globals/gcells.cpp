@@ -94,10 +94,12 @@ CGCells::runEvent(const CGlobEvent& event) const
 {
   const CParticle& part(event.getParticle());
 
+  size_t oldCell(partCellData[part.getID()].cell);
+
   //Determine the cell transition direction, its saved
   size_t cellDirection(Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision3
-		    (part, cells[partCellData[part.getID()].cell].origin, 
+		    (part, cells[oldCell].origin, 
 		     cellDimension));
   size_t endCell;
   size_t inPosition;
@@ -142,12 +144,18 @@ CGCells::runEvent(const CGlobEvent& event) const
   //its new neighbours so it can add them to the heap
   BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
     if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
-      for (int next = cells[nb].list; next != -1; next = partCellData[next].next)
-	Sim->ptrScheduler->virtualCellNewNeighbour(part, Sim->vParticleList[next]);
+      for (int next = cells[nb].list; next != -1; 
+	   next = partCellData[next].next)
+	BOOST_FOREACH(const NNfunc& func, sigNewNeighbourNotify)
+	  func(part, Sim->vParticleList[next]);
 
-  //Push the next virtual event and update the heap
+  //Push the next virtual event, this is the reason the scheduler
+  //doesn't need a second callback
   Sim->ptrScheduler->pushAndUpdateVirtualEvent(part, CGCells::getEvent(part));
 
+  BOOST_FOREACH(const CCfunc& func, sigCellChangeNotify)
+    func(part, oldCell);
+  
   return CNParticleData();
 }
 

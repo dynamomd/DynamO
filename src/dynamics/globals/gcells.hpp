@@ -24,6 +24,8 @@
 #include <list>
 #include "../../extcode/mathtemplates.hpp"
 #include "../../simulation/particle.hpp"
+#include <boost/function.hpp>
+#include <boost/signals.hpp>
 
 class CGCells: public CGlobal
 {
@@ -34,7 +36,10 @@ public:
 
   virtual ~CGCells() {}
 
-  virtual CGlobal* Clone() const { return new CGCells(*this); }
+  virtual CGlobal* Clone() const 
+  { 
+    return new CGCells(*this); 
+  }
 
   virtual CGlobEvent getEvent(const CParticle &) const;
 
@@ -56,11 +61,12 @@ public:
   inline size_t getLocalCellID(const CParticle& part) const
   { return partCellData[part.getID()].cell; }
 
-  inline const std::vector<size_t>& getCellNeighbourHood(const CParticle& part) const
+  inline const std::vector<size_t>& 
+  getCellNeighbourHood(const CParticle& part) const
   {
     return cells[partCellData[part.getID()].cell].neighbours;
   }
-
+  
   inline const int& getCellLocalParticles(const size_t& id) const
   { return cells[id].list; }
 
@@ -92,10 +98,19 @@ public:
   inline const cellStruct& getParticleCellData(const CParticle& part) const
   { return cells[partCellData[part.getID()].cell]; }
 
+  inline void
+  registerCellTransitionCallBack 
+  (const boost::function<void (const CParticle&, const size_t&)>& func) const
+  { return sigCellChangeNotify.push_back(func); }
+
+  inline void
+  registerCellTransitionNewNeighbourCallBack
+  (const boost::function<void (const CParticle&, const CParticle&)>& func) const
+  { return sigNewNeighbourNotify.push_back(func); }
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-private:
   //Cell Numbering
   long getID(CVector<long>) const;
   CVector<long> getCoordsFromID(unsigned long) const; 
@@ -115,6 +130,14 @@ private:
   mutable std::vector<cellStruct> cells;
 
   mutable std::vector<partCEntry> partCellData;
+
+  typedef boost::function<void (const CParticle&, const size_t)> CCfunc;
+
+  typedef boost::function<void (const CParticle&, const CParticle&)> NNfunc;
+
+  mutable std::vector<CCfunc> sigCellChangeNotify;
+
+  mutable std::vector<NNfunc> sigNewNeighbourNotify;
 
   inline void addToCell(const int& ID, const int& cellID) const
   {

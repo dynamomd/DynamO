@@ -59,7 +59,7 @@ public:
 
   virtual void popVirtualEvent();
 
-  virtual void virtualCellNewNeighbour(const CParticle&, const CParticle&); 
+  void virtualCellNewNeighbour(const CParticle&, const CParticle&); 
 
   virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
 

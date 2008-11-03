@@ -35,6 +35,7 @@
 #include "../dynamics/globals/gcells.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
+#include <functional>
 
 void 
 CSGlobCellular::stream(const Iflt dt)
@@ -125,6 +126,11 @@ CSGlobCellular::initialise()
   I_cout() << "BPQ: Number of lists " << eventHeap.NLists();
   I_cout() << "BPQ: Scale Factor " << eventHeap.scaleFactor();
 #endif
+  
+  //Register the new neighbour function with the cellular tracker  
+  static_cast<const CGCells&>(*(Sim->Dynamics.getGlobals()[GlobCellID]))
+    .registerCellTransitionNewNeighbourCallBack
+    (boost::bind(&CSGlobCellular::virtualCellNewNeighbour, this, _1, _2));
 }
 
 void 

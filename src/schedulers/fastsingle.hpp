@@ -49,8 +49,6 @@ class CSFastSingle : public CScheduler
 
   virtual void popVirtualEvent();
 
-  virtual void virtualCellNewNeighbour(const CParticle&, const CParticle&) {}
-
   virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
 
  protected:

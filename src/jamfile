@@ -15,6 +15,6 @@ lib pthread
 
 lib dynamo_core : [ glob-tree *.cpp : dataproc ] 
     ../boost//iostreams  ../boost//thread ../boost//filesystem 
-    ../boost//program_options gsl pthread
+    ../boost//program_options ../boost//signals gsl pthread
     : <threading>multi 
     ;
