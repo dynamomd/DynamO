@@ -16,6 +16,7 @@
 */
 
 #ifdef DYNAMO_VTK
+
 #ifndef COPVTK_H
 #define COPVTK_H
 
@@ -25,7 +26,7 @@
 class COPVTK: public COPCollTicker
 {
  public:
-  COPVTK(const DYNAMO::SimData*);
+  COPVTK(const DYNAMO::SimData*, const XMLNode&);
 
   virtual COutputPlugin *Clone() const
   { return new COPVTK(*this); }

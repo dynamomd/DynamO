@@ -9,12 +9,14 @@ lib pthread
     : : <link>shared <name>pthread
     ;   
 
-#Only required if <define>DYNAMO_VTK and I don't use it anymore
-#lib vtkIO  		   : : <link>shared <name>vtkIO ;
-#Include vtkIO in dynamo_core too
+#Adds the vtk plugin
+#lib vtkIO  		   
+#    : : <file>/usr/lib/libvtkIO.so 
+#    : : <link>shared <define>DYNAMO_VTK <include>/usr/include/vtk-5.2/ ;
 
 lib dynamo_core : [ glob-tree *.cpp : dataproc ] 
     ../boost//iostreams  ../boost//thread ../boost//filesystem 
-    ../boost//program_options ../boost//signals gsl pthread
+    ../boost//program_options ../boost//signals gsl pthread 
+    #vtkIO
     : <threading>multi 
     ;

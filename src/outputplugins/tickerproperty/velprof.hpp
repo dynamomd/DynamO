@@ -15,16 +15,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
+#ifndef COPVelProfile_H
+#define COPVelProfile_H
+
+#include "ticker.hpp"
+#include <vector>
+
+class COPVelProfile: public COPTicker
+{
+ public:
+  COPVelProfile(const DYNAMO::SimData*, const XMLNode&);
+
+  virtual COutputPlugin *Clone() const
+  { return new COPVelProfile(*this); }
+
+  virtual void initialise();
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+
+  virtual void output(xmlw::XmlStream&);
+  
+ protected:
+
+  std::vector<std::vector<std::pair<size_t, Iflt> > > vx;
+
+  size_t samplesTaken;
+  Iflt binWidth;
+};
+
+#endif
