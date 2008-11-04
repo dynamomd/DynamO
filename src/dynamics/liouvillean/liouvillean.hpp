@@ -51,6 +51,8 @@ class CVector;
  *
  * This class also has the delayed states algorithm implemented by
  * default. This can be overridden if required.
+ *
+ * The bulk of the code is implemented in the CLNewton class.
  */
 class CLiouvillean: public DYNAMO::SimBase
 {
@@ -64,7 +66,7 @@ public:
 
   virtual ~CLiouvillean() {}
   
-  inline void initialise() 
+  virtual void initialise() 
   {
     streamFreq = 10 * Sim->lN;
   }
@@ -139,6 +141,16 @@ public:
   virtual size_t getSquareCellCollision3(const CParticle& part, 
 					 const CVector<>& origin, 
 					 const CVector<>& width) const = 0;
+
+  /*! \brief Tests if and when two lines will collide.
+   *
+   */    
+  virtual Iflt getLineLineCollision() const;
+
+  /*! \brief Runs a line line collision event
+   *
+   */    
+  virtual C2ParticleData runLineLineCollision() const;
 
   /*! \brief Determines when the particle center will hit a wall.
    *

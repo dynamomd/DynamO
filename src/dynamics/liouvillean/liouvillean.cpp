@@ -20,6 +20,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
+#include "../2particleEventData.hpp"
 #include <boost/foreach.hpp>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CLiouvillean& g)
@@ -36,3 +37,11 @@ CLiouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
   else 
     D_throw() << "Unknown type of Liouvillean encountered";
 }
+
+C2ParticleData 
+CLiouvillean::runLineLineCollision() const
+{ D_throw() << "Not implemented for this Liouvillean."; }
+
+Iflt 
+CLiouvillean::getLineLineCollision() const 
+{ D_throw() << "Not implemented for this Liouvillean."; }
