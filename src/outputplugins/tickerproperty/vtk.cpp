@@ -144,6 +144,7 @@ void
 COPVTK::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("VTK")
+      << xmlw::attr("ImagesTaken") << imageCounter
       << xmlw::tag("VTKFile")
       << xmlw::attr("type") << "ImageData"
       << xmlw::attr("version") << "0.1"
@@ -158,10 +159,12 @@ COPVTK::output(xmlw::XmlStream& XML)
   XML << xmlw::attr("Origin");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    XML << Sim->aspectRatio[iDim] * (-0.5) << " ";
+    XML << (Sim->aspectRatio[iDim] * (-0.5))
+      / Sim->Dynamics.units().unitLength()
+	<< " ";
   
   XML << xmlw::attr("Spacing");
-
+  
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << binWidth[iDim] / Sim->Dynamics.units().unitLength() << " ";
   
