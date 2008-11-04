@@ -182,9 +182,6 @@ COPVTK::output(xmlw::XmlStream& XML)
       << xmlw::attr("type") << "Int32"
       << xmlw::attr("Name") << "Samples per cell"
       << xmlw::attr("format") << "ascii"
-    //Omitted as I'm not sure if min can be -ve
-    //<< xmlw::attr("RangeMin") << 0
-    //<< xmlw::attr("RangeMax") << 
       << xmlw::chardata();
 
   for (size_t id(0); id < SampleCounter.size(); ++id)
@@ -193,39 +190,50 @@ COPVTK::output(xmlw::XmlStream& XML)
   XML << "\n" << xmlw::endtag("DataArray");
 
   ////////////Momentum field
+  lb.reset();
+
   XML << xmlw::tag("DataArray")
       << xmlw::attr("type") << "Float32"
       << xmlw::attr("Name") << "Avg Particle Momentum"
       << xmlw::attr("NumberOfComponents") << NDIM   
       << xmlw::attr("format") << "ascii"
-    //Omitted as I'm not sure if min can be -ve
-    //<< xmlw::attr("RangeMin") << 0
-    //<< xmlw::attr("RangeMax") << 
       << xmlw::chardata();
 
   for (size_t id(0); id < Momentum.size(); ++id)
     {
       for (size_t iDim(0); iDim < NDIM; ++iDim)
-	XML << Momentum[id][iDim] / SampleCounter[id] << lb;
+	//Nans are not tolerated by paraview
+	if (SampleCounter[id])	  
+	  XML << Momentum[id][iDim] 
+	    / (SampleCounter[id] * Sim->Dynamics.units().unitMomentum()) 
+	      << lb;
+	else
+	  XML << 0.0 << lb;
     }
 
   XML << "\n" << xmlw::endtag("DataArray");
+  
 
   ////////////Energy
+  lb.reset();
+
   XML << xmlw::tag("DataArray")
       << xmlw::attr("type") << "Float32"
       << xmlw::attr("Name") << "Avg Particle Energy"
       << xmlw::attr("format") << "ascii"
-    //Omitted as I'm not sure if min can be -ve
-    //<< xmlw::attr("RangeMin") << 0
-    //<< xmlw::attr("RangeMax") << 
       << xmlw::chardata();
 
-  for (size_t id(0); id < mVsquared.size(); ++id)
-    XML << mVsquared[id] * 0.5 / SampleCounter[id] << lb;
+  for (size_t id(0); id < SampleCounter.size(); ++id)
+    //Nans are not tolerated by paraview
+    if (SampleCounter[id])
+      XML << mVsquared[id] * 0.5 
+	/ (SampleCounter[id] * Sim->Dynamics.units().unitEnergy()) << lb;
+    else
+      XML << 0.0 << lb;
 
   XML << "\n" << xmlw::endtag("DataArray");
 
+  ////////////Postamble
   XML << xmlw::endtag("PointData")
       << xmlw::tag("CellData")
       << xmlw::endtag("CellData")

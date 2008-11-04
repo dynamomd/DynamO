@@ -190,6 +190,7 @@ namespace DYNAMO
   {
   public:
     Line_Breaker(size_t st):counter(1), amount(st+1) {}
+    void reset() { counter = 1; }
     
     template <typename T>
     friend T&
