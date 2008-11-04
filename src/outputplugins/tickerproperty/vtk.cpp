@@ -158,12 +158,12 @@ COPVTK::output(xmlw::XmlStream& XML)
   XML << xmlw::attr("Origin");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    XML << Sim->aspectRatio[iDim] * (-0.5);
+    XML << Sim->aspectRatio[iDim] * (-0.5) << " ";
   
   XML << xmlw::attr("Spacing");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    XML << binWidth[iDim];
+    XML << binWidth[iDim] / Sim->Dynamics.units().unitLength() << " ";
   
   XML << xmlw::tag("Piece")
       << xmlw::attr("Extent");
