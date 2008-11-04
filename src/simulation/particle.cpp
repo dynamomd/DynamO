@@ -35,14 +35,13 @@ CParticle::CParticle(const XMLNode& XML, unsigned long nID):
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
 			    const CParticle& particle)
 {
-  XML << xmlw::tag("Pt") << xmlw::attr("ID") << particle.ID
+  XML << xmlw::attr("ID") << particle.ID
       << xmlw::tag("P")
       << (particle.posVector)
       << xmlw::endtag("P")
       << xmlw::tag("V")
       << (particle.velVector)
-      << xmlw::endtag("V")
-      << xmlw::endtag("Pt");
+      << xmlw::endtag("V");
   
   return XML;
 }

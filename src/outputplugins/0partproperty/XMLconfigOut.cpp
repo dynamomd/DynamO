@@ -83,7 +83,13 @@ COPConfig::output(xmlw::XmlStream &XML)
       tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
 
-      XML << tmp;
+      XML << xmlw::tag("Pt")
+	  << tmp;
+      
+      Sim->Dynamics.Liouvillean().outputExtraPDatXML(XML, tmp);
+
+      XML << xmlw::endtag("Pt");
+
       ++prog;
     }
     

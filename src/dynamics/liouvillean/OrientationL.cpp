@@ -17,31 +17,71 @@
 
 #include "OrientationL.hpp"
 #include "../2particleEventData.hpp"
+#include <boost/progress.hpp>
+#include "../../datatypes/vector.xml.hpp"
 
 void
-CLNOrientation::operator<< (const XMLNode& XML)
-{}
+CLNOrientation::operator<<(const XMLNode& XML)
+{
+  XMLNode xSubNode(XML.getParentNode().getParentNode()
+		   .getChildNode("ParticleData"));
+  
+  size_t nPart = xSubNode.nChildNode("Pt");
+  
+  orientationData.resize(nPart);
+  
+  I_cout() << "Loading orientation data....";
+
+  boost::progress_display prog(nPart);
+  
+  int xml_iter = 0;
+
+  for (size_t i = 0; i < nPart; ++i)
+    {
+      XMLNode xBrowseNode(xSubNode.getChildNode("Pt", &xml_iter));
+      
+      orientationData[i].orientation << xBrowseNode.getChildNode("U");
+      orientationData[i].angularMomentum << xBrowseNode.getChildNode("O");
+      ++prog;
+    }
+}
 
 void
 CLNOrientation::outputXML(xmlw::XmlStream& XML) const
-{}
+{
+  XML << xmlw::attr("Type") 
+      << "NOrientation";
+}
+
+void 
+CLNOrientation::outputExtraPDatXML(xmlw::XmlStream& XML,
+				   const CParticle& part) const
+{
+  XML << xmlw::tag("O")
+      << orientationData[part.getID()].angularMomentum
+      << xmlw::endtag("O")
+      << xmlw::tag("U")
+      << orientationData[part.getID()].orientation
+      << xmlw::endtag("U");
+}
 
 Iflt 
 CLNOrientation::getLineLineCollision() const
 {
+  D_throw() << "Not implemented";
 }
 
 C2ParticleData 
 CLNOrientation::runLineLineCollision() const
 {
-
+  D_throw() << "Not implemented";
 }
 
 void 
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
- //First hand over to the newtonian dynamics
- CLNewton::streamParticle(part, dt);
-
- //Now stream the orientation dynamics
+  //First hand over to the newtonian dynamics
+  CLNewton::streamParticle(part, dt);
+  
+  //Now stream the orientation dynamics
 }

@@ -41,6 +41,9 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
+  virtual void outputExtraPDatXML(xmlw::XmlStream&,
+				  const CParticle&) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
