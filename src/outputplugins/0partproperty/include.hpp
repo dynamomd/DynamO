@@ -20,7 +20,6 @@
 #include "msd.hpp"
 #include "eta.hpp"
 #include "misc.hpp"
-#include "vtk.hpp"
 #include "qmga.hpp"
 #include "intEnergyHist.hpp"
 #include "boundedQstats.hpp"

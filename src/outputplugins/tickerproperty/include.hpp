@@ -28,3 +28,4 @@
 #include "vel_dist.hpp"
 #include "radialdist.hpp"
 #include "velprof.hpp"
+#include "vtk.hpp"

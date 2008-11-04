@@ -14,16 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifdef DYNAMO_VTK
-
 #ifndef COPVTK_H
 #define COPVTK_H
 
-#include "collticker.hpp"
-#include "../../datatypes/field_array.hpp"
+#include "ticker.hpp"
 
-class COPVTK: public COPCollTicker
+class COPVTK: public COPTicker
 {
  public:
   COPVTK(const DYNAMO::SimData*, const XMLNode&);
@@ -31,23 +27,30 @@ class COPVTK: public COPCollTicker
   virtual COutputPlugin *Clone() const
   { return new COPVTK(*this); }
 
-  virtual void initialise() {}
+  virtual void initialise();
 
-  virtual void stream(Iflt);
+  virtual void stream(Iflt) {}
 
   virtual void ticker();
 
   virtual void output(xmlw::XmlStream&);
+
+  void operator<<(const XMLNode&);
   
  protected:
-  int frameCount;
+  unsigned long frameCount;
 
-  CFieldArray<Iflt> Density, Vsquared;
-  CFieldArray<long> SampleCounter;
-  CFieldArray<CVector<> > Velocity;
+  CVector<size_t> nBins;
+  CVector<> binWidth;
+  CVector<> invBinWidth;
+  
+  std::vector<Iflt> mVsquared;
+  std::vector<unsigned long> SampleCounter;
+  std::vector<CVector<> > Momentum;
+
+  size_t getCellID(CVector<>);
 
   unsigned long imageCounter;
 };
 
-#endif
 #endif

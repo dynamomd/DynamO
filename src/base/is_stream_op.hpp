@@ -184,6 +184,32 @@ namespace DYNAMO
     /*! \brief Output stream to send data to. */
     std::ostream *OutputStream;
   };
+
+
+  class Line_Breaker
+  {
+  public:
+    Line_Breaker(size_t st):counter(1), amount(st+1) {}
+    
+    template <typename T>
+    friend T&
+    operator<<(T &os, Line_Breaker& lb)
+    { 
+      if (!(++lb.counter % lb.amount))
+	{
+	  os << "\n";
+	  lb.counter = 1;
+	}
+      else
+	os << " ";
+      
+      return os;
+    }
+
+    private:
+      size_t counter, amount;
+  };
+
 }
 
 #endif

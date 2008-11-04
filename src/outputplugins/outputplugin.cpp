@@ -141,10 +141,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPMomentum>(Sim, XML);
   else if (!Name.compare("QMGA"))
     return testGeneratePlugin<COPQMGA>(Sim, XML);
-#ifdef DYNAMO_VTK
   else if (!Name.compare("VTK"))
     return testGeneratePlugin<COPVTK>(Sim, XML);
-#endif
   else if (!Name.compare("Povray"))
     return testGeneratePlugin<COPPovray>(Sim, XML);
   else if (!Name.compare("ContactMap"))
