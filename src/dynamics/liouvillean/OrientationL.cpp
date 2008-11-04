@@ -15,4 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "OrientationL.cpp"
+#include "OrientationL.hpp"
+#include "../2particleEventData.hpp"
+
+void
+CLNOrientation::operator<< (const XMLNode& XML)
+{}
+
+void
+CLNOrientation::outputXML(xmlw::XmlStream& XML) const
+{}
+
+Iflt 
+CLNOrientation::getLineLineCollision() const
+{
+}
+
+C2ParticleData 
+CLNOrientation::runLineLineCollision() const
+{
+
+}
+
+void 
+CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
+{
+ //First hand over to the newtonian dynamics
+ CLNewton::streamParticle(part, dt);
+
+ //Now stream the orientation dynamics
+}

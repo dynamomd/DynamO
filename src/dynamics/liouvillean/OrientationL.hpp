@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLNewton_H
-#define CLNewton_H
+#ifndef CLNOrientation_H
+#define CLNOrientation_H
 
 #include "NewtonL.hpp"
 #include <vector>
@@ -25,9 +25,11 @@
 class CLNOrientation: public CLNewton
 {
 public:
-  CLNOrientation(DYNAMO::SimData* Sim):
+  CLNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
     CLNewton(Sim)
-  {}
+  {
+    operator<<(XML);
+  }
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
@@ -37,13 +39,19 @@ public:
   //Remember to update the signatures in the Liouvillean base clas when you change these
   virtual C2ParticleData runLineLineCollision() const;
 
+  virtual void operator<<(const XMLNode&);
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
 
-  typedef std::pair<CVector<>, CVector<> > rotationPair;
+  struct rotData
+  {
+    CVector<> orientation;
+    CVector<> angularMomentum;
+  };
   
-  std::vector<rotationPair> orientationData;
+  std::vector<rotData> orientationData;
 };
 #endif
