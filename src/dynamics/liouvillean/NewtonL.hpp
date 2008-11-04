@@ -54,8 +54,6 @@ public:
   
   virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
 
-  virtual Iflt getHalfBoxTraversalTime(const CParticle&) const;
-
   virtual Iflt getWallCollision(const CParticle&, 
 				const CVector<>&, 
 				const CVector<>&

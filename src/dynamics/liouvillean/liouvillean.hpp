@@ -37,8 +37,20 @@ class intPart;
 
 template <class T>
 class CVector;
-/*! \brief Describes the dynamics for single and pairs of objects
-  between collisions.
+
+/*! \brief Implements the time operators for the system.
+ *
+ * This class provides the fundamentals of classes like CInteraction,
+ * CGlobal, CLocal and CSystem. This describes when objects collide or
+ * when an event occurs. Coupled with that are functions to perform
+ * the events such flipping the velocity of a particle when it hits a wall.
+ * 
+ * This is a distinct class from the interactions etc. to prevent
+ * repetition and allow the easy implementation of "other" dynamics
+ * while still having complex classes like square wells!
+ *
+ * This class also has the delayed states algorithm implemented by
+ * default. This can be overridden if required.
  */
 class CLiouvillean: public DYNAMO::SimBase
 {
@@ -50,107 +62,190 @@ public:
     streamFreq(1)
   {};
 
-  virtual ~CLiouvillean() 
-  {}
-
+  virtual ~CLiouvillean() {}
+  
   inline void initialise() 
   {
     streamFreq = 10 * Sim->lN;
   }
 
-  virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const = 0;
+  /*! \brief Determines if and when two spheres will intersect.
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class
+   *
+   * \param d2 Square of the interaction distance
+   *
+   * \return Whether the event will occur
+   */
+  virtual bool SphereSphereInRoot(CPDData& pd, const Iflt& d2) const = 0;
 
+  /*! \brief Determines if and when two spheres will stop intersecting.
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class
+   *
+   * \param d2 Square of the interaction distance
+   *
+   * \return Whether the event will occur (Always false for CLNewton
+   * but not for CLCompression!)
+   */
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const = 0;  
 
-  virtual bool sphereOverlap(const CPDData&, const Iflt&) const = 0;
+  /*! \brief Determines if two spheres are overlapping
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class.
+   *
+   * \param d2 Square of the interaction distance.
+   *
+   * \return True if the spheres are overlapping.
+   */
+  virtual bool sphereOverlap(const CPDData& PD, const Iflt& d2) const = 0;
 
   /*! \brief Determines when the particle center will hit a bounding box.
-
-    Used by the cellular scheduler for cell transistion.
-  */    
-  virtual intPart getSquareCellCollision(const CParticle&, 
-					 const CVector<>&, 
-					 const CVector<>&) const = 0;
+   *
+   * This version is special to the Multlist cellular scheduler and is
+   * depreceated.
+   *
+   * \bug Remove this with Multlist cellular scheduler.
+   */    
+  virtual intPart getSquareCellCollision(const CParticle& part, 
+					 const CVector<>& origin, 
+					 const CVector<>& width) const = 0;
 
   /*! \brief Determines when the particle center will hit a bounding box.
-
-    Used by the cellular global for cell transistion.
-  */    
-  virtual Iflt getSquareCellCollision2(const CParticle&, 
-				       const CVector<>&, 
-				       const CVector<>&) const = 0;
+   *
+   * \param part The particle to test.
+   * \param origin The lowest corner of the bounding cell box.
+   * \param width The width of the bounding cell box.
+   * \return The time till collision.
+   */    
+  virtual Iflt getSquareCellCollision2(const CParticle& part, 
+				       const CVector<>& origin, 
+				       const CVector<>& width) const = 0;
   
-  /*! \brief Determines when the particle center will hit a bounding box.
-
-    Used by the cellular scheduler for cell transistion.
-  */    
-  virtual size_t getSquareCellCollision3(const CParticle&, 
-					 const CVector<>&, 
-					 const CVector<>&) const = 0;
+  /*! \brief Determines which dimension of the cell the particle will
+   * leave first.
+   *
+   * This is used to determine which face of the cell the particle has
+   * left.
+   *
+   * \param part The particle to test.
+   * \param origin The lowest corner of the bounding cell box.
+   * \param width The width of the bounding cell box.
+   * \return The time till collision.
+   */    
+  virtual size_t getSquareCellCollision3(const CParticle& part, 
+					 const CVector<>& origin, 
+					 const CVector<>& width) const = 0;
 
   /*! \brief Determines when the particle center will hit a wall.
-
-    Used by the cellular scheduler for cell transistion. Will
-    automatically wrap the box if travelling away from the nearest
-    image of the wall.
-  */    
-  virtual Iflt getWallCollision(const CParticle&, 
-				const CVector<>&, 
-				const CVector<>&
+   *
+   *
+   * \param part The particle to test.
+   * \param origin A point the wall passes through.
+   * \param norm The normal vector to the wall surface.
+   * \return The time till collision.
+   */    
+  virtual Iflt getWallCollision(const CParticle& part, 
+				const CVector<>& origin, 
+				const CVector<>& norm
 				  ) const = 0;
 
-  /*! \brief Determines when a particle has traveled half a box length
-      in any dimension.
-
-      This is used by CGSentinal to make sure no collisions are missed.
-  */
-  virtual Iflt getHalfBoxTraversalTime(const CParticle&) const = 0;
-
   /*! \brief Collides a particle with a wall.
-
-    \param e Elasticity of wall
-    \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative)
-  */    
-  virtual C1ParticleData runWallCollision(const CParticle&, 
+   *
+   * \param part The particle that is colliding with the wall.
+   * \param e Elasticity of wall.
+   * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
+   * \return The data for the collision.
+   */
+  virtual C1ParticleData runWallCollision(const CParticle& part, 
 					  const CVector<>& vNorm,
 					  const Iflt& e
 					  ) const = 0;
 
   /*! \brief Collides a particle with an Andersen thermostat wall.
-    
-    This gives a \f$ p \propto v_{norm} \exp(v_{norm}^2) \f$ distribution
-    and gaussian tangent vectors
-
-    \param sqrtT Square root of the Temperature of wall
-    \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative)
-  */    
-  virtual C1ParticleData runAndersenWallCollision(const CParticle&, 
+   * 
+   * This wall reassigns the velocity components of the particle on
+   * collision. Care was taken to ensure this gives a \f$ p \propto
+   * v_{norm} \exp(v_{norm}^2) \f$ distribution and gaussian tangent
+   * vectors.
+   *
+   * \param part Particle colliding the wall.
+   * \param sqrtT Square root of the Temperature of wall.
+   * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
+   */    
+  virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
 						  const CVector<>& vNorm,
 						  const Iflt& sqrtT
 						  ) const = 0;
   
   /*! \brief Performs a hard sphere collision between the two particles.
-    
-    Also works for bounce collisions inside wells (i.e. will collide
-    receeding particles).  
-    \param e Elasticity
-  */  
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&,const Iflt& e, const Iflt& d2, const EEventType& eType = CORE) const = 0;
+   * 
+   * Also works for bounce collisions inside wells/outside squareshoulders
+   * (it will collide receeding particles).
+   *
+   * \param e Elasticity.
+   * \param event The event containing the data on the two particles.
+   * \param d2 Square of the interaction distance
+   * \param eType A way of setting the collision type from CORE to BOUNCE etc.
+   * \return The collision data.
+   */  
+  virtual C2ParticleData SmoothSpheresColl(const CIntEvent& event, 
+					   const Iflt& e, 
+					   const Iflt& d2, 
+					   const EEventType& eType = CORE
+					   ) const = 0;
 
-  /*! \brief Does the maths for a well/shoulder event
+  /*! \brief Executes a well/shoulder event
+   *
+   * This is a workhorse of the square well/square shoulder/core
+   * softend interactions. This calculates if the particle will
+   * escape/enter a well/shoulder and runs the interaction.
+   *
+   * \param event The interaction event containing the particle data.
+   * \param deltaKE The kinetic energy change of the particles if the
+   * well/shoulder is transitioned.
+   * \param d2 The square of the interaction distance.
+   * \return The event data.
+   */  
+  virtual C2ParticleData SphereWellEvent(const CIntEvent& event, 
+					 const Iflt& deltaKE, 
+					 const Iflt& d2) const = 0;
 
-      \param deltaKE kinetic energy change of event if executed
-  */  
-  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt& deltaKE, const Iflt& d2) const = 0;
+  /* \brief Reassigns the velocity componets of a particle from a
+   * Gaussian.
+   *
+   * Used to thermostat particles.
+   *
+   * \param part The particle to reassign the velocities of.
+   * \param sqrtT The square root of the temperature.
+   * \return The event data
+   *
+   * \bug Does this work for arbitrary mass particles.
+   */
+  virtual C1ParticleData randomGaussianEvent(const CParticle& part, 
+					     const Iflt& sqrtT) const = 0;
 
-  virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const = 0;
-
+  /*! \brief A method to allow polymorphic classes to be copied
+   */
   virtual CLiouvillean* Clone() const = 0;
 
+  /*! \brief An XML output operator for the class. Calls the virtual
+   * OutputXML member function.
+   */
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CLiouvillean&);
 
+  /*! \brief Instantiates and loads CLiovillean classes from an XML
+   * entry.
+   */
   static CLiouvillean* loadClass(const XMLNode& ,DYNAMO::SimData*);
     
+  /*! \brief Free streams all particles up to the current time.
+   * 
+   * This synchronises all the delayed states of the particles
+   */
   void updateAllParticles() const
   {
     //May as well take this opportunity to reset the streaming
@@ -167,6 +262,11 @@ public:
     const_cast<size_t&>(streamCount) = 0;
   }
 
+  /*! \brief Free streams a particle up to the current time.
+   * 
+   * This synchronises the delayed states of the particle.
+   * \param part Particle to syncronise.
+   */
   inline void updateParticle(const CParticle& part) const
   {
     streamParticle(const_cast<CParticle&>(part), 
@@ -176,6 +276,14 @@ public:
   }
 
 
+  /*! \brief Free streams two particles up to the current time.
+   * 
+   * This is here incase an optimisation or overload is performed later.
+   *
+   * This synchronises the delayed states of the two particle.
+   * \param p1 A CParticle to syncronise.
+   * \param p2 A CParticle to syncronise.
+   */
   inline void updateParticlePair(const CParticle& p1, const CParticle& p2) const
   {
     //This is slow but sure, other stuff like reverse streaming, and
@@ -192,6 +300,9 @@ public:
       = const_cast<CParticle&>(p1).getPecTime() = -partPecTime;
   }
 
+  /*! \brief Called when the system is moved forward in time to update
+   * the delayed states state.
+   */
   inline void stream(const Iflt& dt)
   {
     partPecTime += dt;
@@ -212,23 +323,35 @@ public:
   friend class CSMultListShear;
   
 protected:
-  friend class CStreamTask;
 
-  //See CSMultListShear, this just over advances the particle to find
-  //its future position in boundary changes
+  /*! \brief A dangerous function to predictavly move a particle forward.
+   *
+   * See CSMultListShear, this just over advances the particle to find
+   * its future position in boundary changes.
+   * \bug CSMultListShear special function.
+   */
   inline void advanceUpdateParticle(const CParticle& part, const Iflt& dt) const
   {
-    streamParticle(const_cast<CParticle&>(part), dt + partPecTime + part.getPecTime());
+    streamParticle(const_cast<CParticle&>(part), 
+		   dt + partPecTime + part.getPecTime());
 
     const_cast<CParticle&>(part).getPecTime() = - dt - partPecTime;
   }
   
+  /*! \brief The time by which the delayed state differs from the actual.*/
   Iflt partPecTime;
+
+  /*! \brief How many time increments have occured since the last
+      system syncronise.*/
   size_t streamCount;
+
+  /*! \brief How often the system peculiar times should be syncronised.*/
   size_t streamFreq;
   
-  virtual void outputXML(xmlw::XmlStream& ) const = 0;
-  /*! \brief Moves the particle along in time */
-  virtual void streamParticle(CParticle&, const Iflt&) const = 0;
+  /*! \brief Writes out the liouvilleans data to XML. */
+  virtual void outputXML(xmlw::XmlStream&) const = 0;
+
+  /*! \brief Moves the particles data along in time. */
+  virtual void streamParticle(CParticle& part, const Iflt& dt) const = 0;
 };
 #endif

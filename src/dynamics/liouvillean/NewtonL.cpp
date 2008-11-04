@@ -56,33 +56,6 @@ CLNewton::sphereOverlap(const CPDData& dat, const Iflt& d2) const
   return (dat.r2 - d2) < 0.0;
 }
 
-Iflt 
-CLNewton::getHalfBoxTraversalTime(const CParticle& part) const
-{
-  const Iflt boxfraction(0.1);
-
-  CVector<> rpos(part.getPosition());
-
-  CVector<> vel(part.getVelocity());
-
-  Sim->Dynamics.BCs().setPBC(rpos, vel);
-
-  Iflt retVal(std::signbit(vel[0]) ? ((-boxfraction) * Sim->aspectRatio[0]) 
-	      / vel[0] 
-	      : (boxfraction * Sim->aspectRatio[0]) / vel[0]);
-
-  for (int iDim = 1; iDim < NDIM; ++iDim)
-    {
-      Iflt tmpdt = std::signbit(vel[iDim]) ? ((-boxfraction) * Sim->aspectRatio[iDim]) / vel[iDim] 
-	: (boxfraction * Sim->aspectRatio[iDim]) / vel[iDim];
-      
-      if (tmpdt < retVal)
-	retVal = tmpdt;
-    }
-  
-  return retVal;
-}
-
 C1ParticleData 
 CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 {
