@@ -47,11 +47,16 @@ void
 COPTrajectory::eventUpdate(const CIntEvent& eevent, 
 				   const C2ParticleData&)
 {
+
   logfile << "INTERACTION " << eevent.getInteraction().getID()
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime() 
-	  << " p1 " << eevent.getParticle1().getID()
-	  << " p2 " << eevent.getParticle2().getID()
+	  << " p1 " << 
+    ((eevent.getParticle1().getID() < eevent.getParticle2().getID()) 
+     ? eevent.getParticle1().getID() : eevent.getParticle2().getID())
+	  << " p2 " << 
+    ((eevent.getParticle1().getID() > eevent.getParticle2().getID()) 
+     ? eevent.getParticle1().getID() : eevent.getParticle2().getID())
 	  << "\n";
 }
 
@@ -69,8 +74,16 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    logfile << "    2PEvent p1 " << pData.particle1_.getParticle().getID()
-	    << " p2 " << pData.particle2_.getParticle().getID()
+    logfile << "    2PEvent p1 " << 
+    ((pData.particle1_.getParticle().getID() 
+     < pData.particle2_.getParticle().getID()) 
+    ? pData.particle1_.getParticle().getID() 
+     : pData.particle2_.getParticle().getID())
+	    << " p2 " << 
+    ((pData.particle1_.getParticle().getID() 
+      > pData.particle2_.getParticle().getID()) 
+     ? pData.particle1_.getParticle().getID() 
+     : pData.particle2_.getParticle().getID())
 	    << "\n";
 }
 
@@ -88,8 +101,16 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    logfile << "    2PEvent p1 " << pData.particle1_.getParticle().getID()
-	    << " p2 " << pData.particle2_.getParticle().getID()
+    logfile << "    2PEvent p1 " << 
+    ((pData.particle1_.getParticle().getID() 
+      < pData.particle2_.getParticle().getID())
+     ? pData.particle1_.getParticle().getID()
+     : pData.particle2_.getParticle().getID())
+	    << " p2 " << 
+    ((pData.particle1_.getParticle().getID() 
+      > pData.particle2_.getParticle().getID())
+     ? pData.particle1_.getParticle().getID()
+     : pData.particle2_.getParticle().getID())
 	    << "\n";
 }
 
@@ -107,8 +128,16 @@ COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat,
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    logfile << "    2PEvent p1 " << pData.particle1_.getParticle().getID()
-	    << " p2 " << pData.particle2_.getParticle().getID()
+    logfile << "    2PEvent p1 " << 
+    ((pData.particle1_.getParticle().getID() 
+      < pData.particle2_.getParticle().getID())
+     ? pData.particle1_.getParticle().getID()
+     : pData.particle2_.getParticle().getID())
+	    << " p2 " << 
+    ((pData.particle1_.getParticle().getID() 
+      > pData.particle2_.getParticle().getID())
+     ? pData.particle1_.getParticle().getID()
+     : pData.particle2_.getParticle().getID())
 	    << "\n";
 }
 
