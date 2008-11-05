@@ -713,7 +713,7 @@ CIPPacker::initialise()
 	std::vector<CVector<> > 
 	  latticeSites(standardPackingHelper(new CUParticle()));
       	
-	Iflt molFrac = 0.95, massFrac = 0.001, sizeRatio = 0.1;
+	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
 	if (vm.count("f1"))
 	  sizeRatio = vm["f1"].as<double>();
