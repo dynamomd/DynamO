@@ -121,9 +121,10 @@ COPVTK::ticker()
   
   BOOST_FOREACH(const CParticle & Part, Sim->vParticleList)
     {
-      CVector<> position = Part.getPosition();
+      CVector<> position = Part.getPosition(),
+	velocity = Part.getVelocity();
       
-      Sim->Dynamics.BCs().setPBC(position);
+      Sim->Dynamics.BCs().setPBC(position, velocity);
       
       size_t id(getCellID(position));
 
@@ -131,11 +132,11 @@ COPVTK::ticker()
       ++SampleCounter[id];
       
       //Velocity Vectors
-      Momentum[id] += Part.getVelocity() 
+      Momentum[id] += velocity 
 	* Sim->Dynamics.getSpecies(Part).getMass();
             
       //Energy Field
-      mVsquared[id] += (Part.getVelocity()).square()
+      mVsquared[id] += velocity.square()
 	* Sim->Dynamics.getSpecies(Part).getMass();
     }
 }
