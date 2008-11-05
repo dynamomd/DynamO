@@ -55,14 +55,14 @@ public:
 
   inline const Iflt& getLambda() const { return lambda; }
 
-  inline const size_t& getID() const { return ID; }
-  
   virtual void operator<<(const XMLNode&);
 
   CVector<> getCellDimensions() const 
   { return cellDimension; }
 
 protected:
+  CGCells(const DYNAMO::SimData*, const char*, void*);
+
   struct partCEntry
   {
     int prev;
@@ -88,9 +88,9 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   //Cell Numbering
-  long getID(CVector<long>) const;
+  long getCellID(CVector<long>) const;
   CVector<long> getCoordsFromID(unsigned long) const; 
-  long getID(CVector<>) const;
+  long getCellID(CVector<>) const;
 
   void addCells(Iflt, bool limitCells = true);
   void init_cells();

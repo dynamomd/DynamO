@@ -50,14 +50,22 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
+CGCells::CGCells(const DYNAMO::SimData* ptrSim, const char* nom, void*):
+  CGNeighbourList(ptrSim, nom),
+  cellCount(0),
+  cellDimension(1.0),
+  lambda(0.9), //Default to higher overlap
+  NCells(0)
+{}
+
 void 
 CGCells::operator<<(const XMLNode& XML)
 {
   try {
-    
+    //If you add anything here then it needs to go in gListAndCells.cpp too
     if (XML.isAttributeSet("lambda"))
       lambda = boost::lexical_cast<Iflt>
-	(XML.getAttribute("lambda"));
+	(XML.getAttribute("Lambda"));
     
     globName = XML.getAttribute("Name");	
   }
@@ -178,7 +186,9 @@ CGCells::reinitialise(const Iflt& maxdiam)
 void
 CGCells::outputXML(xmlw::XmlStream& XML) const
 {
+  //If you add anything here it also needs to go in gListAndCells.cpp too
   XML << xmlw::attr("Type") << "Cells"
+      << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
 }
 
@@ -253,7 +263,7 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
 
   ////initialise the data structures
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    addToCell(part.getID(), getID(part.getPosition()));
+    addToCell(part.getID(), getCellID(part.getPosition()));
 
   //Init the cell linking
   init_cells();
@@ -295,9 +305,9 @@ CGCells::init_cells()
       BOOST_FOREACH(CVector<long> &neighbour, neighbourVectors)
 	{
 	  //Positive direction       
-	  cells[i].neighbours.push_back(getID(cells[i].coords + neighbour));
+	  cells[i].neighbours.push_back(getCellID(cells[i].coords + neighbour));
 	  //Negative direction
-	  cells[getID(cells[i].coords + neighbour)].neighbours.push_back(i);
+	  cells[getCellID(cells[i].coords + neighbour)].neighbours.push_back(i);
 	}
 
       CVector<long> tmpvec;
@@ -306,8 +316,8 @@ CGCells::init_cells()
 	{
 	  tmpvec = CVector<long>(0);
 	  tmpvec[iDim] = 1;
-	  cells[i].posCells[iDim] = getID(cells[i].coords + tmpvec);
-	  cells[i].negCells[iDim] = getID(cells[i].coords - tmpvec);
+	  cells[i].posCells[iDim] = getCellID(cells[i].coords + tmpvec);
+	  cells[i].negCells[iDim] = getCellID(cells[i].coords - tmpvec);
 	}
     }
 }
@@ -326,7 +336,7 @@ CGCells::addLocalEvents()
 }
 
 long 
-CGCells::getID(CVector<long> coords) const
+CGCells::getCellID(CVector<long> coords) const
 {
   //PBC for vectors
   for (int iDim = 0; iDim < NDIM; iDim++)
@@ -354,7 +364,7 @@ CGCells::getCoordsFromID(unsigned long i) const
 }
 
 long 
-CGCells::getID(CVector<> pos) const
+CGCells::getCellID(CVector<> pos) const
 {
   Sim->Dynamics.BCs().setPBC(pos);
   CVector<long> temp;
@@ -362,7 +372,7 @@ CGCells::getID(CVector<> pos) const
   for (int iDim = 0; iDim < NDIM; iDim++)
     temp[iDim] = (long) ( (pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) / cellLatticeWidth[iDim]);
   
-  return getID(temp);
+  return getCellID(temp);
 }
 
 

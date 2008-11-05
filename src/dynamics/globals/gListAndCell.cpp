@@ -23,19 +23,22 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
+#include "../ranges/2RSingle.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 
 CGListAndCell::CGListAndCell(const DYNAMO::SimData* nSim, 
 			     const std::string& name):
-  CGCells(nSim, "ListAndCellNBList", NULL)
+  CGCells(nSim, "ListAndCellNBList", NULL),
+  largestParticles(NULL)
 {
   globName = name;
   I_cout() << "Cells Loaded";
 }
 
 CGListAndCell::CGListAndCell(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
-  CGCells(ptrSim, "GlobalCellularEvent")
+  CGCells(ptrSim, "GlobalCellularEvent"),
+  largestParticles(NULL)
 {
   operator<<(XML);
 
@@ -61,46 +64,51 @@ CGListAndCell::operator<<(const XMLNode& XML)
     D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
 }
 
-CGlobEvent 
-CGListAndCell::getEvent(const CParticle& part) const
-{
-  //Update the wall collision
-
-  return CGlobEvent(part, Sim->Dynamics.Liouvillean().
-		    getSquareCellCollision2
-		    (part, cells[partCellData[part.getID()].cell].origin, 
-		     cellDimension), VIRTUAL, *this);
-}
-
-CNParticleData
-CGListAndCell::runEvent(const CGlobEvent& event) const
-{
-}
-
 void 
 CGListAndCell::initialise(size_t nID)
 {
   ID=nID;
-  reinitialise(Sim->Dynamics.getLongestInteraction());
-}
 
-void
-CGListAndCell::reinitialise(const Iflt& maxdiam)
-{
-  I_cout() << "Reinitialising on collision " << Sim->lNColl;
+  Iflt secondMaxDiam = 0.0;
+  Iflt maxdiam = 0.0;
+  const CInteraction* biggest = NULL;
+  
+  if (Sim->Dynamics.getInteractions().size() < 2)
+    D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
 
-  //Create the cells
-  addCells(maxdiam, false);
+  //Find the largest interaction
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+    if (intPtr->maxIntDist() > maxdiam)
+      {
+	maxdiam = intPtr->maxIntDist();
+	biggest = intPtr.get_ptr();
+      }
 
-  addLocalEvents();
+  //Find the second biggest
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+    if (intPtr->maxIntDist() > secondMaxDiam)
+      if (intPtr.get_ptr() != biggest)
+	secondMaxDiam = intPtr->maxIntDist();
 
-  ReInitNotify();
+  if (dynamic_cast<const C2RSingle*>(biggest->getRange().get_ptr()) == NULL)
+    D_throw() << "For the MultListSpecial scheduler to work, the largest interaction"
+	      << " must use C2RSingle to adapt a CRange to a C2Range";
+
+  //We have the biggest interaction, steal its range pointer
+  largestParticles.set_ptr(static_cast<const C2RSingle*>
+			   (biggest->getRange().get_ptr())->getRange()->Clone());
+  
+  I_cout() << "Found that interaction \"" << biggest->getName() <<  "\" had the longest interaction range"
+	   << "\nUsing its range to increase number of cells";
+  
+  reinitialise(secondMaxDiam);
 }
 
 void
 CGListAndCell::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "ListAndCells"
+      << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
 }
 
@@ -108,17 +116,10 @@ void
 CGListAndCell::getParticleNeighbourhood(const CParticle& part,
 				  const nbhoodFunc& func) const
 {
-  BOOST_FOREACH(const int& nb, cells[partCellData[part.getID()].cell].neighbours)
-    for (int next = cells[nb].list;
-	 next != -1; next = partCellData[next].next)
-      if (next != static_cast<int>(part.getID()))
-	func(part, next);
-}
-
-void 
-CGListAndCell::getParticleLocalNeighbourhood(const CParticle& part, 
-				       const nbhoodFunc& func) const
-{
-  BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell].locals)
-    func(part, id);
+  CGCells::getParticleNeighbourhood(part, func);
+  
+  if (largestParticles->isInRange(part))
+    //This is a large particle so tell it to compare against all other large particles
+    BOOST_FOREACH(const size_t& ID, *largestParticles)
+      func(part, ID);
 }

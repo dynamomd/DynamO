@@ -19,9 +19,8 @@
 #define CGListAndCell_HPP
 
 #include "gcells.hpp"
-#include "../../extcode/mathtemplates.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../simulation/particle.hpp"
+#include "../ranges/1range.hpp"
+
 
 class CGListAndCell: public CGCells
 {
@@ -33,28 +32,19 @@ public:
   virtual ~CGListAndCell() {}
 
   virtual CGlobal* Clone() const 
-  { 
-    return new CGListAndCell(*this); 
-  }
-
-  virtual CGlobEvent getEvent(const CParticle &) const;
-
-  virtual CNParticleData runEvent(const CGlobEvent&) const;
+  { return new CGListAndCell(*this); }
 
   virtual void initialise(size_t);
-
-  virtual void reinitialise(const Iflt&);
 
   virtual void getParticleNeighbourhood(const CParticle&, 
 					const nbhoodFunc&) const;
 
-  virtual void getParticleLocalNeighbourhood(const CParticle&, 
-					     const nbhoodFunc&) const;
-  
   virtual void operator<<(const XMLNode&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
+
+  smrtPlugPtr<CRange> largestParticles;
 };
 
 #endif
