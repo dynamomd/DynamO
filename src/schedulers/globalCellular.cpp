@@ -32,7 +32,7 @@
 #include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
-#include "../dynamics/globals/gcells.hpp"
+#include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
 #include <functional>
@@ -91,15 +91,15 @@ CSGlobCellular::initialise()
   if (Sim->Dynamics.BCTypeTest<CRLEBC>()
       || Sim->Dynamics.BCTypeTest<CSLEBC>())
     D_throw() << "This scheduler isn't suitable for sheared systems";
-
+  
   try {
-    GlobCellID = Sim->Dynamics.getGlobal("Cells")->getID();
+    NBListID = Sim->Dynamics.getGlobal("SchedulerNBList")->getID();
   }
   catch(std::exception& cxp)
     {
-      D_throw() << "Failed while finding the cell global event.\n"
-		<< "You must have a cellular grid enabled for this scheduler.\n"
-		<< "You can add one using dynamod --GCells"
+      D_throw() << "Failed while finding the neighbour list global.\n"
+		<< "You must have a neighbour list enabled for this\n"
+		<< "scheduler called SchedulerNBList.\n"
 		<< cxp.what();
     }
 
@@ -124,13 +124,13 @@ CSGlobCellular::initialise()
   //Register the new neighbour function with the cellular tracker
   if (!cellChange.connected())
     cellChange 
-      = static_cast<const CGCells&>(*(Sim->Dynamics.getGlobals()[GlobCellID]))
+      = static_cast<const CGNeighbourList&>(*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerCellTransitionNewNeighbourCallBack
       (boost::bind(&CSGlobCellular::virtualCellNewNeighbour, this, _1, _2));
   
   if (!reinit.connected())
     reinit 
-      = static_cast<const CGCells&>(*(Sim->Dynamics.getGlobals()[GlobCellID]))
+      = static_cast<const CGNeighbourList&>(*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerReInitNotify
       (boost::bind(&CSGlobCellular::initialise, this));
 }
@@ -248,32 +248,39 @@ CSGlobCellular::nextEventType() const
 }
 
 void 
+CSGlobCellular::addInteractionEvent(const CParticle& part, 
+				    const size_t& id) const
+{
+  CIntEvent eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[id]));
+  if (eevent.getType() != NONE)
+    eventHeap.push(intPart(eevent, eventCount[id]), part.getID());
+}
+
+void 
+CSGlobCellular::addLocalEvent(const CParticle& part, 
+			      const size_t& id) const
+{
+  if (Sim->Dynamics.getLocals()[id]->isInteraction(part))
+    eventHeap.push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  
+}
+
+void 
 CSGlobCellular::addNewEvents(const CParticle& part) const
 {  
-  //Add the global event
+  //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
       eventHeap.push(glob->getEvent(part), part.getID());
 
-  const CGCells& cells(*static_cast<const CGCells*>
-		       (Sim->Dynamics.getGlobals()[GlobCellID].get_ptr()));
+  //Grab a reference to the neighbour list
+  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+			       (Sim->Dynamics.getGlobals()[NBListID].get_ptr()));
 
   //Add the local cell events
-  BOOST_FOREACH(const size_t& id, cells.getParticleCellData(part).locals)
-    {
-      const smrtPlugPtr<CLocal>& local(Sim->Dynamics.getLocals()[id]);
-      if (local->isInteraction(part))
-	eventHeap.push(local->getEvent(part), part.getID());
-    }
-      
+  nblist.getParticleLocalNeighbourhood
+    (part, boost::bind(&CSGlobCellular::addLocalEvent, this, _1, _2));
 
-  BOOST_FOREACH(const int& nb, cells.getCellNeighbourHood(part))
-    for (int next = cells.getCellLocalParticles(nb);
-	 next != -1; next = cells.getParticleData(next).next)
-      if (next != static_cast<int>(part.getID()))
-	{
-	  CIntEvent eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[next]));
-	  if (eevent.getType() != NONE)
-	    eventHeap.push(intPart(eevent, eventCount[next]), part.getID());
-	}
+  //Add the interaction events
+  nblist.getParticleNeighbourhood
+    (part, boost::bind(&CSGlobCellular::addInteractionEvent, this, _1, _2));  
 }

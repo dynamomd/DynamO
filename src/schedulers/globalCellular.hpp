@@ -77,7 +77,10 @@ protected:
 
   mutable std::vector<unsigned long long> eventCount;
 
-  size_t GlobCellID;
+  void addInteractionEvent(const CParticle&, const size_t&) const;
+  void addLocalEvent(const CParticle&, const size_t&) const;
+  
+  size_t NBListID;
 
   boost::signals::scoped_connection cellChange;
   boost::signals::scoped_connection reinit;  

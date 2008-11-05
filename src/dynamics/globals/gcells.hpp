@@ -18,23 +18,17 @@
 #ifndef CGCells_HPP
 #define CGCells_HPP
 
-#include "global.hpp"
-#include "../../datatypes/vector.hpp"
-#include <vector>
-#include <list>
+#include "neighbourList.hpp"
 #include "../../extcode/mathtemplates.hpp"
+#include "../../datatypes/vector.hpp"
 #include "../../simulation/particle.hpp"
-#include <boost/function.hpp>
-#include <boost/signals.hpp>
 
-class CGCells: public CGlobal
+class CGCells: public CGNeighbourList
 {
 public:
   CGCells(const XMLNode &, const DYNAMO::SimData*);
 
   CGCells(const DYNAMO::SimData*);
-
-  CGCells(const CGCells&);
 
   virtual ~CGCells() {}
 
@@ -50,6 +44,12 @@ public:
   virtual void initialise(size_t);
 
   virtual void reinitialise(const Iflt&);
+
+  virtual void getParticleNeighbourhood(const CParticle&, 
+					const nbhoodFunc&) const;
+
+  virtual void getParticleLocalNeighbourhood(const CParticle&, 
+					     const nbhoodFunc&) const;
   
   void setLambda(const Iflt&);
   inline const Iflt& getLambda() const { return lambda; }
@@ -60,27 +60,13 @@ public:
   CVector<> getCellDimensions() const 
   { return cellDimension; }
 
-  inline size_t getLocalCellID(const CParticle& part) const
-  { return partCellData[part.getID()].cell; }
-
-  inline const std::vector<size_t>& 
-  getCellNeighbourHood(const CParticle& part) const
-  {
-    return cells[partCellData[part.getID()].cell].neighbours;
-  }
-  
-  inline const int& getCellLocalParticles(const size_t& id) const
-  { return cells[id].list; }
-
+protected:
   struct partCEntry
   {
     int prev;
     int next;
     int cell;
   };
-
-  inline const partCEntry& getParticleData(const size_t& id) const
-  { return partCellData[id]; }
 
   struct cellStruct
   {
@@ -97,26 +83,6 @@ public:
     size_t negCells[NDIM];
   };
 
-  inline const cellStruct& getParticleCellData(const CParticle& part) const
-  { return cells[partCellData[part.getID()].cell]; }
-
-  typedef boost::signal<void (const CParticle&, const size_t)>::slot_type CCfunc;
-  typedef boost::signal<void (const CParticle&, const CParticle&)>::slot_type NNfunc;
-  typedef boost::signal<void ()>::slot_type RIfunc;
-
-  inline boost::signals::connection
-  registerCellTransitionCallBack(const CCfunc& func) const
-  { return sigCellChangeNotify.connect(func); }
-
-  inline boost::signals::connection 
-  registerCellTransitionNewNeighbourCallBack(const NNfunc& func) const
-  { return sigNewNeighbourNotify.connect(func); }
-
-  inline boost::signals::connection 
-  registerReInitNotify(const RIfunc& func) const
-  { return ReInitNotify.connect(func); }
-
-protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   //Cell Numbering
@@ -138,11 +104,6 @@ protected:
   mutable std::vector<cellStruct> cells;
 
   mutable std::vector<partCEntry> partCellData;
-
-  //Signals
-  mutable boost::signal<void (const CParticle&, const size_t)> sigCellChangeNotify;
-  mutable boost::signal<void (const CParticle&, const CParticle&)> sigNewNeighbourNotify;
-  mutable boost::signal<void ()> ReInitNotify;
 
   inline void addToCell(const int& ID, const int& cellID) const
   {

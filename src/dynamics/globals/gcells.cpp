@@ -27,7 +27,7 @@
 #include "../locals/local.hpp"
 
 CGCells::CGCells(const DYNAMO::SimData* nSim):
-  CGlobal(nSim, "GlobalCellularEvent"),
+  CGNeighbourList(nSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
   lambda(0.9), //Default to higher overlap
@@ -39,7 +39,7 @@ CGCells::CGCells(const DYNAMO::SimData* nSim):
 }
 
 CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim, "GlobalCellularEvent"),
+  CGNeighbourList(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
   lambda(0.9), //Default to higher overlap
@@ -49,18 +49,6 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   operator<<(XML);
 
   I_cout() << "Cells Loaded";
-}
-
-CGCells::CGCells(const CGCells& g2):
-  CGlobal(g2.Sim, "GlobalCellularEvent"),
-  cellCount(0),
-  cellDimension(1.0),
-  lambda(0.9), //Default to higher overlap
-  NCells(0)	      
-{
-  globName = "Cells";
-
-  I_cout() << "WARNING: THIS CANNOT BE COPIED! WARNING!";
 }
 
 void 
@@ -378,3 +366,22 @@ CGCells::getID(CVector<> pos) const
   return getID(temp);
 }
 
+
+void 
+CGCells::getParticleNeighbourhood(const CParticle& part,
+				  const nbhoodFunc& func) const
+{
+  BOOST_FOREACH(const int& nb, cells[partCellData[part.getID()].cell].neighbours)
+    for (int next = cells[nb].list;
+	 next != -1; next = partCellData[next].next)
+      if (next != static_cast<int>(part.getID()))
+	func(part, next);
+}
+
+void 
+CGCells::getParticleLocalNeighbourhood(const CParticle& part, 
+				       const nbhoodFunc& func) const
+{
+  BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell].locals)
+    func(part, id);
+}
