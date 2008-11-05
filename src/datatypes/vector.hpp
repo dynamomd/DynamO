@@ -34,12 +34,11 @@ namespace xmlw
 
 /*! \brief The simple NDIM vector class.
  *
- * This class is used alot for vector storage an operations. It seems
+ * This class is used for vector storage and operations. It seems
  * to optimise to zero cost as it has resisted all my attempts to
- * optimise it. I've currently tried templated/preprocessor unrolling
+ * optimise it further. I've currently tried templated/preprocessor unrolling
  * and I failed at using liboil to take advantage of the systems MMX
  * extensions etc.
- *
  */
 template <typename T = Iflt> 
 class CVector
