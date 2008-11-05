@@ -21,3 +21,4 @@
 #include "squarebond.hpp"
 #include "softcore.hpp"
 #include "nullInteraction.hpp"
+#include "lines.hpp"

@@ -71,6 +71,8 @@ CInteraction::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new CISoftCore(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Null"))
     return new CINull(XML, Sim);
+  else if (!std::strcmp(XML.getAttribute("Type"),"Lines"))
+    return new CILines(XML, Sim);
   else 
     D_throw() << "Unknown type of interaction encountered";
 }
