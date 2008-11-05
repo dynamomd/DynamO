@@ -40,10 +40,6 @@ namespace xmlw
  * and I failed at using liboil to take advantage of the systems MMX
  * extensions etc.
  *
- * \bug Need to set the initialise all elements of a vector
- * constructor (CVector(const T& fillItem)) to explicit so that it is
- * obvious when a conversion is performed but this requires the
- * correlators to be overhauled.
  */
 template <typename T = Iflt> 
 class CVector
