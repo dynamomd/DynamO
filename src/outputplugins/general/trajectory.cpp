@@ -54,8 +54,8 @@ COPTrajectory::printData(const CParticle& p1,
   size_t id2 = ((p1.getID() > p2.getID()) 
 		? p1.getID() : p2.getID());
 
-  CVector<> rij = p1.getPosition()
-    - p2.getPosition();
+  CVector<> rij = Sim->vParticleList[id1].getPosition()
+    - Sim->vParticleList[id2].getPosition();
 
   Sim->Dynamics.BCs().setPBC(rij);
   
