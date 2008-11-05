@@ -153,6 +153,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPCollDistCheck>(Sim, XML);
   else if (!Name.compare("ChainBondAngles"))
     return testGeneratePlugin<COPChainBondAngles>(Sim, XML);
+  else if (!Name.compare("Trajectory"))
+    return testGeneratePlugin<COPTrajectory>(Sim, XML);
   else if (!Name.compare("ChainBondLength"))
     return testGeneratePlugin<COPChainBondLength>(Sim, XML);
   else if (!Name.compare("ReverseEventsCheck"))

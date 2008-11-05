@@ -18,4 +18,4 @@
 #include "replexTrace.hpp"
 #include "colldistcheck.hpp"
 #include "reverseEvents.hpp"
-
+#include "trajectory.hpp"
