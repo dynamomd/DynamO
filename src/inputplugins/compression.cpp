@@ -106,6 +106,24 @@ CIPCompression::checkOverlaps()
 void
 CIPCompression::CellSchedulerHack()
 {
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
+    if (dynamic_cast<const CGlobal*>(ptr.get_ptr()) != NULL)      
+      {
+	//Rebulid the collision scheduler without the overlapping cells!
+	CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
+	
+	oldLambda = cells.getLambda();
+	
+	cells.setLambda(0.0);
+	
+	cells.initialise(cells.getID());
+	
+	//Add the system watcher
+	Sim->Dynamics.addSystemLate
+	  (new CSGlobCellHack(Sim, growthRate 
+			      / Sim->Dynamics.units().unitTime()));
+      }
+  
   if (dynamic_cast<CSCells*>(Sim->ptrScheduler) != NULL)
     {
       //Rebulid the collision scheduler without the overlapping cells!
@@ -116,27 +134,7 @@ CIPCompression::CellSchedulerHack()
       //Add the system watcher
       Sim->Dynamics.addSystemLate
 	(new CSCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
-    }
-  else if (dynamic_cast<CSGlobCellular*>(Sim->ptrScheduler) != NULL)
-    {
-      //Rebulid the collision scheduler without the overlapping cells!
-      CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
-
-      oldLambda = cells.getLambda();
-
-      cells.setLambda(0.0);
-
-      cells.initialise(cells.getID());
-
-      //Add the system watcher
-      Sim->Dynamics.addSystemLate
-	(new CSGlobCellHack(Sim, growthRate 
-			    / Sim->Dynamics.units().unitTime()));
-    }
-  else
-    I_cout() << "No cellular device to fix";
-
-  
+    } 
 }
 
 void 
@@ -149,7 +147,7 @@ CIPCompression::limitPackingFraction(Iflt targetp)
     volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
   
   Iflt packfrac = PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
-
+  
   if (targetp < packfrac)
     D_throw() << "Target packing fraction is lower than current!";
   

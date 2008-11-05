@@ -67,13 +67,19 @@ CSGlobCellHack::initialise(size_t nID)
   ID = nID;
   maxOrigDiam = Sim->Dynamics.getLongestInteraction();
 
-  cellID = Sim->Dynamics.getGlobal("Cells")->getID();
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
+    if (dynamic_cast<const CGlobal*>(ptr.get_ptr()) != NULL)      
+      {
+	cellID = ptr->getID();
+	break;
+      }
   
   if (dynamic_cast<const CGCells*>
       (Sim->Dynamics.getGlobals()[cellID].get_ptr()) == NULL)
-    D_throw() << "Not global cells but a global is called Cells!";
+    D_throw() << "No CGCells found!";
     
   size_t minDiam = 0;
+
   CVector<> cellDimensions = dynamic_cast<const CGCells*>
     (Sim->Dynamics.getGlobals()[cellID].get_ptr())->getCellDimensions();
   
