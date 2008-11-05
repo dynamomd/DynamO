@@ -35,7 +35,7 @@ namespace xmlw
 /*! \brief The simple NDIM vector class.
  *
  * This class is used for vector storage and operations. It seems
- * to optimise to zero cost as it has resisted all my attempts to
+ * to optimise to zero/low overhead as it has resisted all my attempts to
  * optimise it further. I've currently tried templated/preprocessor unrolling
  * and I failed at using liboil to take advantage of the systems MMX
  * extensions etc.
@@ -54,7 +54,7 @@ class CVector
   /*! \brief Initialise all elements of the vector to a certain value. */
   inline explicit CVector(const T& fillItem)
   {
-    for (size_t i = 0; i < NDIM; ++i)
+    for (size_t i(0); i < NDIM; ++i)
       data[i] = fillItem;
   }
   
