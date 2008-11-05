@@ -56,6 +56,8 @@ CGlobal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
     return new CGWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Cells"))
     return new CGCells(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
+    return new CGListAndCell(XML, Sim);
   else 
     D_throw() << "Unknown type of Global Interaction encountered";
 }

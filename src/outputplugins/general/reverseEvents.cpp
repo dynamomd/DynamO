@@ -38,7 +38,8 @@ void
 COPReverseEventsCheck::eventUpdate(const CIntEvent& eevent, 
 				   const C2ParticleData&)
 {
-  if (eevent.getdt() < localeps) ++lReverseEvents;
+  if (eevent.getdt() < localeps) 
+  	++lReverseEvents;
 }
 
 void 

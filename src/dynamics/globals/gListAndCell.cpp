@@ -37,7 +37,7 @@ CGListAndCell::CGListAndCell(const DYNAMO::SimData* nSim,
 }
 
 CGListAndCell::CGListAndCell(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
-  CGCells(ptrSim, "GlobalCellularEvent"),
+  CGCells(ptrSim, "ListAndCellNBList"),
   largestParticles(NULL)
 {
   operator<<(XML);
@@ -107,7 +107,7 @@ CGListAndCell::initialise(size_t nID)
 void
 CGListAndCell::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "ListAndCells"
+  XML << xmlw::attr("Type") << "ListAndCell"
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
 }
@@ -121,5 +121,6 @@ CGListAndCell::getParticleNeighbourhood(const CParticle& part,
   if (largestParticles->isInRange(part))
     //This is a large particle so tell it to compare against all other large particles
     BOOST_FOREACH(const size_t& ID, *largestParticles)
-      func(part, ID);
+      if (ID != part.getID())
+	func(part, ID);
 }
