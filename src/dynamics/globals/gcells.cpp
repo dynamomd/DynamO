@@ -26,7 +26,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 
-CGCells::CGCells(const DYNAMO::SimData* nSim):
+CGCells::CGCells(const DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
@@ -34,7 +34,7 @@ CGCells::CGCells(const DYNAMO::SimData* nSim):
   NCells(0)
 
 {
-  globName = "Cells";
+  globName = name;
   I_cout() << "Cells Loaded";
 }
 
@@ -45,7 +45,6 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   lambda(0.9), //Default to higher overlap
   NCells(0)
 {
-  globName = "Cells";
   operator<<(XML);
 
   I_cout() << "Cells Loaded";
@@ -54,22 +53,21 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
 void 
 CGCells::operator<<(const XMLNode& XML)
 {
-  if (XML.isAttributeSet("lambda"))
+  try {
+    
+    if (XML.isAttributeSet("lambda"))
+      lambda = boost::lexical_cast<Iflt>
+	(XML.getAttribute("lambda"));
+    
+    globName = XML.getAttribute("Name");	
+  }
+  catch(...)
     {
-      try {
-	
-	lambda = boost::lexical_cast<Iflt>
-	  (XML.getAttribute("lambda"));
-	
-      }
-      catch(...)
-	{
-	  D_throw() << "Could not load the lambda value in cellular scheduler";
-	}
-      
-      if (lambda < 0.0 || lambda > 1.0)
-	D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
+      D_throw() << "Error loading CGCells";
     }
+  
+  if (lambda < 0.0 || lambda > 1.0)
+    D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
 }
 
 void 
@@ -180,7 +178,8 @@ CGCells::reinitialise(const Iflt& maxdiam)
 void
 CGCells::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Cells";
+  XML << xmlw::attr("Type") << "Cells"
+      << xmlw::attr("Name") << globName;
 }
 
 void

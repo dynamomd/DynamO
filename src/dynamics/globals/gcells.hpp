@@ -26,9 +26,9 @@
 class CGCells: public CGNeighbourList
 {
 public:
-  CGCells(const XMLNode &, const DYNAMO::SimData*);
+  CGCells(const XMLNode&, const DYNAMO::SimData*);
 
-  CGCells(const DYNAMO::SimData*);
+  CGCells(const DYNAMO::SimData*, const std::string&);
 
   virtual ~CGCells() {}
 
@@ -52,7 +52,9 @@ public:
 					     const nbhoodFunc&) const;
   
   void setLambda(const Iflt&);
+
   inline const Iflt& getLambda() const { return lambda; }
+
   inline const size_t& getID() const { return ID; }
   
   virtual void operator<<(const XMLNode&);

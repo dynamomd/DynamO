@@ -70,8 +70,6 @@ CIPPacker::getOptions()
     ("Thermostat,T", po::value<Iflt>(), 
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT")
     //("Sentinel,S", "Installs the collision sentinal to study low densities")
-    ("GCells", "Installs the cellular division global event, required by some"
-     " plugins.")
     ;
 
   hiddenopts.add_options()
@@ -184,7 +182,8 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSGlobCellular(Sim);
-	Sim->Dynamics.addGlobal(new CGCells(Sim));
+
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
@@ -235,7 +234,7 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSGlobCellular(Sim);
-	Sim->Dynamics.addGlobal(new CGCells(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
@@ -402,7 +401,7 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSGlobCellular(Sim);
-	Sim->Dynamics.addGlobal(new CGCells(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	Sim->Dynamics.setPBC<CSPBC>();
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
@@ -745,7 +744,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 	
 	Sim->ptrScheduler = new CSGlobCellular(Sim);
-	Sim->Dynamics.addGlobal(new CGCells(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
@@ -792,19 +791,6 @@ CIPPacker::initialise()
 void 
 CIPPacker::processOptions()
 {
-  if (vm.count("GCells"))
-    {      
-      try {
-	Sim->Dynamics.getGlobal("Cells");
-
-	I_cout() << "Cell globals are already present.";
-
-      } catch (std::exception&)
-	{
-	  Sim->Dynamics.addGlobal(new CGCells(Sim));
-	}
-    }
-
   if (vm.count("Thermostat"))
     {      
       try {
