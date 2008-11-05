@@ -22,6 +22,7 @@
 #include "../../dynamics/locals/localEvent.hpp"
 #include "../../dynamics/NparticleEventData.hpp"
 #include "../../dynamics/systems/system.hpp"
+#include "../../dynamics/BC/BC.hpp"
 
 COPTrajectory::COPTrajectory(const DYNAMO::SimData* t1, const XMLNode&):
   COutputPlugin(t1,"Trajectory")
@@ -43,21 +44,44 @@ COPTrajectory::initialise()
   logfile.open("trajectory.out", std::ios::out|std::ios::trunc);
 }
 
+void
+COPTrajectory::printData(const CParticle& p1,
+			 const CParticle& p2) const
+{
+  size_t id1 = ((p1.getID() < p2.getID()) 
+		? p1.getID() : p2.getID());
+  
+  size_t id2 = ((p1.getID() > p2.getID()) 
+		? p1.getID() : p2.getID());
+
+  CVector<> rij = p1.getPosition()
+    - p2.getPosition();
+
+  Sim->Dynamics.BCs().setPBC(rij);
+  
+  rij /= Sim->Dynamics.units().unitLength();
+
+  logfile << " p1 " << id1
+	  << " p2 " << id2
+	  << " |r12| < " << rij.length()
+	  << " r12 < ";
+  
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    logfile << rij[iDim] << " ";
+}
+
 void 
 COPTrajectory::eventUpdate(const CIntEvent& eevent, 
 				   const C2ParticleData&)
 {
-
   logfile << "INTERACTION " << eevent.getInteraction().getID()
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
-	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime() 
-	  << " p1 " << 
-    ((eevent.getParticle1().getID() < eevent.getParticle2().getID()) 
-     ? eevent.getParticle1().getID() : eevent.getParticle2().getID())
-	  << " p2 " << 
-    ((eevent.getParticle1().getID() > eevent.getParticle2().getID()) 
-     ? eevent.getParticle1().getID() : eevent.getParticle2().getID())
-	  << "\n";
+	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime();
+  
+  printData(eevent.getParticle1(),
+	    eevent.getParticle2());
+  
+  logfile << "\n";
 }
 
 void 
@@ -70,21 +94,18 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
 	  << "\n";
 
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    logfile << "    1PEvent p1 " << pData.getParticle().getID()
+    logfile << "    1PEvent p1" << pData.getParticle().getID()
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    logfile << "    2PEvent p1 " << 
-    ((pData.particle1_.getParticle().getID() 
-     < pData.particle2_.getParticle().getID()) 
-    ? pData.particle1_.getParticle().getID() 
-     : pData.particle2_.getParticle().getID())
-	    << " p2 " << 
-    ((pData.particle1_.getParticle().getID() 
-      > pData.particle2_.getParticle().getID()) 
-     ? pData.particle1_.getParticle().getID() 
-     : pData.particle2_.getParticle().getID())
-	    << "\n";
+    {
+      logfile << "    2PEvent";
+
+      printData(pData.particle1_.getParticle(),
+		pData.particle2_.getParticle());
+
+      logfile << "\n";
+    }
 }
 
 void 
@@ -101,17 +122,14 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    logfile << "    2PEvent p1 " << 
-    ((pData.particle1_.getParticle().getID() 
-      < pData.particle2_.getParticle().getID())
-     ? pData.particle1_.getParticle().getID()
-     : pData.particle2_.getParticle().getID())
-	    << " p2 " << 
-    ((pData.particle1_.getParticle().getID() 
-      > pData.particle2_.getParticle().getID())
-     ? pData.particle1_.getParticle().getID()
-     : pData.particle2_.getParticle().getID())
-	    << "\n";
+    {
+      logfile << "    2PEvent";
+      
+      printData(pData.particle1_.getParticle(),
+		pData.particle2_.getParticle());
+      
+      logfile << "\n";
+    }
 }
 
 void 
@@ -128,17 +146,14 @@ COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat,
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    logfile << "    2PEvent p1 " << 
-    ((pData.particle1_.getParticle().getID() 
-      < pData.particle2_.getParticle().getID())
-     ? pData.particle1_.getParticle().getID()
-     : pData.particle2_.getParticle().getID())
-	    << " p2 " << 
-    ((pData.particle1_.getParticle().getID() 
-      > pData.particle2_.getParticle().getID())
-     ? pData.particle1_.getParticle().getID()
-     : pData.particle2_.getParticle().getID())
-	    << "\n";
+    {
+      logfile << "    2PEvent";
+      
+      printData(pData.particle1_.getParticle(),
+		pData.particle2_.getParticle());
+      
+      logfile << "\n";
+    }
 }
 
 void 
