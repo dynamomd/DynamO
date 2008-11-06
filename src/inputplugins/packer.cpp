@@ -800,7 +800,7 @@ CIPPacker::processOptions()
 	if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
 	  D_throw() << "Could not upcast thermostat to Andersens";
       
-	static_cast<const CSysGhost*>(thermostat)->setTemperature
+	static_cast<CSysGhost*>(thermostat)->setTemperature
 	  (vm["Thermostat"].as<Iflt>() * Sim->Dynamics.units().unitEnergy());
       } catch (std::exception&)
 	{
