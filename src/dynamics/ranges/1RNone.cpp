@@ -15,20 +15,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RAll.hpp"
-#include "1RList.hpp"
-#include "1RRange.hpp"
-#include "1RSingle.hpp"
 #include "1RNone.hpp"
+#include "../../extcode/xmlwriter.hpp"
+#include "../../extcode/xmlParser.h"
+#include "../../base/is_exception.hpp"
 
-#include "2RList.hpp"
-#include "2RPair.hpp"
-#include "2RRangeList.hpp"
-#include "2RSingle.hpp"
-#include "2RChain.hpp"
-#include "2RChains.hpp"
-#include "2RChainGroups.hpp"
-#include "2RIntraChains.hpp"
-#include "2RRing.hpp"
-#include "2RRings.hpp"
-#include "2RAll.hpp"
+CRNone::CRNone(const XMLNode& XML)
+{ operator<<(XML); }
+
+void 
+CRNone::operator<<(const XMLNode& XML)
+{
+  if (strcmp(XML.getAttribute("Range"),"None"))
+    D_throw() << "Attempting to load CRNone from non None type";
+}
+
+void 
+CRNone::outputXML(xmlw::XmlStream& XML) const
+{
+  XML << xmlw::attr("Range") << "All";
+}
+
+

@@ -28,6 +28,8 @@ CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)
 {
   if (!strcmp(XML.getAttribute("Range"),"All"))
     return new CRAll(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Range"),"None"))
+    return new CRNone(XML);
   else if (!strcmp(XML.getAttribute("Range"),"Single"))
     return new CRSingle(XML);
   else if (!strcmp(XML.getAttribute("Range"),"Ranged"))
