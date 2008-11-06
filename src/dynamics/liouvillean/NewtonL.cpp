@@ -205,7 +205,7 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
 	retVal = tmpdt;
     }
   
-  return retVal + part.getPecTime() + partPecTime;
+  return retVal - (part.getPecTime() + partPecTime);
 }
 
 size_t
