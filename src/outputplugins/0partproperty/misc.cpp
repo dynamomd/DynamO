@@ -42,7 +42,10 @@ COPMisc::initialise()
   Iflt kt = Sim->Dynamics.getkT();
 
   I_cout() << "Particle Count " << Sim->lN 
-	   << "\nDensity " << Sim->Dynamics.getNumberDensity() * Sim->Dynamics.units().unitVolume()
+	   << "\nSim Unit Length " << Sim->Dynamics.units().unitLength()
+	   << "\nSim Unit Time " << Sim->Dynamics.units().unitTime()
+	   << "\nDensity " << Sim->Dynamics.getNumberDensity() 
+    * Sim->Dynamics.units().unitVolume()
 	   << "\nPacking Fraction " << Sim->Dynamics.getPackingFraction()
 	   << "\nSim Temperature " << kt
 	   << "\nReduced Temperature " << kt / Sim->Dynamics.units().unitEnergy()
