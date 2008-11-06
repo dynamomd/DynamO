@@ -133,6 +133,7 @@ public:
   const smrtPlugPtr<CInteraction>& getInteraction(std::string) const;
 
   const std::vector<smrtPlugPtr<CGlobal> >& getGlobals() const;
+  std::vector<smrtPlugPtr<CGlobal> >& getGlobals();
   smrtPlugPtr<CGlobal>& getGlobal(std::string);
   const smrtPlugPtr<CGlobal>& getGlobal(std::string) const;
 

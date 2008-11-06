@@ -106,11 +106,11 @@ CIPCompression::checkOverlaps()
 void
 CIPCompression::CellSchedulerHack()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
-    if (dynamic_cast<const CGlobal*>(ptr.get_ptr()) != NULL)      
+  BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
+    if (dynamic_cast<CGCells*>(ptr.get_ptr()) != NULL)      
       {
 	//Rebulid the collision scheduler without the overlapping cells!
-	CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
+	CGCells& cells(dynamic_cast<CGCells&>(*ptr));
 	
 	oldLambda = cells.getLambda();
 	

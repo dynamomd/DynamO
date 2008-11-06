@@ -91,6 +91,10 @@ const std::vector<smrtPlugPtr<CGlobal> >&
 CDynamics::getGlobals() const
 { return globals; }
 
+std::vector<smrtPlugPtr<CGlobal> >& 
+CDynamics::getGlobals()
+{ return globals; }
+
 const std::vector<smrtPlugPtr<CLocal> >& 
 CDynamics::getLocals() const
 { return locals; }
