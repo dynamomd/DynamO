@@ -75,9 +75,14 @@ CIPCompression::RestoreSystem()
     }
   else if (dynamic_cast<CSGlobCellular*>(Sim->ptrScheduler) != NULL)
     {
-      //Rebulid the collision scheduler without the overlapping cells!
-      CGCells& cells(dynamic_cast<CGCells&>(*Sim->Dynamics.getGlobal("Cells")));
-      cells.setLambda(oldLambda);
+      BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
+	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
+	  {
+	    //Rebulid the collision scheduler without the overlapping cells!
+	    CGCells& cells(dynamic_cast<CGCells&>(*ptr));
+	    
+	    cells.setLambda(oldLambda);
+	  }
     }
   else
     I_cout() << "No cellular device to fix";
