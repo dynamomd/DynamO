@@ -93,9 +93,6 @@ CIHardSphere::getCollision(const CParticle &p1, const CParticle &p2) const
 { 
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
 
-  std::cerr << "INT TEST ID1 " << std::min(p1.getID(), p2.getID()) << " ID2 "
-	    << std::max(p1.getID(), p2.getID()) << "\n";
-
   CPDData colldat(*Sim, p1, p2);
 
   if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, d2))

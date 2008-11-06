@@ -87,9 +87,6 @@ CGCells::setLambda(const Iflt& nL)
 CGlobEvent 
 CGCells::getEvent(const CParticle& part) const
 {
-  //Update the wall collision
-  std::cerr << "\nCGWall TEST ID " << part.getID() << " "; 
-
   return CGlobEvent(part, Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
 		    (part, cells[partCellData[part.getID()].cell].origin, 
@@ -129,10 +126,10 @@ CGCells::runEvent(const CGlobEvent& event) const
     CVector<long> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
-	      << (Sim->dSysTime + event.getdt())
+	      << (Sim->dSysTime + event.getdt()) / Sim->Dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
-	      << "  dt " << event.getdt()
+	      << "  dt " << event.getdt() / Sim->Dynamics.units().unitTime()
 	      << "  from <" 
 	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
 	      << "> to <" 
@@ -182,10 +179,6 @@ CGCells::reinitialise(const Iflt& maxdiam)
   addLocalEvents();
 
   ReInitNotify();
-
-  /*for (size_t iDim(0); iDim < NDIM; ++iDim)
-    I_cout() << cells[partCellData[6].cell].coords[iDim];*/
-  
 }
 
 void

@@ -53,6 +53,11 @@ class CVector;
  * default. This can be overridden if required.
  *
  * The bulk of the code is implemented in the CLNewton class.
+ *
+ * Before using any functions in this class you must updateParticle
+ * first with the exception of the getSquareCell events! This is to
+ * make sure the Delayed States algorithm is up to date for the
+ * particles being tested.
  */
 class CLiouvillean: public DYNAMO::SimBase
 {
@@ -118,6 +123,11 @@ public:
 
   /*! \brief Determines when the particle center will hit a bounding box.
    *
+   * For speed this does a little extra math with the event time to
+   * avoid having to use the delayed states update.
+   *
+   * DO NOT do updateParticle before calling this function, there's no need.
+   * 
    * \param part The particle to test.
    * \param origin The lowest corner of the bounding cell box.
    * \param width The width of the bounding cell box.
@@ -132,6 +142,11 @@ public:
    *
    * This is used to determine which face of the cell the particle has
    * left.
+   *
+   * DO NOT do updateParticle before calling this function, there's no need.
+   * 
+   * For speed this does a little extra math with the event time to
+   * avoid having to use the delayed states update.
    *
    * \param part The particle to test.
    * \param origin The lowest corner of the bounding cell box.
