@@ -136,7 +136,7 @@ void
 COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat, 
 				   const Iflt& dt)
 {
-  logfile << "LOCAL " << sys.getID()
+  logfile << "SYSTEM " << sys.getID()
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << dt / Sim->Dynamics.units().unitTime()
 	  << "\n";
