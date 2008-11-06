@@ -100,7 +100,7 @@ CGListAndCell::initialise(size_t nID)
   
   I_cout() << "Found that interaction \"" << biggest->getName() <<  "\" had the longest interaction range"
 	   << "\nUsing its range to increase number of cells";
-  
+
   reinitialise(secondMaxDiam);
 }
 
@@ -114,7 +114,7 @@ CGListAndCell::outputXML(xmlw::XmlStream& XML) const
 
 void 
 CGListAndCell::getParticleNeighbourhood(const CParticle& part,
-				  const nbhoodFunc& func) const
+					const nbhoodFunc& func) const
 {
   CGCells::getParticleNeighbourhood(part, func);
   

@@ -272,8 +272,6 @@ CSGlobCellular::addNewEvents(const CParticle& part) const
     if (glob->isInteraction(part))
       eventHeap.push(glob->getEvent(part), part.getID());
 
-  //Grab a reference to the neighbour list
-  
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
@@ -281,10 +279,11 @@ CSGlobCellular::addNewEvents(const CParticle& part) const
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
+  //Grab a reference to the neighbour list
   const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
 				(Sim->Dynamics.getGlobals()[NBListID]
 				 .get_ptr()));
-
+  
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
     (part, boost::bind(&CSGlobCellular::addLocalEvent, this, _1, _2));

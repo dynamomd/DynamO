@@ -88,6 +88,7 @@ CGlobEvent
 CGCells::getEvent(const CParticle& part) const
 {
   //Update the wall collision
+  std::cerr << "\nCGWall TEST ID " << part.getID() << " "; 
 
   return CGlobEvent(part, Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
@@ -181,6 +182,10 @@ CGCells::reinitialise(const Iflt& maxdiam)
   addLocalEvents();
 
   ReInitNotify();
+
+  /*for (size_t iDim(0); iDim < NDIM; ++iDim)
+    I_cout() << cells[partCellData[6].cell].coords[iDim];*/
+  
 }
 
 void
@@ -234,11 +239,19 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
   I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
 	   << cellCount[1] << "," << cellCount[2];
 
-  I_cout() << "Cells dimension <x,y,z>  " << cellDimension[0] << ","
-	   << cellDimension[1] << "," << cellDimension[2];
+  I_cout() << "Cells dimension <x,y,z>  " 
+	   << cellDimension[0] / Sim->Dynamics.units().unitLength()
+	   << ","
+	   << cellDimension[1] / Sim->Dynamics.units().unitLength()
+	   << "," 
+	   << cellDimension[2] / Sim->Dynamics.units().unitLength();
 
-  I_cout() << "Lattice spacing <x,y,z>  " << cellLatticeWidth[0] << ","
-	   << cellLatticeWidth[1] << "," << cellLatticeWidth[2];
+  I_cout() << "Lattice spacing <x,y,z>  " 
+	   << cellLatticeWidth[0] / Sim->Dynamics.units().unitLength()
+	   << ","
+	   << cellLatticeWidth[1] / Sim->Dynamics.units().unitLength()
+	   << "," 
+	   << cellLatticeWidth[2] / Sim->Dynamics.units().unitLength();
 
   fflush(stdout);
 
@@ -250,8 +263,8 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
 
       for (int iDim = 0; iDim < NDIM; iDim++)
 	cells[id].origin[iDim] = cells[id].coords[iDim] * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
-
-      /*std::cerr << "\nID " << id << " " << "coords  " << cells[id].coords[0] 
+      /*
+      std::cerr << "\nID " << id << " " << "coords  " << cells[id].coords[0] 
 		<< "," << cells[id].coords[1] << "," << cells[id].coords[2]
 		<< " " << "Origin  " << cells[id].origin[0] 
 		<< "," << cells[id].origin[1] << "," << cells[id].origin[2];*/
