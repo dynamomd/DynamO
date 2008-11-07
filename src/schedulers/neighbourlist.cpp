@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "globalCellular.hpp"
+#include "neighbourlist.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../extcode/threadpool.hpp"
 #include "../simulation/particle.hpp"
@@ -38,55 +38,55 @@
 #include <functional>
 
 void 
-CSGlobCellular::stream(const Iflt dt)
+CSNeighbourList::stream(const Iflt& dt)
 {
-  eventHeap.stream(dt);
+  sorter->stream(dt);
 }
 
 const CIntEvent 
-CSGlobCellular::earliestIntEvent() const
+CSNeighbourList::earliestIntEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data().top().type != INTERACTION)
+  if (sorter->next_Data().top().type != INTERACTION)
     D_throw() << "The next event is not an Interaction event";
 #endif
   
   return Sim->Dynamics.getEvent
-    (Sim->vParticleList[eventHeap.next_ID()], 
-     Sim->vParticleList[eventHeap.next_Data().top().p2]);
+    (Sim->vParticleList[sorter->next_ID()], 
+     Sim->vParticleList[sorter->next_Data().top().p2]);
 }
 
 void 
-CSGlobCellular::operator<<(const XMLNode& XML)
+CSNeighbourList::operator<<(const XMLNode& XML)
 {
 }
 
 const CGlobEvent
-CSGlobCellular::earliestGlobEvent() const
+CSNeighbourList::earliestGlobEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data().top().type != GLOBAL)
+  if (sorter->next_Data().top().type != GLOBAL)
     D_throw() << "The next event is not a Global event";
 #endif
 
-  return Sim->Dynamics.getGlobals()[eventHeap.next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
+  return Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
 }
 
 const CLocalEvent
-CSGlobCellular::earliestLocalEvent() const
+CSNeighbourList::earliestLocalEvent() const
 {
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data().top().type != LOCAL)
+  if (sorter->next_Data().top().type != LOCAL)
     D_throw() << "The next event is not a Local event";
 #endif
 
-  return Sim->Dynamics.getLocals()[eventHeap.next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[eventHeap.next_ID()]);
+  return Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
 }
 
 void
-CSGlobCellular::initialise()
+CSNeighbourList::initialise()
 {
   if (Sim->Dynamics.BCTypeTest<CRLEBC>()
       || Sim->Dynamics.BCTypeTest<CSLEBC>())
@@ -105,8 +105,8 @@ CSGlobCellular::initialise()
 
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
-  eventHeap.clear();
-  eventHeap.resize(Sim->lN);
+  sorter->clear();
+  sorter->resize(Sim->lN);
   eventCount.clear();
   eventCount.resize(Sim->lN, 0);
 
@@ -114,88 +114,83 @@ CSGlobCellular::initialise()
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     addNewEvents(part);
   
-  eventHeap.init();
-
-#ifndef CBT
-  I_cout() << "BPQ: Number of lists " << eventHeap.NLists();
-  I_cout() << "BPQ: Scale Factor " << eventHeap.scaleFactor();
-#endif
+  sorter->init();
   
   //Register the new neighbour function with the cellular tracker
   if (!cellChange.connected())
     cellChange 
       = static_cast<const CGNeighbourList&>(*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerCellTransitionNewNeighbourCallBack
-      (boost::bind(&CSGlobCellular::virtualCellNewNeighbour, this, _1, _2));
+      (boost::bind(&CSNeighbourList::virtualCellNewNeighbour, this, _1, _2));
   
   if (!reinit.connected())
     reinit 
       = static_cast<const CGNeighbourList&>(*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerReInitNotify
-      (boost::bind(&CSGlobCellular::initialise, this));
+      (boost::bind(&CSNeighbourList::initialise, this));
 }
 
 void 
-CSGlobCellular::outputXML(xmlw::XmlStream& XML) const
+CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "GlobalCellular";
 }
 
-CSGlobCellular::CSGlobCellular(const XMLNode& XML, const DYNAMO::SimData* Sim):
+CSNeighbourList::CSNeighbourList(const XMLNode& XML, const DYNAMO::SimData* Sim):
   CScheduler(Sim,"GlobalCellular")
 { 
   I_cout() << "Global Cellular Algorithmn";
   operator<<(XML);
 }
 
-CSGlobCellular::CSGlobCellular(const DYNAMO::SimData* Sim):
+CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim):
   CScheduler(Sim,"GlobalCellular")
 { I_cout() << "Global Cellular Algorithmn"; }
 
 void 
-CSGlobCellular::rescaleTimes(Iflt scale)
-{ eventHeap.rescaleTimes(scale); }
+CSNeighbourList::rescaleTimes(const Iflt& scale)
+{ sorter->rescaleTimes(scale); }
 
 
 void 
-CSGlobCellular::popVirtualEvent()
+CSNeighbourList::popVirtualEvent()
 {
-  eventHeap[eventHeap.next_ID()].pop();
+  (*sorter)[sorter->next_ID()].pop();
 }
 
 void 
-CSGlobCellular::virtualCellNewNeighbour(const CParticle& part, const CParticle& part2)
+CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, const CParticle& part2)
 {
   CIntEvent eevent(Sim->Dynamics.getEvent(part, part2));
 
   if (eevent.getType() != NONE)
-    eventHeap.push(intPart(eevent, eventCount[part2.getID()]), part.getID());  
+    sorter->push(intPart(eevent, eventCount[part2.getID()]), part.getID());  
 }
 
 void 
-CSGlobCellular::pushAndUpdateVirtualEvent(const CParticle& part, const intPart& newevent)
+CSNeighbourList::pushAndUpdateVirtualEvent(const CParticle& part, const intPart& newevent)
 {
-  eventHeap.push(newevent,part.getID());
-  eventHeap.update(part.getID());
+  sorter->push(newevent,part.getID());
+  sorter->update(part.getID());
 }
 
 void 
-CSGlobCellular::update(const CParticle& part)
+CSNeighbourList::update(const CParticle& part)
 {
   //Invalidate previous entries
   ++eventCount[part.getID()];
-  eventHeap[part.getID()].clear();
+  (*sorter)[part.getID()].clear();
   addNewEvents(part);
-  eventHeap.update(part.getID());
+  sorter->update(part.getID());
 }
 
 ENextEvent 
-CSGlobCellular::nextEventType() const
+CSNeighbourList::nextEventType() const
 {
   //Determine the next global and/or system event
   Iflt tmpt = HUGE_VAL;
 
-  eventHeap.sort();
+  sorter->sort();
 
   if (!Sim->Dynamics.getSystemEvents().empty())
     tmpt =(*min_element(Sim->Dynamics.getSystemEvents().begin(),
@@ -203,27 +198,27 @@ CSGlobCellular::nextEventType() const
 			))->getdt();
   
 #ifdef DYNAMO_DEBUG
-  if (eventHeap.next_Data().empty())
+  if (sorter->next_Data().empty())
     D_throw() << "Next particle list is empty but top of list!";
 #endif  
   
 #ifdef DYNAMO_UpdateCollDebug
-  std::cerr << "\nNext eventdt = " << eventHeap.next_dt();
+  std::cerr << "\nNext eventdt = " << sorter->next_dt();
 #endif
 
-  while (eventHeap.next_dt() < tmpt)
+  while (sorter->next_dt() < tmpt)
     {
-     switch (eventHeap.next_Data().top().type)
+     switch (sorter->next_Data().top().type)
       {
       case INTERACTION:
-	if (eventHeap.next_Data().top().collCounter2 
-	    != eventCount[eventHeap.next_Data().top().p2])
+	if (sorter->next_Data().top().collCounter2 
+	    != eventCount[sorter->next_Data().top().p2])
 	  {
 #ifdef DYNAMO_UpdateCollDebug
-	    std::cerr << "\nEvent invalid, popping and updating" << eventHeap.next_dt();
+	    std::cerr << "\nEvent invalid, popping and updating" << sorter->next_dt();
 #endif
-	    eventHeap.next_Data().pop();
-	    eventHeap.update(eventHeap.next_ID());
+	    sorter->next_Data().pop();
+	    sorter->update(sorter->next_ID());
 	    break;
 	  }
 
@@ -237,10 +232,10 @@ CSGlobCellular::nextEventType() const
       default:
 	D_throw() << "Unknown event type!";
       }
-     eventHeap.sort();
+     sorter->sort();
 
 #ifdef DYNAMO_UpdateCollDebug
-     std::cerr << "\nNext eventdt = " << eventHeap.next_dt();
+     std::cerr << "\nNext eventdt = " << sorter->next_dt();
 #endif
     }
 
@@ -248,29 +243,29 @@ CSGlobCellular::nextEventType() const
 }
 
 void 
-CSGlobCellular::addInteractionEvent(const CParticle& part, 
+CSNeighbourList::addInteractionEvent(const CParticle& part, 
 				    const size_t& id) const
 {
   CIntEvent eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[id]));
   if (eevent.getType() != NONE)
-    eventHeap.push(intPart(eevent, eventCount[id]), part.getID());
+    sorter->push(intPart(eevent, eventCount[id]), part.getID());
 }
 
 void 
-CSGlobCellular::addLocalEvent(const CParticle& part, 
+CSNeighbourList::addLocalEvent(const CParticle& part, 
 			      const size_t& id) const
 {
   if (Sim->Dynamics.getLocals()[id]->isInteraction(part))
-    eventHeap.push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  
+    sorter->push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  
 }
 
 void 
-CSGlobCellular::addNewEvents(const CParticle& part) const
+CSNeighbourList::addNewEvents(const CParticle& part) const
 {  
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
-      eventHeap.push(glob->getEvent(part), part.getID());
+      sorter->push(glob->getEvent(part), part.getID());
 
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
@@ -286,9 +281,9 @@ CSGlobCellular::addNewEvents(const CParticle& part) const
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, boost::bind(&CSGlobCellular::addLocalEvent, this, _1, _2));
+    (part, boost::bind(&CSNeighbourList::addLocalEvent, this, _1, _2));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, boost::bind(&CSGlobCellular::addInteractionEvent, this, _1, _2));  
+    (part, boost::bind(&CSNeighbourList::addInteractionEvent, this, _1, _2));  
 }

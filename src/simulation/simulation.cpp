@@ -231,7 +231,8 @@ CSimulation::executeIntEvent()
 	       << iEvent.stringData(this);
 
       //Now we're past the event, update the scheduler and plugins
-      ptrScheduler->update(iEvent.getParticle1(), iEvent.getParticle2());
+      ptrScheduler->update(iEvent.getParticle1());
+      ptrScheduler->update(iEvent.getParticle2());
       
       return;
     }
@@ -273,7 +274,8 @@ CSimulation::executeIntEvent()
   C2ParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event, update the scheduler and plugins
-  ptrScheduler->update(iEvent.getParticle1(), iEvent.getParticle2());
+  ptrScheduler->update(iEvent.getParticle1());
+  ptrScheduler->update(iEvent.getParticle2());
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);

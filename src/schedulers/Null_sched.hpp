@@ -29,7 +29,7 @@ class CSNull : public CScheduler
 
   void update(const CParticle&);
 
-  void stream(const Iflt);
+  void stream(const Iflt&);
 
   virtual ENextEvent nextEventType() const;
 

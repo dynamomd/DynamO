@@ -28,10 +28,8 @@
 #include "../dynamics/units/units.hpp"
 #include "../datatypes/vector.hpp"
 #include "../base/is_simdata.hpp"
-#include "../schedulers/cells.hpp"
-#include "../schedulers/globalCellular.hpp"
+#include "../schedulers/neighbourlist.hpp"
 #include "../dynamics/globals/gcells.hpp"
-#include "../dynamics/systems/compressionhack.hpp"
 #include "../dynamics/systems/globCellCompressionHack.hpp"
 #include "../dynamics/systems/tHalt.hpp"
 #include "../dynamics/species/species.hpp"
@@ -68,12 +66,7 @@ CIPCompression::RestoreSystem()
   //Required to finish off the compression dynamics
   Sim->Dynamics.Liouvillean().updateAllParticles();
 
-
-  if (dynamic_cast<CSCells*>(Sim->ptrScheduler) != NULL)
-    {
-      dynamic_cast<CSCells*>(Sim->ptrScheduler)->setLambda(oldLambda);
-    }
-  else if (dynamic_cast<CSGlobCellular*>(Sim->ptrScheduler) != NULL)
+  if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {
       BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
 	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
@@ -87,7 +80,7 @@ CIPCompression::RestoreSystem()
   else
     I_cout() << "No cellular device to fix";
 
-  Sim->Dynamics.rescaleLengths(Sim->dSysTime * growthRate 
+  Sim->Dynamics.rescaleLengths(Sim->dSysTime * growthRate
 			       / Sim->Dynamics.units().unitTime());
 
   Sim->Dynamics.setLiouvillean(oldLio->Clone());
@@ -128,18 +121,6 @@ CIPCompression::CellSchedulerHack()
 	  (new CSGlobCellHack(Sim, growthRate 
 			      / Sim->Dynamics.units().unitTime()));
       }
-  
-  if (dynamic_cast<CSCells*>(Sim->ptrScheduler) != NULL)
-    {
-      //Rebulid the collision scheduler without the overlapping cells!
-      oldLambda = dynamic_cast<CSCells*>(Sim->ptrScheduler)->getLambda();
-      
-      dynamic_cast<CSCells*>(Sim->ptrScheduler)->setLambda(0.0);
-      
-      //Add the system watcher
-      Sim->Dynamics.addSystemLate
-	(new CSCellHack(Sim, growthRate / Sim->Dynamics.units().unitTime()));
-    } 
 }
 
 void 

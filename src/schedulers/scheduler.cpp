@@ -25,6 +25,11 @@
 #include <boost/foreach.hpp>
 #include "include.hpp"
 
+CScheduler::CScheduler(const DYNAMO::SimData* const tmp, const char * aName):
+  SimBase_const(tmp, aName, IC_purple),
+  sorter(NULL)
+{}
+
 //A declaration of one member of a virtual class MUST exist in an
 //object file somewhere! This is the one for the scheduler class
 CScheduler::~CScheduler()
@@ -33,17 +38,8 @@ CScheduler::~CScheduler()
 CScheduler* 
 CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
-  if ((!strcmp(XML.getAttribute("Type"),"MultList"))
-      || (!strcmp(XML.getAttribute("Type"),"Cellular")))
-    return new CSMultList(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Type"), "MultListSpecial"))
-    return new CSMultListSpecial(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Type"), "MultListShear"))
-    return new CSMultListShear(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"FastSingle"))
-    return new CSFastSingle(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"GlobalCellular"))
-    return new CSGlobCellular(XML,Sim);
+  if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
+    return new CSNeighbourList(XML,Sim);
   else 
     D_throw() << "Unknown type of Scheduler encountered";
 }

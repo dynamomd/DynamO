@@ -16,10 +16,11 @@
 */
 
 #include "boundedQstats.hpp"
-#ifndef CBT
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../base/is_simdata.hpp"
+#include "../../schedulers/scheduler.hpp"
+#include "../../schedulers/sorters/boundedPQ.hpp"
 
 COPBoundedQStats::COPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
   COPCollTicker(tmp,"BoundedPQstats"),
@@ -30,17 +31,19 @@ COPBoundedQStats::COPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 COPBoundedQStats::initialise()
 {  
-  if (dynamic_cast<const CSMultList *>(Sim->ptrScheduler) == NULL)
-    D_throw() << "Not a multiple list scheduler!";
-  
-  CSSBoundedPQ& sorter(dynamic_cast<const CSMultList& >(*Sim->ptrScheduler).eventHeap);
-  eventdist.resize(sorter.NLists() - 1,0);
+  if (dynamic_cast<const CSSBoundedPQ*>
+      (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
+    D_throw() << "Not a bounded queue sorter!";
+
+  eventdist.resize(dynamic_cast<const CSSBoundedPQ&>
+      (*Sim->ptrScheduler->getSorter()).NLists() - 1,0);
 }
 
 void 
 COPBoundedQStats::ticker()
 {
-  CSSBoundedPQ& sorter(dynamic_cast<const CSMultList& >(*Sim->ptrScheduler).eventHeap);
+  const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
+		       (*(Sim->ptrScheduler->getSorter())));
  
   treeSize.addVal(sorter.treeSize());
 
@@ -56,7 +59,8 @@ COPBoundedQStats::ticker()
 void 
 COPBoundedQStats::output(xmlw::XmlStream& XML)
 {
-  CSSBoundedPQ& sorter(dynamic_cast<const CSMultList& >(*Sim->ptrScheduler).eventHeap);
+  const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
+			     (*(Sim->ptrScheduler->getSorter())));
 
   XML << xmlw::tag("boundedQstats") 
       << xmlw::attr("ExceptionEvents") << sorter.exceptionEvents()
@@ -76,4 +80,3 @@ COPBoundedQStats::output(xmlw::XmlStream& XML)
   XML << xmlw::endtag("treedist")
       << xmlw::endtag("boundedQstats");
 }
-#endif

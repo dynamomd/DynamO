@@ -41,7 +41,7 @@ CSFastSingle::CSFastSingle(const DYNAMO::SimData* Sim):
 }
 
 void 
-CSFastSingle::rescaleTimes(Iflt scale) 
+CSFastSingle::rescaleTimes(const Iflt& scale) 
 {   
   if (!globEventQueue.empty())
     BOOST_FOREACH(CGlobEvent& event, globEventQueue)
@@ -158,7 +158,7 @@ CSFastSingle::initialise()
 }
 
 void 
-CSFastSingle::stream(const Iflt dt)
+CSFastSingle::stream(const Iflt& dt)
 {
   BOOST_FOREACH(CIntEvent& event,intEventQueue)
     event.incrementTime(dt);

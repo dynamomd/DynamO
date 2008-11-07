@@ -35,8 +35,7 @@ CSNull::update(const CParticle&)
 {}
 
 void 
-CSNull::stream(const Iflt) 
-{}
+CSNull::stream(const Iflt&) {}
 
 ENextEvent 
 CSNull::nextEventType() const

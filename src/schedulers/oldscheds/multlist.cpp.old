@@ -34,7 +34,7 @@
 #include "../dynamics/globals/globEvent.hpp"
 
 void 
-CSMultList::stream(const Iflt dt)
+CSMultList::stream(const Iflt& dt)
 {
   eventHeap.stream(dt);
 }
@@ -99,7 +99,7 @@ CSMultList::CSMultList(const DYNAMO::SimData* Sim, const char* Nom):
 {}
 
 void 
-CSMultList::rescaleTimes(Iflt scale)
+CSMultList::rescaleTimes(const Iflt& scale)
 { eventHeap.rescaleTimes(scale); }
 
 

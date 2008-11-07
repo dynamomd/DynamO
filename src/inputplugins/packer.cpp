@@ -181,7 +181,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim);
 
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
@@ -233,7 +233,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim);
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
@@ -301,8 +301,9 @@ CIPPacker::initialise()
 					     (CVector<>(0.0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSFastSingle(Sim);
-
+	//Sim->ptrScheduler = new CSFastSingle(Sim);
+	D_throw() << "Needs a dumb scheduler";
+	
 	Sim->Dynamics.setPBC<CNullBC>();
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
@@ -400,7 +401,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim);
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	Sim->Dynamics.setPBC<CSPBC>();
@@ -450,7 +451,8 @@ CIPPacker::initialise()
 	  alpha = vm["f1"].as<double>();
 	
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSMultListShear(Sim);
+	D_throw() << "Needs a shear scheduler";
+	//Sim->ptrScheduler = new CSMultListShear(Sim);
 
 	if (vm.count("rectangular-box"))
 	  Sim->Dynamics.setPBC<CRLEBC>();
@@ -530,7 +532,8 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSFastSingle(Sim);
+	D_throw() << "Needs a dumb scheduler";
+	//Sim->ptrScheduler = new CSFastSingle(Sim);
 
 	Sim->Dynamics.setPBC<CNullBC>();
 
@@ -591,10 +594,11 @@ CIPPacker::initialise()
 	double particleDiam = 1.0 / 10.0;
 	
 	//Just a square well system
-	Sim->ptrScheduler = new CSMultList(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim);
 	
 	//Undo the linking of scheduler cells across the x dimension
-	static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
+	D_throw() << "Needs an unlinkable scheduler";
+	//static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
 
 	//Cut off the x periodic boundaries
 	Sim->Dynamics.setPBC<CRNoXPBC>();
@@ -671,7 +675,8 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSFastSingle(Sim);
+	D_throw() << "Needs a dumb scheduler";
+	//Sim->ptrScheduler = new CSFastSingle(Sim);
 
 	Sim->Dynamics.setPBC<CNullBC>();
 
@@ -743,7 +748,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	//Sim->ptrScheduler = new CSMultList(Sim);
 	
-	Sim->ptrScheduler = new CSGlobCellular(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim);
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));

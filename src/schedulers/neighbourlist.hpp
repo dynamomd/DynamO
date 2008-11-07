@@ -15,28 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSGlobCellular_H
-#define CSGlobCellular_H
+#ifndef CSNeighbourList_H
+#define CSNeighbourList_H
 
 #include "scheduler.hpp"
 #include <algorithm>
 #include <queue>
 #include <boost/foreach.hpp>
-#include "sorters/boundedPQ.hpp"
-#include "sorters/cbt.hpp"
 #include <boost/signals.hpp>
 
-//Use to disable the bounded priority queue when debugging bad events
-//#define CBT
-
-class CSGlobCellular: public CScheduler
+class CSNeighbourList: public CScheduler
 {
 public:
   friend class COPBoundedQStats;
 
-  CSGlobCellular(const XMLNode&, const DYNAMO::SimData*);
+  CSNeighbourList(const XMLNode&, const DYNAMO::SimData*);
 
-  CSGlobCellular(const DYNAMO::SimData*);
+  CSNeighbourList(const DYNAMO::SimData*);
 
   virtual void rebuildList() { initialise(); }
 
@@ -52,9 +47,9 @@ public:
 
   virtual const CIntEvent earliestIntEvent() const;
 
-  virtual void stream(const Iflt);
+  virtual void stream(const Iflt&);
 
-  virtual void rescaleTimes(Iflt);
+  virtual void rescaleTimes(const Iflt&);
 
   virtual void popVirtualEvent();
 
@@ -68,13 +63,7 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   void addNewEvents(const CParticle&) const;
-
-#ifndef CBT
-  mutable CSSBoundedPQ eventHeap;
-# else
-  mutable CSSCBT  eventHeap;
-#endif
-
+  
   mutable std::vector<unsigned long long> eventCount;
 
   void addInteractionEvent(const CParticle&, const size_t&) const;

@@ -38,14 +38,14 @@ class CSFastSingle : public CScheduler
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void rescaleTimes(Iflt);
+  virtual void rescaleTimes(const Iflt&);
 
   const CIntEvent earliestIntEvent() const;
   const CGlobEvent earliestGlobEvent() const;
   const CLocalEvent earliestLocalEvent() const
   { D_throw() << "Not implemented"; }
 
-  void stream(const Iflt);
+  void stream(const Iflt&);
 
   virtual void popVirtualEvent();
 

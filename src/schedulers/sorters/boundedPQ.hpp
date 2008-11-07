@@ -60,12 +60,12 @@ public:
   inline size_t size() const { return Min.size() - 1; }
   inline bool empty() const { return Min.empty(); }
 
-  inline size_t NLists() { return nlists; }
-  inline Iflt scaleFactor() { return scale; }
-  inline Iflt exceptionEvents() { return exceptionCount; }
-  inline size_t treeSize() { return NP; }
+  inline const int& NLists() const { return nlists; }
+  inline const Iflt& scaleFactor() const { return scale; }
+  inline const size_t& exceptionEvents() const { return exceptionCount; }
+  inline const size_t& treeSize() const { return NP; }
 
-  inline std::vector<size_t> getEventCounts()
+  inline std::vector<size_t> getEventCounts() const
   {
     std::vector<size_t> tmpVec;
     tmpVec.resize(nlists - 1,0);

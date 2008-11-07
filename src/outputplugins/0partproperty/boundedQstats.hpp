@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../schedulers/multlist.hpp"
-#ifndef CBT
+#include "../../schedulers/scheduler.hpp"
 #ifndef COPBoundedQStats_H
 #define COPBoundedQStats_H
 
@@ -47,5 +46,4 @@ class COPBoundedQStats: public COPCollTicker
   
 };
 
-#endif
 #endif

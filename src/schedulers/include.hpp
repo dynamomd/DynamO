@@ -16,10 +16,4 @@
 */
 
 //A list of all available schedulers
-#include "fastsingle.hpp"
-#include "Null_sched.hpp"
-#include "multlist.hpp"
-#include "multlist_special.hpp"
-#include "multlist_shear.hpp"
-#include "globalCellular.hpp"
-//#include "trajectory.hpp"
+#include "neighbourlist.hpp"

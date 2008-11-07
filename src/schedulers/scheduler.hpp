@@ -36,9 +36,7 @@ class CParticle;
 class CScheduler: public DYNAMO::SimBase_const
 {
 public:
-  CScheduler(const DYNAMO::SimData* const tmp, const char * aName):
-    SimBase_const(tmp, aName, IC_purple)
-  {}
+  CScheduler(const DYNAMO::SimData* const, const char *);
   
   virtual ~CScheduler() = 0;
 
@@ -46,17 +44,11 @@ public:
 
   virtual void update(const CParticle&) = 0;
 
-  inline void update(const CParticle& part1, const CParticle& part2)
-  {
-    update(part1);
-    update(part2);
-  }
-
   virtual void popVirtualEvent() = 0;
 
   virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&) = 0;
 
-  virtual void stream(const Iflt) = 0;
+  virtual void stream(const Iflt&) = 0;
   
   virtual const CIntEvent earliestIntEvent() const = 0;
 
@@ -74,10 +66,13 @@ public:
 
   virtual void operator<<(const XMLNode&) = 0;
   
-  virtual void rescaleTimes(Iflt) { D_throw() << "Not implemented yet"; }
+  virtual void rescaleTimes(const Iflt&) { D_throw() << "Not implemented yet"; }
 
+  const smrtPlugPtr<CSSorter>& getSorter() const { return sorter; }
+  
 protected:
-
+  mutable smrtPlugPtr<CSSorter> sorter;
+  
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 };
 
