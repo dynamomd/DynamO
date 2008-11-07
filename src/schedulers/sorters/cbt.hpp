@@ -44,7 +44,7 @@ public:
   inline size_t size() const { return Min.size(); }
   inline bool empty() const { return Min.empty(); }
 
-  void resize(size_t a)
+  void resize(const size_t& a)
   {
     clear();
     streamFreq = N = a;
@@ -89,7 +89,7 @@ public:
       }
   }
 
-  inline const pList& operator[](size_t a) const 
+  inline const pList& operator[](const size_t& a) const 
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
@@ -99,7 +99,7 @@ public:
     return Min[a+1]; 
   }
   
-  inline pList& operator[](size_t a) 
+  inline pList& operator[](const size_t& a) 
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
@@ -109,23 +109,25 @@ public:
     return Min[a+1]; 
   }
 
-  inline void push(intPart tmpVal, int pID)
+  inline void push(const intPart& tmpVal, const size_t& pID)
   {
     //Exit early
     if (tmpVal.type == NONE) return;
-    ++pID;    
     tmpVal.dt += pecTime;
-    Min[pID].push(tmpVal);
+    Min[pID+1].push(tmpVal);
   }
 
-  inline void update(size_t a) { UpdateCBT(a+1); }
+  inline void update(const size_t& a) { UpdateCBT(a+1); }
 
   inline pList& next_Data() { return Min[CBT[1]]; }
-  inline Iflt next_dt() { return Min[CBT[1]].getdt() - pecTime; }
 
-  inline unsigned long next_ID() { return CBT[1] - 1; }
+  inline const pList& next_Data() const { return Min[CBT[1]]; }
 
-  inline void rescaleTimes(Iflt factor)
+  inline Iflt next_dt() const { return Min[CBT[1]].getdt() - pecTime; }
+
+  inline size_t next_ID() const { return CBT[1] - 1; }
+
+  inline void rescaleTimes(const Iflt& factor)
   {
     BOOST_FOREACH(pList& pDat, Min)
       BOOST_FOREACH(intPart& event, pDat)

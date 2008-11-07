@@ -29,7 +29,7 @@ public:
   virtual void   init()                                    = 0;
   virtual void   stream(const Iflt&)                       = 0;
   virtual void   push(const intPart&, const size_t&)       = 0;
-  virtual void   update(const int&)                        = 0;
+  virtual void   update(const size_t&)                     = 0;
   virtual size_t next_ID()                           const = 0;
   virtual pList& next_Data()                               = 0;
   virtual const pList& next_Data()                   const = 0;

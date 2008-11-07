@@ -200,7 +200,7 @@ public:
     Min[pID + 1].data.push(tmpVal);
   }
 
-  inline void update(const int& pID)
+  inline void update(const size_t& pID)
   {
     deleteFromEventQ(pID + 1);
     insertInEventQ(pID + 1);
