@@ -21,17 +21,54 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include "../../base/is_ensemble.hpp"
+#include "../0partproperty/misc.hpp"
 
-COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPCorrelator<CVector<> >(tmp,"ThermalConductivityE", XML)
+COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp,
+						 const XMLNode& XML):
+  COutputPlugin(tmp,"ThermalConductivityE"),
+  G(100),
+  count(0),
+  dt(0),
+  currentdt(0.0),
+  constDelG(0.0), 
+  delG(0.0),
+  currlen(0),
+  notReady(true),
+  CorrelatorLength(100)
 {
-  
+  operator<<(XML);
 }
+
+void 
+COPThermalConductivityE::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("Length"))
+	CorrelatorLength = boost::lexical_cast<unsigned int>
+	  (XML.getAttribute("Length"));
+      
+      if (XML.isAttributeSet("dt"))
+	dt = Sim->Dynamics.units().unitTime() * 
+	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+      
+      if (XML.isAttributeSet("t"))
+	dt = Sim->Dynamics.units().unitTime() * 
+	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPCorrelator";
+    }
+  
+  }
 
 void 
 COPThermalConductivityE::initialise()
 {
-  COPCorrelator<CVector<> >::initialise();
+  G.resize(CorrelatorLength, CVector<>(0.0));
+  accG2.resize(CorrelatorLength, CVector<>(0.0));
+  Sim->getOutputPlugin<COPMisc>();
   Sim->getOutputPlugin<COPKEnergy>();
   
   try {
@@ -44,26 +81,35 @@ COPThermalConductivityE::initialise()
 	"\n Essentially you need entropic data too for other ensembles";
     }
 
-  dt = getdt();
-
+  if (dt == 0.0)
+    {
+      if (Sim->lastRunMFT != 0.0)
+	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
+      else
+	dt = 10.0 / (((Iflt) CorrelatorLength) 
+		     * sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
+    }
+  
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     constDelG += part.getVelocity () * Sim->Dynamics.getParticleEnergy(part);
-
+  
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
 Iflt 
 COPThermalConductivityE::rescaleFactor() 
 { 
-  return Sim->Dynamics.units().unitk()
-    / (Sim->Dynamics.units().unitTime() //This line should be 1 however we have scaled the correlator time as well
-       * Sim->Dynamics.units().unitThermalCond() * 2.0 
-       * count * pow(Sim->getOutputPlugin<COPKEnergy>()->getAvgkT(), 2)
-       * Sim->Dynamics.units().simVolume());
+  return Sim->Dynamics.units().unitk() 
+    /(//This next line should be 1 however we have scaled the
+      //correlator time as well
+      Sim->Dynamics.units().unitTime() 
+      * Sim->Dynamics.units().unitThermalCond() * 2.0 
+      * count * pow(Sim->getOutputPlugin<COPKEnergy>()->getAvgkT(), 2)
+      * Sim->Dynamics.units().simVolume());
 }
 
-inline void 
+void 
 COPThermalConductivityE::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("EinsteinCorrelator")
@@ -93,7 +139,7 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
   XML << xmlw::endtag("EinsteinCorrelator");
 }
 
-inline CVector<> 
+CVector<> 
 COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaeCalc();
@@ -109,4 +155,129 @@ COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
     + PDat.particle2_.getParticle().getVelocity() * p2E
     - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaeCalc())
     - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaeCalc());
+}
+
+void 
+COPThermalConductivityE::stream(const Iflt& edt)
+{
+    //Now test if we've gone over the step time
+    if (currentdt + edt >= dt)
+      {
+	delG += constDelG * (dt - currentdt);
+	newG();
+	currentdt += edt - dt;
+
+	while (currentdt >= dt)
+	  {
+	    delG = constDelG * dt;
+	    currentdt -= dt;
+	    newG();
+	  }
+
+	//Now calculate the start of the new delG
+	delG = constDelG * currentdt;
+      }
+    else
+      {
+	currentdt += edt;
+	delG += constDelG * edt;
+      }
+  }
+
+void 
+COPThermalConductivityE::eventUpdate(const CGlobEvent& iEvent, 
+				     const CNParticleData& PDat) 
+{
+  stream(iEvent.getdt());
+  delG += impulseDelG(PDat);
+  updateConstDelG(PDat);
+}
+
+void 
+COPThermalConductivityE::eventUpdate(const CLocalEvent& iEvent, 
+				     const CNParticleData& PDat) 
+{
+  stream(iEvent.getdt());
+  delG += impulseDelG(PDat);
+  updateConstDelG(PDat);
+}
+
+void 
+COPThermalConductivityE::eventUpdate(const CSystem&, 
+				     const CNParticleData& PDat,
+				     const Iflt& edt) 
+{ 
+  stream(edt);
+  delG += impulseDelG(PDat);
+  updateConstDelG(PDat);
+}
+  
+void 
+COPThermalConductivityE::eventUpdate(const CIntEvent& iEvent,
+				     const C2ParticleData& PDat)
+{
+  stream(iEvent.getdt());
+  delG += impulseDelG(PDat);
+  updateConstDelG(PDat);
+}
+
+CVector<> 
+COPThermalConductivityE::impulseDelG(const CNParticleData& ndat) 
+{ 
+  CVector<> acc(0);
+  
+  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+    acc += impulseDelG(dat);
+  
+  return acc;
+}
+
+void 
+COPThermalConductivityE::newG()
+{
+  //This ensures the list stays at accumilator size
+  
+  G.push_front(delG);
+  
+  if (notReady)
+    {
+      if (++currlen != CorrelatorLength)
+	return;
+      
+      notReady = false;
+    }
+  
+  accPass();
+}
+
+void 
+COPThermalConductivityE::accPass()
+{
+  ++count;
+  CVector<> sum(0);
+  
+  for (size_t i = 0; i < CorrelatorLength; ++i)
+    {
+      sum += G[i];
+      accG2[i] += sum * sum;
+    }
+}
+
+void 
+COPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
+{
+  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
+    updateConstDelG(dat);
+  
+  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+    updateConstDelG(dat);
+}
+
+void 
+COPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
+{
+  Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.getParticle());
+  
+  constDelG += PDat.getParticle().getVelocity() * p1E 
+    - PDat.getOldVel() * (p1E - PDat.getDeltaeCalc());
 }
