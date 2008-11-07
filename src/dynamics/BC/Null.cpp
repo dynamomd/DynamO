@@ -33,7 +33,7 @@ CNullBC::setPBC(CVector<> &, CVector<> &) const
 {}
 
 void 
-CNullBC::setPBC(CVector<> &, Iflt) const 
+CNullBC::setPBC(CVector<> &, const Iflt&) const 
 {}
 
 void 
