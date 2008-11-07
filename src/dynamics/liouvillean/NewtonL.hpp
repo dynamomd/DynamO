@@ -35,11 +35,6 @@ public:
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
 
-  virtual intPart getSquareCellCollision(const CParticle&, 
-					 const CVector<>&, 
-					 const CVector<>&
-					 ) const;
-
   virtual Iflt getSquareCellCollision2(const CParticle&, 
 				       const CVector<>&, 
 				       const CVector<>&

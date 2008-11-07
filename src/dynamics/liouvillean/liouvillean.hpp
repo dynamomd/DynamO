@@ -112,17 +112,6 @@ public:
 
   /*! \brief Determines when the particle center will hit a bounding box.
    *
-   * This version is special to the Multlist cellular scheduler and is
-   * depreceated.
-   *
-   * \bug Remove this with Multlist cellular scheduler.
-   */    
-  virtual intPart getSquareCellCollision(const CParticle& part, 
-					 const CVector<>& origin, 
-					 const CVector<>& width) const = 0;
-
-  /*! \brief Determines when the particle center will hit a bounding box.
-   *
    * For speed this does a little extra math with the event time to
    * avoid having to use the delayed states update.
    *

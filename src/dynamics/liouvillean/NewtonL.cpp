@@ -162,33 +162,6 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
   return tmpDat; 
 }
 
-intPart
-CLNewton::getSquareCellCollision(const CParticle& part, 
-				 const CVector<>& origin, 
-				 const CVector<>& width) const
-{
-  CVector<> rpos(part.getPosition() - origin);
-  CVector<> vel(part.getVelocity());
-  Sim->Dynamics.BCs().setPBC(rpos, vel);
-  intPart retVal(std::signbit(vel[0]) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0],
-		 0);
-
-  Iflt tmpdt;
-
-  for (int iDim = 1; iDim < NDIM; iDim++)
-    if ((tmpdt = ((std::signbit(vel[iDim])) 
-		  ? -rpos[iDim]/vel[iDim] 
-		  : (width[iDim]-rpos[iDim]) / vel[iDim]))
-	< retVal.dt)
-      {
-	retVal.dt = tmpdt;
-	retVal.collCounter2 = iDim;
-      }
-
-  retVal.dt += part.getPecTime() + partPecTime;
-  return retVal;
-}
-
 Iflt
 CLNewton::getSquareCellCollision2(const CParticle& part, 
 				 const CVector<>& origin, 
