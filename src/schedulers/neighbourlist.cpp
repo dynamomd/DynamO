@@ -134,22 +134,23 @@ CSNeighbourList::initialise()
 void 
 CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "GlobalCellular"
+  XML << xmlw::attr("Type") << "NeighbourList"
       << xmlw::tag("Sorter")
       << sorter
       << xmlw::endtag("Sorter");
 }
 
-CSNeighbourList::CSNeighbourList(const XMLNode& XML, const DYNAMO::SimData* Sim):
-  CScheduler(Sim,"GlobalCellular")
+CSNeighbourList::CSNeighbourList(const XMLNode& XML, 
+				 const DYNAMO::SimData* Sim):
+  CScheduler(Sim,"NeighbourList", NULL)
 { 
-  I_cout() << "Global Cellular Algorithmn";
+  I_cout() << "Neighbour List Algorithmn";
   operator<<(XML);
 }
 
-CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim):
-  CScheduler(Sim,"GlobalCellular")
-{ I_cout() << "Global Cellular Algorithmn"; }
+CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
+  CScheduler(Sim,"NeighbourList", ns)
+{ I_cout() << "Neighbour List Algorithmn"; }
 
 void 
 CSNeighbourList::rescaleTimes(const Iflt& scale)

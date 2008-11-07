@@ -24,6 +24,7 @@
 #include <boost/foreach.hpp>
 #include "../simulation/particle.hpp"
 #include "../schedulers/include.hpp"
+#include "../schedulers/sorters/include.hpp"
 #include "../dynamics/dynamics.hpp"
 #include "../dynamics/species/species.hpp"
 #include "../dynamics/units/include.hpp"
@@ -181,7 +182,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSNeighbourList(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
@@ -233,7 +234,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSNeighbourList(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
@@ -401,7 +402,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSNeighbourList(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	Sim->Dynamics.setPBC<CSPBC>();
@@ -594,7 +595,7 @@ CIPPacker::initialise()
 	double particleDiam = 1.0 / 10.0;
 	
 	//Just a square well system
-	Sim->ptrScheduler = new CSNeighbourList(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	
 	//Undo the linking of scheduler cells across the x dimension
 	D_throw() << "Needs an unlinkable scheduler";
@@ -748,7 +749,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	//Sim->ptrScheduler = new CSMultList(Sim);
 	
-	Sim->ptrScheduler = new CSNeighbourList(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));

@@ -25,13 +25,12 @@
 #include <boost/foreach.hpp>
 #include "include.hpp"
 
-CScheduler::CScheduler(const DYNAMO::SimData* const tmp, const char * aName):
+CScheduler::CScheduler(const DYNAMO::SimData* const tmp, const char * aName,
+		       CSSorter* nS):
   SimBase_const(tmp, aName, IC_purple),
-  sorter(NULL)
+  sorter(nS)
 {}
 
-//A declaration of one member of a virtual class MUST exist in an
-//object file somewhere! This is the one for the scheduler class
 CScheduler::~CScheduler()
 {}
 

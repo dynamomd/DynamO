@@ -31,7 +31,7 @@ public:
 
   CSNeighbourList(const XMLNode&, const DYNAMO::SimData*);
 
-  CSNeighbourList(const DYNAMO::SimData*);
+  CSNeighbourList(const DYNAMO::SimData*, CSSorter*);
 
   virtual void rebuildList() { initialise(); }
 

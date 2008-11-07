@@ -36,7 +36,7 @@ class CParticle;
 class CScheduler: public DYNAMO::SimBase_const
 {
 public:
-  CScheduler(const DYNAMO::SimData* const, const char *);
+  CScheduler(const DYNAMO::SimData* const, const char *, CSSorter*);
   
   virtual ~CScheduler() = 0;
 

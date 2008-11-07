@@ -21,7 +21,7 @@
 #include "../dynamics/globals/globEvent.hpp"
 
 CSNull::CSNull(const DYNAMO::SimData* Sim):
-  CScheduler(Sim,"NullSched")
+  CScheduler(Sim,"NullSched", NULL)
 {
   I_cout() << "Null scheduler loaded";
 }
