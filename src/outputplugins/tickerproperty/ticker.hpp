@@ -37,9 +37,6 @@ public:
   
   Iflt getTickerdt() const { return tickerdt; } 
 
-  virtual void changeSystem(const DYNAMO::SimData*) 
-  { D_throw() << "This plugin hasn't been prepared for changes of system\nPlugin " <<  name; }
-
   virtual void periodicOutput() {}
 
 private:
