@@ -24,7 +24,6 @@
 #include "../base/is_simdata.hpp"
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
-#include <boost/foreach.hpp>
 #include "include.hpp"
 
 CScheduler::CScheduler(const DYNAMO::SimData* const tmp, const char * aName,
@@ -41,6 +40,8 @@ CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSNeighbourList(XML,Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
+    return new CSDumb(XML,Sim);
   else 
     D_throw() << "Unknown type of Scheduler encountered";
 }

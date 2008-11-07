@@ -19,16 +19,11 @@
 #define CSNeighbourList_H
 
 #include "scheduler.hpp"
-#include <algorithm>
-#include <queue>
-#include <boost/foreach.hpp>
 #include <boost/signals.hpp>
 
 class CSNeighbourList: public CScheduler
 {
 public:
-  friend class COPBoundedQStats;
-
   CSNeighbourList(const XMLNode&, const DYNAMO::SimData*);
 
   CSNeighbourList(const DYNAMO::SimData*, CSSorter*);

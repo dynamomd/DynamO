@@ -15,6 +15,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//A list of all available schedulers
-#include "neighbourlist.hpp"
-#include "dumbsched.hpp"
+#ifndef CSDumb_H
+#define CSDumb_H
+
+#include "scheduler.hpp"
+
+class CSDumb: public CScheduler
+{
+public:
+  CSDumb(const XMLNode&, const DYNAMO::SimData*);
+
+  CSDumb(const DYNAMO::SimData*, CSSorter*);
+
+  virtual void rebuildList() { initialise(); }
+
+  virtual void initialise();
+
+  virtual void update(const CParticle&);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+  void addNewEvents(const CParticle&) const;
+};
+
+#endif

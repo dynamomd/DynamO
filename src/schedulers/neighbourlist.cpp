@@ -17,7 +17,6 @@
 
 #include "neighbourlist.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
-#include "../extcode/threadpool.hpp"
 #include "../simulation/particle.hpp"
 #include "../dynamics/dynamics.hpp"
 #include "../dynamics/liouvillean/liouvillean.hpp"
@@ -28,14 +27,13 @@
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/systems/system.hpp"
 #include <cmath> //for huge val
-#include <boost/lexical_cast.hpp>
 #include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
-#include <functional>
+#include <boost/bind.hpp>
 
 void 
 CSNeighbourList::operator<<(const XMLNode& XML)
@@ -101,15 +99,15 @@ CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
 
 CSNeighbourList::CSNeighbourList(const XMLNode& XML, 
 				 const DYNAMO::SimData* Sim):
-  CScheduler(Sim,"NeighbourList", NULL)
+  CScheduler(Sim,"NeighbourListScheduler", NULL)
 { 
-  I_cout() << "Neighbour List Algorithmn";
+  I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
 CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
-  CScheduler(Sim,"NeighbourList", ns)
-{ I_cout() << "Neighbour List Algorithmn"; }
+  CScheduler(Sim,"NeighbourListScheduler", ns)
+{ I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
 void 
 CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, 
