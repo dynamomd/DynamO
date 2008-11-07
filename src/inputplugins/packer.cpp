@@ -302,8 +302,7 @@ CIPPacker::initialise()
 					     (CVector<>(0.0)));
 
 	//Set up the system now
-	//Sim->ptrScheduler = new CSFastSingle(Sim);
-	D_throw() << "Needs a dumb scheduler";
+	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 	
 	Sim->Dynamics.setPBC<CNullBC>();
 
@@ -533,8 +532,7 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
-	D_throw() << "Needs a dumb scheduler";
-	//Sim->ptrScheduler = new CSFastSingle(Sim);
+	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 
 	Sim->Dynamics.setPBC<CNullBC>();
 
@@ -676,8 +674,7 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
-	D_throw() << "Needs a dumb scheduler";
-	//Sim->ptrScheduler = new CSFastSingle(Sim);
+	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 
 	Sim->Dynamics.setPBC<CNullBC>();
 
