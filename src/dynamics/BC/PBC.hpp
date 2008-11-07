@@ -30,11 +30,14 @@ class CSPBC: public CSqBC
 public:
   CSPBC(const DYNAMO::SimData*);
 
-  void setPBC(CVector<>& pos) const
+  virtual void setPBC(CVector<>& pos) const
   { rounding(pos); }
 
-  void setPBC(CVector<>& pos, CVector<>&) const
+  virtual void setPBC(CVector<>& pos, CVector<>&) const
   { rounding(pos); }
+
+  virtual void setPBC(CVector<> &pos, const Iflt&) const 
+  { setPBC(pos); }
 
   inline virtual void outputXML(xmlw::XmlStream &) const;  
   virtual void operator<<(const XMLNode&);
@@ -50,11 +53,14 @@ class CRPBC: public CRectBC
 public:
   CRPBC(const DYNAMO::SimData*);
 
-  void setPBC(CVector<>& pos) const
+  virtual void setPBC(CVector<>& pos) const
   { rounding(pos); }
   
-  void setPBC(CVector<>& pos, CVector<>&) const
+  virtual void setPBC(CVector<>& pos, CVector<>&) const
   { rounding(pos); }
+
+  virtual void setPBC(CVector<> &pos, const Iflt&) const 
+  { setPBC(pos); }
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
@@ -72,19 +78,22 @@ class CRNoXPBC: public CRectBC
 public:
   CRNoXPBC(const DYNAMO::SimData*);
 
-  void setPBC(CVector<>& pos) const
+  virtual void setPBC(CVector<>& pos) const
   { 
     Iflt x = pos[0];
     rounding(pos); 
     pos[0] = x;
   }
   
-  void setPBC(CVector<>& pos, CVector<>&) const
+  virtual void setPBC(CVector<>& pos, CVector<>&) const
   { 
     Iflt x = pos[0];
     rounding(pos); 
     pos[0] = x;
   }
+
+  virtual void setPBC(CVector<> &pos, const Iflt&) const 
+  { setPBC(pos); }
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);

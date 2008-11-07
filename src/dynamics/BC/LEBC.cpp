@@ -91,7 +91,7 @@ CRLEBC::setPBC(CVector<> &pos, CVector<> &vel) const
 }
 
 void 
-CRLEBC::setPBC(CVector<> &posVec, Iflt dt) const 
+CRLEBC::setPBC(CVector<> &posVec, const Iflt& dt) const 
 { 
   Iflt localdxd = dxd + dt * ShearRate * Sim->aspectRatio[1];
   
@@ -179,7 +179,7 @@ CSLEBC::setPBC(CVector<> &pos, CVector<> &vel) const
 }
 
 void 
-CSLEBC::setPBC(CVector<> &posVec, Iflt dt) const 
+CSLEBC::setPBC(CVector<> &posVec, const Iflt& dt) const 
 {
   Iflt localdxd = dxd + dt * ShearRate;
   

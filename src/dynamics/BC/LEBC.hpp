@@ -43,7 +43,7 @@ class CRLEBC: virtual public CRectBC
 
   virtual void setPBC(CVector<>&, CVector<>&) const;
 
-  virtual void setPBC(CVector<>&, Iflt dt) const;
+  virtual void setPBC(CVector<>&, const Iflt& dt) const;
 
   virtual void update(const Iflt&);
 
@@ -79,7 +79,7 @@ class CSLEBC: virtual public CSqBC
 
   virtual void setPBC(CVector<>&, CVector<>&) const;
 
-  virtual void setPBC(CVector<>&, Iflt dt) const;
+  virtual void setPBC(CVector<>&, const Iflt&) const;
 
   virtual void update(const Iflt&);
 

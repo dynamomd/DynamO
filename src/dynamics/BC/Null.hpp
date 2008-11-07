@@ -38,7 +38,7 @@ class CNullBC: virtual public CBC
 
   virtual void setPBC(CVector<> &, CVector<> &) const;
 
-  virtual void setPBC(CVector<> &, Iflt) const;
+  virtual void setPBC(CVector<> &, const Iflt&) const;
 
   virtual void update(const Iflt&);
 

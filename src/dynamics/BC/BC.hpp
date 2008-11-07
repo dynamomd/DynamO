@@ -97,8 +97,7 @@ class CBC: public DYNAMO::SimBase_const
    * \param pos The position vector to affect.
    * \param dt The time difference to predict at.
    */
-  virtual void setPBC(CVector<> &pos, Iflt dt) const 
-    { setPBC(pos); }
+  virtual void setPBC(CVector<> &pos, const Iflt& dt) const = 0;
 
   /*! \brief Stream the boundary conditions forward in time.*/
   virtual void update(const Iflt&) {};
