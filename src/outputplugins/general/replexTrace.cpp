@@ -77,11 +77,20 @@ COPReplexTrace::initialise()
 }
 
 void 
-COPReplexTrace::changeSystem(const DYNAMO::SimData* nSim)
-{ 
+COPReplexTrace::changeSystem(COutputPlugin* OPP)
+{
+#ifdef DYNAMO_DEBUG
+  if (dynamic_cast<COPReplexTrace*>(OPP) == NULL)
+    D_throw() << "Not the correct plugin to change System with";
+#endif
+
   addPoint();
-  Sim = nSim; 
+  static_cast<COPReplexTrace*>(OPP)->addPoint();
+
+  std::swap(Sim, static_cast<COPReplexTrace*>(OPP)->Sim);
+
   addPoint(); 
+  static_cast<COPReplexTrace*>(OPP)->addPoint();  
 }
 
 void 

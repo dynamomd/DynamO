@@ -45,7 +45,7 @@ public:
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual void changeSystem(const DYNAMO::SimData*); 
+  virtual void changeSystem(COutputPlugin*); 
 
 private:
   void addPoint();
