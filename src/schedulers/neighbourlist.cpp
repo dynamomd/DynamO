@@ -120,13 +120,15 @@ CSNeighbourList::initialise()
   //Register the new neighbour function with the cellular tracker
   if (!cellChange.connected())
     cellChange 
-      = static_cast<const CGNeighbourList&>(*(Sim->Dynamics.getGlobals()[NBListID]))
+      = static_cast<const CGNeighbourList&>
+      (*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerCellTransitionNewNeighbourCallBack
       (boost::bind(&CSNeighbourList::virtualCellNewNeighbour, this, _1, _2));
   
   if (!reinit.connected())
     reinit 
-      = static_cast<const CGNeighbourList&>(*(Sim->Dynamics.getGlobals()[NBListID]))
+      = static_cast<const CGNeighbourList&>
+      (*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerReInitNotify
       (boost::bind(&CSNeighbourList::initialise, this));
 }
@@ -164,7 +166,8 @@ CSNeighbourList::popVirtualEvent()
 }
 
 void 
-CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, const CParticle& part2)
+CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, 
+					 const CParticle& part2)
 {
   CIntEvent eevent(Sim->Dynamics.getEvent(part, part2));
 
@@ -173,7 +176,8 @@ CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, const CParticle&
 }
 
 void 
-CSNeighbourList::pushAndUpdateVirtualEvent(const CParticle& part, const intPart& newevent)
+CSNeighbourList::pushAndUpdateVirtualEvent(const CParticle& part,
+					   const intPart& newevent)
 {
   sorter->push(newevent,part.getID());
   sorter->update(part.getID());
@@ -220,7 +224,8 @@ CSNeighbourList::nextEventType() const
 	    != eventCount[sorter->next_Data().top().p2])
 	  {
 #ifdef DYNAMO_UpdateCollDebug
-	    std::cerr << "\nEvent invalid, popping and updating" << sorter->next_dt();
+	    std::cerr << "\nEvent invalid, popping and updating" 
+		      << sorter->next_dt();
 #endif
 	    sorter->next_Data().pop();
 	    sorter->update(sorter->next_ID());
