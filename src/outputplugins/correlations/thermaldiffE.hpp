@@ -18,12 +18,13 @@
 #ifndef COPThermalDiffusionE_H
 #define COPThermalDiffusionE_H
 
-#include "correlator.hpp"
+#include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
+#include <boost/circular_buffer.hpp>
+#include "../0partproperty/misc.hpp"
 
-
-/*! \brief The Correlator class for the Thermal Conductivity.*/
-class COPThermalDiffusionE: public COPCorrelator<CVector<> >
+/*! \brief The Correlator class for the Thermal Diffusion.*/
+class COPThermalDiffusionE: public COutputPlugin
 {
 public:
   COPThermalDiffusionE(const DYNAMO::SimData*, const XMLNode&);
@@ -35,33 +36,43 @@ public:
   virtual COutputPlugin* Clone() const 
   { return new COPThermalDiffusionE(*this); }
 
+  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+
   void operator<<(const XMLNode&);
   
 protected:
-  virtual Iflt rescaleFactor();
-  
-  CVector<> impulseDelG(const C2ParticleData&);
-  
-  virtual void updateConstDelG(const C2ParticleData&);
-
-  virtual void updateConstDelG(const C1ParticleData&);
-
-  virtual void stream(const Iflt);
-
-  virtual void newG();
-
-  virtual void accPass();
-
+  boost::circular_buffer<CVector<> > G;
+  std::vector<CVector<> > accG2;
+  size_t count;
+  Iflt dt, currentdt;
+  CVector<> constDelG, delG;
+  size_t currlen;
+  bool notReady;
+  size_t CorrelatorLength;
   boost::circular_buffer<CVector<> > Gsp1;
   CVector<> constDelGsp1;
   CVector<> delGsp1;
-  
   size_t species1;
-  
   CVector<> sysMom;
-
   Iflt massFracSp1;
 
+  Iflt rescaleFactor();
+  
+  CVector<> impulseDelG(const C2ParticleData&);
+  CVector<> impulseDelG(const CNParticleData&); 
+  
+  void updateConstDelG(const C2ParticleData&);
+  void updateConstDelG(const C1ParticleData&);
+  void updateConstDelG(const CNParticleData&);
+
+  void stream(const Iflt);
+
+  void newG();
+
+  void accPass();
 };
 
 #endif
