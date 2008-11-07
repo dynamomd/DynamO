@@ -38,52 +38,9 @@
 #include <functional>
 
 void 
-CSNeighbourList::stream(const Iflt& dt)
-{
-  sorter->stream(dt);
-}
-
-const CIntEvent 
-CSNeighbourList::earliestIntEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != INTERACTION)
-    D_throw() << "The next event is not an Interaction event";
-#endif
-  
-  return Sim->Dynamics.getEvent
-    (Sim->vParticleList[sorter->next_ID()], 
-     Sim->vParticleList[sorter->next_Data().top().p2]);
-}
-
-void 
 CSNeighbourList::operator<<(const XMLNode& XML)
 {
   sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
-}
-
-const CGlobEvent
-CSNeighbourList::earliestGlobEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != GLOBAL)
-    D_throw() << "The next event is not a Global event";
-#endif
-
-  return Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
-}
-
-const CLocalEvent
-CSNeighbourList::earliestLocalEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != LOCAL)
-    D_throw() << "The next event is not a Local event";
-#endif
-
-  return Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
 }
 
 void
@@ -155,17 +112,6 @@ CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
 { I_cout() << "Neighbour List Algorithmn"; }
 
 void 
-CSNeighbourList::rescaleTimes(const Iflt& scale)
-{ sorter->rescaleTimes(scale); }
-
-
-void 
-CSNeighbourList::popVirtualEvent()
-{
-  (*sorter)[sorter->next_ID()].pop();
-}
-
-void 
 CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, 
 					 const CParticle& part2)
 {
@@ -176,14 +122,6 @@ CSNeighbourList::virtualCellNewNeighbour(const CParticle& part,
 }
 
 void 
-CSNeighbourList::pushAndUpdateVirtualEvent(const CParticle& part,
-					   const intPart& newevent)
-{
-  sorter->push(newevent,part.getID());
-  sorter->update(part.getID());
-}
-
-void 
 CSNeighbourList::update(const CParticle& part)
 {
   //Invalidate previous entries
@@ -191,65 +129,6 @@ CSNeighbourList::update(const CParticle& part)
   (*sorter)[part.getID()].clear();
   addNewEvents(part);
   sorter->update(part.getID());
-}
-
-ENextEvent 
-CSNeighbourList::nextEventType() const
-{
-  //Determine the next global and/or system event
-  Iflt tmpt = HUGE_VAL;
-
-  sorter->sort();
-
-  if (!Sim->Dynamics.getSystemEvents().empty())
-    tmpt =(*min_element(Sim->Dynamics.getSystemEvents().begin(),
-			Sim->Dynamics.getSystemEvents().end()
-			))->getdt();
-  
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().empty())
-    D_throw() << "Next particle list is empty but top of list!";
-#endif  
-  
-#ifdef DYNAMO_UpdateCollDebug
-  std::cerr << "\nNext eventdt = " << sorter->next_dt();
-#endif
-
-  while (sorter->next_dt() < tmpt)
-    {
-     switch (sorter->next_Data().top().type)
-      {
-      case INTERACTION:
-	if (sorter->next_Data().top().collCounter2 
-	    != eventCount[sorter->next_Data().top().p2])
-	  {
-#ifdef DYNAMO_UpdateCollDebug
-	    std::cerr << "\nEvent invalid, popping and updating" 
-		      << sorter->next_dt();
-#endif
-	    sorter->next_Data().pop();
-	    sorter->update(sorter->next_ID());
-	    break;
-	  }
-
-	return Interaction;
-      case GLOBAL:
-	return Global;
-	break;
-      case LOCAL:
-	return Local;
-	break;
-      default:
-	D_throw() << "Unknown event type!";
-      }
-     sorter->sort();
-
-#ifdef DYNAMO_UpdateCollDebug
-     std::cerr << "\nNext eventdt = " << sorter->next_dt();
-#endif
-    }
-
-  return System;
 }
 
 void 
@@ -263,7 +142,7 @@ CSNeighbourList::addInteractionEvent(const CParticle& part,
 
 void 
 CSNeighbourList::addLocalEvent(const CParticle& part, 
-			      const size_t& id) const
+			       const size_t& id) const
 {
   if (Sim->Dynamics.getLocals()[id]->isInteraction(part))
     sorter->push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  

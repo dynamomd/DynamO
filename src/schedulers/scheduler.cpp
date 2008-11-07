@@ -19,6 +19,8 @@
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
+#include "../dynamics/locals/local.hpp"
+#include "../dynamics/systems/system.hpp"
 #include "../base/is_simdata.hpp"
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
@@ -48,4 +50,107 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 {
   g.outputXML(XML);
   return XML;
+}
+
+const CIntEvent 
+CScheduler::earliestIntEvent() const
+{
+#ifdef DYNAMO_DEBUG
+  if (sorter->next_Data().top().type != INTERACTION)
+    D_throw() << "The next event is not an Interaction event";
+#endif
+  
+  return Sim->Dynamics.getEvent
+    (Sim->vParticleList[sorter->next_ID()], 
+     Sim->vParticleList[sorter->next_Data().top().p2]);
+}
+
+const CGlobEvent
+CScheduler::earliestGlobEvent() const
+{
+#ifdef DYNAMO_DEBUG
+  if (sorter->next_Data().top().type != GLOBAL)
+    D_throw() << "The next event is not a Global event";
+#endif
+
+  return Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
+}
+
+const CLocalEvent
+CScheduler::earliestLocalEvent() const
+{
+#ifdef DYNAMO_DEBUG
+  if (sorter->next_Data().top().type != LOCAL)
+    D_throw() << "The next event is not a Local event";
+#endif
+
+  return Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
+}
+
+void 
+CScheduler::popVirtualEvent()
+{
+  (*sorter)[sorter->next_ID()].pop();
+}
+
+void 
+CScheduler::pushAndUpdateVirtualEvent(const CParticle& part,
+					   const intPart& newevent)
+{
+  sorter->push(newevent,part.getID());
+  sorter->update(part.getID());
+}
+
+EEventType
+CScheduler::nextEventType() const
+{
+  //Determine the next global and/or system event
+  Iflt tmpt = HUGE_VAL;
+
+  sorter->sort();
+
+  if (!Sim->Dynamics.getSystemEvents().empty())
+    tmpt =(*min_element(Sim->Dynamics.getSystemEvents().begin(),
+			Sim->Dynamics.getSystemEvents().end()
+			))->getdt();
+  
+#ifdef DYNAMO_DEBUG
+  if (sorter->next_Data().empty())
+    D_throw() << "Next particle list is empty but top of list!";
+#endif  
+  
+#ifdef DYNAMO_UpdateCollDebug
+  std::cerr << "\nNext eventdt = " << sorter->next_dt();
+#endif
+
+  while (sorter->next_dt() < tmpt)
+    {
+      //Return it if its not an INTERACTION
+      if (sorter->next_Data().top().type != INTERACTION)
+	return sorter->next_Data().top().type;
+
+      //Check the INTERACTION is valid first
+      if (sorter->next_Data().top().collCounter2 
+	  != eventCount[sorter->next_Data().top().p2])
+	{
+	  //Not valid, update the list
+#ifdef DYNAMO_UpdateCollDebug
+	  std::cerr << "\nEvent invalid, popping and updating" 
+		    << sorter->next_dt();
+#endif
+	  sorter->next_Data().pop();
+	  sorter->update(sorter->next_ID());
+	  sorter->sort();
+	  //Try again
+	  break;
+	}
+      
+      //It is valid
+      return INTERACTION;
+    }
+
+  //The other events didn't win
+  return SYSTEM;
 }

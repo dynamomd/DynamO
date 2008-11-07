@@ -197,22 +197,26 @@ CSimulation::executeEvent()
 
   switch (ptrScheduler->nextEventType())
     {
-    case Interaction:
+    case INTERACTION:
       executeIntEvent();
       break;
-    case Global:
+    case GLOBAL:
       executeGlobEvent();
       break;
-    case System:
+    case SYSTEM:
 #ifdef DYNAMO_DEBUG
 	if (Dynamics.getSystemEvents().empty()) 
 		D_throw() << "A system event has been scheduled yet there are no system events";
 #endif
       executeSysEvent();
       break;
-    case Local:
+    case LOCAL:
       executeLocalEvent();
       break;
+    default:
+      D_throw() << "Unhandled event of type " 
+		<< CIntEvent::getCollEnumName(ptrScheduler->nextEventType())
+		<< " reached this function";
     }
 }
 

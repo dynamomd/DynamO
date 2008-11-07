@@ -24,13 +24,6 @@
 #include "../dynamics/globals/globEvent.hpp"
 #include <vector>
 
-typedef enum {
-  Interaction , /*!< CInteraction event.*/
-  Global      , /*!< CGlobal event.*/
-  System      , /*!< CSystem event.*/
-  Local         /*!< CSystem event.*/  
-} ENextEvent;
-
 class CParticle;
 
 class CScheduler: public DYNAMO::SimBase_const
@@ -44,19 +37,19 @@ public:
 
   virtual void update(const CParticle&) = 0;
 
-  virtual void popVirtualEvent() = 0;
+  void popVirtualEvent();
 
-  virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&) = 0;
+  void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
 
-  virtual void stream(const Iflt&) = 0;
+  void stream(const Iflt& dt) {  sorter->stream(dt); }
   
-  virtual const CIntEvent earliestIntEvent() const = 0;
+  const CIntEvent earliestIntEvent() const;
 
-  virtual const CGlobEvent earliestGlobEvent() const = 0;
+  const CGlobEvent earliestGlobEvent() const;
 
-  virtual const CLocalEvent earliestLocalEvent() const = 0;
+  const CLocalEvent earliestLocalEvent() const;
 
-  virtual ENextEvent nextEventType() const = 0;
+  EEventType nextEventType() const;
 
   virtual void rebuildList() = 0;
 
@@ -66,12 +59,13 @@ public:
 
   virtual void operator<<(const XMLNode&) = 0;
   
-  virtual void rescaleTimes(const Iflt&) { D_throw() << "Not implemented yet"; }
+  void rescaleTimes(const Iflt& scale) { sorter->rescaleTimes(scale); }
 
   const smrtPlugPtr<CSSorter>& getSorter() const { return sorter; }
   
 protected:
   mutable smrtPlugPtr<CSSorter> sorter;
+  mutable std::vector<unsigned long long> eventCount;
   
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 };

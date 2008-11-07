@@ -39,23 +39,7 @@ public:
 
   virtual void update(const CParticle&);
 
-  virtual ENextEvent nextEventType() const;
-
-  virtual const CLocalEvent earliestLocalEvent() const;
-
-  virtual const CGlobEvent earliestGlobEvent() const;
-
-  virtual const CIntEvent earliestIntEvent() const;
-
-  virtual void stream(const Iflt&);
-
-  virtual void rescaleTimes(const Iflt&);
-
-  virtual void popVirtualEvent();
-
   void virtualCellNewNeighbour(const CParticle&, const CParticle&); 
-
-  virtual void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
 
   virtual void operator<<(const XMLNode&);
 
@@ -64,8 +48,6 @@ protected:
 
   void addNewEvents(const CParticle&) const;
   
-  mutable std::vector<unsigned long long> eventCount;
-
   void addInteractionEvent(const CParticle&, const size_t&) const;
   void addLocalEvent(const CParticle&, const size_t&) const;
   
