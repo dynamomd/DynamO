@@ -104,13 +104,7 @@ void
 COPViscosityE::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
-
-  matrix impulse(impulseDelG(PDat));
-
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      delG[iDim][jDim] += impulse[iDim][jDim];
-  
+  impulseDelG(PDat);
   updateConstDelG(PDat);
 }
 
@@ -118,13 +112,7 @@ void
 COPViscosityE::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
-
-  matrix impulse(impulseDelG(PDat));
-
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      delG[iDim][jDim] += impulse[iDim][jDim];
-  
+  impulseDelG(PDat);
   updateConstDelG(PDat);
 }
   
@@ -132,13 +120,7 @@ void
 COPViscosityE::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
 { 
   stream(edt);
-
-  matrix impulse(impulseDelG(PDat));
-
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      delG[iDim][jDim] += impulse[iDim][jDim];
-
+  impulseDelG(PDat);
   updateConstDelG(PDat);
 }
   
@@ -146,13 +128,7 @@ void
 COPViscosityE::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
-
-  matrix impulse(impulseDelG(PDat));
-
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      delG[iDim][jDim] += impulse[iDim][jDim];
-
+  impulseDelG(PDat);
   updateConstDelG(PDat);
 }
 
