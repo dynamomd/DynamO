@@ -221,37 +221,22 @@ COPViscosityE::newG(const matrix& Gval)
 }
 
 
-COPViscosityE::matrix
+void
 COPViscosityE::impulseDelG(const C2ParticleData& colldat)
 {
-  matrix retval;
-  
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      retval[iDim][jDim] = colldat.particle1_.getDeltaP()[iDim] * colldat.rij[jDim];
-
-  return retval;
+      delG[iDim][jDim] += colldat.particle1_.getDeltaP()[iDim] * colldat.rij[jDim];
 }
 
-COPViscosityE::matrix
+void
 COPViscosityE::impulseDelG(const CNParticleData& ndat) 
 { 
-  matrix acc;
-  
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      acc[iDim][jDim] = 0;
-
-
   BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
-    {
-      matrix impulse = impulseDelG(dat);
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	  acc[iDim][jDim] += impulse[iDim][jDim];
-    }
-  
-  return acc;
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      for (size_t jDim(0); jDim < NDIM; ++jDim)
+	delG[iDim][jDim] += dat.particle1_.getDeltaP()[iDim] 
+	  * dat.rij[jDim];
 }
 
 inline void 

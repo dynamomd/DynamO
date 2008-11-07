@@ -45,17 +45,17 @@ public:
   
   virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
-  virtual void stream(const Iflt&);
+  void stream(const Iflt&);
 
   virtual void operator<<(const XMLNode&);
 
 protected:
-  inline matrix impulseDelG(const C2ParticleData&);
-  inline matrix impulseDelG(const CNParticleData&);
+  void impulseDelG(const C2ParticleData&);
+  void impulseDelG(const CNParticleData&);
 
-  virtual void updateConstDelG(const C2ParticleData&);
-  virtual void updateConstDelG(const C1ParticleData&);
-  virtual void updateConstDelG(const CNParticleData&);
+  void updateConstDelG(const C2ParticleData&);
+  void updateConstDelG(const C1ParticleData&);
+  void updateConstDelG(const CNParticleData&);
   
   void newG(const matrix&);
   void accPass();
