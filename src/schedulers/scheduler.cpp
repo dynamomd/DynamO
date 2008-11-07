@@ -133,24 +133,19 @@ CScheduler::nextEventType() const
 
       //Check the INTERACTION is valid first
       if (sorter->next_Data().top().collCounter2 
-	  != eventCount[sorter->next_Data().top().p2])
-	{
-	  //Not valid, update the list
-#ifdef DYNAMO_UpdateCollDebug
-	  std::cerr << "\nEvent invalid, popping and updating" 
-		    << sorter->next_dt();
-#endif
-	  sorter->next_Data().pop();
-	  sorter->update(sorter->next_ID());
-	  sorter->sort();
-	  //Try again
-	  break;
-	}
-      
-      //It is valid
-      return INTERACTION;
-    }
+	  == eventCount[sorter->next_Data().top().p2])
+	return INTERACTION;
 
+      //Not valid, update the list
+#ifdef DYNAMO_UpdateCollDebug
+      std::cerr << "\nEvent invalid, popping and updating" 
+		<< sorter->next_dt();
+#endif
+      sorter->next_Data().pop();
+      sorter->update(sorter->next_ID());
+      sorter->sort();
+    }
+  
   //The other events didn't win
   return SYSTEM;
 }
