@@ -35,9 +35,6 @@ public:
 
   virtual void output(xmlw::XmlStream&) {}
 
-  virtual void changeSystem(const DYNAMO::SimData*) 
-  { D_throw() << "This plugin hasn't been prepared for changes of system\nPlugin " <<  name; }
-
 private:
   virtual void stream(Iflt) = 0;  
   virtual void ticker() = 0;
