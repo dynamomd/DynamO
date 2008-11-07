@@ -152,7 +152,7 @@ function cannon {
     rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
 }
 
-for sched in "MultList" ; do #"FastSingle"
+for sched in "NeighbourList" ; do #"Dumb"
     echo "Testing basic system, zero + infinite time events, hard sphere, PBC"
     cannon "$sched"
     echo "Testing global events (walls) and square wells"
@@ -167,4 +167,4 @@ for sched in "MultList" ; do #"FastSingle"
 done 
 
 echo "Testing replica exchange with 2 threads"
-HS_replex_test "MultList" "-N2"
+HS_replex_test "NeighbourList" "-N2"
