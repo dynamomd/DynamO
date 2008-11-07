@@ -67,9 +67,13 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
   //Collect the precoll data
   C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), GAUSSIAN);
 
+  Iflt factor = 
+    sqrtT / std::sqrt(tmpDat.getSpecies().getMass());
+
   //Assign the new velocities
   for (int iDim = 0; iDim < NDIM; iDim++)
-    const_cast<CParticle&>(part).getVelocity()[iDim] = normal_sampler() * sqrtT;
+    const_cast<CParticle&>(part).getVelocity()[iDim] 
+      = normal_sampler() * factor;
 
   tmpDat.calcDeltaKE();
 
