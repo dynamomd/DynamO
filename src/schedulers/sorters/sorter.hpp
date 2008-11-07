@@ -18,9 +18,13 @@
 #ifndef CSSorter_H
 #define CSSorter_H
 
-class CSSorter
+#include "../../base/is_base.hpp"
+
+class CSSorter: public DYNAMO::SimBase_const
 {
 public:
+  CSSorter(const DYNAMO::SimData* const& SD, const char *aName);
+
   virtual ~CSSorter() {}
   virtual size_t size()                              const = 0;
   virtual bool   empty()                             const = 0;
@@ -39,7 +43,13 @@ public:
   virtual const pList& operator[](const size_t&)     const = 0;
   virtual pList& operator[](const size_t&)                 = 0;
   virtual CSSorter* Clone()                          const = 0;
+
+  static CSSorter* getClass(const XMLNode&, const DYNAMO::SimData*);
+
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSSorter&);
+
 private:
+  virtual void outputXML(xmlw::XmlStream&) const = 0;
 };
 
 #endif

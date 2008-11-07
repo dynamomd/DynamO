@@ -34,6 +34,10 @@ private:
   Iflt pecTime;
 
 public:  
+  CSSCBT(const DYNAMO::SimData* const& SD):
+    CSSorter(SD, "CBT")
+  {}
+
   typedef std::vector<pList>::iterator iterator;
   typedef std::vector<pList>::const_iterator const_iterator;
 
@@ -138,6 +142,8 @@ public:
 
   inline void sort() {}
 
+  virtual CSSorter* Clone() const { return new CSSCBT(*this); }
+
 private:
   inline void UpdateCBT(unsigned int i)
   {
@@ -210,5 +216,9 @@ private:
     
     --NP;
   }
+
+  virtual void outputXML(xmlw::XmlStream& XML) const
+  { XML << xmlw::attr("Type") << "CBT"; }
+
 };
 #endif

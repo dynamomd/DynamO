@@ -53,9 +53,14 @@ private:
   size_t exceptionCount;
 
 public:  
-  CSSBoundedPQ():exceptionCount(0) {}
+  CSSBoundedPQ(const DYNAMO::SimData* const& SD):
+    CSSorter(SD, "BoundedPQ"),
+    exceptionCount(0) 
+  {   
+  }
+
   ~CSSBoundedPQ() 
-  { std::cout << "\nBPQ: Exception Events = " << exceptionCount << "\n"; }
+  { I_cout() << "Exception Events = " << exceptionCount; }
   
   inline size_t size() const { return Min.size() - 1; }
   inline bool empty() const { return Min.empty(); }
@@ -178,8 +183,10 @@ public:
 
     if (nlists == 0)
       {
-	std::cout << "\nBOUNDEDPQ: nlists = 0!";
-	std::cout << "\nBOUNDEDPQ: This is a BAD thing, unless NCells = NParticles and they're in a perfect crystal, if it happens again after the preliminary run its a bug";
+	I_cout() << "nlists = 0!\n"
+		 << "This is a BAD thing, unless NCells = NParticles and "
+	  "they're in a perfect crystal, if it happens again after the "
+	  "preliminary run its certainly a bug";
 	nlists = 1000;
       }
 
@@ -427,5 +434,9 @@ private:
     
     --NP;
   }
+  
+  virtual void outputXML(xmlw::XmlStream& XML) const
+  { XML << xmlw::attr("Type") << "BoundedPQ"; }
+
 };
 #endif

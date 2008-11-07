@@ -59,6 +59,7 @@ CSNeighbourList::earliestIntEvent() const
 void 
 CSNeighbourList::operator<<(const XMLNode& XML)
 {
+  sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
 }
 
 const CGlobEvent
@@ -133,7 +134,10 @@ CSNeighbourList::initialise()
 void 
 CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "GlobalCellular";
+  XML << xmlw::attr("Type") << "GlobalCellular"
+      << xmlw::tag("Sorter")
+      << sorter
+      << xmlw::endtag("Sorter");
 }
 
 CSNeighbourList::CSNeighbourList(const XMLNode& XML, const DYNAMO::SimData* Sim):
