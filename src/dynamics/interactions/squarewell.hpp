@@ -49,7 +49,8 @@ public:
   
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual Iflt getInternalEnergy() const { return -(getTotalCaptureCount() * wellDepth); }
+  virtual Iflt getInternalEnergy() const 
+  { return -(getTotalCaptureCount() * wellDepth); }
 
 protected:
   Iflt diameter,d2;

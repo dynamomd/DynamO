@@ -18,9 +18,9 @@
 #ifndef CILines_H
 #define CILines_H
 
-#include "interaction.hpp"
+#include "captures.hpp"
 
-class CILines: public CInteraction
+class CILines: public CICapture
 {
 public:
   CILines(const DYNAMO::SimData*, Iflt, Iflt, C2Range*);
@@ -49,8 +49,11 @@ public:
 
   virtual void checkOverlaps(const CParticle&, const CParticle&) const;
  
+  virtual bool captureTest(const CParticle&, const CParticle&) const;
+
 protected:
   Iflt length;
+  Iflt l2;
   Iflt e;
 };
 

@@ -33,13 +33,12 @@ public:
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
-  //Remember to update the signatures in the Liouvillean base clas
-  //when you change these
-  virtual Iflt getLineLineCollision() const;
+  virtual bool getLineLineCollision(const CPDData& PD, const Iflt& length, 
+				    const CParticle& p1, const CParticle& p2,
+				    const Iflt& twindow
+				    ) const;
   
-  //Remember to update the signatures in the Liouvillean base clas
-  //when you change these
-  virtual C2ParticleData runLineLineCollision() const;
+  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent) const;
   
   virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
 						  const CVector<>& vNorm,

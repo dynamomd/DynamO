@@ -148,13 +148,24 @@ public:
 
   /*! \brief Tests if and when two lines will collide.
    *
+   * \param PD Some precalculated data on the lines.
+   * \param length The length of the lines, or interaction length.
+   * \param p1 First particle.
+   * \param p2 Second particle.
+   * \param twindow Maximum time to check till.
+   * \return Wether the event will occur or not.
    */    
-  virtual Iflt getLineLineCollision() const;
+  virtual bool getLineLineCollision(const CPDData& PD, const Iflt& length, 
+				    const CParticle& p1, const CParticle& p2,
+				    const Iflt& twindow
+				    ) const;
 
   /*! \brief Runs a line line collision event
    *
+   * \param eevent Description of the scheduled event
+   * \return Collision data
    */    
-  virtual C2ParticleData runLineLineCollision() const;
+  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent) const;
 
   /*! \brief Determines when the particle center will hit a wall.
    *

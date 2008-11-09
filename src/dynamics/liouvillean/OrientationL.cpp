@@ -65,17 +65,16 @@ CLNOrientation::outputExtraPDatXML(xmlw::XmlStream& XML,
       << xmlw::endtag("U");
 }
 
-Iflt 
-CLNOrientation::getLineLineCollision() const
-{
-  D_throw() << "Not implemented";
-}
+bool 
+CLNOrientation::getLineLineCollision(const CPDData&, const Iflt&, 
+				     const CParticle&, const CParticle&,
+				     const Iflt&
+				     ) const
+{ D_throw() << "Not implemented"; }
 
 C2ParticleData 
-CLNOrientation::runLineLineCollision() const
-{
-  D_throw() << "Not implemented";
-}
+CLNOrientation::runLineLineCollision(const CIntEvent&) const
+{ D_throw() << "Not implemented"; }
 
 void 
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const

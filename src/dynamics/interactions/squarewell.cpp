@@ -95,7 +95,9 @@ void
 CISquareWell::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter; 
+
   d2 = diameter*diameter;
+
   ld2 = diameter*diameter*lambda*lambda;
 }
 
@@ -119,9 +121,6 @@ CIntEvent
 CISquareWell::getCollision(const CParticle &p1, 
 			   const CParticle &p2) const 
 {    
-  if (p1 == p2)
-    return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
-
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
   CPDData colldat(*Sim, p1, p2);
     

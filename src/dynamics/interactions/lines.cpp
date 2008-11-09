@@ -32,11 +32,11 @@
 
 CILines::CILines(const DYNAMO::SimData* tmp, Iflt nd, 
 		 Iflt ne, C2Range* nR):
-  CInteraction(tmp, nR),
-  length(nd), e(ne) {}
+  CICapture(tmp, nR),
+  length(nd), l2(nd*nd), e(ne) {}
 
 CILines::CILines(const XMLNode& XML, const DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+  CICapture(tmp, NULL)
 {
   operator<<(XML);
 }
@@ -49,6 +49,8 @@ CILines::initialise(size_t nID)
     D_throw() << "Interaction requires an orientation capable Liouvillean.";
 
   ID = nID; 
+
+  CICapture::initCaptureMap();
 }
 
 void 
@@ -64,9 +66,13 @@ CILines::operator<<(const XMLNode& XML)
       length = Sim->Dynamics.units().unitLength() * 
 	boost::lexical_cast<Iflt>(XML.getAttribute("Length"));
       
+      l2 = length * length;
+
       e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
       
       intName = XML.getAttribute("Name");
+
+      CICapture::loadCaptureMap(XML);   
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -86,6 +92,8 @@ void
 CILines::rescaleLengths(Iflt scale) 
 { 
   length += scale * length;
+  
+  l2 = length * length;
 }
 
 CInteraction* 
@@ -95,31 +103,74 @@ CILines::Clone() const
 CIntEvent 
 CILines::getCollision(const CParticle &p1, const CParticle &p2) const 
 { 
+  //We use wells to mark when to do the line test
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-
   CPDData colldat(*Sim, p1, p2);
-
-  //getLineLineCollision();
-  /*if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, d2))
+  
+  if (isCaptured(p1, p2)) 
     {
-#ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
-	D_throw() << "Overlapping particles found" 
-		  << ", particle1 " << p1.getID() << ", particle2 " 
-		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
-#endif
+      //Run this to determine when the spheres no longer intersect
+      if (!Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, l2))
+	//The spheres never stop intersecting!
+	D_throw() << "Error, spheres always remain overlapping? "
+	  "\ncompressed lines? Not implemented yet";
 
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      //colldat.dt has the upper limit of the line collision time
+      //Lower limit is right now
+      //Test for a line collision
+      if (Sim->Dynamics.Liouvillean().getLineLineCollision
+	  (colldat, length, p1, p2, colldat.dt))
+	return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+
+      return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
-  */
-
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);  
+  else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, l2)) 
+    return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+  
+  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 C2ParticleData 
 CILines::runCollision(const CIntEvent &event) const
 { 
-  return Sim->Dynamics.Liouvillean().runLineLineCollision(); 
+  switch (event.getType())
+    {
+    case CORE:
+      {
+	//We have a line interaction! Run it
+	return Sim->Dynamics.Liouvillean().runLineLineCollision(event);
+      }
+    case WELL_IN:
+      {	
+	addToCaptureMap(event.getParticle1(), event.getParticle2());      
+	
+	C2ParticleData retval(event.getParticle1(), event.getParticle2(), 
+			      Sim->Dynamics.getSpecies(event.getParticle1()),
+			      Sim->Dynamics.getSpecies(event.getParticle2()),
+			      VIRTUAL);
+	
+	retval.dP = CVector<>(0.0);
+	retval.deltake = CVector<>(0.0);	
+
+	return retval;
+      }
+    case WELL_OUT:
+      {
+	removeFromCaptureMap(event.getParticle1(), event.getParticle2());      
+	
+	C2ParticleData retval(event.getParticle1(), event.getParticle2(), 
+			      Sim->Dynamics.getSpecies(event.getParticle1()),
+			      Sim->Dynamics.getSpecies(event.getParticle2()),
+			      VIRTUAL);
+	
+	retval.dP = CVector<>(0.0);
+	retval.deltake = CVector<>(0.0);	
+
+	return retval;
+      }
+    default:
+      D_throw() << "Unknown collision type";
+    }
 }
    
 void 
@@ -130,6 +181,17 @@ CILines::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Name") << intName
       << range;
+
+  CICapture::outputCaptureMap(XML);
+}
+
+bool 
+CILines::captureTest(const CParticle& p1, const CParticle& p2) const
+{
+  CVector<> rij = p1.getPosition() - p2.getPosition();
+  Sim->Dynamics.BCs().setPBC(rij);
+  
+  return rij % rij <= l2;
 }
 
 void
