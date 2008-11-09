@@ -177,13 +177,7 @@ CIPPacker::initialise()
 				  / latticeSites.size(), 1.0 / 3.0);
 
 	//Set up a standard simulation
-
-	//old scheduler
-	//Sim->ptrScheduler = new CSMultList(Sim);
-
-	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
@@ -594,6 +588,7 @@ CIPPacker::initialise()
 	
 	//Just a square well system
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
 	//Undo the linking of scheduler cells across the x dimension
 	D_throw() << "Needs an unlinkable scheduler";

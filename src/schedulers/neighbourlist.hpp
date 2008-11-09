@@ -34,8 +34,6 @@ public:
 
   virtual void update(const CParticle&);
 
-  void virtualCellNewNeighbour(const CParticle&, const CParticle&); 
-
   virtual void operator<<(const XMLNode&);
 
 protected:
@@ -44,11 +42,15 @@ protected:
   void addNewEvents(const CParticle&) const;
   
   void addInteractionEvent(const CParticle&, const size_t&) const;
+
   void addLocalEvent(const CParticle&, const size_t&) const;
   
   size_t NBListID;
 
+  void virtualCellNewNeighbour(const CParticle&, const CParticle&);
+
   boost::signals::scoped_connection cellChange;
+  boost::signals::scoped_connection cellChangeLocal;
   boost::signals::scoped_connection reinit;  
 };
 

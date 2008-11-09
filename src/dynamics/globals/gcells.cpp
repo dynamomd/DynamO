@@ -111,12 +111,16 @@ CGCells::runEvent(const CGlobEvent& event) const
   if (std::signbit(part.getVelocity()[cellDirection])) 
     {
       endCell = cells[partCellData[part.getID()].cell].negCells[cellDirection];
-      inPosition = cells[cells[endCell].negCells[cellDirection]].coords[cellDirection];
+      
+      inPosition = cells[cells[endCell].negCells[cellDirection]]
+	.coords[cellDirection];
     }
   else
     {
       endCell = cells[partCellData[part.getID()].cell].posCells[cellDirection];
-      inPosition = cells[cells[endCell].posCells[cellDirection]].coords[cellDirection];
+      
+      inPosition = cells[cells[endCell].posCells[cellDirection]]
+	.coords[cellDirection];
     }
   
   //Debug section
@@ -126,7 +130,8 @@ CGCells::runEvent(const CGlobEvent& event) const
     CVector<long> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
-	      << (Sim->dSysTime + event.getdt()) / Sim->Dynamics.units().unitTime()
+	      << (Sim->dSysTime + event.getdt()) 
+      / Sim->Dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  dt " << event.getdt() / Sim->Dynamics.units().unitTime()
@@ -150,7 +155,11 @@ CGCells::runEvent(const CGlobEvent& event) const
     if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
       for (int next = cells[nb].list; next != -1; 
 	   next = partCellData[next].next)
-	sigNewNeighbourNotify(part, Sim->vParticleList[next]);
+	sigNewNeighbourNotify(part, next);
+
+  //Tell about the new locals
+  BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
+    sigNewLocalNotify(part, lID);
   
   //Push the next virtual event, this is the reason the scheduler
   //doesn't need a second callback
@@ -255,7 +264,8 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
       cells[id].coords = getCoordsFromID(id);
 
       for (int iDim = 0; iDim < NDIM; iDim++)
-	cells[id].origin[iDim] = cells[id].coords[iDim] * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
+	cells[id].origin[iDim] = cells[id].coords[iDim] 
+	  * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
       /*
       std::cerr << "\nID " << id << " " << "coords  " << cells[id].coords[0] 
 		<< "," << cells[id].coords[1] << "," << cells[id].coords[2]

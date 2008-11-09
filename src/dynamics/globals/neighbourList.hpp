@@ -27,12 +27,9 @@ class CGNeighbourList: public CGlobal
 protected:
   typedef boost::signal<void (const CParticle&, const size_t)>::slot_type 
   CCfunc;
-
-  typedef boost::signal<void (const CParticle&, const CParticle&)>::slot_type 
-  NNfunc;
-
+  
   typedef boost::signal<void ()>::slot_type RIfunc;
-
+  
   typedef boost::function<void (const CParticle&, const size_t&)> nbhoodFunc;
 
 public:
@@ -59,8 +56,12 @@ public:
   { return sigCellChangeNotify.connect(func); }
 
   inline boost::signals::connection
-  registerCellTransitionNewNeighbourCallBack(const NNfunc& func) const
+  registerCellTransitionNewNeighbourCallBack(const CCfunc& func) const
   { return sigNewNeighbourNotify.connect(func); }
+
+  inline boost::signals::connection
+  registerCellTransitionNewLocalCallBack(const CCfunc& func) const
+  { return sigNewLocalNotify.connect(func); }
 
   inline boost::signals::connection 
   registerReInitNotify(const RIfunc& func) const
@@ -73,7 +74,10 @@ protected:
   mutable boost::signal<void (const CParticle&, const size_t)> 
   sigCellChangeNotify;
 
-  mutable boost::signal<void (const CParticle&, const CParticle&)> 
+  mutable boost::signal<void (const CParticle&, const size_t)> 
+  sigNewLocalNotify;
+
+  mutable boost::signal<void (const CParticle&, const size_t)> 
   sigNewNeighbourNotify;
 
   mutable boost::signal<void ()> ReInitNotify;

@@ -78,7 +78,14 @@ CSNeighbourList::initialise()
       = static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .registerCellTransitionNewNeighbourCallBack
-      (boost::bind(&CSNeighbourList::virtualCellNewNeighbour, this, _1, _2));
+      (boost::bind(&CSNeighbourList::addInteractionEvent, this, _1, _2));
+
+  if (!cellChangeLocal.connected())
+    cellChangeLocal 
+      = static_cast<const CGNeighbourList&>
+      (*(Sim->Dynamics.getGlobals()[NBListID]))
+      .registerCellTransitionNewLocalCallBack
+      (boost::bind(&CSNeighbourList::addLocalEvent, this, _1, _2));
   
   if (!reinit.connected())
     reinit 
@@ -110,16 +117,6 @@ CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
 void 
-CSNeighbourList::virtualCellNewNeighbour(const CParticle& part, 
-					 const CParticle& part2)
-{
-  CIntEvent eevent(Sim->Dynamics.getEvent(part, part2));
-
-  if (eevent.getType() != NONE)
-    sorter->push(intPart(eevent, eventCount[part2.getID()]), part.getID());  
-}
-
-void 
 CSNeighbourList::update(const CParticle& part)
 {
   //Invalidate previous entries
@@ -131,7 +128,7 @@ CSNeighbourList::update(const CParticle& part)
 
 void 
 CSNeighbourList::addInteractionEvent(const CParticle& part, 
-				    const size_t& id) const
+				     const size_t& id) const
 {
   CIntEvent eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[id]));
   if (eevent.getType() != NONE)
