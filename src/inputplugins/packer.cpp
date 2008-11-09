@@ -445,8 +445,8 @@ CIPPacker::initialise()
 	  alpha = vm["f1"].as<double>();
 	
 	//Set up a standard simulation
-	D_throw() << "Needs a shear scheduler";
-	//Sim->ptrScheduler = new CSMultListShear(Sim);
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->Dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
 	if (vm.count("rectangular-box"))
 	  Sim->Dynamics.setPBC<CRLEBC>();
