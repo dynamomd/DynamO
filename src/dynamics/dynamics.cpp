@@ -382,13 +382,14 @@ CDynamics::initialise()
 
   ID=0;
 
-  BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, globals)
+  //Must be initialised before globals. Neighbour lists are
+  //implemented as globals and must initialise where locals are and their ID.
+  BOOST_FOREACH(smrtPlugPtr<CLocal>& ptr, locals)
     ptr->initialise(ID++);
 
   ID=0;
 
-  //Must be initialised after globals if CGCells is to be used
-  BOOST_FOREACH(smrtPlugPtr<CLocal>& ptr, locals)
+  BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, globals)
     ptr->initialise(ID++);
 
   ID=0;
