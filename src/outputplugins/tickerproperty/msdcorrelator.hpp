@@ -32,7 +32,10 @@ class COPMSDCorrelator: public COPTicker
 
   void output(xmlw::XmlStream &); 
 
-  virtual COutputPlugin *Clone() const { return new COPMSDCorrelator(*this); };
+  virtual COutputPlugin *Clone() const 
+  { return new COPMSDCorrelator(*this); };
+
+  virtual void operator<<(const XMLNode&);
   
  protected:
   virtual void stream(Iflt) {}
