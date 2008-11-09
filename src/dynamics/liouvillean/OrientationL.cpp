@@ -85,3 +85,21 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
   
   //Now stream the orientation dynamics
 }
+
+C1ParticleData 
+CLNOrientation::runAndersenWallCollision(const CParticle& part, 
+			 const CVector<>& vNorm,
+			 const Iflt& sqrtT
+			 ) const
+{
+  D_throw() << "Need to implement thermostating of the rotational degrees"
+    " of freedom";
+}
+  
+C1ParticleData 
+CLNOrientation::randomGaussianEvent(const CParticle& part, 
+				    const Iflt& sqrtT) const
+{
+  D_throw() << "Need to implement thermostating of the rotational degrees"
+    " of freedom";  
+}

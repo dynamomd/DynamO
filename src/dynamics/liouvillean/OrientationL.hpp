@@ -33,11 +33,21 @@ public:
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
-  //Remember to update the signatures in the Liouvillean base clas when you change these
+  //Remember to update the signatures in the Liouvillean base clas
+  //when you change these
   virtual Iflt getLineLineCollision() const;
   
-  //Remember to update the signatures in the Liouvillean base clas when you change these
+  //Remember to update the signatures in the Liouvillean base clas
+  //when you change these
   virtual C2ParticleData runLineLineCollision() const;
+  
+  virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
+						  const CVector<>& vNorm,
+						  const Iflt& sqrtT
+						  ) const;
+  
+  virtual C1ParticleData randomGaussianEvent(const CParticle& part, 
+					     const Iflt& sqrtT) const;
 
   virtual void operator<<(const XMLNode&);
 
