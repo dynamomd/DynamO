@@ -24,6 +24,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
+#include "../liouvillean/OrientationL.hpp"
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
@@ -42,7 +43,13 @@ CILines::CILines(const XMLNode& XML, const DYNAMO::SimData* tmp):
 
 void 
 CILines::initialise(size_t nID)
-{ ID=nID; }
+{
+  if (dynamic_cast<const CLNOrientation*>(&(Sim->Dynamics.Liouvillean()))
+      == NULL)
+    D_throw() << "Interaction requires an orientation capable Liouvillean.";
+
+  ID = nID; 
+}
 
 void 
 CILines::operator<<(const XMLNode& XML)

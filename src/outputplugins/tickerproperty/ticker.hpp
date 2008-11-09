@@ -20,6 +20,13 @@
 
 #include "../outputplugin.hpp"
 
+/*! \brief An output plugin marker class for periodically 'ticked'
+ * plugins, ticked by the CSTicker class.
+ *
+ * This class doesn't require any CLiouvillean::updateParticle or
+ * CLiouvillean::updateAllParticles as this is done in the CSTicker
+ * class. This is optimal as most ticker plugins need it anyway
+ */
 class COPTicker: public COutputPlugin
 {
 public:
@@ -35,16 +42,9 @@ public:
 
   virtual void ticker() = 0;
   
-  Iflt getTickerdt() const { return tickerdt; } 
-
   virtual void periodicOutput() {}
 
 private:
-  //The stream member funtion no longer exists as ticker is called on
-  //events to be processed before the typical eventUpdate
-  //virtual void stream(Iflt) {}  
-
-  Iflt tickerdt;
 };
 
 #endif

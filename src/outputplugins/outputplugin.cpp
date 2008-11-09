@@ -187,6 +187,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPCollisionCorrelator>(Sim, XML);
   else if (!Name.compare("BoundedPQStats"))
     return testGeneratePlugin<COPBoundedQStats>(Sim, XML);
+  else if (!Name.compare("MSDCorrelator"))
+    return testGeneratePlugin<COPMSDCorrelator>(Sim, XML);
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

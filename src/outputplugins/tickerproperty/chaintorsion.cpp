@@ -71,8 +71,6 @@ COPCTorsion::changeSystem(COutputPlugin* plug)
 void 
 COPCTorsion::ticker()
 {
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-
   BOOST_FOREACH(CTCdata& dat,chains)
     {
       Iflt sysGamma  = 0.0;

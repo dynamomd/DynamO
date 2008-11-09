@@ -51,8 +51,6 @@ COPTinkerXYZ::printImage()
   if (frameCount > 1000)
     return;
 
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-
   std::vector<COPRGyration::molGyrationDat> gyrationData;
 
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())

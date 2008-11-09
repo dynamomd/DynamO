@@ -52,7 +52,6 @@ COPVelDist::initialise()
 void 
 COPVelDist::ticker()
 {
-  Sim->Dynamics.Liouvillean().updateAllParticles();
   BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp.getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)

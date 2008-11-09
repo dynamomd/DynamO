@@ -44,8 +44,6 @@ COPOverlapTest::output(xmlw::XmlStream&)
 void 
 COPOverlapTest::ticker()
 {
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-  
   for (std::vector<CParticle>::const_iterator iPtr = Sim->vParticleList.begin();
        iPtr != Sim->vParticleList.end(); ++iPtr)
     for (std::vector<CParticle>::const_iterator jPtr = iPtr + 1;

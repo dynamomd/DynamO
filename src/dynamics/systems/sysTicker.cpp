@@ -18,6 +18,7 @@
 #include "sysTicker.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../NparticleEventData.hpp"
+#include "../liouvillean/liouvillean.hpp"
 #include "../../outputplugins/tickerproperty/ticker.hpp"
 #include "../units/units.hpp"
 
@@ -46,6 +47,9 @@ CNParticleData
 CSTicker::runEvent()
 {
   dt += period;
+  
+  //This is done here as most ticker properties require it
+  Sim->Dynamics.Liouvillean().updateAllParticles();
 
   {
     COPTicker* ptr = NULL;

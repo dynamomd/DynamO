@@ -101,8 +101,6 @@ COPRGyration::changeSystem(COutputPlugin* plug)
 COPRGyration::molGyrationDat
 COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNAMO::SimData* Sim)
 {
-  //I'm assuming you Updated all particles positions first!
-
   //Determine the centre of mass. Watch for periodic images
   CVector<> tmpVec;  
   
@@ -314,10 +312,6 @@ COPRGyration::ticker()
 
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
-	  //Update what you need
-	  BOOST_FOREACH(const unsigned long& ID, *range)
-	    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[ID]);
-
 	  molGyrationDat vals = getGyrationEigenSystem(range, Sim);	  
 	  //Take the largest eigenvector as the molecular axis
 	  molAxis.push_back(vals.EigenVec[NDIM-1]);

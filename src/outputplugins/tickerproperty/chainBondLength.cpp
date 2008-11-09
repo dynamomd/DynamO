@@ -62,17 +62,11 @@ COPChainBondLength::ticker()
     BOOST_FOREACH(const smrtPlugPtr<CRange>& range, 
 		  Sim->Dynamics.getTopology()[dat.chainID]->getMolecules())
     if (range->size() > 2)
-      {
-	//Update the particles
-	BOOST_FOREACH(const unsigned long& id, *range)
-	  Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
-	
-	//Walk the polymer
-	for (size_t j = 0; j < range->size()-1; ++j)
-	  dat.BondLengths[j].addVal
-	    ((Sim->vParticleList[(*range)[j+1]].getPosition()
-	      - Sim->vParticleList[(*range)[j]].getPosition()).length());
-      }
+      //Walk the polymer
+      for (size_t j = 0; j < range->size()-1; ++j)
+	dat.BondLengths[j].addVal
+	  ((Sim->vParticleList[(*range)[j+1]].getPosition()
+	    - Sim->vParticleList[(*range)[j]].getPosition()).length());
 }
 
 void 

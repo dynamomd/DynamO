@@ -117,8 +117,6 @@ COPVTK::ticker()
 {
   ++imageCounter;
   
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-  
   BOOST_FOREACH(const CParticle & Part, Sim->vParticleList)
     {
       CVector<> position = Part.getPosition(),

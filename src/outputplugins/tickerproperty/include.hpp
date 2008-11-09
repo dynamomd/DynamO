@@ -29,3 +29,4 @@
 #include "radialdist.hpp"
 #include "velprof.hpp"
 #include "vtk.hpp"
+#include "msdcorrelator.hpp"

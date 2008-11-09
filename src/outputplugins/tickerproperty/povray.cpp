@@ -48,8 +48,6 @@ COPPovray::printImage()
   if (frameCount > 1000)
     return;
 
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-
   std::string filename = std::string("povray.frame") + boost::lexical_cast<std::string>(frameCount++) + std::string(".pov");
   
   std::ofstream of((std::string("Povray.frame") + boost::lexical_cast<std::string>(frameCount++) + std::string(".pov")).c_str());

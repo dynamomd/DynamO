@@ -41,6 +41,7 @@ public:
 
   void setTickerPeriod(const Iflt&);
 
+  const Iflt& getPeriod() const { return period; }
 protected:
   virtual void outputXML(xmlw::XmlStream&) const {}
 

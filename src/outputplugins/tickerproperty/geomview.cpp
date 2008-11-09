@@ -49,8 +49,6 @@ COPGeomview::printImage()
   if (frameCount > 1000)
     return;
 
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-
   if ( asprintf(&fileName, "geomview.frame%05d.list", frameCount++) < 0)
     D_throw() << "asprintf error in geomview";
   

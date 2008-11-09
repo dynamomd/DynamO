@@ -85,7 +85,6 @@ COPRadialDistribution::ticker()
 {
   ++sampleCount;
   
-  Sim->Dynamics.Liouvillean().updateAllParticles();
   BOOST_FOREACH(const CSpecies& sp1, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const CSpecies& sp2, Sim->Dynamics.getSpecies())
     { BOOST_FOREACH(const size_t& p1, *sp1.getRange())

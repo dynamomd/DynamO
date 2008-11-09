@@ -47,8 +47,6 @@ COPVelProfile::initialise()
 void 
 COPVelProfile::ticker()
 {
-  Sim->Dynamics.Liouvillean().updateAllParticles();
-
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       CVector<> pos(part.getPosition());
