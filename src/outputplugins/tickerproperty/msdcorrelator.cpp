@@ -121,7 +121,8 @@ COPMSDCorrelator::output(xmlw::XmlStream &XML)
       
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
-	    << speciesData[sp.getID()][step] / (ticksTaken * sp.getCount())
+	    << speciesData[sp.getID()][step] 
+	  / (ticksTaken * sp.getCount() * Sim->Dynamics.units().unitArea())
 	    << "\n";
 	
       XML << xmlw::endtag("Species");
