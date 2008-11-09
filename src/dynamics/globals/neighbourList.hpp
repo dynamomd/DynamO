@@ -25,13 +25,13 @@
 class CGNeighbourList: public CGlobal
 {
 protected:
-  typedef boost::signal<void (const CParticle&, const size_t)>::slot_type 
+  typedef boost::function<void (const CParticle&, const size_t&)> nbhoodFunc;
+
+  typedef boost::signal<void (const CParticle&, const size_t&)>::slot_type 
   CCfunc;
   
   typedef boost::signal<void ()>::slot_type RIfunc;
   
-  typedef boost::function<void (const CParticle&, const size_t&)> nbhoodFunc;
-
 public:
   CGNeighbourList(const DYNAMO::SimData* a, 
 		  const char *b): 
@@ -71,13 +71,13 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
   //Signals
-  mutable boost::signal<void (const CParticle&, const size_t)> 
+  mutable boost::signal<void (const CParticle&, const size_t&)> 
   sigCellChangeNotify;
 
-  mutable boost::signal<void (const CParticle&, const size_t)> 
+  mutable boost::signal<void (const CParticle&, const size_t&)> 
   sigNewLocalNotify;
 
-  mutable boost::signal<void (const CParticle&, const size_t)> 
+  mutable boost::signal<void (const CParticle&, const size_t&)> 
   sigNewNeighbourNotify;
 
   mutable boost::signal<void ()> ReInitNotify;
