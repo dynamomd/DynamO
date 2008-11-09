@@ -25,6 +25,7 @@
 #include "../ranges/1RAll.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
+#include "../BC/LEBC.hpp"
 
 CGCells::CGCells(const DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent"),
@@ -174,6 +175,7 @@ void
 CGCells::initialise(size_t nID)
 {
   ID=nID;
+  
   reinitialise(Sim->Dynamics.getLongestInteraction());
 }
 

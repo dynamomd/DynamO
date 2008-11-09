@@ -20,11 +20,8 @@
 #include "../simulation/particle.hpp"
 #include "../dynamics/dynamics.hpp"
 #include "../dynamics/liouvillean/liouvillean.hpp"
-#include "../dynamics/BC/BC.hpp"
-#include "../dynamics/BC/LEBC.hpp"
 #include "../base/is_simdata.hpp"
 #include "../base/is_base.hpp"
-#include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/systems/system.hpp"
 #include <cmath> //for huge val
 #include "../extcode/xmlParser.h"
@@ -44,10 +41,6 @@ CSNeighbourList::operator<<(const XMLNode& XML)
 void
 CSNeighbourList::initialise()
 {
-  if (Sim->Dynamics.BCTypeTest<CRLEBC>()
-      || Sim->Dynamics.BCTypeTest<CSLEBC>())
-    D_throw() << "This scheduler isn't suitable for sheared systems";
-  
   try {
     NBListID = Sim->Dynamics.getGlobal("SchedulerNBList")->getID();
   }
