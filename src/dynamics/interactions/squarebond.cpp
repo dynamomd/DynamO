@@ -138,6 +138,11 @@ CIntEvent
 CISquareBond::getCollision(const CParticle &p1, 
 			   const CParticle &p2) const 
 {    
+#ifdef DYNAMO_DEBUG
+  if (p1 == p2)
+    D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
+#endif 
+
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
   CPDData colldat(*Sim, p1, p2);
 
