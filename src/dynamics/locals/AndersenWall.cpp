@@ -16,7 +16,8 @@
 */
 
 #include "AndersenWall.hpp"
-#include "globEvent.hpp"
+#include "../overlapFunc/CubePlane.hpp"
+#include "localEvent.hpp"
 #include "../NparticleEventData.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
@@ -33,46 +34,56 @@
 #include "../units/units.hpp"
 #include <cmath>
 
-CGAndersenWall::CGAndersenWall(const XMLNode& XML, const DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim, "GlobalAndersenWall"),
+CLAndersenWall::CLAndersenWall(const XMLNode& XML, const DYNAMO::SimData* ptrSim):
+  CLocal(ptrSim, "GlobalAndersenWall"),
   sqrtT(1.0)
 {
   operator<<(XML);
 }
 
-CGAndersenWall::CGAndersenWall(const DYNAMO::SimData* nSim, Iflt nsqrtT,
+CLAndersenWall::CLAndersenWall(const DYNAMO::SimData* nSim, Iflt nsqrtT,
 			       CVector<> nnorm, CVector<> norigin, 
 			       std::string nname, CRange* nRange):
-  CGlobal(nRange, nSim, "GlobalAndersenWall"),
+  CLocal(nRange, nSim, "AndersenWall"),
   vNorm(nnorm),
   vPosition(norigin),
   sqrtT(nsqrtT)
 {
-  globName = nname;
+  localName = nname;
 }
 
-CGlobEvent 
-CGAndersenWall::getEvent(const CParticle& part) const
+CLocalEvent 
+CLAndersenWall::getEvent(const CParticle& part) const
 {
   Sim->Dynamics.Liouvillean().updateParticle(part);
 
-  return CGlobEvent(part, Sim->Dynamics.Liouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
+  return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
 }
 
 CNParticleData
-CGAndersenWall::runEvent(const CGlobEvent& event) const
+CLAndersenWall::runEvent(const CLocalEvent& event) const
 {
-  return CNParticleData(Sim->Dynamics.Liouvillean().runAndersenWallCollision(event.getParticle(), vNorm, sqrtT));
+  return CNParticleData
+    (Sim->Dynamics.Liouvillean().runAndersenWallCollision
+     (event.getParticle(), vNorm, sqrtT));
+}
+
+bool 
+CLAndersenWall::isInCell(const CVector<>& Origin, 
+			 const CVector<>& CellDim) const
+{
+  return DYNAMO::OverlapFunctions::CubePlane
+    (Origin, CellDim, vPosition, vNorm);
 }
 
 void 
-CGAndersenWall::initialise(size_t nID)
+CLAndersenWall::initialise(size_t nID)
 {
   ID = nID;
 }
 
 void 
-CGAndersenWall::operator<<(const XMLNode& XML)
+CLAndersenWall::operator<<(const XMLNode& XML)
 {
   range.set_ptr(CRange::loadClass(XML,Sim));
   
@@ -82,7 +93,7 @@ CGAndersenWall::operator<<(const XMLNode& XML)
 		 * Sim->Dynamics.units().unitEnergy());
 
     XMLNode xBrowseNode = XML.getChildNode("Norm");
-    globName = XML.getAttribute("Name");
+    localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
     vNorm = vNorm.unitVector();
     xBrowseNode = XML.getChildNode("Origin");
@@ -92,16 +103,17 @@ CGAndersenWall::operator<<(const XMLNode& XML)
   } 
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CGAndersenWall";
+      D_throw() << "Failed a lexical cast in CLAndersenWall";
     }
 }
 
 void
-CGAndersenWall::outputXML(xmlw::XmlStream& XML) const
+CLAndersenWall::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "AndersenWall"
-      << xmlw::attr("Name") << globName
-      << xmlw::attr("Temperature") << sqrtT * sqrtT / Sim->Dynamics.units().unitEnergy()
+      << xmlw::attr("Name") << localName
+      << xmlw::attr("Temperature") << sqrtT * sqrtT 
+    / Sim->Dynamics.units().unitEnergy()
       << range
       << xmlw::tag("Norm")
       << vNorm

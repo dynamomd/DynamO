@@ -15,29 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGAndersenWall_HPP
-#define CGAndersenWall_HPP
+#ifndef CLAndersenWall_HPP
+#define CLAndersenWall_HPP
 
-#include "global.hpp"
+#include "local.hpp"
 #include "../../datatypes/vector.hpp"
-class CGAndersenWall: public CGlobal
+
+class CLAndersenWall: public CLocal
 {
 public:
-  CGAndersenWall(const XMLNode&, const DYNAMO::SimData*);
-  CGAndersenWall(const DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
+  CLAndersenWall(const XMLNode&, const DYNAMO::SimData*);
+
+  CLAndersenWall(const DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
 		 std::string, CRange*);
 
-  virtual ~CGAndersenWall() {}
+  virtual ~CLAndersenWall() {}
 
-  virtual CGlobal* Clone() const { return new CGAndersenWall(*this); }
+  virtual CLocal* Clone() const { return new CLAndersenWall(*this); }
 
-  virtual CGlobEvent getEvent(const CParticle &) const;
+  virtual CLocalEvent getEvent(const CParticle &) const;
 
-  virtual CNParticleData runEvent(const CGlobEvent&) const;
+  virtual CNParticleData runEvent(const CLocalEvent&) const;
 
   virtual void initialise(size_t);
 
   virtual void operator<<(const XMLNode&);
+
+  virtual bool isInCell(const CVector<>&, const CVector<>&) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

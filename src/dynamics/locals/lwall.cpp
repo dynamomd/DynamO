@@ -66,7 +66,6 @@ void
 CLWall::initialise(size_t nID)
 {
   ID = nID;
-  I_cout() << "My ID is " << ID;
 }
 
 void 

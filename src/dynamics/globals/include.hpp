@@ -15,6 +15,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AndersenWall.hpp"
 #include "gcells.hpp"
 #include "gListAndCell.hpp"
