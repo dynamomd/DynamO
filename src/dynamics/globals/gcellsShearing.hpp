@@ -15,6 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CGCellsShearing_HPP
+#define CGCellsShearing_HPP
+
 #include "gcells.hpp"
-#include "gListAndCell.hpp"
-#include "gcellsShearing.hpp"
+#include "../ranges/1range.hpp"
+
+
+class CGCellsShearing: public CGCells
+{
+public:
+  CGCellsShearing(const XMLNode&, const DYNAMO::SimData*);
+  
+  CGCellsShearing(const DYNAMO::SimData*, const std::string&);
+  
+  virtual ~CGCellsShearing() {}
+  
+  virtual CGlobal* Clone() const 
+  { return new CGCellsShearing(*this); }
+  
+  virtual void operator<<(const XMLNode&);
+  
+  virtual CNParticleData runEvent(const CGlobEvent&) const;
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+  virtual void init_cells();
+};
+
+#endif

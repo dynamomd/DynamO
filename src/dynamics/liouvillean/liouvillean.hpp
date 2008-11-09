@@ -355,12 +355,11 @@ public:
   friend class CSMultListShear;
   
 protected:
-
+  friend class CGCellsShearing;
   /*! \brief A dangerous function to predictavly move a particle forward.
    *
-   * See CSMultListShear, this just over advances the particle to find
+   * See CGCellsShearing, this just over advances the particle to find
    * its future position in boundary changes.
-   * \bug CSMultListShear special function.
    */
   inline void advanceUpdateParticle(const CParticle& part, const Iflt& dt) const
   {

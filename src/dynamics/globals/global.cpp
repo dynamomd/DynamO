@@ -54,6 +54,8 @@ CGlobal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
     return new CGCells(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
     return new CGListAndCell(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
+    return new CGCellsShearing(XML, Sim);
   else 
     D_throw() << "Unknown type of Global Interaction encountered";
 }
