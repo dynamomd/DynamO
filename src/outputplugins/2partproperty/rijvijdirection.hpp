@@ -54,8 +54,8 @@ class COPRijVij: public COutputPlugin
     {
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  rij[iDim] = C1DHistogram(0.005);
-	  vij[iDim] = C1DHistogram(0.005);
+	  rij[iDim] = C1DHistogram(0.001);
+	  vij[iDim] = C1DHistogram(0.001);
 	}
     }
     

@@ -44,6 +44,8 @@ COPMutualDiffusionE::COPMutualDiffusionE(const DYNAMO::SimData* tmp, const XMLNo
 void 
 COPMutualDiffusionE::operator<<(const XMLNode& XML)
 {
+  I_cout() << "Parsing XML " << XML.createXMLString();
+
   try 
     {
       if (XML.isAttributeSet("Length"))
@@ -73,15 +75,16 @@ COPMutualDiffusionE::operator<<(const XMLNode& XML)
 	  .getSpecies(boost::lexical_cast<std::string>
 		      (XML.getAttribute("Species2"))).getID();
 
-      } catch (std::exception& nex)
+      }
+      catch (boost::bad_lexical_cast &)
 	{
-	  D_throw() << "You must set Species1 and Species2 for mutal diffusion\n"
-		    << nex.what();
+	  D_throw() << "Failed a lexical cast in COPMutualDiffusionE";
 	}
-    }
-  catch (boost::bad_lexical_cast &)
+
+    } catch (std::exception& nex)
     {
-      D_throw() << "Failed a lexical cast in COPMutualDiffusionE";
+      D_throw() << "You must set Species1 and Species2 for mutal diffusion\n"
+		<< nex.what();
     }
 }
 

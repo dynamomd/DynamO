@@ -9,7 +9,7 @@ project
 	  <variant>release:<define>DYNAMO_Colour
 	  <variant>release:<runtime-link>static
 	  <variant>debug:<define>DYNAMO_DEBUG <link>static
-	  #<variant>debug:<define>DYNAMO_WallCollDebug
+	  #<define>DYNAMO_WallCollDebug
 	  #<toolset>gcc:<cxxflags>-ansi
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long

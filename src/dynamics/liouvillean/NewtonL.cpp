@@ -170,14 +170,17 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   CVector<> rpos(part.getPosition() - origin);
   CVector<> vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(rpos, vel);
-  Iflt retVal(std::signbit(vel[0]) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
+  
+  Iflt retVal(std::signbit(vel[0]) 
+	      ? -rpos[0]/vel[0] 
+	      : (width[0]-rpos[0]) / vel[0]);
 
-  for (int iDim = 1; iDim < NDIM; iDim++)
+  for (int iDim = 1; iDim < NDIM; ++iDim)
     {
       Iflt tmpdt((std::signbit(vel[iDim]))
-		  ? -rpos[iDim]/vel[iDim] 
-		    : (width[iDim]-rpos[iDim]) / vel[iDim]);
-
+		 ? -rpos[iDim]/vel[iDim] 
+		 : (width[iDim]-rpos[iDim]) / vel[iDim]);
+      
       if (tmpdt < retVal)
 	retVal = tmpdt;
     }

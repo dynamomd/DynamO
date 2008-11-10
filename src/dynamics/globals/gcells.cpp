@@ -100,7 +100,9 @@ CNParticleData
 CGCells::runEvent(const CGlobEvent& event) const
 {
   const CParticle& part(event.getParticle());
-
+  
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+  
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
