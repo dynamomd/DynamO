@@ -206,7 +206,8 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
       BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
 	for (int next = cells[nb].list; next != -1; 
 	     next = partCellData[next].next)
-	  sigNewNeighbourNotify(part, next);
+	  if (part.getID() != static_cast<size_t>(next))
+	    sigNewNeighbourNotify(part, next);
       
       //Push the next virtual event, this is the reason the scheduler
       //doesn't need a second callback
@@ -260,7 +261,7 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
   //Debug section
 #ifdef DYNAMO_WallCollDebug
   {      
-    CVector<long> tmp = cells[partCellData[part.getID()].cell].coords;
+    CVector<long> tmp = cells[oldCell].coords;
     CVector<long> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nsysdt " 
