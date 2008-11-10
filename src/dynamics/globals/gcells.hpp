@@ -93,7 +93,9 @@ protected:
   long getCellID(CVector<>) const;
 
   void addCells(Iflt, bool limitCells = true);
+
   virtual void init_cells();
+
   void addLocalEvents();
 
   //Variables

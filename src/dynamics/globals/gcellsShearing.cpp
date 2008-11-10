@@ -264,10 +264,10 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
     CVector<long> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nsysdt " 
-	      << (eventHeap.next_dt() + Sim->dSysTime)
+	      << (eevent.getdt() + Sim->dSysTime)
 	      << "  WALL ID "
 	      << part.getID()
-	      << "  dt " << (eventHeap.next_dt())
+	      << "  dt " << eevent.getdt()
 	      << "  from <" 
 	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
 	      << "> to <" 
