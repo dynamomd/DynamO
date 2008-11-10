@@ -61,9 +61,9 @@ protected:
   struct rotData
   {
     CVector<> orientation;
-    CVector<> angularMomentum;
+    CVector<> angularVelocity;
   };
   
-  std::vector<rotData> orientationData;
+  mutable std::vector<rotData> orientationData;
 };
 #endif
