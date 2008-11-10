@@ -88,6 +88,8 @@ CGCells::setLambda(const Iflt& nL)
 CGlobEvent 
 CGCells::getEvent(const CParticle& part) const
 {
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+  
   return CGlobEvent(part, Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
 		    (part, cells[partCellData[part.getID()].cell].origin, 
