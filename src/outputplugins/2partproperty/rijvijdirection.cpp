@@ -31,76 +31,55 @@ COPRijVij::initialise()
 {}
 
 void 
-COPRijVij::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+COPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
 {
-  mapdata& ref = 
-    rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent.getInteraction()))];
+  CVector<> rijnorm(PDat.rij.unitVector());
+  CVector<> vijnorm(PDat.vijold.unitVector());
 
-  CVector<> rijnorm(pDat.rij.unitVector());
-  CVector<> vijnorm(pDat.vijold.unitVector());
+  Iflt rvdot(rijnorm % vijnorm);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
       ref.rij[iDim].addVal(rijnorm[iDim]);
       ref.vij[iDim].addVal(vijnorm[iDim]);
+
+      size_t id(static_cast<size_t>((rijnorm[iDim] + 1.0) * 1000));
+
+      ++ref.rijcostheta[iDim].at(id).first;
+      ref.rijcostheta[iDim].at(id).second += rvdot;
     }
+}
+
+void 
+COPRijVij::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+{
+  
+  process2PED(rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent.getInteraction()))],
+	      pDat);
 }
 
 void 
 COPRijVij::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
-    {
-      mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
-				     getClassKey(globEvent))];
-
-      CVector<> rijnorm(pDat.rij.unitVector());
-      CVector<> vijnorm(pDat.vijold.unitVector());
-      
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	{
-	  ref.rij[iDim].addVal(rijnorm[iDim]);
-	  ref.vij[iDim].addVal(vijnorm[iDim]);
-	}      
-    }
+    process2PED(rvdotacc[mapKey(globEvent.getType(), getClassKey(globEvent))],
+		pDat);
 }
 
 void 
 COPRijVij::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
-    {
-      mapdata& ref = rvdotacc[mapKey(localEvent.getType(), 
-				     getClassKey(localEvent))];
-      
-      CVector<> rijnorm(pDat.rij.unitVector());
-      CVector<> vijnorm(pDat.vijold.unitVector());
-      
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	{
-	  ref.rij[iDim].addVal(rijnorm[iDim]);
-	  ref.vij[iDim].addVal(vijnorm[iDim]);
-	}      
-    }
+    process2PED(rvdotacc[mapKey(localEvent.getType(), getClassKey(localEvent))],
+		pDat);
 }
 
 void
 COPRijVij::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
-    {
-      mapdata& ref 
-	= rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))];
-      
-      CVector<> rijnorm(pDat.rij.unitVector());
-      CVector<> vijnorm(pDat.vijold.unitVector());
-      
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	{
-	  ref.rij[iDim].addVal(rijnorm[iDim]);
-	  ref.vij[iDim].addVal(vijnorm[iDim]);
-	}      
-    } 
+    process2PED(rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))],
+		pDat);
 }
 
 void
@@ -139,6 +118,21 @@ COPRijVij::output(xmlw::XmlStream &XML)
 	  pair1.second.vij[iDim].outputHistogram(XML, 1.0);
 
 	  XML << xmlw::endtag("Vij");
+	}
+
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	{
+	  XML << xmlw::tag("RijVijvsRij")
+	      << xmlw::attr("dimension")
+	      << iDim;
+
+	  for (size_t i(0); i < 1000; ++i)
+	    XML << ((i - 1000) / 1000.0) << " "
+		<< pair1.second.rijcostheta[iDim][i].second 
+	      / pair1.second.rijcostheta[iDim][i].first
+		<< "\n";
+
+	  XML << xmlw::endtag("RijVijvsRij");
 	}
       
       XML << xmlw::endtag("Element");

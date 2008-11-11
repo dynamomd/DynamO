@@ -56,16 +56,22 @@ class COPRijVij: public COutputPlugin
 	{
 	  rij[iDim] = C1DHistogram(0.001);
 	  vij[iDim] = C1DHistogram(0.001);
+
+	  rijcostheta[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
 	}
     }
     
     C1DHistogram rij[NDIM];
     C1DHistogram vij[NDIM];
+    
+    std::vector<std::pair<size_t,Iflt> > rijcostheta[NDIM];
   };
   
   typedef std::pair<EEventType, classKey> mapKey;
 
   std::map<mapKey, mapdata> rvdotacc;
+
+  void process2PED(mapdata&, const C2ParticleData&);
 };
 
 #endif
