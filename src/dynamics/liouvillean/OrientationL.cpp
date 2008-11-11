@@ -66,9 +66,9 @@ CLNOrientation::outputExtraPDatXML(xmlw::XmlStream& XML,
 }
 
 bool 
-CLNOrientation::getLineLineCollision(const CPDData&, const Iflt&, 
-				     const CParticle&, const CParticle&,
-				     const Iflt&
+CLNOrientation::getLineLineCollision(const CPDData& PD, const Iflt& length, 
+				     const CParticle& p1, const CParticle& p2,
+				     const Iflt& twindow
 				     ) const
 { D_throw() << "Not implemented"; }
 
