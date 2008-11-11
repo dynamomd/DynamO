@@ -50,7 +50,7 @@ COPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
 
       id = static_cast<size_t>(-rvdot * 1000.0);
       ++ref.costhetarij[iDim].at(id).first;
-      ref.costhetarij[iDim].at(id).second += rijnorm[iDim];
+      ref.costhetarij[iDim].at(id).second += std::fabs(rijnorm[iDim]);
     }
 }
 
