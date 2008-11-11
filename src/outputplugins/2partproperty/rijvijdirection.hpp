@@ -58,6 +58,7 @@ class COPRijVij: public COutputPlugin
 	  vij[iDim] = C1DHistogram(0.001);
 
 	  rijcostheta[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
+	  costhetarij[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
 	}
     }
     
@@ -65,6 +66,7 @@ class COPRijVij: public COutputPlugin
     C1DHistogram vij[NDIM];
     
     std::vector<std::pair<size_t,Iflt> > rijcostheta[NDIM];
+    std::vector<std::pair<size_t,Iflt> > costhetarij[NDIM];
   };
   
   typedef std::pair<EEventType, classKey> mapKey;
