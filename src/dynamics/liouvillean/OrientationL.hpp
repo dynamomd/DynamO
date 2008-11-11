@@ -73,6 +73,8 @@ protected:
   
   virtual orientationStreamReturnType performRotation(CParticle&, const Iflt&) const;
   
+  virtual bool recursiveRootFinder(const Iflt& interpolationSize, const Iflt& window_open, const Iflt& window_closed) const;
+  
   mutable std::vector<rotData> orientationData;
 };
 #endif

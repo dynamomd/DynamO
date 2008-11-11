@@ -70,6 +70,19 @@ CLNOrientation::getLineLineCollision(const CPDData& PD, const Iflt& length,
 				     const CParticle& p1, const CParticle& p2,
 				     const Iflt& twindow
 				     ) const
+{ 
+  // +0.1 is arbitrary to ensure a non-zero rate if angular velocities are both zero
+  Iflt interpolationSize = 1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
+                                              * orientationData[p2.getID()].angularVelocity.length()));
+
+  // If interpolation size is > window size, put rate as window width
+  interpolationSize = (interpolationSize > twindow) ? twindow : interpolationSize;
+  
+  return recursiveRootFinder(interpolationSize, 0.0, twindow);
+}
+
+bool
+CLNOrientation::recursiveRootFinder(const Iflt& interpolationSize, const Iflt& window_open, const Iflt& window_closed) const
 { D_throw() << "Not implemented"; }
 
 C2ParticleData 
