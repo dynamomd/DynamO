@@ -76,51 +76,68 @@ C2ParticleData
 CLNOrientation::runLineLineCollision(const CIntEvent&) const
 { D_throw() << "Not implemented"; }
 
-void 
+void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
+{
+  orientationStreamReturnType osret = performRotation(part, dt);
+  
+  CLNewton::streamParticle(part, dt);
+  
+  orientationData[part.getID()].orientation = osret.rot.orientation;
+}
+
+CLNOrientation::orientationStreamReturnType
+CLNOrientation::performRotation(CParticle& part, const Iflt& dt) const
 {
   if(NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
   else
   {
-  
-    //First hand over to the newtonian dynamics
-    CLNewton::streamParticle(part, dt);
-  
-    //Now stream the orientation dynamics
+    orientationStreamReturnType osret;
     
-    Iflt angle = orientationData[part.getID()].angularVelocity.length() * dt;
-	
-	  Iflt v1 = (orientationData[part.getID()].angularVelocity.unitVector())[0];
-  	Iflt v2 = (orientationData[part.getID()].angularVelocity.unitVector())[1];
-	  Iflt v3 = (orientationData[part.getID()].angularVelocity.unitVector())[2];
-	
-	  // axis is not undefined and angle is not zero
-  	if(!(v1 == 0 && v2 == 0 && v3 == 0) && angle != 0)
-	  {	
-		
-		  Iflt matrix[3][3];
-		
-  	  Iflt cos_term = cos(angle);
-	  	Iflt sin_term = sin(angle);
-	
-	    matrix[0][0] = pow(v1, 2) + (pow(v2 ,2) + pow(v3, 2))*(cos_term);
-	    matrix[0][1] = (v1 * v2 * (1 - cos_term)) - (v3 * sin_term);
-	    matrix[0][2] = (v1 * v3 * (1 - cos_term)) + (v2 * sin_term);
-	  	matrix[1][0] = (v1 * v2 * (1 - cos_term)) + (v3 * sin_term);
-	  	matrix[1][1] = pow(v2, 2) + (pow(v3 ,2) + pow(v1, 2))*(cos_term);
-	  	matrix[1][2] = (v2 * v3 * (1 - cos_term)) - (v1 * sin_term);
-	  	matrix[2][0] = (v3 * v1 * (1 - cos_term)) - (v2 * sin_term);
-	  	matrix[2][1] = (v2 * v3 * (1 - cos_term)) + (v1 * sin_term);
-	  	matrix[2][2] = pow(v3, 2) + (pow(v1 ,2) + pow(v2, 2))*(cos_term);
-		
-	  	CVector<> tempvec;
-	  	tempvec[0] = (matrix[0][0] * orientationData[part.getID()].orientation[0]) + (matrix[0][1] * orientationData[part.getID()].orientation[1]) + (matrix[0][2] * orientationData[part.getID()].orientation[2]);
-	  	tempvec[1] = (matrix[1][0] * orientationData[part.getID()].orientation[0]) + (matrix[1][1] * orientationData[part.getID()].orientation[1]) + (matrix[1][2] * orientationData[part.getID()].orientation[2]);
-	  	tempvec[2] = (matrix[2][0] * orientationData[part.getID()].orientation[0]) + (matrix[2][1] * orientationData[part.getID()].orientation[1]) + (matrix[2][2] * orientationData[part.getID()].orientation[2]);
-		
-  		orientationData[part.getID()].orientation = tempvec;
-		}
-	}
+    // Linear dynamics
+    osret.velocity = part.getVelocity();
+    osret.position = part.getPosition() + (osret.velocity * dt);
+    osret.rot.angularVelocity = orientationData[part.getID()].angularVelocity;
+    osret.rot.orientation = orientationData[part.getID()].orientation;
+  
+    // Angular dynamics
+    osret.rot.angularVelocity = orientationData[part.getID()].angularVelocity;
+    
+    Iflt angle = osret.rot.angularVelocity.length() * dt;
+  
+    Iflt v1 = osret.rot.angularVelocity.unitVector()[0];
+    Iflt v2 = osret.rot.angularVelocity.unitVector()[1];
+    Iflt v3 = osret.rot.angularVelocity.unitVector()[2];
+  
+    // axis is not undefined and angle is not zero
+    if(!(v1 == 0 && v2 == 0 && v3 == 0) && angle != 0)
+    {	
+    
+      Iflt matrix[3][3];
+    
+      Iflt cos_term = cos(angle);
+      Iflt sin_term = sin(angle);
+  
+      matrix[0][0] = pow(v1, 2) + (pow(v2 ,2) + pow(v3, 2))*(cos_term);
+      matrix[0][1] = (v1 * v2 * (1 - cos_term)) - (v3 * sin_term);
+      matrix[0][2] = (v1 * v3 * (1 - cos_term)) + (v2 * sin_term);
+      matrix[1][0] = (v1 * v2 * (1 - cos_term)) + (v3 * sin_term);
+      matrix[1][1] = pow(v2, 2) + (pow(v3 ,2) + pow(v1, 2))*(cos_term);
+      matrix[1][2] = (v2 * v3 * (1 - cos_term)) - (v1 * sin_term);
+      matrix[2][0] = (v3 * v1 * (1 - cos_term)) - (v2 * sin_term);
+      matrix[2][1] = (v2 * v3 * (1 - cos_term)) + (v1 * sin_term);
+      matrix[2][2] = pow(v3, 2) + (pow(v1 ,2) + pow(v2, 2))*(cos_term);
+    
+      CVector<> tempvec;
+      tempvec[0] = (matrix[0][0] * osret.rot.orientation[0]) + (matrix[0][1] * osret.rot.orientation[1]) + (matrix[0][2] * osret.rot.orientation[2]);
+      tempvec[1] = (matrix[1][0] * osret.rot.orientation[0]) + (matrix[1][1] * osret.rot.orientation[1]) + (matrix[1][2] * osret.rot.orientation[2]);
+      tempvec[2] = (matrix[2][0] * osret.rot.orientation[0]) + (matrix[2][1] * osret.rot.orientation[1]) + (matrix[2][2] * osret.rot.orientation[2]);
+    
+      osret.rot.orientation = tempvec;
+    }
+  
+    return osret;
+  }
 }
 
 C1ParticleData 

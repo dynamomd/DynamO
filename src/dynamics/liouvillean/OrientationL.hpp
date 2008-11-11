@@ -64,6 +64,15 @@ protected:
     CVector<> angularVelocity;
   };
   
+  struct orientationStreamReturnType
+  {
+    rotData rot;
+    CVector<> velocity;
+    CVector<> position;
+  };
+  
+  virtual orientationStreamReturnType performRotation(CParticle&, const Iflt&) const;
+  
   mutable std::vector<rotData> orientationData;
 };
 #endif
