@@ -102,7 +102,8 @@ COPRijVij::output(xmlw::XmlStream &XML)
 	{
 	  XML << xmlw::tag("Rij")
 	      << xmlw::attr("dimension")
-	      << iDim;
+	      << iDim
+	      << xmlw::chardata();
 
 	  pair1.second.rij[iDim].outputHistogram(XML, 1.0);
 
@@ -113,7 +114,8 @@ COPRijVij::output(xmlw::XmlStream &XML)
 	{
 	  XML << xmlw::tag("Vij")
 	      << xmlw::attr("dimension")
-	      << iDim;
+	      << iDim
+	      << xmlw::chardata();
 
 	  pair1.second.vij[iDim].outputHistogram(XML, 1.0);
 
@@ -124,10 +126,11 @@ COPRijVij::output(xmlw::XmlStream &XML)
 	{
 	  XML << xmlw::tag("RijVijvsRij")
 	      << xmlw::attr("dimension")
-	      << iDim;
+	      << iDim
+	      << xmlw::chardata();
 
-	  for (size_t i(0); i < 1000; ++i)
-	    XML << ((i - 1000) / 1000.0) << " "
+	  for (size_t i(0); i < 2000; ++i)
+	    XML << ((i - 1000.0) / 1000.0) << " "
 		<< pair1.second.rijcostheta[iDim][i].second 
 	      / pair1.second.rijcostheta[iDim][i].first
 		<< "\n";
