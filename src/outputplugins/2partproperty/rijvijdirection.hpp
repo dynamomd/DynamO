@@ -58,7 +58,7 @@ class COPRijVij: public COutputPlugin
 	  vij[iDim] = C1DHistogram(0.001);
 
 	  rijcostheta[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
-	  costhetarij[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
+	  costhetarij[iDim].resize(1000, std::pair<size_t,Iflt>(0, 0));
 	}
     }
     

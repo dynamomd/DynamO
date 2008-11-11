@@ -48,9 +48,9 @@ COPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
       ++ref.rijcostheta[iDim].at(id).first;
       ref.rijcostheta[iDim].at(id).second += rvdot;
 
-      id = static_cast<size_t>((rvdot + 1.0) * 1000);
-      ++ref.rijcostheta[iDim].at(id).first;
-      ref.rijcostheta[iDim].at(id).second += rijnorm[iDim];
+      id = static_cast<size_t>(-rvdot * 1000.0);
+      ++ref.costhetarij[iDim].at(id).first;
+      ref.costhetarij[iDim].at(id).second += rijnorm[iDim];
     }
 }
 
@@ -149,8 +149,8 @@ COPRijVij::output(xmlw::XmlStream &XML)
 	      << iDim
 	      << xmlw::chardata();
 
-	  for (size_t i(0); i < 2000; ++i)
-	    XML << ((i - 1000.0) / 1000.0) << " "
+	  for (size_t i(0); i < 1000; ++i)
+	    XML << ( static_cast<Iflt>(i) / -1000.0) << " "
 		<< pair1.second.costhetarij[iDim][i].second 
 	      / pair1.second.costhetarij[iDim][i].first
 		<< "\n";
