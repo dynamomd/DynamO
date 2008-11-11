@@ -43,14 +43,21 @@ COPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
       ref.rij[iDim].addVal(rijnorm[iDim]);
       ref.vij[iDim].addVal(vijnorm[iDim]);
 
-      size_t id(static_cast<size_t>((rijnorm[iDim] + 1.0) * 1000));
+      size_t id1(static_cast<size_t>((rijnorm[iDim] + 1.0) * 1000));
+      size_t id2(static_cast<size_t>(-rvdot * 1000.0));
 
-      ++ref.rijcostheta[iDim].at(id).first;
-      ref.rijcostheta[iDim].at(id).second += rvdot;
+      ++ref.rijcostheta[iDim].at(id1).first;
+      ref.rijcostheta[iDim].at(id1).second += rvdot;
 
-      id = static_cast<size_t>(-rvdot * 1000.0);
-      ++ref.costhetarij[iDim].at(id).first;
-      ref.costhetarij[iDim].at(id).second += std::fabs(rijnorm[iDim]);
+      ++ref.costhetarij[iDim].at(id2).first;
+      ref.costhetarij[iDim].at(id2).second += std::fabs(rijnorm[iDim]);
+
+
+      id1 = static_cast<size_t>((rijnorm[iDim] + 1.0) * 100);
+      id2 = static_cast<size_t>(-rvdot * 100.0);
+
+      ++ref.anglemapcount;
+      ++ref.anglemap[iDim][id1][id2];
     }
 }
 
@@ -58,8 +65,8 @@ void
 COPRijVij::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
   
-  process2PED(rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent.getInteraction()))],
-	      pDat);
+  process2PED(rvdotacc[mapKey(iEvent.getType(), 
+			      getClassKey(iEvent.getInteraction()))], pDat);
 }
 
 void 
@@ -156,6 +163,29 @@ COPRijVij::output(xmlw::XmlStream &XML)
 		<< "\n";
 
 	  XML << xmlw::endtag("RijvsRijVij");
+	}
+
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	{
+	  XML << xmlw::tag("XijRvdot")
+	      << xmlw::attr("dimension")
+	      << iDim
+	      << xmlw::chardata();
+
+	  for (size_t i1(0); i1 < 200; ++i1)
+	    {	      
+	      for (size_t i2(0); i2 < 100; ++i2)
+		XML << ( (static_cast<Iflt>(i1) - 100.0) / 100.0) << " "
+		    << ( static_cast<Iflt>(i2) / -100.0) << " "
+		    << static_cast<Iflt>(pair1.second.anglemap[iDim][i1][i2])
+		  / static_cast<Iflt>(pair1.second.anglemapcount)
+		    << "\n";
+
+	      XML << "\n";
+	    }
+	  
+
+	  XML << xmlw::endtag("XijRvdot");
 	}
       
       XML << xmlw::endtag("Element");

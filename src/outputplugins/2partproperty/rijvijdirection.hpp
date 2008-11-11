@@ -50,7 +50,7 @@ class COPRijVij: public COutputPlugin
  protected:
   struct mapdata
   {
-    mapdata()
+    mapdata(): anglemapcount(0)
     {
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
@@ -59,6 +59,7 @@ class COPRijVij: public COutputPlugin
 
 	  rijcostheta[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
 	  costhetarij[iDim].resize(1000, std::pair<size_t,Iflt>(0, 0));
+	  anglemap[iDim].resize(200, std::vector<size_t>(100, 0));
 	}
     }
     
@@ -67,6 +68,8 @@ class COPRijVij: public COutputPlugin
     
     std::vector<std::pair<size_t,Iflt> > rijcostheta[NDIM];
     std::vector<std::pair<size_t,Iflt> > costhetarij[NDIM];
+    std::vector<std::vector<size_t> > anglemap[NDIM];
+    size_t anglemapcount;
   };
   
   typedef std::pair<EEventType, classKey> mapKey;
