@@ -78,12 +78,119 @@ CLNOrientation::getLineLineCollision(const CPDData& PD, const Iflt& length,
   // If interpolation size is > window size, put rate as window width
   interpolationSize = (interpolationSize > twindow) ? twindow : interpolationSize;
   
-  return recursiveRootFinder(interpolationSize, 0.0, twindow);
+  orientationStreamType A, B;
+  
+  A.position = p1.getPosition();
+  A.velocity = p1.getVelocity();
+  A.rot.orientation = orientationData[p1.getID()].orientation;
+  A.rot.angularVelocity = orientationData[p1.getID()].angularVelocity;
+  
+  B.position = p2.getPosition();
+  B.velocity = p2.getVelocity();
+  B.rot.orientation = orientationData[p2.getID()].orientation;
+  B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
+  
+  return recursiveRootFinder(A, B, length, interpolationSize, 0.0, twindow);
 }
 
 bool
-CLNOrientation::recursiveRootFinder(const Iflt& interpolationSize, const Iflt& window_open, const Iflt& window_closed) const
-{ D_throw() << "Not implemented"; }
+CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length,
+                                    const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed) const
+{
+  long unsigned int iter = 0;
+  Iflt currentPosition = 0, x0 = 0, x1 = 0, x2 = 0, 
+       upperTimeBracket, lowerTimeBracket, upperValue, 
+       lowerValue, midpoint, previousMidpoint, workingValue,
+       rijdotui, rijdotuj, uidotuj, alpha, beta;
+  CVector<> rij, crossProduct;
+  orientationStreamType rootWorkerA, rootWorkerB;
+  
+  while(currentPosition < windowClosed)
+  {
+    currentPosition = iter * interpolationSize;
+    
+    performRotation(A, interpolationSize);
+    performRotation(B, interpolationSize);
+    
+    x0 = x1;
+    x1 = x2;
+    
+    rij = A.position - B.position;
+    crossProduct = A.rot.orientation.Cross(B.rot.orientation);
+	
+	  x2 = crossProduct % rij;
+    
+    // Possible root found in the x1/x2 interval
+    if(std::signbit(x2) != std::signbit(x1) && iter > 0)
+    {
+      // Root checking routine here
+      rootWorkerA = A;
+      rootWorkerB = B;
+      upperValue = x2;
+      lowerValue = x1;
+      upperTimeBracket = currentPosition;
+      lowerTimeBracket = currentPosition - interpolationSize;
+      previousMidpoint = currentPosition;
+      midpoint = currentPosition;
+      
+      while(std::fabs(upperTimeBracket - lowerTimeBracket) > eps)
+      {
+        // Bisection root finding
+        previousMidpoint = midpoint;
+        midpoint = (lowerTimeBracket + upperTimeBracket) / 2;
+        
+        performRotation(rootWorkerA, midpoint - currentPosition);
+        performRotation(rootWorkerB, midpoint - currentPosition);
+        
+        rij = rootWorkerA.position - rootWorkerB.position;
+        crossProduct = rootWorkerA.rot.orientation.Cross(rootWorkerB.rot.orientation);
+        
+        workingValue = crossProduct % rij;
+        
+        if(std::signbit(workingValue) == std::signbit(lowerValue))
+        {
+          lowerTimeBracket = midpoint;
+        }
+        else
+        {
+          upperTimeBracket = midpoint;
+        }
+      }
+      
+      // Now upperTimeBracket will give us the collision time.
+      // Check that the root is valid.
+      rijdotui = rij % rootWorkerA.rot.orientation;
+      rijdotuj = rij % rootWorkerB.rot.orientation;
+      uidotuj = rootWorkerA.rot.orientation % rootWorkerB.rot.orientation;
+      
+      alpha = -1.0 * (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+      beta  = -1.0 * (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+      
+      if(std::fabs(alpha) < (length/2) && std::fabs(beta) < (length/2))
+      {
+        return true;
+      }
+    }
+    
+    // Conditions for interpolating:
+		// - Sign is different to what extrapoling the previous segment indicated
+		// - The new point is still the same sign as the old one
+		if(iter > 1 && (std::signbit(x2) != std::signbit(x1 + x1 - x0)) && std::signbit(x2) == std::signbit(x1))
+		{
+      performRotation(A, -1.0 * interpolationSize);
+      performRotation(B, -1.0 * interpolationSize);
+      
+			if(recursiveRootFinder(A, B, length, interpolationSize/10.0, currentPosition - interpolationSize, currentPosition))
+			{
+				return true;
+			}
+		}
+    
+    iter++;
+  }
+  
+  return false;
+}
 
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent&) const

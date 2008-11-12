@@ -73,7 +73,8 @@ protected:
   
   virtual void performRotation(orientationStreamType&, const Iflt&) const;
   
-  virtual bool recursiveRootFinder(const Iflt& interpolationSize, const Iflt& window_open, const Iflt& window_closed) const;
+  virtual bool recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length, 
+                                   const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed) const;
   
   mutable std::vector<rotData> orientationData;
 };
