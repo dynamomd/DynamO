@@ -64,14 +64,14 @@ protected:
     CVector<> angularVelocity;
   };
   
-  struct orientationStreamReturnType
+  struct orientationStreamType
   {
     rotData rot;
     CVector<> velocity;
     CVector<> position;
   };
   
-  virtual orientationStreamReturnType performRotation(CParticle&, const Iflt&) const;
+  virtual void performRotation(orientationStreamType&, const Iflt&) const;
   
   virtual bool recursiveRootFinder(const Iflt& interpolationSize, const Iflt& window_open, const Iflt& window_closed) const;
   

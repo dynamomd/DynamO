@@ -92,29 +92,27 @@ CLNOrientation::runLineLineCollision(const CIntEvent&) const
 void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
-  orientationStreamReturnType osret = performRotation(part, dt);
+  orientationStreamType ostPart;
   
-  CLNewton::streamParticle(part, dt);
+  ostPart.velocity = part.getVelocity();
+  ostPart.position = part.getPosition();
+  ostPart.rot.angularVelocity = orientationData[part.getID()].angularVelocity;
+  ostPart.rot.orientation = orientationData[part.getID()].orientation;
   
-  orientationData[part.getID()].orientation = osret.rot.orientation;
+  performRotation(ostPart, dt);
+  
+  part.getPosition() =  ostPart.position;
+  orientationData[part.getID()].orientation = ostPart.rot.orientation;
 }
 
-CLNOrientation::orientationStreamReturnType
-CLNOrientation::performRotation(CParticle& part, const Iflt& dt) const
+void
+CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) const
 {
   if(NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
   else
   {
-    orientationStreamReturnType osret;
-    
     // Linear dynamics
-    osret.velocity = part.getVelocity();
-    osret.position = part.getPosition() + (osret.velocity * dt);
-    osret.rot.angularVelocity = orientationData[part.getID()].angularVelocity;
-    osret.rot.orientation = orientationData[part.getID()].orientation;
-  
-    // Angular dynamics
-    osret.rot.angularVelocity = orientationData[part.getID()].angularVelocity;
+    osret.position += (osret.velocity * dt);
     
     Iflt angle = osret.rot.angularVelocity.length() * dt;
   
@@ -148,8 +146,6 @@ CLNOrientation::performRotation(CParticle& part, const Iflt& dt) const
     
       osret.rot.orientation = tempvec;
     }
-  
-    return osret;
   }
 }
 
