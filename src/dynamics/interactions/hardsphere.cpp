@@ -28,6 +28,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../BC/BC.hpp"
+#include <sstream>
+#include "../ranges/1range.hpp"
 
 CIHardSphere::CIHardSphere(const DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, C2Range* nR):
@@ -143,3 +145,22 @@ CIHardSphere::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 	     << "\nd^2=" 
 	     << d2 / pow(Sim->Dynamics.units().unitLength(),2);
 }
+
+void 
+CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range, 
+				std::ostream& os) const
+{ 
+  os << "#declare intrep" << ID << " = " 
+     << "sphere {\n <0,0,0> " 
+     << diameter / 2.0
+     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
+     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
+  
+  BOOST_FOREACH(const size_t& pid, range)
+    os << "object {\n intrep" << ID << "\n translate < "
+       << Sim->vParticleList[pid].getPosition()[0] << ", " 
+       << Sim->vParticleList[pid].getPosition()[1] << ", " 
+       << Sim->vParticleList[pid].getPosition()[2] << ">\n}\n";
+}
+
+

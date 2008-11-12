@@ -18,8 +18,17 @@
 #ifndef IS_ColorMap_H
 #define IS_ColorMap_H
 
+#include <cmath>
+
 namespace DYNAMO
 {
+  struct RGB {
+    RGB(float a, float b, float c): R(a),G(b),B(c) {}
+    float R;
+    float G;
+    float B;
+  };
+
   template<class T>
   class ColorMap
   {
@@ -29,25 +38,18 @@ namespace DYNAMO
       end(nend)
     {}
     
-    struct RGB {
-      RGB(float a, float b, float c): R(a),G(b),B(c) {}
-      float R;
-      float G;
-      float B;
-    };
-
     RGB getColor(T val)
     {
       if ((end-start == 0.0) || (val < start))
-	return RGB(0, 0, 0);
+	return RGB(0, 0, 1);
       else if (val > end)
-	return RGB(255, 255, 255);
+	return RGB(1, 0, 0);
 	      
       double normval = static_cast<double>(val - start) / static_cast<double>(end - start);      
 
       double R = 2.0 * normval - 0.84;
       double G;
-      double B = std::abs(2.0 * normval - 0.5);
+      double B = std::fabs(2.0 * normval - 0.5);
 
       if (val < 0.3)
 	G = 4.0 * normval;

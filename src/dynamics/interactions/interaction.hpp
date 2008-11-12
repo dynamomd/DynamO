@@ -22,12 +22,15 @@
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../base/is_base.hpp"
 #include "../ranges/2range.hpp"
+#include "../../base/is_colormap.hpp"
+
 #define eps2 1e-10 //Min overlap distance
 
 class C2ParticleData;
 class CIntEvent;
 class XMLNode;
 class CSpecies;
+class CRange;
 
 namespace xmlw
 {
@@ -84,6 +87,10 @@ public:
   virtual float getColourFraction(const CParticle&) const { return 0.5; } 
 
   inline const size_t& getID() const { return ID; }
+
+  virtual void 
+  write_povray_desc(const DYNAMO::RGB&, const CRange&, std::ostream&) const
+  {}
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const = 0;

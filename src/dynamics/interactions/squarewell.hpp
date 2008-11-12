@@ -52,6 +52,9 @@ public:
   virtual Iflt getInternalEnergy() const 
   { return -(getTotalCaptureCount() * wellDepth); }
 
+  virtual void 
+  write_povray_desc(const DYNAMO::RGB&, const CRange&, std::ostream&) const;
+
 protected:
   Iflt diameter,d2;
   Iflt lambda, ld2;

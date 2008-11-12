@@ -71,46 +71,11 @@ light_source { <-zoom, 0, 0> color White } \n\
 light_source { <0, 0, zoom> color White }  \n\
 light_source { <0, 0, -zoom> color White } \n\
 ";
-  DYNAMO::ColorMap<unsigned int> colmap(1,Sim->Dynamics.getSpecies().size());
-  DYNAMO::ColorMap<unsigned int>::RGB tmpCol(0,0,0);
+  DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
 
-  unsigned int i = 1;
-	
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
-    {
-      tmpCol = colmap.getColor(i);
-      ++i;
-
-      of << "#declare atom" << i << " = sphere {\n <0,0,0> " 
-	 << spec.getIntPtr()->hardCoreDiam() / 2.0 
-	 << "\n texture { pigment { color Blue }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
-	 << "#declare atom" << i << "well = sphere {\n <0,0,0> " 
-	 << spec.getIntPtr()->maxIntDist() / 2.0 
-	 << "\n texture { pigment { color rgbt < 1, 0 0, 0.9> }}\n}\n";
-
-      BOOST_FOREACH(unsigned long ID, *spec.getRange())
-	{
-	  CVector<> pos = Sim->vParticleList[ID].getPosition();
-	  Sim->Dynamics.BCs().setPBC(pos);
-	  
-	  of << "object {\n atom" << i << "\n translate < "
-	     << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-	}
-
-      if (spec.getIntPtr()->hardCoreDiam() != spec.getIntPtr()->maxIntDist())
-	{
-	  of << "merge {\n";
-	  BOOST_FOREACH(unsigned long ID, *spec.getRange())
-	    {
-	      CVector<> pos = Sim->vParticleList[ID].getPosition();
-	      Sim->Dynamics.BCs().setPBC(pos);
-	      
-	      of << "object {\n atom" << i << "well\n translate < "
-		 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-	    }
-	  of << "}\n";
-	}
-    }
+    spec.getIntPtr()->write_povray_desc
+    (colmap.getColor(spec.getID()), *spec.getRange(), of);
   
   of.close();
 }

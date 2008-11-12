@@ -251,3 +251,34 @@ CISquareWell::outputXML(xmlw::XmlStream& XML) const
   
   CICapture::outputCaptureMap(XML);  
 }
+
+void 
+CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb, 
+				const CRange& range, 
+				std::ostream& os) const
+{
+  os << "#declare intrep" << ID << "center = " 
+     << "sphere {\n <0,0,0> " 
+     << diameter / 2.0
+     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
+     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
+     << "#declare intrep" << ID << "well = sphere {\n <0,0,0> " << diameter * lambda * 0.5
+     << "\n texture { pigment { color rgbt <" << rgb.R << "," << rgb.G 
+     << "," << rgb.B << "," << 0.95 << "> }}\n}\n";
+
+  BOOST_FOREACH(const size_t& part, range)
+    os << "object {\n intrep" << ID << "center\n translate < "
+       << Sim->vParticleList[part].getPosition()[0] << ", " 
+       << Sim->vParticleList[part].getPosition()[1] << ", " 
+       << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
+
+  os << "merge {\n";
+  BOOST_FOREACH(const size_t& part, range)
+    os << "object {\n intrep" << ID << "well\n translate < "
+       << Sim->vParticleList[part].getPosition()[0] << ", " 
+       << Sim->vParticleList[part].getPosition()[1] << ", " 
+       << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
+  
+  os << "}\n";
+
+}

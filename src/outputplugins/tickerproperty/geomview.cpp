@@ -60,7 +60,7 @@ COPGeomview::printImage()
   of << "{LIST\n";
   
   DYNAMO::ColorMap<double> colmap(0, Sim->Dynamics.getSpecies().size());
-  DYNAMO::ColorMap<double>::RGB tmpCol(0,0,0);
+  DYNAMO::RGB tmpCol(0,0,0);
 
   unsigned int i = 0;
 
