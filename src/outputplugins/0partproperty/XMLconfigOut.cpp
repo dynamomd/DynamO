@@ -30,6 +30,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "misc.hpp"
+#include <iomanip>
 
 COPConfig::COPConfig(const DYNAMO::SimData* tmp):
   COutputPlugin(tmp,"XMLConfig")
@@ -43,7 +44,8 @@ COPConfig::output(xmlw::XmlStream &XML)
 {  
   Sim->Dynamics.Liouvillean().updateAllParticles();
   
-  XML << std::setprecision(std::numeric_limits<Iflt>::digits10)  
+  XML << std::scientific
+      << std::setprecision(std::numeric_limits<Iflt>::digits10 -1)
       << xmlw::prolog() << xmlw::tag("DYNAMOconfig") 
       << xmlw::attr("version") << "1.0"
       << xmlw::tag("Simulation")
