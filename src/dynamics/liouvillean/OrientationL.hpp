@@ -36,7 +36,7 @@ public:
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
 				    const CParticle& p1, const CParticle& p2) const;
   
-  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent) const;
+  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const;
   
   virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
 						  const CVector<>& vNorm,
@@ -69,10 +69,18 @@ protected:
     CVector<> position;
   };
   
+  struct collisionPoints
+  {
+    Iflt alpha;
+    Iflt beta;
+  };
+  
   virtual void performRotation(orientationStreamType&, const Iflt&) const;
   
   virtual bool recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length, 
                                    const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const;
+  
+  virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
   mutable std::vector<rotData> orientationData;
 };

@@ -98,8 +98,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
   long unsigned int iter = 0;
   Iflt currentPosition = 0, x0 = 0, x1 = 0, x2 = 0, 
        upperTimeBracket, lowerTimeBracket, upperValue, 
-       lowerValue, midpoint, previousMidpoint, workingValue,
-       rijdotui, rijdotuj, uidotuj, alpha, beta;
+       lowerValue, midpoint, previousMidpoint, workingValue;
   CVector<> rij, crossProduct;
   orientationStreamType rootWorkerA, rootWorkerB;
   
@@ -157,14 +156,9 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
       
       // Now upperTimeBracket will give us the collision time.
       // Check that the root is valid.
-      rijdotui = rij % rootWorkerA.rot.orientation;
-      rijdotuj = rij % rootWorkerB.rot.orientation;
-      uidotuj = rootWorkerA.rot.orientation % rootWorkerB.rot.orientation;
+      collisionPoints cp = getCollisionPoints(rootWorkerA, rootWorkerB);
       
-      alpha = -1.0 * (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
-      beta  = -1.0 * (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
-      
-      if(std::fabs(alpha) < (length/2) && std::fabs(beta) < (length/2))
+      if(std::fabs(cp.alpha) < (length/2) && std::fabs(cp.beta) < (length/2))
       {
         collisionTime = upperTimeBracket;
         return true;
@@ -192,8 +186,77 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
 }
 
 C2ParticleData 
-CLNOrientation::runLineLineCollision(const CIntEvent&) const
-{ D_throw() << "Not implemented"; }
+CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
+{
+  // Begin copied section from CLNewton::SmoothSpheresColl
+  updateParticlePair(eevent.getParticle1(), eevent.getParticle2());
+
+  C2ParticleData retVal(eevent.getParticle1(), eevent.getParticle2(),
+                        Sim->Dynamics.getSpecies(eevent.getParticle1()),
+                        Sim->Dynamics.getSpecies(eevent.getParticle2()),
+                        CORE);
+  
+  Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
+  // End copied section
+  
+  CVector<> vr, uPerp, u1dot, u2dot;
+  orientationStreamType A, B;
+  
+  // Assume lines are the same mass... use the mass of line #1
+  Iflt mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt inertia = (mass * length * length)/12.0;
+  
+  A.position = retVal.particle1_.getParticle().getPosition();
+  A.velocity = retVal.particle1_.getParticle().getVelocity();
+  A.rot.angularVelocity = orientationData[retVal.particle1_.getParticle().getID()].angularVelocity;
+  A.rot.orientation = orientationData[retVal.particle1_.getParticle().getID()].orientation;
+  
+  B.position = retVal.particle2_.getParticle().getPosition();
+  B.velocity = retVal.particle2_.getParticle().getVelocity();
+  B.rot.angularVelocity = orientationData[retVal.particle2_.getParticle().getID()].angularVelocity;
+  B.rot.orientation = orientationData[retVal.particle2_.getParticle().getID()].orientation;
+  
+  uPerp = A.rot.orientation.Cross(B.rot.orientation).unitVector();
+  
+  collisionPoints cp = getCollisionPoints(A, B);
+  
+  u1dot = A.rot.angularVelocity.Cross(A.rot.orientation) * cp.alpha;
+  u2dot = B.rot.angularVelocity.Cross(B.rot.orientation) * cp.beta;
+  
+  vr = (A.velocity - B.velocity) + u1dot - u2dot;
+  
+  Iflt alpha = -1.0 * (vr % uPerp);
+  alpha /= ((1.0/mass) + ((std::pow(cp.alpha, 2) + std::pow(cp.beta, 2))/(2.0 * inertia)));
+  
+  retVal.rvdot = retVal.rij % retVal.vijold;
+  retVal.dP = uPerp * alpha;
+  
+  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() += retVal.dP / mass;
+  
+  orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
+  orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
+  
+  return retVal;
+}
+
+CLNOrientation::collisionPoints
+CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const
+{
+  collisionPoints retVal;
+  CVector<> rij;
+  Iflt rijdotui, rijdotuj, uidotuj;
+  
+  rij = A.position - B.position;
+  rijdotui = rij % A.rot.orientation;
+  rijdotuj = rij % B.rot.orientation;
+  uidotuj = A.rot.orientation % B.rot.orientation;
+    
+  retVal.alpha = -1.0 * (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  retVal.beta  = -1.0 * (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  
+  return retVal;
+}
 
 void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
