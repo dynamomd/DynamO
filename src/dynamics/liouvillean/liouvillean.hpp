@@ -155,9 +155,8 @@ public:
    * \param twindow Maximum time to check till.
    * \return Wether the event will occur or not.
    */    
-  virtual bool getLineLineCollision(const CPDData& PD, const Iflt& length, 
-				    const CParticle& p1, const CParticle& p2,
-				    const Iflt& twindow
+  virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
+				    const CParticle& p1, const CParticle& p2
 				    ) const;
 
   /*! \brief Runs a line line collision event
@@ -165,7 +164,8 @@ public:
    * \param eevent Description of the scheduled event
    * \return Collision data
    */    
-  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent) const;
+  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent,
+					      const Iflt& length) const;
 
   /*! \brief Determines when the particle center will hit a wall.
    *

@@ -124,9 +124,9 @@ CILines::getCollision(const CParticle &p1, const CParticle &p2) const
       //Lower limit is right now
       //Test for a line collision
       if (Sim->Dynamics.Liouvillean().getLineLineCollision
-	  (colldat, length, p1, p2, colldat.dt))
+	  (colldat, length, p1, p2))
 	return CIntEvent(p1, p2, colldat.dt, CORE, *this);
-
+      
       return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, l2)) 
@@ -143,7 +143,7 @@ CILines::runCollision(const CIntEvent &event) const
     case CORE:
       {
 	//We have a line interaction! Run it
-	return Sim->Dynamics.Liouvillean().runLineLineCollision(event);
+	return Sim->Dynamics.Liouvillean().runLineLineCollision(event, length);
       }
     case WELL_IN:
       {	

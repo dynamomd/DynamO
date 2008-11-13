@@ -34,9 +34,11 @@ public:
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
-				    const CParticle& p1, const CParticle& p2) const;
+				    const CParticle& p1, const CParticle& p2
+				    ) const;
   
-  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const;
+  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent, 
+					      const Iflt& length) const;
   
   virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
 						  const CVector<>& vNorm,

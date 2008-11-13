@@ -41,12 +41,12 @@ CLiouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
 }
 
 C2ParticleData 
-CLiouvillean::runLineLineCollision(const CIntEvent&) const
+CLiouvillean::runLineLineCollision(const CIntEvent&,
+				   const Iflt&) const
 { D_throw() << "Not implemented for this Liouvillean."; }
 
 bool
-CLiouvillean::getLineLineCollision(const CPDData&, const Iflt&, 
-				   const CParticle&, const CParticle&,
-				   const Iflt&
+CLiouvillean::getLineLineCollision(CPDData&, const Iflt&, 
+				   const CParticle&, const CParticle&
 				   ) const
 { D_throw() << "Not implemented for this Liouvillean."; }
