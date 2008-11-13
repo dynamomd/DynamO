@@ -288,7 +288,7 @@ COPMutualDiffusionGK::getdt()
     if (dt == 0.0)
       {
 	if (Sim->lastRunMFT != 0.0)
-	  return Sim->lastRunMFT * 30.0 / CorrelatorLength;
+	  return Sim->lastRunMFT * 50.0 / CorrelatorLength;
 	else
 	  return 5.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
       }
