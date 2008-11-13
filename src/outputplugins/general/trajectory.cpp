@@ -63,11 +63,13 @@ COPTrajectory::printData(const CParticle& p1,
 
   logfile << " p1 " << id1
 	  << " p2 " << id2
-	  << " |r12| < " << rij.length()
+	  << " |r12| " << rij.length()
 	  << " r12 < ";
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     logfile << rij[iDim] << " ";
+
+  logfile << ">";
 }
 
 void 
