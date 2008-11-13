@@ -29,7 +29,6 @@ struct CPDData
 		 const CParticle& p2):
     rij(p1.getPosition() - p2.getPosition()),
     vij(p1.getVelocity() - p2.getVelocity()),    
-    pecTime(p1.getPecTime()),
     dt(HUGE_VAL)
   {
     Sim.Dynamics.BCs().setPBC(rij, vij);
@@ -42,7 +41,6 @@ struct CPDData
   Iflt rvdot;
   Iflt r2;
   Iflt v2;
-  Iflt pecTime;
   Iflt dt;
 };
 
