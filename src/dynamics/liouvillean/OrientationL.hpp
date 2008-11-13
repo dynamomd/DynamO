@@ -33,10 +33,8 @@ public:
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
-  virtual bool getLineLineCollision(const CPDData& PD, const Iflt& length, 
-				    const CParticle& p1, const CParticle& p2,
-				    const Iflt& twindow
-				    ) const;
+  virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
+				    const CParticle& p1, const CParticle& p2) const;
   
   virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent) const;
   
@@ -74,7 +72,7 @@ protected:
   virtual void performRotation(orientationStreamType&, const Iflt&) const;
   
   virtual bool recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length, 
-                                   const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed) const;
+                                   const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const;
   
   mutable std::vector<rotData> orientationData;
 };

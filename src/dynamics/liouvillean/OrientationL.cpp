@@ -66,17 +66,15 @@ CLNOrientation::outputExtraPDatXML(xmlw::XmlStream& XML,
 }
 
 bool 
-CLNOrientation::getLineLineCollision(const CPDData& PD, const Iflt& length, 
-				     const CParticle& p1, const CParticle& p2,
-				     const Iflt& twindow
-				     ) const
+CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
+				     const CParticle& p1, const CParticle& p2) const
 { 
   // +0.1 is arbitrary to ensure a non-zero rate if angular velocities are both zero
   Iflt interpolationSize = 1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
                                               * orientationData[p2.getID()].angularVelocity.length()));
 
   // If interpolation size is > window size, put rate as window width
-  interpolationSize = (interpolationSize > twindow) ? twindow : interpolationSize;
+  interpolationSize = (interpolationSize > PD.dt) ? PD.dt : interpolationSize;
   
   orientationStreamType A, B;
   
@@ -90,12 +88,12 @@ CLNOrientation::getLineLineCollision(const CPDData& PD, const Iflt& length,
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
   
-  return recursiveRootFinder(A, B, length, interpolationSize, 0.0, twindow);
+  return recursiveRootFinder(A, B, length, interpolationSize, 0.0, PD.dt, PD.dt);
 }
 
 bool
 CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length,
-                                    const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed) const
+                                    const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const
 {
   long unsigned int iter = 0;
   Iflt currentPosition = 0, x0 = 0, x1 = 0, x2 = 0, 
@@ -168,23 +166,24 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
       
       if(std::fabs(alpha) < (length/2) && std::fabs(beta) < (length/2))
       {
+        collisionTime = upperTimeBracket;
         return true;
       }
     }
     
     // Conditions for interpolating:
-		// - Sign is different to what extrapoling the previous segment indicated
-		// - The new point is still the same sign as the old one
-		if(iter > 1 && (std::signbit(x2) != std::signbit(x1 + x1 - x0)) && std::signbit(x2) == std::signbit(x1))
-		{
+    // - Sign is different to what extrapoling the previous segment indicated
+    // - The new point is still the same sign as the old one
+    if(iter > 1 && (std::signbit(x2) != std::signbit(x1 + x1 - x0)) && std::signbit(x2) == std::signbit(x1))
+    {
       performRotation(A, -1.0 * interpolationSize);
       performRotation(B, -1.0 * interpolationSize);
       
-			if(recursiveRootFinder(A, B, length, interpolationSize/10.0, currentPosition - interpolationSize, currentPosition))
-			{
-				return true;
-			}
-		}
+      if(recursiveRootFinder(A, B, length, interpolationSize/10.0, currentPosition - interpolationSize, currentPosition, collisionTime))
+      {
+        return true;
+      }
+    }
     
     iter++;
   }
