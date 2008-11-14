@@ -157,10 +157,15 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range,
      << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
   
   BOOST_FOREACH(const size_t& pid, range)
-    os << "object {\n intrep" << ID << "\n translate < "
-       << Sim->vParticleList[pid].getPosition()[0] << ", " 
-       << Sim->vParticleList[pid].getPosition()[1] << ", " 
-       << Sim->vParticleList[pid].getPosition()[2] << ">\n}\n";
+    {
+      os << "object {\n intrep" << ID << "\n translate <"
+	 << Sim->vParticleList[pid].getPosition()[0];
+
+      for (size_t iDim(1); iDim < NDIM; ++iDim)
+	os << "," << Sim->vParticleList[pid].getPosition()[iDim];
+      
+       os << ">\n}\n";
+    }
 }
 
 
