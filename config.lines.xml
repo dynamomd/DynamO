@@ -19,7 +19,9 @@
     </Genus>
     <Topology/>
     <SystemEvents/>
-    <Globals/>
+    <Globals>
+      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList"/>
+    </Globals>
     <Locals/>
     <Interactions>
       <Interaction Type="Lines" Length="3" Elasticity="1" Name="Bulk" Range="2All"/>

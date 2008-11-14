@@ -59,7 +59,23 @@ COPGeomview::printImage()
     D_throw() << "Could not open geomview file for writing";
 
   of << "{LIST\n";
-  
+
+
+  CVector<> corner(0);
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    corner[iDim] -= 0.5 * Sim->aspectRatio[iDim];
+    
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    {
+      CVector<> point(corner);
+
+      point[iDim] = 0.5 * Sim->aspectRatio[iDim];
+
+      of << "{VECT 1 2 1 \n 2 \n 1 \n " << corner[0] << " " << corner[1]
+	 << " " << corner[2] << "\n" << point[0]  << " " << point[1] << " " 
+	 << point[2] << " \n 1.0 1.0 1.0 1.0 }\n";
+    }
+
   DYNAMO::ColorMap<double> colmap(0, Sim->Dynamics.getSpecies().size());
   DYNAMO::RGB tmpCol(0,0,0);
 
