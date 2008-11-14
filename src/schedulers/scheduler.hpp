@@ -34,8 +34,10 @@ public:
   virtual ~CScheduler() = 0;
 
   virtual void initialise() = 0;
+  
+  virtual void invalidateEvents(const CParticle&) = 0;
 
-  virtual void update(const CParticle&) = 0;
+  virtual void addEvents(const CParticle&) = 0;
 
   void popVirtualEvent();
 

@@ -61,7 +61,7 @@ CSNeighbourList::initialise()
 
   //Now initialise the interactions
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    addNewEvents(part);
+    addEvents(part);
   
   sorter->init();
   
@@ -109,14 +109,13 @@ CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
+
 void 
-CSNeighbourList::update(const CParticle& part)
+CSNeighbourList::invalidateEvents(const CParticle& part)
 {
   //Invalidate previous entries
   ++eventCount[part.getID()];
   (*sorter)[part.getID()].clear();
-  addNewEvents(part);
-  sorter->update(part.getID());
 }
 
 void 
@@ -137,7 +136,7 @@ CSNeighbourList::addLocalEvent(const CParticle& part,
 }
 
 void 
-CSNeighbourList::addNewEvents(const CParticle& part) const
+CSNeighbourList::addEvents(const CParticle& part)
 {  
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())

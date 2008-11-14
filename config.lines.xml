@@ -4,7 +4,7 @@
     <Trajectory Coll="0" nCollPrint="50000"/>
     <Ensemble Type="NVE"/>
     <Scheduler Type="Dumb">
-      <Sorter Type="BoundedPQ"/>
+      <Sorter Type="CBT"/>
     </Scheduler>
     <History>
 </History>

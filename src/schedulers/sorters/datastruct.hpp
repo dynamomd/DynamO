@@ -112,10 +112,24 @@ public:
   { c.clear(); }
 
   inline bool operator> (const pList& ip) const throw()
-  { return c.front().dt > ip.c.front().dt; }
+  { 
+#ifdef DYNAMO_DEBUG
+    if (empty() || ip.c.empty())
+      D_throw() << "Comparison of lists but one is empty!";
+#endif  
+
+  	return c.front().dt > ip.c.front().dt; 
+  }
 
   inline bool operator< (const pList& ip) const throw()
-  { return c.front().dt < ip.c.front().dt; }
+  { 
+#ifdef DYNAMO_DEBUG
+    if (empty() || ip.c.empty())
+      D_throw() << "Comparison of lists but one is empty!";
+#endif  
+    
+    return c.front().dt < ip.c.front().dt; 
+  }
 
   inline const Iflt& getdt() const { return c.front().dt; }
   
