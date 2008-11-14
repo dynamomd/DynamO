@@ -338,3 +338,25 @@ CLNOrientation::randomGaussianEvent(const CParticle& part,
   D_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";  
 }
+
+void 
+CLNOrientation::initLineOrientations(const Iflt& length)
+{
+  orientationData.resize(Sim->vParticleList.size());
+  
+  I_cout() << "Initialising the line orientations";
+
+  Iflt factor = std::sqrt(12.0/(length*length));      
+
+  for (size_t i = 0; i < Sim->vParticleList.size(); ++i)
+    {      
+      //Assign the new velocities
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	orientationData[i].orientation[iDim] = normal_sampler();
+
+      orientationData[i].orientation = orientationData[i].orientation.unitVector();
+
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	orientationData[i].angularVelocity[iDim] = normal_sampler() * factor;      
+    }  
+}

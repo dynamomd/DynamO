@@ -31,6 +31,10 @@ public:
     operator<<(XML);
   }
 
+  CLNOrientation(DYNAMO::SimData* Sim):
+    CLNewton(Sim)
+  {}
+
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
@@ -61,6 +65,8 @@ public:
 
   const rotData& getRotData(const CParticle& part) const
   { return orientationData[part.getID()]; }
+  
+  void initLineOrientations(const Iflt&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

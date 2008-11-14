@@ -144,7 +144,9 @@ CIPPacker::initialise()
 	"\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 	"       --f2 : Mass Ratio (B/A) [0.001]\n"
-	"       --f3 : Mol Fraction of large system (A) [0.95]"
+	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
+	"  9: Monocomponent hard spheres\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
 	;
 
       std::cout << "\n";
@@ -777,6 +779,54 @@ CIPPacker::initialise()
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
 						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 9:
+      {
+	//Pack of lines
+	//Pack the system, determine the number of particles
+	std::vector<CVector<> > 
+	  latticeSites(standardPackingHelper(new CUParticle()));
+      	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	double particleDiam = pow(simVol * vm["density"].as<double>() 
+				  / latticeSites.size(), 1.0 / 3.0);
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
+
+	Sim->Dynamics.addInteraction(new CILines(Sim, particleDiam, 1.0,
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					  "Bulk"));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
+
+	static_cast<CLNOrientation&>(Sim->Dynamics.Liouvillean()).initLineOrientations(1.0);
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
