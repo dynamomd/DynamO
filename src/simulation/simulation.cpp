@@ -235,12 +235,7 @@ CSimulation::executeIntEvent()
 	       << iEvent.stringData(this);
 
       //Now we're past the event, update the scheduler and plugins
-      ptrScheduler->invalidateEvents(iEvent.getParticle1());
-      ptrScheduler->invalidateEvents(iEvent.getParticle2());
-      ptrScheduler->addEvents(iEvent.getParticle1());
-      ptrScheduler->addEvents(iEvent.getParticle2());
-      ptrScheduler->sort(iEvent.getParticle1());
-      ptrScheduler->sort(iEvent.getParticle2());      
+      ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
       return;
     }
     
@@ -281,12 +276,7 @@ CSimulation::executeIntEvent()
   C2ParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event, update the scheduler and plugins
-  ptrScheduler->invalidateEvents(iEvent.getParticle1());
-  ptrScheduler->invalidateEvents(iEvent.getParticle2());
-  ptrScheduler->addEvents(iEvent.getParticle1());
-  ptrScheduler->addEvents(iEvent.getParticle2());
-  ptrScheduler->sort(iEvent.getParticle1());
-  ptrScheduler->sort(iEvent.getParticle2());      
+  ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -331,9 +321,7 @@ CSimulation::executeGlobEvent()
   CNParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event update the scheduler and plugins
-  ptrScheduler->invalidateEvents(iEvent.getParticle());
-  ptrScheduler->addEvents(iEvent.getParticle());
-  ptrScheduler->sort(iEvent.getParticle());      
+  ptrScheduler->fullUpdate(iEvent.getParticle());
 
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -378,9 +366,7 @@ CSimulation::executeLocalEvent()
   CNParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event update the scheduler and plugins
-  ptrScheduler->invalidateEvents(iEvent.getParticle());
-  ptrScheduler->addEvents(iEvent.getParticle());
-  ptrScheduler->sort(iEvent.getParticle());      
+  ptrScheduler->fullUpdate(iEvent.getParticle());
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -419,9 +405,7 @@ CSimulation::executeSysEvent()
 #ifdef DYNAMO_CollDebug
       std::cerr << "\nPart Single =" << pData.getParticle().getID();
 #endif      
-      ptrScheduler->invalidateEvents(pData.getParticle());
-      ptrScheduler->addEvents(pData.getParticle());
-      ptrScheduler->sort(pData.getParticle());      
+      ptrScheduler->fullUpdate(pData.getParticle());
     }
 
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
@@ -431,12 +415,8 @@ CSimulation::executeSysEvent()
 		<< "  Pair 2 = " << pData.particle2_.getParticle().getID();
 #endif
 
-      ptrScheduler->invalidateEvents(pData.particle1_.getParticle());
-      ptrScheduler->invalidateEvents(pData.particle2_.getParticle());
-      ptrScheduler->addEvents(pData.particle1_.getParticle());
-      ptrScheduler->addEvents(pData.particle2_.getParticle());
-      ptrScheduler->sort(pData.particle1_.getParticle());      
-      ptrScheduler->sort(pData.particle2_.getParticle());      
+      ptrScheduler->fullUpdate(pData.particle1_.getParticle(), 
+			       pData.particle2_.getParticle());
     }
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, outputPlugins)
