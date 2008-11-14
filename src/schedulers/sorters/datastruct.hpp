@@ -113,22 +113,22 @@ public:
 
   inline bool operator> (const pList& ip) const throw()
   { 
-#ifdef DYNAMO_DEBUG
-    if (empty() || ip.c.empty())
-      D_throw() << "Comparison of lists but one is empty!";
-#endif  
-
-  	return c.front().dt > ip.c.front().dt; 
+    //If the other is empty this can never be longer
+    //If this is empty and the other isn't its always longer
+    //Otherwise compare
+    return (ip.c.empty()) 
+      ? false
+      : (empty() || (c.front().dt > ip.c.front().dt)); 
   }
 
   inline bool operator< (const pList& ip) const throw()
   { 
-#ifdef DYNAMO_DEBUG
-    if (empty() || ip.c.empty())
-      D_throw() << "Comparison of lists but one is empty!";
-#endif  
-    
-    return c.front().dt < ip.c.front().dt; 
+    //If this is empty it can never be shorter
+    //If the other is empty its always shorter
+    //Otherwise compare
+    return (empty()) 
+      ? false 
+      : (ip.c.empty() || (c.front().dt < ip.c.front().dt)); 
   }
 
   inline const Iflt& getdt() const { return c.front().dt; }
