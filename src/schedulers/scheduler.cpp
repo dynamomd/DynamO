@@ -91,17 +91,30 @@ CScheduler::earliestLocalEvent() const
 }
 
 void 
-CScheduler::popVirtualEvent()
+CScheduler::popNextEvent()
 {
   (*sorter)[sorter->next_ID()].pop();
 }
 
 void 
-CScheduler::pushAndUpdateVirtualEvent(const CParticle& part,
-					   const intPart& newevent)
+CScheduler::pushEvent(const CParticle& part,
+		      const intPart& newevent)
 {
-  sorter->push(newevent,part.getID());
+  sorter->push(newevent, part.getID());
+}
+
+void 
+CScheduler::sort(const CParticle& part)
+{
   sorter->update(part.getID());
+}
+
+void 
+CScheduler::invalidateEvents(const CParticle& part)
+{
+  //Invalidate previous entries
+  ++eventCount[part.getID()];
+  (*sorter)[part.getID()].clear();
 }
 
 EEventType

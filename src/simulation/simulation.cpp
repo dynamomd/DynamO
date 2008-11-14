@@ -239,7 +239,8 @@ CSimulation::executeIntEvent()
       ptrScheduler->invalidateEvents(iEvent.getParticle2());
       ptrScheduler->addEvents(iEvent.getParticle1());
       ptrScheduler->addEvents(iEvent.getParticle2());
-      
+      ptrScheduler->sort(iEvent.getParticle1());
+      ptrScheduler->sort(iEvent.getParticle2());      
       return;
     }
     
@@ -284,6 +285,8 @@ CSimulation::executeIntEvent()
   ptrScheduler->invalidateEvents(iEvent.getParticle2());
   ptrScheduler->addEvents(iEvent.getParticle1());
   ptrScheduler->addEvents(iEvent.getParticle2());
+  ptrScheduler->sort(iEvent.getParticle1());
+  ptrScheduler->sort(iEvent.getParticle2());      
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -330,7 +333,8 @@ CSimulation::executeGlobEvent()
   //Now we're past the event update the scheduler and plugins
   ptrScheduler->invalidateEvents(iEvent.getParticle());
   ptrScheduler->addEvents(iEvent.getParticle());
-  
+  ptrScheduler->sort(iEvent.getParticle());      
+
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 }
@@ -376,6 +380,7 @@ CSimulation::executeLocalEvent()
   //Now we're past the event update the scheduler and plugins
   ptrScheduler->invalidateEvents(iEvent.getParticle());
   ptrScheduler->addEvents(iEvent.getParticle());
+  ptrScheduler->sort(iEvent.getParticle());      
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -416,6 +421,7 @@ CSimulation::executeSysEvent()
 #endif      
       ptrScheduler->invalidateEvents(pData.getParticle());
       ptrScheduler->addEvents(pData.getParticle());
+      ptrScheduler->sort(pData.getParticle());      
     }
 
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
@@ -429,12 +435,12 @@ CSimulation::executeSysEvent()
       ptrScheduler->invalidateEvents(pData.particle2_.getParticle());
       ptrScheduler->addEvents(pData.particle1_.getParticle());
       ptrScheduler->addEvents(pData.particle2_.getParticle());
+      ptrScheduler->sort(pData.particle1_.getParticle());      
+      ptrScheduler->sort(pData.particle2_.getParticle());      
     }
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, outputPlugins)
-    {
-      Ptr->eventUpdate(sEvent, SDat, dt);
-    }
+    Ptr->eventUpdate(sEvent, SDat, dt);
 }
 
 void 

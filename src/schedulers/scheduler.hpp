@@ -35,14 +35,16 @@ public:
 
   virtual void initialise() = 0;
   
-  virtual void invalidateEvents(const CParticle&) = 0;
-
   virtual void addEvents(const CParticle&) = 0;
 
-  void popVirtualEvent();
+  void invalidateEvents(const CParticle&);
 
-  void pushAndUpdateVirtualEvent(const CParticle&, const intPart&);
+  void sort(const CParticle&);
 
+  void popNextEvent();
+
+  void pushEvent(const CParticle&, const intPart&);
+  
   void stream(const Iflt& dt) {  sorter->stream(dt); }
   
   const CIntEvent earliestIntEvent() const;

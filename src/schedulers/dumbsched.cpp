@@ -79,14 +79,6 @@ CSDumb::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CSDumb::invalidateEvents(const CParticle& part)
-{
-  //Invalidate previous entries
-  ++eventCount[part.getID()];
-  (*sorter)[part.getID()].clear();
-}
-
-void 
 CSDumb::addEvents(const CParticle& part)
 {  
   //Add the global events
@@ -109,6 +101,4 @@ CSDumb::addEvents(const CParticle& part)
 	  sorter->push(intPart(eevent, eventCount[part2.getID()]), 
 		       part.getID());
       }
-
-  sorter->update(part.getID());
 }

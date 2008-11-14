@@ -109,15 +109,6 @@ CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
-
-void 
-CSNeighbourList::invalidateEvents(const CParticle& part)
-{
-  //Invalidate previous entries
-  ++eventCount[part.getID()];
-  (*sorter)[part.getID()].clear();
-}
-
 void 
 CSNeighbourList::addInteractionEvent(const CParticle& part, 
 				     const size_t& id) const
