@@ -24,7 +24,7 @@
 
 class CLNOrientation: public CLNewton
 {
-public:
+public:  
   CLNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
     CLNewton(Sim)
   {
@@ -53,17 +53,20 @@ public:
   virtual void outputExtraPDatXML(xmlw::XmlStream&,
 				  const CParticle&) const;
 
-protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
-
-  virtual void streamParticle(CParticle&, const Iflt&) const;
-
   struct rotData
   {
     CVector<> orientation;
     CVector<> angularVelocity;
   };
-  
+
+  const rotData& getRotData(const CParticle& part) const
+  { return orientationData[part.getID()]; }
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+  virtual void streamParticle(CParticle&, const Iflt&) const;
+
   struct orientationStreamType
   {
     rotData rot;
