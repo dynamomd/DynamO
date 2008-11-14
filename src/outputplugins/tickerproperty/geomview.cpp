@@ -26,6 +26,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
+#include "../../dynamics/liouvillean/OrientationL.hpp"
 
 COPGeomview::COPGeomview(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Geomview"),
@@ -69,24 +70,48 @@ COPGeomview::printImage()
 
       of << "{LIST\n";
 
-      BOOST_FOREACH(unsigned long ID, *spec.getRange())
-	{
-	  const CParticle& part = Sim->vParticleList[ID];
-	  CVector<> pos = part.getPosition();
-	  Sim->Dynamics.BCs().setPBC(pos);
+      if (dynamic_cast<const CLNOrientation*>(&Sim->Dynamics.Liouvillean()) != NULL)
+	BOOST_FOREACH(unsigned long ID, *spec.getRange())
+	  {
+	    const CParticle& part = Sim->vParticleList[ID];
+	    CVector<> pos = part.getPosition();
+	    Sim->Dynamics.BCs().setPBC(pos);
+	   
+	    const CLNOrientation::rotData& 
+	      rdat(static_cast<const CLNOrientation&>
+		   (Sim->Dynamics.Liouvillean()).getRotData(part));	    
+ 
+	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
+				     (Sim->vParticleList[ID], 
+				      Sim->vParticleList[ID])->getColourFraction
+				     (Sim->vParticleList[ID]));
+	    
+	    CVector<> point1 = pos - 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
+	    CVector<> point2 = pos + 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
 
-	  tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
+	    of << "{VECT 1 2 1 \n 2 \n 1 \n " << point1[0] << " " << point1[1] 
+	       << " " << point1[2] << "\n" << point2[0]  << " " << point2[1] << " " 
+	       << point2[2] << " \n " << tmpCol.R << " " <<  tmpCol.G << " " << tmpCol.B << " 1.0 }\n";
+	  }
+      else
+	BOOST_FOREACH(unsigned long ID, *spec.getRange())
+	  {
+	    const CParticle& part = Sim->vParticleList[ID];
+	    CVector<> pos = part.getPosition();
+	    Sim->Dynamics.BCs().setPBC(pos);
+	    
+	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
 				   (Sim->vParticleList[ID], 
 				    Sim->vParticleList[ID])->getColourFraction
-				   (Sim->vParticleList[ID]));
-	  
-	  of << "appearance {\n"
-	     << "material {\ndiffuse "<< tmpCol.R  <<" "<< tmpCol.G <<" " 
-	     << tmpCol.B <<" }\n" << "}\n" 
-	     << "SPHERE " << 
-	    Sim->Dynamics.getInteraction(part, part)->hardCoreDiam()/2.0 
-	     << " " << pos[0] << " " << pos[1] << " " << pos[2] << " \n";
-	}
+				     (Sim->vParticleList[ID]));
+	    
+	    of << "appearance {\n"
+	       << "material {\ndiffuse "<< tmpCol.R  <<" "<< tmpCol.G <<" " 
+	       << tmpCol.B <<" }\n" << "}\n" 
+	       << "SPHERE " << 
+	      Sim->Dynamics.getInteraction(part, part)->hardCoreDiam()/2.0 
+	       << " " << pos[0] << " " << pos[1] << " " << pos[2] << " \n";
+	  }
       of << "\n}\n";
       ++i;
     }
