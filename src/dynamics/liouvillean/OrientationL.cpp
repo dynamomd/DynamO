@@ -70,8 +70,9 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 				     const CParticle& p1, const CParticle& p2) const
 { 
   // +0.1 is arbitrary to ensure a non-zero rate if angular velocities are both zero
-  Iflt interpolationSize = 1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
-                                              * orientationData[p2.getID()].angularVelocity.length()));
+  Iflt interpolationSize = //1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
+                           //                   * orientationData[p2.getID()].angularVelocity.length()));
+                           1e-5;
 
   // If interpolation size is > window size, put rate as window width
   interpolationSize = (interpolationSize > PD.dt) ? PD.dt : interpolationSize;
@@ -130,8 +131,9 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
       previousMidpoint = currentPosition;
       midpoint = currentPosition;
       
-      while(std::fabs(upperTimeBracket - lowerTimeBracket) > eps)
+      while(std::fabs(upperTimeBracket - lowerTimeBracket) >  (eps*lowerTimeBracket))
       {
+
         // Bisection root finding
         previousMidpoint = midpoint;
         midpoint = (lowerTimeBracket + upperTimeBracket) / 2;
@@ -236,9 +238,6 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
   orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
-  
-  I_cout() << "Alpha " << cp.alpha;
-  I_cout() << "Beta " << cp.beta;
 
   return retVal;
 }
