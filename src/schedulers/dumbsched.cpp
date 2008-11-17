@@ -64,7 +64,7 @@ CSDumb::initialise()
   
   //Now initialise the interactions
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    addNewEvents(part);
+    addEvents(part);
   
   sorter->init();
 }
@@ -79,17 +79,7 @@ CSDumb::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CSDumb::update(const CParticle& part)
-{
-  //Invalidate previous entries
-  ++eventCount[part.getID()];
-  (*sorter)[part.getID()].clear();
-  addNewEvents(part);
-  sorter->update(part.getID());
-}
-
-void 
-CSDumb::addNewEvents(const CParticle& part) const
+CSDumb::addEvents(const CParticle& part)
 {  
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
@@ -111,5 +101,4 @@ CSDumb::addNewEvents(const CParticle& part) const
 	  sorter->push(intPart(eevent, eventCount[part2.getID()]), 
 		       part.getID());
       }
-
 }

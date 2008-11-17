@@ -91,17 +91,30 @@ CScheduler::earliestLocalEvent() const
 }
 
 void 
-CScheduler::popVirtualEvent()
+CScheduler::popNextEvent()
 {
   (*sorter)[sorter->next_ID()].pop();
 }
 
 void 
-CScheduler::pushAndUpdateVirtualEvent(const CParticle& part,
-					   const intPart& newevent)
+CScheduler::pushEvent(const CParticle& part,
+		      const intPart& newevent)
 {
-  sorter->push(newevent,part.getID());
+  sorter->push(newevent, part.getID());
+}
+
+void 
+CScheduler::sort(const CParticle& part)
+{
   sorter->update(part.getID());
+}
+
+void 
+CScheduler::invalidateEvents(const CParticle& part)
+{
+  //Invalidate previous entries
+  ++eventCount[part.getID()];
+  (*sorter)[part.getID()].clear();
 }
 
 EEventType
@@ -126,6 +139,8 @@ CScheduler::nextEventType() const
   std::cerr << "\nNext eventdt = " << sorter->next_dt();
 #endif
 
+
+
   while (sorter->next_dt() < tmpt)
     {
       //Return it if its not an INTERACTION
@@ -145,6 +160,12 @@ CScheduler::nextEventType() const
       sorter->next_Data().pop();
       sorter->update(sorter->next_ID());
       sorter->sort();
+
+#ifdef DYNAMO_DEBUG
+      if (sorter->next_Data().empty())
+	D_throw() << "Next particle list is empty but top of list!";
+#endif  
+
     }
   
   //The other events didn't win

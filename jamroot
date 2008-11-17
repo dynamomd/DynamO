@@ -28,8 +28,18 @@ exe dynareplex_opt
     : 
     ;
 
+exe dynareplex_opt_d
+    : programs/replex_opt.cpp boost//program_options
+    : 
+    ;
+
 exe dynahist_rw 
     : programs/hist_rw.cpp src//dynamo_core/<link>static
+    :
+    ;
+
+exe dynahist_rw_d
+    : programs/hist_rw.cpp src//dynamo_core_d/<link>static
     :
     ;
 
@@ -38,19 +48,39 @@ exe dynarun
     : 
     ;
 
+exe dynarun_d
+    : programs/mdrun.cpp src//dynamo_core_d/<link>static
+    : 
+    ;
+
 exe dynamod 
-    : programs/configmod.cpp src//dynamo_core
+    : programs/configmod.cpp src//dynamo_core/<link>static
+    : 
+    ;
+
+exe dynamod_d
+    : programs/configmod.cpp src//dynamo_core_d/<link>static
     : 
     ;
 
 install install-bin 
 	: dynareplex_opt dynahist_rw dynarun dynamod 
-	: <location>bin
+	: <location>bin <variant>release
+	;
+
+install install-bin 
+	: dynareplex_opt_d dynahist_rw_d dynarun_d dynamod_d 
+	: <location>bin <variant>debug
 	;
 	
 install install-lib 
 	: src//dynamo_core 
-	: <location>lib
+	: <location>lib <variant>release
+	;
+
+install install-lib 
+	: src//dynamo_core_d
+	: <location>lib <variant>debug
 	;
 
 alias install : install-bin install-lib ;

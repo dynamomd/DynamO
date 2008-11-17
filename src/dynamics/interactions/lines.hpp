@@ -51,6 +51,9 @@ public:
  
   virtual bool captureTest(const CParticle&, const CParticle&) const;
 
+  virtual void write_povray_desc(const DYNAMO::RGB&, 
+				 const CRange&, std::ostream&) const;
+
 protected:
   Iflt length;
   Iflt l2;

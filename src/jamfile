@@ -20,3 +20,10 @@ lib dynamo_core : [ glob-tree *.cpp : dataproc ]
     #vtkIO
     : <threading>multi 
     ;
+
+lib dynamo_core_d : [ glob-tree *.cpp : dataproc ] 
+    ../boost//iostreams  ../boost//thread ../boost//filesystem 
+    ../boost//program_options ../boost//signals gsl pthread 
+    #vtkIO
+    : <threading>multi 
+    ;

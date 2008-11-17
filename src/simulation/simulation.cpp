@@ -235,9 +235,7 @@ CSimulation::executeIntEvent()
 	       << iEvent.stringData(this);
 
       //Now we're past the event, update the scheduler and plugins
-      ptrScheduler->update(iEvent.getParticle1());
-      ptrScheduler->update(iEvent.getParticle2());
-      
+      ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
       return;
     }
     
@@ -278,8 +276,7 @@ CSimulation::executeIntEvent()
   C2ParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event, update the scheduler and plugins
-  ptrScheduler->update(iEvent.getParticle1());
-  ptrScheduler->update(iEvent.getParticle2());
+  ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -324,8 +321,8 @@ CSimulation::executeGlobEvent()
   CNParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event update the scheduler and plugins
-  ptrScheduler->update(iEvent.getParticle());
-  
+  ptrScheduler->fullUpdate(iEvent.getParticle());
+
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 }
@@ -369,7 +366,7 @@ CSimulation::executeLocalEvent()
   CNParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event update the scheduler and plugins
-  ptrScheduler->update(iEvent.getParticle());
+  ptrScheduler->fullUpdate(iEvent.getParticle());
   
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
@@ -408,7 +405,7 @@ CSimulation::executeSysEvent()
 #ifdef DYNAMO_CollDebug
       std::cerr << "\nPart Single =" << pData.getParticle().getID();
 #endif      
-      ptrScheduler->update(pData.getParticle());
+      ptrScheduler->fullUpdate(pData.getParticle());
     }
 
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
@@ -418,14 +415,12 @@ CSimulation::executeSysEvent()
 		<< "  Pair 2 = " << pData.particle2_.getParticle().getID();
 #endif
 
-      ptrScheduler->update(pData.particle1_.getParticle());
-      ptrScheduler->update(pData.particle2_.getParticle());
+      ptrScheduler->fullUpdate(pData.particle1_.getParticle(), 
+			       pData.particle2_.getParticle());
     }
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, outputPlugins)
-    {
-      Ptr->eventUpdate(sEvent, SDat, dt);
-    }
+    Ptr->eventUpdate(sEvent, SDat, dt);
 }
 
 void 

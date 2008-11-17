@@ -29,8 +29,7 @@ COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
   currentdt(0.0),
   currlen(0),
   notReady(true),
-  CorrelatorLength(100),
-  G(100, matrix())
+  CorrelatorLength(100)
 {
   operator<<(XML);
 
@@ -39,9 +38,8 @@ COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
       zero[iDim][jDim] = 0.0;
 
-  for (size_t i = 0; i < CorrelatorLength; ++i)
-    G[i] = zero;
-
+  G.resize(CorrelatorLength, zero);
+    
   accG2.resize(CorrelatorLength, zero);
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -85,9 +83,9 @@ COPViscosityE::initialise()
   if (dt == 0.0)
     {
       if (Sim->lastRunMFT != 0.0)
-	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
+	dt = Sim->lastRunMFT * 0.5 ;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
+	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
     }
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)

@@ -196,7 +196,7 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
       
       //Get rid of the virtual event that is next, update is delayed till
       //after all events are added
-      Sim->ptrScheduler->popVirtualEvent();
+      Sim->ptrScheduler->popNextEvent();
 
       //Tell about the new locals
       BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
@@ -211,8 +211,8 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
       
       //Push the next virtual event, this is the reason the scheduler
       //doesn't need a second callback
-      Sim->ptrScheduler->pushAndUpdateVirtualEvent(part, 
-						   CGCells::getEvent(part));
+      Sim->ptrScheduler->pushEvent(part, getEvent(part));
+      Sim->ptrScheduler->sort(part);
       
       sigCellChangeNotify(part, oldCell);
     }
@@ -237,7 +237,7 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
       
       //Get rid of the virtual event that is next, update is delayed till
       //after all events are added
-      Sim->ptrScheduler->popVirtualEvent();
+      Sim->ptrScheduler->popNextEvent();
       
       //Particle has just arrived into a new cell warn the scheduler about
       //its new neighbours so it can add them to the heap
@@ -253,7 +253,8 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
       
       //Push the next virtual event, this is the reason the scheduler
       //doesn't need a second callback
-      Sim->ptrScheduler->pushAndUpdateVirtualEvent(part, CGCells::getEvent(part));
+      Sim->ptrScheduler->pushEvent(part, CGCells::getEvent(part));
+      Sim->ptrScheduler->sort(part);
       
       sigCellChangeNotify(part, oldCell);
     }

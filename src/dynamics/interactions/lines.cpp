@@ -29,6 +29,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../BC/BC.hpp"
+#include "../ranges/1range.hpp"
 
 CILines::CILines(const DYNAMO::SimData* tmp, Iflt nd, 
 		 Iflt ne, C2Range* nR):
@@ -202,3 +203,42 @@ CILines::captureTest(const CParticle& p1, const CParticle& p2) const
 void
 CILines::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {}
+
+void 
+CILines::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range, 
+			   std::ostream& os) const
+{
+  try {
+    dynamic_cast<const CLNOrientation&>(Sim->Dynamics.Liouvillean());
+  }
+  catch(std::bad_cast)
+    {
+      D_throw() << "Liouvillean is not an orientation liouvillean!";
+    }
+  
+  BOOST_FOREACH(const size_t& pid, range)
+    {
+      const CParticle& part(Sim->vParticleList[pid]);
+
+      const CLNOrientation::rotData& 
+	rdat(static_cast<const CLNOrientation&>
+	     (Sim->Dynamics.Liouvillean()).getRotData(part));
+
+      CVector<> point(part.getPosition() - 0.5 * length * rdat.orientation);
+      
+      os << "cylinder {\n <" << point[0];
+      for (size_t iDim(1); iDim < NDIM; ++iDim)
+	os << "," << point[iDim];
+
+      point = part.getPosition() + 0.5 * length * rdat.orientation;
+
+      os << ">, \n <" << point[0];
+      for (size_t iDim(1); iDim < NDIM; ++iDim)
+	os << "," << point[iDim];
+
+      os << ">, " << length *0.01 
+	 << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
+	 << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
+    }
+
+}

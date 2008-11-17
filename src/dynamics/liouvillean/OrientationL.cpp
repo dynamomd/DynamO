@@ -70,8 +70,9 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 				     const CParticle& p1, const CParticle& p2) const
 { 
   // +0.1 is arbitrary to ensure a non-zero rate if angular velocities are both zero
-  Iflt interpolationSize = 1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
-                                              * orientationData[p2.getID()].angularVelocity.length()));
+  Iflt interpolationSize = //1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
+                           //                   * orientationData[p2.getID()].angularVelocity.length()));
+                           1e-5;
 
   // If interpolation size is > window size, put rate as window width
   interpolationSize = (interpolationSize > PD.dt) ? PD.dt : interpolationSize;
@@ -130,8 +131,9 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
       previousMidpoint = currentPosition;
       midpoint = currentPosition;
       
-      while(std::fabs(upperTimeBracket - lowerTimeBracket) > eps)
+      while(std::fabs(upperTimeBracket - lowerTimeBracket) >  (eps*lowerTimeBracket))
       {
+
         // Bisection root finding
         previousMidpoint = midpoint;
         midpoint = (lowerTimeBracket + upperTimeBracket) / 2;
@@ -236,7 +238,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
   orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
-  
+
   return retVal;
 }
 
@@ -334,4 +336,26 @@ CLNOrientation::randomGaussianEvent(const CParticle& part,
 {
   D_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";  
+}
+
+void 
+CLNOrientation::initLineOrientations(const Iflt& length)
+{
+  orientationData.resize(Sim->vParticleList.size());
+  
+  I_cout() << "Initialising the line orientations";
+
+  Iflt factor = std::sqrt(12.0/(length*length));      
+
+  for (size_t i = 0; i < Sim->vParticleList.size(); ++i)
+    {      
+      //Assign the new velocities
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	orientationData[i].orientation[iDim] = normal_sampler();
+
+      orientationData[i].orientation = orientationData[i].orientation.unitVector();
+
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	orientationData[i].angularVelocity[iDim] = normal_sampler() * factor;      
+    }  
 }
