@@ -28,15 +28,16 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 
-CGCellsShearing::CGCellsShearing(const DYNAMO::SimData* nSim, 
-			     const std::string& name):
+CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
+				 const std::string& name):
   CGCells(nSim, "ShearingCells", NULL)
 {
   globName = name;
   I_cout() << "Shearing Cells Loaded";
 }
 
-CGCellsShearing::CGCellsShearing(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
+CGCellsShearing::CGCellsShearing(const XMLNode &XML, 
+				 DYNAMO::SimData* ptrSim):
   CGCells(ptrSim, "ShearingCells")
 {
   operator<<(XML);
@@ -122,10 +123,27 @@ CGCellsShearing::init_cells()
       }
 }
 
-CNParticleData 
-CGCellsShearing::runEvent(const CGlobEvent& eevent) const
+void 
+CGCellsShearing::runEvent(const CParticle& part) const
 {
-  const CParticle& part(eevent.getParticle());
+  /*
+  CGlobEvent iEvent = ptrScheduler->earliestGlobEvent();
+  
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(this);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(this);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(this);
+#endif 
+  */
+  --Sim->lNColl;
 
   size_t oldCell(partCellData[part.getID()].cell);
 
@@ -276,6 +294,4 @@ CGCellsShearing::runEvent(const CGlobEvent& eevent) const
 	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
   }
 #endif  
-  
-  return CNParticleData();      
 }

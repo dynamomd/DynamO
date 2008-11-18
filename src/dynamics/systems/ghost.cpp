@@ -30,6 +30,7 @@
 #include "../NparticleEventData.hpp"
 #include "../ranges/include.hpp"
 #include "../liouvillean/liouvillean.hpp"
+#include "../../schedulers/scheduler.hpp"
 
 CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp): 
   CSystem(tmp),
@@ -79,9 +80,23 @@ CSysGhost::stream(Iflt ndt)
       }
 }
 
-CNParticleData 
-CSysGhost::runEvent()
+void 
+CSysGhost::runEvent() const
 {
+  Iflt locdt = dt;
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(locdt))
+    D_throw() << "A NAN system event time has been found";
+#endif
+    
+  Sim->dSysTime += locdt;
+    
+  Sim->ptrScheduler->stream(locdt);
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(locdt);
+
   ++eventCount;
 
   dt = getGhostt();
@@ -90,18 +105,17 @@ CSysGhost::runEvent()
     <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
     (Sim->ranGenerator, 
      boost::uniform_int<unsigned int>(0, range->size() - 1))();
+
+  const CParticle& part(Sim->vParticleList[*(range->begin()+step)]);
+
+  //Run the collision and catch the data
+  CNParticleData SDat(Sim->Dynamics.Liouvillean().randomGaussianEvent
+		      (part, sqrtTemp));
   
-  //Select a particle to mess with
-#ifndef DYNAMO_DEBUG
-  return CNParticleData(Sim->Dynamics.Liouvillean().randomGaussianEvent
-			(Sim->vParticleList[*(range->begin()+step)], 
-			 sqrtTemp));
-# else
-  return CNParticleData(Sim->Dynamics.Liouvillean().randomGaussianEvent
-			(Sim->vParticleList.at(*(range->begin()+step)), 
-			 sqrtTemp));
-#endif
+  Sim->ptrScheduler->fullUpdate(part);
   
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(static_cast<const CSystem&>(*this), SDat, locdt);
 }
 
 void 

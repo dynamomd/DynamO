@@ -30,7 +30,7 @@ public:
 
   virtual void stream(Iflt);
 
-  virtual CNParticleData runEvent();
+  virtual void runEvent() const;
 
   virtual void initialise(size_t);
 

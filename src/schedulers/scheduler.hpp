@@ -66,13 +66,7 @@ public:
   
   void stream(const Iflt& dt) {  sorter->stream(dt); }
   
-  const CIntEvent earliestIntEvent() const;
-
-  const CGlobEvent earliestGlobEvent() const;
-
-  const CLocalEvent earliestLocalEvent() const;
-
-  EEventType nextEventType() const;
+  void runNextEvent() const;
 
   virtual void rebuildList() = 0;
 

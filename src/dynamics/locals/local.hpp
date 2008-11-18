@@ -33,12 +33,12 @@ class CIntEvent;
 class CNParticleData;
 class CLocalEvent;
 
-class CLocal: public DYNAMO::SimBase_const
+class CLocal: public DYNAMO::SimBase
 {
 public:
-  CLocal(const DYNAMO::SimData*, const char *);
+  CLocal(DYNAMO::SimData*, const char *);
 
-  CLocal(CRange*, const DYNAMO::SimData*, const char *);
+  CLocal(CRange*, DYNAMO::SimData*, const char *);
   
   virtual ~CLocal() {}
 
@@ -48,7 +48,7 @@ public:
 
   virtual CLocalEvent getEvent(const CParticle&) const = 0;
 
-  virtual CNParticleData runEvent(const CLocalEvent&) const = 0;
+  virtual void runEvent(const CParticle&) const = 0;
   
   virtual bool isInCell(const CVector<>&, const CVector<>&) const = 0;
 
@@ -56,7 +56,7 @@ public:
 
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CLocal&);
 
-  static CLocal* getClass(const XMLNode&, const DYNAMO::SimData*);
+  static CLocal* getClass(const XMLNode&, DYNAMO::SimData*);
 
   virtual void operator<<(const XMLNode&) = 0;
 

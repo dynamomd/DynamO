@@ -32,12 +32,12 @@ class CIntEvent;
 class CNParticleData;
 class CGlobEvent;
 
-class CGlobal: public DYNAMO::SimBase_const
+class CGlobal: public DYNAMO::SimBase
 {
 public:
-  CGlobal(const DYNAMO::SimData*, const char *);
+  CGlobal(DYNAMO::SimData*, const char *);
 
-  CGlobal(CRange*, const DYNAMO::SimData*, const char *);
+  CGlobal(CRange*, DYNAMO::SimData*, const char *);
   
   virtual ~CGlobal() {}
 
@@ -47,13 +47,13 @@ public:
 
   virtual CGlobEvent getEvent(const CParticle &) const = 0;
 
-  virtual CNParticleData runEvent(const CGlobEvent&) const = 0;
+  virtual void runEvent(const CParticle&) const = 0;
 
   virtual void initialise(size_t) = 0;
 
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CGlobal&);
 
-  static CGlobal* getClass(const XMLNode&, const DYNAMO::SimData*);
+  static CGlobal* getClass(const XMLNode&, DYNAMO::SimData*);
 
   virtual void operator<<(const XMLNode&) = 0;
 

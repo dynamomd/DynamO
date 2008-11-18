@@ -42,7 +42,7 @@ public:
 
   virtual void stream(Iflt) = 0;
 
-  virtual CNParticleData runEvent() = 0;
+  virtual void runEvent() const = 0;
 
   virtual void initialise(size_t) = 0;
 
@@ -57,9 +57,9 @@ public:
   Iflt getdt() const { return dt; }
   
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSystem&);
-
+  
   static CSystem* getClass(const XMLNode&, DYNAMO::SimData*);
-
+  
   void setName(const std::string& tmp) { sysName = tmp; }
 
   const std::string& getName() const { return sysName; }
@@ -74,7 +74,7 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
   std::string sysName;  
-  Iflt dt;
+  mutable Iflt dt;
   EEventType type;
   size_t ID;
 };

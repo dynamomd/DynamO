@@ -28,7 +28,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 
-CGListAndCell::CGListAndCell(const DYNAMO::SimData* nSim, 
+CGListAndCell::CGListAndCell(DYNAMO::SimData* nSim, 
 			     const std::string& name):
   CGCells(nSim, "ListAndCellNBList", NULL),
   largestParticles(NULL)
@@ -37,7 +37,7 @@ CGListAndCell::CGListAndCell(const DYNAMO::SimData* nSim,
   I_cout() << "Cells Loaded";
 }
 
-CGListAndCell::CGListAndCell(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
+CGListAndCell::CGListAndCell(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGCells(ptrSim, "ListAndCellNBList"),
   largestParticles(NULL)
 {

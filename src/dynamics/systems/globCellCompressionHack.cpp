@@ -21,6 +21,7 @@
 #include "../globals/gcells.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../NparticleEventData.hpp"
+#include "../../schedulers/scheduler.hpp"
 
 CSGlobCellHack::CSGlobCellHack(DYNAMO::SimData* nSim, Iflt nGR):
   CSystem(nSim),
@@ -37,9 +38,23 @@ CSGlobCellHack::stream(Iflt ndt)
   dt -= ndt;
 }
 
-CNParticleData 
-CSGlobCellHack::runEvent()
+void
+CSGlobCellHack::runEvent() const
 {
+  Iflt locdt = dt;
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(dt))
+    D_throw() << "A NAN system event time has been found";
+#endif
+    
+  Sim->dSysTime += locdt;
+    
+  Sim->ptrScheduler->stream(locdt);
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(locdt);
+
   I_cout() << "Rebuilding the cell list, coll = " << Sim->lNColl; 
 
   CVector<> cellDimensions = 
@@ -57,8 +72,9 @@ CSGlobCellHack::runEvent()
   
   dt = (cellDimensions[minDiam]/maxOrigDiam - 1.0) 
     / growthRate - Sim->dSysTime;  
-  
-  return CNParticleData();
+    
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(static_cast<const CSystem&>(*this), CNParticleData(), locdt);
 }
 
 void

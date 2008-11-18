@@ -33,12 +33,12 @@ protected:
   typedef boost::signal<void ()>::slot_type RIfunc;
   
 public:
-  CGNeighbourList(const DYNAMO::SimData* a, 
+  CGNeighbourList(DYNAMO::SimData* a, 
 		  const char *b): 
     CGlobal(a,b)
   {}
 
-  CGNeighbourList(CRange* a, const DYNAMO::SimData* b, 
+  CGNeighbourList(CRange* a, DYNAMO::SimData* b, 
 		  const char * c): 
     CGlobal(a,b,c)
   {}

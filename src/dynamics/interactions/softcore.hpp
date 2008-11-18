@@ -45,7 +45,7 @@ public:
 
   virtual CIntEvent getCollision(const CParticle&, const CParticle&) const;
   
-  virtual C2ParticleData runCollision(const CIntEvent&) const;
+  virtual void runCollision(const CParticle&, const CParticle&) const;
   
   virtual void outputXML(xmlw::XmlStream&) const;
 

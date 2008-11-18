@@ -37,7 +37,7 @@ public:
 
   virtual void stream(Iflt);
 
-  virtual CNParticleData runEvent();
+  virtual void runEvent() const;
 
   virtual void initialise(size_t);
 
@@ -56,7 +56,7 @@ protected:
   Iflt Temp, sqrtTemp;
   bool tune;
   Iflt setPoint;
-  unsigned long long eventCount;
+  mutable unsigned long long eventCount;
   unsigned long long setFrequency;
 
   Iflt getGhostt() const;

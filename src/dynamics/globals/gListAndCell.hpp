@@ -25,9 +25,9 @@
 class CGListAndCell: public CGCells
 {
 public:
-  CGListAndCell(const XMLNode&, const DYNAMO::SimData*);
+  CGListAndCell(const XMLNode&, DYNAMO::SimData*);
 
-  CGListAndCell(const DYNAMO::SimData*, const std::string&);
+  CGListAndCell(DYNAMO::SimData*, const std::string&);
 
   virtual ~CGListAndCell() {}
 

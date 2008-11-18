@@ -21,6 +21,7 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../outputplugins/tickerproperty/ticker.hpp"
 #include "../units/units.hpp"
+#include "../../schedulers/scheduler.hpp"
 
 CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
   CSystem(nSim)
@@ -43,9 +44,23 @@ CSTicker::stream(Iflt ndt)
   dt -= ndt;
 }
 
-CNParticleData 
-CSTicker::runEvent()
+void
+CSTicker::runEvent() const
 {
+  Iflt locdt = dt;
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(dt))
+    D_throw() << "A NAN system event time has been found";
+#endif
+    
+  Sim->dSysTime += locdt;
+    
+  Sim->ptrScheduler->stream(locdt);
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(locdt);
+  
   dt += period;
   
   //This is done here as most ticker properties require it
@@ -61,7 +76,8 @@ CSTicker::runEvent()
       }
   }
 
-  return CNParticleData();
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(static_cast<const CSystem&>(*this), CNParticleData(), locdt);
 }
 
 void 

@@ -408,24 +408,6 @@ CDynamics::getInteraction(const CParticle& p1, const CParticle& p2) const
   D_throw() << "Could not find the interaction requested";
 }
 
-C2ParticleData
-CDynamics::runEvent(const CIntEvent &coll)
-{
-  return coll.getInteraction().runCollision(coll);
-}
-
-CNParticleData
-CDynamics::runEvent(const CGlobEvent &coll)
-{
-  return globals[coll.getGlobalID()]->runEvent(coll);
-}
-
-CNParticleData
-CDynamics::runEvent(const CLocalEvent &coll)
-{
-  return locals[coll.getLocalID()]->runEvent(coll);
-}
-
 CDynamics::CDynamics(const CDynamics &dyn):
   SimBase(dyn),
   p_BC(dyn.p_BC), 

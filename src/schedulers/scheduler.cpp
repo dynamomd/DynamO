@@ -53,42 +53,12 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
   return XML;
 }
 
-const CIntEvent 
-CScheduler::earliestIntEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != INTERACTION)
-    D_throw() << "The next event is not an Interaction event";
-#endif
-  
-  return Sim->Dynamics.getEvent
-    (Sim->vParticleList[sorter->next_ID()], 
-     Sim->vParticleList[sorter->next_Data().top().p2]);
-}
-
-const CGlobEvent
-CScheduler::earliestGlobEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != GLOBAL)
-    D_throw() << "The next event is not a Global event";
-#endif
-
-  return Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
-}
+/*
 
 const CLocalEvent
 CScheduler::earliestLocalEvent() const
 {
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != LOCAL)
-    D_throw() << "The next event is not a Local event";
-#endif
-
-  return Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
-}
+    }*/
 
 void 
 CScheduler::popNextEvent()
@@ -117,8 +87,8 @@ CScheduler::invalidateEvents(const CParticle& part)
   (*sorter)[part.getID()].clear();
 }
 
-EEventType
-CScheduler::nextEventType() const
+void
+CScheduler::runNextEvent() const
 {
   //Determine the next global and/or system event
   Iflt tmpt = HUGE_VAL;
@@ -139,35 +109,67 @@ CScheduler::nextEventType() const
   std::cerr << "\nNext eventdt = " << sorter->next_dt();
 #endif
 
-
-
   while (sorter->next_dt() < tmpt)
     {
       //Return it if its not an INTERACTION
-      if (sorter->next_Data().top().type != INTERACTION)
-	return sorter->next_Data().top().type;
-
-      //Check the INTERACTION is valid first
-      if (sorter->next_Data().top().collCounter2 
-	  == eventCount[sorter->next_Data().top().p2])
-	return INTERACTION;
-
-      //Not valid, update the list
+      if (sorter->next_Data().top().type == INTERACTION)
+	//Check the INTERACTION is valid first
+	if (sorter->next_Data().top().collCounter2 
+	    != eventCount[sorter->next_Data().top().p2])
+	  {
+	    //Not valid, update the list
 #ifdef DYNAMO_UpdateCollDebug
-      std::cerr << "\nEvent invalid, popping and updating" 
-		<< sorter->next_dt();
+	    std::cerr << "\nEvent invalid, popping and updating" 
+		      << sorter->next_dt();
 #endif
-      sorter->next_Data().pop();
-      sorter->update(sorter->next_ID());
-      sorter->sort();
-
+	    sorter->next_Data().pop();
+	    sorter->update(sorter->next_ID());
+	    sorter->sort();
+	    
 #ifdef DYNAMO_DEBUG
-      if (sorter->next_Data().empty())
-	D_throw() << "Next particle list is empty but top of list!";
+	    if (sorter->next_Data().empty())
+	      D_throw() << "Next particle list is empty but top of list!";
 #endif  
+	    continue;
+	  }
 
+      switch (sorter->next_Data().top().type)
+	{
+	case INTERACTION:
+#ifdef DYNAMO_DEBUG
+	  if (sorter->next_Data().top().type != INTERACTION)
+	    D_throw() << "The next event is not an Interaction event";
+#endif
+	  
+	  Sim->Dynamics.runIntEvent
+	    (Sim->vParticleList[sorter->next_ID()], 
+	     Sim->vParticleList[sorter->next_Data().top().p2]);	  
+	  return;
+	case GLOBAL:
+#ifdef DYNAMO_DEBUG
+	  if (sorter->next_Data().top().type != GLOBAL)
+	    D_throw() << "The next event is not a Global event";
+#endif
+	  
+	  Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+	    ->runEvent(Sim->vParticleList[sorter->next_ID()]);
+	  return;	           
+	case LOCAL:
+#ifdef DYNAMO_DEBUG
+	  if (sorter->next_Data().top().type != LOCAL)
+	    D_throw() << "The next event is not a Local event";
+#endif	  
+	  Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+	    ->runEvent(Sim->vParticleList[sorter->next_ID()]);	  
+	  return;
+	default:
+	  D_throw() << "Unhandled event type requested to be run";
+	}
     }
-  
-  //The other events didn't win
-  return SYSTEM;
+
+
+  //System events won the competition
+  (*min_element(Sim->Dynamics.getSystemEvents().begin(),
+		Sim->Dynamics.getSystemEvents().end()
+		))->runEvent(); 
 }

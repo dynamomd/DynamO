@@ -27,7 +27,7 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 
-CGCells::CGCells(const DYNAMO::SimData* nSim, const std::string& name):
+CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
@@ -39,7 +39,7 @@ CGCells::CGCells(const DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Cells Loaded";
 }
 
-CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
+CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
@@ -51,7 +51,7 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
-CGCells::CGCells(const DYNAMO::SimData* ptrSim, const char* nom, void*):
+CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1.0),
@@ -96,11 +96,29 @@ CGCells::getEvent(const CParticle& part) const
 		     cellDimension), VIRTUAL, *this);
 }
 
-CNParticleData
-CGCells::runEvent(const CGlobEvent& event) const
+void
+CGCells::runEvent(const CParticle& part) const
 {
-  const CParticle& part(event.getParticle());
+  /*CGlobEvent iEvent(getEvent(part));
   
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(Sim);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+  */
+
+  //Rewind NColl as this is an artificial event
+  --Sim->lNColl;
+
   Sim->Dynamics.Liouvillean().updateParticle(part);
   
   size_t oldCell(partCellData[part.getID()].cell);
@@ -173,7 +191,7 @@ CGCells::runEvent(const CGlobEvent& event) const
 
   sigCellChangeNotify(part, oldCell);
   
-  return CNParticleData();
+  //This doesn't stream the system as its a virtual event
 }
 
 void 

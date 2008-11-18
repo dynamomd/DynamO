@@ -25,9 +25,9 @@
 class CGCellsShearing: public CGCells
 {
 public:
-  CGCellsShearing(const XMLNode&, const DYNAMO::SimData*);
+  CGCellsShearing(const XMLNode&, DYNAMO::SimData*);
   
-  CGCellsShearing(const DYNAMO::SimData*, const std::string&);
+  CGCellsShearing(DYNAMO::SimData*, const std::string&);
   
   virtual ~CGCellsShearing() {}
   
@@ -36,7 +36,7 @@ public:
   
   virtual void operator<<(const XMLNode&);
   
-  virtual CNParticleData runEvent(const CGlobEvent&) const;
+  virtual void runEvent(const CParticle&) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

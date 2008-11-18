@@ -156,7 +156,7 @@ CSimulation::runSimulation(bool silentMode)
     try
       {
 	for (; lNColl < lMaxNColl; ++lNColl)
-	  executeEvent();
+	  ptrScheduler->runNextEvent();
       }
     catch (std::exception &cep)
       {
@@ -169,7 +169,7 @@ CSimulation::runSimulation(bool silentMode)
       try
 	{
 	  for (; lNColl < lPrintLimiter; ++lNColl)
-	    executeEvent();
+	    ptrScheduler->runNextEvent();
 	  
 	  //Periodic work
 	  if (outputPlugins.size())
@@ -187,7 +187,7 @@ CSimulation::runSimulation(bool silentMode)
 	}
 }
 
-void 
+/*void 
 CSimulation::executeEvent()
 {
 #ifdef DYNAMO_DEBUG 
@@ -223,7 +223,7 @@ CSimulation::executeEvent()
 void 
 CSimulation::executeIntEvent()
 {
-  CIntEvent iEvent = ptrScheduler->earliestIntEvent();
+  CIntEvent iEvent = getEvent(p1, p2);
 
   if (iEvent.getType() == NONE)
     {
@@ -232,197 +232,57 @@ CSimulation::executeIntEvent()
 	"\nOtherwise the simulation has run out of events!"
 	"\nThis occured when confirming the event with the scheduler"
 	"\nIgnoring this NONE event below\n"
-	       << iEvent.stringData(this);
+	       << iEvent.stringData(Sim);
 
       //Now we're past the event, update the scheduler and plugins
-      ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
+      Sim->ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
       return;
     }
     
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
     D_throw() << "A NAN Interaction collision time has been found"
-	      << iEvent.stringData(this);
+	      << iEvent.stringData(Sim);
   
   if (iEvent.getdt() == HUGE_VAL)
     D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-	      << iEvent.stringData(this);
+	      << iEvent.stringData(Sim);
 #endif
 
   //Debug section
 #ifdef DYNAMO_CollDebug
-  if (iEvent.getParticle1().getID() < iEvent.getParticle2().getID())
+  if (p2.getID() < p2.getID())
     std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
-	      << "  ID1 " << iEvent.getParticle1().getID() 
-	      << "  ID2 " << iEvent.getParticle2().getID()
+	      << "  ID1 " << p1.getID() 
+	      << "  ID2 " << p2.getID()
 	      << "  dt " << iEvent.getdt()
 	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
   else
     std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
-	      << "  ID1 " << iEvent.getParticle2().getID() 
-	      << "  ID2 " << iEvent.getParticle1().getID()
+	      << "  ID1 " << p2().getID() 
+	      << "  ID2 " << p1().getID()
 	      << "  dt " << iEvent.getdt()
 	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
 #endif
   
-  dSysTime += iEvent.getdt();
+  Sim->dSysTime += iEvent.getdt();
     
-  ptrScheduler->stream(iEvent.getdt());
+  Sim->ptrScheduler->stream(iEvent.getdt());
   
   //dynamics must be updated first
-  Dynamics.stream(iEvent.getdt());
+  Sim->Dynamics.stream(iEvent.getdt());
   
   //Run the collision and catch the data
   C2ParticleData EDat = Dynamics.runEvent(iEvent);
   
   //Now we're past the event, update the scheduler and plugins
-  ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
+  Sim->ptrScheduler->fullUpdate(p1, p2);
   
-  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 }
 
-void 
-CSimulation::executeGlobEvent()
-{
-  CGlobEvent iEvent = ptrScheduler->earliestGlobEvent();
-  
-  if (iEvent.getType() == NONE)
-    D_throw() << "No global collision found\n"
-	      << iEvent.stringData(this);
-  
-#ifdef DYNAMO_DEBUG 
-  if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Global collision time has been found\n"
-	      << iEvent.stringData(this);
-  
-  if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
-	      << iEvent.stringData(this);
-#endif
-  
-  if (iEvent.getType() == VIRTUAL)
-    {
-      //Do this to stop it being counted as an event
-      --lNColl;
-      Dynamics.runEvent(iEvent);
-      //We return now to stop the system streaming
-      return;
-    }
-
-  dSysTime += iEvent.getdt();
-  
-  ptrScheduler->stream(iEvent.getdt());
-  
-  //dynamics must be updated first
-  Dynamics.stream(iEvent.getdt());
-    
-  //Run the collision and catch the data
-  CNParticleData EDat = Dynamics.runEvent(iEvent);
-  
-  //Now we're past the event update the scheduler and plugins
-  ptrScheduler->fullUpdate(iEvent.getParticle());
-
-  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-    Ptr->eventUpdate(iEvent,EDat);
-}
-
-void 
-CSimulation::executeLocalEvent()
-{
-  CLocalEvent iEvent = ptrScheduler->earliestLocalEvent();
-  
-  if (iEvent.getType() == NONE)
-    D_throw() << "No global collision found\n"
-	      << iEvent.stringData(this);
-  
-#ifdef DYNAMO_DEBUG 
-  if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Global collision time has been found\n"
-	      << iEvent.stringData(this);
-  
-  if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
-	      << iEvent.stringData(this);
-#endif
-  
-  if (iEvent.getType() == VIRTUAL)
-    {
-      //Do this to stop it being counted as an event
-      --lNColl;
-      Dynamics.runEvent(iEvent);
-      //We return now to stop the system streaming
-      return;
-    }
-
-  dSysTime += iEvent.getdt();
-  
-  ptrScheduler->stream(iEvent.getdt());
-  
-  //dynamics must be updated first
-  Dynamics.stream(iEvent.getdt());
-    
-  //Run the collision and catch the data
-  CNParticleData EDat = Dynamics.runEvent(iEvent);
-  
-  //Now we're past the event update the scheduler and plugins
-  ptrScheduler->fullUpdate(iEvent.getParticle());
-  
-  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-    Ptr->eventUpdate(iEvent,EDat);
-}
-
-void 
-CSimulation::executeSysEvent()
-{
-  CSystem& sEvent = **min_element(Dynamics.getSystemEvents().begin(), Dynamics.getSystemEvents().end());
-  //Must have dt copied here as we dont have systemEvent classes
-  Iflt dt = sEvent.getdt();
-  
-#ifdef DYNAMO_DEBUG 
-  if (isnan(dt))
-    D_throw() << "A NAN system event time has been found";
-#endif
-    
-  dSysTime += dt;
-    
-  ptrScheduler->stream(dt);
-  
-  //dynamics must be updated first
-  Dynamics.stream(dt);
-  
-  //Run the collision and catch the data
-  CNParticleData SDat = sEvent.runEvent();
-
-#ifdef DYNAMO_CollDebug
-    std::cerr << "\nSYSTEM sysdt " << dt + dSysTime
-	      << "  dt " << dt;
-#endif
-  
-  //Now we're past the event update the scheduler and plugins
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    {
-#ifdef DYNAMO_CollDebug
-      std::cerr << "\nPart Single =" << pData.getParticle().getID();
-#endif      
-      ptrScheduler->fullUpdate(pData.getParticle());
-    }
-
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    {
-#ifdef DYNAMO_CollDebug
-      std::cerr << "\nPart Pair 1 =" <<pData.particle1_.getParticle().getID()
-		<< "  Pair 2 = " << pData.particle2_.getParticle().getID();
-#endif
-
-      ptrScheduler->fullUpdate(pData.particle1_.getParticle(), 
-			       pData.particle2_.getParticle());
-    }
-  
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, outputPlugins)
-    Ptr->eventUpdate(sEvent, SDat, dt);
-}
-
+*/
 void 
 CSimulation::configLoaded()
 {
@@ -527,3 +387,146 @@ CSimulation::outputData(const char* filename)
 long double 
 CSimulation::getSysTime()
 { return dSysTime / Dynamics.units().unitTime(); }
+
+/*void 
+CSimulation::executeSysEvent()
+{
+  CSystem& sEvent = **min_element(Dynamics.getSystemEvents().begin(), Dynamics.getSystemEvents().end());
+  //Must have dt copied here as we dont have systemEvent classes
+  Iflt dt = sEvent.getdt();
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(dt))
+    D_throw() << "A NAN system event time has been found";
+#endif
+    
+  dSysTime += dt;
+    
+  ptrScheduler->stream(dt);
+  
+  //dynamics must be updated first
+  Dynamics.stream(dt);
+  
+  //Run the collision and catch the data
+  CNParticleData SDat = sEvent.runEvent();
+
+#ifdef DYNAMO_CollDebug
+    std::cerr << "\nSYSTEM sysdt " << dt + dSysTime
+	      << "  dt " << dt;
+#endif
+  
+  //Now we're past the event update the scheduler and plugins
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    {
+#ifdef DYNAMO_CollDebug
+      std::cerr << "\nPart Single =" << pData.getParticle().getID();
+#endif      
+      ptrScheduler->fullUpdate(pData.getParticle());
+    }
+
+  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+    {
+#ifdef DYNAMO_CollDebug
+      std::cerr << "\nPart Pair 1 =" <<pData.particle1_.getParticle().getID()
+		<< "  Pair 2 = " << pData.particle2_.getParticle().getID();
+#endif
+
+      ptrScheduler->fullUpdate(pData.particle1_.getParticle(), 
+			       pData.particle2_.getParticle());
+    }
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, outputPlugins)
+    Ptr->eventUpdate(sEvent, SDat, dt);
+}
+
+void 
+CSimulation::executeLocalEvent()
+{
+  CLocalEvent iEvent = ptrScheduler->earliestLocalEvent();
+  
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(this);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(this);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(this);
+#endif
+  
+  if (iEvent.getType() == VIRTUAL)
+    {
+      //Do this to stop it being counted as an event
+      --lNColl;
+      Dynamics.runEvent(iEvent);
+      //We return now to stop the system streaming
+      return;
+    }
+
+  dSysTime += iEvent.getdt();
+  
+  ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Dynamics.stream(iEvent.getdt());
+    
+  //Run the collision and catch the data
+  CNParticleData EDat = Dynamics.runEvent(iEvent);
+  
+  //Now we're past the event update the scheduler and plugins
+  ptrScheduler->fullUpdate(iEvent.getParticle());
+  
+  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
+}
+
+void 
+CSimulation::executeGlobEvent()
+{
+  CGlobEvent iEvent = ptrScheduler->earliestGlobEvent();
+  
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(this);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(this);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(this);
+#endif
+  
+  if (iEvent.getType() == VIRTUAL)
+    {
+      //Do this to stop it being counted as an event
+      --lNColl;
+      Dynamics.runEvent(iEvent);
+      //We return now to stop the system streaming
+      return;
+    }
+
+  dSysTime += iEvent.getdt();
+  
+  ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Dynamics.stream(iEvent.getdt());
+    
+  //Run the collision and catch the data
+  CNParticleData EDat = Dynamics.runEvent(iEvent);
+  
+  //Now we're past the event update the scheduler and plugins
+  ptrScheduler->fullUpdate(iEvent.getParticle());
+
+  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
+}
+
+*/
