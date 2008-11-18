@@ -29,7 +29,8 @@ COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
   currentdt(0.0),
   currlen(0),
   notReady(true),
-  CorrelatorLength(100)
+  CorrelatorLength(100),
+  dtfactor(1.0)
 {
   operator<<(XML);
 
@@ -63,6 +64,9 @@ COPViscosityE::operator<<(const XMLNode& XML)
       if (XML.isAttributeSet("dt"))
 	dt = Sim->Dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+
+      if (XML.isAttributeSet("dtfactor"))
+	dt = boost::lexical_cast<Iflt>(XML.getAttribute("dtfactor"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->Dynamics.units().unitTime() * 
@@ -83,7 +87,7 @@ COPViscosityE::initialise()
   if (dt == 0.0)
     {
       if (Sim->lastRunMFT != 0.0)
-	dt = Sim->lastRunMFT * 0.5 ;
+	dt = Sim->lastRunMFT * 0.5 * dtfactor;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
     }
