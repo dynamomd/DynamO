@@ -73,6 +73,7 @@ protected:
 
   boost::circular_buffer<matrix> G;
   std::vector<matrix> accG2;
+  Iflt dtfactor;
 };
 
 #endif

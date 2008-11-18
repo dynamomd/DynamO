@@ -66,7 +66,7 @@ COPViscosityE::operator<<(const XMLNode& XML)
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
 
       if (XML.isAttributeSet("dtfactor"))
-	dt = boost::lexical_cast<Iflt>(XML.getAttribute("dtfactor"));
+	dtfactor = boost::lexical_cast<Iflt>(XML.getAttribute("dtfactor"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->Dynamics.units().unitTime() * 
