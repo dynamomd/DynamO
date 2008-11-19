@@ -17,7 +17,8 @@ function HS_replex_test {
 	config.*.start.xml.bz2 > /dev/null
 
     #Production
-    time ../bin/dynarun --engine 2 $2 -c 10000000000 -i 10 -f 1200 -L CollisionMatrix \
+    ../bin/dynarun --engine 2 $2 -c 10000000000 -i 10 -f 1200 \
+	-L CollisionMatrix \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     MFT1=$(bzcat output.0.xml.bz2 | xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
@@ -132,7 +133,14 @@ function cannon {
     #collision cannon test
     bzcat cannon.xml.bz2 | \
 	xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	| bzip2 > tmp2.xml.bz2
+
+    bzcat tmp2.xml.bz2 | \
+	xml ed -u '/DYNAMOconfig/Simulation/Scheduler/Sorter/@Type' -v "$2" \
 	| bzip2 > tmp.xml.bz2
+    
+    cp tmp.xml.bz2 cannon.test.xml.bz2
+    rm tmp2.xml.bz2
     
     ../bin/dynarun -c 1000 tmp.xml.bz2 &> run.log
     
@@ -152,19 +160,32 @@ function cannon {
     rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
 }
 
-for sched in "NeighbourList" ; do #"Dumb"
-    echo "Testing basic system, zero + infinite time events, hard sphere, PBC"
-    cannon "$sched"
-    echo "Testing global events (walls) and square wells"
-    wallsw "$sched"
-    echo "Testing global events (walls) and square wells with a " \
-	"Null compression"
-    wallsw "$sched" "--engine 3 --growth-rate 0.0"
-    echo "Testing compression of hard spheres"
-    HS_compressiontest "$sched"
-    echo "Testing replica exchange of hard spheres"
-    HS_replex_test "$sched"
-done 
+echo "SCHEDULER AND SORTER TESTING"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
+cannon "Dumb" "CBT"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
+cannon "Dumb" "BoundedPQ"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
+cannon "NeighbourList" "CBT"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
+cannon "NeighbourList" "BoundedPQ"
 
+echo ""
+echo "LOCAL EVENTS"
+echo "Testing local events (walls) and square wells"
+wallsw "NeighbourList"
+
+echo ""
+echo "ENGINE TESTING"
+echo "Testing local events (walls) and square wells with a " \
+    "Null compression"
+wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
+echo "Testing compression of hard spheres"
+HS_compressiontest "NeighbourList"
+echo "Testing replica exchange of hard spheres"
+HS_replex_test "NeighbourList"
+
+echo ""
+echo "THREADING TESTING"
 echo "Testing replica exchange with 2 threads"
 HS_replex_test "NeighbourList" "-N2"
