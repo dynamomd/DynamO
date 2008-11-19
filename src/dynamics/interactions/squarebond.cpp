@@ -227,7 +227,8 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2) const
     D_throw() << "Unknown type found";
 #endif
 
-  C2ParticleData EDat(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, 1.0, d2, iEvent.getType()));
+  C2ParticleData EDat(Sim->Dynamics.Liouvillean().SmoothSpheresColl
+		      (iEvent, 1.0, d2, iEvent.getType()));
     
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);

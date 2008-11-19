@@ -348,6 +348,8 @@ CISWSequence::runEvent(const CParticle& p1,
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
+
+	break;
       }
     case WELL_IN:
       {
@@ -365,6 +367,8 @@ CISWSequence::runEvent(const CParticle& p1,
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
+
+	break;
       }
     case WELL_OUT:
       {
@@ -382,6 +386,8 @@ CISWSequence::runEvent(const CParticle& p1,
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
+
+	break;
       }
     default:
       D_throw() << "Unknown collision type";

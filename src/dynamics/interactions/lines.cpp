@@ -197,11 +197,15 @@ CILines::runEvent(const CParticle& p1,
     case CORE:
       {
 	//We have a line interaction! Run it
-	C2ParticleData retval(Sim->Dynamics.Liouvillean().runLineLineCollision(iEvent, length));
+	C2ParticleData retval(Sim->Dynamics.Liouvillean().runLineLineCollision
+			      (iEvent, length));
+
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
+
+	break;
       }
     case WELL_IN:
       {
@@ -218,6 +222,8 @@ CILines::runEvent(const CParticle& p1,
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
+
+	break;
       }
     case WELL_OUT:
       {
@@ -234,6 +240,7 @@ CILines::runEvent(const CParticle& p1,
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
+	break;
       }
     default:
       D_throw() << "Unknown collision type";
