@@ -55,9 +55,10 @@ CSNeighbourList::initialise()
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
   sorter->clear();
-  sorter->resize(Sim->lN);
+  //The plus one is because system events are stored in the last heap;
+  sorter->resize(Sim->lN+1);
   eventCount.clear();
-  eventCount.resize(Sim->lN, 0);
+  eventCount.resize(Sim->lN+1, 0);
 
   //Now initialise the interactions
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)

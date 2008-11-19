@@ -79,6 +79,8 @@ public:
   void rescaleTimes(const Iflt& scale) { sorter->rescaleTimes(scale); }
 
   const smrtPlugPtr<CSSorter>& getSorter() const { return sorter; }
+
+  void rebuildSystemEvents();
   
 protected:
   mutable smrtPlugPtr<CSSorter> sorter;

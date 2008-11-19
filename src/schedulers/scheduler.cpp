@@ -53,12 +53,17 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
   return XML;
 }
 
-/*
-
-const CLocalEvent
-CScheduler::earliestLocalEvent() const
+void 
+CScheduler::rebuildSystemEvents()
 {
-    }*/
+  (*sorter)[Sim->lN].clear();
+
+  BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysptr, 
+		Sim->Dynamics.getSystemEvents())
+    sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->lN);
+
+  sorter->update(Sim->lN);
+}
 
 void 
 CScheduler::popNextEvent()
@@ -90,86 +95,49 @@ CScheduler::invalidateEvents(const CParticle& part)
 void
 CScheduler::runNextEvent() const
 {
-  //Determine the next global and/or system event
-  Iflt tmpt = HUGE_VAL;
-
   sorter->sort();
-
-  if (!Sim->Dynamics.getSystemEvents().empty())
-    tmpt =(*min_element(Sim->Dynamics.getSystemEvents().begin(),
-			Sim->Dynamics.getSystemEvents().end()
-			))->getdt();
   
 #ifdef DYNAMO_DEBUG
   if (sorter->next_Data().empty())
     D_throw() << "Next particle list is empty but top of list!";
 #endif  
-  
-#ifdef DYNAMO_UpdateCollDebug
-  std::cerr << "\nNext eventdt = " << sorter->next_dt();
-#endif
-
-  while (sorter->next_dt() < tmpt)
+    
+  while ((sorter->next_Data().top().type == INTERACTION)
+	 && (sorter->next_Data().top().collCounter2 
+	     != eventCount[sorter->next_Data().top().p2]))
     {
-      //Return it if its not an INTERACTION
-      if (sorter->next_Data().top().type == INTERACTION)
-	//Check the INTERACTION is valid first
-	if (sorter->next_Data().top().collCounter2 
-	    != eventCount[sorter->next_Data().top().p2])
-	  {
-	    //Not valid, update the list
-#ifdef DYNAMO_UpdateCollDebug
-	    std::cerr << "\nEvent invalid, popping and updating" 
-		      << sorter->next_dt();
-#endif
-	    sorter->next_Data().pop();
-	    sorter->update(sorter->next_ID());
-	    sorter->sort();
-	    
+      //Not valid, update the list
+      sorter->next_Data().pop();
+      sorter->update(sorter->next_ID());
+      sorter->sort();
+      
 #ifdef DYNAMO_DEBUG
-	    if (sorter->next_Data().empty())
-	      D_throw() << "Next particle list is empty but top of list!";
+      if (sorter->next_Data().empty())
+	D_throw() << "Next particle list is empty but top of list!";
 #endif  
-	    continue;
-	  }
-
-      switch (sorter->next_Data().top().type)
-	{
-	case INTERACTION:
-#ifdef DYNAMO_DEBUG
-	  if (sorter->next_Data().top().type != INTERACTION)
-	    D_throw() << "The next event is not an Interaction event";
-#endif
-	  
-	  Sim->Dynamics.runIntEvent
-	    (Sim->vParticleList[sorter->next_ID()], 
-	     Sim->vParticleList[sorter->next_Data().top().p2]);	  
-	  return;
-	case GLOBAL:
-#ifdef DYNAMO_DEBUG
-	  if (sorter->next_Data().top().type != GLOBAL)
-	    D_throw() << "The next event is not a Global event";
-#endif
-	  
-	  Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
-	    ->runEvent(Sim->vParticleList[sorter->next_ID()]);
-	  return;	           
-	case LOCAL:
-#ifdef DYNAMO_DEBUG
-	  if (sorter->next_Data().top().type != LOCAL)
-	    D_throw() << "The next event is not a Local event";
-#endif	  
-	  Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
-	    ->runEvent(Sim->vParticleList[sorter->next_ID()]);	  
-	  return;
-	default:
-	  D_throw() << "Unhandled event type requested to be run";
-	}
+      continue;
     }
-
-
-  //System events won the competition
-  (*min_element(Sim->Dynamics.getSystemEvents().begin(),
-		Sim->Dynamics.getSystemEvents().end()
-		))->runEvent(); 
+  
+  switch (sorter->next_Data().top().type)
+    {
+    case INTERACTION:
+      Sim->Dynamics.runIntEvent
+	(Sim->vParticleList[sorter->next_ID()], 
+	 Sim->vParticleList[sorter->next_Data().top().p2]);	  
+      break;
+    case GLOBAL:
+      Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+	->runEvent(Sim->vParticleList[sorter->next_ID()]);
+      break;	           
+    case LOCAL:
+      Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+	->runEvent(Sim->vParticleList[sorter->next_ID()]);	  
+      break;
+    case SYSTEM:
+      Sim->Dynamics.getSystemEvents()[sorter->next_Data().top().p2]
+	->runEvent();
+      break;
+    default:
+      D_throw() << "Unhandled event type requested to be run";
+    }
 }
