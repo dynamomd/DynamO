@@ -23,9 +23,9 @@
 class CIHardSphere: public CInteraction
 {
 public:
-  CIHardSphere(const DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  CIHardSphere(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CIHardSphere(const XMLNode&, const DYNAMO::SimData*);
+  CIHardSphere(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 

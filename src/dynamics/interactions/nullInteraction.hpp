@@ -23,9 +23,9 @@
 class CINull: public CInteraction
 {
 public:
-  CINull(const DYNAMO::SimData*, C2Range*);
+  CINull(DYNAMO::SimData*, C2Range*);
 
-  CINull(const XMLNode&, const DYNAMO::SimData*);
+  CINull(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 

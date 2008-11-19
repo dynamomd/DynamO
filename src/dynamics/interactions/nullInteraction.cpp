@@ -23,10 +23,10 @@
 #include "../2particleEventData.hpp"
 #include <cstring>
 
-CINull::CINull(const DYNAMO::SimData* tmp, C2Range* nR):
+CINull::CINull(DYNAMO::SimData* tmp, C2Range* nR):
   CInteraction(tmp, nR) {}
 
-CINull::CINull(const XMLNode& XML, const DYNAMO::SimData* tmp):
+CINull::CINull(const XMLNode& XML, DYNAMO::SimData* tmp):
   CInteraction(tmp,NULL)
 {
   operator<<(XML);
@@ -77,9 +77,11 @@ CINull::getEvent(const CParticle &p1, const CParticle &p2) const
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
-C2ParticleData 
+void
 CINull::runEvent(const CParticle&, const CParticle&) const
-{ D_throw() << "Null event trying to run a collision!"; }
+{ 
+  D_throw() << "Null event trying to run a collision!"; 
+}
    
 void 
 CINull::outputXML(xmlw::XmlStream& XML) const

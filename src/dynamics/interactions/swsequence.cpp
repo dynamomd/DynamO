@@ -31,9 +31,10 @@
 #include "../2particleEventData.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
+#include "../../schedulers/scheduler.hpp"
 #include <iomanip>
 
-CISWSequence::CISWSequence(const DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
+CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
 			   Iflt ne, std::vector<size_t> seq, C2Range* nR):
   CICapture(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl),e(ne), sequence(seq) 
@@ -51,7 +52,7 @@ CISWSequence::CISWSequence(const DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
     vec.resize(letters.size(), 0.0);
 }
 
-CISWSequence::CISWSequence(const XMLNode& XML, const DYNAMO::SimData* tmp):
+CISWSequence::CISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
   CICapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
@@ -233,8 +234,8 @@ CISWSequence::captureTest(const CParticle& p1, const CParticle& p2) const
 }
 
 CIntEvent 
-CISWSequence::getCollision(const CParticle &p1, 
-			   const CParticle &p2) const 
+CISWSequence::getEvent(const CParticle &p1, 
+		       const CParticle &p2) const 
 {    
 #ifdef DYNAMO_DEBUG
   if (p1 == p2)
@@ -284,40 +285,103 @@ CISWSequence::getCollision(const CParticle &p1,
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
-C2ParticleData 
-CISWSequence::runCollision(const CIntEvent &event) const
+void
+CISWSequence::runEvent(const CParticle& p1,
+		       const CParticle& p2) const
 {  
-  switch (event.getType())
+  CIntEvent iEvent = getEvent(p1, p2);
+  
+  if (iEvent.getType() == NONE)
+    {
+      I_cerr() << "A glancing or tenuous collision may have become invalid due"
+	"\nto free streaming inaccuracies"
+	"\nOtherwise the simulation has run out of events!"
+	"\nThis occured when confirming the event with the scheduler"
+	"\nIgnoring this NONE event below\n"
+	       << iEvent.stringData(Sim);
+      
+      //Now we're past the event, update the scheduler and plugins
+      Sim->ptrScheduler->fullUpdate(p1, p2);
+      return;
+    }
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Interaction collision time has been found"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+  
+  //Debug section
+#ifdef DYNAMO_CollDebug
+  if (p2.getID() < p2.getID())
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << p1.getID() 
+	      << "  ID2 " << p2.getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+  else
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << p2().getID() 
+	      << "  ID2 " << p1().getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+#endif
+  
+  Sim->dSysTime += iEvent.getdt();
+  
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(iEvent.getdt());
+  
+  switch (iEvent.getType())
     {
     case CORE:
-      return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, e, d2, CORE);
+      {
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
+	
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+      }
     case WELL_IN:
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
 			      .SphereWellEvent
-			      (event, alphabet
-			       [sequence[event.getParticle1().getID() % sequence.size()]]
-			       [sequence[event.getParticle2().getID() % sequence.size()]], 
+			      (iEvent, alphabet
+			       [sequence[p1.getID() % sequence.size()]]
+			       [sequence[p2.getID() % sequence.size()]], 
 			       ld2));
 	
 	if (retVal.getType() != BOUNCE)
-	  addToCaptureMap(event.getParticle1(), event.getParticle2());      
+	  addToCaptureMap(p1, p2);      
+
+	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	return retVal;
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
       }
     case WELL_OUT:
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
 			      .SphereWellEvent
-			      (event, -alphabet
-			       [sequence[event.getParticle1().getID() % sequence.size()]]
-			       [sequence[event.getParticle2().getID() % sequence.size()]], 
+			      (iEvent, -alphabet
+			       [sequence[p1.getID() % sequence.size()]]
+			       [sequence[p2.getID() % sequence.size()]], 
 			       ld2));
 	
 	if (retVal.getType() != BOUNCE)
-	  removeFromCaptureMap(event.getParticle1(), event.getParticle2());
+	  removeFromCaptureMap(p1, p2);
 	
-	return retVal;
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
       }
     default:
       D_throw() << "Unknown collision type";
