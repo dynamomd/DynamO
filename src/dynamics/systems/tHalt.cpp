@@ -58,7 +58,7 @@ CStHalt::runEvent() const
   Sim->lPrintLimiter = Sim->lMaxNColl = Sim->lNColl;
 
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(static_cast<const CSystem&>(*this), CNParticleData(), locdt);
+    Ptr->eventUpdate(*this, CNParticleData(), locdt);
 }
 
 void 

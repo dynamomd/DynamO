@@ -115,7 +115,7 @@ CSysGhost::runEvent() const
   Sim->ptrScheduler->fullUpdate(part);
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(static_cast<const CSystem&>(*this), SDat, locdt);
+    Ptr->eventUpdate(*this, SDat, locdt);
 }
 
 void 

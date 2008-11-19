@@ -74,7 +74,7 @@ CSGlobCellHack::runEvent() const
     / growthRate - Sim->dSysTime;  
     
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(static_cast<const CSystem&>(*this), CNParticleData(), locdt);
+    Ptr->eventUpdate(*this, CNParticleData(), locdt);
 }
 
 void
