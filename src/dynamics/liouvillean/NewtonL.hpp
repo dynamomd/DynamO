@@ -19,9 +19,7 @@
 #define CLNewton_H
 
 #include "liouvillean.hpp"
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
-#include "../../extcode/include/boost/random/01_normal_distribution.hpp"
+
 
 class CLNewton: public CLiouvillean
 {
@@ -46,6 +44,11 @@ public:
 				       ) const;
   
   virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
+
+  virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, const Iflt&, CPDData&) const;
+
+  virtual C2ParticleData DSMCSpheresRun(const CParticle&, const CParticle&, 
+					const Iflt&, CPDData&) const;
   
   virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
 
@@ -70,8 +73,5 @@ public:
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
-  
-  mutable boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution_01<Iflt> > normal_sampler;
-  mutable boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<Iflt> > uniform_sampler;  
 };
 #endif

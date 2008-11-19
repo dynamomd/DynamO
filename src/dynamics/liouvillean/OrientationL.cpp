@@ -353,15 +353,17 @@ CLNOrientation::initLineOrientations(const Iflt& length)
     {      
       //Assign the new velocities
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
-        orientationData[i].orientation[iDim] = normal_sampler();
+        orientationData[i].orientation[iDim] = Sim->normal_sampler();
 
       orientationData[i].orientation = orientationData[i].orientation.unitVector();
 
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
-        angVelCrossing[iDim] = normal_sampler();
+        angVelCrossing[iDim] = Sim->normal_sampler();
       }
       
-      orientationData[i].angularVelocity = orientationData[i].orientation.Cross(angVelCrossing).unitVector() * normal_sampler() * factor;
+      orientationData[i].angularVelocity 
+	= orientationData[i].orientation.Cross(angVelCrossing).unitVector() 
+	* Sim->normal_sampler() * factor;
     }  
 }

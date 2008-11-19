@@ -29,10 +29,10 @@
 bool 
 CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
-  if (dat.rvdot < -0.0)
+  if (std::signbit(dat.rvdot))
     {
       Iflt arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
-      if (arg > 0.0) 
+      if (!std::signbit(arg))
 	{
 	  //This is the more numerically stable form of the quadratic
 	  //formula
@@ -73,7 +73,7 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
   //Assign the new velocities
   for (int iDim = 0; iDim < NDIM; iDim++)
     const_cast<CParticle&>(part).getVelocity()[iDim] 
-      = normal_sampler() * factor;
+      = Sim->normal_sampler() * factor;
 
   tmpDat.calcDeltaKE();
 
@@ -81,9 +81,7 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 }
 
 CLNewton::CLNewton(DYNAMO::SimData* tmp):
-  CLiouvillean(tmp),
-  normal_sampler(Sim->ranGenerator, boost::normal_distribution_01<Iflt>()),
-  uniform_sampler(Sim->ranGenerator, boost::uniform_real<Iflt>(0,1))
+  CLiouvillean(tmp)
 {}
 
 void
@@ -144,17 +142,12 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
   //distributed Normal component. See Granular Simulation Book
   C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), WALL);
  
-  boost::uniform_real<Iflt> uniform(0,1.0);
-  boost::variate_generator<DYNAMO::baseRNG&,
-    boost::uniform_real<Iflt> >
-    uniform_sampler(Sim->ranGenerator, uniform);
- 
   for (int iDim = 0; iDim < NDIM; iDim++)
-    const_cast<CParticle&>(part).getVelocity()[iDim] = normal_sampler() * sqrtT;
+    const_cast<CParticle&>(part).getVelocity()[iDim] = Sim->normal_sampler() * sqrtT;
   
   const_cast<CParticle&>(part).getVelocity() 
     -= vNorm * ((part.getVelocity() % vNorm) 
-		+ sqrtT * sqrt(-2.0*log(1.0-uniform_sampler())
+		+ sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler())
 			       / Sim->Dynamics.getSpecies(part).getMass()));
 
   tmpDat.calcDeltaKE();
@@ -215,6 +208,52 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
 	}
     }
 
+  return retVal;
+}
+
+bool 
+CLNewton::DSMCSpheresTest(const CParticle& p1, 
+			  const CParticle& p2, 
+			  const Iflt& factor, 
+			  CPDData& pdat) const
+{
+  pdat.vij = p1.getVelocity() - p2.getVelocity();
+
+  Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
+  pdat.rvdot = pdat.rij % pdat.vij;
+  pdat.r2 = pdat.rij.square();
+  pdat.v2 = pdat.vij.square();
+  
+  if (!std::signbit(pdat.rvdot))
+    return false; //Positive rvdot
+
+  return (factor * pdat.rvdot  > Sim->uniform_sampler());
+}
+
+C2ParticleData
+CLNewton::DSMCSpheresRun(const CParticle& p1, 
+			 const CParticle& p2, 
+			 const Iflt& e,
+			 CPDData& pdat) const
+{
+  C2ParticleData retVal(p1, p2,
+			Sim->Dynamics.getSpecies(p1),
+			Sim->Dynamics.getSpecies(p2),
+			CORE);
+  
+  retVal.rij = pdat.rij;
+  retVal.rvdot = pdat.rvdot;
+
+  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.square());  
+
+  //This function must edit particles so it overrides the const!
+  const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
+  
   return retVal;
 }
 

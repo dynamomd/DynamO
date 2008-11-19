@@ -43,6 +43,7 @@ CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi, 
+			     Iflt ne,
 			     std::string nName):
   CSystem(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
@@ -50,8 +51,10 @@ CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nC
   chi(nChi),
   d2(nd * nd),
   diameter(nd),
+  e(ne),
   range(new CRAll(Sim))
 {
+  factor = diameter * 4.0 * PI * chi * (range->size() / Sim->Dynamics.units().simVolume()) * tstep;
   sysName = nName;
   type = DSMC;
 }
@@ -81,21 +84,24 @@ CSDSMCSpheres::runEvent() const
 
   dt = tstep;
 
+  CNParticleData SDat;
+
   BOOST_FOREACH(const CParticle& p1, Sim->vParticleList)
     BOOST_FOREACH(const CParticle& p2, Sim->vParticleList)
     {
       Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-      CPDData colldat(*Sim, p1, p2);
 
-
+      CPDData PDat;
       
-      Sim->ptrScheduler->fullUpdate(p1, p2);
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	PDat.rij[iDim] = Sim->normal_sampler();
+      
+      PDat.rij = PDat.rij.unitVector() * diameter;
+
+      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, factor, PDat))
+	SDat.L2partChanges.push_back(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
     }
-  
-  //Run the collision and catch the data
-  CNParticleData SDat;
-  
-  
+    
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt);
 }
@@ -124,9 +130,13 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
     diameter = boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"))
       * Sim->Dynamics.units().unitLength();
 
+    e = boost::lexical_cast<Iflt>(XML.getAttribute("Inelasticity"));
+
     d2 = diameter * diameter;
 
     range.set_ptr(CRange::loadClass(XML,Sim));
+
+    factor = diameter * 4.0 * PI * chi * (range->size() / Sim->Dynamics.units().simVolume()) * tstep;
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -142,6 +152,7 @@ CSDSMCSpheres::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("tStep") << tstep / Sim->Dynamics.units().unitTime()
       << xmlw::attr("Chi") << chi
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Inelasticity") << e
       << range
       << xmlw::endtag("System");
 }

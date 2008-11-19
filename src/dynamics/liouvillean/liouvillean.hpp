@@ -225,6 +225,38 @@ public:
 					   const EEventType& eType = CORE
 					   ) const = 0;
 
+  /*! \brief Tests for a collision between spherical particles
+   * according to the ESMC (Enskog DSMC)
+   * 
+   *
+   * \param p1 First particle to test
+   * \param p1 Second particle to test
+   * \param factor This is \f$\sigma_{ij}4\pi\chi\rho\Delta t\f$
+   * \param pdat Some cached calc data
+   * \return Whether the collision occurs
+   */  
+  virtual bool DSMCSpheresTest(const CParticle& p1,
+			       const CParticle& p2,
+			       const Iflt& factor,
+			       CPDData& pdat
+			       ) const = 0;
+  
+  /*! \brief Performs a hard sphere collision between the two
+   * particles according to the ESMC (Enskog DSMC)
+   * 
+   *
+   * \param p1 First particle to test
+   * \param p1 Second particle to test
+   * \param e Inelasticity
+   * \param pdat Some cached calc data
+   * \return Data on the collision
+   */  
+  virtual C2ParticleData DSMCSpheresRun(const CParticle& p1,
+					const CParticle& p2,
+					const Iflt& e,
+					CPDData& pdat
+					) const = 0;
+
   /*! \brief Executes a well/shoulder event
    *
    * This is a workhorse of the square well/square shoulder/core

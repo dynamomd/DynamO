@@ -31,7 +31,7 @@ class CSDSMCSpheres: public CSystem
 public:
   CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSDSMCSpheres(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::string);
+  CSDSMCSpheres(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string);
   
   virtual CSystem* Clone() const { return new CSDSMCSpheres(*this); }
 
@@ -53,6 +53,8 @@ protected:
   Iflt chi;
   Iflt d2;
   Iflt diameter;
+  Iflt factor;
+  Iflt e;
 
   smrtPlugPtr<CRange> range;
 };
