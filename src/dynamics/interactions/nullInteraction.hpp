@@ -41,9 +41,9 @@ public:
 
   virtual CInteraction* Clone() const;
   
-  virtual CIntEvent getCollision(const CParticle&, const CParticle&) const;
+  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
  
-  virtual void runCollision(const CParticle&, const CParticle&) const;
+  virtual void runEvent(const CParticle&, const CParticle&) const;
    
   virtual void outputXML(xmlw::XmlStream&) const;
 

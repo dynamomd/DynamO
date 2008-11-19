@@ -31,17 +31,19 @@
 #include "../2particleEventData.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
+#include "../../schedulers/scheduler.hpp"
 #include <iomanip>
 
-CISquareWell::CISquareWell(const DYNAMO::SimData* tmp, Iflt nd, Iflt nl, 
+CISquareWell::CISquareWell(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, 
 			   Iflt nWD, 
 			   Iflt ne, C2Range* nR):
   CICapture(tmp,nR),
-  diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl),wellDepth(nWD),
+  diameter(nd), d2(nd*nd), lambda(nl), 
+  ld2(nd*nd*nl*nl), wellDepth(nWD),
   e(ne) {}
 
-CISquareWell::CISquareWell(const XMLNode& XML, const DYNAMO::SimData* tmp):
-  CICapture(tmp,NULL) //A temporary value!
+CISquareWell::CISquareWell(const XMLNode& XML, DYNAMO::SimData* tmp):
+  CICapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -117,18 +119,19 @@ CISquareWell::captureTest(const CParticle& p1, const CParticle& p2) const
   return ((rij % rij <= ld2) && (rij % rij >= d2));
 }
 
-CIntEvent 
-CISquareWell::getCollision(const CParticle &p1, 
-			   const CParticle &p2) const 
-{    
+CIntEvent
+CISquareWell::getEvent(const CParticle &p1, 
+		       const CParticle &p2) const 
+{
+  
 #ifdef DYNAMO_DEBUG
   if (p1 == p2)
     D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
-
+  
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
   CPDData colldat(*Sim, p1, p2);
-    
+  
   if (isCaptured(p1, p2)) 
     {
       if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, d2)) 
@@ -165,40 +168,105 @@ CISquareWell::getCollision(const CParticle &p1,
 #endif
       return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
-
+  
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
-C2ParticleData 
-CISquareWell::runCollision(const CIntEvent &event) const
-{  
-  switch (event.getType())
+void
+CISquareWell::runEvent(const CParticle& p1, 
+		       const CParticle& p2) const
+{
+  CIntEvent iEvent = getEvent(p1, p2);
+  
+  if (iEvent.getType() == NONE)
+    {
+      I_cerr() << "A glancing or tenuous collision may have become invalid due"
+	"\nto free streaming inaccuracies"
+	"\nOtherwise the simulation has run out of events!"
+	"\nThis occured when confirming the event with the scheduler"
+	"\nIgnoring this NONE event below\n"
+	       << iEvent.stringData(Sim);
+      
+      //Now we're past the event, update the scheduler and plugins
+      Sim->ptrScheduler->fullUpdate(p1, p2);
+      return;
+    }
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Interaction collision time has been found"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+  
+  //Debug section
+#ifdef DYNAMO_CollDebug
+  if (p2.getID() < p2.getID())
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << p1.getID() 
+	      << "  ID2 " << p2.getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+  else
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << p2().getID() 
+	      << "  ID2 " << p1().getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+#endif
+  
+  Sim->dSysTime += iEvent.getdt();
+  
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(iEvent.getdt());
+  
+  switch (iEvent.getType())
     {
     case CORE:
-      return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, e, d2, CORE);
+      {
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
+	
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+      }
     case WELL_IN:
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
-			      .SphereWellEvent(event, wellDepth, ld2));
+			      .SphereWellEvent(iEvent, wellDepth, ld2));
 	
 	if (retVal.getType() != BOUNCE)
-	  addToCaptureMap(event.getParticle1(), event.getParticle2());      
+	  addToCaptureMap(p1, p2);      
 	
-	return retVal;
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
       }
     case WELL_OUT:
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
-			      .SphereWellEvent(event, -wellDepth, ld2));
+			      .SphereWellEvent(iEvent, -wellDepth, ld2));
 	
 	if (retVal.getType() != BOUNCE)
-	  removeFromCaptureMap(event.getParticle1(), event.getParticle2());      
+	  removeFromCaptureMap(p1, p2);      
 	
-	return retVal;
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
       }
     default:
       D_throw() << "Unknown collision type";
     }
+
+  
 }
 
 void

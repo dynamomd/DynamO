@@ -23,9 +23,9 @@
 class CILines: public CICapture
 {
 public:
-  CILines(const DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  CILines(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CILines(const XMLNode&, const DYNAMO::SimData*);
+  CILines(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 

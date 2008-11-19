@@ -72,13 +72,13 @@ CINull::Clone() const
 { return new CINull(*this); }
   
 CIntEvent 
-CINull::getCollision(const CParticle &p1, const CParticle &p2) const 
+CINull::getEvent(const CParticle &p1, const CParticle &p2) const 
 { 
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);
+  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 C2ParticleData 
-CINull::runCollision(const CIntEvent &event) const
+CINull::runEvent(const CParticle&, const CParticle&) const
 { D_throw() << "Null event trying to run a collision!"; }
    
 void 

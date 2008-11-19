@@ -220,21 +220,20 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2) const
   Sim->ptrScheduler->stream(iEvent.getdt());
   
   //dynamics must be updated first
-  Dynamics.stream(iEvent.getdt());
+  Sim->Dynamics.stream(iEvent.getdt());
   
+#ifdef DYNAMO_DEBUG
+  if ((iEvent.getType() != BOUNCE) && (iEvent.getType() != CORE))
+    D_throw() << "Unknown type found";
+#endif
 
-  C2ParticleData EDat;
-
-  switch (event.getType())
-    {
-    case BOUNCE:
-      EDat = Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, 1.0, d2, BOUNCE);  
-    case CORE:
-      EDat = Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, 1.0, d2, CORE);
-    default:
-      D_throw() << "Unrecognised collision type in squarebond executed\n"
-	"TYPE " << event.getType();
-    }
+  C2ParticleData EDat(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, 1.0, d2, iEvent.getType()));
+    
+  //Now we're past the event, update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(p1, p2);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
 }
     
 void 
