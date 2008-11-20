@@ -72,7 +72,7 @@ install install-bin
 	
 install install-lib 
 	: src//dynamo_core 
-	: <location>lib <variant>release
+	: <location>lib
 	;
 
 alias install : install-bin install-lib ;
