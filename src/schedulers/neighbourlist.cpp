@@ -65,6 +65,8 @@ CSNeighbourList::initialise()
     addEvents(part);
   
   sorter->init();
+
+  rebuildSystemEvents();
   
   //Register the new neighbour function with the cellular tracker
   if (!cellChange.connected())
