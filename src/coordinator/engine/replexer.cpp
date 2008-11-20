@@ -381,6 +381,7 @@ CEReplexer::ReplexSwapTicker()
 void 
 CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 {
+  D_throw() << "I broke this when this was added as a commit, check the gitk loh\nIt's something to do with improperly handled system events on exchange which I broke during the system event revamp.\n The last working commit was bf52ad0782fcf46e7690e961cc9fa51af57fb08e";
   CSimulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
   CSimulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
 
@@ -417,6 +418,9 @@ CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
       BOOST_FOREACH(CParticle& part, sim2.vParticleList)
 	part.scaleVelocity(scale2);
       sim1.ptrScheduler->rescaleTimes(scale2);
+
+      //sim1.ptrScheduler->rebuildSystemEvents();
+      //sim2.ptrScheduler->rebuildSystemEvents();
             
       //Globals?
 #ifdef DYNAMO_DEBUG
