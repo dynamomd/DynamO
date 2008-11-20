@@ -139,6 +139,8 @@ CScheduler::runNextEvent() const
       rebuildSystemEvents();
       break;
     default:
-      D_throw() << "Unhandled event type requested to be run";
+      D_throw() << "Unhandled event type requested to be run\n"
+		<< "Type is " 
+		<< CIntEvent::getCollEnumName(sorter->next_Data().top().type);
     }
 }
