@@ -45,7 +45,7 @@ public:
   
   virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
 
-  virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, const Iflt&, CPDData&) const;
+  virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, Iflt&, CPDData&) const;
 
   virtual C2ParticleData DSMCSpheresRun(const CParticle&, const CParticle&, 
 					const Iflt&, CPDData&) const;

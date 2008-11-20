@@ -231,13 +231,13 @@ public:
    *
    * \param p1 First particle to test
    * \param p1 Second particle to test
-   * \param factor This is \f$\sigma_{ij}4\pi\chi\rho\Delta t\f$
+   * \param maxprob The current maximum of the collision radius
    * \param pdat Some cached calc data
    * \return Whether the collision occurs
    */  
   virtual bool DSMCSpheresTest(const CParticle& p1,
 			       const CParticle& p2,
-			       const Iflt& factor,
+			       Iflt& maxprob,
 			       CPDData& pdat
 			       ) const = 0;
   

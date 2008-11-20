@@ -53,8 +53,9 @@ protected:
   Iflt chi;
   Iflt d2;
   Iflt diameter;
-  Iflt factor;
+  mutable Iflt maxprob;
   Iflt e;
+  Iflt factor;
 
   smrtPlugPtr<CRange> range;
 };

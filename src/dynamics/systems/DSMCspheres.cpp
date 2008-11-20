@@ -35,6 +35,7 @@
 CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp): 
   CSystem(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
+  maxprob(0.0),
   range(NULL)
 {
   dt = HUGE_VAL;
@@ -51,10 +52,10 @@ CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nC
   chi(nChi),
   d2(nd * nd),
   diameter(nd),
+  maxprob(0.0),
   e(ne),
   range(new CRAll(Sim))
 {
-  factor = diameter * 4.0 * PI * chi * (range->size() / Sim->Dynamics.units().simVolume()) * tstep;
   sysName = nName;
   type = DSMC;
 }
@@ -86,9 +87,30 @@ CSDSMCSpheres::runEvent() const
 
   CNParticleData SDat;
 
-  BOOST_FOREACH(const CParticle& p1, Sim->vParticleList)
-    BOOST_FOREACH(const CParticle& p2, Sim->vParticleList)
+  boost::variate_generator
+    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
+    idsampler(Sim->ranGenerator, 
+	      boost::uniform_int<unsigned int>(0, range->size() - 1));
+
+  Iflt intPart;
+  Iflt fracpart = std::modf(factor * maxprob, &intPart);
+ 
+  size_t nmax = static_cast<size_t>(intPart);
+
+  if (Sim->uniform_sampler() < fracpart)
+    ++nmax;
+
+  for (size_t n = 0; n < nmax; ++n)
     {
+      const CParticle& p1(Sim->vParticleList[*(range->begin()+idsampler())]);
+      
+      size_t p2id = *(range->begin()+idsampler());
+
+      while (p2id == p1.getID())
+	p2id = *(range->begin()+idsampler());
+      
+      const CParticle& p2(Sim->vParticleList[p2id]);
+
       Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
 
       CPDData PDat;
@@ -98,7 +120,7 @@ CSDSMCSpheres::runEvent() const
       
       PDat.rij = PDat.rij.unitVector() * diameter;
 
-      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, factor, PDat))
+      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat))
 	SDat.L2partChanges.push_back(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
     }
     
@@ -111,6 +133,30 @@ CSDSMCSpheres::initialise(size_t nID)
 {
   ID = nID;
   dt = tstep;
+
+  if (maxprob == 0.0)
+    BOOST_FOREACH(const size_t& id1, *range)
+      BOOST_FOREACH(const size_t& id2, *range)
+      // Test everything to get an estimate for the max probibility
+      if (id1 != id2)
+	{
+	  const CParticle& p1(Sim->vParticleList[id1]);
+	  const CParticle& p2(Sim->vParticleList[id2]);
+
+	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+
+	  CPDData PDat;
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    PDat.rij[iDim] = Sim->normal_sampler();
+	  
+	  PDat.rij = PDat.rij.unitVector() * diameter;
+	  
+	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat);
+	}
+
+  factor = range->size() * range->size() * range->size() * diameter * 2.0 * PI 
+    * chi * tstep / Sim->Dynamics.units().simVolume();
 }
 
 void 
@@ -136,7 +182,9 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
 
     range.set_ptr(CRange::loadClass(XML,Sim));
 
-    factor = diameter * 4.0 * PI * chi * (range->size() / Sim->Dynamics.units().simVolume()) * tstep;
+    if (XML.isAttributeSet("MaxCollRad"))
+      maxprob = boost::lexical_cast<Iflt>(XML.getAttribute("MaxCollRad"));
+	
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -153,6 +201,8 @@ CSDSMCSpheres::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Chi") << chi
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Inelasticity") << e
+      << xmlw::attr("Name") << sysName
+      << xmlw::attr("MaxCollRad") << maxprob
       << range
       << xmlw::endtag("System");
 }
