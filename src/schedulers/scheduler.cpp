@@ -54,7 +54,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 }
 
 void 
-CScheduler::rebuildSystemEvents()
+CScheduler::rebuildSystemEvents() const
 {
   (*sorter)[Sim->lN].clear();
 
@@ -115,7 +115,6 @@ CScheduler::runNextEvent() const
       if (sorter->next_Data().empty())
 	D_throw() << "Next particle list is empty but top of list!";
 #endif  
-      continue;
     }
   
   switch (sorter->next_Data().top().type)
@@ -136,6 +135,8 @@ CScheduler::runNextEvent() const
     case SYSTEM:
       Sim->Dynamics.getSystemEvents()[sorter->next_Data().top().p2]
 	->runEvent();
+      //This saves the system events rebuilding themselves
+      rebuildSystemEvents();
       break;
     default:
       D_throw() << "Unhandled event type requested to be run";

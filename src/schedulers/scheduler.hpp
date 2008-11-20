@@ -80,7 +80,7 @@ public:
 
   const smrtPlugPtr<CSSorter>& getSorter() const { return sorter; }
 
-  void rebuildSystemEvents();
+  void rebuildSystemEvents() const;
   
 protected:
   mutable smrtPlugPtr<CSSorter> sorter;

@@ -67,6 +67,7 @@ CSDumb::initialise()
     addEvents(part);
   
   sorter->init();
+  rebuildSystemEvents();
 }
 
 void 
