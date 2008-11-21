@@ -214,21 +214,24 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
 bool 
 CLNewton::DSMCSpheresTest(const CParticle& p1, 
 			  const CParticle& p2, 
-			  Iflt& maxprob, 
+			  Iflt& maxprob,
+			  const Iflt& factor,
 			  CPDData& pdat) const
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
 
-  Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
+  //Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
   pdat.rvdot = pdat.rij % pdat.vij;
   
   if (!std::signbit(pdat.rvdot))
     return false; //Positive rvdot
 
-  //if (-pdat.rvdot > maxprob)
-  //maxprob = -pdat.rvdot;
+  Iflt prob = factor * (-pdat.rvdot);
 
-  return (-pdat.rvdot) > (Sim->uniform_sampler() * maxprob);
+  if (prob > maxprob)
+    maxprob = prob;
+
+  return prob > Sim->uniform_sampler() * maxprob;
 }
 
 C2ParticleData
@@ -249,7 +252,8 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
   Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
-  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.square());  
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
+			    / retVal.rij.square());  
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;

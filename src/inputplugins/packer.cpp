@@ -868,23 +868,24 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSCBT(Sim));
 	
-	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
 	//This is to stop interactions being used for these particles
-	Sim->Dynamics.addInteraction(new CINull(Sim, new C2RAll()))->setName("Catchall");
+	Sim->Dynamics.addInteraction
+	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
 
 	//This is to provide data on the particles
-	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0, 
-						      new C2RAll()
-						      ))->setName("Bulk");
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere
+	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+
+	Iflt chi = 1.0 / 
+	  (4.0 * tij * vm["density"].as<double>() * std::sqrt(PI)); 
 
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
-	  (new CSDSMCSpheres(Sim, particleDiam, tij * 0.1, 
-			     std::sqrt(PI) / (4.0 * vm["density"].as<double>() * tij),
-			     1.0, "Thermostat"));
+	  (new CSDSMCSpheres(Sim, particleDiam, tij * 0.1, chi, 1.0, 
+			     "Thermostat"));
 
 	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					  "Bulk"));

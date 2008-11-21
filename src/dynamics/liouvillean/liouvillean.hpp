@@ -238,6 +238,7 @@ public:
   virtual bool DSMCSpheresTest(const CParticle& p1,
 			       const CParticle& p2,
 			       Iflt& maxprob,
+			       const Iflt& factor,
 			       CPDData& pdat
 			       ) const = 0;
   

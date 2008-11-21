@@ -92,15 +92,14 @@ CSDSMCSpheres::runEvent() const
     idsampler(Sim->ranGenerator, 
 	      boost::uniform_int<unsigned int>(0, range->size() - 1));
 
-  /*Iflt intPart;
-  Iflt fracpart = std::modf(factor * maxprob, &intPart);
+  Iflt intPart;
+  Iflt fracpart = std::modf(0.5 * maxprob * range->size(), 
+			    &intPart);
  
   size_t nmax = static_cast<size_t>(intPart);
 
   if (Sim->uniform_sampler() < fracpart)
-  ++nmax;*/
-
-  size_t nmax = range->size() / 2;
+    ++nmax;
 
   for (size_t n = 0; n < nmax; ++n)
     {
@@ -118,14 +117,14 @@ CSDSMCSpheres::runEvent() const
       CPDData PDat;
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
-	PDat.rij[iDim] = Sim->normal_sampler();
+	PDat.rij[iDim] = Sim->normal_sampler() * diameter;
       
-      PDat.rij = PDat.rij.unitVector() * diameter;
-
-      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat))
+      PDat.rij = PDat.rij.unitVector();
+      
+      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, factor, PDat))
 	{
 	  ++Sim->lNColl;
-
+	  
 	  SDat.L2partChanges.push_back
 	    (Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 	}
@@ -141,6 +140,10 @@ CSDSMCSpheres::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
+  factor = 4.0 * range->size()
+    * diameter * diameter * PI * chi * tstep 
+    / Sim->Dynamics.units().simVolume();
+  
   if (maxprob == 0.0)
     BOOST_FOREACH(const size_t& id1, *range)
       BOOST_FOREACH(const size_t& id2, *range)
@@ -155,18 +158,13 @@ CSDSMCSpheres::initialise(size_t nID)
 	  CPDData PDat;
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    PDat.rij[iDim] = Sim->normal_sampler();
+	    PDat.rij[iDim] = Sim->normal_sampler() * diameter;
 	  
-	  PDat.rij = PDat.rij.unitVector() * diameter;
+	  PDat.rij = PDat.rij.unitVector();
 	  
-	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat);
+	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
+						      factor, PDat);
 	}
-
-  factor = range->size()
-    * diameter * PI * chi * tstep 
-    / Sim->Dynamics.units().simVolume();
-
-  maxprob = 1.0/factor;
 }
 
 void
