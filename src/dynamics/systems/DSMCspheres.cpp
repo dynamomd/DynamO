@@ -92,13 +92,15 @@ CSDSMCSpheres::runEvent() const
     idsampler(Sim->ranGenerator, 
 	      boost::uniform_int<unsigned int>(0, range->size() - 1));
 
-  Iflt intPart;
+  /*Iflt intPart;
   Iflt fracpart = std::modf(factor * maxprob, &intPart);
  
   size_t nmax = static_cast<size_t>(intPart);
 
   if (Sim->uniform_sampler() < fracpart)
-    ++nmax;
+  ++nmax;*/
+
+  size_t nmax = range->size() / 2;
 
   for (size_t n = 0; n < nmax; ++n)
     {
@@ -121,7 +123,8 @@ CSDSMCSpheres::runEvent() const
       PDat.rij = PDat.rij.unitVector() * diameter;
 
       if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat))
-	SDat.L2partChanges.push_back(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	SDat.L2partChanges.push_back
+	  (Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
     }
     
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
@@ -155,11 +158,14 @@ CSDSMCSpheres::initialise(size_t nID)
 	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat);
 	}
 
-  factor = range->size() * range->size() * range->size() * diameter * 2.0 * PI 
-    * chi * tstep / Sim->Dynamics.units().simVolume();
+  factor = range->size()
+    * diameter * PI * chi * tstep 
+    / Sim->Dynamics.units().simVolume();
+
+  maxprob = 1.0/factor;
 }
 
-void 
+void
 CSDSMCSpheres::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"DSMCSpheres"))

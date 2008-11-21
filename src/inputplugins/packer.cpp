@@ -882,7 +882,7 @@ CIPPacker::initialise()
 
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
-	  (new CSDSMCSpheres(Sim, particleDiam, tij*0.01, 
+	  (new CSDSMCSpheres(Sim, particleDiam, tij * 0.1, 
 			     std::sqrt(PI) / (4.0 * vm["density"].as<double>() * tij),
 			     1.0, "Thermostat"));
 

@@ -221,16 +221,14 @@ CLNewton::DSMCSpheresTest(const CParticle& p1,
 
   Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
   pdat.rvdot = pdat.rij % pdat.vij;
-  //pdat.r2 = pdat.rij.square();
-  //pdat.v2 = pdat.vij.square();
   
   if (!std::signbit(pdat.rvdot))
     return false; //Positive rvdot
 
-  if (-pdat.rvdot > maxprob)
-    maxprob = -pdat.rvdot;
+  //if (-pdat.rvdot > maxprob)
+  //maxprob = -pdat.rvdot;
 
-  return ((pdat.rvdot / maxprob)  > Sim->uniform_sampler());
+  return (-pdat.rvdot) > (Sim->uniform_sampler() * maxprob);
 }
 
 C2ParticleData
