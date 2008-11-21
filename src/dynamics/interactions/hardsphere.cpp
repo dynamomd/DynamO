@@ -137,6 +137,8 @@ CIHardSphere::runEvent(const CParticle& p1,
       Sim->ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
       return;
     }
+
+  ++Sim->lNColl;
     
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))

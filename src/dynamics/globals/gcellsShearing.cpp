@@ -126,25 +126,6 @@ CGCellsShearing::init_cells()
 void 
 CGCellsShearing::runEvent(const CParticle& part) const
 {
-  /*
-  CGlobEvent iEvent = ptrScheduler->earliestGlobEvent();
-  
-  if (iEvent.getType() == NONE)
-    D_throw() << "No global collision found\n"
-	      << iEvent.stringData(this);
-  
-#ifdef DYNAMO_DEBUG 
-  if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Global collision time has been found\n"
-	      << iEvent.stringData(this);
-  
-  if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
-	      << iEvent.stringData(this);
-#endif 
-  */
-  --Sim->lNColl;
-
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved

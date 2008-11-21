@@ -155,7 +155,7 @@ CSimulation::runSimulation(bool silentMode)
   if (silentMode)
     try
       {
-	for (; lNColl < lMaxNColl; ++lNColl)
+	for (; lNColl < lMaxNColl;)
 	  ptrScheduler->runNextEvent();
       }
     catch (std::exception &cep)
@@ -168,7 +168,7 @@ CSimulation::runSimulation(bool silentMode)
 	 lPrintLimiter += lNPrint)
       try
 	{
-	  for (; lNColl < lPrintLimiter; ++lNColl)
+	  for (; lNColl < lPrintLimiter; )
 	    ptrScheduler->runNextEvent();
 	  
 	  //Periodic work
