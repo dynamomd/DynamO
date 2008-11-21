@@ -196,6 +196,7 @@ CILines::runEvent(const CParticle& p1,
     {
     case CORE:
       {
+	++Sim->lNColl;
 	//We have a line interaction! Run it
 	C2ParticleData retval(Sim->Dynamics.Liouvillean().runLineLineCollision
 			      (iEvent, length));

@@ -189,6 +189,8 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2) const
       return;
     }
     
+  ++Sim->lNColl;
+
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
     D_throw() << "A NAN Interaction collision time has been found"

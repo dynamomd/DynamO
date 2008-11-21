@@ -192,6 +192,8 @@ CISquareWell::runEvent(const CParticle& p1,
       return;
     }
   
+  ++Sim->lNColl;
+
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
     D_throw() << "A NAN Interaction collision time has been found"

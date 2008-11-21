@@ -123,8 +123,12 @@ CSDSMCSpheres::runEvent() const
       PDat.rij = PDat.rij.unitVector() * diameter;
 
       if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, PDat))
-	SDat.L2partChanges.push_back
-	  (Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	{
+	  ++Sim->lNColl;
+
+	  SDat.L2partChanges.push_back
+	    (Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	}
     }
     
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)

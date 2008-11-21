@@ -64,6 +64,8 @@ CLAndersenWall::getEvent(const CParticle& part) const
 void
 CLAndersenWall::runEvent(const CParticle& part) const
 {
+  ++Sim->lNColl;
+
   CLocalEvent iEvent(getEvent(part));
   
   if (iEvent.getType() == NONE)

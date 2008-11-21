@@ -83,6 +83,7 @@ CSysGhost::stream(Iflt ndt)
 void 
 CSysGhost::runEvent() const
 {
+  ++Sim->lNColl;
   Iflt locdt = dt;
   
 #ifdef DYNAMO_DEBUG 

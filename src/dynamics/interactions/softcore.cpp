@@ -158,6 +158,8 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2) const
       Sim->ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
       return;
     }
+
+  ++Sim->lNColl;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
