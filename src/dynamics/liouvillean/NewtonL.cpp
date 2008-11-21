@@ -214,20 +214,21 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
 bool 
 CLNewton::DSMCSpheresTest(const CParticle& p1, 
 			  const CParticle& p2, 
-			  const Iflt& factor, 
+			  Iflt& maxprob, 
 			  CPDData& pdat) const
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
 
   Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
   pdat.rvdot = pdat.rij % pdat.vij;
-  pdat.r2 = pdat.rij.square();
-  pdat.v2 = pdat.vij.square();
   
   if (!std::signbit(pdat.rvdot))
     return false; //Positive rvdot
 
-  return (factor * pdat.rvdot  > Sim->uniform_sampler());
+  //if (-pdat.rvdot > maxprob)
+  //maxprob = -pdat.rvdot;
+
+  return (-pdat.rvdot) > (Sim->uniform_sampler() * maxprob);
 }
 
 C2ParticleData
