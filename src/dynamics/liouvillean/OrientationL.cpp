@@ -97,7 +97,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
                                     const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const
 {
   long unsigned int iter = 0;
-  Iflt currentPosition = 0, x0 = 0, x1 = 0, x2 = 0, 
+  Iflt currentPosition = windowOpen, x0 = 0, x1 = 0, x2 = 0, 
        upperTimeBracket, lowerTimeBracket, upperValue, 
        lowerValue, midpoint, previousMidpoint, workingValue;
   CVector<> rij, crossProduct;
@@ -105,11 +105,6 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
   
   while(currentPosition < windowClosed)
   {
-    currentPosition = iter * interpolationSize;
-    
-    performRotation(A, interpolationSize);
-    performRotation(B, interpolationSize);
-    
     x0 = x1;
     x1 = x2;
     
@@ -119,7 +114,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
 	  x2 = crossProduct % rij;
     
     // Possible root found in the x1/x2 interval
-    if(std::signbit(x2) != std::signbit(x1) && iter > 0)
+    if(std::signbit(x2) != std::signbit(x1) && iter > 1)
     {
       // Root checking routine here
       rootWorkerA = A;
@@ -162,7 +157,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
       
       if(std::fabs(cp.alpha) < (length/2) && std::fabs(cp.beta) < (length/2))
       {
-        collisionTime = upperTimeBracket;
+        collisionTime = (upperTimeBracket + lowerTimeBracket) / 2.0;
         return true;
       }
     }
@@ -182,6 +177,9 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
     }
     
     iter++;
+    performRotation(A, interpolationSize);
+    performRotation(B, interpolationSize);
+    currentPosition += interpolationSize;
   }
   
   return false;
@@ -233,8 +231,8 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   retVal.rvdot = retVal.rij % retVal.vijold;
   retVal.dP = uPerp * alpha;
   
-  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() -= retVal.dP / mass;
-  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() += retVal.dP / mass;
+  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() += retVal.dP / mass;
+  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() -= retVal.dP / mass;
   
   orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
   orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
