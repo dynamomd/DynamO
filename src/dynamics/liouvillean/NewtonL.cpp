@@ -255,10 +255,13 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
 			    / retVal.rij.square());  
 
+  retVal.calcDeltaKE(mu);
+
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
-  
+
+
   return retVal;
 }
 

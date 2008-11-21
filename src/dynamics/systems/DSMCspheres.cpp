@@ -117,9 +117,9 @@ CSDSMCSpheres::runEvent() const
       CPDData PDat;
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
-	PDat.rij[iDim] = Sim->normal_sampler() * diameter;
+	PDat.rij[iDim] = Sim->normal_sampler();
       
-      PDat.rij = PDat.rij.unitVector();
+      PDat.rij = PDat.rij.unitVector() * diameter;
       
       if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, factor, PDat))
 	{
@@ -141,7 +141,7 @@ CSDSMCSpheres::initialise(size_t nID)
   dt = tstep;
 
   factor = 4.0 * range->size()
-    * diameter * diameter * PI * chi * tstep 
+    * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
   
   if (maxprob == 0.0)
@@ -158,9 +158,9 @@ CSDSMCSpheres::initialise(size_t nID)
 	  CPDData PDat;
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    PDat.rij[iDim] = Sim->normal_sampler() * diameter;
+	    PDat.rij[iDim] = Sim->normal_sampler();
 	  
-	  PDat.rij = PDat.rij.unitVector();
+	  PDat.rij = PDat.rij.unitVector() * diameter;
 	  
 	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
 						      factor, PDat);
