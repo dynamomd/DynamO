@@ -34,7 +34,7 @@ void
 CLSLLOD::streamParticle(CParticle& particle, const Iflt& dt) const
 {
   particle.getPosition() += particle.getVelocity() * dt;
-  particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
+  particle.getVelocity()[0] -= particle.getVelocity()[1] * dt;
 }
 
 bool 
@@ -45,7 +45,7 @@ CLSLLOD::DSMCSpheresTest(const CParticle& p1,
 			 CPDData& pdat) const
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
-  pdat.vij[0] += pdat.rij[1];
+  pdat.vij[0] -= pdat.rij[1];
   pdat.rvdot = pdat.rij % pdat.vij;
   
   if (!std::signbit(pdat.rvdot))

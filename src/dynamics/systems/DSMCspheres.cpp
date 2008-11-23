@@ -88,9 +88,9 @@ CSDSMCSpheres::runEvent() const
   CNParticleData SDat;
 
   boost::variate_generator
-    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
+    <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
     idsampler(Sim->ranGenerator, 
-	      boost::uniform_int<unsigned int>(0, range->size() - 1));
+	      boost::uniform_int<size_t>(0, range->size() - 1));
 
   Iflt intPart;
   Iflt fracpart = std::modf(0.5 * maxprob * range->size(), 

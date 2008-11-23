@@ -154,6 +154,7 @@ CIPPacker::initialise()
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Sets the radial distribution function at contact, MUST BE SPECIFIED"
+	"       --f2 : Inelasticity [1.0]"
 	;
 
       std::cout << "\n";
@@ -919,6 +920,11 @@ CIPPacker::initialise()
 	if (!vm.count("f1"))
 	  D_throw() << "You must set f1 to the mean free time of the fluid";
 
+	double alpha = 1.0;
+
+	if (vm.count("f2"))
+	  alpha = vm["f2"].as<double>();
+
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -946,7 +952,7 @@ CIPPacker::initialise()
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, particleDiam, 0.01, 
-			     vm["f1"].as<double>(), 1.0, 
+			     vm["f1"].as<double>(), alpha, 
 			     "Thermostat"));
 
 	Sim->Dynamics.addSpecies
