@@ -121,7 +121,8 @@ CSDSMCSpheres::runEvent() const
       
       PDat.rij = PDat.rij.unitVector() * diameter;
       
-      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, factor, PDat))
+      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
+	  (p1, p2, maxprob, factor, PDat))
 	{
 	  ++Sim->lNColl;
 	  

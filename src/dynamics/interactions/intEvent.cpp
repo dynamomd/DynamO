@@ -53,6 +53,8 @@ CIntEvent::getCollEnumName(EEventType a)
       return "HALT";
     case STREAM:
       return "STREAM";
+    case DSMC:
+      return "DSMC";
     default:
       D_throw() << "Not a defined collision enumeration";
     }

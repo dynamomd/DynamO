@@ -261,7 +261,6 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
 
-
   return retVal;
 }
 
