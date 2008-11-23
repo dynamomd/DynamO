@@ -119,7 +119,7 @@ CSDSMCSpheres::runEvent() const
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	PDat.rij[iDim] = Sim->normal_sampler();
       
-      PDat.rij = PDat.rij.unitVector() * diameter;
+      PDat.rij *= diameter / PDat.rij.length();
       
       if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
 	  (p1, p2, maxprob, factor, PDat))
@@ -161,7 +161,7 @@ CSDSMCSpheres::initialise(size_t nID)
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    PDat.rij[iDim] = Sim->normal_sampler();
 	  
-	  PDat.rij = PDat.rij.unitVector() * diameter;
+	  PDat.rij *= diameter / PDat.rij.length();
 	  
 	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
 						      factor, PDat);
@@ -191,8 +191,8 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
 
     range.set_ptr(CRange::loadClass(XML,Sim));
 
-    if (XML.isAttributeSet("MaxCollRad"))
-      maxprob = boost::lexical_cast<Iflt>(XML.getAttribute("MaxCollRad"));
+    if (XML.isAttributeSet("MaxProbability"))
+      maxprob = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability"));
 	
   }
   catch (boost::bad_lexical_cast &)
@@ -211,7 +211,7 @@ CSDSMCSpheres::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Inelasticity") << e
       << xmlw::attr("Name") << sysName
-      << xmlw::attr("MaxCollRad") << maxprob
+      << xmlw::attr("MaxProbability") << maxprob
       << range
       << xmlw::endtag("System");
 }
