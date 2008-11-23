@@ -26,6 +26,76 @@
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
 
+CLSLLOD::CLSLLOD(DYNAMO::SimData* tmp):
+  CLiouvillean(tmp)
+{}
+
+void
+CLSLLOD::streamParticle(CParticle& particle, const Iflt& dt) const
+{
+  particle.getPosition() += particle.getVelocity() * dt;
+  particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
+}
+
+bool 
+CLSLLOD::DSMCSpheresTest(const CParticle& p1, 
+			 const CParticle& p2, 
+			 Iflt& maxprob,
+			 const Iflt& factor,
+			 CPDData& pdat) const
+{
+  pdat.vij = p1.getVelocity() - p2.getVelocity();
+  pdat.vij[0] += pdat.rij[1];
+  pdat.rvdot = pdat.rij % pdat.vij;
+  
+  if (!std::signbit(pdat.rvdot))
+    return false; //Positive rvdot
+  
+  Iflt prob = factor * (-pdat.rvdot);
+  
+  if (prob > maxprob)
+    maxprob = prob;
+
+  return prob > Sim->uniform_sampler() * maxprob;
+}
+
+C2ParticleData
+CLSLLOD::DSMCSpheresRun(const CParticle& p1, 
+			 const CParticle& p2, 
+			 const Iflt& e,
+			 CPDData& pdat) const
+{
+  C2ParticleData retVal(p1, p2,
+			Sim->Dynamics.getSpecies(p1),
+			Sim->Dynamics.getSpecies(p2),
+			CORE);
+  
+  retVal.rij = pdat.rij;
+  retVal.rvdot = pdat.rvdot;
+
+  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
+			    / retVal.rij.square());  
+
+  retVal.calcDeltaKE(mu);
+
+  //This function must edit particles so it overrides the const!
+  const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
+
+  return retVal;
+}
+
+void 
+CLSLLOD::outputXML(xmlw::XmlStream& XML) const
+{
+  XML << xmlw::attr("Type") 
+      << "SLLOD";
+}
+
 bool 
 CLSLLOD::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
@@ -48,17 +118,6 @@ C1ParticleData
 CLSLLOD::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 {
   D_throw() << "Not Implemented";
-}
-
-CLSLLOD::CLSLLOD(DYNAMO::SimData* tmp):
-  CLiouvillean(tmp)
-{}
-
-void
-CLSLLOD::streamParticle(CParticle &particle, const Iflt &dt) const
-{
-  particle.getPosition() +=  particle.getVelocity() * dt;
-  particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
 }
 
 Iflt 
@@ -104,62 +163,6 @@ CLSLLOD::getSquareCellCollision3(const CParticle& part,
   D_throw() << "Not Implemented";
 }
 
-bool 
-CLSLLOD::DSMCSpheresTest(const CParticle& p1, 
-			  const CParticle& p2, 
-			  Iflt& maxprob,
-			  const Iflt& factor,
-			  CPDData& pdat) const
-{
-  pdat.vij = p1.getVelocity() - p2.getVelocity();
-
-  pdat.vij[0] += pdat.rij[1];
-
-  //Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
-  pdat.rvdot = pdat.rij % pdat.vij;
-  
-  if (!std::signbit(pdat.rvdot))
-    return false; //Positive rvdot
-
-  Iflt prob = factor * (-pdat.rvdot);
-
-  if (prob > maxprob)
-    maxprob = prob;
-
-  return prob > Sim->uniform_sampler() * maxprob;
-}
-
-C2ParticleData
-CLSLLOD::DSMCSpheresRun(const CParticle& p1, 
-			 const CParticle& p2, 
-			 const Iflt& e,
-			 CPDData& pdat) const
-{
-  C2ParticleData retVal(p1, p2,
-			Sim->Dynamics.getSpecies(p1),
-			Sim->Dynamics.getSpecies(p2),
-			CORE);
-  
-  retVal.rij = pdat.rij;
-  retVal.rvdot = pdat.rvdot;
-
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
-
-  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
-			    / retVal.rij.square());  
-
-  retVal.calcDeltaKE(mu);
-
-  //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
-
-  return retVal;
-}
-
-
 C2ParticleData 
 CLSLLOD::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
@@ -172,11 +175,4 @@ CLSLLOD::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 			 const Iflt &) const
 {
   D_throw() << "Not Implemented";
-}
-
-void 
-CLSLLOD::outputXML(xmlw::XmlStream& XML) const
-{
-  XML << xmlw::attr("Type") 
-      << "SLLOD";
 }

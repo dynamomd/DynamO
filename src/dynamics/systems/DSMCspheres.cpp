@@ -103,17 +103,17 @@ CSDSMCSpheres::runEvent() const
 
   for (size_t n = 0; n < nmax; ++n)
     {
-      const CParticle& p1(Sim->vParticleList[*(range->begin()+idsampler())]);
+      const CParticle& p1(Sim->vParticleList[*(range->begin() + idsampler())]);
       
-      size_t p2id = *(range->begin()+idsampler());
-
+      size_t p2id = *(range->begin() + idsampler());
+      
       while (p2id == p1.getID())
 	p2id = *(range->begin()+idsampler());
       
       const CParticle& p2(Sim->vParticleList[p2id]);
-
+      
       Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-
+      
       CPDData PDat;
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -135,7 +135,7 @@ CSDSMCSpheres::runEvent() const
     Ptr->eventUpdate(*this, SDat, locdt);
 }
 
-void 
+void
 CSDSMCSpheres::initialise(size_t nID)
 {
   ID = nID;
