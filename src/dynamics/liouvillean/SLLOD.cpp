@@ -65,6 +65,8 @@ CLSLLOD::DSMCSpheresRun(const CParticle& p1,
 			 const Iflt& e,
 			 CPDData& pdat) const
 {
+  updateParticlePair(p1, p2);  
+
   C2ParticleData retVal(p1, p2,
 			Sim->Dynamics.getSpecies(p1),
 			Sim->Dynamics.getSpecies(p2),
