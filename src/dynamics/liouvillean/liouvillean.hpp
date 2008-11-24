@@ -365,6 +365,11 @@ public:
       = const_cast<CParticle&>(p1).getPecTime() = -partPecTime;
   }
 
+  inline Iflt getParticleDelay(const CParticle& part) const
+  {
+    return partPecTime + part.getPecTime();
+  }
+
   /*! \brief Called when the system is moved forward in time to update
    * the delayed states state.
    */
