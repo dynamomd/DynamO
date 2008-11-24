@@ -132,9 +132,9 @@ CLNewton::runWallCollision(const CParticle &part,
 
 C1ParticleData 
 CLNewton::runAndersenWallCollision(const CParticle& part, 
-			 const CVector<>& vNorm,
-			 const Iflt& sqrtT
-			 ) const
+				   const CVector<>& vNorm,
+				   const Iflt& sqrtT
+				   ) const
 {  
   updateParticle(part);
 
@@ -268,8 +268,6 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
 C2ParticleData 
 CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, const EEventType& eType) const
 {
-  updateParticlePair(event.getParticle1(), event.getParticle2());
-  
   C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
 			Sim->Dynamics.getSpecies(event.getParticle1()),
 			Sim->Dynamics.getSpecies(event.getParticle2()),
@@ -296,8 +294,6 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, 
 C2ParticleData 
 CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt &) const
 {
-  updateParticlePair(event.getParticle1(), event.getParticle2());
-  
   C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
 			Sim->Dynamics.getSpecies(event.getParticle1()),
 			Sim->Dynamics.getSpecies(event.getParticle2()),

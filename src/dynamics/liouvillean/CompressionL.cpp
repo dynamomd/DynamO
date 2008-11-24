@@ -98,8 +98,6 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
   const CParticle& particle1 = event.getParticle1();
   const CParticle& particle2 = event.getParticle2();
 
-  updateParticlePair(particle1, particle2);
-
   C2ParticleData retVal(particle1, particle2,
 			Sim->Dynamics.getSpecies(particle1),
 			Sim->Dynamics.getSpecies(particle2),
