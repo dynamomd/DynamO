@@ -188,6 +188,8 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
 {
+  updateParticlePair(eevent.getParticle1(), eevent.getParticle2());
+
   C2ParticleData retVal(eevent.getParticle1(), eevent.getParticle2(),
                         Sim->Dynamics.getSpecies(eevent.getParticle1()),
                         Sim->Dynamics.getSpecies(eevent.getParticle2()),

@@ -114,6 +114,7 @@ CILines::getEvent(const CParticle &p1,
   
   //We use wells to mark when to do the line test
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+
   CPDData colldat(*Sim, p1, p2);
   
   if (isCaptured(p1, p2)) 
@@ -205,7 +206,7 @@ CILines::runEvent(const CParticle& p1,
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
-
+	
 	break;
       }
     case WELL_IN:

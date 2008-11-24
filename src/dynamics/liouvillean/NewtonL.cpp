@@ -240,6 +240,8 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
 			 const Iflt& e,
 			 CPDData& pdat) const
 {
+  updateParticlePair(p1, p2);  
+
   C2ParticleData retVal(p1, p2,
 			Sim->Dynamics.getSpecies(p1),
 			Sim->Dynamics.getSpecies(p2),
@@ -268,6 +270,8 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
 C2ParticleData 
 CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, const EEventType& eType) const
 {
+  updateParticlePair(event.getParticle1(), event.getParticle2());
+
   C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
 			Sim->Dynamics.getSpecies(event.getParticle1()),
 			Sim->Dynamics.getSpecies(event.getParticle2()),
@@ -294,6 +298,8 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, 
 C2ParticleData 
 CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt &) const
 {
+  updateParticlePair(event.getParticle1(), event.getParticle2());  
+
   C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
 			Sim->Dynamics.getSpecies(event.getParticle1()),
 			Sim->Dynamics.getSpecies(event.getParticle2()),
