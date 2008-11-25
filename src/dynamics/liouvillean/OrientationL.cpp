@@ -78,14 +78,14 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   interpolationSize = (interpolationSize > PD.dt) ? PD.dt : interpolationSize;
   
   orientationStreamType A, B;
-  
-  A.position = p1.getPosition();
-  A.velocity = p1.getVelocity();
+
+  A.position = PD.rij;
+  A.velocity = PD.vij;
   A.rot.orientation = orientationData[p1.getID()].orientation;
   A.rot.angularVelocity = orientationData[p1.getID()].angularVelocity;
   
-  B.position = p2.getPosition();
-  B.velocity = p2.getVelocity();
+  B.position = CVector<>(0);
+  B.velocity = CVector<>(0);
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
   
