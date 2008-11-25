@@ -139,7 +139,6 @@ function cannon {
 	xml ed -u '/DYNAMOconfig/Simulation/Scheduler/Sorter/@Type' -v "$2" \
 	| bzip2 > tmp.xml.bz2
     
-    cp tmp.xml.bz2 cannon.test.xml.bz2
     rm tmp2.xml.bz2
     
     ../bin/dynarun -c 1000 tmp.xml.bz2 &> run.log
@@ -147,7 +146,40 @@ function cannon {
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 | \
 	    xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') != "3" ]; then
-	    echo "In $1 cannon test, the mean free time is wrong"
+	    echo "$1 Cannon -: FAILED"
+	    exit 1
+	else
+	    echo "$1 Cannon -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in $1 cannon test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
+}
+
+function linescannon {
+    #collision cannon test
+    bzcat config.lines-cannon.xml.bz2 | \
+	xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	| bzip2 > tmp2.xml.bz2
+
+    bzcat config.lines-cannon.xml.bz2 | \
+	xml ed -u '/DYNAMOconfig/Simulation/Scheduler/Sorter/@Type' -v "$2" \
+	| bzip2 > tmp.xml.bz2
+    
+    rm tmp2.xml.bz2
+    
+    ../bin/dynarun -c 10 tmp.xml.bz2 &> run.log
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | xml sel -t -v '/OutputData/Misc/SimLength/@Time' \
+	    | gawk '{printf "%.0f",$1}') != "40" ]; then
+	    echo "$1 Lines Cannon -: FAILED"
+	    exit 1
 	else
 	    echo "$1 Cannon -: PASSED"
 	fi
@@ -176,16 +208,23 @@ echo "Testing local events (walls) and square wells"
 wallsw "NeighbourList"
 
 echo ""
+echo "INTERACTIONS"
+echo "Testing Lines, NeighbourLists and BoundedPQ's"
+linescannon "NeighbourList" "BoundedPQ"
+
+
+echo ""
 echo "ENGINE TESTING"
 echo "Testing local events (walls) and square wells with a " \
     "Null compression"
 wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
 echo "Testing compression of hard spheres"
 HS_compressiontest "NeighbourList"
-echo "Testing replica exchange of hard spheres"
-HS_replex_test "NeighbourList"
 
-echo ""
-echo "THREADING TESTING"
-echo "Testing replica exchange with 2 threads"
-HS_replex_test "NeighbourList" "-N2"
+#echo "Testing replica exchange of hard spheres"
+#HS_replex_test "NeighbourList"
+#
+#echo ""
+#echo "THREADING TESTING"
+#echo "Testing replica exchange with 2 threads"
+#HS_replex_test "NeighbourList" "-N2"
