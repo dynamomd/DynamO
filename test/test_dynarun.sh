@@ -181,7 +181,7 @@ function linescannon {
 	    echo "$1 Lines Cannon -: FAILED"
 	    exit 1
 	else
-	    echo "$1 Cannon -: PASSED"
+	    echo "$1 Lines Cannon -: PASSED"
 	fi
     else
 	echo "Error, no output.0.xml.bz2 in $1 cannon test"
@@ -190,6 +190,34 @@ function linescannon {
     
 #Cleanup
     rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
+}
+
+function ThermostatTest {
+    #Testing the Andersen thermostat holds the right temperature
+    > run.log
+
+    ../bin/dynamod -m 0 -r 0.1 -T 1.0 -o tmp.xml.bz2 &> run.log    
+    ../bin/dynarun -c 100000 tmp.xml.bz2 >> run.log 2>&1
+    ../bin/dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+    ../bin/dynarun -c 500000 config.out.xml.bz2 -L KEnergy >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | xml sel -t -v '/OutputData/KEnergy/T/@val' \
+	    | gawk '{printf "%.1f",$1}') != "1.0" ]; then
+	    echo "Thermostat -: FAILED"
+	    exit 1
+	else
+	    echo "Thermostat -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in $1 cannon test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
 }
 
 echo "SCHEDULER AND SORTER TESTING"
@@ -201,6 +229,11 @@ echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neigh
 cannon "NeighbourList" "CBT"
 echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
 cannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "SYSTEM EVENTS"
+echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
+ThermostatTest
 
 echo ""
 echo "LOCAL EVENTS"
