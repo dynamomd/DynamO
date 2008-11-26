@@ -27,6 +27,7 @@
 #include "../base/is_simdata.hpp"
 #include "NparticleEventData.hpp"
 #include "systems/sysTicker.hpp"
+#include "../schedulers/scheduler.hpp"
 
 CDynamics::CDynamics(DYNAMO::SimData* tmp): 
   SimBase(tmp,"CDynamics",IC_purple),
@@ -287,6 +288,8 @@ CDynamics::addSystemLate(CSystem* newSystem)
   systems.push_back(tempPlug); 
 
   systems.back()->initialise(systems.size()-1);
+
+  Sim->ptrScheduler->rebuildSystemEvents();
 }
 
 void
@@ -311,7 +314,7 @@ CDynamics::addSystemTicker()
   if (Sim->status >= INITIALISED)
     addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
   else
-    addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
+    addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
 
 void 

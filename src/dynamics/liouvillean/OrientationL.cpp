@@ -42,6 +42,16 @@ CLNOrientation::operator<<(const XMLNode& XML)
       
       orientationData[i].orientation << xBrowseNode.getChildNode("U");
       orientationData[i].angularVelocity << xBrowseNode.getChildNode("O");
+      
+      Iflt oL = orientationData[i].orientation.length();
+
+      if (!(oL > 0.0))
+	D_throw() << "Particle ID " << i 
+		  << " orientation vector is zero!";
+
+      //Makes the vector a unit vector
+      orientationData[i].orientation /= oL;
+      
       ++prog;
     }
 }
