@@ -98,6 +98,9 @@ CSDSMCSpheres::runEvent() const
  
   size_t nmax = static_cast<size_t>(intPart);
 
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+
   if (Sim->uniform_sampler() < fracpart)
     ++nmax;
 
@@ -126,13 +129,13 @@ CSDSMCSpheres::runEvent() const
 	{
 	  ++Sim->lNColl;
 	  
-	  SDat.L2partChanges.push_back
-	    (Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	  const C2ParticleData
+	    SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+
+	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	    Ptr->eventUpdate(*this, SDat, 0.0);
 	}
     }
-    
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, SDat, locdt);
 }
 
 void
@@ -166,6 +169,12 @@ CSDSMCSpheres::initialise(size_t nID)
 	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
 						      factor, PDat);
 	}
+
+  if (maxprob > 0.5)
+      I_cerr() << "MaxProbability is " << maxprob;
+  else
+    I_cout() << "MaxProbability is " << maxprob;
+
 }
 
 void
