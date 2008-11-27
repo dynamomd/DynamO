@@ -150,7 +150,6 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  10: Monocomponent hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Sets the mean free time, MUST BE SPECIFIED\n"
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Sets the radial distribution function at contact, MUST BE SPECIFIED"
@@ -854,11 +853,6 @@ CIPPacker::initialise()
 	else
 	  Sim->Dynamics.setPBC<CSPBC>();
 
-	if (!vm.count("f1"))
-	  D_throw() << "You must set f1 to the mean free time of the fluid";
-	
-	Iflt tij = vm["f1"].as<double>();
-
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -883,12 +877,20 @@ CIPPacker::initialise()
 	  (new CIHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
-	Iflt chi = 1.0 / 
-	  (4.0 * tij * vm["density"].as<double>() * std::sqrt(PI)); 
+	//Iflt chi = 1.0 / 
+	//(4.0 * tij * vm["density"].as<double>() * std::sqrt(PI)); 
+
+	Iflt packfrac = vm["density"].as<double>() * PI / 6.0;
+
+	Iflt chi = (1.0 - 0.5 * packfrac)
+	  / std::pow(1.0 - packfrac, 3);
+
+	Iflt tij = 1.0 
+	  / (4.0 * std::sqrt(PI) * vm["density"].as<double>() * chi);
 
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
-	  (new CSDSMCSpheres(Sim, particleDiam, tij * 0.1, chi, 1.0, 
+	  (new CSDSMCSpheres(Sim, particleDiam, 2.0 * tij / latticeSites.size(), chi, 1.0, 
 			     "Thermostat"));
 
 	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
