@@ -122,8 +122,10 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
   
   
   size_t initialsum(0);
-  BOOST_FOREACH(const size_t& n, initialCounter)
-    initialsum += n;
+  
+  typedef std::pair<eventKey,size_t> npair;
+  BOOST_FOREACH(const npair& n, initialCounter)
+    initialsum += n.second;
   
   BOOST_FOREACH(const locPair& ele, counters)
     {
@@ -156,9 +158,9 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	<< xmlw::attr("Name") << getName(mp1.first.first, Sim)
 	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
 	<< xmlw::attr("Percent") 
-	<< 100.0 * (((Iflt) mp1.second.first)+((Iflt) initialCounter[mp1.first.first])) 
+	<< 100.0 * (((Iflt) mp1.second.first)+((Iflt) initialCounter[mp1.first])) 
     / (((Iflt) totalCount) + ((Iflt) initialsum))
-	<< xmlw::attr("Count") << mp1.second.first + initialCounter[mp1.first.first]
+	<< xmlw::attr("Count") << mp1.second.first + initialCounter[mp1.first]
 	<< xmlw::endtag("TotCount");
   
   XML << xmlw::endtag("Totals")

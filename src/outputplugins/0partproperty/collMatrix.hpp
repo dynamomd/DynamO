@@ -58,8 +58,9 @@ public:
   
   struct counterData
   {
-    counterData():count(0),totalTime(0) {}
+    counterData():count(0), initialCount(0), totalTime(0) {}
     unsigned long count;
+    size_t initialCount;
     Iflt totalTime;
   };
   
@@ -71,6 +72,8 @@ public:
   
   std::map<counterKey, counterData> counters;
   
+  std::map<eventKey, size_t> initialCounter;
+
   typedef std::pair<Iflt, eventKey> lastEventData;
 
   std::vector<lastEventData> lastEvent; 
