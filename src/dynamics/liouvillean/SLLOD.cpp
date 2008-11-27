@@ -33,8 +33,7 @@ CLSLLOD::CLSLLOD(DYNAMO::SimData* tmp):
 void
 CLSLLOD::streamParticle(CParticle& particle, const Iflt& dt) const
 {
-  particle.getPosition() += particle.getVelocity() * dt;
-  particle.getVelocity()[0] -= particle.getVelocity()[1] * dt;
+  particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
 }
 
 bool 
