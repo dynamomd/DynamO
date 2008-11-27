@@ -171,13 +171,14 @@ CSDSMCSpheres::initialise(size_t nID)
 	}
 
   if (maxprob > 0.5)
-      I_cerr() << "MaxProbability is " << maxprob;
+      I_cerr() << "MaxProbability is " << maxprob
+	       << "\nNpairs per step is " << 0.5 * range->size() * maxprob;
   else
-    I_cout() << "MaxProbability is " << maxprob;
+    I_cout() << "MaxProbability is " << maxprob
+	     << "\nNpairs per step is " << 0.5 * range->size() * maxprob;
 
   if (range->size() * maxprob < 2.0)
-    I_cerr() << "This probability is low, only " << range->size() * maxprob
-	     << " pairs will be tested per time interval";
+    I_cerr() << "This probability is low";
 }
 
 void
