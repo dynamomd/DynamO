@@ -175,6 +175,9 @@ CSDSMCSpheres::initialise(size_t nID)
   else
     I_cout() << "MaxProbability is " << maxprob;
 
+  if (range->size() * maxprob < 2.0)
+    I_cerr() << "This probability is low, only " << range->size() * maxprob
+	     << " pairs will be tested per time interval";
 }
 
 void
