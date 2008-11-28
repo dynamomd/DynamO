@@ -863,7 +863,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
 	
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSDumb(Sim, new CSSCBT(Sim));
+	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
@@ -889,7 +889,8 @@ CIPPacker::initialise()
 
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
-	  (new CSDSMCSpheres(Sim, particleDiam, 2.0 * tij / latticeSites.size(), chi, 1.0, 
+	  (new CSDSMCSpheres(Sim, particleDiam, 
+			     2.0 * tij / latticeSites.size(), chi, 1.0, 
 			     "Thermostat"));
 
 	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -934,7 +935,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
 	
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSDumb(Sim, new CSSCBT(Sim));
+	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 	
 	Sim->Dynamics.setLiouvillean(new CLSLLOD(Sim));
 	

@@ -39,9 +39,11 @@ CScheduler*
 CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-    return new CSNeighbourList(XML,Sim);
+    return new CSNeighbourList(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
-    return new CSDumb(XML,Sim);
+    return new CSDumb(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
+    return new CSSystemOnly(XML, Sim);
   else 
     D_throw() << "Unknown type of Scheduler encountered";
 }

@@ -15,7 +15,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//A list of all available schedulers
-#include "neighbourlist.hpp"
-#include "dumbsched.hpp"
-#include "systemonly.hpp"
+#ifndef CSSystemOnly_H
+#define CSSystemOnly_H
+
+#include "scheduler.hpp"
+
+class CSSystemOnly: public CScheduler
+{
+public:
+  CSSystemOnly(const XMLNode&, const DYNAMO::SimData*);
+
+  CSSystemOnly(const DYNAMO::SimData*, CSSorter*);
+
+  virtual void rebuildList() { initialise(); }
+
+  virtual void initialise();
+
+  virtual void addEvents(const CParticle&);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+};
+
+#endif
