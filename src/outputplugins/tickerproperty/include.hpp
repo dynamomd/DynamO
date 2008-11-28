@@ -30,3 +30,4 @@
 #include "velprof.hpp"
 #include "vtk.hpp"
 #include "msdcorrelator.hpp"
+#include "kenergyticker.hpp"
