@@ -80,7 +80,6 @@ COPViscosityCollisionalE::operator<<(const XMLNode& XML)
 void 
 COPViscosityCollisionalE::initialise()
 {
-  Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
   
   if (dt == 0.0)
@@ -202,12 +201,11 @@ COPViscosityCollisionalE::output(xmlw::XmlStream &XML)
     / (Sim->Dynamics.units().unitTime() 
        //This line should be 1 however we have scaled the correlator time as well
        * Sim->Dynamics.units().unitViscosity() * 2.0 
-       * Sim->getOutputPlugin<COPKEnergy>()->getAvgkT() 
        //Count has been taken out due to the extra averaging of the constant piece 
        * Sim->Dynamics.units().simVolume());
   
   XML << xmlw::tag("EinsteinCorrelator")
-      << xmlw::attr("name") << name
+      << xmlw::attr("name") << "ViscosityTimesT"
       << xmlw::attr("size") << accG2.size()
       << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<COPMisc>())->getMFT()
@@ -263,10 +261,6 @@ COPViscosityCollisionalE::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("PressureVals")
       << xmlw::attr("AvgPressure")
       << AvgPressure / (NDIM * Sim->Dynamics.units().unitPressure())
-    //Needs to use the KEnergy plugin
-    /*      << xmlw::attr("AvgZ")
-	    << AvgPressure * Sim->Dynamics.units().simVolume() 
-	    / (NDI0M * Sim->lN * getkT())*/
       << xmlw::endtag("PressureVals");
   
   XML << xmlw::chardata();
