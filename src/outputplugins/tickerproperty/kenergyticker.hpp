@@ -25,6 +25,9 @@ class COPKEnergyTicker: public COPTicker
  public:
   COPKEnergyTicker(const DYNAMO::SimData*, const XMLNode&);
 
+  typedef boost::array<Iflt, NDIM> col;
+  typedef boost::array<col, NDIM> matrix;
+
   virtual COutputPlugin *Clone() const
   { return new COPKEnergyTicker(*this); }
 
@@ -42,5 +45,5 @@ class COPKEnergyTicker: public COPTicker
 
 protected:
   size_t count;
-  CVector<> sum;
+  matrix sum;
 };

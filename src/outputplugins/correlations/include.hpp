@@ -16,6 +16,7 @@
 */
 #include "vacf.hpp"
 #include "viscosityE.hpp"
+#include "viscosityCollisionalE.hpp"
 #include "thermalCondE.hpp"
 #include "mutualdiffGK.hpp"
 #include "mutualdiffE.hpp"

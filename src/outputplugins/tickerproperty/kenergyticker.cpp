@@ -23,8 +23,7 @@
 COPKEnergyTicker::COPKEnergyTicker(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
   COPTicker(tmp,"KEnergyTicker"),
-  count(0),
-  sum(0.0)
+  count(0)
 { operator<<(XML); }
 
 void 
@@ -33,21 +32,33 @@ COPKEnergyTicker::operator<<(const XMLNode& XML)
 
 void 
 COPKEnergyTicker::initialise()
-{}
+{
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    for (size_t jDim = 0; jDim < NDIM; ++jDim)
+      sum[iDim][jDim] = 0.0;
+}
 
 void 
 COPKEnergyTicker::ticker()
 {
   ++count;
 
-  CVector<> localE(0);
+  matrix localE;
+
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    for (size_t jDim = 0; jDim < NDIM; ++jDim)
+      localE[iDim][jDim] = 0.0;
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    localE += part.getVelocity() * part.getVelocity() 
-    * Sim->Dynamics.getSpecies(part).getMass();
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
+	  * Sim->Dynamics.getSpecies(part).getMass();
 
   //Try and stop round off error this way
-  sum += localE;
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	sum[iDim][jDim] += localE[iDim][jDim];
 }
 
 void
@@ -56,21 +67,33 @@ COPKEnergyTicker::output(xmlw::XmlStream& XML)
   Iflt sumComp(0);
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    sumComp += sum[iDim];
+    sumComp += sum[iDim][iDim];
 
   XML << xmlw::tag("KEnergyTicker")
       << xmlw::attr("T")
       << sumComp / (((Iflt) count) * ((Iflt)NDIM) * Sim->lN * Sim->Dynamics.units().unitEnergy());
   
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
+
+  XML << xmlw::tag("KineticTensor");
+ 
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
-      std::string tagname(std::string("d") + boost::lexical_cast<std::string>(iDim));
+      std::string name = std::string("d") + boost::lexical_cast<std::string>(iDim);
       
-      XML << xmlw::tag(tagname.c_str())
-	  << xmlw::attr("val") 
-	  << sum[iDim] / (((Iflt) count) * Sim->lN * Sim->Dynamics.units().unitEnergy())
-	  << xmlw::endtag(tagname.c_str());
+      XML << xmlw::tag(name.c_str());
+
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	{
+	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
+	  XML << xmlw::attr(name.c_str())
+	      << sum[iDim][jDim] / (((Iflt) count) * Sim->lN 				    
+				    * Sim->Dynamics.units().unitEnergy());;
+	}
+      
+      XML << xmlw::endtag(name.c_str());
     }
+  
+  XML << xmlw::endtag("KineticPressure");
 
   XML << xmlw::endtag("KEnergyTicker");
 }
@@ -81,7 +104,7 @@ COPKEnergyTicker::periodicOutput()
   Iflt sumComp(0);
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    sumComp += sum[iDim];
+    sumComp += sum[iDim][iDim];
 
   sumComp /= ((Iflt) count) * ((Iflt)NDIM) * Sim->lN 
     * Sim->Dynamics.units().unitEnergy();
