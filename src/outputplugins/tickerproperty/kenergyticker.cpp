@@ -93,7 +93,7 @@ COPKEnergyTicker::output(xmlw::XmlStream& XML)
       XML << xmlw::endtag(name.c_str());
     }
   
-  XML << xmlw::endtag("KineticPressure");
+  XML << xmlw::endtag("KineticTensor");
 
   XML << xmlw::endtag("KEnergyTicker");
 }
