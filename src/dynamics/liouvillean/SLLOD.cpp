@@ -71,6 +71,8 @@ CLSLLOD::DSMCSpheresRun(const CParticle& p1,
 			Sim->Dynamics.getSpecies(p2),
 			CORE);
   
+  retVal.vijold = pdat.vij;
+
   retVal.rij = pdat.rij;
   retVal.rvdot = pdat.rvdot;
 
