@@ -289,7 +289,9 @@ CDynamics::addSystemLate(CSystem* newSystem)
 
   systems.back()->initialise(systems.size()-1);
 
-  Sim->ptrScheduler->rebuildSystemEvents();
+  //Scheduler is only initialised if there are collisions to run
+  if (Sim->lMaxNColl)
+    Sim->ptrScheduler->rebuildSystemEvents();
 }
 
 void
