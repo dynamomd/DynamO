@@ -39,6 +39,7 @@
 #include "../dynamics/topology/include.hpp"
 #include "../base/is_ensemble.hpp"
 #include "../dynamics/locals/include.hpp"
+#include "../dynamics/systems/DSMCspheres.hpp"
 
 CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp): 
   SimBase(tmp,"SysPacker", IC_blue),
@@ -145,8 +146,13 @@ CIPPacker::initialise()
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 	"       --f2 : Mass Ratio (B/A) [0.001]\n"
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
-	"  9: Monocomponent hard spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"  9: Crystal pack of lines\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"  10: Monocomponent hard spheres using DSMC interactions\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --f1 : Inelasticity [1.0]"
 	;
 
       std::cout << "\n";
@@ -831,7 +837,140 @@ CIPPacker::initialise()
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
- default:
+    case 10:
+      {
+	//Pack of DSMC hard spheres
+	//Pack the system, determine the number of particles
+	std::vector<CVector<> > 
+	  latticeSites(standardPackingHelper(new CUParticle()));
+      	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				  / latticeSites.size(), 1.0 / 3.0);
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
+	
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	
+	//This is to stop interactions being used for these particles
+	Sim->Dynamics.addInteraction
+	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+
+	//This is to provide data on the particles
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere
+	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+
+	//Iflt chi = 1.0 / 
+	//(4.0 * tij * vm["density"].as<double>() * std::sqrt(PI)); 
+
+	Iflt packfrac = vm["density"].as<double>() * PI / 6.0;
+
+	Iflt chi = (1.0 - 0.5 * packfrac)
+	  / std::pow(1.0 - packfrac, 3);
+
+	Iflt tij = 1.0 
+	  / (4.0 * std::sqrt(PI) * vm["density"].as<double>() * chi);
+
+	//No thermostat added yet
+	Sim->Dynamics.addSystem
+	  (new CSDSMCSpheres(Sim, particleDiam, 
+			     2.0 * tij / latticeSites.size(), chi, 1.0, 
+			     "Thermostat"));
+
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					  "Bulk"));
+	      
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 11:
+      {
+	//Pack of DSMC hard spheres
+	//Pack the system, determine the number of particles
+	std::vector<CVector<> > 
+	  latticeSites(standardPackingHelper(new CUParticle()));
+      	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	double alpha = 1.0;
+
+	if (vm.count("f1"))
+	  alpha = vm["f1"].as<double>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				  / latticeSites.size(), 1.0 / 3.0);
+
+	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
+	
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
+	
+	Sim->Dynamics.setLiouvillean(new CLSLLOD(Sim));
+	
+	//This is to stop interactions being used for these particles
+	Sim->Dynamics.addInteraction
+	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+
+	//This is to provide data on the particles
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere
+	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+
+	Iflt packfrac = vm["density"].as<double>() * PI / 6.0;
+
+	Iflt chi = (1.0 - 0.5 * packfrac)
+	  / std::pow(1.0 - packfrac, 3);
+
+	//No thermostat added yet
+	Sim->Dynamics.addSystem
+	  (new CSDSMCSpheres(Sim, particleDiam, 0.001, 
+			     chi, alpha, 
+			     "Thermostat"));
+
+	Sim->Dynamics.addSpecies
+	  (CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+	
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    default:
       D_throw() << "Did not recognise the packer mode you wanted";
     }
 }

@@ -72,7 +72,8 @@ COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
-      mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))];
+      mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), 
+				     getClassKey(sysEvent))];
       
       ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
 
@@ -103,7 +104,6 @@ COPRdotV::output(xmlw::XmlStream &XML)
       
       XML << xmlw::endtag("Element");
     }
-  
-  
+
     XML << xmlw::endtag("RdotV");
 }

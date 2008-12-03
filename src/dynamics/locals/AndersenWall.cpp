@@ -32,16 +32,17 @@
 #include "../../simulation/particle.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
+#include "../../schedulers/scheduler.hpp"
 #include <cmath>
 
-CLAndersenWall::CLAndersenWall(const XMLNode& XML, const DYNAMO::SimData* ptrSim):
+CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):
   CLocal(ptrSim, "GlobalAndersenWall"),
   sqrtT(1.0)
 {
   operator<<(XML);
 }
 
-CLAndersenWall::CLAndersenWall(const DYNAMO::SimData* nSim, Iflt nsqrtT,
+CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
 			       CVector<> nnorm, CVector<> norigin, 
 			       std::string nname, CRange* nRange):
   CLocal(nRange, nSim, "AndersenWall"),
@@ -60,12 +61,43 @@ CLAndersenWall::getEvent(const CParticle& part) const
   return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
 }
 
-CNParticleData
-CLAndersenWall::runEvent(const CLocalEvent& event) const
+void
+CLAndersenWall::runEvent(const CParticle& part) const
 {
-  return CNParticleData
+  ++Sim->lNColl;
+
+  CLocalEvent iEvent(getEvent(part));
+  
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(Sim);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+  
+  Sim->dSysTime += iEvent.getdt();
+  
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(iEvent.getdt());
+    
+  CNParticleData EDat
     (Sim->Dynamics.Liouvillean().runAndersenWallCollision
-     (event.getParticle(), vNorm, sqrtT));
+     (part, vNorm, sqrtT));
+
+  Sim->ptrScheduler->fullUpdate(part);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
+
 }
 
 bool 

@@ -23,9 +23,9 @@
 class CILines: public CICapture
 {
 public:
-  CILines(const DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  CILines(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CILines(const XMLNode&, const DYNAMO::SimData*);
+  CILines(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
@@ -41,9 +41,9 @@ public:
 
   virtual CInteraction* Clone() const;
   
-  virtual CIntEvent getCollision(const CParticle&, const CParticle&) const;
+  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
  
-  virtual C2ParticleData runCollision(const CIntEvent&) const;
+  virtual void runEvent(const CParticle&, const CParticle&) const;
    
   virtual void outputXML(xmlw::XmlStream&) const;
 

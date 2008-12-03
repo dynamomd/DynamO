@@ -18,3 +18,4 @@
 //A list of all available schedulers
 #include "neighbourlist.hpp"
 #include "dumbsched.hpp"
+#include "systemonly.hpp"

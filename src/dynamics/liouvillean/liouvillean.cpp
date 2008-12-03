@@ -36,6 +36,8 @@ CLiouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
     return new CLNewton(tmp);
   else if (!strcmp(XML.getAttribute("Type"),"NOrientation"))
     return new CLNOrientation(tmp, XML);
+  else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
+    return new CLSLLOD(tmp);
   else 
     D_throw() << "Unknown type of Liouvillean encountered";
 }

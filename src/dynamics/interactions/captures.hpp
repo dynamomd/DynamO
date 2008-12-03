@@ -25,7 +25,7 @@
 class CICapture: public CInteraction
 {
 public:
-  CICapture(const DYNAMO::SimData*,C2Range*);
+  CICapture(DYNAMO::SimData*, C2Range*);
 
   size_t getTotalCaptureCount() const;
 

@@ -27,6 +27,7 @@
 #include "../base/is_simdata.hpp"
 #include "NparticleEventData.hpp"
 #include "systems/sysTicker.hpp"
+#include "../schedulers/scheduler.hpp"
 
 CDynamics::CDynamics(DYNAMO::SimData* tmp): 
   SimBase(tmp,"CDynamics",IC_purple),
@@ -287,6 +288,10 @@ CDynamics::addSystemLate(CSystem* newSystem)
   systems.push_back(tempPlug); 
 
   systems.back()->initialise(systems.size()-1);
+
+  //Scheduler is only initialised if there are collisions to run
+  if (Sim->lMaxNColl)
+    Sim->ptrScheduler->rebuildSystemEvents();
 }
 
 void
@@ -311,7 +316,7 @@ CDynamics::addSystemTicker()
   if (Sim->status >= INITIALISED)
     addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
   else
-    addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
+    addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
 
 void 
@@ -406,24 +411,6 @@ CDynamics::getInteraction(const CParticle& p1, const CParticle& p2) const
       return ptr;
   
   D_throw() << "Could not find the interaction requested";
-}
-
-C2ParticleData
-CDynamics::runEvent(const CIntEvent &coll)
-{
-  return coll.getInteraction().runCollision(coll);
-}
-
-CNParticleData
-CDynamics::runEvent(const CGlobEvent &coll)
-{
-  return globals[coll.getGlobalID()]->runEvent(coll);
-}
-
-CNParticleData
-CDynamics::runEvent(const CLocalEvent &coll)
-{
-  return locals[coll.getLocalID()]->runEvent(coll);
 }
 
 CDynamics::CDynamics(const CDynamics &dyn):

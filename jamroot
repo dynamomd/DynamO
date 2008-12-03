@@ -3,6 +3,8 @@ using gcc ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
+import type ;
+
 project
 	: requirements <variant>debug:<define>DYNAMO_DEBUG 
 	  <define>DYNAMO_double_precsision 
@@ -14,9 +16,29 @@ project
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
+	  <tag>@naming
 	: default-build release
 	: build-dir build-dir
 	;
+
+rule naming ( name : type ? : property-set )
+{
+  local result = ;
+
+  if [ type.is-derived $(type) EXE ]
+  {  
+     switch [ $(property-set).get <variant> ]
+     {
+     case debug : result += $(name)_d ;
+     case cachegrind : result += $(name)_cg ;
+     case profile : result += $(name)_p ;
+     case * : result += $(name) ;
+     }
+  }
+
+  #This joins all list elements with no seperator
+  return $(result:J=) ;
+}
 
 variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
 	<profiling>off ;
@@ -24,22 +46,12 @@ variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
 
 exe dynareplex_opt 
-    : programs/replex_opt.cpp boost//program_options
-    : 
-    ;
-
-exe dynareplex_opt_d
-    : programs/replex_opt.cpp boost//program_options
-    : 
+    : programs/replex_opt.cpp boost//program_options 
+    :
     ;
 
 exe dynahist_rw 
     : programs/hist_rw.cpp src//dynamo_core/<link>static
-    :
-    ;
-
-exe dynahist_rw_d
-    : programs/hist_rw.cpp src//dynamo_core_d/<link>static
     :
     ;
 
@@ -48,39 +60,19 @@ exe dynarun
     : 
     ;
 
-exe dynarun_d
-    : programs/mdrun.cpp src//dynamo_core_d/<link>static
-    : 
-    ;
-
 exe dynamod 
     : programs/configmod.cpp src//dynamo_core/<link>static
     : 
     ;
 
-exe dynamod_d
-    : programs/configmod.cpp src//dynamo_core_d/<link>static
-    : 
-    ;
-
 install install-bin 
 	: dynareplex_opt dynahist_rw dynarun dynamod 
-	: <location>bin <variant>release
-	;
-
-install install-bin 
-	: dynareplex_opt_d dynahist_rw_d dynarun_d dynamod_d 
-	: <location>bin <variant>debug
+	: <location>bin
 	;
 	
 install install-lib 
 	: src//dynamo_core 
-	: <location>lib <variant>release
-	;
-
-install install-lib 
-	: src//dynamo_core_d
-	: <location>lib <variant>debug
+	: <location>lib
 	;
 
 alias install : install-bin install-lib ;

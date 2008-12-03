@@ -24,13 +24,13 @@
 #include "../ranges/1RAll.hpp"
 
 
-CGlobal::CGlobal(const DYNAMO::SimData* tmp, const char *name):
-  SimBase_const(tmp,name, IC_blue),
+CGlobal::CGlobal(DYNAMO::SimData* tmp, const char *name):
+  SimBase(tmp,name, IC_blue),
   range(new CRAll(tmp))
 {}
 
-CGlobal::CGlobal(CRange* nR, const DYNAMO::SimData* tmp, const char *name):
-  SimBase_const(tmp, name, IC_blue),
+CGlobal::CGlobal(CRange* nR, DYNAMO::SimData* tmp, const char *name):
+  SimBase(tmp, name, IC_blue),
   range(nR)
 {}
 
@@ -48,7 +48,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 }
 
 CGlobal* 
-CGlobal::getClass(const XMLNode &XML, const DYNAMO::SimData* Sim)
+CGlobal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Cells"))
     return new CGCells(XML, Sim);

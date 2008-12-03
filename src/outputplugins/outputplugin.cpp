@@ -163,6 +163,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPVACF>(Sim,XML);
   else if (!Name.compare("ViscosityE"))
     return testGeneratePlugin<COPViscosityE>(Sim, XML);
+  else if (!Name.compare("ViscosityCollisionalE"))
+    return testGeneratePlugin<COPViscosityCollisionalE>(Sim, XML);
   else if (!Name.compare("ThermalConductivityE"))
     return testGeneratePlugin<COPThermalConductivityE>(Sim, XML);
   else if (!Name.compare("MutualDiffusionGK"))
@@ -191,6 +193,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPMSDCorrelator>(Sim, XML);
   else if (!Name.compare("RijVijComponents"))
     return testGeneratePlugin<COPRijVij>(Sim, XML);
+  else if (!Name.compare("KEnergyTicker"))
+    return testGeneratePlugin<COPKEnergyTicker>(Sim, XML);
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

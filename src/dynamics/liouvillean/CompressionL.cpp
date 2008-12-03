@@ -95,10 +95,10 @@ CLCompression::streamParticle(CParticle &particle, const Iflt &dt) const
 C2ParticleData 
 CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
 {
+  updateParticlePair(event.getParticle1(), event.getParticle2());  
+
   const CParticle& particle1 = event.getParticle1();
   const CParticle& particle2 = event.getParticle2();
-
-  updateParticlePair(particle1, particle2);
 
   C2ParticleData retVal(particle1, particle2,
 			Sim->Dynamics.getSpecies(particle1),

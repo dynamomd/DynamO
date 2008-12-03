@@ -15,27 +15,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPViscosityE_H
-#define COPViscosityE_H
+#ifndef COPViscosityCollisionalE_H
+#define COPViscosityCollisionalE_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
 
 /*! \brief The Correlator class for the viscosity.*/
-class COPViscosityE: public COutputPlugin
+class COPViscosityCollisionalE: public COutputPlugin
 {
   typedef boost::array<Iflt, NDIM> col;
   typedef boost::array<col, NDIM> matrix;
   
 public:
-  COPViscosityE(const DYNAMO::SimData*, const XMLNode& XML);
+  COPViscosityCollisionalE(const DYNAMO::SimData*, const XMLNode& XML);
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream &);
   
-  virtual COutputPlugin* Clone() const { return new COPViscosityE(*this); }
+  virtual COutputPlugin* Clone() const { return new COPViscosityCollisionalE(*this); }
   
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
 
@@ -53,10 +53,6 @@ protected:
   void impulseDelG(const C2ParticleData&);
   void impulseDelG(const CNParticleData&);
 
-  void updateConstDelG(const C2ParticleData&);
-  void updateConstDelG(const C1ParticleData&);
-  void updateConstDelG(const CNParticleData&);
-  
   void newG(const matrix&);
   void accPass();
 
@@ -64,7 +60,7 @@ protected:
 
   size_t count;
   Iflt dt, currentdt;
-  matrix constDelG, delG;
+  matrix delG;
 
   size_t currlen;
   bool notReady;

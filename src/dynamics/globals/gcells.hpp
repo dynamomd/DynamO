@@ -26,9 +26,9 @@
 class CGCells: public CGNeighbourList
 {
 public:
-  CGCells(const XMLNode&, const DYNAMO::SimData*);
+  CGCells(const XMLNode&, DYNAMO::SimData*);
 
-  CGCells(const DYNAMO::SimData*, const std::string&);
+  CGCells(DYNAMO::SimData*, const std::string&);
 
   virtual ~CGCells() {}
 
@@ -39,7 +39,7 @@ public:
 
   virtual CGlobEvent getEvent(const CParticle &) const;
 
-  virtual CNParticleData runEvent(const CGlobEvent&) const;
+  virtual void runEvent(const CParticle&) const;
 
   virtual void initialise(size_t);
 
@@ -61,7 +61,7 @@ public:
   { return cellDimension; }
 
 protected:
-  CGCells(const DYNAMO::SimData*, const char*, void*);
+  CGCells(DYNAMO::SimData*, const char*, void*);
 
   struct partCEntry
   {

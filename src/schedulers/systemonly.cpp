@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dumbsched.hpp"
+#include "systemonly.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../simulation/particle.hpp"
 #include "../dynamics/dynamics.hpp"
@@ -34,72 +34,46 @@
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
 
-CSDumb::CSDumb(const XMLNode& XML, 
+CSSystemOnly::CSSystemOnly(const XMLNode& XML, 
 				 const DYNAMO::SimData* Sim):
-  CScheduler(Sim,"DumbScheduler", NULL)
+  CScheduler(Sim,"SystemOnlyScheduler", NULL)
 { 
-  I_cout() << "Dumb Scheduler Algorithmn";
+  I_cout() << "System Events Only Scheduler Algorithmn";
   operator<<(XML);
 }
 
-CSDumb::CSDumb(const DYNAMO::SimData* Sim, CSSorter* ns):
-  CScheduler(Sim,"DumbScheduler", ns)
-{ I_cout() << "Dumb Scheduler Algorithmn"; }
+CSSystemOnly::CSSystemOnly(const DYNAMO::SimData* Sim, CSSorter* ns):
+  CScheduler(Sim,"SystemOnlyScheduler", ns)
+{ I_cout() << "System Events Only Scheduler Algorithmn"; }
 
 void 
-CSDumb::operator<<(const XMLNode& XML)
+CSSystemOnly::operator<<(const XMLNode& XML)
 {
   sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
 }
 
 void
-CSDumb::initialise()
+CSSystemOnly::initialise()
 {
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
   
   sorter->clear();
   sorter->resize(Sim->lN+1);
   eventCount.clear();
-  eventCount.resize(Sim->lN+1, 0);
-  
-  //Now initialise the interactions
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    addEvents(part);
-  
+  eventCount.resize(Sim->lN+1, 0);  
   sorter->init();
   rebuildSystemEvents();
 }
 
 void 
-CSDumb::outputXML(xmlw::XmlStream& XML) const
+CSSystemOnly::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Dumb"
+  XML << xmlw::attr("Type") << "SystemOnly"
       << xmlw::tag("Sorter")
       << sorter
       << xmlw::endtag("Sorter");
 }
 
 void 
-CSDumb::addEvents(const CParticle& part)
-{  
-  //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
-    if (glob->isInteraction(part))
-      sorter->push(glob->getEvent(part), part.getID());
-  
-  //Add the local cell events
-  BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
-    if (local->isInteraction(part))
-      sorter->push(local->getEvent(part), part.getID());
-
-  //Add the interaction events
-  BOOST_FOREACH(const CParticle& part2, Sim->vParticleList)
-    if (part2 != part)
-      {
-	CIntEvent eevent(Sim->Dynamics.getEvent(part, part2));
-	
-	if (eevent.getType() != NONE)
-	  sorter->push(intPart(eevent, eventCount[part2.getID()]), 
-		       part.getID());
-      }
-}
+CSSystemOnly::addEvents(const CParticle& part)
+{}

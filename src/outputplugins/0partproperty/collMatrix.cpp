@@ -102,7 +102,9 @@ COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const cl
       ++(refCount.count);
       ++(totalCount);
     }
-  
+  else
+    ++initialCounter[eventKey(ck,etype)];
+
   lastEvent[part.getID()].first = Sim->dSysTime;
   lastEvent[part.getID()].second = eventKey(ck, etype);
 }
@@ -112,12 +114,19 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 {
   
   XML << xmlw::tag("CollCounters") 
-      << xmlw::tag("CollMatrix");  
+      << xmlw::tag("TransitionMatrix");
   
   std::map<eventKey, std::pair<unsigned long long, Iflt> > totmap;
   
   typedef std::pair<const counterKey, counterData> locPair;
-
+  
+  
+  size_t initialsum(0);
+  
+  typedef std::pair<eventKey,size_t> npair;
+  BOOST_FOREACH(const npair& n, initialCounter)
+    initialsum += n.second;
+  
   BOOST_FOREACH(const locPair& ele, counters)
     {
       XML << xmlw::tag("Count")
@@ -133,27 +142,27 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
       
       //Add the total count
       totmap[ele.first.first].first += ele.second.count;
-
+      
       //Add the rate
       totmap[ele.first.first].second += ((Iflt) ele.second.count) 
 	/ ele.second.totalTime;
     }
-
-  XML << xmlw::endtag("CollMatrix")
+  
+  XML << xmlw::endtag("TransitionMatrix")
       << xmlw::tag("Totals");
   
   typedef std::pair<eventKey, std::pair<unsigned long long, Iflt> > mappair;
-
+  
   BOOST_FOREACH(const mappair& mp1, totmap)
     XML << xmlw::tag("TotCount")
 	<< xmlw::attr("Name") << getName(mp1.first.first, Sim)
 	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
-	<< xmlw::attr("Percent") << 100.0 * ((Iflt) mp1.second.first) / ((Iflt) totalCount)
-	<< xmlw::attr("Count") << mp1.second.first
-	<< xmlw::attr("MFT") << 1.0 / 
-    (mp1.second.second * Sim->Dynamics.units().unitTime())
+	<< xmlw::attr("Percent") 
+	<< 100.0 * (((Iflt) mp1.second.first)+((Iflt) initialCounter[mp1.first])) 
+    / (((Iflt) totalCount) + ((Iflt) initialsum))
+	<< xmlw::attr("Count") << mp1.second.first + initialCounter[mp1.first]
 	<< xmlw::endtag("TotCount");
-
+  
   XML << xmlw::endtag("Totals")
       << xmlw::endtag("CollCounters");
 }

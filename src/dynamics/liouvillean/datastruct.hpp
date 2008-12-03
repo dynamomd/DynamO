@@ -25,6 +25,8 @@
 //Pair dynamics data, can be allocated in compile time saving new() calls
 struct CPDData
 {
+  inline CPDData() {}
+
   inline CPDData(const DYNAMO::SimData& Sim, const CParticle& p1, 
 		 const CParticle& p2):
     rij(p1.getPosition() - p2.getPosition()),

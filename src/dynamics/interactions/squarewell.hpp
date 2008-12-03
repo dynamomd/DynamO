@@ -23,9 +23,9 @@
 class CISquareWell: public CICapture
 {
 public:
-  CISquareWell(const DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, C2Range*);
+  CISquareWell(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, C2Range*);
 
-  CISquareWell(const XMLNode&, const DYNAMO::SimData*);
+  CISquareWell(const XMLNode&, DYNAMO::SimData*);
   
   void operator<<(const XMLNode&);
 
@@ -43,9 +43,9 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual CIntEvent getCollision(const CParticle&, const CParticle&) const;
+  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
   
-  virtual C2ParticleData runCollision(const CIntEvent&) const;
+  virtual void runEvent(const CParticle&, const CParticle&) const;
   
   virtual void outputXML(xmlw::XmlStream&) const;
 

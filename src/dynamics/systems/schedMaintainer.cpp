@@ -38,13 +38,31 @@ CSSchedMaintainer::stream(Iflt ndt)
   dt -= ndt;
 }
 
-CNParticleData 
-CSSchedMaintainer::runEvent()
+void 
+CSSchedMaintainer::runEvent() const
 {
+  Iflt locdt = dt;
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(dt))
+    D_throw() << "A NAN system event time has been found";
+#endif
+    
+  Sim->dSysTime += locdt;
+    
+  Sim->ptrScheduler->stream(locdt);
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(locdt);
+  
   dt = periodt;
-  Sim->ptrScheduler->rebuildList();
 
-  return CNParticleData();
+  //Run the collision and catch the data
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+
+  Sim->ptrScheduler->rebuildList();
 }
 
 void 

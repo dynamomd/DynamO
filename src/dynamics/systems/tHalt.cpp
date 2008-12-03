@@ -19,6 +19,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../NparticleEventData.hpp"
 #include "../units/units.hpp"
+#include "../../schedulers/scheduler.hpp"
 
 CStHalt::CStHalt(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
   CSystem(nSim)
@@ -37,11 +38,27 @@ CStHalt::stream(Iflt ndt)
   dt -= ndt;
 }
 
-CNParticleData 
-CStHalt::runEvent()
+void
+CStHalt::runEvent() const
 {
+  Iflt locdt = dt;
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(dt))
+    D_throw() << "A NAN system event time has been found";
+#endif
+    
+  Sim->dSysTime += locdt;
+    
+  Sim->ptrScheduler->stream(locdt);
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(locdt);
+  
   Sim->lPrintLimiter = Sim->lMaxNColl = Sim->lNColl;
-  return CNParticleData();
+
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(*this, CNParticleData(), locdt);
 }
 
 void 

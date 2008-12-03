@@ -30,13 +30,14 @@
 #include "../BC/BC.hpp"
 #include <sstream>
 #include "../ranges/1range.hpp"
+#include "../../schedulers/scheduler.hpp"
 
-CIHardSphere::CIHardSphere(const DYNAMO::SimData* tmp, Iflt nd, 
+CIHardSphere::CIHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, C2Range* nR):
   CInteraction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne) {}
 
-CIHardSphere::CIHardSphere(const XMLNode& XML, const DYNAMO::SimData* tmp):
+CIHardSphere::CIHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
   CInteraction(tmp,NULL)
 {
   operator<<(XML);
@@ -91,7 +92,7 @@ CIHardSphere::Clone() const
 { return new CIHardSphere(*this); }
   
 CIntEvent 
-CIHardSphere::getCollision(const CParticle &p1, const CParticle &p2) const 
+CIHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (p1 == p2)
@@ -117,9 +118,70 @@ CIHardSphere::getCollision(const CParticle &p1, const CParticle &p2) const
   return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);  
 }
 
-C2ParticleData 
-CIHardSphere::runCollision(const CIntEvent &event) const
-{ return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, e, d2); }
+void
+CIHardSphere::runEvent(const CParticle& p1,
+		       const CParticle& p2) const
+{
+  CIntEvent iEvent = getEvent(p1, p2);
+
+  if (iEvent.getType() == NONE)
+    {
+      I_cerr() << "A glancing or tenuous collision may have become invalid due"
+	"\nto free streaming inaccuracies"
+	"\nOtherwise the simulation has run out of events!"
+	"\nThis occured when confirming the event with the scheduler"
+	"\nIgnoring this NONE event below\n"
+	       << iEvent.stringData(Sim);
+
+      //Now we're past the event, update the scheduler and plugins
+      Sim->ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
+      return;
+    }
+
+  ++Sim->lNColl;
+    
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Interaction collision time has been found"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+
+  //Debug section
+#ifdef DYNAMO_CollDebug
+  if (p2.getID() < p2.getID())
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << p1.getID() 
+	      << "  ID2 " << p2.getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+  else
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << p2().getID() 
+	      << "  ID2 " << p1().getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+#endif
+  
+  Sim->dSysTime += iEvent.getdt();
+    
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(iEvent.getdt());
+  
+  //Run the collision and catch the data
+  C2ParticleData EDat(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2)); 
+
+  //Now we're past the event, update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(p1, p2);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
+}
    
 void 
 CIHardSphere::outputXML(xmlw::XmlStream& XML) const

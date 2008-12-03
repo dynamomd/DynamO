@@ -32,6 +32,8 @@ namespace DYNAMO
     Dynamics(this),
     aspectRatio(1.0),
     ranGenerator(static_cast<unsigned>(std::time(0))),
+    normal_sampler(ranGenerator, boost::normal_distribution_01<Iflt>()),
+    uniform_sampler(ranGenerator),
     lastRunMFT(0.0),
     simID(0),
     status(START)

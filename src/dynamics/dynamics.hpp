@@ -86,25 +86,29 @@ public:
   
   void stream(const Iflt&);
   
-  C2ParticleData runEvent(const CIntEvent&);
-  
-  CNParticleData runEvent(const CGlobEvent&);
-
-  CNParticleData runEvent(const CLocalEvent&);
-
   inline CIntEvent getEvent(const CParticle &p1, const CParticle &p2) const
   {
     BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
-#ifdef DYNAMO_UpdateCollDebug
 	{
+#ifdef DYNAMO_UpdateCollDebug
 	  std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
 		    << p2.getID() << " NAME = " << typeid(*ptr.get_ptr()).name();
-	  return ptr->getCollision(p1,p2);
-	}
-# else
-        return ptr->getCollision(p1,p2);
 #endif
+	  return ptr->getEvent(p1,p2);
+	}
+    
+    D_throw() << "Could not find the right interaction to test for";
+  }
+
+  inline void runIntEvent(const CParticle &p1, const CParticle &p2) const
+  {
+    BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
+      if (ptr->isInteraction(p1,p2))
+	{
+	  ptr->runEvent(p1,p2);
+	  return;
+	}
     
     D_throw() << "Could not find the right interaction to test for";
   }

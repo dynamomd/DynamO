@@ -22,8 +22,10 @@
 #include "../overlapFunc/CubePlane.hpp"
 #include "../units/units.hpp"
 #include "../../datatypes/vector.xml.hpp"
+#include "../../schedulers/scheduler.hpp"
 
-CLWall::CLWall(const DYNAMO::SimData* nSim, Iflt ne, CVector<> nnorm, 
+
+CLWall::CLWall(DYNAMO::SimData* nSim, Iflt ne, CVector<> nnorm, 
 	       CVector<> norigin, std::string nname, CRange* nRange):
   CLocal(nRange, nSim, "LocalWall"),
   vNorm(nnorm),
@@ -33,7 +35,7 @@ CLWall::CLWall(const DYNAMO::SimData* nSim, Iflt ne, CVector<> nnorm,
   localName = nname;
 }
 
-CLWall::CLWall(const XMLNode& XML, const DYNAMO::SimData* tmp):
+CLWall::CLWall(const XMLNode& XML, DYNAMO::SimData* tmp):
   CLocal(tmp, "LocalWall")
 {
   operator<<(XML);
@@ -48,11 +50,42 @@ CLWall::getEvent(const CParticle& part) const
 		     (part, vPosition, vNorm), WALL, *this);
 }
 
-CNParticleData
-CLWall::runEvent(const CLocalEvent& event) const
+void
+CLWall::runEvent(const CParticle& part) const
 {
-  return CNParticleData(Sim->Dynamics.Liouvillean().runWallCollision
-			(event.getParticle(),vNorm,e));
+  ++Sim->lNColl;
+
+  CLocalEvent iEvent(getEvent(part));
+  
+  if (iEvent.getType() == NONE)
+    D_throw() << "No global collision found\n"
+	      << iEvent.stringData(Sim);
+  
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Global collision time has been found\n"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+  
+  Sim->dSysTime += iEvent.getdt();
+  
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  Sim->Dynamics.stream(iEvent.getdt());
+    
+  //Run the collision and catch the data
+  CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
+		      (part, vNorm, e));
+
+  //Now we're past the event update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(part);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
 }
 
 bool 

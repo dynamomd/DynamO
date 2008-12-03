@@ -15,36 +15,49 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGListAndCell_HPP
-#define CGListAndCell_HPP
+#ifndef CSDSMCSpheres_HPP
+#define CSDSMCSpheres_HPP
 
-#include "gcells.hpp"
+#include "system.hpp"
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real.hpp>
+#include "../../extcode/include/boost/random/normal_distribution.hpp"
+#include "../../base/is_simdata.hpp"
 #include "../ranges/1range.hpp"
+#include "../../datatypes/pluginpointer.hpp"
 
-
-class CGListAndCell: public CGCells
+class CSDSMCSpheres: public CSystem
 {
 public:
-  CGListAndCell(const XMLNode&, DYNAMO::SimData*);
+  CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData*);
 
-  CGListAndCell(DYNAMO::SimData*, const std::string&);
+  CSDSMCSpheres(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string);
+  
+  virtual CSystem* Clone() const { return new CSDSMCSpheres(*this); }
 
-  virtual ~CGListAndCell() {}
+  virtual void stream(Iflt);
 
-  virtual CGlobal* Clone() const 
-  { return new CGListAndCell(*this); }
+  virtual void runEvent() const;
 
   virtual void initialise(size_t);
-
-  virtual void getParticleNeighbourhood(const CParticle&, 
-					const nbhoodFunc&) const;
 
   virtual void operator<<(const XMLNode&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  smrtPlugPtr<CRange> largestParticles;
+  mutable boost::variate_generator<DYNAMO::baseRNG&, 
+				   boost::uniform_real<> > uniformRand;  
+
+  Iflt tstep;
+  Iflt chi;
+  Iflt d2;
+  Iflt diameter;
+  mutable Iflt maxprob;
+  Iflt e;
+  Iflt factor;
+
+  smrtPlugPtr<CRange> range;
 };
 
 #endif

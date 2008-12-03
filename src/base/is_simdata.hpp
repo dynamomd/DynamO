@@ -24,10 +24,15 @@
 #include "../outputplugins/outputplugin.hpp"
 #include <vector>
 #include <list>
-#include <boost/random/mersenne_twister.hpp>
+
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
 #include "is_ensemble.hpp"
+
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_01.hpp>
+#include "../extcode/include/boost/random/01_normal_distribution.hpp"
 
 class CScheduler;
 class CParticle;
@@ -153,6 +158,10 @@ namespace DYNAMO
     /*! \brief The random number generator of the system.
      */
     mutable baseRNG ranGenerator;
+
+    mutable boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution_01<Iflt> > normal_sampler;
+
+    mutable boost::uniform_01<DYNAMO::baseRNG, Iflt> uniform_sampler;  
 
     /*! \brief The collection of COutputPlugin's operating on this system.
      */

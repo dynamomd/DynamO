@@ -31,14 +31,15 @@
 #include "../2particleEventData.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
+#include "../../schedulers/scheduler.hpp"
 #include <iomanip>
 
-CISquareBond::CISquareBond(const DYNAMO::SimData* tmp, Iflt nd, Iflt nl, C2Range* nR):
+CISquareBond::CISquareBond(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, C2Range* nR):
   CInteraction(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl) 
 {}
   
-CISquareBond::CISquareBond(const XMLNode& XML, const DYNAMO::SimData* tmp):
+CISquareBond::CISquareBond(const XMLNode& XML, DYNAMO::SimData* tmp):
   CInteraction(tmp,NULL) //A temporary value!
 { operator<<(XML); }
 	    
@@ -135,8 +136,8 @@ CISquareBond::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 }
 
 CIntEvent 
-CISquareBond::getCollision(const CParticle &p1, 
-			   const CParticle &p2) const 
+CISquareBond::getEvent(const CParticle &p1, 
+		       const CParticle &p2) const 
 {    
 #ifdef DYNAMO_DEBUG
   if (p1 == p2)
@@ -169,15 +170,73 @@ CISquareBond::getCollision(const CParticle &p1,
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
-C2ParticleData 
-CISquareBond::runCollision(const CIntEvent& event) const
+void
+CISquareBond::runEvent(const CParticle& p1, const CParticle& p2) const
 {
-  if (event.getType()==BOUNCE)
-    return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, 1.0, d2, BOUNCE);  
-  else if (event.getType()==CORE)
-    return Sim->Dynamics.Liouvillean().SmoothSpheresColl(event, 1.0, d2, CORE);  
-  else D_throw() << "Unrecognised collision type in squarebond executed\n"
-	 "TYPE " << event.getType();
+  CIntEvent iEvent = getEvent(p1, p2);
+
+  if (iEvent.getType() == NONE)
+    {
+      I_cerr() << "A glancing or tenuous collision may have become invalid due"
+	"\nto free streaming inaccuracies"
+	"\nOtherwise the simulation has run out of events!"
+	"\nThis occured when confirming the event with the scheduler"
+	"\nIgnoring this NONE event below\n"
+	       << iEvent.stringData(Sim);
+
+      //Now we're past the event, update the scheduler and plugins
+      Sim->ptrScheduler->fullUpdate(p1, p2);
+      return;
+    }
+    
+  ++Sim->lNColl;
+
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Interaction collision time has been found"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+
+  //Debug section
+#ifdef DYNAMO_CollDebug
+  if (p1.getID() < p1.getID())
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << iEvent.getParticle1().getID() 
+	      << "  ID2 " << iEvent.getParticle2().getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+  else
+    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
+	      << "  ID1 " << iEvent.getParticle2().getID() 
+	      << "  ID2 " << iEvent.getParticle1().getID()
+	      << "  dt " << iEvent.getdt()
+	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
+#endif
+  
+  Sim->dSysTime += iEvent.getdt();
+    
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  //dynamics must be updated first
+  Sim->Dynamics.stream(iEvent.getdt());
+  
+#ifdef DYNAMO_DEBUG
+  if ((iEvent.getType() != BOUNCE) && (iEvent.getType() != CORE))
+    D_throw() << "Unknown type found";
+#endif
+
+  C2ParticleData EDat(Sim->Dynamics.Liouvillean().SmoothSpheresColl
+		      (iEvent, 1.0, d2, iEvent.getType()));
+    
+  //Now we're past the event, update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(p1, p2);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent,EDat);
 }
     
 void 

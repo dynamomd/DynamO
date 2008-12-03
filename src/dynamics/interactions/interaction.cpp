@@ -24,8 +24,8 @@
 #include "../species/species.hpp"
 #include <cstring>
 
-CInteraction::CInteraction(const DYNAMO::SimData* tmp, C2Range* nR):
-  SimBase_const(tmp,"Interaction",IC_blue),
+CInteraction::CInteraction(DYNAMO::SimData* tmp, C2Range* nR):
+  SimBase(tmp,"Interaction",IC_blue),
   range(nR)
 {}
 
@@ -57,7 +57,7 @@ CInteraction::getRange() const
 { return range; }
 
 CInteraction*
-CInteraction::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
+CInteraction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
 {
   if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
     return new CIHardSphere(XML, Sim);

@@ -23,10 +23,10 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 
-CICapture::CICapture(const DYNAMO::SimData* tmp,C2Range* nR): 
-CInteraction(tmp,nR),
-noXmlLoad(true),
-captures(0)
+CICapture::CICapture(DYNAMO::SimData* tmp,C2Range* nR): 
+  CInteraction(tmp,nR),
+  noXmlLoad(true),
+  captures(0)
 {}
 
 size_t

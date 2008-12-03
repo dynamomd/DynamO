@@ -42,6 +42,16 @@ CLNOrientation::operator<<(const XMLNode& XML)
       
       orientationData[i].orientation << xBrowseNode.getChildNode("U");
       orientationData[i].angularVelocity << xBrowseNode.getChildNode("O");
+      
+      Iflt oL = orientationData[i].orientation.length();
+
+      if (!(oL > 0.0))
+	D_throw() << "Particle ID " << i 
+		  << " orientation vector is zero!";
+
+      //Makes the vector a unit vector
+      orientationData[i].orientation /= oL;
+      
       ++prog;
     }
 }
@@ -78,14 +88,14 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   interpolationSize = (interpolationSize > PD.dt) ? PD.dt : interpolationSize;
   
   orientationStreamType A, B;
-  
-  A.position = p1.getPosition();
-  A.velocity = p1.getVelocity();
+
+  A.position = PD.rij;
+  A.velocity = PD.vij;
   A.rot.orientation = orientationData[p1.getID()].orientation;
   A.rot.angularVelocity = orientationData[p1.getID()].angularVelocity;
   
-  B.position = p2.getPosition();
-  B.velocity = p2.getVelocity();
+  B.position = CVector<>(0);
+  B.velocity = CVector<>(0);
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
   
@@ -97,7 +107,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
                                     const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const
 {
   long unsigned int iter = 0;
-  Iflt currentPosition = 0, x0 = 0, x1 = 0, x2 = 0, 
+  Iflt currentPosition = windowOpen, x0 = 0, x1 = 0, x2 = 0, 
        upperTimeBracket, lowerTimeBracket, upperValue, 
        lowerValue, midpoint, previousMidpoint, workingValue;
   CVector<> rij, crossProduct;
@@ -105,11 +115,6 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
   
   while(currentPosition < windowClosed)
   {
-    currentPosition = iter * interpolationSize;
-    
-    performRotation(A, interpolationSize);
-    performRotation(B, interpolationSize);
-    
     x0 = x1;
     x1 = x2;
     
@@ -119,7 +124,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
 	  x2 = crossProduct % rij;
     
     // Possible root found in the x1/x2 interval
-    if(std::signbit(x2) != std::signbit(x1) && iter > 0)
+    if(std::signbit(x2) != std::signbit(x1) && iter > 1)
     {
       // Root checking routine here
       rootWorkerA = A;
@@ -162,7 +167,7 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
       
       if(std::fabs(cp.alpha) < (length/2) && std::fabs(cp.beta) < (length/2))
       {
-        collisionTime = upperTimeBracket;
+        collisionTime = (upperTimeBracket + lowerTimeBracket) / 2.0;
         return true;
       }
     }
@@ -182,6 +187,9 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
     }
     
     iter++;
+    performRotation(A, interpolationSize);
+    performRotation(B, interpolationSize);
+    currentPosition += interpolationSize;
   }
   
   return false;
@@ -190,7 +198,6 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
 {
-  // Begin copied section from CLNewton::SmoothSpheresColl
   updateParticlePair(eevent.getParticle1(), eevent.getParticle2());
 
   C2ParticleData retVal(eevent.getParticle1(), eevent.getParticle2(),
@@ -233,8 +240,8 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   retVal.rvdot = retVal.rij % retVal.vijold;
   retVal.dP = uPerp * alpha;
   
-  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() -= retVal.dP / mass;
-  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() += retVal.dP / mass;
+  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() += retVal.dP / mass;
+  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() -= retVal.dP / mass;
   
   orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
   orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
@@ -345,17 +352,25 @@ CLNOrientation::initLineOrientations(const Iflt& length)
   
   I_cout() << "Initialising the line orientations";
 
-  Iflt factor = std::sqrt(12.0/(length*length));      
+  Iflt factor = std::sqrt(12.0/(length*length));
+
+  CVector<> angVelCrossing;
 
   for (size_t i = 0; i < Sim->vParticleList.size(); ++i)
     {      
       //Assign the new velocities
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	orientationData[i].orientation[iDim] = normal_sampler();
+        orientationData[i].orientation[iDim] = Sim->normal_sampler();
 
       orientationData[i].orientation = orientationData[i].orientation.unitVector();
 
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	orientationData[i].angularVelocity[iDim] = normal_sampler() * factor;      
+      {
+        angVelCrossing[iDim] = Sim->normal_sampler();
+      }
+      
+      orientationData[i].angularVelocity 
+	= orientationData[i].orientation.Cross(angVelCrossing).unitVector() 
+	* Sim->normal_sampler() * factor;
     }  
 }

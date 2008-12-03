@@ -37,19 +37,19 @@ namespace xmlw
   class XmlStream;
 }
 
-class CInteraction: public DYNAMO::SimBase_const
+class CInteraction: public DYNAMO::SimBase
 {
 public:
-  CInteraction(const DYNAMO::SimData*, C2Range*);
+  CInteraction(DYNAMO::SimData*, C2Range*);
   
   virtual ~CInteraction() {}
 
   virtual void initialise(size_t) = 0;
 
-  virtual CIntEvent getCollision(const CParticle &, 
-			      const CParticle &) const = 0;
+  virtual CIntEvent getEvent(const CParticle &, 
+			     const CParticle &) const = 0;
 
-  virtual C2ParticleData runCollision(const CIntEvent &) const = 0;
+  virtual void runEvent(const CParticle&, const CParticle&) const = 0;
 
   virtual Iflt maxIntDist() const = 0;  
 
@@ -65,7 +65,7 @@ public:
   
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CInteraction&);
  
-  static CInteraction* getClass(const XMLNode&, const DYNAMO::SimData*);
+  static CInteraction* getClass(const XMLNode&, DYNAMO::SimData*);
 
   bool isInteraction(const CParticle &p1, const CParticle &p2) const
   { return range->isInRange(p1,p2); }

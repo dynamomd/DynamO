@@ -24,9 +24,9 @@
 class CISWSequence: public CICapture
 {
 public:
-  CISWSequence(const DYNAMO::SimData*, Iflt, Iflt, Iflt, std::vector<size_t>, C2Range*);
+  CISWSequence(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::vector<size_t>, C2Range*);
 
-  CISWSequence(const XMLNode&, const DYNAMO::SimData*);
+  CISWSequence(const XMLNode&, DYNAMO::SimData*);
   
   void operator<<(const XMLNode&);
 
@@ -46,9 +46,9 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual CIntEvent getCollision(const CParticle&, const CParticle&) const;
+  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
   
-  virtual C2ParticleData runCollision(const CIntEvent&) const;
+  virtual void runEvent(const CParticle&, const CParticle&) const;
   
   virtual void outputXML(xmlw::XmlStream&) const;
 

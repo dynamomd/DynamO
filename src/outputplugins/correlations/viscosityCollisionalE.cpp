@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "viscosityE.hpp"
+#include "viscosityCollisionalE.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../0partproperty/misc.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COutputPlugin(tmp,"ViscosityE", 60),
+COPViscosityCollisionalE::COPViscosityCollisionalE(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  COutputPlugin(tmp,"ViscosityCollisionalE", 60),
   count(0),
   dt(0),
   currentdt(0.0),
@@ -48,12 +48,11 @@ COPViscosityE::COPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
       {
 	avgTrace[iDim][jDim] = 0.0;
 	delG[iDim][jDim] = 0.0;
-	constDelG[iDim][jDim] = 0.0;
       }
 }
 
 void 
-COPViscosityE::operator<<(const XMLNode& XML)
+COPViscosityCollisionalE::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -79,9 +78,8 @@ COPViscosityE::operator<<(const XMLNode& XML)
 }
 
 void 
-COPViscosityE::initialise()
+COPViscosityCollisionalE::initialise()
 {
-  Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
   
   if (dt == 0.0)
@@ -92,50 +90,44 @@ COPViscosityE::initialise()
 	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
     }
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	constDelG[iDim][jDim] 
-	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->Dynamics.getSpecies(part).getMass();
-
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
 void 
-COPViscosityE::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+COPViscosityCollisionalE::eventUpdate(const CGlobEvent& iEvent, 
+				      const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
-  updateConstDelG(PDat);
 }
 
 void 
-COPViscosityE::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+COPViscosityCollisionalE::eventUpdate(const CLocalEvent& iEvent, 
+				      const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
-  updateConstDelG(PDat);
 }
   
 void 
-COPViscosityE::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+COPViscosityCollisionalE::eventUpdate(const CSystem&, 
+				      const CNParticleData& PDat, 
+				      const Iflt& edt) 
 { 
   stream(edt);
   impulseDelG(PDat);
-  updateConstDelG(PDat);
 }
   
 void 
-COPViscosityE::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+COPViscosityCollisionalE::eventUpdate(const CIntEvent& iEvent, 
+				      const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
-  updateConstDelG(PDat);
 }
 
 void 
-COPViscosityE::stream(const Iflt& edt)
+COPViscosityCollisionalE::stream(const Iflt& edt)
 {
   //Move the time forward
   //currentdt += edt;
@@ -143,43 +135,28 @@ COPViscosityE::stream(const Iflt& edt)
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
     {
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	  delG[iDim][jDim] += constDelG[iDim][jDim] * (dt - currentdt);
-
       newG (delG);
 
       currentdt += edt - dt;
-      
-      while (currentdt >= dt)
-	{
-	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	      delG[iDim][jDim] = constDelG[iDim][jDim] * dt;
-
-	  currentdt -= dt;
-
-	  newG(delG);
-	}
 
       //Now calculate the start of the new delG
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	  delG[iDim][jDim] = constDelG[iDim][jDim] * currentdt;
+	  delG[iDim][jDim] = 0.0;
+      
+      while (currentdt >= dt)
+	{
+	  currentdt -= dt;
 
+	  newG(delG);
+	}
     }
   else
-    {
       currentdt += edt;
-
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	  delG[iDim][jDim] += constDelG[iDim][jDim] * edt;
-    }
 }
 
 void 
-COPViscosityE::newG(const matrix& Gval)
+COPViscosityCollisionalE::newG(const matrix& Gval)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -200,7 +177,7 @@ COPViscosityE::newG(const matrix& Gval)
 
 
 void
-COPViscosityE::impulseDelG(const C2ParticleData& colldat)
+COPViscosityCollisionalE::impulseDelG(const C2ParticleData& colldat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -208,7 +185,7 @@ COPViscosityE::impulseDelG(const C2ParticleData& colldat)
 }
 
 void
-COPViscosityE::impulseDelG(const CNParticleData& ndat) 
+COPViscosityCollisionalE::impulseDelG(const CNParticleData& ndat) 
 { 
   BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
     for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -218,18 +195,17 @@ COPViscosityE::impulseDelG(const CNParticleData& ndat)
 }
 
 inline void 
-COPViscosityE::output(xmlw::XmlStream &XML)
+COPViscosityCollisionalE::output(xmlw::XmlStream &XML)
 {
   Iflt rescaleFactor = 1.0
     / (Sim->Dynamics.units().unitTime() 
        //This line should be 1 however we have scaled the correlator time as well
        * Sim->Dynamics.units().unitViscosity() * 2.0 
-       * Sim->getOutputPlugin<COPKEnergy>()->getAvgkT() 
        //Count has been taken out due to the extra averaging of the constant piece 
        * Sim->Dynamics.units().simVolume());
   
   XML << xmlw::tag("EinsteinCorrelator")
-      << xmlw::attr("name") << name
+      << xmlw::attr("name") << "ViscosityTimesT"
       << xmlw::attr("size") << accG2.size()
       << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<COPMisc>())->getMFT()
@@ -285,10 +261,6 @@ COPViscosityE::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("PressureVals")
       << xmlw::attr("AvgPressure")
       << AvgPressure / (NDIM * Sim->Dynamics.units().unitPressure())
-    //Needs to use the KEnergy plugin
-    /*      << xmlw::attr("AvgZ")
-	    << AvgPressure * Sim->Dynamics.units().simVolume() 
-	    / (NDI0M * Sim->lN * getkT())*/
       << xmlw::endtag("PressureVals");
   
   XML << xmlw::chardata();
@@ -310,47 +282,7 @@ COPViscosityE::output(xmlw::XmlStream &XML)
 }
 
 void 
-COPViscosityE::updateConstDelG(const C2ParticleData& PDat)
-{
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      constDelG[iDim][jDim] += 
-	(PDat.particle1_.getParticle().getVelocity()[iDim]
-	 * PDat.particle1_.getParticle().getVelocity()[jDim]
-	 - PDat.particle1_.getOldVel()[iDim]
-	 * PDat.particle1_.getOldVel()[jDim])
-	* PDat.particle1_.getSpecies().getMass()
-	+ (PDat.particle2_.getParticle().getVelocity()[iDim]
-	   * PDat.particle2_.getParticle().getVelocity()[jDim]
-	   - PDat.particle2_.getOldVel()[iDim]
-	   * PDat.particle2_.getOldVel()[jDim])
-	* PDat.particle2_.getSpecies().getMass();
-}
-
-void 
-COPViscosityE::updateConstDelG(const C1ParticleData& PDat)
-{
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      constDelG[iDim][jDim] += 
-	(PDat.getParticle().getVelocity()[iDim]
-	 * PDat.getParticle().getVelocity()[jDim]
-	 - PDat.getOldVel()[iDim] * PDat.getOldVel()[jDim]
-	 ) * PDat.getSpecies().getMass();
-}
-
-void 
-COPViscosityE::updateConstDelG(const CNParticleData& ndat)
-{
-  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
-    updateConstDelG(dat);
-  
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
-    updateConstDelG(dat);
-}
-
-void 
-COPViscosityE::accPass()
+COPViscosityCollisionalE::accPass()
 {
   ++count;
   matrix sum;

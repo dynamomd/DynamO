@@ -23,9 +23,9 @@
 class CISquareBond: public CInteraction
 {
 public:
-  CISquareBond(const DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  CISquareBond(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CISquareBond(const XMLNode&, const DYNAMO::SimData*);
+  CISquareBond(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
@@ -45,9 +45,9 @@ public:
 
   virtual void checkOverlaps(const CParticle&, const CParticle&) const;
 
-  virtual CIntEvent getCollision(const CParticle&, const CParticle&) const;
+  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
   
-  virtual C2ParticleData runCollision(const CIntEvent&) const;
+  virtual void runEvent(const CParticle&, const CParticle&) const;
     
   virtual void outputXML(xmlw::XmlStream&) const;
 

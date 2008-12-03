@@ -39,9 +39,11 @@ CScheduler*
 CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-    return new CSNeighbourList(XML,Sim);
+    return new CSNeighbourList(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
-    return new CSDumb(XML,Sim);
+    return new CSDumb(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
+    return new CSSystemOnly(XML, Sim);
   else 
     D_throw() << "Unknown type of Scheduler encountered";
 }
@@ -53,41 +55,16 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
   return XML;
 }
 
-const CIntEvent 
-CScheduler::earliestIntEvent() const
+void 
+CScheduler::rebuildSystemEvents() const
 {
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != INTERACTION)
-    D_throw() << "The next event is not an Interaction event";
-#endif
-  
-  return Sim->Dynamics.getEvent
-    (Sim->vParticleList[sorter->next_ID()], 
-     Sim->vParticleList[sorter->next_Data().top().p2]);
-}
+  (*sorter)[Sim->lN].clear();
 
-const CGlobEvent
-CScheduler::earliestGlobEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != GLOBAL)
-    D_throw() << "The next event is not a Global event";
-#endif
+  BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysptr, 
+		Sim->Dynamics.getSystemEvents())
+    sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->lN);
 
-  return Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
-}
-
-const CLocalEvent
-CScheduler::earliestLocalEvent() const
-{
-#ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().type != LOCAL)
-    D_throw() << "The next event is not a Local event";
-#endif
-
-  return Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
-    ->getEvent(Sim->vParticleList[sorter->next_ID()]);
+  sorter->update(Sim->lN);
 }
 
 void 
@@ -117,57 +94,55 @@ CScheduler::invalidateEvents(const CParticle& part)
   (*sorter)[part.getID()].clear();
 }
 
-EEventType
-CScheduler::nextEventType() const
+void
+CScheduler::runNextEvent() const
 {
-  //Determine the next global and/or system event
-  Iflt tmpt = HUGE_VAL;
-
   sorter->sort();
-
-  if (!Sim->Dynamics.getSystemEvents().empty())
-    tmpt =(*min_element(Sim->Dynamics.getSystemEvents().begin(),
-			Sim->Dynamics.getSystemEvents().end()
-			))->getdt();
   
 #ifdef DYNAMO_DEBUG
   if (sorter->next_Data().empty())
     D_throw() << "Next particle list is empty but top of list!";
 #endif  
-  
-#ifdef DYNAMO_UpdateCollDebug
-  std::cerr << "\nNext eventdt = " << sorter->next_dt();
-#endif
-
-
-
-  while (sorter->next_dt() < tmpt)
+    
+  while ((sorter->next_Data().top().type == INTERACTION)
+	 && (sorter->next_Data().top().collCounter2 
+	     != eventCount[sorter->next_Data().top().p2]))
     {
-      //Return it if its not an INTERACTION
-      if (sorter->next_Data().top().type != INTERACTION)
-	return sorter->next_Data().top().type;
-
-      //Check the INTERACTION is valid first
-      if (sorter->next_Data().top().collCounter2 
-	  == eventCount[sorter->next_Data().top().p2])
-	return INTERACTION;
-
       //Not valid, update the list
-#ifdef DYNAMO_UpdateCollDebug
-      std::cerr << "\nEvent invalid, popping and updating" 
-		<< sorter->next_dt();
-#endif
       sorter->next_Data().pop();
       sorter->update(sorter->next_ID());
       sorter->sort();
-
+      
 #ifdef DYNAMO_DEBUG
       if (sorter->next_Data().empty())
 	D_throw() << "Next particle list is empty but top of list!";
 #endif  
-
     }
   
-  //The other events didn't win
-  return SYSTEM;
+  switch (sorter->next_Data().top().type)
+    {
+    case INTERACTION:
+      Sim->Dynamics.runIntEvent
+	(Sim->vParticleList[sorter->next_ID()], 
+	 Sim->vParticleList[sorter->next_Data().top().p2]);	  
+      break;
+    case GLOBAL:
+      Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+	->runEvent(Sim->vParticleList[sorter->next_ID()]);
+      break;	           
+    case LOCAL:
+      Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+	->runEvent(Sim->vParticleList[sorter->next_ID()]);	  
+      break;
+    case SYSTEM:
+      Sim->Dynamics.getSystemEvents()[sorter->next_Data().top().p2]
+	->runEvent();
+      //This saves the system events rebuilding themselves
+      rebuildSystemEvents();
+      break;
+    default:
+      D_throw() << "Unhandled event type requested to be run\n"
+		<< "Type is " 
+		<< CIntEvent::getCollEnumName(sorter->next_Data().top().type);
+    }
 }

@@ -101,7 +101,7 @@ public:
     CBT.resize(2 * N);
     Leaf.resize(N + 1);
     Min.resize(N + 1);
-    Min.front().data.push(intPart(HUGE_VAL, NONE));
+    //Min.front().data.push(intPart(HUGE_VAL, NONE));
   }
 
   void clear() 

@@ -40,10 +40,11 @@ typedef enum {
                    their kinetic energy due to some constraint. */
   WALL        , /*!< Wall or other obstacle event. */
   GAUSSIAN    , /*!< Reassignment from a gaussian, Andersen thermostat. */
+  DSMC        , /*!< DSMC event*/
   HALT        , /*!< Call to halt the system. */
   STREAM      , /*!< Call to free stream the system an amount. */
   NON_EVENT,    /*!< Anything like a ticker, that is not part of the
-                   system dynamics. Does not require an update of the
+		  system dynamics. Does not require an update of the
                    system in any way. */
   VIRTUAL       /*!< This is not an event yet it requires a
                    recalculation of the particles collision

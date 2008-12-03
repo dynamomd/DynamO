@@ -23,8 +23,8 @@
 class CLWall: public CLocal
 {
 public:
-  CLWall(const XMLNode&, const DYNAMO::SimData*);
-  CLWall(const DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
+  CLWall(const XMLNode&, DYNAMO::SimData*);
+  CLWall(DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
 	 std::string, CRange*);
 
   virtual ~CLWall() {}
@@ -33,7 +33,7 @@ public:
 
   virtual CLocalEvent getEvent(const CParticle&) const;
 
-  virtual CNParticleData runEvent(const CLocalEvent&) const;
+  virtual void runEvent(const CParticle&) const;
   
   virtual bool isInCell(const CVector<>&, const CVector<>&) const;
 

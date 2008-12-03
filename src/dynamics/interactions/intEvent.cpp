@@ -29,32 +29,28 @@ CIntEvent::getCollEnumName(EEventType a)
 {
   switch (a)
     {
-    case NONE:
-      return "NONE";
-    case CORE:      
-      return "CORE";
-    case WELL_IN:
-      return "WELL_IN";
-    case WELL_OUT:
-      return "WELL_OUT";
-    case WELL_KEUP:
-      return "WELL_KEUP";
-    case WELL_KEDOWN:
-      return "WELL_KEDOWN";
-    case BOUNCE:
-      return "BOUNCE";
-    case WALL:        
-      return "WALL";
-    case GAUSSIAN:
-      return "GAUSSIAN";
-    case CELL:
-      return "CELL";
-    case HALT:
-      return "HALT";
-    case STREAM:
-      return "STREAM";
+    case NONE:        return "NONE";
+    case CELL:        return "CELL";
+    case GLOBAL:      return "GLOBAL";
+    case INTERACTION: return "INTERACTION";
+    case SYSTEM:      return "SYSTEM";
+    case LOCAL:       return "LOCAL";
+    case CORE:        return "CORE";
+    case WELL_IN:     return "WELL_IN";
+    case WELL_OUT:    return "WELL_OUT";
+    case WELL_KEUP:   return "WELL_KEUP";
+    case WELL_KEDOWN: return "WELL_KEDOWN";
+    case BOUNCE:      return "BOUNCE";
+    case WALL:        return "WALL";
+    case GAUSSIAN:    return "GAUSSIAN";
+    case DSMC:        return "DSMC";
+    case HALT:        return "HALT";
+    case STREAM:      return "STREAM";
+    case NON_EVENT:   return "NON_EVENT";
+    case VIRTUAL:     return "VIRTUAL";
     default:
-      D_throw() << "Not a defined collision enumeration";
+      D_throw() << "Not a defined collision enumeration " << 
+	a;
     }
 }
 

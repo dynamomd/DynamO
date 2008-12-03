@@ -30,8 +30,9 @@
 #include "../../dynamics/globals/global.hpp"
 
 //Datatype for a single event, stored in lists for each particle
-struct intPart
+class intPart
 {
+public:   
   inline intPart(const Iflt& ndt, const unsigned long long& direction) throw():
     dt(ndt),
     p2(0),
@@ -90,6 +91,7 @@ struct intPart
   size_t p2;
   EEventType type;
   unsigned long long collCounter2;
+  
 };
 
 typedef std::vector<intPart> qType;
@@ -131,7 +133,10 @@ public:
       : (ip.c.empty() || (c.front().dt < ip.c.front().dt)); 
   }
 
-  inline const Iflt& getdt() const { return c.front().dt; }
+  inline Iflt getdt() const 
+  { 
+    return (c.empty()) ? HUGE_VAL : c.front().dt; 
+  }
   
   inline void stream(const Iflt& ndt) throw()
   {

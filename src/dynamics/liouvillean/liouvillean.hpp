@@ -225,6 +225,39 @@ public:
 					   const EEventType& eType = CORE
 					   ) const = 0;
 
+  /*! \brief Tests for a collision between spherical particles
+   * according to the ESMC (Enskog DSMC)
+   * 
+   *
+   * \param p1 First particle to test
+   * \param p1 Second particle to test
+   * \param maxprob The current maximum of the collision radius
+   * \param pdat Some cached calc data
+   * \return Whether the collision occurs
+   */  
+  virtual bool DSMCSpheresTest(const CParticle& p1,
+			       const CParticle& p2,
+			       Iflt& maxprob,
+			       const Iflt& factor,
+			       CPDData& pdat
+			       ) const = 0;
+  
+  /*! \brief Performs a hard sphere collision between the two
+   * particles according to the ESMC (Enskog DSMC)
+   * 
+   *
+   * \param p1 First particle to test
+   * \param p1 Second particle to test
+   * \param e Inelasticity
+   * \param pdat Some cached calc data
+   * \return Data on the collision
+   */  
+  virtual C2ParticleData DSMCSpheresRun(const CParticle& p1,
+					const CParticle& p2,
+					const Iflt& e,
+					CPDData& pdat
+					) const = 0;
+
   /*! \brief Executes a well/shoulder event
    *
    * This is a workhorse of the square well/square shoulder/core
@@ -330,6 +363,11 @@ public:
     
     const_cast<CParticle&>(p2).getPecTime()
       = const_cast<CParticle&>(p1).getPecTime() = -partPecTime;
+  }
+
+  inline Iflt getParticleDelay(const CParticle& part) const
+  {
+    return partPecTime + part.getPecTime();
   }
 
   /*! \brief Called when the system is moved forward in time to update

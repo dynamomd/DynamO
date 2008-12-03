@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLNewton_H
-#define CLNewton_H
+#ifndef CLSLLOD_H
+#define CLSLLOD_H
 
 #include "liouvillean.hpp"
 
 
-class CLNewton: public CLiouvillean
+class CLSLLOD: public CLiouvillean
 {
 public:
-  CLNewton(DYNAMO::SimData*);
+  CLSLLOD(DYNAMO::SimData*);
 
   //Pair particle dynamics
   virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const;
@@ -70,7 +70,7 @@ public:
 
   virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
 
-  virtual CLiouvillean* Clone() const { return new CLNewton(*this); }
+  virtual CLiouvillean* Clone() const { return new CLSLLOD(*this); }
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;

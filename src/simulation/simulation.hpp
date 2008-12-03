@@ -111,7 +111,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   
  private:
 
-  void executeEvent();
+  /*void executeEvent();
 
   void executeIntEvent();
 
@@ -119,7 +119,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void executeLocalEvent();
 
-  void executeSysEvent();
+  void executeSysEvent();*/
 };
 
 #endif

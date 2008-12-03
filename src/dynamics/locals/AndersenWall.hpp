@@ -24,9 +24,9 @@
 class CLAndersenWall: public CLocal
 {
 public:
-  CLAndersenWall(const XMLNode&, const DYNAMO::SimData*);
+  CLAndersenWall(const XMLNode&, DYNAMO::SimData*);
 
-  CLAndersenWall(const DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
+  CLAndersenWall(DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
 		 std::string, CRange*);
 
   virtual ~CLAndersenWall() {}
@@ -35,7 +35,7 @@ public:
 
   virtual CLocalEvent getEvent(const CParticle &) const;
 
-  virtual CNParticleData runEvent(const CLocalEvent&) const;
+  virtual void runEvent(const CParticle&) const;
 
   virtual void initialise(size_t);
 

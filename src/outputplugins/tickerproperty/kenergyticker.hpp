@@ -14,10 +14,36 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "vacf.hpp"
-#include "viscosityE.hpp"
-#include "viscosityCollisionalE.hpp"
-#include "thermalCondE.hpp"
-#include "mutualdiffGK.hpp"
-#include "mutualdiffE.hpp"
-#include "thermaldiffE.hpp"
+
+#pragma once
+
+#include "ticker.hpp"
+#include "../../datatypes/histogram.hpp"
+
+class COPKEnergyTicker: public COPTicker
+{
+ public:
+  COPKEnergyTicker(const DYNAMO::SimData*, const XMLNode&);
+
+  typedef boost::array<Iflt, NDIM> col;
+  typedef boost::array<col, NDIM> matrix;
+
+  virtual COutputPlugin *Clone() const
+  { return new COPKEnergyTicker(*this); }
+
+  virtual void initialise();
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+  
+  virtual void output(xmlw::XmlStream&);
+
+  void operator<<(const XMLNode&);
+
+  virtual void periodicOutput();
+
+protected:
+  size_t count;
+  matrix sum;
+};

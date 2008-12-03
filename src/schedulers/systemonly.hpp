@@ -14,10 +14,29 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "vacf.hpp"
-#include "viscosityE.hpp"
-#include "viscosityCollisionalE.hpp"
-#include "thermalCondE.hpp"
-#include "mutualdiffGK.hpp"
-#include "mutualdiffE.hpp"
-#include "thermaldiffE.hpp"
+
+#ifndef CSSystemOnly_H
+#define CSSystemOnly_H
+
+#include "scheduler.hpp"
+
+class CSSystemOnly: public CScheduler
+{
+public:
+  CSSystemOnly(const XMLNode&, const DYNAMO::SimData*);
+
+  CSSystemOnly(const DYNAMO::SimData*, CSSorter*);
+
+  virtual void rebuildList() { initialise(); }
+
+  virtual void initialise();
+
+  virtual void addEvents(const CParticle&);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+};
+
+#endif

@@ -27,7 +27,7 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 
-CGCells::CGCells(const DYNAMO::SimData* nSim, const std::string& name):
+CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
@@ -39,7 +39,7 @@ CGCells::CGCells(const DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Cells Loaded";
 }
 
-CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
+CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
@@ -51,7 +51,7 @@ CGCells::CGCells(const XMLNode &XML, const DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
-CGCells::CGCells(const DYNAMO::SimData* ptrSim, const char* nom, void*):
+CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1.0),
@@ -88,28 +88,34 @@ CGCells::setLambda(const Iflt& nL)
 CGlobEvent 
 CGCells::getEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+
+  //This 
+  //Sim->Dynamics.Liouvillean().updateParticle(part);
+  //is not required as we compensate for the delay using 
+  //Sim->Dynamics.Liouvillean().getParticleDelay(part)
   
-  return CGlobEvent(part, Sim->Dynamics.Liouvillean().
+  return CGlobEvent(part,
+		    Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
 		    (part, cells[partCellData[part.getID()].cell].origin, 
-		     cellDimension), VIRTUAL, *this);
+		     cellDimension)
+		    -Sim->Dynamics.Liouvillean().getParticleDelay(part)
+		    ,
+		    VIRTUAL, *this);
 }
 
-CNParticleData
-CGCells::runEvent(const CGlobEvent& event) const
+void
+CGCells::runEvent(const CParticle& part) const
 {
-  const CParticle& part(event.getParticle());
-  
   Sim->Dynamics.Liouvillean().updateParticle(part);
   
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
   size_t cellDirection(Sim->Dynamics.Liouvillean().
-		    getSquareCellCollision3
-		    (part, cells[oldCell].origin, 
-		     cellDimension));
+		       getSquareCellCollision3
+		       (part, cells[oldCell].origin, 
+			cellDimension));
   size_t endCell;
   size_t inPosition;
 
@@ -135,11 +141,9 @@ CGCells::runEvent(const CGlobEvent& event) const
     CVector<long> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
-	      << (Sim->dSysTime + event.getdt()) 
-      / Sim->Dynamics.units().unitTime()
+	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
-	      << "  dt " << event.getdt() / Sim->Dynamics.units().unitTime()
 	      << "  from <" 
 	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
 	      << "> to <" 
@@ -173,7 +177,7 @@ CGCells::runEvent(const CGlobEvent& event) const
 
   sigCellChangeNotify(part, oldCell);
   
-  return CNParticleData();
+  //This doesn't stream the system as its a virtual event
 }
 
 void 
