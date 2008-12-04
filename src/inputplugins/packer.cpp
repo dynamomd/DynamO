@@ -152,7 +152,13 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Inelasticity [1.0]"
+	"       --f1 : Inelasticity [1.0]\n"
+	"  12: Binary hard spheres using DSMC interactions\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Picks the g(r) to use (0:BMCSL,1:HC2,2:VS)\n"
+	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
+	"       --f2 : Mass Ratio (B/A) [0.001]\n"
+	"       --f3 : Mol Fraction of large system (A) [0.95]"
 	;
 
       std::cout << "\n";
@@ -891,7 +897,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, particleDiam, 
 			     2.0 * tij / latticeSites.size(), chi, 1.0, 
-			     "Thermostat"));
+			     "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
 	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					  "Bulk"));
@@ -956,8 +962,8 @@ CIPPacker::initialise()
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, particleDiam, 0.001, 
-			     chi, alpha, 
-			     "Thermostat"));
+			     chi, alpha, "Thermostat", 
+			     new CRAll(Sim), new CRAll(Sim)));
 
 	Sim->Dynamics.addSpecies
 	  (CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
