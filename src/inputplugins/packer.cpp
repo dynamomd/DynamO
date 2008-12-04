@@ -1085,7 +1085,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, sizeRatio * particleDiam, 
 			     2.0 * tBB / latticeSites.size(), chiBB, 1.0, 
-			     "ABDSMC", new CRRange(nA, latticeSites.size()-1),
+			     "BBDSMC", new CRRange(nA, latticeSites.size()-1),
 			     new CRRange(nA, latticeSites.size()-1)));
 	
 	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A",
