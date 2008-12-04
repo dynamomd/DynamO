@@ -155,7 +155,7 @@ CIPPacker::initialise()
 	"       --f1 : Inelasticity [1.0]\n"
 	"  12: Binary hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Picks the g(r) to use (0:BMCSL,1:HC2,2:VS)\n"
+	"       --i2 : Picks the g(r) to use (0:BMCSL,2:VS)\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 	"       --f2 : Mass Ratio (B/A) [0.001]\n"
 	"       --f3 : Mol Fraction of large system (A) [0.95]"
@@ -720,7 +720,7 @@ CIPPacker::initialise()
       }
     case 8:
       {
-	//Pack of hard spheres
+	//Pack of binary hard spheres
 	//Pack the system, determine the number of particles
 	std::vector<CVector<> > 
 	  latticeSites(standardPackingHelper(new CUParticle()));
@@ -968,6 +968,133 @@ CIPPacker::initialise()
 	Sim->Dynamics.addSpecies
 	  (CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
 	
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 12:
+      {
+	//Pack of DSMC hard sphere mixture
+	//Pack the system, determine the number of particles
+	std::vector<CVector<> > 
+	  latticeSites(standardPackingHelper(new CUParticle()));
+      	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
+
+	if (vm.count("f1"))
+	  sizeRatio = vm["f1"].as<double>();
+
+	if (vm.count("f2"))
+	  massFrac = vm["f2"].as<double>();
+
+	if (vm.count("f3"))
+	  molFrac = vm["f3"].as<double>();
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				  / latticeSites.size(), 1.0 / 3.0);
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
+	
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	
+	//This is to stop interactions being used for these particles
+	Sim->Dynamics.addInteraction
+	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+
+	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
+
+	Iflt chiAA, chiAB, chiBB;
+
+	size_t chimode(0);
+	if (vm.count("i2"))
+	  molFrac = vm["i2"].as<size_t>();
+
+	Iflt xi1 = (1.0/6.0) * PI * vm["density"].as<double>()
+	  * (molFrac + (1.0 - molFrac)*sizeRatio );
+	Iflt xi2 = (1.0/6.0) * PI * vm["density"].as<double>()
+	  * (molFrac + (1.0 - molFrac)*sizeRatio*sizeRatio );
+	Iflt xi3 = (1.0/6.0) * PI * vm["density"].as<double>()
+	  * (molFrac + (1.0 - molFrac)*sizeRatio*sizeRatio*sizeRatio);
+	
+	switch (chimode)
+	  {
+	  case 0:
+	    //BMCSL
+	    chiAA = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))+xi2 * xi2 / (2.0*(1.0-xi3)*(1.0-xi3)));
+
+	    chiAB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio/(0.5+0.5*sizeRatio)
+				     + xi2 * xi2 * std::pow(sizeRatio/(0.5+0.5*sizeRatio),2) / (2.0*(1.0-xi3)*(1.0-xi3)));
+
+	    chiBB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
+				   + xi2 * xi2 *sizeRatio *sizeRatio / (2.0*(1.0-xi3)*(1.0-xi3)));
+	    break;
+	  case 1:
+	    //VS
+	    break;
+	  case 2:
+	    break;
+	  default:
+	    D_throw() << "Unknown mode to set the chi's";
+	  }
+
+	Iflt tAA(0.01), tAB(0.01), tBB(0.01);
+
+	//This is to provide data on the particles
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, particleDiam, 1.0, 
+			    new C2RSingle(new CRRange(0, nA - 1)))
+	   )->setName("AAInt");
+	
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0, 
+			    new C2RSingle(new CRRange(nA, latticeSites.size()-1)))
+	   )->setName("BBInt");
+
+	Sim->Dynamics.addSystem
+	  (new CSDSMCSpheres(Sim, particleDiam, 
+			     2.0 * tAA / latticeSites.size(), chiAA, 1.0, 
+			     "AADSMC", new CRRange(0, nA - 1), 
+			     new CRRange(0, nA - 1)));
+
+	Sim->Dynamics.addSystem
+	  (new CSDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, 
+			     2.0 * tAB / latticeSites.size(), chiAB, 1.0, 
+			     "ABDSMC", new CRRange(0, nA-1), 
+			     new CRRange(nA, latticeSites.size()-1)));
+
+	Sim->Dynamics.addSystem
+	  (new CSDSMCSpheres(Sim, sizeRatio * particleDiam, 
+			     2.0 * tBB / latticeSites.size(), chiBB, 1.0, 
+			     "ABDSMC", new CRRange(nA, latticeSites.size()-1),
+			     new CRRange(nA, latticeSites.size()-1)));
+	
+	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A",
+					  0, "AAInt"));
+
+	Sim->Dynamics.addSpecies
+	  (CSpecies(Sim, new CRRange(nA, latticeSites.size()-1), 
+		    massFrac, "B", 0, "BBInt"));
+	      
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
