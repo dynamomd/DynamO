@@ -36,7 +36,8 @@ CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp):
   CSystem(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   maxprob(0.0),
-  range(NULL)
+  range1(NULL),
+  range2(NULL)
 {
   dt = HUGE_VAL;
   operator<<(XML);
@@ -44,8 +45,7 @@ CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi, 
-			     Iflt ne,
-			     std::string nName):
+			     Iflt ne, std::string nName, CRange* r1, CRange* r2):
   CSystem(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
   tstep(ntstp),
@@ -54,7 +54,8 @@ CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nC
   diameter(nd),
   maxprob(0.0),
   e(ne),
-  range(new CRAll(Sim))
+  range1(r1),
+  range2(r2)
 {
   sysName = nName;
   type = DSMC;
@@ -89,29 +90,34 @@ CSDSMCSpheres::runEvent() const
 
   boost::variate_generator
     <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
-    idsampler(Sim->ranGenerator, 
-	      boost::uniform_int<size_t>(0, range->size() - 1));
+    id1sampler(Sim->ranGenerator, 
+	      boost::uniform_int<size_t>(0, range1->size() - 1));
+
+  boost::variate_generator
+    <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+    id2sampler(Sim->ranGenerator, 
+	       boost::uniform_int<size_t>(0, range2->size() - 1));
 
   Iflt intPart;
-  Iflt fracpart = std::modf(0.5 * maxprob * range->size(), 
+  Iflt fracpart = std::modf(0.5 * maxprob * range1->size(),
 			    &intPart);
  
   size_t nmax = static_cast<size_t>(intPart);
-
+  
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt);
 
   if (Sim->uniform_sampler() < fracpart)
     ++nmax;
-
+  
   for (size_t n = 0; n < nmax; ++n)
     {
-      const CParticle& p1(Sim->vParticleList[*(range->begin() + idsampler())]);
+      const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
       
-      size_t p2id = *(range->begin() + idsampler());
+      size_t p2id = *(range2->begin() + id2sampler());
       
       while (p2id == p1.getID())
-	p2id = *(range->begin()+idsampler());
+	p2id = *(range2->begin()+id2sampler());
       
       const CParticle& p2(Sim->vParticleList[p2id]);
       
@@ -144,21 +150,21 @@ CSDSMCSpheres::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-  factor = 4.0 * range->size()
+  factor = 4.0 * range2->size()
     * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
   
   if (maxprob == 0.0)
-    BOOST_FOREACH(const size_t& id1, *range)
-      BOOST_FOREACH(const size_t& id2, *range)
+    BOOST_FOREACH(const size_t& id1, *range1)
+      BOOST_FOREACH(const size_t& id2, *range2)
       // Test everything to get an estimate for the max probibility
       if (id1 != id2)
 	{
 	  const CParticle& p1(Sim->vParticleList[id1]);
 	  const CParticle& p2(Sim->vParticleList[id2]);
-
+	  
 	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-
+	  
 	  CPDData PDat;
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -171,13 +177,13 @@ CSDSMCSpheres::initialise(size_t nID)
 	}
 
   if (maxprob > 0.5)
-      I_cerr() << "MaxProbability is " << maxprob
-	       << "\nNpairs per step is " << 0.5 * range->size() * maxprob;
+    I_cerr() << "MaxProbability is " << maxprob
+	     << "\nNpairs per step is " << 0.5 * range1->size() * maxprob;
   else
     I_cout() << "MaxProbability is " << maxprob
-	     << "\nNpairs per step is " << 0.5 * range->size() * maxprob;
-
-  if (range->size() * maxprob < 2.0)
+	     << "\nNpairs per step is " << 0.5 * range1->size() * maxprob;
+  
+  if (0.5 * range1->size() * maxprob < 2.0)
     I_cerr() << "This probability is low";
 }
 
@@ -202,7 +208,9 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
 
     d2 = diameter * diameter;
 
-    range.set_ptr(CRange::loadClass(XML,Sim));
+    range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
+
+    range2.set_ptr(CRange::loadClass(XML.getChildNode("Range2"), Sim));
 
     if (XML.isAttributeSet("MaxProbability"))
       maxprob = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability"));
@@ -225,6 +233,11 @@ CSDSMCSpheres::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Inelasticity") << e
       << xmlw::attr("Name") << sysName
       << xmlw::attr("MaxProbability") << maxprob
-      << range
+      << xmlw::tag("Range1")
+      << range1
+      << xmlw::endtag("Range1")
+      << xmlw::tag("Range2")
+      << range2
+      << xmlw::endtag("Range2")
       << xmlw::endtag("System");
 }

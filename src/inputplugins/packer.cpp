@@ -891,7 +891,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, particleDiam, 
 			     2.0 * tij / latticeSites.size(), chi, 1.0, 
-			     "Thermostat"));
+			     "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
 	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					  "Bulk"));
@@ -956,8 +956,8 @@ CIPPacker::initialise()
 	//No thermostat added yet
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, particleDiam, 0.001, 
-			     chi, alpha, 
-			     "Thermostat"));
+			     chi, alpha, "Thermostat", 
+			     new CRAll(Sim), new CRAll(Sim)));
 
 	Sim->Dynamics.addSpecies
 	  (CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
