@@ -1027,7 +1027,7 @@ CIPPacker::initialise()
 
 	size_t chimode(0);
 	if (vm.count("i2"))
-	  molFrac = vm["i2"].as<size_t>();
+	  chimode = vm["i2"].as<size_t>();
 
 	Iflt xi1 = (1.0/6.0) * PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio );
@@ -1048,22 +1048,23 @@ CIPPacker::initialise()
 	    chiBB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
 				   + xi2 * xi2 *sizeRatio *sizeRatio / (2.0*(1.0-xi3)*(1.0-xi3)));
 	    break;
+
 	  case 1:
 	    //VS
-	    chiAA = (1.0/(1.0-xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
+	    chiAA = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
 	      * xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
-	      + (2.0-xi3-xi3*xi3*0.5)*(2.0*xi2*xi2+xi1*xi3)/(6.0*std::pow(1.0-xi3,3.0));
+	      + (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
+	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 
-	    chiAB = (1.0/(1.0-xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5)
-	      * xi2 * (sizeRatio/(0.5 + 0.5 * sizeRatio)) / (2.0 * (1.0 - xi3) * (1.0 - xi3))
-	      + (2.0-xi3-xi3*xi3*0.5)*(2.0*xi2*xi2+xi1*xi3) 
-	      * (sizeRatio / (0.5 + 0.5 * sizeRatio)) * (sizeRatio / (0.5 + 0.5 * sizeRatio)) 
-	      / (6.0*std::pow(1.0-xi3, 3.0));
+	    chiAB = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
+	      * xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
+	      + (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
+	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 
-	    chiBB = (1.0/(1.0-xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5)
-	      * xi2 * sizeRatio / (2.0 * (1.0 - xi3) * (1.0 - xi3))
-	      + (2.0-xi3-xi3*xi3*0.5)*(2.0*xi2*xi2+xi1*xi3) * sizeRatio * sizeRatio 
-	      / (6.0*std::pow(1.0 - xi3, 3.0));
+	    chiBB = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
+	      * xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
+	      + (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
+	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 	    break;
 	  case 2:
 	    break;
