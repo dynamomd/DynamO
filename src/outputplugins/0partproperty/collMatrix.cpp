@@ -158,9 +158,13 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	<< xmlw::attr("Name") << getName(mp1.first.first, Sim)
 	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
 	<< xmlw::attr("Percent") 
-	<< 100.0 * (((Iflt) mp1.second.first)+((Iflt) initialCounter[mp1.first])) 
+	<< 100.0 * (((Iflt) mp1.second.first)
+		    +((Iflt) initialCounter[mp1.first]))
     / (((Iflt) totalCount) + ((Iflt) initialsum))
 	<< xmlw::attr("Count") << mp1.second.first + initialCounter[mp1.first]
+	<< xmlw::attr("EventMeanFreeTime")
+	<< Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])
+			    * Sim->Dynamics.units().unitTime())
 	<< xmlw::endtag("TotCount");
   
   XML << xmlw::endtag("Totals")

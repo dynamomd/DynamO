@@ -155,13 +155,28 @@ CSDSMCSpheres::initialise(size_t nID)
     / Sim->Dynamics.units().simVolume();
   
   if (maxprob == 0.0)
-    BOOST_FOREACH(const size_t& id1, *range1)
-      BOOST_FOREACH(const size_t& id2, *range2)
-      // Test everything to get an estimate for the max probibility
-      if (id1 != id2)
+    {
+      boost::variate_generator
+	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	id1sampler(Sim->ranGenerator, 
+		   boost::uniform_int<size_t>(0, range1->size() - 1));
+      
+      boost::variate_generator
+	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	id2sampler(Sim->ranGenerator, 
+		   boost::uniform_int<size_t>(0, range2->size() - 1));
+      
+      //Just do some quick testing to get an estimate
+      for (size_t n = 0; n < 1000; ++n)
 	{
-	  const CParticle& p1(Sim->vParticleList[id1]);
-	  const CParticle& p2(Sim->vParticleList[id2]);
+	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+	  
+	  size_t p2id = *(range2->begin() + id2sampler());
+	  
+	  while (p2id == p1.getID())
+	    p2id = *(range2->begin()+id2sampler());
+	  
+	  const CParticle& p2(Sim->vParticleList[p2id]);
 	  
 	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
 	  
@@ -169,12 +184,13 @@ CSDSMCSpheres::initialise(size_t nID)
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    PDat.rij[iDim] = Sim->normal_sampler();
-	  
+	
 	  PDat.rij *= diameter / PDat.rij.length();
 	  
 	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
 						      factor, PDat);
 	}
+    }
 
   if (maxprob > 0.5)
     I_cerr() << "MaxProbability is " << maxprob
