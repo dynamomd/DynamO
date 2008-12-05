@@ -155,7 +155,7 @@ CIPPacker::initialise()
 	"       --f1 : Inelasticity [1.0]\n"
 	"  12: Binary hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Picks the g(r) to use (0:BMCSL,2:VS)\n"
+	"       --i2 : Picks the g(r) to use (0:BMCSL, 1:VS, 2:HC2)\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 	"       --f2 : Mass Ratio (B/A) [0.001]\n"
 	"       --f3 : Mol Fraction of large system (A) [0.95]"
