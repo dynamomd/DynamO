@@ -285,10 +285,6 @@ COPViscosityE::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("PressureVals")
       << xmlw::attr("AvgPressure")
       << AvgPressure / (NDIM * Sim->Dynamics.units().unitPressure())
-    //Needs to use the KEnergy plugin
-    /*      << xmlw::attr("AvgZ")
-	    << AvgPressure * Sim->Dynamics.units().simVolume() 
-	    / (NDI0M * Sim->lN * getkT())*/
       << xmlw::endtag("PressureVals");
   
   XML << xmlw::chardata();
@@ -298,10 +294,7 @@ COPViscosityE::output(xmlw::XmlStream &XML)
       XML << (i+1) * dt / Sim->Dynamics.units().unitTime();
       for (int j = 0; j < NDIM; j++)
 	for (int k = 0; k < NDIM; k++)
-	  if (k==j)
-	    XML << "\t" << ((accG2[i][j][k] / count) - pow(traceAverage[j][k]*(i+1),2)) * rescaleFactor ;
-	  else
-	    XML << "\t" << ((accG2[i][j][k] / count)) * rescaleFactor; 
+	  XML << "\t" << ((accG2[i][j][k] / count) - traceAverage[j][k]*(i+1)*traceAverage[j][k]*(i+1)) * rescaleFactor ;
       
       XML << "\n";
     }
