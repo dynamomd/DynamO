@@ -1023,7 +1023,7 @@ CIPPacker::initialise()
 
 	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
-	Iflt chiAA, chiAB, chiBB;
+	Iflt chiAA(1.0), chiAB(1.0), chiBB(1.0);
 
 	size_t chimode(0);
 	if (vm.count("i2"))
@@ -1031,8 +1031,10 @@ CIPPacker::initialise()
 
 	Iflt xi1 = (1.0/6.0) * PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio );
+
 	Iflt xi2 = (1.0/6.0) * PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio*sizeRatio );
+
 	Iflt xi3 = (1.0/6.0) * PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio*sizeRatio*sizeRatio);
 	
@@ -1057,14 +1059,15 @@ CIPPacker::initialise()
 	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 
 	    chiAB = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
-	      * xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
+	      * xi2 * (sizeRatio / (0.5 + 0.5*sizeRatio))/ (2.0 * (1.0 - xi3) * (1.0 - xi3))
 	      + (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
+	      * (sizeRatio / (0.5 + 0.5*sizeRatio)) * (sizeRatio / (0.5 + 0.5*sizeRatio))
 	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 
 	    chiBB = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
-	      * xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
+	      * xi2 * sizeRatio / (2.0 * (1.0 - xi3) * (1.0 - xi3))
 	      + (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
-	      / (6.0 * std::pow(1.0 - xi3, 3.0));
+	      * sizeRatio * sizeRatio / (6.0 * std::pow(1.0 - xi3, 3.0));
 	    break;
 	  case 2:
 	    break;
