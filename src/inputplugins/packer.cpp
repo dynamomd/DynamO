@@ -1109,7 +1109,16 @@ CIPPacker::initialise()
 
 	chiAB *= 2.0;
 
-	Iflt tAA(0.01), tAB(0.01), tBB(0.01);
+	Iflt tAA = std::sqrt(PI)
+	  / (chiAA * 4.0 * PI * molFrac * vm["density"].as<double>());
+
+	Iflt tAB = std::sqrt(2.0 * PI * massFrac/(1.0+massFrac))
+	  / (chiAB * 4.0 * PI * (1.0 - molFrac) * vm["density"].as<double>()
+	     * (0.5+0.5 * sizeRatio) * (0.5+0.5 * sizeRatio));
+	
+	Iflt tBB = std::sqrt(PI * massFrac)
+	  / (chiBB * 4.0 * PI * (1.0 - molFrac) * vm["density"].as<double>()
+	     * sizeRatio * sizeRatio);
 
 	//This is to provide data on the particles
 	Sim->Dynamics.addInteraction
@@ -1124,19 +1133,19 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, particleDiam, 
-			     2.0 * tAA / latticeSites.size(), chiAA, 1.0, 
+			     tAA / (2.0 * nA), chiAA, 1.0, 
 			     "AADSMC", new CRRange(0, nA - 1), 
 			     new CRRange(0, nA - 1)));
 
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, 
-			     2.0 * tAB / latticeSites.size(), chiAB, 1.0, 
+			     tAB / (2.0 * nA), chiAB, 1.0, 
 			     "ABDSMC", new CRRange(0, nA-1), 
 			     new CRRange(nA, latticeSites.size()-1)));
 
 	Sim->Dynamics.addSystem
 	  (new CSDSMCSpheres(Sim, sizeRatio * particleDiam, 
-			     2.0 * tBB / latticeSites.size(), chiBB, 1.0, 
+			     tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0, 
 			     "BBDSMC", new CRRange(nA, latticeSites.size()-1),
 			     new CRRange(nA, latticeSites.size()-1)));
 	
