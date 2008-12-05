@@ -1042,15 +1042,19 @@ CIPPacker::initialise()
 	  {
 	  case 0:
 	    //BMCSL
-	    chiAA = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))+xi2 * xi2 / (2.0*(1.0-xi3)*(1.0-xi3)));
+	    chiAA = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))
+				     +xi2 * xi2 / (2.0*(1.0-xi3)*(1.0-xi3)));
 
-	    chiAB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio/(0.5+0.5*sizeRatio)
-				     + xi2 * xi2 * std::pow(sizeRatio/(0.5+0.5*sizeRatio),2) / (2.0*(1.0-xi3)*(1.0-xi3)));
+	    chiAB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
+				     /(0.5+0.5*sizeRatio)
+				     + xi2 * xi2 
+				     * std::pow(sizeRatio/(0.5+0.5*sizeRatio),2)
+				     / (2.0*(1.0-xi3)*(1.0-xi3)));
 
 	    chiBB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
-				   + xi2 * xi2 *sizeRatio *sizeRatio / (2.0*(1.0-xi3)*(1.0-xi3)));
+				   + xi2 * xi2 *sizeRatio *sizeRatio 
+				     / (2.0*(1.0-xi3)*(1.0-xi3)));
 	    break;
-
 	  case 1:
 	    //VS
 	    chiAA = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
@@ -1059,9 +1063,11 @@ CIPPacker::initialise()
 	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 
 	    chiAB = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
-	      * xi2 * (sizeRatio / (0.5 + 0.5*sizeRatio))/ (2.0 * (1.0 - xi3) * (1.0 - xi3))
+	      * xi2 * (sizeRatio / (0.5 + 0.5*sizeRatio)) 
+	      / (2.0 * (1.0 - xi3) * (1.0 - xi3))
 	      + (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
-	      * (sizeRatio / (0.5 + 0.5*sizeRatio)) * (sizeRatio / (0.5 + 0.5*sizeRatio))
+	      * (sizeRatio / (0.5 + 0.5*sizeRatio)) 
+	      * (sizeRatio / (0.5 + 0.5*sizeRatio))
 	      / (6.0 * std::pow(1.0 - xi3, 3.0));
 
 	    chiBB = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
@@ -1070,6 +1076,32 @@ CIPPacker::initialise()
 	      * sizeRatio * sizeRatio / (6.0 * std::pow(1.0 - xi3, 3.0));
 	    break;
 	  case 2:
+	    {
+	      //HC2
+	      Iflt x(3.0 * (xi2 - xi3) * 0.5);
+
+	      Iflt R(1.0 / sizeRatio);
+
+	      chiAA = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5) 
+		* xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
+		+ (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
+		/ (6.0 * std::pow(1.0 - xi3, 3.0))
+		+std::exp(x) - 1.0 - x - x*x*0.5;
+	      
+	      chiAB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
+				       /(0.5+0.5*sizeRatio)
+				       + xi2 * xi2 
+				       * std::pow(sizeRatio/(0.5+0.5*sizeRatio),2)
+				       / (2.0*(1.0-xi3)*(1.0-xi3)))
+		+ xi2*xi2*sizeRatio*sizeRatio*(R*R-1.0)
+		/(std::pow(1.0 - xi3, 3.0)*(R+1.0)*(R+1.0))
+		-xi2*xi2*xi2*sizeRatio*sizeRatio*sizeRatio*(R*R*R-1.0)
+		/((1.0-xi3)*(1.0-xi3)*(1.0-xi3)*(R+1.0)*(R+1.0)*(R+1.0));
+	      
+	      chiBB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
+				       + xi2 * xi2 *sizeRatio *sizeRatio 
+				       / (2.0*(1.0-xi3)*(1.0-xi3)));
+	    }
 	    break;
 	  default:
 	    D_throw() << "Unknown mode to set the chi's";
