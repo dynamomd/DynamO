@@ -1086,7 +1086,7 @@ CIPPacker::initialise()
 		* xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
 		+ (2.0 - xi3 - xi3 * xi3 * 0.5) * (2.0 * xi2 * xi2 + xi1 * xi3)
 		/ (6.0 * std::pow(1.0 - xi3, 3.0))
-		+std::exp(x) - 1.0 - x - x*x*0.5;
+		+ std::exp(x) - 1.0 - x - x * x * 0.5;
 	      
 	      chiAB = (1.0/(1.0-xi3))*(1.0+3.0*xi2/(2.0*(1.0-xi3))*sizeRatio
 				       /(0.5+0.5*sizeRatio)
