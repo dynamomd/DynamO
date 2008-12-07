@@ -381,7 +381,7 @@ CEReplexer::ReplexSwapTicker()
 void 
 CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 {
-  D_throw() << "I broke this when this was added as a commit, check the gitk loh\nIt's something to do with improperly handled system events on exchange which I broke during the system event revamp.\n The last working commit was bf52ad0782fcf46e7690e961cc9fa51af57fb08e";
+  //D_throw() << "I broke this when this was added as a commit, check the gitk loh\nIt's something to do with improperly handled system events on exchange which I broke during the system event revamp.\n The last working commit was bf52ad0782fcf46e7690e961cc9fa51af57fb08e";
   CSimulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
   CSimulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
 
@@ -412,16 +412,18 @@ CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
       Iflt scale1(sqrt(sim2.getEnsemble()->getEnsembleVals()[2]/sim1.getEnsemble()->getEnsembleVals()[2]));
       BOOST_FOREACH(CParticle& part, sim1.vParticleList)
 	part.scaleVelocity(scale1);
-      sim2.ptrScheduler->rescaleTimes(scale1);
+	sim2.ptrScheduler->rescaleTimes(scale1);
       
       Iflt scale2(1.0/scale1);
       BOOST_FOREACH(CParticle& part, sim2.vParticleList)
 	part.scaleVelocity(scale2);
-      sim1.ptrScheduler->rescaleTimes(scale2);
-
+	sim1.ptrScheduler->rescaleTimes(scale2);
+      
       //sim1.ptrScheduler->rebuildSystemEvents();
       //sim2.ptrScheduler->rebuildSystemEvents();
-            
+      sim1.ptrScheduler->rebuildList();
+      sim2.ptrScheduler->rebuildList();
+    
       //Globals?
 #ifdef DYNAMO_DEBUG
       if (sim1.outputPlugins.size() != sim2.outputPlugins.size())
@@ -535,7 +537,9 @@ void CEReplexer::runSimulation()
 		D_throw() << "Could not find the time halt event error";
 #endif			
 	      tmpRef->increasedt(vm["replex-interval"].as<Iflt>());
-		      
+
+	      Simulations[i].ptrScheduler->rebuildSystemEvents();
+
 	      //Reset the max collisions
 	      Simulations[i].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
 	    }
