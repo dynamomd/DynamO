@@ -39,7 +39,7 @@ fi
 
 function HS_replex_test {
     for i in $(seq 0 2); do
-	$Dynamod -m 0 -C 3 -T $(echo "0.5*$i + 0.5" | bc -l) \
+	$Dynamod -m 0 -C 7 -T $(echo "0.5*$i + 0.5" | bc -l) \
 	    -o config.$i.start1.xml.bz2 > /dev/null
 
 	bzcat config.$i.start1.xml.bz2 | \
@@ -50,11 +50,11 @@ function HS_replex_test {
     done
 
     #Equilibration
-    $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 600 \
+    time $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 100 \
 	config.*.start.xml.bz2 > /dev/null
-
+    
     #Production
-    $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 1200 \
+    time $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 200 \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     if [ ! -e "output.0.xml.bz2" ]; then
@@ -272,30 +272,30 @@ function ThermostatTest {
 	tmp.xml.bz2 run.log
 }
 
-#echo "SCHEDULER AND SORTER TESTING"
-#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
-#cannon "Dumb" "CBT"
-#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
-#cannon "Dumb" "BoundedPQ"
-#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
-#cannon "NeighbourList" "CBT"
-#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
-#cannon "NeighbourList" "BoundedPQ"
-#
-#echo ""
-#echo "SYSTEM EVENTS"
-#echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
-#ThermostatTest
-#
-#echo ""
-#echo "LOCAL EVENTS"
-#echo "Testing local events (walls) and square wells"
-#wallsw "NeighbourList"
-#
-#echo ""
-#echo "INTERACTIONS"
-#echo "Testing Lines, NeighbourLists and BoundedPQ's"
-#linescannon "NeighbourList" "BoundedPQ"
+echo "SCHEDULER AND SORTER TESTING"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
+cannon "Dumb" "CBT"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
+cannon "Dumb" "BoundedPQ"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
+cannon "NeighbourList" "CBT"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
+cannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "SYSTEM EVENTS"
+echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
+ThermostatTest
+
+echo ""
+echo "LOCAL EVENTS"
+echo "Testing local events (walls) and square wells"
+wallsw "NeighbourList"
+
+echo ""
+echo "INTERACTIONS"
+echo "Testing Lines, NeighbourLists and BoundedPQ's"
+linescannon "NeighbourList" "BoundedPQ"
 
 echo ""
 echo "ENGINE TESTING"
@@ -308,8 +308,8 @@ HS_compressiontest "NeighbourList"
 echo "Testing replica exchange of hard spheres"
 HS_replex_test "NeighbourList"
 
-#echo ""
-#echo "THREADING TESTING"
-#echo "Testing replica exchange with 2 threads"
-#HS_replex_test "NeighbourList" "-N2"
+echo ""
+echo "THREADING TESTING"
+echo "Testing replica exchange with 2 threads"
+HS_replex_test "NeighbourList" "-N2"
 

@@ -59,8 +59,7 @@ CEReplexer::CEReplexer(const boost::program_options::variables_map& nVm,
   SeqSelect(false),
   nSims(0),
   peekMode(false)
-{
-}
+{}
 
 void
 CEReplexer::initialisation()
@@ -424,10 +423,10 @@ CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
       
       sim1.ptrScheduler->rescaleTimes(scale2);
       
-      //sim1.ptrScheduler->rebuildSystemEvents();
-      //sim2.ptrScheduler->rebuildSystemEvents();
-      sim1.ptrScheduler->rebuildList();
-      sim2.ptrScheduler->rebuildList();
+      sim1.ptrScheduler->rebuildSystemEvents();
+      sim2.ptrScheduler->rebuildSystemEvents();
+      //If this is broken use this
+      //sim1.ptrScheduler->rebuildList();
     
       //Globals?
 #ifdef DYNAMO_DEBUG
