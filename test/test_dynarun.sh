@@ -58,6 +58,21 @@ function HS_replex_test {
 	-L CollisionMatrix \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
+    if [ ! -e output.0.xml.bz2 ]; then
+	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.0.xml.bz2"
+	exit 1
+    fi
+
+    if [ ! -e output.1.xml.bz2 ]; then
+	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.1.xml.bz2"
+	exit 1
+    fi
+
+    if [ ! -e output.2.xml.bz2 ]; then
+	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.2.xml.bz2"
+	exit 1
+    fi
+
     MFT1=$(bzcat output.0.xml.bz2 | $Xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
 
     MFT2=$(bzcat output.1.xml.bz2 | $Xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
@@ -69,7 +84,7 @@ function HS_replex_test {
 
     AVG=$(echo "($MFT1 + $MFT2 + $MFT3) / 3.0" | bc -l)
 
-    pass=$(echo $MFT1 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}')
+    pass=$(echo $MFT1 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}' 2>&1)
     if [ $pass != 0 ]; then 
 	echo "$1 HS1 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -94,7 +109,8 @@ function HS_replex_test {
     fi
 
     echo "$1 HS Replica Exchange -: PASSED"
-    rm config.*.end.xml.bz2 config.*.start.xml.bz2 output.*.xml.bz2 *.dat replex.stats
+    rm config.*.end.xml.bz2 config.*.start.xml.bz2 \
+	output.*.xml.bz2 *.dat replex.stats
 }
 
 function HS_compressiontest { 
@@ -257,6 +273,22 @@ function ThermostatTest {
 	tmp.xml.bz2 run.log
 }
 
+echo ""
+echo "ENGINE TESTING"
+echo "Testing local events (walls) and square wells with a " \
+    "Null compression"
+wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
+echo "Testing compression of hard spheres"
+HS_compressiontest "NeighbourList"
+
+echo "Testing replica exchange of hard spheres"
+HS_replex_test "NeighbourList"
+
+#echo ""
+#echo "THREADING TESTING"
+#echo "Testing replica exchange with 2 threads"
+#HS_replex_test "NeighbourList" "-N2"
+
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
 cannon "Dumb" "CBT"
@@ -282,19 +314,3 @@ echo "INTERACTIONS"
 echo "Testing Lines, NeighbourLists and BoundedPQ's"
 linescannon "NeighbourList" "BoundedPQ"
 
-
-echo ""
-echo "ENGINE TESTING"
-echo "Testing local events (walls) and square wells with a " \
-    "Null compression"
-wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
-echo "Testing compression of hard spheres"
-HS_compressiontest "NeighbourList"
-
-#echo "Testing replica exchange of hard spheres"
-#HS_replex_test "NeighbourList"
-#
-#echo ""
-#echo "THREADING TESTING"
-#echo "Testing replica exchange with 2 threads"
-#HS_replex_test "NeighbourList" "-N2"
