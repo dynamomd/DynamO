@@ -409,15 +409,20 @@ CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 	aPtr->changeSystem(&sim2);
       
       //Rescale the velocities     
-      Iflt scale1(sqrt(sim2.getEnsemble()->getEnsembleVals()[2]/sim1.getEnsemble()->getEnsembleVals()[2]));
+      Iflt scale1(sqrt(sim2.getEnsemble()->getEnsembleVals()[2]
+		       / sim1.getEnsemble()->getEnsembleVals()[2]));
+
       BOOST_FOREACH(CParticle& part, sim1.vParticleList)
 	part.scaleVelocity(scale1);
-	sim2.ptrScheduler->rescaleTimes(scale1);
+
+      sim2.ptrScheduler->rescaleTimes(scale1);
       
-      Iflt scale2(1.0/scale1);
+      Iflt scale2(1.0 / scale1);
+      
       BOOST_FOREACH(CParticle& part, sim2.vParticleList)
 	part.scaleVelocity(scale2);
-	sim1.ptrScheduler->rescaleTimes(scale2);
+      
+      sim1.ptrScheduler->rescaleTimes(scale2);
       
       //sim1.ptrScheduler->rebuildSystemEvents();
       //sim2.ptrScheduler->rebuildSystemEvents();

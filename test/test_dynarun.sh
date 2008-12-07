@@ -55,29 +55,28 @@ function HS_replex_test {
 
     #Production
     $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 1200 \
-	-L CollisionMatrix \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
-    if [ ! -e output.0.xml.bz2 ]; then
+    if [ ! -e "output.0.xml.bz2" ]; then
 	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.0.xml.bz2"
 	exit 1
     fi
 
-    if [ ! -e output.1.xml.bz2 ]; then
+    if [ ! -e "output.1.xml.bz2" ]; then
 	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.1.xml.bz2"
 	exit 1
     fi
 
-    if [ ! -e output.2.xml.bz2 ]; then
+    if [ ! -e "output.2.xml.bz2" ]; then
 	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.2.xml.bz2"
 	exit 1
     fi
 
-    MFT1=$(bzcat output.0.xml.bz2 | $Xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
+    MFT1=$(bzcat output.0.xml.bz2 | $Xml sel -t -v "/OutputData/Misc/totMeanFreeTime/@val")
 
-    MFT2=$(bzcat output.1.xml.bz2 | $Xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
+    MFT2=$(bzcat output.1.xml.bz2 | $Xml sel -t -v "/OutputData/Misc/totMeanFreeTime/@val")
 
-    MFT3=$(bzcat output.2.xml.bz2 | $Xml sel -t -v "/OutputData/CollCounters/Totals/TotCount[@Event='CORE']/@MFT")
+    MFT3=$(bzcat output.2.xml.bz2 | $Xml sel -t -v "/OutputData/Misc/totMeanFreeTime/@val")
 
     MFT1=$(echo "$MFT1 * sqrt(0.5)" | bc -l)
     MFT3=$(echo "$MFT3 * sqrt(1.5)" | bc -l)
@@ -273,6 +272,31 @@ function ThermostatTest {
 	tmp.xml.bz2 run.log
 }
 
+#echo "SCHEDULER AND SORTER TESTING"
+#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
+#cannon "Dumb" "CBT"
+#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
+#cannon "Dumb" "BoundedPQ"
+#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
+#cannon "NeighbourList" "CBT"
+#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
+#cannon "NeighbourList" "BoundedPQ"
+#
+#echo ""
+#echo "SYSTEM EVENTS"
+#echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
+#ThermostatTest
+#
+#echo ""
+#echo "LOCAL EVENTS"
+#echo "Testing local events (walls) and square wells"
+#wallsw "NeighbourList"
+#
+#echo ""
+#echo "INTERACTIONS"
+#echo "Testing Lines, NeighbourLists and BoundedPQ's"
+#linescannon "NeighbourList" "BoundedPQ"
+
 echo ""
 echo "ENGINE TESTING"
 echo "Testing local events (walls) and square wells with a " \
@@ -288,29 +312,4 @@ HS_replex_test "NeighbourList"
 #echo "THREADING TESTING"
 #echo "Testing replica exchange with 2 threads"
 #HS_replex_test "NeighbourList" "-N2"
-
-echo "SCHEDULER AND SORTER TESTING"
-echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
-cannon "Dumb" "CBT"
-echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
-cannon "Dumb" "BoundedPQ"
-echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
-cannon "NeighbourList" "CBT"
-echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
-cannon "NeighbourList" "BoundedPQ"
-
-echo ""
-echo "SYSTEM EVENTS"
-echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
-ThermostatTest
-
-echo ""
-echo "LOCAL EVENTS"
-echo "Testing local events (walls) and square wells"
-wallsw "NeighbourList"
-
-echo ""
-echo "INTERACTIONS"
-echo "Testing Lines, NeighbourLists and BoundedPQ's"
-linescannon "NeighbourList" "BoundedPQ"
 
