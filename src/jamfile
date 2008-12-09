@@ -30,7 +30,7 @@ lib pthread
 #    : : <file>/usr/lib/libvtkIO.so 
 #    : : <link>shared <define>DYNAMO_VTK <include>/usr/include/vtk-5.2/ ;
 
-lib dynamo_core : [ glob-tree *.cpp : dataproc ] version.genversion
+lib dynamo_core : [ glob-tree *.cpp : dataproc ]
     ../boost//iostreams  ../boost//thread ../boost//filesystem 
     ../boost//program_options ../boost//signals gsl pthread 
     #vtkIO

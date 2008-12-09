@@ -19,8 +19,6 @@ using gcc ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
-import genversion ;
-
 import dynamo-tags ;
 
 project	: requirements <variant>debug:<define>DYNAMO_DEBUG 
