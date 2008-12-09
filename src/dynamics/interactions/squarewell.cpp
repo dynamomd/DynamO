@@ -128,7 +128,7 @@ CISquareWell::getEvent(const CParticle &p1,
   if (p1 == p2)
     D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
-  
+
   Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
   CPDData colldat(*Sim, p1, p2);
   
@@ -143,12 +143,25 @@ CISquareWell::getEvent(const CParticle &p1,
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
-#endif	  
+#endif
+	  
+#ifdef DYNAMO_DEBUG
+	  if (std::isnan(colldat.dt))
+	    D_throw() << "colldat.dt is nan";
+#endif
+  
 	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
       else
 	if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, ld2))
-	  return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  {
+#ifdef DYNAMO_DEBUG
+	    if (std::isnan(colldat.dt))
+	      D_throw() << "colldat.dt is nan";
+#endif
+  
+	    return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  }
     }
   else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, ld2)) 
     {
@@ -166,9 +179,14 @@ CISquareWell::getEvent(const CParticle &p1,
 	  
 	}
 #endif
+
+#ifdef DYNAMO_DEBUG
+	    if (std::isnan(colldat.dt))
+	      D_throw() << "colldat.dt is nan";
+#endif
       return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
-  
+
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 

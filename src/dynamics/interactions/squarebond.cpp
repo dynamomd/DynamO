@@ -160,8 +160,10 @@ CISquareBond::getEvent(const CParticle &p1,
     }
   else
     if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, ld2))
-      return CIntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
-
+      {
+	return CIntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
+      }
+  
   //This line is commented out as compression dynamics can stop any event occuring
   /*else
     D_throw() << "Captured in square bond, but the bull, he has escapade!";*/
