@@ -32,12 +32,6 @@ CStHalt::CStHalt(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
 	   << ndt;
 }
 
-void 
-CStHalt::stream(Iflt ndt)
-{
-  dt -= ndt;
-}
-
 void
 CStHalt::runEvent() const
 {

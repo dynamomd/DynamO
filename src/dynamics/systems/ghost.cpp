@@ -41,7 +41,8 @@ CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp):
   tune(false),
   setPoint(0.05),
   eventCount(0),
-  setFrequency(50000),
+  lastlNColl(0),
+  setFrequency(100),
   range(NULL)
 {
   dt = HUGE_VAL;
@@ -58,7 +59,8 @@ CSysGhost::CSysGhost(DYNAMO::SimData* nSim, Iflt mft, Iflt t,
   tune(true),
   setPoint(0.05),
   eventCount(0),
-  setFrequency(50000),
+  lastlNColl(0),
+  setFrequency(100),
   range(new CRAll(Sim))
 {
   sysName = nName;
@@ -66,24 +68,20 @@ CSysGhost::CSysGhost(DYNAMO::SimData* nSim, Iflt mft, Iflt t,
 }
 
 void 
-CSysGhost::stream(Iflt ndt)
-{
-  dt -= ndt;
-  if (tune)
-    if ((!(Sim->lNColl % setFrequency)) 
-	&& (eventCount != 0) && (Sim->lNColl != 0))
-      {
-	meanFreeTime *= static_cast<Iflt>(eventCount)
-	  / (setFrequency * setPoint);
-	dt = getGhostt();
-	eventCount = 0;
-      }
-}
-
-void 
 CSysGhost::runEvent() const
 {
   ++Sim->lNColl;
+  ++eventCount;
+
+  if (tune && (eventCount > setFrequency))
+    {
+      meanFreeTime *= static_cast<Iflt>(eventCount)
+	/ ((Sim->lNColl - lastlNColl) * setPoint);
+
+      lastlNColl = Sim->lNColl;
+      eventCount = 0;
+    }
+
   Iflt locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
@@ -95,10 +93,7 @@ CSysGhost::runEvent() const
     
   Sim->ptrScheduler->stream(locdt);
   
-  //dynamics must be updated first
   Sim->Dynamics.stream(locdt);
-
-  ++eventCount;
 
   dt = getGhostt();
 

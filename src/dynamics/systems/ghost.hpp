@@ -35,8 +35,6 @@ public:
   
   virtual CSystem* Clone() const { return new CSysGhost(*this); }
 
-  virtual void stream(Iflt);
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);
@@ -52,11 +50,12 @@ protected:
 
   mutable boost::variate_generator<DYNAMO::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  
-  Iflt meanFreeTime;
+  mutable Iflt meanFreeTime;
   Iflt Temp, sqrtTemp;
   bool tune;
   Iflt setPoint;
   mutable unsigned long long eventCount;
+  mutable unsigned long long lastlNColl;
   unsigned long long setFrequency;
 
   Iflt getGhostt() const;

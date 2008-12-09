@@ -62,12 +62,6 @@ CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nC
 }
 
 void 
-CSDSMCSpheres::stream(Iflt ndt)
-{
-  dt -= ndt;
-}
-
-void 
 CSDSMCSpheres::runEvent() const
 {
   Iflt locdt = dt;

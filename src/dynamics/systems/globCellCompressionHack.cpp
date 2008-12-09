@@ -32,12 +32,6 @@ CSGlobCellHack::CSGlobCellHack(DYNAMO::SimData* nSim, Iflt nGR):
   type = NON_EVENT;
 }
 
-void 
-CSGlobCellHack::stream(Iflt ndt)
-{
-  dt -= ndt;
-}
-
 void
 CSGlobCellHack::runEvent() const
 {

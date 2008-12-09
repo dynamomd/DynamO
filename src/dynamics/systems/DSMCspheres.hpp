@@ -35,8 +35,6 @@ public:
   
   virtual CSystem* Clone() const { return new CSDSMCSpheres(*this); }
 
-  virtual void stream(Iflt);
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

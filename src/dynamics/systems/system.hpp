@@ -40,7 +40,7 @@ public:
   
   virtual CSystem* Clone() const = 0; //{ return new COPBlank(*this); };
 
-  virtual void stream(Iflt) = 0;
+  inline void stream(const Iflt& ndt) { dt -= ndt; }
 
   virtual void runEvent() const = 0;
 

@@ -38,12 +38,6 @@ CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
 	   << nPeriod / Sim->Dynamics.units().unitTime();
 }
 
-void 
-CSTicker::stream(Iflt ndt)
-{
-  dt -= ndt;
-}
-
 void
 CSTicker::runEvent() const
 {

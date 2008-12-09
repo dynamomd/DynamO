@@ -33,12 +33,6 @@ CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, Iflt ndt, std::strin
 }
 
 void 
-CSSchedMaintainer::stream(Iflt ndt)
-{
-  dt -= ndt;
-}
-
-void 
 CSSchedMaintainer::runEvent() const
 {
   Iflt locdt = dt;

@@ -28,8 +28,6 @@ public:
   
   virtual CSystem* Clone() const { return new CSGlobCellHack(*this); }
 
-  virtual void stream(Iflt);
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

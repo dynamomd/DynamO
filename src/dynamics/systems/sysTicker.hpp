@@ -27,8 +27,6 @@ public:
   
   virtual CSystem* Clone() const { return new CSTicker(*this); }
 
-  virtual void stream(Iflt);
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);
