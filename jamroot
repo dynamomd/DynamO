@@ -1,12 +1,29 @@
+#    DYNAMO:- Event driven molecular dynamics simulator 
+#    http://www.marcusbannerman.co.uk/dynamo
+#    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#
+#    This program is free software: you can redistribute it and/or
+#    modify it under the terms of the GNU General Public License
+#    version 3 as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #using intel-linux ;
 using gcc ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
-import type ;
+import genversion ;
 
-project
-	: requirements <variant>debug:<define>DYNAMO_DEBUG 
+import dynamo-tags ;
+
+project	: requirements <variant>debug:<define>DYNAMO_DEBUG 
 	  <define>DYNAMO_double_precsision 
 	  <variant>release:<define>DYNAMO_Colour
 	  <variant>release:<runtime-link>static
@@ -16,29 +33,10 @@ project
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
-	  <tag>@naming
+	  <tag>@dynamo-tags.naming
 	: default-build release
 	: build-dir build-dir
 	;
-
-rule naming ( name : type ? : property-set )
-{
-  local result = ;
-
-  if [ type.is-derived $(type) EXE ]
-  {  
-     switch [ $(property-set).get <variant> ]
-     {
-     case debug : result += $(name)_d ;
-     case cachegrind : result += $(name)_cg ;
-     case profile : result += $(name)_p ;
-     case * : result += $(name) ;
-     }
-  }
-
-  #This joins all list elements with no seperator
-  return $(result:J=) ;
-}
 
 variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
 	<profiling>off ;

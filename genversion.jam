@@ -1,0 +1,54 @@
+#    DYNAMO:- Event driven molecular dynamics simulator 
+#    http://www.marcusbannerman.co.uk/dynamo
+#    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#
+#    This program is free software: you can redistribute it and/or
+#    modify it under the terms of the GNU General Public License
+#    version 3 as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import type ;
+type.register GENVERSION : genversion ;
+
+import generators ;
+generators.register-standard genversion.genversion-file 
+			      : GENVERSION
+			      : CPP 
+			      ;
+
+import scanner ;
+
+#  First, define a new class, derived from 'common-scanner',
+#  that class has all the interesting logic, and we only need
+#  to override the 'pattern' method which return regular
+#  expression to use when scanning.
+class genversion-scanner : common-scanner 
+{
+    rule pattern ( )
+    {
+        return "#include[ ]*\"([^\"]*)\"" ;
+    }
+}
+
+# Register the scanner class. The 'include' is
+# the property which specifies the search path
+# for includes.
+scanner.register genversion-scanner : include ;
+
+# Assign the scanner class to the target type.
+# Now, all .verbatim sources will be scanned.
+# To test this, build the project, touch the 
+# t2.verbatim file and build again.
+type.set-scanner GENVERSION : genversion-scanner ;
+
+actions genversion-file
+{
+  cp $(>) $(<)
+}

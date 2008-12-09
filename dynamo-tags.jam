@@ -14,25 +14,24 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-lib gslcblas ;
- 
-lib gsl	
-    : gslcblas 
-    : <name>gsl
-    ;
+import type ;
 
-lib pthread
-    : : <link>shared <name>pthread
-    ;   
+rule naming ( name : type ? : property-set )
+{
+  local result = ;
 
-#Adds the vtk plugin
-#lib vtkIO  		   
-#    : : <file>/usr/lib/libvtkIO.so 
-#    : : <link>shared <define>DYNAMO_VTK <include>/usr/include/vtk-5.2/ ;
+  if [ type.is-derived $(type) EXE ]
+  {  
+     switch [ $(property-set).get <variant> ]
+     {
+     case debug : result += $(name)_d ;
+     case cachegrind : result += $(name)_cg ;
+     case profile : result += $(name)_p ;
+     case * : result += $(name) ;
+     }
+  }
 
-lib dynamo_core : [ glob-tree *.cpp : dataproc ] version.genversion
-    ../boost//iostreams  ../boost//thread ../boost//filesystem 
-    ../boost//program_options ../boost//signals gsl pthread 
-    #vtkIO
-    : <threading>multi 
-    ;
+  #This joins all list elements with no seperator
+  return $(result:J=) ;
+}
+

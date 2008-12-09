@@ -16,6 +16,7 @@
 */
 
 #include "simulation.hpp"
+#include "../version.hpp"
 #include <iomanip>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -279,8 +280,15 @@ CSimulation::outputData(const char* filename)
   xmlw::XmlStream XML(coutputFile);
   
   XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
-      << xmlw::prolog() << xmlw::tag("OutputData");
+      << xmlw::prolog() << xmlw::tag("OutputData")
+      << xmlw::tag("DYNARUN")
+      << xmlw::attr("GitVersionHash") << DYNAMO::buildInfo::gitCheckoutHash
+      << xmlw::attr("BuildDate") << DYNAMO::buildInfo::buildDate
+      << xmlw::attr("ToolChain") << DYNAMO::buildInfo::toolChain
+      << xmlw::attr("BuildHost") << DYNAMO::buildInfo::buildHost
+      << xmlw::endtag("DYNARUN");
   
+
   //Output the data and delete the outputplugins
   BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->output(XML);
