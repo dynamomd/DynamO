@@ -37,6 +37,12 @@ CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 	  //This is the more numerically stable form of the quadratic
 	  //formula
 	  dat.dt = (d2 - dat.r2) / (dat.rvdot-sqrt(arg));
+
+#ifdef DYNAMO_DEBUG
+	  if (std::isnan(dat.dt))
+	    D_throw() << "dat.dt is nan";
+#endif
+
 	  return true;
 	}
     }
@@ -47,6 +53,12 @@ bool
 CLNewton::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 {
   dat.dt = (sqrt(dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2))-dat.rvdot) / dat.v2;
+
+#ifdef DYNAMO_DEBUG
+  if (std::isnan(dat.dt))
+    D_throw() << "dat.dt is nan";
+#endif
+  
   return true;   
 }
 

@@ -145,21 +145,11 @@ CISquareWell::getEvent(const CParticle &p1,
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
 #endif
 	  
-#ifdef DYNAMO_DEBUG
-	  if (std::isnan(colldat.dt))
-	    D_throw() << "colldat.dt is nan";
-#endif
-  
 	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
       else
 	if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, ld2))
-	  {
-#ifdef DYNAMO_DEBUG
-	    if (std::isnan(colldat.dt))
-	      D_throw() << "colldat.dt is nan";
-#endif
-  
+	  {  
 	    return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
 	  }
     }
@@ -171,19 +161,19 @@ CISquareWell::getEvent(const CParticle &p1,
 	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
 	    D_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
-		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
+		      << p2.getID() << "\nOverlap = " 
+		      << (sqrt(colldat.r2) - sqrt(d2)) 
+	      / Sim->Dynamics.units().unitLength();
 	  else
 	    D_throw() << "Overlapping wells (but not registerd as captured) particles found" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
-		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(ld2))/Sim->Dynamics.units().unitLength();
+		      << p2.getID() << "\nOverlap = " 
+		      << (sqrt(colldat.r2) - sqrt(ld2)) 
+	      / Sim->Dynamics.units().unitLength();
 	  
 	}
 #endif
 
-#ifdef DYNAMO_DEBUG
-	    if (std::isnan(colldat.dt))
-	      D_throw() << "colldat.dt is nan";
-#endif
       return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
