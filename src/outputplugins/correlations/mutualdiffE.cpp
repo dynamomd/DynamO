@@ -44,8 +44,6 @@ COPMutualDiffusionE::COPMutualDiffusionE(const DYNAMO::SimData* tmp, const XMLNo
 void 
 COPMutualDiffusionE::operator<<(const XMLNode& XML)
 {
-  I_cout() << "Parsing XML " << XML.createXMLString();
-
   try 
     {
       if (XML.isAttributeSet("Length"))
