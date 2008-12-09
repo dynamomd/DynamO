@@ -28,14 +28,9 @@ if [ ! -x $Dynarun ]; then
     echo "Could not find dynamod, have you built it?"
 fi
 
-if [ $(whereis -b $Xml | wc -w) -lt 2 ]; then 
-    Xml="xmlstarlet"
-    if [ $(whereis -b $Xml | wc -w) -lt 2 ]; then 
-	echo "Could not find XMLStarlet"
-	exit 
-    fi
-fi
+which $Xml || Xml="xmlstarlet"
 
+which $Xml || `echo "Could not find XMLStarlet"; exit`
 
 function HS_replex_test {
     for i in $(seq 0 2); do
