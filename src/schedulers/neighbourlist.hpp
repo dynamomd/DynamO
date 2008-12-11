@@ -19,7 +19,7 @@
 #define CSNeighbourList_H
 
 #include "scheduler.hpp"
-#include <boost/signals.hpp>
+#include <sigc++/sigc++.h>
 
 class CSNeighbourList: public CScheduler
 {
@@ -47,9 +47,9 @@ protected:
 
   void virtualCellNewNeighbour(const CParticle&, const CParticle&);
 
-  boost::signals::scoped_connection cellChange;
-  boost::signals::scoped_connection cellChangeLocal;
-  boost::signals::scoped_connection reinit;  
+  sigc::connection cellChange;
+  sigc::connection cellChangeLocal;
+  sigc::connection reinit;  
 };
 
 #endif

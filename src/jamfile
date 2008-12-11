@@ -25,6 +25,12 @@ lib pthread
     : : <link>shared <name>pthread
     ;   
 
+lib sigc++
+    : : <name>sigc-2.0
+    : : <include>/usr/include/sigc++-2.0/ 
+    <include>/usr/lib/sigc++-2.0/include
+    ;
+
 #Adds the vtk plugin
 #lib vtkIO  		   
 #    : : <file>/usr/lib/libvtkIO.so 
@@ -32,7 +38,7 @@ lib pthread
 
 lib dynamo_core : [ glob-tree *.cpp : dataproc ]
     ../boost//iostreams  ../boost//thread ../boost//filesystem 
-    ../boost//program_options ../boost//signals gsl pthread 
+    ../boost//program_options ../boost//signals gsl pthread sigc++
     #vtkIO
     : <threading>multi 
     ;

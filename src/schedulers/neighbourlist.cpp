@@ -73,22 +73,22 @@ CSNeighbourList::initialise()
     cellChange 
       = static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .registerCellTransitionNewNeighbourCallBack
-      (boost::bind(&CSNeighbourList::addInteractionEvent, this, _1, _2));
+      .getsigNewNeighbourNotify().connect
+      (sigc::mem_fun(this, &CSNeighbourList::addInteractionEvent));
 
   if (!cellChangeLocal.connected())
     cellChangeLocal 
       = static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .registerCellTransitionNewLocalCallBack
-      (boost::bind(&CSNeighbourList::addLocalEvent, this, _1, _2));
+      .getsigNewLocalNotify().connect
+      (sigc::mem_fun(this, &CSNeighbourList::addLocalEvent));
   
   if (!reinit.connected())
     reinit 
       = static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .registerReInitNotify
-      (boost::bind(&CSNeighbourList::initialise, this));
+      .getReInitNotify().connect
+      (sigc::mem_fun(this, &CSNeighbourList::initialise));
 }
 
 void 

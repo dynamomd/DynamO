@@ -20,17 +20,12 @@
 
 #include "global.hpp"
 #include <boost/function.hpp>
-#include <boost/signals.hpp>
+#include <sigc++/sigc++.h>
 
 class CGNeighbourList: public CGlobal
 {
 protected:
   typedef boost::function<void (const CParticle&, const size_t&)> nbhoodFunc;
-
-  typedef boost::signal<void (const CParticle&, const size_t&)>::slot_type 
-  CCfunc;
-  
-  typedef boost::signal<void ()>::slot_type RIfunc;
   
 public:
   CGNeighbourList(DYNAMO::SimData* a, 
@@ -51,36 +46,32 @@ public:
   virtual void getParticleLocalNeighbourhood(const CParticle&, 
 					     const nbhoodFunc&) const = 0;
 
-  inline boost::signals::connection
-  registerCellTransitionCallBack(const CCfunc& func) const
-  { return sigCellChangeNotify.connect(func); }
-
-  inline boost::signals::connection
-  registerCellTransitionNewNeighbourCallBack(const CCfunc& func) const
-  { return sigNewNeighbourNotify.connect(func); }
-
-  inline boost::signals::connection
-  registerCellTransitionNewLocalCallBack(const CCfunc& func) const
-  { return sigNewLocalNotify.connect(func); }
-
-  inline boost::signals::connection 
-  registerReInitNotify(const RIfunc& func) const
-  { return ReInitNotify.connect(func); }
-
+  inline sigc::signal<void, const CParticle&, const size_t&>&
+  getsigCellChangeNotify() const {return sigCellChangeNotify; }
+  
+  inline sigc::signal<void, const CParticle&, const size_t&>&
+  getsigNewLocalNotify() const { return sigNewLocalNotify; }
+  
+  inline sigc::signal<void, const CParticle&, const size_t&>&
+  getsigNewNeighbourNotify() const { return sigNewNeighbourNotify; }
+  
+  inline sigc::signal<void>&
+  getReInitNotify() const { return ReInitNotify; }
+  
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
   //Signals
-  mutable boost::signal<void (const CParticle&, const size_t&)> 
+  mutable sigc::signal<void, const CParticle&, const size_t&> 
   sigCellChangeNotify;
 
-  mutable boost::signal<void (const CParticle&, const size_t&)> 
+  mutable sigc::signal<void, const CParticle&, const size_t&> 
   sigNewLocalNotify;
 
-  mutable boost::signal<void (const CParticle&, const size_t&)> 
+  mutable sigc::signal<void, const CParticle&, const size_t&> 
   sigNewNeighbourNotify;
 
-  mutable boost::signal<void ()> ReInitNotify;
+  mutable sigc::signal<void> ReInitNotify;
 };
 
 #endif

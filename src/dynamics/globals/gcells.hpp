@@ -22,6 +22,7 @@
 #include "../../extcode/mathtemplates.hpp"
 #include "../../datatypes/vector.hpp"
 #include "../../simulation/particle.hpp"
+#include <vector>
 
 class CGCells: public CGNeighbourList
 {

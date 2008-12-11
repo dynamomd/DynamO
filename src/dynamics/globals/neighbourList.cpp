@@ -20,6 +20,6 @@
 CGNeighbourList::CGNeighbourList(const CGNeighbourList& nb):
   CGlobal(nb)
 {
-  I_cout() << "YOU SHOULD NOT COPY THIS CLASS!";
+  I_cout() << "On copy this class erases callbacks";
 }
 
