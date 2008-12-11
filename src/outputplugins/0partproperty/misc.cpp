@@ -72,10 +72,10 @@ COPMisc::initialise()
 
   std::cout << ">";
 
-  std::time(&startTime);
-
-  std::string sTime(std::ctime(&startTime));
-  //A hack to remove the newline character at the end
+  cstartTime = std::clock();
+  std::time(&tstartTime);
+  
+  std::string sTime(std::ctime(&tstartTime));
   sTime[sTime.size()-1] = ' ';
 
   I_cout() << "Started on " << sTime;
@@ -120,19 +120,20 @@ COPMisc::getMFT() const
 void
 COPMisc::output(xmlw::XmlStream &XML)
 {
-  std::time_t endTime;
-  time(&endTime);
+  std::clock_t cendTime=std::clock();
+  std::time_t tendTime;
+  time(&tendTime);
   
-  //This must be seperate as ctime is not reentrant! :(
-  std::string sTime(std::ctime(&startTime));
+  std::string sTime(std::ctime(&tstartTime));
   //A hack to remove the newline character at the end
   sTime[sTime.size()-1] = ' ';
-  
-  std::string eTime(std::ctime(&endTime));
+
+  std::string eTime(std::ctime(&tendTime));
   //A hack to remove the newline character at the end
   eTime[eTime.size()-1] = ' ';
   
-  Iflt collpersec = ((Iflt) Sim->lNColl) / difftime(endTime, startTime); 
+  Iflt collpersec = CLOCKS_PER_SEC * double(Sim->lNColl)
+    / double(cendTime - cstartTime);
 
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
@@ -172,7 +173,7 @@ COPMisc::output(xmlw::XmlStream &XML)
 
       << xmlw::tag("Duration") 
       << xmlw::attr("val") 
-      << difftime(endTime, startTime)
+      << double(cendTime - cstartTime) / double(CLOCKS_PER_SEC)
       << xmlw::endtag("Duration")
 
       << xmlw::tag("CollPerSec")
@@ -205,10 +206,10 @@ COPMisc::output(xmlw::XmlStream &XML)
       << sumMV / Sim->Dynamics.units().unitMomentum()
       << xmlw::endtag("Total_momentum")    
       << xmlw::tag("totMeanFreeTime")
-      << xmlw::attr("val") 
+      << xmlw::attr("val")
       << getMFT()
       << xmlw::endtag("totMeanFreeTime")
-      << xmlw::endtag("Misc");  
+      << xmlw::endtag("Misc");
 }
 
 void

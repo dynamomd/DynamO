@@ -49,7 +49,8 @@ public:
   void changeSystem(COutputPlugin*);
   
 protected:
-  std::time_t startTime;
+  std::clock_t cstartTime;
+  std::time_t tstartTime;
 
   Iflt oldSysTime;
 
