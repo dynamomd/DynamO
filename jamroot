@@ -36,7 +36,7 @@ project	: requirements <variant>debug:<define>DYNAMO_DEBUG
 	: build-dir build-dir
 	;
 
-variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
+variant cachegrind : <inlining>on <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
 variant colldebug : debug : <define>DYNAMO_CollDebug ;

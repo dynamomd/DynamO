@@ -111,4 +111,3 @@ CEngine::postSimInit(CSimulation& Sim)
     //Just add the bare minimum outputplugin
     Sim.addOutputPlugin("Misc");
 }
-

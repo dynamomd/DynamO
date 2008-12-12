@@ -121,7 +121,8 @@ CEReplexer::initialisation()
       
 #ifdef DYNAMO_DEBUG
       if (!didWork)
-	{	 std::cout << "Could not find thermostat system event";
+	{	 
+	  std::cout << "Could not find thermostat system event";
 	  exit(1);
 	}
 #endif
@@ -179,17 +180,17 @@ CEReplexer::preSimInit()
   CEngine::preSimInit();
 
   ReplexMode = static_cast<Replex_Mode_Type>(vm["replex-swap-mode"].as<unsigned int>());
-
+  
   nSims = vm["config-file"].as<std::vector<std::string> >().size();
   
   replicaEndTime = vm["sim-end-time"].as<Iflt>();
-
+  
   if (nSims < 2 && vm.count("replex"))
     {
       std::cout << "\nTurning off replica exchange as you have Nsystems < 2";
       ReplexMode = NoSwapping;
     }
-
+  
   if (configFormat.find("%ID") == configFormat.npos)
     D_throw() << "Replex mode, but format string for config file output"
       " doesnt contain %ID";
@@ -197,9 +198,11 @@ CEReplexer::preSimInit()
   if (outputFormat.find("%ID") == outputFormat.npos)
     D_throw() << "Multiple configs loaded, but format string for output"
       " file doesnt contain %ID";  
-
+  
   Simulations.reset(new CSimulation[nSims]);
   
+  for (size_t id(0); id < nSims; ++id)
+    Simulations[id].simID = id;
 }
 
 
