@@ -22,8 +22,7 @@
 #include <boost/function.hpp>
 #include <vector>
 
-//#define DYNAMO_Using_Fast_Delegates
-
+#define DYNAMO_Using_Fast_Delegates
 
 #ifdef DYNAMO_Using_Fast_Delegates
 #include <FastDelegate/FastDelegate.h>
@@ -36,8 +35,8 @@ class CGNeighbourList: public CGlobal
 protected:
   
 #ifdef DYNAMO_Using_Fast_Delegates
-  typedef fastdelegate::FastDelegate<void (const CParticle&, const size_t&)> nbHoodFunc;
-  typedef fastdelegate::FastDelegate<void ()> initFunc;  
+  typedef fastdelegate::FastDelegate2<const CParticle&, const size_t&, void> nbHoodFunc;
+  typedef fastdelegate::FastDelegate0<void> initFunc;  
 #else
   typedef boost::function<void (const CParticle&, const size_t&)> nbHoodFunc;
   typedef boost::function<void ()> initFunc;  
@@ -49,12 +48,12 @@ public:
   template<class T>
   static nbHoodFunc
   getNBDelegate(void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
-  { return fastdelegate::MakeDelegate(func, tp); }
+  { return fastdelegate::MakeDelegate(tp, func); }
 
   template<class T>
   static initFunc
   getInitDelegate(void (T::*func)(), T* tp)
-  { return fastdelegate::MakeDelegate(func, tp); }
+  { return fastdelegate::MakeDelegate(tp, func); }
 
 #else
 
