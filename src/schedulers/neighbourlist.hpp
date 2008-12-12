@@ -19,7 +19,6 @@
 #define CSNeighbourList_H
 
 #include "scheduler.hpp"
-#include <sigc++/sigc++.h>
 
 class CSNeighbourList: public CScheduler
 {
