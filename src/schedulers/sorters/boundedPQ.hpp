@@ -60,7 +60,7 @@ public:
   }
 
   ~CSSBoundedPQ() 
-  { I_cout() << "Exception Events = " << exceptionCount; }
+  { I_cout() << "Exception Events = " << exceptionCount << "\n"; }
   
   inline size_t size() const { return Min.size() - 1; }
   inline bool empty() const { return Min.empty(); }
