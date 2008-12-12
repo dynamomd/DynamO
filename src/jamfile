@@ -34,5 +34,6 @@ lib dynamo_core : [ glob-tree *.cpp : dataproc ]
     ../boost//iostreams  ../boost//thread ../boost//filesystem 
     ../boost//program_options gsl pthread
     #vtkIO
-    : <threading>multi 
+    : <threading>multi <include>extcode/include
+    : : <threading>multi <include>extcode/include
     ;

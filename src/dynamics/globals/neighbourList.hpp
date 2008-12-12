@@ -22,14 +22,57 @@
 #include <boost/function.hpp>
 #include <vector>
 
+//#define DYNAMO_Using_Fast_Delegates
+
+
+#ifdef DYNAMO_Using_Fast_Delegates
+#include <FastDelegate/FastDelegate.h>
+#else
+#include <boost/bind.hpp>
+#endif
+
 class CGNeighbourList: public CGlobal
 {
 protected:
+  
+#ifdef DYNAMO_Using_Fast_Delegates
+  typedef fastdelegate::FastDelegate<void (const CParticle&, const size_t&)> nbHoodFunc;
+  typedef fastdelegate::FastDelegate<void ()> initFunc;  
+#else
   typedef boost::function<void (const CParticle&, const size_t&)> nbHoodFunc;
+  typedef boost::function<void ()> initFunc;  
+  
+#endif
 
+public:
+#ifdef DYNAMO_Using_Fast_Delegates
+  template<class T>
+  static nbHoodFunc
+  getNBDelegate(void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
+  { return fastdelegate::MakeDelegate(func, tp); }
+
+  template<class T>
+  static initFunc
+  getInitDelegate(void (T::*func)(), T* tp)
+  { return fastdelegate::MakeDelegate(func, tp); }
+
+#else
+
+  template<class T>
+  static nbHoodFunc
+  getNBDelegate(void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
+  { return boost::bind(func, tp, _1, _2); }
+
+  template<class T>
+  static initFunc
+  getInitDelegate(void (T::*func)(), T* tp)
+  { return boost::bind(func, tp); }
+
+#endif
+protected:
   typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
 
-  typedef std::pair<size_t, boost::function<void ()> > initSlot;
+  typedef std::pair<size_t, initFunc> initSlot;
 
   struct nbHoodSlotEraser
   {
@@ -74,12 +117,12 @@ public:
   virtual void getParticleLocalNeighbourhood(const CParticle&, 
 					     const nbHoodFunc&) const = 0;
 
-  inline bool
-  ConnectSigCellChangeNotify(const nbHoodFunc& func) const 
+  template<class T> size_t
+  ConnectSigCellChangeNotify(void (T::*func)(const CParticle&, const size_t&)const , const T* tp) const 
   {    
     sigCellChangeNotify.push_back
       (nbHoodSlot(++sigCellChangeNotifyCount, 
-		      func));
+		  getNBDelegate(func,tp)));
     
     return sigCellChangeNotifyCount; 
   }
@@ -94,12 +137,12 @@ public:
       sigCellChangeNotify.end());
   }
 
-  inline size_t
-  ConnectSigNewLocalNotify(const nbHoodFunc& func) const 
+  template<class T> size_t
+  ConnectSigNewLocalNotify(void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
   {    
     sigNewLocalNotify.push_back
       (nbHoodSlot(++sigNewLocalNotifyCount, 
-		      func));
+		  getNBDelegate(func,tp)));
     
     return sigNewLocalNotifyCount; 
   }
@@ -115,12 +158,12 @@ public:
   }
 
 
-  inline size_t
-  ConnectSigNewNeighbourNotify(const nbHoodFunc& func) const 
+  template<class T> size_t
+  ConnectSigNewNeighbourNotify(void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
   {    
     sigNewNeighbourNotify.push_back
       (nbHoodSlot(++sigNewNeighbourNotifyCount, 
-		      func));
+		  getNBDelegate(func, tp)));
     
     return sigNewNeighbourNotifyCount; 
   }
@@ -135,12 +178,12 @@ public:
       sigNewNeighbourNotify.end());
   }
     
-  inline size_t
-  ConnectSigReInitNotify(const boost::function<void ()>& func) const 
+  template<class T> size_t
+  ConnectSigReInitNotify(void (T::*func)(), T* tp) const 
   {    
     sigReInitNotify.push_back
       (initSlot(++sigReInitNotifyCount, 
-		func));
+		getInitDelegate(func,tp)));
     
     return sigReInitNotifyCount; 
   }

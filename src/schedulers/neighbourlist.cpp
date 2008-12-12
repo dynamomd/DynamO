@@ -74,21 +74,21 @@ CSNeighbourList::initialise()
       static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .ConnectSigNewNeighbourNotify
-      (boost::bind(&CSNeighbourList::addInteractionEvent, this, _1, _2));
+      (&CSNeighbourList::addInteractionEvent, this);
 
   if (!cellChangeLocal)
     cellChangeLocal =
       static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .ConnectSigNewLocalNotify
-      (boost::bind(&CSNeighbourList::addLocalEvent, this, _1, _2));
+      (&CSNeighbourList::addLocalEvent, this);
   
   if (!reinit)
     reinit = 
       static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .ConnectSigReInitNotify
-      (boost::bind(&CSNeighbourList::initialise, this));
+      (&CSNeighbourList::initialise, this);
 }
 
 void 
@@ -165,9 +165,9 @@ CSNeighbourList::addEvents(const CParticle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, boost::bind(&CSNeighbourList::addLocalEvent, this, _1, _2));
+    (part, CGNeighbourList::getNBDelegate(&CSNeighbourList::addLocalEvent, this));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, boost::bind(&CSNeighbourList::addInteractionEvent, this, _1, _2));  
+    (part, CGNeighbourList::getNBDelegate(&CSNeighbourList::addInteractionEvent, this));  
 }
