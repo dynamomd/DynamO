@@ -164,18 +164,21 @@ CGCells::runEvent(const CParticle& part) const
     if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
       for (int next = cells[nb].list; next != -1; 
 	   next = partCellData[next].next)
-	sigNewNeighbourNotify(part, next);
+	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	  nbs.second(part, next);
 
   //Tell about the new locals
   BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-    sigNewLocalNotify(part, lID);
+    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+    nbs.second(part, lID);
   
   //Push the next virtual event, this is the reason the scheduler
   //doesn't need a second callback
   Sim->ptrScheduler->pushEvent(part, getEvent(part));
   Sim->ptrScheduler->sort(part);
 
-  sigCellChangeNotify(part, oldCell);
+  BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
+    nbs.second(part, oldCell);
   
   //This doesn't stream the system as its a virtual event
 }
@@ -198,7 +201,8 @@ CGCells::reinitialise(const Iflt& maxdiam)
 
   addLocalEvents();
 
-  ReInitNotify();
+  BOOST_FOREACH(const initSlot& nbs, sigReInitNotify)
+    nbs.second();
 }
 
 void
@@ -405,7 +409,7 @@ CGCells::getCellID(CVector<> pos) const
 
 void 
 CGCells::getParticleNeighbourhood(const CParticle& part,
-				  const nbhoodFunc& func) const
+				  const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const int& nb, cells[partCellData[part.getID()].cell].neighbours)
     for (int next = cells[nb].list;
@@ -416,7 +420,7 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 
 void 
 CGCells::getParticleLocalNeighbourhood(const CParticle& part, 
-				       const nbhoodFunc& func) const
+				       const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell].locals)
     func(part, id);

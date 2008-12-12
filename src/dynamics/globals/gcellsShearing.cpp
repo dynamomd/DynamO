@@ -199,21 +199,24 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
       //Tell about the new locals
       BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-	sigNewLocalNotify(part, lID);
+	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+	nbs.second(part, lID);
 
       //Tell about all particles in all linked cells, SLOW BUT SURE,
       BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
 	for (int next = cells[nb].list; next != -1; 
 	     next = partCellData[next].next)
 	  if (part.getID() != static_cast<size_t>(next))
-	    sigNewNeighbourNotify(part, next);
+	    BOOST_FOREACH(const nbHoodSlot& nbs,  sigNewNeighbourNotify)
+	      nbs.second(part, next);
       
       //Push the next virtual event, this is the reason the scheduler
       //doesn't need a second callback
       Sim->ptrScheduler->pushEvent(part, getEvent(part));
       Sim->ptrScheduler->sort(part);
       
-      sigCellChangeNotify(part, oldCell);
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
+	nbs.second(part, oldCell);
     }
   else
     {
@@ -244,18 +247,21 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
 	  for (int next = cells[nb].list; next != -1; 
 	       next = partCellData[next].next)
-	    sigNewNeighbourNotify(part, next);
+	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	    nbs.second(part, next);
       
       //Tell about the new locals
       BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-	sigNewLocalNotify(part, lID);
+	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+	nbs.second(part, lID);
       
       //Push the next virtual event, this is the reason the scheduler
       //doesn't need a second callback
       Sim->ptrScheduler->pushEvent(part, CGCells::getEvent(part));
       Sim->ptrScheduler->sort(part);
       
-      sigCellChangeNotify(part, oldCell);
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
+	nbs.second(part, oldCell);
     }
 
   //Debug section

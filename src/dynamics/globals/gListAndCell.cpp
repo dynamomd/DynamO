@@ -115,7 +115,7 @@ CGListAndCell::outputXML(xmlw::XmlStream& XML) const
 
 void 
 CGListAndCell::getParticleNeighbourhood(const CParticle& part,
-					const nbhoodFunc& func) const
+					const nbHoodFunc& func) const
 {
   CGCells::getParticleNeighbourhood(part, func);
   

@@ -69,26 +69,26 @@ CSNeighbourList::initialise()
   rebuildSystemEvents();
   
   //Register the new neighbour function with the cellular tracker
-  if (!cellChange.connected())
-    cellChange 
-      = static_cast<const CGNeighbourList&>
+  if (!cellChange)
+    cellChange =
+      static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .getsigNewNeighbourNotify().connect
-      (sigc::mem_fun(this, &CSNeighbourList::addInteractionEvent));
+      .ConnectSigNewNeighbourNotify
+      (boost::bind(&CSNeighbourList::addInteractionEvent, this, _1, _2));
 
-  if (!cellChangeLocal.connected())
-    cellChangeLocal 
-      = static_cast<const CGNeighbourList&>
+  if (!cellChangeLocal)
+    cellChangeLocal =
+      static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .getsigNewLocalNotify().connect
-      (sigc::mem_fun(this, &CSNeighbourList::addLocalEvent));
+      .ConnectSigNewLocalNotify
+      (boost::bind(&CSNeighbourList::addLocalEvent, this, _1, _2));
   
-  if (!reinit.connected())
-    reinit 
-      = static_cast<const CGNeighbourList&>
+  if (!reinit)
+    reinit = 
+      static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .getReInitNotify().connect
-      (sigc::mem_fun(this, &CSNeighbourList::initialise));
+      .ConnectSigReInitNotify
+      (boost::bind(&CSNeighbourList::initialise, this));
 }
 
 void 
@@ -102,14 +102,28 @@ CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
 
 CSNeighbourList::CSNeighbourList(const XMLNode& XML, 
 				 const DYNAMO::SimData* Sim):
-  CScheduler(Sim,"NeighbourListScheduler", NULL)
+  CScheduler(Sim,"NeighbourListScheduler", NULL),
+  cellChange(0),
+  cellChangeLocal(0),
+  reinit(0)
 { 
   I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
+CSNeighbourList::CSNeighbourList(const CSNeighbourList& nb):
+  CScheduler(nb),
+  NBListID(nb.NBListID),
+  cellChange(0),
+  cellChangeLocal(0),
+  reinit(0)
+{}
+
 CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
-  CScheduler(Sim,"NeighbourListScheduler", ns)
+  CScheduler(Sim,"NeighbourListScheduler", ns),
+  cellChange(0),
+  cellChangeLocal(0),
+  reinit(0)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
 void 

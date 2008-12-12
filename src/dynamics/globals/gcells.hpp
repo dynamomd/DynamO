@@ -47,10 +47,10 @@ public:
   virtual void reinitialise(const Iflt&);
 
   virtual void getParticleNeighbourhood(const CParticle&, 
-					const nbhoodFunc&) const;
+					const nbHoodFunc&) const;
 
   virtual void getParticleLocalNeighbourhood(const CParticle&, 
-					     const nbhoodFunc&) const;
+					     const nbHoodFunc&) const;
   
   void setLambda(const Iflt&);
 

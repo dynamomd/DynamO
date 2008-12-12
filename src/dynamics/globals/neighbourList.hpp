@@ -20,13 +20,41 @@
 
 #include "global.hpp"
 #include <boost/function.hpp>
-#include <sigc++/sigc++.h>
+#include <vector>
 
 class CGNeighbourList: public CGlobal
 {
 protected:
-  typedef boost::function<void (const CParticle&, const size_t&)> nbhoodFunc;
-  
+  typedef boost::function<void (const CParticle&, const size_t&)> nbHoodFunc;
+
+  typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
+
+  typedef std::pair<size_t, boost::function<void ()> > initSlot;
+
+  struct nbHoodSlotEraser
+  {
+    nbHoodSlotEraser(const size_t& id_in): 
+      id(id_in)
+    {}
+
+    bool operator()(const nbHoodSlot& nbs) const
+    { return  nbs.first == id; } 
+
+    size_t id;
+  };
+
+  struct initSlotEraser
+  {
+    initSlotEraser(const size_t& id_in): 
+      id(id_in)
+    {}
+
+    bool operator()(const initSlot& nbs) const
+    { return  nbs.first == id; } 
+
+    size_t id;
+  };
+
 public:
   CGNeighbourList(DYNAMO::SimData* a, 
 		  const char *b): 
@@ -41,37 +69,112 @@ public:
   CGNeighbourList(const CGNeighbourList&);
 
   virtual void getParticleNeighbourhood(const CParticle&, 
-					const nbhoodFunc&) const = 0;
+					const nbHoodFunc&) const = 0;
 
   virtual void getParticleLocalNeighbourhood(const CParticle&, 
-					     const nbhoodFunc&) const = 0;
+					     const nbHoodFunc&) const = 0;
 
-  inline sigc::signal<void, const CParticle&, const size_t&>&
-  getsigCellChangeNotify() const {return sigCellChangeNotify; }
-  
-  inline sigc::signal<void, const CParticle&, const size_t&>&
-  getsigNewLocalNotify() const { return sigNewLocalNotify; }
-  
-  inline sigc::signal<void, const CParticle&, const size_t&>&
-  getsigNewNeighbourNotify() const { return sigNewNeighbourNotify; }
-  
-  inline sigc::signal<void>&
-  getReInitNotify() const { return ReInitNotify; }
-  
+  inline bool
+  ConnectSigCellChangeNotify(const nbHoodFunc& func) const 
+  {    
+    sigCellChangeNotify.push_back
+      (nbHoodSlot(++sigCellChangeNotifyCount, 
+		      func));
+    
+    return sigCellChangeNotifyCount; 
+  }
+
+  inline void
+  DisconnectSigCellChangeNotify(const size_t& id) const 
+  {    
+    sigCellChangeNotify.erase
+      (std::remove_if(sigCellChangeNotify.begin(),
+		      sigCellChangeNotify.end(),
+		      nbHoodSlotEraser(id)), 
+      sigCellChangeNotify.end());
+  }
+
+  inline size_t
+  ConnectSigNewLocalNotify(const nbHoodFunc& func) const 
+  {    
+    sigNewLocalNotify.push_back
+      (nbHoodSlot(++sigNewLocalNotifyCount, 
+		      func));
+    
+    return sigNewLocalNotifyCount; 
+  }
+
+  inline void
+  DisconnectSigNewLocalNotify(const size_t& id) const 
+  {    
+    sigNewLocalNotify.erase
+      (std::remove_if(sigNewLocalNotify.begin(),
+		      sigNewLocalNotify.end(),
+		      nbHoodSlotEraser(id)), 
+      sigNewLocalNotify.end());
+  }
+
+
+  inline size_t
+  ConnectSigNewNeighbourNotify(const nbHoodFunc& func) const 
+  {    
+    sigNewNeighbourNotify.push_back
+      (nbHoodSlot(++sigNewNeighbourNotifyCount, 
+		      func));
+    
+    return sigNewNeighbourNotifyCount; 
+  }
+
+  inline void
+  DisconnectSigNewNeighbourNotify(const size_t& id) const 
+  {    
+    sigNewNeighbourNotify.erase
+      (std::remove_if(sigNewNeighbourNotify.begin(),
+		      sigNewNeighbourNotify.end(),
+		      nbHoodSlotEraser(id)), 
+      sigNewNeighbourNotify.end());
+  }
+    
+  inline size_t
+  ConnectSigReInitNotify(const boost::function<void ()>& func) const 
+  {    
+    sigReInitNotify.push_back
+      (initSlot(++sigReInitNotifyCount, 
+		func));
+    
+    return sigReInitNotifyCount; 
+  }
+
+  inline void
+  DisconnectSigReInitNotify(const size_t& id) const 
+  {    
+    sigReInitNotify.erase
+      (std::remove_if(sigReInitNotify.begin(),
+		      sigReInitNotify.end(),
+		      initSlotEraser(id)), 
+      sigReInitNotify.end());
+  }
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
+  
   //Signals
-  mutable sigc::signal<void, const CParticle&, const size_t&> 
+  mutable size_t sigCellChangeNotifyCount;
+  mutable std::vector<nbHoodSlot>
   sigCellChangeNotify;
 
-  mutable sigc::signal<void, const CParticle&, const size_t&> 
+  mutable size_t sigNewLocalNotifyCount;
+  mutable std::vector<nbHoodSlot>
   sigNewLocalNotify;
 
-  mutable sigc::signal<void, const CParticle&, const size_t&> 
+  mutable size_t sigNewNeighbourNotifyCount;
+  mutable std::vector<nbHoodSlot>
   sigNewNeighbourNotify;
 
-  mutable sigc::signal<void> ReInitNotify;
+  mutable size_t sigReInitNotifyCount;
+  mutable std::vector<initSlot> 
+  sigReInitNotify;
 };
 
 #endif
