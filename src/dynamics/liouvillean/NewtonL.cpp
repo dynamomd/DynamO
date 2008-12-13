@@ -99,7 +99,8 @@ CLNewton::CLNewton(DYNAMO::SimData* tmp):
 void
 CLNewton::streamParticle(CParticle &particle, const Iflt &dt) const
 {
-  particle.getPosition() +=  particle.getVelocity() * dt;
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    particle.getPosition()[iDim] +=  particle.getVelocity()[iDim] * dt;
 }
 
 Iflt 
