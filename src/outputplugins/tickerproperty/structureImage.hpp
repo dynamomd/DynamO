@@ -28,15 +28,24 @@ class COPStructureImaging: public COPTicker
   virtual COutputPlugin *Clone() const
   { return new COPStructureImaging(*this); }
 
-  virtual void initialise() {}
+  virtual void initialise();
 
   virtual void stream(Iflt) {}
 
   virtual void ticker();
+
+  virtual void changeSystem(COutputPlugin*);
+
+  virtual void operator<<(const XMLNode&);
+
+  virtual void output(xmlw::XmlStream&);
   
  protected:
 
   void printImage();
+  size_t id;
+
+  std::vector<std::vector<CVector<> > > imagelist;
 };
 
 #endif

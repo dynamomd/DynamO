@@ -200,7 +200,8 @@ CEReplexer::preSimInit()
       " file doesnt contain %ID";  
   
   Simulations.reset(new CSimulation[nSims]);
-  
+
+  //We set this straight away
   for (size_t id(0); id < nSims; ++id)
     Simulations[id].simID = id;
 }
