@@ -59,25 +59,19 @@ public:
     p2(coll.getParticle2().getID()),
     type(INTERACTION),
     collCounter2(nCC2)
-  {    
-    if (coll.getType() == NONE) type = NONE;
-  }
+  {}
 
   inline intPart(const CGlobEvent& coll) throw():
     dt(coll.getdt()),
     p2(coll.getGlobalID()),
     type(GLOBAL)
-  {
-    if (coll.getType() == NONE) type = NONE;
-  }
+  {}
 
   inline intPart(const CLocalEvent& coll) throw():
     dt(coll.getdt()),
     p2(coll.getLocalID()),
     type(LOCAL)
-  {
-    if (coll.getType() == NONE) type = NONE;
-  }
+  {}
 
   inline bool operator< (const intPart& ip) const throw()
   { return dt < ip.dt; }
