@@ -121,7 +121,7 @@ class CBC: public DYNAMO::SimBase_const
   /*! \brief The actual positional rounding to carry out on a position
    * vector.
    */
-  virtual void rounding(CVector<> &) const = 0;
+  virtual void rounding(CVector<> &) const {}
 };
 
 #endif

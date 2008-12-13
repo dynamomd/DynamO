@@ -16,12 +16,17 @@
 */
 
 #include "PBC.hpp"
-#include "shapes.hpp"
+#include "../../base/is_simdata.hpp"
+#include "rintfunc.hpp"
 #include "../../extcode/xmlwriter.hpp"
 
 CSPBC::CSPBC(const DYNAMO::SimData* tmp):
-  CSqBC(tmp, "SPBC", IC_purple)
+  CBC(tmp, "SPBC", IC_purple)
 {
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if (Sim->aspectRatio[iDim] != 1.0)
+      D_throw() << "The simulation aspect ratio is not unity for the use of "
+	"square PBC's";
   Sim = tmp;
 }
   
@@ -41,10 +46,55 @@ void
 CSPBC::operator<<(const XMLNode&) 
 {}
 
+void 
+CSPBC::setPBC(CVector<>& pos) const
+{ 
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= rintfunc (pos.data[n]);
+}
+
+void 
+CSPBC::setPBC(CVector<>& pos, CVector<>&) const
+{ 
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= rintfunc (pos.data[n]);
+}
+
+void 
+CSPBC::setPBC(CVector<> &pos, const Iflt&) const 
+{ 
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= rintfunc (pos.data[n]);
+}
+
 CRPBC::CRPBC(const DYNAMO::SimData* tmp):
-  CRectBC(tmp, "RPBC", IC_purple)
+  CBC(tmp, "RPBC", IC_purple)
 {
   Sim = tmp;
+}
+
+void 
+CRPBC::setPBC(CVector<>& pos) const
+{ 
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+}
+
+void 
+CRPBC::setPBC(CVector<>& pos, CVector<>&) const
+{
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+}
+
+void 
+CRPBC::setPBC(CVector<> &pos, const Iflt&) const 
+{
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
 }
 
 void 
@@ -64,7 +114,7 @@ CRPBC::Clone () const
 
 
 CRNoXPBC::CRNoXPBC(const DYNAMO::SimData* tmp):
-  CRectBC(tmp, "RNoXPBC",IC_purple)
+  CBC(tmp, "RNoXPBC",IC_purple)
 {
   Sim = tmp;
 }
@@ -84,3 +134,39 @@ CBC*
 CRNoXPBC::Clone () const 
 { return new CRNoXPBC(*this); }
 
+void 
+CRNoXPBC::setPBC(CVector<>& pos) const
+{ 
+  Iflt x = pos[0];
+
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+
+  pos[0] = x;
+}
+  
+void 
+CRNoXPBC::setPBC(CVector<>& pos, CVector<>&) const
+{ 
+  Iflt x = pos[0];
+
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+
+  pos[0] = x;
+}
+
+void 
+CRNoXPBC::setPBC(CVector<> &pos, const Iflt&) const 
+{ 
+  Iflt x = pos[0];
+
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+  setPBC(pos); 
+
+  pos[0] = x;
+}

@@ -18,26 +18,23 @@
 #ifndef PBC_H
 #define PBC_H
 
-#include "shapes.hpp"
 #include "../../base/is_base.hpp"
+#include "BC.hpp"
 
 /*! \brief A simple cubic/square periodic boundary condition.
  * 
  * See the CBC base class for member descriptions.
  */
-class CSPBC: public CSqBC
+class CSPBC: public CBC
 {
 public:
   CSPBC(const DYNAMO::SimData*);
 
-  virtual void setPBC(CVector<>& pos) const
-  { rounding(pos); }
+  virtual void setPBC(CVector<>&) const;
 
-  virtual void setPBC(CVector<>& pos, CVector<>&) const
-  { rounding(pos); }
+  virtual void setPBC(CVector<>&, CVector<>&) const;
 
-  virtual void setPBC(CVector<> &pos, const Iflt&) const 
-  { setPBC(pos); }
+  virtual void setPBC(CVector<>&, const Iflt&) const;
 
   inline virtual void outputXML(xmlw::XmlStream &) const;  
   virtual void operator<<(const XMLNode&);
@@ -48,19 +45,16 @@ public:
  * 
  * See the CBC base class for member descriptions.
  */
-class CRPBC: public CRectBC
+class CRPBC: public CBC
 {
 public:
   CRPBC(const DYNAMO::SimData*);
 
-  virtual void setPBC(CVector<>& pos) const
-  { rounding(pos); }
+  virtual void setPBC(CVector<>&) const;
   
-  virtual void setPBC(CVector<>& pos, CVector<>&) const
-  { rounding(pos); }
+  virtual void setPBC(CVector<>&, CVector<>&) const;
 
-  virtual void setPBC(CVector<> &pos, const Iflt&) const 
-  { setPBC(pos); }
+  virtual void setPBC(CVector<>&, const Iflt&) const;
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
@@ -73,27 +67,16 @@ public:
  * no leaks as these are not rounded and would show up in animations
  * or inspections.
  */
-class CRNoXPBC: public CRectBC
+class CRNoXPBC: public CBC
 {
 public:
   CRNoXPBC(const DYNAMO::SimData*);
 
-  virtual void setPBC(CVector<>& pos) const
-  { 
-    Iflt x = pos[0];
-    rounding(pos); 
-    pos[0] = x;
-  }
+  virtual void setPBC(CVector<>& pos) const;
   
-  virtual void setPBC(CVector<>& pos, CVector<>&) const
-  { 
-    Iflt x = pos[0];
-    rounding(pos); 
-    pos[0] = x;
-  }
-
-  virtual void setPBC(CVector<> &pos, const Iflt&) const 
-  { setPBC(pos); }
+  virtual void setPBC(CVector<>& pos, CVector<>&) const;
+  
+  virtual void setPBC(CVector<> &pos, const Iflt&) const;
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
