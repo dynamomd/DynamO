@@ -25,9 +25,9 @@
 #include "../../base/is_exception.hpp"
 
 #ifdef DYNAMO_double_precsision
-# define rintfunc rint
+# define rintfunc lrint
 #else
-# define rintfunc rintf
+# define rintfunc lrintf
 #endif
 
 /*! \brief Just a simple class that implements rectangular system rounding.
