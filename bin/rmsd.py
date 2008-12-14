@@ -57,8 +57,9 @@ def get_structlist(outputfile):
         
     structlist.append(atomlist)
 
+  print "Number of structures is "+len(structlist)
   if (len(structlist) > 100):
-    print "The list of structures for file "+outputfile+" is very long, "+str(len(structlist))+"\nTruncating to 200"
+    print "\nTruncating to 200"
     del structlist[200:len(structlist)]
 
   return structlist

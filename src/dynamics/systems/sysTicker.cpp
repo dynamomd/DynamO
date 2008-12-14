@@ -99,4 +99,7 @@ CSTicker::setTickerPeriod(const Iflt& nP)
   period = nP; 
 
   dt = nP;
+
+  if ((Sim->status >= INITIALISED) && Sim->lMaxNColl)
+    Sim->ptrScheduler->rebuildSystemEvents();
 }
