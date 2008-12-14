@@ -79,6 +79,10 @@ CEReplexer::initialisation()
 
       if (vm.count("ticker-period"))
 	Simulations[i].setTickerPeriod(vm["ticker-period"].as<Iflt>());
+
+      if (vm.count("scale-ticker"))
+	Simulations[i].scaleTickerPeriod(vm["scale-ticker"].as<Iflt>());
+
     }
 
   //Ensure we are in the right ensemble for all simulations

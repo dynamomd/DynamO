@@ -56,6 +56,7 @@ void
 CSimulation::scaleTickerPeriod(Iflt nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+
   if (ptr == NULL)
     D_throw() << "Could not find system ticker (maybe not required?)";
 
