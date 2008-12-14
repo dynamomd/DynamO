@@ -108,6 +108,8 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   void addOutputPlugin(std::string);
   
   void setTickerPeriod(Iflt);
+
+  void scaleTickerPeriod(Iflt);
   
  private:
 

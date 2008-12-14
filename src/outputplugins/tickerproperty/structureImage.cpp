@@ -33,7 +33,8 @@
 
 COPStructureImaging::COPStructureImaging(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPTicker(tmp,"StructureImaging"),
-  id(0)
+  id(0),
+  imageCount(500)
 {
   operator<<(XML);
 }
@@ -80,7 +81,11 @@ COPStructureImaging::changeSystem(COutputPlugin* nplug)
 void 
 COPStructureImaging::ticker()
 {
-  printImage();
+  if (imageCount != 0)
+    {
+      --imageCount;
+      printImage();
+    }
 }
 
 void

@@ -38,6 +38,8 @@ CEngine::getCommonOptions(boost::program_options::options_description& opts)
      "Random seed for generator (To make the simulation reproduceable - Not for production use!)")
     ("ticker-period,t",boost::program_options::value<Iflt>(), 
      "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
+    ("scale-ticker",boost::program_options::value<Iflt>(), 
+     "Useful when MFT data is available, can slow down or speed up the ticker in replex mode")
     ("equilibrate,E", "Turns off most output for a fast silent run")
     ("plugin-file,P", boost::program_options::value<std::string>(), "A list of output plugins to load")
     ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), "Additional individual plugins to load")

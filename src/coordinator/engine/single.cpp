@@ -68,6 +68,9 @@ CESingle::initialisation()
       
   if (vm.count("ticker-period"))
     Simulation.setTickerPeriod(vm["ticker-period"].as<Iflt>());
+
+  if (vm.count("scale-ticker"))
+    Simulation.setTickerPeriod(vm["scale-ticker"].as<Iflt>());
 }
 
 void

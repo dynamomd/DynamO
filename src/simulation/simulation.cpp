@@ -52,6 +52,16 @@ CSimulation::setTickerPeriod(Iflt nP)
   ptr->setTickerPeriod(nP*Dynamics.units().unitTime());
 }
 
+void 
+CSimulation::scaleTickerPeriod(Iflt nP)
+{
+  CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+  if (ptr == NULL)
+    D_throw() << "Could not find system ticker (maybe not required?)";
+
+  ptr->setTickerPeriod(nP * ptr->getPeriod());
+}
+
 CSystem* 
 CSimulation::getSystem(std::string name)
 {
