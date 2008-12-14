@@ -21,46 +21,34 @@ def rmsd(crds1, crds2):
 
 
 def get_crds(atomlist):
-    crds = numpy.zeros((len(atomlist), 3), float)
-    for i, a in enumerate(atomlist):
-        crds[i,0] = a[0]
-        crds[i,1] = a[1]
-        crds[i,2] = a[2]
-    return crds
+  return numpy.array(atomlist)
 
-def get_crds_mirror(atomlist):
-    crds = numpy.zeros((len(atomlist), 3), float)
-    for i, a in enumerate(atomlist):
-        crds[i,0] = -a[0]
-        crds[i,1] = a[1]
-        crds[i,2] = a[2]
-    return crds
+def mirror_crds(atomlist):
+  crds = atomlist
 
+  for i in range(len(atomlist)):
+    crds[i,0] = -crds[i,0]
+
+  return crds
+  
 import os
 
 def get_structlist(outputfile):
-  structlist = []
   cmd = 'bzcat '+outputfile+' | xmlstarlet sel -t -m \'/OutputData/StructureImages\' -m \'Image\' -m \'Atom\' -v \'@x\' -o "," -v \'@y\' -o \',\' -v \'@z\' -o \':\' -b -n | gawk \'{if (NF) print $0}\''
 
+  structlist = []
   for line in os.popen(cmd).readlines():
     line = line.rstrip(':')
     line = line.rstrip(':\n')
     
-    atomlist = []
-    for atom in line.split(':'):
-      atomcoords = []
-      
-      for x in atom.split(','):
-        atomcoords.append(float(x))
-        
-      atomlist.append(atomcoords)
+    atomlist = [[float(x) for x in atom.split(',')] for atom in line.split(':')]
         
     structlist.append(atomlist)
 
-  print "Number of structures is "+len(structlist)
+  print "Number of structures is "+str(len(structlist))
   if (len(structlist) > 100):
-    print "\nTruncating to 200"
-    del structlist[200:len(structlist)]
+    print "\nTruncating to 100"
+    del structlist[100:len(structlist)]
 
   return structlist
 
@@ -81,7 +69,8 @@ def get_best_crds(structlist):
     sum = 0
 
     for atomlist2 in structlist:
-      sum += min(rmsd(crds1, get_crds_mirror(atomlist2)), rmsd(crds1, get_crds(atomlist2)))
+      crds2 = get_crds(atomlist2)
+      sum += min(rmsd(crds1, mirror_crds(crds2)), rmsd(crds1, crds2))
     
     if (sum < minsum):
       minsum = sum
@@ -103,5 +92,17 @@ for file in  sys.argv[1:]:
 
 filedata.sort()
 
-for data in filedata:
-  print data[0], data[2]
+f = open('avgrmsd.dat', 'w')
+try:
+  for data in filedata:
+    print >>f, data[0], data[2]
+finally:
+  f.close()
+
+
+f = open('rmsddiff.dat', 'w')
+try:
+  for val in range(len(filedata)-1):
+    print >>f, filedata[val][0], min(rmsd(filedata[val][1],filedata[val+1][1]),rmsd(filedata[val][1], mirror_crds(filedata[val+1][1])))
+finally:
+  f.close()
