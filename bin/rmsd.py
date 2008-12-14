@@ -28,6 +28,14 @@ def get_crds(atomlist):
         crds[i,2] = a[2]
     return crds
 
+def get_crds_mirror(atomlist):
+    crds = numpy.zeros((len(atomlist), 3), float)
+    for i, a in enumerate(atomlist):
+        crds[i,0] = -a[0]
+        crds[i,1] = a[1]
+        crds[i,2] = a[2]
+    return crds
+
 import os
 
 def get_structlist(outputfile):
@@ -50,8 +58,8 @@ def get_structlist(outputfile):
     structlist.append(atomlist)
 
   if (len(structlist) > 100):
-    print "The list of structures for file "+outputfile+" is very long\nTruncating to 100"
-    del structlist[100:len(structlist)]
+    print "The list of structures for file "+outputfile+" is very long, "+str(len(structlist))+"\nTruncating to 200"
+    del structlist[200:len(structlist)]
 
   return structlist
 
@@ -72,8 +80,7 @@ def get_best_crds(structlist):
     sum = 0
 
     for atomlist2 in structlist:
-      crds2 = get_crds(atomlist2)
-      sum += rmsd(crds1, crds2)
+      sum += min(rmsd(crds1, get_crds_mirror(atomlist2)), rmsd(crds1, get_crds(atomlist2)))
     
     if (sum < minsum):
       minsum = sum
@@ -81,6 +88,19 @@ def get_best_crds(structlist):
   
   return bestcrds, minsum / len(structlist)
 
+def get_temperature(file):
+    cmd = 'bzcat '+file+' | xmlstarlet sel -t -v \'/OutputData/KEnergy/T/@val\''
+    return float(os.popen(cmd).read())
+  
+import sys
+ 
+filedata = []
+for file in  sys.argv[1:]:
+  print "Processing file "+file
+  bestcrds, avgmsd = get_best_crds(get_structlist(file))
+  filedata.append([get_temperature(file), bestcrds, avgmsd])
 
-a, b = get_best_crds(get_structlist('output.xml.bz2'))
-print b
+filedata.sort()
+
+for data in filedata:
+  print data[0], data[2]
