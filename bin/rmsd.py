@@ -19,6 +19,10 @@ def rmsd(crds1, crds2):
   rmsd_sq = max([rmsd_sq, 0.0])
   return numpy.sqrt(rmsd_sq)
 
+def min_rmsd(crds1, crds2):
+  crds2mirror = crds2.copy()
+  crds2mirror = mirror_crds(crds2mirror)
+  return min(rmsd(crds1,crds2),rmsd(crds1,crds2mirror), rmsd(crds1,crds2[::-1]), rmsd(crds1,crds2mirror[::-1]))
 
 def get_crds(atomlist):
   return numpy.array(atomlist)
@@ -60,8 +64,7 @@ def get_best_crds(structlist):
   minsum = 0
 
   for atomlist2 in structlist:
-    crds2 = get_crds(atomlist2)
-    minsum += rmsd(bestcrds, crds2)
+    minsum += rmsd(bestcrds, get_crds(atomlist2))
 
   #Now test if any have a lower sum
   for atomlist1 in structlist:
@@ -69,8 +72,7 @@ def get_best_crds(structlist):
     sum = 0
 
     for atomlist2 in structlist:
-      crds2 = get_crds(atomlist2)
-      sum += min(rmsd(crds1, mirror_crds(crds2)), rmsd(crds1, crds2))
+      sum += min_rmsd(crds1, get_crds(atomlist2))
     
     if (sum < minsum):
       minsum = sum
@@ -103,6 +105,6 @@ finally:
 f = open('rmsddiff.dat', 'w')
 try:
   for val in range(len(filedata)-1):
-    print >>f, filedata[val][0], min(rmsd(filedata[val][1],filedata[val+1][1]),rmsd(filedata[val][1], mirror_crds(filedata[val+1][1])))
+    print >>f, filedata[val][0], min_rmsd(filedata[val][1],filedata[val+1][1])
 finally:
   f.close()
