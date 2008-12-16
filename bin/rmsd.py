@@ -2,6 +2,7 @@
 
 import math
 import numpy
+xmlstarlet='xml'
 
 def rmsd(crds1, crds2):
   """Returns RMSD between 2 sets of [nx3] numpy array"""
@@ -38,7 +39,7 @@ def mirror_crds(atomlist):
 import os
 
 def get_structlist(outputfile):
-  cmd = 'bzcat '+outputfile+' | xmlstarlet sel -t -m \'/OutputData/StructureImages\' -m \'Image\' -m \'Atom\' -v \'@x\' -o "," -v \'@y\' -o \',\' -v \'@z\' -o \':\' -b -n | gawk \'{if (NF) print $0}\''
+  cmd = 'bzcat '+outputfile+' | '+xmlstarlet+' sel -t -m \'/OutputData/StructureImages\' -m \'Image\' -m \'Atom\' -v \'@x\' -o "," -v \'@y\' -o \',\' -v \'@z\' -o \':\' -b -n | gawk \'{if (NF) print $0}\''
 
   structlist = []
   for line in os.popen(cmd).readlines():
@@ -50,9 +51,9 @@ def get_structlist(outputfile):
     structlist.append(atomlist)
 
   print "Number of structures is "+str(len(structlist))
-  if (len(structlist) > 100):
-    print "\nTruncating to 100"
-    del structlist[100:len(structlist)]
+  if (len(structlist) > 500):
+    print "\nTruncating to 500"
+    del structlist[500:(len(structlist)-1)]
 
   return structlist
 
@@ -81,7 +82,7 @@ def get_best_crds(structlist):
   return bestcrds, minsum / len(structlist)
 
 def get_temperature(file):
-    cmd = 'bzcat '+file+' | xmlstarlet sel -t -v \'/OutputData/KEnergy/T/@val\''
+    cmd = 'bzcat '+file+' | '+xmlstarlet+' sel -t -v \'/OutputData/KEnergy/T/@val\''
     return float(os.popen(cmd).read())
   
 import sys
