@@ -2,41 +2,16 @@
 
 import math
 import numpy
+import sys
+import os
+import pickle
+
 xmlstarlet='xml'
 
 def rmsd(crds1, crds2):
   """Returns RMSD between 2 sets of [nx3] numpy array"""
-  assert(crds1.shape[1] == 3)
-  assert(crds1.shape == crds2.shape)
-  n_vec = numpy.shape(crds1)[0]
-  correlation_matrix = numpy.dot(numpy.transpose(crds1), crds2)
-  v, s, w_tr = numpy.linalg.svd(correlation_matrix)
-  is_reflection = (numpy.linalg.det(v) * numpy.linalg.det(w_tr)) < 0.0
-  if is_reflection:
-    s[-1] = - s[-1]
-  E0 = sum(sum(crds1 * crds1)) + \
-       sum(sum(crds2 * crds2))
-  rmsd_sq = (E0 - 2.0*sum(s)) / float(n_vec)
-  rmsd_sq = max([rmsd_sq, 0.0])
-  return numpy.sqrt(rmsd_sq)
-
-def min_rmsd(crds1, crds2):
-  crds2mirror = crds2.copy()
-  crds2mirror = mirror_crds(crds2mirror)
-  return min(rmsd(crds1,crds2),rmsd(crds1,crds2mirror), rmsd(crds1,crds2[::-1]), rmsd(crds1,crds2mirror[::-1]))
-
-def get_crds(atomlist):
-  return numpy.array(atomlist)
-
-def mirror_crds(atomlist):
-  crds = atomlist
-
-  for i in range(len(atomlist)):
-    crds[i,0] = -crds[i,0]
-
-  return crds
-  
-import os
+  v, s, w_tr = numpy.linalg.svd(numpy.dot(numpy.transpose(crds1), crds2))
+  return numpy.sqrt(max([(sum(sum(crds1 * crds1)) + sum(sum(crds2 * crds2)) - 2.0*sum(s)) / float(numpy.shape(crds1)[0]), 0.0]))
 
 def get_structlist(outputfile):
   cmd = 'bzcat '+outputfile+' | '+xmlstarlet+' sel -t -m \'/OutputData/StructureImages\' -m \'Image\' -m \'Atom\' -v \'@x\' -o "," -v \'@y\' -o \',\' -v \'@z\' -o \':\' -b -n | gawk \'{if (NF) print $0}\''
@@ -45,39 +20,30 @@ def get_structlist(outputfile):
   for line in os.popen(cmd).readlines():
     line = line.rstrip(':')
     line = line.rstrip(':\n')
-    
-    atomlist = [[float(x) for x in atom.split(',')] for atom in line.split(':')]
-        
-    structlist.append(atomlist)
+    structlist.append(numpy.array([[float(x) for x in atom.split(',')] for atom in line.split(':')]))
 
   print "Number of structures is "+str(len(structlist))
-  if (len(structlist) > 500):
-    print "\nTruncating to 500"
-    del structlist[500:(len(structlist)-1)]
+  if (len(structlist) > 100):
+    print "\nTruncating to 100"
+    del structlist[100:(len(structlist)-1)]
 
   return structlist
 
 
-def get_best_crds(structlist):
-  
-  #initialise the best value using the first entry
-  bestcrds = get_crds(structlist[0])
-  minsum = 0
+from operator import add
 
-  for atomlist2 in structlist:
-    minsum += rmsd(bestcrds, get_crds(atomlist2))
+def get_best_crds(structlist):
+  #initialise the best value using the first entry
+  bestcrds = structlist[0]
+  minsum = 1e308
 
   #Now test if any have a lower sum
   for atomlist1 in structlist:
-    crds1 = get_crds(atomlist1)
-    sum = 0
-
-    for atomlist2 in structlist:
-      sum += min_rmsd(crds1, get_crds(atomlist2))
+    locsum = sum((min(rmsd(atomlist1, atomlist2), rmsd(atomlist1,atomlist2[::-1])) for atomlist2 in structlist))
     
-    if (sum < minsum):
-      minsum = sum
-      bestcrds = crds1
+    if (locsum < minsum):
+      minsum = locsum
+      bestcrds = atomlist1
   
   return bestcrds, minsum / len(structlist)
 
@@ -85,10 +51,6 @@ def get_temperature(file):
     cmd = 'bzcat '+file+' | '+xmlstarlet+' sel -t -v \'/OutputData/KEnergy/T/@val\''
     return float(os.popen(cmd).read())
   
-import sys
-import os
-import pickle
-
 filedata = []
 for file in  sys.argv[1:]:
   print "Processing file "+file
@@ -122,6 +84,6 @@ finally:
 f = open('rmsddiff.dat', 'w')
 try:
   for val in range(len(filedata)-1):
-    print >>f, filedata[val][0], min_rmsd(filedata[val][1],filedata[val+1][1])
+    print >>f, filedata[val][0], min(rmsd(filedata[val][1],filedata[val+1][1]), rmsd(filedata[val][1],filedata[val+1][1][::-1]))
 finally:
   f.close()
