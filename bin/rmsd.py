@@ -85,14 +85,30 @@ def get_temperature(file):
     return float(os.popen(cmd).read())
   
 import sys
- 
+import os
+import pickle
+
 filedata = []
 for file in  sys.argv[1:]:
   print "Processing file "+file
-  bestcrds, avgmsd = get_best_crds(get_structlist(file))
-  filedata.append([get_temperature(file), bestcrds, avgmsd])
-
+  if (os.path.exists(file+'.rmspickle')):
+    print "Found pickled data, skipping minimisation"
+    f = open(file+'.rmspickle', 'r')
+    filedata.append(pickle.load(f))
+    f.close()
+  else:
+    print "Could not find pickled minimisation data"
+    print "Processing file "+file
+    bestcrds, avgmsd = get_best_crds(get_structlist(file))
+    tempdata = [get_temperature(file), bestcrds, avgmsd]
+    filedata.append(tempdata)
+    f = open(file+'.rmspickle', 'w')
+    pickle.dump(tempdata,f)
+    f.close()
+      
 filedata.sort()
+    
+
 
 f = open('avgrmsd.dat', 'w')
 try:
