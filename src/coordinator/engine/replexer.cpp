@@ -24,6 +24,7 @@
 #include "../../extcode/threadpool.hpp"
 #include <fstream>
 #include <boost/random/uniform_int.hpp>
+#include <limits>
 
 void
 CEReplexer::getOptions(boost::program_options::options_description& opts)
@@ -32,7 +33,7 @@ CEReplexer::getOptions(boost::program_options::options_description& opts)
     ropts("REplica EXchange Engine Options");
 
   ropts.add_options()
-    ("sim-end-time,f", boost::program_options::value<Iflt>()->default_value(100.0), 
+    ("sim-end-time,f", boost::program_options::value<Iflt>()->default_value(std::numeric_limits<Iflt>::max()), 
      "Simulation end time")
     ("replex-interval,i", boost::program_options::value<Iflt>()->default_value(1.0), 
      "Interval between attempting swaps")

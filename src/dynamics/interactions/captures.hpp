@@ -21,6 +21,12 @@
 #include "interaction.hpp"
 #include <set>
 #include <vector>
+#include <boost/tr1/unordered_set.hpp>
+
+//Expose the boost TR1
+namespace std {
+  using namespace tr1;
+}
 
 class CICapture: public CInteraction
 {
@@ -34,7 +40,8 @@ public:
   virtual Iflt getInternalEnergy() const = 0;
   
 protected:
-  mutable std::vector<std::set<unsigned long> > captureMap;
+
+  mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
 
   bool noXmlLoad;
 

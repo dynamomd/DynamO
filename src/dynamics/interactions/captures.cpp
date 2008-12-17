@@ -45,7 +45,6 @@ CICapture::initCaptureMap()
 	I_cout() << "Change in the number of particles invalidates the capture map!";
       
       captureMap.clear();
-      captureMap.resize(Sim->lN);
       
       //Presume that the capture map was not loaded as its empty
       for (std::vector<CParticle>::const_iterator iPtr 
@@ -78,7 +77,6 @@ CICapture::loadCaptureMap(const XMLNode& XML)
 
       captures = 0;
       captureMap.clear();
-      captureMap.resize(boost::lexical_cast<unsigned long>(subNode.getAttribute("Size")));
 
       int xml_iter = 0;
       long counter = subNode.nChildNode("Pair");
@@ -86,9 +84,10 @@ CICapture::loadCaptureMap(const XMLNode& XML)
 	{
 	  browseNode = subNode.getChildNode("Pair",&xml_iter);
 	  
-	  captureMap.at(boost::lexical_cast<unsigned long>
-			(browseNode.getAttribute("ID1")))
-	    .insert(boost::lexical_cast<unsigned long>(browseNode.getAttribute("ID2")));
+	  captureMap
+	    .insert(std::pair<size_t, size_t>
+		    (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
+		     boost::lexical_cast<size_t>(browseNode.getAttribute("ID2"))));
 	  
 	  ++captures;
 	}
@@ -100,13 +99,13 @@ CICapture::outputCaptureMap(xmlw::XmlStream& XML) const
 {
   XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
 
-  for (size_t i = 0; i < Sim->lN; ++i)
-    if (!captureMap[i].empty())
-      BOOST_FOREACH(const unsigned long& ID2, captureMap[i])
-	XML << xmlw::tag("Pair")
-	    << xmlw::attr("ID1") << i 
-	    << xmlw::attr("ID2") << ID2
-	    << xmlw::endtag("Pair");
+  typedef std::pair<size_t, size_t> locpair;
+
+  BOOST_FOREACH(const locpair& IDs, captureMap)
+    XML << xmlw::tag("Pair")
+	<< xmlw::attr("ID1") << IDs.first
+	<< xmlw::attr("ID2") << IDs.second
+	<< xmlw::endtag("Pair");
   
   XML << xmlw::endtag("CaptureMap");
 }
@@ -121,8 +120,8 @@ CICapture::isCaptured(const CParticle& p1, const CParticle& p2) const
 #endif 
 
   return (p1.getID() < p2.getID())
-    ? captureMap[p1.getID()].count(p2.getID())
-    : captureMap[p2.getID()].count(p1.getID());
+    ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+    : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
 }
 
 void
@@ -134,19 +133,19 @@ CICapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 
   if (p1.getID() < p2.getID())
     {
-      if  (captureMap[p1.getID()].count(p2.getID()))
+      if  (captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID())))
 	D_throw() << "Insert found " << p1.getID()
 		  << " and " << p2.getID() << " in the capture map";
     }      
   else
-    if  (captureMap[p2.getID()].count(p1.getID()))
+    if  (captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID())))
       D_throw() << "Insert found " << p2.getID() 
 		<< " and " << p1.getID() << " in the capture map";
 #endif 
   
   (p1.getID() < p2.getID())
-    ? captureMap[p1.getID()].insert(p2.getID())
-    : captureMap[p2.getID()].insert(p1.getID());
+    ? captureMap.insert(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+    : captureMap.insert(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
   
     ++captures;
 }
@@ -159,7 +158,7 @@ CICapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
     D_throw() << "Particle disassociated itself";
 
   if  (!((p1.getID() < p2.getID())
-	 ? captureMap[p1.getID()].erase(p2.getID())
+	     ? captureMap[p1.getID()].erase(p2.getID())
 	 : captureMap[p2.getID()].erase(p1.getID())))
     D_throw() << "Erase did not find " << p2.getID() 
 	      << " and " << p1.getID() << " in the capture map";    
@@ -167,8 +166,8 @@ CICapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
 #else
 
   (p1.getID() < p2.getID())
-    ? captureMap[p1.getID()].erase(p2.getID())
-    : captureMap[p2.getID()].erase(p1.getID());
+    ? captureMap.erase(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+    : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
   
 #endif
   

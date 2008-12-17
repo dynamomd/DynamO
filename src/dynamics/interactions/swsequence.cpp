@@ -189,11 +189,12 @@ CISWSequence::getInternalEnergy() const
 { 
   //Once the capture maps are loaded just iterate through that determining energies
   double Energy = 0.0;
-  for (size_t id1 = 0; id1 < captureMap.size(); ++id1)
-    BOOST_FOREACH(const unsigned long& id2, captureMap[id1])
-      Energy += alphabet
-      [sequence[id1 % sequence.size()]]
-      [sequence[id2 % sequence.size()]];
+  typedef std::pair<size_t, size_t> locpair;
+
+  BOOST_FOREACH(const locpair& IDs, captureMap)
+    Energy += alphabet
+    [sequence[IDs.first % sequence.size()]]
+    [sequence[IDs.second % sequence.size()]];
   
   return -Energy; 
 }
