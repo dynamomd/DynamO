@@ -195,6 +195,60 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
   return false;
 }
 
+Iflt
+CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B)
+{
+  CVector<> deltaR = A.position - B.position;
+  return ((A.rot.orientation.Cross(B.rot.orientation)) % deltaR);
+}
+
+Iflt 
+CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B)
+{
+  CVector<> deltaR = A.position - B.position;
+  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
+  CVector<> deltaV = A.velocity - B.velocity;
+  
+  return (
+    (A.rot.orientation % deltaR) * (deltaW % B.rot.orientation)
+  ) + (
+    (B.rot.orientation % deltaR) * (deltaW % A.rot.orientation)
+  ) - (
+    (deltaW % deltaR) * (A.rot.orientation % B.rot.orientation)
+  ) + ( 
+    (A.rot.orientation.Cross(B.rot.orientation) % deltaV)
+  );
+}
+
+Iflt 
+CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B)
+{
+  CVector<> deltaR = A.position - B.position;
+  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
+  CVector<> deltaV = A.velocity - B.velocity;
+  
+  return 2.0 * (
+    (
+      (A.rot.orientation % deltaV) * (deltaW % B.rot.orientation)
+    ) + (
+      (B.rot.orientation % deltaV) * (deltaW % A.rot.orientation)
+    ) - (
+      (A.rot.orientation % B.rot.orientation) * (deltaW % deltaV)
+    )
+  ) - (
+    (deltaW % deltaR) * (deltaW % (A.rot.orientation.Cross(B.rot.orientation)))
+  ) + (
+    (A.rot.orientation % deltaR) * (B.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))
+  ) + (
+    (B.rot.orientation % deltaR) * (A.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))
+  ) + (
+    (deltaW % A.rot.orientation) * (deltaR % (B.rot.angularVelocity.Cross(B.rot.orientation)))
+  ) + (
+    (deltaW % B.rot.orientation) * (deltaR % (A.rot.angularVelocity.Cross(A.rot.orientation)))
+  ); 
+}
+
+
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
 {

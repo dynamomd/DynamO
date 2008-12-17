@@ -86,6 +86,10 @@ protected:
     Iflt beta;
   };
   
+  virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B);
+  virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B);
+  virtual Iflt F_secondDeriv(orientationStreamType A, orientationStreamType B);
+  
   virtual void performRotation(orientationStreamType&, const Iflt&) const;
   
   virtual bool recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length, 
