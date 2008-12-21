@@ -112,8 +112,10 @@ COPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat,
 Iflt
 COPMisc::getMFT() const
 {
-  return (Sim->dSysTime * ((Iflt) Sim->lN)) 
-    /(((Iflt) (2 * dualEvents) + singleEvents) * Sim->Dynamics.units().unitTime());
+  return Sim->dSysTime * static_cast<Iflt>(Sim->lN)
+    /(Sim->Dynamics.units().unitTime() 
+      * ((2.0 * static_cast<Iflt>(dualEvents)) 
+	 + static_cast<Iflt>(singleEvents)));
 }
 
 
