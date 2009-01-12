@@ -120,7 +120,7 @@ CLNewton::getWallCollision(const CParticle &part,
 
   rij -= wallLoc;
 
-  if (std::signbit(rvdot))
+  if (rvdot < 0)
     return  - ((rij % wallNorm) / rvdot);
   
   return HUGE_VAL;
@@ -180,13 +180,13 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   CVector<> vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(rpos, vel);
   
-  Iflt retVal(std::signbit(vel[0]) 
+  Iflt retVal((vel[0] < 0)
 	      ? -rpos[0]/vel[0] 
 	      : (width[0]-rpos[0]) / vel[0]);
 
   for (int iDim = 1; iDim < NDIM; ++iDim)
     {
-      Iflt tmpdt((std::signbit(vel[iDim]))
+      Iflt tmpdt((vel[iDim] < 0)
 		 ? -rpos[iDim]/vel[iDim] 
 		 : (width[iDim]-rpos[iDim]) / vel[iDim]);
       
@@ -208,12 +208,12 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
   Sim->Dynamics.BCs().setPBC(rpos, vel);
 
   size_t retVal(0);
-  Iflt time(std::signbit(vel[0]) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
+  Iflt time((vel[0] < 0) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
   
 
   for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
-      Iflt tmpdt = ((std::signbit(vel[iDim])) 
+      Iflt tmpdt = ((vel[iDim] < 0) 
 		  ? -rpos[iDim]/vel[iDim] 
 		  : (width[iDim]-rpos[iDim]) / vel[iDim]);
 
@@ -239,7 +239,7 @@ CLNewton::DSMCSpheresTest(const CParticle& p1,
   //Sim->Dynamics.BCs().setPBC(pdat.rij, pdat.vij);
   pdat.rvdot = pdat.rij % pdat.vij;
   
-  if (!std::signbit(pdat.rvdot))
+  if (pdat.rvdot > 0)
     return false; //Positive rvdot
 
   Iflt prob = factor * (-pdat.rvdot);
@@ -331,7 +331,7 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Ifl
   Iflt R2 = retVal.rij.square();
   Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
   
-  if (std::signbit(deltaKE) && std::signbit(sqrtArg))
+  if ((deltaKE < 0) && (sqrtArg < 0))
     {
       event.setType(BOUNCE);
       retVal.setType(BOUNCE);
@@ -339,7 +339,7 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Ifl
     }
   else
     {
-      if (std::signbit(deltaKE))
+      if (deltaKE < 0)
 	{
 	  event.setType(WELL_KEDOWN);
 	  retVal.setType(WELL_KEDOWN);
@@ -353,7 +353,7 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Ifl
       retVal.particle1_.setDeltaU(-0.5 * deltaKE);
       retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
-      if (std::signbit(retVal.rvdot))
+      if (retVal.rvdot < 0)
 	retVal.dP = retVal.rij 
 	  * (2.0 * deltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
       else
