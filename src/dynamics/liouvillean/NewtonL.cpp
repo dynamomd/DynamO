@@ -29,10 +29,11 @@
 bool 
 CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
-  if (std::signbit(dat.rvdot))
+  if (dat.rvdot < 0)
     {
       Iflt arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
-      if (!std::signbit(arg))
+
+      if (arg > 0)
 	{
 	  //This is the more numerically stable form of the quadratic
 	  //formula
@@ -42,11 +43,13 @@ CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 	  if (std::isnan(dat.dt))
 	    D_throw() << "dat.dt is nan";
 #endif
-
 	  return true;
 	}
+      else 
+	return false;
     }
-  return false;
+  else
+    return false;
 }
   
 bool 
