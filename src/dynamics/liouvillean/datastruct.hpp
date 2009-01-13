@@ -22,29 +22,21 @@
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
 
+//Pair dynamics data, can be allocated in compile time saving new() calls
 struct CPDData
 {
   inline CPDData() {}
 
   inline CPDData(const DYNAMO::SimData& Sim, const CParticle& p1, 
 		 const CParticle& p2):
-    rvdot(0), r2(0), v2(0), dt(HUGE_VAL)
+    rij(p1.getPosition() - p2.getPosition()),
+    vij(p1.getVelocity() - p2.getVelocity()),    
+    dt(HUGE_VAL)
   {
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      {
-	rij[iDim] = p1.getPosition()[iDim] - p2.getPosition()[iDim];
-	vij[iDim] = p1.getVelocity()[iDim] - p2.getVelocity()[iDim];
-      }
-
     Sim.Dynamics.BCs().setPBC(rij, vij);
-
-    
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      {
-	rvdot += rij[iDim] * vij[iDim];
-	r2 += rij[iDim] * rij[iDim];
-	v2 += vij[iDim] * vij[iDim];
-      }
+    rvdot = rij % vij;
+    r2 = rij.square();
+    v2 = vij.square();
   }
 
   CVector<> rij, vij;
