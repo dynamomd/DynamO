@@ -24,6 +24,7 @@ import dynamo-tags ;
 project	: requirements <variant>debug:<define>DYNAMO_DEBUG 
 	  <define>DYNAMO_double_precsision 
 	  <variant>release:<define>DYNAMO_Colour
+	  <variant>cachegrind:<define>DYNAMO_Cachegrind
 	  <variant>release:<runtime-link>static
 	  <variant>debug:<define>DYNAMO_DEBUG <link>static
 	  #<define>DYNAMO_WallCollDebug
