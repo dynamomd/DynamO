@@ -16,5 +16,6 @@
 */
 
 #include "gcells.hpp"
+#include "gcells2.hpp"
 #include "gListAndCell.hpp"
 #include "gcellsShearing.hpp"

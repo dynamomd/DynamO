@@ -54,6 +54,8 @@ CGlobal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
     return new CGCells(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
     return new CGListAndCell(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"Cells2"))
+    return new CGCells2(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
     return new CGCellsShearing(XML, Sim);
   else 
