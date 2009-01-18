@@ -40,6 +40,9 @@ project	: requirements <variant>debug:<define>DYNAMO_DEBUG
 variant cachegrind : <inlining>on <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
+variant massif : <inlining>off <optimization>speed <debug-symbols>on 
+	<profiling>off ;
+
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
 
 exe dynareplex_opt 
