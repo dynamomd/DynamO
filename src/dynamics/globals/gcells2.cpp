@@ -341,9 +341,8 @@ CGCells2::getCellID(const CVector<long>& coords) const
   
   //Previous Loop runs to NDIM - 1 to stop an invalid memory read and
   //useless *=
-  id += ((coords[NDIM - 1] % cellCount[NDIM-1]) + (coords[NDIM-1] < 0) * cellCount[NDIM-1]) * pow;
-
-  return id;
+  return id + pow * ((coords[NDIM - 1] % cellCount[NDIM-1]) 
+		     + (coords[NDIM-1] < 0) * cellCount[NDIM-1]);
 }
 
 CVector<long> 
@@ -383,7 +382,7 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
   for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
     {
       //Add the current vector to the list
-      const size_t nb = getCellID(cells[partCellData[part.getID()].cell].coords + displacement);
+      const size_t& nb = getCellID(cells[partCellData[part.getID()].cell].coords + displacement);
       
       for (int next = cells[nb].list;
 	   next != -1; next = partCellData[next].next)
