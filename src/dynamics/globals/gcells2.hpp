@@ -86,9 +86,9 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   //Cell Numbering
-  long getCellID(CVector<long>) const;
+  size_t getCellID(const CVector<long>&) const;
   CVector<long> getCoordsFromID(unsigned long) const; 
-  long getCellID(CVector<>) const;
+  size_t getCellID(CVector<>) const;
 
   void addCells(Iflt, bool limitCells = true);
 

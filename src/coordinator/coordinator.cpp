@@ -149,6 +149,10 @@ CCoordinator::parseOptions(int argc, char *argv[])
 void 
 CCoordinator::initialise()
 {
+#ifdef DYNAMO_Cachegrind
+  CALLGRIND_TOGGLE_COLLECT
+#endif
+
   threads.setThreadCount(vm["n-threads"].as<unsigned int>());
 
   switch (vm["engine"].as<size_t>())

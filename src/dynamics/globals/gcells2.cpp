@@ -224,7 +224,7 @@ void
 CGCells2::outputXML(xmlw::XmlStream& XML) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << xmlw::attr("Type") << "Cells"
+  XML << xmlw::attr("Type") << "Cells2"
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
 }
@@ -325,18 +325,25 @@ CGCells2::addLocalEvents()
     }
 }
 
-long 
-CGCells2::getCellID(CVector<long> coords) const
+size_t
+CGCells2::getCellID(const CVector<long>& coords) const
 {
   //PBC for vectors
-  for (int iDim = 0; iDim < NDIM; iDim++)
+
+  size_t id = 0;
+  size_t pow = 1;
+
+  for (size_t iDim = 0; iDim < NDIM - 1; ++iDim)
     {
-      coords[iDim] %= cellCount[iDim];
-      if (coords[iDim] < 0)
-	coords[iDim] += cellCount[iDim];
+      id += ((coords[iDim] % cellCount[iDim]) + (coords[iDim] < 0) * cellCount[iDim]) * pow;
+      pow *= cellCount[iDim];
     }
   
-  return ((coords[0] + coords[1]*cellCount[0] + coords[2]*cellCount[0]*cellCount[1]) % NCells);
+  //Previous Loop runs to NDIM - 1 to stop an invalid memory read and
+  //useless *=
+  id += ((coords[NDIM - 1] % cellCount[NDIM-1]) + (coords[NDIM-1] < 0) * cellCount[NDIM-1]) * pow;
+
+  return id;
 }
 
 CVector<long> 
@@ -353,13 +360,13 @@ CGCells2::getCoordsFromID(unsigned long i) const
   return tmp;
 }
 
-long 
+size_t
 CGCells2::getCellID(CVector<> pos) const
 {
   Sim->Dynamics.BCs().setPBC(pos);
   CVector<long> temp;
   
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     temp[iDim] = (long) ( (pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) / cellLatticeWidth[iDim]);
   
   return getCellID(temp);
@@ -373,10 +380,10 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
   CVector<long>displacement(-1);
 
   //This loop iterates through each neighbour position
-  for (long iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
+  for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
     {
       //Add the current vector to the list
-      const int nb = getCellID(cells[partCellData[part.getID()].cell].coords + displacement);
+      const size_t nb = getCellID(cells[partCellData[part.getID()].cell].coords + displacement);
       
       for (int next = cells[nb].list;
 	   next != -1; next = partCellData[next].next)
@@ -385,7 +392,7 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
       
       //Now update the displacement vector
       displacement[0] += 1;
-      for (int iDim = 1; iDim < NDIM; ++iDim)
+      for (size_t iDim = 1; iDim < NDIM; ++iDim)
 	if (displacement[iDim - 1] == 2)
 	  {
 	    displacement[iDim - 1] = -1;
