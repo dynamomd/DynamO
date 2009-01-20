@@ -81,10 +81,10 @@ namespace xmlw {
     
     // XmlStream refers std::ostream object to perform actual output operations
     inline XmlStream(std::ostream& _s):
-      state(stateNone), s(_s), prologWritten(false) {}
+      state(stateNone), s(_s), prologWritten(false), FormatXML(false) {}
     
     inline XmlStream(const XmlStream &XML):
-      state(XML.state), s(XML.s), prologWritten(XML.prologWritten) {}
+      state(XML.state), s(XML.s), prologWritten(XML.prologWritten), FormatXML(XML.FormatXML) {}
     
     ~XmlStream();
     
@@ -101,6 +101,8 @@ namespace xmlw {
     }
 
     std::ostream& getUnderlyingStream() { return s; }
+
+    inline void setFormatXML(const bool& tf) { FormatXML = tf; }
     
   private:
     // state of the stream 
@@ -121,6 +123,7 @@ namespace xmlw {
     std::ostream&	s;
     bool	prologWritten;
     std::ostringstream	tagName;
+    bool        FormatXML;
     
     // I don't know any way easier (legal) to clear std::stringstream...
     inline void clearTagName() {

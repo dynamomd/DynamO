@@ -44,8 +44,7 @@ namespace xmlw
       
     case Controller::whatTag:
       closeTagStart();
-      for (unsigned int i = 0; i < tags.size(); i++)
-	s << XML_SPACING;
+      if (FormatXML) for (unsigned int i = 0; i < tags.size(); i++) s << XML_SPACING;
       s << '<';
       if (controller.str.empty()) {
 	clearTagName();
@@ -121,8 +120,7 @@ namespace xmlw
     while (tags.size() > 0 && !brk) {
       if (stateNone == state)
 	{
-	  for (unsigned int i = 0; i < tags.size()-1; i++)
-	    s << XML_SPACING;
+	  if (FormatXML) for (unsigned int i = 0; i < tags.size()-1; i++) s << XML_SPACING;
 	  s << "</" << tags.top() << '>' << '\n';
 	}
       else {
