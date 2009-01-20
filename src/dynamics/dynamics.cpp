@@ -628,9 +628,6 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
       << xmlw::tag("BC")
       << p_BC
       << xmlw::endtag("BC")
-      << xmlw::tag("Liouvillean")
-      << p_liouvillean
-      << xmlw::endtag("Liouvillean")
       << xmlw::tag("Genus");
   
   BOOST_FOREACH(const CSpecies& ptr, species)
@@ -677,6 +674,9 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
 	<< xmlw::endtag("Interaction");
   
   XML << xmlw::endtag("Interactions")
+      << xmlw::tag("Liouvillean")
+      << p_liouvillean
+      << xmlw::endtag("Liouvillean")
       << xmlw::endtag("Dynamics");
 }
 

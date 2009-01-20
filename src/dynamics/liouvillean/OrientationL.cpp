@@ -23,11 +23,10 @@
 void
 CLNOrientation::operator<<(const XMLNode& XML)
 {
-  XMLNode xSubNode(XML.getParentNode().getParentNode()
-		   .getChildNode("ParticleData"));
+  XMLNode xSubNode = XML.getChildNode("OrientationData");
   
-  size_t nPart = xSubNode.nChildNode("Pt");
-  
+  size_t nPart = xSubNode.nChildNode("P");
+    
   orientationData.resize(nPart);
   
   I_cout() << "Loading orientation data....";
@@ -38,7 +37,7 @@ CLNOrientation::operator<<(const XMLNode& XML)
 
   for (size_t i = 0; i < nPart; ++i)
     {
-      XMLNode xBrowseNode(xSubNode.getChildNode("Pt", &xml_iter));
+      XMLNode xBrowseNode(xSubNode.getChildNode("P", &xml_iter));
       
       orientationData[i].orientation << xBrowseNode.getChildNode("U");
       orientationData[i].angularVelocity << xBrowseNode.getChildNode("O");
@@ -60,19 +59,21 @@ void
 CLNOrientation::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
-      << "NOrientation";
-}
+      << "NOrientation"
+      << xmlw::tag("OrientationData");
+  
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    XML << xmlw::tag("P") 
+	<< xmlw::attr("ID") << part.getID()
+	<< xmlw::tag("O") 
+	<< orientationData[part.getID()].angularVelocity
+	<< xmlw::endtag("O")
+	<< xmlw::tag("U")
+	<< orientationData[part.getID()].orientation
+	<< xmlw::endtag("U")
+	<< xmlw::endtag("P");
 
-void 
-CLNOrientation::outputExtraPDatXML(xmlw::XmlStream& XML,
-				   const CParticle& part) const
-{
-  XML << xmlw::tag("O")
-      << orientationData[part.getID()].angularVelocity
-      << xmlw::endtag("O")
-      << xmlw::tag("U")
-      << orientationData[part.getID()].orientation
-      << xmlw::endtag("U");
+  XML << xmlw::endtag("OrientationData");
 }
 
 bool 

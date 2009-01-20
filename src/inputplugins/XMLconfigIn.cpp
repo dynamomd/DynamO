@@ -73,6 +73,7 @@ CIPConfig::initialise()
 
       I_cout() << "Bzip compressed XML input file found\nDecompressing file "
 	       << fileName;
+      std::cout.flush();
 
       while(getline(inputFile,line)) 
 	{
@@ -81,8 +82,8 @@ CIPConfig::initialise()
 	}
 
       I_cout() << "File Decompressed, parsing XML";
-      fflush(stdout);
-      
+      std::cout.flush();
+
       XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
 
       try {
