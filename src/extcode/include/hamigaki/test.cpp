@@ -1,5 +1,5 @@
 #include <iostream>
-#include "hamigaki/iostreams/filter/base64.hpp"
+#include <boost/iostreams/filter/base64.hpp>
 #include <string>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -24,13 +24,13 @@ int main()
     coutputFile << "Heres a bunch of text stuff that has no meaning or length"
 		<< "\n<EOXML />\n";
     
-    float test(3.14159265);
 
     io::filtering_ostream base64Convertor;
-    base64Convertor.push(hamigaki::iostreams::base64_encoder());
+    base64Convertor.push(io::base64_encoder());
     base64Convertor.push(io::stream_sink<io::filtering_ostream>(coutputFile));
     
     base64Convertor << "A test sentance for base 64 conversion";
+    //float test(3.14159265);
     //base64Convertor.write(reinterpret_cast<const char*>(&test), sizeof(test));
   }
 
@@ -56,7 +56,7 @@ int main()
     //Switch to base64 
 
     io::filtering_istream base64Convertor;
-    base64Convertor.push(hamigaki::iostreams::base64_decoder());
+    base64Convertor.push(io::base64_decoder());
     base64Convertor.push(io::stream_source<io::filtering_istream>(cinputFile));
 
     

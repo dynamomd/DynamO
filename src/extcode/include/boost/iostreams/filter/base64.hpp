@@ -7,17 +7,17 @@
 
 // See http://hamigaki.sourceforge.jp/libs/iostreams for library home page.
 
-#ifndef HAMIGAKI_IOSTREAMS_FILTER_BASE64_HPP
-#define HAMIGAKI_IOSTREAMS_FILTER_BASE64_HPP
+#ifndef BOOST_IOSTREAMS_FILTER_BASE64_HPP
+#define BOOST_IOSTREAMS_FILTER_BASE64_HPP
 
-#include <hamigaki/iostreams/arbitrary_positional_facade.hpp>
+#include <boost/iostreams/arbitrary_positional_facade.hpp>
 #include <boost/iostreams/detail/ios.hpp>
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/write.hpp>
 #include <boost/integer.hpp>
 #include <algorithm>
 
-namespace hamigaki { namespace iostreams {
+namespace boost { namespace iostreams {
 
 struct base64_traits
 {

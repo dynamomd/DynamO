@@ -7,8 +7,8 @@
 
 // See http://hamigaki.sourceforge.jp/libs/iostreams for library home page.
 
-#ifndef HAMIGAKI_IOSTREAMS_ARBITRARY_POSITIONAL_FACADE_HPP
-#define HAMIGAKI_IOSTREAMS_ARBITRARY_POSITIONAL_FACADE_HPP
+#ifndef BOOST_IOSTREAMS_ARBITRARY_POSITIONAL_FACADE_HPP
+#define BOOST_IOSTREAMS_ARBITRARY_POSITIONAL_FACADE_HPP
 
 #include <boost/config.hpp>
 #include <boost/iostreams/detail/ios.hpp>
@@ -16,7 +16,7 @@
 #include <boost/iostreams/traits.hpp>
 #include <boost/assert.hpp>
 
-namespace hamigaki { namespace iostreams {
+namespace boost { namespace iostreams {
 
 template<class Derived, class CharT, std::streamsize MaxBlockSize>
 class arbitrary_positional_facade;
