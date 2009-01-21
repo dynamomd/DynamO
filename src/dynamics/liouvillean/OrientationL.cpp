@@ -89,7 +89,7 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   Iflt t_low_working = t_low;
   Iflt t_up_working = t_up;
 
-  Iflt f0, f1, f2, root1, root2, foundRoot, initialRoot;
+  Iflt f0, f1, f2, foundRoot, initialRoot;
   
   // Set up pair of lines as passable objects
   orientationStreamType A, B;
@@ -114,144 +114,68 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     f1 = F_firstDeriv(A, B);
     f2 = F_secondDeriv(A, B);
 
-    // Get a root
-    initialRoot = quadraticSolution(ROOT_SMALLEST_POSITIVE, f0, f1, f2);
-
-    if(initialRoot > t_up)
+    // Break out of DO...WHILE if we can't find a root.
+    // We still need to update boundaries while we narrow the root area
+    do
     {
-      D_throw() << "Root guess is outside boundary";
-      continue;
+      // Get a root
+      if(!quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, f2))
+      {
+        D_throw() << "No positive roots found";
+	break;
+      }
+
+      if(initialRoot > t_up)
+      {
+	D_throw() << "Root guess is outside boundary";
+	break;
+      }
+
+      // FoundRoot now has the new root
+      foundRoot = quadraticRootFinder(A, B, initialRoot);
+
+      if(foundRoot > t_up)
+      {
+        D_throw() << "Root found is greater than t_up";
+        continue;
+      }    
+
+      // Here we have a new root... 
+      // wind the lines to the new root position, and shrink the t_up value
+      performRotation(A, foundRoot);
+      performRotation(B, foundRoot);
+
+      t_up_working = foundRoot - ((2 * fabs(F_firstDeriv(A, B)))/maxSecondDeriv);
+    
+      // wind the lines to the t_low position and search again
+      performRotation(A, t_low_working - foundRoot);
+      performRotation(B, t_low_working - foundRoot);
+
+    } while(false); // End of do...while drop-out loop
+
+    // Now let's update lower boundary on root
+    if(quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5)))
+    {
+      t_low += initialRoot;
+      performRotation(A, initialRoot);
+      performRotation(B, initialRoot);
+      currentClock += initialRoot;
     }
 
-    // Reset the lower search limit
-    t_low_working += quadraticSolution(ROOT_SMALLEST_POSITIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5));
-    
-    // FoundRoot now has the new root
-    foundRoot = quadraticRootFinder(A, B, root1);
+  } // end while(t_low < t_up);
 
-    if(foundRoot > t_up)
-    {
-      D_throw() << "Root found is greater than t_up";
-      continue;
-    }    
-
-    // wind the lines to the new root position, and shrink the t_up value
-    performRotation(A, foundRoot);
-    performRotation(B, foundRoot);
-
-    t_up_working = foundRoot - ((2 * fabs(F_firstDeriv(A, B)))/maxSecondDeriv);
-    
-    // wind the lines to the t_low position and search again
-    performRotation(A, t_low_working - foundRoot);
-  }
-  
   return false;
-  //return recursiveRootFinder(A, B, length, interpolationSize, 0.0, PD.dt, PD.dt);
 }
 
 bool
-CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length,
-                                    const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const
-{
-  /*
-  long unsigned int iter = 0;
-  Iflt currentPosition = windowOpen, x0 = 0, x1 = 0, x2 = 0, 
-       upperTimeBracket, lowerTimeBracket, upperValue, 
-       lowerValue, midpoint, previousMidpoint, workingValue;
-  CVector<> rij, crossProduct;
-  orientationStreamType rootWorkerA, rootWorkerB;
-  
-  while(currentPosition < windowClosed)
-  {
-    x0 = x1;
-    x1 = x2;
-    
-    rij = A.position - B.position;
-    crossProduct = A.rot.orientation.Cross(B.rot.orientation);
-	
-	  x2 = crossProduct % rij;
-    
-    // Possible root found in the x1/x2 interval
-    if(std::signbit(x2) != std::signbit(x1) && iter > 1)
-    {
-      // Root checking routine here
-      rootWorkerA = A;
-      rootWorkerB = B;
-      upperValue = x2;
-      lowerValue = x1;
-      upperTimeBracket = currentPosition;
-      lowerTimeBracket = currentPosition - interpolationSize;
-      previousMidpoint = currentPosition;
-      midpoint = currentPosition;
-      
-      while(std::fabs(upperTimeBracket - lowerTimeBracket) >  (eps*lowerTimeBracket))
-      {
-
-        // Bisection root finding
-        previousMidpoint = midpoint;
-        midpoint = (lowerTimeBracket + upperTimeBracket) / 2;
-        
-        performRotation(rootWorkerA, midpoint - currentPosition);
-        performRotation(rootWorkerB, midpoint - currentPosition);
-        
-        rij = rootWorkerA.position - rootWorkerB.position;
-        crossProduct = rootWorkerA.rot.orientation.Cross(rootWorkerB.rot.orientation);
-        
-        workingValue = crossProduct % rij;
-        
-        if(std::signbit(workingValue) == std::signbit(lowerValue))
-        {
-          lowerTimeBracket = midpoint;
-        }
-        else
-        {
-          upperTimeBracket = midpoint;
-        }
-      }
-      
-      // Now upperTimeBracket will give us the collision time.
-      // Check that the root is valid.
-      collisionPoints cp = getCollisionPoints(rootWorkerA, rootWorkerB);
-      
-      if(std::fabs(cp.alpha) < (length/2) && std::fabs(cp.beta) < (length/2))
-      {
-        collisionTime = (upperTimeBracket + lowerTimeBracket) / 2.0;
-        return true;
-      }
-    }
-    
-    // Conditions for interpolating:
-    // - Sign is different to what extrapoling the previous segment indicated
-    // - The new point is still the same sign as the old one
-    if(iter > 1 && (std::signbit(x2) != std::signbit(x1 + x1 - x0)) && std::signbit(x2) == std::signbit(x1))
-    {
-      performRotation(A, -1.0 * interpolationSize);
-      performRotation(B, -1.0 * interpolationSize);
-      
-      if(recursiveRootFinder(A, B, length, interpolationSize/10.0, currentPosition - interpolationSize, currentPosition, collisionTime))
-      {
-        return true;
-      }
-    }
-    
-    iter++;
-    performRotation(A, interpolationSize);
-    performRotation(B, interpolationSize);
-    currentPosition += interpolationSize;
-  }
-  */
-  return false;
-}
-
-Iflt
-CLNOrientation::quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) const
+CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const
 {
   Iflt discriminant = (B * B) - (4 * A * C);
 
   if(discriminant < 0)
   {
     D_throw() << "Determinant of less than zero returned";
-    return 0;
+    return false;
   }
   
   Iflt root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
@@ -259,12 +183,14 @@ CLNOrientation::quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) 
 
   if(returnType == ROOT_SMALLEST_EITHER)
   {
-    return (fabs(root1) < fabs(root2)) ? root1 : root2;
+    returnVal = (fabs(root1) < fabs(root2)) ? root1 : root2;
+    return true;
   }
 
   else if(returnType == ROOT_LARGEST_EITHER)
   {
-    return (fabs(root1) < fabs(root2)) ? root2 : root1;
+    returnVal = (fabs(root1) < fabs(root2)) ? root2 : root1;
+    return true;
   }
   else
   {    
@@ -275,13 +201,15 @@ CLNOrientation::quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) 
         case ROOT_LARGEST_NEGATIVE:
         case ROOT_SMALLEST_NEGATIVE:
           D_throw() << "Both roots positive";
-          return 0;
+          return false;
           break;
         case ROOT_SMALLEST_POSITIVE:
-          return ((root1 < root2) ? root1 : root2);
+          returnVal = ((root1 < root2) ? root1 : root2);
+          return true;
           break;
         case ROOT_LARGEST_POSITIVE:
-          return ((root1 > root2) ? root1 : root2);
+          returnVal = ((root1 > root2) ? root1 : root2);
+          return true;
 	  break;
       }
     }
@@ -292,13 +220,15 @@ CLNOrientation::quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) 
         case ROOT_LARGEST_POSITIVE:
         case ROOT_SMALLEST_POSITIVE:
           D_throw() << "Both roots negative";
-          return 0;
+          return false;
           break;
         case ROOT_SMALLEST_NEGATIVE:
-          return ((root1 > root2) ? root1 : root2);
+          returnVal = ((root1 > root2) ? root1 : root2);
+          return true;
           break;
         case ROOT_LARGEST_NEGATIVE:
-          return ((root1 < root2) ? root1 : root2);
+          returnVal = ((root1 < root2) ? root1 : root2);
+          return true;
           break;
       }
     }
@@ -308,15 +238,20 @@ CLNOrientation::quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) 
       {
         case ROOT_LARGEST_POSITIVE:
         case ROOT_SMALLEST_POSITIVE:
-          return ((root1 > root2) ? root1 : root2);
+          returnVal = ((root1 > root2) ? root1 : root2);
+          return true;
           break;
         case ROOT_LARGEST_NEGATIVE:
         case ROOT_SMALLEST_NEGATIVE:
-          return ((root1 < root2) ? root1 : root2);
+          returnVal = ((root1 < root2) ? root1 : root2);
+          return true;
           break;
       }
     }
-  } 
+  }
+
+  D_throw() << "Unexpected end-of-function reached.  Did you specify a valid root type?";
+  return false;
 }
 
 Iflt
@@ -541,7 +476,7 @@ CLNOrientation::quadraticRootFinder(orientationStreamType A, orientationStreamTy
 
     currentValue = f0;
 
-    root = quadraticSolution(ROOT_SMALLEST_EITHER, f0, f1, f2);
+    quadraticSolution(root, ROOT_SMALLEST_EITHER, f0, f1, f2);
    
     currentTime += root;
     performRotation(A, root);
