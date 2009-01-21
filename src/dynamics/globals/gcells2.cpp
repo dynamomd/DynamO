@@ -173,7 +173,8 @@ CGCells2::runEvent(const CParticle& part) const
 	    nbs.second(part, next);
 
       //Now update the displacement vector
-      displacement[0] += 1;
+      ++displacement[0];
+
       for (int iDim = 1; iDim < NDIM; ++iDim)
 	if (displacement[iDim - 1] == 2)
 	  {
