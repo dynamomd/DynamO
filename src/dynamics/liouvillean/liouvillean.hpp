@@ -300,7 +300,6 @@ public:
   /*! \brief This is called by each particle to request any extra data
    *   the liouvillean is holding and wants to store in the particles XML.
    */
-  virtual void outputExtraPDatXML(xmlw::XmlStream&, const CParticle&) const {}
 
   /*! \brief Instantiates and loads CLiovillean classes from an XML
    * entry.

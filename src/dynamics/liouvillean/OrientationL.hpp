@@ -54,9 +54,6 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void outputExtraPDatXML(xmlw::XmlStream&,
-				  const CParticle&) const;
-
   struct rotData
   {
     CVector<> orientation;

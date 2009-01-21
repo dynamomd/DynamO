@@ -47,7 +47,7 @@ COPConfig::output(xmlw::XmlStream &XML)
   XML << std::scientific
       << std::setprecision(std::numeric_limits<Iflt>::digits10 -1)
       << xmlw::prolog() << xmlw::tag("DYNAMOconfig") 
-      << xmlw::attr("version") << "1.0"
+      << xmlw::attr("version") << configFileVersion
       << xmlw::tag("Simulation")
       << xmlw::tag("Trajectory")
       << xmlw::attr("Coll") << Sim->lMaxNColl
@@ -85,12 +85,7 @@ COPConfig::output(xmlw::XmlStream &XML)
       tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
 
-      XML << xmlw::tag("Pt")
-	  << tmp;
-      
-      Sim->Dynamics.Liouvillean().outputExtraPDatXML(XML, tmp);
-
-      XML << xmlw::endtag("Pt");
+      XML << xmlw::tag("Pt") << tmp << xmlw::endtag("Pt");
 
       ++prog;
     }
