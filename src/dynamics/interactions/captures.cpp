@@ -158,8 +158,9 @@ CICapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
     D_throw() << "Particle disassociated itself";
 
   if  (!((p1.getID() < p2.getID())
-	     ? captureMap[p1.getID()].erase(p2.getID())
-	 : captureMap[p2.getID()].erase(p1.getID())))
+	 ? captureMap.erase(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+	 : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()))
+	 ))
     D_throw() << "Erase did not find " << p2.getID() 
 	      << " and " << p1.getID() << " in the capture map";    
 
