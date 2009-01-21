@@ -5,10 +5,10 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/chain.hpp>
-#include "../../xmlwriter.hpp"
+#include "extcode/xmlwriter.hpp"
 #include <boost/iostreams/device/stream_sink.hpp>
 #include <boost/iostreams/device/stream_source.hpp>
-#include "../../../base/is_exception.hpp"
+#include "base/is_exception.hpp"
 
 int main()
 {
