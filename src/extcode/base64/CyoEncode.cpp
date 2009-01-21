@@ -134,7 +134,7 @@ unsigned long CyoEncode::Base32Encode( void* dest, const void* src, unsigned lon
         assert( 1 <= dwBlockSize && dwBlockSize <= BASE32_INPUT );
 
         // Encode inputs...
-        BYTE n1, n2 = 0, n3 = 0, n4 = 0, n5 = 0, n6 = 0, n7 = 0, n8 = 0;
+        BYTE n1 = 0, n2 = 0, n3 = 0, n4 = 0, n5 = 0, n6 = 0, n7 = 0, n8 = 0;
         switch (dwBlockSize)
         {
         case 5:
@@ -234,9 +234,9 @@ unsigned long CyoEncode::Base64Encode( void* dest, const void* src, unsigned lon
         assert( 1 <= dwBlockSize && dwBlockSize <= BASE64_INPUT );
 
         // Encode inputs...
-        BYTE n1, n2 = 0, n3 = 0, n4 = 0;
+        BYTE n1 = 0, n2 = 0, n3 = 0, n4 = 0;
         switch (dwBlockSize)
-        {
+	  {
         case 3:
             n4  =  (pSrc[ 2 ] & 0x3f);
             n3  = ((pSrc[ 2 ] & 0xc0) >> 6);
@@ -251,6 +251,7 @@ unsigned long CyoEncode::Base64Encode( void* dest, const void* src, unsigned lon
         default:
             assert( false );
         }
+
         pSrc += dwBlockSize;
         dwSrcSize -= dwBlockSize;
 

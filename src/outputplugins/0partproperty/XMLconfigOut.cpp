@@ -85,7 +85,7 @@ COPConfig::output(xmlw::XmlStream &XML)
       tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
 
-      XML << xmlw::tag("Pt") << tmp << xmlw::endtag("Pt")
+      XML << xmlw::tag("Pt") << tmp << xmlw::endtag("Pt");
 
       ++prog;
     }
