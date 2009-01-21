@@ -79,14 +79,18 @@ bool
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
 { 
-  // +0.1 is arbitrary to ensure a non-zero rate if angular velocities are both zero
-  Iflt interpolationSize = //1.0 / (0.1 + (10.0 * orientationData[p1.getID()].angularVelocity.length()
-                           //                   * orientationData[p2.getID()].angularVelocity.length()));
-                           1e-5;
+  Iflt windowSize = PD.dt;  
+  Iflt currentClock = 0.0;
 
-  // If interpolation size is > window size, put rate as window width
-  interpolationSize = (interpolationSize > PD.dt) ? PD.dt : interpolationSize;
+  Iflt t_low = 0.0;
+  Iflt t_up = PD.dt;
+
+  Iflt t_low_working = t_low;
+  Iflt t_up_working = t_up;
+
+  Iflt f0, f1, f2, root1, root2, foundRoot, initialRoot;
   
+  // Set up pair of lines as passable objects
   orientationStreamType A, B;
 
   A.position = PD.rij;
@@ -98,14 +102,57 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   B.velocity = CVector<>(0);
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
+
+  // Get Frenkel second derivative maximum
+  Iflt maxSecondDeriv = F_secondDeriv_max(A, B, length);
+
+  while(t_low < t_up)
+  {
+    // Calculate f0, f1, f2 at t = t_low
+    f0 = F_zeroDeriv(A, B);
+    f1 = F_firstDeriv(A, B);
+    f2 = F_secondDeriv(A, B);
+
+    // Get a root
+    initialRoot = quadraticSolution(ROOT_SMALLEST_POSITIVE, f0, f1, f2);
+
+    if(initialRoot > t_up)
+    {
+      D_throw() << "Root guess is outside boundary";
+      continue;
+    }
+
+    // Reset the lower search limit
+    t_low_working += quadraticSolution(ROOT_SMALLEST_POSITIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5));
+    
+    // FoundRoot now has the new root
+    foundRoot = quadraticRootFinder(A, B, root1);
+
+    if(foundRoot > t_up)
+    {
+      D_throw() << "Root found is greater than t_up";
+      continue;
+    }    
+
+    // wind the lines to the new root position, and shrink the t_up value
+    performRotation(A, foundRoot);
+    performRotation(B, foundRoot);
+
+    t_up_working = foundRoot - ((2 * fabs(F_firstDeriv(A, B)))/maxSecondDeriv);
+    
+    // wind the lines to the t_low position and search again
+    performRotation(A, t_low_working - foundRoot);
+  }
   
-  return recursiveRootFinder(A, B, length, interpolationSize, 0.0, PD.dt, PD.dt);
+  return false;
+  //return recursiveRootFinder(A, B, length, interpolationSize, 0.0, PD.dt, PD.dt);
 }
 
 bool
 CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length,
                                     const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const
 {
+  /*
   long unsigned int iter = 0;
   Iflt currentPosition = windowOpen, x0 = 0, x1 = 0, x2 = 0, 
        upperTimeBracket, lowerTimeBracket, upperValue, 
@@ -191,19 +238,95 @@ CLNOrientation::recursiveRootFinder(orientationStreamType& A, orientationStreamT
     performRotation(B, interpolationSize);
     currentPosition += interpolationSize;
   }
-  
+  */
   return false;
 }
 
 Iflt
-CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B)
+CLNOrientation::quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) const
+{
+  Iflt discriminant = (B * B) - (4 * A * C);
+
+  if(discriminant < 0)
+  {
+    D_throw() << "Determinant of less than zero returned";
+    return 0;
+  }
+  
+  Iflt root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
+  Iflt root2 = ((-1.0 * B) - sqrt(discriminant)) / (2 * A);
+
+  if(returnType == ROOT_SMALLEST_EITHER)
+  {
+    return (fabs(root1) < fabs(root2)) ? root1 : root2;
+  }
+
+  else if(returnType == ROOT_LARGEST_EITHER)
+  {
+    return (fabs(root1) < fabs(root2)) ? root2 : root1;
+  }
+  else
+  {    
+    if(root1 > 0 && root2 > 0) // Both roots positive
+    {
+      switch(returnType)
+      {
+        case ROOT_LARGEST_NEGATIVE:
+        case ROOT_SMALLEST_NEGATIVE:
+          D_throw() << "Both roots positive";
+          return 0;
+          break;
+        case ROOT_SMALLEST_POSITIVE:
+          return ((root1 < root2) ? root1 : root2);
+          break;
+        case ROOT_LARGEST_POSITIVE:
+          return ((root1 > root2) ? root1 : root2);
+	  break;
+      }
+    }
+    else if(root1 < 0 && root2 < 0) // Both roots negative
+    {
+      switch(returnType)
+      {
+        case ROOT_LARGEST_POSITIVE:
+        case ROOT_SMALLEST_POSITIVE:
+          D_throw() << "Both roots negative";
+          return 0;
+          break;
+        case ROOT_SMALLEST_NEGATIVE:
+          return ((root1 > root2) ? root1 : root2);
+          break;
+        case ROOT_LARGEST_NEGATIVE:
+          return ((root1 < root2) ? root1 : root2);
+          break;
+      }
+    }
+    else // Roots are different signs
+    {
+      switch(returnType)
+      {
+        case ROOT_LARGEST_POSITIVE:
+        case ROOT_SMALLEST_POSITIVE:
+          return ((root1 > root2) ? root1 : root2);
+          break;
+        case ROOT_LARGEST_NEGATIVE:
+        case ROOT_SMALLEST_NEGATIVE:
+          return ((root1 < root2) ? root1 : root2);
+          break;
+      }
+    }
+  } 
+}
+
+Iflt
+CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;
   return ((A.rot.orientation.Cross(B.rot.orientation)) % deltaR);
 }
 
 Iflt 
-CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B)
+CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;
   CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
@@ -220,8 +343,17 @@ CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B)
   );
 }
 
+Iflt
+CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, const Iflt length) const
+{
+  Iflt absDeltaW = (A.rot.angularVelocity - B.rot.angularVelocity).length();
+  Iflt absDeltaV = (A.velocity - B.velocity).length();
+
+  return ((length * absDeltaW) + absDeltaV);
+}
+
 Iflt 
-CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B)
+CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;
   CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
@@ -246,6 +378,15 @@ CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B)
   ) + (
     (deltaW % B.rot.orientation) * (deltaR % (A.rot.angularVelocity.Cross(A.rot.orientation)))
   ); 
+}
+
+Iflt
+CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const
+{
+  Iflt absDeltaW = (A.rot.angularVelocity - B.rot.angularVelocity).length();
+  Iflt absDeltaV = (A.velocity - B.velocity).length();
+
+  return absDeltaW * ((2 * absDeltaV) + (length * (A.rot.angularVelocity.length() + B.rot.angularVelocity.length())));
 }
 
 
@@ -379,6 +520,34 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       osret.rot.orientation = tempvec;
     }
   }
+}
+
+Iflt
+CLNOrientation::quadraticRootFinder(orientationStreamType A, orientationStreamType B, Iflt initialJump) const
+{
+  Iflt currentValue = 1.0, currentTime = initialJump;
+  Iflt root = 0.0;
+  Iflt f0 = 0.0, f1 = 0.0, f2 = 0.0;
+
+  performRotation(A, initialJump);
+  performRotation(B, initialJump);
+
+  while(currentValue != 0.0)
+  {
+    f0 = F_zeroDeriv(A, B);
+    f1 = F_firstDeriv(A, B);
+    f2 = F_secondDeriv(A, B);
+
+    currentValue = f0;
+
+    root = quadraticSolution(ROOT_SMALLEST_EITHER, f0, f1, f2);
+   
+    currentTime += root;
+    performRotation(A, root);
+    performRotation(B, root);
+  }
+
+  return currentTime;
 }
 
 C1ParticleData 

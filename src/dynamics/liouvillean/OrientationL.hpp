@@ -68,6 +68,16 @@ public:
   
   void initLineOrientations(const Iflt&);
 
+  enum
+  {
+    ROOT_SMALLEST_EITHER   =   1,
+    ROOT_SMALLEST_POSITIVE =   2,
+    ROOT_SMALLEST_NEGATIVE =   4,
+    ROOT_LARGEST_EITHER    =   8,
+    ROOT_LARGEST_POSITIVE  =  16,
+    ROOT_LARGEST_NEGATIVE  =  32
+  };
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
@@ -85,12 +95,19 @@ protected:
     Iflt alpha;
     Iflt beta;
   };
+
+  virtual Iflt quadraticSolution(const int returnType, Iflt A, Iflt B, Iflt C) const;
+
+  virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
+  virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B) const;
+  virtual Iflt F_secondDeriv(orientationStreamType A, orientationStreamType B) const;
+
+  virtual Iflt F_firstDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const;
+  virtual Iflt F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const;
   
-  virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B);
-  virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B);
-  virtual Iflt F_secondDeriv(orientationStreamType A, orientationStreamType B);
-  
-  virtual void performRotation(orientationStreamType&, const Iflt&) const;
+  virtual void performRotation(orientationStreamType& osret, const Iflt& dt) const;
+
+  virtual Iflt quadraticRootFinder(orientationStreamType A, orientationStreamType B, Iflt initialJump) const;
   
   virtual bool recursiveRootFinder(orientationStreamType& A, orientationStreamType& B, const Iflt& length, 
                                    const Iflt& interpolationSize, const Iflt& windowOpen, const Iflt& windowClosed, Iflt& collisionTime) const;
