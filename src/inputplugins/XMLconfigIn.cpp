@@ -36,6 +36,7 @@ namespace io = boost::iostreams;
 #include "../base/is_ensemble.hpp"
 #include "../base/is_simdata.hpp"
 
+
 CIPConfig::CIPConfig(std::string fn, DYNAMO::SimData* Sim):
   CInputPlugin(Sim,"initXMLFile"),
   fileName(fn)
@@ -97,7 +98,14 @@ CIPConfig::initialise()
   else
     D_throw() << "Unrecognised extension for input file";
 
-  I_cout() << "Parsing XML file";
+  std::string version(xMainNode.getAttribute("version"));
+
+  I_cout() << "Parsing XML file v" << version;
+
+  if (version != configFileVersion)
+    D_throw() << "This version of the config file is obsolete"
+	      << "\nThe current version is " << configFileVersion;
+
   XMLNode xSubNode= xMainNode.getChildNode("Simulation");
   XMLNode xBrowseNode = xSubNode.getChildNode("Trajectory");
   

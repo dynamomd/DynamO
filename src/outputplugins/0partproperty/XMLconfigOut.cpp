@@ -47,7 +47,7 @@ COPConfig::output(xmlw::XmlStream &XML)
   XML << std::scientific
       << std::setprecision(std::numeric_limits<Iflt>::digits10 -1)
       << xmlw::prolog() << xmlw::tag("DYNAMOconfig") 
-      << xmlw::attr("version") << "1.0"
+      << xmlw::attr("version") << configFileVersion
       << xmlw::tag("Simulation")
       << xmlw::tag("Trajectory")
       << xmlw::attr("Coll") << Sim->lMaxNColl
