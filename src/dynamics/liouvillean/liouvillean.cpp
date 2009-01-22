@@ -25,6 +25,13 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/iostreams/filter/base64.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/stream_sink.hpp>
+#include <boost/iostreams/device/stream_source.hpp>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CLiouvillean& g)
 {
@@ -57,7 +64,7 @@ CLiouvillean::getLineLineCollision(CPDData&, const Iflt&,
 { D_throw() << "Not implemented for this Liouvillean."; }
 
 void 
-CLiouvillean::loadParticleXMLData(const XMLNode& XML, const std::istream& os)
+CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 {
   I_cout() << "Loading Particle Data ";
   fflush(stdout);
@@ -100,13 +107,48 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, const std::istream& os)
     }  
 }
 
+//! \brief Helper function for writing out data
+template<class T>
 void 
-CLiouvillean::outputParticleBin64Data(const std::ostream&) const
+CLiouvillean::binarywrite(std::ostream& os, const T& val ) const
+{
+  os.write(reinterpret_cast<const char*>(&val), sizeof(T));
+}
+
+template<class T>
+void 
+CLiouvillean::binaryread(std::istream& os, T& val) const
+{
+  os.read(reinterpret_cast<char*>(&val), sizeof(T));
+}
+
+void 
+CLiouvillean::outputParticleBin64Data(std::ostream& os) const
 {
   if (!Sim->binaryXML)
     return;
+  
+  
+  boost::iostreams::filtering_ostream base64Convertor;
+  base64Convertor.push(boost::iostreams::base64_encoder());
+  base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(os));
+  
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    {
+      CParticle tmp(part);
+      Sim->Dynamics.BCs().setPBC(tmp.getPosition(), tmp.getVelocity());
+      
+      tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
+      tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
 
-  D_throw() << "Not implemented";  
+      binarywrite(base64Convertor, tmp.getID());
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	binarywrite(base64Convertor, tmp.getVelocity()[iDim]);
+
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	binarywrite(base64Convertor, tmp.getPosition()[iDim]);
+    }
+
 }
 
 void 

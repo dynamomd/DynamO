@@ -57,7 +57,8 @@ public:
   inline void scalePosition(const Iflt& vs) { posVector *= vs; }
   
 private:
-  
+  //NOTE, changing these members type must be reflected in the liouvillean
+  //where binary data is written
   CVector<>posVector;
   CVector<>velVector;
   unsigned long ID;

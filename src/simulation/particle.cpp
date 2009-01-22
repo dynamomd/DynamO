@@ -20,6 +20,7 @@
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "../datatypes/vector.xml.hpp"
+#include <ostream>
 
 CParticle::CParticle(const XMLNode& XML, unsigned long nID):
   ID(nID),

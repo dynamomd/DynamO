@@ -78,6 +78,8 @@ COPConfig::output(xmlw::XmlStream &XML)
   XML << xmlw::endtag("DYNAMOconfig")
       << "<EOXML />\n";  
 
+  Sim->Dynamics.Liouvillean().outputParticleBin64Data(XML.getUnderlyingStream());
+
   I_cout() << "Configuration written out";
 }
 
