@@ -59,6 +59,7 @@ class CVector;
  * make sure the Delayed States algorithm is up to date for the
  * particles being tested.
  */
+
 class CLiouvillean: public DYNAMO::SimBase
 {
 public:  
@@ -75,6 +76,23 @@ public:
   {
     streamFreq = 10 * Sim->lN;
   }
+
+  /*! \brief Parses the XML data to see if it can load XML particle
+   * data or if it needs to decode the binary data. Then loads the particle data.
+   */
+  virtual void loadParticleXMLData(const XMLNode&, const std::istream&);
+
+  
+  /*! \brief Writes base64 encoded binary particle data to the output
+   * stream passed.
+   */
+  virtual void outputParticleBin64Data(const std::ostream&) const;
+
+  
+  /*! \brief Writes the XML particle data, either the base64 header or
+   * the entire XML form.
+   */
+  virtual void outputParticleXMLData(xmlw::XmlStream&) const;
 
   /*! \brief Determines if and when two spheres will intersect.
    *

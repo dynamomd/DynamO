@@ -182,6 +182,9 @@ namespace DYNAMO
     /*! \brief The current phase of the CSimulation.
      */
     ESimulationStatus status;
+
+    /*! \brief Marks whether to use binary data in XML output*/
+    bool binaryXML;
   };
 
 }

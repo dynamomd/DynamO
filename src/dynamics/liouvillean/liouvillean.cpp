@@ -21,7 +21,10 @@
 #include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
+#include "../units/units.hpp"
 #include <boost/foreach.hpp>
+#include <boost/progress.hpp>
+#include <boost/lexical_cast.hpp>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CLiouvillean& g)
 {
@@ -52,3 +55,71 @@ CLiouvillean::getLineLineCollision(CPDData&, const Iflt&,
 				   const CParticle&, const CParticle&
 				   ) const
 { D_throw() << "Not implemented for this Liouvillean."; }
+
+void 
+CLiouvillean::loadParticleXMLData(const XMLNode& XML, const std::istream& os)
+{
+  I_cout() << "Loading Particle Data ";
+  fflush(stdout);
+
+  int xml_iter = 0;
+  bool outofsequence = false;
+  
+  unsigned long nPart = XML.nChildNode("Pt");
+  boost::progress_display prog(nPart);
+  
+  for (unsigned long i = 0; i < nPart; i++)
+    {
+      XMLNode xBrowseNode = XML.getChildNode("Pt", &xml_iter);
+      
+      if (boost::lexical_cast<unsigned long>
+	  (xBrowseNode.getAttribute("ID")) != i)
+	outofsequence = true;
+      
+      CParticle part(xBrowseNode, i);
+      part.scaleVelocity(Sim->Dynamics.units().unitVelocity());
+      part.scalePosition(Sim->Dynamics.units().unitLength());
+      Sim->vParticleList.push_back(part);
+      ++prog;
+    }
+  
+  I_cout() << Sim->vParticleList.size()
+	   << " Particles found";
+  
+  if (outofsequence)
+    I_cout() << IC_red << "Particle ID's out of sequence!\n"
+	     << IC_red << "This can result in incorrect capture map loads etc.\n"
+	     << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
+	     << IC_reset;
+}
+
+void 
+CLiouvillean::outputParticleBin64Data(const std::ostream&) const
+{
+  
+}
+
+void 
+CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
+{
+  XML << xmlw::tag("ParticleData");
+  
+  I_cout() << "Writing Particles ";
+
+  boost::progress_display prog(Sim->lN);
+
+  for (unsigned long i = 0; i < Sim->lN; ++i)
+    {
+      CParticle tmp(Sim->vParticleList[i]);
+      Sim->Dynamics.BCs().setPBC(tmp.getPosition(), tmp.getVelocity());
+
+      tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
+      tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
+
+      XML << xmlw::tag("Pt") << tmp << xmlw::endtag("Pt");
+
+      ++prog;
+    }
+    
+  XML << xmlw::endtag("ParticleData");
+}

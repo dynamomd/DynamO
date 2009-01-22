@@ -71,28 +71,12 @@ COPConfig::output(xmlw::XmlStream &XML)
       << Sim->ssHistory.str()
       << "\nRun for " << Sim->lNColl << " collisions"
       << xmlw::endtag("History") << xmlw::endtag("Simulation")
-      << Sim->Dynamics
-      << xmlw::tag("ParticleData");
+      << Sim->Dynamics;
 
-  I_cout() << "Writing Particles ";
-  boost::progress_display prog(Sim->lN);
+  Sim->Dynamics.Liouvillean().outputParticleXMLData(XML);
 
-  for (unsigned long i = 0; i < Sim->lN; ++i)
-    {
-      CParticle tmp(Sim->vParticleList[i]);
-      Sim->Dynamics.BCs().setPBC(tmp.getPosition(), tmp.getVelocity());
-
-      tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
-      tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
-
-      XML << xmlw::tag("Pt") << tmp << xmlw::endtag("Pt");
-
-      ++prog;
-    }
-    
-  XML << xmlw::endtag("ParticleData")
-      << xmlw::endtag("DYNAMOconfig");
-  XML << "<EOXML />\n";
+  XML << xmlw::endtag("DYNAMOconfig")
+      << "<EOXML />\n";  
 
   I_cout() << "Configuration written out";
 }

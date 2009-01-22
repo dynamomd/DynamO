@@ -21,7 +21,6 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/chain.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/progress.hpp>
 #include <boost/lexical_cast.hpp>
 namespace io = boost::iostreams;
 
@@ -35,6 +34,7 @@ namespace io = boost::iostreams;
 #include "../dynamics/units/units.hpp"
 #include "../base/is_ensemble.hpp"
 #include "../base/is_simdata.hpp"
+#include "../dynamics/liouvillean/liouvillean.hpp"
 
 
 CIPConfig::CIPConfig(std::string fn, DYNAMO::SimData* Sim):
@@ -46,94 +46,79 @@ void
 CIPConfig::initialise()
 {
   XMLNode xMainNode;
-  if (std::string(fileName.end()-4, fileName.end()) == ".xml")
+
+  if (!boost::filesystem::exists(fileName))
+    D_throw() << "Could not open XML configuration file";
+  
+  io::filtering_istream inputFile;
+  
+  if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
     {
-      if (!boost::filesystem::exists(fileName))
-	D_throw() << "Could not open XML configuration file";
-
-      I_cout() << "Uncompressed XML input file " << fileName << " loading";
-
-      try {
-	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
-      }
-      catch (std::exception&)
-	{
-	  xMainNode=XMLNode::openFileHelper(fileName.c_str(), "ISSSconfig");
-	}
-    }
-  else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-    {
-      if (!boost::filesystem::exists(fileName))
-	D_throw() << "Could not open XML configuration file";
-
-      io::filtering_istream inputFile;
+      I_cout() << "Bzip compressed XML input file " << fileName << " loading";
       inputFile.push(io::bzip2_decompressor());
-      inputFile.push(io::file_source(fileName));
-      //Copy file to a string
-      std::string line, fileString;
+    }
+  else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
+    I_cout() << "Uncompressed XML input file " << fileName << " loading";
+  else
+    D_throw() << "Unrecognized extension for input files";
+  
+  inputFile.push(io::file_source(fileName));
+  std::cout.flush();
 
-      I_cout() << "Bzip compressed XML input file found\nDecompressing file "
-	       << fileName;
-      std::cout.flush();
+  //Copy file to a string
+  std::string line, fileString;
 
+  {
+    bool foundEOXML(false);
+    while(getline(inputFile,line))
       {
-	bool foundEOXML(false);
-	while(getline(inputFile,line))
+	if (line == "<EOXML />") 
 	  {
-	    if (line == "<EOXML />") 
-	      {
-		foundEOXML = true;
-		break;
-	      }
-	    
-	    fileString.append(line);
-	    fileString.append("\n");
+	    foundEOXML = true;
+	    break;
 	  }
 	
-	if (!foundEOXML) D_throw() << "Could not find the <EOXML /> tag";
+	fileString.append(line);
+	fileString.append("\n");
       }
+    
+    if (!foundEOXML) D_throw() << "Could not find the <EOXML /> tag";
+  }
+  
+  I_cout() << "File loaded, parsing XML";
+  std::cout.flush();
+  
+  XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
+  
+  xMainNode = tmpNode.getChildNode("DYNAMOconfig");
 
-      I_cout() << "File Decompressed, parsing XML";
-      std::cout.flush();
-
-      XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
-
-      try {
-	xMainNode = tmpNode.getChildNode("DYNAMOconfig");
-      }
-      catch (std::exception&)
-	{
-	  xMainNode = tmpNode.getChildNode("ISSSconfig");
-	}
-    }
-  else
-    D_throw() << "Unrecognised extension for input file";
-
-  std::string version(xMainNode.getAttribute("version"));
-
-  I_cout() << "Parsing XML file v" << version;
-
-  if (version != configFileVersion)
-    D_throw() << "This version of the config file is obsolete"
-	      << "\nThe current version is " << configFileVersion;
+  {
+    std::string version(xMainNode.getAttribute("version"));
+    
+    I_cout() << "Parsing XML file v" << version;
+    
+    if (version != configFileVersion)
+      D_throw() << "This version of the config file is obsolete"
+		<< "\nThe current version is " << configFileVersion;
+  }
 
   XMLNode xSubNode= xMainNode.getChildNode("Simulation");
   XMLNode xBrowseNode = xSubNode.getChildNode("Trajectory");
-  
+
   if (xBrowseNode.isAttributeSet("lastMFT"))
     Sim->lastRunMFT = atof(xBrowseNode.getAttribute("lastMFT"));
 
   xBrowseNode = xSubNode.getChildNode("History");
   Sim->ssHistory << xBrowseNode.getText();
-  
+
   Sim->Dynamics << xMainNode;
 
   Sim->ptrScheduler = 
     CScheduler::getClass(xSubNode.getChildNode("Scheduler"),Sim);
 
   if (xSubNode.nChildNode("Ensemble"))
-  Sim->Ensemble.reset
-    (DYNAMO::CEnsemble::getClass(xSubNode.getChildNode("Ensemble"), Sim));
+    Sim->Ensemble.reset
+      (DYNAMO::CEnsemble::getClass(xSubNode.getChildNode("Ensemble"), Sim));
   else
     //Try and determine the Ensemble
     try {
@@ -146,64 +131,9 @@ CIPConfig::initialise()
       }
 
   xSubNode = xMainNode.getChildNode("ParticleData");
-  unsigned long nPart = xSubNode.nChildNode("Particle");
 
-  I_cout() << "Loading Particle Data ";
-  fflush(stdout);
-
-  int xml_iter = 0;
-  bool outofsequence = false;
+  Sim->Dynamics.Liouvillean().loadParticleXMLData(xSubNode, inputFile);
   
-  if (nPart)
-    {
-      boost::progress_display prog(nPart);
-      
-      for (unsigned long i = 0; i < nPart; i++)
-	{
-	  xBrowseNode = xSubNode.getChildNode("Particle", &xml_iter);
-	  
-	  if (boost::lexical_cast<unsigned long>
-	      (xBrowseNode.getAttribute("ID")) != i)
-	    outofsequence = true;
-	  
-	  CParticle part(xBrowseNode, i);
-	  part.scaleVelocity(Sim->Dynamics.units().unitVelocity());
-	  part.scalePosition(Sim->Dynamics.units().unitLength());
-	  Sim->vParticleList.push_back(part);
-	  ++prog;
-	}
-    }
-  else
-    {  
-      nPart = xSubNode.nChildNode("Pt");
-      boost::progress_display prog(nPart);
-
-      for (unsigned long i = 0; i < nPart; i++)
-	{
-	  xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
-	  
-	  if (boost::lexical_cast<unsigned long>
-	      (xBrowseNode.getAttribute("ID")) != i)
-	    outofsequence = true;
-	  
-	  CParticle part(xBrowseNode, i);
-	  part.scaleVelocity(Sim->Dynamics.units().unitVelocity());
-	  part.scalePosition(Sim->Dynamics.units().unitLength());
-	  Sim->vParticleList.push_back(part);
-	  ++prog;
-	}
-      
-    }
-
-  I_cout() << Sim->vParticleList.size() 
-	   << " Particles found";  
-  
-  if (outofsequence)
-    I_cout() << IC_red << "Particle ID's out of sequence!\n"
-	     << IC_red << "This can result in incorrect capture map loads etc.\n"
-	     << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
-	     << IC_reset;
-
   //Fixes or conversions once system is loaded
   Sim->lastRunMFT *= Sim->Dynamics.units().unitTime();
 }
