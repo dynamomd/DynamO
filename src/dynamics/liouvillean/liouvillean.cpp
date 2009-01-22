@@ -157,6 +157,8 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
   base64Convertor.push(boost::iostreams::base64_encoder());
   base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(os));
   
+  boost::progress_display prog(Sim->lN);
+
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       CParticle tmp(part);
@@ -171,8 +173,9 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
 
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	binarywrite(base64Convertor, tmp.getPosition()[iDim]);
-    }
 
+      ++prog;
+    }
 }
 
 void 
