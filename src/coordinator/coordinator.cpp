@@ -26,10 +26,6 @@
 # include <typeinfo>
 #endif
 
-#ifdef DYNAMO_Cachegrind
-#include <valgrind/callgrind.h>
-#endif
-
 void 
 CCoordinator::signal_handler(int sigtype)
 {
@@ -149,9 +145,6 @@ CCoordinator::parseOptions(int argc, char *argv[])
 void 
 CCoordinator::initialise()
 {
-#ifdef DYNAMO_Cachegrind
-  CALLGRIND_TOGGLE_COLLECT
-#endif
 
   threads.setThreadCount(vm["n-threads"].as<unsigned int>());
 
@@ -176,17 +169,10 @@ CCoordinator::initialise()
 void 
 CCoordinator::runSimulation()
 {
-#ifdef DYNAMO_Cachegrind
-  CALLGRIND_TOGGLE_COLLECT
-#endif
   //Only Run if there are collisions to run
   if (vm["ncoll"].as<unsigned long long>())
     Engine->runSimulation();
 
-
-#ifdef DYNAMO_Cachegrind
-  CALLGRIND_TOGGLE_COLLECT
-#endif
 }
 
 void 
