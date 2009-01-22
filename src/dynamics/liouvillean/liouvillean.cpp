@@ -68,22 +68,46 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 {
   I_cout() << "Loading Particle Data ";
   fflush(stdout);
-
   if (XML.isAttributeSet("AttachedBinary")
       && (std::toupper(XML.getAttribute("AttachedBinary")[0]) == 'Y'))
     {
       Sim->binaryXML = true;
       unsigned long nPart = boost::lexical_cast<unsigned long>(XML.getAttribute("N"));
+      boost::progress_display prog(nPart);
 
-      D_throw() << "Not implemented";
+      boost::iostreams::filtering_istream base64Convertor;
+      base64Convertor.push(boost::iostreams::base64_decoder());
+      base64Convertor.push(boost::iostreams::stream_source<std::istream>(os));
+
+      for (unsigned long i = 0; i < nPart; ++i)
+	{
+	  unsigned long ID;
+	  CVector<> vel;
+	  CVector<> pos;
+	  
+	  binaryread(base64Convertor, ID);
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    binaryread(base64Convertor, vel[iDim]);
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    binaryread(base64Convertor, pos[iDim]);
+	  
+	  vel *= Sim->Dynamics.units().unitVelocity();
+	  pos *= Sim->Dynamics.units().unitLength();
+	  
+	  Sim->vParticleList.push_back(CParticle(pos, vel, ID));
+
+	  ++prog;
+	}      
     }
   else
     {
       int xml_iter = 0;
-      bool outofsequence = false;
       
       unsigned long nPart = XML.nChildNode("Pt");
       boost::progress_display prog(nPart);
+      bool outofsequence = false;  
       
       for (unsigned long i = 0; i < nPart; i++)
 	{
@@ -103,7 +127,7 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 	I_cout() << IC_red << "Particle ID's out of sequence!\n"
 		 << IC_red << "This can result in incorrect capture map loads etc.\n"
 		 << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
-		 << IC_reset;      
+		 << IC_reset;            
     }  
 }
 
