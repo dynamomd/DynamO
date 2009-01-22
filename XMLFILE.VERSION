@@ -1,2 +1,8 @@
 v1.0 Initial version control
-v1.1 Moved the orientational liouvilleans data to inside the liouvillean tags instead of the particle data, this only effect the orientational liouvillean
+
+v1.1 Moved the orientational liouvilleans data to inside the
+liouvillean tags instead of the particle data, this only effect the
+orientational liouvillean
+
+v1.1.1 Added the <EOXML /> tag at the end of the XML to indicate the
+start of the base64 encoded binary data section

@@ -20,7 +20,7 @@
 # define NDIM 3
 # define PI 3.14159265358979323846
 # define ShearRate 1
-# define configFileVersion "1.1"
+# define configFileVersion "1.1.1"
 # ifdef DYNAMO_double_precsision
 #  define eps 1e-8
    typedef double Iflt;

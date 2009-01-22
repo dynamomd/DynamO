@@ -92,7 +92,8 @@ COPConfig::output(xmlw::XmlStream &XML)
     
   XML << xmlw::endtag("ParticleData")
       << xmlw::endtag("DYNAMOconfig");
-  
+  XML << "<EOXML />\n";
+
   I_cout() << "Configuration written out";
 }
 

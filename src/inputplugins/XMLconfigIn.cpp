@@ -76,11 +76,22 @@ CIPConfig::initialise()
 	       << fileName;
       std::cout.flush();
 
-      while(getline(inputFile,line)) 
-	{
-	  fileString.append(line);
-	  fileString.append("\n");
-	}
+      {
+	bool foundEOXML(false);
+	while(getline(inputFile,line))
+	  {
+	    if (line == "<EOXML />") 
+	      {
+		foundEOXML = true;
+		break;
+	      }
+	    
+	    fileString.append(line);
+	    fileString.append("\n");
+	  }
+	
+	if (!foundEOXML) D_throw() << "Could not find the <EOXML /> tag";
+      }
 
       I_cout() << "File Decompressed, parsing XML";
       std::cout.flush();
