@@ -37,7 +37,7 @@ namespace DYNAMO
     lastRunMFT(0.0),
     simID(0),
     status(START),
-    binaryXML(false)
+    binaryXML(true)
   {}
 
   SimData::~SimData()

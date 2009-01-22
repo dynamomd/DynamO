@@ -72,7 +72,7 @@ CIPConfig::initialise()
     bool foundEOXML(false);
     while(getline(inputFile,line))
       {
-	if (line == "<EOXML />") 
+	if (line.find("AppendedBinaryData", 0) != std::string::npos) 
 	  {
 	    foundEOXML = true;
 	    break;
@@ -82,7 +82,7 @@ CIPConfig::initialise()
 	fileString.append("\n");
       }
     
-    if (!foundEOXML) D_throw() << "Could not find the <EOXML /> tag";
+    if (!foundEOXML) D_throw() << "Could not find the AppendedBinaryData tag";
   }
   
   I_cout() << "File loaded, parsing XML";

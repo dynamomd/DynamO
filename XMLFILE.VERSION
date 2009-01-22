@@ -9,3 +9,7 @@ start of the base64 encoded binary data section
       - Removed Backwards compatibility for configs using Particle tags,
 should be Pt now, and removed ISSSconfig now the switch to DYNAMOconfig is
 complete
+
+v1.1.2 renamed EOXML to AppendedBinaryData and made it valid XML. The
+base64 now tolerates spaces and newlines but not '<' characters as
+these indicate a new XML tag

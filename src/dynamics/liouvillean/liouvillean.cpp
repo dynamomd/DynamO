@@ -28,10 +28,11 @@
 #include <boost/iostreams/filter/base64.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/chain.hpp>
 #include <boost/iostreams/device/stream_sink.hpp>
 #include <boost/iostreams/device/stream_source.hpp>
+#include <boost/iostreams/filter/base64cleaner.hpp>
+#include <boost/iostreams/filter/linewrapout.hpp>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CLiouvillean& g)
 {
@@ -76,7 +77,9 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
       boost::progress_display prog(nPart);
 
       boost::iostreams::filtering_istream base64Convertor;
+      
       base64Convertor.push(boost::iostreams::base64_decoder());
+      base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
       base64Convertor.push(boost::iostreams::stream_source<std::istream>(os));
 
       for (unsigned long i = 0; i < nPart; ++i)
@@ -155,6 +158,7 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
   
   boost::iostreams::filtering_ostream base64Convertor;
   base64Convertor.push(boost::iostreams::base64_encoder());
+  base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
   base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(os));
   
   boost::progress_display prog(Sim->lN);
