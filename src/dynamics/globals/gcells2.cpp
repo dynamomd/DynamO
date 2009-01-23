@@ -138,25 +138,6 @@ CGCells2::runEvent(const CParticle& part) const
       inCell -= tmpint;
   }
 
-  size_t inPosition = cells[inCell].coords[cellDirection];
-
-  //Debug section
-#ifdef DYNAMO_WallCollDebug
-  {      
-    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
-    CVector<int> tmp2 = cells[endCell].coords;
-    
-    std::cerr << "\nCGWall sysdt " 
-	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
-	      << "  WALL ID "
-	      << part.getID()
-	      << "  from <" 
-	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
-	      << "> to <" 
-	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
-  }
-#endif  
-
   removeFromCell(part.getID());
   addToCell(part.getID(), endCell);
 
@@ -164,34 +145,48 @@ CGCells2::runEvent(const CParticle& part) const
   //after all events are added
   Sim->ptrScheduler->popNextEvent();
 
+  CVector<int> coords(cells[inCell].coords);
+
   //Particle has just arrived into a new cell warn the scheduler about
   //its new neighbours so it can add them to the heap
   //Holds the displacement in each dimension, the unit is cells!
-  CVector<int>displacement(-1);
-
   BOOST_STATIC_ASSERT(NDIM==3);
 
-  //This loop iterates through each neighbour position
-  for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
+  //These are the two dimensions to walk in
+  size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
+    dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
+  
+  if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
+  if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
+
+  const int coordsorig(coords[dim1]);
+
+  //We now have the lowest cell coord, or corner of the cells to update
+  for (size_t iDim(0); iDim < 3; ++iDim)
     {
-      //Add the current vector to the list
-      const int nb = getCellID(cells[endCell].coords + displacement);
-
-      if (size_t(cells[nb].coords[cellDirection]) == inPosition)
-	for (int next = cells[nb].list; next >= 0; 
-	     next = partCellData[next].next)
-	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	    nbs.second(part, next);
-
-      //Now update the displacement vector
-      ++displacement[0];
-
-      for (int iDim = 1; iDim < NDIM; ++iDim)
-	if (displacement[iDim - 1] == 2)
+      for (size_t jDim(0); jDim < 3; ++jDim)
+	{
+	  size_t nb(coords[0]);
 	  {
-	    displacement[iDim - 1] = -1;
-	    displacement[iDim] += 1;
+	    size_t pow(cellCount[0]);
+	    for (size_t iDim(1); iDim < NDIM-1; ++iDim)
+	      {
+		nb += coords[iDim] * pow;
+		pow *= cellCount[iDim];
+	      }
+	    
+	    nb += coords[NDIM-1] * pow;
 	  }
+	  
+	  for (int next = cells[nb].list; next >= 0; 
+	       next = partCellData[next].next)
+	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	      nbs.second(part, next);
+	  
+	  if (++coords[dim1] == cellCount[dim1]) coords[dim1] = 0;
+	}
+      coords[dim1] = coordsorig;
+      if (++coords[dim2] == cellCount[dim2]) coords[dim2] = 0;
     }
 
   //Tell about the new locals
@@ -208,6 +203,23 @@ CGCells2::runEvent(const CParticle& part) const
     nbs.second(part, oldCell);
   
   //This doesn't stream the system as its a virtual event
+
+  //Debug section
+#ifdef DYNAMO_WallCollDebug
+  {      
+    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
+    CVector<int> tmp2 = cells[endCell].coords;
+    
+    std::cerr << "\nCGWall sysdt " 
+	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+	      << "  WALL ID "
+	      << part.getID()
+	      << "  from <" 
+	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
+	      << "> to <" 
+	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
+  }
+#endif
 }
 
 void 
@@ -419,8 +431,6 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
 
 		nb += coords[NDIM-1] * pow;
 	      }
-	      //nb = getCellID(coords);
-	      
 
 	      for (int next(cells[nb].list);
 		   next >= 0; next = partCellData[next].next)
