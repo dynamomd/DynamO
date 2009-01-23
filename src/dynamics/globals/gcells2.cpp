@@ -378,8 +378,13 @@ void
 CGCells2::getParticleNeighbourhood(const CParticle& part,
 				  const nbHoodFunc& func) const
 {
-  CVector<int> coords
-    (cells[partCellData[part.getID()].cell].coords - CVector<int>(1));
+  CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
+
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (coords[iDim])
+      --coords[iDim];
+    else
+      coords[iDim] = cellCount[iDim] - 1;
 
   const CVector<int> coordsorig(coords);
 
@@ -393,18 +398,34 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
 	  for (size_t kDim(0); kDim < 3; ++kDim)
 	    {
 	      //Add the current vector to the list
-	      const size_t& nb = getCellID(coords);
-	    
+	      size_t nb(coords[0]);
+	      {
+		size_t pow(cellCount[0]);
+		for (size_t iDim(1); iDim < NDIM-1; ++iDim)
+		  {
+		    nb += coords[iDim] * pow;
+		    pow *= cellCount[iDim];
+		  }
+
+		nb += coords[NDIM-1] * pow;
+	      }
+	      //nb = getCellID(coords);
+	      
+
 	      for (int next = cells[nb].list;
 		   next != -1; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
+	    
 	      ++coords[2];
+	      if (coords[2] == cellCount[2]) coords[2] = 0;
 	    }
 	  ++coords[1];
+	  if (coords[1] == cellCount[1]) coords[1] = 0;
 	  coords[2] = coordsorig[2];
 	}
       ++coords[0];
+      if (coords[0] == cellCount[0]) coords[0] = 0;
       coords[1] = coordsorig[1];
     }
 }
