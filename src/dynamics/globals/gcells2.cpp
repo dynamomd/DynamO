@@ -156,37 +156,49 @@ CGCells2::runEvent(const CParticle& part) const
   size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
     dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
   
+  size_t dim1pow(1), dim2pow(1);
+  
+  for (size_t iDim(0); iDim < dim1; ++iDim)
+    dim1pow *= cellCount[iDim];
+
+  for (size_t iDim(0); iDim < dim2; ++iDim)
+    dim2pow *= cellCount[iDim];
+
   if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
   if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
 
-  const int coordsorig(coords[dim1]);
+  size_t nb(coords[0]);
+  {
+    size_t pow(cellCount[0]);
+    for (size_t iDim(1); iDim < NDIM-1; ++iDim)
+      {
+	nb += coords[iDim] * pow;
+	pow *= cellCount[iDim];
+      }
+    
+    nb += coords[NDIM-1] * pow;
+  }
 
   //We now have the lowest cell coord, or corner of the cells to update
-  for (size_t iDim(0); iDim < 3; ++iDim)
+  for (int iDim(0); iDim < 3; ++iDim)
     {
-      for (size_t jDim(0); jDim < 3; ++jDim)
-	{
-	  size_t nb(coords[0]);
-	  {
-	    size_t pow(cellCount[0]);
-	    for (size_t iDim(1); iDim < NDIM-1; ++iDim)
-	      {
-		nb += coords[iDim] * pow;
-		pow *= cellCount[iDim];
-	      }
-	    
-	    nb += coords[NDIM-1] * pow;
-	  }
-	  
+      if (coords[dim2] + iDim == cellCount[dim2]) nb -= dim2pow * cellCount[dim2];
+
+      for (int jDim(0); jDim < 3; ++jDim)
+	{	  
+	  if (coords[dim1] + jDim == cellCount[dim1]) nb -= dim1pow * cellCount[dim1];
+
 	  for (int next = cells[nb].list; next >= 0; 
 	       next = partCellData[next].next)
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	      nbs.second(part, next);
 	  
-	  if (++coords[dim1] == cellCount[dim1]) coords[dim1] = 0;
+	  nb += dim1pow;
 	}
-      coords[dim1] = coordsorig;
-      if (++coords[dim2] == cellCount[dim2]) coords[dim2] = 0;
+
+      if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1] ;
+      
+      nb += dim2pow - 3 * dim1pow;
     }
 
   //Tell about the new locals
@@ -423,15 +435,15 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
   //This loop iterates through each neighbour position
   BOOST_STATIC_ASSERT(NDIM==3);
 
-  for (size_t iDim(0); iDim < 3; ++iDim)
+  for (int iDim(0); iDim < 3; ++iDim)
     {
       if (coords[2] + iDim == cellCount[2]) nb -= cellCount[0] * cellCount[1] * cellCount[2];
 
-      for (size_t jDim(0); jDim < 3; ++jDim)
+      for (int jDim(0); jDim < 3; ++jDim)
 	{
 	  if (coords[1] + jDim == cellCount[1]) nb -= cellCount[1] * cellCount[0];
 
-	  for (size_t kDim(0); kDim < 3; ++kDim)
+	  for (int kDim(0); kDim < 3; ++kDim)
 	    {
 	      if (coords[0] + kDim == cellCount[0]) nb -= cellCount[0];
 	      
