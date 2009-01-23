@@ -118,12 +118,32 @@ CGCells2::runEvent(const CParticle& part) const
 		       (part, cells[oldCell].origin, 
 			cellDimension));
 
+  size_t cellpow(1);
+
+  for (size_t iDim(0); iDim < cellDirection; ++iDim)
+    cellpow *= cellCount[iDim];
+  
+  size_t endCell(oldCell);
+
+  if (part.getVelocity()[cellDirection] > 0)
+    {
+      if (cells[oldCell].coords[cellDirection] == cellCount[cellDirection]-1)
+	endCell -= cellpow * (cellCount[cellDirection]-1);
+      else
+	endCell += cellpow;
+    }
+  else
+    {
+      if (cells[oldCell].coords[cellDirection] == 0)
+	endCell += cellpow * (cellCount[cellDirection]-1);
+      else
+	endCell -= cellpow;
+    }
+
   CVector<int> newcoords = cells[oldCell].coords;
 
   newcoords[cellDirection]
     += ((part.getVelocity()[cellDirection] > 0) * 2) - 1;
-
-  size_t endCell = getCellID(newcoords);
 
   newcoords[cellDirection]
     += ((part.getVelocity()[cellDirection] > 0) * 2) - 1;
