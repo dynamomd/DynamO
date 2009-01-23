@@ -378,10 +378,10 @@ void
 CGCells2::getParticleNeighbourhood(const CParticle& part,
 				  const nbHoodFunc& func) const
 {
-  const CVector<int> coordsorig
+  CVector<int> coords
     (cells[partCellData[part.getID()].cell].coords - CVector<int>(1));
 
-  CVector<int> coords(coordsorig);  
+  const CVector<int> coordsorig(coords);
 
   //This loop iterates through each neighbour position
   BOOST_STATIC_ASSERT(NDIM==3);
