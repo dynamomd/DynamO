@@ -123,7 +123,7 @@ CGCells2::runEvent(const CParticle& part) const
   for (size_t iDim(0); iDim < cellDirection; ++iDim)
     cellpow *= cellCount[iDim];
   
-  size_t endCell(oldCell);
+  size_t endCell(oldCell), inPosition;
 
   if (part.getVelocity()[cellDirection] > 0)
     {
@@ -131,6 +131,11 @@ CGCells2::runEvent(const CParticle& part) const
 	endCell -= cellpow * (cellCount[cellDirection]-1);
       else
 	endCell += cellpow;
+
+      if (cells[endCell].coords[cellDirection] != cellCount[cellDirection]-1)
+	inPosition = cells[endCell].coords[cellDirection] + 1;
+      else
+	inPosition = 0;
     }
   else
     {
@@ -138,19 +143,13 @@ CGCells2::runEvent(const CParticle& part) const
 	endCell += cellpow * (cellCount[cellDirection]-1);
       else
 	endCell -= cellpow;
+
+      if (cells[endCell].coords[cellDirection] != 0)
+	inPosition = cells[endCell].coords[cellDirection] - 1;
+      else
+	inPosition = cellCount[cellDirection]-1;
     }
 
-  CVector<int> newcoords = cells[oldCell].coords;
-
-  newcoords[cellDirection]
-    += ((part.getVelocity()[cellDirection] > 0) * 2) - 1;
-
-  newcoords[cellDirection]
-    += ((part.getVelocity()[cellDirection] > 0) * 2) - 1;
-
-  size_t inPosition 
-    = newcoords[cellDirection] % cellCount[cellDirection]
-    + (newcoords[cellDirection] < 0) * cellCount[cellDirection];
 
   //Debug section
 #ifdef DYNAMO_WallCollDebug
