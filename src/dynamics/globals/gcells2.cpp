@@ -167,26 +167,18 @@ CGCells2::runEvent(const CParticle& part) const
   if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
   if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
 
-  size_t nb(coords[0]);
-  {
-    size_t pow(cellCount[0]);
-    for (size_t iDim(1); iDim < NDIM-1; ++iDim)
-      {
-	nb += coords[iDim] * pow;
-	pow *= cellCount[iDim];
-      }
-    
-    nb += coords[NDIM-1] * pow;
-  }
+  int nb(getCellIDprebounded(coords));
 
   //We now have the lowest cell coord, or corner of the cells to update
   for (int iDim(0); iDim < 3; ++iDim)
     {
-      if (coords[dim2] + iDim == cellCount[dim2]) nb -= dim2pow * cellCount[dim2];
+      if (coords[dim2] + iDim == cellCount[dim2]) 
+	nb -= dim2pow * cellCount[dim2];
 
       for (int jDim(0); jDim < 3; ++jDim)
 	{	  
-	  if (coords[dim1] + jDim == cellCount[dim1]) nb -= dim1pow * cellCount[dim1];
+	  if (coords[dim1] + jDim == cellCount[dim1]) 
+	    nb -= dim1pow * cellCount[dim1];
 
 	  for (int next = cells[nb].list; next >= 0; 
 	       next = partCellData[next].next)
@@ -196,7 +188,7 @@ CGCells2::runEvent(const CParticle& part) const
 	  nb += dim1pow;
 	}
 
-      if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1] ;
+      if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
       
       nb += dim2pow - 3 * dim1pow;
     }
@@ -362,23 +354,34 @@ CGCells2::addLocalEvents()
 }
 
 size_t
-CGCells2::getCellID(const CVector<int>& coords) const
+CGCells2::getCellID(const CVector<int>& coordsold) const
 {
   //PBC for vectors
+  CVector<int> coords(coordsold);
 
-  size_t id = 0;
-  size_t pow = 1;
-
-  for (size_t iDim = 0; iDim < NDIM - 1; ++iDim)
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
-      id += ((coords[iDim] % cellCount[iDim]) + (coords[iDim] < 0) * cellCount[iDim]) * pow;
-      pow *= cellCount[iDim];
+      coords[iDim] %= cellCount[iDim];
+      if (coords[iDim] < 0) coords[iDim] += cellCount[iDim];
     }
   
-  //Previous Loop runs to NDIM - 1 to stop an invalid memory read and
-  //useless *=
-  return id + pow * ((coords[NDIM - 1] % cellCount[NDIM-1]) 
-		     + (coords[NDIM-1] < 0) * cellCount[NDIM-1]);
+  return getCellIDprebounded(coords);
+}
+
+size_t
+CGCells2::getCellIDprebounded(const CVector<int>& coords) const
+{
+  int nb(coords[0]);
+
+  size_t pow(cellCount[0]);
+
+  for (size_t iDim(1); iDim < NDIM-1; ++iDim)
+    {
+      nb += coords[iDim] * pow;
+      pow *= cellCount[iDim];
+    }
+    
+  return nb + coords[NDIM-1] * pow;
 }
 
 CVector<int> 
@@ -420,28 +423,19 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
     else
       coords[iDim] = cellCount[iDim] - 1;
   
-  int nb(coords[0]);
-  {
-    size_t pow(cellCount[0]);
-    for (size_t iDim(1); iDim < NDIM-1; ++iDim)
-      {
-	nb += coords[iDim] * pow;
-	pow *= cellCount[iDim];
-      }
-    
-    nb += coords[NDIM-1] * pow;
-  }
+  int nb(getCellIDprebounded(coords));
 
   //This loop iterates through each neighbour position
   BOOST_STATIC_ASSERT(NDIM==3);
 
   for (int iDim(0); iDim < 3; ++iDim)
     {
-      if (coords[2] + iDim == cellCount[2]) nb -= cellCount[0] * cellCount[1] * cellCount[2];
+      if (coords[2] + iDim == cellCount[2]) nb -= NCells;
 
       for (int jDim(0); jDim < 3; ++jDim)
 	{
-	  if (coords[1] + jDim == cellCount[1]) nb -= cellCount[1] * cellCount[0];
+	  if (coords[1] + jDim == cellCount[1]) 
+	    nb -= cellCount[1] * cellCount[0];
 
 	  for (int kDim(0); kDim < 3; ++kDim)
 	    {
@@ -460,7 +454,7 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
 	  nb += cellCount[0] - 3;
 	}
 
-      if (coords[1] + 2 >= cellCount[1]) nb += cellCount[1] * cellCount[0];	 
+      if (coords[1] + 2 >= cellCount[1]) nb += cellCount[1] * cellCount[0];
 
       nb += (cellCount[1] - 3) * cellCount[0];
     }
@@ -470,6 +464,7 @@ void
 CGCells2::getParticleLocalNeighbourhood(const CParticle& part, 
 				       const nbHoodFunc& func) const
 {
-  BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell].locals)
+  BOOST_FOREACH(const size_t& id, 
+		cells[partCellData[part.getID()].cell].locals)
     func(part, id);
 }

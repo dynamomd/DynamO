@@ -87,7 +87,11 @@ protected:
 
   //Cell Numbering
   size_t getCellID(const CVector<int>&) const;
+
+  size_t getCellIDprebounded(const CVector<int>&) const;
+
   CVector<int> getCoordsFromID(size_t) const; 
+
   size_t getCellID(CVector<>) const;
 
   void addCells(Iflt, bool limitCells = true);
