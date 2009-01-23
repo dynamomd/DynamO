@@ -26,6 +26,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
+#include <boost/static_assert.hpp>
 
 CGCells2::CGCells2(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent2"),
@@ -377,27 +378,34 @@ void
 CGCells2::getParticleNeighbourhood(const CParticle& part,
 				  const nbHoodFunc& func) const
 {
-  CVector<int>displacement(-1);
+  const CVector<int> coordsorig
+    (cells[partCellData[part.getID()].cell].coords - CVector<int>(1));
+
+  CVector<int> coords(coordsorig);  
 
   //This loop iterates through each neighbour position
-  for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
+  BOOST_STATIC_ASSERT(NDIM==3);
+
+  for (size_t iDim(0); iDim < 3; ++iDim)
     {
-      //Add the current vector to the list
-      const size_t& nb = getCellID(cells[partCellData[part.getID()].cell].coords + displacement);
-      
-      for (int next = cells[nb].list;
-	   next != -1; next = partCellData[next].next)
-	if (next != int(part.getID()))
-	  func(part, next);
-      
-      //Now update the displacement vector
-      displacement[0] += 1;
-      for (size_t iDim = 1; iDim < NDIM; ++iDim)
-	if (displacement[iDim - 1] == 2)
-	  {
-	    displacement[iDim - 1] = -1;
-	    displacement[iDim] += 1;
-	  }
+      for (size_t jDim(0); jDim < 3; ++jDim)
+	{
+	  for (size_t kDim(0); kDim < 3; ++kDim)
+	    {
+	      //Add the current vector to the list
+	      const size_t& nb = getCellID(coords);
+	    
+	      for (int next = cells[nb].list;
+		   next != -1; next = partCellData[next].next)
+		if (next != int(part.getID()))
+		  func(part, next);
+	      ++coords[2];
+	    }
+	  ++coords[1];
+	  coords[2] = coordsorig[2];
+	}
+      ++coords[0];
+      coords[1] = coordsorig[1];
     }
 }
 
