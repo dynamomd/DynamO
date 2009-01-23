@@ -133,7 +133,8 @@ public:
     Iflt acc = 0.0;
     long counter = 0;
 
-    for (std::vector<pList>::iterator iPtr = tmpList.begin() +1; iPtr != tmpList.end(); ++iPtr)
+    for (std::vector<pList>::iterator iPtr = tmpList.begin() +1; 
+	 iPtr != tmpList.end(); ++iPtr)
       if (iPtr->getdt() != HUGE_VAL)
 	{ acc += iPtr->getdt() - (iPtr -1)->getdt(); counter++; }
       else

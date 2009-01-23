@@ -31,6 +31,7 @@
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
 #include <boost/bind.hpp>
+#include <boost/progress.hpp>
 
 void 
 CSNeighbourList::operator<<(const XMLNode& XML)
@@ -53,6 +54,7 @@ CSNeighbourList::initialise()
     }
 
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
+  std::cout.flush();
 
   sorter->clear();
   //The plus one is because system events are stored in the last heap;
@@ -61,8 +63,15 @@ CSNeighbourList::initialise()
   eventCount.resize(Sim->lN+1, 0);
 
   //Now initialise the interactions
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    addEvents(part);
+  {
+    boost::progress_display prog(Sim->lN);
+ 
+    BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+      {
+	addEvents(part);
+	++prog;
+      }
+  }
   
   sorter->init();
 
@@ -130,7 +139,7 @@ void
 CSNeighbourList::addInteractionEvent(const CParticle& part, 
 				     const size_t& id) const
 {
-  CIntEvent eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[id]));
+  const CIntEvent& eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[id]));
   if (eevent.getType() != NONE)
     sorter->push(intPart(eevent, eventCount[id]), part.getID());
 }

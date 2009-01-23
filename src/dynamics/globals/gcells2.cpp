@@ -324,11 +324,6 @@ CGCells2::addCells(Iflt maxdiam, bool limitCells)
       for (int iDim = 0; iDim < NDIM; iDim++)
 	cells[id].origin[iDim] = cells[id].coords[iDim] 
 	  * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
-      /*
-      std::cerr << "\nID " << id << " " << "coords  " << cells[id].coords[0] 
-		<< "," << cells[id].coords[1] << "," << cells[id].coords[2]
-		<< " " << "Origin  " << cells[id].origin[0] 
-		<< "," << cells[id].origin[1] << "," << cells[id].origin[2];*/
     }
 
   //Add the particles section
@@ -405,7 +400,8 @@ CGCells2::getCellID(CVector<> pos) const
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) / cellLatticeWidth[iDim]);
+    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) 
+		     / cellLatticeWidth[iDim]);
   
   return getCellID(temp);
 }
