@@ -168,7 +168,7 @@ CGCells2::runEvent(const CParticle& part) const
       const int nb = getCellID(cells[endCell].coords + displacement);
 
       if (size_t(cells[nb].coords[cellDirection]) == inPosition)
-	for (int next = cells[nb].list; next != -1; 
+	for (int next = cells[nb].list; next >= 0; 
 	     next = partCellData[next].next)
 	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	    nbs.second(part, next);
@@ -412,21 +412,18 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
 	      //nb = getCellID(coords);
 	      
 
-	      for (int next = cells[nb].list;
-		   next != -1; next = partCellData[next].next)
+	      for (int next(cells[nb].list);
+		   next >= 0; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
 	    
-	      ++coords[2];
-	      if (coords[2] == cellCount[2]) coords[2] = 0;
+	      if (++coords[2] == cellCount[2]) coords[2] = 0;
 	    }
-	  ++coords[1];
-	  if (coords[1] == cellCount[1]) coords[1] = 0;
 	  coords[2] = coordsorig[2];
+	  if (++coords[1] == cellCount[1]) coords[1] = 0;
 	}
-      ++coords[0];
-      if (coords[0] == cellCount[0]) coords[0] = 0;
       coords[1] = coordsorig[1];
+      if (++coords[0] == cellCount[0]) coords[0] = 0;
     }
 }
 
