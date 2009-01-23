@@ -123,33 +123,22 @@ CGCells2::runEvent(const CParticle& part) const
   for (size_t iDim(0); iDim < cellDirection; ++iDim)
     cellpow *= cellCount[iDim];
   
-  size_t endCell(oldCell), inPosition;
+  int velsign = 2 * (part.getVelocity()[cellDirection] > 0) - 1;
+  int offset = (part.getVelocity()[cellDirection] > 0) * (cellCount[cellDirection] - 1);
+  int endCell(oldCell + cellpow * velsign), inCell(oldCell + 2 * cellpow * velsign);
 
-  if (part.getVelocity()[cellDirection] > 0)
-    {
-      if (cells[oldCell].coords[cellDirection] == cellCount[cellDirection]-1)
-	endCell -= cellpow * (cellCount[cellDirection]-1);
-      else
-	endCell += cellpow;
+  {
+    int tmpint = velsign * cellpow * cellCount[cellDirection];
+    if (cells[oldCell].coords[cellDirection] == offset)
+      {
+	endCell -= tmpint;
+	inCell -= tmpint;
+      }
+    else if (cells[oldCell].coords[cellDirection] == offset - velsign)
+      inCell -= tmpint;
+  }
 
-      if (cells[endCell].coords[cellDirection] != cellCount[cellDirection]-1)
-	inPosition = cells[endCell].coords[cellDirection] + 1;
-      else
-	inPosition = 0;
-    }
-  else
-    {
-      if (cells[oldCell].coords[cellDirection] == 0)
-	endCell += cellpow * (cellCount[cellDirection]-1);
-      else
-	endCell -= cellpow;
-
-      if (cells[endCell].coords[cellDirection] != 0)
-	inPosition = cells[endCell].coords[cellDirection] - 1;
-      else
-	inPosition = cellCount[cellDirection]-1;
-    }
-
+  size_t inPosition = cells[inCell].coords[cellDirection];
 
   //Debug section
 #ifdef DYNAMO_WallCollDebug
@@ -179,6 +168,8 @@ CGCells2::runEvent(const CParticle& part) const
   //its new neighbours so it can add them to the heap
   //Holds the displacement in each dimension, the unit is cells!
   CVector<int>displacement(-1);
+
+  BOOST_STATIC_ASSERT(NDIM==3);
 
   //This loop iterates through each neighbour position
   for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
