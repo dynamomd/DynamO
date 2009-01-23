@@ -117,7 +117,7 @@ CGCells2::runEvent(const CParticle& part) const
 		       (part, cells[oldCell].origin, 
 			cellDimension));
 
-  CVector<long> newcoords = cells[oldCell].coords;
+  CVector<int> newcoords = cells[oldCell].coords;
 
   newcoords[cellDirection]
     += ((part.getVelocity()[cellDirection] > 0) * 2) - 1;
@@ -134,8 +134,8 @@ CGCells2::runEvent(const CParticle& part) const
   //Debug section
 #ifdef DYNAMO_WallCollDebug
   {      
-    CVector<long> tmp = cells[partCellData[part.getID()].cell].coords;
-    CVector<long> tmp2 = cells[endCell].coords;
+    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
+    CVector<int> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
 	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
@@ -158,15 +158,15 @@ CGCells2::runEvent(const CParticle& part) const
   //Particle has just arrived into a new cell warn the scheduler about
   //its new neighbours so it can add them to the heap
   //Holds the displacement in each dimension, the unit is cells!
-  CVector<long>displacement(-1);
+  CVector<int>displacement(-1);
 
   //This loop iterates through each neighbour position
-  for (long iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
+  for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
     {
       //Add the current vector to the list
       const int nb = getCellID(cells[endCell].coords + displacement);
 
-      if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
+      if (size_t(cells[nb].coords[cellDirection]) == inPosition)
 	for (int next = cells[nb].list; next != -1; 
 	     next = partCellData[next].next)
 	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
@@ -237,14 +237,14 @@ CGCells2::addCells(Iflt maxdiam, bool limitCells)
   partCellData.resize(Sim->lN); //Location data for particles
 
   NCells = 1;
-  cellCount = CVector<long>(0);
+  cellCount = CVector<int>(0);
 
   for (int iDim = 0; iDim < NDIM; iDim++)
     {
-      cellCount[iDim] = static_cast<long>(Sim->aspectRatio[iDim] / maxdiam);
+      cellCount[iDim] = int(Sim->aspectRatio[iDim] / maxdiam);
       
       if (cellCount[iDim] < 3)
-	D_throw() << "Not enough cells in " << static_cast<char>('x'+iDim) << " dimension, need 3+";
+	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
 
       if (limitCells && cellCount[iDim] > 100)
 	{
@@ -327,7 +327,7 @@ CGCells2::addLocalEvents()
 }
 
 size_t
-CGCells2::getCellID(const CVector<long>& coords) const
+CGCells2::getCellID(const CVector<int>& coords) const
 {
   //PBC for vectors
 
@@ -346,10 +346,10 @@ CGCells2::getCellID(const CVector<long>& coords) const
 		     + (coords[NDIM-1] < 0) * cellCount[NDIM-1]);
 }
 
-CVector<long> 
-CGCells2::getCoordsFromID(unsigned long i) const
+CVector<int> 
+CGCells2::getCoordsFromID(size_t i) const
 {
-  CVector<long> tmp;
+  CVector<int> tmp;
   i = i % NCells; //PBC's for ID
   
   tmp[0] = i % cellCount[0];
@@ -364,10 +364,10 @@ size_t
 CGCells2::getCellID(CVector<> pos) const
 {
   Sim->Dynamics.BCs().setPBC(pos);
-  CVector<long> temp;
+  CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = (long) ( (pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) / cellLatticeWidth[iDim]);
+    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) / cellLatticeWidth[iDim]);
   
   return getCellID(temp);
 }
@@ -377,7 +377,7 @@ void
 CGCells2::getParticleNeighbourhood(const CParticle& part,
 				  const nbHoodFunc& func) const
 {
-  CVector<long>displacement(-1);
+  CVector<int>displacement(-1);
 
   //This loop iterates through each neighbour position
   for (int iter = 0; iter < ctime_pow<3,NDIM>::result; ++iter)
@@ -387,7 +387,7 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
       
       for (int next = cells[nb].list;
 	   next != -1; next = partCellData[next].next)
-	if (next != static_cast<int>(part.getID()))
+	if (next != int(part.getID()))
 	  func(part, next);
       
       //Now update the displacement vector

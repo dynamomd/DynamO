@@ -80,14 +80,14 @@ protected:
     std::vector<size_t> locals;    
     int list;
     CVector<> origin;
-    CVector<long> coords;
+    CVector<int> coords;
   };
 
   virtual void outputXML(xmlw::XmlStream&) const;
 
   //Cell Numbering
-  size_t getCellID(const CVector<long>&) const;
-  CVector<long> getCoordsFromID(unsigned long) const; 
+  size_t getCellID(const CVector<int>&) const;
+  CVector<int> getCoordsFromID(size_t) const; 
   size_t getCellID(CVector<>) const;
 
   void addCells(Iflt, bool limitCells = true);
@@ -95,7 +95,7 @@ protected:
   void addLocalEvents();
 
   //Variables
-  CVector<long> cellCount;
+  CVector<int> cellCount;
   CVector<> cellDimension;
   CVector<> cellLatticeWidth;
   Iflt lambda;
