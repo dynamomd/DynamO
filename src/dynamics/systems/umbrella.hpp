@@ -44,6 +44,10 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
+  void particlesUpdated(const CNParticleData&);
+
+  void recalculateTime();
+
   Iflt width, w2;
 
   smrtPlugPtr<CRange> range1;

@@ -75,8 +75,8 @@ CSUmbrella::runEvent() const
 
   ++Sim->lNColl;
 
-  CNParticleData SDat;  
-
+  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyCollision
+		      (*range1, *range2, w2, UMBRELLA));
 
   Sim->signalParticleUpdate(SDat);
 }
@@ -85,13 +85,49 @@ void
 CSUmbrella::initialise(size_t nID)
 {
   ID = nID;
+
+  recalculateTime();
+  Sim->registerParticleUpdateFunc
+    (fastdelegate::MakeDelegate(this, &CSUmbrella::particlesUpdated));
+}
+
+void 
+CSUmbrella::recalculateTime()
+{
+  BOOST_FOREACH(const size_t& id, *range1)
+    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+
+  BOOST_FOREACH(const size_t& id, *range2)
+    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
   if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, width))
     dt = partdata.dt;
   else
-    dt = HUGE_VAL;
+    dt = HUGE_VAL;  
+}
+
+void 
+CSUmbrella::particlesUpdated(const CNParticleData& PDat)
+{
+  BOOST_FOREACH(const C1ParticleData& pdat, PDat.L1partChanges)
+    if (range1->isInRange(pdat.getParticle())
+	|| range2->isInRange(pdat.getParticle()))
+      {
+	recalculateTime();
+	Sim->ptrScheduler->rebuildSystemEvents();
+      }
+
+  BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
+    if (range1->isInRange(pdat.particle1_.getParticle())
+	|| range2->isInRange(pdat.particle1_.getParticle())
+	|| range1->isInRange(pdat.particle2_.getParticle())
+	|| range2->isInRange(pdat.particle2_.getParticle()))
+      {
+	recalculateTime();
+	Sim->ptrScheduler->rebuildSystemEvents();
+      }
 }
 
 void

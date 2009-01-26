@@ -314,14 +314,93 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 }
 
 CNParticleData 
-CLNewton::multibdyCollision(const CRange& r1, const CRange& r2, 
+CLNewton::multibdyCollision(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const EEventType& eType) const
 {
-  D_throw() << "Not implemented";
+  CVector<> COMVel1(0), COMVel2(0), COMPos1(0), COMPos2(0);
+  
+  Iflt structmass1(0), structmass2(0);
+  
+  BOOST_FOREACH(const size_t& ID, range1)
+    {
+      updateParticle(Sim->vParticleList[ID]);
+      
+      structmass1 += 
+	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+      
+      COMVel1 += Sim->vParticleList[ID].getVelocity()
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+      
+      COMPos1 += Sim->vParticleList[ID].getPosition()
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+    }
+  
+  BOOST_FOREACH(const size_t& ID, range2)
+    {
+      updateParticle(Sim->vParticleList[ID]);
+
+      structmass2 += 
+	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+      
+      COMVel2 += Sim->vParticleList[ID].getVelocity()
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+      
+      COMPos2 += Sim->vParticleList[ID].getPosition()
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+    }
+  
+  COMVel1 /= structmass1;
+  COMVel2 /= structmass2;
+  
+  COMPos1 /= structmass1;
+  COMPos2 /= structmass2;
+  
+  CVector<> rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
+  Sim->Dynamics.BCs().setPBC(rij, vij);
+  Iflt rvdot = rij % vij;
+
+  Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
+
+  static const Iflt e = 1.0;
+  CVector<> dP = rij * ((1.0 + e) * mu * rvdot / rij.square());
+
+  CNParticleData retVal;
+  BOOST_FOREACH(const size_t& ID, range1)
+    {
+      C1ParticleData tmpval
+	(Sim->vParticleList[ID],
+	 Sim->Dynamics.getSpecies(Sim->vParticleList[ID]),
+	 eType);
+
+      const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
+	-= dP / tmpval.getSpecies().getMass();
+      
+      tmpval.calcDeltaKE();
+      
+      retVal.L1partChanges.push_back(tmpval);
+    }
+
+  BOOST_FOREACH(const size_t& ID, range2)
+    {
+      C1ParticleData tmpval
+	(Sim->vParticleList[ID],
+	 Sim->Dynamics.getSpecies(Sim->vParticleList[ID]),
+	 eType);
+
+      const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
+	+= dP / tmpval.getSpecies().getMass();
+      
+      tmpval.calcDeltaKE();
+      
+      retVal.L1partChanges.push_back(tmpval);
+    }
+  
+  return retVal;
 }
 
 C2ParticleData 
-CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt &) const
+CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
+			  const Iflt &) const
 {
   updateParticlePair(event.getParticle1(), event.getParticle2());  
 
