@@ -80,7 +80,7 @@ function HS_replex_test {
 
     AVG=$(echo "($MFT1 + $MFT2 + $MFT3) / 3.0" | bc -l)
 
-    pass=$(echo $MFT1 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}' 2>&1)
+    pass=$(echo $MFT1 $AVG | gawk '{a=int(100 * (($1 / $2)-1.0)); if (100 * (($1 / $2)-1.0)<0) a=-a; print a}' 2>&1)
     if [ $pass != 0 ]; then 
 	echo "$1 HS1 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -88,7 +88,7 @@ function HS_replex_test {
 	echo -n $(echo $MFT1 $AVG | gawk '{print $1 / $2}')" "
     fi
 
-    pass=$(echo $MFT2 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}')
+    pass=$(echo $MFT2 $AVG | gawk '{a=int(100 * (($1 / $2)-1.0)); if (100 * (($1 / $2)-1.0)<0) a=-a; print a}')
     if [ $pass != 0 ]; then 
 	echo "$1 HS2 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -96,7 +96,7 @@ function HS_replex_test {
 	echo -n $(echo $MFT2 $AVG | gawk '{print $1 / $AVG}')" "
     fi
 
-    pass=$(echo $MFT3 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}')
+    pass=$(echo $MFT3 $AVG | gawk '{a=int(100 * (($1 / $2)-1.0)); if (100 * (($1 / $2)-1.0)<0) a=-a; print a}')
     if [ $pass != 0 ]; then 
 	echo "$1 HS3 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -293,8 +293,8 @@ wallsw "NeighbourList"
 
 echo ""
 echo "INTERACTIONS"
-echo "Testing Lines, NeighbourLists and BoundedPQ's"
-linescannon "NeighbourList" "BoundedPQ"
+#echo "Testing Lines, NeighbourLists and BoundedPQ's"
+#linescannon "NeighbourList" "BoundedPQ"
 
 echo ""
 echo "ENGINE TESTING"
