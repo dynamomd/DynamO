@@ -32,6 +32,8 @@ which $Xml || Xml="xmlstarlet"
 
 which $Xml || `echo "Could not find XMLStarlet"; exit`
 
+which gawk || `echo "Could not find gawk"; exit`
+
 function HS_replex_test {
     for i in $(seq 0 2); do
 	$Dynamod -m 0 -C 7 -T $(echo "0.5*$i + 0.5" | bc -l) \
@@ -160,12 +162,14 @@ function wallsw {
     #doing 9995 as this stops any 2 periodicity
     $Dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
     
+    $Dynamod --text config.out.xml.bz2 > /dev/null
+
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
 
     bzcat wallsw.xml.bz2 | \
 	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > correct.dat
-
+    
     diff testresult.dat correct.dat &> /dev/null \
 	|| wallsw_bailout $1
     
