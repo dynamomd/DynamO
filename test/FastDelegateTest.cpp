@@ -1,5 +1,7 @@
 #include <stdio.h>
-#include "FastDelegate.h"
+#include "../src/extcode/include/FastDelegate/FastDelegate.h"
+#include "../src/extcode/include/FastDelegate/FastDelegateBind.h"
+
 // Demonstrate the syntax for FastDelegates.
 //				-Don Clugston, May 2004.
 // It's a really boring example, but it shows the most important cases.
