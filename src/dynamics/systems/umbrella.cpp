@@ -102,7 +102,7 @@ CSUmbrella::recalculateTime()
   
   CPDData partdata(*Sim, *range1, *range2);
 
-  if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, width))
+  if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, w2))
     dt = partdata.dt;
   else
     dt = HUGE_VAL;  
@@ -142,6 +142,8 @@ CSUmbrella::operator<<(const XMLNode& XML)
 
     width = boost::lexical_cast<Iflt>(XML.getAttribute("Width"))
       * Sim->Dynamics.units().unitLength();
+
+    w2 = width * width;
 
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
 
