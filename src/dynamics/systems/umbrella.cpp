@@ -35,6 +35,7 @@
 CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp): 
   CSystem(tmp),
   width(1.0),
+  w2(width * width),
   range1(NULL),
   range2(NULL)
 {
@@ -47,6 +48,7 @@ CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt nd,
 		       std::string nName, CRange* r1, CRange* r2):
   CSystem(nSim),
   width(nd),
+  w2(nd * nd),
   range1(r1),
   range2(r2)
 {
@@ -74,16 +76,9 @@ CSUmbrella::runEvent() const
   ++Sim->lNColl;
 
   CNParticleData SDat;  
-  
-  /*const C2ParticleData
-    SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
-  
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, SDat, 0.0);
-  
-  Sim->signalParticleUpdate(SDat.particle1_);
-  Sim->signalParticleUpdate(SDat.particle2_);*/
-  
+
+
+  Sim->signalParticleUpdate(SDat);
 }
 
 void
@@ -91,52 +86,12 @@ CSUmbrella::initialise(size_t nID)
 {
   ID = nID;
   
-  dt = getTimeTillCollide();
-}
+  CPDData partdata(*Sim, *range1, *range2);
 
-Iflt
-CSUmbrella::getTimeTillCollide() const
-{
-  CVector<> COMVel1(0), COMVel2(0), COMPos1(0), COMPos2(0);
-
-  Iflt structmass1(0), structmass2(0);
-
-  BOOST_FOREACH(const size_t& ID, *range1)
-    {
-      structmass1 += 
-	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-
-      COMVel1 += Sim->vParticleList[ID].getVelocity()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-
-      COMPos1 += Sim->vParticleList[ID].getPosition()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-    }
-
-  BOOST_FOREACH(const size_t& ID, *range2)
-    {
-      structmass2 += 
-	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-
-      COMVel2 += Sim->vParticleList[ID].getVelocity()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-
-      COMPos2 += Sim->vParticleList[ID].getPosition()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-    }
-
-  COMVel1 /= structmass1;
-  COMVel2 /= structmass2;
-
-  COMPos1 /= structmass1;
-  COMPos2 /= structmass2;
-
-  CPDData colldat(*Sim, COMPos1 - COMPos2, COMVel1 - COMVel2);
-
-  if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, w2))
-    return colldat.dt;
-
-  return HUGE_VAL;
+  if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, width))
+    dt = partdata.dt;
+  else
+    dt = HUGE_VAL;
 }
 
 void

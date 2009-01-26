@@ -19,6 +19,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
+#include "../NparticleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
 #include "../../base/is_exception.hpp"
@@ -284,7 +285,8 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
 
 
 C2ParticleData 
-CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, const EEventType& eType) const
+CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
+			    const Iflt&, const EEventType& eType) const
 {
   updateParticlePair(event.getParticle1(), event.getParticle2());
 
@@ -309,6 +311,13 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt&, 
   const_cast<CParticle&>(event.getParticle2()).getVelocity() += retVal.dP / p2Mass;
   
   return retVal;
+}
+
+CNParticleData 
+CLNewton::multibdyCollision(const CRange& r1, const CRange& r2, 
+			    const Iflt&, const EEventType& eType) const
+{
+  D_throw() << "Not implemented";
 }
 
 C2ParticleData 

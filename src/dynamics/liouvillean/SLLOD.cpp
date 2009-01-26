@@ -19,6 +19,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
+#include "../NparticleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
 #include "../../base/is_exception.hpp"
@@ -97,6 +98,13 @@ CLSLLOD::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
       << "SLLOD";
+}
+
+CNParticleData 
+CLSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&, 
+			   const EEventType&) const
+{
+  D_throw() << "Not Implemented";
 }
 
 bool 

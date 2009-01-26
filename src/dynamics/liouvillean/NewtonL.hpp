@@ -70,6 +70,12 @@ public:
 
   virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
 
+  //Structure Dynamics
+  virtual CNParticleData multibdyCollision(const CRange&, const CRange&, 
+					   const Iflt&, 
+					   const EEventType&) const;
+
+  //Cloning
   virtual CLiouvillean* Clone() const { return new CLNewton(*this); }
 
 protected:

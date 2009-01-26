@@ -44,8 +44,6 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  Iflt getTimeTillCollide() const;
-
   Iflt width, w2;
 
   smrtPlugPtr<CRange> range1;

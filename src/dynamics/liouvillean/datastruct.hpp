@@ -39,17 +39,7 @@ struct CPDData
     v2 = vij.square();
   }
 
-  inline CPDData(const DYNAMO::SimData& Sim, const CVector<>& rijtmp, 
-		 const CVector<>& vijtmp):
-    rij(rijtmp),
-    vij(vijtmp),    
-    dt(HUGE_VAL)
-  {
-    Sim.Dynamics.BCs().setPBC(rij, vij);
-    rvdot = rij % vij;
-    r2 = rij.square();
-    v2 = vij.square();
-  }
+  CPDData(const DYNAMO::SimData&, const CRange&, const CRange&);
 
   CVector<> rij, vij;
   Iflt rvdot;
