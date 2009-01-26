@@ -80,8 +80,6 @@ CSDSMCSpheres::runEvent() const
 
   dt = tstep;
 
-  CNParticleData SDat;
-
   boost::variate_generator
     <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
     id1sampler(Sim->ranGenerator, 
@@ -104,6 +102,8 @@ CSDSMCSpheres::runEvent() const
   if (Sim->uniform_sampler() < fracpart)
     ++nmax;
   
+  CNParticleData ndata;
+
   for (size_t n = 0; n < nmax; ++n)
     {
       const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
@@ -128,14 +128,18 @@ CSDSMCSpheres::runEvent() const
 	  (p1, p2, maxprob, factor, PDat))
 	{
 	  ++Sim->lNColl;
-	  
+	 
 	  const C2ParticleData
 	    SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
+	  ndata.L2partChanges.push_back(SDat);
+	  
 	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(*this, SDat, 0.0);
 	}
     }
+
+  Sim->signalParticleUpdate(ndata);
 }
 
 void

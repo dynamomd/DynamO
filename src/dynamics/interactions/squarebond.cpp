@@ -32,6 +32,7 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include "../NparticleEventData.hpp"
 #include <iomanip>
 
 CISquareBond::CISquareBond(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, C2Range* nR):
@@ -239,6 +240,8 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2) const
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
+
+  Sim->signalParticleUpdate(CNParticleData(EDat));
 }
     
 void 

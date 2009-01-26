@@ -98,6 +98,8 @@ CLAndersenWall::runEvent(const CParticle& part) const
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 
+  Sim->signalParticleUpdate(EDat.L1partChanges.front());
+
 }
 
 bool 

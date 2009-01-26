@@ -31,6 +31,7 @@
 #include <sstream>
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include "../NparticleEventData.hpp"
 
 CIHardSphere::CIHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, C2Range* nR):
@@ -174,13 +175,16 @@ CIHardSphere::runEvent(const CParticle& p1,
   Sim->Dynamics.stream(iEvent.getdt());
   
   //Run the collision and catch the data
-  C2ParticleData EDat(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2)); 
+  C2ParticleData EDat
+    (Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2)); 
 
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
+
+  Sim->signalParticleUpdate(EDat);
 }
    
 void 

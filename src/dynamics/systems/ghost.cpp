@@ -112,6 +112,8 @@ CSysGhost::runEvent() const
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt);
+
+  Sim->signalParticleUpdate(SDat);
 }
 
 void 

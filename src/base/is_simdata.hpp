@@ -33,6 +33,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_01.hpp>
 #include "../extcode/include/boost/random/01_normal_distribution.hpp"
+#include "../extcode/include/FastDelegate/FastDelegate.h"
 
 class CScheduler;
 class CParticle;
@@ -68,8 +69,13 @@ namespace DYNAMO
    * SimBase and SimBase_Const which also provide some general
    * std::cout formatting.
    */
-  struct SimData
+  class SimData
   {
+  protected:
+    typedef fastdelegate::FastDelegate1
+    <const CNParticleData&, void> particleUpdateFunc;
+    
+  public:
     /*! \brief Significant default value initialisation.
      */
     SimData();
@@ -185,6 +191,17 @@ namespace DYNAMO
 
     /*! \brief Marks whether to use binary data in XML output*/
     bool binaryXML;
+
+    /*! \brief Register a callback for particle changes.*/
+    void registerParticleUpdateFunc(const particleUpdateFunc& func) const
+    { _particleUpdateNotify.push_back(func); }
+
+    /*! \brief Call all registered functions requiring a callback on
+        particle changes.*/
+    void  signalParticleUpdate(const CNParticleData&) const;
+
+  private:
+    mutable std::vector<particleUpdateFunc> _particleUpdateNotify;
   };
 
 }
