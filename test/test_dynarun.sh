@@ -180,6 +180,39 @@ function wallsw {
 	testresult.dat correct.dat
 }
 
+function umbrella_bailout { 
+    echo "$1 Umbrella -: FAILED"
+    exit 1 
+}
+
+function umbrella {
+#Just tests the square shoulder interaction between two walls
+    bzcat umbrella.xml.bz2 | \
+	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	| bzip2 > tmp.xml.bz2
+    
+    #Any multiple of 2 will/should always give the original configuration
+    #doing 200 to let error creep in
+    $Dynarun -c 200 $2 tmp.xml.bz2 &> run.log
+    
+    $Dynamod --text config.out.xml.bz2 > /dev/null
+
+    bzcat config.out.xml.bz2 | \
+	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
+
+    bzcat umbrella.xml.bz2 | \
+	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > correct.dat
+    
+    diff testresult.dat correct.dat &> /dev/null \
+	|| umbrella_bailout $1
+    
+    echo "$1 Umbrella -: PASSED"
+
+    #Cleanup
+    rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log \
+	testresult.dat correct.dat
+}
+
 function cannon {
     #collision cannon test
     bzcat cannon.xml.bz2 | \
@@ -285,6 +318,9 @@ echo ""
 echo "SYSTEM EVENTS"
 echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
 ThermostatTest
+echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
+umbrella "NeighbourList"
+
 
 echo ""
 echo "LOCAL EVENTS"
