@@ -132,6 +132,8 @@ CSDSMCSpheres::runEvent() const
 	  const C2ParticleData
 	    SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
+	  Sim->ptrScheduler->fullUpdate(p1, p2);
+
 	  ndata.L2partChanges.push_back(SDat);
 	  
 	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
