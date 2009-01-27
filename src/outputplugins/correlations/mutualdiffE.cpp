@@ -65,13 +65,11 @@ COPMutualDiffusionE::operator<<(const XMLNode& XML)
   try 
     {
       try {
-	species1 = Sim->Dynamics
-	  .getSpecies(boost::lexical_cast<std::string>
-		      (XML.getAttribute("Species1"))).getID();
+	species1name = boost::lexical_cast<std::string>
+		      (XML.getAttribute("Species1"));
 
-	species2 = Sim->Dynamics
-	  .getSpecies(boost::lexical_cast<std::string>
-		      (XML.getAttribute("Species2"))).getID();
+	species2name = boost::lexical_cast<std::string>
+		      (XML.getAttribute("Species2"));
 
       }
       catch (boost::bad_lexical_cast &)
@@ -195,6 +193,9 @@ COPMutualDiffusionE::output(xmlw::XmlStream& XML)
 void 
 COPMutualDiffusionE::initialise()
 {
+  species1 = Sim->Dynamics.getSpecies(species1name).getID();
+  species2 = Sim->Dynamics.getSpecies(species2name).getID();
+  
   Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
   

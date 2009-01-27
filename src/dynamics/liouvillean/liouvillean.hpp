@@ -94,6 +94,20 @@ public:
    */
   virtual void outputParticleXMLData(xmlw::XmlStream&) const;
 
+  /*! \brief Performs an elastic multibody collision between to ranges of particles.
+   * 
+   * Also works for bounce (it will collide receeding structures).
+   *
+   * \param r1 The first structure defining CRange.
+   * \param r2 The second structure defining CRange.
+   * \param d2 The square of the interaction distance.
+   * \param eType A way of setting the collision type from CORE to BOUNCE etc.
+   * \return The collision data.
+   */  
+  virtual CNParticleData multibdyCollision(const CRange& r1, const CRange& r2,
+					   const Iflt& d2,
+					   const EEventType& eType) const = 0;
+
   /*! \brief Determines if and when two spheres will intersect.
    *
    * \param pd Some precomputed data about the event that is cached by
@@ -242,6 +256,7 @@ public:
 					   const Iflt& d2, 
 					   const EEventType& eType = CORE
 					   ) const = 0;
+
 
   /*! \brief Tests for a collision between spherical particles
    * according to the ESMC (Enskog DSMC)

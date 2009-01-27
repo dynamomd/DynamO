@@ -15,46 +15,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSNeighbourList_H
-#define CSNeighbourList_H
+#ifndef CSUmbrella_HPP
+#define CSUmbrella_HPP
 
-#include "scheduler.hpp"
+#include "system.hpp"
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real.hpp>
+#include "../../extcode/include/boost/random/normal_distribution.hpp"
+#include "../../base/is_simdata.hpp"
+#include "../ranges/1range.hpp"
+#include "../../datatypes/pluginpointer.hpp"
 
-class CSNeighbourList: public CScheduler
+class CSUmbrella: public CSystem
 {
 public:
-  CSNeighbourList(const XMLNode&, const DYNAMO::SimData*);
+  CSUmbrella(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSNeighbourList(const DYNAMO::SimData*, CSSorter*);
-
-  /*! \brief Must be overloaded to maintain connection status */
-  CSNeighbourList(const CSNeighbourList&);
-
-  virtual void rebuildList() { initialise(); }
-
-  virtual void initialise();
-
-  virtual void addEvents(const CParticle&);
+  CSUmbrella(DYNAMO::SimData*, Iflt, std::string, CRange*, CRange*);
   
+  virtual CSystem* Clone() const { return new CSUmbrella(*this); }
+
+  virtual void runEvent() const;
+
+  virtual void initialise(size_t);
+
   virtual void operator<<(const XMLNode&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void addInteractionEvent(const CParticle&, const size_t&) const;
-  void addInteractionEventInit(const CParticle&, const size_t&) const;
+  void particlesUpdated(const CNParticleData&);
 
-  void addEventsInit(const CParticle&);
+  void recalculateTime();
 
-  void addLocalEvent(const CParticle&, const size_t&) const;
-  
-  size_t NBListID;
+  Iflt width, w2;
 
-  void virtualCellNewNeighbour(const CParticle&, const CParticle&);
-
-  size_t cellChange;
-  size_t cellChangeLocal;
-  size_t reinit;         
+  smrtPlugPtr<CRange> range1;
+  smrtPlugPtr<CRange> range2;
 };
 
 #endif

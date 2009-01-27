@@ -226,11 +226,6 @@ protected:
    */
   virtual void setupSim(CSimulation&, const std::string);
 
-  /*! \brief Just makes sure a COPUEnergy plugin is available to
-   * calculate the system energy.
-   */
-  virtual void postSimInit(CSimulation&);
-
   //Replica Exchange attempt code
 
   /*! \brief Carry out a certain type of replica exchange phase.

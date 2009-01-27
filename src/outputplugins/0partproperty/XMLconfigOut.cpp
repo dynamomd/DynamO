@@ -75,12 +75,13 @@ COPConfig::output(xmlw::XmlStream &XML)
 
   Sim->Dynamics.Liouvillean().outputParticleXMLData(XML);
 
-  XML << xmlw::endtag("DYNAMOconfig")
-      << xmlw::tag("AppendedBinaryData")
+  XML << xmlw::tag("AppendedBinaryData")
       << xmlw::chardata();
 
   Sim->Dynamics.Liouvillean().outputParticleBin64Data(XML.getUnderlyingStream());
-  XML << "\n" << xmlw::endtag("AppendedBinaryData");
+  XML << "\n" 
+      << xmlw::endtag("AppendedBinaryData")
+      << xmlw::endtag("DYNAMOconfig");
 
   I_cout() << "Configuration written out";
 }

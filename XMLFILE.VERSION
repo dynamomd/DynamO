@@ -10,6 +10,12 @@ start of the base64 encoded binary data section
 should be Pt now, and removed ISSSconfig now the switch to DYNAMOconfig is
 complete
 
-v1.1.2 renamed EOXML to AppendedBinaryData and made it valid XML. The
+
+v1.1.2  renamed EOXML to AppendedBinaryData and made it valid XML. The
 base64 now tolerates spaces and newlines but not '<' characters as
 these indicate a new XML tag
+
+v1.1.3 The document is now valid XML moved the AppendedBinaryData into
+the document tags and used a trick to fool the XML parser.
+    - The binary data now contains the orientational data.
+    - There is also an attribute in the particleData to indicate if the binary stream contains orientational data, 

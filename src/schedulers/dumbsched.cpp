@@ -34,8 +34,7 @@
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
 
-CSDumb::CSDumb(const XMLNode& XML, 
-				 const DYNAMO::SimData* Sim):
+CSDumb::CSDumb(const XMLNode& XML, const DYNAMO::SimData* Sim):
   CScheduler(Sim,"DumbScheduler", NULL)
 { 
   I_cout() << "Dumb Scheduler Algorithmn";

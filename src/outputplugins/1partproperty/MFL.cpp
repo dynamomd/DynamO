@@ -36,7 +36,7 @@ COPMFL::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));      
+	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
       }
   catch (boost::bad_lexical_cast&)
       {
@@ -48,7 +48,8 @@ void
 COPMFL::initialise()
 {
   lastTime.resize(Sim->lN, 0.0);
-  data.resize(Sim->Dynamics.getSpecies().size(), C1DHistogram(Sim->Dynamics.units().unitLength() * binwidth));
+  data.resize(Sim->Dynamics.getSpecies().size(), 
+	      C1DHistogram(Sim->Dynamics.units().unitLength() * binwidth));
 }
 
 void 

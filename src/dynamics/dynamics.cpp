@@ -266,32 +266,12 @@ void
 CDynamics::addSystem(CSystem* newSystem)
 {
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add system events at this time,"
-      " try using addSystemLate"; 
+    D_throw() << "Cannot add system events at this time, system is initialised";
   
   smrtPlugPtr<CSystem> 
     tempPlug(newSystem);
   
   systems.push_back(tempPlug); 
-}
-
-void
-CDynamics::addSystemLate(CSystem* newSystem)
-{
-  if (Sim->status < INITIALISED)
-    D_throw() << "Cannot add system events using this when early!"
-      " try using addSystem"; 
-
-  smrtPlugPtr<CSystem> 
-    tempPlug(newSystem);
-  
-  systems.push_back(tempPlug); 
-
-  systems.back()->initialise(systems.size()-1);
-
-  //Scheduler is only initialised if there are collisions to run
-  if (Sim->lMaxNColl)
-    Sim->ptrScheduler->rebuildSystemEvents();
 }
 
 void
@@ -309,13 +289,13 @@ CDynamics::addStructure(CTopology* newSystem)
 void 
 CDynamics::addSystemTicker()
 {
+  if (Sim->status >= INITIALISED)
+    D_throw() << "Cannot add the system ticker now";
+
   BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
     if (ptr->getName() == "SystemTicker")
       D_throw() << "System Ticker already exists";
-
-  if (Sim->status >= INITIALISED)
-    addSystemLate(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
-  else
+  
     addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
 

@@ -100,7 +100,7 @@ CSimulation::addSystem(CSystem* tmp)
 void 
 CSimulation::addOutputPlugin(std::string Name)
 {
-  if (status != INITIALISED)
+  if (status >= INITIALISED)
     D_throw() << "Cannot add plugins now";
   
   smrtPlugPtr<COutputPlugin> tempPlug(COutputPlugin::getPlugin(Name, this));
@@ -132,6 +132,22 @@ CSimulation::setTrajectoryLength(unsigned long long newMaxColl)
 void
 CSimulation::initialise()
 {
+
+  I_cout() << "Sort and init the Output Plugins";
+  std::sort(outputPlugins.begin(), outputPlugins.end());
+  
+  bool needTicker = false;
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+    if (dynamic_cast<COPTicker*>(Ptr.get_ptr()) != NULL)
+      {
+	needTicker = true; 
+	break;
+      }
+
+  if (needTicker)
+    Dynamics.addSystemTicker();
+
   if (status != CONFIG_LOADED)
     D_throw() << "Sim initialised at wrong time";
 
@@ -153,6 +169,9 @@ CSimulation::initialise()
   if (lMaxNColl) //Only initialise the scheduler if we're simulating
     ptrScheduler->initialise();
   
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+    Ptr->initialise();
+
   status = INITIALISED;
 }
 
@@ -232,33 +251,16 @@ CSimulation::writeXMLfile(const char *fileName)
   XMLconfig.fileOutput(fileName);
 }
 
-void 
-CSimulation::initPlugins()
-{
-  I_cout() << "Sort and init the Output Plugins";
-  std::sort(outputPlugins.begin(), outputPlugins.end());
-  
-  bool needTicker = false;
-  
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-    {
-      Ptr->initialise();
-      if (!needTicker && dynamic_cast<COPTicker*>(Ptr.get_ptr()) != NULL)
-	needTicker = true; 
-    }
-
-  if (needTicker)
-    Dynamics.addSystemTicker();
-}
-
 void
 CSimulation::loadPlugins(std::string pluginFileName)
 {
+  if (status >= INITIALISED)
+    D_throw() << "Cannot add plugins now";
+
   XMLNode xMainNode;
 
   if (!boost::filesystem::exists(pluginFileName))
     D_throw() << "Plugin file \"" << pluginFileName << "\" doesn't exist";
-
 
   if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
     {
@@ -267,6 +269,7 @@ CSimulation::loadPlugins(std::string pluginFileName)
       for (int i = 0; i < xMainNode.nChildNode("Plugin"); ++i)
 	{
 	  tmpPlug.set_ptr(COutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
+	  //This next line copies the output plugins, a swap might be faster
 	  outputPlugins.push_back(tmpPlug);
 	}
     }

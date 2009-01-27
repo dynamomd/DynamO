@@ -26,6 +26,11 @@ class CLSLLOD: public CLiouvillean
 public:
   CLSLLOD(DYNAMO::SimData*);
 
+  //Structure Dynamics
+  virtual CNParticleData multibdyCollision(const CRange&, const CRange&, 
+					   const Iflt&, 
+					   const EEventType&) const;
+  
   //Pair particle dynamics
   virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const;
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  

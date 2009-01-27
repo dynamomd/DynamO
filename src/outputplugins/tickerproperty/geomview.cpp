@@ -31,9 +31,7 @@
 COPGeomview::COPGeomview(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Geomview"),
   frameCount(0)
-{
-  printImage();
-}
+{}
 
 void 
 COPGeomview::ticker()

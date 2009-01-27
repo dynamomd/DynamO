@@ -28,7 +28,7 @@ class COPPovray: public COPTicker
   virtual COutputPlugin *Clone() const
   { return new COPPovray(*this); }
 
-  virtual void initialise() {}
+  virtual void initialise() { printImage(); }
 
   virtual void stream(Iflt) {}
 

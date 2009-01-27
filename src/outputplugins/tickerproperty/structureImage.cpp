@@ -47,17 +47,7 @@ COPStructureImaging::operator<<(const XMLNode& XML)
       if (!(XML.isAttributeSet("Structure")))
 	D_throw() << "You must specify the name of the structure to monitor for StructureImaging";
       
-      std::string nom(XML.getAttribute("Structure"));
-
-      id = Sim->Dynamics.getTopology().size();
-
-      BOOST_FOREACH(const smrtPlugPtr<CTopology>& ptr, Sim->Dynamics.getTopology())
-	if (boost::iequals(nom, ptr->getName()))
-	  id = ptr->getID();
-      
-      if (id == Sim->Dynamics.getTopology().size())
-	D_throw() << "Could not find a structure named " << nom << " in the simulation";
-
+      structureName = XML.getAttribute("Structure");
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -69,6 +59,15 @@ COPStructureImaging::operator<<(const XMLNode& XML)
 void 
 COPStructureImaging::initialise()
 {
+  id = Sim->Dynamics.getTopology().size();
+  
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& ptr, Sim->Dynamics.getTopology())
+    if (boost::iequals(structureName, ptr->getName()))
+      id = ptr->getID();
+  
+  if (id == Sim->Dynamics.getTopology().size())
+    D_throw() << "Could not find a structure named " << structureName << " in the simulation";
+  
   imagelist.clear();
 }
 

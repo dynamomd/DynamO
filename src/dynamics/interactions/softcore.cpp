@@ -33,6 +33,7 @@
 #include "../../base/is_simdata.hpp"
 #include <iomanip>
 #include "../../schedulers/scheduler.hpp"
+#include "../NparticleEventData.hpp"
 
 
 CISoftCore::CISoftCore(DYNAMO::SimData* tmp, Iflt nd, Iflt nWD, 
@@ -210,6 +211,8 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2) const
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
+	Sim->signalParticleUpdate(CNParticleData(retVal));
+
 	break;
       }
     case WELL_OUT:
@@ -225,6 +228,8 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2) const
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
+
+	Sim->signalParticleUpdate(CNParticleData(retVal));
 
 	break;
       }

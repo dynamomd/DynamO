@@ -32,6 +32,7 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include "../NparticleEventData.hpp"
 #include <iomanip>
 
 CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
@@ -352,6 +353,8 @@ CISWSequence::runEvent(const CParticle& p1,
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
+	Sim->signalParticleUpdate(CNParticleData(retVal));
+
 	break;
       }
     case WELL_IN:
@@ -371,6 +374,8 @@ CISWSequence::runEvent(const CParticle& p1,
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
+	Sim->signalParticleUpdate(CNParticleData(retVal));
+
 	break;
       }
     case WELL_OUT:
@@ -389,6 +394,9 @@ CISWSequence::runEvent(const CParticle& p1,
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
+
+	Sim->signalParticleUpdate(retVal.particle1_);
+	Sim->signalParticleUpdate(retVal.particle2_);
 
 	break;
       }

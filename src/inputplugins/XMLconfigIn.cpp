@@ -75,6 +75,7 @@ CIPConfig::initialise()
 	if (line.find("AppendedBinaryData", 0) != std::string::npos) 
 	  {
 	    foundEOXML = true;
+	    fileString.append("</DYNAMOconfig>\n");
 	    break;
 	  }
 	

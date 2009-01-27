@@ -39,6 +39,8 @@ struct CPDData
     v2 = vij.square();
   }
 
+  CPDData(const DYNAMO::SimData&, const CRange&, const CRange&);
+
   CVector<> rij, vij;
   Iflt rvdot;
   Iflt r2;

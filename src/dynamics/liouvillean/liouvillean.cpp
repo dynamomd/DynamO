@@ -72,8 +72,15 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
   if (XML.isAttributeSet("AttachedBinary")
       && (std::toupper(XML.getAttribute("AttachedBinary")[0]) == 'Y'))
     {
+      if (XML.isAttributeSet("OrientationDataInc")
+	  && (std::toupper(XML.getAttribute("OrientationDataInc")[0]) == 'Y'))
+	D_throw() << "Orientation data is present in the binary data,"
+		  << " cannot load using this liouvillean.";
+	
       Sim->binaryXML = true;
-      unsigned long nPart = boost::lexical_cast<unsigned long>(XML.getAttribute("N"));
+      unsigned long nPart 
+	= boost::lexical_cast<unsigned long>(XML.getAttribute("N"));
+
       boost::progress_display prog(nPart);
 
       boost::iostreams::filtering_istream base64Convertor;
@@ -89,6 +96,9 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 	  CVector<> pos;
 	  
 	  binaryread(base64Convertor, ID);
+
+	  if (i != ID) 
+	    D_throw() << "Binary data corruption detected, id's don't match";
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, vel[iDim]);
@@ -172,6 +182,7 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
       tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
 
       binarywrite(base64Convertor, tmp.getID());
+
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	binarywrite(base64Convertor, tmp.getVelocity()[iDim]);
 
@@ -185,18 +196,13 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
 void 
 CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::tag("ParticleData");
+  XML << xmlw::tag("ParticleData")
+      << xmlw::attr("N") << Sim->lN
+      << xmlw::attr("AttachedBinary") << (Sim->binaryXML ? "Y" : "N")
+      << xmlw::attr("OrientationDataInc") << "N";
 
-  if (Sim->binaryXML)
+  if (!Sim->binaryXML)
     {
-      XML << xmlw::attr("N") << Sim->lN
-	  << xmlw::attr("AttachedBinary") << "Y";
-    }
-  else
-    {
-      XML << xmlw::attr("N") << Sim->lN
-	  << xmlw::attr("AttachedBinary") << "N";
-      
       I_cout() << "Writing Particles ";
       
       boost::progress_display prog(Sim->lN);

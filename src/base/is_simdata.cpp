@@ -44,4 +44,13 @@ namespace DYNAMO
   {
     if (ptrScheduler != NULL) delete ptrScheduler;
   }
+  
+  void 
+  SimData::signalParticleUpdate
+  (const CNParticleData& pdat) const
+  {
+    BOOST_FOREACH(const particleUpdateFunc& func, _particleUpdateNotify)
+      func(pdat);
+  }
+
 }

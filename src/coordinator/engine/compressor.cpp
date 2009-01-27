@@ -53,16 +53,6 @@ CECompressor::preSimInit()
 }
 
 void 
-CECompressor::postSimInit(CSimulation& Sim)
-{
-  //This adds a system event to prevent the cellular scheduler 
-  //failing during compression
-  compressPlug->CellSchedulerHack();
-
-  CEngine::postSimInit(Sim);
-}
-
-void 
 CECompressor::setupSim(CSimulation& Sim, const std::string filename)
 {
   CESingle::setupSim(Sim,filename);
@@ -76,6 +66,9 @@ CECompressor::setupSim(CSimulation& Sim, const std::string filename)
     compressPlug->limitDensity
       (vm["target-density"].as<Iflt>());
 
+  //This adds a system event to prevent the cellular scheduler 
+  //failing during compression
+  compressPlug->CellSchedulerHack();
 }
 
 void CECompressor::finaliseRun()

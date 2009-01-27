@@ -32,6 +32,8 @@ which $Xml || Xml="xmlstarlet"
 
 which $Xml || `echo "Could not find XMLStarlet"; exit`
 
+which gawk || `echo "Could not find gawk"; exit`
+
 function HS_replex_test {
     for i in $(seq 0 2); do
 	$Dynamod -m 0 -C 7 -T $(echo "0.5*$i + 0.5" | bc -l) \
@@ -78,7 +80,7 @@ function HS_replex_test {
 
     AVG=$(echo "($MFT1 + $MFT2 + $MFT3) / 3.0" | bc -l)
 
-    pass=$(echo $MFT1 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}' 2>&1)
+    pass=$(echo $MFT1 $AVG | gawk '{a=int(100 * (($1 / $2)-1.0)); if (100 * (($1 / $2)-1.0)<0) a=-a; print a}' 2>&1)
     if [ $pass != 0 ]; then 
 	echo "$1 HS1 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -86,7 +88,7 @@ function HS_replex_test {
 	echo -n $(echo $MFT1 $AVG | gawk '{print $1 / $2}')" "
     fi
 
-    pass=$(echo $MFT2 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}')
+    pass=$(echo $MFT2 $AVG | gawk '{a=int(100 * (($1 / $2)-1.0)); if (100 * (($1 / $2)-1.0)<0) a=-a; print a}')
     if [ $pass != 0 ]; then 
 	echo "$1 HS2 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -94,7 +96,7 @@ function HS_replex_test {
 	echo -n $(echo $MFT2 $AVG | gawk '{print $1 / $AVG}')" "
     fi
 
-    pass=$(echo $MFT3 $AVG | gawk '{print int(100 * (($1 / $2)-1.0))}')
+    pass=$(echo $MFT3 $AVG | gawk '{a=int(100 * (($1 / $2)-1.0)); if (100 * (($1 / $2)-1.0)<0) a=-a; print a}')
     if [ $pass != 0 ]; then 
 	echo "$1 HS3 Replica Exchange -: FAILED $pass"
 	exit 1 	
@@ -160,16 +162,51 @@ function wallsw {
     #doing 9995 as this stops any 2 periodicity
     $Dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
     
+    $Dynamod --text config.out.xml.bz2 > /dev/null
+
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
 
     bzcat wallsw.xml.bz2 | \
 	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > correct.dat
-
+    
     diff testresult.dat correct.dat &> /dev/null \
 	|| wallsw_bailout $1
     
     echo "$1 WallSW -: PASSED"
+
+    #Cleanup
+    rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log \
+	testresult.dat correct.dat
+}
+
+function umbrella_bailout { 
+    echo "$1 Umbrella -: FAILED"
+    exit 1 
+}
+
+function umbrella {
+#Just tests the square shoulder interaction between two walls
+    bzcat umbrella.xml.bz2 | \
+	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	| bzip2 > tmp.xml.bz2
+    
+    #Any multiple of 12 will/should always give the original configuration
+    #doing only 12 to stop error creeping in
+    $Dynarun -c 12 $2 tmp.xml.bz2 &> run.log
+    
+    $Dynamod --text config.out.xml.bz2 > /dev/null
+
+    bzcat config.out.xml.bz2 | \
+	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
+
+    bzcat umbrella.xml.bz2 | \
+	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > correct.dat
+    
+    diff testresult.dat correct.dat &> /dev/null \
+	|| umbrella_bailout $1
+    
+    echo "$1 Umbrella -: PASSED"
 
     #Cleanup
     rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log \
@@ -281,6 +318,9 @@ echo ""
 echo "SYSTEM EVENTS"
 echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
 ThermostatTest
+echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
+umbrella "NeighbourList"
+
 
 echo ""
 echo "LOCAL EVENTS"
@@ -289,8 +329,8 @@ wallsw "NeighbourList"
 
 echo ""
 echo "INTERACTIONS"
-echo "Testing Lines, NeighbourLists and BoundedPQ's"
-linescannon "NeighbourList" "BoundedPQ"
+#echo "Testing Lines, NeighbourLists and BoundedPQ's"
+#linescannon "NeighbourList" "BoundedPQ"
 
 echo ""
 echo "ENGINE TESTING"

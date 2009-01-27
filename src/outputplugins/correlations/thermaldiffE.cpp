@@ -48,9 +48,9 @@ COPThermalDiffusionE::operator<<(const XMLNode& XML)
   try 
     {
       try {
-	species1 = Sim->Dynamics.getSpecies
-	  (boost::lexical_cast<std::string>(XML.getAttribute("Species")))
-	  .getID();
+	species1name = boost::lexical_cast<std::string>
+	  (XML.getAttribute("Species"));
+	  
       } catch (std::exception& nex)
 	{
 	  D_throw() << "The name of the Species must be specified"
@@ -78,6 +78,8 @@ COPThermalDiffusionE::operator<<(const XMLNode& XML)
 void 
 COPThermalDiffusionE::initialise()
 {
+  species1 = Sim->Dynamics.getSpecies(species1name).getID();
+
   try {
     dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
   }

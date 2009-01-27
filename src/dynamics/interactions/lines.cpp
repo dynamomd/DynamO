@@ -31,6 +31,7 @@
 #include "../BC/BC.hpp"
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include "../NparticleEventData.hpp"
 
 CILines::CILines(DYNAMO::SimData* tmp, Iflt nd, 
 		 Iflt ne, C2Range* nR):
@@ -206,6 +207,8 @@ CILines::runEvent(const CParticle& p1,
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
+
+	Sim->signalParticleUpdate(CNParticleData(retval));
 	
 	break;
       }
@@ -225,6 +228,8 @@ CILines::runEvent(const CParticle& p1,
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
 
+	Sim->signalParticleUpdate(CNParticleData(retval));
+
 	break;
       }
     case WELL_OUT:
@@ -242,6 +247,10 @@ CILines::runEvent(const CParticle& p1,
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
+
+	Sim->signalParticleUpdate(retval.particle1_);
+	Sim->signalParticleUpdate(retval.particle2_);
+
 	break;
       }
     default:

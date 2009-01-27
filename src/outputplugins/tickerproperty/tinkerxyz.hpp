@@ -28,7 +28,7 @@ class COPTinkerXYZ: public COPTicker
   virtual COutputPlugin *Clone() const
   { return new COPTinkerXYZ(*this); }
 
-  virtual void initialise() {}
+  virtual void initialise() { printImage(); }
 
   virtual void stream(Iflt) {}
 

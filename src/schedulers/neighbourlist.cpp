@@ -68,7 +68,7 @@ CSNeighbourList::initialise()
  
     BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
       {
-	addEvents(part);
+	addEventsInit(part);
 	++prog;
       }
   }
@@ -145,6 +145,41 @@ CSNeighbourList::addInteractionEvent(const CParticle& part,
 }
 
 void 
+CSNeighbourList::addInteractionEventInit(const CParticle& part, 
+					 const size_t& id) const
+{
+  //We'll be smart about memory and add evenly on initialisation. Not
+  //using sorting only as it's unbalanced on a system where the
+  //positions and ID's are correlated, e.g a lattice thats frozen on
+  //initialisation.
+
+  if (part.getID() % 2)
+    {
+      if (id % 2)
+	//1st odd  2nd odd
+	//Only take half these matches
+	if (part.getID() > id) return;
+      else
+	//1st odd  2nd even
+	//We allow these
+	{}
+    }
+  else
+    {
+      if (id % 2)
+	//1st even 2nd odd
+	//As we allow odd,even we deny even,odd
+	return;
+      else
+	//1st even 2nd even
+	//No reason to use < or > but we switch it from odd,odd anyway
+	if (part.getID() < id) return;
+    }
+
+  addInteractionEvent(part, id);
+}
+
+void 
 CSNeighbourList::addLocalEvent(const CParticle& part, 
 			       const size_t& id) const
 {
@@ -159,7 +194,7 @@ CSNeighbourList::addEvents(const CParticle& part)
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
-
+  
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
@@ -179,4 +214,35 @@ CSNeighbourList::addEvents(const CParticle& part)
   //Add the interaction events
   nblist.getParticleNeighbourhood
     (part, CGNeighbourList::getNBDelegate(&CSNeighbourList::addInteractionEvent, this));  
+}
+
+void 
+CSNeighbourList::addEventsInit(const CParticle& part)
+{  
+  //Add the global events
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
+    if (glob->isInteraction(part))
+      sorter->push(glob->getEvent(part), part.getID());
+  
+#ifdef DYNAMO_DEBUG
+  if (dynamic_cast<const CGNeighbourList*>
+      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+      == NULL)
+    D_throw() << "Not a CGNeighbourList!";
+#endif
+
+  //Grab a reference to the neighbour list
+  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+				(Sim->Dynamics.getGlobals()[NBListID]
+				 .get_ptr()));
+  
+  //Add the local cell events
+  nblist.getParticleLocalNeighbourhood
+    (part, CGNeighbourList::getNBDelegate
+     (&CSNeighbourList::addLocalEvent, this));
+
+  //Add the interaction events
+  nblist.getParticleNeighbourhood
+    (part, CGNeighbourList::getNBDelegate
+     (&CSNeighbourList::addInteractionEventInit, this));  
 }

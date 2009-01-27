@@ -82,8 +82,6 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void addSystem(CSystem*);
 
-  void initPlugins();
-
   void setSimID(const size_t& n) { simID = n; }
 
   CSystem* getSystem(std::string);

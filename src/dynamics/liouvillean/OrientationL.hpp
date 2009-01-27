@@ -27,15 +27,20 @@ class CLNOrientation: public CLNewton
 public:  
   CLNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
     CLNewton(Sim)
-  {
-    operator<<(XML);
-  }
+  {}
 
   CLNOrientation(DYNAMO::SimData* Sim):
     CLNewton(Sim)
   {}
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
+
+  virtual void loadParticleXMLData(const XMLNode&, std::istream&);
+
+  virtual void outputParticleBin64Data(std::ostream&) const;
+
+  virtual void outputParticleXMLData(xmlw::XmlStream&) const;
+
 
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
 				    const CParticle& p1, const CParticle& p2
@@ -51,8 +56,6 @@ public:
   
   virtual C1ParticleData randomGaussianEvent(const CParticle& part, 
 					     const Iflt& sqrtT) const;
-
-  virtual void operator<<(const XMLNode&);
 
   struct rotData
   {
@@ -77,6 +80,10 @@ public:
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
+
+  //! \brief Helper function for writing out data
+  template<class T>  void binarywrite(std::ostream&, const T&) const;
+  template<class T>  void binaryread(std::istream&, T&) const;
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
 

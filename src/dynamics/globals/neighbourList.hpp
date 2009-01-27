@@ -22,32 +22,22 @@
 #include <boost/function.hpp>
 #include <vector>
 
-#define DYNAMO_Using_Fast_Delegates
-
-#ifdef DYNAMO_Using_Fast_Delegates
 #include <FastDelegate/FastDelegate.h>
-#else
-#include <boost/bind.hpp>
-#endif
 
 class CGNeighbourList: public CGlobal
 {
 protected:
   
-#ifdef DYNAMO_Using_Fast_Delegates
-  typedef fastdelegate::FastDelegate2<const CParticle&, const size_t&, void> nbHoodFunc;
+  typedef fastdelegate::FastDelegate2
+  <const CParticle&, const size_t&, void> nbHoodFunc;
+
   typedef fastdelegate::FastDelegate0<void> initFunc;  
-#else
-  typedef boost::function<void (const CParticle&, const size_t&)> nbHoodFunc;
-  typedef boost::function<void ()> initFunc;  
-  
-#endif
 
 public:
-#ifdef DYNAMO_Using_Fast_Delegates
   template<class T>
   static nbHoodFunc
-  getNBDelegate(void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
+  getNBDelegate
+  (void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
   { return fastdelegate::MakeDelegate(tp, func); }
 
   template<class T>
@@ -55,19 +45,6 @@ public:
   getInitDelegate(void (T::*func)(), T* tp)
   { return fastdelegate::MakeDelegate(tp, func); }
 
-#else
-
-  template<class T>
-  static nbHoodFunc
-  getNBDelegate(void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
-  { return boost::bind(func, tp, _1, _2); }
-
-  template<class T>
-  static initFunc
-  getInitDelegate(void (T::*func)(), T* tp)
-  { return boost::bind(func, tp); }
-
-#endif
 protected:
   typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
 
@@ -117,7 +94,8 @@ public:
 					     const nbHoodFunc&) const = 0;
 
   template<class T> size_t
-  ConnectSigCellChangeNotify(void (T::*func)(const CParticle&, const size_t&)const , const T* tp) const 
+  ConnectSigCellChangeNotify
+  (void (T::*func)(const CParticle&, const size_t&)const , const T* tp) const 
   {    
     sigCellChangeNotify.push_back
       (nbHoodSlot(++sigCellChangeNotifyCount, 
@@ -137,7 +115,8 @@ public:
   }
 
   template<class T> size_t
-  ConnectSigNewLocalNotify(void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
+  ConnectSigNewLocalNotify
+  (void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
   {    
     sigNewLocalNotify.push_back
       (nbHoodSlot(++sigNewLocalNotifyCount, 
@@ -158,7 +137,8 @@ public:
 
 
   template<class T> size_t
-  ConnectSigNewNeighbourNotify(void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
+  ConnectSigNewNeighbourNotify
+  (void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
   {    
     sigNewNeighbourNotify.push_back
       (nbHoodSlot(++sigNewNeighbourNotifyCount, 
