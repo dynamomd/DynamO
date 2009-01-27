@@ -59,6 +59,8 @@ protected:
   CVector<> sysMom;
   Iflt massFracSp1;
 
+  std::string species1name;
+
   Iflt rescaleFactor();
   
   CVector<> impulseDelG(const C2ParticleData&);

@@ -30,9 +30,7 @@
 COPPovray::COPPovray(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Povray"),
   frameCount(0)
-{
-  printImage();
-}
+{}
 
 void 
 COPPovray::ticker()

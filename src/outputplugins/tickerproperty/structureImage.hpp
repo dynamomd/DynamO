@@ -46,6 +46,7 @@ class COPStructureImaging: public COPTicker
   size_t id;
   size_t imageCount;
   std::vector<std::vector<CVector<> > > imagelist;
+  std::string structureName;
 };
 
 #endif

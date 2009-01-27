@@ -64,8 +64,6 @@ CESingle::initialisation()
   std::cout << "\nMain: Loading Output Plugins";
   fflush(stdout);
 
-  Simulation.initPlugins();
-
   if (vm.count("ticker-period"))
     Simulation.setTickerPeriod(vm["ticker-period"].as<Iflt>());
 

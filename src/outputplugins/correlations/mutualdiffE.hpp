@@ -80,6 +80,7 @@ public:
   size_t CorrelatorLength;
   size_t currCorrLen;
   bool notReady;
+  std::string species1name, species2name;
 
 };
 

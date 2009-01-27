@@ -32,9 +32,7 @@
 COPTinkerXYZ::COPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"TinkerXYZ"),
   frameCount(0)
-{
-  printImage();
-}
+{}
 
 void 
 COPTinkerXYZ::ticker()

@@ -27,9 +27,7 @@
 COPQMGA::COPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
   COPCollTicker(tmp,"COPQMGA"),
   frameCount(0)
-{
-  printImage();
-}
+{}
 
 void 
 COPQMGA::ticker()

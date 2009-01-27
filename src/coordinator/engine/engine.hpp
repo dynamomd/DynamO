@@ -144,7 +144,7 @@ protected:
   /*! \brief Once the CSimulation is loaded and initialised you may
    * need to alter it/load plugins/initialise some CEngine datastruct.
    */
-  virtual void postSimInit(CSimulation&);
+  virtual void postSimInit(CSimulation&) {}
 
   /*! \brief A reference to the CCoordinators parsed command line variables.
    */

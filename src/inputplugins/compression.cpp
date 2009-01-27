@@ -114,10 +114,8 @@ CIPCompression::CellSchedulerHack()
 	
 	cells.setLambda(0.0);
 	
-	cells.initialise(cells.getID());
-	
 	//Add the system watcher
-	Sim->Dynamics.addSystemLate
+	Sim->Dynamics.addSystem
 	  (new CSGlobCellHack(Sim, growthRate 
 			      / Sim->Dynamics.units().unitTime()));
       }

@@ -76,14 +76,11 @@ CEReplexer::initialisation()
 
       postSimInit(Simulations[i]);
 
-      Simulations[i].initPlugins();
-
       if (vm.count("ticker-period"))
 	Simulations[i].setTickerPeriod(vm["ticker-period"].as<Iflt>());
 
       if (vm.count("scale-ticker"))
 	Simulations[i].scaleTickerPeriod(vm["scale-ticker"].as<Iflt>());
-
     }
 
   //Ensure we are in the right ensemble for all simulations
@@ -211,14 +208,6 @@ CEReplexer::preSimInit()
     Simulations[id].simID = id;
 }
 
-
-void 
-CEReplexer::postSimInit(CSimulation& Sim)
-{
-  CEngine::postSimInit(Sim);
-  Sim.addOutputPlugin("UEnergy");
-}
-
 void 
 CEReplexer::forceShutdown()
 {
@@ -243,6 +232,8 @@ CEReplexer::setupSim(CSimulation & Sim, const std::string filename)
 
   Sim.addSystem(new CStHalt(&Sim, vm["replex-interval"].as<Iflt>(), 
 			    "ReplexHalt"));
+
+  Sim.addOutputPlugin("UEnergy");
 }
 
 void 
