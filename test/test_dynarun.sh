@@ -191,9 +191,9 @@ function umbrella {
 	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
     
-    #Any multiple of 2 will/should always give the original configuration
-    #doing 200 to let error creep in
-    $Dynarun -c 200 $2 tmp.xml.bz2 &> run.log
+    #Any multiple of 12 will/should always give the original configuration
+    #doing only 12 to stop error creeping in
+    $Dynarun -c 12 $2 tmp.xml.bz2 &> run.log
     
     $Dynamod --text config.out.xml.bz2 > /dev/null
 
