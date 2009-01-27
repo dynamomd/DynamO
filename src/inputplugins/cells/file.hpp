@@ -44,6 +44,7 @@ struct CUFile: public CUCell
     uc->initialise();
     //Open the file for XML parsing
     XMLNode xMainNode;
+
     if (std::string(fileName.end()-4, fileName.end()) == ".xml")
       {
 	if (!boost::filesystem::exists(fileName))
@@ -83,42 +84,30 @@ struct CUFile: public CUCell
     
     std::cout << "Parsing XML file";
     XMLNode xSubNode = xMainNode.getChildNode("ParticleData");
-    unsigned long nPart = xSubNode.nChildNode("Particle");
+
+    if (xSubNode.isAttributeSet("AttachedBinary")
+	&& (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
+      D_throw() << "This packer only works on XML config files without binary data,"
+		<< " please unscramble using dynamod --text";
+
+    unsigned long nPart = xSubNode.nChildNode("Pt");
     
     std::cout << "Loading Particle Data ";
     fflush(stdout);
     
     int xml_iter = 0;
-    if (nPart)
+    boost::progress_display prog(nPart);
+    
+    for (unsigned long i = 0; i < nPart; i++)
       {
-	boost::progress_display prog(nPart);
+	XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
+	CVector<> posVector;
+	posVector << xBrowseNode.getChildNode("P");
 	
-	for (unsigned long i = 0; i < nPart; i++)
-	  {
-	    XMLNode xBrowseNode = xSubNode.getChildNode("Particle", &xml_iter);
-	    CVector<> posVector;
-	    posVector << xBrowseNode.getChildNode("P");
-	    particleCache.push_back(posVector);
-	    
-	    ++prog;
-	  }
-      }
-    else
-      {  
-	nPart = xSubNode.nChildNode("Pt");
-	boost::progress_display prog(nPart);
+	particleCache.push_back(posVector);
 	
-	for (unsigned long i = 0; i < nPart; i++)
-	  {
-	    XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
-	    CVector<> posVector;
-	    posVector << xBrowseNode.getChildNode("P");
-	    
-	    particleCache.push_back(posVector);
-
-	    ++prog;
-	  }	
-      }
+	++prog;
+      }	
 
     //The file has been loaded now, just clean up the positions
     CVector<> centreOPoints(0);
