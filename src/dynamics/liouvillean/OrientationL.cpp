@@ -79,17 +79,11 @@ CLNOrientation::outputXML(xmlw::XmlStream& XML) const
 bool 
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
-{ 
-  Iflt windowSize = PD.dt;  
+{  
   Iflt currentClock = 0.0;
 
   Iflt t_low = 0.0;
   Iflt t_up = PD.dt;
-
-  Iflt t_low_working = t_low;
-  Iflt t_up_working = t_up;
-
-  Iflt f0, f1, f2, foundRoot, initialRoot;
   
   // Set up pair of lines as passable objects
   orientationStreamType A, B;
@@ -105,67 +99,120 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
 
   // Get Frenkel second derivative maximum
-  Iflt maxSecondDeriv = F_secondDeriv_max(A, B, length);
+  //Iflt maxSecondDeriv = F_secondDeriv_max(A, B, length);
 
-  while(t_low < t_up)
-  {
+  frenkelRecursiveSearch(A, B, length, t_low, t_up, currentClock);
+  
+  return false;
+}
+
+
+Iflt
+CLNOrientation::frenkelRecursiveSearch(orientationStreamType A, orientationStreamType B, Iflt length,
+                                       Iflt t_low, Iflt t_up, Iflt currentClock) const
+{
+    bool reverseWorking = false;
+    Iflt foundRoot = 0.0;
+    Iflt initialRoot = 0.0;
+    Iflt deeperRoot = 0.0;
+	
     // Calculate f0, f1, f2 at t = t_low
-    f0 = F_zeroDeriv(A, B);
-    f1 = F_firstDeriv(A, B);
-    f2 = F_secondDeriv(A, B);
+    Iflt f0 = F_zeroDeriv(A, B);
+    Iflt f1 = F_firstDeriv(A, B);
+    Iflt f2 = F_secondDeriv(A, B);
+	
+    Iflt maxSecondDeriv = F_secondDeriv_max(A, B, length);
 
     // Break out of DO...WHILE if we can't find a root.
     // We still need to update boundaries while we narrow the root area
     do
     {
-      // Get a root
-      if(!quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, f2))
-      {
-        D_throw() << "No positive roots found";
-	break;
-      }
+        // Get a root
+        if(!quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, f2))
+        {
+            D_throw() << "No positive roots found";
+	    break;
+	}
 
-      if(initialRoot > t_up)
-      {
-	D_throw() << "Root guess is outside boundary";
-	break;
-      }
+	if(initialRoot > t_up)
+	{
+	    reverseWorking = true;
+		
+	    // Let's move to t_up and look for downwards root
+	    performRotation(A, t_up - currentClock);
+	    performRotation(B, t_up - currentClock);
+	    currentClock = t_up;
+	    
+	    f0 = F_zeroDeriv(A, B);
+	    f1 = F_firstDeriv(A, B);
+	    f2 = F_secondDeriv(A, B);
+	    
+	    if(!quadraticSolution(initialRoot, ROOT_SMALLEST_NEGATIVE, f0, f1, f2))
+	    {
+	        D_throw() << "No negative roots found";
+		break;
+	    }
+	    
+	    if(initialRoot < t_low)
+	    {
+	        D_throw() << "Attempts to look at root from above and below failed";
+		break;
+	    }
+        }
 
-      // FoundRoot now has the new root
-      foundRoot = quadraticRootFinder(A, B, initialRoot);
+        // FoundRoot now has the new root
+        foundRoot = quadraticRootFinder(A, B, initialRoot);
 
-      if(foundRoot > t_up)
-      {
-        D_throw() << "Root found is greater than t_up";
-        continue;
-      }    
+        if(foundRoot > t_up)
+        {
+          D_throw() << "Root found is greater than t_up";
+          break;
+        }
 
-      // Here we have a new root... 
-      // wind the lines to the new root position, and shrink the t_up value
-      performRotation(A, foundRoot);
-      performRotation(B, foundRoot);
+	performRotation(A, foundRoot);
+	performRotation(B, foundRoot);
 
-      t_up_working = foundRoot - ((2 * fabs(F_firstDeriv(A, B)))/maxSecondDeriv);
-    
-      // wind the lines to the t_low position and search again
-      performRotation(A, t_low_working - foundRoot);
-      performRotation(B, t_low_working - foundRoot);
+	t_up = foundRoot - ((2 * fabs(F_firstDeriv(A, B)))/maxSecondDeriv);
+
+        // wind the lines to the t_low position and search again
+        performRotation(A, t_low - foundRoot);
+        performRotation(B, t_low - foundRoot);
 
     } while(false); // End of do...while drop-out loop
+    
+    // Now let's update boundary on root
 
-    // Now let's update lower boundary on root
-    if(quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5)))
+    if(!reverseWorking)
     {
-      t_low += initialRoot;
-      performRotation(A, initialRoot);
-      performRotation(B, initialRoot);
-      currentClock += initialRoot;
+        if(quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5)))
+        {
+            t_low += initialRoot;
+            performRotation(A, initialRoot);
+            performRotation(B, initialRoot);
+            currentClock += initialRoot;
+        }
     }
-
-  } // end while(t_low < t_up);
-
-  return false;
+    else
+    {
+	if(!foundRoot && quadraticSolution(initialRoot, ROOT_SMALLEST_NEGATIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5)))
+        {
+            t_up += initialRoot;
+        }
+    }
+    
+    if(t_low < t_up)
+    {
+        // Go a level deeper and see if there are any roots between t_low and t_up now
+        deeperRoot = frenkelRecursiveSearch(A, B, length, t_low, t_up, currentClock);
+        if(deeperRoot)
+        {
+            return deeperRoot;
+	}
+    }
+    
+    return foundRoot;
 }
+
 
 bool
 CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const

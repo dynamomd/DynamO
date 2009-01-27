@@ -95,7 +95,7 @@ protected:
 
   virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
 
-  virtual Iflt frenkelRecursiveSearch(orientationStreamType A, orientationStreamType B, Iflt t_low, Iflt t_up) { return HUGE_VAL; }
+  virtual Iflt frenkelRecursiveSearch(orientationStreamType A, orientationStreamType B, Iflt length, Iflt t_low, Iflt t_up, Iflt currentClock) const;
 
   virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
   virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B) const;
