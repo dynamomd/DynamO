@@ -373,7 +373,7 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
 	 eType);
 
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
-	-= dP / tmpval.getSpecies().getMass();
+	-= dP / structmass1;
       
       tmpval.calcDeltaKE();
       
@@ -388,7 +388,7 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
 	 eType);
 
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
-	+= dP / tmpval.getSpecies().getMass();
+	+= dP / structmass2;
       
       tmpval.calcDeltaKE();
       
