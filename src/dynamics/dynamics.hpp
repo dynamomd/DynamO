@@ -77,8 +77,6 @@ public:
 
   const CSpecies& getSpecies(const CParticle&) const;
   
-  void setAspectRatio(const CVector<> &);
-
   const smrtPlugPtr<CInteraction>& 
     getInteraction(const CParticle&, const CParticle&) const; 
   
@@ -123,36 +121,37 @@ public:
 
   void SystemOverlapTest();
   
-  CVector<> getLabVelocity(const CParticle &) const;
-  
   Iflt calcInternalEnergy() const;
 
   CDynamics* Clone() const { return new CDynamics(*this); }
 
-  std::vector<smrtPlugPtr<CInteraction> >& getInteractions();
-  const std::vector<smrtPlugPtr<CInteraction> >& getInteractions() const;
+  std::vector<smrtPlugPtr<CInteraction> >& getInteractions() { return interactions; }
+  const std::vector<smrtPlugPtr<CInteraction> >& getInteractions() const { return interactions; }
+
   smrtPlugPtr<CInteraction>& getInteraction(std::string);
   const smrtPlugPtr<CInteraction>& getInteraction(std::string) const;
 
-  const std::vector<smrtPlugPtr<CGlobal> >& getGlobals() const;
-  std::vector<smrtPlugPtr<CGlobal> >& getGlobals();
+  const std::vector<smrtPlugPtr<CGlobal> >& getGlobals() const { return globals; }
+  std::vector<smrtPlugPtr<CGlobal> >& getGlobals() { return globals; }
   smrtPlugPtr<CGlobal>& getGlobal(std::string);
   const smrtPlugPtr<CGlobal>& getGlobal(std::string) const;
 
-  const std::vector<smrtPlugPtr<CLocal> >& getLocals() const;
+  const std::vector<smrtPlugPtr<CLocal> >& getLocals() const { return locals; }
   smrtPlugPtr<CLocal>& getLocal(std::string);
   const smrtPlugPtr<CLocal>& getLocal(std::string) const;
 
-  const std::vector<CSpecies>& getSpecies() const;
+  const std::vector<CSpecies>& getSpecies() const { return species; }
   const CSpecies& getSpecies(std::string) const;
 
-  std::vector<smrtPlugPtr<CTopology> >& getTopology();
-  const std::vector<smrtPlugPtr<CTopology> >& getTopology() const;
+  std::vector<smrtPlugPtr<CTopology> >& getTopology() { return topology; }
+  const std::vector<smrtPlugPtr<CTopology> >& getTopology() const { return topology; }
+
   smrtPlugPtr<CTopology>& getTopology(std::string);
+
   const smrtPlugPtr<CTopology>& getTopology(std::string) const;
 
-  std::vector<smrtPlugPtr<CSystem> >& getSystemEvents();
-  const std::vector<smrtPlugPtr<CSystem> >& getSystemEvents() const;
+  std::vector<smrtPlugPtr<CSystem> >& getSystemEvents() { return systems; }
+  const std::vector<smrtPlugPtr<CSystem> >& getSystemEvents() const { return systems; }
   const smrtPlugPtr<CSystem>& getSystem(std::string) const;
   smrtPlugPtr<CSystem>& getSystem(std::string);
 
