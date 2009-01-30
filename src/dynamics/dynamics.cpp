@@ -44,18 +44,6 @@ CDynamics::CDynamics(const XMLNode& XML, DYNAMO::SimData* tmp):
 
 CDynamics::~CDynamics() {}
 
-std::vector<smrtPlugPtr<CTopology> >& 
-CDynamics::getTopology()
-{
-  return topology;
-}
-
-const std::vector<smrtPlugPtr<CTopology> >& 
-CDynamics::getTopology() const
-{
-  return topology;
-}
-
 smrtPlugPtr<CTopology>& 
 CDynamics::getTopology(std::string name)
 {
@@ -75,42 +63,6 @@ CDynamics::getTopology(std::string name) const
   
   D_throw() << "Could not find the topology " << name;
 }
-
-void 
-CDynamics::setAspectRatio(const CVector<> &AR)
-{ Sim->aspectRatio = AR;}
-
-const std::vector<smrtPlugPtr<CInteraction> >& 
-CDynamics::getInteractions() const
-{ return interactions; }
-
-std::vector<smrtPlugPtr<CInteraction> >& 
-CDynamics::getInteractions()
-{ return interactions; }
-
-const std::vector<smrtPlugPtr<CGlobal> >& 
-CDynamics::getGlobals() const
-{ return globals; }
-
-std::vector<smrtPlugPtr<CGlobal> >& 
-CDynamics::getGlobals()
-{ return globals; }
-
-const std::vector<smrtPlugPtr<CLocal> >& 
-CDynamics::getLocals() const
-{ return locals; }
-
-const std::vector<CSpecies> & 
-CDynamics::getSpecies() const
-{ return species; }
-
-std::vector<smrtPlugPtr<CSystem> >& 
-CDynamics::getSystemEvents()
-{ return systems; }
-
-const std::vector<smrtPlugPtr<CSystem> >& 
-CDynamics::getSystemEvents() const
-{ return systems; }
 
 const CSpecies& 
 CDynamics::getSpecies(const CParticle& p1) const 
@@ -298,21 +250,6 @@ CDynamics::addSystemTicker()
   
     addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
-
-void 
-CDynamics::setUnits(CUnits* Uptr)
-{
-  //If set twice the plugin pointer will delete the old copy
-  p_units.set_ptr(Uptr);
-}
-
-void 
-CDynamics::setLiouvillean(CLiouvillean* Uptr)
-{
-  //If set twice the plugin pointer will delete the old copy
-  p_liouvillean.set_ptr(Uptr);
-}
-
 
 CInteraction* 
 CDynamics::addInteraction(CInteraction* CInt)
@@ -660,13 +597,6 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
       << xmlw::endtag("Dynamics");
 }
 
-
-CVector<>
-CDynamics::getLabVelocity(const CParticle &part) const
-{
-  return part.getVelocity();
-}
-
 Iflt 
 CDynamics::getLongestInteraction() const
 {
@@ -699,3 +629,11 @@ CDynamics::SystemOverlapTest()
     for (iPtr2 = iPtr1 + 1; iPtr2 != Sim->vParticleList.end(); ++iPtr2)    
       getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 }
+
+void 
+CDynamics::setUnits(CUnits* Uptr) 
+{ p_units.set_ptr(Uptr); }
+
+void 
+CDynamics::setLiouvillean(CLiouvillean* Uptr) 
+{ p_liouvillean.set_ptr(Uptr); }
