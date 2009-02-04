@@ -55,7 +55,7 @@ COPPovray::printImage()
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\
-#declare zoom = 1.5;			   \n\
+#declare zoom = 1;			   \n\
 camera {				   \n\
  location <0, zoom, 0>			   \n\
  look_at  <0, 0, 0>			   \n\
