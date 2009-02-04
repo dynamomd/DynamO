@@ -442,34 +442,34 @@ CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 
 void 
 CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb, 
-				const CRange& range, 
+				const size_t& specID, 
 				std::ostream& os) const
 {
-  os << "#declare intrep" << ID << "center = " 
-     << "sphere {\n <0,0,0> " 
-     << diameter / 2.0
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
-  
-  DYNAMO::ColorMap<size_t> seqmap(0, alphabet.size() - 1);
+  DYNAMO::ColorMap<size_t> seqmap(0, alphabet.size() * Sim->Dynamics.getSpecies().size() - 1);
   
   for (size_t i(0); i < alphabet.size(); ++i)
     {
-      DYNAMO::RGB col(seqmap.getColor(i));
-      
-      os << "#declare intrep" << ID << "seqwell" << i << " = sphere {\n <0,0,0> " << diameter * lambda * 0.5
+      DYNAMO::RGB col(seqmap.getColor(i * Sim->Dynamics.getSpecies().size() + specID));
+
+      os << "#declare intrep" << ID << "center"<< i << " = " 
+	 << "sphere {\n <0,0,0> " 
+	 << diameter / 2.0
+	 << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G
+	 << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
+	 << "#declare intrep" << ID << "seqwell" << i
+	 << " = sphere {\n <0,0,0> " << diameter * lambda * 0.5
 	 << "\n texture { pigment { color rgbt <" << col.R << "," << col.G 
-	 << "," << col.B << "," << 0.9 << "> }}\n}\n";
+	 << "," << col.B << "," << 0.5 << "> }}\n}\n";
     }
 
-  BOOST_FOREACH(const size_t& part, range)
-    os << "object {\n intrep" << ID << "center\n translate < "
+  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
+    os << "object {\n intrep" << ID << "center"<< sequence[part % sequence.size()] << "\n translate < "
        << Sim->vParticleList[part].getPosition()[0] << ", " 
        << Sim->vParticleList[part].getPosition()[1] << ", " 
        << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
 
   os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, range)    
+  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     os << "object {\n intrep" << ID << "seqwell" << sequence[part % sequence.size()] << "\n translate < "
        << Sim->vParticleList[part].getPosition()[0] << ", " 
        << Sim->vParticleList[part].getPosition()[1] << ", " 

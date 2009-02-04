@@ -213,7 +213,7 @@ CIHardSphere::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 }
 
 void 
-CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range, 
+CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
   os << "#declare intrep" << ID << " = " 
@@ -222,7 +222,7 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range,
      << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
      << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
   
-  BOOST_FOREACH(const size_t& pid, range)
+  BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     {
       os << "object {\n intrep" << ID << "\n translate <"
 	 << Sim->vParticleList[pid].getPosition()[0];
