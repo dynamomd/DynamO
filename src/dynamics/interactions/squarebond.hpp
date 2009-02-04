@@ -53,6 +53,9 @@ public:
 
   virtual Iflt getInternalEnergy() const { return 0.0; }
 
+  virtual void 
+  write_povray_info(std::ostream&) const;
+
 protected:
 
   Iflt diameter,d2;

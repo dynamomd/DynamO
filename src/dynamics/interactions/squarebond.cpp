@@ -254,3 +254,32 @@ CISquareBond::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
 }
+
+void 
+CISquareBond::write_povray_info(std::ostream& os) const
+{  
+  BOOST_FOREACH(const CParticle& p1, Sim->vParticleList)
+    BOOST_FOREACH(const CParticle& p2, Sim->vParticleList)
+    if (range->isInRange(p1,p2) && (p1 != p2))
+    {
+      CVector<> pos1(p1.getPosition()), pos2(p2.getPosition());
+
+      if ((pos1-pos2).length() > 0.5) continue;
+      Sim->Dynamics.BCs().setPBC(pos1);
+      Sim->Dynamics.BCs().setPBC(pos2);
+
+      os << "cylinder {\n <"
+	 << pos1[0];
+			  
+      for (size_t iDim(1); iDim < NDIM; ++iDim)
+	os << "," << pos1[iDim];
+
+      os << ">, <" << pos2[0];
+
+      for (size_t iDim(1); iDim < NDIM; ++iDim)
+	os << "," << pos2[iDim];
+
+      os << ">, " << 0.1 * diameter << " pigment{color Green}}\n";
+    }  
+
+}

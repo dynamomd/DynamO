@@ -71,6 +71,9 @@ light_source { <0, 0, -zoom> color White } \n\
 ";
   DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
 
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+    intPtr->write_povray_info(of);
+
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
     spec.getIntPtr()->write_povray_desc
     (colmap.getColor(spec.getID()), *spec.getRange(), of);
