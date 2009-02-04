@@ -92,6 +92,10 @@ public:
   write_povray_desc(const DYNAMO::RGB&, const CRange&, std::ostream&) const
   {}
 
+  virtual void 
+  write_povray_info(std::ostream&) const 
+  {}
+
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const = 0;
 

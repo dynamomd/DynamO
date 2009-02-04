@@ -58,6 +58,10 @@ public:
 
   std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
+  virtual void write_povray_desc(const DYNAMO::RGB&, 
+				 const CRange&, 
+				 std::ostream&) const;
+
 protected:
   Iflt diameter,d2;
   Iflt lambda, ld2;

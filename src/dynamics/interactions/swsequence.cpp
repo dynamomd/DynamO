@@ -439,3 +439,42 @@ CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 	       << "\n(lambda * d)^2=" 
 	       << ld2 / pow(Sim->Dynamics.units().unitLength(),2);
 }
+
+void 
+CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb, 
+				const CRange& range, 
+				std::ostream& os) const
+{
+  os << "#declare intrep" << ID << "center = " 
+     << "sphere {\n <0,0,0> " 
+     << diameter / 2.0
+     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
+     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
+  
+  DYNAMO::ColorMap<size_t> seqmap(0, alphabet.size() - 1);
+  
+  for (size_t i(0); i < alphabet.size(); ++i)
+    {
+      DYNAMO::RGB col(seqmap.getColor(i));
+      
+      os << "#declare intrep" << ID << "seqwell" << i << " = sphere {\n <0,0,0> " << diameter * lambda * 0.5
+	 << "\n texture { pigment { color rgbt <" << col.R << "," << col.G 
+	 << "," << col.B << "," << 0.9 << "> }}\n}\n";
+    }
+
+  BOOST_FOREACH(const size_t& part, range)
+    os << "object {\n intrep" << ID << "center\n translate < "
+       << Sim->vParticleList[part].getPosition()[0] << ", " 
+       << Sim->vParticleList[part].getPosition()[1] << ", " 
+       << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
+
+  os << "merge {\n";
+  BOOST_FOREACH(const size_t& part, range)    
+    os << "object {\n intrep" << ID << "seqwell" << sequence[part % sequence.size()] << "\n translate < "
+       << Sim->vParticleList[part].getPosition()[0] << ", " 
+       << Sim->vParticleList[part].getPosition()[1] << ", " 
+       << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
+  
+  os << "}\n";
+
+}
