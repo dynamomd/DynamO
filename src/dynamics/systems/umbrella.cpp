@@ -93,6 +93,17 @@ CSUmbrella::initialise(size_t nID)
 {
   ID = nID;
 
+  BOOST_FOREACH(const size_t& id, *range1)
+    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+
+  BOOST_FOREACH(const size_t& id, *range2)
+    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+  
+  CPDData partdata(*Sim, *range1, *range2);
+
+  if (partdata.rij.square() > w2)
+    I_cerr() << "WARNING: The centres of mass are already outside the umbrella's well";
+
   recalculateTime();
   Sim->registerParticleUpdateFunc
     (fastdelegate::MakeDelegate(this, &CSUmbrella::particlesUpdated));
