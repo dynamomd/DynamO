@@ -59,7 +59,7 @@ public:
   std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
   virtual void write_povray_desc(const DYNAMO::RGB&, 
-				 const CRange&, 
+				 const size_t&, 
 				 std::ostream&) const;
 
 protected:

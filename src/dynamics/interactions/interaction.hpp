@@ -89,7 +89,7 @@ public:
   inline const size_t& getID() const { return ID; }
 
   virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const CRange&, std::ostream&) const
+  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const
   {}
 
   virtual void 

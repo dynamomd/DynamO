@@ -346,7 +346,7 @@ CISquareWell::outputXML(xmlw::XmlStream& XML) const
 
 void 
 CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb, 
-				const CRange& range, 
+				const size_t& specID, 
 				std::ostream& os) const
 {
   os << "#declare intrep" << ID << "center = " 
@@ -358,14 +358,14 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
      << "\n texture { pigment { color rgbt <" << rgb.R << "," << rgb.G 
      << "," << rgb.B << "," << 0.95 << "> }}\n}\n";
 
-  BOOST_FOREACH(const size_t& part, range)
+  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     os << "object {\n intrep" << ID << "center\n translate < "
        << Sim->vParticleList[part].getPosition()[0] << ", " 
        << Sim->vParticleList[part].getPosition()[1] << ", " 
        << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
 
   os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, range)
+  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     os << "object {\n intrep" << ID << "well\n translate < "
        << Sim->vParticleList[part].getPosition()[0] << ", " 
        << Sim->vParticleList[part].getPosition()[1] << ", " 

@@ -284,7 +284,7 @@ CILines::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {}
 
 void 
-CILines::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range, 
+CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 			   std::ostream& os) const
 {
   try {
@@ -295,7 +295,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const CRange& range,
       D_throw() << "Liouvillean is not an orientation liouvillean!";
     }
   
-  BOOST_FOREACH(const size_t& pid, range)
+  BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     {
       const CParticle& part(Sim->vParticleList[pid]);
 

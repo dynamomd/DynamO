@@ -53,7 +53,7 @@ public:
   { return -(getTotalCaptureCount() * wellDepth); }
 
   virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const CRange&, std::ostream&) const;
+  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
 
 protected:
   Iflt diameter,d2;

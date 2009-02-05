@@ -55,7 +55,8 @@ COPPovray::printImage()
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\
-#declare zoom = 1;			   \n\
+#declare zoom = 1.5;			   \n\
+global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
  location <0, zoom, 0>			   \n\
  look_at  <0, 0, 0>			   \n\
@@ -76,7 +77,7 @@ light_source { <0, 0, -zoom> color White } \n\
 
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
     spec.getIntPtr()->write_povray_desc
-    (colmap.getColor(spec.getID()), *spec.getRange(), of);
+    (colmap.getColor(spec.getID()), spec.getID(), of);
   
   of.close();
 }
