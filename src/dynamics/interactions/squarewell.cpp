@@ -355,8 +355,7 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
      << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
      << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
      << "#declare intrep" << ID << "well = sphere {\n <0,0,0> " << diameter * lambda * 0.5
-     << "\n texture { pigment { color rgbt <" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "," << 0.95 << "> }}\n}\n";
+     << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
 
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     os << "object {\n intrep" << ID << "center\n translate < "

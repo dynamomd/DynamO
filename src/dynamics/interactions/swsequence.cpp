@@ -458,8 +458,7 @@ CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb,
 	 << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
 	 << "#declare intrep" << ID << "seqwell" << i
 	 << " = sphere {\n <0,0,0> " << diameter * lambda * 0.5
-	 << "\n texture { pigment { color rgbt <" << col.R << "," << col.G 
-	 << "," << col.B << "," << 0.5 << "> }}\n}\n";
+	 << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
     }
 
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
