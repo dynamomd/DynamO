@@ -25,15 +25,8 @@
 
 CICapture::CICapture(DYNAMO::SimData* tmp,C2Range* nR): 
   CInteraction(tmp,nR),
-  noXmlLoad(true),
-  captures(0)
+  noXmlLoad(true)
 {}
-
-size_t
-CICapture::getTotalCaptureCount() const
-{
-  return captures;
-}
 
 void 
 CICapture::initCaptureMap()
@@ -75,7 +68,6 @@ CICapture::loadCaptureMap(const XMLNode& XML)
 
       noXmlLoad = false;
 
-      captures = 0;
       captureMap.clear();
 
       int xml_iter = 0;
@@ -84,12 +76,10 @@ CICapture::loadCaptureMap(const XMLNode& XML)
 	{
 	  browseNode = subNode.getChildNode("Pair",&xml_iter);
 	  
-	  captureMap
-	    .insert(std::pair<size_t, size_t>
-		    (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
-		     boost::lexical_cast<size_t>(browseNode.getAttribute("ID2"))));
-	  
-	  ++captures;
+	  captureMap.insert
+	    (std::pair<size_t, size_t>
+	     (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
+	      boost::lexical_cast<size_t>(browseNode.getAttribute("ID2"))));
 	}
     }
 }
@@ -146,8 +136,6 @@ CICapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
   (p1.getID() < p2.getID())
     ? captureMap.insert(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
     : captureMap.insert(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
-  
-    ++captures;
 }
 
 void 
@@ -171,6 +159,4 @@ CICapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
     : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
   
 #endif
-  
-  --captures;
 }

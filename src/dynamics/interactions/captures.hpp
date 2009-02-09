@@ -33,8 +33,9 @@ class CICapture: public CInteraction
 public:
   CICapture(DYNAMO::SimData*, C2Range*);
 
-  size_t getTotalCaptureCount() const;
-
+  inline size_t getTotalCaptureCount() const
+  { return captureMap.size(); }
+  
   bool isCaptured(const CParticle&, const CParticle&) const;
 
   virtual Iflt getInternalEnergy() const = 0;
@@ -44,8 +45,6 @@ protected:
   mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
 
   bool noXmlLoad;
-
-  mutable size_t captures;
 
   virtual bool captureTest(const CParticle&, const CParticle&) const = 0;
 
