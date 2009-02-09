@@ -15,21 +15,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
-#include "vtk.hpp"
-#include "msdcorrelator.hpp"
-#include "kenergyticker.hpp"
-#include "structureImage.hpp"
 #include "streamticker.hpp"
+#include <fstream>
+#include <boost/foreach.hpp>
+#include "../../extcode/xmlwriter.hpp"
+#include "../../dynamics/include.hpp"
+#include "../../base/is_exception.hpp"
+#include "../../base/is_simdata.hpp"
+#include "../../base/is_colormap.hpp"
+#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include "../../dynamics/interactions/squarebond.hpp"
+#include "../../dynamics/ranges/2RList.hpp"
+#include "../../dynamics/liouvillean/OrientationL.hpp"
+
+COPStreamTicker::COPStreamTicker(const DYNAMO::SimData* tmp, const XMLNode&):
+  COPTicker(tmp,"StreamTicker")
+{}
+
+void 
+COPStreamTicker::ticker()
+{}
+
