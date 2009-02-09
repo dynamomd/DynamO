@@ -756,10 +756,8 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 	
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	if (molFrac < 0.1)
-	  Sim->Dynamics.addGlobal(new CGListAndCell(Sim, "SchedulerNBList"));
-	else
-	  Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
