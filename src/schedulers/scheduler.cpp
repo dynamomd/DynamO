@@ -118,6 +118,12 @@ CScheduler::runNextEvent() const
 	D_throw() << "Next particle list is empty but top of list!";
 #endif  
     }
+
+#ifdef DYNAMO_DEBUG
+  if (sorter->next_Data().top().dt < 0)
+    D_throw() << "Next event time is negative "
+	      << sorter->next_Data().top().dt;
+#endif  
   
   switch (sorter->next_Data().top().type)
     {
