@@ -171,7 +171,7 @@ CIPPacker::initialise()
       {
 	//Pack of hard spheres
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -220,7 +220,7 @@ CIPPacker::initialise()
       {
 	//Pack of square well molecules
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -408,7 +408,7 @@ CIPPacker::initialise()
 	else
 	  tmpPtr = new CUFile(CVector<>(diamScale), fileName, new CUParticle());
 	
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(tmpPtr));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(tmpPtr));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -447,7 +447,7 @@ CIPPacker::initialise()
       {
 	//FCC simple cubic pack of hard spheres with inelasticity and shearing
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -735,8 +735,9 @@ CIPPacker::initialise()
       {
 	//Pack of binary hard spheres
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
-	boost::shared_ptr<CUCell> packptr2(
+	boost::scoped_ptr<CUCell> packptr
+	  (new CURandomise(standardPackingHelper(new CUParticle())));
+
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -818,7 +819,7 @@ CIPPacker::initialise()
       {
 	//Pack of lines
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -869,7 +870,7 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard spheres
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -939,7 +940,7 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard spheres
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -1008,7 +1009,7 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard sphere mixture
 	//Pack the system, determine the number of particles
-	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
 	std::vector<CVector<> > 
@@ -1251,10 +1252,10 @@ CIPPacker::getNormalisedCellDimensions()
   return retval;
 }
 
-boost::shared_ptr<CUCell>
+CUCell*
 CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 {
-  boost::shared_ptr<CUCell> sysPack;
+  CUCell* sysPack;
 
   CVector<> boxDimensions(1.0);
 
@@ -1264,23 +1265,23 @@ CIPPacker::standardPackingHelper(CUCell* tmpPtr)
     }
 
   if (!vm.count("i1"))
-    sysPack.reset(new CUFCC(getCells(), boxDimensions, tmpPtr));
+    sysPack = new CUFCC(getCells(), boxDimensions, tmpPtr);
   else
     switch (vm["i1"].as<size_t>())
       {
       case 0:
 	{
-	  sysPack.reset(new CUFCC(getCells(), boxDimensions, tmpPtr));
+	  sysPack = new CUFCC(getCells(), boxDimensions, tmpPtr);
 	  break;
 	}
       case 1:
 	{
-	  sysPack.reset(new CUBCC(getCells(), boxDimensions, tmpPtr));
+	  sysPack = new CUBCC(getCells(), boxDimensions, tmpPtr);
 	  break;
 	}
       case 2:
 	{
-	  sysPack.reset(new CUSC(getCells(), boxDimensions, tmpPtr));
+	  sysPack = new CUSC(getCells(), boxDimensions, tmpPtr);
 	  break;
 	}
       default:
