@@ -15,21 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
-#include "vtk.hpp"
-#include "msdcorrelator.hpp"
-#include "kenergyticker.hpp"
-#include "structureImage.hpp"
-#include "streamticker.hpp"
+#ifndef COPStreamTicker_H
+#define COPStreamTicker_H
+
+#include "ticker.hpp"
+
+class COPStreamTicker: public COPTicker
+{
+ public:
+  COPStreamTicker(const DYNAMO::SimData*, const XMLNode&);
+
+  virtual COutputPlugin *Clone() const
+  { return new COPStreamTicker(*this); }
+
+  virtual void initialise() {}
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+  
+ protected:
+};
+
+#endif

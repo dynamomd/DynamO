@@ -126,6 +126,8 @@ CGCellsShearing::init_cells()
 void 
 CGCellsShearing::runEvent(const CParticle& part) const
 {
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+  
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
@@ -136,8 +138,6 @@ CGCellsShearing::runEvent(const CParticle& part) const
   
   //long inPosition;
   size_t endCell;
-  
-  Sim->Dynamics.Liouvillean().updateParticle(part);
   
   //This is required to get the correct sign on the velocity
   CVector<> rpos(part.getPosition() 

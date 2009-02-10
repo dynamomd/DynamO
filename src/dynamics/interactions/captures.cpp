@@ -32,10 +32,9 @@ void
 CICapture::initCaptureMap()
 {
   //If not loaded or invalidated
-  if (noXmlLoad || (captureMap.size() != Sim->lN))
+  if (noXmlLoad)
     {      
-      if (captureMap.size() != Sim->lN)
-	I_cout() << "Change in the number of particles invalidates the capture map!";
+	I_cout() << "Capture map reinitialising";
       
       captureMap.clear();
       

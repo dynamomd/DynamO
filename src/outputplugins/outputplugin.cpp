@@ -126,6 +126,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPCTorsion>(Sim, XML);
   else if (!Name.compare("Geomview"))
     return testGeneratePlugin<COPGeomview>(Sim, XML);
+  else if (!Name.compare("Streamticker"))
+    return testGeneratePlugin<COPStreamTicker>(Sim, XML);
   else if (!Name.compare("KEnergy"))
     return testGeneratePlugin<COPKEnergy>(Sim, XML);
   else if (!Name.compare("UEnergy"))

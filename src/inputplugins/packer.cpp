@@ -756,7 +756,9 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 	
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	

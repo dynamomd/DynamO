@@ -35,4 +35,5 @@ cd /tmp
 echo $oldPWD/$1
 dynarun $oldPWD/$1 -c 0 -E -L Povray
 cd $oldPWD
-povray +P -W1024 -H768 /tmp/Povray.frame1.pov
+povray +P -W1024 -H768 /tmp/Povray.frame0.pov
+rm /tmp/Povray.frame0.pov
