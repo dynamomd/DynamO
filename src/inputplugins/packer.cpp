@@ -171,8 +171,11 @@ CIPPacker::initialise()
       {
 	//Pack of hard spheres
 	//Pack the system, determine the number of particles
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
 	std::vector<CVector<> > 
-	  latticeSites(standardPackingHelper(new CUParticle()));
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -217,8 +220,11 @@ CIPPacker::initialise()
       {
 	//Pack of square well molecules
 	//Pack the system, determine the number of particles
-	std::vector<CVector<> > latticeSites(standardPackingHelper
-					     (new CUParticle()));
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<CVector<> > 
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
 
 	if (vm.count("rectangular-box"))
 	  {
@@ -402,8 +408,12 @@ CIPPacker::initialise()
 	else
 	  tmpPtr = new CUFile(CVector<>(diamScale), fileName, new CUParticle());
 	
-	std::vector<CVector<> > latticeSites(standardPackingHelper(tmpPtr));
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(tmpPtr));
+	packptr->initialise();
 	
+	std::vector<CVector<> > 
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+
 	//Set up the system now
 	//old scheduler
 	//Sim->ptrScheduler = new CSMultList(Sim);
@@ -437,8 +447,11 @@ CIPPacker::initialise()
       {
 	//FCC simple cubic pack of hard spheres with inelasticity and shearing
 	//Pack the system, determine the number of particles
-	std::vector<CVector<> > latticeSites
-	  (standardPackingHelper(new CUParticle()));
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<CVector<> > 
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
 
 	if (vm.count("rectangular-box"))
 	  {
@@ -722,8 +735,12 @@ CIPPacker::initialise()
       {
 	//Pack of binary hard spheres
 	//Pack the system, determine the number of particles
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::shared_ptr<CUCell> packptr2(
+	packptr->initialise();
+	
 	std::vector<CVector<> > 
-	  latticeSites(standardPackingHelper(new CUParticle()));
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
       	
 	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -801,8 +818,11 @@ CIPPacker::initialise()
       {
 	//Pack of lines
 	//Pack the system, determine the number of particles
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
 	std::vector<CVector<> > 
-	  latticeSites(standardPackingHelper(new CUParticle()));
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -849,8 +869,11 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard spheres
 	//Pack the system, determine the number of particles
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
 	std::vector<CVector<> > 
-	  latticeSites(standardPackingHelper(new CUParticle()));
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -916,8 +939,11 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard spheres
 	//Pack the system, determine the number of particles
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
 	std::vector<CVector<> > 
-	  latticeSites(standardPackingHelper(new CUParticle()));
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -982,8 +1008,11 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard sphere mixture
 	//Pack the system, determine the number of particles
+	boost::shared_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
 	std::vector<CVector<> > 
-	  latticeSites(standardPackingHelper(new CUParticle()));
+	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -1222,10 +1251,10 @@ CIPPacker::getNormalisedCellDimensions()
   return retval;
 }
 
-std::vector<CVector<> >
+boost::shared_ptr<CUCell>
 CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 {
-  boost::scoped_ptr<CUCell> sysPack;
+  boost::shared_ptr<CUCell> sysPack;
 
   CVector<> boxDimensions(1.0);
 
@@ -1258,8 +1287,8 @@ CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 	D_throw() << "Not a valid packing type (--i1)";
       }
   
-  sysPack->initialise();
-  return sysPack->placeObjects(CVector<>(0.0));
+
+  return sysPack;;
 }
 
 CVector<long> 

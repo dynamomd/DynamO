@@ -19,6 +19,8 @@
 #include "../base/is_base.hpp"
 #include "../datatypes/vector.hpp"
 #include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
+
 using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
@@ -40,7 +42,7 @@ class CIPPacker: public DYNAMO::SimBase
   CVector<long> getCells();
   CVector<> getNormalisedCellDimensions();
   CVector<> getRandVelVec();
-  std::vector<CVector<> > standardPackingHelper(CUCell* );
+  boost::shared_ptr<CUCell> standardPackingHelper(CUCell* );
 
   po::variables_map& vm;
 };

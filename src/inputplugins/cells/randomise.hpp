@@ -15,12 +15,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fcc.hpp"
-#include "bcc.hpp"
-#include "sc.hpp"
-#include "file.hpp"
-#include "randomwalk.hpp"
-#include "helix.hpp"
-#include "mirror.hpp"
-#include "ringRod.hpp"
-#include "randomise.hpp"
+#pragma once
+#include "cell.hpp"
+#include "../../datatypes/vector.hpp"
+#include <algorithm>
+
+struct CURandomise: public CUCell
+{
+  CURandomise(CUCell* nextCell):
+    CUCell(nextCell)
+  {}
+
+  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  {
+    //Must be placed at zero for the mirroring to work correctly
+    std::vector<CVector<> > retval(uc->placeObjects(CVector<>(centre)));
+    
+    std::random_shuffle(retval.begin(), retval.end());
+    
+    return retval;    
+  }
+};
