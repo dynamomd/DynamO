@@ -27,6 +27,7 @@
 #include "../ranges/2RSingle.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
+#include "../BC/LEBC.hpp"
 
 CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
 				 const std::string& name):
@@ -43,6 +44,18 @@ CGCellsShearing::CGCellsShearing(const XMLNode &XML,
   operator<<(XML);
 
   I_cout() << "Cells in shearing Loaded";
+}
+
+void 
+CGCellsShearing::initialise(size_t nID)
+{
+  ID=nID;
+  
+  if (dynamic_cast<const CLEBC *>(&(Sim->Dynamics.BCs())) == NULL)
+    D_throw() << "You cannot use the shearing neighbour list"
+	      << " in a system without Lees Edwards BC's";
+
+  reinitialise(Sim->Dynamics.getLongestInteraction());
 }
 
 void 

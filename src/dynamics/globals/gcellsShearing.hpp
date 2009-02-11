@@ -30,6 +30,8 @@ public:
   CGCellsShearing(DYNAMO::SimData*, const std::string&);
   
   virtual ~CGCellsShearing() {}
+
+  virtual void initialise(size_t);
   
   virtual CGlobal* Clone() const 
   { return new CGCellsShearing(*this); }
