@@ -283,7 +283,7 @@ CGCellsShearing::getExtraLEParticleNeighbourhood(const CParticle& part,
   //Get the y plane to test in
   if (coords[1])
     {
-      //At the top assuming the above debug statement won't trigger
+      //At the top, assuming the above debug statement won't trigger
       coords[1] = 0;
       cellID -= cellCount[0] * (cellCount[1] - 1);
     }
