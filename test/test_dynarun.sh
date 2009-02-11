@@ -304,6 +304,59 @@ function ThermostatTest {
 	tmp.xml.bz2 run.log
 }
 
+function HardSphereTest {
+    > run.log
+
+    $Dynamod -m 0 &> run.log    
+    $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
+    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{printf "%.3f",$1}') != "0.130" ]; then
+	    echo "HardSphereTest -: FAILED"
+	    exit 1
+	else
+	    echo "HardSphereTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in Hard Sphere test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
+function SquareWellTest {
+    > run.log
+
+    $Dynamod -m 1 &> run.log    
+    $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
+    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{var=($1-0.0365025)/0.0365025; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "SquareWellTest -: FAILED"
+	    exit 1
+	else
+	    echo "SquareWellTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in Square Well test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
+
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
 cannon "Dumb" "CBT"
@@ -313,6 +366,14 @@ echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neigh
 cannon "NeighbourList" "CBT"
 echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
 cannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "INTERACTIONS"
+echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
+HardSphereTest
+
+#echo "Testing Lines, NeighbourLists and BoundedPQ's"
+#linescannon "NeighbourList" "BoundedPQ"
 
 echo ""
 echo "SYSTEM EVENTS"
@@ -326,11 +387,6 @@ echo ""
 echo "LOCAL EVENTS"
 echo "Testing local events (walls) and square wells"
 wallsw "NeighbourList"
-
-echo ""
-echo "INTERACTIONS"
-#echo "Testing Lines, NeighbourLists and BoundedPQ's"
-#linescannon "NeighbourList" "BoundedPQ"
 
 echo ""
 echo "ENGINE TESTING"
