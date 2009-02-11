@@ -40,6 +40,12 @@ public:
   
   virtual void runEvent(const CParticle&) const;
 
+  virtual void getParticleNeighbourhood(const CParticle&, 
+					const nbHoodFunc&) const;
+
+  void getExtraLEParticleNeighbourhood(const CParticle& part,
+				       const nbHoodFunc& func) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 };

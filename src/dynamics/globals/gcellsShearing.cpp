@@ -88,7 +88,12 @@ CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
 void 
 CGCellsShearing::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+
+
+
+
+  /////////////////////////////EDIT MAGINOT LINE
+  /*Sim->Dynamics.Liouvillean().updateParticle(part);
   
   size_t oldCell(partCellData[part.getID()].cell);
 
@@ -243,4 +248,82 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
   }
 #endif  
+
+  */
 }
+
+void 
+CGCellsShearing::getParticleNeighbourhood(const CParticle& part,
+				   const nbHoodFunc& func) const
+{
+  CGCells2::getParticleNeighbourhood(part, func);
+  
+  CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
+  if ((coords[1] == 0) || (coords[1] == cellCount[1] - 1))
+    getExtraLEParticleNeighbourhood(part, func);
+
+}
+
+void 
+CGCellsShearing::getExtraLEParticleNeighbourhood(const CParticle& part,
+					  const nbHoodFunc& func) const
+{
+  size_t cellID = partCellData[part.getID()].cell;
+  CVector<int> coords(cells[cellID].coords);
+  
+#ifdef DYNAMO_DEBUG
+  if ((coords[1] != 0) && (coords[1] != cellCount[1] - 1))
+    D_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
+#endif 
+
+  //Move to the bottom of x
+  coords[0] = 0;
+  cellID -= coords[0];
+  
+  //Get the y plane to test in
+  if (coords[1])
+    {
+      //At the top assuming the above debug statement won't trigger
+      coords[1] = 0;
+      cellID -= cellCount[0] * (cellCount[1] - 1);
+    }
+  else
+    {
+      //At the bottom
+      coords[1] = cellCount[1] - 1;
+      cellID += cellCount[0] * (cellCount[1] - 1);
+    }
+  
+  ////Move a single cell down in Z
+  if (coords[2])
+    {
+      //Got room to move down
+      --coords[2];
+      cellID -= cellCount[0] * cellCount[1];
+    }
+  else
+    {
+      //Already at the bottom of the Z component, need to wrap
+      coords[2] = cellCount[2] - 1;
+      cellID += cellCount[0] * cellCount[1] * (cellCount[2] - 1);
+    }
+  
+  
+  for (int i(0); i < 3; ++i)
+    {
+      if (coords[2] + i == cellCount[2]) cellID -= cellCount[0] * cellCount[1] * cellCount[2];
+
+      for (int j(0); j < cellCount[0]; ++j)
+	{
+	  for (int next(cells[cellID].list);
+	       next >= 0; next = partCellData[next].next)
+	    if (next != int(part.getID()))
+	      func(part, next);
+
+	  ++cellID;
+	}
+    
+      cellID += cellCount[0] * (cellCount[1] - 1);
+    }
+}
+
