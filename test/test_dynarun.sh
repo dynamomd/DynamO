@@ -371,7 +371,8 @@ echo ""
 echo "INTERACTIONS"
 echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
 HardSphereTest
-
+echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
+SquareWellTest
 #echo "Testing Lines, NeighbourLists and BoundedPQ's"
 #linescannon "NeighbourList" "BoundedPQ"
 
