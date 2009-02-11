@@ -30,7 +30,7 @@
 
 CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
 				 const std::string& name):
-  CGCells(nSim, "ShearingCells", NULL)
+  CGCells2(nSim, "ShearingCells", NULL)
 {
   globName = name;
   I_cout() << "Shearing Cells Loaded";
@@ -38,7 +38,7 @@ CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim,
 
 CGCellsShearing::CGCellsShearing(const XMLNode &XML, 
 				 DYNAMO::SimData* ptrSim):
-  CGCells(ptrSim, "ShearingCells")
+  CGCells2(ptrSim, "ShearingCells")
 {
   operator<<(XML);
 
@@ -70,57 +70,6 @@ CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "ShearingCells"
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
-}
-
-void
-CGCellsShearing::init_cells()
-{
-  CGCells::init_cells();
-
-  //Boundaries are LE, modify the Cell list
-  I_cout() << "Linking cells required for LE BC";
-  
-  //build a list of neighbours for the bottom cells
-  //Holds the displacement in each dimension, the unit is cells!
-  CVector<long> displacement;
-  
-  displacement[1] = -1;
-  
-  std::list<CVector<long> > neighbourVectors;
-  
-  for (displacement[0] = 0; displacement[0] < cellCount[0]; ++displacement[0])
-    for (displacement[2] = -1; displacement[2] < 2; ++displacement[2])
-      //Add the current vector to the list
-      neighbourVectors.push_back (displacement);
-  
-  for (int i = 0; i < cellCount[0]; i++)
-    for (int j = 0; j < cellCount[2]; j++)
-      {
-	CVector<long> currentCell;
-	currentCell[0] = i;
-	currentCell[1] = 0;
-	currentCell[2] = j;
-	
-	BOOST_FOREACH(CVector<long>& disp, neighbourVectors)
-	  {
-	    //Positive direction
-	    size_t currentID = getCellID(currentCell),
-	      oppositeID = getCellID(currentCell + disp);
-
-	    //Check its not already in the list
-	    if (std::find(cells[currentID].neighbours.begin(), 
-			  cells[currentID].neighbours.end(), 
-			  oppositeID) == cells[currentID].neighbours.end())
-	      cells[currentID].neighbours.push_back(oppositeID);
-
-
-	    //Add the mirror neighbour
-	    if (std::find(cells[oppositeID].neighbours.begin(), 
-			  cells[oppositeID].neighbours.end(), 
-			  currentID) == cells[oppositeID].neighbours.end())
-	      cells[oppositeID].neighbours.push_back(currentID);
-	  }
-      }
 }
 
 void 

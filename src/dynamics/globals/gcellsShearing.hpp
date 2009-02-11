@@ -18,11 +18,11 @@
 #ifndef CGCellsShearing_HPP
 #define CGCellsShearing_HPP
 
-#include "gcells.hpp"
+#include "gcells2.hpp"
 #include "../ranges/1range.hpp"
 
 
-class CGCellsShearing: public CGCells
+class CGCellsShearing: public CGCells2
 {
 public:
   CGCellsShearing(const XMLNode&, DYNAMO::SimData*);
@@ -40,8 +40,6 @@ public:
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
-
-  virtual void init_cells();
 };
 
 #endif
