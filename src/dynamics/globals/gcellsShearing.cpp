@@ -89,9 +89,43 @@ void
 CGCellsShearing::runEvent(const CParticle& part) const
 {
 
+  size_t oldCell(partCellData[part.getID()].cell);
 
+  //Determine the cell transition direction, its saved
+  size_t cellDirection(Sim->Dynamics.Liouvillean().
+		       getSquareCellCollision3
+		       (part, cells[oldCell].origin, 
+			cellDimension));
 
+  if ((cellDirection != 1)
+      || (cells[oldCell].coords[1] 
+	  != (std::signbit(vel[1]) ? 0 : (cellCount[1] - 1))))
+    {
+      size_t cellpow(1);
+      
+      for (size_t iDim(0); iDim < cellDirection; ++iDim)
+	cellpow *= cellCount[iDim];
+      
+      int velsign = 2 * (part.getVelocity()[cellDirection] > 0) - 1;
+      int offset = (part.getVelocity()[cellDirection] > 0) * (cellCount[cellDirection] - 1);
+      int endCell(oldCell + cellpow * velsign), inCell(oldCell + 2 * cellpow * velsign);
+      
+      {
+	int tmpint = velsign * cellpow * cellCount[cellDirection];
+	if (cells[oldCell].coords[cellDirection] == offset)
+	  {
+	    endCell -= tmpint;
+	    inCell -= tmpint;
+	  }
+	else if (cells[oldCell].coords[cellDirection] == offset - velsign)
+	  inCell -= tmpint;
+      }
 
+      removeFromCell(part.getID());
+      addToCell(part.getID(), endCell);
+    }
+  else
+    {
   /////////////////////////////EDIT MAGINOT LINE
   /*Sim->Dynamics.Liouvillean().updateParticle(part);
   
@@ -184,72 +218,93 @@ CGCellsShearing::runEvent(const CParticle& part) const
       
       BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
 	nbs.second(part, oldCell);
+  */
     }
-  else
-    {
-      size_t inPosition;
-      if (std::signbit(vel[cellDirection])) 
-	{
-	  endCell = cells[oldCell].negCells[cellDirection];
-	  inPosition = cells[cells[endCell].negCells[cellDirection]]
-	    .coords[cellDirection];	  
-	}
-      else
-	{
-	  endCell = cells[oldCell].posCells[cellDirection];
-	  inPosition = cells[cells[endCell].posCells[cellDirection]]
-	    .coords[cellDirection];
-	}
 
-      removeFromCell(part.getID());
-      addToCell(part.getID(), endCell);
+  //Get rid of the virtual event that is next, update is delayed till
+  //after all events are added
+  Sim->ptrScheduler->popNextEvent();
+  
+  CVector<int> coords(cells[inCell].coords);
+  
+  //Particle has just arrived into a new cell warn the scheduler about
+  //its new neighbours so it can add them to the heap
+  //Holds the displacement in each dimension, the unit is cells!
+  BOOST_STATIC_ASSERT(NDIM==3);
       
-      //Get rid of the virtual event that is next, update is delayed till
-      //after all events are added
-      Sim->ptrScheduler->popNextEvent();
+  //These are the two dimensions to walk in
+  size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
+    dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
       
-      //Particle has just arrived into a new cell warn the scheduler about
-      //its new neighbours so it can add them to the heap
-      BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
-	if (static_cast<size_t>(cells[nb].coords[cellDirection]) == inPosition)
-	  for (int next = cells[nb].list; next != -1; 
+  size_t dim1pow(1), dim2pow(1);
+      
+  for (size_t iDim(0); iDim < dim1; ++iDim)
+    dim1pow *= cellCount[iDim];
+      
+  for (size_t iDim(0); iDim < dim2; ++iDim)
+    dim2pow *= cellCount[iDim];
+      
+  if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
+  if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
+      
+  int nb(getCellIDprebounded(coords));
+      
+  //We now have the lowest cell coord, or corner of the cells to update
+  for (int iDim(0); iDim < 3; ++iDim)
+    {
+      if (coords[dim2] + iDim == cellCount[dim2]) 
+	nb -= dim2pow * cellCount[dim2];
+	  
+      for (int jDim(0); jDim < 3; ++jDim)
+	{	  
+	  if (coords[dim1] + jDim == cellCount[dim1]) 
+	    nb -= dim1pow * cellCount[dim1];
+	      
+	  for (int next = cells[nb].list; next >= 0; 
 	       next = partCellData[next].next)
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	    nbs.second(part, next);
-      
-      //Tell about the new locals
-      BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-	nbs.second(part, lID);
-      
-      //Push the next virtual event, this is the reason the scheduler
-      //doesn't need a second callback
-      Sim->ptrScheduler->pushEvent(part, CGCells::getEvent(part));
-      Sim->ptrScheduler->sort(part);
-      
-      BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
-	nbs.second(part, oldCell);
+	      nbs.second(part, next);
+	      
+	  nb += dim1pow;
+	}
+	  
+      if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
+	  
+      nb += dim2pow - 3 * dim1pow;
     }
+      
+  //Tell about the new locals
+  BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
+    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+    nbs.second(part, lID);
+      
+  //Push the next virtual event, this is the reason the scheduler
+  //doesn't need a second callback
+  Sim->ptrScheduler->pushEvent(part, getEvent(part));
+  Sim->ptrScheduler->sort(part);
+
+  BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
+    nbs.second(part, oldCell);
+  
+  //This doesn't stream the system as its a virtual event
 
   //Debug section
 #ifdef DYNAMO_WallCollDebug
   {      
-    CVector<long> tmp = cells[oldCell].coords;
-    CVector<long> tmp2 = cells[endCell].coords;
+    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
+    CVector<int> tmp2 = cells[endCell].coords;
     
-    std::cerr << "\nsysdt " 
-	      << (eevent.getdt() + Sim->dSysTime)
+    std::cerr << "\nCGWall sysdt " 
+	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
-	      << "  dt " << eevent.getdt()
 	      << "  from <" 
 	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
 	      << "> to <" 
 	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
   }
-#endif  
+#endif
 
-  */
 }
 
 void 
