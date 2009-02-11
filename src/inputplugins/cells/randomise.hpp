@@ -16,33 +16,23 @@
 */
 
 #pragma once
-#include "../base/is_base.hpp"
-#include "../datatypes/vector.hpp"
-#include <boost/program_options.hpp>
-#include <boost/shared_ptr.hpp>
+#include "cell.hpp"
+#include "../../datatypes/vector.hpp"
+#include <algorithm>
 
-using namespace std;
-using namespace boost;
-namespace po = boost::program_options;
-
-class CUCell;
-
-class CIPPacker: public DYNAMO::SimBase
+struct CURandomise: public CUCell
 {
- public:
-  CIPPacker(po::variables_map&, DYNAMO::SimData* tmp);
+  CURandomise(CUCell* nextCell):
+    CUCell(nextCell)
+  {}
 
-  void initialise();
-
-  static po::options_description getOptions();
-
-  void processOptions();
-
- protected:
-  CVector<long> getCells();
-  CVector<> getNormalisedCellDimensions();
-  CVector<> getRandVelVec();
-  CUCell* standardPackingHelper(CUCell* );
-
-  po::variables_map& vm;
+  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  {
+    //Must be placed at zero for the mirroring to work correctly
+    std::vector<CVector<> > retval(uc->placeObjects(CVector<>(centre)));
+    
+    std::random_shuffle(retval.begin(), retval.end());
+    
+    return retval;    
+  }
 };
