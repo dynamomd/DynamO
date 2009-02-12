@@ -97,9 +97,35 @@ CGCellsShearing::runEvent(const CParticle& part) const
 		       (part, cells[oldCell].origin, 
 			cellDimension));
 
-  if ((cellDirection != 1)
-      || (cells[oldCell].coords[1] 
-	  != (std::signbit(vel[1]) ? 0 : (cellCount[1] - 1))))
+  int endCell(-1); //The ID of the cell the particle enters
+
+  if (cellDirection == 1)
+    {
+      if (cells[oldCell].coords[1] 
+	  == ((part.getVelocity()[1] < 0) ? 0 : (cellCount[1] - 1)))
+	{
+	  //We're wrapping in the y direction
+	}
+      else if (cells[oldCell].coords[1] 
+	       == ((part.getVelocity()[1] < 0) ? 1 : (cellCount[1] - 2)))
+	{
+	  //We're entering the boundary of the y direction
+	  //Calculate the end cell, no boundary wrap check required
+	  endCell = oldCell + cellCount[0] * ((part.getVelocity()[1] < 0) ? -1 : 1);
+	  
+	  removeFromCell(part.getID());
+	  addToCell(part.getID(), endCell);
+	  
+	  //Get rid of the virtual event that is next, update is delayed till
+	  //after all events are added
+	  Sim->ptrScheduler->popNextEvent();
+	  
+
+	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	    getExtraLEParticleNeighbourhood(part, nbs.second);
+	}
+    }
+  else
     {
       size_t cellpow(1);
       
@@ -108,7 +134,9 @@ CGCellsShearing::runEvent(const CParticle& part) const
       
       int velsign = 2 * (part.getVelocity()[cellDirection] > 0) - 1;
       int offset = (part.getVelocity()[cellDirection] > 0) * (cellCount[cellDirection] - 1);
-      int endCell(oldCell + cellpow * velsign), inCell(oldCell + 2 * cellpow * velsign);
+      
+      endCell = oldCell + cellpow * velsign;
+      int inCell = oldCell + 2 * cellpow * velsign;
       
       {
 	int tmpint = velsign * cellpow * cellCount[cellDirection];
@@ -120,160 +148,65 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	else if (cells[oldCell].coords[cellDirection] == offset - velsign)
 	  inCell -= tmpint;
       }
-
-      removeFromCell(part.getID());
-      addToCell(part.getID(), endCell);
-    }
-  else
-    {
-      Sim->Dynamics.Liouvillean().updateParticle(part);
       
-      size_t oldCell(partCellData[part.getID()].cell);
-      
-      //Determine the cell transition direction, its saved
-      size_t cellDirection(Sim->Dynamics.Liouvillean().
-			   getSquareCellCollision3
-			   (part, cells[oldCell].origin, 
-			    cellDimension));
-      
-      /////////////////////////////EDIT MAGINOT LINE
-      /*
-      //long inPosition;
-      size_t endCell;
-      
-      //This is required to get the correct sign on the velocity
-      CVector<> rpos(part.getPosition() 
-		 - cells[partCellData[part.getID()].cell].origin);
-
-  CVector<> vel(part.getVelocity());
-
-  Sim->Dynamics.BCs().setPBC(rpos, vel);
-  
-  //In this cell Event we must brute force periodic cell transistions
-  if ((cellDirection == 1)
-      && (cells[partCellData[part.getID()].cell].coords[1] 
-	  == (std::signbit(vel[1]) ? 0 : (cellCount[1] - 1))))
-    {
-      //Debug section
-#ifdef DYNAMO_WallCollDebug
-      std::cerr << "\nBoundary transition ";
-      
-      if (std::signbit(vel[1])) 
-	std::cerr << "Down";
-      else
-	std::cerr << "Up";
-#endif      
-      //Bottom heading down
-      //Stream it to the boundary 
-      //Recheck the dt      
-      double dt = Sim->Dynamics.Liouvillean()
-	.getSquareCellCollision2(part, 
-				 cells[partCellData[part.getID()].cell].origin, 
-				 cellDimension);
-
-      Sim->Dynamics.Liouvillean().advanceUpdateParticle(part, dt);
-      
-      CVector<> tmpPos = part.getPosition();
-
-      //Add enough of a step to move it into the other cell
-      if (std::signbit(vel[1]))
-	tmpPos[1] -= 0.5 * cellDimension[1];
-      else
-	tmpPos[1] += 0.5 * cellDimension[1];
-      
-      //Now a special predictive setpbc must be used
-      Sim->Dynamics.BCs().setPBC(tmpPos, dt);
-      
-      //Now use the end coordinates to give you the final cell
-      endCell = getCellID(tmpPos);
-
-      //Need to do a full update due to the channels of linked cells
-      //at the boundaries being behind the particle when it wraps
-      //around, just using cells in the direction of the motion misses
-      //these
-
       removeFromCell(part.getID());
       addToCell(part.getID(), endCell);
       
       //Get rid of the virtual event that is next, update is delayed till
       //after all events are added
       Sim->ptrScheduler->popNextEvent();
-
-      //Tell about the new locals
-      BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-	nbs.second(part, lID);
-
-      //Tell about all particles in all linked cells, SLOW BUT SURE,
-      BOOST_FOREACH(const int& nb, cells[endCell].neighbours)
-	for (int next = cells[nb].list; next != -1; 
-	     next = partCellData[next].next)
-	  if (part.getID() != static_cast<size_t>(next))
-	    BOOST_FOREACH(const nbHoodSlot& nbs,  sigNewNeighbourNotify)
-	      nbs.second(part, next);
       
-      //Push the next virtual event, this is the reason the scheduler
-      //doesn't need a second callback
-      Sim->ptrScheduler->pushEvent(part, getEvent(part));
-      Sim->ptrScheduler->sort(part);
+      CVector<int> coords(cells[inCell].coords);
       
-      BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
-	nbs.second(part, oldCell);
-  */
-    }
-
-  //Get rid of the virtual event that is next, update is delayed till
-  //after all events are added
-  Sim->ptrScheduler->popNextEvent();
-  
-  CVector<int> coords(cells[inCell].coords);
-  
-  //Particle has just arrived into a new cell warn the scheduler about
-  //its new neighbours so it can add them to the heap
-  //Holds the displacement in each dimension, the unit is cells!
-  BOOST_STATIC_ASSERT(NDIM==3);
+      //Particle has just arrived into a new cell warn the scheduler about
+      //its new neighbours so it can add them to the heap
+      //Holds the displacement in each dimension, the unit is cells!
+      BOOST_STATIC_ASSERT(NDIM==3);
       
-  //These are the two dimensions to walk in
-  size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
-    dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
+      //These are the two dimensions to walk in
+      size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
+	dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
       
-  size_t dim1pow(1), dim2pow(1);
+      size_t dim1pow(1), dim2pow(1);
       
-  for (size_t iDim(0); iDim < dim1; ++iDim)
-    dim1pow *= cellCount[iDim];
+      for (size_t iDim(0); iDim < dim1; ++iDim)
+	dim1pow *= cellCount[iDim];
       
-  for (size_t iDim(0); iDim < dim2; ++iDim)
-    dim2pow *= cellCount[iDim];
+      for (size_t iDim(0); iDim < dim2; ++iDim)
+	dim2pow *= cellCount[iDim];
       
-  if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
-  if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
+      if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
+      if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
       
-  int nb(getCellIDprebounded(coords));
+      int nb(getCellIDprebounded(coords));
       
-  //We now have the lowest cell coord, or corner of the cells to update
-  for (int iDim(0); iDim < 3; ++iDim)
-    {
-      if (coords[dim2] + iDim == cellCount[dim2]) 
-	nb -= dim2pow * cellCount[dim2];
+      //We now have the lowest cell coord, or corner of the cells to
+      //check the contents of
+      for (int iDim(0); iDim < 3; ++iDim)
+	{
+	  if (coords[dim2] + iDim == cellCount[dim2]) 
+	    nb -= dim2pow * cellCount[dim2];
 	  
-      for (int jDim(0); jDim < 3; ++jDim)
-	{	  
-	  if (coords[dim1] + jDim == cellCount[dim1]) 
-	    nb -= dim1pow * cellCount[dim1];
+	  for (int jDim(0); jDim < 3; ++jDim)
+	    {	  
+	      if (coords[dim1] + jDim == cellCount[dim1]) 
+		nb -= dim1pow * cellCount[dim1];
 	      
-	  for (int next = cells[nb].list; next >= 0; 
-	       next = partCellData[next].next)
-	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	      nbs.second(part, next);
+	      for (int next = cells[nb].list; next >= 0; 
+		   next = partCellData[next].next)
+		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+		  nbs.second(part, next);
 	      
-	  nb += dim1pow;
+	      nb += dim1pow;
+	    }
+	  
+	  if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
+	  
+	  nb += dim2pow - 3 * dim1pow;
 	}
-	  
-      if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
-	  
-      nb += dim2pow - 3 * dim1pow;
-    }
       
+    }
+   
   //Tell about the new locals
   BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
     BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
@@ -322,7 +255,7 @@ CGCellsShearing::getParticleNeighbourhood(const CParticle& part,
 
 void 
 CGCellsShearing::getExtraLEParticleNeighbourhood(const CParticle& part,
-					  const nbHoodFunc& func) const
+						 const nbHoodFunc& func) const
 {
   size_t cellID = partCellData[part.getID()].cell;
   CVector<int> coords(cells[cellID].coords);
