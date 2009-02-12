@@ -121,9 +121,12 @@ CScheduler::runNextEvent() const
 
 #ifdef DYNAMO_DEBUG
   if (sorter->next_Data().top().dt + eps < 0)
-    D_throw() << "Next event time is negative "
+    D_throw() << "Next event time is less than -" << eps
+	      << "\nTime to event "
 	      << sorter->next_Data().top().dt
-	      << "\nEvent Type " << CIntEvent::getCollEnumName(sorter->next_Data().top().type);
+	      << "\nEvent Type = " 
+	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
+	      << "\nOwner Particle = " << sorter->next_ID();
 #endif  
   
   switch (sorter->next_Data().top().type)
