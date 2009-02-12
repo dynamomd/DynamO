@@ -113,14 +113,14 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	(part, cells[partCellData[part.getID()].cell].origin, 
 	 cellDimension);
      
+      //Remove the old x contribution
+      endCell = oldCell - cells[oldCell].coords[0];
+      
       //Update the y dimension
       if (part.getVelocity()[1] < 0)
 	endCell += cellCount[0] * (cellCount[1]-1);
       else
 	endCell -= cellCount[0] * (cellCount[1]-1);
-
-      //Remove the old x contribution
-      endCell = oldCell - cells[oldCell].coords[0];
 
       //Predict the position of the particle
       Sim->Dynamics.Liouvillean().advanceUpdateParticle(part, dt);
@@ -307,8 +307,8 @@ CGCellsShearing::getExtraLEParticleNeighbourhood(const CParticle& part,
 #endif 
 
   //Move to the bottom of x
+  cellID -= coords[0];	
   coords[0] = 0;
-  cellID -= coords[0];
   
   //Get the y plane to test in
   if (coords[1])
