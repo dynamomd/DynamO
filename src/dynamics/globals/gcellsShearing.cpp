@@ -88,6 +88,7 @@ CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
 void 
 CGCellsShearing::runEvent(const CParticle& part) const
 {
+  Sim->Dynamics.Liouvillean().updateParticle(part);
 
   size_t oldCell(partCellData[part.getID()].cell);
 
@@ -99,34 +100,74 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
   int endCell(-1); //The ID of the cell the particle enters
 
-  if (cellDirection == 1)
+  if ((cellDirection == 1) &&
+      (cells[oldCell].coords[1] 
+       == ((part.getVelocity()[1] < 0) ? 0 : (cellCount[1] - 1))))
     {
-      if (cells[oldCell].coords[1] 
-	  == ((part.getVelocity()[1] < 0) ? 0 : (cellCount[1] - 1)))
-	{
-	  //We're wrapping in the y direction
-	}
-      else if (cells[oldCell].coords[1] 
-	       == ((part.getVelocity()[1] < 0) ? 1 : (cellCount[1] - 2)))
-	{
-	  //We're entering the boundary of the y direction
-	  //Calculate the end cell, no boundary wrap check required
-	  endCell = oldCell + cellCount[0] * ((part.getVelocity()[1] < 0) ? -1 : 1);
-	  
-	  removeFromCell(part.getID());
-	  addToCell(part.getID(), endCell);
-	  
-	  //Get rid of the virtual event that is next, update is delayed till
-	  //after all events are added
-	  Sim->ptrScheduler->popNextEvent();
-	  
+      //We're wrapping in the y direction, we have to compute
+      //which cell its entering
+      
+      //Calculate the final x value
+      //Time till transition, assumes the particle is up to date
+      double dt = Sim->Dynamics.Liouvillean().getSquareCellCollision2
+	(part, cells[partCellData[part.getID()].cell].origin, 
+	 cellDimension);
+     
+      //Update the y dimension
+      if (part.getVelocity()[1] < 0)
+	endCell += cellCount[0] * (cellCount[1]-1);
+      else
+	endCell -= cellCount[0] * (cellCount[1]-1);
 
-	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	    getExtraLEParticleNeighbourhood(part, nbs.second);
-	}
+      //Remove the old x contribution
+      endCell = oldCell - cells[oldCell].coords[0];
+
+      //Predict the position of the particle
+      Sim->Dynamics.Liouvillean().advanceUpdateParticle(part, dt);
+      CVector<> tmpPos = part.getPosition();
+      Sim->Dynamics.Liouvillean().updateParticle(part);
+
+      //Determine the x position (in cell coords) of the particle and
+      //add it to the endCellID
+      Sim->Dynamics.BCs().setPBC(tmpPos, dt);
+      endCell += int((tmpPos[0] + 0.5 * Sim->aspectRatio[0]) 
+		     / cellLatticeWidth[0]);
+
+      removeFromCell(part.getID());
+      addToCell(part.getID(), endCell);
+      
+      //Get rid of the virtual event that is next, update is delayed till
+      //after all events are added
+      Sim->ptrScheduler->popNextEvent();
+
+      //Check the entire neighbourhood, could check just the new
+      //neighbours and the extra LE neighbourhood strip but its a lot
+      //of code
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	getParticleNeighbourhood(part, nbs.second);
+
+    }
+  else if ((cellDirection == 1) && 
+	   (cells[oldCell].coords[1] == ((part.getVelocity()[1] < 0) ? 1 : (cellCount[1] - 2))))
+    {
+      //We're entering the boundary of the y direction
+      //Calculate the end cell, no boundary wrap check required
+      endCell = oldCell + cellCount[0] * ((part.getVelocity()[1] < 0) ? -1 : 1);
+      
+      removeFromCell(part.getID());
+      addToCell(part.getID(), endCell);
+      
+      //Get rid of the virtual event that is next, update is delayed till
+      //after all events are added
+      Sim->ptrScheduler->popNextEvent();
+      
+      //Check the extra LE neighbourhood strip
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	getExtraLEParticleNeighbourhood(part, nbs.second);
     }
   else
     {
+      //Here we follow the same procedure as the original cell list for new neighbours
       size_t cellpow(1);
       
       for (size_t iDim(0); iDim < cellDirection; ++iDim)
