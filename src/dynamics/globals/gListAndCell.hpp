@@ -18,11 +18,11 @@
 #ifndef CGListAndCell_HPP
 #define CGListAndCell_HPP
 
-#include "gcells.hpp"
+#include "gcells2.hpp"
 #include "../ranges/1range.hpp"
 
 
-class CGListAndCell: public CGCells
+class CGListAndCell: public CGCells2
 {
 public:
   CGListAndCell(const XMLNode&, DYNAMO::SimData*);

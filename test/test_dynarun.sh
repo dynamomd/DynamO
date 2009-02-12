@@ -356,6 +356,36 @@ function SquareWellTest {
 	tmp.xml.bz2 run.log
 }
 
+function BinarySphereTest {
+    > run.log
+
+    $Dynamod -m 8 --f3 0.05 -d 1.4 -C 10 --f1 0.5 &> run.log
+    bzcat config.out.xml.bz2 \
+	| xml ed -u "//Globals/Global[@Name='SchedulerNBList']/@Type" \
+	-v "$1" | bzip2 > tmp.xml.bz2
+
+    $Dynarun -c 1000000 tmp.xml.bz2 >> run.log 2>&1
+    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{var=($1-0.00922057)/0.00922057; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "BinarySphereTest -: FAILED"
+	    exit 1
+	else
+	    echo "BinarySphereTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in Binary Sphere Test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
 
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
@@ -368,13 +398,20 @@ echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neigh
 cannon "NeighbourList" "BoundedPQ"
 
 echo ""
-echo "INTERACTIONS"
+echo "INTERACTIONS+Dynamod Systems"
 echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
 HardSphereTest
+echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
+BinarySphereTest "Cells2"
 echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
 SquareWellTest
 #echo "Testing Lines, NeighbourLists and BoundedPQ's"
 #linescannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "GLOBALS"
+echo "Testing binary spheres and the ListAndCell neighbourlist"
+BinarySphereTest "ListAndCell"
 
 echo ""
 echo "SYSTEM EVENTS"
@@ -382,7 +419,6 @@ echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
 ThermostatTest
 echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
 umbrella "NeighbourList"
-
 
 echo ""
 echo "LOCAL EVENTS"
