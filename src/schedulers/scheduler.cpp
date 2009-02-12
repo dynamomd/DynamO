@@ -120,7 +120,7 @@ CScheduler::runNextEvent() const
     }
 
 #ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().top().dt < 0)
+  if (sorter->next_Data().top().dt + eps < 0)
     D_throw() << "Next event time is negative "
 	      << sorter->next_Data().top().dt;
 #endif  
