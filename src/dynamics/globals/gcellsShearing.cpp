@@ -126,22 +126,23 @@ CGCellsShearing::runEvent(const CParticle& part) const
     }
   else
     {
-  /////////////////////////////EDIT MAGINOT LINE
-  /*Sim->Dynamics.Liouvillean().updateParticle(part);
-  
-  size_t oldCell(partCellData[part.getID()].cell);
-
-  //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.Liouvillean().
-		       getSquareCellCollision3
-		       (part, cells[oldCell].origin, 
-			cellDimension));
-  
-  //long inPosition;
-  size_t endCell;
-  
-  //This is required to get the correct sign on the velocity
-  CVector<> rpos(part.getPosition() 
+      Sim->Dynamics.Liouvillean().updateParticle(part);
+      
+      size_t oldCell(partCellData[part.getID()].cell);
+      
+      //Determine the cell transition direction, its saved
+      size_t cellDirection(Sim->Dynamics.Liouvillean().
+			   getSquareCellCollision3
+			   (part, cells[oldCell].origin, 
+			    cellDimension));
+      
+      /////////////////////////////EDIT MAGINOT LINE
+      /*
+      //long inPosition;
+      size_t endCell;
+      
+      //This is required to get the correct sign on the velocity
+      CVector<> rpos(part.getPosition() 
 		 - cells[partCellData[part.getID()].cell].origin);
 
   CVector<> vel(part.getVelocity());
