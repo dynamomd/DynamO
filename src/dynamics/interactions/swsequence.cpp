@@ -244,7 +244,6 @@ CISWSequence::getEvent(const CParticle &p1,
     D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
   CPDData colldat(*Sim, p1, p2);
   
   if (isCaptured(p1, p2)) 
