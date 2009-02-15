@@ -137,6 +137,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
       else
 	tmpPos[1] += 0.5 * cellDimension[1];
 
+      //This rewinds the particle again
       Sim->Dynamics.Liouvillean().updateParticle(part);
 
       //Determine the x position (in cell coords) of the particle and

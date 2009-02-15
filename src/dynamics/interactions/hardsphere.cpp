@@ -96,6 +96,14 @@ CIntEvent
 CIHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
+  if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
+    D_throw() << "Particle 1 is not up to date";
+  
+  if (!Sim->Dynamics.Liouvillean().isUpToDate(p2))
+    D_throw() << "Particle 2 is not up to date";
+#endif
+
+#ifdef DYNAMO_DEBUG
   if (p1 == p2)
     D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
@@ -121,6 +129,7 @@ void
 CIHardSphere::runEvent(const CParticle& p1,
 		       const CParticle& p2) const
 {
+  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
   CIntEvent iEvent = getEvent(p1, p2);
 
   if (iEvent.getType() == NONE)

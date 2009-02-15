@@ -56,7 +56,10 @@ CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
 CLocalEvent 
 CLAndersenWall::getEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+#ifdef ISSS_DEBUG
+  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+    D_throw() << "Particle is not up to date";
+#endif
 
   return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
 }
@@ -66,6 +69,7 @@ CLAndersenWall::runEvent(const CParticle& part) const
 {
   ++Sim->lNColl;
 
+  Sim->Dynamics.Liouvillean().updateParticle(part);
   CLocalEvent iEvent(getEvent(part));
   
   if (iEvent.getType() == NONE)

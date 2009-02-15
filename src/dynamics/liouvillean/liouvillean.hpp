@@ -372,6 +372,10 @@ public:
     const_cast<CParticle&>(part).getPecTime() = -partPecTime;
   }
 
+  inline bool isUpToDate(const CParticle& part) const
+  {
+    return part.getPecTime() == -partPecTime;
+  }
 
   /*! \brief Free streams two particles up to the current time.
    * 

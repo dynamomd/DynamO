@@ -89,6 +89,10 @@ CGCells2::setLambda(const Iflt& nL)
 CGlobEvent 
 CGCells2::getEvent(const CParticle& part) const
 {
+#ifdef ISSS_DEBUG
+  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+    D_throw() << "Particle is not up to date";
+#endif
 
   //This 
   //Sim->Dynamics.Liouvillean().updateParticle(part);
@@ -108,6 +112,10 @@ CGCells2::getEvent(const CParticle& part) const
 void
 CGCells2::runEvent(const CParticle& part) const
 {
+
+  //Despite the system not being streamed this must be done.  This is
+  //because the scheduler and all interactions, locals and systems
+  //expect the particle to be up to date.
   Sim->Dynamics.Liouvillean().updateParticle(part);
   
   size_t oldCell(partCellData[part.getID()].cell);

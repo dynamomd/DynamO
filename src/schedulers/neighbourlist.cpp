@@ -139,7 +139,12 @@ void
 CSNeighbourList::addInteractionEvent(const CParticle& part, 
 				     const size_t& id) const
 {
-  const CIntEvent& eevent(Sim->Dynamics.getEvent(part, Sim->vParticleList[id]));
+  const CParticle& part2(Sim->vParticleList[id]);
+
+  Sim->Dynamics.Liouvillean().updateParticle(part2);
+
+  const CIntEvent& eevent(Sim->Dynamics.getEvent(part, part2));
+
   if (eevent.getType() != NONE)
     sorter->push(intPart(eevent, eventCount[id]), part.getID());
 }
@@ -189,7 +194,9 @@ CSNeighbourList::addLocalEvent(const CParticle& part,
 
 void 
 CSNeighbourList::addEvents(const CParticle& part)
-{  
+{
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+  
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
@@ -219,6 +226,8 @@ CSNeighbourList::addEvents(const CParticle& part)
 void 
 CSNeighbourList::addEventsInit(const CParticle& part)
 {  
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
