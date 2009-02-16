@@ -191,7 +191,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
@@ -240,7 +240,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
         Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
-				  / latticeSites.size(), 1.0/3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 		
 	//Set up a standard simulation
 	//Just a square well system
@@ -464,7 +464,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	Iflt alpha = 1.0;
 
@@ -768,7 +768,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 	
 	//Set up a standard simulation
 	//Sim->ptrScheduler = new CSMultList(Sim);
@@ -839,7 +839,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
@@ -890,7 +890,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
 	
@@ -965,7 +965,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
 	
@@ -1040,7 +1040,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				  / latticeSites.size(), 1.0 / 3.0);
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
 	
