@@ -44,7 +44,10 @@ CLWall::CLWall(const XMLNode& XML, DYNAMO::SimData* tmp):
 CLocalEvent 
 CLWall::getEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+#ifdef ISSS_DEBUG
+  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+    D_throw() << "Particle is not up to date";
+#endif
 
   return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision
 		     (part, vPosition, vNorm), WALL, *this);
@@ -55,6 +58,7 @@ CLWall::runEvent(const CParticle& part) const
 {
   ++Sim->lNColl;
 
+  Sim->Dynamics.Liouvillean().updateParticle(part);
   CLocalEvent iEvent(getEvent(part));
   
   if (iEvent.getType() == NONE)

@@ -81,6 +81,8 @@ CSDumb::outputXML(xmlw::XmlStream& XML) const
 void 
 CSDumb::addEvents(const CParticle& part)
 {  
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
     if (glob->isInteraction(part))
@@ -95,6 +97,8 @@ CSDumb::addEvents(const CParticle& part)
   BOOST_FOREACH(const CParticle& part2, Sim->vParticleList)
     if (part2 != part)
       {
+	Sim->Dynamics.Liouvillean().updateParticle(part2);
+
 	CIntEvent eevent(Sim->Dynamics.getEvent(part, part2));
 	
 	if (eevent.getType() != NONE)

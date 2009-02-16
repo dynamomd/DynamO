@@ -19,6 +19,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../base/is_exception.hpp"
+#include <string.h>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
 			    const CBC& g)

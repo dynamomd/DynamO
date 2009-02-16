@@ -18,15 +18,17 @@
 #ifndef LEBC_H
 #define LEBC_H
 
-#include "shapes.hpp"
+#include "BC.hpp"
 #include "../../base/is_base.hpp"
+
+class CLEBC {};
 
 /*! \brief A simple rectangular Lees-Edwards simple shear boundary
  * condition.
  *
  * See the square version for more details (CSLEBC)
  */
-class CRLEBC: virtual public CRectBC
+class CRLEBC: virtual public CBC, public CLEBC
 {
  public:
   CRLEBC(const DYNAMO::SimData*);
@@ -62,7 +64,7 @@ class CRLEBC: virtual public CRectBC
  *
  * See CBC for a general description of the member functions.
  */
-class CSLEBC: virtual public CSqBC
+class CSLEBC: virtual public CBC, public CLEBC
 {
  public:
   CSLEBC(const DYNAMO::SimData*);

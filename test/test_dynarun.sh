@@ -307,7 +307,7 @@ function ThermostatTest {
 function HardSphereTest {
     > run.log
 
-    $Dynamod -m 0 &> run.log    
+    $Dynamod -s 1 -m 0 &> run.log    
     $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
     $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
@@ -333,7 +333,7 @@ function HardSphereTest {
 function SquareWellTest {
     > run.log
 
-    $Dynamod -m 1 &> run.log    
+    $Dynamod -s1 -m 1 &> run.log    
     $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
     $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
@@ -359,9 +359,9 @@ function SquareWellTest {
 function BinarySphereTest {
     > run.log
 
-    $Dynamod -m 8 --f3 0.05 -d 1.4 -C 10 --f1 0.5 &> run.log
+    $Dynamod -s1 -m 8 --f3 0.05 -d 1.4 -C 10 --f1 0.5 &> run.log
     bzcat config.out.xml.bz2 \
-	| xml ed -u "//Globals/Global[@Name='SchedulerNBList']/@Type" \
+	| $Xml ed -u "//Globals/Global[@Name='SchedulerNBList']/@Type" \
 	-v "$1" | bzip2 > tmp.xml.bz2
 
     $Dynarun -c 1000000 tmp.xml.bz2 >> run.log 2>&1

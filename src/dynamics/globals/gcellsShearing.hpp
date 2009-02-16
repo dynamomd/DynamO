@@ -18,11 +18,11 @@
 #ifndef CGCellsShearing_HPP
 #define CGCellsShearing_HPP
 
-#include "gcells.hpp"
+#include "gcells2.hpp"
 #include "../ranges/1range.hpp"
 
 
-class CGCellsShearing: public CGCells
+class CGCellsShearing: public CGCells2
 {
 public:
   CGCellsShearing(const XMLNode&, DYNAMO::SimData*);
@@ -30,6 +30,8 @@ public:
   CGCellsShearing(DYNAMO::SimData*, const std::string&);
   
   virtual ~CGCellsShearing() {}
+
+  virtual void initialise(size_t);
   
   virtual CGlobal* Clone() const 
   { return new CGCellsShearing(*this); }
@@ -38,10 +40,14 @@ public:
   
   virtual void runEvent(const CParticle&) const;
 
+  virtual void getParticleNeighbourhood(const CParticle&, 
+					const nbHoodFunc&) const;
+
+  void getExtraLEParticleNeighbourhood(const CParticle& part,
+				       const nbHoodFunc& func) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
-
-  virtual void init_cells();
 };
 
 #endif
