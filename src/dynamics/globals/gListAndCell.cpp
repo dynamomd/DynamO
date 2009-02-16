@@ -30,7 +30,7 @@
 
 CGListAndCell::CGListAndCell(DYNAMO::SimData* nSim, 
 			     const std::string& name):
-  CGCells2(nSim, "ListAndCellNBList", NULL),
+  CGCells(nSim, "ListAndCellNBList", NULL),
   largestParticles(NULL)
 {
   globName = name;
@@ -38,7 +38,7 @@ CGListAndCell::CGListAndCell(DYNAMO::SimData* nSim,
 }
 
 CGListAndCell::CGListAndCell(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGCells2(ptrSim, "ListAndCellNBList"),
+  CGCells(ptrSim, "ListAndCellNBList"),
   largestParticles(NULL)
 {
   operator<<(XML);
@@ -117,7 +117,7 @@ void
 CGListAndCell::getParticleNeighbourhood(const CParticle& part,
 					const nbHoodFunc& func) const
 {
-  CGCells2::getParticleNeighbourhood(part, func);
+  CGCells::getParticleNeighbourhood(part, func);
   
   if (largestParticles->isInRange(part))
     //This is a large particle so tell it to compare against all other large particles

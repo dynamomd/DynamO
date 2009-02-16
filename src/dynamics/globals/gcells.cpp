@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcells2.hpp"
+#include "gcells.hpp"
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
 #include "../../extcode/xmlParser.h"
@@ -28,7 +28,7 @@
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
 
-CGCells2::CGCells2(DYNAMO::SimData* nSim, const std::string& name):
+CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent2"),
   cellCount(0),
   cellDimension(1.0),
@@ -40,7 +40,7 @@ CGCells2::CGCells2(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Cells Loaded";
 }
 
-CGCells2::CGCells2(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
   cellDimension(1.0),
@@ -52,7 +52,7 @@ CGCells2::CGCells2(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
-CGCells2::CGCells2(DYNAMO::SimData* ptrSim, const char* nom, void*):
+CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1.0),
@@ -61,7 +61,7 @@ CGCells2::CGCells2(DYNAMO::SimData* ptrSim, const char* nom, void*):
 {}
 
 void 
-CGCells2::operator<<(const XMLNode& XML)
+CGCells::operator<<(const XMLNode& XML)
 {
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
@@ -73,7 +73,7 @@ CGCells2::operator<<(const XMLNode& XML)
   }
   catch(...)
     {
-      D_throw() << "Error loading CGCells2";
+      D_throw() << "Error loading CGCells";
     }
   
   if (lambda < 0.0 || lambda > 1.0)
@@ -81,13 +81,13 @@ CGCells2::operator<<(const XMLNode& XML)
 }
 
 void 
-CGCells2::setLambda(const Iflt& nL)
+CGCells::setLambda(const Iflt& nL)
 {
   lambda = nL;
 }
 
 CGlobEvent 
-CGCells2::getEvent(const CParticle& part) const
+CGCells::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
@@ -110,7 +110,7 @@ CGCells2::getEvent(const CParticle& part) const
 }
 
 void
-CGCells2::runEvent(const CParticle& part) const
+CGCells::runEvent(const CParticle& part) const
 {
 
   //Despite the system not being streamed this must be done.  This is
@@ -235,7 +235,7 @@ CGCells2::runEvent(const CParticle& part) const
 }
 
 void 
-CGCells2::initialise(size_t nID)
+CGCells::initialise(size_t nID)
 {
   ID=nID;
   
@@ -243,7 +243,7 @@ CGCells2::initialise(size_t nID)
 }
 
 void
-CGCells2::reinitialise(const Iflt& maxdiam)
+CGCells::reinitialise(const Iflt& maxdiam)
 {
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
@@ -257,16 +257,16 @@ CGCells2::reinitialise(const Iflt& maxdiam)
 }
 
 void
-CGCells2::outputXML(xmlw::XmlStream& XML) const
+CGCells::outputXML(xmlw::XmlStream& XML) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << xmlw::attr("Type") << "Cells2"
+  XML << xmlw::attr("Type") << "Cells"
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
 }
 
 void
-CGCells2::addCells(Iflt maxdiam, bool limitCells)
+CGCells::addCells(Iflt maxdiam, bool limitCells)
 {
   cells.clear();
   partCellData.resize(Sim->lN); //Location data for particles
@@ -344,7 +344,7 @@ CGCells2::addCells(Iflt maxdiam, bool limitCells)
 }
 
 void 
-CGCells2::addLocalEvents()
+CGCells::addLocalEvents()
 {
   BOOST_FOREACH(cellStruct& cell, cells)
     {
@@ -357,7 +357,7 @@ CGCells2::addLocalEvents()
 }
 
 size_t
-CGCells2::getCellID(const CVector<int>& coordsold) const
+CGCells::getCellID(const CVector<int>& coordsold) const
 {
   //PBC for vectors
   CVector<int> coords(coordsold);
@@ -372,7 +372,7 @@ CGCells2::getCellID(const CVector<int>& coordsold) const
 }
 
 size_t
-CGCells2::getCellIDprebounded(const CVector<int>& coords) const
+CGCells::getCellIDprebounded(const CVector<int>& coords) const
 {
   int nb(coords[0]);
 
@@ -388,7 +388,7 @@ CGCells2::getCellIDprebounded(const CVector<int>& coords) const
 }
 
 CVector<int> 
-CGCells2::getCoordsFromID(size_t i) const
+CGCells::getCoordsFromID(size_t i) const
 {
   CVector<int> tmp;
   i = i % NCells; //PBC's for ID
@@ -402,7 +402,7 @@ CGCells2::getCoordsFromID(size_t i) const
 }
 
 size_t
-CGCells2::getCellID(CVector<> pos) const
+CGCells::getCellID(CVector<> pos) const
 {
   Sim->Dynamics.BCs().setPBC(pos);
   CVector<int> temp;
@@ -416,7 +416,7 @@ CGCells2::getCellID(CVector<> pos) const
 
 
 void 
-CGCells2::getParticleNeighbourhood(const CParticle& part,
+CGCells::getParticleNeighbourhood(const CParticle& part,
 				  const nbHoodFunc& func) const
 {
   CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
@@ -465,7 +465,7 @@ CGCells2::getParticleNeighbourhood(const CParticle& part,
 }
 
 void 
-CGCells2::getParticleLocalNeighbourhood(const CParticle& part, 
+CGCells::getParticleLocalNeighbourhood(const CParticle& part, 
 				       const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const size_t& id, 

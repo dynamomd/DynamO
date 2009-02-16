@@ -18,7 +18,7 @@
 #include "globCellCompressionHack.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
-#include "../globals/gcells2.hpp"
+#include "../globals/gcells.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../NparticleEventData.hpp"
 #include "../../schedulers/scheduler.hpp"
@@ -52,7 +52,7 @@ CSGlobCellHack::runEvent() const
   I_cout() << "Rebuilding the cell list, coll = " << Sim->lNColl; 
 
   CVector<> cellDimensions = 
-    dynamic_cast<const CGCells2*>(Sim->Dynamics.getGlobals()[cellID].get_ptr())
+    dynamic_cast<const CGCells*>(Sim->Dynamics.getGlobals()[cellID].get_ptr())
     ->getCellDimensions();
   
   int minDiam = 0;
@@ -60,7 +60,7 @@ CSGlobCellHack::runEvent() const
     if (cellDimensions[i] < cellDimensions[minDiam])
       minDiam = i;
   
-  const_cast<CGCells2*>(dynamic_cast<const CGCells2*>
+  const_cast<CGCells*>(dynamic_cast<const CGCells*>
 		       (Sim->Dynamics.getGlobals()[cellID].get_ptr()))
     ->reinitialise(1.0001 * cellDimensions[minDiam]);
   
@@ -84,13 +84,13 @@ CSGlobCellHack::initialise(size_t nID)
 	break;
       }
   
-  if (dynamic_cast<const CGCells2*>
+  if (dynamic_cast<const CGCells*>
       (Sim->Dynamics.getGlobals()[cellID].get_ptr()) == NULL)
     D_throw() << "No CGCells found!";
     
   size_t minDiam = 0;
 
-  CVector<> cellDimensions = dynamic_cast<const CGCells2*>
+  CVector<> cellDimensions = dynamic_cast<const CGCells*>
     (Sim->Dynamics.getGlobals()[cellID].get_ptr())->getCellDimensions();
   
   for (size_t i = 1; i < NDIM; ++i)

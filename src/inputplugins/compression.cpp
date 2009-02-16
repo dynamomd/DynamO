@@ -32,7 +32,7 @@
 #include "../dynamics/systems/globCellCompressionHack.hpp"
 #include "../dynamics/systems/tHalt.hpp"
 #include "../dynamics/species/species.hpp"
-#include "../dynamics/globals/gcells2.hpp"
+#include "../dynamics/globals/gcells.hpp"
 
 CIPCompression::CIPCompression(DYNAMO::SimData* tmp, Iflt GR): 
   CInputPlugin(tmp, "CompressionPlugin"),
@@ -69,10 +69,10 @@ CIPCompression::RestoreSystem()
   if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {
       BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
-	if (dynamic_cast<const CGCells2*>(ptr.get_ptr()) != NULL)      
+	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
 	  {
 	    //Rebulid the collision scheduler without the overlapping cells!
-	    CGCells2& cells(dynamic_cast<CGCells2&>(*ptr));
+	    CGCells& cells(dynamic_cast<CGCells&>(*ptr));
 	    
 	    cells.setLambda(oldLambda);
 	  }
@@ -105,10 +105,10 @@ void
 CIPCompression::CellSchedulerHack()
 {
   BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
-    if (dynamic_cast<const CGCells2*>(ptr.get_ptr()) != NULL)      
+    if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
       {
 	//Rebulid the collision scheduler without the overlapping cells!
-	CGCells2& cells(dynamic_cast<CGCells2&>(*ptr));
+	CGCells& cells(dynamic_cast<CGCells&>(*ptr));
 	
 	oldLambda = cells.getLambda();
 	

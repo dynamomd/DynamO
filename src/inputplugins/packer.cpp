@@ -195,7 +195,7 @@ CIPPacker::initialise()
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells2(Sim,"SchedulerNBList"));
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
@@ -249,7 +249,7 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells2(Sim, "SchedulerNBList"));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
@@ -420,7 +420,7 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells2(Sim, "SchedulerNBList"));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	Sim->Dynamics.setPBC<CSPBC>();
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
@@ -615,7 +615,7 @@ CIPPacker::initialise()
 	
 	//Just a square well system
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells2(Sim,"SchedulerNBList"));
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
 	//Undo the linking of scheduler cells across the x dimension
 	D_throw() << "Needs an unlinkable scheduler";
@@ -775,7 +775,7 @@ CIPPacker::initialise()
 	
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
-	Sim->Dynamics.addGlobal(new CGCells2(Sim, "SchedulerNBList"));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
@@ -843,7 +843,7 @@ CIPPacker::initialise()
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells2(Sim,"SchedulerNBList"));
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
 
