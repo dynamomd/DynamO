@@ -52,7 +52,7 @@ public:
   
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual float getColourFraction(const CParticle&) const;
+  virtual Iflt getColourFraction(const CParticle&) const;
 
   std::vector<size_t>& getSequence() { return sequence; }
 

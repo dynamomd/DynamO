@@ -22,7 +22,7 @@
 
 struct CUMirror: public CUCell
 {
-  CUMirror(double F, CUCell* nextCell):
+  CUMirror(Iflt F, CUCell* nextCell):
     CUCell(nextCell),
     fraction(F),
     count1(0),
@@ -31,10 +31,10 @@ struct CUMirror: public CUCell
 
   ~CUMirror()
   {
-    std::cout << "\nACTUAL CHIRALITY = " << (static_cast<double>(count1) / static_cast<double>(count1+count2));
+    std::cout << "\nACTUAL CHIRALITY = " << (static_cast<Iflt>(count1) / static_cast<Iflt>(count1+count2));
   }
 
-  double fraction;
+  Iflt fraction;
   long count1, count2;
 
   virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
@@ -43,7 +43,7 @@ struct CUMirror: public CUCell
     std::vector<CVector<> > retval(uc->placeObjects(CVector<>(0.0)));
 
     //Avoid dividing by zero, then distribute the images according to the fraction
-    if (!(count1+count2) || (static_cast<double>(count1) / static_cast<double>(count1+count2) > fraction))
+    if (!(count1+count2) || (static_cast<Iflt>(count1) / static_cast<Iflt>(count1+count2) > fraction))
       ++count2;       
     else
       {

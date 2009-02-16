@@ -42,7 +42,7 @@ COPKEnergy::changeSystem(COutputPlugin* Eplug)
 }
 
 void 
-COPKEnergy::temperatureRescale(const double& scale)
+COPKEnergy::temperatureRescale(const Iflt& scale)
 {
   for (int iDim = 0; iDim < NDIM; ++iDim)
     kTCurrent[iDim] *= scale * scale;

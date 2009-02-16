@@ -249,7 +249,7 @@ CISoftCore::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   CVector<> rij = part1.getPosition() - part2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
-  double r2 = rij.square();
+  Iflt r2 = rij.square();
 
   if (isCaptured(part1, part2))
     {

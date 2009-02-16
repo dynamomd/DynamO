@@ -303,6 +303,6 @@ CSimulation::outputData(const char* filename)
   XML << xmlw::endtag("OutputData");
 }
 
-long double 
+lIflt 
 CSimulation::getSysTime()
 { return dSysTime / Dynamics.units().unitTime(); }

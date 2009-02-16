@@ -71,7 +71,7 @@ public:
   virtual void changeSystem(COutputPlugin*) 
   { D_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
   
-  virtual void temperatureRescale(const double&)
+  virtual void temperatureRescale(const Iflt&)
   {}
   
 protected:

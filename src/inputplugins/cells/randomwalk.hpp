@@ -24,7 +24,7 @@
 
 struct CURandWalk: public CUCell
 {
-  CURandWalk(long CL, double WL, double D, CUCell* nextCell):
+  CURandWalk(long CL, Iflt WL, Iflt D, CUCell* nextCell):
     CUCell(nextCell),
     chainlength(CL),
     walklength(WL),
@@ -33,8 +33,8 @@ struct CURandWalk: public CUCell
   {}
 
   long chainlength;
-  double walklength;
-  double diameter;
+  Iflt walklength;
+  Iflt diameter;
   
   boost::mt19937 ranGenerator;
 

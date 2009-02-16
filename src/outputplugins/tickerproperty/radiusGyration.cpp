@@ -131,7 +131,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   retVal.MassCentre /= totmass;
 
   //Now determine the inertia tensor
-  double data[NDIM * NDIM];
+  Iflt data[NDIM * NDIM];
   for (int i = 0; i < NDIM; i++)
     for (int j = i; j < NDIM; j++)
       data[i + j * NDIM] = 0.0;
@@ -184,7 +184,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
 CVector<>
 COPRGyration::NematicOrderParameter(const std::list<CVector<> >& molAxis)
 {
-  double Q[NDIM * NDIM];
+  Iflt Q[NDIM * NDIM];
   
   for (int i = 0; i < NDIM; i++)
     for (int j = i; j < NDIM; j++)
@@ -256,7 +256,7 @@ COPRGyration::CubaticOrderParameter(const std::list<CVector<> >& molAxis)
 			      + (iDim == kDim ? 1 : 0) * (jDim == lDim ? 1 : 0)
 			      + (iDim == lDim ? 1 : 0) * (jDim == kDim ? 1 : 0));
   
-  double F[5*5];
+  Iflt F[5*5];
   F[0 * 5 + 0] = Q_cub[0][0][0][0] - Q_cub[0][0][2][2];
   F[0 * 5 + 1] = Q_cub[0][0][0][1] + Q_cub[0][0][1][0];
   F[0 * 5 + 2] = Q_cub[0][0][0][2] + Q_cub[0][0][2][0];

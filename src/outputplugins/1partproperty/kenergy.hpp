@@ -52,7 +52,7 @@ class COPKEnergy: public COP1PP
 
   void changeSystem(COutputPlugin*);
 
-  void temperatureRescale(const double&);
+  void temperatureRescale(const Iflt&);
   
  protected:
 

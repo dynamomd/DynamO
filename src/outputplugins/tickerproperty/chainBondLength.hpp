@@ -38,7 +38,7 @@ class COPChainBondLength: public COPTicker
 
   virtual void changeSystem(COutputPlugin*);
 
-  void temperatureRescale(const double&) {}
+  void temperatureRescale(const Iflt&) {}
 
   virtual void output(xmlw::XmlStream&);
   

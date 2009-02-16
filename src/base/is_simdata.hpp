@@ -121,10 +121,10 @@ namespace DYNAMO
 
     /*! \brief The current system time of the simulation. 
      * 
-     * This class is long double to reduce roundoff error as this gets
+     * This class is lIflt to reduce roundoff error as this gets
      * very large compared to an events delta t.
      */
-    long double dSysTime;
+    lIflt dSysTime;
     
     /*! \brief Number of events executed.*/
     unsigned long long lNColl;
