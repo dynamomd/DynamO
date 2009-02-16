@@ -33,7 +33,8 @@
 #include <iomanip>
 
 COPConfig::COPConfig(const DYNAMO::SimData* tmp):
-  COutputPlugin(tmp,"XMLConfig")
+  COutputPlugin(tmp,"XMLConfig"),
+  rounding(false)
 {}
 
 COPConfig::~COPConfig()
@@ -45,7 +46,9 @@ COPConfig::output(xmlw::XmlStream &XML)
   Sim->Dynamics.Liouvillean().updateAllParticles();
   
   XML << std::scientific
-      << std::setprecision(std::numeric_limits<Iflt>::digits10 -1)
+    //This has a minus one due to the digit in front of the decimal
+    //An extra one is added if we're rounding
+      << std::setprecision(std::numeric_limits<Iflt>::digits10 - 1 - rounding)
       << xmlw::prolog() << xmlw::tag("DYNAMOconfig") 
       << xmlw::attr("version") << configFileVersion
       << xmlw::tag("Simulation")
@@ -97,4 +100,10 @@ COPConfig::fileOutput(const char *fileName)
 
   xmlw::XmlStream XML(coutputFile);
   output(XML);
+}
+
+void 
+COPConfig::setRounding()
+{
+  rounding = true;
 }

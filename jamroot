@@ -32,6 +32,13 @@ project	: requirements <variant>debug:<define>DYNAMO_DEBUG
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
+	  
+	  #This enables the SSE2 instruction set which offers a
+	  #15% performance increase
+	  <toolset>gcc:<cxxflags>-funroll-loops
+	  <toolset>gcc:<cxxflags>-msse2
+	  <toolset>gcc:<cxxflags>-mfpmath=sse
+
 	  <tag>@dynamo-tags.naming
 	: default-build release
 	: build-dir build-dir
