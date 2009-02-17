@@ -155,7 +155,7 @@ public:
       }
     else
       {
-	Iflt nscale = 100 * counter / acc;
+	Iflt nscale = 40 * counter / acc;
 	
 	//Determine where the queue ends
 	std::vector<pList>::reverse_iterator rIt = tmpList.rbegin();
