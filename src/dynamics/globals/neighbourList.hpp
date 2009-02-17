@@ -181,6 +181,8 @@ public:
 
   virtual Iflt getMaxInteractionLength() const = 0;
 
+  virtual void reinitialise(const Iflt&) = 0;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
