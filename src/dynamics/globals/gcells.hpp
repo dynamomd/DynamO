@@ -61,6 +61,10 @@ public:
   CVector<> getCellDimensions() const 
   { return cellDimension; }
 
+  virtual Iflt getMaxSupportedInteractionLength() const;
+
+  virtual Iflt getMaxInteractionLength() const;
+
 protected:
   CGCells(DYNAMO::SimData*, const char*, void*);
 
