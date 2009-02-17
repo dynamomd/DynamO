@@ -239,7 +239,7 @@ CGCells::initialise(size_t nID)
 {
   ID=nID;
   
-  reinitialise(Sim->Dynamics.getLongestInteraction());
+  reinitialise(getMaxInteractionLength());
 }
 
 void
@@ -301,7 +301,7 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
   
   for (int iDim = 0; iDim < NDIM; iDim++)
     cellDimension[iDim] = cellLatticeWidth[iDim] 
-      + (2.0 * cellLatticeWidth[iDim] - maxdiam - cellLatticeWidth[iDim]) 
+      + (cellLatticeWidth[iDim] - maxdiam) 
       * lambda;
   
   I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
@@ -471,4 +471,26 @@ CGCells::getParticleLocalNeighbourhood(const CParticle& part,
   BOOST_FOREACH(const size_t& id, 
 		cells[partCellData[part.getID()].cell].locals)
     func(part, id);
+}
+
+Iflt 
+CGCells::getMaxSupportedInteractionLength() const
+{
+  size_t minDiam = 0;
+
+  //As the lambda or overlap is relative to the cellDimension we just
+  //find the minimum cell width
+
+  for (size_t i = 1; i < NDIM; ++i)
+    if (cellDimension[i] < cellDimension[minDiam])
+      minDiam = i;
+
+  return cellLatticeWidth[minDiam] 
+    + lambda * (cellLatticeWidth[minDiam] - cellDimension[minDiam]);
+}
+
+Iflt 
+CGCells::getMaxInteractionLength() const
+{
+  return Sim->Dynamics.getLongestInteraction();
 }

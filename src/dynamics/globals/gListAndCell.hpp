@@ -41,6 +41,8 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
+  virtual Iflt getMaxInteractionLength() const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 

@@ -15,31 +15,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSGlobCellHack_HPP
-#define CSGlobCellHack_HPP
+#ifndef CSNBListCompressionFix_HPP
+#define CSNBListCompressionFix_HPP
 
 #include "system.hpp"
 #include "../../datatypes/vector.hpp"
 
-class CSGlobCellHack: public CSystem
+class CSNBListCompressionFix: public CSystem
 {
 public:
-  CSGlobCellHack(DYNAMO::SimData*, Iflt);
+  CSNBListCompressionFix(DYNAMO::SimData*, Iflt, size_t);
   
-  virtual CSystem* Clone() const { return new CSGlobCellHack(*this); }
+  virtual CSystem* Clone() const { return new CSNBListCompressionFix(*this); }
 
   virtual void runEvent() const;
 
   virtual void initialise(size_t);
-
+  
   virtual void operator<<(const XMLNode&) {}
-
+  
 protected:
   virtual void outputXML(xmlw::XmlStream&) const {}
   
   Iflt growthRate;
-  Iflt maxOrigDiam;
-  CVector<long> cellCount;
   size_t cellID;
 };
 
