@@ -31,7 +31,7 @@ CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, Iflt nGR, 
   sysName = "GlobalCellsCompressionHack";
   type = NON_EVENT;
 
-  if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[cellID].get_ptr()) != NULL)
+  if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[cellID].get_ptr()) == NULL)
     D_throw() << "The ID passed to CSNBListCompressionFix isn't a CGNeighbourList";
 }
 
@@ -40,7 +40,7 @@ CSNBListCompressionFix::initialise(size_t nID)
 {
   ID = nID;
 
-  if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[cellID].get_ptr()) != NULL)
+  if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[cellID].get_ptr()) == NULL)
     D_throw() << "Have the globals been shuffled? The cellID is no longer a CGNeighbourList.";
   
   const CGNeighbourList& nblist(dynamic_cast<const CGNeighbourList&>

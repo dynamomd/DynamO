@@ -104,26 +104,30 @@ CIPCompression::checkOverlaps()
 void
 CIPCompression::CellSchedulerHack()
 {
-  BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
-    if (dynamic_cast<const CGNeighbourList*>(ptr.get_ptr()) != NULL)
-      {
-
-	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)
-	  {
-	    //Rebulid the collision scheduler without the overlapping
-	    //cells as it reduces the number of reinitialisations
-	    //required
-	    CGCells& cells(static_cast<CGCells&>(*ptr));	    
-	    oldLambda = cells.getLambda();	    
-	    cells.setLambda(0.0);
-	  }
-	    
-	//Add the system watcher
-	Sim->Dynamics.addSystem
-	  (new CSNBListCompressionFix(Sim, growthRate 
-				      / Sim->Dynamics.units().unitTime(),
-				      ptr->getID()));
-      }
+  for (size_t i(0); i < Sim->Dynamics.getGlobals().size(); ++i)
+    {      
+      if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[i].get_ptr()) != NULL)
+	{
+	  
+	  if (dynamic_cast<const CGCells*>(Sim->Dynamics.getGlobals()[i]
+					   .get_ptr()) != NULL)
+	    {
+	      //Rebulid the collision scheduler without the overlapping
+	      //cells as it reduces the number of reinitialisations
+	      //required
+	      CGCells& cells(static_cast<CGCells&>
+			     (*Sim->Dynamics.getGlobals()[i]));	    
+	      oldLambda = cells.getLambda();	    
+	      cells.setLambda(0.0);
+	    }
+	  
+	  //Add the system watcher
+	  Sim->Dynamics.addSystem
+	    (new CSNBListCompressionFix(Sim, growthRate 
+					/ Sim->Dynamics.units().unitTime(),
+					i));
+	}
+    }
 }
 
 void 

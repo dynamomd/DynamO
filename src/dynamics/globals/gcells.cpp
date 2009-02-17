@@ -485,7 +485,8 @@ CGCells::getMaxSupportedInteractionLength() const
     if (cellDimension[i] < cellDimension[minDiam])
       minDiam = i;
 
-  return 2 * cellLatticeWidth[minDiam] - cellDimension[minDiam];
+  return cellLatticeWidth[minDiam] 
+    + lambda * (cellLatticeWidth[minDiam] - cellDimension[minDiam]);
 }
 
 Iflt 
