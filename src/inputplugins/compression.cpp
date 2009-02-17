@@ -29,7 +29,7 @@
 #include "../datatypes/vector.hpp"
 #include "../base/is_simdata.hpp"
 #include "../schedulers/neighbourlist.hpp"
-#include "../dynamics/systems/globCellCompressionHack.hpp"
+#include "../dynamics/systems/nblistCompressionFix.hpp"
 #include "../dynamics/systems/tHalt.hpp"
 #include "../dynamics/species/species.hpp"
 #include "../dynamics/globals/gcells.hpp"
@@ -105,19 +105,24 @@ void
 CIPCompression::CellSchedulerHack()
 {
   BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
-    if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
+    if (dynamic_cast<const CGNeighbourList*>(ptr.get_ptr()) != NULL)
       {
-	//Rebulid the collision scheduler without the overlapping cells!
-	CGCells& cells(dynamic_cast<CGCells&>(*ptr));
-	
-	oldLambda = cells.getLambda();
-	
-	cells.setLambda(0.0);
-	
+
+	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)
+	  {
+	    //Rebulid the collision scheduler without the overlapping
+	    //cells as it reduces the number of reinitialisations
+	    //required
+	    CGCells& cells(static_cast<CGCells&>(*ptr));	    
+	    oldLambda = cells.getLambda();	    
+	    cells.setLambda(0.0);
+	  }
+	    
 	//Add the system watcher
 	Sim->Dynamics.addSystem
-	  (new CSGlobCellHack(Sim, growthRate 
-			      / Sim->Dynamics.units().unitTime()));
+	  (new CSNBListCompressionFix(Sim, growthRate 
+				      / Sim->Dynamics.units().unitTime(),
+				      ptr->getID()));
       }
 }
 
