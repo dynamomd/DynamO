@@ -46,7 +46,7 @@ CSNBListCompressionFix::initialise(size_t nID)
   const CGNeighbourList& nblist(dynamic_cast<const CGNeighbourList&>
 			       (*Sim->Dynamics.getGlobals()[cellID]));
 
-  dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate;
+  dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
 
   I_cout() << "Compression Hack Loaded"
 	   << "\nFor global " << nblist.getName()
@@ -81,13 +81,14 @@ CSNBListCompressionFix::runEvent() const
   CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>
 			  (*Sim->Dynamics.getGlobals()[cellID]));
   
-  I_cout() << "Rebuilding the neighbour list " << nblist.getName()
-	   << "\nNColl = " << Sim->lNColl; 
+  I_cout() << "Rebuilding the neighbour list named " << nblist.getName()
+	   << "\nNColl = " << Sim->lNColl
+	   << "\nSys t = " << Sim->dSysTime / Sim->Dynamics.units().unitTime();
   
   nblist.reinitialise(1.0001 * nblist.getMaxSupportedInteractionLength());
   
   dt = (nblist.getMaxSupportedInteractionLength()
-	/ nblist.getMaxInteractionLength() - 1.0) / growthRate;
+	/ nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
 
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
