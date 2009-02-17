@@ -241,13 +241,17 @@ CSimulation::loadXMLfile(const char *fileName)
 }
 
 void
-CSimulation::writeXMLfile(const char *fileName)
+CSimulation::writeXMLfile(const char *fileName, bool round)
 {
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot write out configuration in this state";
   
   //Particle data output handled by an output plugin
   COPConfig XMLconfig(this);
+  
+  if (round)
+    XMLconfig.setRounding();
+
   XMLconfig.fileOutput(fileName);
 }
 
@@ -303,6 +307,6 @@ CSimulation::outputData(const char* filename)
   XML << xmlw::endtag("OutputData");
 }
 
-long double 
+lIflt 
 CSimulation::getSysTime()
 { return dSysTime / Dynamics.units().unitTime(); }

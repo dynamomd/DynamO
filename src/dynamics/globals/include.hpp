@@ -15,6 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcells2.hpp"
+#include "gcells.hpp"
 #include "gListAndCell.hpp"
 #include "gcellsShearing.hpp"

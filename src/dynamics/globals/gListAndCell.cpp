@@ -30,7 +30,7 @@
 
 CGListAndCell::CGListAndCell(DYNAMO::SimData* nSim, 
 			     const std::string& name):
-  CGCells2(nSim, "ListAndCellNBList", NULL),
+  CGCells(nSim, "ListAndCellNBList", NULL),
   largestParticles(NULL)
 {
   globName = name;
@@ -38,7 +38,7 @@ CGListAndCell::CGListAndCell(DYNAMO::SimData* nSim,
 }
 
 CGListAndCell::CGListAndCell(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGCells2(ptrSim, "ListAndCellNBList"),
+  CGCells(ptrSim, "ListAndCellNBList"),
   largestParticles(NULL)
 {
   operator<<(XML);
@@ -117,11 +117,39 @@ void
 CGListAndCell::getParticleNeighbourhood(const CParticle& part,
 					const nbHoodFunc& func) const
 {
-  CGCells2::getParticleNeighbourhood(part, func);
+  CGCells::getParticleNeighbourhood(part, func);
   
   if (largestParticles->isInRange(part))
     //This is a large particle so tell it to compare against all other large particles
     BOOST_FOREACH(const size_t& ID, *largestParticles)
       if (ID != part.getID())
 	func(part, ID);
+}
+
+Iflt 
+CGListAndCell::getMaxInteractionLength() const
+{
+  Iflt secondMaxDiam = 0.0;
+  Iflt maxdiam = 0.0;
+  const CInteraction* biggest = NULL;
+  
+  if (Sim->Dynamics.getInteractions().size() < 2)
+    D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
+  
+  //Find the largest interaction
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+    if (intPtr->maxIntDist() > maxdiam)
+      {
+	maxdiam = intPtr->maxIntDist();
+	biggest = intPtr.get_ptr();
+      }
+  
+  //Find the second biggest
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+    if (intPtr->maxIntDist() > secondMaxDiam)
+      if (intPtr.get_ptr() != biggest)
+	secondMaxDiam = intPtr->maxIntDist();
+
+
+  return secondMaxDiam;
 }

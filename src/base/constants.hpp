@@ -24,8 +24,10 @@
 # ifdef DYNAMO_double_precsision
 #  define eps 1e-8
    typedef double Iflt;
+   typedef long double lIflt;
 # else
 #  define eps 1e-2
    typedef float Iflt;
+   typedef float lIflt;
 # endif
 #endif

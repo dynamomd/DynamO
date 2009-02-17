@@ -74,7 +74,7 @@ COPGeomview::printImage()
 	 << point[2] << " \n 1.0 1.0 1.0 1.0 }\n";
     }
 
-  DYNAMO::ColorMap<double> colmap(0, Sim->Dynamics.getSpecies().size());
+  DYNAMO::ColorMap<Iflt> colmap(0, Sim->Dynamics.getSpecies().size());
   DYNAMO::RGB tmpCol(0,0,0);
 
   unsigned int i = 0;

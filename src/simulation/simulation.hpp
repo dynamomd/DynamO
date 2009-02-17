@@ -60,7 +60,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   
   void loadXMLfile(const char *);
   
-  void writeXMLfile(const char *);
+  void writeXMLfile(const char *, bool round = false);
 
   void loadPlugins(std::string);
 
@@ -86,7 +86,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   CSystem* getSystem(std::string);
 
-  long double getSysTime();
+  lIflt getSysTime();
 
   inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const 
   { return Ensemble; }

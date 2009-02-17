@@ -52,11 +52,11 @@ public:
   
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual float getColourFraction(const CParticle&) const;
+  virtual Iflt getColourFraction(const CParticle&) const;
 
   std::vector<size_t>& getSequence() { return sequence; }
 
-  std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
+  std::vector<std::vector<Iflt> >& getAlphabet() { return alphabet; }
 
   virtual void write_povray_desc(const DYNAMO::RGB&, 
 				 const size_t&, 
@@ -68,7 +68,7 @@ protected:
   Iflt e;
 
   std::vector<size_t> sequence;
-  std::vector<std::vector<double> > alphabet;
+  std::vector<std::vector<Iflt> > alphabet;
 };
 
 #endif

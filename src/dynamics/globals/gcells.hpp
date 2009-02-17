@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGCells2_HPP
-#define CGCells2_HPP
+#ifndef CGCells_HPP
+#define CGCells_HPP
 
 #include "neighbourList.hpp"
 #include "../../extcode/mathtemplates.hpp"
@@ -24,18 +24,18 @@
 #include "../../simulation/particle.hpp"
 #include <vector>
 
-class CGCells2: public CGNeighbourList
+class CGCells: public CGNeighbourList
 {
 public:
-  CGCells2(const XMLNode&, DYNAMO::SimData*);
+  CGCells(const XMLNode&, DYNAMO::SimData*);
 
-  CGCells2(DYNAMO::SimData*, const std::string&);
+  CGCells(DYNAMO::SimData*, const std::string&);
 
-  virtual ~CGCells2() {}
+  virtual ~CGCells() {}
 
   virtual CGlobal* Clone() const 
   { 
-    return new CGCells2(*this); 
+    return new CGCells(*this); 
   }
 
   virtual CGlobEvent getEvent(const CParticle &) const;
@@ -61,8 +61,12 @@ public:
   CVector<> getCellDimensions() const 
   { return cellDimension; }
 
+  virtual Iflt getMaxSupportedInteractionLength() const;
+
+  virtual Iflt getMaxInteractionLength() const;
+
 protected:
-  CGCells2(DYNAMO::SimData*, const char*, void*);
+  CGCells(DYNAMO::SimData*, const char*, void*);
 
   struct partCEntry
   {

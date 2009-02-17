@@ -163,7 +163,7 @@ CEReplexer::outputData()
     
     replexof << "Number_of_replex_cycles " << replexSwapCalls
 	     << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-	     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
+	     << "\nReplex Rate " << static_cast<Iflt>(replexSwapCalls) / static_cast<Iflt>((end_Time - start_Time).total_seconds())
 	     << "\n";	
     
     replexof.close();
@@ -253,7 +253,7 @@ CEReplexer::printStatus()
       std::cout << " " << std::setw(8)
 		<< Simulations[dat.second.simID].getnColl()/1000 << "k" 
 		<< " " << std::setw(9)
-		<< ( static_cast<float>(dat.second.swaps) / dat.second.attempts)
+		<< ( static_cast<Iflt>(dat.second.swaps) / dat.second.attempts)
 		<< " " << std::setw(9)
 		<< dat.second.swaps 
 		<< " " << std::setw(9)
@@ -507,7 +507,7 @@ void CEReplexer::runSimulation()
 		    
 	    replexof << "Number_of_replex_cycles " << replexSwapCalls
 		     << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-		     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
+		     << "\nReplex Rate " << static_cast<Iflt>(replexSwapCalls) / static_cast<Iflt>((end_Time - start_Time).total_seconds())
 		     << "\n";	
 		    
 	    replexof.close();

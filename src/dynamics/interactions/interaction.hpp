@@ -84,7 +84,7 @@ public:
 
   virtual void checkOverlaps(const CParticle&, const CParticle&) const = 0;
 
-  virtual float getColourFraction(const CParticle&) const { return 0.5; } 
+  virtual Iflt getColourFraction(const CParticle&) const { return 0.5; } 
 
   inline const size_t& getID() const { return ID; }
 

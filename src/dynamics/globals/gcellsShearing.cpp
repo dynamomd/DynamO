@@ -31,7 +31,7 @@
 
 CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
 				 const std::string& name):
-  CGCells2(nSim, "ShearingCells", NULL)
+  CGCells(nSim, "ShearingCells", NULL)
 {
   globName = name;
   I_cout() << "Shearing Cells Loaded";
@@ -39,7 +39,7 @@ CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim,
 
 CGCellsShearing::CGCellsShearing(const XMLNode &XML, 
 				 DYNAMO::SimData* ptrSim):
-  CGCells2(ptrSim, "ShearingCells")
+  CGCells(ptrSim, "ShearingCells")
 {
   operator<<(XML);
 
@@ -114,7 +114,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
       
       //Calculate the final x value
       //Time till transition, assumes the particle is up to date
-      double dt = Sim->Dynamics.Liouvillean().getSquareCellCollision2
+      Iflt dt = Sim->Dynamics.Liouvillean().getSquareCellCollision2
 	(part, cells[partCellData[part.getID()].cell].origin, 
 	 cellDimension);
      
@@ -307,7 +307,7 @@ void
 CGCellsShearing::getParticleNeighbourhood(const CParticle& part,
 				   const nbHoodFunc& func) const
 {
-  CGCells2::getParticleNeighbourhood(part, func);
+  CGCells::getParticleNeighbourhood(part, func);
   
   CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
   if ((coords[1] == 0) || (coords[1] == cellCount[1] - 1))

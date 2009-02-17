@@ -177,6 +177,10 @@ public:
       sigReInitNotify.end());
   }
 
+  virtual Iflt getMaxSupportedInteractionLength() const = 0;
+
+  virtual Iflt getMaxInteractionLength() const = 0;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 

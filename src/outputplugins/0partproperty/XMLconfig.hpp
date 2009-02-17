@@ -42,6 +42,11 @@ class COPConfig: public COutputPlugin
   virtual COutputPlugin *Clone() const { return new COPConfig(*this); };
 
   void fileOutput(const char *);
+
+  void setRounding();
+
+private:
+  bool rounding;
 };
 
 #endif

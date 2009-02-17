@@ -49,7 +49,7 @@ CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
   
   alphabet.resize(letters.size());
   
-  BOOST_FOREACH(std::vector<double>& vec, alphabet)
+  BOOST_FOREACH(std::vector<Iflt>& vec, alphabet)
     vec.resize(letters.size(), 0.0);
 }
 
@@ -59,10 +59,10 @@ CISWSequence::CISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
   operator<<(XML);
 }
 
-float 
+Iflt 
 CISWSequence::getColourFraction(const CParticle& part) const
 {
-  return (sequence[part.getID() % sequence.size()] + 0.5) / static_cast<double>(alphabet.size());   
+  return (sequence[part.getID() % sequence.size()] + 0.5) / static_cast<Iflt>(alphabet.size());   
 }
 
 void 
@@ -151,7 +151,7 @@ CISWSequence::operator<<(const XMLNode& XML)
     //Initialise all the well depths to 1.0
     alphabet.resize(letters.size());
 
-    BOOST_FOREACH(std::vector<double>& vec, alphabet)
+    BOOST_FOREACH(std::vector<Iflt>& vec, alphabet)
       vec.resize(letters.size(), 0.0);
 
     //Load the sequence
@@ -166,12 +166,12 @@ CISWSequence::operator<<(const XMLNode& XML)
 	alphabet
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter1")))
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter2")))
-	  = boost::lexical_cast<double>(browseNode.getAttribute("Depth"));
+	  = boost::lexical_cast<Iflt>(browseNode.getAttribute("Depth"));
 
 	alphabet
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter2")))
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter1")))
-	  = boost::lexical_cast<double>(browseNode.getAttribute("Depth"));
+	  = boost::lexical_cast<Iflt>(browseNode.getAttribute("Depth"));
       }
 
   }
@@ -189,7 +189,7 @@ Iflt
 CISWSequence::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
-  double Energy = 0.0;
+  Iflt Energy = 0.0;
   typedef std::pair<size_t, size_t> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
@@ -416,7 +416,7 @@ CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 {
   CVector<> rij = part1.getPosition() - part2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
-  double r2 = rij.square();
+  Iflt r2 = rij.square();
 
   if (isCaptured(part1, part2))
     {

@@ -18,11 +18,11 @@
 #ifndef CGListAndCell_HPP
 #define CGListAndCell_HPP
 
-#include "gcells2.hpp"
+#include "gcells.hpp"
 #include "../ranges/1range.hpp"
 
 
-class CGListAndCell: public CGCells2
+class CGListAndCell: public CGCells
 {
 public:
   CGListAndCell(const XMLNode&, DYNAMO::SimData*);
@@ -40,6 +40,8 @@ public:
 					const nbHoodFunc&) const;
 
   virtual void operator<<(const XMLNode&);
+
+  virtual Iflt getMaxInteractionLength() const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

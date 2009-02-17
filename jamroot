@@ -32,6 +32,13 @@ project	: requirements <variant>debug:<define>DYNAMO_DEBUG
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
+	  
+	  #This enables the SSE2 instruction set which offers a
+	  #15% performance increase
+	  <toolset>gcc:<cxxflags>-funroll-loops
+	  <toolset>gcc:<cxxflags>-msse2
+	  <toolset>gcc:<cxxflags>-mfpmath=sse
+
 	  <tag>@dynamo-tags.naming
 	: default-build release
 	: build-dir build-dir
@@ -46,22 +53,22 @@ variant massif : <inlining>off <optimization>speed <debug-symbols>on
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
 
 exe dynareplex_opt 
-    : programs/replex_opt.cpp boost//program_options 
+    : programs/dynareplex_opt.cpp boost//program_options 
     :
     ;
 
 exe dynahist_rw 
-    : programs/hist_rw.cpp src//dynamo_core/<link>static
+    : programs/dynahist_rw.cpp src//dynamo_core/<link>static
     :
     ;
 
 exe dynarun 
-    : programs/mdrun.cpp src//dynamo_core/<link>static
+    : programs/dynarun.cpp src//dynamo_core/<link>static
     : 
     ;
 
 exe dynamod 
-    : programs/configmod.cpp src//dynamo_core/<link>static
+    : programs/dynamod.cpp src//dynamo_core/<link>static
     : 
     ;
 

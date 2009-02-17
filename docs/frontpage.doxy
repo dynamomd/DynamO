@@ -6,17 +6,17 @@
  * contained in the programs/ directory. The description of the
  * programs are
  * 
- * - dynarun (programs/mdrun.cpp) - The simulation program, runs
+ * - dynarun (programs/dynarun.cpp) - The simulation program, runs
  * trajectories and collects/outputs data.
  * 
- * - dynamod (programs/configmod.cpp) - The configuration
+ * - dynamod (programs/dynamod.cpp) - The configuration
  * editor/generator.
  *
- * - dynahist_rw (programs/hist_rw.cpp) - Can perform histogram
+ * - dynahist_rw (programs/dynahist_rw.cpp) - Can perform histogram
  * reweighting on output from a replica exchange/ parallel tempering
  * program (see the simulation engine CEReplexer).
  *
- * - dynareplex_opt (programs/replex_opt.cpp) - This is an
+ * - dynareplex_opt (programs/dynareplex_opt.cpp) - This is an
  * implementation of the replica exchange optimisation described by
  * Katzgraber et
  * al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).

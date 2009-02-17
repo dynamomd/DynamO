@@ -91,7 +91,7 @@ COPMSD::calcStructMSD(const CTopology& Itop) const
       Iflt totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
-	  double pmass = Sim->Dynamics.getSpecies(Sim->vParticleList[ID])
+	  Iflt pmass = Sim->Dynamics.getSpecies(Sim->vParticleList[ID])
 	    .getMass();
 
 	  totmass += pmass;

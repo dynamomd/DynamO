@@ -162,6 +162,7 @@ function wallsw {
     #doing 9995 as this stops any 2 periodicity
     $Dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
     
+    $Dynamod --text --round config.out.xml.bz2 > /dev/null
     $Dynamod --text config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
@@ -194,7 +195,9 @@ function umbrella {
     #Any multiple of 12 will/should always give the original configuration
     #doing only 12 to stop error creeping in
     $Dynarun -c 12 $2 tmp.xml.bz2 &> run.log
-    
+
+    ##This rounds the last digit off 
+    $Dynamod --text --round config.out.xml.bz2 > /dev/null
     $Dynamod --text config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
@@ -228,9 +231,12 @@ function cannon {
     $Dynarun -c 1000 tmp.xml.bz2 &> run.log
     
     if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 | \
-	    $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') != "3" ]; then
-	    echo "$1 Cannon -: FAILED"
+	var=$(bzcat output.xml.bz2 | \
+	    $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{print int($1 * 10000000000)/10000000000.0}')
+
+	if [ $var != "3" ]; then
+	    echo "$1 Cannon -: FAILED  " $var
 	    exit 1
 	else
 	    echo "$1 Cannon -: PASSED"

@@ -22,7 +22,7 @@
 
 struct CUHelix: public CUCell
 {
-  CUHelix(long CL, long RL, double WL, double D, CUCell* nextCell):
+  CUHelix(long CL, long RL, Iflt WL, Iflt D, CUCell* nextCell):
     CUCell(nextCell),
     chainlength(CL),
     ringlength(RL),
@@ -32,15 +32,15 @@ struct CUHelix: public CUCell
 
   long chainlength;
   long ringlength;
-  double walklength;
-  double diameter;
+  Iflt walklength;
+  Iflt diameter;
   
   virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
   {
-    double a = diameter * (0.5 / PI);
-    double sigstep = 2.0 * PI / ringlength;
-    double zcentre = a * (chainlength - 1) * sigstep * a;
-    double radius = 0.5 * std::sqrt(walklength * walklength - std::pow(a / ringlength,2)) / std::sin(PI / ringlength);
+    Iflt a = diameter * (0.5 / PI);
+    Iflt sigstep = 2.0 * PI / ringlength;
+    Iflt zcentre = a * (chainlength - 1) * sigstep * a;
+    Iflt radius = 0.5 * std::sqrt(walklength * walklength - std::pow(a / ringlength,2)) / std::sin(PI / ringlength);
 
     std::vector<CVector<> > localsites;
     
