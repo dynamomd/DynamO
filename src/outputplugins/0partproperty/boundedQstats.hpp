@@ -41,7 +41,7 @@ class COPBoundedQStats: public COPCollTicker
  protected:
   
   C1DHistogram treeSize;
-  std::vector<size_t> eventdist;
+  //std::vector<size_t> eventdist;
   size_t counter;
   
 };

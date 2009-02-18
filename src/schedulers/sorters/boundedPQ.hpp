@@ -155,7 +155,7 @@ public:
       }
     else
       {
-	Iflt nscale = counter / acc;
+	Iflt nscale = 40 * counter / acc;
 	
 	//Determine where the queue ends
 	std::vector<pList>::reverse_iterator rIt = tmpList.rbegin();
@@ -163,9 +163,8 @@ public:
 	  ++rIt;
 	
 	//Determine the number of lists as the number required to cover
-	//the current list plus some factor to reduce exceptions and
-	//stream events
-	int newnlists = static_cast<int>(2.0 * rIt->getdt() * nscale);
+	//the current list 
+	int newnlists = static_cast<int>(rIt->getdt() * nscale);
 	
 	init(nscale, newnlists);
       }

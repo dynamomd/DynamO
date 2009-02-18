@@ -35,8 +35,8 @@ COPBoundedQStats::initialise()
       (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
     D_throw() << "Not a bounded queue sorter!";
 
-  eventdist.resize(dynamic_cast<const CSSBoundedPQ&>
-      (*Sim->ptrScheduler->getSorter()).NLists() - 1,0);
+  /*  eventdist.resize(dynamic_cast<const CSSBoundedPQ&>
+      (*Sim->ptrScheduler->getSorter()).NLists() - 1,0);*/
 }
 
 void 
@@ -47,13 +47,13 @@ COPBoundedQStats::ticker()
  
   treeSize.addVal(sorter.treeSize());
 
-  if (!(Sim->lNColl % 100))
+  /*if (!(Sim->lNColl % 100))
     {
       ++counter;
       std::vector<size_t> tmpList = sorter.getEventCounts();
       for (size_t i = 0; i < tmpList.size(); ++i)
 	eventdist[i] += tmpList[i];
-    }
+	}*/
 }
 
 void 
@@ -69,7 +69,7 @@ COPBoundedQStats::output(xmlw::XmlStream& XML)
   treeSize.outputHistogram(XML,1.0);
 
   XML << xmlw::endtag("CBTSize")
-      << xmlw::tag("treedist")
+    /*<< xmlw::tag("treedist")
       << xmlw::chardata();
 
   for (size_t i = 0; i < eventdist.size(); ++i)
@@ -77,6 +77,6 @@ COPBoundedQStats::output(xmlw::XmlStream& XML)
 	<< ((Iflt) eventdist[i])/ ((Iflt) counter)
 	<< "\n";
 
-  XML << xmlw::endtag("treedist")
+	XML << xmlw::endtag("treedist")*/
       << xmlw::endtag("boundedQstats");
 }

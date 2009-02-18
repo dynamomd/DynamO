@@ -16,7 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if [ $(whereis -b povray | wc -w) -lt 2 ]; then 
-    echo 'No geomview installed!' 
+    echo 'No povray installed!' 
     exit 
 fi
 
