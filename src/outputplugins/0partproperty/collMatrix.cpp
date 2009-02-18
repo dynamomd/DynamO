@@ -29,12 +29,13 @@ COPCollMatrix::COPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
   totalCount(0),
   IDcounter(0)
 {
-  lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
 }
 
 void 
 COPCollMatrix::initialise()
-{}
+{
+  lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
+}
 
 COPCollMatrix::~COPCollMatrix()
 {}
