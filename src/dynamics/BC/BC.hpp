@@ -117,11 +117,6 @@ class CBC: public DYNAMO::SimBase_const
  protected:
   /*! \brief The XML output for a CBC class*/
   virtual void outputXML(xmlw::XmlStream &XML) const = 0;
-
-  /*! \brief The actual positional rounding to carry out on a position
-   * vector.
-   */
-  virtual void rounding(CVector<> &) const {}
 };
 
 #endif

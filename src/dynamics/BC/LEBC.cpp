@@ -169,7 +169,8 @@ CSLEBC::setPBC(CVector<> &pos) const
   //Shift the x distance due to the Lee's Edwards conditions
   pos.data[0] -= rint(pos.data[1])*dxd;
   
-  rounding(pos);
+  for (size_t n = 0; n < NDIM; ++n)
+    pos.data[n] -= rintfunc (pos.data[n]);
 }
 
 void 
