@@ -210,8 +210,9 @@ CGCellsShearing::runEvent(const CParticle& part) const
       //after all events are added
       Sim->ptrScheduler->popNextEvent();
       
-      if ((cells[oldCell].coords[1] == ((vel[1] < 0) ? 0 : (cellCount[1] - 1)))
-	  && cellDirection == 2)
+      if ((cellDirection == 2) 
+	  && ((cells[oldCell].coords[1] == 0) 
+	      || (cells[oldCell].coords[1] == cellCount[1] - 1)))
 	//We're at the boundary moving in the z direction, we must
 	//add the new LE strips as neighbours	
 	//We just check the entire Extra LE neighbourhood
@@ -287,7 +288,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
   //Debug section
 #ifdef DYNAMO_WallCollDebug
   {      
-    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
+    CVector<int> tmp = cells[oldCell].coords;
     CVector<int> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
