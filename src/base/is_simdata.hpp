@@ -198,9 +198,11 @@ namespace DYNAMO
 
     /*! \brief Call all registered functions requiring a callback on
         particle changes.*/
-    void  signalParticleUpdate(const CNParticleData&) const;
+    void signalParticleUpdate(const CNParticleData&) const;
 
+    void replexerSwap(SimData&);
   private:
+    
     mutable std::vector<particleUpdateFunc> _particleUpdateNotify;
   };
 
