@@ -43,7 +43,10 @@ public:
 				       const CVector<>&
 				       ) const;
   
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
+  virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
+
+  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, 
+					   const EEventType& eType) const;
 
   virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, 
 			       Iflt&, const Iflt&, CPDData&) const;

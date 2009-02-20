@@ -19,6 +19,7 @@
 #define CGPBCSentinel_HPP
 
 #include "global.hpp"
+#include <vector>
 
 class CGPBCSentinel: public CGlobal
 {
@@ -40,9 +41,13 @@ public:
   virtual void operator<<(const XMLNode&);
 
 protected:
+  void particlesUpdated(const CNParticleData&);
+
   virtual void outputXML(xmlw::XmlStream&) const;
 
   Iflt maxintdist;
+
+  std::vector<Iflt> cachedTimes;
 };
 
 #endif

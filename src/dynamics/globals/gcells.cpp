@@ -106,7 +106,7 @@ CGCells::getEvent(const CParticle& part) const
 		     cellDimension)
 		    -Sim->Dynamics.Liouvillean().getParticleDelay(part)
 		    ,
-		    VIRTUAL, *this);
+		    CELL, *this);
 }
 
 void

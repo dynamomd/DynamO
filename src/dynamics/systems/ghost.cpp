@@ -108,12 +108,13 @@ CSysGhost::runEvent() const
   CNParticleData SDat(Sim->Dynamics.Liouvillean().randomGaussianEvent
 		      (part, sqrtTemp));
   
+  Sim->signalParticleUpdate(SDat);
+
   Sim->ptrScheduler->fullUpdate(part);
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt);
 
-  Sim->signalParticleUpdate(SDat);
 }
 
 void 

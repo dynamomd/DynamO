@@ -191,6 +191,24 @@ public:
 				    const CParticle& p1, const CParticle& p2
 				    ) const;
 
+  /*! \brief Calculates when a particle has travelled far enough to
+   *   change its nearest-images. 
+   *
+   *   This is required in low density configurations. The time
+   *   returned in a normal system is 
+   *   \f[ 
+   *   t=Min\left(\left[L_\alpha/2 - \sigma\right]/\left|v\right|_\alpha\right) 
+   *   \f]
+   *
+   *   where \f$\alpha\f$ is the dimension, \f$\sigma\f$ is the maximum
+   *   interaction distance and \f${\bf L}\f$ is the sim box dimensions.
+   *
+   * \param part Particle tested
+   * \param maxl The maximum range of the particles interactions.
+   * \return Time of the event.
+   */    
+  virtual Iflt getPBCSentinelTime(const CParticle& p1, const Iflt& maxl) const;
+
   /*! \brief Runs a line line collision event
    *
    * \param eevent Description of the scheduled event

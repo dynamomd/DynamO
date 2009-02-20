@@ -469,3 +469,28 @@ CLNewton::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") 
       << "Newtonian";
 }
+
+Iflt 
+CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(part))
+    D_throw() << "Particle is not up to date";
+#endif
+
+  CVector<> pos(part.getPosition()), vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+
+  Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / fabs(vel[0]);
+
+  for (size_t i(1); i < NDIM; ++i)
+    {
+      Iflt tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
+
+      if (tmp < retval)
+	retval = tmp;
+    }
+
+  return retval;
+}

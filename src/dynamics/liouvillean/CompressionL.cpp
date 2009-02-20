@@ -197,3 +197,29 @@ CLCompression::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") 
       << "Compression";
 }
+
+Iflt 
+CLCompression::getPBCSentinelTime(const CParticle& part,
+				  const Iflt& lMax) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(part))
+    D_throw() << "Particle is not up to date";
+#endif
+
+  CVector<> pos(part.getPosition()), vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+
+  Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / (abs(vel[0]) + lMax * growthRate);
+
+  for (size_t i(1); i < NDIM; ++i)
+    {
+      Iflt tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (abs(vel[0]) + lMax * growthRate);
+      
+      if (tmp < retval)
+	retval = tmp;
+    }
+
+  return retval;
+}

@@ -207,13 +207,14 @@ CILines::runEvent(const CParticle& p1,
 	C2ParticleData retval(Sim->Dynamics.Liouvillean().runLineLineCollision
 			      (iEvent, length));
 
+	Sim->signalParticleUpdate(retval);
+	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, 
+		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
 
-	Sim->signalParticleUpdate(CNParticleData(retval));
-	
 	break;
       }
     case WELL_IN:
@@ -228,11 +229,12 @@ CILines::runEvent(const CParticle& p1,
 	retval.dP = CVector<>(0.0);
 	retval.deltake = CVector<>(0.0);	
 	
+	Sim->signalParticleUpdate(retval);
+	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, 
+		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
-
-	Sim->signalParticleUpdate(CNParticleData(retval));
 
 	break;
       }
@@ -248,12 +250,12 @@ CILines::runEvent(const CParticle& p1,
 	retval.dP = CVector<>(0.0);
 	retval.deltake = CVector<>(0.0);	
 
+	Sim->signalParticleUpdate(retval);
 	Sim->ptrScheduler->fullUpdate(p1, p2);
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retval);
 
-	Sim->signalParticleUpdate(retval.particle1_);
-	Sim->signalParticleUpdate(retval.particle2_);
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, 
+		      Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retval);
 
 	break;
       }

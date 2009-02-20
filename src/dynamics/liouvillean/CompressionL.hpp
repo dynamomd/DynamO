@@ -38,6 +38,8 @@ public:
   virtual CLiouvillean* Clone() const { return new CLCompression(*this); };
 
   Iflt getGrowthRate() const { return growthRate; }
+
+  virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
   
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
