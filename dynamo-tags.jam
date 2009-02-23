@@ -28,6 +28,7 @@ rule naming ( name : type ? : property-set )
      case cachegrind : result += $(name)_cg ;
      case profile : result += $(name)_p ;
      case massif : result += $(name)_mf ;
+     case PGO : result += $(name)_pgo ;
      case * : result += $(name) ;
      }
   }

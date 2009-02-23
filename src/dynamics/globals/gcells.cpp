@@ -434,33 +434,26 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 
   for (int iDim(0); iDim < 3; ++iDim)
     {
-      if (coords[2] + iDim == cellCount[2]) nb -= NCells;
+      nb -= (coords[2] + iDim == cellCount[2]) * NCells;
 
       for (int jDim(0); jDim < 3; ++jDim)
 	{
-	  if (coords[1] + jDim == cellCount[1]) 
-	    nb -= cellCount[1] * cellCount[0];
-
+	  nb -= (coords[1] + jDim == cellCount[1]) * cellCount[1] * cellCount[0];
+	  
 	  for (int kDim(0); kDim < 3; ++kDim)
 	    {
-	      if (coords[0] + kDim == cellCount[0]) nb -= cellCount[0];
+	      nb -= (coords[0] + kDim == cellCount[0]) * cellCount[0];
 	      
-	      for (int next(cells[nb].list);
+	      for (int next(cells[nb++].list);
 		   next >= 0; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
-	    
-	      ++nb;
 	    }
 
-	  if (coords[0] + 2 >= cellCount[0]) nb += cellCount[0];
-
-	  nb += cellCount[0] - 3;
+	  nb += (1 + (coords[0] + 2 >= cellCount[0])) * cellCount[0] - 3;
 	}
 
-      if (coords[1] + 2 >= cellCount[1]) nb += cellCount[1] * cellCount[0];
-
-      nb += (cellCount[1] - 3) * cellCount[0];
+      nb += ((1 + (coords[1] + 2 >= cellCount[1])) * cellCount[1] - 3) * cellCount[0];
     }
 }
 

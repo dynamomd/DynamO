@@ -44,6 +44,10 @@ project	: requirements <variant>debug:<define>DYNAMO_DEBUG
 	: build-dir build-dir
 	;
 
+#variant PGO : release : <profiling>on <cxxflags>-fprofile-generate <linkflags>-fprofile-generate ;
+
+variant PGO : release : <cxxflags>-fprofile-use <linkflags>-fprofile-use ;
+
 variant cachegrind : <inlining>on <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
@@ -51,6 +55,7 @@ variant massif : <inlining>off <optimization>speed <debug-symbols>on
 	<profiling>off ;
 
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
+
 
 exe dynareplex_opt 
     : programs/dynareplex_opt.cpp boost//program_options 
