@@ -78,6 +78,8 @@ CSUmbrella::runEvent() const
   CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyCollision
 		      (*range1, *range2, w2, UMBRELLA));
 
+  Sim->signalParticleUpdate(SDat);
+
   //Only 1ParticleEvents occur
   BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
     Sim->ptrScheduler->fullUpdate(PDat.getParticle());
@@ -85,7 +87,6 @@ CSUmbrella::runEvent() const
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt);
   
-  Sim->signalParticleUpdate(SDat);
 }
 
 void

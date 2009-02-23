@@ -25,8 +25,8 @@ class CNParticleData
 {
 public:
   CNParticleData() {};
-  CNParticleData(C1ParticleData a) { L1partChanges.push_back(a); }
-  CNParticleData(C2ParticleData a) { L2partChanges.push_back(a); }
+  CNParticleData(const C1ParticleData& a) { L1partChanges.push_back(a); }
+  CNParticleData(const C2ParticleData& a) { L2partChanges.push_back(a); }
 
   std::list<C1ParticleData> L1partChanges;
   std::list<C2ParticleData> L2partChanges;

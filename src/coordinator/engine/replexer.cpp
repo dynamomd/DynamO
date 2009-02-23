@@ -18,7 +18,6 @@
 #include "replexer.hpp"
 #include "../../dynamics/systems/tHalt.hpp"
 #include "../../dynamics/systems/ghost.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
 #include "../../extcode/threadpool.hpp"
@@ -380,7 +379,6 @@ CEReplexer::ReplexSwapTicker()
 void 
 CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 {
-  //D_throw() << "I broke this when this was added as a commit, check the gitk loh\nIt's something to do with improperly handled system events on exchange which I broke during the system event revamp.\n The last working commit was bf52ad0782fcf46e7690e961cc9fa51af57fb08e";
   CSimulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
   CSimulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
 
@@ -392,72 +390,7 @@ CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
   if (exp(sim1.getEnsemble()->exchangeProbability(*sim2.getEnsemble()))
       > boost::uniform_01<DYNAMO::baseRNG, Iflt>(sim1.ranGenerator)())
     {
-      //Get all particles up to date and zero the pecTimes
-      sim1.Dynamics.Liouvillean().updateAllParticles();
-      sim2.Dynamics.Liouvillean().updateAllParticles();
-      
-      std::swap(sim1.dSysTime, sim2.dSysTime);
-      std::swap(sim1.lNColl, sim2.lNColl);
-      
-      sim1.Dynamics.getSystemEvents().swap(sim2.Dynamics.getSystemEvents());
-
-      BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, sim1.Dynamics.getSystemEvents())
-	aPtr->changeSystem(&sim1);
-
-      BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, sim2.Dynamics.getSystemEvents())
-	aPtr->changeSystem(&sim2);
-      
-      //Rescale the velocities     
-      Iflt scale1(sqrt(sim2.getEnsemble()->getEnsembleVals()[2]
-		       / sim1.getEnsemble()->getEnsembleVals()[2]));
-
-      BOOST_FOREACH(CParticle& part, sim1.vParticleList)
-	part.scaleVelocity(scale1);
-
-      sim2.ptrScheduler->rescaleTimes(scale1);
-      
-      Iflt scale2(1.0 / scale1);
-      
-      BOOST_FOREACH(CParticle& part, sim2.vParticleList)
-	part.scaleVelocity(scale2);
-      
-      sim1.ptrScheduler->rescaleTimes(scale2);
-      
-      sim1.ptrScheduler->rebuildSystemEvents();
-      sim2.ptrScheduler->rebuildSystemEvents();
-      //If this is broken use this
-      //sim1.ptrScheduler->rebuildList();
-    
-      //Globals?
-#ifdef DYNAMO_DEBUG
-      if (sim1.outputPlugins.size() != sim2.outputPlugins.size())
-	std::cerr << "Error, could not swap output plugin lists as they are not equal in size";
-#endif
-
-      sim1.outputPlugins.swap(sim2.outputPlugins);      
-
-      {
-	std::vector<smrtPlugPtr<COutputPlugin> >::iterator iPtr1 = sim1.outputPlugins.begin(), 
-	  iPtr2 = sim2.outputPlugins.begin();
-
-	while (iPtr1 != sim1.outputPlugins.end())
-	  {
-#ifdef DYNAMO_DEBUG
-	    if (typeid(*(*iPtr1)) != typeid(*(*iPtr2)))
-	      D_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
-#endif
-
-	    (*iPtr1)->changeSystem(iPtr2->get_ptr());
-
-	    (*iPtr1)->temperatureRescale(scale1);
-	    (*iPtr2)->temperatureRescale(scale2);
-
-	    ++iPtr1; 
-	    ++iPtr2;
-	  }
-      }
-
-      sim1.getEnsemble()->exchange(*sim2.getEnsemble());
+      sim1.replexerSwap(sim2);
 
       //Swapping the sort data
       std::swap(temperatureList[sim1ID].second.simID, temperatureList[sim2ID].second.simID);

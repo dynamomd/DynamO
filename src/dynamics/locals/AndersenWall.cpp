@@ -97,13 +97,12 @@ CLAndersenWall::runEvent(const CParticle& part) const
     (Sim->Dynamics.Liouvillean().runAndersenWallCollision
      (part, vNorm, sqrtT));
 
+  Sim->signalParticleUpdate(EDat);
+
   Sim->ptrScheduler->fullUpdate(part);
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
-
-  Sim->signalParticleUpdate(EDat.L1partChanges.front());
-
 }
 
 bool 

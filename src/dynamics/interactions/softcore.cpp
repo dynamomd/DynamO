@@ -212,12 +212,12 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2) const
 	  addToCaptureMap(p1, p2);      
 	
 	//Now we're past the event, update the scheduler and plugins
+	Sim->signalParticleUpdate(retVal);
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
-	Sim->signalParticleUpdate(CNParticleData(retVal));
 
 	break;
       }
@@ -229,13 +229,14 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2) const
 	if (retVal.getType() != BOUNCE)
 	  removeFromCaptureMap(p1, p2);      
 	
+	Sim->signalParticleUpdate(retVal);
+
 	//Now we're past the event, update the scheduler and plugins
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, 
+		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
-
-	Sim->signalParticleUpdate(CNParticleData(retVal));
 
 	break;
       }

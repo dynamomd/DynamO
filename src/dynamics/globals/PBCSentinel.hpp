@@ -15,7 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcells.hpp"
-#include "gListAndCell.hpp"
-#include "gcellsShearing.hpp"
-#include "PBCSentinel.hpp"
+#ifndef CGPBCSentinel_HPP
+#define CGPBCSentinel_HPP
+
+#include "global.hpp"
+#include <vector>
+
+class CGPBCSentinel: public CGlobal
+{
+public:
+  CGPBCSentinel(const XMLNode&, DYNAMO::SimData*);
+
+  CGPBCSentinel(DYNAMO::SimData*, const std::string&);
+  
+  virtual ~CGPBCSentinel() {}
+
+  virtual CGlobal* Clone() const { return new CGPBCSentinel(*this); };
+
+  virtual CGlobEvent getEvent(const CParticle &) const;
+
+  virtual void runEvent(const CParticle&) const;
+
+  virtual void initialise(size_t);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  void particlesUpdated(const CNParticleData&);
+
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+  Iflt maxintdist;
+
+  std::vector<Iflt> cachedTimes;
+};
+
+#endif

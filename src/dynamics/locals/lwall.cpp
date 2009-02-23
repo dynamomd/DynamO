@@ -85,13 +85,13 @@ CLWall::runEvent(const CParticle& part) const
   CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
 		      (part, vNorm, e));
 
+  Sim->signalParticleUpdate(EDat);
+
   //Now we're past the event update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
-
-  Sim->signalParticleUpdate(EDat.L1partChanges.front());
 }
 
 bool 

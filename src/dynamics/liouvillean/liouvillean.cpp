@@ -64,6 +64,10 @@ CLiouvillean::getLineLineCollision(CPDData&, const Iflt&,
 				   ) const
 { D_throw() << "Not implemented for this Liouvillean."; }
 
+Iflt 
+CLiouvillean::getPBCSentinelTime(const CParticle&, const Iflt&) const
+{ D_throw() << "Not implemented for this Liouvillean."; }
+
 void 
 CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 {
@@ -223,3 +227,4 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 
   XML << xmlw::endtag("ParticleData");
 }
+

@@ -353,13 +353,12 @@ CISWSequence::runEvent(const CParticle& p1,
     case CORE:
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
+	Sim->signalParticleUpdate(retVal);
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
-
-	Sim->signalParticleUpdate(CNParticleData(retVal));
 
 	break;
       }
@@ -375,12 +374,12 @@ CISWSequence::runEvent(const CParticle& p1,
 	if (retVal.getType() != BOUNCE)
 	  addToCaptureMap(p1, p2);      
 
+	Sim->signalParticleUpdate(retVal);
+
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
-
-	Sim->signalParticleUpdate(CNParticleData(retVal));
 
 	break;
       }
@@ -396,13 +395,12 @@ CISWSequence::runEvent(const CParticle& p1,
 	if (retVal.getType() != BOUNCE)
 	  removeFromCaptureMap(p1, p2);
 	
+	Sim->signalParticleUpdate(retVal);
+
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
 	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
-
-	Sim->signalParticleUpdate(retVal.particle1_);
-	Sim->signalParticleUpdate(retVal.particle2_);
 
 	break;
       }

@@ -185,13 +185,13 @@ CIHardSphere::runEvent(const CParticle& p1,
   C2ParticleData EDat
     (Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2)); 
 
+  Sim->signalParticleUpdate(EDat);
+
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
-
-  Sim->signalParticleUpdate(EDat);
 }
    
 void 
