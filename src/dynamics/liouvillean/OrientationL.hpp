@@ -102,7 +102,8 @@ protected:
 
   virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
 
-  virtual Iflt frenkelRecursiveSearch(orientationStreamType A, orientationStreamType B, Iflt length, Iflt t_low, Iflt t_up, Iflt currentClock) const;
+  virtual Iflt frenkelRootSearch(orientationStreamType A, orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const;
+  virtual Iflt quadraticRootHunter(const orientationStreamType LineA, const orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const;
 
   virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
   virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B) const;
@@ -112,8 +113,6 @@ protected:
   virtual Iflt F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const;
   
   virtual void performRotation(orientationStreamType& osret, const Iflt& dt) const;
-
-  virtual Iflt quadraticRootFinder(orientationStreamType A, orientationStreamType B, Iflt initialJump) const;
   
   virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
