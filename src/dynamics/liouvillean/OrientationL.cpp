@@ -58,9 +58,11 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
 
-  frenkelRootSearch(A, B, length, t_low, t_high);
+  Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
 
-  return false;
+  PD.dt = root;
+
+  return (root == HUGE_VAL) ? false : true;
 }
 
 
