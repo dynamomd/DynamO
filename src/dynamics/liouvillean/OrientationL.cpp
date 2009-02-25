@@ -65,16 +65,54 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 
 
 Iflt
-CLNOrientation::frenkelRootSearch(orientationStreamType A, orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const
+CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const
 {
-    Iflt root = 0.0;
+    Iflt root = 0.0, temp_root = 0.0;
     Iflt temp_high = t_high;
-    Iflt temp_low = t_low;
+
+    orientationStreamType tempA, tempB;
 	
     while(t_high > t_low)
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
       if(root == HUGE_VAL) { return HUGE_VAL; }
+      
+      do
+      {
+        // Artificial boundary just below root
+        tempA = A;
+        tempB = B;
+        performRotation(tempA, root);
+        performRotation(tempB, root);
+      
+        temp_high = root - ((2.0 * F_firstDeriv(tempA, tempB))/F_secondDeriv_max(tempA, tempB, length));
+	
+	// Quit if window is now too small, at this point $root contains the smallest valid root
+	if(temp_high < t_low) { break; }
+      
+        // Search for root in new restricted range
+        temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
+	
+	if(temp_root == HUGE_VAL) { break; } else { root = temp_root; }
+	
+      } while(temp_high > t_low);
+      
+      // At this point $root contains earliest valid root guess.  Check root validity.
+      tempA = A;
+      tempB = B;
+      performRotation(tempA, root);
+      performRotation(tempB, root);
+      
+      collisionPoints cp = getCollisionPoints(tempA, tempB);
+      
+      if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
+      {
+        return root;
+      }
+      else
+      {
+        t_low = root + ((2.0 * F_firstDeriv(tempA, tempB))/F_secondDeriv_max(tempA, tempB, length));
+      }
     }
     
     // Firstly, search for root in main window
@@ -88,7 +126,7 @@ CLNOrientation::frenkelRootSearch(orientationStreamType A, orientationStreamType
     //    - If root is valid, this is earliest possible root - roll with it
     //    - If root is invalid, set new concrete t_low just above this found root and go from the top
 	
-    return 0;
+    return HUGE_VAL;
 }
 
 

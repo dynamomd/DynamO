@@ -102,7 +102,7 @@ protected:
 
   virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
 
-  virtual Iflt frenkelRootSearch(orientationStreamType A, orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const;
+  virtual Iflt frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const;
   virtual Iflt quadraticRootHunter(const orientationStreamType LineA, const orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const;
 
   virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
