@@ -59,7 +59,7 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
 
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
-
+	
   PD.dt = root;
 
   return (root == HUGE_VAL) ? false : true;
@@ -69,6 +69,8 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 Iflt
 CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const
 {
+    I_cerr() << "Inside frenkelRootSearch";
+	
     Iflt root = 0.0, temp_root = 0.0;
     Iflt temp_high = t_high;
 
@@ -77,7 +79,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientati
     while(t_high > t_low)
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
-      if(root == HUGE_VAL) { return HUGE_VAL; }
+      if(root == HUGE_VAL) { I_cerr() << "No root found at head of func... "; return HUGE_VAL; }
       
       do
       {
@@ -109,6 +111,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientati
       
       if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
       {
+	I_cerr() << "Root found: " << root;
         return root;
       }
       else
@@ -128,6 +131,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientati
     //    - If root is valid, this is earliest possible root - roll with it
     //    - If root is invalid, set new concrete t_low just above this found root and go from the top
 	
+    I_cerr() << "Root not found...";
     return HUGE_VAL;
 }
 
@@ -137,6 +141,10 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
 {
   Iflt discriminant;  
   Iflt root1, root2;
+	
+  I_cerr() << "A = " << A;
+  I_cerr() << "B = " << B;
+  I_cerr() << "C = " << C;
   
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
@@ -153,15 +161,20 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
   else
   {
     discriminant = (B * B) - (4 * A * C);
+	  
+    I_cerr() << "Discriminant = " << discriminant;
     
     if(discriminant < 0)
     {
-      D_throw() << "Determinant of less than zero returned";
+      //I_cerr() << "Determinant of less than zero returned";
       return false;
     }
     
     root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
     root2 = ((-1.0 * B) - sqrt(discriminant)) / (2 * A);
+    
+    I_cerr() << "root 1 = " << root1;
+    I_cerr() << "root 2 = " << root2;
   }
 
   if(returnType == ROOT_SMALLEST_EITHER)
@@ -183,7 +196,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
       {
         case ROOT_LARGEST_NEGATIVE:
         case ROOT_SMALLEST_NEGATIVE:
-          D_throw() << "Both roots positive";
+          I_cerr() << "Both roots positive";
           return false;
           break;
         case ROOT_SMALLEST_POSITIVE:
@@ -202,7 +215,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
       {
         case ROOT_LARGEST_POSITIVE:
         case ROOT_SMALLEST_POSITIVE:
-          D_throw() << "Both roots negative";
+          I_cerr() << "Both roots negative";
           return false;
           break;
         case ROOT_SMALLEST_NEGATIVE:
@@ -460,19 +473,23 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     if(f0 > 0) { f2max *= -1.0; }
     
     // Enhance bound
-    quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2);
+    quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2max);
+    
+    I_cerr() << "boundEnhancer = " << boundEnhancer;
     
     if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
     
-    if(!quadraticSolution(deltaT, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2))
+    if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
     {
       // No appropriate roots
+      I_cerr() << "No appropriate roots found, continuing";
       continue;
     }
     
     if((working_time + deltaT) > t_high || (working_time + deltaT) < t_low)
     {
       // We have overshot; reverse direction and try again
+      I_cerr() << "Overshot!";
       fwdWorking = (fwdWorking ? false: true);
       continue;
     }
@@ -515,9 +532,15 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       fwdWorking = (fwdWorking ? false: true);
       continue;
     }
+    
+    if(rootFound) 
+    { 
+      return working_time; 
+    }
   }
 
-  return (rootFound ? working_time : HUGE_VAL);
+  I_cerr() << "'-End of function reached, t_low = " << t_low << "; t_high = " << t_high;
+  return HUGE_VAL;
 }
 
 C1ParticleData 

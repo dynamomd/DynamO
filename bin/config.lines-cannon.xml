@@ -11,7 +11,7 @@
   </Simulation>
   <Dynamics>
     <Aspect_Ratio x="1" y="1" z="1"/>
-    <Units Type="Elastic" BoxLength="12"/>
+    <Units Type="Elastic" BoxLength="20"/>
     <BC Shape="Square" Boundary="PBC"/>
     <Liouvillean Type="NOrientation"/>
     <Genus>
