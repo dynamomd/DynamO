@@ -42,15 +42,6 @@ bool
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
 {  
-  if((p1.getID() == lastCollParticle1 || p1.getID() == lastCollParticle2) &&
-     (p2.getID() == lastCollParticle1 || p2.getID() == lastCollParticle2))
-  {
-    if(Sim->dSysTime == lastAbsoluteClock)
-    {
-      D_throw() << "Running same self-collision";
-    }
-  }
-  
   Iflt t_low = 0.0;
   Iflt t_high = PD.dt;
   
@@ -66,16 +57,25 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   B.velocity = CVector<>(0);
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2) 
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += abs(2.0 * F_firstDeriv(A, B))
+      / F_secondDeriv_max(A, B, length);
 
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
-	
+
   if(root != HUGE_VAL) { PD.dt = root; return true; }
   else { return false; }
 }
 
 
 Iflt
-CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const
+CLNOrientation::frenkelRootSearch(const orientationStreamType A, 
+				  const orientationStreamType B, 
+				  Iflt length, Iflt t_low, Iflt t_high) const
 {
     I_cerr() << "Inside frenkelRootSearch";
 	
@@ -145,7 +145,8 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A, const orientati
 
 
 bool
-CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const
+CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
+				  Iflt A, Iflt B, Iflt C) const
 {
   Iflt discriminant;  
   Iflt root1, root2;
@@ -274,7 +275,8 @@ CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B) c
 }
 
 Iflt
-CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, const Iflt length) const
+CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, 
+				 const Iflt length) const
 {
   Iflt absDeltaW = (A.rot.angularVelocity - B.rot.angularVelocity).length();
   Iflt absDeltaV = (A.velocity - B.velocity).length();
@@ -285,7 +287,8 @@ CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType 
 Iflt 
 CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) const
 {
-  CVector<> deltaR = A.position - B.position;  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
+  CVector<> deltaR = A.position - B.position;  
+  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
   CVector<> deltaV = A.velocity - B.velocity;
   
   return 
@@ -406,7 +409,9 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 void
 CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) const
 {
-  if(NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
+
+  if (NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
+
   else
   {
     // Linear dynamics

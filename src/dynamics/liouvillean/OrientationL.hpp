@@ -26,11 +26,17 @@ class CLNOrientation: public CLNewton
 {
 public:  
   CLNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
-    CLNewton(Sim)
+    CLNewton(Sim),
+    lastAbsoluteClock(-1),
+    lastCollParticle1(0),
+    lastCollParticle2(0)
   {}
 
   CLNOrientation(DYNAMO::SimData* Sim):
-    CLNewton(Sim)
+    CLNewton(Sim),
+    lastAbsoluteClock(-1),
+    lastCollParticle1(0),
+    lastCollParticle2(0)
   {}
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
@@ -118,7 +124,7 @@ protected:
   virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
   mutable std::vector<rotData> orientationData;
-  mutable long double lastAbsoluteClock;
+  mutable lIflt lastAbsoluteClock;
   mutable unsigned int lastCollParticle1;
   mutable unsigned int lastCollParticle2;  
 };
