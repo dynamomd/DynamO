@@ -97,7 +97,8 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
         performRotation(tempA, root);
         performRotation(tempB, root);
       
-        temp_high = root - ((2.0 * F_firstDeriv(tempA, tempB))/F_secondDeriv_max(tempA, tempB, length));
+        temp_high = root - (abs(2.0 * F_firstDeriv(tempA, tempB))
+			    / F_secondDeriv_max(tempA, tempB, length));
 	
 	// Quit if window is now too small, at this point $root contains the smallest valid root
 	if(temp_high < t_low) { break; }
@@ -124,7 +125,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       }
       else
       {
-        t_low = root + ((2.0 * F_firstDeriv(tempA, tempB))/F_secondDeriv_max(tempA, tempB, length));
+        t_low = root + ((2.0 * abs(F_firstDeriv(tempA, tempB)))/F_secondDeriv_max(tempA, tempB, length));
       }
     }
     
