@@ -42,6 +42,15 @@ bool
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
 {  
+  if((p1.getID() == lastCollParticle1 || p1.getID() == lastCollParticle2) &&
+     (p2.getID() == lastCollParticle1 || p2.getID() == lastCollParticle2))
+  {
+    if(Sim->dSysTime == lastAbsoluteClock)
+    {
+      D_throw() << "Running same self-collision";
+    }
+  }
+  
   Iflt t_low = 0.0;
   Iflt t_high = PD.dt;
   
@@ -60,9 +69,8 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
 	
-  PD.dt = root;
-
-  return (root == HUGE_VAL) ? false : true;
+  if(root != HUGE_VAL) { PD.dt = root; return true; }
+  else { return false; }
 }
 
 
@@ -141,10 +149,6 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
 {
   Iflt discriminant;  
   Iflt root1, root2;
-	
-  I_cerr() << "A = " << A;
-  I_cerr() << "B = " << B;
-  I_cerr() << "C = " << C;
   
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
@@ -161,8 +165,6 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
   else
   {
     discriminant = (B * B) - (4 * A * C);
-	  
-    I_cerr() << "Discriminant = " << discriminant;
     
     if(discriminant < 0)
     {
@@ -359,6 +361,10 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
   orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
+
+  lastCollParticle1 = eevent.getParticle1().getID();
+  lastCollParticle2 = eevent.getParticle2().getID();
+  lastAbsoluteClock = Sim->dSysTime;
 
   return retVal;
 }

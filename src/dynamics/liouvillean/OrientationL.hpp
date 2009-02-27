@@ -79,6 +79,7 @@ public:
   };
 
 protected:
+
   virtual void outputXML(xmlw::XmlStream&) const;
 
   //! \brief Helper function for writing out data
@@ -117,5 +118,8 @@ protected:
   virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
   mutable std::vector<rotData> orientationData;
+  mutable long double lastAbsoluteClock;
+  mutable unsigned int lastCollParticle1;
+  mutable unsigned int lastCollParticle2;  
 };
 #endif
