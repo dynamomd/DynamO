@@ -219,7 +219,6 @@ CILines::runEvent(const CParticle& p1,
       }
     case WELL_IN:
       {
-	++Sim->lNColl;
 	addToCaptureMap(p1, p2);      
 	
 	C2ParticleData retval(p1, p2, 
@@ -241,7 +240,6 @@ CILines::runEvent(const CParticle& p1,
       }
     case WELL_OUT:
       {
-	++Sim->lNColl;
 	removeFromCaptureMap(p1, p2);
 	
 	C2ParticleData retval(p1, p2,
