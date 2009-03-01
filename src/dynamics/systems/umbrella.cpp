@@ -94,30 +94,11 @@ CSUmbrella::runEvent() const
   Iflt r = partdata.rij.length();
 
   if (ulevel == ulevelcenter)
-    {
-      if (r < b)
-	--ulevel;
-      else  //(r >= b)
-	++ulevel;
-    }
-  else if (ulevel == 0)
-    {
-      ++ulevel;
-    }
-  else if (r < b)
-    {
-      if (type == WELL_IN)
-	++ulevel;
-      else
-	--ulevel;
-    }
+    ++ulevel;
+  else if (type == WELL_IN)
+    --ulevel;
   else
-    {
-      if (type == WELL_IN)
-	--ulevel;
-      else
-	++ulevel;
-    }
+    ++ulevel;
 
   I_cerr() << "New ulevel is " << ulevel;
   
@@ -189,8 +170,6 @@ CSUmbrella::recalculateTime()
     Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
-
-  Iflt r = partdata.rij.length();
 
   Iflt R_max, R_min;
 
