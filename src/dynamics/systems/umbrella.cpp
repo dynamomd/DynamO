@@ -89,36 +89,40 @@ CSUmbrella::runEvent() const
   BOOST_FOREACH(const size_t& id, *range2)
     Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
   
-  CPDData partdata(*Sim, *range1, *range2);
+  bool kedown(false); //Will kinetic energy go down?
 
-  Iflt r = partdata.rij.length();
+  int newulevel ;
 
-  if (ulevel == ulevelcenter)
-    ++ulevel;
-  else if (type == WELL_IN)
-    --ulevel;
-  else
-    ++ulevel;
-
-  I_cerr() << "New ulevel is " << ulevel;
-  
-  CNParticleData SDat;
-
-  BOOST_FOREACH(const size_t& id, *range1)
-    SDat.L1partChanges.push_back(C1ParticleData(Sim->vParticleList[id],
-						  Sim->Dynamics.getSpecies
-						  (Sim->vParticleList[id]),
-						  NONE));
-  
-  BOOST_FOREACH(const size_t& id, *range2)
-    SDat.L1partChanges.push_back(C1ParticleData(Sim->vParticleList[id],
-						  Sim->Dynamics.getSpecies
-						  (Sim->vParticleList[id]),
-						  NONE));
+  if (ulevel == 0)
+    {
+      kedown = true;
+      
+      if (type == WELL_OUT)
+	newulevel = 1;
+      else
+	newulevel = -1;
+    }
+  else if (type == WELL_OUT)
+    {
+      if (ulevel > 0) kedown = true;
+      newulevel = ulevel + 1; 
+    }
+  else //if (type == WELL_IN)
+    {
+      if (ulevel < 0) kedown = true;
+      newulevel = ulevel - 1;
+    }
     
-  //  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyWellEvent
-  //		      (*range1, *range2, delU, UMBRELLA));
-  //
+  EEventType etype(NONE);
+
+  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyWellEvent
+		      (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
+
+  I_cerr() << "ulevel was " << ulevel;
+  if (etype != BOUNCE)
+    ulevel = newulevel;
+
+  I_cerr() << "ulevel is " << ulevel;
 
   Sim->signalParticleUpdate(SDat);
   
