@@ -81,8 +81,45 @@ CSUmbrella::runEvent() const
 
   ++Sim->lNColl;
 
-//  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyCollision
-//		      (*range1, *range2, w2, UMBRELLA));
+  BOOST_FOREACH(const size_t& id, *range1)
+    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+  
+  BOOST_FOREACH(const size_t& id, *range2)
+    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+  
+  CPDData partdata(*Sim, *range1, *range2);
+
+  Iflt r = partdata.rij.length();
+
+  if (ulevel == ulevelcenter)
+    {
+      if (r < b)
+	--ulevel;
+      else //(r >= b)       
+	++ulevel;
+    }
+  else if (ulevel == 0)
+    {
+      ++ulevel;
+    }
+  else if (r < b)
+    {
+      if (type == WELL_IN)
+	++ulevel;
+      else
+	--ulevel;
+    }
+  else
+    {
+      if (type == WELL_IN)
+	--ulevel;
+      else
+	++ulevel;
+    }
+  
+  
+  //  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyWellEvent
+//		      (*range1, *range2, delU, UMBRELLA));
 //
 //  Sim->signalParticleUpdate(SDat);
 //
@@ -112,7 +149,8 @@ CSUmbrella::initialise(size_t nID)
 
   Iflt r = partdata.rij.length();
 
-  ulevel = int(a * (r - b) * (r - b) / delU);
+  if (ulevel < 0)
+    ulevel = int(a * (r - b) * (r - b) / delU);
   
   recalculateTime();
 
@@ -140,11 +178,13 @@ CSUmbrella::recalculateTime()
 
   if (ulevel == ulevelcenter)
     {
-      R_max = b - sqrt((ulevel * delU) / a);      
-      
+      if (r < b)	
+	R_max = b - sqrt((ulevel * delU) / a);      
+      else //(r >= b)       
+	R_max = b + sqrt((ulevel + 1 * delU) / a);
+  
       //Just look for escaping as we're in the well step spanning r = 0 
-      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
-	  (partdata, R_max * R_max))
+      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
 	{
 	  dt = partdata.dt;
 	  type = WELL_OUT;
@@ -228,7 +268,10 @@ CSUmbrella::operator<<(const XMLNode& XML)
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
 
     range2.set_ptr(CRange::loadClass(XML.getChildNode("Range2"), Sim));
-
+    
+    if (XML.isAttributeSet("currentulevel"))
+      ulevel = boost::lexical_cast<Iflt>(XML.getAttribute("currentulevel"));
+    
   }
   catch (boost::bad_lexical_cast &)
     { D_throw() << "Failed a lexical cast in CSUmbrella"; }
@@ -243,6 +286,7 @@ CSUmbrella::outputXML(xmlw::XmlStream& XML) const
     / Sim->Dynamics.units().unitEnergy()
       << xmlw::attr("b") << b / Sim->Dynamics.units().unitLength()
       << xmlw::attr("delU") << delU / Sim->Dynamics.units().unitEnergy()
+      << xmlw::attr("currentulevel") << ulevel
       << xmlw::attr("Name") << sysName
       << xmlw::tag("Range1")
       << range1

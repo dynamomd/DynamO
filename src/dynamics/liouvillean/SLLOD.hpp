@@ -31,6 +31,10 @@ public:
 					   const Iflt&, 
 					   const EEventType&) const;
   
+  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+					   const Iflt&, const Iflt&, 
+					   EEventType&) const;
+
   //Pair particle dynamics
   virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const;
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  

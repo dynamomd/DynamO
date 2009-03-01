@@ -107,6 +107,14 @@ CLSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&,
   D_throw() << "Not Implemented";
 }
 
+CNParticleData 
+CLSLLOD::multibdyWellEvent(const CRange&, const CRange&, 
+			   const Iflt&, const Iflt&, 
+			   EEventType&) const
+{
+  D_throw() << "Not Implemented";
+}
+
 bool 
 CLSLLOD::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
