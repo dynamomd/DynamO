@@ -34,8 +34,11 @@
 
 CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp): 
   CSystem(tmp),
-  width(1.0),
-  w2(width * width),
+  a(1.0),
+  b(1.0),
+  delU(0.1),
+  ulevelcenter(0),
+  ulevel(-1),
   range1(NULL),
   range2(NULL)
 {
@@ -44,11 +47,14 @@ CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp):
   type = UMBRELLA;
 }
 
-CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt nd, 
+CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt na, Iflt nb, Iflt ndelu, 
 		       std::string nName, CRange* r1, CRange* r2):
   CSystem(nSim),
-  width(nd),
-  w2(nd * nd),
+  a(na),
+  b(nb),
+  delU(ndelu),
+  ulevelcenter(0),
+  ulevel(-1),
   range1(r1),
   range2(r2)
 {
@@ -75,17 +81,17 @@ CSUmbrella::runEvent() const
 
   ++Sim->lNColl;
 
-  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyCollision
-		      (*range1, *range2, w2, UMBRELLA));
-
-  Sim->signalParticleUpdate(SDat);
-
-  //Only 1ParticleEvents occur
-  BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
-    Sim->ptrScheduler->fullUpdate(PDat.getParticle());
-
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+//  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyCollision
+//		      (*range1, *range2, w2, UMBRELLA));
+//
+//  Sim->signalParticleUpdate(SDat);
+//
+//  //Only 1ParticleEvents occur
+//  BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
+//    Sim->ptrScheduler->fullUpdate(PDat.getParticle());
+//
+//  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+//    Ptr->eventUpdate(*this, CNParticleData(), locdt);
   
 }
 
@@ -96,16 +102,20 @@ CSUmbrella::initialise(size_t nID)
 
   BOOST_FOREACH(const size_t& id, *range1)
     Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
-
+  
   BOOST_FOREACH(const size_t& id, *range2)
     Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
-  if (partdata.rij.square() > w2)
-    I_cerr() << "WARNING: The centres of mass are already outside the umbrella's well";
+  ulevelcenter = int(a * b * b / delU);
 
+  Iflt r = partdata.rij.length();
+
+  ulevel = int(a * (r - b) * (r - b) / delU);
+  
   recalculateTime();
+
   Sim->registerParticleUpdateFunc
     (fastdelegate::MakeDelegate(this, &CSUmbrella::particlesUpdated));
 }
@@ -115,16 +125,62 @@ CSUmbrella::recalculateTime()
 {
   BOOST_FOREACH(const size_t& id, *range1)
     Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
-
+  
   BOOST_FOREACH(const size_t& id, *range2)
     Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
-  if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, w2))
-    dt = partdata.dt;
+  Iflt r = partdata.rij.length();
+
+  Iflt R_max, R_min;
+
+  dt = HUGE_VAL;
+  type = NONE;
+
+  if (ulevel == ulevelcenter)
+    {
+      R_max = b - sqrt((ulevel * delU) / a);      
+      
+      //Just look for escaping as we're in the well step spanning r = 0 
+      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
+	  (partdata, R_max * R_max))
+	{
+	  dt = partdata.dt;
+	  type = WELL_OUT;
+	}
+      
+      return;
+    }
+  
+  if (ulevel == 0)
+    {
+      //We're on the minimum
+      R_max = b + sqrt((1 * delU) / a);
+      R_min = b - sqrt((1 * delU) / a);
+    }
+  else if (r < b)
+    {
+      R_max = b - sqrt((ulevel * delU) / a);      
+      R_min = b - sqrt(((ulevel + 1) * delU)/a);
+    }
   else
-    dt = HUGE_VAL;  
+    {
+      R_min = b + sqrt((ulevel * delU) / a);
+      R_max = b + sqrt(((ulevel + 1) * delU) / a);
+    }
+
+  if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(partdata, R_min * R_min))
+    {
+      dt = partdata.dt;
+      type = WELL_IN;
+    }
+  else 
+    if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
+      {
+	dt = partdata.dt;
+	type = WELL_OUT;
+      }
 }
 
 void 
@@ -159,10 +215,15 @@ CSUmbrella::operator<<(const XMLNode& XML)
   try {
     sysName = XML.getAttribute("Name");
 
-    width = boost::lexical_cast<Iflt>(XML.getAttribute("Width"))
+    a = boost::lexical_cast<Iflt>(XML.getAttribute("a"))
+      * Sim->Dynamics.units().unitEnergy() 
+      / Sim->Dynamics.units().unitArea();
+
+    b = boost::lexical_cast<Iflt>(XML.getAttribute("b"))
       * Sim->Dynamics.units().unitLength();
 
-    w2 = width * width;
+    delU = boost::lexical_cast<Iflt>(XML.getAttribute("delU"))
+      * Sim->Dynamics.units().unitEnergy();
 
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
 
@@ -178,7 +239,10 @@ CSUmbrella::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::tag("System")
       << xmlw::attr("Type") << "Umbrella"
-      << xmlw::attr("width") << width / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("a") << a * Sim->Dynamics.units().unitArea() 
+    / Sim->Dynamics.units().unitEnergy()
+      << xmlw::attr("b") << b / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("delU") << delU / Sim->Dynamics.units().unitEnergy()
       << xmlw::attr("Name") << sysName
       << xmlw::tag("Range1")
       << range1

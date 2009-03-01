@@ -31,7 +31,7 @@ class CSUmbrella: public CSystem
 public:
   CSUmbrella(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSUmbrella(DYNAMO::SimData*, Iflt, std::string, CRange*, CRange*);
+  CSUmbrella(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::string, CRange*, CRange*);
   
   virtual CSystem* Clone() const { return new CSUmbrella(*this); }
 
@@ -48,7 +48,9 @@ protected:
 
   void recalculateTime();
 
-  Iflt width, w2;
+  Iflt a,b,delU;
+  int ulevelcenter;
+  int ulevel;
 
   smrtPlugPtr<CRange> range1;
   smrtPlugPtr<CRange> range2;
