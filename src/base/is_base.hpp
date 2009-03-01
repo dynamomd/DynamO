@@ -38,7 +38,7 @@ namespace DYNAMO
      * \param aName The name of the class.
      * \param aColor A terminal colour code to colour this classes name with.
      */
-    Base_Class(const char *aName, const char *aColor):
+    Base_Class(const std::string aName, const std::string aColor):
       name(aName),color(aColor) {};
     
     /*! \brief A private stream to format the standard output stream. */
@@ -55,11 +55,11 @@ namespace DYNAMO
     
   protected:
     /*! \brief A pointer to a const definition of the class name. */
-    const char* name;
+    std::string name;
 
     /*! \brief A pointer to a const definition of the class terminal
         colour. */
-    const char* color;
+    std::string color;
   };
 
   /*! \brief A Base_Class which contains a writable pointer to a
@@ -76,8 +76,9 @@ namespace DYNAMO
      * \param aName The name of the class deriving from this
      * \param aColor The colour of the output from this class.
      */
-    SimBase(SimData* const& SD,const char *aName, const char *aColor):
-      Base_Class(aName,aColor),
+    SimBase(SimData* const SD,const std::string aName, 
+	    const std::string aColor):
+      Base_Class(aName, aColor),
       Sim(SD)    
     {};
     
@@ -100,8 +101,8 @@ namespace DYNAMO
      * \param aName The name of the class deriving from this
      * \param aColor The colour of the output from this class.
      */
-    SimBase_const(const SimData* const& SD, const char *aName, 
-		  const char *aColor):
+    SimBase_const(const SimData* const SD, const std::string aName, 
+		  const std::string aColor):
       Base_Class(aName,aColor),
       Sim(SD)
     {};

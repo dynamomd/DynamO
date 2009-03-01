@@ -51,6 +51,7 @@ protected:
   Iflt a,b,delU;
   int ulevelcenter;
   mutable int ulevel;
+  bool ulevelset;
 
   smrtPlugPtr<CRange> range1;
   smrtPlugPtr<CRange> range2;

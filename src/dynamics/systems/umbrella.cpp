@@ -39,6 +39,7 @@ CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp):
   delU(0.1),
   ulevelcenter(0),
   ulevel(-1),
+  ulevelset(false),
   range1(NULL),
   range2(NULL)
 {
@@ -55,6 +56,7 @@ CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt na, Iflt nb, Iflt ndelu,
   delU(ndelu),
   ulevelcenter(0),
   ulevel(-1),
+  ulevelset(false),
   range1(r1),
   range2(r2)
 {
@@ -95,7 +97,7 @@ CSUmbrella::runEvent() const
     {
       if (r < b)
 	--ulevel;
-      else //(r >= b)       
+      else  //(r >= b)
 	++ulevel;
     }
   else if (ulevel == 0)
@@ -117,6 +119,8 @@ CSUmbrella::runEvent() const
 	++ulevel;
     }
 
+  I_cerr() << "New ulevel is " << ulevel;
+  
   CNParticleData SDat;
 
   BOOST_FOREACH(const size_t& id, *range1)
@@ -158,12 +162,16 @@ CSUmbrella::initialise(size_t nID)
   
   CPDData partdata(*Sim, *range1, *range2);
 
-  ulevelcenter = int(a * b * b / delU);
+  ulevelcenter = int( - a * b * b / delU);
 
   Iflt r = partdata.rij.length();
 
-  if (ulevel < 0)
-    ulevel = int(a * (r - b) * (r - b) / delU);
+  if (!ulevelset)
+    {
+      ulevel = int(a * (r - b) * (r - b) / delU);
+      if (r < b) ulevel *= -1;
+      ulevelset = true;
+    }
   
   recalculateTime();
 
@@ -191,13 +199,14 @@ CSUmbrella::recalculateTime()
 
   if (ulevel == ulevelcenter)
     {
-      if (r < b)	
-	R_max = b - sqrt((ulevel * delU) / a);      
-      else //(r >= b)       
+      R_max = b - sqrt((ulevel * delU) / a);      
+    
+      if (b==0)//Allow a double width well if b==0
 	R_max = b + sqrt((ulevel + 1 * delU) / a);
-  
+      
       //Just look for escaping as we're in the well step spanning r = 0 
-      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
+      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
+	  (partdata, R_max * R_max))
 	{
 	  dt = partdata.dt;
 	  type = WELL_OUT;
@@ -209,13 +218,17 @@ CSUmbrella::recalculateTime()
   if (ulevel == 0)
     {
       //We're on the minimum
+
+      //We don't worry about the minimum crossing r=0, as this is
+      //caught by the above if statement
+      
       R_max = b + sqrt((1 * delU) / a);
       R_min = b - sqrt((1 * delU) / a);
     }
-  else if (r < b)
+  else if (ulevel < 0)
     {
-      R_max = b - sqrt((ulevel * delU) / a);      
-      R_min = b - sqrt(((ulevel + 1) * delU)/a);
+      R_max = b - sqrt((-ulevel) * delU / a);
+      R_min = b - sqrt(((-ulevel) + 1) * delU / a);
     }
   else
     {
@@ -283,7 +296,10 @@ CSUmbrella::operator<<(const XMLNode& XML)
     range2.set_ptr(CRange::loadClass(XML.getChildNode("Range2"), Sim));
     
     if (XML.isAttributeSet("currentulevel"))
-      ulevel = boost::lexical_cast<Iflt>(XML.getAttribute("currentulevel"));
+      {
+	ulevel = boost::lexical_cast<Iflt>(XML.getAttribute("currentulevel"));
+	ulevelset = true;
+      }
     
   }
   catch (boost::bad_lexical_cast &)
