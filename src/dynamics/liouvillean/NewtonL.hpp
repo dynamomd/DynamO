@@ -78,6 +78,10 @@ public:
 					   const Iflt&, 
 					   const EEventType&) const;
 
+  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+					   const Iflt&, const Iflt&, 
+					   EEventType&) const;
+
   //Cloning
   virtual CLiouvillean* Clone() const { return new CLNewton(*this); }
 

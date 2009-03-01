@@ -41,17 +41,9 @@ CLNOrientation::outputXML(xmlw::XmlStream& XML) const
 bool 
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
-{ 
-  Iflt windowSize = PD.dt;  
-  Iflt currentClock = 0.0;
-
+{  
   Iflt t_low = 0.0;
-  Iflt t_up = PD.dt;
-
-  Iflt t_low_working = t_low;
-  Iflt t_up_working = t_up;
-
-  Iflt f0, f1, f2, foundRoot, initialRoot;
+  Iflt t_high = PD.dt;
   
   // Set up pair of lines as passable objects
   orientationStreamType A, B;
@@ -65,83 +57,136 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   B.velocity = CVector<>(0);
   B.rot.orientation = orientationData[p2.getID()].orientation;
   B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2) 
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += abs(2.0 * F_firstDeriv(A, B))
+      / F_secondDeriv_max(A, B, length);
 
-  // Get Frenkel second derivative maximum
-  Iflt maxSecondDeriv = F_secondDeriv_max(A, B, length);
+  Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
 
-  while(t_low < t_up)
-  {
-    // Calculate f0, f1, f2 at t = t_low
-    f0 = F_zeroDeriv(A, B);
-    f1 = F_firstDeriv(A, B);
-    f2 = F_secondDeriv(A, B);
-
-    // Break out of DO...WHILE if we can't find a root.
-    // We still need to update boundaries while we narrow the root area
-    do
-    {
-      // Get a root
-      if(!quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, f2))
-      {
-        D_throw() << "No positive roots found";
-	break;
-      }
-
-      if(initialRoot > t_up)
-      {
-	D_throw() << "Root guess is outside boundary";
-	break;
-      }
-
-      // FoundRoot now has the new root
-      foundRoot = quadraticRootFinder(A, B, initialRoot);
-
-      if(foundRoot > t_up)
-      {
-        D_throw() << "Root found is greater than t_up";
-        continue;
-      }    
-
-      // Here we have a new root... 
-      // wind the lines to the new root position, and shrink the t_up value
-      performRotation(A, foundRoot);
-      performRotation(B, foundRoot);
-
-      t_up_working = foundRoot - ((2 * fabs(F_firstDeriv(A, B)))/maxSecondDeriv);
-    
-      // wind the lines to the t_low position and search again
-      performRotation(A, t_low_working - foundRoot);
-      performRotation(B, t_low_working - foundRoot);
-
-    } while(false); // End of do...while drop-out loop
-
-    // Now let's update lower boundary on root
-    if(quadraticSolution(initialRoot, ROOT_SMALLEST_POSITIVE, f0, f1, maxSecondDeriv * ((f0 < 0) ? 0.5 : -0.5)))
-    {
-      t_low += initialRoot;
-      performRotation(A, initialRoot);
-      performRotation(B, initialRoot);
-      currentClock += initialRoot;
-    }
-
-  } // end while(t_low < t_up);
-
-  return false;
+  if(root != HUGE_VAL) { PD.dt = root; return true; }
+  else { return false; }
 }
 
-bool
-CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const
-{
-  Iflt discriminant = (B * B) - (4 * A * C);
 
-  if(discriminant < 0)
-  {
-    D_throw() << "Determinant of less than zero returned";
-    return false;
-  }
+Iflt
+CLNOrientation::frenkelRootSearch(const orientationStreamType A, 
+				  const orientationStreamType B, 
+				  Iflt length, Iflt t_low, Iflt t_high) const
+{
+    I_cerr() << "Inside frenkelRootSearch";
+	
+    Iflt root = 0.0, temp_root = 0.0;
+    Iflt temp_high = t_high;
+
+    orientationStreamType tempA, tempB;
+	
+    while(t_high > t_low)
+    {
+      root = quadraticRootHunter(A, B, length, t_low, t_high);
+      if(root == HUGE_VAL) { I_cerr() << "No root found at head of func... "; return HUGE_VAL; }
+      
+      do
+      {
+        // Artificial boundary just below root
+        tempA = A;
+        tempB = B;
+        performRotation(tempA, root);
+        performRotation(tempB, root);
+
+	Iflt Fprime = F_firstDeriv(tempA, tempB),
+	  Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
+	
+        temp_high = root - (abs(2.0 * Fprime)
+			    / Fdoubleprimemax);
+
+	if (Fdoubleprimemax == 0)
+	  temp_high = -t_low;
+	
+	// Quit if window is now too small, at this point $root
+	// contains the smallest valid root
+	if(temp_high < t_low) { break; }
+      
+        // Search for root in new restricted range
+        temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
+	
+	if(temp_root == HUGE_VAL) { break; } else { root = temp_root; }
+	
+      } while(temp_high > t_low);
+      
+      // At this point $root contains earliest valid root guess.
+      // Check root validity.
+      tempA = A;
+      tempB = B;
+      performRotation(tempA, root);
+      performRotation(tempB, root);
+      
+      collisionPoints cp = getCollisionPoints(tempA, tempB);
+      
+      if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
+      {
+	I_cerr() << "Root found: " << root;
+        return root;
+      }
+      else
+        t_low = root + ((2.0 * abs(F_firstDeriv(tempA, tempB)))
+			/ F_secondDeriv_max(tempA, tempB, length));
+    }
+    
+    // Firstly, search for root in main window
+    //  - If a root is not found, return failure
+    
+    // If a root is found: bring in an artificial new high boundary just beneath new root
+    //  - If this leaves a window, search window for root
+    //    - If a root is found, return to top of this section storing only this new root
+    //    - If no root is found, drop out of this inner loop
+    //  - Check root validity
+    //    - If root is valid, this is earliest possible root - roll with it
+    //    - If root is invalid, set new concrete t_low just above this found root and go from the top
+	
+    I_cerr() << "Root not found...";
+    return HUGE_VAL;
+}
+
+
+bool
+CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
+				  Iflt A, Iflt B, Iflt C) const
+{
+  Iflt discriminant;  
+  Iflt root1, root2;
   
-  Iflt root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
-  Iflt root2 = ((-1.0 * B) - sqrt(discriminant)) / (2 * A);
+  // Contingency: if A = 0, not a quadratic = linear
+  if(A == 0)
+  {
+    if(B == 0)
+    {
+        D_throw() << "Impossible equation: 0 = nonzero";
+	return false;
+    }
+    
+    root1 = -1.0 * C / B;
+    root2 = root1;
+  }
+  else
+  {
+    discriminant = (B * B) - (4 * A * C);
+    
+    if(discriminant < 0)
+    {
+      //I_cerr() << "Determinant of less than zero returned";
+      return false;
+    }
+    
+    root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
+    root2 = ((-1.0 * B) - sqrt(discriminant)) / (2 * A);
+    
+    I_cerr() << "root 1 = " << root1;
+    I_cerr() << "root 2 = " << root2;
+  }
 
   if(returnType == ROOT_SMALLEST_EITHER)
   {
@@ -162,7 +207,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
       {
         case ROOT_LARGEST_NEGATIVE:
         case ROOT_SMALLEST_NEGATIVE:
-          D_throw() << "Both roots positive";
+          I_cerr() << "Both roots positive";
           return false;
           break;
         case ROOT_SMALLEST_POSITIVE:
@@ -181,7 +226,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, Iflt A,
       {
         case ROOT_LARGEST_POSITIVE:
         case ROOT_SMALLEST_POSITIVE:
-          D_throw() << "Both roots negative";
+          I_cerr() << "Both roots negative";
           return false;
           break;
         case ROOT_SMALLEST_NEGATIVE:
@@ -230,19 +275,16 @@ CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B) c
   CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
   CVector<> deltaV = A.velocity - B.velocity;
   
-  return (
-    (A.rot.orientation % deltaR) * (deltaW % B.rot.orientation)
-  ) + (
-    (B.rot.orientation % deltaR) * (deltaW % A.rot.orientation)
-  ) - (
-    (deltaW % deltaR) * (A.rot.orientation % B.rot.orientation)
-  ) + ( 
-    (A.rot.orientation.Cross(B.rot.orientation) % deltaV)
-  );
+  return 
+    ((A.rot.orientation % deltaR) * (deltaW % B.rot.orientation)) + 
+    ((B.rot.orientation % deltaR) * (deltaW % A.rot.orientation)) - 
+    ((deltaW % deltaR) * (A.rot.orientation % B.rot.orientation)) + 
+    ((A.rot.orientation.Cross(B.rot.orientation) % deltaV));
 }
 
 Iflt
-CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, const Iflt length) const
+CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, 
+				 const Iflt length) const
 {
   Iflt absDeltaW = (A.rot.angularVelocity - B.rot.angularVelocity).length();
   Iflt absDeltaV = (A.velocity - B.velocity).length();
@@ -253,28 +295,21 @@ CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType 
 Iflt 
 CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) const
 {
-  CVector<> deltaR = A.position - B.position;  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
+  CVector<> deltaR = A.position - B.position;  
+  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
   CVector<> deltaV = A.velocity - B.velocity;
   
-  return 2.0 * (
-    (
-      (A.rot.orientation % deltaV) * (deltaW % B.rot.orientation)
-    ) + (
-      (B.rot.orientation % deltaV) * (deltaW % A.rot.orientation)
-    ) - (
-      (A.rot.orientation % B.rot.orientation) * (deltaW % deltaV)
-    )
-  ) - (
-    (deltaW % deltaR) * (deltaW % (A.rot.orientation.Cross(B.rot.orientation)))
-  ) + (
-    (A.rot.orientation % deltaR) * (B.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))
-  ) + (
-    (B.rot.orientation % deltaR) * (A.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))
-  ) + (
-    (deltaW % A.rot.orientation) * (deltaR % (B.rot.angularVelocity.Cross(B.rot.orientation)))
-  ) + (
-    (deltaW % B.rot.orientation) * (deltaR % (A.rot.angularVelocity.Cross(A.rot.orientation)))
-  ); 
+  return 
+    2.0 * (
+      ((A.rot.orientation % deltaV) * (deltaW % B.rot.orientation)) + 
+      ((B.rot.orientation % deltaV) * (deltaW % A.rot.orientation)) - 
+      ((A.rot.orientation % B.rot.orientation) * (deltaW % deltaV))
+    ) - 
+    ((deltaW % deltaR) * (deltaW % (A.rot.orientation.Cross(B.rot.orientation)))) + 
+    ((A.rot.orientation % deltaR) * (B.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))) + 
+    ((B.rot.orientation % deltaR) * (A.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))) + 
+    ((deltaW % A.rot.orientation) * (deltaR % (B.rot.angularVelocity.Cross(B.rot.orientation)))) + 
+    ((deltaW % B.rot.orientation) * (deltaR % (A.rot.angularVelocity.Cross(A.rot.orientation)))); 
 }
 
 Iflt
@@ -338,6 +373,10 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
   orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
 
+  lastCollParticle1 = eevent.getParticle1().getID();
+  lastCollParticle2 = eevent.getParticle2().getID();
+  lastAbsoluteClock = Sim->dSysTime;
+
   return retVal;
 }
 
@@ -378,7 +417,9 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 void
 CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) const
 {
-  if(NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
+
+  if (NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
+
   else
   {
     // Linear dynamics
@@ -420,31 +461,105 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
 }
 
 Iflt
-CLNOrientation::quadraticRootFinder(orientationStreamType A, orientationStreamType B, Iflt initialJump) const
+CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const
 {
-  Iflt currentValue = 1.0, currentTime = initialJump;
-  Iflt root = 0.0;
-  Iflt f0 = 0.0, f1 = 0.0, f2 = 0.0;
+  Iflt working_time = t_low;
+  Iflt deltaT = 0.0, boundEnhancer = 0.0;
+  Iflt f0 = 0.0, f1 = 0.0, f2 = 0.0, f2max = 0.0;
+  bool fwdWorking = true;
+  bool boundaryExceeded = false;
+  bool rootFound = false;
+	
+  orientationStreamType A, B;
 
-  performRotation(A, initialJump);
-  performRotation(B, initialJump);
+  const Iflt TINY_ADJUSTMENT = 1.0e-6;
 
-  while(currentValue != 0.0)
+  while(t_low < t_high)
   {
+    A = LineA;
+    B = LineB;
+    
+    working_time = (fwdWorking ? t_low : t_high);
+    performRotation(A, working_time);
+    performRotation(B, working_time);
+    
     f0 = F_zeroDeriv(A, B);
     f1 = F_firstDeriv(A, B);
     f2 = F_secondDeriv(A, B);
+    f2max = F_secondDeriv_max(A, B, length);
 
-    currentValue = f0;
-
-    quadraticSolution(root, ROOT_SMALLEST_EITHER, f0, f1, f2);
-   
-    currentTime += root;
-    performRotation(A, root);
-    performRotation(B, root);
+    // Multiply by opposite sign of f0
+    if(f0 > 0) { f2max *= -1.0; }
+    
+    // Enhance bound
+    quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2max);
+    
+    I_cerr() << "boundEnhancer = " << boundEnhancer;
+    
+    if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
+    
+    if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
+    {
+      // No appropriate roots
+      I_cerr() << "No appropriate roots found, continuing";
+      continue;
+    }
+    
+    if((working_time + deltaT) > t_high || (working_time + deltaT) < t_low)
+    {
+      // We have overshot; reverse direction and try again
+      I_cerr() << "Overshot!";
+      fwdWorking = (fwdWorking ? false: true);
+      continue;
+    }
+      
+    // At this point, we have a valid first guess at the root
+    // Begin iterating inwards
+    
+    boundaryExceeded = false;
+    
+    do
+    {
+      working_time += deltaT;
+      
+      if(working_time > t_high || working_time < t_low)
+      {
+        boundaryExceeded = true;
+	break;
+      }
+      
+      performRotation(A, deltaT);
+      performRotation(B, deltaT);
+      
+      f0 = F_zeroDeriv(A, B);
+      f1 = F_firstDeriv(A, B);
+      f2 = F_secondDeriv(A, B);
+      f2max = F_secondDeriv_max(A, B, length);
+      
+      rootFound = true;
+      
+      if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, f0, f1, 0.5*f2))
+      {
+        D_throw() << "No roots found in final root iteration: unspecificed event";
+	rootFound = false;
+	break;
+      }
+    } while (deltaT > TINY_ADJUSTMENT);
+    
+    if(boundaryExceeded)
+    {
+      fwdWorking = (fwdWorking ? false: true);
+      continue;
+    }
+    
+    if(rootFound) 
+    { 
+      return working_time; 
+    }
   }
 
-  return currentTime;
+  I_cerr() << "'-End of function reached, t_low = " << t_low << "; t_high = " << t_high;
+  return HUGE_VAL;
 }
 
 C1ParticleData 

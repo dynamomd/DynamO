@@ -26,11 +26,17 @@ class CLNOrientation: public CLNewton
 {
 public:  
   CLNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
-    CLNewton(Sim)
+    CLNewton(Sim),
+    lastAbsoluteClock(-1),
+    lastCollParticle1(0),
+    lastCollParticle2(0)
   {}
 
   CLNOrientation(DYNAMO::SimData* Sim):
-    CLNewton(Sim)
+    CLNewton(Sim),
+    lastAbsoluteClock(-1),
+    lastCollParticle1(0),
+    lastCollParticle2(0)
   {}
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
@@ -79,6 +85,7 @@ public:
   };
 
 protected:
+
   virtual void outputXML(xmlw::XmlStream&) const;
 
   //! \brief Helper function for writing out data
@@ -102,7 +109,8 @@ protected:
 
   virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
 
-  virtual Iflt frenkelRecursiveSearch(orientationStreamType A, orientationStreamType B, Iflt t_low, Iflt t_up) { return HUGE_VAL; }
+  virtual Iflt frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const;
+  virtual Iflt quadraticRootHunter(const orientationStreamType LineA, const orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const;
 
   virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
   virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B) const;
@@ -112,11 +120,12 @@ protected:
   virtual Iflt F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const;
   
   virtual void performRotation(orientationStreamType& osret, const Iflt& dt) const;
-
-  virtual Iflt quadraticRootFinder(orientationStreamType A, orientationStreamType B, Iflt initialJump) const;
   
   virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
   mutable std::vector<rotData> orientationData;
+  mutable lIflt lastAbsoluteClock;
+  mutable unsigned int lastCollParticle1;
+  mutable unsigned int lastCollParticle2;  
 };
 #endif

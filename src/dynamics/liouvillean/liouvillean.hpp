@@ -108,6 +108,10 @@ public:
 					   const Iflt& d2,
 					   const EEventType& eType) const = 0;
 
+  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+					   const Iflt&, const Iflt&, 
+					   EEventType&) const = 0;
+
   /*! \brief Determines if and when two spheres will intersect.
    *
    * \param pd Some precomputed data about the event that is cached by

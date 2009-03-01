@@ -46,7 +46,7 @@ CSystem::operator<(const CSystem& sEvent) const
 
 
 CSystem::CSystem(DYNAMO::SimData* tmp):
-  SimBase(tmp,"SystemInteraction",IC_blue),
+  SimBase(tmp, "SystemInteraction", IC_blue),
   dt(HUGE_VAL)
 {
   type = NONE;

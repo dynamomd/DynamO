@@ -120,6 +120,22 @@ CScheduler::runNextEvent() const
     }
 
 #ifdef DYNAMO_DEBUG
+  if (isnan(sorter->next_Data().top().dt))
+    D_throw() << "Next event time is NaN"
+	      << "\nTime to event "
+	      << sorter->next_Data().top().dt
+	      << "\nEvent Type = " 
+	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
+	      << "\nOwner Particle = " << sorter->next_ID();
+
+  if (isinf(sorter->next_Data().top().dt))
+    D_throw() << "Next event time is Inf!"
+	      << "\nTime to event "
+	      << sorter->next_Data().top().dt
+	      << "\nEvent Type = " 
+	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
+	      << "\nOwner Particle = " << sorter->next_ID();
+
   if (sorter->next_Data().top().dt + eps < 0)
     D_throw() << "Next event time is less than -" << eps
 	      << "\nTime to event "

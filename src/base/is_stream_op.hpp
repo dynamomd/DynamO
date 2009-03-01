@@ -36,17 +36,17 @@
 # define IC_blink_off "\033[25m"
 # define IC_reset "\033[0m"
 #else
-# define IC_black       ""
-# define IC_red         ""
-# define IC_green       ""
-# define IC_blue        ""
-# define IC_cyan        ""
-# define IC_purple      ""
-# define IC_white       ""
-# define IC_white_brown ""
-# define IC_blink       ""
-# define IC_blink_off   ""
-# define IC_reset       ""
+# define IC_black       " "
+# define IC_red         " "
+# define IC_green       " "
+# define IC_blue        " "
+# define IC_cyan        " "
+# define IC_purple      " "
+# define IC_white       " "
+# define IC_white_brown " "
+# define IC_blink       " "
+# define IC_blink_off   " "
+# define IC_reset       " "
 #endif
 
 #define IC_exception "\033[5m\033[41m\033[01;37m"
@@ -85,7 +85,7 @@ namespace DYNAMO
      * \param aName The name to insert after newline characters.
      * \param aColor The terminal colour to set the names to.
      */
-    Stream_Operator(const char* const & aName, const char* const & aColor):
+    Stream_Operator(const std::string & aName, const std::string & aColor):
       name(aName),color(aColor) 
     {
       OutputStream = &std::cout;
@@ -116,10 +116,10 @@ namespace DYNAMO
     
   protected:
     /*! \brief Name to insert after newlines.*/
-    const char* const & name;
+    std::string name;
     
     /*! \brief Terminal colour code to set the name. */
-    const char* const & color;
+    std::string color;
     
     /*! \brief Output stream to send the data to*/
     std::ostream *OutputStream;
@@ -127,10 +127,9 @@ namespace DYNAMO
     /*! \brief Search and replace function for the stream operator*/
     std::string nReplace(const std::string &message) const
     {
-      return searchReplace(message, "\n", boost::lexical_cast<std::string>("\n") 
-			   + boost::lexical_cast<std::string>(color) 
-			   + boost::lexical_cast<std::string>(name) 
-			   + boost::lexical_cast<std::string>(" :") 
+      return searchReplace(message, "\n", 
+			   boost::lexical_cast<std::string>("\n") 
+			   + color + name + " :"
 			   + boost::lexical_cast<std::string>(IC_reset));
     }
     
