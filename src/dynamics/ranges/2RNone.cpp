@@ -15,21 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RAll.hpp"
-#include "1RList.hpp"
-#include "1RRange.hpp"
-#include "1RSingle.hpp"
-#include "1RNone.hpp"
-
-#include "2RList.hpp"
-#include "2RPair.hpp"
-#include "2RRangeList.hpp"
-#include "2RSingle.hpp"
-#include "2RChain.hpp"
-#include "2RChains.hpp"
-#include "2RChainGroups.hpp"
-#include "2RIntraChains.hpp"
-#include "2RRing.hpp"
-#include "2RRings.hpp"
-#include "2RAll.hpp"
 #include "2RNone.hpp"
+#include "../../extcode/xmlwriter.hpp"
+#include "../../extcode/xmlParser.h"
+#include "../../simulation/particle.hpp"
+
+C2RNone::C2RNone(const XMLNode& XML, const DYNAMO::SimData*)
+{ 
+  if (strcmp(XML.getAttribute("Range"),"2None"))
+    D_throw() << "Attempting to load a 2None from a non 2None";
+}
+
+void 
+C2RNone::operator<<(const XMLNode&)
+{
+  D_throw() << "Due to problems with CRAll C2RNone operator<< cannot work for this class";
+}
+
+void 
+C2RNone::outputXML(xmlw::XmlStream& XML) const
+{
+  XML << xmlw::attr("Range") << "2None"; 
+}
+

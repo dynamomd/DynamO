@@ -78,6 +78,8 @@ C2Range::loadClass(const XMLNode& XML , const DYNAMO::SimData* Sim)
     return new C2RRings(XML,Sim);
   else if (!strcmp(XML.getAttribute("Range"),"2All"))
     return new C2RAll(XML,Sim);
+  else if (!strcmp(XML.getAttribute("Range"),"2None"))
+    return new C2RNone(XML,Sim);
   else 
     D_throw() << "Unknown type of C2Range encountered, " 
 	      << XML.getAttribute("Range");

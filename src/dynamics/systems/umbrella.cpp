@@ -116,20 +116,33 @@ CSUmbrella::runEvent() const
       else
 	++ulevel;
     }
+
+  CNParticleData SDat;
+
+  BOOST_FOREACH(const size_t& id, *range1)
+    SDat.L1partChanges.push_back(C1ParticleData(Sim->vParticleList[id],
+						  Sim->Dynamics.getSpecies
+						  (Sim->vParticleList[id]),
+						  NONE));
   
-  
+  BOOST_FOREACH(const size_t& id, *range2)
+    SDat.L1partChanges.push_back(C1ParticleData(Sim->vParticleList[id],
+						  Sim->Dynamics.getSpecies
+						  (Sim->vParticleList[id]),
+						  NONE));
+    
   //  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyWellEvent
-//		      (*range1, *range2, delU, UMBRELLA));
-//
-//  Sim->signalParticleUpdate(SDat);
-//
-//  //Only 1ParticleEvents occur
-//  BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
-//    Sim->ptrScheduler->fullUpdate(PDat.getParticle());
-//
-//  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-//    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+  //		      (*range1, *range2, delU, UMBRELLA));
+  //
+
+  Sim->signalParticleUpdate(SDat);
   
+  //Only 1ParticleEvents occur
+  BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
+    Sim->ptrScheduler->fullUpdate(PDat.getParticle());
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(*this, CNParticleData(), locdt); 
 }
 
 void
