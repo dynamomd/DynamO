@@ -62,7 +62,7 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
-    t_low += abs(2.0 * F_firstDeriv(A, B))
+    t_low += fabs(2.0 * F_firstDeriv(A, B))
       / F_secondDeriv_max(A, B, length);
 
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
@@ -100,7 +100,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 	Iflt Fprime = F_firstDeriv(tempA, tempB),
 	  Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
 	
-        temp_high = root - (abs(2.0 * Fprime)
+        temp_high = root - (fabs(2.0 * Fprime)
 			    / Fdoubleprimemax);
 
 	if (Fdoubleprimemax == 0)
@@ -132,7 +132,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
         return root;
       }
       else
-        t_low = root + ((2.0 * abs(F_firstDeriv(tempA, tempB)))
+        t_low = root + ((2.0 * fabs(F_firstDeriv(tempA, tempB)))
 			/ F_secondDeriv_max(tempA, tempB, length));
     }
     
@@ -505,7 +505,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       continue;
     }
     
-    if((working_time + deltaT) > t_high || (working_time + deltaT) < t_low)
+    if(((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
     {
       // We have overshot; reverse direction and try again
       I_cerr() << "Overshot!";
@@ -522,7 +522,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     {
       working_time += deltaT;
       
-      if(working_time > t_high || working_time < t_low)
+      if((working_time > t_high) || (working_time < t_low))
       {
         boundaryExceeded = true;
 	break;
