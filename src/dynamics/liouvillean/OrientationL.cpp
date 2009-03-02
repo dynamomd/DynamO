@@ -154,7 +154,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 
 bool
 CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
-				  Iflt A, Iflt B, Iflt C) const
+				  Iflt C, Iflt B, Iflt A) const
 {
   Iflt discriminant;  
   Iflt root1, root2;
