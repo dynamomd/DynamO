@@ -472,8 +472,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	
   orientationStreamType A, B;
 
-  const Iflt TINY_ADJUSTMENT = 1.0e-8;
-
   while(t_low < t_high)
   {
     A = LineA;
@@ -544,7 +542,8 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	rootFound = false;
 	break;
       }
-    } while (fabs(deltaT) > TINY_ADJUSTMENT);
+      //I know this is zero but it gets there in just a few steps!
+    } while (fabs(deltaT) > 0);
     
     if(boundaryExceeded)
     {
