@@ -538,7 +538,8 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       
       if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, f0, f1, 0.5*f2))
       {
-        D_throw() << "No roots found in final root iteration: unspecificed event";
+	//No real roots, try from the other side
+	boundaryExceeded = true;
 	rootFound = false;
 	break;
       }
