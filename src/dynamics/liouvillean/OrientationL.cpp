@@ -378,8 +378,8 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   retVal.rvdot = retVal.rij % retVal.vijold;
   retVal.dP = uPerp * alpha;
   
-  const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
-  const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / mass;
   
   orientationData[particle1.getID()].angularVelocity 
     = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
