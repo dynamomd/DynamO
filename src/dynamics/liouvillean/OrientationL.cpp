@@ -500,8 +500,11 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     
     if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
     {
-      // No appropriate roots
-      //I_cerr() << "No appropriate roots found, continuing";
+      //This can happen when a root is right next to a boundary, so we
+      //must reverse direction to bring the boundaries
+      //in. Unfortunatly the way we resolve this is by iterating the
+      //boundaries.
+      fwdWorking = (fwdWorking ? false: true);
       continue;
     }
     
@@ -545,8 +548,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	rootFound = false;
 	break;
       }
-      //I know this is zero but it gets there in just a few steps!
-    } while (fabs(deltaT) > 0);
+    } while (fabs(deltaT/working_time) > 1e-10);
     
     if(boundaryExceeded)
     {
