@@ -172,7 +172,10 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
   {
     if(B == 0)
     {
-        D_throw() << "Impossible equation: 0 = nonzero";
+      
+      //D_throw() << "Impossible equation: 0 = nonzero";
+
+      //There are no roots, the system is stationary
 	return false;
     }
     
@@ -351,7 +354,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   // Assume lines are the same mass... use the mass of line #1
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt inertia = (mass * length * length)/12.0;
+  Iflt inertia = (mass * length * length) / 12.0;
   
   A.position = retVal.rij;
   A.velocity = retVal.vijold;
@@ -367,25 +370,25 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   collisionPoints cp = getCollisionPoints(A, B);
   
-  u1dot = A.rot.angularVelocity.Cross(A.rot.orientation) * cp.alpha;
-  u2dot = B.rot.angularVelocity.Cross(B.rot.orientation) * cp.beta;
+  u1dot = A.rot.angularVelocity.Cross(A.rot.orientation);
+  u2dot = B.rot.angularVelocity.Cross(B.rot.orientation);
   
-  vr = (A.velocity - B.velocity) + u1dot - u2dot;
+  vr = (A.velocity - B.velocity) + (cp.alpha * u1dot) - (cp.beta * u2dot);
   
-  Iflt alpha = -1.0 * (vr % uPerp);
-  alpha /= ((1.0/mass) + ((std::pow(cp.alpha, 2) + std::pow(cp.beta, 2))/(2.0 * inertia)));
+  Iflt alpha = -1.0 * (vr % uPerp) / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia)));
   
   retVal.rvdot = retVal.rij % retVal.vijold;
+
   retVal.dP = uPerp * alpha;
   
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / mass;
   
   orientationData[particle1.getID()].angularVelocity 
-    = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
+    = A.rot.angularVelocity - (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
 
   orientationData[particle2.getID()].angularVelocity 
-    = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
+    = B.rot.angularVelocity + (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();

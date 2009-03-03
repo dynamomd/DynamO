@@ -50,7 +50,6 @@ CSTicker::runEvent() const
     
 
   Sim->dSysTime += locdt;
-  ++Sim->lNColl;
 
   Sim->ptrScheduler->stream(locdt);
   
