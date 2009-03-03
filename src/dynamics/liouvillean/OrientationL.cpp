@@ -542,8 +542,11 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	break;
       }
       
-      performRotation(A, deltaT);
-      performRotation(B, deltaT);
+      A = LineA;
+      B = LineB;
+
+      performRotation(A, working_time);
+      performRotation(B, working_time);
       
       f0 = F_zeroDeriv(A, B);
       f1 = F_firstDeriv(A, B);
