@@ -97,18 +97,6 @@ public:
     D_throw() << "Could not find the right interaction to test for";
   }
 
-  inline void runIntEvent(const CParticle &p1, const CParticle &p2, const CIntEvent& event) const
-  {
-    BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
-      if (ptr->isInteraction(p1,p2))
-	{
-	  ptr->runEvent(p1,p2, event);
-	  return;
-	}
-    
-    D_throw() << "Could not find the right interaction to test for";
-  }
-
   void operator<<(const XMLNode&);
 
   void initialise();
