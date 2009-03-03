@@ -562,7 +562,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	rootFound = false;
 	break;
       }
-    } while (fabs((working_time - oldt)) > 1e-14);
+    } while (fabs((working_time - oldt)) > working_time * 1e-15);
 
     if(boundaryExceeded)
     {
