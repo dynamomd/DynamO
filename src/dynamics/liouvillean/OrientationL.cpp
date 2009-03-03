@@ -530,39 +530,39 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 
     Iflt oldt;
 
-    do
-    {
-      oldt = working_time;
-
-      working_time += deltaT;
-
-      if((working_time > t_high) || (working_time < t_low))
+    for (size_t i(0); i < 100; ++i)
       {
-        boundaryExceeded = true;
-	break;
+	oldt = working_time;
+	
+	working_time += deltaT;
+	
+	if((working_time > t_high) || (working_time < t_low))
+	  {
+	    boundaryExceeded = true;
+	    break;
+	  }
+	
+	A = LineA;
+	B = LineB;
+	
+	performRotation(A, working_time);
+	performRotation(B, working_time);
+	
+	f0 = F_zeroDeriv(A, B);
+	f1 = F_firstDeriv(A, B);
+	f2 = F_secondDeriv(A, B);
+	f2max = F_secondDeriv_max(A, B, length);
+	
+	rootFound = true;
+	
+	if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, f0, f1, 0.5*f2))
+	  {
+	    //No real roots, try from the other side
+	    boundaryExceeded = true;
+	    rootFound = false;
+	    break;
+	  }
       }
-      
-      A = LineA;
-      B = LineB;
-
-      performRotation(A, working_time);
-      performRotation(B, working_time);
-      
-      f0 = F_zeroDeriv(A, B);
-      f1 = F_firstDeriv(A, B);
-      f2 = F_secondDeriv(A, B);
-      f2max = F_secondDeriv_max(A, B, length);
-      
-      rootFound = true;
-      
-      if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, f0, f1, 0.5*f2))
-      {
-	//No real roots, try from the other side
-	boundaryExceeded = true;
-	rootFound = false;
-	break;
-      }
-    } while (fabs((working_time - oldt)) > working_time * 1e-15);
 
     if(boundaryExceeded)
     {
