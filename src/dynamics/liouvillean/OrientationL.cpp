@@ -42,6 +42,14 @@ bool
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
 {  
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(p1))
+    D_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+  if (!isUpToDate(p2))
+    D_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
   Iflt t_low = 0.0;
   Iflt t_high = PD.dt;
   
