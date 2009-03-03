@@ -42,6 +42,14 @@ bool
 CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
 {  
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(p1))
+    D_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+  if (!isUpToDate(p2))
+    D_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
   Iflt t_low = 0.0;
   Iflt t_high = PD.dt;
   
@@ -164,7 +172,10 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
   {
     if(B == 0)
     {
-        D_throw() << "Impossible equation: 0 = nonzero";
+      
+      //D_throw() << "Impossible equation: 0 = nonzero";
+
+      //There are no roots, the system is stationary
 	return false;
     }
     
@@ -325,11 +336,14 @@ CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
 {
-  updateParticlePair(eevent.getParticle1(), eevent.getParticle2());
+  const CParticle& particle1 = Sim->vParticleList[eevent.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[eevent.getParticle2ID()];
 
-  C2ParticleData retVal(eevent.getParticle1(), eevent.getParticle2(),
-                        Sim->Dynamics.getSpecies(eevent.getParticle1()),
-                        Sim->Dynamics.getSpecies(eevent.getParticle2()),
+  updateParticlePair(particle1, particle2);  
+
+  C2ParticleData retVal(particle1, particle2,
+                        Sim->Dynamics.getSpecies(particle1),
+                        Sim->Dynamics.getSpecies(particle2),
                         CORE);
   
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
@@ -340,41 +354,44 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   // Assume lines are the same mass... use the mass of line #1
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt inertia = (mass * length * length)/12.0;
+  Iflt inertia = (mass * length * length) / 12.0;
   
-  A.position = retVal.particle1_.getParticle().getPosition();
-  A.velocity = retVal.particle1_.getParticle().getVelocity();
-  A.rot.angularVelocity = orientationData[retVal.particle1_.getParticle().getID()].angularVelocity;
-  A.rot.orientation = orientationData[retVal.particle1_.getParticle().getID()].orientation;
+  A.position = retVal.rij;
+  A.velocity = retVal.vijold;
+  A.rot.angularVelocity = orientationData[particle1.getID()].angularVelocity;
+  A.rot.orientation = orientationData[particle1.getID()].orientation;
   
-  B.position = retVal.particle2_.getParticle().getPosition();
-  B.velocity = retVal.particle2_.getParticle().getVelocity();
-  B.rot.angularVelocity = orientationData[retVal.particle2_.getParticle().getID()].angularVelocity;
-  B.rot.orientation = orientationData[retVal.particle2_.getParticle().getID()].orientation;
+  B.position = CVector<Iflt>(0);
+  B.velocity = CVector<Iflt>(0);
+  B.rot.angularVelocity = orientationData[particle2.getID()].angularVelocity;
+  B.rot.orientation = orientationData[particle2.getID()].orientation;
   
   uPerp = A.rot.orientation.Cross(B.rot.orientation).unitVector();
   
   collisionPoints cp = getCollisionPoints(A, B);
   
-  u1dot = A.rot.angularVelocity.Cross(A.rot.orientation) * cp.alpha;
-  u2dot = B.rot.angularVelocity.Cross(B.rot.orientation) * cp.beta;
+  u1dot = A.rot.angularVelocity.Cross(A.rot.orientation);
+  u2dot = B.rot.angularVelocity.Cross(B.rot.orientation);
   
-  vr = (A.velocity - B.velocity) + u1dot - u2dot;
+  vr = (A.velocity - B.velocity) + (cp.alpha * u1dot) - (cp.beta * u2dot);
   
-  Iflt alpha = -1.0 * (vr % uPerp);
-  alpha /= ((1.0/mass) + ((std::pow(cp.alpha, 2) + std::pow(cp.beta, 2))/(2.0 * inertia)));
+  Iflt alpha = -1.0 * (vr % uPerp) / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia)));
   
   retVal.rvdot = retVal.rij % retVal.vijold;
+
   retVal.dP = uPerp * alpha;
   
-  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() += retVal.dP / mass;
-  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / mass;
   
-  orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
-  orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
+  orientationData[particle1.getID()].angularVelocity 
+    = A.rot.angularVelocity - (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
 
-  lastCollParticle1 = eevent.getParticle1().getID();
-  lastCollParticle2 = eevent.getParticle2().getID();
+  orientationData[particle2.getID()].angularVelocity 
+    = B.rot.angularVelocity + (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
+
+  lastCollParticle1 = particle1.getID();
+  lastCollParticle2 = particle2.getID();
   lastAbsoluteClock = Sim->dSysTime;
 
   return retVal;
@@ -490,16 +507,21 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     if(f0 > 0) { f2max *= -1.0; }
     
     // Enhance bound
-    quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2max);
-    
+    if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
+			   f0, f1, 0.5*f2max))
+      t_low = t_high + 1;
+      
     //I_cerr() << "boundEnhancer = " << boundEnhancer;
     
     if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
     
     if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
     {
-      // No appropriate roots
-      //I_cerr() << "No appropriate roots found, continuing";
+      //This can happen when a root is right next to a boundary, so we
+      //must reverse direction to bring the boundaries
+      //in. Unfortunatly the way we resolve this is by iterating the
+      //boundaries.
+      fwdWorking = (fwdWorking ? false: true);
       continue;
     }
     
@@ -515,11 +537,15 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     // Begin iterating inwards
     
     boundaryExceeded = false;
-    
+
+    Iflt olddeltaT(0);
+
     do
     {
       working_time += deltaT;
-      
+
+      olddeltaT =  deltaT;
+
       if((working_time > t_high) || (working_time < t_low))
       {
         boundaryExceeded = true;
@@ -543,9 +569,10 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	rootFound = false;
 	break;
       }
-      //I know this is zero but it gets there in just a few steps!
-    } while (fabs(deltaT) > 0);
-    
+      //This while stops oscilating solutions and when deltaT = 0
+    } while (((fabs(deltaT) - fabs(olddeltaT)) > fabs(deltaT) * 1e-13)
+	     && (deltaT != 0));
+
     if(boundaryExceeded)
     {
       fwdWorking = (fwdWorking ? false: true);

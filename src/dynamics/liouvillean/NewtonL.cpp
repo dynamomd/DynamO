@@ -289,11 +289,14 @@ C2ParticleData
 CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 			    const Iflt&, const EEventType& eType) const
 {
-  updateParticlePair(event.getParticle1(), event.getParticle2());
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
-  C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
-			Sim->Dynamics.getSpecies(event.getParticle1()),
-			Sim->Dynamics.getSpecies(event.getParticle2()),
+  updateParticlePair(particle1, particle2);  
+
+  C2ParticleData retVal(particle1, particle2,
+			Sim->Dynamics.getSpecies(particle1),
+			Sim->Dynamics.getSpecies(particle2),
 			eType);
     
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
@@ -308,8 +311,8 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
   retVal.calcDeltaKE(mu);
   
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(event.getParticle1()).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(event.getParticle2()).getVelocity() += retVal.dP / p2Mass;
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   return retVal;
 }
@@ -510,11 +513,14 @@ C2ParticleData
 CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
 			  const Iflt &) const
 {
-  updateParticlePair(event.getParticle1(), event.getParticle2());  
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
-  C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
-			Sim->Dynamics.getSpecies(event.getParticle1()),
-			Sim->Dynamics.getSpecies(event.getParticle2()),
+  updateParticlePair(particle1, particle2);  
+
+  C2ParticleData retVal(particle1, particle2,
+			Sim->Dynamics.getSpecies(particle1),
+			Sim->Dynamics.getSpecies(particle2),
 			event.getType());
     
   Sim->Dynamics.BCs().setPBC(retVal.rij,retVal.vijold);
@@ -565,8 +571,8 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 #endif
   
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(event.getParticle1()).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(event.getParticle2()).getVelocity() += retVal.dP / p2Mass;
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   return retVal;
 }

@@ -23,9 +23,9 @@
 class CSSystemOnly: public CScheduler
 {
 public:
-  CSSystemOnly(const XMLNode&, const DYNAMO::SimData*);
+  CSSystemOnly(const XMLNode&, DYNAMO::SimData* const);
 
-  CSSystemOnly(const DYNAMO::SimData*, CSSorter*);
+  CSSystemOnly(DYNAMO::SimData* const, CSSorter*);
 
   virtual void rebuildList() { initialise(); }
 

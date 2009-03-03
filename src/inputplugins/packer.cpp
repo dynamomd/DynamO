@@ -843,9 +843,12 @@ CIPPacker::initialise()
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
+
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->Dynamics.addInteraction(new CILines(Sim, particleDiam, 1.0,
 						      new C2RAll()

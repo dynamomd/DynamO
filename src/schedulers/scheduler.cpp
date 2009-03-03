@@ -21,14 +21,15 @@
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/systems/system.hpp"
+#include "../dynamics/liouvillean/liouvillean.hpp"
 #include "../base/is_simdata.hpp"
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "include.hpp"
 
-CScheduler::CScheduler(const DYNAMO::SimData* const tmp, const char * aName,
+CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
 		       CSSorter* nS):
-  SimBase_const(tmp, aName, IC_purple),
+  SimBase(tmp, aName, IC_purple),
   sorter(nS)
 {}
 
@@ -36,7 +37,7 @@ CScheduler::~CScheduler()
 {}
 
 CScheduler* 
-CScheduler::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
+CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSNeighbourList(XML, Sim);
@@ -95,7 +96,7 @@ CScheduler::invalidateEvents(const CParticle& part)
 }
 
 void
-CScheduler::runNextEvent() const
+CScheduler::runNextEvent()
 {
   sorter->sort();
   
@@ -148,18 +149,118 @@ CScheduler::runNextEvent() const
   switch (sorter->next_Data().top().type)
     {
     case INTERACTION:
-      Sim->Dynamics.runIntEvent
-	(Sim->vParticleList[sorter->next_ID()], 
-	 Sim->vParticleList[sorter->next_Data().top().p2]);	  
-      break;
+      {
+	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
+	const CParticle& p2(Sim->vParticleList[sorter->next_Data().top().p2]);
+	
+	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	
+	const CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
+	
+	if (Event.getType() == NONE)
+	  {
+	    I_cerr() << "A glancing or tenuous collision may have become invalid due"
+	      "\nto free streaming inaccuracies"
+	      "\nOtherwise the simulation has run out of events!"
+	      "\nThis occured when confirming the event with the scheduler"
+	      "\nIgnoring this NONE event below\n"
+		     << Event.stringData(Sim);
+	    
+	    //Now we're past the event, update the scheduler and plugins
+	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    return;
+	  }
+	
+	if (fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
+	  {
+	    I_cerr() << "A recalculated event time, performed to confirm the collision time, is\n"
+	      "more than 1% different to the FEL event time."
+	      "\nEither due to free streaming inaccuracies or because "
+	      "\nForcing a complete recalculation for the particles involved\n"
+		     << Event.stringData(Sim);
+	    
+	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    return;
+	  }
+	
+#ifdef DYNAMO_DEBUG 
+	if (isnan(Event.getdt()))
+	  D_throw() << "A NAN Interaction collision time has been found"
+		    << Event.stringData(Sim);
+	
+	if (Event.getdt() == HUGE_VAL)
+	  D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+		    << Event.stringData(Sim);
+#endif
+	
+	//Debug section
+#ifdef DYNAMO_CollDebug
+	if (p2.getID() < p2.getID())
+	  std::cerr << "\nsysdt " << Event.getdt() + dSysTime
+		    << "  ID1 " << p1.getID() 
+		    << "  ID2 " << p2.getID()
+		    << "  dt " << Event.getdt()
+		    << "  Type " << CIntEvent::getCollEnumName(Event.getType());
+	else
+	  std::cerr << "\nsysdt " << Event.getdt() + dSysTime
+		    << "  ID1 " << p2().getID() 
+		    << "  ID2 " << p1().getID()
+		    << "  dt " << Event.getdt()
+		    << "  Type " << CIntEvent::getCollEnumName(Event.getType());
+#endif
+
+	Sim->dSysTime += Event.getdt();
+	
+	stream(Event.getdt());
+	
+	//dynamics must be updated first
+	Sim->Dynamics.stream(Event.getdt());	
+
+	Sim->Dynamics.getInteractions()[Event.getInteractionID()]
+	  ->runEvent(p1,p2,Event);
+
+	break;
+      }
     case GLOBAL:
-      Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
-	->runEvent(Sim->vParticleList[sorter->next_ID()]);
-      break;	           
+      {
+	//We don't stream the system for globals as neighbour lists
+	//optimise this (they dont need it).
+	Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
+	break;	           
+      }
     case LOCAL:
-      Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
-	->runEvent(Sim->vParticleList[sorter->next_ID()]);	  
-      break;
+      {
+	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
+
+	Sim->Dynamics.Liouvillean().updateParticle(part);
+	CLocalEvent iEvent(Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]->getEvent(part));
+	
+	if (iEvent.getType() == NONE)
+	  D_throw() << "No global collision found\n"
+		    << iEvent.stringData(Sim);
+	
+#ifdef DYNAMO_DEBUG 
+	if (isnan(iEvent.getdt()))
+	  D_throw() << "A NAN Global collision time has been found\n"
+		    << iEvent.stringData(Sim);
+	
+	if (iEvent.getdt() == HUGE_VAL)
+	  D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+		    << iEvent.stringData(Sim);
+#endif
+	
+	Sim->dSysTime += iEvent.getdt();
+	
+	stream(iEvent.getdt());
+	
+	//dynamics must be updated first
+	Sim->Dynamics.stream(iEvent.getdt());
+	
+	Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+	->runEvent(part, iEvent);	  
+	break;
+      }
     case SYSTEM:
       Sim->Dynamics.getSystemEvents()[sorter->next_Data().top().p2]
 	->runEvent();

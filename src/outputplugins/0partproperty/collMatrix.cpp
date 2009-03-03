@@ -43,11 +43,11 @@ COPCollMatrix::~COPCollMatrix()
 void 
 COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 {
-  newEvent(iEvent.getParticle1(), iEvent.getType(), 
-	   getClassKey(iEvent.getInteraction()));
+  newEvent(iEvent.getParticle1ID(), iEvent.getType(), 
+	   getIntClassKey(iEvent.getInteractionID()));
 
-  newEvent(iEvent.getParticle2(), iEvent.getType(), 
-	   getClassKey(iEvent.getInteraction()));
+  newEvent(iEvent.getParticle2ID(), iEvent.getType(), 
+	   getIntClassKey(iEvent.getInteractionID()));
 }
 
 
@@ -55,13 +55,16 @@ void
 COPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle(), pData.getType(), 
+    newEvent(pData.getParticle().getID(), pData.getType(), 
 	     getClassKey(globEvent));  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(globEvent));
-      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(globEvent));
+      newEvent(pData.particle1_.getParticle().getID(), 
+	       pData.getType(), getClassKey(globEvent));
+
+      newEvent(pData.particle2_.getParticle().getID(), 
+	       pData.getType(), getClassKey(globEvent));
     }
 }
 
@@ -69,12 +72,16 @@ void
 COPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle(), pData.getType(), getClassKey(localEvent));  
+    newEvent(pData.getParticle().getID(), 
+	     pData.getType(), getClassKey(localEvent));  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(localEvent));
-      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(localEvent));
+      newEvent(pData.particle1_.getParticle().getID(), 
+	       pData.getType(), getClassKey(localEvent));
+
+      newEvent(pData.particle2_.getParticle().getID(),
+	       pData.getType(), getClassKey(localEvent));
     }
 }
 
@@ -82,32 +89,35 @@ void
 COPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle(), pData.getType(), getClassKey(sysEvent));
+    newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle(), pData.getType(), getClassKey(sysEvent));  
-      newEvent(pData.particle2_.getParticle(), pData.getType(), getClassKey(sysEvent));  
+      newEvent(pData.particle1_.getParticle().getID(), 
+	       pData.getType(), getClassKey(sysEvent));
+
+      newEvent(pData.particle2_.getParticle().getID(), 
+	       pData.getType(), getClassKey(sysEvent));  
     } 
 }
 
 
 void 
-COPCollMatrix::newEvent(const CParticle& part, const EEventType& etype, const classKey& ck)
+COPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
 {
-  if (lastEvent[part.getID()].second.first.second != NONE)
+  if (lastEvent[part].second.first.second != NONE)
     {
-      counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part.getID()].second)];
+      counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part].second)];
       
-      refCount.totalTime += Sim->dSysTime - lastEvent[part.getID()].first;
+      refCount.totalTime += Sim->dSysTime - lastEvent[part].first;
       ++(refCount.count);
       ++(totalCount);
     }
   else
     ++initialCounter[eventKey(ck,etype)];
 
-  lastEvent[part.getID()].first = Sim->dSysTime;
-  lastEvent[part.getID()].second = eventKey(ck, etype);
+  lastEvent[part].first = Sim->dSysTime;
+  lastEvent[part].second = eventKey(ck, etype);
 }
 
 void

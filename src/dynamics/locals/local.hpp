@@ -48,7 +48,7 @@ public:
 
   virtual CLocalEvent getEvent(const CParticle&) const = 0;
 
-  virtual void runEvent(const CParticle&) const = 0;
+  virtual void runEvent(const CParticle&, const CLocalEvent&) const = 0;
   
   virtual bool isInCell(const CVector<>&, const CVector<>&) const = 0;
 

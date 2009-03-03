@@ -93,6 +93,8 @@ CGPBCSentinel::getEvent(const CParticle& part) const
 void 
 CGPBCSentinel::runEvent(const CParticle& part) const
 {
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+
   CGlobEvent iEvent(getEvent(part));
 
 #ifdef DYNAMO_DEBUG 

@@ -35,14 +35,14 @@
 #include "../dynamics/locals/localEvent.hpp"
 
 CSSystemOnly::CSSystemOnly(const XMLNode& XML, 
-				 const DYNAMO::SimData* Sim):
+				 DYNAMO::SimData* const Sim):
   CScheduler(Sim,"SystemOnlyScheduler", NULL)
 { 
   I_cout() << "System Events Only Scheduler Algorithmn";
   operator<<(XML);
 }
 
-CSSystemOnly::CSSystemOnly(const DYNAMO::SimData* Sim, CSSorter* ns):
+CSSystemOnly::CSSystemOnly(DYNAMO::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"SystemOnlyScheduler", ns)
 { I_cout() << "System Events Only Scheduler Algorithmn"; }
 

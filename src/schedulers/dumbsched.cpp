@@ -34,14 +34,14 @@
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
 
-CSDumb::CSDumb(const XMLNode& XML, const DYNAMO::SimData* Sim):
+CSDumb::CSDumb(const XMLNode& XML, DYNAMO::SimData* const Sim):
   CScheduler(Sim,"DumbScheduler", NULL)
 { 
   I_cout() << "Dumb Scheduler Algorithmn";
   operator<<(XML);
 }
 
-CSDumb::CSDumb(const DYNAMO::SimData* Sim, CSSorter* ns):
+CSDumb::CSDumb(DYNAMO::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"DumbScheduler", ns)
 { I_cout() << "Dumb Scheduler Algorithmn"; }
 

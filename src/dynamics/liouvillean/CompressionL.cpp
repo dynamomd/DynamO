@@ -95,10 +95,10 @@ CLCompression::streamParticle(CParticle &particle, const Iflt &dt) const
 C2ParticleData 
 CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
 {
-  updateParticlePair(event.getParticle1(), event.getParticle2());  
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
-  const CParticle& particle1 = event.getParticle1();
-  const CParticle& particle2 = event.getParticle2();
+  updateParticlePair(particle1, particle2);  
 
   C2ParticleData retVal(particle1, particle2,
 			Sim->Dynamics.getSpecies(particle1),
@@ -127,11 +127,14 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
 C2ParticleData 
 CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
 {
-  updateParticlePair(event.getParticle1(), event.getParticle2());
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
   
-  C2ParticleData retVal(event.getParticle1(), event.getParticle2(),
-			Sim->Dynamics.getSpecies(event.getParticle1()),
-			Sim->Dynamics.getSpecies(event.getParticle2()),
+  C2ParticleData retVal(particle1, particle2,
+			Sim->Dynamics.getSpecies(particle1),
+			Sim->Dynamics.getSpecies(particle2),
 			event.getType());
     
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
@@ -185,8 +188,8 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
 #endif
   
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(event.getParticle1()).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(event.getParticle2()).getVelocity() += retVal.dP / p2Mass;
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   return retVal;
 }
@@ -211,11 +214,11 @@ CLCompression::getPBCSentinelTime(const CParticle& part,
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
 
-  Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / (abs(vel[0]) + lMax * growthRate);
+  Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 
   for (size_t i(1); i < NDIM; ++i)
     {
-      Iflt tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (abs(vel[0]) + lMax * growthRate);
+      Iflt tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
       
       if (tmp < retval)
 	retval = tmp;

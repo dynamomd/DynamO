@@ -110,7 +110,7 @@ CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
 }
 
 CSNeighbourList::CSNeighbourList(const XMLNode& XML, 
-				 const DYNAMO::SimData* Sim):
+				 DYNAMO::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL),
   cellChange(0),
   cellChangeLocal(0),
@@ -128,7 +128,7 @@ CSNeighbourList::CSNeighbourList(const CSNeighbourList& nb):
   reinit(0)
 {}
 
-CSNeighbourList::CSNeighbourList(const DYNAMO::SimData* Sim, CSSorter* ns):
+CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns),
   cellChange(0),
   cellChangeLocal(0),

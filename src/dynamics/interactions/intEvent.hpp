@@ -21,6 +21,7 @@
 #include <cfloat>
 #include "../eventtypes.hpp"
 #include "../../simulation/particle.hpp"
+#include "interaction.hpp"
 
 
 class XMLNode;
@@ -42,32 +43,37 @@ public:
   friend struct intPart;
 
   inline CIntEvent ():
-  particle1(NULL), particle2(NULL), 
+  particle1(-1), particle2(-1), 
   dt(HUGE_VAL), CType(NONE),
-  ptrInteraction(NULL) {}
+  intID(-1) {}
 
   inline CIntEvent(const CParticle& part1, const CParticle& part2, 
-		     const Iflt &delt, EEventType nType, 
-		     const CInteraction& pI):
-  particle1(&part1), particle2(&part2), dt(delt), 
-  CType(nType), ptrInteraction(&pI) {}
-
+		   const Iflt &delt, EEventType nType, 
+		   const CInteraction& pI):
+    particle1(part1.getID()), particle2(part2.getID()), dt(delt), 
+    CType(nType), intID(pI.getID()) {}
+  
   inline CIntEvent (const CParticle& part1):
-  particle1(&part1), particle2(NULL), 
-  dt(HUGE_VAL), CType(NONE),
-  ptrInteraction(NULL) {}
+    particle1(part1.getID()), particle2(-1), 
+    dt(HUGE_VAL), CType(NONE),
+    intID(-1) {}
 
   inline CIntEvent(const CParticle& part1, const Iflt& dt, 
 		     EEventType etype):
-  particle1(&part1), particle2(NULL), 
-  dt(dt), CType(etype),
-  ptrInteraction(NULL) {}
+    particle1(part1.getID()), particle2(-1), 
+    dt(dt), CType(etype),
+    intID(-1) {}
 
   inline bool operator== (const CParticle &partx) const 
-    { return ((*particle1 == partx) || (*particle2 == partx)); }
+  { return ((particle1 == partx.getID()) || (particle2 == partx.getID())); }
   
   inline bool areInvolved(const CIntEvent &coll) const 
-    { return ((coll == *particle1) || (coll == *particle2)); }
+  { 
+    return ((coll.particle1 == particle1) 
+	    || (coll.particle1 == particle2)
+	    || (coll.particle2 == particle1)
+	    || (coll.particle2 == particle2));
+  }
   
   inline void invalidate() 
   { 
@@ -82,46 +88,42 @@ public:
     { return dt > C2.dt;}
 
   inline void incrementTime(const Iflt deltat) {dt -= deltat; }
-
+  
   inline void addTime(const Iflt deltat) {dt += deltat; }
-
-  inline const CParticle& getParticle1() const { return *particle1; }
-
-  inline const CParticle& getParticle2() const { return *particle2; }
-
-  inline const CParticle* getPtrParticle2() const { return particle2; }
-
-  inline bool hasParticle2() const { return particle2 != NULL; }
+  
+  inline const size_t& getParticle1ID() const { return particle1; }
+  
+  inline const size_t& getParticle2ID() const { return particle2; }
+  
+  inline bool hasParticle2() const { return particle2 != size_t(-1); }
 
   inline const Iflt& getdt() const { return dt; }
 
   inline EEventType getType() const
-    { return CType; }
+  { return CType; }
   
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CIntEvent&);
 
   std::string stringData(const DYNAMO::SimData*) const;
-
+  
   inline void setType(EEventType a) const
   { 
     //A bit of nastiness required by SquareWells
     CType = a;
   }
-
+  
   inline void scaleTime(const Iflt& scale)
   { dt *= scale; }
 
-  const CInteraction& getInteraction() const 
-  { 
-    return *ptrInteraction; 
-  }
+  inline const size_t& getInteractionID() const 
+  { return intID; }
 
 private:
-  const CParticle*  particle1;
-  const CParticle*  particle2;
+  const size_t  particle1;
+  const size_t  particle2;
   Iflt dt;
   mutable EEventType CType;
-  const CInteraction* ptrInteraction;
+  const size_t intID;
 };
 
 #endif

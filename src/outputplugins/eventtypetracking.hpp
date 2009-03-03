@@ -41,7 +41,7 @@ namespace EventTypeTracking {
 
   std::string getName(const classKey&, const DYNAMO::SimData*);
 
-  classKey getClassKey(const CInteraction&);
+  classKey getIntClassKey(const size_t&);
 
   classKey getClassKey(const CSystem&);
 
