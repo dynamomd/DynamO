@@ -164,110 +164,100 @@ bool
 CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
 				  Iflt C, Iflt B, Iflt A) const
 {
-  Iflt discriminant;  
   Iflt root1, root2;
   
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
-  {
-    if(B == 0)
     {
+      if(B == 0) return false;
       
-      //D_throw() << "Impossible equation: 0 = nonzero";
-
-      //There are no roots, the system is stationary
-	return false;
+      root1 = -1.0 * C / B;
+      root2 = root1;
     }
-    
-    root1 = -1.0 * C / B;
-    root2 = root1;
-  }
   else
   {
-    discriminant = (B * B) - (4 * A * C);
+    Iflt discriminant = (B * B) - (4 * A * C);
     
-    if(discriminant < 0)
-    {
-      //I_cerr() << "Determinant of less than zero returned";
-      return false;
-    }
+    if (discriminant < 0) return false;
     
-    root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
-    root2 = ((-1.0 * B) - sqrt(discriminant)) / (2 * A);
+    //This avoids a cancellation of errors. See
+    //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
+    Iflt t((B < 0)
+	   ? -0.5 * (B-sqrt(discriminant))
+	   : -0.5 * (B+sqrt(discriminant)));
     
-    //I_cerr() << "root 1 = " << root1;
-    //I_cerr() << "root 2 = " << root2;
+    root1 = t / A;
+    root2 = C / t;
   }
 
   if(returnType == ROOT_SMALLEST_EITHER)
-  {
-    returnVal = (fabs(root1) < fabs(root2)) ? root1 : root2;
-    return true;
-  }
-
+    {
+      returnVal = (fabs(root1) < fabs(root2)) ? root1 : root2;
+      return true;
+    }
   else if(returnType == ROOT_LARGEST_EITHER)
-  {
-    returnVal = (fabs(root1) < fabs(root2)) ? root2 : root1;
-    return true;
-  }
+    {
+      returnVal = (fabs(root1) < fabs(root2)) ? root2 : root1;
+      return true;
+    }
   else
-  {    
-    if(root1 > 0 && root2 > 0) // Both roots positive
-    {
-      switch(returnType)
-      {
-        case ROOT_LARGEST_NEGATIVE:
-        case ROOT_SMALLEST_NEGATIVE:
-          //I_cerr() << "Both roots positive";
-          return false;
-          break;
-        case ROOT_SMALLEST_POSITIVE:
-          returnVal = ((root1 < root2) ? root1 : root2);
-          return true;
-          break;
-        case ROOT_LARGEST_POSITIVE:
-          returnVal = ((root1 > root2) ? root1 : root2);
-          return true;
-	  break;
-      }
+    {    
+      if(root1 > 0 && root2 > 0) // Both roots positive
+	{
+	  switch(returnType)
+	    {
+	    case ROOT_LARGEST_NEGATIVE:
+	    case ROOT_SMALLEST_NEGATIVE:
+	      //I_cerr() << "Both roots positive";
+	      return false;
+	      break;
+	    case ROOT_SMALLEST_POSITIVE:
+	      returnVal = ((root1 < root2) ? root1 : root2);
+	      return true;
+	      break;
+	    case ROOT_LARGEST_POSITIVE:
+	      returnVal = ((root1 > root2) ? root1 : root2);
+	      return true;
+	      break;
+	    }
+	}
+      else if(root1 < 0 && root2 < 0) // Both roots negative
+	{
+	  switch(returnType)
+	    {
+	    case ROOT_LARGEST_POSITIVE:
+	    case ROOT_SMALLEST_POSITIVE:
+	      //I_cerr() << "Both roots negative";
+	      return false;
+	      break;
+	    case ROOT_SMALLEST_NEGATIVE:
+	      returnVal = ((root1 > root2) ? root1 : root2);
+	      return true;
+	      break;
+	    case ROOT_LARGEST_NEGATIVE:
+	      returnVal = ((root1 < root2) ? root1 : root2);
+	      return true;
+	      break;
+	    }
+	}
+      else // Roots are different signs
+	{
+	  switch(returnType)
+	    {
+	    case ROOT_LARGEST_POSITIVE:
+	    case ROOT_SMALLEST_POSITIVE:
+	      returnVal = ((root1 > root2) ? root1 : root2);
+	      return true;
+	      break;
+	    case ROOT_LARGEST_NEGATIVE:
+	    case ROOT_SMALLEST_NEGATIVE:
+	      returnVal = ((root1 < root2) ? root1 : root2);
+	      return true;
+	      break;
+	    }
+	}
     }
-    else if(root1 < 0 && root2 < 0) // Both roots negative
-    {
-      switch(returnType)
-      {
-        case ROOT_LARGEST_POSITIVE:
-        case ROOT_SMALLEST_POSITIVE:
-          //I_cerr() << "Both roots negative";
-          return false;
-          break;
-        case ROOT_SMALLEST_NEGATIVE:
-          returnVal = ((root1 > root2) ? root1 : root2);
-          return true;
-          break;
-        case ROOT_LARGEST_NEGATIVE:
-          returnVal = ((root1 < root2) ? root1 : root2);
-          return true;
-          break;
-      }
-    }
-    else // Roots are different signs
-    {
-      switch(returnType)
-      {
-        case ROOT_LARGEST_POSITIVE:
-        case ROOT_SMALLEST_POSITIVE:
-          returnVal = ((root1 > root2) ? root1 : root2);
-          return true;
-          break;
-        case ROOT_LARGEST_NEGATIVE:
-        case ROOT_SMALLEST_NEGATIVE:
-          returnVal = ((root1 < root2) ? root1 : root2);
-          return true;
-          break;
-      }
-    }
-  }
-
+  
   D_throw() << "Unexpected end-of-function reached.  Did you specify a valid root type?";
   return false;
 }

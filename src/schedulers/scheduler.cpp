@@ -26,6 +26,7 @@
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "include.hpp"
+#include "../dynamics/units/units.hpp"
 
 CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
 		       CSSorter* nS):
@@ -157,33 +158,34 @@ CScheduler::runNextEvent()
 	
 	const CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
 	
-	if (Event.getType() == NONE)
-	  {
-	    I_cerr() << "A glancing or tenuous collision may have become invalid due"
-	      "\nto free streaming inaccuracies"
-	      "\nOtherwise the simulation has run out of events!"
-	      "\nThis occured when confirming the event with the scheduler"
-	      "\nIgnoring this NONE event below\n"
-		     << Event.stringData(Sim);
-	    
-	    //Now we're past the event, update the scheduler and plugins
-	    Sim->ptrScheduler->fullUpdate(p1, p2);
-	    return;
-	  }
-	
 	if (fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
 	  {
-	    I_cerr() << "A recalculated event time, performed to confirm the collision time, is\n"
-	      "more than 1% different to the FEL event time."
-	      "\nEither due to free streaming inaccuracies or because "
-	      "\nForcing a complete recalculation for the particles involved\n"
-		     << Event.stringData(Sim);
-	    
+	    I_cerr() << 
+	      "A recalculated event time, performed to confirm the collision time, is"
+	      "\nmore than 1% different to the FEL event time. Either due to free "
+	      "\nstreaming inaccuracies or . Forcing a complete recalculation for "
+	      "\nthe particles involved\n\n======Event Data======\n"
+		     << Event.stringData(Sim)
+		     << "\n\n Systime of original event is " 
+		     << (sorter->next_dt() + Sim->dSysTime) 
+	      / Sim->Dynamics.units().unitTime()
+		     << "\n\n Systime of recalculated event "
+		     << (Event.getdt() + Sim->dSysTime) 
+	      / Sim->Dynamics.units().unitTime()
+		     << "\n\n Systime is "
+		     << Sim->dSysTime / Sim->Dynamics.units().unitTime();
+	     
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    return;
 	  }
 	
-#ifdef DYNAMO_DEBUG 
+#ifdef DYNAMO_DEBUG
+	if (Event.getType() == NONE)
+	  D_throw() << "A NONE event has reached the top of the queue."
+	    "\nThe simulation has run out of events!"
+	    "\n\n======Event Data======\n"
+		    << Event.stringData(Sim);	  
+
 	if (isnan(Event.getdt()))
 	  D_throw() << "A NAN Interaction collision time has been found"
 		    << Event.stringData(Sim);
