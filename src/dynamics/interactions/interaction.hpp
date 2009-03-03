@@ -49,7 +49,7 @@ public:
   virtual CIntEvent getEvent(const CParticle &, 
 			     const CParticle &) const = 0;
 
-  virtual void runEvent(const CParticle&, const CParticle&) const = 0;
+  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const = 0;
 
   virtual Iflt maxIntDist() const = 0;  
 

@@ -47,7 +47,7 @@ public:
 
   virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
   
-  virtual void runEvent(const CParticle&, const CParticle&) const;
+  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const;
     
   virtual void outputXML(xmlw::XmlStream&) const;
 

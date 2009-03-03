@@ -40,8 +40,8 @@ public:
   
   CParticle(const XMLNode&, unsigned long);
   
-  inline bool operator==(const CParticle &p) const { return (this == &p); }
-  inline bool operator!=(const CParticle &p) const { return (this != &p); }
+  inline bool operator==(const CParticle &p) const { return (ID == p.ID); }
+  inline bool operator!=(const CParticle &p) const { return (ID != p.ID); }
   
   inline const CVector<> &getPosition() const { return posVector; }
   inline const CVector<> &getVelocity() const { return velVector; }

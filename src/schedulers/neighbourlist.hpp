@@ -23,9 +23,9 @@
 class CSNeighbourList: public CScheduler
 {
 public:
-  CSNeighbourList(const XMLNode&, const DYNAMO::SimData*);
+  CSNeighbourList(const XMLNode&, DYNAMO::SimData* const);
 
-  CSNeighbourList(const DYNAMO::SimData*, CSSorter*);
+  CSNeighbourList(DYNAMO::SimData* const, CSSorter*);
 
   /*! \brief Must be overloaded to maintain connection status */
   CSNeighbourList(const CSNeighbourList&);

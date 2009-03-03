@@ -78,7 +78,7 @@ CINull::getEvent(const CParticle &p1, const CParticle &p2) const
 }
 
 void
-CINull::runEvent(const CParticle&, const CParticle&) const
+CINull::runEvent(const CParticle&, const CParticle&, const CIntEvent&) const
 { 
   D_throw() << "Null event trying to run a collision!"; 
 }

@@ -82,7 +82,7 @@ public:
   
   void stream(const Iflt&);
   
-  inline CIntEvent getEvent(const CParticle &p1, const CParticle &p2) const
+  inline CIntEvent getEvent(const CParticle& p1, const CParticle& p2) const
   {
     BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
@@ -97,12 +97,12 @@ public:
     D_throw() << "Could not find the right interaction to test for";
   }
 
-  inline void runIntEvent(const CParticle &p1, const CParticle &p2) const
+  inline void runIntEvent(const CParticle &p1, const CParticle &p2, const CIntEvent& event) const
   {
     BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	{
-	  ptr->runEvent(p1,p2);
+	  ptr->runEvent(p1,p2, event);
 	  return;
 	}
     

@@ -54,33 +54,10 @@ CLWall::getEvent(const CParticle& part) const
 }
 
 void
-CLWall::runEvent(const CParticle& part) const
+CLWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
-  Sim->Dynamics.Liouvillean().updateParticle(part);
-  CLocalEvent iEvent(getEvent(part));
-  
-  if (iEvent.getType() == NONE)
-    D_throw() << "No global collision found\n"
-	      << iEvent.stringData(Sim);
-  
-#ifdef DYNAMO_DEBUG 
-  if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Global collision time has been found\n"
-	      << iEvent.stringData(Sim);
-  
-  if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
-	      << iEvent.stringData(Sim);
-#endif
-  
-  Sim->dSysTime += iEvent.getdt();
-  
-  Sim->ptrScheduler->stream(iEvent.getdt());
-  
-  Sim->Dynamics.stream(iEvent.getdt());
-    
   //Run the collision and catch the data
   CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
 		      (part, vNorm, e));

@@ -23,9 +23,9 @@
 class CSDumb: public CScheduler
 {
 public:
-  CSDumb(const XMLNode&, const DYNAMO::SimData*);
+  CSDumb(const XMLNode&, DYNAMO::SimData* const);
 
-  CSDumb(const DYNAMO::SimData*, CSSorter*);
+  CSDumb(DYNAMO::SimData* const, CSSorter*);
 
   virtual void rebuildList() { initialise(); }
 

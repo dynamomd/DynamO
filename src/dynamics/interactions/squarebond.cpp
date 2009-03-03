@@ -179,60 +179,11 @@ CISquareBond::getEvent(const CParticle &p1,
 }
 
 void
-CISquareBond::runEvent(const CParticle& p1, const CParticle& p2) const
+CISquareBond::runEvent(const CParticle& p1, const CParticle& p2, 
+		       const CIntEvent& iEvent) const
 {
-  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-  CIntEvent iEvent = getEvent(p1, p2);
-
-  if (iEvent.getType() == NONE)
-    {
-      I_cerr() << "A glancing or tenuous collision may have become invalid due"
-	"\nto free streaming inaccuracies"
-	"\nOtherwise the simulation has run out of events!"
-	"\nThis occured when confirming the event with the scheduler"
-	"\nIgnoring this NONE event below\n"
-	       << iEvent.stringData(Sim);
-
-      //Now we're past the event, update the scheduler and plugins
-      Sim->ptrScheduler->fullUpdate(p1, p2);
-      return;
-    }
-    
   ++Sim->lNColl;
 
-#ifdef DYNAMO_DEBUG 
-  if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Interaction collision time has been found"
-	      << iEvent.stringData(Sim);
-  
-  if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-	      << iEvent.stringData(Sim);
-#endif
-
-  //Debug section
-#ifdef DYNAMO_CollDebug
-  if (p1.getID() < p1.getID())
-    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
-	      << "  ID1 " << iEvent.getParticle1().getID() 
-	      << "  ID2 " << iEvent.getParticle2().getID()
-	      << "  dt " << iEvent.getdt()
-	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
-  else
-    std::cerr << "\nsysdt " << iEvent.getdt() + dSysTime
-	      << "  ID1 " << iEvent.getParticle2().getID() 
-	      << "  ID2 " << iEvent.getParticle1().getID()
-	      << "  dt " << iEvent.getdt()
-	      << "  Type " << CIntEvent::getCollEnumName(iEvent.getType());
-#endif
-  
-  Sim->dSysTime += iEvent.getdt();
-    
-  Sim->ptrScheduler->stream(iEvent.getdt());
-  
-  //dynamics must be updated first
-  Sim->Dynamics.stream(iEvent.getdt());
-  
 #ifdef DYNAMO_DEBUG
   if ((iEvent.getType() != BOUNCE) && (iEvent.getType() != CORE))
     D_throw() << "Unknown type found";

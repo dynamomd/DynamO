@@ -280,7 +280,7 @@ CSUmbrella::operator<<(const XMLNode& XML)
     
     if (XML.isAttributeSet("currentulevel"))
       {
-	ulevel = boost::lexical_cast<Iflt>(XML.getAttribute("currentulevel"));
+	ulevel = boost::lexical_cast<size_t>(XML.getAttribute("currentulevel"));
 	ulevelset = true;
       }
     

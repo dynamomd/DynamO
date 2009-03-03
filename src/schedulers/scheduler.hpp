@@ -26,10 +26,10 @@
 
 class CParticle;
 
-class CScheduler: public DYNAMO::SimBase_const
+class CScheduler: public DYNAMO::SimBase
 {
 public:
-  CScheduler(const DYNAMO::SimData* const, const char *, CSSorter*);
+  CScheduler(DYNAMO::SimData* const, const char *, CSSorter*);
   
   virtual ~CScheduler() = 0;
 
@@ -66,13 +66,13 @@ public:
   
   void stream(const Iflt& dt) {  sorter->stream(dt); }
   
-  void runNextEvent() const;
+  void runNextEvent();
 
   virtual void rebuildList() = 0;
 
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CScheduler&);
 
-  static CScheduler* getClass(const XMLNode&, const DYNAMO::SimData*);
+  static CScheduler* getClass(const XMLNode&, DYNAMO::SimData* const);
 
   virtual void operator<<(const XMLNode&) = 0;
   

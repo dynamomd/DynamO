@@ -35,7 +35,7 @@ public:
 
   virtual CLocalEvent getEvent(const CParticle &) const;
 
-  virtual void runEvent(const CParticle&) const;
+  virtual void runEvent(const CParticle&, const CLocalEvent&) const;
 
   virtual void initialise(size_t);
 
