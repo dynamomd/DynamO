@@ -490,8 +490,10 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     if(f0 > 0) { f2max *= -1.0; }
     
     // Enhance bound
-    quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2max);
-    
+    if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
+			   f0, f1, 0.5*f2max))
+      t_low = t_high + 1;
+      
     //I_cerr() << "boundEnhancer = " << boundEnhancer;
     
     if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
