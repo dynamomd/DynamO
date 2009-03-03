@@ -48,8 +48,8 @@ public:
 
 private:
 
-  void printData(const CParticle&,
-		 const CParticle&) const;
+  void printData(const size_t&,
+		 const size_t&) const;
 
   mutable std::ofstream logfile;
 };

@@ -58,9 +58,9 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream &XML,
 			    const CIntEvent &coll)
 {
   XML << xmlw::tag("Collision")
-      << xmlw::attr("p1ID") << coll.particle1->getID()
+      << xmlw::attr("p1ID") << coll.getParticle1ID()
       << coll.particle1
-      << xmlw::attr("p2ID") << coll.particle2->getID()
+      << xmlw::attr("p2ID") << coll.getParticle1ID()
       << coll.particle2
       << xmlw::attr("dt")   << coll.dt
       << xmlw::endtag("Collision");
@@ -74,8 +74,10 @@ CIntEvent::stringData(const DYNAMO::SimData* Sim) const
   std::ostringstream tmpstring;
   tmpstring << "dt :" << dt / Sim->Dynamics.units().unitTime()
 	    << "\nType :" << getCollEnumName(CType)
-	    << "\nP1 :" << particle1->getID();
-  if (particle2 != NULL)
-	    tmpstring << "\nP2 :" << particle2->getID();
-    return tmpstring.str();
+	    << "\nP1 :" << particle1;
+
+  if (hasParticle2())
+    tmpstring << "\nP2 :" << particle2;
+
+  return tmpstring.str();
 }

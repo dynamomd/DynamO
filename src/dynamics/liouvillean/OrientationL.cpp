@@ -333,11 +333,14 @@ CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
 {
-  updateParticlePair(eevent.getParticle1(), eevent.getParticle2());
+  const CParticle& particle1 = Sim->vParticleList[eevent.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[eevent.getParticle2ID()];
 
-  C2ParticleData retVal(eevent.getParticle1(), eevent.getParticle2(),
-                        Sim->Dynamics.getSpecies(eevent.getParticle1()),
-                        Sim->Dynamics.getSpecies(eevent.getParticle2()),
+  updateParticlePair(particle1, particle2);  
+
+  C2ParticleData retVal(particle1, particle2,
+                        Sim->Dynamics.getSpecies(particle1),
+                        Sim->Dynamics.getSpecies(particle2),
                         CORE);
   
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
@@ -350,15 +353,15 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt inertia = (mass * length * length)/12.0;
   
-  A.position = retVal.particle1_.getParticle().getPosition();
-  A.velocity = retVal.particle1_.getParticle().getVelocity();
-  A.rot.angularVelocity = orientationData[retVal.particle1_.getParticle().getID()].angularVelocity;
-  A.rot.orientation = orientationData[retVal.particle1_.getParticle().getID()].orientation;
+  A.position = particle1.getPosition();
+  A.velocity = particle1.getVelocity();
+  A.rot.angularVelocity = orientationData[particle1.getID()].angularVelocity;
+  A.rot.orientation = orientationData[particle1.getID()].orientation;
   
-  B.position = retVal.particle2_.getParticle().getPosition();
-  B.velocity = retVal.particle2_.getParticle().getVelocity();
-  B.rot.angularVelocity = orientationData[retVal.particle2_.getParticle().getID()].angularVelocity;
-  B.rot.orientation = orientationData[retVal.particle2_.getParticle().getID()].orientation;
+  B.position = particle2.getPosition();
+  B.velocity = particle2.getVelocity();
+  B.rot.angularVelocity = orientationData[particle2.getID()].angularVelocity;
+  B.rot.orientation = orientationData[particle2.getID()].orientation;
   
   uPerp = A.rot.orientation.Cross(B.rot.orientation).unitVector();
   
@@ -375,14 +378,17 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   retVal.rvdot = retVal.rij % retVal.vijold;
   retVal.dP = uPerp * alpha;
   
-  const_cast<CParticle&>(eevent.getParticle1()).getVelocity() += retVal.dP / mass;
-  const_cast<CParticle&>(eevent.getParticle2()).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
+  const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
   
-  orientationData[eevent.getParticle1().getID()].angularVelocity = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
-  orientationData[eevent.getParticle2().getID()].angularVelocity = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
+  orientationData[particle1.getID()].angularVelocity 
+    = A.rot.angularVelocity - ((A.rot.orientation* (cp.alpha / inertia)).Cross(retVal.dP));
 
-  lastCollParticle1 = eevent.getParticle1().getID();
-  lastCollParticle2 = eevent.getParticle2().getID();
+  orientationData[particle2.getID()].angularVelocity 
+    = B.rot.angularVelocity + ((B.rot.orientation* (cp.beta / inertia)).Cross(retVal.dP));
+
+  lastCollParticle1 = particle1.getID();
+  lastCollParticle2 = particle2.getID();
   lastAbsoluteClock = Sim->dSysTime;
 
   return retVal;

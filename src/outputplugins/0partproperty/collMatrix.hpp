@@ -54,7 +54,7 @@ public:
   virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPCollMatrix*>(plug)->Sim); }
   
  protected:
-  void newEvent(const CParticle&, const EEventType&, const classKey&);
+  void newEvent(const size_t&, const EEventType&, const classKey&);
   
   struct counterData
   {

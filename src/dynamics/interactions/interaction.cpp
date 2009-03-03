@@ -22,6 +22,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../base/is_exception.hpp"
 #include "../species/species.hpp"
+#include "../../base/is_simdata.hpp"
 #include <cstring>
 
 CInteraction::CInteraction(DYNAMO::SimData* tmp, C2Range* nR):
@@ -32,7 +33,8 @@ CInteraction::CInteraction(DYNAMO::SimData* tmp, C2Range* nR):
 bool 
 CInteraction::isInteraction(const CIntEvent &coll) const
 { 
-  return isInteraction(coll.getParticle1(), coll.getParticle2()); 
+  return isInteraction(Sim->vParticleList[coll.getParticle1ID()],
+		       Sim->vParticleList[coll.getParticle2ID()]); 
 }
 
 bool 

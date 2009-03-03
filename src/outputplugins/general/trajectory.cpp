@@ -45,14 +45,14 @@ COPTrajectory::initialise()
 }
 
 void
-COPTrajectory::printData(const CParticle& p1,
-			 const CParticle& p2) const
+COPTrajectory::printData(const size_t& p1,
+			 const size_t& p2) const
 {
-  size_t id1 = ((p1.getID() < p2.getID()) 
-		? p1.getID() : p2.getID());
+  size_t id1 = ((p1 < p2) 
+		? p1 : p2);
   
-  size_t id2 = ((p1.getID() > p2.getID()) 
-		? p1.getID() : p2.getID());
+  size_t id2 = ((p1 > p2) 
+		? p1 : p2);
 
   CVector<> rij = Sim->vParticleList[id1].getPosition()
     - Sim->vParticleList[id2].getPosition();
@@ -76,12 +76,12 @@ void
 COPTrajectory::eventUpdate(const CIntEvent& eevent, 
 				   const C2ParticleData&)
 {
-  logfile << "INTERACTION " << eevent.getInteraction().getID()
+  logfile << "INTERACTION " << eevent.getInteractionID()
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime();
   
-  printData(eevent.getParticle1(),
-	    eevent.getParticle2());
+  printData(eevent.getParticle1ID(),
+	    eevent.getParticle2ID());
   
   logfile << "\n";
 }
@@ -103,8 +103,8 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
     {
       logfile << "    2PEvent";
 
-      printData(pData.particle1_.getParticle(),
-		pData.particle2_.getParticle());
+      printData(pData.particle1_.getParticle().getID(),
+		pData.particle2_.getParticle().getID());
 
       logfile << "\n";
     }
@@ -127,8 +127,8 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
     {
       logfile << "    2PEvent";
       
-      printData(pData.particle1_.getParticle(),
-		pData.particle2_.getParticle());
+      printData(pData.particle1_.getParticle().getID(),
+		pData.particle2_.getParticle().getID());
       
       logfile << "\n";
     }
@@ -151,8 +151,8 @@ COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat,
     {
       logfile << "    2PEvent";
       
-      printData(pData.particle1_.getParticle(),
-		pData.particle2_.getParticle());
+      printData(pData.particle1_.getParticle().getID(),
+		pData.particle2_.getParticle().getID());
       
       logfile << "\n";
     }

@@ -162,7 +162,7 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2) const
 	       << iEvent.stringData(Sim);
       
       //Now we're past the event, update the scheduler and plugins
-      Sim->ptrScheduler->fullUpdate(iEvent.getParticle1(), iEvent.getParticle2());
+      Sim->ptrScheduler->fullUpdate(p1, p2);
       return;
     }
 

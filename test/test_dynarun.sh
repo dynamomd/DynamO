@@ -423,8 +423,8 @@ echo ""
 echo "SYSTEM EVENTS"
 echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
 ThermostatTest
-echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
-umbrella "NeighbourList"
+#echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
+#umbrella "NeighbourList"
 
 echo ""
 echo "LOCAL EVENTS"
