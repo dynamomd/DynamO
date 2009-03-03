@@ -528,13 +528,13 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     
     boundaryExceeded = false;
 
-    Iflt olddeltaT(0);
+    Iflt oldt;
 
     do
     {
-      working_time += deltaT;
+      oldt = working_time;
 
-      olddeltaT =  deltaT;
+      working_time += deltaT;
 
       if((working_time > t_high) || (working_time < t_low))
       {
@@ -562,9 +562,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	rootFound = false;
 	break;
       }
-      //This while stops oscilating solutions and when deltaT = 0
-    } while (((fabs(deltaT) - fabs(olddeltaT)) > fabs(deltaT) * 1e-13)
-	     && (deltaT != 0));
+    } while (fabs((working_time - oldt)) > 1e-14);
 
     if(boundaryExceeded)
     {
