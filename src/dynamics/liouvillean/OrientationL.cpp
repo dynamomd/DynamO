@@ -62,12 +62,12 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
-    t_low += abs(2.0 * F_firstDeriv(A, B))
+    t_low += fabs(2.0 * F_firstDeriv(A, B))
       / F_secondDeriv_max(A, B, length);
 
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
 
-  if(root != HUGE_VAL) { PD.dt = root; return true; }
+  if (root != HUGE_VAL) { PD.dt = root; return true; }
   else { return false; }
 }
 
@@ -77,17 +77,17 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 				  const orientationStreamType B, 
 				  Iflt length, Iflt t_low, Iflt t_high) const
 {
-    I_cerr() << "Inside frenkelRootSearch";
-	
-    Iflt root = 0.0, temp_root = 0.0;
-    Iflt temp_high = t_high;
+  //I_cerr() << "Inside frenkelRootSearch";
+  
+  Iflt root = 0.0, temp_root = 0.0;
+  Iflt temp_high = t_high;
 
     orientationStreamType tempA, tempB;
 	
     while(t_high > t_low)
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
-      if(root == HUGE_VAL) { I_cerr() << "No root found at head of func... "; return HUGE_VAL; }
+      if(root == HUGE_VAL) {/* I_cerr() << "No root found at head of func... "*/; return HUGE_VAL; }
       
       do
       {
@@ -100,7 +100,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 	Iflt Fprime = F_firstDeriv(tempA, tempB),
 	  Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
 	
-        temp_high = root - (abs(2.0 * Fprime)
+        temp_high = root - (fabs(2.0 * Fprime)
 			    / Fdoubleprimemax);
 
 	if (Fdoubleprimemax == 0)
@@ -128,11 +128,11 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       
       if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
       {
-	I_cerr() << "Root found: " << root;
+	//I_cerr() << "Root found: " << root;
         return root;
       }
       else
-        t_low = root + ((2.0 * abs(F_firstDeriv(tempA, tempB)))
+        t_low = root + ((2.0 * fabs(F_firstDeriv(tempA, tempB)))
 			/ F_secondDeriv_max(tempA, tempB, length));
     }
     
@@ -147,14 +147,14 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
     //    - If root is valid, this is earliest possible root - roll with it
     //    - If root is invalid, set new concrete t_low just above this found root and go from the top
 	
-    I_cerr() << "Root not found...";
+    //I_cerr() << "Root not found...";
     return HUGE_VAL;
 }
 
 
 bool
 CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
-				  Iflt A, Iflt B, Iflt C) const
+				  Iflt C, Iflt B, Iflt A) const
 {
   Iflt discriminant;  
   Iflt root1, root2;
@@ -184,8 +184,8 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
     root1 = ((-1.0 * B) + sqrt(discriminant)) / (2 * A);
     root2 = ((-1.0 * B) - sqrt(discriminant)) / (2 * A);
     
-    I_cerr() << "root 1 = " << root1;
-    I_cerr() << "root 2 = " << root2;
+    //I_cerr() << "root 1 = " << root1;
+    //I_cerr() << "root 2 = " << root2;
   }
 
   if(returnType == ROOT_SMALLEST_EITHER)
@@ -207,7 +207,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
       {
         case ROOT_LARGEST_NEGATIVE:
         case ROOT_SMALLEST_NEGATIVE:
-          I_cerr() << "Both roots positive";
+          //I_cerr() << "Both roots positive";
           return false;
           break;
         case ROOT_SMALLEST_POSITIVE:
@@ -226,7 +226,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
       {
         case ROOT_LARGEST_POSITIVE:
         case ROOT_SMALLEST_POSITIVE:
-          I_cerr() << "Both roots negative";
+          //I_cerr() << "Both roots negative";
           return false;
           break;
         case ROOT_SMALLEST_NEGATIVE:
@@ -472,8 +472,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	
   orientationStreamType A, B;
 
-  const Iflt TINY_ADJUSTMENT = 1.0e-6;
-
   while(t_low < t_high)
   {
     A = LineA;
@@ -494,21 +492,21 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     // Enhance bound
     quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), f0, f1, 0.5*f2max);
     
-    I_cerr() << "boundEnhancer = " << boundEnhancer;
+    //I_cerr() << "boundEnhancer = " << boundEnhancer;
     
     if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
     
     if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
     {
       // No appropriate roots
-      I_cerr() << "No appropriate roots found, continuing";
+      //I_cerr() << "No appropriate roots found, continuing";
       continue;
     }
     
-    if((working_time + deltaT) > t_high || (working_time + deltaT) < t_low)
+    if(((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
     {
       // We have overshot; reverse direction and try again
-      I_cerr() << "Overshot!";
+      //I_cerr() << "Overshot!";
       fwdWorking = (fwdWorking ? false: true);
       continue;
     }
@@ -522,7 +520,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     {
       working_time += deltaT;
       
-      if(working_time > t_high || working_time < t_low)
+      if((working_time > t_high) || (working_time < t_low))
       {
         boundaryExceeded = true;
 	break;
@@ -540,11 +538,13 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       
       if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, f0, f1, 0.5*f2))
       {
-        D_throw() << "No roots found in final root iteration: unspecificed event";
+	//No real roots, try from the other side
+	boundaryExceeded = true;
 	rootFound = false;
 	break;
       }
-    } while (deltaT > TINY_ADJUSTMENT);
+      //I know this is zero but it gets there in just a few steps!
+    } while (fabs(deltaT) > 0);
     
     if(boundaryExceeded)
     {
@@ -558,7 +558,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     }
   }
 
-  I_cerr() << "'-End of function reached, t_low = " << t_low << "; t_high = " << t_high;
+  //I_cerr() << "'-End of function reached, t_low = " << t_low << "; t_high = " << t_high;
   return HUGE_VAL;
 }
 

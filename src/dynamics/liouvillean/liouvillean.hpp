@@ -413,14 +413,8 @@ public:
     //partial streaming are faster but work only for some collision
     //detections, not compression
 
-    streamParticle(const_cast<CParticle&>(p1), 
-		   partPecTime + p1.getPecTime());
-    
-    streamParticle(const_cast<CParticle&>(p2),
-		   partPecTime + p2.getPecTime());
-    
-    const_cast<CParticle&>(p2).getPecTime()
-      = const_cast<CParticle&>(p1).getPecTime() = -partPecTime;
+    updateParticle(p1);
+    updateParticle(p2);
   }
 
   inline Iflt getParticleDelay(const CParticle& part) const

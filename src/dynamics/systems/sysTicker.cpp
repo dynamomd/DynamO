@@ -48,8 +48,10 @@ CSTicker::runEvent() const
     D_throw() << "A NAN system event time has been found";
 #endif
     
+
   Sim->dSysTime += locdt;
-    
+  ++Sim->lNColl;
+
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first

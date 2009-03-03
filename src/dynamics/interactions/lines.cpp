@@ -124,14 +124,12 @@ CILines::getEvent(const CParticle &p1,
   if (isCaptured(p1, p2)) 
     {
       //Run this to determine when the spheres no longer intersect
-      if (!Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, l2))
-	//The spheres never stop intersecting!
-	D_throw() << "Error, spheres always remain overlapping? "
-	  "\ncompressed lines? Not implemented yet";
+      Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, l2);
 
       //colldat.dt has the upper limit of the line collision time
       //Lower limit is right now
       //Test for a line collision
+      //Upper limit can be HUGE_VAL!
       if (Sim->Dynamics.Liouvillean().getLineLineCollision
 	  (colldat, length, p1, p2))
 	return CIntEvent(p1, p2, colldat.dt, CORE, *this);
