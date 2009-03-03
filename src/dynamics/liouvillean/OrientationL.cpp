@@ -353,13 +353,13 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt inertia = (mass * length * length)/12.0;
   
-  A.position = particle1.getPosition();
-  A.velocity = particle1.getVelocity();
+  A.position = retVal.rij;
+  A.velocity = retVal.vijold;
   A.rot.angularVelocity = orientationData[particle1.getID()].angularVelocity;
   A.rot.orientation = orientationData[particle1.getID()].orientation;
   
-  B.position = particle2.getPosition();
-  B.velocity = particle2.getVelocity();
+  B.position = CVector<Iflt>(0);
+  B.velocity = CVector<Iflt>(0);
   B.rot.angularVelocity = orientationData[particle2.getID()].angularVelocity;
   B.rot.orientation = orientationData[particle2.getID()].orientation;
   
