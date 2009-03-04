@@ -371,14 +371,55 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   retVal.dP = uPerp * alpha;
   
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / mass;
+  CVector<> oldAngMom = inertia * (A.rot.angularVelocity + B.rot.angularVelocity) 
+    - cp.alpha * A.rot.orientation.Cross(mass * A.velocity)
+    - cp.beta * B.rot.orientation.Cross(mass * B.velocity);
   
+  I_cout() << "Old Angular momentum <"; 
+  
+  for (size_t i(0); i < NDIM-1; ++i)
+    std::cout << oldAngMom[i] << ",";
+  
+  std::cout << oldAngMom[NDIM-1] << ">";
+
+  Iflt oldEnergy = 0.5 * (mass * (A.velocity.square() + B.velocity.square()) 
+			+ inertia * (A.rot.angularVelocity.square() + A.rot.angularVelocity.square()));
+
+  I_cout() << "Old Energy " << oldEnergy;
+    
+  const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
+  const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
+
   orientationData[particle1.getID()].angularVelocity 
-    = A.rot.angularVelocity - (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
+    = A.rot.angularVelocity + (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
 
   orientationData[particle2.getID()].angularVelocity 
-    = B.rot.angularVelocity + (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
+    = B.rot.angularVelocity - (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
+
+  CVector<> newAngMom = inertia * (A.rot.angularVelocity + B.rot.angularVelocity) 
+				    - cp.alpha * A.rot.orientation.Cross(mass * A.velocity)
+				    - cp.beta * B.rot.orientation.Cross(mass * B.velocity);
+
+  I_cout() << "New Angular momentum <"; 
+  
+  for (size_t i(0); i < NDIM-1; ++i)
+    std::cout << newAngMom[i] << ",";
+  
+  std::cout << newAngMom[NDIM-1] << ">";
+
+  I_cout() << "Angular Momentum Change <";
+
+  for (size_t i(0); i < NDIM-1; ++i)
+    std::cout << newAngMom[i] - oldAngMom[i] << ",";
+  
+  std::cout << newAngMom[NDIM-1] - oldAngMom[NDIM-1] << ">";
+
+  Iflt newEnergy = 0.5 * mass * (const_cast<CParticle&>(particle1).getVelocity().square() + const_cast<CParticle&>(particle2).getVelocity().square())
+   + 0.5 * inertia * (A.rot.angularVelocity.square() + A.rot.angularVelocity.square());
+
+  I_cout() << "New Energy " << newEnergy;
+
+  I_cout() << "Difference in Energy " << newEnergy - oldEnergy;
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
