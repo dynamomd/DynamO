@@ -38,7 +38,7 @@ U is the director or orientation of the line/atom
       <P x="0" y="0" z="0" />
       <V x="0" y="0" z="0" />
       <O x="0" y="1" z="0" />
-      <U x="1" y="0" z="0" />
+      <U x="-1" y="0" z="0" />
     </Pt>
     <Pt ID="1">
       <P x="0" y="0.45" z="0.45" />
