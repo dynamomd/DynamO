@@ -158,7 +158,8 @@ CScheduler::runNextEvent()
 	
 	const CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
 	
-	if (fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
+	if ((fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
+	    && (fabs(sorter->next_dt() - Event.getdt()) > 1e-14*Sim->dSysTime))
 	  {
 	    I_cerr() << 
 	      "A recalculated event time, performed to confirm the collision time, is"

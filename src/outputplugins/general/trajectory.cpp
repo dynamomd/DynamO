@@ -77,6 +77,7 @@ COPTrajectory::eventUpdate(const CIntEvent& eevent,
 				   const C2ParticleData&)
 {
   logfile << "INTERACTION " << eevent.getInteractionID()
+	  << " TYPE " << CIntEvent::getCollEnumName(eevent.getType())
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime();
   
@@ -88,9 +89,10 @@ COPTrajectory::eventUpdate(const CIntEvent& eevent,
 
 void 
 COPTrajectory::eventUpdate(const CGlobEvent& eevent, 
-				   const CNParticleData& SDat)
+			   const CNParticleData& SDat)
 {
   logfile << "GLOBAL " << eevent.getGlobalID()
+	  << " TYPE " << CIntEvent::getCollEnumName(eevent.getType())
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime()
 	  << "\n";
@@ -112,9 +114,10 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
 
 void 
 COPTrajectory::eventUpdate(const CLocalEvent& eevent, 
-				   const CNParticleData& SDat)
+			   const CNParticleData& SDat)
 {
   logfile << "LOCAL " << eevent.getLocalID()
+    	  << " TYPE " << CIntEvent::getCollEnumName(eevent.getType())
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime()
 	  << "\n";
@@ -136,9 +139,10 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
 
 void 
 COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat, 
-				   const Iflt& dt)
+			   const Iflt& dt)
 {
   logfile << "SYSTEM " << sys.getID()
+	  << " TYPE " << CIntEvent::getCollEnumName(sys.getType())
 	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
 	  << " dt " << dt / Sim->Dynamics.units().unitTime()
 	  << "\n";
