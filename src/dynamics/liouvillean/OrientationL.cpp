@@ -440,8 +440,8 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
   rijdotuj = rij % B.rot.orientation;
   uidotuj = A.rot.orientation % B.rot.orientation;
     
-  retVal.alpha = -1.0 * (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
-  retVal.beta  = -1.0 * (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  retVal.beta  = -1.0 * (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  retVal.alpha = 1.0 * (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
   
   return retVal;
 }
