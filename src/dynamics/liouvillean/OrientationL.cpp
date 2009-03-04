@@ -421,6 +421,9 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   I_cout() << "Difference in Energy " << newEnergy - oldEnergy;
 
+  I_cout() << "Alpha " << cp.alpha / length 
+	   << "\nBeta " << cp.alpha / length;
+
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
   lastAbsoluteClock = Sim->dSysTime;
