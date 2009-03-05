@@ -337,15 +337,12 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
                         CORE);
   
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
-  // End copied section
+
+  retVal.rvdot = retVal.rij % retVal.vijold;
   
-  CVector<> vr, uPerp, u1dot, u2dot;
   orientationStreamType A, B;
   
-  // Assume lines are the same mass... use the mass of line #1
-  Iflt mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt inertia = (mass * length * length) / 12.0;
-  
+  // Assume lines are the same mass... use the mass of line #1  
   A.position = retVal.rij;
   A.velocity = retVal.vijold;
   A.rot.angularVelocity = orientationData[particle1.getID()].angularVelocity;
@@ -356,21 +353,23 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   B.rot.angularVelocity = orientationData[particle2.getID()].angularVelocity;
   B.rot.orientation = orientationData[particle2.getID()].orientation;
   
-  uPerp = A.rot.orientation.Cross(B.rot.orientation).unitVector();
+  CVector<> uPerp = A.rot.orientation.Cross(B.rot.orientation).unitVector();
   
   collisionPoints cp = getCollisionPoints(A, B);
-  
-  u1dot = A.rot.angularVelocity.Cross(A.rot.orientation);
-  u2dot = B.rot.angularVelocity.Cross(B.rot.orientation);
-  
-  vr = (A.velocity - B.velocity) + (cp.alpha * u1dot) - (cp.beta * u2dot);
-  
-  Iflt alpha = -1.0 * (vr % uPerp) / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia)));
-  
-  retVal.rvdot = retVal.rij % retVal.vijold;
 
-  retVal.dP = uPerp * alpha;
+  // \Delta {\bf v}_{imp}
+  CVector<> vr = (A.velocity - B.velocity) 
+    + (cp.alpha * A.rot.angularVelocity.Cross(A.rot.orientation)) 
+    - (cp.beta * B.rot.angularVelocity.Cross(B.rot.orientation));
   
+  Iflt mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt inertia = (mass * length * length) / 12.0;
+
+  retVal.dP = uPerp 
+    * (-(vr % uPerp) 
+       / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia))));
+  
+  /*
   CVector<> oldAngMom = inertia * (A.rot.angularVelocity + B.rot.angularVelocity) 
     - cp.alpha * A.rot.orientation.Cross(mass * A.velocity)
     - cp.beta * B.rot.orientation.Cross(mass * B.velocity);
@@ -386,19 +385,21 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 			  + inertia * (A.rot.angularVelocity.square() + B.rot.angularVelocity.square()));
 
   I_cout() << "Old Energy " << oldEnergy;
-    
+  */
+  
   const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
   const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
 
   orientationData[particle1.getID()].angularVelocity 
-    = A.rot.angularVelocity + (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
+    += (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
 
   orientationData[particle2.getID()].angularVelocity 
-    = B.rot.angularVelocity - (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
+    += - (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
 
+  /*
   CVector<> newAngMom = inertia * (A.rot.angularVelocity + B.rot.angularVelocity) 
-				    - cp.alpha * A.rot.orientation.Cross(mass * A.velocity)
-				    - cp.beta * B.rot.orientation.Cross(mass * B.velocity);
+    - mass * cp.alpha * A.rot.orientation.Cross(A.velocity)
+    - mass * cp.beta * B.rot.orientation.Cross(B.velocity);
 
   I_cout() << "New Angular momentum <"; 
   
@@ -417,7 +418,9 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   Iflt newEnergy = 0.5 * mass 
     * (const_cast<CParticle&>(particle1).getVelocity().square() 
        + const_cast<CParticle&>(particle2).getVelocity().square())
-    + 0.5 * inertia * (A.rot.angularVelocity.square() + B.rot.angularVelocity.square());
+    + 0.5 * inertia 
+    * (orientationData[particle1.getID()].angularVelocity.square()
+       + orientationData[particle2.getID()].angularVelocity.square());
 
   I_cout() << "New Energy " << newEnergy;
 
@@ -425,6 +428,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   I_cout() << "Alpha (particle "<< particle1.getID() << ") " << cp.alpha / length 
 	   << "\nBeta (particle "<< particle2.getID() << ") " << cp.beta / length;
+  */
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
