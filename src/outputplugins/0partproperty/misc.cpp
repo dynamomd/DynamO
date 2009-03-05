@@ -122,7 +122,6 @@ COPMisc::getMFT() const
 void
 COPMisc::output(xmlw::XmlStream &XML)
 {
-  std::clock_t cendTime=std::clock();
   std::time_t tendTime;
   time(&tendTime);
   
@@ -134,8 +133,8 @@ COPMisc::output(xmlw::XmlStream &XML)
   //A hack to remove the newline character at the end
   eTime[eTime.size()-1] = ' ';
   
-  Iflt collpersec = Iflt(CLOCKS_PER_SEC) * Iflt(Sim->lNColl)
-    / (Iflt(cendTime) - Iflt(cstartTime));
+  Iflt collpersec = Iflt(Sim->lNColl)
+    / ((tstartTime - tendTime));
 
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
