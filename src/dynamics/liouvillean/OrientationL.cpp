@@ -422,7 +422,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   I_cout() << "Difference in Energy " << newEnergy - oldEnergy;
 
   I_cout() << "Alpha (particle "<< particle1.getID() << ") " << cp.alpha / length 
-	   << "\nBeta (particle "<< particle2.getID() << ") " << cp.alpha / length;
+	   << "\nBeta (particle "<< particle2.getID() << ") " << cp.beta / length;
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
@@ -443,8 +443,8 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
   rijdotuj = rij % B.rot.orientation;
   uidotuj = A.rot.orientation % B.rot.orientation;
     
-  retVal.alpha = (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
-  retVal.beta  = - (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
   
   return retVal;
 }
