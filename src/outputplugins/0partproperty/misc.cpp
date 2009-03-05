@@ -132,8 +132,8 @@ COPMisc::output(xmlw::XmlStream &XML)
   //A hack to remove the newline character at the end
   eTime[eTime.size()-1] = ' ';
   
-  Iflt collpersec = Iflt(Sim->lNColl)
-    / Iflt(tstartTime - tendTime);
+  Iflt collpersec = static_cast<Iflt>(Sim->lNColl)
+    / static_cast<Iflt>(tendTime - tstartTime);
 
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
