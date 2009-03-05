@@ -819,26 +819,18 @@ CIPPacker::initialise()
       {
 	//Pack of lines
 	//Pack the system, determine the number of particles
-	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
-	packptr->initialise();
+	CURandom packroutine(vm["NCells"].as<unsigned long>(), 
+			     CVector<>(1), Sim->uniform_sampler,
+			     new CUParticle());
+
+	packroutine.initialise();
 	
 	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	  latticeSites(packroutine.placeObjects(CVector<>(0.0)));
       	
-	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
-	  }
-	else
-	  Sim->Dynamics.setPBC<CSPBC>();
-
-	Iflt simVol = 1.0;
-
-	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
-	
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
+	Sim->Dynamics.setPBC<CSPBC>();
+	  
+	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation

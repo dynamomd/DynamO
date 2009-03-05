@@ -87,28 +87,26 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 {
   //I_cerr() << "Inside frenkelRootSearch";
   
-  Iflt root = 0.0, temp_root = 0.0;
-  Iflt temp_high = t_high;
-
-    orientationStreamType tempA, tempB;
+  Iflt root = 0.0;
 	
     while(t_high > t_low)
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
-      if(root == HUGE_VAL) {/* I_cerr() << "No root found at head of func... "*/; return HUGE_VAL; }
+
+      if (root == HUGE_VAL) {/* I_cerr() << "No root found at head of func... "*/; return HUGE_VAL; }
       
+      Iflt temp_high = t_high;
       do
       {
         // Artificial boundary just below root
-        tempA = A;
-        tempB = B;
+	orientationStreamType tempA(A), tempB(B);
+
         performRotation(tempA, root);
         performRotation(tempB, root);
 
-	Iflt Fprime = F_firstDeriv(tempA, tempB),
-	  Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
+	Iflt Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
 	
-        temp_high = root - (fabs(2.0 * Fprime)
+        temp_high = root - (fabs(2.0 * F_firstDeriv(tempA, tempB))
 			    / Fdoubleprimemax);
 
 	if (Fdoubleprimemax == 0)
@@ -119,7 +117,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 	if(temp_high < t_low) { break; }
       
         // Search for root in new restricted range
-        temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
+	Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
 	
 	if(temp_root == HUGE_VAL) { break; } else { root = temp_root; }
 	
@@ -127,8 +125,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       
       // At this point $root contains earliest valid root guess.
       // Check root validity.
-      tempA = A;
-      tempB = B;
+      orientationStreamType tempA(A), tempB(B);
       performRotation(tempA, root);
       performRotation(tempB, root);
       
