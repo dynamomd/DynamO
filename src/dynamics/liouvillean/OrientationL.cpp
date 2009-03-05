@@ -381,9 +381,9 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
     std::cout << oldAngMom[i] << ",";
   
   std::cout << oldAngMom[NDIM-1] << ">";
-
-  Iflt oldEnergy = 0.5 * (mass * (A.velocity.square() + B.velocity.square()) 
-			+ inertia * (A.rot.angularVelocity.square() + A.rot.angularVelocity.square()));
+  
+  Iflt oldEnergy = 0.5 * (mass * (A.velocity.square() + B.velocity.square())
+			  + inertia * (A.rot.angularVelocity.square() + B.rot.angularVelocity.square()));
 
   I_cout() << "Old Energy " << oldEnergy;
     
@@ -414,8 +414,10 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   
   std::cout << newAngMom[NDIM-1] - oldAngMom[NDIM-1] << ">";
 
-  Iflt newEnergy = 0.5 * mass * (const_cast<CParticle&>(particle1).getVelocity().square() + const_cast<CParticle&>(particle2).getVelocity().square())
-   + 0.5 * inertia * (A.rot.angularVelocity.square() + B.rot.angularVelocity.square());
+  Iflt newEnergy = 0.5 * mass 
+    * (const_cast<CParticle&>(particle1).getVelocity().square() 
+       + const_cast<CParticle&>(particle2).getVelocity().square())
+    + 0.5 * inertia * (A.rot.angularVelocity.square() + B.rot.angularVelocity.square());
 
   I_cout() << "New Energy " << newEnergy;
 
