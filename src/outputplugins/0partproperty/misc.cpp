@@ -72,7 +72,6 @@ COPMisc::initialise()
 
   std::cout << ">";
 
-  cstartTime = std::clock();
   std::time(&tstartTime);
   
   std::string sTime(std::ctime(&tstartTime));
@@ -134,7 +133,7 @@ COPMisc::output(xmlw::XmlStream &XML)
   eTime[eTime.size()-1] = ' ';
   
   Iflt collpersec = Iflt(Sim->lNColl)
-    / ((tstartTime - tendTime));
+    / Iflt(tstartTime - tendTime);
 
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
@@ -174,7 +173,7 @@ COPMisc::output(xmlw::XmlStream &XML)
 
       << xmlw::tag("Duration") 
       << xmlw::attr("val") 
-      << Iflt(cendTime - cstartTime) / Iflt(CLOCKS_PER_SEC)
+      << tendTime - tstartTime
       << xmlw::endtag("Duration")
 
       << xmlw::tag("CollPerSec")
