@@ -572,7 +572,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	f0 = F_zeroDeriv(A, B);
 	f1 = F_firstDeriv(A, B);
 	f2 = F_secondDeriv(A, B);
-	f2max = F_secondDeriv_max(A, B, length);
 	
 	rootFound = true;
 	
