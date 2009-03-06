@@ -80,6 +80,9 @@ CSDSMCSpheres::runEvent() const
 
   dt = tstep;
 
+  locdt +=  Sim->freestreamAcc;
+  Sim->freestreamAcc = 0;
+
   boost::variate_generator
     <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
     id1sampler(Sim->ranGenerator, 

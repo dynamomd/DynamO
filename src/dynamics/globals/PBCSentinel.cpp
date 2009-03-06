@@ -53,6 +53,7 @@ CGPBCSentinel::initialise(size_t nID)
 
   Sim->registerParticleUpdateFunc
     (fastdelegate::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
+
 }
 
 void 
@@ -111,20 +112,13 @@ CGPBCSentinel::runEvent(const CParticle& part) const
     
   Sim->ptrScheduler->stream(iEvent.getdt());
   
-  //dynamics must be updated first
   Sim->Dynamics.stream(iEvent.getdt());
 
-  CNParticleData EDat(C1ParticleData(part, Sim->Dynamics.getSpecies(part), VIRTUAL));
-  
-  //Now we're past the event, update the scheduler and plugins
+  cachedTimes[part.getID()] = Sim->dSysTime;
 
-  //This update actually updates the sentinel's events
-  Sim->signalParticleUpdate(EDat);
+  Sim->freestreamAcc += iEvent.getdt();
 
   Sim->ptrScheduler->fullUpdate(part);
-  
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
 }
 
 void 

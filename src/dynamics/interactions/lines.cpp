@@ -168,44 +168,26 @@ CILines::runEvent(const CParticle& p1,
       }
     case WELL_IN:
       {
-	addToCaptureMap(p1, p2);      
-	
-	C2ParticleData retval(p1, p2, 
-			      Sim->Dynamics.getSpecies(p1),
-			      Sim->Dynamics.getSpecies(p2),
-			      VIRTUAL);
-	
-	retval.dP = CVector<>(0.0);
-	retval.deltake = CVector<>(0.0);	
-	
-	Sim->signalParticleUpdate(retval);
-	
-	Sim->ptrScheduler->fullUpdate(p1, p2);
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, 
-		      Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retval);
+	addToCaptureMap(p1, p2);
 
+	//Unfortunately we cannot be smart as this well event may have
+	//been pushed into both particles update lists, therefore we
+	//must do a full update
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+
+	Sim->freestreamAcc += iEvent.getdt();
 	break;
       }
     case WELL_OUT:
       {
 	removeFromCaptureMap(p1, p2);
-	
-	C2ParticleData retval(p1, p2,
-			      Sim->Dynamics.getSpecies(p1),
-			      Sim->Dynamics.getSpecies(p2),
-			      VIRTUAL);
-	
-	retval.dP = CVector<>(0.0);
-	retval.deltake = CVector<>(0.0);	
 
-	Sim->signalParticleUpdate(retval);
+	//Unfortunately we cannot be smart as this well event may have
+	//been pushed into both particles update lists, therefore we
+	//must do a full update
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, 
-		      Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retval);
-
+	Sim->freestreamAcc += iEvent.getdt();
 	break;
       }
     default:

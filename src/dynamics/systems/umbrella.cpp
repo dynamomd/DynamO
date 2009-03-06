@@ -130,6 +130,10 @@ CSUmbrella::runEvent() const
   BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
     Sim->ptrScheduler->fullUpdate(PDat.getParticle());
   
+  locdt += Sim->freestreamAcc;
+
+  Sim->freestreamAcc = 0;
+
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt); 
 }

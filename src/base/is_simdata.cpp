@@ -26,6 +26,7 @@ namespace DYNAMO
   SimData::SimData():
     Ensemble(NULL),
     dSysTime(0.0),
+    freestreamAcc(0.0),
     lNColl(0),
     lMaxNColl(100000),
     lNPrint(50000),

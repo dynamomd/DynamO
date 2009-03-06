@@ -48,11 +48,10 @@ CStHalt::runEvent() const
   
   //dynamics must be updated first
   Sim->Dynamics.stream(locdt);
+
+  Sim->freestreamAcc += locdt;
   
   Sim->lPrintLimiter = Sim->lMaxNColl = Sim->lNColl;
-
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
 }
 
 void 

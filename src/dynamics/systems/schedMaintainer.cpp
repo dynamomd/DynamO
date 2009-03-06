@@ -49,13 +49,10 @@ CSSchedMaintainer::runEvent() const
   //dynamics must be updated first
   Sim->Dynamics.stream(locdt);
   
-  dt = periodt;
-
-  //Run the collision and catch the data
+  Sim->freestreamAcc += locdt;
   
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
-
+  dt = periodt;
+  
   Sim->ptrScheduler->rebuildList();
 }
 

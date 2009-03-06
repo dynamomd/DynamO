@@ -47,7 +47,7 @@ protected:
 
   Iflt maxintdist;
 
-  std::vector<Iflt> cachedTimes;
+  mutable std::vector<Iflt> cachedTimes;
 };
 
 #endif

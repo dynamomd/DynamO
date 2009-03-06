@@ -156,7 +156,7 @@ CScheduler::runNextEvent()
 	
 	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
 	
-	const CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
+	CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
 	
 	if ((fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
 	    && (fabs(sorter->next_dt() - Event.getdt()) > 1e-10*Sim->dSysTime))
@@ -218,6 +218,9 @@ CScheduler::runNextEvent()
 	
 	//dynamics must be updated first
 	Sim->Dynamics.stream(Event.getdt());	
+	
+	Event.addTime(Sim->freestreamAcc);
+	Sim->freestreamAcc = 0;
 
 	Sim->Dynamics.getInteractions()[Event.getInteractionID()]
 	  ->runEvent(p1,p2,Event);
@@ -260,6 +263,9 @@ CScheduler::runNextEvent()
 	//dynamics must be updated first
 	Sim->Dynamics.stream(iEvent.getdt());
 	
+	iEvent.addTime(Sim->freestreamAcc);
+	Sim->freestreamAcc = 0;
+
 	Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
 	->runEvent(part, iEvent);	  
 	break;

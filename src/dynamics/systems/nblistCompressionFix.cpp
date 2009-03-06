@@ -78,6 +78,8 @@ CSNBListCompressionFix::runEvent() const
   //dynamics must be updated first
   Sim->Dynamics.stream(locdt);
 
+  Sim->freestreamAcc += locdt;
+
   CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>
 			  (*Sim->Dynamics.getGlobals()[cellID]));
   
@@ -89,9 +91,5 @@ CSNBListCompressionFix::runEvent() const
   
   dt = (nblist.getMaxSupportedInteractionLength()
 	/ nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
-
-  
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
 }
 
