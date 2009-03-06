@@ -152,8 +152,7 @@ bool
 CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
 				  Iflt C, Iflt B, Iflt A) const
 {
-  Iflt root1, root2;
-  
+   Iflt root1(0), root2(0);
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
     {
@@ -419,13 +418,11 @@ CLNOrientation::collisionPoints
 CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const
 {
   collisionPoints retVal;
-  CVector<> rij;
-  Iflt rijdotui, rijdotuj, uidotuj;
   
-  rij = A.position - B.position;
-  rijdotui = rij % A.orientation;
-  rijdotuj = rij % B.orientation;
-  uidotuj = A.orientation % B.orientation;
+  CVector<> rij = A.position - B.position;
+  Iflt rijdotui = rij % A.orientation;
+  Iflt rijdotuj = rij % B.orientation;
+  Iflt uidotuj = A.orientation % B.orientation;
     
   retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
   retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
@@ -456,12 +453,13 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
     
     Iflt angle = osret.angularVelocity.length() * dt;
   
-    Iflt v1 = osret.angularVelocity.unitVector()[0];
-    Iflt v2 = osret.angularVelocity.unitVector()[1];
-    Iflt v3 = osret.angularVelocity.unitVector()[2];
+    CVector<> v = osret.angularVelocity.unitVector();
+    Iflt v0square = v[0] * v[0];
+    Iflt v1square = v[1] * v[1];
+    Iflt v2square = v[2] * v[2];
   
     // axis is not undefined and angle is not zero
-    if(!(v1 == 0 && v2 == 0 && v3 == 0) && angle != 0)
+    if(!(v[0] == 0 && v[1] == 0 && v[2] == 0) && angle != 0)
     {	
     
       Iflt matrix[3][3];
@@ -469,15 +467,15 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       Iflt cos_term = cos(angle);
       Iflt sin_term = sin(angle);
   
-      matrix[0][0] = pow(v1, 2) + (pow(v2 ,2) + pow(v3, 2))*(cos_term);
-      matrix[0][1] = (v1 * v2 * (1 - cos_term)) - (v3 * sin_term);
-      matrix[0][2] = (v1 * v3 * (1 - cos_term)) + (v2 * sin_term);
-      matrix[1][0] = (v1 * v2 * (1 - cos_term)) + (v3 * sin_term);
-      matrix[1][1] = pow(v2, 2) + (pow(v3 ,2) + pow(v1, 2))*(cos_term);
-      matrix[1][2] = (v2 * v3 * (1 - cos_term)) - (v1 * sin_term);
-      matrix[2][0] = (v3 * v1 * (1 - cos_term)) - (v2 * sin_term);
-      matrix[2][1] = (v2 * v3 * (1 - cos_term)) + (v1 * sin_term);
-      matrix[2][2] = pow(v3, 2) + (pow(v1 ,2) + pow(v2, 2))*(cos_term);
+      matrix[0][0] = v0square + (v1square + v2square)*(cos_term);
+      matrix[0][1] = (v[0] * v[1] * (1 - cos_term)) - (v[2] * sin_term);
+      matrix[0][2] = (v[0] * v[2] * (1 - cos_term)) + (v[1] * sin_term);
+      matrix[1][0] = (v[0] * v[1] * (1 - cos_term)) + (v[2] * sin_term);
+      matrix[1][1] = v1square + (v2square + v0square)*(cos_term);
+      matrix[1][2] = (v[1] * v[2] * (1 - cos_term)) - (v[0] * sin_term);
+      matrix[2][0] = (v[2] * v[0] * (1 - cos_term)) - (v[1] * sin_term);
+      matrix[2][1] = (v[1] * v[2] * (1 - cos_term)) + (v[0] * sin_term);
+      matrix[2][2] = v2square + (v0square + v1square)*(cos_term);
     
       CVector<> tempvec;
       tempvec[0] = (matrix[0][0] * osret.orientation[0]) + (matrix[0][1] * osret.orientation[1]) + (matrix[0][2] * osret.orientation[2]);
