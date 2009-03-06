@@ -22,6 +22,22 @@
 #include <vector>
 #include "../../datatypes/vector.hpp"
 
+
+class orientationStreamType
+{
+  public:
+    orientationStreamType(CVector<> p, CVector<> v, CVector<> o, CVector<> a):
+      position(p), velocity(v), orientation(o), angularVelocity(a) {};
+    
+    orientationStreamType():
+      position(0), velocity(0), orientation(0), angularVelocity(0) {};
+    
+    CVector<> position;
+    CVector<> velocity;
+    CVector<> orientation;
+    CVector<> angularVelocity;
+};
+
 class CLNOrientation: public CLNewton
 {
 public:  
@@ -93,13 +109,6 @@ protected:
   template<class T>  void binaryread(std::istream&, T&) const;
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
-
-  struct orientationStreamType
-  {
-    rotData rot;
-    CVector<> velocity;
-    CVector<> position;
-  };
   
   struct collisionPoints
   {

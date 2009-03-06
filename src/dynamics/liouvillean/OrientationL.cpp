@@ -54,17 +54,8 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   Iflt t_high = PD.dt;
   
   // Set up pair of lines as passable objects
-  orientationStreamType A, B;
-
-  A.position = PD.rij;
-  A.velocity = PD.vij;
-  A.rot.orientation = orientationData[p1.getID()].orientation;
-  A.rot.angularVelocity = orientationData[p1.getID()].angularVelocity;
-  
-  B.position = CVector<>(0);
-  B.velocity = CVector<>(0);
-  B.rot.orientation = orientationData[p2.getID()].orientation;
-  B.rot.angularVelocity = orientationData[p2.getID()].angularVelocity;
+  orientationStreamType A(PD.rij, PD.vij, orientationData[p1.getID()].orientation, orientationData[p1.getID()].angularVelocity),
+                        B(CVector<>(0), CVector<>(0), orientationData[p2.getID()].orientation, orientationData[p2.getID()].angularVelocity);
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2) 
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -263,28 +254,28 @@ Iflt
 CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;
-  return ((A.rot.orientation.Cross(B.rot.orientation)) % deltaR);
+  return ((A.orientation.Cross(B.orientation)) % deltaR);
 }
 
 Iflt 
 CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;
-  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
+  CVector<> deltaW = A.angularVelocity - B.angularVelocity;
   CVector<> deltaV = A.velocity - B.velocity;
   
   return 
-    ((A.rot.orientation % deltaR) * (deltaW % B.rot.orientation)) + 
-    ((B.rot.orientation % deltaR) * (deltaW % A.rot.orientation)) - 
-    ((deltaW % deltaR) * (A.rot.orientation % B.rot.orientation)) + 
-    ((A.rot.orientation.Cross(B.rot.orientation) % deltaV));
+    ((A.orientation % deltaR) * (deltaW % B.orientation)) + 
+    ((B.orientation % deltaR) * (deltaW % A.orientation)) - 
+    ((deltaW % deltaR) * (A.orientation % B.orientation)) + 
+    ((A.orientation.Cross(B.orientation) % deltaV));
 }
 
 Iflt
 CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, 
 				 const Iflt length) const
 {
-  Iflt absDeltaW = (A.rot.angularVelocity - B.rot.angularVelocity).length();
+  Iflt absDeltaW = (A.angularVelocity - B.angularVelocity).length();
   Iflt absDeltaV = (A.velocity - B.velocity).length();
 
   return ((length * absDeltaW) + absDeltaV);
@@ -294,29 +285,29 @@ Iflt
 CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;  
-  CVector<> deltaW = A.rot.angularVelocity - B.rot.angularVelocity;
+  CVector<> deltaW = A.angularVelocity - B.angularVelocity;
   CVector<> deltaV = A.velocity - B.velocity;
   
   return 
     2.0 * (
-      ((A.rot.orientation % deltaV) * (deltaW % B.rot.orientation)) + 
-      ((B.rot.orientation % deltaV) * (deltaW % A.rot.orientation)) - 
-      ((A.rot.orientation % B.rot.orientation) * (deltaW % deltaV))
+      ((A.orientation % deltaV) * (deltaW % B.orientation)) + 
+      ((B.orientation % deltaV) * (deltaW % A.orientation)) - 
+      ((A.orientation % B.orientation) * (deltaW % deltaV))
     ) - 
-    ((deltaW % deltaR) * (deltaW % (A.rot.orientation.Cross(B.rot.orientation)))) + 
-    ((A.rot.orientation % deltaR) * (B.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))) + 
-    ((B.rot.orientation % deltaR) * (A.rot.orientation % (A.rot.angularVelocity.Cross(B.rot.angularVelocity)))) + 
-    ((deltaW % A.rot.orientation) * (deltaR % (B.rot.angularVelocity.Cross(B.rot.orientation)))) + 
-    ((deltaW % B.rot.orientation) * (deltaR % (A.rot.angularVelocity.Cross(A.rot.orientation)))); 
+    ((deltaW % deltaR) * (deltaW % (A.orientation.Cross(B.orientation)))) + 
+    ((A.orientation % deltaR) * (B.orientation % (A.angularVelocity.Cross(B.angularVelocity)))) + 
+    ((B.orientation % deltaR) * (A.orientation % (A.angularVelocity.Cross(B.angularVelocity)))) + 
+    ((deltaW % A.orientation) * (deltaR % (B.angularVelocity.Cross(B.orientation)))) + 
+    ((deltaW % B.orientation) * (deltaR % (A.angularVelocity.Cross(A.orientation)))); 
 }
 
 Iflt
 CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const
 {
-  Iflt absDeltaW = (A.rot.angularVelocity - B.rot.angularVelocity).length();
+  Iflt absDeltaW = (A.angularVelocity - B.angularVelocity).length();
   Iflt absDeltaV = (A.velocity - B.velocity).length();
 
-  return absDeltaW * ((2 * absDeltaV) + (length * (A.rot.angularVelocity.length() + B.rot.angularVelocity.length())));
+  return absDeltaW * ((2 * absDeltaV) + (length * (A.angularVelocity.length() + B.angularVelocity.length())));
 }
 
 
@@ -337,27 +328,17 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   retVal.rvdot = retVal.rij % retVal.vijold;
   
-  orientationStreamType A, B;
+  orientationStreamType A(retVal.rij, retVal.vijold, orientationData[particle1.getID()].orientation, orientationData[particle1.getID()].angularVelocity),
+                        B(CVector<>(0), CVector<>(0), orientationData[particle2.getID()].orientation, orientationData[particle2.getID()].angularVelocity);
   
-  // Assume lines are the same mass... use the mass of line #1  
-  A.position = retVal.rij;
-  A.velocity = retVal.vijold;
-  A.rot.angularVelocity = orientationData[particle1.getID()].angularVelocity;
-  A.rot.orientation = orientationData[particle1.getID()].orientation;
-  
-  B.position = CVector<Iflt>(0);
-  B.velocity = CVector<Iflt>(0);
-  B.rot.angularVelocity = orientationData[particle2.getID()].angularVelocity;
-  B.rot.orientation = orientationData[particle2.getID()].orientation;
-  
-  CVector<> uPerp = A.rot.orientation.Cross(B.rot.orientation).unitVector();
+  CVector<> uPerp = A.orientation.Cross(B.orientation).unitVector();
   
   collisionPoints cp = getCollisionPoints(A, B);
 
   // \Delta {\bf v}_{imp}
   CVector<> vr = (A.velocity - B.velocity) 
-    + (cp.alpha * A.rot.angularVelocity.Cross(A.rot.orientation)) 
-    - (cp.beta * B.rot.angularVelocity.Cross(B.rot.orientation));
+    + (cp.alpha * A.angularVelocity.Cross(A.orientation)) 
+    - (cp.beta * B.angularVelocity.Cross(B.orientation));
   
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt inertia = (mass * length * length) / 12.0;
@@ -367,9 +348,9 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
        / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia))));
   
   /*
-  CVector<> oldAngMom = inertia * (A.rot.angularVelocity + B.rot.angularVelocity) 
-    - cp.alpha * A.rot.orientation.Cross(mass * A.velocity)
-    - cp.beta * B.rot.orientation.Cross(mass * B.velocity);
+  CVector<> oldAngMom = inertia * (A.angularVelocity + B.angularVelocity) 
+    - cp.alpha * A.orientation.Cross(mass * A.velocity)
+    - cp.beta * B.orientation.Cross(mass * B.velocity);
   
   I_cout() << "Old Angular momentum <"; 
   
@@ -379,7 +360,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   std::cout << oldAngMom[NDIM-1] << ">";
   
   Iflt oldEnergy = 0.5 * (mass * (A.velocity.square() + B.velocity.square())
-			  + inertia * (A.rot.angularVelocity.square() + B.rot.angularVelocity.square()));
+			  + inertia * (A.angularVelocity.square() + B.angularVelocity.square()));
 
   I_cout() << "Old Energy " << oldEnergy;
   */
@@ -388,15 +369,15 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
 
   orientationData[particle1.getID()].angularVelocity 
-    += (cp.alpha / inertia) * (A.rot.orientation.Cross(retVal.dP));
+    += (cp.alpha / inertia) * (A.orientation.Cross(retVal.dP));
 
   orientationData[particle2.getID()].angularVelocity 
-    += - (cp.beta / inertia) * (B.rot.orientation.Cross(retVal.dP));
+    += - (cp.beta / inertia) * (B.orientation.Cross(retVal.dP));
 
   /*
-  CVector<> newAngMom = inertia * (A.rot.angularVelocity + B.rot.angularVelocity) 
-    - mass * cp.alpha * A.rot.orientation.Cross(A.velocity)
-    - mass * cp.beta * B.rot.orientation.Cross(B.velocity);
+  CVector<> newAngMom = inertia * (A.angularVelocity + B.angularVelocity) 
+    - mass * cp.alpha * A.orientation.Cross(A.velocity)
+    - mass * cp.beta * B.orientation.Cross(B.velocity);
 
   I_cout() << "New Angular momentum <"; 
   
@@ -442,9 +423,9 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
   Iflt rijdotui, rijdotuj, uidotuj;
   
   rij = A.position - B.position;
-  rijdotui = rij % A.rot.orientation;
-  rijdotuj = rij % B.rot.orientation;
-  uidotuj = A.rot.orientation % B.rot.orientation;
+  rijdotui = rij % A.orientation;
+  rijdotuj = rij % B.orientation;
+  uidotuj = A.orientation % B.orientation;
     
   retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
   retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
@@ -455,17 +436,11 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
 void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
-  orientationStreamType ostPart;
-  
-  ostPart.velocity = part.getVelocity();
-  ostPart.position = part.getPosition();
-  ostPart.rot.angularVelocity = orientationData[part.getID()].angularVelocity;
-  ostPart.rot.orientation = orientationData[part.getID()].orientation;
-  
+  orientationStreamType ostPart(part.getPosition(), part.getVelocity(), orientationData[part.getID()].orientation, orientationData[part.getID()].angularVelocity);
   performRotation(ostPart, dt);
   
   part.getPosition() =  ostPart.position;
-  orientationData[part.getID()].orientation = ostPart.rot.orientation;
+  orientationData[part.getID()].orientation = ostPart.orientation;
 }
 
 void
@@ -479,11 +454,11 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
     // Linear dynamics
     osret.position += (osret.velocity * dt);
     
-    Iflt angle = osret.rot.angularVelocity.length() * dt;
+    Iflt angle = osret.angularVelocity.length() * dt;
   
-    Iflt v1 = osret.rot.angularVelocity.unitVector()[0];
-    Iflt v2 = osret.rot.angularVelocity.unitVector()[1];
-    Iflt v3 = osret.rot.angularVelocity.unitVector()[2];
+    Iflt v1 = osret.angularVelocity.unitVector()[0];
+    Iflt v2 = osret.angularVelocity.unitVector()[1];
+    Iflt v3 = osret.angularVelocity.unitVector()[2];
   
     // axis is not undefined and angle is not zero
     if(!(v1 == 0 && v2 == 0 && v3 == 0) && angle != 0)
@@ -505,11 +480,11 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       matrix[2][2] = pow(v3, 2) + (pow(v1 ,2) + pow(v2, 2))*(cos_term);
     
       CVector<> tempvec;
-      tempvec[0] = (matrix[0][0] * osret.rot.orientation[0]) + (matrix[0][1] * osret.rot.orientation[1]) + (matrix[0][2] * osret.rot.orientation[2]);
-      tempvec[1] = (matrix[1][0] * osret.rot.orientation[0]) + (matrix[1][1] * osret.rot.orientation[1]) + (matrix[1][2] * osret.rot.orientation[2]);
-      tempvec[2] = (matrix[2][0] * osret.rot.orientation[0]) + (matrix[2][1] * osret.rot.orientation[1]) + (matrix[2][2] * osret.rot.orientation[2]);
+      tempvec[0] = (matrix[0][0] * osret.orientation[0]) + (matrix[0][1] * osret.orientation[1]) + (matrix[0][2] * osret.orientation[2]);
+      tempvec[1] = (matrix[1][0] * osret.orientation[0]) + (matrix[1][1] * osret.orientation[1]) + (matrix[1][2] * osret.orientation[2]);
+      tempvec[2] = (matrix[2][0] * osret.orientation[0]) + (matrix[2][1] * osret.orientation[1]) + (matrix[2][2] * osret.orientation[2]);
     
-      osret.rot.orientation = tempvec;
+      osret.orientation = tempvec;
     }
   }
 }
@@ -528,8 +503,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 
   while(t_low < t_high)
   {
-    A = LineA;
-    B = LineB;
+    orientationStreamType A(LineA), B(LineB);
     
     working_time = (fwdWorking ? t_low : t_high);
     performRotation(A, working_time);
