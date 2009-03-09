@@ -133,7 +133,7 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
   
   Iflt factor = rescaleFactor();
   
-  for (unsigned int i = 0; i < accG2.size(); i++)
+  /*for (unsigned int i = 0; i < accG2.size(); i++)
     {
       XML << (1+i) * dt / Sim->Dynamics.units().unitTime()
 	  << "\t ";
@@ -143,7 +143,7 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
 	    << "\t ";
       
       XML << "\n";
-    }
+      }*/
   
   XML << xmlw::endtag("EinsteinCorrelator");
 }
