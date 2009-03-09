@@ -170,6 +170,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPViscosityCollisionalE>(Sim, XML);
   else if (!Name.compare("ThermalConductivityE"))
     return testGeneratePlugin<COPThermalConductivityE>(Sim, XML);
+  else if (!Name.compare("ThermalConductivitySpeciesSpeciesE"))
+    return testGeneratePlugin<COPThermalConductivitySpeciesSpeciesE>(Sim, XML);
   else if (!Name.compare("MutualDiffusionGK"))
     return testGeneratePlugin<COPMutualDiffusionGK>(Sim, XML);
   else if (!Name.compare("MutualDiffusionE"))
