@@ -344,25 +344,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   retVal.dP = uPerp 
     * (-(vr % uPerp) 
-       / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia))));
-  
-  /*
-  CVector<> oldAngMom = inertia * (A.angularVelocity + B.angularVelocity) 
-    - cp.alpha * A.orientation.Cross(mass * A.velocity)
-    - cp.beta * B.orientation.Cross(mass * B.velocity);
-  
-  I_cout() << "Old Angular momentum <"; 
-  
-  for (size_t i(0); i < NDIM-1; ++i)
-    std::cout << oldAngMom[i] << ",";
-  
-  std::cout << oldAngMom[NDIM-1] << ">";
-  
-  Iflt oldEnergy = 0.5 * (mass * (A.velocity.square() + B.velocity.square())
-			  + inertia * (A.angularVelocity.square() + B.angularVelocity.square()));
-
-  I_cout() << "Old Energy " << oldEnergy;
-  */
+       / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia))));  
   
   const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
   const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
@@ -372,40 +354,6 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   orientationData[particle2.getID()].angularVelocity 
     += - (cp.beta / inertia) * (B.orientation.Cross(retVal.dP));
-
-  /*
-  CVector<> newAngMom = inertia * (A.angularVelocity + B.angularVelocity) 
-    - mass * cp.alpha * A.orientation.Cross(A.velocity)
-    - mass * cp.beta * B.orientation.Cross(B.velocity);
-
-  I_cout() << "New Angular momentum <"; 
-  
-  for (size_t i(0); i < NDIM-1; ++i)
-    std::cout << newAngMom[i] << ",";
-  
-  std::cout << newAngMom[NDIM-1] << ">";
-
-  I_cout() << "Angular Momentum Change <";
-
-  for (size_t i(0); i < NDIM-1; ++i)
-    std::cout << newAngMom[i] - oldAngMom[i] << ",";
-  
-  std::cout << newAngMom[NDIM-1] - oldAngMom[NDIM-1] << ">";
-
-  Iflt newEnergy = 0.5 * mass 
-    * (const_cast<CParticle&>(particle1).getVelocity().square() 
-       + const_cast<CParticle&>(particle2).getVelocity().square())
-    + 0.5 * inertia 
-    * (orientationData[particle1.getID()].angularVelocity.square()
-       + orientationData[particle2.getID()].angularVelocity.square());
-
-  I_cout() << "New Energy " << newEnergy;
-
-  I_cout() << "Difference in Energy " << newEnergy - oldEnergy;
-
-  I_cout() << "Alpha (particle "<< particle1.getID() << ") " << cp.alpha / length 
-	   << "\nBeta (particle "<< particle2.getID() << ") " << cp.beta / length;
-  */
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
@@ -547,12 +495,8 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     
     boundaryExceeded = false;
 
-    Iflt oldt;
-
-    for (size_t i(0); i < 100; ++i)
+    do
       {
-	oldt = working_time;
-	
 	working_time += deltaT;
 	
 	if((working_time > t_high) || (working_time < t_low))
@@ -580,7 +524,8 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	    rootFound = false;
 	    break;
 	  }
-      }
+	
+      } while (fabs(f0) >  length * 1e-14);
 
     if(boundaryExceeded)
     {
