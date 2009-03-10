@@ -129,21 +129,33 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
     / Sim->getOutputPlugin<COPMisc>()->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor()
       << xmlw::attr("SampleCount") << count;
-    //<< xmlw::chardata();
   
   Iflt factor = rescaleFactor();
+
+  size_t Nsp(Sim->Dynamics.getSpecies().size());
   
-  /*for (unsigned int i = 0; i < accG2.size(); i++)
-    {
-      XML << (1+i) * dt / Sim->Dynamics.units().unitTime()
-	  << "\t ";
-      
-      for (int j=0;j<NDIM;j++)
-	XML << accG2[id1 + Nsp * id2][i][j] * factor 
-	    << "\t ";
-      
-      XML << "\n";
-      }*/
+  for (size_t id1(0); id1 < Nsp; ++id1)
+    for (size_t id2(0); id2 < Nsp; ++id2)      
+      {
+	XML << xmlw::tag("Component") 
+	    << xmlw::attr("Species1") << id1
+	    << xmlw::attr("Species2") << id2
+	    << xmlw::chardata();
+
+	for (unsigned int i = 0; i < accG2.size(); i++)
+	  {
+	    XML << (1+i) * dt / Sim->Dynamics.units().unitTime()
+		<< "\t ";
+	    
+	    for (int j=0;j<NDIM;j++)
+	      XML << accG2[id1 + Nsp * id2][i][j] * factor 
+		  << "\t ";
+	    
+	    XML << "\n";
+	  }
+
+	XML << xmlw::endtag("Component");
+      }
   
   XML << xmlw::endtag("EinsteinCorrelator");
 }
