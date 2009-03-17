@@ -95,14 +95,22 @@ COPConfig::fileOutput(const char *fileName)
 {
   namespace io = boost::iostreams;
 
-  io::filtering_ostream coutputFile;
-
-  if (compressedOutput) coutputFile.push(io::bzip2_compressor());
-  
-  coutputFile.push(io::file_sink(fileName));
-
-  xmlw::XmlStream XML(coutputFile);
-  output(XML);
+  if (compressedOutput) 
+    {
+      io::filtering_ostream coutputFile;
+      coutputFile.push(io::bzip2_compressor());
+      
+      coutputFile.push(io::file_sink(fileName));
+      
+      xmlw::XmlStream XML(coutputFile);
+      output(XML);
+    }
+  else
+    {
+      std::ofstream coutputFile(fileName, std::ios::out | std::ios::trunc);
+      xmlw::XmlStream XML(coutputFile);
+      output(XML);
+    }    
 }
 
 void 

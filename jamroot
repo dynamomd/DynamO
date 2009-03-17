@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #using intel-linux ;
-#using gcc ;
+using gcc : : condor_compile g++ ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
@@ -25,8 +25,9 @@ project	: requirements <variant>debug:<define>DYNAMO_DEBUG
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
 	  <variant>cachegrind:<define>DYNAMO_Cachegrind
-	  <variant>release:<runtime-link>static
-	  <variant>debug:<define>DYNAMO_DEBUG <link>static
+	  <link>static
+	  #<variant>release:<runtime-link>static
+	  <variant>debug:<define>DYNAMO_DEBUG 
 	  #<define>DYNAMO_WallCollDebug
 	  #<toolset>gcc:<cxxflags>-ansi
 	  #<toolset>gcc:<cxxflags>-pedantic
