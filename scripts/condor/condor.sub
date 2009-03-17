@@ -1,0 +1,16 @@
+  ####################                                                    
+  # 
+  # Dynamod condor submit file
+  # 
+  #                                                                       
+  ####################
+
+  universe	 = standard
+  executable     = $(DYNARUN)
+  arguments	 = $(ARG)
+  log            = condor.log
+  output         = condor.out
+  error		 = condor.error
+  notification   = NEVER
+  initialdir     = #INITDIR#
+  queue
