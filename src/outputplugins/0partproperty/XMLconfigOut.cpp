@@ -34,7 +34,8 @@
 
 COPConfig::COPConfig(const DYNAMO::SimData* tmp):
   COutputPlugin(tmp,"XMLConfig"),
-  rounding(false)
+  rounding(false),
+  compressedOutput(true)
 {}
 
 COPConfig::~COPConfig()
@@ -95,7 +96,9 @@ COPConfig::fileOutput(const char *fileName)
   namespace io = boost::iostreams;
 
   io::filtering_ostream coutputFile;
-  coutputFile.push(io::bzip2_compressor());
+
+  if (compressedOutput) coutputFile.push(io::bzip2_compressor());
+  
   coutputFile.push(io::file_sink(fileName));
 
   xmlw::XmlStream XML(coutputFile);

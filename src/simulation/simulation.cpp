@@ -241,7 +241,7 @@ CSimulation::loadXMLfile(const char *fileName)
 }
 
 void
-CSimulation::writeXMLfile(const char *fileName, bool round)
+CSimulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot write out configuration in this state";
@@ -251,6 +251,9 @@ CSimulation::writeXMLfile(const char *fileName, bool round)
   
   if (round)
     XMLconfig.setRounding();
+
+  if (uncompressed)
+    XMLconfig.setUncompressed();
 
   XMLconfig.fileOutput(fileName);
 }

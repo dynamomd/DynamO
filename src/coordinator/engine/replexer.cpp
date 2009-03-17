@@ -495,6 +495,6 @@ CEReplexer::outputConfigs()
     {
       TtoID << p1.second.realTemperature << " " << i << "\n";
       Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-      Simulations[p1.second.simID].writeXMLfile((DYNAMO::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
+      Simulations[p1.second.simID].writeXMLfile((DYNAMO::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str(), false, vm.count("uncompressed"));
     }
 }

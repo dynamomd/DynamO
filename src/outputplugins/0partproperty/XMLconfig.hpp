@@ -45,8 +45,11 @@ class COPConfig: public COutputPlugin
 
   void setRounding();
 
+  void setUncompressed() { compressedOutput = false; }
+
 private:
   bool rounding;
+  bool compressedOutput;
 };
 
 #endif

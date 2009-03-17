@@ -65,6 +65,7 @@ main(int argc, char *argv[])
 	("binary", "Output the XML file with appended binary particle data for efficiency")
 	("text", "Output the XML file with text/XML particle data for readability")
 	("round", "Output the XML config file with one less digit to aid in removing rounding errors for test systems")
+	("uncompressed", "Output the XML config file without bzip compression")
 	;
 
       loadopts.add_options()
@@ -158,7 +159,7 @@ main(int argc, char *argv[])
 	sim.getHistory() << argv[i] << " ";
       cout << "\nWriting out configuration";
       sim.writeXMLfile(vm["out-config-file"].as<string>().c_str(), 
-		       vm.count("round"));
+		       vm.count("round"), vm.count("uncompressed"));
       cout << "\n";
     }
   catch (std::exception &cep)

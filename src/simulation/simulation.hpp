@@ -60,7 +60,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   
   void loadXMLfile(const char *);
   
-  void writeXMLfile(const char *, bool round = false);
+  void writeXMLfile(const char *, bool round = false, bool uncompressed = false);
 
   void loadPlugins(std::string);
 

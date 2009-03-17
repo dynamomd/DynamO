@@ -78,7 +78,7 @@ CESingle::outputData()
 void
 CESingle::outputConfigs()
 {
-  Simulation.writeXMLfile(configFormat.c_str());
+  Simulation.writeXMLfile(configFormat.c_str(), false, vm.count("uncompressed"));
 }
 
 void 
