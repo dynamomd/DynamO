@@ -84,7 +84,7 @@ CCoordinator::parseOptions(int argc, char *argv[])
   
   systemopts.add_options()
     ("help", "Produces this message")   
-    ("n-threads,N", po::value<unsigned int>()->default_value(0), 
+    ("n-threads,N", po::value<unsigned int>(), 
      "Number of threads to spawn for concurrent processing. (Only utilised by some engine/sim configurations)")
     ("out-config-file,o", po::value<std::string>(), 
      "Default config output file,(config.%ID.end.xml.bz2)")
@@ -145,8 +145,8 @@ CCoordinator::parseOptions(int argc, char *argv[])
 void 
 CCoordinator::initialise()
 {
-
-  threads.setThreadCount(vm["n-threads"].as<unsigned int>());
+  if (vm.count("n-threads"))
+    threads.setThreadCount(vm["n-threads"].as<unsigned int>());
 
   switch (vm["engine"].as<size_t>())
     {
