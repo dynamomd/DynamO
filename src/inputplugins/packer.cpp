@@ -684,7 +684,8 @@ CIPPacker::initialise()
 	if (vm.count("f3"))
 	  lambda = vm["f3"].as<Iflt>();
 	
-	Iflt diamScale = 1.0 / (5+chainlength);
+	//10 % more than needed
+	Iflt diamScale = 0.9 / (sigmax * chainlength + 2 * sigma);
 	
 	CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
 			  * diamScale, new CUParticle());
@@ -696,9 +697,11 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(CVector<>(0.0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
-	Sim->Dynamics.setPBC<CNullBC>();
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Sim->Dynamics.setPBC<CSPBC>();
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 

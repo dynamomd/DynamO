@@ -98,7 +98,7 @@ protected:
 
   size_t getCellID(CVector<>) const;
 
-  void addCells(Iflt, bool limitCells = true);
+  void addCells(Iflt);
 
   void addLocalEvents();
 

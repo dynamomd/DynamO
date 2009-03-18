@@ -22,8 +22,13 @@
 #define THREADPOOL_H
 
 #include <list>
+
+#include <boost/function.hpp>
+
+#ifdef DYNAMO_threading
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
+#endif
 
 //Just something to make calling a member function in a class using a member function pointer easy.
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
@@ -144,24 +149,35 @@ public:
   
   /*! \brief The current number of threads in the pool */
   size_t getThreadCount() const
-  { return m_threads.size(); }
+  {
+#ifdef DYNAMO_threading    
+    return m_threads.size(); 
+#else
+    return 0;
+#endif
+  }
     
   /*! \brief Set a task to be completed by the pool.
    *
    * \param threadfunc A functor which describes the task to complete.
    */
   inline void invoke(const Functor_T& threadfunc)
-  {   
+  {
+#ifdef DYNAMO_threading   
     boost::mutex::scoped_lock lock1(m_mutex);    
-
     m_needThread.notify_all();
-
     m_waitingFunctors.push_back(threadfunc);
 
     if (m_nextFunctor == m_waitingFunctors.end())
       --m_nextFunctor;
 
     lock1.unlock();
+#else
+    m_waitingFunctors.push_back(threadfunc);
+
+    if (m_nextFunctor == m_waitingFunctors.end())
+      --m_nextFunctor;
+#endif
   }
   
   /*! \brief Destructor
@@ -195,6 +211,7 @@ private:
   /*! \brief Next functor in the list to be assigned. */
   std::list<Functor_T>::iterator m_nextFunctor;
   
+#ifdef DYNAMO_threading   
   /*! \brief A mutex to control access to job data.
    * 
    * This mutex is also used as part of the m_needThread condition and
@@ -219,6 +236,8 @@ private:
   /*! \brief A collection of threads.
    */
   boost::thread_group m_threads;
+
+#endif
 
   /*! \brief When this is true threads will terminate themselves.
    */

@@ -30,6 +30,7 @@ CThreadPool::CThreadPool():
 void 
 CThreadPool::setThreadCount(size_t x)
 { 
+#ifdef DYNAMO_threading   
   if (x == m_threads.size()) return;
   
   if (x > m_threads.size())
@@ -49,6 +50,9 @@ CThreadPool::setThreadCount(size_t x)
   
   for (size_t i=0; i<x; i++)
     m_threads.create_thread(beginThreadFunc(*this));
+#else
+  D_throw() << "Cannot use the thread pool as threading is disabled";
+#endif
 }
 
 CThreadPool::~CThreadPool() throw()
@@ -59,6 +63,7 @@ CThreadPool::~CThreadPool() throw()
 void 
 CThreadPool::wait()
 {
+#ifdef DYNAMO_threading   
   if (m_threads.size())
     {
       //We are in threaded mode!
@@ -73,12 +78,15 @@ CThreadPool::wait()
     }
   else
     {
+#endif
       //Non threaded mode
       BOOST_FOREACH(Functor_T& afunctor, m_waitingFunctors)
 	afunctor();
       
       m_waitingFunctors.clear();
+#ifdef DYNAMO_threading   
     }
+#endif
 }
 
 void 
@@ -87,21 +95,26 @@ CThreadPool::stop()
   // m_bStop must be set to true in a critical section.  Otherwise
   // it is possible for a thread to miss notify_all and never
   // terminate.
+#ifdef DYNAMO_threading   
   boost::mutex::scoped_lock lock1(m_mutex);
   m_bStop = true;
   lock1.unlock();
   
   m_needThread.notify_all();
   m_threads.join_all();
+#else
+  m_bStop = true;
+#endif
 }
 
 void 
 CThreadPool::beginThread() throw()
 {
+#ifdef DYNAMO_threading   
   try
     {
       boost::mutex::scoped_lock lock1(m_mutex);
-      
+
       for(;;)
 	{
 	  if (m_bStop)
@@ -148,4 +161,8 @@ CThreadPool::beginThread() throw()
 		<< p.what();
       throw;
     }
+
+#else
+  D_throw() << "Cannot beginThread as threading is disabled";
+#endif      
 }    

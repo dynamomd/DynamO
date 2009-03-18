@@ -248,7 +248,7 @@ CGCells::reinitialise(const Iflt& maxdiam)
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
   //Create the cells
-  addCells(maxdiam, false);
+  addCells(maxdiam);
 
   addLocalEvents();
 
@@ -266,7 +266,7 @@ CGCells::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-CGCells::addCells(Iflt maxdiam, bool limitCells)
+CGCells::addCells(Iflt maxdiam)
 {
   cells.clear();
   partCellData.resize(Sim->lN); //Location data for particles
@@ -281,18 +281,13 @@ CGCells::addCells(Iflt maxdiam, bool limitCells)
       if (cellCount[iDim] < 3)
 	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
 
-      if (limitCells && cellCount[iDim] > 100)
+      if (cellCount[iDim] > 200)
 	{
 	  I_cout() << "Cell count was " << cellCount[iDim] 
-		   << "\n Restricting to 100";
-	  cellCount[iDim] = 100;
+		   << "\n Restricting to 200 to stop this sim grinding to a halt";
+	  cellCount[iDim] = 200;
 	}
 
-      //Stop bad allocs!
-      if (cellCount[iDim] > 500)
-	I_cout() << "Cell count was " << cellCount[iDim] 
-		 << "\n Restricting to " << (cellCount[iDim] = 500);
-            
       NCells *= cellCount[iDim];
     }
 
