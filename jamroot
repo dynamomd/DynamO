@@ -53,7 +53,7 @@ variant massif : <inlining>off <optimization>speed <debug-symbols>on
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
 
 exe dynareplex_opt 
-    : programs/dynareplex_opt.cpp boost//program_options
+    : programs/dynareplex_opt.cpp boost//program_options/<link>static
     ;
 
 exe dynahist_rw 
@@ -69,12 +69,12 @@ exe dynamod
     ;
 
 install install-bin 
-	: dynareplex_opt dynahist_rw dynarun dynamod 
+	: dynareplex_opt dynahist_rw dynarun dynamod
 	: <location>bin
 	;
 	
 install install-lib 
-	: src//dynamo_core 
+	: src//dynamo_core/<link>static
 	: <location>lib
 	;
 
