@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #using intel-linux ;
-#using gcc : : condor_compile g++ ;
+using gcc : : condor_compile g++ ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
