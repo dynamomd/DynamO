@@ -50,7 +50,7 @@ namespace DYNAMO
     /*! \brief A private stream to format the standard error stream. */
     Stream_Operator I_cerr() const
     {
-      return ((std::cout << Stream_Operator(name,IC_red)) << "\n");
+      return ((std::cerr << Stream_Operator(name,IC_red)) << "\n");
     }
     
   protected:
