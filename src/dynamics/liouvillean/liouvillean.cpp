@@ -228,3 +228,8 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
   XML << xmlw::endtag("ParticleData");
 }
 
+Iflt 
+CLiouvillean::getParticleKineticEnergy(const CParticle& part) const
+{
+  return 0.5 * (part.getVelocity().square()) * Sim->Dynamics.getSpecies(part).getMass();
+}

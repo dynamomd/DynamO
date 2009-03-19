@@ -94,6 +94,12 @@ public:
    */
   virtual void outputParticleXMLData(xmlw::XmlStream&) const;
 
+  
+  /*! \brief Just calculates the kinetic energy of a single particle
+   */
+  virtual Iflt getParticleKineticEnergy(const CParticle&) const;
+
+
   /*! \brief Performs an elastic multibody collision between to ranges of particles.
    * 
    * Also works for bounce (it will collide receeding structures).
