@@ -27,9 +27,9 @@ class C1ParticleData
 public:
   C1ParticleData(const CParticle& part, const CSpecies& sp, 
 		 EEventType eType):
-    deltake(0.0),
     particle_(part), oldVelVec(part.getVelocity()),
-    species_(sp), Type_(eType), deltaU(0.0)
+    species_(sp), Type_(eType), 
+    deltaU(0.0), deltaKE(0.0)
   {}
 
   inline const CParticle& getParticle() const
@@ -53,35 +53,19 @@ public:
   inline void setDeltaU(const Iflt& dU)
   { deltaU = dU; }
 
+  inline Iflt getDeltaKE() const
+  { return deltaU; }
+  
+  inline void setDeltaKE(const Iflt& dKE)
+  { deltaKE = dKE; }
+
   inline EEventType getType() const
   { return Type_; }
   
-  void calcDeltaKE()
-  {
-    deltake = 0.5 * species_.getMass() 
-      * (particle_.getVelocity() * particle_.getVelocity() 
-	 - oldVelVec * oldVelVec);
-  }
-  
-  Iflt getDeltae() const
-  {
-    Iflt sum = 0.0;
-    for (int iDim = 0; iDim < NDIM; iDim++)
-      sum += deltake[iDim];
-    return sum;
-  }
-
-  Iflt getDeltaeCalc() const
-  {
-    return 0.5 * species_.getMass() * (particle_.getVelocity().square() - oldVelVec.square());
-  }
-
   CVector<> getDeltaP() const
   {
     return species_.getMass() * (particle_.getVelocity() - oldVelVec);
   }
-
-  CVector<> deltake;
 
 private:
   const CParticle& particle_;
@@ -89,6 +73,7 @@ private:
   const CSpecies& species_;
   EEventType Type_;
   Iflt deltaU;
+  Iflt deltaKE;
 };
 
 #endif

@@ -116,10 +116,16 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / r2);
 
-  retVal.calcDeltaKE(mu);
-
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().square() 
+				  - retVal.particle1_.getOldVel().square()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().square() 
+				  - retVal.particle2_.getOldVel().square()));
   
   return retVal;
 }
@@ -180,8 +186,6 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
 
   retVal.rvdot *= retVal.rij.length();
   
-  retVal.calcDeltaKE(mu);
-  
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
     D_throw() << "A nan dp has ocurred";
@@ -190,6 +194,14 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().square() 
+				  - retVal.particle1_.getOldVel().square()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().square() 
+				  - retVal.particle2_.getOldVel().square()));
   
   return retVal;
 }

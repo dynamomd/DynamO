@@ -43,27 +43,11 @@ public:
   CVector<> dP;
   Iflt rvdot;
 
-  CVector<> deltake;
-  
   void setType(EEventType nType)
   { particle1_.setType(nType); particle2_.setType(nType); }
 
-  Iflt getDeltae() const
-  {
-    Iflt sum = 0.0;
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      sum += deltake[iDim];
-    return sum;
-  }
-
   EEventType getType() const
   { return particle1_.getType(); }
-  
-  void calcDeltaKE(const Iflt& mu)
-  {
-    deltake = ((dP * dP)/(2.0 * mu))  - (dP * vijold);
-  }
-
 };
 
 #endif

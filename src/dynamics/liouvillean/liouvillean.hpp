@@ -94,11 +94,29 @@ public:
    */
   virtual void outputParticleXMLData(xmlw::XmlStream&) const;
 
+  /*! \brief Returns the degrees of freedom per particle.
+   */
+  virtual size_t getParticleDOF() const { return NDIM; }
   
-  /*! \brief Just calculates the kinetic energy of a single particle
+  /*! \brief Calculates the kinetic energy of a single particle
    */
   virtual Iflt getParticleKineticEnergy(const CParticle&) const;
 
+  /*! \brief Calculates the kinetic energy of the system
+   */
+  virtual Iflt getSystemKineticEnergy() const;
+
+  /*! \brief Calculates the thermal unit of the system
+   */
+  virtual Iflt getkT() const;
+
+  /*! \brief Calculates the translational kinetic energy vector of the system
+   */
+  CVector<> getVectorParticleKineticEnergy(const CParticle&) const;
+
+  /*! \brief Calculates the translational kinetic energy vector of the system
+   */
+  CVector<> getVectorSystemKineticEnergy() const;
 
   /*! \brief Performs an elastic multibody collision between to ranges of particles.
    * 

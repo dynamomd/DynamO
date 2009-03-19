@@ -92,7 +92,7 @@ COPThermalConductivitySpeciesSpeciesE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
+		     * sqrt(Sim->Dynamics.Liouvillean().getkT()) * CorrelatorLength);
     }
   
   //Sum up the constant Del G.
@@ -100,7 +100,7 @@ COPThermalConductivitySpeciesSpeciesE::initialise()
     BOOST_FOREACH(const size_t& id, *spec.getRange())
     {
       const CParticle& part(Sim->vParticleList[id]);
-      constDelG[spec.getID()] += part.getVelocity() * Sim->Dynamics.getParticleEnergy(part);
+      constDelG[spec.getID()] += part.getVelocity() * Sim->Dynamics.Liouvillean().getParticleKineticEnergy(part);
     }
   
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
@@ -307,23 +307,23 @@ COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const CNParticleData& nda
 void 
 COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C1ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.getParticle());
+  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG[PDat.getSpecies().getID()] += PDat.getParticle().getVelocity() * p1E 
-    - PDat.getOldVel() * (p1E - PDat.getDeltaeCalc());
+    - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
 }
 
 void 
 COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C2ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->Dynamics.getParticleEnergy(PDat.particle2_.getParticle());
+  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  Iflt p2E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
   constDelG[Sim->Dynamics.getSpecies(PDat.particle1_.getParticle()).getID()]
     += PDat.particle1_.getParticle().getVelocity() * p1E
-    - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaeCalc());
+    - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE());
   
   constDelG[Sim->Dynamics.getSpecies(PDat.particle2_.getParticle()).getID()]
     += PDat.particle2_.getParticle().getVelocity() * p2E
-    - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaeCalc());
+    - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
 }

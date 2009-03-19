@@ -233,3 +233,37 @@ CLiouvillean::getParticleKineticEnergy(const CParticle& part) const
 {
   return 0.5 * (part.getVelocity().square()) * Sim->Dynamics.getSpecies(part).getMass();
 }
+
+CVector<> 
+CLiouvillean::getVectorParticleKineticEnergy(const CParticle& part) const
+{
+  return 0.5 * (part.getVelocity() * part.getVelocity()) * Sim->Dynamics.getSpecies(part).getMass();
+}
+
+Iflt 
+CLiouvillean::getSystemKineticEnergy() const
+{
+  Iflt sumEnergy(0);
+
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    sumEnergy += getParticleKineticEnergy(part);
+
+  return sumEnergy;
+}
+
+CVector<>
+CLiouvillean::getVectorSystemKineticEnergy() const
+{
+  CVector<> sumEnergy(0);
+
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    sumEnergy += getVectorParticleKineticEnergy(part);
+
+  return sumEnergy;
+}
+
+Iflt 
+CLiouvillean::getkT() const
+{
+  return 2.0 * getSystemKineticEnergy() / (Sim->lN * static_cast<Iflt>(NDIM));
+}

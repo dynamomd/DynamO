@@ -87,12 +87,12 @@ COPThermalConductivityE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.getkT()) * CorrelatorLength);
+		     * sqrt(Sim->Dynamics.Liouvillean().getkT()) * CorrelatorLength);
     }
   
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    constDelG += part.getVelocity () * Sim->Dynamics.getParticleEnergy(part);
+    constDelG += part.getVelocity () * Sim->Dynamics.Liouvillean().getParticleKineticEnergy(part);
   
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
@@ -142,19 +142,19 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
 CVector<> 
 COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 {
-  return PDat.rij * PDat.particle1_.getDeltaeCalc();
+  return PDat.rij * PDat.particle1_.getDeltaKE();
 }
 
 void 
 COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->Dynamics.getParticleEnergy(PDat.particle2_.getParticle());
+  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  Iflt p2E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
   constDelG += PDat.particle1_.getParticle().getVelocity() * p1E 
     + PDat.particle2_.getParticle().getVelocity() * p2E
-    - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaeCalc())
-    - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaeCalc());
+    - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
+    - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
 }
 
 void 
@@ -276,8 +276,8 @@ COPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
 void 
 COPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getParticleEnergy(PDat.getParticle());
+  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
-    - PDat.getOldVel() * (p1E - PDat.getDeltaeCalc());
+    - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
 }

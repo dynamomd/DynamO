@@ -184,19 +184,9 @@ public:
       p_BC.set_ptr(new T(Sim));
     }
 
-  Iflt getKineticEnergy() const;
-  
-  CVector<> getVecKineticEnergy() const;
-
-  Iflt getkT() const;
-  
-  CVector<> getVeckT() const;
-
   Iflt getNumberDensity() const;
   
   Iflt getPackingFraction() const;
-
-  Iflt getParticleEnergy(const CParticle&) const;
 
  protected:
   void outputXML(xmlw::XmlStream &) const;

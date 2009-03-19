@@ -347,28 +347,6 @@ CDynamics::stream(const Iflt& dt)
     ptr->stream(dt);
 }
 
-Iflt 
-CDynamics::getKineticEnergy() const
-{
-  Iflt energy = 0.0;
-  
-  BOOST_FOREACH( const CParticle & part, Sim->vParticleList)
-    energy += part.getVelocity().square() * getSpecies(part).getMass();
-  
-  return 0.5 * energy; 
-}
-
-CVector<> 
-CDynamics::getVecKineticEnergy() const
-{  
-  CVector<> energy(0.0);
-  
-  BOOST_FOREACH( const CParticle & part, Sim->vParticleList)
-    energy += part.getVelocity() * part.getVelocity()
-    * Sim->Dynamics.getSpecies(part).getMass();
-  
-  return 0.5 * energy; 
-}
 
 Iflt
 CDynamics::calcInternalEnergy() const
@@ -397,24 +375,6 @@ CDynamics::getPackingFraction() const
     volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
   
   return  PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
-}
-
-Iflt 
-CDynamics::getParticleEnergy(const CParticle& part) const
-{
-  return 0.5 * (part.getVelocity().square()) * getSpecies(part).getMass();
-}
-
-Iflt 
-CDynamics::getkT() const
-{
-  return 2.0 * getKineticEnergy() / (Sim->lN * static_cast<Iflt>(NDIM));
-}
-  
-CVector<> 
-CDynamics::getVeckT() const
-{
-  return getVecKineticEnergy() * (2.0 / Sim->lN);
 }
 
 void 

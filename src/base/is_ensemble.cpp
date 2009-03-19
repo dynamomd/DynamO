@@ -60,7 +60,7 @@ namespace DYNAMO {
   {
     EnsembleVals[0] = Sim->vParticleList.size();
     EnsembleVals[1] = Sim->Dynamics.units().unitVolume();
-    EnsembleVals[2] = Sim->Dynamics.calcInternalEnergy() + Sim->Dynamics.getKineticEnergy();
+    EnsembleVals[2] = Sim->Dynamics.calcInternalEnergy() + Sim->Dynamics.Liouvillean().getSystemKineticEnergy();
 
     I_cout() << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->Dynamics.units().unitVolume()
@@ -163,7 +163,7 @@ namespace DYNAMO {
   {
     EnsembleVals[0] = Sim->vParticleList.size();
     EnsembleVals[1] = Sim->Dynamics.calcInternalEnergy() 
-      + Sim->Dynamics.getKineticEnergy();
+      + Sim->Dynamics.Liouvillean().getSystemKineticEnergy();
     
     try {
       EnsembleVals[2] = dynamic_cast<const CLCompression&>

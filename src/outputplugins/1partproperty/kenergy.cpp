@@ -25,33 +25,31 @@
 
 COPKEnergy::COPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
   COP1PP(tmp,"KEnergy", 250),
-  sumPowerLoss(0.0),
-  kTacc(0.0),
-  kTsqAcc(0.0),
-  kTCurrent(0.0)
+  InitialKE(0.0),
+  KEacc(0.0),
+  KEsqAcc(0.0),
+  KECurrent(0.0)
 {}
 
 void 
 COPKEnergy::changeSystem(COutputPlugin* Eplug)
 {
   std::swap(Sim, static_cast<COPKEnergy*>(Eplug)->Sim);
-
-  for (int iDim = 0; iDim < NDIM; ++iDim)
-    std::swap(kTCurrent[iDim], 
-	      static_cast<COPKEnergy*>(Eplug)->kTCurrent[iDim]);
+  
+  std::swap(KECurrent, 
+	    static_cast<COPKEnergy*>(Eplug)->KECurrent);
 }
 
 void 
 COPKEnergy::temperatureRescale(const Iflt& scale)
 {
-  for (int iDim = 0; iDim < NDIM; ++iDim)
-    kTCurrent[iDim] *= scale * scale;
+  KECurrent *= scale * scale;
 }
 
 void
 COPKEnergy::initialise()
 {  
-  kTCurrent = Sim->Dynamics.getVeckT();
+  InitialKE = KECurrent = Sim->Dynamics.Liouvillean().getSystemKineticEnergy();
 }
 
 Iflt 
@@ -63,103 +61,55 @@ COPKEnergy::getAvgTheta() const
 Iflt 
 COPKEnergy::getAvgkT() const
 {
-  Iflt sum = 0.0;
-  
-  for (int iDim = 0; iDim < NDIM; iDim++)
-    sum += kTacc[iDim];
-  
-  sum /= ((Iflt) NDIM) * Sim->dSysTime;
-  
-  return sum;
+  return 2.0 * KEacc / (Sim->dSysTime * Sim->lN * Sim->Dynamics.Liouvillean().getParticleDOF());
 }
-
-Iflt 
-COPKEnergy::getAvgTheta(long i) const
-{ 
-  return kTacc[i] / (Sim->dSysTime * Sim->Dynamics.units().unitEnergy()); 
-}
-
 
 Iflt 
 COPKEnergy::getAvgSqTheta() const
 {
-  Iflt sum = 0.0;
-  
-  for (int iDim = 0; iDim < NDIM; iDim++)
-    sum += kTsqAcc[iDim];
-  
-  sum /= ((Iflt) NDIM) * Sim->dSysTime 
-    * pow(Sim->Dynamics.units().unitEnergy(),2);
-  
-  return sum;
-}
-
-Iflt 
-COPKEnergy::getAvgSqTheta(long i) const
-{ 
-  return kTsqAcc[i]/( Sim->dSysTime 
-		      * pow(Sim->Dynamics.units().unitEnergy(),2)); 
+  return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->lN 
+			* Sim->Dynamics.Liouvillean().getParticleDOF()
+			* Sim->Dynamics.units().unitEnergy()
+			* Sim->Dynamics.units().unitEnergy());
 }
 
 void 
 COPKEnergy::A1ParticleChange(const C1ParticleData& PDat)
 {
-  sumPowerLoss += PDat.getDeltae();
-  //Update the accumilators
-  kTCurrent += PDat.deltake * 2.0 / Sim->lN;    
+  KECurrent += PDat.getDeltaKE();
 }
 
-void 
+void
 COPKEnergy::A2ParticleChange(const C2ParticleData& PDat)
 {
-  sumPowerLoss += PDat.getDeltae();
-  //Update the accumilators
-  kTCurrent += PDat.deltake * 2.0 / Sim->lN;  
+  KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
 }
 
 void 
 COPKEnergy::stream(const Iflt& dt)
 {
-  kTacc += kTCurrent * dt;
-  kTsqAcc += kTCurrent * kTCurrent * dt;
+  KEacc += KECurrent * dt;
+  KEsqAcc += KECurrent * KECurrent * dt;
 }
 
 void
 COPKEnergy::output(xmlw::XmlStream &XML)
 {
-  Iflt unitPwrloss = Sim->Dynamics.units().unitLength()
-    * pow(Sim->Dynamics.units().unitTime(),3) / Sim->Dynamics.units().unitMass();
+  Iflt powerloss = (InitialKE - KECurrent) * Sim->Dynamics.units().unitLength()
+    * pow(Sim->Dynamics.units().unitTime(),3) 
+    / (Sim->Dynamics.units().unitMass() * Sim->dSysTime * Sim->Dynamics.units().simVolume());
 
   XML << xmlw::tag("KEnergy")
       << xmlw::tag("T") << xmlw::attr("val") << getAvgTheta()
-      << xmlw::attr("current") << (2.0 * Sim->Dynamics.getKineticEnergy() / (static_cast<Iflt>(NDIM) * Sim->lN * Sim->Dynamics.units().unitEnergy()))
+      << xmlw::attr("current") 
+      << (2.0 * Sim->Dynamics.Liouvillean().getSystemKineticEnergy() 
+	  / (static_cast<Iflt>(NDIM) * Sim->lN * Sim->Dynamics.units().unitEnergy()))
       << xmlw::endtag("T")
       << xmlw::tag("T2") << xmlw::attr("val") << getAvgSqTheta()
       << xmlw::endtag("T2")
     
-      << xmlw::tag("Tx") 
-      << xmlw::attr("val") << getAvgTheta(0) 
-      << xmlw::endtag("Tx")
-      << xmlw::tag("Ty") 
-      << xmlw::attr("val") << getAvgTheta(1) 
-      << xmlw::endtag("Ty")
-      << xmlw::tag("Tz") 
-      << xmlw::attr("val") << getAvgTheta(2) 
-      << xmlw::endtag("Tz")
-
-      << xmlw::tag("T2x") 
-      << xmlw::attr("val") << getAvgSqTheta(0) 
-      << xmlw::endtag("T2x")
-      << xmlw::tag("T2y") 
-      << xmlw::attr("val") << getAvgSqTheta(1) 
-      << xmlw::endtag("T2y")
-      << xmlw::tag("T2z") 
-      << xmlw::attr("val") << getAvgSqTheta(2) 
-      << xmlw::endtag("T2z")
-
       << xmlw::tag("PowerLoss")
-      << xmlw::attr("val") << (sumPowerLoss*unitPwrloss/Sim->dSysTime)
-    /Sim->Dynamics.units().simVolume()
+      << xmlw::attr("val") << powerloss
       << xmlw::endtag("PowerLoss")
 
       << xmlw::endtag("KEnergy");
@@ -168,20 +118,14 @@ COPKEnergy::output(xmlw::XmlStream &XML)
 void
 COPKEnergy::periodicOutput()
 {
-  Iflt unitPwrloss = Sim->Dynamics.units().unitLength()
-    * pow(Sim->Dynamics.units().unitTime(),3) / Sim->Dynamics.units().unitMass();
+  Iflt powerloss = (InitialKE - KECurrent) * Sim->Dynamics.units().unitLength()
+    * pow(Sim->Dynamics.units().unitTime(),3) 
+    / (Sim->Dynamics.units().unitMass() * Sim->dSysTime * Sim->Dynamics.units().simVolume());
 
-  Iflt kT = 0.0;
 
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    kT += kTCurrent[iDim];
-
-  kT /= NDIM;
-
-  I_Pcout() << "T " <<  kT / Sim->Dynamics.units().unitEnergy() << ", <T> " 
-	    << getAvgTheta() << ", <PwrLoss> " 
-	    << sumPowerLoss * unitPwrloss
-    /(Sim->Dynamics.units().simVolume()*Sim->dSysTime)
-	    << ", ";
+  I_Pcout() << "T " 
+	    <<  2.0 * KECurrent / (Sim->lN * Sim->Dynamics.Liouvillean().getParticleDOF() 
+				   * Sim->Dynamics.units().unitEnergy())
+	    << ", <T> " << getAvgTheta() << ", <PwrLoss> " << powerloss << ", ";
 }
 

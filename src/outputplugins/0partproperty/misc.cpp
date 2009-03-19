@@ -39,7 +39,7 @@ COPMisc::changeSystem(COutputPlugin* misc2)
 void
 COPMisc::initialise()
 {
-  Iflt kt = Sim->Dynamics.getkT();
+  Iflt kt = Sim->Dynamics.Liouvillean().getkT();
 
   I_cout() << "Particle Count " << Sim->lN 
 	   << "\nSim Unit Length " << Sim->Dynamics.units().unitLength()

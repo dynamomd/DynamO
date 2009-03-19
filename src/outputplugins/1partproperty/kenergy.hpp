@@ -44,23 +44,18 @@ class COPKEnergy: public COP1PP
 
   Iflt getAvgTheta() const;
      
-  Iflt getAvgTheta(long) const;
-
   Iflt getAvgSqTheta() const;
      
-  Iflt getAvgSqTheta(long) const;
-
   void changeSystem(COutputPlugin*);
 
   void temperatureRescale(const Iflt&);
   
  protected:
 
-  Iflt sumPowerLoss;
-  Iflt powerLossAcc;
-  CVector<> kTacc;
-  CVector<> kTsqAcc;
-  CVector<> kTCurrent;
+  Iflt InitialKE;
+  Iflt KEacc;
+  Iflt KEsqAcc;
+  Iflt KECurrent;  
 };
 
 #endif

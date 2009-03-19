@@ -84,11 +84,17 @@ CLSLLOD::DSMCSpheresRun(const CParticle& p1,
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
 			    / retVal.rij.square());  
 
-  retVal.calcDeltaKE(mu);
-
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (p1.getVelocity().square() 
+				  - retVal.particle1_.getOldVel().square()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (p2.getVelocity().square() 
+				  - retVal.particle2_.getOldVel().square()));
 
   return retVal;
 }

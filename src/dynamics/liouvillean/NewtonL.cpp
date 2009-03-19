@@ -92,8 +92,10 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
     const_cast<CParticle&>(part).getVelocity()[iDim] 
       = Sim->normal_sampler() * factor;
 
-  tmpDat.calcDeltaKE();
-
+  tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
+		    * (part.getVelocity().square() 
+		       - tmpDat.getOldVel().square()));
+  
   return tmpDat;
 }
 
@@ -143,8 +145,10 @@ CLNewton::runWallCollision(const CParticle &part,
     part.getVelocity() - 
     (1+e) * (vNorm % part.getVelocity()) * vNorm;
   
-  retVal.calcDeltaKE();
-
+  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
+		    * (part.getVelocity().square() 
+		       - retVal.getOldVel().square()));
+  
   return retVal; 
 }
 
@@ -168,7 +172,9 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
 		+ sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler())
 			       / Sim->Dynamics.getSpecies(part).getMass()));
 
-  tmpDat.calcDeltaKE();
+  tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
+		    * (part.getVelocity().square() 
+		       - tmpDat.getOldVel().square()));
   
   return tmpDat; 
 }
@@ -275,11 +281,17 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
 			    / retVal.rij.square());  
 
-  retVal.calcDeltaKE(mu);
-
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (p1.getVelocity().square() 
+				  - retVal.particle1_.getOldVel().square()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (p2.getVelocity().square() 
+				  - retVal.particle2_.getOldVel().square()));
 
   return retVal;
 }
@@ -308,12 +320,18 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
   retVal.rvdot = retVal.rij % retVal.vijold;
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.square());  
 
-  retVal.calcDeltaKE(mu);
-  
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().square() 
+				  - retVal.particle1_.getOldVel().square()));
   
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().square() 
+				  - retVal.particle2_.getOldVel().square()));
+
   return retVal;
 }
 
@@ -379,7 +397,9 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
 	-= dP / structmass1;
       
-      tmpval.calcDeltaKE();
+      tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
+			* (tmpval.getParticle().getVelocity().square() 
+			   - tmpval.getOldVel().square()));
       
       retVal.L1partChanges.push_back(tmpval);
     }
@@ -394,8 +414,10 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
 	+= dP / structmass2;
       
-      tmpval.calcDeltaKE();
-      
+      tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
+			* (tmpval.getParticle().getVelocity().square() 
+			   - tmpval.getOldVel().square()));
+  
       retVal.L1partChanges.push_back(tmpval);
     }
   
@@ -486,8 +508,10 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
 	-= dP / structmass1;
       
-      tmpval.calcDeltaKE();
-      
+      tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
+			* (tmpval.getParticle().getVelocity().square() 
+			   - tmpval.getOldVel().square()));
+        
       retVal.L1partChanges.push_back(tmpval);
     }
 
@@ -501,7 +525,9 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
 	+= dP / structmass2;
       
-      tmpval.calcDeltaKE();
+      tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
+			* (tmpval.getParticle().getVelocity().square() 
+			   - tmpval.getOldVel().square()));
       
       retVal.L1partChanges.push_back(tmpval);
     }
@@ -563,8 +589,6 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 	  * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
     }
   
-  retVal.calcDeltaKE(mu);
-  
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
     D_throw() << "A nan dp has ocurred";
@@ -574,6 +598,14 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().square() 
+				  - retVal.particle1_.getOldVel().square()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().square() 
+				  - retVal.particle2_.getOldVel().square()));
+
   return retVal;
 }
 
