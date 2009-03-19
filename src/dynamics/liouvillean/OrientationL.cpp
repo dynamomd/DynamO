@@ -805,3 +805,14 @@ CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
                * (orientationData[part.getID()].angularVelocity.square());
 }
  
+void 
+CLNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
+{
+  Iflt scalefactor(sqrt(scale));
+
+  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+    part.getVelocity() *= scalefactor;
+
+  BOOST_FOREACH(rotData& rdat, orientationData)
+    rdat.angularVelocity *= scalefactor;
+}

@@ -134,6 +134,7 @@ protected:
   
   virtual size_t getParticleDOF() const;
   virtual Iflt getParticleKineticEnergy(const CParticle& part) const;
+  virtual void rescaleSystemKineticEnergy(const Iflt&);
   
   mutable std::vector<rotData> orientationData;
   mutable lIflt lastAbsoluteClock;

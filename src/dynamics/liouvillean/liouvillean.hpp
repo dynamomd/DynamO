@@ -110,6 +110,10 @@ public:
    */
   Iflt getkT() const;
 
+  /*! \brief Rescales the kinetic energy of the system by a factor
+   */
+  virtual void rescaleSystemKineticEnergy(const Iflt&);
+
   /*! \brief Calculates the translational kinetic energy vector of the system
    */
   CVector<> getVectorParticleKineticEnergy(const CParticle&) const;

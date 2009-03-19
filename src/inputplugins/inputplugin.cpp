@@ -41,18 +41,14 @@ CInputPlugin::CInputPlugin(DYNAMO::SimData* tmp, const char *aName,
 void 
 CInputPlugin::rescaleVels(Iflt val)
 {
-  Iflt energy = 0.0;  
-  
-  BOOST_FOREACH(CParticle& part, Sim->vParticleList)  
-    energy += (part.getVelocity()).square() 
-    * Sim->Dynamics.getSpecies(part).getMass();
-  
   I_cout() << "WARNING Rescaling kT to " << val;
-  Iflt rescale = sqrt (val * 3.0 * Sim->vParticleList.size() * Sim->Dynamics.units().unitEnergy() / energy);
   
-  CVector<> vel; //Passes by reference
-  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
-    part.getVelocity() = part.getVelocity() * rescale;
+  Iflt currentkT(Sim->Dynamics.Liouvillean().getkT()
+		 / Sim->Dynamics.units().unitEnergy());
+
+  I_cout() << "Current kT " << currentkT;
+
+  Sim->Dynamics.Liouvillean().rescaleSystemKineticEnergy(val/ currentkT);
 }
 
 void 
