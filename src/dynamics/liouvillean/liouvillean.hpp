@@ -104,11 +104,11 @@ public:
 
   /*! \brief Calculates the kinetic energy of the system
    */
-  virtual Iflt getSystemKineticEnergy() const;
+  Iflt getSystemKineticEnergy() const;
 
   /*! \brief Calculates the thermal unit of the system
    */
-  virtual Iflt getkT() const;
+  Iflt getkT() const;
 
   /*! \brief Calculates the translational kinetic energy vector of the system
    */

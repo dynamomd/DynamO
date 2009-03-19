@@ -788,3 +788,20 @@ CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 
   XML << xmlw::endtag("ParticleData");
 }
+
+size_t 
+CLNOrientation::getParticleDOF() const { return NDIM+1; }
+
+Iflt
+CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
+{
+  /***
+   * BODGE: Currently taking length as Sim->Dynamics.units().unitLength()
+   *        This is *NOT* always  the length
+   */
+  
+  return 0.5 * (part.getVelocity().square()) * Sim->Dynamics.getSpecies(part).getMass()
+         + 0.5 * ((Sim->Dynamics.getSpecies(part).getMass() * Sim->Dynamics.units().unitLength() * Sim->Dynamics.units().unitLength())/12.0) 
+               * (orientationData[part.getID()].angularVelocity.square());
+}
+ 

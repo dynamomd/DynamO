@@ -265,5 +265,5 @@ CLiouvillean::getVectorSystemKineticEnergy() const
 Iflt 
 CLiouvillean::getkT() const
 {
-  return 2.0 * getSystemKineticEnergy() / (Sim->lN * static_cast<Iflt>(NDIM));
+  return 2.0 * getSystemKineticEnergy() / (Sim->lN * static_cast<Iflt>(getParticleDOF()));
 }

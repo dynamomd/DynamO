@@ -132,6 +132,9 @@ protected:
   
   virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
+  virtual size_t getParticleDOF() const;
+  virtual Iflt getParticleKineticEnergy(const CParticle& part) const;
+  
   mutable std::vector<rotData> orientationData;
   mutable lIflt lastAbsoluteClock;
   mutable unsigned int lastCollParticle1;
