@@ -256,6 +256,8 @@ CSimulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
     XMLconfig.setUncompressed();
 
   XMLconfig.fileOutput(fileName);
+
+  I_cout() << "Config written to " << fileName;
 }
 
 void
@@ -310,6 +312,8 @@ CSimulation::outputData(const char* filename, bool uncompressed)
     Ptr->output(XML);
 
   XML << xmlw::endtag("OutputData");
+
+  I_cout() << "Output written to " << filename;
 }
 
 lIflt 
