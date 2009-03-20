@@ -170,11 +170,6 @@ CISquareBond::getEvent(const CParticle &p1,
 	return CIntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
       }
   
-  //This line is commented out as compression dynamics can stop any event occuring
-  /*else
-    D_throw() << "Captured in square bond, but the bull, he has escapade!";*/
-  
- 
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
@@ -225,6 +220,7 @@ CISquareBond::write_povray_info(std::ostream& os) const
 	Sim->Dynamics.BCs().setPBC(pos2);
 	
 	if ((pos1-pos2).length() > 0.5) continue;
+
 	Sim->Dynamics.BCs().setPBC(pos1);
 	Sim->Dynamics.BCs().setPBC(pos2);
 	

@@ -65,7 +65,9 @@ public:
   const std::string& getName() const { return localName; }
 
   inline const size_t& getID() const { return ID; }
-  
+
+  virtual void write_povray_info(std::ostream&) const {}
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 

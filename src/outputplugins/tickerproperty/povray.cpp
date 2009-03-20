@@ -77,5 +77,8 @@ light_source { <0, 0, -zoom> color White } \n\
     spec.getIntPtr()->write_povray_desc
     (colmap.getColor(spec.getID()), spec.getID(), of);
   
+  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
+    ptr->write_povray_info(of);
+
   of.close();
 }
