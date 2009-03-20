@@ -286,7 +286,7 @@ CSimulation::loadPlugins(std::string pluginFileName)
 
 
 void
-CSimulation::outputData(const char* filename)
+CSimulation::outputData(const char* filename, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot output data when not initialised!";
@@ -294,7 +294,9 @@ CSimulation::outputData(const char* filename)
   namespace io = boost::iostreams;
   
   io::filtering_ostream coutputFile;
-  coutputFile.push(io::bzip2_compressor());
+
+  if (!uncompressed) coutputFile.push(io::bzip2_compressor());
+
   coutputFile.push(io::file_sink(filename));
   
   xmlw::XmlStream XML(coutputFile);

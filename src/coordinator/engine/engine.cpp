@@ -46,7 +46,6 @@ CEngine::getCommonOptions(boost::program_options::options_description& opts)
     ("halt-time,h", boost::program_options::value<Iflt>(),"Halt the system at this time")
     ("scheduler-maintainance,m", boost::program_options::value<Iflt>(),"Rebuild the scheduler"
      " periodically, for systems where we've not built the scheduler correctly")
-    ("uncompressed", "Output the XML config file without bzip compression")
     ;
   
   opts.add(simopts);

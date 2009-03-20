@@ -37,7 +37,7 @@ CESingle::runSimulation()
       if (peekMode)
 	{
 	  Simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	  Simulation.outputData("peek.data.xml.bz2");	    
+	  Simulation.outputData("peek.data.xml.bz2", vm.count("uncompressed"));
 	  peekMode = false;
 	}
       

@@ -103,6 +103,14 @@ main(int argc, char *argv[])
       //Now load the config
       sim.configLoaded();
 
+      {
+	std::string fileName(vm["out-config-file"].as<std::string>());
+	if (vm.count("uncompressed") 
+	    && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
+	  D_throw() << "You should not use a .bz2 extension for uncompressed"
+	    " comfig files";
+      }
+
       if (!vm.count("config-file"))
 	{
 	  CIPPacker plug(vm, &sim);

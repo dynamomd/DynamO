@@ -172,7 +172,8 @@ CEReplexer::outputData()
   
   BOOST_FOREACH(replexPair p1, temperatureList)
     Simulations[p1.second.simID].outputData
-    ((DYNAMO::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
+    ((DYNAMO::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str(),
+     vm.count("uncompressed"));
 }
 
 void
@@ -415,7 +416,8 @@ void CEReplexer::runSimulation()
 	    {
 	      Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
 	      Simulations[p1.second.simID].outputData((DYNAMO::searchReplace(std::string("peek.data.%ID.xml.bz2"), 
-									   "%ID", boost::lexical_cast<std::string>(i++))).c_str());	    
+									   "%ID", boost::lexical_cast<std::string>(i++))
+						       ).c_str(), vm.count("uncompressed"));
 	    }
 		  
 	  peekMode = false;

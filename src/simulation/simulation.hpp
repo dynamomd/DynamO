@@ -64,7 +64,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void loadPlugins(std::string);
 
-  void outputData(const char* filename = "output.xml.bz2");
+  void outputData(const char* filename = "output.xml.bz2", bool uncompressed = false);
   
   void configLoaded();
 
