@@ -143,26 +143,28 @@ CCoordinator::parseOptions(int argc, char *argv[])
   if (vm.count("uncompressed") && !vm.count("out-config-file"))
     D_throw() << "When using uncompressed output you must specify the output config file name";
 
-  {
-    std::string fileName(vm["out-config-file"].as<std::string>());
-    if (vm.count("uncompressed") 
-	&& (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
-      D_throw() << "You should not use a .bz2 extension for uncompressed"
-	" config files";
-  }
-
+  if (vm.count("out-config-file"))
+    {
+      std::string fileName(vm["out-config-file"].as<std::string>());
+      if (vm.count("uncompressed") 
+	  && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
+	D_throw() << "You should not use a .bz2 extension for uncompressed"
+	  " config files";
+    }
+  
   
   if (vm.count("uncompressed") && !vm.count("out-data-file"))
     D_throw() << "When using uncompressed output you must specify the output data file name";
-
-  {
-    std::string fileName(vm["out-data-file"].as<std::string>());
-    if (vm.count("uncompressed") 
-	&& (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
-      D_throw() << "You should not use a .bz2 extension for uncompressed"
-	" output files";
-  }
-
+  
+  if (vm.count("out-data-file"))
+    {
+      std::string fileName(vm["out-data-file"].as<std::string>());
+      if (vm.count("uncompressed") 
+	  && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
+	D_throw() << "You should not use a .bz2 extension for uncompressed"
+	  " output files";
+    }
+  
   return vm;
 }
 
