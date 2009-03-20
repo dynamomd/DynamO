@@ -240,13 +240,16 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 	rdat(static_cast<const CLNOrientation&>
 	     (Sim->Dynamics.Liouvillean()).getRotData(part));
 
-      CVector<> point(part.getPosition() - 0.5 * length * rdat.orientation);
+      CVector<> pos(part.getPosition());
+      Sim->Dynamics.BCs().setPBC(pos);
+
+      CVector<> point(pos - 0.5 * length * rdat.orientation);
       
       os << "cylinder {\n <" << point[0];
       for (size_t iDim(1); iDim < NDIM; ++iDim)
 	os << "," << point[iDim];
 
-      point = part.getPosition() + 0.5 * length * rdat.orientation;
+      point = pos + 0.5 * length * rdat.orientation;
 
       os << ">, \n <" << point[0];
       for (size_t iDim(1); iDim < NDIM; ++iDim)

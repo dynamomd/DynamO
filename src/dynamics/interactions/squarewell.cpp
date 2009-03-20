@@ -310,17 +310,23 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
      << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
 
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
-    os << "object {\n intrep" << ID << "center\n translate < "
-       << Sim->vParticleList[part].getPosition()[0] << ", " 
-       << Sim->vParticleList[part].getPosition()[1] << ", " 
-       << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
-
+    {
+      CVector<> pos(Sim->vParticleList[part].getPosition());
+      Sim->Dynamics.BCs().setPBC(pos);
+      
+      os << "object {\n intrep" << ID << "center\n translate < "
+	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
+    }
+  
   os << "merge {\n";
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
-    os << "object {\n intrep" << ID << "well\n translate < "
-       << Sim->vParticleList[part].getPosition()[0] << ", " 
-       << Sim->vParticleList[part].getPosition()[1] << ", " 
-       << Sim->vParticleList[part].getPosition()[2] << ">\n}\n";
+    {
+      CVector<> pos(Sim->vParticleList[part].getPosition());
+      Sim->Dynamics.BCs().setPBC(pos);
+
+      os << "object {\n intrep" << ID << "well\n translate < "
+	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
+    }
   
   os << "}\n";
 

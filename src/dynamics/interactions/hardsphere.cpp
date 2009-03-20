@@ -183,11 +183,14 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   
   BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     {
+      CVector<> pos(Sim->vParticleList[pid].getPosition());
+      Sim->Dynamics.BCs().setPBC(pos);
+
       os << "object {\n intrep" << ID << "\n translate <"
-	 << Sim->vParticleList[pid].getPosition()[0];
+	 << pos[0];
 
       for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << Sim->vParticleList[pid].getPosition()[iDim];
+	os << "," << pos[iDim];
       
        os << ">\n}\n";
     }

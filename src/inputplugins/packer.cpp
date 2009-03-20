@@ -618,7 +618,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
 	//Undo the linking of scheduler cells across the x dimension
-	D_throw() << "Needs an unlinkable scheduler";
+	//D_throw() << "Needs an unlinkable scheduler";
 	//static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
 
 	//Cut off the x periodic boundaries
