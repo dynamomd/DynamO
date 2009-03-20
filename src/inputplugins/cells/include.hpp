@@ -23,5 +23,6 @@
 #include "helix.hpp"
 #include "mirror.hpp"
 #include "ringRod.hpp"
+#include "ringSnake.hpp"
 #include "randomise.hpp"
 #include "random.hpp"

@@ -687,7 +687,10 @@ CIPPacker::initialise()
 	//10 % more than needed
 	Iflt diamScale = 0.9 / (sigmax * chainlength + 2 * sigma);
 	
-	CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
+	//CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
+	//                               * diamScale, new CUParticle());
+
+	CUringSnake sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
 			  * diamScale, new CUParticle());
 
 	sysPack.initialise();
