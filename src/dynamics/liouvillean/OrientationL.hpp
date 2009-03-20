@@ -110,11 +110,13 @@ protected:
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
   
-  struct collisionPoints
+  struct IfltPair
   {
     Iflt alpha;
     Iflt beta;
   };
+  
+  virtual IfltPair discIntersectionWindow(orientationStreamType A, orientationStreamType B, Iflt length) const;
 
   virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
 
@@ -130,7 +132,7 @@ protected:
   
   virtual void performRotation(orientationStreamType& osret, const Iflt& dt) const;
   
-  virtual collisionPoints getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
+  virtual IfltPair getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
   
   virtual size_t getParticleDOF() const;
   virtual Iflt getParticleKineticEnergy(const CParticle& part) const;
