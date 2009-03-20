@@ -293,26 +293,44 @@ CSimulation::outputData(const char* filename, bool uncompressed)
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot output data when not initialised!";
   
-  namespace io = boost::iostreams;
+  if (uncompressed)
+    {
+      namespace io = boost::iostreams;
+      
+      io::filtering_ostream coutputFile;
+      
+      coutputFile.push(io::bzip2_compressor());
+      
+      coutputFile.push(io::file_sink(filename));
+
+      xmlw::XmlStream XML(coutputFile);
+      
+      XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
+	  << xmlw::prolog() << xmlw::tag("OutputData");
+      
+      
+      //Output the data and delete the outputplugins
+      BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+	Ptr->output(XML);
+      
+      XML << xmlw::endtag("OutputData");
+    }
+  else
+    {
+      std::ofstream coutputFile(filename, std::ios::out | std::ios::trunc);
+      xmlw::XmlStream XML(coutputFile);
+
+      XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
+	  << xmlw::prolog() << xmlw::tag("OutputData");
+      
+      
+      //Output the data and delete the outputplugins
+      BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+	Ptr->output(XML);
+      
+      XML << xmlw::endtag("OutputData");
+    }
   
-  io::filtering_ostream coutputFile;
-
-  if (!uncompressed) coutputFile.push(io::bzip2_compressor());
-
-  coutputFile.push(io::file_sink(filename));
-  
-  xmlw::XmlStream XML(coutputFile);
-  
-  XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
-      << xmlw::prolog() << xmlw::tag("OutputData");
-  
-
-  //Output the data and delete the outputplugins
-  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-    Ptr->output(XML);
-
-  XML << xmlw::endtag("OutputData");
-
   I_cout() << "Output written to " << filename;
 }
 
