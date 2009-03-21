@@ -119,3 +119,14 @@ CLWall::outputXML(xmlw::XmlStream& XML) const
       << vPosition / Sim->Dynamics.units().unitLength()
       << xmlw::endtag("Origin");
 }
+
+void 
+CLWall::write_povray_info(std::ostream& os) const
+{
+  os << "object {\n plane {\n  <" << vNorm[0] << ", " << vNorm[1] 
+     << ", " << vNorm[2] << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}}\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
+     << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
+     << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
+     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << vPosition[0] << 
+    ","<< vPosition[1] << "," << vPosition[2] << ">\n}\n";
+}

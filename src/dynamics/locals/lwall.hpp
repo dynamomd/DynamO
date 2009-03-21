@@ -41,6 +41,8 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
+  virtual void write_povray_info(std::ostream&) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
