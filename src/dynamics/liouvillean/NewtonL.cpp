@@ -141,9 +141,8 @@ CLNewton::runWallCollision(const CParticle &part,
 
   C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
   
-  const_cast<CParticle&>(part).getVelocity() = 
-    part.getVelocity() - 
-    (1+e) * (vNorm % part.getVelocity()) * vNorm;
+  const_cast<CParticle&>(part).getVelocity()
+    -= (1+e) * (vNorm % part.getVelocity()) * vNorm;
   
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
 		    * (part.getVelocity().square() 
@@ -168,9 +167,11 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
     const_cast<CParticle&>(part).getVelocity()[iDim] = Sim->normal_sampler() * sqrtT;
   
   const_cast<CParticle&>(part).getVelocity() 
-    -= vNorm * ((part.getVelocity() % vNorm) 
-		+ sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler())
-			       / Sim->Dynamics.getSpecies(part).getMass()));
+    //This first line adds a component in the direction of the normal
+    += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler())
+			     / Sim->Dynamics.getSpecies(part).getMass())
+		//This removes the original normal component
+		-(part.getVelocity() % vNorm));
 
   tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
 		    * (part.getVelocity().square() 
