@@ -43,6 +43,8 @@ public:
 
   virtual bool isInCell(const CVector<>&, const CVector<>&) const;
 
+  virtual void write_povray_info(std::ostream&) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
