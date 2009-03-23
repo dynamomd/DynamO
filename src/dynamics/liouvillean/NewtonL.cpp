@@ -164,7 +164,7 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
   C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), WALL);
  
   for (int iDim = 0; iDim < NDIM; iDim++)
-    const_cast<CParticle&>(part).getVelocity()[iDim] = Sim->normal_sampler() * sqrtT;
+    const_cast<CParticle&>(part).getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / sqrt(Sim->Dynamics.getSpecies(part).getMass());
   
   const_cast<CParticle&>(part).getVelocity() 
     //This first line adds a component in the direction of the normal
