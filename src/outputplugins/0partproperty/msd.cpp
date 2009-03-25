@@ -44,12 +44,13 @@ void
 COPMSD::output(xmlw::XmlStream &XML)
 {
   {
-    Iflt MSD(calcMSD())
+    Iflt MSD(calcMSD());
+
     XML << xmlw::tag("MSD") 
 	<< xmlw::tag("Particle") 
 	<< xmlw::attr("val") << MSD
 	<< xmlw::attr("diffusionCoeff") 
-	<< MSD * Sim->Dynamics.units.unitTime() / Sim->dSysTime
+	<< MSD * Sim->Dynamics.units().unitTime() / Sim->dSysTime
 	<< xmlw::endtag("Particle");
   }
 
@@ -65,7 +66,7 @@ COPMSD::output(xmlw::XmlStream &XML)
 	      << xmlw::attr("Name") << topo->getName()
 	      << xmlw::attr("val") << MSD
 	      << xmlw::attr("diffusionCoeff") 
-	      << MSD * Sim->Dynamics.units.unitTime() / Sim->dSysTime
+	      << MSD * Sim->Dynamics.units().unitTime() / Sim->dSysTime
 	      << xmlw::endtag("Structure");
 	}
 
