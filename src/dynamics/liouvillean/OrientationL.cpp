@@ -31,6 +31,12 @@
 #include <boost/iostreams/filter/linewrapout.hpp>
 
 
+void 
+CLNOrientation::initialise() 
+{
+  CLiouvillean::initialise();
+}
+
 void
 CLNOrientation::outputXML(xmlw::XmlStream& XML) const
 {

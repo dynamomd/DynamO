@@ -41,6 +41,10 @@ COPMisc::initialise()
 {
   Iflt kt = Sim->Dynamics.Liouvillean().getkT();
 
+  CVector<> VecEnergy(Sim->Dynamics.Liouvillean().getVectorSystemKineticEnergy());
+  
+  VecEnergy *= 2.0 / (Sim->lN * Sim->Dynamics.units().unitEnergy());
+
   I_cout() << "Particle Count " << Sim->lN 
 	   << "\nSim Unit Length " << Sim->Dynamics.units().unitLength()
 	   << "\nSim Unit Time " << Sim->Dynamics.units().unitTime()
@@ -48,9 +52,14 @@ COPMisc::initialise()
     * Sim->Dynamics.units().unitVolume()
 	   << "\nPacking Fraction " << Sim->Dynamics.getPackingFraction()
 	   << "\nSim Temperature " << kt
-	   << "\nReduced Temperature " << kt / Sim->Dynamics.units().unitEnergy()
-	   << "\nNo. of Species " << Sim->Dynamics.getSpecies().size()
-	   << "\nSimulation box length <x,y,z> ";
+	   << "\nReduced Temperature " << kt / Sim->Dynamics.units().unitEnergy();
+  
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    I_cout() << "Kinetic Temperature dimension" << iDim << " " 
+	     <<  VecEnergy[iDim];
+
+  I_cout() << "No. of Species " << Sim->Dynamics.getSpecies().size()
+      << "\nSimulation box length <x,y,z> ";
   for (int iDim = 0; iDim < NDIM; iDim++)
     std::cout  << Sim->aspectRatio[iDim]/Sim->Dynamics.units().unitLength() << " ";
   

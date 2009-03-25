@@ -265,7 +265,7 @@ CLiouvillean::getVectorSystemKineticEnergy() const
 Iflt 
 CLiouvillean::getkT() const
 {
-  return 2.0 * getSystemKineticEnergy() / (Sim->vParticleList.size() * static_cast<Iflt>(getParticleDOF()));
+  return 2.0 * getSystemKineticEnergy() / (Sim->vParticleList.size() * static_cast<Iflt>(this->getParticleDOF()));
 }
 
 void

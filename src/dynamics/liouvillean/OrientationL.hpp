@@ -55,6 +55,8 @@ public:
     lastCollParticle2(0)
   {}
 
+  virtual void initialise();
+
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
   virtual void loadParticleXMLData(const XMLNode&, std::istream&);
