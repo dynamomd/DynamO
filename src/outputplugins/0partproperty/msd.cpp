@@ -43,21 +43,32 @@ COPMSD::initialise()
 void
 COPMSD::output(xmlw::XmlStream &XML)
 {
-  XML << xmlw::tag("MSD") 
-      << xmlw::tag("Particle") 
-      << xmlw::attr("val") << calcMSD()
-      << xmlw::endtag("Particle");
+  {
+    Iflt MSD(calcMSD())
+    XML << xmlw::tag("MSD") 
+	<< xmlw::tag("Particle") 
+	<< xmlw::attr("val") << MSD
+	<< xmlw::attr("diffusionCoeff") 
+	<< MSD * Sim->Dynamics.units.unitTime() / Sim->dSysTime
+	<< xmlw::endtag("Particle");
+  }
 
   if (!Sim->Dynamics.getTopology().empty())
     {
       XML << xmlw::tag("Structures");
 
       BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->Dynamics.getTopology())
-	XML << xmlw::tag("Structure")
-	    << xmlw::attr("Name") << topo->getName()
-	    << xmlw::attr("val") << calcStructMSD(*topo)
-	    << xmlw::endtag("Structure");
-      
+	{
+	  Iflt MSD(calcStructMSD(*topo));
+
+	  XML << xmlw::tag("Structure")
+	      << xmlw::attr("Name") << topo->getName()
+	      << xmlw::attr("val") << MSD
+	      << xmlw::attr("diffusionCoeff") 
+	      << MSD * Sim->Dynamics.units.unitTime() / Sim->dSysTime
+	      << xmlw::endtag("Structure");
+	}
+
       XML << xmlw::endtag("Structures");
     }
 
