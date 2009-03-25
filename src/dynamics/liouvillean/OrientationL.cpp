@@ -64,28 +64,21 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     t_low += fabs(2.0 * F_firstDeriv(A, B))
       / F_secondDeriv_max(A, B, length);
   
-  /*
-  // Find window delimited by discs
+
+  //Find window delimited by discs
   IfltPair dtw = discIntersectionWindow(A, B, length);
-  
-  // Two negatives: won't happen
-  if(dtw.alpha < 0 && dtw.beta < 0)
-  {
-    return false;
-  }
   
   if(dtw.alpha > t_low)
   {
     t_low = dtw.alpha;
-    performRotation(A, dtw.alpha);
-    performRotation(B, dtw.alpha);
+    //performRotation(A, dtw.alpha);
+    //performRotation(B, dtw.alpha);
   }
   
   if(dtw.beta < t_high)
   {
     t_high = dtw.beta;
   }
-  */
   
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
 
@@ -889,6 +882,8 @@ CLNOrientation::discIntersectionWindow(orientationStreamType A, orientationStrea
   CVector<> rij = A.position - B.position;
   CVector<> vij = A.velocity - B.velocity;
   
+  Sim->Dynamics.BCs().setPBC(rij, vij);
+  
   CVector<> Ahat = A.angularVelocity.unitVector();
   Iflt dotproduct = A.angularVelocity.unitVector() % B.angularVelocity.unitVector();
   
@@ -898,11 +893,7 @@ CLNOrientation::discIntersectionWindow(orientationStreamType A, orientationStrea
   retVal.beta  = ((-1.0 * (rij % Ahat)) + signChangeTerm)/(vij % Ahat);
   
   if(retVal.beta < retVal.alpha)
-  {
-    Iflt temp = retVal.beta;
-    retVal.beta = retVal.alpha;
-    retVal.alpha = temp;
-  }
-  
+    std::swap(retVal.alpha, retVal.beta);
+
   return retVal;
 }
