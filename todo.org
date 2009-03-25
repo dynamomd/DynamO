@@ -1,0 +1,37 @@
+#+STARTUP: overview
+#+STARTUP: hidestars
+#+TYP_TODO: TODO MAYBE WAITING NEXT DONE
+#+TAGS: OFFICE(o) CODE(c) HOME(h)
+
+* Code improvements
+** Done/Not needed 						       :ARCHIVE:
+  - [X] On cell update of the bounded queue check wether the local
+    minimum changed, may be faster [[file:code/isss/schedulers/multlist.cpp][file,]] CELL EVENTS CHANGE LOCAL
+    MINIMA
+  - [X] Localise global events inside the scheduler - Done for multlist
+  - [X] In compression dynamics, add the stream velocity on
+    initialisation like SLLOD. NOT REALLY WHAT YOU WANT BOUNDARY CONDITIONS ARE INCORRECT
+  - [X] Place Andersen walls thermostat inside the Liouvillean code where it belongs
+  - [X] Make the Replexer engine automatically do the max collisions
+  - [X] Experiment with the new vector class
+  VECTOR COSTS ARE OPTIMISED AWAY ANYWAY with -O2
+  - [-] Store inverse mass? will reduce alot of divides when
+    calculating mu and delta p, NO POINT ITS THE MEMORY THAT'S SLOW
+  - [-] Add autodetection of walls into geomview plugin NOT NEEDED POVRAY DOES THIS
+  - [X] Play with the new boost accumulators and ring buffer
+  - [X] Collision sentinel for low density sims
+** Do if you're bored  
+  - [ ] Cells smaller than required plus overlinking may be quicker
+    with lightweight transitions
+  - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
+  - [-] Clean up the coordinator class
+   - [X] Move the replex and standard runs into a class Engine
+   - [ ] Split the replexer somehow and remove the ugly switch cases for speed
+   - [ ] Add a Coordinator output plugin scheme
+  - [ ] Multi dimensional sims
+  - [ ] Compressibility <N^2>-<N>^2 for large HS sims
+  - [ ] Write a transformation for the liouvillean which wraps the sim
+	coordinates
+  - [-] Stop the use of pointers in output sims for the benefit of Replexing
+    - [X] Add id numbers to every interaction
+    - [-] Change the output plugins to use the id numbers and get rid of RTTI
