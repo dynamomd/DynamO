@@ -293,7 +293,7 @@ CSimulation::outputData(const char* filename, bool uncompressed)
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot output data when not initialised!";
   
-  if (uncompressed)
+  if (!uncompressed)
     {
       namespace io = boost::iostreams;
       
