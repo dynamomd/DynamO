@@ -441,9 +441,7 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
     Iflt angle = osret.angularVelocity.length() * dt;
   
     CVector<> v = osret.angularVelocity.unitVector();
-    Iflt v0square = v[0] * v[0];
-    Iflt v1square = v[1] * v[1];
-    Iflt v2square = v[2] * v[2];
+    CVector<> vsq = v * v;
   
     // axis is not undefined and angle is not zero
     if(!(v[0] == 0 && v[1] == 0 && v[2] == 0) && angle != 0)
@@ -454,15 +452,15 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       Iflt cos_term = cos(angle);
       Iflt sin_term = sin(angle);
   
-      matrix[0][0] = v0square + (v1square + v2square)*(cos_term);
+      matrix[0][0] = vsq[0] + (vsq[1] + vsq[2])*(cos_term);
       matrix[0][1] = (v[0] * v[1] * (1 - cos_term)) - (v[2] * sin_term);
       matrix[0][2] = (v[0] * v[2] * (1 - cos_term)) + (v[1] * sin_term);
       matrix[1][0] = (v[0] * v[1] * (1 - cos_term)) + (v[2] * sin_term);
-      matrix[1][1] = v1square + (v2square + v0square)*(cos_term);
+      matrix[1][1] = vsq[1] + (vsq[2] + vsq[0])*(cos_term);
       matrix[1][2] = (v[1] * v[2] * (1 - cos_term)) - (v[0] * sin_term);
       matrix[2][0] = (v[2] * v[0] * (1 - cos_term)) - (v[1] * sin_term);
       matrix[2][1] = (v[1] * v[2] * (1 - cos_term)) + (v[0] * sin_term);
-      matrix[2][2] = v2square + (v0square + v1square)*(cos_term);
+      matrix[2][2] = vsq[2] + (vsq[0] + vsq[1])*(cos_term);
     
       CVector<> tempvec(0);
 
