@@ -49,7 +49,7 @@ CLNOrientation::initialise()
     / (12.0 * Sim->Dynamics.units().unitEnergy());
 
   I_cout() << "System Rotational Energy " << sumEnergy
-	   << "\nRotational kT " << 2.0 * sumEnergy / Sim->lN;
+	   << "\nRotational kT " << sumEnergy / Sim->lN;
 }
 
 void
