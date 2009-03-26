@@ -375,7 +375,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   // \Delta {\bf v}_{imp}
   CVector<> vr = (A.velocity - B.velocity) 
-    + (cp.alpha * A.anjjgularVelocity.Cross(A.orientation)) 
+    + (cp.alpha * A.angularVelocity.Cross(A.orientation)) 
     - (cp.beta * B.angularVelocity.Cross(B.orientation));
   
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
