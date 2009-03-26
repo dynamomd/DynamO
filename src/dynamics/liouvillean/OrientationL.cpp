@@ -35,6 +35,21 @@ void
 CLNOrientation::initialise() 
 {
   CLiouvillean::initialise();
+
+  Iflt sumEnergy(0.0);
+
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    {
+      sumEnergy += Sim->Dynamics.getSpecies(part).getMass()
+	* orientationData[part.getID()].angularVelocity.square();
+    }
+  
+  sumEnergy *= 0.5 * Sim->Dynamics.units().unitLength() 
+    * Sim->Dynamics.units().unitLength()
+    / (12.0 * Sim->Dynamics.units().unitEnergy());
+
+  I_cout() << "System Rotational Energy " << sumEnergy
+	   << "\nRotational kT " << 2.0 * sumEnergy / Sim->lN;
 }
 
 void
@@ -349,8 +364,10 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   retVal.rvdot = retVal.rij % retVal.vijold;
   
-  orientationStreamType A(retVal.rij, retVal.vijold, orientationData[particle1.getID()].orientation, orientationData[particle1.getID()].angularVelocity),
-                        B(CVector<>(0), CVector<>(0), orientationData[particle2.getID()].orientation, orientationData[particle2.getID()].angularVelocity);
+  orientationStreamType A(retVal.rij, retVal.vijold, orientationData[particle1.getID()].orientation, 
+			  orientationData[particle1.getID()].angularVelocity),
+                        B(CVector<>(0), CVector<>(0), orientationData[particle2.getID()].orientation, 
+			  orientationData[particle2.getID()].angularVelocity);
   
   CVector<> uPerp = A.orientation.Cross(B.orientation).unitVector();
   
@@ -358,7 +375,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
 
   // \Delta {\bf v}_{imp}
   CVector<> vr = (A.velocity - B.velocity) 
-    + (cp.alpha * A.angularVelocity.Cross(A.orientation)) 
+    + (cp.alpha * A.anjjgularVelocity.Cross(A.orientation)) 
     - (cp.beta * B.angularVelocity.Cross(B.orientation));
   
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
@@ -447,10 +464,11 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       matrix[2][1] = (v[1] * v[2] * (1 - cos_term)) + (v[0] * sin_term);
       matrix[2][2] = v2square + (v0square + v1square)*(cos_term);
     
-      CVector<> tempvec;
-      tempvec[0] = (matrix[0][0] * osret.orientation[0]) + (matrix[0][1] * osret.orientation[1]) + (matrix[0][2] * osret.orientation[2]);
-      tempvec[1] = (matrix[1][0] * osret.orientation[0]) + (matrix[1][1] * osret.orientation[1]) + (matrix[1][2] * osret.orientation[2]);
-      tempvec[2] = (matrix[2][0] * osret.orientation[0]) + (matrix[2][1] * osret.orientation[1]) + (matrix[2][2] * osret.orientation[2]);
+      CVector<> tempvec(0);
+
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	for (size_t jDim(0); jDim < NDIM; ++jDim)      
+	  tempvec[iDim] += matrix[iDim][jDim] * osret.orientation[jDim];
     
       osret.orientation = tempvec;
     }
@@ -631,7 +649,7 @@ CLNOrientation::initLineOrientations(const Iflt& length)
   
   I_cout() << "Initialising the line orientations";
 
-  Iflt factor = std::sqrt(12.0/(length*length));
+  Iflt factor = std::sqrt(6.0/(length*length));
 
   CVector<> angVelCrossing;
 
@@ -641,12 +659,10 @@ CLNOrientation::initLineOrientations(const Iflt& length)
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
         orientationData[i].orientation[iDim] = Sim->normal_sampler();
 
-      orientationData[i].orientation = orientationData[i].orientation.unitVector();
+      orientationData[i].orientation /= orientationData[i].orientation.length();
 
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      {
         angVelCrossing[iDim] = Sim->normal_sampler();
-      }
       
       orientationData[i].angularVelocity 
 	= orientationData[i].orientation.Cross(angVelCrossing).unitVector() 
@@ -863,9 +879,11 @@ CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
    *        This is *NOT* always  the length
    */
   
-  return 0.5 * (part.getVelocity().square()) * Sim->Dynamics.getSpecies(part).getMass()
-         + 0.5 * ((Sim->Dynamics.getSpecies(part).getMass() * Sim->Dynamics.units().unitLength() * Sim->Dynamics.units().unitLength())/12.0) 
-               * (orientationData[part.getID()].angularVelocity.square());
+  return 0.5 * Sim->Dynamics.getSpecies(part).getMass()
+    *(part.getVelocity().square()
+      + Sim->Dynamics.units().unitLength() 
+      * Sim->Dynamics.units().unitLength() 
+      * orientationData[part.getID()].angularVelocity.square() / 12.0);
 }
  
 void 

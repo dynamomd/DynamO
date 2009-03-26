@@ -210,7 +210,7 @@ CIPPacker::initialise()
       
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -274,7 +274,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -378,7 +378,7 @@ CIPPacker::initialise()
 
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec(), nParticles++));
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 
@@ -437,7 +437,7 @@ CIPPacker::initialise()
 	
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -494,7 +494,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec(), nParticles++));
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
 
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->Dynamics.zeroMomentum(Sim->vParticleList);
@@ -582,7 +582,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -658,7 +658,7 @@ CIPPacker::initialise()
 
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec(), nParticles++));
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -731,7 +731,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -815,7 +815,7 @@ CIPPacker::initialise()
       
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -859,7 +859,7 @@ CIPPacker::initialise()
       
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	static_cast<CLNOrientation&>(Sim->Dynamics.Liouvillean()).initLineOrientations(1.0);
@@ -931,7 +931,7 @@ CIPPacker::initialise()
 	      
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1000,7 +1000,7 @@ CIPPacker::initialise()
 	
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1191,7 +1191,7 @@ CIPPacker::initialise()
 	      
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const CVector<>& position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec(), 
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
