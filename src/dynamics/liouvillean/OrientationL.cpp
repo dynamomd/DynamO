@@ -867,7 +867,7 @@ CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 }
 
 size_t 
-CLNOrientation::getParticleDOF() const { return NDIM+1; }
+CLNOrientation::getParticleDOF() const { return NDIM+2; }
 
 Iflt
 CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
