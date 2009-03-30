@@ -348,7 +348,7 @@ CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType
 
 
 C2ParticleData 
-CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length) const
+CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
   const CParticle& particle1 = Sim->vParticleList[eevent.getParticle1ID()];
   const CParticle& particle2 = Sim->vParticleList[eevent.getParticle2ID()];
@@ -382,8 +382,8 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& length
   Iflt inertia = (mass * length * length) / 12.0;
 
   retVal.dP = uPerp 
-    * (-(vr % uPerp) 
-       / ((1.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/(2.0 * inertia))));  
+    * (-((vr % uPerp) * (1.0 + elasticity)) 
+       / ((2.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/inertia)));  
   
   const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
   const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;

@@ -71,7 +71,7 @@ public:
 				    ) const;
   
   virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent, 
-					      const Iflt& length) const;
+					      const Iflt& elasticity, const Iflt& length) const;
   
   virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
 						  const CVector<>& vNorm,

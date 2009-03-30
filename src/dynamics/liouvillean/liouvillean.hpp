@@ -247,7 +247,7 @@ public:
    * \return Collision data
    */    
   virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent,
-					      const Iflt& length) const;
+					      const Iflt& elasticity, const Iflt& length) const;
 
   /*! \brief Determines when the particle center will hit a wall.
    *

@@ -148,6 +148,7 @@ CIPPacker::initialise()
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
 	"  9: Crystal pack of lines\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+  "       --f1 : Inelasticity [1.0]\n"
 	"  10: Monocomponent hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
@@ -847,8 +848,10 @@ CIPPacker::initialise()
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+  
+  Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
 
-	Sim->Dynamics.addInteraction(new CILines(Sim, particleDiam, 1.0,
+	Sim->Dynamics.addInteraction(new CILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
