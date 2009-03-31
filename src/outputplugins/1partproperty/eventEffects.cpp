@@ -23,6 +23,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/include.hpp"
 #include "../1partproperty/kenergy.hpp"
+#include "../../datatypes/vector.xml.hpp"
 
 COPEventEffects::COPEventEffects(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"CollisionMatrix")
@@ -52,51 +53,61 @@ COPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat
 void 
 COPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
-  /*  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle().getID(), pData.getType(), 
-	     getClassKey(globEvent));  
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    newEvent(globEvent.getType(),getIntClassKey(globEvent.getGlobalID()),
+	     pData.getDeltaKE(),
+	     pData.getDeltaP());
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle().getID(), 
-	       pData.getType(), getClassKey(globEvent));
-
-      newEvent(pData.particle2_.getParticle().getID(), 
-	       pData.getType(), getClassKey(globEvent));
-	       }*/
+      newEvent(globEvent.getType(),getIntClassKey(globEvent.getGlobalID()),
+	       pData.particle1_.getDeltaKE(),
+	       -pData.dP);
+      
+      newEvent(globEvent.getType(),getIntClassKey(globEvent.getGlobalID()),
+	       pData.particle2_.getDeltaKE(),
+	       pData.dP);
+    }
 }
 
 void 
 COPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
-  /*BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle().getID(), 
-	     pData.getType(), getClassKey(localEvent));  
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    newEvent(localEvent.getType(),getIntClassKey(localEvent.getLocalID()),
+	     pData.getDeltaKE(),
+	     pData.getDeltaP());
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle().getID(), 
-	       pData.getType(), getClassKey(localEvent));
-
-      newEvent(pData.particle2_.getParticle().getID(),
-	       pData.getType(), getClassKey(localEvent));
-	       }*/
+      newEvent(localEvent.getType(),getIntClassKey(localEvent.getLocalID()),
+	       pData.particle1_.getDeltaKE(),
+	       -pData.dP);
+      
+      newEvent(localEvent.getType(),getIntClassKey(localEvent.getLocalID()),
+	       pData.particle2_.getDeltaKE(),
+	       pData.dP);
+    }
 }
 
 void 
 COPEventEffects::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
-  /*BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    newEvent(sysEvent.getType(),getClassKey(sysEvent),
+	     pData.getDeltaKE(),
+	     pData.getDeltaP());
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(pData.particle1_.getParticle().getID(), 
-	       pData.getType(), getClassKey(sysEvent));
-
-      newEvent(pData.particle2_.getParticle().getID(), 
-	       pData.getType(), getClassKey(sysEvent));  
-	       } */
+      newEvent(sysEvent.getType(),getClassKey(sysEvent),
+	       pData.particle1_.getDeltaKE(),
+	       -pData.dP);
+      
+      newEvent(sysEvent.getType(),getClassKey(sysEvent),
+	       pData.particle2_.getDeltaKE(),
+	       pData.dP);
+    }
 }
 
 
@@ -112,61 +123,24 @@ COPEventEffects::newEvent(const EEventType& eType, const classKey& ck,
 void
 COPEventEffects::output(xmlw::XmlStream &XML)
 {
-  /*  
-  XML << xmlw::tag("CollCounters") 
-      << xmlw::tag("TransitionMatrix");
-  
-  std::map<eventKey, std::pair<unsigned long long, Iflt> > totmap;
-  
-  typedef std::pair<const counterKey, counterData> locPair;
-  
-  
-  size_t initialsum(0);
-  
-  typedef std::pair<eventKey,size_t> npair;
-  BOOST_FOREACH(const npair& n, initialCounter)
-    initialsum += n.second;
+  XML << xmlw::tag("EventEffects");
+
+  typedef std::pair<const eventKey, counterData> locPair;  
   
   BOOST_FOREACH(const locPair& ele, counters)
     {
       XML << xmlw::tag("Count")
-	  << xmlw::attr("Event") << CIntEvent::getCollEnumName(ele.first.first.second)
-	  << xmlw::attr("Name") << getName(ele.first.first.first, Sim)
-	  << xmlw::attr("lastEvent") << CIntEvent::getCollEnumName(ele.first.second.second)
-	  << xmlw::attr("lastName") << getName(ele.first.second.first, Sim)
-	  << xmlw::attr("Percent") << 100.0 * ((Iflt) ele.second.count) 
-	/ ((Iflt) totalCount)
-	  << xmlw::attr("mft") << ele.second.totalTime
-	/ (Sim->Dynamics.units().unitTime() * ((Iflt) ele.second.count))
+	  << xmlw::attr("Name") << getName(ele.first.first, Sim)
+	  << xmlw::attr("Event") << CIntEvent::getCollEnumName(ele.first.second)
+	  << xmlw::attr("EnergyLossRate") 
+	  << ele.second.energyLoss * Sim->Dynamics.units().unitTime()
+	/ (Sim->dSysTime * Sim->Dynamics.units().unitEnergy())
+	  << xmlw::tag("MomentumChangeRate") 
+	  << ele.second.momentumChange * Sim->Dynamics.units().unitTime()
+	/ (Sim->dSysTime * Sim->Dynamics.units().unitMomentum())
+	  << xmlw::endtag("MomentumChangeRate") 
 	  << xmlw::endtag("Count");
-      
-      //Add the total count
-      totmap[ele.first.first].first += ele.second.count;
-      
-      //Add the rate
-      totmap[ele.first.first].second += ((Iflt) ele.second.count) 
-	/ ele.second.totalTime;
     }
   
-  XML << xmlw::endtag("TransitionMatrix")
-      << xmlw::tag("Totals");
-  
-  typedef std::pair<eventKey, std::pair<unsigned long long, Iflt> > mappair;
-  
-  BOOST_FOREACH(const mappair& mp1, totmap)
-    XML << xmlw::tag("TotCount")
-	<< xmlw::attr("Name") << getName(mp1.first.first, Sim)
-	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
-	<< xmlw::attr("Percent") 
-	<< 100.0 * (((Iflt) mp1.second.first)
-		    +((Iflt) initialCounter[mp1.first]))
-    / (((Iflt) totalCount) + ((Iflt) initialsum))
-	<< xmlw::attr("Count") << mp1.second.first + initialCounter[mp1.first]
-	<< xmlw::attr("EventMeanFreeTime")
-	<< Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])
-			    * Sim->Dynamics.units().unitTime())
-	<< xmlw::endtag("TotCount");
-  
-  XML << xmlw::endtag("Totals")
-  << xmlw::endtag("CollCounters");*/
+  XML << xmlw::endtag("EventEffects");
 }
