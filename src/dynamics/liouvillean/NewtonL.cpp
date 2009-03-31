@@ -174,7 +174,7 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
 		-(part.getVelocity() % vNorm));
 
   tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
-		    * (part.getVelocity().square() 
+		    * (part.getVelocity().square()
 		       - tmpDat.getOldVel().square()));
   
   return tmpDat; 

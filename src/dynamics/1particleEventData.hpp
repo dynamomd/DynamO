@@ -54,7 +54,7 @@ public:
   { deltaU = dU; }
 
   inline Iflt getDeltaKE() const
-  { return deltaU; }
+  { return deltaKE; }
   
   inline void setDeltaKE(const Iflt& dKE)
   { deltaKE = dKE; }
