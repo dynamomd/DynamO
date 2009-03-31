@@ -20,9 +20,6 @@
 
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
-#include <map>
-
-class CSpecies;
 
 class COPMomentum: public COP1PP
 {
@@ -35,15 +32,13 @@ class COPMomentum: public COP1PP
 
   void output(xmlw::XmlStream &); 
 
-  void periodicOutput();
-
   virtual void initialise();
 
   virtual COutputPlugin *Clone() const { return new COPMomentum(*this); }
-
+       
  protected:
-  std::map<const CSpecies*, CVector<> > MomentumAcc;
-  std::map<const CSpecies*, CVector<> > MomentumVal;
+
+  CVector<> accMom, accMomsq, sysMom;
 };
 
 #endif

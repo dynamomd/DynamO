@@ -26,7 +26,7 @@
 #include "../../datatypes/vector.xml.hpp"
 
 COPEventEffects::COPEventEffects(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp,"CollisionMatrix")
+  COutputPlugin(tmp,"EventEffects")
 {
 }
 
