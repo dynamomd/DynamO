@@ -40,11 +40,11 @@ COPEventEffects::~COPEventEffects()
 void 
 COPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat)
 {
-  newEvent(iEvent.getType(),getIntClassKey(iEvent.getInteractionID()),
+  newEvent(iEvent.getType(),getClassKey(iEvent),
 	   Pdat.particle1_.getDeltaKE(),
 	   -Pdat.dP);
 
-  newEvent(iEvent.getType(),getIntClassKey(iEvent.getInteractionID()),
+  newEvent(iEvent.getType(),getClassKey(iEvent),
 	   Pdat.particle2_.getDeltaKE(),
 	   Pdat.dP);
 }
@@ -54,17 +54,17 @@ void
 COPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(globEvent.getType(),getIntClassKey(globEvent.getGlobalID()),
+    newEvent(globEvent.getType(),getClassKey(globEvent),
 	     pData.getDeltaKE(),
 	     pData.getDeltaP());
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(globEvent.getType(),getIntClassKey(globEvent.getGlobalID()),
+      newEvent(globEvent.getType(),getClassKey(globEvent),
 	       pData.particle1_.getDeltaKE(),
 	       -pData.dP);
       
-      newEvent(globEvent.getType(),getIntClassKey(globEvent.getGlobalID()),
+      newEvent(globEvent.getType(),getClassKey(globEvent),
 	       pData.particle2_.getDeltaKE(),
 	       pData.dP);
     }
@@ -74,17 +74,17 @@ void
 COPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    newEvent(localEvent.getType(),getIntClassKey(localEvent.getLocalID()),
+    newEvent(localEvent.getType(),getClassKey(localEvent),
 	     pData.getDeltaKE(),
 	     pData.getDeltaP());
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
-      newEvent(localEvent.getType(),getIntClassKey(localEvent.getLocalID()),
+      newEvent(localEvent.getType(),getClassKey(localEvent),
 	       pData.particle1_.getDeltaKE(),
 	       -pData.dP);
       
-      newEvent(localEvent.getType(),getIntClassKey(localEvent.getLocalID()),
+      newEvent(localEvent.getType(),getClassKey(localEvent),
 	       pData.particle2_.getDeltaKE(),
 	       pData.dP);
     }

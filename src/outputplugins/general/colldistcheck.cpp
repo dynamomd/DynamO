@@ -54,7 +54,7 @@ void
 COPCollDistCheck::eventUpdate(const CIntEvent& eevent, 
 			      const C2ParticleData& PDat)
 {
-  const eventKey locPair(getIntClassKey(eevent.getInteractionID()), 
+  const eventKey locPair(getClassKey(eevent), 
 			 eevent.getType());
   
   if (distList.find(locPair) == distList.end())

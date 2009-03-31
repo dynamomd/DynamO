@@ -33,7 +33,7 @@ COPRdotV::initialise()
 void 
 COPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
-  mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getIntClassKey(iEvent.getInteractionID()))];
+  mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent))];
 
   ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
   ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());

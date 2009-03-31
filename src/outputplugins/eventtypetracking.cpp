@@ -41,9 +41,9 @@ namespace EventTypeTracking {
     }
   }
 
-  classKey getIntClassKey(const size_t& i)
+  classKey getClassKey(const CIntEvent& i)
   {
-    return classKey(i, INTERACTION);
+    return classKey(i.getInteractionID(), INTERACTION);
   }
   classKey getClassKey(const CSystem& s)
   {

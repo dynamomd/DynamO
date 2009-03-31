@@ -66,7 +66,7 @@ COPRijVij::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
   
   process2PED(rvdotacc[mapKey(iEvent.getType(), 
-			      getIntClassKey(iEvent.getInteractionID()))], pDat);
+			      getClassKey(iEvent))], pDat);
 }
 
 void 

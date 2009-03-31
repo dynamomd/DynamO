@@ -43,10 +43,10 @@ void
 COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 {
   newEvent(iEvent.getParticle1ID(), iEvent.getType(), 
-	   getIntClassKey(iEvent.getInteractionID()));
+	   getClassKey(iEvent));
 
   newEvent(iEvent.getParticle2ID(), iEvent.getType(), 
-	   getIntClassKey(iEvent.getInteractionID()));
+	   getClassKey(iEvent));
 }
 
 

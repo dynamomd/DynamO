@@ -33,6 +33,7 @@ class CInteraction;
 class CGlobEvent;
 class CSystem;
 class CLocalEvent;
+class CIntEvent;
 
 namespace EventTypeTracking {
   
@@ -41,7 +42,7 @@ namespace EventTypeTracking {
 
   std::string getName(const classKey&, const DYNAMO::SimData*);
 
-  classKey getIntClassKey(const size_t&);
+  classKey getClassKey(const CIntEvent&);
 
   classKey getClassKey(const CSystem&);
 
