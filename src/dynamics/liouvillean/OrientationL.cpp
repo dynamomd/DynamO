@@ -382,17 +382,17 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   Iflt inertia = (mass * length * length) / 12.0;
 
   retVal.dP = uPerp 
-    * (-((vr % uPerp) * (1.0 + elasticity)) 
+    * (((vr % uPerp) * (1.0 + elasticity)) 
        / ((2.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/inertia)));  
   
-  const_cast<CParticle&>(particle1).getVelocity() += retVal.dP / mass;
-  const_cast<CParticle&>(particle2).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / mass;
 
   orientationData[particle1.getID()].angularVelocity 
-    += (cp.alpha / inertia) * (A.orientation.Cross(retVal.dP));
+    -= (cp.alpha / inertia) * (A.orientation.Cross(retVal.dP));
 
   orientationData[particle2.getID()].angularVelocity 
-    += - (cp.beta / inertia) * (B.orientation.Cross(retVal.dP));
+    += (cp.beta / inertia) * (B.orientation.Cross(retVal.dP));
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();

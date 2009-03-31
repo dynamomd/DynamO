@@ -202,6 +202,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPKEnergyTicker>(Sim, XML);
   else if (!Name.compare("StructureImage"))
     return testGeneratePlugin<COPStructureImaging>(Sim, XML);
+  else if (!Name.compare("EventEffects"))
+    return testGeneratePlugin<COPEventEffects>(Sim, XML);
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

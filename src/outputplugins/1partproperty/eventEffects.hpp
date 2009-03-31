@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCollMatrix_H
-#define COPCollMatrix_H
+#ifndef COPEventEffects_H
+#define COPEventEffects_H
 
 #include "../outputplugin.hpp"
 #include "../../dynamics/eventtypes.hpp"
@@ -28,13 +28,13 @@ using namespace EventTypeTracking;
 
 class CParticle;
 
-class COPCollMatrix: public COutputPlugin
+class COPEventEffects: public COutputPlugin
 {
 private:
   
 public:
-  COPCollMatrix(const DYNAMO::SimData*, const XMLNode&);
-  ~COPCollMatrix();
+  COPEventEffects(const DYNAMO::SimData*, const XMLNode&);
+  ~COPEventEffects();
 
   virtual void initialise();
 
@@ -48,35 +48,25 @@ public:
 
   void output(xmlw::XmlStream &);
 
-  virtual COutputPlugin *Clone() const { return new COPCollMatrix(*this); };
+  virtual COutputPlugin *Clone() const { return new COPEventEffects(*this); };
 
-  //This is fine to replica exchange as the interaction, global and system lookups are done using names
-  virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPCollMatrix*>(plug)->Sim); }
+  //This is fine to replica exchange as the interaction, global and system lookups are done using id's
+  virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPEventEffects*>(plug)->Sim); }
   
  protected:
-  void newEvent(const size_t&, const EEventType&, const classKey&);
+  typedef std::pair<classKey, EEventType> eventKey;
+
+  void newEvent(const EEventType&, const classKey&, const Iflt&, const CVector<>&);
   
   struct counterData
   {
-    counterData():count(0), initialCount(0), totalTime(0) {}
+    counterData():count(0), energyLoss(0), momentumChange(0) {}
     unsigned long count;
-    size_t initialCount;
-    Iflt totalTime;
+    Iflt energyLoss;
+    CVector<> momentumChange;
   };
   
-  unsigned long totalCount;
-
-  typedef std::pair<classKey, EEventType> eventKey;
-
-  typedef std::pair<eventKey, eventKey> counterKey;
-  
-  std::map<counterKey, counterData> counters;
-  
-  std::map<eventKey, size_t> initialCounter;
-
-  typedef std::pair<Iflt, eventKey> lastEventData;
-
-  std::vector<lastEventData> lastEvent; 
+  std::map<eventKey, counterData> counters;
 };
 
 #endif
