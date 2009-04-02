@@ -29,61 +29,96 @@ def get_structlist(outputfile):
 
   return structlist
 
+def get_temperature(file):
+    cmd = 'bzcat '+file+' | '+xmlstarlet+' sel -t -v \'/OutputData/KEnergy/T/@val\''
+    return float(os.popen(cmd).read())  
 
 from operator import add
 
-def get_best_crds(structlist):
-  #initialise the best value using the first entry
-  bestcrds = structlist[0]
+def get_rmsd_data(structlist):
+  arrayList = numpy.zeros( (len(structlist),len(structlist)), float)
+  for i in range(len(structlist)):    
+    for j in range(i+1,len(structlist)):
+      arrayList[i][j] = min(rmsd(structlist[i], structlist[j]), rmsd(structlist[i], (structlist[j])[::-1]))
+      arrayList[j][i] = arrayList[i][j]
+
+  minimum = 0
   minsum = 1e308
+  for i in range(len(structlist)):  
+    localsum = sum(arrayList[i])
+    if (localsum < minsum):
+      minimum = i
+      minsum = localsum
 
-  #Now test if any have a lower sum
-  for atomlist1 in structlist:
-    locsum = sum((min(rmsd(atomlist1, atomlist2), rmsd(atomlist1,atomlist2[::-1])) for atomlist2 in structlist))
+  return minimum, minsum / len(structlist), arrayList
+
+import copy
+
+def cluster_analysis(arrayList, length, threshold):
+  localCluster = []
+  for i in range(len(arrayList)):
+    local = []
+    count = 0
+    for j in range(len(arrayList)):
+      if (arrayList[i][j] < length):
+        local.append(j)
+        count += 1
+    localCluster.append([count, local, i])
+  
+  clusters = []
+  maxval = copy.deepcopy(max(localCluster))
+  while (maxval[0] > threshold):
+    clusters.append(maxval)
+    for j in range(len(arrayList)):
+      for id in maxval[1]:
+        if (id in localCluster[j][1]):
+          localCluster[j][1].remove(id)
+          localCluster[j][0] -= 1
+    maxval = copy.deepcopy(max(localCluster))
     
-    if (locsum < minsum):
-      minsum = locsum
-      bestcrds = atomlist1
-  
-  return bestcrds, minsum / len(structlist)
+  return clusters
 
-def get_temperature(file):
-    cmd = 'bzcat '+file+' | '+xmlstarlet+' sel -t -v \'/OutputData/KEnergy/T/@val\''
-    return float(os.popen(cmd).read())
-  
 filedata = []
 for file in  sys.argv[1:]:
   print "Processing file "+file
-  if (os.path.exists(file+'.rmspickle')):
+  if (os.path.exists(file+'.rmspickle2')):
     print "Found pickled data, skipping minimisation"
-    f = open(file+'.rmspickle', 'r')
+    f = open(file+'.rmspickle2', 'r')
     filedata.append(pickle.load(f))
     f.close()
   else:
     print "Could not find pickled minimisation data"
-    print "Processing file "+file
-    bestcrds, avgmsd = get_best_crds(get_structlist(file))
-    tempdata = [get_temperature(file), bestcrds, avgmsd]
+    tempdata = [ get_temperature(file), get_rmsd_data(get_structlist(file)) ]
     filedata.append(tempdata)
-    f = open(file+'.rmspickle', 'w')
+    f = open(file+'.rmspickle2', 'w')
     pickle.dump(tempdata,f)
     f.close()
-      
+
 filedata.sort()
-    
 
 
+#Outputs the min rmsd and the structure number
 f = open('avgrmsd.dat', 'w')
 try:
   for data in filedata:
-    print >>f, data[0], data[2]
+    print >>f, data[0], data[1][1], data[1][0]
 finally:
   f.close()
-
-
-f = open('rmsddiff.dat', 'w')
+  
+#Outputs the min rmsd and the structure number
+f = open('clusters.dat', 'w')
+g = open('clusterfraction.dat', 'w')
 try:
-  for val in range(len(filedata)-1):
-    print >>f, filedata[val][0], min(rmsd(filedata[val][1],filedata[val+1][1]), rmsd(filedata[val][1],filedata[val+1][1][::-1]))
+  for data in filedata:
+    clusters = cluster_analysis(data[1][2], 0.4, 5)
+    print >>f, data[0], len(clusters)
+    
+    sum = 0
+    for cluster in clusters:
+      sum += cluster[0]
+      
+    print >>g, data[0], sum / len(data[1][2])
 finally:
   f.close()
+  g.close()
+  
