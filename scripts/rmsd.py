@@ -97,28 +97,31 @@ for file in  sys.argv[1:]:
 filedata.sort()
 
 
-#Outputs the min rmsd and the structure number
-f = open('avgrmsd.dat', 'w')
+f = open('rmsdhist.dat', 'w')
 try:
-  for data in filedata:
-    print >>f, data[0], data[1][1], data[1][0]
-finally:
+  for i in range(len(filedata[0][1][2])):
+    for j in range(i+1,len(filedata[0][1][2])):
+      print >>f, filedata[0][1][2][i][j]
+finally: 
   f.close()
   
 #Outputs the min rmsd and the structure number
 f = open('clusters.dat', 'w')
 g = open('clusterfraction.dat', 'w')
+h = open('avgrmsd.dat', 'w')
 try:
   for data in filedata:
-    clusters = cluster_analysis(data[1][2], 0.4, 5)
-    print >>f, data[0], len(clusters)
+    clusters = cluster_analysis(data[1][2], 0.4, 10)
     
     sum = 0
     for cluster in clusters:
       sum += cluster[0]
       
-    print >>g, data[0], sum / len(data[1][2])
+    print >>f, data[0], len(clusters)
+    print >>g, data[0], float(sum) / float(len(data[1][2]))
+    print >>h, data[0], data[1][1], data[1][0]
 finally:
   f.close()
   g.close()
+  h.close()
   
