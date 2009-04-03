@@ -84,11 +84,14 @@ for file in  sys.argv[1:]:
   if (os.path.exists(file+'.rmspickle2')):
     print "Found pickled data, skipping minimisation"
     f = open(file+'.rmspickle2', 'r')
-    filedata.append(pickle.load(f))
+    tempdata = pickle.load(f)
+    tempdata.append(file)
+    filedata.append(tempdata)
     f.close()
   else:
     print "Could not find pickled minimisation data"
     tempdata = [ get_temperature(file), get_rmsd_data(get_structlist(file)) ]
+    tempdata.append(file)
     filedata.append(tempdata)
     f = open(file+'.rmspickle2', 'w')
     pickle.dump(tempdata,f)
@@ -97,11 +100,42 @@ for file in  sys.argv[1:]:
 filedata.sort()
 
 
-f = open('rmsdhist.dat', 'w')
+for data in filedata:
+  f = open(data[2]+'.rmsdhist', 'w')
+  try:
+    arrayList = numpy.zeros(100, float)
+    xmax = 2
+    delx = xmax / 100
+    count = 0
+    for i in range(len(data[1][2])):
+      for j in range(i+1,len(data[1][2])):
+        coord = data[1][2][i][j]/delx
+        if (coord < 100):
+          arrayList[int(coord)] += 1
+          count += 1
+
+    for i in range(len(arrayList)):
+      print >>f, (i+0.5)*delx, arrayList[i]/float(count)
+  finally: 
+    f.close()
+
+
+f = open('rmsdhistsurface.dat', 'w')
 try:
-  for i in range(len(filedata[0][1][2])):
-    for j in range(i+1,len(filedata[0][1][2])):
-      print >>f, filedata[0][1][2][i][j]
+  for data in filedata:
+    arrayList = numpy.zeros(101, float)
+    xmax = 1.5
+    delx = xmax / 100
+    count = 0
+    for i in range(len(data[1][2])):
+      for j in range(i+1,len(data[1][2])):
+        arrayList[int(data[1][2][i][j]/delx)] += 1
+        count += 1
+    
+    for i in range(len(arrayList)):
+      print >>f, data[0], (i+0.5)*delx, arrayList[i]/float(count)
+
+    print >>f, " "
 finally: 
   f.close()
   

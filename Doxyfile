@@ -494,7 +494,10 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = ./src \
-                         ./programs/mdrun.cpp \
+                         ./programs/dynarun.cpp \
+                         ./programs/dynamod.cpp \
+                         ./programs/dynahist_rw.cpp \
+                         ./programs/dynareplex_opt.cpp \
                          ./docs/frontpage.doxy
 
 # This tag can be used to specify the character encoding of the source files that 
