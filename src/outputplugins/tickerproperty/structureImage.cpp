@@ -69,6 +69,7 @@ COPStructureImaging::initialise()
     D_throw() << "Could not find a structure named " << structureName << " in the simulation";
   
   imagelist.clear();
+  ticker();
 }
 
 void 

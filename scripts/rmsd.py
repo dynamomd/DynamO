@@ -6,7 +6,7 @@ import sys
 import os
 import pickle
 
-xmlstarlet='xml'
+xmlstarlet='xmlstarlet'
 
 def rmsd(crds1, crds2):
   """Returns RMSD between 2 sets of [nx3] numpy array"""
@@ -102,10 +102,11 @@ filedata.sort()
 
 for data in filedata:
   f = open(data[2]+'.rmsdhist', 'w')
+  g = open(data[2]+'.rmsdarray', 'w')
   try:
     arrayList = numpy.zeros(100, float)
-    xmax = 2
-    delx = xmax / 100
+    xmax = 1.5
+    delx = xmax / 100.0
     count = 0
     for i in range(len(data[1][2])):
       for j in range(i+1,len(data[1][2])):
@@ -114,18 +115,23 @@ for data in filedata:
           arrayList[int(coord)] += 1
           count += 1
 
+    for i in range(len(data[1][2])):
+      for j in range(len(data[1][2])):
+        print >>g, data[1][2][i][j],
+      print >>g, "\n",
+
     for i in range(len(arrayList)):
       print >>f, (i+0.5)*delx, arrayList[i]/float(count)
   finally: 
     f.close()
-
+    g.close()
 
 f = open('rmsdhistsurface.dat', 'w')
 try:
   for data in filedata:
     arrayList = numpy.zeros(101, float)
     xmax = 1.5
-    delx = xmax / 100
+    delx = xmax / 100.0
     count = 0
     for i in range(len(data[1][2])):
       for j in range(i+1,len(data[1][2])):
@@ -145,7 +151,7 @@ g = open('clusterfraction.dat', 'w')
 h = open('avgrmsd.dat', 'w')
 try:
   for data in filedata:
-    clusters = cluster_analysis(data[1][2], 0.4, 10)
+    clusters = cluster_analysis(data[1][2], 0.25, 2)
     
     sum = 0
     for cluster in clusters:
