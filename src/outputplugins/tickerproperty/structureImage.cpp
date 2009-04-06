@@ -101,19 +101,23 @@ COPStructureImaging::printImage()
 
       Iflt sysMass(0.0);
 
+      CVector<> sumrij(0.0);
+      
       BOOST_FOREACH(const size_t& pid, *prange)
 	{
 	  //This is all to make sure we walk along the structure
 	  const CParticle& part(Sim->vParticleList[pid]);
 	  CVector<> rij = part.getPosition() - lastpos;
-	  Sim->Dynamics.BCs().setPBC(rij);
 	  lastpos = part.getPosition();
+	  Sim->Dynamics.BCs().setPBC(rij);
+	  
+	  sumrij += rij;
 	  
 	  Iflt pmass = Sim->Dynamics.getSpecies(part).getMass();
 	  sysMass += pmass;
-	  masspos += rij * pmass;
+	  masspos += sumrij * pmass;
 	  
-	  atomDescription.push_back(rij);
+	  atomDescription.push_back(sumrij);
 	}
       
       masspos /= sysMass;
@@ -130,7 +134,8 @@ COPStructureImaging::printImage()
 void 
 COPStructureImaging::output(xmlw::XmlStream& XML)
 {
-  XML << xmlw::tag("StructureImages");
+  XML << xmlw::tag("StructureImages")
+      << xmlw::attr("version") << 2;
   
   BOOST_FOREACH(const std::vector<CVector<> >& vec, imagelist)
     {
@@ -139,12 +144,14 @@ COPStructureImaging::output(xmlw::XmlStream& XML)
       size_t id(0);
 
       BOOST_FOREACH(const CVector<>& vec2, vec)
-	XML << xmlw::tag("Atom")
-	    << xmlw::attr("ID")
-	    << id++
-	    << (vec2 / Sim->Dynamics.units().unitLength())
-	    << xmlw::endtag("Atom");
-
+	{
+	  XML << xmlw::tag("Atom")
+	      << xmlw::attr("ID")
+	      << id++
+	      << (vec2 / Sim->Dynamics.units().unitLength())
+	      << xmlw::endtag("Atom");
+	}
+	  
       XML << xmlw::endtag("Image");
     }
     

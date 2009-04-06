@@ -78,24 +78,58 @@ def cluster_analysis(arrayList, length, threshold):
     
   return clusters
 
+def print_structure(structure, filename):
+  f = open(filename, 'w')
+  try:
+    length = str(len(structure))
+    print >>f, "{VECT 1 "+length+" 0 "
+    print >>f, length
+    print >>f, "0"
+    
+    for i in range(len(structure)):
+      print >>f, structure[i][0], structure[i][1], structure[i][2]
+      
+    #print >>f,"1 1 1 1"
+    print >>f, "}"
+  finally:
+    f.close()
+
+def print_vmd_structure(structure, filename):
+  f = open(filename, 'w')
+  try:
+    length = str(len(structure))
+    print >>f, length
+    print >>f, "RMSD VMD structure"
+    for i in range(len(structure)):
+      print >>f,"C", structure[i][0]*3.4, structure[i][1]*3.4, structure[i][2]*3.4
+  finally:
+    f.close()
+
 filedata = []
 for file in  sys.argv[1:]:
   print "Processing file "+file
-  if (os.path.exists(file+'.rmspickle2')):
+  if (os.path.exists(file+'.rmspickle3')):
     print "Found pickled data, skipping minimisation"
-    f = open(file+'.rmspickle2', 'r')
+    f = open(file+'.rmspickle3', 'r')
     tempdata = pickle.load(f)
     tempdata.append(file)
+    tempdata.append(get_structlist(file))
     filedata.append(tempdata)
     f.close()
   else:
     print "Could not find pickled minimisation data"
     tempdata = [ get_temperature(file), get_rmsd_data(get_structlist(file)) ]
+
+    f = open(file+'.rmspickle3', 'w')
+    try:
+      pickle.dump(tempdata,f)
+    finally:
+      f.close()
+
     tempdata.append(file)
+    tempdata.append(get_structlist(file))
     filedata.append(tempdata)
-    f = open(file+'.rmspickle2', 'w')
-    pickle.dump(tempdata,f)
-    f.close()
+
 
 filedata.sort()
 
@@ -152,7 +186,11 @@ h = open('avgrmsd.dat', 'w')
 try:
   for data in filedata:
     clusters = cluster_analysis(data[1][2], 0.25, 2)
-    
+    if (len(filedata)==1):
+      print clusters
+      for cluster in clusters:
+        print "Printing structure number "+str(cluster[2])
+        print_structure(data[3][cluster[2]],"Cluster"+str(cluster[2])+".list")
     sum = 0
     for cluster in clusters:
       sum += cluster[0]
