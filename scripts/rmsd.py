@@ -134,50 +134,50 @@ for file in  sys.argv[1:]:
 filedata.sort()
 
 
-for data in filedata:
-  f = open(data[2]+'.rmsdhist', 'w')
-  g = open(data[2]+'.rmsdarray', 'w')
-  try:
-    arrayList = numpy.zeros(100, float)
-    xmax = 1.5
-    delx = xmax / 100.0
-    count = 0
-    for i in range(len(data[1][2])):
-      for j in range(i+1,len(data[1][2])):
-        coord = data[1][2][i][j]/delx
-        if (coord < 100):
-          arrayList[int(coord)] += 1
-          count += 1
+#for data in filedata:
+#  f = open(data[2]+'.rmsdhist', 'w')
+#  g = open(data[2]+'.rmsdarray', 'w')
+#  try:
+#    arrayList = numpy.zeros(100, float)
+#    xmax = 1.5
+#    delx = xmax / 100.0
+#    count = 0
+#    for i in range(len(data[1][2])):
+#      for j in range(i+1,len(data[1][2])):
+#        coord = data[1][2][i][j]/delx
+#        if (coord < 100):
+#          arrayList[int(coord)] += 1
+#          count += 1
+#
+#    for i in range(len(data[1][2])):
+#      for j in range(len(data[1][2])):
+#        print >>g, data[1][2][i][j],
+#      print >>g, "\n",
+#
+#    for i in range(len(arrayList)):
+#      print >>f, (i+0.5)*delx, arrayList[i]/float(count)
+#  finally: 
+#    f.close()
+#    g.close()
 
-    for i in range(len(data[1][2])):
-      for j in range(len(data[1][2])):
-        print >>g, data[1][2][i][j],
-      print >>g, "\n",
-
-    for i in range(len(arrayList)):
-      print >>f, (i+0.5)*delx, arrayList[i]/float(count)
-  finally: 
-    f.close()
-    g.close()
-
-f = open('rmsdhistsurface.dat', 'w')
-try:
-  for data in filedata:
-    arrayList = numpy.zeros(101, float)
-    xmax = 1.5
-    delx = xmax / 100.0
-    count = 0
-    for i in range(len(data[1][2])):
-      for j in range(i+1,len(data[1][2])):
-        arrayList[int(data[1][2][i][j]/delx)] += 1
-        count += 1
-    
-    for i in range(len(arrayList)):
-      print >>f, data[0], (i+0.5)*delx, arrayList[i]/float(count)
-
-    print >>f, " "
-finally: 
-  f.close()
+#f = open('rmsdhistsurface.dat', 'w')
+#try:
+#  for data in filedata:
+#    arrayList = numpy.zeros(101, float)
+#    xmax = 1.5
+#    delx = xmax / 100.0
+#    count = 0
+#    for i in range(len(data[1][2])):
+#      for j in range(i+1,len(data[1][2])):
+#        arrayList[int(data[1][2][i][j]/delx)] += 1
+#        count += 1
+#    
+#    for i in range(len(arrayList)):
+#      print >>f, data[0], (i+0.5)*delx, arrayList[i]/float(count)
+#
+#    print >>f, " "
+#finally: 
+#  f.close()
   
 #Outputs the min rmsd and the structure number
 f = open('clusters.dat', 'w')
