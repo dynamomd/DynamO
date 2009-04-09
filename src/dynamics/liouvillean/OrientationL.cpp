@@ -92,8 +92,6 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   if(dtw.alpha > t_low)
   {
     t_low = dtw.alpha;
-    //performRotation(A, dtw.alpha);
-    //performRotation(B, dtw.alpha);
   }
   
   if(dtw.beta < t_high)
@@ -474,7 +472,8 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
 }
 
 Iflt
-CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const
+CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStreamType LineB,
+				    Iflt length, Iflt& t_low, Iflt& t_high) const
 {
   Iflt working_time = t_low;
   Iflt deltaT = 0.0, boundEnhancer = 0.0;
@@ -545,7 +544,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     {
       // We have overshot; reverse direction and try again
       //I_cerr() << "Overshot!";
-      fwdWorking = (fwdWorking ? false: true);
+      fwdWorking = !fwdWorking;
       continue;
     }
       
