@@ -122,8 +122,25 @@ protected:
 
   virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
 
-  virtual Iflt frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, Iflt length, Iflt t_low, Iflt t_high) const;
-  virtual Iflt quadraticRootHunter(const orientationStreamType LineA, const orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const;
+  /* \brief For line line collisions, determines intersections of the infinite lines
+  **
+  **   Firstly, search for root in main window
+  **  - If a root is not found, return failure
+  **
+  ** If a root is found: bring in an artificial new high boundary just beneath new root
+  **  - If this leaves a window, search window for root
+  **    - If a root is found, return to top of this section storing only this new root
+  **    - If no root is found, drop out of this inner loop
+  **  - Check root validity
+  **    - If root is valid, this is earliest possible root - roll with it
+  **    - If root is invalid, set new concrete t_low just above this found root and go from the top
+  */
+  virtual Iflt frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, 
+				 Iflt length, Iflt t_low, Iflt t_high) const;
+
+  virtual Iflt quadraticRootHunter(const orientationStreamType LineA, 
+				   const orientationStreamType LineB, Iflt length, 
+				   Iflt& t_low, Iflt& t_high) const;
 
   virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
   virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B) const;

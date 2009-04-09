@@ -78,7 +78,7 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   orientationStreamType A(PD.rij, PD.vij, orientationData[p1.getID()].orientation, orientationData[p1.getID()].angularVelocity),
                         B(CVector<>(0), CVector<>(0), orientationData[p2.getID()].orientation, orientationData[p2.getID()].angularVelocity);
   
-  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2) 
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
@@ -110,8 +110,7 @@ Iflt
 CLNOrientation::frenkelRootSearch(const orientationStreamType A, 
 				  const orientationStreamType B, 
 				  Iflt length, Iflt t_low, Iflt t_high) const
-{
-  
+{  
   Iflt root = 0.0;
 	
     while(t_high > t_low)
@@ -134,17 +133,14 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
         temp_high = root - (fabs(2.0 * F_firstDeriv(tempA, tempB))
 			    / Fdoubleprimemax);
 
-        if (Fdoubleprimemax == 0)
-          temp_high = -t_low;
-	
-        // Quit if window is now too small, at this point $root
-        // contains the smallest valid root
-        if(temp_high < t_low) { break; }
+        if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
       
-        // Search for root in new restricted range
         Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
 	
-        if(temp_root == HUGE_VAL) { break; } else { root = temp_root; }
+        if (temp_root == HUGE_VAL) 
+	  break;
+	else 
+	  root = temp_root;
     
       } while(temp_high > t_low);
       
@@ -157,25 +153,12 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       IfltPair cp = getCollisionPoints(tempA, tempB);
       
       if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
-      {
         return root;
-      }
       else
         t_low = root + ((2.0 * fabs(F_firstDeriv(tempA, tempB)))
           / F_secondDeriv_max(tempA, tempB, length));
     }
     
-    // Firstly, search for root in main window
-    //  - If a root is not found, return failure
-    
-    // If a root is found: bring in an artificial new high boundary just beneath new root
-    //  - If this leaves a window, search window for root
-    //    - If a root is found, return to top of this section storing only this new root
-    //    - If no root is found, drop out of this inner loop
-    //  - Check root validity
-    //    - If root is valid, this is earliest possible root - roll with it
-    //    - If root is invalid, set new concrete t_low just above this found root and go from the top
-	
     return HUGE_VAL;
 }
 
