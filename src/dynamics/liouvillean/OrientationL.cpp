@@ -402,7 +402,10 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
 void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
-  orientationStreamType ostPart(part.getPosition(), part.getVelocity(), orientationData[part.getID()].orientation, orientationData[part.getID()].angularVelocity);
+  orientationStreamType ostPart(part.getPosition(), part.getVelocity(), 
+				orientationData[part.getID()].orientation, 
+				orientationData[part.getID()].angularVelocity);
+
   performRotation(ostPart, dt);
   
   part.getPosition() =  ostPart.position;
@@ -509,22 +512,23 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     // Multiply by opposite sign of f0
     if(f0 > 0) { f2max *= -1.0; }
     
-    // Enhance bound
+    // Enhance bound, no point continuing if the bounds are out of bounds
     if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
 			   f0, f1, 0.5*f2max))
-    {
-      t_low = t_high + 1; // What is this?
-    }
+      break;
     
-    if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
+    if (fwdWorking)
+      t_low += boundEnhancer; 
+    else 
+      t_high += boundEnhancer;
     
-    if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
+    if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
       {
 	fwdWorking = (fwdWorking ? false: true);
 	continue;
       }
     
-    if(((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
+    if (((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
     {
       // We have overshot; reverse direction and try again
       fwdWorking = !fwdWorking;
@@ -536,7 +540,13 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     
     boundaryExceeded = false;
 
-    for(int d = 0; d < 10000; d++)
+    A = LineA;
+    B = LineB;
+    
+    performRotation(A, working_time);
+    performRotation(B, working_time);
+
+    for(;;)
     {
       working_time += deltaT;
 	
@@ -545,13 +555,10 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
         boundaryExceeded = true;
         break;
       }
-	
-      A = LineA;
-      B = LineB;
-	
-      performRotation(A, working_time);
-      performRotation(B, working_time);
-	
+		
+      performRotation(A, deltaT);
+      performRotation(B, deltaT);
+    
       if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
 			    F_zeroDeriv(A, B), F_firstDeriv(A, B), 
 			    0.5 * F_secondDeriv(A, B)))
@@ -570,13 +577,13 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       
     }
 
-    if(boundaryExceeded)
+    if (boundaryExceeded)
     {
       fwdWorking = (fwdWorking ? false: true);
       continue;
     }
     
-    if(rootFound) return working_time; 
+    if (rootFound) return working_time; 
   }
 
   return HUGE_VAL;
