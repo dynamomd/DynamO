@@ -77,9 +77,9 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   // Set up pair of lines as passable objects
   orientationStreamType A(PD.rij, PD.vij, orientationData[p1.getID()].orientation, 
 			  orientationData[p1.getID()].angularVelocity),
-                        B(CVector<>(0), CVector<>(0), 
-			  orientationData[p2.getID()].orientation, 
-			  orientationData[p2.getID()].angularVelocity);
+    B(CVector<>(0), CVector<>(0), 
+      orientationData[p2.getID()].orientation, 
+      orientationData[p2.getID()].angularVelocity);
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -88,7 +88,6 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     t_low += fabs(2.0 * F_firstDeriv(A, B))
       / F_secondDeriv_max(A, B, length);
   
-
   //Find window delimited by discs
   IfltPair dtw = discIntersectionWindow(A, B, length);
   
@@ -117,35 +116,34 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 {  
   Iflt root = 0.0;
 	
-    while(t_high > t_low)
+  while(t_high > t_low)
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
 
       if (root == HUGE_VAL) return HUGE_VAL;
       
       Iflt temp_high = t_high;
-      do
-      {
-        // Artificial boundary just below root
-        orientationStreamType tempA(A), tempB(B);
-
-        performRotation(tempA, root);
-        performRotation(tempB, root);
-
-        Iflt Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
+      do {
+	// Artificial boundary just below root
+	orientationStreamType tempA(A), tempB(B);
 	
-        temp_high = root - (fabs(2.0 * F_firstDeriv(tempA, tempB))
+	performRotation(tempA, root);
+	performRotation(tempB, root);
+	
+	Iflt Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
+	
+	temp_high = root - (fabs(2.0 * F_firstDeriv(tempA, tempB))
 			    / Fdoubleprimemax);
-
-        if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
-      
-        Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
 	
-        if (temp_root == HUGE_VAL) 
+	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
+	
+	Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
+	
+	if (temp_root == HUGE_VAL) 
 	  break;
 	else 
-	  root = temp_root;
-    
+	    root = temp_root;
+	
       } while(temp_high > t_low);
       
       // At this point $root contains earliest valid root guess.
@@ -160,10 +158,10 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
         return root;
       else
         t_low = root + ((2.0 * fabs(F_firstDeriv(tempA, tempB)))
-          / F_secondDeriv_max(tempA, tempB, length));
+			/ F_secondDeriv_max(tempA, tempB, length));
     }
     
-    return HUGE_VAL;
+  return HUGE_VAL;
 }
 
 
@@ -171,7 +169,7 @@ bool
 CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
 				  Iflt C, Iflt B, Iflt A) const
 {
-   Iflt root1(0), root2(0);
+  Iflt root1(0), root2(0);
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
     {
@@ -181,20 +179,20 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
       root2 = root1;
     }
   else
-  {
-    Iflt discriminant = (B * B) - (4 * A * C);
+    {
+      Iflt discriminant = (B * B) - (4 * A * C);
     
-    if (discriminant < 0) return false;
+      if (discriminant < 0) return false;
     
-    //This avoids a cancellation of errors. See
-    //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
-    Iflt t((B < 0)
-	   ? -0.5 * (B-sqrt(discriminant))
-	   : -0.5 * (B+sqrt(discriminant)));
+      //This avoids a cancellation of errors. See
+      //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
+      Iflt t((B < 0)
+	     ? -0.5 * (B-sqrt(discriminant))
+	     : -0.5 * (B+sqrt(discriminant)));
     
-    root1 = t / A;
-    root2 = C / t;
-  }
+      root1 = t / A;
+      root2 = C / t;
+    }
 
   if(returnType == ROOT_SMALLEST_EITHER)
     {
@@ -308,10 +306,10 @@ CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) 
   
   return 
     2.0 * (
-      ((A.orientation % deltaV) * (deltaW % B.orientation)) + 
-      ((B.orientation % deltaV) * (deltaW % A.orientation)) - 
-      ((A.orientation % B.orientation) * (deltaW % deltaV))
-    ) - 
+	   ((A.orientation % deltaV) * (deltaW % B.orientation)) + 
+	   ((B.orientation % deltaV) * (deltaW % A.orientation)) - 
+	   ((A.orientation % B.orientation) * (deltaW % deltaV))
+	   ) - 
     ((deltaW % deltaR) * (deltaW % (A.orientation.Cross(B.orientation)))) + 
     ((A.orientation % deltaR) * (B.orientation % (A.angularVelocity.Cross(B.angularVelocity)))) + 
     ((B.orientation % deltaR) * (A.orientation % (A.angularVelocity.Cross(B.angularVelocity)))) + 
@@ -348,8 +346,8 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   
   orientationStreamType A(retVal.rij, retVal.vijold, orientationData[particle1.getID()].orientation, 
 			  orientationData[particle1.getID()].angularVelocity),
-                        B(CVector<>(0), CVector<>(0), orientationData[particle2.getID()].orientation, 
-			  orientationData[particle2.getID()].angularVelocity);
+    B(CVector<>(0), CVector<>(0), orientationData[particle2.getID()].orientation, 
+      orientationData[particle2.getID()].angularVelocity);
   
   CVector<> uPerp = A.orientation.Cross(B.orientation).unitVector();
   
@@ -419,43 +417,43 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
   if (NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
 
   else
-  {
-    // Linear dynamics
-    osret.position += (osret.velocity * dt);
+    {
+      // Linear dynamics
+      osret.position += (osret.velocity * dt);
     
-    Iflt angle = osret.angularVelocity.length() * dt;
+      Iflt angle = osret.angularVelocity.length() * dt;
   
-    CVector<> v = osret.angularVelocity.unitVector();
-    CVector<> vsq = v * v;
+      CVector<> v = osret.angularVelocity.unitVector();
+      CVector<> vsq = v * v;
   
-    // axis is not undefined and angle is not zero
-    if(!(v[0] == 0 && v[1] == 0 && v[2] == 0) && angle != 0)
-    {	
+      // axis is not undefined and angle is not zero
+      if(!(v[0] == 0 && v[1] == 0 && v[2] == 0) && angle != 0)
+	{	
     
-      Iflt matrix[3][3];
+	  Iflt matrix[3][3];
     
-      Iflt cos_term = cos(angle);
-      Iflt sin_term = sin(angle);
+	  Iflt cos_term = cos(angle);
+	  Iflt sin_term = sin(angle);
   
-      matrix[0][0] = vsq[0] + (vsq[1] + vsq[2])*(cos_term);
-      matrix[0][1] = (v[0] * v[1] * (1 - cos_term)) - (v[2] * sin_term);
-      matrix[0][2] = (v[0] * v[2] * (1 - cos_term)) + (v[1] * sin_term);
-      matrix[1][0] = (v[0] * v[1] * (1 - cos_term)) + (v[2] * sin_term);
-      matrix[1][1] = vsq[1] + (vsq[2] + vsq[0])*(cos_term);
-      matrix[1][2] = (v[1] * v[2] * (1 - cos_term)) - (v[0] * sin_term);
-      matrix[2][0] = (v[2] * v[0] * (1 - cos_term)) - (v[1] * sin_term);
-      matrix[2][1] = (v[1] * v[2] * (1 - cos_term)) + (v[0] * sin_term);
-      matrix[2][2] = vsq[2] + (vsq[0] + vsq[1])*(cos_term);
+	  matrix[0][0] = vsq[0] + (vsq[1] + vsq[2])*(cos_term);
+	  matrix[0][1] = (v[0] * v[1] * (1 - cos_term)) - (v[2] * sin_term);
+	  matrix[0][2] = (v[0] * v[2] * (1 - cos_term)) + (v[1] * sin_term);
+	  matrix[1][0] = (v[0] * v[1] * (1 - cos_term)) + (v[2] * sin_term);
+	  matrix[1][1] = vsq[1] + (vsq[2] + vsq[0])*(cos_term);
+	  matrix[1][2] = (v[1] * v[2] * (1 - cos_term)) - (v[0] * sin_term);
+	  matrix[2][0] = (v[2] * v[0] * (1 - cos_term)) - (v[1] * sin_term);
+	  matrix[2][1] = (v[1] * v[2] * (1 - cos_term)) + (v[0] * sin_term);
+	  matrix[2][2] = vsq[2] + (vsq[0] + vsq[1])*(cos_term);
     
-      CVector<> tempvec(0);
+	  CVector<> tempvec(0);
 
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-        for (size_t jDim(0); jDim < NDIM; ++jDim)      
-          tempvec[iDim] += matrix[iDim][jDim] * osret.orientation[jDim];
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    for (size_t jDim(0); jDim < NDIM; ++jDim)      
+	      tempvec[iDim] += matrix[iDim][jDim] * osret.orientation[jDim];
     
-      osret.orientation = tempvec;
+	  osret.orientation = tempvec;
+	}
     }
-  }
 }
 
 Iflt
@@ -464,8 +462,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 {
   Iflt working_time = t_low;
   Iflt deltaT = 0.0, boundEnhancer = 0.0;
-  Iflt f0 = 0.0, f1 = 0.0, f2 = 0.0, f2max = 0.0;
-  bool fwdWorking = true;
+  bool fwdWorking = false;
 
   Iflt timescale = 1e-10 
     * length / (length * (LineA.angularVelocity - LineB.angularVelocity).length() 
@@ -473,104 +470,92 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
   
   orientationStreamType A, B;
   
-  long unsigned int w = 0;
+  size_t w = 0;
 
   while(t_low < t_high)
-  {
-    w++;
-    
-    if(w > 1000)
     {
-      I_cerr() << "Window shrunk thousands of times";
-      
-      if(f0 > 1e-14 || boundEnhancer > 1e-14 || deltaT > 1e-14) 
-      {
-        I_cerr() << "Undefined root-found conditions!";
-        I_cerr() << "f0 = " << f0;
-        I_cerr() << "boundEnhancer = " << boundEnhancer;
-        I_cerr() << "deltaT = " << deltaT;
-      }
-
-      return working_time;
-    }
-    
-    orientationStreamType A(LineA), B(LineB);
-    
-    working_time = (fwdWorking ? t_low : t_high);
-    performRotation(A, working_time);
-    performRotation(B, working_time);
-    
-    f0 = F_zeroDeriv(A, B);
-    f1 = F_firstDeriv(A, B);
-    f2 = F_secondDeriv(A, B);
-    f2max = F_secondDeriv_max(A, B, length);
-
-    // Multiply by opposite sign of f0
-    if(f0 > 0) { f2max *= -1.0; }
-    
-    // Enhance bound, no point continuing if the bounds are out of bounds
-    if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
-			   f0, f1, 0.5*f2max))
-      break;
-    
-    if (fwdWorking)
-      t_low += boundEnhancer; 
-    else 
-      t_high += boundEnhancer;
-    
-    if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
-      {
-	fwdWorking = (fwdWorking ? false: true);
-	continue;
-      }
-    
-    if (((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
-    {
-      // We have overshot; reverse direction and try again
+      //Always try again from the other side
       fwdWorking = !fwdWorking;
-      continue;
-    }
+    
+      if(++w > 1000)
+	{
+	  I_cerr() << "Window shrunk thousands of times";
       
-    // At this point, we have a valid first guess at the root
-    // Begin iterating inwards
-    
-    A = LineA;
-    B = LineB;
-    
-    performRotation(A, working_time);
-    performRotation(B, working_time);
+	  if(/*f0 > 1e-14 || boundEnhancer > 1e-14 ||*/ deltaT > 1e-14) 
+	    I_cerr() << "Undefined root-found conditions!"
+		     << "f0 = " << f0
+		     << "boundEnhancer = " << boundEnhancer
+		     << "deltaT = " << deltaT;
 
-    for(size_t i(1000); i != 0; --i)
-      {
-	working_time += deltaT;
-	
-	if((working_time > t_high) || (working_time < t_low))
-	  break;
-	
-	performRotation(A, deltaT);
-	performRotation(B, deltaT);
-	
-	if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
-			       F_zeroDeriv(A, B), F_firstDeriv(A, B), 
-			     0.5 * F_secondDeriv(A, B)))
-	  break;
-	
-	if(fabs(deltaT) <  timescale)
-	  return working_time + deltaT;
-      }
+	  return working_time;
+	}
+    
+      orientationStreamType A(LineA), B(LineB);
+    
+      working_time = (fwdWorking ? t_low : t_high);
+      performRotation(A, working_time);
+      performRotation(B, working_time);
+    
+      Iflt f0 = F_zeroDeriv(A, B),
+	f1 = F_firstDeriv(A, B),
+	f2 = F_secondDeriv(A, B),
+	f2max = F_secondDeriv_max(A, B, length);
 
-    //If we haven't found a root for some reason, then restart from the other side
-    fwdWorking = !fwdWorking;
-  }
+      if (f0 > 0) f2max = -f2max;
+    
+      // Enhance bound, no point continuing if the bounds are out of bounds
+      if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
+			     f0, f1, 0.5 * f2max))
+	break;
+    
+      if (fwdWorking)
+	t_low += boundEnhancer; 
+      else 
+	t_high += boundEnhancer;
+    
+      if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
+	continue;
+    
+      if (((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
+	continue;
+      
+      // At this point, we have a valid first guess at the root
+      // Begin iterating inwards
+    
+      A = LineA;
+      B = LineB;
+    
+      performRotation(A, working_time);
+      performRotation(B, working_time);
+
+      for(size_t i(1000); i != 0; --i)
+	{
+	  working_time += deltaT;
+	
+	  if((working_time > t_high) || (working_time < t_low))
+	    break;
+	
+	  performRotation(A, deltaT);
+	  performRotation(B, deltaT);
+	
+	  if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
+				 _zeroDeriv(A, B), F_firstDeriv(A, B), 
+				 0.5 * F_secondDeriv(A, B)))
+	    break;
+	
+	  if(fabs(deltaT) <  timescale)
+	    return working_time + deltaT;
+	}
+    }
 
   return HUGE_VAL;
 }
 
 C1ParticleData 
 CLNOrientation::runAndersenWallCollision(const CParticle& part, 
-			 const CVector<>& vNorm,
-			 const Iflt& sqrtT
-			 ) const
+					 const CVector<>& vNorm,
+					 const Iflt& sqrtT
+					 ) const
 {
   D_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";
@@ -608,7 +593,7 @@ CLNOrientation::initLineOrientations(const Iflt& length)
       
       orientationData[i].angularVelocity 
         = orientationData[i].orientation.Cross(angVelCrossing).unitVector() 
-          * Sim->normal_sampler() * factor;
+	* Sim->normal_sampler() * factor;
     }  
 }
 
