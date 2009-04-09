@@ -38,10 +38,10 @@ typedef enum
     ROOT_LARGEST_EITHER    =   8,
     ROOT_LARGEST_POSITIVE  =  16,
     ROOT_LARGEST_NEGATIVE  =  32
-  } erootType;
+  } ;
 
-template <erootType rootType, class T>
-T quadraticSolution(T A, T B, T C)
+template <int rootType, class T>
+T quadraticSolution2(const T& A, const T& B, const T& C)
 {
   const T NaN = std::numeric_limits<T>::quiet_NaN();
 

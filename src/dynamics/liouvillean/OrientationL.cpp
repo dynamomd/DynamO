@@ -29,6 +29,7 @@
 #include <boost/iostreams/device/stream_source.hpp>
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
+#include "../../extcode/mathtemplates.hpp"
 
 
 void 
@@ -461,14 +462,10 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 				    Iflt length, Iflt& t_low, Iflt& t_high) const
 {
   Iflt working_time = t_low;
-  Iflt deltaT = 0.0, boundEnhancer = 0.0;
-  bool fwdWorking = false;
-
   Iflt timescale = 1e-10 
     * length / (length * (LineA.angularVelocity - LineB.angularVelocity).length() 
 		+ (LineA.velocity - LineB.velocity).length());
-  
-  orientationStreamType A, B;
+  bool fwdWorking = false;
   
   size_t w = 0;
 
@@ -480,13 +477,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       if(++w > 1000)
 	{
 	  I_cerr() << "Window shrunk thousands of times";
-      
-	  if(/*f0 > 1e-14 || boundEnhancer > 1e-14 ||*/ deltaT > 1e-14) 
-	    I_cerr() << "Undefined root-found conditions!"
-		     << "f0 = " << f0
-		     << "boundEnhancer = " << boundEnhancer
-		     << "deltaT = " << deltaT;
-
+	  
 	  return working_time;
 	}
     
@@ -496,53 +487,48 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       performRotation(A, working_time);
       performRotation(B, working_time);
     
-      Iflt f0 = F_zeroDeriv(A, B),
-	f1 = F_firstDeriv(A, B),
-	f2 = F_secondDeriv(A, B),
-	f2max = F_secondDeriv_max(A, B, length);
 
-      if (f0 > 0) f2max = -f2max;
-    
-      // Enhance bound, no point continuing if the bounds are out of bounds
-      if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
-			     f0, f1, 0.5 * f2max))
-	break;
-    
-      if (fwdWorking)
-	t_low += boundEnhancer; 
-      else 
-	t_high += boundEnhancer;
-    
-      if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
-	continue;
-    
+      Iflt deltaT;
+      {
+	Iflt f0 = F_zeroDeriv(A, B),
+	  f1 = F_firstDeriv(A, B),
+	  halff2 = 0.5 * F_secondDeriv(A, B),
+	  halff2max = 0.5 * F_secondDeriv_max(A, B, length);
+	
+	if (f0 > 0) halff2max = -halff2max;
+	
+	{
+	  Iflt boundEnhancer;
+	  // Enhance bound, no point continuing if the bounds are out of bounds
+	  if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
+				 f0, f1, halff2max))
+	    break;
+	  
+	  (fwdWorking ? t_low : t_high) += boundEnhancer;
+	}
+	
+	if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, halff2))
+	  continue;
+      }
+      
       if (((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
 	continue;
       
-      // At this point, we have a valid first guess at the root
-      // Begin iterating inwards
-    
-      A = LineA;
-      B = LineB;
-    
-      performRotation(A, working_time);
-      performRotation(B, working_time);
-
       for(size_t i(1000); i != 0; --i)
 	{
 	  working_time += deltaT;
-	
+	  
 	  if((working_time > t_high) || (working_time < t_low))
 	    break;
-	
+	  
 	  performRotation(A, deltaT);
 	  performRotation(B, deltaT);
-	
+	  
 	  if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
-				 _zeroDeriv(A, B), F_firstDeriv(A, B), 
+				 F_zeroDeriv(A, B), F_firstDeriv(A, B), 
 				 0.5 * F_secondDeriv(A, B)))
 	    break;
-	
+	  
 	  if(fabs(deltaT) <  timescale)
 	    return working_time + deltaT;
 	}
