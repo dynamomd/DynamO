@@ -75,8 +75,11 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   Iflt t_high = PD.dt;
   
   // Set up pair of lines as passable objects
-  orientationStreamType A(PD.rij, PD.vij, orientationData[p1.getID()].orientation, orientationData[p1.getID()].angularVelocity),
-                        B(CVector<>(0), CVector<>(0), orientationData[p2.getID()].orientation, orientationData[p2.getID()].angularVelocity);
+  orientationStreamType A(PD.rij, PD.vij, orientationData[p1.getID()].orientation, 
+			  orientationData[p1.getID()].angularVelocity),
+                        B(CVector<>(0), CVector<>(0), 
+			  orientationData[p2.getID()].orientation, 
+			  orientationData[p2.getID()].angularVelocity);
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -90,19 +93,20 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   IfltPair dtw = discIntersectionWindow(A, B, length);
   
   if(dtw.alpha > t_low)
-  {
     t_low = dtw.alpha;
-  }
   
   if(dtw.beta < t_high)
-  {
     t_high = dtw.beta;
-  }
   
   Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
 
-  if (root != HUGE_VAL) { PD.dt = root; return true; }
-  else { return false; }
+  if (root != HUGE_VAL) 
+    { 
+      PD.dt = root; 
+      return true; 
+    }
+  else 
+    return false;
 }
 
 
@@ -117,7 +121,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
 
-      if (root == HUGE_VAL) { return HUGE_VAL; }
+      if (root == HUGE_VAL) return HUGE_VAL;
       
       Iflt temp_high = t_high;
       do
@@ -462,6 +466,11 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
   bool boundaryExceeded = false;
   bool rootFound = false;
 	
+
+  Iflt timescale = 1e-10 
+    * length / (length * (LineA.angularVelocity - LineB.angularVelocity).length() 
+		+ (LineA.velocity - LineB.velocity).length());
+  
   orientationStreamType A, B;
   
   long unsigned int w = 0;
@@ -481,11 +490,9 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
         I_cerr() << "boundEnhancer = " << boundEnhancer;
         I_cerr() << "deltaT = " << deltaT;
       }
-      //else
-      //{
-        rootFound = true;
-        break;
-      //}
+
+      rootFound = true;
+      break;
     }
     
     orientationStreamType A(LineA), B(LineB);
@@ -512,14 +519,10 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
     
     if(!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, 0.5*f2))
-    {
-      //This can happen when a root is right next to a boundary, so we
-      //must reverse direction to bring the boundaries
-      //in. Unfortunatly the way we resolve this is by iterating the
-      //boundaries.
-      fwdWorking = (fwdWorking ? false: true);
-      continue;
-    }
+      {
+	fwdWorking = (fwdWorking ? false: true);
+	continue;
+      }
     
     if(((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
     {
@@ -549,11 +552,9 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       performRotation(A, working_time);
       performRotation(B, working_time);
 	
-      f0 = F_zeroDeriv(A, B);
-      f1 = F_firstDeriv(A, B);
-      f2 = F_secondDeriv(A, B);
-      
-      if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, f0, f1, 0.5*f2))
+      if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
+			    F_zeroDeriv(A, B), F_firstDeriv(A, B), 
+			    0.5 * F_secondDeriv(A, B)))
       {
         //No real roots, try from the other side
         boundaryExceeded = true;
@@ -561,7 +562,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
         break;
       }
       
-      if(fabs(f0) <  length * 1e-14)
+      if(fabs(deltaT) <  timescale)
       {
         rootFound = true;
         break;
@@ -575,10 +576,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       continue;
     }
     
-    if(rootFound) 
-    { 
-      return working_time; 
-    }
+    if(rootFound) return working_time; 
   }
 
   return HUGE_VAL;
