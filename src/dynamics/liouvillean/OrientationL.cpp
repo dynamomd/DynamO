@@ -466,9 +466,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
   Iflt deltaT = 0.0, boundEnhancer = 0.0;
   Iflt f0 = 0.0, f1 = 0.0, f2 = 0.0, f2max = 0.0;
   bool fwdWorking = true;
-  bool boundaryExceeded = false;
-  bool rootFound = false;
-	
 
   Iflt timescale = 1e-10 
     * length / (length * (LineA.angularVelocity - LineB.angularVelocity).length() 
@@ -494,8 +491,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
         I_cerr() << "deltaT = " << deltaT;
       }
 
-      rootFound = true;
-      break;
+      return working_time;
     }
     
     orientationStreamType A(LineA), B(LineB);
@@ -538,52 +534,33 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     // At this point, we have a valid first guess at the root
     // Begin iterating inwards
     
-    boundaryExceeded = false;
-
     A = LineA;
     B = LineB;
     
     performRotation(A, working_time);
     performRotation(B, working_time);
 
-    for(;;)
-    {
-      working_time += deltaT;
+    for(size_t i(1000); i != 0; --i)
+      {
+	working_time += deltaT;
 	
-      if((working_time > t_high) || (working_time < t_low))
-      {
-        boundaryExceeded = true;
-        break;
+	if((working_time > t_high) || (working_time < t_low))
+	  break;
+	
+	performRotation(A, deltaT);
+	performRotation(B, deltaT);
+	
+	if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
+			       F_zeroDeriv(A, B), F_firstDeriv(A, B), 
+			     0.5 * F_secondDeriv(A, B)))
+	  break;
+	
+	if(fabs(deltaT) <  timescale)
+	  return working_time + deltaT;
       }
-		
-      performRotation(A, deltaT);
-      performRotation(B, deltaT);
-    
-      if(!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
-			    F_zeroDeriv(A, B), F_firstDeriv(A, B), 
-			    0.5 * F_secondDeriv(A, B)))
-      {
-        //No real roots, try from the other side
-        boundaryExceeded = true;
-        rootFound = false;
-        break;
-      }
-      
-      if(fabs(deltaT) <  timescale)
-      {
-        rootFound = true;
-        break;
-      }
-      
-    }
 
-    if (boundaryExceeded)
-    {
-      fwdWorking = (fwdWorking ? false: true);
-      continue;
-    }
-    
-    if (rootFound) return working_time; 
+    //If we haven't found a root for some reason, then restart from the other side
+    fwdWorking = !fwdWorking;
   }
 
   return HUGE_VAL;
