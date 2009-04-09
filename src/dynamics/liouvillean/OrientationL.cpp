@@ -469,7 +469,8 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
 }
 
 Iflt
-CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStreamType LineB, Iflt length, Iflt& t_low, Iflt& t_high) const
+CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStreamType LineB,
+				    Iflt length, Iflt& t_low, Iflt& t_high) const
 {
   Iflt working_time = t_low;
   Iflt deltaT = 0.0, boundEnhancer = 0.0;
@@ -540,7 +541,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     if(((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
     {
       // We have overshot; reverse direction and try again
-      fwdWorking = (fwdWorking ? false: true);
+      fwdWorking = !fwdWorking;
       continue;
     }
       
