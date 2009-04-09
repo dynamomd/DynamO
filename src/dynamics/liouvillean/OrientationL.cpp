@@ -92,8 +92,6 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   if(dtw.alpha > t_low)
   {
     t_low = dtw.alpha;
-    //performRotation(A, dtw.alpha);
-    //performRotation(B, dtw.alpha);
   }
   
   if(dtw.beta < t_high)
@@ -113,7 +111,6 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 				  const orientationStreamType B, 
 				  Iflt length, Iflt t_low, Iflt t_high) const
 {
-  //I_cerr() << "Inside frenkelRootSearch";
   
   Iflt root = 0.0;
 	
@@ -121,34 +118,34 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
     {
       root = quadraticRootHunter(A, B, length, t_low, t_high);
 
-      if (root == HUGE_VAL) {/* I_cerr() << "No root found at head of func... "*/; return HUGE_VAL; }
+      if (root == HUGE_VAL) { return HUGE_VAL; }
       
       Iflt temp_high = t_high;
       do
       {
         // Artificial boundary just below root
-	orientationStreamType tempA(A), tempB(B);
+        orientationStreamType tempA(A), tempB(B);
 
         performRotation(tempA, root);
         performRotation(tempB, root);
 
-	Iflt Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
+        Iflt Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
 	
         temp_high = root - (fabs(2.0 * F_firstDeriv(tempA, tempB))
 			    / Fdoubleprimemax);
 
-	if (Fdoubleprimemax == 0)
-	  temp_high = -t_low;
+        if (Fdoubleprimemax == 0)
+          temp_high = -t_low;
 	
-	// Quit if window is now too small, at this point $root
-	// contains the smallest valid root
-	if(temp_high < t_low) { break; }
+        // Quit if window is now too small, at this point $root
+        // contains the smallest valid root
+        if(temp_high < t_low) { break; }
       
         // Search for root in new restricted range
-	Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
+        Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
 	
-	if(temp_root == HUGE_VAL) { break; } else { root = temp_root; }
-	
+        if(temp_root == HUGE_VAL) { break; } else { root = temp_root; }
+    
       } while(temp_high > t_low);
       
       // At this point $root contains earliest valid root guess.
@@ -161,12 +158,11 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       
       if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
       {
-	//I_cerr() << "Root found: " << root;
         return root;
       }
       else
         t_low = root + ((2.0 * fabs(F_firstDeriv(tempA, tempB)))
-			/ F_secondDeriv_max(tempA, tempB, length));
+          / F_secondDeriv_max(tempA, tempB, length));
     }
     
     // Firstly, search for root in main window
@@ -180,7 +176,6 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
     //    - If root is valid, this is earliest possible root - roll with it
     //    - If root is invalid, set new concrete t_low just above this found root and go from the top
 	
-    //I_cerr() << "Root not found...";
     return HUGE_VAL;
 }
 
@@ -465,8 +460,8 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       CVector<> tempvec(0);
 
       for (size_t iDim(0); iDim < NDIM; ++iDim)
-	for (size_t jDim(0); jDim < NDIM; ++jDim)      
-	  tempvec[iDim] += matrix[iDim][jDim] * osret.orientation[jDim];
+        for (size_t jDim(0); jDim < NDIM; ++jDim)      
+          tempvec[iDim] += matrix[iDim][jDim] * osret.orientation[jDim];
     
       osret.orientation = tempvec;
     }
@@ -497,13 +492,16 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
       
       if(f0 > 1e-14 || boundEnhancer > 1e-14 || deltaT > 1e-14) 
       {
-        I_cerr() << "f0 / boundEnhancer / deltaT still large, don't know what to do";
+        I_cerr() << "Undefined root-found conditions!";
+        I_cerr() << "f0 = " << f0;
+        I_cerr() << "boundEnhancer = " << boundEnhancer;
+        I_cerr() << "deltaT = " << deltaT;
       }
-      else
-      {
+      //else
+      //{
         rootFound = true;
         break;
-      }
+      //}
     }
     
     orientationStreamType A(LineA), B(LineB);
@@ -526,8 +524,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     {
       t_low = t_high + 1; // What is this?
     }
-      
-    //I_cerr() << "boundEnhancer = " << boundEnhancer;
     
     if(fwdWorking) { t_low += boundEnhancer; } else { t_high += boundEnhancer; }
     
@@ -544,7 +540,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     if(((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
     {
       // We have overshot; reverse direction and try again
-      //I_cerr() << "Overshot!";
       fwdWorking = (fwdWorking ? false: true);
       continue;
     }
@@ -588,23 +583,7 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
         break;
       }
       
-      //if(d > 10000000)
-      //{
-      //  I_cerr() << "Million iterations, root not found.";
-      //  I_cerr() << "Working time = " << working_time;
-      //  I_cerr() << "deltaT = " << deltaT;
-      //  I_cerr() << "f0 = " << fabs(f0);
-      //  I_cerr() << "Tweaking deltaT";
-      //  deltaT *= 0.9;
-      //  d = 0;
-      //}
-      
-      //if(deltaT < 1e-14)
-      //{
-      //  I_cerr() << "DeltaT is tiny";
-      //}
-	
-    } //while (fabs(f0) >  length * 1e-14);
+    }
 
     if(boundaryExceeded)
     {
@@ -618,7 +597,6 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
     }
   }
 
-  //I_cerr() << "'-End of function reached, t_low = " << t_low << "; t_high = " << t_high;
   return HUGE_VAL;
 }
 
@@ -663,8 +641,8 @@ CLNOrientation::initLineOrientations(const Iflt& length)
         angVelCrossing[iDim] = Sim->normal_sampler();
       
       orientationData[i].angularVelocity 
-	= orientationData[i].orientation.Cross(angVelCrossing).unitVector() 
-	* Sim->normal_sampler() * factor;
+        = orientationData[i].orientation.Cross(angVelCrossing).unitVector() 
+          * Sim->normal_sampler() * factor;
     }  
 }
 
