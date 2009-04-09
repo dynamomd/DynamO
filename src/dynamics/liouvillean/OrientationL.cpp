@@ -422,9 +422,10 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
       // Linear dynamics
       osret.position += (osret.velocity * dt);
     
-      Iflt angle = osret.angularVelocity.length() * dt;
+      Iflt angle = osret.angularVelocity.length();
   
-      CVector<> v = osret.angularVelocity.unitVector();
+      CVector<> v = osret.angularVelocity / angle;
+      angle *= dt;
       CVector<> vsq = v * v;
   
       // axis is not undefined and angle is not zero

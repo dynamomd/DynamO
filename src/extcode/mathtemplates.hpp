@@ -30,7 +30,7 @@ struct ctime_pow<X,1> {
   static const int result = X;
 };
 
-typedef enum
+enum
   {
     ROOT_SMALLEST_EITHER   =   1,
     ROOT_SMALLEST_POSITIVE =   2,
