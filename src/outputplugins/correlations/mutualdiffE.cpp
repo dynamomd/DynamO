@@ -307,7 +307,8 @@ COPMutualDiffusionE::accPass()
       sumSp1 += G1[i];
       sumSp2 += G2[i];
 
-      accG[i] += sumSp1 * sumSp2;
+      for (size_t j(0); j < NDIM; ++j)
+	accG[i][j] += sumSp1[j] * sumSp2[j];
     }
 }
 

@@ -230,7 +230,13 @@ COPThermalDiffusionE::accPass()
     {
       sum += G[index];
       sumsp1 += Gsp1[index];
-      accG2[index] += sum * sumsp1;
+      
+      CVector<> tmp(sum);
+      
+      for (size_t i(0); i < NDIM; ++i)
+	tmp[i] *= sumsp1[i];
+
+      accG2[index] += tmp;
     }
 }
 

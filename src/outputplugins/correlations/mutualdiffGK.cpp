@@ -279,7 +279,8 @@ COPMutualDiffusionGK::accPass()
   ++count;
   
   for (size_t i = 0; i < CorrelatorLength; ++i)
-    accG[i] += (delGsp1 - (massFracSp1 * sysMom)) * (G[i] - (massFracSp2 * sysMom));
+    for (size_t j = 0; j < NDIM; ++j)
+      accG[i][j] += (delGsp1[j] - (massFracSp1 * sysMom[j])) * (G[i][j] - (massFracSp2 * sysMom[j]));
 }
 
 Iflt 

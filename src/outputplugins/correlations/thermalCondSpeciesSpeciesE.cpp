@@ -289,7 +289,12 @@ COPThermalConductivitySpeciesSpeciesE::accPass()
 	    sum1 += G[id1][i];
 	    sum2 += G[id2][i];
 
-	    accG2[id1+Nsp*id2][i] += sum1 * sum2;
+	    CVector<> tmp (sum1);
+
+	    for (size_t j(0); j < NDIM; ++j)
+	      tmp[j] *= sum2[j];
+		
+	    accG2[id1+Nsp*id2][i] += tmp;
 	  }
       }
 }

@@ -50,8 +50,10 @@ COPMomentum::A1ParticleChange(const C1ParticleData& PDat)
 void 
 COPMomentum::stream(const Iflt& dt)
 {
-  accMom += sysMom * dt;
-  accMomsq += sysMom * sysMom * dt;
+  CVector<> tmp(sysMom * dt);
+  accMom += tmp;
+  for (size_t i(0); i < NDIM; ++i)
+    accMomsq[i] += sysMom[i] * tmp[i];
 }
 
 void

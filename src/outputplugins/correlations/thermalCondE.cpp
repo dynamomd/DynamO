@@ -259,7 +259,9 @@ COPThermalConductivityE::accPass()
   for (size_t i = 0; i < CorrelatorLength; ++i)
     {
       sum += G[i];
-      accG2[i] += sum * sum;
+
+      for (size_t j(0); j < NDIM; ++j)
+	accG2[i][j] += sum[j] * sum[j];
     }
 }
 

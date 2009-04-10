@@ -120,7 +120,8 @@ struct CUFile: public CUCell
       vec -= centreOPoints;
 
     BOOST_FOREACH(CVector<>& vec, particleCache)
-      vec *= dimensions;
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	vec[iDim] *= dimensions[iDim];
   }
 
   virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)

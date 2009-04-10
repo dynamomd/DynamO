@@ -98,26 +98,6 @@ class CVector
     return *this;
   }
   
-  /*! \brief Multiplies each dimension of the vectors seperately. */
-  inline CVector<T> operator* (const CVector < T > &v2) const
-  {
-    CVector < T > tmpVec;
-    
-    for (size_t i = 0; i < NDIM; ++i)
-      tmpVec.data[i] = data[i] * v2.data[i];
-    
-    return tmpVec;
-  }
-  
-  /*! \brief Multiplies each dimension of the vectors seperately. */
-  inline CVector<T>& operator*= (const CVector < T > &v2)
-  {
-    for (size_t i = 0; i < NDIM; ++i)
-      data[i] *= v2.data[i];
-    
-    return *this;
-  }
-  
   /*! \brief Scales the vector by a factor */
   inline CVector<T> operator* (const T &val) const
   {
@@ -141,17 +121,6 @@ class CVector
       data[i] *= val;
     
     return *this;
-  }
-  
-  /*! \brief Divides the vector by a factor */
-  inline CVector<T> operator/ (const CVector < T > &v2) const
-  {
-    CVector < T > tmpVec;
-    
-    for (size_t i = 0; i < NDIM; ++i)
-      tmpVec.data[i] = data[i] / v2.data[i];
-    
-    return tmpVec;
   }
   
   /*! \brief Divides the vector by a factor */

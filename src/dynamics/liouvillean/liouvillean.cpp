@@ -237,7 +237,12 @@ CLiouvillean::getParticleKineticEnergy(const CParticle& part) const
 CVector<> 
 CLiouvillean::getVectorParticleKineticEnergy(const CParticle& part) const
 {
-  return 0.5 * (part.getVelocity() * part.getVelocity()) * Sim->Dynamics.getSpecies(part).getMass();
+  CVector<> tmp(0.5 * part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass());
+
+  for (size_t i = 0; i < NDIM; ++i)
+    tmp[i] *= part.getVelocity()[i];
+
+  return tmp;
 }
 
 Iflt 

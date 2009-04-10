@@ -426,8 +426,11 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
   
       CVector<> v = osret.angularVelocity / angle;
       angle *= dt;
-      CVector<> vsq = v * v;
-  
+      CVector<> vsq(v);
+      
+      for (size_t i = 0; i < NDIM; ++i)
+	vsq[i] *= vsq[i];
+
       // axis is not undefined and angle is not zero
       if(!(v[0] == 0 && v[1] == 0 && v[2] == 0) && angle != 0)
 	{	

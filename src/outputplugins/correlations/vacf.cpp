@@ -268,5 +268,6 @@ COPVACF::accPass()
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec.getRange())
     for (size_t j = 0; j < CorrelatorLength; ++j)
-      accG2[spec.getID()][j] +=  G[ID].front() * G[ID][j];
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	accG2[spec.getID()][j][iDim] +=  G[ID].front()[iDim] * G[ID][j][iDim];
 }
