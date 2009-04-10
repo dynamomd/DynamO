@@ -424,43 +424,11 @@ CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) co
     {
       // Linear dynamics
       osret.position += (osret.velocity * dt);
-    
-      Iflt angle = osret.angularVelocity.nrm();
-  
-      Vector  v = osret.angularVelocity / angle;
-      angle *= dt;
-      Vector  vsq(v);
-      
-      for (size_t i = 0; i < NDIM; ++i)
-	vsq[i] *= vsq[i];
 
-      // axis is not undefined and angle is not zero
-      if(!(v[0] == 0 && v[1] == 0 && v[2] == 0) && angle != 0)
-	{	
-    
-	  Iflt matrix[3][3];
-    
-	  Iflt cos_term = cos(angle);
-	  Iflt sin_term = sin(angle);
-  
-	  matrix[0][0] = vsq[0] + (vsq[1] + vsq[2])*(cos_term);
-	  matrix[0][1] = (v[0] * v[1] * (1 - cos_term)) - (v[2] * sin_term);
-	  matrix[0][2] = (v[0] * v[2] * (1 - cos_term)) + (v[1] * sin_term);
-	  matrix[1][0] = (v[0] * v[1] * (1 - cos_term)) + (v[2] * sin_term);
-	  matrix[1][1] = vsq[1] + (vsq[2] + vsq[0])*(cos_term);
-	  matrix[1][2] = (v[1] * v[2] * (1 - cos_term)) - (v[0] * sin_term);
-	  matrix[2][0] = (v[2] * v[0] * (1 - cos_term)) - (v[1] * sin_term);
-	  matrix[2][1] = (v[1] * v[2] * (1 - cos_term)) + (v[0] * sin_term);
-	  matrix[2][2] = vsq[2] + (vsq[0] + vsq[1])*(cos_term);
-    
-	  Vector  tempvec(0,0,0);
-
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    for (size_t jDim(0); jDim < NDIM; ++jDim)      
-	      tempvec[iDim] += matrix[iDim][jDim] * osret.orientation[jDim];
-    
-	  osret.orientation = tempvec;
-	}
+      //The Vector copy is required to make sure that the cached
+      //orientation doesn't change
+      osret.orientation = Rodrigues(osret.angularVelocity * dt) 
+	* Vector(osret.orientation);
     }
 }
 
