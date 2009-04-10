@@ -270,8 +270,7 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
 Iflt
 CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B) const
 {
-  Vector deltaR = A.position - B.position;
-  return ((A.orientation ^ B.orientation) | deltaR);
+  return ((A.orientation ^ B.orientation) | (A.position - B.position));
 }
 
 Iflt 
