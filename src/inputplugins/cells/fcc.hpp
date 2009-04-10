@@ -20,7 +20,7 @@
 
 struct CUFCC: public CUCell
 {
-  CUFCC(CVector<long> ncells, CVector<> ndimensions, CUCell* nextCell):
+  CUFCC(CVector<long> ncells, Vector  ndimensions, CUCell* nextCell):
     CUCell(nextCell),
     cells(ncells),
     dimensions(ndimensions)
@@ -29,13 +29,13 @@ struct CUFCC: public CUCell
   }
 
   CVector<long> cells;
-  CVector<> dimensions;
+  Vector  dimensions;
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > retval;
+    std::vector<Vector  > retval;
 
-    CVector<> cellWidth;
+    Vector  cellWidth;
     
     for (int iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
@@ -62,7 +62,7 @@ struct CUFCC: public CUCell
     rcoord[3][1] = 0.0;
     rcoord[3][2] = cellWidth[2] * 0.5;
     
-    CVector<> position;
+    Vector  position;
     CVector<int> iterVec;
     
     for (iterVec[2] = 0; iterVec[2] < cells[2]; iterVec[2]++)
@@ -75,7 +75,7 @@ struct CUFCC: public CUCell
 		  rcoord[iRef][iDim] + cellWidth[iDim] * iterVec[iDim] - 0.5 * dimensions[iDim] + centre[iDim];
 	      
 	      //Get the next unit cells positions and push them to your list
-	      BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position))
+	      BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 		retval.push_back(vec);
 	    }
 

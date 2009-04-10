@@ -43,7 +43,7 @@ class COPMSDCorrelator: public COPTicker
 
   void accPass();
 
-  std::vector<boost::circular_buffer<CVector<> > > posHistory;
+  std::vector<boost::circular_buffer<Vector  > > posHistory;
   std::vector<std::vector<Iflt> > speciesData;
   std::vector<std::vector<Iflt> > structData;
   size_t length;

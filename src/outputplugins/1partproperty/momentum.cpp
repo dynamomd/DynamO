@@ -26,15 +26,15 @@
 
 COPMomentum::COPMomentum(const DYNAMO::SimData* tmp, const XMLNode&):
   COP1PP(tmp,"Momentum", 250),
-  accMom(0), accMomsq(0), sysMom(0)
+  accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
 {}
 
 void
 COPMomentum::initialise()
 {  
-  accMom = CVector<>(0);
-  accMomsq = CVector<>(0);
-  sysMom = CVector<>(0);
+  accMom = Vector (0,0,0);
+  accMomsq = Vector (0,0,0);
+  sysMom = Vector (0,0,0);
 
   BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec.getRange())
@@ -50,7 +50,7 @@ COPMomentum::A1ParticleChange(const C1ParticleData& PDat)
 void 
 COPMomentum::stream(const Iflt& dt)
 {
-  CVector<> tmp(sysMom * dt);
+  Vector  tmp(sysMom * dt);
   accMom += tmp;
   for (size_t i(0); i < NDIM; ++i)
     accMomsq[i] += sysMom[i] * tmp[i];

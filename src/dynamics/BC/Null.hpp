@@ -34,11 +34,11 @@ class CNullBC: virtual public CBC
   
   virtual ~CNullBC();
     
-  virtual void setPBC(CVector<> &)const;
+  virtual void setPBC(Vector  &)const;
 
-  virtual void setPBC(CVector<> &, CVector<> &) const;
+  virtual void setPBC(Vector  &, Vector  &) const;
 
-  virtual void setPBC(CVector<> &, const Iflt&) const;
+  virtual void setPBC(Vector  &, const Iflt&) const;
 
   virtual void update(const Iflt&);
 
@@ -48,7 +48,7 @@ class CNullBC: virtual public CBC
 
   virtual CBC* Clone () const;
 
-  virtual void rounding(CVector<>&) const;
+  virtual void rounding(Vector &) const;
 };
 
 #endif

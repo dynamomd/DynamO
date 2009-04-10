@@ -103,7 +103,7 @@ CISquareBond::initialise(size_t nID)
 bool 
 CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
 {
-  CVector<> rij = p1.getPosition() - p2.getPosition();
+  Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
   
   if (((rij | rij) <= ld2) && ((rij | rij) >= d2))
@@ -115,9 +115,9 @@ CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
 void
 CISquareBond::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
-  CVector<> rij = part1.getPosition() - part2.getPosition();
+  Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
-  Iflt r2 = rij.square();
+  Iflt r2 = rij.nrm2();
 
   if (r2 < d2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
@@ -215,11 +215,11 @@ CISquareBond::write_povray_info(std::ostream& os) const
     BOOST_FOREACH(const CParticle& p2, Sim->vParticleList)
     if (range->isInRange(p1,p2) && (p1 != p2))
       {
-	CVector<> pos1(p1.getPosition()), pos2(p2.getPosition());
+	Vector  pos1(p1.getPosition()), pos2(p2.getPosition());
 	Sim->Dynamics.BCs().setPBC(pos1);
 	Sim->Dynamics.BCs().setPBC(pos2);
 	
-	if ((pos1-pos2).length() > 0.5) continue;
+	if ((pos1-pos2).nrm() > 0.5) continue;
 
 	Sim->Dynamics.BCs().setPBC(pos1);
 	Sim->Dynamics.BCs().setPBC(pos2);

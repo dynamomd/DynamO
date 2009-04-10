@@ -110,7 +110,7 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass(); 
   Iflt mu = p1Mass*p2Mass/(p1Mass+p2Mass);    
-  Iflt r2 = retVal.rij.square();
+  Iflt r2 = retVal.rij.nrm2();
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
@@ -120,12 +120,12 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().square() 
-				  - retVal.particle1_.getOldVel().square()));
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (particle2.getVelocity().square() 
-				  - retVal.particle2_.getOldVel().square()));
+			       * (particle2.getVelocity().nrm2()
+				  - retVal.particle2_.getOldVel().nrm2()));
   
   return retVal;
 }
@@ -148,7 +148,7 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
   Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
-  CVector<> urij = retVal.rij.unitVector();
+  Vector  urij = retVal.rij / retVal.rij.nrm();
 
   retVal.rvdot = (urij | retVal.vijold);
 
@@ -184,7 +184,7 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
 	  * (2.0 * deltaKE / (growthRate * sqrt(d2) - std::sqrt(sqrtArg) - retVal.rvdot ));
     }
 
-  retVal.rvdot *= retVal.rij.length();
+  retVal.rvdot *= retVal.rij.nrm();
   
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
@@ -196,12 +196,12 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().square() 
-				  - retVal.particle1_.getOldVel().square()));
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (particle2.getVelocity().square() 
-				  - retVal.particle2_.getOldVel().square()));
+			       * (particle2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
   
   return retVal;
 }
@@ -222,7 +222,7 @@ CLCompression::getPBCSentinelTime(const CParticle& part,
     D_throw() << "Particle is not up to date";
 #endif
 
-  CVector<> pos(part.getPosition()), vel(part.getVelocity());
+  Vector  pos(part.getPosition()), vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
 

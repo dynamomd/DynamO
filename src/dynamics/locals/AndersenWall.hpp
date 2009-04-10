@@ -26,7 +26,7 @@ class CLAndersenWall: public CLocal
 public:
   CLAndersenWall(const XMLNode&, DYNAMO::SimData*);
 
-  CLAndersenWall(DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
+  CLAndersenWall(DYNAMO::SimData*, Iflt, Vector , Vector , 
 		 std::string, CRange*);
 
   virtual ~CLAndersenWall() {}
@@ -41,15 +41,15 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  virtual bool isInCell(const CVector<>&, const CVector<>&) const;
+  virtual bool isInCell(const Vector &, const Vector &) const;
 
   virtual void write_povray_info(std::ostream&) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  CVector<> vNorm;
-  CVector<> vPosition;
+  Vector  vNorm;
+  Vector  vPosition;
   Iflt sqrtT;
 };
 

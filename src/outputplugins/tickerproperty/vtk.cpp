@@ -27,7 +27,7 @@
 
 COPVTK::COPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPTicker(tmp,"VTK"),
-  binWidth(1.0),
+  binWidth(1,1,1),
   imageCounter(0)
 {
   operator<<(XML);
@@ -38,8 +38,10 @@ COPVTK::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binwidth"))
-      binWidth = CVector<>
-	(boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")));
+      binWidth = Vector 
+	(boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
+	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
+	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")));
       }
   catch (std::exception& excep)
     {
@@ -75,7 +77,7 @@ COPVTK::initialise()
   
   mVsquared.resize(vecSize, 0.0);
   SampleCounter.resize(vecSize, 0);
-  Momentum.resize(vecSize, CVector<>(0.0));
+  Momentum.resize(vecSize, Vector (0,0,0));
 
   std::string tmp("< ");
 
@@ -94,7 +96,7 @@ COPVTK::initialise()
 }
 
 size_t 
-COPVTK::getCellID(CVector<> pos)
+COPVTK::getCellID(Vector  pos)
 {
   size_t retval(0);
   size_t factor(1);
@@ -119,7 +121,7 @@ COPVTK::ticker()
   
   BOOST_FOREACH(const CParticle & Part, Sim->vParticleList)
     {
-      CVector<> position = Part.getPosition(),
+      Vector  position = Part.getPosition(),
 	velocity = Part.getVelocity();
       
       Sim->Dynamics.BCs().setPBC(position, velocity);
@@ -134,7 +136,7 @@ COPVTK::ticker()
 	* Sim->Dynamics.getSpecies(Part).getMass();
             
       //Energy Field
-      mVsquared[id] += velocity.square()
+      mVsquared[id] += velocity.nrm2()
 	* Sim->Dynamics.getSpecies(Part).getMass();
     }
 }

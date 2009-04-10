@@ -58,7 +58,7 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  CVector<> getCellDimensions() const 
+  Vector  getCellDimensions() const 
   { return cellDimension; }
 
   virtual Iflt getMaxSupportedInteractionLength() const;
@@ -83,7 +83,7 @@ protected:
 
     std::vector<size_t> locals;    
     int list;
-    CVector<> origin;
+    Vector  origin;
     CVector<int> coords;
   };
 
@@ -96,7 +96,7 @@ protected:
 
   CVector<int> getCoordsFromID(size_t) const; 
 
-  size_t getCellID(CVector<>) const;
+  size_t getCellID(Vector ) const;
 
   void addCells(Iflt);
 
@@ -104,8 +104,8 @@ protected:
 
   //Variables
   CVector<int> cellCount;
-  CVector<> cellDimension;
-  CVector<> cellLatticeWidth;
+  Vector  cellDimension;
+  Vector  cellLatticeWidth;
   Iflt lambda;
   size_t NCells;
 

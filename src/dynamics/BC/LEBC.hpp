@@ -41,11 +41,11 @@ class CRLEBC: virtual public CBC, public CLEBC
 
   virtual CBC* Clone () const;
 
-  virtual void setPBC(CVector<>&) const; 
+  virtual void setPBC(Vector &) const; 
 
-  virtual void setPBC(CVector<>&, CVector<>&) const;
+  virtual void setPBC(Vector &, Vector &) const;
 
-  virtual void setPBC(CVector<>&, const Iflt& dt) const;
+  virtual void setPBC(Vector &, const Iflt& dt) const;
 
   virtual void update(const Iflt&);
 
@@ -77,11 +77,11 @@ class CSLEBC: virtual public CBC, public CLEBC
 
   virtual CBC* Clone () const;
 
-  virtual void setPBC(CVector<>&) const; 
+  virtual void setPBC(Vector &) const; 
 
-  virtual void setPBC(CVector<>&, CVector<>&) const;
+  virtual void setPBC(Vector &, Vector &) const;
 
-  virtual void setPBC(CVector<>&, const Iflt&) const;
+  virtual void setPBC(Vector &, const Iflt&) const;
 
   virtual void update(const Iflt&);
 

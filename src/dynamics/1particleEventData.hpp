@@ -35,10 +35,10 @@ public:
   inline const CParticle& getParticle() const
   { return particle_; }
   
-  inline const CVector<>& getOldVel() const
+  inline const Vector & getOldVel() const
   { return oldVelVec; }
 
-  inline CVector<> getOldPosition() const
+  inline Vector  getOldPosition() const
   { D_throw() << "Not yet Implemented"; }
 
   inline const CSpecies& getSpecies() const
@@ -62,14 +62,14 @@ public:
   inline EEventType getType() const
   { return Type_; }
   
-  CVector<> getDeltaP() const
+  Vector  getDeltaP() const
   {
     return species_.getMass() * (particle_.getVelocity() - oldVelVec);
   }
 
 private:
   const CParticle& particle_;
-  const CVector<> oldVelVec;
+  const Vector  oldVelVec;
   const CSpecies& species_;
   EEventType Type_;
   Iflt deltaU;

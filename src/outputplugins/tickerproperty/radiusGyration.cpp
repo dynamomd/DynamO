@@ -102,14 +102,14 @@ COPRGyration::molGyrationDat
 COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNAMO::SimData* Sim)
 {
   //Determine the centre of mass. Watch for periodic images
-  CVector<> tmpVec;  
+  Vector  tmpVec;  
   
   molGyrationDat retVal;
-  retVal.MassCentre = CVector<>(0);  
+  retVal.MassCentre = Vector (0,0,0);
 
-  CVector<> currRelPos(0);
+  Vector  currRelPos(0,0,0);
   Iflt totmass = Sim->Dynamics.getSpecies(Sim->vParticleList[*(range->begin())]).getMass();
-  std::list<CVector<> > relVecs;
+  std::list<Vector  > relVecs;
   relVecs.push_back(currRelPos);
   
   unsigned long ID;
@@ -136,7 +136,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
     for (int j = i; j < NDIM; j++)
       data[i + j * NDIM] = 0.0;
   
-  BOOST_FOREACH(CVector<>& vec, relVecs)
+  BOOST_FOREACH(Vector & vec, relVecs)
     {
       vec -= retVal.MassCentre;
 
@@ -181,8 +181,8 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   return retVal;
 }
 
-CVector<>
-COPRGyration::NematicOrderParameter(const std::list<CVector<> >& molAxis)
+Vector 
+COPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
 {
   double Q[NDIM * NDIM];
   
@@ -190,7 +190,7 @@ COPRGyration::NematicOrderParameter(const std::list<CVector<> >& molAxis)
     for (int j = i; j < NDIM; j++)
       Q[i + j * NDIM] = 0.0;
 
-  BOOST_FOREACH(const CVector<>& vec, molAxis)
+  BOOST_FOREACH(const Vector & vec, molAxis)
     for (int i = 0; i < NDIM; i++)
       for (int j = i; j < NDIM; j++)
 	Q[i + (j * NDIM)] += (3.0 * vec[i] * vec[j]) - (i==j ? 1 : 0);
@@ -220,7 +220,7 @@ COPRGyration::NematicOrderParameter(const std::list<CVector<> >& molAxis)
   gsl_eigen_symmv_sort (eval, evec, 
 			GSL_EIGEN_SORT_VAL_ASC);
   
-  CVector<> retval; 
+  Vector  retval; 
   for (int iDim = 0; iDim < NDIM; iDim++)
     retval[iDim] = gsl_vector_get (eval, iDim);
 
@@ -231,7 +231,7 @@ COPRGyration::NematicOrderParameter(const std::list<CVector<> >& molAxis)
 }
 
 Iflt 
-COPRGyration::CubaticOrderParameter(const std::list<CVector<> >& molAxis)
+COPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
 {
   if (NDIM != 3)
     D_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
@@ -239,7 +239,7 @@ COPRGyration::CubaticOrderParameter(const std::list<CVector<> >& molAxis)
   //Cubatic Order Parameter
   Iflt Q_cub[NDIM][NDIM][NDIM][NDIM];
   
-  BOOST_FOREACH(const CVector<>& vec, molAxis)
+  BOOST_FOREACH(const Vector & vec, molAxis)
     for (unsigned int iDim = 0; iDim < NDIM; iDim++)
       for (unsigned int jDim = 0; jDim < NDIM; jDim++)
 	for (unsigned int kDim = 0; kDim < NDIM; kDim++)
@@ -308,7 +308,7 @@ COPRGyration::ticker()
 {
   BOOST_FOREACH(CTCdata& dat,chains)
     {
-      std::list<CVector<> > molAxis;
+      std::list<Vector  > molAxis;
 
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
@@ -320,7 +320,7 @@ COPRGyration::ticker()
 	    dat.gyrationRadii[iDim].addVal(vals.EigenVal[iDim]);
 	}
       
-      CVector<> EigenVal = NematicOrderParameter(molAxis);
+      Vector  EigenVal = NematicOrderParameter(molAxis);
       
       for (int i = 0; i < NDIM; i++)
 	if (std::isnormal(EigenVal[i]))
@@ -347,12 +347,12 @@ COPRGyration::output(xmlw::XmlStream& XML)
       XML << xmlw::endtag("GyrationRadii")
 	  << xmlw::tag("NematicOrderParameter");
 
-      std::list<CVector<> > molAxis;
+      std::list<Vector  > molAxis;
 
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
 	molAxis.push_back(getGyrationEigenSystem(range, Sim).EigenVec[NDIM-1]);
 
-      CVector<> EigenVal = NematicOrderParameter(molAxis);
+      Vector  EigenVal = NematicOrderParameter(molAxis);
             
       for (int i = 0; i < NDIM; i++)
 	if (std::isnormal(EigenVal[i]))

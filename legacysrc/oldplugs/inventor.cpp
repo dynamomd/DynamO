@@ -43,7 +43,7 @@ SoSeparator *COPInventor::makeMoleculeScene()
        iPtr  != particleList.end (); iPtr++)
     {
       //Prep the vectors for plotting
-      CVector<> pos = iPtr->getPosition(), vel = iPtr->getVelocity();
+      Vector  pos = iPtr->getPosition(), vel = iPtr->getVelocity();
       CIntEventClass collclass = dynamics->findCollClass(iPtr->getType(), iPtr->getType());      
       dynamics->setPBC(pos);
       vel = vel.unitVector() * collclass.diameter * 1.5;

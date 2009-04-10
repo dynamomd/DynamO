@@ -100,7 +100,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
   int endCell(-1); //The ID of the cell the particle enters
 
-  CVector<> pos(part.getPosition() - cells[oldCell].origin), 
+  Vector  pos(part.getPosition() - cells[oldCell].origin), 
     vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
@@ -129,7 +129,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
       //Predict the position of the particle in the x dimension
       Sim->Dynamics.Liouvillean().advanceUpdateParticle(part, dt);
-      CVector<> tmpPos = part.getPosition();
+      Vector  tmpPos = part.getPosition();
 
       //This just ensures we wrap the image
       if (vel[1] < 0)

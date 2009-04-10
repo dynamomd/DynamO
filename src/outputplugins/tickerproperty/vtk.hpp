@@ -41,14 +41,14 @@ class COPVTK: public COPTicker
   unsigned long frameCount;
 
   CVector<size_t> nBins;
-  CVector<> binWidth;
-  CVector<> invBinWidth;
+  Vector  binWidth;
+  Vector  invBinWidth;
   
   std::vector<Iflt> mVsquared;
   std::vector<unsigned long> SampleCounter;
-  std::vector<CVector<> > Momentum;
+  std::vector<Vector  > Momentum;
 
-  size_t getCellID(CVector<>);
+  size_t getCellID(Vector );
 
   unsigned long imageCounter;
 };

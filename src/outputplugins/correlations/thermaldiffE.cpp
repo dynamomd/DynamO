@@ -28,15 +28,15 @@ COPThermalDiffusionE::COPThermalDiffusionE(const DYNAMO::SimData* tmp,
   count(0),
   dt(0),
   currentdt(0.0),
-  constDelG(0.0), 
-  delG(0.0),
+  constDelG(0,0,0), 
+  delG(0,0,0),
   currlen(0),
   notReady(true),
   CorrelatorLength(100),
-  constDelGsp1(0.0),
-  delGsp1(0.0),
+  constDelGsp1(0,0,0),
+  delGsp1(0,0,0),
   species1(0),
-  sysMom(0.0),
+  sysMom(0,0,0),
   massFracSp1(1)
 {
   operator<<(XML);
@@ -90,13 +90,13 @@ COPThermalDiffusionE::initialise()
 	"\n Essentially you need entropic data too for other ensembles";
     }
 
-  G.resize(CorrelatorLength, CVector<>(0.0));
-  accG2.resize(CorrelatorLength, CVector<>(0.0));
+  G.resize(CorrelatorLength, Vector (0,0,0));
+  accG2.resize(CorrelatorLength, Vector (0,0,0));
   Sim->getOutputPlugin<COPMisc>();
   Sim->getOutputPlugin<COPKEnergy>();
   
-  accG2.resize(CorrelatorLength, CVector<>(0.0));
-  Gsp1.resize(CorrelatorLength, CVector<>(0.0));
+  accG2.resize(CorrelatorLength, Vector (0,0,0));
+  Gsp1.resize(CorrelatorLength, Vector (0,0,0));
 
   if (dt == 0.0)
     {
@@ -224,14 +224,14 @@ void
 COPThermalDiffusionE::accPass()
 {
   ++count;
-  CVector<> sum(0), sumsp1(0);
+  Vector  sum(0,0,0), sumsp1(0,0,0);
 
   for (size_t index = 0; index < CorrelatorLength; ++index)
     {
       sum += G[index];
       sumsp1 += Gsp1[index];
       
-      CVector<> tmp(sum);
+      Vector  tmp(sum);
       
       for (size_t i(0); i < NDIM; ++i)
 	tmp[i] *= sumsp1[i];
@@ -240,7 +240,7 @@ COPThermalDiffusionE::accPass()
     }
 }
 
-inline CVector<> 
+inline Vector  
 COPThermalDiffusionE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaKE();
@@ -304,10 +304,10 @@ COPThermalDiffusionE::eventUpdate(const CIntEvent& iEvent,
   updateConstDelG(PDat);
 }
 
-CVector<> 
+Vector  
 COPThermalDiffusionE::impulseDelG(const CNParticleData& ndat) 
 { 
-  CVector<> acc(0);
+  Vector  acc(0,0,0);
     
   BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
     acc += impulseDelG(dat);

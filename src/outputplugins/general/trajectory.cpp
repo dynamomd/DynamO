@@ -54,7 +54,7 @@ COPTrajectory::printData(const size_t& p1,
   size_t id2 = ((p1 > p2) 
 		? p1 : p2);
 
-  CVector<> rij = Sim->vParticleList[id1].getPosition()
+  Vector  rij = Sim->vParticleList[id1].getPosition()
     - Sim->vParticleList[id2].getPosition();
 
   Sim->Dynamics.BCs().setPBC(rij);
@@ -63,7 +63,7 @@ COPTrajectory::printData(const size_t& p1,
 
   logfile << " p1 " << id1
 	  << " p2 " << id2
-	  << " |r12| " << rij.length()
+	  << " |r12| " << rij.nrm()
 	  << " r12 < ";
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)

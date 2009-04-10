@@ -24,7 +24,7 @@ class CLWall: public CLocal
 {
 public:
   CLWall(const XMLNode&, DYNAMO::SimData*);
-  CLWall(DYNAMO::SimData*, Iflt, CVector<>, CVector<>, 
+  CLWall(DYNAMO::SimData*, Iflt, Vector , Vector , 
 	 std::string, CRange*);
 
   virtual ~CLWall() {}
@@ -35,7 +35,7 @@ public:
 
   virtual void runEvent(const CParticle&, const CLocalEvent&) const;
   
-  virtual bool isInCell(const CVector<>&, const CVector<>&) const;
+  virtual bool isInCell(const Vector &, const Vector &) const;
 
   virtual void initialise(size_t);
 
@@ -46,8 +46,8 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  CVector<> vNorm;
-  CVector<> vPosition;
+  Vector  vNorm;
+  Vector  vPosition;
   Iflt e;
 };
 

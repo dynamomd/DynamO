@@ -6,7 +6,7 @@ CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1,
 		 const CRange& range2):
   dt(HUGE_VAL)
 {
-  CVector<> COMVel1(0), COMVel2(0), COMPos1(0), COMPos2(0);
+  Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
   Iflt structmass1(0), structmass2(0);
     
@@ -48,6 +48,6 @@ CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1,
 
   rvdot = (rij | vij);
 
-  r2 = rij.square();
-  v2 = vij.square();
+  r2 = rij.nrm2();
+  v2 = vij.nrm2();
 }

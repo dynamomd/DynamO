@@ -37,10 +37,10 @@ struct CUMirror: public CUCell
   Iflt fraction;
   long count1, count2;
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
     //Must be placed at zero for the mirroring to work correctly
-    std::vector<CVector<> > retval(uc->placeObjects(CVector<>(0.0)));
+    std::vector<Vector  > retval(uc->placeObjects(Vector (0,0,0)));
 
     //Avoid dividing by zero, then distribute the images according to the fraction
     if (!(count1+count2) || (static_cast<Iflt>(count1) / static_cast<Iflt>(count1+count2) > fraction))
@@ -49,7 +49,7 @@ struct CUMirror: public CUCell
       {
 	++count1;
 	//Mirror the unit cell now
-	BOOST_FOREACH(CVector<>& vec, retval)
+	BOOST_FOREACH(Vector & vec, retval)
 	  {
 	    if (NDIM % 2)
 	      //Odd dimensions, flip all for symmetry
@@ -61,7 +61,7 @@ struct CUMirror: public CUCell
       }
 
     //Adjust the centering of the unit cell
-    BOOST_FOREACH(CVector<>& vec, retval)
+    BOOST_FOREACH(Vector & vec, retval)
       vec += centre;
 
     return retval;    

@@ -33,13 +33,13 @@ struct CUringSnake: public CUCell
   size_t pairchainlength;  
   Iflt walklength;
   
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
     size_t L(size_t(std::sqrt(pairchainlength)));
     
-    std::vector<CVector<> > localsites;
+    std::vector<Vector  > localsites;
 
-    CVector<> x(0.0);
+    Vector  x(0,0,0);
 
     Iflt direction(walklength);
     
@@ -78,9 +78,9 @@ struct CUringSnake: public CUCell
 
     localsites.push_back(x);
         
-    std::vector<CVector<> > retval;
-    BOOST_FOREACH(const CVector<>& vec, localsites)
-      BOOST_FOREACH(const CVector<>& vec2, uc->placeObjects(vec))
+    std::vector<Vector  > retval;
+    BOOST_FOREACH(const Vector & vec, localsites)
+      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
     return retval;    

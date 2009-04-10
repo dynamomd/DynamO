@@ -56,14 +56,14 @@ public:
  protected:
   typedef std::pair<classKey, EEventType> eventKey;
 
-  void newEvent(const EEventType&, const classKey&, const Iflt&, const CVector<>&);
+  void newEvent(const EEventType&, const classKey&, const Iflt&, const Vector &);
   
   struct counterData
   {
-    counterData():count(0), energyLoss(0), momentumChange(0) {}
+    counterData():count(0), energyLoss(0), momentumChange(0,0,0) {}
     unsigned long count;
     Iflt energyLoss;
-    CVector<> momentumChange;
+    Vector  momentumChange;
   };
   
   std::map<eventKey, counterData> counters;

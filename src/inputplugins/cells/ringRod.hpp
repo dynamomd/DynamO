@@ -33,13 +33,13 @@ struct CUringRod: public CUCell
   size_t pairchainlength;  
   Iflt walklength;
   
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > localsites;
+    std::vector<Vector  > localsites;
         
     for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
       { 
-	CVector<> tmp(0);
+	Vector  tmp(0,0,0);
 	tmp[0] = -0.5 * walklength;
 	tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
 
@@ -48,7 +48,7 @@ struct CUringRod: public CUCell
 
     for (int iStep = pairchainlength; iStep != 0;)
       { 
-	CVector<> tmp(0);
+	Vector tmp(0,0,0);
 
 	--iStep;
 	tmp[0] = 0.5 * walklength;
@@ -57,9 +57,9 @@ struct CUringRod: public CUCell
 	localsites.push_back(tmp + centre);
       }
   
-    std::vector<CVector<> > retval;
-    BOOST_FOREACH(const CVector<>& vec, localsites)
-      BOOST_FOREACH(const CVector<>& vec2, uc->placeObjects(vec))
+    std::vector<Vector  > retval;
+    BOOST_FOREACH(const Vector & vec, localsites)
+      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
     return retval;    

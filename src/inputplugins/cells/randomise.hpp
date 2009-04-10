@@ -26,10 +26,10 @@ struct CURandomise: public CUCell
     CUCell(nextCell)
   {}
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
     //Must be placed at zero for the mirroring to work correctly
-    std::vector<CVector<> > retval(uc->placeObjects(CVector<>(centre)));
+    std::vector<Vector  > retval(uc->placeObjects(Vector (centre)));
     
     std::random_shuffle(retval.begin(), retval.end());
     

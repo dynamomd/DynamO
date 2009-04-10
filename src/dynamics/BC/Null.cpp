@@ -25,15 +25,15 @@ CNullBC::CNullBC(const DYNAMO::SimData* Sim):
 CNullBC::~CNullBC() {}
     
 void 
-CNullBC::setPBC(CVector<> &)const 
+CNullBC::setPBC(Vector  &)const 
 {}
 
 void 
-CNullBC::setPBC(CVector<> &, CVector<> &) const 
+CNullBC::setPBC(Vector  &, Vector &) const 
 {}
 
 void 
-CNullBC::setPBC(CVector<> &, const Iflt&) const 
+CNullBC::setPBC(Vector  &, const Iflt&) const 
 {}
 
 void 
@@ -55,5 +55,5 @@ CNullBC::Clone () const
 { return new CNullBC(*this); }
 
 void 
-CNullBC::rounding(CVector<>&) const 
+CNullBC::rounding(Vector &) const 
 {}

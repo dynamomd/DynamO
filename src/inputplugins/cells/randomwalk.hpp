@@ -38,7 +38,7 @@ struct CURandWalk: public CUCell
   
   boost::mt19937 ranGenerator;
 
-  CVector<> getRandVelVec()
+  Vector  getRandVelVec()
   {
     //See http://mathworld.wolfram.com/SpherePointPicking.html
     boost::normal_distribution<Iflt> normdist(0.0, (1.0 / sqrt(NDIM)));
@@ -46,18 +46,18 @@ struct CURandWalk: public CUCell
     boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<Iflt> >
       normal_sampler(ranGenerator, normdist);
     
-    CVector<> tmpVec;
+    Vector  tmpVec;
     for (int iDim = 0; iDim < NDIM; iDim++)
       tmpVec[iDim] = normal_sampler();
     
     return tmpVec;
   }
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > localsites;
+    std::vector<Vector  > localsites;
     
-    CVector<> start(0.0), tmp(0.0);
+    Vector  start(0,0,0), tmp(0,0,0);
     
     for (int iStep = 0; iStep < chainlength; ++iStep)
       {      
@@ -67,10 +67,13 @@ struct CURandWalk: public CUCell
 	  {
 	    test = false;
 	    
-	    tmp = start + getRandVelVec().unitVector() * walklength;
+	    Vector tmp(getRandVelVec());
+	    tmp /= tmp.nrm();
+
+	    tmp = start + tmp * walklength;
 	    
-	    BOOST_FOREACH(const CVector<>& vec, localsites)
-	      if ((vec - tmp).length() <= diameter)
+	    BOOST_FOREACH(const Vector & vec, localsites)
+	      if ((vec - tmp).nrm() <= diameter)
 		test = true;
 	  }
 		
@@ -81,21 +84,21 @@ struct CURandWalk: public CUCell
   
     //Centre the chain in the unit cell
     {
-      CVector<> offset(0.0);
+      Vector offset(0,0,0);
       
-      BOOST_FOREACH(const CVector<>& vec, localsites)
+      BOOST_FOREACH(const Vector & vec, localsites)
 	offset += vec;
       
       offset /= localsites.size();
       
       // move to the centre and offset
-      BOOST_FOREACH(CVector<>& vec, localsites)
+      BOOST_FOREACH(Vector & vec, localsites)
 	vec -= offset + centre;
     }
 
-    std::vector<CVector<> > retval;
-    BOOST_FOREACH(const CVector<>& vec, localsites)
-      BOOST_FOREACH(const CVector<>& vec2, uc->placeObjects(vec))
+    std::vector<Vector  > retval;
+    BOOST_FOREACH(const Vector & vec, localsites)
+      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
     return retval;    

@@ -96,8 +96,8 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
       for (unsigned long i = 0; i < nPart; ++i)
 	{
 	  unsigned long ID;
-	  CVector<> vel;
-	  CVector<> pos;
+	  Vector  vel;
+	  Vector  pos;
 	  
 	  binaryread(base64Convertor, ID);
 
@@ -231,13 +231,13 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 Iflt 
 CLiouvillean::getParticleKineticEnergy(const CParticle& part) const
 {
-  return 0.5 * (part.getVelocity().square()) * Sim->Dynamics.getSpecies(part).getMass();
+  return 0.5 * (part.getVelocity().nrm2()) * Sim->Dynamics.getSpecies(part).getMass();
 }
 
-CVector<> 
+Vector  
 CLiouvillean::getVectorParticleKineticEnergy(const CParticle& part) const
 {
-  CVector<> tmp(0.5 * part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass());
+  Vector  tmp(0.5 * part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass());
 
   for (size_t i = 0; i < NDIM; ++i)
     tmp[i] *= part.getVelocity()[i];
@@ -256,10 +256,10 @@ CLiouvillean::getSystemKineticEnergy() const
   return sumEnergy;
 }
 
-CVector<>
+Vector 
 CLiouvillean::getVectorSystemKineticEnergy() const
 {
-  CVector<> sumEnergy(0);
+  Vector  sumEnergy(0,0,0);
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     sumEnergy += getVectorParticleKineticEnergy(part);

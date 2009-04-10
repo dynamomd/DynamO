@@ -116,11 +116,11 @@ public:
 
   /*! \brief Calculates the translational kinetic energy vector of the system
    */
-  CVector<> getVectorParticleKineticEnergy(const CParticle&) const;
+  Vector  getVectorParticleKineticEnergy(const CParticle&) const;
 
   /*! \brief Calculates the translational kinetic energy vector of the system
    */
-  CVector<> getVectorSystemKineticEnergy() const;
+  Vector  getVectorSystemKineticEnergy() const;
 
   /*! \brief Performs an elastic multibody collision between to ranges of particles.
    * 
@@ -187,8 +187,8 @@ public:
    * \return The time till collision.
    */    
   virtual Iflt getSquareCellCollision2(const CParticle& part, 
-				       const CVector<>& origin, 
-				       const CVector<>& width) const = 0;
+				       const Vector & origin, 
+				       const Vector & width) const = 0;
   
   /*! \brief Determines which dimension of the cell the particle will
    * leave first.
@@ -207,8 +207,8 @@ public:
    * \return The time till collision.
    */    
   virtual size_t getSquareCellCollision3(const CParticle& part, 
-					 const CVector<>& origin, 
-					 const CVector<>& width) const = 0;
+					 const Vector & origin, 
+					 const Vector & width) const = 0;
 
   /*! \brief Tests if and when two lines will collide.
    *
@@ -258,8 +258,8 @@ public:
    * \return The time till collision.
    */    
   virtual Iflt getWallCollision(const CParticle& part, 
-				const CVector<>& origin, 
-				const CVector<>& norm
+				const Vector & origin, 
+				const Vector & norm
 				  ) const = 0;
 
   /*! \brief Collides a particle with a wall.
@@ -270,7 +270,7 @@ public:
    * \return The data for the collision.
    */
   virtual C1ParticleData runWallCollision(const CParticle& part, 
-					  const CVector<>& vNorm,
+					  const Vector & vNorm,
 					  const Iflt& e
 					  ) const = 0;
 
@@ -286,7 +286,7 @@ public:
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
    */    
   virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
-						  const CVector<>& vNorm,
+						  const Vector & vNorm,
 						  const Iflt& sqrtT
 						  ) const = 0;
   

@@ -53,7 +53,7 @@ COP3DField::collisionUpdate(const CIntEvent &collision,
 
       BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
 	{
-	  CVector<> position = Part.getPosition();
+	  Vector  position = Part.getPosition();
 
 	  Sim->Dynamics.BCs().setPBC(position);
 	  //Samples
@@ -91,7 +91,7 @@ COP3DField::output(xmlw::XmlStream &XML)
   image->GetPointData()->AddArray(Velocity.getVTKField("Velocity Field"));
 
   //Averaged velocity without the X component
-  CFieldArray<CVector<> > VelocityNoX(Velocity);
+  CFieldArray<Vector  > VelocityNoX(Velocity);
   for (long z = 0; z < NBins; z++)
     for (long y = 0; y < NBins; y++)
       for (long x = 0; x < NBins; x++)
@@ -100,7 +100,7 @@ COP3DField::output(xmlw::XmlStream &XML)
 
 
   //Average the velocity over the x direction
-  CFieldArray<CVector<> > VelocityYZPlane(Sim);
+  CFieldArray<Vector  > VelocityYZPlane(Sim);
   for (long z = 0; z < NBins; z++)
     for (long y = 0; y < NBins; y++)
       {
@@ -116,7 +116,7 @@ COP3DField::output(xmlw::XmlStream &XML)
   image->GetPointData()->AddArray(VelocityYZPlane.getVTKField("Velocity Field avg. over the x direction"));
   
   //Velocity avgd over the x dimension with no X component
-  CFieldArray<CVector<> > VelocityYZPlaneNoX(VelocityYZPlane);
+  CFieldArray<Vector  > VelocityYZPlaneNoX(VelocityYZPlane);
   for (long z = 0; z < NBins; z++)
     for (long y = 0; y < NBins; y++)
       for (long x = 0; x < NBins; x++)
@@ -124,7 +124,7 @@ COP3DField::output(xmlw::XmlStream &XML)
   image->GetPointData()->AddArray(VelocityYZPlaneNoX.getVTKField("Velocity Field avg. over the x direction, no X component"));
   
   //Energy field
-  CFieldArray<CVector<> > Energy(Sim);
+  CFieldArray<Vector  > Energy(Sim);
   for (long z = 0; z < NBins; z++)
     for (long y = 0; y < NBins; y++)
       for (long x = 0; x < NBins; x++)

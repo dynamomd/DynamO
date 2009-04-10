@@ -85,7 +85,7 @@ COPMSD::calcMSD() const
   Iflt acc = 0.0;
   
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    acc += (part.getPosition() - initPos[part.getID()]).square();
+    acc += (part.getPosition() - initPos[part.getID()]).nrm2();
   
   return acc / (initPos.size() * 2.0 * NDIM * Sim->Dynamics.units().unitArea());
 }
@@ -99,7 +99,7 @@ COPMSD::calcStructMSD(const CTopology& Itop) const
   Iflt acc = 0.0;
   BOOST_FOREACH(const smrtPlugPtr<CRange>& molRange, Itop.getMolecules())
     {
-      CVector<> origPos(0), currPos(0);
+      Vector  origPos(0,0,0), currPos(0,0,0);
       Iflt totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
@@ -114,7 +114,7 @@ COPMSD::calcStructMSD(const CTopology& Itop) const
       currPos /= totmass;
       origPos /= totmass;
 
-      acc += (currPos - origPos).square();
+      acc += (currPos - origPos).nrm2();
     }
 
   acc /= Itop.getMoleculeCount() * 2.0 * NDIM

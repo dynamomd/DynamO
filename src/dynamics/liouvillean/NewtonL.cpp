@@ -93,8 +93,8 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
       = Sim->normal_sampler() * factor;
 
   tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
-		    * (part.getVelocity().square() 
-		       - tmpDat.getOldVel().square()));
+		    * (part.getVelocity().nrm2() 
+		       - tmpDat.getOldVel().nrm2()));
   
   return tmpDat;
 }
@@ -112,10 +112,10 @@ CLNewton::streamParticle(CParticle &particle, const Iflt &dt) const
 
 Iflt 
 CLNewton::getWallCollision(const CParticle &part, 
-			   const CVector<> &wallLoc, 
-			   const CVector<> &wallNorm) const
+			   const Vector  &wallLoc, 
+			   const Vector  &wallNorm) const
 {
-  CVector<> rij = part.getPosition(),
+  Vector  rij = part.getPosition(),
     vel = part.getVelocity();
 
   Sim->Dynamics.BCs().setPBC(rij, vel);
@@ -133,7 +133,7 @@ CLNewton::getWallCollision(const CParticle &part,
 
 C1ParticleData 
 CLNewton::runWallCollision(const CParticle &part, 
-			   const CVector<> &vNorm,
+			   const Vector  &vNorm,
 			   const Iflt& e
 			   ) const
 {
@@ -145,15 +145,15 @@ CLNewton::runWallCollision(const CParticle &part,
     -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
   
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
-		    * (part.getVelocity().square() 
-		       - retVal.getOldVel().square()));
+		    * (part.getVelocity().nrm2() 
+		       - retVal.getOldVel().nrm2()));
   
   return retVal; 
 }
 
 C1ParticleData 
 CLNewton::runAndersenWallCollision(const CParticle& part, 
-				   const CVector<>& vNorm,
+				   const Vector & vNorm,
 				   const Iflt& sqrtT
 				   ) const
 {  
@@ -176,19 +176,19 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
 		-(part.getVelocity() | vNorm));
 
   tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
-		    * (part.getVelocity().square()
-		       - tmpDat.getOldVel().square()));
+		    * (part.getVelocity().nrm2()
+		       - tmpDat.getOldVel().nrm2()));
   
   return tmpDat; 
 }
 
 Iflt
 CLNewton::getSquareCellCollision2(const CParticle& part, 
-				 const CVector<>& origin, 
-				 const CVector<>& width) const
+				 const Vector & origin, 
+				 const Vector & width) const
 {
-  CVector<> rpos(part.getPosition() - origin);
-  CVector<> vel(part.getVelocity());
+  Vector  rpos(part.getPosition() - origin);
+  Vector  vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(rpos, vel);
   
   Iflt retVal((vel[0] < 0)
@@ -210,11 +210,11 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
 
 size_t
 CLNewton::getSquareCellCollision3(const CParticle& part, 
-				 const CVector<>& origin, 
-				 const CVector<>& width) const
+				 const Vector & origin, 
+				 const Vector & width) const
 {
-  CVector<> rpos(part.getPosition() - origin);
-  CVector<> vel(part.getVelocity());
+  Vector  rpos(part.getPosition() - origin);
+  Vector  vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(rpos, vel);
 
@@ -282,19 +282,19 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
   Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
-			    / retVal.rij.square());  
+			    / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (p1.getVelocity().square() 
-				  - retVal.particle1_.getOldVel().square()));
+			       * (p1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (p2.getVelocity().square() 
-				  - retVal.particle2_.getOldVel().square()));
+			       * (p2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
 
   return retVal;
 }
@@ -321,19 +321,19 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
   Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
-  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.square());  
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().square() 
-				  - retVal.particle1_.getOldVel().square()));
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (particle2.getVelocity().square() 
-				  - retVal.particle2_.getOldVel().square()));
+			       * (particle2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
 
   return retVal;
 }
@@ -342,7 +342,7 @@ CNParticleData
 CLNewton::multibdyCollision(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const EEventType& eType) const
 {
-  CVector<> COMVel1(0), COMVel2(0), COMPos1(0), COMPos2(0);
+  Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
   Iflt structmass1(0), structmass2(0);
   
@@ -380,14 +380,14 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
   COMPos1 /= structmass1;
   COMPos2 /= structmass2;
   
-  CVector<> rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
+  Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
   Sim->Dynamics.BCs().setPBC(rij, vij);
   Iflt rvdot = (rij | vij);
 
   Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
 
   static const Iflt e = 1.0;
-  CVector<> dP = rij * ((1.0 + e) * mu * rvdot / rij.square());
+  Vector  dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());
 
   CNParticleData retVal;
   BOOST_FOREACH(const size_t& ID, range1)
@@ -401,8 +401,8 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
 	-= dP / structmass1;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
-			* (tmpval.getParticle().getVelocity().square() 
-			   - tmpval.getOldVel().square()));
+			* (tmpval.getParticle().getVelocity().nrm2() 
+			   - tmpval.getOldVel().nrm2()));
       
       retVal.L1partChanges.push_back(tmpval);
     }
@@ -418,8 +418,8 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
 	+= dP / structmass2;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
-			* (tmpval.getParticle().getVelocity().square() 
-			   - tmpval.getOldVel().square()));
+			* (tmpval.getParticle().getVelocity().nrm2() 
+			   - tmpval.getOldVel().nrm2()));
   
       retVal.L1partChanges.push_back(tmpval);
     }
@@ -431,7 +431,7 @@ CNParticleData
 CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const Iflt& deltaKE, EEventType& eType) const
 {
-  CVector<> COMVel1(0), COMVel2(0), COMPos1(0), COMPos2(0);
+  Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
   Iflt structmass1(0), structmass2(0);
   
@@ -469,16 +469,16 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
   COMPos1 /= structmass1;
   COMPos2 /= structmass2;
   
-  CVector<> rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
+  Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
   Sim->Dynamics.BCs().setPBC(rij, vij);
   Iflt rvdot = (rij | vij);
 
   Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
 
-  Iflt R2 = rij.square();
+  Iflt R2 = rij.nrm2();
   Iflt sqrtArg = rvdot * rvdot + 2.0 * R2 * deltaKE / mu;
 
-  CVector<> dP(0);
+  Vector  dP(0,0,0);
 
   if ((deltaKE < 0) && (sqrtArg < 0))
     {
@@ -512,8 +512,8 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
 	-= dP / structmass1;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
-			* (tmpval.getParticle().getVelocity().square() 
-			   - tmpval.getOldVel().square()));
+			* (tmpval.getParticle().getVelocity().nrm2() 
+			   - tmpval.getOldVel().nrm2()));
         
       retVal.L1partChanges.push_back(tmpval);
     }
@@ -529,8 +529,8 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
 	+= dP / structmass2;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
-			* (tmpval.getParticle().getVelocity().square() 
-			   - tmpval.getOldVel().square()));
+			* (tmpval.getParticle().getVelocity().nrm2() 
+			   - tmpval.getOldVel().nrm2()));
       
       retVal.L1partChanges.push_back(tmpval);
     }
@@ -559,7 +559,7 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
   Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
-  Iflt R2 = retVal.rij.square();
+  Iflt R2 = retVal.rij.nrm2();
   Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
   
   if ((deltaKE < 0) && (sqrtArg < 0))
@@ -602,12 +602,12 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().square() 
-				  - retVal.particle1_.getOldVel().square()));
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (particle2.getVelocity().square() 
-				  - retVal.particle2_.getOldVel().square()));
+			       * (particle2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
 
   return retVal;
 }
@@ -627,7 +627,7 @@ CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  CVector<> pos(part.getPosition()), vel(part.getVelocity());
+  Vector  pos(part.getPosition()), vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
 

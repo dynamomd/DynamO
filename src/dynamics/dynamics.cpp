@@ -380,12 +380,12 @@ CDynamics::getPackingFraction() const
 void 
 CDynamics::zeroMomentum(std::vector<CParticle> &pList)
 {  
-  CVector<> sumMV (0), velvec;
+  Vector sumMV(0,0,0), velvec;
  
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( CParticle & Part, pList)
     {
-      CVector<> pos(Part.getPosition()), vel(Part.getVelocity());
+      Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       BCs().setPBC(pos,vel);
 
       sumMV += vel * getSpecies(Part).getMass();

@@ -60,7 +60,7 @@ COPCollDistCheck::eventUpdate(const CIntEvent& eevent,
   if (distList.find(locPair) == distList.end())
     distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
  
-  distList[locPair].addVal(PDat.rij.length());
+  distList[locPair].addVal(PDat.rij.nrm());
 }
 
 void 
@@ -75,7 +75,7 @@ COPCollDistCheck::eventUpdate(const CGlobEvent& gEvent,
     distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
-    distList[locPair].addVal(dat.rij.length());
+    distList[locPair].addVal(dat.rij.nrm());
 }
 
 void 
@@ -90,7 +90,7 @@ COPCollDistCheck::eventUpdate(const CLocalEvent& lEvent,
     distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
-    distList[locPair].addVal(dat.rij.length());
+    distList[locPair].addVal(dat.rij.nrm());
 }
   
 void 
@@ -104,7 +104,7 @@ COPCollDistCheck::eventUpdate(const CSystem& sysEvent,
     distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
-    distList[locPair].addVal(dat.rij.length());
+    distList[locPair].addVal(dat.rij.nrm());
 }
 
 void 

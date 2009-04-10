@@ -25,8 +25,8 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLWall::CLWall(DYNAMO::SimData* nSim, Iflt ne, CVector<> nnorm, 
-	       CVector<> norigin, std::string nname, CRange* nRange):
+CLWall::CLWall(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
+	       Vector  norigin, std::string nname, CRange* nRange):
   CLocal(nRange, nSim, "LocalWall"),
   vNorm(nnorm),
   vPosition(norigin),
@@ -72,7 +72,7 @@ CLWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 }
 
 bool 
-CLWall::isInCell(const CVector<>& Origin, const CVector<>& CellDim) const
+CLWall::isInCell(const Vector & Origin, const Vector& CellDim) const
 {
   return DYNAMO::OverlapFunctions::CubePlane
     (Origin, CellDim, vPosition, vNorm);
@@ -94,7 +94,7 @@ CLWall::operator<<(const XMLNode& XML)
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
-    vNorm = vNorm.unitVector();
+    vNorm /= vNorm.nrm();
     xBrowseNode = XML.getChildNode("Origin");
     vPosition << xBrowseNode;
     vPosition *= Sim->Dynamics.units().unitLength();

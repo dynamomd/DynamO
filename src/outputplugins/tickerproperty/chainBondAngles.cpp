@@ -87,17 +87,17 @@ COPChainBondAngles::ticker()
 	//Walk the polymer
 	for (size_t j = 0; j < range->size()-2; ++j)
 	  {
-	    CVector<> bond1 = Sim->vParticleList[(*range)[j+1]].getPosition()
+	    Vector  bond1 = Sim->vParticleList[(*range)[j+1]].getPosition()
 	      - Sim->vParticleList[(*range)[j]].getPosition();
 
-	    bond1 /= bond1.length();
+	    bond1 /= bond1.nrm();
 
 	    for (size_t i = j+2; i < range->size(); ++i)
 	      {
-		CVector<> bond2 = Sim->vParticleList[(*range)[i]].getPosition()
+		Vector  bond2 = Sim->vParticleList[(*range)[i]].getPosition()
 		  -Sim->vParticleList[(*range)[i-1]].getPosition();
 		
-		bond2 /= bond2.length();
+		bond2 /= bond2.nrm();
 		
 		dat.BondCorrelations[i-j-2].addVal(bond1 | bond2);
 		dat.BondCorrelationsAvg[i-j-2] += (bond1 | bond2);

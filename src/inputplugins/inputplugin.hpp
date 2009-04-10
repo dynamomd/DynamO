@@ -45,7 +45,7 @@ class CInputPlugin: public DYNAMO::SimBase
   
  protected:
   
-  //CVector<> getRandVelVec();
+  //Vector  getRandVelVec();
   //long nParts;
   //Iflt diamScale;
 };

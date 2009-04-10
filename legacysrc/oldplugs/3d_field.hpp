@@ -37,7 +37,7 @@ class COP3DField: public COutputPlugin
 
   CFieldArray<Iflt> Density, Vsquared;
   CFieldArray<long> SampleCounter;
-  CFieldArray<CVector<> > Velocity;
+  CFieldArray<Vector  > Velocity;
 
   unsigned long imageCounter;
 };

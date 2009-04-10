@@ -35,16 +35,16 @@ struct CUHelix: public CUCell
   Iflt walklength;
   Iflt diameter;
   
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
     Iflt a = diameter * (0.5 / PI);
     Iflt sigstep = 2.0 * PI / ringlength;
     Iflt zcentre = a * (chainlength - 1) * sigstep * a;
     Iflt radius = 0.5 * std::sqrt(walklength * walklength - std::pow(a / ringlength,2)) / std::sin(PI / ringlength);
 
-    std::vector<CVector<> > localsites;
+    std::vector<Vector  > localsites;
     
-    CVector<> tmp;
+    Vector  tmp;
     
     for (int iStep = 0; iStep < chainlength; ++iStep)
       { 
@@ -55,9 +55,9 @@ struct CUHelix: public CUCell
 	localsites.push_back(tmp + centre);
       }
   
-    std::vector<CVector<> > retval;
-    BOOST_FOREACH(const CVector<>& vec, localsites)
-      BOOST_FOREACH(const CVector<>& vec2, uc->placeObjects(vec))
+    std::vector<Vector  > retval;
+    BOOST_FOREACH(const Vector & vec, localsites)
+      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
     return retval;    

@@ -38,9 +38,9 @@ public:
   
   C1ParticleData particle1_;
   C1ParticleData particle2_;
-  CVector<> rij;
-  CVector<> vijold;
-  CVector<> dP;
+  Vector  rij;
+  Vector  vijold;
+  Vector  dP;
   Iflt rvdot;
 
   void setType(EEventType nType)

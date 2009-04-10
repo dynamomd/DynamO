@@ -90,12 +90,12 @@ COPRadialDistribution::ticker()
     { BOOST_FOREACH(const size_t& p1, *sp1.getRange())
 	BOOST_FOREACH(const size_t& p2, *sp2.getRange())
 	{
-	  CVector<> rij = Sim->vParticleList[p1].getPosition()
+	  Vector  rij = Sim->vParticleList[p1].getPosition()
 	    - Sim->vParticleList[p2].getPosition();
 
 	  Sim->Dynamics.BCs().setPBC(rij);
 
-	  size_t i = (long) (((rij.length())/binWidth) + 0.5);
+	  size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
 
 	  if (i < length)
 	      ++data[sp1.getID()][sp2.getID()][i];

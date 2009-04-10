@@ -93,21 +93,21 @@ COPStructureImaging::printImage()
 {
   BOOST_FOREACH(const smrtPlugPtr<CRange>& prange, Sim->Dynamics.getTopology()[id]->getMolecules())
     {
-      std::vector<CVector<> > atomDescription;
+      std::vector<Vector  > atomDescription;
 
-      CVector<> lastpos(Sim->vParticleList[*prange->begin()].getPosition());
+      Vector  lastpos(Sim->vParticleList[*prange->begin()].getPosition());
       
-      CVector<> masspos(0.0);
+      Vector  masspos(0,0,0);
 
       Iflt sysMass(0.0);
 
-      CVector<> sumrij(0.0);
+      Vector  sumrij(0,0,0);
       
       BOOST_FOREACH(const size_t& pid, *prange)
 	{
 	  //This is all to make sure we walk along the structure
 	  const CParticle& part(Sim->vParticleList[pid]);
-	  CVector<> rij = part.getPosition() - lastpos;
+	  Vector  rij = part.getPosition() - lastpos;
 	  lastpos = part.getPosition();
 	  Sim->Dynamics.BCs().setPBC(rij);
 	  
@@ -122,11 +122,11 @@ COPStructureImaging::printImage()
       
       masspos /= sysMass;
 
-      BOOST_FOREACH(CVector<>& rijpos, atomDescription)
+      BOOST_FOREACH(Vector & rijpos, atomDescription)
 	rijpos -= masspos;
 
       //We use a trick to not copy the vector, just swap it over
-      imagelist.push_back(std::vector<CVector<> >());
+      imagelist.push_back(std::vector<Vector  >());
       std::swap(imagelist.back(), atomDescription);
     }
 }
@@ -137,13 +137,13 @@ COPStructureImaging::output(xmlw::XmlStream& XML)
   XML << xmlw::tag("StructureImages")
       << xmlw::attr("version") << 2;
   
-  BOOST_FOREACH(const std::vector<CVector<> >& vec, imagelist)
+  BOOST_FOREACH(const std::vector<Vector  >& vec, imagelist)
     {
       XML << xmlw::tag("Image");
 
       size_t id(0);
 
-      BOOST_FOREACH(const CVector<>& vec2, vec)
+      BOOST_FOREACH(const Vector & vec2, vec)
 	{
 	  XML << xmlw::tag("Atom")
 	      << xmlw::attr("ID")

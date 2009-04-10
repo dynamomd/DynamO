@@ -46,11 +46,11 @@ public:
   virtual void operator<<(const XMLNode&);
 
 protected:
-  boost::circular_buffer<CVector<> > G;
-  std::vector<CVector<> > accG2;
+  boost::circular_buffer<Vector  > G;
+  std::vector<Vector  > accG2;
   size_t count;
   Iflt dt, currentdt;
-  CVector<> constDelG, delG;
+  Vector  constDelG, delG;
   size_t currlen;
   bool notReady;
 
@@ -64,8 +64,8 @@ protected:
 
   Iflt rescaleFactor();
   
-  CVector<> impulseDelG(const C2ParticleData&);
-  CVector<> impulseDelG(const CNParticleData&);
+  Vector  impulseDelG(const C2ParticleData&);
+  Vector  impulseDelG(const CNParticleData&);
 
   void updateConstDelG(const CNParticleData&);
   void updateConstDelG(const C2ParticleData&);

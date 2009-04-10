@@ -33,8 +33,8 @@ COPRijVij::initialise()
 void 
 COPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
 {
-  CVector<> rijnorm(PDat.rij.unitVector());
-  CVector<> vijnorm(PDat.vijold.unitVector());
+  Vector  rijnorm(PDat.rij / PDat.rij.nrm());
+  Vector  vijnorm(PDat.vijold / PDat.vijold.nrm());
 
   Iflt rvdot(rijnorm | vijnorm);
 

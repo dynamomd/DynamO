@@ -26,17 +26,16 @@ COPMutualDiffusionE::COPMutualDiffusionE(const DYNAMO::SimData* tmp, const XMLNo
   count(0),
   dt(0.0),
   currentdt(0.0),
-  delGsp1(0.0),
-  delGsp2(0.0),
-  Gsp1(0.0),
-  Gsp2(0.0),
-  sysMom(0.0),
+  delGsp1(0,0,0),
+  delGsp2(0,0,0),
+  Gsp1(0,0,0),
+  Gsp2(0,0,0),
+  sysMom(0,0,0),
   massFracSp1(1),
   massFracSp2(1),
   CorrelatorLength(100),
   currCorrLen(0),
   notReady(true)
-
 {
   operator<<(XML);
 }
@@ -87,7 +86,7 @@ COPMutualDiffusionE::operator<<(const XMLNode& XML)
 void 
 COPMutualDiffusionE::stream(const Iflt edt)
 {
-  CVector<> grad1 = (delGsp1 - (massFracSp1 * sysMom)),
+  Vector  grad1 = (delGsp1 - (massFracSp1 * sysMom)),
     grad2 = (delGsp2 - (massFracSp2 * sysMom));  
 
   //Now test if we've gone over the step time
@@ -199,11 +198,11 @@ COPMutualDiffusionE::initialise()
   Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
   
-  accG.resize(CorrelatorLength, CVector<> (0.0));
+  accG.resize(CorrelatorLength, Vector  (0,0,0));
 
-  G1.resize(CorrelatorLength, CVector<>(0.0));
+  G1.resize(CorrelatorLength, Vector (0,0,0));
 
-  G2.resize(CorrelatorLength, CVector<>(0.0));
+  G2.resize(CorrelatorLength, Vector (0,0,0));
 
   dt = getdt();
   
@@ -236,12 +235,12 @@ COPMutualDiffusionE::initialise()
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
-std::list<CVector<> > 
+std::list<Vector  > 
 COPMutualDiffusionE::getAvgAcc() const
 {
-  std::list<CVector<> > tmp;
+  std::list<Vector  > tmp;
   
-  BOOST_FOREACH(const CVector<> &val, accG)
+  BOOST_FOREACH(const Vector  &val, accG)
     tmp.push_back(val/((Iflt) count));
   
   return tmp;
@@ -300,7 +299,7 @@ COPMutualDiffusionE::accPass()
 {
   ++count;
   
-  CVector<> sumSp1(0), sumSp2(0);
+  Vector  sumSp1(0,0,0), sumSp2(0,0,0);
 
   for (size_t i = 0; i < CorrelatorLength; ++i)
     {

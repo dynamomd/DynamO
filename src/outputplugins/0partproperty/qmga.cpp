@@ -66,7 +66,7 @@ COPQMGA::printImage()
   unsigned int i = 0;
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      CVector<> pos = part.getPosition();
+      Vector  pos = part.getPosition();
       Sim->Dynamics.BCs().setPBC(pos);
       pos /= Sim->Dynamics.units().unitLength();
       

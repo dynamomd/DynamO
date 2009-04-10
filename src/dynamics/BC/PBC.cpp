@@ -47,24 +47,24 @@ CSPBC::operator<<(const XMLNode&)
 {}
 
 void 
-CSPBC::setPBC(CVector<>& pos) const
+CSPBC::setPBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= rintfunc (pos.data[n]);
+    pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSPBC::setPBC(CVector<>& pos, CVector<>&) const
+CSPBC::setPBC(Vector & pos, Vector&) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= rintfunc (pos.data[n]);
+    pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSPBC::setPBC(CVector<> &pos, const Iflt&) const 
+CSPBC::setPBC(Vector  &pos, const Iflt&) const 
 { 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= rintfunc (pos.data[n]);
+    pos[n] -= rintfunc (pos[n]);
 }
 
 CRPBC::CRPBC(const DYNAMO::SimData* tmp):
@@ -74,27 +74,27 @@ CRPBC::CRPBC(const DYNAMO::SimData* tmp):
 }
 
 void 
-CRPBC::setPBC(CVector<>& pos) const
+CRPBC::setPBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n]/Sim->aspectRatio[n]);    
 }
 
 void 
-CRPBC::setPBC(CVector<>& pos, CVector<>&) const
+CRPBC::setPBC(Vector & pos, Vector&) const
 {
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n] / Sim->aspectRatio[n]);    
 }
 
 void 
-CRPBC::setPBC(CVector<> &pos, const Iflt&) const 
+CRPBC::setPBC(Vector  &pos, const Iflt&) const 
 {
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n] / Sim->aspectRatio[n]);    
 }
 
 void 
@@ -135,37 +135,38 @@ CRNoXPBC::Clone () const
 { return new CRNoXPBC(*this); }
 
 void 
-CRNoXPBC::setPBC(CVector<>& pos) const
+CRNoXPBC::setPBC(Vector & pos) const
 { 
   Iflt x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n] / Sim->aspectRatio[n]);    
 
   pos[0] = x;
 }
   
 void 
-CRNoXPBC::setPBC(CVector<>& pos, CVector<>&) const
+CRNoXPBC::setPBC(Vector & pos, Vector&) const
 { 
   Iflt x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n]/Sim->aspectRatio[n]);    
 
   pos[0] = x;
 }
 
 void 
-CRNoXPBC::setPBC(CVector<> &pos, const Iflt&) const 
+CRNoXPBC::setPBC(Vector  &pos, const Iflt&) const 
 { 
   Iflt x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+  
   setPBC(pos); 
 
   pos[0] = x;

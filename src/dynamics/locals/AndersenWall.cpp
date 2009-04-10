@@ -43,7 +43,7 @@ CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):
 }
 
 CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
-			       CVector<> nnorm, CVector<> norigin, 
+			       Vector  nnorm, Vector norigin, 
 			       std::string nname, CRange* nRange):
   CLocal(nRange, nSim, "AndersenWall"),
   vNorm(nnorm),
@@ -82,8 +82,8 @@ CLAndersenWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 }
 
 bool 
-CLAndersenWall::isInCell(const CVector<>& Origin, 
-			 const CVector<>& CellDim) const
+CLAndersenWall::isInCell(const Vector & Origin, 
+			 const Vector & CellDim) const
 {
   return DYNAMO::OverlapFunctions::CubePlane
     (Origin, CellDim, vPosition, vNorm);
@@ -108,7 +108,7 @@ CLAndersenWall::operator<<(const XMLNode& XML)
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
-    vNorm = vNorm.unitVector();
+    vNorm /= vNorm.nrm();
     xBrowseNode = XML.getChildNode("Origin");
     vPosition << xBrowseNode;
     vPosition *= Sim->Dynamics.units().unitLength();

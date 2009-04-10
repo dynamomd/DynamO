@@ -28,7 +28,7 @@ struct CUCell
 
   virtual void initialise() { uc->initialise(); }
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& ) = 0;  
+  virtual std::vector<Vector  > placeObjects(const Vector & ) = 0;  
   
   boost::scoped_ptr<CUCell> uc;
 };
@@ -41,9 +41,9 @@ struct CUParticle: public CUCell
   //Terminate initialisation
   virtual void initialise() {}
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > retval;
+    std::vector<Vector  > retval;
     retval.push_back(centre);
     return retval;
   }

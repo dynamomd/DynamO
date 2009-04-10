@@ -170,7 +170,7 @@ namespace DYNAMO
      * At least one ratio must be 1 as this is assumed when using the
      * ratio. i.e. it is normalised.
      */
-    CVector<> aspectRatio;
+    Vector  aspectRatio;
 
     /*! \brief The random number generator of the system.
      */

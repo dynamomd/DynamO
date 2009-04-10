@@ -26,18 +26,19 @@
 #include <boost/lexical_cast.hpp>
 namespace io = boost::iostreams;
 #include "../../extcode/xmlParser.h"
+#include "../../datatypes/vector.xml.hpp"
 
 struct CUFile: public CUCell
 {
-  CUFile(CVector<> ndimensions, std::string fn, CUCell* nextCell):
+  CUFile(Vector  ndimensions, std::string fn, CUCell* nextCell):
     CUCell(nextCell),
     dimensions(ndimensions),
     fileName(fn)
   {}
 
-  CVector<> dimensions;
+  Vector  dimensions;
   std::string fileName;
-  std::vector<CVector<> > particleCache;
+  std::vector<Vector  > particleCache;
  
   virtual void initialise() 
   { 
@@ -101,7 +102,7 @@ struct CUFile: public CUCell
     for (unsigned long i = 0; i < nPart; i++)
       {
 	XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
-	CVector<> posVector;
+	Vector  posVector;
 	posVector << xBrowseNode.getChildNode("P");
 	
 	particleCache.push_back(posVector);
@@ -110,26 +111,26 @@ struct CUFile: public CUCell
       }	
 
     //The file has been loaded now, just clean up the positions
-    CVector<> centreOPoints(0);
-    BOOST_FOREACH(const CVector<>& vec, particleCache)
+    Vector  centreOPoints(0,0,0);
+    BOOST_FOREACH(const Vector & vec, particleCache)
       centreOPoints += vec;
 
     centreOPoints /= particleCache.size();
 
-    BOOST_FOREACH(CVector<>& vec, particleCache)
+    BOOST_FOREACH(Vector & vec, particleCache)
       vec -= centreOPoints;
 
-    BOOST_FOREACH(CVector<>& vec, particleCache)
+    BOOST_FOREACH(Vector & vec, particleCache)
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	vec[iDim] *= dimensions[iDim];
   }
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > retval;
+    std::vector<Vector  > retval;
 
-    BOOST_FOREACH(const CVector<>& position, particleCache)
-      BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position + centre))
+    BOOST_FOREACH(const Vector & position, particleCache)
+      BOOST_FOREACH(const Vector & vec, uc->placeObjects(position + centre))
         retval.push_back(vec);
 
     return retval;

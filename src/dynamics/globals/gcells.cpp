@@ -31,10 +31,9 @@
 CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent2"),
   cellCount(0),
-  cellDimension(1.0),
+  cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0)
-
 {
   globName = name;
   I_cout() << "Cells Loaded";
@@ -43,7 +42,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
 CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
-  cellDimension(1.0),
+  cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0)
 {
@@ -55,7 +54,7 @@ CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
 CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
-  cellDimension(1.0),
+  cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0)
 {}
@@ -397,7 +396,7 @@ CGCells::getCoordsFromID(size_t i) const
 }
 
 size_t
-CGCells::getCellID(CVector<> pos) const
+CGCells::getCellID(Vector  pos) const
 {
   Sim->Dynamics.BCs().setPBC(pos);
   CVector<int> temp;

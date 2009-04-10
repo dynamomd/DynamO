@@ -30,8 +30,8 @@ COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp,
   count(0),
   dt(0),
   currentdt(0.0),
-  constDelG(0.0), 
-  delG(0.0),
+  constDelG(0,0,0), 
+  delG(0,0,0),
   currlen(0),
   notReady(true),
   CorrelatorLength(100)
@@ -66,8 +66,8 @@ COPThermalConductivityE::operator<<(const XMLNode& XML)
 void 
 COPThermalConductivityE::initialise()
 {
-  G.resize(CorrelatorLength, CVector<>(0.0));
-  accG2.resize(CorrelatorLength, CVector<>(0.0));
+  G.resize(CorrelatorLength, Vector (0,0,0));
+  accG2.resize(CorrelatorLength, Vector (0,0,0));
   Sim->getOutputPlugin<COPMisc>();
   Sim->getOutputPlugin<COPKEnergy>();
   
@@ -139,7 +139,7 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
   XML << xmlw::endtag("EinsteinCorrelator");
 }
 
-CVector<> 
+Vector  
 COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaKE();
@@ -221,10 +221,10 @@ COPThermalConductivityE::eventUpdate(const CIntEvent& iEvent,
   updateConstDelG(PDat);
 }
 
-CVector<> 
+Vector  
 COPThermalConductivityE::impulseDelG(const CNParticleData& ndat) 
 { 
-  CVector<> acc(0);
+  Vector  acc(0,0,0);
   
   BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
     acc += impulseDelG(dat);
@@ -254,7 +254,7 @@ void
 COPThermalConductivityE::accPass()
 {
   ++count;
-  CVector<> sum(0);
+  Vector  sum(0,0,0);
   
   for (size_t i = 0; i < CorrelatorLength; ++i)
     {

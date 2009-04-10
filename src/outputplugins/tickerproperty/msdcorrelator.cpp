@@ -54,7 +54,7 @@ COPMSDCorrelator::operator<<(const XMLNode& XML)
 void 
 COPMSDCorrelator::initialise()
 {
-  posHistory.resize(Sim->lN, boost::circular_buffer<CVector<> >(length));
+  posHistory.resize(Sim->lN, boost::circular_buffer<Vector  >(length));
 
   currCorrLength=1;
 
@@ -94,12 +94,12 @@ COPMSDCorrelator::accPass()
     BOOST_FOREACH(const size_t& ID, *sp.getRange())
     for (size_t step(1); step < length; ++step)
       speciesData[sp.getID()][step] 
-	+= (posHistory[ID][step] - posHistory[ID][0]).square();
+	+= (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->Dynamics.getTopology())
     BOOST_FOREACH(const smrtPlugPtr<CRange>& range, topo->getMolecules())
     {
-      CVector<> molCOM(0);
+      Vector  molCOM(0,0,0);
       Iflt molMass(0);
 
       BOOST_FOREACH(const size_t& ID, *range)
@@ -114,7 +114,7 @@ COPMSDCorrelator::accPass()
 
       for (size_t step(1); step < length; ++step)
 	{
-	  CVector<> molCOM2(0);
+	  Vector  molCOM2(0,0,0);
 	  
 	  BOOST_FOREACH(const size_t& ID, *range)
 	    molCOM2 += posHistory[ID][step] 
@@ -122,7 +122,7 @@ COPMSDCorrelator::accPass()
 	  
 	  molCOM2 /= molMass;
 	  
-	  structData[topo->getID()][step] += (molCOM2 - molCOM).square();
+	  structData[topo->getID()][step] += (molCOM2 - molCOM).nrm2();
 	}
     }
 }

@@ -46,7 +46,7 @@ public:
 
   virtual void initialise();
  
-  std::list<CVector<> > getAvgAcc() const;
+  std::list<Vector  > getAvgAcc() const;
   
  protected:  
   virtual void updateDelG(const C2ParticleData&);
@@ -61,16 +61,16 @@ public:
 
   Iflt getdt();
     
-  boost::circular_buffer<CVector<> > G;
-  std::vector<CVector<> > accG;
+  boost::circular_buffer<Vector  > G;
+  std::vector<Vector  > accG;
   size_t count;
   Iflt dt, currentdt;
-  CVector<> delGsp1, delGsp2;
+  Vector  delGsp1, delGsp2;
 
   size_t species1;
   size_t species2;
   
-  CVector<> sysMom;
+  Vector  sysMom;
 
   Iflt massFracSp1;
   Iflt massFracSp2;

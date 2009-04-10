@@ -17,8 +17,7 @@
 #pragma once
 
 #include "../../base/constants.hpp"
-template<class T>
-class CVector;
+#include "../../datatypes/vector.hpp"
 
 namespace DYNAMO
 {
@@ -29,7 +28,7 @@ namespace DYNAMO
      *
      * This is used in the collision CLSentinel to install itself in cells
      */
-    bool CubePlane(const CVector<Iflt>& CubeOrigin, const CVector<Iflt>& CubeDimensions,
-		   const CVector<Iflt>& PlaneOrigin, const CVector<Iflt>& PlaneNormal);
+    bool CubePlane(const Vector& CubeOrigin, const Vector& CubeDimensions,
+		   const Vector& PlaneOrigin, const Vector& PlaneNormal);
   };
 };

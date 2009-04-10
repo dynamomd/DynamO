@@ -85,11 +85,11 @@ COPCTorsion::ticker()
 	    D_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif
 	  
-	  CVector<> tmp;
-	  std::vector<CVector<> > dr1;
-	  std::vector<CVector<> > dr2;
-	  std::vector<CVector<> > dr3;
-	  std::vector<CVector<> > vec;
+	  Vector  tmp;
+	  std::vector<Vector  > dr1;
+	  std::vector<Vector  > dr2;
+	  std::vector<Vector  > dr3;
+	  std::vector<Vector  > vec;
 
 	  //Calc first and second derivatives
 	  for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
@@ -116,11 +116,11 @@ COPCTorsion::ticker()
 	      
 	      dr2.push_back(tmp);
 	      
-	      vec.push_back(dr1.back().Cross(dr2.back()));
+	      vec.push_back(dr1.back() ^ dr2.back());
 	    }
 	  
 	  //Create third derivative
-	  for (std::vector<CVector<> >::iterator it2 = dr2.begin() + 1; it2 != dr2.end() - 1; it2++)
+	  for (std::vector<Vector  >::iterator it2 = dr2.begin() + 1; it2 != dr2.end() - 1; it2++)
 	    dr3.push_back(0.5 * (*(it2+1) - *(it2-1)));
 	  
 	  size_t derivsize =  dr3.size();
@@ -134,8 +134,8 @@ COPCTorsion::ticker()
 	      torsion = ((vec.at(i+1)) % (dr3.at(i))) / (vec.at(i+1).square()); //Torsion
 	      curvature = (vec.at(i+1).length()) / pow(dr1.at(i+1).length(), 3); //Curvature
 #else
-	      torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].square()); //Torsion
-	      curvature = (vec[i+1].length()) / pow(dr1[i+1].length(), 3); //Curvature
+	      torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
+	      curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
 #endif
 	      gamma += torsion / curvature;
 	    }

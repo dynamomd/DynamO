@@ -78,7 +78,7 @@ COPTinkerXYZ::printImage()
 
   of << Sim->lN << "\nDYNAMO Tinker TXYZ file\n";
 
-  CVector<> tmpVec;
+  Vector  tmpVec;
   BOOST_FOREACH (const CParticle& part, Sim->vParticleList)
     {
       tmpVec = part.getPosition();
@@ -109,7 +109,7 @@ COPTinkerXYZ::printImage()
     "0 0 0 2.406					   \n"
     "3						           \n"
     "*\n*\n*\n";
-  CVector<> tmpVec2;
+  Vector  tmpVec2;
   BOOST_FOREACH(const COPRGyration::molGyrationDat& mDat, gyrationData)
     {
       tmpVec = mDat.MassCentre;
@@ -133,9 +133,9 @@ COPTinkerXYZ::printImage()
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	for (CRange::const_iterator iPtr = range->begin() + 1; iPtr != range->end(); ++iPtr)
 	  {
-	    CVector<> pos1 = Sim->vParticleList[*iPtr].getPosition();
-	    CVector<> pos2 = Sim->vParticleList[*(iPtr-1)].getPosition();
-	    CVector<> rij(pos1);
+	    Vector  pos1 = Sim->vParticleList[*iPtr].getPosition();
+	    Vector  pos2 = Sim->vParticleList[*(iPtr-1)].getPosition();
+	    Vector  rij(pos1);
 	    rij -= pos2;
 	    
 	    Sim->Dynamics.BCs().setPBC(pos1);
@@ -145,7 +145,7 @@ COPTinkerXYZ::printImage()
 	    Sim->Dynamics.BCs().setPBC(rij);	    	    
 
 	    //Check theres no periodic wrap around, 1.01 is a fudge factor
-	    if ((pos1 - pos2).square() < 1.01 * rij.square())
+	    if ((pos1 - pos2).nrm2() < 1.01 * rij.nrm2())
 	      {
 		pos1 *= 3.4 / Sim->Dynamics.units().unitLength();
 		

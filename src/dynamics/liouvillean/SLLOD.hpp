@@ -43,13 +43,13 @@ public:
   virtual void streamParticle(CParticle&, const Iflt&) const;
 
   virtual Iflt getSquareCellCollision2(const CParticle&, 
-				       const CVector<>&, 
-				       const CVector<>&
+				       const Vector &, 
+				       const Vector &
 				       ) const;
 
   virtual size_t getSquareCellCollision3(const CParticle&, 
-				       const CVector<>&, 
-				       const CVector<>&
+				       const Vector &, 
+				       const Vector &
 				       ) const;
   
   virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
@@ -63,17 +63,17 @@ public:
   virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
 
   virtual Iflt getWallCollision(const CParticle&, 
-				const CVector<>&, 
-				const CVector<>&
+				const Vector &, 
+				const Vector &
 				  ) const;
 
   virtual C1ParticleData runWallCollision(const CParticle&, 
-					  const CVector<>&,
+					  const Vector &,
 					  const Iflt&
 					  ) const;
 
   virtual C1ParticleData runAndersenWallCollision(const CParticle&, 
-						  const CVector<>&,
+						  const Vector &,
 						  const Iflt& T
 						  ) const;
 

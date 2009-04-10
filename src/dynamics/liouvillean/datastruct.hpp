@@ -35,13 +35,13 @@ struct CPDData
   {
     Sim.Dynamics.BCs().setPBC(rij, vij);
     rvdot = rij | vij;
-    r2 = rij.square();
-    v2 = vij.square();
+    r2 = rij.nrm2();
+    v2 = vij.nrm2();
   }
 
   CPDData(const DYNAMO::SimData&, const CRange&, const CRange&);
 
-  CVector<> rij, vij;
+  Vector  rij, vij;
   Iflt rvdot;
   Iflt r2;
   Iflt v2;

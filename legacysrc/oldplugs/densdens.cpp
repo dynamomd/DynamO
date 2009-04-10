@@ -42,7 +42,7 @@ COPDens::collisionUpdate(const CIntEvent &collision, const CIntEventData &preCol
       {
 	counter++;
 	
-	CVector<> pos = iPtr->getPosition();
+	Vector  pos = iPtr->getPosition();
 	
 	for (long qy = 0; qy < 20; qy++)
 	  for (long qz = 0; qz < 20; qz++)

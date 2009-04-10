@@ -49,8 +49,8 @@ COPVelProfile::ticker()
 {
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      CVector<> pos(part.getPosition());
-      CVector<> vel(part.getVelocity());
+      Vector  pos(part.getPosition());
+      Vector  vel(part.getVelocity());
 
       Sim->Dynamics.BCs().setPBC(pos, vel);
 

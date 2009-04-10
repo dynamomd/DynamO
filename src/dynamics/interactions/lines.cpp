@@ -210,7 +210,7 @@ CILines::outputXML(xmlw::XmlStream& XML) const
 bool 
 CILines::captureTest(const CParticle& p1, const CParticle& p2) const
 {
-  CVector<> rij = p1.getPosition() - p2.getPosition();
+  Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
   
   return (rij | rij) <= l2;
@@ -240,10 +240,10 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 	rdat(static_cast<const CLNOrientation&>
 	     (Sim->Dynamics.Liouvillean()).getRotData(part));
 
-      CVector<> pos(part.getPosition());
+      Vector  pos(part.getPosition());
       Sim->Dynamics.BCs().setPBC(pos);
 
-      CVector<> point(pos - 0.5 * length * rdat.orientation);
+      Vector  point(pos - 0.5 * length * rdat.orientation);
       
       os << "cylinder {\n <" << point[0];
       for (size_t iDim(1); iDim < NDIM; ++iDim)

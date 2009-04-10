@@ -81,4 +81,43 @@ operator<<(xmlw::XmlStream& XML, const CVector<CVector<T> > &vec)
   return XML;
 }
 
+// vectors
+template<class A, int B, class C>
+inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+				    const VectorExpression<A,B,C> & t )
+{
+  char name[2] = "x";
+  
+  for (int iDim = 0; iDim < NDIM; iDim++)
+    {
+      name[0]= 'x'+iDim; //Write the dimension
+      XML << xmlw::attr(name) << t(iDim);
+    }
+  
+  return XML;
+}
+
+inline
+VectorExpression<>& 
+operator<<(VectorExpression<>& data, const XMLNode &XML)
+{
+  for (int iDim = 0; iDim < NDIM; iDim++) 
+    {
+      char name[2] = "x";
+      name[0] = 'x' + iDim; //Write the name
+      if (!XML.isAttributeSet(name))
+	name[0] = '0'+iDim;
+      
+      try {
+	data[iDim] = boost::lexical_cast<DOUBLE>(XML.getAttribute(name));
+      }
+      catch (boost::bad_lexical_cast &)
+	{
+	  D_throw() << "Failed a lexical cast in CVector";
+	}
+    }
+
+  return data;
+}
+
 #endif

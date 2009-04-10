@@ -66,7 +66,7 @@ COPChainBondLength::ticker()
       for (size_t j = 0; j < range->size()-1; ++j)
 	dat.BondLengths[j].addVal
 	  ((Sim->vParticleList[(*range)[j+1]].getPosition()
-	    - Sim->vParticleList[(*range)[j]].getPosition()).length());
+	    - Sim->vParticleList[(*range)[j]].getPosition()).nrm());
 }
 
 void 

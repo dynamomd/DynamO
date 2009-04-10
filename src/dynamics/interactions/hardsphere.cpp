@@ -159,7 +159,7 @@ CIHardSphere::outputXML(xmlw::XmlStream& XML) const
 void
 CIHardSphere::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
-  CVector<> rij = part1.getPosition() - part2.getPosition();  
+  Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->Dynamics.BCs().setPBC(rij); 
   
   if ((rij | rij) < d2)
@@ -183,7 +183,7 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   
   BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     {
-      CVector<> pos(Sim->vParticleList[pid].getPosition());
+      Vector  pos(Sim->vParticleList[pid].getPosition());
       Sim->Dynamics.BCs().setPBC(pos);
 
       os << "object {\n intrep" << ID << "\n translate <"

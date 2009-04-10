@@ -47,11 +47,11 @@ public:
   virtual void operator<<(const XMLNode&);
 
 protected:
-  std::vector<boost::circular_buffer<CVector<> > > G;
-  std::vector<std::vector<CVector<>  > > accG2;
+  std::vector<boost::circular_buffer<Vector  > > G;
+  std::vector<std::vector<Vector   > > accG2;
   size_t count;
-  std::vector<CVector<> > constDelG;
-  std::vector<CVector<> > delG;
+  std::vector<Vector  > constDelG;
+  std::vector<Vector  > delG;
   Iflt dt, currentdt;
   size_t currlen;
   bool notReady;

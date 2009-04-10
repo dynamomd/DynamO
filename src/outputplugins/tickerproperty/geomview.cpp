@@ -59,13 +59,13 @@ COPGeomview::printImage()
   of << "{LIST\n";
 
 
-  CVector<> corner(0);
+  Vector  corner(0,0,0);
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     corner[iDim] -= 0.5 * Sim->aspectRatio[iDim];
     
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      CVector<> point(corner);
+      Vector  point(corner);
 
       point[iDim] = 0.5 * Sim->aspectRatio[iDim];
 
@@ -88,7 +88,7 @@ COPGeomview::printImage()
 	BOOST_FOREACH(unsigned long ID, *spec.getRange())
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
-	    CVector<> pos = part.getPosition();
+	    Vector  pos = part.getPosition();
 	    Sim->Dynamics.BCs().setPBC(pos);
 	   
 	    const CLNOrientation::rotData& 
@@ -100,8 +100,8 @@ COPGeomview::printImage()
 				      Sim->vParticleList[ID])->getColourFraction
 				     (Sim->vParticleList[ID]));
 	    
-	    CVector<> point1 = pos - 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
-	    CVector<> point2 = pos + 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
+	    Vector  point1 = pos - 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
+	    Vector  point2 = pos + 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
 
 	    of << "{VECT 1 2 1 \n 2 \n 1 \n " << point1[0] << " " << point1[1] 
 	       << " " << point1[2] << "\n" << point2[0]  << " " << point2[1] << " " 
@@ -111,7 +111,7 @@ COPGeomview::printImage()
 	BOOST_FOREACH(unsigned long ID, *spec.getRange())
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
-	    CVector<> pos = part.getPosition();
+	    Vector  pos = part.getPosition();
 	    Sim->Dynamics.BCs().setPBC(pos);
 	    
 	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
@@ -140,8 +140,8 @@ COPGeomview::printImage()
 	  BOOST_FOREACH(const unsigned int ID2, mp.second)
 	  {
 	    
-	    CVector<> pos = Sim->vParticleList[mp.first].getPosition();
-	    CVector<> rij = Sim->vParticleList[ID2].getPosition() - pos;
+	    Vector  pos = Sim->vParticleList[mp.first].getPosition();
+	    Vector  rij = Sim->vParticleList[ID2].getPosition() - pos;
 	    Sim->Dynamics.BCs().setPBC(pos);
 	    Sim->Dynamics.BCs().setPBC(rij);
 

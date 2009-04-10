@@ -26,9 +26,9 @@ COPMutualDiffusionGK::COPMutualDiffusionGK(const DYNAMO::SimData* tmp, const XML
   count(0),
   dt(0),
   currentdt(0.0),
-  delGsp1(0.0),
-  delGsp2(0.0),
-  sysMom(0.0),
+  delGsp1(0,0,0),
+  delGsp2(0,0,0),
+  sysMom(0,0,0),
   massFracSp1(1),
   massFracSp2(1),
   CorrelatorLength(100),
@@ -141,7 +141,7 @@ COPMutualDiffusionGK::output(xmlw::XmlStream& XML)
 {
   Iflt factor = rescaleFactor();
   
-  CVector<> acc = 0.5*(accG[0] + accG[accG.size()-1]);
+  Vector  acc = 0.5*(accG[0] + accG[accG.size()-1]);
 
   for (unsigned int i = 1; i < accG.size()-1; i++)
     acc += accG[i];
@@ -182,8 +182,8 @@ COPMutualDiffusionGK::initialise()
   Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
   
-  accG.resize(CorrelatorLength, CVector<> (0.0));
-  G.resize(CorrelatorLength, CVector<>(0.0));
+  accG.resize(CorrelatorLength, Vector  (0,0,0));
+  G.resize(CorrelatorLength, Vector (0,0,0));
   dt = getdt();
   
   Iflt sysMass = 0.0;
@@ -215,12 +215,12 @@ COPMutualDiffusionGK::initialise()
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
 
-std::list<CVector<> > 
+std::list<Vector  > 
 COPMutualDiffusionGK::getAvgAcc() const
 {
-  std::list<CVector<> > tmp;
+  std::list<Vector  > tmp;
   
-  BOOST_FOREACH(const CVector<> &val, accG)
+  BOOST_FOREACH(const Vector  &val, accG)
     tmp.push_back(val/((Iflt) count));
   
   return tmp;

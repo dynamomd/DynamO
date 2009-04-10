@@ -41,7 +41,7 @@ COPMisc::initialise()
 {
   Iflt kt = Sim->Dynamics.Liouvillean().getkT();
 
-  CVector<> VecEnergy(Sim->Dynamics.Liouvillean().getVectorSystemKineticEnergy());
+  Vector  VecEnergy(Sim->Dynamics.Liouvillean().getVectorSystemKineticEnergy());
   
   VecEnergy *= 2.0 / (Sim->lN * Sim->Dynamics.units().unitEnergy());
 
@@ -63,12 +63,12 @@ COPMisc::initialise()
   for (int iDim = 0; iDim < NDIM; iDim++)
     std::cout  << Sim->aspectRatio[iDim]/Sim->Dynamics.units().unitLength() << " ";
   
-  CVector<> sumMV (0);
+  Vector  sumMV (0,0,0);
   
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
     {
-      CVector<> pos(Part.getPosition()), vel(Part.getVelocity());
+      Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       Sim->Dynamics.BCs().setPBC(pos, vel);
 
       sumMV += vel * Sim->Dynamics.getSpecies(Part).getMass();
@@ -205,7 +205,7 @@ COPMisc::output(xmlw::XmlStream &XML)
   
   XML << xmlw::endtag("SystemBoxLength");
 
-  CVector<> sumMV (0);
+  Vector  sumMV (0,0,0);
   
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)

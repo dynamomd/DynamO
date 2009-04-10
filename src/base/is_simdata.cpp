@@ -34,7 +34,7 @@ namespace DYNAMO
     lN(0),
     ptrScheduler(NULL),
     Dynamics(this),
-    aspectRatio(1.0),
+    aspectRatio(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
     normal_sampler(ranGenerator, boost::normal_distribution_01<Iflt>()),
     uniform_sampler(ranGenerator),

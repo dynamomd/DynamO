@@ -71,12 +71,12 @@ class CBC: public DYNAMO::SimBase_const
    *
    * \param pos The position vector to be altered.
    */
-  virtual void setPBC(CVector<> & pos)const = 0;
+  virtual void setPBC(Vector  & pos)const = 0;
 
   /*! \brief This determines the minimum image length of a position
    * vector and the adjusted velocity vector.
    *
-   * Exactly the same as the setPBC(CVector<> &) function except if a
+   * Exactly the same as the setPBC(Vector  &) function except if a
    * velocity altering is required as part of the boundary condition
    * then this is done too. This is used by boundary conditions such
    * as CSLEBC.
@@ -84,7 +84,7 @@ class CBC: public DYNAMO::SimBase_const
    * \param pos The position vector to affect.
    * \param vel The corresponding velocity vector to affect.
    */
-  virtual void setPBC(CVector<> & pos, CVector<> & vel) const = 0;
+  virtual void setPBC(Vector  & pos, Vector  & vel) const = 0;
 
   /*! \brief A predictive boundary condition.
    *
@@ -97,7 +97,7 @@ class CBC: public DYNAMO::SimBase_const
    * \param pos The position vector to affect.
    * \param dt The time difference to predict at.
    */
-  virtual void setPBC(CVector<> &pos, const Iflt& dt) const = 0;
+  virtual void setPBC(Vector  &pos, const Iflt& dt) const = 0;
 
   /*! \brief Stream the boundary conditions forward in time.*/
   virtual void update(const Iflt&) {};

@@ -38,7 +38,7 @@ class CFieldArray: public DYNAMO::SimBase_const
     CFuzzyArray2<CFuzzyArray2<T> > & operator[](const S x)
     { return Field[x]; }
 
-  T& operator[](const CVector<> &cv)
+  T& operator[](const Vector  &cv)
     { 
       return Field
 	[cv.data[0]/Sim->aspectRatio[0]]

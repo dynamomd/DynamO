@@ -153,7 +153,7 @@ CSUmbrella::initialise(size_t nID)
 
   ulevelcenter = int( - a * b * b / delU);
 
-  Iflt r = partdata.rij.length();
+  Iflt r = partdata.rij.nrm();
 
   if (!ulevelset)
     {

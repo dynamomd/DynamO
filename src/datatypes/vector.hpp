@@ -24,6 +24,7 @@
 #include <cmath> //for length
 #include "../base/is_exception.hpp"
 #include "../base/constants.hpp" //For the dimensions
+#include "vector2.hpp"
 
 class XMLNode;
 

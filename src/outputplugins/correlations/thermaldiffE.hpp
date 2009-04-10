@@ -44,27 +44,27 @@ public:
   void operator<<(const XMLNode&);
   
 protected:
-  boost::circular_buffer<CVector<> > G;
-  std::vector<CVector<> > accG2;
+  boost::circular_buffer<Vector  > G;
+  std::vector<Vector  > accG2;
   size_t count;
   Iflt dt, currentdt;
-  CVector<> constDelG, delG;
+  Vector  constDelG, delG;
   size_t currlen;
   bool notReady;
   size_t CorrelatorLength;
-  boost::circular_buffer<CVector<> > Gsp1;
-  CVector<> constDelGsp1;
-  CVector<> delGsp1;
+  boost::circular_buffer<Vector  > Gsp1;
+  Vector  constDelGsp1;
+  Vector  delGsp1;
   size_t species1;
-  CVector<> sysMom;
+  Vector  sysMom;
   Iflt massFracSp1;
 
   std::string species1name;
 
   Iflt rescaleFactor();
   
-  CVector<> impulseDelG(const C2ParticleData&);
-  CVector<> impulseDelG(const CNParticleData&); 
+  Vector  impulseDelG(const C2ParticleData&);
+  Vector  impulseDelG(const CNParticleData&); 
   
   void updateConstDelG(const C2ParticleData&);
   void updateConstDelG(const C1ParticleData&);

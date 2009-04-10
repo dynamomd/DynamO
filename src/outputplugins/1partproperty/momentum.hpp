@@ -38,7 +38,7 @@ class COPMomentum: public COP1PP
        
  protected:
 
-  CVector<> accMom, accMomsq, sysMom;
+  Vector  accMom, accMomsq, sysMom;
 };
 
 #endif

@@ -59,7 +59,7 @@ COPMFL::A1ParticleChange(const C1ParticleData& PDat)
   if (lastTime[PDat.getParticle().getID()] != 0.0)
     { 
      data[PDat.getSpecies().getID()]
-	.addVal(PDat.getParticle().getVelocity().length() 
+	.addVal(PDat.getParticle().getVelocity().nrm() 
 	     * (Sim->dSysTime 
 		- lastTime[PDat.getParticle().getID()]));
     }

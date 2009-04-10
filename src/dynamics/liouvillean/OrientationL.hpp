@@ -26,16 +26,16 @@
 class orientationStreamType
 {
   public:
-    orientationStreamType(CVector<> p, CVector<> v, CVector<> o, CVector<> a):
+    orientationStreamType(Vector  p, Vector  v, Vector o, Vector a):
       position(p), velocity(v), orientation(o), angularVelocity(a) {};
     
     orientationStreamType():
-      position(0), velocity(0), orientation(0), angularVelocity(0) {};
+      position(0,0,0), velocity(0,0,0), orientation(0,0,0), angularVelocity(0,0,0) {};
     
-    CVector<> position;
-    CVector<> velocity;
-    CVector<> orientation;
-    CVector<> angularVelocity;
+    Vector  position;
+    Vector  velocity;
+    Vector  orientation;
+    Vector  angularVelocity;
 };
 
 class CLNOrientation: public CLNewton
@@ -74,7 +74,7 @@ public:
 					      const Iflt& elasticity, const Iflt& length) const;
   
   virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
-						  const CVector<>& vNorm,
+						  const Vector & vNorm,
 						  const Iflt& sqrtT
 						  ) const;
   
@@ -83,8 +83,8 @@ public:
 
   struct rotData
   {
-    CVector<> orientation;
-    CVector<> angularVelocity;
+    Vector  orientation;
+    Vector  angularVelocity;
   };
 
   const rotData& getRotData(const CParticle& part) const

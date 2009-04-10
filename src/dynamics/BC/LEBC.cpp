@@ -69,42 +69,42 @@ CRLEBC::Clone () const
 { return new CRLEBC(*this); }
 
 void 
-CRLEBC::setPBC(CVector<> &pos) const 
+CRLEBC::setPBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos.data[0] -= rint(pos.data[1]/Sim->aspectRatio[1])*dxd;
+  pos[0] -= rint(pos[1] / Sim->aspectRatio[1])*dxd;
   
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n] / Sim->aspectRatio[n]);    
 }
 
 void 
-CRLEBC::setPBC(CVector<> &pos, CVector<> &vel) const 
+CRLEBC::setPBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos.data[0] -= rint(pos.data[1]/Sim->aspectRatio[1]) * dxd;
+  pos[0] -= rint(pos[1] / Sim->aspectRatio[1]) * dxd;
   
   //Adjust the velocity due to the box shift
-  vel.data[0] -= rint(pos.data[1]/Sim->aspectRatio[1]) * ShearRate 
-    * Sim->aspectRatio[1];
+  vel[0] -= rint(pos[1] / Sim->aspectRatio[1]) 
+    * ShearRate * Sim->aspectRatio[1];
   
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos.data[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->aspectRatio[n] *
+      rintfunc (pos[n] / Sim->aspectRatio[n]);    
 }
 
 void 
-CRLEBC::setPBC(CVector<> &posVec, const Iflt& dt) const 
+CRLEBC::setPBC(Vector  &posVec, const Iflt& dt) const 
 { 
   Iflt localdxd = dxd + dt * ShearRate * Sim->aspectRatio[1];
   
   //Shift the x distance due to the Lee's Edwards conditions
-  posVec.data[0] -= rint(posVec.data[1]/Sim->aspectRatio[1]) * localdxd;
+  posVec[0] -= rint(posVec[1] / Sim->aspectRatio[1]) * localdxd;
   
   for (size_t n = 0; n < NDIM; ++n)
-    posVec.data[n] -= Sim->aspectRatio[n] *
-      rintfunc (posVec.data[n]/Sim->aspectRatio[n]);    
+    posVec[n] -= Sim->aspectRatio[n] *
+      rintfunc (posVec[n] / Sim->aspectRatio[n]);    
 }
 
 void 
@@ -164,38 +164,38 @@ CSLEBC::Clone () const
 { return new CSLEBC(*this); }
 
 void 
-CSLEBC::setPBC(CVector<> &pos) const 
+CSLEBC::setPBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos.data[0] -= rint(pos.data[1])*dxd;
+  pos[0] -= rint(pos[1]) * dxd;
   
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= rintfunc (pos.data[n]);
+    pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSLEBC::setPBC(CVector<> &pos, CVector<> &vel) const 
+CSLEBC::setPBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos.data[0] -= rint(pos.data[1]) * dxd;
+  pos[0] -= rint(pos[1]) * dxd;
   
   //Adjust the velocity due to the box shift
-  vel.data[0] -= rint(pos.data[1]) * ShearRate;
+  vel[0] -= rint(pos[1]) * ShearRate;
   
   for (size_t n = 0; n < NDIM; ++n)
-    pos.data[n] -= rintfunc (pos.data[n]);
+    pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSLEBC::setPBC(CVector<> &posVec, const Iflt& dt) const 
+CSLEBC::setPBC(Vector  &posVec, const Iflt& dt) const 
 {
   Iflt localdxd = dxd + dt * ShearRate;
   
   //Shift the x distance due to the Lee's Edwards conditions
-  posVec.data[0] -= rint(posVec.data[1]) * localdxd;
+  posVec[0] -= rint(posVec[1]) * localdxd;
   
   for (size_t n = 0; n < NDIM; ++n)
-    posVec.data[n] -= rintfunc (posVec.data[n]);
+    posVec[n] -= rintfunc (posVec[n]);
 }
 
 void 

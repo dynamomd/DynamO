@@ -36,12 +36,12 @@ COPVACF::initialise()
 
   dt = getdt();
 
-  G.resize(Sim->lN, boost::circular_buffer<CVector<> >(CorrelatorLength, CVector<>(0.0)));
+  G.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
 
   accG2.resize(Sim->Dynamics.getSpecies().size());
 
-  BOOST_FOREACH(std::vector<CVector<> >& listref, accG2)
-    listref.resize(CorrelatorLength, CVector<>(0.0));
+  BOOST_FOREACH(std::vector<Vector  >& listref, accG2)
+    listref.resize(CorrelatorLength, Vector (0,0,0));
 
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
@@ -213,7 +213,7 @@ COPVACF::output(xmlw::XmlStream& XML)
     {
       Iflt specCount = Sim->Dynamics.getSpecies()[i].getCount();
 
-      CVector<> acc = 0.5*(accG2[i].front() + accG2[i].back());
+      Vector  acc = 0.5*(accG2[i].front() + accG2[i].back());
       
       for (size_t j = 1; j < accG2[i].size() - 1; ++j)
 	acc += accG2[i][j];

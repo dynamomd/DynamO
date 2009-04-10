@@ -114,7 +114,7 @@ CISquareWell::initialise(size_t nID)
 bool 
 CISquareWell::captureTest(const CParticle& p1, const CParticle& p2) const
 {
-  CVector<> rij = p1.getPosition() - p2.getPosition();
+  Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
   
   return (((rij | rij) <= ld2) && ((rij | rij) >= d2));
@@ -248,9 +248,9 @@ CISquareWell::runEvent(const CParticle& p1,
 void
 CISquareWell::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
-  CVector<> rij = part1.getPosition() - part2.getPosition();
+  Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
-  Iflt r2 = rij.square();
+  Iflt r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))
     {
@@ -311,7 +311,7 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
 
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     {
-      CVector<> pos(Sim->vParticleList[part].getPosition());
+      Vector  pos(Sim->vParticleList[part].getPosition());
       Sim->Dynamics.BCs().setPBC(pos);
       
       os << "object {\n intrep" << ID << "center\n translate < "
@@ -321,7 +321,7 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
   os << "merge {\n";
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
     {
-      CVector<> pos(Sim->vParticleList[part].getPosition());
+      Vector  pos(Sim->vParticleList[part].getPosition());
       Sim->Dynamics.BCs().setPBC(pos);
 
       os << "object {\n intrep" << ID << "well\n translate < "

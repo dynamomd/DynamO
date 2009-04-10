@@ -175,8 +175,8 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -210,7 +210,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -224,8 +224,8 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
 	  {
@@ -274,7 +274,7 @@ CIPPacker::initialise()
 	
 	unsigned long nParticles = 0;
 
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -313,8 +313,8 @@ CIPPacker::initialise()
 	sysPack.initialise();
 
 	//Drop them in the middle of the sim
-	std::vector<CVector<> > latticeSites(sysPack.placeObjects
-					     (CVector<>(0.0)));
+	std::vector<Vector  > latticeSites(sysPack.placeObjects
+					   (Vector (0,0,0)));
 
 	//Set up the system now
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
@@ -377,7 +377,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
 
@@ -404,16 +404,16 @@ CIPPacker::initialise()
 
 	if (vm.count("f1"))
 	  tmpPtr = new CUMirror(vm["f1"].as<Iflt>(), 
-				new CUFile(CVector<>(diamScale), 
+				new CUFile(Vector (diamScale,diamScale,diamScale), 
 					   fileName, new CUParticle()));
 	else
-	  tmpPtr = new CUFile(CVector<>(diamScale), fileName, new CUParticle());
+	  tmpPtr = new CUFile(Vector (diamScale,diamScale,diamScale), fileName, new CUParticle());
 	
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(tmpPtr));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	//Set up the system now
 	//old scheduler
@@ -437,7 +437,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 	
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -451,8 +451,8 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
 	  {
@@ -493,7 +493,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
 	
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
 
@@ -550,8 +550,8 @@ CIPPacker::initialise()
 	sysPack.initialise();
 
 	//Drop them in the middle of the sim
-	std::vector<CVector<> > latticeSites
-	  (sysPack.placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > latticeSites
+	  (sysPack.placeObjects(Vector (0,0,0)));
 
 	//Set up the system now
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
@@ -582,7 +582,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -601,7 +601,7 @@ CIPPacker::initialise()
 
 	cells[2] = 5;
 
-	CVector<> dimensions(1.0);
+	Vector  dimensions(1,1,1);
 
 	dimensions[0] = 0.45;
 	
@@ -609,8 +609,8 @@ CIPPacker::initialise()
 						    new CUParticle()));
 	Sim->aspectRatio[0] = 0.6;
 
-	std::vector<CVector<> > latticeSites(sysPack->placeObjects
-					     (CVector<>(0.0)));
+	std::vector<Vector  > latticeSites(sysPack->placeObjects
+					   (Vector (0,0,0)));
       
 	Iflt particleDiam = 1.0 / 10.0;
 	
@@ -628,7 +628,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUSW(particleDiam, 1.0, Sim));
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
-	CVector<> norm(0), origin(0);
+	Vector  norm(0,0,0), origin(0,0,0);
 	norm[0] = 1.0;
 	origin[0] = -0.25;
 
@@ -657,7 +657,7 @@ CIPPacker::initialise()
 	
 	unsigned long nParticles = 0;
 
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
 
@@ -697,8 +697,8 @@ CIPPacker::initialise()
 	sysPack.initialise();
 
 	//Drop them in the middle of the sim
-	std::vector<CVector<> > latticeSites
-	  (sysPack.placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > latticeSites
+	  (sysPack.placeObjects(Vector (0,0,0)));
 
 	//Set up the system now
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
@@ -731,7 +731,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -747,8 +747,8 @@ CIPPacker::initialise()
 
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
       	
 	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -815,7 +815,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -827,13 +827,13 @@ CIPPacker::initialise()
 	//Pack of lines
 	//Pack the system, determine the number of particles
 	CURandom packroutine(vm["NCells"].as<unsigned long>(), 
-			     CVector<>(1), Sim->uniform_sampler,
+			     Vector (1,1,1), Sim->uniform_sampler,
 			     new CUParticle());
 
 	packroutine.initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packroutine.placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
       	
 	Sim->Dynamics.setPBC<CSPBC>();
 	  
@@ -861,7 +861,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -877,8 +877,8 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -933,7 +933,7 @@ CIPPacker::initialise()
 					  "Bulk"));
 	      
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -947,8 +947,8 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -1002,7 +1002,7 @@ CIPPacker::initialise()
 	  (CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
 	
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -1016,8 +1016,8 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<CVector<> > 
-	  latticeSites(packptr->placeObjects(CVector<>(0.0)));
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
       	
 	if (vm.count("rectangular-box"))
 	  {
@@ -1193,7 +1193,7 @@ CIPPacker::initialise()
 		    massFrac, "B", 0, "BBInt"));
 	      
 	unsigned long nParticles = 0;
-	BOOST_FOREACH(const CVector<>& position, latticeSites)
+	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
@@ -1236,7 +1236,7 @@ CIPPacker::processOptions()
     }
 }
 
-CVector<> 
+Vector  
 CIPPacker::getNormalisedCellDimensions()
 {
   CVector<long> cells = getCells();
@@ -1247,7 +1247,7 @@ CIPPacker::getNormalisedCellDimensions()
     if (cells[iDim] > cells[maxdim])
       maxdim = iDim;
   
-  CVector<> retval;
+  Vector  retval;
   
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     retval[iDim] = static_cast<Iflt>(cells[iDim])
@@ -1261,7 +1261,7 @@ CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 {
   CUCell* sysPack;
 
-  CVector<> boxDimensions(1.0);
+  Vector  boxDimensions(1,1,1);
 
   if (vm.count("rectangular-box"))
     {
@@ -1313,7 +1313,7 @@ CIPPacker::getCells()
   return cells;
 }
 
-CVector<> 
+Vector  
 CIPPacker::getRandVelVec()
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
@@ -1322,7 +1322,7 @@ CIPPacker::getRandVelVec()
   boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<Iflt> >
     normal_sampler(Sim->ranGenerator, normdist);
   
-  CVector<> tmpVec;
+  Vector  tmpVec;
   for (int iDim = 0; iDim < NDIM; iDim++)
     tmpVec[iDim] = normal_sampler();
   

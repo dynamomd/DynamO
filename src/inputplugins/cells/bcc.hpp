@@ -20,24 +20,24 @@
 
 struct CUBCC: public CUCell
 {
-  CUBCC(CVector<long> ncells, CVector<> ndimensions, CUCell* nextCell):
+  CUBCC(CVector<long> ncells, Vector  ndimensions, CUCell* nextCell):
     CUCell(nextCell),
     cells(ncells),
     dimensions(ndimensions)
   {}
 
   CVector<long> cells;
-  CVector<> dimensions;
+  Vector  dimensions;
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > retval;
+    std::vector<Vector  > retval;
 
-    CVector<> cellWidth;
+    Vector  cellWidth;
     for (int iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
-    CVector<> position;
+    Vector  position;
     CVector<long> iterVec(0);
     
     while (iterVec[NDIM - 1] != cells[NDIM-1])
@@ -46,13 +46,13 @@ struct CUBCC: public CUCell
 	  position[iDim] = cellWidth[iDim] * static_cast<Iflt>(iterVec[iDim]) - 0.5 * dimensions[iDim] 
 	    + centre[iDim];
 	
-	BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position))
+	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 	  retval.push_back(vec);
 	
 	for (int iDim = 0; iDim < NDIM; iDim++)
 	  position[iDim] += cellWidth[iDim]/2.0;
 	
-	BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position))
+	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 	  retval.push_back(vec);
 	
 	//Now update the displacement vector

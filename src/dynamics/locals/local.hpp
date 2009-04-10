@@ -50,7 +50,7 @@ public:
 
   virtual void runEvent(const CParticle&, const CLocalEvent&) const = 0;
   
-  virtual bool isInCell(const CVector<>&, const CVector<>&) const = 0;
+  virtual bool isInCell(const Vector &, const Vector &) const = 0;
 
   virtual void initialise(size_t) = 0;
 

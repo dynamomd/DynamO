@@ -21,7 +21,7 @@
 
 struct CURandom: public CUCell
 {
-  CURandom(size_t nN, CVector<> ndimensions, 
+  CURandom(size_t nN, Vector  ndimensions, 
 	   boost::uniform_01<DYNAMO::baseRNG, Iflt>& RNG,
 	   CUCell* nextCell):
     CUCell(nextCell),
@@ -31,22 +31,22 @@ struct CURandom: public CUCell
   {}
 
   size_t N;
-  CVector<> dimensions;
+  Vector  dimensions;
   boost::uniform_01<DYNAMO::baseRNG, Iflt>& uniform_sampler;
 
-  virtual std::vector<CVector<> > placeObjects(const CVector<>& centre)
+  virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<CVector<> > retval;
+    std::vector<Vector  > retval;
 
     for (size_t i(0); i < N; ++i)
       {
-	CVector<> position;
+	Vector  position;
 	for (int iDim = 0; iDim < NDIM; iDim++)
 	  position[iDim] = centre[iDim] - (uniform_sampler() - 0.5) * dimensions[iDim];
 	
 	
 	//Get the next unit cells positions and push them to your list
-	BOOST_FOREACH(const CVector<>& vec, uc->placeObjects(position))
+	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 	  retval.push_back(vec);
       }
 

@@ -82,19 +82,19 @@ CLSLLOD::DSMCSpheresRun(const CParticle& p1,
   Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
-			    / retVal.rij.square());  
+			    / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (p1.getVelocity().square() 
-				  - retVal.particle1_.getOldVel().square()));
+			       * (p1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (p2.getVelocity().square() 
-				  - retVal.particle2_.getOldVel().square()));
+			       * (p2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
 
   return retVal;
 }
@@ -147,8 +147,8 @@ CLSLLOD::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 
 Iflt 
 CLSLLOD::getWallCollision(const CParticle &part, 
-			   const CVector<> &wallLoc, 
-			   const CVector<> &wallNorm) const
+			   const Vector  &wallLoc, 
+			   const Vector  &wallNorm) const
 {
   D_throw() << "Not Implemented";
 }
@@ -156,7 +156,7 @@ CLSLLOD::getWallCollision(const CParticle &part,
 
 C1ParticleData 
 CLSLLOD::runWallCollision(const CParticle &part, 
-			   const CVector<> &vNorm,
+			   const Vector  &vNorm,
 			   const Iflt& e
 			   ) const
 {
@@ -165,7 +165,7 @@ CLSLLOD::runWallCollision(const CParticle &part,
 
 C1ParticleData 
 CLSLLOD::runAndersenWallCollision(const CParticle& part, 
-			 const CVector<>& vNorm,
+			 const Vector & vNorm,
 			 const Iflt& sqrtT
 			 ) const
 {  
@@ -174,16 +174,16 @@ CLSLLOD::runAndersenWallCollision(const CParticle& part,
 
 Iflt
 CLSLLOD::getSquareCellCollision2(const CParticle& part, 
-				 const CVector<>& origin, 
-				 const CVector<>& width) const
+				 const Vector & origin, 
+				 const Vector & width) const
 {
   D_throw() << "Not Implemented";
 }
 
 size_t
 CLSLLOD::getSquareCellCollision3(const CParticle& part, 
-				 const CVector<>& origin, 
-				 const CVector<>& width) const
+				 const Vector & origin, 
+				 const Vector & width) const
 {
   D_throw() << "Not Implemented";
 }

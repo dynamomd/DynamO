@@ -52,7 +52,7 @@ COPCluster::makeScene(Iflt length)
        iPtr  != particleList.end (); iPtr++)
     {
       //Prep the vectors for plotting
-      CVector<> pos = iPtr->getPosition(), vel = iPtr->getVelocity();
+      Vector  pos = iPtr->getPosition(), vel = iPtr->getVelocity();
       CIntEventClass collclass = dynamics->findCollClass(iPtr->getType(), iPtr->getType());      
       dynamics->setPBC(pos);
       
@@ -74,7 +74,7 @@ COPCluster::makeScene(Iflt length)
   
   Iflt distance = length * dynamics->unitClass().diameter;
   
-  CVector<> vec, rij, pos1, pos2;
+  Vector  vec, rij, pos1, pos2;
   //Now draw the links in
   for (std::vector<CParticle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
     {
@@ -210,7 +210,7 @@ COPCluster::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("Cluster")
       << xmlw::chardata();
 
-  CVector<> rij;
+  Vector  rij;
   long linkCount;
   Iflt linkMax = (Iflt) particleList.size();
   linkMax *= linkMax -1;
@@ -250,9 +250,9 @@ COPCluster::orderParameter(Iflt length)
 {
   Iflt distance = length * dynamics->unitClass().diameter;
   
-  std::list< CVector<> > rijlist;
+  std::list< Vector  > rijlist;
   
-  CVector<> rij;
+  Vector  rij;
 
   for (std::vector<CParticle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
     {
@@ -270,9 +270,9 @@ COPCluster::orderParameter(Iflt length)
   //iterate over all pairs of joins
   Iflt avgcos = 0.0;
   long sampleCount= 0;
-  for (std::list<CVector<> >::const_iterator iPtr = rijlist.begin(); iPtr != rijlist.end(); iPtr++)
+  for (std::list<Vector  >::const_iterator iPtr = rijlist.begin(); iPtr != rijlist.end(); iPtr++)
     {
-      std::list<CVector<> >::const_iterator jPtr = iPtr;
+      std::list<Vector  >::const_iterator jPtr = iPtr;
       jPtr++;
       for (; jPtr != rijlist.end(); jPtr++)
 	{

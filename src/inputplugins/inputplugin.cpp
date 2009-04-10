@@ -63,7 +63,7 @@ CInputPlugin::zeroCentreOfMass()
 {
   I_cout() << "Zeroing Centre of Mass";
   
-  CVector<> com(0.0);  
+  Vector com(0,0,0);  
   Iflt totmass = 0.0;
   BOOST_FOREACH(CParticle& part, Sim->vParticleList)  
     {
@@ -167,7 +167,7 @@ CInputPlugin::setSimType(unsigned int i)
 }
 
 
-CVector<> 
+Vector  
 CInputPlugin::getRandVelVec()
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
@@ -176,7 +176,7 @@ CInputPlugin::getRandVelVec()
   boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<Iflt> >
     normal_sampler(Sim->ranGenerator, normdist);
   
-  CVector<> tmpVec;
+  Vector  tmpVec;
   for (int iDim = 0; iDim < NDIM; iDim++)
     tmpVec[iDim] = normal_sampler();
   

@@ -65,13 +65,13 @@ COPThermalConductivitySpeciesSpeciesE::initialise()
 {
   size_t Nsp(Sim->Dynamics.getSpecies().size());
   
-  constDelG.resize(Nsp, CVector<>(0.0));
+  constDelG.resize(Nsp, Vector (0,0,0));
   
-  delG.resize(Nsp, CVector<>(0.0));
+  delG.resize(Nsp, Vector (0,0,0));
   
-  G.resize(Nsp, boost::circular_buffer<CVector<> >(CorrelatorLength, CVector<>(0.0)));
+  G.resize(Nsp, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
   
-  accG2.resize(Nsp * Nsp, std::vector<CVector<> >(CorrelatorLength, CVector<>(0.0)));
+  accG2.resize(Nsp * Nsp, std::vector<Vector  >(CorrelatorLength, Vector(0,0,0)));
   
   Sim->getOutputPlugin<COPMisc>();
   Sim->getOutputPlugin<COPKEnergy>();
@@ -237,7 +237,7 @@ COPThermalConductivitySpeciesSpeciesE::eventUpdate(const CIntEvent& iEvent,
 void
 COPThermalConductivitySpeciesSpeciesE::impulseDelG(const CNParticleData& ndat) 
 { 
-  /*  CVector<> acc(0);
+  /*  Vector  acc(0);
   
   BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
     acc += impulseDelG(dat);
@@ -282,14 +282,14 @@ COPThermalConductivitySpeciesSpeciesE::accPass()
   for (size_t id1(0); id1 < Nsp; ++id1)
     for (size_t id2(0); id2 < Nsp; ++id2)
       {
-	CVector<> sum1(0), sum2(0);
+	Vector  sum1(0,0,0), sum2(0,0,0);
 	
 	for (size_t i = 0; i < CorrelatorLength; ++i)
 	  {
 	    sum1 += G[id1][i];
 	    sum2 += G[id2][i];
 
-	    CVector<> tmp (sum1);
+	    Vector  tmp (sum1);
 
 	    for (size_t j(0); j < NDIM; ++j)
 	      tmp[j] *= sum2[j];

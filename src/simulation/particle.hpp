@@ -31,8 +31,8 @@ class CParticle
 public:
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CParticle&);
   
-  inline CParticle (const CVector<> &position, 
-		    const CVector<> &velocity,
+  inline CParticle (const Vector  &position, 
+		    const Vector  &velocity,
 		    const unsigned long& nID):
     posVector(position), velVector(velocity), 
     ID(nID), pecTime(0.0)
@@ -43,11 +43,11 @@ public:
   inline bool operator==(const CParticle &p) const { return (ID == p.ID); }
   inline bool operator!=(const CParticle &p) const { return (ID != p.ID); }
   
-  inline const CVector<> &getPosition() const { return posVector; }
-  inline const CVector<> &getVelocity() const { return velVector; }
+  inline const Vector  &getPosition() const { return posVector; }
+  inline const Vector  &getVelocity() const { return velVector; }
   
-  inline CVector<> &getPosition() { return posVector; }
-  inline CVector<> &getVelocity() { return velVector; }
+  inline Vector  &getPosition() { return posVector; }
+  inline Vector  &getVelocity() { return velVector; }
   
   inline const unsigned long &getID() const { return ID; };
   inline const Iflt& getPecTime() const { return pecTime; }
@@ -59,8 +59,8 @@ public:
 private:
   //NOTE, changing these members type must be reflected in the liouvillean
   //where binary data is written
-  CVector<>posVector;
-  CVector<>velVector;
+  Vector posVector;
+  Vector velVector;
   unsigned long ID;
   Iflt pecTime;
 };

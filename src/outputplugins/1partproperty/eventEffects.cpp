@@ -113,7 +113,7 @@ COPEventEffects::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat
 
 void 
 COPEventEffects::newEvent(const EEventType& eType, const classKey& ck, 
-			  const Iflt& deltaKE, const CVector<>& delP)
+			  const Iflt& deltaKE, const Vector & delP)
 {
   counterData& ref(counters[eventKey(ck, eType)]);
   ref.energyLoss += deltaKE;

@@ -48,7 +48,7 @@ class COPMSD: public COutputPlugin
   
  protected:
   
-  std::vector<CVector<> > initPos;
+  std::vector<Vector  > initPos;
 };
 
 #endif

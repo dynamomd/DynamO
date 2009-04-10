@@ -44,15 +44,15 @@ class COPRGyration: public COPTicker
 
   struct molGyrationDat
   {
-    CVector<> EigenVal;
-    CVector<> EigenVec[3];
-    CVector<> MassCentre;
+    Vector  EigenVal;
+    Vector  EigenVec[3];
+    Vector  MassCentre;
   };
   
   static molGyrationDat getGyrationEigenSystem(const smrtPlugPtr<CRange>&, const DYNAMO::SimData*);
 
-  static CVector<> NematicOrderParameter(const std::list<CVector<> >&);
-  static Iflt CubaticOrderParameter(const std::list<CVector<> >&);
+  static Vector  NematicOrderParameter(const std::list<Vector  >&);
+  static Iflt CubaticOrderParameter(const std::list<Vector  >&);
 
   virtual void operator<<(const XMLNode&);
   
