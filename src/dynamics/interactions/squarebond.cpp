@@ -106,7 +106,7 @@ CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
   CVector<> rij = p1.getPosition() - p2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
   
-  if ((rij % rij <= ld2) && (rij % rij >= d2))
+  if (((rij | rij) <= ld2) && ((rij | rij) >= d2))
     return true;
   
   return false;

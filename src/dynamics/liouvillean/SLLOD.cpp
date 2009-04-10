@@ -46,7 +46,7 @@ CLSLLOD::DSMCSpheresTest(const CParticle& p1,
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
   pdat.vij[0] -= pdat.rij[1];
-  pdat.rvdot = pdat.rij % pdat.vij;
+  pdat.rvdot = (pdat.rij | pdat.vij);
   
   if (!std::signbit(pdat.rvdot))
     return false; //Positive rvdot

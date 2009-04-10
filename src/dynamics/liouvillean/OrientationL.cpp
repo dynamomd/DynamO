@@ -271,7 +271,7 @@ Iflt
 CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B) const
 {
   CVector<> deltaR = A.position - B.position;
-  return ((A.orientation.Cross(B.orientation)) % deltaR);
+  return ((A.orientation.Cross(B.orientation)) | deltaR);
 }
 
 Iflt 
@@ -282,10 +282,10 @@ CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B) c
   CVector<> deltaV = A.velocity - B.velocity;
   
   return 
-    ((A.orientation % deltaR) * (deltaW % B.orientation)) + 
-    ((B.orientation % deltaR) * (deltaW % A.orientation)) - 
-    ((deltaW % deltaR) * (A.orientation % B.orientation)) + 
-    ((A.orientation.Cross(B.orientation) % deltaV));
+    ((A.orientation | deltaR) * (deltaW | B.orientation)) + 
+    ((B.orientation | deltaR) * (deltaW | A.orientation)) - 
+    ((deltaW | deltaR) * (A.orientation | B.orientation)) + 
+    ((A.orientation.Cross(B.orientation) | deltaV));
 }
 
 Iflt
@@ -307,15 +307,15 @@ CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) 
   
   return 
     2.0 * (
-	   ((A.orientation % deltaV) * (deltaW % B.orientation)) + 
-	   ((B.orientation % deltaV) * (deltaW % A.orientation)) - 
-	   ((A.orientation % B.orientation) * (deltaW % deltaV))
+	   ((A.orientation | deltaV) * (deltaW | B.orientation)) + 
+	   ((B.orientation | deltaV) * (deltaW | A.orientation)) - 
+	   ((A.orientation | B.orientation) * (deltaW | deltaV))
 	   ) - 
-    ((deltaW % deltaR) * (deltaW % (A.orientation.Cross(B.orientation)))) + 
-    ((A.orientation % deltaR) * (B.orientation % (A.angularVelocity.Cross(B.angularVelocity)))) + 
-    ((B.orientation % deltaR) * (A.orientation % (A.angularVelocity.Cross(B.angularVelocity)))) + 
-    ((deltaW % A.orientation) * (deltaR % (B.angularVelocity.Cross(B.orientation)))) + 
-    ((deltaW % B.orientation) * (deltaR % (A.angularVelocity.Cross(A.orientation)))); 
+    ((deltaW | deltaR) * (deltaW | (A.orientation.Cross(B.orientation)))) + 
+    ((A.orientation | deltaR) * (B.orientation | (A.angularVelocity.Cross(B.angularVelocity)))) + 
+    ((B.orientation | deltaR) * (A.orientation | (A.angularVelocity.Cross(B.angularVelocity)))) + 
+    ((deltaW | A.orientation) * (deltaR | (B.angularVelocity.Cross(B.orientation)))) + 
+    ((deltaW | B.orientation) * (deltaR | (A.angularVelocity.Cross(A.orientation)))); 
 }
 
 Iflt
@@ -343,9 +343,10 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
 
-  retVal.rvdot = retVal.rij % retVal.vijold;
+  retVal.rvdot = (retVal.rij | retVal.vijold);
   
-  orientationStreamType A(retVal.rij, retVal.vijold, orientationData[particle1.getID()].orientation, 
+  orientationStreamType A(retVal.rij, retVal.vijold, 
+			  orientationData[particle1.getID()].orientation, 
 			  orientationData[particle1.getID()].angularVelocity),
     B(CVector<>(0), CVector<>(0), orientationData[particle2.getID()].orientation, 
       orientationData[particle2.getID()].angularVelocity);
@@ -363,7 +364,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   Iflt inertia = (mass * length * length) / 12.0;
 
   retVal.dP = uPerp 
-    * (((vr % uPerp) * (1.0 + elasticity)) 
+    * (((vr | uPerp) * (1.0 + elasticity)) 
        / ((2.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/inertia)));  
   
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
@@ -388,9 +389,9 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
   IfltPair retVal;
   
   CVector<> rij = A.position - B.position;
-  Iflt rijdotui = rij % A.orientation;
-  Iflt rijdotuj = rij % B.orientation;
-  Iflt uidotuj = A.orientation % B.orientation;
+  Iflt rijdotui = (rij | A.orientation);
+  Iflt rijdotuj = (rij | B.orientation);
+  Iflt uidotuj = (A.orientation | B.orientation);
     
   retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
   retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
@@ -826,12 +827,12 @@ CLNOrientation::discIntersectionWindow(orientationStreamType A, orientationStrea
   Sim->Dynamics.BCs().setPBC(rij, vij);
   
   CVector<> Ahat = A.angularVelocity.unitVector();
-  Iflt dotproduct = A.angularVelocity.unitVector() % B.angularVelocity.unitVector();
+  Iflt dotproduct = (A.angularVelocity.unitVector() | B.angularVelocity.unitVector());
   
   Iflt signChangeTerm = (length/2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
   
-  retVal.alpha = ((-1.0 * (rij % Ahat)) - signChangeTerm)/(vij % Ahat);
-  retVal.beta  = ((-1.0 * (rij % Ahat)) + signChangeTerm)/(vij % Ahat);
+  retVal.alpha = ((-1.0 * (rij | Ahat)) - signChangeTerm) / (vij | Ahat);
+  retVal.beta  = ((-1.0 * (rij | Ahat)) + signChangeTerm) / (vij | Ahat);
   
   if(retVal.beta < retVal.alpha)
     std::swap(retVal.alpha, retVal.beta);

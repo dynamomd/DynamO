@@ -99,8 +99,8 @@ COPChainBondAngles::ticker()
 		
 		bond2 /= bond2.length();
 		
-		dat.BondCorrelations[i-j-2].addVal(bond1 % bond2);
-		dat.BondCorrelationsAvg[i-j-2] += (bond1 % bond2);
+		dat.BondCorrelations[i-j-2].addVal(bond1 | bond2);
+		dat.BondCorrelationsAvg[i-j-2] += (bond1 | bond2);
 		++(dat.BondCorrelationsSamples[i-j-2]);
 	      }
 	  }

@@ -160,7 +160,7 @@ class CVector
   }
   
   /*! \brief The dot product operator. */
-  inline T operator% (const CVector < T > &v2) const
+  inline T operator| (const CVector < T > &v2) const
   {
     T tmpVal = data[0] * v2.data[0];
     for (int iDim = 1; iDim < NDIM; ++iDim)

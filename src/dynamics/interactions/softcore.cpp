@@ -105,7 +105,7 @@ CISoftCore::captureTest(const CParticle& p1, const CParticle& p2) const
   CVector<> rij = p1.getPosition() - p2.getPosition();
   Sim->Dynamics.BCs().setPBC(rij);
   
-  return ((rij % rij) <= d2);
+  return ((rij | rij) <= d2);
 }
 
 CIntEvent 

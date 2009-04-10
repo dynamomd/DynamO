@@ -10,7 +10,7 @@ DYNAMO::OverlapFunctions::CubePlane(const CVector<Iflt>& CubeOrigin, const CVect
   CVector<> relpos(CubeOrigin - PlaneOrigin);
   
   //Get which side the cube origin is on 
-  bool OriginSign(std::signbit(relpos % PlaneNormal));
+  bool OriginSign(std::signbit(relpos | PlaneNormal));
   
   CVector<size_t> counter(0);
   
@@ -21,7 +21,7 @@ DYNAMO::OverlapFunctions::CubePlane(const CVector<Iflt>& CubeOrigin, const CVect
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	if (counter[iDim]) pointpos[iDim] += CubeDimensions[iDim];
 
-      if (std::signbit(pointpos % PlaneNormal) != OriginSign)
+      if (std::signbit(pointpos | PlaneNormal) != OriginSign)
 	return true;
       
       ++counter[0];

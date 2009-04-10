@@ -35,8 +35,8 @@ COPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
   mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent))];
 
-  ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
-  ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
+  ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
+  ref.costheta.addVal(pDat.rij.unitVector() | pDat.vijold.unitVector());
 }
 
 void 
@@ -47,9 +47,9 @@ COPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
       mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
 				     getClassKey(globEvent))];
       
-      ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
 
-      ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
+      ref.costheta.addVal(pDat.rij.unitVector() | pDat.vijold.unitVector());
     }
 }
 
@@ -61,9 +61,9 @@ COPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
       mapdata& ref = rvdotacc[mapKey(localEvent.getType(), 
 				     getClassKey(localEvent))];
       
-      ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
 
-      ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
+      ref.costheta.addVal(pDat.rij.unitVector() | pDat.vijold.unitVector());
     }
 }
 
@@ -75,9 +75,9 @@ COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const
       mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), 
 				     getClassKey(sysEvent))];
       
-      ref.addVal(pDat.rij % pDat.particle1_.getDeltaP());
+      ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
 
-      ref.costheta.addVal(pDat.rij.unitVector() % pDat.vijold.unitVector());
+      ref.costheta.addVal(pDat.rij.unitVector() | pDat.vijold.unitVector());
     } 
 }
 

@@ -112,7 +112,7 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
   Iflt mu = p1Mass*p2Mass/(p1Mass+p2Mass);    
   Iflt r2 = retVal.rij.square();
   
-  retVal.rvdot = retVal.rij % retVal.vijold;
+  retVal.rvdot = (retVal.rij | retVal.vijold);
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / r2);
 
@@ -150,7 +150,7 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
   Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
   CVector<> urij = retVal.rij.unitVector();
 
-  retVal.rvdot = urij % retVal.vijold;
+  retVal.rvdot = (urij | retVal.vijold);
 
   Iflt sqrtArg = std::pow(retVal.rvdot - growthRate * sqrt(d2), 2)  + (2.0 * deltaKE / mu);
   if (std::signbit(deltaKE) && std::signbit(sqrtArg))

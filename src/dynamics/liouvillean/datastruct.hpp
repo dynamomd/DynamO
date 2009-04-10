@@ -34,7 +34,7 @@ struct CPDData
     dt(HUGE_VAL)
   {
     Sim.Dynamics.BCs().setPBC(rij, vij);
-    rvdot = rij % vij;
+    rvdot = rij | vij;
     r2 = rij.square();
     v2 = vij.square();
   }

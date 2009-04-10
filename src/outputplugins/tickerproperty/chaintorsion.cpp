@@ -134,7 +134,7 @@ COPCTorsion::ticker()
 	      torsion = ((vec.at(i+1)) % (dr3.at(i))) / (vec.at(i+1).square()); //Torsion
 	      curvature = (vec.at(i+1).length()) / pow(dr1.at(i+1).length(), 3); //Curvature
 #else
-	      torsion = ((vec[i+1]) % (dr3[i])) / (vec[i+1].square()); //Torsion
+	      torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].square()); //Torsion
 	      curvature = (vec[i+1].length()) / pow(dr1[i+1].length(), 3); //Curvature
 #endif
 	      gamma += torsion / curvature;

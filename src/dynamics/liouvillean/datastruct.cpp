@@ -46,7 +46,7 @@ CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1,
 
   Sim.Dynamics.BCs().setPBC(rij, vij);
 
-  rvdot = rij % vij;
+  rvdot = (rij | vij);
 
   r2 = rij.square();
   v2 = vij.square();

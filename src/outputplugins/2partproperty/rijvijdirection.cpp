@@ -36,7 +36,7 @@ COPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
   CVector<> rijnorm(PDat.rij.unitVector());
   CVector<> vijnorm(PDat.vijold.unitVector());
 
-  Iflt rvdot(rijnorm % vijnorm);
+  Iflt rvdot(rijnorm | vijnorm);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
