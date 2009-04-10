@@ -627,7 +627,7 @@ CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  Vector  pos(part.getPosition()), vel(part.getVelocity());
+  Vector pos(part.getPosition()), vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
 

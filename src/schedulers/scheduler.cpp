@@ -118,9 +118,9 @@ CScheduler::runNextEvent()
 #ifdef DYNAMO_DEBUG
       if (sorter->next_Data().empty())
 	D_throw() << "Next particle list is empty but top of list!";
-#endif  
+#endif
     }
-
+  
 #ifdef DYNAMO_DEBUG
   if (isnan(sorter->next_Data().top().dt))
     D_throw() << "Next event time is NaN"
@@ -128,7 +128,8 @@ CScheduler::runNextEvent()
 	      << sorter->next_Data().top().dt
 	      << "\nEvent Type = " 
 	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
-	      << "\nOwner Particle = " << sorter->next_ID();
+	      << "\nOwner Particle = " << sorter->next_ID()
+	      << "\nID2 = " << sorter->next_Data().top().p2;
 
   if (isinf(sorter->next_Data().top().dt))
     D_throw() << "Next event time is Inf!"
@@ -136,7 +137,8 @@ CScheduler::runNextEvent()
 	      << sorter->next_Data().top().dt
 	      << "\nEvent Type = " 
 	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
-	      << "\nOwner Particle = " << sorter->next_ID();
+	      << "\nOwner Particle = " << sorter->next_ID()
+	      << "\nID2 = " << sorter->next_Data().top().p2;
 
   if (sorter->next_Data().top().dt + eps < 0)
     D_throw() << "Next event time is less than -" << eps
@@ -144,7 +146,8 @@ CScheduler::runNextEvent()
 	      << sorter->next_Data().top().dt
 	      << "\nEvent Type = " 
 	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
-	      << "\nOwner Particle = " << sorter->next_ID();
+      	      << "\nOwner Particle = " << sorter->next_ID()
+	      << "\nID2 = " << sorter->next_Data().top().p2;
 #endif  
   
   switch (sorter->next_Data().top().type)

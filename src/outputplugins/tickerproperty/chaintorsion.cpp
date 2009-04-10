@@ -131,8 +131,8 @@ COPCTorsion::ticker()
 	  for (unsigned int i = 0; i < derivsize; i++)
 	    {
 #ifdef DYNAMO_DEBUG
-	      torsion = ((vec.at(i+1)) % (dr3.at(i))) / (vec.at(i+1).square()); //Torsion
-	      curvature = (vec.at(i+1).length()) / pow(dr1.at(i+1).length(), 3); //Curvature
+	      torsion = ((vec.at(i+1)) | (dr3.at(i))) / (vec.at(i+1).nrm2()); //Torsion
+	      curvature = (vec.at(i+1).nrm()) / pow(dr1.at(i+1).nrm(), 3); //Curvature
 #else
 	      torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
 	      curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
