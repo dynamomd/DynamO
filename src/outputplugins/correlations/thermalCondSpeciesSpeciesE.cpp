@@ -96,11 +96,12 @@ COPThermalConductivitySpeciesSpeciesE::initialise()
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const size_t& id, *spec.getRange())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const size_t& id, *spec->getRange())
     {
       const CParticle& part(Sim->vParticleList[id]);
-      constDelG[spec.getID()] += part.getVelocity() * Sim->Dynamics.Liouvillean().getParticleKineticEnergy(part);
+      constDelG[spec->getID()] += part.getVelocity() 
+	* Sim->Dynamics.Liouvillean().getParticleKineticEnergy(part);
     }
   
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();

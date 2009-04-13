@@ -79,13 +79,13 @@ COPGeomview::printImage()
 
   unsigned int i = 0;
 
-  BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
     {      
 
       of << "{LIST\n";
 
       if (dynamic_cast<const CLNOrientation*>(&Sim->Dynamics.Liouvillean()) != NULL)
-	BOOST_FOREACH(unsigned long ID, *spec.getRange())
+	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
@@ -100,15 +100,15 @@ COPGeomview::printImage()
 				      Sim->vParticleList[ID])->getColourFraction
 				     (Sim->vParticleList[ID]));
 	    
-	    Vector  point1 = pos - 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
-	    Vector  point2 = pos + 0.5 * spec.getIntPtr()->maxIntDist() * rdat.orientation;
+	    Vector  point1 = pos - 0.5 * spec->getIntPtr()->maxIntDist() * rdat.orientation;
+	    Vector  point2 = pos + 0.5 * spec->getIntPtr()->maxIntDist() * rdat.orientation;
 
 	    of << "{VECT 1 2 1 \n 2 \n 1 \n " << point1[0] << " " << point1[1] 
 	       << " " << point1[2] << "\n" << point2[0]  << " " << point2[1] << " " 
 	       << point2[2] << " \n " << tmpCol.R << " " <<  tmpCol.G << " " << tmpCol.B << " 1.0 }\n";
 	  }
       else
-	BOOST_FOREACH(unsigned long ID, *spec.getRange())
+	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();

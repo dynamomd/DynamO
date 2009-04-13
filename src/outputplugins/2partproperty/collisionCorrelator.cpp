@@ -98,7 +98,7 @@ COPCollisionCorrelator::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id].getName()
+	  << Sim->Dynamics.getSpecies()[id]->getName()
 	  << xmlw::chardata();
 
       for (size_t n = 0; n < collisionHistoryLength; ++n)

@@ -232,7 +232,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
       D_throw() << "Liouvillean is not an orientation liouvillean!";
     }
   
-  BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID].getRange()))
+  BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       const CParticle& part(Sim->vParticleList[pid]);
 

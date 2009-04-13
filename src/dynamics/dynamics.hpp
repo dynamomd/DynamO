@@ -65,7 +65,7 @@ public:
 
   CInteraction* addInteraction(CInteraction*);
 
-  void addSpecies(CSpecies);
+  void addSpecies(const smrtPlugPtr<CSpecies>&);
   
   void addGlobal(CGlobal*);
 
@@ -128,7 +128,7 @@ public:
   smrtPlugPtr<CLocal>& getLocal(std::string);
   const smrtPlugPtr<CLocal>& getLocal(std::string) const;
 
-  const std::vector<CSpecies>& getSpecies() const { return species; }
+  const std::vector<smrtPlugPtr<CSpecies> >& getSpecies() const { return species; }
   const CSpecies& getSpecies(std::string) const;
 
   std::vector<smrtPlugPtr<CTopology> >& getTopology() { return topology; }
@@ -196,7 +196,7 @@ public:
   std::vector<smrtPlugPtr<CLocal> > locals;
   std::vector<smrtPlugPtr<CSystem> > systems;
   std::vector<smrtPlugPtr<CTopology> > topology;
-  std::vector<CSpecies> species;
+  std::vector<smrtPlugPtr<CSpecies> > species;
   smrtPlugPtr<CBC> p_BC;
   smrtPlugPtr<CLiouvillean> p_liouvillean;
   mutable smrtPlugPtr<CUnits> p_units;

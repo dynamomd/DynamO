@@ -85,10 +85,10 @@ COPRadialDistribution::ticker()
 {
   ++sampleCount;
   
-  BOOST_FOREACH(const CSpecies& sp1, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const CSpecies& sp2, Sim->Dynamics.getSpecies())
-    { BOOST_FOREACH(const size_t& p1, *sp1.getRange())
-	BOOST_FOREACH(const size_t& p2, *sp2.getRange())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->Dynamics.getSpecies())
+    { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
+	BOOST_FOREACH(const size_t& p2, *sp2->getRange())
 	{
 	  Vector  rij = Sim->vParticleList[p1].getPosition()
 	    - Sim->vParticleList[p2].getPosition();
@@ -98,7 +98,7 @@ COPRadialDistribution::ticker()
 	  size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
 
 	  if (i < length)
-	      ++data[sp1.getID()][sp2.getID()][i];
+	      ++data[sp1->getID()][sp2->getID()][i];
 	}}
 }
 
@@ -110,18 +110,18 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
       << sampleCount;
 
   
-  BOOST_FOREACH(const CSpecies& sp1, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const CSpecies& sp2, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->Dynamics.getSpecies())
     {
-      Iflt density = sp2.getCount() / Sim->Dynamics.units().simVolume();
+      Iflt density = sp2->getCount() / Sim->Dynamics.units().simVolume();
 
-      unsigned long originsTaken = sampleCount * sp1.getCount();
+      unsigned long originsTaken = sampleCount * sp1->getCount();
 
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name1")
-	  << sp1.getName()
+	  << sp1->getName()
       	  << xmlw::attr("Name2")
-	  << sp2.getName()
+	  << sp2->getName()
 	  << xmlw::chardata();
       
 
@@ -132,7 +132,7 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
 	  Iflt radius = binWidth * i;
 	  Iflt volshell = (4.0 * PI * binWidth * radius * radius) +
 	    ((PI * binWidth * binWidth * binWidth) / 3.0);
-	  Iflt GR = static_cast<Iflt>(data[sp1.getID()][sp2.getID()][i])
+	  Iflt GR = static_cast<Iflt>(data[sp1->getID()][sp2->getID()][i])
 	    / (density * originsTaken * volshell);
 
 	  XML << radius / Sim->Dynamics.units().unitLength() << " " 

@@ -309,7 +309,7 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
      << "#declare intrep" << ID << "well = sphere {\n <0,0,0> " << diameter * lambda * 0.5
      << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
 
-  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
+  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
       Sim->Dynamics.BCs().setPBC(pos);
@@ -319,7 +319,7 @@ CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb,
     }
   
   os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID].getRange()))
+  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
       Sim->Dynamics.BCs().setPBC(pos);

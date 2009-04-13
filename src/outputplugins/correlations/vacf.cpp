@@ -211,7 +211,7 @@ COPVACF::output(xmlw::XmlStream& XML)
 
   for (size_t i = 0; i < accG2.size(); ++i)
     {
-      Iflt specCount = Sim->Dynamics.getSpecies()[i].getCount();
+      Iflt specCount = Sim->Dynamics.getSpecies()[i]->getCount();
 
       Vector  acc = 0.5*(accG2[i].front() + accG2[i].back());
       
@@ -222,7 +222,7 @@ COPVACF::output(xmlw::XmlStream& XML)
 
       XML << xmlw::tag("Correlator")
 	  << xmlw::attr("name") << "VACF"
-	  << xmlw::attr("species") << Sim->Dynamics.getSpecies()[i].getName()
+	  << xmlw::attr("species") << Sim->Dynamics.getSpecies()[i]->getName()
 	  << xmlw::attr("size") << accG2.size()
 	  << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
 	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size() 
@@ -265,9 +265,9 @@ COPVACF::accPass()
 {
   ++count;
   
-  BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const size_t& ID, *spec.getRange())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const size_t& ID, *spec->getRange())
     for (size_t j = 0; j < CorrelatorLength; ++j)
       for (size_t iDim(0); iDim < NDIM; ++iDim)
-	accG2[spec.getID()][j][iDim] +=  G[ID].front()[iDim] * G[ID][j][iDim];
+	accG2[spec->getID()][j][iDim] +=  G[ID].front()[iDim] * G[ID][j][iDim];
 }

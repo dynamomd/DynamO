@@ -78,7 +78,7 @@ COPCollEnergyChange::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id].getName();
+	  << Sim->Dynamics.getSpecies()[id]->getName();
 
       data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitEnergy());
 

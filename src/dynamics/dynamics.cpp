@@ -67,9 +67,9 @@ CDynamics::getTopology(std::string name) const
 const CSpecies& 
 CDynamics::getSpecies(const CParticle& p1) const 
 {
-  BOOST_FOREACH(const CSpecies& ptr, species)
-    if (ptr.isSpecies(p1))
-      return ptr;
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& ptr, species)
+    if (ptr->isSpecies(p1))
+      return *ptr;
   
   D_throw() << "Could not find the requested species"
 	    << "\nID = " << p1.getID();
@@ -85,9 +85,9 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 const CSpecies& 
 CDynamics::getSpecies(std::string name) const
 {
-  BOOST_FOREACH(const CSpecies& ptr, species)
-    if (ptr.getName() == name)
-      return ptr;
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& ptr, species)
+    if (ptr->getName() == name)
+      return *ptr;
   
   D_throw() << "Could not find the " << name << " species"; 
 }
@@ -173,7 +173,7 @@ CDynamics::getInteraction(std::string name) const
 }
 
 void 
-CDynamics::addSpecies(CSpecies CSpe)
+CDynamics::addSpecies(const smrtPlugPtr<CSpecies>& CSpe)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add species after simulation initialisation";
@@ -182,9 +182,9 @@ CDynamics::addSpecies(CSpecies CSpe)
 
   BOOST_FOREACH(smrtPlugPtr<CInteraction>& intPtr , interactions)
     {
-      if (intPtr->isInteraction(species.back()))
+      if (intPtr->isInteraction(*species.back()))
 	{
-	  species.back().setIntPtr(intPtr.get_ptr());
+	  species.back()->setIntPtr(intPtr.get_ptr());
 	  break;
 	}
     }
@@ -262,15 +262,15 @@ CDynamics::addInteraction(CInteraction* CInt)
 void 
 CDynamics::initialise()
 {
-  BOOST_FOREACH(CSpecies& ptr, species)
-    ptr.initialise();
+  BOOST_FOREACH(smrtPlugPtr<CSpecies>& ptr, species)
+    ptr->initialise();
   
   unsigned int count = 0;
   //Now confirm that every species has only one species type!
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      BOOST_FOREACH(CSpecies& ptr, species)
-	if (ptr.isSpecies(part)) count++;
+      BOOST_FOREACH(smrtPlugPtr<CSpecies>& ptr, species)
+	if (ptr->isSpecies(part)) { count++; break; }
       
       if (count < 1)
 	D_throw() << "Particle ID=" << part.getID() << " has no species";
@@ -283,8 +283,8 @@ CDynamics::initialise()
   //Now confirm that there are not more counts from each species than there are particles
   {
     unsigned long tot = 0;
-    BOOST_FOREACH(CSpecies& ptr, species)
-      tot += ptr.getCount();
+    BOOST_FOREACH(smrtPlugPtr<CSpecies>& ptr, species)
+      tot += ptr->getCount();
     
     if (tot < Sim->lN)
       D_throw() << "The particle count according to the species definition is too low\n"
@@ -371,8 +371,8 @@ CDynamics::getPackingFraction() const
 {
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   return  PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
 }
@@ -430,7 +430,8 @@ CDynamics::operator<<(const XMLNode& XML)
   
   xSubNode = xDynamics.getChildNode("Genus");  
   for (long i=0; i < xSubNode.nChildNode("Species"); i++)
-    species.push_back(CSpecies(xSubNode.getChildNode("Species",i),Sim,i));
+    species.push_back(smrtPlugPtr<CSpecies>
+		      (CSpecies::getClass(xSubNode.getChildNode("Species",i),Sim,i)));
   
   xSubNode = xDynamics.getChildNode("Liouvillean");
   p_liouvillean.set_ptr(CLiouvillean::loadClass(xSubNode,Sim));  
@@ -445,11 +446,11 @@ CDynamics::operator<<(const XMLNode& XML)
     }  
   
   //Link the species and interactions
-  BOOST_FOREACH(CSpecies& sp , species)
+  BOOST_FOREACH(smrtPlugPtr<CSpecies>& sp , species)
     BOOST_FOREACH(smrtPlugPtr<CInteraction>& intPtr , interactions)
-    if (intPtr->isInteraction(sp))
+    if (intPtr->isInteraction(*sp))
       {
-	sp.setIntPtr(intPtr.get_ptr());
+	sp->setIntPtr(intPtr.get_ptr());
 	break;
       }
   
@@ -507,7 +508,7 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
       << xmlw::endtag("BC")
       << xmlw::tag("Genus");
   
-  BOOST_FOREACH(const CSpecies& ptr, species)
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& ptr, species)
     XML << xmlw::tag("Species")
 	<< ptr
 	<< xmlw::endtag("Species");

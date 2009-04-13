@@ -86,11 +86,12 @@ CIPCompression::RestoreSystem()
   Sim->Dynamics.setLiouvillean(oldLio->Clone());
 
   Iflt volume = 0.0;
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Sim->ssHistory << "\nCompression Dynamics run"
-		 << "\nEnd packing fraction" << PI * volume / (6 * Sim->Dynamics.units().simVolume());
+		 << "\nEnd packing fraction" 
+		 << PI * volume / (6 * Sim->Dynamics.units().simVolume());
 }
 
 void
@@ -136,8 +137,8 @@ CIPCompression::limitPackingFraction(Iflt targetp)
   I_cout() << "Limiting maximum packing fraction to " << targetp;
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    volume += pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Iflt packfrac = PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
   
@@ -157,8 +158,8 @@ CIPCompression::limitDensity(Iflt targetrho)
   //Get the avg molecular volume
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    volume += std::pow(sp.getIntPtr()->hardCoreDiam(), NDIM) * sp.getCount();
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+    volume += std::pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Iflt molVol = PI * volume / (6.0 * Sim->vParticleList.size()
 			       * Sim->Dynamics.units().unitVolume());

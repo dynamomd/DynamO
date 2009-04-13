@@ -88,7 +88,7 @@ COPMFT::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id].getName();
+	  << Sim->Dynamics.getSpecies()[id]->getName();
       
       for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
 	{

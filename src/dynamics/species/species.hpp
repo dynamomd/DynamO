@@ -20,6 +20,7 @@
 
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../base/is_base.hpp"
+#include "../ranges/1range.hpp"
 #include <string>
 #include <list>
 
@@ -28,7 +29,6 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CRange;
 class CParticle;
 class CInteraction;
 
@@ -62,6 +62,10 @@ public:
   void setIntPtr(CInteraction*);
 
   const smrtPlugPtr<CRange>& getRange() const { return range; }
+
+  virtual CSpecies* Clone() const { return new CSpecies(*this); }
+
+  static CSpecies* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 protected:
   void outputXML(xmlw::XmlStream&) const;

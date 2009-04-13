@@ -108,8 +108,8 @@ COPThermalDiffusionE::initialise()
     }
   
   Iflt sysMass = 0.0;
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    sysMass += sp.getMass() * sp.getCount();
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+    sysMass += sp->getMass() * sp->getCount();
 
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -121,10 +121,10 @@ COPThermalDiffusionE::initialise()
 	constDelGsp1 += part.getVelocity();
     }
 
-  constDelGsp1 *= Sim->Dynamics.getSpecies()[species1].getMass();
+  constDelGsp1 *= Sim->Dynamics.getSpecies()[species1]->getMass();
   
-  massFracSp1 = Sim->Dynamics.getSpecies()[species1].getCount() 
-    * Sim->Dynamics.getSpecies()[species1].getMass() / sysMass;
+  massFracSp1 = Sim->Dynamics.getSpecies()[species1]->getCount() 
+    * Sim->Dynamics.getSpecies()[species1]->getMass() / sysMass;
 
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }

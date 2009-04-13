@@ -204,8 +204,9 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
@@ -269,9 +270,10 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					  "Bulk"));
-	
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
 	unsigned long nParticles = 0;
 
 	BOOST_FOREACH(const Vector & position, latticeSites)
@@ -366,8 +368,9 @@ CIPPacker::initialise()
 							new C2RAll()
 							))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 
@@ -415,10 +418,6 @@ CIPPacker::initialise()
 	std::vector<Vector  > 
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
-	//Set up the system now
-	//old scheduler
-	//Sim->ptrScheduler = new CSMultList(Sim);
-
 	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
@@ -430,16 +429,18 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies
-	  (CSpecies(Sim, new CRRange(0,latticeSites.size()-1), 1.0, "Bulk", 0,
-		    "Bulk"));
 	
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 	
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
-						 nParticles++));
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -487,8 +488,9 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
 	
@@ -571,8 +573,9 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 
@@ -652,14 +655,16 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 	
 	unsigned long nParticles = 0;
 
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -720,8 +725,9 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, 
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 
@@ -805,19 +811,21 @@ CIPPacker::initialise()
 	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0, 
 			    new C2RAll()))->setName("BBInt");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A",
-					  0, "AAInt"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+					       "AAInt")));
 
-	Sim->Dynamics.addSpecies
-	  (CSpecies(Sim, new CRRange(nA, latticeSites.size()-1), 
-		    massFrac, "B", 0, "BBInt"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
+					       massFrac, "B", 0, "BBInt")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
-						 nParticles++));
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -855,8 +863,9 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					  "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
@@ -929,13 +938,15 @@ CIPPacker::initialise()
 			     2.0 * tij / latticeSites.size(), chi, 1.0, 
 			     "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					  "Bulk"));
-	      
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
-						 nParticles++));
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -998,8 +1009,9 @@ CIPPacker::initialise()
 			     chi, alpha, "Thermostat", 
 			     new CRAll(Sim), new CRAll(Sim)));
 
-	Sim->Dynamics.addSpecies
-	  (CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk"));
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
 	
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const Vector & position, latticeSites)
@@ -1185,17 +1197,20 @@ CIPPacker::initialise()
 			     "BBDSMC", new CRRange(nA, latticeSites.size()-1),
 			     new CRRange(nA, latticeSites.size()-1)));
 	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A",
-					  0, "AAInt"));
 
-	Sim->Dynamics.addSpecies
-	  (CSpecies(Sim, new CRRange(nA, latticeSites.size()-1), 
-		    massFrac, "B", 0, "BBInt"));
-	      
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+					       "AAInt")));
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
+					       massFrac, "B", 0, "BBInt")));
+
 	unsigned long nParticles = 0;
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
-						 nParticles++));
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;

@@ -90,10 +90,10 @@ COPMSDCorrelator::accPass()
 {
   ++ticksTaken;
   
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const size_t& ID, *sp.getRange())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+    BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t step(1); step < length; ++step)
-      speciesData[sp.getID()][step] 
+      speciesData[sp->getID()][step] 
 	+= (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->Dynamics.getTopology())
@@ -137,17 +137,17 @@ COPMSDCorrelator::output(xmlw::XmlStream &XML)
     (*Sim->Dynamics.getSystem("SystemTicker")).getPeriod()
     / Sim->Dynamics.units().unitTime();
   
-  BOOST_FOREACH(const CSpecies& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << sp.getName()
+	  << sp->getName()
 	  << xmlw::chardata();
       
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
-	    << speciesData[sp.getID()][step] 
-	  / (ticksTaken * sp.getCount() * Sim->Dynamics.units().unitArea())
+	    << speciesData[sp->getID()][step] 
+	  / (ticksTaken * sp->getCount() * Sim->Dynamics.units().unitArea())
 	    << "\n";
       
       XML << xmlw::endtag("Species");

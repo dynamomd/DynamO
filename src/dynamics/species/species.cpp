@@ -17,6 +17,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+#include <cstring>
 #include "species.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
@@ -93,6 +94,7 @@ CSpecies::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Mass") << mass
       << xmlw::attr("Name") << spName
       << xmlw::attr("IntName") << intName
+      << xmlw::attr("Type") << "Point"
       << range;
 }
 
@@ -100,4 +102,17 @@ unsigned long
 CSpecies::getCount() const
 {
   return range->size();
+}
+
+CSpecies* 
+CSpecies::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
+{
+  if (!XML.isAttributeSet("Type"))
+    return new CSpecies(XML,tmp,nID);
+
+  if (!std::strcmp(XML.getAttribute("Type"), "Point"))
+    return new CSpecies(XML,tmp,nID);
+  else 
+    D_throw() << "Unknown type of species encountered";
+
 }

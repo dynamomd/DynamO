@@ -73,9 +73,9 @@ light_source { <0, 0, -zoom> color White } \n\
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
     intPtr->write_povray_info(of);
 
-  BOOST_FOREACH(const CSpecies& spec, Sim->Dynamics.getSpecies())
-    spec.getIntPtr()->write_povray_desc
-    (colmap.getColor(spec.getID()), spec.getID(), of);
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+    spec->getIntPtr()->write_povray_desc
+    (colmap.getColor(spec->getID()), spec->getID(), of);
   
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
     ptr->write_povray_info(of);
