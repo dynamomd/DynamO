@@ -40,15 +40,12 @@ CLNOrientation::initialise()
   Iflt sumEnergy(0.0);
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    {
-      sumEnergy += Sim->Dynamics.getSpecies(part).getMass()
-	* orientationData[part.getID()].angularVelocity.nrm2();
-    }
+    
+    sumEnergy += Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia()
+    * orientationData[part.getID()].angularVelocity.nrm2();
   
-  sumEnergy *= 0.5 * Sim->Dynamics.units().unitLength() 
-    * Sim->Dynamics.units().unitLength()
-    / (12.0 * Sim->Dynamics.units().unitEnergy());
-
+  sumEnergy *= 0.5 / Sim->Dynamics.units().unitEnergy();
+  
   I_cout() << "System Rotational Energy " << sumEnergy
 	   << "\nRotational kT " << sumEnergy / Sim->lN;
 }
@@ -124,6 +121,7 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       if (root == HUGE_VAL) return HUGE_VAL;
       
       Iflt temp_high = t_high;
+
       do {
 	// Artificial boundary just below root
 	orientationStreamType tempA(A), tempB(B);
@@ -232,7 +230,6 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
 	    {
 	    case ROOT_LARGEST_POSITIVE:
 	    case ROOT_SMALLEST_POSITIVE:
-	      //I_cerr() << "Both roots negative";
 	      return false;
 	      break;
 	    case ROOT_SMALLEST_NEGATIVE:
@@ -291,10 +288,8 @@ Iflt
 CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, 
 				 const Iflt length) const
 {
-  Iflt absDeltaW = (A.angularVelocity - B.angularVelocity).nrm();
-  Iflt absDeltaV = (A.velocity - B.velocity).nrm();
-
-  return ((length * absDeltaW) + absDeltaV);
+  return length * (A.angularVelocity - B.angularVelocity).nrm() 
+	  + (A.velocity - B.velocity).nrm();
 }
 
 Iflt 
@@ -320,10 +315,9 @@ CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) 
 Iflt
 CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const
 {
-  Iflt absDeltaW = (A.angularVelocity - B.angularVelocity).nrm();
-  Iflt absDeltaV = (A.velocity - B.velocity).nrm();
-
-  return absDeltaW * ((2 * absDeltaV) + (length * (A.angularVelocity.nrm() + B.angularVelocity.nrm())));
+  return (A.angularVelocity - B.angularVelocity).nrm() 
+    * ((2 * (A.velocity - B.velocity).nrm()) 
+       + (length * (A.angularVelocity.nrm() + B.angularVelocity.nrm())));
 }
 
 
@@ -357,7 +351,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   IfltPair cp = getCollisionPoints(A, B);
 
   // \Delta {\bf v}_{imp}
-  Vector  vr = (A.velocity - B.velocity)
+  Vector  vr = retVal.vijold
     + (cp.alpha * A.angularVelocity ^ A.orientation) 
     - (cp.beta * B.angularVelocity ^ B.orientation);
   
@@ -394,8 +388,8 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
   Iflt rijdotuj = (rij | B.orientation);
   Iflt uidotuj = (A.orientation | B.orientation);
     
-  retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
-  retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - std::pow(uidotuj, 2));
+  retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj);
+  retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj);
   
   return retVal;
 }
@@ -415,18 +409,15 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 void
 CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) const
 {
-
   if (NDIM != 3)
     D_throw() << "Implemented only for 3D rotations";
-  else
-    {
-      osret.position += osret.velocity * dt;
 
-      //The Vector copy is required to make sure that the cached
-      //orientation doesn't change
-      osret.orientation = Rodrigues(osret.angularVelocity * dt) 
-	* Vector(osret.orientation);
-    }
+  osret.position += osret.velocity * dt;
+  
+  //The Vector copy is required to make sure that the cached
+  //orientation doesn't change
+  osret.orientation = Rodrigues(osret.angularVelocity * dt) 
+    * Vector(osret.orientation);
 }
 
 Iflt
