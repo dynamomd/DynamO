@@ -26,7 +26,7 @@
 #include "../schedulers/include.hpp"
 #include "../schedulers/sorters/include.hpp"
 #include "../dynamics/dynamics.hpp"
-#include "../dynamics/species/species.hpp"
+#include "../dynamics/species/include.hpp"
 #include "../dynamics/units/include.hpp"
 #include "../dynamics/globals/include.hpp"
 #include "../dynamics/interactions/include.hpp"
@@ -864,8 +864,9 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+				 (new CSSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+						     particleDiam * particleDiam / 12.0,
+						     "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       

@@ -362,7 +362,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
     - (cp.beta * B.angularVelocity ^ B.orientation);
   
   Iflt mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt inertia = (mass * length * length) / 12.0;
+  Iflt inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
 
   retVal.dP = uPerp 
     * (((vr | uPerp) * (1.0 + elasticity)) 
@@ -403,26 +403,24 @@ CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamTy
 void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
-  orientationStreamType ostPart(part.getPosition(), part.getVelocity(), 
-				orientationData[part.getID()].orientation, 
-				orientationData[part.getID()].angularVelocity);
+  part.getPosition() += part.getVelocity() * dt;
 
-  performRotation(ostPart, dt);
-  
-  part.getPosition() =  ostPart.position;
-  orientationData[part.getID()].orientation = ostPart.orientation;
+  //The Vector copy is required to make sure that the cached
+  //orientation doesn't change during calculation
+  orientationData[part.getID()].orientation 
+    = Rodrigues(orientationData[part.getID()].angularVelocity * dt)
+    * Vector(orientationData[part.getID()].orientation);    
 }
 
 void
 CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) const
 {
 
-  if (NDIM != 3) { D_throw() << "Implemented only for 3D rotations"; }
-
+  if (NDIM != 3)
+    D_throw() << "Implemented only for 3D rotations";
   else
     {
-      // Linear dynamics
-      osret.position += (osret.velocity * dt);
+      osret.position += osret.velocity * dt;
 
       //The Vector copy is required to make sure that the cached
       //orientation doesn't change
@@ -763,16 +761,10 @@ CLNOrientation::getParticleDOF() const { return NDIM+2; }
 Iflt
 CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
 {
-  /***
-   * BODGE: Currently taking length as Sim->Dynamics.units().unitLength()
-   *        This is *NOT* always  the length
-   */
-  
   return 0.5 * Sim->Dynamics.getSpecies(part).getMass()
     *(part.getVelocity().nrm2()
-      + Sim->Dynamics.units().unitLength() 
-      * Sim->Dynamics.units().unitLength() 
-      * orientationData[part.getID()].angularVelocity.nrm2() / 12.0);
+      + orientationData[part.getID()].angularVelocity.nrm2()
+      * Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia());
 }
  
 void 
@@ -788,7 +780,8 @@ CLNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
 }
 
 CLNOrientation::IfltPair
-CLNOrientation::discIntersectionWindow(orientationStreamType A, orientationStreamType B, Iflt length) const
+CLNOrientation::discIntersectionWindow(orientationStreamType A, orientationStreamType B,
+				       Iflt length) const
 {
   IfltPair retVal;
   
