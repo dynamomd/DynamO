@@ -18,7 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <cstring>
-#include "species.hpp"
+#include "include.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../ranges/1range.hpp"
@@ -38,6 +38,14 @@ CSpecies::CSpecies(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
   mass(1.0),range(NULL),IntPtr(NULL),
   ID(nID)
 { operator<<(XML); }
+
+CSpecies::CSpecies(DYNAMO::SimData* tmp, const char* name, const char* color, 
+		   CRange* nr, Iflt nMass, std::string nName, 
+		   unsigned int nID, std::string nIName):
+  SimBase_const(tmp,name, color),
+  mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
+  ID(nID)
+{}
 
 const CInteraction* 
 CSpecies::getIntPtr() const
@@ -73,7 +81,8 @@ CSpecies::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
     
     try {
-      mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"));
+      mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"))
+	* Sim->Dynamics.units().unitMass();
       spName = XML.getAttribute("Name");
       intName = XML.getAttribute("IntName");
     } 
@@ -91,7 +100,8 @@ CSpecies::isSpecies(const CParticle &p1) const
 void 
 CSpecies::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Mass") << mass
+  XML << xmlw::attr("Mass") 
+      << mass / Sim->Dynamics.units().unitMass()
       << xmlw::attr("Name") << spName
       << xmlw::attr("IntName") << intName
       << xmlw::attr("Type") << "Point"
@@ -108,10 +118,12 @@ CSpecies*
 CSpecies::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
 {
   if (!XML.isAttributeSet("Type"))
-    return new CSpecies(XML,tmp,nID);
+    return new CSpecies(XML, tmp, nID);
 
   if (!std::strcmp(XML.getAttribute("Type"), "Point"))
-    return new CSpecies(XML,tmp,nID);
+    return new CSpecies(XML, tmp, nID);
+  else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
+    return new CSSphericalTop(XML, tmp, nID);
   else 
     D_throw() << "Unknown type of species encountered";
 

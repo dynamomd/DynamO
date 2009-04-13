@@ -21,6 +21,7 @@
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
+#include "../units/units.hpp"
 #include <string>
 #include <list>
 
@@ -35,7 +36,8 @@ class CInteraction;
 class CSpecies:public DYNAMO::SimBase_const
 {
 public:  
-  CSpecies(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, unsigned int ID, std::string nIName="Bulk");
+  CSpecies(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
+	   unsigned int ID, std::string nIName="Bulk");
   
   CSpecies(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
 
@@ -47,7 +49,7 @@ public:
   
   unsigned int getID() const { return ID; }
   
-  void operator<<(const XMLNode&);
+  virtual void operator<<(const XMLNode&);
 
   void initialise();
 
@@ -65,10 +67,17 @@ public:
 
   virtual CSpecies* Clone() const { return new CSpecies(*this); }
 
+  virtual Iflt getScalarMomentOfInertia() const { return 0; }
+
   static CSpecies* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 protected:
-  void outputXML(xmlw::XmlStream&) const;
+  CSpecies(DYNAMO::SimData*, const char* name, const char* color, 
+	   CRange*, Iflt nMass, std::string nName, 
+	   unsigned int ID, std::string nIName="Bulk");
+  
+
+  virtual void outputXML(xmlw::XmlStream&) const;
   
   Iflt mass;
 
