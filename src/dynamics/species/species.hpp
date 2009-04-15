@@ -41,6 +41,8 @@ public:
   
   CSpecies(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
 
+  virtual ~CSpecies() {}
+
   bool isSpecies(const CParticle &) const;
   
   const Iflt& getMass() const { return mass; }
