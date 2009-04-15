@@ -33,6 +33,8 @@ namespace xmlw
 class CParticle;
 class CInteraction;
 
+class CSpecHasInertia {};
+
 class CSpecies:public DYNAMO::SimBase_const
 {
 public:  

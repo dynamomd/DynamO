@@ -39,11 +39,19 @@ CLNOrientation::initialise()
 
   Iflt sumEnergy(0.0);
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)  
     sumEnergy += Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia()
     * orientationData[part.getID()].angularVelocity.nrm2();
   
+  //Check if any of the species are overridden
+  bool hasInertia(false);
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+    if (dynamic_cast<const CSpecHasInertia*>(spec.get_ptr()) != NULL)
+      hasInertia = true;
+
+  if (!hasInertia)
+    D_throw() << "No species have inertia, using the orientational liouvillean is pointless";
+
   sumEnergy *= 0.5 / Sim->Dynamics.units().unitEnergy();
   
   I_cout() << "System Rotational Energy " << sumEnergy
