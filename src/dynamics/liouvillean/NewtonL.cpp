@@ -37,9 +37,10 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  Iflt tmptime1 = (dat.rij[iDim] - d) / dat.vij[iDim];
-	  Iflt tmptime2 = (dat.rij[iDim] + d) / dat.vij[iDim];
-	  if (dat.rij[iDim] * dat.vij[iDim] > 0)
+	  Iflt tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
+	  Iflt tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
+	  
+	  if (tmptime1 < tmptime2)
 	    {
 	      if (tmptime1 > tInMax) tInMax = tmptime1;
 	      if (tmptime2 < tOutMin) tOutMin = tmptime2;
@@ -50,14 +51,14 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 	      if (tmptime1 < tOutMin) tOutMin = tmptime1;
 	    }
 	}
-
+      
       if (tInMax < tOutMin)
 	{
 	  dat.dt = tInMax;
 	  return true;
 	}
     }
-
+  
   return false;
 }
 
@@ -394,7 +395,7 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
   const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
-  updateParticlePair(particle1, particle2);  
+  updateParticlePair(particle1, particle2);
 
   C2ParticleData retVal(particle1, particle2,
 			Sim->Dynamics.getSpecies(particle1),
@@ -421,7 +422,7 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
-  retVal.dP = retVal.rij * ((1.0 + e) * mu * (collvec | retVal.vijold) / retVal.rij.nrm2());  
+  retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
