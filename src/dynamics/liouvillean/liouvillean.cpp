@@ -281,3 +281,10 @@ CLiouvillean::rescaleSystemKineticEnergy(const Iflt& scale)
   BOOST_FOREACH(CParticle& part, Sim->vParticleList)
     part.getVelocity() *= scalefactor;
 }
+
+C2ParticleData 
+CLiouvillean::parallelCubeColl(const CIntEvent& event, 
+			       const Iflt& e, 
+			       const Iflt& d, 
+			       const EEventType& eType) const
+{ D_throw() << "Not Implemented"; }

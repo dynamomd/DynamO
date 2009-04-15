@@ -28,6 +28,55 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 
 bool 
+CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
+{
+  //Approaching
+  if (dat.rvdot < 0)
+    {      
+      Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+      
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	{
+	  Iflt tmptime1 = (dat.rij[iDim] - d) / dat.vij[iDim];
+	  Iflt tmptime2 = (dat.rij[iDim] + d) / dat.vij[iDim];
+	  if (dat.rij[iDim] * dat.vij[iDim] > 0)
+	    {
+	      if (tmptime1 > tInMax) tInMax = tmptime1;
+	      if (tmptime2 < tOutMin) tOutMin = tmptime2;
+	    }
+	  else
+	    {
+	      if (tmptime2 > tInMax) tInMax = tmptime2;
+	      if (tmptime1 < tOutMin) tOutMin = tmptime1;
+	    }
+	}
+
+      if (tInMax < tOutMin)
+	{
+	  dat.dt = tInMax;
+	  return true;
+	}
+    }
+
+  return false;
+}
+
+bool 
+CLNewton::CubeCubeOutRoot(CPDData& dat, const Iflt& d) const
+{
+  D_throw() << "Not implemented";
+}
+
+bool 
+CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d) const
+{
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (fabs(dat.rij[iDim]) > d) return false;
+  
+  return true;
+}
+
+bool 
 CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
   if (dat.rvdot < 0)
@@ -322,6 +371,57 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+
+  //This function must edit particles so it overrides the const!
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
+
+  return retVal;
+}
+
+C2ParticleData 
+CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+			   const Iflt&, const EEventType& eType) const
+{
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  C2ParticleData retVal(particle1, particle2,
+			Sim->Dynamics.getSpecies(particle1),
+			Sim->Dynamics.getSpecies(particle2),
+			eType);
+    
+  Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
+  
+  size_t dim(0);
+   
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    if (fabs(retVal.rij[dim]) < fabs(retVal.rij[iDim])) dim = iDim;
+
+  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  
+  Vector collvec(0,0,0);
+
+  if (retVal.rij[dim] < 0)
+    collvec[dim] = -1;
+  else
+    collvec[dim] = 1;
+
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * (collvec | retVal.vijold) / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;

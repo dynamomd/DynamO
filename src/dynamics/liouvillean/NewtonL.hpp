@@ -31,6 +31,12 @@ public:
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  
   virtual bool sphereOverlap(const CPDData&, const Iflt&) const;
 
+  virtual bool CubeCubeInRoot(CPDData&, const Iflt&) const;
+
+  virtual bool CubeCubeOutRoot(CPDData&, const Iflt&) const;
+
+  virtual bool cubeOverlap(const CPDData&, const Iflt&) const;
+
   virtual void streamParticle(CParticle&, const Iflt&) const;
 
   virtual Iflt getSquareCellCollision2(const CParticle&, 
@@ -84,6 +90,11 @@ public:
 
   //Cloning
   virtual CLiouvillean* Clone() const { return new CLNewton(*this); }
+
+  virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
+					  const Iflt& e, 
+					  const Iflt& d, 
+					  const EEventType& eType) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;

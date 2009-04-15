@@ -40,6 +40,18 @@ public:
   Iflt getGrowthRate() const { return growthRate; }
 
   virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
+
+  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { D_throw() << "Not Implemented"; }
+
+  virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { D_throw() << "Not Implemented"; }
+
+  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { D_throw() << "Not Implemented"; }
+
+  virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
+					  const Iflt& e, 
+					  const Iflt& d, 
+					  const EEventType& eType = CORE
+					  ) const;
   
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;

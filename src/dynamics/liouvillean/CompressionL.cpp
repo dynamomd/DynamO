@@ -238,3 +238,8 @@ CLCompression::getPBCSentinelTime(const CParticle& part,
 
   return retval;
 }
+
+C2ParticleData 
+CLCompression::parallelCubeColl(const CIntEvent&, const Iflt&,
+				const Iflt&, const EEventType&) const
+{ D_throw() << "Not Implemented"; }
