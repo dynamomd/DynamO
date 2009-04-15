@@ -150,7 +150,8 @@ CGCells::runEvent(const CParticle& part) const
 	    endCell -= mag;
 	    inCell  -= mag;
 	  }
-	else if (cells[oldCell].coords[cellDirection] >= cellCount[cellDirection] - 1 - overlink)
+	else if (cells[oldCell].coords[cellDirection] >= 
+		 int(cellCount[cellDirection] - 1 - overlink))
 	  inCell  -= mag;
       }
     else
@@ -163,7 +164,7 @@ CGCells::runEvent(const CParticle& part) const
 	    endCell += mag;
 	    inCell  += mag;
 	  }
-	else if (cells[oldCell].coords[cellDirection] <= overlink)
+	else if (cells[oldCell].coords[cellDirection] <= int(overlink))
 	  inCell  += mag;
       }
   }
