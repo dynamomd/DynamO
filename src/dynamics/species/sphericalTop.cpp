@@ -24,12 +24,12 @@
 CSSphericalTop::CSSphericalTop(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
 			       std::string nName, unsigned int nID, Iflt inertiaConst,
 			       std::string nIName):
-  CSpecies(tmp, "Species", IC_blue, nr, nMass, nName, nID, nIName),
+  CSpecInertia(tmp, "Species", IC_blue, nr, nMass, nName, nID, nIName),
   inertiaConstant(inertiaConst)
 {}
 
 CSSphericalTop::CSSphericalTop(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
-  CSpecies(XML, tmp, nID)
+  CSpecInertia(XML, tmp, nID)
 { operator<<(XML); }
 
 

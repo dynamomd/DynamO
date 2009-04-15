@@ -28,6 +28,10 @@
 #include "include.hpp"
 #include "../dynamics/units/units.hpp"
 
+#ifdef DYNAMO_DEBUG
+#include "../dynamics/globals/neighbourList.hpp"
+#include "../dynamics/NparticleEventData.hpp"
+#endif
 CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
 		       CSSorter* nS):
   SimBase(tmp, aName, IC_purple),
@@ -234,6 +238,19 @@ CScheduler::runNextEvent()
       {
 	//We don't stream the system for globals as neighbour lists
 	//optimise this (they dont need it).
+	
+	#ifdef DYNAMO_DEBUG
+	//This makes neighbour list events appear in the output plugins
+	if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2].get_ptr())
+	    != NULL)
+	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	    Ptr->eventUpdate(CGlobEvent(Sim->vParticleList[sorter->next_ID()], 0, 
+					CELL, *Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]),
+			     CNParticleData(C1ParticleData(Sim->vParticleList[sorter->next_ID()],
+							   Sim->Dynamics.getSpecies(Sim->vParticleList[sorter->next_ID()]),
+							   CELL)));
+	#endif
+	
 	Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
 	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
 	break;	           

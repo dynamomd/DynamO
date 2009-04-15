@@ -46,7 +46,7 @@ CLNOrientation::initialise()
   //Check if any of the species are overridden
   bool hasInertia(false);
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
-    if (dynamic_cast<const CSpecHasInertia*>(spec.get_ptr()) != NULL)
+    if (dynamic_cast<const CSpecInertia*>(spec.get_ptr()) != NULL)
       hasInertia = true;
 
   if (!hasInertia)

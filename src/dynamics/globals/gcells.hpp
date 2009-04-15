@@ -108,6 +108,7 @@ protected:
   Vector  cellLatticeWidth;
   Iflt lambda;
   size_t NCells;
+  size_t overlink;
 
   mutable std::vector<cellStruct> cells;
 

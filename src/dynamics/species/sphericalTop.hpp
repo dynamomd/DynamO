@@ -20,7 +20,7 @@
 
 #include "species.hpp"
 
-class CSSphericalTop: public CSpecies,CSpecHasInertia
+class CSSphericalTop: public CSpecInertia
 {
 public:
   CSSphericalTop(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 

@@ -35,3 +35,6 @@
   - [-] Stop the use of pointers in output sims for the benefit of Replexing
     - [X] Add id numbers to every interaction
     - [-] Change the output plugins to use the id numbers and get rid of RTTI
+
+** TODO Code Improvements
+*** MAYBE Implement Parallel Hard Cubes

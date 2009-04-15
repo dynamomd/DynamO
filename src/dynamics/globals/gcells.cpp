@@ -33,7 +33,8 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
-  NCells(0)
+  NCells(0),
+  overlink(1)
 {
   globName = name;
   I_cout() << "Cells Loaded";
@@ -44,7 +45,8 @@ CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
-  NCells(0)
+  NCells(0),
+  overlink(1)
 {
   operator<<(XML);
 
@@ -56,7 +58,8 @@ CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
-  NCells(0)
+  NCells(0),
+  overlink(1)
 {}
 
 void 
@@ -67,6 +70,10 @@ CGCells::operator<<(const XMLNode& XML)
     if (XML.isAttributeSet("lambda"))
       lambda = boost::lexical_cast<Iflt>
 	(XML.getAttribute("Lambda"));
+
+    if (XML.isAttributeSet("OverLink"))
+      overlink = boost::lexical_cast<size_t>
+	(XML.getAttribute("OverLink"));
     
     globName = XML.getAttribute("Name");	
   }
@@ -125,34 +132,48 @@ CGCells::runEvent(const CParticle& part) const
 		       (part, cells[oldCell].origin, 
 			cellDimension));
 
-  size_t cellpow(1);
-
-  for (size_t iDim(0); iDim < cellDirection; ++iDim)
-    cellpow *= cellCount[iDim];
-  
-  int velsign = 2 * (part.getVelocity()[cellDirection] > 0) - 1;
-  int offset = (part.getVelocity()[cellDirection] > 0) * (cellCount[cellDirection] - 1);
-  int endCell(oldCell + cellpow * velsign), inCell(oldCell + 2 * cellpow * velsign);
+  int endCell(oldCell), inCell(oldCell);
 
   {
-    int tmpint = velsign * cellpow * cellCount[cellDirection];
-    if (cells[oldCell].coords[cellDirection] == offset)
-      {
-	endCell -= tmpint;
-	inCell -= tmpint;
-      }
-    else if (cells[oldCell].coords[cellDirection] == offset - velsign)
-      inCell -= tmpint;
-  }
+    size_t cellpow(1);
+    for (size_t iDim(0); iDim < cellDirection; ++iDim)
+      cellpow *= cellCount[iDim];
 
+    int mag = cellpow * cellCount[cellDirection];
+  
+    if (part.getVelocity()[cellDirection] > 0)
+      {
+	endCell += cellpow;
+	inCell += (1 + overlink) * cellpow;
+	if (cells[oldCell].coords[cellDirection] == cellCount[cellDirection] - 1)
+	  {
+	    endCell -= mag;
+	    inCell  -= mag;
+	  }
+	else if (cells[oldCell].coords[cellDirection] >= cellCount[cellDirection] - 1 - overlink)
+	  inCell  -= mag;
+      }
+    else
+      {
+	endCell -= cellpow;
+	inCell -= (1+overlink) * cellpow;
+	
+	if (cells[oldCell].coords[cellDirection] == 0)
+	  {
+	    endCell += mag;
+	    inCell  += mag;
+	  }
+	else if (cells[oldCell].coords[cellDirection] <= overlink)
+	  inCell  += mag;
+      }
+  }
+    
   removeFromCell(part.getID());
   addToCell(part.getID(), endCell);
 
   //Get rid of the virtual event that is next, update is delayed till
   //after all events are added
   Sim->ptrScheduler->popNextEvent();
-
-  CVector<int> coords(cells[inCell].coords);
 
   //Particle has just arrived into a new cell warn the scheduler about
   //its new neighbours so it can add them to the heap
@@ -163,6 +184,15 @@ CGCells::runEvent(const CParticle& part) const
   size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
     dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
   
+  CVector<int> coords(cells[inCell].coords);
+  coords[dim1] -= overlink;
+  coords[dim2] -= overlink;
+
+  if (coords[dim1] < 0) coords[dim1] += cellCount[dim1];
+  if (coords[dim2] < 0) coords[dim2] += cellCount[dim2];
+
+  int nb(getCellIDprebounded(coords));
+
   size_t dim1pow(1), dim2pow(1);
   
   for (size_t iDim(0); iDim < dim1; ++iDim)
@@ -171,18 +201,15 @@ CGCells::runEvent(const CParticle& part) const
   for (size_t iDim(0); iDim < dim2; ++iDim)
     dim2pow *= cellCount[iDim];
 
-  if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
-  if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
-
-  int nb(getCellIDprebounded(coords));
+  int walkLength = 2 * overlink+1;
 
   //We now have the lowest cell coord, or corner of the cells to update
-  for (int iDim(0); iDim < 3; ++iDim)
+  for (int iDim(0); iDim < walkLength; ++iDim)
     {
       if (coords[dim2] + iDim == cellCount[dim2]) 
 	nb -= dim2pow * cellCount[dim2];
 
-      for (int jDim(0); jDim < 3; ++jDim)
+      for (int jDim(0); jDim < walkLength; ++jDim)
 	{	  
 	  if (coords[dim1] + jDim == cellCount[dim1]) 
 	    nb -= dim1pow * cellCount[dim1];
@@ -195,9 +222,9 @@ CGCells::runEvent(const CParticle& part) const
 	  nb += dim1pow;
 	}
 
-      if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
+      if (coords[dim1] + walkLength - 1 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
       
-      nb += dim2pow - 3 * dim1pow;
+      nb += dim2pow - walkLength * dim1pow;
     }
 
   //Tell about the new locals
@@ -247,7 +274,7 @@ CGCells::reinitialise(const Iflt& maxdiam)
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
   //Create the cells
-  addCells(maxdiam);
+  addCells(maxdiam/overlink);
 
   addLocalEvents();
 
@@ -262,6 +289,8 @@ CGCells::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "Cells"
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
+
+  if (overlink > 1)   XML << xmlw::attr("OverLink") << overlink;
 }
 
 void
@@ -415,28 +444,33 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 {
   CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
 
+
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    if (coords[iDim])
-      --coords[iDim];
-    else
-      coords[iDim] = cellCount[iDim] - 1;
+    {
+      coords[iDim] -= overlink;
+      if (coords[iDim] < 0)
+	coords[iDim] += cellCount[iDim];
+    }
   
   int nb(getCellIDprebounded(coords));
 
   //This loop iterates through each neighbour position
   BOOST_STATIC_ASSERT(NDIM==3);
 
-  for (int iDim(0); iDim < 3; ++iDim)
+  int walkLength(2*overlink+1);
+
+  for (int iDim(0); iDim < walkLength; ++iDim)
     {
       nb -= (coords[2] + iDim == cellCount[2]) * NCells;
 
-      for (int jDim(0); jDim < 3; ++jDim)
+      for (int jDim(0); jDim < walkLength; ++jDim)
 	{
 	  nb -= (coords[1] + jDim == cellCount[1]) * cellCount[1] * cellCount[0];
 	  
-	  for (int kDim(0); kDim < 3; ++kDim)
+	  for (int kDim(0); kDim < walkLength; ++kDim)
 	    {
-	      nb -= (coords[0] + kDim == cellCount[0]) * cellCount[0];
+ 	      if (coords[0] + kDim == cellCount[0])
+		nb -= cellCount[0];
 	      
 	      for (int next(cells[nb++].list);
 		   next >= 0; next = partCellData[next].next)
@@ -444,10 +478,10 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 		  func(part, next);
 	    }
 
-	  nb += (1 + (coords[0] + 2 >= cellCount[0])) * cellCount[0] - 3;
+	  nb += (1 + (coords[0] + walkLength - 1 >= cellCount[0])) * cellCount[0] - walkLength;
 	}
 
-      nb += ((1 + (coords[1] + 2 >= cellCount[1])) * cellCount[1] - 3) * cellCount[0];
+      nb += ((1 + (coords[1] + walkLength - 1 >= cellCount[1])) * cellCount[1] - walkLength) * cellCount[0];
     }
 }
 

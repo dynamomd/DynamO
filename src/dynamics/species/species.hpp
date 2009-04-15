@@ -33,7 +33,6 @@ namespace xmlw
 class CParticle;
 class CInteraction;
 
-class CSpecHasInertia {};
 
 class CSpecies:public DYNAMO::SimBase_const
 {
@@ -95,6 +94,20 @@ protected:
   unsigned int ID;
 };
 
+class CSpecInertia: public CSpecies
+{
+public:
+  CSpecInertia(DYNAMO::SimData* sim, const char* name, const char* color, 
+	       CRange* r, Iflt nMass, std::string nName, 
+	       unsigned int ID, std::string nIName="Bulk"):
+  CSpecies(sim, name, color, r, nMass, nName, ID, nIName)
+  {}
+
+  CSpecInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+    CSpecies(XML,Sim,ID)
+  {}
+
+};
 
 
 #endif

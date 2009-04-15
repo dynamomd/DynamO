@@ -98,7 +98,7 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
 	  << "\n";
 
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    logfile << "    1PEvent p1" << pData.getParticle().getID()
+    logfile << "    1PEvent p1 " << pData.getParticle().getID()
 	    << "\n";
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
