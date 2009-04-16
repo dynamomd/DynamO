@@ -30,8 +30,14 @@
 bool 
 CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 {
-  //Approaching
-  if (dat.rvdot < 0)
+  //To be approaching, the largest dimension of rij must be being
+  //reduced
+  
+  size_t largedim(0);
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    if (fabs(dat.rij[iDim]) > fabs(dat.rij[largedim])) largedim = iDim;
+    
+  if (dat.rij[largedim] * dat.vij[largedim] < 0)
     {      
       Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
       
