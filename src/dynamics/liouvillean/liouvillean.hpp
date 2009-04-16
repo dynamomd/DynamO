@@ -114,6 +114,10 @@ public:
    */
   virtual void rescaleSystemKineticEnergy(const Iflt&);
 
+  /*! \brief Rescales the translational kinetic energy vector of the system by a vector of factors
+   */
+  virtual void rescaleSystemKineticEnergy(const Vector&);
+
   /*! \brief Calculates the translational kinetic energy vector of the system
    */
   Vector  getVectorParticleKineticEnergy(const CParticle&) const;

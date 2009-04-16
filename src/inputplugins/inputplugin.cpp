@@ -48,6 +48,20 @@ CInputPlugin::rescaleVels(Iflt val)
 
   I_cout() << "Current kT " << currentkT;
 
+  Vector energy = Sim->Dynamics.Liouvillean().getVectorSystemKineticEnergy();
+
+  Iflt avg  = energy[0];
+
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    avg += energy[iDim];
+
+  avg /= NDIM;
+
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    energy[iDim] = sqrt(avg / energy[iDim]);
+
+  Sim->Dynamics.Liouvillean().rescaleSystemKineticEnergy(energy);
+
   Sim->Dynamics.Liouvillean().rescaleSystemKineticEnergy(val/ currentkT);
 }
 
@@ -98,89 +112,3 @@ CInputPlugin::mirrorDirection(unsigned int iDim)
       part.getPosition()[iDim] *= -1.0;
     }
 }
-
-/*
-void 
-CInputPlugin::setSimType(unsigned int i)
-{
-  if (!diamScale) D_throw() << "Diamscale not set!";
-  
-  switch (i)
-    {
-    case 1:
-      //Just a hard sphere system
-      Sim->ptrScheduler = new CSMultList(Sim);
-      Sim->Dynamics.setPBC<CSPBC>();
-      Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
-      Sim->Dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0, 
-						    new C2RAll()
-						    ))->setName("Bulk");
-      Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0,nParts-1), 1.0, "Bulk", 0, "Bulk"));
-      Sim->Dynamics.setUnits(new CUElastic(diamScale,Sim));
-      break;
-    case 2:
-      //Just a square well system
-      Sim->ptrScheduler = new CSMultList(Sim);
-      Sim->Dynamics.setPBC<CSPBC>();
-      Sim->Dynamics.setUnits(new CUSW(diamScale,1.0, Sim));
-      Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
-      Sim->Dynamics.addInteraction(new CISquareWell(Sim, diamScale, 1.5, 1.0, 1.0,
-						    new C2RAll()
-						    ))->setName("Bulk");
-      Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(0,nParts-1), 1.0, "Bulk", 0, "Bulk"));
-      break;
-    case 3:
-      //For the MaGee random walk system
-      break;
-    case 4:
-      //For the binary hard sphere system
-      {
-	Iflt molfracA = 0.001;
-	unsigned long as = 0;
-	unsigned long ae = (static_cast<unsigned long>(molfracA * nParts)) - 1;
-	unsigned long bs = ae + 1; 
-	unsigned long be = nParts - 1;
-	
-	Sim->Dynamics.setPBC<CSPBC>();
-	Sim->ptrScheduler = new CSMultList(Sim);
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
-	Sim->Dynamics.addInteraction
-	  (new CIHardSphere(Sim,1.0 * diamScale,1.0,new C2RSingle(new CRRange(as,ae))
-			    ))->setName("AA");
-	
-	Sim->Dynamics.addInteraction
-	  (new CIHardSphere(Sim,0.55*diamScale, 1.0,new C2RPair(new CRRange(as,ae),
-								new CRRange(bs,be))
-			    ))->setName("AB");
-	
-	Sim->Dynamics.addInteraction
-	  (new CIHardSphere(Sim,0.1*diamScale, 1.0,new C2RSingle(new CRRange(bs,be))))->setName("BB");
-	
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(as,ae), 1.0, "AA", 0, "AA"));
-	Sim->Dynamics.addSpecies(CSpecies(Sim, new CRRange(bs,be), 1.0, "BB", 0, "BB"));
-	Sim->Dynamics.setUnits(new CUElastic(diamScale, Sim));
-      }
-      break;
-    default:
-      D_throw() << "Unrecognised sim type";
-    }
-}
-
-
-Vector  
-CInputPlugin::getRandVelVec()
-{
-  //See http://mathworld.wolfram.com/SpherePointPicking.html
-  boost::normal_distribution<Iflt> normdist(0.0, (1.0 / sqrt(NDIM)));
-  
-  boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<Iflt> >
-    normal_sampler(Sim->ranGenerator, normdist);
-  
-  Vector  tmpVec;
-  for (int iDim = 0; iDim < NDIM; iDim++)
-    tmpVec[iDim] = normal_sampler();
-  
-  return tmpVec;
-}
-
-*/
