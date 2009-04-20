@@ -72,7 +72,7 @@ CESingle::initialisation()
 void
 CESingle::outputData()
 {
-  Simulation.outputData(outputFormat.c_str());
+  Simulation.outputData(outputFormat.c_str(),vm.count("uncompressed"));
 }
 
 void
