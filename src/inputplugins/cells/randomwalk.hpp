@@ -67,10 +67,12 @@ struct CURandWalk: public CUCell
 	  {
 	    test = false;
 	    
-	    Vector tmp(getRandVelVec());
-	    tmp /= tmp.nrm();
-
-	    tmp = start + tmp * walklength;
+	    {
+	      Vector tmp2(getRandVelVec());
+	      tmp2 /= tmp2.nrm();
+	      
+	      tmp = start + tmp2 * walklength;
+	    }
 	    
 	    BOOST_FOREACH(const Vector & vec, localsites)
 	      if ((vec - tmp).nrm() <= diameter)
