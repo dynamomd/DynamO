@@ -27,7 +27,8 @@ class MaskedInteger
 public:
   static const unsigned int S = 10;
   static const unsigned int Smask;
-  static const unsigned int mask  = 0x49249249;
+  //Zeros are needed in the last two bits (hence the 0)
+  static const unsigned int mask  = 0x09249249;
   static const unsigned int maxVal;
   static const unsigned int dilatedMaxVal; 
 
@@ -40,7 +41,7 @@ public:
   MaskedInteger(const unsigned int& val, void*):
     value(val) {}
   
-  const unsigned int& getDilatedVal() { return value; }
+  const unsigned int& getDilatedVal() const { return value; }
   
   unsigned int getRealVal() { return undilate_3(value); }
   
@@ -128,7 +129,6 @@ struct dilatedCoords
 
 typedef MaskedInteger MI;
 
-/*
 #include <iostream>
 
 template <typename T>
@@ -143,54 +143,4 @@ void print_bits ( T val, std::ostream& out )
     }
 }
 
-
-int main()
-{
-  dilatedCoords test(1023,3,0);
-  
-  std::cout << test.getMortonNum() << std::endl;
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-
-  ++test.data[0];
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-
-  --test.data[1];
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal()
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-
-  test.data[1] = test.data[1] + MI(5);
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-
-  --test.data[2];
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-
-  test = dilatedCoords(153391707);
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-
-  test.data[0] = 21;
-  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
-	    << " " << test.data[2].getRealVal() <<  std::endl;
-  
-  std::cout << std::endl;
-
-  print_bits(MI(1).getDilatedVal(),std::cout);
-  std::cout << std::endl;
-
-  print_bits((MI(2)).getDilatedVal(),std::cout);
-  std::cout << std::endl;
-
-  MI i(1);
-  print_bits((i+2).getDilatedVal(), std::cout);
-  std::cout << std::endl;
-
-  std::cout << MI::maxVal << std::endl;
-  print_bits(MI::dilatedMaxVal, std::cout);
-  std::cout << std::endl;
-}
-*/
 #endif

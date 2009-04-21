@@ -78,10 +78,6 @@ protected:
 
   struct cellStruct
   {
-    //Be smart about memory
-    cellStruct():list(-1)
-    {  }
-
     std::vector<size_t> locals;
     int list;
     Vector origin;
@@ -99,7 +95,7 @@ protected:
 
   //Variables
   unsigned int cellCount;
-  MI dilatedCellCount;
+  MI dilatedCellMax;
   Iflt  cellDimension;
   Iflt  cellLatticeWidth;
   Iflt lambda;

@@ -140,30 +140,25 @@ CGCellsMorton::runEvent(const CParticle& part) const
     if (part.getVelocity()[cellDirection] > 0)
       {
 	++dendCell.data[cellDirection];
-	if (dendCell.data[cellDirection] == dilatedCellCount) dendCell.data[cellDirection].zero();
+	if (dendCell.data[cellDirection] > dilatedCellMax) dendCell.data[cellDirection].zero();
 	
 	inCell.data[cellDirection] = dendCell.data[cellDirection];
 	++inCell.data[cellDirection];
-	if (inCell.data[cellDirection] == dilatedCellCount) inCell.data[cellDirection].zero();
+	if (inCell.data[cellDirection] > dilatedCellMax) inCell.data[cellDirection].zero();
       }
     else
       {
 	--dendCell.data[cellDirection];
 	if (inCell.data[cellDirection].isZero()) 
-	  {
-	    dendCell.data[cellDirection] = dilatedCellCount;
-	    --dendCell.data[cellDirection];
-	  }
+	  dendCell.data[cellDirection] = dilatedCellMax;
 	
 	inCell.data[cellDirection] = dendCell.data[cellDirection];
 	--inCell.data[cellDirection];
 	
 	if (dendCell.data[cellDirection].isZero()) 
-	  { 
-	    inCell.data[cellDirection] = dilatedCellCount;
-	    --inCell.data[cellDirection];
-	  }
+	  inCell.data[cellDirection] = dilatedCellMax;
       }
+
     endCell = dendCell.getMortonNum();
   }
     
@@ -187,11 +182,11 @@ CGCellsMorton::runEvent(const CParticle& part) const
   inCell.data[dim2] = inCell.data[dim2] - dilatedOverlink;
   
   //Test if the data has looped around
-  if (inCell.data[dim1] >= dilatedCellCount) 
-    inCell.data[dim1] = inCell.data[dim1] - (--(MI(MI::dilatedMaxVal,0) - dilatedCellCount));
+  if (inCell.data[dim1] > dilatedCellMax)
+    inCell.data[dim1] = inCell.data[dim1] - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
 
-  if (inCell.data[dim2] >= dilatedCellCount) 
-    inCell.data[dim2] = inCell.data[dim2] - (--(MI(MI::dilatedMaxVal,0) - dilatedCellCount));
+  if (inCell.data[dim2] > dilatedCellMax) 
+    inCell.data[dim2] = inCell.data[dim2] - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
 
   int walkLength = 2 * overlink + 1;
 
@@ -200,25 +195,25 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //We now have the lowest cell coord, or corner of the cells to update
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
-      if (inCell.data[dim2] + iDim == dilatedCellCount)
-	inCell.data[dim2].zero();
-
       for (int jDim(0); jDim < walkLength; ++jDim)
 	{	  
-	  if (inCell.data[dim1] + jDim == dilatedCellCount) 
-	    inCell.data[dim1].zero();
-
 	  for (int next = cells[inCell.getMortonNum()].list; next >= 0; 
 	       next = partCellData[next].next)
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	      nbs.second(part, next);
 	  
-	  ++inCell.data[dim1];
+	  if (inCell.data[dim1] == dilatedCellMax)
+	    inCell.data[dim1].zero();
+	  else
+	    ++inCell.data[dim1];
 	}
 
       inCell.data[dim1] = saved_coord;
       
-      ++inCell.data[dim2];
+      if (inCell.data[dim2] == dilatedCellMax)
+	inCell.data[dim2].zero();
+      else
+	++inCell.data[dim2];
     }
 
   //Tell about the new locals
@@ -311,6 +306,10 @@ CGCellsMorton::addCells(Iflt maxdiam)
       cellCount = 200;
     }
 
+  dilatedCellMax = cellCount - 1;
+
+  dilatedOverlink = overlink;
+
   NCells = cellCount * cellCount * cellCount;
 
   cellLatticeWidth = 1.0 / cellCount;
@@ -340,15 +339,20 @@ CGCellsMorton::addCells(Iflt maxdiam)
   cells.resize(sizeReq); //Empty Cells created!
 
   I_cout() << "Vector Size <N>  " << sizeReq;
-
-  for (size_t id = 0; id < NCells; ++id)
-    {
-      cells[id].coords = dilatedCoords(id);
-
-      for (int iDim = 0; iDim < NDIM; iDim++)
-	cells[id].origin[iDim] = cells[id].coords.data[iDim].getRealVal()
-	  * cellLatticeWidth - 0.5 * Sim->aspectRatio[iDim];
-    }
+  
+  for (size_t iDim = 0; iDim < cellCount; ++iDim)
+    for (size_t jDim = 0; jDim < cellCount; ++jDim)
+      for (size_t kDim = 0; kDim < cellCount; ++kDim)
+	{
+	  dilatedCoords coords(iDim, jDim, kDim);
+	  size_t id = coords.getMortonNum();
+	  cells[id].coords = coords;
+	  cells[id].list = -1;
+	  
+	  for (int iDim = 0; iDim < NDIM; iDim++)
+	    cells[id].origin[iDim] = coords.data[iDim].getRealVal()
+	      * cellLatticeWidth - 0.5 * Sim->aspectRatio[iDim];
+	}
 
   //Add the particles section
   //Required so particles find the right owning cell
@@ -383,7 +387,7 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
       coords[iDim] %= cellCount;
       if (coords[iDim] < 0) coords[iDim] += cellCount;
 
-      //if (coords[iDim] >= cellCount) D_throw() << "Fail!";
+      if (coords[iDim] >= cellCount) D_throw() << "Fail!";
     }
   
   return dilatedCoords(coords[0],coords[1],coords[2]);
@@ -405,7 +409,7 @@ CGCellsMorton::getCellID(Vector  pos) const
 
 void 
 CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
-				  const nbHoodFunc& func) const
+					const nbHoodFunc& func) const
 {
   dilatedCoords coords(cells[partCellData[part.getID()].cell].coords);
 
@@ -413,9 +417,9 @@ CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
     {
       coords.data[iDim] = coords.data[iDim] - dilatedOverlink;
 
-      if (coords.data[iDim] >= dilatedCellCount) 
-	coords.data[iDim] = coords.data[iDim] 
-	  - (--(MI(MI::dilatedMaxVal,0) - dilatedCellCount));
+      if (coords.data[iDim] > dilatedCellMax) 
+	coords.data[iDim] = coords.data[iDim]
+	  - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
     }
   
   //This loop iterates through each neighbour position
@@ -427,33 +431,35 @@ CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
 
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
-      if (coords.data[2] + iDim == dilatedCellCount) 
-	coords.data[2].zero();
-
       for (int jDim(0); jDim < walkLength; ++jDim)
-	{
-	  if (coords.data[1] + jDim == dilatedCellCount) 
-	    coords.data[1].zero();
-	  
+	{	  
 	  for (int kDim(0); kDim < walkLength; ++kDim)
-	    {
-	      if (coords.data[0] + kDim == dilatedCellCount) 
-		coords.data[0].zero();
-	      
+	    {	      
 	      for (int next(cells[coords.getMortonNum()].list);
 		   next >= 0; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
 
-	      ++coords.data[0];
+	      if (coords.data[0] == dilatedCellMax)
+		coords.data[0].zero();
+	      else
+		++coords.data[0];
 	    }
-	  coords.data[0] = stored_coords.data[0];
-	  ++coords.data[1];
-	  
-	}
 
+	  coords.data[0] = stored_coords.data[0];
+
+	  if (coords.data[1] == dilatedCellMax) 
+	    coords.data[1].zero();
+	  else
+	    ++coords.data[1];
+	}
+      
       coords.data[1] = stored_coords.data[1];
-      ++coords.data[2];
+
+      if (coords.data[2] == dilatedCellMax) 
+	coords.data[2].zero();
+      else
+	++coords.data[2];
     }
 }
 

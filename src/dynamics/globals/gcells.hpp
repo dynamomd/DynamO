@@ -78,8 +78,7 @@ protected:
   struct cellStruct
   {
     //Be smart about memory
-    cellStruct():list(-1)
-    {  }
+    cellStruct():list(-1) {}
 
     std::vector<size_t> locals;    
     int list;

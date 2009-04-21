@@ -247,9 +247,11 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   Vector  vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(rpos, vel);
   
-  Iflt retVal((vel[0] < 0)
-	      ? -rpos[0]/vel[0] 
-	      : (width[0]-rpos[0]) / vel[0]);
+  Iflt retVal;
+  if (vel[0] < 0)
+    retVal = -rpos[0]/vel[0];
+  else
+    retVal = (width[0]-rpos[0]) / vel[0];
 
   for (int iDim = 1; iDim < NDIM; ++iDim)
     {
