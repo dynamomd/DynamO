@@ -59,6 +59,8 @@ CGlobal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
     return new CGCellsShearing(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
     return new CGPBCSentinel(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"CellsMorton"))
+    return new CGCellsMorton(XML, Sim);
   else 
     D_throw() << "Unknown type of Global Interaction encountered";
 }

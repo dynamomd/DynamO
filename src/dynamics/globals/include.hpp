@@ -16,6 +16,7 @@
 */
 
 #include "gcells.hpp"
+#include "gcellsmorton.hpp"
 #include "gListAndCell.hpp"
 #include "gcellsShearing.hpp"
 #include "PBCSentinel.hpp"
