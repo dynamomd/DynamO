@@ -23,30 +23,35 @@
 #define dilatedint_H
 #include <limits.h>
 
-template<typename T,
-	 T mask, 
-	 T dimension,
-	 T S = 10>
 class MaskedInteger{
-  static const T Smask = (T(0) - 1) >> (sizeof(T)*CHAR_BIT - S);
+  static const unsigned int S = 10;
+  static const unsigned int Smask = (((unsigned int)0) - 1) >> (sizeof(unsigned int)*CHAR_BIT - S);
+  static const unsigned int mask = 0x49249249;
 public:
+  static const unsigned int maxVal = Smask;
+  static const unsigned int dilatedMaxVal = ((((unsigned int)0) - 1) >> (sizeof(unsigned int)*CHAR_BIT - S * 3)) & mask; 
+
   // Constructor and Getter
   MaskedInteger() {}
-  MaskedInteger(const T& val):
-    value(dilate_3(val & Smask) << dimension) {}
+  MaskedInteger(const unsigned int& val):
+    value(dilate_3(val & Smask)) {}
 
   //Constructor that takes the actual dilated int as the arg
-  MaskedInteger(const T& val, void*):
+  MaskedInteger(const unsigned int& val, void*):
     value(val) {}
   
-  const T& getDilatedVal() { return value; }
+  const unsigned int& getDilatedVal() { return value; }
   
-  T getRealVal() { return undilate_3(value >> dimension); }
+  unsigned int getRealVal() { return undilate_3(value); }
   
-  void setDilatedVal(const T& i) { value = i & mask; }
+  void setDilatedVal(const unsigned int& i) { value = i & mask; }
 
-  void operator=(const T& i) { value = dilate_3(i & Smask) << dimension; }
+  void operator=(const unsigned int& i) { value = dilate_3(i & Smask); }
+
+  void zero() { value = 0; }
   
+  bool isZero() const { return value == 0; }
+
   // Simple operators.
   MaskedInteger operator-(const MaskedInteger& d) const
   { return MaskedInteger((value - d.value) & mask, 0); }
@@ -54,30 +59,30 @@ public:
   MaskedInteger operator+(const MaskedInteger& d) const
   { return MaskedInteger((value + (~mask) + d.value) & mask, 0); }
 
-  void operator++() { value = (value - mask) & mask; }
+  MaskedInteger& operator++() { value = (value - mask) & mask; return *this; }
 
-  void operator--() { value = (value -    1) & mask; }
+  MaskedInteger& operator--() { value = (value -    1) & mask; return *this; }
 
-  void operator==(const MaskedInteger& d) const
+  bool operator==(const MaskedInteger& d) const
   { return value == d.value; }
 
-  void operator!=(const MaskedInteger& d) const
+  bool operator!=(const MaskedInteger& d) const
   { return value != d.value; }
 
-  void operator<(const MaskedInteger& d) const
+  bool operator<(const MaskedInteger& d) const
   { return value < d.value; }
 
-  void operator>(const MaskedInteger& d) const
+  bool operator>(const MaskedInteger& d) const
   { return value > d.value; }
 
-  void operator<=(const MaskedInteger& d) const
+  bool operator<=(const MaskedInteger& d) const
   { return value <= d.value; }
 
-  void operator>=(const MaskedInteger& d) const
+  bool operator>=(const MaskedInteger& d) const
   { return value >= d.value; }
 
 private:
-  T value; // stored as normalized integer at mask’s  1 bits.
+  unsigned int value; // stored as normalized integer at mask’s  1 bits.
 
   inline unsigned int undilate_3(unsigned int t) const 
   {
@@ -98,30 +103,30 @@ private:
 
 };
 
-typedef MaskedInteger<unsigned int, 0x49249249, 0> MI0;
-typedef MaskedInteger<unsigned int, 0x92492492, 1> MI1;
-typedef MaskedInteger<unsigned int, 0x24924924, 2> MI2;
-
 struct dilatedCoords
 {
+  dilatedCoords() {}
+
   dilatedCoords(const unsigned int& MortonNum)
   {
-    _x.setDilatedVal(MortonNum);
-    _y.setDilatedVal(MortonNum);
-    _z.setDilatedVal(MortonNum);
+    for (unsigned int i(0); i < 3; ++i)
+      data[i].setDilatedVal(MortonNum >> i);
   }
 
-  dilatedCoords(const unsigned int& x, const unsigned int& y, const unsigned int& z):
-    _x(x), _y(y), _z(z)
-  {}
+  dilatedCoords(const unsigned int& x, const unsigned int& y, const unsigned int& z)
+  {
+    data[0] = x;
+    data[1] = y;
+    data[2] = z;
+  }
 
   inline unsigned int getMortonNum()
-  { return _x.getDilatedVal() + _y.getDilatedVal() + _z.getDilatedVal(); }
+  { return data[0].getDilatedVal() + (data[1].getDilatedVal() << 1) + (data[2].getDilatedVal() << 2); }
 
-  MI0 _x;
-  MI1 _y;
-  MI2 _z;
+  MaskedInteger data[3];
 };
+
+typedef MaskedInteger MI;
 
 /*
 #include <iostream>
@@ -138,44 +143,54 @@ void print_bits ( T val, std::ostream& out )
     }
 }
 
+
 int main()
 {
   dilatedCoords test(1023,3,0);
   
   std::cout << test.getMortonNum() << std::endl;
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
+	    << " " << test.data[2].getRealVal() <<  std::endl;
 
-  ++test._x;
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  ++test.data[0];
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
+	    << " " << test.data[2].getRealVal() <<  std::endl;
 
-  --test._y;
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  --test.data[1];
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal()
+	    << " " << test.data[2].getRealVal() <<  std::endl;
 
-  test._y = test._y + MI1(5);
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  test.data[1] = test.data[1] + MI(5);
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
+	    << " " << test.data[2].getRealVal() <<  std::endl;
 
-  --test._z;
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  --test.data[2];
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
+	    << " " << test.data[2].getRealVal() <<  std::endl;
 
   test = dilatedCoords(153391707);
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
+	    << " " << test.data[2].getRealVal() <<  std::endl;
 
-  test._x = 21;
-  std::cout << test._x.getRealVal() << " " << test._y.getRealVal() << " " << test._z.getRealVal() <<  std::endl;
+  test.data[0] = 21;
+  std::cout << test.data[0].getRealVal() << " " << test.data[1].getRealVal() 
+	    << " " << test.data[2].getRealVal() <<  std::endl;
   
   std::cout << std::endl;
 
-  print_bits(MI0(1).getDilatedVal(),std::cout);
+  print_bits(MI(1).getDilatedVal(),std::cout);
   std::cout << std::endl;
 
-  print_bits((MI0(2)).getDilatedVal(),std::cout);
+  print_bits((MI(2)).getDilatedVal(),std::cout);
   std::cout << std::endl;
 
-  MI0 i(1);
+  MI i(1);
   print_bits((i+2).getDilatedVal(), std::cout);
   std::cout << std::endl;
 
-  std::cout << (i+2).getRealVal() << std::endl;
+  std::cout << MI::maxVal << std::endl;
+  print_bits(MI::dilatedMaxVal, std::cout);
+  std::cout << std::endl;
 }
 */
 #endif

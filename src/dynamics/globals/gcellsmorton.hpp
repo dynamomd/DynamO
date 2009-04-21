@@ -59,7 +59,7 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  Vector  getCellDimensions() const 
+  Iflt  getCellDimensions() const 
   { return cellDimension; }
 
   virtual Iflt getMaxSupportedInteractionLength() const;
@@ -84,33 +84,28 @@ protected:
 
     std::vector<size_t> locals;
     int list;
-    Vector  origin;
+    Vector origin;
     dilatedCoords coords;
   };
 
   virtual void outputXML(xmlw::XmlStream&) const;
-
-  //Cell Numbering
-  size_t getCellID(const CVector<int>&) const;
-
-  size_t getCellIDprebounded(const CVector<int>&) const;
-
-  CVector<int> getCoordsFromID(size_t) const; 
-
-  size_t getCellID(Vector ) const;
+ 
+  dilatedCoords getCellID(Vector) const;
+  dilatedCoords getCellID(const CVector<int>&) const;
 
   void addCells(Iflt);
 
   void addLocalEvents();
 
   //Variables
-  CVector<int> cellCount;
-  dilatedCoords dilatedCellCount;
-  Vector  cellDimension;
-  Vector  cellLatticeWidth;
+  unsigned int cellCount;
+  MI dilatedCellCount;
+  Iflt  cellDimension;
+  Iflt  cellLatticeWidth;
   Iflt lambda;
   size_t NCells;
   size_t overlink;
+  MI dilatedOverlink;
 
   mutable std::vector<cellStruct> cells;
 

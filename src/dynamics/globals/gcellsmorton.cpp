@@ -31,7 +31,7 @@
 CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "GlobalCellularEvent2"),
   cellCount(0),
-  cellDimension(1,1,1),
+  cellDimension(1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
@@ -43,7 +43,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
 CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "GlobalCellularEvent"),
   cellCount(0),
-  cellDimension(1,1,1),
+  cellDimension(1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
@@ -56,7 +56,7 @@ CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
 CGCellsMorton::CGCellsMorton(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
-  cellDimension(1,1,1),
+  cellDimension(1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
@@ -109,7 +109,7 @@ CGCellsMorton::getEvent(const CParticle& part) const
 		    Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
 		    (part, cells[partCellData[part.getID()].cell].origin, 
-		     cellDimension)
+		     Vector(cellDimension,cellDimension,cellDimension))
 		    -Sim->Dynamics.Liouvillean().getParticleDelay(part)
 		    ,
 		    CELL, *this);
@@ -123,50 +123,48 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //because the scheduler and all interactions, locals and systems
   //expect the particle to be up to date.
   Sim->Dynamics.Liouvillean().updateParticle(part);
-  
-  size_t oldCell(partCellData[part.getID()].cell);
 
+  size_t endCell, oldCell(partCellData[part.getID()].cell);
+  
   //Determine the cell transition direction, its saved
   size_t cellDirection(Sim->Dynamics.Liouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
-			cellDimension));
-
-  int endCell(oldCell), inCell(oldCell);
-
-  {
-    size_t cellpow(1);
-    for (size_t iDim(0); iDim < cellDirection; ++iDim)
-      cellpow *= cellCount[iDim];
-
-    int mag = cellpow * cellCount[cellDirection];
+			Vector(cellDimension,cellDimension,cellDimension)));
   
+
+  dilatedCoords inCell(cells[oldCell].coords);
+  {
+    dilatedCoords dendCell(inCell);
+    
     if (part.getVelocity()[cellDirection] > 0)
       {
-	endCell += cellpow;
-	inCell += (1 + overlink) * cellpow;
-	if (cells[oldCell].coords[cellDirection] == cellCount[cellDirection] - 1)
-	  {
-	    endCell -= mag;
-	    inCell  -= mag;
-	  }
-	else if (cells[oldCell].coords[cellDirection] >= 
-		 int(cellCount[cellDirection] - 1 - overlink))
-	  inCell  -= mag;
+	++dendCell.data[cellDirection];
+	if (dendCell.data[cellDirection] == dilatedCellCount) dendCell.data[cellDirection].zero();
+	
+	inCell.data[cellDirection] = dendCell.data[cellDirection];
+	++inCell.data[cellDirection];
+	if (inCell.data[cellDirection] == dilatedCellCount) inCell.data[cellDirection].zero();
       }
     else
       {
-	endCell -= cellpow;
-	inCell -= (1+overlink) * cellpow;
-	
-	if (cells[oldCell].coords[cellDirection] == 0)
+	--dendCell.data[cellDirection];
+	if (inCell.data[cellDirection].isZero()) 
 	  {
-	    endCell += mag;
-	    inCell  += mag;
+	    dendCell.data[cellDirection] = dilatedCellCount;
+	    --dendCell.data[cellDirection];
 	  }
-	else if (cells[oldCell].coords[cellDirection] <= int(overlink))
-	  inCell  += mag;
+	
+	inCell.data[cellDirection] = dendCell.data[cellDirection];
+	--inCell.data[cellDirection];
+	
+	if (dendCell.data[cellDirection].isZero()) 
+	  { 
+	    inCell.data[cellDirection] = dilatedCellCount;
+	    --inCell.data[cellDirection];
+	  }
       }
+    endCell = dendCell.getMortonNum();
   }
     
   removeFromCell(part.getID());
@@ -184,48 +182,43 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //These are the two dimensions to walk in
   size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
     dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
+
+  inCell.data[dim1] = inCell.data[dim1] - dilatedOverlink;
+  inCell.data[dim2] = inCell.data[dim1] - dilatedOverlink;
   
-  CVector<int> coords(cells[inCell].coords);
-  coords[dim1] -= overlink;
-  coords[dim2] -= overlink;
+  //Test if the data has looped around
+  if (inCell.data[dim1] >= dilatedCellCount) 
+    inCell.data[dim1] = inCell.data[dim1] - (--(MI(MI::dilatedMaxVal,0) - dilatedCellCount));
 
-  if (coords[dim1] < 0) coords[dim1] += cellCount[dim1];
-  if (coords[dim2] < 0) coords[dim2] += cellCount[dim2];
+  if (inCell.data[dim2] >= dilatedCellCount) 
+    inCell.data[dim2] = inCell.data[dim2] - (--(MI(MI::dilatedMaxVal,0) - dilatedCellCount));
 
-  int nb(getCellIDprebounded(coords));
+  int walkLength = 2 * overlink + 1;
 
-  size_t dim1pow(1), dim2pow(1);
-  
-  for (size_t iDim(0); iDim < dim1; ++iDim)
-    dim1pow *= cellCount[iDim];
-
-  for (size_t iDim(0); iDim < dim2; ++iDim)
-    dim2pow *= cellCount[iDim];
-
-  int walkLength = 2 * overlink+1;
+  const MI saved_coord(inCell.data[dim1]);
 
   //We now have the lowest cell coord, or corner of the cells to update
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
-      if (coords[dim2] + iDim == cellCount[dim2]) 
-	nb -= dim2pow * cellCount[dim2];
+      if (inCell.data[dim2] + iDim == dilatedCellCount)
+	inCell.data[dim2].zero();
 
       for (int jDim(0); jDim < walkLength; ++jDim)
 	{	  
-	  if (coords[dim1] + jDim == cellCount[dim1]) 
-	    nb -= dim1pow * cellCount[dim1];
+	  if (inCell.data[dim1] + jDim == dilatedCellCount) 
+	    inCell.data[dim1].zero();
 
-	  for (int next = cells[nb].list; next >= 0; 
+	  for (int next = cells[inCell.getMortonNum()].list; next >= 0; 
 	       next = partCellData[next].next)
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	      nbs.second(part, next);
 	  
-	  nb += dim1pow;
+	  ++inCell.data[dim1];
 	}
 
-      if (coords[dim1] + walkLength - 1 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
+      inCell.data[dim1] = saved_coord;
       
-      nb += dim2pow - walkLength * dim1pow;
+      ++inCell.data[dim2];
     }
 
   //Tell about the new locals
@@ -301,61 +294,49 @@ CGCellsMorton::addCells(Iflt maxdiam)
   partCellData.resize(Sim->lN); //Location data for particles
 
   NCells = 1;
-  cellCount = CVector<int>(0);
+  cellCount = 0;
 
   for (int iDim = 0; iDim < NDIM; iDim++)
+    if (Sim->aspectRatio[iDim] != 1.0) D_throw() << "";
+
+  cellCount = int(1 / maxdiam);
+  
+  if (cellCount < 3)
+    D_throw() << "Not enough cells, sim too small, need 3+";
+
+  if (cellCount > 200)
     {
-      cellCount[iDim] = int(Sim->aspectRatio[iDim] / maxdiam);
-      
-      if (cellCount[iDim] < 3)
-	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
-
-      if (cellCount[iDim] > 200)
-	{
-	  I_cout() << "Cell count was " << cellCount[iDim] 
-		   << "\n Restricting to 200 to stop this sim grinding to a halt";
-	  cellCount[iDim] = 200;
-	}
-
-      NCells *= cellCount[iDim];
+      I_cout() << "Cell count was " << cellCount
+	       << "\n Restricting to 200 to stop this sim grinding to a halt";
+      cellCount = 200;
     }
 
-  for (int iDim = 0; iDim < NDIM; iDim++)
-    cellLatticeWidth[iDim] = Sim->aspectRatio[iDim] / cellCount[iDim];
+  NCells = cellCount * cellCount * cellCount;
+
+  cellLatticeWidth = 1 / cellCount;
   
-  for (int iDim = 0; iDim < NDIM; iDim++)
-    cellDimension[iDim] = cellLatticeWidth[iDim] 
-      + (cellLatticeWidth[iDim] - maxdiam) 
+  cellDimension = cellLatticeWidth + (cellLatticeWidth - maxdiam) 
       * lambda;
   
-  I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
-	   << cellCount[1] << "," << cellCount[2];
+  I_cout() << "Cells <N>  " << cellCount;
 
-  I_cout() << "Cells dimension <x,y,z>  " 
-	   << cellDimension[0] / Sim->Dynamics.units().unitLength()
-	   << ","
-	   << cellDimension[1] / Sim->Dynamics.units().unitLength()
-	   << "," 
-	   << cellDimension[2] / Sim->Dynamics.units().unitLength();
+  I_cout() << "Cells dimension <x>  " 
+	   << cellDimension / Sim->Dynamics.units().unitLength();
 
   I_cout() << "Lattice spacing <x,y,z>  " 
-	   << cellLatticeWidth[0] / Sim->Dynamics.units().unitLength()
-	   << ","
-	   << cellLatticeWidth[1] / Sim->Dynamics.units().unitLength()
-	   << "," 
-	   << cellLatticeWidth[2] / Sim->Dynamics.units().unitLength();
+	   << cellLatticeWidth / Sim->Dynamics.units().unitLength();
 
   fflush(stdout);
 
   cells.resize(NCells); //Empty Cells created!
 
-  for (size_t id = 0; id < NCells; id++)
+  for (size_t id = 0; id < NCells; ++id)
     {
-      cells[id].coords = getCoordsFromID(id);
+      cells[id].coords = dilatedCoords(id);
 
       for (int iDim = 0; iDim < NDIM; iDim++)
-	cells[id].origin[iDim] = cells[id].coords[iDim] 
-	  * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
+	cells[id].origin[iDim] = cells[id].coords.data[iDim].getRealVal()
+	  * cellLatticeWidth - 0.5 * Sim->aspectRatio[iDim];
     }
 
   //Add the particles section
@@ -364,7 +345,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
 
   ////initialise the data structures
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    addToCell(part.getID(), getCellID(part.getPosition()));
+    addToCell(part.getID(), getCellID(part.getPosition()).getMortonNum());
 }
 
 void 
@@ -375,12 +356,12 @@ CGCellsMorton::addLocalEvents()
       cell.locals.clear();
 
       BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
-	if (local->isInCell(cell.origin, cellDimension))
+	if (local->isInCell(cell.origin, Vector(cellDimension,cellDimension,cellDimension)))
 	  cell.locals.push_back(local->getID());
     }
 }
 
-size_t
+dilatedCoords
 CGCellsMorton::getCellID(const CVector<int>& coordsold) const
 {
   //PBC for vectors
@@ -388,44 +369,14 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
-      coords[iDim] %= cellCount[iDim];
-      if (coords[iDim] < 0) coords[iDim] += cellCount[iDim];
+      coords[iDim] %= cellCount;
+      if (coords[iDim] < 0) coords[iDim] += cellCount;
     }
   
-  return getCellIDprebounded(coords);
+  return dilatedCoords(coords[0],coords[1],coords[2]);
 }
 
-size_t
-CGCellsMorton::getCellIDprebounded(const CVector<int>& coords) const
-{
-  int nb(coords[0]);
-
-  size_t pow(cellCount[0]);
-
-  for (size_t iDim(1); iDim < NDIM-1; ++iDim)
-    {
-      nb += coords[iDim] * pow;
-      pow *= cellCount[iDim];
-    }
-    
-  return nb + coords[NDIM-1] * pow;
-}
-
-CVector<int> 
-CGCellsMorton::getCoordsFromID(size_t i) const
-{
-  CVector<int> tmp;
-  i = i % NCells; //PBC's for ID
-  
-  tmp[0] = i % cellCount[0];
-  i /= cellCount[0];
-  tmp[1] = i % cellCount[1];
-  i /= cellCount[1];
-  tmp[2] = i % cellCount[2];
-  return tmp;
-}
-
-size_t
+dilatedCoords
 CGCellsMorton::getCellID(Vector  pos) const
 {
   Sim->Dynamics.BCs().setPBC(pos);
@@ -433,7 +384,7 @@ CGCellsMorton::getCellID(Vector  pos) const
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) 
-		     / cellLatticeWidth[iDim]);
+		     / cellLatticeWidth);
   
   return getCellID(temp);
 }
@@ -443,46 +394,53 @@ void
 CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
 				  const nbHoodFunc& func) const
 {
-  CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
-
+  dilatedCoords coords(cells[partCellData[part.getID()].cell].coords);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      coords[iDim] -= overlink;
-      if (coords[iDim] < 0)
-	coords[iDim] += cellCount[iDim];
+      coords.data[iDim] = coords.data[iDim] - dilatedOverlink;
+
+      if (coords.data[iDim] >= dilatedCellCount) 
+	coords.data[iDim] = coords.data[iDim] 
+	  - (--(MI(MI::dilatedMaxVal,0) - dilatedCellCount));
     }
   
-  int nb(getCellIDprebounded(coords));
-
   //This loop iterates through each neighbour position
   BOOST_STATIC_ASSERT(NDIM==3);
 
   int walkLength(2*overlink+1);
 
+  const dilatedCoords stored_coords(coords);
+
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
-      nb -= (coords[2] + iDim == cellCount[2]) * NCells;
+      if (coords.data[2] + iDim == dilatedCellCount) 
+	coords.data[2].zero();
 
       for (int jDim(0); jDim < walkLength; ++jDim)
 	{
-	  nb -= (coords[1] + jDim == cellCount[1]) * cellCount[1] * cellCount[0];
+	  if (coords.data[1] + jDim == dilatedCellCount) 
+	    coords.data[1].zero();
 	  
 	  for (int kDim(0); kDim < walkLength; ++kDim)
 	    {
- 	      if (coords[0] + kDim == cellCount[0])
-		nb -= cellCount[0];
+	      if (coords.data[0] + kDim == dilatedCellCount) 
+		coords.data[0].zero();
 	      
-	      for (int next(cells[nb++].list);
+	      for (int next(cells[coords.getMortonNum()].list);
 		   next >= 0; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
-	    }
 
-	  nb += (1 + (coords[0] + walkLength - 1 >= cellCount[0])) * cellCount[0] - walkLength;
+	      ++coords.data[0];
+	    }
+	  coords.data[0] = stored_coords.data[0];
+	  ++coords.data[1];
+	  
 	}
 
-      nb += ((1 + (coords[1] + walkLength - 1 >= cellCount[1])) * cellCount[1] - walkLength) * cellCount[0];
+      coords.data[1] = stored_coords.data[1];
+      ++coords.data[2];
     }
 }
 
@@ -498,17 +456,7 @@ CGCellsMorton::getParticleLocalNeighbourhood(const CParticle& part,
 Iflt 
 CGCellsMorton::getMaxSupportedInteractionLength() const
 {
-  size_t minDiam = 0;
-
-  //As the lambda or overlap is relative to the cellDimension we just
-  //find the minimum cell width
-
-  for (size_t i = 1; i < NDIM; ++i)
-    if (cellDimension[i] < cellDimension[minDiam])
-      minDiam = i;
-
-  return cellLatticeWidth[minDiam] 
-    + lambda * (cellLatticeWidth[minDiam] - cellDimension[minDiam]);
+  return cellLatticeWidth + lambda * (cellLatticeWidth - cellDimension);
 }
 
 Iflt 
