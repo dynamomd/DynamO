@@ -21,13 +21,14 @@
 #pragma once
 #ifndef dilatedint_H
 #define dilatedint_H
+#include <limits.h>
 
 template<typename T,
 	 T mask, 
 	 T dimension,
-	 T S = 10,
-	 T Smask = 0x03FF>
+	 T S = 10>
 class MaskedInteger{
+  static const T Smask = (T(0) - 1) >> (sizeof(T)*CHAR_BIT - S);
 public:
   // Constructor and Getter
   MaskedInteger() {}
@@ -50,14 +51,8 @@ public:
   MaskedInteger operator-(const MaskedInteger& d) const
   { return MaskedInteger((value - d.value) & mask, 0); }
 
-  MaskedInteger operator-(const T& d) const
-  { return MaskedInteger((value - (dilate_3(d & Smask) << dimension)) & mask, 0); }
-
   MaskedInteger operator+(const MaskedInteger& d) const
   { return MaskedInteger((value + (~mask) + d.value) & mask, 0); }
-
-  MaskedInteger operator+(const T& d) const
-  { return MaskedInteger((value + (~mask) + (dilate_3(d & Smask) << dimension)) & mask, 0); }
 
   void operator++() { value = (value - mask) & mask; }
 
@@ -98,7 +93,7 @@ private:
     r =  (r * 0x00101) & 0x0F00F00F;
     r =  (r * 0x00011) & 0xC30C30C3;
     r =  (r * 0x00005) & 0x49249249;
-    return(r);
+    return r;
   }
 
 };
@@ -127,7 +122,6 @@ struct dilatedCoords
   MI1 _y;
   MI2 _z;
 };
-
 
 /*
 #include <iostream>
@@ -178,14 +172,10 @@ int main()
   std::cout << std::endl;
 
   MI0 i(1);
-  print_bits(i.getDilatedVal(),std::cout);
-  std::cout << std::endl;
-
   print_bits((i+2).getDilatedVal(), std::cout);
   std::cout << std::endl;
 
   std::cout << (i+2).getRealVal() << std::endl;
-  
 }
 */
 #endif
