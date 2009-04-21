@@ -184,7 +184,7 @@ CGCellsMorton::runEvent(const CParticle& part) const
     dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
 
   inCell.data[dim1] = inCell.data[dim1] - dilatedOverlink;
-  inCell.data[dim2] = inCell.data[dim1] - dilatedOverlink;
+  inCell.data[dim2] = inCell.data[dim2] - dilatedOverlink;
   
   //Test if the data has looped around
   if (inCell.data[dim1] >= dilatedCellCount) 
@@ -268,7 +268,7 @@ CGCellsMorton::reinitialise(const Iflt& maxdiam)
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
   //Create the cells
-  addCells(maxdiam/overlink);
+  addCells(maxdiam / overlink);
 
   addLocalEvents();
 
@@ -313,12 +313,12 @@ CGCellsMorton::addCells(Iflt maxdiam)
 
   NCells = cellCount * cellCount * cellCount;
 
-  cellLatticeWidth = 1 / cellCount;
+  cellLatticeWidth = 1.0 / cellCount;
   
   cellDimension = cellLatticeWidth + (cellLatticeWidth - maxdiam) 
       * lambda;
   
-  I_cout() << "Cells <N>  " << cellCount;
+  I_cout() << "Cells <N>  " << NCells;
 
   I_cout() << "Cells dimension <x>  " 
 	   << cellDimension / Sim->Dynamics.units().unitLength();
@@ -327,8 +327,19 @@ CGCellsMorton::addCells(Iflt maxdiam)
 	   << cellLatticeWidth / Sim->Dynamics.units().unitLength();
 
   fflush(stdout);
+  
+  //Find the required size of the morton array
+  size_t sizeReq(1);
 
-  cells.resize(NCells); //Empty Cells created!
+  for (int i(0); i < ctime_pow<2,MI::S>::result; ++i)
+    {
+      sizeReq *= 2*2*2;
+      if (sizeReq >= NCells) break;
+    }
+
+  cells.resize(sizeReq); //Empty Cells created!
+
+  I_cout() << "Vector Size <N>  " << sizeReq;
 
   for (size_t id = 0; id < NCells; ++id)
     {
@@ -371,6 +382,8 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
     {
       coords[iDim] %= cellCount;
       if (coords[iDim] < 0) coords[iDim] += cellCount;
+
+      //if (coords[iDim] >= cellCount) D_throw() << "Fail!";
     }
   
   return dilatedCoords(coords[0],coords[1],coords[2]);

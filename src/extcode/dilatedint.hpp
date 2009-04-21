@@ -14,22 +14,22 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*! \file threadpool.hpp
- * \brief Contains the definition of CThreadPool
+/*! \file dilatedint.hpp
+ * \brief Contains a class to help with 3D Morton ordering
  */
 
-#pragma once
 #ifndef dilatedint_H
 #define dilatedint_H
 #include <limits.h>
 
-class MaskedInteger{
-  static const unsigned int S = 10;
-  static const unsigned int Smask = (((unsigned int)0) - 1) >> (sizeof(unsigned int)*CHAR_BIT - S);
-  static const unsigned int mask = 0x49249249;
+class MaskedInteger 
+{
 public:
-  static const unsigned int maxVal = Smask;
-  static const unsigned int dilatedMaxVal = ((((unsigned int)0) - 1) >> (sizeof(unsigned int)*CHAR_BIT - S * 3)) & mask; 
+  static const unsigned int S = 10;
+  static const unsigned int Smask;
+  static const unsigned int mask  = 0x49249249;
+  static const unsigned int maxVal;
+  static const unsigned int dilatedMaxVal; 
 
   // Constructor and Getter
   MaskedInteger() {}
