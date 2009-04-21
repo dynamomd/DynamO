@@ -79,7 +79,6 @@ protected:
   struct cellStruct
   {
     std::vector<size_t> locals;
-    int list;
     Vector origin;
     dilatedCoords coords;
   };
@@ -103,6 +102,8 @@ protected:
   size_t overlink;
   MI dilatedOverlink;
 
+  mutable std::vector<int>list;
+
   mutable std::vector<cellStruct> cells;
 
   mutable std::vector<partCEntry> partCellData;
@@ -110,19 +111,19 @@ protected:
   inline void addToCell(const int& ID, const int& cellID) const
   {
 #ifdef DYNAMO_DEBUG
-    if (cells.at(cellID).list != -1)
-      partCellData.at(cells.at(cellID).list).prev = ID;
+    if (list.at(cellID) != -1)
+      partCellData.at(list.at(cellID)).prev = ID;
     
-    partCellData.at(ID).next = cells.at(cellID).list;
-    cells.at(cellID).list = ID;    
+    partCellData.at(ID).next = list.at(cellID);
+    list.at(cellID) = ID;    
     partCellData.at(ID).prev = -1;
     partCellData.at(ID).cell = cellID;
 # else
-    if (cells[cellID].list != -1)
-      partCellData[cells[cellID].list].prev = ID;
+    if (list[cellID] != -1)
+      partCellData[list[cellID]].prev = ID;
     
-    partCellData[ID].next = cells[cellID].list;
-    cells[cellID].list = ID;    
+    partCellData[ID].next = list[cellID];
+    list[cellID] = ID;    
     partCellData[ID].prev = -1;
     partCellData[ID].cell = cellID;    
 #endif
@@ -134,7 +135,7 @@ protected:
     if (partCellData[ID].prev != -1)
       partCellData[partCellData[ID].prev].next = partCellData[ID].next;
     else
-      cells[partCellData[ID].cell].list = partCellData[ID].next;
+      list[partCellData[ID].cell] = partCellData[ID].next;
     
     if (partCellData[ID].next != -1)
       partCellData[partCellData[ID].next].prev = partCellData[ID].prev;

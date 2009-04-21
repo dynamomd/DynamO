@@ -197,7 +197,7 @@ CGCellsMorton::runEvent(const CParticle& part) const
     {
       for (int jDim(0); jDim < walkLength; ++jDim)
 	{	  
-	  for (int next = cells[inCell.getMortonNum()].list; next >= 0; 
+	  for (int next = list[inCell.getMortonNum()]; next >= 0; 
 	       next = partCellData[next].next)
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	      nbs.second(part, next);
@@ -337,6 +337,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
     }
 
   cells.resize(sizeReq); //Empty Cells created!
+  list.resize(sizeReq); //Empty Cells created!
 
   I_cout() << "Vector Size <N>  " << sizeReq;
   
@@ -347,7 +348,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
 	  dilatedCoords coords(iDim, jDim, kDim);
 	  size_t id = coords.getMortonNum();
 	  cells[id].coords = coords;
-	  cells[id].list = -1;
+	  list[id] = -1;
 	  
 	  for (int iDim = 0; iDim < NDIM; iDim++)
 	    cells[id].origin[iDim] = coords.data[iDim].getRealVal()
@@ -386,8 +387,6 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
     {
       coords[iDim] %= cellCount;
       if (coords[iDim] < 0) coords[iDim] += cellCount;
-
-      if (coords[iDim] >= cellCount) D_throw() << "Fail!";
     }
   
   return dilatedCoords(coords[0],coords[1],coords[2]);
@@ -435,7 +434,7 @@ CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
 	{	  
 	  for (int kDim(0); kDim < walkLength; ++kDim)
 	    {	      
-	      for (int next(cells[coords.getMortonNum()].list);
+	      for (int next(list[coords.getMortonNum()]);
 		   next >= 0; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
