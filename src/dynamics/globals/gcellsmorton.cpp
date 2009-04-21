@@ -41,7 +41,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
 }
 
 CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGNeighbourList(ptrSim, "GlobalCellularEvent"),
+  CGNeighbourList(ptrSim, "GlobalCellularEvent2"),
   cellCount(0),
   cellDimension(1),
   lambda(0.9), //Default to higher overlap

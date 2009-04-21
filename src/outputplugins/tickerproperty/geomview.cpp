@@ -62,7 +62,8 @@ COPGeomview::printImage()
   Vector  corner(0,0,0);
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     corner[iDim] -= 0.5 * Sim->aspectRatio[iDim];
-    
+
+  /*
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
       Vector  point(corner);
@@ -73,6 +74,7 @@ COPGeomview::printImage()
 	 << " " << corner[2] << "\n" << point[0]  << " " << point[1] << " " 
 	 << point[2] << " \n 1.0 1.0 1.0 1.0 }\n";
     }
+  */
 
   DYNAMO::ColorMap<Iflt> colmap(0, Sim->Dynamics.getSpecies().size());
   DYNAMO::RGB tmpCol(0,0,0);
