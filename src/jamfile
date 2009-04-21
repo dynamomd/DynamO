@@ -26,29 +26,14 @@ lib gsl
 #    : : <file>/usr/lib/libvtkIO.so 
 #    : : <link>shared <define>DYNAMO_VTK <include>/usr/include/vtk-5.2/ ;
 
-lib dynamo_core : [ glob-tree *.cpp : dataproc ]
-    ../boost//iostreams/<threading>single 
-    ../boost//filesystem/<threading>single 
-    ../boost//program_options/<threading>single 
+alias dynamo_core : [ glob-tree *.cpp : dataproc ]
+    ../boost//iostreams
+    ../boost//filesystem
+    ../boost//program_options
     gsl
     #vtkIO
-    : <threading>single <include>extcode/include 
+    : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG
-    <variant>cachegrind:<define>DYNAMO_Cachegrind
-    : :  <include>extcode/include 
-    <variant>debug:<define>DYNAMO_DEBUG
-    ;
-
-lib dynamo_core : [ glob-tree *.cpp : dataproc ]
-    ../boost//iostreams/<threading>multi
-    ../boost//thread/<threading>multi
-    ../boost//filesystem/<threading>multi
-    ../boost//program_options/<threading>multi 
-    gsl
-    #vtkIO
-    : <threading>multi <include>extcode/include <define>DYNAMO_threading 
-    <variant>debug:<define>DYNAMO_DEBUG
-    <variant>cachegrind:<define>DYNAMO_Cachegrind
-    : :  <include>extcode/include <define>DYNAMO_threading 
+    : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG
     ;

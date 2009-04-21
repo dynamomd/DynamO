@@ -24,6 +24,7 @@ import dynamo-tags ;
 project	: requirements 
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
+	  <link>static
 	  #<define>DYNAMO_WallCollDebug
 	  #<toolset>gcc:<cxxflags>-ansi
 	  #<toolset>gcc:<cxxflags>-pedantic
@@ -53,19 +54,19 @@ variant massif : <inlining>off <optimization>speed <debug-symbols>on
 variant colldebug : debug : <define>DYNAMO_CollDebug ;
 
 exe dynareplex_opt 
-    : programs/dynareplex_opt.cpp boost//program_options/<link>static
+    : programs/dynareplex_opt.cpp boost//program_options
     ;
 
 exe dynahist_rw 
-    : programs/dynahist_rw.cpp src//dynamo_core/<link>static
+    : programs/dynahist_rw.cpp src//dynamo_core
     ;
 
 exe dynarun 
-    : programs/dynarun.cpp src//dynamo_core/<link>static
+    : programs/dynarun.cpp src//dynamo_core
     ;
 
 exe dynamod 
-    : programs/dynamod.cpp src//dynamo_core/<link>static
+    : programs/dynamod.cpp src//dynamo_core
     ;
 
 install install-bin 
@@ -73,11 +74,6 @@ install install-bin
 	: <location>bin
 	;
 	
-install install-lib 
-	: src//dynamo_core/<link>static
-	: <location>lib
-	;
-
 alias install : install-bin ;
 
 explicit install install-bin ;
