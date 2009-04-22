@@ -41,7 +41,6 @@ COPPovray::ticker()
 void
 COPPovray::printImage()
 {
-
   //Dont let this fill up your hard drive!
   if (frameCount > 1000)
     return;
@@ -53,7 +52,7 @@ COPPovray::printImage()
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\
-#declare zoom = 1.5;			   \n\
+#declare zoom = 1.0;			   \n\
 global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
  location <0, zoom, 0>			   \n\

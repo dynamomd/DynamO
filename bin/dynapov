@@ -33,7 +33,11 @@ fi
 oldPWD=$(pwd)
 cd /tmp
 echo $oldPWD/$1
-dynarun $oldPWD/$1 -c 0 -E -L Povray
+
+dynarun $oldPWD/$1 -c 0 -E -L Povray > /dev/null || (echo "Failed to run the config in dynarun" && exit 1)
+if [ $2 != "" ]; then
+    sed -i 's/ zoom = 1.0/ zoom = '$2'/' Povray.frame0.pov
+fi
 cd $oldPWD
-povray +P -W1024 -H768 /tmp/Povray.frame0.pov
+povray +P -W1024 -H768 /tmp/Povray.frame0.pov || (echo "Povray failed in the render!" && exit 1)
 rm /tmp/Povray.frame0.pov

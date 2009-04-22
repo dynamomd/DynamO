@@ -409,8 +409,8 @@ CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb,
       os << "#declare intrep" << ID << "center"<< i << " = " 
 	 << "sphere {\n <0,0,0> " 
 	 << diameter / 2.0
-	 << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G
-	 << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
+	 << "\n texture { pigment { color rgb<" << col.R << "," << col.G
+	 << "," << col.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
 	 << "#declare intrep" << ID << "seqwell" << i
 	 << " = sphere {\n <0,0,0> " << diameter * lambda * 0.5
 	 << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
