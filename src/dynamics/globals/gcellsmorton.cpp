@@ -195,25 +195,26 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //We now have the lowest cell coord, or corner of the cells to update
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
+      if (inCell.data[dim2] > dilatedCellMax)
+	inCell.data[dim2].zero();
+
       for (int jDim(0); jDim < walkLength; ++jDim)
-	{	  
+	{
+	  if (inCell.data[dim1] > dilatedCellMax)
+	    inCell.data[dim1].zero();
+  
 	  for (int next = list[inCell.getMortonNum()]; next >= 0; 
 	       next = partCellData[next].next)
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	      nbs.second(part, next);
 	  
-	  if (inCell.data[dim1] == dilatedCellMax)
-	    inCell.data[dim1].zero();
-	  else
-	    ++inCell.data[dim1];
+	  
+	  ++inCell.data[dim1];
 	}
 
       inCell.data[dim1] = saved_coord;
       
-      if (inCell.data[dim2] == dilatedCellMax)
-	inCell.data[dim2].zero();
-      else
-	++inCell.data[dim2];
+      ++inCell.data[dim2];
     }
 
   //Tell about the new locals
@@ -430,35 +431,35 @@ CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
 
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
+      if (coords.data[2] > dilatedCellMax) 
+	coords.data[2].zero();
+
       for (int jDim(0); jDim < walkLength; ++jDim)
-	{	  
+	{	
+	  if (coords.data[1] > dilatedCellMax) 
+	    coords.data[1].zero();
+  
 	  for (int kDim(0); kDim < walkLength; ++kDim)
 	    {	      
+	      if (coords.data[0] > dilatedCellMax)
+		coords.data[0].zero();
+
 	      for (int next(list[coords.getMortonNum()]);
 		   next >= 0; next = partCellData[next].next)
 		if (next != int(part.getID()))
 		  func(part, next);
 
-	      if (coords.data[0] == dilatedCellMax)
-		coords.data[0].zero();
-	      else
-		++coords.data[0];
+	      ++coords.data[0];
 	    }
 
 	  coords.data[0] = stored_coords.data[0];
 
-	  if (coords.data[1] == dilatedCellMax) 
-	    coords.data[1].zero();
-	  else
-	    ++coords.data[1];
+	  ++coords.data[1];
 	}
       
       coords.data[1] = stored_coords.data[1];
 
-      if (coords.data[2] == dilatedCellMax) 
-	coords.data[2].zero();
-      else
-	++coords.data[2];
+      ++coords.data[2];
     }
 }
 
