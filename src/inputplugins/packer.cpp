@@ -148,7 +148,7 @@ CIPPacker::initialise()
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
 	"  9: Crystal pack of lines\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-  "       --f1 : Inelasticity [1.0]\n"
+        "       --f1 : Inelasticity [1.0]\n"
 	"  10: Monocomponent hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
@@ -159,7 +159,10 @@ CIPPacker::initialise()
 	"       --i2 : Picks the g(r) to use (0:BMCSL, 1:VS, 2:HC2)\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 	"       --f2 : Mass Ratio (B/A) [0.001]\n"
-	"       --f3 : Mol Fraction of large system (A) [0.95]"
+	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
+	"  13: Crystal pack of sheared lines\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+        "       --f1 : Inelasticity [1.0]"
 	;
 
       std::cout << "\n";
@@ -1212,6 +1215,54 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 		     nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+      case 13:
+      {
+	//Pack of lines
+	//Pack the system, determine the number of particles
+	CURandom packroutine(vm["NCells"].as<unsigned long>(), 
+			     Vector (1,1,1), Sim->uniform_sampler,
+			     new CUParticle());
+
+	packroutine.initialise();
+	
+	std::vector<Vector  > 
+	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
+      	
+	Sim->Dynamics.setPBC<CSLEBC>();
+	  
+	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
+	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
+
+	Sim->Dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
+  
+  Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
+
+	Sim->Dynamics.addInteraction(new CILines(Sim, particleDiam, elasticity,
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+						     particleDiam * particleDiam / 12.0,
+						     "Bulk")));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+						 nParticles++));
+
+	static_cast<CLNOrientation&>(Sim->Dynamics.Liouvillean()).initLineOrientations(1.0);
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
