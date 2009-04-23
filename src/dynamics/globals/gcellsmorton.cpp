@@ -134,31 +134,36 @@ CGCellsMorton::runEvent(const CParticle& part) const
   
 
   dilatedCoords inCell(cells[oldCell].coords);
+
   {
     dilatedCoords dendCell(inCell);
     
     if (part.getVelocity()[cellDirection] > 0)
       {
-	++dendCell.data[cellDirection];
-	if (dendCell.data[cellDirection] > dilatedCellMax) dendCell.data[cellDirection].zero();
-	
-	inCell.data[cellDirection] = dendCell.data[cellDirection];
-	++inCell.data[cellDirection];
-	if (inCell.data[cellDirection] > dilatedCellMax) inCell.data[cellDirection].zero();
+	dendCell.data[cellDirection] = dendCell.data[cellDirection] + dilatedOverlink;
+	inCell.data[cellDirection] = dendCell.data[cellDirection] + 1;	
+
+	if (dendCell.data[cellDirection] > dilatedCellMax)
+	    dendCell.data[cellDirection] = --dendCell.data[cellDirection]
+	      - dilatedCellMax;
+
+	if (inCell.data[cellDirection] > dilatedCellMax)
+	  inCell.data[cellDirection] = --inCell.data[cellDirection]
+	    - dilatedCellMax;
       }
     else
       {
-	--dendCell.data[cellDirection];
-	if (inCell.data[cellDirection].isZero()) 
-	  dendCell.data[cellDirection] = dilatedCellMax;
-	
-	inCell.data[cellDirection] = dendCell.data[cellDirection];
-	--inCell.data[cellDirection];
-	
-	if (dendCell.data[cellDirection].isZero()) 
-	  inCell.data[cellDirection] = dilatedCellMax;
-      }
+	dendCell.data[cellDirection] = dendCell.data[cellDirection] - dilatedOverlink;
+	inCell.data[cellDirection] = dendCell.data[cellDirection] - 1;	
 
+	if (dendCell.data[cellDirection] > dilatedCellMax)
+	  dendCell.data[cellDirection] = dendCell.data[cellDirection]
+	    - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+
+	if (inCell.data[cellDirection] > dilatedCellMax)
+	  inCell.data[cellDirection] = inCell.data[cellDirection]
+	    - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+      }
     endCell = dendCell.getMortonNum();
   }
     
