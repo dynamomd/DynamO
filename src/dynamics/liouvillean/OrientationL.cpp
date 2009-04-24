@@ -80,30 +80,29 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   Iflt t_low = 0.0;
   Iflt t_high = PD.dt;
   
-  // Set up pair of lines as passable objects
-  orientationStreamType A(PD.rij, PD.vij, orientationData[p1.getID()].orientation, 
-			  orientationData[p1.getID()].angularVelocity),
-    B(Vector(0,0,0), Vector(0,0,0), 
-      orientationData[p2.getID()].orientation, 
-      orientationData[p2.getID()].angularVelocity);
+  CLinesFunc fL(PD.rij, PD.vij,
+		orientationData[p1.getID()].angularVelocity,
+		orientationData[p2.getID()].angularVelocity,
+		orientationData[p1.getID()].orientation,
+		orientationData[p2.getID()].orientation);
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
-    t_low += fabs(2.0 * F_firstDeriv(A, B))
-      / F_secondDeriv_max(A, B, length);
+    t_low += fabs(2.0 * fL.F_firstDeriv())
+      / fL.F_secondDeriv_max(length);
   
   //Find window delimited by discs
-  IfltPair dtw = discIntersectionWindow(A, B, length);
+  std::pair<Iflt,Iflt> dtw = fL.discIntersectionWindow(length);
   
-  if(dtw.alpha > t_low)
-    t_low = dtw.alpha;
+  if(dtw.first > t_low)
+    t_low = dtw.first;
   
-  if(dtw.beta < t_high)
-    t_high = dtw.beta;
+  if(dtw.second < t_high)
+    t_high = dtw.second;
   
-  Iflt root = frenkelRootSearch(A, B, length, t_low, t_high);
+  Iflt root = frenkelRootSearch(fL, length, t_low, t_high);
 
   if (root != HUGE_VAL) 
     { 
@@ -116,15 +115,14 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 
 
 Iflt
-CLNOrientation::frenkelRootSearch(const orientationStreamType A, 
-				  const orientationStreamType B, 
-				  Iflt length, Iflt t_low, Iflt t_high) const
-{  
+CLNOrientation::frenkelRootSearch(const CLinesFunc& fL, Iflt length, 
+				  Iflt t_low, Iflt t_high) const
+{
   Iflt root = 0.0;
 	
   while(t_high > t_low)
     {
-      root = quadraticRootHunter(A, B, length, t_low, t_high);
+      root = quadraticRootHunter(fL, length, t_low, t_high);
 
       if (root == HUGE_VAL) return HUGE_VAL;
       
@@ -132,19 +130,17 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
 
       do {
 	// Artificial boundary just below root
-	orientationStreamType tempA(A), tempB(B);
+	CLinesFunc tempfL(fL);
+	tempfL.stream(root);
+
+	Iflt Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
 	
-	performRotation(tempA, root);
-	performRotation(tempB, root);
-	
-	Iflt Fdoubleprimemax = F_secondDeriv_max(tempA, tempB, length);
-	
-	temp_high = root - (fabs(2.0 * F_firstDeriv(tempA, tempB))
+	temp_high = root - (fabs(2.0 * tempfL.F_firstDeriv())
 			    / Fdoubleprimemax);
 	
 	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
 	
-	Iflt temp_root = quadraticRootHunter(A, B, length, t_low, temp_high);
+	Iflt temp_root = quadraticRootHunter(fL, length, t_low, temp_high);
 	
 	if (temp_root == HUGE_VAL) 
 	  break;
@@ -155,17 +151,16 @@ CLNOrientation::frenkelRootSearch(const orientationStreamType A,
       
       // At this point $root contains earliest valid root guess.
       // Check root validity.
-      orientationStreamType tempA(A), tempB(B);
-      performRotation(tempA, root);
-      performRotation(tempB, root);
+      CLinesFunc tempfL(fL);
+      tempfL.stream(root);
       
-      IfltPair cp = getCollisionPoints(tempA, tempB);
+      std::pair<Iflt,Iflt> cp = tempfL.getCollisionPoints();
       
-      if(fabs(cp.alpha) < length/2.0 && fabs(cp.beta) < length/2.0)
+      if(fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0)
         return root;
       else
-        t_low = root + ((2.0 * fabs(F_firstDeriv(tempA, tempB)))
-			/ F_secondDeriv_max(tempA, tempB, length));
+        t_low = root + ((2.0 * fabs(tempfL.F_firstDeriv()))
+			/ tempfL.F_secondDeriv_max(length));
     }
     
   return HUGE_VAL;
@@ -272,63 +267,6 @@ CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType,
   return false;
 }
 
-Iflt
-CLNOrientation::F_zeroDeriv(orientationStreamType A, orientationStreamType B) const
-{
-  return ((A.orientation ^ B.orientation) | (A.position - B.position));
-}
-
-Iflt 
-CLNOrientation::F_firstDeriv(orientationStreamType A, orientationStreamType B) const
-{
-  Vector  deltaR = A.position - B.position;
-  Vector  deltaW = A.angularVelocity - B.angularVelocity;
-  Vector  deltaV = A.velocity - B.velocity;
-  
-  return 
-    ((A.orientation | deltaR) * (deltaW | B.orientation)) + 
-    ((B.orientation | deltaR) * (deltaW | A.orientation)) - 
-    ((deltaW | deltaR) * (A.orientation | B.orientation)) + 
-    (((A.orientation ^ B.orientation) | deltaV));
-}
-
-Iflt
-CLNOrientation::F_firstDeriv_max(orientationStreamType A, orientationStreamType B, 
-				 const Iflt length) const
-{
-  return length * (A.angularVelocity - B.angularVelocity).nrm() 
-	  + (A.velocity - B.velocity).nrm();
-}
-
-Iflt 
-CLNOrientation::F_secondDeriv(orientationStreamType A, orientationStreamType B) const
-{
-  Vector  deltaR = A.position - B.position;  
-  Vector  deltaW = A.angularVelocity - B.angularVelocity;
-  Vector  deltaV = A.velocity - B.velocity;
-  
-  return 
-    2.0 * (
-	   ((A.orientation | deltaV) * (deltaW | B.orientation)) + 
-	   ((B.orientation | deltaV) * (deltaW | A.orientation)) - 
-	   ((A.orientation | B.orientation) * (deltaW | deltaV))
-	   ) - 
-    ((deltaW | deltaR) * (deltaW | (A.orientation ^ B.orientation))) + 
-    ((A.orientation | deltaR) * (B.orientation | (A.angularVelocity ^ B.angularVelocity))) + 
-    ((B.orientation | deltaR) * (A.orientation | (A.angularVelocity ^ B.angularVelocity))) + 
-    ((deltaW | A.orientation) * (deltaR | (B.angularVelocity ^ B.orientation))) + 
-    ((deltaW | B.orientation) * (deltaR | (A.angularVelocity ^ A.orientation))); 
-}
-
-Iflt
-CLNOrientation::F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const
-{
-  return (A.angularVelocity - B.angularVelocity).nrm() 
-    * ((2 * (A.velocity - B.velocity).nrm()) 
-       + (length * (A.angularVelocity.nrm() + B.angularVelocity.nrm())));
-}
-
-
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
@@ -346,12 +284,11 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
-  CLinesFunc fL(particle1, particle2,
+  CLinesFunc fL(retVal.rij, retVal.vijold,
 		orientationData[particle1.getID()].angularVelocity,
 		orientationData[particle2.getID()].angularVelocity,
 		orientationData[particle1.getID()].orientation,
-		orientationData[particle2.getID()].orientation,
-		Sim);
+		orientationData[particle2.getID()].orientation);
 
   Vector uPerp = fL.getu1() ^ fL.getu2();
 
@@ -387,22 +324,6 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   return retVal;
 }
 
-CLNOrientation::IfltPair
-CLNOrientation::getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const
-{
-  IfltPair retVal;
-  
-  Vector  rij = A.position - B.position;
-  Iflt rijdotui = (rij | A.orientation);
-  Iflt rijdotuj = (rij | B.orientation);
-  Iflt uidotuj = (A.orientation | B.orientation);
-    
-  retVal.alpha = - (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj);
-  retVal.beta  = (rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj);
-  
-  return retVal;
-}
-
 void
 CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
@@ -415,28 +336,12 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
     * Vector(orientationData[part.getID()].orientation);    
 }
 
-void
-CLNOrientation::performRotation(orientationStreamType& osret, const Iflt& dt) const
-{
-  if (NDIM != 3)
-    D_throw() << "Implemented only for 3D rotations";
-
-  osret.position += osret.velocity * dt;
-  
-  //The Vector copy is required to make sure that the cached
-  //orientation doesn't change
-  osret.orientation = Rodrigues(osret.angularVelocity * dt) 
-    * Vector(osret.orientation);
-}
-
 Iflt
-CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStreamType LineB,
-				    Iflt length, Iflt& t_low, Iflt& t_high) const
+CLNOrientation::quadraticRootHunter(const CLinesFunc& fL, Iflt length, 
+				    Iflt& t_low, Iflt& t_high) const
 {
   Iflt working_time = t_low;
-  Iflt timescale = 1e-10 
-    * length / (length * (LineA.angularVelocity - LineB.angularVelocity).nrm() 
-		+ (LineA.velocity - LineB.velocity).nrm());
+  Iflt timescale = 1e-10 * length / fL.F_firstDeriv_max(length);
   bool fwdWorking = false;
   
   size_t w = 0;
@@ -453,26 +358,26 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	  return working_time;
 	}
     
-      orientationStreamType A(LineA), B(LineB);
-    
       working_time = (fwdWorking ? t_low : t_high);
-      performRotation(A, working_time);
-      performRotation(B, working_time);
+      CLinesFunc tempfL(fL);
+      tempfL.stream(working_time);
     
-
       Iflt deltaT;
       {
-	Iflt f0 = F_zeroDeriv(A, B),
-	  f1 = F_firstDeriv(A, B),
-	  halff2 = 0.5 * F_secondDeriv(A, B),
-	  halff2max = 0.5 * F_secondDeriv_max(A, B, length);
+	Iflt f0 = tempfL.F_zeroDeriv(),
+	  f1 = tempfL.F_firstDeriv(),
+	  halff2 = 0.5 * tempfL.F_secondDeriv(),
+	  halff2max = 0.5 * tempfL.F_secondDeriv_max(length);
 	
 	if (f0 > 0) halff2max = -halff2max;
 	
 	{
 	  Iflt boundEnhancer;
 	  // Enhance bound, no point continuing if the bounds are out of bounds
-	  if (!quadraticSolution(boundEnhancer, (fwdWorking? ROOT_SMALLEST_POSITIVE : ROOT_SMALLEST_NEGATIVE), 
+	  if (!quadraticSolution(boundEnhancer, 
+				 (fwdWorking
+				  ? ROOT_SMALLEST_POSITIVE 
+				  : ROOT_SMALLEST_NEGATIVE), 
 				 f0, f1, halff2max))
 	    break;
 	  
@@ -483,7 +388,8 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	  continue;
       }
       
-      if (((working_time + deltaT) > t_high) || ((working_time + deltaT) < t_low))
+      if (((working_time + deltaT) > t_high) 
+	  || ((working_time + deltaT) < t_low))
 	continue;
       
       for(size_t i(1000); i != 0; --i)
@@ -493,12 +399,12 @@ CLNOrientation::quadraticRootHunter(orientationStreamType LineA, orientationStre
 	  if((working_time > t_high) || (working_time < t_low))
 	    break;
 	  
-	  performRotation(A, deltaT);
-	  performRotation(B, deltaT);
+	  tempfL.stream(deltaT);
 	  
 	  if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
-				 F_zeroDeriv(A, B), F_firstDeriv(A, B), 
-				 0.5 * F_secondDeriv(A, B)))
+				 tempfL.F_zeroDeriv(), 
+				 tempfL.F_firstDeriv(), 
+				 0.5 * tempfL.F_secondDeriv()))
 	    break;
 	  
 	  if(fabs(deltaT) <  timescale)
@@ -777,30 +683,4 @@ CLNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
 
   BOOST_FOREACH(rotData& rdat, orientationData)
     rdat.angularVelocity *= scalefactor;
-}
-
-CLNOrientation::IfltPair
-CLNOrientation::discIntersectionWindow(orientationStreamType A, orientationStreamType B,
-				       Iflt length) const
-{
-  IfltPair retVal;
-  
-  Vector  rij = A.position - B.position;
-  Vector  vij = A.velocity - B.velocity;
-  
-  Sim->Dynamics.BCs().setPBC(rij, vij);
-  
-  Vector  Ahat = A.angularVelocity / A.angularVelocity.nrm();
-  Iflt dotproduct = (A.angularVelocity | B.angularVelocity) 
-    / (B.angularVelocity.nrm() * A.angularVelocity.nrm());
-  
-  Iflt signChangeTerm = (length/2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
-  
-  retVal.alpha = ((-1.0 * (rij | Ahat)) - signChangeTerm) / (vij | Ahat);
-  retVal.beta  = ((-1.0 * (rij | Ahat)) + signChangeTerm) / (vij | Ahat);
-  
-  if(retVal.beta < retVal.alpha)
-    std::swap(retVal.alpha, retVal.beta);
-
-  return retVal;
 }

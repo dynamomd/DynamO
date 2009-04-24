@@ -23,16 +23,12 @@
 
 class CLinesFunc {
 public:
-  CLinesFunc(const CParticle& np1, const CParticle& np2, 
+  CLinesFunc(const Vector& nr12, const Vector& nv12,
 	     const Vector& nw1, const Vector& nw2, 
-	     const Vector& nu1, const Vector& nu2,
-	     const DYNAMO::SimData* Sim):
-    p1(np1), p2(np2), w1(nw1), w2(nw2), u1(nu1), u2(nu2),
-    w12(nw1-nw2), r12(np1.getPosition() - np2.getPosition()),
-    v12(np1.getVelocity() - np2.getVelocity())
-  {
-    Sim->Dynamics.BCs().setPBC(r12, v12);
-  }
+	     const Vector& nu1, const Vector& nu2):
+    w1(nw1), w2(nw2), u1(nu1), u2(nu2),
+    w12(nw1-nw2), r12(nr12), v12(nv12)
+  {}
 
   void stream(const Iflt& dt)
   {
@@ -65,7 +61,7 @@ public:
   Iflt F_firstDeriv_max(const Iflt& length) const
   { return length * w12.nrm() + v12.nrm(); }
 
-  Iflt F_secondDeriv(orientationStreamType A, orientationStreamType B) const
+  Iflt F_secondDeriv() const
   {
     return 2.0 
       * (((u1 | v12) * (w12 | u2)) 
@@ -84,6 +80,21 @@ public:
       * ((2 * v12.nrm()) + (length * (w1.nrm() + w2.nrm())));
   }
 
+  std::pair<Iflt, Iflt> discIntersectionWindow(const Iflt& length) const
+  {
+    Vector  Ahat = w1 / w1.nrm();
+    Iflt dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
+    Iflt signChangeTerm = (length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
+    
+    std::pair<Iflt,Iflt> 
+      retVal(((-1.0 * (r12 | Ahat)) - signChangeTerm) / (v12 | Ahat),
+	     ((-1.0 * (r12 | Ahat)) + signChangeTerm) / (v12 | Ahat));
+  
+    if(retVal.second < retVal.first) std::swap(retVal.first, retVal.second);
+
+    return retVal;
+  }
+
   const Vector& getu1() const { return u1; }
   const Vector& getu2() const { return u2; }
   const Vector& getw1() const { return w1; }
@@ -93,8 +104,6 @@ public:
   const Vector& getv12() const { return v12; }
   
 private:
-  const CParticle& p1;
-  const CParticle& p2;
   const Vector& w1;
   const Vector& w2;
   Vector u1;

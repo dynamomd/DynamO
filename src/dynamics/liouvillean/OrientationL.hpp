@@ -22,21 +22,7 @@
 #include <vector>
 #include "../../datatypes/vector.hpp"
 
-
-class orientationStreamType
-{
-  public:
-    orientationStreamType(Vector  p, Vector  v, Vector o, Vector a):
-      position(p), velocity(v), orientation(o), angularVelocity(a) {};
-    
-    orientationStreamType():
-      position(0,0,0), velocity(0,0,0), orientation(0,0,0), angularVelocity(0,0,0) {};
-    
-    Vector  position;
-    Vector  velocity;
-    Vector  orientation;
-    Vector  angularVelocity;
-};
+class CLinesFunc;
 
 class CLNOrientation: public CLNewton
 {
@@ -112,15 +98,8 @@ protected:
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
   
-  struct IfltPair
-  {
-    Iflt alpha;
-    Iflt beta;
-  };
-  
-  virtual IfltPair discIntersectionWindow(orientationStreamType A, orientationStreamType B, Iflt length) const;
-
-  virtual bool quadraticSolution(Iflt& returnVal, const int returnType, Iflt A, Iflt B, Iflt C) const;
+  virtual bool quadraticSolution(Iflt& returnVal, const int returnType, 
+				 Iflt A, Iflt B, Iflt C) const;
 
   /* \brief For line line collisions, determines intersections of the infinite lines
   **
@@ -135,24 +114,12 @@ protected:
   **    - If root is valid, this is earliest possible root - roll with it
   **    - If root is invalid, set new concrete t_low just above this found root and go from the top
   */
-  virtual Iflt frenkelRootSearch(const orientationStreamType A, const orientationStreamType B, 
-				 Iflt length, Iflt t_low, Iflt t_high) const;
+  virtual Iflt frenkelRootSearch(const CLinesFunc&, Iflt length, Iflt t_low, 
+				 Iflt t_high) const;
 
-  virtual Iflt quadraticRootHunter(const orientationStreamType LineA, 
-				   const orientationStreamType LineB, Iflt length, 
+  virtual Iflt quadraticRootHunter(const CLinesFunc& fL, Iflt length, 
 				   Iflt& t_low, Iflt& t_high) const;
 
-  virtual Iflt F_zeroDeriv(orientationStreamType A, orientationStreamType B) const;
-  virtual Iflt F_firstDeriv(orientationStreamType A, orientationStreamType B) const;
-  virtual Iflt F_secondDeriv(orientationStreamType A, orientationStreamType B) const;
-
-  virtual Iflt F_firstDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const;
-  virtual Iflt F_secondDeriv_max(orientationStreamType A, orientationStreamType B, Iflt length) const;
-  
-  virtual void performRotation(orientationStreamType& osret, const Iflt& dt) const;
-  
-  virtual IfltPair getCollisionPoints(orientationStreamType& A, orientationStreamType& B) const;
-  
   virtual size_t getParticleDOF() const;
   virtual Iflt getParticleKineticEnergy(const CParticle& part) const;
   virtual void rescaleSystemKineticEnergy(const Iflt&);
