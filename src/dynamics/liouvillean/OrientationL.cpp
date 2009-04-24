@@ -30,7 +30,7 @@
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
 #include "../../extcode/mathtemplates.hpp"
-
+#include "shapes/lines.hpp"
 
 void 
 CLNOrientation::initialise() 
