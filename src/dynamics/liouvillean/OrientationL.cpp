@@ -345,39 +345,40 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
   Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
-  
-  orientationStreamType A(retVal.rij, retVal.vijold, 
-			  orientationData[particle1.getID()].orientation, 
-			  orientationData[particle1.getID()].angularVelocity),
-    B(Vector (0,0,0), Vector (0,0,0), orientationData[particle2.getID()].orientation, 
-      orientationData[particle2.getID()].angularVelocity);
-  
-  Vector uPerp = A.orientation ^ B.orientation;
+
+  CLinesFunc fL(particle1, particle2,
+		orientationData[particle1.getID()].angularVelocity,
+		orientationData[particle2.getID()].angularVelocity,
+		orientationData[particle1.getID()].orientation,
+		orientationData[particle2.getID()].orientation,
+		Sim);
+
+  Vector uPerp = fL.getu1() ^ fL.getu2();
 
   uPerp /= uPerp.nrm();
 
-  IfltPair cp = getCollisionPoints(A, B);
+  std::pair<Iflt, Iflt> cp = fL.getCollisionPoints();
 
   // \Delta {\bf v}_{imp}
   Vector  vr = retVal.vijold
-    + (cp.alpha * A.angularVelocity ^ A.orientation) 
-    - (cp.beta * B.angularVelocity ^ B.orientation);
+    + (cp.first * fL.getw1() ^ fL.getu1()) 
+    - (cp.second * fL.getw2() ^ fL.getu2());
   
-  Iflt mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt mass = retVal.particle1_.getSpecies().getMass();
   Iflt inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
 
-  retVal.dP = uPerp 
-    * (((vr | uPerp) * (1.0 + elasticity)) 
-       / ((2.0/mass) + ((cp.alpha * cp.alpha + cp.beta * cp.beta)/inertia)));  
+  retVal.dP = uPerp
+    * (((vr | uPerp) * (1.0 + elasticity))
+       / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
   
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / mass;
   const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / mass;
 
   orientationData[particle1.getID()].angularVelocity 
-    -= (cp.alpha / inertia) * (A.orientation ^ retVal.dP);
+    -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
 
   orientationData[particle2.getID()].angularVelocity 
-    += (cp.beta / inertia) * (B.orientation ^ retVal.dP);
+    += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();

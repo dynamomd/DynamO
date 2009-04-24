@@ -84,6 +84,14 @@ public:
       * ((2 * v12.nrm()) + (length * (w1.nrm() + w2.nrm())));
   }
 
+  const Vector& getu1() const { return u1; }
+  const Vector& getu2() const { return u2; }
+  const Vector& getw1() const { return w1; }
+  const Vector& getw2() const { return w2; }
+  const Vector& getw12() const { return w12; }
+  const Vector& getr12() const { return r12; }
+  const Vector& getv12() const { return v12; }
+  
 private:
   const CParticle& p1;
   const CParticle& p2;
