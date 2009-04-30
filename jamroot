@@ -30,7 +30,7 @@ project	: requirements
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
-	  <threading>multi:<define>DYNAMO_threading	  
+	  <threading>multi:<define>DYNAMO_threading
 	  #This enables the SSE2 instruction set which offers a
 	  #15% performance increase
 	  #<toolset>gcc:<cxxflags>-funroll-loops
