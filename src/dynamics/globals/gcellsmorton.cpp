@@ -140,8 +140,8 @@ CGCellsMorton::runEvent(const CParticle& part) const
     
     if (part.getVelocity()[cellDirection] > 0)
       {
-	dendCell.data[cellDirection] = dendCell.data[cellDirection] + dilatedOverlink;
-	inCell.data[cellDirection] = dendCell.data[cellDirection] + 1;	
+	++dendCell.data[cellDirection];
+	inCell.data[cellDirection] = dendCell.data[cellDirection] + dilatedOverlink;	
 
 	if (dendCell.data[cellDirection] > dilatedCellMax)
 	    dendCell.data[cellDirection] = --dendCell.data[cellDirection]
@@ -153,8 +153,8 @@ CGCellsMorton::runEvent(const CParticle& part) const
       }
     else
       {
-	dendCell.data[cellDirection] = dendCell.data[cellDirection] - dilatedOverlink;
-	inCell.data[cellDirection] = dendCell.data[cellDirection] - 1;	
+	--dendCell.data[cellDirection];
+	inCell.data[cellDirection] = dendCell.data[cellDirection] - dilatedOverlink;
 
 	if (dendCell.data[cellDirection] > dilatedCellMax)
 	  dendCell.data[cellDirection] = dendCell.data[cellDirection]

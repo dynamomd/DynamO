@@ -462,11 +462,13 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
-      nb -= (coords[2] + iDim == cellCount[2]) * NCells;
+      if (coords[2] + iDim == cellCount[2])
+	nb -= NCells;
 
       for (int jDim(0); jDim < walkLength; ++jDim)
 	{
-	  nb -= (coords[1] + jDim == cellCount[1]) * cellCount[1] * cellCount[0];
+	  if (coords[1] + jDim == cellCount[1])
+	    nb -=  cellCount[1] * cellCount[0];
 	  
 	  for (int kDim(0); kDim < walkLength; ++kDim)
 	    {
@@ -479,10 +481,12 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 		  func(part, next);
 	    }
 
-	  nb += (1 + (coords[0] + walkLength - 1 >= cellCount[0])) * cellCount[0] - walkLength;
+	  nb += (1 + (coords[0] + walkLength - 1 >= cellCount[0])) 
+	    * cellCount[0] - walkLength;
 	}
 
-      nb += ((1 + (coords[1] + walkLength - 1 >= cellCount[1])) * cellCount[1] - walkLength) * cellCount[0];
+      nb += ((1 + (coords[1] + walkLength - 1 >= cellCount[1])) 
+	     * cellCount[1] - walkLength) * cellCount[0];
     }
 }
 
