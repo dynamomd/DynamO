@@ -451,7 +451,7 @@ CNParticleData
 CLNewton::multibdyCollision(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const EEventType& eType) const
 {
-  Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
+  Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
   Iflt structmass1(0), structmass2(0);
   
@@ -462,10 +462,15 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
       structmass1 += 
 	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
       
-      COMVel1 += Sim->vParticleList[ID].getVelocity()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-      
-      COMPos1 += Sim->vParticleList[ID].getPosition()
+      Vector pos(Sim->vParticleList[ID].getPosition()),
+	vel(Sim->vParticleList[ID].getVelocity());
+
+      Sim->Dynamics.BCs().setPBC(pos, vel);
+
+      COMVel1 += vel
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+
+      COMPos1 += pos
 	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
@@ -476,10 +481,15 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
       structmass2 += 
 	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
       
-      COMVel2 += Sim->vParticleList[ID].getVelocity()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-      
-      COMPos2 += Sim->vParticleList[ID].getPosition()
+      Vector pos(Sim->vParticleList[ID].getPosition()),
+	vel(Sim->vParticleList[ID].getVelocity());
+
+      Sim->Dynamics.BCs().setPBC(pos, vel);
+
+      COMVel2 += vel
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+
+      COMPos2 += pos
 	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
@@ -550,11 +560,16 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
       
       structmass1 += 
 	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+
+      Vector pos(Sim->vParticleList[ID].getPosition()),
+	vel(Sim->vParticleList[ID].getVelocity());
       
-      COMVel1 += Sim->vParticleList[ID].getVelocity()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-      
-      COMPos1 += Sim->vParticleList[ID].getPosition()
+      Sim->Dynamics.BCs().setPBC(pos, vel);
+
+      COMVel1 += vel
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+
+      COMPos1 += pos
 	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
@@ -565,10 +580,15 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
       structmass2 += 
 	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
       
-      COMVel2 += Sim->vParticleList[ID].getVelocity()
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-      
-      COMPos2 += Sim->vParticleList[ID].getPosition()
+      Vector pos(Sim->vParticleList[ID].getPosition()),
+	vel(Sim->vParticleList[ID].getVelocity());
+
+      Sim->Dynamics.BCs().setPBC(pos, vel);
+
+      COMVel2 += vel
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+
+      COMPos2 += pos
 	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   

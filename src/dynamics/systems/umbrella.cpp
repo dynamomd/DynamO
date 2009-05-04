@@ -118,11 +118,8 @@ CSUmbrella::runEvent() const
   CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyWellEvent
 		      (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
 
-  I_cerr() << "ulevel was " << ulevel;
   if (etype != BOUNCE)
     ulevel = newulevel;
-
-  I_cerr() << "ulevel is " << ulevel;
 
   Sim->signalParticleUpdate(SDat);
   
@@ -135,7 +132,7 @@ CSUmbrella::runEvent() const
   Sim->freestreamAcc = 0;
 
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt); 
+    Ptr->eventUpdate(*this, SDat, locdt); 
 }
 
 void
@@ -245,6 +242,7 @@ CSUmbrella::particlesUpdated(const CNParticleData& PDat)
       {
 	recalculateTime();
 	Sim->ptrScheduler->rebuildSystemEvents();
+	return;
       }
 
   BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
@@ -255,6 +253,7 @@ CSUmbrella::particlesUpdated(const CNParticleData& PDat)
       {
 	recalculateTime();
 	Sim->ptrScheduler->rebuildSystemEvents();
+	return;
       }
 }
 
