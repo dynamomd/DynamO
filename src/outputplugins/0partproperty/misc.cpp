@@ -21,6 +21,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
+#include <ctime>
 
 COPMisc::COPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"Misc",0),
@@ -224,7 +225,16 @@ COPMisc::output(xmlw::XmlStream &XML)
 void
 COPMisc::periodicOutput()
 {
-  I_Pcout() << "NColls " << (Sim->lNColl+1)/1000 << "k, t "
+  time_t rawtime;
+  time(&rawtime);
+
+  tm timeInfo;
+  localtime_r (&rawtime, &timeInfo);
+
+  char dateString[12] = "";
+  strftime(dateString, 12, "%a %H:%M |", &timeInfo);
+
+  I_Pcout() << dateString << " NColls " << (Sim->lNColl+1)/1000 << "k, t "
 	    << Sim->dSysTime/Sim->Dynamics.units().unitTime() << ", <t_free> "
 	    << getMFT()
 	    << ", "; 
