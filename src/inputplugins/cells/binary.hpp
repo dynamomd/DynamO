@@ -15,16 +15,45 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fcc.hpp"
-#include "bcc.hpp"
-#include "sc.hpp"
-#include "file.hpp"
-#include "randomwalk.hpp"
-#include "helix.hpp"
-#include "mirror.hpp"
-#include "ringRod.hpp"
-#include "ringSnake.hpp"
-#include "randomise.hpp"
-#include "random.hpp"
-#include "linearRod.hpp"
-#include "binary.hpp"
+#pragma once
+#include "cell.hpp"
+#include "../../datatypes/vector.hpp"
+#include <cmath>
+
+struct CUBinary: public CUCell
+{
+  CUBinary(Iflt x, CUCell* nextCell1, CUCell* nextCell2):
+    CUCell(nextCell1),
+    uc2(nextCell2),
+    molfrac(x),
+    count(0),
+    countA(0)
+  {}
+
+  boost::scoped_ptr<CUCell> uc2;
+  Iflt molfrac;
+  size_t count, countA;
+  
+  virtual std::vector<Vector> placeObjects(const Vector & centre)
+  {
+    if (!count) 
+      {
+	++countA;
+	++count;
+	return uc->placeObjects(centre);
+      }
+
+    if ((Iflt(countA) / Iflt(count)) < molfrac)
+      {
+	++countA;
+	++count;
+	return uc->placeObjects(centre);
+      }
+    else
+      {
+	++count;
+	return uc2->placeObjects(centre);
+      }
+  }
+
+};

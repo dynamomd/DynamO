@@ -15,16 +15,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fcc.hpp"
-#include "bcc.hpp"
-#include "sc.hpp"
-#include "file.hpp"
-#include "randomwalk.hpp"
-#include "helix.hpp"
-#include "mirror.hpp"
-#include "ringRod.hpp"
-#include "ringSnake.hpp"
-#include "randomise.hpp"
-#include "random.hpp"
-#include "linearRod.hpp"
-#include "binary.hpp"
+#pragma once
+#include "cell.hpp"
+#include "../../datatypes/vector.hpp"
+#include <cmath>
+
+struct CUlinearRod: public CUCell
+{
+  CUlinearRod(size_t pcl, Iflt WL, CUCell* nextCell):
+    CUCell(nextCell),
+    pairchainlength(pcl),
+    walklength(WL)
+  {
+    if (pcl == 0) D_throw() << "Cant have zero chain length";
+  }
+
+  size_t pairchainlength;  
+  Iflt walklength;
+  
+  virtual std::vector<Vector> placeObjects(const Vector & centre)
+  {
+    Vector tmp(0,0,0);
+
+    std::vector<Vector> retval;
+
+    for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
+      { 
+	tmp[0] = (Iflt(iStep) - (Iflt(walklength) * 0.5)) * walklength;
+	
+	BOOST_FOREACH(const Vector & vec, uc->placeObjects(tmp + centre))
+	  retval.push_back(vec);
+      }
+
+    return retval;
+  }
+};

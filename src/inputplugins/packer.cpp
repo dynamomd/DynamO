@@ -1267,6 +1267,93 @@ CIPPacker::initialise()
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
+    case 14:
+      {
+	//Pack of Mings system
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr
+	  (new CUBinary(0.5, new CURandomise(standardPackingHelper(new CUParticle())), 
+			new CUParticle(), new CUlinearRod(5, 1.0, new CUParticle()));
+
+	packptr->initialise();
+	
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
+      	
+	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
+
+	if (vm.count("f1"))
+	  sizeRatio = vm["f1"].as<Iflt>();
+
+	if (vm.count("f2"))
+	  massFrac = vm["f2"].as<Iflt>();
+
+	if (vm.count("f3"))
+	  molFrac = vm["f3"].as<Iflt>();
+		  
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	
+	//Set up a standard simulation
+	//Sim->ptrScheduler = new CSMultList(Sim);
+	
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+
+	
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	
+	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
+
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, particleDiam, 1.0, 
+			    new C2RSingle(new CRRange(0, nA - 1)))
+	   )->setName("AAInt");
+	
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, 
+			    1.0, 
+			    new C2RPair(new CRRange(0, nA - 1),
+					new CRRange(nA, latticeSites.size()-1)))
+	   )->setName("ABInt");
+	
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0, 
+			    new C2RAll()))->setName("BBInt");
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+					       "AAInt")));
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
+					       massFrac, "B", 0, "BBInt")));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
     default:
       D_throw() << "Did not recognise the packer mode you wanted";
     }
