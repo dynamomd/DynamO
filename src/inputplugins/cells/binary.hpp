@@ -22,38 +22,26 @@
 
 struct CUBinary: public CUCell
 {
-  CUBinary(Iflt x, CUCell* nextCell1, CUCell* nextCell2):
+  CUBinary(size_t x, CUCell* nextCell1, CUCell* nextCell2):
     CUCell(nextCell1),
     uc2(nextCell2),
-    molfrac(x),
     count(0),
-    countA(0)
+    countA(x)
   {}
 
   boost::scoped_ptr<CUCell> uc2;
-  Iflt molfrac;
-  size_t count, countA;
+  size_t count;
+  const size_t countA;
   
   virtual std::vector<Vector> placeObjects(const Vector & centre)
   {
-    if (!count) 
+    if (count < countA)
       {
-	++countA;
-	++count;
-	return uc->placeObjects(centre);
-      }
-
-    if ((Iflt(countA) / Iflt(count)) < molfrac)
-      {
-	++countA;
 	++count;
 	return uc->placeObjects(centre);
       }
     else
-      {
-	++count;
 	return uc2->placeObjects(centre);
-      }
   }
 
 };

@@ -1271,26 +1271,30 @@ CIPPacker::initialise()
       {
 	//Pack of Mings system
 	//Pack the system, determine the number of particles
-	boost::scoped_ptr<CUCell> packptr
-	  (new CUBinary(0.5, new CURandomise(standardPackingHelper(new CUParticle())), 
-			new CUParticle(), new CUlinearRod(5, 1.0, new CUParticle()));
-
-	packptr->initialise();
-	
-	std::vector<Vector  > 
-	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
-      	
-	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
+	Iflt molfrac(0.5), bondlengthFactor(1.0), massFrac(1.0);
+	size_t chainlength(5);
+	size_t nPart;
 
 	if (vm.count("f1"))
-	  sizeRatio = vm["f1"].as<Iflt>();
+	  molfrac = vm["f1"].as<Iflt>();
 
-	if (vm.count("f2"))
-	  massFrac = vm["f2"].as<Iflt>();
+	if (vm.count("i2"))
+	  chainlength = vm["i2"].as<size_t>();
 
-	if (vm.count("f3"))
-	  molFrac = vm["f3"].as<Iflt>();
-		  
+	{
+	  boost::scoped_ptr<CUCell> packptr
+	    (standardPackingHelper(new CUParticle()));
+	  
+	  packptr->initialise();
+	  
+	  std::vector<Vector  > 
+	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  
+	  nPart = latticeSites.size();
+	}
+	
+	size_t nPartA = size_t(nPart * molfrac);
+
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
@@ -1298,50 +1302,62 @@ CIPPacker::initialise()
 	  }
 	else
 	  Sim->Dynamics.setPBC<CSPBC>();
-
+	
 	Iflt simVol = 1.0;
-
+	
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 	
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
+				/ nPart, Iflt(1.0 / 3.0));
 	
-	//Set up a standard simulation
-	//Sim->ptrScheduler = new CSMultList(Sim);
+	Iflt particleDiamB = particleDiam / chainlength;
+
+	boost::scoped_ptr<CUCell> packptr
+	  (standardPackingHelper
+	   (new CUBinary(nPartA, new CUParticle(), 
+			 new CUlinearRod(chainlength, 0.95 * particleDiamB, 
+					 new CUParticle()))));
+
+	packptr->initialise();
 	
+	std::vector<Vector> 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
+      	
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
-
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
-	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
-
 	Sim->Dynamics.addInteraction
 	  (new CIHardSphere(Sim, particleDiam, 1.0, 
-			    new C2RSingle(new CRRange(0, nA - 1)))
+			    new C2RSingle(new CRRange(0, nPartA - 1)))
 	   )->setName("AAInt");
 	
 	Sim->Dynamics.addInteraction
-	  (new CIHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, 
+	  (new CIHardSphere(Sim, (particleDiam + particleDiamB) / 2.0, 
 			    1.0, 
-			    new C2RPair(new CRRange(0, nA - 1),
-					new CRRange(nA, latticeSites.size()-1)))
+			    new C2RPair(new CRRange(0, nPartA - 1),
+					new CRRange(nPartA, latticeSites.size()-1)))
 	   )->setName("ABInt");
+
+	Sim->Dynamics.addInteraction
+	  (new CISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
+			    new C2RChains(nPartA, latticeSites.size() - 1, chainlength)
+			    ))->setName("Bonds");
 	
 	Sim->Dynamics.addInteraction
-	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0, 
+	  (new CIHardSphere(Sim, particleDiamB, 1.0, 
 			    new C2RAll()))->setName("BBInt");
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+				 (new CSpecies(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
-					       massFrac, "B", 0, "BBInt")));
+				 (new CSpecies(Sim, new CRRange(nPartA, latticeSites.size()-1),
+					       massFrac / chainlength, "B", 0, "BBInt")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
