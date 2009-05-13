@@ -34,8 +34,11 @@ class COPPovray: public COPTicker
 
   virtual void ticker();
   
+  virtual void operator<<(const XMLNode&);
+
  protected:
   int frameCount;
+  Iflt zoomlevel;
 
   void printImage();
 };

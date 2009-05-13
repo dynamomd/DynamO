@@ -27,10 +27,28 @@
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
 
-COPPovray::COPPovray(const DYNAMO::SimData* tmp, const XMLNode&):
+COPPovray::COPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPTicker(tmp,"Povray"),
-  frameCount(0)
-{}
+  frameCount(0),
+  zoomlevel(1.0)
+{
+  operator<<(XML);
+}
+
+void 
+COPPovray::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("Zoom"))
+	zoomlevel = boost::lexical_cast<Iflt>
+	  (XML.getAttribute("Zoom"));
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPPovray";
+    }  
+}
 
 void 
 COPPovray::ticker()
@@ -45,14 +63,21 @@ COPPovray::printImage()
   if (frameCount > 1000)
     return;
 
-  std::ofstream of((std::string("Povray.frame") + boost::lexical_cast<std::string>(frameCount++) + std::string(".pov")).c_str());
+  char *fileName;
+
+  if ( asprintf(&fileName, "%05d", frameCount++) < 0)
+    D_throw() << "asprintf error in tinkerXYZ";
+
+  std::ofstream of((std::string("Povray.frame") + fileName + std::string(".pov")).c_str());
   
+  free(fileName);
+
   if (!of.is_open())
     D_throw() << "Could not open povray file for writing";
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\
-#declare zoom = 1.0;			   \n\
+#declare zoom = "<< zoomlevel << ";			   \n	\
 global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
  location <0, zoom, 0>			   \n\

@@ -162,7 +162,11 @@ CIPPacker::initialise()
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
 	"  13: Crystal pack of sheared lines\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-        "       --f1 : Inelasticity [1.0]"
+        "       --f1 : Inelasticity [1.0]\n"
+	"  13: Packing of spheres and linear rods made from stiff polymers\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+        "       --f1 : Mol fraction of spheres [0.5]\n"
+        "       --f2 : Inelasticity [1.0]"
 	;
 
       std::cout << "\n";
@@ -1278,6 +1282,9 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  molfrac = vm["f1"].as<Iflt>();
 
+	if (vm.count("f2"))
+	  bondlengthFactor = vm["f2"].as<Iflt>();
+
 	if (vm.count("i2"))
 	  chainlength = vm["i2"].as<size_t>();
 
@@ -1316,7 +1323,7 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr
 	  (standardPackingHelper
 	   (new CUBinary(nPartA, new CUParticle(), 
-			 new CUlinearRod(chainlength, 0.95 * particleDiamB, 
+			 new CUlinearRod(chainlength, bondlengthFactor * particleDiamB, 
 					 new CUParticle()))));
 
 	packptr->initialise();
@@ -1343,7 +1350,7 @@ CIPPacker::initialise()
 	   )->setName("ABInt");
 
 	Sim->Dynamics.addInteraction
-	  (new CISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
+	  (new CISquareBond(Sim, 0.9 * bondlengthFactor * particleDiamB, 1.1 / 0.9,
 			    new C2RChains(nPartA, latticeSites.size() - 1, chainlength)
 			    ))->setName("Bonds");
 	
