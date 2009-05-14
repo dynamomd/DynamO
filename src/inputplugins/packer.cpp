@@ -1276,7 +1276,7 @@ CIPPacker::initialise()
 	//Pack of Mings system
 	//Pack the system, determine the number of particles
 	Iflt molfrac(0.5), bondlengthFactor(1.0), massFrac(1.0);
-	size_t chainlength(5);
+	size_t chainlength(10);
 	size_t nPart;
 
 	if (vm.count("f1"))
@@ -1318,7 +1318,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
 				/ nPart, Iflt(1.0 / 3.0));
 	
-	Iflt particleDiamB = particleDiam / chainlength;
+	Iflt particleDiamB = 3.0 * particleDiam / chainlength;
 
 	boost::scoped_ptr<CUCell> packptr
 	  (standardPackingHelper
