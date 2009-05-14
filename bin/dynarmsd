@@ -83,19 +83,29 @@ def cluster_analysis(arrayList, length, threshold):
 
 def print_structure(structure, filename):
   f = open(filename, 'w')
+  g = open(filename+".xyz", 'w')
   try:
     length = str(len(structure))
     print >>f, "{VECT 1 "+length+" 0 "
     print >>f, length
     print >>f, "0"
     
+    print >>g, str(len(structure))
+    print >>g, "RMSD file"
+
     for i in range(len(structure)):
       print >>f, structure[i][0], structure[i][1], structure[i][2]
-      
+      atom = "C"
+      cmd="bzcat config.0.end.xml.bz2 | xml sel -t -v \"/DYNAMOconfig/Dynamics/Interactions/Interaction[@Type='SquareWellSeq']/Sequence/Element[@seqID='"+str(i)+"']/@Letter\""
+      for line in os.popen(cmd).readlines():        
+        if ("1" in line):
+          atom = "O"
+      print >>g, atom, structure[i][0], structure[i][1], structure[i][2]
     #print >>f,"1 1 1 1"
     print >>f, "}"
   finally:
     f.close()
+    g.close()
 
 def print_vmd_structure(structure, filename):
   f = open(filename, 'w')
@@ -135,7 +145,6 @@ for file in  sys.argv[1:]:
 
 
 filedata.sort()
-
 
 for data in filedata:
   f = open(data[2]+'.rmsdhist', 'w')
@@ -195,6 +204,8 @@ try:
       for cluster in clusters:
         print "Printing structure number "+str(cluster[2])
         print_structure(data[3][cluster[2]],"Cluster"+str(cluster[2])+".list")
+        for cluster2 in clusters:
+          print "  Struct "+str(cluster[2])+" rmsd vs struct "+str(cluster2[2])+" = "+str(data[1][2][cluster[2]][cluster2[2]])
     sum = 0
     for cluster in clusters:
       sum += cluster[0]
