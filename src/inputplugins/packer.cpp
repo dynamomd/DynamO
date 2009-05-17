@@ -163,10 +163,11 @@ CIPPacker::initialise()
 	"  13: Crystal pack of sheared lines\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
         "       --f1 : Inelasticity [1.0]\n"
-	"  13: Packing of spheres and linear rods made from stiff polymers\n"
+	"  14: Packing of spheres and linear rods made from stiff polymers\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Number of spheres in chain\n"
         "       --f1 : Mol fraction of spheres [0.5]\n"
-        "       --f2 : Inelasticity [1.0]"
+        "       --f2 : Rod Length [1.0]"
 	;
 
       std::cout << "\n";
@@ -1275,7 +1276,7 @@ CIPPacker::initialise()
       {
 	//Pack of Mings system
 	//Pack the system, determine the number of particles
-	Iflt molfrac(0.5), bondlengthFactor(1.0), massFrac(1.0);
+	Iflt molfrac(0.5), massFrac(1.0), rodlength(1.0);
 	size_t chainlength(10);
 	size_t nPart;
 
@@ -1283,7 +1284,7 @@ CIPPacker::initialise()
 	  molfrac = vm["f1"].as<Iflt>();
 
 	if (vm.count("f2"))
-	  bondlengthFactor = vm["f2"].as<Iflt>();
+	  rodlength = vm["f2"].as<Iflt>();
 
 	if (vm.count("i2"))
 	  chainlength = vm["i2"].as<size_t>();
@@ -1316,14 +1317,14 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
-				/ nPart, Iflt(1.0 / 3.0));
+				/ nPart, 1.0 / 3.0);
 	
-	Iflt particleDiamB = 3.0 * particleDiam / chainlength;
+	Iflt particleDiamB = rodlength * particleDiam / chainlength;
 
 	boost::scoped_ptr<CUCell> packptr
 	  (standardPackingHelper
 	   (new CUBinary(nPartA, new CUParticle(), 
-			 new CUlinearRod(chainlength, bondlengthFactor * particleDiamB, 
+			 new CUlinearRod(chainlength, particleDiamB, 
 					 new CUParticle()))));
 
 	packptr->initialise();
@@ -1338,22 +1339,31 @@ CIPPacker::initialise()
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 	
 	Sim->Dynamics.addInteraction
-	  (new CIHardSphere(Sim, particleDiam, 1.0, 
+	  (new CIHardSphere(Sim, particleDiam, 1.0,
 			    new C2RSingle(new CRRange(0, nPartA - 1)))
 	   )->setName("AAInt");
 	
 	Sim->Dynamics.addInteraction
 	  (new CIHardSphere(Sim, (particleDiam + particleDiamB) / 2.0, 
 			    1.0, 
-			    new C2RPair(new CRRange(0, nPartA - 1),
-					new CRRange(nPartA, latticeSites.size()-1)))
+			    new C2RPair
+			    (new CRRange(0, nPartA - 1),
+			     new CRRange(nPartA, latticeSites.size()-1)))
 	   )->setName("ABInt");
 
 	Sim->Dynamics.addInteraction
-	  (new CISquareBond(Sim, 0.9 * bondlengthFactor * particleDiamB, 1.1 / 0.9,
-			    new C2RChains(nPartA, latticeSites.size() - 1, chainlength)
+	  (new CISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
+			    new C2RChains(nPartA, latticeSites.size() - 1, 
+					  chainlength)
 			    ))->setName("Bonds");
 	
+	
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0, 
+			    new C2RChainEnds
+			    (nPartA, latticeSites.size() - 1, 
+			     chainlength)))->setName("RodEnds");
+
 	Sim->Dynamics.addInteraction
 	  (new CIHardSphere(Sim, particleDiamB, 1.0, 
 			    new C2RAll()))->setName("BBInt");

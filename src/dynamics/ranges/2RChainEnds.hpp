@@ -15,22 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RAll.hpp"
-#include "1RList.hpp"
-#include "1RRange.hpp"
-#include "1RSingle.hpp"
-#include "1RNone.hpp"
+#ifndef C2RChainEnds_H
+#define C2RChainEnds_H
 
-#include "2RList.hpp"
-#include "2RPair.hpp"
-#include "2RRangeList.hpp"
-#include "2RSingle.hpp"
-#include "2RChain.hpp"
-#include "2RChains.hpp"
-#include "2RChainGroups.hpp"
-#include "2RIntraChains.hpp"
-#include "2RRing.hpp"
-#include "2RRings.hpp"
-#include "2RAll.hpp"
-#include "2RNone.hpp"
-#include "2RChainEnds.hpp"
+#include "1range.hpp"
+#include "2range.hpp"
+#include "../../datatypes/pluginpointer.hpp"
+
+class C2RChainEnds:public C2Range
+{
+public:
+  C2RChainEnds(const XMLNode&, const DYNAMO::SimData*);
+
+  C2RChainEnds(size_t, size_t, size_t);
+  
+  virtual C2Range* Clone() const 
+  { return new C2RChainEnds(*this); };
+
+  virtual bool isInRange(const CParticle&, const CParticle&) const;
+  
+  virtual void operator<<(const XMLNode&);
+  
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+  size_t rangeStart;
+  size_t rangeEnd;
+  size_t interval;
+};
+
+#endif

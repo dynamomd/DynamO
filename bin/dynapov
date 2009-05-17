@@ -35,7 +35,7 @@ cd /tmp
 echo $oldPWD/$1
 
 zoom="1.0"
-if [ $2 != "" ]; then
+if [ "$2" != "" ]; then
     zoom=$2
 fi
 

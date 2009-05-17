@@ -70,6 +70,8 @@ C2Range::loadClass(const XMLNode& XML , const DYNAMO::SimData* Sim)
     return new C2RChains(XML,Sim);              
   else if (!strcmp(XML.getAttribute("Range"),"ChainGroups"))
     return new C2RChainGroups(XML,Sim);
+  else if (!strcmp(XML.getAttribute("Range"),"ChainEnds"))
+    return new C2RChainEnds(XML,Sim);
   else if (!strcmp(XML.getAttribute("Range"),"IntraChains"))
     return new C2RIntraChains(XML,Sim);              
   else if (!strcmp(XML.getAttribute("Range"),"Ring"))
