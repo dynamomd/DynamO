@@ -35,7 +35,7 @@ C2RChainEnds::C2RChainEnds(const XMLNode& XML, const DYNAMO::SimData*):
   if (rangeStart > rangeEnd)
     std::swap(rangeStart, rangeEnd);
   
-  if (rangeEnd - rangeStart + 1 % interval)
+  if ((rangeEnd - rangeStart + 1) % interval)
     D_throw() << "Length of range does not split into an integer"
 	      << " number of intervals";
 }
@@ -48,7 +48,7 @@ C2RChainEnds::C2RChainEnds(size_t r1, size_t r2,
   if (rangeStart > rangeEnd)
     std::swap(rangeStart, rangeEnd);
 
-  if (rangeEnd - rangeStart + 1 % interval)
+  if ((rangeEnd - rangeStart + 1) % interval)
     D_throw() << "Length of range does not split into an integer"
 	      << " number of intervals";
 }

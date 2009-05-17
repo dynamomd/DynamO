@@ -1352,7 +1352,7 @@ CIPPacker::initialise()
 	   )->setName("ABInt");
 
 	Sim->Dynamics.addInteraction
-	  (new CISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
+	  (new CISquareBond(Sim, 0.95 * particleDiamB, 1.05 / 0.95,
 			    new C2RChains(nPartA, latticeSites.size() - 1, 
 					  chainlength)
 			    ))->setName("Bonds");
