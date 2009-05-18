@@ -59,11 +59,11 @@ C2RChainEnds::isInRange(const CParticle&p1, const CParticle&p2) const
   if (p1.getID() > p2.getID())
     return ((p1.getID() <= rangeEnd) && (p2.getID() >= rangeStart)
 	    && !((p2.getID() - rangeStart) % interval)
-	    && (p1.getID() - p2.getID() == interval));
+	    && (p1.getID() - p2.getID() == interval - 1));
   else
     return ((p2.getID() <= rangeEnd) && (p1.getID() >= rangeStart)
 	    && !((p1.getID() - rangeStart) % interval)
-	    && (p2.getID() - p1.getID() == interval));
+	    && (p2.getID() - p1.getID() == interval - 1));
 }
 
 void 
