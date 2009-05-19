@@ -29,11 +29,12 @@ project	: requirements
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
 	  <link>static
-	  <condor>no
+	  <condor>yes
 	  #<define>DYNAMO_WallCollDebug
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <condor>yes:<define>DYNAMO_CONDOR
+	  <condor>yes:<threading>single
 	  <condor>no:<threading>multi
 	  <tag>@dynamo-tags.naming
 	: default-build release
