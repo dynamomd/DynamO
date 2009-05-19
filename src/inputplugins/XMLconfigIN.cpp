@@ -16,13 +16,19 @@
 */
 
 #include "XMLconfig.hpp"
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
+
+#ifndef DYNAMO_CONDOR
+# include <boost/iostreams/device/file.hpp>
+# include <boost/iostreams/filtering_stream.hpp>
+# include <boost/iostreams/filter/bzip2.hpp>
+# include <boost/iostreams/chain.hpp>
+namespace io = boost::iostreams;
+#else
+# include <fstream>
+#endif
+
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-namespace io = boost::iostreams;
 
 #include "../extcode/xmlParser.h"
 #include "../base/is_exception.hpp"
@@ -49,7 +55,8 @@ CIPConfig::initialise()
 
   if (!boost::filesystem::exists(fileName))
     D_throw() << "Could not open XML configuration file";
-  
+
+#ifndef DYNAMO_CONDOR
   io::filtering_istream inputFile;
   
   if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
@@ -65,9 +72,19 @@ CIPConfig::initialise()
   inputFile.push(io::file_source(fileName));
   std::cout.flush();
 
+#else
+  if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
+    D_throw() << "Cannot load a compressed file when built for condor!";
+  else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
+    I_cout() << "Uncompressed XML input file " << fileName << " loading";
+  else
+    D_throw() << "Unrecognized extension for input files";
+  
+  std::ifstream inputFile(fileName.c_str());
+  std::cout.flush();
+#endif
   //Copy file to a string
   std::string line, fileString;
-
   {
     bool foundEOXML(false);
     while(getline(inputFile,line))

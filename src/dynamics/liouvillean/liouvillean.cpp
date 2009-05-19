@@ -76,6 +76,7 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
   if (XML.isAttributeSet("AttachedBinary")
       && (std::toupper(XML.getAttribute("AttachedBinary")[0]) == 'Y'))
     {
+#ifndef DYNAMO_CONDOR
       if (XML.isAttributeSet("OrientationDataInc")
 	  && (std::toupper(XML.getAttribute("OrientationDataInc")[0]) == 'Y'))
 	D_throw() << "Orientation data is present in the binary data,"
@@ -117,6 +118,9 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 
 	  ++prog;
 	}      
+#else
+      D_throw() << "Cannot use appended binary data in Condor executables!";
+#endif
     }
   else
     {
@@ -168,7 +172,6 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
 {
   if (!Sim->binaryXML)
     return;
-  
   
   boost::iostreams::filtering_ostream base64Convertor;
   base64Convertor.push(boost::iostreams::base64_encoder());

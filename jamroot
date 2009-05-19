@@ -15,28 +15,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #using intel-linux ;
-#using gcc : : condor_compile g++ ;
+import feature : feature ;
+feature condor : no yes : propagated optional ;
+
+using gcc : : condor_compile g++ : <compileflags>-DDYNAMO_CONDOR ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 import dynamo-tags ;
 
-project	: requirements 
+project	: requirements
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
 	  <link>static
+	  <condor>yes
 	  #<define>DYNAMO_WallCollDebug
 	  #<toolset>gcc:<cxxflags>-ansi
 	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <threading>multi:<define>DYNAMO_threading
-	  #This enables the SSE2 instruction set which offers a
-	  #15% performance increase
-	  #<toolset>gcc:<cxxflags>-funroll-loops
-	  #<toolset>gcc:<cxxflags>-msse2
-	  #<toolset>gcc:<cxxflags>-mfpmath=sse
-
+	  <condor>yes:<define>DYNAMO_CONDOR
 	  <tag>@dynamo-tags.naming
 	: default-build release
 	: build-dir build-dir
@@ -70,7 +69,7 @@ exe dynamod
     ;
 
 install install-bin 
-	: dynareplex_opt dynahist_rw dynarun dynamod
+	: dynarun dynamod
 	: <location>bin
 	;
 	

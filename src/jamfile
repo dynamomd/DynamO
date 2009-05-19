@@ -33,7 +33,18 @@ alias dynamo_core : [ glob-tree *.cpp : dataproc ]
     gsl
     #vtkIO
     : <include>extcode/include 
+    <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static <condor>no
+    : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static
+    ;
+
+alias dynamo_core : [ glob-tree *.cpp : dataproc ]
+    ../boost//filesystem/<threading>single
+    ../boost//program_options/<threading>single
+    gsl
+    #vtkIO
+    : <include>extcode/include 
+    <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static <condor>yes
     : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static
     ;

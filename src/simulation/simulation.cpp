@@ -17,10 +17,16 @@
 
 #include "simulation.hpp"
 #include <iomanip>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
+
+#ifndef DYNAMO_CONDOR
+# include <boost/iostreams/device/file.hpp>
+# include <boost/iostreams/filtering_stream.hpp>
+# include <boost/iostreams/filter/bzip2.hpp>
+# include <boost/iostreams/chain.hpp>
+#else
+# include <fstream>
+#endif
+
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
@@ -41,6 +47,17 @@
 CSimulation::CSimulation():
   Base_Class("Simulation",IC_green)
 {}
+
+void 
+CSimulation::setBinaryXML(const bool& v) 
+{ 
+#ifdef DYNAMO_CONDOR
+  if (v)
+    D_throw() << "No binary output when compiled with CONDOR";
+#endif
+
+  binaryXML = v; 
+}
 
 void 
 CSimulation::setTickerPeriod(Iflt nP)
@@ -292,7 +309,8 @@ CSimulation::outputData(const char* filename, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot output data when not initialised!";
-  
+
+#ifndef DYNAMO_CONDOR  
   if (!uncompressed)
     {
       namespace io = boost::iostreams;
@@ -316,6 +334,10 @@ CSimulation::outputData(const char* filename, bool uncompressed)
       XML << xmlw::endtag("OutputData");
     }
   else
+#else
+  if (!uncompressed)
+    D_throw() << "Cannot output compressed data when compiled for Condor ";
+#endif
     {
       std::ofstream coutputFile(filename, std::ios::out | std::ios::trunc);
       xmlw::XmlStream XML(coutputFile);

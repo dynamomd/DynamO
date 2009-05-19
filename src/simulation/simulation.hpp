@@ -103,7 +103,7 @@ class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   inline const ESimulationStatus& getStatus() const
   { return status; }
 
-  inline void setBinaryXML(const bool& v) { binaryXML = v; }
+  void setBinaryXML(const bool&);
 
   void addOutputPlugin(std::string);
   
