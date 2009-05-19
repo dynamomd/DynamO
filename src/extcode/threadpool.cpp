@@ -30,7 +30,7 @@ CThreadPool::CThreadPool():
 void 
 CThreadPool::setThreadCount(size_t x)
 { 
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
   if (x == m_threads.size()) return;
   
   if (x > m_threads.size())
@@ -63,7 +63,7 @@ CThreadPool::~CThreadPool() throw()
 void 
 CThreadPool::wait()
 {
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
   if (m_threads.size())
     {
       //We are in threaded mode!
@@ -84,7 +84,7 @@ CThreadPool::wait()
 	afunctor();
       
       m_waitingFunctors.clear();
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
     }
 #endif
 }
@@ -95,7 +95,7 @@ CThreadPool::stop()
   // m_bStop must be set to true in a critical section.  Otherwise
   // it is possible for a thread to miss notify_all and never
   // terminate.
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
   boost::mutex::scoped_lock lock1(m_mutex);
   m_bStop = true;
   lock1.unlock();
@@ -110,7 +110,7 @@ CThreadPool::stop()
 void 
 CThreadPool::beginThread() throw()
 {
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
   try
     {
       boost::mutex::scoped_lock lock1(m_mutex);

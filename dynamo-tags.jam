@@ -22,11 +22,13 @@ rule naming ( name : type ? : property-set )
 
   if [ type.is-derived $(type) EXE ]
   {  
-     switch [ $(property-set).get <threading> ]
-     {
-     case multi : result += $(name)_mt ;
-     case * : result += $(name) ;
-     }
+#     switch [ $(property-set).get <threading> ]
+#     {
+#     case multi : result += $(name)_mt ;
+#     case * : result += $(name) ;
+#     }
+
+     result += $(name) ;
 
      switch [ $(property-set).get <variant> ]
      {

@@ -14,11 +14,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#using intel-linux ;
+#Add a feature to track if being compiled for condor
 import feature : feature ;
 feature condor : no yes : propagated optional ;
 
-using gcc : : condor_compile g++ : <compileflags>-DDYNAMO_CONDOR ;
+#using intel-linux ;
+#using gcc : : condor_compile g++ : <compileflags>-DDYNAMO_CONDOR ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
@@ -28,21 +29,16 @@ project	: requirements
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
 	  <link>static
-	  <condor>yes
+	  <condor>no
 	  #<define>DYNAMO_WallCollDebug
-	  #<toolset>gcc:<cxxflags>-ansi
-	  #<toolset>gcc:<cxxflags>-pedantic
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
-	  <threading>multi:<define>DYNAMO_threading
 	  <condor>yes:<define>DYNAMO_CONDOR
+	  <condor>no:<threading>multi
 	  <tag>@dynamo-tags.naming
 	: default-build release
 	: build-dir build-dir
 	;
-
-#variant PGO : release : <profiling>on <cxxflags>-fprofile-generate <linkflags>-fprofile-generate ;
-#variant PGO : release : <cxxflags>-fprofile-use <linkflags>-fprofile-use ;
 
 variant cachegrind : <inlining>on <optimization>speed <debug-symbols>on 
 	<profiling>off ;

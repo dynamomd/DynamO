@@ -17,7 +17,7 @@
 lib gslcblas ;
  
 lib gsl	
-    : gslcblas 
+    : gslcblas
     : <name>gsl
     ;
 
@@ -26,19 +26,20 @@ lib gsl
 #    : : <file>/usr/lib/libvtkIO.so 
 #    : : <link>shared <define>DYNAMO_VTK <include>/usr/include/vtk-5.2/ ;
 
-alias dynamo_core : [ glob-tree *.cpp : dataproc ]
-    ../boost//iostreams/<threading>single
-    ../boost//filesystem/<threading>single
-    ../boost//program_options/<threading>single
+alias dynamo_core : [ glob-tree *.cpp  ]
+    ../boost//iostreams
+    ../boost//thread/<threadapi>pthread
+    ../boost//filesystem
+    ../boost//program_options
     gsl
     #vtkIO
     : <include>extcode/include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static <condor>no
+    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <condor>no
     : : <include>extcode/include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static
+    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <condor>no
     ;
 
-alias dynamo_core : [ glob-tree *.cpp : dataproc ]
+alias dynamo_core : [ glob-tree *.cpp ]
     ../boost//filesystem/<threading>single
     ../boost//program_options/<threading>single
     gsl
@@ -46,18 +47,5 @@ alias dynamo_core : [ glob-tree *.cpp : dataproc ]
     : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static <condor>yes
     : : <include>extcode/include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static
-    ;
-
-alias dynamo_core : [ glob-tree *.cpp : dataproc ]
-    ../boost//iostreams
-    ../boost//filesystem
-    ../boost//program_options
-    ../boost//thread/<link>static/<threading>multi/<threadapi>pthread
-    gsl
-    #vtkIO
-    : <include>extcode/include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static
-    : : <include>extcode/include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static
+    <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static <condor>yes
     ;

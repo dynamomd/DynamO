@@ -25,7 +25,7 @@
 
 #include <boost/function.hpp>
 
-#ifdef DYNAMO_threading
+#ifndef DYNAMO_CONDOR
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #endif
@@ -150,7 +150,7 @@ public:
   /*! \brief The current number of threads in the pool */
   size_t getThreadCount() const
   {
-#ifdef DYNAMO_threading    
+#ifndef DYNAMO_CONDOR    
     return m_threads.size(); 
 #else
     return 0;
@@ -163,7 +163,7 @@ public:
    */
   inline void invoke(const Functor_T& threadfunc)
   {
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
     boost::mutex::scoped_lock lock1(m_mutex);    
     m_needThread.notify_all();
     m_waitingFunctors.push_back(threadfunc);
@@ -211,7 +211,7 @@ private:
   /*! \brief Next functor in the list to be assigned. */
   std::list<Functor_T>::iterator m_nextFunctor;
   
-#ifdef DYNAMO_threading   
+#ifndef DYNAMO_CONDOR   
   /*! \brief A mutex to control access to job data.
    * 
    * This mutex is also used as part of the m_needThread condition and
