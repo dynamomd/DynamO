@@ -29,7 +29,7 @@ project	: requirements
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
 	  <link>static
-	  <condor>yes
+	  <condor>no
 	  #<define>DYNAMO_WallCollDebug
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses

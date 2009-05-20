@@ -1324,7 +1324,7 @@ CIPPacker::initialise()
 	boost::scoped_ptr<CUCell> packptr
 	  (standardPackingHelper
 	   (new CUBinary(nPartA, new CUParticle(), 
-			 new CUlinearRod(chainlength, particleDiamB, 
+			 new CUlinearRod(chainlength, 1.05 * particleDiamB, 
 					 new CUParticle()))));
 
 	packptr->initialise();
@@ -1352,7 +1352,7 @@ CIPPacker::initialise()
 	   )->setName("ABInt");
 
 	Sim->Dynamics.addInteraction
-	  (new CISquareBond(Sim, 0.95 * particleDiamB, 1.05 / 0.95,
+	  (new CISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
 			    new C2RChains(nPartA, latticeSites.size() - 1, 
 					  chainlength)
 			    ))->setName("Bonds");
