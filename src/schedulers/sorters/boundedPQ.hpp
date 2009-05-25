@@ -24,6 +24,8 @@
 #include "../../base/is_exception.hpp"
 #include "datastruct.hpp"
 #include "sorter.hpp"
+#include "../../dynamics/units/units.hpp"
+#include "../../base/is_simdata.hpp"
 
 class CSSBoundedPQ: public CSSorter
 {
@@ -190,6 +192,8 @@ public:
 	nlists = 1000;
       }
 
+    I_cout() << "Length of linear list = " << nlists;
+    I_cout() << "Scale factor = " << scale * Sim->Dynamics.units().unitTime();
     linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					marking empty*/ 
 
