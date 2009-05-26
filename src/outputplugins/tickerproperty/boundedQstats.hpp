@@ -19,10 +19,10 @@
 #ifndef COPBoundedQStats_H
 #define COPBoundedQStats_H
 
-#include "collticker.hpp"
+#include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
-class COPBoundedQStats: public COPCollTicker
+class COPBoundedQStats: public COPTicker
 {
  public:
   COPBoundedQStats(const DYNAMO::SimData*, const XMLNode&);
@@ -40,10 +40,7 @@ class COPBoundedQStats: public COPCollTicker
   
  protected:
   
-  C1DHistogram treeSize;
-  //std::vector<size_t> eventdist;
-  size_t counter;
-  
+  C1DHistogram treeSize;  
 };
 
 #endif

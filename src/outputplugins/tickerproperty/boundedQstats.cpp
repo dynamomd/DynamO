@@ -23,9 +23,8 @@
 #include "../../schedulers/sorters/boundedPQ.hpp"
 
 COPBoundedQStats::COPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPCollTicker(tmp,"BoundedPQstats"),
-  treeSize(1),
-  counter(0)
+  COPTicker(tmp,"BoundedPQstats"),
+  treeSize(1)
 {}
 
 void 
@@ -35,11 +34,9 @@ COPBoundedQStats::initialise()
       (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
     D_throw() << "Not a bounded queue sorter!";
 
-  /*  eventdist.resize(dynamic_cast<const CSSBoundedPQ&>
-      (*Sim->ptrScheduler->getSorter()).NLists() - 1,0);*/
 }
 
-void 
+void
 COPBoundedQStats::ticker()
 {
   const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
@@ -47,13 +44,6 @@ COPBoundedQStats::ticker()
  
   treeSize.addVal(sorter.treeSize());
 
-  /*if (!(Sim->lNColl % 100))
-    {
-      ++counter;
-      std::vector<size_t> tmpList = sorter.getEventCounts();
-      for (size_t i = 0; i < tmpList.size(); ++i)
-	eventdist[i] += tmpList[i];
-	}*/
 }
 
 void 
@@ -69,14 +59,25 @@ COPBoundedQStats::output(xmlw::XmlStream& XML)
   treeSize.outputHistogram(XML,1.0);
 
   XML << xmlw::endtag("CBTSize")
-    /*<< xmlw::tag("treedist")
+    << xmlw::tag("treedist")
       << xmlw::chardata();
 
-  for (size_t i = 0; i < eventdist.size(); ++i)
-    XML << i << " " 
-	<< ((Iflt) eventdist[i])/ ((Iflt) counter)
-	<< "\n";
-
-	XML << xmlw::endtag("treedist")*/
+  if (!Sim->lNColl)
+    {
+      I_cerr() << "Cannot print the tree as the queue is\n"
+	       << "not initialised until an event is run (i.e. N_event != 0).\n"
+	       << "Continuing without tree output.";
+    }
+  else
+    {
+      const std::vector<size_t>& eventdist(sorter.getEventCounts());
+      
+      for (size_t i = 0; i < eventdist.size(); ++i)
+	XML << i << " " 
+	    << eventdist[i]
+	    << "\n";
+    }
+  
+  XML << xmlw::endtag("treedist")
       << xmlw::endtag("boundedQstats");
 }

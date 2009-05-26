@@ -33,3 +33,4 @@
 #include "kenergyticker.hpp"
 #include "structureImage.hpp"
 #include "streamticker.hpp"
+#include "boundedQstats.hpp"
