@@ -65,7 +65,7 @@ public:
 
   // compiler-generated copy constructor is NOT fine, need to purge cache
   normal_distribution(const normal_distribution& other)
-    : _mean(other._mean), _sigma(other._sigma), _valid(false)
+    : _mean(other._mean), _sigma(other._sigma), _r1(NAN), _r2(NAN), _valid(false)
   {}
 
   // compiler-generated copy ctor and assignment operator are fine

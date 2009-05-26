@@ -150,14 +150,14 @@ public:
 	  "\nBOUNDEDPQ: This means the queue cannot be instrumented to"
 	  "\nBOUNDEDPQ: determine the settings for the bounded queue, just"
 	  "\nBOUNDEDPQ: using something that hopes the events in sim time"
-	  "\nBOUNDEDPQ: arent longer than t=10000\n"
+	  "\nBOUNDEDPQ: arent close to 10000\n"
 		  << IC_reset;
 
 	init(10, 1000);
       }
     else
       {
-	Iflt nscale = 40 * counter / acc;
+	Iflt nscale = counter / acc;
 	
 	//Determine where the queue ends
 	std::vector<pList>::reverse_iterator rIt = tmpList.rbegin();
@@ -296,14 +296,13 @@ private:
 
   inline void processOverflowList()
   {
-    int e = linearLists[nlists],
-      eNext;
+    int e = linearLists[nlists];
     linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
 
     while(e!=-1)
       {
 	++exceptionCount;
-	eNext=Min[e].next; /* save next */
+	int eNext = Min[e].next; /* save next */
 	insertInEventQ(e); /* try add to regular list now */
 	e=eNext;
       }
