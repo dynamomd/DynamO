@@ -62,7 +62,10 @@ public:
   }
 
   ~CSSBoundedPQ() 
-  { I_cout() << "Exception Events = " << exceptionCount << "\n"; }
+  { 
+    I_cout() << "Exception Events = " << exceptionCount;
+    std::cout << "\n";
+  }
   
   inline size_t size() const { return Min.size() - 1; }
   inline bool empty() const { return Min.empty(); }
