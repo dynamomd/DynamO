@@ -22,6 +22,7 @@
 #include "../base/is_simdata.hpp"
 #include "cells/include.hpp"
 #include <boost/foreach.hpp>
+#include <boost/random/uniform_int.hpp>
 #include "../simulation/particle.hpp"
 #include "../schedulers/include.hpp"
 #include "../schedulers/sorters/include.hpp"
@@ -99,11 +100,9 @@ CIPPacker::initialise()
       I_cout() << 
 	"Modes available:\n"
 	"  0: Monocomponent hard spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
-	"\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  1: Monocomponent square wells\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
-	"\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Lambda [1.5] (well width factor)\n"
 	"       --f2 : Well Depth (negative for square shoulders) [1]\n"
 	"  2: Random walk of an isolated attractive polymer\n"
@@ -112,17 +111,13 @@ CIPPacker::initialise()
 	"       --f2 : Well width factor [1.5]\n"
 	"       --f3 : Bond inner core [0.9]\n"
 	"       --f4 : Bond outer well [1.1]\n"
-	"       --s1 : HP sequence to use (eg 0001010) "
-	"[defaults to homopolymer if unset]\n"
-	"  3: Load a config and pack it, you will need to reset the"
-	" interactions etc.\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
-	"\n"
+	"       --s1 : HP sequence to use (eg 0001010) [defaults to homopolymer if unset]\n"
+	"  3: Load a config and pack it, you will need to reset the interactions etc.\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Chiral fraction (0-1) [Unloaded]\n"
 	"       --s1 : File to load and use as unit cell [config.out.xml.bz2]\n"
 	"  4: Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
-	"\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Inelasticity [1.0]\n"
 	"  5: Walk an isolated spiral/helix\n"
 	"       --i1 : Chain length [20]\n"
@@ -131,18 +126,15 @@ CIPPacker::initialise()
 	"       --f2 : Well width factor [1.5]\n"
 	"       --f3 : Bond inner core (>0) [0.9]\n"
 	"       --f4 : Bond outer well (>0) [1.1]\n"
-	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]"
-	"\n"
+	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
 	"  6: Monocomponent square wells confined by two walls\n"
 	"  7: Ring polymer, dropped as a straight rod\n"
-	"       --i1 : Chain length (number supplied is multiplied by 2, "
-	"e.g. default of 10 gives a 20mer) [10]\n"
+	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
 	"       --f2 : Bond outer well (>0) [1.05]\n"
 	"       --f3 : Well width factor [1.5]\n"
 	"  8: Binary Hard Spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
-	"\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 	"       --f2 : Mass Ratio (B/A) [0.001]\n"
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
@@ -167,7 +159,9 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --i2 : Number of spheres in chain\n"
         "       --f1 : Mol fraction of spheres [0.5]\n"
-        "       --f2 : Rod Length [1.0]"
+        "       --f2 : Rod Length [1.0]\n"
+	"  15: Monocomponent hard-parallel cubes\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	;
 
       std::cout << "\n";
@@ -1383,6 +1377,85 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 		     nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 15:
+      {
+	//Pack of hard spheres
+	//Pack the system, determine the number of particles
+	
+	if (!vm.count("i1") || vm["i1"].as<size_t>() != 2)
+	  D_throw() << "You should initialise cubes with simple cubic packing \"--i1 2\"";
+
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<Vector>
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
+      	
+	if (latticeSites.size() % 2)
+	  D_throw() << "To make sure the system has zero momentum and +-1 velocities, you must"
+	    " use an even number of particles";
+
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
+	Sim->Dynamics.addInteraction(new CIParallelCubes(Sim, particleDiam, 1.0, 
+							 new C2RAll()
+							 ))->setName("Bulk");
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));	
+	
+	size_t nParticles = 0;
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back
+	  (CParticle(position, 
+		     Vector(Sim->Dynamics.units().unitVelocity(), 
+			    Sim->Dynamics.units().unitVelocity(), 
+			    Sim->Dynamics.units().unitVelocity()), 
+						 nParticles++));
+
+	boost::variate_generator
+	  <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
+	  rangen(Sim->ranGenerator, 
+		       boost::uniform_int<unsigned int>
+		       (0, nParticles - 1));
+	
+	size_t ID(rangen());
+
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  for (size_t i(0); nParticles / 2; ++i)
+	    {
+	      while (Sim->vParticleList[ID].getVelocity()[iDim] < 0)
+		ID = rangen();
+	      
+	      Sim->vParticleList[ID].getVelocity() = -Sim->Dynamics.units().unitVelocity();
+	    }
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
