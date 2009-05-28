@@ -1440,24 +1440,42 @@ CIPPacker::initialise()
 			    Sim->Dynamics.units().unitVelocity()), 
 						 nParticles++));
 
-	boost::variate_generator
-	  <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
-	  rangen(Sim->ranGenerator, 
-		       boost::uniform_int<unsigned int>
-		       (0, nParticles - 1));
-	
-	size_t ID(rangen());
+	{
+	  boost::uniform_real<Iflt> normdist(-0.5,0.5);	  
+	  boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<Iflt> >
+	    unisampler(Sim->ranGenerator, normdist);
 
-	for (size_t iDim(0); iDim < NDIM; ++iDim)
-	  for (size_t i(0); i < nParticles / 2; ++i)
-	    {
-	      while (Sim->vParticleList[ID].getVelocity()[iDim] < 0)
-		ID = rangen();
-	      
-	      Sim->vParticleList[ID].getVelocity()[iDim]
-		= -Sim->Dynamics.units().unitVelocity();
-	    }
+	  CVector<long> tmp = getCells();
 
+	  Vector wobblespacing;
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    wobblespacing[iDim] = (Sim->aspectRatio[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
+
+	  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+	    for (size_t iDim(0); iDim < NDIM; ++iDim)
+	      part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
+	}
+  
+	{
+	  boost::variate_generator
+	    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
+	    rangen(Sim->ranGenerator, 
+		   boost::uniform_int<unsigned int>
+		   (0, nParticles - 1));
+	  
+	  size_t ID(rangen());
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    for (size_t i(0); i < nParticles / 2; ++i)
+	      {
+		while (Sim->vParticleList[ID].getVelocity()[iDim] < 0)
+		  ID = rangen();
+		
+		Sim->vParticleList[ID].getVelocity()[iDim]
+		  = -Sim->Dynamics.units().unitVelocity();
+	      }
+	}
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
