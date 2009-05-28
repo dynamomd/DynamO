@@ -1449,12 +1449,13 @@ CIPPacker::initialise()
 	size_t ID(rangen());
 
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
-	  for (size_t i(0); nParticles / 2; ++i)
+	  for (size_t i(0); i < nParticles / 2; ++i)
 	    {
 	      while (Sim->vParticleList[ID].getVelocity()[iDim] < 0)
 		ID = rangen();
 	      
-	      Sim->vParticleList[ID].getVelocity() = -Sim->Dynamics.units().unitVelocity();
+	      Sim->vParticleList[ID].getVelocity()[iDim]
+		= -Sim->Dynamics.units().unitVelocity();
 	    }
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
