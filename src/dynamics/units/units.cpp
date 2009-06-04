@@ -34,7 +34,7 @@ Iflt
 CUnits::simVolume() const
 { 
   Iflt vol = 1.0;
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     vol *= Sim->aspectRatio[iDim];
   
   return vol;

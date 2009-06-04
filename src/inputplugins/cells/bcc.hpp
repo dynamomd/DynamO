@@ -34,7 +34,7 @@ struct CUBCC: public CUCell
     std::vector<Vector  > retval;
 
     Vector  cellWidth;
-    for (int iDim = 0; iDim < NDIM; ++iDim)
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
     Vector  position;
@@ -42,14 +42,14 @@ struct CUBCC: public CUCell
     
     while (iterVec[NDIM - 1] != cells[NDIM-1])
       {      
-	for (int iDim = 0; iDim < NDIM; iDim++)
+	for (size_t iDim = 0; iDim < NDIM; iDim++)
 	  position[iDim] = cellWidth[iDim] * static_cast<Iflt>(iterVec[iDim]) - 0.5 * dimensions[iDim] 
 	    + centre[iDim];
 	
 	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 	  retval.push_back(vec);
 	
-	for (int iDim = 0; iDim < NDIM; iDim++)
+	for (size_t iDim = 0; iDim < NDIM; iDim++)
 	  position[iDim] += cellWidth[iDim]/2.0;
 	
 	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
@@ -58,7 +58,7 @@ struct CUBCC: public CUCell
 	//Now update the displacement vector
 	iterVec[0]++;
 	
-	for (int iDim = 1; iDim < NDIM; iDim++)
+	for (size_t iDim = 1; iDim < NDIM; iDim++)
 	  {
 	    //This increments the next dimension along when
 	    if (iterVec[iDim - 1] == cells[iDim -1])

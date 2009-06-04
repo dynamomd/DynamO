@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "include.hpp"
 #include "outputplugin.hpp"
 #include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
@@ -23,7 +24,6 @@
 #include "../base/constants.hpp"
 #include "../simulation/particle.hpp"
 #include "../extcode/xmlParser.h"
-#include "include.hpp"
 #include "correlations/include.hpp"
 #include "general/include.hpp"
 #include <boost/tokenizer.hpp>

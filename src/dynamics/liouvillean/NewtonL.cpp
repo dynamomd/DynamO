@@ -144,7 +144,7 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
     sqrtT / std::sqrt(tmpDat.getSpecies().getMass());
 
   //Assign the new velocities
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     const_cast<CParticle&>(part).getVelocity()[iDim] 
       = Sim->normal_sampler() * factor;
 
@@ -219,7 +219,7 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
   //distributed Normal component. See Granular Simulation Book
   C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), WALL);
  
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     const_cast<CParticle&>(part).getVelocity()[iDim] 
       = Sim->normal_sampler() * sqrtT 
       / sqrt(Sim->Dynamics.getSpecies(part).getMass());
@@ -253,7 +253,7 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   else
     retVal = (width[0]-rpos[0]) / vel[0];
 
-  for (int iDim = 1; iDim < NDIM; ++iDim)
+  for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
       Iflt tmpdt((vel[iDim] < 0)
 		 ? -rpos[iDim]/vel[iDim] 

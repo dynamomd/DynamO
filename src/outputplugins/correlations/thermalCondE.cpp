@@ -129,7 +129,7 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
       XML   << (1+i) * dt / Sim->Dynamics.units().unitTime()
 	    << "\t ";
       
-      for (int j=0;j<NDIM;j++)
+      for (size_t j=0;j<NDIM;j++)
 	XML << accG2[i][j] * factor 
 	    << "\t ";
       

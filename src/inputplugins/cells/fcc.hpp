@@ -37,7 +37,7 @@ struct CUFCC: public CUCell
 
     Vector  cellWidth;
     
-    for (int iDim = 0; iDim < NDIM; ++iDim)
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
     Iflt rcoord[4][3];
@@ -70,7 +70,7 @@ struct CUFCC: public CUCell
 	for (iterVec[0] = 0; iterVec[0] < cells[0]; iterVec[0]++)
 	  for (int iRef = 0; iRef < 4; iRef++)
 	    {
-	      for (int iDim = 0; iDim < NDIM; iDim++)
+	      for (size_t iDim = 0; iDim < NDIM; iDim++)
 		position[iDim] =
 		  rcoord[iRef][iDim] + cellWidth[iDim] * iterVec[iDim] - 0.5 * dimensions[iDim] + centre[iDim];
 	      

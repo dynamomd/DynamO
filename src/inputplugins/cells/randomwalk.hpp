@@ -47,7 +47,7 @@ struct CURandWalk: public CUCell
       normal_sampler(ranGenerator, normdist);
     
     Vector  tmpVec;
-    for (int iDim = 0; iDim < NDIM; iDim++)
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
       tmpVec[iDim] = normal_sampler();
     
     return tmpVec;

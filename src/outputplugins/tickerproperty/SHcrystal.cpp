@@ -25,6 +25,20 @@ COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode&):
 {}
 
 void 
+COPSHCrystal::initialise() 
+{ 
+  double smallestlength = HUGE_VAL;
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->Dynamics.getGlobals())
+    ticker(); 
+}
+void 
 COPSHCrystal::ticker()
 {
+  
+}
+
+std::complex<float> 
+localq(const CParticle& part, int l, int m)
+{
+  
 }

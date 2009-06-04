@@ -132,21 +132,21 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
 
   //Now determine the inertia tensor
   double data[NDIM * NDIM];
-  for (int i = 0; i < NDIM; i++)
-    for (int j = i; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM; i++)
+    for (size_t j = i; j < NDIM; j++)
       data[i + j * NDIM] = 0.0;
   
   BOOST_FOREACH(Vector & vec, relVecs)
     {
       vec -= retVal.MassCentre;
 
-      for (int i = 0; i < NDIM; i++)
-	for (int j = i; j < NDIM; j++)
+      for (size_t i = 0; i < NDIM; i++)
+	for (size_t j = i; j < NDIM; j++)
 	  data[i+j*NDIM] += vec[i] * vec[j];      
     }
 
-  for (int i = 0; i < NDIM; i++)
-    for (int j = i; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM; i++)
+    for (size_t j = i; j < NDIM; j++)
       data[j+i*NDIM] = data[i+j*NDIM];
   
   gsl_matrix_view m = gsl_matrix_view_array(data, NDIM, NDIM);
@@ -160,7 +160,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   gsl_eigen_symmv_sort (eval, evec, 
 			GSL_EIGEN_SORT_VAL_ASC);
   
-  for (int i = 0; i < NDIM; i++)
+  for (size_t i = 0; i < NDIM; i++)
     {
       retVal.EigenVal[i] = gsl_vector_get(eval, i);
 
@@ -168,7 +168,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
 	= gsl_matrix_column (evec, i);
 
       //EigenVec Components
-      for (int j = 0; j < NDIM; j++)
+      for (size_t j = 0; j < NDIM; j++)
 	retVal.EigenVec[i][j] = gsl_vector_get(&evec_i.vector, j);
     }
 
@@ -186,24 +186,24 @@ COPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
 {
   double Q[NDIM * NDIM];
   
-  for (int i = 0; i < NDIM; i++)
-    for (int j = i; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM; i++)
+    for (size_t j = i; j < NDIM; j++)
       Q[i + j * NDIM] = 0.0;
 
   BOOST_FOREACH(const Vector & vec, molAxis)
-    for (int i = 0; i < NDIM; i++)
-      for (int j = i; j < NDIM; j++)
+    for (size_t i = 0; i < NDIM; i++)
+      for (size_t j = i; j < NDIM; j++)
 	Q[i + (j * NDIM)] += (3.0 * vec[i] * vec[j]) - (i==j ? 1 : 0);
 
   Iflt Factor = 1.0 / (2.0 * molAxis.size());
 
-  for (int i = 0; i < NDIM; i++)
-    for (int j = i; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM; i++)
+    for (size_t j = i; j < NDIM; j++)
       Q[(j * NDIM) + i] *= Factor;
 
   //Copy over the triangle matrix
-  for (int i = 0; i < NDIM-1; i++)
-    for (int j = i+1; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM-1; i++)
+    for (size_t j = i+1; j < NDIM; j++)
       Q[(i * NDIM) + j] = Q[(j * NDIM) + i];
   
   gsl_matrix_view m = gsl_matrix_view_array(Q, NDIM, NDIM);
@@ -221,7 +221,7 @@ COPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
 			GSL_EIGEN_SORT_VAL_ASC);
   
   Vector  retval; 
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     retval[iDim] = gsl_vector_get (eval, iDim);
 
   gsl_vector_free (eval);
@@ -316,13 +316,13 @@ COPRGyration::ticker()
 	  //Take the largest eigenvector as the molecular axis
 	  molAxis.push_back(vals.EigenVec[NDIM-1]);
 	  //Now add the radius of gyration
-	  for (int iDim = 0; iDim < NDIM; ++iDim)
+	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	    dat.gyrationRadii[iDim].addVal(vals.EigenVal[iDim]);
 	}
       
       Vector  EigenVal = NematicOrderParameter(molAxis);
       
-      for (int i = 0; i < NDIM; i++)
+      for (size_t i = 0; i < NDIM; i++)
 	if (std::isnormal(EigenVal[i]))
 	  dat.nematicOrder[i].addVal(EigenVal[i]);
       
@@ -341,7 +341,7 @@ COPRGyration::output(xmlw::XmlStream& XML)
 	  << dat.chainPtr->getName().c_str()
 	  << xmlw::tag("GyrationRadii");
       
-      for (int i = 0; i<NDIM; i++)
+      for (size_t i = 0; i< NDIM; i++)
 	dat.gyrationRadii.at(i).outputHistogram(XML,1.0/Sim->Dynamics.units().unitArea());
 
       XML << xmlw::endtag("GyrationRadii")
@@ -354,7 +354,7 @@ COPRGyration::output(xmlw::XmlStream& XML)
 
       Vector  EigenVal = NematicOrderParameter(molAxis);
             
-      for (int i = 0; i < NDIM; i++)
+      for (size_t i = 0; i < NDIM; i++)
 	if (std::isnormal(EigenVal[i]))
 	  {
 	    char lett[2] = {'x' + i, '\0'};
@@ -363,7 +363,7 @@ COPRGyration::output(xmlw::XmlStream& XML)
 		<< EigenVal[i];
 	  }
 
-      for (int i = 0; i<NDIM; i++)
+      for (size_t i = 0; i<NDIM; i++)
 	dat.nematicOrder.at(i).outputHistogram(XML, 1.0);
       
       XML << xmlw::endtag("NematicOrderParameter")

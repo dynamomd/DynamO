@@ -236,7 +236,7 @@ COPVACF::output(xmlw::XmlStream& XML)
       for (size_t j = 0; j < accG2[i].size(); ++j)
 	{
 	  XML << j * dt / Sim->Dynamics.units().unitTime();
-	  for (int iDim = 0; iDim < NDIM; iDim++)
+	  for (size_t iDim = 0; iDim < NDIM; iDim++)
 	    XML << "\t" << accG2[i][j][iDim] * factor / specCount;
 	  XML << "\n";
 	}

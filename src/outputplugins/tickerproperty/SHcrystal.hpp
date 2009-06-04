@@ -18,6 +18,7 @@
 #ifndef COPSHCrystal_H
 #define COPSHCrystal_H
 
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 #include "ticker.hpp"
 
 class COPSHCrystal: public COPTicker
@@ -28,13 +29,17 @@ class COPSHCrystal: public COPTicker
   virtual COutputPlugin *Clone() const
   { return new COPSHCrystal(*this); }
 
-  virtual void initialise() { ticker(); }
+  virtual void initialise();
 
   virtual void stream(Iflt) {}
 
   virtual void ticker();
   
  protected:
+
+  std::complex<Iflt> localq(const CParticle& part, int l, int m);
+
 };
 
 #endif
+

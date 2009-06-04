@@ -84,7 +84,7 @@ COPTinkerXYZ::printImage()
       tmpVec = part.getPosition();
       Sim->Dynamics.BCs().setPBC(tmpVec);
       of << "C ";
-      for (int iDim = 0; iDim < NDIM; iDim++)
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
 	of << tmpVec[iDim] * 3.4 
 	  / Sim->Dynamics.units().unitLength() << " ";
       of << "\n";
@@ -119,11 +119,11 @@ COPTinkerXYZ::printImage()
       tmpVec =  ((tmpVec/Sim->Dynamics.units().unitLength()) - 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
 
       obj_of << "5\n";
-      for (int iDim = 0; iDim < NDIM; iDim++)
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
 	obj_of << tmpVec[iDim] << " ";
       obj_of << " 0.05 ";
 
-      for (int iDim = 0; iDim < NDIM; iDim++)
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
 	obj_of << tmpVec2[iDim] << " ";
       obj_of << " 0.05 1.0 0.0 0.0\n";
     }
@@ -152,12 +152,12 @@ COPTinkerXYZ::printImage()
 		pos2 *= 3.4 / Sim->Dynamics.units().unitLength();
 
 		obj_of << "5\n";
-		for (int iDim = 0; iDim < NDIM; iDim++)
+		for (size_t iDim = 0; iDim < NDIM; iDim++)
 		  obj_of << pos1[iDim] << " ";
 		obj_of << " 0.05 ";
 		
 		
-		for (int iDim = 0; iDim < NDIM; iDim++)
+		for (size_t iDim = 0; iDim < NDIM; iDim++)
 		  obj_of << pos2[iDim] << " ";
 		obj_of << " 0.05 1.0 1.0 1.0\n";
 	      }

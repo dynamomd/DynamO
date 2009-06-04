@@ -240,8 +240,8 @@ COPViscosityE::output(xmlw::XmlStream &XML)
   
   char name[3] = "xx";
   
-  for (int i = 0; i < NDIM; i++)
-    for (int j = 0; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM; i++)
+    for (size_t j = 0; j < NDIM; j++)
       {
 	name[0] = 'x' + i;
 	name[1] = 'x' + j;
@@ -279,7 +279,7 @@ COPViscosityE::output(xmlw::XmlStream &XML)
   XML << xmlw::endtag("Pressure");
   
   Iflt AvgPressure = 0.0;
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     AvgPressure += P[iDim][iDim];
   
   XML << xmlw::tag("PressureVals")
@@ -292,8 +292,8 @@ COPViscosityE::output(xmlw::XmlStream &XML)
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
       XML << (i+1) * dt / Sim->Dynamics.units().unitTime();
-      for (int j = 0; j < NDIM; j++)
-	for (int k = 0; k < NDIM; k++)
+      for (size_t j = 0; j < NDIM; j++)
+	for (size_t k = 0; k < NDIM; k++)
 	  XML << "\t" << ((accG2[i][j][k] / count) - traceAverage[j][k]*(i+1)*traceAverage[j][k]*(i+1)) * rescaleFactor ;
       
       XML << "\n";

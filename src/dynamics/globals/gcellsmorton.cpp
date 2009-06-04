@@ -297,7 +297,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
   NCells = 1;
   cellCount = 0;
 
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     if (Sim->aspectRatio[iDim] != 1.0) D_throw() << "";
 
   cellCount = int(1 / maxdiam);
@@ -356,7 +356,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
 	  cells[id].coords = coords;
 	  list[id] = -1;
 	  
-	  for (int iDim = 0; iDim < NDIM; iDim++)
+	  for (size_t iDim = 0; iDim < NDIM; iDim++)
 	    cells[id].origin[iDim] = coords.data[iDim].getRealVal()
 	      * cellLatticeWidth - 0.5 * Sim->aspectRatio[iDim];
 	}

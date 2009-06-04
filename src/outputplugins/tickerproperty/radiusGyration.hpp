@@ -69,7 +69,7 @@ class COPRGyration: public COPTicker
       chainPtr(ptr),
       cubaticOrder(binwidth3)
     {
-      for (int i = 0; i < NDIM; i++)
+      for (size_t i = 0; i < NDIM; i++)
 	{
 	  gyrationRadii.push_back(C1DHistogram(binwidth1));
 	  nematicOrder.push_back(C1DHistogram(binwidth2));

@@ -34,7 +34,7 @@ struct CUSC: public CUCell
     std::vector<Vector  > retval;
   
     Vector  cellWidth;
-    for (int iDim = 0; iDim < NDIM; ++iDim)
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
     Vector  position;
@@ -45,7 +45,7 @@ struct CUSC: public CUCell
 	for (iterVec[0] = 0; iterVec[0] < cells[0]; iterVec[0]++)
 	  {
 	    //The itervec + 0.5 centres the lattice points correctly as the unit cell isn't symmetric
-	    for (int iDim = 0; iDim < NDIM; iDim++)
+	    for (size_t iDim = 0; iDim < NDIM; iDim++)
 	      position[iDim] = cellWidth[iDim] * (iterVec[iDim] + 0.5) - 0.5 * dimensions[iDim] + centre[iDim];
 
 	      //Get the next unit cells positions and push them to your list

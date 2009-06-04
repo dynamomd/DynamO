@@ -61,7 +61,7 @@ COPMisc::initialise()
 
   I_cout() << "No. of Species " << Sim->Dynamics.getSpecies().size()
       << "\nSimulation box length <x,y,z> ";
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     std::cout  << Sim->aspectRatio[iDim]/Sim->Dynamics.units().unitLength() << " ";
   
   Vector  sumMV (0,0,0);
@@ -77,7 +77,7 @@ COPMisc::initialise()
   
   I_cout() << "Total momentum <x,y,z> <";
 
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     std::cout  << sumMV[iDim] / Sim->Dynamics.units().unitMomentum() << " ";
 
   std::cout << ">";
@@ -196,7 +196,7 @@ COPMisc::output(xmlw::XmlStream &XML)
       << 1.0/Sim->Dynamics.units().unitLength();
 
   char name[2] = "x";
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       name[0] = 'x' + iDim;
       XML << xmlw::tag(name) << xmlw::attr("val")

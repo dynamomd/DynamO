@@ -41,7 +41,7 @@ struct CURandom: public CUCell
     for (size_t i(0); i < N; ++i)
       {
 	Vector  position;
-	for (int iDim = 0; iDim < NDIM; iDim++)
+	for (size_t iDim = 0; iDim < NDIM; iDim++)
 	  position[iDim] = centre[iDim] - (uniform_sampler() - 0.5) * dimensions[iDim];
 	
 	

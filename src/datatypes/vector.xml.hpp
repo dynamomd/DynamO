@@ -88,7 +88,7 @@ inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 {
   char name[2] = "x";
   
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       name[0]= 'x'+iDim; //Write the dimension
       XML << xmlw::attr(name) << t(iDim);
@@ -101,7 +101,7 @@ inline
 VectorExpression<>& 
 operator<<(VectorExpression<>& data, const XMLNode &XML)
 {
-  for (int iDim = 0; iDim < NDIM; iDim++) 
+  for (size_t iDim = 0; iDim < NDIM; iDim++) 
     {
       char name[2] = "x";
       name[0] = 'x' + iDim; //Write the name

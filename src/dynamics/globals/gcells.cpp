@@ -303,7 +303,7 @@ CGCells::addCells(Iflt maxdiam)
   NCells = 1;
   cellCount = CVector<int>(0);
 
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       cellCount[iDim] = int(Sim->aspectRatio[iDim] / maxdiam);
       
@@ -320,10 +320,10 @@ CGCells::addCells(Iflt maxdiam)
       NCells *= cellCount[iDim];
     }
 
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     cellLatticeWidth[iDim] = Sim->aspectRatio[iDim] / cellCount[iDim];
   
-  for (int iDim = 0; iDim < NDIM; iDim++)
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
     cellDimension[iDim] = cellLatticeWidth[iDim] 
       + (cellLatticeWidth[iDim] - maxdiam) 
       * lambda;
@@ -353,7 +353,7 @@ CGCells::addCells(Iflt maxdiam)
     {
       cells[id].coords = getCoordsFromID(id);
 
-      for (int iDim = 0; iDim < NDIM; iDim++)
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
 	cells[id].origin[iDim] = cells[id].coords[iDim] 
 	  * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
     }
