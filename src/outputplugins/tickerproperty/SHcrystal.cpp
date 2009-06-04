@@ -15,23 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
-#include "vtk.hpp"
-#include "msdcorrelator.hpp"
-#include "kenergyticker.hpp"
-#include "structureImage.hpp"
-#include "streamticker.hpp"
-#include "boundedQstats.hpp"
 #include "SHcrystal.hpp"
+#include <fstream>
+#include <boost/foreach.hpp>
+#include "../../extcode/xmlwriter.hpp"
+
+COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode&):
+  COPTicker(tmp,"SHCrystal")
+{}
+
+void 
+COPSHCrystal::ticker()
+{
+}
