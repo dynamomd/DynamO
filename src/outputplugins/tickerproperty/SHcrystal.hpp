@@ -28,15 +28,13 @@ class COPSHCrystal: public COPTicker
   virtual COutputPlugin *Clone() const
   { return new COPSHCrystal(*this); }
 
-  virtual void initialise() { printImage(); }
+  virtual void initialise() { ticker(); }
 
   virtual void stream(Iflt) {}
 
   virtual void ticker();
   
  protected:
-
-  void printImage();
 };
 
 #endif
