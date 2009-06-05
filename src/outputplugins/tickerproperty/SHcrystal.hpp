@@ -35,10 +35,35 @@ class COPSHCrystal: public COPTicker
 
   virtual void ticker();
   
+  virtual void output(xmlw::XmlStream&);
+
  protected:
 
   std::complex<Iflt> localq(const CParticle& part, int l, int m);
 
+  //! Cut-off radius 
+  Iflt rg;
+  size_t maxl;
+  size_t nblistID;
+  size_t count;
+  
+  std::vector<std::vector<std::complex<Iflt> > > globalcoeff;
+
+  struct sphericalsum
+  {
+    sphericalsum(const DYNAMO::SimData * const, 
+		 const Iflt&, const size_t&);
+    
+    void operator()(const CParticle&, const size_t&) const;
+    
+    void clear();
+
+    const DYNAMO::SimData* const Sim;
+    const Iflt rg;
+    const size_t maxl;
+    mutable size_t count;
+    mutable std::vector<std::vector<std::complex<Iflt> > > coeffsum;
+  };
 };
 
 #endif
