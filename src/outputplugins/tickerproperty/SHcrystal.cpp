@@ -66,6 +66,7 @@ void
 COPSHCrystal::ticker()
 {
   ++count;
+
   sphericalsum ssum(Sim, rg, maxl);
   
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -79,7 +80,7 @@ COPSHCrystal::ticker()
       for (size_t l(0); l < maxl; ++l)
 	for (int m(-l); m <= static_cast<int>(l); ++m)
 	  globalcoeff[l][m+l] += ssum.coeffsum[l][m+l] 
-	    / std::complex<Iflt>(ssum.count,0);
+	    / std::complex<Iflt>(ssum.count, 0);
       
       ssum.clear();
     }
@@ -101,7 +102,8 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 	sum += std::norm(globalcoeff[l][m+l]);
       
       XML << xmlw::attr("val") 
-	  << sum * 4.0 * PI / ((2.0 * l + 1.0) * count * Sim->lN)
+	  << sum * 4.0 * PI / ((2.0 * l + 1.0) * count 
+			       * Sim->vParticleList.size())
 	  << xmlw::endtag("Q");
     }
 
@@ -151,6 +153,8 @@ COPSHCrystal::sphericalsum::operator()
 void
 COPSHCrystal::sphericalsum::clear()
 {
+  count = 0;
+
   for (size_t l(0); l < maxl; ++l)
     for (int m(-l); m <= static_cast<int>(l); ++m)
       coeffsum[l][m+l] = std::complex<Iflt>(0,0);
