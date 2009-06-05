@@ -27,7 +27,7 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"SHCrystal"), rg(1), maxl(6),
+  COPTicker(tmp,"SHCrystal"), rg(1), maxl(7),
   nblistID(std::numeric_limits<size_t>::max()),
   count(0)
 {}
@@ -35,7 +35,7 @@ COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 COPSHCrystal::initialise() 
 { 
-  rg = 1.5 * Sim->Dynamics.units().unitLength();
+  rg = 1.2 * Sim->Dynamics.units().unitLength();
 
   double smallestlength = HUGE_VAL;
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->Dynamics.getGlobals())
@@ -61,6 +61,7 @@ COPSHCrystal::initialise()
 
   ticker();
 }
+
 void 
 COPSHCrystal::ticker()
 {
@@ -129,7 +130,17 @@ COPSHCrystal::sphericalsum::operator()
       ++count;
       rij /= norm;
       Iflt theta = std::acos(rij[0]);
-      Iflt phi = std::asin(rij[1] / std::sin(theta));
+      Iflt sintheta = std::sin(theta);
+      Iflt phi = rij[1] / sintheta;
+      
+      if (fabs(phi) > 1.0)
+	phi = (phi > 0) ? 0.5 * PI : 1.5 * PI;
+      else
+	phi = std::asin(phi);
+
+      if (std::sin(theta) == 0) phi = 0;
+      
+      if (phi < 0) phi += 2.0*PI;
 
       for (size_t l(0); l < maxl; ++l)
 	for (int m(-l); m <= static_cast<int>(l); ++m)

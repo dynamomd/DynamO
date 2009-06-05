@@ -78,6 +78,8 @@ COPRadialDistribution::initialise()
      (Sim->Dynamics.getSpecies().size(),
       std::vector<unsigned long>(length, 0))
      );
+
+  ticker();
 }
 
 void 
