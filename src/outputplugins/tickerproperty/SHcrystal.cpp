@@ -100,7 +100,7 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 	sum += std::norm(globalcoeff[l][m+l]);
       
       XML << xmlw::attr("val") 
-	  << sum * 4.0 * PI / (2.0 * l + 1.0)
+	  << sum * 4.0 * PI / ((2.0 * l + 1.0) * count * Sim->lN)
 	  << xmlw::endtag("Q");
     }
 
