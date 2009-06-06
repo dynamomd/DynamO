@@ -31,7 +31,12 @@ namespace xmlw
   class  XmlStream;
 }
 
-
+/*! \brief The class used to convert in and out of simulation units.
+ *
+ * This class has a design specification, that it is initialised on
+ * construction so that other classes may directly start conversions
+ * on the loading of configurations.
+ */
 class CUnits: public DYNAMO::SimBase_const
 {
  public:
