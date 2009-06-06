@@ -27,16 +27,18 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include "../../extcode/wignerThreeJ.hpp"
 
-COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"SHCrystal"), rg(1), maxl(7),
+COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  COPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
   nblistID(std::numeric_limits<size_t>::max()),
   count(0)
-{}
+{
+  operator<<(XML);
+}
 
 void 
 COPSHCrystal::initialise() 
 { 
-  rg = 1.2 * Sim->Dynamics.units().unitLength();
+  
 
   double smallestlength = HUGE_VAL;
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->Dynamics.getGlobals())
@@ -95,7 +97,7 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
     {
       XML << xmlw::tag("Q")
 	  << xmlw::attr("l") << l;
-
+      
       Iflt Qsum(0);
       for (int m(-l); m <= static_cast<int>(l); ++m)
 	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<Iflt>(count, 0));
@@ -104,7 +106,7 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 	  << std::sqrt(Qsum * 4.0 * PI / (2.0 * l + 1.0))
 	  << xmlw::endtag("Q");
       
-      
+      /*
       XML << xmlw::tag("W")
 	  << xmlw::attr("l") << l;
 
@@ -120,9 +122,33 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
       XML << xmlw::attr("val")
 	  << Wsum * std::pow(Qsum, -1.5)
 	  << xmlw::endtag("W");
+      */
     }
 
   XML << xmlw::endtag("SHCrystal");
+}
+
+void 
+COPSHCrystal::operator<<(const XMLNode& XML)
+{
+  rg *= Sim->Dynamics.units().unitLength();
+
+  try
+    {
+      if (XML.isAttributeSet("CutOffR"))
+	rg = boost::lexical_cast<Iflt>(XML.getAttribute("CutOffR"))
+	  * Sim->Dynamics.units().unitLength();
+
+      if (XML.isAttributeSet("MaxL"))
+	maxl = boost::lexical_cast<size_t>(XML.getAttribute("MaxL"));
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPSHCrystal";
+    }
+
+  I_cout() << "Cut off radius of " 
+	   << rg / Sim->Dynamics.units().unitLength();
 }
 
 COPSHCrystal::sphericalsum::sphericalsum
@@ -174,3 +200,4 @@ COPSHCrystal::sphericalsum::clear()
     for (int m(-l); m <= static_cast<int>(l); ++m)
       coeffsum[l][m+l] = std::complex<Iflt>(0,0);
 }
+

@@ -37,6 +37,8 @@ class COPSHCrystal: public COPTicker
   
   virtual void output(xmlw::XmlStream&);
 
+  virtual void operator<<(const XMLNode&);
+
  protected:
 
   std::complex<Iflt> localq(const CParticle& part, int l, int m);

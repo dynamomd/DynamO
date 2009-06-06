@@ -266,7 +266,7 @@ CGCells::initialise(size_t nID)
 {
   ID=nID;
   
-  reinitialise(getMaxInteractionLength());
+  reinitialise(1.8 * getMaxInteractionLength());
 }
 
 void
