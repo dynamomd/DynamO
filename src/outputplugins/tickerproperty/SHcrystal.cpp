@@ -25,6 +25,7 @@
 #include "../../dynamics/units/units.hpp"
 #include "../../dynamics/BC/BC.hpp"
 #include <boost/math/special_functions/spherical_harmonic.hpp>
+#include "../../extcode/wignerThreeJ.hpp"
 
 COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"SHCrystal"), rg(1), maxl(7),
@@ -65,8 +66,6 @@ COPSHCrystal::initialise()
 void 
 COPSHCrystal::ticker()
 {
-  ++count;
-
   sphericalsum ssum(Sim, rg, maxl);
   
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -79,12 +78,12 @@ COPSHCrystal::ticker()
       
       for (size_t l(0); l < maxl; ++l)
 	for (int m(-l); m <= static_cast<int>(l); ++m)
-	  globalcoeff[l][m+l] += ssum.coeffsum[l][m+l] 
-	    / std::complex<Iflt>(ssum.count, 0);
+	  globalcoeff[l][m+l] += ssum.coeffsum[l][m+l];
       
+      count += ssum.count;
+
       ssum.clear();
     }
-
 }
 
 void 
@@ -97,14 +96,30 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
       XML << xmlw::tag("Q")
 	  << xmlw::attr("l") << l;
 
-      Iflt sum(0);
+      Iflt Qsum(0);
       for (int m(-l); m <= static_cast<int>(l); ++m)
-	sum += std::norm(globalcoeff[l][m+l]);
+	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<Iflt>(count, 0));
       
-      XML << xmlw::attr("val") 
-	  << sum * 4.0 * PI / ((2.0 * l + 1.0) * count 
-			       * Sim->vParticleList.size())
+      XML << xmlw::attr("val")
+	  << std::sqrt(Qsum * 4.0 * PI / (2.0 * l + 1.0))
 	  << xmlw::endtag("Q");
+      
+      
+      XML << xmlw::tag("W")
+	  << xmlw::attr("l") << l;
+
+      Iflt Wsum(0);
+      for (int m1(-l); m1 <= static_cast<int>(l); ++m1)
+	for (int m2(-l); m2 <= static_cast<int>(l); ++m2)
+	  if (std::abs(m1 + m2) <= static_cast<int>(l))
+	    Wsum += std::abs(DYNAMO::threej(l,l,l,m1,m2,-(m1+m2))
+			     * globalcoeff[l][m1] * globalcoeff[l][m2]
+			     * globalcoeff[l][-(m1+m2)] 
+			     / std::complex<Iflt>(count * count * count, 0));
+      
+      XML << xmlw::attr("val")
+	  << Wsum * std::pow(Qsum, -1.5)
+	  << xmlw::endtag("W");
     }
 
   XML << xmlw::endtag("SHCrystal");
