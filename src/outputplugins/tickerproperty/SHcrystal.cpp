@@ -38,8 +38,6 @@ COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
 void 
 COPSHCrystal::initialise() 
 { 
-  
-
   double smallestlength = HUGE_VAL;
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->Dynamics.getGlobals())
     if (dynamic_cast<const CGNeighbourList*>(pGlob.get_ptr()) != NULL)
@@ -116,7 +114,7 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 	    int m3 = -(m1+m2);
 	    if (std::abs(m3) <= l)
 	      Wsum += std::complex<Iflt>(DYNAMO::threej(l,l,l,m1,m2,m3) 
-					 / (count * count * count), 0)
+					 * std::pow(count,-3.0), 0)
 		* globalcoeff[l][m1+l]
 		* globalcoeff[l][m2+l]
 		* globalcoeff[l][l-(m1+m2)]

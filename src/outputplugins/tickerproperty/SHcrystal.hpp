@@ -47,7 +47,7 @@ class COPSHCrystal: public COPTicker
   Iflt rg;
   size_t maxl;
   size_t nblistID;
-  size_t count;
+  long count;
   
   std::vector<std::vector<std::complex<Iflt> > > globalcoeff;
 
