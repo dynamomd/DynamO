@@ -93,13 +93,13 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("SHCrystal");
   
-  for (size_t l(0); l < maxl; ++l)
+  for (int l(0); l < static_cast<int>(maxl); ++l)
     {
       XML << xmlw::tag("Q")
 	  << xmlw::attr("l") << l;
       
       Iflt Qsum(0);
-      for (int m(-l); m <= static_cast<int>(l); ++m)
+      for (int m(-l); m <= l; ++m)
 	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<Iflt>(count, 0));
       
       XML << xmlw::attr("val")
@@ -109,14 +109,19 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
       XML << xmlw::tag("W")
 	  << xmlw::attr("l") << l;
 
-      std::complex<Iflt> Wsum(0,0);
-      for (int m1(-l); m1 <= static_cast<int>(l); ++m1)
-	for (int m2(-l); m2 <= static_cast<int>(l); ++m2)
-	  if (std::abs(m1 + m2) <= static_cast<int>(l))
-	    Wsum += DYNAMO::threej(l,l,l,m1,m2,-(m1+m2))
-	      * globalcoeff[l][m1] * globalcoeff[l][m2]
-	      * globalcoeff[l][-(m1+m2)] 
-	      / std::complex<Iflt>(count * count * count, 0);
+      std::complex<Iflt> Wsum(0, 0);
+      for (int m1(-l); m1 <= l; ++m1)
+	for (int m2(-l); m2 <= l; ++m2)
+	  {
+	    int m3 = -(m1+m2);
+	    if (std::abs(m3) <= l)
+	      Wsum += std::complex<Iflt>(DYNAMO::threej(l,l,l,m1,m2,m3) 
+					 / (count * count * count), 0)
+		* globalcoeff[l][m1+l]
+		* globalcoeff[l][m2+l]
+		* globalcoeff[l][l-(m1+m2)]
+		;
+	  }
       
       XML << xmlw::attr("val")
 	  << Wsum * std::pow(Qsum, -1.5)
