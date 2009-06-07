@@ -36,8 +36,6 @@ public:
   virtual CGlobal* Clone() const 
   { return new CGCellsShearing(*this); }
   
-  virtual void operator<<(const XMLNode&);
-  
   virtual void runEvent(const CParticle&) const;
 
   virtual void getParticleNeighbourhood(const CParticle&, 

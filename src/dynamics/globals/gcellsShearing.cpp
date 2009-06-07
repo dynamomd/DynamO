@@ -55,26 +55,9 @@ CGCellsShearing::initialise(size_t nID)
     D_throw() << "You cannot use the shearing neighbour list"
 	      << " in a system without Lees Edwards BC's";
 
-  reinitialise(Sim->Dynamics.getLongestInteraction());
-}
+  if (overlink != 1) D_throw() << "Cannot shear with overlinking yet";
 
-void 
-CGCellsShearing::operator<<(const XMLNode& XML)
-{
-  try {
-    if (XML.isAttributeSet("lambda"))
-      lambda = boost::lexical_cast<Iflt>
-	(XML.getAttribute("lambda"));
-    
-    globName = XML.getAttribute("Name");	
-  }
-  catch(...)
-    {
-      D_throw() << "Error loading CGCellsShearing";
-    }
-  
-  if (lambda < 0.0 || lambda > 1.0)
-    D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
+  reinitialise(Sim->Dynamics.getLongestInteraction());
 }
 
 void
