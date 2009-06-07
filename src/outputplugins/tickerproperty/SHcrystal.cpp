@@ -106,23 +106,21 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 	  << std::sqrt(Qsum * 4.0 * PI / (2.0 * l + 1.0))
 	  << xmlw::endtag("Q");
       
-      /*
       XML << xmlw::tag("W")
 	  << xmlw::attr("l") << l;
 
-      Iflt Wsum(0);
+      std::complex<Iflt> Wsum(0,0);
       for (int m1(-l); m1 <= static_cast<int>(l); ++m1)
 	for (int m2(-l); m2 <= static_cast<int>(l); ++m2)
 	  if (std::abs(m1 + m2) <= static_cast<int>(l))
-	    Wsum += std::abs(DYNAMO::threej(l,l,l,m1,m2,-(m1+m2))
-			     * globalcoeff[l][m1] * globalcoeff[l][m2]
-			     * globalcoeff[l][-(m1+m2)] 
-			     / std::complex<Iflt>(count * count * count, 0));
+	    Wsum += DYNAMO::threej(l,l,l,m1,m2,-(m1+m2))
+	      * globalcoeff[l][m1] * globalcoeff[l][m2]
+	      * globalcoeff[l][-(m1+m2)] 
+	      / std::complex<Iflt>(count * count * count, 0);
       
       XML << xmlw::attr("val")
 	  << Wsum * std::pow(Qsum, -1.5)
 	  << xmlw::endtag("W");
-      */
     }
 
   XML << xmlw::endtag("SHCrystal");
