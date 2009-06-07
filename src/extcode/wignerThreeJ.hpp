@@ -32,7 +32,7 @@ namespace DYNAMO {
   
     using namespace boost::math;
     
-    for (int nu(numin); nu > numax - 1; nu--)
+    for (int nu(numin); nu <= numax; nu++)
       {
 	retval += sign 
 	  / (factorial<double>(la-ma-nu)*factorial<double>(lc-lb+ma+nu)
