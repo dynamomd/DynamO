@@ -31,6 +31,7 @@ rule naming ( name : type ? : property-set )
      switch [ $(property-set).get <variant> ]
      {
      case debug : result += _d ;
+     case fulldebug : result += _fd ;
      case cachegrind : result += _cg ;
      case profile : result += _p ;
      case massif : result += _mf ;

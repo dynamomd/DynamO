@@ -27,7 +27,7 @@ C2RList::C2RList(const XMLNode& XML)
 bool 
 C2RList::isInRange(const CParticle&p1, const CParticle&p2) const
 {
-  std::map<const unsigned long, std::list<unsigned long> >::const_iterator
+  std::map<unsigned long, std::list<unsigned long> >::const_iterator
     iPtr;
   
   unsigned long a = p1.getID();

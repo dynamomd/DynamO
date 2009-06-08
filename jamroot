@@ -30,7 +30,6 @@ project	: requirements
 	  <define>DYNAMO_Colour
 	  <link>static
 	  <condor>no
-	  #<define>DYNAMO_WallCollDebug
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <condor>yes:<define>DYNAMO_CONDOR
@@ -47,7 +46,8 @@ variant cachegrind : <inlining>on <optimization>speed <debug-symbols>on
 variant massif : <inlining>off <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
-variant colldebug : debug : <define>DYNAMO_CollDebug ;
+variant fulldebug : debug : <define>_GLIBCXX_DEBUG ; 
+#<define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug
 
 exe dynareplex_opt 
     : programs/dynareplex_opt.cpp boost//program_options
