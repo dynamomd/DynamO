@@ -63,9 +63,7 @@ CGCellsShearing::initialise(size_t nID)
 void
 CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "ShearingCells"
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("Name") << globName;
+  CGCells::outputXML(XML, std::string("ShearingCells"));
 }
 
 void 

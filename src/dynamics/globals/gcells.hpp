@@ -65,7 +65,11 @@ public:
 
   virtual Iflt getMaxInteractionLength() const;
 
+  virtual void outputXML(xmlw::XmlStream& XML) const;
+
 protected:
+  void outputXML(xmlw::XmlStream&, const std::string&) const;
+
   CGCells(DYNAMO::SimData*, const char*, void*);
 
   struct partCEntry
@@ -85,8 +89,6 @@ protected:
     Vector  origin;
     CVector<int> coords;
   };
-
-  virtual void outputXML(xmlw::XmlStream&) const;
 
   //Cell Numbering
   size_t getCellID(const CVector<int>&) const;
@@ -108,6 +110,10 @@ protected:
   Iflt lambda;
   size_t NCells;
   size_t overlink;
+
+  std::string interaction;
+  Iflt MaxIntDist;
+  
 
   mutable std::vector<cellStruct> cells;
 

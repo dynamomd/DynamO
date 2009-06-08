@@ -34,7 +34,9 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
-  overlink(1)
+  overlink(1),
+  interaction(""),
+  MaxIntDist(0.0)
 {
   globName = name;
   I_cout() << "Cells Loaded";
@@ -46,7 +48,9 @@ CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
-  overlink(1)
+  overlink(1),
+  interaction(""),
+  MaxIntDist(0.0)
 {
   operator<<(XML);
 
@@ -59,7 +63,9 @@ CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
-  overlink(1)
+  overlink(1),
+  interaction(""),
+  MaxIntDist(0.0)
 {}
 
 void 
@@ -74,6 +80,14 @@ CGCells::operator<<(const XMLNode& XML)
     if (XML.isAttributeSet("OverLink"))
       overlink = boost::lexical_cast<size_t>
 	(XML.getAttribute("OverLink"));
+
+    if (XML.isAttributeSet("Interaction"))
+      interaction = boost::lexical_cast<std::string>
+	(XML.getAttribute("Interaction"));
+
+    if (XML.isAttributeSet("CellWidth"))
+      MaxIntDist = boost::lexical_cast<Iflt>
+	(XML.getAttribute("CellWidth")) * Sim->Dynamics.units().unitLength();
     
     globName = XML.getAttribute("Name");	
   }
@@ -118,7 +132,6 @@ CGCells::getEvent(const CParticle& part) const
 void
 CGCells::runEvent(const CParticle& part) const
 {
-
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
   //expect the particle to be up to date.
@@ -283,14 +296,25 @@ CGCells::reinitialise(const Iflt& maxdiam)
     nbs.second();
 }
 
-void
+void 
 CGCells::outputXML(xmlw::XmlStream& XML) const
 {
+  outputXML(XML, "Cells");
+}
+
+void
+CGCells::outputXML(xmlw::XmlStream& XML, const std::string& name) const
+{
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << xmlw::attr("Type") << "Cells"
+  XML << xmlw::attr("Type") << name
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << globName;
 
+  if (MaxIntDist != 0.0)
+    XML << xmlw::attr("CellWidth") << MaxIntDist / Sim->Dynamics.units().unitLength();
+  else if (!interaction.empty())
+    XML << xmlw::attr("Interaction") << interaction;
+      
   if (overlink > 1)   XML << xmlw::attr("OverLink") << overlink;
 }
 
@@ -518,5 +542,10 @@ CGCells::getMaxSupportedInteractionLength() const
 Iflt 
 CGCells::getMaxInteractionLength() const
 {
-  return Sim->Dynamics.getLongestInteraction();
+  if (MaxIntDist != 0.0)
+    return MaxIntDist;
+  else if (!interaction.empty())
+    return Sim->Dynamics.getInteraction(interaction)->maxIntDist();
+  else 
+    return Sim->Dynamics.getLongestInteraction();
 }
