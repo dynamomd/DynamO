@@ -19,7 +19,10 @@ import feature : feature ;
 feature condor : no yes : propagated optional ;
 
 #using intel-linux ;
-#using gcc : : condor_compile g++ : <compileflags>-DDYNAMO_CONDOR ;
+
+#To use a condor binary, uncomment below and change the project
+#parameter to <condor>yes 
+using gcc : : condor_compile g++ : <compileflags>-DDYNAMO_CONDOR ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
@@ -29,7 +32,7 @@ project	: requirements
 	  <define>DYNAMO_double_precsision 
 	  <define>DYNAMO_Colour
 	  <link>static
-	  <condor>no
+	  <condor>yes
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <condor>yes:<define>DYNAMO_CONDOR

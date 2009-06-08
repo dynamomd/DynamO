@@ -159,7 +159,7 @@ CIPCompression::limitDensity(Iflt targetrho)
   Iflt volume = 0.0;
   
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
-    volume += std::pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
+    volume += std::pow(sp->getIntPtr()->hardCoreDiam(), static_cast<int>(NDIM)) * sp->getCount();
   
   Iflt molVol = PI * volume / (6.0 * Sim->vParticleList.size()
 			       * Sim->Dynamics.units().unitVolume());
