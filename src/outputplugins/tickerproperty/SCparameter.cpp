@@ -50,6 +50,8 @@ COPSCParameter::initialise()
   I_cout() << "Max wavelength is "
 	   << 1.0 / (maxWaveNumber * Sim->Dynamics.units().unitLength());
 
+  maxWaveNumber *= 2;
+
   runningsum.resize(maxWaveNumber + 1, 0);
 
   ticker();
@@ -83,8 +85,11 @@ void
 COPSCParameter::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("SCParameter")
-      << xmlw::attr("MaxWaveVal") 
-      << runningsum.back() / (static_cast<Iflt>(count) * Sim->lN)
+      << xmlw::attr("SCWaveNumber") 
+      << lrint(std::pow(Sim->lN, 1.0/3.0))
+      << xmlw::attr("SCWaveNumberVal") 
+      << runningsum[lrint(std::pow(Sim->lN, 1.0/3.0))] 
+    / (static_cast<Iflt>(count) * Sim->lN) 
       << xmlw::chardata();
   
   for (size_t k(0); k <= maxWaveNumber; ++k)
