@@ -15,24 +15,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
-#include "vtk.hpp"
-#include "msdcorrelator.hpp"
-#include "kenergyticker.hpp"
-#include "structureImage.hpp"
-#include "streamticker.hpp"
-#include "boundedQstats.hpp"
-#include "SHcrystal.hpp"
-#include "SCparameter.hpp"
+#ifndef COPSCParameter_H
+#define COPSCParameter_H
+
+#include <boost/math/special_functions/spherical_harmonic.hpp>
+#include "ticker.hpp"
+
+class COPSCParameter: public COPTicker
+{
+ public:
+  COPSCParameter(const DYNAMO::SimData*, const XMLNode&);
+
+  virtual COutputPlugin *Clone() const
+  { return new COPSCParameter(*this); }
+
+  virtual void initialise();
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+  
+  virtual void output(xmlw::XmlStream&);
+
+  virtual void operator<<(const XMLNode&);
+
+ protected:
+
+  size_t cuberootofN;
+  size_t count;
+  Iflt runningsum;
+};
+
+#endif
+
