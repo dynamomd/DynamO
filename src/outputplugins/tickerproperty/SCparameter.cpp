@@ -47,8 +47,10 @@ COPSCParameter::initialise()
   if (boost::math::pow<3>(maxWaveNumber) != Sim->lN)
     D_throw() << "Failed, N does not have an integer cube root!";
 
-  I_cout() << "Max wavelength is " 
+  I_cout() << "Max wavelength is "
 	   << 1.0 / (maxWaveNumber * Sim->Dynamics.units().unitLength());
+
+  runningsum.resize(maxWaveNumber + 1, 0);
 
   ticker();
 }
