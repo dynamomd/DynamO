@@ -40,10 +40,10 @@ class COPSCParameter: public COPTicker
   virtual void operator<<(const XMLNode&);
 
  protected:
-
-  size_t cuberootofN;
+  
+  size_t maxWaveNumber;
   size_t count;
-  Iflt runningsum;
+  std::vector<Iflt> runningsum;
 };
 
 #endif

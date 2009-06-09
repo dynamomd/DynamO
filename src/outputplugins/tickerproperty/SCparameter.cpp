@@ -28,7 +28,7 @@
 
 COPSCParameter::COPSCParameter(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPTicker(tmp,"SCParameter"),
-  cuberootofN(0),
+  maxWaveNumber(0),
   count(0),
   runningsum(0)
 {
@@ -42,12 +42,13 @@ COPSCParameter::initialise()
     if (Sim->aspectRatio[iDim] != 1.0) 
       D_throw() << "Cannot use this parameter in a non-cubic box";
   
-  cuberootofN = lrint(std::pow(Sim->lN, 1.0/3.0));
+  maxWaveNumber = lrint(std::pow(Sim->lN, 1.0/3.0));
 
-  if (boost::math::pow<3>(cuberootofN) != Sim->lN)
+  if (boost::math::pow<3>(maxWaveNumber) != Sim->lN)
     D_throw() << "Failed, N does not have an integer cube root!";
 
-  I_cout() << "Wavelength is " << 1.0 / (cuberootofN * Sim->Dynamics.units().unitLength());
+  I_cout() << "Max wavelength is " 
+	   << 1.0 / (maxWaveNumber * Sim->Dynamics.units().unitLength());
 
   ticker();
 }
@@ -57,29 +58,40 @@ COPSCParameter::ticker()
 {
   ++count;
 
-  std::complex<Iflt> sum(0,0);
-
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  for (size_t k(0); k <= maxWaveNumber; ++k)
     {
-      Iflt psum(0);
+      std::complex<Iflt> sum(0, 0);
 
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	psum += part.getPosition()[iDim];
-
-      psum *= 2.0 * PI * cuberootofN;
-      sum += std::complex<Iflt>(std::cos(psum), std::sin(psum));
+      BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	{
+	  Iflt psum(0);
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    psum += part.getPosition()[iDim];
+	  
+	  psum *= 2.0 * PI * k;
+	  sum += std::complex<Iflt>(std::cos(psum), std::sin(psum));
+	}
+      
+      runningsum[k] += std::abs(sum);
     }
-
-  runningsum += std::abs(sum);
 }
 
 void 
 COPSCParameter::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("SCParameter")
-      << xmlw::attr("val") 
-      << runningsum / (static_cast<Iflt>(count) * Sim->lN)
-      << xmlw::endtag("SCParameter");
+      << xmlw::attr("MaxWaveVal") 
+      << runningsum.back() / (static_cast<Iflt>(count) * Sim->lN)
+      << xmlw::chardata();
+  
+  for (size_t k(0); k <= maxWaveNumber; ++k)
+    {
+      XML << k * Sim->Dynamics.units().unitLength() << " "
+	  << runningsum[k] / count << "\n";
+    }
+
+  XML << xmlw::endtag("SCParameter");
 }
 
 void 
