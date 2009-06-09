@@ -90,7 +90,8 @@ COPSCParameter::output(xmlw::XmlStream& XML)
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
       XML << k * Sim->Dynamics.units().unitLength() << " "
-	  << runningsum[k] / count << "\n";
+	  << runningsum[k] / (static_cast<Iflt>(count) * Sim->lN) 
+	  << "\n";
     }
 
   XML << xmlw::endtag("SCParameter");
