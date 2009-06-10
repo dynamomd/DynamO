@@ -5,6 +5,8 @@
 
 * Code improvements
 ** Done/Not needed 						       :ARCHIVE:
+  - [X] Cells smaller than required plus overlinking may be quicker
+    with lightweight transitions
   - [X] On cell update of the bounded queue check wether the local
     minimum changed, may be faster [[file:code/isss/schedulers/multlist.cpp][file,]] CELL EVENTS CHANGE LOCAL
     MINIMA
@@ -21,20 +23,22 @@
   - [X] Play with the new boost accumulators and ring buffer
   - [X] Collision sentinel for low density sims
 ** Do if you're bored  
-  - [ ] Cells smaller than required plus overlinking may be quicker
-    with lightweight transitions
-  - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
-  - [-] Clean up the coordinator class
-   - [X] Move the replex and standard runs into a class Engine
-   - [ ] Split the replexer somehow and remove the ugly switch cases for speed
-   - [ ] Add a Coordinator output plugin scheme
-  - [ ] Multi dimensional sims
-  - [ ] Compressibility <N^2>-<N>^2 for large HS sims
-  - [ ] Write a transformation for the liouvillean which wraps the sim
+   - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
+   - [-] Clean up the coordinator class
+    - [X] Move the replex and standard runs into a class Engine
+    - [ ] Split the replexer somehow and remove the ugly switch cases for speed
+    - [ ] Add a Coordinator output plugin scheme
+   - [ ] Multi dimensional sims
+   - [ ] Compressibility <N^2>-<N>^2 for large HS sims
+   - [ ] Write a transformation for the liouvillean which wraps the sim
 	coordinates
-  - [-] Stop the use of pointers in output sims for the benefit of Replexing
+   - [-] Stop the use of pointers in output sims for the benefit of Replexing
     - [X] Add id numbers to every interaction
     - [-] Change the output plugins to use the id numbers and get rid of RTTI
-
-** TODO Code Improvements
-*** MAYBE Implement Parallel Hard Cubes
+** TODO Stepped potentials
+    - [ ] Make a generalised interface for captures, remove the hashed set to another class
+    - [ ] Implement a multistep hash bins
+    - [ ] Implement a stepped interaction potential
+** Code Improvements
+*** DONE Implement Parallel Hard Cubes
+    CLOSED: [2009-06-10 Wed 07:58]
