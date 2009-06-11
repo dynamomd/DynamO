@@ -284,6 +284,9 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
+  Iflt KE1before = getParticleKineticEnergy(particle1);
+  Iflt KE2before = getParticleKineticEnergy(particle2);
+
   CLinesFunc fL(retVal.rij, retVal.vijold,
 		orientationData[particle1.getID()].angularVelocity,
 		orientationData[particle2.getID()].angularVelocity,
@@ -316,6 +319,9 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
 
   orientationData[particle2.getID()].angularVelocity 
     += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
+
+  retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
+  retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
 
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
