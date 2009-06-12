@@ -43,6 +43,7 @@
     CLOSED: [2009-06-10 Wed 07:58]
     
 *** TODO Stepped potentials
-    - [ ] Make a generalised interface for captures, remove the hashed set to another class
-    - [ ] Implement a multistep hash bins
+    - [X] Make a generalised interface for captures, remove the hashed
+      set to another class
+    - [X] Implement a multistep hash bins
     - [ ] Implement a stepped interaction potential

@@ -22,6 +22,7 @@
 #include <set>
 #include <vector>
 #include <boost/tr1/unordered_set.hpp>
+#include <boost/tr1/unordered_map.hpp>
 
 //Expose the boost TR1
 namespace std {
@@ -41,7 +42,6 @@ public:
   
 protected:
 
-  virtual bool captureTest(const CParticle&, const CParticle&) const = 0;
 };
 
 
@@ -61,6 +61,8 @@ protected:
 
   mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
 
+  virtual bool captureTest(const CParticle&, const CParticle&) const = 0;
+
   bool noXmlLoad;
 
   void initCaptureMap();
@@ -73,6 +75,33 @@ protected:
   
   void removeFromCaptureMap(const CParticle&, const CParticle&) const;
   
+};
+
+class CIMultiCapture: public CICapture
+{
+public:
+  CIMultiCapture(DYNAMO::SimData* Sim, C2Range* r):
+    CICapture(Sim,r),
+    noXmlLoad(true)
+  {}
+
+  size_t getTotalCaptureCount() const { return captureMap.size(); }
+  
+  virtual bool isCaptured(const CParticle&, const CParticle&) const;
+
+protected:
+
+  mutable std::unordered_map<std::pair<size_t, size_t>, int> captureMap;
+
+  virtual int captureTest(const CParticle&, const CParticle&) const = 0;
+
+  bool noXmlLoad;
+
+  void initCaptureMap();
+
+  void loadCaptureMap(const XMLNode&);
+
+  void outputCaptureMap(xmlw::XmlStream&) const;
 };
 
 #endif

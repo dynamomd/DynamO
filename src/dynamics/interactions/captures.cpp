@@ -27,6 +27,9 @@ CICapture::CICapture(DYNAMO::SimData* tmp,C2Range* nR):
   CInteraction(tmp,nR)
 {}
 
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
 void 
 CISingleCapture::initCaptureMap()
 {
@@ -156,4 +159,97 @@ CISingleCapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) 
     : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
   
 #endif
+}
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+void 
+CIMultiCapture::initCaptureMap()
+{
+  //If not loaded or invalidated
+  if (noXmlLoad)
+    {      
+      I_cout() << "Capture map reinitialising";
+      
+      captureMap.clear();
+      
+      for (std::vector<CParticle>::const_iterator iPtr 
+	     = Sim->vParticleList.begin();
+	   iPtr != Sim->vParticleList.end(); iPtr++) 
+	for (std::vector<CParticle>::const_iterator iPtr2 = iPtr + 1;
+	     iPtr2 != Sim->vParticleList.end(); iPtr2++)
+	  if (range->isInRange(*iPtr, *iPtr2))
+	    {
+	      int capval = captureTest(*iPtr,*iPtr2);
+	      if (captureTest(*iPtr,*iPtr2))
+		captureMap[std::pair<size_t,size_t>(iPtr->getID(), iPtr2->getID())] 
+		  = capval; 
+	    }
+    }
+}
+
+void 
+CIMultiCapture::loadCaptureMap(const XMLNode& XML)
+{
+  if (XML.nChildNode("CaptureMap"))
+    {
+      XMLNode browseNode, subNode;
+      subNode = XML.getChildNode("CaptureMap");
+
+      if (!subNode.isAttributeSet("Size"))
+	{
+	  I_cout() << "Could not find size in capture map";
+	  noXmlLoad = true;
+	  return;
+	}
+
+      noXmlLoad = false;
+
+      captureMap.clear();
+
+      int xml_iter = 0;
+      long counter = subNode.nChildNode("Pair");
+      for (long i = 0; i < counter; i++)
+	{
+	  browseNode = subNode.getChildNode("Pair",&xml_iter);
+	  
+	  captureMap
+	    [std::pair<size_t, size_t>
+	     (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
+	      boost::lexical_cast<size_t>(browseNode.getAttribute("ID2")))]
+	    = boost::lexical_cast<size_t>(browseNode.getAttribute("val"));
+	}
+    }
+}
+
+void 
+CIMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
+{
+  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
+
+  typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
+
+  BOOST_FOREACH(const locpair& IDs, captureMap)
+    XML << xmlw::tag("Pair")
+	<< xmlw::attr("ID1") << IDs.first.first
+	<< xmlw::attr("ID2") << IDs.first.second
+	<< xmlw::attr("val") << IDs.second
+	<< xmlw::endtag("Pair");
+  
+  XML << xmlw::endtag("CaptureMap");
+}
+
+
+bool 
+CIMultiCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
+{
+#ifdef DYNAMO_DEBUG
+  if (p1.getID() == p2.getID())
+    D_throw() << "Particle is testing if it captured itself";
+#endif 
+
+  return (p1.getID() < p2.getID())
+    ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+    : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
 }
