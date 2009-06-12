@@ -69,7 +69,7 @@ CIStepped::operator<<(const XMLNode& XML)
 				     (browseNode.getAttribute("R"))
 				     * Sim->Dynamics.units().unitLength(),
 				     boost::lexical_cast<Iflt>
-				     (browseNode.getAttribute("deltaE"))
+				     (browseNode.getAttribute("E"))
 				     * Sim->Dynamics.units().unitEnergy()
 				     ));
 	    
@@ -79,7 +79,7 @@ CIStepped::operator<<(const XMLNode& XML)
       D_throw() << "No steppings defined for stepped potential " 
 		<< intName;
     
-    std::sort(steps.begin(), steps.end());
+    std::sort(steps.rbegin(), steps.rend());
 
     CIMultiCapture::loadCaptureMap(XML);   
   }
@@ -132,19 +132,15 @@ CIStepped::captureTest(const CParticle& p1, const CParticle& p2) const
 Iflt 
 CIStepped::getInternalEnergy() const 
 { 
-  D_throw() << "Not implemented yet";
-
-  /* Once the capture maps are loaded just iterate through that determining energies
+  //Once the capture maps are loaded just iterate through that determining energies
   Iflt Energy = 0.0;
+
   typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
 
-
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    Energy += alphabet
-    [sequence[IDs.first % sequence.size()]]
-    [sequence[IDs.second % sequence.size()]];
+    Energy += steps[IDs.second - 1].second;
   
-  return -Energy; */
+  return Energy; 
 }
 
 CIntEvent
@@ -215,8 +211,8 @@ CIStepped::getEvent(const CParticle &p1,
 
 void
 CIStepped::runEvent(const CParticle& p1, 
-		       const CParticle& p2,
-		       const CIntEvent& iEvent) const
+		    const CParticle& p2,
+		    const CIntEvent& iEvent) const
 {
 }
 
@@ -268,7 +264,7 @@ CIStepped::outputXML(xmlw::XmlStream& XML) const
     XML << xmlw::tag("Step")
 	<< xmlw::attr("R") 
 	<< s.first / Sim->Dynamics.units().unitLength()
-	<< xmlw::attr("delE")
+	<< xmlw::attr("E")
 	<< s.second / Sim->Dynamics.units().unitEnergy()
 	<< xmlw::endtag("Step");
   
