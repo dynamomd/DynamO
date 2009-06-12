@@ -20,7 +20,7 @@
 
 #include "captures.hpp"
 
-class CISoftCore: public CICapture
+class CISoftCore: public CISingleCapture
 {
 public:
   CISoftCore(DYNAMO::SimData*, Iflt, Iflt, C2Range*);

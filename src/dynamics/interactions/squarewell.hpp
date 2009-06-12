@@ -20,7 +20,7 @@
 
 #include "captures.hpp"
 
-class CISquareWell: public CICapture
+class CISquareWell: public CISingleCapture
 {
 public:
   CISquareWell(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, C2Range*);

@@ -35,12 +35,12 @@
 
 CILines::CILines(DYNAMO::SimData* tmp, Iflt nd, 
 		 Iflt ne, C2Range* nR):
-  CICapture(tmp, nR),
+  CISingleCapture(tmp, nR),
   length(nd), l2(nd*nd), e(ne) 
 {}
 
 CILines::CILines(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CICapture(tmp, NULL)
+  CISingleCapture(tmp, NULL)
 {
   operator<<(XML);
 }
@@ -54,7 +54,7 @@ CILines::initialise(size_t nID)
   
   ID = nID; 
   
-  CICapture::initCaptureMap();
+  CISingleCapture::initCaptureMap();
 }
 
 void 
@@ -76,7 +76,7 @@ CILines::operator<<(const XMLNode& XML)
       
       intName = XML.getAttribute("Name");
       
-      CICapture::loadCaptureMap(XML);   
+      CISingleCapture::loadCaptureMap(XML);   
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -204,7 +204,7 @@ CILines::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
 
-  CICapture::outputCaptureMap(XML);
+  CISingleCapture::outputCaptureMap(XML);
 }
 
 bool 

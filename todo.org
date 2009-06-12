@@ -35,10 +35,14 @@
    - [-] Stop the use of pointers in output sims for the benefit of Replexing
     - [X] Add id numbers to every interaction
     - [-] Change the output plugins to use the id numbers and get rid of RTTI
-** TODO Stepped potentials
+** Code Improvements
+*** Fix the whole shearing problem
+  - [ ] Mark the output plugins that cannot be used in the
+    co-ordinate transform
+*** DONE Implement Parallel Hard Cubes
+    CLOSED: [2009-06-10 Wed 07:58]
+    
+*** TODO Stepped potentials
     - [ ] Make a generalised interface for captures, remove the hashed set to another class
     - [ ] Implement a multistep hash bins
     - [ ] Implement a stepped interaction potential
-** Code Improvements
-*** DONE Implement Parallel Hard Cubes
-    CLOSED: [2009-06-10 Wed 07:58]

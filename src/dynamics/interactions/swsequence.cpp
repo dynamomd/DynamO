@@ -37,7 +37,7 @@
 
 CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
 			   Iflt ne, std::vector<size_t> seq, C2Range* nR):
-  CICapture(tmp,nR),
+  CISingleCapture(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl),e(ne), sequence(seq) 
 {
   std::set<size_t> letters;
@@ -54,7 +54,7 @@ CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
 }
 
 CISWSequence::CISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CICapture(tmp, NULL) //A temporary value!
+  CISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -98,7 +98,7 @@ CISWSequence::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::endtag("Alphabet");
 
   
-  CICapture::outputCaptureMap(XML);  
+  CISingleCapture::outputCaptureMap(XML);  
 }
 
 void 
@@ -123,7 +123,7 @@ CISWSequence::operator<<(const XMLNode& XML)
     
     intName = XML.getAttribute("Name");
 
-    CICapture::loadCaptureMap(XML);
+    CISingleCapture::loadCaptureMap(XML);
   
     //Load the sequence
     XMLNode subNode = XML.getChildNode("Sequence");
@@ -220,7 +220,7 @@ void
 CISWSequence::initialise(size_t nID)
 {
   ID = nID;
-  CICapture::initCaptureMap();
+  CISingleCapture::initCaptureMap();
 }
 
 bool 

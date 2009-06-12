@@ -24,21 +24,19 @@
 #include "../../extcode/xmlParser.h"
 
 CICapture::CICapture(DYNAMO::SimData* tmp,C2Range* nR): 
-  CInteraction(tmp,nR),
-  noXmlLoad(true)
+  CInteraction(tmp,nR)
 {}
 
 void 
-CICapture::initCaptureMap()
+CISingleCapture::initCaptureMap()
 {
   //If not loaded or invalidated
   if (noXmlLoad)
     {      
-	I_cout() << "Capture map reinitialising";
+      I_cout() << "Capture map reinitialising";
       
       captureMap.clear();
       
-      //Presume that the capture map was not loaded as its empty
       for (std::vector<CParticle>::const_iterator iPtr 
 	     = Sim->vParticleList.begin();
 	   iPtr != Sim->vParticleList.end(); iPtr++) 
@@ -51,7 +49,7 @@ CICapture::initCaptureMap()
 }
 
 void 
-CICapture::loadCaptureMap(const XMLNode& XML)
+CISingleCapture::loadCaptureMap(const XMLNode& XML)
 {
   if (XML.nChildNode("CaptureMap"))
     {
@@ -84,7 +82,7 @@ CICapture::loadCaptureMap(const XMLNode& XML)
 }
 
 void 
-CICapture::outputCaptureMap(xmlw::XmlStream& XML) const 
+CISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
 {
   XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
 
@@ -101,7 +99,7 @@ CICapture::outputCaptureMap(xmlw::XmlStream& XML) const
 
 
 bool 
-CICapture::isCaptured(const CParticle& p1, const CParticle& p2) const
+CISingleCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
@@ -114,7 +112,7 @@ CICapture::isCaptured(const CParticle& p1, const CParticle& p2) const
 }
 
 void
-CICapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
+CISingleCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
@@ -138,7 +136,7 @@ CICapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 }
 
 void 
-CICapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
+CISingleCapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())

@@ -21,7 +21,7 @@
 #include "captures.hpp"
 #include <vector>
 
-class CISWSequence: public CICapture
+class CISWSequence: public CISingleCapture
 {
 public:
   CISWSequence(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::vector<size_t>, C2Range*);

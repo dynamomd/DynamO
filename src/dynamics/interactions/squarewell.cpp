@@ -38,13 +38,13 @@
 CISquareWell::CISquareWell(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, 
 			   Iflt nWD, 
 			   Iflt ne, C2Range* nR):
-  CICapture(tmp,nR),
+  CISingleCapture(tmp,nR),
   diameter(nd), d2(nd*nd), lambda(nl), 
   ld2(nd*nd*nl*nl), wellDepth(nWD),
   e(ne) {}
 
 CISquareWell::CISquareWell(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CICapture(tmp, NULL) //A temporary value!
+  CISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -74,7 +74,7 @@ CISquareWell::operator<<(const XMLNode& XML)
     
     intName = XML.getAttribute("Name");
 
-    CICapture::loadCaptureMap(XML);   
+    CISingleCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -108,7 +108,7 @@ void
 CISquareWell::initialise(size_t nID)
 {
   ID = nID;
-  CICapture::initCaptureMap();
+  CISingleCapture::initCaptureMap();
 }
 
 bool 
@@ -293,7 +293,7 @@ CISquareWell::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
   
-  CICapture::outputCaptureMap(XML);  
+  CISingleCapture::outputCaptureMap(XML);  
 }
 
 void 

@@ -38,12 +38,12 @@
 
 CISoftCore::CISoftCore(DYNAMO::SimData* tmp, Iflt nd, Iflt nWD, 
 		       C2Range* nR):
-  CICapture(tmp,nR),
+  CISingleCapture(tmp,nR),
   diameter(nd),d2(nd*nd),wellDepth(nWD) 
 {}
 
 CISoftCore::CISoftCore(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CICapture(tmp,NULL) //A temporary value!
+  CISingleCapture(tmp,NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -67,7 +67,7 @@ CISoftCore::operator<<(const XMLNode& XML)
     
     intName = XML.getAttribute("Name");
 
-    CICapture::loadCaptureMap(XML);   
+    CISingleCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)
     { D_throw() << "Failed a lexical cast in CISoftCore"; }
@@ -96,7 +96,7 @@ void
 CISoftCore::initialise(size_t nID)
 {
   ID = nID;
-  CICapture::initCaptureMap();
+  CISingleCapture::initCaptureMap();
 }
 
 bool 
@@ -233,5 +233,5 @@ CISoftCore::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
   
-  CICapture::outputCaptureMap(XML);  
+  CISingleCapture::outputCaptureMap(XML);  
 }

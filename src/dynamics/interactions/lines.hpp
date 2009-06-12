@@ -20,7 +20,7 @@
 
 #include "captures.hpp"
 
-class CILines: public CICapture
+class CILines: public CISingleCapture
 {
 public:
   CILines(DYNAMO::SimData*, Iflt, Iflt, C2Range*);

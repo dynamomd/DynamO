@@ -33,20 +33,35 @@ class CICapture: public CInteraction
 public:
   CICapture(DYNAMO::SimData*, C2Range*);
 
-  inline size_t getTotalCaptureCount() const
-  { return captureMap.size(); }
+  virtual size_t getTotalCaptureCount() const = 0;
   
-  bool isCaptured(const CParticle&, const CParticle&) const;
+  virtual bool isCaptured(const CParticle&, const CParticle&) const = 0;
 
   virtual Iflt getInternalEnergy() const = 0;
   
 protected:
 
+  virtual bool captureTest(const CParticle&, const CParticle&) const = 0;
+};
+
+
+class CISingleCapture: public CICapture
+{
+public:
+  CISingleCapture(DYNAMO::SimData* Sim, C2Range* r):
+    CICapture(Sim,r),
+    noXmlLoad(true)
+  {}
+
+  size_t getTotalCaptureCount() const { return captureMap.size(); }
+  
+  virtual bool isCaptured(const CParticle&, const CParticle&) const;
+
+protected:
+
   mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
 
   bool noXmlLoad;
-
-  virtual bool captureTest(const CParticle&, const CParticle&) const = 0;
 
   void initCaptureMap();
 
