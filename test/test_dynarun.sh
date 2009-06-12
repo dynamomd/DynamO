@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Dynarun="../bin/dynarun"
-Dynarun_MT="../bin/dynarun_mt"
 Dynamod="../bin/dynamod"
 #Next is the name of XML starlet
 Xml="xml"
@@ -25,12 +24,7 @@ if [ ! -x $Dynarun ]; then
     echo "Could not find dynarun, have you built it?"
 fi
 
-if [ ! -x $Dynarun_MT ]; then 
-    echo "Could not find dynarun_mt, have you built the threaded version?"
-fi
-
-
-if [ ! -x $Dynarun ]; then 
+if [ ! -x $Dynamod ]; then 
     echo "Could not find dynamod, have you built it?"
 fi
 
@@ -53,11 +47,11 @@ function HS_replex_test {
     done
 
     #Equilibration
-    time $Dynarun_MT --engine 2 $2 -c 10000000000 -i 10 -f 100 \
+    time $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 100 \
 	config.*.start.xml.bz2 > /dev/null
     
     #Production
-    time $Dynarun_MT --engine 2 $2 -c 10000000000 -i 10 -f 200 \
+    time $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 200 \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     if [ ! -e "output.0.xml.bz2" ]; then
