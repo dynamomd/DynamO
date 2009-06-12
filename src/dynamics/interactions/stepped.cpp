@@ -34,6 +34,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 #include <iomanip>
+#include <boost/math/special_functions/pow.hpp>
 
 CIStepped::CIStepped(DYNAMO::SimData* tmp, 
 		     const std::vector<steppair>& vec, C2Range* nR):
@@ -161,50 +162,35 @@ CIStepped::getEvent(const CParticle &p1,
 
   CPDData colldat(*Sim, p1, p2);
   
-//  if (isCaptured(p1, p2)) 
-//    {
-//      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, d2)) 
-//	{
-//#ifdef DYNAMO_OverlapTesting
-//	  //Check that there is no overlap 
-//	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
-//	    D_throw() << "Overlapping particles found" 
-//		      << ", particle1 " << p1.getID() 
-//		      << ", particle2 " 
-//		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
-//#endif
-//	  
-//	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
-//	}
-//      else
-//	if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, ld2))
-//	  {  
-//	    return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
-//	  }
-//    }
-//  else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, ld2)) 
-//    {
-//#ifdef DYNAMO_OverlapTesting
-//      if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,ld2))
-//	{
-//	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
-//	    D_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
-//		      << "\nparticle1 " << p1.getID() << ", particle2 " 
-//		      << p2.getID() << "\nOverlap = " 
-//		      << (sqrt(colldat.r2) - sqrt(d2)) 
-//	      / Sim->Dynamics.units().unitLength();
-//	  else
-//	    D_throw() << "Overlapping wells (but not registerd as captured) particles found" 
-//		      << "\nparticle1 " << p1.getID() << ", particle2 " 
-//		      << p2.getID() << "\nOverlap = " 
-//		      << (sqrt(colldat.r2) - sqrt(ld2)) 
-//	      / Sim->Dynamics.units().unitLength();
-//	  
-//	}
-//#endif
-//
-//      return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
-//    }
+  typedef std::unordered_map<std::pair<size_t, size_t>, int>::const_iterator locit;
+
+  locit capstat 
+    = captureMap.find(std::pair<size_t, size_t>(p1.getID(), p2.getID()));
+
+  if (capstat == captureMap.end())
+    {
+      //Not captured, test for capture
+      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot
+	  (colldat, boost::math::pow<2>(steps.front().first)))
+	{
+#ifdef DYNAMO_OverlapTesting
+	  //Check that there is no overlap 
+	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
+	    D_throw() << "Overlapping particles found" 
+		      << ", particle1 " << p1.getID() 
+		      << ", particle2 " 
+		      << p2.getID() << "\nOverlap = " 
+		      << (sqrt(colldat.r2) - sqrt(boost::pow<2>(steps.front().first)))
+	      /Sim->Dynamics.units().unitLength();
+#endif
+	  
+	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+	}
+    }
+  else
+    {
+      //Within the potential, look for further capture or release
+    }
 
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
