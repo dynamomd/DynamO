@@ -108,6 +108,8 @@ protected:
   cmap_it getCMap_it(const CParticle&, const CParticle&) const;
 
   void addToCaptureMap(const CParticle&, const CParticle&) const;
+
+  void delFromCaptureMap(const CParticle&, const CParticle&) const;
 };
 
 #endif

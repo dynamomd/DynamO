@@ -205,7 +205,7 @@ CIStepped::getEvent(const CParticle &p1,
 	  
 	  return CIntEvent(p1, p2, colldat.dt, 
 			   (capstat->second == static_cast<int>(steps.size())) 
-			   ? CORE : WELL_OUT , *this);
+			   ? CORE : WELL_IN , *this);
 	}
       else if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
 	       (colldat, boost::math::pow<2>(steps[capstat->second-1].first)))
@@ -246,6 +246,23 @@ CIStepped::runEvent(const CParticle& p1,
 	
 	if (retVal.getType() != BOUNCE)
 	  addToCaptureMap(p1,p2);
+	  
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	Sim->signalParticleUpdate(retVal);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+
+	break;
+      }
+    case RELEASE:
+      {
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+			      .SphereWellEvent(iEvent, steps.front().second, 
+					       boost::math::pow<2>(steps.front().first)));
+	
+	if (retVal.getType() != BOUNCE)
+	  delFromCaptureMap(p1,p2);
 	  
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	Sim->signalParticleUpdate(retVal);
