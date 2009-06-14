@@ -204,7 +204,7 @@ CIStepped::getEvent(const CParticle &p1,
 #endif
 	  
 	  return CIntEvent(p1, p2, colldat.dt, 
-			   (capstat->second == static_cast<int>(steps.size())) 
+			   (capstat->second + 1 == static_cast<int>(steps.size())) 
 			   ? CORE : WELL_IN , *this);
 	}
       else if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
