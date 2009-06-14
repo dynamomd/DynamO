@@ -146,7 +146,7 @@ CIStepped::getInternalEnergy() const
 
 CIntEvent
 CIStepped::getEvent(const CParticle &p1, 
-		       const CParticle &p2) const 
+		    const CParticle &p2) const 
 {
   
 #ifdef DYNAMO_DEBUG
@@ -182,22 +182,25 @@ CIStepped::getEvent(const CParticle &p1,
 	      /Sim->Dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	  return CIntEvent(p1, p2, colldat.dt, CAPTURE, *this);
 	}
     }
   else
     {
       //Within the potential, look for further capture or release
-      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, steps[capstat->second].first))
+      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot
+	  (colldat, boost::math::pow<2>(steps[capstat->second].first)))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, steps[capstat->second].first))
+	  if (Sim->Dynamics.Liouvillean().sphereOverlap
+	      (colldat, boost::math::pow<2>(steps[capstat->second].first)))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " 
-		      << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
+		      << (sqrt(colldat.r2) - steps[capstat->second].first)
+	      /Sim->Dynamics.units().unitLength();
 #endif
 	  
 	  return CIntEvent(p1, p2, colldat.dt, 
@@ -205,7 +208,7 @@ CIStepped::getEvent(const CParticle &p1,
 			   ? CORE : WELL_OUT , *this);
 	}
       else if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
-	       (colldat, steps[capstat->second-1].first))
+	       (colldat, boost::math::pow<2>(steps[capstat->second-1].first)))
 	return CIntEvent(p1, p2, colldat.dt, 
 			 (capstat->second == 1) ? RELEASE : WELL_OUT, *this);
     }
@@ -287,7 +290,7 @@ CIStepped::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 void 
 CIStepped::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SquareWell"
+  XML << xmlw::attr("Type") << "Stepped"
       << xmlw::attr("Name") << intName
       << range;
 
