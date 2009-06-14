@@ -162,6 +162,8 @@ CIPPacker::initialise()
         "       --f2 : Rod Length [1.0]\n"
 	"  15: Monocomponent hard-parallel cubes\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"  16: Stepped Potential approximating a Lennard Jones Fluid\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	;
 
       std::cout << "\n";
@@ -1476,6 +1478,83 @@ CIPPacker::initialise()
 		  = -Sim->Dynamics.units().unitVelocity();
 	      }
 	}
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 16:
+      {
+	//Pack of Lennard Jones stepped molecules
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
+
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+        Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() 
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
+		
+	//Set up a standard simulation
+	//Just a square well system
+	//old scheduler
+	//Sim->ptrScheduler = new CSMultList(Sim);
+
+	//New scheduler and global
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+	
+	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
+	
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
+	typedef std::pair<Iflt,Iflt> locpair;
+	std::vector<locpair> diamvec;
+	diamvec.push_back(std::pair<Iflt,Iflt>(2.30,-0.06));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.75,-0.22));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.45,-0.55));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.25,-0.98));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.05,-0.47));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1,-0.76));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.95,3.81));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.90,10.95));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.85,27.55));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.8,66.74));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.75,0));
+
+	BOOST_FOREACH(locpair& p, diamvec)
+	  {
+	    p.first *= Sim->Dynamics.units().unitLength();
+	    p.second *= Sim->Dynamics.units().unitEnergy();
+	  }
+
+	Sim->Dynamics.addInteraction(new CIStepped(Sim,
+						   diamvec,
+						   new C2RAll()
+						   ))->setName("Bulk");
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
+	unsigned long nParticles = 0;
+
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+						 nParticles++));
+
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
