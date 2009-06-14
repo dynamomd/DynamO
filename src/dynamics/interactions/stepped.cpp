@@ -162,10 +162,7 @@ CIStepped::getEvent(const CParticle &p1,
 
   CPDData colldat(*Sim, p1, p2);
   
-  typedef std::unordered_map<std::pair<size_t, size_t>, int>::const_iterator locit;
-
-  locit capstat 
-    = captureMap.find(std::pair<size_t, size_t>(p1.getID(), p2.getID()));
+  const_cmap_it capstat = getCMap_it(p1,p2);
 
   if (capstat == captureMap.end())
     {
@@ -175,21 +172,42 @@ CIStepped::getEvent(const CParticle &p1,
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
+	  if (Sim->Dynamics.Liouvillean().sphereOverlap
+	      (colldat, boost::math::pow<2>(steps.front().first)))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " 
-		      << (sqrt(colldat.r2) - sqrt(boost::pow<2>(steps.front().first)))
+		      << (sqrt(colldat.r2) - steps.front().first)
 	      /Sim->Dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+	  return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
 	}
     }
   else
     {
       //Within the potential, look for further capture or release
+      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, steps[capstat->second].first))
+	{
+#ifdef DYNAMO_OverlapTesting
+	  //Check that there is no overlap 
+	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, steps[capstat->second].first))
+	    D_throw() << "Overlapping particles found" 
+		      << ", particle1 " << p1.getID() 
+		      << ", particle2 " 
+		      << p2.getID() << "\nOverlap = " 
+		      << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
+#endif
+	  
+	  return CIntEvent(p1, p2, colldat.dt, 
+			   (capstat->second == static_cast<int>(steps.size())) 
+			   ? CORE : WELL_OUT , *this);
+	}
+      else if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
+	       (colldat, steps[capstat->second-1].first))
+	return CIntEvent(p1, p2, colldat.dt, 
+			 (capstat->second == 1) ? RELEASE : WELL_OUT, *this);
     }
 
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -200,43 +218,70 @@ CIStepped::runEvent(const CParticle& p1,
 		    const CParticle& p2,
 		    const CIntEvent& iEvent) const
 {
+  ++Sim->lNColl;
+
+  switch (iEvent.getType())
+    {
+    case CORE:
+      {
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl
+			      (iEvent, 1.0, boost::math::pow<2>(steps.back().first), CORE));
+	Sim->signalParticleUpdate(retVal);
+	
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+
+	break;
+      }
+    case CAPTURE:
+      {
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+			      .SphereWellEvent(iEvent, -steps.front().second, 
+					       boost::math::pow<2>(steps.front().first)));
+	
+	if (retVal.getType() != BOUNCE)
+	  addToCaptureMap(p1,p2);
+	  
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	Sim->signalParticleUpdate(retVal);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+
+	break;
+      }
+//    case WELL_OUT:
+//      {
+//	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+//			      .SphereWellEvent(iEvent, -wellDepth, ld2));
+//	
+//	if (retVal.getType() != BOUNCE)
+//	  removeFromCaptureMap(p1, p2);      
+//
+//	Sim->signalParticleUpdate(retVal);
+//
+//	Sim->ptrScheduler->fullUpdate(p1, p2);
+//	
+//	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+//	  Ptr->eventUpdate(iEvent, retVal);
+//	break;
+//      }
+    default:
+      D_throw() << "Unknown collision type";
+    } 
 }
 
 void
 CIStepped::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
-  /*
-  Vector  rij = part1.getPosition() - part2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
-  Iflt r2 = rij.nrm2();
+  const_cmap_it capstat = getCMap_it(part1,part2);
 
-  if (isCaptured(part1, part2))
-    {
-      if (r2 < d2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible captured overlap occured in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->Dynamics.units().unitLength(),2)
-		 << "\nd^2=" 
-		 << d2 / pow(Sim->Dynamics.units().unitLength(),2);
-
-      if (r2 > lambda * lambda * d2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->Dynamics.units().unitLength(),2)
-		 << "\n(lambda * d)^2=" 
-		 << ld2 / pow(Sim->Dynamics.units().unitLength(),2);
-    }
-  else 
-    if (r2 < ld2)
-      I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-	       << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
-	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	       << r2 / pow(Sim->Dynamics.units().unitLength(),2)
-	       << "\n(lambda * d)^2=" 
-	       << ld2 / pow(Sim->Dynamics.units().unitLength(),2);
-  */
+  if (captureTest(part1,part2) != capstat->second)
+    I_cerr() << "Particle " << part1.getID() << " and Particle " << part2.getID()
+	     << "\nFailing as captureTest gives " << captureTest(part1,part2)
+	     << "\nAnd recorded value is " << capstat->second;
 }
   
 void 

@@ -253,3 +253,26 @@ CIMultiCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
     ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
     : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
 }
+
+CIMultiCapture::cmap_it 
+CIMultiCapture::getCMap_it(const CParticle& p1, const CParticle& p2) const
+{
+  return (p1.getID() < p2.getID())
+    ? captureMap.find(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+    : captureMap.find(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
+}
+
+void 
+CIMultiCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
+{
+  std::pair<size_t, size_t> key = (p1.getID() < p2.getID()) 
+    ? std::pair<size_t, size_t>(p1.getID(), p2.getID())
+    : std::pair<size_t, size_t>(p2.getID(), p1.getID());
+  
+#ifdef DYNAMO_DEBUG
+  if (captureMap.find(key) != captureMap.end())
+    D_throw() << "Adding a particle while its already added!";
+#endif
+
+  captureMap[key] = 1;
+}

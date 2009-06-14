@@ -90,6 +90,8 @@ public:
   virtual bool isCaptured(const CParticle&, const CParticle&) const;
 
 protected:
+  typedef std::unordered_map<std::pair<size_t, size_t>, int>::iterator cmap_it;
+  typedef std::unordered_map<std::pair<size_t, size_t>, int>::const_iterator const_cmap_it;
 
   mutable std::unordered_map<std::pair<size_t, size_t>, int> captureMap;
 
@@ -102,6 +104,10 @@ protected:
   void loadCaptureMap(const XMLNode&);
 
   void outputCaptureMap(xmlw::XmlStream&) const;
+
+  cmap_it getCMap_it(const CParticle&, const CParticle&) const;
+
+  void addToCaptureMap(const CParticle&, const CParticle&) const;
 };
 
 #endif
