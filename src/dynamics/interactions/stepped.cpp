@@ -277,8 +277,8 @@ CIStepped::runEvent(const CParticle& p1,
 	cmap_it capstat = getCMap_it(p1,p2);
 	
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
-			      (iEvent, -(steps[capstat->second- 1].second 
-					 - steps[capstat->second - 2].second), 
+			      (iEvent, -(steps[capstat->second - 2].second 
+					 - steps[capstat->second - 1].second), 
 			       boost::math::pow<2>(steps[capstat->second -1].first)));
 	
 	if (retVal.getType() != BOUNCE)
