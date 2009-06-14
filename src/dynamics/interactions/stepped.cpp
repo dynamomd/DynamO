@@ -255,22 +255,46 @@ CIStepped::runEvent(const CParticle& p1,
 
 	break;
       }
-//    case WELL_OUT:
-//      {
-//	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
-//			      .SphereWellEvent(iEvent, -wellDepth, ld2));
-//	
-//	if (retVal.getType() != BOUNCE)
-//	  removeFromCaptureMap(p1, p2);      
-//
-//	Sim->signalParticleUpdate(retVal);
-//
-//	Sim->ptrScheduler->fullUpdate(p1, p2);
-//	
-//	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-//	  Ptr->eventUpdate(iEvent, retVal);
-//	break;
-//      }
+    case WELL_OUT:
+      {
+	cmap_it capstat = getCMap_it(p1,p2);
+	
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
+			      (iEvent, -(steps[capstat->second- 1].second 
+					 - steps[capstat->second - 2].second), 
+			       boost::math::pow<2>(steps[capstat->second -1].first)));
+	
+	if (retVal.getType() != BOUNCE)
+	  --(capstat->second);
+
+	Sim->signalParticleUpdate(retVal);
+
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+	break;
+      }
+    case WELL_IN:
+      {
+	cmap_it capstat = getCMap_it(p1,p2);
+	
+	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
+			      (iEvent, -(steps[capstat->second].second 
+					 - steps[capstat->second - 1].second), 
+			       boost::math::pow<2>(steps[capstat->second].first)));
+	
+	if (retVal.getType() != BOUNCE)
+	  ++(capstat->second);
+
+	Sim->signalParticleUpdate(retVal);
+
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+	break;
+      }
     default:
       D_throw() << "Unknown collision type";
     } 
