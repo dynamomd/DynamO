@@ -673,10 +673,10 @@ CLNOrientation::getParticleDOF() const { return NDIM+2; }
 Iflt
 CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
 {
-  return 0.5 * Sim->Dynamics.getSpecies(part).getMass()
-    *(part.getVelocity().nrm2()
-      + orientationData[part.getID()].angularVelocity.nrm2()
-      * Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia());
+  return 0.5 * ((Sim->Dynamics.getSpecies(part).getMass()
+    * part.getVelocity().nrm2())
+      + (orientationData[part.getID()].angularVelocity.nrm2()
+      * Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia()));
 }
  
 void 
