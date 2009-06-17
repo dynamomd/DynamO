@@ -28,18 +28,19 @@
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
 
-CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name):
+CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name, 
+		 const size_t& overlink):
   CGNeighbourList(nSim, "GlobalCellularEvent2"),
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
   NCells(0),
-  overlink(1),
+  overlink(overlink),
   interaction(""),
   MaxIntDist(0.0)
 {
   globName = name;
-  I_cout() << "Cells Loaded";
+  I_cout() << "Cells Loaded, Overlinking set to " << overlink;
 }
 
 CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):

@@ -164,6 +164,7 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  16: Stepped Potential approximating a Lennard Jones Fluid\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
 	;
 
       std::cout << "\n";
@@ -1514,8 +1515,16 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
-	
+
+	{
+	  size_t overlink = 1;
+	  if (vm.count("i2"))
+	    overlink = vm["i2"].as<size_t>();
+	  
+	  Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList", 
+					      overlink));
+	}
+
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));

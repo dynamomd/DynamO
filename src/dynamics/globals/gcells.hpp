@@ -29,7 +29,7 @@ class CGCells: public CGNeighbourList
 public:
   CGCells(const XMLNode&, DYNAMO::SimData*);
 
-  CGCells(DYNAMO::SimData*, const std::string&);
+  CGCells(DYNAMO::SimData*, const std::string&, const size_t& overlink = 1);
 
   virtual ~CGCells() {}
 
