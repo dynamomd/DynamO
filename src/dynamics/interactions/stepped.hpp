@@ -60,6 +60,8 @@ public:
 
 protected:
   std::vector<steppair> steps;
+
+  std::vector<steppair> runstepdata;
 };
 
 #endif

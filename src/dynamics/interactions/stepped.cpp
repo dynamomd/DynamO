@@ -114,6 +114,12 @@ CIStepped::initialise(size_t nID)
 {
   ID = nID;
   CIMultiCapture::initCaptureMap();
+  
+  runstepdata = steps;
+
+  //Make runstepdata hold r^2 and E_i - E_{i-1}
+  BOOST_FOREACH(steppair& pdat, runstepdata)
+    pdat.first *= pdat.first;
 }
 
 int 
@@ -168,12 +174,12 @@ CIStepped::getEvent(const CParticle &p1,
     {
       //Not captured, test for capture
       if (Sim->Dynamics.Liouvillean().SphereSphereInRoot
-	  (colldat, boost::math::pow<2>(steps.front().first)))
+	  (colldat, runstepdata.front().first))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->Dynamics.Liouvillean().sphereOverlap
-	      (colldat, boost::math::pow<2>(steps.front().first)))
+	      (colldat, runstepdata.front().first))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
@@ -182,19 +188,19 @@ CIStepped::getEvent(const CParticle &p1,
 	      /Sim->Dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, CAPTURE, *this);
+	  return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
 	}
     }
   else
     {
       //Within the potential, look for further capture or release
       if (Sim->Dynamics.Liouvillean().SphereSphereInRoot
-	  (colldat, boost::math::pow<2>(steps[capstat->second].first)))
+	  (colldat, runstepdata[capstat->second].first))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->Dynamics.Liouvillean().sphereOverlap
-	      (colldat, boost::math::pow<2>(steps[capstat->second].first)))
+	      (colldat, runstepdata[capstat->second].first))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
@@ -203,14 +209,11 @@ CIStepped::getEvent(const CParticle &p1,
 	      /Sim->Dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, 
-			   (capstat->second + 1 == static_cast<int>(steps.size())) 
-			   ? CORE : WELL_IN , *this);
+	  return CIntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	}
       else if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
-	       (colldat, boost::math::pow<2>(steps[capstat->second-1].first)))
-	return CIntEvent(p1, p2, colldat.dt, 
-			 (capstat->second == 1) ? RELEASE : WELL_OUT, *this);
+	       (colldat, runstepdata[capstat->second-1].first))
+	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
 
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -228,7 +231,7 @@ CIStepped::runEvent(const CParticle& p1,
     case CORE:
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl
-			      (iEvent, 1.0, boost::math::pow<2>(steps.back().first), CORE));
+			      (iEvent, 1.0, runstepdata.back().first, CORE));
 	Sim->signalParticleUpdate(retVal);
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
@@ -242,7 +245,7 @@ CIStepped::runEvent(const CParticle& p1,
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
 			      .SphereWellEvent(iEvent, -steps.front().second, 
-					       boost::math::pow<2>(steps.front().first)));
+					       runstepdata.front().first));
 	
 	if (retVal.getType() != BOUNCE)
 	  addToCaptureMap(p1,p2);
@@ -259,7 +262,7 @@ CIStepped::runEvent(const CParticle& p1,
       {
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
 			      .SphereWellEvent(iEvent, steps.front().second, 
-					       boost::math::pow<2>(steps.front().first)));
+					       runstepdata.front().first));
 	
 	if (retVal.getType() != BOUNCE)
 	  delFromCaptureMap(p1,p2);
@@ -279,7 +282,7 @@ CIStepped::runEvent(const CParticle& p1,
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
 			      (iEvent, -(steps[capstat->second - 2].second 
 					 - steps[capstat->second - 1].second), 
-			       boost::math::pow<2>(steps[capstat->second -1].first)));
+			       runstepdata[capstat->second -1].first));
 	
 	if (retVal.getType() != BOUNCE)
 	  --(capstat->second);
@@ -299,7 +302,7 @@ CIStepped::runEvent(const CParticle& p1,
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
 			      (iEvent, -(steps[capstat->second].second 
 					 - steps[capstat->second - 1].second), 
-			       boost::math::pow<2>(steps[capstat->second].first)));
+			       runstepdata[capstat->second].first));
 	
 	if (retVal.getType() != BOUNCE)
 	  ++(capstat->second);
