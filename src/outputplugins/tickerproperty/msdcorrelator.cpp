@@ -49,12 +49,15 @@ COPMSDCorrelator::operator<<(const XMLNode& XML)
     {
       D_throw() << "Failed a lexical cast in COPMSDCorrelator";
     }    
+
 }
 
 void 
 COPMSDCorrelator::initialise()
 {
-  posHistory.resize(Sim->lN, boost::circular_buffer<Vector  >(length));
+  I_cout() << "The length of the MSD correlator is " << length;
+
+  posHistory.resize(Sim->lN, boost::circular_buffer<Vector>(length));
 
   currCorrLength=1;
 
