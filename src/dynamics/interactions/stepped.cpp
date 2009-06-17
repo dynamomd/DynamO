@@ -120,6 +120,14 @@ CIStepped::initialise(size_t nID)
   //Make runstepdata hold r^2 and E_i - E_{i-1}
   BOOST_FOREACH(steppair& pdat, runstepdata)
     pdat.first *= pdat.first;
+
+  Iflt oldE(0.0);
+  BOOST_FOREACH(steppair& pdat, runstepdata)
+    {
+      Iflt tmp(pdat.second);
+      pdat.second -= oldE;
+      oldE = tmp;
+    }
 }
 
 int 
@@ -228,64 +236,18 @@ CIStepped::runEvent(const CParticle& p1,
 
   switch (iEvent.getType())
     {
-    case CORE:
-      {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl
-			      (iEvent, 1.0, runstepdata.back().first, CORE));
-	Sim->signalParticleUpdate(retVal);
-	
-	Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retVal);
-
-	break;
-      }
-    case CAPTURE:
-      {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
-			      .SphereWellEvent(iEvent, -steps.front().second, 
-					       runstepdata.front().first));
-	
-	if (retVal.getType() != BOUNCE)
-	  addToCaptureMap(p1,p2);
-	  
-	Sim->ptrScheduler->fullUpdate(p1, p2);
-	Sim->signalParticleUpdate(retVal);
-	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retVal);
-
-	break;
-      }
-    case RELEASE:
-      {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
-			      .SphereWellEvent(iEvent, steps.front().second, 
-					       runstepdata.front().first));
-	
-	if (retVal.getType() != BOUNCE)
-	  delFromCaptureMap(p1,p2);
-	  
-	Sim->ptrScheduler->fullUpdate(p1, p2);
-	Sim->signalParticleUpdate(retVal);
-	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retVal);
-
-	break;
-      }
     case WELL_OUT:
       {
 	cmap_it capstat = getCMap_it(p1,p2);
 	
 	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
-			      (iEvent, -(steps[capstat->second - 2].second 
-					 - steps[capstat->second - 1].second), 
+			      (iEvent, runstepdata[capstat->second-1].second, 
 			       runstepdata[capstat->second -1].first));
 	
 	if (retVal.getType() != BOUNCE)
-	  --(capstat->second);
+	  if (!(--capstat->second))
+	    //capstat is zero so delete
+	    captureMap.erase(capstat);
 
 	Sim->signalParticleUpdate(retVal);
 
@@ -297,22 +259,49 @@ CIStepped::runEvent(const CParticle& p1,
       }
     case WELL_IN:
       {
+	
 	cmap_it capstat = getCMap_it(p1,p2);
 	
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
-			      (iEvent, -(steps[capstat->second].second 
-					 - steps[capstat->second - 1].second), 
-			       runstepdata[capstat->second].first));
+	if (capstat == captureMap.end())
+	  capstat = captureMap.insert
+	    (captureMapType::value_type
+	     ((p1.getID() < p2.getID())
+	      ? cMapKey(p1.getID(), p2.getID())
+	      : cMapKey(p2.getID(), p1.getID()),
+	      0)).first;
 	
-	if (retVal.getType() != BOUNCE)
-	  ++(capstat->second);
-
-	Sim->signalParticleUpdate(retVal);
-
-	Sim->ptrScheduler->fullUpdate(p1, p2);
+	if (capstat->second != static_cast<int>(runstepdata.size()))
+	  {
+	    C2ParticleData retVal = Sim->Dynamics.Liouvillean().SphereWellEvent
+	      (iEvent, -runstepdata[capstat->second].second,
+	       runstepdata[capstat->second].first);
+	    
+	    if (retVal.getType() != BOUNCE)
+	      ++(capstat->second);
+	    else if (!capstat->second)
+	      captureMap.erase(capstat);	    
+	    
+	    Sim->signalParticleUpdate(retVal);
+	    
+	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    
+	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	      Ptr->eventUpdate(iEvent, retVal);
+	    
+	  }
+	else
+	  {
+	    C2ParticleData retVal = Sim->Dynamics.Liouvillean().SmoothSpheresColl
+	      (iEvent, 1.0, runstepdata.back().first, CORE);
+	    
+	    Sim->signalParticleUpdate(retVal);
+	    
+	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    
+	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	      Ptr->eventUpdate(iEvent, retVal);
+	  }
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-	  Ptr->eventUpdate(iEvent, retVal);
 	break;
       }
     default:

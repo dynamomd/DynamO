@@ -34,10 +34,6 @@ typedef enum {
   WELL_OUT    , /*!< Well Event, while spheres are heading away from
 		  each other could be BOUNCE WELL_KEUP or
 		  WELL_KEDOWN. */
-  CAPTURE     , /*!< Stepped potential event when the particle enters
-                  the cutoff radius. */
-  RELEASE     , /*!< Stepped potential event when the particle exits
-                  the cutoff radius. */
   WELL_KEUP   , /*!< Well event where Kinetic Energy increases. */
   WELL_KEDOWN , /*!< Well event where Kinetic Energy decreases. */
   BOUNCE      , /*!< Well event where the particles failed to change

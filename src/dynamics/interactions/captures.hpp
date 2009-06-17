@@ -90,10 +90,12 @@ public:
   virtual bool isCaptured(const CParticle&, const CParticle&) const;
 
 protected:
-  typedef std::unordered_map<std::pair<size_t, size_t>, int>::iterator cmap_it;
-  typedef std::unordered_map<std::pair<size_t, size_t>, int>::const_iterator const_cmap_it;
+  typedef std::pair<size_t, size_t> cMapKey;
+  typedef std::unordered_map<cMapKey, int> captureMapType;
+  typedef captureMapType::iterator cmap_it;
+  typedef captureMapType::const_iterator const_cmap_it;
 
-  mutable std::unordered_map<std::pair<size_t, size_t>, int> captureMap;
+  mutable captureMapType captureMap;
 
   virtual int captureTest(const CParticle&, const CParticle&) const = 0;
 
