@@ -23,6 +23,7 @@
 #include <vector>
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
+#include "../../simulation/particle.hpp"
 
 //Expose the boost TR1
 namespace std {
@@ -55,7 +56,17 @@ public:
 
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-  virtual bool isCaptured(const CParticle&, const CParticle&) const;
+  virtual bool isCaptured(const CParticle& p1, const CParticle& p2) const
+  {
+#ifdef DYNAMO_DEBUG
+    if (p1.getID() == p2.getID())
+      D_throw() << "Particle is testing if it captured itself";
+#endif 
+    
+    return (p1.getID() < p2.getID())
+      ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+      : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
+  }
 
 protected:
 
@@ -107,7 +118,12 @@ protected:
 
   void outputCaptureMap(xmlw::XmlStream&) const;
 
-  cmap_it getCMap_it(const CParticle&, const CParticle&) const;
+  inline cmap_it getCMap_it(const CParticle& p1, const CParticle& p2) const
+  {
+    return (p1.getID() < p2.getID())
+      ? captureMap.find(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
+      : captureMap.find(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
+  }
 
   void addToCaptureMap(const CParticle&, const CParticle&) const;
 

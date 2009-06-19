@@ -147,7 +147,10 @@ COPMisc::output(xmlw::XmlStream &XML)
 
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
-	   << "\nAvg Coll/s " << collpersec;
+	   << "\nAvg Coll/s " << collpersec
+	   << "\nSim time per second " 
+	   << Sim->dSysTime / (Sim->Dynamics.units.unitTime() 
+			       * static_cast<Iflt>(tendTime - tstartTime));
    
   XML << xmlw::tag("Misc")
       << xmlw::tag("Density")

@@ -100,20 +100,6 @@ CISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const
   XML << xmlw::endtag("CaptureMap");
 }
 
-
-bool 
-CISingleCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
-{
-#ifdef DYNAMO_DEBUG
-  if (p1.getID() == p2.getID())
-    D_throw() << "Particle is testing if it captured itself";
-#endif 
-
-  return (p1.getID() < p2.getID())
-    ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-    : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
-}
-
 void
 CISingleCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 {
@@ -252,14 +238,6 @@ CIMultiCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
   return (p1.getID() < p2.getID())
     ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
     : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
-}
-
-CIMultiCapture::cmap_it 
-CIMultiCapture::getCMap_it(const CParticle& p1, const CParticle& p2) const
-{
-  return (p1.getID() < p2.getID())
-    ? captureMap.find(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-    : captureMap.find(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
 }
 
 void 
