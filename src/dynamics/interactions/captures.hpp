@@ -101,8 +101,33 @@ public:
   virtual bool isCaptured(const CParticle&, const CParticle&) const;
 
 protected:
-  typedef std::pair<size_t, size_t> cMapKey;
-  typedef std::unordered_map<cMapKey, int> captureMapType;
+  
+  //typedef std::pair<size_t, size_t> cMapKey;
+
+  
+  struct cMapKey: public std::pair<size_t,size_t>
+  {
+    inline cMapKey(const size_t&a, const size_t&b):
+      std::pair<size_t,size_t>(a,b) {}
+
+    inline bool operator==(const cMapKey& o) const
+    {
+      return (((first == o.first) && (second == o.second))
+	      || ((second == o.first) && (first == o.second)));
+    }
+  };
+  
+  //  typedef boost::hash<cMapKey> keyHash;
+  
+  struct keyHash
+  {
+    inline size_t operator()(const cMapKey& key) const
+    {
+      return key.first * key.second;
+    }
+  };
+  
+  typedef std::unordered_map<cMapKey, int, keyHash> captureMapType;
   typedef captureMapType::iterator cmap_it;
   typedef captureMapType::const_iterator const_cmap_it;
 
@@ -120,14 +145,27 @@ protected:
 
   inline cmap_it getCMap_it(const CParticle& p1, const CParticle& p2) const
   {
-    return (p1.getID() < p2.getID())
-      ? captureMap.find(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-      : captureMap.find(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
+    return captureMap.find(cMapKey(p1.getID(), p2.getID()));
   }
 
-  void addToCaptureMap(const CParticle&, const CParticle&) const;
+  inline void addToCaptureMap(const CParticle& p1, const CParticle& p2) const
+  {
+#ifdef DYNAMO_DEBUG
+    if (captureMap.find(cMapKey(p1.getID(), p2.getID())) != captureMap.end())
+      D_throw() << "Adding a particle while its already added!";
+#endif
+    
+    captureMap[cMapKey(p1.getID(), p2.getID())] = 1;
+  }
 
-  void delFromCaptureMap(const CParticle&, const CParticle&) const;
+  inline void delFromCaptureMap(const CParticle& p1, const CParticle& p2) const
+  {
+#ifdef DYNAMO_DEBUG
+    if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())
+      D_throw() << "Deleting a particle while its already gone!";
+#endif 
+    captureMap.erase(cMapKey(p1.getID(), p2.getID()));
+  }
 };
 
 #endif

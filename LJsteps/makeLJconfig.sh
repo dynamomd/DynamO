@@ -1,5 +1,5 @@
 #!/bin/bash
-../bin/dynamod -m 16 --i2 2 --i1 1 -d 0.14 -C 8 --text
+../bin/dynamod -m 16 --i2 2 --i1 1 -d 0.14 -C 8 -T 1 --text
 boxlength=$(bzcat config.out.xml.bz2 | xml sel -t -v '//Units/@BoxLength')
 
 

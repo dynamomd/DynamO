@@ -2,8 +2,8 @@
 constraints         =  none
 integrator          =  md
 tinit               =  0.0
-dt                  =  0.002	; ps !
-nsteps              =  5000; 10 ps.
+dt                  =  0.001	; ps !
+nsteps              =  100000; 100 time units
 nstcomm             =  1
 nstxout             =  3000000 ; save trajectory
 nstxtcout           =  3000000 ; save compact trajectory
@@ -22,7 +22,7 @@ rvdw                =  2.6 ;
 Tcoupl              =  Berendsen ; or Nose-Hoover
 tau_t               =  0.1 ; should be higher >1 
 tc-grps		    =  Ar
-ref_t               =  120.2717 ; 1 in reduced units
+ref_t               =  120.2717 ; 1 in reduced units = 120.2717
 ; Pressure coupling is not on
 Pcoupl              =  no
 pcoupltype          =  Isotropic

@@ -235,38 +235,5 @@ CIMultiCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
     D_throw() << "Particle is testing if it captured itself";
 #endif 
 
-  return (p1.getID() < p2.getID())
-    ? captureMap.count(cMapKey(p1.getID(), p2.getID()))
-    : captureMap.count(cMapKey(p2.getID(), p1.getID()));
-}
-
-void 
-CIMultiCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
-{
-  cMapKey key = (p1.getID() < p2.getID()) 
-    ? cMapKey(p1.getID(), p2.getID())
-    : cMapKey(p2.getID(), p1.getID());
-  
-#ifdef DYNAMO_DEBUG
-  if (captureMap.find(key) != captureMap.end())
-    D_throw() << "Adding a particle while its already added!";
-#endif
-
-  captureMap[key] = 1;
-}
-
-void 
-CIMultiCapture::delFromCaptureMap(const CParticle& p1, 
-				  const CParticle& p2) const
-{
-  cMapKey key = (p1.getID() < p2.getID()) 
-    ? cMapKey(p1.getID(), p2.getID())
-    : cMapKey(p2.getID(), p1.getID());
-  
-#ifdef DYNAMO_DEBUG
-  if (captureMap.find(key) == captureMap.end())
-    D_throw() << "Deleting a particle while its already gone!";
-#endif
-
-  captureMap.erase(key);
+  return captureMap.count(cMapKey(p1.getID(), p2.getID()));
 }
