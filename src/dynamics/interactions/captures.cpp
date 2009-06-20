@@ -169,7 +169,7 @@ CIMultiCapture::initCaptureMap()
 	    {
 	      int capval = captureTest(*iPtr,*iPtr2);
 	      if (captureTest(*iPtr,*iPtr2))
-		captureMap[std::pair<size_t,size_t>(iPtr->getID(), iPtr2->getID())] 
+		captureMap[cMapKey(iPtr->getID(), iPtr2->getID())] 
 		  = capval; 
 	    }
     }
@@ -201,7 +201,7 @@ CIMultiCapture::loadCaptureMap(const XMLNode& XML)
 	  browseNode = subNode.getChildNode("Pair",&xml_iter);
 	  
 	  captureMap
-	    [std::pair<size_t, size_t>
+	    [cMapKey
 	     (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
 	      boost::lexical_cast<size_t>(browseNode.getAttribute("ID2")))]
 	    = boost::lexical_cast<size_t>(browseNode.getAttribute("val"));
@@ -214,7 +214,7 @@ CIMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const
 {
   XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
 
-  typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
+  typedef std::pair<const cMapKey, int> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
     XML << xmlw::tag("Pair")
@@ -236,16 +236,16 @@ CIMultiCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
 #endif 
 
   return (p1.getID() < p2.getID())
-    ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-    : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
+    ? captureMap.count(cMapKey(p1.getID(), p2.getID()))
+    : captureMap.count(cMapKey(p2.getID(), p1.getID()));
 }
 
 void 
 CIMultiCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 {
-  std::pair<size_t, size_t> key = (p1.getID() < p2.getID()) 
-    ? std::pair<size_t, size_t>(p1.getID(), p2.getID())
-    : std::pair<size_t, size_t>(p2.getID(), p1.getID());
+  cMapKey key = (p1.getID() < p2.getID()) 
+    ? cMapKey(p1.getID(), p2.getID())
+    : cMapKey(p2.getID(), p1.getID());
   
 #ifdef DYNAMO_DEBUG
   if (captureMap.find(key) != captureMap.end())
@@ -259,9 +259,9 @@ void
 CIMultiCapture::delFromCaptureMap(const CParticle& p1, 
 				  const CParticle& p2) const
 {
-  std::pair<size_t, size_t> key = (p1.getID() < p2.getID()) 
-    ? std::pair<size_t, size_t>(p1.getID(), p2.getID())
-    : std::pair<size_t, size_t>(p2.getID(), p1.getID());
+  cMapKey key = (p1.getID() < p2.getID()) 
+    ? cMapKey(p1.getID(), p2.getID())
+    : cMapKey(p2.getID(), p1.getID());
   
 #ifdef DYNAMO_DEBUG
   if (captureMap.find(key) == captureMap.end())
