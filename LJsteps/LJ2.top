@@ -1,0 +1,31 @@
+; Topology file
+
+
+[ defaults ]
+; nbfunc       compination rule        generate pairs       
+     1             1                      no
+[ atomtypes ]
+; name		mass	  charge    ptype        c6                c12
+   Ar              1      0.000       A           4                 4
+
+
+
+
+
+[ nonbond_params ]
+;  i   j    funct      
+   Ar  Ar      1    4        4     
+ 
+
+
+; The force field files to be included
+#include "argon.itp"
+
+
+[ system ]
+Ar
+
+[ molecules ]
+;molecule name	nr.
+Ar		1024
+
