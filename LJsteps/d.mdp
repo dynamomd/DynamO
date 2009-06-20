@@ -1,6 +1,4 @@
 ;Units are nm, KJ/Mol, K, bar, g/mol
-title               =  Argon
-cpp                 =  /lib/cpp
 constraints         =  none
 integrator          =  md
 tinit               =  0.0
@@ -18,8 +16,8 @@ ns_type             =  grid
 fourierspacing      =  0.15 
 coulombtype         =  Cut-off
 rlist               =  2.5 ; cut off for LJ
-rcoulomb            =  2 ; cut off for coulomb
-rvdw                =  1.85 ;
+rcoulomb            =  2.6 ; cut off for coulomb
+rvdw                =  2.6 ;
 ; Temperature coupling is on in to groups
 Tcoupl              =  Berendsen ; or Nose-Hoover
 tau_t               =  0.1 ; should be higher >1 
