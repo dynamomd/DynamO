@@ -41,7 +41,7 @@ CCoordinator::signal_handler(int sigtype)
     case SIGINT:
       {
 	//Clear the writes to screen
-	std::cout << std::flush;
+	std::cout.flush();
 	std::cerr << "\n<S>hutdown, <E>xit, <D>ata or <P>eek at data output:";
 
 	char c;
@@ -56,7 +56,10 @@ CCoordinator::signal_handler(int sigtype)
 	    break;
 	  case 'e':
 	  case 'E':
-	    exit(1);
+	    if (threads.getThreadCount())
+	      std::cerr << "Cannot <E>xit when threaded, causes program to hang. Try shutting down.";
+	    else
+	      exit(1);
 	    break;
 	  case 'p':
 	  case 'P':
