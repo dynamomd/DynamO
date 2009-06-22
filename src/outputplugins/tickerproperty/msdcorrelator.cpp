@@ -96,7 +96,7 @@ COPMSDCorrelator::accPass()
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t step(1); step < length; ++step)
-      speciesData[sp->getID()][step] 
+      speciesData[sp->getID()][step]
 	+= (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->Dynamics.getTopology())
@@ -133,7 +133,7 @@ COPMSDCorrelator::accPass()
 void
 COPMSDCorrelator::output(xmlw::XmlStream &XML)
 {
-  XML << xmlw::tag("MSDCorrelator") 
+  XML << xmlw::tag("MSDCorrelator")
       << xmlw::tag("Particles");
   
   Iflt dt = dynamic_cast<const CSTicker&>
@@ -150,7 +150,9 @@ COPMSDCorrelator::output(xmlw::XmlStream &XML)
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
 	    << speciesData[sp->getID()][step] 
-	  / (ticksTaken * sp->getCount() * Sim->Dynamics.units().unitArea())
+	  / (static_cast<Iflt>(ticksTaken) 
+	     * static_cast<Iflt>(sp->getCount())
+	     * Sim->Dynamics.units().unitArea())
 	    << "\n";
       
       XML << xmlw::endtag("Species");
@@ -170,7 +172,8 @@ COPMSDCorrelator::output(xmlw::XmlStream &XML)
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
 	    << structData[topo->getID()][step]
-	  / (ticksTaken * topo->getMolecules().size() 
+	  / (static_cast<Iflt>(ticksTaken) 
+	     * static_cast<Iflt>(topo->getMolecules().size())
 	     * Sim->Dynamics.units().unitArea())
 	    << "\n";
 	
