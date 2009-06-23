@@ -8,10 +8,36 @@ import pickle
 
 xmlstarlet='xml'
 
-def rmsd(crds1, crds2):
-  """Returns RMSD between 2 sets of [nx3] numpy array"""
-  v, s, w_tr = numpy.linalg.svd(numpy.dot(numpy.transpose(crds1), crds2))
-  return numpy.sqrt(max([(sum(sum(crds1 * crds1)) + sum(sum(crds2 * crds2)) - 2.0*sum(s)) / float(numpy.shape(crds1)[0]), 0.0]))
+from math import sqrt
+
+def get_cmap(struct):
+  retval = numpy.zeros((len(struct),len(struct)), float)
+  
+  for i in range(len(struct)):
+    for j in range(i+1,len(struct)):
+        rij = 0.0
+        for dim in range(3):
+          rij += pow(struct[i][dim] - struct[j][dim],2)
+        rij = sqrt(rij)
+        if (rij <= 1.5*1.5):
+          retval[i][j] = 1
+          retval[j][i] = 1
+          
+  return retval
+
+def rmsd(cmap1, cmap2):
+  norm1 = 0.0
+  norm2 = 0.0
+  retval = 0.0
+  for i in range(len(cmap1)):
+    for j in range(i+1,len(cmap1)):
+      norm1 += cmap1[i][j]*cmap1[i][j]
+      norm2 += cmap2[i][j]*cmap2[i][j] 
+      retval += cmap1[i][j]*cmap2[i][j]
+  norm = sqrt(norm1)*sqrt(norm2)
+  if (norm == 0):
+    return 0.0
+  return retval / norm
 
 def get_structlist(outputfile):
   cmd = 'bzcat '+outputfile+' | '+xmlstarlet+' sel -t -m \'/OutputData/StructureImages\' -m \'Image\' -m \'Atom\' -v \'@x\' -o "," -v \'@y\' -o \',\' -v \'@z\' -o \':\' -b -n | gawk \'{if (NF) print $0}\''
@@ -25,10 +51,13 @@ def get_structlist(outputfile):
   print "Number of structures is "+str(len(structlist))
   if (len(structlist) > 100):
     print "\nTruncating to 100"
-    del structlist[0::5]
-    del structlist[0::4]
-    del structlist[0::3]
-    del structlist[0::2]
+    if (len(structlist) == 500):
+      del structlist[0::5]
+      del structlist[0::4]
+      del structlist[0::3]
+      del structlist[0::2]
+    else:
+      del structlist[100:]
 
   return structlist
 
@@ -40,9 +69,15 @@ from operator import add
 
 def get_rmsd_data(structlist):
   arrayList = numpy.zeros( (len(structlist),len(structlist)), float)
+  cmaplist = []
+  
+  for struct in structlist:
+    cmaplist.append(get_cmap(struct))
+
   for i in range(len(structlist)):    
     for j in range(i+1,len(structlist)):
-      arrayList[i][j] = min(rmsd(structlist[i], structlist[j]), rmsd(structlist[i], (structlist[j])[::-1]))
+      arrayList[i][j] = rmsd(cmaplist[i], cmaplist[j])
+                            #rmsd(structlist[i], (structlist[j])[::-1,::-1]))
       arrayList[j][i] = arrayList[i][j]
 
   minimum = 0
@@ -145,6 +180,8 @@ for file in  sys.argv[1:]:
 
 
 filedata.sort()
+
+get_cmap(filedata[0][3][0])
 
 for data in filedata:
   f = open(data[2]+'.crmsdhist', 'w')
