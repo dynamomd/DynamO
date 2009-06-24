@@ -159,7 +159,7 @@ CGSOCells::initialise(size_t nID)
 {
   ID=nID;
   
-  unsigned long cuberootN = (unsigned long)(std::pow(Sim->lN, 1.0/3.0) + 0.5);
+  cuberootN = (unsigned long)(std::pow(Sim->lN, 1.0/3.0) + 0.5);
   
   if (boost::math::pow<3>(cuberootN) != Sim->lN)
     D_throw() << "Cannot use single occupancy cells without a integer cube root of N"
