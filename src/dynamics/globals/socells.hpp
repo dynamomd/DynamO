@@ -49,11 +49,10 @@ public:
   virtual void outputXML(xmlw::XmlStream& XML) const;
 
 protected:
-  void outputXML(xmlw::XmlStream&, const std::string&) const;
 
   CVector<int> cellCount;
   Vector  cellDimension;
-  Iflt MaxIntDist;
+  size_t cuberootN;
 };
 
 #endif

@@ -27,12 +27,14 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
+#include <boost/math/special_functions/pow.hpp>
+
 
 CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
   CGlobal(nSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
-  MaxIntDist(0.0)
+  cuberootN(0)
 {
   globName = name;
   I_cout() << "Single occupancy cells loaded";
@@ -42,7 +44,7 @@ CGSOCells::CGSOCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGlobal(ptrSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
-  MaxIntDist(0.0)
+  cuberootN(0)
 {
   operator<<(XML);
 
@@ -52,7 +54,7 @@ CGSOCells::CGSOCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
 void 
 CGSOCells::operator<<(const XMLNode& XML)
 {
-  try {    
+  try {
     globName = XML.getAttribute("Name");	
   }
   catch(...)
@@ -74,43 +76,102 @@ CGSOCells::getEvent(const CParticle& part) const
   //is not required as we compensate for the delay using 
   //Sim->Dynamics.Liouvillean().getParticleDelay(part)
 
-  D_throw() << "Not implemented";
-  
-  /*
-    return CGlobEvent(part,
+  Vector CellOrigin;
+  size_t ID(part.getID());
+
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    {
+      CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->aspectRatio[iDim];
+      ID /= cuberootN;
+    }
+
+  return CGlobEvent(part,
 		    Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
-		    (part, cells[partCellData[part.getID()].cell].origin, 
+		    (part, CellOrigin,
 		     cellDimension)
-		    -Sim->Dynamics.Liouvillean().getParticleDelay(part)
-		    ,
+		    -Sim->Dynamics.Liouvillean().getParticleDelay(part),
 		    CELL, *this);
-  */
 }
 
 void
 CGSOCells::runEvent(const CParticle& part) const
 {
+  Sim->Dynamics.Liouvillean().updateParticle(part);
+
+  Vector CellOrigin;
+  size_t ID(part.getID());
+
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    {
+      CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->aspectRatio[iDim];
+      ID /= cuberootN;
+    }
+
+  
+  //Determine the cell transition direction, its saved
+  size_t cellDirection(Sim->Dynamics.Liouvillean().
+		       getSquareCellCollision3
+		       (part, CellOrigin, 
+			cellDimension));
+
+  CGlobEvent iEvent(getEvent(part));
+
+#ifdef DYNAMO_DEBUG 
+  if (isnan(iEvent.getdt()))
+    D_throw() << "A NAN Interaction collision time has been found"
+	      << iEvent.stringData(Sim);
+  
+  if (iEvent.getdt() == HUGE_VAL)
+    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+	      << iEvent.stringData(Sim);
+#endif
+
+  Sim->dSysTime += iEvent.getdt();
+    
+  Sim->ptrScheduler->stream(iEvent.getdt());
+  
+  Sim->Dynamics.stream(iEvent.getdt());
+
+  Vector vNorm(0,0,0);
+
+  Vector pos(part.getPosition()), vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+
+  vNorm[cellDirection] = (vel[cellDirection] > 0) ? -1 : +1; 
+    
+  //Run the collision and catch the data
+  CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
+		      (part, vNorm, 1.0));
+
+  Sim->signalParticleUpdate(EDat);
+
+  //Now we're past the event update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(part);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
+
 }
 
 void 
 CGSOCells::initialise(size_t nID)
 {
   ID=nID;
+  
+  unsigned long cuberootN = (unsigned long)(pow(Sim->lN, 1/3) + 0.5);
+  
+  if (boost::math::pow<3>(cuberootN) != Sim->lN)
+    D_throw() << "Cannot use single occupancy cells without a integer cube root of N";
 
-}
-
-void 
-CGSOCells::outputXML(xmlw::XmlStream& XML) const
-{
-  outputXML(XML, "Cells");
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    cellDimension[iDim] = Sim->aspectRatio[iDim] / cuberootN;
 }
 
 void
-CGSOCells::outputXML(xmlw::XmlStream& XML, const std::string& name) const
+CGSOCells::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << name
-      << xmlw::attr("Name") << globName
-      << xmlw::attr("CellWidth") 
-      << MaxIntDist / Sim->Dynamics.units().unitLength();
+  XML << xmlw::attr("Type") << "SOCells"
+      << xmlw::attr("Name") << globName;
 }
