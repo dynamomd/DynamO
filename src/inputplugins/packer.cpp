@@ -76,6 +76,8 @@ CIPPacker::getOptions()
     ;
 
   hiddenopts.add_options()
+    ("b1", "boolean option one")
+    ("b2", "boolean option two")
     ("i1", po::value<size_t>(), "integer option one")
     ("i2", po::value<size_t>(), "integer option two")
     ("s1", po::value<std::string>(), "string option one")
@@ -162,11 +164,11 @@ CIPPacker::initialise()
         "       --f2 : Rod Length [1.0]\n"
 	"  15: Monocomponent hard-parallel cubes\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --b1 : If set it enables the single occupancy model\n"
 	"  16: Stepped Potential approximating a Lennard Jones Fluid\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
 	;
-
       std::cout << "\n";
       exit(1);
     }
@@ -1421,6 +1423,9 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	if (vm.count("b1"))
+	  Sim->Dynamics.addGlobal(new CGSOCells(Sim,"SOCells"));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 

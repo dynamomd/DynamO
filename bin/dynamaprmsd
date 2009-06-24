@@ -153,6 +153,12 @@ def print_vmd_structure(structure, filename):
   finally:
     f.close()
 
+import getopt
+
+opts = getopt.gnu_getopt(sys.argv[1:],['sigma=','skip=','cutoff='])
+
+
+
 filedata = []
 for file in  sys.argv[1:]:
   print "Processing file "+file
