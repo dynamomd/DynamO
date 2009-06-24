@@ -107,7 +107,6 @@ CGSOCells::runEvent(const CParticle& part) const
       CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->aspectRatio[iDim];
       ID /= cuberootN;
     }
-
   
   //Determine the cell transition direction, its saved
   size_t cellDirection(Sim->Dynamics.Liouvillean().
@@ -160,10 +159,12 @@ CGSOCells::initialise(size_t nID)
 {
   ID=nID;
   
-  unsigned long cuberootN = (unsigned long)(pow(Sim->lN, 1/3) + 0.5);
+  unsigned long cuberootN = (unsigned long)(std::pow(Sim->lN, 1.0/3.0) + 0.5);
   
   if (boost::math::pow<3>(cuberootN) != Sim->lN)
-    D_throw() << "Cannot use single occupancy cells without a integer cube root of N";
+    D_throw() << "Cannot use single occupancy cells without a integer cube root of N"
+	      << "\nN = " << Sim->lN
+	      << "\nN^(1/3) = " << cuberootN;
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     cellDimension[iDim] = Sim->aspectRatio[iDim] / cuberootN;
