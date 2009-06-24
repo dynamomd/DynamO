@@ -20,3 +20,4 @@
 #include "gListAndCell.hpp"
 #include "gcellsShearing.hpp"
 #include "PBCSentinel.hpp"
+#include "socells.hpp"
