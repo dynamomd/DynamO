@@ -88,7 +88,7 @@ def get_rmsd_data(structlist):
       minimum = i
       minsum = localsum
 
-  return minimum, minsum / len(structlist), arrayList
+  return minimum, minsum / len(structlist), arrayList, cmaplist
 
 import copy
 
@@ -143,6 +143,22 @@ def print_structure(structure, filename):
     f.close()
     g.close()
 
+def contact_hist(membersofcluster, cmaps, name):
+  cmaphist = numpy.zeros( (len(cmaps[0]),len(cmaps[0])), float)
+  for id in membersofcluster:
+    cmaphist += cmaps[id]
+        
+  f = open('CMapHist.'+str(name)+'.dat', 'w')
+  try:
+    for i in range(len(cmaps[0])):
+      for j in range(len(cmaps[0])):
+        f.write(str(cmaphist[i][j] / float(len(membersofcluster))))
+        f.write(' ')
+      f.write("\n")
+
+  finally:
+    f.close()
+
 def print_vmd_structure(structure, filename):
   f = open(filename, 'w')
   try:
@@ -157,7 +173,7 @@ def print_vmd_structure(structure, filename):
 import getopt, sys
 
 try:
-  optlist, filelist = getopt.getopt(sys.argv[1:], [], [ 'sigma=', 'skip=', 'cutoff=', 'threshold=', 'regen' ])
+  optlist, filelist = getopt.getopt(sys.argv[1:], [], [ 'sigma=', 'skip=', 'cutoff=', 'threshold=', 'regen', 'maxstructs=' ])
 except getopt.GetoptError, err:
   # print help information and exit:
   print str(err) # will print something like "option -a not recognized"
@@ -167,6 +183,7 @@ sigma=1.0
 skip=0
 cutoff=0.8
 threshold=5
+maxnumofstructs=100
 regen=False
 
 for o, a in optlist:
@@ -180,6 +197,8 @@ for o, a in optlist:
     threshold = int(a)
   elif o in ("--regen"):
     regen = True
+  elif o in ("--maxstructs"):
+    maxnumofstruct= int(a)
   else:
     assert False, "unhandled option"
 
@@ -256,7 +275,8 @@ try:
     print >>f, " "
 finally: 
   f.close()
-  
+
+
 #Outputs the min rmsd and the structure number
 f = open('cclusters.dat', 'w')
 g = open('cclusterfraction.dat', 'w')
@@ -269,6 +289,8 @@ try:
       for cluster in clusters:
         print "Printing structure number "+str(cluster[2])
         print_structure(data[3][cluster[2]],"Cluster"+str(cluster[2])+".list")
+        print "Cmap histogram printed"
+        contact_hist(cluster[1],data[1][3], cluster[2])
         for cluster2 in clusters:
           print "  Struct "+str(cluster[2])+" rmsd vs struct "+str(cluster2[2])+" = "+str(data[1][2][cluster[2]][cluster2[2]])
     sum = 0
