@@ -61,7 +61,8 @@ def cluster_analysis(arrayList, length, threshold):
   localCluster = []
   for i in range(len(arrayList)):
     local = []
-    count = 0
+    count = 1
+    local.append(i)
     for j in range(len(arrayList)):
       if (arrayList[i][j] < length):
         local.append(j)

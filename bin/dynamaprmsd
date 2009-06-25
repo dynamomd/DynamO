@@ -19,7 +19,7 @@ def get_cmap(struct):
         for dim in range(3):
           rij += pow(struct[i][dim] - struct[j][dim],2)
         rij = sqrt(rij)
-        if (rij <= 1.5*1.5):
+        if (rij <= 1.5*1.5*sigma*sigma):
           retval[i][j] = 1
           retval[j][i] = 1
           
@@ -30,7 +30,7 @@ def rmsd(cmap1, cmap2):
   norm2 = 0.0
   retval = 0.0
   for i in range(len(cmap1)):
-    for j in range(i+1,len(cmap1)):
+    for j in range(i+1+skip,len(cmap1)):
       norm1 += cmap1[i][j]*cmap1[i][j]
       norm2 += cmap2[i][j]*cmap2[i][j] 
       retval += cmap1[i][j]*cmap2[i][j]
@@ -92,13 +92,14 @@ def get_rmsd_data(structlist):
 
 import copy
 
-def cluster_analysis(arrayList, length, threshold):
+def cluster_analysis(arrayList, minval, threshold):
   localCluster = []
   for i in range(len(arrayList)):
     local = []
-    count = 0
+    count = 1
+    local.append(i)
     for j in range(len(arrayList)):
-      if (arrayList[i][j] < length):
+      if (arrayList[i][j] > minval):
         local.append(j)
         count += 1
     localCluster.append([count, local, i])
@@ -153,16 +154,39 @@ def print_vmd_structure(structure, filename):
   finally:
     f.close()
 
-import getopt
+import getopt, sys
 
-opts = getopt.gnu_getopt(sys.argv[1:],['sigma=','skip=','cutoff='])
+try:
+  optlist, filelist = getopt.getopt(sys.argv[1:], [], [ 'sigma=', 'skip=', 'cutoff=', 'threshold=', 'regen' ])
+except getopt.GetoptError, err:
+  # print help information and exit:
+  print str(err) # will print something like "option -a not recognized"
+  sys.exit(2)
 
+sigma=1.0
+skip=0
+cutoff=0.8
+threshold=5
+regen=False
 
+for o, a in optlist:
+  if o == "--sigma":
+    sigma = float(a)
+  elif o in ("--skip"):
+    skip = int(a)
+  elif o in ("--cutoff"):
+    cutoff = float(a)
+  elif o in ("--threshold"):
+    threshold = int(a)
+  elif o in ("--regen"):
+    regen = True
+  else:
+    assert False, "unhandled option"
 
-filedata = []
-for file in  sys.argv[1:]:
+filedata = [ ]
+for file in  filelist:
   print "Processing file "+file
-  if (os.path.exists(file+'.crmspickle3')):
+  if ( (not regen) and os.path.exists(file+'.crmspickle3')):
     print "Found pickled data, skipping minimisation"
     f = open(file+'.crmspickle3', 'r')
     tempdata = pickle.load(f)
@@ -187,14 +211,12 @@ for file in  sys.argv[1:]:
 
 filedata.sort()
 
-get_cmap(filedata[0][3][0])
-
 for data in filedata:
   f = open(data[2]+'.crmsdhist', 'w')
   g = open(data[2]+'.crmsdarray', 'w')
   try:
     arrayList = numpy.zeros(100, float)
-    xmax = 5.0
+    xmax = 1.0
     delx = xmax / 100.0
     count = 0
     for i in range(len(data[1][2])):
@@ -241,7 +263,7 @@ g = open('cclusterfraction.dat', 'w')
 h = open('cavgrmsd.dat', 'w')
 try:
   for data in filedata:
-    clusters = cluster_analysis(data[1][2], 0.6, 5)
+    clusters = cluster_analysis(data[1][2], cutoff, threshold)
     if (len(filedata)==1):
       print clusters
       for cluster in clusters:
