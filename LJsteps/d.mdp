@@ -22,7 +22,7 @@ rvdw                =  2.6 ;
 Tcoupl              =  Berendsen ; or Nose-Hoover
 tau_t               =  0.1 ; should be higher >1 
 tc-grps		    =  Ar
-ref_t               =  120.2717 ; 1 in reduced units = 120.2717
+ref_t               =  158.758644 ; 1 in reduced units = 120.2717
 ; Pressure coupling is not on
 Pcoupl              =  no
 pcoupltype          =  Isotropic

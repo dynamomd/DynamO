@@ -43,7 +43,7 @@ project	: requirements
 	: build-dir build-dir
 	;
 
-variant cachegrind : <inlining>on <optimization>speed <debug-symbols>on 
+variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
 variant massif : <inlining>off <optimization>speed <debug-symbols>on 
