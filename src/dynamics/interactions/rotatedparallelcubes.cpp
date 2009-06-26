@@ -135,15 +135,15 @@ CIRotatedParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const
 
 void
 CIRotatedParallelCubes::runEvent(const CParticle& p1,
-			  const CParticle& p2,
-			  const CIntEvent& iEvent) const
+				 const CParticle& p2,
+				 const CIntEvent& iEvent) const
 {
 
   ++Sim->lNColl;
     
   //Run the collision and catch the data
   C2ParticleData EDat
-    (Sim->Dynamics.Liouvillean().parallelCubeColl(iEvent, e, diameter)); 
+    (Sim->Dynamics.Liouvillean().parallelCubeColl(iEvent, e, diameter, Rotation)); 
 
   Sim->signalParticleUpdate(EDat);
 

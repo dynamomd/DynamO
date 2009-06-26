@@ -498,6 +498,65 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   return retVal;
 }
 
+C2ParticleData 
+CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+			   const Iflt&, const Matrix& rot,
+			   const EEventType& eType) const
+{
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);
+
+  C2ParticleData retVal(particle1, particle2,
+			Sim->Dynamics.getSpecies(particle1),
+			Sim->Dynamics.getSpecies(particle2),
+			eType);
+    
+  Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
+  
+  retVal.rij = rot * Vector(retVal.rij);
+  retVal.vijold = rot * Vector(retVal.vijold);
+
+  size_t dim(0);
+   
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    if (fabs(retVal.rij[dim]) < fabs(retVal.rij[iDim])) dim = iDim;
+
+  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  
+  Vector collvec(0,0,0);
+
+  if (retVal.rij[dim] < 0)
+    collvec[dim] = -1;
+  else
+    collvec[dim] = 1;
+
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
+
+  retVal.dP = Transpose(rot) * Vector(retVal.dP);
+  retVal.rij = Transpose(rot) * Vector(retVal.rij);
+  retVal.vijold = Transpose(rot) * Vector(retVal.vijold);
+
+  //This function must edit particles so it overrides the const!
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
+
+  return retVal;
+}
+
 CNParticleData 
 CLNewton::multibdyCollision(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const EEventType& eType) const

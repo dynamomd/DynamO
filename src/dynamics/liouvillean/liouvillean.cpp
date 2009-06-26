@@ -299,3 +299,11 @@ CLiouvillean::parallelCubeColl(const CIntEvent& event,
 			       const Iflt& d, 
 			       const EEventType& eType) const
 { D_throw() << "Not Implemented"; }
+
+C2ParticleData 
+CLiouvillean::parallelCubeColl(const CIntEvent& event, 
+			       const Iflt& e, 
+			       const Iflt& d,
+			       const Matrix& Rot,
+			       const EEventType& eType) const
+{ D_throw() << "Not Implemented"; }

@@ -96,6 +96,11 @@ public:
 					  const Iflt& d, 
 					  const EEventType& eType) const;
 
+  virtual C2ParticleData parallelCubeColl(const CIntEvent& event,
+					  const Iflt& e, const Iflt& d,
+					  const Matrix& rot,
+					  const EEventType& eType = CORE) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
 };
