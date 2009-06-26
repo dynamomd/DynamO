@@ -1430,8 +1430,13 @@ CIPPacker::initialise()
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
 	Sim->Dynamics.addInteraction(new CIParallelCubes(Sim, particleDiam, 1.0, 
-							 new C2RAll()
-							 ))->setName("Bulk");
+							 new C2RAll())
+				     )->setName("Bulk");
+
+	Sim->Dynamics.addInteraction(new CIRotatedParallelCubes(Sim, particleDiam, 1.0,
+								Matrix(1,2,3,4,5,6,7,8,9),
+								new C2RAll())
+				     )->setName("Bulk");
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -1446,25 +1451,25 @@ CIPPacker::initialise()
 		     Vector(Sim->Dynamics.units().unitVelocity(), 
 			    Sim->Dynamics.units().unitVelocity(), 
 			    Sim->Dynamics.units().unitVelocity()), 
-						 nParticles++));
-
+		     nParticles++));
+	
 	{
 	  boost::uniform_real<Iflt> normdist(-0.5,0.5);	  
 	  boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<Iflt> >
 	    unisampler(Sim->ranGenerator, normdist);
-
+	  
 	  CVector<long> tmp = getCells();
-
+	  
 	  Vector wobblespacing;
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    wobblespacing[iDim] = (Sim->aspectRatio[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
-
+	  
 	  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
 	}
-  
+	
 	{
 	  boost::variate_generator
 	    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
