@@ -35,6 +35,7 @@ public:
   virtual bool CubeCubeInRoot(CPDData&, const Iflt&, const Matrix&) const;
 
   virtual bool cubeOverlap(const CPDData&, const Iflt&) const;
+  virtual bool cubeOverlap(const CPDData&, const Iflt&, const Matrix&) const;
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
 

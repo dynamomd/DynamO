@@ -1429,18 +1429,14 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
-	Sim->Dynamics.addInteraction(new CIParallelCubes(Sim, particleDiam, 1.0, 
-							 new C2RAll())
-				     )->setName("Bulk");
-
-	Sim->Dynamics.addInteraction(new CIRotatedParallelCubes(Sim, particleDiam, 1.0,
-								Matrix(1,2,3,4,5,6,7,8,9),
-								new C2RAll())
-				     )->setName("Bulk");
+	Sim->Dynamics.addInteraction(new CIRotatedParallelCubes
+				     (Sim, particleDiam, 1.0,
+				      Matrix(1,0,0,0,1,0,0,0,1),
+				      new C2RAll()))->setName("Bulk");
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, 
+					       "Bulk", 0, "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));	
 	

@@ -226,7 +226,23 @@ public:
    *
    * \return True if the cubes are overlapping.
    */
-  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const 
+  { D_throw() << "Not Implemented"; }
+
+  /*! \brief Determines if two rotated parallel cubes are overlapping
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class.
+   *
+   * \param d The interaction distance.
+   *
+   * \param rot Rotation matrix.
+   *
+   * \return True if the cubes are overlapping.
+   */
+  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d,
+			   const Matrix& rot) const 
+  { D_throw() << "Not Implemented"; }
 
   /*! \brief Determines when the particle center will hit a bounding box.
    *

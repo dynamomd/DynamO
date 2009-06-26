@@ -73,19 +73,21 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 {
   //To be approaching, the largest dimension of rij must be being
   //reduced
+
+  Vector rij = Rot * dat.rij, vij = Rot * dat.vij;
   
   size_t largedim(0);
   for (size_t iDim(1); iDim < NDIM; ++iDim)
-    if (fabs(dat.rij[iDim]) > fabs(dat.rij[largedim])) largedim = iDim;
+    if (fabs(rij[iDim]) > fabs(rij[largedim])) largedim = iDim;
     
-  if (dat.rij[largedim] * dat.vij[largedim] < 0)
+  if (rij[largedim] * vij[largedim] < 0)
     {      
       Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  Iflt tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
-	  Iflt tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
+	  Iflt tmptime1 = -(rij[iDim] + d) / vij[iDim];
+	  Iflt tmptime2 = -(rij[iDim] - d) / vij[iDim];
 	  
 	  if (tmptime1 < tmptime2)
 	    {
@@ -104,6 +106,7 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 	  dat.dt = tInMax;
 	  return true;
 	}
+	    
     }
   
   return false;
@@ -114,6 +117,19 @@ CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d) const
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (fabs(dat.rij[iDim]) > d) return false;
+  
+  return true;
+}
+
+bool 
+CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d, 
+		      const Matrix& rot) const
+{
+  Vector rij = rot * dat.rij;
+
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (fabs(rij[iDim]) > d) 
+	return false;
   
   return true;
 }
