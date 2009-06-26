@@ -32,8 +32,7 @@ public:
   virtual bool sphereOverlap(const CPDData&, const Iflt&) const;
 
   virtual bool CubeCubeInRoot(CPDData&, const Iflt&) const;
-
-  virtual bool CubeCubeOutRoot(CPDData&, const Iflt&) const;
+  virtual bool CubeCubeInRoot(CPDData&, const Iflt&, const Matrix&) const;
 
   virtual bool cubeOverlap(const CPDData&, const Iflt&) const;
 

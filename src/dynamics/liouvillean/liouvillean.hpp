@@ -189,6 +189,22 @@ public:
    */
   virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { D_throw() << "Not Implemented"; }
 
+  /*! \brief Determines if and when two rotated parallel cube will
+      intersect.
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class.
+   *
+   * \param d Rhe interaction distance.
+   *
+   * \param rot The rotation such that the cubes are parallel
+   *
+   * \return Whether the event will occur.
+   */
+  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d, 
+			      const Matrix& rot) const 
+  { D_throw() << "Not Implemented"; }
+
   /*! \brief Determines if and when two parallel cubes will stop intersecting.
    *
    * \param pd Some precomputed data about the event that is cached by

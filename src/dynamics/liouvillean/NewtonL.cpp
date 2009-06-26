@@ -69,9 +69,44 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 }
 
 bool 
-CLNewton::CubeCubeOutRoot(CPDData& dat, const Iflt& d) const
+CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 {
-  D_throw() << "Not implemented";
+  //To be approaching, the largest dimension of rij must be being
+  //reduced
+  
+  size_t largedim(0);
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    if (fabs(dat.rij[iDim]) > fabs(dat.rij[largedim])) largedim = iDim;
+    
+  if (dat.rij[largedim] * dat.vij[largedim] < 0)
+    {      
+      Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+      
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	{
+	  Iflt tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
+	  Iflt tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
+	  
+	  if (tmptime1 < tmptime2)
+	    {
+	      if (tmptime1 > tInMax) tInMax = tmptime1;
+	      if (tmptime2 < tOutMin) tOutMin = tmptime2;
+	    }
+	  else
+	    {
+	      if (tmptime2 > tInMax) tInMax = tmptime2;
+	      if (tmptime1 < tOutMin) tOutMin = tmptime1;
+	    }
+	}
+      
+      if (tInMax < tOutMin)
+	{
+	  dat.dt = tInMax;
+	  return true;
+	}
+    }
+  
+  return false;
 }
 
 bool 
