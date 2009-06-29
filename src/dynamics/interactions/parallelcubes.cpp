@@ -73,7 +73,7 @@ CIParallelCubes::operator<<(const XMLNode& XML)
 
 Iflt 
 CIParallelCubes::maxIntDist() const 
-{ return diameter; }
+{ return std::sqrt(NDIM) * diameter; }
 
 Iflt 
 CIParallelCubes::hardCoreDiam() const 

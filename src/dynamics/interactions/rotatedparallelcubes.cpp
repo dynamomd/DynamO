@@ -82,7 +82,7 @@ CIRotatedParallelCubes::operator<<(const XMLNode& XML)
 
 Iflt 
 CIRotatedParallelCubes::maxIntDist() const 
-{ return diameter; }
+{ return std::sqrt(NDIM) * diameter; }
 
 Iflt 
 CIRotatedParallelCubes::hardCoreDiam() const 
@@ -186,11 +186,18 @@ void
 CIRotatedParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
-  os << "#declare intrep" << ID << " = " 
-     << "box {\n <" << -diameter / 2.0 << "," << -diameter / 2.0 << "," << -diameter / 2.0 << ">, " 
-     << " <" << diameter / 2.0 << "," << diameter / 2.0 << "," << diameter / 2.0 << "> " 
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
+  os << "#declare intrep" << ID << " = "
+     << "object {\n"
+     << " box {\n <" << -diameter / 2.0 << "," << -diameter / 2.0 << "," 
+     << -diameter / 2.0 << ">, " 
+     << " <" << diameter / 2.0 << "," << diameter / 2.0 << "," << diameter / 2.0 << "> "
+     << "\n  texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
+     << "," << rgb.B << "> }}\n  finish { phong 0.9 phong_size 60 }\n}\n"
+     << " matrix < " << Rotation(0,0) << "," << Rotation(0,1) << "," << Rotation(0,2)
+     << ","<< Rotation(1,0) << "," << Rotation(1,1) << "," << Rotation(1,2)
+     << ","<< Rotation(2,0) << "," << Rotation(2,1) << "," << Rotation(2,2) 
+     << ",0,0,0>"
+     << "\n}\n";
   
   BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {

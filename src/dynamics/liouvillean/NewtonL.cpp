@@ -525,7 +525,7 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  Iflt mu = p1Mass * p2Mass/ (p1Mass + p2Mass);
   
   Vector collvec(0,0,0);
 
