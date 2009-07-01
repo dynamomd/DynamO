@@ -134,7 +134,7 @@ CIPPacker::initialise()
 	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
 	"       --f2 : Bond outer well (>0) [1.05]\n"
-	"       --f3 : Well width factor [1.5]\n"
+	"       --f3 : Well width factor, values <= 1 use a hard sphere [1.5]\n"
 	"  8: Binary Hard Spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
@@ -726,17 +726,29 @@ CIPPacker::initialise()
 			    new C2RRing(0, latticeSites.size()-1)
 			    ))->setName("Bonds");
 
-	Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, 
-						      lambda, 1.0, 
-						      1.0, 
-						      new C2RAll()
-						      ))->setName("Bulk");
+	if (lambda >= 1.0)
+	  {
+	    Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+
+	    Sim->Dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, 
+							  lambda, 1.0, 
+							  1.0, 
+							  new C2RAll()
+							  ))->setName("Bulk");
+	  }
+	else
+	  {
+	    Sim->Dynamics.setUnits(new CUElastic(diamScale, Sim));
+
+	    Sim->Dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0,
+							  new C2RAll()
+							  ))->setName("Bulk");
+	  }
+	  
 	
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
-
-	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 
 	Sim->Dynamics.addStructure(new CTChain(Sim, 1, "Ring"));
 
