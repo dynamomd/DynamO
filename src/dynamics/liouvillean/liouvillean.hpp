@@ -189,6 +189,22 @@ public:
    */
   virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { D_throw() << "Not Implemented"; }
 
+  /*! \brief Determines if and when two rotated parallel cube will
+      intersect.
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class.
+   *
+   * \param d Rhe interaction distance.
+   *
+   * \param rot The rotation such that the cubes are parallel
+   *
+   * \return Whether the event will occur.
+   */
+  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d, 
+			      const Matrix& rot) const 
+  { D_throw() << "Not Implemented"; }
+
   /*! \brief Determines if and when two parallel cubes will stop intersecting.
    *
    * \param pd Some precomputed data about the event that is cached by
@@ -210,7 +226,23 @@ public:
    *
    * \return True if the cubes are overlapping.
    */
-  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const 
+  { D_throw() << "Not Implemented"; }
+
+  /*! \brief Determines if two rotated parallel cubes are overlapping
+   *
+   * \param pd Some precomputed data about the event that is cached by
+   * the interaction/calling class.
+   *
+   * \param d The interaction distance.
+   *
+   * \param rot Rotation matrix.
+   *
+   * \return True if the cubes are overlapping.
+   */
+  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d,
+			   const Matrix& rot) const 
+  { D_throw() << "Not Implemented"; }
 
   /*! \brief Determines when the particle center will hit a bounding box.
    *
@@ -345,7 +377,7 @@ public:
 					   const EEventType& eType = CORE
 					   ) const = 0;
 
-  /*! \brief Performs a hard sphere collision between the two particles.
+  /*! \brief Performs a parallel cube collision between the two particles.
    * 
    * Also works for bounce collisions inside wells/outside squareshoulders
    * (it will collide receeding particles).
@@ -359,6 +391,23 @@ public:
   virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
+					  const EEventType& eType = CORE) const;
+
+  /*! \brief Performs a hard sphere collision between the two particles.
+   * 
+   * Also works for bounce collisions inside wells/outside squareshoulders
+   * (it will collide receeding particles).
+   * 
+   * \param e Elasticity
+   * \param event The event containing the data on the two particles
+   * \param d2 The interaction distance
+   * \param rot Rotation matrix
+   * \param eType A way of setting the collision type from CORE to BOUNCE etc.
+   * \return The collision data
+   */
+  virtual C2ParticleData parallelCubeColl(const CIntEvent& event,
+					  const Iflt& e, const Iflt& d,
+					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;
 
   /*! \brief Tests for a collision between spherical particles

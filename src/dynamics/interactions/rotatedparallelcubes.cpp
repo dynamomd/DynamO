@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "parallelcubes.hpp"
+#include "rotatedparallelcubes.hpp"
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <iomanip>
@@ -32,27 +32,34 @@
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
+#include "../../datatypes/vector.xml.hpp"
 
-CIParallelCubes::CIParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
-			   Iflt ne, C2Range* nR):
+CIRotatedParallelCubes::CIRotatedParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
+					       Iflt ne, const Matrix& rot,
+					       C2Range* nR):
   CInteraction(tmp, nR),
-  diameter(nd), e(ne) {}
+  Rotation(rot),
+  diameter(nd), e(ne)
+{}
 
-CIParallelCubes::CIParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
+CIRotatedParallelCubes::CIRotatedParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
   CInteraction(tmp,NULL)
 {
   operator<<(XML);
 }
 
 void 
-CIParallelCubes::initialise(size_t nID)
-{ ID=nID; }
+CIRotatedParallelCubes::initialise(size_t nID)
+{ 
+  ID=nID; 
+}
 
 void 
-CIParallelCubes::operator<<(const XMLNode& XML)
+CIRotatedParallelCubes::operator<<(const XMLNode& XML)
 { 
-  if (strcmp(XML.getAttribute("Type"),"ParallelCubes"))
-    D_throw() << "Attempting to load ParallelCubes from non hardsphere entry";
+  if (strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
+    D_throw() << "Attempting to load RotatedParallelCubes from " 
+	      << XML.getAttribute("Type") << " entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -64,33 +71,35 @@ CIParallelCubes::operator<<(const XMLNode& XML)
       e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
             
       intName = XML.getAttribute("Name");
+
+      ::operator<<(Rotation, XML.getChildNode("Rotation"));
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CIParallelCubes";
+      D_throw() << "Failed a lexical cast in CIRotatedParallelCubes";
     }
 }
 
 Iflt 
-CIParallelCubes::maxIntDist() const 
+CIRotatedParallelCubes::maxIntDist() const 
 { return std::sqrt(NDIM) * diameter; }
 
 Iflt 
-CIParallelCubes::hardCoreDiam() const 
+CIRotatedParallelCubes::hardCoreDiam() const 
 { return diameter; }
 
 void 
-CIParallelCubes::rescaleLengths(Iflt scale) 
+CIRotatedParallelCubes::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter;
 }
 
 CInteraction* 
-CIParallelCubes::Clone() const 
-{ return new CIParallelCubes(*this); }
+CIRotatedParallelCubes::Clone() const 
+{ return new CIRotatedParallelCubes(*this); }
   
 CIntEvent 
-CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const 
+CIRotatedParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
@@ -107,13 +116,15 @@ CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const
 
   CPDData colldat(*Sim, p1, p2);
 
-  if (Sim->Dynamics.Liouvillean().CubeCubeInRoot(colldat, diameter))
+  if (Sim->Dynamics.Liouvillean().CubeCubeInRoot(colldat, diameter, Rotation))
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.Liouvillean().cubeOverlap(colldat, diameter))
+      if (Sim->Dynamics.Liouvillean().cubeOverlap(colldat, diameter, Rotation))
 	D_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
-		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - diameter)/Sim->Dynamics.units().unitLength();
+		  << p2.getID() << "\nOverlap = " 
+		  << (sqrt(colldat.r2) - diameter) 
+	  / Sim->Dynamics.units().unitLength();
 #endif
 
       return CIntEvent(p1, p2, colldat.dt, CORE, *this);
@@ -123,16 +134,16 @@ CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const
 }
 
 void
-CIParallelCubes::runEvent(const CParticle& p1,
-			  const CParticle& p2,
-			  const CIntEvent& iEvent) const
+CIRotatedParallelCubes::runEvent(const CParticle& p1,
+				 const CParticle& p2,
+				 const CIntEvent& iEvent) const
 {
 
   ++Sim->lNColl;
     
   //Run the collision and catch the data
   C2ParticleData EDat
-    (Sim->Dynamics.Liouvillean().parallelCubeColl(iEvent, e, diameter)); 
+    (Sim->Dynamics.Liouvillean().parallelCubeColl(iEvent, e, diameter, Rotation)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -144,17 +155,20 @@ CIParallelCubes::runEvent(const CParticle& p1,
 }
    
 void 
-CIParallelCubes::outputXML(xmlw::XmlStream& XML) const
+CIRotatedParallelCubes::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "ParallelCubes"
+  XML << xmlw::attr("Type") << "RotatedParallelCubes"
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Name") << intName
-      << range;
+      << range
+      << xmlw::tag("Rotation")
+      << Rotation
+      << xmlw::endtag("Rotation");
 }
 
 void
-CIParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+CIRotatedParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->Dynamics.BCs().setPBC(rij); 
@@ -169,14 +183,21 @@ CIParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) c
 }
 
 void 
-CIParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
+CIRotatedParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
-  os << "#declare intrep" << ID << " = " 
-     << "box {\n <" << -diameter / 2.0 << "," << -diameter / 2.0 << "," << -diameter / 2.0 << ">, " 
-     << " <" << diameter / 2.0 << "," << diameter / 2.0 << "," << diameter / 2.0 << "> " 
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
+  os << "#declare intrep" << ID << " = "
+     << "object {\n"
+     << " box {\n <" << -diameter / 2.0 << "," << -diameter / 2.0 << "," 
+     << -diameter / 2.0 << ">, " 
+     << " <" << diameter / 2.0 << "," << diameter / 2.0 << "," << diameter / 2.0 << "> "
+     << "\n  texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
+     << "," << rgb.B << "> }}\n  finish { phong 0.9 phong_size 60 }\n}\n"
+     << " matrix < " << Rotation(0,0) << "," << Rotation(0,1) << "," << Rotation(0,2)
+     << ","<< Rotation(1,0) << "," << Rotation(1,1) << "," << Rotation(1,2)
+     << ","<< Rotation(2,0) << "," << Rotation(2,1) << "," << Rotation(2,2) 
+     << ",0,0,0>"
+     << "\n}\n";
   
   BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {

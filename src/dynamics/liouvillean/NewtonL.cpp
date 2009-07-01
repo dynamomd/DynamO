@@ -69,9 +69,47 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 }
 
 bool 
-CLNewton::CubeCubeOutRoot(CPDData& dat, const Iflt& d) const
+CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 {
-  D_throw() << "Not implemented";
+  //To be approaching, the largest dimension of rij must be being
+  //reduced
+
+  Vector rij = Rot * dat.rij, vij = Rot * dat.vij;
+  
+  size_t largedim(0);
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    if (fabs(rij[iDim]) > fabs(rij[largedim])) largedim = iDim;
+    
+  if (rij[largedim] * vij[largedim] < 0)
+    {      
+      Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+      
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	{
+	  Iflt tmptime1 = -(rij[iDim] + d) / vij[iDim];
+	  Iflt tmptime2 = -(rij[iDim] - d) / vij[iDim];
+	  
+	  if (tmptime1 < tmptime2)
+	    {
+	      if (tmptime1 > tInMax) tInMax = tmptime1;
+	      if (tmptime2 < tOutMin) tOutMin = tmptime2;
+	    }
+	  else
+	    {
+	      if (tmptime2 > tInMax) tInMax = tmptime2;
+	      if (tmptime1 < tOutMin) tOutMin = tmptime1;
+	    }
+	}
+      
+      if (tInMax < tOutMin)
+	{
+	  dat.dt = tInMax;
+	  return true;
+	}
+	    
+    }
+  
+  return false;
 }
 
 bool 
@@ -79,6 +117,19 @@ CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d) const
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (fabs(dat.rij[iDim]) > d) return false;
+  
+  return true;
+}
+
+bool 
+CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d, 
+		      const Matrix& rot) const
+{
+  Vector rij = rot * dat.rij;
+
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (fabs(rij[iDim]) > d) 
+	return false;
   
   return true;
 }
@@ -430,6 +481,65 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
   retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
+
+  //This function must edit particles so it overrides the const!
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+			       * (particle1.getVelocity().nrm2() 
+				  - retVal.particle1_.getOldVel().nrm2()));
+  
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+			       * (particle2.getVelocity().nrm2() 
+				  - retVal.particle2_.getOldVel().nrm2()));
+
+  return retVal;
+}
+
+C2ParticleData 
+CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+			   const Iflt&, const Matrix& rot,
+			   const EEventType& eType) const
+{
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);
+
+  C2ParticleData retVal(particle1, particle2,
+			Sim->Dynamics.getSpecies(particle1),
+			Sim->Dynamics.getSpecies(particle2),
+			eType);
+    
+  Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
+  
+  retVal.rij = rot * Vector(retVal.rij);
+  retVal.vijold = rot * Vector(retVal.vijold);
+
+  size_t dim(0);
+   
+  for (size_t iDim(1); iDim < NDIM; ++iDim)
+    if (fabs(retVal.rij[dim]) < fabs(retVal.rij[iDim])) dim = iDim;
+
+  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass/ (p1Mass + p2Mass);
+  
+  Vector collvec(0,0,0);
+
+  if (retVal.rij[dim] < 0)
+    collvec[dim] = -1;
+  else
+    collvec[dim] = 1;
+
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
+
+  retVal.dP = Transpose(rot) * Vector(retVal.dP);
+  retVal.rij = Transpose(rot) * Vector(retVal.rij);
+  retVal.vijold = Transpose(rot) * Vector(retVal.vijold);
 
   //This function must edit particles so it overrides the const!
   const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;

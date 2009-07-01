@@ -120,4 +120,59 @@ operator<<(VectorExpression<>& data, const XMLNode &XML)
   return data;
 }
 
+// vectors
+template<class A, int B, class C>
+inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+				   const MatrixExpression<A,B,C> & t )
+{
+  char name[2] = "x";
+
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    {
+      name[0] = 'x'+iDim;
+      XML << xmlw::tag(name);
+      
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	{
+	  char name2[2] = "x";
+	  name2[0] = 'x'+jDim;
+	  XML << xmlw::attr(name2) << t(iDim,jDim);
+	}
+
+      XML << xmlw::endtag(name);
+    }
+  
+  return XML;
+}
+
+inline
+MatrixExpression<>& 
+operator<<(MatrixExpression<>& data, const XMLNode &XML)
+{
+  char name[2] = "x";
+  
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    {
+      name[0] = 'x'+iDim;
+
+      XMLNode BrowseNode = XML.getChildNode(name);
+
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	{
+	  char name2[2] = "x";
+	  name2[0] = 'x'+jDim;
+
+	  try {
+	    data(iDim,jDim) = boost::lexical_cast<DOUBLE>(BrowseNode.getAttribute(name2));
+	  }
+	  catch (boost::bad_lexical_cast &)
+	    {
+	      D_throw() << "Failed a lexical cast in CVector";
+	    }
+	}
+    }
+
+  return data;
+}
+
 #endif

@@ -396,31 +396,9 @@ template<class A, int B, class C>
 inline OSTREAM& operator<< ( OSTREAM& o, 
 			     const MatrixExpression<A,B,C> & t );
 
-// convenient macros 
-
-#define crossProduct(a,b) ((a)^(b))
-#define dotProduct(a,b) ((a)|(b))
-#define MTVmult(M,v) (Transpose(M)*(v))
-
-// for compatibility with older vector/matrix classes:
-
-#define returnVector(x,y,z) return Vector(x,y,z)
-#define return_Vector(x,y,z) return Vector(x,y,z)
-#define ZERO(v) v(0)
-#define Vector_ZERO(v) Vector v(0)
-#define Vector_INIT(v,x,y,z) Vector v(x,y,z)
-#define DIFF(one,two) one-two
-#define DIFFWITHSHIFT(one,two,shift) one-two+shift
-#define Matrix_ZERO(m) Matrix m(0)
-#define Matrix_INIT(m,xx,xy,xz,yx,yy,yz,zx,zy,zz) Matrix m(xx,xy,xz,yx,yy,yz,zx,zy,zz)
-#define return_Matrix(xx,xy,xz,yx,yy,yz,zx,zy,zz) return Matrix(xx,xy,xz,yx,yy,yz,zx,zy,zz)
-#define returnMatrix(xx,xy,xz,yx,yy,yz,zx,zy,zz) return Matrix(xx,xy,xz,yx,yy,yz,zx,zy,zz)
-
-
 //
 // INLINE IMPLEMENTATION
 //
-
 
 // make sure a function for taking a square exists
 

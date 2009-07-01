@@ -32,10 +32,10 @@ public:
   virtual bool sphereOverlap(const CPDData&, const Iflt&) const;
 
   virtual bool CubeCubeInRoot(CPDData&, const Iflt&) const;
-
-  virtual bool CubeCubeOutRoot(CPDData&, const Iflt&) const;
+  virtual bool CubeCubeInRoot(CPDData&, const Iflt&, const Matrix&) const;
 
   virtual bool cubeOverlap(const CPDData&, const Iflt&) const;
+  virtual bool cubeOverlap(const CPDData&, const Iflt&, const Matrix&) const;
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
 
@@ -95,6 +95,11 @@ public:
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType) const;
+
+  virtual C2ParticleData parallelCubeColl(const CIntEvent& event,
+					  const Iflt& e, const Iflt& d,
+					  const Matrix& rot,
+					  const EEventType& eType = CORE) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;

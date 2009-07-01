@@ -698,7 +698,7 @@ CIPPacker::initialise()
 	  lambda = vm["f3"].as<Iflt>();
 	
 	//10 % more than needed
-	Iflt diamScale = 0.9 / (sigmax * chainlength + 2 * sigma);
+	Iflt diamScale = 1 / (sigmax * chainlength + 2 * sigma);
 	
 	//CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
 	//                               * diamScale, new CUParticle());
@@ -1429,13 +1429,14 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
-	Sim->Dynamics.addInteraction(new CIParallelCubes(Sim, particleDiam, 1.0, 
-							 new C2RAll()
-							 ))->setName("Bulk");
+	Sim->Dynamics.addInteraction(new CIRotatedParallelCubes
+				     (Sim, particleDiam, 1.0,
+				      Matrix(1,0,0,0,1,0,0,0,1),
+				      new C2RAll()))->setName("Bulk");
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, 
+					       "Bulk", 0, "Bulk")));
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));	
 	
@@ -1446,25 +1447,25 @@ CIPPacker::initialise()
 		     Vector(Sim->Dynamics.units().unitVelocity(), 
 			    Sim->Dynamics.units().unitVelocity(), 
 			    Sim->Dynamics.units().unitVelocity()), 
-						 nParticles++));
-
+		     nParticles++));
+	
 	{
 	  boost::uniform_real<Iflt> normdist(-0.5,0.5);	  
 	  boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<Iflt> >
 	    unisampler(Sim->ranGenerator, normdist);
-
+	  
 	  CVector<long> tmp = getCells();
-
+	  
 	  Vector wobblespacing;
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    wobblespacing[iDim] = (Sim->aspectRatio[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
-
+	  
 	  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
 	}
-  
+	
 	{
 	  boost::variate_generator
 	    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
