@@ -36,7 +36,7 @@ def rmsd(cmap1, cmap2):
       retval += cmap1[i][j]*cmap2[i][j]
   norm = sqrt(norm1)*sqrt(norm2)
   if (norm == 0):
-    return 0.0
+    return 1.0
   return retval / norm
 
 def get_structlist(outputfile):

@@ -103,7 +103,9 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML, std::istream& os)
 	  binaryread(base64Convertor, ID);
 
 	  if (i != ID) 
-	    D_throw() << "Binary data corruption detected, id's don't match";
+	    D_throw() << "Binary data corruption detected, id's don't match"
+		      << "\nMight be because this file was generated on another architecture"
+		      << "\nTry using the --text option to avoid using the binary format";
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, vel[iDim]);
