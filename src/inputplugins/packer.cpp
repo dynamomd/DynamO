@@ -698,8 +698,8 @@ CIPPacker::initialise()
 	if (vm.count("f3"))
 	  lambda = vm["f3"].as<Iflt>();
 	
-	//10 % more than needed
-	Iflt diamScale = 1 / (sigmax * chainlength + 2 * sigma);
+	//10 % more than double whats needed
+	Iflt diamScale = 0.5 / (sigmax * chainlength + 2 * sigma);
 	
 	//CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
 	//                               * diamScale, new CUParticle());
