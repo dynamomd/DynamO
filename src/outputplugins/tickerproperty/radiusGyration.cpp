@@ -35,7 +35,7 @@
 
 COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPTicker(tmp,"GyrationRadius"),
-  binwidth1(0.05),
+  binwidth1(0.01),
   binwidth2(0.001),
   binwidth3(0.01)
 {
