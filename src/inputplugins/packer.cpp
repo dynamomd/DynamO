@@ -130,11 +130,12 @@ CIPPacker::initialise()
 	"       --f4 : Bond outer well (>0) [1.1]\n"
 	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
 	"  6: Monocomponent square wells confined by two walls\n"
-	"  7: Ring polymer, dropped as a straight rod\n"
+	"  7: Ring/Linear polymer, dropped as a straight rod\n"
 	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
 	"       --f2 : Bond outer well (>0) [1.05]\n"
 	"       --f3 : Well width factor, values <= 1 use a hard sphere [1.5]\n"
+	"       --b1 : If set it drops a linear chain instead of a ring\n"
 	"  8: Binary Hard Spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
@@ -723,7 +724,9 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addInteraction
 	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
-			    new C2RRing(0, latticeSites.size()-1)
+			    (vm.count("b1")) 
+			    ? static_cast<C2Range*>(new C2RChain(0, latticeSites.size()-1))
+			    : static_cast<C2Range*>(new C2RRing(0, latticeSites.size()-1))
 			    ))->setName("Bonds");
 
 	if (lambda >= 1.0)
