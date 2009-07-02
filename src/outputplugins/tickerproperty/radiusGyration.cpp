@@ -35,7 +35,7 @@
 
 COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPTicker(tmp,"GyrationRadius"),
-  binwidth1(0.01),
+  binwidth1(0.05),
   binwidth2(0.001),
   binwidth3(0.01)
 {
@@ -70,7 +70,7 @@ COPRGyration::initialise()
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>
 			       (plugPtr.get_ptr()), 
-			       binwidth1 * Sim->Dynamics.units().unitLength(), binwidth2, binwidth3));
+			       binwidth1 * Sim->Dynamics.units().unitArea(), binwidth2, binwidth3));
 }
 
 void 
