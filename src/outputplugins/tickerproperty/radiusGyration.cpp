@@ -107,25 +107,25 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   molGyrationDat retVal;
   retVal.MassCentre = Vector (0,0,0);
 
-  Vector  currRelPos(0,0,0);
   Iflt totmass = Sim->Dynamics.getSpecies(Sim->vParticleList[*(range->begin())]).getMass();
-  std::list<Vector  > relVecs;
-  relVecs.push_back(currRelPos);
+  std::vector<Vector> relVecs;
+  relVecs.reserve(range->size());
+  relVecs.push_back(Vector(0,0,0));
   
-  unsigned long ID;
   //Walk along the chain
   for (CRange::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
     {
-      ID = *iPtr;
+      Vector currRelPos = Sim->vParticleList[*iPtr].getPosition() 
+	- Sim->vParticleList[*(iPtr - 1)].getPosition();
 
-      currRelPos = Sim->vParticleList[ID].getPosition() - Sim->vParticleList[*(iPtr - 1)].getPosition();
       Sim->Dynamics.BCs().setPBC(currRelPos);
 
       relVecs.push_back(currRelPos + relVecs.back());
 
-      retVal.MassCentre += relVecs.back() * Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
-      totmass += Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+      retVal.MassCentre += relVecs.back() 
+	* Sim->Dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
 
+      totmass += Sim->Dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
     }
 
   retVal.MassCentre /= totmass;
@@ -145,8 +145,8 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
 	  data[i+j*NDIM] += vec[i] * vec[j];      
     }
 
-  for (size_t i = 0; i < NDIM; i++)
-    for (size_t j = i; j < NDIM; j++)
+  for (size_t i = 0; i < NDIM; ++i)
+    for (size_t j = i+1; j < NDIM; ++j)
       data[j+i*NDIM] = data[i+j*NDIM];
   
   gsl_matrix_view m = gsl_matrix_view_array(data, NDIM, NDIM);
@@ -162,7 +162,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   
   for (size_t i = 0; i < NDIM; i++)
     {
-      retVal.EigenVal[i] = gsl_vector_get(eval, i);
+      retVal.EigenVal[i] = gsl_vector_get(eval, i) / range->size();
 
       gsl_vector_view evec_i 
 	= gsl_matrix_column (evec, i);
@@ -177,7 +177,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   gsl_matrix_free (evec);
   
   retVal.MassCentre += Sim->vParticleList[*(range->begin())].getPosition();
-  
+
   return retVal;
 }
 
