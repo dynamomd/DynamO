@@ -16,4 +16,5 @@
 */
 
 #include "lwall.hpp"
+#include "ldblwall.hpp"
 #include "AndersenWall.hpp"
