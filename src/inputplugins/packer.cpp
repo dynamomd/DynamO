@@ -1449,13 +1449,13 @@ CIPPacker::initialise()
 	if (vm.count("b2"))
 	  {
 	    Sim->Dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(1,0,0), 
-						 Vector(-0.5,0,0), 
+						 Vector(0,0,0), 
 						 "Wall1", new CRAll(Sim)));
 	    Sim->Dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(0,1,0), 
-						 Vector(0,-0.5,0), 
+						 Vector(0,0,0), 
 						 "Wall2", new CRAll(Sim)));
 	    Sim->Dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(0,0,1), 
-						 Vector(0,0,-0.5), 
+						 Vector(0,0,0), 
 						 "Wall3", new CRAll(Sim)));
 	  }
 
