@@ -36,7 +36,7 @@ CLDblWall::CLDblWall(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm,
 }
 
 CLDblWall::CLDblWall(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "LocalWall")
+  CLocal(tmp, "LocalDoubleWall")
 {
   operator<<(XML);
 }
@@ -48,9 +48,23 @@ CLDblWall::getEvent(const CParticle& part) const
   if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
+  
+  Vector rij = part.getPosition() - vPosition;
+  Sim->Dynamics.BCs().setPBC(rij);
 
-  return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision
-		     (part, vPosition, vNorm), WALL, *this);
+  if ((vNorm | rij) > 0)
+    {
+      side[part.getID()] = true;
+      return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision
+			 (part, vPosition, -vNorm), WALL, *this);
+    }
+  else
+    {
+      side[part.getID()] = false;
+      return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision
+			 (part, vPosition, vNorm), WALL, *this);	    
+    }
+
 }
 
 void
@@ -58,9 +72,14 @@ CLDblWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
+  Vector norm = vNorm;
+
+  if (side[part.getID()])
+    norm *= -1;
+
   //Run the collision and catch the data
   CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
-		      (part, vNorm, e));
+		      (part, norm, e));
 
   Sim->signalParticleUpdate(EDat);
 
@@ -82,6 +101,8 @@ void
 CLDblWall::initialise(size_t nID)
 {
   ID = nID;
+  
+  side.resize(Sim->lN,false);
 }
 
 void 
@@ -108,7 +129,7 @@ CLDblWall::operator<<(const XMLNode& XML)
 void 
 CLDblWall::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Wall" 
+  XML << xmlw::attr("Type") << "DoubleWall" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
       << range

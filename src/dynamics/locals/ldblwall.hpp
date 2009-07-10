@@ -19,6 +19,7 @@
 #define CLDblWall_HPP
 
 #include "local.hpp"
+#include <vector>
 
 class CLDblWall: public CLocal
 {
@@ -49,6 +50,7 @@ protected:
   Vector  vNorm;
   Vector  vPosition;
   Iflt e;
+  mutable std::vector<char> side;
 };
 
 #endif

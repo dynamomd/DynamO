@@ -166,6 +166,7 @@ CIPPacker::initialise()
 	"  15: Monocomponent hard-parallel cubes\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --b1 : If set it enables the single occupancy model\n"
+	"       --b2 : If set it bounds the system with mirrors\n"
 	"  16: Stepped Potential approximating a Lennard Jones Fluid\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
@@ -1439,10 +1440,24 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
+
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
 	if (vm.count("b1"))
 	  Sim->Dynamics.addGlobal(new CGSOCells(Sim,"SOCells"));
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	if (vm.count("b2"))
+	  {
+	    Sim->Dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(1,0,0), 
+						 Vector(-0.5,0,0), 
+						 "Wall1", new CRAll(Sim)));
+	    Sim->Dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(0,1,0), 
+						 Vector(0,-0.5,0), 
+						 "Wall2", new CRAll(Sim)));
+	    Sim->Dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(0,0,1), 
+						 Vector(0,0,-0.5), 
+						 "Wall3", new CRAll(Sim)));
+	  }
 
 	Sim->Dynamics.addInteraction(new CIRotatedParallelCubes
 				     (Sim, particleDiam, 1.0,
