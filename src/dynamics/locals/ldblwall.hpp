@@ -44,13 +44,15 @@ public:
 
   virtual void write_povray_info(std::ostream&) const;
 
+  virtual void particleUpdate(const CNParticleData &) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   Vector  vNorm;
   Vector  vPosition;
   Iflt e;
-  mutable std::vector<char> side;
+  mutable size_t lastID;
 };
 
 #endif
