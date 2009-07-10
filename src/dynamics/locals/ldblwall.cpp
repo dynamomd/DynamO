@@ -55,7 +55,7 @@ CLDblWall::getEvent(const CParticle& part) const
   Sim->Dynamics.BCs().setPBC(rij);
 
   Vector norm(vNorm);
-  if ((norm | rij) > 0)
+  if ((norm | rij) < 0)
     norm *= -1;
 
   return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision
@@ -72,7 +72,7 @@ CLDblWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   Vector rij = part.getPosition() - vPosition;
   Sim->Dynamics.BCs().setPBC(rij);
   
-  if ((norm | rij) > 0)
+  if ((norm | rij) < 0)
     norm *= -1;
 
   //Run the collision and catch the data
