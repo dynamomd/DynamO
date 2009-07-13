@@ -36,7 +36,7 @@ def rmsd(cmap1, cmap2):
       retval += cmap1[i][j]*cmap2[i][j]
   norm = sqrt(norm1)*sqrt(norm2)
   if (norm == 0):
-    return 1.0
+    return 0.0
   return retval / norm
 
 def get_structlist(outputfile):
@@ -49,9 +49,9 @@ def get_structlist(outputfile):
     structlist.append(numpy.array([[float(x) for x in atom.split(',')] for atom in line.split(':')]))
 
   print "Number of structures is "+str(len(structlist))
-  if (len(structlist) > 100):
-    print "\nTruncating to 100"
-    if (len(structlist) == 500):
+  if (len(structlist) > maxnumofstruct):
+    print "\nTruncating to "+str(maxnumofstruct)
+    if (len(structlist) == 500 and maxnumofstruct == 100):
       del structlist[0::5]
       del structlist[0::4]
       del structlist[0::3]
@@ -95,9 +95,8 @@ import copy
 def cluster_analysis(arrayList, minval, threshold):
   localCluster = []
   for i in range(len(arrayList)):
-    local = []
+    local = [i]
     count = 1
-    local.append(i)
     for j in range(len(arrayList)):
       if (arrayList[i][j] > minval):
         local.append(j)
@@ -107,6 +106,7 @@ def cluster_analysis(arrayList, minval, threshold):
   clusters = []
   maxval = copy.deepcopy(max(localCluster))
   while (maxval[0] > threshold):
+    maxval[1].sort()
     clusters.append(maxval)
     for j in range(len(arrayList)):
       for id in maxval[1]:
@@ -183,7 +183,7 @@ sigma=1.0
 skip=0
 cutoff=0.8
 threshold=5
-maxnumofstructs=100
+maxnumofstruct=100
 regen=False
 
 for o, a in optlist:

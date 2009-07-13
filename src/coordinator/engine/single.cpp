@@ -32,18 +32,31 @@ CESingle::peekData()
 void
 CESingle::runSimulation()
 {
-  do
+  try {
+    do
+      {
+	if (peekMode)
+	  {
+	    Simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+	    Simulation.outputData("peek.data.xml.bz2", vm.count("uncompressed"));
+	    peekMode = false;
+	  }
+	
+	Simulation.runSimulation();
+      }
+    while (peekMode);
+  }
+  catch (std::exception& cep)
     {
-      if (peekMode)
+      try {
+	std::cerr << "\nEngine: Trying to output config to config.error";
+	Simulation.writeXMLfile("config.error", false, vm.count("uncompressed"));
+      } catch (...)
 	{
-	  Simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	  Simulation.outputData("peek.data.xml.bz2", vm.count("uncompressed"));
-	  peekMode = false;
+	  std::cerr << "\nEngine: Could not output Errored config";
 	}
-      
-      Simulation.runSimulation();
-    } 
-  while (peekMode);
+      throw;
+    }
 }
 
 void
