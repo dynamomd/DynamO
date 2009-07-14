@@ -164,7 +164,7 @@ COPCTorsion::ticker()
 			if (R < minradius) minradius = R;			 
 		      }
 	      
-	      fsum += std::fabs(helixradius) / minradius;
+	      fsum += helixradius / minradius;
 	    }
 
 	  gamma /= derivsize;
@@ -204,7 +204,7 @@ COPCTorsion::output(xmlw::XmlStream& XML)
       XML << xmlw::endtag("SystemHistogram")
 	  << xmlw::tag("FHistogram");
       
-      dat.gammaSys.outputHistogram(XML, 1.0);
+      dat.f.outputHistogram(XML, 1.0);
       
       XML << xmlw::endtag("FHistogram")
 	  << xmlw::endtag(dat.chainPtr->getName().c_str());
