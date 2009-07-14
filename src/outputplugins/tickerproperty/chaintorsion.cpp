@@ -134,6 +134,7 @@ COPCTorsion::ticker()
 	      Iflt helixradius = 1.0/(curvature * (1.0+gamma*gamma));
 
 	      Iflt minradius = HUGE_VAL;
+
 	      for (CRange::iterator it1 = range->begin(); 
 		   it1 != range->end(); it1++)
 		//Check this particle is not the same, or adjacent
@@ -164,7 +165,7 @@ COPCTorsion::ticker()
 			if (R < minradius) minradius = R;			 
 		      }
 	      
-	      fsum += helixradius / minradius;
+	      fsum += minradius / helixradius;
 	    }
 
 	  gamma /= derivsize;
