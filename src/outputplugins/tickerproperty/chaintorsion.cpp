@@ -27,6 +27,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include "../../dynamics/BC/Null.hpp"
 
 COPCTorsion::COPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Torsion")
@@ -37,7 +38,12 @@ COPCTorsion::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 0.005, 0.005));
+      chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
+			       0.005, 0.005, 0.01));
+
+  if (!Sim->Dynamics.BCTypeTest<CNullBC>())
+    D_throw() << "Can only use this plugin with Null BC's"
+	      << "\nPositions must be unwrapped";
 }
 
 void 
@@ -94,25 +100,14 @@ COPCTorsion::ticker()
 	  //Calc first and second derivatives
 	  for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
 	    {
-#ifdef DYNAMO_DEBUG
-	      tmp = 0.5 * (Sim->vParticleList.at(*(it+1)).getPosition()
-			   - Sim->vParticleList.at(*(it-1)).getPosition());
-#else
 	      tmp = 0.5 * (Sim->vParticleList[*(it+1)].getPosition()
 			   - Sim->vParticleList[*(it-1)].getPosition());
-#endif
 
 	      dr1.push_back(tmp);
 	      
-#ifdef DYNAMO_DEBUG
-	      tmp = Sim->vParticleList.at(*(it+1)).getPosition() 
-		- (2.0 * Sim->vParticleList.at(*it).getPosition())
-		+ Sim->vParticleList.at(*(it-1)).getPosition();
-#else
 	      tmp = Sim->vParticleList[*(it+1)].getPosition() 
 		- (2.0 * Sim->vParticleList[*it].getPosition())
 		+ Sim->vParticleList[*(it-1)].getPosition();
-#endif
 	      
 	      dr2.push_back(tmp);
 	      
@@ -127,24 +122,61 @@ COPCTorsion::ticker()
 
 	  //Gamma Calc
 	  Iflt gamma = 0.0;
-	  Iflt torsion = 0, curvature = 0;
+	  Iflt fsum = 0.0;
+
 	  for (unsigned int i = 0; i < derivsize; i++)
 	    {
-#ifdef DYNAMO_DEBUG
-	      torsion = ((vec.at(i+1)) | (dr3.at(i))) / (vec.at(i+1).nrm2()); //Torsion
-	      curvature = (vec.at(i+1).nrm()) / pow(dr1.at(i+1).nrm(), 3); //Curvature
-#else
-	      torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
-	      curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
-#endif
+	      Iflt torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
+	      Iflt curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
+
 	      gamma += torsion / curvature;
+
+	      Iflt helixradius = 1.0/(curvature * (1.0+gamma*gamma));
+
+	      Iflt minradius = HUGE_VAL;
+	      for (CRange::iterator it1 = range->begin(); 
+		   it1 != range->end(); it1++)
+		//Check this particle is not the same, or adjacent
+		if (*it1 != *(range->begin()+2+i)
+		    && *it1 != *(range->begin()+1+i)
+		    && *it1 != *(range->begin()+3+i))
+		  for (CRange::iterator it2 = range->begin() + 1; 
+		       it2 != range->end() - 1; it2++)
+		    //Check this particle is not the same, or adjacent to the studied particle
+		    if (*it1 != *it2
+			&& *it2 != *(range->begin()+2+i)
+			&& *it2 != *(range->begin()+1+i)
+			&& *it2 != *(range->begin()+3+i))
+		      {
+			//We have three points, calculate the lengths
+			//of the triangle sides
+			Iflt a = (Sim->vParticleList[*it1].getPosition() 
+				  - Sim->vParticleList[*it2].getPosition()).nrm(),
+			  b = (Sim->vParticleList[*(range->begin()+2+i)].getPosition() 
+				  - Sim->vParticleList[*it2].getPosition()).nrm(),
+			  c = (Sim->vParticleList[*it1].getPosition() 
+			       - Sim->vParticleList[*(range->begin()+2+i)].getPosition()).nrm();
+
+			//Now calc the area of the triangle
+			Iflt s = (a+b+c) / 2.0;
+			Iflt A = std::sqrt(s*(s-a)*(s-b)*(s-c));
+			Iflt R = a*b*c/(4.0*A);
+			if (R < minradius) minradius = R;			 
+		      }
+	      
+	      fsum += helixradius / minradius;
 	    }
+
 	  gamma /= derivsize;
 	  sysGamma += gamma;
+	  fsum /= derivsize;
+
 	  ++count;
 	  //Restrict the data collection to reasonable bounds
 	  if (gamma < 10 && gamma > -10)
 	    dat.gammaMol.addVal(gamma);
+
+	  dat.f.addVal(fsum);
 	}
 
       if (sysGamma < 10 && sysGamma > -10)
@@ -170,6 +202,11 @@ COPCTorsion::output(xmlw::XmlStream& XML)
       dat.gammaSys.outputHistogram(XML, 1.0);
       
       XML << xmlw::endtag("SystemHistogram")
+	  << xmlw::tag("FHistogram");
+      
+      dat.gammaSys.outputHistogram(XML, 1.0);
+      
+      XML << xmlw::endtag("FHistogram")
 	  << xmlw::endtag(dat.chainPtr->getName().c_str());
     }
 

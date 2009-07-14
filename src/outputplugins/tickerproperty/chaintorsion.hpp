@@ -48,9 +48,11 @@ class COPCTorsion: public COPTicker
     const CTChain* chainPtr;
     C1DHistogram gammaMol;
     C1DHistogram gammaSys;
-    CTCdata(const CTChain* ptr, Iflt binwidth1, Iflt binwidth2):
+    C1DHistogram f;
+    CTCdata(const CTChain* ptr, Iflt binwidth1, Iflt binwidth2, Iflt binwidth3):
       chainPtr(ptr), gammaMol(binwidth1),
-      gammaSys(binwidth2) {}
+      gammaSys(binwidth2),f(binwidth3)
+    {}
 
   };
 
