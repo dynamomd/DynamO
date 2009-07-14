@@ -164,7 +164,7 @@ COPCTorsion::ticker()
 			if (R < minradius) minradius = R;			 
 		      }
 	      
-	      fsum += helixradius / minradius;
+	      fsum += std::fabs(helixradius) / minradius;
 	    }
 
 	  gamma /= derivsize;
