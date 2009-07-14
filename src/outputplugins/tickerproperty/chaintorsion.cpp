@@ -91,11 +91,11 @@ COPCTorsion::ticker()
 	    D_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif
 	  
-	  Vector  tmp;
-	  std::vector<Vector  > dr1;
-	  std::vector<Vector  > dr2;
-	  std::vector<Vector  > dr3;
-	  std::vector<Vector  > vec;
+	  Vector tmp;
+	  std::vector<Vector> dr1;
+	  std::vector<Vector> dr2;
+	  std::vector<Vector> dr3;
+	  std::vector<Vector> vec;
 
 	  //Calc first and second derivatives
 	  for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
@@ -118,7 +118,7 @@ COPCTorsion::ticker()
 	  for (std::vector<Vector  >::iterator it2 = dr2.begin() + 1; it2 != dr2.end() - 1; it2++)
 	    dr3.push_back(0.5 * (*(it2+1) - *(it2-1)));
 	  
-	  size_t derivsize =  dr3.size();
+	  size_t derivsize = dr3.size();
 
 	  //Gamma Calc
 	  Iflt gamma = 0.0;
@@ -129,9 +129,10 @@ COPCTorsion::ticker()
 	      Iflt torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
 	      Iflt curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
 
-	      gamma += torsion / curvature;
+	      Iflt instGamma = torsion / curvature;
+	      gamma += instGamma;
 
-	      Iflt helixradius = 1.0/(curvature * (1.0+gamma*gamma));
+	      Iflt helixradius = 1.0/(curvature * (1.0+instGamma*instGamma));
 
 	      Iflt minradius = HUGE_VAL;
 
@@ -159,12 +160,11 @@ COPCTorsion::ticker()
 			       - Sim->vParticleList[*(range->begin()+2+i)].getPosition()).nrm();
 
 			//Now calc the area of the triangle
-			Iflt s = (a+b+c) / 2.0;
-			Iflt A = std::sqrt(s*(s-a)*(s-b)*(s-c));
-			Iflt R = a*b*c/(4.0*A);
+			Iflt s = (a + b + c) / 2.0;
+			Iflt A = std::sqrt(s * (s - a) * (s - b) * (s - c));
+			Iflt R = a * b * c / (4.0 * A);
 			if (R < minradius) minradius = R;			 
 		      }
-	      
 	      fsum += minradius / helixradius;
 	    }
 
