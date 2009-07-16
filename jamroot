@@ -57,7 +57,7 @@ exe dynareplex_opt
     ;
 
 exe dynahist_rw 
-    : programs/dynahist_rw.cpp src//dynamo_core
+    : programs/dynahist_rw.cpp src//dynamo_core 
     ;
 
 exe dynarun 
@@ -69,10 +69,16 @@ exe dynamod
     ;
 
 install install-bin 
-	: dynarun dynamod dynahist_rw dynareplex_opt
-	: <location>bin
+	: dynarun dynamod dynarun dynahist_rw
+	: <location>bin <condor>no
 	;
 	
+
+install install-bin 
+	: dynarun dynamod 
+	: <location>bin <condor>yes
+	;
+
 alias install : install-bin ;
 
 explicit install install-bin ;
