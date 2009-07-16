@@ -103,6 +103,7 @@ CIPPacker::initialise()
 	"Modes available:\n"
 	"  0: Monocomponent hard spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --b1 : Installs the collision sentinel for low densities\n"
 	"  1: Monocomponent square wells\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Lambda [1.5] (well width factor)\n"
@@ -206,6 +207,9 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	if (vm.count("b1"))
+	  Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
