@@ -208,6 +208,8 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<COPSHCrystal>(Sim, XML);
   else if (!Name.compare("SCParameter"))
     return testGeneratePlugin<COPSCParameter>(Sim, XML);
+  else if (!Name.compare("CubeComponents"))
+    return testGeneratePlugin<COPCubeComp>(Sim, XML);
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

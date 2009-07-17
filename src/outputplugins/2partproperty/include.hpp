@@ -18,3 +18,4 @@
 #include "rdotv.hpp"
 #include "collisionCorrelator.hpp"
 #include "rijvijdirection.hpp"
+#include "cubecomponents.hpp"
