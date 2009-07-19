@@ -31,7 +31,7 @@ class CSRingDSMC: public CSystem
 public:
   CSRingDSMC(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSRingDSMC(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string, CRange*, CRange*);
+  CSRingDSMC(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
   
   virtual CSystem* Clone() const { return new CSRingDSMC(*this); }
 
@@ -56,7 +56,6 @@ protected:
   Iflt factor;
 
   smrtPlugPtr<CRange> range1;
-  smrtPlugPtr<CRange> range2;
 };
 
 #endif
