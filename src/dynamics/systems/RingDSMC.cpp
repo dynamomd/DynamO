@@ -149,6 +149,10 @@ CSRingDSMC::initialise(size_t nID)
   factor12 = 4.0 * range1->size()
     * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
+
+  factor13 = 16.0 * range1->size()
+    * diameter * PI * PI * chi * tstep 
+    / Sim->Dynamics.units().simVolume();
   
   if (maxprob12 == 0.0)
     { 
@@ -175,6 +179,42 @@ CSRingDSMC::initialise(size_t nID)
 	  
 	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob12, 
 						      factor12, PDat);
+	}
+    }
+
+  if (maxprob13 == 0.0)
+    { 
+      boost::variate_generator
+	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	id1sampler(Sim->ranGenerator, 
+		   boost::uniform_int<size_t>(0, range1->size() - 1));
+      
+      //Just do some quick testing to get an estimate
+      for (size_t n = 0; n < 1000; ++n)
+	{
+	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+
+	  size_t secondID(id1sampler());
+
+	  while ((secondID == p1.getID())
+		 || ((secondID % 2) 
+		     ? ((secondID-1) == p1.getID())
+		     : ((secondID+1) == p1.getID())))
+	    secondID = id1sampler();
+
+	  const CParticle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
+	  
+	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	  
+	  CPDData PDat;
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    PDat.rij[iDim] = Sim->normal_sampler();
+	  
+	  PDat.rij *= diameter / PDat.rij.nrm();
+	  
+	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob13, 
+						      factor13, PDat);
 	}
     }
 
