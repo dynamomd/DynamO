@@ -18,6 +18,7 @@
 #include "system.hpp"
 #include "ghost.hpp"
 #include "DSMCspheres.hpp"
+#include "RingDSMC.hpp"
 #include "umbrella.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
@@ -66,6 +67,8 @@ CSystem::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
     return new CSysGhost(XML,Sim);
   else if (!strcmp(XML.getAttribute("Type"), "DSMCSpheres"))
     return new CSDSMCSpheres(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"), "RingDSMC"))
+    return new CSRingDSMC(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))
     return new CSUmbrella(XML, Sim);
   else

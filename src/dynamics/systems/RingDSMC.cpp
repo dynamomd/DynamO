@@ -224,7 +224,7 @@ void
 CSRingDSMC::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::tag("System")
-      << xmlw::attr("Type") << "DSMCSpheres"
+      << xmlw::attr("Type") << "RingDSMC"
       << xmlw::attr("tStep") << tstep / Sim->Dynamics.units().unitTime()
       << xmlw::attr("Chi") << chi
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
