@@ -35,7 +35,8 @@
 CSRingDSMC::CSRingDSMC(const XMLNode& XML, DYNAMO::SimData* tmp): 
   CSystem(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
-  maxprob(0.0),
+  maxprob12(0.0),
+  maxprob13(0.0),
   range1(NULL)
 {
   dt = HUGE_VAL;
@@ -51,7 +52,8 @@ CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi,
   chi(nChi),
   d2(nd * nd),
   diameter(nd),
-  maxprob(0.0),
+  maxprob12(0.0),
+  maxprob13(0.0),
   e(ne),
   range1(r1)
 {
@@ -85,7 +87,7 @@ CSRingDSMC::runEvent() const
   Sim->freestreamAcc = 0;
 
   Iflt intPart;
-  Iflt fracpart = std::modf(maxprob * (range1->size()/2),
+  Iflt fracpart = std::modf(maxprob12 * (range1->size()/2),
 			    &intPart);
  
   size_t nmax = static_cast<size_t>(intPart);
@@ -118,7 +120,7 @@ CSRingDSMC::runEvent() const
       PDat.rij *= diameter / PDat.rij.nrm();
       
       if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
-	  (p1, p2, maxprob, factor, PDat))
+	  (p1, p2, maxprob12, factor12, PDat))
 	{
 	  ++Sim->lNColl;
 	 
@@ -144,11 +146,11 @@ CSRingDSMC::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-  factor = 4.0 * range1->size()
+  factor12 = 4.0 * range1->size()
     * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
   
-  if (maxprob == 0.0)
+  if (maxprob12 == 0.0)
     { 
       boost::variate_generator
 	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
@@ -171,19 +173,19 @@ CSRingDSMC::initialise(size_t nID)
 	  
 	  PDat.rij *= diameter / PDat.rij.nrm();
 	  
-	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
-						      factor, PDat);
+	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob12, 
+						      factor12, PDat);
 	}
     }
 
-  if (maxprob > 0.5)
-    I_cerr() << "MaxProbability is " << maxprob
-	     << "\nNpairs per step is " << range1->size() * maxprob;
+  if (maxprob12 > 0.5)
+    I_cerr() << "MaxProbability12 is " << maxprob12
+	     << "\nNpairs per step is " << range1->size() * maxprob12;
   else
-    I_cout() << "MaxProbability is " << maxprob
-	     << "\nNpairs per step is " << range1->size() * maxprob;
+    I_cout() << "MaxProbability12 is " << maxprob12
+	     << "\nNpairs per step is " << range1->size() * maxprob12;
   
-  if (range1->size() * maxprob < 2.0)
+  if (range1->size() * maxprob12 < 2.0)
     I_cerr() << "This probability is low";
 }
 
@@ -210,9 +212,11 @@ CSRingDSMC::operator<<(const XMLNode& XML)
 
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
 
-    if (XML.isAttributeSet("MaxProbability"))
-      maxprob = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability"));
+    if (XML.isAttributeSet("MaxProbability12"))
+      maxprob12 = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability12"));
 	
+    if (XML.isAttributeSet("MaxProbability13"))
+      maxprob13 = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability13"));
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -230,7 +234,8 @@ CSRingDSMC::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Inelasticity") << e
       << xmlw::attr("Name") << sysName
-      << xmlw::attr("MaxProbability") << maxprob
+      << xmlw::attr("MaxProbability12") << maxprob12
+      << xmlw::attr("MaxProbability13") << maxprob13
       << xmlw::tag("Range1")
       << range1
       << xmlw::endtag("Range1")

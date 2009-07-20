@@ -51,9 +51,11 @@ protected:
   Iflt chi;
   Iflt d2;
   Iflt diameter;
-  mutable Iflt maxprob;
+  mutable Iflt maxprob12;
+  mutable Iflt maxprob13;
   Iflt e;
-  Iflt factor;
+  Iflt factor12;
+  Iflt factor13;
 
   smrtPlugPtr<CRange> range1;
 };
