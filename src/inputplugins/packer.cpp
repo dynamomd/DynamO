@@ -41,6 +41,7 @@
 #include "../base/is_ensemble.hpp"
 #include "../dynamics/locals/include.hpp"
 #include "../dynamics/systems/DSMCspheres.hpp"
+#include "../dynamics/systems/RingDSMC.hpp"
 
 CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp): 
   SimBase(tmp,"SysPacker", IC_blue),
@@ -130,7 +131,7 @@ CIPPacker::initialise()
 	"       --f3 : Bond inner core (>0) [0.9]\n"
 	"       --f4 : Bond outer well (>0) [1.1]\n"
 	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
-	"  6: Monocomponent square wells confined by two walls\n"
+	"  6: Example System: Monocomponent square wells confined by two walls\n"
 	"  7: Ring/Linear polymer, dropped as a straight rod\n"
 	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
@@ -171,6 +172,8 @@ CIPPacker::initialise()
 	"  16: Stepped Potential approximating a Lennard Jones Fluid\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
+	"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -1607,6 +1610,75 @@ CIPPacker::initialise()
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 17:
+      {
+	//Pack of DSMC hard spheres
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<Vector> 
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
+      	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->Dynamics.setPBC<CRPBC>();
+	  }
+	else
+	  Sim->Dynamics.setPBC<CSPBC>();
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
+	
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	
+	//This is to stop interactions being used for these particles
+	Sim->Dynamics.addInteraction
+	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+
+	//This is to provide data on the particles
+	Sim->Dynamics.addInteraction
+	  (new CIHardSphere
+	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+
+	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
+
+	Iflt chi = (1.0 - 0.5 * packfrac)
+	  / std::pow(1.0 - packfrac, 3);
+
+	Iflt tij = 1.0 
+	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi);
+
+	//No thermostat added yet
+	Sim->Dynamics.addSystem
+	  (new CSRingDSMC(Sim, particleDiam, 
+			  2.0 * tij / latticeSites.size(), chi, 1.0, 
+			  "Thermostat", new CRAll(Sim)));
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+	
+	unsigned long nParticles = 0;
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back
+	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
