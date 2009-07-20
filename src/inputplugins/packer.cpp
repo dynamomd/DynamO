@@ -1668,7 +1668,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addSystem
 	  (new CSRingDSMC(Sim, particleDiam, 
 			  2.0 * tij / latticeSites.size(), chi, 1.0, 
-			  "Thermostat", new CRAll(Sim)));
+			  "RingDSMC", new CRAll(Sim)));
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,

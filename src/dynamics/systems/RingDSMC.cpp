@@ -144,7 +144,7 @@ CSRingDSMC::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-  factor = 2.0 * range1->size()
+  factor = 4.0 * range1->size()
     * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
   
@@ -190,8 +190,8 @@ CSRingDSMC::initialise(size_t nID)
 void
 CSRingDSMC::operator<<(const XMLNode& XML)
 {
-  if (strcmp(XML.getAttribute("Type"),"DSMCSpheres"))
-    D_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
+  if (strcmp(XML.getAttribute("Type"),"RingDSMC"))
+    D_throw() << "Attempting to load RingDSMC from a " << XML.getAttribute("Type") <<  " entry"; 
   
   try {
     tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
