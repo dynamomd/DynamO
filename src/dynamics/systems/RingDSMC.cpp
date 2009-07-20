@@ -90,8 +90,7 @@ CSRingDSMC::runEvent() const
  
   size_t nmax = static_cast<size_t>(intPart);
   
-  if (Sim->uniform_sampler() < fracpart)
-    ++nmax;
+  if (Sim->uniform_sampler() < fracpart) ++nmax;
 
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt);
@@ -145,57 +144,47 @@ CSRingDSMC::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-//  factor = 4.0 * range1->size()
-//    * diameter * PI * chi * tstep 
-//    / Sim->Dynamics.units().simVolume();
-//  
-//  if (maxprob == 0.0)
-//    {
-//      boost::variate_generator
-//	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
-//	id1sampler(Sim->ranGenerator, 
-//		   boost::uniform_int<size_t>(0, range1->size() - 1));
-//      
-//      boost::variate_generator
-//	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
-//	id2sampler(Sim->ranGenerator, 
-//		   boost::uniform_int<size_t>(0, range2->size() - 1));
-//      
-//      //Just do some quick testing to get an estimate
-//      for (size_t n = 0; n < 1000; ++n)
-//	{
-//	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
-//	  
-//	  size_t p2id = *(range2->begin() + id2sampler());
-//	  
-//	  while (p2id == p1.getID())
-//	    p2id = *(range2->begin()+id2sampler());
-//	  
-//	  const CParticle& p2(Sim->vParticleList[p2id]);
-//	  
-//	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-//	  
-//	  CPDData PDat;
-//	  
-//	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-//	    PDat.rij[iDim] = Sim->normal_sampler();
-//	
-//	  PDat.rij *= diameter / PDat.rij.nrm();
-//	  
-//	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
-//						      factor, PDat);
-//	}
-//    }
-//
-//  if (maxprob > 0.5)
-//    I_cerr() << "MaxProbability is " << maxprob
-//	     << "\nNpairs per step is " << 0.5 * range1->size() * maxprob;
-//  else
-//    I_cout() << "MaxProbability is " << maxprob
-//	     << "\nNpairs per step is " << 0.5 * range1->size() * maxprob;
-//  
-//  if (0.5 * range1->size() * maxprob < 2.0)
-//    I_cerr() << "This probability is low";
+  factor = 2.0 * range1->size()
+    * diameter * PI * chi * tstep 
+    / Sim->Dynamics.units().simVolume();
+  
+  if (maxprob == 0.0)
+    { 
+      boost::variate_generator
+	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	id1sampler(Sim->ranGenerator, 
+		   boost::uniform_int<size_t>(0, (range1->size()/2) - 1));
+      
+      //Just do some quick testing to get an estimate
+      for (size_t n = 0; n < 1000; ++n)
+	{
+	  size_t pairID(id1sampler());
+	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
+	  const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
+	  
+	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	  
+	  CPDData PDat;
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    PDat.rij[iDim] = Sim->normal_sampler();
+	  
+	  PDat.rij *= diameter / PDat.rij.nrm();
+	  
+	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
+						      factor, PDat);
+	}
+    }
+
+  if (maxprob > 0.5)
+    I_cerr() << "MaxProbability is " << maxprob
+	     << "\nNpairs per step is " << range1->size() * maxprob;
+  else
+    I_cout() << "MaxProbability is " << maxprob
+	     << "\nNpairs per step is " << range1->size() * maxprob;
+  
+  if (range1->size() * maxprob < 2.0)
+    I_cerr() << "This probability is low";
 }
 
 void
