@@ -104,8 +104,6 @@ CSDSMCSpheres::runEvent() const
 
   if (Sim->uniform_sampler() < fracpart)
     ++nmax;
-  
-  CNParticleData ndata;
 
   for (size_t n = 0; n < nmax; ++n)
     {
@@ -138,8 +136,6 @@ CSDSMCSpheres::runEvent() const
 	  Sim->signalParticleUpdate(SDat);
   
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-
-	  ndata.L2partChanges.push_back(SDat);
 	  
 	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(*this, SDat, 0.0);

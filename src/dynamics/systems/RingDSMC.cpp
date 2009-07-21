@@ -59,7 +59,7 @@ CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi,
 {
   sysName = nName;
   type = DSMC;
-  if (r1->size() % 2) 
+  if (r1->size() % 2)
     D_throw() << "Need an even number of particles in"
 	      << " the range to make a whole number of velocity pairs";
 }
@@ -86,58 +86,115 @@ CSRingDSMC::runEvent() const
   locdt += Sim->freestreamAcc;
   Sim->freestreamAcc = 0;
 
+
+  //////////////////// T(1,2) operator
   Iflt intPart;
   Iflt fracpart = std::modf(maxprob12 * (range1->size()/2),
 			    &intPart);
  
-  size_t nmax = static_cast<size_t>(intPart);
+  size_t nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
   
-  if (Sim->uniform_sampler() < fracpart) ++nmax;
+  {  
+    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, CNParticleData(), locdt);
 
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
-  
-  CNParticleData ndata;
+    boost::variate_generator
+      <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+      id1sampler(Sim->ranGenerator, 
+		 boost::uniform_int<size_t>(0, (range1->size()/2) - 1));
+    
+    for (size_t n = 0; n < nmax; ++n)
+      {
+	size_t pairID(id1sampler());
+	const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
+	const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
+	
+	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	
+	CPDData PDat;
+	
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  PDat.rij[iDim] = Sim->normal_sampler();
+	
+	PDat.rij *= diameter / PDat.rij.nrm();
+	
+	if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
+	    (p1, p2, maxprob12, factor12, PDat))
+	  {
+	    ++Sim->lNColl;
+	    
+	    const C2ParticleData
+	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	    
+	    Sim->signalParticleUpdate(SDat);
+	    
+	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    
+	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	      Ptr->eventUpdate(*this, SDat, 0.0);
+	  }
+      }
+  }
 
-  boost::variate_generator
-    <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
-    id1sampler(Sim->ranGenerator, 
-	       boost::uniform_int<size_t>(0, (range1->size()/2) - 1));
+  //////////////////// T(1,3) operator
+  {
+    fracpart = std::modf(maxprob13 * (range1->size()/2),
+			 &intPart);
+    
+    nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
+    
+    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, CNParticleData(), locdt);
 
-  for (size_t n = 0; n < nmax; ++n)
-    {
-      size_t pairID(id1sampler());
-      const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
-      const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
-            
-      Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
-      
-      CPDData PDat;
-      
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	PDat.rij[iDim] = Sim->normal_sampler();
-      
-      PDat.rij *= diameter / PDat.rij.nrm();
-      
-      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
-	  (p1, p2, maxprob12, factor12, PDat))
-	{
-	  ++Sim->lNColl;
-	 
-	  const C2ParticleData
-	    SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+    boost::variate_generator
+      <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+      id1sampler(Sim->ranGenerator, 
+		 boost::uniform_int<size_t>(0, range1->size() - 1));
+    
+    for (size_t n = 0; n < nmax; ++n)
+      {
+	const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+	
+	size_t secondID(id1sampler());
+	
+	while ((secondID == p1.getID())
+	       || ((secondID % 2) 
+		   ? ((secondID-1) == p1.getID())
+		   : ((secondID+1) == p1.getID())))
+	  secondID = id1sampler();
+	
+	const CParticle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
+	
+	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	
+	CPDData PDat;
+	
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  PDat.rij[iDim] = Sim->normal_sampler();
+	
+	PDat.rij *= diameter / PDat.rij.nrm();
+	
+	if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
+	    (p1, p2, maxprob13, factor13, PDat))
+	  {
+	    //++Sim->lNColl;
+	    
+	    const C2ParticleData
+	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
-	  Sim->signalParticleUpdate(SDat);
-  
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-
-	  ndata.L2partChanges.push_back(SDat);
-	  
-	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(*this, SDat, 0.0);
-	}
-    }
-
+	    CNParticleData NDat;
+	    NDat.L1partChanges.push_back(SDat.particle1_);
+	    NDat.L1partChanges.push_back(SDat.particle2_);
+	    
+	    Sim->signalParticleUpdate(NDat);
+	    
+	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    
+	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	      Ptr->eventUpdate(*this, NDat, 0.0);
+	  }
+      }
+  }
 }
 
 void
@@ -150,8 +207,8 @@ CSRingDSMC::initialise(size_t nID)
     * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
 
-  factor13 = 16.0 * range1->size()
-    * diameter * PI * PI * chi * tstep 
+  factor13 = 4.0 * range1->size()
+    * diameter * PI * tstep 
     / Sim->Dynamics.units().simVolume();
   
   if (maxprob12 == 0.0)

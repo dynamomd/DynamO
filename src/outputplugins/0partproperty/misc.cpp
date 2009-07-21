@@ -238,8 +238,9 @@ COPMisc::periodicOutput()
   strftime(dateString, 12, "%a %H:%M |", &timeInfo);
 
   I_Pcout() << dateString << " NColls " << (Sim->lNColl+1)/1000 << "k, t "
-	    << Sim->dSysTime/Sim->Dynamics.units().unitTime() << ", <t_free> "
-	    << getMFT()
+	    << Sim->dSysTime/Sim->Dynamics.units().unitTime() << ", <t_2> "
+	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
+    /(Sim->Dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
 	    << ", "; 
 
   oldSysTime = Sim->dSysTime;
