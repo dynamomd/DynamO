@@ -243,6 +243,8 @@ CEReplexer::printStatus()
 	    << ", Round Trips " << round_trips
 	    << "\n        T   ID     NColl   A-Ratio     Swaps    UpSims     DownSims\n";
   
+
+  size_t outputCount(0);
   BOOST_FOREACH(const replexPair& dat, temperatureList)
     {       
       std::cout << std::setw(9)
@@ -265,6 +267,13 @@ CEReplexer::printStatus()
 		<< " "
 		<< (SimDirection[dat.second.simID] < 0 ? "\\/" : "  ")
 		<< "\n";
+      if (++outputCount > 30)
+	{
+	  outputCount = 0;
+	  std::cout << "\nPress a key to continue\n\n";
+	  std::cin.get();
+	}
+      
     }
 }
 

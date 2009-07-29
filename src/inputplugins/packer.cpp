@@ -174,6 +174,7 @@ CIPPacker::initialise()
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
 	"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --b1 : Sets chi to 1\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -1616,7 +1617,7 @@ CIPPacker::initialise()
       }
     case 17:
       {
-	//Pack of DSMC hard spheres
+	//Pack of Ring DSMC hard spheres
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -1660,6 +1661,9 @@ CIPPacker::initialise()
 
 	Iflt chi = (1.0 - 0.5 * packfrac)
 	  / std::pow(1.0 - packfrac, 3);
+
+	if (vm.count("b1"))
+	  chi = 1.0;
 
 	Iflt tij = 1.0 
 	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi);
