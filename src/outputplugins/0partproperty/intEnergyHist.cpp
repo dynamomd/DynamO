@@ -24,18 +24,36 @@
 #include "../../base/is_simdata.hpp"
 #include "../1partproperty/uenergy.hpp"
 
-COPIntEnergyHist::COPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode&):
+COPIntEnergyHist::COPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XML):
   COPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before COPEnergy
   intEnergyHist(1.0),
   ptrCOPEnergy(NULL),
-  weight(0.0)
-{}
+  weight(0.0),
+  binwidth(1.0)
+{
+  operator<<(XML);
+}
+
+void 
+COPIntEnergyHist::operator<<(const XMLNode& XML)
+{  
+  try 
+    {
+      if (XML.isAttributeSet("BinWidth"))
+	binwidth = boost::lexical_cast<Iflt>
+	   (XML.getAttribute("BinWidth"));
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in COPIntEnergyHist";
+    }  
+}
 
 void 
 COPIntEnergyHist::initialise() 
 {
   ptrCOPEnergy = Sim->getOutputPlugin<COPUEnergy>();
-  intEnergyHist = C1DWeightHistogram(Sim->Dynamics.units().unitEnergy());
+  intEnergyHist = C1DWeightHistogram(binwidth * Sim->Dynamics.units().unitEnergy());
 }
 
 void 
