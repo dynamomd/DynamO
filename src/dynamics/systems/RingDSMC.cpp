@@ -89,7 +89,7 @@ CSRingDSMC::runEvent() const
 
   //////////////////// T(1,2) operator
   Iflt intPart;
-  Iflt fracpart = std::modf(maxprob12 * (range1->size()/2),
+  Iflt fracpart = std::modf(maxprob12 * (range1->size() / 2),
 			    &intPart);
  
   size_t nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
@@ -207,8 +207,8 @@ CSRingDSMC::initialise(size_t nID)
     * diameter * PI * chi * tstep 
     / Sim->Dynamics.units().simVolume();
 
-  factor13 = 4.0 * range1->size()
-    * diameter * PI * tstep 
+  factor13 = 2.0 * range1->size()
+    * diameter * chi * PI * tstep 
     / Sim->Dynamics.units().simVolume();
   
   if (maxprob12 == 0.0)
