@@ -271,7 +271,7 @@ CEReplexer::printStatus()
 	{
 	  outputCount = 0;
 	  std::cin.clear();
-	  std::cout << "\nPress a key to continue\n\n";
+	  std::cout << "\nPress enter to continue\n";
 	  std::cin.ignore(1,0);
 	  std::cin.clear();
 	}
