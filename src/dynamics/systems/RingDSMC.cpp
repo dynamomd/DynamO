@@ -86,6 +86,8 @@ CSRingDSMC::runEvent() const
   locdt += Sim->freestreamAcc;
   Sim->freestreamAcc = 0;
 
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(*this, CNParticleData(), locdt);
 
   //////////////////// T(1,2) operator
   Iflt intPart;
@@ -94,10 +96,7 @@ CSRingDSMC::runEvent() const
  
   size_t nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
   
-  {  
-    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-      Ptr->eventUpdate(*this, CNParticleData(), locdt);
-
+  {
     boost::variate_generator
       <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
       id1sampler(Sim->ranGenerator, 
@@ -143,9 +142,6 @@ CSRingDSMC::runEvent() const
     
     nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
     
-    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-      Ptr->eventUpdate(*this, CNParticleData(), locdt);
-
     boost::variate_generator
       <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
       id1sampler(Sim->ranGenerator, 
