@@ -44,12 +44,13 @@ CSRingDSMC::CSRingDSMC(const XMLNode& XML, DYNAMO::SimData* tmp):
   type = DSMC;
 }
 
-CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi, 
+CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi1, Iflt nChi2,
 			     Iflt ne, std::string nName, CRange* r1):
   CSystem(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
   tstep(ntstp),
-  chi(nChi),
+  chi12(nChi1),
+  chi13(nChi2),
   d2(nd * nd),
   diameter(nd),
   maxprob12(0.0),
@@ -91,8 +92,7 @@ CSRingDSMC::runEvent() const
 
   //////////////////// T(1,2) operator
   Iflt intPart;
-  Iflt fracpart = std::modf(maxprob12 * (range1->size() / 2),
-			    &intPart);
+  Iflt fracpart = std::modf(maxprob12 * range1->size(), &intPart);
  
   size_t nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
   
@@ -137,8 +137,7 @@ CSRingDSMC::runEvent() const
 
   //////////////////// T(1,3) operator
   {
-    fracpart = std::modf(maxprob13 * (range1->size()/2),
-			 &intPart);
+    fracpart = std::modf(maxprob13 * range1->size(), &intPart);
     
     nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
     
@@ -199,12 +198,12 @@ CSRingDSMC::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-  factor12 = 4.0 * range1->size()
-    * diameter * PI * chi * tstep 
+  factor12 = 2.0 * range1->size()
+    * diameter * PI * chi12 * tstep 
     / Sim->Dynamics.units().simVolume();
 
   factor13 = 2.0 * range1->size()
-    * diameter * chi * PI * tstep 
+    * diameter * PI * chi13 * tstep 
     / Sim->Dynamics.units().simVolume();
   
   if (maxprob12 == 0.0)
@@ -292,7 +291,8 @@ CSRingDSMC::operator<<(const XMLNode& XML)
     tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
       * Sim->Dynamics.units().unitTime();
     
-    chi = boost::lexical_cast<Iflt>(XML.getAttribute("Chi"));
+    chi12 = boost::lexical_cast<Iflt>(XML.getAttribute("Chi12"));
+    chi13 = boost::lexical_cast<Iflt>(XML.getAttribute("Chi13"));
     
     sysName = XML.getAttribute("Name");
 
@@ -323,7 +323,8 @@ CSRingDSMC::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::tag("System")
       << xmlw::attr("Type") << "RingDSMC"
       << xmlw::attr("tStep") << tstep / Sim->Dynamics.units().unitTime()
-      << xmlw::attr("Chi") << chi
+      << xmlw::attr("Chi12") << chi12
+      << xmlw::attr("Chi13") << chi13
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Inelasticity") << e
       << xmlw::attr("Name") << sysName

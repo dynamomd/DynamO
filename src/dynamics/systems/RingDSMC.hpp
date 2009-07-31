@@ -31,7 +31,7 @@ class CSRingDSMC: public CSystem
 public:
   CSRingDSMC(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSRingDSMC(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
+  CSRingDSMC(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
   
   virtual CSystem* Clone() const { return new CSRingDSMC(*this); }
 
@@ -48,7 +48,7 @@ protected:
 				   boost::uniform_real<> > uniformRand;  
 
   Iflt tstep;
-  Iflt chi;
+  Iflt chi12, chi13;
   Iflt d2;
   Iflt diameter;
   mutable Iflt maxprob12;
