@@ -41,11 +41,15 @@ class COPIntEnergyHist: public COPCollTicker
 
   virtual void changeSystem(COutputPlugin*);
   
+  void operator<<(const XMLNode&);
+
  protected:
 
   C1DWeightHistogram intEnergyHist;
   const COPUEnergy* ptrCOPEnergy;
   Iflt weight;
+  Iflt binwidth;
+
 };
 
 #endif

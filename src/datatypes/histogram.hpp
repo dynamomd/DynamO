@@ -70,6 +70,11 @@ class C1DWeightHistogram
       sampleCount += weight;
     }
   
+  void resetBinWidth(Iflt val)
+  {
+    data = CFuzzyArray<Iflt>(val);
+  }
+
   typedef std::pair<const long, Iflt> lv1pair;
   
   void outputHistogram(xmlw::XmlStream&, Iflt) const;
