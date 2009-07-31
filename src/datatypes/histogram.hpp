@@ -39,7 +39,7 @@ class C1DHistogram
   
   void addVal(const Iflt& val)
     {
-      ++data[val];
+      ++data[val + 0.5 * data.binwidth];
       ++sampleCount;
     }
   
@@ -66,7 +66,7 @@ class C1DWeightHistogram
   
   void addVal(Iflt val, Iflt weight)
     {
-      data[val] += weight;
+      data[val + 0.5 * data.binwidth] += weight;
       sampleCount += weight;
     }
   
