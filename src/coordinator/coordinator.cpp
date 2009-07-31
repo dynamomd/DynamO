@@ -46,8 +46,10 @@ CCoordinator::signal_handler(int sigtype)
 
 	char c;
 	//Clear the input buffer
-	std::cin >> c;
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	std::cin.clear();
+	setvbuf(stdin, NULL, _IONBF, 0);
+	c=getchar();
+	setvbuf(stdin, NULL, _IOLBF, 0);
 	switch (c)
 	  {
 	  case 's':
