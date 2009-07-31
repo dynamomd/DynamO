@@ -270,8 +270,10 @@ CEReplexer::printStatus()
       if (++outputCount > 30)
 	{
 	  outputCount = 0;
+	  std::cin.clear();
 	  std::cout << "\nPress a key to continue\n\n";
-	  std::cin.get();
+	  std::cin.ignore(1,0);
+	  std::cin.clear();
 	}
       
     }
