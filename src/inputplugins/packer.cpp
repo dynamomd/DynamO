@@ -174,8 +174,8 @@ CIPPacker::initialise()
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
 	"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --b1 : Sets chi12 to 1\n"
-	"       --b2 : Sets chi13 to 1\n"
+	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
+	"       --b2 : Sets chi13 to BMCSL [1]\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -1663,13 +1663,13 @@ CIPPacker::initialise()
 	Iflt chi12 = (1.0 - 0.5 * packfrac)
 	  / std::pow(1.0 - packfrac, 3);
 	
-	Iflt chi13 = chi12;
+	Iflt chi13 = 1.0;
 	
 	if (vm.count("b1"))
 	  chi12 = 1.0;
 
 	if (vm.count("b2"))
-	  chi13 = 1.0;
+	  chi13 = chi12;
 
 	Iflt tij = 1.0 
 	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi12);
