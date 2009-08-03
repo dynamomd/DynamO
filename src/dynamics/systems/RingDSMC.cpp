@@ -172,7 +172,7 @@ CSRingDSMC::runEvent() const
 	if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
 	    (p1, p2, maxprob13, factor13, PDat))
 	  {
-	    //++Sim->lNColl;
+	    ++Sim->lNColl;
 	    
 	    const C2ParticleData
 	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
@@ -198,11 +198,11 @@ CSRingDSMC::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-  factor12 = 2.0 * range1->size()
+  factor12 = (2.0/2)  * range1->size()
     * diameter * PI * chi12 * tstep 
     / Sim->Dynamics.units().simVolume();
 
-  factor13 = 2.0 * range1->size()
+  factor13 = (2.0/2) * range1->size()
     * diameter * PI * chi13 * tstep 
     / Sim->Dynamics.units().simVolume();
   
