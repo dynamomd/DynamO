@@ -241,6 +241,10 @@ COPMisc::periodicOutput()
 	    << Sim->dSysTime/Sim->Dynamics.units().unitTime() << ", <t_2> "
 	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
     /(Sim->Dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
+	    << ", <t_tot> "
+	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
+    / (Sim->Dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents) 
+					   + static_cast<Iflt>(singleEvents)))
 	    << ", "; 
 
   oldSysTime = Sim->dSysTime;
