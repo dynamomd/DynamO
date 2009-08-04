@@ -198,11 +198,11 @@ CSRingDSMC::initialise(size_t nID)
   ID = nID;
   dt = tstep;
 
-  factor12 = (2.0/2)  * range1->size()
+  factor12 = (2.0/3.0) * range1->size()
     * diameter * PI * chi12 * tstep 
     / Sim->Dynamics.units().simVolume();
-
-  factor13 = (2.0/2) * range1->size()
+  
+  factor13 = (4.0/3.0) * range1->size()
     * diameter * PI * chi13 * tstep 
     / Sim->Dynamics.units().simVolume();
   
@@ -272,13 +272,23 @@ CSRingDSMC::initialise(size_t nID)
 
   if (maxprob12 > 0.5)
     I_cerr() << "MaxProbability12 is " << maxprob12
-	     << "\nNpairs per step is " << range1->size() * maxprob12;
+	     << "\nNpairs12 per step is " << range1->size() * maxprob12;
   else
     I_cout() << "MaxProbability12 is " << maxprob12
-	     << "\nNpairs per step is " << range1->size() * maxprob12;
+	     << "\nNpairs12 per step is " << range1->size() * maxprob12;
+
+  if (maxprob13 > 0.5)
+    I_cerr() << "MaxProbability13 is " << maxprob13
+	     << "\nNpairs13 per step is " << range1->size() * maxprob13;
+  else
+    I_cout() << "MaxProbability13 is " << maxprob13
+	     << "\nNpairs13 per step is " << range1->size() * maxprob13;
   
   if (range1->size() * maxprob12 < 2.0)
-    I_cerr() << "This probability is low";
+    I_cerr() << "The 12 probability is low";
+
+  if (range1->size() * maxprob13 < 2.0)
+    I_cerr() << "The 13 probability is low";
 }
 
 void
