@@ -119,15 +119,14 @@ def cluster_analysis(arrayList, minval, threshold):
 
 def print_structure(structure, filename):
   f = open(filename, 'w')
-  g = open(filename+".xyz", 'w')
+  g = open(filename+".txyz", 'w')
   try:
     length = str(len(structure))
     print >>f, "{VECT 1 "+length+" 0 "
     print >>f, length
     print >>f, "0"
     
-    print >>g, str(len(structure))
-    print >>g, "RMSD file"
+    print >>g, str(len(structure)),"RMSDimage"
 
     for i in range(len(structure)):
       print >>f, structure[i][0], structure[i][1], structure[i][2]
@@ -136,7 +135,9 @@ def print_structure(structure, filename):
       for line in os.popen(cmd).readlines():        
         if ("1" in line):
           atom = "O"
-      print >>g, atom, structure[i][0], structure[i][1], structure[i][2]
+      p=i
+      if (p==0): p = 2 
+      print >>g, i+1, atom, ("%15.10f" % structure[i][0]), ("%15.10f" % structure[i][1]), ("%15.10f" % structure[i][2]), atom, p
     #print >>f,"1 1 1 1"
     print >>f, "}"
   finally:
