@@ -177,16 +177,12 @@ CSRingDSMC::runEvent() const
 	    const C2ParticleData
 	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
-	    CNParticleData NDat;
-	    NDat.L1partChanges.push_back(SDat.particle1_);
-	    NDat.L1partChanges.push_back(SDat.particle2_);
-	    
-	    Sim->signalParticleUpdate(NDat);
+	    Sim->signalParticleUpdate(SDat);
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
 	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
-	      Ptr->eventUpdate(*this, NDat, 0.0);
+	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }
   }
