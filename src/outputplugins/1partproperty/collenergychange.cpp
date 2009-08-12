@@ -50,6 +50,8 @@ COPCollEnergyChange::initialise()
 
   data.resize(Sim->Dynamics.getSpecies().size(), 
 	      C1DHistogram(Sim->Dynamics.units().unitEnergy() * binWidth));
+
+  specialhist = C1DHistogram(Sim->Dynamics.units().unitEnergy() * binWidth);
 }
 
 void 
@@ -63,14 +65,28 @@ void
 COPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
 {
   data[PDat.particle1_.getSpecies().getID()]
-    .addVal(PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE());
+    .addVal(PDat.particle1_.getDeltaKE());
+
+  data[PDat.particle2_.getSpecies().getID()]
+    .addVal(PDat.particle2_.getDeltaKE());
+
+  Iflt p1Mass = PDat.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = PDat.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass / (p1Mass+p2Mass);
+
+  specialhist.addVal((PDat.dP.nrm2() / (2.0 * mu)) - (PDat.vijold | PDat.dP));
 }
 
 void
 COPCollEnergyChange::output(xmlw::XmlStream &XML)
 {
-  XML << xmlw::tag("CollEnergyChange");
-  
+  XML << xmlw::tag("CollEnergyChange")
+      << xmlw::tag("PairCalc");
+
+  specialhist.outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitEnergy());
+
+  XML << xmlw::endtag("PairCalc");
+
   for (size_t id = 0; id < data.size(); ++id)
     {
       XML << xmlw::tag("Species")

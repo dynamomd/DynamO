@@ -48,6 +48,7 @@ class COPCollEnergyChange: public COP1PP
   Iflt binWidth; 
 
   std::vector<C1DHistogram> data;
+  C1DHistogram specialhist;
 };
 
 #endif
