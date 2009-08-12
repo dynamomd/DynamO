@@ -55,13 +55,8 @@ COPVelDist::ticker()
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      if (iDim == 0)
-	data[iDim][sp->getID()]
-	  .addVal(Sim->vParticleList[ID].getVelocity()[0] 
-		  - Sim->vParticleList[ID].getPosition()[1]);
-      else
-	data[iDim][sp->getID()]
-	  .addVal(Sim->vParticleList[ID].getVelocity()[iDim]);
+      data[iDim][sp->getID()]
+	.addVal(Sim->vParticleList[ID].getVelocity()[iDim]);
 }
 
 void
