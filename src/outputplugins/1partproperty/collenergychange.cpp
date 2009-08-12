@@ -63,10 +63,7 @@ void
 COPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
 {
   data[PDat.particle1_.getSpecies().getID()]
-    .addVal(PDat.particle1_.getDeltaKE());
-
-  data[PDat.particle2_.getSpecies().getID()]
-    .addVal(PDat.particle2_.getDeltaKE());
+    .addVal(PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE());
 }
 
 void
