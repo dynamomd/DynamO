@@ -16,6 +16,7 @@
 */
 
 #include "vacf.hpp"
+#include "../../dynamics/liouvillean/SLLOD.hpp"
 
 COPVACF::COPVACF(const DYNAMO::SimData* tmp,const XMLNode& XML):
   COutputPlugin(tmp, "VACF", 60), //Note the sort order set later
@@ -128,6 +129,9 @@ COPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 void 
 COPVACF::newG(const C1ParticleData& PDat)
 {
+  if (Sim->Dynamics.liouvilleanTypeTest<CLSLLOD>())
+    Sim->Dynamics.Liouvillean().updateAllParticles();
+
   for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
   
