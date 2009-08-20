@@ -21,18 +21,17 @@
 
 COPCollisionCorrelator::COPCollisionCorrelator(const DYNAMO::SimData* t1,
 					       const XMLNode& XML):
-  COP2PP(t1,"CollisionCorrelator"),
-  collisionHistoryLength(20)
+  COP2PP(t1,"CollisionCorrelator")
 { operator<<(XML); }
 
 void 
 COPCollisionCorrelator::operator<<(const XMLNode& XML)
 {
   try {
-    if (XML.isAttributeSet("length"))
+    /*if (XML.isAttributeSet("length"))
       collisionHistoryLength 
 	= boost::lexical_cast<size_t>
-	(XML.getAttribute("length"));
+	(XML.getAttribute("length"));*/
       }
   catch (std::exception& excep)
     {
@@ -44,70 +43,41 @@ COPCollisionCorrelator::operator<<(const XMLNode& XML)
 void 
 COPCollisionCorrelator::initialise()
 {
-  //Set the history size and clear it
-  partnerHist.resize
-    (Sim->lN, boost::circular_buffer<size_t>(collisionHistoryLength));
+  //Set the history size
+  lastColl.resize(Sim->lN, std::vector<double>(Sim->lN, 0.0));
 
-  //Set the initial value to its own id to indicate no history
-  for (size_t id = 0; id < Sim->lN; ++id)
-    BOOST_FOREACH(size_t& val, partnerHist[id])
-      val = id;
-  
-  counter.resize(Sim->Dynamics.getSpecies().size(),
-		 std::vector<std::pair<size_t,size_t> >
-		 (collisionHistoryLength, std::pair<size_t, size_t>(0, 0)));
-}
+  if (Sim->lastRunMFT == 0.0)
+    D_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
 
-void 
-COPCollisionCorrelator::performSweep(const size_t& id, const size_t& specid,
-				     const size_t& nid)
-{
-  for (size_t n = 0; n < collisionHistoryLength; ++n)
-    //Check that the history is valid
-    if (partnerHist[id][n] != id)
-      {
-	++(counter[specid][n].second);
-
-	if (partnerHist[id][n] == nid)
-	  ++(counter[specid][n].first);	
-      }
-
-  //Update the history
-  partnerHist[id]
-    .push_front(nid);
+  //Histogram in mean free times
+  freetimehist = C1DHistogram(Sim->lastRunMFT*0.1*Sim->Dynamics.units().unitTime());
 }
 
 void 
 COPCollisionCorrelator::A2ParticleChange(const C2ParticleData& PDat)
 {
-  performSweep(PDat.particle1_.getParticle().getID(),
-	       PDat.particle1_.getSpecies().getID(),
-	       PDat.particle2_.getParticle().getID());
-  
-  performSweep(PDat.particle2_.getParticle().getID(),
-	       PDat.particle2_.getSpecies().getID(),
-	       PDat.particle1_.getParticle().getID());
+  size_t ID1 = PDat.particle1_.getParticle().getID();
+  size_t ID2 = PDat.particle2_.getParticle().getID();
+
+  if (ID1 > ID2) std::swap(ID1, ID2);
+
+  //Check there was a previous collision
+  if (lastColl[ID1][ID2] != 0.0)
+    freetimehist.addVal(Sim->dSysTime - lastColl[ID1][ID2]);
+
+  lastColl[ID1][ID2] = Sim->dSysTime;  
 }
 
 void
 COPCollisionCorrelator::output(xmlw::XmlStream &XML)
 {
+  for (size_t ID1(0); ID1 < Sim->lN; ++ID1)
+    for (size_t ID2(ID1+1); ID2 < Sim->lN; ++ID2)
+      if (lastColl[ID1][ID2] > 1000* freetimehist.data.binWidth) freetimehist.addVal(-1.0);
+
   XML << xmlw::tag("CollisionCorrelator");
-
-  for (size_t id = 0; id < counter.size(); ++id)
-    {
-      XML << xmlw::tag("Species")
-	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id]->getName()
-	  << xmlw::chardata();
-
-      for (size_t n = 0; n < collisionHistoryLength; ++n)
-	XML << n + 1  << " " << static_cast<Iflt>(counter[id][n].first)
-	  / static_cast<Iflt>(counter[id][n].second)  
-	    << "\n";
-
-      XML << xmlw::endtag("Species");
-    }
+  
+  freetimehist.outputHistogram(XML, 1.0/Sim->Dynamics.units().unitTime());
 
   XML << xmlw::endtag("CollisionCorrelator");
 }

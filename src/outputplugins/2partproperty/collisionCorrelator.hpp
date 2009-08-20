@@ -19,6 +19,7 @@
 #define COPCollisionCorrelator_HPP
 
 #include "2partproperty.hpp"
+#include "../../datatypes/histogram.hpp"
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
@@ -42,12 +43,8 @@ private:
 
   virtual void stream(const Iflt&) {}  
 
-  void performSweep(const size_t&, const size_t&, const size_t&);
-
-  size_t collisionHistoryLength;
-
-  std::vector<boost::circular_buffer<size_t> > partnerHist;
-  std::vector<std::vector<std::pair<size_t,size_t> > > counter;
+  C1DHistogram freetimehist;
+  std::vector<std::vector<Iflt> > lastColl;
 };
 
 #endif
