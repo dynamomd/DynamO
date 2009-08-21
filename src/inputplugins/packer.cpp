@@ -234,6 +234,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -299,6 +300,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -403,6 +405,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
@@ -460,6 +463,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
 	
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -518,6 +522,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUShear(particleDiam, Sim));
 	
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), nParticles++));
@@ -608,6 +613,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -684,6 +690,7 @@ CIPPacker::initialise()
 	
 	unsigned long nParticles = 0;
 
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -774,6 +781,7 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -859,6 +867,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -908,6 +917,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -981,6 +991,7 @@ CIPPacker::initialise()
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -1052,6 +1063,7 @@ CIPPacker::initialise()
 					       "Bulk")));
 	
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -1245,6 +1257,7 @@ CIPPacker::initialise()
 					       massFrac, "B", 0, "BBInt")));
 
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -1292,6 +1305,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -1408,6 +1422,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -1489,6 +1504,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));	
 	
 	size_t nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, 
@@ -1613,7 +1629,7 @@ CIPPacker::initialise()
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
-
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
@@ -1690,6 +1706,7 @@ CIPPacker::initialise()
 					       "Bulk")));
 	
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
@@ -1772,6 +1789,7 @@ CIPPacker::initialise()
 					       "Bulk")));
 	
 	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
