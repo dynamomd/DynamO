@@ -372,7 +372,14 @@ CGCells::addCells(Iflt maxdiam)
 
   fflush(stdout);
 
-  cells.resize(NCells); //Empty Cells created!
+  try {
+    cells.resize(NCells); //Empty Cells created!
+  }
+  catch(std::bad_alloc& er)
+    {
+      D_throw() << "The number of cells is causing a bad alloc\n"
+		<< er.what();
+    }
 
   for (size_t id = 0; id < NCells; id++)
     {
