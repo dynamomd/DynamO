@@ -335,14 +335,12 @@ CGCells::addCells(Iflt maxdiam)
       if (cellCount[iDim] < 3)
 	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
 
-//      if (cellCount[iDim] > 250)
-//	{
-//	  I_cout() << "Cell count was " << cellCount[iDim] 
-//		   << "\n Restricting to 250 to stop this sim grinding to a halt";
-//	  cellCount[iDim] = 250;
-//	}
-
       NCells *= cellCount[iDim];
+
+      if (NCells > cells.max_size())
+	D_throw() << "Number of cells (" << NCells << ") is too large\n"
+		  << "Max is " << cells.max_size() << ", aborting";
+
     }
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
