@@ -336,11 +336,6 @@ CGCells::addCells(Iflt maxdiam)
 	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
 
       NCells *= cellCount[iDim];
-
-      if (NCells > cells.max_size())
-	D_throw() << "Number of cells (" << NCells << ") is too large\n"
-		  << "Max is " << cells.max_size() << ", aborting";
-
     }
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -376,6 +371,8 @@ CGCells::addCells(Iflt maxdiam)
   catch(std::bad_alloc& er)
     {
       D_throw() << "The number of cells is causing a bad alloc\n"
+		<< "Number of cells (" << NCells << ") could be too large\n"
+		<< "Max is " << cells.max_size() << ", aborting"
 		<< er.what();
     }
 
