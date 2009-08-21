@@ -111,6 +111,8 @@ main(int argc, char *argv[])
 	    " comfig files";
       }
 
+      std::cout << "Maximum particle count allowed by architecture " << std::vector<CParticle>().max_size();
+
       if (!vm.count("config-file"))
 	{
 	  CIPPacker plug(vm, &sim);

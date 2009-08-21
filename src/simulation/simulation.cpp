@@ -149,8 +149,8 @@ CSimulation::setTrajectoryLength(unsigned long long newMaxColl)
 void
 CSimulation::initialise()
 {
+  I_cout() << "Sorting the Output Plugins";
 
-  I_cout() << "Sort and init the Output Plugins";
   std::sort(outputPlugins.begin(), outputPlugins.end());
   
   bool needTicker = false;
@@ -170,7 +170,7 @@ CSimulation::initialise()
 
   lN = vParticleList.size();
   
-  I_cout() << "Initialising Simulation";  
+  I_cout() << "Initialising Components";  
 
   if (ptrScheduler == NULL)
     D_throw() << "The scheduler has not been set!";      
@@ -180,14 +180,21 @@ CSimulation::initialise()
 
   Ensemble->initialise();
     
-  I_cout() << "Initialising the scheduler";
   fflush(stdout);
 
   if (lMaxNColl) //Only initialise the scheduler if we're simulating
-    ptrScheduler->initialise();
+    {
+      I_cout() << "Initialising the scheduler";
+      ptrScheduler->initialise();
+    }
+  else
+    I_cout() << "Skipping initialisation of the Scheduler";
   
+  I_cout() << "Initialising the output plugins";
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
     Ptr->initialise();
+
+  I_cout() << "System initialised";
 
   status = INITIALISED;
 }
