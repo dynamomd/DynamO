@@ -186,7 +186,8 @@ namespace DYNAMO
 
     /*! \brief The mean free time of the previous simulation run
      *
-     * This is zero in the case that there is no previous simulation data.
+     * This is zero in the case that there is no previous simulation
+     * data and is already in the units of the simulation once loaded
      */
     Iflt lastRunMFT;
 

@@ -50,7 +50,7 @@ COPCollisionCorrelator::initialise()
     D_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
 
   //Histogram in mean free times
-  freetimehist = C1DHistogram(Sim->lastRunMFT*0.1*Sim->Dynamics.units().unitTime());
+  freetimehist = C1DHistogram(Sim->lastRunMFT*0.1);
 }
 
 void 
