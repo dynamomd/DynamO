@@ -108,7 +108,7 @@ CGCellsMorton::getEvent(const CParticle& part) const
   return CGlobEvent(part,
 		    Sim->Dynamics.Liouvillean().
 		    getSquareCellCollision2
-		    (part, cells[partCellData[part.getID()].cell].origin, 
+		    (part, calcPosition(cells[partCellData[part.getID()].cell].coords), 
 		     Vector(cellDimension,cellDimension,cellDimension))
 		    -Sim->Dynamics.Liouvillean().getParticleDelay(part)
 		    ,
@@ -129,7 +129,7 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //Determine the cell transition direction, its saved
   size_t cellDirection(Sim->Dynamics.Liouvillean().
 		       getSquareCellCollision3
-		       (part, cells[oldCell].origin, 
+		       (part, calcPosition(cells[oldCell].coords), 
 			Vector(cellDimension,cellDimension,cellDimension)));
   
 
@@ -355,10 +355,6 @@ CGCellsMorton::addCells(Iflt maxdiam)
 	  size_t id = coords.getMortonNum();
 	  cells[id].coords = coords;
 	  list[id] = -1;
-	  
-	  for (size_t iDim = 0; iDim < NDIM; iDim++)
-	    cells[id].origin[iDim] = coords.data[iDim].getRealVal()
-	      * cellLatticeWidth - 0.5 * Sim->aspectRatio[iDim];
 	}
 
   //Add the particles section
@@ -378,7 +374,7 @@ CGCellsMorton::addLocalEvents()
       cell.locals.clear();
 
       BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
-	if (local->isInCell(cell.origin, Vector(cellDimension,cellDimension,cellDimension)))
+	if (local->isInCell(calcPosition(cell.coords), Vector(cellDimension,cellDimension,cellDimension)))
 	  cell.locals.push_back(local->getID());
     }
 }
@@ -487,4 +483,12 @@ Iflt
 CGCellsMorton::getMaxInteractionLength() const
 {
   return Sim->Dynamics.getLongestInteraction();
+}
+
+Vector 
+CGCellsMorton::calcPosition(const dilatedCoords& coords) const
+{
+  return Vector(coords.data[0].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[0],
+		coords.data[1].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[1],
+		coords.data[2].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[2]);
 }

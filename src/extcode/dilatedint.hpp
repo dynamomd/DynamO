@@ -43,7 +43,7 @@ public:
   
   const unsigned int& getDilatedVal() const { return value; }
   
-  unsigned int getRealVal() { return undilate_3(value); }
+  unsigned int getRealVal() const { return undilate_3(value); }
   
   void setDilatedVal(const unsigned int& i) { value = i & mask; }
 

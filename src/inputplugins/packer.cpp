@@ -202,9 +202,13 @@ CIPPacker::initialise()
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
 	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  {
+	    Sim->Dynamics.setPBC<CSPBC>();
+	    Sim->Dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
+	  }
 
 	Iflt simVol = 1.0;
 
@@ -216,7 +220,6 @@ CIPPacker::initialise()
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
-	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	if (vm.count("b1"))
 	  Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));

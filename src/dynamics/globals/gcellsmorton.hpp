@@ -79,7 +79,6 @@ protected:
   struct cellStruct
   {
     std::vector<size_t> locals;
-    Vector origin;
     dilatedCoords coords;
   };
 
@@ -89,6 +88,8 @@ protected:
   dilatedCoords getCellID(const CVector<int>&) const;
 
   void addCells(Iflt);
+
+  inline Vector calcPosition(const dilatedCoords& coords) const;
 
   void addLocalEvents();
 
