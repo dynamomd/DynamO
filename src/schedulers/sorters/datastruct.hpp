@@ -155,5 +155,19 @@ public:
     BOOST_FOREACH(intPart& dat, c)
       dat.dt *= scale;
   }
+
+  inline void swap(pList& rhs)
+  {
+    c.swap(rhs.c);
+  }
 };
+
+namespace std
+{
+  template<> inline
+  void swap(pList& lhs, pList& rhs)
+  {
+    lhs.swap(rhs);
+  }
+}
 #endif
