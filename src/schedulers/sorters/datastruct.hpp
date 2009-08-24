@@ -82,10 +82,9 @@ public:
   inline void stream(const Iflt& ndt) throw() { dt -= ndt; }
 
   mutable Iflt dt;
-  size_t p2;
-  EEventType type;
   unsigned long long collCounter2;
-  
+  EEventType type;
+  size_t p2;  
 };
 
 typedef std::vector<intPart> qType;
