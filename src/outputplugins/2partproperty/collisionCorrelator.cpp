@@ -73,7 +73,7 @@ COPCollisionCorrelator::output(xmlw::XmlStream &XML)
 {
   for (size_t ID1(0); ID1 < Sim->lN; ++ID1)
     for (size_t ID2(ID1+1); ID2 < Sim->lN; ++ID2)
-      if (lastColl[ID1][ID2] > 1000* freetimehist.data.binWidth) freetimehist.addVal(-1.0);
+      if (lastColl[ID1][ID2] > 100* freetimehist.data.binWidth) freetimehist.addVal(-1.0);
 
   XML << xmlw::tag("CollisionCorrelator");
   

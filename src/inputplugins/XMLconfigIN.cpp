@@ -33,7 +33,6 @@ namespace io = boost::iostreams;
 #include "../extcode/xmlParser.h"
 #include "../base/is_exception.hpp"
 #include "../dynamics/dynamics.hpp"
-//#include "../schedulers/cellularLE.hpp"
 #include "../schedulers/scheduler.hpp"
 #include "../dynamics/BC/LEBC.hpp"
 #include "../simulation/particle.hpp"
@@ -129,11 +128,16 @@ CIPConfig::initialise()
   xBrowseNode = xSubNode.getChildNode("History");
   Sim->ssHistory << xBrowseNode.getText();
 
+  I_cout() << "Loading Dynamics";
+
   Sim->Dynamics << xMainNode;
+
+  I_cout() << "Loading Scheduler";
 
   Sim->ptrScheduler = 
     CScheduler::getClass(xSubNode.getChildNode("Scheduler"),Sim);
 
+  I_cout() << "Loading Ensemble";
   if (xSubNode.nChildNode("Ensemble"))
     Sim->Ensemble.reset
       (DYNAMO::CEnsemble::getClass(xSubNode.getChildNode("Ensemble"), Sim));
@@ -148,10 +152,14 @@ CIPConfig::initialise()
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
       }
 
+  I_cout() << "Loading Particle data";
+
   xSubNode = xMainNode.getChildNode("ParticleData");
 
   Sim->Dynamics.Liouvillean().loadParticleXMLData(xSubNode, inputFile);
   
   //Fixes or conversions once system is loaded
   Sim->lastRunMFT *= Sim->Dynamics.units().unitTime();
+
+  I_cout() << "Configuration loaded";
 }
