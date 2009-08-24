@@ -35,42 +35,42 @@ class intPart
 public:   
   inline intPart(const Iflt& ndt, const unsigned long long& direction) throw():
     dt(ndt),
-    p2(0),
+    collCounter2(direction),
     type(CELL),
-    collCounter2(direction)
+    p2(0)
   {}
   
   inline intPart(const Iflt& ndt, const EEventType& nT, 
 		 const size_t& nID2, const unsigned long long& nCC2) throw():
     dt(ndt),
-    p2(nID2),
+    collCounter2(nCC2),
     type(nT),
-    collCounter2(nCC2)
+    p2(nID2)
     {}
 
   inline intPart(const Iflt& ndt, const EEventType& nT) throw():
     dt(ndt),
-    p2(0),
-    type(nT)
+    type(nT),
+    p2(0)
   {}
 
   inline intPart(const CIntEvent& coll, const unsigned long long& nCC2) throw():
     dt(coll.getdt()),
-    p2(coll.getParticle2ID()),
+    collCounter2(nCC2),
     type(INTERACTION),
-    collCounter2(nCC2)
+    p2(coll.getParticle2ID())
   {}
 
   inline intPart(const CGlobEvent& coll) throw():
     dt(coll.getdt()),
-    p2(coll.getGlobalID()),
-    type(GLOBAL)
+    type(GLOBAL),
+    p2(coll.getGlobalID())
   {}
 
   inline intPart(const CLocalEvent& coll) throw():
     dt(coll.getdt()),
-    p2(coll.getLocalID()),
-    type(LOCAL)
+    type(LOCAL),
+    p2(coll.getLocalID())
   {}
 
   inline bool operator< (const intPart& ip) const throw()
