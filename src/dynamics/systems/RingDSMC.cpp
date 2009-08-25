@@ -121,7 +121,8 @@ CSRingDSMC::runEvent() const
 	    (p1, p2, maxprob12, factor12, PDat))
 	  {
 	    ++Sim->lNColl;
-	    
+	    ++n12;
+
 	    const C2ParticleData
 	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 	    
@@ -173,7 +174,8 @@ CSRingDSMC::runEvent() const
 	    (p1, p2, maxprob13, factor13, PDat))
 	  {
 	    ++Sim->lNColl;
-	    
+	    ++n13;
+
 	    const C2ParticleData
 	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
@@ -193,6 +195,9 @@ CSRingDSMC::initialise(size_t nID)
 {
   ID = nID;
   dt = tstep;
+
+  n12 = 0;
+  n13 = 0;
 
   factor12 = (2.0/3.0) * range1->size()
     * diameter * PI * chi12 * tstep 
@@ -326,6 +331,11 @@ CSRingDSMC::operator<<(const XMLNode& XML)
 void 
 CSRingDSMC::outputXML(xmlw::XmlStream& XML) const
 {
+  if (n12 && n13)
+    I_cout()<< "Number of T(1,2) events " << n12
+	    << "\nNumber of T(1,3) events " << n13
+	    << "\nRatio T(1,2)/T(1,3) " << ((Iflt) n12) / ((Iflt) n13);
+
   XML << xmlw::tag("System")
       << xmlw::attr("Type") << "RingDSMC"
       << xmlw::attr("tStep") << tstep / Sim->Dynamics.units().unitTime()

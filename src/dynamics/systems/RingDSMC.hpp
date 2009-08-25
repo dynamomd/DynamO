@@ -57,6 +57,9 @@ protected:
   Iflt factor12;
   Iflt factor13;
 
+  mutable unsigned long n12;
+  mutable unsigned long n13;
+
   smrtPlugPtr<CRange> range1;
 };
 
