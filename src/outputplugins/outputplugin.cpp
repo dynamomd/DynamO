@@ -108,7 +108,20 @@ COutputPlugin*
 COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   std::string Name = XML.getAttribute("Type");
-  std::cout << IC_purple << "\nOutputPluginParser:" << IC_reset <<  " Parsing XML " << XML.createXMLString();
+  
+  {
+    std::string XMLstring(XML.createXMLString());
+    
+    std::string::size_type pos = XMLstring.find_last_of("\n");
+
+    if(pos != std::string::npos)
+      {
+	XMLstring.erase(pos);
+      }
+
+    std::cout << IC_purple << "\nOutputPluginParser:" << IC_reset 
+	      <<  " Parsing XML " << XMLstring;
+  }
 
   if (!Name.compare("MSD"))
     return testGeneratePlugin<COPMSD>(Sim, XML);

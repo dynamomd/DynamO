@@ -174,6 +174,7 @@ CIPPacker::initialise()
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
 	"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --f1 : Sets the fraction of T(j,k) events [1/3rd] (do not use with b1/b2)\n"
 	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
 	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
 	"  18: Monocomponent sheared hard spheres using Ring DSMC interactions\n"
@@ -1697,6 +1698,14 @@ CIPPacker::initialise()
 
 	Iflt tij = 1.0 
 	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi12);
+
+	if (vm.count("f1"))
+	  {
+	    Iflt frac = vm["f1"].as<Iflt>();
+	    chi12 = 3.0*frac*chi12;
+	    chi13 = (3.0/2.0)*(1.0-frac)*chi13;
+	  }
+
 
 	//No thermostat added yet
 	Sim->Dynamics.addSystem

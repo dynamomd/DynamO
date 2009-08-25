@@ -120,6 +120,8 @@ CSimulation::addOutputPlugin(std::string Name)
   if (status >= INITIALISED)
     D_throw() << "Cannot add plugins now";
   
+  I_cout() << "Loading output plugin, " << Name;
+
   smrtPlugPtr<COutputPlugin> tempPlug(COutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);
 }
@@ -287,6 +289,8 @@ CSimulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 void
 CSimulation::loadPlugins(std::string pluginFileName)
 {
+  I_cout() << "Loading outputplugins from file, " << pluginFileName;
+  
   if (status >= INITIALISED)
     D_throw() << "Cannot add plugins now";
 
