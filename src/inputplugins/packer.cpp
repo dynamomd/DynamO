@@ -1702,8 +1702,8 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  {
 	    Iflt frac = vm["f1"].as<Iflt>();
-	    chi12 = 3.0*frac*chi12;
-	    chi13 = (3.0/2.0)*(1.0-frac)*chi13;
+	    chi12 = 2.0*frac*chi12*3.0/2.0;
+	    chi13 = 2.0*(1.0-frac)*chi13*3.0/4.0;
 	  }
 
 

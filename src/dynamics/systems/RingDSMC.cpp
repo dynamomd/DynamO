@@ -331,10 +331,10 @@ CSRingDSMC::operator<<(const XMLNode& XML)
 void 
 CSRingDSMC::outputXML(xmlw::XmlStream& XML) const
 {
-  if (n12 && n13)
+  if (n12 || n13)
     I_cout()<< "Number of T(1,2) events " << n12
 	    << "\nNumber of T(1,3) events " << n13
-	    << "\nRatio T(1,2)/T(1,3) " << ((Iflt) n12) / ((Iflt) n13);
+	    << "\nRatio T(1,2)/total " << ((Iflt) n12) / (((Iflt) n13) + ((Iflt) n12));
 
   XML << xmlw::tag("System")
       << xmlw::attr("Type") << "RingDSMC"
