@@ -199,11 +199,11 @@ CSRingDSMC::initialise(size_t nID)
   n12 = 0;
   n13 = 0;
 
-  factor12 = (2.0/3.0) * range1->size()
+  factor12 = range1->size()
     * diameter * PI * chi12 * tstep 
     / Sim->Dynamics.units().simVolume();
   
-  factor13 = (4.0/3.0) * range1->size()
+  factor13 = range1->size()
     * diameter * PI * chi13 * tstep 
     / Sim->Dynamics.units().simVolume();
   
