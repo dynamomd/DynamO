@@ -130,7 +130,6 @@ CIHardSphere::runEvent(const CParticle& p1,
 		       const CParticle& p2,
 		       const CIntEvent& iEvent) const
 {
-
   ++Sim->lNColl;
     
   //Run the collision and catch the data

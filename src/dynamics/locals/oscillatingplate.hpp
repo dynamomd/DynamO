@@ -15,45 +15,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGOscillatingPlate_HPP
-#define CGOscillatingPlate_HPP
+#ifndef CLOscillatingPlate_HPP
+#define CLOscillatingPlate_HPP
 
-#include "global.hpp"
-#include "../../extcode/mathtemplates.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../simulation/particle.hpp"
-#include <vector>
+#include "local.hpp"
 
-class CGOscillatingPlate: public CGlobal
+class CLOscillatingPlate: public CLocal
 {
 public:
-  CGOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
+  CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
+  CLOscillatingPlate(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
 
-  CGOscillatingPlate(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, const std::string&);
+  virtual ~CLOscillatingPlate() {}
 
-  virtual ~CGOscillatingPlate() {}
+  virtual CLocal* Clone() const { return new CLOscillatingPlate(*this); };
 
-  virtual CGlobal* Clone() const 
-  { 
-    return new CGOscillatingPlate(*this); 
-  }
+  virtual CLocalEvent getEvent(const CParticle&) const;
 
-  virtual CGlobEvent getEvent(const CParticle &) const;
-
-  virtual void runEvent(const CParticle&) const;
+  virtual void runEvent(const CParticle&, const CLocalEvent&) const;
+  
+  virtual bool isInCell(const Vector &, const Vector &) const;
 
   virtual void initialise(size_t);
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void outputXML(xmlw::XmlStream& XML) const;
+  virtual void write_povray_info(std::ostream&) const;
 
 protected:
-
+  virtual void outputXML(xmlw::XmlStream&) const;
+  
   Iflt x0;
   Iflt xi;
   Iflt omega0;
   Iflt sigma;
+  Iflt e;
 };
 
 #endif

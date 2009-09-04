@@ -183,7 +183,7 @@ CScheduler::runNextEvent()
 		     << "\n\n Systime is "
 		     << Sim->dSysTime / Sim->Dynamics.units().unitTime();
 	     
-	    Sim->ptrScheduler->fullUpdate(p1, p2);
+	    this->fullUpdate(p1, p2);
 	    return;
 	  }
 	
@@ -227,6 +227,7 @@ CScheduler::runNextEvent()
 	Sim->Dynamics.stream(Event.getdt());	
 	
 	Event.addTime(Sim->freestreamAcc);
+
 	Sim->freestreamAcc = 0;
 
 	Sim->Dynamics.getInteractions()[Event.getInteractionID()]

@@ -18,3 +18,4 @@
 #include "lwall.hpp"
 #include "ldblwall.hpp"
 #include "AndersenWall.hpp"
+#include "oscillatingplate.hpp"
