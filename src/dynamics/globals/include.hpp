@@ -21,3 +21,4 @@
 #include "gcellsShearing.hpp"
 #include "PBCSentinel.hpp"
 #include "socells.hpp"
+#include "oscillatingplate.hpp"
