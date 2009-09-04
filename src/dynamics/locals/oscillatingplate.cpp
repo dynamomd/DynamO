@@ -49,10 +49,28 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  D_throw() << "Not implemented";
-  //  return CLocalEvent(part, Sim->Dynamics.Liouvillean().getWallCollision
-  //(part, vPosition, vNorm), WALL, *this);
+  Iflt rvec = part.getPosition()[0] - x0;
+  Iflt maxlength = sigma + xi;
+  Iflt tmax = 0;
+
+  //Simple test to see if they are approaching
+  if (((rvec > maxlength) && (part.getVelocity()[0] > 0))
+      || ((rvec < -maxlength) && (part.getVelocity()[0] < 0)))
+      return CLocalEvent(part, HUGE_VAL, NONE, *this);
+  
+  if (part.getVelocity()[0] > 0)
+    tmax = (maxlength - rvec) / part.getVelocity()[0];
+  else
+    tmax = (-maxlength - rvec) / part.getVelocity()[0];
+
+  
+  
+  I_cout() << "True";
+
+  return CLocalEvent(part, HUGE_VAL, NONE, *this);
 }
+
+
 
 void
 CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
@@ -91,10 +109,19 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
   
   try {
     e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
-    x0 =  boost::lexical_cast<Iflt>(XML.getAttribute("X0"));
-    xi =  boost::lexical_cast<Iflt>(XML.getAttribute("Xi"));
-    omega0 =  boost::lexical_cast<Iflt>(XML.getAttribute("Omega0"));
-    sigma = boost::lexical_cast<Iflt>(XML.getAttribute("Sigma"));
+
+    x0 =  boost::lexical_cast<Iflt>(XML.getAttribute("X0"))
+      * Sim->Dynamics.units().unitLength();
+
+    xi =  boost::lexical_cast<Iflt>(XML.getAttribute("Xi"))
+      * Sim->Dynamics.units().unitLength();
+
+    omega0 =  boost::lexical_cast<Iflt>(XML.getAttribute("Omega0"))
+      / Sim->Dynamics.units().unitTime();
+
+    sigma = boost::lexical_cast<Iflt>(XML.getAttribute("Sigma"))
+      * Sim->Dynamics.units().unitLength();
+
     localName = XML.getAttribute("Name");
   } 
   catch (boost::bad_lexical_cast &)
@@ -109,20 +136,29 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "OscillatingPlate" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
-      << xmlw::attr("X0") << x0
-      << xmlw::attr("Xi") << xi
-      << xmlw::attr("Omega0") << omega0
-      << xmlw::attr("Sigma") << sigma;
+      << xmlw::attr("X0") << x0 / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Xi") << xi / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Omega0") << omega0 * Sim->Dynamics.units().unitTime()
+      << xmlw::attr("Sigma") << sigma / Sim->Dynamics.units().unitLength();
 
+}
+
+double 
+CLOscillatingPlate::getPosition() const
+{
+  return xi * std::cos(omega0 * Sim->dSysTime) + x0;
 }
 
 void 
 CLOscillatingPlate::write_povray_info(std::ostream& os) const
 {
-//  os << "object {\n plane {\n  <" << vNorm[0] << ", " << vNorm[1] 
-//     << ", " << vNorm[2] << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}}\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
-//     << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
-//     << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
-//     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << vPosition[0] << 
-//    ","<< vPosition[1] << "," << vPosition[2] << ">\n}\n";
+  os << "object {\n union { plane {\n  <" << -1 << ", " << 0
+     << ", " << 0 << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << -sigma 
+     << ",0,0> } \n plane {\n  <" << 1 << ", " << 0
+     << ", " << 0 << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << +sigma 
+     << ",0,0> } }\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
+     << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
+     << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
+     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << getPosition()<< 
+    ","<< 0 << "," << 0 << ">\n}\n";
 }

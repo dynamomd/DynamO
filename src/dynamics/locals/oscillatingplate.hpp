@@ -42,6 +42,8 @@ public:
 
   virtual void write_povray_info(std::ostream&) const;
 
+  double getPosition() const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
   
