@@ -78,16 +78,6 @@ public:
   
   void initLineOrientations(const Iflt&);
 
-  enum
-  {
-    ROOT_SMALLEST_EITHER   =   1,
-    ROOT_SMALLEST_POSITIVE =   2,
-    ROOT_SMALLEST_NEGATIVE =   4,
-    ROOT_LARGEST_EITHER    =   8,
-    ROOT_LARGEST_POSITIVE  =  16,
-    ROOT_LARGEST_NEGATIVE  =  32
-  };
-
 protected:
 
   virtual void outputXML(xmlw::XmlStream&) const;

@@ -390,7 +390,7 @@ CLNOrientation::quadraticRootHunter(const CLinesFunc& fL, Iflt length,
 	  (fwdWorking ? t_low : t_high) += boundEnhancer;
 	}
 	
-	if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, halff2))
+	if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT))
 	  continue;
       }
       
@@ -407,10 +407,9 @@ CLNOrientation::quadraticRootHunter(const CLinesFunc& fL, Iflt length,
 	  
 	  tempfL.stream(deltaT);
 	  
-	  if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
-				 tempfL.F_zeroDeriv(), 
-				 tempfL.F_firstDeriv(), 
-				 0.5 * tempfL.F_secondDeriv()))
+	  if (!quadSolve<ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(), 
+					       tempfL.F_firstDeriv(), 
+					       Iflt(0.5 * tempfL.F_secondDeriv()), deltaT))
 	    break;
 	  
 	  if(fabs(deltaT) <  timescale)
