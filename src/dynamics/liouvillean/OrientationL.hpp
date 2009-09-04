@@ -88,9 +88,6 @@ protected:
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
   
-  virtual bool quadraticSolution(Iflt& returnVal, const int returnType, 
-				 Iflt A, Iflt B, Iflt C) const;
-
   /* \brief For line line collisions, determines intersections of the infinite lines
   **
   **   Firstly, search for root in main window

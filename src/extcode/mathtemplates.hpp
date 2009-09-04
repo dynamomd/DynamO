@@ -30,17 +30,7 @@ struct ctime_pow<X,1> {
   static const int result = X;
 };
 
-//typedef enum
-//  {
-//    ROOT_SMALLEST_EITHER   =   1,
-//    ROOT_SMALLEST_POSITIVE =   2,
-//    ROOT_SMALLEST_NEGATIVE =   4,
-//    ROOT_LARGEST_EITHER    =   8,
-//    ROOT_LARGEST_POSITIVE  =  16,
-//    ROOT_LARGEST_NEGATIVE  =  32
-//  } rootTypeEnum;
-
-  enum
+typedef enum
   {
     ROOT_SMALLEST_EITHER   =   1,
     ROOT_SMALLEST_POSITIVE =   2,
@@ -48,9 +38,9 @@ struct ctime_pow<X,1> {
     ROOT_LARGEST_EITHER    =   8,
     ROOT_LARGEST_POSITIVE  =  16,
     ROOT_LARGEST_NEGATIVE  =  32
-  };
+  } rootTypeEnum;
 
-template<int rootType>
+template<rootTypeEnum rootType>
 inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& ans)
 {
   Iflt root1(0), root2(0);
