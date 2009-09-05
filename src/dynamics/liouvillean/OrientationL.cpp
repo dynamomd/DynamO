@@ -114,59 +114,6 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     return false;
 }
 
-
-Iflt
-CLNOrientation::frenkelRootSearch(const CLinesFunc& fL, Iflt length, 
-				  Iflt t_low, Iflt t_high) const
-{
-  Iflt root = 0.0;
-	
-  while(t_high > t_low)
-    {
-      root = quadRootHunter<CLinesFunc>(fL, length, t_low, t_high);
-
-      if (root == HUGE_VAL) return HUGE_VAL;
-      
-      Iflt temp_high = t_high;
-
-      do {
-	// Artificial boundary just below root
-	CLinesFunc tempfL(fL);
-	tempfL.stream(root);
-
-	Iflt Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
-	
-	temp_high = root - (fabs(2.0 * tempfL.F_firstDeriv())
-			    / Fdoubleprimemax);
-	
-	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
-	
-	Iflt temp_root = quadRootHunter<CLinesFunc>(fL, length, t_low, temp_high);
-	
-	if (temp_root == HUGE_VAL) 
-	  break;
-	else 
-	    root = temp_root;
-	
-      } while(temp_high > t_low);
-      
-      // At this point $root contains earliest valid root guess.
-      // Check root validity.
-      CLinesFunc tempfL(fL);
-      tempfL.stream(root);
-      
-      std::pair<Iflt,Iflt> cp = tempfL.getCollisionPoints();
-      
-      if(fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0)
-        return root;
-      else
-        t_low = root + ((2.0 * fabs(tempfL.F_firstDeriv()))
-			/ tempfL.F_secondDeriv_max(length));
-    }
-    
-  return HUGE_VAL;
-}
-
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
@@ -273,22 +220,22 @@ CLNOrientation::initLineOrientations(const Iflt& length)
   Vector  angVelCrossing;
 
   for (size_t i = 0; i < Sim->vParticleList.size(); ++i)
-    {      
+    {
       //Assign the new velocities
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
         orientationData[i].orientation[iDim] = Sim->normal_sampler();
-
+      
       orientationData[i].orientation /= orientationData[i].orientation.nrm();
-
+      
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
         angVelCrossing[iDim] = Sim->normal_sampler();
       
-      orientationData[i].angularVelocity 
+      orientationData[i].angularVelocity
         = orientationData[i].orientation ^ angVelCrossing;
       
       orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
 	/ orientationData[i].angularVelocity.nrm();
-    }  
+    }
 }
 
 void 

@@ -105,6 +105,13 @@ public:
   const Vector& getv12() const { return v12; }
 
   virtual CShape* Clone() const { return new CLinesFunc(*this); };
+
+  virtual bool test_root(const Iflt& length) const
+  {
+    std::pair<Iflt,Iflt> cp = getCollisionPoints();
+    
+    return (fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0);
+  }
   
 private:
   const Vector& w1;

@@ -93,3 +93,65 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high)
 
   return HUGE_VAL;
 }
+
+  /* \brief For line line collisions, determines intersections of the infinite lines
+  **
+  **   Firstly, search for root in main window
+  **  - If a root is not found, return failure
+  **
+  ** If a root is found: bring in an artificial new high boundary just beneath new root
+  **  - If this leaves a window, search window for root
+  **    - If a root is found, return to top of this section storing only this new root
+  **    - If no root is found, drop out of this inner loop
+  **  - Check root validity
+  **    - If root is valid, this is earliest possible root - roll with it
+  **    - If root is invalid, set new concrete t_low just above this found root and go from the top
+  */
+template<class T>
+Iflt frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high)
+{
+  Iflt root = 0.0;
+	
+  while(t_high > t_low)
+    {
+      root = quadRootHunter<T>(fL, length, t_low, t_high);
+
+      if (root == HUGE_VAL) return HUGE_VAL;
+      
+      Iflt temp_high = t_high;
+
+      do {
+	// Artificial boundary just below root
+	T tempfL(fL);
+	tempfL.stream(root);
+
+	Iflt Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
+	
+	temp_high = root - (fabs(2.0 * tempfL.F_firstDeriv())
+			    / Fdoubleprimemax);
+	
+	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
+	
+	Iflt temp_root = quadRootHunter<T>(fL, length, t_low, temp_high);
+	
+	if (temp_root == HUGE_VAL) 
+	  break;
+	else 
+	    root = temp_root;
+	
+      } while(temp_high > t_low);
+      
+      // At this point $root contains earliest valid root guess.
+      // Check root validity.
+      T tempfL(fL);
+      tempfL.stream(root);
+      
+      if (tempfL.test_root(length))
+        return root;
+      else
+        t_low = root + ((2.0 * fabs(tempfL.F_firstDeriv()))
+			/ tempfL.F_secondDeriv_max(length));
+    }
+    
+  return HUGE_VAL;
+}

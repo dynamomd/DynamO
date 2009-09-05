@@ -26,6 +26,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
+#include "shapes/frenkelroot.hpp"
+#include "shapes/oscillatingplate.hpp"
 
 bool 
 CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const

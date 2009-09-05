@@ -32,4 +32,6 @@ public:
   virtual Iflt F_secondDeriv() const = 0;
 
   virtual Iflt F_secondDeriv_max(const Iflt& length) const = 0;
+
+  virtual bool test_root(const Iflt&) const = 0;
 };
