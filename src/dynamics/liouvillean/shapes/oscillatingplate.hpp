@@ -25,10 +25,10 @@
 class COscillatingPlateFunc : public CShape {
 public:
   COscillatingPlateFunc(const Vector& nvp, const Vector& nnhat,
-			const Vector& nrw0, const Vector& nrp, 
+		        const Vector& nrp, 
 			const Iflt& nt, const Iflt& nDelta,
 			const Iflt& nOmega, const Iflt& nSigma):
-    vp(nvp), nhat(nnhat), rw0(nrw0), rp(nrp),
+    vp(nvp), nhat(nnhat), rp(nrp),
     t(nt), Delta(nDelta), Omega(nOmega), Sigma(nSigma)
   {
     
@@ -47,7 +47,7 @@ public:
 
   Vector wallPosition() const
   {
-    return  rw0 + nhat * (Delta * std::cos(Omega * t));
+    return  nhat * (Delta * std::cos(Omega * t));
   }
 
   Vector wallVelocity() const
@@ -90,7 +90,6 @@ public:
 private:
   const Vector& vp;
   const Vector& nhat;
-  const Vector& rw0;
   Vector rp;
   Iflt t;
   Iflt Delta;

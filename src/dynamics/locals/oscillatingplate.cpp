@@ -25,12 +25,13 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim, 
-				       Iflt nx0, Iflt nxi, 
+CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
+				       Vector nrw0, Vector nnhat,
 				       Iflt nomega0, Iflt nsigma, Iflt ne,
-				       std::string nname, CRange* nRange):
+				       Iflt ndelta, std::string nname,
+				       CRange* nRange):
   CLocal(nRange, nSim, "LocalWall"),
-  x0(nx0), xi(nxi), omega0(nomega0), sigma(nsigma), e(ne)
+  rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), e(ne), delta(ndelta)
 {
   localName = nname;
 }
@@ -48,25 +49,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
   if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
-
-  Iflt rvec = part.getPosition()[0] - x0;
-  Iflt maxlength = sigma + xi;
-  Iflt tmax = 0;
-
-  //Simple test to see if they are approaching
-  if (((rvec > maxlength) && (part.getVelocity()[0] > 0))
-      || ((rvec < -maxlength) && (part.getVelocity()[0] < 0)))
-      return CLocalEvent(part, HUGE_VAL, NONE, *this);
   
-  if (part.getVelocity()[0] > 0)
-    tmax = (maxlength - rvec) / part.getVelocity()[0];
-  else
-    tmax = (-maxlength - rvec) / part.getVelocity()[0];
-
-  
-  
-  I_cout() << "True";
-
   return CLocalEvent(part, HUGE_VAL, NONE, *this);
 }
 
@@ -110,16 +93,21 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
   try {
     e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
 
-    x0 =  boost::lexical_cast<Iflt>(XML.getAttribute("X0"))
-      * Sim->Dynamics.units().unitLength();
+    XMLNode xBrowseNode = XML.getChildNode("NHat");
+    nhat << xBrowseNode;
+    nhat /= nhat.nrm();
 
-    xi =  boost::lexical_cast<Iflt>(XML.getAttribute("Xi"))
-      * Sim->Dynamics.units().unitLength();
+    xBrowseNode = XML.getChildNode("Origin");
+    rw0 << xBrowseNode;
+    rw0 *= Sim->Dynamics.units().unitLength();
 
     omega0 =  boost::lexical_cast<Iflt>(XML.getAttribute("Omega0"))
       / Sim->Dynamics.units().unitTime();
 
     sigma = boost::lexical_cast<Iflt>(XML.getAttribute("Sigma"))
+      * Sim->Dynamics.units().unitLength();
+
+    delta = boost::lexical_cast<Iflt>(XML.getAttribute("Delta"))
       * Sim->Dynamics.units().unitLength();
 
     localName = XML.getAttribute("Name");
@@ -136,29 +124,37 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "OscillatingPlate" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
-      << xmlw::attr("X0") << x0 / Sim->Dynamics.units().unitLength()
-      << xmlw::attr("Xi") << xi / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Omega0") << omega0 * Sim->Dynamics.units().unitTime()
-      << xmlw::attr("Sigma") << sigma / Sim->Dynamics.units().unitLength();
+      << xmlw::attr("Sigma") << sigma / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Delta") << delta / Sim->Dynamics.units().unitLength()
+      << xmlw::tag("Norm")
+      << nhat
+      << xmlw::endtag("Norm")
+      << xmlw::tag("Origin")
+      << rw0 / Sim->Dynamics.units().unitLength()
+      << xmlw::endtag("Origin")
+    ;
 
 }
 
-double 
+Vector
 CLOscillatingPlate::getPosition() const
 {
-  return xi * std::cos(omega0 * Sim->dSysTime) + x0;
+  return nhat * (delta * std::cos(omega0 * Sim->dSysTime)) + rw0;
 }
 
 void 
 CLOscillatingPlate::write_povray_info(std::ostream& os) const
 {
-  os << "object {\n union { plane {\n  <" << -1 << ", " << 0
-     << ", " << 0 << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << -sigma 
-     << ",0,0> } \n plane {\n  <" << 1 << ", " << 0
-     << ", " << 0 << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << +sigma 
+  Vector pos = getPosition();
+  os << "object {\n union { plane {\n  <" << -nhat[0] << ", " << -nhat[1]
+     << ", " << -nhat[2] 
+     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << -sigma 
+     << ",0,0> } \n plane {\n  <" << nhat[0] << ", " << nhat[1] << ", " << nhat[2] 
+     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << +sigma 
      << ",0,0> } }\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
      << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
      << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
-     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << getPosition()<< 
-    ","<< 0 << "," << 0 << ">\n}\n";
+     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << pos[0]<< 
+    ","<< pos[1] << "," << pos[2] << ">\n}\n";
 }

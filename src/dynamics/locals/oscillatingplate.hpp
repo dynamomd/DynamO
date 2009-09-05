@@ -24,7 +24,8 @@ class CLOscillatingPlate: public CLocal
 {
 public:
   CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
-  CLOscillatingPlate(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
+  CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, Iflt, 
+		     Iflt, Iflt, Iflt, std::string, CRange*);
 
   virtual ~CLOscillatingPlate() {}
 
@@ -42,16 +43,17 @@ public:
 
   virtual void write_povray_info(std::ostream&) const;
 
-  double getPosition() const;
+  Vector getPosition() const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
   
-  Iflt x0;
-  Iflt xi;
+  Vector rw0;
+  Vector nhat;
   Iflt omega0;
   Iflt sigma;
   Iflt e;
+  Iflt delta;
 };
 
 #endif

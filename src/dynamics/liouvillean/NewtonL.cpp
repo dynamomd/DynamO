@@ -883,3 +883,53 @@ CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
 
   return retval;
 }
+
+Iflt
+CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
+				 const Vector& nhat, const Iflt& Delta,
+				 const Iflt& Omega, const Iflt& Sigma,
+				 const Iflt& t, bool lastpart) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(p1))
+    D_throw() << "Particle1 " << p1.getID() << " is not up to date";
+#endif
+  
+  Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+
+  Iflt t_high, t_low;
+
+  {
+    Iflt surfaceOffset = pos | nhat;
+    Iflt surfaceVel = vel | nhat;
+    Iflt maxlength = Sigma + Delta;
+    
+    //Simple test to see if they are approaching and outside each other
+    if (surfaceOffset > maxlength)
+      if  (surfaceVel > 0)
+	return HUGE_VAL;
+      else
+	t_low = -(surfaceOffset - maxlength) / surfaceVel;
+    else if (surfaceOffset < -maxlength)
+      if (surfaceVel < 0)
+	return HUGE_VAL;
+      else
+	t_low = -(surfaceOffset + maxlength) / surfaceVel;
+
+    if (surfaceVel < 0)
+      t_high = (-maxlength - surfaceOffset) / surfaceVel;
+    else
+      t_high = (maxlength - surfaceOffset) / surfaceVel;
+
+  }
+  
+  COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
+  
+  if (lastpart)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += fabs(2.0 * fL.F_firstDeriv())
+      / fL.F_secondDeriv_max(0.0);
+  
+   return frenkelRootSearch(fL, Sigma, 0, t_high);
+}
