@@ -20,8 +20,9 @@
 #include "../../BC/BC.hpp"
 #include "../../dynamics.hpp"
 #include "../../../base/is_simdata.hpp"
+#include "shape.hpp"
 
-class CLinesFunc {
+class CLinesFunc : public CShape {
 public:
   CLinesFunc(const Vector& nr12, const Vector& nv12,
 	     const Vector& nw1, const Vector& nw2, 
@@ -102,6 +103,8 @@ public:
   const Vector& getw12() const { return w12; }
   const Vector& getr12() const { return r12; }
   const Vector& getv12() const { return v12; }
+
+  virtual CShape* Clone() const { return new CLinesFunc(*this); };
   
 private:
   const Vector& w1;

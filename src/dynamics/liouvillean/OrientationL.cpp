@@ -29,6 +29,7 @@
 #include <boost/iostreams/device/stream_source.hpp>
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
+#include "shapes/frenkelroot.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
 
@@ -122,7 +123,7 @@ CLNOrientation::frenkelRootSearch(const CLinesFunc& fL, Iflt length,
 	
   while(t_high > t_low)
     {
-      root = quadraticRootHunter(fL, length, t_low, t_high);
+      root = quadRootHunter<CLinesFunc>(fL, length, t_low, t_high);
 
       if (root == HUGE_VAL) return HUGE_VAL;
       
@@ -140,7 +141,7 @@ CLNOrientation::frenkelRootSearch(const CLinesFunc& fL, Iflt length,
 	
 	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
 	
-	Iflt temp_root = quadraticRootHunter(fL, length, t_low, temp_high);
+	Iflt temp_root = quadRootHunter<CLinesFunc>(fL, length, t_low, temp_high);
 	
 	if (temp_root == HUGE_VAL) 
 	  break;
@@ -241,81 +242,6 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
     * Vector(orientationData[part.getID()].orientation);    
 }
 
-Iflt
-CLNOrientation::quadraticRootHunter(const CLinesFunc& fL, Iflt length, 
-				    Iflt& t_low, Iflt& t_high) const
-{
-  Iflt working_time = t_low;
-  Iflt timescale = 1e-10 * length / fL.F_firstDeriv_max(length);
-  bool fwdWorking = false;
-  
-  size_t w = 0;
-
-  while(t_low < t_high)
-    {
-      //Always try again from the other side
-      fwdWorking = !fwdWorking;
-    
-      if(++w > 1000)
-	{
-	  I_cerr() << "Window shrunk thousands of times";
-	  
-	  return working_time;
-	}
-    
-      working_time = (fwdWorking ? t_low : t_high);
-      CLinesFunc tempfL(fL);
-      tempfL.stream(working_time);
-    
-      Iflt deltaT;
-      {
-	Iflt f0 = tempfL.F_zeroDeriv(),
-	  f1 = tempfL.F_firstDeriv(),
-	  halff2 = 0.5 * tempfL.F_secondDeriv(),
-	  halff2max = 0.5 * tempfL.F_secondDeriv_max(length);
-	
-	if (f0 > 0) halff2max = -halff2max;
-	
-	{
-	  Iflt boundEnhancer;
-	  // Enhance bound, no point continuing if the bounds are out of bounds
-	  if (fwdWorking)
-	    { if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2max, boundEnhancer)) break; }
-	  else
-	    if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2max, boundEnhancer)) break;
-	  
-	  (fwdWorking ? t_low : t_high) += boundEnhancer;
-	}
-	
-	if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT))
-	  continue;
-      }
-      
-      if (((working_time + deltaT) > t_high) 
-	  || ((working_time + deltaT) < t_low))
-	continue;
-      
-      for(size_t i(1000); i != 0; --i)
-	{
-	  working_time += deltaT;
-	  
-	  if((working_time > t_high) || (working_time < t_low))
-	    break;
-	  
-	  tempfL.stream(deltaT);
-	  
-	  if (!quadSolve<ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(), 
-					       tempfL.F_firstDeriv(), 
-					       Iflt(0.5 * tempfL.F_secondDeriv()), deltaT))
-	    break;
-	  
-	  if(fabs(deltaT) <  timescale)
-	    return working_time + deltaT;
-	}
-    }
-
-  return HUGE_VAL;
-}
 
 C1ParticleData 
 CLNOrientation::runAndersenWallCollision(const CParticle& part, 

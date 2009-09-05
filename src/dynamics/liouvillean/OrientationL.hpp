@@ -23,6 +23,7 @@
 #include "../../datatypes/vector.hpp"
 
 class CLinesFunc;
+class CShape;
 
 class CLNOrientation: public CLNewton
 {
@@ -103,9 +104,6 @@ protected:
   */
   virtual Iflt frenkelRootSearch(const CLinesFunc&, Iflt length, Iflt t_low, 
 				 Iflt t_high) const;
-
-  virtual Iflt quadraticRootHunter(const CLinesFunc& fL, Iflt length, 
-				   Iflt& t_low, Iflt& t_high) const;
 
   virtual size_t getParticleDOF() const;
   virtual Iflt getParticleKineticEnergy(const CParticle& part) const;
