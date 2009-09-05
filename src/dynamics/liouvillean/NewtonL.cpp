@@ -898,7 +898,7 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(pos, vel);
 
-  Iflt t_high, t_low;
+  Iflt t_high, t_low = 0;
 
   {
     Iflt surfaceOffset = pos | nhat;

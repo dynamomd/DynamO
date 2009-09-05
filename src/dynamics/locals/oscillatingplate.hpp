@@ -25,7 +25,8 @@ class CLOscillatingPlate: public CLocal
 public:
   CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
   CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, Iflt, 
-		     Iflt, Iflt, Iflt, std::string, CRange*);
+		     Iflt, Iflt, Iflt, std::string, CRange*, 
+		     Iflt timeshift = 0);
 
   virtual ~CLOscillatingPlate() {}
 
@@ -54,6 +55,8 @@ protected:
   Iflt sigma;
   Iflt e;
   Iflt delta;
+  Iflt mass;
+  Iflt timeshift;
 };
 
 #endif

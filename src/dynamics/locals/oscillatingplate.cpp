@@ -28,10 +28,11 @@
 CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       Vector nrw0, Vector nnhat,
 				       Iflt nomega0, Iflt nsigma, Iflt ne,
-				       Iflt ndelta, std::string nname,
-				       CRange* nRange):
+				       Iflt ndelta, std::string nname, 
+				       CRange* nRange, Iflt timeshift):
   CLocal(nRange, nSim, "LocalWall"),
-  rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), e(ne), delta(ndelta)
+  rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
+  e(ne), delta(ndelta), timeshift(0)
 {
   localName = nname;
 }
@@ -51,7 +52,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 #endif
 
   Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
-    (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime, false);
+    (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, false);
 
   I_cout() << "Collision in " << dt / Sim->Dynamics.units().unitTime();
 
@@ -67,10 +68,10 @@ void
 CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 {
 //  ++Sim->lNColl;
-//
+//  
 //  //Run the collision and catch the data
-//  CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
-//		      (part, vNorm, e));
+//  CNParticleData EDat(Sim->Dynamics.Liouvillean().runOscilatingPlate
+//		      (part, , e));
 //
 //  Sim->signalParticleUpdate(EDat);
 //
@@ -118,6 +119,12 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
     delta = boost::lexical_cast<Iflt>(XML.getAttribute("Delta"))
       * Sim->Dynamics.units().unitLength();
 
+    mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"))
+      * Sim->Dynamics.units().unitMass();
+
+    timeshift = boost::lexical_cast<Iflt>(XML.getAttribute("TimeShift"))
+      * Sim->Dynamics.units().unitTime();
+
     localName = XML.getAttribute("Name");
   } 
   catch (boost::bad_lexical_cast &)
@@ -129,12 +136,18 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
 void 
 CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
 {
+  Iflt tmp = Sim->dSysTime + timeshift;
+
+  tmp -= 2.0 * PI * int(tmp * omega0 / (2.0 * PI) ) / omega0;
+
   XML << xmlw::attr("Type") << "OscillatingPlate" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Omega0") << omega0 * Sim->Dynamics.units().unitTime()
       << xmlw::attr("Sigma") << sigma / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Delta") << delta / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Mass") << mass / Sim->Dynamics.units().unitMass()
+      << xmlw::attr("TimeShift") << tmp / Sim->Dynamics.units().unitTime()
       << xmlw::tag("Norm")
       << nhat
       << xmlw::endtag("Norm")
