@@ -56,7 +56,9 @@ protected:
   Iflt e;
   mutable Iflt delta;
   Iflt mass;
-  Iflt timeshift;
+  mutable Iflt timeshift;
+  mutable size_t lastID;
+  mutable lIflt lastdSysTime;
 };
 
 #endif

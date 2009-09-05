@@ -57,11 +57,12 @@ public:
   virtual C1ParticleData runOscilatingPlate
   (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
    const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
-   const Iflt& t) const;
+    Iflt& t) const;
 
   virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
 
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, 
+  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, 
+					   const Iflt&, 
 					   const EEventType& eType) const;
 
   virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, 
@@ -70,12 +71,12 @@ public:
   virtual C2ParticleData DSMCSpheresRun(const CParticle&, const CParticle&, 
 					const Iflt&, CPDData&) const;
   
-  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
+  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, 
+					 const Iflt&) const;
 
   virtual Iflt getWallCollision(const CParticle&, 
 				const Vector &, 
-				const Vector &
-				  ) const;
+				const Vector &) const;
 
   virtual C1ParticleData runWallCollision(const CParticle&, 
 					  const Vector &,

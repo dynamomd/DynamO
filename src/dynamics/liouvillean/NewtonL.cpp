@@ -936,8 +936,9 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
 C1ParticleData 
 CLNewton::runOscilatingPlate
-(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, const Iflt& omega0,
- const Iflt& sigma, const Iflt& mass, const Iflt& e, const Iflt& t) const
+(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+ const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
+  Iflt& t) const
 {
   updateParticle(part);
 
@@ -947,7 +948,8 @@ CLNewton::runOscilatingPlate
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
 
-  COscillatingPlateFunc fL(vel, nhat, pos, t, delta, omega0, sigma);
+  COscillatingPlateFunc fL(vel, nhat, pos, t + Sim->dSysTime, delta, 
+			   omega0, sigma);
 
   Vector nhattmp = nhat;
   if ((nhat | pos) < 0) nhattmp = -nhat;
@@ -955,16 +957,29 @@ CLNewton::runOscilatingPlate
   Iflt pmass = retVal.getSpecies().getMass();
   Iflt mu = (pmass * mass) / (mass + pmass);
 
-  Vector delP = mu * (1.0 + e) * ((vel - fL.wallVelocity()) | nhattmp) * nhattmp;
-    
-  const_cast<CParticle&>(part).getVelocity() -= delP / pmass;
+  Vector vwall(fL.wallVelocity());
 
-  delta *= (1.0 - (nhat | delP)/(mass * (nhat | fL.wallVelocity())));
+  Vector delP =  nhattmp * mu * (1.0 + e) * ((vel - vwall) | nhattmp) ;
+    
+  const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
+
+  Iflt nvel = -(nhat | delP) + delta * omega0 * std::sin(omega0 * t);
   
+  Iflt xpos = delta * std::cos(omega0 * t);
+  
+  Iflt reducedt = Sim->dSysTime 
+    - 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
+  
+  Iflt newt = std::atan(-nvel / xpos) / omega0 - reducedt;
+  
+  delta *= std::cos(omega0 * t) 
+    / std::cos(omega0 * (Sim->dSysTime + newt));
+  
+  t = newt;
+
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
 		    * (part.getVelocity().nrm2() 
 		       - retVal.getOldVel().nrm2()));
   
   return retVal; 
-
 }

@@ -321,8 +321,9 @@ CLiouvillean::getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
 
 C1ParticleData 
 CLiouvillean::runOscilatingPlate
-(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, const Iflt& omega0,
- const Iflt& sigma, const Iflt& mass, const Iflt& e, const Iflt& t) const
+(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+ const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e,
+ Iflt& t) const
 {
   D_throw() << "Not Implemented";
 }

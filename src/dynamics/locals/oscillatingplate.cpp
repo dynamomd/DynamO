@@ -32,7 +32,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       CRange* nRange, Iflt timeshift):
   CLocal(nRange, nSim, "LocalWall"),
   rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
-  e(ne), delta(ndelta), timeshift(0)
+  e(ne), delta(ndelta), timeshift(0), lastID(-1), lastdSysTime(HUGE_VAL)
 {
   localName = nname;
 }
@@ -52,7 +52,8 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 #endif
 
   Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
-    (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, false);
+    (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, 
+     ((part.getID()==lastID) && (Sim->dSysTime==lastdSysTime)));
 
   I_cout() << "Fix the recollision false!,Collision in " << dt / Sim->Dynamics.units().unitTime();
 
@@ -72,7 +73,10 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   //Run the collision and catch the data
   CNParticleData EDat(Sim->Dynamics.Liouvillean().runOscilatingPlate
 		      (part, rw0, nhat, delta, omega0, sigma, mass, 
-		       e, Sim->dSysTime + timeshift));
+		       e, timeshift));
+
+  lastdSysTime = Sim->dSysTime;
+  lastID = part.getID();
 
   Sim->signalParticleUpdate(EDat);
 
@@ -81,6 +85,7 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
+
 }
 
 bool 
