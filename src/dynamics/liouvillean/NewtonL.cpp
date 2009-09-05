@@ -891,8 +891,8 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 				 const Iflt& t, bool lastpart) const
 {
 #ifdef DYNAMO_DEBUG
-  if (!isUpToDate(p1))
-    D_throw() << "Particle1 " << p1.getID() << " is not up to date";
+  if (!isUpToDate(part))
+    D_throw() << "Particle1 " << part.getID() << " is not up to date";
 #endif
   
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());

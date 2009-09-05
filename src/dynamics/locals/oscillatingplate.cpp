@@ -49,8 +49,16 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
   if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
-  
-  return CLocalEvent(part, HUGE_VAL, NONE, *this);
+
+  Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
+    (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime, false);
+
+  I_cout() << "Collision in " << dt / Sim->Dynamics.units().unitTime();
+
+  if (dt != HUGE_VAL)
+    return CLocalEvent(part, dt, WALL, *this);
+  else
+    return CLocalEvent(part, HUGE_VAL, NONE, *this);
 }
 
 
