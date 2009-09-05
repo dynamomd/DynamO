@@ -54,7 +54,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
   Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, false);
 
-  I_cout() << "Collision in " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "Fix the recollision false!,Collision in " << dt / Sim->Dynamics.units().unitTime();
 
   if (dt != HUGE_VAL)
     return CLocalEvent(part, dt, WALL, *this);
@@ -67,19 +67,19 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 void
 CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 {
-//  ++Sim->lNColl;
-//  
-//  //Run the collision and catch the data
-//  CNParticleData EDat(Sim->Dynamics.Liouvillean().runOscilatingPlate
-//		      (part, , e));
-//
-//  Sim->signalParticleUpdate(EDat);
-//
-//  //Now we're past the event update the scheduler and plugins
-//  Sim->ptrScheduler->fullUpdate(part);
-//  
-//  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
-//    Ptr->eventUpdate(iEvent, EDat);
+  ++Sim->lNColl;
+  
+  //Run the collision and catch the data
+  CNParticleData EDat(Sim->Dynamics.Liouvillean().runOscilatingPlate
+		      (part, rw0, delta, omega0, sigma, mass, e, Sim->dSysTime + timeshift));
+
+  Sim->signalParticleUpdate(EDat);
+
+  //Now we're past the event update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(part);
+  
+  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
 }
 
 bool 

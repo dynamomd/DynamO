@@ -54,7 +54,7 @@ protected:
   Iflt omega0;
   Iflt sigma;
   Iflt e;
-  Iflt delta;
+  mutable Iflt delta;
   Iflt mass;
   Iflt timeshift;
 };

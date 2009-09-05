@@ -54,6 +54,10 @@ public:
 				      const Iflt& Omega, const Iflt& Sigma,
 				      const Iflt& t, bool) const;
 
+  virtual C1ParticleData runOscilatingPlate
+  (const CParticle& part, const Vector& rw0, Iflt& delta, const Iflt& omega0,
+   const Iflt& sigma, const Iflt& mass, const Iflt& e, const Iflt& t) const;
+
   virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
 
   virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, 

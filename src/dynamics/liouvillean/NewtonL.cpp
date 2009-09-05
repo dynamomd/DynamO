@@ -933,3 +933,11 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   
    return frenkelRootSearch(fL, Sigma, 0, t_high);
 }
+
+C1ParticleData 
+CLNewton::runOscilatingPlate
+(const CParticle& part, const Vector& rw0, Iflt& delta, const Iflt& omega0,
+ const Iflt& sigma, const Iflt& mass, const Iflt& e, const Iflt& t) const
+{
+  D_throw() << "Not Implemented";
+}
