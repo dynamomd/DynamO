@@ -55,8 +55,9 @@ public:
 				      const Iflt& t, bool) const;
 
   virtual C1ParticleData runOscilatingPlate
-  (const CParticle& part, const Vector& rw0, Iflt& delta, const Iflt& omega0,
-   const Iflt& sigma, const Iflt& mass, const Iflt& e, const Iflt& t) const;
+  (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+   const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
+   const Iflt& t) const;
 
   virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
 

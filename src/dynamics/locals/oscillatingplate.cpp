@@ -71,7 +71,8 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   
   //Run the collision and catch the data
   CNParticleData EDat(Sim->Dynamics.Liouvillean().runOscilatingPlate
-		      (part, rw0, delta, omega0, sigma, mass, e, Sim->dSysTime + timeshift));
+		      (part, rw0, nhat, delta, omega0, sigma, mass, 
+		       e, Sim->dSysTime + timeshift));
 
   Sim->signalParticleUpdate(EDat);
 
@@ -102,7 +103,7 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
   try {
     e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
 
-    XMLNode xBrowseNode = XML.getChildNode("NHat");
+    XMLNode xBrowseNode = XML.getChildNode("Norm");
     nhat << xBrowseNode;
     nhat /= nhat.nrm();
 
@@ -148,6 +149,7 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Delta") << delta / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Mass") << mass / Sim->Dynamics.units().unitMass()
       << xmlw::attr("TimeShift") << tmp / Sim->Dynamics.units().unitTime()
+      << range
       << xmlw::tag("Norm")
       << nhat
       << xmlw::endtag("Norm")

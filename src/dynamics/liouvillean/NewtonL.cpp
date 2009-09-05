@@ -936,8 +936,35 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
 C1ParticleData 
 CLNewton::runOscilatingPlate
-(const CParticle& part, const Vector& rw0, Iflt& delta, const Iflt& omega0,
+(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, const Iflt& omega0,
  const Iflt& sigma, const Iflt& mass, const Iflt& e, const Iflt& t) const
 {
-  D_throw() << "Not Implemented";
+  updateParticle(part);
+
+  C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
+
+  Vector pos(part.getPosition() - rw0), vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+
+  COscillatingPlateFunc fL(vel, nhat, pos, t, delta, omega0, sigma);
+
+  Vector nhattmp = nhat;
+  if ((nhat | pos) < 0) nhattmp = -nhat;
+  
+  Iflt pmass = retVal.getSpecies().getMass();
+  Iflt mu = (pmass * mass) / (mass + pmass);
+
+  Vector delP = mu * (1.0 + e) * ((vel - fL.wallVelocity()) | nhattmp) * nhattmp;
+    
+  const_cast<CParticle&>(part).getVelocity() -= delP / pmass;
+
+  delta *= (1.0 - (nhat | delP)/(mass * (nhat | fL.wallVelocity())));
+  
+  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
+		    * (part.getVelocity().nrm2() 
+		       - retVal.getOldVel().nrm2()));
+  
+  return retVal; 
+
 }
