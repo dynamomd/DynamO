@@ -80,6 +80,7 @@ public:
   {
     return Delta * Omega * Omega;
   }
+
   virtual CShape* Clone() const { return new COscillatingPlateFunc(*this); };
 
   virtual bool test_root(const Iflt&) const

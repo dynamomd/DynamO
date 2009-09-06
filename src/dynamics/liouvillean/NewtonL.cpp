@@ -951,8 +951,12 @@ CLNewton::runOscilatingPlate
   COscillatingPlateFunc fL(vel, nhat, pos, t + Sim->dSysTime, delta, 
 			   omega0, sigma);
 
-  Vector nhattmp = nhat;
-  if ((nhat | pos) < 0) nhattmp = -nhat;
+  
+  Vector nhattmp; 
+  if ((nhat | pos) < 0)
+    nhattmp = -nhat;
+  else
+    nhattmp = nhat;
   
   Iflt pmass = retVal.getSpecies().getMass();
   Iflt mu = (pmass * mass) / (mass + pmass);
@@ -963,16 +967,19 @@ CLNewton::runOscilatingPlate
     
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
 
-  Iflt nvel = -(nhat | delP) + delta * omega0 * std::sin(omega0 * t);
+
+
+  Iflt numerator = -nhat | ((delP / mass) + vwall);
   
-  Iflt xpos = delta * std::cos(omega0 * t);
+  Iflt denominator = omega0 * delta * std::cos(omega0 * (Sim->dSysTime + t));
   
-  Iflt reducedt = Sim->dSysTime 
-    - 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
+  //Iflt reducedt = Sim->dSysTime 
+  //- 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
   
-  Iflt newt = std::atan(-nvel / xpos) / omega0 - reducedt;
+  Iflt newt = std::atan2(numerator, denominator)/ omega0 
+    - Sim->dSysTime;
   
-  delta *= std::cos(omega0 * t) 
+  delta *= std::cos(omega0 * (Sim->dSysTime + t)) 
     / std::cos(omega0 * (Sim->dSysTime + newt));
   
   t = newt;
