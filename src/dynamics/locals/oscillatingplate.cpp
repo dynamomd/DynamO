@@ -177,14 +177,22 @@ void
 CLOscillatingPlate::write_povray_info(std::ostream& os) const
 {
   Vector pos = getPosition();
-  os << "object {\n union { plane {\n  <" << -nhat[0] << ", " << -nhat[1]
-     << ", " << -nhat[2] 
-     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << -sigma 
-     << ",0,0> } \n plane {\n  <" << nhat[0] << ", " << nhat[1] << ", " << nhat[2] 
-     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" << +sigma 
-     << ",0,0> } }\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
+  Vector WallLoc1 = pos + nhat * sigma;
+  Vector WallLoc2 = pos - nhat * sigma;
+
+  Sim->Dynamics.BCs().setPBC(WallLoc1);
+  Sim->Dynamics.BCs().setPBC(WallLoc2);
+
+  os << "object {\n union { plane {\n  <" << nhat[0] << ", " << nhat[1]
+     << ", " << nhat[2] 
+     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" 
+     <<  WallLoc1[0] << "," << WallLoc1[1] << "," <<  WallLoc1[2]
+     << "> } \n plane {\n  <" 
+     << -nhat[0] << ", " << -nhat[1] << ", " << -nhat[2] 
+     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <"  
+     <<  WallLoc2[0] << "," << WallLoc2[1] << "," <<  WallLoc2[2]
+     << "> } }\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
      << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
      << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
-     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << pos[0]<< 
-    ","<< pos[1] << "," << pos[2] << ">\n}\n";
+     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n}\n";
 }
