@@ -20,10 +20,11 @@
 #include "../../../extcode/mathtemplates.hpp"
 
 template<class T>
-Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high)
+Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high, 
+		    const Iflt& tolerance)
 {
   Iflt working_time = t_low;
-  Iflt timescale = 1e-10 * length / fL.F_firstDeriv_max(length);
+  Iflt timescale = tolerance * length / fL.F_firstDeriv_max(length);
   bool fwdWorking = false;
   
   size_t w = 0;
@@ -108,13 +109,14 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high)
   **    - If root is invalid, set new concrete t_low just above this found root and go from the top
   */
 template<class T>
-Iflt frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high)
+Iflt frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high, 
+		       Iflt tol = 1e-10)
 {
   Iflt root = 0.0;
 	
   while(t_high > t_low)
     {
-      root = quadRootHunter<T>(fL, length, t_low, t_high);
+      root = quadRootHunter<T>(fL, length, t_low, t_high, tol);
 
       if (root == HUGE_VAL) return HUGE_VAL;
       
@@ -132,7 +134,7 @@ Iflt frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high)
 	
 	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
 	
-	Iflt temp_root = quadRootHunter<T>(fL, length, t_low, temp_high);
+	Iflt temp_root = quadRootHunter<T>(fL, length, t_low, temp_high, tol);
 	
 	if (temp_root == HUGE_VAL) 
 	  break;

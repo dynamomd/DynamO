@@ -299,6 +299,18 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   Vector  vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(rpos, vel);
   
+#ifdef DYNAMO_DEBUG
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if (vel[iDim] == 0)
+      {
+	Iflt tmp(1);
+	std::copysign(tmp, vel[iDim]);
+	if (tmp < 0) 
+	  D_throw() << "You have negative zero velocities, dont use them."
+		    << "\nPlease think of the neighbour lists.";
+      }
+#endif 
+
   Iflt retVal;
   if (vel[0] < 0)
     retVal = -rpos[0]/vel[0];
@@ -331,6 +343,17 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
   size_t retVal(0);
   Iflt time((vel[0] < 0) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
   
+#ifdef DYNAMO_DEBUG
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if (vel[iDim] == 0)
+      {
+	Iflt tmp(1);
+	std::copysign(tmp, vel[iDim]);
+	if (tmp < 0) 
+	  D_throw() << "You have negative zero velocities, don't use them"
+		    << "\nPlease think of the neighbour lists";
+      }
+#endif 
 
   for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
@@ -931,7 +954,7 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     t_low += fabs(2.0 * fL.F_firstDeriv())
       / fL.F_secondDeriv_max(0.0);
   
-   return frenkelRootSearch(fL, Sigma, t_low, t_high);
+  return frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-14);
 }
 
 C1ParticleData 
