@@ -52,16 +52,13 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
+  bool caution = (part.getID() == lastID) && (lastdSysTime == Sim->dSysTime);
+
   Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, 
-     false);
+     caution);
 
-  //&& (Sim->dSysTime==lastdSysTime)
-  I_cout() << "Fix the recollision false!,Collision in " << dt / Sim->Dynamics.units().unitTime();
-  if (part.getID()==lastID) I_cout() << "Recollision";
-
-
-  if (dt != HUGE_VAL && (part.getID()!=lastID))
+  if (dt != HUGE_VAL)
     return CLocalEvent(part, dt, WALL, *this);
   else
     return CLocalEvent(part, HUGE_VAL, NONE, *this);
@@ -85,8 +82,9 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   Sim->signalParticleUpdate(EDat);
 
   //Now we're past the event update the scheduler and plugins
-  Sim->ptrScheduler->fullUpdate(part);
-  
+  //Sim->ptrScheduler->fullUpdate(part);
+  Sim->ptrScheduler->rebuildList();
+
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 

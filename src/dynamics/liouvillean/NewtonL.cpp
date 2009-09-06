@@ -931,7 +931,7 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     t_low += fabs(2.0 * fL.F_firstDeriv())
       / fL.F_secondDeriv_max(0.0);
   
-   return frenkelRootSearch(fL, Sigma, 0, t_high);
+   return frenkelRootSearch(fL, Sigma, t_low, t_high);
 }
 
 C1ParticleData 
@@ -965,17 +965,7 @@ CLNewton::runOscilatingPlate
 
   Vector delP =  nhattmp * mu * (1.0 + e) * ((vel - vwall) | nhattmp) ;
 
-  I_cout() << "Part Velocity = " << (part.getVelocity() | nhat);
-    
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
-
-  I_cout() << "Wall Position = " << delta * std::cos(omega0 *(Sim->dSysTime + t));
-  I_cout() << "Wall Velocity = " << - delta * omega0 * std::sin(omega0 *(Sim->dSysTime + t));
-  I_cout() << "Wall vel impulse = " << (delP | nhattmp) / mass;
-
-  I_cout() << "Part new Velocity = " << (part.getVelocity() | nhat);
-
-  I_cout() << "Predicted wall velocity = " << (nhat | ((delP / mass) + vwall));
 
   Iflt numerator = -nhat | ((delP / mass) + vwall);
   
@@ -983,9 +973,6 @@ CLNewton::runOscilatingPlate
   
   //Iflt reducedt = Sim->dSysTime 
   //- 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
-  
-  I_cout() << "old t " << t; 
-  I_cout() << "old delta " << delta; 
 
   Iflt newt = std::atan2(numerator, denominator)/ omega0 
     - Sim->dSysTime;
@@ -994,12 +981,6 @@ CLNewton::runOscilatingPlate
     / std::cos(omega0 * (Sim->dSysTime + newt));
   
   t = newt;
-
-  I_cout() << "new t " << t; 
-  I_cout() << "new delta " << delta; 
-
-  I_cout() << "Wall Position = " << delta * std::cos(omega0 *(Sim->dSysTime + t));
-  I_cout() << "Wall Velocity = " << - delta * omega0 * std::sin(omega0 *(Sim->dSysTime + t));
 
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
 		    * (part.getVelocity().nrm2() 
