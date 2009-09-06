@@ -38,7 +38,8 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 }
 
 CLOscillatingPlate::CLOscillatingPlate(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "LocalWall")
+  CLocal(tmp, "LocalWall"),
+  lastID(-1), lastdSysTime(HUGE_VAL)
 {
   operator<<(XML);
 }
@@ -53,11 +54,14 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 
   Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, 
-     ((part.getID()==lastID) && (Sim->dSysTime==lastdSysTime)));
+     false);
 
+  //&& (Sim->dSysTime==lastdSysTime)
   I_cout() << "Fix the recollision false!,Collision in " << dt / Sim->Dynamics.units().unitTime();
+  if (part.getID()==lastID) I_cout() << "Recollision";
 
-  if (dt != HUGE_VAL)
+
+  if (dt != HUGE_VAL && (part.getID()!=lastID))
     return CLocalEvent(part, dt, WALL, *this);
   else
     return CLocalEvent(part, HUGE_VAL, NONE, *this);
@@ -168,7 +172,7 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
 Vector
 CLOscillatingPlate::getPosition() const
 {
-  return nhat * (delta * std::cos(omega0 * Sim->dSysTime)) + rw0;
+  return nhat * (delta * std::cos(omega0 * (Sim->dSysTime + timeshift))) + rw0;
 }
 
 void 
