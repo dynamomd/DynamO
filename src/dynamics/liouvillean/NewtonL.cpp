@@ -108,7 +108,6 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 	  dat.dt = tInMax;
 	  return true;
 	}
-	    
     }
   
   return false;
@@ -301,14 +300,9 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if (vel[iDim] == 0)
-      {
-	Iflt tmp(1);
-	std::copysign(tmp, vel[iDim]);
-	if (tmp < 0) 
-	  D_throw() << "You have negative zero velocities, dont use them."
-		    << "\nPlease think of the neighbour lists.";
-      }
+    if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
+      D_throw() << "You have negative zero velocities, dont use them."
+		<< "\nPlease think of the neighbour lists.";
 #endif 
 
   Iflt retVal;
@@ -345,15 +339,10 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
   
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if (vel[iDim] == 0)
-      {
-	Iflt tmp(1);
-	std::copysign(tmp, vel[iDim]);
-	if (tmp < 0) 
-	  D_throw() << "You have negative zero velocities, don't use them"
-		    << "\nPlease think of the neighbour lists";
-      }
-#endif 
+    if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
+      D_throw() << "You have negative zero velocities, dont use them."
+		<< "\nPlease think of the neighbour lists.";
+#endif
 
   for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
