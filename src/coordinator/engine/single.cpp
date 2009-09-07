@@ -49,8 +49,8 @@ CESingle::runSimulation()
   catch (std::exception& cep)
     {
       try {
-	std::cerr << "\nEngine: Trying to output config to config.error";
-	Simulation.writeXMLfile("config.error", false, vm.count("uncompressed"));
+	std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
+	Simulation.writeXMLfile("config.error.xml.bz2", false, false);
       } catch (...)
 	{
 	  std::cerr << "\nEngine: Could not output Errored config";

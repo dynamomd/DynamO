@@ -94,7 +94,7 @@ light_source { <0, 0, zoom> color White }  \n\
 light_source { <0, 0, -zoom> color White } \n\
 ";
   DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
-
+merge { bounded_by { box {<-0.5,-0.091666667,-0.091666667>,<0.5,0.091666667,0.091666667> } }
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
     intPtr->write_povray_info(of);
 
