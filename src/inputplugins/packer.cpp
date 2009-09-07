@@ -1829,7 +1829,7 @@ CIPPacker::initialise()
 	Sim->aspectRatio = Vector(1,1,1);
 	
 	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L ,0.9*Aspect, 0.9*Aspect);
-	Vector particleCOM = Vector(-(0.5*L - Sigma + Delta)/(2.0*L),0,0);
+	Vector particleCOM = Vector(-(0.5*L + Delta)/(2.0*L),0,0);
 
 	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, new CUParticle()));
 	packptr->initialise();
@@ -1868,6 +1868,12 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect), 
 					   "Plate3", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,+1,0), Vector(0, -0.5 * Aspect, 0), 
+					   "Plate4", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), Vector(0, +0.5 * Aspect, 0), 
+					   "Plate5", new CRAll(Sim)));
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,

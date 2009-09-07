@@ -77,7 +77,8 @@ COPPovray::printImage()
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\
-#declare zoom = "<< zoomlevel << ";			   \n	\
+#include \"transforms.inc\"                \n\
+#declare zoom = "<< zoomlevel << ";	   \n\
 global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
  location <0, zoom, 0>			   \n\

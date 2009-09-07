@@ -162,8 +162,7 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
       << xmlw::endtag("Norm")
       << xmlw::tag("Origin")
       << rw0 / Sim->Dynamics.units().unitLength()
-      << xmlw::endtag("Origin")
-    ;
+      << xmlw::endtag("Origin");
 
 }
 
@@ -182,17 +181,26 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
 
   Sim->Dynamics.BCs().setPBC(WallLoc1);
   Sim->Dynamics.BCs().setPBC(WallLoc2);
+  os << "#include \"glass.inc\"\n";
 
-  os << "object {\n union { plane {\n  <" << nhat[0] << ", " << nhat[1]
-     << ", " << nhat[2] 
-     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" 
-     <<  WallLoc1[0] << "," << WallLoc1[1] << "," <<  WallLoc1[2]
-     << "> } \n plane {\n  <" 
-     << -nhat[0] << ", " << -nhat[1] << ", " << -nhat[2] 
-     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <"  
-     <<  WallLoc2[0] << "," << WallLoc2[1] << "," <<  WallLoc2[2]
-     << "> } }\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
-     << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
-     << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
-     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n}\n";
+  os << "object { box { <-0.5, " << -1.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
+     << nhat[0] << "," << nhat[1] << "," << nhat[2] << ">) translate <"
+     <<  WallLoc1[0] << "," <<  WallLoc1[1] << "," <<  WallLoc1[2] << "> texture { pigment { Col_Glass_Bluish } } }\n";
+
+  os << "object { box { <-0.5, " << -1.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
+     << -nhat[0] << "," << -nhat[1] << "," << -nhat[2] << ">) translate <"
+     <<  WallLoc2[0] << "," <<  WallLoc2[1] << "," <<  WallLoc2[2] << "> texture { pigment { Col_Glass_Bluish } } }\n";
+
+//  os << "object {\n union { plane {\n  <" << nhat[0] << ", " << nhat[1]
+//     << ", " << nhat[2] 
+//     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <" 
+//     <<  WallLoc1[0] << "," << WallLoc1[1] << "," <<  WallLoc1[2]
+//     << "> } \n plane {\n  <" 
+//     << -nhat[0] << ", " << -nhat[1] << ", " << -nhat[2] 
+//     << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}\n translate <"  
+//     <<  WallLoc2[0] << "," << WallLoc2[1] << "," <<  WallLoc2[2]
+//     << "> } }\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
+//     << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
+//     << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
+//     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n}\n";
 }

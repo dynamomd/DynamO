@@ -962,7 +962,6 @@ CLNewton::runOscilatingPlate
 
   COscillatingPlateFunc fL(vel, nhat, pos, t + Sim->dSysTime, delta, 
 			   omega0, sigma);
-
   
   Vector nhattmp; 
   if ((nhat | pos) < 0)
@@ -975,7 +974,11 @@ CLNewton::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-  Vector delP =  nhattmp * mu * (1.0 + e) * ((vel - vwall) | nhattmp) ;
+  Iflt rvdot = ((vel - vwall) | nhattmp);
+  
+  if (rvdot > 0) return retVal; 
+
+  Vector delP =  nhattmp * mu * (1.0 + e) * rvdot;
 
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
 
