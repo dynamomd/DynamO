@@ -37,8 +37,10 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
       if(++w > 1000)
 	{
 	  std::cerr << "\nWindow shrunk thousands of times\n";
+	  std::cerr << "\nt_low = " << t_low << ", t_high = " << t_high 
+		    << ", working_time = " << working_time << "\n";
 	  
-	  return working_time;
+	  return t_low;
 	}
     
       working_time = (fwdWorking ? t_low : t_high);
