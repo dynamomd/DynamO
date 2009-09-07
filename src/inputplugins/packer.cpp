@@ -1850,8 +1850,8 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
-	if (vm.count("b1"))
-	  Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	//The sentinel is needed because of the high speeds of the particles!
+	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
