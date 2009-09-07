@@ -1828,13 +1828,17 @@ CIPPacker::initialise()
 	
 	Sim->aspectRatio = Vector(1,1,1);
 	
-	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L ,0.9*Aspect, 0.9*Aspect);
-	Vector particleCOM = Vector(-(0.5*L + Delta)/(2.0*L),0,0);
+	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
+				     0.9*Aspect, 0.9*Aspect);
+	//The minus one half spaces the particles off the wall
+	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L, 
+				    0, 0);
 
-	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, 
+						    new CUParticle()));
 	packptr->initialise();
 	
-	std::vector<Vector  > 
+	std::vector<Vector> 
 	  latticeSites(packptr->placeObjects(particleCOM));
       	
 	Sim->Dynamics.setPBC<CSPBC>();
