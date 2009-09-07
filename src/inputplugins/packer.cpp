@@ -1820,10 +1820,10 @@ CIPPacker::initialise()
 	Iflt Delta = 10.0;
 	Iflt L = 60.0;
 	Iflt Aspect = 1.0 - (L - 8.0) / L;
-	Iflt Mass = 100;
-	Iflt PlateInelas = 0.7;
-	Iflt ParticleInelas = 0.7;
-	Iflt boundaryInelas = 0.7;
+	Iflt Mass = 1000;
+	Iflt PlateInelas = 0.95;
+	Iflt ParticleInelas = 0.95;
+	Iflt boundaryInelas = 0.95;
 	Iflt Omega0 = PI / 2.0;
 	
 	Sim->aspectRatio = Vector(1,1,1);
