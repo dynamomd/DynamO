@@ -943,7 +943,7 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     t_low += fabs(2.0 * fL.F_firstDeriv())
       / fL.F_secondDeriv_max(0.0);
   
-  return frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-14);
+  return frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
 }
 
 C1ParticleData 
