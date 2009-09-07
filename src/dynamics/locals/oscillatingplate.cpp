@@ -28,11 +28,11 @@
 CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       Vector nrw0, Vector nnhat,
 				       Iflt nomega0, Iflt nsigma, Iflt ne,
-				       Iflt ndelta, std::string nname, 
+				       Iflt ndelta, Iflt nmass, std::string nname, 
 				       CRange* nRange, Iflt timeshift):
   CLocal(nRange, nSim, "LocalWall"),
   rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
-  e(ne), delta(ndelta), timeshift(0), lastID(-1), lastdSysTime(HUGE_VAL)
+  e(ne), delta(ndelta), mass(nmass), timeshift(0), lastID(-1), lastdSysTime(HUGE_VAL)
 {
   localName = nname;
 }

@@ -82,7 +82,7 @@ global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
  location <0, zoom, 0>			   \n\
  look_at  <0, 0, 0>			   \n\
- rotate <clock*360,clock*180,0>            \n\
+ rotate <0,0,clock*180>                    \n\
 }        				   \n\
 background { color White }		   \n\
 light_source { <0, zoom, 0> color White }  \n\

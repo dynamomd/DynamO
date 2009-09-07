@@ -182,6 +182,10 @@ CIPPacker::initialise()
 	"       --f1 : Inelasticity [0.9]\n"
 	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
 	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
+	"  19: Oscillating plates bounding a system\n"
+	"       --f1 : Inelasticity [0.9]\n"
+	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
+	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -1806,6 +1810,76 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 		     nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 19:
+      {
+	Iflt Sigma = 15.0;
+	Iflt Delta = 10.0;
+	Iflt L = 60.0;
+	Iflt Aspect = 1.0 - (L - 4.0) / L;
+	Iflt Mass = 100;
+	Iflt PlateInelas = 0.7;
+	Iflt ParticleInelas = 0.7;
+	Iflt boundaryInelas = 0.7;
+	Iflt Omega0 = PI / 2.0;
+	
+	Sim->aspectRatio = Vector(1,1,1);
+	
+	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , Aspect, Aspect);
+	Vector particleCOM = Vector(-Delta/L,0,0);
+
+	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(particleCOM));
+      	
+	Sim->Dynamics.setPBC<CSPBC>();
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	Iflt particleDiam = 1.0/L;
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
+	if (vm.count("b1"))
+	  Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
+	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, ParticleInelas, 
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->Dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0.5,0,0), Vector(-1,0,0), Omega0,
+						      Sigma / L, PlateInelas, Delta / L, Mass,
+						      "Plate1", new CRAll(Sim), 0.0));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), Vector(0, 0, -Aspect), 
+					   "Plate2", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,-1), Vector(0, 0, +Aspect), 
+					   "Plate3", new CRAll(Sim)));
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
