@@ -69,14 +69,17 @@ void
 COPPlateMotion::ticker()
 {
   
-  Vector com(0,0,0);
+  Vector com(0,0,0), momentum(0,0,0);
+  Iflt sqmom(0);
+  
   Iflt mass(0);
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      Vector pos(part.getPosition());
+      Vector pos(part.getPosition()), vel(part.getVelocity());
       Iflt pmass(Sim->Dynamics.getSpecies(part).getMass());
-
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().setPBC(pos, vel);
+      momentum += vel * pmass;
+      sqmom += (vel | vel) * (pmass * pmass);
       com += pos * pmass;
       mass += pmass;
     }
@@ -89,7 +92,9 @@ COPPlateMotion::ticker()
 
   logfile << Sim->dSysTime / Sim->Dynamics.units().unitTime()
 	  << " " << com[0] << " " << com[1] << " " << com[2]
-	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] << "\n";
+	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
+	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->Dynamics.units().unitMomentum(),2))
+	  << "\n";
 }
 
 void 
