@@ -37,7 +37,8 @@ COPPlateMotion::COPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
 
 COPPlateMotion::COPPlateMotion(const COPPlateMotion& cp):
   COPTicker(cp),
-  plateID(cp.plateID)
+  plateID(cp.plateID),
+  plateName(cp.plateName)
 {
   if (cp.logfile.is_open())
     cp.logfile.close();
@@ -50,7 +51,7 @@ COPPlateMotion::initialise()
     plateID = Sim->Dynamics.getLocal(plateName)->getID();
   } catch(...)
     {
-      D_throw() << "Could not find the PlateName specified.";
+      D_throw() << "Could not find the PlateName specified. You said " << plateName;
     }
   
   if (dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr()) == NULL) 
@@ -60,6 +61,8 @@ COPPlateMotion::initialise()
     logfile.close();
   
   logfile.open("plateMotion.out", std::ios::out|std::ios::trunc);
+
+  ticker();
 }
 
 void 
@@ -93,7 +96,7 @@ void
 COPPlateMotion::operator<<(const XMLNode& XML)
 {
   try {
-    plateName = XML.getAttribute("PlateName");
+    plateName = std::string(XML.getAttribute("PlateName"));
   } catch(...)
     {
       D_throw() << "Could not find the PlateName for the PlateMotion plugin. Did you specify one?";
