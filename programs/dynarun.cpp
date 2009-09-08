@@ -114,6 +114,9 @@ main(int argc, char *argv[])
       std::cerr << cep.what();
       std::cerr << "\n" << IC_red 
 		<< "MAIN:" << IC_reset << " Reached Main Error Loop"
+#ifndef DYNAMO_DEBUG
+		<< IC_red << "MAIN:" << IC_reset << " TRY USING THE DEBUG EXECUTABLE"
+#endif
 		<< "\n";
 
       return 1;
