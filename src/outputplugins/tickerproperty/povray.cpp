@@ -101,7 +101,7 @@ light_source { <0, 0, -zoom> color White } \n\
     spec->getIntPtr()->write_povray_desc
     (colmap.getColor(spec->getID()), spec->getID(), of);
   
-  of << "merge { \n";
+  of << "union { \n";
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
     ptr->write_povray_info(of);
   of << "bounded_by { box {<-0.5,-0.091666667,-0.091666667>,<0.5,0.091666667,0.091666667> }}}\n";

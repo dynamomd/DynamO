@@ -1818,21 +1818,27 @@ CIPPacker::initialise()
       {
 	Iflt Sigma = 15.0;
 	Iflt Delta = 10.0;
-	Iflt L = 60.0;
-	Iflt Aspect = 1.0 - (L - 8.0) / L;
-	Iflt Mass = 1000;
-	Iflt PlateInelas = 0.95;
-	Iflt ParticleInelas = 0.95;
-	Iflt boundaryInelas = 0.95;
+	Iflt L = 4.5 + 2.0 * Sigma;
+	Iflt Aspect = 1.0 - (L - 5.0) / L;
+	Iflt Mass = 37;
+	Iflt PlateInelas = 0.96;
+	Iflt ParticleInelas = 0.88;
+	Iflt boundaryInelas = 0.96;
 	Iflt Omega0 = PI / 2.0;
 	
 	Sim->aspectRatio = Vector(1,1,1);
 	
-	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
-				     0.9*Aspect, 0.9*Aspect);
-	//The minus one half spaces the particles off the wall
-	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L, 
-				    0, 0);
+//	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
+//				     0.9 * Aspect, 0.9 * Aspect);
+//	//The minus one half spaces the particles off the wall
+//	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L, 
+//				    0, 0);
+
+	//Minus one to space off the walls
+	Vector particleArea = Vector((L-2.0 * Sigma - 1) / L ,
+				     Aspect - 1.0/L, Aspect - 1.0/L);
+
+	Vector particleCOM = Vector(-Delta / L, 0, 0);
 
 	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, 
 						    new CUParticle()));
