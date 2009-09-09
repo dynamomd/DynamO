@@ -915,24 +915,13 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   {
     Iflt surfaceOffset = pos | nhat;
     Iflt surfaceVel = vel | nhat;
-    Iflt maxlength = Sigma + Delta;
     
-    //Simple test to see if they are approaching and outside each other
-    if (surfaceOffset > maxlength)
-      if  (surfaceVel > 0)
-	return HUGE_VAL;
-      else
-	t_low = -(surfaceOffset - maxlength) / surfaceVel;
-    else if (surfaceOffset < -maxlength)
-      if (surfaceVel < 0)
-	return HUGE_VAL;
-      else
-	t_low = -(surfaceOffset + maxlength) / surfaceVel;
-
-    if (surfaceVel < 0)
-      t_high = (-maxlength - surfaceOffset) / surfaceVel;
+    if (surfaceVel > 0)
+      t_high = (Delta - surfaceOffset) / surfaceVel;
     else
-      t_high = (maxlength - surfaceOffset) / surfaceVel;
+      t_high = -(Delta + surfaceOffset) / surfaceVel;
+
+    if (t_high < 0) return HUGE_VAL;
 
   }
   
