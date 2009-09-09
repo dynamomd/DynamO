@@ -24,3 +24,14 @@
 COPTicker::COPTicker(const DYNAMO::SimData* t1,const char *t2):
   COutputPlugin(t1,t2)
 {}
+
+Iflt 
+COPTicker::getTickerTime() const
+{
+  try {
+    return dynamic_cast<const CSTicker&>(*Sim->Dynamics.getSystem("SystemTicker")).getPeriod();
+  } catch (const std::bad_cast&)
+    {
+      D_throw() << "Could not upcast the SystemTicker system event to CSTicker, have you named a system as SystemTicker?";
+    }
+}

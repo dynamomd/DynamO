@@ -62,13 +62,31 @@ COPPlateMotion::initialise()
   
   logfile.open("plateMotion.out", std::ios::out|std::ios::trunc);
 
+  localEnergyLoss.resize(Sim->Dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
+
   ticker();
+}
+
+void 
+COPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+{
+  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+    localEnergyLoss[localEvent.getLocalID()].first += pData.getDeltaKE();  
+  
+  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+    localEnergyLoss[localEvent.getLocalID()].first += pData.particle1_.getDeltaKE()
+    + pData.particle2_.getDeltaKE();
 }
 
 void 
 COPPlateMotion::ticker()
 {
-  
+  BOOST_FOREACH(localEntry& entry, localEnergyLoss)
+    {
+      entry.second.push_back(entry.first);
+      entry.first = 0.0;
+    }
+
   Vector com(0,0,0), momentum(0,0,0);
   Iflt sqmom(0);
   
@@ -94,6 +112,7 @@ COPPlateMotion::ticker()
 	  << " " << com[0] << " " << com[1] << " " << com[2]
 	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
 	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->Dynamics.units().unitMomentum(),2))
+	  << " " << plate.getPlateEnergy() / Sim->Dynamics.units().unitEnergy()
 	  << "\n";
 }
 
@@ -105,5 +124,22 @@ COPPlateMotion::operator<<(const XMLNode& XML)
   } catch(...)
     {
       D_throw() << "Could not find the PlateName for the PlateMotion plugin. Did you specify one?";
+    }
+}
+
+void 
+COPPlateMotion::output(xmlw::XmlStream& XML)
+{
+  for (size_t ID(0); ID < localEnergyLoss.size(); ++ID)
+    {
+      std::fstream of((Sim->Dynamics.getLocals()[ID]->getName() 
+		       + std::string("EnergyLoss.out")).c_str(), 
+		      std::ios::out | std::ios::trunc);
+      
+      size_t step(0);
+      Iflt deltat(getTickerTime() / Sim->Dynamics.units().unitTime());
+
+      BOOST_FOREACH(const Iflt& val, localEnergyLoss[ID].second)
+	of << deltat * (step++) << " " << val /Sim->Dynamics.units().unitEnergy() << "\n";
     }
 }

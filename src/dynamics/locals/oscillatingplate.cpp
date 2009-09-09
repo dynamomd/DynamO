@@ -172,6 +172,20 @@ CLOscillatingPlate::getPosition() const
   return nhat * (delta * std::cos(omega0 * (Sim->dSysTime + timeshift))) + rw0;
 }
 
+Vector
+CLOscillatingPlate::getVelocity() const
+{
+  return - nhat * (delta * omega0 * std::sin(omega0 * (Sim->dSysTime + timeshift)));
+}
+
+Iflt 
+CLOscillatingPlate::getPlateEnergy() const
+{
+  return 0.5 * mass 
+    * (std::pow(omega0 * delta * std::cos(omega0 * (Sim->dSysTime + timeshift)), 2)
+       +  std::pow(omega0 * delta * std::sin(omega0 * (Sim->dSysTime + timeshift)), 2));
+}
+
 void 
 CLOscillatingPlate::write_povray_info(std::ostream& os) const
 {

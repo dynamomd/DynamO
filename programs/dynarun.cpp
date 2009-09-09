@@ -115,7 +115,7 @@ main(int argc, char *argv[])
       std::cerr << "\n" << IC_red 
 		<< "MAIN:" << IC_reset << " Reached Main Error Loop"
 #ifndef DYNAMO_DEBUG
-		<< IC_red << "MAIN:" << IC_reset << " TRY USING THE DEBUG EXECUTABLE"
+		<< IC_red << "\nMAIN:" << IC_reset << "If this error is vauge, try using the debugging executable"
 #endif
 		<< "\n";
 

@@ -45,6 +45,11 @@ public:
   virtual void write_povray_info(std::ostream&) const;
 
   Vector getPosition() const;
+
+  Vector getVelocity() const;
+
+  Iflt getPlateEnergy() const;
+
   const Vector& getCentre() const { return rw0; }
 
 protected:

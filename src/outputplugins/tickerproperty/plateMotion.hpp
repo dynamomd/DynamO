@@ -20,6 +20,7 @@
 
 #include "ticker.hpp"
 #include <fstream>
+#include <vector>
 
 class COPPlateMotion: public COPTicker
 {
@@ -39,10 +40,17 @@ class COPPlateMotion: public COPTicker
 
   virtual void operator<<(const XMLNode&);
   
+  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+
+  virtual void output(xmlw::XmlStream&);
+
  protected:
   mutable std::ofstream logfile;
   size_t plateID;
   std::string plateName;
+  typedef std::pair<Iflt,std::vector<Iflt> > localEntry;
+  std::vector<localEntry> localEnergyLoss;
+
 };
 
 #endif
