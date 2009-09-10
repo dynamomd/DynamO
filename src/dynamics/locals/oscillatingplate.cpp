@@ -197,7 +197,6 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
 
   Sim->Dynamics.BCs().setPBC(WallLoc1);
   Sim->Dynamics.BCs().setPBC(WallLoc2);
-  os << "#include \"glass.inc\"\n";
 
   os << "object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength() 
      << ", -0.5>, <0.5, " << +0.25 * Sim->Dynamics.units().unitLength() 

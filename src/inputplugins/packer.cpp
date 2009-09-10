@@ -183,7 +183,12 @@ CIPPacker::initialise()
 	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
 	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
 	"  19: Oscillating plates bounding a system\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Upper limit on the particles inserted [All]\n"
+	"       --f1 : Mass ratio [1]\n"
+	"       --f2 : Length in particle radii [4.5]\n"
+	"       --f3 : Hertz, if the unit of time is seconds [1]\n"
+	"       --f3 : Initial displacement [130]"
 	;
       std::cout << "\n";
       exit(1);
@@ -1815,17 +1820,29 @@ CIPPacker::initialise()
     case 19:
       {
 	Iflt L = 4.5;
-	Iflt Delta = 10.0;
+	if (vm.count("f2"))
+	  L = vm["f2"].as<Iflt>();
+	Iflt Delta = 13.0;
+	if (vm.count("f4"))
+	  Delta = vm["f4"].as<Iflt>();
+
 	//the  2.0 * L is to give an extra half box width on each side of the sim 
 	Iflt boxL = 2.0 * L + 2.0 * Delta;
 	Iflt xy = 5;
 	Iflt Aspect =  xy / boxL;
-	Iflt Mass = 37;
+	Iflt MassRatio = 1.0;
 	Iflt PlateInelas = 0.96;
 	Iflt ParticleInelas = 0.88;
 	Iflt boundaryInelas = 0.96;
-	Iflt Omega0 = PI / 2.0;
+	Iflt Omega0 = PI * 2.0;
 	
+	if (vm.count("f1"))
+	  MassRatio = vm["f1"].as<Iflt>();
+
+	if (vm.count("f3"))
+	  Omega0 *= vm["f3"].as<Iflt>();
+
+
 	Sim->aspectRatio = Vector(1,1,1);
 	
 //	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
@@ -1836,8 +1853,8 @@ CIPPacker::initialise()
 
 	Vector particleArea = Vector(L / boxL, Aspect, Aspect);
 
-	//The system starts at a full extention, minus a half particle to stop instant collisions
-	Vector particleCOM = Vector(-(Delta - 0.5) / boxL, 0, 0);
+	//The system starts at a full extention, always plus a half particle to stop instant collisions
+	Vector particleCOM = Vector((Delta + 0.5) / boxL, 0, 0);
 
 	CUCell* sysPack;
 
@@ -1893,10 +1910,6 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(-1,0,0), Omega0,
-						      0.5 * L / boxL, PlateInelas, Delta / boxL, Mass,
-						      "Plate1", new CRAll(Sim), 0.0));
-
 	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect), 
 					   "Plate2", new CRAll(Sim)));
 
@@ -1915,11 +1928,22 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
       
+	size_t maxPart;
+	if (vm.count("i2"))
+	  maxPart = vm["i2"].as<size_t>();
+	else
+	  maxPart = latticeSites.size();
+
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
-	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+	Sim->vParticleList.reserve(maxPart);
+	
+	for (size_t i(0); i < maxPart; ++i)
+	  Sim->vParticleList.push_back(CParticle(latticeSites[i], getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
+
+	Sim->Dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
+						      0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles,
+						      "Plate1", new CRAll(Sim), 0.0));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
