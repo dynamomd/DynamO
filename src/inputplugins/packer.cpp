@@ -183,9 +183,7 @@ CIPPacker::initialise()
 	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
 	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
 	"  19: Oscillating plates bounding a system\n"
-	"       --f1 : Inelasticity [0.9]\n"
-	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
-	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)"
 	;
       std::cout << "\n";
       exit(1);
@@ -1841,8 +1839,33 @@ CIPPacker::initialise()
 	//The system starts at a full extention, minus a half particle to stop instant collisions
 	Vector particleCOM = Vector(-(Delta - 0.5) / boxL, 0, 0);
 
-	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, 
-						    new CUParticle()));
+	CUCell* sysPack;
+
+	if (!vm.count("i1"))
+	  sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
+	else 
+	  switch (vm["i1"].as<size_t>())
+	    {
+	    case 0:
+	      {
+		sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
+		break;
+	      }
+	    case 1:
+	      {
+		sysPack = new CUBCC(getCells(), particleArea, new CUParticle());
+		break;
+	      }
+	    case 2:
+	      {
+		sysPack = new CUSC(getCells(), particleArea, new CUParticle());
+		break;
+	      }
+	    default:
+	      D_throw() << "Not a valid packing type (--i1)";
+	    }
+
+	boost::scoped_ptr<CUCell> packptr(sysPack);
 	packptr->initialise();
 	
 	std::vector<Vector> 
