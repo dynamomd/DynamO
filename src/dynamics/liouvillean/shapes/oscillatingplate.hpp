@@ -57,8 +57,7 @@ public:
 
   Iflt F_zeroDeriv() const
   { 
-    Iflt length = (wallPosition() - rp) | nhat;
-    return length + ((length < 0) ? Sigma : -Sigma); 
+    return ((wallPosition() - rp) | nhat) - Sigma;
   }
 
   Iflt F_firstDeriv() const
@@ -87,6 +86,8 @@ public:
   {
     return true;
   }
+
+  void flipSigma() { Sigma = -Sigma; }
   
 private:
   const Vector& vp;

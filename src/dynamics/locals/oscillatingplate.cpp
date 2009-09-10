@@ -190,22 +190,24 @@ void
 CLOscillatingPlate::write_povray_info(std::ostream& os) const
 {
   Vector pos = getPosition();
-  Vector WallLoc1 = pos + nhat * sigma;
-  Vector WallLoc2 = pos - nhat * sigma;
+  //The walls are \pm0.25 thick and are set 0.5 away from the COM surface
+  //to give the appearance of proper walls, not COM walls
+  Vector WallLoc1 = pos + nhat * (sigma + 0.75 * Sim->Dynamics.units().unitLength());
+  Vector WallLoc2 = pos - nhat * (sigma + 0.75 * Sim->Dynamics.units().unitLength());
 
   Sim->Dynamics.BCs().setPBC(WallLoc1);
   Sim->Dynamics.BCs().setPBC(WallLoc2);
   os << "#include \"glass.inc\"\n";
 
-  os << "object { box { <-0.5, " << -1.5 * Sim->Dynamics.units().unitLength() 
-     << ", -0.5>, <0.5, " << -0.5 * Sim->Dynamics.units().unitLength() 
+  os << "object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength() 
+     << ", -0.5>, <0.5, " << +0.25 * Sim->Dynamics.units().unitLength() 
      << ", 0.5> } Point_At_Trans(<"
      << nhat[0] << "," << nhat[1] << "," << nhat[2] << ">) translate <"
      <<  WallLoc1[0] << "," <<  WallLoc1[1] << "," <<  WallLoc1[2] 
      << "> texture { pigment { Col_Glass_Bluish } } }\n";
 
-  os << "object { box { <-0.5, " << -1.5 * Sim->Dynamics.units().unitLength()
-     << ", -0.5>, <0.5, " << -0.5 * Sim->Dynamics.units().unitLength() 
+  os << "object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength()
+     << ", -0.5>, <0.5, " << 0.25 * Sim->Dynamics.units().unitLength() 
      << ", 0.5> } Point_At_Trans(<"
      << -nhat[0] << "," << -nhat[1] << "," << -nhat[2] << ">) translate <"
      <<  WallLoc2[0] << "," <<  WallLoc2[1] << "," <<  WallLoc2[2] 

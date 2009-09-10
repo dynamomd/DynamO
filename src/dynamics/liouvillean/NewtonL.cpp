@@ -910,29 +910,32 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(pos, vel);
 
-  Iflt t_high, t_low = 0;
-
+  Iflt t_high;
   {
     Iflt surfaceOffset = pos | nhat;
     Iflt surfaceVel = vel | nhat;
     
     if (surfaceVel > 0)
-      t_high = (Delta - surfaceOffset) / surfaceVel;
+      t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
     else
-      t_high = -(Delta + surfaceOffset) / surfaceVel;
+      t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
 
     if (t_high < 0) return HUGE_VAL;
-
   }
   
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
+  Iflt t_low = 0;
   if (lastpart)
     //Shift the lower bound up so we don't find the same root again
-    t_low += fabs(2.0 * fL.F_firstDeriv())
+    t_low = fabs(2.0 * fL.F_firstDeriv())
       / fL.F_secondDeriv_max(0.0);
   
-  return frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+  Iflt root1 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+  fL.flipSigma();
+  Iflt root2 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+
+  return (root1 < root2) ? root1 : root2;
 }
 
 C1ParticleData 
@@ -945,18 +948,18 @@ CLNewton::runOscilatingPlate
 
   C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
 
-  Vector pos(part.getPosition() - rw0), vel(part.getVelocity());
+  COscillatingPlateFunc fL(part.getVelocity(), nhat, part.getPosition(), t + Sim->dSysTime, delta, 
+			   omega0, sigma);
+
+  Vector pos(part.getPosition() - fL.wallPosition()), vel(part.getVelocity());
 
   Sim->Dynamics.BCs().setPBC(pos, vel);
-
-  COscillatingPlateFunc fL(vel, nhat, pos, t + Sim->dSysTime, delta, 
-			   omega0, sigma);
   
   Vector nhattmp; 
   if ((nhat | pos) < 0)
-    nhattmp = -nhat;
-  else
     nhattmp = nhat;
+  else
+    nhattmp = -nhat;
   
   Iflt pmass = retVal.getSpecies().getMass();
   Iflt mu = (pmass * mass) / (mass + pmass);

@@ -1816,10 +1816,12 @@ CIPPacker::initialise()
       }
     case 19:
       {
-	Iflt Sigma = 15.0;
+	Iflt L = 4.5;
 	Iflt Delta = 10.0;
-	Iflt L = 4.5 + 2.0 * Sigma;
-	Iflt Aspect = 1.0 - (L - 5.0) / L;
+	//the  2.0 * L is to give an extra half box width on each side of the sim 
+	Iflt boxL = 2.0 * L + 2.0 * Delta;
+	Iflt xy = 5;
+	Iflt Aspect =  xy / boxL;
 	Iflt Mass = 37;
 	Iflt PlateInelas = 0.96;
 	Iflt ParticleInelas = 0.88;
@@ -1834,11 +1836,10 @@ CIPPacker::initialise()
 //	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L, 
 //				    0, 0);
 
-	//Minus one to space off the walls
-	Vector particleArea = Vector((L-2.0 * Sigma - 1) / L ,
-				     Aspect - 1.0/L, Aspect - 1.0/L);
+	Vector particleArea = Vector(L / boxL, Aspect, Aspect);
 
-	Vector particleCOM = Vector(-Delta / L, 0, 0);
+	//The system starts at a full extention, minus a half particle to stop instant collisions
+	Vector particleCOM = Vector(-(Delta - 0.5) / boxL, 0, 0);
 
 	boost::scoped_ptr<CUCell> packptr(new CUFCC(getCells(), particleArea, 
 						    new CUParticle()));
@@ -1855,7 +1856,7 @@ CIPPacker::initialise()
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 	
-	Iflt particleDiam = 1.0/L;
+	Iflt particleDiam = 1.0/boxL;
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
@@ -1869,8 +1870,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->Dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0.5,0,0), Vector(-1,0,0), Omega0,
-						      Sigma / L, PlateInelas, Delta / L, Mass,
+	Sim->Dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(-1,0,0), Omega0,
+						      0.5 * L / boxL, PlateInelas, Delta / boxL, Mass,
 						      "Plate1", new CRAll(Sim), 0.0));
 
 	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect), 
