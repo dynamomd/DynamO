@@ -79,20 +79,30 @@ COPPovray::printImage()
   of << "#include \"colors.inc\" 	   \n\
 #include \"transforms.inc\"                \n\
 #declare zoom = "<< zoomlevel << ";	   \n\
+#declare cameraloc = <0, zoom, 0>;	   \n\
+#declare camera_rot = transform {          \n\
+ rotate <20,0,clock*180>                    \n\
+};                                          \n\
 global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
- location <0, zoom, 0>			   \n\
+ location cameraloc                        \n\
+ transform camera_rot                      \n\
  look_at  <0, 0, 0>			   \n\
- rotate <0,0,clock*180>                    \n\
 }        				   \n\
 background { color White }		   \n\
-light_source { <0, zoom, 0> color White }  \n\
-light_source { <0, -zoom, 0> color White } \n\
-light_source { <zoom, 0, 0> color White }  \n\
-light_source { <-zoom, 0, 0> color White } \n\
-light_source { <0, 0, zoom> color White }  \n\
-light_source { <0, 0, -zoom> color White } \n\
+light_source { cameraloc color White transform camera_rot }  \n\
+light_source { <2*zoom, 2*zoom, 2*zoom> color White }  \n\
+light_source { <-2*zoom, 2*zoom, 2*zoom> color White }  \n\
+light_source { <2*zoom, -2*zoom, 2*zoom> color White }  \n\
+light_source { <2*zoom, 2*zoom, -2*zoom> color White }  \n\
+light_source { <-2*zoom, 2*zoom, -2*zoom> color White }  \n\
+light_source { <-2*zoom, -2*zoom, -2*zoom> color White }  \n\
+light_source { <-2*zoom, -2*zoom, 2*zoom> color White }  \n\
+light_source { <2*zoom, -2*zoom, -2*zoom> color White }  \n\
+#include \"glass.inc\"                     \n\
+intersection { union {                     \n\
 ";
+
   DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
     intPtr->write_povray_info(of);
@@ -101,12 +111,19 @@ light_source { <0, 0, -zoom> color White } \n\
     spec->getIntPtr()->write_povray_desc
     (colmap.getColor(spec->getID()), spec->getID(), of);
   
-  of << "#include \"glass.inc\"\n";
-  of << "union { \n";
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
     ptr->write_povray_info(of);
 
-  of << "bounded_by { box {<-0.5,-0.091666667,-0.091666667>,<0.5,0.091666667,0.091666667> }}}\n";
 
+  of << "\n}\nbox { <" 
+     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
+     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
+     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+     << ">,"
+     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+     << "> }\n"
+     << "cutaway_textures }\n";
   of.close();
 }

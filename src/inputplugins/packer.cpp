@@ -48,6 +48,11 @@ CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
   vm(vm2)
 {}
 
+bool mySortPredictate(const Vector& v1, const Vector& v2)
+{
+  return v1[0] > v2[0];
+}
+
 po::options_description 
 CIPPacker::getOptions()
 {
@@ -1843,7 +1848,7 @@ CIPPacker::initialise()
 	  Omega0 *= vm["f3"].as<Iflt>();
 
 
-	Sim->aspectRatio = Vector(1,1,1);
+	Sim->aspectRatio = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
 	
 //	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
 //				     0.9 * Aspect, 0.9 * Aspect);
@@ -1888,7 +1893,7 @@ CIPPacker::initialise()
 	std::vector<Vector> 
 	  latticeSites(packptr->placeObjects(particleCOM));
       	
-	Sim->Dynamics.setPBC<CSPBC>();
+	Sim->Dynamics.setPBC<CNullBC>();
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Iflt simVol = 1.0;
@@ -1936,8 +1941,10 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(maxPart);
-	
-	for (size_t i(0); i < maxPart; ++i)
+
+	std::sort(latticeSites.begin(), latticeSites.end(),mySortPredictate);
+  
+	for (size_t i(0); i < maxPart; ++i)	  
 	  Sim->vParticleList.push_back(CParticle(latticeSites[i], getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
