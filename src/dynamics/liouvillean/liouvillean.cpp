@@ -309,3 +309,21 @@ CLiouvillean::parallelCubeColl(const CIntEvent& event,
 			       const Matrix& Rot,
 			       const EEventType& eType) const
 { D_throw() << "Not Implemented"; }
+
+Iflt 
+CLiouvillean::getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
+				     const Vector& nhat, const Iflt& Delta,
+				     const Iflt& Omega, const Iflt& Sigma,
+				     const Iflt& t, bool) const
+{
+  D_throw() << "Not Implemented";
+}
+
+C1ParticleData 
+CLiouvillean::runOscilatingPlate
+(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+ const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e,
+ Iflt& t) const
+{
+  D_throw() << "Not Implemented";
+}

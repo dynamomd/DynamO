@@ -60,7 +60,7 @@ void
 COPPovray::printImage()
 {
   //Dont let this fill up your hard drive!
-  if (frameCount > 1000)
+  if (frameCount > 10000)
     return;
 
   char *fileName;
@@ -77,23 +77,33 @@ COPPovray::printImage()
 
   //Header of povray file
   of << "#include \"colors.inc\" 	   \n\
-#declare zoom = "<< zoomlevel << ";			   \n	\
+#include \"transforms.inc\"                \n\
+#declare zoom = "<< zoomlevel << ";	   \n\
+#declare cameraloc = <0, zoom, 0>;	   \n\
+#declare camera_rot = transform {          \n\
+ rotate <20,0,clock*180>                    \n\
+};                                          \n\
 global_settings { max_trace_level 50 }     \n\
 camera {				   \n\
- location <0, zoom, 0>			   \n\
+ location cameraloc                        \n\
+ transform camera_rot                      \n\
  look_at  <0, 0, 0>			   \n\
- rotate <clock*360,clock*180,0>            \n\
 }        				   \n\
 background { color White }		   \n\
-light_source { <0, zoom, 0> color White }  \n\
-light_source { <0, -zoom, 0> color White } \n\
-light_source { <zoom, 0, 0> color White }  \n\
-light_source { <-zoom, 0, 0> color White } \n\
-light_source { <0, 0, zoom> color White }  \n\
-light_source { <0, 0, -zoom> color White } \n\
+light_source { cameraloc color White transform camera_rot }  \n\
+light_source { <2*zoom, 2*zoom, 2*zoom> color White }  \n\
+light_source { <-2*zoom, 2*zoom, 2*zoom> color White }  \n\
+light_source { <2*zoom, -2*zoom, 2*zoom> color White }  \n\
+light_source { <2*zoom, 2*zoom, -2*zoom> color White }  \n\
+light_source { <-2*zoom, 2*zoom, -2*zoom> color White }  \n\
+light_source { <-2*zoom, -2*zoom, -2*zoom> color White }  \n\
+light_source { <-2*zoom, -2*zoom, 2*zoom> color White }  \n\
+light_source { <2*zoom, -2*zoom, -2*zoom> color White }  \n\
+#include \"glass.inc\"                     \n\
+intersection { union {                     \n\
 ";
-  DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
 
+  DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
     intPtr->write_povray_info(of);
 
@@ -104,5 +114,16 @@ light_source { <0, 0, -zoom> color White } \n\
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
     ptr->write_povray_info(of);
 
+
+  of << "\n}\nbox { <" 
+     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
+     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
+     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+     << ">,"
+     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+     << "> }\n"
+     << "cutaway_textures }\n";
   of.close();
 }

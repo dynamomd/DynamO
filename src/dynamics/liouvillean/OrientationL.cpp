@@ -29,6 +29,7 @@
 #include <boost/iostreams/device/stream_source.hpp>
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
+#include "shapes/frenkelroot.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
 
@@ -113,160 +114,6 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     return false;
 }
 
-
-Iflt
-CLNOrientation::frenkelRootSearch(const CLinesFunc& fL, Iflt length, 
-				  Iflt t_low, Iflt t_high) const
-{
-  Iflt root = 0.0;
-	
-  while(t_high > t_low)
-    {
-      root = quadraticRootHunter(fL, length, t_low, t_high);
-
-      if (root == HUGE_VAL) return HUGE_VAL;
-      
-      Iflt temp_high = t_high;
-
-      do {
-	// Artificial boundary just below root
-	CLinesFunc tempfL(fL);
-	tempfL.stream(root);
-
-	Iflt Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
-	
-	temp_high = root - (fabs(2.0 * tempfL.F_firstDeriv())
-			    / Fdoubleprimemax);
-	
-	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
-	
-	Iflt temp_root = quadraticRootHunter(fL, length, t_low, temp_high);
-	
-	if (temp_root == HUGE_VAL) 
-	  break;
-	else 
-	    root = temp_root;
-	
-      } while(temp_high > t_low);
-      
-      // At this point $root contains earliest valid root guess.
-      // Check root validity.
-      CLinesFunc tempfL(fL);
-      tempfL.stream(root);
-      
-      std::pair<Iflt,Iflt> cp = tempfL.getCollisionPoints();
-      
-      if(fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0)
-        return root;
-      else
-        t_low = root + ((2.0 * fabs(tempfL.F_firstDeriv()))
-			/ tempfL.F_secondDeriv_max(length));
-    }
-    
-  return HUGE_VAL;
-}
-
-
-bool
-CLNOrientation::quadraticSolution(Iflt& returnVal, const int returnType, 
-				  Iflt C, Iflt B, Iflt A) const
-{
-  Iflt root1(0), root2(0);
-  // Contingency: if A = 0, not a quadratic = linear
-  if(A == 0)
-    {
-      if(B == 0) return false;
-      
-      root1 = -1.0 * C / B;
-      root2 = root1;
-    }
-  else
-    {
-      Iflt discriminant = (B * B) - (4 * A * C);
-    
-      if (discriminant < 0) return false;
-    
-      //This avoids a cancellation of errors. See
-      //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
-      Iflt t((B < 0)
-	     ? -0.5 * (B-sqrt(discriminant))
-	     : -0.5 * (B+sqrt(discriminant)));
-    
-      root1 = t / A;
-      root2 = C / t;
-    }
-
-  if(returnType == ROOT_SMALLEST_EITHER)
-    {
-      returnVal = (fabs(root1) < fabs(root2)) ? root1 : root2;
-      return true;
-    }
-  else if(returnType == ROOT_LARGEST_EITHER)
-    {
-      returnVal = (fabs(root1) < fabs(root2)) ? root2 : root1;
-      return true;
-    }
-  else
-    {    
-      if(root1 > 0 && root2 > 0) // Both roots positive
-	{
-	  switch(returnType)
-	    {
-	    case ROOT_LARGEST_NEGATIVE:
-	    case ROOT_SMALLEST_NEGATIVE:
-	      //I_cerr() << "Both roots positive";
-	      return false;
-	      break;
-	    case ROOT_SMALLEST_POSITIVE:
-	      returnVal = ((root1 < root2) ? root1 : root2);
-	      return true;
-	      break;
-	    case ROOT_LARGEST_POSITIVE:
-	      returnVal = ((root1 > root2) ? root1 : root2);
-	      return true;
-	      break;
-	    }
-	}
-      else if(root1 < 0 && root2 < 0) // Both roots negative
-	{
-	  switch(returnType)
-	    {
-	    case ROOT_LARGEST_POSITIVE:
-	    case ROOT_SMALLEST_POSITIVE:
-	      return false;
-	      break;
-	    case ROOT_SMALLEST_NEGATIVE:
-	      returnVal = ((root1 > root2) ? root1 : root2);
-	      return true;
-	      break;
-	    case ROOT_LARGEST_NEGATIVE:
-	      returnVal = ((root1 < root2) ? root1 : root2);
-	      return true;
-	      break;
-	    }
-	}
-      else // Roots are different signs
-	{
-	  switch(returnType)
-	    {
-	    case ROOT_LARGEST_POSITIVE:
-	    case ROOT_SMALLEST_POSITIVE:
-	      returnVal = ((root1 > root2) ? root1 : root2);
-	      return true;
-	      break;
-	    case ROOT_LARGEST_NEGATIVE:
-	    case ROOT_SMALLEST_NEGATIVE:
-	      returnVal = ((root1 < root2) ? root1 : root2);
-	      return true;
-	      break;
-	    }
-	}
-    }
-  
-  D_throw() << "Unexpected end-of-function reached.  Did you specify a valid root type?";
-  return false;
-}
-
 C2ParticleData 
 CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
@@ -342,84 +189,6 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
     * Vector(orientationData[part.getID()].orientation);    
 }
 
-Iflt
-CLNOrientation::quadraticRootHunter(const CLinesFunc& fL, Iflt length, 
-				    Iflt& t_low, Iflt& t_high) const
-{
-  Iflt working_time = t_low;
-  Iflt timescale = 1e-10 * length / fL.F_firstDeriv_max(length);
-  bool fwdWorking = false;
-  
-  size_t w = 0;
-
-  while(t_low < t_high)
-    {
-      //Always try again from the other side
-      fwdWorking = !fwdWorking;
-    
-      if(++w > 1000)
-	{
-	  I_cerr() << "Window shrunk thousands of times";
-	  
-	  return working_time;
-	}
-    
-      working_time = (fwdWorking ? t_low : t_high);
-      CLinesFunc tempfL(fL);
-      tempfL.stream(working_time);
-    
-      Iflt deltaT;
-      {
-	Iflt f0 = tempfL.F_zeroDeriv(),
-	  f1 = tempfL.F_firstDeriv(),
-	  halff2 = 0.5 * tempfL.F_secondDeriv(),
-	  halff2max = 0.5 * tempfL.F_secondDeriv_max(length);
-	
-	if (f0 > 0) halff2max = -halff2max;
-	
-	{
-	  Iflt boundEnhancer;
-	  // Enhance bound, no point continuing if the bounds are out of bounds
-	  if (!quadraticSolution(boundEnhancer, 
-				 (fwdWorking
-				  ? ROOT_SMALLEST_POSITIVE 
-				  : ROOT_SMALLEST_NEGATIVE), 
-				 f0, f1, halff2max))
-	    break;
-	  
-	  (fwdWorking ? t_low : t_high) += boundEnhancer;
-	}
-	
-	if (!quadraticSolution(deltaT, ROOT_SMALLEST_POSITIVE, f0, f1, halff2))
-	  continue;
-      }
-      
-      if (((working_time + deltaT) > t_high) 
-	  || ((working_time + deltaT) < t_low))
-	continue;
-      
-      for(size_t i(1000); i != 0; --i)
-	{
-	  working_time += deltaT;
-	  
-	  if((working_time > t_high) || (working_time < t_low))
-	    break;
-	  
-	  tempfL.stream(deltaT);
-	  
-	  if (!quadraticSolution(deltaT, ROOT_SMALLEST_EITHER, 
-				 tempfL.F_zeroDeriv(), 
-				 tempfL.F_firstDeriv(), 
-				 0.5 * tempfL.F_secondDeriv()))
-	    break;
-	  
-	  if(fabs(deltaT) <  timescale)
-	    return working_time + deltaT;
-	}
-    }
-
-  return HUGE_VAL;
-}
 
 C1ParticleData 
 CLNOrientation::runAndersenWallCollision(const CParticle& part, 
@@ -451,22 +220,22 @@ CLNOrientation::initLineOrientations(const Iflt& length)
   Vector  angVelCrossing;
 
   for (size_t i = 0; i < Sim->vParticleList.size(); ++i)
-    {      
+    {
       //Assign the new velocities
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
         orientationData[i].orientation[iDim] = Sim->normal_sampler();
-
+      
       orientationData[i].orientation /= orientationData[i].orientation.nrm();
-
+      
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
         angVelCrossing[iDim] = Sim->normal_sampler();
       
-      orientationData[i].angularVelocity 
+      orientationData[i].angularVelocity
         = orientationData[i].orientation ^ angVelCrossing;
       
       orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
 	/ orientationData[i].angularVelocity.nrm();
-    }  
+    }
 }
 
 void 

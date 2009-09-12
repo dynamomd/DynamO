@@ -44,7 +44,9 @@ public:
   
   virtual void periodicOutput() {}
 
-private:
+protected:
+
+  Iflt getTickerTime() const;
 };
 
 #endif

@@ -26,6 +26,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
+#include "shapes/frenkelroot.hpp"
+#include "shapes/oscillatingplate.hpp"
 
 bool 
 CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
@@ -106,7 +108,6 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 	  dat.dt = tInMax;
 	  return true;
 	}
-	    
     }
   
   return false;
@@ -297,6 +298,13 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
   Vector  vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(rpos, vel);
   
+#ifdef DYNAMO_DEBUG
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
+      D_throw() << "You have negative zero velocities, dont use them."
+		<< "\nPlease think of the neighbour lists.";
+#endif 
+
   Iflt retVal;
   if (vel[0] < 0)
     retVal = -rpos[0]/vel[0];
@@ -329,6 +337,12 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
   size_t retVal(0);
   Iflt time((vel[0] < 0) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
   
+#ifdef DYNAMO_DEBUG
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
+      D_throw() << "You have negative zero velocities, dont use them."
+		<< "\nPlease think of the neighbour lists.";
+#endif
 
   for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
@@ -880,4 +894,104 @@ CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
     }
 
   return retval;
+}
+
+Iflt
+CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
+				 const Vector& nhat, const Iflt& Delta,
+				 const Iflt& Omega, const Iflt& Sigma,
+				 const Iflt& t, bool lastpart) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(part))
+    D_throw() << "Particle1 " << part.getID() << " is not up to date";
+#endif
+  
+  Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+
+  Iflt t_high;
+  {
+    Iflt surfaceOffset = pos | nhat;
+    Iflt surfaceVel = vel | nhat;
+    
+    if (surfaceVel > 0)
+      t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
+    else
+      t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
+
+    if (t_high < 0) return HUGE_VAL;
+  }
+  
+  COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
+  
+  Iflt t_low = 0;
+  if (lastpart)
+    //Shift the lower bound up so we don't find the same root again
+    t_low = fabs(2.0 * fL.F_firstDeriv())
+      / fL.F_secondDeriv_max(0.0);
+  
+  Iflt root1 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+  fL.flipSigma();
+  Iflt root2 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+
+  return (root1 < root2) ? root1 : root2;
+}
+
+C1ParticleData 
+CLNewton::runOscilatingPlate
+(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+ const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
+  Iflt& t) const
+{
+  updateParticle(part);
+
+  C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
+
+  COscillatingPlateFunc fL(part.getVelocity(), nhat, part.getPosition(), t + Sim->dSysTime, delta, 
+			   omega0, sigma);
+
+  Vector pos(part.getPosition() - fL.wallPosition()), vel(part.getVelocity());
+
+  Sim->Dynamics.BCs().setPBC(pos, vel);
+  
+  Vector nhattmp; 
+  if ((nhat | pos) < 0)
+    nhattmp = nhat;
+  else
+    nhattmp = -nhat;
+  
+  Iflt pmass = retVal.getSpecies().getMass();
+  Iflt mu = (pmass * mass) / (mass + pmass);
+
+  Vector vwall(fL.wallVelocity());
+
+  Iflt rvdot = ((vel - vwall) | nhattmp);
+  
+  if (rvdot > 0) D_throw() <<"Particle " << part.getID() << ", is pulling on the oscillating plate!"; 
+
+  Vector delP =  nhattmp * mu * (1.0 + e) * rvdot;
+
+  const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
+
+  Iflt numerator = -nhat | ((delP / mass) + vwall);
+  
+  Iflt denominator = omega0 * delta * std::cos(omega0 * (Sim->dSysTime + t));
+  
+  //Iflt reducedt = Sim->dSysTime 
+  //- 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
+
+  Iflt newt = std::atan2(numerator, denominator)/ omega0 
+    - Sim->dSysTime;
+  
+  delta *= std::cos(omega0 * (Sim->dSysTime + t)) 
+    / std::cos(omega0 * (Sim->dSysTime + newt));
+  
+  t = newt;
+
+  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
+		    * (part.getVelocity().nrm2() 
+		       - retVal.getOldVel().nrm2()));
+  
+  return retVal; 
 }

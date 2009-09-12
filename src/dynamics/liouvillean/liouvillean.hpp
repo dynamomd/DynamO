@@ -293,6 +293,16 @@ public:
 				    const CParticle& p1, const CParticle& p2
 				    ) const;
 
+  virtual Iflt getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
+				      const Vector& nhat, const Iflt& Delta,
+				      const Iflt& Omega, const Iflt& Sigma,
+				      const Iflt& t, bool lastPart) const;
+
+  virtual C1ParticleData runOscilatingPlate
+  (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+   const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
+   Iflt& t) const;
+
   /*! \brief Calculates when a particle has travelled far enough to
    *   change its nearest-images. 
    *
@@ -330,7 +340,7 @@ public:
   virtual Iflt getWallCollision(const CParticle& part, 
 				const Vector & origin, 
 				const Vector & norm
-				  ) const = 0;
+				) const = 0;
 
   /*! \brief Collides a particle with a wall.
    *

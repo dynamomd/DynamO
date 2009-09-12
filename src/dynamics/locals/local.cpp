@@ -55,6 +55,8 @@ CLocal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
     return new CLAndersenWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"DoubleWall"))
     return new CLDblWall(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
+    return new CLOscillatingPlate(XML, Sim);
   else 
     D_throw() << "Unknown type of Local Interaction encountered";
 }

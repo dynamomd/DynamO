@@ -1,4 +1,3 @@
-
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
@@ -16,22 +15,42 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef COPPlateMotion_H
+#define COPPlateMotion_H
+
 #include "ticker.hpp"
-#include <boost/foreach.hpp>
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/systems/sysTicker.hpp"
+#include <fstream>
+#include <vector>
 
-COPTicker::COPTicker(const DYNAMO::SimData* t1,const char *t2):
-  COutputPlugin(t1,t2)
-{}
-
-Iflt 
-COPTicker::getTickerTime() const
+class COPPlateMotion: public COPTicker
 {
-  try {
-    return dynamic_cast<const CSTicker&>(*Sim->Dynamics.getSystem("SystemTicker")).getPeriod();
-  } catch (const std::bad_cast&)
-    {
-      D_throw() << "Could not upcast the SystemTicker system event to CSTicker, have you named a system as SystemTicker?";
-    }
-}
+ public:
+  COPPlateMotion(const DYNAMO::SimData*, const XMLNode&);
+
+  COPPlateMotion(const COPPlateMotion&);
+  
+  virtual COutputPlugin *Clone() const
+  { return new COPPlateMotion(*this); }
+
+  virtual void initialise();
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+
+  virtual void operator<<(const XMLNode&);
+  
+  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+
+  virtual void output(xmlw::XmlStream&);
+
+ protected:
+  mutable std::ofstream logfile;
+  size_t plateID;
+  std::string plateName;
+  typedef std::pair<Iflt,std::vector<Iflt> > localEntry;
+  std::vector<localEntry> localEnergyLoss;
+
+};
+
+#endif

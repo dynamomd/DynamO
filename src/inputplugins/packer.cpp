@@ -48,6 +48,11 @@ CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
   vm(vm2)
 {}
 
+bool mySortPredictate(const Vector& v1, const Vector& v2)
+{
+  return v1[0] > v2[0];
+}
+
 po::options_description 
 CIPPacker::getOptions()
 {
@@ -182,6 +187,13 @@ CIPPacker::initialise()
 	"       --f1 : Inelasticity [0.9]\n"
 	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
 	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
+	"  19: Oscillating plates bounding a system\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Upper limit on the particles inserted [All]\n"
+	"       --f1 : Mass ratio [1]\n"
+	"       --f2 : Length in particle radii [4.5]\n"
+	"       --f3 : Hertz, if the unit of time is seconds [1]\n"
+	"       --f3 : Initial displacement [130]"
 	;
       std::cout << "\n";
       exit(1);
@@ -1806,6 +1818,139 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back
 	  (CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 		     nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 19:
+      {
+	Iflt L = 4.5;
+	if (vm.count("f2"))
+	  L = vm["f2"].as<Iflt>();
+	Iflt Delta = 13.0;
+	if (vm.count("f4"))
+	  Delta = vm["f4"].as<Iflt>();
+
+	//the  2.0 * L is to give an extra half box width on each side of the sim 
+	Iflt boxL = 2.0 * L + 2.0 * Delta;
+	Iflt xy = 5;
+	Iflt Aspect =  xy / boxL;
+	Iflt MassRatio = 1.0;
+	Iflt PlateInelas = 0.96;
+	Iflt ParticleInelas = 0.88;
+	Iflt boundaryInelas = 0.96;
+	Iflt Omega0 = PI * 2.0;
+	
+	if (vm.count("f1"))
+	  MassRatio = vm["f1"].as<Iflt>();
+
+	if (vm.count("f3"))
+	  Omega0 *= vm["f3"].as<Iflt>();
+
+
+	Sim->aspectRatio = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
+	
+//	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
+//				     0.9 * Aspect, 0.9 * Aspect);
+//	//The minus one half spaces the particles off the wall
+//	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L, 
+//				    0, 0);
+
+	Vector particleArea = Vector(L / boxL, Aspect, Aspect);
+
+	//The system starts at a full extention, always plus a half particle to stop instant collisions
+	Vector particleCOM = Vector((Delta + 0.5) / boxL, 0, 0);
+
+	CUCell* sysPack;
+
+	if (!vm.count("i1"))
+	  sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
+	else 
+	  switch (vm["i1"].as<size_t>())
+	    {
+	    case 0:
+	      {
+		sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
+		break;
+	      }
+	    case 1:
+	      {
+		sysPack = new CUBCC(getCells(), particleArea, new CUParticle());
+		break;
+	      }
+	    case 2:
+	      {
+		sysPack = new CUSC(getCells(), particleArea, new CUParticle());
+		break;
+	      }
+	    default:
+	      D_throw() << "Not a valid packing type (--i1)";
+	    }
+
+	boost::scoped_ptr<CUCell> packptr(sysPack);
+	packptr->initialise();
+	
+	std::vector<Vector> 
+	  latticeSites(packptr->placeObjects(particleCOM));
+      	
+	Sim->Dynamics.setPBC<CNullBC>();
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	Iflt particleDiam = 1.0/boxL;
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
+	//The sentinel is needed because of the high speeds of the particles!
+	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
+	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, ParticleInelas, 
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect), 
+					   "Plate2", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect), 
+					   "Plate3", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,+1,0), Vector(0, -0.5 * Aspect, 0), 
+					   "Plate4", new CRAll(Sim)));
+
+	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), Vector(0, +0.5 * Aspect, 0), 
+					   "Plate5", new CRAll(Sim)));
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	size_t maxPart;
+	if (vm.count("i2"))
+	  maxPart = vm["i2"].as<size_t>();
+	else
+	  maxPart = latticeSites.size();
+
+	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(maxPart);
+
+	std::sort(latticeSites.begin(), latticeSites.end(),mySortPredictate);
+  
+	for (size_t i(0); i < maxPart; ++i)	  
+	  Sim->vParticleList.push_back(CParticle(latticeSites[i], getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+						 nParticles++));
+
+	Sim->Dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
+						      0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles,
+						      "Plate1", new CRAll(Sim), 0.0));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;

@@ -116,6 +116,11 @@ public:
   inline void push(const intPart& tmpVal, const size_t& pID)
   {
     //Exit early
+#ifdef DYNAMO_DEBUG
+    if (std::isnan(tmpVal.dt))
+      D_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
+#endif
+
     if (tmpVal.type == NONE) return;
     tmpVal.dt += pecTime;
     Min[pID+1].push(tmpVal);

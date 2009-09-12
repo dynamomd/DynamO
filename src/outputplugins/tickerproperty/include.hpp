@@ -36,3 +36,4 @@
 #include "boundedQstats.hpp"
 #include "SHcrystal.hpp"
 #include "SCparameter.hpp"
+#include "plateMotion.hpp"

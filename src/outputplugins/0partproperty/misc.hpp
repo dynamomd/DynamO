@@ -47,7 +47,7 @@ public:
   Iflt getMFT() const;
   
   void changeSystem(COutputPlugin*);
-  
+
 protected:
   std::time_t tstartTime;
 

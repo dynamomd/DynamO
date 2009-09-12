@@ -30,7 +30,7 @@ struct ctime_pow<X,1> {
   static const int result = X;
 };
 
-enum
+typedef enum
   {
     ROOT_SMALLEST_EITHER   =   1,
     ROOT_SMALLEST_POSITIVE =   2,
@@ -38,20 +38,18 @@ enum
     ROOT_LARGEST_EITHER    =   8,
     ROOT_LARGEST_POSITIVE  =  16,
     ROOT_LARGEST_NEGATIVE  =  32
-  } ;
+  } rootTypeEnum;
 
-template <int rootType, class T>
-T quadraticSolution2(const T& A, const T& B, const T& C)
+template<rootTypeEnum rootType>
+inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& ans)
 {
-  const T NaN = std::numeric_limits<T>::quiet_NaN();
-
-  T root1(0), root2(0);
+  Iflt root1(0), root2(0);
 
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
     {
       //If B is zero then we have a NaN
-      if(B == 0) return NaN;
+      if(B == 0) return false;
       
       root1 = -1.0 * C / B;
       root2 = root1;
@@ -61,7 +59,7 @@ T quadraticSolution2(const T& A, const T& B, const T& C)
     Iflt discriminant = (B * B) - (4 * A * C);
 
     //Cannot do imaginary numbers, yet
-    if (discriminant < 0) return NaN;
+    if (discriminant < 0) return false;
     
     //This avoids a cancellation of errors. See
     //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
@@ -76,54 +74,55 @@ T quadraticSolution2(const T& A, const T& B, const T& C)
   switch (rootType)
     {
     case ROOT_SMALLEST_EITHER:
-      return (fabs(root1) < fabs(root2)) ? root1 : root2;
+      ans = (fabs(root1) < fabs(root2)) ? root1 : root2;
       break;
     case ROOT_LARGEST_EITHER:
-      return (fabs(root1) < fabs(root2)) ? root2 : root1;
+      ans = (fabs(root1) < fabs(root2)) ? root2 : root1;
     case ROOT_LARGEST_NEGATIVE:
       if (root1 < 0 && root2 < 0)
-	return ((root1 < root2) ? root1 : root2);
+	ans = ((root1 < root2) ? root1 : root2);
       else if (root1 < 0)
-	return root1;
+	ans = root1;
       else if (root2 < 0)
-	return root2;
+	ans = root2;
       else
-	return NaN;
+	return false;
       break;
     case ROOT_SMALLEST_NEGATIVE:
       if (root1 < 0 && root2 < 0)
-	return ((root1 < root2) ? root2 : root1);
+	ans = ((root1 < root2) ? root2 : root1);
       else if (root1 < 0)
-	return root1;
+	ans = root1;
       else if (root2 < 0)
-	return root2;
+	ans = root2;
       else
-	return NaN;
+	return false;
       break;
     case ROOT_LARGEST_POSITIVE:
       if (root1 > 0 && root2 > 0)
-	return ((root1 > root2) ? root1 : root2);
+	ans = ((root1 > root2) ? root1 : root2);
       else if (root1 > 0)
-	return root1;
+	ans = root1;
       else if (root2 > 0)
-	return root2;
+	ans = root2;
       else
-	return NaN;
+	return false;
       break;
     case ROOT_SMALLEST_POSITIVE:
       if (root1 > 0 && root2 > 0)
-	return ((root1 > root2) ? root2 : root1);
+	ans = ((root1 > root2) ? root2 : root1);
       else if (root1 > 0)
-	return root1;
+	ans = root1;
       else if (root2 > 0)
-	return root2;
+	ans = root2;
       else
-	return NaN;
+	return false;
       break;
     default:
       D_throw() << "Unknown root selected";
       break;
     }
+  return true;
 }
 
 #endif
