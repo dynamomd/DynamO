@@ -24,6 +24,7 @@
 #include <ctime>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include "../../extcode/memUsage.hpp"
 
 COPMisc::COPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"Misc",0),
@@ -234,7 +235,14 @@ COPMisc::output(xmlw::XmlStream &XML)
       << xmlw::tag("totMeanFreeTime")
       << xmlw::attr("val")
       << getMFT()
-      << xmlw::endtag("totMeanFreeTime")
+      << xmlw::endtag("totMeanFreeTime");
+  
+  std::pair<Iflt, Iflt> mempair = process_mem_usage();
+  
+  XML << xmlw::tag("MemoryUsage")
+      << xmlw::attr("VirtualMemory") << mempair.first
+      << xmlw::attr("ResidentSet") << mempair.second
+      << xmlw::endtag("MemoryUsage")
       << xmlw::endtag("Misc");
 }
 
