@@ -22,6 +22,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
 #include <ctime>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 COPMisc::COPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   COutputPlugin(tmp,"Misc",0),
@@ -145,6 +147,14 @@ COPMisc::output(xmlw::XmlStream &XML)
   Iflt collpersec = static_cast<Iflt>(Sim->lNColl)
     / static_cast<Iflt>(tendTime - tstartTime);
 
+  long int maxmemusage;
+
+  {
+    struct rusage ru;
+    getrusage(RUSAGE_SELF, &ru);
+    maxmemusage = ru.ru_maxrss;
+  }
+
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
 	   << "\nAvg Coll/s " << collpersec
@@ -153,6 +163,9 @@ COPMisc::output(xmlw::XmlStream &XML)
 			       * static_cast<Iflt>(tendTime - tstartTime));
    
   XML << xmlw::tag("Misc")
+      << xmlw::tag("Memusage")
+      << xmlw::attr("MaxKiloBytes") << maxmemusage
+      << xmlw::endtag("Memusage")
       << xmlw::tag("Density")
       << xmlw::attr("val") << Sim->Dynamics.getNumberDensity() * Sim->Dynamics.units().unitVolume()
       << xmlw::endtag("Density")
