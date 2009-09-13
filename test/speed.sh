@@ -1,22 +1,26 @@
 #!/bin/bash
+dynamod="/home/mjki2mb2/dynamo/bin/dynamod"
+dynarun="/home/mjki2mb2/dynamo/bin/dynarun"
 
-NUMRUN=5
+NUMRUN=4
 NCOLL=10000000
-> testvals
-if [ ! -e config.speed.xml.bz2 ]; then
-    echo "Creating Configuration....."
-    is_configmod -m0 -C 30 -o config.test.xml.bz2 > /dev/null
-    echo "Equilibrating configuration...."
-    is_mdrun -c 1000000 config.test.xml.bz2 > /dev/null
-    rm config.test.xml.bz2
-    mv config.0.end.xml.bz2 config.speed.xml.bz2
-fi 
 
-for i in $(seq 0 $NUMRUN); do
-    echo -n "Running test $i..."
-    val=$(is_mdrun config.speed.xml.bz2 -c $NCOLL | grep "Avg Coll" | gawk '{print $4}')    
-    echo $val >> testvals
-    echo $val $(cat testvals | gawk 'BEGIN {sum=0; sqrsum=0} { sum += $1; sqrsum += $1*$1} END {print "Avg "sum/NR" Dev "sqrt((sqrsum - sum * sum /NR) / NR)}')
+for dens in 0.5; do
+    > dens$dens.dat
+    for C in 5 6 7 8 9 10 15 20 25 30 40 50 75 100 150 175 200; do
+	> speedvals
+	> memvals
+	$dynamod -m 0 -d $dens -C $C
+	for i in $(seq 0 $NUMRUN); do
+	    echo -n "Running test $i for $C cells and $dens density...."
+	    val=$($dynarun config.out.xml.bz2 -c $NCOLL | grep "Avg Coll" | gawk '{print $4}')
+	    echo $val >> speedvals
+	    bzcat output.xml.bz2  | xmlstarlet sel -t -v '//MemoryUsage/@ResidentSet' >> memvals
+	done
+	echo $C $(cat speedvals | gawk 'BEGIN {sum=0; sqrsum=0} { sum += $1; sqrsum += $1*$1} END {print "Colls Avg "sum/NR" Dev "sqrt((sqrsum - sum * sum /NR) / NR)}') \
+	    $(cat memvals | gawk 'BEGIN {sum=0; sqrsum=0} { sum += $1; sqrsum += $1*$1} END {print "Mem Avg "sum/NR" Dev "sqrt((sqrsum - sum * sum /NR) / NR)}')
+	echo $C $(cat speedvals | gawk 'BEGIN {sum=0; sqrsum=0} { sum += $1; sqrsum += $1*$1} END {print sum/NR, sqrt((sqrsum - sum * sum /NR) / NR)}') \
+	    $(cat memvals | gawk 'BEGIN {sum=0; sqrsum=0} { sum += $1; sqrsum += $1*$1} END {print sum/NR, sqrt((sqrsum - sum * sum /NR) / NR)}') \
+	    >> dens$dens.dat
+    done
 done
-
-rm testvals config.0.end.xml.bz2 output.0.xml.bz2
