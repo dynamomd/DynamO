@@ -29,7 +29,7 @@
 #include <boost/static_assert.hpp>
 
 CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
-  CGNeighbourList(nSim, "GlobalCellularEvent2"),
+  CGNeighbourList(nSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
   lambda(0.9), //Default to higher overlap
@@ -41,7 +41,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
 }
 
 CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGNeighbourList(ptrSim, "GlobalCellularEvent2"),
+  CGNeighbourList(ptrSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
   lambda(0.9), //Default to higher overlap

@@ -30,7 +30,7 @@
 
 CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name, 
 		 const size_t& overlink):
-  CGNeighbourList(nSim, "GlobalCellularEvent2"),
+  CGNeighbourList(nSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
@@ -44,7 +44,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
 }
 
 CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGNeighbourList(ptrSim, "GlobalCellularEvent"),
+  CGNeighbourList(ptrSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
