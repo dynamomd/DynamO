@@ -110,6 +110,7 @@ CIPPacker::initialise()
 	"  0: Monocomponent hard spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --b1 : Installs the collision sentinel for low densities\n"
+	"       --b2 : Forces the use of non-morton cells in square systems\n"
 	"  1: Monocomponent square wells\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Lambda [1.5] (well width factor)\n"
@@ -220,7 +221,11 @@ CIPPacker::initialise()
 	else
 	  {
 	    Sim->Dynamics.setPBC<CSPBC>();
-	    Sim->Dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
+
+	    if (vm.count("b2"))
+	      Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	    else
+	      Sim->Dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 
 	Iflt simVol = 1.0;
