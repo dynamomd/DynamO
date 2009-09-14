@@ -42,7 +42,8 @@ public:
   
   Iflt velnHatWall() const
   {
-    return  - Delta * Omega * std::sin(Omega * t);
+    Iflt retval = - Delta * Omega * std::sin(Omega * t);
+    return  retval;
   }
 
   Vector wallPosition() const

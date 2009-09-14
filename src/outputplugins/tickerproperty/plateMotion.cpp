@@ -109,8 +109,8 @@ COPPlateMotion::ticker()
   Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->Dynamics.units().unitLength();
 
   logfile << Sim->dSysTime / Sim->Dynamics.units().unitTime()
-	  << " " << com[0] << " " << com[1] << " " << com[2]
 	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
+	  << " " << com[0] << " " << com[1] << " " << com[2]
 	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->Dynamics.units().unitMomentum(),2))
 	  << " " << plate.getPlateEnergy() / Sim->Dynamics.units().unitEnergy()
 	  << "\n";

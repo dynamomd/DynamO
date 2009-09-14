@@ -968,7 +968,14 @@ CLNewton::runOscilatingPlate
 
   Iflt rvdot = ((vel - vwall) | nhattmp);
   
-  if (rvdot > 0) D_throw() <<"Particle " << part.getID() << ", is pulling on the oscillating plate!"; 
+  if (rvdot > 0) 
+    {
+      D_throw() <<"Particle " << part.getID() 
+		<< ", is pulling on the oscillating plate!"
+		<< " Typically ignore this"; 
+
+      return retVal;
+    }
 
   Vector delP =  nhattmp * mu * (1.0 + e) * rvdot;
 

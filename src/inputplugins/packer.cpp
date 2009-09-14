@@ -93,6 +93,7 @@ CIPPacker::getOptions()
     ("f3", po::value<Iflt>(), "Iflt option three")
     ("f4", po::value<Iflt>(), "Iflt option four")
     ("f5", po::value<Iflt>(), "Iflt option five")
+    ("f6", po::value<Iflt>(), "Iflt option six")
     ;
 
   retval.add(hiddenopts);
@@ -194,7 +195,9 @@ CIPPacker::initialise()
 	"       --f1 : Mass ratio [1]\n"
 	"       --f2 : Length in particle radii [4.5]\n"
 	"       --f3 : Hertz, if the unit of time is seconds [1]\n"
-	"       --f3 : Initial displacement [130]"
+	"       --f4 : Initial displacement [130]\n"
+	"       --f5 : Particle-Particle inelasticity [0.88]\n"
+	"       --f6 : Particle-Wall inelasticity [0.96]"
 	;
       std::cout << "\n";
       exit(1);
@@ -1842,8 +1845,13 @@ CIPPacker::initialise()
 	Iflt Aspect =  xy / boxL;
 	Iflt MassRatio = 1.0;
 	Iflt PlateInelas = 0.96;
+	if (vm.count("f6"))
+	  PlateInelas = vm["f6"].as<Iflt>();
+
 	Iflt ParticleInelas = 0.88;
-	Iflt boundaryInelas = 0.96;
+	if (vm.count("f5"))
+	  ParticleInelas = vm["f5"].as<Iflt>();
+	Iflt boundaryInelas = PlateInelas;
 	Iflt Omega0 = PI * 2.0;
 	
 	if (vm.count("f1"))
