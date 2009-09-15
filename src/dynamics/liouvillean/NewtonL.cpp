@@ -910,22 +910,23 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(pos, vel);
 
+  if ((Sim->lNColl==246) && (part.getID() == 24))
+    I_cerr() << "stop";
+
   Iflt t_high;
   {
     Iflt surfaceOffset = pos | nhat;
     Iflt surfaceVel = vel | nhat;
     
-    //We put 1.1 here as it turns out the root finder can miss if the root is at the top of the interval.
     if (surfaceVel > 0)
-      t_high = (1.1 * Sigma + Delta - surfaceOffset) / surfaceVel;
+      t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
     else
-      t_high = -(1.1 * Sigma + Delta + surfaceOffset) / surfaceVel;
+      t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
+
 
     //if (t_high < 0) return HUGE_VAL;
   }
-  
-  if ((part.getID() == 7) && (Sim->lNColl > 5559))
-    I_cerr() << "Stop";
+
 
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
@@ -934,25 +935,50 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     //Shift the lower bound up so we don't find the same root again
     t_low = fabs(2.0 * fL.F_firstDeriv())
       / fL.F_secondDeriv_max(0.0);
+
+  //The root interval has problems near the ends of the interval
+  t_high *= 2.0;
   
-  COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
-  fL2.stream(t_low);
   if (t_low > t_high) 
     D_throw() << "Switchover for part " << part.getID()
 	      << "\nt = " << Sim->dSysTime / Sim->Dynamics.units().unitTime()
 	      << "\npos[0] = " << pos[0]
 	      << "\nwall[0] = " << fL.wallPosition()[0]
 	      << "\nSigma = " << Sigma
+	      << "\nt_low = " << t_low
+	      << "\nt_high = " << t_high
       ;
-
-
-  if (fL2.F_zeroDeriv() > 0) D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
-  fL2.flipSigma();
-  if (fL2.F_zeroDeriv() < 0) D_throw() << "fL < 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
-
+  
   Iflt root1 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
   fL.flipSigma();
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+
+  if ((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) 
+    D_throw() << "No wall event found for part " << part.getID()
+	      << "\nVel = " << part.getVelocity()[0]
+	      << "\nPos = " << part.getPosition()[0]
+	      << "\nSigma + Del = " << Sigma+Delta
+	      << "\nt_low = "
+	      << "\nt_high = " << t_high
+      ;
+
+  COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
+  fL2.stream(t_low);
+  if (fL2.F_zeroDeriv() > 0) 
+    D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n"
+
+  fL2.flipSigma();
+
+  if (fL2.F_zeroDeriv() < 0) 
+    D_throw() << "fL < 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv()
+	      << "\nt = " << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+	      << "\npos[0] = " << pos[0]
+	      << "\nwall[0] = " << fL.wallPosition()[0]
+	      << "\nSigma = " << Sigma
+	      << "\nDelta = " << Delta
+	      << "\nt_low = " << t_low
+	      << "\nt_high = " << t_high
+      ;
 
   return (root1 < root2) ? root1 : root2;
 }
@@ -986,25 +1012,25 @@ CLNewton::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-  I_cerr() << "pos = " 
-	   << pos[0] << " "
-	   << pos[1] << " " 
-	   << pos[2];
-
-  I_cerr() << "vparticle = " 
-	   << vel[0] << " "
-	   << vel[1] << " " 
-	   << vel[2];
-
-  I_cerr() << "Vwall = " 
-	   << vwall[0] << " "
-	   << vwall[1] << " " 
-	   << vwall[2];
-
-  I_cerr() << "nhattmp = " 
-	   << nhattmp[0] << " "
-	   << nhattmp[1] << " " 
-	   << nhattmp[2];
+//  I_cerr() << "pos = " 
+//	   << pos[0] << " "
+//	   << pos[1] << " " 
+//	   << pos[2];
+//
+//  I_cerr() << "vparticle = " 
+//	   << vel[0] << " "
+//	   << vel[1] << " " 
+//	   << vel[2];
+//
+//  I_cerr() << "Vwall = " 
+//	   << vwall[0] << " "
+//	   << vwall[1] << " " 
+//	   << vwall[2];
+//
+//  I_cerr() << "nhattmp = " 
+//	   << nhattmp[0] << " "
+//	   << nhattmp[1] << " " 
+//	   << nhattmp[2];
 
   Iflt rvdot = ((vel - vwall) | nhattmp);
   
@@ -1020,9 +1046,9 @@ CLNewton::runOscilatingPlate
   Iflt inelas = e;
   if (fabs(rvdot / vwall.nrm()) < 0.02)
     {
-      I_cerr() <<"Particle " << part.getID() 
-	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm());
-
+//      I_cerr() <<"Particle " << part.getID() 
+//	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm());
+//
       inelas = 1.0;
     }
 
