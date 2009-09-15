@@ -954,18 +954,31 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
 
   if ((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) 
-    D_throw() << "No wall event found for part " << part.getID()
-	      << "\nVel = " << part.getVelocity()[0]
-	      << "\nPos = " << part.getPosition()[0]
-      	      << "\nVwall[0] = " << fL.wallVelocity()[0]
-      	      << "\nRwall[0] = " << fL.wallPosition()[0]
-      	      << "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
-      	      << "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
-	      << "\nSigma + Del = " << Sigma+Delta
-	      << "\nt_low = " << t_low
-	      << "\nt_high = " << t_high
+    {
+      Iflt fl0(fL.F_zeroDeriv());
+      COscillatingPlateFunc ftmp(fL);
+      ftmp.stream(t_low);
+      Iflt flt_low(ftmp.F_zeroDeriv());
+      ftmp.stream(t_high - t_low);
+      Iflt flt_high(ftmp.F_zeroDeriv());
+      D_throw() << "No wall event found for part " << part.getID()
+		<< "\nVel = " << part.getVelocity()[0]
+		<< "\nPos = " << part.getPosition()[0]
+		<< "\nVwall[0] = " << fL.wallVelocity()[0]
+		<< "\nRwall[0] = " << fL.wallPosition()[0]
+		<< "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
+		<< "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
+		<< "\nSigma + Del = " << Sigma+Delta
+		<< "\nt_low = " << t_low
+		<< "\nt_high = " << t_high
+		<< "\nf(0)* = " << fl0 
+	/ Sim->Dynamics.units().unitLength()
+		<< "\nf(t_low)* = " << flt_low 
+	/ Sim->Dynamics.units().unitLength()
+		<< "\nf(t_high)* = " << flt_high
+	/ Sim->Dynamics.units().unitLength()
       ;
-
+    }
   COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
   fL2.stream(t_low);
   if (fL2.F_zeroDeriv() > 0) 
@@ -1047,11 +1060,14 @@ CLNewton::runOscilatingPlate
       //return retVal;
     }
 
+  static size_t elascount(0);
+
   Iflt inelas = e;
-  if (fabs(rvdot / vwall.nrm()) < 0.02)
+  if (fabs(rvdot / fL.maxWallVel()) < 0.02)
     {
       I_cerr() <<"<<!!!>>Particle " << part.getID() 
-	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm());
+	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm())
+	       << "\nCount is " << ++elascount;
 
       inelas = 1.0;
     }

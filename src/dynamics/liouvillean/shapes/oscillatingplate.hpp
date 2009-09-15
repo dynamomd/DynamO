@@ -46,6 +46,11 @@ public:
     return  retval;
   }
 
+  Iflt maxWallVel() const
+  {    
+    return  Delta * Omega;
+  }
+
   Vector wallPosition() const
   {
     return  nhat * (Delta * std::cos(Omega * t));
