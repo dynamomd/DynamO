@@ -933,10 +933,10 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   
   COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
   fL2.stream(t_low);
-
-  if (fL2.F_zeroDeriv() > 0) I_cerr() << "fabs(fL)> 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
-
-  if (fabs(fL2.F_zeroDeriv()) < 0) I_cerr() << "fabs(fL)< 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
+  if (t_low > t_high) D_throw() <<"Switchover for part " << part.getID();
+  if (fL2.F_zeroDeriv() > 0) D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
+  fL2.flipSigma();
+  if (fL2.F_zeroDeriv() < 0) D_throw() << "fL < 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
 
   Iflt root1 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
   fL.flipSigma();
@@ -998,15 +998,23 @@ CLNewton::runOscilatingPlate
   
   if (rvdot > 0) 
     {
-      rvdot *= -1;
-      /*D_throw() <<"Particle " << part.getID()
-  		<< ", is pulling on the oscillating plate!"
-  		<< " Typically ignore this"; 
-      */
+      //rvdot *= -1;
+      D_throw() <<"Particle " << part.getID()
+  		<< ", is pulling on the oscillating plate!";
+      
       //return retVal;
     }
 
-  Vector delP =  nhattmp * mu * (1.0 + e) * rvdot;
+  Iflt inelas = e;
+  if (fabs(rvdot / vwall.nrm()) < 0.02)
+    {
+      I_cerr() <<"Particle " << part.getID() 
+	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm());
+
+      inelas = 1.0;
+    }
+
+  Vector delP =  nhattmp * mu * (1.0 + inelas) * rvdot;
 
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
 

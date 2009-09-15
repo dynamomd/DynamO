@@ -17,6 +17,7 @@
 #Add a feature to track if being compiled for condor
 import feature : feature ;
 feature condor : no yes : propagated optional ;
+feature color : no yes : propagated optional ;
 
 #using intel-linux ;
 
@@ -30,7 +31,7 @@ import dynamo-tags ;
 
 project	: requirements
 	  <define>DYNAMO_double_precsision 
-	  <define>DYNAMO_Colour
+	  <color>yes:<define>DYNAMO_Colour
 	  <link>static
 	  <condor>no
 	  <toolset>gcc:<cxxflags>-Wno-long-long
