@@ -957,15 +957,19 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     D_throw() << "No wall event found for part " << part.getID()
 	      << "\nVel = " << part.getVelocity()[0]
 	      << "\nPos = " << part.getPosition()[0]
+      	      << "\nVwall[0] = " << fL.wallVelocity()[0]
+      	      << "\nRwall[0] = " << fL.wallPosition()[0]
+      	      << "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
+      	      << "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
 	      << "\nSigma + Del = " << Sigma+Delta
-	      << "\nt_low = "
+	      << "\nt_low = " << t_low
 	      << "\nt_high = " << t_high
       ;
 
   COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
   fL2.stream(t_low);
   if (fL2.F_zeroDeriv() > 0) 
-    D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n"
+    D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
 
   fL2.flipSigma();
 
@@ -1046,9 +1050,9 @@ CLNewton::runOscilatingPlate
   Iflt inelas = e;
   if (fabs(rvdot / vwall.nrm()) < 0.02)
     {
-//      I_cerr() <<"Particle " << part.getID() 
-//	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm());
-//
+      I_cerr() <<"<<!!!>>Particle " << part.getID() 
+	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm());
+
       inelas = 1.0;
     }
 
