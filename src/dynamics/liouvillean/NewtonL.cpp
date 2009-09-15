@@ -915,14 +915,18 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     Iflt surfaceOffset = pos | nhat;
     Iflt surfaceVel = vel | nhat;
     
+    //We put 1.1 here as it turns out the root finder can miss if the root is at the top of the interval.
     if (surfaceVel > 0)
-      t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
+      t_high = (1.1 * Sigma + Delta - surfaceOffset) / surfaceVel;
     else
-      t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
+      t_high = -(1.1 * Sigma + Delta + surfaceOffset) / surfaceVel;
 
-    if (t_high < 0) return HUGE_VAL;
+    //if (t_high < 0) return HUGE_VAL;
   }
   
+  if ((part.getID() == 7) && (Sim->lNColl > 5559))
+    I_cerr() << "Stop";
+
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
   Iflt t_low = 0;
@@ -933,7 +937,15 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   
   COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
   fL2.stream(t_low);
-  if (t_low > t_high) D_throw() <<"Switchover for part " << part.getID();
+  if (t_low > t_high) 
+    D_throw() << "Switchover for part " << part.getID()
+	      << "\nt = " << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+	      << "\npos[0] = " << pos[0]
+	      << "\nwall[0] = " << fL.wallPosition()[0]
+	      << "\nSigma = " << Sigma
+      ;
+
+
   if (fL2.F_zeroDeriv() > 0) D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
   fL2.flipSigma();
   if (fL2.F_zeroDeriv() < 0) D_throw() << "fL < 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
