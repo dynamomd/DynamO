@@ -931,6 +931,13 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     t_low = fabs(2.0 * fL.F_firstDeriv())
       / fL.F_secondDeriv_max(0.0);
   
+  COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
+  fL2.stream(t_low);
+
+  if (fL2.F_zeroDeriv() > 0) I_cerr() << "fabs(fL)> 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
+
+  if (fabs(fL2.F_zeroDeriv()) < 0) I_cerr() << "fabs(fL)< 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
+
   Iflt root1 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
   fL.flipSigma();
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
@@ -944,6 +951,7 @@ CLNewton::runOscilatingPlate
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
   Iflt& t) const
 {
+  std::cout.flush();
   updateParticle(part);
 
   C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
@@ -966,15 +974,36 @@ CLNewton::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
+  I_cerr() << "pos = " 
+	   << pos[0] << " "
+	   << pos[1] << " " 
+	   << pos[2];
+
+  I_cerr() << "vparticle = " 
+	   << vel[0] << " "
+	   << vel[1] << " " 
+	   << vel[2];
+
+  I_cerr() << "Vwall = " 
+	   << vwall[0] << " "
+	   << vwall[1] << " " 
+	   << vwall[2];
+
+  I_cerr() << "nhattmp = " 
+	   << nhattmp[0] << " "
+	   << nhattmp[1] << " " 
+	   << nhattmp[2];
+
   Iflt rvdot = ((vel - vwall) | nhattmp);
   
   if (rvdot > 0) 
     {
-      D_throw() <<"Particle " << part.getID() 
-		<< ", is pulling on the oscillating plate!"
-		<< " Typically ignore this"; 
-
-      return retVal;
+      rvdot *= -1;
+      /*D_throw() <<"Particle " << part.getID()
+  		<< ", is pulling on the oscillating plate!"
+  		<< " Typically ignore this"; 
+      */
+      //return retVal;
     }
 
   Vector delP =  nhattmp * mu * (1.0 + e) * rvdot;
@@ -982,11 +1011,12 @@ CLNewton::runOscilatingPlate
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
 
   Iflt numerator = -nhat | ((delP / mass) + vwall);
+
+  Iflt reducedt = Sim->dSysTime 
+    - 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
   
-  Iflt denominator = omega0 * delta * std::cos(omega0 * (Sim->dSysTime + t));
+  Iflt denominator = omega0 * delta * std::cos(omega0 * (reducedt + t));
   
-  //Iflt reducedt = Sim->dSysTime 
-  //- 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
 
   Iflt newt = std::atan2(numerator, denominator)/ omega0 
     - Sim->dSysTime;

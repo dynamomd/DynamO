@@ -123,9 +123,18 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
 	  << "\n";
 
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    logfile << "    1PEvent p1 " << pData.getParticle().getID()
-	    << "\n";
-  
+    {
+      logfile << "    1PEvent p1 " << pData.getParticle().getID()
+	      << " delP1 < ";
+
+      Vector delP = pData.getDeltaP();
+      
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	logfile << delP[iDim] << " ";
+      
+      logfile << ">"
+	      << "\n";
+    }
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
     {
       logfile << "    2PEvent";

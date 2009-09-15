@@ -125,53 +125,63 @@ public:
 
   void init()
   {
-    //Determine nlists and scale by instrumenting the queue
-    std::vector<pList> tmpList;
-    tmpList.reserve(Min.size());
-    
-    BOOST_FOREACH(eventQEntry& dat, Min)
-      tmpList.push_back(dat.data);
-
-    std::sort(tmpList.begin(), tmpList.end());
-
-    //Find the mean dt value for events that are not infinite
     Iflt acc = 0.0;
     long counter = 0;
+    try {
+      //Determine nlists and scale by instrumenting the queue
+      std::vector<pList> tmpList;
+      tmpList.reserve(Min.size());
+      
+      BOOST_FOREACH(eventQEntry& dat, Min)
+	tmpList.push_back(dat.data);
+      
+      std::sort(tmpList.begin(), tmpList.end());
+      
+      //Find the mean dt value for events that are not infinite
 
-    for (std::vector<pList>::iterator iPtr = tmpList.begin() +1; 
-	 iPtr != tmpList.end(); ++iPtr)
-      if (iPtr->getdt() != HUGE_VAL)
-	{ acc += iPtr->getdt() - (iPtr -1)->getdt(); counter++; }
+      for (std::vector<pList>::iterator iPtr = tmpList.begin() +1; 
+	   iPtr != tmpList.end(); ++iPtr)
+	if (iPtr->getdt() != HUGE_VAL)
+	  { acc += iPtr->getdt() - (iPtr -1)->getdt(); counter++; }
+	else
+	  break; //Jump out, nothing useful left
+      
+      if (counter < 2)
+	{
+	  //Something is peculiar about the system
+	  std::cerr << IC_red << 
+	    "BOUNDEDPQ: The event queue doesn't have more than 2 events in it"
+	    "\nBOUNDEDPQ: This means the queue cannot be instrumented to"
+	    "\nBOUNDEDPQ: determine the settings for the bounded queue, just"
+	    "\nBOUNDEDPQ: using something that hopes the events in sim time"
+	    "\nBOUNDEDPQ: arent close to 10000\n"
+		    << IC_reset;
+	  
+	  init(10, 1000);
+	}
       else
-	break; //Jump out, nothing useful left
-
-    if (counter < 2)
+	{
+	  if (acc < 0) D_throw() << "Queue filled with negative events";
+	  Iflt nscale = counter / acc;
+	  
+	  //Determine where the queue ends
+	  std::vector<pList>::reverse_iterator rIt = tmpList.rbegin();
+	  while (rIt->getdt() == HUGE_VAL)
+	    ++rIt;
+	  
+	  //Determine the number of lists as the number required to cover
+	  //the current list 
+	  int newnlists = static_cast<int>((rIt->getdt() - tmpList.front().getdt() ) * nscale);
+	  
+	  init(nscale, newnlists);
+	}
+    }
+    catch (std::exception& excep)
       {
-	//Something is peculiar about the system
-	std::cerr << IC_red << 
-	  "BOUNDEDPQ: The event queue doesn't have more than 2 events in it"
-	  "\nBOUNDEDPQ: This means the queue cannot be instrumented to"
-	  "\nBOUNDEDPQ: determine the settings for the bounded queue, just"
-	  "\nBOUNDEDPQ: using something that hopes the events in sim time"
-	  "\nBOUNDEDPQ: arent close to 10000\n"
-		  << IC_reset;
-
-	init(10, 1000);
-      }
-    else
-      {
-	Iflt nscale = counter / acc;
-	
-	//Determine where the queue ends
-	std::vector<pList>::reverse_iterator rIt = tmpList.rbegin();
-	while (rIt->getdt() == HUGE_VAL)
-	  ++rIt;
-	
-	//Determine the number of lists as the number required to cover
-	//the current list 
-	int newnlists = static_cast<int>(rIt->getdt() * nscale);
-	
-	init(nscale, newnlists);
+	D_throw() << "Failure in boundedPQ init()"
+		  << "\nacc = " << acc
+		  << "\ncounter = " << counter
+		  << "\n" << excep.what();
       }
   }
 

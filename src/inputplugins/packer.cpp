@@ -1871,8 +1871,9 @@ CIPPacker::initialise()
 
 	Vector particleArea = Vector(L / boxL, Aspect, Aspect);
 
-	//The system starts at a full extention, always plus a half particle to stop instant collisions
-	Vector particleCOM = Vector((Delta + 0.5) / boxL, 0, 0);
+	//The system starts at a full extention, always plus 0.1 to
+	//stop instant collisions
+	Vector particleCOM = Vector((Delta + 0.1) / boxL, 0, 0);
 
 	CUCell* sysPack;
 

@@ -58,12 +58,12 @@ public:
 
   Iflt F_zeroDeriv() const
   { 
-    return ((wallPosition() - rp) | nhat) - Sigma;
+    return ((rp - wallPosition()) | nhat) - Sigma;
   }
 
   Iflt F_firstDeriv() const
   {    
-    return velnHatWall() - (vp | nhat);
+    return (vp | nhat) - velnHatWall();
   }
 
   Iflt F_firstDeriv_max(const Iflt&) const
@@ -73,7 +73,7 @@ public:
 
   Iflt F_secondDeriv() const
   {
-    return - Delta * Omega * Omega * std::cos(Omega * t);
+    return Delta * Omega * Omega * std::cos(Omega * t);
   }
 
   Iflt F_secondDeriv_max(const Iflt&) const
@@ -94,7 +94,7 @@ private:
   const Vector& vp;
   const Vector& nhat;
   Vector rp;
-  Iflt t;
+  lIflt t;
   Iflt Delta;
   Iflt Omega;
   Iflt Sigma;  

@@ -54,8 +54,11 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 
   bool caution = (part.getID() == lastID) && (lastdSysTime == Sim->dSysTime);
 
+  Iflt reducedt = Sim->dSysTime 
+    - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
+
   Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
-    (part, rw0, nhat, delta, omega0, sigma, Sim->dSysTime + timeshift, 
+    (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
      caution);
 
   if (dt != HUGE_VAL)
