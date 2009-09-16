@@ -110,10 +110,6 @@ intersection { union {                     \n\
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
     spec->getIntPtr()->write_povray_desc
     (colmap.getColor(spec->getID()), spec->getID(), of);
-  
-  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
-    ptr->write_povray_info(of);
-
 
   of << "\n}\nbox { <" 
      << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
@@ -124,6 +120,11 @@ intersection { union {                     \n\
      << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
      << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
      << "> }\n"
-     << "cutaway_textures }\n";
+     << "}\n";
+  
+  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
+    ptr->write_povray_info(of);
+
+
   of.close();
 }

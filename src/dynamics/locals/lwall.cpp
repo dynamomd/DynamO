@@ -123,7 +123,17 @@ CLWall::outputXML(xmlw::XmlStream& XML) const
 void 
 CLWall::write_povray_info(std::ostream& os) const
 {
-//  os << "object { box { <-0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
-//     << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
-//     <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << "> texture { pigment { Col_Glass_Bluish } finish { F_Glass5 } } }\n";
+  os << "object { intersection { object { box { <-0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
+     << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
+     <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
+     << "\n\nbox { <" 
+     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
+     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
+     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+     << ">,"
+     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+     << "> }\n"
+     << "} pigment { Col_Glass_Bluish }   }\n";
 }

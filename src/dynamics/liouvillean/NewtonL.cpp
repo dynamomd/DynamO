@@ -1031,27 +1031,27 @@ CLNewton::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-  I_cerr() << "Running event for part " << part.getID()
-	   << "\ndSysTime = " << Sim->dSysTime
-	   << "\nlNColl = " << Sim->lNColl
-	   << "\nVel = " << part.getVelocity()[0]
-	   << "\nPos = " << part.getPosition()[0]
-	   << "\nVwall[0] = " << fL.wallVelocity()[0]
-	   << "\nRwall[0] = " << fL.wallPosition()[0]
-	   << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
-	   << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
-	   << "\nsigma + Del = " << sigma+delta
-	   << "\nf(0)* = " << fL.F_zeroDeriv()
-	   << "\nf'(0) =" << fL.F_firstDeriv()
-	   << "\nf''(Max) =" << fL.F_secondDeriv_max(0)
-	   << "\nf(x)=" << pos[0]
-	   << "+" << part.getVelocity()[0]
-	   << " * x - "
-	   << delta 
-	   << " * cos(("
-	   << t << "+ x) * "
-	   << omega0 << ") - "
-	   << sigma;
+//  I_cerr() << "Running event for part " << part.getID()
+//	   << "\ndSysTime = " << Sim->dSysTime
+//	   << "\nlNColl = " << Sim->lNColl
+//	   << "\nVel = " << part.getVelocity()[0]
+//	   << "\nPos = " << part.getPosition()[0]
+//	   << "\nVwall[0] = " << fL.wallVelocity()[0]
+//	   << "\nRwall[0] = " << fL.wallPosition()[0]
+//	   << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
+//	   << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
+//	   << "\nsigma + Del = " << sigma+delta
+//	   << "\nf(0)* = " << fL.F_zeroDeriv()
+//	   << "\nf'(0) =" << fL.F_firstDeriv()
+//	   << "\nf''(Max) =" << fL.F_secondDeriv_max(0)
+//	   << "\nf(x)=" << pos[0]
+//	   << "+" << part.getVelocity()[0]
+//	   << " * x - "
+//	   << delta 
+//	   << " * cos(("
+//	   << t << "+ x) * "
+//	   << omega0 << ") - "
+//	   << sigma;
 
   Iflt rvdot = ((vel - vwall) | nhattmp);
   
