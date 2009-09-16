@@ -52,7 +52,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  bool caution = (part.getID() == lastID) && (lastdSysTime == Sim->dSysTime);
+  bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
 
   Iflt reducedt = Sim->dSysTime 
     - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
@@ -84,13 +84,12 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
 
   Sim->signalParticleUpdate(EDat);
 
-  //Now we're past the event update the scheduler and plugins
-  //Sim->ptrScheduler->fullUpdate(part);
-  Sim->ptrScheduler->rebuildList();
-
   BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 
+  //Now we're past the event update the scheduler and plugins
+  //Sim->ptrScheduler->fullUpdate(part);
+  Sim->ptrScheduler->rebuildList();
 }
 
 bool 

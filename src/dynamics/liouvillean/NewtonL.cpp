@@ -910,9 +910,6 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
   Sim->Dynamics.BCs().setPBC(pos, vel);
 
-  if ((Sim->lNColl==246) && (part.getID() == 24))
-    I_cerr() << "stop";
-
   Iflt t_high;
   {
     Iflt surfaceOffset = pos | nhat;
@@ -922,46 +919,61 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
     else
       t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
-
-
-    //if (t_high < 0) return HUGE_VAL;
   }
 
 
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
-  Iflt t_low = 0;
+  Iflt t_low1 = 0, t_low2 = 0;
   if (lastpart)
-    //Shift the lower bound up so we don't find the same root again
-    t_low = fabs(2.0 * fL.F_firstDeriv())
-      / fL.F_secondDeriv_max(0.0);
+    if (-fL.F_zeroDeriv() < fL.F_zeroDerivFlip())
+      //Shift the lower bound up so we don't find the same root again
+      t_low1 = fabs(2.0 * fL.F_firstDeriv())
+	/ fL.F_secondDeriv_max(0.0);
+    else
+      t_low2 = fabs(2.0 * fL.F_firstDeriv())
+	/ fL.F_secondDeriv_max(0.0);
 
   //The root interval has problems near the ends of the interval
   t_high *= 2.0;
   
-  if (t_low > t_high) 
+  if ((t_low1 > t_high) || (t_low2 > t_high)) 
     D_throw() << "Switchover for part " << part.getID()
 	      << "\nt = " << Sim->dSysTime / Sim->Dynamics.units().unitTime()
 	      << "\npos[0] = " << pos[0]
 	      << "\nwall[0] = " << fL.wallPosition()[0]
 	      << "\nSigma = " << Sigma
-	      << "\nt_low = " << t_low
+	      << "\nt_low1 = " << t_low1
+	      << "\nt_low2 = " << t_low2
 	      << "\nt_high = " << t_high
       ;
   
-  Iflt root1 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+  Iflt root1 = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
   fL.flipSigma();
-  Iflt root2 = frenkelRootSearch(fL, Sigma, t_low, t_high, 1e-12);
+  Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
   if ((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) 
     {
-      Iflt fl0(fL.F_zeroDeriv());
       COscillatingPlateFunc ftmp(fL);
-      ftmp.stream(t_low);
-      Iflt flt_low(ftmp.F_zeroDeriv());
-      ftmp.stream(t_high - t_low);
-      Iflt flt_high(ftmp.F_zeroDeriv());
+      COscillatingPlateFunc ftmp2(fL);
+      ftmp.flipSigma();
+
+      Iflt fl01(ftmp.F_zeroDeriv());
+      ftmp.stream(t_low1);
+      Iflt flt_low1(ftmp.F_zeroDeriv());
+      ftmp.stream(t_high - t_low1);
+      Iflt flt_high1(ftmp.F_zeroDeriv());
+
+      Iflt fl02(ftmp2.F_zeroDeriv());
+      ftmp2.stream(t_low2);
+      Iflt flt_low2(ftmp2.F_zeroDeriv());
+      ftmp2.stream(t_high - t_low2);
+      Iflt flt_high2(ftmp2.F_zeroDeriv());
+
       D_throw() << "No wall event found for part " << part.getID()
+		<< "\ndSysTime = " << Sim->dSysTime
+		<< "\nlNColl = " << Sim->lNColl
+		<< "\nlast part = " << (lastpart ? (std::string("True")) : (std::string("False")))
 		<< "\nVel = " << part.getVelocity()[0]
 		<< "\nPos = " << part.getPosition()[0]
 		<< "\nVwall[0] = " << fL.wallVelocity()[0]
@@ -969,33 +981,27 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		<< "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
 		<< "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
 		<< "\nSigma + Del = " << Sigma+Delta
-		<< "\nt_low = " << t_low
+		<< "\nt_low1 = " << t_low1
+		<< "\nt_low2 = " << t_low2
 		<< "\nt_high = " << t_high
-		<< "\nf(0)* = " << fl0 
-	/ Sim->Dynamics.units().unitLength()
-		<< "\nf(t_low)* = " << flt_low 
-	/ Sim->Dynamics.units().unitLength()
-		<< "\nf(t_high)* = " << flt_high
-	/ Sim->Dynamics.units().unitLength()
+		<< "\nf1(0) = " << fl01
+		<< "\nf1(t_low1) = " << flt_low1
+		<< "\nf1(t_high) = " << flt_high1
+		<< "\nf2(0)_1 = " << fl02
+		<< "\nf2(t_low2) = " << flt_low2
+		<< "\nf2(t_high) = " << flt_high2
+		<< "\nf'(0) =" << fL.F_firstDeriv()
+		<< "\nf''(Max) =" << fL.F_secondDeriv_max(0)
+		<< "\nf(x)=" << pos[0]
+		<< "+" << part.getVelocity()[0]
+		<< " * x - "
+		<< Delta 
+		<< " * cos(("
+		<< t << "+ x) * "
+		<< Omega << ") - "
+		<< Sigma;
       ;
     }
-  COscillatingPlateFunc fL2(vel, nhat, pos, t, Delta, Omega, Sigma);
-  fL2.stream(t_low);
-  if (fL2.F_zeroDeriv() > 0) 
-    D_throw() << "fL > 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv() << "\n";
-
-  fL2.flipSigma();
-
-  if (fL2.F_zeroDeriv() < 0) 
-    D_throw() << "fL < 0! for particle " << part.getID() << ", " << fL2.F_zeroDeriv()
-	      << "\nt = " << Sim->dSysTime / Sim->Dynamics.units().unitTime()
-	      << "\npos[0] = " << pos[0]
-	      << "\nwall[0] = " << fL.wallPosition()[0]
-	      << "\nSigma = " << Sigma
-	      << "\nDelta = " << Delta
-	      << "\nt_low = " << t_low
-	      << "\nt_high = " << t_high
-      ;
 
   return (root1 < root2) ? root1 : root2;
 }
@@ -1029,25 +1035,27 @@ CLNewton::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-//  I_cerr() << "pos = " 
-//	   << pos[0] << " "
-//	   << pos[1] << " " 
-//	   << pos[2];
-//
-//  I_cerr() << "vparticle = " 
-//	   << vel[0] << " "
-//	   << vel[1] << " " 
-//	   << vel[2];
-//
-//  I_cerr() << "Vwall = " 
-//	   << vwall[0] << " "
-//	   << vwall[1] << " " 
-//	   << vwall[2];
-//
-//  I_cerr() << "nhattmp = " 
-//	   << nhattmp[0] << " "
-//	   << nhattmp[1] << " " 
-//	   << nhattmp[2];
+  I_cerr() << "Running event for part " << part.getID()
+	   << "\ndSysTime = " << Sim->dSysTime
+	   << "\nlNColl = " << Sim->lNColl
+	   << "\nVel = " << part.getVelocity()[0]
+	   << "\nPos = " << part.getPosition()[0]
+	   << "\nVwall[0] = " << fL.wallVelocity()[0]
+	   << "\nRwall[0] = " << fL.wallPosition()[0]
+	   << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
+	   << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
+	   << "\nsigma + Del = " << sigma+delta
+	   << "\nf(0)* = " << fL.F_zeroDeriv()
+	   << "\nf'(0) =" << fL.F_firstDeriv()
+	   << "\nf''(Max) =" << fL.F_secondDeriv_max(0)
+	   << "\nf(x)=" << pos[0]
+	   << "+" << part.getVelocity()[0]
+	   << " * x - "
+	   << delta 
+	   << " * cos(("
+	   << t << "+ x) * "
+	   << omega0 << ") - "
+	   << sigma;
 
   Iflt rvdot = ((vel - vwall) | nhattmp);
   

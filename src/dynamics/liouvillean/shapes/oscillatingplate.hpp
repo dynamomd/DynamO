@@ -66,6 +66,11 @@ public:
     return ((rp - wallPosition()) | nhat) - Sigma;
   }
 
+  Iflt F_zeroDerivFlip() const
+  { 
+    return ((rp - wallPosition()) | nhat) + Sigma;
+  }
+
   Iflt F_firstDeriv() const
   {    
     return (vp | nhat) - velnHatWall();
