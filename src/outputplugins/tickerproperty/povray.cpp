@@ -60,7 +60,7 @@ void
 COPPovray::printImage()
 {
   //Dont let this fill up your hard drive!
-  if (frameCount > 10000)
+  if (frameCount > 90000)
     return;
 
   char *fileName;
