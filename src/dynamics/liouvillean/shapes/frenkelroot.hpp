@@ -65,10 +65,13 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
 	    if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2max, boundEnhancer)) break;
 	  
 	  (fwdWorking ? t_low : t_high) += boundEnhancer;
+	  
+	  if (fwdWorking)
+	    { if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT)) continue; }
+	  else
+	    { if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2, deltaT)) continue; }
 	}
 	
-	if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT))
-	  continue;
       }
       
       if (((working_time + deltaT) > t_high) 

@@ -934,25 +934,18 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       t_low2 = fabs(2.0 * fL.F_firstDeriv())
 	/ fL.F_secondDeriv_max(0.0);
 
-  //The root interval has problems near the ends of the interval
-  t_high *= 2.0;
+  //Must be careful with collisions at the end of the interval
+  t_high *= 1.01;
   
-  if ((t_low1 > t_high) || (t_low2 > t_high)) 
-    D_throw() << "Switchover for part " << part.getID()
-	      << "\nt = " << Sim->dSysTime / Sim->Dynamics.units().unitTime()
-	      << "\npos[0] = " << pos[0]
-	      << "\nwall[0] = " << fL.wallPosition()[0]
-	      << "\nSigma = " << Sigma
-	      << "\nt_low1 = " << t_low1
-	      << "\nt_low2 = " << t_low2
-	      << "\nt_high = " << t_high
-      ;
-  
+  if (part.getID()==24 && Sim->lNColl==231)
+    I_cerr() << "stop";
+
   Iflt root1 = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
   fL.flipSigma();
+
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
-  if ((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) 
+  if (((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) || ((t_low1 > t_high) && (t_low2 > t_high)))
     {
       COscillatingPlateFunc ftmp(fL);
       COscillatingPlateFunc ftmp2(fL);
@@ -970,7 +963,7 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       ftmp2.stream(t_high - t_low2);
       Iflt flt_high2(ftmp2.F_zeroDeriv());
 
-      D_throw() << "No wall event found for part " << part.getID()
+      D_throw() << "Problem! for partcle " << part.getID()
 		<< "\ndSysTime = " << Sim->dSysTime
 		<< "\nlNColl = " << Sim->lNColl
 		<< "\nlast part = " << (lastpart ? (std::string("True")) : (std::string("False")))
@@ -984,6 +977,8 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		<< "\nt_low1 = " << t_low1
 		<< "\nt_low2 = " << t_low2
 		<< "\nt_high = " << t_high
+		<< "\nroot1 = " << root1
+		<< "\nroot2 = " << root2
 		<< "\nf1(0) = " << fl01
 		<< "\nf1(t_low1) = " << flt_low1
 		<< "\nf1(t_high) = " << flt_high1
@@ -999,7 +994,8 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		<< " * cos(("
 		<< t << "+ x) * "
 		<< Omega << ") - "
-		<< Sigma;
+		<< Sigma
+		<< "; set xrange[0:" << t_high << "]; plot f(x)";
       ;
     }
 
@@ -1099,6 +1095,8 @@ CLNewton::runOscilatingPlate
     / std::cos(omega0 * (Sim->dSysTime + newt));
   
   t = newt;
+
+  t -= 2.0 * PI * int(t * omega0 / (2.0*PI)) / omega0;
 
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
 		    * (part.getVelocity().nrm2() 
