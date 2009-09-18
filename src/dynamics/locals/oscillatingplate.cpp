@@ -205,9 +205,9 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << ", 0.5> } Point_At_Trans(<"
      << nhat[0] << "," << nhat[1] << "," << nhat[2] << ">) translate <"
      <<  WallLoc1[0] << "," <<  WallLoc1[1] << "," <<  WallLoc1[2] 
-     << "> }\n"
+     << "> }"
 
-     << "\n\nbox { <" 
+     << "\nbox { <" 
      << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
      << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
      << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
@@ -216,16 +216,16 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
      << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
      << "> }\n"
-     << "} pigment { Col_Glass_Bluish } }\n";
+     << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 
   os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength()
      << ", -0.5>, <0.5, " << 0.25 * Sim->Dynamics.units().unitLength() 
      << ", 0.5> } Point_At_Trans(<"
      << -nhat[0] << "," << -nhat[1] << "," << -nhat[2] << ">) translate <"
      <<  WallLoc2[0] << "," <<  WallLoc2[1] << "," <<  WallLoc2[2] 
-     << "> }\n"
+     << "> }"
 
-     << "\n\nbox { <" 
+     << "\nbox { <" 
      << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
      << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
      << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
@@ -234,5 +234,5 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
      << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
      << "> }\n"
-     << "} pigment { Col_Glass_Bluish } }\n";
+     << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }

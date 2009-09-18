@@ -1832,16 +1832,22 @@ CIPPacker::initialise()
       }
     case 19:
       {
-	Iflt L = 4.5;
+	Iflt L = 4.0;
 	if (vm.count("f2"))
 	  L = vm["f2"].as<Iflt>();
+
+	L -= 1; //This is to account for centre of mass walls
+
 	Iflt Delta = 13.0;
 	if (vm.count("f4"))
 	  Delta = vm["f4"].as<Iflt>();
 
 	//the  2.0 * L is to give an extra half box width on each side of the sim 
 	Iflt boxL = 2.0 * L + 2.0 * Delta;
-	Iflt xy = 5;
+	Iflt xy = 5.2;
+
+	xy -= 1;//Again to account for centre of mass walls
+
 	Iflt Aspect =  xy / boxL;
 	Iflt MassRatio = 1.0;
 	Iflt PlateInelas = 0.96;
@@ -1861,6 +1867,7 @@ CIPPacker::initialise()
 	  Omega0 *= vm["f3"].as<Iflt>();
 
 
+	//This slight exaggeration is required to stop the cells failing with walls near the edge of the simulation
 	Sim->aspectRatio = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
 	
 //	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L , 
@@ -1869,11 +1876,11 @@ CIPPacker::initialise()
 //	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L, 
 //				    0, 0);
 
-	Vector particleArea = Vector(L / boxL, Aspect, Aspect);
+	Vector particleArea = Vector((L + 1) / boxL, (xy + 1) / boxL, (xy + 1) / boxL);
 
 	//The system starts at a full extention, always plus 0.1 to
 	//stop instant collisions
-	Vector particleCOM = Vector((Delta + 0.1) / boxL, 0, 0);
+	Vector particleCOM = Vector(Delta / boxL, 0, 0);
 
 	CUCell* sysPack;
 
@@ -1939,7 +1946,7 @@ CIPPacker::initialise()
 					   "Plate4", new CRAll(Sim)));
 
 	Sim->Dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), Vector(0, +0.5 * Aspect, 0), 
-					   "Plate5", new CRAll(Sim)));
+					  "Plate5", new CRAll(Sim), false));
 
 	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,

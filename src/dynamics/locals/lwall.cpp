@@ -26,11 +26,13 @@
 
 
 CLWall::CLWall(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
-	       Vector  norigin, std::string nname, CRange* nRange):
+	       Vector  norigin, std::string nname, 
+	       CRange* nRange, bool nrender):
   CLocal(nRange, nSim, "LocalWall"),
   vNorm(nnorm),
   vPosition(norigin),
-  e(ne)
+  e(ne),
+  render(nrender)
 {
   localName = nname;
 }
@@ -91,6 +93,7 @@ CLWall::operator<<(const XMLNode& XML)
   
   try {
     e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
@@ -111,6 +114,7 @@ CLWall::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "Wall" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
+      << xmlw::attr("Render") << render
       << range
       << xmlw::tag("Norm")
       << vNorm
@@ -123,17 +127,18 @@ CLWall::outputXML(xmlw::XmlStream& XML) const
 void 
 CLWall::write_povray_info(std::ostream& os) const
 {
-  os << "object { intersection { object { box { <-0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
-     << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
-     <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
-     << "\n\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
-     << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
-     << "> }\n"
-     << "} pigment { Col_Glass_Bluish }   }\n";
+  if (render)
+    os << "object { intersection { object { box { <-0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
+       << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
+       <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
+       << "box { <" 
+       << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
+       << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
+       << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+       << ">,"
+       << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
+       << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
+       << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+       << "> }\n"
+       << "} pigment { Col_Glass_Bluish }   }\n";
 }
