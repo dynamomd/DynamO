@@ -73,7 +73,7 @@ COPMisc::initialise()
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
-      Sim->Dynamics.BCs().setPBC(pos, vel);
+      Sim->Dynamics.BCs().applyBC(pos, vel);
 
       sumMV += vel * Sim->Dynamics.getSpecies(Part).getMass();
     }

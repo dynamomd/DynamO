@@ -176,7 +176,7 @@ public:
   { return dynamic_cast<const T*>(p_units.get_ptr()) != NULL; }
 
   //templates
-  template<class T> void setPBC()
+  template<class T> void applyBC()
     {
       if (p_BC.empty())
 	I_cout() << "Warning, resetting the BC's";

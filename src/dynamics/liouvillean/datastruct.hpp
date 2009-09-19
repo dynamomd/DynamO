@@ -33,7 +33,7 @@ struct CPDData
     vij(p1.getVelocity() - p2.getVelocity()),    
     dt(HUGE_VAL)
   {
-    Sim.Dynamics.BCs().setPBC(rij, vij);
+    Sim.Dynamics.BCs().applyBC(rij, vij);
     rvdot = rij | vij;
     r2 = rij.nrm2();
     v2 = vij.nrm2();

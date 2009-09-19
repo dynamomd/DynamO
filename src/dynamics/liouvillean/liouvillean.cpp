@@ -185,7 +185,7 @@ CLiouvillean::outputParticleBin64Data(std::ostream& os) const
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       CParticle tmp(part);
-      Sim->Dynamics.BCs().setPBC(tmp.getPosition(), tmp.getVelocity());
+      Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
       
       tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
@@ -219,7 +219,7 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
       for (unsigned long i = 0; i < Sim->lN; ++i)
 	{
 	  CParticle tmp(Sim->vParticleList[i]);
-	  Sim->Dynamics.BCs().setPBC(tmp.getPosition(), tmp.getVelocity());
+	  Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
 	  
 	  tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
 	  tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());

@@ -95,7 +95,7 @@ COPPlateMotion::ticker()
     {
       Vector pos(part.getPosition()), vel(part.getVelocity());
       Iflt pmass(Sim->Dynamics.getSpecies(part).getMass());
-      Sim->Dynamics.BCs().setPBC(pos, vel);
+      Sim->Dynamics.BCs().applyBC(pos, vel);
       momentum += vel * pmass;
       sqmom += (vel | vel) * (pmass * pmass);
       com += pos * pmass;

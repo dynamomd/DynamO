@@ -52,7 +52,7 @@ COPVelProfile::ticker()
       Vector  pos(part.getPosition());
       Vector  vel(part.getVelocity());
 
-      Sim->Dynamics.BCs().setPBC(pos, vel);
+      Sim->Dynamics.BCs().applyBC(pos, vel);
 
       pos += Sim->aspectRatio / 2.0;
 

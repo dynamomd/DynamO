@@ -105,7 +105,7 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
 			Sim->Dynamics.getSpecies(particle2),
 			eType);
 
-  Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
+  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass(); 
@@ -143,7 +143,7 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
 			Sim->Dynamics.getSpecies(particle2),
 			event.getType());
     
-  Sim->Dynamics.BCs().setPBC(retVal.rij, retVal.vijold);
+  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
@@ -224,7 +224,7 @@ CLCompression::getPBCSentinelTime(const CParticle& part,
 
   Vector  pos(part.getPosition()), vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().setPBC(pos, vel);
+  Sim->Dynamics.BCs().applyBC(pos, vel);
 
   Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 

@@ -136,7 +136,7 @@ CGSOCells::runEvent(const CParticle& part) const
 
   Vector pos(part.getPosition()), vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().setPBC(pos, vel);
+  Sim->Dynamics.BCs().applyBC(pos, vel);
 
   vNorm[cellDirection] = (vel[cellDirection] > 0) ? -1 : +1; 
     

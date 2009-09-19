@@ -103,7 +103,7 @@ bool
 CISoftCore::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   return ((rij | rij) <= d2);
 }
@@ -199,7 +199,7 @@ void
 CISoftCore::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   Iflt r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))

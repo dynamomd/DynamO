@@ -109,7 +109,7 @@ COPStructureImaging::printImage()
 	  const CParticle& part(Sim->vParticleList[pid]);
 	  Vector  rij = part.getPosition() - lastpos;
 	  lastpos = part.getPosition();
-	  Sim->Dynamics.BCs().setPBC(rij);
+	  Sim->Dynamics.BCs().applyBC(rij);
 	  
 	  sumrij += rij;
 	  

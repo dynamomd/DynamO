@@ -91,7 +91,7 @@ COPGeomview::printImage()
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
-	    Sim->Dynamics.BCs().setPBC(pos);
+	    Sim->Dynamics.BCs().applyBC(pos);
 	   
 	    const CLNOrientation::rotData& 
 	      rdat(static_cast<const CLNOrientation&>
@@ -114,7 +114,7 @@ COPGeomview::printImage()
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
-	    Sim->Dynamics.BCs().setPBC(pos);
+	    Sim->Dynamics.BCs().applyBC(pos);
 	    
 	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
 				   (Sim->vParticleList[ID], 
@@ -144,8 +144,8 @@ COPGeomview::printImage()
 	    
 	    Vector  pos = Sim->vParticleList[mp.first].getPosition();
 	    Vector  rij = Sim->vParticleList[ID2].getPosition() - pos;
-	    Sim->Dynamics.BCs().setPBC(pos);
-	    Sim->Dynamics.BCs().setPBC(rij);
+	    Sim->Dynamics.BCs().applyBC(pos);
+	    Sim->Dynamics.BCs().applyBC(rij);
 
 	    of << "{VECT 1 2 1 \n 2 \n 1 \n " << pos[0] << " " << pos[1] 
 	       << " " << pos[2] << "\n" << pos[0] + rij[0] << " " << pos[1] + rij[1] << " " 

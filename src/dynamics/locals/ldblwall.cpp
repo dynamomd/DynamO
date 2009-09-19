@@ -52,7 +52,7 @@ CLDblWall::getEvent(const CParticle& part) const
   if (part.getID() == lastID) return CLocalEvent(part, HUGE_VAL, NONE, *this);
   
   Vector rij = part.getPosition() - vPosition;
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
 
   Vector norm(vNorm);
   if ((norm | rij) < 0)
@@ -70,7 +70,7 @@ CLDblWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   Vector norm = vNorm;
 
   Vector rij = part.getPosition() - vPosition;
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   if ((norm | rij) < 0)
     norm *= -1;

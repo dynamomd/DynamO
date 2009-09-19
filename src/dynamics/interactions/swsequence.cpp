@@ -227,7 +227,7 @@ bool
 CISWSequence::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   if ((rij.nrm2() <= ld2) && (rij.nrm2() >= d2))
     return true;
@@ -364,7 +364,7 @@ void
 CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   Iflt r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))
@@ -419,7 +419,7 @@ CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb,
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().applyBC(pos);
       
       os << "object {\n intrep" << ID << "center"<< sequence[part % sequence.size()] << "\n translate < "
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
@@ -429,7 +429,7 @@ CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb,
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().applyBC(pos);
       
       os << "object {\n intrep" << ID << "seqwell" << sequence[part % sequence.size()] << "\n translate < "
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";

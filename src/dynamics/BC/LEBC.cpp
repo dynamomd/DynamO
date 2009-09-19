@@ -69,7 +69,7 @@ CRLEBC::Clone () const
 { return new CRLEBC(*this); }
 
 void 
-CRLEBC::setPBC(Vector  &pos) const 
+CRLEBC::applyBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1] / Sim->aspectRatio[1])*dxd;
@@ -80,7 +80,7 @@ CRLEBC::setPBC(Vector  &pos) const
 }
 
 void 
-CRLEBC::setPBC(Vector  &pos, Vector &vel) const 
+CRLEBC::applyBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1] / Sim->aspectRatio[1]) * dxd;
@@ -95,7 +95,7 @@ CRLEBC::setPBC(Vector  &pos, Vector &vel) const
 }
 
 void 
-CRLEBC::setPBC(Vector  &posVec, const Iflt& dt) const 
+CRLEBC::applyBC(Vector  &posVec, const Iflt& dt) const 
 { 
   Iflt localdxd = dxd + dt * ShearRate * Sim->aspectRatio[1];
   
@@ -164,7 +164,7 @@ CSLEBC::Clone () const
 { return new CSLEBC(*this); }
 
 void 
-CSLEBC::setPBC(Vector  &pos) const 
+CSLEBC::applyBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1]) * dxd;
@@ -174,7 +174,7 @@ CSLEBC::setPBC(Vector  &pos) const
 }
 
 void 
-CSLEBC::setPBC(Vector  &pos, Vector &vel) const 
+CSLEBC::applyBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1]) * dxd;
@@ -187,7 +187,7 @@ CSLEBC::setPBC(Vector  &pos, Vector &vel) const
 }
 
 void 
-CSLEBC::setPBC(Vector  &posVec, const Iflt& dt) const 
+CSLEBC::applyBC(Vector  &posVec, const Iflt& dt) const 
 {
   Iflt localdxd = dxd + dt * ShearRate;
   

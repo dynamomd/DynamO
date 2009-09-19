@@ -166,7 +166,7 @@ COPSHCrystal::sphericalsum::operator()
   (const CParticle& part, const size_t& ID) const
 {
   Vector rij = part.getPosition() - Sim->vParticleList[ID].getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   Iflt norm = rij.nrm();
   if (norm <= rg)

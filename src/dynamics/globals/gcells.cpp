@@ -462,7 +462,7 @@ CGCells::getCoordsFromID(size_t i) const
 size_t
 CGCells::getCellID(Vector  pos) const
 {
-  Sim->Dynamics.BCs().setPBC(pos);
+  Sim->Dynamics.BCs().applyBC(pos);
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)

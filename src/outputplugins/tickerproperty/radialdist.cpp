@@ -95,7 +95,7 @@ COPRadialDistribution::ticker()
 	  Vector  rij = Sim->vParticleList[p1].getPosition()
 	    - Sim->vParticleList[p2].getPosition();
 
-	  Sim->Dynamics.BCs().setPBC(rij);
+	  Sim->Dynamics.BCs().applyBC(rij);
 
 	  size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
 

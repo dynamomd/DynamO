@@ -386,7 +386,7 @@ CDynamics::zeroMomentum(std::vector<CParticle> &pList)
   BOOST_FOREACH( CParticle & Part, pList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
-      BCs().setPBC(pos,vel);
+      BCs().applyBC(pos,vel);
 
       sumMV += vel * getSpecies(Part).getMass();
     }

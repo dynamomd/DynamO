@@ -47,21 +47,21 @@ CSPBC::operator<<(const XMLNode&)
 {}
 
 void 
-CSPBC::setPBC(Vector & pos) const
+CSPBC::applyBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSPBC::setPBC(Vector & pos, Vector&) const
+CSPBC::applyBC(Vector & pos, Vector&) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSPBC::setPBC(Vector  &pos, const Iflt&) const 
+CSPBC::applyBC(Vector  &pos, const Iflt&) const 
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
@@ -74,7 +74,7 @@ CRPBC::CRPBC(const DYNAMO::SimData* tmp):
 }
 
 void 
-CRPBC::setPBC(Vector & pos) const
+CRPBC::applyBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -82,7 +82,7 @@ CRPBC::setPBC(Vector & pos) const
 }
 
 void 
-CRPBC::setPBC(Vector & pos, Vector&) const
+CRPBC::applyBC(Vector & pos, Vector&) const
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -90,7 +90,7 @@ CRPBC::setPBC(Vector & pos, Vector&) const
 }
 
 void 
-CRPBC::setPBC(Vector  &pos, const Iflt&) const 
+CRPBC::applyBC(Vector  &pos, const Iflt&) const 
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -135,7 +135,7 @@ CRNoXPBC::Clone () const
 { return new CRNoXPBC(*this); }
 
 void 
-CRNoXPBC::setPBC(Vector & pos) const
+CRNoXPBC::applyBC(Vector & pos) const
 { 
   Iflt x = pos[0];
 
@@ -147,7 +147,7 @@ CRNoXPBC::setPBC(Vector & pos) const
 }
   
 void 
-CRNoXPBC::setPBC(Vector & pos, Vector&) const
+CRNoXPBC::applyBC(Vector & pos, Vector&) const
 { 
   Iflt x = pos[0];
 
@@ -159,7 +159,7 @@ CRNoXPBC::setPBC(Vector & pos, Vector&) const
 }
 
 void 
-CRNoXPBC::setPBC(Vector  &pos, const Iflt&) const 
+CRNoXPBC::applyBC(Vector  &pos, const Iflt&) const 
 { 
   Iflt x = pos[0];
 
@@ -167,7 +167,7 @@ CRNoXPBC::setPBC(Vector  &pos, const Iflt&) const
     pos[n] -= Sim->aspectRatio[n] *
       rintfunc (pos[n] / Sim->aspectRatio[n]);    
   
-  setPBC(pos); 
+  applyBC(pos); 
 
   pos[0] = x;
 }

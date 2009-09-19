@@ -211,7 +211,7 @@ bool
 CILines::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   return (rij | rij) <= l2;
 }
@@ -241,7 +241,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 	     (Sim->Dynamics.Liouvillean()).getRotData(part));
 
       Vector  pos(part.getPosition());
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().applyBC(pos);
 
       Vector  point(pos - 0.5 * length * rdat.orientation);
       

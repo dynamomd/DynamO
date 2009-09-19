@@ -218,12 +218,12 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	    Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
-	    Sim->Dynamics.setPBC<CSPBC>();
+	    Sim->Dynamics.applyBC<CSPBC>();
 
 	    if (vm.count("b2"))
 	      Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
@@ -279,10 +279,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -370,7 +370,7 @@ CIPPacker::initialise()
 	//Set up the system now
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 	
-	Sim->Dynamics.setPBC<CNullBC>();
+	Sim->Dynamics.applyBC<CNullBC>();
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
@@ -472,7 +472,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
-	Sim->Dynamics.setPBC<CSPBC>();
+	Sim->Dynamics.applyBC<CSPBC>();
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0, 
@@ -529,9 +529,9 @@ CIPPacker::initialise()
 	Sim->Dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
 	if (vm.count("rectangular-box"))
-	  Sim->Dynamics.setPBC<CRLEBC>();
+	  Sim->Dynamics.applyBC<CRLEBC>();
 	else
-	  Sim->Dynamics.setPBC<CSLEBC>();
+	  Sim->Dynamics.applyBC<CSLEBC>();
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
@@ -610,7 +610,7 @@ CIPPacker::initialise()
 	//Set up the system now
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 
-	Sim->Dynamics.setPBC<CNullBC>();
+	Sim->Dynamics.applyBC<CNullBC>();
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
@@ -679,7 +679,7 @@ CIPPacker::initialise()
 	//static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
 
 	//Cut off the x periodic boundaries
-	Sim->Dynamics.setPBC<CRNoXPBC>();
+	Sim->Dynamics.applyBC<CRNoXPBC>();
 
 	Sim->Dynamics.setUnits(new CUSW(particleDiam, 1.0, Sim));
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
@@ -764,7 +764,7 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Sim->Dynamics.setPBC<CSPBC>();
+	Sim->Dynamics.applyBC<CSPBC>();
 
 	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
 
@@ -839,10 +839,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -913,7 +913,7 @@ CIPPacker::initialise()
 	std::vector<Vector  > 
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
       	
-	Sim->Dynamics.setPBC<CSPBC>();
+	Sim->Dynamics.applyBC<CSPBC>();
 	  
 	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
@@ -964,10 +964,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -1037,10 +1037,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt alpha = 1.0;
 
@@ -1108,10 +1108,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -1303,7 +1303,7 @@ CIPPacker::initialise()
 	std::vector<Vector  > 
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
       	
-	Sim->Dynamics.setPBC<CSLEBC>();
+	Sim->Dynamics.applyBC<CSLEBC>();
 	  
 	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
@@ -1373,10 +1373,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 	
 	Iflt simVol = 1.0;
 	
@@ -1476,10 +1476,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -1589,10 +1589,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -1674,10 +1674,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -1760,10 +1760,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.setPBC<CRPBC>();
+	    Sim->Dynamics.applyBC<CRPBC>();
 	  }
 	else
-	  Sim->Dynamics.setPBC<CSPBC>();
+	  Sim->Dynamics.applyBC<CSPBC>();
 
 	Iflt simVol = 1.0;
 
@@ -1914,7 +1914,7 @@ CIPPacker::initialise()
 	std::vector<Vector> 
 	  latticeSites(packptr->placeObjects(particleCOM));
       	
-	Sim->Dynamics.setPBC<CNullBC>();
+	Sim->Dynamics.applyBC<CNullBC>();
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Iflt simVol = 1.0;

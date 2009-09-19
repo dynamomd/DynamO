@@ -118,7 +118,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
       Vector currRelPos = Sim->vParticleList[*iPtr].getPosition() 
 	- Sim->vParticleList[*(iPtr - 1)].getPosition();
 
-      Sim->Dynamics.BCs().setPBC(currRelPos);
+      Sim->Dynamics.BCs().applyBC(currRelPos);
 
       relVecs.push_back(currRelPos + relVecs.back());
 

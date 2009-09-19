@@ -139,7 +139,7 @@ int
 CIStepped::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   Iflt r = rij.nrm();
 
@@ -360,7 +360,7 @@ CIStepped::write_povray_desc(const DYNAMO::RGB& rgb,
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().applyBC(pos);
       
       os << "object {\n intrep" << ID << "center\n translate < "
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
@@ -370,7 +370,7 @@ CIStepped::write_povray_desc(const DYNAMO::RGB& rgb,
   BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "well\n translate < "
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";

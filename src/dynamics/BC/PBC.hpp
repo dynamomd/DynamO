@@ -30,11 +30,11 @@ class CSPBC: public CBC
 public:
   CSPBC(const DYNAMO::SimData*);
 
-  virtual void setPBC(Vector &) const;
+  virtual void applyBC(Vector &) const;
 
-  virtual void setPBC(Vector &, Vector &) const;
+  virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void setPBC(Vector &, const Iflt&) const;
+  virtual void applyBC(Vector &, const Iflt&) const;
 
   inline virtual void outputXML(xmlw::XmlStream &) const;  
   virtual void operator<<(const XMLNode&);
@@ -50,11 +50,11 @@ class CRPBC: public CBC
 public:
   CRPBC(const DYNAMO::SimData*);
 
-  virtual void setPBC(Vector &) const;
+  virtual void applyBC(Vector &) const;
   
-  virtual void setPBC(Vector &, Vector &) const;
+  virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void setPBC(Vector &, const Iflt&) const;
+  virtual void applyBC(Vector &, const Iflt&) const;
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
@@ -72,11 +72,11 @@ class CRNoXPBC: public CBC
 public:
   CRNoXPBC(const DYNAMO::SimData*);
 
-  virtual void setPBC(Vector & pos) const;
+  virtual void applyBC(Vector & pos) const;
   
-  virtual void setPBC(Vector & pos, Vector &) const;
+  virtual void applyBC(Vector & pos, Vector &) const;
   
-  virtual void setPBC(Vector  &pos, const Iflt&) const;
+  virtual void applyBC(Vector  &pos, const Iflt&) const;
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);

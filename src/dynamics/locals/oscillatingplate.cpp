@@ -197,8 +197,8 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
   Vector WallLoc1 = pos + nhat * (sigma + 0.75 * Sim->Dynamics.units().unitLength());
   Vector WallLoc2 = pos - nhat * (sigma + 0.75 * Sim->Dynamics.units().unitLength());
 
-  Sim->Dynamics.BCs().setPBC(WallLoc1);
-  Sim->Dynamics.BCs().setPBC(WallLoc2);
+  Sim->Dynamics.BCs().applyBC(WallLoc1);
+  Sim->Dynamics.BCs().applyBC(WallLoc2);
 
   os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength() 
      << ", -0.5>, <0.5, " << +0.25 * Sim->Dynamics.units().unitLength() 

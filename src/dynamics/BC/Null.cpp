@@ -25,15 +25,15 @@ CNullBC::CNullBC(const DYNAMO::SimData* Sim):
 CNullBC::~CNullBC() {}
     
 void 
-CNullBC::setPBC(Vector  &)const 
+CNullBC::applyBC(Vector  &)const 
 {}
 
 void 
-CNullBC::setPBC(Vector  &, Vector &) const 
+CNullBC::applyBC(Vector  &, Vector &) const 
 {}
 
 void 
-CNullBC::setPBC(Vector  &, const Iflt&) const 
+CNullBC::applyBC(Vector  &, const Iflt&) const 
 {}
 
 void 

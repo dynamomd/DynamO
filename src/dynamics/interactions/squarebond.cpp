@@ -104,7 +104,7 @@ bool
 CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   if (((rij | rij) <= ld2) && ((rij | rij) >= d2))
     return true;
@@ -116,7 +116,7 @@ void
 CISquareBond::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   Iflt r2 = rij.nrm2();
 
   if (r2 < d2)
@@ -216,13 +216,13 @@ CISquareBond::write_povray_info(std::ostream& os) const
     if (range->isInRange(p1,p2) && (p1 != p2))
       {
 	Vector  pos1(p1.getPosition()), pos2(p2.getPosition());
-	Sim->Dynamics.BCs().setPBC(pos1);
-	Sim->Dynamics.BCs().setPBC(pos2);
+	Sim->Dynamics.BCs().applyBC(pos1);
+	Sim->Dynamics.BCs().applyBC(pos2);
 	
 	if ((pos1-pos2).nrm() > 0.5) continue;
 
-	Sim->Dynamics.BCs().setPBC(pos1);
-	Sim->Dynamics.BCs().setPBC(pos2);
+	Sim->Dynamics.BCs().applyBC(pos1);
+	Sim->Dynamics.BCs().applyBC(pos2);
 	
 	os << "cylinder {\n <"
 	   << pos1[0];

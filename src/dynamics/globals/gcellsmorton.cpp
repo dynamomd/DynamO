@@ -397,7 +397,7 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
 dilatedCoords
 CGCellsMorton::getCellID(Vector  pos) const
 {
-  Sim->Dynamics.BCs().setPBC(pos);
+  Sim->Dynamics.BCs().applyBC(pos);
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)

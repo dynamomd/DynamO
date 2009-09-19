@@ -34,11 +34,11 @@ class CNullBC: virtual public CBC
   
   virtual ~CNullBC();
     
-  virtual void setPBC(Vector  &)const;
+  virtual void applyBC(Vector  &)const;
 
-  virtual void setPBC(Vector  &, Vector  &) const;
+  virtual void applyBC(Vector  &, Vector  &) const;
 
-  virtual void setPBC(Vector  &, const Iflt&) const;
+  virtual void applyBC(Vector  &, const Iflt&) const;
 
   virtual void update(const Iflt&);
 

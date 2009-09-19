@@ -82,7 +82,7 @@ COPTinkerXYZ::printImage()
   BOOST_FOREACH (const CParticle& part, Sim->vParticleList)
     {
       tmpVec = part.getPosition();
-      Sim->Dynamics.BCs().setPBC(tmpVec);
+      Sim->Dynamics.BCs().applyBC(tmpVec);
       of << "C ";
       for (size_t iDim = 0; iDim < NDIM; iDim++)
 	of << tmpVec[iDim] * 3.4 
@@ -113,7 +113,7 @@ COPTinkerXYZ::printImage()
   BOOST_FOREACH(const COPRGyration::molGyrationDat& mDat, gyrationData)
     {
       tmpVec = mDat.MassCentre;
-      Sim->Dynamics.BCs().setPBC(tmpVec);
+      Sim->Dynamics.BCs().applyBC(tmpVec);
 
       tmpVec2 = ((tmpVec/Sim->Dynamics.units().unitLength()) + 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
       tmpVec =  ((tmpVec/Sim->Dynamics.units().unitLength()) - 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
@@ -138,11 +138,11 @@ COPTinkerXYZ::printImage()
 	    Vector  rij(pos1);
 	    rij -= pos2;
 	    
-	    Sim->Dynamics.BCs().setPBC(pos1);
+	    Sim->Dynamics.BCs().applyBC(pos1);
 
-	    Sim->Dynamics.BCs().setPBC(pos2);
+	    Sim->Dynamics.BCs().applyBC(pos2);
 
-	    Sim->Dynamics.BCs().setPBC(rij);	    	    
+	    Sim->Dynamics.BCs().applyBC(rij);	    	    
 
 	    //Check theres no periodic wrap around, 1.01 is a fudge factor
 	    if ((pos1 - pos2).nrm2() < 1.01 * rij.nrm2())

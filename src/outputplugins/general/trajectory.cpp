@@ -57,7 +57,7 @@ COPTrajectory::printData(const size_t& p1,
   Vector  rij = Sim->vParticleList[id1].getPosition()
     - Sim->vParticleList[id2].getPosition();
 
-  Sim->Dynamics.BCs().setPBC(rij);
+  Sim->Dynamics.BCs().applyBC(rij);
   
   rij /= Sim->Dynamics.units().unitLength();
 

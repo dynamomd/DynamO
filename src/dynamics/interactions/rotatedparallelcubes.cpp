@@ -171,7 +171,7 @@ void
 CIRotatedParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
-  Sim->Dynamics.BCs().setPBC(rij); 
+  Sim->Dynamics.BCs().applyBC(rij); 
   
   if ((rij | rij) < diameter*diameter)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
@@ -202,7 +202,7 @@ CIRotatedParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& 
   BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[pid].getPosition());
-      Sim->Dynamics.BCs().setPBC(pos);
+      Sim->Dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "\n translate <"
 	 << pos[0];

@@ -84,7 +84,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
   Vector  pos(part.getPosition() - cells[oldCell].origin), 
     vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().setPBC(pos, vel);
+  Sim->Dynamics.BCs().applyBC(pos, vel);
 
   if ((cellDirection == 1) &&
       (cells[oldCell].coords[1] 
@@ -123,7 +123,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
       //Determine the x position (in cell coords) of the particle and
       //add it to the endCellID
-      Sim->Dynamics.BCs().setPBC(tmpPos, dt);
+      Sim->Dynamics.BCs().applyBC(tmpPos, dt);
       endCell += int((tmpPos[0] + 0.5 * Sim->aspectRatio[0]) 
 		     / cellLatticeWidth[0]);
 
