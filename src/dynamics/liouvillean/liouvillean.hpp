@@ -342,6 +342,19 @@ public:
 				const Vector & norm
 				) const = 0;
 
+  /*! \brief Determines when the particle center will hit a cylindrical wall.
+   *
+   *
+   * \param part The particle to test.
+   * \param origin A point on the axis of the cylinder
+   * \param norm The direction of the cylinder axis.
+   * \return The time till collision.
+   */    
+  virtual Iflt getCylinderWallCollision(const CParticle& part, 
+					const Vector & origin, 
+					const Vector & norm
+					) const;
+
   /*! \brief Collides a particle with a wall.
    *
    * \param part The particle that is colliding with the wall.

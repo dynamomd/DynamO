@@ -30,7 +30,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       Iflt nomega0, Iflt nsigma, Iflt ne,
 				       Iflt ndelta, Iflt nmass, std::string nname, 
 				       CRange* nRange, Iflt timeshift):
-  CLocal(nRange, nSim, "LocalWall"),
+  CLocal(nRange, nSim, "OscillatingPlate"),
   rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
   e(ne), delta(ndelta), mass(nmass), timeshift(0), lastID(-1), lastdSysTime(HUGE_VAL)
 {
@@ -38,7 +38,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 }
 
 CLOscillatingPlate::CLOscillatingPlate(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "LocalWall"),
+  CLocal(tmp, "OscillatingPlate"),
   lastID(-1), lastdSysTime(HUGE_VAL)
 {
   operator<<(XML);

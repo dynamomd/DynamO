@@ -1104,3 +1104,25 @@ CLNewton::runOscilatingPlate
   
   return retVal; 
 }
+
+Iflt 
+CLNewton::getCylinderWallCollision(const CParticle& part, 
+				   const Vector  &wallLoc, 
+				   const Vector  &wallNorm) const
+{
+  Vector  rij = part.getPosition() - wallLoc,
+    vel = part.getVelocity();
+
+  Sim->Dynamics.BCs().applyBC(rij, vel);
+
+  rij -= Vector((rij | wallNorm) * wallNorm);
+
+  vel -= Vector((vel | wallNorm) * wallNorm);
+
+  Iflt rvdot = (vel | wallNorm);
+
+  if (rvdot < 0)
+    return  - ((rij | wallNorm) / rvdot);
+  
+  return HUGE_VAL;
+}

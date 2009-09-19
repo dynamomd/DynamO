@@ -22,28 +22,31 @@
   - [-] Add autodetection of walls into geomview plugin NOT NEEDED POVRAY DOES THIS
   - [X] Play with the new boost accumulators and ring buffer
   - [X] Collision sentinel for low density sims
+*** DONE Stepped potentials			:ARCHIVE:
+    CLOSED: [2009-09-19 Sat 21:46]
+    - [X] Make a generalised interface for captures, remove the hashed
+      set to another class
+    - [X] Implement a multistep hash bins
+    - [X] Implement a stepped interaction potential
+*** DONE Implement Parallel Hard Cubes		:ARCHIVE:
+    CLOSED: [2009-06-10 Wed 07:58]    
 ** Do if you're bored  
    - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
    - [-] Clean up the coordinator class
     - [X] Move the replex and standard runs into a class Engine
     - [ ] Split the replexer somehow and remove the ugly switch cases for speed
     - [ ] Add a Coordinator output plugin scheme
-   - [ ] Multi dimensional sims
    - [ ] Compressibility <N^2>-<N>^2 for large HS sims
-   - [ ] Write a transformation for the liouvillean which wraps the sim
-	coordinates
    - [-] Stop the use of pointers in output sims for the benefit of Replexing
     - [X] Add id numbers to every interaction
     - [-] Change the output plugins to use the id numbers and get rid of RTTI
 ** Code Improvements
-*** Fix the whole shearing problem
+*** Optimise the insertion of locals into neighbour lists
+    - [ ] Cylinders can be inserted, just write the overlap test
+    - [ ] Oscillating plates????
+*** [ ] Write a transformation for the liouvillean which wraps the sim coordinates
   - [ ] Mark the output plugins that cannot be used in the
     co-ordinate transform
-*** DONE Implement Parallel Hard Cubes
-    CLOSED: [2009-06-10 Wed 07:58]
-    
-*** TODO Stepped potentials
-    - [X] Make a generalised interface for captures, remove the hashed
-      set to another class
-    - [X] Implement a multistep hash bins
-    - [ ] Implement a stepped interaction potential
+**** Fix the whole shearing problem
+*** Multi dimensional sims
+  

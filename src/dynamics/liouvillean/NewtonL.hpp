@@ -78,6 +78,11 @@ public:
 				const Vector &, 
 				const Vector &) const;
 
+  virtual Iflt getCylinderWallCollision(const CParticle&, 
+					const Vector &, 
+					const Vector &
+					) const;
+
   virtual C1ParticleData runWallCollision(const CParticle&, 
 					  const Vector &,
 					  const Iflt&
