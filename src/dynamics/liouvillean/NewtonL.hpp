@@ -80,8 +80,15 @@ public:
 
   virtual Iflt getCylinderWallCollision(const CParticle&, 
 					const Vector &, 
-					const Vector &
+					const Vector &,
+					const Iflt&
 					) const;
+
+  virtual C1ParticleData runCylinderWallCollision(const CParticle&, 
+						  const Vector &,
+						  const Vector &,
+						  const Iflt&
+						  ) const;
 
   virtual C1ParticleData runWallCollision(const CParticle&, 
 					  const Vector &,

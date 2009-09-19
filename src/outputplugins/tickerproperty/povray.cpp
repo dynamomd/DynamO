@@ -126,7 +126,10 @@ intersection { union {                     \n\
     ptr->write_povray_info(of);
 
 
-  of << "object { box { <-1, -0.25, 0.01>, <0.5, 0.140977, 0.01> } rotate <45,0,0> translate <0,0,0.30977>  finish { reflection 0.9 ambient 0 diffuse 0 }}";
+  //Mirror for the oscillating plate
+  //  of << "object { box { <-1, -0.25, 0.01>, <0.5, 0.140977, 0.01> } rotate <45,0,0> translate <0,0,0.30977>  finish { reflection 0.9 ambient 0 diffuse 0 }}";
+  
+  //Background
   //object { plane { <0, 1, 0>, -10 }  pigment { rgb<0.1,0.1,0.1> } }";
 
   of.close();

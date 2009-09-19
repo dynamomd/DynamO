@@ -331,8 +331,19 @@ CLiouvillean::runOscilatingPlate
 
 Iflt 
 CLiouvillean::getCylinderWallCollision(const CParticle& part, 
-				       const Vector & origin, 
-				       const Vector & norm
+				       const Vector& origin, 
+				       const Vector& norm,
+				       const Iflt&
+				       ) const
+{
+  D_throw() << "Not Implemented";
+}
+
+C1ParticleData 
+CLiouvillean::runCylinderWallCollision(const CParticle&, 
+				       const Vector &,
+				       const Vector &,
+				       const Iflt&
 				       ) const
 {
   D_throw() << "Not Implemented";

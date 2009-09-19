@@ -348,12 +348,28 @@ public:
    * \param part The particle to test.
    * \param origin A point on the axis of the cylinder
    * \param norm The direction of the cylinder axis.
+   * \param radius The radius of the cylinder
    * \return The time till collision.
    */    
   virtual Iflt getCylinderWallCollision(const CParticle& part, 
 					const Vector & origin, 
-					const Vector & norm
+					const Vector & norm,
+					const Iflt& radius
 					) const;
+
+  /*! \brief Collides a particle with a cylindrical wall.
+   *
+   * \param part The particle that is colliding with the wall.
+   * \param origin A point on the axis of the cylinder
+   * \param norm The direction of the cylinder axis.
+   * \param e Elasticity of wall.
+   * \return The data for the collision.
+   */
+  virtual C1ParticleData runCylinderWallCollision(const CParticle& part, 
+						  const Vector & origin,
+						  const Vector & norm,
+						  const Iflt& e
+						  ) const;
 
   /*! \brief Collides a particle with a wall.
    *

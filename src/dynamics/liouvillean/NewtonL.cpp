@@ -1107,8 +1107,9 @@ CLNewton::runOscilatingPlate
 
 Iflt 
 CLNewton::getCylinderWallCollision(const CParticle& part, 
-				   const Vector  &wallLoc, 
-				   const Vector  &wallNorm) const
+				   const Vector& wallLoc, 
+				   const Vector& wallNorm,
+				   const Iflt& radius) const
 {
   Vector  rij = part.getPosition() - wallLoc,
     vel = part.getVelocity();
@@ -1119,10 +1120,44 @@ CLNewton::getCylinderWallCollision(const CParticle& part,
 
   vel -= Vector((vel | wallNorm) * wallNorm);
 
-  Iflt rvdot = (vel | wallNorm);
+  Iflt B = 2.0 * (vel | wallNorm),
+    A = vel.nrm2(),
+    C = rij.nrm2() - radius * radius;
 
-  if (rvdot < 0)
-    return  - ((rij | wallNorm) / rvdot);
-  
-  return HUGE_VAL;
+  Iflt disc = std::sqrt(B*B - 4*A*C);
+  Iflt t = -0.5*(B+((B<0) ? -disc : disc));
+  Iflt root1 = t / A;
+  Iflt root2 = C / t;
+
+  //One root is negative or zero and one is positive. The largest
+  //positive one is always the one required.
+  return (root1 > root2) ? root1 : root2;
 }
+
+C1ParticleData 
+CLNewton::runCylinderWallCollision(const CParticle& part, 
+				   const Vector& origin,
+				   const Vector& vNorm,
+				   const Iflt& e
+				   ) const
+{
+  updateParticle(part);
+
+  C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
+  
+  Vector rij =  origin - part.getPosition();
+
+  Sim->Dynamics.BCs().applyBC(rij);
+
+  rij /= rij.nrm();
+
+  const_cast<CParticle&>(part).getVelocity()
+    -= (1+e) * (rij | part.getVelocity()) * rij;
+  
+  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
+		    * (part.getVelocity().nrm2() 
+		       - retVal.getOldVel().nrm2()));
+  
+  return retVal; 
+}
+

@@ -26,12 +26,13 @@
 
 
 CLCylinder::CLCylinder(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
-	       Vector  norigin, std::string nname, 
-	       CRange* nRange, bool nrender):
+		       Vector  norigin, Iflt nr, std::string nname, 
+		       CRange* nRange, bool nrender):
   CLocal(nRange, nSim, "CylinderWall"),
   vNorm(nnorm),
   vPosition(norigin),
   e(ne),
+  radius(nr),
   render(nrender)
 {
   localName = nname;
@@ -52,7 +53,7 @@ CLCylinder::getEvent(const CParticle& part) const
 #endif
 
   return CLocalEvent(part, Sim->Dynamics.Liouvillean().getCylinderWallCollision
-		     (part, vPosition, vNorm), WALL, *this);
+		     (part, vPosition, vNorm, radius), WALL, *this);
 }
 
 void
@@ -61,8 +62,8 @@ CLCylinder::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   ++Sim->lNColl;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
-		      (part, vNorm, e));
+  CNParticleData EDat(Sim->Dynamics.Liouvillean().runCylinderWallCollision
+		      (part, vPosition, vNorm, e));
 
   Sim->signalParticleUpdate(EDat);
 
@@ -94,6 +95,10 @@ CLCylinder::operator<<(const XMLNode& XML)
   
   try {
     e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+
+    radius = boost::lexical_cast<Iflt>(XML.getAttribute("Radius"))
+      * Sim->Dynamics.units().unitLength();
+
     render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
@@ -115,6 +120,7 @@ CLCylinder::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "CylinderWall" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
+      << xmlw::attr("Radius") << radius / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Render") << render
       << range
       << xmlw::tag("Norm")
@@ -129,9 +135,14 @@ void
 CLCylinder::write_povray_info(std::ostream& os) const
 {
   if (render)
-    os << "object { intersection { object { box { <-0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
-       << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
-       <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
+    os << "intersection { difference {cylinder { <0, -0.5, 0>, <0, 0.5, 0>," 
+       << radius + 0.75 * Sim->Dynamics.units().unitLength() << " }"
+       << "cylinder { <0, -0.5, 0>, <0, 0.5, 0>," 
+       << radius + 0.5 * Sim->Dynamics.units().unitLength() << " } "
+       << "Point_At_Trans(<"
+       << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">)"
+       << " translate <" << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] << ">"
+       << "}"
        << "box { <" 
        << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
        << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
@@ -141,5 +152,5 @@ CLCylinder::write_povray_info(std::ostream& os) const
        << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
        << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
        << "> }\n"
-       << "} pigment { Col_Glass_Bluish }   }\n";
+       << "pigment { Col_Glass_Bluish } }";
 }
