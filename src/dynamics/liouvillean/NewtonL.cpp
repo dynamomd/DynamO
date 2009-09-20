@@ -1120,18 +1120,16 @@ CLNewton::getCylinderWallCollision(const CParticle& part,
 
   vel -= Vector((vel | wallNorm) * wallNorm);
 
-  Iflt B = 2.0 * (vel | wallNorm),
+  Iflt B = (vel | rij),
     A = vel.nrm2(),
     C = rij.nrm2() - radius * radius;
 
-  Iflt disc = std::sqrt(B*B - 4*A*C);
-  Iflt t = -0.5*(B+((B<0) ? -disc : disc));
-  Iflt root1 = t / A;
-  Iflt root2 = C / t;
+  Iflt t = (std::sqrt(B*B - A*C) - B) / A;
 
-  //One root is negative or zero and one is positive. The largest
-  //positive one is always the one required.
-  return (root1 > root2) ? root1 : root2;
+  if (std::isnan(t))
+    return HUGE_VAL;
+  else
+    return t;
 }
 
 C1ParticleData 
