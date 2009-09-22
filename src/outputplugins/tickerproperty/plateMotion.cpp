@@ -103,14 +103,20 @@ COPPlateMotion::ticker()
     }
   
   com /= (mass * Sim->Dynamics.units().unitLength());
+  Vector comvel = momentum / (mass * Sim->Dynamics.units().unitVelocity());
+  
 
   const CLOscillatingPlate& plate(*dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr()));
 
   Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->Dynamics.units().unitLength();
 
+  Vector plateSpeed = plate.getVelocity() / Sim->Dynamics.units().unitVelocity();
+
   logfile << Sim->dSysTime / Sim->Dynamics.units().unitTime()
 	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
 	  << " " << com[0] << " " << com[1] << " " << com[2]
+	  << " " << comvel[0] << " " << comvel[1] << " " << comvel[2]
+	  << " " << plateSpeed[0] << " " << plateSpeed[1] << " " << plateSpeed[2]
 	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->Dynamics.units().unitMomentum(),2))
 	  << " " << plate.getPlateEnergy() / Sim->Dynamics.units().unitEnergy()
 	  << "\n";

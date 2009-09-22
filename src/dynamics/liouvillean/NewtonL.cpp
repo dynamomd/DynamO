@@ -1020,12 +1020,6 @@ CLNewton::runOscilatingPlate
 
   Sim->Dynamics.BCs().applyBC(pos, vel);
   
-  Vector nhattmp; 
-  if ((nhat | pos) < 0)
-    nhattmp = nhat;
-  else
-    nhattmp = -nhat;
-  
   Iflt pmass = retVal.getSpecies().getMass();
   Iflt mu = (pmass * mass) / (mass + pmass);
 
@@ -1053,9 +1047,9 @@ CLNewton::runOscilatingPlate
 //	   << omega0 << ") - "
 //	   << sigma;
 
-  Iflt rvdot = ((vel - vwall) | nhattmp);
+  Iflt rvdot = ((vel - vwall) | nhat);
   
-  if (rvdot > 0) 
+  if (rvdot * (nhat | pos) < 0) 
     {
       //rvdot *= -1;
       D_throw() <<"Particle " << part.getID()
@@ -1076,7 +1070,7 @@ CLNewton::runOscilatingPlate
       inelas = 1.0;
     }
 
-  Vector delP =  nhattmp * mu * (1.0 + inelas) * rvdot;
+  Vector delP =  nhat * mu * (1.0 + inelas) * rvdot;
 
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
 
