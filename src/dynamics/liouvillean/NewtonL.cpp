@@ -937,9 +937,6 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   //Must be careful with collisions at the end of the interval
   t_high *= 1.01;
   
-  if (part.getID()==24 && Sim->lNColl==231)
-    I_cerr() << "stop";
-
   Iflt root1 = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
   fL.flipSigma();
 
