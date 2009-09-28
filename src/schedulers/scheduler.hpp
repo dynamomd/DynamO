@@ -81,6 +81,12 @@ public:
   const smrtPlugPtr<CSSorter>& getSorter() const { return sorter; }
 
   void rebuildSystemEvents() const;
+
+  void addInteractionEvent(const CParticle&, const size_t&) const;
+
+  void addInteractionEventInit(const CParticle&, const size_t&) const;
+
+  void addLocalEvent(const CParticle&, const size_t&) const;
   
 protected:
   mutable smrtPlugPtr<CSSorter> sorter;

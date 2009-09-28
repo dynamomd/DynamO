@@ -41,12 +41,7 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void addInteractionEvent(const CParticle&, const size_t&) const;
-  void addInteractionEventInit(const CParticle&, const size_t&) const;
-
   void addEventsInit(const CParticle&);
-
-  void addLocalEvent(const CParticle&, const size_t&) const;
   
   size_t NBListID;
 

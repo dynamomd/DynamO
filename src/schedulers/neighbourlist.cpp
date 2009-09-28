@@ -83,21 +83,24 @@ CSNeighbourList::initialise()
       static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .ConnectSigNewNeighbourNotify
-      (&CSNeighbourList::addInteractionEvent, this);
+      (&CScheduler::addInteractionEvent, 
+       static_cast<const CScheduler*>(this));
 
   if (!cellChangeLocal)
     cellChangeLocal =
       static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .ConnectSigNewLocalNotify
-      (&CSNeighbourList::addLocalEvent, this);
+      (&CScheduler::addLocalEvent, 
+       static_cast<const CScheduler*>(this));
   
   if (!reinit)
     reinit = 
       static_cast<const CGNeighbourList&>
       (*(Sim->Dynamics.getGlobals()[NBListID]))
       .ConnectSigReInitNotify
-      (&CSNeighbourList::initialise, this);
+      (&CScheduler::initialise, 
+       static_cast<CScheduler*>(this));
 }
 
 void 
@@ -136,63 +139,6 @@ CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
 void 
-CSNeighbourList::addInteractionEvent(const CParticle& part, 
-				     const size_t& id) const
-{
-  const CParticle& part2(Sim->vParticleList[id]);
-
-  Sim->Dynamics.Liouvillean().updateParticle(part2);
-
-  const CIntEvent& eevent(Sim->Dynamics.getEvent(part, part2));
-
-  if (eevent.getType() != NONE)
-    sorter->push(intPart(eevent, eventCount[id]), part.getID());
-}
-
-void 
-CSNeighbourList::addInteractionEventInit(const CParticle& part, 
-					 const size_t& id) const
-{
-  //We'll be smart about memory and add evenly on initialisation. Not
-  //using sorting only as it's unbalanced on a system where the
-  //positions and ID's are correlated, e.g a lattice thats frozen on
-  //initialisation.
-
-  if (part.getID() % 2)
-    {
-      if (id % 2)
-	//1st odd  2nd odd
-	//Only take half these matches
-	if (part.getID() > id) return;
-      else
-	//1st odd  2nd even
-	//We allow these
-	{}
-    }
-  else
-    {
-      if (id % 2)
-	//1st even 2nd odd
-	//As we allow odd,even we deny even,odd
-	return;
-      else
-	//1st even 2nd even
-	//No reason to use < or > but we switch it from odd,odd anyway
-	if (part.getID() < id) return;
-    }
-
-  addInteractionEvent(part, id);
-}
-
-void 
-CSNeighbourList::addLocalEvent(const CParticle& part, 
-			       const size_t& id) const
-{
-  if (Sim->Dynamics.getLocals()[id]->isInteraction(part))
-    sorter->push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  
-}
-
-void 
 CSNeighbourList::addEvents(const CParticle& part)
 {
   Sim->Dynamics.Liouvillean().updateParticle(part);
@@ -216,11 +162,11 @@ CSNeighbourList::addEvents(const CParticle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, CGNeighbourList::getNBDelegate(&CSNeighbourList::addLocalEvent, this));
+    (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, CGNeighbourList::getNBDelegate(&CSNeighbourList::addInteractionEvent, this));  
+    (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, static_cast<const CScheduler*>(this)));  
 }
 
 void 
@@ -248,10 +194,10 @@ CSNeighbourList::addEventsInit(const CParticle& part)
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
     (part, CGNeighbourList::getNBDelegate
-     (&CSNeighbourList::addLocalEvent, this));
+     (&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
     (part, CGNeighbourList::getNBDelegate
-     (&CSNeighbourList::addInteractionEventInit, this));  
+     (&CScheduler::addInteractionEventInit, static_cast<const CScheduler*>(this)));  
 }

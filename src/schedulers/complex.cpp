@@ -32,7 +32,6 @@
 #include "../dynamics/locals/localEvent.hpp"
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
-#include "complexentries/include.hpp"
 
 void 
 CSComplex::operator<<(const XMLNode& XML)
@@ -111,7 +110,7 @@ CSComplex::outputXML(xmlw::XmlStream& XML) const
 }
 
 CSComplex::CSComplex(const XMLNode& XML, 
-				 DYNAMO::SimData* const Sim):
+		     DYNAMO::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL),
   cellChange(0),
   cellChangeLocal(0),

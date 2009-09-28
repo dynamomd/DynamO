@@ -90,19 +90,10 @@ CSDumb::addEvents(const CParticle& part)
   
   //Add the local cell events
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
-    if (local->isInteraction(part))
-      sorter->push(local->getEvent(part), part.getID());
+    addLocalEvent(part, local->getID());
 
   //Add the interaction events
   BOOST_FOREACH(const CParticle& part2, Sim->vParticleList)
     if (part2 != part)
-      {
-	Sim->Dynamics.Liouvillean().updateParticle(part2);
-
-	CIntEvent eevent(Sim->Dynamics.getEvent(part, part2));
-	
-	if (eevent.getType() != NONE)
-	  sorter->push(intPart(eevent, eventCount[part2.getID()]), 
-		       part.getID());
-      }
+      addInteractionEvent(part, part2.getID());
 }
