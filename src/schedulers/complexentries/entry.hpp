@@ -21,6 +21,7 @@
 #include "../../base/is_base.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../dynamics/ranges/1range.hpp"
+#include "../../dynamics/globals/neighbourList.hpp"
 
 class XMLNode;
 namespace xmlw
@@ -44,8 +45,20 @@ public:
   static CSCEntry* getClass(const XMLNode&, DYNAMO::SimData* const);
 
   virtual void operator<<(const XMLNode&) = 0;
+
+  bool isApplicable(const CParticle& part) const;
   
+  void addInteractionEvent(const CParticle&, const size_t&) const;
+
+  virtual void getParticleNeighbourhood(const CParticle&, 
+					const CGNeighbourList::nbHoodFunc&) const = 0;
+
+  virtual void getParticleLocalNeighbourhood(const CParticle&, 
+					     const CGNeighbourList::nbHoodFunc&) const = 0;
+
 protected:
+
+  virtual void outputXML(xmlw::XmlStream&) const = 0;
   
   smrtPlugPtr<CRange> range;
 };

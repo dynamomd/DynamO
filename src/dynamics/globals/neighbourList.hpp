@@ -26,14 +26,12 @@
 
 class CGNeighbourList: public CGlobal
 {
-protected:
-  
+public:
   typedef fastdelegate::FastDelegate2
   <const CParticle&, const size_t&, void> nbHoodFunc;
 
   typedef fastdelegate::FastDelegate0<void> initFunc;  
 
-public:
   template<class T>
   static nbHoodFunc
   getNBDelegate

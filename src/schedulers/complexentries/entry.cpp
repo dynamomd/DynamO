@@ -19,6 +19,12 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 
+CSCEntry::CSCEntry(DYNAMO::SimData* const tmp, const char *aName):
+  SimBase(tmp, aName, IC_cyan)
+{
+
+}
+
 CSCEntry* 
 CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 {
@@ -26,4 +32,17 @@ CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
   //else 
   D_throw() << "Unknown type of ComplexSchedulerEntry `" 
 	    << XML.getAttribute("Type") << "`encountered";
+}
+
+xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+			    const CSCEntry& g)
+{
+  g.outputXML(XML);
+  return XML;
+}
+
+bool 
+CSCEntry::isApplicable(const CParticle& part) const
+{
+  return range->isInRange(part);
 }
