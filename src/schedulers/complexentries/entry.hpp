@@ -15,8 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//A list of all available schedulers
-#include "neighbourlist.hpp"
-#include "dumbsched.hpp"
-#include "systemonly.hpp"
-#include "complex.hpp"
+#ifndef CSCEntry_H
+#define CSCEntry_H
+
+#include "../../base/is_base.hpp"
+#include "../../datatypes/pluginpointer.hpp"
+#include "../../dynamics/ranges/1range.hpp"
+
+class XMLNode;
+namespace xmlw
+{
+  class XmlStream;
+}
+
+class CParticle;
+
+class CSCEntry: public DYNAMO::SimBase
+{
+public:
+  CSCEntry(DYNAMO::SimData* const, const char *);
+  
+  virtual ~CSCEntry() = 0;
+
+  virtual void initialise() = 0;
+  
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSCEntry&);
+
+  static CSCEntry* getClass(const XMLNode&, DYNAMO::SimData* const);
+
+  virtual void operator<<(const XMLNode&) = 0;
+  
+protected:
+  
+  smrtPlugPtr<CRange> range;
+};
+
+#endif

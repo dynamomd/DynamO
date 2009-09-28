@@ -15,8 +15,3 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//A list of all available schedulers
-#include "neighbourlist.hpp"
-#include "dumbsched.hpp"
-#include "systemonly.hpp"
-#include "complex.hpp"
