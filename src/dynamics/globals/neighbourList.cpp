@@ -18,7 +18,9 @@
 #include "neighbourList.hpp"
 
 CGNeighbourList::CGNeighbourList(const CGNeighbourList& nb):
-  CGlobal(nb)
+  CGlobal(nb),
+  isUsedInScheduler(false)
+
 {
   I_cout() << "On copy this class erases callbacks";
 }

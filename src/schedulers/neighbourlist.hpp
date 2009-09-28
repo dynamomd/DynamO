@@ -49,7 +49,6 @@ protected:
 
   size_t cellChange;
   size_t cellChangeLocal;
-  size_t reinit;         
 };
 
 #endif

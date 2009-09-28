@@ -181,6 +181,8 @@ public:
 
   virtual void reinitialise(const Iflt&) = 0;
 
+  void markAsUsedInScheduler() { isUsedInScheduler = true; }
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 
@@ -201,6 +203,8 @@ protected:
   mutable size_t sigReInitNotifyCount;
   mutable std::vector<initSlot> 
   sigReInitNotify;
+
+  bool isUsedInScheduler;
 };
 
 #endif

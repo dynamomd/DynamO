@@ -52,6 +52,15 @@ CSNeighbourList::initialise()
 		<< "scheduler called SchedulerNBList.\n"
 		<< cxp.what();
     }
+  
+  if (dynamic_cast<const CGNeighbourList*>
+      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+      == NULL)
+    D_throw() << "The Global named SchedulerNBList is not a neighbour list!";
+
+  static_cast<CGNeighbourList&>
+    (*Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+    .markAsUsedInScheduler();
 
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
   std::cout.flush();
@@ -93,14 +102,6 @@ CSNeighbourList::initialise()
       .ConnectSigNewLocalNotify
       (&CScheduler::addLocalEvent, 
        static_cast<const CScheduler*>(this));
-  
-  if (!reinit)
-    reinit = 
-      static_cast<const CGNeighbourList&>
-      (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .ConnectSigReInitNotify
-      (&CScheduler::initialise, 
-       static_cast<CScheduler*>(this));
 }
 
 void 
@@ -116,8 +117,7 @@ CSNeighbourList::CSNeighbourList(const XMLNode& XML,
 				 DYNAMO::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL),
   cellChange(0),
-  cellChangeLocal(0),
-  reinit(0)
+  cellChangeLocal(0)
 { 
   I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
   operator<<(XML);
@@ -127,15 +127,13 @@ CSNeighbourList::CSNeighbourList(const CSNeighbourList& nb):
   CScheduler(nb),
   NBListID(nb.NBListID),
   cellChange(0),
-  cellChangeLocal(0),
-  reinit(0)
+  cellChangeLocal(0)
 {}
 
 CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns),
   cellChange(0),
-  cellChangeLocal(0),
-  reinit(0)
+  cellChangeLocal(0)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
 void 

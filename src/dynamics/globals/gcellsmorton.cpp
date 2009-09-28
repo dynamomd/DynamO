@@ -275,6 +275,9 @@ CGCellsMorton::reinitialise(const Iflt& maxdiam)
 
   BOOST_FOREACH(const initSlot& nbs, sigReInitNotify)
     nbs.second();
+
+  if (isUsedInScheduler)
+    Sim->ptrScheduler->initialise();
 }
 
 void
