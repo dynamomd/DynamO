@@ -52,7 +52,7 @@ CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
   else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
     return new CSSystemOnly(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Complex"))
-    return new CSSystemOnly(XML, Sim);
+    return new CSComplex(XML, Sim);
   else 
     D_throw() << "Unknown type of Scheduler encountered";
 }

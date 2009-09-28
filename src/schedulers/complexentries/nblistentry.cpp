@@ -58,7 +58,7 @@ CSCENBList::initialise()
 		<< "\n" << cep.what();
     }
 
-  if (dynamic_cast<const CGNeighbourList* const>(Sim->Dynamics.getGlobals()[nblistID].get_ptr()))
+  if (dynamic_cast<const CGNeighbourList* const>(Sim->Dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
     D_throw() << "Global named " << name << " is not a CGNeighbourList";
   
   static_cast<CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
@@ -101,6 +101,7 @@ CSCENBList::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "NeighbourList"
       << xmlw::attr("NBListName")
-      << Sim->Dynamics.getGlobals()[nblistID]->getName();
+      << Sim->Dynamics.getGlobals()[nblistID]->getName()
+      << range
     ;
 }

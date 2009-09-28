@@ -96,16 +96,16 @@ CSComplex::outputXML(xmlw::XmlStream& XML) const
 }
 
 CSComplex::CSComplex(const XMLNode& XML, 
-				 DYNAMO::SimData* const Sim):
-  CScheduler(Sim,"NeighbourListScheduler", NULL)
+		     DYNAMO::SimData* const Sim):
+  CScheduler(Sim,"ComplexScheduler", NULL)
 { 
-  I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
+  I_cout() << "Complex Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
 CSComplex::CSComplex(DYNAMO::SimData* const Sim, CSSorter* ns):
-  CScheduler(Sim,"NeighbourListScheduler", ns)
-{ I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
+  CScheduler(Sim,"ComplexScheduler", ns)
+{ I_cout() << "Complex Scheduler Algorithmn Loaded"; }
 
 void 
 CSComplex::addEvents(const CParticle& part)
