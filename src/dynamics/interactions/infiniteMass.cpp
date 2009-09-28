@@ -56,6 +56,10 @@ CIInfiniteMass::operator<<(const XMLNode& XML)
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
+  infiniteMassRange.set_ptr(CRange::loadClass
+			    (XML.getChildNode("InfiniteMassParticles"), 
+			     Sim));
+
   try 
     {
       diameter = Sim->Dynamics.units().unitLength() * 
@@ -152,7 +156,11 @@ CIInfiniteMass::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Name") << intName
-      << range;
+      << range
+      << xmlw::tag("InfiniteMassParticles")
+      << infiniteMassRange
+      << xmlw::endtag("InfiniteMassParticles")
+    ;
 }
 
 void
