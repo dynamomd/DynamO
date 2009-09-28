@@ -53,6 +53,9 @@ public:
 
   virtual void getParticleLocalNeighbourhood(const CParticle&, 
 					     const CGNeighbourList::nbHoodFunc&) const {}
+
+  virtual CSCEntry* Clone() const = 0;
+
 protected:
 
   virtual void outputXML(xmlw::XmlStream&) const = 0;

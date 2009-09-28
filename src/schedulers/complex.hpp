@@ -20,6 +20,8 @@
 
 #include "scheduler.hpp"
 
+class CSCEntry;
+
 class CSComplex: public CScheduler
 {
 public:
@@ -39,10 +41,8 @@ protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   void addEventsInit(const CParticle&);
-  
-  size_t NBListID;
 
-  void virtualCellNewNeighbour(const CParticle&, const CParticle&);
+  std::vector<smrtPlugPtr<CSCEntry> > entries;
 };
 
 #endif

@@ -33,35 +33,22 @@
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
 
+#include "complexentries/include.hpp"
+
 void 
 CSComplex::operator<<(const XMLNode& XML)
 {
   sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
+
+  XMLNode xSubNode = XML.getChildNode("Entries");  
+  for (long i=0; i < xSubNode.nChildNode("Entry"); i++)
+    entries.push_back(smrtPlugPtr<CSCEntry>
+		      (CSCEntry::getClass(xSubNode.getChildNode("Entry", i), Sim)));
 }
 
 void
 CSComplex::initialise()
 {
-  try {
-    NBListID = Sim->Dynamics.getGlobal("SchedulerNBList")->getID();
-  }
-  catch(std::exception& cxp)
-    {
-      D_throw() << "Failed while finding the neighbour list global.\n"
-		<< "You must have a neighbour list enabled for this\n"
-		<< "scheduler called SchedulerNBList.\n"
-		<< cxp.what();
-    }
-  
-  if (dynamic_cast<const CGNeighbourList*>
-      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)
-    D_throw() << "The Global named SchedulerNBList is not a neighbour list!";
-
-  static_cast<CGNeighbourList&>
-    (*Sim->Dynamics.getGlobals()[NBListID].get_ptr())
-    .markAsUsedInScheduler();
-
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
   std::cout.flush();
 
@@ -90,10 +77,18 @@ CSComplex::initialise()
 void 
 CSComplex::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "NeighbourList"
+  XML << xmlw::attr("Type") << "Complex"
       << xmlw::tag("Sorter")
       << sorter
-      << xmlw::endtag("Sorter");
+      << xmlw::endtag("Sorter")
+      << xmlw::tag("Entries");
+  
+  BOOST_FOREACH(const smrtPlugPtr<CSCEntry>& ent,  entries)
+    XML << xmlw::tag("Entry")
+	<< ent
+	<< xmlw::endtag("Entry");
+
+  XML << xmlw::endtag("Entries");
 }
 
 CSComplex::CSComplex(const XMLNode& XML, 
@@ -125,18 +120,18 @@ CSComplex::addEvents(const CParticle& part)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
-  //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-				(Sim->Dynamics.getGlobals()[NBListID]
-				 .get_ptr()));
-  
-  //Add the local cell events
-  nblist.getParticleLocalNeighbourhood
-    (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
-
-  //Add the interaction events
-  nblist.getParticleNeighbourhood
-    (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, static_cast<const CScheduler*>(this)));  
+//  //Grab a reference to the neighbour list
+//  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+//				(Sim->Dynamics.getGlobals()[NBListID]
+//				 .get_ptr()));
+//  
+//  //Add the local cell events
+//  nblist.getParticleLocalNeighbourhood
+//    (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
+//
+//  //Add the interaction events
+//  nblist.getParticleNeighbourhood
+//    (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, static_cast<const CScheduler*>(this)));  
 }
 
 void 
@@ -156,18 +151,18 @@ CSComplex::addEventsInit(const CParticle& part)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
-  //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-				(Sim->Dynamics.getGlobals()[NBListID]
-				 .get_ptr()));
-  
-  //Add the local cell events
-  nblist.getParticleLocalNeighbourhood
-    (part, CGNeighbourList::getNBDelegate
-     (&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
-
-  //Add the interaction events
-  nblist.getParticleNeighbourhood
-    (part, CGNeighbourList::getNBDelegate
-     (&CScheduler::addInteractionEventInit, static_cast<const CScheduler*>(this)));  
+//  //Grab a reference to the neighbour list
+//  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+//				(Sim->Dynamics.getGlobals()[NBListID]
+//				 .get_ptr()));
+//  
+//  //Add the local cell events
+//  nblist.getParticleLocalNeighbourhood
+//    (part, CGNeighbourList::getNBDelegate
+//     (&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
+//
+//  //Add the interaction events
+//  nblist.getParticleNeighbourhood
+//    (part, CGNeighbourList::getNBDelegate
+//     (&CScheduler::addInteractionEventInit, static_cast<const CScheduler*>(this)));  
 }

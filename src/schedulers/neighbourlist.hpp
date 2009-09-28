@@ -41,8 +41,6 @@ protected:
   void addEventsInit(const CParticle&);
   
   size_t NBListID;
-
-  void virtualCellNewNeighbour(const CParticle&, const CParticle&);
 };
 
 #endif
