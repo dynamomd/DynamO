@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "entry.hpp"
+#include "include.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 
@@ -28,10 +28,11 @@ CSCEntry::CSCEntry(DYNAMO::SimData* const tmp, const char *aName):
 CSCEntry* 
 CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 {
-  //if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-  //else 
-  D_throw() << "Unknown type of ComplexSchedulerEntry `" 
-	    << XML.getAttribute("Type") << "`encountered";
+  if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
+    return new CSCENBList(XML, Sim);      
+  else 
+    D_throw() << "Unknown type of ComplexSchedulerEntry `" 
+	      << XML.getAttribute("Type") << "`encountered";
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 

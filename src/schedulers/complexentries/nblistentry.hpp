@@ -15,49 +15,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSCEntry_H
-#define CSCEntry_H
+#ifndef CSCENBList_H
+#define CSCENBList_H
 
-#include "../../base/is_base.hpp"
-#include "../../datatypes/pluginpointer.hpp"
-#include "../../dynamics/ranges/1range.hpp"
-#include "../../dynamics/globals/neighbourList.hpp"
+#include "entry.hpp"
 
-class XMLNode;
-namespace xmlw
-{
-  class XmlStream;
-}
-
-class CParticle;
-
-class CSCEntry: public DYNAMO::SimBase
+class CSCENBList: public CSCEntry
 {
 public:
-  CSCEntry(DYNAMO::SimData* const, const char *);
+  CSCENBList(const XMLNode&, DYNAMO::SimData* const);
   
-  virtual ~CSCEntry() {};
+  virtual void initialise();
 
-  virtual void initialise() {};
-  
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSCEntry&);
+  virtual void operator<<(const XMLNode&);
 
-  static CSCEntry* getClass(const XMLNode&, DYNAMO::SimData* const);
- 
-  virtual void operator<<(const XMLNode&) = 0;
-
-  bool isApplicable(const CParticle& part) const;
-  
   virtual void getParticleNeighbourhood(const CParticle&, 
-					const CGNeighbourList::nbHoodFunc&) const {}
+					const CGNeighbourList::nbHoodFunc&) const;
 
   virtual void getParticleLocalNeighbourhood(const CParticle&, 
-					     const CGNeighbourList::nbHoodFunc&) const {}
+					     const CGNeighbourList::nbHoodFunc&) const;
 protected:
 
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xmlw::XmlStream&) const;
   
-  smrtPlugPtr<CRange> range;
+  std::string name;
+  size_t nblistID;
 };
 
 #endif
