@@ -19,7 +19,6 @@
 #define CSComplex_H
 
 #include "scheduler.hpp"
-#include "complexentries/include.hpp"
 
 class CSComplex: public CScheduler
 {
@@ -27,9 +26,6 @@ public:
   CSComplex(const XMLNode&, DYNAMO::SimData* const);
 
   CSComplex(DYNAMO::SimData* const, CSSorter*);
-
-  /*! \brief Must be overloaded to maintain connection status */
-  CSComplex(const CSComplex&);
 
   virtual void rebuildList() { initialise(); }
 
@@ -42,20 +38,11 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void addInteractionEvent(const CParticle&, const size_t&) const;
-  void addInteractionEventInit(const CParticle&, const size_t&) const;
-
   void addEventsInit(const CParticle&);
-
-  void addLocalEvent(const CParticle&, const size_t&) const;
   
   size_t NBListID;
 
   void virtualCellNewNeighbour(const CParticle&, const CParticle&);
-
-  size_t cellChange;
-  size_t cellChangeLocal;
-  size_t reinit;         
 };
 
 #endif

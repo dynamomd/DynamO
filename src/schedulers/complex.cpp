@@ -52,6 +52,15 @@ CSComplex::initialise()
 		<< "scheduler called SchedulerNBList.\n"
 		<< cxp.what();
     }
+  
+  if (dynamic_cast<const CGNeighbourList*>
+      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+      == NULL)
+    D_throw() << "The Global named SchedulerNBList is not a neighbour list!";
+
+  static_cast<CGNeighbourList&>
+    (*Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+    .markAsUsedInScheduler();
 
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
   std::cout.flush();
@@ -76,28 +85,6 @@ CSComplex::initialise()
   sorter->init();
 
   rebuildSystemEvents();
-  
-  //Register the new neighbour function with the cellular tracker
-  if (!cellChange)
-    cellChange =
-      static_cast<const CGNeighbourList&>
-      (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .ConnectSigNewNeighbourNotify
-      (&CSComplex::addInteractionEvent, this);
-
-  if (!cellChangeLocal)
-    cellChangeLocal =
-      static_cast<const CGNeighbourList&>
-      (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .ConnectSigNewLocalNotify
-      (&CSComplex::addLocalEvent, this);
-  
-  if (!reinit)
-    reinit = 
-      static_cast<const CGNeighbourList&>
-      (*(Sim->Dynamics.getGlobals()[NBListID]))
-      .ConnectSigReInitNotify
-      (&CSComplex::initialise, this);
 }
 
 void 
@@ -110,87 +97,16 @@ CSComplex::outputXML(xmlw::XmlStream& XML) const
 }
 
 CSComplex::CSComplex(const XMLNode& XML, 
-		     DYNAMO::SimData* const Sim):
-  CScheduler(Sim,"NeighbourListScheduler", NULL),
-  cellChange(0),
-  cellChangeLocal(0),
-  reinit(0)
+				 DYNAMO::SimData* const Sim):
+  CScheduler(Sim,"NeighbourListScheduler", NULL)
 { 
   I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
-CSComplex::CSComplex(const CSComplex& nb):
-  CScheduler(nb),
-  NBListID(nb.NBListID),
-  cellChange(0),
-  cellChangeLocal(0),
-  reinit(0)
-{}
-
 CSComplex::CSComplex(DYNAMO::SimData* const Sim, CSSorter* ns):
-  CScheduler(Sim,"NeighbourListScheduler", ns),
-  cellChange(0),
-  cellChangeLocal(0),
-  reinit(0)
+  CScheduler(Sim,"NeighbourListScheduler", ns)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
-
-void 
-CSComplex::addInteractionEvent(const CParticle& part, 
-				     const size_t& id) const
-{
-  const CParticle& part2(Sim->vParticleList[id]);
-
-  Sim->Dynamics.Liouvillean().updateParticle(part2);
-
-  const CIntEvent& eevent(Sim->Dynamics.getEvent(part, part2));
-
-  if (eevent.getType() != NONE)
-    sorter->push(intPart(eevent, eventCount[id]), part.getID());
-}
-
-void 
-CSComplex::addInteractionEventInit(const CParticle& part, 
-					 const size_t& id) const
-{
-  //We'll be smart about memory and add evenly on initialisation. Not
-  //using sorting only as it's unbalanced on a system where the
-  //positions and ID's are correlated, e.g a lattice thats frozen on
-  //initialisation.
-
-  if (part.getID() % 2)
-    {
-      if (id % 2)
-	//1st odd  2nd odd
-	//Only take half these matches
-	if (part.getID() > id) return;
-      else
-	//1st odd  2nd even
-	//We allow these
-	{}
-    }
-  else
-    {
-      if (id % 2)
-	//1st even 2nd odd
-	//As we allow odd,even we deny even,odd
-	return;
-      else
-	//1st even 2nd even
-	//No reason to use < or > but we switch it from odd,odd anyway
-	if (part.getID() < id) return;
-    }
-
-  addInteractionEvent(part, id);
-}
-
-void 
-CSComplex::addLocalEvent(const CParticle& part, 
-			       const size_t& id) const
-{
-  if (Sim->Dynamics.getLocals()[id]->isInteraction(part))
-    sorter->push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  
-}
 
 void 
 CSComplex::addEvents(const CParticle& part)
@@ -216,11 +132,11 @@ CSComplex::addEvents(const CParticle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, CGNeighbourList::getNBDelegate(&CSComplex::addLocalEvent, this));
+    (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, CGNeighbourList::getNBDelegate(&CSComplex::addInteractionEvent, this));  
+    (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, static_cast<const CScheduler*>(this)));  
 }
 
 void 
@@ -248,10 +164,10 @@ CSComplex::addEventsInit(const CParticle& part)
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
     (part, CGNeighbourList::getNBDelegate
-     (&CSComplex::addLocalEvent, this));
+     (&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
     (part, CGNeighbourList::getNBDelegate
-     (&CSComplex::addInteractionEventInit, this));  
+     (&CScheduler::addInteractionEventInit, static_cast<const CScheduler*>(this)));  
 }

@@ -60,6 +60,9 @@ CSCENBList::initialise()
 
   if (dynamic_cast<const CGNeighbourList* const>(Sim->Dynamics.getGlobals()[nblistID].get_ptr()))
     D_throw() << "Global named " << name << " is not a CGNeighbourList";
+  
+  static_cast<CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
+    .markAsUsedInScheduler();				 
 }
 
 void 
