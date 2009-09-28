@@ -81,6 +81,8 @@ CInteraction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
     return new CIRotatedParallelCubes(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))
     return new CIStepped(XML, Sim);
+  else if (!std::strcmp(XML.getAttribute("Type"),"InfiniteMass"))
+    return new CIInfiniteMass(XML, Sim);
   else 
     D_throw() << "Unknown type of interaction encountered";
 }

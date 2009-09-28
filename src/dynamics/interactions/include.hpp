@@ -25,3 +25,4 @@
 #include "parallelcubes.hpp"
 #include "rotatedparallelcubes.hpp"
 #include "stepped.hpp"
+#include "infiniteMass.hpp"
