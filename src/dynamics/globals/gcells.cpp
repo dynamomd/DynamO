@@ -231,8 +231,13 @@ CGCells::runEvent(const CParticle& part) const
 
 	  for (int next = cells[nb].list; next >= 0; 
 	       next = partCellData[next].next)
-	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	      nbs.second(part, next);
+	    {
+	      if (isUsedInScheduler)
+		Sim->ptrScheduler->addInteractionEvent(part, next);
+
+	      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+		nbs.second(part, next);
+	    }
 	  
 	  nb += dim1pow;
 	}
@@ -244,8 +249,13 @@ CGCells::runEvent(const CParticle& part) const
 
   //Tell about the new locals
   BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-    nbs.second(part, lID);
+    {
+      if (isUsedInScheduler)
+	Sim->ptrScheduler->addLocalEvent(part, lID);
+
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+	nbs.second(part, lID);
+    }
   
   //Push the next virtual event, this is the reason the scheduler
   //doesn't need a second callback

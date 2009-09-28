@@ -27,9 +27,6 @@ public:
 
   CSNeighbourList(DYNAMO::SimData* const, CSSorter*);
 
-  /*! \brief Must be overloaded to maintain connection status */
-  CSNeighbourList(const CSNeighbourList&);
-
   virtual void rebuildList() { initialise(); }
 
   virtual void initialise();
@@ -46,9 +43,6 @@ protected:
   size_t NBListID;
 
   void virtualCellNewNeighbour(const CParticle&, const CParticle&);
-
-  size_t cellChange;
-  size_t cellChangeLocal;
 };
 
 #endif

@@ -137,8 +137,13 @@ CGCellsShearing::runEvent(const CParticle& part) const
       //Check the entire neighbourhood, could check just the new
       //neighbours and the extra LE neighbourhood strip but its a lot
       //of code
+      if (isUsedInScheduler)
+	getParticleNeighbourhood(part, getNBDelegate(&CScheduler::addInteractionEvent, 
+						     Sim->ptrScheduler));
+      
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	getParticleNeighbourhood(part, nbs.second);
+      
 
     }
   else if ((cellDirection == 1) && 
@@ -156,6 +161,10 @@ CGCellsShearing::runEvent(const CParticle& part) const
       Sim->ptrScheduler->popNextEvent();
       
       //Check the extra LE neighbourhood strip
+      if (isUsedInScheduler)
+	getExtraLEParticleNeighbourhood(part, getNBDelegate(&CScheduler::addInteractionEvent, 
+							    Sim->ptrScheduler));
+      
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	getExtraLEParticleNeighbourhood(part, nbs.second);
     }
@@ -197,8 +206,14 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	//We're at the boundary moving in the z direction, we must
 	//add the new LE strips as neighbours	
 	//We just check the entire Extra LE neighbourhood
-	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	  getExtraLEParticleNeighbourhood(part, nbs.second);
+	{
+	  if (isUsedInScheduler)
+	    getExtraLEParticleNeighbourhood(part, getNBDelegate(&CScheduler::addInteractionEvent, 
+								Sim->ptrScheduler));
+
+	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	    getExtraLEParticleNeighbourhood(part, nbs.second);
+	}
 
       CVector<int> coords(cells[inCell].coords);
       
@@ -238,8 +253,13 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	      
 	      for (int next = cells[nb].list; next >= 0; 
 		   next = partCellData[next].next)
-		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		  nbs.second(part, next);
+		{
+		  if (isUsedInScheduler)
+		    Sim->ptrScheduler->addInteractionEvent(part, next);
+
+		  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+		    nbs.second(part, next);
+		}
 	      
 	      nb += dim1pow;
 	    }
@@ -253,8 +273,13 @@ CGCellsShearing::runEvent(const CParticle& part) const
    
   //Tell about the new locals
   BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
-    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-    nbs.second(part, lID);
+    {
+      if (isUsedInScheduler)
+	Sim->ptrScheduler->addLocalEvent(part, lID);
+
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+	nbs.second(part, lID);
+    }
       
   //Push the next virtual event, this is the reason the scheduler
   //doesn't need a second callback
