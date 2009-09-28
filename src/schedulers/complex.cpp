@@ -117,14 +117,6 @@ CSComplex::addEvents(const CParticle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef DYNAMO_DEBUG
-  if (dynamic_cast<const CGNeighbourList*>
-      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)
-    D_throw() << "Not a CGNeighbourList!";
-#endif
-
-
   BOOST_FOREACH(const smrtPlugPtr<CSCEntry>& ent, entries)
     if (ent->isApplicable(part))
       {
@@ -148,18 +140,11 @@ CSComplex::addEventsInit(const CParticle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef DYNAMO_DEBUG
-  if (dynamic_cast<const CGNeighbourList*>
-      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)
-    D_throw() << "Not a CGNeighbourList!";
-#endif
-
   BOOST_FOREACH(const smrtPlugPtr<CSCEntry>& ent, entries)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood
-	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, 
+	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent,
 						static_cast<const CScheduler*>(this)));
 
 	ent->getParticleNeighbourhood
