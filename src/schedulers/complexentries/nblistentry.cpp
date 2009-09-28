@@ -27,12 +27,6 @@ CSCENBList::CSCENBList(const XMLNode& XML, DYNAMO::SimData* const nSim):
 }
 
 void 
-CSCENBList::initialise()
-{
-  nblistID = Sim->Dynamics.getGlobal(name)->getID();
-}
-
-void 
 CSCENBList::operator<<(const XMLNode& XML)
 {
   range.set_ptr(CRange::loadClass(XML, Sim));
@@ -52,6 +46,23 @@ CSCENBList::operator<<(const XMLNode& XML)
 }
 
 void 
+CSCENBList::initialise()
+{
+  try {
+    nblistID = Sim->Dynamics.getGlobal(name)->getID();
+  }
+  catch (std::exception& cep)
+    {
+      D_throw() << "Failed to find the global named " 
+		<< name << " for the CSCENBList entry."
+		<< "\n" << cep.what();
+    }
+
+  if (dynamic_cast<const CGNeighbourList* const>(Sim->Dynamics.getGlobals()[nblistID].get_ptr()))
+    D_throw() << "Global named " << name << " is not a CGNeighbourList";
+}
+
+void 
 CSCENBList::getParticleNeighbourhood(const CParticle& part, 
 				     const CGNeighbourList::nbHoodFunc& func) const
 {
@@ -61,6 +72,9 @@ CSCENBList::getParticleNeighbourhood(const CParticle& part,
 	      << name << ") is not valid for this particle (" 
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
+
+  static_cast<const CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
+    .getParticleNeighbourhood(part, func);
 }
 
 void 
@@ -74,6 +88,8 @@ CSCENBList::getParticleLocalNeighbourhood(const CParticle& part,
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
 
+  static_cast<const CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
+    .getParticleLocalNeighbourhood(part, func);
 }
 
 
