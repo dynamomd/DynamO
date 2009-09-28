@@ -19,6 +19,7 @@
 #define CSComplex_H
 
 #include "scheduler.hpp"
+#include "complexentries/include.hpp"
 
 class CSComplex: public CScheduler
 {

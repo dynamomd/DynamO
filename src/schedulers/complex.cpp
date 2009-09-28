@@ -32,6 +32,7 @@
 #include "../dynamics/locals/localEvent.hpp"
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
+#include "complexentries/include.hpp"
 
 void 
 CSComplex::operator<<(const XMLNode& XML)
