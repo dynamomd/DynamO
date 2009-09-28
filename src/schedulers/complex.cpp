@@ -52,7 +52,11 @@ CSComplex::initialise()
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
   std::cout.flush();
 
+  BOOST_FOREACH(smrtPlugPtr<CSCEntry>& ent, entries)
+    ent->initialise();
+
   sorter->clear();
+
   //The plus one is because system events are stored in the last heap;
   sorter->resize(Sim->lN+1);
   eventCount.clear();
@@ -120,18 +124,18 @@ CSComplex::addEvents(const CParticle& part)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
-//  //Grab a reference to the neighbour list
-//  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-//				(Sim->Dynamics.getGlobals()[NBListID]
-//				 .get_ptr()));
-//  
-//  //Add the local cell events
-//  nblist.getParticleLocalNeighbourhood
-//    (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
-//
-//  //Add the interaction events
-//  nblist.getParticleNeighbourhood
-//    (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, static_cast<const CScheduler*>(this)));  
+
+  BOOST_FOREACH(const smrtPlugPtr<CSCEntry>& ent, entries)
+    if (ent->isApplicable(part))
+      {
+	ent->getParticleLocalNeighbourhood
+	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, 
+						static_cast<const CScheduler*>(this)));
+
+	ent->getParticleNeighbourhood
+	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, 
+						static_cast<const CScheduler*>(this)));
+      }
 }
 
 void 
@@ -151,18 +155,15 @@ CSComplex::addEventsInit(const CParticle& part)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
-//  //Grab a reference to the neighbour list
-//  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-//				(Sim->Dynamics.getGlobals()[NBListID]
-//				 .get_ptr()));
-//  
-//  //Add the local cell events
-//  nblist.getParticleLocalNeighbourhood
-//    (part, CGNeighbourList::getNBDelegate
-//     (&CScheduler::addLocalEvent, static_cast<const CScheduler*>(this)));
-//
-//  //Add the interaction events
-//  nblist.getParticleNeighbourhood
-//    (part, CGNeighbourList::getNBDelegate
-//     (&CScheduler::addInteractionEventInit, static_cast<const CScheduler*>(this)));  
+  BOOST_FOREACH(const smrtPlugPtr<CSCEntry>& ent, entries)
+    if (ent->isApplicable(part))
+      {
+	ent->getParticleLocalNeighbourhood
+	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, 
+						static_cast<const CScheduler*>(this)));
+
+	ent->getParticleNeighbourhood
+	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEventInit, 
+						static_cast<const CScheduler*>(this)));
+      }
 }
