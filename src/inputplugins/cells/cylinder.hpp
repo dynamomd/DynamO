@@ -19,48 +19,66 @@
 #include "cell.hpp"
 #include "../../datatypes/vector.hpp"
 #include <cmath>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_01.hpp>
 
 struct CUCylinder: public CUCell
 {
-  CUCylinder(Iflt partD, Iflt cylD, CUCell* nextCell):
+  CUCylinder(Iflt partD, Iflt cylD, Vector naxis,
+	     boost::uniform_01<DYNAMO::baseRNG, Iflt>& rng, 
+	     CUCell* nextCell):
     CUCell(nextCell),
     diameter(cylD),
-    minSpacing(partD)
+    minSpacing(partD),
+    axis(naxis),
+    uniformRng(rng)
   {}
 
   Iflt diameter;
   Iflt minSpacing;
-  Vector norm;
-  Vector centre;
-  
+  Vector axis;
+  boost::uniform_01<DYNAMO::baseRNG, Iflt>& uniformRng;
+
   virtual std::vector<Vector> placeObjects(const Vector & centre)
   {
-    size_t nperrad = (M_PI * diameter / minSpacing);
+    Vector startpoint = centre - 0.5 * axis;
     
+    Vector perpvector;
+    for (size_t id(0); id < NDIM; ++id)
+      perpvector[id] = uniformRng();
 
+    perpvector -=  axis * ((perpvector | axis) / axis.nrm2());
 
-    Iflt sigstep = 2.0 * PI / ringlength;
-    Iflt zcentre = a * (chainlength - 1) * sigstep * a;
-    Iflt radius = 0.5 * std::sqrt(walklength * walklength - std::pow(a / ringlength,2)) / std::sin(PI / ringlength);
-
-    std::vector<Vector  > localsites;
+    perpvector *= 0.5 * diameter / perpvector.nrm();
     
-    Vector  tmp;
-    
-    for (int iStep = 0; iStep < chainlength; ++iStep)
-      { 
-	tmp[0] = radius * std::cos(sigstep * iStep);
-	tmp[1] = radius * std::sin(sigstep * iStep);
-	tmp[2] = a * sigstep * iStep - zcentre;
+    Vector unitAxis = axis / axis.nrm();
 
-	localsites.push_back(tmp + centre);
+    std::vector<Vector> localsites;
+    
+    size_t nperrad = M_PI * diameter / minSpacing;
+    size_t nrings = axis.nrm() / minSpacing;
+    Iflt arcsize = 2.0 * M_PI / nperrad;
+    Iflt ringstep = axis.nrm() / nrings;
+
+    for (size_t iStep = 0; iStep < nrings; ++iStep)
+      {
+	for (size_t jStep = 0; jStep < nperrad; ++jStep)
+	  { 
+	    Vector pos = startpoint 
+	      + (Rodrigues(unitAxis * jStep * arcsize) * perpvector);
+	      
+	    localsites.push_back(pos);
+	  }
+	startpoint += unitAxis * ringstep;
       }
   
-    std::vector<Vector  > retval;
-    BOOST_FOREACH(const Vector & vec, localsites)
-      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
-        retval.push_back(vec2);
+    std::vector<Vector> retval;
 
+    BOOST_FOREACH(const Vector& vec, localsites)
+      BOOST_FOREACH(const Vector& vec2, uc->placeObjects(vec))
+        retval.push_back(vec2);
+    
     return retval;    
   }
 };

@@ -1978,7 +1978,52 @@ CIPPacker::initialise()
       }
     case 20:
       {
+	//Pack of hard spheres
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr(new CUCylinder(0.01, 0.9, Vector(1,0,0), 
+							 Sim->uniform_sampler,
+							 new CUParticle()));
+	packptr->initialise();
 	
+	std::vector<Vector  > 
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
+      	
+	Sim->Dynamics.applyBC<CSPBC>();
+	
+	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+	
+	Iflt particleDiam = 0.01;
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
+	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
+	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+
+	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0, 
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->Dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
+	Sim->Dynamics.setUnits(new CUElastic(particleDiam, Sim));
+      
+	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
+						 nParticles++));
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
       }
     default:
       D_throw() << "Did not recognise the packer mode you wanted";
