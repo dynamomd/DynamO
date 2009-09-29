@@ -1976,6 +1976,10 @@ CIPPacker::initialise()
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
+    case 20:
+      {
+	
+      }
     default:
       D_throw() << "Did not recognise the packer mode you wanted";
     }

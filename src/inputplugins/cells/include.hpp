@@ -28,3 +28,4 @@
 #include "random.hpp"
 #include "linearRod.hpp"
 #include "binary.hpp"
+#include "cylinder.hpp"
