@@ -34,7 +34,7 @@
 #include "../NparticleEventData.hpp"
 
 CIInfiniteMass::CIInfiniteMass(DYNAMO::SimData* tmp, Iflt nd, 
-			   Iflt ne, C2Range* nR):
+			       Iflt ne, C2Range* nR):
   CInteraction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne) {}
 
@@ -51,15 +51,11 @@ CIInfiniteMass::initialise(size_t nID)
 void 
 CIInfiniteMass::operator<<(const XMLNode& XML)
 { 
-  if (strcmp(XML.getAttribute("Type"),"HardSphere"))
-    D_throw() << "Attempting to load Hardsphere from non hardsphere entry";
+  if (strcmp(XML.getAttribute("Type"),"InfiniteMass"))
+    D_throw() << "Attempting to load InfiniteMass from non InfiniteMass entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
-  infiniteMassRange.set_ptr(CRange::loadClass
-			    (XML.getChildNode("InfiniteMassParticles"), 
-			     Sim));
-
   try 
     {
       diameter = Sim->Dynamics.units().unitLength() * 
@@ -138,7 +134,7 @@ CIInfiniteMass::runEvent(const CParticle& p1,
     
   //Run the collision and catch the data
   C2ParticleData EDat
-    (Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2)); 
+    (Sim->Dynamics.Liouvillean().SmoothSpheresCollInfMassSafe(iEvent, e, d2)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -152,15 +148,11 @@ CIInfiniteMass::runEvent(const CParticle& p1,
 void 
 CIInfiniteMass::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "HardSphere"
+  XML << xmlw::attr("Type") << "InfiniteMass"
       << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Name") << intName
-      << range
-      << xmlw::tag("InfiniteMassParticles")
-      << infiniteMassRange
-      << xmlw::endtag("InfiniteMassParticles")
-    ;
+      << range;
 }
 
 void

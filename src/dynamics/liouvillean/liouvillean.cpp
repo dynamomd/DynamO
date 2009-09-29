@@ -348,3 +348,10 @@ CLiouvillean::runCylinderWallCollision(const CParticle&,
 {
   D_throw() << "Not Implemented";
 }
+
+C2ParticleData 
+CLiouvillean::SmoothSpheresCollInfMassSafe(const CIntEvent&, const Iflt&, 
+					   const Iflt&, const EEventType&) const
+{
+  D_throw() << "Not Implemented";
+}

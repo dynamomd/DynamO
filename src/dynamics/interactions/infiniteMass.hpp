@@ -55,8 +55,6 @@ public:
 protected:
   Iflt diameter,d2;
   Iflt e;
-
-  smrtPlugPtr<CRange> infiniteMassRange;
 };
 
 #endif

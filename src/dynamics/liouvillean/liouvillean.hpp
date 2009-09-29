@@ -416,6 +416,22 @@ public:
 					   const EEventType& eType = CORE
 					   ) const = 0;
 
+  /*! \brief Performs a hard sphere collision between the two
+   *   particles where one may have infinite mass.
+   * 
+   * Also works for bounce collisions inside wells/outside squareshoulders
+   * (it will collide receeding particles).
+   *
+   * \param e Elasticity.
+   * \param event The event containing the data on the two particles.
+   * \param d2 Square of the interaction distance
+   * \param eType A way of setting the collision type from CORE to BOUNCE etc.
+   * \return The collision data.
+   */  
+  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e, 
+						      const Iflt& d2,
+						      const EEventType& eType = CORE) const;
+
   /*! \brief Performs a parallel cube collision between the two particles.
    * 
    * Also works for bounce collisions inside wells/outside squareshoulders

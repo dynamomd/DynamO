@@ -65,6 +65,10 @@ public:
 					   const Iflt&, 
 					   const EEventType& eType) const;
 
+  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const CIntEvent&, const Iflt&, 
+						      const Iflt&,
+						      const EEventType&) const;
+
   virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, 
 			       Iflt&, const Iflt&, CPDData&) const;
 
@@ -103,8 +107,8 @@ public:
   virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
 
   //Structure Dynamics
-  virtual CNParticleData multibdyCollision(const CRange&, const CRange&, 
-					   const Iflt&, 
+  virtual CNParticleData multibdyCollision(const CRange&, const CRange&,
+					   const Iflt&,
 					   const EEventType&) const;
 
   virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
