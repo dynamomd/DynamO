@@ -30,7 +30,9 @@
 #include "../../dynamics/locals/oscillatingplate.hpp"
 
 COPPlateMotion::COPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"PlateMotion")
+  COPTicker(tmp,"PlateMotion"),
+  partpartEnergyLoss(0),
+  oldPlateEnergy(0)
 {
   operator<<(XML);
 }
@@ -38,7 +40,9 @@ COPPlateMotion::COPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
 COPPlateMotion::COPPlateMotion(const COPPlateMotion& cp):
   COPTicker(cp),
   plateID(cp.plateID),
-  plateName(cp.plateName)
+  plateName(cp.plateName),
+  partpartEnergyLoss(0),
+  oldPlateEnergy(0)
 {
   if (cp.logfile.is_open())
     cp.logfile.close();
@@ -64,17 +68,39 @@ COPPlateMotion::initialise()
 
   localEnergyLoss.resize(Sim->Dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
 
+  oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
+  partpartEnergyLoss = 0;
+
   ticker();
 }
 
 void 
 COPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
+  Iflt newPlateEnergy = oldPlateEnergy;
+
+  if (localEvent.getLocalID() == plateID)
+    newPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
+
+  Iflt EnergyChange(0);
+
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
-    localEnergyLoss[localEvent.getLocalID()].first += pData.getDeltaKE();  
+    EnergyChange += pData.getDeltaKE();  
   
   BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
-    localEnergyLoss[localEvent.getLocalID()].first += pData.particle1_.getDeltaKE()
+    EnergyChange += pData.particle1_.getDeltaKE() + pData.particle2_.getDeltaKE();
+  
+  localEnergyFlux[localEvent.getLocalID()].first += EnergyChange;
+
+  localEnergyLoss[localEvent.getLocalID()].first += EnergyChange + newPlateEnergy - oldPlateEnergy;
+
+  oldPlateEnergy = newPlateEnergy;
+}
+
+void 
+COPPlateMotion::eventUpdate(const CIntEvent&, const C2ParticleData& pData)
+{
+  partpartEnergyLoss += pData.particle1_.getDeltaKE()
     + pData.particle2_.getDeltaKE();
 }
 
@@ -89,7 +115,8 @@ COPPlateMotion::ticker()
 
   Vector com(0,0,0), momentum(0,0,0);
   Iflt sqmom(0);
-  
+  Iflt partEnergy(0.0);
+
   Iflt mass(0);
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
@@ -100,11 +127,13 @@ COPPlateMotion::ticker()
       sqmom += (vel | vel) * (pmass * pmass);
       com += pos * pmass;
       mass += pmass;
+      partEnergy += pmass * vel.nrm2();
     }
   
   com /= (mass * Sim->Dynamics.units().unitLength());
   Vector comvel = momentum / (mass * Sim->Dynamics.units().unitVelocity());
   
+  partEnergy *= 0.5;
 
   const CLOscillatingPlate& plate(*dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr()));
 
@@ -119,7 +148,12 @@ COPPlateMotion::ticker()
 	  << " " << plateSpeed[0] << " " << plateSpeed[1] << " " << plateSpeed[2]
 	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->Dynamics.units().unitMomentum(),2))
 	  << " " << plate.getPlateEnergy() / Sim->Dynamics.units().unitEnergy()
+	  << " " << partEnergy / Sim->Dynamics.units().unitEnergy() 
+	  << " " << (plate.getPlateEnergy() + partEnergy) / Sim->Dynamics.units().unitEnergy()
+	  << " " << partpartEnergyLoss  * Sim->Dynamics.units().unitTime() / (getTickerTime() * Sim->Dynamics.units().unitEnergy())
 	  << "\n";
+  
+  partpartEnergyLoss = 0.0;
 }
 
 void 

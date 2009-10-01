@@ -42,6 +42,8 @@ class COPPlateMotion: public COPTicker
   
   virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
 
+  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+
   virtual void output(xmlw::XmlStream&);
 
  protected:
@@ -49,7 +51,10 @@ class COPPlateMotion: public COPTicker
   size_t plateID;
   std::string plateName;
   typedef std::pair<Iflt,std::vector<Iflt> > localEntry;
+  std::vector<localEntry> localEnergyFlux;
   std::vector<localEntry> localEnergyLoss;
+  Iflt partpartEnergyLoss;
+  Iflt oldPlateEnergy;
 
 };
 
