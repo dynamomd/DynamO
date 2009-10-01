@@ -67,6 +67,7 @@ COPPlateMotion::initialise()
   logfile.open("plateMotion.out", std::ios::out|std::ios::trunc);
 
   localEnergyLoss.resize(Sim->Dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
+  localEnergyFlux.resize(Sim->Dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
 
   oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
   partpartEnergyLoss = 0;
@@ -172,14 +173,27 @@ COPPlateMotion::output(xmlw::XmlStream& XML)
 {
   for (size_t ID(0); ID < localEnergyLoss.size(); ++ID)
     {
-      std::fstream of((Sim->Dynamics.getLocals()[ID]->getName() 
+      {
+	std::fstream of((Sim->Dynamics.getLocals()[ID]->getName() 
 		       + std::string("EnergyLoss.out")).c_str(), 
 		      std::ios::out | std::ios::trunc);
       
-      size_t step(0);
-      Iflt deltat(getTickerTime() / Sim->Dynamics.units().unitTime());
-
-      BOOST_FOREACH(const Iflt& val, localEnergyLoss[ID].second)
-	of << deltat * (step++) << " " << val /Sim->Dynamics.units().unitEnergy() << "\n";
+	size_t step(0);
+	Iflt deltat(getTickerTime() / Sim->Dynamics.units().unitTime());
+	
+	BOOST_FOREACH(const Iflt& val, localEnergyLoss[ID].second)
+	  of << deltat * (step++) << " " << val / (deltat *  Sim->Dynamics.units().unitEnergy()) << "\n";
+      }
+      {
+	std::fstream of((Sim->Dynamics.getLocals()[ID]->getName() 
+			 + std::string("EnergyFlux.out")).c_str(), 
+			std::ios::out | std::ios::trunc);
+	
+	size_t step(0);
+	Iflt deltat(getTickerTime() / Sim->Dynamics.units().unitTime());
+	
+	BOOST_FOREACH(const Iflt& val, localEnergyFlux[ID].second)
+	  of << deltat * (step++) << " " << val / (deltat * Sim->Dynamics.units().unitEnergy()) << "\n";
+      }
     }
 }
