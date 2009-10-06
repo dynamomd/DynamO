@@ -152,7 +152,8 @@ CIPPacker::initialise()
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
 	"  9: Crystal pack of lines\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-        "       --f1 : Inelasticity [1.0]\n"
+	"		--i2 : Scheduler type [0] (O:NeighbourList; 1:Dumb for high density)\n"
+	"       --f1 : Inelasticity [1.0]\n"
 	"  10: Monocomponent hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
@@ -914,20 +915,27 @@ CIPPacker::initialise()
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
       	
 	Sim->Dynamics.applyBC<CSPBC>();
-	  
+
 	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	if (vm.count("i2"))
+	{
+		Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
+	}
+	else
+	{
+		Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+
+		Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	}
 
 	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
 
-	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-
 	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
   
-  Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
+	Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
 
 	Sim->Dynamics.addInteraction(new CILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
