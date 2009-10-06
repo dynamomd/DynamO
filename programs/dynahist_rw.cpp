@@ -1,6 +1,6 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2008  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -538,7 +538,7 @@ void solveWeightsRollerPiecemeal()
 int
 main(int argc, char *argv[])
 {
-  std::cout << "dynahist_rw  Copyright (C) 2008  Marcus N Campbell Bannerman\n"
+  std::cout << "dynahist_rw  Copyright (C) 2009  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
