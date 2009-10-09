@@ -55,59 +55,49 @@ CIPConfig::initialise()
   if (!boost::filesystem::exists(fileName))
     D_throw() << "Could not open XML configuration file";
 
-#ifndef DYNAMO_CONDOR
-  io::filtering_istream inputFile;
-  
-  if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-    {
-      I_cout() << "Bzip compressed XML input file " << fileName << " loading";
-      inputFile.push(io::bzip2_decompressor());
-    }
-  else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
-    I_cout() << "Uncompressed XML input file " << fileName << " loading";
-  else
-    D_throw() << "Unrecognized extension for input files";
-  
-  inputFile.push(io::file_source(fileName));
-  std::cout.flush();
-
-#else
-  if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-    D_throw() << "Cannot load a compressed file when built for condor!";
-  else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
-    I_cout() << "Uncompressed XML input file " << fileName << " loading";
-  else
-    D_throw() << "Unrecognized extension for input files";
-  
-  std::ifstream inputFile(fileName.c_str());
-  std::cout.flush();
-#endif
-  //Copy file to a string
-  std::string line, fileString;
+  //This scopes out the file objects
   {
-    bool foundEOXML(false);
-    while(getline(inputFile,line))
-      {
-	if (line.find("AppendedBinaryData", 0) != std::string::npos) 
-	  {
-	    foundEOXML = true;
-	    fileString.append("</DYNAMOconfig>\n");
-	    break;
-	  }
-	
-	fileString.append(line);
-	fileString.append("\n");
-      }
+#ifndef DYNAMO_CONDOR
+    io::filtering_istream inputFile;
     
-    if (!foundEOXML) D_throw() << "Could not find the AppendedBinaryData tag";
+    if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
+      {
+	I_cout() << "Bzip compressed XML input file " << fileName << " loading";
+	inputFile.push(io::bzip2_decompressor());
+      }
+    else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
+      I_cout() << "Uncompressed XML input file " << fileName << " loading";
+    else
+      D_throw() << "Unrecognized extension for input files";
+    
+    inputFile.push(io::file_source(fileName));
+#else
+    if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
+      D_throw() << "Cannot load a compressed file when built for condor!";
+    else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
+      I_cout() << "Uncompressed XML input file " << fileName << " loading";
+    else
+      D_throw() << "Unrecognized extension for input files";
+    
+    std::ifstream inputFile(fileName.c_str());
+#endif
+    std::cout.flush();
+    
+    //Copy file to a string
+    std::string fileString; //The file is loaded into this
+    std::string line;
+    {
+      while(getline(inputFile,line))
+	fileString.append(line + "\n");
+    }
+
+    I_cout() << "File loaded, parsing XML";
+    std::cout.flush();  
+
+    XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
+    xMainNode = tmpNode.getChildNode("DYNAMOconfig");
   }
-  
-  I_cout() << "File loaded, parsing XML";
-  std::cout.flush();
-  
-  XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
-  
-  xMainNode = tmpNode.getChildNode("DYNAMOconfig");
+
 
   {
     std::string version(xMainNode.getAttribute("version"));
@@ -156,7 +146,7 @@ CIPConfig::initialise()
 
   xSubNode = xMainNode.getChildNode("ParticleData");
 
-  Sim->Dynamics.Liouvillean().loadParticleXMLData(xSubNode, inputFile);
+  Sim->Dynamics.Liouvillean().loadParticleXMLData(xMainNode);
   
   //Fixes or conversions once system is loaded
   Sim->lastRunMFT *= Sim->Dynamics.units().unitTime();

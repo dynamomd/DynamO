@@ -46,9 +46,7 @@ public:
 
   virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
 
-  virtual void loadParticleXMLData(const XMLNode&, std::istream&);
-
-  virtual void outputParticleBin64Data(std::ostream&) const;
+  virtual void loadParticleXMLData(const XMLNode&);
 
   virtual void outputParticleXMLData(xmlw::XmlStream&) const;
 
@@ -82,10 +80,6 @@ public:
 protected:
 
   virtual void outputXML(xmlw::XmlStream&) const;
-
-  //! \brief Helper function for writing out data
-  template<class T>  void binarywrite(std::ostream&, const T&) const;
-  template<class T>  void binaryread(std::istream&, T&) const;
 
   virtual void streamParticle(CParticle&, const Iflt&) const;
   

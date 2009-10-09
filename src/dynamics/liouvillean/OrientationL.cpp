@@ -32,6 +32,7 @@
 #include "shapes/frenkelroot.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
+#include "../../extcode/binaryHelper.hpp"
 
 void 
 CLNOrientation::initialise() 
@@ -239,26 +240,33 @@ CLNOrientation::initLineOrientations(const Iflt& length)
 }
 
 void 
-CLNOrientation::loadParticleXMLData(const XMLNode& XML, std::istream& os)
+CLNOrientation::loadParticleXMLData(const XMLNode& XML)
 {
   I_cout() << "Loading Particle Data ";
-  fflush(stdout);
-  if (XML.isAttributeSet("AttachedBinary")
-      && (std::toupper(XML.getAttribute("AttachedBinary")[0]) == 'Y'))
+  std::cout.flush();
+
+  XMLNode xSubNode = XML.getChildNode("ParticleData");
+
+  if (xSubNode.isAttributeSet("AttachedBinary")
+      && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
     {
-      if (!XML.isAttributeSet("OrientationDataInc")
-	  || (std::toupper(XML.getAttribute("OrientationDataInc")[0]) == 'N'))
+      if (!xSubNode.isAttributeSet("OrientationDataInc")
+	  || (std::toupper(xSubNode.getAttribute("OrientationDataInc")[0]) == 'N'))
 	D_throw() << "Orientation data is not present in the binary data,"
 		  << " cannot load using this liouvillean.";
 
       Sim->binaryXML = true;
-      unsigned long nPart = boost::lexical_cast<unsigned long>(XML.getAttribute("N"));
+      unsigned long nPart = boost::lexical_cast<unsigned long>(xSubNode.getAttribute("N"));
       boost::progress_display prog(nPart);
       boost::iostreams::filtering_istream base64Convertor;
       
       base64Convertor.push(boost::iostreams::base64_decoder());
       base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
-      base64Convertor.push(boost::iostreams::stream_source<std::istream>(os));
+
+      {
+	const char* start = XML.getChildNode("AppendedBinaryData").getText();
+	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
+      }
 
       orientationData.resize(nPart);
 
@@ -297,7 +305,7 @@ CLNOrientation::loadParticleXMLData(const XMLNode& XML, std::istream& os)
     {
       int xml_iter = 0;
       
-      unsigned long nPart = XML.nChildNode("Pt");
+      unsigned long nPart = xSubNode.nChildNode("Pt");
       boost::progress_display prog(nPart);
       bool outofsequence = false;  
       
@@ -305,7 +313,7 @@ CLNOrientation::loadParticleXMLData(const XMLNode& XML, std::istream& os)
       
       for (unsigned long i = 0; i < nPart; ++i)
 	{
-	  XMLNode xBrowseNode = XML.getChildNode("Pt", &xml_iter);
+	  XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
 	  
 	  if (boost::lexical_cast<unsigned long>
 	      (xBrowseNode.getAttribute("ID")) != i)
@@ -342,75 +350,67 @@ CLNOrientation::loadParticleXMLData(const XMLNode& XML, std::istream& os)
     }  
 }
 
-//! \brief Helper function for writing out data
-template<class T>
-void 
-CLNOrientation::binarywrite(std::ostream& os, const T& val ) const
-{
-  os.write(reinterpret_cast<const char*>(&val), sizeof(T));
-}
-
-template<class T>
-void 
-CLNOrientation::binaryread(std::istream& os, T& val) const
-{
-  os.read(reinterpret_cast<char*>(&val), sizeof(T));
-}
-
-void 
-CLNOrientation::outputParticleBin64Data(std::ostream& os) const
-{
-  if (!Sim->binaryXML)
-    return;
-  
-  
-  boost::iostreams::filtering_ostream base64Convertor;
-  base64Convertor.push(boost::iostreams::base64_encoder());
-  base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
-  base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(os));
-  
-  boost::progress_display prog(Sim->lN);
-
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    {
-      CParticle tmp(part);
-      Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
-      
-      tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
-      tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
-
-      binarywrite(base64Convertor, tmp.getID());
-
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	binarywrite(base64Convertor, tmp.getVelocity()[iDim]);
-
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	binarywrite(base64Convertor, tmp.getPosition()[iDim]);
-
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	binarywrite(base64Convertor, orientationData[part.getID()].orientation[iDim]);
-      
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	binarywrite(base64Convertor, orientationData[part.getID()].angularVelocity[iDim]);
-
-      ++prog;
-    }
-}
-
 void 
 CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::tag("ParticleData")
-      << xmlw::attr("N") << Sim->lN
-      << xmlw::attr("AttachedBinary") << (Sim->binaryXML ? "Y" : "N")
-      << xmlw::attr("OrientationDataInc") << "Y";
+  if (Sim->binaryXML)
+    { 
+      XML << xmlw::tag("ParticleData")
+	  << xmlw::attr("N") << Sim->lN
+	  << xmlw::attr("AttachedBinary") << "Y"
+	  << xmlw::attr("OrientationDataInc") << "Y"
+	  << xmlw::endtag("ParticleData")
+	  << xmlw::tag("AppendedBinaryData")
+	  << xmlw::chardata();
 
-  if (!Sim->binaryXML)
-    {      
+     
+      {//have to scope out the iostream writes before closing the XML
+	boost::iostreams::filtering_ostream base64Convertor;
+	base64Convertor.push(boost::iostreams::base64_encoder());
+	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
+	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
+	
+	boost::progress_display prog(Sim->lN);
+	
+	BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	  {
+	    CParticle tmp(part);
+	    Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
+	    
+	    tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
+	    tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
+	    
+	    binarywrite(base64Convertor, tmp.getID());
+	    
+	    for (size_t iDim(0); iDim < NDIM; ++iDim)
+	      binarywrite(base64Convertor, tmp.getVelocity()[iDim]);
+	    
+	    for (size_t iDim(0); iDim < NDIM; ++iDim)
+	      binarywrite(base64Convertor, tmp.getPosition()[iDim]);
+	    
+	    for (size_t iDim(0); iDim < NDIM; ++iDim)
+	      binarywrite(base64Convertor, orientationData[part.getID()].orientation[iDim]);
+	    
+	    for (size_t iDim(0); iDim < NDIM; ++iDim)
+	      binarywrite(base64Convertor, orientationData[part.getID()].angularVelocity[iDim]);
+	    
+	    ++prog;
+	  }
+      }
+
+      XML << "\n" << xmlw::endtag("AppendedBinaryData");
+    }
+  else
+    {
+      XML << xmlw::tag("ParticleData")
+	  << xmlw::attr("N") << Sim->lN
+	  << xmlw::attr("AttachedBinary") << "N"
+	  << xmlw::attr("OrientationDataInc") << "Y";
+      
       I_cout() << "Writing Particles ";
       
       boost::progress_display prog(Sim->lN);
-
+      
       for (unsigned long i = 0; i < Sim->lN; ++i)
 	{
 	  CParticle tmp(Sim->vParticleList[i]);
@@ -420,7 +420,7 @@ CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
 	  
 	  XML << xmlw::tag("Pt") << tmp; 
-
+	  
 	  XML << xmlw::tag("O") 
 	      << orientationData[i].angularVelocity
 	      << xmlw::endtag("O")
@@ -431,9 +431,8 @@ CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  
 	  ++prog;
 	}
+      XML << xmlw::endtag("ParticleData");
     }
-
-  XML << xmlw::endtag("ParticleData");
 }
 
 size_t 

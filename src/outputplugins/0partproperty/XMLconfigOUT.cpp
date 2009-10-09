@@ -51,7 +51,7 @@ void
 COPConfig::output(xmlw::XmlStream &XML)
 {  
   Sim->Dynamics.Liouvillean().updateAllParticles();
-  
+
   XML << std::scientific
     //This has a minus one due to the digit in front of the decimal
     //An extra one is added if we're rounding
@@ -85,13 +85,7 @@ COPConfig::output(xmlw::XmlStream &XML)
 
   Sim->Dynamics.Liouvillean().outputParticleXMLData(XML);
 
-  XML << xmlw::tag("AppendedBinaryData")
-      << xmlw::chardata();
-
-  Sim->Dynamics.Liouvillean().outputParticleBin64Data(XML.getUnderlyingStream());
-  XML << "\n" 
-      << xmlw::endtag("AppendedBinaryData")
-      << xmlw::endtag("DYNAMOconfig");
+  XML << xmlw::endtag("DYNAMOconfig");
 
   I_cout() << "Configuration written out";
 }
@@ -99,7 +93,6 @@ COPConfig::output(xmlw::XmlStream &XML)
 void 
 COPConfig::fileOutput(const char *fileName)
 {
-
 #ifndef DYNAMO_CONDOR
   namespace io = boost::iostreams;
 
@@ -111,6 +104,8 @@ COPConfig::fileOutput(const char *fileName)
       coutputFile.push(io::file_sink(fileName));
       
       xmlw::XmlStream XML(coutputFile);
+
+      XML.setFormatXML(true);
       output(XML);
     }
   else
@@ -118,8 +113,9 @@ COPConfig::fileOutput(const char *fileName)
     {
       std::ofstream coutputFile(fileName, std::ios::out | std::ios::trunc);
       xmlw::XmlStream XML(coutputFile);
+      XML.setFormatXML(true);
       output(XML);
-    }    
+    }
 }
 
 void 

@@ -80,14 +80,7 @@ public:
   /*! \brief Parses the XML data to see if it can load XML particle
    * data or if it needs to decode the binary data. Then loads the particle data.
    */
-  virtual void loadParticleXMLData(const XMLNode&, std::istream&);
-
-  
-  /*! \brief Writes base64 encoded binary particle data to the output
-   * stream passed.
-   */
-  virtual void outputParticleBin64Data(std::ostream&) const;
-
+  virtual void loadParticleXMLData(const XMLNode&);
   
   /*! \brief Writes the XML particle data, either the base64 header or
    * the entire XML form.
@@ -659,10 +652,6 @@ protected:
 
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(CParticle& part, const Iflt& dt) const = 0;
-
-  //! \brief Helper function for writing out data
-  template<class T>  void binarywrite(std::ostream&, const T&) const;
-  template<class T>  void binaryread(std::istream&, T&) const;
 
 };
 #endif
