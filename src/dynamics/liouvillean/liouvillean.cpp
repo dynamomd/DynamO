@@ -81,12 +81,8 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML)
       && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
     {
 #ifndef DYNAMO_CONDOR
-      if (xSubNode.isAttributeSet("OrientationDataInc")
-	  && (std::toupper(xSubNode.getAttribute("OrientationDataInc")[0]) == 'Y'))
-	D_throw() << "Orientation data is present in the binary data,"
-		  << " cannot load using this liouvillean.";
-	
       Sim->binaryXML = true;
+
       unsigned long nPart 
 	= boost::lexical_cast<unsigned long>(xSubNode.getAttribute("N"));
 
@@ -98,7 +94,7 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML)
       base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
       
       {
-	const char* start = XML.getChildNode("AppendedBinaryData").getText();
+	const char* start = XML.getChildNode("AppendedBinaryVelPos").getText();
 	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
       }
 
@@ -127,7 +123,7 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML)
 	  Sim->vParticleList.push_back(CParticle(pos, vel, ID));
 
 	  ++prog;
-	}      
+	}
 #else
       D_throw() << "Cannot use appended binary data in Condor executables!";
 #endif
@@ -159,7 +155,9 @@ CLiouvillean::loadParticleXMLData(const XMLNode& XML)
 		 << IC_red << "This can result in incorrect capture map loads etc.\n"
 		 << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
 		 << IC_reset;            
-    }  
+    }
+  Sim->lN = Sim->vParticleList.size();
+  I_cerr() << "Particle count " << Sim->lN;
 }
 
 void 
@@ -170,9 +168,8 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
       XML << xmlw::tag("ParticleData")
 	  << xmlw::attr("N") << Sim->lN
 	  << xmlw::attr("AttachedBinary") << "Y"
-	  << xmlw::attr("OrientationDataInc") << "N"
 	  << xmlw::endtag("ParticleData")
-	  << xmlw::tag("AppendedBinaryData")
+	  << xmlw::tag("AppendedBinaryVelPos")
 	  << xmlw::chardata();
 
       {//have to scope out the iostream writes before closing the XML
@@ -203,14 +200,13 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  }
       }
 
-      XML << "\n" << xmlw::endtag("AppendedBinaryData");
+      XML << "\n" << xmlw::endtag("AppendedBinaryVelPos");
     }
   else
     {
       XML << xmlw::tag("ParticleData")
 	  << xmlw::attr("N") << Sim->lN
-	  << xmlw::attr("AttachedBinary") << ("N")
-	  << xmlw::attr("OrientationDataInc") << "N";
+	  << xmlw::attr("AttachedBinary") << ("N");
 
       I_cout() << "Writing Particles ";
       
@@ -224,13 +220,19 @@ CLiouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
 	  tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
 	  
-	  XML << xmlw::tag("Pt") << tmp << xmlw::endtag("Pt");
-	  
+	  XML << xmlw::tag("Pt") << tmp;
+
+	  extraXMLParticleData(XML, i);
+
+	  XML << xmlw::endtag("Pt");
+
 	  ++prog;
 	}
+
       XML << xmlw::endtag("ParticleData");
     }
 
+  extraXMLData(XML);
 }
 
 Iflt 

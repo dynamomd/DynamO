@@ -48,9 +48,6 @@ public:
 
   virtual void loadParticleXMLData(const XMLNode&);
 
-  virtual void outputParticleXMLData(xmlw::XmlStream&) const;
-
-
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
 				    const CParticle& p1, const CParticle& p2
 				    ) const;
@@ -78,6 +75,10 @@ public:
   void initLineOrientations(const Iflt&);
 
 protected:
+
+  virtual void extraXMLParticleData(xmlw::XmlStream&, const size_t) const;
+
+  virtual void extraXMLData(xmlw::XmlStream&) const;
 
   virtual void outputXML(xmlw::XmlStream&) const;
 

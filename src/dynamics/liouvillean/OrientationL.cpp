@@ -242,91 +242,50 @@ CLNOrientation::initLineOrientations(const Iflt& length)
 void 
 CLNOrientation::loadParticleXMLData(const XMLNode& XML)
 {
-  I_cout() << "Loading Particle Data ";
-  std::cout.flush();
+  CLiouvillean::loadParticleXMLData(XML);
 
-  XMLNode xSubNode = XML.getChildNode("ParticleData");
-
-  if (xSubNode.isAttributeSet("AttachedBinary")
-      && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
+  if (XML.getChildNode("ParticleData").isAttributeSet("AttachedBinary")
+      && (std::toupper(XML.getChildNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
     {
-      if (!xSubNode.isAttributeSet("OrientationDataInc")
-	  || (std::toupper(xSubNode.getAttribute("OrientationDataInc")[0]) == 'N'))
-	D_throw() << "Orientation data is not present in the binary data,"
-		  << " cannot load using this liouvillean.";
-
-      Sim->binaryXML = true;
-      unsigned long nPart = boost::lexical_cast<unsigned long>(xSubNode.getAttribute("N"));
-      boost::progress_display prog(nPart);
-      boost::iostreams::filtering_istream base64Convertor;
-      
+      boost::progress_display prog(Sim->lN);
+      boost::iostreams::filtering_istream base64Convertor;	  
       base64Convertor.push(boost::iostreams::base64_decoder());
       base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
-
+      
       {
-	const char* start = XML.getChildNode("AppendedBinaryData").getText();
+	const char* start = XML.getChildNode("AppendedBinaryOrientation").getText();
 	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
       }
-
-      orientationData.resize(nPart);
-
-      for (unsigned long i = 0; i < nPart; ++i)
+      
+      orientationData.resize(Sim->lN);
+      
+      for (unsigned long i = 0; i < Sim->lN; ++i)
 	{
-	  unsigned long ID;
-	  Vector  vel;
-	  Vector  pos;
-	  
-	  binaryread(base64Convertor, ID);
-
-	  if (i != ID) 
-	    D_throw() << "Binary data corruption detected, id's don't match";
-
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    binaryread(base64Convertor, vel[iDim]);
-	  
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    binaryread(base64Convertor, pos[iDim]);
-
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, orientationData[i].orientation[iDim]);
-
+	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, orientationData[i].angularVelocity[iDim]);
 	  
-	  vel *= Sim->Dynamics.units().unitVelocity();
-	  pos *= Sim->Dynamics.units().unitLength();
-	  
-	  Sim->vParticleList.push_back(CParticle(pos, vel, ID));
-
 	  ++prog;
-	}      
+	}
     }
   else
     {
+      XMLNode xSubNode = XML.getChildNode("ParticleData");
       int xml_iter = 0;
       
-      unsigned long nPart = xSubNode.nChildNode("Pt");
-      boost::progress_display prog(nPart);
-      bool outofsequence = false;  
+      boost::progress_display prog(Sim->lN);
       
-      orientationData.resize(nPart);
+      orientationData.resize(Sim->lN);
       
-      for (unsigned long i = 0; i < nPart; ++i)
+      for (unsigned long i = 0; i < Sim->lN; ++i)
 	{
 	  XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
 	  
-	  if (boost::lexical_cast<unsigned long>
-	      (xBrowseNode.getAttribute("ID")) != i)
-	    outofsequence = true;
-	  
-	  CParticle part(xBrowseNode, i);
-	  part.scaleVelocity(Sim->Dynamics.units().unitVelocity());
-	  part.scalePosition(Sim->Dynamics.units().unitLength());
-	  Sim->vParticleList.push_back(part);
-
 	  orientationData[i].orientation << xBrowseNode.getChildNode("U");
 	  orientationData[i].angularVelocity << xBrowseNode.getChildNode("O");
-
+	  
 	  Iflt oL = orientationData[i].orientation.nrm();
 	  
 	  if (!(oL > 0.0))
@@ -338,33 +297,29 @@ CLNOrientation::loadParticleXMLData(const XMLNode& XML)
 	  
 	  ++prog;
 	}
-
-      if (outofsequence)
-	I_cout() << IC_red 
-		 << "Particle ID's out of sequence!\n"
-		 << IC_red 
-		 << "This can result in incorrect capture map loads etc.\n"
-		 << IC_red 
-		 << "Erase any capture maps in the configuration file so they are regenerated."
-		 << IC_reset;            
-    }  
+    }
 }
 
 void 
-CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
+CLNOrientation::extraXMLParticleData(xmlw::XmlStream& XML, const size_t ID) const
+{
+  XML << xmlw::tag("O")
+      << orientationData[ID].angularVelocity
+      << xmlw::endtag("O")
+      << xmlw::tag("U")
+      << orientationData[ID].orientation
+      << xmlw::endtag("U") ;
+}
+
+void 
+CLNOrientation::extraXMLData(xmlw::XmlStream& XML) const
 {
   if (Sim->binaryXML)
-    { 
-      XML << xmlw::tag("ParticleData")
-	  << xmlw::attr("N") << Sim->lN
-	  << xmlw::attr("AttachedBinary") << "Y"
-	  << xmlw::attr("OrientationDataInc") << "Y"
-	  << xmlw::endtag("ParticleData")
-	  << xmlw::tag("AppendedBinaryData")
+    {
+      XML << xmlw::tag("AppendedBinaryOrientation")
 	  << xmlw::chardata();
-
-     
-      {//have to scope out the iostream writes before closing the XML
+      
+      {
 	boost::iostreams::filtering_ostream base64Convertor;
 	base64Convertor.push(boost::iostreams::base64_encoder());
 	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
@@ -374,20 +329,6 @@ CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 	
 	BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
 	  {
-	    CParticle tmp(part);
-	    Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
-	    
-	    tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
-	    tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
-	    
-	    binarywrite(base64Convertor, tmp.getID());
-	    
-	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      binarywrite(base64Convertor, tmp.getVelocity()[iDim]);
-	    
-	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      binarywrite(base64Convertor, tmp.getPosition()[iDim]);
-	    
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      binarywrite(base64Convertor, orientationData[part.getID()].orientation[iDim]);
 	    
@@ -398,40 +339,7 @@ CLNOrientation::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  }
       }
 
-      XML << "\n" << xmlw::endtag("AppendedBinaryData");
-    }
-  else
-    {
-      XML << xmlw::tag("ParticleData")
-	  << xmlw::attr("N") << Sim->lN
-	  << xmlw::attr("AttachedBinary") << "N"
-	  << xmlw::attr("OrientationDataInc") << "Y";
-      
-      I_cout() << "Writing Particles ";
-      
-      boost::progress_display prog(Sim->lN);
-      
-      for (unsigned long i = 0; i < Sim->lN; ++i)
-	{
-	  CParticle tmp(Sim->vParticleList[i]);
-	  Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
-	  
-	  tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
-	  tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
-	  
-	  XML << xmlw::tag("Pt") << tmp; 
-	  
-	  XML << xmlw::tag("O") 
-	      << orientationData[i].angularVelocity
-	      << xmlw::endtag("O")
-	      << xmlw::tag("U")
-	      << orientationData[i].orientation
-	      << xmlw::endtag("U")
-	      << xmlw::endtag("Pt");
-	  
-	  ++prog;
-	}
-      XML << xmlw::endtag("ParticleData");
+      XML << "\n" << xmlw::endtag("AppendedBinaryOrientation");
     }
 }
 

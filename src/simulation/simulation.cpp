@@ -170,8 +170,6 @@ CSimulation::initialise()
   if (status != CONFIG_LOADED)
     D_throw() << "Sim initialised at wrong time";
 
-  lN = vParticleList.size();
-  
   I_cout() << "Initialising Components";  
 
   if (ptrScheduler == NULL)

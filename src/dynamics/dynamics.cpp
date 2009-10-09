@@ -288,12 +288,14 @@ CDynamics::initialise()
     
     if (tot < Sim->lN)
       D_throw() << "The particle count according to the species definition is too low\n"
-		<< "discrepancy = " << tot - Sim->lN;
+		<< "discrepancy = " << tot - Sim->lN
+		<< "\nN = " << Sim->lN;
     
     if (tot > Sim->lN)
       D_throw() << "The particle count according to the species definition is too high\n"
-		<< "discrepancy = " << tot - Sim->lN;
-  }
+		<< "discrepancy = " << tot - Sim->lN
+		<< "\nN = " << Sim->lN;
+ }
 
   p_liouvillean->initialise();
 

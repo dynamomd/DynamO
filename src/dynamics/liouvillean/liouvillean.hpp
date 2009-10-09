@@ -85,7 +85,7 @@ public:
   /*! \brief Writes the XML particle data, either the base64 header or
    * the entire XML form.
    */
-  virtual void outputParticleXMLData(xmlw::XmlStream&) const;
+  void outputParticleXMLData(xmlw::XmlStream&) const;
 
   /*! \brief Returns the degrees of freedom per particle.
    */
@@ -649,6 +649,10 @@ protected:
   
   /*! \brief Writes out the liouvilleans data to XML. */
   virtual void outputXML(xmlw::XmlStream&) const = 0;
+
+  virtual void extraXMLParticleData(xmlw::XmlStream&, const size_t) const {}
+
+  virtual void extraXMLData(xmlw::XmlStream&) const {}
 
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(CParticle& part, const Iflt& dt) const = 0;

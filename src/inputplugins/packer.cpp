@@ -2036,6 +2036,8 @@ CIPPacker::initialise()
     default:
       D_throw() << "Did not recognise the packer mode you wanted";
     }
+
+  Sim->lN = Sim->vParticleList.size();
 }
 
 void 
