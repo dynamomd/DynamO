@@ -206,7 +206,7 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 }
 
 CLNewton::CLNewton(DYNAMO::SimData* tmp):
-  CLiouvillean(tmp)
+  Liouvillean(tmp)
 {}
 
 void

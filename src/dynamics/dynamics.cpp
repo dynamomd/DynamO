@@ -436,7 +436,7 @@ CDynamics::operator<<(const XMLNode& XML)
 		      (CSpecies::getClass(xSubNode.getChildNode("Species",i),Sim,i)));
   
   xSubNode = xDynamics.getChildNode("Liouvillean");
-  p_liouvillean.set_ptr(CLiouvillean::loadClass(xSubNode,Sim));  
+  p_liouvillean.set_ptr(Liouvillean::loadClass(xSubNode,Sim));  
   
   xSubNode = xDynamics.getChildNode("Interactions");
   for (long i=0; i < xSubNode.nChildNode("Interaction"); i++)
@@ -598,5 +598,5 @@ CDynamics::setUnits(CUnits* Uptr)
 { p_units.set_ptr(Uptr); }
 
 void 
-CDynamics::setLiouvillean(CLiouvillean* Uptr) 
+CDynamics::setLiouvillean(Liouvillean* Uptr) 
 { p_liouvillean.set_ptr(Uptr); }

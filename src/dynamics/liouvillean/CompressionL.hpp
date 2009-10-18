@@ -35,7 +35,7 @@ public:
 
   virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
   
-  virtual CLiouvillean* Clone() const { return new CLCompression(*this); };
+  virtual Liouvillean* Clone() const { return new CLCompression(*this); };
 
   Iflt getGrowthRate() const { return growthRate; }
 

@@ -24,11 +24,11 @@
 #include "../../inputplugins/compression.hpp"
 
 /*! \brief This CEngine compresses a configuration using the
- * CLCompression CLiouvillean.
+ * CLCompression Liouvillean.
  *
  * This is essentially a CESingle but with some extra steps to load
- * the compression CLiouvillean at the start and then to restore the
- * old CLiouvillean at the end.
+ * the compression Liouvillean at the start and then to restore the
+ * old Liouvillean at the end.
  */
 class CECompressor: public CESingle
 {

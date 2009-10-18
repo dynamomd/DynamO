@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLiouvillean_H
-#define CLiouvillean_H
+#ifndef Liouvillean_H
+#define Liouvillean_H
 
 #include "../../base/is_base.hpp"
 #include "../eventtypes.hpp"
@@ -60,17 +60,17 @@ class CVector;
  * particles being tested.
  */
 
-class CLiouvillean: public DYNAMO::SimBase
+class Liouvillean: public DYNAMO::SimBase
 {
 public:  
-  CLiouvillean(DYNAMO::SimData* tmp):
+  Liouvillean(DYNAMO::SimData* tmp):
     SimBase(tmp,"FreeStream", IC_blue),
     partPecTime(0.0),
     streamCount(0),
     streamFreq(1)
   {};
 
-  virtual ~CLiouvillean() {}
+  virtual ~Liouvillean() {}
   
   virtual void initialise() 
   {
@@ -523,12 +523,12 @@ public:
 
   /*! \brief A method to allow polymorphic classes to be copied
    */
-  virtual CLiouvillean* Clone() const = 0;
+  virtual Liouvillean* Clone() const = 0;
 
   /*! \brief An XML output operator for the class. Calls the virtual
    * OutputXML member function.
    */
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CLiouvillean&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Liouvillean&);
 
   /*! \brief This is called by each particle to request any extra data
    *   the liouvillean is holding and wants to store in the particles XML.
@@ -537,7 +537,7 @@ public:
   /*! \brief Instantiates and loads CLiovillean classes from an XML
    * entry.
    */
-  static CLiouvillean* loadClass(const XMLNode& ,DYNAMO::SimData*);
+  static Liouvillean* loadClass(const XMLNode& ,DYNAMO::SimData*);
     
   /*! \brief Free streams all particles up to the current time.
    * 

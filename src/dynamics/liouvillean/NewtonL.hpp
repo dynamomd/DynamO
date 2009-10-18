@@ -21,7 +21,7 @@
 #include "liouvillean.hpp"
 
 
-class CLNewton: public CLiouvillean
+class CLNewton: public Liouvillean
 {
 public:
   CLNewton(DYNAMO::SimData*);
@@ -116,7 +116,7 @@ public:
 					   EEventType&) const;
 
   //Cloning
-  virtual CLiouvillean* Clone() const { return new CLNewton(*this); }
+  virtual Liouvillean* Clone() const { return new CLNewton(*this); }
 
   virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
 					  const Iflt& e, 

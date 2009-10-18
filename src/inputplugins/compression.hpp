@@ -23,13 +23,13 @@
 
 #include "inputplugin.hpp"
 
-class CLiouvillean;
+class Liouvillean;
 
 /*! \brief A plugin to change a simulation to compression dynamics and
  * back again.
  * 
  * This class came about as when a simulation is being compressed its
- * dynamics, or more specifically its CLiouvillean, is replaced with
+ * dynamics, or more specifically its Liouvillean, is replaced with
  * the CLCompression liouvilean. This stores the old liouvillean and
  * also provides several helpful plugins to hack parts of the system
  * into co-operating with the compression like the cellular scheduler.
@@ -49,7 +49,7 @@ class CIPCompression: public CInputPlugin
    */  
   void MakeGrowth();
   
-  /*! \brief Restores the old CLiouvillean stored in oldLio.
+  /*! \brief Restores the old Liouvillean stored in oldLio.
    */
   void RestoreSystem();  
 
@@ -84,9 +84,9 @@ private:
    */
   Iflt growthRate;
   
-  /*! \brief The old CLiouvillean of the simulation.
+  /*! \brief The old Liouvillean of the simulation.
    */
-  CLiouvillean* oldLio;
+  Liouvillean* oldLio;
   
   /*! \brief Stores a cell overlap parameter of the cellular scheduler
    * to be restored later.

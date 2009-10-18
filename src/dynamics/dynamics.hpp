@@ -37,7 +37,7 @@ class CTopology;
 class CParticle;
 template<class T>
 class CVector;
-class CLiouvillean;
+class Liouvillean;
 class XMLNode;
 class CNParticleData;
 class C2ParticleData;
@@ -61,7 +61,7 @@ public:
   
   void setUnits(CUnits*);
 
-  void setLiouvillean(CLiouvillean*);
+  void setLiouvillean(Liouvillean*);
 
   CInteraction* addInteraction(CInteraction*);
 
@@ -157,10 +157,10 @@ public:
   inline const CBC& BCs() const 
   { return *p_BC; }
 
-  inline const CLiouvillean& getLiouvillean() const
+  inline const Liouvillean& getLiouvillean() const
   { return *p_liouvillean; }
 
-  inline  CLiouvillean& getLiouvillean()
+  inline  Liouvillean& getLiouvillean()
   { return *p_liouvillean; }
 
   template<class T>
@@ -198,7 +198,7 @@ public:
   std::vector<smrtPlugPtr<CTopology> > topology;
   std::vector<smrtPlugPtr<CSpecies> > species;
   smrtPlugPtr<CBC> p_BC;
-  smrtPlugPtr<CLiouvillean> p_liouvillean;
+  smrtPlugPtr<Liouvillean> p_liouvillean;
   mutable smrtPlugPtr<CUnits> p_units;
 };
 

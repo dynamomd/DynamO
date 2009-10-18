@@ -75,7 +75,7 @@ public:
    *
    * This is if the engine needs to change its state before shutting
    * down.  
-   * E.g. the CECompressor needs to change the CLiouvillean
+   * E.g. the CECompressor needs to change the Liouvillean
    * back to the old one.
    */
   virtual void finaliseRun() = 0;

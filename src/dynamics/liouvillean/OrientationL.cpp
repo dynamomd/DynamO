@@ -37,7 +37,7 @@
 void 
 CLNOrientation::initialise() 
 {
-  CLiouvillean::initialise();
+  Liouvillean::initialise();
 
   Iflt sumEnergy(0.0);
 
@@ -242,7 +242,7 @@ CLNOrientation::initLineOrientations(const Iflt& length)
 void 
 CLNOrientation::loadParticleXMLData(const XMLNode& XML)
 {
-  CLiouvillean::loadParticleXMLData(XML);
+  Liouvillean::loadParticleXMLData(XML);
 
   if (XML.getChildNode("ParticleData").isAttributeSet("AttachedBinary")
       && (std::toupper(XML.getChildNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))

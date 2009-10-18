@@ -21,7 +21,7 @@
 #include "liouvillean.hpp"
 
 
-class CLSLLOD: public CLiouvillean
+class CLSLLOD: public Liouvillean
 {
 public:
   CLSLLOD(DYNAMO::SimData*);
@@ -79,7 +79,7 @@ public:
 
   virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
 
-  virtual CLiouvillean* Clone() const { return new CLSLLOD(*this); }
+  virtual Liouvillean* Clone() const { return new CLSLLOD(*this); }
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;

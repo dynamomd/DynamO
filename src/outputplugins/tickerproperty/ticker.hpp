@@ -23,8 +23,8 @@
 /*! \brief An output plugin marker class for periodically 'ticked'
  * plugins, ticked by the CSTicker class.
  *
- * This class doesn't require any CLiouvillean::updateParticle or
- * CLiouvillean::updateAllParticles as this is done in the CSTicker
+ * This class doesn't require any Liouvillean::updateParticle or
+ * Liouvillean::updateAllParticles as this is done in the CSTicker
  * class. This is optimal as most ticker plugins need it anyway
  */
 class COPTicker: public COutputPlugin

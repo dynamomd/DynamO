@@ -28,7 +28,7 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 
 CLSLLOD::CLSLLOD(DYNAMO::SimData* tmp):
-  CLiouvillean(tmp)
+  Liouvillean(tmp)
 {}
 
 void

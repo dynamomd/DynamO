@@ -44,7 +44,7 @@ public:
 
   virtual void initialise();
 
-  virtual CLiouvillean* Clone() const { return new CLNOrientation(*this); }
+  virtual Liouvillean* Clone() const { return new CLNOrientation(*this); }
 
   virtual void loadParticleXMLData(const XMLNode&);
 

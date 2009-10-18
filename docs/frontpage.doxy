@@ -21,8 +21,13 @@
  * Katzgraber et
  * al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
  *
+ * - dynavmd (bin/dynavmd) - A script to render a single
+ * configuration using Povray. A complete viewer however it is quite
+ * slow for large/complex systems as it tries to render a professional
+ * image.
+ *
  * - dynaview (bin/dynaview) - A simple script to render a single
- * configuration using Geomview. The most complete viewer however it
+ * configuration using Geomview. A complete viewer however it
  * is quite slow for large systems.
  *
  * - dynavmd (bin/dynavmd) - A simple script to render a single
