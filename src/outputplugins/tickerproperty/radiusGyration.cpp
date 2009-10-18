@@ -66,11 +66,11 @@ COPRGyration::operator<<(const XMLNode& XML)
 void 
 COPRGyration::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>
 			       (plugPtr.get_ptr()), 
-			       binwidth1 * Sim->Dynamics.units().unitArea(), binwidth2, binwidth3));
+			       binwidth1 * Sim->dynamics.units().unitArea(), binwidth2, binwidth3));
 }
 
 void 
@@ -107,7 +107,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
   molGyrationDat retVal;
   retVal.MassCentre = Vector (0,0,0);
 
-  Iflt totmass = Sim->Dynamics.getSpecies(Sim->vParticleList[*(range->begin())]).getMass();
+  Iflt totmass = Sim->dynamics.getSpecies(Sim->vParticleList[*(range->begin())]).getMass();
   std::vector<Vector> relVecs;
   relVecs.reserve(range->size());
   relVecs.push_back(Vector(0,0,0));
@@ -118,14 +118,14 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
       Vector currRelPos = Sim->vParticleList[*iPtr].getPosition() 
 	- Sim->vParticleList[*(iPtr - 1)].getPosition();
 
-      Sim->Dynamics.BCs().applyBC(currRelPos);
+      Sim->dynamics.BCs().applyBC(currRelPos);
 
       relVecs.push_back(currRelPos + relVecs.back());
 
       retVal.MassCentre += relVecs.back() 
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
+	* Sim->dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
 
-      totmass += Sim->Dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
+      totmass += Sim->dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
     }
 
   retVal.MassCentre /= totmass;
@@ -342,7 +342,7 @@ COPRGyration::output(xmlw::XmlStream& XML)
 	  << xmlw::tag("GyrationRadii");
       
       for (size_t i = 0; i< NDIM; i++)
-	dat.gyrationRadii.at(i).outputHistogram(XML,1.0/Sim->Dynamics.units().unitArea());
+	dat.gyrationRadii.at(i).outputHistogram(XML,1.0/Sim->dynamics.units().unitArea());
 
       XML << xmlw::endtag("GyrationRadii")
 	  << xmlw::tag("NematicOrderParameter");

@@ -44,7 +44,7 @@ COPCContactMap::COPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 COPCContactMap::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			     plugPtr->getMolecules().front()->size()));
@@ -58,7 +58,7 @@ COPCContactMap::changeSystem(COutputPlugin* COPPlug)
   BOOST_FOREACH(Cdata& dat, chains)
     {
       try {
-	const CTopology* tmpPtr = Sim->Dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
+	const CTopology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
 	dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
       } catch (std::exception&)
 	{
@@ -86,7 +86,7 @@ COPCContactMap::ticker()
 	    {
 	      const CParticle& part2 = Sim->vParticleList[(*range)[j]];
 
-	      BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, Sim->Dynamics.getInteractions())
+	      BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, Sim->dynamics.getInteractions())
 		if (ptr->isInteraction(part1,part2))
 		  if (dynamic_cast<const CICapture*>(ptr.get_ptr()) != NULL)
 		    if (static_cast<const CICapture*>(ptr.get_ptr())

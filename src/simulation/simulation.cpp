@@ -66,7 +66,7 @@ CSimulation::setTickerPeriod(Iflt nP)
   if (ptr == NULL)
     D_throw() << "Could not find system ticker (maybe not required?)";
 
-  ptr->setTickerPeriod(nP*Dynamics.units().unitTime());
+  ptr->setTickerPeriod(nP * dynamics.units().unitTime());
 }
 
 void 
@@ -83,7 +83,7 @@ CSimulation::scaleTickerPeriod(Iflt nP)
 CSystem* 
 CSimulation::getSystem(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr, Dynamics.getSystemEvents())
+  BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr, dynamics.getSystemEvents())
     if (sysPtr->getName() == name)
       return sysPtr.get_ptr();
   
@@ -99,7 +99,7 @@ CSimulation::addGlobal(CGlobal* tmp)
   if (status != CONFIG_LOADED)
     D_throw() << "Cannot add global events now its initialised";
 
-  Dynamics.addGlobal(tmp);
+  dynamics.addGlobal(tmp);
 }
 
 void 
@@ -111,7 +111,7 @@ CSimulation::addSystem(CSystem* tmp)
   if (status != CONFIG_LOADED)
     D_throw() << "Cannot add system events now it is initialised";
 
-  Dynamics.addSystem(tmp);
+  dynamics.addSystem(tmp);
 }
 
 void 
@@ -165,7 +165,7 @@ CSimulation::initialise()
       }
 
   if (needTicker)
-    Dynamics.addSystemTicker();
+    dynamics.addSystemTicker();
 
   if (status != CONFIG_LOADED)
     D_throw() << "Sim initialised at wrong time";
@@ -175,8 +175,8 @@ CSimulation::initialise()
   if (ptrScheduler == NULL)
     D_throw() << "The scheduler has not been set!";      
   
-  I_cout() << "Initialising the Dynamics";
-  Dynamics.initialise();
+  I_cout() << "Initialising the dynamics";
+  dynamics.initialise();
 
   Ensemble->initialise();
     
@@ -367,4 +367,4 @@ CSimulation::outputData(const char* filename, bool uncompressed)
 
 lIflt 
 CSimulation::getSysTime()
-{ return dSysTime / Dynamics.units().unitTime(); }
+{ return dSysTime / dynamics.units().unitTime(); }

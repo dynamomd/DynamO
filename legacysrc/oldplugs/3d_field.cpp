@@ -55,12 +55,12 @@ COP3DField::collisionUpdate(const CIntEvent &collision,
 	{
 	  Vector  position = Part.getPosition();
 
-	  Sim->Dynamics.BCs().setPBC(position);
+	  Sim->dynamics.BCs().setPBC(position);
 	  //Samples
 	  SampleCounter[position]++;
 
 	  //Velocity Vectors
-	  Velocity[position] += Sim->Dynamics.getLabVelocity(Part);
+	  Velocity[position] += Sim->dynamics.getLabVelocity(Part);
 	  
 	  //Density field
 	  Density[position] += 1.0;

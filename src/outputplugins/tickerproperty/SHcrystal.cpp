@@ -39,7 +39,7 @@ void
 COPSHCrystal::initialise() 
 { 
   double smallestlength = HUGE_VAL;
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->Dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->dynamics.getGlobals())
     if (dynamic_cast<const CGNeighbourList*>(pGlob.get_ptr()) != NULL)
       {
 	const Iflt l(static_cast<const CGNeighbourList*>(pGlob.get_ptr())
@@ -54,7 +54,7 @@ COPSHCrystal::initialise()
 
   if (nblistID == std::numeric_limits<size_t>::max())
     D_throw() << "There is not a suitable neighbourlist for the cut-off radius selected."
-      "\nR_g = " << rg / Sim->Dynamics.units().unitLength();
+      "\nR_g = " << rg / Sim->dynamics.units().unitLength();
 
   globalcoeff.resize(maxl);
   for (size_t l=0; l < maxl; ++l)
@@ -71,7 +71,7 @@ COPSHCrystal::ticker()
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       static_cast<const CGNeighbourList*>
-	(Sim->Dynamics.getGlobals()[nblistID].get_ptr())
+	(Sim->dynamics.getGlobals()[nblistID].get_ptr())
 	->getParticleNeighbourhood
 	(part, CGNeighbourList::getNBDelegate
 	 (&sphericalsum::operator(), &ssum));
@@ -132,13 +132,13 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 void 
 COPSHCrystal::operator<<(const XMLNode& XML)
 {
-  rg *= Sim->Dynamics.units().unitLength();
+  rg *= Sim->dynamics.units().unitLength();
 
   try
     {
       if (XML.isAttributeSet("CutOffR"))
 	rg = boost::lexical_cast<Iflt>(XML.getAttribute("CutOffR"))
-	  * Sim->Dynamics.units().unitLength();
+	  * Sim->dynamics.units().unitLength();
 
       if (XML.isAttributeSet("MaxL"))
 	maxl = boost::lexical_cast<size_t>(XML.getAttribute("MaxL"));
@@ -149,7 +149,7 @@ COPSHCrystal::operator<<(const XMLNode& XML)
     }
 
   I_cout() << "Cut off radius of " 
-	   << rg / Sim->Dynamics.units().unitLength();
+	   << rg / Sim->dynamics.units().unitLength();
 }
 
 COPSHCrystal::sphericalsum::sphericalsum
@@ -166,7 +166,7 @@ COPSHCrystal::sphericalsum::operator()
   (const CParticle& part, const size_t& ID) const
 {
   Vector rij = part.getPosition() - Sim->vParticleList[ID].getPosition();
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   
   Iflt norm = rij.nrm();
   if (norm <= rg)

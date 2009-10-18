@@ -48,5 +48,5 @@ COPOverlapTest::ticker()
        iPtr != Sim->vParticleList.end(); ++iPtr)
     for (std::vector<CParticle>::const_iterator jPtr = iPtr + 1;
 	 jPtr != Sim->vParticleList.end(); ++jPtr)
-      Sim->Dynamics.getInteraction(*iPtr, *jPtr)->checkOverlaps(*iPtr, *jPtr);
+      Sim->dynamics.getInteraction(*iPtr, *jPtr)->checkOverlaps(*iPtr, *jPtr);
 }

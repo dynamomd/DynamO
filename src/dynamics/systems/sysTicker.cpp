@@ -27,7 +27,7 @@ CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
   CSystem(nSim)
 {
   if (nPeriod <= 0.0)
-    nPeriod = Sim->Dynamics.units().unitTime();
+    nPeriod = Sim->dynamics.units().unitTime();
 
   dt = nPeriod;
   period = nPeriod;
@@ -35,7 +35,7 @@ CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
   sysName = nName;
 
   I_cout() << "System ticker set for a peroid of " 
-	   << nPeriod / Sim->Dynamics.units().unitTime();
+	   << nPeriod / Sim->dynamics.units().unitTime();
 }
 
 void
@@ -54,7 +54,7 @@ CSTicker::runEvent() const
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
   
   dt += period;
   
@@ -62,7 +62,7 @@ CSTicker::runEvent() const
   Sim->freestreamAcc = 0;
 
   //This is done here as most ticker properties require it
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
   {
     COPTicker* ptr = NULL;
@@ -85,20 +85,20 @@ CSTicker::initialise(size_t nID)
 void 
 CSTicker::setdt(Iflt ndt)
 { 
-  dt = ndt * Sim->Dynamics.units().unitTime(); 
+  dt = ndt * Sim->dynamics.units().unitTime(); 
 }
 
 void 
 CSTicker::increasedt(Iflt ndt)
 { 
-  dt += ndt * Sim->Dynamics.units().unitTime(); 
+  dt += ndt * Sim->dynamics.units().unitTime(); 
 }
 
 void 
 CSTicker::setTickerPeriod(const Iflt& nP)
 { 
   I_cout() << "Setting system ticker period to " 
-	   << nP / Sim->Dynamics.units().unitTime();
+	   << nP / Sim->dynamics.units().unitTime();
 
   period = nP; 
 

@@ -25,16 +25,16 @@ namespace EventTypeTracking {
   switch (key.second)
     {
     case INTERACTION:
-      return Sim->Dynamics.getInteractions()[key.first]->getName();
+      return Sim->dynamics.getInteractions()[key.first]->getName();
       break;
     case GLOBAL:
-      return Sim->Dynamics.getGlobals()[key.first]->getName();
+      return Sim->dynamics.getGlobals()[key.first]->getName();
       break;
     case SYSTEM:
-      return Sim->Dynamics.getSystemEvents()[key.first]->getName();
+      return Sim->dynamics.getSystemEvents()[key.first]->getName();
       break;
     case LOCAL:
-      return Sim->Dynamics.getLocals()[key.first]->getName();
+      return Sim->dynamics.getLocals()[key.first]->getName();
       break;
     default:
       D_throw() << "Collision matrix found an unknown event class";

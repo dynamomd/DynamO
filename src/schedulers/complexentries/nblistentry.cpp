@@ -49,7 +49,7 @@ void
 CSCENBList::initialise()
 {
   try {
-    nblistID = Sim->Dynamics.getGlobal(name)->getID();
+    nblistID = Sim->dynamics.getGlobal(name)->getID();
   }
   catch (std::exception& cep)
     {
@@ -58,10 +58,10 @@ CSCENBList::initialise()
 		<< "\n" << cep.what();
     }
 
-  if (dynamic_cast<const CGNeighbourList* const>(Sim->Dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
+  if (dynamic_cast<const CGNeighbourList* const>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
     D_throw() << "Global named " << name << " is not a CGNeighbourList";
   
-  static_cast<CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
+  static_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .markAsUsedInScheduler();				 
 }
 
@@ -76,7 +76,7 @@ CSCENBList::getParticleNeighbourhood(const CParticle& part,
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
 
-  static_cast<const CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
+  static_cast<const CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .getParticleNeighbourhood(part, func);
 }
 
@@ -91,7 +91,7 @@ CSCENBList::getParticleLocalNeighbourhood(const CParticle& part,
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
 
-  static_cast<const CGNeighbourList&>(*Sim->Dynamics.getGlobals()[nblistID])
+  static_cast<const CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .getParticleLocalNeighbourhood(part, func);
 }
 
@@ -101,7 +101,7 @@ CSCENBList::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "NeighbourList"
       << xmlw::attr("NBListName")
-      << Sim->Dynamics.getGlobals()[nblistID]->getName()
+      << Sim->dynamics.getGlobals()[nblistID]->getName()
       << range
     ;
 }

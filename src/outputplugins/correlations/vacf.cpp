@@ -39,12 +39,12 @@ COPVACF::initialise()
 
   G.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
 
-  accG2.resize(Sim->Dynamics.getSpecies().size());
+  accG2.resize(Sim->dynamics.getSpecies().size());
 
   BOOST_FOREACH(std::vector<Vector  >& listref, accG2)
     listref.resize(CorrelatorLength, Vector (0,0,0));
 
-  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
 void 
@@ -57,11 +57,11 @@ COPVACF::operator<<(const XMLNode& XML)
 	  (XML.getAttribute("Length"));
 
       if (XML.isAttributeSet("dt"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
@@ -129,8 +129,8 @@ COPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 void 
 COPVACF::newG(const C1ParticleData& PDat)
 {
-  if (Sim->Dynamics.liouvilleanTypeTest<CLSLLOD>())
-    Sim->Dynamics.getLiouvillean().updateAllParticles();
+  if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
   for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
@@ -210,25 +210,25 @@ COPVACF::newG(const CNParticleData& PDat)
 void 
 COPVACF::output(xmlw::XmlStream& XML)
 {
-  Iflt factor = Sim->Dynamics.units().unitTime() 
-    / (Sim->Dynamics.units().unitDiffusion() * count);
+  Iflt factor = Sim->dynamics.units().unitTime() 
+    / (Sim->dynamics.units().unitDiffusion() * count);
 
   for (size_t i = 0; i < accG2.size(); ++i)
     {
-      Iflt specCount = Sim->Dynamics.getSpecies()[i]->getCount();
+      Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
 
       Vector  acc = 0.5*(accG2[i].front() + accG2[i].back());
       
       for (size_t j = 1; j < accG2[i].size() - 1; ++j)
 	acc += accG2[i][j];
       
-      acc *= factor * dt / (Sim->Dynamics.units().unitTime() * specCount);
+      acc *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
       XML << xmlw::tag("Correlator")
 	  << xmlw::attr("name") << "VACF"
-	  << xmlw::attr("species") << Sim->Dynamics.getSpecies()[i]->getName()
+	  << xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
 	  << xmlw::attr("size") << accG2.size()
-	  << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
+	  << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
 	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size() 
 	/ Sim->getOutputPlugin<COPMisc>()->getMFT()
 	  << xmlw::attr("simFactor") << factor / specCount
@@ -239,7 +239,7 @@ COPVACF::output(xmlw::XmlStream& XML)
             
       for (size_t j = 0; j < accG2[i].size(); ++j)
 	{
-	  XML << j * dt / Sim->Dynamics.units().unitTime();
+	  XML << j * dt / Sim->dynamics.units().unitTime();
 	  for (size_t iDim = 0; iDim < NDIM; iDim++)
 	    XML << "\t" << accG2[i][j][iDim] * factor / specCount;
 	  XML << "\n";
@@ -258,7 +258,7 @@ COPVACF::getdt()
       if (Sim->lastRunMFT != 0.0)
 	return Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   else 
     return dt;
@@ -269,7 +269,7 @@ COPVACF::accPass()
 {
   ++count;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     for (size_t j = 0; j < CorrelatorLength; ++j)
       for (size_t iDim(0); iDim < NDIM; ++iDim)

@@ -77,7 +77,7 @@ COPCollisionCorrelator::output(xmlw::XmlStream &XML)
 
   XML << xmlw::tag("CollisionCorrelator");
   
-  freetimehist.outputHistogram(XML, 1.0/Sim->Dynamics.units().unitTime());
+  freetimehist.outputHistogram(XML, 1.0/Sim->dynamics.units().unitTime());
 
   XML << xmlw::endtag("CollisionCorrelator");
 }

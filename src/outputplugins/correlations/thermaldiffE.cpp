@@ -62,11 +62,11 @@ COPThermalDiffusionE::operator<<(const XMLNode& XML)
 	  (XML.getAttribute("Length"));
       
       if (XML.isAttributeSet("dt"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
@@ -78,7 +78,7 @@ COPThermalDiffusionE::operator<<(const XMLNode& XML)
 void 
 COPThermalDiffusionE::initialise()
 {
-  species1 = Sim->Dynamics.getSpecies(species1name).getID();
+  species1 = Sim->dynamics.getSpecies(species1name).getID();
 
   try {
     dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
@@ -104,29 +104,29 @@ COPThermalDiffusionE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
   Iflt sysMass = 0.0;
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
 
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      constDelG += part.getVelocity () * Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(part);
-      sysMom += part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass();
+      constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
+      sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
       
-      if (Sim->Dynamics.getSpecies(part).getID() == species1)
+      if (Sim->dynamics.getSpecies(part).getID() == species1)
 	constDelGsp1 += part.getVelocity();
     }
 
-  constDelGsp1 *= Sim->Dynamics.getSpecies()[species1]->getMass();
+  constDelGsp1 *= Sim->dynamics.getSpecies()[species1]->getMass();
   
-  massFracSp1 = Sim->Dynamics.getSpecies()[species1]->getCount() 
-    * Sim->Dynamics.getSpecies()[species1]->getMass() / sysMass;
+  massFracSp1 = Sim->dynamics.getSpecies()[species1]->getCount() 
+    * Sim->dynamics.getSpecies()[species1]->getMass() / sysMass;
 
-  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
 inline void 
@@ -135,7 +135,7 @@ COPThermalDiffusionE::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt/Sim->Dynamics.units().unitTime()
+      << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") 
       << dt * accG2.size() / Sim->getOutputPlugin<COPMisc>()->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor()
@@ -146,7 +146,7 @@ COPThermalDiffusionE::output(xmlw::XmlStream &XML)
   
   for (size_t i = 0; i < accG2.size(); ++i)
     {
-      XML   << (1+i) * dt / Sim->Dynamics.units().unitTime()
+      XML   << (1+i) * dt / Sim->dynamics.units().unitTime()
 	    << "\t ";
       
       for (size_t j=0;j<NDIM;j++)
@@ -163,12 +163,12 @@ Iflt
 COPThermalDiffusionE::rescaleFactor() 
 { 
   return 1.0
-    / (Sim->Dynamics.units().unitTime() 
+    / (Sim->dynamics.units().unitTime() 
        // /\ /\ This line should be 1 however we have scaled the
        //correlator time as well
-       * Sim->Dynamics.units().unitThermalDiffusion() * 2.0 
+       * Sim->dynamics.units().unitThermalDiffusion() * 2.0 
        * count * Sim->getOutputPlugin<COPKEnergy>()->getAvgkT()
-       * Sim->Dynamics.units().simVolume());
+       * Sim->dynamics.units().simVolume());
 }
 
 void 
@@ -256,7 +256,7 @@ COPThermalDiffusionE::updateConstDelG(const C2ParticleData& PDat)
 void 
 COPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat) 
 {
-  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());

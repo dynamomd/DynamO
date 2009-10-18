@@ -44,7 +44,7 @@ CGPBCSentinel::initialise(size_t nID)
 {
   ID=nID;
   
-  maxintdist = Sim->Dynamics.getLongestInteraction();
+  maxintdist = Sim->dynamics.getLongestInteraction();
   
   cachedTimes.resize(Sim->lN);
   
@@ -85,7 +85,7 @@ CGlobEvent
 CGPBCSentinel::getEvent(const CParticle& part) const
 {
   Iflt dt 
-    = Sim->Dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
+    = Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
     - (Sim->dSysTime - cachedTimes[part.getID()]);
  
   return CGlobEvent(part, dt, VIRTUAL, *this);
@@ -94,7 +94,7 @@ CGPBCSentinel::getEvent(const CParticle& part) const
 void 
 CGPBCSentinel::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
 
   CGlobEvent iEvent(getEvent(part));
 
@@ -112,7 +112,7 @@ CGPBCSentinel::runEvent(const CParticle& part) const
     
   Sim->ptrScheduler->stream(iEvent.getdt());
   
-  Sim->Dynamics.stream(iEvent.getdt());
+  Sim->dynamics.stream(iEvent.getdt());
 
   cachedTimes[part.getID()] = Sim->dSysTime;
 

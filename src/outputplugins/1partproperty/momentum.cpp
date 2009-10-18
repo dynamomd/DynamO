@@ -36,7 +36,7 @@ COPMomentum::initialise()
   accMomsq = Vector (0,0,0);
   sysMom = Vector (0,0,0);
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     sysMom += spec->getMass() * Sim->vParticleList[ID].getVelocity();
 }
@@ -61,13 +61,13 @@ COPMomentum::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("Momentum")
       << xmlw::tag("Current")
-      << sysMom / Sim->Dynamics.units().unitMomentum()
+      << sysMom / Sim->dynamics.units().unitMomentum()
       << xmlw::endtag("Current")
       << xmlw::tag("Avg") 
-      << accMom / (Sim->dSysTime * Sim->Dynamics.units().unitMomentum())
+      << accMom / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
       << xmlw::endtag("Avg")    
       << xmlw::tag("SqAvg") 
-      << accMomsq / (Sim->dSysTime * Sim->Dynamics.units().unitMomentum() * Sim->Dynamics.units().unitMomentum())
+      << accMomsq / (Sim->dSysTime * Sim->dynamics.units().unitMomentum() * Sim->dynamics.units().unitMomentum())
       << xmlw::endtag("SqAvg")
       << xmlw::endtag("Momentum");
 }

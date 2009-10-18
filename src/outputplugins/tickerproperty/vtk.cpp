@@ -57,7 +57,7 @@ COPVTK::initialise()
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      binWidth[iDim] *= Sim->Dynamics.units().unitLength();
+      binWidth[iDim] *= Sim->dynamics.units().unitLength();
 
       if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
 	D_throw() << "Your bin width is too large for the " << iDim 
@@ -90,7 +90,7 @@ COPVTK::initialise()
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     tmp +=boost::lexical_cast<std::string>
-      (binWidth[iDim]/Sim->Dynamics.units().unitLength()) + " ";
+      (binWidth[iDim]/Sim->dynamics.units().unitLength()) + " ";
   
   I_cout() << "Bin width " << tmp << ">";  
 }
@@ -101,7 +101,7 @@ COPVTK::getCellID(Vector  pos)
   size_t retval(0);
   size_t factor(1);
   
-  Sim->Dynamics.BCs().applyBC(pos);
+  Sim->dynamics.BCs().applyBC(pos);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
@@ -124,7 +124,7 @@ COPVTK::ticker()
       Vector  position = Part.getPosition(),
 	velocity = Part.getVelocity();
       
-      Sim->Dynamics.BCs().applyBC(position, velocity);
+      Sim->dynamics.BCs().applyBC(position, velocity);
       
       size_t id(getCellID(position));
 
@@ -133,11 +133,11 @@ COPVTK::ticker()
       
       //Velocity Vectors
       Momentum[id] += velocity 
-	* Sim->Dynamics.getSpecies(Part).getMass();
+	* Sim->dynamics.getSpecies(Part).getMass();
             
       //Energy Field
       mVsquared[id] += velocity.nrm2()
-	* Sim->Dynamics.getSpecies(Part).getMass();
+	* Sim->dynamics.getSpecies(Part).getMass();
     }
 }
 
@@ -161,13 +161,13 @@ COPVTK::output(xmlw::XmlStream& XML)
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << (Sim->aspectRatio[iDim] * (-0.5))
-      / Sim->Dynamics.units().unitLength()
+      / Sim->dynamics.units().unitLength()
 	<< " ";
   
   XML << xmlw::attr("Spacing");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    XML << binWidth[iDim] / Sim->Dynamics.units().unitLength() << " ";
+    XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
   
   XML << xmlw::tag("Piece")
       << xmlw::attr("Extent");
@@ -209,7 +209,7 @@ COPVTK::output(xmlw::XmlStream& XML)
 	//Nans are not tolerated by paraview
 	if (SampleCounter[id])	  
 	  XML << Momentum[id][iDim] 
-	    / (SampleCounter[id] * Sim->Dynamics.units().unitMomentum()) 
+	    / (SampleCounter[id] * Sim->dynamics.units().unitMomentum()) 
 	      << lb;
 	else
 	  XML << 0.0 << lb;
@@ -231,7 +231,7 @@ COPVTK::output(xmlw::XmlStream& XML)
     //Nans are not tolerated by paraview
     if (SampleCounter[id])
       XML << mVsquared[id] * 0.5 
-	/ (SampleCounter[id] * Sim->Dynamics.units().unitEnergy()) << lb;
+	/ (SampleCounter[id] * Sim->dynamics.units().unitEnergy()) << lb;
     else
       XML << 0.0 << lb;
 

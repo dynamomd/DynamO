@@ -44,15 +44,15 @@ void
 COPVelDist::initialise()
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    data[iDim].resize(Sim->Dynamics.getSpecies().size(), 
-		      C1DHistogram(Sim->Dynamics.units().unitVelocity() 
+    data[iDim].resize(Sim->dynamics.getSpecies().size(), 
+		      C1DHistogram(Sim->dynamics.units().unitVelocity() 
 				   * binWidth));
 }
 
 void 
 COPVelDist::ticker()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim][sp->getID()]
@@ -64,11 +64,11 @@ COPVelDist::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("VelDist");
   
-  for (size_t id = 0; id < Sim->Dynamics.getSpecies().size(); ++id)
+  for (size_t id = 0; id < Sim->dynamics.getSpecies().size(); ++id)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id]->getName();
+	  << Sim->dynamics.getSpecies()[id]->getName();
      
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	{
@@ -77,7 +77,7 @@ COPVelDist::output(xmlw::XmlStream& XML)
 	      << iDim;
 	  
 	  data[iDim][id].outputHistogram
-	    (XML, 1.0 / Sim->Dynamics.units().unitVelocity());
+	    (XML, 1.0 / Sim->dynamics.units().unitVelocity());
 	  
 	  XML << xmlw::endtag("Dimension");
 	}

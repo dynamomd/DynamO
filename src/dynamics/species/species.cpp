@@ -82,7 +82,7 @@ CSpecies::operator<<(const XMLNode& XML)
     
     try {
       mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"))
-	* Sim->Dynamics.units().unitMass();
+	* Sim->dynamics.units().unitMass();
       spName = XML.getAttribute("Name");
       intName = XML.getAttribute("IntName");
     } 
@@ -101,7 +101,7 @@ void
 CSpecies::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Mass") 
-      << mass / Sim->Dynamics.units().unitMass()
+      << mass / Sim->dynamics.units().unitMass()
       << xmlw::attr("Name") << spName
       << xmlw::attr("IntName") << intName
       << xmlw::attr("Type") << "Point"

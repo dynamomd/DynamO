@@ -43,12 +43,12 @@ CInputPlugin::rescaleVels(Iflt val)
 {
   I_cout() << "WARNING Rescaling kT to " << val;
   
-  Iflt currentkT(Sim->Dynamics.getLiouvillean().getkT()
-		 / Sim->Dynamics.units().unitEnergy());
+  Iflt currentkT(Sim->dynamics.getLiouvillean().getkT()
+		 / Sim->dynamics.units().unitEnergy());
 
   I_cout() << "Current kT " << currentkT;
 
-  Vector energy = Sim->Dynamics.getLiouvillean().getVectorSystemKineticEnergy();
+  Vector energy = Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy();
 
   Iflt avg  = energy[0];
 
@@ -60,16 +60,16 @@ CInputPlugin::rescaleVels(Iflt val)
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     energy[iDim] = sqrt(avg / energy[iDim]);
 
-  Sim->Dynamics.getLiouvillean().rescaleSystemKineticEnergy(energy);
+  Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(energy);
 
-  Sim->Dynamics.getLiouvillean().rescaleSystemKineticEnergy(val/ currentkT);
+  Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(val/ currentkT);
 }
 
 void 
 CInputPlugin::zeroMomentum()
 {
   I_cout() << "Zeroing Momentum";    
-  Sim->Dynamics.zeroMomentum(Sim->vParticleList);
+  Sim->dynamics.zeroMomentum(Sim->vParticleList);
 }
 
 void 
@@ -81,8 +81,8 @@ CInputPlugin::zeroCentreOfMass()
   Iflt totmass = 0.0;
   BOOST_FOREACH(CParticle& part, Sim->vParticleList)  
     {
-      totmass += Sim->Dynamics.getSpecies(part).getMass();
-      com += part.getPosition() * Sim->Dynamics.getSpecies(part).getMass();
+      totmass += Sim->dynamics.getSpecies(part).getMass();
+      com += part.getPosition() * Sim->dynamics.getSpecies(part).getMass();
     }
   com /= totmass;
   
@@ -95,12 +95,12 @@ CInputPlugin::setPackFrac(Iflt tmp)
 {
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  volume *= PI / (6 * (Sim->Dynamics.units().simVolume()));
+  volume *= PI / (6 * (Sim->dynamics.units().simVolume()));
 
-  Sim->Dynamics.rescaleLengths(pow(tmp/volume, 1.0/3.0) -1.0);
+  Sim->dynamics.rescaleLengths(pow(tmp/volume, 1.0/3.0) -1.0);
 }
 
 void 

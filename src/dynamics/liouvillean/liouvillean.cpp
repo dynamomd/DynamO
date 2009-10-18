@@ -117,8 +117,8 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, pos[iDim]);
 	  
-	  vel *= Sim->Dynamics.units().unitVelocity();
-	  pos *= Sim->Dynamics.units().unitLength();
+	  vel *= Sim->dynamics.units().unitVelocity();
+	  pos *= Sim->dynamics.units().unitLength();
 	  
 	  Sim->vParticleList.push_back(CParticle(pos, vel, ID));
 
@@ -145,8 +145,8 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	    outofsequence = true;
 	  
 	  CParticle part(xBrowseNode, i);
-	  part.scaleVelocity(Sim->Dynamics.units().unitVelocity());
-	  part.scalePosition(Sim->Dynamics.units().unitLength());
+	  part.scaleVelocity(Sim->dynamics.units().unitVelocity());
+	  part.scalePosition(Sim->dynamics.units().unitLength());
 	  Sim->vParticleList.push_back(part);
 	  ++prog;
 	}
@@ -184,10 +184,10 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
 	  {
 	    CParticle tmp(part);
-	    Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
+	    Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
 	    
-	    tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
-	    tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());	  
+	    tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
+	    tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());	  
 	    
 	    binarywrite(base64Convertor, tmp.getID());
 	    
@@ -216,10 +216,10 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
       for (unsigned long i = 0; i < Sim->lN; ++i)
 	{
 	  CParticle tmp(Sim->vParticleList[i]);
-	  Sim->Dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
+	  Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
 	  
-	  tmp.scaleVelocity(1.0 / Sim->Dynamics.units().unitVelocity());
-	  tmp.scalePosition(1.0 / Sim->Dynamics.units().unitLength());
+	  tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
+	  tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
 	  
 	  XML << xmlw::tag("Pt") << tmp;
 
@@ -239,13 +239,13 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 Iflt 
 Liouvillean::getParticleKineticEnergy(const CParticle& part) const
 {
-  return 0.5 * (part.getVelocity().nrm2()) * Sim->Dynamics.getSpecies(part).getMass();
+  return 0.5 * (part.getVelocity().nrm2()) * Sim->dynamics.getSpecies(part).getMass();
 }
 
 Vector  
 Liouvillean::getVectorParticleKineticEnergy(const CParticle& part) const
 {
-  Vector  tmp(0.5 * part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass());
+  Vector  tmp(0.5 * part.getVelocity() * Sim->dynamics.getSpecies(part).getMass());
 
   for (size_t i = 0; i < NDIM; ++i)
     tmp[i] *= part.getVelocity()[i];

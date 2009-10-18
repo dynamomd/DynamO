@@ -51,13 +51,13 @@ CGCellsShearing::initialise(size_t nID)
 {
   ID=nID;
   
-  if (dynamic_cast<const CLEBC *>(&(Sim->Dynamics.BCs())) == NULL)
+  if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
     D_throw() << "You cannot use the shearing neighbour list"
 	      << " in a system without Lees Edwards BC's";
 
   if (overlink != 1) D_throw() << "Cannot shear with overlinking yet";
 
-  reinitialise(Sim->Dynamics.getLongestInteraction());
+  reinitialise(Sim->dynamics.getLongestInteraction());
 }
 
 void
@@ -69,12 +69,12 @@ CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
 void 
 CGCellsShearing::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
 
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.getLiouvillean().
+  size_t cellDirection(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
 			cellDimension));
@@ -84,7 +84,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
   Vector  pos(part.getPosition() - cells[oldCell].origin), 
     vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().applyBC(pos, vel);
+  Sim->dynamics.BCs().applyBC(pos, vel);
 
   if ((cellDirection == 1) &&
       (cells[oldCell].coords[1] 
@@ -95,7 +95,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
       
       //Calculate the final x value
       //Time till transition, assumes the particle is up to date
-      Iflt dt = Sim->Dynamics.getLiouvillean().getSquareCellCollision2
+      Iflt dt = Sim->dynamics.getLiouvillean().getSquareCellCollision2
 	(part, cells[partCellData[part.getID()].cell].origin, 
 	 cellDimension);
      
@@ -109,7 +109,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	endCell -= cellCount[0] * (cellCount[1]-1);
 
       //Predict the position of the particle in the x dimension
-      Sim->Dynamics.getLiouvillean().advanceUpdateParticle(part, dt);
+      Sim->dynamics.getLiouvillean().advanceUpdateParticle(part, dt);
       Vector  tmpPos = part.getPosition();
 
       //This just ensures we wrap the image
@@ -119,11 +119,11 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	tmpPos[1] += 0.5 * cellDimension[1];
 
       //This rewinds the particle again
-      Sim->Dynamics.getLiouvillean().updateParticle(part);
+      Sim->dynamics.getLiouvillean().updateParticle(part);
 
       //Determine the x position (in cell coords) of the particle and
       //add it to the endCellID
-      Sim->Dynamics.BCs().applyBC(tmpPos, dt);
+      Sim->dynamics.BCs().applyBC(tmpPos, dt);
       endCell += int((tmpPos[0] + 0.5 * Sim->aspectRatio[0]) 
 		     / cellLatticeWidth[0]);
 
@@ -298,7 +298,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
     CVector<int> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
-	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  from <" 

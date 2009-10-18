@@ -118,9 +118,9 @@ CIPConfig::initialise()
   xBrowseNode = xSubNode.getChildNode("History");
   Sim->ssHistory << xBrowseNode.getText();
 
-  I_cout() << "Loading Dynamics";
+  I_cout() << "Loading dynamics";
 
-  Sim->Dynamics << xMainNode;
+  Sim->dynamics << xMainNode;
 
   I_cout() << "Loading Scheduler";
 
@@ -134,7 +134,7 @@ CIPConfig::initialise()
   else
     //Try and determine the Ensemble
     try {
-      Sim->Dynamics.getSystem("Thermostat");
+      Sim->dynamics.getSystem("Thermostat");
       Sim->Ensemble.reset(new DYNAMO::CENVT(Sim));
     }
     catch (std::exception&)
@@ -146,10 +146,10 @@ CIPConfig::initialise()
 
   xSubNode = xMainNode.getChildNode("ParticleData");
 
-  Sim->Dynamics.getLiouvillean().loadParticleXMLData(xMainNode);
+  Sim->dynamics.getLiouvillean().loadParticleXMLData(xMainNode);
   
   //Fixes or conversions once system is loaded
-  Sim->lastRunMFT *= Sim->Dynamics.units().unitTime();
+  Sim->lastRunMFT *= Sim->dynamics.units().unitTime();
 
   I_cout() << "Configuration loaded";
 }

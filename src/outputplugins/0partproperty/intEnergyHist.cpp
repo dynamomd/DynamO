@@ -53,7 +53,7 @@ void
 COPIntEnergyHist::initialise() 
 {
   ptrCOPEnergy = Sim->getOutputPlugin<COPUEnergy>();
-  intEnergyHist = C1DWeightHistogram(binwidth * Sim->Dynamics.units().unitEnergy());
+  intEnergyHist = C1DWeightHistogram(binwidth * Sim->dynamics.units().unitEnergy());
 }
 
 void 
@@ -94,6 +94,6 @@ void
 COPIntEnergyHist::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("EnergyHist");
-  intEnergyHist.outputClearHistogram(XML, Sim->Dynamics.units().unitEnergy());
+  intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
   XML << xmlw::endtag("EnergyHist");
 }

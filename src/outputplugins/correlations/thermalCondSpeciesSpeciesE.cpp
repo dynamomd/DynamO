@@ -46,11 +46,11 @@ COPThermalConductivitySpeciesSpeciesE::operator<<(const XMLNode& XML)
 	  (XML.getAttribute("Length"));
       
       if (XML.isAttributeSet("dt"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
@@ -63,7 +63,7 @@ COPThermalConductivitySpeciesSpeciesE::operator<<(const XMLNode& XML)
 void 
 COPThermalConductivitySpeciesSpeciesE::initialise()
 {
-  size_t Nsp(Sim->Dynamics.getSpecies().size());
+  size_t Nsp(Sim->dynamics.getSpecies().size());
   
   constDelG.resize(Nsp, Vector (0,0,0));
   
@@ -92,31 +92,31 @@ COPThermalConductivitySpeciesSpeciesE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& id, *spec->getRange())
     {
       const CParticle& part(Sim->vParticleList[id]);
       constDelG[spec->getID()] += part.getVelocity() 
-	* Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(part);
+	* Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
     }
   
-  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
 Iflt 
 COPThermalConductivitySpeciesSpeciesE::rescaleFactor() 
 { 
-  return Sim->Dynamics.units().unitk() 
+  return Sim->dynamics.units().unitk() 
     /(//This next line should be 1 however we have scaled the
       //correlator time as well
-      Sim->Dynamics.units().unitTime() 
-      * Sim->Dynamics.units().unitThermalCond() * 2.0 
+      Sim->dynamics.units().unitTime() 
+      * Sim->dynamics.units().unitThermalCond() * 2.0 
       * count * pow(Sim->getOutputPlugin<COPKEnergy>()->getAvgkT(), 2)
-      * Sim->Dynamics.units().simVolume());
+      * Sim->dynamics.units().simVolume());
 }
 
 void 
@@ -125,7 +125,7 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt/Sim->Dynamics.units().unitTime()
+      << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG2.size()
     / Sim->getOutputPlugin<COPMisc>()->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor()
@@ -133,7 +133,7 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
   
   Iflt factor = rescaleFactor();
 
-  size_t Nsp(Sim->Dynamics.getSpecies().size());
+  size_t Nsp(Sim->dynamics.getSpecies().size());
   
   for (size_t id1(0); id1 < Nsp; ++id1)
     for (size_t id2(0); id2 < Nsp; ++id2)      
@@ -145,7 +145,7 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
 
 	for (unsigned int i = 0; i < accG2.size(); i++)
 	  {
-	    XML << (1+i) * dt / Sim->Dynamics.units().unitTime()
+	    XML << (1+i) * dt / Sim->dynamics.units().unitTime()
 		<< "\t ";
 	    
 	    for (size_t j=0;j<NDIM;j++)
@@ -164,7 +164,7 @@ COPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
 void 
 COPThermalConductivitySpeciesSpeciesE::stream(const Iflt& edt)
 {
-  size_t Nsp(Sim->Dynamics.getSpecies().size());
+  size_t Nsp(Sim->dynamics.getSpecies().size());
   
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
@@ -257,7 +257,7 @@ COPThermalConductivitySpeciesSpeciesE::newG()
 {
   //This ensures the list stays at accumilator size
   
-  size_t Nsp(Sim->Dynamics.getSpecies().size());
+  size_t Nsp(Sim->dynamics.getSpecies().size());
   
   for (size_t id(0); id < Nsp; ++id)
     G[id].push_front(delG[id]);
@@ -278,7 +278,7 @@ COPThermalConductivitySpeciesSpeciesE::accPass()
 {
   ++count;
 
-  size_t Nsp(Sim->Dynamics.getSpecies().size());
+  size_t Nsp(Sim->dynamics.getSpecies().size());
   
   for (size_t id1(0); id1 < Nsp; ++id1)
     for (size_t id2(0); id2 < Nsp; ++id2)
@@ -313,7 +313,7 @@ COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const CNParticleData& nda
 void 
 COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C1ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG[PDat.getSpecies().getID()] += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
@@ -322,14 +322,14 @@ COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C1ParticleData& PDa
 void 
 COPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C2ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
+  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
-  constDelG[Sim->Dynamics.getSpecies(PDat.particle1_.getParticle()).getID()]
+  constDelG[Sim->dynamics.getSpecies(PDat.particle1_.getParticle()).getID()]
     += PDat.particle1_.getParticle().getVelocity() * p1E
     - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE());
   
-  constDelG[Sim->Dynamics.getSpecies(PDat.particle2_.getParticle()).getID()]
+  constDelG[Sim->dynamics.getSpecies(PDat.particle2_.getParticle()).getID()]
     += PDat.particle2_.getParticle().getVelocity() * p2E
     - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
 }

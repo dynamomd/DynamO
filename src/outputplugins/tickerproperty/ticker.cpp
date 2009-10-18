@@ -29,7 +29,7 @@ Iflt
 COPTicker::getTickerTime() const
 {
   try {
-    return dynamic_cast<const CSTicker&>(*Sim->Dynamics.getSystem("SystemTicker")).getPeriod();
+    return dynamic_cast<const CSTicker&>(*Sim->dynamics.getSystem("SystemTicker")).getPeriod();
   } catch (const std::bad_cast&)
     {
       D_throw() << "Could not upcast the SystemTicker system event to CSTicker, have you named a system as SystemTicker?";

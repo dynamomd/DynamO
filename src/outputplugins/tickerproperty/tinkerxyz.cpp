@@ -51,7 +51,7 @@ COPTinkerXYZ::printImage()
 
   std::vector<COPRGyration::molGyrationDat> gyrationData;
 
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	gyrationData.push_back(COPRGyration::getGyrationEigenSystem(range,Sim));	    
@@ -82,11 +82,11 @@ COPTinkerXYZ::printImage()
   BOOST_FOREACH (const CParticle& part, Sim->vParticleList)
     {
       tmpVec = part.getPosition();
-      Sim->Dynamics.BCs().applyBC(tmpVec);
+      Sim->dynamics.BCs().applyBC(tmpVec);
       of << "C ";
       for (size_t iDim = 0; iDim < NDIM; iDim++)
 	of << tmpVec[iDim] * 3.4 
-	  / Sim->Dynamics.units().unitLength() << " ";
+	  / Sim->dynamics.units().unitLength() << " ";
       of << "\n";
     }
 
@@ -113,10 +113,10 @@ COPTinkerXYZ::printImage()
   BOOST_FOREACH(const COPRGyration::molGyrationDat& mDat, gyrationData)
     {
       tmpVec = mDat.MassCentre;
-      Sim->Dynamics.BCs().applyBC(tmpVec);
+      Sim->dynamics.BCs().applyBC(tmpVec);
 
-      tmpVec2 = ((tmpVec/Sim->Dynamics.units().unitLength()) + 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
-      tmpVec =  ((tmpVec/Sim->Dynamics.units().unitLength()) - 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
+      tmpVec2 = ((tmpVec/Sim->dynamics.units().unitLength()) + 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
+      tmpVec =  ((tmpVec/Sim->dynamics.units().unitLength()) - 0.2 * mDat.EigenVec[NDIM-1]) * 3.4;
 
       obj_of << "5\n";
       for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -128,7 +128,7 @@ COPTinkerXYZ::printImage()
       obj_of << " 0.05 1.0 0.0 0.0\n";
     }
 
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	for (CRange::const_iterator iPtr = range->begin() + 1; iPtr != range->end(); ++iPtr)
@@ -138,18 +138,18 @@ COPTinkerXYZ::printImage()
 	    Vector  rij(pos1);
 	    rij -= pos2;
 	    
-	    Sim->Dynamics.BCs().applyBC(pos1);
+	    Sim->dynamics.BCs().applyBC(pos1);
 
-	    Sim->Dynamics.BCs().applyBC(pos2);
+	    Sim->dynamics.BCs().applyBC(pos2);
 
-	    Sim->Dynamics.BCs().applyBC(rij);	    	    
+	    Sim->dynamics.BCs().applyBC(rij);	    	    
 
 	    //Check theres no periodic wrap around, 1.01 is a fudge factor
 	    if ((pos1 - pos2).nrm2() < 1.01 * rij.nrm2())
 	      {
-		pos1 *= 3.4 / Sim->Dynamics.units().unitLength();
+		pos1 *= 3.4 / Sim->dynamics.units().unitLength();
 		
-		pos2 *= 3.4 / Sim->Dynamics.units().unitLength();
+		pos2 *= 3.4 / Sim->dynamics.units().unitLength();
 
 		obj_of << "5\n";
 		for (size_t iDim = 0; iDim < NDIM; iDim++)

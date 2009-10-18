@@ -47,11 +47,11 @@ CLocalEvent
 CLWall::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
-  return CLocalEvent(part, Sim->Dynamics.getLiouvillean().getWallCollision
+  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
 		     (part, vPosition, vNorm), WALL, *this);
 }
 
@@ -61,7 +61,7 @@ CLWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   ++Sim->lNColl;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runWallCollision
+  CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision
 		      (part, vNorm, e));
 
   Sim->signalParticleUpdate(EDat);
@@ -100,7 +100,7 @@ CLWall::operator<<(const XMLNode& XML)
     vNorm /= vNorm.nrm();
     xBrowseNode = XML.getChildNode("Origin");
     vPosition << xBrowseNode;
-    vPosition *= Sim->Dynamics.units().unitLength();
+    vPosition *= Sim->dynamics.units().unitLength();
   } 
   catch (boost::bad_lexical_cast &)
     {
@@ -120,7 +120,7 @@ CLWall::outputXML(xmlw::XmlStream& XML) const
       << vNorm
       << xmlw::endtag("Norm")
       << xmlw::tag("Origin")
-      << vPosition / Sim->Dynamics.units().unitLength()
+      << vPosition / Sim->dynamics.units().unitLength()
       << xmlw::endtag("Origin");
 }
 
@@ -128,17 +128,17 @@ void
 CLWall::write_povray_info(std::ostream& os) const
 {
   if (render)
-    os << "object { intersection { object { box { <-0.5, " << -0.5 * Sim->Dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->Dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
+    os << "object { intersection { object { box { <-0.5, " << -0.5 * Sim->dynamics.units().unitLength() << ", -0.5>, <0.5, " << -0.75 * Sim->dynamics.units().unitLength() << ", 0.5> } Point_At_Trans(<"
        << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
        <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
        << "box { <" 
-       << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
-       << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
-       << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+       << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
+       << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
+       << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
        << ">,"
-       << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
-       << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
-       << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+       << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
+       << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
+       << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
        << "> }\n"
        << "} pigment { Col_Glass_Bluish }   }\n";
 }

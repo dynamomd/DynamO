@@ -76,7 +76,7 @@ CSDSMCSpheres::runEvent() const
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
 
   dt = tstep;
 
@@ -116,7 +116,7 @@ CSDSMCSpheres::runEvent() const
       
       const CParticle& p2(Sim->vParticleList[p2id]);
       
-      Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
+      Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
       
       CPDData PDat;
       
@@ -125,13 +125,13 @@ CSDSMCSpheres::runEvent() const
       
       PDat.rij *= diameter / PDat.rij.nrm();
       
-      if (Sim->Dynamics.getLiouvillean().DSMCSpheresTest
+      if (Sim->dynamics.getLiouvillean().DSMCSpheresTest
 	  (p1, p2, maxprob, factor, PDat))
 	{
 	  ++Sim->lNColl;
 	 
 	  const C2ParticleData
-	    SDat(Sim->Dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	    SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
 	  Sim->signalParticleUpdate(SDat);
   
@@ -152,7 +152,7 @@ CSDSMCSpheres::initialise(size_t nID)
 
   factor = 4.0 * range2->size()
     * diameter * PI * chi * tstep 
-    / Sim->Dynamics.units().simVolume();
+    / Sim->dynamics.units().simVolume();
   
   if (maxprob == 0.0)
     {
@@ -178,7 +178,7 @@ CSDSMCSpheres::initialise(size_t nID)
 	  
 	  const CParticle& p2(Sim->vParticleList[p2id]);
 	  
-	  Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
+	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  
 	  CPDData PDat;
 	  
@@ -187,7 +187,7 @@ CSDSMCSpheres::initialise(size_t nID)
 	
 	  PDat.rij *= diameter / PDat.rij.nrm();
 	  
-	  Sim->Dynamics.getLiouvillean().DSMCSpheresTest(p1, p2, maxprob, 
+	  Sim->dynamics.getLiouvillean().DSMCSpheresTest(p1, p2, maxprob, 
 						      factor, PDat);
 	}
     }
@@ -211,14 +211,14 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
   
   try {
     tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
-      * Sim->Dynamics.units().unitTime();
+      * Sim->dynamics.units().unitTime();
     
     chi = boost::lexical_cast<Iflt>(XML.getAttribute("Chi"));
     
     sysName = XML.getAttribute("Name");
 
     diameter = boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"))
-      * Sim->Dynamics.units().unitLength();
+      * Sim->dynamics.units().unitLength();
 
     e = boost::lexical_cast<Iflt>(XML.getAttribute("Inelasticity"));
 
@@ -243,9 +243,9 @@ CSDSMCSpheres::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::tag("System")
       << xmlw::attr("Type") << "DSMCSpheres"
-      << xmlw::attr("tStep") << tstep / Sim->Dynamics.units().unitTime()
+      << xmlw::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
       << xmlw::attr("Chi") << chi
-      << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
       << xmlw::attr("Inelasticity") << e
       << xmlw::attr("Name") << sysName
       << xmlw::attr("MaxProbability") << maxprob

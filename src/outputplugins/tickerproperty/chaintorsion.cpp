@@ -36,12 +36,12 @@ COPCTorsion::COPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 COPCTorsion::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			       0.005, 0.005, 0.01));
 
-  if (!Sim->Dynamics.BCTypeTest<BCNone>())
+  if (!Sim->dynamics.BCTypeTest<BCNone>())
     D_throw() << "Can only use this plugin with Null BC's"
 	      << "\nPositions must be unwrapped";
 }

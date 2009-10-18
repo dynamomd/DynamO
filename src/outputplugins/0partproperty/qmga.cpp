@@ -45,7 +45,7 @@ COPQMGA::printImage()
   if (frameCount > 1000)
     return;
 
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
   if ( asprintf(&fileName, "cnf.%04d", frameCount++) < 0)
     D_throw() << "asprintf error in QMGA";
@@ -56,9 +56,9 @@ COPQMGA::printImage()
     D_throw() << "Could not open QMGA file for writing";
 
   of << Sim->lN << "\n"
-     << Sim->aspectRatio[0] / Sim->Dynamics.units().unitLength() << "\n"
-     << Sim->aspectRatio[1] / Sim->Dynamics.units().unitLength() << "\n"
-     << Sim->aspectRatio[2] / Sim->Dynamics.units().unitLength() << "\n"
+     << Sim->aspectRatio[0] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->aspectRatio[1] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->aspectRatio[2] / Sim->dynamics.units().unitLength() << "\n"
      << "0.0 0.0\n";
   
   std::list<unsigned long> tmpList;
@@ -67,8 +67,8 @@ COPQMGA::printImage()
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       Vector  pos = part.getPosition();
-      Sim->Dynamics.BCs().applyBC(pos);
-      pos /= Sim->Dynamics.units().unitLength();
+      Sim->dynamics.BCs().applyBC(pos);
+      pos /= Sim->dynamics.units().unitLength();
       
       of << pos[0] << " " << pos[1] << " " << pos[2]
 	 << "0 0 0 0.0 1.0 0.0 0 0 0 " << part.getID()

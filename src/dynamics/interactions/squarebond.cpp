@@ -54,7 +54,7 @@ if (strcmp(XML.getAttribute("Type"),"SquareBond"))
       
       try {
     diameter = boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"))
-      * Sim->Dynamics.units().unitLength();
+      * Sim->dynamics.units().unitLength();
 
     lambda = boost::lexical_cast<Iflt>(XML.getAttribute("Lambda"));
 
@@ -104,7 +104,7 @@ bool
 CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   
   if (((rij | rij) <= ld2) && ((rij | rij) >= d2))
     return true;
@@ -116,24 +116,24 @@ void
 CISquareBond::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   Iflt r2 = rij.nrm2();
 
   if (r2 < d2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 	     << "Possible bonded overlap occured in diagnostics\n ID1=" << part1.getID() 
 	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	     << r2 / pow(Sim->Dynamics.units().unitLength(),2)
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
 	     << "\nd^2=" 
-	     << d2 / pow(Sim->Dynamics.units().unitLength(),2);
+	     << d2 / pow(Sim->dynamics.units().unitLength(),2);
   
   if (r2 > ld2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 	     << "Possible escaped bonded pair in diagnostics\n ID1=" << part1.getID() 
 	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	     << r2 / pow(Sim->Dynamics.units().unitLength(),2)
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
 	     << "\n(lambda * d)^2=" 
-	     << ld2 / pow(Sim->Dynamics.units().unitLength(),2);
+	     << ld2 / pow(Sim->dynamics.units().unitLength(),2);
 }
 
 CIntEvent 
@@ -141,10 +141,10 @@ CISquareBond::getEvent(const CParticle &p1,
 		       const CParticle &p2) const 
 {    
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -153,19 +153,19 @@ CISquareBond::getEvent(const CParticle &p1,
 
   CPDData colldat(*Sim, p1, p2);
 
-  if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2))
+  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2))
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat,d2))
+      if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
 	D_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() 
 		  << ", particle2 " 
-		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
+		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif      
       return CIntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   else
-    if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
+    if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
       {
 	return CIntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
       }
@@ -184,7 +184,7 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2,
     D_throw() << "Unknown type found";
 #endif
 
-  C2ParticleData EDat(Sim->Dynamics.getLiouvillean().SmoothSpheresColl
+  C2ParticleData EDat(Sim->dynamics.getLiouvillean().SmoothSpheresColl
 		      (iEvent, 1.0, d2, iEvent.getType()));
 
   Sim->signalParticleUpdate(EDat);
@@ -202,7 +202,7 @@ CISquareBond::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "SquareBond"
       << xmlw::attr("Diameter") 
-      << diameter / Sim->Dynamics.units().unitLength()
+      << diameter / Sim->dynamics.units().unitLength()
       << xmlw::attr("Lambda") << lambda
       << xmlw::attr("Name") << intName
       << range;
@@ -216,13 +216,13 @@ CISquareBond::write_povray_info(std::ostream& os) const
     if (range->isInRange(p1,p2) && (p1 != p2))
       {
 	Vector  pos1(p1.getPosition()), pos2(p2.getPosition());
-	Sim->Dynamics.BCs().applyBC(pos1);
-	Sim->Dynamics.BCs().applyBC(pos2);
+	Sim->dynamics.BCs().applyBC(pos1);
+	Sim->dynamics.BCs().applyBC(pos2);
 	
 	if ((pos1-pos2).nrm() > 0.5) continue;
 
-	Sim->Dynamics.BCs().applyBC(pos1);
-	Sim->Dynamics.BCs().applyBC(pos2);
+	Sim->dynamics.BCs().applyBC(pos1);
+	Sim->dynamics.BCs().applyBC(pos2);
 	
 	os << "cylinder {\n <"
 	   << pos1[0];

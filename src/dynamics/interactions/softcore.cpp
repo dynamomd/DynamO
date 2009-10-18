@@ -57,11 +57,11 @@ CISoftCore::operator<<(const XMLNode& XML)
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
   try {
-    diameter = Sim->Dynamics.units().unitLength() 
+    diameter = Sim->dynamics.units().unitLength() 
       * boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
     
     wellDepth = boost::lexical_cast<Iflt>(XML.getAttribute("WellDepth"))
-      * Sim->Dynamics.units().unitEnergy();
+      * Sim->dynamics.units().unitEnergy();
     
     d2 = diameter * diameter;
     
@@ -103,7 +103,7 @@ bool
 CISoftCore::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   
   return ((rij | rij) <= d2);
 }
@@ -113,10 +113,10 @@ CISoftCore::getEvent(const CParticle &p1,
 		     const CParticle &p2) const 
 {
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -127,17 +127,17 @@ CISoftCore::getEvent(const CParticle &p1,
     
   if (isCaptured(p1, p2)) 
     {
-      if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(colldat, d2))
+      if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, d2))
 	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
-  else if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2)) 
+  else if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2)) 
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat,d2))
+      if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
 	D_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
 		  << "\nparticle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " 
-		  << (sqrt(colldat.r2) - sqrt(d2)) / Sim->Dynamics.units().unitLength();
+		  << (sqrt(colldat.r2) - sqrt(d2)) / Sim->dynamics.units().unitLength();
 #endif
 
       return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
@@ -155,7 +155,7 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2, const CIntEvent& 
     {
     case WELL_IN:
       {
-	C2ParticleData retVal(Sim->Dynamics.getLiouvillean()
+	C2ParticleData retVal(Sim->dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, wellDepth, d2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -173,7 +173,7 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2, const CIntEvent& 
       }
     case WELL_OUT:
       {
-	C2ParticleData retVal(Sim->Dynamics.getLiouvillean()
+	C2ParticleData retVal(Sim->dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, -wellDepth, d2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -199,7 +199,7 @@ void
 CISoftCore::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   Iflt r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))
@@ -208,18 +208,18 @@ CISoftCore::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 		 << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
 		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->Dynamics.units().unitLength(),2)
+		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
 		 << "\nd^2=" 
-		 << d2 / pow(Sim->Dynamics.units().unitLength(),2);
+		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
     }
   else 
     if (r2 < d2)
       I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 	       << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
 	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	       << r2 / pow(Sim->Dynamics.units().unitLength(),2)
+	       << r2 / pow(Sim->dynamics.units().unitLength(),2)
 	       << "\nd^2=" 
-	       << d2 / pow(Sim->Dynamics.units().unitLength(),2);
+	       << d2 / pow(Sim->dynamics.units().unitLength(),2);
 }
   
 void 
@@ -227,9 +227,9 @@ CISoftCore::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "SoftCore"
       << xmlw::attr("Diameter") 
-      << diameter / Sim->Dynamics.units().unitLength() 
+      << diameter / Sim->dynamics.units().unitLength() 
       << xmlw::attr("WellDepth") 
-      << wellDepth / Sim->Dynamics.units().unitEnergy()
+      << wellDepth / Sim->dynamics.units().unitEnergy()
       << xmlw::attr("Name") << intName
       << range;
   

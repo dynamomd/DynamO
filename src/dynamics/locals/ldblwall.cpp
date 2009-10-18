@@ -45,20 +45,20 @@ CLocalEvent
 CLDblWall::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
   if (part.getID() == lastID) return CLocalEvent(part, HUGE_VAL, NONE, *this);
   
   Vector rij = part.getPosition() - vPosition;
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
 
   Vector norm(vNorm);
   if ((norm | rij) < 0)
     norm *= -1;
 
-  return CLocalEvent(part, Sim->Dynamics.getLiouvillean().getWallCollision
+  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
 		     (part, vPosition, norm), WALL, *this);
 }
 
@@ -70,13 +70,13 @@ CLDblWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   Vector norm = vNorm;
 
   Vector rij = part.getPosition() - vPosition;
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   
   if ((norm | rij) < 0)
     norm *= -1;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runWallCollision
+  CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision
 		      (part, norm, e));
 
   Sim->signalParticleUpdate(EDat);
@@ -143,7 +143,7 @@ CLDblWall::operator<<(const XMLNode& XML)
     vNorm /= vNorm.nrm();
     xBrowseNode = XML.getChildNode("Origin");
     vPosition << xBrowseNode;
-    vPosition *= Sim->Dynamics.units().unitLength();
+    vPosition *= Sim->dynamics.units().unitLength();
   } 
   catch (boost::bad_lexical_cast &)
     {
@@ -162,7 +162,7 @@ CLDblWall::outputXML(xmlw::XmlStream& XML) const
       << vNorm
       << xmlw::endtag("Norm")
       << xmlw::tag("Origin")
-      << vPosition / Sim->Dynamics.units().unitLength()
+      << vPosition / Sim->dynamics.units().unitLength()
       << xmlw::endtag("Origin");
 }
 

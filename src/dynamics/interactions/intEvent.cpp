@@ -72,7 +72,7 @@ std::string
 CIntEvent::stringData(const DYNAMO::SimData* Sim) const
 {
   std::ostringstream tmpstring;
-  tmpstring << "dt :" << dt / Sim->Dynamics.units().unitTime()
+  tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
 	    << "\nType :" << getCollEnumName(CType)
 	    << "\nP1 :" << particle1;
 

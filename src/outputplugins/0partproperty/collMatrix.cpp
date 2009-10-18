@@ -147,7 +147,7 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	  << xmlw::attr("Percent") << 100.0 * ((Iflt) ele.second.count) 
 	/ ((Iflt) totalCount)
 	  << xmlw::attr("mft") << ele.second.totalTime
-	/ (Sim->Dynamics.units().unitTime() * ((Iflt) ele.second.count))
+	/ (Sim->dynamics.units().unitTime() * ((Iflt) ele.second.count))
 	  << xmlw::endtag("Count");
       
       //Add the total count
@@ -174,7 +174,7 @@ COPCollMatrix::output(xmlw::XmlStream &XML)
 	<< xmlw::attr("Count") << mp1.second.first + initialCounter[mp1.first]
 	<< xmlw::attr("EventMeanFreeTime")
 	<< Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])
-			    * Sim->Dynamics.units().unitTime())
+			    * Sim->dynamics.units().unitTime())
 	<< xmlw::endtag("TotCount");
   
   XML << xmlw::endtag("Totals")

@@ -23,9 +23,9 @@
 
 CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
   CSystem(nSim),
-  periodt(ndt * nSim->Dynamics.units().unitTime())
+  periodt(ndt * nSim->dynamics.units().unitTime())
 {
-  dt = ndt * Sim->Dynamics.units().unitTime();
+  dt = ndt * Sim->dynamics.units().unitTime();
   sysName = nName;
 
   I_cout() << "Periodic scheduler rebuild set for dt=" 
@@ -47,7 +47,7 @@ CSSchedMaintainer::runEvent() const
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
   
   Sim->freestreamAcc += locdt;
   
@@ -62,10 +62,10 @@ CSSchedMaintainer::initialise(size_t nID)
 
 void 
 CSSchedMaintainer::setdt(Iflt ndt)
-{ dt = ndt * Sim->Dynamics.units().unitTime(); }
+{ dt = ndt * Sim->dynamics.units().unitTime(); }
 
 void 
 CSSchedMaintainer::increasedt(Iflt ndt)
 { 
-  dt += ndt * Sim->Dynamics.units().unitTime(); 
+  dt += ndt * Sim->dynamics.units().unitTime(); 
 }

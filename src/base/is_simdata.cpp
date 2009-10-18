@@ -33,7 +33,7 @@ namespace DYNAMO
     lPrintLimiter(0),
     lN(0),
     ptrScheduler(NULL),
-    Dynamics(this),
+    dynamics(this),
     aspectRatio(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
     normal_sampler(ranGenerator, boost::normal_distribution_01<Iflt>()),
@@ -65,19 +65,19 @@ namespace DYNAMO
   SimData::replexerSwap(SimData& other)
   {
     //Get all particles up to date and zero the pecTimes
-    Dynamics.getLiouvillean().updateAllParticles();
-    other.Dynamics.getLiouvillean().updateAllParticles();
+    dynamics.getLiouvillean().updateAllParticles();
+    other.dynamics.getLiouvillean().updateAllParticles();
       
     std::swap(dSysTime, other.dSysTime);
     std::swap(lNColl, other.lNColl);
     std::swap(_particleUpdateNotify, other._particleUpdateNotify);
     
-    Dynamics.getSystemEvents().swap(other.Dynamics.getSystemEvents());
+    dynamics.getSystemEvents().swap(other.dynamics.getSystemEvents());
 
-    BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, Dynamics.getSystemEvents())
+    BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, dynamics.getSystemEvents())
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, other.Dynamics.getSystemEvents())
+    BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
     //Rescale the velocities     

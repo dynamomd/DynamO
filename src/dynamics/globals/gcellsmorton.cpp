@@ -96,21 +96,21 @@ CGlobEvent
 CGCellsMorton::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
   //This 
-  //Sim->Dynamics.getLiouvillean().updateParticle(part);
+  //Sim->dynamics.getLiouvillean().updateParticle(part);
   //is not required as we compensate for the delay using 
-  //Sim->Dynamics.getLiouvillean().getParticleDelay(part)
+  //Sim->dynamics.getLiouvillean().getParticleDelay(part)
   
   return CGlobEvent(part,
-		    Sim->Dynamics.getLiouvillean().
+		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, calcPosition(cells[partCellData[part.getID()].cell].coords), 
 		     Vector(cellDimension,cellDimension,cellDimension))
-		    -Sim->Dynamics.getLiouvillean().getParticleDelay(part)
+		    -Sim->dynamics.getLiouvillean().getParticleDelay(part)
 		    ,
 		    CELL, *this);
 }
@@ -122,12 +122,12 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
   //expect the particle to be up to date.
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
 
   size_t endCell, oldCell(partCellData[part.getID()].cell);
   
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.getLiouvillean().
+  size_t cellDirection(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, calcPosition(cells[oldCell].coords), 
 			Vector(cellDimension,cellDimension,cellDimension)));
@@ -254,7 +254,7 @@ CGCellsMorton::runEvent(const CParticle& part) const
     CVector<int> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
-	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  from <" 
@@ -339,10 +339,10 @@ CGCellsMorton::addCells(Iflt maxdiam)
   I_cout() << "Cells <N>  " << NCells;
 
   I_cout() << "Cells dimension <x>  " 
-	   << cellDimension / Sim->Dynamics.units().unitLength();
+	   << cellDimension / Sim->dynamics.units().unitLength();
 
   I_cout() << "Lattice spacing <x,y,z>  " 
-	   << cellLatticeWidth / Sim->Dynamics.units().unitLength();
+	   << cellLatticeWidth / Sim->dynamics.units().unitLength();
 
   fflush(stdout);
   
@@ -372,7 +372,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
 
   //Add the particles section
   //Required so particles find the right owning cell
-  Sim->Dynamics.getLiouvillean().updateAllParticles(); 
+  Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
   ////initialise the data structures
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -386,7 +386,7 @@ CGCellsMorton::addLocalEvents()
     {
       cell.locals.clear();
 
-      BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
+      BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->dynamics.getLocals())
 	if (local->isInCell(calcPosition(cell.coords), Vector(cellDimension,cellDimension,cellDimension)))
 	  cell.locals.push_back(local->getID());
     }
@@ -410,7 +410,7 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
 dilatedCoords
 CGCellsMorton::getCellID(Vector  pos) const
 {
-  Sim->Dynamics.BCs().applyBC(pos);
+  Sim->dynamics.BCs().applyBC(pos);
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -495,7 +495,7 @@ CGCellsMorton::getMaxSupportedInteractionLength() const
 Iflt 
 CGCellsMorton::getMaxInteractionLength() const
 {
-  return Sim->Dynamics.getLongestInteraction();
+  return Sim->dynamics.getLongestInteraction();
 }
 
 Vector 

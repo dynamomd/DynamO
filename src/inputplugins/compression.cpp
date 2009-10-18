@@ -48,13 +48,13 @@ CIPCompression::MakeGrowth()
   I_cout() << "Backing up old liouvillean";
 
   //Required to reset the dynamics
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  oldLio = Sim->Dynamics.getLiouvillean().Clone();
+  oldLio = Sim->dynamics.getLiouvillean().Clone();
 
   I_cout() << "Loading compression liouvillean";
-  Sim->Dynamics.setLiouvillean(new LCompression(Sim, growthRate 
-						 / (Sim->Dynamics.units()
+  Sim->dynamics.setLiouvillean(new LCompression(Sim, growthRate 
+						 / (Sim->dynamics.units()
 						    .unitTime())));
 }
 
@@ -64,11 +64,11 @@ CIPCompression::RestoreSystem()
   I_cout() << "Restoring original liouvillean";
 
   //Required to finish off the compression dynamics
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
   if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {
-      BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->Dynamics.getGlobals())
+      BOOST_FOREACH(smrtPlugPtr<CGlobal>& ptr, Sim->dynamics.getGlobals())
 	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
 	  {
 	    //Rebulid the collision scheduler without the overlapping cells!
@@ -80,52 +80,52 @@ CIPCompression::RestoreSystem()
   else
     I_cout() << "No cellular device to fix";
 
-  Sim->Dynamics.rescaleLengths(Sim->dSysTime * growthRate
-			       / Sim->Dynamics.units().unitTime());
+  Sim->dynamics.rescaleLengths(Sim->dSysTime * growthRate
+			       / Sim->dynamics.units().unitTime());
 
-  Sim->Dynamics.setLiouvillean(oldLio->Clone());
+  Sim->dynamics.setLiouvillean(oldLio->Clone());
 
   Iflt volume = 0.0;
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  Sim->ssHistory << "\nCompression Dynamics run"
+  Sim->ssHistory << "\nCompression dynamics run"
 		 << "\nEnd packing fraction" 
-		 << PI * volume / (6 * Sim->Dynamics.units().simVolume());
+		 << PI * volume / (6 * Sim->dynamics.units().simVolume());
 }
 
 void
 CIPCompression::checkOverlaps()
 {
   //Just check the bonds are still valid
-  Sim->Dynamics.SystemOverlapTest();
+  Sim->dynamics.SystemOverlapTest();
 }
 
 
 void
 CIPCompression::CellSchedulerHack()
 {
-  for (size_t i(0); i < Sim->Dynamics.getGlobals().size(); ++i)
+  for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)
     {      
-      if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[i].get_ptr()) != NULL)
+      if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[i].get_ptr()) != NULL)
 	{
 	  
-	  if (dynamic_cast<const CGCells*>(Sim->Dynamics.getGlobals()[i]
+	  if (dynamic_cast<const CGCells*>(Sim->dynamics.getGlobals()[i]
 					   .get_ptr()) != NULL)
 	    {
 	      //Rebulid the collision scheduler without the overlapping
 	      //cells as it reduces the number of reinitialisations
 	      //required
 	      CGCells& cells(static_cast<CGCells&>
-			     (*Sim->Dynamics.getGlobals()[i]));	    
+			     (*Sim->dynamics.getGlobals()[i]));	    
 	      oldLambda = cells.getLambda();	    
 	      cells.setLambda(0.0);
 	    }
 	  
 	  //Add the system watcher
-	  Sim->Dynamics.addSystem
+	  Sim->dynamics.addSystem
 	    (new CSNBListCompressionFix(Sim, growthRate 
-					/ Sim->Dynamics.units().unitTime(),
+					/ Sim->dynamics.units().unitTime(),
 					i));
 	}
     }
@@ -137,15 +137,15 @@ CIPCompression::limitPackingFraction(Iflt targetp)
   I_cout() << "Limiting maximum packing fraction to " << targetp;
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  Iflt packfrac = PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
+  Iflt packfrac = PI * volume / (6 * (Sim->dynamics.units().simVolume()));
   
   if (targetp < packfrac)
     D_throw() << "Target packing fraction is lower than current!";
   
-  Sim->Dynamics.addSystem(new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) 
+  Sim->dynamics.addSystem(new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) 
 					    - 1.0) / growthRate, 
 				      "CompresionLimiter"));
 }
@@ -158,11 +158,11 @@ CIPCompression::limitDensity(Iflt targetrho)
   //Get the avg molecular volume
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     volume += std::pow(sp->getIntPtr()->hardCoreDiam(), static_cast<int>(NDIM)) * sp->getCount();
   
   Iflt molVol = PI * volume / (6.0 * Sim->vParticleList.size()
-			       * Sim->Dynamics.units().unitVolume());
+			       * Sim->dynamics.units().unitVolume());
 
   I_cout() << "Corresponding packing fraction for that density is "
 	   << molVol * targetrho;

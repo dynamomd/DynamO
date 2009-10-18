@@ -70,7 +70,7 @@ CScheduler::rebuildSystemEvents() const
   (*sorter)[Sim->lN].clear();
 
   BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysptr, 
-		Sim->Dynamics.getSystemEvents())
+		Sim->dynamics.getSystemEvents())
     sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->lN);
 
   sorter->update(Sim->lN);
@@ -164,9 +164,9 @@ CScheduler::runNextEvent()
 	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
 	const CParticle& p2(Sim->vParticleList[sorter->next_Data().top().p2]);
 	
-	Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
+	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
-	CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
+	CIntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
 	if ((fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
 	    && (fabs(sorter->next_dt() - Event.getdt()) > 1e-10*Sim->dSysTime))
@@ -179,12 +179,12 @@ CScheduler::runNextEvent()
 		     << Event.stringData(Sim)
 		     << "\n\n Systime of original event is " 
 		     << (sorter->next_dt() + Sim->dSysTime) 
-	      / Sim->Dynamics.units().unitTime()
+	      / Sim->dynamics.units().unitTime()
 		     << "\n\n Systime of recalculated event "
 		     << (Event.getdt() + Sim->dSysTime) 
-	      / Sim->Dynamics.units().unitTime()
+	      / Sim->dynamics.units().unitTime()
 		     << "\n\n Systime is "
-		     << Sim->dSysTime / Sim->Dynamics.units().unitTime();
+		     << Sim->dSysTime / Sim->dynamics.units().unitTime();
 	     
 	    this->fullUpdate(p1, p2);
 	    return;
@@ -227,13 +227,13 @@ CScheduler::runNextEvent()
 	stream(Event.getdt());
 	
 	//dynamics must be updated first
-	Sim->Dynamics.stream(Event.getdt());	
+	Sim->dynamics.stream(Event.getdt());	
 	
 	Event.addTime(Sim->freestreamAcc);
 
 	Sim->freestreamAcc = 0;
 
-	Sim->Dynamics.getInteractions()[Event.getInteractionID()]
+	Sim->dynamics.getInteractions()[Event.getInteractionID()]
 	  ->runEvent(p1,p2,Event);
 
 	break;
@@ -245,17 +245,17 @@ CScheduler::runNextEvent()
 	
 	#ifdef DYNAMO_DEBUG
 	//This makes neighbour list events appear in the output plugins
-	if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2].get_ptr())
+	if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[sorter->next_Data().top().p2].get_ptr())
 	    != NULL)
 	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(CGlobEvent(Sim->vParticleList[sorter->next_ID()], 0, 
-					CELL, *Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]),
+					CELL, *Sim->dynamics.getGlobals()[sorter->next_Data().top().p2]),
 			     CNParticleData(C1ParticleData(Sim->vParticleList[sorter->next_ID()],
-							   Sim->Dynamics.getSpecies(Sim->vParticleList[sorter->next_ID()]),
+							   Sim->dynamics.getSpecies(Sim->vParticleList[sorter->next_ID()]),
 							   CELL)));
 	#endif
 	
-	Sim->Dynamics.getGlobals()[sorter->next_Data().top().p2]
+	Sim->dynamics.getGlobals()[sorter->next_Data().top().p2]
 	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
 	break;	           
       }
@@ -263,8 +263,8 @@ CScheduler::runNextEvent()
       {
 	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
 
-	Sim->Dynamics.getLiouvillean().updateParticle(part);
-	CLocalEvent iEvent(Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]->getEvent(part));
+	Sim->dynamics.getLiouvillean().updateParticle(part);
+	CLocalEvent iEvent(Sim->dynamics.getLocals()[sorter->next_Data().top().p2]->getEvent(part));
 	
 	if (iEvent.getType() == NONE)
 	  D_throw() << "No global collision found\n"
@@ -285,17 +285,17 @@ CScheduler::runNextEvent()
 	stream(iEvent.getdt());
 	
 	//dynamics must be updated first
-	Sim->Dynamics.stream(iEvent.getdt());
+	Sim->dynamics.stream(iEvent.getdt());
 	
 	iEvent.addTime(Sim->freestreamAcc);
 	Sim->freestreamAcc = 0;
 
-	Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]
+	Sim->dynamics.getLocals()[sorter->next_Data().top().p2]
 	->runEvent(part, iEvent);	  
 	break;
       }
     case SYSTEM:
-      Sim->Dynamics.getSystemEvents()[sorter->next_Data().top().p2]
+      Sim->dynamics.getSystemEvents()[sorter->next_Data().top().p2]
 	->runEvent();
       //This saves the system events rebuilding themselves
       rebuildSystemEvents();
@@ -313,9 +313,9 @@ CScheduler::addInteractionEvent(const CParticle& part,
 {
   const CParticle& part2(Sim->vParticleList[id]);
 
-  Sim->Dynamics.getLiouvillean().updateParticle(part2);
+  Sim->dynamics.getLiouvillean().updateParticle(part2);
 
-  const CIntEvent& eevent(Sim->Dynamics.getEvent(part, part2));
+  const CIntEvent& eevent(Sim->dynamics.getEvent(part, part2));
 
   if (eevent.getType() != NONE)
     sorter->push(intPart(eevent, eventCount[id]), part.getID());
@@ -360,7 +360,7 @@ void
 CScheduler::addLocalEvent(const CParticle& part, 
 			  const size_t& id) const
 {
-  if (Sim->Dynamics.getLocals()[id]->isInteraction(part))
-    sorter->push(Sim->Dynamics.getLocals()[id]->getEvent(part), part.getID());  
+  if (Sim->dynamics.getLocals()[id]->isInteraction(part))
+    sorter->push(Sim->dynamics.getLocals()[id]->getEvent(part), part.getID());  
 }
 

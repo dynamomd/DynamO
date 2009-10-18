@@ -68,8 +68,8 @@ CLSLLOD::DSMCSpheresRun(const CParticle& p1,
   updateParticlePair(p1, p2);  
 
   C2ParticleData retVal(p1, p2,
-			Sim->Dynamics.getSpecies(p1),
-			Sim->Dynamics.getSpecies(p2),
+			Sim->dynamics.getSpecies(p1),
+			Sim->dynamics.getSpecies(p2),
 			CORE);
  
   retVal.vijold = pdat.vij;

@@ -57,11 +57,11 @@ CLocalEvent
 CLAndersenWall::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
-  return CLocalEvent(part, Sim->Dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
+  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
 }
 
 void
@@ -70,7 +70,7 @@ CLAndersenWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   ++Sim->lNColl;
   
   CNParticleData EDat
-    (Sim->Dynamics.getLiouvillean().runAndersenWallCollision
+    (Sim->dynamics.getLiouvillean().runAndersenWallCollision
      (part, vNorm, sqrtT));
   
   Sim->signalParticleUpdate(EDat);
@@ -103,7 +103,7 @@ CLAndersenWall::operator<<(const XMLNode& XML)
   try {
     
     sqrtT = sqrt(boost::lexical_cast<Iflt>(XML.getAttribute("Temperature")) 
-		 * Sim->Dynamics.units().unitEnergy());
+		 * Sim->dynamics.units().unitEnergy());
 
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
@@ -111,7 +111,7 @@ CLAndersenWall::operator<<(const XMLNode& XML)
     vNorm /= vNorm.nrm();
     xBrowseNode = XML.getChildNode("Origin");
     vPosition << xBrowseNode;
-    vPosition *= Sim->Dynamics.units().unitLength();
+    vPosition *= Sim->dynamics.units().unitLength();
 
   } 
   catch (boost::bad_lexical_cast &)
@@ -126,13 +126,13 @@ CLAndersenWall::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "AndersenWall"
       << xmlw::attr("Name") << localName
       << xmlw::attr("Temperature") << sqrtT * sqrtT 
-    / Sim->Dynamics.units().unitEnergy()
+    / Sim->dynamics.units().unitEnergy()
       << range
       << xmlw::tag("Norm")
       << vNorm
       << xmlw::endtag("Norm")
       << xmlw::tag("Origin")
-      << vPosition / Sim->Dynamics.units().unitLength()
+      << vPosition / Sim->dynamics.units().unitLength()
       << xmlw::endtag("Origin");
 }
 

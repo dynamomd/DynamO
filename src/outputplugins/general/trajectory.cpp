@@ -57,9 +57,9 @@ COPTrajectory::printData(const size_t& p1,
   Vector  rij = Sim->vParticleList[id1].getPosition()
     - Sim->vParticleList[id2].getPosition();
 
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   
-  rij /= Sim->Dynamics.units().unitLength();
+  rij /= Sim->dynamics.units().unitLength();
 
   logfile << " p1 " << id1
 	  << " p2 " << id2
@@ -78,8 +78,8 @@ COPTrajectory::eventUpdate(const CIntEvent& eevent,
 {
   logfile << "INTERACTION " << eevent.getInteractionID()
 	  << " TYPE " << CIntEvent::getCollEnumName(eevent.getType())
-	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
-	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime();
+	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime();
   
   printData(eevent.getParticle1ID(),
 	    eevent.getParticle2ID());
@@ -93,8 +93,8 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
 {
   logfile << "GLOBAL " << eevent.getGlobalID()
 	  << " TYPE " << CIntEvent::getCollEnumName(eevent.getType())
-	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
-	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime()
+	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
 	  << "\n";
 
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
@@ -118,8 +118,8 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
 {
   logfile << "LOCAL " << eevent.getLocalID()
     	  << " TYPE " << CIntEvent::getCollEnumName(eevent.getType())
-	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
-	  << " dt " << eevent.getdt() / Sim->Dynamics.units().unitTime()
+	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
 	  << "\n";
 
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
@@ -152,8 +152,8 @@ COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat,
 {
   logfile << "SYSTEM " << sys.getID()
 	  << " TYPE " << CIntEvent::getCollEnumName(sys.getType())
-	  << " t " << Sim->dSysTime / Sim->Dynamics.units().unitTime() 
-	  << " dt " << dt / Sim->Dynamics.units().unitTime()
+	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+	  << " dt " << dt / Sim->dynamics.units().unitTime()
 	  << "\n";
 
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)

@@ -356,7 +356,7 @@ CDynamics::calcInternalEnergy() const
   Iflt intECurrent = 0.0;
 
   BOOST_FOREACH(const smrtPlugPtr<CInteraction> & plugptr, 
-		Sim->Dynamics.getInteractions())
+		Sim->dynamics.getInteractions())
     intECurrent += plugptr->getInternalEnergy();
 
   return intECurrent;
@@ -365,7 +365,7 @@ CDynamics::calcInternalEnergy() const
 Iflt 
 CDynamics::getNumberDensity() const
 {
-  return Sim->lN / Sim->Dynamics.units().simVolume();
+  return Sim->lN / Sim->dynamics.units().simVolume();
 }
 
 Iflt 
@@ -373,10 +373,10 @@ CDynamics::getPackingFraction() const
 {
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  return  PI * volume / (6 * (Sim->Dynamics.units().simVolume()));
+  return  PI * volume / (6 * (Sim->dynamics.units().simVolume()));
 }
 
 void 

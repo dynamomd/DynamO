@@ -48,8 +48,8 @@ void
 COPMFL::initialise()
 {
   lastTime.resize(Sim->lN, 0.0);
-  data.resize(Sim->Dynamics.getSpecies().size(), 
-	      C1DHistogram(Sim->Dynamics.units().unitLength() * binwidth));
+  data.resize(Sim->dynamics.getSpecies().size(), 
+	      C1DHistogram(Sim->dynamics.units().unitLength() * binwidth));
 }
 
 void 
@@ -76,9 +76,9 @@ COPMFL::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id]->getName();
+	  << Sim->dynamics.getSpecies()[id]->getName();
 
-      data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
+      data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       
       XML << xmlw::endtag("Species");
     }

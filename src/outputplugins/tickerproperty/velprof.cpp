@@ -35,7 +35,7 @@ COPVelProfile::COPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 COPVelProfile::initialise()
 {    
-  binWidth *= Sim->Dynamics.units().unitLength();
+  binWidth *= Sim->dynamics.units().unitLength();
   
   vx.resize(static_cast<size_t>(Sim->aspectRatio[1]/binWidth)+1,
 	    std::vector<std::pair<size_t, Iflt> >
@@ -52,7 +52,7 @@ COPVelProfile::ticker()
       Vector  pos(part.getPosition());
       Vector  vel(part.getVelocity());
 
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Sim->dynamics.BCs().applyBC(pos, vel);
 
       pos += Sim->aspectRatio / 2.0;
 
@@ -77,11 +77,11 @@ COPVelProfile::output(xmlw::XmlStream& XML)
   for (size_t y = 0; y < nybins; ++y)
     {
       for (size_t z = 0; z < nzbins; ++z)
-	XML << y * binWidth / Sim->Dynamics.units().unitLength()
-	    << " " << z * binWidth / Sim->Dynamics.units().unitLength()
+	XML << y * binWidth / Sim->dynamics.units().unitLength()
+	    << " " << z * binWidth / Sim->dynamics.units().unitLength()
 	    << " "
 	    << ((vx[y][z].first) ? (vx[y][z].second / vx[y][z].first) 
-		/ Sim->Dynamics.units().unitVelocity() : 0)
+		/ Sim->dynamics.units().unitVelocity() : 0)
 	    << "\n";
 
       XML << "\n";

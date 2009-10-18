@@ -50,7 +50,7 @@ COPConfig::~COPConfig()
 void
 COPConfig::output(xmlw::XmlStream &XML)
 {  
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
   XML << std::scientific
     //This has a minus one due to the digit in front of the decimal
@@ -81,9 +81,9 @@ COPConfig::output(xmlw::XmlStream &XML)
       << Sim->ssHistory.str()
       << "\nRun for " << Sim->lNColl << " collisions"
       << xmlw::endtag("History") << xmlw::endtag("Simulation")
-      << Sim->Dynamics;
+      << Sim->dynamics;
 
-  Sim->Dynamics.getLiouvillean().outputParticleXMLData(XML);
+  Sim->dynamics.getLiouvillean().outputParticleXMLData(XML);
 
   XML << xmlw::endtag("DYNAMOconfig");
 

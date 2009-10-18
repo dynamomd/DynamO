@@ -48,10 +48,10 @@ COPCollEnergyChange::initialise()
 {
   I_cout() << "Bin width set to " << binWidth;
 
-  data.resize(Sim->Dynamics.getSpecies().size(), 
-	      C1DHistogram(Sim->Dynamics.units().unitEnergy() * binWidth));
+  data.resize(Sim->dynamics.getSpecies().size(), 
+	      C1DHistogram(Sim->dynamics.units().unitEnergy() * binWidth));
 
-  specialhist = C1DHistogram(Sim->Dynamics.units().unitEnergy() * binWidth);
+  specialhist = C1DHistogram(Sim->dynamics.units().unitEnergy() * binWidth);
 }
 
 void 
@@ -83,7 +83,7 @@ COPCollEnergyChange::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("CollEnergyChange")
       << xmlw::tag("PairCalc");
 
-  specialhist.outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitEnergy());
+  specialhist.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
 
   XML << xmlw::endtag("PairCalc");
 
@@ -91,9 +91,9 @@ COPCollEnergyChange::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id]->getName();
+	  << Sim->dynamics.getSpecies()[id]->getName();
 
-      data[id].outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitEnergy());
+      data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
 
       XML << xmlw::endtag("Species");
     }

@@ -48,7 +48,7 @@ COPSCParameter::initialise()
     D_throw() << "Failed, N does not have an integer cube root!";
 
   I_cout() << "Max wavelength is "
-	   << 1.0 / (maxWaveNumber * Sim->Dynamics.units().unitLength());
+	   << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength());
 
   maxWaveNumber *= 2;
 
@@ -94,7 +94,7 @@ COPSCParameter::output(xmlw::XmlStream& XML)
   
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
-      XML << k * Sim->Dynamics.units().unitLength() << " "
+      XML << k * Sim->dynamics.units().unitLength() << " "
 	  << runningsum[k] / (static_cast<Iflt>(count) * Sim->lN) 
 	  << "\n";
     }

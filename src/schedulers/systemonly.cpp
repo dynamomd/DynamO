@@ -57,7 +57,7 @@ CSSystemOnly::initialise()
 {
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
 
-  if (Sim->Dynamics.getSystemEvents().empty())
+  if (Sim->dynamics.getSystemEvents().empty())
     D_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
   sorter->clear();

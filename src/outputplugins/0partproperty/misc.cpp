@@ -43,29 +43,29 @@ COPMisc::changeSystem(COutputPlugin* misc2)
 void
 COPMisc::initialise()
 {
-  Iflt kt = Sim->Dynamics.getLiouvillean().getkT();
+  Iflt kt = Sim->dynamics.getLiouvillean().getkT();
 
-  Vector  VecEnergy(Sim->Dynamics.getLiouvillean().getVectorSystemKineticEnergy());
+  Vector  VecEnergy(Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy());
   
-  VecEnergy *= 2.0 / (Sim->lN * Sim->Dynamics.units().unitEnergy());
+  VecEnergy *= 2.0 / (Sim->lN * Sim->dynamics.units().unitEnergy());
 
   I_cout() << "Particle Count " << Sim->lN 
-	   << "\nSim Unit Length " << Sim->Dynamics.units().unitLength()
-	   << "\nSim Unit Time " << Sim->Dynamics.units().unitTime()
-	   << "\nDensity " << Sim->Dynamics.getNumberDensity() 
-    * Sim->Dynamics.units().unitVolume()
-	   << "\nPacking Fraction " << Sim->Dynamics.getPackingFraction()
+	   << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
+	   << "\nSim Unit Time " << Sim->dynamics.units().unitTime()
+	   << "\nDensity " << Sim->dynamics.getNumberDensity() 
+    * Sim->dynamics.units().unitVolume()
+	   << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
 	   << "\nSim Temperature " << kt
-	   << "\nReduced Temperature " << kt / Sim->Dynamics.units().unitEnergy();
+	   << "\nReduced Temperature " << kt / Sim->dynamics.units().unitEnergy();
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     I_cout() << "Kinetic Temperature dimension" << iDim << " " 
 	     <<  VecEnergy[iDim];
 
-  I_cout() << "No. of Species " << Sim->Dynamics.getSpecies().size()
+  I_cout() << "No. of Species " << Sim->dynamics.getSpecies().size()
       << "\nSimulation box length <x,y,z> ";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    std::cout  << Sim->aspectRatio[iDim]/Sim->Dynamics.units().unitLength() << " ";
+    std::cout  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength() << " ";
   
   Vector  sumMV (0,0,0);
   
@@ -73,15 +73,15 @@ COPMisc::initialise()
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Sim->dynamics.BCs().applyBC(pos, vel);
 
-      sumMV += vel * Sim->Dynamics.getSpecies(Part).getMass();
+      sumMV += vel * Sim->dynamics.getSpecies(Part).getMass();
     }
   
   I_cout() << "Total momentum <x,y,z> <";
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    std::cout  << sumMV[iDim] / Sim->Dynamics.units().unitMomentum() << " ";
+    std::cout  << sumMV[iDim] / Sim->dynamics.units().unitMomentum() << " ";
 
   std::cout << ">";
 
@@ -125,7 +125,7 @@ Iflt
 COPMisc::getMFT() const
 {
   return Sim->dSysTime * static_cast<Iflt>(Sim->lN)
-    /(Sim->Dynamics.units().unitTime() 
+    /(Sim->dynamics.units().unitTime() 
       * ((2.0 * static_cast<Iflt>(dualEvents)) 
 	 + static_cast<Iflt>(singleEvents)));
 }
@@ -160,7 +160,7 @@ COPMisc::output(xmlw::XmlStream &XML)
 	   << "\nTotal Collisions Executed " << Sim->lNColl
 	   << "\nAvg Coll/s " << collpersec
 	   << "\nSim time per second " 
-	   << Sim->dSysTime / (Sim->Dynamics.units().unitTime() 
+	   << Sim->dSysTime / (Sim->dynamics.units().unitTime() 
 			       * static_cast<Iflt>(tendTime - tstartTime));
    
   XML << xmlw::tag("Misc")
@@ -168,15 +168,15 @@ COPMisc::output(xmlw::XmlStream &XML)
       << xmlw::attr("MaxKiloBytes") << maxmemusage
       << xmlw::endtag("Memusage")
       << xmlw::tag("Density")
-      << xmlw::attr("val") << Sim->Dynamics.getNumberDensity() * Sim->Dynamics.units().unitVolume()
+      << xmlw::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
       << xmlw::endtag("Density")
     
       << xmlw::tag("PackingFraction")
-      << xmlw::attr("val") << Sim->Dynamics.getPackingFraction()
+      << xmlw::attr("val") << Sim->dynamics.getPackingFraction()
       << xmlw::endtag("PackingFraction")
 
       << xmlw::tag("SpeciesCount")
-      << xmlw::attr("val") << Sim->Dynamics.getSpecies().size()
+      << xmlw::attr("val") << Sim->dynamics.getSpecies().size()
       << xmlw::endtag("SpeciesCount")
     
       << xmlw::tag("ParticleCount")
@@ -185,7 +185,7 @@ COPMisc::output(xmlw::XmlStream &XML)
     
       << xmlw::tag("SimLength")
       << xmlw::attr("Collisions") << Sim->lNColl
-      << xmlw::attr("Time") << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+      << xmlw::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
       << xmlw::endtag("SimLength")
     
       << xmlw::tag("Timing") 
@@ -210,14 +210,14 @@ COPMisc::output(xmlw::XmlStream &XML)
       << xmlw::endtag("Timing") 
       << xmlw::tag("SystemBoxLength")
       << xmlw::attr("val") 
-      << 1.0/Sim->Dynamics.units().unitLength();
+      << 1.0/Sim->dynamics.units().unitLength();
 
   char name[2] = "x";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       name[0] = 'x' + iDim;
       XML << xmlw::tag(name) << xmlw::attr("val")
-	  << Sim->aspectRatio[iDim]/Sim->Dynamics.units().unitLength() 
+	  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength() 
 	  << xmlw::endtag(name);
     }
   
@@ -227,10 +227,10 @@ COPMisc::output(xmlw::XmlStream &XML)
   
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
-    sumMV += Part.getVelocity() * Sim->Dynamics.getSpecies(Part).getMass();
+    sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
   
   XML << xmlw::tag("Total_momentum") 
-      << sumMV / Sim->Dynamics.units().unitMomentum()
+      << sumMV / Sim->dynamics.units().unitMomentum()
       << xmlw::endtag("Total_momentum")    
       << xmlw::tag("totMeanFreeTime")
       << xmlw::attr("val")
@@ -259,12 +259,12 @@ COPMisc::periodicOutput()
   strftime(dateString, 12, "%a %H:%M |", &timeInfo);
 
   I_Pcout() << dateString << " NColls " << (Sim->lNColl+1)/1000 << "k, t "
-	    << Sim->dSysTime/Sim->Dynamics.units().unitTime() << ", <t_2> "
+	    << Sim->dSysTime/Sim->dynamics.units().unitTime() << ", <t_2> "
 	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
-    /(Sim->Dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
+    /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
 	    << ", <t_tot> "
 	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
-    / (Sim->Dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents) 
+    / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents) 
 					   + static_cast<Iflt>(singleEvents)))
 	    << ", "; 
 

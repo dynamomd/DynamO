@@ -163,7 +163,7 @@ namespace DYNAMO
     CScheduler *ptrScheduler;
     
     /*! \brief The CDynamics of the system. */
-    CDynamics Dynamics;
+    CDynamics dynamics;
     
     /*! \brief A vector of the ratio's of the simulation box/images sides.
      *

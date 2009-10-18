@@ -43,7 +43,7 @@ void
 CSNeighbourList::initialise()
 {
   try {
-    NBListID = Sim->Dynamics.getGlobal("SchedulerNBList")->getID();
+    NBListID = Sim->dynamics.getGlobal("SchedulerNBList")->getID();
   }
   catch(std::exception& cxp)
     {
@@ -54,12 +54,12 @@ CSNeighbourList::initialise()
     }
   
   if (dynamic_cast<const CGNeighbourList*>
-      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
     D_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
   static_cast<CGNeighbourList&>
-    (*Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+    (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
     .markAsUsedInScheduler();
 
   I_cout() << "Reinitialising on collision " << Sim->lNColl;
@@ -111,23 +111,23 @@ CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
 void 
 CSNeighbourList::addEvents(const CParticle& part)
 {
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
-      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
   const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-				(Sim->Dynamics.getGlobals()[NBListID]
+				(Sim->dynamics.getGlobals()[NBListID]
 				 .get_ptr()));
   
   //Add the local cell events
@@ -142,23 +142,23 @@ CSNeighbourList::addEvents(const CParticle& part)
 void 
 CSNeighbourList::addEventsInit(const CParticle& part)
 {  
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
-      (Sim->Dynamics.getGlobals()[NBListID].get_ptr())
+      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
   const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-				(Sim->Dynamics.getGlobals()[NBListID]
+				(Sim->dynamics.getGlobals()[NBListID]
 				 .get_ptr()));
   
   //Add the local cell events

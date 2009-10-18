@@ -37,7 +37,7 @@ COPPeriodicMSD::initialise()
   ptrCOPMSD = Sim->getOutputPlugin<COPMSD>();
 
   //Now cache a local list of the topology
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->dynamics.getTopology())
     {
       localpair2 tmpPair;
       tmpPair.first = topo.get_ptr();
@@ -54,12 +54,12 @@ COPPeriodicMSD::ticker()
   if (!(++TickerCount % ctime_pow<2,4>::result))
     {
       results.push_back
-	(std::make_pair(Sim->dSysTime / Sim->Dynamics.units().unitTime(), 
+	(std::make_pair(Sim->dSysTime / Sim->dynamics.units().unitTime(), 
 			ptrCOPMSD->calcMSD()));
 
       BOOST_FOREACH(localpair2& dat, structResults)
 	dat.second.push_back(std::make_pair
-			     (Sim->dSysTime / Sim->Dynamics.units().unitTime(),
+			     (Sim->dSysTime / Sim->dynamics.units().unitTime(),
 			      ptrCOPMSD->calcStructMSD(*dat.first)));
     }
 }

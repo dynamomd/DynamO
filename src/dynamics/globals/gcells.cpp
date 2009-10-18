@@ -88,7 +88,7 @@ CGCells::operator<<(const XMLNode& XML)
 
     if (XML.isAttributeSet("CellWidth"))
       MaxIntDist = boost::lexical_cast<Iflt>
-	(XML.getAttribute("CellWidth")) * Sim->Dynamics.units().unitLength();
+	(XML.getAttribute("CellWidth")) * Sim->dynamics.units().unitLength();
     
     globName = XML.getAttribute("Name");	
   }
@@ -111,21 +111,21 @@ CGlobEvent
 CGCells::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
   //This 
-  //Sim->Dynamics.getLiouvillean().updateParticle(part);
+  //Sim->dynamics.getLiouvillean().updateParticle(part);
   //is not required as we compensate for the delay using 
-  //Sim->Dynamics.getLiouvillean().getParticleDelay(part)
+  //Sim->dynamics.getLiouvillean().getParticleDelay(part)
   
   return CGlobEvent(part,
-		    Sim->Dynamics.getLiouvillean().
+		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, cells[partCellData[part.getID()].cell].origin, 
 		     cellDimension)
-		    -Sim->Dynamics.getLiouvillean().getParticleDelay(part)
+		    -Sim->dynamics.getLiouvillean().getParticleDelay(part)
 		    ,
 		    CELL, *this);
 }
@@ -136,12 +136,12 @@ CGCells::runEvent(const CParticle& part) const
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
   //expect the particle to be up to date.
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
   
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.getLiouvillean().
+  size_t cellDirection(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
 			cellDimension));
@@ -274,7 +274,7 @@ CGCells::runEvent(const CParticle& part) const
     CVector<int> tmp2 = cells[endCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
-	      << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  from <" 
@@ -325,7 +325,7 @@ CGCells::outputXML(xmlw::XmlStream& XML, const std::string& name) const
       << xmlw::attr("Name") << globName;
 
   if (MaxIntDist != 0.0)
-    XML << xmlw::attr("CellWidth") << MaxIntDist / Sim->Dynamics.units().unitLength();
+    XML << xmlw::attr("CellWidth") << MaxIntDist / Sim->dynamics.units().unitLength();
   else if (!interaction.empty())
     XML << xmlw::attr("Interaction") << interaction;
       
@@ -370,18 +370,18 @@ CGCells::addCells(Iflt maxdiam)
 	   << cellCount[1] << "," << cellCount[2];
 
   I_cout() << "Cells dimension <x,y,z>  " 
-	   << cellDimension[0] / Sim->Dynamics.units().unitLength()
+	   << cellDimension[0] / Sim->dynamics.units().unitLength()
 	   << ","
-	   << cellDimension[1] / Sim->Dynamics.units().unitLength()
+	   << cellDimension[1] / Sim->dynamics.units().unitLength()
 	   << "," 
-	   << cellDimension[2] / Sim->Dynamics.units().unitLength();
+	   << cellDimension[2] / Sim->dynamics.units().unitLength();
 
   I_cout() << "Lattice spacing <x,y,z>  " 
-	   << cellLatticeWidth[0] / Sim->Dynamics.units().unitLength()
+	   << cellLatticeWidth[0] / Sim->dynamics.units().unitLength()
 	   << ","
-	   << cellLatticeWidth[1] / Sim->Dynamics.units().unitLength()
+	   << cellLatticeWidth[1] / Sim->dynamics.units().unitLength()
 	   << "," 
-	   << cellLatticeWidth[2] / Sim->Dynamics.units().unitLength();
+	   << cellLatticeWidth[2] / Sim->dynamics.units().unitLength();
 
   fflush(stdout);
 
@@ -407,7 +407,7 @@ CGCells::addCells(Iflt maxdiam)
 
   //Add the particles section
   //Required so particles find the right owning cell
-  Sim->Dynamics.getLiouvillean().updateAllParticles(); 
+  Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
   ////initialise the data structures
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -421,7 +421,7 @@ CGCells::addLocalEvents()
     {
       cell.locals.clear();
 
-      BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->Dynamics.getLocals())
+      BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->dynamics.getLocals())
 	if (local->isInCell(cell.origin, cellDimension))
 	  cell.locals.push_back(local->getID());
     }
@@ -475,7 +475,7 @@ CGCells::getCoordsFromID(size_t i) const
 size_t
 CGCells::getCellID(Vector  pos) const
 {
-  Sim->Dynamics.BCs().applyBC(pos);
+  Sim->dynamics.BCs().applyBC(pos);
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -568,7 +568,7 @@ CGCells::getMaxInteractionLength() const
   if (MaxIntDist != 0.0)
     return MaxIntDist;
   else if (!interaction.empty())
-    return Sim->Dynamics.getInteraction(interaction)->maxIntDist();
+    return Sim->dynamics.getInteraction(interaction)->maxIntDist();
   else 
-    return Sim->Dynamics.getLongestInteraction();
+    return Sim->dynamics.getLongestInteraction();
 }

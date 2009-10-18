@@ -43,7 +43,7 @@ void
 COPChainBondLength::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, 
-		Sim->Dynamics.getTopology())
+		Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(plugPtr->getID(), 
 			     plugPtr->getMolecules().front()->size()));
@@ -60,7 +60,7 @@ COPChainBondLength::ticker()
 {
   BOOST_FOREACH(Cdata& dat, chains)
     BOOST_FOREACH(const smrtPlugPtr<CRange>& range, 
-		  Sim->Dynamics.getTopology()[dat.chainID]->getMolecules())
+		  Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
     if (range->size() > 2)
       //Walk the polymer
       for (size_t j = 0; j < range->size()-1; ++j)
@@ -78,13 +78,13 @@ COPChainBondLength::output(xmlw::XmlStream& XML)
     {
       XML << xmlw::tag("Chain")
 	  << xmlw::attr("Name") 
-	  << Sim->Dynamics.getTopology()[dat.chainID]->getName();
+	  << Sim->dynamics.getTopology()[dat.chainID]->getName();
             
-      size_t Nc = Sim->Dynamics.getTopology()[dat.chainID]
+      size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
 	->getMolecules().front()->size() - 1;
       
       for (size_t i = 0; i < Nc; ++i)
-	dat.BondLengths[i].outputHistogram(XML, 1.0/Sim->Dynamics.units().unitLength());
+	dat.BondLengths[i].outputHistogram(XML, 1.0/Sim->dynamics.units().unitLength());
       
       XML << xmlw::endtag("Chain");
     }

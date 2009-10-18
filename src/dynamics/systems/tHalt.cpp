@@ -24,7 +24,7 @@
 CStHalt::CStHalt(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
   CSystem(nSim)
 {
-  dt = ndt * Sim->Dynamics.units().unitTime();
+  dt = ndt * Sim->dynamics.units().unitTime();
 
   sysName = nName;
 
@@ -47,7 +47,7 @@ CStHalt::runEvent() const
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
 
   Sim->freestreamAcc += locdt;
   
@@ -62,10 +62,10 @@ CStHalt::initialise(size_t nID)
 
 void 
 CStHalt::setdt(Iflt ndt)
-{ dt = ndt * Sim->Dynamics.units().unitTime(); }
+{ dt = ndt * Sim->dynamics.units().unitTime(); }
 
 void 
 CStHalt::increasedt(Iflt ndt)
 { 
-  dt += ndt * Sim->Dynamics.units().unitTime(); 
+  dt += ndt * Sim->dynamics.units().unitTime(); 
 }

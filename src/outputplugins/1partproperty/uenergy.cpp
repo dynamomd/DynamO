@@ -40,20 +40,20 @@ COPUEnergy::changeSystem(COutputPlugin* Eplug)
 void
 COPUEnergy::initialise()
 {
-  intECurrent = Sim->Dynamics.calcInternalEnergy();
+  intECurrent = Sim->dynamics.calcInternalEnergy();
 }
 
 Iflt 
 COPUEnergy::getAvgSqU() const
 { 
   return intEsqAcc / ( Sim->dSysTime 
-		       * pow(Sim->Dynamics.units().unitEnergy(), 2)); 
+		       * pow(Sim->dynamics.units().unitEnergy(), 2)); 
 }
 
 Iflt 
 COPUEnergy::getAvgU() const
 { 
-  return intEAcc / ( Sim->dSysTime * Sim->Dynamics.units().unitEnergy()); 
+  return intEAcc / ( Sim->dSysTime * Sim->dynamics.units().unitEnergy()); 
 }
 
 void 
@@ -84,7 +84,7 @@ COPUEnergy::output(xmlw::XmlStream &XML)
       << xmlw::attr("Avg") << getAvgU()
       << xmlw::attr("SquareAvg") << getAvgSqU()
       << xmlw::attr("Current") << intECurrent
-    / Sim->Dynamics.units().unitEnergy()
+    / Sim->dynamics.units().unitEnergy()
       << xmlw::endtag("InternalEnergy")
       << xmlw::endtag("CEnergy");
 }
@@ -92,5 +92,5 @@ COPUEnergy::output(xmlw::XmlStream &XML)
 void
 COPUEnergy::periodicOutput()
 {
-  I_Pcout() << "U " << intECurrent / Sim->Dynamics.units().unitEnergy() << ", ";
+  I_Pcout() << "U " << intECurrent / Sim->dynamics.units().unitEnergy() << ", ";
 }

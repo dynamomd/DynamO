@@ -36,8 +36,8 @@ CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp):
   CSystem(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   meanFreeTime(100000),
-  Temp(Sim->Dynamics.units().unitEnergy()),
-  sqrtTemp(std::sqrt(Sim->Dynamics.units().unitEnergy())),
+  Temp(Sim->dynamics.units().unitEnergy()),
+  sqrtTemp(std::sqrt(Sim->dynamics.units().unitEnergy())),
   tune(false),
   setPoint(0.05),
   eventCount(0),
@@ -93,7 +93,7 @@ CSysGhost::runEvent() const
     
   Sim->ptrScheduler->stream(locdt);
   
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
 
   locdt +=  Sim->freestreamAcc;
   Sim->freestreamAcc = 0;
@@ -108,7 +108,7 @@ CSysGhost::runEvent() const
   const CParticle& part(Sim->vParticleList[*(range->begin()+step)]);
 
   //Run the collision and catch the data
-  CNParticleData SDat(Sim->Dynamics.getLiouvillean().randomGaussianEvent
+  CNParticleData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent
 		      (part, sqrtTemp));
   
   Sim->signalParticleUpdate(SDat);
@@ -137,10 +137,10 @@ CSysGhost::operator<<(const XMLNode& XML)
   
   try {
     meanFreeTime = boost::lexical_cast<Iflt>(XML.getAttribute("MFT"))
-      * Sim->Dynamics.units().unitTime();
+      * Sim->dynamics.units().unitTime();
     
     Temp = boost::lexical_cast<Iflt>(XML.getAttribute("Temperature")) 
-      * Sim->Dynamics.units().unitEnergy();
+      * Sim->dynamics.units().unitEnergy();
     
     sysName = XML.getAttribute("Name");
 
@@ -170,9 +170,9 @@ CSysGhost::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << sysName
       << xmlw::attr("MFT") << meanFreeTime
     * Sim->lN
-    / Sim->Dynamics.units().unitTime()
+    / Sim->dynamics.units().unitTime()
       << xmlw::attr("Temperature") << Temp 
-    / Sim->Dynamics.units().unitEnergy();
+    / Sim->dynamics.units().unitEnergy();
   
   if (tune)
     XML << xmlw::attr("SetPoint") << setPoint
@@ -191,5 +191,5 @@ CSysGhost::getGhostt() const
 Iflt 
 CSysGhost::getReducedTemperature() const
 {
-  return Temp / Sim->Dynamics.units().unitEnergy();
+  return Temp / Sim->dynamics.units().unitEnergy();
 }

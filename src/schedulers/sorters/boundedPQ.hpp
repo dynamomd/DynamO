@@ -206,7 +206,7 @@ public:
       }
 
     I_cout() << "Length of linear list = " << nlists;
-    I_cout() << "Scale factor = " << scale * Sim->Dynamics.units().unitTime();
+    I_cout() << "Scale factor = " << scale * Sim->dynamics.units().unitTime();
     linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					marking empty*/ 
 

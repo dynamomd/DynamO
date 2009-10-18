@@ -49,11 +49,11 @@ COPThermalConductivityE::operator<<(const XMLNode& XML)
 	  (XML.getAttribute("Length"));
       
       if (XML.isAttributeSet("dt"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
@@ -87,26 +87,26 @@ COPThermalConductivityE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    constDelG += part.getVelocity () * Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(part);
+    constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
   
-  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
 Iflt 
 COPThermalConductivityE::rescaleFactor() 
 { 
-  return Sim->Dynamics.units().unitk() 
+  return Sim->dynamics.units().unitk() 
     /(//This next line should be 1 however we have scaled the
       //correlator time as well
-      Sim->Dynamics.units().unitTime() 
-      * Sim->Dynamics.units().unitThermalCond() * 2.0 
+      Sim->dynamics.units().unitTime() 
+      * Sim->dynamics.units().unitThermalCond() * 2.0 
       * count * pow(Sim->getOutputPlugin<COPKEnergy>()->getAvgkT(), 2)
-      * Sim->Dynamics.units().simVolume());
+      * Sim->dynamics.units().simVolume());
 }
 
 void 
@@ -115,7 +115,7 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt/Sim->Dynamics.units().unitTime()
+      << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG2.size()
     / Sim->getOutputPlugin<COPMisc>()->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor()
@@ -126,7 +126,7 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
   
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
-      XML   << (1+i) * dt / Sim->Dynamics.units().unitTime()
+      XML   << (1+i) * dt / Sim->dynamics.units().unitTime()
 	    << "\t ";
       
       for (size_t j=0;j<NDIM;j++)
@@ -148,8 +148,8 @@ COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 void 
 COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
+  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
   constDelG += PDat.particle1_.getParticle().getVelocity() * p1E 
     + PDat.particle2_.getParticle().getVelocity() * p2E
@@ -278,7 +278,7 @@ COPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
 void 
 COPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());

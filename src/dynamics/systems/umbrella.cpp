@@ -79,15 +79,15 @@ CSUmbrella::runEvent() const
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
 
   ++Sim->lNColl;
 
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   bool kedown(false); //Will kinetic energy go down?
 
@@ -115,7 +115,7 @@ CSUmbrella::runEvent() const
     
   EEventType etype(NONE);
 
-  CNParticleData SDat(Sim->Dynamics.getLiouvillean().multibdyWellEvent
+  CNParticleData SDat(Sim->dynamics.getLiouvillean().multibdyWellEvent
 		      (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
 
   if (etype != BOUNCE)
@@ -141,10 +141,10 @@ CSUmbrella::initialise(size_t nID)
   ID = nID;
 
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
@@ -169,10 +169,10 @@ void
 CSUmbrella::recalculateTime()
 {
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
@@ -189,7 +189,7 @@ CSUmbrella::recalculateTime()
 	R_max = b + sqrt((ulevel + 1 * delU) / a);
       
       //Just look for escaping as we're in the well step spanning r = 0 
-      if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot
+      if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
 	  (partdata, R_max * R_max))
 	{
 	  dt = partdata.dt;
@@ -220,13 +220,13 @@ CSUmbrella::recalculateTime()
       R_max = b + sqrt(((ulevel + 1) * delU) / a);
     }
 
-  if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min))
+  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min))
     {
       dt = partdata.dt;
       type = WELL_IN;
     }
   else 
-    if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
+    if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
       {
 	dt = partdata.dt;
 	type = WELL_OUT;
@@ -268,14 +268,14 @@ CSUmbrella::operator<<(const XMLNode& XML)
     sysName = XML.getAttribute("Name");
 
     a = boost::lexical_cast<Iflt>(XML.getAttribute("a"))
-      * Sim->Dynamics.units().unitEnergy() 
-      / Sim->Dynamics.units().unitArea();
+      * Sim->dynamics.units().unitEnergy() 
+      / Sim->dynamics.units().unitArea();
 
     b = boost::lexical_cast<Iflt>(XML.getAttribute("b"))
-      * Sim->Dynamics.units().unitLength();
+      * Sim->dynamics.units().unitLength();
 
     delU = boost::lexical_cast<Iflt>(XML.getAttribute("delU"))
-      * Sim->Dynamics.units().unitEnergy();
+      * Sim->dynamics.units().unitEnergy();
 
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
 
@@ -297,10 +297,10 @@ CSUmbrella::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::tag("System")
       << xmlw::attr("Type") << "Umbrella"
-      << xmlw::attr("a") << a * Sim->Dynamics.units().unitArea() 
-    / Sim->Dynamics.units().unitEnergy()
-      << xmlw::attr("b") << b / Sim->Dynamics.units().unitLength()
-      << xmlw::attr("delU") << delU / Sim->Dynamics.units().unitEnergy()
+      << xmlw::attr("a") << a * Sim->dynamics.units().unitArea() 
+    / Sim->dynamics.units().unitEnergy()
+      << xmlw::attr("b") << b / Sim->dynamics.units().unitLength()
+      << xmlw::attr("delU") << delU / Sim->dynamics.units().unitEnergy()
       << xmlw::attr("currentulevel") << ulevel
       << xmlw::attr("Name") << sysName
       << xmlw::tag("Range1")

@@ -68,10 +68,10 @@ CIStepped::operator<<(const XMLNode& XML)
 	    XMLNode browseNode = XML.getChildNode("Step",&xml_iter);
 	    steps.push_back(steppair(boost::lexical_cast<Iflt>
 				     (browseNode.getAttribute("R"))
-				     * Sim->Dynamics.units().unitLength(),
+				     * Sim->dynamics.units().unitLength(),
 				     boost::lexical_cast<Iflt>
 				     (browseNode.getAttribute("E"))
-				     * Sim->Dynamics.units().unitEnergy()
+				     * Sim->dynamics.units().unitEnergy()
 				     ));
 	    
 	  }
@@ -139,7 +139,7 @@ int
 CIStepped::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
   
   Iflt r = rij.nrm();
 
@@ -169,10 +169,10 @@ CIStepped::getEvent(const CParticle &p1,
 {
   
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -186,19 +186,19 @@ CIStepped::getEvent(const CParticle &p1,
   if (capstat == captureMap.end())
     {
       //Not captured, test for capture
-      if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot
+      if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
 	  (colldat, runstepdata.front().first))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.getLiouvillean().sphereOverlap
+	  if (Sim->dynamics.getLiouvillean().sphereOverlap
 	      (colldat, runstepdata.front().first))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " 
 		      << (sqrt(colldat.r2) - steps.front().first)
-	      /Sim->Dynamics.units().unitLength();
+	      /Sim->dynamics.units().unitLength();
 #endif
 	  
 	  return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
@@ -207,24 +207,24 @@ CIStepped::getEvent(const CParticle &p1,
   else
     {
       //Within the potential, look for further capture or release
-      if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot
+      if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
 	  (colldat, runstepdata[capstat->second].first))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.getLiouvillean().sphereOverlap
+	  if (Sim->dynamics.getLiouvillean().sphereOverlap
 	      (colldat, runstepdata[capstat->second].first))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " 
 		      << (sqrt(colldat.r2) - steps[capstat->second].first)
-	      /Sim->Dynamics.units().unitLength();
+	      /Sim->dynamics.units().unitLength();
 #endif
 	  
 	  return CIntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	}
-      else if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot
+      else if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
 	       (colldat, runstepdata[capstat->second-1].first))
 	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
@@ -245,7 +245,7 @@ CIStepped::runEvent(const CParticle& p1,
       {
 	cmap_it capstat = getCMap_it(p1,p2);
 	
-	C2ParticleData retVal(Sim->Dynamics.getLiouvillean().SphereWellEvent
+	C2ParticleData retVal(Sim->dynamics.getLiouvillean().SphereWellEvent
 			      (iEvent, runstepdata[capstat->second-1].second, 
 			       runstepdata[capstat->second -1].first));
 	
@@ -277,7 +277,7 @@ CIStepped::runEvent(const CParticle& p1,
 	
 	if (capstat->second != static_cast<int>(runstepdata.size()))
 	  {
-	    C2ParticleData retVal = Sim->Dynamics.getLiouvillean().SphereWellEvent
+	    C2ParticleData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent
 	      (iEvent, -runstepdata[capstat->second].second,
 	       runstepdata[capstat->second].first);
 	    
@@ -296,7 +296,7 @@ CIStepped::runEvent(const CParticle& p1,
 	  }
 	else
 	  {
-	    C2ParticleData retVal = Sim->Dynamics.getLiouvillean().SmoothSpheresColl
+	    C2ParticleData retVal = Sim->dynamics.getLiouvillean().SmoothSpheresColl
 	      (iEvent, 1.0, runstepdata.back().first, CORE);
 	    
 	    Sim->signalParticleUpdate(retVal);
@@ -335,9 +335,9 @@ CIStepped::outputXML(xmlw::XmlStream& XML) const
   BOOST_FOREACH(const steppair& s, steps)
     XML << xmlw::tag("Step")
 	<< xmlw::attr("R") 
-	<< s.first / Sim->Dynamics.units().unitLength()
+	<< s.first / Sim->dynamics.units().unitLength()
 	<< xmlw::attr("E")
-	<< s.second / Sim->Dynamics.units().unitEnergy()
+	<< s.second / Sim->dynamics.units().unitEnergy()
 	<< xmlw::endtag("Step");
   
   CIMultiCapture::outputCaptureMap(XML);  
@@ -357,20 +357,20 @@ CIStepped::write_povray_desc(const DYNAMO::RGB& rgb,
      << "#declare intrep" << ID << "well = sphere {\n <0,0,0> " << diameter * lambda * 0.5
      << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
 
-  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
+  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->Dynamics.BCs().applyBC(pos);
+      Sim->dynamics.BCs().applyBC(pos);
       
       os << "object {\n intrep" << ID << "center\n translate < "
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
     }
   
   os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
+  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->Dynamics.BCs().applyBC(pos);
+      Sim->dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "well\n translate < "
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";

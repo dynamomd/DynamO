@@ -48,7 +48,7 @@ CLocalEvent
 CLOscillatingPlate::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
@@ -57,7 +57,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
   Iflt reducedt = Sim->dSysTime 
     - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
 
-  Iflt dt = Sim->Dynamics.getLiouvillean().getPointPlateCollision
+  Iflt dt = Sim->dynamics.getLiouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
      caution);
 
@@ -75,7 +75,7 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   ++Sim->lNColl;
   
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runOscilatingPlate
+  CNParticleData EDat(Sim->dynamics.getLiouvillean().runOscilatingPlate
 		      (part, rw0, nhat, delta, omega0, sigma, mass, 
 		       e, timeshift));
 
@@ -118,22 +118,22 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
 
     xBrowseNode = XML.getChildNode("Origin");
     rw0 << xBrowseNode;
-    rw0 *= Sim->Dynamics.units().unitLength();
+    rw0 *= Sim->dynamics.units().unitLength();
 
     omega0 =  boost::lexical_cast<Iflt>(XML.getAttribute("Omega0"))
-      / Sim->Dynamics.units().unitTime();
+      / Sim->dynamics.units().unitTime();
 
     sigma = boost::lexical_cast<Iflt>(XML.getAttribute("Sigma"))
-      * Sim->Dynamics.units().unitLength();
+      * Sim->dynamics.units().unitLength();
 
     delta = boost::lexical_cast<Iflt>(XML.getAttribute("Delta"))
-      * Sim->Dynamics.units().unitLength();
+      * Sim->dynamics.units().unitLength();
 
     mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"))
-      * Sim->Dynamics.units().unitMass();
+      * Sim->dynamics.units().unitMass();
 
     timeshift = boost::lexical_cast<Iflt>(XML.getAttribute("TimeShift"))
-      * Sim->Dynamics.units().unitTime();
+      * Sim->dynamics.units().unitTime();
 
     localName = XML.getAttribute("Name");
   } 
@@ -153,17 +153,17 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "OscillatingPlate" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Omega0") << omega0 * Sim->Dynamics.units().unitTime()
-      << xmlw::attr("Sigma") << sigma / Sim->Dynamics.units().unitLength()
-      << xmlw::attr("Delta") << delta / Sim->Dynamics.units().unitLength()
-      << xmlw::attr("Mass") << mass / Sim->Dynamics.units().unitMass()
-      << xmlw::attr("TimeShift") << tmp / Sim->Dynamics.units().unitTime()
+      << xmlw::attr("Omega0") << omega0 * Sim->dynamics.units().unitTime()
+      << xmlw::attr("Sigma") << sigma / Sim->dynamics.units().unitLength()
+      << xmlw::attr("Delta") << delta / Sim->dynamics.units().unitLength()
+      << xmlw::attr("Mass") << mass / Sim->dynamics.units().unitMass()
+      << xmlw::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
       << range
       << xmlw::tag("Norm")
       << nhat
       << xmlw::endtag("Norm")
       << xmlw::tag("Origin")
-      << rw0 / Sim->Dynamics.units().unitLength()
+      << rw0 / Sim->dynamics.units().unitLength()
       << xmlw::endtag("Origin");
 
 }
@@ -194,45 +194,45 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
   Vector pos = getPosition();
   //The walls are \pm0.25 thick and are set 0.5 away from the COM surface
   //to give the appearance of proper walls, not COM walls
-  Vector WallLoc1 = pos + nhat * (sigma + 0.75 * Sim->Dynamics.units().unitLength());
-  Vector WallLoc2 = pos - nhat * (sigma + 0.75 * Sim->Dynamics.units().unitLength());
+  Vector WallLoc1 = pos + nhat * (sigma + 0.75 * Sim->dynamics.units().unitLength());
+  Vector WallLoc2 = pos - nhat * (sigma + 0.75 * Sim->dynamics.units().unitLength());
 
-  Sim->Dynamics.BCs().applyBC(WallLoc1);
-  Sim->Dynamics.BCs().applyBC(WallLoc2);
+  Sim->dynamics.BCs().applyBC(WallLoc1);
+  Sim->dynamics.BCs().applyBC(WallLoc2);
 
-  os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength() 
-     << ", -0.5>, <0.5, " << +0.25 * Sim->Dynamics.units().unitLength() 
+  os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->dynamics.units().unitLength() 
+     << ", -0.5>, <0.5, " << +0.25 * Sim->dynamics.units().unitLength() 
      << ", 0.5> } Point_At_Trans(<"
      << nhat[0] << "," << nhat[1] << "," << nhat[2] << ">) translate <"
      <<  WallLoc1[0] << "," <<  WallLoc1[1] << "," <<  WallLoc1[2] 
      << "> }"
 
      << "\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 
-  os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->Dynamics.units().unitLength()
-     << ", -0.5>, <0.5, " << 0.25 * Sim->Dynamics.units().unitLength() 
+  os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->dynamics.units().unitLength()
+     << ", -0.5>, <0.5, " << 0.25 * Sim->dynamics.units().unitLength() 
      << ", 0.5> } Point_At_Trans(<"
      << -nhat[0] << "," << -nhat[1] << "," << -nhat[2] << ">) translate <"
      <<  WallLoc2[0] << "," <<  WallLoc2[1] << "," <<  WallLoc2[2] 
      << "> }"
 
      << "\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }

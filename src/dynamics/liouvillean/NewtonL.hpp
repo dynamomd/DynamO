@@ -106,7 +106,7 @@ public:
 
   virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
 
-  //Structure Dynamics
+  //Structure dynamics
   virtual CNParticleData multibdyCollision(const CRange&, const CRange&,
 					   const Iflt&,
 					   const EEventType&) const;

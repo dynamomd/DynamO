@@ -50,15 +50,15 @@ COPMSD::output(xmlw::XmlStream &XML)
 	<< xmlw::tag("Particle") 
 	<< xmlw::attr("val") << MSD
 	<< xmlw::attr("diffusionCoeff") 
-	<< MSD * Sim->Dynamics.units().unitTime() / Sim->dSysTime
+	<< MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
 	<< xmlw::endtag("Particle");
   }
 
-  if (!Sim->Dynamics.getTopology().empty())
+  if (!Sim->dynamics.getTopology().empty())
     {
       XML << xmlw::tag("Structures");
 
-      BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->Dynamics.getTopology())
+      BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->dynamics.getTopology())
 	{
 	  Iflt MSD(calcStructMSD(*topo));
 
@@ -66,7 +66,7 @@ COPMSD::output(xmlw::XmlStream &XML)
 	      << xmlw::attr("Name") << topo->getName()
 	      << xmlw::attr("val") << MSD
 	      << xmlw::attr("diffusionCoeff") 
-	      << MSD * Sim->Dynamics.units().unitTime() / Sim->dSysTime
+	      << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
 	      << xmlw::endtag("Structure");
 	}
 
@@ -80,21 +80,21 @@ Iflt
 COPMSD::calcMSD() const
 {
   //Required to get the correct results
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
   Iflt acc = 0.0;
   
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     acc += (part.getPosition() - initPos[part.getID()]).nrm2();
   
-  return acc / (initPos.size() * 2.0 * NDIM * Sim->Dynamics.units().unitArea());
+  return acc / (initPos.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
 }
 
 Iflt
 COPMSD::calcStructMSD(const CTopology& Itop) const
 {
   //Required to get the correct results
-  Sim->Dynamics.getLiouvillean().updateAllParticles();
+  Sim->dynamics.getLiouvillean().updateAllParticles();
 
   Iflt acc = 0.0;
   BOOST_FOREACH(const smrtPlugPtr<CRange>& molRange, Itop.getMolecules())
@@ -103,7 +103,7 @@ COPMSD::calcStructMSD(const CTopology& Itop) const
       Iflt totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
-	  Iflt pmass = Sim->Dynamics.getSpecies(Sim->vParticleList[ID])
+	  Iflt pmass = Sim->dynamics.getSpecies(Sim->vParticleList[ID])
 	    .getMass();
 
 	  totmass += pmass;
@@ -118,7 +118,7 @@ COPMSD::calcStructMSD(const CTopology& Itop) const
     }
 
   acc /= Itop.getMoleculeCount() * 2.0 * NDIM
-    * Sim->Dynamics.units().unitArea();
+    * Sim->dynamics.units().unitArea();
   
   return acc;
 }

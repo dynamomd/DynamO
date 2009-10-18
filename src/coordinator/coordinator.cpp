@@ -107,7 +107,7 @@ CCoordinator::parseOptions(int argc, char *argv[])
      " Values:\n"
      "  1: \tSingle System Engine\n"
      "  2: \tNVT Replica Exchange\n"
-     "  3: \tCompression Dynamics")
+     "  3: \tCompression dynamics")
     ;
 
   basicOpts.add(systemopts).add(engineopts);

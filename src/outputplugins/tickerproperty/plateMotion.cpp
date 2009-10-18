@@ -52,13 +52,13 @@ void
 COPPlateMotion::initialise()
 {
   try {
-    plateID = Sim->Dynamics.getLocal(plateName)->getID();
+    plateID = Sim->dynamics.getLocal(plateName)->getID();
   } catch(...)
     {
       D_throw() << "Could not find the PlateName specified. You said " << plateName;
     }
   
-  if (dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr()) == NULL) 
+  if (dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr()) == NULL) 
     D_throw() << "The PlateName'd local is not a CLOscillatingPlate";
 
   if (logfile.is_open())
@@ -66,10 +66,10 @@ COPPlateMotion::initialise()
   
   logfile.open("plateMotion.out", std::ios::out|std::ios::trunc);
 
-  localEnergyLoss.resize(Sim->Dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
-  localEnergyFlux.resize(Sim->Dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
+  localEnergyLoss.resize(Sim->dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
+  localEnergyFlux.resize(Sim->dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
 
-  oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
+  oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
   partpartEnergyLoss = 0;
 
   ticker();
@@ -81,7 +81,7 @@ COPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData&
   Iflt newPlateEnergy = oldPlateEnergy;
 
   if (localEvent.getLocalID() == plateID)
-    newPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
+    newPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
 
   Iflt EnergyChange(0);
 
@@ -122,8 +122,8 @@ COPPlateMotion::ticker()
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
       Vector pos(part.getPosition()), vel(part.getVelocity());
-      Iflt pmass(Sim->Dynamics.getSpecies(part).getMass());
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Iflt pmass(Sim->dynamics.getSpecies(part).getMass());
+      Sim->dynamics.BCs().applyBC(pos, vel);
       momentum += vel * pmass;
       sqmom += (vel | vel) * (pmass * pmass);
       com += pos * pmass;
@@ -131,27 +131,27 @@ COPPlateMotion::ticker()
       partEnergy += pmass * vel.nrm2();
     }
   
-  com /= (mass * Sim->Dynamics.units().unitLength());
-  Vector comvel = momentum / (mass * Sim->Dynamics.units().unitVelocity());
+  com /= (mass * Sim->dynamics.units().unitLength());
+  Vector comvel = momentum / (mass * Sim->dynamics.units().unitVelocity());
   
   partEnergy *= 0.5;
 
-  const CLOscillatingPlate& plate(*dynamic_cast<const CLOscillatingPlate*>(Sim->Dynamics.getLocals()[plateID].get_ptr()));
+  const CLOscillatingPlate& plate(*dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr()));
 
-  Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->Dynamics.units().unitLength();
+  Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->dynamics.units().unitLength();
 
-  Vector plateSpeed = plate.getVelocity() / Sim->Dynamics.units().unitVelocity();
+  Vector plateSpeed = plate.getVelocity() / Sim->dynamics.units().unitVelocity();
 
-  logfile << Sim->dSysTime / Sim->Dynamics.units().unitTime()
+  logfile << Sim->dSysTime / Sim->dynamics.units().unitTime()
 	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
 	  << " " << com[0] << " " << com[1] << " " << com[2]
 	  << " " << comvel[0] << " " << comvel[1] << " " << comvel[2]
 	  << " " << plateSpeed[0] << " " << plateSpeed[1] << " " << plateSpeed[2]
-	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->Dynamics.units().unitMomentum(),2))
-	  << " " << plate.getPlateEnergy() / Sim->Dynamics.units().unitEnergy()
-	  << " " << partEnergy / Sim->Dynamics.units().unitEnergy() 
-	  << " " << (plate.getPlateEnergy() + partEnergy) / Sim->Dynamics.units().unitEnergy()
-	  << " " << partpartEnergyLoss  * Sim->Dynamics.units().unitTime() / (getTickerTime() * Sim->Dynamics.units().unitEnergy())
+	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->dynamics.units().unitMomentum(),2))
+	  << " " << plate.getPlateEnergy() / Sim->dynamics.units().unitEnergy()
+	  << " " << partEnergy / Sim->dynamics.units().unitEnergy() 
+	  << " " << (plate.getPlateEnergy() + partEnergy) / Sim->dynamics.units().unitEnergy()
+	  << " " << partpartEnergyLoss  * Sim->dynamics.units().unitTime() / (getTickerTime() * Sim->dynamics.units().unitEnergy())
 	  << "\n";
   
   partpartEnergyLoss = 0.0;
@@ -174,26 +174,26 @@ COPPlateMotion::output(xmlw::XmlStream& XML)
   for (size_t ID(0); ID < localEnergyLoss.size(); ++ID)
     {
       {
-	std::fstream of((Sim->Dynamics.getLocals()[ID]->getName() 
+	std::fstream of((Sim->dynamics.getLocals()[ID]->getName() 
 		       + std::string("EnergyLoss.out")).c_str(), 
 		      std::ios::out | std::ios::trunc);
       
 	size_t step(0);
-	Iflt deltat(getTickerTime() / Sim->Dynamics.units().unitTime());
+	Iflt deltat(getTickerTime() / Sim->dynamics.units().unitTime());
 	
 	BOOST_FOREACH(const Iflt& val, localEnergyLoss[ID].second)
-	  of << deltat * (step++) << " " << val / (deltat *  Sim->Dynamics.units().unitEnergy()) << "\n";
+	  of << deltat * (step++) << " " << val / (deltat *  Sim->dynamics.units().unitEnergy()) << "\n";
       }
       {
-	std::fstream of((Sim->Dynamics.getLocals()[ID]->getName() 
+	std::fstream of((Sim->dynamics.getLocals()[ID]->getName() 
 			 + std::string("EnergyFlux.out")).c_str(), 
 			std::ios::out | std::ios::trunc);
 	
 	size_t step(0);
-	Iflt deltat(getTickerTime() / Sim->Dynamics.units().unitTime());
+	Iflt deltat(getTickerTime() / Sim->dynamics.units().unitTime());
 	
 	BOOST_FOREACH(const Iflt& val, localEnergyFlux[ID].second)
-	  of << deltat * (step++) << " " << val / (deltat * Sim->Dynamics.units().unitEnergy()) << "\n";
+	  of << deltat * (step++) << " " << val / (deltat * Sim->dynamics.units().unitEnergy()) << "\n";
       }
     }
 }

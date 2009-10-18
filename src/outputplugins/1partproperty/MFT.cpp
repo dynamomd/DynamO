@@ -58,9 +58,9 @@ COPMFT::initialise()
   std::vector<C1DHistogram> vecTemp;
   
   vecTemp.resize(collisionHistoryLength, 
-		 C1DHistogram(Sim->Dynamics.units().unitTime() * binwidth));
+		 C1DHistogram(Sim->dynamics.units().unitTime() * binwidth));
   
-  data.resize(Sim->Dynamics.getSpecies().size(), vecTemp);
+  data.resize(Sim->dynamics.getSpecies().size(), vecTemp);
 }
 
 void 
@@ -88,7 +88,7 @@ COPMFT::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")
-	  << Sim->Dynamics.getSpecies()[id]->getName();
+	  << Sim->dynamics.getSpecies()[id]->getName();
       
       for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
 	{
@@ -96,7 +96,7 @@ COPMFT::output(xmlw::XmlStream &XML)
 	      << xmlw::attr("val") << collN + 1;
 	  
 	  data[id][collN].outputHistogram
-	    (XML, 1.0 / Sim->Dynamics.units().unitTime());
+	    (XML, 1.0 / Sim->dynamics.units().unitTime());
 	  
 	  XML << xmlw::endtag("Collisions");
 	}

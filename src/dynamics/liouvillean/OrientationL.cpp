@@ -42,19 +42,19 @@ LNOrientation::initialise()
   Iflt sumEnergy(0.0);
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)  
-    sumEnergy += Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia()
+    sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()
     * orientationData[part.getID()].angularVelocity.nrm2();
   
   //Check if any of the species are overridden
   bool hasInertia(false);
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     if (dynamic_cast<const CSpecInertia*>(spec.get_ptr()) != NULL)
       hasInertia = true;
 
   if (!hasInertia)
     D_throw() << "No species have inertia, using the orientational liouvillean is pointless";
 
-  sumEnergy *= 0.5 / Sim->Dynamics.units().unitEnergy();
+  sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
   
   I_cout() << "System Rotational Energy " << sumEnergy
 	   << "\nRotational kT " << sumEnergy / Sim->lN;
@@ -124,11 +124,11 @@ LNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elastic
   updateParticlePair(particle1, particle2);  
 
   C2ParticleData retVal(particle1, particle2,
-                        Sim->Dynamics.getSpecies(particle1),
-                        Sim->Dynamics.getSpecies(particle2),
+                        Sim->dynamics.getSpecies(particle1),
+                        Sim->dynamics.getSpecies(particle2),
                         CORE);
   
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
@@ -349,10 +349,10 @@ LNOrientation::getParticleDOF() const { return NDIM+2; }
 Iflt
 LNOrientation::getParticleKineticEnergy(const CParticle& part) const
 {
-  return 0.5 * ((Sim->Dynamics.getSpecies(part).getMass()
+  return 0.5 * ((Sim->dynamics.getSpecies(part).getMass()
     * part.getVelocity().nrm2())
       + (orientationData[part.getID()].angularVelocity.nrm2()
-      * Sim->Dynamics.getSpecies(part).getScalarMomentOfInertia()));
+      * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()));
 }
  
 void 

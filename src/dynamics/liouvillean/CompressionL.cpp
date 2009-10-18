@@ -101,11 +101,11 @@ LCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Ifl
   updateParticlePair(particle1, particle2);  
 
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			eType);
 
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass(); 
@@ -139,11 +139,11 @@ LCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const
   updateParticlePair(particle1, particle2);  
   
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			event.getType());
     
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
@@ -224,7 +224,7 @@ LCompression::getPBCSentinelTime(const CParticle& part,
 
   Vector  pos(part.getPosition()), vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().applyBC(pos, vel);
+  Sim->dynamics.BCs().applyBC(pos, vel);
 
   Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 

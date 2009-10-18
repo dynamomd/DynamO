@@ -37,8 +37,8 @@ void
 CSSphericalTop::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("InertiaConstant") 
-      << inertiaConstant / Sim->Dynamics.units().unitArea()
-      << xmlw::attr("Mass") << mass / Sim->Dynamics.units().unitMass()
+      << inertiaConstant / Sim->dynamics.units().unitArea()
+      << xmlw::attr("Mass") << mass / Sim->dynamics.units().unitMass()
       << xmlw::attr("Name") << spName
       << xmlw::attr("IntName") << intName
       << xmlw::attr("Type") << "SphericalTop"
@@ -53,7 +53,7 @@ CSSphericalTop::operator<<(const XMLNode& XML)
   try {
     inertiaConstant 
       = boost::lexical_cast<Iflt>(XML.getAttribute("InertiaConstant"))
-      * Sim->Dynamics.units().unitArea();
+      * Sim->dynamics.units().unitArea();
   } 
   catch (boost::bad_lexical_cast &)
     {

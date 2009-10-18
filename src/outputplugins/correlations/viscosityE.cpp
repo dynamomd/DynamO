@@ -62,14 +62,14 @@ COPViscosityE::operator<<(const XMLNode& XML)
 	  (XML.getAttribute("Length"));
 
       if (XML.isAttributeSet("dt"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
 
       if (XML.isAttributeSet("dtfactor"))
 	dtfactor = boost::lexical_cast<Iflt>(XML.getAttribute("dtfactor"));
       
       if (XML.isAttributeSet("t"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
@@ -89,7 +89,7 @@ COPViscosityE::initialise()
       if (Sim->lastRunMFT != 0.0)
 	dt = Sim->lastRunMFT * 0.5 * dtfactor;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -97,9 +97,9 @@ COPViscosityE::initialise()
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	constDelG[iDim][jDim] 
 	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->Dynamics.getSpecies(part).getMass();
+	  * Sim->dynamics.getSpecies(part).getMass();
 
-  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
 void 
@@ -221,17 +221,17 @@ inline void
 COPViscosityE::output(xmlw::XmlStream &XML)
 {
   Iflt rescaleFactor = 1.0
-    / (Sim->Dynamics.units().unitTime() 
+    / (Sim->dynamics.units().unitTime() 
        //This line should be 1 however we have scaled the correlator time as well
-       * Sim->Dynamics.units().unitViscosity() * 2.0 
+       * Sim->dynamics.units().unitViscosity() * 2.0 
        * Sim->getOutputPlugin<COPKEnergy>()->getAvgkT() 
        //Count has been taken out due to the extra averaging of the constant piece 
-       * Sim->Dynamics.units().simVolume());
+       * Sim->dynamics.units().simVolume());
   
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
+      << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<COPMisc>())->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor
       << xmlw::attr("SampleCount") << count
@@ -255,7 +255,7 @@ COPViscosityE::output(xmlw::XmlStream &XML)
       {
 	traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((Iflt) G.size()) + ((Iflt) count));
 	
-	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->Dynamics.units().simVolume());
+	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.units().simVolume());
       }
   
   XML << xmlw::tag("Pressure");
@@ -270,7 +270,7 @@ COPViscosityE::output(xmlw::XmlStream &XML)
 	{
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
 	  XML << xmlw::attr(name.c_str())
-	      << P[iDim][jDim] / Sim->Dynamics.units().unitPressure();
+	      << P[iDim][jDim] / Sim->dynamics.units().unitPressure();
 	}
       
       XML << xmlw::endtag(name.c_str());
@@ -284,14 +284,14 @@ COPViscosityE::output(xmlw::XmlStream &XML)
   
   XML << xmlw::tag("PressureVals")
       << xmlw::attr("AvgPressure")
-      << AvgPressure / (NDIM * Sim->Dynamics.units().unitPressure())
+      << AvgPressure / (NDIM * Sim->dynamics.units().unitPressure())
       << xmlw::endtag("PressureVals");
   
   XML << xmlw::chardata();
   
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
-      XML << (i+1) * dt / Sim->Dynamics.units().unitTime();
+      XML << (i+1) * dt / Sim->dynamics.units().unitTime();
       for (size_t j = 0; j < NDIM; j++)
 	for (size_t k = 0; k < NDIM; k++)
 	  XML << "\t" << ((accG2[i][j][k] / count) - traceAverage[j][k]*(i+1)*traceAverage[j][k]*(i+1)) * rescaleFactor ;

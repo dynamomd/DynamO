@@ -188,7 +188,7 @@ LNewtonian::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
   updateParticle(part);
 
   //Collect the precoll data
-  C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), GAUSSIAN);
+  C1ParticleData tmpDat(part, Sim->dynamics.getSpecies(part), GAUSSIAN);
 
   Iflt factor = 
     sqrtT / std::sqrt(tmpDat.getSpecies().getMass());
@@ -223,7 +223,7 @@ LNewtonian::getWallCollision(const CParticle &part,
   Vector  rij = part.getPosition(),
     vel = part.getVelocity();
 
-  Sim->Dynamics.BCs().applyBC(rij, vel);
+  Sim->dynamics.BCs().applyBC(rij, vel);
 
   Iflt rvdot = (vel | wallNorm);
 
@@ -244,7 +244,7 @@ LNewtonian::runWallCollision(const CParticle &part,
 {
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
+  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
   const_cast<CParticle&>(part).getVelocity()
     -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
@@ -266,17 +266,17 @@ LNewtonian::runAndersenWallCollision(const CParticle& part,
 
   //This gives a completely new random unit vector with a properly
   //distributed Normal component. See Granular Simulation Book
-  C1ParticleData tmpDat(part, Sim->Dynamics.getSpecies(part), WALL);
+  C1ParticleData tmpDat(part, Sim->dynamics.getSpecies(part), WALL);
  
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     const_cast<CParticle&>(part).getVelocity()[iDim] 
       = Sim->normal_sampler() * sqrtT 
-      / sqrt(Sim->Dynamics.getSpecies(part).getMass());
+      / sqrt(Sim->dynamics.getSpecies(part).getMass());
   
   const_cast<CParticle&>(part).getVelocity() 
     //This first line adds a component in the direction of the normal
     += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler())
-			     / Sim->Dynamics.getSpecies(part).getMass())
+			     / Sim->dynamics.getSpecies(part).getMass())
 		//This removes the original normal component
 		-(part.getVelocity() | vNorm));
 
@@ -294,7 +294,7 @@ LNewtonian::getSquareCellCollision2(const CParticle& part,
 {
   Vector  rpos(part.getPosition() - origin);
   Vector  vel(part.getVelocity());
-  Sim->Dynamics.BCs().applyBC(rpos, vel);
+  Sim->dynamics.BCs().applyBC(rpos, vel);
   
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -330,7 +330,7 @@ LNewtonian::getSquareCellCollision3(const CParticle& part,
   Vector  rpos(part.getPosition() - origin);
   Vector  vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().applyBC(rpos, vel);
+  Sim->dynamics.BCs().applyBC(rpos, vel);
 
   size_t retVal(0);
   Iflt time((vel[0] < 0) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
@@ -367,7 +367,7 @@ LNewtonian::DSMCSpheresTest(const CParticle& p1,
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
 
-  //Sim->Dynamics.BCs().applyBC(pdat.rij, pdat.vij);
+  //Sim->dynamics.BCs().applyBC(pdat.rij, pdat.vij);
   pdat.rvdot = (pdat.rij | pdat.vij);
   
   if (pdat.rvdot > 0)
@@ -390,8 +390,8 @@ LNewtonian::DSMCSpheresRun(const CParticle& p1,
   updateParticlePair(p1, p2);  
 
   C2ParticleData retVal(p1, p2,
-			Sim->Dynamics.getSpecies(p1),
-			Sim->Dynamics.getSpecies(p2),
+			Sim->dynamics.getSpecies(p1),
+			Sim->dynamics.getSpecies(p2),
 			CORE);
   
   retVal.rij = pdat.rij;
@@ -430,11 +430,11 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
   updateParticlePair(particle1, particle2);  
 
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			eType);
     
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
@@ -490,11 +490,11 @@ LNewtonian::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
   updateParticlePair(particle1, particle2);  
 
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			eType);
     
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
   Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
@@ -528,11 +528,11 @@ LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   updateParticlePair(particle1, particle2);
 
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			eType);
     
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
   size_t dim(0);
    
@@ -580,11 +580,11 @@ LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   updateParticlePair(particle1, particle2);
 
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			eType);
     
-  Sim->Dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
   retVal.rij = rot * Vector(retVal.rij);
   retVal.vijold = rot * Vector(retVal.vijold);
@@ -641,18 +641,18 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
       updateParticle(Sim->vParticleList[ID]);
       
       structmass1 += 
-	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
       
       Vector pos(Sim->vParticleList[ID].getPosition()),
 	vel(Sim->vParticleList[ID].getVelocity());
 
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Sim->dynamics.BCs().applyBC(pos, vel);
 
       COMVel1 += vel
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
 
       COMPos1 += pos
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
   BOOST_FOREACH(const size_t& ID, range2)
@@ -660,18 +660,18 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
       updateParticle(Sim->vParticleList[ID]);
 
       structmass2 += 
-	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
       
       Vector pos(Sim->vParticleList[ID].getPosition()),
 	vel(Sim->vParticleList[ID].getVelocity());
 
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Sim->dynamics.BCs().applyBC(pos, vel);
 
       COMVel2 += vel
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
 
       COMPos2 += pos
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
   COMVel1 /= structmass1;
@@ -681,7 +681,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
   COMPos2 /= structmass2;
   
   Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
-  Sim->Dynamics.BCs().applyBC(rij, vij);
+  Sim->dynamics.BCs().applyBC(rij, vij);
   Iflt rvdot = (rij | vij);
 
   Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
@@ -694,7 +694,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
     {
       C1ParticleData tmpval
 	(Sim->vParticleList[ID],
-	 Sim->Dynamics.getSpecies(Sim->vParticleList[ID]),
+	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
@@ -711,7 +711,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
     {
       C1ParticleData tmpval
 	(Sim->vParticleList[ID],
-	 Sim->Dynamics.getSpecies(Sim->vParticleList[ID]),
+	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
@@ -740,18 +740,18 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
       updateParticle(Sim->vParticleList[ID]);
       
       structmass1 += 
-	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
 
       Vector pos(Sim->vParticleList[ID].getPosition()),
 	vel(Sim->vParticleList[ID].getVelocity());
       
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Sim->dynamics.BCs().applyBC(pos, vel);
 
       COMVel1 += vel
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
 
       COMPos1 += pos
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
   BOOST_FOREACH(const size_t& ID, range2)
@@ -759,18 +759,18 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
       updateParticle(Sim->vParticleList[ID]);
 
       structmass2 += 
-	Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
       
       Vector pos(Sim->vParticleList[ID].getPosition()),
 	vel(Sim->vParticleList[ID].getVelocity());
 
-      Sim->Dynamics.BCs().applyBC(pos, vel);
+      Sim->dynamics.BCs().applyBC(pos, vel);
 
       COMVel2 += vel
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();      
 
       COMPos2 += pos
-	* Sim->Dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
+	* Sim->dynamics.getSpecies(Sim->vParticleList[ID]).getMass();
     }
   
   COMVel1 /= structmass1;
@@ -780,7 +780,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
   COMPos2 /= structmass2;
   
   Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
-  Sim->Dynamics.BCs().applyBC(rij, vij);
+  Sim->dynamics.BCs().applyBC(rij, vij);
   Iflt rvdot = (rij | vij);
 
   Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
@@ -815,7 +815,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
     {
       C1ParticleData tmpval
 	(Sim->vParticleList[ID],
-	 Sim->Dynamics.getSpecies(Sim->vParticleList[ID]),
+	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
@@ -832,7 +832,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
     {
       C1ParticleData tmpval
 	(Sim->vParticleList[ID],
-	 Sim->Dynamics.getSpecies(Sim->vParticleList[ID]),
+	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
       const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
@@ -858,11 +858,11 @@ LNewtonian::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   updateParticlePair(particle1, particle2);  
 
   C2ParticleData retVal(particle1, particle2,
-			Sim->Dynamics.getSpecies(particle1),
-			Sim->Dynamics.getSpecies(particle2),
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
 			event.getType());
     
-  Sim->Dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
+  Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
   
@@ -939,7 +939,7 @@ LNewtonian::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
 
   Vector pos(part.getPosition()), vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().applyBC(pos, vel);
+  Sim->dynamics.BCs().applyBC(pos, vel);
 
   Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / fabs(vel[0]);
 
@@ -966,7 +966,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 #endif
   
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
-  Sim->Dynamics.BCs().applyBC(pos, vel);
+  Sim->dynamics.BCs().applyBC(pos, vel);
 
   Iflt t_high;
   {
@@ -1066,14 +1066,14 @@ LNewtonian::runOscilatingPlate
   std::cout.flush();
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
+  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
 
   COscillatingPlateFunc fL(part.getVelocity(), nhat, part.getPosition(), t + Sim->dSysTime, delta, 
 			   omega0, sigma);
 
   Vector pos(part.getPosition() - fL.wallPosition()), vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().applyBC(pos, vel);
+  Sim->dynamics.BCs().applyBC(pos, vel);
   
   Iflt pmass = retVal.getSpecies().getMass();
   Iflt mu = (pmass * mass) / (mass + pmass);
@@ -1163,7 +1163,7 @@ LNewtonian::getCylinderWallCollision(const CParticle& part,
   Vector  rij = part.getPosition() - wallLoc,
     vel = part.getVelocity();
 
-  Sim->Dynamics.BCs().applyBC(rij, vel);
+  Sim->dynamics.BCs().applyBC(rij, vel);
 
   rij -= Vector((rij | wallNorm) * wallNorm);
 
@@ -1190,11 +1190,11 @@ LNewtonian::runCylinderWallCollision(const CParticle& part,
 {
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->Dynamics.getSpecies(part), WALL);
+  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
   Vector rij =  origin - part.getPosition();
 
-  Sim->Dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij);
 
   rij /= rij.nrm();
 

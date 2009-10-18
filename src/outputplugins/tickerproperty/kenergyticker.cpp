@@ -53,7 +53,7 @@ COPKEnergyTicker::ticker()
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->Dynamics.getSpecies(part).getMass();
+	  * Sim->dynamics.getSpecies(part).getMass();
 
   //Try and stop round off error this way
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -71,7 +71,7 @@ COPKEnergyTicker::output(xmlw::XmlStream& XML)
 
   XML << xmlw::tag("KEnergyTicker")
       << xmlw::attr("T")
-      << sumComp / (((Iflt) count) * ((Iflt)NDIM) * Sim->lN * Sim->Dynamics.units().unitEnergy());
+      << sumComp / (((Iflt) count) * ((Iflt)NDIM) * Sim->lN * Sim->dynamics.units().unitEnergy());
   
 
   XML << xmlw::tag("KineticTensor");
@@ -87,7 +87,7 @@ COPKEnergyTicker::output(xmlw::XmlStream& XML)
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
 	  XML << xmlw::attr(name.c_str())
 	      << sum[iDim][jDim] / (((Iflt) count) * Sim->lN 				    
-				    * Sim->Dynamics.units().unitEnergy());;
+				    * Sim->dynamics.units().unitEnergy());;
 	}
       
       XML << xmlw::endtag(name.c_str());
@@ -107,7 +107,7 @@ COPKEnergyTicker::periodicOutput()
     sumComp += sum[iDim][iDim];
 
   sumComp /= ((Iflt) count) * ((Iflt)NDIM) * Sim->lN 
-    * Sim->Dynamics.units().unitEnergy();
+    * Sim->dynamics.units().unitEnergy();
 
   I_Pcout() << "<T>_t " <<  sumComp 
 	    << ", ";

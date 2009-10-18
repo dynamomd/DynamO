@@ -26,7 +26,7 @@ class CLSLLOD: public Liouvillean
 public:
   CLSLLOD(DYNAMO::SimData*);
 
-  //Structure Dynamics
+  //Structure dynamics
   virtual CNParticleData multibdyCollision(const CRange&, const CRange&, 
 					   const Iflt&, 
 					   const EEventType&) const;

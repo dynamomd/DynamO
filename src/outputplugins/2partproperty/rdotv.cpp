@@ -97,9 +97,9 @@ COPRdotV::output(xmlw::XmlStream &XML)
 	  << xmlw::attr("EventName") 
 	  << getName(pair1.first.second, Sim)
 	  << xmlw::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
-	/ (Sim->Dynamics.units().unitVelocity() 
-	   * Sim->Dynamics.units().unitLength()
-	   * Sim->Dynamics.units().unitMass());
+	/ (Sim->dynamics.units().unitVelocity() 
+	   * Sim->dynamics.units().unitLength()
+	   * Sim->dynamics.units().unitMass());
       
       pair1.second.costheta.outputHistogram(XML, 1.0);
       

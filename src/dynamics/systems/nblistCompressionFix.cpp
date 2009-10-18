@@ -31,7 +31,7 @@ CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, Iflt nGR, 
   sysName = "GlobalCellsCompressionHack";
   type = NON_EVENT;
 
-  if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[cellID].get_ptr()) == NULL)
+  if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
     D_throw() << "The ID passed to CSNBListCompressionFix isn't a CGNeighbourList";
 }
 
@@ -40,25 +40,25 @@ CSNBListCompressionFix::initialise(size_t nID)
 {
   ID = nID;
 
-  if (dynamic_cast<const CGNeighbourList*>(Sim->Dynamics.getGlobals()[cellID].get_ptr()) == NULL)
+  if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
     D_throw() << "Have the globals been shuffled? The cellID is no longer a CGNeighbourList.";
   
   const CGNeighbourList& nblist(dynamic_cast<const CGNeighbourList&>
-			       (*Sim->Dynamics.getGlobals()[cellID]));
+			       (*Sim->dynamics.getGlobals()[cellID]));
 
   dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
 
   I_cout() << "Compression Hack Loaded"
 	   << "\nFor global " << nblist.getName()
 	   << "\nCompression rate = " 
-	   << growthRate / Sim->Dynamics.units().unitTime()
+	   << growthRate / Sim->dynamics.units().unitTime()
 	   << "\nSim Units compression rate = " << growthRate
 	   << "\nMax length of interaction = " 
-	   << nblist.getMaxSupportedInteractionLength() / Sim->Dynamics.units().unitLength()
+	   << nblist.getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength()
 	   << "\nMaximum supported length = "
-	   << nblist.getMaxSupportedInteractionLength() / Sim->Dynamics.units().unitLength()
+	   << nblist.getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength()
 	   << "\nFirst halt scheduled for " 
-	   << dt / Sim->Dynamics.units().unitTime();
+	   << dt / Sim->dynamics.units().unitTime();
 }
 
 void
@@ -76,16 +76,16 @@ CSNBListCompressionFix::runEvent() const
   Sim->ptrScheduler->stream(locdt);
   
   //dynamics must be updated first
-  Sim->Dynamics.stream(locdt);
+  Sim->dynamics.stream(locdt);
 
   Sim->freestreamAcc += locdt;
 
   CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>
-			  (*Sim->Dynamics.getGlobals()[cellID]));
+			  (*Sim->dynamics.getGlobals()[cellID]));
   
   I_cout() << "Rebuilding the neighbour list named " << nblist.getName()
 	   << "\nNColl = " << Sim->lNColl
-	   << "\nSys t = " << Sim->dSysTime / Sim->Dynamics.units().unitTime();
+	   << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime();
   
   nblist.reinitialise(1.0001 * nblist.getMaxSupportedInteractionLength());
   

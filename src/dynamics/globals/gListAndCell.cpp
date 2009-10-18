@@ -74,11 +74,11 @@ CGListAndCell::initialise(size_t nID)
   Iflt maxdiam = 0.0;
   const CInteraction* biggest = NULL;
   
-  if (Sim->Dynamics.getInteractions().size() < 2)
+  if (Sim->dynamics.getInteractions().size() < 2)
     D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
 
   //Find the largest interaction
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > maxdiam)
       {
 	maxdiam = intPtr->maxIntDist();
@@ -86,7 +86,7 @@ CGListAndCell::initialise(size_t nID)
       }
 
   //Find the second biggest
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > secondMaxDiam)
       if (intPtr.get_ptr() != biggest)
 	secondMaxDiam = intPtr->maxIntDist();
@@ -133,11 +133,11 @@ CGListAndCell::getMaxInteractionLength() const
   Iflt maxdiam = 0.0;
   const CInteraction* biggest = NULL;
   
-  if (Sim->Dynamics.getInteractions().size() < 2)
+  if (Sim->dynamics.getInteractions().size() < 2)
     D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
   
   //Find the largest interaction
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > maxdiam)
       {
 	maxdiam = intPtr->maxIntDist();
@@ -145,7 +145,7 @@ CGListAndCell::getMaxInteractionLength() const
       }
   
   //Find the second biggest
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > secondMaxDiam)
       if (intPtr.get_ptr() != biggest)
 	secondMaxDiam = intPtr->maxIntDist();

@@ -40,9 +40,9 @@ COPRadialDistribution::operator<<(const XMLNode& XML)
   try {
     if (XML.isAttributeSet("binWidth"))
       binWidth = boost::lexical_cast<Iflt>(XML.getAttribute("binWidth")) 
-	* Sim->Dynamics.units().unitLength();
+	* Sim->dynamics.units().unitLength();
     else
-      binWidth = 0.1 * Sim->Dynamics.units().unitLength();
+      binWidth = 0.1 * Sim->dynamics.units().unitLength();
 
     if (XML.isAttributeSet("length"))
       length = boost::lexical_cast<size_t>(XML.getAttribute("length"));
@@ -59,7 +59,7 @@ COPRadialDistribution::operator<<(const XMLNode& XML)
 	  + static_cast<size_t>(Sim->aspectRatio[mindir] / (2 * binWidth));
       }
 
-    I_cout() << "Binwidth = " << binWidth / Sim->Dynamics.units().unitLength()
+    I_cout() << "Binwidth = " << binWidth / Sim->dynamics.units().unitLength()
 	     << "\nLength = " << length;
   }
   catch (std::exception& excep)
@@ -73,9 +73,9 @@ void
 COPRadialDistribution::initialise()
 {
   data.resize
-    (Sim->Dynamics.getSpecies().size(),
+    (Sim->dynamics.getSpecies().size(),
      std::vector<std::vector<unsigned long> >
-     (Sim->Dynamics.getSpecies().size(),
+     (Sim->dynamics.getSpecies().size(),
       std::vector<unsigned long>(length, 0))
      );
 
@@ -87,15 +87,15 @@ COPRadialDistribution::ticker()
 {
   ++sampleCount;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->dynamics.getSpecies())
     { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
 	BOOST_FOREACH(const size_t& p2, *sp2->getRange())
 	{
 	  Vector  rij = Sim->vParticleList[p1].getPosition()
 	    - Sim->vParticleList[p2].getPosition();
 
-	  Sim->Dynamics.BCs().applyBC(rij);
+	  Sim->dynamics.BCs().applyBC(rij);
 
 	  size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
 
@@ -112,10 +112,10 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
       << sampleCount;
 
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->Dynamics.getSpecies())
-    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->dynamics.getSpecies())
     {
-      Iflt density = sp2->getCount() / Sim->Dynamics.units().simVolume();
+      Iflt density = sp2->getCount() / Sim->dynamics.units().simVolume();
 
       unsigned long originsTaken = sampleCount * sp1->getCount();
 
@@ -137,7 +137,7 @@ COPRadialDistribution::output(xmlw::XmlStream& XML)
 	  Iflt GR = static_cast<Iflt>(data[sp1->getID()][sp2->getID()][i])
 	    / (density * originsTaken * volshell);
 
-	  XML << radius / Sim->Dynamics.units().unitLength() << " " 
+	  XML << radius / Sim->dynamics.units().unitLength() << " " 
 	      << GR << "\n";
 	}
 

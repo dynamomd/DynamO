@@ -58,7 +58,7 @@ CIInfiniteMass::operator<<(const XMLNode& XML)
   
   try 
     {
-      diameter = Sim->Dynamics.units().unitLength() * 
+      diameter = Sim->dynamics.units().unitLength() * 
 	boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
       
       e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
@@ -96,10 +96,10 @@ CIntEvent
 CIInfiniteMass::getEvent(const CParticle &p1, const CParticle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 #endif
 
@@ -110,13 +110,13 @@ CIInfiniteMass::getEvent(const CParticle &p1, const CParticle &p2) const
 
   CPDData colldat(*Sim, p1, p2);
 
-  if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2))
+  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2))
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat, d2))
+      if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	D_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
-		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->Dynamics.units().unitLength();
+		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif
 
       return CIntEvent(p1, p2, colldat.dt, CORE, *this);
@@ -134,7 +134,7 @@ CIInfiniteMass::runEvent(const CParticle& p1,
     
   //Run the collision and catch the data
   C2ParticleData EDat
-    (Sim->Dynamics.getLiouvillean().SmoothSpheresCollInfMassSafe(iEvent, e, d2)); 
+    (Sim->dynamics.getLiouvillean().SmoothSpheresCollInfMassSafe(iEvent, e, d2)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -149,7 +149,7 @@ void
 CIInfiniteMass::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "InfiniteMass"
-      << xmlw::attr("Diameter") << diameter / Sim->Dynamics.units().unitLength()
+      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Name") << intName
       << range;
@@ -159,15 +159,15 @@ void
 CIInfiniteMass::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
-  Sim->Dynamics.BCs().applyBC(rij); 
+  Sim->dynamics.BCs().applyBC(rij); 
   
   if ((rij | rij) < d2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 	     << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
 	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	     << (rij | rij) / pow(Sim->Dynamics.units().unitLength(),2)
+	     << (rij | rij) / pow(Sim->dynamics.units().unitLength(),2)
 	     << "\nd^2=" 
-	     << d2 / pow(Sim->Dynamics.units().unitLength(),2);
+	     << d2 / pow(Sim->dynamics.units().unitLength(),2);
 }
 
 void 
@@ -180,10 +180,10 @@ CIInfiniteMass::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
      << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
      << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
   
-  BOOST_FOREACH(const size_t& pid, *(Sim->Dynamics.getSpecies()[specID]->getRange()))
+  BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
       Vector  pos(Sim->vParticleList[pid].getPosition());
-      Sim->Dynamics.BCs().applyBC(pos);
+      Sim->dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "\n translate <"
 	 << pos[0];

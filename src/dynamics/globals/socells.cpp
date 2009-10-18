@@ -67,14 +67,14 @@ CGlobEvent
 CGSOCells::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
   //This 
-  //Sim->Dynamics.getLiouvillean().updateParticle(part);
+  //Sim->dynamics.getLiouvillean().updateParticle(part);
   //is not required as we compensate for the delay using 
-  //Sim->Dynamics.getLiouvillean().getParticleDelay(part)
+  //Sim->dynamics.getLiouvillean().getParticleDelay(part)
 
   Vector CellOrigin;
   size_t ID(part.getID());
@@ -86,18 +86,18 @@ CGSOCells::getEvent(const CParticle& part) const
     }
 
   return CGlobEvent(part,
-		    Sim->Dynamics.getLiouvillean().
+		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, CellOrigin,
 		     cellDimension)
-		    -Sim->Dynamics.getLiouvillean().getParticleDelay(part),
+		    -Sim->dynamics.getLiouvillean().getParticleDelay(part),
 		    CELL, *this);
 }
 
 void
 CGSOCells::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.getLiouvillean().updateParticle(part);
+  Sim->dynamics.getLiouvillean().updateParticle(part);
 
   Vector CellOrigin;
   size_t ID(part.getID());
@@ -109,7 +109,7 @@ CGSOCells::runEvent(const CParticle& part) const
     }
   
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.getLiouvillean().
+  size_t cellDirection(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, CellOrigin, 
 			cellDimension));
@@ -130,18 +130,18 @@ CGSOCells::runEvent(const CParticle& part) const
     
   Sim->ptrScheduler->stream(iEvent.getdt());
   
-  Sim->Dynamics.stream(iEvent.getdt());
+  Sim->dynamics.stream(iEvent.getdt());
 
   Vector vNorm(0,0,0);
 
   Vector pos(part.getPosition()), vel(part.getVelocity());
 
-  Sim->Dynamics.BCs().applyBC(pos, vel);
+  Sim->dynamics.BCs().applyBC(pos, vel);
 
   vNorm[cellDirection] = (vel[cellDirection] > 0) ? -1 : +1; 
     
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runWallCollision
+  CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision
 		      (part, vNorm, 1.0));
 
   Sim->signalParticleUpdate(EDat);

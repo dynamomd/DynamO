@@ -58,7 +58,7 @@ COPCollDistCheck::eventUpdate(const CIntEvent& eevent,
 			 eevent.getType());
   
   if (distList.find(locPair) == distList.end())
-    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
  
   distList[locPair].addVal(PDat.rij.nrm());
 }
@@ -72,7 +72,7 @@ COPCollDistCheck::eventUpdate(const CGlobEvent& gEvent,
   
   if ((!PDat.L2partChanges.empty()) 
       && (distList.find(locPair) == distList.end()))
-    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.nrm());
@@ -87,7 +87,7 @@ COPCollDistCheck::eventUpdate(const CLocalEvent& lEvent,
   
   if ((!PDat.L2partChanges.empty()) 
       && (distList.find(locPair) == distList.end()))
-    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.nrm());
@@ -101,7 +101,7 @@ COPCollDistCheck::eventUpdate(const CSystem& sysEvent,
   
   if ((!PDat.L2partChanges.empty())
       && (distList.find(locPair) == distList.end()))
-    distList[locPair] = C1DHistogram(binwidth * Sim->Dynamics.units().unitLength());
+    distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
   
   BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.nrm());
@@ -124,7 +124,7 @@ COPCollDistCheck::output(xmlw::XmlStream& XML)
 	  << xmlw::attr("EventType") 
 	  << CIntEvent::getCollEnumName(p.first.second);
 
-      p.second.outputHistogram(XML, 1.0 / Sim->Dynamics.units().unitLength());
+      p.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       
       XML << xmlw::endtag("Distance");
     }

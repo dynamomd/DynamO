@@ -76,28 +76,28 @@ COPGeomview::printImage()
     }
   */
 
-  DYNAMO::ColorMap<Iflt> colmap(0, Sim->Dynamics.getSpecies().size());
+  DYNAMO::ColorMap<Iflt> colmap(0, Sim->dynamics.getSpecies().size());
   DYNAMO::RGB tmpCol(0,0,0);
 
   unsigned int i = 0;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     {      
 
       of << "{LIST\n";
 
-      if (dynamic_cast<const LNOrientation*>(&Sim->Dynamics.getLiouvillean()) != NULL)
+      if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) != NULL)
 	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
-	    Sim->Dynamics.BCs().applyBC(pos);
+	    Sim->dynamics.BCs().applyBC(pos);
 	   
 	    const LNOrientation::rotData& 
 	      rdat(static_cast<const LNOrientation&>
-		   (Sim->Dynamics.getLiouvillean()).getRotData(part));	    
+		   (Sim->dynamics.getLiouvillean()).getRotData(part));	    
  
-	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
+	    tmpCol = colmap.getColor(i + Sim->dynamics.getInteraction
 				     (Sim->vParticleList[ID], 
 				      Sim->vParticleList[ID])->getColourFraction
 				     (Sim->vParticleList[ID]));
@@ -114,9 +114,9 @@ COPGeomview::printImage()
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
-	    Sim->Dynamics.BCs().applyBC(pos);
+	    Sim->dynamics.BCs().applyBC(pos);
 	    
-	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
+	    tmpCol = colmap.getColor(i + Sim->dynamics.getInteraction
 				   (Sim->vParticleList[ID], 
 				    Sim->vParticleList[ID])->getColourFraction
 				     (Sim->vParticleList[ID]));
@@ -125,7 +125,7 @@ COPGeomview::printImage()
 	       << "material {\ndiffuse "<< tmpCol.R  <<" "<< tmpCol.G <<" " 
 	       << tmpCol.B <<" }\n" << "}\n" 
 	       << "SPHERE " << 
-	      Sim->Dynamics.getInteraction(part, part)->hardCoreDiam()/2.0 
+	      Sim->dynamics.getInteraction(part, part)->hardCoreDiam()/2.0 
 	       << " " << pos[0] << " " << pos[1] << " " << pos[2] << " \n";
 	  }
       of << "\n}\n";
@@ -135,7 +135,7 @@ COPGeomview::printImage()
   //Now add the bonds
   typedef std::pair<const unsigned long, std::list<unsigned long> > mypair;
 
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction> intPtr, Sim->Dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction> intPtr, Sim->dynamics.getInteractions())
     if (dynamic_cast<const CISquareBond *>(intPtr.get_ptr()) != NULL)
       if (dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr()) != NULL)
 	BOOST_FOREACH(const mypair& mp, dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr())->getPairMap())
@@ -144,8 +144,8 @@ COPGeomview::printImage()
 	    
 	    Vector  pos = Sim->vParticleList[mp.first].getPosition();
 	    Vector  rij = Sim->vParticleList[ID2].getPosition() - pos;
-	    Sim->Dynamics.BCs().applyBC(pos);
-	    Sim->Dynamics.BCs().applyBC(rij);
+	    Sim->dynamics.BCs().applyBC(pos);
+	    Sim->dynamics.BCs().applyBC(rij);
 
 	    of << "{VECT 1 2 1 \n 2 \n 1 \n " << pos[0] << " " << pos[1] 
 	       << " " << pos[2] << "\n" << pos[0] + rij[0] << " " << pos[1] + rij[1] << " " 

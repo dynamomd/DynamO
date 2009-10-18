@@ -39,7 +39,7 @@ COPCubeComp::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
   std::vector<Iflt> vals(NDIM, 0);
 
   for (size_t i(0); i < NDIM; ++i)
-    vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->Dynamics.units().unitArea();
+    vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
 
   std::sort(vals.begin(), vals.end());
   
@@ -57,7 +57,7 @@ COPCubeComp::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat
       std::vector<Iflt> vals(NDIM, 0);
       
       for (size_t i(0); i < NDIM; ++i)
-	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->Dynamics.units().unitArea();
+	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
       
       std::sort(vals.begin(), vals.end());
       
@@ -77,7 +77,7 @@ COPCubeComp::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SD
       std::vector<Iflt> vals(NDIM, 0);
       
       for (size_t i(0); i < NDIM; ++i)
-	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->Dynamics.units().unitArea();
+	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
       
       std::sort(vals.begin(), vals.end());
       
@@ -97,7 +97,7 @@ COPCubeComp::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, co
       std::vector<Iflt> vals(NDIM, 0);
       
       for (size_t i(0); i < NDIM; ++i)
-	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->Dynamics.units().unitArea();
+	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
       
       std::sort(vals.begin(), vals.end());
 

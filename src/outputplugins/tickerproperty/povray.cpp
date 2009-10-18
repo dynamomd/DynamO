@@ -103,26 +103,26 @@ light_source { <2*zoom, -2*zoom, -2*zoom> color White }  \n\
 intersection { union {                     \n\
 ";
 
-  DYNAMO::ColorMap<unsigned int> colmap(0,Sim->Dynamics.getSpecies().size()-1);
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->Dynamics.getInteractions())
+  DYNAMO::ColorMap<unsigned int> colmap(0,Sim->dynamics.getSpecies().size()-1);
+  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
     intPtr->write_povray_info(of);
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     spec->getIntPtr()->write_povray_desc
     (colmap.getColor(spec->getID()), spec->getID(), of);
 
   of << "\n}\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->Dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->Dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->Dynamics.units().unitLength() 
+     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->Dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->Dynamics.units().unitLength()
+     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "}\n";
   
-  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->Dynamics.getLocals())
+  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->dynamics.getLocals())
     ptr->write_povray_info(of);
 
 

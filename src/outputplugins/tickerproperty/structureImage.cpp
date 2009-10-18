@@ -59,13 +59,13 @@ COPStructureImaging::operator<<(const XMLNode& XML)
 void 
 COPStructureImaging::initialise()
 {
-  id = Sim->Dynamics.getTopology().size();
+  id = Sim->dynamics.getTopology().size();
   
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& ptr, Sim->Dynamics.getTopology())
+  BOOST_FOREACH(const smrtPlugPtr<CTopology>& ptr, Sim->dynamics.getTopology())
     if (boost::iequals(structureName, ptr->getName()))
       id = ptr->getID();
   
-  if (id == Sim->Dynamics.getTopology().size())
+  if (id == Sim->dynamics.getTopology().size())
     D_throw() << "Could not find a structure named " << structureName << " in the simulation";
   
   imagelist.clear();
@@ -91,7 +91,7 @@ COPStructureImaging::ticker()
 void
 COPStructureImaging::printImage()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CRange>& prange, Sim->Dynamics.getTopology()[id]->getMolecules())
+  BOOST_FOREACH(const smrtPlugPtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
     {
       std::vector<Vector  > atomDescription;
 
@@ -109,11 +109,11 @@ COPStructureImaging::printImage()
 	  const CParticle& part(Sim->vParticleList[pid]);
 	  Vector  rij = part.getPosition() - lastpos;
 	  lastpos = part.getPosition();
-	  Sim->Dynamics.BCs().applyBC(rij);
+	  Sim->dynamics.BCs().applyBC(rij);
 	  
 	  sumrij += rij;
 	  
-	  Iflt pmass = Sim->Dynamics.getSpecies(part).getMass();
+	  Iflt pmass = Sim->dynamics.getSpecies(part).getMass();
 	  sysMass += pmass;
 	  masspos += sumrij * pmass;
 	  
@@ -148,7 +148,7 @@ COPStructureImaging::output(xmlw::XmlStream& XML)
 	  XML << xmlw::tag("Atom")
 	      << xmlw::attr("ID")
 	      << id++
-	      << (vec2 / Sim->Dynamics.units().unitLength())
+	      << (vec2 / Sim->dynamics.units().unitLength())
 	      << xmlw::endtag("Atom");
 	}
 	  

@@ -49,11 +49,11 @@ COPMutualDiffusionE::operator<<(const XMLNode& XML)
 	CorrelatorLength = boost::lexical_cast<unsigned int>(XML.getAttribute("Length"));
 
       if (XML.isAttributeSet("dt"))
-	dt = Sim->Dynamics.units().unitTime() * 
+	dt = Sim->dynamics.units().unitTime() * 
 	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
 
 	if (XML.isAttributeSet("t"))
-	  dt = Sim->Dynamics.units().unitTime() * 
+	  dt = Sim->dynamics.units().unitTime() * 
 	    boost::lexical_cast<Iflt>(XML.getAttribute("t")) / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
@@ -156,9 +156,9 @@ COPMutualDiffusionE::eventUpdate(const CIntEvent& iEvent,
 Iflt 
 COPMutualDiffusionE::rescaleFactor()
 {
-  return 0.5 / (Sim->Dynamics.units().unitTime()
-		* Sim->Dynamics.units().unitMutualDiffusion()
-		* count * Sim->Dynamics.units().simVolume()
+  return 0.5 / (Sim->dynamics.units().unitTime()
+		* Sim->dynamics.units().unitMutualDiffusion()
+		* count * Sim->dynamics.units().simVolume()
 		* Sim->getOutputPlugin<COPKEnergy>()->getAvgkT());
 }
 
@@ -170,7 +170,7 @@ COPMutualDiffusionE::output(xmlw::XmlStream& XML)
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG.size()
-      << xmlw::attr("dt") << dt / Sim->Dynamics.units().unitTime()
+      << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG.size() 
     / Sim->getOutputPlugin<COPMisc>()->getMFT()
       << xmlw::attr("simFactor") << factor
@@ -179,7 +179,7 @@ COPMutualDiffusionE::output(xmlw::XmlStream& XML)
     
   for (size_t i = 0; i < accG.size(); i++)
     {
-      XML << (i + 1) * dt / Sim->Dynamics.units().unitTime();
+      XML << (i + 1) * dt / Sim->dynamics.units().unitTime();
       for (size_t j = 0; j < NDIM; j++)
 	XML << "\t" << accG[i][j] * factor;
       XML << "\n";
@@ -192,8 +192,8 @@ COPMutualDiffusionE::output(xmlw::XmlStream& XML)
 void 
 COPMutualDiffusionE::initialise()
 {
-  species1 = Sim->Dynamics.getSpecies(species1name).getID();
-  species2 = Sim->Dynamics.getSpecies(species2name).getID();
+  species1 = Sim->dynamics.getSpecies(species1name).getID();
+  species2 = Sim->dynamics.getSpecies(species2name).getID();
   
   Sim->getOutputPlugin<COPKEnergy>();
   Sim->getOutputPlugin<COPMisc>();
@@ -208,31 +208,31 @@ COPMutualDiffusionE::initialise()
   
   Iflt sysMass = 0.0;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->Dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
   
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      sysMom += part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass();
+      sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
       
-      if (Sim->Dynamics.getSpecies()[species1]->isSpecies(part))
+      if (Sim->dynamics.getSpecies()[species1]->isSpecies(part))
 	delGsp1 += part.getVelocity();
       
-      if (Sim->Dynamics.getSpecies()[species2]->isSpecies(part))
+      if (Sim->dynamics.getSpecies()[species2]->isSpecies(part))
 	delGsp2 += part.getVelocity();
     }
   
-  delGsp1 *= Sim->Dynamics.getSpecies()[species1]->getMass();
-  delGsp2 *= Sim->Dynamics.getSpecies()[species2]->getMass();
+  delGsp1 *= Sim->dynamics.getSpecies()[species1]->getMass();
+  delGsp2 *= Sim->dynamics.getSpecies()[species2]->getMass();
   
-  massFracSp1 = (Sim->Dynamics.getSpecies()[species1]->getCount() 
-		 * Sim->Dynamics.getSpecies()[species1]->getMass()) 
+  massFracSp1 = (Sim->dynamics.getSpecies()[species1]->getCount() 
+		 * Sim->dynamics.getSpecies()[species1]->getMass()) 
     / sysMass; 
 
-  massFracSp2 = (Sim->Dynamics.getSpecies()[species2]->getCount() 
-		 * Sim->Dynamics.getSpecies()[species2]->getMass()) / sysMass;
+  massFracSp2 = (Sim->dynamics.getSpecies()[species2]->getCount() 
+		 * Sim->dynamics.getSpecies()[species2]->getMass()) / sysMass;
 
-  I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
+  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
 std::list<Vector  > 
@@ -320,7 +320,7 @@ COPMutualDiffusionE::getdt()
       if (Sim->lastRunMFT != 0.0)
 	return Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	return 5.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	return 5.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   else 
     return dt;

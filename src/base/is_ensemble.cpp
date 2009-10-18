@@ -59,12 +59,12 @@ namespace DYNAMO {
   CENVE::initialise()
   {
     EnsembleVals[0] = Sim->vParticleList.size();
-    EnsembleVals[1] = Sim->Dynamics.units().unitVolume();
-    EnsembleVals[2] = Sim->Dynamics.calcInternalEnergy() + Sim->Dynamics.getLiouvillean().getSystemKineticEnergy();
+    EnsembleVals[1] = Sim->dynamics.units().unitVolume();
+    EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
     I_cout() << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->Dynamics.units().unitVolume()
-	     << "\nE=" << EnsembleVals[2] / Sim->Dynamics.units().unitEnergy();
+	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
+	     << "\nE=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
   }
 
   boost::array<Iflt,3> 
@@ -72,8 +72,8 @@ namespace DYNAMO {
   {
     boost::array<Iflt,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->Dynamics.units().unitVolume();
-    retval[2] = EnsembleVals[2] / Sim->Dynamics.units().unitEnergy();
+    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
+    retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
 
     return retval;
   }
@@ -82,10 +82,10 @@ namespace DYNAMO {
   CENVT::initialise()
   {
     EnsembleVals[0] = Sim->vParticleList.size();
-    EnsembleVals[1] = Sim->Dynamics.units().unitVolume();
+    EnsembleVals[1] = Sim->dynamics.units().unitVolume();
 
     try {
-      thermostat = Sim->Dynamics.getSystem("Thermostat").get_ptr();
+      thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
     } catch (std::exception &)
       {
 	D_throw() << "Could not find the Thermostat in NVT system";
@@ -100,8 +100,8 @@ namespace DYNAMO {
     EnsembleVals[2] = static_cast<const CSysGhost*>(thermostat)->getTemperature();
     
     I_cout() << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->Dynamics.units().unitVolume()
-	     << "\nT=" << EnsembleVals[2] / Sim->Dynamics.units().unitEnergy();
+	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
+	     << "\nT=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
   }
 
   boost::array<Iflt,3> 
@@ -109,8 +109,8 @@ namespace DYNAMO {
   {
     boost::array<Iflt,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->Dynamics.units().unitVolume();
-    retval[2] = EnsembleVals[2] / Sim->Dynamics.units().unitEnergy();
+    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
+    retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
 
     return retval;
   }
@@ -139,12 +139,12 @@ namespace DYNAMO {
   CENVShear::initialise()
   {
     EnsembleVals[0] = Sim->vParticleList.size();
-    EnsembleVals[1] = Sim->Dynamics.units().unitVolume();
+    EnsembleVals[1] = Sim->dynamics.units().unitVolume();
     EnsembleVals[2] = ShearRate;
 
     I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->Dynamics.units().unitVolume()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->Dynamics.units().unitTime();
+	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
+	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
   }
 
   boost::array<Iflt,3> 
@@ -152,8 +152,8 @@ namespace DYNAMO {
   {
     boost::array<Iflt,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->Dynamics.units().unitVolume();
-    retval[2] = EnsembleVals[2] * Sim->Dynamics.units().unitTime();
+    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
+    retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
 
     return retval;
   }
@@ -162,12 +162,12 @@ namespace DYNAMO {
   CENECompression::initialise()
   {
     EnsembleVals[0] = Sim->vParticleList.size();
-    EnsembleVals[1] = Sim->Dynamics.calcInternalEnergy() 
-      + Sim->Dynamics.getLiouvillean().getSystemKineticEnergy();
+    EnsembleVals[1] = Sim->dynamics.calcInternalEnergy() 
+      + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
     
     try {
       EnsembleVals[2] = dynamic_cast<const LCompression&>
-	(Sim->Dynamics.getLiouvillean()).getGrowthRate();
+	(Sim->dynamics.getLiouvillean()).getGrowthRate();
     }
     catch (std::exception&)
       {
@@ -175,8 +175,8 @@ namespace DYNAMO {
       }
 
     I_cout() << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nE=" << EnsembleVals[1] / Sim->Dynamics.units().unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->Dynamics.units().unitTime();
+	     << "\nE=" << EnsembleVals[1] / Sim->dynamics.units().unitEnergy()
+	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
   }
 
   boost::array<Iflt,3> 
@@ -184,8 +184,8 @@ namespace DYNAMO {
   {
     boost::array<Iflt,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->Dynamics.units().unitEnergy();
-    retval[2] = EnsembleVals[2] * Sim->Dynamics.units().unitTime();
+    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
+    retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
 
     return retval;
   }
@@ -196,7 +196,7 @@ namespace DYNAMO {
     EnsembleVals[0] = Sim->vParticleList.size();
 
     try {
-      thermostat = Sim->Dynamics.getSystem("Thermostat").get_ptr();
+      thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
     } catch (std::exception&)
       {
 	D_throw() << "Could not find the Thermostat in NVT system";
@@ -213,7 +213,7 @@ namespace DYNAMO {
     
     try {
       EnsembleVals[2] = dynamic_cast<const LCompression&>
-	(Sim->Dynamics.getLiouvillean()).getGrowthRate();
+	(Sim->dynamics.getLiouvillean()).getGrowthRate();
     }
     catch (std::exception&)
       {
@@ -221,8 +221,8 @@ namespace DYNAMO {
       }
 
     I_cout() << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nT=" << EnsembleVals[1] / Sim->Dynamics.units().unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->Dynamics.units().unitTime();
+	     << "\nT=" << EnsembleVals[1] / Sim->dynamics.units().unitEnergy()
+	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
   }
 
   boost::array<Iflt,3> 
@@ -230,8 +230,8 @@ namespace DYNAMO {
   {
     boost::array<Iflt,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->Dynamics.units().unitEnergy();
-    retval[2] = EnsembleVals[2] * Sim->Dynamics.units().unitTime();
+    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
+    retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
 
     return retval;
   }
