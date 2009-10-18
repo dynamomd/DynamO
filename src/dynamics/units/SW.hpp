@@ -20,16 +20,29 @@
 
 #include "units.hpp"
 
-class CUSW: public Units
+/*! \brief For running a simulation with a distinct energy scale.
+ *
+ * Scientifically there is no reason for this class and a simulation
+ * can be performed using hard sphere units; however, this class is
+ * useful for debugging with a certain energy scale. The unit of this
+ * scale can then be set to one by adjusting the time scale, which is
+ * the function of this class.
+ *
+ * Although this class is called USquareWell, this class essentially
+ * supports any system where there is an inherent energy scale you
+ * want the simulation to run in. This usually means the unit energy
+ * is set equal to 1.
+ */
+class USquareWell: public Units
 {
  public:
-  CUSW(const DYNAMO::SimData*); 
+  USquareWell(const DYNAMO::SimData*); 
 
-  CUSW(Iflt, Iflt, const DYNAMO::SimData*);
+  USquareWell(Iflt, Iflt, const DYNAMO::SimData*);
 
-  CUSW(const XMLNode&, const DYNAMO::SimData*);
+  USquareWell(const XMLNode&, const DYNAMO::SimData*);
 
-  virtual ~CUSW();
+  virtual ~USquareWell();
 
   virtual Iflt unitLength() const;
 

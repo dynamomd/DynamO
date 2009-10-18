@@ -22,66 +22,67 @@
 #include "../../base/is_exception.hpp"
 #include <cstring>
 
-CUElastic::CUElastic(const DYNAMO::SimData* tmp): 
+UHardSphere::UHardSphere(const DYNAMO::SimData* tmp): 
   Units(tmp),
   UnitOfLength(1.0)
 {
   I_cout() << "Elastic units loaded";
 }
   
-CUElastic::CUElastic(Iflt diameter, const DYNAMO::SimData* tmp):
+UHardSphere::UHardSphere(Iflt diameter, const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfLength(diameter)
 {
   I_cout() << "Elastic units loaded";
 }
 
-CUElastic::CUElastic(const XMLNode &XML, const DYNAMO::SimData* tmp):
+UHardSphere::UHardSphere(const XMLNode &XML, const DYNAMO::SimData* tmp):
   Units(tmp)
 { 
   operator<<(XML); 
-  I_cout() << "Elastic units loaded";
+  I_cout() << "Hard sphere units loaded";
 }
 
-CUElastic::~CUElastic() {}
+UHardSphere::~UHardSphere() {}
 
 Iflt
-CUElastic::unitLength() const
+UHardSphere::unitLength() const
 { return UnitOfLength; }
 
 void 
-CUElastic::setUnitLength(Iflt scalar)
+UHardSphere::setUnitLength(Iflt scalar)
 { UnitOfLength = scalar; }
 
 Iflt 
-CUElastic::unitTime() const
+UHardSphere::unitTime() const
 { return 1.0; }
   
 Units* 
-CUElastic::Clone() const
-{ return new CUElastic(*this); }
+UHardSphere::Clone() const
+{ return new UHardSphere(*this); }
 
 void 
-CUElastic::rescaleLength(Iflt rs)
+UHardSphere::rescaleLength(Iflt rs)
 { UnitOfLength += rs * UnitOfLength; }
   
 void 
-CUElastic::operator<<(const XMLNode &XML)
+UHardSphere::operator<<(const XMLNode &XML)
 {
-  if (std::strcmp(XML.getAttribute("Type"),"Elastic"))
-    D_throw() << "Attempting to load CUElastic from non elastic type";
+  if (std::strcmp(XML.getAttribute("Type"),"Elastic")
+      || std::strcmp(XML.getAttribute("Type"),"HardSphere"))
+    D_throw() << "Attempting to load UHardSphere from non Elastic/HardSphere type";
   
   try {
     UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CUElastic";
+      D_throw() << "Failed a lexical cast in UHardSphere";
     }
 }
 
 void 
-CUElastic::outputXML(xmlw::XmlStream &XML) const
+UHardSphere::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Type") << "Elastic"
       << xmlw::attr("BoxLength") << 1.0/UnitOfLength; 

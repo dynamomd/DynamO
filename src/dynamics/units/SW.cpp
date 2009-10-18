@@ -23,7 +23,7 @@
 #include <cmath>
 #include <cstring>
 
-CUSW::CUSW(const DYNAMO::SimData* tmp):
+USquareWell::USquareWell(const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfEnergy(0.0),
   UnitOfLength(1.0)
@@ -31,7 +31,7 @@ CUSW::CUSW(const DYNAMO::SimData* tmp):
   I_cout() << "SW units loaded";
 }
 
-CUSW::CUSW(Iflt diameter, Iflt energy, const DYNAMO::SimData* tmp):
+USquareWell::USquareWell(Iflt diameter, Iflt energy, const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfEnergy(energy),
   UnitOfLength(diameter)
@@ -39,42 +39,42 @@ CUSW::CUSW(Iflt diameter, Iflt energy, const DYNAMO::SimData* tmp):
   I_cout() << "SW units loaded";
 }
 
-CUSW::CUSW(const XMLNode &XML, const DYNAMO::SimData* tmp):
+USquareWell::USquareWell(const XMLNode &XML, const DYNAMO::SimData* tmp):
   Units(tmp)
 { 
   operator<<(XML); 
   I_cout() << "SW units loaded";
 }
 
-CUSW::~CUSW() {}
+USquareWell::~USquareWell() {}
 
 Iflt 
-CUSW::unitLength() const
+USquareWell::unitLength() const
 { return UnitOfLength; }
 
 void 
-CUSW::setUnitLength(Iflt scalar)
+USquareWell::setUnitLength(Iflt scalar)
 { UnitOfLength = scalar; }
 
 void 
-CUSW::rescaleLength(Iflt rs)
+USquareWell::rescaleLength(Iflt rs)
 { UnitOfLength += rs * UnitOfLength; }
 
 Iflt 
-CUSW::unitTime() const
+USquareWell::unitTime() const
 {
   return sqrt(unitLength()*unitLength()*unitMass()/UnitOfEnergy);
 }
 
 Units* 
-CUSW::Clone() const
-{ return new CUSW(*this); }
+USquareWell::Clone() const
+{ return new USquareWell(*this); }
   
 void 
-CUSW::operator<<(const XMLNode &XML)
+USquareWell::operator<<(const XMLNode &XML)
 {
   if (std::strcmp(XML.getAttribute("Type"),"SW"))
-    D_throw() << "Attempting to load CUSW from non elastic type";
+    D_throw() << "Attempting to load USquareWell from non elastic type";
   
   try {
     UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
@@ -82,12 +82,12 @@ CUSW::operator<<(const XMLNode &XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CUSW";
+      D_throw() << "Failed a lexical cast in USquareWell";
     }
 }
 
 void 
-CUSW::outputXML(xmlw::XmlStream &XML) const
+USquareWell::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Type") << "SW"
       << xmlw::attr("BoxLength") << 1.0/UnitOfLength 

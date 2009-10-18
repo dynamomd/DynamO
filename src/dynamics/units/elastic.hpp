@@ -20,16 +20,25 @@
 
 #include "units.hpp"
 
-class CUElastic: public Units
+/*! \brief For running a simulation in hard sphere units.
+ *
+ * Hard sphere units take a length and mass scale from the diameter of
+ * one of the species of particles. The unit of time is arbitrary as
+ * the hard sphere system scales trivially with the temperature, so it
+ * is typically set such that the temperature is one (This is not done
+ * by this class, it will happily work at any temperature. You can
+ * scale the temperature to 1 using dynamod).
+ */
+class UHardSphere: public Units
 {
  public:
-  CUElastic(const DYNAMO::SimData*);
+  UHardSphere(const DYNAMO::SimData*);
   
-  CUElastic(Iflt, const DYNAMO::SimData*);
+  UHardSphere(Iflt, const DYNAMO::SimData*);
 
-  CUElastic(const XMLNode&, const DYNAMO::SimData*);
+  UHardSphere(const XMLNode&, const DYNAMO::SimData*);
 
-  virtual ~CUElastic();
+  virtual ~UHardSphere();
 
   virtual Iflt unitLength() const;
 

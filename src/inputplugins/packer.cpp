@@ -256,7 +256,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -302,7 +302,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
-	Sim->dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
+	Sim->dynamics.setUnits(new USquareWell(particleDiam,1.0, Sim));
 	
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -422,7 +422,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
 
@@ -485,7 +485,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
 	
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -544,7 +544,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUShear(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
 	
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -630,7 +630,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
 
@@ -682,7 +682,7 @@ CIPPacker::initialise()
 	//Cut off the x periodic boundaries
 	Sim->dynamics.applyBC<BCSquarePeriodicExceptX>();
 
-	Sim->dynamics.setUnits(new CUSW(particleDiam, 1.0, Sim));
+	Sim->dynamics.setUnits(new USquareWell(particleDiam, 1.0, Sim));
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	Vector  norm(0,0,0), origin(0,0,0);
@@ -778,7 +778,7 @@ CIPPacker::initialise()
 
 	if (lambda >= 1.0)
 	  {
-	    Sim->dynamics.setUnits(new CUSW(diamScale, 1.0, Sim));
+	    Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
 
 	    Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale, 
 							  lambda, 1.0, 
@@ -788,7 +788,7 @@ CIPPacker::initialise()
 	  }
 	else
 	  {
-	    Sim->dynamics.setUnits(new CUElastic(diamScale, Sim));
+	    Sim->dynamics.setUnits(new UHardSphere(diamScale, Sim));
 
 	    Sim->dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0,
 							  new C2RAll()
@@ -889,7 +889,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -946,7 +946,7 @@ CIPPacker::initialise()
 						     particleDiam * particleDiam / 12.0,
 						     "Bulk")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -985,7 +985,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 	
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1063,7 +1063,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new CUShear(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
 	
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1140,7 +1140,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 	
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1334,7 +1334,7 @@ CIPPacker::initialise()
 						     particleDiam * particleDiam / 12.0,
 						     "Bulk")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -1451,7 +1451,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRRange(nPartA, latticeSites.size()-1),
 					       massFrac / chainlength, "B", 0, "BBInt")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -1533,7 +1533,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, 
 					       "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));	
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));	
 	
 	size_t nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
@@ -1627,7 +1627,7 @@ CIPPacker::initialise()
 					      overlink));
 	}
 
-	Sim->dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
+	Sim->dynamics.setUnits(new USquareWell(particleDiam,1.0, Sim));
 	
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1695,7 +1695,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 	
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1786,7 +1786,7 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  inelasticity = vm["f1"].as<Iflt>();
 
-	Sim->dynamics.setUnits(new CUShear(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
 	
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1960,7 +1960,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	size_t maxPart;
 	if (vm.count("i2"))
@@ -2022,7 +2022,7 @@ CIPPacker::initialise()
 				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new CUElastic(particleDiam, Sim));
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
       
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());

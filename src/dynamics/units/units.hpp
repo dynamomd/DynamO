@@ -33,9 +33,19 @@ namespace xmlw
 
 /*! \brief The class used to convert in and out of simulation units.
  *
- * This class has a design specification, that it is initialised on
- * construction so that other classes may directly start conversions
- * on the loading of configurations.
+ * The derived classes of Units control the units that the simulation
+ * is performed in. All classes scale the system such that its largest
+ * box length is unity to allow an optimisation in the square
+ * BoundaryCondition.
+ *
+ * Another reason to set the units is to counteract the above scaling
+ * for debugging reasons. Changing the length means you can either
+ * preserve the unit time or the unit energy but not both. UShear and
+ * USquareWell preserve the time and energy respectively.
+ *
+ * This class has a particular design specification in that it is
+ * initialised on construction so that other classes may directly
+ * start conversions on the loading of configurations.
  */
 class Units: public DYNAMO::SimBase_const
 {

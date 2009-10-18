@@ -43,12 +43,13 @@ Units::simVolume() const
 Units* 
 Units::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
 {
-  if (!strcmp(XML.getAttribute("Type"),"Elastic"))
-    return new CUElastic(XML, Sim);
+  if (!strcmp(XML.getAttribute("Type"),"Elastic")
+      || !strcmp(XML.getAttribute("Type"),"HardSphere"))
+    return new UHardSphere(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Shear"))
-    return new CUShear(XML, Sim);
+    return new UShear(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"SW"))
-    return new CUSW(XML, Sim);
+    return new USquareWell(XML, Sim);
   else
    D_throw() << "Could not recognise the type of the units";
 }

@@ -22,10 +22,10 @@
 #include <cstring>
 
 void 
-CUShear::operator<<(const XMLNode& XML)
+UShear::operator<<(const XMLNode& XML)
 {
   if (std::strcmp(XML.getAttribute("Type"),"Shear"))
-    D_throw() << "Attempting to load CUShear from non shear type";
+    D_throw() << "Attempting to load UShear from non shear type";
   
   try {
     UnitOfLength = 1.0 / boost::lexical_cast<Iflt>
@@ -33,12 +33,12 @@ CUShear::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CUElastic";
+      D_throw() << "Failed a lexical cast in UHardSphere";
     }
 }
 
 void 
-CUShear::outputXML(xmlw::XmlStream &XML) const
+UShear::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Type") << "Shear"
       << xmlw::attr("BoxLength") << 1.0 / UnitOfLength; 
