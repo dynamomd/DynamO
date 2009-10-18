@@ -26,7 +26,7 @@
 #include <limits>
 
 void
-CEReplexer::getOptions(boost::program_options::options_description& opts)
+EReplicaExchangeSimulation::getOptions(boost::program_options::options_description& opts)
 {
   boost::program_options::options_description 
     ropts("REplica EXchange Engine Options");
@@ -49,9 +49,9 @@ CEReplexer::getOptions(boost::program_options::options_description& opts)
   opts.add(ropts);
 }
 
-CEReplexer::CEReplexer(const boost::program_options::variables_map& nVm,
+EReplicaExchangeSimulation::EReplicaExchangeSimulation(const boost::program_options::variables_map& nVm,
 		       CThreadPool& tp):
-  CEngine(nVm, "config.%ID.end.xml.bz2", "output.%ID.xml.bz2", tp),
+  Engine(nVm, "config.%ID.end.xml.bz2", "output.%ID.xml.bz2", tp),
   replicaEndTime(0),
   ReplexMode(RandomSelection),
   replexSwapCalls(0),
@@ -62,7 +62,7 @@ CEReplexer::CEReplexer(const boost::program_options::variables_map& nVm,
 {}
 
 void
-CEReplexer::initialisation()
+EReplicaExchangeSimulation::initialisation()
 {
   preSimInit();
 
@@ -140,7 +140,7 @@ CEReplexer::initialisation()
 }
 
 void 
-CEReplexer::outputData()
+EReplicaExchangeSimulation::outputData()
 {
   {
     std::fstream replexof("replex.dat",std::ios::out | std::ios::trunc);
@@ -177,9 +177,9 @@ CEReplexer::outputData()
 }
 
 void
-CEReplexer::preSimInit()
+EReplicaExchangeSimulation::preSimInit()
 {
-  CEngine::preSimInit();
+  Engine::preSimInit();
 
   ReplexMode = static_cast<Replex_Mode_Type>(vm["replex-swap-mode"].as<unsigned int>());
   
@@ -209,7 +209,7 @@ CEReplexer::preSimInit()
 }
 
 void 
-CEReplexer::forceShutdown()
+EReplicaExchangeSimulation::forceShutdown()
 {
   replicaEndTime = 0.0;
   for (unsigned int i = 0; i < nSims; i++)
@@ -217,7 +217,7 @@ CEReplexer::forceShutdown()
 }
 
 void 
-CEReplexer::peekData()
+EReplicaExchangeSimulation::peekData()
 {
   peekMode = true;
   
@@ -226,9 +226,9 @@ CEReplexer::peekData()
 }
 
 void 
-CEReplexer::setupSim(Simulation & Sim, const std::string filename)
+EReplicaExchangeSimulation::setupSim(Simulation & Sim, const std::string filename)
 {
-  CEngine::setupSim(Sim, filename);
+  Engine::setupSim(Sim, filename);
 
   Sim.addSystem(new CStHalt(&Sim, vm["replex-interval"].as<Iflt>(), 
 			    "ReplexHalt"));
@@ -237,7 +237,7 @@ CEReplexer::setupSim(Simulation & Sim, const std::string filename)
 }
 
 void 
-CEReplexer::printStatus()
+EReplicaExchangeSimulation::printStatus()
 { 
   std::cout << "Replica Exchange, ReplexSwap No." << replexSwapCalls 
 	    << ", Round Trips " << round_trips
@@ -280,7 +280,7 @@ CEReplexer::printStatus()
 }
 
 void 
-CEReplexer::ReplexSwap(Replex_Mode_Type localMode)
+EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode)
 {
   if (temperatureList.size() < 2) return;
 
@@ -354,7 +354,7 @@ CEReplexer::ReplexSwap(Replex_Mode_Type localMode)
 }
 
 void 
-CEReplexer::ReplexSwapTicker()
+EReplicaExchangeSimulation::ReplexSwapTicker()
 {
   //Now update the histogramming
   ++replexSwapCalls;
@@ -389,7 +389,7 @@ CEReplexer::ReplexSwapTicker()
 }
 
 void 
-CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
+EReplicaExchangeSimulation::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 {
   Simulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
   Simulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
@@ -412,7 +412,7 @@ CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
     }
 }
 
-void CEReplexer::runSimulation()
+void EReplicaExchangeSimulation::runSimulation()
 {
   start_Time = boost::posix_time::second_clock::local_time();
 
@@ -499,7 +499,7 @@ void CEReplexer::runSimulation()
 }
 
 void 
-CEReplexer::outputConfigs()
+EReplicaExchangeSimulation::outputConfigs()
 {
   std::fstream TtoID("TtoID.dat",std::ios::out | std::ios::trunc);
   

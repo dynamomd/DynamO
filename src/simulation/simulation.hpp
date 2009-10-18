@@ -33,7 +33,7 @@ class CStreamTask;
  *
  * This class is the typical realisation of a simulation program. It
  * can pretty much perform a standard simulation without any other
- * supporting class structure like the CEngine and CCoordinator. This
+ * supporting class structure like the Engine and Coordinator. This
  * class handles the interface to the simulation and also stores the
  * Simulation data by deriving from the SimData class.
  *

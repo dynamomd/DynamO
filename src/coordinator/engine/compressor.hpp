@@ -15,22 +15,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file compressor.hpp
- * Contains the definition of CECompressor.
+ * Contains the definition of ECompressingSimulation.
  */
-#ifndef CECompressor_H
-#define CECompressor_H
+#ifndef ECompressingSimulation_H
+#define ECompressingSimulation_H
 
 #include "single.hpp"
 #include "../../inputplugins/compression.hpp"
 
-/*! \brief This CEngine compresses a configuration using the
+/*! \brief This Engine compresses a configuration using the
  * LCompression Liouvillean.
  *
- * This is essentially a CESingle but with some extra steps to load
+ * This is essentially a ESingleSimulation but with some extra steps to load
  * the compression Liouvillean at the start and then to restore the
  * old Liouvillean at the end.
  */
-class CECompressor: public CESingle
+class ECompressingSimulation: public ESingleSimulation
 {
 public:
   /*!\brief The only constructor.
@@ -38,12 +38,12 @@ public:
    * \param vm The parsed command line options.
    * \param tp The shared thread pool.
    */
-  CECompressor(const boost::program_options::variables_map& vm,
+  ECompressingSimulation(const boost::program_options::variables_map& vm,
 	       CThreadPool& tp);
 
   /*! \brief A trivial virtual destructor
    */
-  virtual ~CECompressor() {}
+  virtual ~ECompressingSimulation() {}
 
   /*! \brief Load the original Liouvillean before outputing the
    * configurations.
@@ -53,11 +53,11 @@ public:
    */
   virtual void finaliseRun();
 
-  /*! \brief The options specific to the CECompressor class.
+  /*! \brief The options specific to the ECompressingSimulation class.
    *
-   * This is used by the CCoordinator::parseOptions function.
+   * This is used by the Coordinator::parseOptions function.
    *
-   * \param od The options description to add the CECompressor options to.
+   * \param od The options description to add the ECompressingSimulation options to.
    */
   static void getOptions(boost::program_options::options_description& od);
 
@@ -65,7 +65,7 @@ protected:
   /*! \brief Boot a CIPCompression plugin to handle the manipulation
    * of the single Simulation.
    *
-   * This function also calls the CEngine::preSimInit function
+   * This function also calls the Engine::preSimInit function
    */
   virtual void preSimInit();
   

@@ -24,7 +24,7 @@
 #include "../../outputplugins/general/reverseEvents.hpp"
 
 void
-CEngine::getCommonOptions(boost::program_options::options_description& opts)
+Engine::getCommonOptions(boost::program_options::options_description& opts)
 {
   boost::program_options::options_description simopts("Common Engine Options");
 
@@ -52,7 +52,7 @@ CEngine::getCommonOptions(boost::program_options::options_description& opts)
 }
 
 
-CEngine::CEngine(const boost::program_options::variables_map& nvm, 
+Engine::Engine(const boost::program_options::variables_map& nvm, 
 		 std::string configFile, std::string outputFile,
 		 CThreadPool& tp):
   vm(nvm),
@@ -62,7 +62,7 @@ CEngine::CEngine(const boost::program_options::variables_map& nvm,
 {}
 
 void 
-CEngine::preSimInit()
+Engine::preSimInit()
 {
   if (vm.count("out-config-file"))
     configFormat = vm["out-config-file"].as<std::string>();
@@ -73,7 +73,7 @@ CEngine::preSimInit()
 
 
 void 
-CEngine::setupSim(Simulation& Sim, const std::string filename)
+Engine::setupSim(Simulation& Sim, const std::string filename)
 {
   if (vm.count("random-seed"))
     Sim.setRandSeed(vm["random-seed"].as<unsigned int>());

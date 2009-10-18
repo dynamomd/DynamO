@@ -17,11 +17,11 @@
 
 /*! \file coordinator.hpp
  *
- * \brief Contains the header code for the CCoordinator class.
+ * \brief Contains the header code for the Coordinator class.
  */
 
-#ifndef CCoordinator_H
-#define CCoordinator_H
+#ifndef Coordinator_H
+#define Coordinator_H
 
 #include <boost/program_options.hpp>
 #include <vector>
@@ -31,11 +31,11 @@
 
 /*! \brief The main class for the dynarun program.
  *
- * This class is responsible for sorting out the correct simulation CEngine to 
+ * This class is responsible for sorting out the correct simulation Engine to 
  * run and initialising computational node specific objects like the 
  * CThreadPool.
  */
-class CCoordinator
+class Coordinator
 {
 private:
 public:
@@ -43,8 +43,8 @@ public:
    *
    * Only the Engine smart pointer needs to be set to null to ease debugging.
    */
-  CCoordinator():
-    Engine(NULL)
+  Coordinator():
+    _engine(NULL)
   {}
 
   /*! \brief Parses the command line options, including any engine specific options.
@@ -65,18 +65,18 @@ public:
    */
   void initialise();
 
-  /*! \brief Calls CEngine::runSimulation() if there are collisions to execute.
+  /*! \brief Calls Engine::runSimulation() if there are collisions to execute.
    */
   void runSimulation();
 
-  /*! \brief Outputs any simulation data collected using CEngine::outputData().
+  /*! \brief Outputs any simulation data collected using Engine::outputData().
    *
    * In the future this will also output any data collected on the engine or 
    * system state, i.e. the mpi subsystem.
    */ 
   void outputData();
   
-  /*! \brief Calls CEngine::outputConfigs() to print the final configurations
+  /*! \brief Calls Engine::outputConfigs() to print the final configurations
    * if any dynamics was actually run.
    */
   void outputConfigs();
@@ -101,15 +101,15 @@ private:
    */
   boost::program_options::variables_map vm;
 
-  /*! \brief A smart pointer to the CEngine being run.
+  /*! \brief A smart pointer to the Engine being run.
    */
-  smrtPlugPtr<CEngine> Engine;
+  smrtPlugPtr<Engine> _engine;
 
   /*! \brief A thread pool to utilise multiple cores on the computational node.
    *
    * This CThreadPool is used/referenced by all code in a single dynarun process.
    */
-  CThreadPool threads;
+  CThreadPool _threads;
 };
 
 #endif

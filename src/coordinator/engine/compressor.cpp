@@ -18,7 +18,7 @@
 #include "compressor.hpp"
 
 void 
-CECompressor::getOptions(boost::program_options::options_description& opts)
+ECompressingSimulation::getOptions(boost::program_options::options_description& opts)
 {
   boost::program_options::options_description ropts("Compression Engine");
 
@@ -35,8 +35,8 @@ CECompressor::getOptions(boost::program_options::options_description& opts)
   opts.add(ropts);
 }
 
-CECompressor::CECompressor(const boost::program_options::variables_map& nVM, CThreadPool& tp):
-  CESingle(nVM, tp)
+ECompressingSimulation::ECompressingSimulation(const boost::program_options::variables_map& nVM, CThreadPool& tp):
+  ESingleSimulation(nVM, tp)
 {
   if (vm.count("target-pack-frac") && vm.count("target-density"))
     D_throw() << "Shouldn't specify both the packing fraction and density.";
@@ -44,18 +44,18 @@ CECompressor::CECompressor(const boost::program_options::variables_map& nVM, CTh
 }
 
 void 
-CECompressor::preSimInit()
+ECompressingSimulation::preSimInit()
 {
-  CESingle::preSimInit();
+  ESingleSimulation::preSimInit();
 
   compressPlug.set_ptr(new CIPCompression
 		       (&simulation, vm["growth-rate"].as<Iflt>()));
 }
 
 void 
-CECompressor::setupSim(Simulation& Sim, const std::string filename)
+ECompressingSimulation::setupSim(Simulation& Sim, const std::string filename)
 {
-  CESingle::setupSim(Sim,filename);
+  ESingleSimulation::setupSim(Sim,filename);
   
   compressPlug->MakeGrowth();
             
@@ -71,7 +71,7 @@ CECompressor::setupSim(Simulation& Sim, const std::string filename)
   compressPlug->CellSchedulerHack();
 }
 
-void CECompressor::finaliseRun()
+void ECompressingSimulation::finaliseRun()
 {
   compressPlug->RestoreSystem();
 

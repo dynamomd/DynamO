@@ -15,31 +15,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file single.hpp
- * \brief Contains the simulation CEngine CESingle
+ * \brief Contains the simulation Engine ESingleSimulation
  */
 
-#ifndef CESingle_H
-#define CESingle_H
+#ifndef ESingleSimulation_H
+#define ESingleSimulation_H
 
 #include "engine.hpp"
 
-/*! \brief An CEngine for simulating a single system.
+/*! \brief An Engine for simulating a single system.
  *
  * This merely sets up and exectues a single Simulation instance.
  */
-class CESingle: public CEngine
+class ESingleSimulation: public Engine
 {
 public:
   /*! \brief Only constructor.
    *
-   * \param vm A reference to the CCoordinator's parsed command line variables.
+   * \param vm A reference to the Coordinator's parsed command line variables.
    * \param tp A reference to the thread pool of the dynarun instance.
    */ 
-  CESingle(const boost::program_options::variables_map& vm, 
+  ESingleSimulation(const boost::program_options::variables_map& vm, 
 	   CThreadPool& tp);
 
   /*! \brief Trivial virtual destructor */
-  virtual ~CESingle() {}
+  virtual ~ESingleSimulation() {}
   
   /*! \brief There is no status to be printed other than what the
    * Simulation outputs.
@@ -59,7 +59,7 @@ public:
    */
   virtual void outputConfigs();
 
-  /*! \brief No CEngine finalisation required.
+  /*! \brief No Engine finalisation required.
    */
   virtual void finaliseRun() {}
 
@@ -81,7 +81,7 @@ protected:
   Simulation simulation;
   
   /*! \brief If this is true, the Simulation's end time will be reset
-   * and the CESingle run loop in runSimulation() will be repeated.
+   * and the ESingleSimulation run loop in runSimulation() will be repeated.
    */
  bool peekMode; 
 };

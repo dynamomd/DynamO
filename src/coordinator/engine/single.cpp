@@ -17,20 +17,20 @@
 
 #include "single.hpp"
 
-CESingle::CESingle(const boost::program_options::variables_map& nVM, CThreadPool& tp):
-  CEngine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
+ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, CThreadPool& tp):
+  Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
   peekMode(false)
 {}
 
 void 
-CESingle::peekData()
+ESingleSimulation::peekData()
 {
   peekMode = true;
   simulation.simShutdown();
 }
 
 void
-CESingle::runSimulation()
+ESingleSimulation::runSimulation()
 {
   try {
     do
@@ -60,7 +60,7 @@ CESingle::runSimulation()
 }
 
 void
-CESingle::initialisation()
+ESingleSimulation::initialisation()
 {
   preSimInit();
 
@@ -83,19 +83,19 @@ CESingle::initialisation()
 }
 
 void
-CESingle::outputData()
+ESingleSimulation::outputData()
 {
   simulation.outputData(outputFormat.c_str(),vm.count("uncompressed"));
 }
 
 void
-CESingle::outputConfigs()
+ESingleSimulation::outputConfigs()
 {
   simulation.writeXMLfile(configFormat.c_str(), false, vm.count("uncompressed"));
 }
 
 void 
-CESingle::forceShutdown()
+ESingleSimulation::forceShutdown()
 {
   simulation.simShutdown();
 }

@@ -193,7 +193,7 @@ namespace DYNAMO
 
     /*! \brief This is just the ID number of the Simulation in its container.
      *
-     * This is used in the CEReplexer engine.
+     * This is used in the EReplicaExchangeSimulation engine.
      */
     size_t simID;
     

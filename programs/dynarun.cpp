@@ -19,7 +19,7 @@
  * \brief Contains the main() function for dynarun
  *
  * Although this contains the main() function, most of the behaviour peculiar
- * to dynarun is carried out by the CCoordinator class.
+ * to dynarun is carried out by the Coordinator class.
  */
 
 #include <iostream>
@@ -30,10 +30,10 @@
 
 /*! \brief The programs single instantiation of the simulation control class.
  */
-CCoordinator coord;
+Coordinator coord;
 
 
-/*! \brief A function that merely wraps the CCoordinator::signal_handler.
+/*! \brief A function that merely wraps the Coordinator::signal_handler.
 
   \param sigtype The type of signal that has been recieved.
  */
@@ -45,7 +45,7 @@ void sig_handler_helper(int sigtype)
 /*! \brief Starting point for the dynarun program.
  *
  * This merely registers some signal handlers and boots the
- * CCoordinator class. The CCoordinator class is the true "main"
+ * Coordinator class. The Coordinator class is the true "main"
  * function for the simulations.
  *
  * \param argc The number of command line arguments.

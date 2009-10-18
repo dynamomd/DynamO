@@ -15,11 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file replexer.hpp
- * Holds the definition of the CEReplexer class.
+ * Holds the definition of the EReplicaExchangeSimulation class.
  */
 
-#ifndef CEReplexer_H
-#define CEReplexer_H
+#ifndef EReplicaExchangeSimulation_H
+#define EReplicaExchangeSimulation_H
 
 #include "engine.hpp"
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -34,20 +34,20 @@
  * This class uses the CThreadPool to parallelise the running of the
  * simulations.
  */
-class CEReplexer: public CEngine
+class EReplicaExchangeSimulation: public Engine
 {
 public:
   /*! \brief The only constructor.
    *
-   * \param vm The parsed command line options held by the CCoordinator.
+   * \param vm The parsed command line options held by the Coordinator.
    * \param tp The CThreadPool for this instance of dynarun.
    */
-  CEReplexer(const boost::program_options::variables_map& vm, 
+  EReplicaExchangeSimulation(const boost::program_options::variables_map& vm, 
 	     CThreadPool& tp);
   
   /*! \brief A trivial virtual destructor. 
    */
-  virtual ~CEReplexer() {}
+  virtual ~EReplicaExchangeSimulation() {}
   
   /*! \brief Print the replica exchange status of the simulations.
    *
@@ -86,7 +86,7 @@ public:
    */
   virtual void finaliseRun() {}
   
-  /*! \brief Return the options for the CEReplexer Engine.
+  /*! \brief Return the options for the EReplicaExchangeSimulation Engine.
    */
   static void getOptions(boost::program_options::options_description&);
 
@@ -211,7 +211,7 @@ protected:
    */
   unsigned int nSims;
   
-  /*! \brief If its true the CEReplexer loop will restart after outputting data.
+  /*! \brief If its true the EReplicaExchangeSimulation loop will restart after outputting data.
    */
   bool peekMode;
 

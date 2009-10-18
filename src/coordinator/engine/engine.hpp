@@ -15,11 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file engine.hpp
- * \brief Contains the definition of CEngine.
+ * \brief Contains the definition of Engine.
  */
 
-#ifndef CEngine_H
-#define CEngine_H
+#ifndef Engine_H
+#define Engine_H
 
 #include <boost/program_options.hpp>
 #include <boost/scoped_array.hpp>
@@ -29,11 +29,11 @@ class CThreadPool;
 
 /*! \brief An engine to control/manipulate one or more Simulation's.
  *
- * CEngine is a virtual base class interface for many different
+ * Engine is a virtual base class interface for many different
  * engines. These engines manipulate Simulation(s) data by running
  * them and/or altering them for the purpose of a study.
  * 
- * The simplest engine is CESingle and probably the best one to try
+ * The simplest engine is ESingleSimulation and probably the best one to try
  * and understand at first.
  *
  * The initialisation() steps of an engine have been broken up into
@@ -44,7 +44,7 @@ class CThreadPool;
  * - postSimInit() - After the Simulation(s) is/are initialised
  *
  */
-class CEngine
+class Engine
 {
 public:
   /*! \brief The default constructor.
@@ -54,12 +54,12 @@ public:
    * \param outputFile A format string on how output files should be written out.
    * \param tp The processes CThreadPool for parallel processing.
    */
-  CEngine(const boost::program_options::variables_map& vm,
+  Engine(const boost::program_options::variables_map& vm,
 	  std::string configFile, std::string outputFile,
 	  CThreadPool& tp);
   
   /*! \brief The trivial virtual destructor. */
-  virtual ~CEngine() {}
+  virtual ~Engine() {}
 
   /*! \brief A hook for the initialisation stage of an engine
    * 
@@ -75,7 +75,7 @@ public:
    *
    * This is if the engine needs to change its state before shutting
    * down.  
-   * E.g. the CECompressor needs to change the Liouvillean
+   * E.g. the ECompressingSimulation needs to change the Liouvillean
    * back to the old one.
    */
   virtual void finaliseRun() = 0;
@@ -97,13 +97,13 @@ public:
 
   /*! \brief The main simulation "loop"/call for the engine
    *
-   * Some engines like the CEReplexer require a loop and it will be
+   * Some engines like the EReplicaExchangeSimulation require a loop and it will be
    * implemented here
    */
   virtual void runSimulation() = 0;
 
   /*! \brief Output any data collected during the run by the
-   * Simulation's and the CEngine.
+   * Simulation's and the Engine.
    */
   virtual void outputData() = 0;
 
@@ -112,7 +112,7 @@ public:
    */
   virtual void peekData() = 0;
 
-  /*! \brief Output the configurations of the Simulation's and CEngine
+  /*! \brief Output the configurations of the Simulation's and Engine
    * so the run can be continued.
    *
    * This function must be safe to call during an interrupt.
@@ -142,11 +142,11 @@ protected:
   virtual void setupSim(Simulation & Sim, const std::string inFile);
 
   /*! \brief Once the Simulation is loaded and initialised you may
-   * need to alter it/load plugins/initialise some CEngine datastruct.
+   * need to alter it/load plugins/initialise some Engine datastruct.
    */
   virtual void postSimInit(Simulation&) {}
 
-  /*! \brief A reference to the CCoordinators parsed command line variables.
+  /*! \brief A reference to the Coordinators parsed command line variables.
    */
   const boost::program_options::variables_map& vm;
     

@@ -16,7 +16,7 @@
 */
 /*! \file coordinator.cpp 
  *
- * \brief Contains the code for the CCoordinator class.
+ * \brief Contains the code for the Coordinator class.
  */
 
 #include "coordinator.hpp"
@@ -27,7 +27,7 @@
 #endif
 
 void 
-CCoordinator::signal_handler(int sigtype)
+Coordinator::signal_handler(int sigtype)
 {
   switch (sigtype)
     {
@@ -36,7 +36,7 @@ CCoordinator::signal_handler(int sigtype)
       return;
     case SIGUSR2:
       //Just try and shutdown before we're (kill -9)ed
-      Engine->forceShutdown();
+      _engine->forceShutdown();
       return;
     case SIGINT:
       {
@@ -54,22 +54,22 @@ CCoordinator::signal_handler(int sigtype)
 	  {
 	  case 's':
 	  case 'S':
-	    Engine->forceShutdown();
+	    _engine->forceShutdown();
 	    break;
 	  case 'e':
 	  case 'E':
-	    if (threads.getThreadCount())
+	    if (_threads.getThreadCount())
 	      std::cerr << "Cannot <E>xit when threaded, causes program to hang. Try shutting down.";
 	    else
 	      exit(1);
 	    break;
 	  case 'p':
 	  case 'P':
-	    Engine->peekData();
+	    _engine->peekData();
 	    break;
 	  case 'd':
 	  case 'D':
-	    Engine->printStatus();
+	    _engine->printStatus();
 	    break;
 	  }
 	break;
@@ -78,7 +78,7 @@ CCoordinator::signal_handler(int sigtype)
 }
 
 boost::program_options::variables_map& 
-CCoordinator::parseOptions(int argc, char *argv[])
+Coordinator::parseOptions(int argc, char *argv[])
 {
   namespace po = boost::program_options;
 
@@ -89,8 +89,8 @@ CCoordinator::parseOptions(int argc, char *argv[])
   
   systemopts.add_options()
     ("help", "Produces this message")   
-    ("n-threads,N", po::value<unsigned int>(), 
-     "Number of threads to spawn for concurrent processing. (Only utilised by some engine/sim configurations)")
+    ("n-_threads,N", po::value<unsigned int>(), 
+     "Number of _threads to spawn for concurrent processing. (Only utilised by some engine/sim configurations)")
     ("out-config-file,o", po::value<std::string>(), 
      "Default config output file,(config.%ID.end.xml.bz2)")
     ("out-data-file", po::value<std::string>(), 
@@ -112,9 +112,9 @@ CCoordinator::parseOptions(int argc, char *argv[])
 
   basicOpts.add(systemopts).add(engineopts);
 
-  CEngine::getCommonOptions(detailedEngineOpts);
-  CEReplexer::getOptions(detailedEngineOpts);
-  CECompressor::getOptions(detailedEngineOpts);
+  Engine::getCommonOptions(detailedEngineOpts);
+  EReplicaExchangeSimulation::getOptions(detailedEngineOpts);
+  ECompressingSimulation::getOptions(detailedEngineOpts);
   
   allopts.add(basicOpts).add(detailedEngineOpts);
 
@@ -174,50 +174,50 @@ CCoordinator::parseOptions(int argc, char *argv[])
 }
 
 void 
-CCoordinator::initialise()
+Coordinator::initialise()
 {
-  if (vm.count("n-threads"))
-    threads.setThreadCount(vm["n-threads"].as<unsigned int>());
+  if (vm.count("n-_threads"))
+    _threads.setThreadCount(vm["n-_threads"].as<unsigned int>());
 
   switch (vm["engine"].as<size_t>())
     {
     case (1):
-      Engine.set_ptr(new CESingle(vm, threads));
+      _engine.set_ptr(new ESingleSimulation(vm, _threads));
       break;
     case (2):
-      Engine.set_ptr(new CEReplexer(vm, threads));
+      _engine.set_ptr(new EReplicaExchangeSimulation(vm, _threads));
       break;
     case (3):
-      Engine.set_ptr(new CECompressor(vm, threads));
+      _engine.set_ptr(new ECompressingSimulation(vm, _threads));
       break;
     default:
       D_throw() <<"Unknown Engine Selected"; 
     }
   
-  Engine->initialisation();
+  _engine->initialisation();
 }
 
 void 
-CCoordinator::runSimulation()
+Coordinator::runSimulation()
 {
   //Only Run if there are collisions to run
   if (vm["ncoll"].as<unsigned long long>())
-    Engine->runSimulation();
+    _engine->runSimulation();
 
 }
 
 void 
-CCoordinator::outputData()
+Coordinator::outputData()
 {
-  Engine->outputData();
+  _engine->outputData();
 }
 
 void 
-CCoordinator::outputConfigs()
+Coordinator::outputConfigs()
 {
-  Engine->finaliseRun();
+  _engine->finaliseRun();
 
   //Only output if there are collisions to run
   if (vm["ncoll"].as<unsigned long long>())
-    Engine->outputConfigs();
+    _engine->outputConfigs();
 }
