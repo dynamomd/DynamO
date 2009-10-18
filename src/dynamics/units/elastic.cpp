@@ -23,21 +23,21 @@
 #include <cstring>
 
 CUElastic::CUElastic(const DYNAMO::SimData* tmp): 
-  CUnits(tmp),
+  Units(tmp),
   UnitOfLength(1.0)
 {
   I_cout() << "Elastic units loaded";
 }
   
 CUElastic::CUElastic(Iflt diameter, const DYNAMO::SimData* tmp):
-  CUnits(tmp),
+  Units(tmp),
   UnitOfLength(diameter)
 {
   I_cout() << "Elastic units loaded";
 }
 
 CUElastic::CUElastic(const XMLNode &XML, const DYNAMO::SimData* tmp):
-  CUnits(tmp)
+  Units(tmp)
 { 
   operator<<(XML); 
   I_cout() << "Elastic units loaded";
@@ -57,7 +57,7 @@ Iflt
 CUElastic::unitTime() const
 { return 1.0; }
   
-CUnits* 
+Units* 
 CUElastic::Clone() const
 { return new CUElastic(*this); }
 

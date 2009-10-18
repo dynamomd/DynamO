@@ -37,16 +37,16 @@ namespace xmlw
  * construction so that other classes may directly start conversions
  * on the loading of configurations.
  */
-class CUnits: public DYNAMO::SimBase_const
+class Units: public DYNAMO::SimBase_const
 {
  public:
-  CUnits(const DYNAMO::SimData* const tmp): 
+  Units(const DYNAMO::SimData* const tmp): 
     SimBase_const(tmp, "Units",IC_blue)
     {};
 
-  virtual ~CUnits() {};
+  virtual ~Units() {};
 
-  virtual CUnits* Clone() const = 0;
+  virtual Units* Clone() const = 0;
 
   virtual Iflt unitTime() const = 0;
   virtual Iflt unitLength() const = 0;
@@ -86,11 +86,11 @@ class CUnits: public DYNAMO::SimBase_const
 
   Iflt simVolume() const;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CUnits&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Units&);
   
   virtual void operator<<(const XMLNode &) = 0;
   
-  static CUnits* loadUnits(const XMLNode&, const DYNAMO::SimData*);
+  static Units* loadUnits(const XMLNode&, const DYNAMO::SimData*);
   
  protected:
   virtual void outputXML(xmlw::XmlStream &) const = 0;

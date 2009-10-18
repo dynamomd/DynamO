@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 
 class BoundaryCondition;
-class CUnits;
+class Units;
 class CSpecies;
 class CGlobEvent;
 class CGlobal;
@@ -59,7 +59,7 @@ public:
 
   ~Dynamics();
   
-  void setUnits(CUnits*);
+  void setUnits(Units*);
 
   void setLiouvillean(Liouvillean*);
 
@@ -148,10 +148,10 @@ public:
   friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Dynamics&);
 
   //Inlines
-  inline const CUnits& units() const 
+  inline const Units& units() const 
   { return *p_units; }
 
-  inline CUnits& units()
+  inline Units& units()
   { return *p_units; }
   
   inline const BoundaryCondition& BCs() const 
@@ -199,7 +199,7 @@ public:
   std::vector<smrtPlugPtr<CSpecies> > species;
   smrtPlugPtr<BoundaryCondition> p_BC;
   smrtPlugPtr<Liouvillean> p_liouvillean;
-  mutable smrtPlugPtr<CUnits> p_units;
+  mutable smrtPlugPtr<Units> p_units;
 };
 
 #endif

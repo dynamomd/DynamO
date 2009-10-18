@@ -20,7 +20,7 @@
 
 #include "units.hpp"
 
-class CUSW: public CUnits
+class CUSW: public Units
 {
  public:
   CUSW(const DYNAMO::SimData*); 
@@ -37,7 +37,7 @@ class CUSW: public CUnits
 
   virtual Iflt unitTime() const;
   
-  virtual CUnits* Clone() const;
+  virtual Units* Clone() const;
   
   virtual void operator<<(const XMLNode&);
 

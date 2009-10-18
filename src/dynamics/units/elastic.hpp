@@ -20,7 +20,7 @@
 
 #include "units.hpp"
 
-class CUElastic: public CUnits
+class CUElastic: public Units
 {
  public:
   CUElastic(const DYNAMO::SimData*);
@@ -39,7 +39,7 @@ class CUElastic: public CUnits
 
   virtual void rescaleLength(Iflt);
   
-  virtual CUnits* Clone() const;
+  virtual Units* Clone() const;
   
   virtual void operator<<(const XMLNode&);
 

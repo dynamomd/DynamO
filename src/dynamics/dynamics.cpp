@@ -414,7 +414,7 @@ Dynamics::operator<<(const XMLNode& XML)
     }
   
   xSubNode = xDynamics.getChildNode("Units");
-  p_units.set_ptr(CUnits::loadUnits(xSubNode,Sim));
+  p_units.set_ptr(Units::loadUnits(xSubNode,Sim));
   
   //Now load the BC part, after the aspect ratio!
   xSubNode = xDynamics.getChildNode("BC");
@@ -594,7 +594,7 @@ Dynamics::SystemOverlapTest()
 }
 
 void 
-Dynamics::setUnits(CUnits* Uptr) 
+Dynamics::setUnits(Units* Uptr) 
 { p_units.set_ptr(Uptr); }
 
 void 

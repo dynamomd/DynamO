@@ -24,7 +24,7 @@
 #include <cstring>
 
 CUSW::CUSW(const DYNAMO::SimData* tmp):
-  CUnits(tmp),
+  Units(tmp),
   UnitOfEnergy(0.0),
   UnitOfLength(1.0)
 {
@@ -32,7 +32,7 @@ CUSW::CUSW(const DYNAMO::SimData* tmp):
 }
 
 CUSW::CUSW(Iflt diameter, Iflt energy, const DYNAMO::SimData* tmp):
-  CUnits(tmp),
+  Units(tmp),
   UnitOfEnergy(energy),
   UnitOfLength(diameter)
 {
@@ -40,7 +40,7 @@ CUSW::CUSW(Iflt diameter, Iflt energy, const DYNAMO::SimData* tmp):
 }
 
 CUSW::CUSW(const XMLNode &XML, const DYNAMO::SimData* tmp):
-  CUnits(tmp)
+  Units(tmp)
 { 
   operator<<(XML); 
   I_cout() << "SW units loaded";
@@ -66,7 +66,7 @@ CUSW::unitTime() const
   return sqrt(unitLength()*unitLength()*unitMass()/UnitOfEnergy);
 }
 
-CUnits* 
+Units* 
 CUSW::Clone() const
 { return new CUSW(*this); }
   

@@ -47,7 +47,7 @@ public:
   virtual Iflt unitTime() const
   { return 1.0 / ShearRate; }
   
-  virtual CUnits* Clone() const
+  virtual Units* Clone() const
   { return new CUShear(*this); }
   
   void operator<<(const XMLNode&);

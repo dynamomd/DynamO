@@ -24,14 +24,14 @@
 #include "../../base/is_simdata.hpp"
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CUnits& g)
+			    const Units& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 Iflt 
-CUnits::simVolume() const
+Units::simVolume() const
 { 
   Iflt vol = 1.0;
   for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -40,8 +40,8 @@ CUnits::simVolume() const
   return vol;
 }
 
-CUnits* 
-CUnits::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
+Units* 
+Units::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Elastic"))
     return new CUElastic(XML, Sim);
