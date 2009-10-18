@@ -163,6 +163,7 @@ public:
 
 namespace std
 {
+  /*! \brief Template specialisation of the std::swap function for pList*/
   template<> inline
   void swap(pList& lhs, pList& rhs)
   {
