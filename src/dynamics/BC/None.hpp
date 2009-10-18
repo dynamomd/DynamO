@@ -27,12 +27,12 @@
  * for isolated polymer simulations but you must remember that
  * positions can overflow eventually.
  */
-class CNullBC: virtual public BoundaryCondition
+class BCNone: virtual public BoundaryCondition
 {
  public:
-  CNullBC(const DYNAMO::SimData*);
+  BCNone(const DYNAMO::SimData*);
   
-  virtual ~CNullBC();
+  virtual ~BCNone();
     
   virtual void applyBC(Vector  &)const;
 

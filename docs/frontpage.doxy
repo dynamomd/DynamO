@@ -43,3 +43,6 @@
  * Alternatively if you wish to jump in, CSimulation::runSimulation()
  * is the very inner loop of a single simulation.
  */
+
+/*! \brief The namespace for the dynamo simulation program */
+namespace DYNAMO {}

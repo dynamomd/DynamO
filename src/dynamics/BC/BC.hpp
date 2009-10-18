@@ -42,8 +42,8 @@ namespace DYNAMO
  * This class has a couple of partial specialisations for CSqBC
  * (square) and CRectBC (rectangular) periodic boundary conditions.
  * These are utilised by the BCSquarePeriodic and BCRectangularPeriodic periodic boundary
- * condition classes. There is the infinite system case CNullBC.  More
- * exotic conditions are the shearing CSLEBC and CRLEBC (Lees-Edwards)
+ * condition classes. There is the infinite system case BCNone.  More
+ * exotic conditions are the shearing BCSquareLeesEdwards and BCRectangularLeesEdwards (Lees-Edwards)
  * boundary condition and one for studying confined systems in the x
  * direction CRNoXPBC.
  */
@@ -79,7 +79,7 @@ class BoundaryCondition: public DYNAMO::SimBase_const
    * Exactly the same as the applyBC(Vector  &) function except if a
    * velocity altering is required as part of the boundary condition
    * then this is done too. This is used by boundary conditions such
-   * as CSLEBC.
+   * as BCSquareLeesEdwards.
    *
    * \param pos The position vector to affect.
    * \param vel The corresponding velocity vector to affect.
@@ -92,7 +92,7 @@ class BoundaryCondition: public DYNAMO::SimBase_const
    *  was performed dt in the future. Used in predicting cell
    *  transitions across the simulation boundaries.
    *
-   * This is used by BC's like CSLEBC.
+   * This is used by BC's like BCSquareLeesEdwards.
    *
    * \param pos The position vector to affect.
    * \param dt The time difference to predict at.

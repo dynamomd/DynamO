@@ -15,45 +15,45 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Null.hpp"
+#include "None.hpp"
 #include "../../extcode/xmlwriter.hpp"
 
-CNullBC::CNullBC(const DYNAMO::SimData* Sim):
+BCNone::BCNone(const DYNAMO::SimData* Sim):
   BoundaryCondition(Sim, "NullBC", IC_purple)
 { I_cout() << "No boundary condition loaded"; }
 
-CNullBC::~CNullBC() {}
+BCNone::~BCNone() {}
     
 void 
-CNullBC::applyBC(Vector  &)const 
+BCNone::applyBC(Vector  &)const 
 {}
 
 void 
-CNullBC::applyBC(Vector  &, Vector &) const 
+BCNone::applyBC(Vector  &, Vector &) const 
 {}
 
 void 
-CNullBC::applyBC(Vector  &, const Iflt&) const 
+BCNone::applyBC(Vector  &, const Iflt&) const 
 {}
 
 void 
-CNullBC::update(const Iflt &) 
+BCNone::update(const Iflt &) 
 {}
 
 void 
-CNullBC::outputXML(xmlw::XmlStream &XML) const
+BCNone::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Boundary") << "Null";
 }
 
 void 
-CNullBC::operator<<(const XMLNode &)
+BCNone::operator<<(const XMLNode &)
 {}
 
 BoundaryCondition* 
-CNullBC::Clone () const 
-{ return new CNullBC(*this); }
+BCNone::Clone () const 
+{ return new BCNone(*this); }
 
 void 
-CNullBC::rounding(Vector &) const 
+BCNone::rounding(Vector &) const 
 {}

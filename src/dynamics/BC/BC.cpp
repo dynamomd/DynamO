@@ -32,14 +32,14 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 BoundaryCondition* 
 BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
 {
-  if (!strcmp(XML.getAttribute("Boundary"),"Null"))
-    return new CNullBC(tmp);
+  if (!strcmp(XML.getAttribute("Boundary"),"None"))
+    return new BCNone(tmp);
   else if (!strcmp(XML.getAttribute("Shape"),"Square"))
     {
       if (!strcmp(XML.getAttribute("Boundary"),"PBC"))
 	return new BCSquarePeriodic(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
-	return new CSLEBC(XML,tmp);
+	return new BCSquareLeesEdwards(XML,tmp);
       else 
 	D_throw() << "Unknown type of square boundary encountered";
     } 
@@ -50,7 +50,7 @@ BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
       else if (!strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
 	return new CRNoXPBC(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
-	return new CRLEBC(XML,tmp);
+	return new BCRectangularLeesEdwards(XML,tmp);
       else 
 	D_throw() << "Unknown type of rectangular boundary encountered";
     }

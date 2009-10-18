@@ -16,5 +16,5 @@
 */
 
 #include "PBC.hpp"
-#include "Null.hpp"
+#include "None.hpp"
 #include "LEBC.hpp"

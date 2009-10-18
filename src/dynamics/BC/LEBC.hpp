@@ -26,14 +26,14 @@ class CLEBC {};
 /*! \brief A simple rectangular Lees-Edwards simple shear boundary
  * condition.
  *
- * See the square version for more details (CSLEBC)
+ * See the square version for more details (BCSquareLeesEdwards)
  */
-class CRLEBC: virtual public BoundaryCondition, public CLEBC
+class BCRectangularLeesEdwards: virtual public BoundaryCondition, public CLEBC
 {
  public:
-  CRLEBC(const DYNAMO::SimData*);
+  BCRectangularLeesEdwards(const DYNAMO::SimData*);
 
-  CRLEBC(const XMLNode&, const DYNAMO::SimData*);
+  BCRectangularLeesEdwards(const XMLNode&, const DYNAMO::SimData*);
 
   virtual void outputXML(xmlw::XmlStream&) const;
 
@@ -64,12 +64,12 @@ class CRLEBC: virtual public BoundaryCondition, public CLEBC
  *
  * See BoundaryCondition for a general description of the member functions.
  */
-class CSLEBC: virtual public BoundaryCondition, public CLEBC
+class BCSquareLeesEdwards: virtual public BoundaryCondition, public CLEBC
 {
  public:
-  CSLEBC(const DYNAMO::SimData*);
+  BCSquareLeesEdwards(const DYNAMO::SimData*);
 
-  CSLEBC(const XMLNode&, const DYNAMO::SimData*);
+  BCSquareLeesEdwards(const XMLNode&, const DYNAMO::SimData*);
 
   virtual void outputXML(xmlw::XmlStream&) const;
 

@@ -371,7 +371,7 @@ CIPPacker::initialise()
 	//Set up the system now
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 	
-	Sim->Dynamics.applyBC<CNullBC>();
+	Sim->Dynamics.applyBC<BCNone>();
 
 	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -530,9 +530,9 @@ CIPPacker::initialise()
 	Sim->Dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
 	if (vm.count("rectangular-box"))
-	  Sim->Dynamics.applyBC<CRLEBC>();
+	  Sim->Dynamics.applyBC<BCRectangularLeesEdwards>();
 	else
-	  Sim->Dynamics.applyBC<CSLEBC>();
+	  Sim->Dynamics.applyBC<BCSquareLeesEdwards>();
 
 	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -611,7 +611,7 @@ CIPPacker::initialise()
 	//Set up the system now
 	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
 
-	Sim->Dynamics.applyBC<CNullBC>();
+	Sim->Dynamics.applyBC<BCNone>();
 
 	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1311,7 +1311,7 @@ CIPPacker::initialise()
 	std::vector<Vector  > 
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
       	
-	Sim->Dynamics.applyBC<CSLEBC>();
+	Sim->Dynamics.applyBC<BCSquareLeesEdwards>();
 	  
 	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
@@ -1922,7 +1922,7 @@ CIPPacker::initialise()
 	std::vector<Vector> 
 	  latticeSites(packptr->placeObjects(particleCOM));
       	
-	Sim->Dynamics.applyBC<CNullBC>();
+	Sim->Dynamics.applyBC<BCNone>();
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	Iflt simVol = 1.0;

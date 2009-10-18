@@ -27,7 +27,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../../dynamics/BC/Null.hpp"
+#include "../../dynamics/BC/None.hpp"
 
 COPCTorsion::COPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
   COPTicker(tmp,"Torsion")
@@ -41,7 +41,7 @@ COPCTorsion::initialise()
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			       0.005, 0.005, 0.01));
 
-  if (!Sim->Dynamics.BCTypeTest<CNullBC>())
+  if (!Sim->Dynamics.BCTypeTest<BCNone>())
     D_throw() << "Can only use this plugin with Null BC's"
 	      << "\nPositions must be unwrapped";
 }

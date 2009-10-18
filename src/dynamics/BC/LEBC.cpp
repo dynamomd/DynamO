@@ -25,7 +25,7 @@
 #include "../../base/is_simdata.hpp"
 #include "rintfunc.hpp"
 
-CRLEBC::CRLEBC(const DYNAMO::SimData* tmp):
+BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -33,7 +33,7 @@ CRLEBC::CRLEBC(const DYNAMO::SimData* tmp):
   I_cout() << "Rectangular Lee's Edwards BC loaded"; 
 }
 
-CRLEBC::CRLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
+BCRectangularLeesEdwards::BCRectangularLeesEdwards(const XMLNode& XML, const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -44,7 +44,7 @@ CRLEBC::CRLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
 }
 
 void 
-CRLEBC::outputXML(xmlw::XmlStream &XML) const
+BCRectangularLeesEdwards::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Shape") << "Rectangular"
       << xmlw::attr("Boundary") << "LE"
@@ -52,7 +52,7 @@ CRLEBC::outputXML(xmlw::XmlStream &XML) const
 }
 
 void 
-CRLEBC::operator<<(const XMLNode& XML)
+BCRectangularLeesEdwards::operator<<(const XMLNode& XML)
 { 
   try 
     {
@@ -65,11 +65,11 @@ CRLEBC::operator<<(const XMLNode& XML)
 }
 
 BoundaryCondition* 
-CRLEBC::Clone () const 
-{ return new CRLEBC(*this); }
+BCRectangularLeesEdwards::Clone () const 
+{ return new BCRectangularLeesEdwards(*this); }
 
 void 
-CRLEBC::applyBC(Vector  &pos) const 
+BCRectangularLeesEdwards::applyBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1] / Sim->aspectRatio[1])*dxd;
@@ -80,7 +80,7 @@ CRLEBC::applyBC(Vector  &pos) const
 }
 
 void 
-CRLEBC::applyBC(Vector  &pos, Vector &vel) const 
+BCRectangularLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1] / Sim->aspectRatio[1]) * dxd;
@@ -95,7 +95,7 @@ CRLEBC::applyBC(Vector  &pos, Vector &vel) const
 }
 
 void 
-CRLEBC::applyBC(Vector  &posVec, const Iflt& dt) const 
+BCRectangularLeesEdwards::applyBC(Vector  &posVec, const Iflt& dt) const 
 { 
   Iflt localdxd = dxd + dt * ShearRate * Sim->aspectRatio[1];
   
@@ -108,7 +108,7 @@ CRLEBC::applyBC(Vector  &posVec, const Iflt& dt) const
 }
 
 void 
-CRLEBC::update(const Iflt& dt) 
+BCRectangularLeesEdwards::update(const Iflt& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
   dxd += dt * ShearRate * Sim->aspectRatio[1];
@@ -120,7 +120,7 @@ CRLEBC::update(const Iflt& dt)
 
 /////////////////////////////Rectangular/////////////////////////////////////
 
-CSLEBC::CSLEBC(const DYNAMO::SimData* tmp):
+BCSquareLeesEdwards::BCSquareLeesEdwards(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -128,7 +128,7 @@ CSLEBC::CSLEBC(const DYNAMO::SimData* tmp):
   I_cout() << "Square Lee's Edwards BC loaded"; 
 }
 
-CSLEBC::CSLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
+BCSquareLeesEdwards::BCSquareLeesEdwards(const XMLNode& XML, const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -139,7 +139,7 @@ CSLEBC::CSLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
 }
 
 void 
-CSLEBC::outputXML(xmlw::XmlStream &XML) const
+BCSquareLeesEdwards::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Shape") << "Square"
       << xmlw::attr("Boundary") << "LE"
@@ -147,7 +147,7 @@ CSLEBC::outputXML(xmlw::XmlStream &XML) const
 }
 
 void 
-CSLEBC::operator<<(const XMLNode& XML)
+BCSquareLeesEdwards::operator<<(const XMLNode& XML)
 { 
   try 
     {
@@ -160,11 +160,11 @@ CSLEBC::operator<<(const XMLNode& XML)
 }
 
 BoundaryCondition* 
-CSLEBC::Clone () const 
-{ return new CSLEBC(*this); }
+BCSquareLeesEdwards::Clone () const 
+{ return new BCSquareLeesEdwards(*this); }
 
 void 
-CSLEBC::applyBC(Vector  &pos) const 
+BCSquareLeesEdwards::applyBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1]) * dxd;
@@ -174,7 +174,7 @@ CSLEBC::applyBC(Vector  &pos) const
 }
 
 void 
-CSLEBC::applyBC(Vector  &pos, Vector &vel) const 
+BCSquareLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
   pos[0] -= rint(pos[1]) * dxd;
@@ -187,7 +187,7 @@ CSLEBC::applyBC(Vector  &pos, Vector &vel) const
 }
 
 void 
-CSLEBC::applyBC(Vector  &posVec, const Iflt& dt) const 
+BCSquareLeesEdwards::applyBC(Vector  &posVec, const Iflt& dt) const 
 {
   Iflt localdxd = dxd + dt * ShearRate;
   
@@ -199,7 +199,7 @@ CSLEBC::applyBC(Vector  &posVec, const Iflt& dt) const
 }
 
 void 
-CSLEBC::update(const Iflt& dt) 
+BCSquareLeesEdwards::update(const Iflt& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
   dxd += dt * ShearRate;
