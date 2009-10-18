@@ -20,7 +20,7 @@
 #include "../base/is_exception.hpp"
 #include <iostream>
 
-CThreadPool::CThreadPool():
+ThreadPool::ThreadPool():
   ExceptionThrown(false)
 {
   m_bStop = false;
@@ -28,7 +28,7 @@ CThreadPool::CThreadPool():
 }
 
 void 
-CThreadPool::setThreadCount(size_t x)
+ThreadPool::setThreadCount(size_t x)
 { 
 #ifndef DYNAMO_CONDOR   
   if (x == m_threads.size()) return;
@@ -55,13 +55,13 @@ CThreadPool::setThreadCount(size_t x)
 #endif
 }
 
-CThreadPool::~CThreadPool() throw()
+ThreadPool::~ThreadPool() throw()
 {
   stop();
 }
 
 void 
-CThreadPool::wait()
+ThreadPool::wait()
 {
 #ifndef DYNAMO_CONDOR   
   if (m_threads.size())
@@ -90,7 +90,7 @@ CThreadPool::wait()
 }
 
 void 
-CThreadPool::stop()
+ThreadPool::stop()
 {
   // m_bStop must be set to true in a critical section.  Otherwise
   // it is possible for a thread to miss notify_all and never
@@ -108,7 +108,7 @@ CThreadPool::stop()
 }
 
 void 
-CThreadPool::beginThread() throw()
+ThreadPool::beginThread() throw()
 {
 #ifndef DYNAMO_CONDOR   
   try

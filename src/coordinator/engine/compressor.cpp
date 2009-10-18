@@ -35,7 +35,7 @@ ECompressingSimulation::getOptions(boost::program_options::options_description& 
   opts.add(ropts);
 }
 
-ECompressingSimulation::ECompressingSimulation(const boost::program_options::variables_map& nVM, CThreadPool& tp):
+ECompressingSimulation::ECompressingSimulation(const boost::program_options::variables_map& nVM, ThreadPool& tp):
   ESingleSimulation(nVM, tp)
 {
   if (vm.count("target-pack-frac") && vm.count("target-density"))

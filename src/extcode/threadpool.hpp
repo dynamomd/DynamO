@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file threadpool.hpp
- * \brief Contains the definition of CThreadPool
+ * \brief Contains the definition of ThreadPool
  */
 
 #ifndef THREADPOOL_H
@@ -39,12 +39,12 @@
  * Some helper classes are provided to call a member function of a
  * class as a task. These are functors.
  *
- * - CThreadPool::task_noarg - No arguments
- * - CThreadPool::task_1arg - 1 argument
- * - CThreadPool::task_2arg - 2 arguments
+ * - ThreadPool::task_noarg - No arguments
+ * - ThreadPool::task_1arg - 1 argument
+ * - ThreadPool::task_2arg - 2 arguments
  * 
  * This class will also run in 0 thread mode, where the controlling
- * process will execute the tasks when it enters the CThreadPool::wait() function.
+ * process will execute the tasks when it enters the ThreadPool::wait() function.
  *
  * This was adapted from an implementation by devguy.com
  * http://www.devguy.com/bb/viewtopic.php?p=1039
@@ -53,7 +53,7 @@
  * \bug Generalise the exception handling
  *
  */
-class CThreadPool
+class ThreadPool
 {	
 public:
   
@@ -136,7 +136,7 @@ public:
    *
    * This initialises the pool to 0 threads
    */
-  CThreadPool();
+  ThreadPool();
       
   /*! \brief Set the number of threads in the pool
    *
@@ -184,7 +184,7 @@ public:
    *
    * Join all threads in the pool and wait until they are terminated.
    */
-  ~CThreadPool() throw();
+  ~ThreadPool() throw();
 
   /*! \brief Wait for all tasks to complete.
    *
@@ -199,8 +199,8 @@ private:
    */
   bool ExceptionThrown;
   
-  CThreadPool (const CThreadPool&);
-  CThreadPool& operator = (const CThreadPool&);
+  ThreadPool (const ThreadPool&);
+  ThreadPool& operator = (const ThreadPool&);
   
   /*! \brief Current length of the functor/task queue. */
   size_t m_nQueueSize;
@@ -246,11 +246,11 @@ private:
   //friend struct beginThreadFunc;
   
   /*! \brief Functor and entry point for a new thread so a thread can
-   * access data in the owning CThreadPool.
+   * access data in the owning ThreadPool.
    */
   struct beginThreadFunc
   {
-    beginThreadFunc(CThreadPool& impl)
+    beginThreadFunc(ThreadPool& impl)
       : m_impl(impl)
     {}
     
@@ -262,7 +262,7 @@ private:
     /*! \brief A reference back to the original thread pool so we can
      * share mutexes in a object orientated program.
      */
-    CThreadPool &m_impl;
+    ThreadPool &m_impl;
   };
   
   /*! \brief Thread worker loop, called by the threads beginThreadFunc.

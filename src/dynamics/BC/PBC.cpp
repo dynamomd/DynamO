@@ -113,29 +113,29 @@ BCRectangularPeriodic::Clone () const
 { return new BCRectangularPeriodic(*this); }
 
 
-CRNoXPBC::CRNoXPBC(const DYNAMO::SimData* tmp):
+BCSquarePeriodicExceptX::BCSquarePeriodicExceptX(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "RNoXPBC",IC_purple)
 {
   Sim = tmp;
 }
 
 void 
-CRNoXPBC::outputXML(xmlw::XmlStream &XML) const
+BCSquarePeriodicExceptX::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Shape") << "Rectangular"
       << xmlw::attr("Boundary") << "NoXPBC";
 }
 
 void 
-CRNoXPBC::operator<<(const XMLNode&) 
+BCSquarePeriodicExceptX::operator<<(const XMLNode&) 
 {}
 
 BoundaryCondition* 
-CRNoXPBC::Clone () const 
-{ return new CRNoXPBC(*this); }
+BCSquarePeriodicExceptX::Clone () const 
+{ return new BCSquarePeriodicExceptX(*this); }
 
 void 
-CRNoXPBC::applyBC(Vector & pos) const
+BCSquarePeriodicExceptX::applyBC(Vector & pos) const
 { 
   Iflt x = pos[0];
 
@@ -147,7 +147,7 @@ CRNoXPBC::applyBC(Vector & pos) const
 }
   
 void 
-CRNoXPBC::applyBC(Vector & pos, Vector&) const
+BCSquarePeriodicExceptX::applyBC(Vector & pos, Vector&) const
 { 
   Iflt x = pos[0];
 
@@ -159,7 +159,7 @@ CRNoXPBC::applyBC(Vector & pos, Vector&) const
 }
 
 void 
-CRNoXPBC::applyBC(Vector  &pos, const Iflt&) const 
+BCSquarePeriodicExceptX::applyBC(Vector  &pos, const Iflt&) const 
 { 
   Iflt x = pos[0];
 

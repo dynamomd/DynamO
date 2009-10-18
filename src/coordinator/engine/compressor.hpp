@@ -39,7 +39,7 @@ public:
    * \param tp The shared thread pool.
    */
   ECompressingSimulation(const boost::program_options::variables_map& vm,
-	       CThreadPool& tp);
+	       ThreadPool& tp);
 
   /*! \brief A trivial virtual destructor
    */

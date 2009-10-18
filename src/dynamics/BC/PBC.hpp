@@ -67,10 +67,10 @@ public:
  * no leaks as these are not rounded and would show up in animations
  * or inspections.
  */
-class CRNoXPBC: public BoundaryCondition
+class BCSquarePeriodicExceptX: public BoundaryCondition
 {
 public:
-  CRNoXPBC(const DYNAMO::SimData*);
+  BCSquarePeriodicExceptX(const DYNAMO::SimData*);
 
   virtual void applyBC(Vector & pos) const;
   

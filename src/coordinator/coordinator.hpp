@@ -33,7 +33,7 @@
  *
  * This class is responsible for sorting out the correct simulation Engine to 
  * run and initialising computational node specific objects like the 
- * CThreadPool.
+ * ThreadPool.
  */
 class Coordinator
 {
@@ -107,9 +107,9 @@ private:
 
   /*! \brief A thread pool to utilise multiple cores on the computational node.
    *
-   * This CThreadPool is used/referenced by all code in a single dynarun process.
+   * This ThreadPool is used/referenced by all code in a single dynarun process.
    */
-  CThreadPool _threads;
+  ThreadPool _threads;
 };
 
 #endif

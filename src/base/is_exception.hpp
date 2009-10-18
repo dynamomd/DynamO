@@ -74,7 +74,7 @@ namespace DYNAMO
      * This message is not reentrant and is annoyingly C like. In a
      * threaded environment this is still thread safe provided the
      * exception try/catch statements are local to the thread, which
-     * CThreadPool ensures.
+     * ThreadPool ensures.
      * 
      * \bug Fix the non reentrant behaviour.
      */

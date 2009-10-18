@@ -50,7 +50,7 @@ EReplicaExchangeSimulation::getOptions(boost::program_options::options_descripti
 }
 
 EReplicaExchangeSimulation::EReplicaExchangeSimulation(const boost::program_options::variables_map& nVm,
-		       CThreadPool& tp):
+		       ThreadPool& tp):
   Engine(nVm, "config.%ID.end.xml.bz2", "output.%ID.xml.bz2", tp),
   replicaEndTime(0),
   ReplexMode(RandomSelection),
@@ -465,7 +465,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	  //Run the simulations
 	  //This is reversed as the high temperature sims generally run longer
 	  for (unsigned int i = nSims; i != 0;)
-	    threads.invoke(CThreadPool::task_noarg<Simulation>
+	    threads.invoke(ThreadPool::task_noarg<Simulation>
 			   (Simulations[--i], &Simulation::runSilentSimulation));
 		  
 	  threads.wait();//This syncs the systems for the replica exchange

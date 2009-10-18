@@ -31,7 +31,7 @@
  * periodically and then the configurations of the particles positions
  * are swapped along with a rescaling of the particles velocities.
  *
- * This class uses the CThreadPool to parallelise the running of the
+ * This class uses the ThreadPool to parallelise the running of the
  * simulations.
  */
 class EReplicaExchangeSimulation: public Engine
@@ -40,10 +40,10 @@ public:
   /*! \brief The only constructor.
    *
    * \param vm The parsed command line options held by the Coordinator.
-   * \param tp The CThreadPool for this instance of dynarun.
+   * \param tp The ThreadPool for this instance of dynarun.
    */
   EReplicaExchangeSimulation(const boost::program_options::variables_map& vm, 
-	     CThreadPool& tp);
+	     ThreadPool& tp);
   
   /*! \brief A trivial virtual destructor. 
    */

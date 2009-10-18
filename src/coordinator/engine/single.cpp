@@ -17,7 +17,7 @@
 
 #include "single.hpp"
 
-ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, CThreadPool& tp):
+ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, ThreadPool& tp):
   Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
   peekMode(false)
 {}

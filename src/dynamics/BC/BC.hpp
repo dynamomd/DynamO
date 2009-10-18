@@ -45,7 +45,7 @@ namespace DYNAMO
  * condition classes. There is the infinite system case BCNone.  More
  * exotic conditions are the shearing BCSquareLeesEdwards and BCRectangularLeesEdwards (Lees-Edwards)
  * boundary condition and one for studying confined systems in the x
- * direction CRNoXPBC.
+ * direction BCSquarePeriodicExceptX.
  */
 class BoundaryCondition: public DYNAMO::SimBase_const
 {

@@ -680,7 +680,7 @@ CIPPacker::initialise()
 	//static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
 
 	//Cut off the x periodic boundaries
-	Sim->dynamics.applyBC<CRNoXPBC>();
+	Sim->dynamics.applyBC<BCSquarePeriodicExceptX>();
 
 	Sim->dynamics.setUnits(new CUSW(particleDiam, 1.0, Sim));
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));

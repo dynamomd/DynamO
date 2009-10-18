@@ -25,7 +25,7 @@
 #include <boost/scoped_array.hpp>
 #include "../../simulation/simulation.hpp"
 
-class CThreadPool;
+class ThreadPool;
 
 /*! \brief An engine to control/manipulate one or more Simulation's.
  *
@@ -52,11 +52,11 @@ public:
    * \param vm Reference to the parsed command line variables.
    * \param configFile A format string on how config files should be written out.
    * \param outputFile A format string on how output files should be written out.
-   * \param tp The processes CThreadPool for parallel processing.
+   * \param tp The processes ThreadPool for parallel processing.
    */
   Engine(const boost::program_options::variables_map& vm,
 	  std::string configFile, std::string outputFile,
-	  CThreadPool& tp);
+	  ThreadPool& tp);
   
   /*! \brief The trivial virtual destructor. */
   virtual ~Engine() {}
@@ -153,7 +153,7 @@ protected:
   std::string configFormat;
   std::string outputFormat;
 
-  CThreadPool& threads;
+  ThreadPool& threads;
 };
 
 #endif
