@@ -86,7 +86,7 @@ COPGeomview::printImage()
 
       of << "{LIST\n";
 
-      if (dynamic_cast<const CLNOrientation*>(&Sim->Dynamics.Liouvillean()) != NULL)
+      if (dynamic_cast<const CLNOrientation*>(&Sim->Dynamics.getLiouvillean()) != NULL)
 	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
 	    const CParticle& part = Sim->vParticleList[ID];
@@ -95,7 +95,7 @@ COPGeomview::printImage()
 	   
 	    const CLNOrientation::rotData& 
 	      rdat(static_cast<const CLNOrientation&>
-		   (Sim->Dynamics.Liouvillean()).getRotData(part));	    
+		   (Sim->Dynamics.getLiouvillean()).getRotData(part));	    
  
 	    tmpCol = colmap.getColor(i + Sim->Dynamics.getInteraction
 				     (Sim->vParticleList[ID], 

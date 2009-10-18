@@ -45,7 +45,7 @@ COPQMGA::printImage()
   if (frameCount > 1000)
     return;
 
-  Sim->Dynamics.Liouvillean().updateAllParticles();
+  Sim->Dynamics.getLiouvillean().updateAllParticles();
 
   if ( asprintf(&fileName, "cnf.%04d", frameCount++) < 0)
     D_throw() << "asprintf error in QMGA";

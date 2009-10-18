@@ -111,21 +111,21 @@ CGlobEvent
 CGCells::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
   //This 
-  //Sim->Dynamics.Liouvillean().updateParticle(part);
+  //Sim->Dynamics.getLiouvillean().updateParticle(part);
   //is not required as we compensate for the delay using 
-  //Sim->Dynamics.Liouvillean().getParticleDelay(part)
+  //Sim->Dynamics.getLiouvillean().getParticleDelay(part)
   
   return CGlobEvent(part,
-		    Sim->Dynamics.Liouvillean().
+		    Sim->Dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, cells[partCellData[part.getID()].cell].origin, 
 		     cellDimension)
-		    -Sim->Dynamics.Liouvillean().getParticleDelay(part)
+		    -Sim->Dynamics.getLiouvillean().getParticleDelay(part)
 		    ,
 		    CELL, *this);
 }
@@ -136,12 +136,12 @@ CGCells::runEvent(const CParticle& part) const
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
   //expect the particle to be up to date.
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
   
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.Liouvillean().
+  size_t cellDirection(Sim->Dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
 			cellDimension));
@@ -407,7 +407,7 @@ CGCells::addCells(Iflt maxdiam)
 
   //Add the particles section
   //Required so particles find the right owning cell
-  Sim->Dynamics.Liouvillean().updateAllParticles(); 
+  Sim->Dynamics.getLiouvillean().updateAllParticles(); 
 
   ////initialise the data structures
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)

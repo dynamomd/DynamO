@@ -84,10 +84,10 @@ CSUmbrella::runEvent() const
   ++Sim->lNColl;
 
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   bool kedown(false); //Will kinetic energy go down?
 
@@ -115,7 +115,7 @@ CSUmbrella::runEvent() const
     
   EEventType etype(NONE);
 
-  CNParticleData SDat(Sim->Dynamics.Liouvillean().multibdyWellEvent
+  CNParticleData SDat(Sim->Dynamics.getLiouvillean().multibdyWellEvent
 		      (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
 
   if (etype != BOUNCE)
@@ -141,10 +141,10 @@ CSUmbrella::initialise(size_t nID)
   ID = nID;
 
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
@@ -169,10 +169,10 @@ void
 CSUmbrella::recalculateTime()
 {
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->Dynamics.Liouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->Dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
@@ -189,7 +189,7 @@ CSUmbrella::recalculateTime()
 	R_max = b + sqrt((ulevel + 1 * delU) / a);
       
       //Just look for escaping as we're in the well step spanning r = 0 
-      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
+      if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot
 	  (partdata, R_max * R_max))
 	{
 	  dt = partdata.dt;
@@ -220,13 +220,13 @@ CSUmbrella::recalculateTime()
       R_max = b + sqrt(((ulevel + 1) * delU) / a);
     }
 
-  if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(partdata, R_min * R_min))
+  if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min))
     {
       dt = partdata.dt;
       type = WELL_IN;
     }
   else 
-    if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
+    if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
       {
 	dt = partdata.dt;
 	type = WELL_OUT;

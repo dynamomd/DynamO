@@ -130,7 +130,7 @@ void
 COPVACF::newG(const C1ParticleData& PDat)
 {
   if (Sim->Dynamics.liouvilleanTypeTest<CLSLLOD>())
-    Sim->Dynamics.Liouvillean().updateAllParticles();
+    Sim->Dynamics.getLiouvillean().updateAllParticles();
 
   for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
@@ -258,7 +258,7 @@ COPVACF::getdt()
       if (Sim->lastRunMFT != 0.0)
 	return Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->Dynamics.Liouvillean().getkT()) * CorrelatorLength);
+	return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   else 
     return dt;

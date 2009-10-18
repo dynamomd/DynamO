@@ -87,12 +87,12 @@ COPThermalConductivityE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.Liouvillean().getkT()) * CorrelatorLength);
+		     * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-    constDelG += part.getVelocity () * Sim->Dynamics.Liouvillean().getParticleKineticEnergy(part);
+    constDelG += part.getVelocity () * Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(part);
   
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();
 }
@@ -148,8 +148,8 @@ COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 void 
 COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
+  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  Iflt p2E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
   constDelG += PDat.particle1_.getParticle().getVelocity() * p1E 
     + PDat.particle2_.getParticle().getVelocity() * p2E
@@ -278,7 +278,7 @@ COPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
 void 
 COPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
 {
-  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.getParticle());
+  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());

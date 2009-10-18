@@ -108,7 +108,7 @@ CSRingDSMC::runEvent() const
 	const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
 	const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
 	
-	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
 	CPDData PDat;
 	
@@ -117,14 +117,14 @@ CSRingDSMC::runEvent() const
 	
 	PDat.rij *= diameter / PDat.rij.nrm();
 	
-	if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
+	if (Sim->Dynamics.getLiouvillean().DSMCSpheresTest
 	    (p1, p2, maxprob12, factor12, PDat))
 	  {
 	    ++Sim->lNColl;
 	    ++n12;
 
 	    const C2ParticleData
-	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	      SDat(Sim->Dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 	    
 	    Sim->signalParticleUpdate(SDat);
 	    
@@ -161,7 +161,7 @@ CSRingDSMC::runEvent() const
 	
 	const CParticle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
 	
-	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
 	CPDData PDat;
 	
@@ -170,14 +170,14 @@ CSRingDSMC::runEvent() const
 	
 	PDat.rij *= diameter / PDat.rij.nrm();
 	
-	if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
+	if (Sim->Dynamics.getLiouvillean().DSMCSpheresTest
 	    (p1, p2, maxprob13, factor13, PDat))
 	  {
 	    ++Sim->lNColl;
 	    ++n13;
 
 	    const C2ParticleData
-	      SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	      SDat(Sim->Dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
 	    Sim->signalParticleUpdate(SDat);
 	    
@@ -221,7 +221,7 @@ CSRingDSMC::initialise(size_t nID)
 	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
 	  const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
 	  
-	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	  Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  
 	  CPDData PDat;
 	  
@@ -230,7 +230,7 @@ CSRingDSMC::initialise(size_t nID)
 	  
 	  PDat.rij *= diameter / PDat.rij.nrm();
 	  
-	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob12, 
+	  Sim->Dynamics.getLiouvillean().DSMCSpheresTest(p1, p2, maxprob12, 
 						      factor12, PDat);
 	}
     }
@@ -257,7 +257,7 @@ CSRingDSMC::initialise(size_t nID)
 
 	  const CParticle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
 	  
-	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	  Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  
 	  CPDData PDat;
 	  
@@ -266,7 +266,7 @@ CSRingDSMC::initialise(size_t nID)
 	  
 	  PDat.rij *= diameter / PDat.rij.nrm();
 	  
-	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob13, 
+	  Sim->Dynamics.getLiouvillean().DSMCSpheresTest(p1, p2, maxprob13, 
 						      factor13, PDat);
 	}
     }

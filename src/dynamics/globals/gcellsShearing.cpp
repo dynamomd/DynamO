@@ -69,12 +69,12 @@ CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
 void 
 CGCellsShearing::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
 
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.Liouvillean().
+  size_t cellDirection(Sim->Dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
 			cellDimension));
@@ -95,7 +95,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
       
       //Calculate the final x value
       //Time till transition, assumes the particle is up to date
-      Iflt dt = Sim->Dynamics.Liouvillean().getSquareCellCollision2
+      Iflt dt = Sim->Dynamics.getLiouvillean().getSquareCellCollision2
 	(part, cells[partCellData[part.getID()].cell].origin, 
 	 cellDimension);
      
@@ -109,7 +109,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	endCell -= cellCount[0] * (cellCount[1]-1);
 
       //Predict the position of the particle in the x dimension
-      Sim->Dynamics.Liouvillean().advanceUpdateParticle(part, dt);
+      Sim->Dynamics.getLiouvillean().advanceUpdateParticle(part, dt);
       Vector  tmpPos = part.getPosition();
 
       //This just ensures we wrap the image
@@ -119,7 +119,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	tmpPos[1] += 0.5 * cellDimension[1];
 
       //This rewinds the particle again
-      Sim->Dynamics.Liouvillean().updateParticle(part);
+      Sim->Dynamics.getLiouvillean().updateParticle(part);
 
       //Determine the x position (in cell coords) of the particle and
       //add it to the endCellID

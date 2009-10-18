@@ -81,7 +81,7 @@ CSDumb::outputXML(xmlw::XmlStream& XML) const
 void 
 CSDumb::addEvents(const CParticle& part)
 {  
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())

@@ -62,7 +62,7 @@ CSTicker::runEvent() const
   Sim->freestreamAcc = 0;
 
   //This is done here as most ticker properties require it
-  Sim->Dynamics.Liouvillean().updateAllParticles();
+  Sim->Dynamics.getLiouvillean().updateAllParticles();
 
   {
     COPTicker* ptr = NULL;

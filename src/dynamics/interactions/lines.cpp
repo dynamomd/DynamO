@@ -48,7 +48,7 @@ CILines::CILines(const XMLNode& XML, DYNAMO::SimData* tmp):
 void 
 CILines::initialise(size_t nID)
 {
-  if (dynamic_cast<const CLNOrientation*>(&(Sim->Dynamics.Liouvillean()))
+  if (dynamic_cast<const CLNOrientation*>(&(Sim->Dynamics.getLiouvillean()))
       == NULL)
     D_throw() << "Interaction requires an orientation capable Liouvillean.";
   
@@ -109,10 +109,10 @@ CILines::getEvent(const CParticle &p1,
 		  const CParticle &p2) const 
 {
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p2))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -124,19 +124,19 @@ CILines::getEvent(const CParticle &p1,
   if (isCaptured(p1, p2)) 
     {
       //Run this to determine when the spheres no longer intersect
-      Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, l2);
+      Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(colldat, l2);
 
       //colldat.dt has the upper limit of the line collision time
       //Lower limit is right now
       //Test for a line collision
       //Upper limit can be HUGE_VAL!
-      if (Sim->Dynamics.Liouvillean().getLineLineCollision
+      if (Sim->Dynamics.getLiouvillean().getLineLineCollision
 	  (colldat, length, p1, p2))
 	return CIntEvent(p1, p2, colldat.dt, CORE, *this);
       
       return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
-  else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, l2)) 
+  else if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, l2)) 
     return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
   
   return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -153,7 +153,7 @@ CILines::runEvent(const CParticle& p1,
       {
 	++Sim->lNColl;
 	//We have a line interaction! Run it
-	C2ParticleData retval(Sim->Dynamics.Liouvillean().runLineLineCollision
+	C2ParticleData retval(Sim->Dynamics.getLiouvillean().runLineLineCollision
 			      (iEvent, e, length));
 
 	Sim->signalParticleUpdate(retval);
@@ -225,7 +225,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 			   std::ostream& os) const
 {
   try {
-    dynamic_cast<const CLNOrientation&>(Sim->Dynamics.Liouvillean());
+    dynamic_cast<const CLNOrientation&>(Sim->Dynamics.getLiouvillean());
   }
   catch(std::bad_cast)
     {
@@ -238,7 +238,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 
       const CLNOrientation::rotData& 
 	rdat(static_cast<const CLNOrientation&>
-	     (Sim->Dynamics.Liouvillean()).getRotData(part));
+	     (Sim->Dynamics.getLiouvillean()).getRotData(part));
 
       Vector  pos(part.getPosition());
       Sim->Dynamics.BCs().applyBC(pos);

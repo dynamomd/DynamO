@@ -116,7 +116,7 @@ CSDSMCSpheres::runEvent() const
       
       const CParticle& p2(Sim->vParticleList[p2id]);
       
-      Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+      Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
       
       CPDData PDat;
       
@@ -125,13 +125,13 @@ CSDSMCSpheres::runEvent() const
       
       PDat.rij *= diameter / PDat.rij.nrm();
       
-      if (Sim->Dynamics.Liouvillean().DSMCSpheresTest
+      if (Sim->Dynamics.getLiouvillean().DSMCSpheresTest
 	  (p1, p2, maxprob, factor, PDat))
 	{
 	  ++Sim->lNColl;
 	 
 	  const C2ParticleData
-	    SDat(Sim->Dynamics.Liouvillean().DSMCSpheresRun(p1, p2, e, PDat));
+	    SDat(Sim->Dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
 	  Sim->signalParticleUpdate(SDat);
   
@@ -178,7 +178,7 @@ CSDSMCSpheres::initialise(size_t nID)
 	  
 	  const CParticle& p2(Sim->vParticleList[p2id]);
 	  
-	  Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	  Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  
 	  CPDData PDat;
 	  
@@ -187,7 +187,7 @@ CSDSMCSpheres::initialise(size_t nID)
 	
 	  PDat.rij *= diameter / PDat.rij.nrm();
 	  
-	  Sim->Dynamics.Liouvillean().DSMCSpheresTest(p1, p2, maxprob, 
+	  Sim->Dynamics.getLiouvillean().DSMCSpheresTest(p1, p2, maxprob, 
 						      factor, PDat);
 	}
     }

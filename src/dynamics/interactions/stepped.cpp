@@ -169,10 +169,10 @@ CIStepped::getEvent(const CParticle &p1,
 {
   
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p2))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -186,12 +186,12 @@ CIStepped::getEvent(const CParticle &p1,
   if (capstat == captureMap.end())
     {
       //Not captured, test for capture
-      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot
+      if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot
 	  (colldat, runstepdata.front().first))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.Liouvillean().sphereOverlap
+	  if (Sim->Dynamics.getLiouvillean().sphereOverlap
 	      (colldat, runstepdata.front().first))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
@@ -207,12 +207,12 @@ CIStepped::getEvent(const CParticle &p1,
   else
     {
       //Within the potential, look for further capture or release
-      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot
+      if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot
 	  (colldat, runstepdata[capstat->second].first))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.Liouvillean().sphereOverlap
+	  if (Sim->Dynamics.getLiouvillean().sphereOverlap
 	      (colldat, runstepdata[capstat->second].first))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
@@ -224,7 +224,7 @@ CIStepped::getEvent(const CParticle &p1,
 	  
 	  return CIntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	}
-      else if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot
+      else if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot
 	       (colldat, runstepdata[capstat->second-1].first))
 	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
@@ -245,7 +245,7 @@ CIStepped::runEvent(const CParticle& p1,
       {
 	cmap_it capstat = getCMap_it(p1,p2);
 	
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SphereWellEvent
+	C2ParticleData retVal(Sim->Dynamics.getLiouvillean().SphereWellEvent
 			      (iEvent, runstepdata[capstat->second-1].second, 
 			       runstepdata[capstat->second -1].first));
 	
@@ -277,7 +277,7 @@ CIStepped::runEvent(const CParticle& p1,
 	
 	if (capstat->second != static_cast<int>(runstepdata.size()))
 	  {
-	    C2ParticleData retVal = Sim->Dynamics.Liouvillean().SphereWellEvent
+	    C2ParticleData retVal = Sim->Dynamics.getLiouvillean().SphereWellEvent
 	      (iEvent, -runstepdata[capstat->second].second,
 	       runstepdata[capstat->second].first);
 	    
@@ -296,7 +296,7 @@ CIStepped::runEvent(const CParticle& p1,
 	  }
 	else
 	  {
-	    C2ParticleData retVal = Sim->Dynamics.Liouvillean().SmoothSpheresColl
+	    C2ParticleData retVal = Sim->Dynamics.getLiouvillean().SmoothSpheresColl
 	      (iEvent, 1.0, runstepdata.back().first, CORE);
 	    
 	    Sim->signalParticleUpdate(retVal);

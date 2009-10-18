@@ -87,7 +87,7 @@ COPViscosityCollisionalE::initialise()
       if (Sim->lastRunMFT != 0.0)
 	dt = Sim->lastRunMFT * 0.5 * dtfactor;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->Dynamics.Liouvillean().getkT()) * CorrelatorLength);
+	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
 
   I_cout() << "dt set to " << dt / Sim->Dynamics.units().unitTime();

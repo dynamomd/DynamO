@@ -157,10 +157,10 @@ public:
   inline const CBC& BCs() const 
   { return *p_BC; }
 
-  inline const CLiouvillean& Liouvillean() const
+  inline const CLiouvillean& getLiouvillean() const
   { return *p_liouvillean; }
 
-  inline  CLiouvillean& Liouvillean()
+  inline  CLiouvillean& getLiouvillean()
   { return *p_liouvillean; }
 
   template<class T>

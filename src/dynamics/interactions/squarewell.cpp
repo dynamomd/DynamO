@@ -126,10 +126,10 @@ CISquareWell::getEvent(const CParticle &p1,
 {
   
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p2))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -140,11 +140,11 @@ CISquareWell::getEvent(const CParticle &p1,
   
   if (isCaptured(p1, p2)) 
     {
-      if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, d2)) 
+      if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2)) 
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat, d2))
+	  if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	    D_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
@@ -154,17 +154,17 @@ CISquareWell::getEvent(const CParticle &p1,
 	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
       else
-	if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, ld2))
+	if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
 	  {  
 	    return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
 	  }
     }
-  else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, ld2)) 
+  else if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, ld2)) 
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,ld2))
+      if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
 	{
-	  if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
+	  if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat,d2))
 	    D_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " 
@@ -197,7 +197,7 @@ CISquareWell::runEvent(const CParticle& p1,
     {
     case CORE:
       {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
+	C2ParticleData retVal(Sim->Dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
 	Sim->signalParticleUpdate(retVal);
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
@@ -209,7 +209,7 @@ CISquareWell::runEvent(const CParticle& p1,
       }
     case WELL_IN:
       {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+	C2ParticleData retVal(Sim->Dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, wellDepth, ld2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -226,7 +226,7 @@ CISquareWell::runEvent(const CParticle& p1,
       }
     case WELL_OUT:
       {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+	C2ParticleData retVal(Sim->Dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, -wellDepth, ld2));
 	
 	if (retVal.getType() != BOUNCE)

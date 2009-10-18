@@ -85,7 +85,7 @@ CGlobEvent
 CGPBCSentinel::getEvent(const CParticle& part) const
 {
   Iflt dt 
-    = Sim->Dynamics.Liouvillean().getPBCSentinelTime(part, maxintdist)
+    = Sim->Dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
     - (Sim->dSysTime - cachedTimes[part.getID()]);
  
   return CGlobEvent(part, dt, VIRTUAL, *this);
@@ -94,7 +94,7 @@ CGPBCSentinel::getEvent(const CParticle& part) const
 void 
 CGPBCSentinel::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
 
   CGlobEvent iEvent(getEvent(part));
 

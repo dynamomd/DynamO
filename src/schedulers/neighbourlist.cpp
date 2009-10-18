@@ -111,7 +111,7 @@ CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
 void 
 CSNeighbourList::addEvents(const CParticle& part)
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
@@ -142,7 +142,7 @@ CSNeighbourList::addEvents(const CParticle& part)
 void 
 CSNeighbourList::addEventsInit(const CParticle& part)
 {  
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())

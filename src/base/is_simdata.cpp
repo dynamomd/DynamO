@@ -65,8 +65,8 @@ namespace DYNAMO
   SimData::replexerSwap(SimData& other)
   {
     //Get all particles up to date and zero the pecTimes
-    Dynamics.Liouvillean().updateAllParticles();
-    other.Dynamics.Liouvillean().updateAllParticles();
+    Dynamics.getLiouvillean().updateAllParticles();
+    other.Dynamics.getLiouvillean().updateAllParticles();
       
     std::swap(dSysTime, other.dSysTime);
     std::swap(lNColl, other.lNColl);

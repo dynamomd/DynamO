@@ -48,7 +48,7 @@ CLocalEvent
 CLOscillatingPlate::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
@@ -57,7 +57,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
   Iflt reducedt = Sim->dSysTime 
     - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
 
-  Iflt dt = Sim->Dynamics.Liouvillean().getPointPlateCollision
+  Iflt dt = Sim->Dynamics.getLiouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
      caution);
 
@@ -75,7 +75,7 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   ++Sim->lNColl;
   
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.Liouvillean().runOscilatingPlate
+  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runOscilatingPlate
 		      (part, rw0, nhat, delta, omega0, sigma, mass, 
 		       e, timeshift));
 

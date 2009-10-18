@@ -954,7 +954,7 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
-	static_cast<CLNOrientation&>(Sim->Dynamics.Liouvillean()).initLineOrientations(1.0);
+	static_cast<CLNOrientation&>(Sim->Dynamics.getLiouvillean()).initLineOrientations(1.0);
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -1342,7 +1342,7 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
-	static_cast<CLNOrientation&>(Sim->Dynamics.Liouvillean()).initLineOrientations(1.0);
+	static_cast<CLNOrientation&>(Sim->Dynamics.getLiouvillean()).initLineOrientations(1.0);
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;

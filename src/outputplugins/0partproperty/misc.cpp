@@ -43,9 +43,9 @@ COPMisc::changeSystem(COutputPlugin* misc2)
 void
 COPMisc::initialise()
 {
-  Iflt kt = Sim->Dynamics.Liouvillean().getkT();
+  Iflt kt = Sim->Dynamics.getLiouvillean().getkT();
 
-  Vector  VecEnergy(Sim->Dynamics.Liouvillean().getVectorSystemKineticEnergy());
+  Vector  VecEnergy(Sim->Dynamics.getLiouvillean().getVectorSystemKineticEnergy());
   
   VecEnergy *= 2.0 / (Sim->lN * Sim->Dynamics.units().unitEnergy());
 

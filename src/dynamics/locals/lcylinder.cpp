@@ -48,11 +48,11 @@ CLocalEvent
 CLCylinder::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
-  return CLocalEvent(part, Sim->Dynamics.Liouvillean().getCylinderWallCollision
+  return CLocalEvent(part, Sim->Dynamics.getLiouvillean().getCylinderWallCollision
 		     (part, vPosition, vNorm, radius), WALL, *this);
 }
 
@@ -62,7 +62,7 @@ CLCylinder::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   ++Sim->lNColl;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.Liouvillean().runCylinderWallCollision
+  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runCylinderWallCollision
 		      (part, vPosition, vNorm, e));
 
   Sim->signalParticleUpdate(EDat);

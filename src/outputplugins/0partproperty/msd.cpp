@@ -80,7 +80,7 @@ Iflt
 COPMSD::calcMSD() const
 {
   //Required to get the correct results
-  Sim->Dynamics.Liouvillean().updateAllParticles();
+  Sim->Dynamics.getLiouvillean().updateAllParticles();
 
   Iflt acc = 0.0;
   
@@ -94,7 +94,7 @@ Iflt
 COPMSD::calcStructMSD(const CTopology& Itop) const
 {
   //Required to get the correct results
-  Sim->Dynamics.Liouvillean().updateAllParticles();
+  Sim->Dynamics.getLiouvillean().updateAllParticles();
 
   Iflt acc = 0.0;
   BOOST_FOREACH(const smrtPlugPtr<CRange>& molRange, Itop.getMolecules())

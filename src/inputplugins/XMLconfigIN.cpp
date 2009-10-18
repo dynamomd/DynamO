@@ -146,7 +146,7 @@ CIPConfig::initialise()
 
   xSubNode = xMainNode.getChildNode("ParticleData");
 
-  Sim->Dynamics.Liouvillean().loadParticleXMLData(xMainNode);
+  Sim->Dynamics.getLiouvillean().loadParticleXMLData(xMainNode);
   
   //Fixes or conversions once system is loaded
   Sim->lastRunMFT *= Sim->Dynamics.units().unitTime();

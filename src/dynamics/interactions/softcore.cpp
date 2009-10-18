@@ -113,10 +113,10 @@ CISoftCore::getEvent(const CParticle &p1,
 		     const CParticle &p2) const 
 {
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p2))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
@@ -127,13 +127,13 @@ CISoftCore::getEvent(const CParticle &p1,
     
   if (isCaptured(p1, p2)) 
     {
-      if (Sim->Dynamics.Liouvillean().SphereSphereOutRoot(colldat, d2))
+      if (Sim->Dynamics.getLiouvillean().SphereSphereOutRoot(colldat, d2))
 	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
-  else if (Sim->Dynamics.Liouvillean().SphereSphereInRoot(colldat, d2)) 
+  else if (Sim->Dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2)) 
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.Liouvillean().sphereOverlap(colldat,d2))
+      if (Sim->Dynamics.getLiouvillean().sphereOverlap(colldat,d2))
 	D_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
 		  << "\nparticle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " 
@@ -155,7 +155,7 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2, const CIntEvent& 
     {
     case WELL_IN:
       {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+	C2ParticleData retVal(Sim->Dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, wellDepth, d2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -173,7 +173,7 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2, const CIntEvent& 
       }
     case WELL_OUT:
       {
-	C2ParticleData retVal(Sim->Dynamics.Liouvillean()
+	C2ParticleData retVal(Sim->Dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, -wellDepth, d2));
 	
 	if (retVal.getType() != BOUNCE)

@@ -108,7 +108,7 @@ CSysGhost::runEvent() const
   const CParticle& part(Sim->vParticleList[*(range->begin()+step)]);
 
   //Run the collision and catch the data
-  CNParticleData SDat(Sim->Dynamics.Liouvillean().randomGaussianEvent
+  CNParticleData SDat(Sim->Dynamics.getLiouvillean().randomGaussianEvent
 		      (part, sqrtTemp));
   
   Sim->signalParticleUpdate(SDat);

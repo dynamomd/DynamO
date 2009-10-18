@@ -93,10 +93,10 @@ CIntEvent
 CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p1))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p1))
     D_throw() << "Particle 1 is not up to date";
   
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(p2))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(p2))
     D_throw() << "Particle 2 is not up to date";
 #endif
 
@@ -107,10 +107,10 @@ CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const
 
   CPDData colldat(*Sim, p1, p2);
 
-  if (Sim->Dynamics.Liouvillean().CubeCubeInRoot(colldat, diameter))
+  if (Sim->Dynamics.getLiouvillean().CubeCubeInRoot(colldat, diameter))
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->Dynamics.Liouvillean().cubeOverlap(colldat, diameter))
+      if (Sim->Dynamics.getLiouvillean().cubeOverlap(colldat, diameter))
 	D_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - diameter)/Sim->Dynamics.units().unitLength();
@@ -132,7 +132,7 @@ CIParallelCubes::runEvent(const CParticle& p1,
     
   //Run the collision and catch the data
   C2ParticleData EDat
-    (Sim->Dynamics.Liouvillean().parallelCubeColl(iEvent, e, diameter)); 
+    (Sim->Dynamics.getLiouvillean().parallelCubeColl(iEvent, e, diameter)); 
 
   Sim->signalParticleUpdate(EDat);
 

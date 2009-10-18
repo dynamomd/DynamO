@@ -48,9 +48,9 @@ CIPCompression::MakeGrowth()
   I_cout() << "Backing up old liouvillean";
 
   //Required to reset the dynamics
-  Sim->Dynamics.Liouvillean().updateAllParticles();
+  Sim->Dynamics.getLiouvillean().updateAllParticles();
 
-  oldLio = Sim->Dynamics.Liouvillean().Clone();
+  oldLio = Sim->Dynamics.getLiouvillean().Clone();
 
   I_cout() << "Loading compression liouvillean";
   Sim->Dynamics.setLiouvillean(new CLCompression(Sim, growthRate 
@@ -64,7 +64,7 @@ CIPCompression::RestoreSystem()
   I_cout() << "Restoring original liouvillean";
 
   //Required to finish off the compression dynamics
-  Sim->Dynamics.Liouvillean().updateAllParticles();
+  Sim->Dynamics.getLiouvillean().updateAllParticles();
 
   if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {

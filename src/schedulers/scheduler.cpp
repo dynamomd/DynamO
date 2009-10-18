@@ -164,7 +164,7 @@ CScheduler::runNextEvent()
 	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
 	const CParticle& p2(Sim->vParticleList[sorter->next_Data().top().p2]);
 	
-	Sim->Dynamics.Liouvillean().updateParticlePair(p1, p2);
+	Sim->Dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
 	CIntEvent Event(Sim->Dynamics.getEvent(p1, p2));
 	
@@ -263,7 +263,7 @@ CScheduler::runNextEvent()
       {
 	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
 
-	Sim->Dynamics.Liouvillean().updateParticle(part);
+	Sim->Dynamics.getLiouvillean().updateParticle(part);
 	CLocalEvent iEvent(Sim->Dynamics.getLocals()[sorter->next_Data().top().p2]->getEvent(part));
 	
 	if (iEvent.getType() == NONE)
@@ -313,7 +313,7 @@ CScheduler::addInteractionEvent(const CParticle& part,
 {
   const CParticle& part2(Sim->vParticleList[id]);
 
-  Sim->Dynamics.Liouvillean().updateParticle(part2);
+  Sim->Dynamics.getLiouvillean().updateParticle(part2);
 
   const CIntEvent& eevent(Sim->Dynamics.getEvent(part, part2));
 

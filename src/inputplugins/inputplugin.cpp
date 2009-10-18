@@ -43,12 +43,12 @@ CInputPlugin::rescaleVels(Iflt val)
 {
   I_cout() << "WARNING Rescaling kT to " << val;
   
-  Iflt currentkT(Sim->Dynamics.Liouvillean().getkT()
+  Iflt currentkT(Sim->Dynamics.getLiouvillean().getkT()
 		 / Sim->Dynamics.units().unitEnergy());
 
   I_cout() << "Current kT " << currentkT;
 
-  Vector energy = Sim->Dynamics.Liouvillean().getVectorSystemKineticEnergy();
+  Vector energy = Sim->Dynamics.getLiouvillean().getVectorSystemKineticEnergy();
 
   Iflt avg  = energy[0];
 
@@ -60,9 +60,9 @@ CInputPlugin::rescaleVels(Iflt val)
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     energy[iDim] = sqrt(avg / energy[iDim]);
 
-  Sim->Dynamics.Liouvillean().rescaleSystemKineticEnergy(energy);
+  Sim->Dynamics.getLiouvillean().rescaleSystemKineticEnergy(energy);
 
-  Sim->Dynamics.Liouvillean().rescaleSystemKineticEnergy(val/ currentkT);
+  Sim->Dynamics.getLiouvillean().rescaleSystemKineticEnergy(val/ currentkT);
 }
 
 void 

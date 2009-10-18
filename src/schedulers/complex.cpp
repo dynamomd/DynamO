@@ -110,7 +110,7 @@ CSComplex::CSComplex(DYNAMO::SimData* const Sim, CSSorter* ns):
 void 
 CSComplex::addEvents(const CParticle& part)
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())
@@ -133,7 +133,7 @@ CSComplex::addEvents(const CParticle& part)
 void 
 CSComplex::addEventsInit(const CParticle& part)
 {  
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->Dynamics.getGlobals())

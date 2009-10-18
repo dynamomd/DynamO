@@ -104,7 +104,7 @@ COPThermalDiffusionE::initialise()
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
 	dt = 10.0 / (((Iflt) CorrelatorLength) 
-		     * sqrt(Sim->Dynamics.Liouvillean().getkT()) * CorrelatorLength);
+		     * sqrt(Sim->Dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
   Iflt sysMass = 0.0;
@@ -114,7 +114,7 @@ COPThermalDiffusionE::initialise()
   //Sum up the constant Del G.
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
-      constDelG += part.getVelocity () * Sim->Dynamics.Liouvillean().getParticleKineticEnergy(part);
+      constDelG += part.getVelocity () * Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(part);
       sysMom += part.getVelocity() * Sim->Dynamics.getSpecies(part).getMass();
       
       if (Sim->Dynamics.getSpecies(part).getID() == species1)
@@ -256,7 +256,7 @@ COPThermalDiffusionE::updateConstDelG(const C2ParticleData& PDat)
 void 
 COPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat) 
 {
-  Iflt p1E = Sim->Dynamics.Liouvillean().getParticleKineticEnergy(PDat.getParticle());
+  Iflt p1E = Sim->Dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());

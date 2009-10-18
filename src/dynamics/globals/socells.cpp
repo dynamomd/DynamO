@@ -67,14 +67,14 @@ CGlobEvent
 CGSOCells::getEvent(const CParticle& part) const
 {
 #ifdef ISSS_DEBUG
-  if (!Sim->Dynamics.Liouvillean().isUpToDate(part))
+  if (!Sim->Dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
   //This 
-  //Sim->Dynamics.Liouvillean().updateParticle(part);
+  //Sim->Dynamics.getLiouvillean().updateParticle(part);
   //is not required as we compensate for the delay using 
-  //Sim->Dynamics.Liouvillean().getParticleDelay(part)
+  //Sim->Dynamics.getLiouvillean().getParticleDelay(part)
 
   Vector CellOrigin;
   size_t ID(part.getID());
@@ -86,18 +86,18 @@ CGSOCells::getEvent(const CParticle& part) const
     }
 
   return CGlobEvent(part,
-		    Sim->Dynamics.Liouvillean().
+		    Sim->Dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, CellOrigin,
 		     cellDimension)
-		    -Sim->Dynamics.Liouvillean().getParticleDelay(part),
+		    -Sim->Dynamics.getLiouvillean().getParticleDelay(part),
 		    CELL, *this);
 }
 
 void
 CGSOCells::runEvent(const CParticle& part) const
 {
-  Sim->Dynamics.Liouvillean().updateParticle(part);
+  Sim->Dynamics.getLiouvillean().updateParticle(part);
 
   Vector CellOrigin;
   size_t ID(part.getID());
@@ -109,7 +109,7 @@ CGSOCells::runEvent(const CParticle& part) const
     }
   
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->Dynamics.Liouvillean().
+  size_t cellDirection(Sim->Dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, CellOrigin, 
 			cellDimension));
@@ -141,7 +141,7 @@ CGSOCells::runEvent(const CParticle& part) const
   vNorm[cellDirection] = (vel[cellDirection] > 0) ? -1 : +1; 
     
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->Dynamics.Liouvillean().runWallCollision
+  CNParticleData EDat(Sim->Dynamics.getLiouvillean().runWallCollision
 		      (part, vNorm, 1.0));
 
   Sim->signalParticleUpdate(EDat);
