@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPSHCrystal_H
-#define COPSHCrystal_H
+#ifndef OPSHCrystal_H
+#define OPSHCrystal_H
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include "ticker.hpp"
 
-class COPSHCrystal: public COPTicker
+class OPSHCrystal: public OPTicker
 {
  public:
-  COPSHCrystal(const DYNAMO::SimData*, const XMLNode&);
+  OPSHCrystal(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPSHCrystal(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPSHCrystal(*this); }
 
   virtual void initialise();
 

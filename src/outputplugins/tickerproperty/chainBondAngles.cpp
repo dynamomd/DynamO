@@ -29,7 +29,7 @@
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/interactions/captures.hpp"
 
-COPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, Iflt bw):
+OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, Iflt bw):
   chainID(ID)
 {
   BondCorrelations.resize(CL-2, C1DHistogram(bw));
@@ -37,16 +37,16 @@ COPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, Iflt bw):
   BondCorrelationsSamples.resize(CL-2, 0);
 }
 
-COPChainBondAngles::COPChainBondAngles(const DYNAMO::SimData* tmp, 
+OPChainBondAngles::OPChainBondAngles(const DYNAMO::SimData* tmp, 
 				       const XMLNode& XML):
-  COPTicker(tmp,"ChainBondAngles"),
+  OPTicker(tmp,"ChainBondAngles"),
   binwidth(0.0001)
 {
   operator<<(XML);
 }
 
 void 
-COPChainBondAngles::operator<<(const XMLNode& XML)
+OPChainBondAngles::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -55,12 +55,12 @@ COPChainBondAngles::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPChainBondAngles";
+      D_throw() << "Failed a lexical cast in OPChainBondAngles";
     }
 }
 
 void 
-COPChainBondAngles::initialise()
+OPChainBondAngles::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, 
 		Sim->dynamics.getTopology())
@@ -71,13 +71,13 @@ COPChainBondAngles::initialise()
 }
 
 void 
-COPChainBondAngles::changeSystem(COutputPlugin* COPPlug)
+OPChainBondAngles::changeSystem(OutputPlugin* OPPlug)
 {
-  std::swap(Sim, static_cast<COPChainBondAngles*>(COPPlug)->Sim);
+  std::swap(Sim, static_cast<OPChainBondAngles*>(OPPlug)->Sim);
 }
 
 void 
-COPChainBondAngles::ticker()
+OPChainBondAngles::ticker()
 {
   BOOST_FOREACH(Cdata& dat,chains)
     BOOST_FOREACH(const smrtPlugPtr<CRange>& range, 
@@ -108,7 +108,7 @@ COPChainBondAngles::ticker()
 }
 
 void 
-COPChainBondAngles::output(xmlw::XmlStream& XML)
+OPChainBondAngles::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("BondAngleCorrelators");
   

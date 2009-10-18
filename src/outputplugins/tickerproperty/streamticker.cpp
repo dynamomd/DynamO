@@ -28,11 +28,11 @@
 #include "../../dynamics/ranges/2RList.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 
-COPStreamTicker::COPStreamTicker(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"StreamTicker")
+OPStreamTicker::OPStreamTicker(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"StreamTicker")
 {}
 
 void 
-COPStreamTicker::ticker()
+OPStreamTicker::ticker()
 {}
 

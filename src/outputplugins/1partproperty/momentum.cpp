@@ -24,13 +24,13 @@
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPMomentum::COPMomentum(const DYNAMO::SimData* tmp, const XMLNode&):
-  COP1PP(tmp,"Momentum", 250),
+OPMomentum::OPMomentum(const DYNAMO::SimData* tmp, const XMLNode&):
+  OP1PP(tmp,"Momentum", 250),
   accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
 {}
 
 void
-COPMomentum::initialise()
+OPMomentum::initialise()
 {  
   accMom = Vector (0,0,0);
   accMomsq = Vector (0,0,0);
@@ -42,13 +42,13 @@ COPMomentum::initialise()
 }
 
 void 
-COPMomentum::A1ParticleChange(const C1ParticleData& PDat)
+OPMomentum::A1ParticleChange(const C1ParticleData& PDat)
 {
   sysMom += PDat.getDeltaP();
 }
 
 void 
-COPMomentum::stream(const Iflt& dt)
+OPMomentum::stream(const Iflt& dt)
 {
   Vector  tmp(sysMom * dt);
   accMom += tmp;
@@ -57,7 +57,7 @@ COPMomentum::stream(const Iflt& dt)
 }
 
 void
-COPMomentum::output(xmlw::XmlStream &XML)
+OPMomentum::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("Momentum")
       << xmlw::tag("Current")

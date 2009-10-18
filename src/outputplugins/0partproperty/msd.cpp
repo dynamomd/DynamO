@@ -23,15 +23,15 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
 
-COPMSD::COPMSD(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp,"MSD")
+OPMSD::OPMSD(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp,"MSD")
 {}
 
-COPMSD::~COPMSD()
+OPMSD::~OPMSD()
 {}
 
 void
-COPMSD::initialise()
+OPMSD::initialise()
 {
   initPos.clear();
   initPos.resize(Sim->lN);
@@ -41,7 +41,7 @@ COPMSD::initialise()
 }
 
 void
-COPMSD::output(xmlw::XmlStream &XML)
+OPMSD::output(xmlw::XmlStream &XML)
 {
   {
     Iflt MSD(calcMSD());
@@ -77,7 +77,7 @@ COPMSD::output(xmlw::XmlStream &XML)
 }
 
 Iflt
-COPMSD::calcMSD() const
+OPMSD::calcMSD() const
 {
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
@@ -91,7 +91,7 @@ COPMSD::calcMSD() const
 }
 
 Iflt
-COPMSD::calcStructMSD(const CTopology& Itop) const
+OPMSD::calcStructMSD(const CTopology& Itop) const
 {
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();

@@ -73,7 +73,7 @@ CEngine::preSimInit()
 
 
 void 
-CEngine::setupSim(CSimulation& Sim, const std::string filename)
+CEngine::setupSim(Simulation& Sim, const std::string filename)
 {
   if (vm.count("random-seed"))
     Sim.setRandSeed(vm["random-seed"].as<unsigned int>());

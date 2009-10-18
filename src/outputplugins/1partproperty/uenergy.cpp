@@ -23,61 +23,61 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPUEnergy::COPUEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
-  COP1PP(tmp,"UEnergy", 250),
+OPUEnergy::OPUEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
+  OP1PP(tmp,"UEnergy", 250),
   intECurrent(0.0),
   intEsqAcc(0.0),
   intEAcc(0.0)
 {}
 
 void 
-COPUEnergy::changeSystem(COutputPlugin* Eplug)
+OPUEnergy::changeSystem(OutputPlugin* Eplug)
 {
-  std::swap(Sim, static_cast<COPUEnergy*>(Eplug)->Sim);
-  std::swap(intECurrent, static_cast<COPUEnergy*>(Eplug)->intECurrent);
+  std::swap(Sim, static_cast<OPUEnergy*>(Eplug)->Sim);
+  std::swap(intECurrent, static_cast<OPUEnergy*>(Eplug)->intECurrent);
 }
 
 void
-COPUEnergy::initialise()
+OPUEnergy::initialise()
 {
   intECurrent = Sim->dynamics.calcInternalEnergy();
 }
 
 Iflt 
-COPUEnergy::getAvgSqU() const
+OPUEnergy::getAvgSqU() const
 { 
   return intEsqAcc / ( Sim->dSysTime 
 		       * pow(Sim->dynamics.units().unitEnergy(), 2)); 
 }
 
 Iflt 
-COPUEnergy::getAvgU() const
+OPUEnergy::getAvgU() const
 { 
   return intEAcc / ( Sim->dSysTime * Sim->dynamics.units().unitEnergy()); 
 }
 
 void 
-COPUEnergy::A1ParticleChange(const C1ParticleData& PDat)
+OPUEnergy::A1ParticleChange(const C1ParticleData& PDat)
 {
   intECurrent += PDat.getDeltaU();
 }
 
 void 
-COPUEnergy::A2ParticleChange(const C2ParticleData& PDat)
+OPUEnergy::A2ParticleChange(const C2ParticleData& PDat)
 {
   intECurrent += PDat.particle1_.getDeltaU()
     + PDat.particle2_.getDeltaU();
 }
 
 void 
-COPUEnergy::stream(const Iflt& dt)
+OPUEnergy::stream(const Iflt& dt)
 {
   intEAcc += intECurrent * dt;
   intEsqAcc += intECurrent * intECurrent * dt;
 }
 
 void
-COPUEnergy::output(xmlw::XmlStream &XML)
+OPUEnergy::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("CEnergy")
       << xmlw::tag("InternalEnergy")
@@ -90,7 +90,7 @@ COPUEnergy::output(xmlw::XmlStream &XML)
 }
 
 void
-COPUEnergy::periodicOutput()
+OPUEnergy::periodicOutput()
 {
   I_Pcout() << "U " << intECurrent / Sim->dynamics.units().unitEnergy() << ", ";
 }

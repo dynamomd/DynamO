@@ -25,7 +25,7 @@
 
 /*! \brief An CEngine for simulating a single system.
  *
- * This merely sets up and exectues a single CSimulation instance.
+ * This merely sets up and exectues a single Simulation instance.
  */
 class CESingle: public CEngine
 {
@@ -42,20 +42,20 @@ public:
   virtual ~CESingle() {}
   
   /*! \brief There is no status to be printed other than what the
-   * CSimulation outputs.
+   * Simulation outputs.
    */
   virtual void printStatus() {}
   
-  /*! \brief Just runs the CSimulation::runSimulation() loop and
+  /*! \brief Just runs the Simulation::runSimulation() loop and
    * provides a peek functionality.
    */
   virtual void runSimulation();
 
-  /*! \brief Just wraps the CSimulation::outputData(const char*) function.
+  /*! \brief Just wraps the Simulation::outputData(const char*) function.
    */
   virtual void outputData();
   
-  /*! \brief Just wraps the CSimulation::writeXMLfile(const char*) function.
+  /*! \brief Just wraps the Simulation::writeXMLfile(const char*) function.
    */
   virtual void outputConfigs();
 
@@ -63,7 +63,7 @@ public:
    */
   virtual void finaliseRun() {}
 
-  /*! \brief Just wraps the CSimulation::simShutdown() function.
+  /*! \brief Just wraps the Simulation::simShutdown() function.
    */
   virtual void forceShutdown();
 
@@ -76,11 +76,11 @@ public:
   virtual void peekData();
 
 protected:
-  /*! \brief The single instance of a CSimulation required.
+  /*! \brief The single instance of a Simulation required.
    */
-  CSimulation Simulation;
+  Simulation simulation;
   
-  /*! \brief If this is true, the CSimulation's end time will be reset
+  /*! \brief If this is true, the Simulation's end time will be reset
    * and the CESingle run loop in runSimulation() will be repeated.
    */
  bool peekMode; 

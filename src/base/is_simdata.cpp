@@ -108,7 +108,7 @@ namespace DYNAMO
     outputPlugins.swap(other.outputPlugins);      
     
     {
-      std::vector<smrtPlugPtr<COutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
+      std::vector<smrtPlugPtr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
 	iPtr2 = other.outputPlugins.begin();
       
       while (iPtr1 != outputPlugins.end())

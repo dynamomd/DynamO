@@ -14,18 +14,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef COPVTK_H
-#define COPVTK_H
+#ifndef OPVTK_H
+#define OPVTK_H
 
 #include "ticker.hpp"
 
-class COPVTK: public COPTicker
+class OPVTK: public OPTicker
 {
  public:
-  COPVTK(const DYNAMO::SimData*, const XMLNode&);
+  OPVTK(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPVTK(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPVTK(*this); }
 
   virtual void initialise();
 

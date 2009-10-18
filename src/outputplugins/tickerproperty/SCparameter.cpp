@@ -26,8 +26,8 @@
 #include "../../dynamics/BC/BC.hpp"
 #include <boost/math/special_functions/pow.hpp>  
 
-COPSCParameter::COPSCParameter(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"SCParameter"),
+OPSCParameter::OPSCParameter(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"SCParameter"),
   maxWaveNumber(0),
   count(0),
   runningsum(0)
@@ -36,7 +36,7 @@ COPSCParameter::COPSCParameter(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPSCParameter::initialise() 
+OPSCParameter::initialise() 
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (Sim->aspectRatio[iDim] != 1.0) 
@@ -58,7 +58,7 @@ COPSCParameter::initialise()
 }
 
 void 
-COPSCParameter::ticker()
+OPSCParameter::ticker()
 {
   ++count;
 
@@ -82,7 +82,7 @@ COPSCParameter::ticker()
 }
 
 void 
-COPSCParameter::output(xmlw::XmlStream& XML)
+OPSCParameter::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("SCParameter")
       << xmlw::attr("SCWaveNumber") 
@@ -103,6 +103,6 @@ COPSCParameter::output(xmlw::XmlStream& XML)
 }
 
 void 
-COPSCParameter::operator<<(const XMLNode& XML)
+OPSCParameter::operator<<(const XMLNode& XML)
 {
 }

@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPReverseEventsCheck_HPP
-#define COPReverseEventsCheck_HPP
+#ifndef OPReverseEventsCheck_HPP
+#define OPReverseEventsCheck_HPP
 
 #include "../outputplugin.hpp"
 
-class COPCollMatrix;
+class OPCollMatrix;
 
-class COPReverseEventsCheck: public COutputPlugin
+class OPReverseEventsCheck: public OutputPlugin
 {
 public:
-  COPReverseEventsCheck(const DYNAMO::SimData*, const XMLNode&);
+  OPReverseEventsCheck(const DYNAMO::SimData*, const XMLNode&);
 
-  ~COPReverseEventsCheck() {}
+  ~OPReverseEventsCheck() {}
 
   void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
@@ -37,9 +37,9 @@ public:
   
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
 
-  COutputPlugin *Clone() const { return new COPReverseEventsCheck(*this); }
+  OutputPlugin *Clone() const { return new OPReverseEventsCheck(*this); }
 
-  virtual void changeSystem(COutputPlugin*) {}
+  virtual void changeSystem(OutputPlugin*) {}
 
   virtual void initialise();
 

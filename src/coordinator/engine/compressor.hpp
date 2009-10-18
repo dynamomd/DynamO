@@ -63,7 +63,7 @@ public:
 
 protected:
   /*! \brief Boot a CIPCompression plugin to handle the manipulation
-   * of the single CSimulation.
+   * of the single Simulation.
    *
    * This function also calls the CEngine::preSimInit function
    */
@@ -72,9 +72,9 @@ protected:
   /*! \brief Use the CIPCompression plugins to switch to compression
    * dynamics.
    */
-  virtual void setupSim(CSimulation&, const std::string);
+  virtual void setupSim(Simulation&, const std::string);
 
-  /*! \brief A single CIPCompression plugin to manipulate the CSimulation.
+  /*! \brief A single CIPCompression plugin to manipulate the Simulation.
    */
   smrtPlugPtr<CIPCompression> compressPlug;
 };

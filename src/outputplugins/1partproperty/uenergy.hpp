@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPUEnergy_H
-#define COPUEnergy_H
+#ifndef OPUEnergy_H
+#define OPUEnergy_H
 
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
 
-class COPUEnergy: public COP1PP
+class OPUEnergy: public OP1PP
 {
  public:
-  COPUEnergy(const DYNAMO::SimData*, const XMLNode&);
+  OPUEnergy(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 
@@ -38,7 +38,7 @@ class COPUEnergy: public COP1PP
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const { return new COPUEnergy(*this); }
+  virtual OutputPlugin *Clone() const { return new OPUEnergy(*this); }
 
   Iflt getAvgU() const;
 
@@ -46,7 +46,7 @@ class COPUEnergy: public COP1PP
 
   Iflt getSimU() const { return intECurrent; }
 
-  void changeSystem(COutputPlugin*);
+  void changeSystem(OutputPlugin*);
 
   void temperatureRescale(const Iflt&) {}
   

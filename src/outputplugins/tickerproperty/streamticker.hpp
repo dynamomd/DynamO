@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPStreamTicker_H
-#define COPStreamTicker_H
+#ifndef OPStreamTicker_H
+#define OPStreamTicker_H
 
 #include "ticker.hpp"
 
-class COPStreamTicker: public COPTicker
+class OPStreamTicker: public OPTicker
 {
  public:
-  COPStreamTicker(const DYNAMO::SimData*, const XMLNode&);
+  OPStreamTicker(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPStreamTicker(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPStreamTicker(*this); }
 
   virtual void initialise() {}
 

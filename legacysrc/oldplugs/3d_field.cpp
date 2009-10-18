@@ -31,8 +31,8 @@
 
 namespace fs = boost::filesystem;
   
-COP3DField::COP3DField(DYNAMO::SimData* tmp):
-  COutputPlugin(tmp,"3dField"),
+OP3DField::OP3DField(DYNAMO::SimData* tmp):
+  OutputPlugin(tmp,"3dField"),
   Density(tmp), 
   Vsquared(tmp),
   SampleCounter(tmp),
@@ -40,11 +40,11 @@ COP3DField::COP3DField(DYNAMO::SimData* tmp):
   imageCounter(0)
 {}
 
-COP3DField::~COP3DField()
+OP3DField::~OP3DField()
 {}
 
 void 
-COP3DField::collisionUpdate(const CIntEvent &collision, 
+OP3DField::collisionUpdate(const CIntEvent &collision, 
 			    const CIntEventData &preColl)
 {
   if (!(Sim->lNColl % 100))
@@ -72,7 +72,7 @@ COP3DField::collisionUpdate(const CIntEvent &collision,
 }
 
 void 
-COP3DField::output(xmlw::XmlStream &XML)
+OP3DField::output(xmlw::XmlStream &XML)
 {
   //Create a image
   vtkImageData* image = Density.getVTKImage();

@@ -29,23 +29,23 @@
 #include "systems/sysTicker.hpp"
 #include "../schedulers/scheduler.hpp"
 
-CDynamics::CDynamics(DYNAMO::SimData* tmp): 
-  SimBase(tmp,"CDynamics",IC_purple),
+Dynamics::Dynamics(DYNAMO::SimData* tmp): 
+  SimBase(tmp,"Dynamics",IC_purple),
   p_BC(NULL), 
   p_liouvillean(NULL),
   p_units(NULL)
 {}
 
-CDynamics::CDynamics(const XMLNode& XML, DYNAMO::SimData* tmp): 
-  SimBase(tmp, "CDynamics", IC_purple),
+Dynamics::Dynamics(const XMLNode& XML, DYNAMO::SimData* tmp): 
+  SimBase(tmp, "Dynamics", IC_purple),
   p_BC(NULL), 
   p_units(NULL)
 { operator<<(XML); }
 
-CDynamics::~CDynamics() {}
+Dynamics::~Dynamics() {}
 
 smrtPlugPtr<CTopology>& 
-CDynamics::getTopology(std::string name)
+Dynamics::getTopology(std::string name)
 {
   BOOST_FOREACH(smrtPlugPtr<CTopology>& sysPtr, topology)
     if (sysPtr->getName() == name)
@@ -55,7 +55,7 @@ CDynamics::getTopology(std::string name)
 }
 
 const smrtPlugPtr<CTopology>& 
-CDynamics::getTopology(std::string name) const
+Dynamics::getTopology(std::string name) const
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& sysPtr, topology)
     if (sysPtr->getName() == name)
@@ -65,7 +65,7 @@ CDynamics::getTopology(std::string name) const
 }
 
 const CSpecies& 
-CDynamics::getSpecies(const CParticle& p1) const 
+Dynamics::getSpecies(const CParticle& p1) const 
 {
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& ptr, species)
     if (ptr->isSpecies(p1))
@@ -76,14 +76,14 @@ CDynamics::getSpecies(const CParticle& p1) const
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CDynamics& g)
+			    const Dynamics& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 const CSpecies& 
-CDynamics::getSpecies(std::string name) const
+Dynamics::getSpecies(std::string name) const
 {
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& ptr, species)
     if (ptr->getName() == name)
@@ -93,7 +93,7 @@ CDynamics::getSpecies(std::string name) const
 }
 
 smrtPlugPtr<CSystem>&
-CDynamics::getSystem(std::string name)
+Dynamics::getSystem(std::string name)
 {
   BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr, systems)
     if (sysPtr->getName() == name)
@@ -103,7 +103,7 @@ CDynamics::getSystem(std::string name)
 }
 
 const smrtPlugPtr<CSystem>&
-CDynamics::getSystem(std::string name) const
+Dynamics::getSystem(std::string name) const
 {
   BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysPtr, systems)
     if (sysPtr->getName() == name)
@@ -113,7 +113,7 @@ CDynamics::getSystem(std::string name) const
 }
 
 smrtPlugPtr<CGlobal>&
-CDynamics::getGlobal(std::string name)
+Dynamics::getGlobal(std::string name)
 {
   BOOST_FOREACH(smrtPlugPtr<CGlobal>& sysPtr, globals)
     if (sysPtr->getName() == name)
@@ -123,7 +123,7 @@ CDynamics::getGlobal(std::string name)
 }
 
 const smrtPlugPtr<CGlobal>&
-CDynamics::getGlobal(std::string name) const
+Dynamics::getGlobal(std::string name) const
 {
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& sysPtr, globals)
     if (sysPtr->getName() == name)
@@ -133,7 +133,7 @@ CDynamics::getGlobal(std::string name) const
 }
 
 smrtPlugPtr<CLocal>&
-CDynamics::getLocal(std::string name)
+Dynamics::getLocal(std::string name)
 {
   BOOST_FOREACH(smrtPlugPtr<CLocal>& sysPtr, locals)
     if (sysPtr->getName() == name)
@@ -143,7 +143,7 @@ CDynamics::getLocal(std::string name)
 }
 
 const smrtPlugPtr<CLocal>&
-CDynamics::getLocal(std::string name) const
+Dynamics::getLocal(std::string name) const
 {
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& sysPtr, locals)
     if (sysPtr->getName() == name)
@@ -153,7 +153,7 @@ CDynamics::getLocal(std::string name) const
 }
 
 smrtPlugPtr<CInteraction>&
-CDynamics::getInteraction(std::string name)
+Dynamics::getInteraction(std::string name)
 {
   BOOST_FOREACH(smrtPlugPtr<CInteraction>& sysPtr, interactions)
     if (sysPtr->getName() == name)
@@ -163,7 +163,7 @@ CDynamics::getInteraction(std::string name)
 }
 
 const smrtPlugPtr<CInteraction>&
-CDynamics::getInteraction(std::string name) const
+Dynamics::getInteraction(std::string name) const
 {
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& sysPtr, interactions)
     if (sysPtr->getName() == name)
@@ -173,7 +173,7 @@ CDynamics::getInteraction(std::string name) const
 }
 
 void 
-CDynamics::addSpecies(const smrtPlugPtr<CSpecies>& CSpe)
+Dynamics::addSpecies(const smrtPlugPtr<CSpecies>& CSpe)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add species after simulation initialisation";
@@ -191,7 +191,7 @@ CDynamics::addSpecies(const smrtPlugPtr<CSpecies>& CSpe)
 }
 
 void 
-CDynamics::addGlobal(CGlobal* newGlobal)
+Dynamics::addGlobal(CGlobal* newGlobal)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add global events after simulation initialisation";
@@ -203,7 +203,7 @@ CDynamics::addGlobal(CGlobal* newGlobal)
 }
 
 void 
-CDynamics::addLocal(CLocal* newLocal)
+Dynamics::addLocal(CLocal* newLocal)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add local events after simulation initialisation";
@@ -215,7 +215,7 @@ CDynamics::addLocal(CLocal* newLocal)
 }
 
 void
-CDynamics::addSystem(CSystem* newSystem)
+Dynamics::addSystem(CSystem* newSystem)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add system events at this time, system is initialised";
@@ -227,7 +227,7 @@ CDynamics::addSystem(CSystem* newSystem)
 }
 
 void
-CDynamics::addStructure(CTopology* newSystem)
+Dynamics::addStructure(CTopology* newSystem)
 { 
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add structure after simulation initialisation";
@@ -239,7 +239,7 @@ CDynamics::addStructure(CTopology* newSystem)
 }
 
 void 
-CDynamics::addSystemTicker()
+Dynamics::addSystemTicker()
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add the system ticker now";
@@ -252,7 +252,7 @@ CDynamics::addSystemTicker()
 }
 
 CInteraction* 
-CDynamics::addInteraction(CInteraction* CInt)
+Dynamics::addInteraction(CInteraction* CInt)
 {
   smrtPlugPtr<CInteraction> tempPlug(CInt);
   interactions.push_back(tempPlug);
@@ -260,7 +260,7 @@ CDynamics::addInteraction(CInteraction* CInt)
 }
 
 void 
-CDynamics::initialise()
+Dynamics::initialise()
 {
   BOOST_FOREACH(smrtPlugPtr<CSpecies>& ptr, species)
     ptr->initialise();
@@ -323,7 +323,7 @@ CDynamics::initialise()
 }
 
 const smrtPlugPtr<CInteraction>&
-CDynamics::getInteraction(const CParticle& p1, const CParticle& p2) const 
+Dynamics::getInteraction(const CParticle& p1, const CParticle& p2) const 
 {
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
     if (ptr->isInteraction(p1,p2))
@@ -332,14 +332,14 @@ CDynamics::getInteraction(const CParticle& p1, const CParticle& p2) const
   D_throw() << "Could not find the interaction requested";
 }
 
-CDynamics::CDynamics(const CDynamics &dyn):
+Dynamics::Dynamics(const Dynamics &dyn):
   SimBase(dyn),
   p_BC(dyn.p_BC), 
   p_units(dyn.p_units)
 {}
 
 void 
-CDynamics::stream(const Iflt& dt)
+Dynamics::stream(const Iflt& dt)
 {
   p_BC->update(dt);
 
@@ -351,7 +351,7 @@ CDynamics::stream(const Iflt& dt)
 
 
 Iflt
-CDynamics::calcInternalEnergy() const
+Dynamics::calcInternalEnergy() const
 {
   Iflt intECurrent = 0.0;
 
@@ -363,13 +363,13 @@ CDynamics::calcInternalEnergy() const
 }
 
 Iflt 
-CDynamics::getNumberDensity() const
+Dynamics::getNumberDensity() const
 {
   return Sim->lN / Sim->dynamics.units().simVolume();
 }
 
 Iflt 
-CDynamics::getPackingFraction() const
+Dynamics::getPackingFraction() const
 {
   Iflt volume = 0.0;
   
@@ -380,7 +380,7 @@ CDynamics::getPackingFraction() const
 }
 
 void 
-CDynamics::zeroMomentum(std::vector<CParticle> &pList)
+Dynamics::zeroMomentum(std::vector<CParticle> &pList)
 {  
   Vector sumMV(0,0,0), velvec;
  
@@ -400,7 +400,7 @@ CDynamics::zeroMomentum(std::vector<CParticle> &pList)
 }
 
 void
-CDynamics::operator<<(const XMLNode& XML)
+Dynamics::operator<<(const XMLNode& XML)
 {
   I_cout() << "Loading dynamics from XML";
   
@@ -496,7 +496,7 @@ CDynamics::operator<<(const XMLNode& XML)
 }
 
 void
-CDynamics::outputXML(xmlw::XmlStream &XML) const
+Dynamics::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::tag("Dynamics")
       << xmlw::tag("Aspect_Ratio")
@@ -561,7 +561,7 @@ CDynamics::outputXML(xmlw::XmlStream &XML) const
 }
 
 Iflt 
-CDynamics::getLongestInteraction() const
+Dynamics::getLongestInteraction() const
 {
   Iflt maxval = 0.0;
 
@@ -573,7 +573,7 @@ CDynamics::getLongestInteraction() const
 }
 
 void 
-CDynamics::rescaleLengths(Iflt val)
+Dynamics::rescaleLengths(Iflt val)
 {
   BOOST_FOREACH(smrtPlugPtr<CInteraction>& ptr, interactions)
     ptr->rescaleLengths(val);
@@ -582,7 +582,7 @@ CDynamics::rescaleLengths(Iflt val)
 }
 
 void 
-CDynamics::SystemOverlapTest()
+Dynamics::SystemOverlapTest()
 {
   p_liouvillean->updateAllParticles();
 
@@ -594,9 +594,9 @@ CDynamics::SystemOverlapTest()
 }
 
 void 
-CDynamics::setUnits(CUnits* Uptr) 
+Dynamics::setUnits(CUnits* Uptr) 
 { p_units.set_ptr(Uptr); }
 
 void 
-CDynamics::setLiouvillean(Liouvillean* Uptr) 
+Dynamics::setLiouvillean(Liouvillean* Uptr) 
 { p_liouvillean.set_ptr(Uptr); }

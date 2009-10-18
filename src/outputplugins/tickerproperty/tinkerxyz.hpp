@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPTinkerXYZ_H
-#define COPTinkerXYZ_H
+#ifndef OPTinkerXYZ_H
+#define OPTinkerXYZ_H
 
 #include "ticker.hpp"
 
-class COPTinkerXYZ: public COPTicker
+class OPTinkerXYZ: public OPTicker
 {
  public:
-  COPTinkerXYZ(const DYNAMO::SimData*, const XMLNode&);
+  OPTinkerXYZ(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPTinkerXYZ(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPTinkerXYZ(*this); }
 
   virtual void initialise() { printImage(); }
 

@@ -16,19 +16,19 @@
 */
 
 #include "../../schedulers/scheduler.hpp"
-#ifndef COPBoundedQStats_H
-#define COPBoundedQStats_H
+#ifndef OPBoundedQStats_H
+#define OPBoundedQStats_H
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
-class COPBoundedQStats: public COPTicker
+class OPBoundedQStats: public OPTicker
 {
  public:
-  COPBoundedQStats(const DYNAMO::SimData*, const XMLNode&);
+  OPBoundedQStats(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPBoundedQStats(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPBoundedQStats(*this); }
 
   virtual void initialise();
 

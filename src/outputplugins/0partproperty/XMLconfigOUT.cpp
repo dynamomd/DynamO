@@ -38,17 +38,17 @@
 #include "misc.hpp"
 #include <iomanip>
 
-COPConfig::COPConfig(const DYNAMO::SimData* tmp):
-  COutputPlugin(tmp,"XMLConfig"),
+OPConfig::OPConfig(const DYNAMO::SimData* tmp):
+  OutputPlugin(tmp,"XMLConfig"),
   rounding(false),
   compressedOutput(true)
 {}
 
-COPConfig::~COPConfig()
+OPConfig::~OPConfig()
 { I_cout() << "Unloaded"; }
 
 void
-COPConfig::output(xmlw::XmlStream &XML)
+OPConfig::output(xmlw::XmlStream &XML)
 {  
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
@@ -66,7 +66,7 @@ COPConfig::output(xmlw::XmlStream &XML)
   //Allow this block to fail if need be
   try {
     XML << xmlw::attr("lastMFT") 
-	<< Sim->getOutputPlugin<COPMisc>()->getMFT();
+	<< Sim->getOutputPlugin<OPMisc>()->getMFT();
   }
   catch (std::exception&)
     {}
@@ -91,7 +91,7 @@ COPConfig::output(xmlw::XmlStream &XML)
 }
 
 void 
-COPConfig::fileOutput(const char *fileName)
+OPConfig::fileOutput(const char *fileName)
 {
 #ifndef DYNAMO_CONDOR
   namespace io = boost::iostreams;
@@ -119,7 +119,7 @@ COPConfig::fileOutput(const char *fileName)
 }
 
 void 
-COPConfig::setRounding()
+OPConfig::setRounding()
 {
   rounding = true;
 }

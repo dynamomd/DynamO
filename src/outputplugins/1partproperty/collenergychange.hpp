@@ -15,17 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCollEnergyChange_H
-#define COPCollEnergyChange_H
+#ifndef OPCollEnergyChange_H
+#define OPCollEnergyChange_H
 
 #include "1partproperty.hpp"
 #include <vector>
 #include "../../datatypes/histogram.hpp"
 
-class COPCollEnergyChange: public COP1PP
+class OPCollEnergyChange: public OP1PP
 {
  public:
-  COPCollEnergyChange(const DYNAMO::SimData*, const XMLNode&);
+  OPCollEnergyChange(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 
@@ -39,8 +39,8 @@ class COPCollEnergyChange: public COP1PP
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const 
-  { return new COPCollEnergyChange(*this); }
+  virtual OutputPlugin *Clone() const 
+  { return new OPCollEnergyChange(*this); }
 
   void operator<<(const XMLNode&);
 

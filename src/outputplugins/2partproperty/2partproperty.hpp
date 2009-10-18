@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COP2PP_HPP
-#define COP2PP_HPP
+#ifndef OP2PP_HPP
+#define OP2PP_HPP
 
 #include "../outputplugin.hpp"
 
-class COP2PP: public COutputPlugin
+class OP2PP: public OutputPlugin
 {
 public:
-  COP2PP(const DYNAMO::SimData*, const char*);
+  OP2PP(const DYNAMO::SimData*, const char*);
 
   virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
 

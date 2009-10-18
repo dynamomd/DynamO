@@ -15,20 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPTrajectory_HPP
-#define COPTrajectory_HPP
+#ifndef OPTrajectory_HPP
+#define OPTrajectory_HPP
 
 #include "../outputplugin.hpp"
 #include <fstream>
 
-class COPTrajectory: public COutputPlugin
+class OPTrajectory: public OutputPlugin
 {
 public:
-  COPTrajectory(const DYNAMO::SimData*, const XMLNode&);
+  OPTrajectory(const DYNAMO::SimData*, const XMLNode&);
 
-  COPTrajectory(const COPTrajectory&);
+  OPTrajectory(const OPTrajectory&);
   
-  ~COPTrajectory() {}
+  ~OPTrajectory() {}
 
   void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
@@ -38,9 +38,9 @@ public:
   
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
 
-  COutputPlugin *Clone() const { return new COPTrajectory(*this); }
+  OutputPlugin *Clone() const { return new OPTrajectory(*this); }
 
-  virtual void changeSystem(COutputPlugin*) {}
+  virtual void changeSystem(OutputPlugin*) {}
 
   virtual void initialise();
 

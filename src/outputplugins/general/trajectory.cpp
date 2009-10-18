@@ -24,19 +24,19 @@
 #include "../../dynamics/systems/system.hpp"
 #include "../../dynamics/BC/BC.hpp"
 
-COPTrajectory::COPTrajectory(const DYNAMO::SimData* t1, const XMLNode&):
-  COutputPlugin(t1,"Trajectory")
+OPTrajectory::OPTrajectory(const DYNAMO::SimData* t1, const XMLNode&):
+  OutputPlugin(t1,"Trajectory")
 {}
 
-COPTrajectory::COPTrajectory(const COPTrajectory& trj):
-  COutputPlugin(trj)
+OPTrajectory::OPTrajectory(const OPTrajectory& trj):
+  OutputPlugin(trj)
 {
   if (trj.logfile.is_open())
     trj.logfile.close();
 }
 
 void
-COPTrajectory::initialise()
+OPTrajectory::initialise()
 {
   if (logfile.is_open())
     logfile.close();
@@ -45,7 +45,7 @@ COPTrajectory::initialise()
 }
 
 void
-COPTrajectory::printData(const size_t& p1,
+OPTrajectory::printData(const size_t& p1,
 			 const size_t& p2) const
 {
   size_t id1 = ((p1 < p2) 
@@ -73,7 +73,7 @@ COPTrajectory::printData(const size_t& p1,
 }
 
 void 
-COPTrajectory::eventUpdate(const CIntEvent& eevent, 
+OPTrajectory::eventUpdate(const CIntEvent& eevent, 
 				   const C2ParticleData&)
 {
   logfile << "INTERACTION " << eevent.getInteractionID()
@@ -88,7 +88,7 @@ COPTrajectory::eventUpdate(const CIntEvent& eevent,
 }
 
 void 
-COPTrajectory::eventUpdate(const CGlobEvent& eevent, 
+OPTrajectory::eventUpdate(const CGlobEvent& eevent, 
 			   const CNParticleData& SDat)
 {
   logfile << "GLOBAL " << eevent.getGlobalID()
@@ -113,7 +113,7 @@ COPTrajectory::eventUpdate(const CGlobEvent& eevent,
 }
 
 void 
-COPTrajectory::eventUpdate(const CLocalEvent& eevent, 
+OPTrajectory::eventUpdate(const CLocalEvent& eevent, 
 			   const CNParticleData& SDat)
 {
   logfile << "LOCAL " << eevent.getLocalID()
@@ -147,7 +147,7 @@ COPTrajectory::eventUpdate(const CLocalEvent& eevent,
 }
 
 void 
-COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat, 
+OPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat, 
 			   const Iflt& dt)
 {
   logfile << "SYSTEM " << sys.getID()
@@ -172,5 +172,5 @@ COPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat,
 }
 
 void 
-COPTrajectory::output(xmlw::XmlStream& XML)
+OPTrajectory::output(xmlw::XmlStream& XML)
 {}

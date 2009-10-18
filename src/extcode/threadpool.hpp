@@ -66,7 +66,7 @@ public:
   class task_noarg { 
   public:
     /*! An example of how to make a functor from this is     
-     * task_noarg<CSimulation>(&A_Simulation_class, CSimulation::runSimulation)
+     * task_noarg<Simulation>(&A_Simulation_class, Simulation::runSimulation)
      * 
      * \param nobj A reference to the class to be called
      * \param nfunc The member function pointer to call on the nobj class
@@ -89,7 +89,7 @@ public:
   class task_1arg { 
   public:
     /*! An example of how to make a functor from this is     
-     * task_noarg<CSimulation, size_t>(&A_Simulation_class, CSimulation::setSimID, 2)
+     * task_noarg<Simulation, size_t>(&A_Simulation_class, Simulation::setSimID, 2)
      * 
      * \param nobj A reference to the class to be called
      * \param nfunc The member function pointer to call on the nobj class

@@ -19,24 +19,24 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 
-COPCollDistCheck::COPCollDistCheck(const DYNAMO::SimData* t1, 
+OPCollDistCheck::OPCollDistCheck(const DYNAMO::SimData* t1, 
 				   const XMLNode& XML):
-  COutputPlugin(t1,"CollDistCheck"),
+  OutputPlugin(t1,"CollDistCheck"),
   binwidth(0.01)
 {
   operator<<(XML);
 }
 
-COPCollDistCheck::~COPCollDistCheck()
+OPCollDistCheck::~OPCollDistCheck()
 {
 }
 
 void 
-COPCollDistCheck::initialise() 
+OPCollDistCheck::initialise() 
 {}
 
 void 
-COPCollDistCheck::operator<<(const XMLNode& XML)
+OPCollDistCheck::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -45,13 +45,13 @@ COPCollDistCheck::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPCorrelator";
+      D_throw() << "Failed a lexical cast in OPCorrelator";
     }
   
 }
 
 void 
-COPCollDistCheck::eventUpdate(const CIntEvent& eevent, 
+OPCollDistCheck::eventUpdate(const CIntEvent& eevent, 
 			      const C2ParticleData& PDat)
 {
   const eventKey locPair(getClassKey(eevent), 
@@ -64,7 +64,7 @@ COPCollDistCheck::eventUpdate(const CIntEvent& eevent,
 }
 
 void 
-COPCollDistCheck::eventUpdate(const CGlobEvent& gEvent, 
+OPCollDistCheck::eventUpdate(const CGlobEvent& gEvent, 
 			      const CNParticleData& PDat)
 {
   const eventKey locPair(getClassKey(gEvent), 
@@ -79,7 +79,7 @@ COPCollDistCheck::eventUpdate(const CGlobEvent& gEvent,
 }
 
 void 
-COPCollDistCheck::eventUpdate(const CLocalEvent& lEvent, 
+OPCollDistCheck::eventUpdate(const CLocalEvent& lEvent, 
 			      const CNParticleData& PDat)
 {
   const eventKey locPair(getClassKey(lEvent), 
@@ -94,7 +94,7 @@ COPCollDistCheck::eventUpdate(const CLocalEvent& lEvent,
 }
   
 void 
-COPCollDistCheck::eventUpdate(const CSystem& sysEvent, 
+OPCollDistCheck::eventUpdate(const CSystem& sysEvent, 
 			      const CNParticleData& PDat, const Iflt& dt)
 {
   const eventKey locPair(getClassKey(sysEvent), sysEvent.getType());
@@ -108,7 +108,7 @@ COPCollDistCheck::eventUpdate(const CSystem& sysEvent,
 }
 
 void 
-COPCollDistCheck::output(xmlw::XmlStream& XML)
+OPCollDistCheck::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("CollDistCheck");
   

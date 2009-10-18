@@ -22,17 +22,17 @@
 #include "../dynamics/include.hpp"
 #include "../base/is_simdata.hpp"
 
-COPDens::COPDens(DYNAMO::SimData* tmp):
-  COutputPlugin(tmp, "DensityCorrelation"),
+OPDens::OPDens(DYNAMO::SimData* tmp):
+  OutputPlugin(tmp, "DensityCorrelation"),
   counter(0),
   collcount(0)
 {}
 
-COPDens::~COPDens()
+OPDens::~OPDens()
 {}
 
 void 
-COPDens::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
+OPDens::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
 {
   collcount++;
 
@@ -61,7 +61,7 @@ COPDens::collisionUpdate(const CIntEvent &collision, const CIntEventData &preCol
 }
 
 void
-COPDens::output(xmlw::XmlStream &XML)
+OPDens::output(xmlw::XmlStream &XML)
 {
   Iflt factor = 1.0 / ((Iflt) Sim->vParticleList.size() * counter);
   
@@ -84,5 +84,5 @@ COPDens::output(xmlw::XmlStream &XML)
 }
 
 void
-COPDens::periodicOutput()
+OPDens::periodicOutput()
 {}

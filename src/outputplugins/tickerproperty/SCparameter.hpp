@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPSCParameter_H
-#define COPSCParameter_H
+#ifndef OPSCParameter_H
+#define OPSCParameter_H
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include "ticker.hpp"
 
-class COPSCParameter: public COPTicker
+class OPSCParameter: public OPTicker
 {
  public:
-  COPSCParameter(const DYNAMO::SimData*, const XMLNode&);
+  OPSCParameter(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPSCParameter(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPSCParameter(*this); }
 
   virtual void initialise();
 

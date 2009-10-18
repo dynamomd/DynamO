@@ -15,20 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMutualDiffusionGK_H
-#define COPMutualDiffusionGK_H
+#ifndef OPMutualDiffusionGK_H
+#define OPMutualDiffusionGK_H
 
 #include <boost/circular_buffer.hpp>
 #include "../outputplugin.hpp"
 
-class COPMutualDiffusionGK: public COutputPlugin
+class OPMutualDiffusionGK: public OutputPlugin
 {
 public:
-  COPMutualDiffusionGK(const DYNAMO::SimData*, const XMLNode&);
+  OPMutualDiffusionGK(const DYNAMO::SimData*, const XMLNode&);
   
   virtual void operator<<(const XMLNode&);
 
-  virtual COutputPlugin* Clone() const { return new COPMutualDiffusionGK(*this); }
+  virtual OutputPlugin* Clone() const { return new OPMutualDiffusionGK(*this); }
 
   virtual void stream(const Iflt);
 

@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPRGyration_H
-#define COPRGyration_H
+#ifndef OPRGyration_H
+#define OPRGyration_H
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
@@ -24,13 +24,13 @@ class CRange;
 
 class CTChain;
 
-class COPRGyration: public COPTicker
+class OPRGyration: public OPTicker
 {
  public:
-  COPRGyration(const DYNAMO::SimData*, const XMLNode&);
+  OPRGyration(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPRGyration(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPRGyration(*this); }
 
   virtual void initialise();
 
@@ -38,7 +38,7 @@ class COPRGyration: public COPTicker
 
   virtual void ticker();
 
-  virtual void changeSystem(COutputPlugin*);
+  virtual void changeSystem(OutputPlugin*);
 
   virtual void output(xmlw::XmlStream&);
 

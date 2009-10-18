@@ -19,13 +19,13 @@
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/include.hpp"
 
-COPCollisionCorrelator::COPCollisionCorrelator(const DYNAMO::SimData* t1,
+OPCollisionCorrelator::OPCollisionCorrelator(const DYNAMO::SimData* t1,
 					       const XMLNode& XML):
-  COP2PP(t1,"CollisionCorrelator")
+  OP2PP(t1,"CollisionCorrelator")
 { operator<<(XML); }
 
 void 
-COPCollisionCorrelator::operator<<(const XMLNode& XML)
+OPCollisionCorrelator::operator<<(const XMLNode& XML)
 {
   try {
     /*if (XML.isAttributeSet("length"))
@@ -41,7 +41,7 @@ COPCollisionCorrelator::operator<<(const XMLNode& XML)
 }
 
 void 
-COPCollisionCorrelator::initialise()
+OPCollisionCorrelator::initialise()
 {
   //Set the history size
   lastColl.resize(Sim->lN, std::vector<double>(Sim->lN, 0.0));
@@ -54,7 +54,7 @@ COPCollisionCorrelator::initialise()
 }
 
 void 
-COPCollisionCorrelator::A2ParticleChange(const C2ParticleData& PDat)
+OPCollisionCorrelator::A2ParticleChange(const C2ParticleData& PDat)
 {
   size_t ID1 = PDat.particle1_.getParticle().getID();
   size_t ID2 = PDat.particle2_.getParticle().getID();
@@ -69,7 +69,7 @@ COPCollisionCorrelator::A2ParticleChange(const C2ParticleData& PDat)
 }
 
 void
-COPCollisionCorrelator::output(xmlw::XmlStream &XML)
+OPCollisionCorrelator::output(xmlw::XmlStream &XML)
 {
   for (size_t ID1(0); ID1 < Sim->lN; ++ID1)
     for (size_t ID2(ID1+1); ID2 < Sim->lN; ++ID2)

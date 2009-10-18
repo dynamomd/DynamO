@@ -131,7 +131,7 @@ CSUmbrella::runEvent() const
 
   Sim->freestreamAcc = 0;
 
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt); 
 }
 

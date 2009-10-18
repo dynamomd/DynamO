@@ -18,18 +18,18 @@
 #include "eta.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPETA::COPETA(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp,"EstTime", 249)
+OPETA::OPETA(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp,"EstTime", 249)
 {}
 
 void
-COPETA::initialise() 
+OPETA::initialise() 
 {
   time(&start_Time);
 }
 
 void
-COPETA::periodicOutput()
+OPETA::periodicOutput()
 {
   time_t currTime;
   time(&currTime);

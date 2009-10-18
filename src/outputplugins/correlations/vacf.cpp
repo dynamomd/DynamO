@@ -18,8 +18,8 @@
 #include "vacf.hpp"
 #include "../../dynamics/liouvillean/SLLOD.hpp"
 
-COPVACF::COPVACF(const DYNAMO::SimData* tmp,const XMLNode& XML):
-  COutputPlugin(tmp, "VACF", 60), //Note the sort order set later
+OPVACF::OPVACF(const DYNAMO::SimData* tmp,const XMLNode& XML):
+  OutputPlugin(tmp, "VACF", 60), //Note the sort order set later
   count(0),
   dt(0),
   currentdt(0.0),
@@ -31,9 +31,9 @@ COPVACF::COPVACF(const DYNAMO::SimData* tmp,const XMLNode& XML):
 }
 
 void 
-COPVACF::initialise()
+OPVACF::initialise()
 {
-  Sim->getOutputPlugin<COPMisc>();
+  Sim->getOutputPlugin<OPMisc>();
 
   dt = getdt();
 
@@ -48,7 +48,7 @@ COPVACF::initialise()
 }
 
 void 
-COPVACF::operator<<(const XMLNode& XML)
+OPVACF::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -66,12 +66,12 @@ COPVACF::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPVACF";
+      D_throw() << "Failed a lexical cast in OPVACF";
     }  
 }
 
 void 
-COPVACF::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+OPVACF::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -85,7 +85,7 @@ COPVACF::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
-COPVACF::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+OPVACF::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -99,7 +99,7 @@ COPVACF::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
-COPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+OPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
 { 
   //Move the time forward
   currentdt += edt;
@@ -113,7 +113,7 @@ COPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt
 }
 
 void 
-COPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+OPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -127,7 +127,7 @@ COPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 }
 
 void 
-COPVACF::newG(const C1ParticleData& PDat)
+OPVACF::newG(const C1ParticleData& PDat)
 {
   if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
     Sim->dynamics.getLiouvillean().updateAllParticles();
@@ -151,7 +151,7 @@ COPVACF::newG(const C1ParticleData& PDat)
 }
 
 void 
-COPVACF::newG(const C2ParticleData& PDat)
+OPVACF::newG(const C2ParticleData& PDat)
 {
   for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
@@ -176,7 +176,7 @@ COPVACF::newG(const C2ParticleData& PDat)
 }
 
 void 
-COPVACF::newG(const CNParticleData& PDat)
+OPVACF::newG(const CNParticleData& PDat)
 {  
   //This ensures the list stays at accumilator size
   for (size_t i = 0; i < Sim->lN; ++i)
@@ -208,7 +208,7 @@ COPVACF::newG(const CNParticleData& PDat)
 }
 
 void 
-COPVACF::output(xmlw::XmlStream& XML)
+OPVACF::output(xmlw::XmlStream& XML)
 {
   Iflt factor = Sim->dynamics.units().unitTime() 
     / (Sim->dynamics.units().unitDiffusion() * count);
@@ -230,7 +230,7 @@ COPVACF::output(xmlw::XmlStream& XML)
 	  << xmlw::attr("size") << accG2.size()
 	  << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
 	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size() 
-	/ Sim->getOutputPlugin<COPMisc>()->getMFT()
+	/ Sim->getOutputPlugin<OPMisc>()->getMFT()
 	  << xmlw::attr("simFactor") << factor / specCount
 	  << xmlw::attr("SampleCount") << count
 	  << xmlw::tag("Integral") << acc
@@ -250,7 +250,7 @@ COPVACF::output(xmlw::XmlStream& XML)
 }
 
 Iflt 
-COPVACF::getdt()
+OPVACF::getdt()
 {
   //Get the simulation temperature
   if (dt == 0.0)
@@ -265,7 +265,7 @@ COPVACF::getdt()
 }
 
 void 
-COPVACF::accPass()
+OPVACF::accPass()
 {
   ++count;
   

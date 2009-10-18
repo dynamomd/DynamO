@@ -24,13 +24,13 @@
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPCollEnergyChange::COPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
-  COP1PP(tmp,"CollEnergyChange", 250),
+OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
+  OP1PP(tmp,"CollEnergyChange", 250),
   binWidth(0.001)
 { operator<<(XML); }
 
 void 
-COPCollEnergyChange::operator<<(const XMLNode& XML)
+OPCollEnergyChange::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binWidth"))
@@ -44,7 +44,7 @@ COPCollEnergyChange::operator<<(const XMLNode& XML)
 }
 
 void
-COPCollEnergyChange::initialise()
+OPCollEnergyChange::initialise()
 {
   I_cout() << "Bin width set to " << binWidth;
 
@@ -55,14 +55,14 @@ COPCollEnergyChange::initialise()
 }
 
 void 
-COPCollEnergyChange::A1ParticleChange(const C1ParticleData& PDat)
+OPCollEnergyChange::A1ParticleChange(const C1ParticleData& PDat)
 {
   data[PDat.getSpecies().getID()]
     .addVal(PDat.getDeltaKE());
 }
 
 void 
-COPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
+OPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
 {
   data[PDat.particle1_.getSpecies().getID()]
     .addVal(PDat.particle1_.getDeltaKE());
@@ -78,7 +78,7 @@ COPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
 }
 
 void
-COPCollEnergyChange::output(xmlw::XmlStream &XML)
+OPCollEnergyChange::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("CollEnergyChange")
       << xmlw::tag("PairCalc");

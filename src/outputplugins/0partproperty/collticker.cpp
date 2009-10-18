@@ -19,12 +19,12 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 
-COPCollTicker::COPCollTicker(const DYNAMO::SimData* t1,const char *t2, unsigned char order):
-  COutputPlugin(t1,t2,order)
+OPCollTicker::OPCollTicker(const DYNAMO::SimData* t1,const char *t2, unsigned char order):
+  OutputPlugin(t1,t2,order)
 {}
 
 void 
-COPCollTicker::eventUpdate(const CIntEvent &event, 
+OPCollTicker::eventUpdate(const CIntEvent &event, 
 		    const C2ParticleData &) 
 {
   stream(event.getdt());
@@ -32,21 +32,21 @@ COPCollTicker::eventUpdate(const CIntEvent &event,
 }
 
 void 
-COPCollTicker::eventUpdate(const CGlobEvent &event, const CNParticleData&) 
+OPCollTicker::eventUpdate(const CGlobEvent &event, const CNParticleData&) 
 {
   stream(event.getdt());
   ticker();
 }
 
 void 
-COPCollTicker::eventUpdate(const CLocalEvent &event, const CNParticleData&) 
+OPCollTicker::eventUpdate(const CLocalEvent &event, const CNParticleData&) 
 {
   stream(event.getdt());
   ticker();
 }
 
 void 
-COPCollTicker::eventUpdate(const CSystem&, const CNParticleData&, const Iflt& dt)
+OPCollTicker::eventUpdate(const CSystem&, const CNParticleData&, const Iflt& dt)
 {
   stream(dt);
   ticker();

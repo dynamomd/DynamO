@@ -23,8 +23,8 @@
 #include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPVelProfile::COPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"VelProfile"),
+OPVelProfile::OPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"VelProfile"),
   samplesTaken(0),
   binWidth(0.5)
 {
@@ -33,7 +33,7 @@ COPVelProfile::COPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
 }
 
 void 
-COPVelProfile::initialise()
+OPVelProfile::initialise()
 {    
   binWidth *= Sim->dynamics.units().unitLength();
   
@@ -45,7 +45,7 @@ COPVelProfile::initialise()
 }
 
 void 
-COPVelProfile::ticker()
+OPVelProfile::ticker()
 {
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     {
@@ -66,7 +66,7 @@ COPVelProfile::ticker()
 }
 
 void 
-COPVelProfile::output(xmlw::XmlStream& XML)
+OPVelProfile::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("VelProfile")
       << xmlw::chardata();

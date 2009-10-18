@@ -20,16 +20,16 @@
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
-class COPKEnergyTicker: public COPTicker
+class OPKEnergyTicker: public OPTicker
 {
  public:
-  COPKEnergyTicker(const DYNAMO::SimData*, const XMLNode&);
+  OPKEnergyTicker(const DYNAMO::SimData*, const XMLNode&);
 
   typedef boost::array<Iflt, NDIM> col;
   typedef boost::array<col, NDIM> matrix;
 
-  virtual COutputPlugin *Clone() const
-  { return new COPKEnergyTicker(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPKEnergyTicker(*this); }
 
   virtual void initialise();
 

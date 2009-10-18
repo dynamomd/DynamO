@@ -29,19 +29,19 @@
 #include "radiusGyration.hpp"
 #include "../../dynamics/topology/chain.hpp"
 
-COPTinkerXYZ::COPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"TinkerXYZ"),
+OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"TinkerXYZ"),
   frameCount(0)
 {}
 
 void 
-COPTinkerXYZ::ticker()
+OPTinkerXYZ::ticker()
 {
   printImage();
 }
 
 void
-COPTinkerXYZ::printImage()
+OPTinkerXYZ::printImage()
 {
   char *fileName;
 
@@ -49,12 +49,12 @@ COPTinkerXYZ::printImage()
   if (frameCount > 1000)
     return;
 
-  std::vector<COPRGyration::molGyrationDat> gyrationData;
+  std::vector<OPRGyration::molGyrationDat> gyrationData;
 
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       BOOST_FOREACH(const smrtPlugPtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
-	gyrationData.push_back(COPRGyration::getGyrationEigenSystem(range,Sim));	    
+	gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
 
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
     D_throw() << "asprintf error in tinkerXYZ";
@@ -110,7 +110,7 @@ COPTinkerXYZ::printImage()
     "3						           \n"
     "*\n*\n*\n";
   Vector  tmpVec2;
-  BOOST_FOREACH(const COPRGyration::molGyrationDat& mDat, gyrationData)
+  BOOST_FOREACH(const OPRGyration::molGyrationDat& mDat, gyrationData)
     {
       tmpVec = mDat.MassCentre;
       Sim->dynamics.BCs().applyBC(tmpVec);

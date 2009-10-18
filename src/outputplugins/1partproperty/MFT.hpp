@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMFT_H
-#define COPMFT_H
+#ifndef OPMFT_H
+#define OPMFT_H
 
 #include "1partproperty.hpp"
 #include <vector>
 #include <boost/circular_buffer.hpp>
 #include "../../datatypes/histogram.hpp"
 
-class COPMFT: public COP1PP
+class OPMFT: public OP1PP
 {
  public:
-  COPMFT(const DYNAMO::SimData*, const XMLNode&);
+  OPMFT(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 
@@ -38,7 +38,7 @@ class COPMFT: public COP1PP
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const { return new COPMFT(*this); }
+  virtual OutputPlugin *Clone() const { return new OPMFT(*this); }
   
   virtual void operator<<(const XMLNode&);
   

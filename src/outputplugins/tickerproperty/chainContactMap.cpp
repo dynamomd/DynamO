@@ -28,7 +28,7 @@
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/interactions/captures.hpp"
 
-COPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
+OPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
   chainPtr(ptr),
   array(new unsigned long[nMolRange * nMolRange]),
   counter(0), chainlength(nMolRange)
@@ -37,12 +37,12 @@ COPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
     array[i] = 0;
 }
 
-COPCContactMap::COPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"ContactMap")
+OPCContactMap::OPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"ContactMap")
 {}
 
 void 
-COPCContactMap::initialise()
+OPCContactMap::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
@@ -51,9 +51,9 @@ COPCContactMap::initialise()
 }
 
 void 
-COPCContactMap::changeSystem(COutputPlugin* COPPlug)
+OPCContactMap::changeSystem(OutputPlugin* OPPlug)
 {
-  std::swap(Sim, static_cast<COPCContactMap*>(COPPlug)->Sim);
+  std::swap(Sim, static_cast<OPCContactMap*>(OPPlug)->Sim);
 
   BOOST_FOREACH(Cdata& dat, chains)
     {
@@ -62,17 +62,17 @@ COPCContactMap::changeSystem(COutputPlugin* COPPlug)
 	dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
       } catch (std::exception&)
 	{
-	  D_throw() << "On changing the system COPCContactMap could not find the topology \"" 
+	  D_throw() << "On changing the system OPCContactMap could not find the topology \"" 
 		    << dat.chainPtr->getName() << "\"\n in the new system";
 	}
       
       if (dat.chainPtr == NULL)
-	D_throw() << "On changing the system COPCContactMap found the topology but failed to upcast!";
+	D_throw() << "On changing the system OPCContactMap found the topology but failed to upcast!";
     }
 }
 
 void 
-COPCContactMap::ticker()
+OPCContactMap::ticker()
 {
   BOOST_FOREACH(Cdata& dat,chains)
     BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
@@ -98,7 +98,7 @@ COPCContactMap::ticker()
 }
 
 void 
-COPCContactMap::output(xmlw::XmlStream& XML)
+OPCContactMap::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("ContactMap");
   

@@ -19,13 +19,13 @@
 
 #include "ticker.hpp"
 
-class COPOverlapTest: public COPTicker
+class OPOverlapTest: public OPTicker
 {
  public:
-  COPOverlapTest(const DYNAMO::SimData*, const XMLNode&);
+  OPOverlapTest(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPOverlapTest(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPOverlapTest(*this); }
 
   virtual void initialise();
 

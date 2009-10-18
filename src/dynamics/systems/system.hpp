@@ -38,7 +38,7 @@ public:
   
   virtual ~CSystem() {}
   
-  virtual CSystem* Clone() const = 0; //{ return new COPBlank(*this); };
+  virtual CSystem* Clone() const = 0; //{ return new OPBlank(*this); };
 
   inline void stream(const Iflt& ndt) { dt -= ndt; }
 

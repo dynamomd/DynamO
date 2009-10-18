@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPGeomview_H
-#define COPGeomview_H
+#ifndef OPGeomview_H
+#define OPGeomview_H
 
 #include "ticker.hpp"
 
-class COPGeomview: public COPTicker
+class OPGeomview: public OPTicker
 {
  public:
-  COPGeomview(const DYNAMO::SimData*, const XMLNode&);
+  OPGeomview(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPGeomview(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPGeomview(*this); }
 
   virtual void initialise() { printImage(); }
 

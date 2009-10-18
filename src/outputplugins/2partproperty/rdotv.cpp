@@ -22,16 +22,16 @@
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/collMatrix.hpp"
 
-COPRdotV::COPRdotV(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp, "RdotV")
+OPRdotV::OPRdotV(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp, "RdotV")
 {}
 
 void 
-COPRdotV::initialise()
+OPRdotV::initialise()
 {}
 
 void 
-COPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+OPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
   mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent))];
 
@@ -41,7 +41,7 @@ COPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 }
 
 void 
-COPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
@@ -55,7 +55,7 @@ COPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 }
 
 void 
-COPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
@@ -69,7 +69,7 @@ COPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 }
 
 void
-COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
@@ -83,7 +83,7 @@ COPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const
 }
 
 void
-COPRdotV::output(xmlw::XmlStream &XML)
+OPRdotV::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("RdotV");
   

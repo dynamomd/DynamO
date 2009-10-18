@@ -15,23 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPPeriodicMSD_H
-#define COPPeriodicMSD_H
+#ifndef OPPeriodicMSD_H
+#define OPPeriodicMSD_H
 
 #include "ticker.hpp"
 
-class COPMSD;
+class OPMSD;
 
-class COPPeriodicMSD: public COPTicker
+class OPPeriodicMSD: public OPTicker
 {
  public:
-  COPPeriodicMSD(const DYNAMO::SimData*, const XMLNode&);
+  OPPeriodicMSD(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
   void output(xmlw::XmlStream &); 
 
-  virtual COutputPlugin *Clone() const { return new COPPeriodicMSD(*this); };
+  virtual OutputPlugin *Clone() const { return new OPPeriodicMSD(*this); };
   
  protected:
   virtual void stream(Iflt) {}  
@@ -47,7 +47,7 @@ class COPPeriodicMSD: public COPTicker
 
   std::vector<localpair2> structResults;
 
-  const COPMSD* ptrCOPMSD;
+  const OPMSD* ptrOPMSD;
 };
 
 #endif

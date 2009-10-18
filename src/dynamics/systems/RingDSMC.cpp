@@ -87,7 +87,7 @@ CSRingDSMC::runEvent() const
   locdt += Sim->freestreamAcc;
   Sim->freestreamAcc = 0;
 
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt);
 
   //////////////////// T(1,2) operator
@@ -130,7 +130,7 @@ CSRingDSMC::runEvent() const
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }
@@ -183,7 +183,7 @@ CSRingDSMC::runEvent() const
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }

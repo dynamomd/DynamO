@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMomentum_H
-#define COPMomentum_H
+#ifndef OPMomentum_H
+#define OPMomentum_H
 
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
 
-class COPMomentum: public COP1PP
+class OPMomentum: public OP1PP
 {
  public:
-  COPMomentum(const DYNAMO::SimData*, const XMLNode&);
+  OPMomentum(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 
@@ -34,7 +34,7 @@ class COPMomentum: public COP1PP
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const { return new COPMomentum(*this); }
+  virtual OutputPlugin *Clone() const { return new OPMomentum(*this); }
        
  protected:
 

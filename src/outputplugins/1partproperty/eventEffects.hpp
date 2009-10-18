@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPEventEffects_H
-#define COPEventEffects_H
+#ifndef OPEventEffects_H
+#define OPEventEffects_H
 
 #include "../outputplugin.hpp"
 #include "../../dynamics/eventtypes.hpp"
@@ -28,13 +28,13 @@ using namespace EventTypeTracking;
 
 class CParticle;
 
-class COPEventEffects: public COutputPlugin
+class OPEventEffects: public OutputPlugin
 {
 private:
   
 public:
-  COPEventEffects(const DYNAMO::SimData*, const XMLNode&);
-  ~COPEventEffects();
+  OPEventEffects(const DYNAMO::SimData*, const XMLNode&);
+  ~OPEventEffects();
 
   virtual void initialise();
 
@@ -48,10 +48,10 @@ public:
 
   void output(xmlw::XmlStream &);
 
-  virtual COutputPlugin *Clone() const { return new COPEventEffects(*this); };
+  virtual OutputPlugin *Clone() const { return new OPEventEffects(*this); };
 
   //This is fine to replica exchange as the interaction, global and system lookups are done using id's
-  virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPEventEffects*>(plug)->Sim); }
+  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPEventEffects*>(plug)->Sim); }
   
  protected:
   typedef std::pair<classKey, EEventType> eventKey;

@@ -31,7 +31,7 @@ namespace po = boost::program_options;
 #include "../src/outputplugins/0partproperty/XMLconfig.hpp"
 #include "../src/datatypes/complex.hpp"
 
-CSimulation sim;
+Simulation sim;
 
 int
 main(int argc, char *argv[])

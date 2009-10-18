@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCollMatrix_H
-#define COPCollMatrix_H
+#ifndef OPCollMatrix_H
+#define OPCollMatrix_H
 
 #include "../outputplugin.hpp"
 #include "../../dynamics/eventtypes.hpp"
@@ -28,13 +28,13 @@ using namespace EventTypeTracking;
 
 class CParticle;
 
-class COPCollMatrix: public COutputPlugin
+class OPCollMatrix: public OutputPlugin
 {
 private:
   
 public:
-  COPCollMatrix(const DYNAMO::SimData*, const XMLNode&);
-  ~COPCollMatrix();
+  OPCollMatrix(const DYNAMO::SimData*, const XMLNode&);
+  ~OPCollMatrix();
 
   virtual void initialise();
 
@@ -48,10 +48,10 @@ public:
 
   void output(xmlw::XmlStream &);
 
-  virtual COutputPlugin *Clone() const { return new COPCollMatrix(*this); };
+  virtual OutputPlugin *Clone() const { return new OPCollMatrix(*this); };
 
   //This is fine to replica exchange as the interaction, global and system lookups are done using names
-  virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPCollMatrix*>(plug)->Sim); }
+  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCollMatrix*>(plug)->Sim); }
   
  protected:
   void newEvent(const size_t&, const EEventType&, const classKey&);

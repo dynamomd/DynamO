@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPRijVij_H
-#define COPRijVij_H
+#ifndef OPRijVij_H
+#define OPRijVij_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/histogram.hpp"
@@ -25,10 +25,10 @@
 
 using namespace EventTypeTracking;
 
-class COPRijVij: public COutputPlugin
+class OPRijVij: public OutputPlugin
 {
  public:
-  COPRijVij(const DYNAMO::SimData*, const XMLNode&);
+  OPRijVij(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
   
@@ -42,10 +42,10 @@ class COPRijVij: public COutputPlugin
 
   void output(xmlw::XmlStream &);
 
-  virtual void changeSystem(COutputPlugin* plug) 
-  { std::swap(Sim, static_cast<COPRijVij*>(plug)->Sim); }
+  virtual void changeSystem(OutputPlugin* plug) 
+  { std::swap(Sim, static_cast<OPRijVij*>(plug)->Sim); }
   
-  virtual COutputPlugin *Clone() const { return new COPRijVij(*this); };
+  virtual OutputPlugin *Clone() const { return new OPRijVij(*this); };
   
  protected:
   struct mapdata

@@ -87,7 +87,7 @@ CLDblWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   //Now we're past the event update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }
 

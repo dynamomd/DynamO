@@ -35,7 +35,7 @@
 #include <list>
 
 SoSeparator *
-COPCluster::makeScene(Iflt length)
+OPCluster::makeScene(Iflt length)
 {
   SoSeparator *root = new SoSeparator();  
   
@@ -137,7 +137,7 @@ COPCluster::makeScene(Iflt length)
 }
 
 void
-COPCluster::viewClusters(Iflt length)
+OPCluster::viewClusters(Iflt length)
 {
   // Init the system
   // Initialize Inventor and Xt  
@@ -159,10 +159,10 @@ COPCluster::viewClusters(Iflt length)
   SoXt::mainLoop();
 }
 
-COPCluster::COPCluster(const std::vector<CParticle> &pList, const CDynamics * const dyn):
-  COutputPlugin(pList,dyn)
+OPCluster::OPCluster(const std::vector<CParticle> &pList, const Dynamics * const dyn):
+  OutputPlugin(pList,dyn)
 {
-  std::cout << "COPCluster: Loaded\n";
+  std::cout << "OPCluster: Loaded\n";
 
 
   Widget myWindow;
@@ -174,13 +174,13 @@ COPCluster::COPCluster(const std::vector<CParticle> &pList, const CDynamics * co
   //writeToFile(makeScene(1.01), "L=1.010.inv");
 }
 
-COPCluster::~COPCluster()
+OPCluster::~OPCluster()
 {
-  std::cout << "COPCluster: Unloaded\n";
+  std::cout << "OPCluster: Unloaded\n";
 }
 
 void
-COPCluster::writeToFile(SoSeparator *root, char *filename)
+OPCluster::writeToFile(SoSeparator *root, char *filename)
 {
   Widget myWindow;
   myWindow = SoXt::init("DYNAMO");
@@ -199,11 +199,11 @@ COPCluster::writeToFile(SoSeparator *root, char *filename)
 
 
 void 
-COPCluster::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
+OPCluster::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
 {}
 
 void
-COPCluster::output(xmlw::XmlStream &XML)
+OPCluster::output(xmlw::XmlStream &XML)
 {
   //This does the links vs distance graph
 
@@ -242,11 +242,11 @@ COPCluster::output(xmlw::XmlStream &XML)
 }
 
 void
-COPCluster::periodicOutput()
+OPCluster::periodicOutput()
 {}
 
 Iflt
-COPCluster::orderParameter(Iflt length)
+OPCluster::orderParameter(Iflt length)
 {
   Iflt distance = length * dynamics->unitClass().diameter;
   

@@ -15,23 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCollisionCorrelator_HPP
-#define COPCollisionCorrelator_HPP
+#ifndef OPCollisionCorrelator_HPP
+#define OPCollisionCorrelator_HPP
 
 #include "2partproperty.hpp"
 #include "../../datatypes/histogram.hpp"
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
-class COPCollisionCorrelator: public COP2PP
+class OPCollisionCorrelator: public OP2PP
 {
 public:
-  COPCollisionCorrelator(const DYNAMO::SimData*, const XMLNode&);
+  OPCollisionCorrelator(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
-  virtual COutputPlugin* Clone() const 
-  { return new COPCollisionCorrelator(*this); }
+  virtual OutputPlugin* Clone() const 
+  { return new OPCollisionCorrelator(*this); }
 
   void output(xmlw::XmlStream &XML);
 

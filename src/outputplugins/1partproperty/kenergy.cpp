@@ -23,8 +23,8 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 
-COPKEnergy::COPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
-  COP1PP(tmp,"KEnergy", 250),
+OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
+  OP1PP(tmp,"KEnergy", 250),
   InitialKE(0.0),
   KEacc(0.0),
   KEsqAcc(0.0),
@@ -32,40 +32,40 @@ COPKEnergy::COPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
 {}
 
 void 
-COPKEnergy::changeSystem(COutputPlugin* Eplug)
+OPKEnergy::changeSystem(OutputPlugin* Eplug)
 {
-  std::swap(Sim, static_cast<COPKEnergy*>(Eplug)->Sim);
+  std::swap(Sim, static_cast<OPKEnergy*>(Eplug)->Sim);
   
   std::swap(KECurrent, 
-	    static_cast<COPKEnergy*>(Eplug)->KECurrent);
+	    static_cast<OPKEnergy*>(Eplug)->KECurrent);
 }
 
 void 
-COPKEnergy::temperatureRescale(const Iflt& scale)
+OPKEnergy::temperatureRescale(const Iflt& scale)
 {
   KECurrent *= scale * scale;
 }
 
 void
-COPKEnergy::initialise()
+OPKEnergy::initialise()
 {  
   InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 }
 
 Iflt 
-COPKEnergy::getAvgTheta() const
+OPKEnergy::getAvgTheta() const
 {
   return getAvgkT() / Sim->dynamics.units().unitEnergy();
 }
 
 Iflt 
-COPKEnergy::getAvgkT() const
+OPKEnergy::getAvgkT() const
 {
   return 2.0 * KEacc / (Sim->dSysTime * Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF());
 }
 
 Iflt 
-COPKEnergy::getAvgSqTheta() const
+OPKEnergy::getAvgSqTheta() const
 {
   return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->lN 
 			* Sim->dynamics.getLiouvillean().getParticleDOF()
@@ -74,26 +74,26 @@ COPKEnergy::getAvgSqTheta() const
 }
 
 void 
-COPKEnergy::A1ParticleChange(const C1ParticleData& PDat)
+OPKEnergy::A1ParticleChange(const C1ParticleData& PDat)
 {
   KECurrent += PDat.getDeltaKE();
 }
 
 void
-COPKEnergy::A2ParticleChange(const C2ParticleData& PDat)
+OPKEnergy::A2ParticleChange(const C2ParticleData& PDat)
 {
   KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
 }
 
 void 
-COPKEnergy::stream(const Iflt& dt)
+OPKEnergy::stream(const Iflt& dt)
 {
   KEacc += KECurrent * dt;
   KEsqAcc += KECurrent * KECurrent * dt;
 }
 
 void
-COPKEnergy::output(xmlw::XmlStream &XML)
+OPKEnergy::output(xmlw::XmlStream &XML)
 {
   Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3) 
@@ -116,7 +116,7 @@ COPKEnergy::output(xmlw::XmlStream &XML)
 }
 
 void
-COPKEnergy::periodicOutput()
+OPKEnergy::periodicOutput()
 {
   Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3) 

@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPQMGA_H
-#define COPQMGA_H
+#ifndef OPQMGA_H
+#define OPQMGA_H
 
 #include "collticker.hpp"
 
-class COPQMGA: public COPCollTicker
+class OPQMGA: public OPCollTicker
 {
  public:
-  COPQMGA(const DYNAMO::SimData*, const XMLNode&);
+  OPQMGA(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPQMGA(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPQMGA(*this); }
 
   virtual void initialise() { printImage(); }
 

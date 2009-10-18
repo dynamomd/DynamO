@@ -27,8 +27,8 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include "../../extcode/wignerThreeJ.hpp"
 
-COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
+OPSHCrystal::OPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
   nblistID(std::numeric_limits<size_t>::max()),
   count(0)
 {
@@ -36,7 +36,7 @@ COPSHCrystal::COPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPSHCrystal::initialise() 
+OPSHCrystal::initialise() 
 { 
   double smallestlength = HUGE_VAL;
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& pGlob, Sim->dynamics.getGlobals())
@@ -64,7 +64,7 @@ COPSHCrystal::initialise()
 }
 
 void 
-COPSHCrystal::ticker()
+OPSHCrystal::ticker()
 {
   sphericalsum ssum(Sim, rg, maxl);
   
@@ -87,7 +87,7 @@ COPSHCrystal::ticker()
 }
 
 void 
-COPSHCrystal::output(xmlw::XmlStream& XML)
+OPSHCrystal::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("SHCrystal");
   
@@ -130,7 +130,7 @@ COPSHCrystal::output(xmlw::XmlStream& XML)
 }
 
 void 
-COPSHCrystal::operator<<(const XMLNode& XML)
+OPSHCrystal::operator<<(const XMLNode& XML)
 {
   rg *= Sim->dynamics.units().unitLength();
 
@@ -145,14 +145,14 @@ COPSHCrystal::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPSHCrystal";
+      D_throw() << "Failed a lexical cast in OPSHCrystal";
     }
 
   I_cout() << "Cut off radius of " 
 	   << rg / Sim->dynamics.units().unitLength();
 }
 
-COPSHCrystal::sphericalsum::sphericalsum
+OPSHCrystal::sphericalsum::sphericalsum
 (const DYNAMO::SimData * const nSim, const Iflt& nrg, const size_t& nl):
   Sim(nSim), rg(nrg), maxl(nl), count(0)
 {
@@ -162,7 +162,7 @@ COPSHCrystal::sphericalsum::sphericalsum
 }
 
 void 
-COPSHCrystal::sphericalsum::operator()
+OPSHCrystal::sphericalsum::operator()
   (const CParticle& part, const size_t& ID) const
 {
   Vector rij = part.getPosition() - Sim->vParticleList[ID].getPosition();
@@ -193,7 +193,7 @@ COPSHCrystal::sphericalsum::operator()
 }
 
 void
-COPSHCrystal::sphericalsum::clear()
+OPSHCrystal::sphericalsum::clear()
 {
   count = 0;
 

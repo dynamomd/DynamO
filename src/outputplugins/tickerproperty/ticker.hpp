@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPTicker_HPP
-#define COPTicker_HPP
+#ifndef OPTicker_HPP
+#define OPTicker_HPP
 
 #include "../outputplugin.hpp"
 
@@ -27,10 +27,10 @@
  * Liouvillean::updateAllParticles as this is done in the CSTicker
  * class. This is optimal as most ticker plugins need it anyway
  */
-class COPTicker: public COutputPlugin
+class OPTicker: public OutputPlugin
 {
 public:
-  COPTicker(const DYNAMO::SimData*, const char*);
+  OPTicker(const DYNAMO::SimData*, const char*);
 
   //Non virtual to warn if you use them,
   void eventUpdate(const CIntEvent&, const C2ParticleData&) {}

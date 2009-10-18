@@ -19,12 +19,12 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 
-COP2PP::COP2PP(const DYNAMO::SimData* t1,const char *t2):
-  COutputPlugin(t1,t2)
+OP2PP::OP2PP(const DYNAMO::SimData* t1,const char *t2):
+  OutputPlugin(t1,t2)
 {}
 
 void 
-COP2PP::eventUpdate(const CIntEvent &event, 
+OP2PP::eventUpdate(const CIntEvent &event, 
 		    const C2ParticleData &SDat) 
 {
   stream(event.getdt());
@@ -32,7 +32,7 @@ COP2PP::eventUpdate(const CIntEvent &event,
 }
 
 void 
-COP2PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat) 
+OP2PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat) 
 {
   stream(event.getdt());
 
@@ -41,7 +41,7 @@ COP2PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat)
 }
 
 void 
-COP2PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
+OP2PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
 {
   stream(event.getdt());
 
@@ -50,7 +50,7 @@ COP2PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat)
 }
 
 void 
-COP2PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
+OP2PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
 {
   stream(dt);
 

@@ -23,8 +23,8 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPMFT::COPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COP1PP(tmp,"MeanFreeLength", 250),
+OPMFT::OPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OP1PP(tmp,"MeanFreeLength", 250),
   collisionHistoryLength(10),
   binwidth(0.01)
 {
@@ -32,7 +32,7 @@ COPMFT::COPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPMFT::operator<<(const XMLNode& XML)
+OPMFT::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -45,12 +45,12 @@ COPMFT::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast&)
     {
-      D_throw() << "Failed a lexical cast in COPMFL";
+      D_throw() << "Failed a lexical cast in OPMFL";
     }
 }
 
 void
-COPMFT::initialise()
+OPMFT::initialise()
 {
   lastTime.resize(Sim->lN, 
 		  boost::circular_buffer<Iflt>(collisionHistoryLength, 0.0));
@@ -64,7 +64,7 @@ COPMFT::initialise()
 }
 
 void 
-COPMFT::A1ParticleChange(const C1ParticleData& PDat)
+OPMFT::A1ParticleChange(const C1ParticleData& PDat)
 {
   //We ignore stuff that hasn't had an event yet
 
@@ -80,7 +80,7 @@ COPMFT::A1ParticleChange(const C1ParticleData& PDat)
 }
 
 void
-COPMFT::output(xmlw::XmlStream &XML)
+OPMFT::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("MFT");
   

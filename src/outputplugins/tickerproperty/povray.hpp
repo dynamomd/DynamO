@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPPovray_H
-#define COPPovray_H
+#ifndef OPPovray_H
+#define OPPovray_H
 
 #include "ticker.hpp"
 
-class COPPovray: public COPTicker
+class OPPovray: public OPTicker
 {
  public:
-  COPPovray(const DYNAMO::SimData*, const XMLNode&);
+  OPPovray(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPPovray(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPPovray(*this); }
 
   virtual void initialise() { printImage(); }
 

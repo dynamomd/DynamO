@@ -77,7 +77,7 @@ CLAndersenWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   
   Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }
 

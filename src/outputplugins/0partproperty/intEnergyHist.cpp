@@ -24,10 +24,10 @@
 #include "../../base/is_simdata.hpp"
 #include "../1partproperty/uenergy.hpp"
 
-COPIntEnergyHist::COPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before COPEnergy
+OPIntEnergyHist::OPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
   intEnergyHist(1.0),
-  ptrCOPEnergy(NULL),
+  ptrOPEnergy(NULL),
   weight(0.0),
   binwidth(1.0)
 {
@@ -35,7 +35,7 @@ COPIntEnergyHist::COPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XM
 }
 
 void 
-COPIntEnergyHist::operator<<(const XMLNode& XML)
+OPIntEnergyHist::operator<<(const XMLNode& XML)
 {  
   try 
     {
@@ -45,53 +45,53 @@ COPIntEnergyHist::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPIntEnergyHist";
+      D_throw() << "Failed a lexical cast in OPIntEnergyHist";
     }  
 }
 
 void 
-COPIntEnergyHist::initialise() 
+OPIntEnergyHist::initialise() 
 {
-  ptrCOPEnergy = Sim->getOutputPlugin<COPUEnergy>();
+  ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
   intEnergyHist = C1DWeightHistogram(binwidth * Sim->dynamics.units().unitEnergy());
 }
 
 void 
-COPIntEnergyHist::changeSystem(COutputPlugin* EHist2)
+OPIntEnergyHist::changeSystem(OutputPlugin* EHist2)
 {
   //Add the current data
-  intEnergyHist.addVal(ptrCOPEnergy->getSimU(), weight);
+  intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
   //Same for the other histogram
-  static_cast<COPIntEnergyHist*>(EHist2)->intEnergyHist.addVal
-    (static_cast<COPIntEnergyHist*>(EHist2)->ptrCOPEnergy->getSimU(), 
-     static_cast<COPIntEnergyHist*>(EHist2)->weight);
+  static_cast<OPIntEnergyHist*>(EHist2)->intEnergyHist.addVal
+    (static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy->getSimU(), 
+     static_cast<OPIntEnergyHist*>(EHist2)->weight);
 
   //Now swap over the data
-  std::swap(Sim, static_cast<COPIntEnergyHist*>(EHist2)->Sim);
+  std::swap(Sim, static_cast<OPIntEnergyHist*>(EHist2)->Sim);
 
   //NEVER SWAP THE PLUGIN POINTERS! they don't change
-  //std::swap(ptrCOPEnergy, static_cast<COPIntEnergyHist*>(EHist2)->ptrCOPEnergy);
+  //std::swap(ptrOPEnergy, static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy);
 
   //Reset the weighting
   weight = 0.0;
-  static_cast<COPIntEnergyHist*>(EHist2)->weight = 0.0;
+  static_cast<OPIntEnergyHist*>(EHist2)->weight = 0.0;
 }
 
 void 
-COPIntEnergyHist::stream(Iflt dt)
+OPIntEnergyHist::stream(Iflt dt)
 {
   weight += dt;
 }
 
 void 
-COPIntEnergyHist::ticker()
+OPIntEnergyHist::ticker()
 {
-  intEnergyHist.addVal(ptrCOPEnergy->getSimU(), weight);
+  intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
   weight = 0.0;
 }
 
 void 
-COPIntEnergyHist::output(xmlw::XmlStream& XML)
+OPIntEnergyHist::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("EnergyHist");
   intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());

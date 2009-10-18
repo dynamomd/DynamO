@@ -23,9 +23,9 @@
 #include "../../base/is_ensemble.hpp"
 #include "../0partproperty/misc.hpp"
 
-COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp,
+OPThermalConductivityE::OPThermalConductivityE(const DYNAMO::SimData* tmp,
 						 const XMLNode& XML):
-  COutputPlugin(tmp,"ThermalConductivityE"),
+  OutputPlugin(tmp,"ThermalConductivityE"),
   G(100),
   count(0),
   dt(0),
@@ -40,7 +40,7 @@ COPThermalConductivityE::COPThermalConductivityE(const DYNAMO::SimData* tmp,
 }
 
 void 
-COPThermalConductivityE::operator<<(const XMLNode& XML)
+OPThermalConductivityE::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -58,18 +58,18 @@ COPThermalConductivityE::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPCorrelator";
+      D_throw() << "Failed a lexical cast in OPCorrelator";
     }
   
   }
 
 void 
-COPThermalConductivityE::initialise()
+OPThermalConductivityE::initialise()
 {
   G.resize(CorrelatorLength, Vector (0,0,0));
   accG2.resize(CorrelatorLength, Vector (0,0,0));
-  Sim->getOutputPlugin<COPMisc>();
-  Sim->getOutputPlugin<COPKEnergy>();
+  Sim->getOutputPlugin<OPMisc>();
+  Sim->getOutputPlugin<OPKEnergy>();
   
   try {
     dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
@@ -98,26 +98,26 @@ COPThermalConductivityE::initialise()
 }
 
 Iflt 
-COPThermalConductivityE::rescaleFactor() 
+OPThermalConductivityE::rescaleFactor() 
 { 
   return Sim->dynamics.units().unitk() 
     /(//This next line should be 1 however we have scaled the
       //correlator time as well
       Sim->dynamics.units().unitTime() 
       * Sim->dynamics.units().unitThermalCond() * 2.0 
-      * count * pow(Sim->getOutputPlugin<COPKEnergy>()->getAvgkT(), 2)
+      * count * pow(Sim->getOutputPlugin<OPKEnergy>()->getAvgkT(), 2)
       * Sim->dynamics.units().simVolume());
 }
 
 void 
-COPThermalConductivityE::output(xmlw::XmlStream &XML)
+OPThermalConductivityE::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG2.size()
       << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG2.size()
-    / Sim->getOutputPlugin<COPMisc>()->getMFT()
+    / Sim->getOutputPlugin<OPMisc>()->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor()
       << xmlw::attr("SampleCount") << count
       << xmlw::chardata();
@@ -140,13 +140,13 @@ COPThermalConductivityE::output(xmlw::XmlStream &XML)
 }
 
 Vector  
-COPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
+OPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaKE();
 }
 
 void 
-COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
+OPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
   Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
@@ -158,7 +158,7 @@ COPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
 }
 
 void 
-COPThermalConductivityE::stream(const Iflt& edt)
+OPThermalConductivityE::stream(const Iflt& edt)
 {
     //Now test if we've gone over the step time
     if (currentdt + edt >= dt)
@@ -185,7 +185,7 @@ COPThermalConductivityE::stream(const Iflt& edt)
   }
 
 void 
-COPThermalConductivityE::eventUpdate(const CGlobEvent& iEvent, 
+OPThermalConductivityE::eventUpdate(const CGlobEvent& iEvent, 
 				     const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
@@ -194,7 +194,7 @@ COPThermalConductivityE::eventUpdate(const CGlobEvent& iEvent,
 }
 
 void 
-COPThermalConductivityE::eventUpdate(const CLocalEvent& iEvent, 
+OPThermalConductivityE::eventUpdate(const CLocalEvent& iEvent, 
 				     const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
@@ -203,7 +203,7 @@ COPThermalConductivityE::eventUpdate(const CLocalEvent& iEvent,
 }
 
 void 
-COPThermalConductivityE::eventUpdate(const CSystem&, 
+OPThermalConductivityE::eventUpdate(const CSystem&, 
 				     const CNParticleData& PDat,
 				     const Iflt& edt) 
 { 
@@ -213,7 +213,7 @@ COPThermalConductivityE::eventUpdate(const CSystem&,
 }
   
 void 
-COPThermalConductivityE::eventUpdate(const CIntEvent& iEvent,
+OPThermalConductivityE::eventUpdate(const CIntEvent& iEvent,
 				     const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
@@ -222,7 +222,7 @@ COPThermalConductivityE::eventUpdate(const CIntEvent& iEvent,
 }
 
 Vector  
-COPThermalConductivityE::impulseDelG(const CNParticleData& ndat) 
+OPThermalConductivityE::impulseDelG(const CNParticleData& ndat) 
 { 
   Vector  acc(0,0,0);
   
@@ -233,7 +233,7 @@ COPThermalConductivityE::impulseDelG(const CNParticleData& ndat)
 }
 
 void 
-COPThermalConductivityE::newG()
+OPThermalConductivityE::newG()
 {
   //This ensures the list stays at accumilator size
   
@@ -251,7 +251,7 @@ COPThermalConductivityE::newG()
 }
 
 void 
-COPThermalConductivityE::accPass()
+OPThermalConductivityE::accPass()
 {
   ++count;
   Vector  sum(0,0,0);
@@ -266,7 +266,7 @@ COPThermalConductivityE::accPass()
 }
 
 void 
-COPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
+OPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
 {
   BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
     updateConstDelG(dat);
@@ -276,7 +276,7 @@ COPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
 }
 
 void 
-COPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
+OPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   

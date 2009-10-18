@@ -24,23 +24,23 @@
 #include "../../dynamics/interactions/include.hpp"
 #include "../1partproperty/kenergy.hpp"
 
-COPCollMatrix::COPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp,"CollisionMatrix"),
+OPCollMatrix::OPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp,"CollisionMatrix"),
   totalCount(0)
 {
 }
 
 void 
-COPCollMatrix::initialise()
+OPCollMatrix::initialise()
 {
   lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
 }
 
-COPCollMatrix::~COPCollMatrix()
+OPCollMatrix::~OPCollMatrix()
 {}
 
 void 
-COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
+OPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 {
   newEvent(iEvent.getParticle1ID(), iEvent.getType(), 
 	   getClassKey(iEvent));
@@ -51,7 +51,7 @@ COPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
 
 
 void 
-COPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), pData.getType(), 
@@ -68,7 +68,7 @@ COPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SD
 }
 
 void 
-COPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), 
@@ -85,7 +85,7 @@ COPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& 
 }
 
 void 
-COPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));
@@ -102,7 +102,7 @@ COPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, 
 
 
 void 
-COPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
+OPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
 {
   if (lastEvent[part].second.first.second != NONE)
     {
@@ -120,7 +120,7 @@ COPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const class
 }
 
 void
-COPCollMatrix::output(xmlw::XmlStream &XML)
+OPCollMatrix::output(xmlw::XmlStream &XML)
 {
   
   XML << xmlw::tag("CollCounters") 

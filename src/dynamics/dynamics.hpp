@@ -47,17 +47,17 @@ namespace xmlw
   class XmlStream;
 }
 
-class CDynamics: public DYNAMO::SimBase
+class Dynamics: public DYNAMO::SimBase
 {
 public:
   //Constructors
-  CDynamics(DYNAMO::SimData*);
+  Dynamics(DYNAMO::SimData*);
 
-  CDynamics(const XMLNode&, DYNAMO::SimData*);
+  Dynamics(const XMLNode&, DYNAMO::SimData*);
 
-  explicit CDynamics(const CDynamics &);
+  explicit Dynamics(const Dynamics &);
 
-  ~CDynamics();
+  ~Dynamics();
   
   void setUnits(CUnits*);
 
@@ -111,7 +111,7 @@ public:
   
   Iflt calcInternalEnergy() const;
 
-  CDynamics* Clone() const { return new CDynamics(*this); }
+  Dynamics* Clone() const { return new Dynamics(*this); }
 
   std::vector<smrtPlugPtr<CInteraction> >& getInteractions() { return interactions; }
   const std::vector<smrtPlugPtr<CInteraction> >& getInteractions() const { return interactions; }
@@ -145,7 +145,7 @@ public:
 
   void addSystemTicker();
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CDynamics&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Dynamics&);
 
   //Inlines
   inline const CUnits& units() const 

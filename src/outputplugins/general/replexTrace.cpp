@@ -20,8 +20,8 @@
 #include <boost/filesystem.hpp>
 #include "../../dynamics/include.hpp"
 
-COPReplexTrace::COPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
-  COutputPlugin(t1,"ReplexTrace"),
+OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
+  OutputPlugin(t1,"ReplexTrace"),
   filename(std::string("ReplexTrace.tmp.") 
 	   + boost::lexical_cast<std::string>(rand()))
 {
@@ -38,15 +38,15 @@ COPReplexTrace::COPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
     D_throw() << "Could not open temporary file!";
 }
 
-COPReplexTrace::~COPReplexTrace()
+OPReplexTrace::~OPReplexTrace()
 {
   //Clean up temporary files
   tmpfile.close();
   boost::filesystem::remove(filename);
 }
 
-COPReplexTrace::COPReplexTrace(const COPReplexTrace& cop2):
-  COutputPlugin(cop2),
+OPReplexTrace::OPReplexTrace(const OPReplexTrace& cop2):
+  OutputPlugin(cop2),
   filename(std::string("./ReplexTrace.tmp.") 
 	   + boost::lexical_cast<std::string>(rand()))
 {
@@ -70,37 +70,37 @@ COPReplexTrace::COPReplexTrace(const COPReplexTrace& cop2):
 }
 
 void 
-COPReplexTrace::initialise() 
+OPReplexTrace::initialise() 
 { 
   if (!(tmpfile.is_open()))
-    D_throw() << "COPReplexTrace temp file unopened!";
+    D_throw() << "OPReplexTrace temp file unopened!";
 }
 
 void 
-COPReplexTrace::changeSystem(COutputPlugin* OPP)
+OPReplexTrace::changeSystem(OutputPlugin* OPP)
 {
 #ifdef DYNAMO_DEBUG
-  if (dynamic_cast<COPReplexTrace*>(OPP) == NULL)
+  if (dynamic_cast<OPReplexTrace*>(OPP) == NULL)
     D_throw() << "Not the correct plugin to change System with";
 #endif
 
   addPoint();
-  static_cast<COPReplexTrace*>(OPP)->addPoint();
+  static_cast<OPReplexTrace*>(OPP)->addPoint();
 
-  std::swap(Sim, static_cast<COPReplexTrace*>(OPP)->Sim);
+  std::swap(Sim, static_cast<OPReplexTrace*>(OPP)->Sim);
 
   addPoint(); 
-  static_cast<COPReplexTrace*>(OPP)->addPoint();  
+  static_cast<OPReplexTrace*>(OPP)->addPoint();  
 }
 
 void 
-COPReplexTrace::addPoint()
+OPReplexTrace::addPoint()
 {
   tmpfile << Sim->dSysTime << " " << Sim->simID << "\n";
 }
 
 void 
-COPReplexTrace::output(xmlw::XmlStream& XML)
+OPReplexTrace::output(xmlw::XmlStream& XML)
 {
   addPoint();
 

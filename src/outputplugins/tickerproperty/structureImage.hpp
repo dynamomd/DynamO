@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPStructureImaging_H
-#define COPStructureImaging_H
+#ifndef OPStructureImaging_H
+#define OPStructureImaging_H
 
 #include "ticker.hpp"
 
-class COPStructureImaging: public COPTicker
+class OPStructureImaging: public OPTicker
 {
  public:
-  COPStructureImaging(const DYNAMO::SimData*, const XMLNode&);
+  OPStructureImaging(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPStructureImaging(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPStructureImaging(*this); }
 
   virtual void initialise();
 
@@ -34,7 +34,7 @@ class COPStructureImaging: public COPTicker
 
   virtual void ticker();
 
-  virtual void changeSystem(COutputPlugin*);
+  virtual void changeSystem(OutputPlugin*);
 
   virtual void operator<<(const XMLNode&);
 

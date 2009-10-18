@@ -30,7 +30,7 @@
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/actions/SoWriteAction.h>
 
-SoSeparator *COPInventor::makeMoleculeScene() 
+SoSeparator *OPInventor::makeMoleculeScene() 
 {
   SoSeparator *root = new SoSeparator();  
   {
@@ -68,11 +68,11 @@ SoSeparator *COPInventor::makeMoleculeScene()
 }
 
 
-COPInventor::COPInventor(const std::vector<CParticle> &pList, const CDynamics * const dyn):
-  COutputPlugin(pList,dyn),
+OPInventor::OPInventor(const std::vector<CParticle> &pList, const Dynamics * const dyn):
+  OutputPlugin(pList,dyn),
   frameCount(0)
 {
-  std::cout << "COPInventor: Loaded\n";
+  std::cout << "OPInventor: Loaded\n";
 
   // Init the system
   // Initialize Inventor and Xt  
@@ -86,16 +86,16 @@ COPInventor::COPInventor(const std::vector<CParticle> &pList, const CDynamics * 
 
 }
 
-COPInventor::~COPInventor()
+OPInventor::~OPInventor()
 {
   viewScene();  
-  std::cout << "COPInventor: Unloaded\n";
+  std::cout << "OPInventor: Unloaded\n";
 }
 
 void 
-COPInventor::viewScene()
+OPInventor::viewScene()
 {
-  std::cout << "COPInventor: Rendering scene\n";
+  std::cout << "OPInventor: Rendering scene\n";
   //Opens the current scene in a window, and freezes the simulation permanently
   SoSeparator *root = makeMoleculeScene();
 
@@ -109,7 +109,7 @@ COPInventor::viewScene()
 }
 
 void 
-COPInventor::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
+OPInventor::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
 {
   //This prints a binary inventor file of the current collision
   /*  SoWriteAction wa;

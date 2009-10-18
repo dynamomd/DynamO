@@ -23,16 +23,16 @@
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/collMatrix.hpp"
 
-COPCubeComp::COPCubeComp(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp, "CubeComponents")
+OPCubeComp::OPCubeComp(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp, "CubeComponents")
 {}
 
 void 
-COPCubeComp::initialise()
+OPCubeComp::initialise()
 {}
 
 void 
-COPCubeComp::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+OPCubeComp::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
   mapdata& ref = angles[mapKey(iEvent.getType(), getClassKey(iEvent))];
 
@@ -48,7 +48,7 @@ COPCubeComp::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 }
 
 void 
-COPCubeComp::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPCubeComp::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
@@ -67,7 +67,7 @@ COPCubeComp::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat
 }
 
 void 
-COPCubeComp::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPCubeComp::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
@@ -87,7 +87,7 @@ COPCubeComp::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SD
 }
 
 void
-COPCubeComp::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPCubeComp::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
@@ -107,7 +107,7 @@ COPCubeComp::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, co
 }
 
 void
-COPCubeComp::output(xmlw::XmlStream &XML)
+OPCubeComp::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("CubeComponents");
   

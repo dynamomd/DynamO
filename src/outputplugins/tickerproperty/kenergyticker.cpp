@@ -20,18 +20,18 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPKEnergyTicker::COPKEnergyTicker(const DYNAMO::SimData* tmp, 
+OPKEnergyTicker::OPKEnergyTicker(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
-  COPTicker(tmp,"KEnergyTicker"),
+  OPTicker(tmp,"KEnergyTicker"),
   count(0)
 { operator<<(XML); }
 
 void 
-COPKEnergyTicker::operator<<(const XMLNode& XML)
+OPKEnergyTicker::operator<<(const XMLNode& XML)
 {}
 
 void 
-COPKEnergyTicker::initialise()
+OPKEnergyTicker::initialise()
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -39,7 +39,7 @@ COPKEnergyTicker::initialise()
 }
 
 void 
-COPKEnergyTicker::ticker()
+OPKEnergyTicker::ticker()
 {
   ++count;
 
@@ -62,7 +62,7 @@ COPKEnergyTicker::ticker()
 }
 
 void
-COPKEnergyTicker::output(xmlw::XmlStream& XML)
+OPKEnergyTicker::output(xmlw::XmlStream& XML)
 {
   Iflt sumComp(0);
   
@@ -99,7 +99,7 @@ COPKEnergyTicker::output(xmlw::XmlStream& XML)
 }
 
 void
-COPKEnergyTicker::periodicOutput()
+OPKEnergyTicker::periodicOutput()
 {
   Iflt sumComp(0);
   

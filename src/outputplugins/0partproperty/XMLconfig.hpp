@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCONFIG_H
-#define COPCONFIG_H
+#ifndef OPCONFIG_H
+#define OPCONFIG_H
 
 #include "../outputplugin.hpp"
 
-class COPConfig: public COutputPlugin
+class OPConfig: public OutputPlugin
 {
  public:
-  COPConfig(const DYNAMO::SimData*);
-  ~COPConfig();
+  OPConfig(const DYNAMO::SimData*);
+  ~OPConfig();
   
   virtual void initialise() {}
 
@@ -39,7 +39,7 @@ class COPConfig: public COutputPlugin
 
   virtual void output(xmlw::XmlStream &); 
   
-  virtual COutputPlugin *Clone() const { return new COPConfig(*this); };
+  virtual OutputPlugin *Clone() const { return new OPConfig(*this); };
 
   void fileOutput(const char *);
 

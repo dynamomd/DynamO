@@ -21,12 +21,12 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
 
-COPTicker::COPTicker(const DYNAMO::SimData* t1,const char *t2):
-  COutputPlugin(t1,t2)
+OPTicker::OPTicker(const DYNAMO::SimData* t1,const char *t2):
+  OutputPlugin(t1,t2)
 {}
 
 Iflt 
-COPTicker::getTickerTime() const
+OPTicker::getTickerTime() const
 {
   try {
     return dynamic_cast<const CSTicker&>(*Sim->dynamics.getSystem("SystemTicker")).getPeriod();

@@ -33,8 +33,8 @@
 #include <fstream>
 #include <cmath>
 
-COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"GyrationRadius"),
+OPRGyration::OPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"GyrationRadius"),
   binwidth1(0.01),
   binwidth2(0.001),
   binwidth3(0.01)
@@ -43,7 +43,7 @@ COPRGyration::COPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPRGyration::operator<<(const XMLNode& XML)
+OPRGyration::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -58,13 +58,13 @@ COPRGyration::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPRGyration";
+      D_throw() << "Failed a lexical cast in OPRGyration";
     }
   
 }
 
 void 
-COPRGyration::initialise()
+OPRGyration::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
@@ -74,14 +74,14 @@ COPRGyration::initialise()
 }
 
 void 
-COPRGyration::changeSystem(COutputPlugin* plug)
+OPRGyration::changeSystem(OutputPlugin* plug)
 {
-  std::swap(Sim, static_cast<COPRGyration*>(plug)->Sim);
+  std::swap(Sim, static_cast<OPRGyration*>(plug)->Sim);
 
-  std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<COPRGyration*>(plug)->chains.begin();
+  std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<OPRGyration*>(plug)->chains.begin();
 
 #ifdef DYNAMO_DEBUG
-  if (chains.size() != static_cast<COPRGyration*>(plug)->chains.size())
+  if (chains.size() != static_cast<OPRGyration*>(plug)->chains.size())
     D_throw() << "Size mismatch when exchanging!";
 #endif
 
@@ -98,8 +98,8 @@ COPRGyration::changeSystem(COutputPlugin* plug)
     }
 }
 
-COPRGyration::molGyrationDat
-COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNAMO::SimData* Sim)
+OPRGyration::molGyrationDat
+OPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNAMO::SimData* Sim)
 {
   //Determine the centre of mass. Watch for periodic images
   Vector  tmpVec;  
@@ -182,7 +182,7 @@ COPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYN
 }
 
 Vector 
-COPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
+OPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
 {
   double Q[NDIM * NDIM];
   
@@ -231,7 +231,7 @@ COPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
 }
 
 Iflt 
-COPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
+OPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
 {
   if (NDIM != 3)
     D_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
@@ -304,7 +304,7 @@ COPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
 }
 
 void 
-COPRGyration::ticker()
+OPRGyration::ticker()
 {
   BOOST_FOREACH(CTCdata& dat,chains)
     {
@@ -331,7 +331,7 @@ COPRGyration::ticker()
 }
 
 void 
-COPRGyration::output(xmlw::XmlStream& XML)
+OPRGyration::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("ChainGyration");
 

@@ -26,8 +26,8 @@
 #include <sys/resource.h>
 #include "../../extcode/memUsage.hpp"
 
-COPMisc::COPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp,"Misc",0),
+OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp,"Misc",0),
   oldSysTime(0),
   dualEvents(0),
   singleEvents(0),
@@ -35,13 +35,13 @@ COPMisc::COPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
 {}
 
 void 
-COPMisc::changeSystem(COutputPlugin* misc2)
+OPMisc::changeSystem(OutputPlugin* misc2)
 {
-  std::swap(Sim, static_cast<COPMisc*>(misc2)->Sim);
+  std::swap(Sim, static_cast<OPMisc*>(misc2)->Sim);
 }
 
 void
-COPMisc::initialise()
+OPMisc::initialise()
 {
   Iflt kt = Sim->dynamics.getLiouvillean().getkT();
 
@@ -94,27 +94,27 @@ COPMisc::initialise()
 }
 
 void 
-COPMisc::eventUpdate(const CIntEvent&, const C2ParticleData&) 
+OPMisc::eventUpdate(const CIntEvent&, const C2ParticleData&) 
 {
   dualEvents++;
 }
 
 void 
-COPMisc::eventUpdate(const CGlobEvent&, const CNParticleData& NDat)
+OPMisc::eventUpdate(const CGlobEvent&, const CNParticleData& NDat)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
 void 
-COPMisc::eventUpdate(const CLocalEvent&, const CNParticleData& NDat)
+OPMisc::eventUpdate(const CLocalEvent&, const CNParticleData& NDat)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
 void 
-COPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat, 
+OPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat, 
 		     const Iflt&)
 {
   dualEvents += NDat.L2partChanges.size();
@@ -122,7 +122,7 @@ COPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat,
 }
 
 Iflt
-COPMisc::getMFT() const
+OPMisc::getMFT() const
 {
   return Sim->dSysTime * static_cast<Iflt>(Sim->lN)
     /(Sim->dynamics.units().unitTime() 
@@ -132,7 +132,7 @@ COPMisc::getMFT() const
 
 
 void
-COPMisc::output(xmlw::XmlStream &XML)
+OPMisc::output(xmlw::XmlStream &XML)
 {
   std::time_t tendTime;
   time(&tendTime);
@@ -247,7 +247,7 @@ COPMisc::output(xmlw::XmlStream &XML)
 }
 
 void
-COPMisc::periodicOutput()
+OPMisc::periodicOutput()
 {
   time_t rawtime;
   time(&rawtime);

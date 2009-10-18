@@ -201,7 +201,7 @@ CEReplexer::preSimInit()
     D_throw() << "Multiple configs loaded, but format string for output"
       " file doesnt contain %ID";  
   
-  Simulations.reset(new CSimulation[nSims]);
+  Simulations.reset(new Simulation[nSims]);
 
   //We set this straight away
   for (size_t id(0); id < nSims; ++id)
@@ -226,7 +226,7 @@ CEReplexer::peekData()
 }
 
 void 
-CEReplexer::setupSim(CSimulation & Sim, const std::string filename)
+CEReplexer::setupSim(Simulation & Sim, const std::string filename)
 {
   CEngine::setupSim(Sim, filename);
 
@@ -391,8 +391,8 @@ CEReplexer::ReplexSwapTicker()
 void 
 CEReplexer::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
 {
-  CSimulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
-  CSimulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
+  Simulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
+  Simulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
 
   temperatureList[sim1ID].second.attempts++;
   temperatureList[sim2ID].second.attempts++;
@@ -465,8 +465,8 @@ void CEReplexer::runSimulation()
 	  //Run the simulations
 	  //This is reversed as the high temperature sims generally run longer
 	  for (unsigned int i = nSims; i != 0;)
-	    threads.invoke(CThreadPool::task_noarg<CSimulation>
-			   (Simulations[--i], &CSimulation::runSilentSimulation));
+	    threads.invoke(CThreadPool::task_noarg<Simulation>
+			   (Simulations[--i], &Simulation::runSilentSimulation));
 		  
 	  threads.wait();//This syncs the systems for the replica exchange
 		  

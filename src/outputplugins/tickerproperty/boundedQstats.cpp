@@ -22,13 +22,13 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../../schedulers/sorters/boundedPQ.hpp"
 
-COPBoundedQStats::COPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"BoundedPQstats"),
+OPBoundedQStats::OPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"BoundedPQstats"),
   treeSize(1)
 {}
 
 void 
-COPBoundedQStats::initialise()
+OPBoundedQStats::initialise()
 {  
   if (dynamic_cast<const CSSBoundedPQ*>
       (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
@@ -37,7 +37,7 @@ COPBoundedQStats::initialise()
 }
 
 void
-COPBoundedQStats::ticker()
+OPBoundedQStats::ticker()
 {
   const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
 		       (*(Sim->ptrScheduler->getSorter())));
@@ -47,7 +47,7 @@ COPBoundedQStats::ticker()
 }
 
 void 
-COPBoundedQStats::output(xmlw::XmlStream& XML)
+OPBoundedQStats::output(xmlw::XmlStream& XML)
 {
   const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
 			     (*(Sim->ptrScheduler->getSorter())));

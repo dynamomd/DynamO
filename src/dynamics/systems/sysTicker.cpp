@@ -65,16 +65,16 @@ CSTicker::runEvent() const
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
   {
-    COPTicker* ptr = NULL;
-    BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+    OPTicker* ptr = NULL;
+    BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
       {
-	ptr = dynamic_cast<COPTicker*>(Ptr.get_ptr());
+	ptr = dynamic_cast<OPTicker*>(Ptr.get_ptr());
 	if (ptr != NULL)
 	  ptr->ticker();
       }
   }
 
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt);
 }
 

@@ -21,8 +21,8 @@
 #include "../0partproperty/misc.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPMutualDiffusionGK::COPMutualDiffusionGK(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COutputPlugin(tmp, "MutualDiffusionGK", 60), //Note the sort order set later
+OPMutualDiffusionGK::OPMutualDiffusionGK(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OutputPlugin(tmp, "MutualDiffusionGK", 60), //Note the sort order set later
   count(0),
   dt(0),
   currentdt(0.0),
@@ -40,7 +40,7 @@ COPMutualDiffusionGK::COPMutualDiffusionGK(const DYNAMO::SimData* tmp, const XML
 }
 
 void 
-COPMutualDiffusionGK::operator<<(const XMLNode& XML)
+OPMutualDiffusionGK::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -57,7 +57,7 @@ COPMutualDiffusionGK::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPMutualDiffusionGK";
+      D_throw() << "Failed a lexical cast in OPMutualDiffusionGK";
     }
   
   try 
@@ -77,12 +77,12 @@ COPMutualDiffusionGK::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPMutualDiffusionGK";
+      D_throw() << "Failed a lexical cast in OPMutualDiffusionGK";
     }
 }
 
 void 
-COPMutualDiffusionGK::stream(const Iflt edt)
+OPMutualDiffusionGK::stream(const Iflt edt)
 {
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
@@ -101,43 +101,43 @@ COPMutualDiffusionGK::stream(const Iflt edt)
 }
 
 void 
-COPMutualDiffusionGK::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+OPMutualDiffusionGK::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 void 
-COPMutualDiffusionGK::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+OPMutualDiffusionGK::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 void 
-COPMutualDiffusionGK::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+OPMutualDiffusionGK::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
 { 
   stream(edt);
   updateDelG(PDat);
 }
 
 void 
-COPMutualDiffusionGK::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+OPMutualDiffusionGK::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 Iflt 
-COPMutualDiffusionGK::rescaleFactor()
+OPMutualDiffusionGK::rescaleFactor()
 {
   return 1.0 / (Sim->dynamics.units().unitMutualDiffusion()
 		* count * Sim->dynamics.units().simVolume()
-		* Sim->getOutputPlugin<COPKEnergy>()->getAvgkT());
+		* Sim->getOutputPlugin<OPKEnergy>()->getAvgkT());
 }
 
 void 
-COPMutualDiffusionGK::output(xmlw::XmlStream& XML)
+OPMutualDiffusionGK::output(xmlw::XmlStream& XML)
 {
   Iflt factor = rescaleFactor();
   
@@ -153,7 +153,7 @@ COPMutualDiffusionGK::output(xmlw::XmlStream& XML)
       << xmlw::attr("size") << accG.size()
       << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") << dt * accG.size() 
-    / Sim->getOutputPlugin<COPMisc>()->getMFT()
+    / Sim->getOutputPlugin<OPMisc>()->getMFT()
       << xmlw::attr("simFactor") << factor
       << xmlw::attr("SampleCount") << count
       << xmlw::tag("Integral") << acc
@@ -174,13 +174,13 @@ COPMutualDiffusionGK::output(xmlw::XmlStream& XML)
 }
 
 void 
-COPMutualDiffusionGK::initialise()
+OPMutualDiffusionGK::initialise()
 {
   species1 = Sim->dynamics.getSpecies(species1name).getID();
   species2 = Sim->dynamics.getSpecies(species2name).getID();
 
-  Sim->getOutputPlugin<COPKEnergy>();
-  Sim->getOutputPlugin<COPMisc>();
+  Sim->getOutputPlugin<OPKEnergy>();
+  Sim->getOutputPlugin<OPMisc>();
   
   accG.resize(CorrelatorLength, Vector  (0,0,0));
   G.resize(CorrelatorLength, Vector (0,0,0));
@@ -216,7 +216,7 @@ COPMutualDiffusionGK::initialise()
 }
 
 std::list<Vector  > 
-COPMutualDiffusionGK::getAvgAcc() const
+OPMutualDiffusionGK::getAvgAcc() const
 {
   std::list<Vector  > tmp;
   
@@ -227,14 +227,14 @@ COPMutualDiffusionGK::getAvgAcc() const
 }
 
 void 
-COPMutualDiffusionGK::updateDelG(const C2ParticleData& PDat) 
+OPMutualDiffusionGK::updateDelG(const C2ParticleData& PDat) 
 {
   updateDelG(PDat.particle1_);
   updateDelG(PDat.particle2_);
 }
 
 void 
-COPMutualDiffusionGK::updateDelG(const C1ParticleData& PDat) 
+OPMutualDiffusionGK::updateDelG(const C1ParticleData& PDat) 
 {
   sysMom += PDat.getDeltaP();
   
@@ -247,7 +247,7 @@ COPMutualDiffusionGK::updateDelG(const C1ParticleData& PDat)
 }
 
 void 
-COPMutualDiffusionGK::updateDelG(const CNParticleData& ndat)
+OPMutualDiffusionGK::updateDelG(const CNParticleData& ndat)
 {
   BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
     updateDelG(dat);
@@ -257,7 +257,7 @@ COPMutualDiffusionGK::updateDelG(const CNParticleData& ndat)
 }
 
 void 
-COPMutualDiffusionGK::newG()
+OPMutualDiffusionGK::newG()
 {
   G.push_front(delGsp2);
 
@@ -274,7 +274,7 @@ COPMutualDiffusionGK::newG()
 }
 
 void 
-COPMutualDiffusionGK::accPass()
+OPMutualDiffusionGK::accPass()
 {
   ++count;
   
@@ -284,7 +284,7 @@ COPMutualDiffusionGK::accPass()
 }
 
 Iflt 
-COPMutualDiffusionGK::getdt()
+OPMutualDiffusionGK::getdt()
 {
   //Get the simulation temperature
     if (dt == 0.0)

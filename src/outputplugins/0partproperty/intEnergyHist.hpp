@@ -15,21 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPIntEnergyHist_H
-#define COPIntEnergyHist_H
+#ifndef OPIntEnergyHist_H
+#define OPIntEnergyHist_H
 
 #include "collticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
-class COPUEnergy;
+class OPUEnergy;
 
-class COPIntEnergyHist: public COPCollTicker
+class OPIntEnergyHist: public OPCollTicker
 {
  public:
-  COPIntEnergyHist(const DYNAMO::SimData*, const XMLNode&);
+  OPIntEnergyHist(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPIntEnergyHist(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPIntEnergyHist(*this); }
 
   virtual void initialise();
 
@@ -39,14 +39,14 @@ class COPIntEnergyHist: public COPCollTicker
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual void changeSystem(COutputPlugin*);
+  virtual void changeSystem(OutputPlugin*);
   
   void operator<<(const XMLNode&);
 
  protected:
 
   C1DWeightHistogram intEnergyHist;
-  const COPUEnergy* ptrCOPEnergy;
+  const OPUEnergy* ptrOPEnergy;
   Iflt weight;
   Iflt binwidth;
 

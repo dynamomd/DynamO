@@ -25,20 +25,20 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPEventEffects::COPEventEffects(const DYNAMO::SimData* tmp, const XMLNode&):
-  COutputPlugin(tmp,"EventEffects")
+OPEventEffects::OPEventEffects(const DYNAMO::SimData* tmp, const XMLNode&):
+  OutputPlugin(tmp,"EventEffects")
 {
 }
 
 void 
-COPEventEffects::initialise()
+OPEventEffects::initialise()
 {}
 
-COPEventEffects::~COPEventEffects()
+OPEventEffects::~OPEventEffects()
 {}
 
 void 
-COPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat)
+OPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat)
 {
   newEvent(iEvent.getType(),getClassKey(iEvent),
 	   Pdat.particle1_.getDeltaKE(),
@@ -51,7 +51,7 @@ COPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat
 
 
 void 
-COPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
     newEvent(globEvent.getType(),getClassKey(globEvent),
@@ -71,7 +71,7 @@ COPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& 
 }
 
 void 
-COPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
     newEvent(localEvent.getType(),getClassKey(localEvent),
@@ -91,7 +91,7 @@ COPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData
 }
 
 void 
-COPEventEffects::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPEventEffects::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
     newEvent(sysEvent.getType(),getClassKey(sysEvent),
@@ -112,7 +112,7 @@ COPEventEffects::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat
 
 
 void 
-COPEventEffects::newEvent(const EEventType& eType, const classKey& ck, 
+OPEventEffects::newEvent(const EEventType& eType, const classKey& ck, 
 			  const Iflt& deltaKE, const Vector & delP)
 {
   counterData& ref(counters[eventKey(ck, eType)]);
@@ -121,7 +121,7 @@ COPEventEffects::newEvent(const EEventType& eType, const classKey& ck,
 }
 
 void
-COPEventEffects::output(xmlw::XmlStream &XML)
+OPEventEffects::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("EventEffects");
 

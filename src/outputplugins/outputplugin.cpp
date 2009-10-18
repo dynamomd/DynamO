@@ -28,7 +28,7 @@
 #include "general/include.hpp"
 #include <boost/tokenizer.hpp>
 
-COutputPlugin::COutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsigned char order, const char *aColor):
+OutputPlugin::OutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsigned char order, const char *aColor):
   SimBase_const(tmp, aName, aColor),
   updateOrder(order)
 {
@@ -36,21 +36,21 @@ COutputPlugin::COutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsi
 }
 
 void 
-COutputPlugin::output(xmlw::XmlStream&) 
+OutputPlugin::output(xmlw::XmlStream&) 
 {}
 
 void 
-COutputPlugin::periodicOutput() 
+OutputPlugin::periodicOutput() 
 {}
 
 DYNAMO::Colorise_Text_Stream_Operator 
-COutputPlugin::I_Pcout() const
+OutputPlugin::I_Pcout() const
 {
   return DYNAMO::Colorise_Text_Stream_Operator(IC_blue);
 }
 
-COutputPlugin* 
-COutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
+OutputPlugin* 
+OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 {
   XMLNode XML = XMLNode::createXMLTopNode("Plugin");
 
@@ -90,8 +90,8 @@ COutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
   return getPlugin(XML,Sim);
 }
 
-template<class T> COutputPlugin* 
-COutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
+template<class T> OutputPlugin* 
+OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
 {
   try {
     Sim->getOutputPlugin<T>();
@@ -104,8 +104,8 @@ COutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML
   D_throw() << "Plugin is already loaded";
 }
 
-COutputPlugin* 
-COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
+OutputPlugin* 
+OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   std::string Name = XML.getAttribute("Type");
   
@@ -124,107 +124,107 @@ COutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
   }
 
   if (!Name.compare("MSD"))
-    return testGeneratePlugin<COPMSD>(Sim, XML);
+    return testGeneratePlugin<OPMSD>(Sim, XML);
   else if (!Name.compare("PeriodicMSD"))
-    return testGeneratePlugin<COPPeriodicMSD>(Sim, XML);
+    return testGeneratePlugin<OPPeriodicMSD>(Sim, XML);
   else if (!Name.compare("EstTime"))
-    return testGeneratePlugin<COPETA>(Sim, XML);
+    return testGeneratePlugin<OPETA>(Sim, XML);
   else if (!Name.compare("ReplexTrace"))
-    return testGeneratePlugin<COPReplexTrace>(Sim, XML);
+    return testGeneratePlugin<OPReplexTrace>(Sim, XML);
   else if (!Name.compare("IntEnergyHist"))
-    return testGeneratePlugin<COPIntEnergyHist>(Sim, XML);
+    return testGeneratePlugin<OPIntEnergyHist>(Sim, XML);
   else if (!Name.compare("RadiusGyration"))
-    return testGeneratePlugin<COPRGyration>(Sim, XML);
+    return testGeneratePlugin<OPRGyration>(Sim, XML);
   else if (!Name.compare("Torsion"))
-    return testGeneratePlugin<COPCTorsion>(Sim, XML);
+    return testGeneratePlugin<OPCTorsion>(Sim, XML);
   else if (!Name.compare("Geomview"))
-    return testGeneratePlugin<COPGeomview>(Sim, XML);
+    return testGeneratePlugin<OPGeomview>(Sim, XML);
   else if (!Name.compare("Streamticker"))
-    return testGeneratePlugin<COPStreamTicker>(Sim, XML);
+    return testGeneratePlugin<OPStreamTicker>(Sim, XML);
   else if (!Name.compare("KEnergy"))
-    return testGeneratePlugin<COPKEnergy>(Sim, XML);
+    return testGeneratePlugin<OPKEnergy>(Sim, XML);
   else if (!Name.compare("UEnergy"))
-    return testGeneratePlugin<COPUEnergy>(Sim, XML);
+    return testGeneratePlugin<OPUEnergy>(Sim, XML);
   else if (!Name.compare("Misc"))
-    return testGeneratePlugin<COPMisc>(Sim, XML);
+    return testGeneratePlugin<OPMisc>(Sim, XML);
   else if (!Name.compare("TinkerXYZ"))
-    return testGeneratePlugin<COPTinkerXYZ>(Sim, XML);
+    return testGeneratePlugin<OPTinkerXYZ>(Sim, XML);
   else if (!Name.compare("CollisionMatrix"))
-    return testGeneratePlugin<COPCollMatrix>(Sim, XML);
+    return testGeneratePlugin<OPCollMatrix>(Sim, XML);
   else if (!Name.compare("RdotV"))
-    return testGeneratePlugin<COPRdotV>(Sim, XML);
+    return testGeneratePlugin<OPRdotV>(Sim, XML);
   else if (!Name.compare("Momentum"))
-    return testGeneratePlugin<COPMomentum>(Sim, XML);
+    return testGeneratePlugin<OPMomentum>(Sim, XML);
   else if (!Name.compare("QMGA"))
-    return testGeneratePlugin<COPQMGA>(Sim, XML);
+    return testGeneratePlugin<OPQMGA>(Sim, XML);
   else if (!Name.compare("VTK"))
-    return testGeneratePlugin<COPVTK>(Sim, XML);
+    return testGeneratePlugin<OPVTK>(Sim, XML);
   else if (!Name.compare("Povray"))
-    return testGeneratePlugin<COPPovray>(Sim, XML);
+    return testGeneratePlugin<OPPovray>(Sim, XML);
   else if (!Name.compare("ContactMap"))
-    return testGeneratePlugin<COPCContactMap>(Sim, XML);
+    return testGeneratePlugin<OPCContactMap>(Sim, XML);
   else if (!Name.compare("OverlapTester"))
-    return testGeneratePlugin<COPOverlapTest>(Sim, XML);
+    return testGeneratePlugin<OPOverlapTest>(Sim, XML);
   else if (!Name.compare("CollDistCheck"))
-    return testGeneratePlugin<COPCollDistCheck>(Sim, XML);
+    return testGeneratePlugin<OPCollDistCheck>(Sim, XML);
   else if (!Name.compare("ChainBondAngles"))
-    return testGeneratePlugin<COPChainBondAngles>(Sim, XML);
+    return testGeneratePlugin<OPChainBondAngles>(Sim, XML);
   else if (!Name.compare("Trajectory"))
-    return testGeneratePlugin<COPTrajectory>(Sim, XML);
+    return testGeneratePlugin<OPTrajectory>(Sim, XML);
   else if (!Name.compare("ChainBondLength"))
-    return testGeneratePlugin<COPChainBondLength>(Sim, XML);
+    return testGeneratePlugin<OPChainBondLength>(Sim, XML);
   else if (!Name.compare("ReverseEventsCheck"))
-    return testGeneratePlugin<COPReverseEventsCheck>(Sim, XML);
+    return testGeneratePlugin<OPReverseEventsCheck>(Sim, XML);
   else if (!Name.compare("VACF"))
-    return testGeneratePlugin<COPVACF>(Sim,XML);
+    return testGeneratePlugin<OPVACF>(Sim,XML);
   else if (!Name.compare("ViscosityE"))
-    return testGeneratePlugin<COPViscosityE>(Sim, XML);
+    return testGeneratePlugin<OPViscosityE>(Sim, XML);
   else if (!Name.compare("ViscosityCollisionalE"))
-    return testGeneratePlugin<COPViscosityCollisionalE>(Sim, XML);
+    return testGeneratePlugin<OPViscosityCollisionalE>(Sim, XML);
   else if (!Name.compare("ThermalConductivityE"))
-    return testGeneratePlugin<COPThermalConductivityE>(Sim, XML);
+    return testGeneratePlugin<OPThermalConductivityE>(Sim, XML);
   else if (!Name.compare("ThermalConductivitySpeciesSpeciesE"))
-    return testGeneratePlugin<COPThermalConductivitySpeciesSpeciesE>(Sim, XML);
+    return testGeneratePlugin<OPThermalConductivitySpeciesSpeciesE>(Sim, XML);
   else if (!Name.compare("MutualDiffusionGK"))
-    return testGeneratePlugin<COPMutualDiffusionGK>(Sim, XML);
+    return testGeneratePlugin<OPMutualDiffusionGK>(Sim, XML);
   else if (!Name.compare("MutualDiffusionE"))
-    return testGeneratePlugin<COPMutualDiffusionE>(Sim, XML);
+    return testGeneratePlugin<OPMutualDiffusionE>(Sim, XML);
   else if (!Name.compare("ThermalDiffusionE"))
-    return testGeneratePlugin<COPThermalDiffusionE>(Sim, XML);
+    return testGeneratePlugin<OPThermalDiffusionE>(Sim, XML);
   else if (!Name.compare("MFL"))
-    return testGeneratePlugin<COPMFL>(Sim, XML);
+    return testGeneratePlugin<OPMFL>(Sim, XML);
   else if (!Name.compare("MFT"))
-    return testGeneratePlugin<COPMFT>(Sim, XML);
+    return testGeneratePlugin<OPMFT>(Sim, XML);
   else if (!Name.compare("CollEnergyChange"))
-    return testGeneratePlugin<COPCollEnergyChange>(Sim, XML);
+    return testGeneratePlugin<OPCollEnergyChange>(Sim, XML);
   else if (!Name.compare("VelDist"))
-    return testGeneratePlugin<COPVelDist>(Sim, XML);
+    return testGeneratePlugin<OPVelDist>(Sim, XML);
   else if (!Name.compare("VelProfile"))
-    return testGeneratePlugin<COPVelProfile>(Sim, XML);
+    return testGeneratePlugin<OPVelProfile>(Sim, XML);
   else if (!Name.compare("RadialDistribution"))
-    return testGeneratePlugin<COPRadialDistribution>(Sim, XML);
+    return testGeneratePlugin<OPRadialDistribution>(Sim, XML);
   else if (!Name.compare("CollisionCorrelators"))
-    return testGeneratePlugin<COPCollisionCorrelator>(Sim, XML);
+    return testGeneratePlugin<OPCollisionCorrelator>(Sim, XML);
   else if (!Name.compare("BoundedPQStats"))
-    return testGeneratePlugin<COPBoundedQStats>(Sim, XML);
+    return testGeneratePlugin<OPBoundedQStats>(Sim, XML);
   else if (!Name.compare("MSDCorrelator"))
-    return testGeneratePlugin<COPMSDCorrelator>(Sim, XML);
+    return testGeneratePlugin<OPMSDCorrelator>(Sim, XML);
   else if (!Name.compare("RijVijComponents"))
-    return testGeneratePlugin<COPRijVij>(Sim, XML);
+    return testGeneratePlugin<OPRijVij>(Sim, XML);
   else if (!Name.compare("KEnergyTicker"))
-    return testGeneratePlugin<COPKEnergyTicker>(Sim, XML);
+    return testGeneratePlugin<OPKEnergyTicker>(Sim, XML);
   else if (!Name.compare("StructureImage"))
-    return testGeneratePlugin<COPStructureImaging>(Sim, XML);
+    return testGeneratePlugin<OPStructureImaging>(Sim, XML);
   else if (!Name.compare("EventEffects"))
-    return testGeneratePlugin<COPEventEffects>(Sim, XML);
+    return testGeneratePlugin<OPEventEffects>(Sim, XML);
   else if (!Name.compare("SHCrystal"))
-    return testGeneratePlugin<COPSHCrystal>(Sim, XML);
+    return testGeneratePlugin<OPSHCrystal>(Sim, XML);
   else if (!Name.compare("SCParameter"))
-    return testGeneratePlugin<COPSCParameter>(Sim, XML);
+    return testGeneratePlugin<OPSCParameter>(Sim, XML);
   else if (!Name.compare("CubeComponents"))
-    return testGeneratePlugin<COPCubeComp>(Sim, XML);
+    return testGeneratePlugin<OPCubeComp>(Sim, XML);
   else if (!Name.compare("PlateMotion"))
-    return testGeneratePlugin<COPPlateMotion>(Sim, XML);
+    return testGeneratePlugin<OPPlateMotion>(Sim, XML);
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

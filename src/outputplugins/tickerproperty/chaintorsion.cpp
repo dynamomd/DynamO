@@ -29,12 +29,12 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/BC/None.hpp"
 
-COPCTorsion::COPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"Torsion")
+OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"Torsion")
 {}
 
 void 
-COPCTorsion::initialise()
+OPCTorsion::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
@@ -47,17 +47,17 @@ COPCTorsion::initialise()
 }
 
 void 
-COPCTorsion::changeSystem(COutputPlugin* plug)
+OPCTorsion::changeSystem(OutputPlugin* plug)
 {
-  std::swap(Sim, static_cast<COPCTorsion*>(plug)->Sim);
+  std::swap(Sim, static_cast<OPCTorsion*>(plug)->Sim);
   
 #ifdef DYNAMO_DEBUG
-  if (chains.size() != static_cast<COPCTorsion*>(plug)->chains.size())
+  if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
     D_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
 
   std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
-    iPtr2 = static_cast<COPCTorsion*>(plug)->chains.begin();
+    iPtr2 = static_cast<OPCTorsion*>(plug)->chains.begin();
 
   while(iPtr1 != chains.end())
     {
@@ -75,7 +75,7 @@ COPCTorsion::changeSystem(COutputPlugin* plug)
 }
 
 void 
-COPCTorsion::ticker()
+OPCTorsion::ticker()
 {
   BOOST_FOREACH(CTCdata& dat,chains)
     {
@@ -186,7 +186,7 @@ COPCTorsion::ticker()
 }
 
 void 
-COPCTorsion::output(xmlw::XmlStream& XML)
+OPCTorsion::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("ChainTorsion");
   

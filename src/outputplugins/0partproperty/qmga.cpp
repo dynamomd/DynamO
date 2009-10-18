@@ -24,20 +24,20 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPQMGA::COPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPCollTicker(tmp,"COPQMGA"),
+OPQMGA::OPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPCollTicker(tmp,"OPQMGA"),
   frameCount(0)
 {}
 
 void 
-COPQMGA::ticker()
+OPQMGA::ticker()
 {
   if (!(Sim->lNColl % 1000))
     printImage();
 }
 
 void
-COPQMGA::printImage()
+OPQMGA::printImage()
 {
   char *fileName;
 

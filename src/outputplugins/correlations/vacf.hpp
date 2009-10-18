@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPVACF_H
-#define COPVACF_H
+#ifndef OPVACF_H
+#define OPVACF_H
 
 #include "../outputplugin.hpp"
 #include <boost/circular_buffer.hpp>
@@ -30,10 +30,10 @@
 #include "../0partproperty/misc.hpp"
 #include "../1partproperty/kenergy.hpp"
 
-class COPVACF: public COutputPlugin
+class OPVACF: public OutputPlugin
 {
  public:
-  COPVACF(const DYNAMO::SimData*, const XMLNode&);
+  OPVACF(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void operator<<(const XMLNode&);
 
@@ -49,7 +49,7 @@ class COPVACF: public COutputPlugin
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const { return new COPVACF(*this); }
+  virtual OutputPlugin *Clone() const { return new OPVACF(*this); }
    
 protected:  
   

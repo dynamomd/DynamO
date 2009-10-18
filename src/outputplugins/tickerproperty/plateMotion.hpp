@@ -15,22 +15,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPPlateMotion_H
-#define COPPlateMotion_H
+#ifndef OPPlateMotion_H
+#define OPPlateMotion_H
 
 #include "ticker.hpp"
 #include <fstream>
 #include <vector>
 
-class COPPlateMotion: public COPTicker
+class OPPlateMotion: public OPTicker
 {
  public:
-  COPPlateMotion(const DYNAMO::SimData*, const XMLNode&);
+  OPPlateMotion(const DYNAMO::SimData*, const XMLNode&);
 
-  COPPlateMotion(const COPPlateMotion&);
+  OPPlateMotion(const OPPlateMotion&);
   
-  virtual COutputPlugin *Clone() const
-  { return new COPPlateMotion(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPPlateMotion(*this); }
 
   virtual void initialise();
 

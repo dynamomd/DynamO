@@ -192,7 +192,7 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2,
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);
   
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 
 }

@@ -24,17 +24,17 @@
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
 
-COPPeriodicMSD::COPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"PeriodicMSD"),
+OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"PeriodicMSD"),
   TickerCount(0),
-  ptrCOPMSD(NULL)
+  ptrOPMSD(NULL)
 {}
 
 void 
-COPPeriodicMSD::initialise()
+OPPeriodicMSD::initialise()
 {
   //Load the diffusion class
-  ptrCOPMSD = Sim->getOutputPlugin<COPMSD>();
+  ptrOPMSD = Sim->getOutputPlugin<OPMSD>();
 
   //Now cache a local list of the topology
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->dynamics.getTopology())
@@ -46,7 +46,7 @@ COPPeriodicMSD::initialise()
 }
 
 void 
-COPPeriodicMSD::ticker()
+OPPeriodicMSD::ticker()
 {
   //Don't do this MSD calc often as its expensive! Taking advantage of
   //a modulus of a power of 2 being fast
@@ -55,17 +55,17 @@ COPPeriodicMSD::ticker()
     {
       results.push_back
 	(std::make_pair(Sim->dSysTime / Sim->dynamics.units().unitTime(), 
-			ptrCOPMSD->calcMSD()));
+			ptrOPMSD->calcMSD()));
 
       BOOST_FOREACH(localpair2& dat, structResults)
 	dat.second.push_back(std::make_pair
 			     (Sim->dSysTime / Sim->dynamics.units().unitTime(),
-			      ptrCOPMSD->calcStructMSD(*dat.first)));
+			      ptrOPMSD->calcStructMSD(*dat.first)));
     }
 }
 
 void
-COPPeriodicMSD::output(xmlw::XmlStream &XML)
+OPPeriodicMSD::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("PeriodicMSD") 
       << xmlw::tag("Particle") 

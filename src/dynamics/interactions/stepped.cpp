@@ -258,7 +258,7 @@ CIStepped::runEvent(const CParticle& p1,
 
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 	break;
       }
@@ -290,7 +290,7 @@ CIStepped::runEvent(const CParticle& p1,
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(iEvent, retVal);
 	    
 	  }
@@ -303,7 +303,7 @@ CIStepped::runEvent(const CParticle& p1,
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	    BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(iEvent, retVal);
 	  }
 	

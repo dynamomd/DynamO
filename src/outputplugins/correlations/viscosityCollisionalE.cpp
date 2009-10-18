@@ -22,8 +22,8 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-COPViscosityCollisionalE::COPViscosityCollisionalE(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COutputPlugin(tmp,"ViscosityCollisionalE", 60),
+OPViscosityCollisionalE::OPViscosityCollisionalE(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OutputPlugin(tmp,"ViscosityCollisionalE", 60),
   count(0),
   dt(0),
   currentdt(0.0),
@@ -52,7 +52,7 @@ COPViscosityCollisionalE::COPViscosityCollisionalE(const DYNAMO::SimData* tmp, c
 }
 
 void 
-COPViscosityCollisionalE::operator<<(const XMLNode& XML)
+OPViscosityCollisionalE::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -73,14 +73,14 @@ COPViscosityCollisionalE::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPVACF";
+      D_throw() << "Failed a lexical cast in OPVACF";
     }  
 }
 
 void 
-COPViscosityCollisionalE::initialise()
+OPViscosityCollisionalE::initialise()
 {
-  Sim->getOutputPlugin<COPMisc>();
+  Sim->getOutputPlugin<OPMisc>();
   
   if (dt == 0.0)
     {
@@ -94,7 +94,7 @@ COPViscosityCollisionalE::initialise()
 }
 
 void 
-COPViscosityCollisionalE::eventUpdate(const CGlobEvent& iEvent, 
+OPViscosityCollisionalE::eventUpdate(const CGlobEvent& iEvent, 
 				      const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
@@ -102,7 +102,7 @@ COPViscosityCollisionalE::eventUpdate(const CGlobEvent& iEvent,
 }
 
 void 
-COPViscosityCollisionalE::eventUpdate(const CLocalEvent& iEvent, 
+OPViscosityCollisionalE::eventUpdate(const CLocalEvent& iEvent, 
 				      const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
@@ -110,7 +110,7 @@ COPViscosityCollisionalE::eventUpdate(const CLocalEvent& iEvent,
 }
   
 void 
-COPViscosityCollisionalE::eventUpdate(const CSystem&, 
+OPViscosityCollisionalE::eventUpdate(const CSystem&, 
 				      const CNParticleData& PDat, 
 				      const Iflt& edt) 
 { 
@@ -119,7 +119,7 @@ COPViscosityCollisionalE::eventUpdate(const CSystem&,
 }
   
 void 
-COPViscosityCollisionalE::eventUpdate(const CIntEvent& iEvent, 
+OPViscosityCollisionalE::eventUpdate(const CIntEvent& iEvent, 
 				      const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
@@ -127,7 +127,7 @@ COPViscosityCollisionalE::eventUpdate(const CIntEvent& iEvent,
 }
 
 void 
-COPViscosityCollisionalE::stream(const Iflt& edt)
+OPViscosityCollisionalE::stream(const Iflt& edt)
 {
   //Move the time forward
   //currentdt += edt;
@@ -156,7 +156,7 @@ COPViscosityCollisionalE::stream(const Iflt& edt)
 }
 
 void 
-COPViscosityCollisionalE::newG(const matrix& Gval)
+OPViscosityCollisionalE::newG(const matrix& Gval)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -177,7 +177,7 @@ COPViscosityCollisionalE::newG(const matrix& Gval)
 
 
 void
-COPViscosityCollisionalE::impulseDelG(const C2ParticleData& colldat)
+OPViscosityCollisionalE::impulseDelG(const C2ParticleData& colldat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -185,7 +185,7 @@ COPViscosityCollisionalE::impulseDelG(const C2ParticleData& colldat)
 }
 
 void
-COPViscosityCollisionalE::impulseDelG(const CNParticleData& ndat) 
+OPViscosityCollisionalE::impulseDelG(const CNParticleData& ndat) 
 { 
   BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
     for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -195,7 +195,7 @@ COPViscosityCollisionalE::impulseDelG(const CNParticleData& ndat)
 }
 
 inline void 
-COPViscosityCollisionalE::output(xmlw::XmlStream &XML)
+OPViscosityCollisionalE::output(xmlw::XmlStream &XML)
 {
   Iflt rescaleFactor = 1.0
     / (Sim->dynamics.units().unitTime() 
@@ -208,7 +208,7 @@ COPViscosityCollisionalE::output(xmlw::XmlStream &XML)
       << xmlw::attr("name") << "ViscosityTimesT"
       << xmlw::attr("size") << accG2.size()
       << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-      << xmlw::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<COPMisc>())->getMFT()
+      << xmlw::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<OPMisc>())->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor
       << xmlw::attr("SampleCount") << count
       << xmlw::attr("columns")
@@ -282,7 +282,7 @@ COPViscosityCollisionalE::output(xmlw::XmlStream &XML)
 }
 
 void 
-COPViscosityCollisionalE::accPass()
+OPViscosityCollisionalE::accPass()
 {
   ++count;
   matrix sum;

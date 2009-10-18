@@ -21,21 +21,21 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../dynamics/locals/localEvent.hpp"
 
-COPReverseEventsCheck::COPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
-  COutputPlugin(t1,"ReverseEventsChecker"),
+OPReverseEventsCheck::OPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
+  OutputPlugin(t1,"ReverseEventsChecker"),
   lReverseEvents(0),
   localeps(0)
 {
 }
 
 void
-COPReverseEventsCheck::initialise()
+OPReverseEventsCheck::initialise()
 {
   localeps = -eps * Sim->dynamics.units().unitTime();
 }
 
 void 
-COPReverseEventsCheck::eventUpdate(const CIntEvent& eevent, 
+OPReverseEventsCheck::eventUpdate(const CIntEvent& eevent, 
 				   const C2ParticleData&)
 {
   if (eevent.getdt() < localeps) 
@@ -43,28 +43,28 @@ COPReverseEventsCheck::eventUpdate(const CIntEvent& eevent,
 }
 
 void 
-COPReverseEventsCheck::eventUpdate(const CGlobEvent& eevent, 
+OPReverseEventsCheck::eventUpdate(const CGlobEvent& eevent, 
 				   const CNParticleData&)
 {
   if (eevent.getdt() < localeps) ++lReverseEvents;
 }
 
 void 
-COPReverseEventsCheck::eventUpdate(const CLocalEvent& eevent, 
+OPReverseEventsCheck::eventUpdate(const CLocalEvent& eevent, 
 				   const CNParticleData&)
 {
   if (eevent.getdt() < localeps) ++lReverseEvents;
 }
 
 void 
-COPReverseEventsCheck::eventUpdate(const CSystem&, const CNParticleData&, 
+OPReverseEventsCheck::eventUpdate(const CSystem&, const CNParticleData&, 
 				   const Iflt& dt)
 {
   if (dt < localeps) ++lReverseEvents;  
 }
 
 void 
-COPReverseEventsCheck::output(xmlw::XmlStream& XML)
+OPReverseEventsCheck::output(xmlw::XmlStream& XML)
 {
   I_cout() << "Reverse Event Count " << lReverseEvents;
 

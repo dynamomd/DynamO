@@ -25,9 +25,9 @@
 #include "../../extcode/mathtemplates.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
 
-COPMSDCorrelator::COPMSDCorrelator(const DYNAMO::SimData* tmp, 
+OPMSDCorrelator::OPMSDCorrelator(const DYNAMO::SimData* tmp, 
 				   const XMLNode& XML):
-  COPTicker(tmp,"MSDCorrelator"),
+  OPTicker(tmp,"MSDCorrelator"),
   length(20),
   currCorrLength(0),
   ticksTaken(0),
@@ -37,7 +37,7 @@ COPMSDCorrelator::COPMSDCorrelator(const DYNAMO::SimData* tmp,
 }
 
 void 
-COPMSDCorrelator::operator<<(const XMLNode& XML)
+OPMSDCorrelator::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -47,13 +47,13 @@ COPMSDCorrelator::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPMSDCorrelator";
+      D_throw() << "Failed a lexical cast in OPMSDCorrelator";
     }    
 
 }
 
 void 
-COPMSDCorrelator::initialise()
+OPMSDCorrelator::initialise()
 {
   I_cout() << "The length of the MSD correlator is " << length;
 
@@ -72,7 +72,7 @@ COPMSDCorrelator::initialise()
 }
 
 void 
-COPMSDCorrelator::ticker()
+OPMSDCorrelator::ticker()
 {
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
     posHistory[part.getID()].push_front(part.getPosition());
@@ -89,7 +89,7 @@ COPMSDCorrelator::ticker()
 }
 
 void
-COPMSDCorrelator::accPass()
+OPMSDCorrelator::accPass()
 {
   ++ticksTaken;
   
@@ -131,7 +131,7 @@ COPMSDCorrelator::accPass()
 }
 
 void
-COPMSDCorrelator::output(xmlw::XmlStream &XML)
+OPMSDCorrelator::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("MSDCorrelator")
       << xmlw::tag("Particles");

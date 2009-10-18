@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCollDistCheck_HPP
-#define COPCollDistCheck_HPP
+#ifndef OPCollDistCheck_HPP
+#define OPCollDistCheck_HPP
 
 #include "../outputplugin.hpp"
 #include <map>
@@ -25,14 +25,14 @@
 
 using namespace EventTypeTracking;
 
-class COPCollMatrix;
+class OPCollMatrix;
 
-class COPCollDistCheck: public COutputPlugin
+class OPCollDistCheck: public OutputPlugin
 {
 public:
-  COPCollDistCheck(const DYNAMO::SimData*, const XMLNode&);
+  OPCollDistCheck(const DYNAMO::SimData*, const XMLNode&);
 
-  ~COPCollDistCheck();
+  ~OPCollDistCheck();
 
   void eventUpdate(const CIntEvent&, const C2ParticleData&);
 
@@ -42,7 +42,7 @@ public:
   
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
 
-  COutputPlugin *Clone() const { return new COPCollDistCheck(*this); }
+  OutputPlugin *Clone() const { return new OPCollDistCheck(*this); }
 
   virtual void initialise();
 

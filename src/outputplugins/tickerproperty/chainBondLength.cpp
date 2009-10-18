@@ -29,18 +29,18 @@
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/interactions/captures.hpp"
 
-COPChainBondLength::Cdata::Cdata(size_t ID, size_t CL):
+OPChainBondLength::Cdata::Cdata(size_t ID, size_t CL):
   chainID(ID)
 {
   BondLengths.resize(CL-1, C1DHistogram(0.0001));
 }
 
-COPChainBondLength::COPChainBondLength(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"ChainBondLength")
+OPChainBondLength::OPChainBondLength(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"ChainBondLength")
 {}
 
 void 
-COPChainBondLength::initialise()
+OPChainBondLength::initialise()
 {
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, 
 		Sim->dynamics.getTopology())
@@ -50,13 +50,13 @@ COPChainBondLength::initialise()
 }
 
 void 
-COPChainBondLength::changeSystem(COutputPlugin* COPPlug)
+OPChainBondLength::changeSystem(OutputPlugin* OPPlug)
 {
-  std::swap(Sim, static_cast<COPChainBondLength*>(COPPlug)->Sim);
+  std::swap(Sim, static_cast<OPChainBondLength*>(OPPlug)->Sim);
 }
 
 void 
-COPChainBondLength::ticker()
+OPChainBondLength::ticker()
 {
   BOOST_FOREACH(Cdata& dat, chains)
     BOOST_FOREACH(const smrtPlugPtr<CRange>& range, 
@@ -70,7 +70,7 @@ COPChainBondLength::ticker()
 }
 
 void 
-COPChainBondLength::output(xmlw::XmlStream& XML)
+OPChainBondLength::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("BondAngleLength");
   

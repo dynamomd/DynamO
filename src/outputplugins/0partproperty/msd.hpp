@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMSD_H
-#define COPMSD_H
+#ifndef OPMSD_H
+#define OPMSD_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <vector>
 
-class COPMSD: public COutputPlugin
+class OPMSD: public OutputPlugin
 {
  public:
-  COPMSD(const DYNAMO::SimData*, const XMLNode&);
-  ~COPMSD();
+  OPMSD(const DYNAMO::SimData*, const XMLNode&);
+  ~OPMSD();
 
   virtual void initialise();
 
@@ -40,7 +40,7 @@ class COPMSD: public COutputPlugin
 
   void output(xmlw::XmlStream &); 
 
-  virtual COutputPlugin *Clone() const { return new COPMSD(*this); };
+  virtual OutputPlugin *Clone() const { return new OPMSD(*this); };
 
   Iflt calcMSD() const;
 

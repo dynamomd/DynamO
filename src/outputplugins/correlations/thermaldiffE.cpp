@@ -21,9 +21,9 @@
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
 
-COPThermalDiffusionE::COPThermalDiffusionE(const DYNAMO::SimData* tmp,
+OPThermalDiffusionE::OPThermalDiffusionE(const DYNAMO::SimData* tmp,
 					 const XMLNode& XML):
-  COutputPlugin(tmp,"ThermalDiffusionE", 60),
+  OutputPlugin(tmp,"ThermalDiffusionE", 60),
   G(100),
   count(0),
   dt(0),
@@ -43,7 +43,7 @@ COPThermalDiffusionE::COPThermalDiffusionE(const DYNAMO::SimData* tmp,
 }
 
 void 
-COPThermalDiffusionE::operator<<(const XMLNode& XML)
+OPThermalDiffusionE::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -71,12 +71,12 @@ COPThermalDiffusionE::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPMutualDiffusion";
+      D_throw() << "Failed a lexical cast in OPMutualDiffusion";
     }
 }
 
 void 
-COPThermalDiffusionE::initialise()
+OPThermalDiffusionE::initialise()
 {
   species1 = Sim->dynamics.getSpecies(species1name).getID();
 
@@ -92,8 +92,8 @@ COPThermalDiffusionE::initialise()
 
   G.resize(CorrelatorLength, Vector (0,0,0));
   accG2.resize(CorrelatorLength, Vector (0,0,0));
-  Sim->getOutputPlugin<COPMisc>();
-  Sim->getOutputPlugin<COPKEnergy>();
+  Sim->getOutputPlugin<OPMisc>();
+  Sim->getOutputPlugin<OPKEnergy>();
   
   accG2.resize(CorrelatorLength, Vector (0,0,0));
   Gsp1.resize(CorrelatorLength, Vector (0,0,0));
@@ -130,14 +130,14 @@ COPThermalDiffusionE::initialise()
 }
 
 inline void 
-COPThermalDiffusionE::output(xmlw::XmlStream &XML)
+OPThermalDiffusionE::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("EinsteinCorrelator")
       << xmlw::attr("name") << name
       << xmlw::attr("size") << accG2.size()
       << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
       << xmlw::attr("LengthInMFT") 
-      << dt * accG2.size() / Sim->getOutputPlugin<COPMisc>()->getMFT()
+      << dt * accG2.size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
       << xmlw::attr("simFactor") << rescaleFactor()
       << xmlw::attr("SampleCount") << count
       << xmlw::chardata();
@@ -160,19 +160,19 @@ COPThermalDiffusionE::output(xmlw::XmlStream &XML)
 }
 
 Iflt 
-COPThermalDiffusionE::rescaleFactor() 
+OPThermalDiffusionE::rescaleFactor() 
 { 
   return 1.0
     / (Sim->dynamics.units().unitTime() 
        // /\ /\ This line should be 1 however we have scaled the
        //correlator time as well
        * Sim->dynamics.units().unitThermalDiffusion() * 2.0 
-       * count * Sim->getOutputPlugin<COPKEnergy>()->getAvgkT()
+       * count * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT()
        * Sim->dynamics.units().simVolume());
 }
 
 void 
-COPThermalDiffusionE::stream(const Iflt edt)
+OPThermalDiffusionE::stream(const Iflt edt)
 {      
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
@@ -203,7 +203,7 @@ COPThermalDiffusionE::stream(const Iflt edt)
 }
 
 void 
-COPThermalDiffusionE::newG()
+OPThermalDiffusionE::newG()
 {
     //This ensures the list stays at accumilator size
   G.push_front (delG);
@@ -221,7 +221,7 @@ COPThermalDiffusionE::newG()
 }
 
 void 
-COPThermalDiffusionE::accPass()
+OPThermalDiffusionE::accPass()
 {
   ++count;
   Vector  sum(0,0,0), sumsp1(0,0,0);
@@ -241,20 +241,20 @@ COPThermalDiffusionE::accPass()
 }
 
 inline Vector  
-COPThermalDiffusionE::impulseDelG(const C2ParticleData& PDat)
+OPThermalDiffusionE::impulseDelG(const C2ParticleData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaKE();
 }
 
 void 
-COPThermalDiffusionE::updateConstDelG(const C2ParticleData& PDat)
+OPThermalDiffusionE::updateConstDelG(const C2ParticleData& PDat)
 {
   updateConstDelG(PDat.particle1_);
   updateConstDelG(PDat.particle2_);
 }
 
 void 
-COPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat) 
+OPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat) 
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
@@ -268,7 +268,7 @@ COPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat)
 }
 
 void 
-COPThermalDiffusionE::eventUpdate(const CGlobEvent& iEvent, 
+OPThermalDiffusionE::eventUpdate(const CGlobEvent& iEvent, 
 				  const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
@@ -277,7 +277,7 @@ COPThermalDiffusionE::eventUpdate(const CGlobEvent& iEvent,
 }
 
 void 
-COPThermalDiffusionE::eventUpdate(const CLocalEvent& iEvent, 
+OPThermalDiffusionE::eventUpdate(const CLocalEvent& iEvent, 
 				  const CNParticleData& PDat) 
 {
   stream(iEvent.getdt());
@@ -286,7 +286,7 @@ COPThermalDiffusionE::eventUpdate(const CLocalEvent& iEvent,
 }
 
 void 
-COPThermalDiffusionE::eventUpdate(const CSystem&, 
+OPThermalDiffusionE::eventUpdate(const CSystem&, 
 				  const CNParticleData& PDat, 
 				  const Iflt& edt) 
 { 
@@ -296,7 +296,7 @@ COPThermalDiffusionE::eventUpdate(const CSystem&,
 }
   
 void 
-COPThermalDiffusionE::eventUpdate(const CIntEvent& iEvent, 
+OPThermalDiffusionE::eventUpdate(const CIntEvent& iEvent, 
 				  const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
@@ -305,7 +305,7 @@ COPThermalDiffusionE::eventUpdate(const CIntEvent& iEvent,
 }
 
 Vector  
-COPThermalDiffusionE::impulseDelG(const CNParticleData& ndat) 
+OPThermalDiffusionE::impulseDelG(const CNParticleData& ndat) 
 { 
   Vector  acc(0,0,0);
     
@@ -316,7 +316,7 @@ COPThermalDiffusionE::impulseDelG(const CNParticleData& ndat)
 }
 
 void 
-COPThermalDiffusionE::updateConstDelG(const CNParticleData& ndat)
+OPThermalDiffusionE::updateConstDelG(const CNParticleData& ndat)
 {
   BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
     updateConstDelG(dat);

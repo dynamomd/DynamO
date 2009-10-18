@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPDens_H
-#define COPDens_H
+#ifndef OPDens_H
+#define OPDens_H
 
 #include "outputplugin.hpp"
 #include <map>
 
 class CComplex;
 
-class COPDens: public COutputPlugin
+class OPDens: public OutputPlugin
 {
  public:
-  COPDens(DYNAMO::SimData*);
-  ~COPDens();
+  OPDens(DYNAMO::SimData*);
+  ~OPDens();
 
   void collisionUpdate(const CIntEvent &, const CIntEventData &b);
 
@@ -35,7 +35,7 @@ class COPDens: public COutputPlugin
 
   void periodicOutput();
 
-  virtual COutputPlugin *Clone() const { return new COPDens(*this); };
+  virtual OutputPlugin *Clone() const { return new OPDens(*this); };
   
  protected:
 

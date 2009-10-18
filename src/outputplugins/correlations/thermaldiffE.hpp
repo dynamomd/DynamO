@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPThermalDiffusionE_H
-#define COPThermalDiffusionE_H
+#ifndef OPThermalDiffusionE_H
+#define OPThermalDiffusionE_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
@@ -24,17 +24,17 @@
 #include "../0partproperty/misc.hpp"
 
 /*! \brief The Correlator class for the Thermal Diffusion.*/
-class COPThermalDiffusionE: public COutputPlugin
+class OPThermalDiffusionE: public OutputPlugin
 {
 public:
-  COPThermalDiffusionE(const DYNAMO::SimData*, const XMLNode&);
+  OPThermalDiffusionE(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual COutputPlugin* Clone() const 
-  { return new COPThermalDiffusionE(*this); }
+  virtual OutputPlugin* Clone() const 
+  { return new OPThermalDiffusionE(*this); }
 
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
   virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);

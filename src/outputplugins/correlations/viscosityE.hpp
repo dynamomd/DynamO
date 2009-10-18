@@ -15,27 +15,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPViscosityE_H
-#define COPViscosityE_H
+#ifndef OPViscosityE_H
+#define OPViscosityE_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
 
 /*! \brief The Correlator class for the viscosity.*/
-class COPViscosityE: public COutputPlugin
+class OPViscosityE: public OutputPlugin
 {
   typedef boost::array<Iflt, NDIM> col;
   typedef boost::array<col, NDIM> matrix;
   
 public:
-  COPViscosityE(const DYNAMO::SimData*, const XMLNode& XML);
+  OPViscosityE(const DYNAMO::SimData*, const XMLNode& XML);
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream &);
   
-  virtual COutputPlugin* Clone() const { return new COPViscosityE(*this); }
+  virtual OutputPlugin* Clone() const { return new OPViscosityE(*this); }
   
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
 

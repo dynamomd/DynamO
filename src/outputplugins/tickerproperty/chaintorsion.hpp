@@ -15,21 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCTorsion_H
-#define COPCTorsion_H
+#ifndef OPCTorsion_H
+#define OPCTorsion_H
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
 class CTChain;
 
-class COPCTorsion: public COPTicker
+class OPCTorsion: public OPTicker
 {
  public:
-  COPCTorsion(const DYNAMO::SimData*, const XMLNode&);
+  OPCTorsion(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPCTorsion(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPCTorsion(*this); }
 
   virtual void initialise();
 
@@ -37,7 +37,7 @@ class COPCTorsion: public COPTicker
 
   virtual void ticker();
 
-  virtual void changeSystem(COutputPlugin*);
+  virtual void changeSystem(OutputPlugin*);
 
   virtual void output(xmlw::XmlStream&);
   

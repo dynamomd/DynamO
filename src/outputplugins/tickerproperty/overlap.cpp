@@ -22,27 +22,27 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPOverlapTest::COPOverlapTest(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"OverlapTester")
+OPOverlapTest::OPOverlapTest(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"OverlapTester")
 {}
 
 
 void 
-COPOverlapTest::initialise()
+OPOverlapTest::initialise()
 {
   I_cout() << "Testing for overlaps in starting configuration";
   ticker();
 }
 
 void
-COPOverlapTest::output(xmlw::XmlStream&)
+OPOverlapTest::output(xmlw::XmlStream&)
 {
   I_cout() << "Testing for overlaps in output configuration";
   ticker();
 }
 
 void 
-COPOverlapTest::ticker()
+OPOverlapTest::ticker()
 {
   for (std::vector<CParticle>::const_iterator iPtr = Sim->vParticleList.begin();
        iPtr != Sim->vParticleList.end(); ++iPtr)

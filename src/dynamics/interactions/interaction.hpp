@@ -59,7 +59,7 @@ public:
 
   virtual void rescaleLengths(Iflt) = 0;
 
-  virtual CInteraction* Clone() const = 0; //{ return new COPBlank(*this); };
+  virtual CInteraction* Clone() const = 0; //{ return new OPBlank(*this); };
 
   virtual void operator<<(const XMLNode&) = 0;
   

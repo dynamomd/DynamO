@@ -43,7 +43,7 @@ public:
 
   bool isInteraction(const CParticle &) const;
 
-  virtual CGlobal* Clone() const = 0; //{ return new COPBlank(*this); };
+  virtual CGlobal* Clone() const = 0; //{ return new OPBlank(*this); };
 
   virtual CGlobEvent getEvent(const CParticle &) const = 0;
 

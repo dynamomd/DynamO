@@ -15,21 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPReplexTrace_HPP
-#define COPReplexTrace_HPP
+#ifndef OPReplexTrace_HPP
+#define OPReplexTrace_HPP
 
 #include "../outputplugin.hpp"
 #include <fstream>
 #include <string>
 
-class COPReplexTrace: public COutputPlugin
+class OPReplexTrace: public OutputPlugin
 {
 public:
-  COPReplexTrace(const DYNAMO::SimData*, const XMLNode&);
+  OPReplexTrace(const DYNAMO::SimData*, const XMLNode&);
 
-  COPReplexTrace(const COPReplexTrace&);
+  OPReplexTrace(const OPReplexTrace&);
 
-  ~COPReplexTrace();
+  ~OPReplexTrace();
 
   void eventUpdate(const CIntEvent&, const C2ParticleData&) {}
 
@@ -39,13 +39,13 @@ public:
 
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) {}
 
-  COutputPlugin *Clone() const { return new COPReplexTrace(*this); }
+  OutputPlugin *Clone() const { return new OPReplexTrace(*this); }
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual void changeSystem(COutputPlugin*); 
+  virtual void changeSystem(OutputPlugin*); 
 
 private:
   void addPoint();

@@ -19,12 +19,12 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 
-COP1PP::COP1PP(const DYNAMO::SimData* t1,const char *t2, unsigned char order):
-  COutputPlugin(t1, t2, order)
+OP1PP::OP1PP(const DYNAMO::SimData* t1,const char *t2, unsigned char order):
+  OutputPlugin(t1, t2, order)
 {}
 
 void 
-COP1PP::eventUpdate(const CIntEvent &event, 
+OP1PP::eventUpdate(const CIntEvent &event, 
 		    const C2ParticleData &SDat) 
 {
   stream(event.getdt());
@@ -32,7 +32,7 @@ COP1PP::eventUpdate(const CIntEvent &event,
 }
 
 void 
-COP1PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat) 
+OP1PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat) 
 {
   stream(event.getdt());
 
@@ -44,7 +44,7 @@ COP1PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat)
 }
 
 void 
-COP1PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
+OP1PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
 {
   stream(event.getdt());
 
@@ -56,7 +56,7 @@ COP1PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat)
 }
 
 void 
-COP1PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
+OP1PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
 {
   stream(dt);
 
@@ -68,7 +68,7 @@ COP1PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
 }
 
 void 
-COP1PP::A2ParticleChange(const C2ParticleData& PDat)
+OP1PP::A2ParticleChange(const C2ParticleData& PDat)
 {
   A1ParticleChange(PDat.particle1_);
   A1ParticleChange(PDat.particle2_);

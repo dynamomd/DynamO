@@ -27,8 +27,8 @@
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
 
-COPPovray::COPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"Povray"),
+OPPovray::OPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"Povray"),
   frameCount(0),
   zoomlevel(1.0)
 {
@@ -36,7 +36,7 @@ COPPovray::COPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPPovray::operator<<(const XMLNode& XML)
+OPPovray::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -46,18 +46,18 @@ COPPovray::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPPovray";
+      D_throw() << "Failed a lexical cast in OPPovray";
     }  
 }
 
 void 
-COPPovray::ticker()
+OPPovray::ticker()
 {
   printImage();
 }
 
 void
-COPPovray::printImage()
+OPPovray::printImage()
 {
   //Dont let this fill up your hard drive!
   if (frameCount > 90000)

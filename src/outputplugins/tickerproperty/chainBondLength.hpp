@@ -15,20 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPChainBondLength_H
-#define COPChainBondLength_H
+#ifndef OPChainBondLength_H
+#define OPChainBondLength_H
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 #include <boost/shared_array.hpp>
 
-class COPChainBondLength: public COPTicker
+class OPChainBondLength: public OPTicker
 {
  public:
-  COPChainBondLength(const DYNAMO::SimData*, const XMLNode&);
+  OPChainBondLength(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPChainBondLength(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPChainBondLength(*this); }
 
   virtual void initialise();
 
@@ -36,7 +36,7 @@ class COPChainBondLength: public COPTicker
 
   virtual void ticker();
 
-  virtual void changeSystem(COutputPlugin*);
+  virtual void changeSystem(OutputPlugin*);
 
   void temperatureRescale(const Iflt&) {}
 

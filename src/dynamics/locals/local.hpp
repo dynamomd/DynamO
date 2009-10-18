@@ -44,7 +44,7 @@ public:
 
   bool isInteraction(const CParticle&) const;
 
-  virtual CLocal* Clone() const = 0; //{ return new COPBlank(*this); };
+  virtual CLocal* Clone() const = 0; //{ return new OPBlank(*this); };
 
   virtual CLocalEvent getEvent(const CParticle&) const = 0;
 

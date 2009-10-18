@@ -247,7 +247,7 @@ CScheduler::runNextEvent()
 	//This makes neighbour list events appear in the output plugins
 	if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[sorter->next_Data().top().p2].get_ptr())
 	    != NULL)
-	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(CGlobEvent(Sim->vParticleList[sorter->next_ID()], 0, 
 					CELL, *Sim->dynamics.getGlobals()[sorter->next_Data().top().p2]),
 			     CNParticleData(C1ParticleData(Sim->vParticleList[sorter->next_ID()],

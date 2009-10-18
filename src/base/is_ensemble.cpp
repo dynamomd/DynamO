@@ -131,8 +131,8 @@ namespace DYNAMO {
 
     //This is -\Delta in the Sugita_Okamoto paper
     return ((1.0/static_cast<const CENVT&>(oE).getEnsembleVals()[2])-(1.0/EnsembleVals[2]))
-      * (static_cast<const CENVT&>(oE).Sim->getOutputPlugin<COPUEnergy>()->getSimU() 
-	 - Sim->getOutputPlugin<COPUEnergy>()->getSimU());    
+      * (static_cast<const CENVT&>(oE).Sim->getOutputPlugin<OPUEnergy>()->getSimU() 
+	 - Sim->getOutputPlugin<OPUEnergy>()->getSimU());    
   }
 
   void

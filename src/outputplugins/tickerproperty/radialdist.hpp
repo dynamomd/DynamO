@@ -20,13 +20,13 @@
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
-class COPRadialDistribution: public COPTicker
+class OPRadialDistribution: public OPTicker
 {
  public:
-  COPRadialDistribution(const DYNAMO::SimData*, const XMLNode&);
+  OPRadialDistribution(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPRadialDistribution(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPRadialDistribution(*this); }
 
   virtual void initialise();
 

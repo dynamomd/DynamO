@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file simulation.hpp
- * \brief Contains the definition of the CSimulation class.
+ * \brief Contains the definition of the Simulation class.
  */
 #ifndef SIMULATION_H
 #define SIMULATION_H
@@ -24,8 +24,8 @@
 #include "../base/is_simdata.hpp"
 #include <boost/scoped_array.hpp>
 
-class CDynamics;
-class COutputPlugin;
+class Dynamics;
+class OutputPlugin;
 class CStreamTask;
 
 /*! \brief A single simulation holding particles, dynamics and output
@@ -35,18 +35,18 @@ class CStreamTask;
  * can pretty much perform a standard simulation without any other
  * supporting class structure like the CEngine and CCoordinator. This
  * class handles the interface to the simulation and also stores the
- * CSimulation data by deriving from the SimData class.
+ * Simulation data by deriving from the SimData class.
  *
  *
  */
-class CSimulation: public DYNAMO::Base_Class, public DYNAMO::SimData
+class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 {
  public:
   /*! \brief Just initialises the Base_Class
    */
-  CSimulation();
+  Simulation();
 
-  /*! \brief Initialise the entire CSimulation and the SimData struct.
+  /*! \brief Initialise the entire Simulation and the SimData struct.
    *
    * Most classes will have an initialisation function and its up to
    * this function to call them all and in the right order.

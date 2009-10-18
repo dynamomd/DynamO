@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCubeComp_H
-#define COPCubeComp_H
+#ifndef OPCubeComp_H
+#define OPCubeComp_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/histogram.hpp"
@@ -25,10 +25,10 @@
 
 using namespace EventTypeTracking;
 
-class COPCubeComp: public COutputPlugin
+class OPCubeComp: public OutputPlugin
 {
  public:
-  COPCubeComp(const DYNAMO::SimData*, const XMLNode&);
+  OPCubeComp(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
   
@@ -42,9 +42,9 @@ class COPCubeComp: public COutputPlugin
 
   void output(xmlw::XmlStream &);
 
-  virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPCubeComp*>(plug)->Sim); }
+  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCubeComp*>(plug)->Sim); }
   
-  virtual COutputPlugin *Clone() const { return new COPCubeComp(*this); };
+  virtual OutputPlugin *Clone() const { return new OPCubeComp(*this); };
   
  protected:
   struct mapdata

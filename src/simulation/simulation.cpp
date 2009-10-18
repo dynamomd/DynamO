@@ -44,12 +44,12 @@
 #include "../outputplugins/tickerproperty/ticker.hpp"
 #include "../dynamics/systems/sysTicker.hpp"
 
-CSimulation::CSimulation():
+Simulation::Simulation():
   Base_Class("Simulation",IC_green)
 {}
 
 void 
-CSimulation::setBinaryXML(const bool& v) 
+Simulation::setBinaryXML(const bool& v) 
 { 
 #ifdef DYNAMO_CONDOR
   if (v)
@@ -60,7 +60,7 @@ CSimulation::setBinaryXML(const bool& v)
 }
 
 void 
-CSimulation::setTickerPeriod(Iflt nP)
+Simulation::setTickerPeriod(Iflt nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
   if (ptr == NULL)
@@ -70,7 +70,7 @@ CSimulation::setTickerPeriod(Iflt nP)
 }
 
 void 
-CSimulation::scaleTickerPeriod(Iflt nP)
+Simulation::scaleTickerPeriod(Iflt nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
 
@@ -81,7 +81,7 @@ CSimulation::scaleTickerPeriod(Iflt nP)
 }
 
 CSystem* 
-CSimulation::getSystem(std::string name)
+Simulation::getSystem(std::string name)
 {
   BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr, dynamics.getSystemEvents())
     if (sysPtr->getName() == name)
@@ -91,7 +91,7 @@ CSimulation::getSystem(std::string name)
 }
 
 void 
-CSimulation::addGlobal(CGlobal* tmp)
+Simulation::addGlobal(CGlobal* tmp)
 {
   if (tmp == NULL)
     D_throw() << "Adding a NULL global";
@@ -103,7 +103,7 @@ CSimulation::addGlobal(CGlobal* tmp)
 }
 
 void 
-CSimulation::addSystem(CSystem* tmp)
+Simulation::addSystem(CSystem* tmp)
 {
   if (tmp == NULL)
     D_throw() << "Adding a NULL systemEvent";
@@ -115,41 +115,41 @@ CSimulation::addSystem(CSystem* tmp)
 }
 
 void 
-CSimulation::addOutputPlugin(std::string Name)
+Simulation::addOutputPlugin(std::string Name)
 {
   if (status >= INITIALISED)
     D_throw() << "Cannot add plugins now";
   
   I_cout() << "Loading output plugin, " << Name;
 
-  smrtPlugPtr<COutputPlugin> tempPlug(COutputPlugin::getPlugin(Name, this));
+  smrtPlugPtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);
 }
 
 void 
-CSimulation::setRandSeed(unsigned int x)
+Simulation::setRandSeed(unsigned int x)
 { ranGenerator.seed(x); }
 
 void 
-CSimulation::setnPrint(unsigned long long newnPrint)
+Simulation::setnPrint(unsigned long long newnPrint)
 { 
   I_cout() << "Periodic output length set to " << newnPrint << " collisions";
   lNPrint = newnPrint; 
 }
 
 void 
-CSimulation::simShutdown()
+Simulation::simShutdown()
 { lPrintLimiter = lMaxNColl = lNColl; }
 
 void 
-CSimulation::setTrajectoryLength(unsigned long long newMaxColl)
+Simulation::setTrajectoryLength(unsigned long long newMaxColl)
 { 
   //I_cout() << "Trajectory length set to " << newMaxColl << " collisions";
   lMaxNColl = newMaxColl; 
 }
 
 void
-CSimulation::initialise()
+Simulation::initialise()
 {
   I_cout() << "Sorting the Output Plugins";
 
@@ -157,8 +157,8 @@ CSimulation::initialise()
   
   bool needTicker = false;
   
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
-    if (dynamic_cast<COPTicker*>(Ptr.get_ptr()) != NULL)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
+    if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
       {
 	needTicker = true; 
 	break;
@@ -191,7 +191,7 @@ CSimulation::initialise()
     I_cout() << "Skipping initialisation of the Scheduler";
   
   I_cout() << "Initialising the output plugins";
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
     Ptr->initialise();
 
   I_cout() << "System initialised";
@@ -200,7 +200,7 @@ CSimulation::initialise()
 }
 
 void
-CSimulation::runSimulation(bool silentMode)
+Simulation::runSimulation(bool silentMode)
 {
   if (status != INITIALISED && status != PRODUCTION)
     D_throw() << "Bad state for runSimulation()";
@@ -229,7 +229,7 @@ CSimulation::runSimulation(bool silentMode)
 	  if (outputPlugins.size())
 	    std::cout << "\n";
 	  //Print the screen data plugins
-	  BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+	  BOOST_FOREACH( smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
 	    Ptr->periodicOutput();
 	  
 	  fflush(stdout);
@@ -242,7 +242,7 @@ CSimulation::runSimulation(bool silentMode)
 }
 
 void 
-CSimulation::configLoaded()
+Simulation::configLoaded()
 {
   //Handled by an input plugin
   if (status != START)
@@ -252,7 +252,7 @@ CSimulation::configLoaded()
 }
 
 void
-CSimulation::loadXMLfile(const char *fileName)
+Simulation::loadXMLfile(const char *fileName)
 {
   //Handled by an input plugin
   if (status != START)
@@ -265,13 +265,13 @@ CSimulation::loadXMLfile(const char *fileName)
 }
 
 void
-CSimulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
+Simulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot write out configuration in this state";
   
   //Particle data output handled by an output plugin
-  COPConfig XMLconfig(this);
+  OPConfig XMLconfig(this);
   
   if (round)
     XMLconfig.setRounding();
@@ -285,7 +285,7 @@ CSimulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 }
 
 void
-CSimulation::loadPlugins(std::string pluginFileName)
+Simulation::loadPlugins(std::string pluginFileName)
 {
   I_cout() << "Loading outputplugins from file, " << pluginFileName;
   
@@ -300,10 +300,10 @@ CSimulation::loadPlugins(std::string pluginFileName)
   if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
     {
       xMainNode=XMLNode::openFileHelper(pluginFileName.c_str(), "Plugins");
-      smrtPlugPtr<COutputPlugin> tmpPlug(NULL);
+      smrtPlugPtr<OutputPlugin> tmpPlug(NULL);
       for (int i = 0; i < xMainNode.nChildNode("Plugin"); ++i)
 	{
-	  tmpPlug.set_ptr(COutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
+	  tmpPlug.set_ptr(OutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
 	  //This next line copies the output plugins, a swap might be faster
 	  outputPlugins.push_back(tmpPlug);
 	}
@@ -314,7 +314,7 @@ CSimulation::loadPlugins(std::string pluginFileName)
 
 
 void
-CSimulation::outputData(const char* filename, bool uncompressed)
+Simulation::outputData(const char* filename, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     D_throw() << "Cannot output data when not initialised!";
@@ -337,7 +337,7 @@ CSimulation::outputData(const char* filename, bool uncompressed)
       
       
       //Output the data and delete the outputplugins
-      BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+      BOOST_FOREACH( smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
 	Ptr->output(XML);
       
       XML << xmlw::endtag("OutputData");
@@ -356,7 +356,7 @@ CSimulation::outputData(const char* filename, bool uncompressed)
       
       
       //Output the data and delete the outputplugins
-      BOOST_FOREACH( smrtPlugPtr<COutputPlugin> & Ptr, outputPlugins)
+      BOOST_FOREACH( smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
 	Ptr->output(XML);
       
       XML << xmlw::endtag("OutputData");
@@ -366,5 +366,5 @@ CSimulation::outputData(const char* filename, bool uncompressed)
 }
 
 lIflt 
-CSimulation::getSysTime()
+Simulation::getSysTime()
 { return dSysTime / dynamics.units().unitTime(); }

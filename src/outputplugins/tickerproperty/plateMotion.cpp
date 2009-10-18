@@ -29,16 +29,16 @@
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../dynamics/locals/oscillatingplate.hpp"
 
-COPPlateMotion::COPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"PlateMotion"),
+OPPlateMotion::OPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"PlateMotion"),
   partpartEnergyLoss(0),
   oldPlateEnergy(0)
 {
   operator<<(XML);
 }
 
-COPPlateMotion::COPPlateMotion(const COPPlateMotion& cp):
-  COPTicker(cp),
+OPPlateMotion::OPPlateMotion(const OPPlateMotion& cp):
+  OPTicker(cp),
   plateID(cp.plateID),
   plateName(cp.plateName),
   partpartEnergyLoss(0),
@@ -49,7 +49,7 @@ COPPlateMotion::COPPlateMotion(const COPPlateMotion& cp):
 }
 
 void
-COPPlateMotion::initialise()
+OPPlateMotion::initialise()
 {
   try {
     plateID = Sim->dynamics.getLocal(plateName)->getID();
@@ -76,7 +76,7 @@ COPPlateMotion::initialise()
 }
 
 void 
-COPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   Iflt newPlateEnergy = oldPlateEnergy;
 
@@ -99,14 +99,14 @@ COPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData&
 }
 
 void 
-COPPlateMotion::eventUpdate(const CIntEvent&, const C2ParticleData& pData)
+OPPlateMotion::eventUpdate(const CIntEvent&, const C2ParticleData& pData)
 {
   partpartEnergyLoss += pData.particle1_.getDeltaKE()
     + pData.particle2_.getDeltaKE();
 }
 
 void 
-COPPlateMotion::ticker()
+OPPlateMotion::ticker()
 {
   BOOST_FOREACH(localEntry& entry, localEnergyLoss)
     {
@@ -158,7 +158,7 @@ COPPlateMotion::ticker()
 }
 
 void 
-COPPlateMotion::operator<<(const XMLNode& XML)
+OPPlateMotion::operator<<(const XMLNode& XML)
 {
   try {
     plateName = std::string(XML.getAttribute("PlateName"));
@@ -169,7 +169,7 @@ COPPlateMotion::operator<<(const XMLNode& XML)
 }
 
 void 
-COPPlateMotion::output(xmlw::XmlStream& XML)
+OPPlateMotion::output(xmlw::XmlStream& XML)
 {
   for (size_t ID(0); ID < localEnergyLoss.size(); ++ID)
     {

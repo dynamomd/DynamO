@@ -15,17 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMFL_H
-#define COPMFL_H
+#ifndef OPMFL_H
+#define OPMFL_H
 
 #include "1partproperty.hpp"
 #include <vector>
 #include "../../datatypes/histogram.hpp"
 
-class COPMFL: public COP1PP
+class OPMFL: public OP1PP
 {
  public:
-  COPMFL(const DYNAMO::SimData*, const XMLNode&);
+  OPMFL(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 
@@ -37,7 +37,7 @@ class COPMFL: public COP1PP
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const { return new COPMFL(*this); }
+  virtual OutputPlugin *Clone() const { return new OPMFL(*this); }
 
   virtual void operator<<(const XMLNode&);
 

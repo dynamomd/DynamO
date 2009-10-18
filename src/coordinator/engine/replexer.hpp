@@ -57,16 +57,16 @@ public:
    */
   virtual void printStatus();
   
-  /*! \brief Run the CSimulation's and periodically attempt a replica echange.
+  /*! \brief Run the Simulation's and periodically attempt a replica echange.
    */
   virtual void runSimulation();
 
-  /*! \brief Perform multiple initialisations of CSimulation's and
+  /*! \brief Perform multiple initialisations of Simulation's and
    * initialise the replica exchange data.
    */
   virtual void initialisation();
   
-  /*! \brief Flag every CSimulation to end now and set the main loop
+  /*! \brief Flag every Simulation to end now and set the main loop
    * to terminate.
    *
    * This is called by an interrupt in a threaded environment. It may
@@ -90,12 +90,12 @@ public:
    */
   static void getOptions(boost::program_options::options_description&);
 
-  /*! \brief Output the data of the CSimulation's and also output
+  /*! \brief Output the data of the Simulation's and also output
    * statistics on the replica exchange.
    */
   virtual void outputData();
   
-  /*! \brief Output the CSimulation's configurations.
+  /*! \brief Output the Simulation's configurations.
    *
    * The simulations are outputted with some sequential numbering.
    */
@@ -109,8 +109,8 @@ protected:
     AlternatingSequence = 1, /*!< Attempt to swap neighbouring pairs only.*/
     SinglePair = 2, /*!< Pick a random sim to attempt to swap with its
                        neighbour*/
-    RandomPairs = 3, /*!< For 5*No. of CSimulations, pick two random
-                        CSimulations and attempt to swap them*/
+    RandomPairs = 3, /*!< For 5*No. of Simulations, pick two random
+                        Simulations and attempt to swap them*/
     RandomSelection = 4 /*!< Pick randomly between RandomPairs and
                            AlternatingSequence.*/
   } Replex_Mode_Type;
@@ -138,16 +138,16 @@ protected:
     bool operator<(const simData& sdat) const
     {return simID < sdat.simID; }
     
-    /*! \brief The current CSimulation's id number*/
+    /*! \brief The current Simulation's id number*/
     int simID;
     /*! \brief The number of swaps carried out on this box.*/
     size_t swaps;
     /*! \brief The number of attempted swaps carried out on this box.*/
     size_t attempts;
-    /*! \brief The number of times a CSimulation instance that last visited
+    /*! \brief The number of times a Simulation instance that last visited
         the coldest temperature was found in this box. */
     size_t upSims;
-    /*! \brief The number of times a CSimulation instance that last visited
+    /*! \brief The number of times a Simulation instance that last visited
         the hottest temperature was found in this box. */
     size_t downSims;
     /*! \brief The temperature of this simulation point */
@@ -156,11 +156,11 @@ protected:
 
   typedef std::pair<Iflt, simData> replexPair;
 
-  /*! \brief The array of CSimulations being run.
+  /*! \brief The array of Simulations being run.
    */
-  boost::scoped_array<CSimulation> Simulations;
+  boost::scoped_array<Simulation> Simulations;
   
-  /*! \brief The system time to end the CSimulations at
+  /*! \brief The system time to end the Simulations at
    */
   Iflt replicaEndTime;  
 
@@ -177,7 +177,7 @@ protected:
    */
   std::vector<int> SimDirection;
   
-  /*! \brief Just a marker set once a CSimulation is making a round
+  /*! \brief Just a marker set once a Simulation is making a round
    * trip in temperatures from high to low and vice versa.
    */
   std::vector<char> roundtrip;
@@ -207,7 +207,7 @@ protected:
   */
   bool SeqSelect;
 
-  /*! \brief Total number of CSimulation instances being run.
+  /*! \brief Total number of Simulation instances being run.
    */
   unsigned int nSims;
   
@@ -224,7 +224,7 @@ protected:
    * Ensures the systems are in the right CEnsemble, have a thermostat,
    * etc.
    */
-  virtual void setupSim(CSimulation&, const std::string);
+  virtual void setupSim(Simulation&, const std::string);
 
   //Replica Exchange attempt code
 
@@ -235,12 +235,12 @@ protected:
   void ReplexSwap(Replex_Mode_Type localMode);
 
   /*! \brief Output sequential configuration files, sorted in
-   * temperature, for each CSimulation.
+   * temperature, for each Simulation.
    */
   void ReplexConfigOutput(std::vector<std::string>&);
 
   /*! \brief Output sequential data files, sorted in
-   * temperature, for each CSimulation.
+   * temperature, for each Simulation.
    *
    * The output for the Replica exchange moves is also printed here
    */

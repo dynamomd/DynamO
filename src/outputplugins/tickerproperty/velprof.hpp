@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPVelProfile_H
-#define COPVelProfile_H
+#ifndef OPVelProfile_H
+#define OPVelProfile_H
 
 #include "ticker.hpp"
 #include <vector>
 
-class COPVelProfile: public COPTicker
+class OPVelProfile: public OPTicker
 {
  public:
-  COPVelProfile(const DYNAMO::SimData*, const XMLNode&);
+  OPVelProfile(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPVelProfile(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPVelProfile(*this); }
 
   virtual void initialise();
 

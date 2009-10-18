@@ -21,9 +21,9 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../extcode/mathtemplates.hpp"
 
-COPRadialDistribution::COPRadialDistribution(const DYNAMO::SimData* tmp, 
+OPRadialDistribution::OPRadialDistribution(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
-  COPTicker(tmp,"RadialDistribution"),
+  OPTicker(tmp,"RadialDistribution"),
   binWidth(1.0),
   length(100),
   sampleCount(0)
@@ -35,7 +35,7 @@ COPRadialDistribution::COPRadialDistribution(const DYNAMO::SimData* tmp,
 }
 
 void 
-COPRadialDistribution::operator<<(const XMLNode& XML)
+OPRadialDistribution::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binWidth"))
@@ -70,7 +70,7 @@ COPRadialDistribution::operator<<(const XMLNode& XML)
 }
 
 void 
-COPRadialDistribution::initialise()
+OPRadialDistribution::initialise()
 {
   data.resize
     (Sim->dynamics.getSpecies().size(),
@@ -83,7 +83,7 @@ COPRadialDistribution::initialise()
 }
 
 void 
-COPRadialDistribution::ticker()
+OPRadialDistribution::ticker()
 {
   ++sampleCount;
   
@@ -105,7 +105,7 @@ COPRadialDistribution::ticker()
 }
 
 void
-COPRadialDistribution::output(xmlw::XmlStream& XML)
+OPRadialDistribution::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("RadialDistribution")
       << xmlw::attr("SampleCount")

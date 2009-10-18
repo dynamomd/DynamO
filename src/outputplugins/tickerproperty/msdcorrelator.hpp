@@ -15,25 +15,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMSDCorrelator_H
-#define COPMSDCorrelator_H
+#ifndef OPMSDCorrelator_H
+#define OPMSDCorrelator_H
 
 #include "ticker.hpp"
 #include <boost/circular_buffer.hpp>
 
-class COPMSD;
+class OPMSD;
 
-class COPMSDCorrelator: public COPTicker
+class OPMSDCorrelator: public OPTicker
 {
  public:
-  COPMSDCorrelator(const DYNAMO::SimData*, const XMLNode&);
+  OPMSDCorrelator(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
   void output(xmlw::XmlStream &); 
 
-  virtual COutputPlugin *Clone() const 
-  { return new COPMSDCorrelator(*this); };
+  virtual OutputPlugin *Clone() const 
+  { return new OPMSDCorrelator(*this); };
 
   virtual void operator<<(const XMLNode&);
   

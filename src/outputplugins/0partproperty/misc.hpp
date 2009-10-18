@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPMISC_H
-#define COPMISC_H
+#ifndef OPMISC_H
+#define OPMISC_H
 
 #include "../outputplugin.hpp"
 #include <ctime>
 
-class COPMisc: public COutputPlugin
+class OPMisc: public OutputPlugin
 {
 public:
-  COPMisc(const DYNAMO::SimData*, const XMLNode&);
+  OPMisc(const DYNAMO::SimData*, const XMLNode&);
   
   virtual void initialise();
   
@@ -41,12 +41,12 @@ public:
   
   void periodicOutput();
   
-  virtual COutputPlugin *Clone() const 
-  { return new COPMisc(*this); }
+  virtual OutputPlugin *Clone() const 
+  { return new OPMisc(*this); }
   
   Iflt getMFT() const;
   
-  void changeSystem(COutputPlugin*);
+  void changeSystem(OutputPlugin*);
 
 protected:
   std::time_t tstartTime;

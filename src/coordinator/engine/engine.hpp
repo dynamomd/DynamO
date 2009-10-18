@@ -27,10 +27,10 @@
 
 class CThreadPool;
 
-/*! \brief An engine to control/manipulate one or more CSimulation's.
+/*! \brief An engine to control/manipulate one or more Simulation's.
  *
  * CEngine is a virtual base class interface for many different
- * engines. These engines manipulate CSimulation(s) data by running
+ * engines. These engines manipulate Simulation(s) data by running
  * them and/or altering them for the purpose of a study.
  * 
  * The simplest engine is CESingle and probably the best one to try
@@ -39,9 +39,9 @@ class CThreadPool;
  * The initialisation() steps of an engine have been broken up into
  * three stages so that the derived engines can hook in where they
  * need to.
- * - preSimInit() - Before the CSimulation(s) is/are initialised
- * - setupSim(CSimulation &, const std::string) - The initialisation of the CSimulation(s)
- * - postSimInit() - After the CSimulation(s) is/are initialised
+ * - preSimInit() - Before the Simulation(s) is/are initialised
+ * - setupSim(Simulation &, const std::string) - The initialisation of the Simulation(s)
+ * - postSimInit() - After the Simulation(s) is/are initialised
  *
  */
 class CEngine
@@ -65,7 +65,7 @@ public:
    * 
    * This function should at the very least call in the following order
    * - preSimInit()
-   * - setupSim(CSimulation &, const std::string) for every CSimulation class
+   * - setupSim(Simulation &, const std::string) for every Simulation class
    * - postSimInit()
    *
    */
@@ -103,7 +103,7 @@ public:
   virtual void runSimulation() = 0;
 
   /*! \brief Output any data collected during the run by the
-   * CSimulation's and the CEngine.
+   * Simulation's and the CEngine.
    */
   virtual void outputData() = 0;
 
@@ -112,7 +112,7 @@ public:
    */
   virtual void peekData() = 0;
 
-  /*! \brief Output the configurations of the CSimulation's and CEngine
+  /*! \brief Output the configurations of the Simulation's and CEngine
    * so the run can be continued.
    *
    * This function must be safe to call during an interrupt.
@@ -134,17 +134,17 @@ protected:
    */
   virtual void preSimInit();
 
-  /*! \brief Code common to loading a CSimulation from a config file.
+  /*! \brief Code common to loading a Simulation from a config file.
    *
-   * \param Sim CSimulation to set up.
+   * \param Sim Simulation to set up.
    * \param inFile Name of configuration file to load.
    */
-  virtual void setupSim(CSimulation & Sim, const std::string inFile);
+  virtual void setupSim(Simulation & Sim, const std::string inFile);
 
-  /*! \brief Once the CSimulation is loaded and initialised you may
+  /*! \brief Once the Simulation is loaded and initialised you may
    * need to alter it/load plugins/initialise some CEngine datastruct.
    */
-  virtual void postSimInit(CSimulation&) {}
+  virtual void postSimInit(Simulation&) {}
 
   /*! \brief A reference to the CCoordinators parsed command line variables.
    */

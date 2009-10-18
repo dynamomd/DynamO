@@ -36,12 +36,12 @@ namespace xmlw
   class XmlStream;
 }
 
-class COutputPlugin: public DYNAMO::SimBase_const
+class OutputPlugin: public DYNAMO::SimBase_const
 {
 public:
-  COutputPlugin(const DYNAMO::SimData*, const char*, unsigned char order=100, const char *aColor=IC_blue);
+  OutputPlugin(const DYNAMO::SimData*, const char*, unsigned char order=100, const char *aColor=IC_blue);
   
-  inline virtual ~COutputPlugin() {}
+  inline virtual ~OutputPlugin() {}
   
   virtual void initialise() = 0;
   
@@ -53,22 +53,22 @@ public:
 
   virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) = 0;
   
-  virtual COutputPlugin *Clone() const = 0;
+  virtual OutputPlugin *Clone() const = 0;
   
   virtual void output(xmlw::XmlStream&);
   
   virtual void periodicOutput();
   
-  static COutputPlugin* getPlugin(const XMLNode&, const DYNAMO::SimData*);
-  static COutputPlugin* getPlugin(const std::string, const DYNAMO::SimData*);
+  static OutputPlugin* getPlugin(const XMLNode&, const DYNAMO::SimData*);
+  static OutputPlugin* getPlugin(const std::string, const DYNAMO::SimData*);
   
-  inline bool operator<(const COutputPlugin& OP) const
+  inline bool operator<(const OutputPlugin& OP) const
   { return updateOrder < OP.updateOrder; }
   
-  inline bool operator>(const COutputPlugin& OP) const
+  inline bool operator>(const OutputPlugin& OP) const
   { return updateOrder > OP.updateOrder; }
   
-  virtual void changeSystem(COutputPlugin*) 
+  virtual void changeSystem(OutputPlugin*) 
   { D_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
   
   virtual void temperatureRescale(const Iflt&)
@@ -87,7 +87,7 @@ protected:
 
 private:
 
-  template<class T> static COutputPlugin* 
+  template<class T> static OutputPlugin* 
   testGeneratePlugin(const DYNAMO::SimData*, const XMLNode&);
 };
 

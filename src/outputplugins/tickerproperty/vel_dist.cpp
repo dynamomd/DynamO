@@ -20,14 +20,14 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-COPVelDist::COPVelDist(const DYNAMO::SimData* tmp, 
+OPVelDist::OPVelDist(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
-  COPTicker(tmp,"VelDist"),
+  OPTicker(tmp,"VelDist"),
   binWidth(0.01)
 { operator<<(XML); }
 
 void 
-COPVelDist::operator<<(const XMLNode& XML)
+OPVelDist::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binWidth"))
@@ -41,7 +41,7 @@ COPVelDist::operator<<(const XMLNode& XML)
 }
 
 void 
-COPVelDist::initialise()
+OPVelDist::initialise()
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     data[iDim].resize(Sim->dynamics.getSpecies().size(), 
@@ -50,7 +50,7 @@ COPVelDist::initialise()
 }
 
 void 
-COPVelDist::ticker()
+OPVelDist::ticker()
 {
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
@@ -60,7 +60,7 @@ COPVelDist::ticker()
 }
 
 void
-COPVelDist::output(xmlw::XmlStream& XML)
+OPVelDist::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("VelDist");
   

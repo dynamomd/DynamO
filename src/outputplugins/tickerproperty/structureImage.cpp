@@ -31,8 +31,8 @@
 #include <boost/algorithm/string.hpp>
 #include "../../datatypes/vector.xml.hpp"
 
-COPStructureImaging::COPStructureImaging(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"StructureImaging"),
+OPStructureImaging::OPStructureImaging(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"StructureImaging"),
   id(0),
   imageCount(500)
 {
@@ -40,7 +40,7 @@ COPStructureImaging::COPStructureImaging(const DYNAMO::SimData* tmp, const XMLNo
 }
 
 void 
-COPStructureImaging::operator<<(const XMLNode& XML)
+OPStructureImaging::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -51,13 +51,13 @@ COPStructureImaging::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in COPVACF";
+      D_throw() << "Failed a lexical cast in OPVACF";
     }
 }
 
 
 void 
-COPStructureImaging::initialise()
+OPStructureImaging::initialise()
 {
   id = Sim->dynamics.getTopology().size();
   
@@ -73,13 +73,13 @@ COPStructureImaging::initialise()
 }
 
 void 
-COPStructureImaging::changeSystem(COutputPlugin* nplug) 
+OPStructureImaging::changeSystem(OutputPlugin* nplug) 
 {
-  std::swap(Sim, static_cast<COPStructureImaging*>(nplug)->Sim);
+  std::swap(Sim, static_cast<OPStructureImaging*>(nplug)->Sim);
 }
 
 void 
-COPStructureImaging::ticker()
+OPStructureImaging::ticker()
 {
   if (imageCount != 0)
     {
@@ -89,7 +89,7 @@ COPStructureImaging::ticker()
 }
 
 void
-COPStructureImaging::printImage()
+OPStructureImaging::printImage()
 {
   BOOST_FOREACH(const smrtPlugPtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
     {
@@ -132,7 +132,7 @@ COPStructureImaging::printImage()
 }
 
 void 
-COPStructureImaging::output(xmlw::XmlStream& XML)
+OPStructureImaging::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("StructureImages")
       << xmlw::attr("version") << 2;

@@ -99,7 +99,7 @@ CSDSMCSpheres::runEvent() const
  
   size_t nmax = static_cast<size_t>(intPart);
   
-  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, CNParticleData(), locdt);
 
   if (Sim->uniform_sampler() < fracpart)
@@ -137,7 +137,7 @@ CSDSMCSpheres::runEvent() const
   
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  
-	  BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(*this, SDat, 0.0);
 	}
     }

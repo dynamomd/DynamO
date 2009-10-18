@@ -25,8 +25,8 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../base/is_stream_op.hpp"
 
-COPVTK::COPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COPTicker(tmp,"VTK"),
+OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OPTicker(tmp,"VTK"),
   binWidth(1,1,1),
   imageCounter(0)
 {
@@ -34,7 +34,7 @@ COPVTK::COPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-COPVTK::operator<<(const XMLNode& XML)
+OPVTK::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binwidth"))
@@ -51,7 +51,7 @@ COPVTK::operator<<(const XMLNode& XML)
 }
 
 void
-COPVTK::initialise()
+OPVTK::initialise()
 {
   size_t vecSize = 1;
   
@@ -96,7 +96,7 @@ COPVTK::initialise()
 }
 
 size_t 
-COPVTK::getCellID(Vector  pos)
+OPVTK::getCellID(Vector  pos)
 {
   size_t retval(0);
   size_t factor(1);
@@ -115,7 +115,7 @@ COPVTK::getCellID(Vector  pos)
 }
 
 void 
-COPVTK::ticker()
+OPVTK::ticker()
 {
   ++imageCounter;
   
@@ -142,7 +142,7 @@ COPVTK::ticker()
 }
 
 void 
-COPVTK::output(xmlw::XmlStream& XML)
+OPVTK::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("VTK")
       << xmlw::attr("ImagesTaken") << imageCounter

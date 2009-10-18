@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCollTicker_HPP
-#define COPCollTicker_HPP
+#ifndef OPCollTicker_HPP
+#define OPCollTicker_HPP
 
 #include "../outputplugin.hpp"
 
-class COPCollTicker: public COutputPlugin
+class OPCollTicker: public OutputPlugin
 {
 public:
-  COPCollTicker(const DYNAMO::SimData*, const char*, unsigned char order=100);
+  OPCollTicker(const DYNAMO::SimData*, const char*, unsigned char order=100);
 
   virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
 

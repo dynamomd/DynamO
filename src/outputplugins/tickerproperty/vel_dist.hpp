@@ -20,13 +20,13 @@
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
-class COPVelDist: public COPTicker
+class OPVelDist: public OPTicker
 {
  public:
-  COPVelDist(const DYNAMO::SimData*, const XMLNode&);
+  OPVelDist(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPVelDist(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPVelDist(*this); }
 
   virtual void initialise();
 

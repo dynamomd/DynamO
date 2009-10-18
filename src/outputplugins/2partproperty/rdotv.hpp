@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPRdotV_H
-#define COPRdotV_H
+#ifndef OPRdotV_H
+#define OPRdotV_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/histogram.hpp"
@@ -25,10 +25,10 @@
 
 using namespace EventTypeTracking;
 
-class COPRdotV: public COutputPlugin
+class OPRdotV: public OutputPlugin
 {
  public:
-  COPRdotV(const DYNAMO::SimData*, const XMLNode&);
+  OPRdotV(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
   
@@ -42,9 +42,9 @@ class COPRdotV: public COutputPlugin
 
   void output(xmlw::XmlStream &);
 
-  virtual void changeSystem(COutputPlugin* plug) { std::swap(Sim, static_cast<COPRdotV*>(plug)->Sim); }
+  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPRdotV*>(plug)->Sim); }
   
-  virtual COutputPlugin *Clone() const { return new COPRdotV(*this); };
+  virtual OutputPlugin *Clone() const { return new OPRdotV(*this); };
   
  protected:
   struct mapdata

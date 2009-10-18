@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPThermalConductivitySpeciesSpeciesE_H
-#define COPThermalConductivitySpeciesSpeciesE_H
+#ifndef OPThermalConductivitySpeciesSpeciesE_H
+#define OPThermalConductivitySpeciesSpeciesE_H
 
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
@@ -24,17 +24,17 @@
 
 
 /*! \brief The Correlator class for the Thermal Conductivity.*/
-class COPThermalConductivitySpeciesSpeciesE: public COutputPlugin
+class OPThermalConductivitySpeciesSpeciesE: public OutputPlugin
 {
 public:
-  COPThermalConductivitySpeciesSpeciesE(const DYNAMO::SimData*, const XMLNode&);
+  OPThermalConductivitySpeciesSpeciesE(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
   virtual void output(xmlw::XmlStream&);
 
-  virtual COutputPlugin* Clone() const 
-  { return new COPThermalConductivitySpeciesSpeciesE(*this); }
+  virtual OutputPlugin* Clone() const 
+  { return new OPThermalConductivitySpeciesSpeciesE(*this); }
   
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
 

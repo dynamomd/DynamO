@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPKEnergy_H
-#define COPKEnergy_H
+#ifndef OPKEnergy_H
+#define OPKEnergy_H
 
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
 
-class COPKEnergy: public COP1PP
+class OPKEnergy: public OP1PP
 {
  public:
-  COPKEnergy(const DYNAMO::SimData*, const XMLNode&);
+  OPKEnergy(const DYNAMO::SimData*, const XMLNode&);
 
   void A1ParticleChange(const C1ParticleData&);
 
@@ -38,7 +38,7 @@ class COPKEnergy: public COP1PP
 
   virtual void initialise();
 
-  virtual COutputPlugin *Clone() const { return new COPKEnergy(*this); }
+  virtual OutputPlugin *Clone() const { return new OPKEnergy(*this); }
 
   Iflt getAvgkT() const;
 
@@ -46,7 +46,7 @@ class COPKEnergy: public COP1PP
      
   Iflt getAvgSqTheta() const;
      
-  void changeSystem(COutputPlugin*);
+  void changeSystem(OutputPlugin*);
 
   void temperatureRescale(const Iflt&);
   

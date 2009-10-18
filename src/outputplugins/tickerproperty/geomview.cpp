@@ -28,19 +28,19 @@
 #include "../../dynamics/ranges/2RList.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 
-COPGeomview::COPGeomview(const DYNAMO::SimData* tmp, const XMLNode&):
-  COPTicker(tmp,"Geomview"),
+OPGeomview::OPGeomview(const DYNAMO::SimData* tmp, const XMLNode&):
+  OPTicker(tmp,"Geomview"),
   frameCount(0)
 {}
 
 void 
-COPGeomview::ticker()
+OPGeomview::ticker()
 {
   printImage();
 }
 
 void
-COPGeomview::printImage()
+OPGeomview::printImage()
 {
   char *fileName;
 

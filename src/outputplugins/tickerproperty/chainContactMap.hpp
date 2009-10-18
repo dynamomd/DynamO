@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPCContactMap_H
-#define COPCContactMap_H
+#ifndef OPCContactMap_H
+#define OPCContactMap_H
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
@@ -25,13 +25,13 @@
 class CTChain;
 class CRange;
 
-class COPCContactMap: public COPTicker
+class OPCContactMap: public OPTicker
 {
  public:
-  COPCContactMap(const DYNAMO::SimData*, const XMLNode&);
+  OPCContactMap(const DYNAMO::SimData*, const XMLNode&);
 
-  virtual COutputPlugin *Clone() const
-  { return new COPCContactMap(*this); }
+  virtual OutputPlugin *Clone() const
+  { return new OPCContactMap(*this); }
 
   virtual void initialise();
 
@@ -39,7 +39,7 @@ class COPCContactMap: public COPTicker
 
   virtual void ticker();
 
-  virtual void changeSystem(COutputPlugin*);
+  virtual void changeSystem(OutputPlugin*);
 
   void temperatureRescale(const Iflt&) {}
 

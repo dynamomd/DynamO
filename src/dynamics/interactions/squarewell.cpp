@@ -202,7 +202,7 @@ CISquareWell::runEvent(const CParticle& p1,
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 	break;
@@ -218,7 +218,7 @@ CISquareWell::runEvent(const CParticle& p1,
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	Sim->signalParticleUpdate(retVal);
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 
@@ -236,7 +236,7 @@ CISquareWell::runEvent(const CParticle& p1,
 
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<COutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 	break;
       }

@@ -37,7 +37,7 @@
 
 class CScheduler;
 class CParticle;
-class COutputPlugin;
+class OutputPlugin;
 
 template <class T>
 class smrtPlugPtr;
@@ -57,12 +57,12 @@ namespace DYNAMO
 {  
   typedef boost::mt19937 baseRNG;
   
-  /*! \brief Fundamental collection of the CSimulation data.
+  /*! \brief Fundamental collection of the Simulation data.
    *
    * This struct contains all the data belonging to a single
-   * CSimulation. It has been abstracted away from the CSimulation
+   * Simulation. It has been abstracted away from the Simulation
    * class so that every class can contain a pointer to this datatype
-   * without knowing the CSimulation class and causing a circular
+   * without knowing the Simulation class and causing a circular
    * reference/dependency.
    *
    * A pointer to this class has been incorporated in the base classes
@@ -94,7 +94,7 @@ namespace DYNAMO
     template<class T>
     const T* getOutputPlugin() const
     {
-      BOOST_FOREACH(const smrtPlugPtr<COutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(const smrtPlugPtr<OutputPlugin>& plugin, outputPlugins)
 	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<const T*>(plugin.get_ptr());
       
@@ -109,14 +109,14 @@ namespace DYNAMO
     template<class T>
     T* getOutputPlugin()
     {
-      BOOST_FOREACH(smrtPlugPtr<COutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& plugin, outputPlugins)
 	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<T*>(plugin.get_ptr());
 
       D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
-    /*! \brief The CEnsemble of the CSimulation. */
+    /*! \brief The CEnsemble of the Simulation. */
     boost::scoped_ptr<CEnsemble> Ensemble;
 
     /*! \brief The current system time of the simulation. 
@@ -146,7 +146,7 @@ namespace DYNAMO
     /*! \brief How many events between periodic output/sampling*/
     unsigned long long lNPrint;
     
-    /*! \brief Speeds the CSimulation loop by being the next periodic
+    /*! \brief Speeds the Simulation loop by being the next periodic
         output collision number.*/
     unsigned long long lPrintLimiter;
 
@@ -162,8 +162,8 @@ namespace DYNAMO
     /*! \brief A ptr to the CScheduler of the system. */
     CScheduler *ptrScheduler;
     
-    /*! \brief The CDynamics of the system. */
-    CDynamics dynamics;
+    /*! \brief The Dynamics of the system. */
+    Dynamics dynamics;
     
     /*! \brief A vector of the ratio's of the simulation box/images sides.
      *
@@ -180,9 +180,9 @@ namespace DYNAMO
 
     mutable boost::uniform_01<DYNAMO::baseRNG, Iflt> uniform_sampler;  
 
-    /*! \brief The collection of COutputPlugin's operating on this system.
+    /*! \brief The collection of OutputPlugin's operating on this system.
      */
-    std::vector<smrtPlugPtr<COutputPlugin> > outputPlugins; 
+    std::vector<smrtPlugPtr<OutputPlugin> > outputPlugins; 
 
     /*! \brief The mean free time of the previous simulation run
      *
@@ -191,13 +191,13 @@ namespace DYNAMO
      */
     Iflt lastRunMFT;
 
-    /*! \brief This is just the ID number of the CSimulation in its container.
+    /*! \brief This is just the ID number of the Simulation in its container.
      *
      * This is used in the CEReplexer engine.
      */
     size_t simID;
     
-    /*! \brief The current phase of the CSimulation.
+    /*! \brief The current phase of the Simulation.
      */
     ESimulationStatus status;
 

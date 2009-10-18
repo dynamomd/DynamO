@@ -26,7 +26,7 @@ void
 CESingle::peekData()
 {
   peekMode = true;
-  Simulation.simShutdown();
+  simulation.simShutdown();
 }
 
 void
@@ -37,12 +37,12 @@ CESingle::runSimulation()
       {
 	if (peekMode)
 	  {
-	    Simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	    Simulation.outputData("peek.data.xml.bz2", vm.count("uncompressed"));
+	    simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+	    simulation.outputData("peek.data.xml.bz2", vm.count("uncompressed"));
 	    peekMode = false;
 	  }
 	
-	Simulation.runSimulation();
+	simulation.runSimulation();
       }
     while (peekMode);
   }
@@ -50,7 +50,7 @@ CESingle::runSimulation()
     {
       try {
 	std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
-	Simulation.writeXMLfile("config.error.xml.bz2", false, false);
+	simulation.writeXMLfile("config.error.xml.bz2", false, false);
       } catch (...)
 	{
 	  std::cerr << "\nEngine: Could not output Errored config";
@@ -68,34 +68,34 @@ CESingle::initialisation()
       (vm["config-file"].as<std::vector<std::string> >().size() != 1))
     D_throw() << "You must only provide one input file in single mode";
 
-  setupSim(Simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
+  setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
 
-  Simulation.initialise();
+  simulation.initialise();
 
-  postSimInit(Simulation);
+  postSimInit(simulation);
 
   if (vm.count("ticker-period"))
-    Simulation.setTickerPeriod(vm["ticker-period"].as<Iflt>());
+    simulation.setTickerPeriod(vm["ticker-period"].as<Iflt>());
 
   if (vm.count("scale-ticker"))
-    Simulation.scaleTickerPeriod(vm["scale-ticker"].as<Iflt>());
+    simulation.scaleTickerPeriod(vm["scale-ticker"].as<Iflt>());
       
 }
 
 void
 CESingle::outputData()
 {
-  Simulation.outputData(outputFormat.c_str(),vm.count("uncompressed"));
+  simulation.outputData(outputFormat.c_str(),vm.count("uncompressed"));
 }
 
 void
 CESingle::outputConfigs()
 {
-  Simulation.writeXMLfile(configFormat.c_str(), false, vm.count("uncompressed"));
+  simulation.writeXMLfile(configFormat.c_str(), false, vm.count("uncompressed"));
 }
 
 void 
 CESingle::forceShutdown()
 {
-  Simulation.simShutdown();
+  simulation.simShutdown();
 }

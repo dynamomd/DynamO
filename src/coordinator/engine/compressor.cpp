@@ -49,11 +49,11 @@ CECompressor::preSimInit()
   CESingle::preSimInit();
 
   compressPlug.set_ptr(new CIPCompression
-		       (&Simulation, vm["growth-rate"].as<Iflt>()));
+		       (&simulation, vm["growth-rate"].as<Iflt>()));
 }
 
 void 
-CECompressor::setupSim(CSimulation& Sim, const std::string filename)
+CECompressor::setupSim(Simulation& Sim, const std::string filename)
 {
   CESingle::setupSim(Sim,filename);
   

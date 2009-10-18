@@ -15,23 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COP3DField_H
-#define COP3DField_H
+#ifndef OP3DField_H
+#define OP3DField_H
 
 #include "outputplugin.hpp"
 #include "../datatypes/field_array.hpp"
 
-class COP3DField: public COutputPlugin
+class OP3DField: public OutputPlugin
 {
    public:
-  COP3DField(DYNAMO::SimData*);
-  ~COP3DField();
+  OP3DField(DYNAMO::SimData*);
+  ~OP3DField();
 
   void collisionUpdate(const CIntEvent &, const CIntEventData &);
   
   void output(xmlw::XmlStream &);
 
-  virtual COutputPlugin *Clone() const { return new COP3DField(*this); };
+  virtual OutputPlugin *Clone() const { return new OP3DField(*this); };
   
  protected:
 

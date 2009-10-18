@@ -23,15 +23,15 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-COPMFL::COPMFL(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  COP1PP(tmp,"MeanFreeLength", 250),
+OPMFL::OPMFL(const DYNAMO::SimData* tmp, const XMLNode& XML):
+  OP1PP(tmp,"MeanFreeLength", 250),
   binwidth(0.01)
 {
   operator<<(XML);
 }
 
 void 
-COPMFL::operator<<(const XMLNode& XML)
+OPMFL::operator<<(const XMLNode& XML)
 {
   try 
     {
@@ -40,12 +40,12 @@ COPMFL::operator<<(const XMLNode& XML)
       }
   catch (boost::bad_lexical_cast&)
       {
-	D_throw() << "Failed a lexical cast in COPMFL";
+	D_throw() << "Failed a lexical cast in OPMFL";
       }
 }
 
 void
-COPMFL::initialise()
+OPMFL::initialise()
 {
   lastTime.resize(Sim->lN, 0.0);
   data.resize(Sim->dynamics.getSpecies().size(), 
@@ -53,7 +53,7 @@ COPMFL::initialise()
 }
 
 void 
-COPMFL::A1ParticleChange(const C1ParticleData& PDat)
+OPMFL::A1ParticleChange(const C1ParticleData& PDat)
 {
   //We ignore stuff that hasn't had an event yet
   if (lastTime[PDat.getParticle().getID()] != 0.0)
@@ -68,7 +68,7 @@ COPMFL::A1ParticleChange(const C1ParticleData& PDat)
 }
 
 void
-COPMFL::output(xmlw::XmlStream &XML)
+OPMFL::output(xmlw::XmlStream &XML)
 {
   XML << xmlw::tag("MFL");
   

@@ -15,17 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COPETA_H
-#define COPETA_H
+#ifndef OPETA_H
+#define OPETA_H
 
 #include "../outputplugin.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include <ctime>
 
-class COPETA: public COutputPlugin
+class OPETA: public OutputPlugin
 {
  public:
-  COPETA(const DYNAMO::SimData*, const XMLNode&);
+  OPETA(const DYNAMO::SimData*, const XMLNode&);
 
   void periodicOutput();
 
@@ -40,8 +40,8 @@ class COPETA: public COutputPlugin
   virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) 
   {}
 
-  virtual COutputPlugin* Clone() const 
-  { return new COPETA(*this); }
+  virtual OutputPlugin* Clone() const 
+  { return new OPETA(*this); }
   
  protected:
   time_t start_Time;
