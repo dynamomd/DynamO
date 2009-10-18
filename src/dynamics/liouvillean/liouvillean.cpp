@@ -45,9 +45,9 @@ Liouvillean*
 Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
 {
   if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
-    return new CLNewton(tmp);
+    return new LNewtonian(tmp);
   else if (!strcmp(XML.getAttribute("Type"),"NOrientation"))
-    return new CLNOrientation(tmp, XML);
+    return new LNOrientation(tmp, XML);
   else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
     return new CLSLLOD(tmp);
   else 
@@ -157,7 +157,8 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 		 << IC_reset;            
     }
   Sim->lN = Sim->vParticleList.size();
-  I_cerr() << "Particle count " << Sim->lN;
+
+  I_cout() << "Particle count " << Sim->lN;
 }
 
 void 

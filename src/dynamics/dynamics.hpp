@@ -25,7 +25,7 @@
 #include "interactions/intEvent.hpp"
 #include <boost/foreach.hpp>
 
-class CBC;
+class BoundaryCondition;
 class CUnits;
 class CSpecies;
 class CGlobEvent;
@@ -154,7 +154,7 @@ public:
   inline CUnits& units()
   { return *p_units; }
   
-  inline const CBC& BCs() const 
+  inline const BoundaryCondition& BCs() const 
   { return *p_BC; }
 
   inline const Liouvillean& getLiouvillean() const
@@ -197,7 +197,7 @@ public:
   std::vector<smrtPlugPtr<CSystem> > systems;
   std::vector<smrtPlugPtr<CTopology> > topology;
   std::vector<smrtPlugPtr<CSpecies> > species;
-  smrtPlugPtr<CBC> p_BC;
+  smrtPlugPtr<BoundaryCondition> p_BC;
   smrtPlugPtr<Liouvillean> p_liouvillean;
   mutable smrtPlugPtr<CUnits> p_units;
 };

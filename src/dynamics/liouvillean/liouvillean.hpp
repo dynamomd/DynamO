@@ -52,7 +52,7 @@ class CVector;
  * This class also has the delayed states algorithm implemented by
  * default. This can be overridden if required.
  *
- * The bulk of the code is implemented in the CLNewton class.
+ * The bulk of the code is implemented in the LNewtonian class.
  *
  * Before using any functions in this class you must updateParticle
  * first with the exception of the getSquareCell events! This is to
@@ -155,8 +155,8 @@ public:
    *
    * \param d2 Square of the interaction distance
    *
-   * \return Whether the event will occur (Always false for CLNewton
-   * but not for CLCompression!)
+   * \return Whether the event will occur (Always false for LNewtonian
+   * but not for LCompression!)
    */
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const = 0;  
 
@@ -206,7 +206,7 @@ public:
    * \param d The interaction distance.
    *
    * \return Whether the event will occur (Almost always true for
-   * CLNewton but not for CLCompression).
+   * LNewtonian but not for LCompression).
    */
   virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { D_throw() << "Not Implemented"; }
 

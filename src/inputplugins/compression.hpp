@@ -30,7 +30,7 @@ class Liouvillean;
  * 
  * This class came about as when a simulation is being compressed its
  * dynamics, or more specifically its Liouvillean, is replaced with
- * the CLCompression liouvilean. This stores the old liouvillean and
+ * the LCompression liouvilean. This stores the old liouvillean and
  * also provides several helpful plugins to hack parts of the system
  * into co-operating with the compression like the cellular scheduler.
  */
@@ -45,7 +45,7 @@ class CIPCompression: public CInputPlugin
    */
   CIPCompression(DYNAMO::SimData* sim, Iflt cr);
 
-  /*! \brief Stores the old CLiovillean and installs the CLCompression.
+  /*! \brief Stores the old CLiovillean and installs the LCompression.
    */  
   void MakeGrowth();
   

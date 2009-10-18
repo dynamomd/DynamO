@@ -166,7 +166,7 @@ namespace DYNAMO {
       + Sim->Dynamics.getLiouvillean().getSystemKineticEnergy();
     
     try {
-      EnsembleVals[2] = dynamic_cast<const CLCompression&>
+      EnsembleVals[2] = dynamic_cast<const LCompression&>
 	(Sim->Dynamics.getLiouvillean()).getGrowthRate();
     }
     catch (std::exception&)
@@ -212,7 +212,7 @@ namespace DYNAMO {
       (thermostat)->getTemperature();
     
     try {
-      EnsembleVals[2] = dynamic_cast<const CLCompression&>
+      EnsembleVals[2] = dynamic_cast<const LCompression&>
 	(Sim->Dynamics.getLiouvillean()).getGrowthRate();
     }
     catch (std::exception&)

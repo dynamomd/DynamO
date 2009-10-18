@@ -20,8 +20,8 @@
 #include "rintfunc.hpp"
 #include "../../extcode/xmlwriter.hpp"
 
-CSPBC::CSPBC(const DYNAMO::SimData* tmp):
-  CBC(tmp, "SPBC", IC_purple)
+BCSquarePeriodic::BCSquarePeriodic(const DYNAMO::SimData* tmp):
+  BoundaryCondition(tmp, "SPBC", IC_purple)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if (Sim->aspectRatio[iDim] != 1.0)
@@ -31,50 +31,50 @@ CSPBC::CSPBC(const DYNAMO::SimData* tmp):
 }
   
 void 
-CSPBC::outputXML(xmlw::XmlStream &XML) const
+BCSquarePeriodic::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Shape") << "Square"
       << xmlw::attr("Boundary") << "PBC";
 }
 
-CBC* 
-CSPBC::Clone () const 
-{ return new CSPBC(*this); }
+BoundaryCondition* 
+BCSquarePeriodic::Clone () const 
+{ return new BCSquarePeriodic(*this); }
 
 
 void 
-CSPBC::operator<<(const XMLNode&) 
+BCSquarePeriodic::operator<<(const XMLNode&) 
 {}
 
 void 
-CSPBC::applyBC(Vector & pos) const
+BCSquarePeriodic::applyBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSPBC::applyBC(Vector & pos, Vector&) const
+BCSquarePeriodic::applyBC(Vector & pos, Vector&) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-CSPBC::applyBC(Vector  &pos, const Iflt&) const 
+BCSquarePeriodic::applyBC(Vector  &pos, const Iflt&) const 
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
 }
 
-CRPBC::CRPBC(const DYNAMO::SimData* tmp):
-  CBC(tmp, "RPBC", IC_purple)
+BCRectangularPeriodic::BCRectangularPeriodic(const DYNAMO::SimData* tmp):
+  BoundaryCondition(tmp, "RPBC", IC_purple)
 {
   Sim = tmp;
 }
 
 void 
-CRPBC::applyBC(Vector & pos) const
+BCRectangularPeriodic::applyBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -82,7 +82,7 @@ CRPBC::applyBC(Vector & pos) const
 }
 
 void 
-CRPBC::applyBC(Vector & pos, Vector&) const
+BCRectangularPeriodic::applyBC(Vector & pos, Vector&) const
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -90,7 +90,7 @@ CRPBC::applyBC(Vector & pos, Vector&) const
 }
 
 void 
-CRPBC::applyBC(Vector  &pos, const Iflt&) const 
+BCRectangularPeriodic::applyBC(Vector  &pos, const Iflt&) const 
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -98,23 +98,23 @@ CRPBC::applyBC(Vector  &pos, const Iflt&) const
 }
 
 void 
-CRPBC::outputXML(xmlw::XmlStream &XML) const
+BCRectangularPeriodic::outputXML(xmlw::XmlStream &XML) const
 {
   XML << xmlw::attr("Shape") << "Rectangular"
       << xmlw::attr("Boundary") << "PBC";
 }
 
 void 
-CRPBC::operator<<(const XMLNode&) 
+BCRectangularPeriodic::operator<<(const XMLNode&) 
 {}
 
-CBC* 
-CRPBC::Clone () const 
-{ return new CRPBC(*this); }
+BoundaryCondition* 
+BCRectangularPeriodic::Clone () const 
+{ return new BCRectangularPeriodic(*this); }
 
 
 CRNoXPBC::CRNoXPBC(const DYNAMO::SimData* tmp):
-  CBC(tmp, "RNoXPBC",IC_purple)
+  BoundaryCondition(tmp, "RNoXPBC",IC_purple)
 {
   Sim = tmp;
 }
@@ -130,7 +130,7 @@ void
 CRNoXPBC::operator<<(const XMLNode&) 
 {}
 
-CBC* 
+BoundaryCondition* 
 CRNoXPBC::Clone () const 
 { return new CRNoXPBC(*this); }
 

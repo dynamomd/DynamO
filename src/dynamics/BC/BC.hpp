@@ -41,13 +41,13 @@ namespace DYNAMO
  *
  * This class has a couple of partial specialisations for CSqBC
  * (square) and CRectBC (rectangular) periodic boundary conditions.
- * These are utilised by the CSPBC and CRPBC periodic boundary
+ * These are utilised by the BCSquarePeriodic and BCRectangularPeriodic periodic boundary
  * condition classes. There is the infinite system case CNullBC.  More
  * exotic conditions are the shearing CSLEBC and CRLEBC (Lees-Edwards)
  * boundary condition and one for studying confined systems in the x
  * direction CRNoXPBC.
  */
-class CBC: public DYNAMO::SimBase_const
+class BoundaryCondition: public DYNAMO::SimBase_const
 {
  public:
   /*! \brief Just the constructor
@@ -56,12 +56,12 @@ class CBC: public DYNAMO::SimBase_const
    * \param aName The name of the overall class.
    * \param aColor The colour of the class output.
    */
-  CBC(const DYNAMO::SimData* const SD, const char *aName, 
+  BoundaryCondition(const DYNAMO::SimData* const SD, const char *aName, 
       const char *aColor):
     SimBase_const(SD, aName, aColor)
   {}
 
-  virtual ~CBC() {};
+  virtual ~BoundaryCondition() {};
 
   /*! \brief This determines the minimum image length of a position vector
    *
@@ -106,16 +106,16 @@ class CBC: public DYNAMO::SimBase_const
   virtual void operator<<(const XMLNode &) = 0;
 
   /*! \brief A polymorphic class copy helper. */
-  virtual CBC* Clone () const = 0;
+  virtual BoundaryCondition* Clone () const = 0;
 
-  /*! \brief A helper for writing CBC's to an XmlStream. */
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CBC&);
+  /*! \brief A helper for writing BoundaryCondition's to an XmlStream. */
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const BoundaryCondition&);
 
   /*! \brief The class loader for boundary conditions. */
-  static CBC* loadClass(const XMLNode& ,DYNAMO::SimData*);
+  static BoundaryCondition* loadClass(const XMLNode& ,DYNAMO::SimData*);
 
  protected:
-  /*! \brief The XML output for a CBC class*/
+  /*! \brief The XML output for a BoundaryCondition class*/
   virtual void outputXML(xmlw::XmlStream &XML) const = 0;
 };
 

@@ -219,12 +219,12 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	    Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
-	    Sim->Dynamics.applyBC<CSPBC>();
+	    Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	    if (vm.count("b2"))
 	      Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
@@ -246,7 +246,7 @@ CIPPacker::initialise()
 	if (vm.count("b1"))
 	  Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0, 
 						      new C2RAll()
@@ -280,10 +280,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -304,7 +304,7 @@ CIPPacker::initialise()
 	
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Iflt lambda = 1.5, wellDepth = 1.0;
 
@@ -373,7 +373,7 @@ CIPPacker::initialise()
 	
 	Sim->Dynamics.applyBC<CNullBC>();
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction
 	  (new CISquareBond(Sim, sigmin * diamScale, 
@@ -473,8 +473,8 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
-	Sim->Dynamics.applyBC<CSPBC>();
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.applyBC<BCSquarePeriodic>();
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0, 
 						      new C2RAll()
@@ -534,7 +534,7 @@ CIPPacker::initialise()
 	else
 	  Sim->Dynamics.applyBC<CSLEBC>();
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, alpha, 
 						      new C2RAll()
@@ -613,7 +613,7 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.applyBC<CNullBC>();
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction
 	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 
@@ -683,7 +683,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.applyBC<CRNoXPBC>();
 
 	Sim->Dynamics.setUnits(new CUSW(particleDiam, 1.0, Sim));
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	Vector  norm(0,0,0), origin(0,0,0);
 	norm[0] = 1.0;
@@ -765,9 +765,9 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Sim->Dynamics.applyBC<CSPBC>();
+	Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction
 	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
@@ -840,10 +840,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -861,7 +861,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
@@ -914,7 +914,7 @@ CIPPacker::initialise()
 	std::vector<Vector  > 
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
       	
-	Sim->Dynamics.applyBC<CSPBC>();
+	Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt particleDiam = pow(vm["density"].as<Iflt>() 
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
@@ -931,7 +931,7 @@ CIPPacker::initialise()
 		Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	}
 
-	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
+	Sim->Dynamics.setLiouvillean(new LNOrientation(Sim));
 
 	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
   
@@ -954,7 +954,7 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
-	static_cast<CLNOrientation&>(Sim->Dynamics.getLiouvillean()).initLineOrientations(1.0);
+	static_cast<LNOrientation&>(Sim->Dynamics.getLiouvillean()).initLineOrientations(1.0);
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -972,10 +972,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -990,7 +990,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	//This is to stop interactions being used for these particles
 	Sim->Dynamics.addInteraction
@@ -1045,10 +1045,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt alpha = 1.0;
 
@@ -1116,10 +1116,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -1145,7 +1145,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	//This is to stop interactions being used for these particles
 	Sim->Dynamics.addInteraction
@@ -1319,7 +1319,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
-	Sim->Dynamics.setLiouvillean(new CLNOrientation(Sim));
+	Sim->Dynamics.setLiouvillean(new LNOrientation(Sim));
 
 	Sim->Dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
   
@@ -1342,7 +1342,7 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->Dynamics.units().unitVelocity(), 
 						 nParticles++));
 
-	static_cast<CLNOrientation&>(Sim->Dynamics.getLiouvillean()).initLineOrientations(1.0);
+	static_cast<LNOrientation&>(Sim->Dynamics.getLiouvillean()).initLineOrientations(1.0);
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
@@ -1381,10 +1381,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 	
 	Iflt simVol = 1.0;
 	
@@ -1411,7 +1411,7 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	Sim->Dynamics.addInteraction
 	  (new CIHardSphere(Sim, particleDiam, 1.0,
@@ -1484,10 +1484,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -1502,7 +1502,7 @@ CIPPacker::initialise()
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	if (vm.count("b1"))
 	  Sim->Dynamics.addGlobal(new CGSOCells(Sim,"SOCells"));
@@ -1597,10 +1597,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -1629,7 +1629,7 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.setUnits(new CUSW(particleDiam,1.0, Sim));
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	typedef std::pair<Iflt,Iflt> locpair;
 	std::vector<locpair> diamvec;
@@ -1682,10 +1682,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -1700,7 +1700,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 	
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 	
 	//This is to stop interactions being used for these particles
 	Sim->Dynamics.addInteraction
@@ -1768,10 +1768,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->Dynamics.applyBC<CRPBC>();
+	    Sim->Dynamics.applyBC<BCRectangularPeriodic>();
 	  }
 	else
-	  Sim->Dynamics.applyBC<CSPBC>();
+	  Sim->Dynamics.applyBC<BCSquarePeriodic>();
 
 	Iflt simVol = 1.0;
 
@@ -1938,7 +1938,7 @@ CIPPacker::initialise()
 	//The sentinel is needed because of the high speeds of the particles!
 	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, ParticleInelas, 
 						      new C2RAll()
@@ -1996,7 +1996,7 @@ CIPPacker::initialise()
 	std::vector<Vector  > 
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
       	
-	Sim->Dynamics.applyBC<CSPBC>();
+	Sim->Dynamics.applyBC<BCSquarePeriodic>();
 	
 	Sim->Dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
@@ -2012,7 +2012,7 @@ CIPPacker::initialise()
 
 	Sim->Dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
-	Sim->Dynamics.setLiouvillean(new CLNewton(Sim));
+	Sim->Dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->Dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0, 
 						      new C2RAll()

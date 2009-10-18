@@ -28,7 +28,7 @@ class CLEBC {};
  *
  * See the square version for more details (CSLEBC)
  */
-class CRLEBC: virtual public CBC, public CLEBC
+class CRLEBC: virtual public BoundaryCondition, public CLEBC
 {
  public:
   CRLEBC(const DYNAMO::SimData*);
@@ -39,7 +39,7 @@ class CRLEBC: virtual public CBC, public CLEBC
 
   virtual void operator<<(const XMLNode&);
 
-  virtual CBC* Clone () const;
+  virtual BoundaryCondition* Clone () const;
 
   virtual void applyBC(Vector &) const; 
 
@@ -62,9 +62,9 @@ class CRLEBC: virtual public CBC, public CLEBC
  * motion. This affects the particle velocities and positions on a
  * transition of the boundary.
  *
- * See CBC for a general description of the member functions.
+ * See BoundaryCondition for a general description of the member functions.
  */
-class CSLEBC: virtual public CBC, public CLEBC
+class CSLEBC: virtual public BoundaryCondition, public CLEBC
 {
  public:
   CSLEBC(const DYNAMO::SimData*);
@@ -75,7 +75,7 @@ class CSLEBC: virtual public CBC, public CLEBC
 
   virtual void operator<<(const XMLNode&);
 
-  virtual CBC* Clone () const;
+  virtual BoundaryCondition* Clone () const;
 
   virtual void applyBC(Vector &) const; 
 

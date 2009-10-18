@@ -24,7 +24,7 @@
 #include "../../inputplugins/compression.hpp"
 
 /*! \brief This CEngine compresses a configuration using the
- * CLCompression Liouvillean.
+ * LCompression Liouvillean.
  *
  * This is essentially a CESingle but with some extra steps to load
  * the compression Liouvillean at the start and then to restore the

@@ -53,7 +53,7 @@ CIPCompression::MakeGrowth()
   oldLio = Sim->Dynamics.getLiouvillean().Clone();
 
   I_cout() << "Loading compression liouvillean";
-  Sim->Dynamics.setLiouvillean(new CLCompression(Sim, growthRate 
+  Sim->Dynamics.setLiouvillean(new LCompression(Sim, growthRate 
 						 / (Sim->Dynamics.units()
 						    .unitTime())));
 }

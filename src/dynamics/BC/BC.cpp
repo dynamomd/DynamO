@@ -22,22 +22,22 @@
 #include <string.h>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CBC& g)
+			    const BoundaryCondition& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 
-CBC* 
-CBC::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
+BoundaryCondition* 
+BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
 {
   if (!strcmp(XML.getAttribute("Boundary"),"Null"))
     return new CNullBC(tmp);
   else if (!strcmp(XML.getAttribute("Shape"),"Square"))
     {
       if (!strcmp(XML.getAttribute("Boundary"),"PBC"))
-	return new CSPBC(tmp);
+	return new BCSquarePeriodic(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new CSLEBC(XML,tmp);
       else 
@@ -46,7 +46,7 @@ CBC::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
   else if (!strcmp(XML.getAttribute("Shape"),"Rectangular"))
     {
       if (!strcmp(XML.getAttribute("Boundary"),"PBC"))
-	return new CRPBC(tmp);
+	return new BCRectangularPeriodic(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
 	return new CRNoXPBC(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))

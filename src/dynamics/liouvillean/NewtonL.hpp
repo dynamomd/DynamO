@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLNewton_H
-#define CLNewton_H
+#ifndef LNewtonian_H
+#define LNewtonian_H
 
 #include "liouvillean.hpp"
 
 
-class CLNewton: public Liouvillean
+class LNewtonian: public Liouvillean
 {
 public:
-  CLNewton(DYNAMO::SimData*);
+  LNewtonian(DYNAMO::SimData*);
 
   //Pair particle dynamics
   virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const;
@@ -116,7 +116,7 @@ public:
 					   EEventType&) const;
 
   //Cloning
-  virtual Liouvillean* Clone() const { return new CLNewton(*this); }
+  virtual Liouvillean* Clone() const { return new LNewtonian(*this); }
 
   virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
 					  const Iflt& e, 

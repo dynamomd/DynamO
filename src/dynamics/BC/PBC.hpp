@@ -23,12 +23,12 @@
 
 /*! \brief A simple cubic/square periodic boundary condition.
  * 
- * See the CBC base class for member descriptions.
+ * See the BoundaryCondition base class for member descriptions.
  */
-class CSPBC: public CBC
+class BCSquarePeriodic: public BoundaryCondition
 {
 public:
-  CSPBC(const DYNAMO::SimData*);
+  BCSquarePeriodic(const DYNAMO::SimData*);
 
   virtual void applyBC(Vector &) const;
 
@@ -38,17 +38,17 @@ public:
 
   inline virtual void outputXML(xmlw::XmlStream &) const;  
   virtual void operator<<(const XMLNode&);
-  virtual CBC* Clone () const;
+  virtual BoundaryCondition* Clone () const;
 };
 
 /*! \brief A simple rectangular periodic boundary condition.
  * 
- * See the CBC base class for member descriptions.
+ * See the BoundaryCondition base class for member descriptions.
  */
-class CRPBC: public CBC
+class BCRectangularPeriodic: public BoundaryCondition
 {
 public:
-  CRPBC(const DYNAMO::SimData*);
+  BCRectangularPeriodic(const DYNAMO::SimData*);
 
   virtual void applyBC(Vector &) const;
   
@@ -58,7 +58,7 @@ public:
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
-  virtual CBC* Clone () const;
+  virtual BoundaryCondition* Clone () const;
 };
 
 /*! \brief This class ignores the x direction but is periodic in others.
@@ -67,7 +67,7 @@ public:
  * no leaks as these are not rounded and would show up in animations
  * or inspections.
  */
-class CRNoXPBC: public CBC
+class CRNoXPBC: public BoundaryCondition
 {
 public:
   CRNoXPBC(const DYNAMO::SimData*);
@@ -80,7 +80,7 @@ public:
 
   virtual void outputXML(xmlw::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
-  virtual CBC* Clone () const;
+  virtual BoundaryCondition* Clone () const;
 };
 
 #endif

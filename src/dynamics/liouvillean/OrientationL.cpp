@@ -35,7 +35,7 @@
 #include "../../extcode/binaryHelper.hpp"
 
 void 
-CLNOrientation::initialise() 
+LNOrientation::initialise() 
 {
   Liouvillean::initialise();
 
@@ -61,14 +61,14 @@ CLNOrientation::initialise()
 }
 
 void
-CLNOrientation::outputXML(xmlw::XmlStream& XML) const
+LNOrientation::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
       << "NOrientation";
 }
 
 bool 
-CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
+LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
 				     const CParticle& p1, const CParticle& p2) const
 {  
 #ifdef DYNAMO_DEBUG
@@ -116,7 +116,7 @@ CLNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 }
 
 C2ParticleData 
-CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
+LNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
   const CParticle& particle1 = Sim->vParticleList[eevent.getParticle1ID()];
   const CParticle& particle2 = Sim->vParticleList[eevent.getParticle2ID()];
@@ -179,7 +179,7 @@ CLNOrientation::runLineLineCollision(const CIntEvent& eevent, const Iflt& elasti
 }
 
 void
-CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
+LNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 {
   part.getPosition() += part.getVelocity() * dt;
 
@@ -192,7 +192,7 @@ CLNOrientation::streamParticle(CParticle& part, const Iflt& dt) const
 
 
 C1ParticleData 
-CLNOrientation::runAndersenWallCollision(const CParticle& part, 
+LNOrientation::runAndersenWallCollision(const CParticle& part, 
 					 const Vector & vNorm,
 					 const Iflt& sqrtT
 					 ) const
@@ -202,7 +202,7 @@ CLNOrientation::runAndersenWallCollision(const CParticle& part,
 }
   
 C1ParticleData 
-CLNOrientation::randomGaussianEvent(const CParticle& part, 
+LNOrientation::randomGaussianEvent(const CParticle& part, 
 				    const Iflt& sqrtT) const
 {
   D_throw() << "Need to implement thermostating of the rotational degrees"
@@ -210,7 +210,7 @@ CLNOrientation::randomGaussianEvent(const CParticle& part,
 }
 
 void 
-CLNOrientation::initLineOrientations(const Iflt& length)
+LNOrientation::initLineOrientations(const Iflt& length)
 {
   orientationData.resize(Sim->vParticleList.size());
   
@@ -240,7 +240,7 @@ CLNOrientation::initLineOrientations(const Iflt& length)
 }
 
 void 
-CLNOrientation::loadParticleXMLData(const XMLNode& XML)
+LNOrientation::loadParticleXMLData(const XMLNode& XML)
 {
   Liouvillean::loadParticleXMLData(XML);
 
@@ -301,7 +301,7 @@ CLNOrientation::loadParticleXMLData(const XMLNode& XML)
 }
 
 void 
-CLNOrientation::extraXMLParticleData(xmlw::XmlStream& XML, const size_t ID) const
+LNOrientation::extraXMLParticleData(xmlw::XmlStream& XML, const size_t ID) const
 {
   XML << xmlw::tag("O")
       << orientationData[ID].angularVelocity
@@ -312,7 +312,7 @@ CLNOrientation::extraXMLParticleData(xmlw::XmlStream& XML, const size_t ID) cons
 }
 
 void 
-CLNOrientation::extraXMLData(xmlw::XmlStream& XML) const
+LNOrientation::extraXMLData(xmlw::XmlStream& XML) const
 {
   if (Sim->binaryXML)
     {
@@ -344,10 +344,10 @@ CLNOrientation::extraXMLData(xmlw::XmlStream& XML) const
 }
 
 size_t 
-CLNOrientation::getParticleDOF() const { return NDIM+2; }
+LNOrientation::getParticleDOF() const { return NDIM+2; }
 
 Iflt
-CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
+LNOrientation::getParticleKineticEnergy(const CParticle& part) const
 {
   return 0.5 * ((Sim->Dynamics.getSpecies(part).getMass()
     * part.getVelocity().nrm2())
@@ -356,7 +356,7 @@ CLNOrientation::getParticleKineticEnergy(const CParticle& part) const
 }
  
 void 
-CLNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
+LNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
 {
   Iflt scalefactor(sqrt(scale));
 

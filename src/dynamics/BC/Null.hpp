@@ -27,7 +27,7 @@
  * for isolated polymer simulations but you must remember that
  * positions can overflow eventually.
  */
-class CNullBC: virtual public CBC
+class CNullBC: virtual public BoundaryCondition
 {
  public:
   CNullBC(const DYNAMO::SimData*);
@@ -46,7 +46,7 @@ class CNullBC: virtual public CBC
 
   virtual void operator<<(const XMLNode&);
 
-  virtual CBC* Clone () const;
+  virtual BoundaryCondition* Clone () const;
 
   virtual void rounding(Vector &) const;
 };

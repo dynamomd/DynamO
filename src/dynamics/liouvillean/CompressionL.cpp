@@ -25,12 +25,12 @@
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 
-CLCompression::CLCompression(DYNAMO::SimData* tmp, Iflt GR):
-  CLNewton(tmp),
+LCompression::LCompression(DYNAMO::SimData* tmp, Iflt GR):
+  LNewtonian(tmp),
   growthRate(GR) {}
 
 bool 
-CLCompression::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
+LCompression::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
   Iflt b = dat.rvdot - d2 
     * (growthRate * growthRate * Sim->dSysTime + growthRate);
@@ -53,7 +53,7 @@ CLCompression::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 }
   
 bool 
-CLCompression::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
+LCompression::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 {
   Iflt a = dat.v2 - growthRate * growthRate * d2;
   Iflt b = dat.rvdot - d2 * (growthRate * growthRate 
@@ -78,7 +78,7 @@ CLCompression::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 }
 
 bool 
-CLCompression::sphereOverlap(const CPDData& dat, const Iflt& d2) const
+LCompression::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 {
   Iflt currd2 = d2 * (1 + 2.0 * Sim->dSysTime * growthRate 
 			+ pow(Sim->dSysTime * growthRate,2));
@@ -87,13 +87,13 @@ CLCompression::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 }
 
 void
-CLCompression::streamParticle(CParticle &particle, const Iflt &dt) const
+LCompression::streamParticle(CParticle &particle, const Iflt &dt) const
 {
   particle.getPosition() +=  particle.getVelocity() * dt;
 }
 
 C2ParticleData 
-CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
+LCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
   const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
@@ -131,7 +131,7 @@ CLCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const If
 }
 
 C2ParticleData 
-CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
+LCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
   const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
@@ -207,14 +207,14 @@ CLCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, cons
 }
 
 void 
-CLCompression::outputXML(xmlw::XmlStream& XML) const
+LCompression::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
       << "Compression";
 }
 
 Iflt 
-CLCompression::getPBCSentinelTime(const CParticle& part,
+LCompression::getPBCSentinelTime(const CParticle& part,
 				  const Iflt& lMax) const
 {
 #ifdef DYNAMO_DEBUG
@@ -240,6 +240,6 @@ CLCompression::getPBCSentinelTime(const CParticle& part,
 }
 
 C2ParticleData 
-CLCompression::parallelCubeColl(const CIntEvent&, const Iflt&,
+LCompression::parallelCubeColl(const CIntEvent&, const Iflt&,
 				const Iflt&, const EEventType&) const
 { D_throw() << "Not Implemented"; }

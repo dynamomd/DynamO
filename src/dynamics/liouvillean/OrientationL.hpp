@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLNOrientation_H
-#define CLNOrientation_H
+#ifndef LNOrientation_H
+#define LNOrientation_H
 
 #include "NewtonL.hpp"
 #include <vector>
@@ -25,18 +25,18 @@
 class CLinesFunc;
 class CShape;
 
-class CLNOrientation: public CLNewton
+class LNOrientation: public LNewtonian
 {
 public:  
-  CLNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
-    CLNewton(Sim),
+  LNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
+    LNewtonian(Sim),
     lastAbsoluteClock(-1),
     lastCollParticle1(0),
     lastCollParticle2(0)
   {}
 
-  CLNOrientation(DYNAMO::SimData* Sim):
-    CLNewton(Sim),
+  LNOrientation(DYNAMO::SimData* Sim):
+    LNewtonian(Sim),
     lastAbsoluteClock(-1),
     lastCollParticle1(0),
     lastCollParticle2(0)
@@ -44,7 +44,7 @@ public:
 
   virtual void initialise();
 
-  virtual Liouvillean* Clone() const { return new CLNOrientation(*this); }
+  virtual Liouvillean* Clone() const { return new LNOrientation(*this); }
 
   virtual void loadParticleXMLData(const XMLNode&);
 

@@ -26,7 +26,7 @@
 #include "rintfunc.hpp"
 
 CRLEBC::CRLEBC(const DYNAMO::SimData* tmp):
-  CBC(tmp, "LEBC",IC_purple),
+  BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
@@ -34,7 +34,7 @@ CRLEBC::CRLEBC(const DYNAMO::SimData* tmp):
 }
 
 CRLEBC::CRLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
-  CBC(tmp, "LEBC",IC_purple),
+  BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
@@ -64,7 +64,7 @@ CRLEBC::operator<<(const XMLNode& XML)
     }
 }
 
-CBC* 
+BoundaryCondition* 
 CRLEBC::Clone () const 
 { return new CRLEBC(*this); }
 
@@ -121,7 +121,7 @@ CRLEBC::update(const Iflt& dt)
 /////////////////////////////Rectangular/////////////////////////////////////
 
 CSLEBC::CSLEBC(const DYNAMO::SimData* tmp):
-  CBC(tmp, "LEBC",IC_purple),
+  BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
@@ -129,7 +129,7 @@ CSLEBC::CSLEBC(const DYNAMO::SimData* tmp):
 }
 
 CSLEBC::CSLEBC(const XMLNode& XML, const DYNAMO::SimData* tmp):
-  CBC(tmp, "LEBC",IC_purple),
+  BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
@@ -159,7 +159,7 @@ CSLEBC::operator<<(const XMLNode& XML)
     }
 }
 
-CBC* 
+BoundaryCondition* 
 CSLEBC::Clone () const 
 { return new CSLEBC(*this); }
 

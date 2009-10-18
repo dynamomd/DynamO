@@ -19,7 +19,7 @@
 #include "../../extcode/xmlwriter.hpp"
 
 CNullBC::CNullBC(const DYNAMO::SimData* Sim):
-  CBC(Sim, "NullBC", IC_purple)
+  BoundaryCondition(Sim, "NullBC", IC_purple)
 { I_cout() << "No boundary condition loaded"; }
 
 CNullBC::~CNullBC() {}
@@ -50,7 +50,7 @@ void
 CNullBC::operator<<(const XMLNode &)
 {}
 
-CBC* 
+BoundaryCondition* 
 CNullBC::Clone () const 
 { return new CNullBC(*this); }
 

@@ -48,7 +48,7 @@ CILines::CILines(const XMLNode& XML, DYNAMO::SimData* tmp):
 void 
 CILines::initialise(size_t nID)
 {
-  if (dynamic_cast<const CLNOrientation*>(&(Sim->Dynamics.getLiouvillean()))
+  if (dynamic_cast<const LNOrientation*>(&(Sim->Dynamics.getLiouvillean()))
       == NULL)
     D_throw() << "Interaction requires an orientation capable Liouvillean.";
   
@@ -225,7 +225,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 			   std::ostream& os) const
 {
   try {
-    dynamic_cast<const CLNOrientation&>(Sim->Dynamics.getLiouvillean());
+    dynamic_cast<const LNOrientation&>(Sim->Dynamics.getLiouvillean());
   }
   catch(std::bad_cast)
     {
@@ -236,8 +236,8 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
     {
       const CParticle& part(Sim->vParticleList[pid]);
 
-      const CLNOrientation::rotData& 
-	rdat(static_cast<const CLNOrientation&>
+      const LNOrientation::rotData& 
+	rdat(static_cast<const LNOrientation&>
 	     (Sim->Dynamics.getLiouvillean()).getRotData(part));
 
       Vector  pos(part.getPosition());

@@ -30,7 +30,7 @@
 #include "shapes/oscillatingplate.hpp"
 
 bool 
-CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
+LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 {
   //To be approaching, the largest dimension of rij must be being
   //reduced
@@ -70,7 +70,7 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 }
 
 bool 
-CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
+LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 {
   //To be approaching, the largest dimension of rij must be being
   //reduced
@@ -112,7 +112,7 @@ CLNewton::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 }
 
 bool 
-CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d) const
+LNewtonian::cubeOverlap(const CPDData& dat, const Iflt& d) const
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (fabs(dat.rij[iDim]) > d) return false;
@@ -121,7 +121,7 @@ CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d) const
 }
 
 bool 
-CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d, 
+LNewtonian::cubeOverlap(const CPDData& dat, const Iflt& d, 
 		      const Matrix& rot) const
 {
   Vector rij = rot * dat.rij;
@@ -134,7 +134,7 @@ CLNewton::cubeOverlap(const CPDData& dat, const Iflt& d,
 }
 
 bool 
-CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
+LNewtonian::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
   if (dat.rvdot < 0)
     {
@@ -160,7 +160,7 @@ CLNewton::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 }
   
 bool 
-CLNewton::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
+LNewtonian::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 {
   dat.dt = (sqrt(dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2))-dat.rvdot) / dat.v2;
 
@@ -174,13 +174,13 @@ CLNewton::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 }
 
 bool 
-CLNewton::sphereOverlap(const CPDData& dat, const Iflt& d2) const
+LNewtonian::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 {
   return (dat.r2 - d2) < 0.0;
 }
 
 C1ParticleData 
-CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
+LNewtonian::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
 
@@ -205,18 +205,18 @@ CLNewton::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
   return tmpDat;
 }
 
-CLNewton::CLNewton(DYNAMO::SimData* tmp):
+LNewtonian::LNewtonian(DYNAMO::SimData* tmp):
   Liouvillean(tmp)
 {}
 
 void
-CLNewton::streamParticle(CParticle &particle, const Iflt &dt) const
+LNewtonian::streamParticle(CParticle &particle, const Iflt &dt) const
 {
   particle.getPosition() += particle.getVelocity() * dt;
 }
 
 Iflt 
-CLNewton::getWallCollision(const CParticle &part, 
+LNewtonian::getWallCollision(const CParticle &part, 
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
 {
@@ -237,7 +237,7 @@ CLNewton::getWallCollision(const CParticle &part,
 
 
 C1ParticleData 
-CLNewton::runWallCollision(const CParticle &part, 
+LNewtonian::runWallCollision(const CParticle &part, 
 			   const Vector  &vNorm,
 			   const Iflt& e
 			   ) const
@@ -257,7 +257,7 @@ CLNewton::runWallCollision(const CParticle &part,
 }
 
 C1ParticleData 
-CLNewton::runAndersenWallCollision(const CParticle& part, 
+LNewtonian::runAndersenWallCollision(const CParticle& part, 
 				   const Vector & vNorm,
 				   const Iflt& sqrtT
 				   ) const
@@ -288,7 +288,7 @@ CLNewton::runAndersenWallCollision(const CParticle& part,
 }
 
 Iflt
-CLNewton::getSquareCellCollision2(const CParticle& part, 
+LNewtonian::getSquareCellCollision2(const CParticle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -323,7 +323,7 @@ CLNewton::getSquareCellCollision2(const CParticle& part,
 }
 
 size_t
-CLNewton::getSquareCellCollision3(const CParticle& part, 
+LNewtonian::getSquareCellCollision3(const CParticle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -359,7 +359,7 @@ CLNewton::getSquareCellCollision3(const CParticle& part,
 }
 
 bool 
-CLNewton::DSMCSpheresTest(const CParticle& p1, 
+LNewtonian::DSMCSpheresTest(const CParticle& p1, 
 			  const CParticle& p2, 
 			  Iflt& maxprob,
 			  const Iflt& factor,
@@ -382,7 +382,7 @@ CLNewton::DSMCSpheresTest(const CParticle& p1,
 }
 
 C2ParticleData
-CLNewton::DSMCSpheresRun(const CParticle& p1, 
+LNewtonian::DSMCSpheresRun(const CParticle& p1, 
 			 const CParticle& p2, 
 			 const Iflt& e,
 			 CPDData& pdat) const
@@ -421,7 +421,7 @@ CLNewton::DSMCSpheresRun(const CParticle& p1,
 
 
 C2ParticleData 
-CLNewton::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
+LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
 				       const Iflt&, const EEventType& eType) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
@@ -481,7 +481,7 @@ CLNewton::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
 }
 
 C2ParticleData 
-CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
+LNewtonian::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 			    const Iflt&, const EEventType& eType) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
@@ -519,7 +519,7 @@ CLNewton::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 }
 
 C2ParticleData 
-CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
@@ -570,7 +570,7 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 }
 
 C2ParticleData 
-CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 			   const Iflt&, const Matrix& rot,
 			   const EEventType& eType) const
 {
@@ -629,7 +629,7 @@ CLNewton::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 }
 
 CNParticleData 
-CLNewton::multibdyCollision(const CRange& range1, const CRange& range2, 
+LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const EEventType& eType) const
 {
   Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
@@ -728,7 +728,7 @@ CLNewton::multibdyCollision(const CRange& range1, const CRange& range2,
 }
 
 CNParticleData 
-CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2, 
+LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const Iflt& deltaKE, EEventType& eType) const
 {
   Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
@@ -849,7 +849,7 @@ CLNewton::multibdyWellEvent(const CRange& range1, const CRange& range2,
 }
 
 C2ParticleData 
-CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
+LNewtonian::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
 			  const Iflt &) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
@@ -923,14 +923,14 @@ CLNewton::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 }
 
 void 
-CLNewton::outputXML(xmlw::XmlStream& XML) const
+LNewtonian::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
       << "Newtonian";
 }
 
 Iflt 
-CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
+LNewtonian::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -955,7 +955,7 @@ CLNewton::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
 }
 
 Iflt
-CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
+LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 				 const Vector& nhat, const Iflt& Delta,
 				 const Iflt& Omega, const Iflt& Sigma,
 				 const Iflt& t, bool lastpart) const
@@ -1058,7 +1058,7 @@ CLNewton::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 }
 
 C1ParticleData 
-CLNewton::runOscilatingPlate
+LNewtonian::runOscilatingPlate
 (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
   Iflt& t) const
@@ -1155,7 +1155,7 @@ CLNewton::runOscilatingPlate
 }
 
 Iflt 
-CLNewton::getCylinderWallCollision(const CParticle& part, 
+LNewtonian::getCylinderWallCollision(const CParticle& part, 
 				   const Vector& wallLoc, 
 				   const Vector& wallNorm,
 				   const Iflt& radius) const
@@ -1182,7 +1182,7 @@ CLNewton::getCylinderWallCollision(const CParticle& part,
 }
 
 C1ParticleData 
-CLNewton::runCylinderWallCollision(const CParticle& part, 
+LNewtonian::runCylinderWallCollision(const CParticle& part, 
 				   const Vector& origin,
 				   const Vector& vNorm,
 				   const Iflt& e

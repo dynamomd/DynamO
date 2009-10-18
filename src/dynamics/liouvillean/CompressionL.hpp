@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLCompression_H
-#define CLCompression_H
+#ifndef LCompression_H
+#define LCompression_H
 
 #include "NewtonL.hpp"
 
-class CLCompression: public CLNewton
+class LCompression: public LNewtonian
 {
 public:
-  CLCompression(DYNAMO::SimData*, Iflt);
+  LCompression(DYNAMO::SimData*, Iflt);
 
   virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const;
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  
@@ -35,7 +35,7 @@ public:
 
   virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
   
-  virtual Liouvillean* Clone() const { return new CLCompression(*this); };
+  virtual Liouvillean* Clone() const { return new LCompression(*this); };
 
   Iflt getGrowthRate() const { return growthRate; }
 
