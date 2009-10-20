@@ -43,10 +43,35 @@ LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
 
 Iflt 
 LNewtonianGravity::getWallCollision(const CParticle &part, 
-			   const Vector  &wallLoc, 
-			   const Vector  &wallNorm) const
+				    const Vector  &wallLoc, 
+				    const Vector  &wallNorm) const
 {
-  D_throw() << "Not implemented yet";    
+  Vector  rij = part.getPosition(),
+    vel = part.getVelocity();
+
+  Sim->dynamics.BCs().applyBC(rij, vel);
+
+  Iflt adot = wallNorm[1] * Gravity;
+  Iflt vdot = vel | wallNorm;
+  Iflt rdot = (rij - wallLoc) | wallNorm;
+
+  Iflt arg = vdot * vdot - 2 * rdot * adot;
+  
+  if (arg > 0)
+    {
+      Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+      Iflt x1 = t / adot;
+      Iflt x2 = 2 * rdot / t;
+
+      if (adot > 0)
+	//The particle is arcing under the plate
+	return (x1 < x2) ? x1 : x2 ;
+      else
+	//The particle is arcing over the plate
+	return (x1 < x2) ? x2 : x1;
+    }
+
+  return HUGE_VAL;
 }
 
 Iflt
