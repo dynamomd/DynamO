@@ -26,21 +26,21 @@ UHardSphere::UHardSphere(const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfLength(1.0)
 {
-  I_cout() << "Elastic units loaded";
+  I_cout() << "HardSphere units loaded";
 }
   
 UHardSphere::UHardSphere(Iflt diameter, const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfLength(diameter)
 {
-  I_cout() << "Elastic units loaded";
+  I_cout() << "HardSphere units loaded";
 }
 
 UHardSphere::UHardSphere(const XMLNode &XML, const DYNAMO::SimData* tmp):
   Units(tmp)
 { 
   operator<<(XML); 
-  I_cout() << "Hard sphere units loaded";
+  I_cout() << "HardSphere sphere units loaded";
 }
 
 UHardSphere::~UHardSphere() {}
@@ -67,11 +67,7 @@ UHardSphere::rescaleLength(Iflt rs)
   
 void 
 UHardSphere::operator<<(const XMLNode &XML)
-{
-  if (std::strcmp(XML.getAttribute("Type"),"Elastic")
-      || std::strcmp(XML.getAttribute("Type"),"HardSphere"))
-    D_throw() << "Attempting to load UHardSphere from non Elastic/HardSphere type";
-  
+{  
   try {
     UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
   }
@@ -84,7 +80,7 @@ UHardSphere::operator<<(const XMLNode &XML)
 void 
 UHardSphere::outputXML(xmlw::XmlStream &XML) const
 {
-  XML << xmlw::attr("Type") << "Elastic"
+  XML << xmlw::attr("Type") << "HardSphere"
       << xmlw::attr("BoxLength") << 1.0/UnitOfLength; 
 }
 

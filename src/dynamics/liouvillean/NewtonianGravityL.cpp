@@ -36,7 +36,9 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp):
 void
 LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
 {
-  particle.getPosition() += particle.getVelocity() * dt;
+  particle.getPosition() += dt * particle.getVelocity();
+  particle.getPosition()[1] += 0.5 * dt * dt * Gravity;
+  particle.getVelocity()[1] += dt * Gravity;
 }
 
 Iflt 

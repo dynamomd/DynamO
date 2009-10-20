@@ -40,20 +40,20 @@ public:
   UShear(const DYNAMO::SimData* tmp): 
     UHardSphere(1.0, tmp)
   {
-    I_cout() << "Elastic units loaded";
+    I_cout() << "Shearing units loaded";
   }
   
   UShear(const Iflt& length, const DYNAMO::SimData* tmp):
     UHardSphere(length, tmp)
   {
-    I_cout() << "Elastic units loaded";
+    I_cout() << "Shearing units loaded";
   }
   
   UShear(const XMLNode& XML, const DYNAMO::SimData* tmp):
     UHardSphere(1.0, tmp)
   { 
     operator<<(XML); 
-    I_cout() << "Elastic units loaded";
+    I_cout() << "Shearing units loaded";
   }
   
   virtual ~UShear() {}
