@@ -65,6 +65,10 @@ OPPovray::printImage()
 
   char *fileName;
 
+  const bool boundSystem = false;
+  const bool showSky = true;
+  const bool fog = true;
+
   if ( asprintf(&fileName, "%05d", frameCount++) < 0)
     D_throw() << "asprintf error in tinkerXYZ";
 
@@ -76,32 +80,51 @@ OPPovray::printImage()
     D_throw() << "Could not open povray file for writing";
 
   //Header of povray file
-  of << "#include \"colors.inc\" 	   \n\
+  of << "\
+#include \"colors.inc\" 	           \n\
 #include \"transforms.inc\"                \n\
-#declare zoom = "<< zoomlevel << ";	   \n\
-#declare cameraloc = <0, zoom, 0>;	   \n\
-#declare camera_rot = transform {          \n\
- rotate <0,0,clock*180>                    \n\
-};                                          \n\
-global_settings { max_trace_level 50 }     \n\
-camera {				   \n\
- location cameraloc                        \n\
- transform camera_rot                      \n\
- look_at  <0, 0, 0>			   \n\
-}        				   \n\
-background { color White }		   \n\
-light_source { cameraloc color White transform camera_rot }  \n\
-light_source { <2*zoom, 2*zoom, 2*zoom> color White }  \n\
-light_source { <-2*zoom, 2*zoom, 2*zoom> color White }  \n\
-light_source { <2*zoom, -2*zoom, 2*zoom> color White }  \n\
-light_source { <2*zoom, 2*zoom, -2*zoom> color White }  \n\
-light_source { <-2*zoom, 2*zoom, -2*zoom> color White }  \n\
-light_source { <-2*zoom, -2*zoom, -2*zoom> color White }  \n\
-light_source { <-2*zoom, -2*zoom, 2*zoom> color White }  \n\
-light_source { <2*zoom, -2*zoom, -2*zoom> color White }  \n\
 #include \"glass.inc\"                     \n\
-intersection { union {                     \n\
+global_settings { max_trace_level 20 }     \n\
+global_settings { assumed_gamma 1.0 }      \n\
+global_settings { noise_generator 1 }      \n\
+// camera ---------------------------------\n\
+#declare zoom = "<< zoomlevel << " ;       \n\
+#declare Cam0 =                            \n\
+   camera {angle 80                        \n\
+           location  <0.0 , -0.05 , zoom>	   \n\
+           look_at   <0.0 , 0.0 , 0.0>}    \n\
+camera{Cam0}                               \n\
+// sun ------------------------------------\n\
+light_source{<5,1.5,5> color White}\n\
 ";
+
+  if (showSky)
+    of << "\
+// sky ------------------------------------        \n\
+plane{<0,1,0>,2 hollow                           \n\
+      texture{ pigment {color rgb< 0.05,0.25,0.6>} \n\
+               finish {ambient 1  diffuse 0}}      \n\
+     }                                             \n\
+plane{<0,1,0>,1 hollow                            \n\
+      texture{pigment { bozo turbulence 0.65                           \n\
+                        octaves 6  omega 0.7 lambda 2 		       \n\
+                        color_map { [0.0 color rgb <0.95, 0.95, 0.95>] \n\
+                                    [0.1 color rgb <0.85, 0.85, 0.85>] \n\
+                                    [0.5 color rgbt <1, 1, 1, 1> ]     \n\
+                                    [1.0 color rgbt <1, 1, 1, 1> ]   } \n\
+                        rotate<10,20,0>				       \n\
+                        scale <0.3, 0.4, 0.2>*3 }                     \n\
+              finish {ambient 1 diffuse 0}}                            \n\
+      }                                                                \n\
+";
+
+  if (fog)
+    of << "fog { distance 12  color White }                           \n\
+fog { distance 2 fog_type 2 fog_alt 0.01 fog_offset -0.1 color White }\n";
+
+  if (boundSystem)
+    of << "intersection { union {                     \n";
+  
 
   DYNAMO::ColorMap<unsigned int> colmap(0,Sim->dynamics.getSpecies().size()-1);
   BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
@@ -111,26 +134,23 @@ intersection { union {                     \n\
     spec->getIntPtr()->write_povray_desc
     (colmap.getColor(spec->getID()), spec->getID(), of);
 
-  of << "\n}\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
-     << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
-     << "> }\n"
-     << "}\n";
-  
   BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->dynamics.getLocals())
     ptr->write_povray_info(of);
 
-
   //Mirror for the oscillating plate
   //  of << "object { box { <-1, -0.25, 0.01>, <0.5, 0.140977, 0.01> } rotate <45,0,0> translate <0,0,0.30977>  finish { reflection 0.9 ambient 0 diffuse 0 }}";
-  
-  //Background
-  //object { plane { <0, 1, 0>, -10 }  pigment { rgb<0.1,0.1,0.1> } }";
 
+  if (boundSystem)
+    of << "\n}\nbox { <" 
+       << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
+       << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
+       << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+       << ">,"
+       << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
+       << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
+       << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+       << "> }\n"
+       << "}\n";
+  
   of.close();
 }
