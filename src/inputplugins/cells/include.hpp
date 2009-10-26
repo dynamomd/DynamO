@@ -29,3 +29,4 @@
 #include "linearRod.hpp"
 #include "binary.hpp"
 #include "cylinder.hpp"
+#include "triangleIntersection.hpp"

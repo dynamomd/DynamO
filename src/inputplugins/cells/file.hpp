@@ -137,7 +137,7 @@ struct CUFile: public CUCell
 
     BOOST_FOREACH(const Vector & position, particleCache)
       BOOST_FOREACH(const Vector & vec, uc->placeObjects(position + centre))
-        retval.push_back(vec);
+      retval.push_back(vec);
 
     return retval;
   }
