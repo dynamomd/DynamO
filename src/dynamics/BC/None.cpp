@@ -43,7 +43,7 @@ BCNone::update(const Iflt &)
 void 
 BCNone::outputXML(xmlw::XmlStream &XML) const
 {
-  XML << xmlw::attr("Boundary") << "Null";
+  XML << xmlw::attr("Boundary") << "None";
 }
 
 void 

@@ -32,7 +32,8 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 BoundaryCondition* 
 BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
 {
-  if (!strcmp(XML.getAttribute("Boundary"),"None"))
+  if (!strcmp(XML.getAttribute("Boundary"),"None")
+      || !strcmp(XML.getAttribute("Boundary"),"Null"))
     return new BCNone(tmp);
   else if (!strcmp(XML.getAttribute("Shape"),"Square"))
     {

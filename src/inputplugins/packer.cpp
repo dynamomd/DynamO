@@ -1992,8 +1992,7 @@ CIPPacker::initialise()
     case 20:
       {
 	//Pack of hard spheres then check overlaps against a set of triangles
-	//Pack the system, determine the number of particles
-	
+	//Pack the system, determine the number of particles	
 
 	Iflt overlapDiameter = 0.1;
 	Iflt particleDiam = 0.1;
@@ -2051,8 +2050,14 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), 
-						 nParticles++));
+	  {
+	    Sim->vParticleList.push_back
+	      (CParticle(position, getRandVelVec() 
+			 * Sim->dynamics.units().unitVelocity(), 
+			 nParticles++));
+
+	    Sim->vParticleList.back().getPosition()[2] -= 20 * particleDiam;
+	  }
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
