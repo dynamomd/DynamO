@@ -22,6 +22,7 @@
 #include <fstream>
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
+#include <boost/progress.hpp>
 
 struct CUTriangleIntersect: public CUCell
 {
@@ -56,6 +57,7 @@ struct CUTriangleIntersect: public CUCell
       }
 
     std::cout << "\nCUTriangleIntersect :Loaded " << _triangles.size() << " triangles";
+    std::cout.flush();
     
     BOOST_FOREACH(triangle_type& triangle, _triangles)
       {
@@ -75,13 +77,22 @@ struct CUTriangleIntersect: public CUCell
   {
     std::vector<Vector>  retval, initval(uc->placeObjects(centre));
     
+    std::cout << "\nCUTriangleIntersect :Checking spheres\n";
+    std::cout.flush();
+    
+    boost::progress_display prog(initval.size());
+
+
     BOOST_FOREACH(const Vector& sphere, initval)
-      BOOST_FOREACH(const triangle_type& triangle, _triangles)
-      if (triangleIntersects(sphere, triangle))
-	{
-	  retval.push_back(sphere);
-	  break;
-	}
+      {
+	BOOST_FOREACH(const triangle_type& triangle, _triangles)
+	  if (triangleIntersects(sphere, triangle))
+	    {
+	      retval.push_back(sphere);
+	      break;
+	    }
+	++prog;
+      }
     
     return retval;
   }
