@@ -22,3 +22,4 @@
 #include "mutualdiffE.hpp"
 #include "thermaldiffE.hpp"
 #include "thermalCondSpeciesSpeciesE.hpp"
+#include "selfdiffOrientationalGK.hpp"
