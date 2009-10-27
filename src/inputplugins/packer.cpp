@@ -198,7 +198,12 @@ CIPPacker::initialise()
 	"       --f3 : Hertz, if the unit of time is seconds [1]\n"
 	"       --f4 : Initial displacement [130]\n"
 	"       --f5 : Particle-Particle inelasticity [0.88]\n"
-	"       --f6 : Particle-Wall inelasticity [0.96]"
+	"       --f6 : Particle-Wall inelasticity [0.96]\n"
+	"  20: Load a set of triangles and plate it with spheres\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --s1 : File name to load the triangles from\n"
+	"       --f1 : Size of the spheres when checking for overlaps"
+	"       --f2 : Size of the spheres in the sim"
 	;
       std::cout << "\n";
       exit(1);
@@ -1986,31 +1991,50 @@ CIPPacker::initialise()
       }
     case 20:
       {
-	//Pack of hard spheres
+	//Pack of hard spheres then check overlaps against a set of triangles
 	//Pack the system, determine the number of particles
-	boost::scoped_ptr<CUCell> packptr(new CUCylinder(0.01, 0.9, Vector(1,0,0), 
-							 Sim->uniform_sampler,
-							 new CUParticle()));
+	
+
+	Iflt overlapDiameter = 0.1;
+	Iflt particleDiam = 0.1;
+	if (vm.count("f1"))
+	  overlapDiameter = vm["f1"].as<Iflt>();
+
+	if (vm.count("f2"))
+	  particleDiam = vm["f2"].as<Iflt>();
+
+	if (!vm.count("s1"))
+	  D_throw() << "No triangle file name specified";
+
+	boost::scoped_ptr<CUCell> packptr(new CUTriangleIntersect(standardPackingHelper(new CUParticle()),
+								  overlapDiameter, vm["s1"].as<std::string>()));
 	packptr->initialise();
 	
-	std::vector<Vector  > 
+	std::vector<Vector> 
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
       	
-	Sim->dynamics.applyBC<BCSquarePeriodic>();
-	
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-	
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
+	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	  }
+	else
+	  {
+	    Sim->dynamics.applyBC<BCSquarePeriodic>();
+	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	  }
+
 	Iflt simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 	
-	Iflt particleDiam = 0.01;
-
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
 
-	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	if (vm.count("b1"))
+	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -2033,6 +2057,7 @@ CIPPacker::initialise()
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
+
     default:
       D_throw() << "Did not recognise the packer mode you wanted";
     }

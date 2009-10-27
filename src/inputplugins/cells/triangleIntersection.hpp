@@ -33,7 +33,7 @@ struct CUTriangleIntersect: public CUCell
   CUTriangleIntersect(CUCell* nextCell, Iflt diameter, std::string fileName):
     CUCell(nextCell),
     _diameter(diameter),
-    _diametersq(diameter*diameter),
+    _diametersq(diameter * diameter),
     _fileName(fileName)
   {}
 
@@ -51,13 +51,16 @@ struct CUTriangleIntersect: public CUCell
 	for (size_t i(0); i < NDIM; ++i)
 	  for (size_t j(0); j < NDIM; ++j)
 	    input >> tmp[i][j];
+	
 	_triangles.push_back(tmp);
       }
 
     std::cout << "\nCUTriangleIntersect :Loaded " << _triangles.size() << " triangles";
-
+    
     BOOST_FOREACH(triangle_type& triangle, _triangles)
       {
+	//std::cout << "\nCUTriangleIntersect :Loaded " << triangle[0] << " " << triangle[1] << " " << triangle[2] <<" triangle";
+	
 	//triangle[3] is the triangle norm
 	triangle[3] = ((triangle[1]-triangle[0]) ^ (triangle[2]-triangle[0]));
 	triangle[3] /= triangle[3].nrm();	
@@ -70,8 +73,15 @@ struct CUTriangleIntersect: public CUCell
 
   virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    std::vector<Vector> initval(uc->placeObjects(centre)), retval;
+    std::vector<Vector>  retval, initval(uc->placeObjects(centre));
     
+    BOOST_FOREACH(const Vector& sphere, initval)
+      BOOST_FOREACH(const triangle_type& triangle, _triangles)
+      if (triangleIntersects(sphere, triangle))
+	{
+	  retval.push_back(sphere);
+	  break;
+	}
     
     return retval;
   }
@@ -101,7 +111,7 @@ struct CUTriangleIntersect: public CUCell
       //Generate the point of the sphere on the surface of the triangle
       Vector C = sphere - triangle[3] * p - triangle[0];
       
-      std::cerr << "\nCross product should be zero and is actually " << ((C ^ triangle[1]) | triangle[0]); 
+      //std::cerr << "\nCross product should be zero and is actually " << ((C ^ triangle[1]) | triangle[0]); 
             
       //!Taken from http://www.blackpawn.com/texts/pointinpoly/default.html
       //v0 = triangle[1], v1 = triangle[2], v2 = C
@@ -110,15 +120,15 @@ struct CUTriangleIntersect: public CUCell
       Iflt dot01 = triangle[1] | triangle[2];
       Iflt dot02 = triangle[1] | C;
       Iflt dot12 = triangle[2] | C;
-
+    
       // Compute barycentric coordinates
       Iflt invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
       Iflt u = (dot11 * dot02 - dot01 * dot12) * invDenom;
       Iflt v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-	
-	// Check if point is in triangle
+    	
+    	// Check if point is in triangle
       if ((u > 0) && (v > 0) && (u + v < 1)) 
-	return true;
+    	return true;
     }
 
     //Check if the edges of the triangle intersect the spheres
@@ -133,9 +143,18 @@ struct CUTriangleIntersect: public CUCell
   bool sphereEdgeCheck(const Vector& linecentre, const Vector& edge, const Vector& sphere) const
   {
     const Vector r0(linecentre - sphere);
-    Iflt b = 2.0 * (r0 | edge);
     Iflt a = edge.nrm2();
-    Iflt c = r0.nrm2() - _diametersq * 0.25;
-    return (b * b - 4 * a * c >= 0);
+    Iflt b = (r0 | edge);
+    Iflt c = r0.nrm2() - (_diametersq * 0.25);
+    Iflt arg = b * b - a * c;
+    //They are approaching? Previous tests ensured the vertex is not in the sphere already
+    if (b < 0)
+	if (arg >= 0)
+	  {
+	    Iflt x = c / (b - std::sqrt(arg));
+	    if ((x > 0) && (x < 1)) return true;
+	  }
+
+    return false;
   }
 };
