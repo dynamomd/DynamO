@@ -24,7 +24,7 @@ maxord=$(echo $xmax $ymax $zmax | gawk '{val = $1; if ($2 > val) val = $2; if ($
 echo Maximum ordinate val is $maxord
 
 cat tmp2.vertex \
-    | gawk '{print $1/'$maxord',$2/'$maxord',$3/'$maxord'}' \
+    | gawk '{print 0.5*$1/'$maxord',0.5*$2/'$maxord',0.5*$3/'$maxord'}' \
     > fixed.vertex
 
 rm tmp.vertex tmp2.vertex
