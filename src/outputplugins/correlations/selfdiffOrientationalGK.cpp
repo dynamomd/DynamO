@@ -257,29 +257,33 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 	Iflt factor = Sim->dynamics.units().unitTime()
 		/ (Sim->dynamics.units().unitDiffusion() * count);
 
-	// Run through the perpendicular components
+	// Counting over the PERPENDICULAR vector - both should be same size anyway
 	for (size_t i = 0; i < accG2_perp.size(); ++i)
     {
+		// Common headers
 		Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
 
-		Vector acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
-
-		for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
-		{
-			acc_perp += accG2_perp[i][j];
-		}
-
-		acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
-
 		XML << xmlw::tag("Correlator")
-			<< xmlw::attr("name") << "SelfDiffusionPerpendicularGK"
+			<< xmlw::attr("name") << "SelfDiffusionOrientationalGK"
 			<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
 			<< xmlw::attr("size") << accG2_perp.size()
 			<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
 			<< xmlw::attr("LengthInMFT") << dt * accG2_perp[i].size()
 				/ Sim->getOutputPlugin<OPMisc>()->getMFT()
 			<< xmlw::attr("simFactor") << factor / specCount
-			<< xmlw::attr("SampleCount") << count
+			<< xmlw::attr("SampleCount") << count;
+
+
+		// Perpendicular section
+		Vector acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
+
+		for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
+			{ acc_perp += accG2_perp[i][j];}
+
+		acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+
+		XML << xmlw::tag("Component")
+			<< xmlw::attr("Type") << "Perpendicular"
 			<< xmlw::tag("Integral") << acc_perp
 			<< xmlw::endtag("Integral")
 			<< xmlw::chardata();
@@ -292,14 +296,9 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 			XML << "\n";
 		}
 
-		XML << xmlw::endtag("Correlator");
-    }
+		XML << xmlw::endtag("Component");
 
-	// Run through the parallel components
-	for (size_t i = 0; i < accG2_parallel.size(); ++i)
-    {
-		Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
-
+		// Parallel section
 		Vector acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
 
 		for (size_t j = 1; j < accG2_parallel[i].size() - 1; ++j)
@@ -309,15 +308,8 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 
 		acc_parallel *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
-		XML << xmlw::tag("Correlator")
-			<< xmlw::attr("name") << "SelfDiffusionParallelGK"
-			<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
-			<< xmlw::attr("size") << accG2_parallel.size()
-			<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-			<< xmlw::attr("LengthInMFT") << dt * accG2_parallel[i].size()
-				/ Sim->getOutputPlugin<OPMisc>()->getMFT()
-			<< xmlw::attr("simFactor") << factor / specCount
-			<< xmlw::attr("SampleCount") << count
+		XML << xmlw::tag("Component")
+			<< xmlw::attr("Type") << "Parallel"
 			<< xmlw::tag("Integral") << acc_parallel
 			<< xmlw::endtag("Integral")
 			<< xmlw::chardata();
@@ -330,7 +322,8 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 			XML << "\n";
 		}
 
-		XML << xmlw::endtag("Correlator");
+		XML << xmlw::endtag("Component")
+			<< xmlw::endtag("Correlator");
     }
 }
 
