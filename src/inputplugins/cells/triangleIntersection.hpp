@@ -153,7 +153,7 @@ struct CUTriangleIntersect: public CUCell
 
   bool sphereEdgeCheck(const Vector& linecentre, const Vector& edge, const Vector& sphere) const
   {
-
+    //Taken from http://jgt.akpeters.com/papers/KarabassiEtAl99/collision.html
     //n = edge,  
     Iflt a = edge | linecentre;
     Iflt b = edge | sphere;

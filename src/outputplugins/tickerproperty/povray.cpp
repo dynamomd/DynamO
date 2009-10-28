@@ -66,7 +66,7 @@ OPPovray::printImage()
   char *fileName;
 
   const bool boundSystem = false;
-  const bool showSky = true;
+  const bool showSky = false;
   const bool fog = false;
 
   if ( asprintf(&fileName, "%05d", frameCount++) < 0)
@@ -85,13 +85,14 @@ OPPovray::printImage()
 #include \"transforms.inc\"                \n\
 #include \"glass.inc\"                     \n\
 global_settings { max_trace_level 20 }     \n\
-global_settings { assumed_gamma 1.0 }      \n\
 global_settings { noise_generator 1 }      \n\
+global_settings { ambient_light 8 }        \n\
+background { rgb<0.007843137, 0.20392156, 0.39607843> }               \n\
 // camera ---------------------------------\n\
 #declare zoom = "<< zoomlevel << " ;       \n\
 #declare Cam0 =                            \n\
-   camera {angle 80                        \n\
-           location  <0.0 , -0.05 , zoom>	   \n\
+   camera {                                \n\
+           location  <0.0 , -0.05 , zoom>  \n\
            look_at   <0.0 , 0.0 , 0.0>}    \n\
 camera{Cam0}                               \n\
 // sun ------------------------------------\n\
@@ -100,12 +101,13 @@ light_source{<5,1.5,5> color White}\n\
 
   if (showSky)
     of << "\
-// sky ------------------------------------        \n\
+// sky ------------------------------------      \n\
+global_settings { assumed_gamma 1.0 }            \n\
 plane{<0,1,0>,2 hollow                           \n\
       texture{ pigment {color rgb< 0.05,0.25,0.6>} \n\
                finish {ambient 1  diffuse 0}}      \n\
      }                                             \n\
-plane{<0,1,0>,1 hollow                            \n\
+plane{<0,1,0>,1 hollow                           \n\
       texture{pigment { bozo turbulence 0.65                           \n\
                         octaves 6  omega 0.7 lambda 2 		       \n\
                         color_map { [0.0 color rgb <0.95, 0.95, 0.95>] \n\

@@ -37,8 +37,8 @@ void
 LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
 {
   particle.getPosition() += dt * particle.getVelocity();
-  particle.getPosition()[2] += 0.5 * dt * dt * Gravity;
-  particle.getVelocity()[2] += dt * Gravity;
+  particle.getPosition()[1] += 0.5 * dt * dt * Gravity;
+  particle.getVelocity()[1] += dt * Gravity;
 }
 
 Iflt 
@@ -51,7 +51,7 @@ LNewtonianGravity::getWallCollision(const CParticle &part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  Iflt adot = wallNorm[2] * Gravity;
+  Iflt adot = wallNorm[1] * Gravity;
   Iflt vdot = vel | wallNorm;
   Iflt rdot = (rij - wallLoc) | wallNorm;
 
