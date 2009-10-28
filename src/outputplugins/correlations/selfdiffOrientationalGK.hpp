@@ -61,8 +61,8 @@ protected:
 
   Iflt getdt();
 
-  std::vector<boost::circular_buffer<Vector  > > G;
-  std::vector<std::vector<Vector  > > accG2;
+  std::vector<boost::circular_buffer<Vector  > > G_parallel, G_perp;
+  std::vector<std::vector<Vector  > > accG2_parallel, accG2_perp;
   long count;
   Iflt dt, currentdt;
 

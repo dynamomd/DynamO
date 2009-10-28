@@ -37,12 +37,21 @@ OPSelfDiffusionOrientationalGK::initialise()
 
   dt = getdt();
 
-  G.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
+  G_parallel.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
+  G_perp.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
 
-  accG2.resize(Sim->dynamics.getSpecies().size());
+  accG2_parallel.resize(Sim->dynamics.getSpecies().size());
+  accG2_perp.resize(Sim->dynamics.getSpecies().size());
 
-  BOOST_FOREACH(std::vector<Vector  >& listref, accG2)
-    listref.resize(CorrelatorLength, Vector (0,0,0));
+  BOOST_FOREACH(std::vector<Vector  >& listref_parallel, accG2_parallel)
+  {
+    listref_parallel.resize(CorrelatorLength, Vector (0,0,0));
+  }
+
+  BOOST_FOREACH(std::vector<Vector  >& listref_perp, accG2_perp)
+  {
+    listref_perp.resize(CorrelatorLength, Vector (0,0,0));
+  }
 
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
@@ -50,23 +59,30 @@ OPSelfDiffusionOrientationalGK::initialise()
 void
 OPSelfDiffusionOrientationalGK::operator<<(const XMLNode& XML)
 {
-  try
+	try
     {
-      if (XML.isAttributeSet("Length"))
-	CorrelatorLength = boost::lexical_cast<unsigned int>
-	  (XML.getAttribute("Length"));
+		if (XML.isAttributeSet("Length"))
+		{
+			CorrelatorLength = boost::lexical_cast<unsigned int>
+				(XML.getAttribute("Length"));
+		}
 
-      if (XML.isAttributeSet("dt"))
-	dt = Sim->dynamics.units().unitTime() *
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+		if (XML.isAttributeSet("dt"))
+		{
+			dt = Sim->dynamics.units().unitTime() *
+				boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+		}
 
-      if (XML.isAttributeSet("t"))
-	dt = Sim->dynamics.units().unitTime() *
-	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+		if (XML.isAttributeSet("t"))
+		{
+			dt = Sim->dynamics.units().unitTime() *
+				boost::lexical_cast<Iflt>
+				(XML.getAttribute("t"))/CorrelatorLength;
+		}
     }
-  catch (boost::bad_lexical_cast &)
+	catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";
+		D_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";
     }
 }
 
@@ -129,22 +145,30 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CIntEvent& iEvent, const C2Par
 void
 OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
 {
-  if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+	if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
+	{
+		Sim->dynamics.getLiouvillean().updateAllParticles();
+	}
 
-  for (size_t i = 0; i < Sim->lN; ++i)
-    G[i].push_front(Sim->vParticleList[i].getVelocity());
+	for (size_t i = 0; i < Sim->lN; ++i)
+	{
+		G_perp[i].push_front(Sim->vParticleList[i].getVelocity());
+		G_parallel[i].push_front(Sim->vParticleList[i].getVelocity());
+	}
 
-  //Now correct the fact that the wrong velocity has been pushed
-  G[PDat.getParticle().getID()].front() = PDat.getOldVel();
+	//Now correct the fact that the wrong velocity has been pushed
+	G_perp[PDat.getParticle().getID()].front() = PDat.getOldVel();
+	G_parallel[PDat.getParticle().getID()].front() = PDat.getOldVel();
 
-  //This ensures the list gets to accumilator size
-  if (notReady)
+	//This ensures the list gets to accumilator size
+	if (notReady)
     {
-      if (++currCorrLen != CorrelatorLength)
-	return;
+		if (++currCorrLen != CorrelatorLength)
+		{
+			return;
+		}
 
-      notReady = false;
+		notReady = false;
     }
 
   accPass();
@@ -153,125 +177,194 @@ OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
 void
 OPSelfDiffusionOrientationalGK::newG(const C2ParticleData& PDat)
 {
-  for (size_t i = 0; i < Sim->lN; ++i)
-    G[i].push_front(Sim->vParticleList[i].getVelocity());
+	for (size_t i = 0; i < Sim->lN; ++i)
+	{
+		G_perp[i].push_front(Sim->vParticleList[i].getVelocity());
+		G_parallel[i].push_front(Sim->vParticleList[i].getVelocity());
+	}
 
-  //Now correct the fact that the wrong velocity has been pushed
-  G[PDat.particle1_.getParticle().getID()].front()
-    = PDat.particle1_.getOldVel();
+	//Now correct the fact that the wrong velocity has been pushed
+	G_perp[PDat.particle1_.getParticle().getID()].front() = PDat.particle1_.getOldVel();
+	G_perp[PDat.particle2_.getParticle().getID()].front() = PDat.particle2_.getOldVel();
 
-  G[PDat.particle2_.getParticle().getID()].front()
-    = PDat.particle2_.getOldVel();
+	G_parallel[PDat.particle1_.getParticle().getID()].front() = PDat.particle1_.getOldVel();
+	G_parallel[PDat.particle2_.getParticle().getID()].front() = PDat.particle2_.getOldVel();
 
-  //This ensures the list gets to accumilator size
-  if (notReady)
+	//This ensures the list gets to accumilator size
+	if (notReady)
     {
-      if (++currCorrLen != CorrelatorLength)
-	return;
+		if (++currCorrLen != CorrelatorLength)
+		{
+			return;
+		}
 
-      notReady = false;
+		notReady = false;
     }
 
-  accPass();
+	accPass();
 }
 
 void
 OPSelfDiffusionOrientationalGK::newG(const CNParticleData& PDat)
 {
-  //This ensures the list stays at accumilator size
-  for (size_t i = 0; i < Sim->lN; ++i)
-    G[i].push_front(Sim->vParticleList[i].getVelocity());
+	//This ensures the list stays at accumilator size
+	for (size_t i = 0; i < Sim->lN; ++i)
+	{
+		G_perp[i].push_front(Sim->vParticleList[i].getVelocity());
+		G_parallel[i].push_front(Sim->vParticleList[i].getVelocity());
+	}
 
-  //Go back and fix the pushes
-  BOOST_FOREACH(const C1ParticleData&PDat2, PDat.L1partChanges)
-    G[PDat2.getParticle().getID()].front() = PDat2.getOldVel();
+	//Go back and fix the pushes
+	BOOST_FOREACH(const C1ParticleData&PDat2, PDat.L1partChanges)
+	{
+		G_perp[PDat2.getParticle().getID()].front() = PDat2.getOldVel();
+		G_parallel[PDat2.getParticle().getID()].front() = PDat2.getOldVel();
+	}
 
-  BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
+	BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
     {
-      G[PDat2.particle1_.getParticle().getID()].front()
-	= PDat2.particle1_.getOldVel();
+		G_perp[PDat2.particle1_.getParticle().getID()].front() = PDat2.particle1_.getOldVel();
+		G_perp[PDat2.particle2_.getParticle().getID()].front() = PDat2.particle2_.getOldVel();
 
-      G[PDat2.particle2_.getParticle().getID()].front()
-	= PDat2.particle2_.getOldVel();
+		G_parallel[PDat2.particle1_.getParticle().getID()].front() = PDat2.particle1_.getOldVel();
+		G_parallel[PDat2.particle2_.getParticle().getID()].front() = PDat2.particle2_.getOldVel();
     }
 
-  //This ensures the list gets to accumilator size
-  if (notReady)
+	//This ensures the list gets to accumilator size
+	if (notReady)
     {
-      if (++currCorrLen != CorrelatorLength)
-	return;
+		if (++currCorrLen != CorrelatorLength)
+		{
+			return;
+		}
 
-      notReady = false;
+		notReady = false;
     }
 
-  accPass();
+	accPass();
 }
 
 void
 OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 {
-  Iflt factor = Sim->dynamics.units().unitTime()
-    / (Sim->dynamics.units().unitDiffusion() * count);
+	Iflt factor = Sim->dynamics.units().unitTime()
+		/ (Sim->dynamics.units().unitDiffusion() * count);
 
-  for (size_t i = 0; i < accG2.size(); ++i)
+	// Run through the perpendicular components
+	for (size_t i = 0; i < accG2_perp.size(); ++i)
     {
-      Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
+		Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
 
-      Vector  acc = 0.5*(accG2[i].front() + accG2[i].back());
+		Vector acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
 
-      for (size_t j = 1; j < accG2[i].size() - 1; ++j)
-	acc += accG2[i][j];
+		for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
+		{
+			acc_perp += accG2_perp[i][j];
+		}
 
-      acc *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+		acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
-      XML << xmlw::tag("Correlator")
-	  << xmlw::attr("name") << "SelfDiffusionOrientationalGK"
-	  << xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
-	  << xmlw::attr("size") << accG2.size()
-	  << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size()
-	/ Sim->getOutputPlugin<OPMisc>()->getMFT()
-	  << xmlw::attr("simFactor") << factor / specCount
-	  << xmlw::attr("SampleCount") << count
-	  << xmlw::tag("Integral") << acc
-	  << xmlw::endtag("Integral")
-	  << xmlw::chardata();
+		XML << xmlw::tag("Correlator")
+			<< xmlw::attr("name") << "SelfDiffusionPerpendicularGK"
+			<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+			<< xmlw::attr("size") << accG2_perp.size()
+			<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
+			<< xmlw::attr("LengthInMFT") << dt * accG2_perp[i].size()
+				/ Sim->getOutputPlugin<OPMisc>()->getMFT()
+			<< xmlw::attr("simFactor") << factor / specCount
+			<< xmlw::attr("SampleCount") << count
+			<< xmlw::tag("Integral") << acc_perp
+			<< xmlw::endtag("Integral")
+			<< xmlw::chardata();
 
-      for (size_t j = 0; j < accG2[i].size(); ++j)
-	{
-	  XML << j * dt / Sim->dynamics.units().unitTime();
-	  for (size_t iDim = 0; iDim < NDIM; iDim++)
-	    XML << "\t" << accG2[i][j][iDim] * factor / specCount;
-	  XML << "\n";
-	}
+		for (size_t j = 0; j < accG2_perp[i].size(); ++j)
+		{
+			XML << j * dt / Sim->dynamics.units().unitTime();
+			for (size_t iDim = 0; iDim < NDIM; iDim++)
+				XML << "\t" << accG2_perp[i][j][iDim] * factor / specCount;
+			XML << "\n";
+		}
 
-      XML << xmlw::endtag("Correlator");
+		XML << xmlw::endtag("Correlator");
+    }
+
+	// Run through the parallel components
+	for (size_t i = 0; i < accG2_parallel.size(); ++i)
+    {
+		Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
+
+		Vector acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
+
+		for (size_t j = 1; j < accG2_parallel[i].size() - 1; ++j)
+		{
+			acc_parallel += accG2_parallel[i][j];
+		}
+
+		acc_parallel *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+
+		XML << xmlw::tag("Correlator")
+			<< xmlw::attr("name") << "SelfDiffusionParallelGK"
+			<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+			<< xmlw::attr("size") << accG2_parallel.size()
+			<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
+			<< xmlw::attr("LengthInMFT") << dt * accG2_parallel[i].size()
+				/ Sim->getOutputPlugin<OPMisc>()->getMFT()
+			<< xmlw::attr("simFactor") << factor / specCount
+			<< xmlw::attr("SampleCount") << count
+			<< xmlw::tag("Integral") << acc_parallel
+			<< xmlw::endtag("Integral")
+			<< xmlw::chardata();
+
+		for (size_t j = 0; j < accG2_parallel[i].size(); ++j)
+		{
+			XML << j * dt / Sim->dynamics.units().unitTime();
+			for (size_t iDim = 0; iDim < NDIM; iDim++)
+				XML << "\t" << accG2_parallel[i][j][iDim] * factor / specCount;
+			XML << "\n";
+		}
+
+		XML << xmlw::endtag("Correlator");
     }
 }
 
 Iflt
 OPSelfDiffusionOrientationalGK::getdt()
 {
-  //Get the simulation temperature
-  if (dt == 0.0)
-    {
-      if (Sim->lastRunMFT != 0.0)
-	return Sim->lastRunMFT * 50.0 / CorrelatorLength;
-      else
-	return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
-    }
-  else
-    return dt;
+	//Get the simulation temperature
+	if (dt == 0.0)
+	{
+		if (Sim->lastRunMFT != 0.0)
+		{
+			return Sim->lastRunMFT * 50.0 / CorrelatorLength;
+		}
+		else
+		{
+			return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+		}
+	}
+	else
+	{
+		return dt;
+	}
 }
 
 void
 OPSelfDiffusionOrientationalGK::accPass()
 {
-  ++count;
+	++count;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const size_t& ID, *spec->getRange())
-    for (size_t j = 0; j < CorrelatorLength; ++j)
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	accG2[spec->getID()][j][iDim] +=  G[ID].front()[iDim] * G[ID][j][iDim];
+	BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+	{
+		BOOST_FOREACH(const size_t& ID, *spec->getRange())
+		{
+			for (size_t j = 0; j < CorrelatorLength; ++j)
+			{
+				for (size_t iDim(0); iDim < NDIM; ++iDim)
+				{
+					accG2_parallel[spec->getID()][j][iDim] +=  G_parallel[ID].front()[iDim] * G_parallel[ID][j][iDim];
+					accG2_perp[spec->getID()][j][iDim] +=  G_perp[ID].front()[iDim] * G_perp[ID][j][iDim];
+				}
+			}
+		}
+	}
 }
