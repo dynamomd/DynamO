@@ -17,6 +17,8 @@
 
 #include "selfdiffOrientationalGK.hpp"
 #include "../../dynamics/liouvillean/SLLOD.hpp"
+#include "../../dynamics/liouvillean/OrientationL.hpp"
+#include "../../dynamics/liouvillean/liouvillean.hpp"
 
 OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const DYNAMO::SimData* tmp,const XMLNode& XML):
   OutputPlugin(tmp, "SelfDiffusionOrientationalGK", 60), //Note the sort order set later
@@ -36,6 +38,11 @@ OPSelfDiffusionOrientationalGK::initialise()
   Sim->getOutputPlugin<OPMisc>();
 
   dt = getdt();
+
+  if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
+  {
+		D_throw() << "Species does not specify an orientation";
+  }
 
   G_parallel.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
   G_perp.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
