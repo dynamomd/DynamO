@@ -67,7 +67,7 @@ OPPovray::printImage()
 
   const bool boundSystem = false;
   const bool showSky = true;
-  const bool fog = true;
+  const bool fog = false;
 
   if ( asprintf(&fileName, "%05d", frameCount++) < 0)
     D_throw() << "asprintf error in tinkerXYZ";

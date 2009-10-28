@@ -153,19 +153,49 @@ struct CUTriangleIntersect: public CUCell
 
   bool sphereEdgeCheck(const Vector& linecentre, const Vector& edge, const Vector& sphere) const
   {
-    const Vector r0(linecentre - sphere);
-    Iflt a = edge.nrm2();
-    Iflt b = (r0 | edge);
-    Iflt c = r0.nrm2() - (_diametersq * 0.25);
-    Iflt arg = b * b - a * c;
-    //They are approaching? Previous tests ensured the vertex is not in the sphere already
-    if (b < 0)
-	if (arg >= 0)
-	  {
-	    Iflt x = c / (b - std::sqrt(arg));
-	    if ((x > 0) && (x < 1)) return true;
-	  }
 
-    return false;
+    //n = edge,  
+    Iflt a = edge | linecentre;
+    Iflt b = edge | sphere;
+    Iflt c = edge | edge;
+
+    Iflt t = (b - a) / c;
+
+    Vector q = linecentre + t * edge;
+    
+    Vector ijk = sphere - q;
+    Iflt d = ijk.nrm2();
+    if (d > _diametersq) return false;
+
+    if (d == _diametersq)
+      if ((t >= 0) && (t <= 1))
+	return true;
+      else
+	return false;
+
+    Iflt r = std::sqrt((_diametersq-d) / c);
+    Iflt t1 = t - r;
+    Iflt t2 = t + r;
+
+    if ( ( (t1<0) && (t2<0) )
+	 ||( (t1>1) && (t2>1) ) )
+      return false;
+
+    return true;
+
+//    const Vector r0(linecentre - sphere);
+//    Iflt a = edge.nrm2();
+//    Iflt b = (r0 | edge);
+//    Iflt c = r0.nrm2() - (_diametersq * 0.25);
+//    Iflt arg = b * b - a * c;
+//    //They are approaching? Previous tests ensured the vertex is not in the sphere already
+//    if (b < 0)
+//	if (arg >= 0)
+//	  {
+//	    Iflt x = c / (b - std::sqrt(arg));
+//	    if ((x > 0) && (x < 1)) return true;
+//	  }
+//
+//    return false;
   }
 };

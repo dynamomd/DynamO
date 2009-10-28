@@ -2051,8 +2051,11 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), 
-						 nParticles++));
+	  {
+	    Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), 
+						   nParticles++));
+	    Sim->vParticleList.back().getPosition()[2] -= 20 * particleDiam;
+	  }
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
