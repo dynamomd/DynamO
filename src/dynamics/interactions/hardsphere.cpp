@@ -177,8 +177,8 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   os << "#declare intrep" << ID << " = " 
      << "sphere {\n <0,0,0> " 
      << diameter / 2.0
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
+     << "\n texture { pigment { color rgb<" << /*rgb.R*/ 0.8 << "," << /*rgb.G*/ 0.8
+     << "," << /*rgb.B*/ 0.8 << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
@@ -186,12 +186,10 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
       Sim->dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "\n translate <"
-	 << pos[0];
-
-      for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << pos[iDim];
-      
-       os << ">\n}\n";
+	 << -pos[0];
+      os << "," << pos[1];
+      os << "," << pos[2];      
+      os << ">\n}\n";
     }
 }
 
