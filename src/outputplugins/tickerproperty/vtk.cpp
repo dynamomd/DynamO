@@ -93,6 +93,8 @@ OPVTK::initialise()
       (binWidth[iDim]/Sim->dynamics.units().unitLength()) + " ";
   
   I_cout() << "Bin width " << tmp << ">";  
+
+  ticker();
 }
 
 size_t 
