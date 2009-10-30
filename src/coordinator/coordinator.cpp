@@ -22,6 +22,7 @@
 #include "coordinator.hpp"
 #include "engine/include.hpp"
 #include <signal.h>
+#include <cstdio>
 #ifdef DYNAMO_DEBUG
 # include <typeinfo>
 #endif

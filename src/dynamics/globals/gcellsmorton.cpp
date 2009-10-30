@@ -27,6 +27,7 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
+#include <cstdio>
 
 CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "MortonCellNeighbourList"),

@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
 #include <signal.h>
 #include <boost/program_options.hpp>
 #include "../src/coordinator/coordinator.hpp"
