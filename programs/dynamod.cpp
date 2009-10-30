@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <iostream>
+#include <cstdio>
 #include <signal.h>
 #include <boost/program_options.hpp>
 using namespace std;
