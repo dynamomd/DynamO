@@ -51,6 +51,8 @@ class OPSelfDiffusionOrientationalGK: public OutputPlugin
 
   virtual OutputPlugin *Clone() const { return new OPSelfDiffusionOrientationalGK(*this); }
 
+  typedef std::pair<Vector,Vector> VUpair;
+
 protected:
 
   virtual void newG(const C2ParticleData&);
@@ -61,8 +63,8 @@ protected:
 
   Iflt getdt();
 
-  std::vector<boost::circular_buffer<Vector  > > G_parallel, G_perp;
-  std::vector<std::vector<Vector  > > accG2_parallel, accG2_perp;
+  std::vector<boost::circular_buffer<VUpair> > G;
+  std::vector<std::vector<Iflt> > accG2_parallel, accG2_perp;
   long count;
   Iflt dt, currentdt;
 
