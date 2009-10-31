@@ -1638,17 +1638,17 @@ CIPPacker::initialise()
 
 	typedef std::pair<Iflt,Iflt> locpair;
 	std::vector<locpair> diamvec;
-	diamvec.push_back(std::pair<Iflt,Iflt>(2.30,-0.06));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.75,-0.22));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.45,-0.55));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.25,-0.98));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.05,-0.47));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1,-0.76));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.95,3.81));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.90,10.95));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.85,27.55));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.8,66.74));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.75,0));
+	diamvec.push_back(std::pair<Iflt,Iflt>(2.30, -0.06));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.75, -0.22));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.45, -0.55));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.25, -0.98));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.05, -0.47));
+	diamvec.push_back(std::pair<Iflt,Iflt>(1.00,  0.76));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.95,  3.81));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.90, 10.95));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.85, 27.55));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.80, 66.74));
+	diamvec.push_back(std::pair<Iflt,Iflt>(0.75, 0.0  ));
 
 	BOOST_FOREACH(locpair& p, diamvec)
 	  {

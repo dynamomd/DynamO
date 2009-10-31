@@ -130,7 +130,7 @@ CIStepped::initialise(size_t nID)
     }
 
   I_cout() << "Buckets in captureMap " << captureMap.bucket_count()
-	   << "\nMax buckey count " << captureMap.max_bucket_count()
+	   << "\nMax bucket count " << captureMap.max_bucket_count()
 	   << "\nload Factor " << captureMap.load_factor()
 	   << "\nMax load Factor " << captureMap.max_load_factor();
 }
