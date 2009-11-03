@@ -279,7 +279,8 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 
     XML << xmlw::tag("Component")
 	<< xmlw::attr("Type") << "Perpendicular"
-	<< xmlw::tag("Integral") << acc_perp
+	<< xmlw::tag("Integral")
+	<< xmlw::attr("value") << acc_perp
 	<< xmlw::endtag("Integral")
 	<< xmlw::chardata();
 
@@ -303,7 +304,8 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 
     XML << xmlw::tag("Component")
 	<< xmlw::attr("Type") << "Parallel"
-	<< xmlw::tag("Integral") << acc_parallel
+	<< xmlw::tag("Integral")
+	<< xmlw::attr("value") << acc_parallel
 	<< xmlw::endtag("Integral")
 	<< xmlw::chardata();
 
