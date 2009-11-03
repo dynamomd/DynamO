@@ -65,7 +65,7 @@ OPPovray::printImage()
 
   char *fileName;
 
-  const bool boundSystem = false;
+  const bool boundSystem = true;
   const bool showSky = false;
   const bool fog = false;
 
@@ -87,7 +87,7 @@ OPPovray::printImage()
 global_settings { max_trace_level 20 }     \n\
 global_settings { noise_generator 1 }      \n\
 global_settings { ambient_light 8 }        \n\
-background { rgb<0.007843137, 0.20392156, 0.39607843> }               \n\
+background { rgb<1, 1, 1> }               \n\
 // camera ---------------------------------\n\
 #declare zoom = "<< zoomlevel << " ;       \n\
 #declare Cam0 =                            \n\

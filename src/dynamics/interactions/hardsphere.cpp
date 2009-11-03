@@ -186,7 +186,7 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
       Sim->dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "\n translate <"
-	 << -pos[0];
+	 << pos[0];
       os << "," << pos[1];
       os << "," << pos[2];      
       os << ">\n}\n";
