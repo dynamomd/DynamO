@@ -41,7 +41,7 @@ OPSelfDiffusionOrientationalGK::initialise()
 
   if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
   {
-		D_throw() << "Species does not specify an orientation";
+    D_throw() << "Species does not specify an orientation";
   }
 
   G.resize(Sim->lN, boost::circular_buffer<VUpair> (CorrelatorLength, VUpair(Vector(0,0,0), Vector(0,0,0) )));
@@ -65,31 +65,29 @@ OPSelfDiffusionOrientationalGK::initialise()
 void
 OPSelfDiffusionOrientationalGK::operator<<(const XMLNode& XML)
 {
-	try
+  try
+  {
+    if (XML.isAttributeSet("Length"))
     {
-		if (XML.isAttributeSet("Length"))
-		{
-			CorrelatorLength = boost::lexical_cast<unsigned int>
-				(XML.getAttribute("Length"));
-		}
-
-		if (XML.isAttributeSet("dt"))
-		{
-			dt = Sim->dynamics.units().unitTime() *
-				boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
-		}
-
-		if (XML.isAttributeSet("t"))
-		{
-			dt = Sim->dynamics.units().unitTime() *
-				boost::lexical_cast<Iflt>
-				(XML.getAttribute("t"))/CorrelatorLength;
-		}
+      CorrelatorLength = boost::lexical_cast<unsigned int> (XML.getAttribute("Length"));
     }
-	catch (boost::bad_lexical_cast &)
+
+    if (XML.isAttributeSet("dt"))
     {
-		D_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";
+      dt = Sim->dynamics.units().unitTime() *
+      boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
     }
+
+    if (XML.isAttributeSet("t"))
+    {
+      dt = Sim->dynamics.units().unitTime() * boost::lexical_cast<Iflt> (XML.getAttribute("t"))/CorrelatorLength;
+    }
+  }
+
+  catch (boost::bad_lexical_cast &)
+  {
+    D_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";
+  }
 }
 
 void
@@ -151,31 +149,31 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CIntEvent& iEvent, const C2Par
 void
 OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
 {
-	if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
-	{
-		Sim->dynamics.getLiouvillean().updateAllParticles();
-	}
+  if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
+  {
+    Sim->dynamics.getLiouvillean().updateAllParticles();
+  }
 
-	for (size_t i = 0; i < Sim->lN; ++i)
-	{
-		const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
-		G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
-	}
+  for (size_t i = 0; i < Sim->lN; ++i)
+  {
+    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
+    G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
+  }
 
-	//Now correct the fact that the wrong velocity and orientation have been pushed
-	const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.getParticle().getID()]));
-	G[PDat.getParticle().getID()].front() = VUpair(PDat.getOldVel(), fetchpart.orientation);
+  //Now correct the fact that the wrong velocity and orientation have been pushed
+  const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.getParticle().getID()]));
+  G[PDat.getParticle().getID()].front() = VUpair(PDat.getOldVel(), fetchpart.orientation);
 
-	//This ensures the list gets to accumilator size
-	if (notReady)
+  //This ensures the list gets to accumilator size
+  if (notReady)
+  {
+    if (++currCorrLen != CorrelatorLength)
     {
-		if (++currCorrLen != CorrelatorLength)
-		{
-			return;
-		}
-
-		notReady = false;
+      return;
     }
+
+      notReady = false;
+  }
 
   accPass();
 }
@@ -183,192 +181,192 @@ OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
 void
 OPSelfDiffusionOrientationalGK::newG(const C2ParticleData& PDat)
 {
-	for (size_t i = 0; i < Sim->lN; ++i)
-	{
-		const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
-		G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
-	}
+  for (size_t i = 0; i < Sim->lN; ++i)
+  {
+    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
+    G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
+  }
 
-	//Now correct the fact that the wrong velocities and orientations have been pushed
-	const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.particle1_.getParticle().getID()]));
-	const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.particle2_.getParticle().getID()]));
+  //Now correct the fact that the wrong velocities and orientations have been pushed
+  const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.particle1_.getParticle().getID()]));
+  const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.particle2_.getParticle().getID()]));
 
-	G[PDat.particle1_.getParticle().getID()].front() = VUpair(PDat.particle1_.getOldVel(), fetch1.orientation);
-	G[PDat.particle2_.getParticle().getID()].front() = VUpair(PDat.particle2_.getOldVel(), fetch2.orientation);
+  G[PDat.particle1_.getParticle().getID()].front() = VUpair(PDat.particle1_.getOldVel(), fetch1.orientation);
+  G[PDat.particle2_.getParticle().getID()].front() = VUpair(PDat.particle2_.getOldVel(), fetch2.orientation);
 
-	//This ensures the list gets to accumilator size
-	if (notReady)
+  //This ensures the list gets to accumilator size
+  if (notReady)
+  {
+    if (++currCorrLen != CorrelatorLength)
     {
-		if (++currCorrLen != CorrelatorLength)
-		{
-			return;
-		}
-
-		notReady = false;
+      return;
     }
 
-	accPass();
+    notReady = false;
+  }
+
+  accPass();
 }
 
 void
 OPSelfDiffusionOrientationalGK::newG(const CNParticleData& PDat)
 {
-	//This ensures the list stays at accumilator size
-	for (size_t i = 0; i < Sim->lN; ++i)
-	{
-		const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
-		G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
-	}
+  //This ensures the list stays at accumilator size
+  for (size_t i = 0; i < Sim->lN; ++i)
+  {
+    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
+    G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
+  }
 
-	//Go back and fix the pushes
-	BOOST_FOREACH(const C1ParticleData&PDat2, PDat.L1partChanges)
-	{
-		const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.getParticle().getID()]));
-		G[PDat2.getParticle().getID()].front() = VUpair(PDat2.getOldVel(), fetchpart.orientation);
-	}
+  //Go back and fix the pushes
+  BOOST_FOREACH(const C1ParticleData&PDat2, PDat.L1partChanges)
+  {
+    const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.getParticle().getID()]));
+    G[PDat2.getParticle().getID()].front() = VUpair(PDat2.getOldVel(), fetchpart.orientation);
+  }
 
-	BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
+  BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
+  {
+    const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle1_.getParticle().getID()]));
+    const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle2_.getParticle().getID()]));
+
+    G[PDat2.particle1_.getParticle().getID()].front() = VUpair(PDat2.particle1_.getOldVel(), fetch1.orientation);
+    G[PDat2.particle2_.getParticle().getID()].front() = VUpair(PDat2.particle2_.getOldVel(), fetch2.orientation);
+  }
+
+  //This ensures the list gets to accumilator size
+  if (notReady)
+  {
+    if (++currCorrLen != CorrelatorLength)
     {
-		const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle1_.getParticle().getID()]));
-		const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle2_.getParticle().getID()]));
-
-		G[PDat2.particle1_.getParticle().getID()].front() = VUpair(PDat2.particle1_.getOldVel(), fetch1.orientation);
-		G[PDat2.particle2_.getParticle().getID()].front() = VUpair(PDat2.particle2_.getOldVel(), fetch2.orientation);
+      return;
     }
 
-	//This ensures the list gets to accumilator size
-	if (notReady)
-    {
-		if (++currCorrLen != CorrelatorLength)
-		{
-			return;
-		}
+    notReady = false;
+  }
 
-		notReady = false;
-    }
-
-	accPass();
+  accPass();
 }
 
 void
 OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 {
-	Iflt factor = Sim->dynamics.units().unitTime()
-		/ (Sim->dynamics.units().unitDiffusion() * count);
+  Iflt factor = Sim->dynamics.units().unitTime() / (Sim->dynamics.units().unitDiffusion() * count);
 
-	// Counting over the PERPENDICULAR vector - both should be same size anyway
-	for (size_t i = 0; i < accG2_perp.size(); ++i)
+  // Counting over the PERPENDICULAR vector - both should be same size anyway
+  for (size_t i = 0; i < accG2_perp.size(); ++i)
+  {
+    // Common headers
+    Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
+
+    XML << xmlw::tag("Correlator")
+	<< xmlw::attr("name") << "SelfDiffusionOrientationalGK"
+	<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+	<< xmlw::attr("size") << accG2_perp.size()
+	<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	<< xmlw::attr("LengthInMFT") << dt * accG2_perp[i].size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
+	<< xmlw::attr("simFactor") << factor / specCount
+	<< xmlw::attr("SampleCount") << count;
+
+
+    // Perpendicular section
+    Iflt acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
+
+    for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
+      { acc_perp += accG2_perp[i][j];}
+
+    acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+
+    XML << xmlw::tag("Component")
+	<< xmlw::attr("Type") << "Perpendicular"
+	<< xmlw::tag("Integral")
+	<< xmlw::attr("value") << acc_perp
+	<< xmlw::endtag("Integral")
+	<< xmlw::chardata();
+
+    for (size_t j = 0; j < accG2_perp[i].size(); ++j)
     {
-		// Common headers
-		Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
+      XML << j * dt / Sim->dynamics.units().unitTime()
+	  << "\t" << accG2_perp[i][j] * factor / specCount << "\n";
+    }
 
-		XML << xmlw::tag("Correlator")
-			<< xmlw::attr("name") << "SelfDiffusionOrientationalGK"
-			<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
-			<< xmlw::attr("size") << accG2_perp.size()
-			<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-			<< xmlw::attr("LengthInMFT") << dt * accG2_perp[i].size()
-				/ Sim->getOutputPlugin<OPMisc>()->getMFT()
-			<< xmlw::attr("simFactor") << factor / specCount
-			<< xmlw::attr("SampleCount") << count;
+    XML << xmlw::endtag("Component");
 
+    // Parallel section
+    Iflt acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
 
-		// Perpendicular section
-		Iflt acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
+    for (size_t j = 1; j < accG2_parallel[i].size() - 1; ++j)
+    {
+      acc_parallel += accG2_parallel[i][j];
+    }
 
-		for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
-			{ acc_perp += accG2_perp[i][j];}
+    acc_parallel *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
-		acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+    XML << xmlw::tag("Component")
+	<< xmlw::attr("Type") << "Parallel"
+	<< xmlw::tag("Integral")
+	<< xmlw::attr("value") << acc_parallel
+	<< xmlw::endtag("Integral")
+	<< xmlw::chardata();
 
-		XML << xmlw::tag("Component")
-			<< xmlw::attr("Type") << "Perpendicular"
-			<< xmlw::tag("Integral") << acc_perp
-			<< xmlw::endtag("Integral")
-			<< xmlw::chardata();
+    for (size_t j = 0; j < accG2_parallel[i].size(); ++j)
+    {
+      XML << j * dt / Sim->dynamics.units().unitTime()
+	  << "\t" << accG2_parallel[i][j] * factor / specCount << "\n";
+    }
 
-		for (size_t j = 0; j < accG2_perp[i].size(); ++j)
-		{
-			XML << j * dt / Sim->dynamics.units().unitTime()
-				<< "\t" << accG2_perp[i][j] * factor / specCount << "\n";
-		}
-
-		XML << xmlw::endtag("Component");
-
-		// Parallel section
-		Iflt acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
-
-		for (size_t j = 1; j < accG2_parallel[i].size() - 1; ++j)
-		{
-			acc_parallel += accG2_parallel[i][j];
-		}
-
-		acc_parallel *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
-
-		XML << xmlw::tag("Component")
-			<< xmlw::attr("Type") << "Parallel"
-			<< xmlw::tag("Integral") << acc_parallel
-			<< xmlw::endtag("Integral")
-			<< xmlw::chardata();
-
-		for (size_t j = 0; j < accG2_parallel[i].size(); ++j)
-		{
-			XML << j * dt / Sim->dynamics.units().unitTime()
-				<< "\t" << accG2_parallel[i][j] * factor / specCount << "\n";
-		}
-
-		XML << xmlw::endtag("Component")
-			<< xmlw::endtag("Correlator");
+    XML << xmlw::endtag("Component")
+	<< xmlw::endtag("Correlator");
     }
 }
 
 Iflt
 OPSelfDiffusionOrientationalGK::getdt()
 {
-	//Get the simulation temperature
-	if (dt == 0.0)
-	{
-		if (Sim->lastRunMFT != 0.0)
-		{
-			return Sim->lastRunMFT * 50.0 / CorrelatorLength;
-		}
-		else
-		{
-			return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
-		}
-	}
-	else
-	{
-		return dt;
-	}
+  //Get the simulation temperature
+  if (dt == 0.0)
+  {
+    if (Sim->lastRunMFT != 0.0)
+    {
+      return Sim->lastRunMFT * 50.0 / CorrelatorLength;
+    }
+    else
+    {
+      return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+    }
+  }
+  else
+  {
+    return dt;
+  }
 }
 
 void
 OPSelfDiffusionOrientationalGK::accPass()
 {
-	++count;
+  ++count;
 
-	BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
-	{
-		BOOST_FOREACH(const size_t& ID, *spec->getRange())
-		{
-			for (size_t j = 0; j < CorrelatorLength; ++j)
-			{
-				// Parallel = <[v(t).u(0)][v(0).u(0)]>
-				accG2_parallel[spec->getID()][j] +=  ((G[ID].front().first |  G[ID][j].second) * (G[ID][j].first | G[ID][j].second));
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  {
+    BOOST_FOREACH(const size_t& ID, *spec->getRange())
+    {
+      for (size_t j = 0; j < CorrelatorLength; ++j)
+      {
+	// Parallel = <[v(t).u(0)][v(0).u(0)]>
+	accG2_parallel[spec->getID()][j] +=  ((G[ID].front().first |  G[ID][j].second) * (G[ID][j].first | G[ID][j].second));
 
-				// Get a unit matrix
-				Matrix unit, dyad;
-				unit.one();
-				dyad = Dyadic(G[ID][j].second, G[ID][j].second);
+	// Get a unit matrix
+	Matrix unit, dyad;
+	unit.one();
+	dyad = Dyadic(G[ID][j].second, G[ID][j].second);
 
-				// Perpendicular = <v(t).[I - u(0)u(0)]v(0)>
-				accG2_perp[spec->getID()][j] +=  (G[ID].front().first | ((unit - dyad) * G[ID][j].first));
+	// Perpendicular = <v(t).[I - u(0)u(0)]v(0)>
+	accG2_perp[spec->getID()][j] += (G[ID].front().first | ((unit - dyad) * G[ID][j].first));
 
-				//for (size_t iDim(0); iDim < NDIM; ++iDim)
-				//{
-				//}
-			}
-		}
-	}
+	//for (size_t iDim(0); iDim < NDIM; ++iDim)
+	//{
+	//}
+      }
+    }
+  }
 }
