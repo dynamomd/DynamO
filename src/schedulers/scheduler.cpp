@@ -67,7 +67,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 void 
 CScheduler::rebuildSystemEvents() const
 {
-  (*sorter)[Sim->lN].clear();
+  sorter->clearPEL(Sim->lN);
 
   BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysptr, 
 		Sim->dynamics.getSystemEvents())
@@ -79,7 +79,7 @@ CScheduler::rebuildSystemEvents() const
 void 
 CScheduler::popNextEvent()
 {
-  (*sorter)[sorter->next_ID()].pop();
+  sorter->popNextPELEvent(sorter->next_ID());
 }
 
 void 
@@ -100,7 +100,7 @@ CScheduler::invalidateEvents(const CParticle& part)
 {
   //Invalidate previous entries
   ++eventCount[part.getID()];
-  (*sorter)[part.getID()].clear();
+  sorter->clearPEL(part.getID());
 }
 
 void
@@ -113,12 +113,12 @@ CScheduler::runNextEvent()
     D_throw() << "Next particle list is empty but top of list!";
 #endif  
     
-  while ((sorter->next_Data().top().type == INTERACTION)
-	 && (sorter->next_Data().top().collCounter2 
-	     != eventCount[sorter->next_Data().top().p2]))
+  while ((sorter->getNextEvent().type == INTERACTION)
+	 && (sorter->getNextEvent().collCounter2 
+	     != eventCount[sorter->getNextEvent().p2]))
     {
       //Not valid, update the list
-      sorter->next_Data().pop();
+      sorter->popNextEvent();
       sorter->update(sorter->next_ID());
       sorter->sort();
       
@@ -157,12 +157,12 @@ CScheduler::runNextEvent()
 	      << "\nID2 = " << sorter->next_Data().top().p2;
 #endif  
   
-  switch (sorter->next_Data().top().type)
+  switch (sorter->getNextEvent().type)
     {
     case INTERACTION:
       {
 	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
-	const CParticle& p2(Sim->vParticleList[sorter->next_Data().top().p2]);
+	const CParticle& p2(Sim->vParticleList[sorter->getNextEvent().p2]);
 	
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
@@ -255,7 +255,7 @@ CScheduler::runNextEvent()
 							   CELL)));
 	#endif
 	
-	Sim->dynamics.getGlobals()[sorter->next_Data().top().p2]
+	Sim->dynamics.getGlobals()[sorter->getNextEvent().p2]
 	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
 	break;	           
       }
@@ -264,7 +264,7 @@ CScheduler::runNextEvent()
 	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
 
 	Sim->dynamics.getLiouvillean().updateParticle(part);
-	CLocalEvent iEvent(Sim->dynamics.getLocals()[sorter->next_Data().top().p2]->getEvent(part));
+	CLocalEvent iEvent(Sim->dynamics.getLocals()[sorter->getNextEvent().p2]->getEvent(part));
 	
 	if (iEvent.getType() == NONE)
 	  D_throw() << "No global collision found\n"
@@ -290,12 +290,12 @@ CScheduler::runNextEvent()
 	iEvent.addTime(Sim->freestreamAcc);
 	Sim->freestreamAcc = 0;
 
-	Sim->dynamics.getLocals()[sorter->next_Data().top().p2]
+	Sim->dynamics.getLocals()[sorter->getNextEvent().p2]
 	->runEvent(part, iEvent);	  
 	break;
       }
     case SYSTEM:
-      Sim->dynamics.getSystemEvents()[sorter->next_Data().top().p2]
+      Sim->dynamics.getSystemEvents()[sorter->getNextEvent().p2]
 	->runEvent();
       //This saves the system events rebuilding themselves
       rebuildSystemEvents();
@@ -303,7 +303,7 @@ CScheduler::runNextEvent()
     default:
       D_throw() << "Unhandled event type requested to be run\n"
 		<< "Type is " 
-		<< CIntEvent::getCollEnumName(sorter->next_Data().top().type);
+		<< CIntEvent::getCollEnumName(sorter->getNextEvent().type);
     }
 }
 

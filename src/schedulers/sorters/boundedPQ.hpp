@@ -236,29 +236,35 @@ public:
     insertInEventQ(pID + 1);
   }
 
-  inline const T& operator[](const size_t& a) const 
-  {
-#ifdef DYNAMO_DEBUG 
-    if (Min.empty())
-      D_throw() << "Heap not yet sized";
-#endif
-    
-    return Min[a+1].data; 
-  }
+//  inline const T& operator[](const size_t& a) const 
+//  {
+//#ifdef DYNAMO_DEBUG 
+//    if (Min.empty())
+//      D_throw() << "Heap not yet sized";
+//#endif
+//    
+//    return Min[a+1].data; 
+//  }
   
-  inline T& operator[](const size_t& a) 
-  {
-#ifdef DYNAMO_DEBUG 
-    if (Min.empty())
-      D_throw() << "Heap not yet sized";
-#endif
+//  inline T& operator[](const size_t& a) 
+//  {
+//#ifdef DYNAMO_DEBUG 
+//    if (Min.empty())
+//      D_throw() << "Heap not yet sized";
+//#endif
+//
+//    return Min[a+1].data; 
+//  }
 
-    return Min[a+1].data; 
-  }
+  inline void clearPEL(const size_t& ID) { Min[ID+1].data.clear(); }
+  inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
+  inline void popNextEvent() { Min[CBT[1]].data.pop(); }
+  inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
+  inline const intPart& getNextEvent() const { return Min[CBT[1]].data.top(); }
 
   inline size_t next_ID() const { return CBT[1] - 1; }
-  inline T& next_Data() { return Min[CBT[1]].data; }
-  inline const T& next_Data() const { return Min[CBT[1]].data; }
+  //inline T& next_Data() { return Min[CBT[1]].data; }
+  //inline const T& next_Data() const { return Min[CBT[1]].data; }
   inline Iflt next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
   inline void sort() { orderNextEvent(); }

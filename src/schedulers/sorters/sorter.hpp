@@ -35,13 +35,18 @@ public:
   virtual void   push(const intPart&, const size_t&)       = 0;
   virtual void   update(const size_t&)                     = 0;
   virtual size_t next_ID()                           const = 0;
-  virtual pList& next_Data()                               = 0;
-  virtual const pList& next_Data()                   const = 0;
+  //virtual pList& next_Data()                               = 0;
+  //virtual const pList& next_Data()                   const = 0;
+  //virtual const pList& operator[](const size_t&)     const = 0;
+  //virtual pList& operator[](const size_t&)                 = 0;
   virtual Iflt   next_dt()                           const = 0;
   virtual void   sort()                                    = 0;
   virtual void   rescaleTimes(const Iflt&)                 = 0;
-  virtual const pList& operator[](const size_t&)     const = 0;
-  virtual pList& operator[](const size_t&)                 = 0;
+  virtual void   clearPEL(const size_t&)                   = 0;
+  virtual void   popNextPELEvent(const size_t&)            = 0;
+  virtual void   popNextEvent()                            = 0;
+  virtual bool nextPELEmpty() const                         = 0;
+  virtual const intPart& getNextEvent() const               = 0;
   virtual CSSorter* Clone()                          const = 0;
 
   static CSSorter* getClass(const XMLNode&, const DYNAMO::SimData*);

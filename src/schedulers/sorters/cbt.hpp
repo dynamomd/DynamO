@@ -93,25 +93,35 @@ public:
       }
   }
 
-  inline const pList& operator[](const size_t& a) const 
-  {
-#ifdef DYNAMO_DEBUG 
-    if (Min.empty())
-      D_throw() << "Heap not yet sized";
-#endif
-    
-    return Min[a+1]; 
-  }
-  
-  inline pList& operator[](const size_t& a) 
-  {
-#ifdef DYNAMO_DEBUG 
-    if (Min.empty())
-      D_throw() << "Heap not yet sized";
-#endif
+  inline void clearPEL(const size_t& ID) { Min[ID+1].clear(); }
+  inline void popNextPELEvent(const size_t& ID) { Min[ID+1].pop(); }
+  inline void popNextEvent() { Min[CBT[1]].pop(); }
+  inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
+  inline const intPart& getNextEvent() const { return Min[CBT[1]].top(); }
 
-    return Min[a+1]; 
-  }
+//  inline const pList& operator[](const size_t& a) const 
+//  {
+//#ifdef DYNAMO_DEBUG 
+//    if (Min.empty())
+//      D_throw() << "Heap not yet sized";
+//#endif
+//    
+//    return Min[a+1]; 
+//  }
+//  
+//  inline pList& operator[](const size_t& a) 
+//  {
+//#ifdef DYNAMO_DEBUG 
+//    if (Min.empty())
+//      D_throw() << "Heap not yet sized";
+//#endif
+//
+//    return Min[a+1]; 
+//  }
+//  inline pList& next_Data() { return Min[CBT[1]]; }
+//
+//  inline const pList& next_Data() const { return Min[CBT[1]]; }
+
 
   inline void push(const intPart& tmpVal, const size_t& pID)
   {
@@ -127,10 +137,6 @@ public:
   }
 
   inline void update(const size_t& a) { UpdateCBT(a+1); }
-
-  inline pList& next_Data() { return Min[CBT[1]]; }
-
-  inline const pList& next_Data() const { return Min[CBT[1]]; }
 
   inline Iflt next_dt() const { return Min[CBT[1]].getdt() - pecTime; }
 
