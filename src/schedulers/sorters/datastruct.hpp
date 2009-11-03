@@ -33,6 +33,13 @@
 class intPart
 {
 public:   
+  inline intPart():
+    dt(HUGE_VAL),
+    collCounter2(-1),
+    type(NONE),
+    p2(-1)    
+  {}
+
   inline intPart(const Iflt& ndt, const unsigned long long& direction) throw():
     dt(ndt),
     collCounter2(direction),

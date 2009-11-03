@@ -22,9 +22,10 @@
 
 class MinMaxHeapPList: public MinMaxHeap<intPart>
 {
-
 public:
-  
+  MinMaxHeapPList():
+    MinMaxHeap<intPart>(5)
+  {}
   
 
 private:
