@@ -15,6 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cbt.hpp"
-#include "boundedPQ.hpp"
-#include "MinMaxHeap.hpp"
+#pragma once
+
+#include "datastruct.hpp"
+#include "../../datatypes/MinMaxHeap.hpp"
+
+class MinMaxHeapPList: public MinMaxHeap<intPart>
+{
+
+public:
+  
+  
+
+private:
+};

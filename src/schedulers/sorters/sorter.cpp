@@ -31,6 +31,8 @@ CSSorter::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"BoundedPQ"))
     return new CSSBoundedPQ<>(Sim);
+  if (!strcmp(XML.getAttribute("Type"),"BoundedPQMinMax"))
+    return new CSSBoundedPQ<>(Sim);
   else if (!strcmp(XML.getAttribute("Type"),"CBT"))
     return new CSSCBT(Sim);
   else 
