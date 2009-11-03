@@ -27,6 +27,7 @@
 #include "../../dynamics/units/units.hpp"
 #include "../../base/is_simdata.hpp"
 
+template<typename T = pList>
 class CSSBoundedPQ: public CSSorter
 {
 private:
@@ -35,7 +36,7 @@ private:
   {
     int next;
     int previous;
-    pList data;
+    T data;
     int qIndex;
   };
 
@@ -129,7 +130,7 @@ public:
     long counter = 0;
     try {
       //Determine nlists and scale by instrumenting the queue
-      std::vector<pList> tmpList;
+      std::vector<T> tmpList;
       tmpList.reserve(Min.size());
       
       BOOST_FOREACH(eventQEntry& dat, Min)
@@ -139,7 +140,7 @@ public:
       
       //Find the mean dt value for events that are not infinite
 
-      for (std::vector<pList>::iterator iPtr = tmpList.begin() +1; 
+      for (typename std::vector<T>::iterator iPtr = tmpList.begin() +1; 
 	   iPtr != tmpList.end(); ++iPtr)
 	if (iPtr->getdt() != HUGE_VAL)
 	  { acc += iPtr->getdt() - (iPtr -1)->getdt(); counter++; }
@@ -165,7 +166,7 @@ public:
 	  Iflt nscale = counter / acc;
 	  
 	  //Determine where the queue ends
-	  std::vector<pList>::reverse_iterator rIt = tmpList.rbegin();
+	  typename std::vector<T>::reverse_iterator rIt = tmpList.rbegin();
 	  while (rIt->getdt() == HUGE_VAL)
 	    ++rIt;
 	  
@@ -235,7 +236,7 @@ public:
     insertInEventQ(pID + 1);
   }
 
-  inline const pList& operator[](const size_t& a) const 
+  inline const T& operator[](const size_t& a) const 
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
@@ -245,7 +246,7 @@ public:
     return Min[a+1].data; 
   }
   
-  inline pList& operator[](const size_t& a) 
+  inline T& operator[](const size_t& a) 
   {
 #ifdef DYNAMO_DEBUG 
     if (Min.empty())
@@ -256,8 +257,8 @@ public:
   }
 
   inline size_t next_ID() const { return CBT[1] - 1; }
-  inline pList& next_Data() { return Min[CBT[1]].data; }
-  inline const pList& next_Data() const { return Min[CBT[1]].data; }
+  inline T& next_Data() { return Min[CBT[1]].data; }
+  inline const T& next_Data() const { return Min[CBT[1]].data; }
   inline Iflt next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
   inline void sort() { orderNextEvent(); }

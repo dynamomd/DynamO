@@ -30,7 +30,7 @@ OPBoundedQStats::OPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPBoundedQStats::initialise()
 {  
-  if (dynamic_cast<const CSSBoundedPQ*>
+  if (dynamic_cast<const CSSBoundedPQ<>*>
       (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
     D_throw() << "Not a bounded queue sorter!";
 
@@ -39,7 +39,7 @@ OPBoundedQStats::initialise()
 void
 OPBoundedQStats::ticker()
 {
-  const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
+  const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
 		       (*(Sim->ptrScheduler->getSorter())));
  
   treeSize.addVal(sorter.treeSize());
@@ -49,7 +49,7 @@ OPBoundedQStats::ticker()
 void 
 OPBoundedQStats::output(xmlw::XmlStream& XML)
 {
-  const CSSBoundedPQ& sorter(dynamic_cast<const CSSBoundedPQ&>
+  const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
 			     (*(Sim->ptrScheduler->getSorter())));
 
   XML << xmlw::tag("boundedQstats") 

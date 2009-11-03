@@ -246,7 +246,7 @@ CIPPacker::initialise()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	if (vm.count("b1"))
 	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
@@ -304,7 +304,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
 	Sim->dynamics.setUnits(new USquareWell(particleDiam,1.0, Sim));
@@ -374,7 +374,7 @@ CIPPacker::initialise()
 					   (Vector (0,0,0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ<>(Sim));
 	
 	Sim->dynamics.applyBC<BCNone>();
 
@@ -475,7 +475,7 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
 	Sim->dynamics.applyBC<BCSquarePeriodic>();
@@ -531,7 +531,7 @@ CIPPacker::initialise()
 	  alpha = vm["f1"].as<Iflt>();
 	
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
 	if (vm.count("rectangular-box"))
@@ -614,7 +614,7 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(Vector (0,0,0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ<>(Sim));
 
 	Sim->dynamics.applyBC<BCNone>();
 
@@ -677,7 +677,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = 1.0 / 10.0;
 	
 	//Just a square well system
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
 	//Undo the linking of scheduler cells across the x dimension
@@ -766,7 +766,7 @@ CIPPacker::initialise()
 	  (sysPack.placeObjects(Vector (0,0,0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
@@ -861,7 +861,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	//Sim->ptrScheduler = new CSMultList(Sim);
 	
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
@@ -927,11 +927,11 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	if (vm.count("i2"))
 	{
-		Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ(Sim));
+		Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ<>(Sim));
 	}
 	else
 	{
-		Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+		Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 		Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	}
@@ -1322,7 +1322,7 @@ CIPPacker::initialise()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	Sim->dynamics.setLiouvillean(new LNOrientation(Sim));
 
@@ -1412,7 +1412,7 @@ CIPPacker::initialise()
 	std::vector<Vector> 
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
       	
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 	
@@ -1503,7 +1503,7 @@ CIPPacker::initialise()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 
@@ -1621,7 +1621,7 @@ CIPPacker::initialise()
 	//Sim->ptrScheduler = new CSMultList(Sim);
 
 	//New scheduler and global
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	{
 	  size_t overlink = 1;
@@ -1938,7 +1938,7 @@ CIPPacker::initialise()
 	Iflt particleDiam = 1.0/boxL;
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	//The sentinel is needed because of the high speeds of the particles!
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
@@ -2030,7 +2030,7 @@ CIPPacker::initialise()
 	  simVol *= Sim->aspectRatio[iDim];
 	
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 
 	if (vm.count("b1"))
 	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
