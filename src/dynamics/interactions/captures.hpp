@@ -123,7 +123,8 @@ protected:
   {
     inline size_t operator()(const cMapKey& key) const
     {
-      return key.first * key.second + (key.first ^ key.second);
+      //return key.first * key.second + (key.first ^ key.second);
+      return (key.first > key.second) ?  ((key.first << 16) ^ key.second) : ((key.second << 16) ^ key.first);
     }
   };
   
