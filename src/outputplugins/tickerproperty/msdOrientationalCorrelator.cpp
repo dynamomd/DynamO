@@ -124,6 +124,7 @@ OPMSDOrientationalCorrelator::accPass()
 void
 OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 {
+  // Begin XML output
   XML << xmlw::tag("MSDOrientationalCorrelator");
 
   Iflt dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
