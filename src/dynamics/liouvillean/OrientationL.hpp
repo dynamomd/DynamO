@@ -71,6 +71,9 @@ public:
 
   const rotData& getRotData(const CParticle& part) const
   { return orientationData[part.getID()]; }
+
+  const std::vector<rotData>& getCompleteRotData() const
+  { return orientationData; }
   
   void initLineOrientations(const Iflt&);
 
