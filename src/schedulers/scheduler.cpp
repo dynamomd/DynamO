@@ -307,6 +307,8 @@ CScheduler::runNextEvent()
 	//Just recalc the events for these particles, no free
 	//streaming (PBCSentinel will free stream virtual events but
 	//for a specific reason)
+	//I_cerr() << "VIRTUAL for " << sorter->next_ID();
+
 	this->fullUpdate(Sim->vParticleList[sorter->next_ID()]);
 	break;
       }
