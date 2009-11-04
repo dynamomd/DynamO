@@ -229,8 +229,10 @@ void MinMaxHeap<Comparable>::replaceMax(const Comparable & newMaxItem)
   else
     maxIndex = _array[ 2 ] > _array[ 3 ] ? 2 : 3;
 
-  _array[ maxIndex ] = newMaxItem;
+  
+  _array[ maxIndex ] = _array[ _currentSize-- ];
   percolateDown( maxIndex );
+  insert(newMaxItem);
 }
 
 // PercolateDown

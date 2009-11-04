@@ -82,7 +82,7 @@ public:
     if (_innerHeap.full())
       {
     	if (__x < _innerHeap.bottom())
-    	  _innerHeap.replaceMax(__x);
+	  _innerHeap.replaceMax(__x);
 	
     	_innerHeap.unsafe_bottom().type = VIRTUAL;
       }
