@@ -17,6 +17,7 @@
 
 #include "msdOrientationalCorrelator.hpp"
 #include <boost/foreach.hpp>
+#include <boost/math/special_functions/legendre.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
@@ -66,6 +67,8 @@ OPMSDOrientationalCorrelator::initialise()
 
   stepped_data_parallel.resize(length, Iflt(0.0));
   stepped_data_perpendicular.resize(length, Iflt(0.0));
+  stepped_data_rotational_legendre1.resize(length, Iflt(0.0));
+  stepped_data_rotational_legendre2.resize(length, Iflt(0.0));
 
   currCorrLength = 1.0;
 
@@ -104,7 +107,7 @@ OPMSDOrientationalCorrelator::accPass()
 {
   ++ticksTaken;
 
-  Iflt longitudinal_projection(0.0);
+  Iflt longitudinal_projection(0.0), cos_theta(0.0);
   Vector displacement_term(0,0,0);
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
@@ -113,10 +116,13 @@ OPMSDOrientationalCorrelator::accPass()
     {
       displacement_term = historicalData[part.getID()][step].first - historicalData[part.getID()][0].first;
       longitudinal_projection = (displacement_term | historicalData[part.getID()][0].second);
+      cos_theta = (historicalData[part.getID()][step].second | historicalData[part.getID()][0].second);
 
       stepped_data_parallel[step] += std::pow(longitudinal_projection, 2);
       stepped_data_perpendicular[step] += (displacement_term - (longitudinal_projection * historicalData[part.getID()][0].second)).nrm2();
 
+      stepped_data_rotational_legendre1[step] += boost::math::legendre_p(1, cos_theta);
+      stepped_data_rotational_legendre2[step] += boost::math::legendre_p(2, cos_theta);
     }
   }
 }
@@ -140,8 +146,9 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xmlw::endtag("Component")
-      << xmlw::tag("Component")
+  XML << xmlw::endtag("Component");
+
+  XML << xmlw::tag("Component")
       << xmlw::attr("Type") << "Perpendicular"
       << xmlw::chardata();
 
@@ -152,6 +159,38 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xmlw::endtag("Component")
-      << xmlw::endtag("MSDOrientationalCorrelator");
+  XML << xmlw::endtag("Component");
+
+  XML << xmlw::tag("Component")
+      << xmlw::attr("Type") << "Rotational";
+
+  XML << xmlw::tag("Method")
+      << xmlw::attr("Name") << "LegendrePolynomial1"
+      << xmlw::chardata();
+
+  for (size_t step(0); step < length; ++step)
+  {
+    XML << dt * step << "\t"
+	<< stepped_data_rotational_legendre1[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->lN))
+	<< "\n";
+  }
+
+  XML << xmlw::endtag("Method");
+
+  XML << xmlw::tag("Method")
+      << xmlw::attr("Name") << "LegendrePolynomial2"
+      << xmlw::chardata();
+
+  for (size_t step(0); step < length; ++step)
+  {
+    XML << dt * step << "\t"
+	<< stepped_data_rotational_legendre2[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->lN))
+	<< "\n";
+  }
+
+  XML << xmlw::endtag("Method");
+
+  XML << xmlw::endtag("Component");
+
+  XML << xmlw::endtag("MSDOrientationalCorrelator");
 }

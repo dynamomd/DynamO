@@ -40,7 +40,15 @@ class OPMSDOrientational: public OutputPlugin
 
   virtual OutputPlugin *Clone() const { return new OPMSDOrientational(*this); };
 
-  std::pair<Iflt,Iflt> calculate() const;
+  struct msdCalcReturn
+  {
+    Iflt parallel;
+    Iflt perpendicular;
+    Iflt rotational_legendre1;
+    Iflt rotational_legendre2;
+  };
+
+  msdCalcReturn calculate() const;
 
   typedef std::pair<Vector,Vector> RUpair;
 

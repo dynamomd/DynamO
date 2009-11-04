@@ -45,7 +45,10 @@ class OPMSDOrientationalCorrelator: public OPTicker
   void accPass();
 
   std::vector<boost::circular_buffer<RUpair> > historicalData;
-  std::vector<Iflt> stepped_data_parallel, stepped_data_perpendicular;
+  std::vector<Iflt> stepped_data_parallel, stepped_data_perpendicular,
+		    stepped_data_rotational_legendre1,
+		    stepped_data_rotational_legendre2;
+
   size_t length;
   size_t currCorrLength;
   size_t ticksTaken;
