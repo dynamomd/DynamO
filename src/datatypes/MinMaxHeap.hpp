@@ -24,31 +24,31 @@
 
 #include <iostream>
 #include <vector>
+#include <boost/array.hpp>
 
 using namespace std;
 
-template <class Comparable>
+template <class Comparable, size_t array_size = 5>
 class MinMaxHeap
 {
+  size_t _currentSize;           // Number of elements in heap
+  boost::array<Comparable, array_size> _array;  // The heap array
+
 public:
-  typedef typename std::vector<Comparable>::iterator iterator;
-  typedef typename std::vector<Comparable>::const_iterator const_iterator;
+  typedef typename boost::array<Comparable, array_size>::iterator iterator;
+  typedef typename boost::array<Comparable, array_size>::const_iterator const_iterator;
 
-  inline iterator begin() { return _array.begin()+1; }
-  inline const_iterator begin() const { return _array.begin()+1; }
-  inline iterator end() { return _array.end(); }
-  inline const_iterator end() const { return _array.end(); }
+  inline iterator begin() { return _array.begin() + 1; }
+  inline const_iterator begin() const { return _array.begin() + 1; }
+  inline iterator end() { return begin() + _currentSize; }
+  inline const_iterator end() const { return begin() + _currentSize; }
+
   inline void pop();
-
-
-  // Constructor
-  // Parameter capacity: capacity of the min-max heap
-  explicit MinMaxHeap( int capacity = 100 );
 
   // FindMin
   // Finds and returns the minimum item in the heap
   // Returns: minimum item in the heap
-  const Comparable & top() const;
+  inline const Comparable & top() const;
 
   // FindMax
   // Finds and returns the maximum item in the heap
@@ -82,26 +82,19 @@ public:
 
   void replaceMax(const Comparable & maxItem);
 
-  void clear() { _currentSize = 0; }
+  inline void clear() { _currentSize = 0; }
 
-  const int& size() const { return _currentSize; }
+  inline size_t size() const { return _currentSize; }
 
   // IsEmpty
   // Checks to see if heap is logically empty
   // Returns: true if empty, false if not
-  bool empty() const;
+  inline bool empty() const { return _currentSize == 0; }
 
   // IsFull
   // Checks to see if heap is logically full
   // Returns: true if full, false if not
-  bool full() const;
-
-  // Print
-  // Prints contents of min-max heap by printing
-  //   each element of the underlying array from
-  //   root( index 1 ) to the last index
-  // Parameter out: the output stream to print to
-  void print( ostream & out );
+  inline bool full() const { return _currentSize == array_size - 1; }
 
   inline void swap(MinMaxHeap<Comparable>& rhs)
   {
@@ -110,46 +103,43 @@ public:
 
 private:
 
-  int _currentSize;           // Number of elements in heap
-  std::vector<Comparable> _array;  // The heap array
-
   // PercolateUp
   // Used to maintain min-max heap order after insertion.
   //   Determines whether current heap level is a min level
   //   or a max level and calls percolateUpMin or percolateUpMax.
   // Parameter hole: index in array where item was inserted
-  void percolateUp( int hole );
+  void percolateUp( size_t hole );
 
   // PercolateUpMin
   // Called by percolateUp to maintain min-max heap order on 
   //   the min levels.
   // Parameter hole: index in array of item to be percolated
-  void percolateUpMin( int hole );
+  void percolateUpMin( size_t hole );
 
   // PercolateUpMax
   // Called by percolateUp to maintain min-max heap order on
   //   the max levels.
   // Parameter hole: index in array of item to be percolated
-  void percolateUpMax( int hole );
+  void percolateUpMax( size_t hole );
 
   // PercolateDown
   // Used to maintain min-max heap order after deletion.
   //   Determines whether current heap level is a min level
   //   or a max level and calls percolateDownMin or percolateDownMax.
   // Parameter hole: index in array where item was deleted
-  void percolateDown( int hole );
+  void percolateDown( size_t hole );
 
   // PercolateDownMin
   // Called by percolateDown to maintain min-max heap order on
   //   the min levels.
   // Parameter hole: index in array of item to be percolated
-  void percolateDownMin( int hole );
+  void percolateDownMin( size_t hole );
 
   // PercolateDownMax
   // Called by percolateDown to maintain min-max heap order on
   //   the max levels.
   // Parameter hole: index in array of item to be percolated
-  void percolateDownMax( int hole );
+  void percolateDownMax( size_t hole );
 
   // FindMinDescendent
   // Helper function of percolateDownMin that finds the min
@@ -157,7 +147,7 @@ private:
   //   percolated down
   // Parameter child: array index of first child
   // Parameter grandchild: array index of first grandchild
-  int findMinDescendent( int child, int grandchild );
+  size_t findMinDescendent( size_t child, size_t grandchild );
 
   // FindMaxDescendent
   // Helper function of percolateDownMax that finds the max
@@ -165,13 +155,14 @@ private:
   //   percolated down
   // Parameter child: array index of first child
   // Parameter grandchild: array index of first grandchild
-  int findMaxDescendent( int child, int grandchild );
+  size_t findMaxDescendent( size_t child, size_t grandchild );
 
   // Swap
   // Swaps elements of two indices
   // Parameter indexOne: first index of array of item to be swapped
   // Parameter indexTwo: second index of array of item to be swapped
-  void swapElements( int indexOne, int indexTwo );
+  inline void swapElements( size_t indexOne, size_t indexTwo )
+  {std::swap(_array[ indexOne ], _array[ indexTwo]);}
 };
 
 namespace std

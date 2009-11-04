@@ -23,10 +23,9 @@
 
 class MinMaxHeapPList
 {
-  MinMaxHeap<intPart> _innerHeap;
+  MinMaxHeap<intPart, 5> _innerHeap;
 public:
-  MinMaxHeapPList():
-    _innerHeap(5)
+  MinMaxHeapPList()
   {}
 
   inline size_t size() const { return _innerHeap.size(); }
@@ -79,15 +78,12 @@ public:
 
   inline void push(const intPart& __x)
   {
-    if (_innerHeap.full())
-      {
-    	if (__x < _innerHeap.bottom())
-	  _innerHeap.replaceMax(__x);
+    if (!_innerHeap.full()) { _innerHeap.insert(__x); return; }
+
+    if (__x < _innerHeap.bottom())
+      _innerHeap.replaceMax(__x);
 	
-    	_innerHeap.unsafe_bottom().type = VIRTUAL;
-      }
-    else
-      _innerHeap.insert(__x);
+    _innerHeap.unsafe_bottom().type = VIRTUAL;
   }
 
   inline void rescaleTimes(const Iflt& scale) throw()
