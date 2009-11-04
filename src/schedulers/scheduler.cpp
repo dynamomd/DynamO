@@ -109,7 +109,7 @@ CScheduler::runNextEvent()
   sorter->sort();
   
 #ifdef DYNAMO_DEBUG
-  if (sorter->next_Data().empty())
+  if (sorter->nextPELEmpty())
     D_throw() << "Next particle list is empty but top of list!";
 #endif  
     
@@ -123,38 +123,38 @@ CScheduler::runNextEvent()
       sorter->sort();
       
 #ifdef DYNAMO_DEBUG
-      if (sorter->next_Data().empty())
+      if (sorter->nextPELEmpty())
 	D_throw() << "Next particle list is empty but top of list!";
 #endif
     }
   
 #ifdef DYNAMO_DEBUG
-  if (isnan(sorter->next_Data().top().dt))
+  if (isnan(sorter->getNextEvent().dt))
     D_throw() << "Next event time is NaN"
 	      << "\nTime to event "
-	      << sorter->next_Data().top().dt
+	      << sorter->getNextEvent().dt
 	      << "\nEvent Type = " 
-	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
+	      << CIntEvent::getCollEnumName(sorter->getNextEvent().type)
 	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->next_Data().top().p2;
+	      << "\nID2 = " << sorter->getNextEvent().p2;
 
-  if (isinf(sorter->next_Data().top().dt))
+  if (isinf(sorter->getNextEvent().dt))
     D_throw() << "Next event time is Inf!"
 	      << "\nTime to event "
-	      << sorter->next_Data().top().dt
+	      << sorter->getNextEvent().dt
 	      << "\nEvent Type = " 
-	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
+	      << CIntEvent::getCollEnumName(sorter->getNextEvent().type)
 	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->next_Data().top().p2;
+	      << "\nID2 = " << sorter->getNextEvent().p2;
 
-  if (sorter->next_Data().top().dt + eps < 0)
+  if (sorter->getNextEvent().dt + eps < 0)
     D_throw() << "Next event time is less than -" << eps
 	      << "\nTime to event "
-	      << sorter->next_Data().top().dt
+	      << sorter->getNextEvent().dt
 	      << "\nEvent Type = " 
-	      << CIntEvent::getCollEnumName(sorter->next_Data().top().type)
+	      << CIntEvent::getCollEnumName(sorter->getNextEvent().type)
       	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->next_Data().top().p2;
+	      << "\nID2 = " << sorter->getNextEvent().p2;
 #endif  
   
   switch (sorter->getNextEvent().type)
@@ -245,11 +245,11 @@ CScheduler::runNextEvent()
 	
 	#ifdef DYNAMO_DEBUG
 	//This makes neighbour list events appear in the output plugins
-	if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[sorter->next_Data().top().p2].get_ptr())
+	if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[sorter->getNextEvent().p2].get_ptr())
 	    != NULL)
 	  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(CGlobEvent(Sim->vParticleList[sorter->next_ID()], 0, 
-					CELL, *Sim->dynamics.getGlobals()[sorter->next_Data().top().p2]),
+					CELL, *Sim->dynamics.getGlobals()[sorter->getNextEvent().p2]),
 			     CNParticleData(C1ParticleData(Sim->vParticleList[sorter->next_ID()],
 							   Sim->dynamics.getSpecies(Sim->vParticleList[sorter->next_ID()]),
 							   CELL)));
@@ -295,11 +295,21 @@ CScheduler::runNextEvent()
 	break;
       }
     case SYSTEM:
-      Sim->dynamics.getSystemEvents()[sorter->getNextEvent().p2]
-	->runEvent();
-      //This saves the system events rebuilding themselves
-      rebuildSystemEvents();
-      break;
+      {
+	Sim->dynamics.getSystemEvents()[sorter->getNextEvent().p2]
+	  ->runEvent();
+	//This saves the system events rebuilding themselves
+	rebuildSystemEvents();
+	break;
+      }
+    case VIRTUAL:
+      {
+	//Just recalc the events for these particles, no free
+	//streaming (PBCSentinel will free stream virtual events but
+	//for a specific reason)
+	this->fullUpdate(Sim->vParticleList[sorter->next_ID()]);
+	break;
+      }
     default:
       D_throw() << "Unhandled event type requested to be run\n"
 		<< "Type is " 

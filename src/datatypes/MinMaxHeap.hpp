@@ -31,6 +31,15 @@ template <class Comparable>
 class MinMaxHeap
 {
 public:
+  typedef typename std::vector<Comparable>::iterator iterator;
+  typedef typename std::vector<Comparable>::const_iterator const_iterator;
+
+  inline iterator begin() { return _array.begin()+1; }
+  inline const_iterator begin() const { return _array.begin()+1; }
+  inline iterator end() { return _array.end(); }
+  inline const_iterator end() const { return _array.end(); }
+  inline void pop();
+
 
   // Constructor
   // Parameter capacity: capacity of the min-max heap
@@ -39,12 +48,14 @@ public:
   // FindMin
   // Finds and returns the minimum item in the heap
   // Returns: minimum item in the heap
-  const Comparable & findMin() const;
+  const Comparable & top() const;
 
   // FindMax
   // Finds and returns the maximum item in the heap
   // Returns: maximum item in the heap
-  const Comparable & findMax() const;
+  const Comparable & bottom() const;
+
+  Comparable & unsafe_bottom();
 
   // Insert
   // Inserts item into the min-max heap, maintaining heap order
@@ -67,7 +78,9 @@ public:
   // Parameter maxItem: reference from calling function
   //   to put the largest item in.
   // Side Effects: throws Underflow if heap is empty
-  void deleteMax( Comparable & maxItem );
+  void deleteMax( Comparable & maxItem);
+
+  void replaceMax(const Comparable & maxItem);
 
   void clear() { _currentSize = 0; }
 
@@ -76,12 +89,12 @@ public:
   // IsEmpty
   // Checks to see if heap is logically empty
   // Returns: true if empty, false if not
-  bool isEmpty() const;
+  bool empty() const;
 
   // IsFull
   // Checks to see if heap is logically full
   // Returns: true if full, false if not
-  bool isFull() const;
+  bool full() const;
 
   // Print
   // Prints contents of min-max heap by printing
@@ -90,10 +103,15 @@ public:
   // Parameter out: the output stream to print to
   void print( ostream & out );
 
+  inline void swap(MinMaxHeap<Comparable>& rhs)
+  {
+    _array.swap(rhs._array);
+  }
+
 private:
 
   int _currentSize;           // Number of elements in heap
-  vector<Comparable> _array;  // The heap array
+  std::vector<Comparable> _array;  // The heap array
 
   // PercolateUp
   // Used to maintain min-max heap order after insertion.
@@ -153,8 +171,19 @@ private:
   // Swaps elements of two indices
   // Parameter indexOne: first index of array of item to be swapped
   // Parameter indexTwo: second index of array of item to be swapped
-  void swap( int indexOne, int indexTwo );
+  void swapElements( int indexOne, int indexTwo );
 };
+
+namespace std
+{
+  /*! \brief Template specialisation of the std::swap function for pList*/
+  template<typename T> inline
+  void swap(MinMaxHeap<T>& lhs, MinMaxHeap<T>& rhs)
+  {
+    lhs.swap(rhs);
+  }
+}
+
 
 #include "MinMaxHeap.cpp"
 

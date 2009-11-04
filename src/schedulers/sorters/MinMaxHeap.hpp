@@ -18,15 +18,97 @@
 #pragma once
 
 #include "datastruct.hpp"
+#include "../../extcode/xmlwriter.hpp"
 #include "../../datatypes/MinMaxHeap.hpp"
 
-class MinMaxHeapPList: public MinMaxHeap<intPart>
+class MinMaxHeapPList
 {
+  MinMaxHeap<intPart> _innerHeap;
 public:
   MinMaxHeapPList():
-    MinMaxHeap<intPart>(5)
+    _innerHeap(5)
   {}
-  
 
-private:
+  inline size_t size() const { return _innerHeap.size(); }
+  inline bool empty() const { return _innerHeap.empty(); }
+  inline bool full() const { return _innerHeap.full(); }
+
+  inline const intPart& front() const { return _innerHeap.top(); }
+  inline const intPart& top() const { return _innerHeap.top(); }  
+
+  inline void pop() { _innerHeap.pop(); }
+
+  inline void clear() { _innerHeap.clear(); }
+
+  inline bool operator> (const MinMaxHeapPList& ip) const throw()
+  { 
+    //If the other is empty this can never be longer
+    //If this is empty and the other isn't its always longer
+    //Otherwise compare
+    return (ip._innerHeap.empty()) 
+      ? false
+      : (empty() || (_innerHeap.top().dt > ip._innerHeap.top().dt)); 
+  }
+
+  inline bool operator< (const MinMaxHeapPList& ip) const throw()
+  { 
+    //If this is empty it can never be shorter
+    //If the other is empty its always shorter
+    //Otherwise compare
+    return (empty()) 
+      ? false 
+      : (ip._innerHeap.empty() || (_innerHeap.top().dt < ip._innerHeap.top().dt)); 
+  }
+
+  inline Iflt getdt() const 
+  { 
+    return (empty()) ? HUGE_VAL : _innerHeap.top().dt; 
+  }
+  
+  inline void stream(const Iflt& ndt) throw()
+  {
+    BOOST_FOREACH(intPart& dat, _innerHeap)
+      dat.dt -= ndt;
+  }
+
+  inline void addTime(const Iflt& ndt) throw()
+  {
+    BOOST_FOREACH(intPart& dat, _innerHeap)
+      dat.dt += ndt;
+  }
+
+  inline void push(const intPart& __x)
+  {
+    if (_innerHeap.full())
+      {
+    	if (__x < _innerHeap.bottom())
+    	  _innerHeap.replaceMax(__x);
+	
+    	_innerHeap.unsafe_bottom().type = VIRTUAL;
+      }
+    else
+      _innerHeap.insert(__x);
+  }
+
+  inline void rescaleTimes(const Iflt& scale) throw()
+  { 
+    BOOST_FOREACH(intPart& dat, _innerHeap)
+      dat.dt *= scale;
+  }
+
+  inline void swap(MinMaxHeapPList& rhs)
+  {
+    _innerHeap.swap(rhs._innerHeap);
+  }
+  
 };
+
+namespace std
+{
+  /*! \brief Template specialisation of the std::swap function for pList*/
+  template<> inline
+  void swap(MinMaxHeapPList& lhs, MinMaxHeapPList& rhs)
+  {
+    lhs.swap(rhs);
+  }
+}

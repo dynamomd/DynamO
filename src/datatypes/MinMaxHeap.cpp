@@ -39,9 +39,9 @@ MinMaxHeap<Comparable>::MinMaxHeap( int capacity )
 // Finds and returns the minimum item in the heap
 // Returns: minimum item in the heap
 template <class Comparable>
-const Comparable & MinMaxHeap<Comparable>::findMin() const
+const Comparable & MinMaxHeap<Comparable>::top() const
 {
-  if ( isEmpty() )
+  if ( empty() )
     D_throw() << "*** FindMin failed: Heap is empty ***";
   
   return _array[ 1 ];
@@ -51,9 +51,23 @@ const Comparable & MinMaxHeap<Comparable>::findMin() const
 // Finds and returns the maximum item in the heap
 // Returns: maximum item in the heap
 template <class Comparable>
-const Comparable & MinMaxHeap<Comparable>::findMax() const
+const Comparable & MinMaxHeap<Comparable>::bottom() const
 {
-  if ( isEmpty() )
+  if ( empty() )
+    D_throw() << "*** FindMax failed: Heap is empty ***";
+
+  if ( _currentSize == 1 )
+    return _array[ 1 ];
+  else if ( _currentSize == 2 )
+    return _array[ 2 ];
+  else
+    return _array[ 2 ] > _array[ 3 ] ? _array[ 2 ] : _array[ 3 ];
+}
+
+template <class Comparable>
+Comparable & MinMaxHeap<Comparable>::unsafe_bottom()
+{
+  if ( empty() )
     D_throw() << "*** FindMax failed: Heap is empty ***";
 
   if ( _currentSize == 1 )
@@ -72,7 +86,7 @@ const Comparable & MinMaxHeap<Comparable>::findMax() const
 template <class Comparable>
 void MinMaxHeap<Comparable>::insert( const Comparable & x )
 {
-  if( isFull() )
+  if( full() )
     D_throw() << "*** Insert failed: Heap is full ***";
 
   int hole = ++_currentSize;
@@ -99,7 +113,7 @@ void MinMaxHeap<Comparable>::percolateUp( int hole )
   if ( level % 2 == 0 ) {
 
     if ( parent > 0 && _array[ hole ] > _array[ parent ] ) {
-      swap( hole, parent );
+      swapElements( hole, parent );
       percolateUpMax( parent );
     }
     else
@@ -109,7 +123,7 @@ void MinMaxHeap<Comparable>::percolateUp( int hole )
   else {
 
     if ( parent > 0 && _array[ hole ] < _array[ parent ] ) {
-      swap( hole, parent );
+      swapElements( hole, parent );
       percolateUpMin( parent );
     }
     else
@@ -127,7 +141,7 @@ void MinMaxHeap<Comparable>::percolateUpMin( int hole )
   int grandparent = hole / 4;
 
   if ( grandparent > 0 && _array[ hole ] < _array[ grandparent ] ) {
-    swap( hole, grandparent );
+    swapElements( hole, grandparent );
     percolateUpMin( grandparent );
   }
 }
@@ -142,7 +156,7 @@ void MinMaxHeap<Comparable>::percolateUpMax( int hole )
   int grandparent = hole / 4;
 
   if ( grandparent > 0 && _array[ hole ] > _array[ grandparent ] ) {
-    swap( hole, grandparent );
+    swapElements( hole, grandparent );
     percolateUpMax( grandparent );
   }
 }
@@ -156,10 +170,19 @@ void MinMaxHeap<Comparable>::percolateUpMax( int hole )
 template <class Comparable>
 void MinMaxHeap<Comparable>::deleteMin( Comparable & minItem )
 {
-  if( isEmpty() )
+  if( empty() )
     D_throw() << "*** DeleteMin failed: Heap is empty ***";
 
   minItem = _array[ 1 ];
+  pop();
+}
+
+template <class Comparable>
+void MinMaxHeap<Comparable>::pop()
+{
+  if( empty() )
+    D_throw() << "*** DeleteMin failed: Heap is empty ***";
+
   _array[ 1 ] = _array[ _currentSize-- ];
   percolateDown( 1 );
 }
@@ -175,7 +198,7 @@ void MinMaxHeap<Comparable>::deleteMax( Comparable & maxItem )
 {
   int maxIndex;
 
-  if ( isEmpty() )
+  if ( empty() )
     D_throw() << "*** DeleteMax failed: Heap is empty ***";
 
   if ( _currentSize == 1 )
@@ -189,6 +212,25 @@ void MinMaxHeap<Comparable>::deleteMax( Comparable & maxItem )
   _array[ maxIndex ] = _array[ _currentSize-- ];
   percolateDown( maxIndex );
 
+}
+
+template <class Comparable>
+void MinMaxHeap<Comparable>::replaceMax(const Comparable & newMaxItem)
+{
+  int maxIndex;
+
+  if ( empty() )
+    D_throw() << "*** DeleteMax failed: Heap is empty ***";
+
+  if ( _currentSize == 1 )
+    maxIndex = 1;
+  else if ( _currentSize == 2 )
+    maxIndex = 2;
+  else
+    maxIndex = _array[ 2 ] > _array[ 3 ] ? 2 : 3;
+
+  _array[ maxIndex ] = newMaxItem;
+  percolateDown( maxIndex );
 }
 
 // PercolateDown
@@ -232,11 +274,11 @@ void MinMaxHeap<Comparable>::percolateDownMin( int hole )
 
       // if less than grandparent, i.e value at hole, swap
       if ( _array[ minIndex ] < _array[ hole ] ) {
-	swap( hole, minIndex );
+	swapElements( hole, minIndex );
 
 	// if greater than parent, swap
 	if ( _array[ minIndex ] > _array[ minIndex / 2 ] )
-	  swap( minIndex, minIndex / 2 );
+	  swapElements( minIndex, minIndex / 2 );
 
 	percolateDownMin( minIndex );
       }
@@ -246,7 +288,7 @@ void MinMaxHeap<Comparable>::percolateDownMin( int hole )
 
       // if less than parent, i.e value at hole, swap
       if ( _array[ minIndex ] < _array[ hole ] )
-	swap( hole, minIndex );
+	swapElements( hole, minIndex );
     }
   }
 }
@@ -273,11 +315,11 @@ void MinMaxHeap<Comparable>::percolateDownMax( int hole )
 
       // if greater than grandparent, i.e value at hole, swap
       if ( _array[ maxIndex ] > _array[ hole ] ) {
-	swap( hole, maxIndex );
+	swapElements( hole, maxIndex );
 
 	// if less than parent, swap
 	if ( _array[ maxIndex ] < _array[ maxIndex / 2 ] )
-	  swap( maxIndex, maxIndex / 2 );
+	  swapElements( maxIndex, maxIndex / 2 );
 
 	percolateDownMax( maxIndex );
       }
@@ -287,7 +329,7 @@ void MinMaxHeap<Comparable>::percolateDownMax( int hole )
 
       // if greater than parent, i.e value at hole, swap
       if ( _array[ maxIndex ] > _array[ hole ] )
-	swap( hole, maxIndex );
+	swapElements( hole, maxIndex );
     }
   }
 }
@@ -369,18 +411,16 @@ int MinMaxHeap<Comparable>::findMaxDescendent( int child, int grandchild )
 // Parameter indexOne: first index of array of item to be swapped
 // Parameter indexTwo: second index of array of item to be swapped
 template <class Comparable>
-void MinMaxHeap<Comparable>::swap( int indexOne, int indexTwo )
+void MinMaxHeap<Comparable>::swapElements( int indexOne, int indexTwo )
 {
-  Comparable tmp = _array[ indexOne ];
-  _array[ indexOne ] = _array[ indexTwo ];
-  _array[ indexTwo ] = tmp;
+  std::swap(_array[ indexOne ], _array[ indexTwo]);
 }
 
 // IsEmpty
 // Checks to see if heap is empty
 // Returns: true if empty, false if not
 template <class Comparable>
-bool MinMaxHeap<Comparable>::isEmpty() const
+bool MinMaxHeap<Comparable>::empty() const
 {
   return _currentSize == 0;
 }
@@ -389,7 +429,7 @@ bool MinMaxHeap<Comparable>::isEmpty() const
 // Checks to see if heap is logically full
 // Returns: true if full, false if not
 template <class Comparable>
-bool MinMaxHeap<Comparable>::isFull() const
+bool MinMaxHeap<Comparable>::full() const
 {
   return _currentSize == ( int )_array.size() - 1;
 }
@@ -402,7 +442,7 @@ bool MinMaxHeap<Comparable>::isFull() const
 template <class Comparable>
 void MinMaxHeap<Comparable>::print( ostream & out )
 {
-  if ( !isEmpty() ) {
+  if ( !empty() ) {
 
     for ( int i = 1; i <= _currentSize; i++ )
       out << _array[ i ] << endl;
