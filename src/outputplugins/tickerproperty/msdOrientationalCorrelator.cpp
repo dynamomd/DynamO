@@ -67,8 +67,12 @@ OPMSDOrientationalCorrelator::initialise()
 
   stepped_data_parallel.resize(length, Iflt(0.0));
   stepped_data_perpendicular.resize(length, Iflt(0.0));
-  stepped_data_rotational_legendre1.resize(length, Iflt(0.0));
-  stepped_data_rotational_legendre2.resize(length, Iflt(0.0));
+  stepped_data_rotational_legendre1.resize(length, Iflt(1.0));
+  stepped_data_rotational_legendre2.resize(length, Iflt(1.0));
+
+  // The Legendre polynomials are equal to 1 at t = 0
+  stepped_data_rotational_legendre1[0] = 1.0;
+  stepped_data_rotational_legendre2[0] = 1.0;
 
   currCorrLength = 1.0;
 
