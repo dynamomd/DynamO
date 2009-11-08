@@ -15,47 +15,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMSDOrientational_H
-#define OPMSDOrientational_H
+#ifndef OPMSDOrientationalCorrelator_H
+#define OPMSDOrientationalCorrelator_H
 
-#include "../outputplugin.hpp"
+#include "ticker.hpp"
 #include "../../datatypes/vector.hpp"
-#include <vector>
+#include <boost/circular_buffer.hpp>
 
-class OPMSDOrientational: public OutputPlugin
+class OPMSDOrientationalCorrelator: public OPTicker
 {
  public:
-  OPMSDOrientational(const DYNAMO::SimData*, const XMLNode&);
-  ~OPMSDOrientational();
+  OPMSDOrientationalCorrelator(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
-  // All null events
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&) {}
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&) {}
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) {}
-
   void output(xmlw::XmlStream &);
 
-  virtual OutputPlugin *Clone() const { return new OPMSDOrientational(*this); };
+  virtual OutputPlugin *Clone() const
+  { return new OPMSDOrientationalCorrelator(*this); };
 
-  struct msdCalcReturn
-  {
-    Iflt parallel;
-    Iflt perpendicular;
-    Iflt rotational_legendre1;
-    Iflt rotational_legendre2;
-  };
-
-  msdCalcReturn calculate() const;
+  virtual void operator<<(const XMLNode&);
 
   typedef std::pair<Vector,Vector> RUpair;
 
  protected:
+  virtual void stream(Iflt) {}
+  virtual void ticker();
 
-  std::vector<RUpair> initialConfiguration;
+  void accPass();
 
+  std::vector<boost::circular_buffer<RUpair> > historicalData;
+  std::vector<Iflt> stepped_data_parallel, stepped_data_perpendicular,
+		    stepped_data_rotational_legendre1,
+		    stepped_data_rotational_legendre2;
+
+  size_t length;
+  size_t currCorrLength;
+  size_t ticksTaken;
+  bool notReady;
 };
 
 #endif

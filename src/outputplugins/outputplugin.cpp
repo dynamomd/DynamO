@@ -229,6 +229,8 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<OPSelfDiffusionOrientationalGK>(Sim, XML);
   else if (!Name.compare("MSDOrientational"))
     return testGeneratePlugin<OPMSDOrientational>(Sim, XML);
+  else if (!Name.compare("MSDOrientationalCorrelator"))
+    return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
   else 
     D_throw() << "Unknown type of OutputPlugin encountered\n"
 	      << Name;

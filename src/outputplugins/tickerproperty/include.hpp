@@ -37,3 +37,4 @@
 #include "SHcrystal.hpp"
 #include "SCparameter.hpp"
 #include "plateMotion.hpp"
+#include "msdOrientationalCorrelator.hpp"

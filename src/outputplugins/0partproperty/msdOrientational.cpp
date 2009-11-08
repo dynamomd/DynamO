@@ -17,6 +17,7 @@
 
 #include "msdOrientational.hpp"
 #include <boost/foreach.hpp>
+#include <boost/math/special_functions/legendre.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
@@ -54,47 +55,85 @@ OPMSDOrientational::initialise()
 void
 OPMSDOrientational::output(xmlw::XmlStream &XML)
 {
-  std::pair<Iflt,Iflt> MSDOrientational(calculate());
+  msdCalcReturn MSDOrientational(calculate());
 
   XML << xmlw::tag("MSDOrientational")
 
       << xmlw::tag("Perpendicular")
-      << xmlw::attr("val") << MSDOrientational.first
+      << xmlw::attr("val") << MSDOrientational.perpendicular
       << xmlw::attr("diffusionCoeff")
-      << MSDOrientational.first * Sim->dynamics.units().unitTime() / Sim->dSysTime
+      << MSDOrientational.perpendicular * Sim->dynamics.units().unitTime() / Sim->dSysTime
       << xmlw::endtag("Perpendicular")
 
       << xmlw::tag("Parallel")
-      << xmlw::attr("val") << MSDOrientational.second
+      << xmlw::attr("val") << MSDOrientational.parallel
       << xmlw::attr("diffusionCoeff")
-      << MSDOrientational.second * Sim->dynamics.units().unitTime() / Sim->dSysTime
+      << MSDOrientational.parallel * Sim->dynamics.units().unitTime() / Sim->dSysTime
       << xmlw::endtag("Parallel")
+
+      << xmlw::tag("Rotational")
+      << xmlw::attr("method") << "LegendrePolynomial1"
+      << xmlw::attr("val") << MSDOrientational.rotational_legendre1
+      << xmlw::attr("diffusionCoeff")
+      << MSDOrientational.rotational_legendre1 * Sim->dynamics.units().unitTime() / Sim->dSysTime
+      << xmlw::endtag("Rotational")
+
+      << xmlw::tag("Rotational")
+      << xmlw::attr("method") << "LegendrePolynomial2"
+      << xmlw::attr("val") << MSDOrientational.rotational_legendre2
+      << xmlw::attr("diffusionCoeff")
+      << MSDOrientational.rotational_legendre2 * Sim->dynamics.units().unitTime() / Sim->dSysTime
+      << xmlw::endtag("Rotational")
 
       << xmlw::endtag("MSDOrientational");
 }
 
-std::pair<Iflt, Iflt>
+OPMSDOrientational::msdCalcReturn
 OPMSDOrientational::calculate() const
 {
+  msdCalcReturn MSR;
+
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  Iflt acc_perp(0.0), acc_parallel(0.0), longitudinal_projection(0.0);
+  Iflt 	acc_perp(0.0), acc_parallel(0.0), longitudinal_projection(0.0),
+	acc_rotational_legendre1(0.0), acc_rotational_legendre2(0.0),
+	cos_theta(0.0);
 
   Vector displacement_term(0,0,0);
+
+  const std::vector<LNOrientation::rotData>& latest_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
 
   BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
   {
     displacement_term = part.getPosition() - initialConfiguration[part.getID()].first;
     longitudinal_projection = (displacement_term | initialConfiguration[part.getID()].second);
+    cos_theta = (initialConfiguration[part.getID()].second | latest_rdat[part.getID()].orientation);
 
     acc_perp += (displacement_term - (longitudinal_projection * initialConfiguration[part.getID()].second)).nrm2();
     acc_parallel += std::pow(longitudinal_projection, 2);
+    acc_rotational_legendre1 += boost::math::legendre_p(1, cos_theta);
+    acc_rotational_legendre2 += boost::math::legendre_p(2, cos_theta);
   }
 
   // In the N-dimensional case, the parallel component is 1-dimensonal and the perpendicular (N-1)
   acc_perp /= (initialConfiguration.size() * 2.0 * (NDIM - 1) * Sim->dynamics.units().unitArea());
   acc_parallel /= (initialConfiguration.size() * 2.0 * Sim->dynamics.units().unitArea());
 
-  return std::pair<Iflt,Iflt> (acc_perp, acc_parallel);
+  // Rotational forms by Magda, Davis and Tirrell
+  // <P1(cos(theta))> = exp[-2 D t]
+  // <P2(cos(theta))> = exp[-6 D t]
+
+  // WARNING! - only valid for sufficiently high density
+  // Use the MSDOrientationalCorrelator to check for an exponential fit
+
+  acc_rotational_legendre1 = log(acc_rotational_legendre1 / initialConfiguration.size()) / (-2.0);
+  acc_rotational_legendre2 = log(acc_rotational_legendre2 / initialConfiguration.size()) / (-6.0);
+
+  MSR.parallel = acc_parallel;
+  MSR.perpendicular = acc_perp;
+  MSR.rotational_legendre1 = acc_rotational_legendre1;
+  MSR.rotational_legendre2 = acc_rotational_legendre2;
+
+  return MSR;
 }
