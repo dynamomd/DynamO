@@ -65,7 +65,7 @@ OPPovray::printImage()
 
   char *fileName;
 
-  const bool boundSystem = true;
+  const bool boundSystem = false;
   const bool showSky = false;
   const bool fog = false;
 

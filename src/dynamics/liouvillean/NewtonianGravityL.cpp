@@ -37,8 +37,8 @@ void
 LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
 {
   particle.getPosition() += dt * particle.getVelocity();
-  particle.getPosition()[1] += 0.5 * dt * dt * Gravity;
-  particle.getVelocity()[1] += dt * Gravity;
+  particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity;
+  particle.getVelocity()[GravityDim] += dt * Gravity;
 }
 
 Iflt 
@@ -51,7 +51,7 @@ LNewtonianGravity::getWallCollision(const CParticle &part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  Iflt adot = wallNorm[1] * Gravity;
+  Iflt adot = wallNorm[GravityDim] * Gravity;
   Iflt vdot = vel | wallNorm;
   Iflt rdot = (rij - wallLoc) | wallNorm;
 
@@ -79,15 +79,190 @@ LNewtonianGravity::getSquareCellCollision2(const CParticle& part,
 				 const Vector & origin, 
 				 const Vector & width) const
 {
-  D_throw() << "Not implemented yet";    
+  Vector rpos(part.getPosition() - origin);
+  Vector vel(part.getVelocity());
+  Sim->dynamics.BCs().applyBC(rpos, vel);
+  
+#ifdef DYNAMO_DEBUG
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
+      D_throw() << "You have negative zero velocities, dont use them."
+		<< "\nPlease think of the neighbour lists.";
+#endif 
+
+  Iflt retVal = HUGE_VAL;
+
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if (iDim == GravityDim)
+      {
+	Iflt adot = Gravity;
+	Iflt vdot = vel[GravityDim];
+	Iflt rdot = rpos[GravityDim];
+
+	Iflt arg = vdot * vdot - 2 * rdot * adot;
+	
+	if (arg > 0)
+	  {
+	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    Iflt x1 = t / adot;
+	    Iflt x2 = 2 * rdot / t;
+	    
+	    if (Gravity > 0)
+	      {
+		//The particle is arcing over the boundary
+		Iflt tmpdt = (x1 < x2) ? x1 : x2;
+		if (tmpdt < retVal)
+		  retVal = tmpdt;
+	      }
+	    else
+	      {
+		Iflt tmpdt = (x1 < x2) ? x2 : x1;
+		if (tmpdt < retVal)
+		  retVal = tmpdt;
+	      }
+	  }
+	
+	rdot = width[iDim]-rpos[iDim];
+
+	arg = vdot * vdot - 2 * rdot * adot;
+	
+	if (arg > 0)
+	  {
+	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    Iflt x1 = t / adot;
+	    Iflt x2 = 2 * rdot / t;
+	    
+	    if (Gravity < 0)
+	      {
+		//The particle is arcing over the boundary
+		Iflt tmpdt = (x1 < x2) ? x1 : x2;
+		if (tmpdt < retVal)
+		  retVal = tmpdt;
+	      }
+	    else
+	      {
+		//The particle is arcing under the boundary
+		Iflt tmpdt = (x1 < x2) ? x2 : x1;
+		if (tmpdt < retVal)
+		  retVal = tmpdt;
+	      }
+	  }
+      }
+    else
+      {
+	Iflt tmpdt((vel[iDim] < 0)
+		   ? -rpos[iDim]/vel[iDim] 
+		   : (width[iDim]-rpos[iDim]) / vel[iDim]);
+	
+	if (tmpdt < retVal)
+	  retVal = tmpdt;
+      }
+  
+  return retVal;
 }
 
 size_t
 LNewtonianGravity::getSquareCellCollision3(const CParticle& part, 
-				 const Vector & origin, 
-				 const Vector & width) const
+					   const Vector & origin, 
+					   const Vector & width) const
 {
-  D_throw() << "Not implemented yet";    
+  Vector  rpos(part.getPosition() - origin);
+  Vector  vel(part.getVelocity());
+
+  Sim->dynamics.BCs().applyBC(rpos, vel);
+
+  size_t retVal(0);
+  Iflt time(HUGE_VAL);
+  
+#ifdef DYNAMO_DEBUG
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
+      D_throw() << "You have negative zero velocities, dont use them."
+		<< "\nPlease think of the neighbour lists.";
+#endif
+
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    if (iDim == GravityDim)
+      {
+	Iflt adot = Gravity;
+	Iflt vdot = vel[GravityDim];
+	Iflt rdot = rpos[GravityDim];
+	
+	Iflt arg = vdot * vdot - 2 * rdot * adot;
+	
+	if (arg > 0)
+	  {
+	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    Iflt x1 = t / adot;
+	    Iflt x2 = 2 * rdot / t;
+	    
+	    if (Gravity > 0)
+	      {
+		//The particle is arcing over the boundary
+		Iflt tmpdt = (x1 < x2) ? x1 : x2;
+		if (tmpdt < time)
+		  {
+		    time = tmpdt;
+		    retVal = iDim;
+		  }
+	      }
+	    else
+	      {
+		Iflt tmpdt = (x1 < x2) ? x2 : x1;
+		if (tmpdt < time)
+		  {
+		    time = tmpdt;
+		    retVal = iDim;
+		  }
+	      }
+	  }
+	
+	rdot = width[iDim]-rpos[iDim];
+
+	arg = vdot * vdot - 2 * rdot * adot;
+	
+	if (arg > 0)
+	  {
+	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    Iflt x1 = t / adot;
+	    Iflt x2 = 2 * rdot / t;
+	    
+	    if (Gravity < 0)
+	      {
+		//The particle is arcing over the boundary
+		Iflt tmpdt = (x1 < x2) ? x1 : x2;
+		if (tmpdt < time)
+		  {
+		    time = tmpdt;
+		    retVal = iDim;
+		  }
+	      }
+	    else
+	      {
+		//The particle is arcing under the boundary
+		Iflt tmpdt = (x1 < x2) ? x2 : x1;
+		if (tmpdt < time)
+		  {
+		    time = tmpdt;
+		    retVal = iDim;
+		  }
+	      }
+	  }
+      }  
+  else
+    {
+      Iflt tmpdt = ((vel[iDim] < 0) 
+		  ? -rpos[iDim]/vel[iDim] 
+		  : (width[iDim]-rpos[iDim]) / vel[iDim]);
+
+      if (tmpdt < time)
+	{
+	  time = tmpdt;
+	  retVal = iDim;
+	}
+    }
+
+  return retVal;
 }
 
 void 
