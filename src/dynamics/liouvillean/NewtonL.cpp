@@ -322,18 +322,18 @@ LNewtonian::getSquareCellCollision2(const CParticle& part,
   return retVal;
 }
 
-size_t
+int
 LNewtonian::getSquareCellCollision3(const CParticle& part, 
-				 const Vector & origin, 
-				 const Vector & width) const
+				    const Vector & origin, 
+				    const Vector & width) const
 {
   Vector  rpos(part.getPosition() - origin);
   Vector  vel(part.getVelocity());
 
   Sim->dynamics.BCs().applyBC(rpos, vel);
 
-  size_t retVal(0);
-  Iflt time((vel[0] < 0) ? -rpos[0]/vel[0] : (width[0]-rpos[0]) / vel[0]);
+  int retVal(0);
+  Iflt time(HUGE_VAL);
   
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -342,7 +342,7 @@ LNewtonian::getSquareCellCollision3(const CParticle& part,
 		<< "\nPlease think of the neighbour lists.";
 #endif
 
-  for (size_t iDim = 1; iDim < NDIM; ++iDim)
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
       Iflt tmpdt = ((vel[iDim] < 0) 
 		  ? -rpos[iDim]/vel[iDim] 
@@ -351,9 +351,14 @@ LNewtonian::getSquareCellCollision3(const CParticle& part,
       if (tmpdt < time)
 	{
 	  time = tmpdt;
-	  retVal = iDim;
+	  retVal = (vel[iDim] < 0) ? -(iDim+1) : (iDim+1);
 	}
     }
+
+  if (((retVal < 0) && (vel[abs(retVal)-1] > 0))
+      || ((retVal > 0) && (vel[abs(retVal)-1] < 0)))
+    D_throw() << "Found an error! retVal " << retVal
+	      << " vel is " << vel[abs(retVal)-1];
 
   return retVal;
 }

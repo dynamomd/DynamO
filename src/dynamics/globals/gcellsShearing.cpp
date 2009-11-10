@@ -74,10 +74,12 @@ CGCellsShearing::runEvent(const CParticle& part) const
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->dynamics.getLiouvillean().
+  int cellDirectionInt(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
 			cellDimension));
+  
+  size_t cellDirection = abs(cellDirectionInt) - 1;
 
   int endCell(-1); //The ID of the cell the particle enters
 
@@ -88,7 +90,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
   if ((cellDirection == 1) &&
       (cells[oldCell].coords[1] 
-       == ((vel[1] < 0) ? 0 : (cellCount[1] - 1))))
+       == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
     {
       //We're wrapping in the y direction, we have to compute
       //which cell its entering
@@ -103,7 +105,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
       endCell = oldCell - cells[oldCell].coords[0];
       
       //Update the y dimension
-      if (vel[1] < 0)
+      if (cellDirectionInt < 0)
 	endCell += cellCount[0] * (cellCount[1]-1);
       else
 	endCell -= cellCount[0] * (cellCount[1]-1);
@@ -113,7 +115,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
       Vector  tmpPos = part.getPosition();
 
       //This just ensures we wrap the image
-      if (vel[1] < 0)
+      if (cellDirectionInt < 0)
 	tmpPos[1] -= 0.5 * cellDimension[1];
       else
 	tmpPos[1] += 0.5 * cellDimension[1];
@@ -147,11 +149,11 @@ CGCellsShearing::runEvent(const CParticle& part) const
 
     }
   else if ((cellDirection == 1) && 
-	   (cells[oldCell].coords[1] == ((vel[1] < 0) ? 1 : (cellCount[1] - 2))))
+	   (cells[oldCell].coords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
     {
       //We're entering the boundary of the y direction
       //Calculate the end cell, no boundary wrap check required
-      endCell = oldCell + cellCount[0] * ((vel[1] < 0) ? -1 : 1);
+      endCell = oldCell + cellCount[0] * ((cellDirectionInt < 0) ? -1 : 1);
       
       removeFromCell(part.getID());
       addToCell(part.getID(), endCell);
@@ -176,8 +178,8 @@ CGCellsShearing::runEvent(const CParticle& part) const
       for (size_t iDim(0); iDim < cellDirection; ++iDim)
 	cellpow *= cellCount[iDim];
       
-      int velsign = 2 * (vel[cellDirection] > 0) - 1;
-      int offset = (vel[cellDirection] > 0) * (cellCount[cellDirection] - 1);
+      int velsign = 2 * (cellDirectionInt > 0) - 1;
+      int offset = (cellDirectionInt > 0) * (cellCount[cellDirection] - 1);
       
       endCell = oldCell + cellpow * velsign;
       int inCell = oldCell + 2 * cellpow * velsign;

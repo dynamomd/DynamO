@@ -416,8 +416,8 @@ SquareWellTest
 
 echo ""
 echo "GLOBALS"
-echo "Testing binary spheres and the ListAndCell neighbourlist"
-BinarySphereTest "ListAndCell"
+#echo "Testing binary spheres and the ListAndCell neighbourlist"
+#BinarySphereTest "ListAndCell"
 
 echo ""
 echo "SYSTEM EVENTS"

@@ -76,8 +76,8 @@ LNewtonianGravity::getWallCollision(const CParticle &part,
 
 Iflt
 LNewtonianGravity::getSquareCellCollision2(const CParticle& part, 
-				 const Vector & origin, 
-				 const Vector & width) const
+					   const Vector & origin, 
+					   const Vector & width) const
 {
   Vector rpos(part.getPosition() - origin);
   Vector vel(part.getVelocity());
@@ -161,7 +161,7 @@ LNewtonianGravity::getSquareCellCollision2(const CParticle& part,
   return retVal;
 }
 
-size_t
+int
 LNewtonianGravity::getSquareCellCollision3(const CParticle& part, 
 					   const Vector & origin, 
 					   const Vector & width) const
@@ -203,7 +203,7 @@ LNewtonianGravity::getSquareCellCollision3(const CParticle& part,
 		if (tmpdt < time)
 		  {
 		    time = tmpdt;
-		    retVal = iDim;
+		    retVal = -(iDim+1);
 		  }
 	      }
 	    else
@@ -212,7 +212,7 @@ LNewtonianGravity::getSquareCellCollision3(const CParticle& part,
 		if (tmpdt < time)
 		  {
 		    time = tmpdt;
-		    retVal = iDim;
+		    retVal = -(iDim+1);
 		  }
 	      }
 	  }
@@ -258,7 +258,7 @@ LNewtonianGravity::getSquareCellCollision3(const CParticle& part,
       if (tmpdt < time)
 	{
 	  time = tmpdt;
-	  retVal = iDim;
+	  retVal = (vel[iDim] < 0) ? -(iDim+1) : iDim+1;
 	}
     }
 

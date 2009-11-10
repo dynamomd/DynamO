@@ -47,10 +47,10 @@ public:
 				       const Vector &
 				       ) const;
 
-  virtual size_t getSquareCellCollision3(const CParticle&, 
-				       const Vector &, 
-				       const Vector &
-				       ) const;
+  virtual int getSquareCellCollision3(const CParticle&, 
+				      const Vector &, 
+				      const Vector &
+				      ) const;
   
   virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
 
