@@ -152,7 +152,7 @@ CIPPacker::initialise()
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
 	"  9: Crystal pack of lines\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"		--i2 : Scheduler type [0] (O:NeighbourList; 1:Dumb for high density)\n"
+	"	--i2 : Scheduler type [0] (O:NeighbourList; 1:Dumb for high density)\n"
 	"       --f1 : Inelasticity [1.0]\n"
 	"  10: Monocomponent hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"

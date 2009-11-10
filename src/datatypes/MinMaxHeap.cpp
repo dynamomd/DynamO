@@ -252,8 +252,7 @@ void MinMaxHeap<Comparable, array_size>::percolateDown( size_t hole )
 {
   size_t level = 0;
 
-  for ( size_t i = 2; i <= hole; i *= 2 )
-    level++;
+  for (size_t i = 2; i <= hole; i *= 2, ++level);
 
   if ( level % 2 == 0 )
     percolateDownMin( hole );
@@ -266,14 +265,12 @@ void MinMaxHeap<Comparable, array_size>::percolateDown( size_t hole )
 //   the min levels.
 // Parameter hole: index in array of item to be percolated
 template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateDownMin( size_t hole )
+void MinMaxHeap<Comparable, array_size>::percolateDownMin(size_t hole)
 {
-  size_t minIndex;
-
   // find minimum value of children and grandchildren
   // hole * 2 = index of first child if it exists
   // hole * 4 = index of first grandchild if it exists
-  minIndex = findMinDescendent( hole * 2, hole * 4 );
+  size_t minIndex = findMinDescendent( hole * 2, hole * 4 );
 
   // at least one descendent
   if ( minIndex > 0 ) {
