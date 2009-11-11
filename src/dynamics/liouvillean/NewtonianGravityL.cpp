@@ -107,16 +107,18 @@ LNewtonianGravity::getSquareCellCollision2(const CParticle& part,
 	    Iflt x1 = t / adot;
 	    Iflt x2 = 2 * rdot / t;
 	    
-	    if (Gravity > 0)
+	    if ((Gravity < 0) - (vel[GravityDim] > 0))
 	      {
-		//The particle is arcing over the boundary
-		Iflt tmpdt = (x1 < x2) ? x1 : x2;
+		//Particle should look at the last root
+		//Should be arcing out of the plate
+		Iflt tmpdt = (x1 < x2) ? x2 : x1;
 		if (tmpdt < retVal)
 		  retVal = tmpdt;
 	      }
 	    else
 	      {
-		Iflt tmpdt = (x1 < x2) ? x2 : x1;
+		//Should be arcing into the plate
+		Iflt tmpdt = (x1 < x2) ? x1 : x2;
 		if (tmpdt < retVal)
 		  retVal = tmpdt;
 	      }
@@ -132,17 +134,18 @@ LNewtonianGravity::getSquareCellCollision2(const CParticle& part,
 	    Iflt x1 = t / adot;
 	    Iflt x2 = 2 * rdot / t;
 	    
-	    if (Gravity < 0)
+	    if ((Gravity < 0) - (vel[GravityDim] > 0))
 	      {
-		//The particle is arcing over the boundary
-		Iflt tmpdt = (x1 < x2) ? x1 : x2;
+		//Particle should look at the last root
+		//Should be arcing out of the plate
+		Iflt tmpdt = (x1 < x2) ? x2 : x1;
 		if (tmpdt < retVal)
 		  retVal = tmpdt;
 	      }
 	    else
 	      {
-		//The particle is arcing under the boundary
-		Iflt tmpdt = (x1 < x2) ? x2 : x1;
+		//Should be arcing into the plate
+		Iflt tmpdt = (x1 < x2) ? x1 : x2;
 		if (tmpdt < retVal)
 		  retVal = tmpdt;
 	      }

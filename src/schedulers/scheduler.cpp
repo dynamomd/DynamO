@@ -242,19 +242,6 @@ CScheduler::runNextEvent()
       {
 	//We don't stream the system for globals as neighbour lists
 	//optimise this (they dont need it).
-	
-	#ifdef DYNAMO_DEBUG
-	//This makes neighbour list events appear in the output plugins
-	if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[sorter->getNextEvent().p2].get_ptr())
-	    != NULL)
-	  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(CGlobEvent(Sim->vParticleList[sorter->next_ID()], 0, 
-					CELL, *Sim->dynamics.getGlobals()[sorter->getNextEvent().p2]),
-			     CNParticleData(C1ParticleData(Sim->vParticleList[sorter->next_ID()],
-							   Sim->dynamics.getSpecies(Sim->vParticleList[sorter->next_ID()]),
-							   CELL)));
-	#endif
-	
 	Sim->dynamics.getGlobals()[sorter->getNextEvent().p2]
 	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
 	break;	           

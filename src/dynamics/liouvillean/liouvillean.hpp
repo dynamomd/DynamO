@@ -314,6 +314,18 @@ public:
    */    
   virtual Iflt getPBCSentinelTime(const CParticle& p1, const Iflt& maxl) const;
 
+  /*! \brief Calculates when a particle has peaked in its parabola to
+   *   allow cell lists to not stream the system.
+   *
+   *   This is required in gravity with cell neighbour lists. 
+   * \param part Particle tested
+   * \return Time of the event.
+   */    
+  virtual Iflt getParabolaSentinelTime(const CParticle& p1) const
+  { 
+    D_throw() << "This is not needed for this type of Liouvillean";
+  }
+
   /*! \brief Runs a line line collision event
    *
    * \param eevent Description of the scheduled event

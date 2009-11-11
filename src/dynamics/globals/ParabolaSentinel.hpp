@@ -15,10 +15,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcells.hpp"
-#include "gcellsmorton.hpp"
-//#include "gListAndCell.hpp"
-#include "gcellsShearing.hpp"
-#include "PBCSentinel.hpp"
-#include "ParabolaSentinel.hpp"
-#include "socells.hpp"
+#ifndef CGParabolaSentinel_HPP
+#define CGParabolaSentinel_HPP
+
+#include "global.hpp"
+#include <vector>
+
+class CGParabolaSentinel: public CGlobal
+{
+public:
+  CGParabolaSentinel(const XMLNode&, DYNAMO::SimData*);
+
+  CGParabolaSentinel(DYNAMO::SimData*, const std::string&);
+  
+  virtual ~CGParabolaSentinel() {}
+
+  virtual CGlobal* Clone() const { return new CGParabolaSentinel(*this); };
+
+  virtual CGlobEvent getEvent(const CParticle &) const;
+
+  virtual void runEvent(const CParticle&) const;
+
+  virtual void initialise(size_t);
+
+  virtual void operator<<(const XMLNode&);
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+};
+
+#endif
