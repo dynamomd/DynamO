@@ -269,9 +269,9 @@ public:
    * \param width The width of the bounding cell box.
    * \return The time till collision.
    */    
-  virtual size_t getSquareCellCollision3(const CParticle& part, 
-					 const Vector & origin, 
-					 const Vector & width) const = 0;
+  virtual int getSquareCellCollision3(const CParticle& part, 
+				      const Vector & origin, 
+				      const Vector & width) const = 0;
 
   /*! \brief Tests if and when two lines will collide.
    *

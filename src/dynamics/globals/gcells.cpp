@@ -142,10 +142,12 @@ CGCells::runEvent(const CParticle& part) const
   size_t oldCell(partCellData[part.getID()].cell);
 
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->dynamics.getLiouvillean().
+  int cellDirectionInt(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, cells[oldCell].origin, 
 			cellDimension));
+  
+  size_t cellDirection = abs(cellDirectionInt) - 1;
 
   int endCell(oldCell), inCell(oldCell);
 
@@ -156,7 +158,7 @@ CGCells::runEvent(const CParticle& part) const
 
     int mag = cellpow * cellCount[cellDirection];
   
-    if (part.getVelocity()[cellDirection] > 0)
+    if (cellDirectionInt > 0)
       {
 	endCell += cellpow;
 	inCell += (1 + overlink) * cellpow;

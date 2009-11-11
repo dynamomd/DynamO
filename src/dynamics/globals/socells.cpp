@@ -109,10 +109,12 @@ CGSOCells::runEvent(const CParticle& part) const
     }
   
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->dynamics.getLiouvillean().
+  int cellDirectionInt(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
 		       (part, CellOrigin, 
 			cellDimension));
+
+  size_t cellDirection = abs(cellDirectionInt) - 1;
 
   CGlobEvent iEvent(getEvent(part));
 
@@ -138,7 +140,7 @@ CGSOCells::runEvent(const CParticle& part) const
 
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  vNorm[cellDirection] = (vel[cellDirection] > 0) ? -1 : +1; 
+  vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
     
   //Run the collision and catch the data
   CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision

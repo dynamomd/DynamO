@@ -180,7 +180,7 @@ CLSLLOD::getSquareCellCollision2(const CParticle& part,
   D_throw() << "Not Implemented";
 }
 
-size_t
+int
 CLSLLOD::getSquareCellCollision3(const CParticle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const

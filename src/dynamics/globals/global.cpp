@@ -50,10 +50,11 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 CGlobal* 
 CGlobal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
 {
-  if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
-    return new CGListAndCell(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Cells2")
-	   || !strcmp(XML.getAttribute("Type"),"Cells"))
+  //  if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
+  //    return new CGListAndCell(XML, Sim);
+  //else 
+  if (!strcmp(XML.getAttribute("Type"),"Cells2")
+      || !strcmp(XML.getAttribute("Type"),"Cells"))
     return new CGCells(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
     return new CGCellsShearing(XML, Sim);

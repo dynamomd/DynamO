@@ -44,10 +44,10 @@ public:
 				       const Vector &
 				       ) const;
 
-  virtual size_t getSquareCellCollision3(const CParticle&, 
-				       const Vector &, 
-				       const Vector &
-				       ) const;
+  virtual int getSquareCellCollision3(const CParticle&, 
+				      const Vector &, 
+				      const Vector &
+				      ) const;
   
   virtual Iflt getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
 				      const Vector& nhat, const Iflt& Delta,

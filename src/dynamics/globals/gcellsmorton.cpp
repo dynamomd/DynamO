@@ -128,18 +128,19 @@ CGCellsMorton::runEvent(const CParticle& part) const
   size_t endCell, oldCell(partCellData[part.getID()].cell);
   
   //Determine the cell transition direction, its saved
-  size_t cellDirection(Sim->dynamics.getLiouvillean().
-		       getSquareCellCollision3
-		       (part, calcPosition(cells[oldCell].coords), 
-			Vector(cellDimension,cellDimension,cellDimension)));
+  int cellDirectionInt(Sim->dynamics.getLiouvillean().
+			  getSquareCellCollision3
+			  (part, calcPosition(cells[oldCell].coords), 
+			   Vector(cellDimension,cellDimension,cellDimension)));
   
+  size_t cellDirection = abs(cellDirectionInt) - 1;
 
   dilatedCoords inCell(cells[oldCell].coords);
 
   {
     dilatedCoords dendCell(inCell);
     
-    if (part.getVelocity()[cellDirection] > 0)
+    if (cellDirectionInt > 0)
       {
 	++dendCell.data[cellDirection];
 	inCell.data[cellDirection] = dendCell.data[cellDirection] + dilatedOverlink;	

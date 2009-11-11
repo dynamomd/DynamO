@@ -56,7 +56,8 @@ BCRectangularLeesEdwards::operator<<(const XMLNode& XML)
 { 
   try 
     {
-      dxd = boost::lexical_cast<Iflt>(XML.getAttribute("DXD"));
+      if (XML.isAttributeSet("DXD"))
+	dxd = boost::lexical_cast<Iflt>(XML.getAttribute("DXD"));
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -151,7 +152,8 @@ BCSquareLeesEdwards::operator<<(const XMLNode& XML)
 { 
   try 
     {
-      dxd = boost::lexical_cast<Iflt>(XML.getAttribute("DXD"));
+      if (XML.isAttributeSet("DXD"))
+	dxd = boost::lexical_cast<Iflt>(XML.getAttribute("DXD"));
     }
   catch (boost::bad_lexical_cast &)
     {
