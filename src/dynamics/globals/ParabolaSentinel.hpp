@@ -41,8 +41,11 @@ public:
   virtual void operator<<(const XMLNode&);
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  void particlesUpdated(const CNParticleData&);
 
+  virtual void outputXML(xmlw::XmlStream&) const;
+  
+  mutable std::vector<unsigned char> passedParabola;
 };
 
 #endif

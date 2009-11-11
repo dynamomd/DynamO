@@ -41,6 +41,14 @@ void
 CGParabolaSentinel::initialise(size_t nID)
 {
   ID=nID;
+
+  passedParabola.resize(Sim->lN);
+
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    passedParabola[part.getID()] = false;
+
+  Sim->registerParticleUpdateFunc
+    (fastdelegate::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
 }
 
 void 
@@ -58,12 +66,18 @@ CGParabolaSentinel::operator<<(const XMLNode& XML)
 CGlobEvent 
 CGParabolaSentinel::getEvent(const CParticle& part) const
 {
-  return CGlobEvent(part, Sim->dynamics.getLiouvillean().getParabolaSentinelTime(part), VIRTUAL, *this);
+  if (passedParabola[part.getID()])
+    return CGlobEvent(part, HUGE_VAL, VIRTUAL, *this);
+  else
+    return CGlobEvent(part, Sim->dynamics.getLiouvillean().getParabolaSentinelTime(part, passedParabola[part.getID()]), VIRTUAL, *this);
 }
 
 void 
 CGParabolaSentinel::runEvent(const CParticle& part) const
 {
+  //Stop the parabola occuring again
+  passedParabola[part.getID()] = true;
+
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   CGlobEvent iEvent(getEvent(part));
@@ -94,4 +108,17 @@ CGParabolaSentinel::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "ParabolaSentinel"
       << xmlw::attr("Name") << globName;
+}
+
+void 
+CGParabolaSentinel::particlesUpdated(const CNParticleData& PDat)
+{
+  BOOST_FOREACH(const C1ParticleData& pdat, PDat.L1partChanges)
+    passedParabola[pdat.getParticle().getID()] = false;
+  
+  BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
+    {
+      passedParabola[pdat.particle1_.getParticle().getID()] = false;
+      passedParabola[pdat.particle2_.getParticle().getID()] = false;
+    }
 }

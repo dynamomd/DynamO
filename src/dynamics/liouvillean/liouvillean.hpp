@@ -318,10 +318,11 @@ public:
    *   allow cell lists to not stream the system.
    *
    *   This is required in gravity with cell neighbour lists. 
-   * \param part Particle tested
+   * \param part Particle tested.
+   * \param passed A bit to set if the parabola is already over.
    * \return Time of the event.
    */    
-  virtual Iflt getParabolaSentinelTime(const CParticle& p1) const
+  virtual Iflt getParabolaSentinelTime(const CParticle& p1, unsigned char& passed) const
   { 
     D_throw() << "This is not needed for this type of Liouvillean";
   }
