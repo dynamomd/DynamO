@@ -66,21 +66,26 @@ CGParabolaSentinel::operator<<(const XMLNode& XML)
 CGlobEvent 
 CGParabolaSentinel::getEvent(const CParticle& part) const
 {
+  Sim->dynamics.getLiouvillean().updateParticle(part);
+
   if (passedParabola[part.getID()])
     return CGlobEvent(part, HUGE_VAL, VIRTUAL, *this);
   else
-    return CGlobEvent(part, Sim->dynamics.getLiouvillean().getParabolaSentinelTime(part, passedParabola[part.getID()]), VIRTUAL, *this);
+    return CGlobEvent(part, Sim->dynamics.getLiouvillean()
+		      .getParabolaSentinelTime
+		      (part, passedParabola[part.getID()]), 
+		      VIRTUAL, *this);
 }
 
 void 
 CGParabolaSentinel::runEvent(const CParticle& part) const
 {
-  //Stop the parabola occuring again
-  passedParabola[part.getID()] = true;
-
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   CGlobEvent iEvent(getEvent(part));
+
+  //Stop the parabola occuring again
+  passedParabola[part.getID()] = true;
 
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
@@ -97,6 +102,10 @@ CGParabolaSentinel::runEvent(const CParticle& part) const
   Sim->ptrScheduler->stream(iEvent.getdt());
   
   Sim->dynamics.stream(iEvent.getdt());
+
+  Sim->dynamics.getLiouvillean().updateParticle(part);
+  
+  const_cast<CParticle&>(part).getVelocity()[GravityDim] = 0;
   
   Sim->freestreamAcc += iEvent.getdt();
 

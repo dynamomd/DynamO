@@ -45,6 +45,8 @@ public:
 
   virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
 
+  virtual Iflt getParabolaSentinelTime(const CParticle&, unsigned char&) const;
+
   virtual Iflt getWallCollision(const CParticle&, 
 				const Vector &, 
 				const Vector &) const;

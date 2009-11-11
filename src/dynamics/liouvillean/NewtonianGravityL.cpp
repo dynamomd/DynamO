@@ -316,3 +316,27 @@ LNewtonianGravity::getCylinderWallCollision(const CParticle& part,
   else
     return t;
 }
+
+Iflt 
+LNewtonianGravity::getParabolaSentinelTime(const CParticle& part, 
+					   unsigned char& passed) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(part))
+    D_throw() << "Particle is not up to date";
+#endif
+  
+  Vector pos(part.getPosition()), vel(part.getVelocity());
+  
+  Sim->dynamics.BCs().applyBC(pos, vel);
+  
+  Iflt turningPoint = - vel[GravityDim] / Gravity;
+  
+  if (turningPoint <= 0)
+    {
+      passed = true;
+      return HUGE_VAL;
+    }
+  
+  return turningPoint;
+}
