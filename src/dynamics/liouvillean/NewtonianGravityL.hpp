@@ -22,7 +22,7 @@
 class LNewtonianGravity: public LNewtonian
 {
 public:
-  LNewtonianGravity(DYNAMO::SimData*);
+  LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
 
   //Pair particle dynamics
 
@@ -47,6 +47,8 @@ public:
 
   virtual Iflt getParabolaSentinelTime(const CParticle&, unsigned char&) const;
 
+  virtual void enforceParabola(const CParticle&) const;
+
   virtual Iflt getWallCollision(const CParticle&, 
 				const Vector &, 
 				const Vector &) const;
@@ -60,6 +62,12 @@ public:
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
+  size_t getGravityDimension() const { return GravityDim; }
+  Iflt getGravity() const { return Gravity; }
+
 protected:
-  virtual void outputXML(xmlw::XmlStream& ) const;
+  Iflt Gravity;
+  size_t GravityDim;
+
+  virtual void outputXML(xmlw::XmlStream&) const;
 };

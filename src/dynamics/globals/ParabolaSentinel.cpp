@@ -49,6 +49,7 @@ CGParabolaSentinel::initialise(size_t nID)
 
   Sim->registerParticleUpdateFunc
     (fastdelegate::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
+
 }
 
 void 
@@ -103,9 +104,7 @@ CGParabolaSentinel::runEvent(const CParticle& part) const
   
   Sim->dynamics.stream(iEvent.getdt());
 
-  Sim->dynamics.getLiouvillean().updateParticle(part);
-  
-  const_cast<CParticle&>(part).getVelocity()[GravityDim] = 0;
+  Sim->dynamics.getLiouvillean().enforceParabola(part);
   
   Sim->freestreamAcc += iEvent.getdt();
 

@@ -29,9 +29,30 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp):
-  LNewtonian(tmp)
-{}
+LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
+  LNewtonian(tmp),
+  Gravity(-1),
+  GravityDim(1)
+
+{
+  if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
+    D_throw() << "Attempting to load NewtonianGravity from non NewtonianGravity entry";
+  
+  try 
+    {
+      if (XML.isAttributeSet("Gravity"))
+	Gravity = boost::lexical_cast<Iflt>(XML.getAttribute("Gravity"));      
+      
+      if (XML.isAttributeSet("GravityDimension"))
+	GravityDim = boost::lexical_cast<Iflt>(XML.getAttribute("GravityDimension"));      
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in CIHardSphere";
+    }
+  
+  Gravity *= Sim->dynamics.units().unitAcceleration();
+}
 
 void
 LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
@@ -97,59 +118,46 @@ LNewtonianGravity::getSquareCellCollision2(const CParticle& part,
       {
 	Iflt adot = Gravity;
 	Iflt vdot = vel[GravityDim];
-	Iflt rdot = rpos[GravityDim];
 
+	//First check the "upper" boundary that may have no roots
+	Iflt rdot = (Gravity < 0) ? rpos[iDim]-width[iDim] : rpos[iDim];
 	Iflt arg = vdot * vdot - 2 * rdot * adot;
+	Iflt upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
-	if (arg > 0)
+	if (arg >= 0)
 	  {
 	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    Iflt x1 = t / adot;
-	    Iflt x2 = 2 * rdot / t;
-	    
-	    if ((Gravity < 0) - (vel[GravityDim] > 0))
-	      {
-		//Particle should look at the last root
-		//Should be arcing out of the plate
-		Iflt tmpdt = (x1 < x2) ? x2 : x1;
-		if (tmpdt < retVal)
-		  retVal = tmpdt;
-	      }
-	    else
-	      {
-		//Should be arcing into the plate
-		Iflt tmpdt = (x1 < x2) ? x1 : x2;
-		if (tmpdt < retVal)
-		  retVal = tmpdt;
-	      }
+	    upperRoot1 = t / adot;
+	    upperRoot1 = 2 * rdot / t;
+	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
 	  }
-	
-	rdot = width[iDim]-rpos[iDim];
 
-	arg = vdot * vdot - 2 * rdot * adot;
 	
-	if (arg > 0)
+	//Now the lower boundary which always has roots
+	rdot = (Gravity < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
+	arg = vdot * vdot - 2 * rdot * adot;
+	Iflt lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
+	if (arg >= 0)
 	  {
 	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    Iflt x1 = t / adot;
-	    Iflt x2 = 2 * rdot / t;
-	    
-	    if ((Gravity < 0) - (vel[GravityDim] > 0))
-	      {
-		//Particle should look at the last root
-		//Should be arcing out of the plate
-		Iflt tmpdt = (x1 < x2) ? x2 : x1;
-		if (tmpdt < retVal)
-		  retVal = tmpdt;
-	      }
-	    else
-	      {
-		//Should be arcing into the plate
-		Iflt tmpdt = (x1 < x2) ? x1 : x2;
-		if (tmpdt < retVal)
-		  retVal = tmpdt;
-	      }
+	    lowerRoot1 = t / adot;
+	    lowerRoot2 = 2 * rdot / t;
+	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
 	  }
+
+	Iflt root = HUGE_VAL;
+	//Now, if the velocity is "up", and the upper roots exist,
+	//then pick the shortest one
+	if (!((Gravity < 0) - (vel[GravityDim] > 0))
+	    && (upperRoot1 != HUGE_VAL))
+	  root = upperRoot1;
+
+	//Otherwise its usually the latest lowerRoot
+	if (root == HUGE_VAL)
+	  root = lowerRoot2;
+
+	if (root < retVal)
+	  retVal = root;
       }
     else
       {
@@ -174,7 +182,7 @@ LNewtonianGravity::getSquareCellCollision3(const CParticle& part,
 
   Sim->dynamics.BCs().applyBC(rpos, vel);
 
-  size_t retVal(0);
+  int retVal(0);
   Iflt time(HUGE_VAL);
   
 #ifdef DYNAMO_DEBUG
@@ -189,79 +197,59 @@ LNewtonianGravity::getSquareCellCollision3(const CParticle& part,
       {
 	Iflt adot = Gravity;
 	Iflt vdot = vel[GravityDim];
-	Iflt rdot = rpos[GravityDim];
 	
+	//First check the "upper" boundary that may have no roots
+	Iflt rdot = (Gravity < 0) ? rpos[iDim]-width[iDim]: rpos[iDim];
 	Iflt arg = vdot * vdot - 2 * rdot * adot;
+	Iflt upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
-	if (arg > 0)
+	if (arg >= 0)
 	  {
 	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    Iflt x1 = t / adot;
-	    Iflt x2 = 2 * rdot / t;
-	    
-	    if (Gravity > 0)
-	      {
-		//The particle is arcing over the boundary
-		Iflt tmpdt = (x1 < x2) ? x1 : x2;
-		if (tmpdt < time)
-		  {
-		    time = tmpdt;
-		    retVal = -(iDim+1);
-		  }
-	      }
-	    else
-	      {
-		Iflt tmpdt = (x1 < x2) ? x2 : x1;
-		if (tmpdt < time)
-		  {
-		    time = tmpdt;
-		    retVal = -(iDim+1);
-		  }
-	      }
+	    upperRoot1 = t / adot;
+	    upperRoot1 = 2 * rdot / t;
+	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
 	  }
-	
-	rdot = width[iDim]-rpos[iDim];
 
-	arg = vdot * vdot - 2 * rdot * adot;
 	
-	if (arg > 0)
+	//Now the lower boundary which always has roots
+	rdot = (Gravity < 0) ? rpos[iDim] : rpos[iDim]-width[iDim];
+	arg = vdot * vdot - 2 * rdot * adot;
+	Iflt lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
+	if (arg >= 0)
 	  {
 	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    Iflt x1 = t / adot;
-	    Iflt x2 = 2 * rdot / t;
-	    
-	    if (Gravity < 0)
-	      {
-		//The particle is arcing over the boundary
-		Iflt tmpdt = (x1 < x2) ? x1 : x2;
-		if (tmpdt < time)
-		  {
-		    time = tmpdt;
-		    retVal = iDim;
-		  }
-	      }
-	    else
-	      {
-		//The particle is arcing under the boundary
-		Iflt tmpdt = (x1 < x2) ? x2 : x1;
-		if (tmpdt < time)
-		  {
-		    time = tmpdt;
-		    retVal = iDim;
-		  }
-	      }
+	    lowerRoot1 = t / adot;
+	    lowerRoot2 = 2 * rdot / t;
+	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
+	  }
+
+	//Now, if the velocity is "up", and the upper roots exist,
+	//then pick the shortest one
+	if (!((Gravity < 0) - (vel[GravityDim] > 0)))
+	  if (upperRoot1 < time)
+	    {
+	      time = upperRoot1;
+	      retVal = (Gravity < 0) ? (iDim + 1) : -(iDim + 1);
+	    }
+
+	//Otherwise its usually the latest lowerRoot
+	if (lowerRoot2 < time)
+	  {
+	    time = lowerRoot2;
+	    retVal = (Gravity < 0) ? - (iDim + 1) : (iDim + 1);
 	  }
       }  
   else
     {
       Iflt tmpdt = ((vel[iDim] < 0) 
-		  ? -rpos[iDim]/vel[iDim] 
-		  : (width[iDim]-rpos[iDim]) / vel[iDim]);
+		  ? -rpos[iDim] / vel[iDim] 
+		  : (width[iDim] - rpos[iDim]) / vel[iDim]);
 
       if (tmpdt < time)
 	{
 	  time = tmpdt;
-	  retVal = (vel[iDim] < 0) ? -(iDim+1) : iDim+1;
+	  retVal = (vel[iDim] < 0) ? - (iDim + 1) : iDim + 1;
 	}
     }
 
@@ -272,7 +260,12 @@ void
 LNewtonianGravity::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
-      << "NewtonianGravity";
+      << "NewtonianGravity"
+      << xmlw::attr("Gravity") 
+      << Gravity / Sim->dynamics.units().unitAcceleration()
+      << xmlw::attr("GravityDimension") 
+      << GravityDim
+    ;
 }
 
 Iflt 
@@ -339,4 +332,12 @@ LNewtonianGravity::getParabolaSentinelTime(const CParticle& part,
     }
   
   return turningPoint;
+}
+
+void 
+LNewtonianGravity::enforceParabola(const CParticle& part) const
+{
+  updateParticle(part);
+
+  const_cast<CParticle&>(part).getVelocity()[GravityDim] = 0.0;
 }

@@ -86,7 +86,8 @@ OPMisc::initialise()
   std::cout << ">";
 
   std::time(&tstartTime);
-  
+  clock_gettime(CLOCK_MONOTONIC, &acc_tstartTime);
+
   std::string sTime(std::ctime(&tstartTime));
   sTime[sTime.size()-1] = ' ';
 
@@ -134,6 +135,9 @@ OPMisc::getMFT() const
 void
 OPMisc::output(xmlw::XmlStream &XML)
 {
+  timespec acc_tendTime;
+  clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
+
   std::time_t tendTime;
   time(&tendTime);
   
@@ -146,7 +150,8 @@ OPMisc::output(xmlw::XmlStream &XML)
   eTime[eTime.size()-1] = ' ';
   
   Iflt collpersec = static_cast<Iflt>(Sim->lNColl)
-    / static_cast<Iflt>(tendTime - tstartTime);
+    / (Iflt(acc_tendTime.tv_sec) + 1e-9 * Iflt(acc_tendTime.tv_nsec)
+       - Iflt(acc_tstartTime.tv_sec) - 1e-9 * Iflt(acc_tstartTime.tv_nsec));
 
   long int maxmemusage;
 

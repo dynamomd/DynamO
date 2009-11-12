@@ -28,6 +28,7 @@
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
 #include <cstdio>
+#include "../liouvillean/NewtonianGravityL.hpp"
 
 CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name, 
 		 const size_t& overlink):
@@ -294,6 +295,10 @@ CGCells::initialise(size_t nID)
   ID=nID;
   
   reinitialise(getMaxInteractionLength());
+
+  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
+    I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event.";
 }
 
 void

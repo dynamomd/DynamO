@@ -47,7 +47,7 @@ Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
   if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
     return new LNewtonian(tmp);
   if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-    return new LNewtonianGravity(tmp);
+    return new LNewtonianGravity(tmp, XML);
   else if (!strcmp(XML.getAttribute("Type"),"NOrientation"))
     return new LNOrientation(tmp, XML);
   else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))

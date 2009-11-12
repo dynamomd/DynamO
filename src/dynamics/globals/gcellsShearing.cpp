@@ -28,6 +28,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
+#include "../liouvillean/NewtonianGravityL.hpp"
 
 CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
 				 const std::string& name):
@@ -51,6 +52,10 @@ CGCellsShearing::initialise(size_t nID)
 {
   ID=nID;
   
+  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
+    I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event.";
+
   if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
     D_throw() << "You cannot use the shearing neighbour list"
 	      << " in a system without Lees Edwards BC's";

@@ -327,6 +327,19 @@ public:
     D_throw() << "This is not needed for this type of Liouvillean";
   }
 
+  /*! \brief Calculates when a particle has peaked in its parabola to
+   *   allow cell lists to not stream the system.
+   *
+   *   This is required in gravity with cell neighbour lists. 
+   * \param part Particle tested.
+   * \param passed A bit to set if the parabola is already over.
+   * \return Time of the event.
+   */    
+  virtual void enforceParabola(const CParticle&) const
+  { 
+    D_throw() << "This is not needed for this type of Liouvillean";
+  }
+
   /*! \brief Runs a line line collision event
    *
    * \param eevent Description of the scheduled event

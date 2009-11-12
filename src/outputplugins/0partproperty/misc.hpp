@@ -20,6 +20,7 @@
 
 #include "../outputplugin.hpp"
 #include <ctime>
+#include <time.h>
 
 class OPMisc: public OutputPlugin
 {
@@ -50,6 +51,7 @@ public:
 
 protected:
   std::time_t tstartTime;
+  timespec acc_tstartTime;
 
   Iflt oldSysTime;
 

@@ -78,6 +78,8 @@ class Units: public DYNAMO::SimBase_const
   /*! Helper function to generate the unit of velocity*/
   inline Iflt unitVelocity() const
     { return unitLength() / unitTime(); }
+  inline Iflt unitAcceleration() const
+  { return unitLength() / (unitTime() * unitTime()); }
   /*! Helper function to generate the unit of energy*/
   inline Iflt unitEnergy() const
     { return unitMass() * unitVelocity() * unitVelocity(); }

@@ -28,6 +28,7 @@
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
 #include <cstdio>
+#include "../liouvillean/NewtonianGravityL.hpp"
 
 CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "MortonCellNeighbourList"),
@@ -272,6 +273,10 @@ CGCellsMorton::initialise(size_t nID)
 {
   ID=nID;
   
+  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
+    I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event.";
+
   reinitialise(getMaxInteractionLength());
 }
 

@@ -31,7 +31,5 @@
  const Iflt PI(3.14159265358979323846);
  const size_t NDIM(3);
  const Iflt ShearRate(1);
- const Iflt Gravity(-1);
- const size_t GravityDim(1);
  const char configFileVersion[] = "1.2.0";
 #endif

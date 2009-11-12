@@ -28,6 +28,7 @@
 #include "../BC/LEBC.hpp"
 #include <boost/static_assert.hpp>
 #include <boost/math/special_functions/pow.hpp>
+#include "../liouvillean/NewtonianGravityL.hpp"
 
 
 CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
@@ -170,6 +171,11 @@ CGSOCells::initialise(size_t nID)
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     cellDimension[iDim] = Sim->aspectRatio[iDim] / cuberootN;
+
+  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
+    I_cout() << "Warning, in order for SingleOccupancyCells to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event.";
+
 }
 
 void
