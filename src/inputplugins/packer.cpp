@@ -152,7 +152,7 @@ CIPPacker::initialise()
 	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
 	"  9: Hard needle system\n"
 	"       --f1 : Inelasticity [1.0]\n"
-	"       --f2 : Inertia multiplicative factor [1.0] (Default = flat mass distribution)\n"
+	"       --f2 : Inertia multiplicative factor [1.0]\n"
 	"  10: Monocomponent hard spheres using DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
@@ -959,7 +959,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
 				 (new CSSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-						     inertiaMultiplicativeFactor * particleDiam * particleDiam / 12.0,
+						     (inertiaMultiplicativeFactor * particleDiam * particleDiam) / 12.0,
 						     "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
