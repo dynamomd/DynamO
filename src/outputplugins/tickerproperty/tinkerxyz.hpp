@@ -19,6 +19,13 @@
 #define OPTinkerXYZ_H
 
 #include "ticker.hpp"
+#include "vmd_imd/vmdsock.h"
+#include "vmd_imd/imd.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <math.h>
+
 
 class OPTinkerXYZ: public OPTicker
 {
@@ -28,16 +35,26 @@ class OPTinkerXYZ: public OPTicker
   virtual OutputPlugin *Clone() const
   { return new OPTinkerXYZ(*this); }
 
-  virtual void initialise() { printImage(); }
+  virtual void initialise();
 
   virtual void stream(Iflt) {}
 
   virtual void ticker();
   
+  void operator<<(const XMLNode&);
+
  protected:
   int frameCount;
+  bool fileOutput;
+  bool liveOutput;
 
-  void printImage();
+  void *clientsock;
+  void *sock;
+
+  std::vector<float> coords;
+
+  void printFileImage();
+  void printLiveImage();
 };
 
 #endif

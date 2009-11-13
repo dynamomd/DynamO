@@ -29,26 +29,107 @@
 #include "radiusGyration.hpp"
 #include "../../dynamics/topology/chain.hpp"
 
-OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode&):
+OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"TinkerXYZ"),
-  frameCount(0)
-{}
+  frameCount(0),
+  fileOutput(true),
+  liveOutput(false),
+  clientsock(NULL),
+  sock(NULL)
+{
+  operator<<(XML);
+}
 
 void 
 OPTinkerXYZ::ticker()
 {
-  printImage();
+  if (fileOutput) printFileImage();
+  if (liveOutput) printLiveImage();
+}
+
+void 
+OPTinkerXYZ::operator<<(const XMLNode& XML)
+{
+  try 
+    {
+      if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
+      if (XML.isAttributeSet("NoFile")) fileOutput = false;
+    }
+  catch (std::exception& excep)
+    {
+      D_throw() << "Error while parsing " << name << "options\n"
+		<< excep.what();
+    }
+}
+
+void 
+OPTinkerXYZ::initialise()
+{ 
+  printFileImage();
+  
+  if (liveOutput) 
+    {
+      coords.resize(NDIM * Sim->lN);
+      const int port = 54321;
+
+      I_cout() << "Setting up incoming socket of VMD";
+      vmdsock_init();
+      sock = vmdsock_create();
+      vmdsock_bind(sock, port);
+      vmdsock_listen(sock);
+      I_cout() << "Listening for VMD connection";
+    }
+
 }
 
 void
-OPTinkerXYZ::printImage()
+OPTinkerXYZ::printLiveImage()
+{
+  if (!clientsock) 
+    {
+      I_cout() << "Blocking system, awaiting connection of VMD";
+      std::cout.flush();
+      if (vmdsock_selread(sock, 0) > 0) 
+	{
+	  clientsock = vmdsock_accept(sock);
+	  if (imd_handshake(clientsock))
+	    clientsock = NULL;
+	}
+      
+      sleep(1);
+      int length;
+      if (vmdsock_selread(clientsock, 0) != 1 ||
+	  imd_recv_header(clientsock, &length) != IMD_GO) 
+	clientsock = NULL;
+    }
+  
+  /* jitter atom coordinate until the connection is terminated */
+  if (clientsock)
+    {
+      IMDEnergies energies;
+      imd_send_energies(clientsock, &energies);
+      Iflt coeff = 3.4 / Sim->dynamics.units().unitLength();
+      for (size_t ID(0); ID < Sim->lN; ++ID)
+	{
+	  Vector pos = Sim->vParticleList[ID].getPosition();
+	  Sim->dynamics.BCs().applyBC(pos);
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)	    
+	    coords[ID * NDIM + iDim] = coeff * pos[iDim];
+	}
+      
+      imd_send_fcoords(clientsock, Sim->lN, &coords[0]);
+    }
+}
+
+void
+OPTinkerXYZ::printFileImage()
 {
   char *fileName;
-
+  
   //Dont let this fill up your hard drive!
   if (frameCount > 1000)
     return;
-
+  
   std::vector<OPRGyration::molGyrationDat> gyrationData;
 
   BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
