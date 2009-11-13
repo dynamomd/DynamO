@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  DYNAMO:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@ OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   oldcoll(0)
 {}
 
-void 
+void
 OPMisc::changeSystem(OutputPlugin* misc2)
 {
   std::swap(Sim, static_cast<OPMisc*>(misc2)->Sim);
@@ -46,29 +46,29 @@ OPMisc::initialise()
   Iflt kt = Sim->dynamics.getLiouvillean().getkT();
 
   Vector  VecEnergy(Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy());
-  
+
   VecEnergy *= 2.0 / (Sim->lN * Sim->dynamics.units().unitEnergy());
 
-  I_cout() << "Particle Count " << Sim->lN 
+  I_cout() << "Particle Count " << Sim->lN
 	   << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
 	   << "\nSim Unit Time " << Sim->dynamics.units().unitTime()
-	   << "\nDensity " << Sim->dynamics.getNumberDensity() 
+	   << "\nDensity " << Sim->dynamics.getNumberDensity()
     * Sim->dynamics.units().unitVolume()
 	   << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
 	   << "\nSim Temperature " << kt
 	   << "\nReduced Temperature " << kt / Sim->dynamics.units().unitEnergy();
-  
+
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    I_cout() << "Kinetic Temperature dimension" << iDim << " " 
+    I_cout() << "Kinetic Temperature dimension" << iDim << " "
 	     <<  VecEnergy[iDim];
 
   I_cout() << "No. of Species " << Sim->dynamics.getSpecies().size()
       << "\nSimulation box length <x,y,z> ";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     std::cout  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength() << " ";
-  
+
   Vector  sumMV (0,0,0);
-  
+
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
     {
@@ -77,7 +77,7 @@ OPMisc::initialise()
 
       sumMV += vel * Sim->dynamics.getSpecies(Part).getMass();
     }
-  
+
   I_cout() << "Total momentum <x,y,z> <";
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -94,28 +94,28 @@ OPMisc::initialise()
   I_cout() << "Started on " << sTime;
 }
 
-void 
-OPMisc::eventUpdate(const CIntEvent&, const C2ParticleData&) 
+void
+OPMisc::eventUpdate(const CIntEvent&, const C2ParticleData&)
 {
   dualEvents++;
 }
 
-void 
+void
 OPMisc::eventUpdate(const CGlobEvent&, const CNParticleData& NDat)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
-void 
+void
 OPMisc::eventUpdate(const CLocalEvent&, const CNParticleData& NDat)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
-void 
-OPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat, 
+void
+OPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat,
 		     const Iflt&)
 {
   dualEvents += NDat.L2partChanges.size();
@@ -126,8 +126,8 @@ Iflt
 OPMisc::getMFT() const
 {
   return Sim->dSysTime * static_cast<Iflt>(Sim->lN)
-    /(Sim->dynamics.units().unitTime() 
-      * ((2.0 * static_cast<Iflt>(dualEvents)) 
+    /(Sim->dynamics.units().unitTime()
+      * ((2.0 * static_cast<Iflt>(dualEvents))
 	 + static_cast<Iflt>(singleEvents)));
 }
 
@@ -140,7 +140,7 @@ OPMisc::output(xmlw::XmlStream &XML)
 
   std::time_t tendTime;
   time(&tendTime);
-  
+
   std::string sTime(std::ctime(&tstartTime));
   //A hack to remove the newline character at the end
   sTime[sTime.size()-1] = ' ';
@@ -148,7 +148,7 @@ OPMisc::output(xmlw::XmlStream &XML)
   std::string eTime(std::ctime(&tendTime));
   //A hack to remove the newline character at the end
   eTime[eTime.size()-1] = ' ';
-  
+
   Iflt collpersec = static_cast<Iflt>(Sim->lNColl)
     / (Iflt(acc_tendTime.tv_sec) + 1e-9 * Iflt(acc_tendTime.tv_nsec)
        - Iflt(acc_tstartTime.tv_sec) - 1e-9 * Iflt(acc_tstartTime.tv_nsec));
@@ -164,10 +164,10 @@ OPMisc::output(xmlw::XmlStream &XML)
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->lNColl
 	   << "\nAvg Coll/s " << collpersec
-	   << "\nSim time per second " 
-	   << Sim->dSysTime / (Sim->dynamics.units().unitTime() 
+	   << "\nSim time per second "
+	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
 			       * static_cast<Iflt>(tendTime - tstartTime));
-   
+
   XML << xmlw::tag("Misc")
       << xmlw::tag("Memusage")
       << xmlw::attr("MaxKiloBytes") << maxmemusage
@@ -175,7 +175,7 @@ OPMisc::output(xmlw::XmlStream &XML)
       << xmlw::tag("Density")
       << xmlw::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
       << xmlw::endtag("Density")
-    
+
       << xmlw::tag("PackingFraction")
       << xmlw::attr("val") << Sim->dynamics.getPackingFraction()
       << xmlw::endtag("PackingFraction")
@@ -183,28 +183,28 @@ OPMisc::output(xmlw::XmlStream &XML)
       << xmlw::tag("SpeciesCount")
       << xmlw::attr("val") << Sim->dynamics.getSpecies().size()
       << xmlw::endtag("SpeciesCount")
-    
+
       << xmlw::tag("ParticleCount")
       << xmlw::attr("val") << Sim->lN
       << xmlw::endtag("ParticleCount")
-    
+
       << xmlw::tag("SimLength")
       << xmlw::attr("Collisions") << Sim->lNColl
       << xmlw::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
       << xmlw::endtag("SimLength")
-    
-      << xmlw::tag("Timing") 
 
-      << xmlw::tag("Start") 
+      << xmlw::tag("Timing")
+
+      << xmlw::tag("Start")
       << xmlw::attr("val") << sTime
       << xmlw::endtag("Start")
-  
-      << xmlw::tag("End") 
+
+      << xmlw::tag("End")
       << xmlw::attr("val") << eTime
       << xmlw::endtag("End")
 
-      << xmlw::tag("Duration") 
-      << xmlw::attr("val") 
+      << xmlw::tag("Duration")
+      << xmlw::attr("val")
       << tendTime - tstartTime
       << xmlw::endtag("Duration")
 
@@ -212,9 +212,9 @@ OPMisc::output(xmlw::XmlStream &XML)
       << xmlw::attr("val") << collpersec
       << xmlw::endtag("CollPerSec")
 
-      << xmlw::endtag("Timing") 
+      << xmlw::endtag("Timing")
       << xmlw::tag("SystemBoxLength")
-      << xmlw::attr("val") 
+      << xmlw::attr("val")
       << 1.0/Sim->dynamics.units().unitLength();
 
   char name[2] = "x";
@@ -222,28 +222,40 @@ OPMisc::output(xmlw::XmlStream &XML)
     {
       name[0] = 'x' + iDim;
       XML << xmlw::tag(name) << xmlw::attr("val")
-	  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength() 
+	  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength()
 	  << xmlw::endtag(name);
     }
-  
+
   XML << xmlw::endtag("SystemBoxLength");
 
+  // Output scalar moment of inertia for any species which may have it
+  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  {
+    if (dynamic_cast<const CSpecInertia*>(spec.get_ptr()) != NULL)
+    {
+      XML << xmlw::tag("ScalarInertia")
+	  << xmlw::attr("Species") << spec->getName()
+	  << xmlw::attr("val") << spec->getScalarMomentOfInertia()
+	  << xmlw::endtag("ScalarInertia");
+    }
+  }
+
   Vector  sumMV (0,0,0);
-  
+
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
     sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
-  
-  XML << xmlw::tag("Total_momentum") 
+
+  XML << xmlw::tag("Total_momentum")
       << sumMV / Sim->dynamics.units().unitMomentum()
-      << xmlw::endtag("Total_momentum")    
+      << xmlw::endtag("Total_momentum")
       << xmlw::tag("totMeanFreeTime")
       << xmlw::attr("val")
       << getMFT()
       << xmlw::endtag("totMeanFreeTime");
-  
+
   std::pair<Iflt, Iflt> mempair = process_mem_usage();
-  
+
   XML << xmlw::tag("MemoryUsage")
       << xmlw::attr("VirtualMemory") << mempair.first
       << xmlw::attr("ResidentSet") << mempair.second
@@ -269,9 +281,9 @@ OPMisc::periodicOutput()
     /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
 	    << ", <t_tot> "
 	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
-    / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents) 
+    / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents)
 					   + static_cast<Iflt>(singleEvents)))
-	    << ", "; 
+	    << ", ";
 
   oldSysTime = Sim->dSysTime;
   oldcoll = Sim->lNColl;
