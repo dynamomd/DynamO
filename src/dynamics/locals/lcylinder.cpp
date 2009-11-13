@@ -135,14 +135,11 @@ void
 CLCylinder::write_povray_info(std::ostream& os) const
 {
   if (render)
-    os << "intersection { difference {cylinder { <0, -0.5, 0>, <0, 0.5, 0>," 
-       << radius + 0.75 * Sim->dynamics.units().unitLength() << " }"
-       << "cylinder { <0, -0.5, 0>, <0, 0.5, 0>," 
-       << radius + 0.5 * Sim->dynamics.units().unitLength() << " } "
+    os << "intersection { cylinder { <0, -0.5, 0>, <0, 0.5, 0>," 
+       << radius << " "
        << "Point_At_Trans(<"
        << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">)"
-       << " translate <" << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] << ">"
-       << "}"
+       << " translate <" << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] << "> }"
        << "box { <" 
        << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
        << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  

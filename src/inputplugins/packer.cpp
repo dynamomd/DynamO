@@ -203,6 +203,9 @@ CIPPacker::initialise()
 	"       --s1 : File name to load the triangles from\n"
 	"       --f1 : Size of the spheres when checking for overlaps\n"
 	"       --f2 : Size of the spheres in the sim"
+	"  21: Pack a cylinder with spheres\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --f1 : Length over diameter of the cylinder\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -2066,6 +2069,92 @@ CIPPacker::initialise()
 
 	    Sim->vParticleList.back().getPosition()[2] -= 20 * particleDiam;
 	  }
+
+	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 21:
+      {
+	//Pack of hard spheres in a cylinder
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+
+	std::vector<Vector>
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	
+
+	Iflt LoverD = 1;
+	if (vm.count("f1"))
+	  LoverD = vm["f1"].as<Iflt>();
+
+	Sim->aspectRatio = Vector(1,1,1);
+	
+	Iflt boxlimit;
+	Iflt cylRad = 0.5;
+	if (LoverD < 1)
+	  {
+	    //D is unity
+	    
+	    //Check if the cylinder limits the sim box
+	    boxlimit = LoverD;
+	    if ((1.0 / std::sqrt(2.0)) < LoverD)
+	      boxlimit = (1.0 / std::sqrt(2.0));
+
+	    Sim->aspectRatio[0] = LoverD;
+	  }
+	else
+	  {
+	    //L is unity
+	    Sim->aspectRatio[1] = 1.0 / LoverD;
+	    Sim->aspectRatio[2] = 1.0 / LoverD;
+
+	    boxlimit = 1.0;
+
+	    cylRad = 0.5 / LoverD;
+
+	    if ((1.0 / (LoverD * std::sqrt(2.0))) < 1.0)
+	      boxlimit = (1.0 / (LoverD * std::sqrt(2.0)));
+	  }
+
+	//Shrink the box a little more
+	boxlimit *= 0.9;
+
+	Sim->dynamics.applyBC<BCSquarePeriodicXOnly>();
+	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Iflt particleDiam 
+	  = pow(vm["density"].as<Iflt>() / latticeSites.size(), Iflt(1.0 / 3.0))
+	  * boxlimit;
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+
+	if (vm.count("b1"))
+	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
+	Sim->dynamics.addLocal(new CLCylinder(Sim, 1.0, Vector(1,0,0), 
+					      Vector(0,0,0), cylRad , "Cylinder", 
+					      new CRAll(Sim), true));
+
+
+	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
+
+	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0,
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					       "Bulk")));
+
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+
+	unsigned long nParticles = 0;
+	Sim->vParticleList.reserve(latticeSites.size());
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->vParticleList.push_back(CParticle(position * boxlimit, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;

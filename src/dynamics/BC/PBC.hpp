@@ -83,4 +83,27 @@ public:
   virtual BoundaryCondition* Clone () const;
 };
 
+/*! \brief This class ignores all directions but is periodic in
+    the x.
+ *
+ * Used to check that a system bounded by walls in the x direction has
+ * no leaks as these are not rounded and would show up in animations
+ * or inspections.
+ */
+class BCSquarePeriodicXOnly: public BoundaryCondition
+{
+public:
+  BCSquarePeriodicXOnly(const DYNAMO::SimData*);
+
+  virtual void applyBC(Vector & pos) const;
+  
+  virtual void applyBC(Vector & pos, Vector &) const;
+  
+  virtual void applyBC(Vector  &pos, const Iflt&) const;
+
+  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void operator<<(const XMLNode&);
+  virtual BoundaryCondition* Clone () const;
+};
+
 #endif

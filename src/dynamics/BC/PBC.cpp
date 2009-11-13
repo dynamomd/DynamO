@@ -171,3 +171,43 @@ BCSquarePeriodicExceptX::applyBC(Vector  &pos, const Iflt&) const
 
   pos[0] = x;
 }
+
+BCSquarePeriodicXOnly::BCSquarePeriodicXOnly(const DYNAMO::SimData* tmp):
+  BoundaryCondition(tmp, "RNoXPBC",IC_purple)
+{
+  Sim = tmp;
+}
+
+void 
+BCSquarePeriodicXOnly::outputXML(xmlw::XmlStream &XML) const
+{
+  XML << xmlw::attr("Shape") << "Rectangular"
+      << xmlw::attr("Boundary") << "OnlyXPBC";
+}
+
+void 
+BCSquarePeriodicXOnly::operator<<(const XMLNode&) 
+{}
+
+BoundaryCondition* 
+BCSquarePeriodicXOnly::Clone () const 
+{ return new BCSquarePeriodicXOnly(*this); }
+
+void 
+BCSquarePeriodicXOnly::applyBC(Vector & pos) const
+{ 
+  pos[0] -= Sim->aspectRatio[0] 
+    * rintfunc (pos[0] / Sim->aspectRatio[0]);
+}
+  
+void 
+BCSquarePeriodicXOnly::applyBC(Vector & pos, Vector&) const
+{ 
+  applyBC(pos);
+}
+
+void 
+BCSquarePeriodicXOnly::applyBC(Vector  &pos, const Iflt&) const 
+{ 
+  applyBC(pos); 
+}

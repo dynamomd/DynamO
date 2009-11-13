@@ -50,6 +50,8 @@ BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
 	return new BCRectangularPeriodic(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
 	return new BCSquarePeriodicExceptX(tmp);
+      else if (!strcmp(XML.getAttribute("Boundary"),"OnlyXPBC"))
+	return new BCSquarePeriodicXOnly(tmp);
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new BCRectangularLeesEdwards(XML,tmp);
       else 
