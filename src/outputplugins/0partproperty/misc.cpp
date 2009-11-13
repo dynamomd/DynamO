@@ -235,7 +235,8 @@ OPMisc::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("ScalarInertia")
 	  << xmlw::attr("Species") << spec->getName()
-	  << xmlw::attr("val") << spec->getScalarMomentOfInertia()
+	  << xmlw::attr("Mass") << spec->getMass()
+	  << xmlw::attr("inertiaConst") << (spec->getScalarMomentOfInertia() / (Sim->dynamics.units().unitArea() * spec->getMass()))
 	  << xmlw::endtag("ScalarInertia");
     }
   }
