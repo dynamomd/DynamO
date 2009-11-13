@@ -1201,6 +1201,8 @@ LNewtonian::runCylinderWallCollision(const CParticle& part,
 
   Sim->dynamics.BCs().applyBC(rij);
 
+  rij -= Vector((rij | vNorm) * vNorm);
+
   rij /= rij.nrm();
 
   const_cast<CParticle&>(part).getVelocity()
