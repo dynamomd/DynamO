@@ -179,15 +179,16 @@ void vmdsock_destroy(void * v) {
 int vmdsock_selread(void *v, int sec) {
   vmdsocket *s = (vmdsocket *)v;
   fd_set rfd;
-  //struct timeval tv;
   int rc;
  
   FD_ZERO(&rfd);
   FD_SET(s->sd, &rfd);
-  //memset((void *)&tv, 0, sizeof(struct timeval));
-  //  tv.tv_sec = sec;
+
+  struct timeval tv;
+  memset((void *)&tv, 0, sizeof(struct timeval));
+  tv.tv_sec = sec;
   do {
-    rc = select(s->sd+1, &rfd, NULL, NULL, NULL);
+    rc = select(s->sd+1, &rfd, NULL, NULL, (sec < 0) ? NULL : &tv);
   } while (rc < 0 && errno == EINTR);
   return rc;
 

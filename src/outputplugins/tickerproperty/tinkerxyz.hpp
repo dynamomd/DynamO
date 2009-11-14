@@ -45,6 +45,7 @@ class OPTinkerXYZ: public OPTicker
   int frameCount;
   bool fileOutput;
   bool liveOutput;
+  bool blockForVMD;
 
   void *clientsock;
   void *sock;

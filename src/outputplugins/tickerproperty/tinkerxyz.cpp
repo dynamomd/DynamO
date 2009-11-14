@@ -39,6 +39,7 @@ OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   frameCount(0),
   fileOutput(true),
   liveOutput(false),
+  blockForVMD(false),
   clientsock(NULL),
   sock(NULL)
 {
@@ -59,6 +60,7 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
     {
       if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
       if (XML.isAttributeSet("NoFile")) fileOutput = false;
+      if (XML.isAttributeSet("Block")) blockForVMD = true;
     }
   catch (std::exception& excep)
     {
@@ -84,27 +86,45 @@ OPTinkerXYZ::initialise()
       sock = vmdsock_create();
       vmdsock_bind(sock, port);
       vmdsock_listen(sock);
-      I_cout() << "Listening for VMD connection";
-      I_cout() << "Blocking system, awaiting connection of VMD";
-      std::cout.flush();
-      if (vmdsock_selread(sock, 0) > 0) 
-	{
-	  clientsock = vmdsock_accept(sock);
-	  if (imd_handshake(clientsock))
-	    clientsock = NULL;
-	}
-      
-      sleep(1);
-      int length;
-      if (vmdsock_selread(clientsock, 0) != 1 ||
-	  imd_recv_header(clientsock, &length) != IMD_GO) 
-	clientsock = NULL;
+      I_cout() << "Listening for VMD connection on port 3333";
     }
 }
 
 void
 OPTinkerXYZ::printLiveImage()
 {
+  if (!clientsock)
+    {
+      if (blockForVMD) 
+	{
+	  I_cout() << "Blocking simulation till VMD connects";
+	  std::cout.flush();
+	}
+
+      do {
+	if (vmdsock_selread(sock, blockForVMD ? -1 : 0) > 0)
+	  {
+	    clientsock = vmdsock_accept(sock);
+	    if (imd_handshake(clientsock))
+	      clientsock = NULL;
+	    else
+	      {
+		sleep(1);
+		int length;
+		I_cout() << "VMD port active";
+		if (vmdsock_selread(clientsock, 0) != 1 ||
+		    imd_recv_header(clientsock, &length) != IMD_GO) 
+		  {
+		    clientsock = NULL;
+		    I_cout() << "VMD handshake failed";
+		  }
+		else
+		  I_cout() << "Connected to VMD session";
+	      }
+	  }
+      } while ((!clientsock) && blockForVMD);
+    }
+
   if (clientsock)
     {
       Iflt coeff = 3.4 / Sim->dynamics.units().unitLength();
@@ -121,7 +141,10 @@ OPTinkerXYZ::printLiveImage()
       int32 size = HEADERSIZE + 12 * Sim->lN;
 
       if (imd_writen(clientsock, (const char*) &coords[0], size) != size) 
-	clientsock = NULL;
+	{
+	  clientsock = NULL;
+	  I_cout() << "VMD session disconnected";
+	}
     }
 }
 
