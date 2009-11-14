@@ -32,6 +32,8 @@
 #include "vmd_imd/vmdsock.h"
 #include "vmd_imd/imd.h"
 
+#include "../../dynamics/liouvillean/CompressionL.hpp"
+
 static const size_t HEADERSIZE = 8;
 
 OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
@@ -87,6 +89,8 @@ OPTinkerXYZ::initialise()
       vmdsock_bind(sock, port);
       vmdsock_listen(sock);
       I_cout() << "Listening for VMD connection on port 3333";
+
+      printLiveImage();
     }
 }
 
@@ -127,7 +131,7 @@ OPTinkerXYZ::printLiveImage()
 
   if (clientsock)
     {
-      Iflt coeff = 3.4 / Sim->dynamics.units().unitLength();
+      Iflt coeff = 3.4 / ((1+(Sim->dynamics.liouvilleanTypeTest<LCompression>())? Sim->dSysTime : 0.0) * Sim->dynamics.units().unitLength());
 
       for (size_t ID(0); ID < Sim->lN; ++ID)
 	{
