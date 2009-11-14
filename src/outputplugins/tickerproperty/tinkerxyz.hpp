@@ -19,8 +19,6 @@
 #define OPTinkerXYZ_H
 
 #include "ticker.hpp"
-#include "vmd_imd/vmdsock.h"
-#include "vmd_imd/imd.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

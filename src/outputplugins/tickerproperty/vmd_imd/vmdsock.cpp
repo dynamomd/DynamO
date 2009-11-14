@@ -71,7 +71,7 @@ void * vmdsock_create(void) {
     free(s);
     return NULL;
   }
-
+  
   return (void *) s;
 }
 
@@ -134,11 +134,11 @@ void *vmdsock_accept(void * v) {
 
 int  vmdsock_write(void * v, const void *buf, int len) {
   vmdsocket *s = (vmdsocket *) v;
-#if defined(_MSC_VER)
-  return send(s->sd, (const char*) buf, len, 0);  // windows lacks the write() call
-#else
-  return write(s->sd, buf, len);
-#endif
+  //#if defined(_MSC_VER)
+  return send(s->sd, (const char*) buf, len, MSG_NOSIGNAL);  // windows lacks the write() call
+  //#else
+//  return write(s->sd, buf, len);
+//#endif
 }
 
 int  vmdsock_read(void * v, void *buf, int len) {

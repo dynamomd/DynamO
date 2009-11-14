@@ -29,6 +29,11 @@
 #include "radiusGyration.hpp"
 #include "../../dynamics/topology/chain.hpp"
 
+#include "vmd_imd/vmdsock.h"
+#include "vmd_imd/imd.h"
+
+static const size_t HEADERSIZE = 8;
+
 OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),
@@ -69,8 +74,10 @@ OPTinkerXYZ::initialise()
   
   if (liveOutput) 
     {
-      coords.resize(NDIM * Sim->lN);
-      const int port = 54321;
+      coords.resize(NDIM * Sim->lN + (HEADERSIZE / sizeof(float)));
+      fill_header((IMDheader *)&coords[0], IMD_FCOORDS, Sim->lN);
+
+      const int port = 3333;
 
       I_cout() << "Setting up incoming socket of VMD";
       vmdsock_init();
@@ -78,15 +85,6 @@ OPTinkerXYZ::initialise()
       vmdsock_bind(sock, port);
       vmdsock_listen(sock);
       I_cout() << "Listening for VMD connection";
-    }
-
-}
-
-void
-OPTinkerXYZ::printLiveImage()
-{
-  if (!clientsock) 
-    {
       I_cout() << "Blocking system, awaiting connection of VMD";
       std::cout.flush();
       if (vmdsock_selread(sock, 0) > 0) 
@@ -102,22 +100,28 @@ OPTinkerXYZ::printLiveImage()
 	  imd_recv_header(clientsock, &length) != IMD_GO) 
 	clientsock = NULL;
     }
-  
-  /* jitter atom coordinate until the connection is terminated */
+}
+
+void
+OPTinkerXYZ::printLiveImage()
+{
   if (clientsock)
     {
-      IMDEnergies energies;
-      imd_send_energies(clientsock, &energies);
       Iflt coeff = 3.4 / Sim->dynamics.units().unitLength();
+
       for (size_t ID(0); ID < Sim->lN; ++ID)
 	{
 	  Vector pos = Sim->vParticleList[ID].getPosition();
 	  Sim->dynamics.BCs().applyBC(pos);
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)	    
-	    coords[ID * NDIM + iDim] = coeff * pos[iDim];
+	  //The plus two is the header offset
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    coords[ID * NDIM + iDim + (HEADERSIZE / sizeof(float))] = coeff * pos[iDim];
 	}
       
-      imd_send_fcoords(clientsock, Sim->lN, &coords[0]);
+      int32 size = HEADERSIZE + 12 * Sim->lN;
+
+      if (imd_writen(clientsock, (const char*) &coords[0], size) != size) 
+	clientsock = NULL;
     }
 }
 

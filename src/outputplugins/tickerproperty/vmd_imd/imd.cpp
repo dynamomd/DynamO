@@ -6,10 +6,6 @@
 #include <errno.h>
 #include <stdlib.h>
 
-typedef struct {
-  int32 type;
-  int32 length;
-} IMDheader;
 
 #define HEADERSIZE 8
 #define IMDVERSION 2
@@ -55,7 +51,7 @@ static int32 imd_ntohl(int32 n) {
   return h;
 }
 
-static void fill_header(IMDheader *header, IMDType type, int32 length) {
+void fill_header(IMDheader *header, IMDType type, int32 length) {
   header->type = imd_htonl((int32)type);
   header->length = imd_htonl(length);
 }
@@ -84,7 +80,7 @@ static int32 imd_readn(void *s, char *ptr, int32 n) {
   return n-nleft;
 }
 
-static int32 imd_writen(void *s, const char *ptr, int32 n) {
+int32 imd_writen(void *s, const char *ptr, int32 n) {
   int32 nleft;
   int32 nwritten;
 

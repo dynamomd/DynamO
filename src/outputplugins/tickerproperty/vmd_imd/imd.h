@@ -26,6 +26,11 @@ typedef int     int32;
 typedef short   int32;
 #endif
 
+typedef struct {
+  int32 type;
+  int32 length;
+} IMDheader;
+
 typedef enum IMDType_t {
   IMD_DISCONNECT,   /**< close IMD connection, leaving sim running */
   IMD_ENERGIES,     /**< energy data block                         */
@@ -105,6 +110,9 @@ extern int imd_recv_energies(void *, IMDEnergies *);
  *  Forces are in Kcal/mol/angstrom
  */
 extern int imd_recv_fcoords(void *, int32, float *);
+
+extern void fill_header(IMDheader *, IMDType, int32);
+extern int32 imd_writen(void *, const char *, int32);
 
 #endif
 
