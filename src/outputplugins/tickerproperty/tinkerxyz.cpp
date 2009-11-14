@@ -131,7 +131,10 @@ OPTinkerXYZ::printLiveImage()
 
   if (clientsock)
     {
-      Iflt coeff = 3.4 / ((1+(Sim->dynamics.liouvilleanTypeTest<LCompression>())? Sim->dSysTime : 0.0) * Sim->dynamics.units().unitLength());
+      Iflt coeff = 3.4 / Sim->dynamics.units().unitLength();
+      
+      if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
+	coeff /= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
 
       for (size_t ID(0); ID < Sim->lN; ++ID)
 	{
