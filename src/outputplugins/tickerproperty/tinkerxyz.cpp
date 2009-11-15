@@ -36,6 +36,7 @@
 
 static const size_t HEADERSIZE = 8;
 
+
 OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),
@@ -46,6 +47,17 @@ OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   sock(NULL)
 {
   operator<<(XML);
+}
+
+OPTinkerXYZ::~OPTinkerXYZ()
+{
+  if (clientsock)
+    {
+      imd_disconnect(clientsock);
+      vmdsock_shutdown(clientsock);
+      vmdsock_destroy(clientsock);
+      clientsock = NULL;
+    }
 }
 
 void 

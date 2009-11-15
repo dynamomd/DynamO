@@ -29,6 +29,7 @@ class OPTinkerXYZ: public OPTicker
 {
  public:
   OPTinkerXYZ(const DYNAMO::SimData*, const XMLNode&);
+  ~OPTinkerXYZ();
 
   virtual OutputPlugin *Clone() const
   { return new OPTinkerXYZ(*this); }
