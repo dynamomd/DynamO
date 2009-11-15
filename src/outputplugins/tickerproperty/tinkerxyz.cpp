@@ -125,10 +125,9 @@ OPTinkerXYZ::printLiveImage()
 	      clientsock = NULL;
 	    else
 	      {
-		sleep(1);
 		int length;
-		I_cout() << "VMD port active";
-		if (vmdsock_selread(clientsock, 0) != 1 ||
+		I_cout() << "VMD port active, blocking for a handshake";
+		if (vmdsock_selread(clientsock, -1) != 1 ||
 		    imd_recv_header(clientsock, &length) != IMD_GO) 
 		  {
 		    clientsock = NULL;
@@ -137,6 +136,7 @@ OPTinkerXYZ::printLiveImage()
 		else
 		  I_cout() << "Connected to VMD session";
 	      }
+	    std::cout.flush();
 	  }
       } while ((!clientsock) && blockForVMD);
     }
