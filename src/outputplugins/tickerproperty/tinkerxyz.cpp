@@ -125,16 +125,28 @@ OPTinkerXYZ::printLiveImage()
 	      clientsock = NULL;
 	    else
 	      {
-		int length;
 		I_cout() << "VMD port active, blocking for a handshake";
-		if (vmdsock_selread(clientsock, -1) != 1 ||
-		    imd_recv_header(clientsock, &length) != IMD_GO) 
+		int bytes_avail = vmdsock_selread(clientsock, -1);
+		if (bytes_avail != 1)
 		  {
 		    clientsock = NULL;
-		    I_cout() << "VMD handshake failed";
+		    I_cout() << "VMD handshake failed"
+			     << "\nFound " << bytes_avail;
 		  }
 		else
-		  I_cout() << "Connected to VMD session";
+		  {
+		    int length;
+		    IMDType shakeType = imd_recv_header(clientsock, &length);
+		    if (shakeType != IMD_GO) 
+		      {
+			clientsock = NULL;
+			I_cout() << "VMD handshake failed"
+				 << "\nRecieved a shake of " << shakeType
+				 << "\nNot an " << IMD_GO;
+		      }
+		    else
+		      I_cout() << "Connected to VMD session";
+		  }
 	      }
 	    std::cout.flush();
 	  }
