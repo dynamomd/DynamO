@@ -139,10 +139,10 @@ OPTinkerXYZ::printLiveImage()
 		    IMDType shakeType = imd_recv_header(clientsock, &length);
 		    if (shakeType != IMD_GO) 
 		      {
-			clientsock = NULL;
 			I_cout() << "VMD handshake failed"
 				 << "\nRecieved a shake of " << shakeType
-				 << "\nNot an " << IMD_GO;
+				 << "\nNot an IMD_GO"
+				 << "\nIgnoring, these handshakes seem broken on 32bit";
 		      }
 		    else
 		      I_cout() << "Connected to VMD session";
