@@ -40,9 +40,9 @@ static const size_t HEADERSIZE = 8;
 OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),
-  fileOutput(true),
+  fileOutput(false),
   liveOutput(false),
-  blockForVMD(false),
+  blockForVMD(true),
   clientsock(NULL),
   sock(NULL)
 {
@@ -73,8 +73,8 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
-      if (XML.isAttributeSet("NoFile")) fileOutput = false;
-      if (XML.isAttributeSet("Block")) blockForVMD = true;
+      if (XML.isAttributeSet("File")) fileOutput = true;
+      if (XML.isAttributeSet("NoBlock")) blockForVMD = false;
     }
   catch (std::exception& excep)
     {

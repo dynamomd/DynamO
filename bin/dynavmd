@@ -33,6 +33,6 @@ fi
 oldPWD=$(pwd)
 cd /tmp
 echo $oldPWD/$1
-dynarun $oldPWD/$1 -c 0 -E -L TinkerXYZ
+dynarun $oldPWD/$1 -c 0 -E -L TinkerXYZ:File
 cd $oldPWD
 vmd -f /tmp/tinker.frame00000.xyz /tmp/tinker.frame00000.r3d

@@ -80,10 +80,14 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 	  
 	  tokenizer::iterator value_iter = value_tokens.begin();
 	  std::string opName(*value_iter);
+	  std::string val;
 	  if (++value_iter == value_tokens.end())
-	    D_throw() << "Option " << opName << "with no value!";
+	    //There is no value to save, must be a flag
+	    val = "";
+	  else
+	    val = *value_iter;
 
-	  XML.addAttribute(opName.c_str(), value_iter->c_str());	  
+	  XML.addAttribute(opName.c_str(), val.c_str());	  
 	}
     }
 
