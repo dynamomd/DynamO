@@ -328,7 +328,7 @@ C1ParticleData
 Liouvillean::runOscilatingPlate
 (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e,
- Iflt& t) const
+ Iflt& t, bool strongPlate) const
 {
   D_throw() << "Not Implemented";
 }

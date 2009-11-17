@@ -1066,7 +1066,7 @@ C1ParticleData
 LNewtonian::runOscilatingPlate
 (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
-  Iflt& t) const
+ Iflt& t, bool strongPlate) const
 {
   std::cout.flush();
   updateParticle(part);

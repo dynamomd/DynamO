@@ -91,7 +91,7 @@ background { rgb<1, 1, 1> }               \n\
 // camera ---------------------------------\n\
 #declare zoom = "<< zoomlevel << " ;       \n\
 #declare Cam0 =                            \n\
-   camera {                                \n\
+   camera { right x*800.0/480.0            \n\
            location  <0.0 , -0.05 , zoom>  \n\
            look_at   <0.0 , 0.0 , 0.0>}    \n\
 camera{Cam0}                               \n\

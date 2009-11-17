@@ -26,7 +26,7 @@ public:
   CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
   CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, Iflt, 
 		     Iflt, Iflt, Iflt, Iflt, std::string, CRange*, 
-		     Iflt timeshift = 0);
+		     Iflt timeshift = 0, bool nstrongPlate = false);
 
   virtual ~CLOscillatingPlate() {}
 
@@ -54,7 +54,8 @@ public:
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
-  
+
+  bool strongPlate;
   Vector rw0;
   Vector nhat;
   Iflt omega0;

@@ -29,8 +29,9 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       Vector nrw0, Vector nnhat,
 				       Iflt nomega0, Iflt nsigma, Iflt ne,
 				       Iflt ndelta, Iflt nmass, std::string nname, 
-				       CRange* nRange, Iflt timeshift):
+				       CRange* nRange, Iflt timeshift, bool nstrongPlate):
   CLocal(nRange, nSim, "OscillatingPlate"),
+  strongPlate(nstrongPlate),
   rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
   e(ne), delta(ndelta), mass(nmass), timeshift(0), lastID(-1), lastdSysTime(HUGE_VAL)
 {
@@ -77,7 +78,7 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
   //Run the collision and catch the data
   CNParticleData EDat(Sim->dynamics.getLiouvillean().runOscilatingPlate
 		      (part, rw0, nhat, delta, omega0, sigma, mass, 
-		       e, timeshift));
+		       e, timeshift, strongPlate));
 
   lastdSysTime = Sim->dSysTime;
   lastID = part.getID();
@@ -120,6 +121,9 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
     rw0 << xBrowseNode;
     rw0 *= Sim->dynamics.units().unitLength();
 
+    if (XML.isAttributeSet("StrongPlate"))
+      strongPlate = boost::lexical_cast<Iflt>(XML.getAttribute("StrongPlate"));
+
     omega0 =  boost::lexical_cast<Iflt>(XML.getAttribute("Omega0"))
       / Sim->dynamics.units().unitTime();
 
@@ -158,6 +162,7 @@ CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Delta") << delta / Sim->dynamics.units().unitLength()
       << xmlw::attr("Mass") << mass / Sim->dynamics.units().unitMass()
       << xmlw::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
+      << xmlw::attr("StrongPlate") << strongPlate
       << range
       << xmlw::tag("Norm")
       << nhat
