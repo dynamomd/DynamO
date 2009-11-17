@@ -190,6 +190,7 @@ CIPPacker::initialise()
 	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
 	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
 	"  19: Oscillating plates bounding a system\n"
+	"       --b1 : Makes the particle collisions not affect the plate\n"	
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --i2 : Upper limit on the particles inserted [All]\n"
 	"       --f1 : Mass ratio [1]\n"
@@ -1961,13 +1962,13 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect),
-					   "Plate2", new CRAll(Sim)));
+					  "Plate2", new CRAll(Sim), false));
 
 	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
-					   "Plate3", new CRAll(Sim)));
+					  "Plate3", new CRAll(Sim), false));
 
 	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,+1,0), Vector(0, -0.5 * Aspect, 0),
-					   "Plate4", new CRAll(Sim)));
+					  "Plate4", new CRAll(Sim), false));
 
 	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), Vector(0, +0.5 * Aspect, 0),
 					  "Plate5", new CRAll(Sim), false));
@@ -1993,9 +1994,12 @@ CIPPacker::initialise()
 	  Sim->vParticleList.push_back(CParticle(latticeSites[i], getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
+	bool strongPlate = false;
+	if (vm.count("b1"))
+	  strongPlate = true;
 	Sim->dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
 						      0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles,
-						      "Plate1", new CRAll(Sim), 0.0));
+						      "Plate1", new CRAll(Sim), 0.0, strongPlate));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;

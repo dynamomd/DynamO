@@ -1134,6 +1134,13 @@ LNewtonian::runOscilatingPlate
 
   const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
 
+  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
+		    * (part.getVelocity().nrm2() 
+		       - retVal.getOldVel().nrm2()));
+  
+  //Don't progress if you want to not change the plate data
+  if (strongPlate) return retVal;
+
   Iflt numerator = -nhat | ((delP / mass) + vwall);
 
   Iflt reducedt = Sim->dSysTime 
@@ -1152,10 +1159,6 @@ LNewtonian::runOscilatingPlate
 
   t -= 2.0 * PI * int(t * omega0 / (2.0*PI)) / omega0;
 
-  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
-		    * (part.getVelocity().nrm2() 
-		       - retVal.getOldVel().nrm2()));
-  
   return retVal; 
 }
 
