@@ -32,6 +32,7 @@
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
+#include "../liouvillean/CompressionL.hpp"
 
 CIHardSphere::CIHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, C2Range* nR):
@@ -174,9 +175,14 @@ void
 CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
+  Iflt locDiam = diameter;
+  
+  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
+    locDiam *= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
+
   os << "#declare intrep" << ID << " = " 
      << "sphere {\n <0,0,0> " 
-     << diameter / 2.0
+     << locDiam / 2.0
      << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G
      << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
   
