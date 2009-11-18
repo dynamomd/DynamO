@@ -1,0 +1,150 @@
+#!/usr/bin/php
+<?php
+
+/*  Fast parser for DYNAMO output data files
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2009  Robert Sargant <robert@sargant.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#
+# Definitions
+#
+define('CRLF', stristr(PHP_OS, 'WIN') ? "\r\n" : "\n");
+
+#
+# Early retirement options
+#
+if(!stristr(PHP_SAPI, 'CLI'))
+{
+  echo "This script is only intended to run through the php-cli binary."
+    . CRLF . CRLF . CRLF;
+  return -1;
+}
+
+if(version_compare(PHP_VERSION, '5', '<'))
+{
+  echo "This script requires PHP 5.0.0 or greater." . CRLF . CRLF . CRLF;
+  return -1;
+}
+
+#
+# Configuration settings
+#
+libxml_use_internal_errors(true);
+
+
+if($_SERVER['argc'] < 2)
+{
+  echo <<<EOH
+
+dynaparse DIRECTORY
+
+    A data parser and collator for DYNAMO output data files. Can sort and
+    tabulate data from multiple XML files. Can parse and interpret data from XML
+    and BZ2 compressed XML files without decompression.
+
+
+
+EOH;
+
+  return 0;
+}
+
+echo <<<EOD
+
+dynaparse (C) 2009 Robert Sargant <robert@sargant.com>
+
+
+
+EOD;
+echo "Scanning directory \"".$_SERVER['argv'][1]."\"" . CRLF;
+$files = scandir($_SERVER['argv'][1]);
+
+$data = array();
+$totalcount = 0;
+$badcount = 0;
+
+echo "Processing... ";
+
+foreach($files as $f)
+{
+  $f = trim($f);
+
+  if(strpos($f, '.') != 0 && (substr(strtolower($f), -4) != ".xml" || substr(strtolower($f), -8) != ".xml.bz2"))
+  {
+    do
+    {
+      $totalcount++;
+      $xml = '';
+
+      # Load the file
+      if(substr(strtolower($f), -4) == ".bz2")
+      {
+	# BZ2 decompression to local string
+	$bz = bzopen($_SERVER['argv'][1] . "/" . $f, "r");
+	if(!$bz)
+	{
+	  $badcount++;
+	  break;
+	}
+
+	$decompressed_file = '';
+	while (!feof($bz))
+	{
+	  $decompressed_file .= bzread($bz, 4096);
+	}
+	bzclose($bz);
+
+	$xml = simplexml_load_string($decompressed_file);
+      }
+      else
+      {
+        # Load directly from file
+	$xml = simplexml_load_file($_SERVER['argv'][1] . "/" . $f);
+      }
+
+      # Parser error - increase "failed parse" counter
+      if(!$xml)
+      {
+	$badcount++;
+	break;
+      }
+
+      $data[] = array (
+	"filename" => $f,
+	"density" => $xml->Misc->Density["val"],
+	//"inertia" => $xml->Misc->ScalarInertia["inertiaConst"],
+	"simlength" => $xml->Misc->SimLength["Time"],
+	"mft" => $xml->Misc->totMeanFreeTime["val"]
+      );
+    }
+    while(false);
+  }
+}
+
+echo "$totalcount files processed, $badcount rejected as invalid" . CRLF . CRLF;
+
+echo "filename\tdensity\tinertia\tmft\tlengthinmft\n";
+
+foreach($data as $d)
+{
+  echo 	(string) $d["filename"] . "\t" .
+	(float) $d["density"] . "\t" .
+	//((float) $d["inertia"])*12.0 . "\t" .
+	(float) $d["mft"] . "\n";
+	//(((float) $d["simlength"])/((float) $d["mft"])) . "\n";
+}
+
+?>
