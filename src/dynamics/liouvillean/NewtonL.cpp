@@ -1085,37 +1085,53 @@ LNewtonian::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-//  I_cerr() << "Running event for part " << part.getID()
-//	   << "\ndSysTime = " << Sim->dSysTime
-//	   << "\nlNColl = " << Sim->lNColl
-//	   << "\nVel = " << part.getVelocity()[0]
-//	   << "\nPos = " << part.getPosition()[0]
-//	   << "\nVwall[0] = " << fL.wallVelocity()[0]
-//	   << "\nRwall[0] = " << fL.wallPosition()[0]
-//	   << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
-//	   << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
-//	   << "\nsigma + Del = " << sigma+delta
-//	   << "\nf(0)* = " << fL.F_zeroDeriv()
-//	   << "\nf'(0) =" << fL.F_firstDeriv()
-//	   << "\nf''(Max) =" << fL.F_secondDeriv_max(0)
-//	   << "\nf(x)=" << pos[0]
-//	   << "+" << part.getVelocity()[0]
-//	   << " * x - "
-//	   << delta 
-//	   << " * cos(("
-//	   << t << "+ x) * "
-//	   << omega0 << ") - "
-//	   << sigma;
+//  I_cerr() << "Running event for part " << part.getID() <<
+//	   "\ndSysTime = " << Sim->dSysTime << "\nlNColl = " <<
+//	   Sim->lNColl << "\nVel = " << part.getVelocity()[0] <<
+//	   "\nPos = " << part.getPosition()[0] << "\nVwall[0] = " <<
+//	   fL.wallVelocity()[0] << "\nRwall[0] = " <<
+//	   fL.wallPosition()[0] << "\nRwall[0]+sigma = " <<
+//	   fL.wallPosition()[0] + sigma << "\nRwall[0]-sigma = " <<
+//	   fL.wallPosition()[0] - sigma << "\nsigma + Del = " <<
+//	   sigma+delta << "\nf(0)* = " << fL.F_zeroDeriv() << "\nf'(0)
+//	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
+//	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
+//	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
+//	   << t << "+ x) * " << omega0 << ") - " << sigma;
 
   Iflt rvdot = ((vel - vwall) | nhat);
   
   if (rvdot * (nhat | pos) < 0) 
     {
-      //rvdot *= -1;
+      Iflt f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
+	f2 = fL.F_secondDeriv_max(0);
+      fL.flipSigma();
       D_throw() <<"Particle " << part.getID()
-  		<< ", is pulling on the oscillating plate!";
-      
-      //return retVal;
+		<< ", is pulling on the oscillating plate!"
+		<< "\nRunning event for part " << part.getID()
+		<< "\ndSysTime = " << Sim->dSysTime
+		<< "\nlNColl = " << Sim->lNColl
+		<< "\nVel = " << part.getVelocity()[0]
+		<< "\nPos = " << part.getPosition()[0]
+		<< "\nVwall[0] = " << fL.wallVelocity()[0]
+		<< "\nRwall[0] = " << fL.wallPosition()[0]
+		<< "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
+		<< "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
+		<< "\nsigma + Del = " << sigma+delta
+		<< "\nf1(0)* = " << fL.F_zeroDeriv()
+		<< "\nf1'(0) =" << fL.F_firstDeriv()
+		<< "\nf1''(Max) =" << fL.F_secondDeriv_max(0)
+		<< "\nf2(0)* = " << f0
+		<< "\nf2'(0) =" << f1
+		<< "\nf2''(Max) =" << f2
+		<< "\nf(x)=" << pos[0]
+		<< "+" << part.getVelocity()[0]
+		<< " * x - "
+		<< delta 
+		<< " * cos(("
+		<< t << "+ x) * "
+		<< omega0 << ") - "
+		<< sigma;
     }
 
   static size_t elascount(0);
