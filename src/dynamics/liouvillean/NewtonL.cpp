@@ -985,14 +985,6 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
-#ifdef DYNAMO_DEBUG
-  if (!lastpart && (fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma))
-    I_cerr() << "Particle " << part.getID() 
-	     << " is outside of the plates by "
-	     << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
-      / Sim->dynamics.units().unitLength();
-#endif
-
   Iflt t_low1 = 0, t_low2 = 0;
   if (lastpart)
     {
@@ -1068,6 +1060,29 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       ;
     }
 
+  if (!lastpart && (fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma))
+    {
+      //This can be a problem
+#ifdef DYNAMO_DEBUG
+      I_cerr() << "Particle " << part.getID() 
+	       << " is outside of the plates by "
+	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
+	/ Sim->dynamics.units().unitLength()
+	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
+	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
+#endif
+      Iflt rvdot = ((vel - fL.wallVelocity()) | nhat);
+      
+      //If the particle is going out of bounds, collide now
+      if (rvdot * (nhat | pos) > 0)
+	{
+#ifdef DYNAMO_DEBUG
+	  I_cerr() << "Forcing collision"; 
+#endif
+	  return 0;
+	}
+    }
+
   return (root1 < root2) ? root1 : root2;
 }
 
@@ -1115,32 +1130,33 @@ LNewtonian::runOscilatingPlate
       Iflt f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
 	f2 = fL.F_secondDeriv_max(0);
       fL.flipSigma();
-      D_throw() <<"Particle " << part.getID()
-		<< ", is pulling on the oscillating plate!"
-		<< "\nRunning event for part " << part.getID()
-		<< "\ndSysTime = " << Sim->dSysTime
-		<< "\nlNColl = " << Sim->lNColl
-		<< "\nVel = " << part.getVelocity()[0]
-		<< "\nPos = " << part.getPosition()[0]
-		<< "\nVwall[0] = " << fL.wallVelocity()[0]
-		<< "\nRwall[0] = " << fL.wallPosition()[0]
-		<< "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
-		<< "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
-		<< "\nsigma + Del = " << sigma+delta
-		<< "\nf1(0)* = " << fL.F_zeroDeriv()
-		<< "\nf1'(0) =" << fL.F_firstDeriv()
-		<< "\nf1''(Max) =" << fL.F_secondDeriv_max(0)
-		<< "\nf2(0)* = " << f0
-		<< "\nf2'(0) =" << f1
-		<< "\nf2''(Max) =" << f2
-		<< "\nf(x)=" << (pos | nhat)
-		<< "+" << (part.getVelocity() | nhat)
-		<< " * x - "
-		<< delta
-		<< " * cos(("
-		<< t + Sim->dSysTime << "+ x) * "
-		<< omega0 << ") - "
-		<< sigma;
+      I_cerr() <<"Particle " << part.getID()
+	       << ", is pulling on the oscillating plate!"
+	       << "\nRunning event for part " << part.getID()
+	       << "\ndSysTime = " << Sim->dSysTime
+	       << "\nlNColl = " << Sim->lNColl
+	       << "\nVel = " << part.getVelocity()[0]
+	       << "\nPos = " << part.getPosition()[0]
+	       << "\nVwall[0] = " << fL.wallVelocity()[0]
+	       << "\nRwall[0] = " << fL.wallPosition()[0]
+	       << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
+	       << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
+	       << "\nsigma + Del = " << sigma+delta
+	       << "\nf1(0)* = " << fL.F_zeroDeriv()
+	       << "\nf1'(0) =" << fL.F_firstDeriv()
+	       << "\nf1''(Max) =" << fL.F_secondDeriv_max(0)
+	       << "\nf2(0)* = " << f0
+	       << "\nf2'(0) =" << f1
+	       << "\nf2''(Max) =" << f2
+	       << "\nf(x)=" << (pos | nhat)
+	       << "+" << (part.getVelocity() | nhat)
+	       << " * x - "
+	       << delta
+	       << " * cos(("
+	       << t + Sim->dSysTime << "+ x) * "
+	       << omega0 << ") - "
+	       << sigma;
+      return retVal;
     }
 
   static size_t elascount(0);
