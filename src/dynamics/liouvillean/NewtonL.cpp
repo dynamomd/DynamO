@@ -1006,8 +1006,32 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
-  if (((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) || ((t_low1 > t_high) && (t_low2 > t_high)))
+  
+  if ((!lastpart && (fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma))
+      || (((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) || ((t_low1 > t_high) && (t_low2 > t_high))))
     {
+      //This can be a problem
+#ifdef DYNAMO_DEBUG
+      I_cerr() << "Particle " << part.getID() 
+	       << "may be outside/heading out of the plates"
+	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
+	/ Sim->dynamics.units().unitLength()
+	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
+	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
+#endif
+      Iflt rvdot = ((vel - fL.wallVelocity()) | nhat);
+      
+      //If the particle is going out of bounds, collide now
+      if (rvdot * (nhat | pos) > 0)
+	{
+#ifdef DYNAMO_DEBUG
+	  I_cerr() << "Forcing collision"; 
+#endif
+	  return 0;
+	}
+    }
+
+    /*    {
       COscillatingPlateFunc ftmp(fL);
       COscillatingPlateFunc ftmp2(fL);
       ftmp.flipSigma();
@@ -1058,30 +1082,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		<< Sigma
 		<< "; set xrange[0:" << t_high << "]; plot f(x)";
       ;
-    }
-
-  if (!lastpart && (fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma))
-    {
-      //This can be a problem
-#ifdef DYNAMO_DEBUG
-      I_cerr() << "Particle " << part.getID() 
-	       << " is outside of the plates by "
-	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
-	/ Sim->dynamics.units().unitLength()
-	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
-	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
-#endif
-      Iflt rvdot = ((vel - fL.wallVelocity()) | nhat);
-      
-      //If the particle is going out of bounds, collide now
-      if (rvdot * (nhat | pos) > 0)
-	{
-#ifdef DYNAMO_DEBUG
-	  I_cerr() << "Forcing collision"; 
-#endif
-	  return 0;
-	}
-    }
+      }*/
 
   return (root1 < root2) ? root1 : root2;
 }

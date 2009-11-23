@@ -89,8 +89,10 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
     Ptr->eventUpdate(iEvent, EDat);
 
   //Now we're past the event update the scheduler and plugins
-  //Sim->ptrScheduler->fullUpdate(part);
-  Sim->ptrScheduler->rebuildList();
+  if (strongPlate) 
+    Sim->ptrScheduler->fullUpdate(part);
+  else
+    Sim->ptrScheduler->rebuildList();
 }
 
 bool 
