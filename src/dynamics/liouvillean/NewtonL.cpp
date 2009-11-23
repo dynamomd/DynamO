@@ -1013,7 +1013,8 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       //This can be a problem
 #ifdef DYNAMO_DEBUG
       I_cerr() << "Particle " << part.getID() 
-	       << "may be outside/heading out of the plates"
+	       << " may be outside/heading out of the plates"
+	       << "\nerror = "
 	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
 	/ Sim->dynamics.units().unitLength()
 	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
@@ -1025,64 +1026,62 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       if (rvdot * (nhat | pos) > 0)
 	{
 #ifdef DYNAMO_DEBUG
-	  I_cerr() << "Forcing collision"; 
+	  {
+	    COscillatingPlateFunc ftmp(fL);
+	    COscillatingPlateFunc ftmp2(fL);
+	    ftmp.flipSigma();
+	    
+	    Iflt fl01(ftmp.F_zeroDeriv());
+	    ftmp.stream(t_low1);
+	    Iflt flt_low1(ftmp.F_zeroDeriv());
+	    ftmp.stream(t_high - t_low1);
+	    Iflt flt_high1(ftmp.F_zeroDeriv());
+	    
+	    Iflt fl02(ftmp2.F_zeroDeriv());
+	    ftmp2.stream(t_low2);
+	    Iflt flt_low2(ftmp2.F_zeroDeriv());
+	    ftmp2.stream(t_high - t_low2);
+	    Iflt flt_high2(ftmp2.F_zeroDeriv());
+	    
+	    I_cerr() << "****Forcing collision"
+		     << "\ndSysTime = " << Sim->dSysTime
+		     << "\nlNColl = " << Sim->lNColl
+		     << "\nlast part = " << (lastpart ? (std::string("True")) : (std::string("False")))
+		     << "\nVel = " << part.getVelocity()[0]
+		     << "\nPos = " << part.getPosition()[0]
+		     << "\nVwall[0] = " << fL.wallVelocity()[0]
+		     << "\nRwall[0] = " << fL.wallPosition()[0]
+		     << "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
+		     << "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
+		     << "\nSigma + Del = " << Sigma+Delta
+		     << "\nt_low1 = " << t_low1
+		     << "\nt_low2 = " << t_low2
+		     << "\nt_high = " << t_high
+		     << "\nroot1 = " << root1
+		     << "\nroot2 = " << root2
+		     << "\nf1(0) = " << fl01
+		     << "\nf1(t_low1) = " << flt_low1
+		     << "\nf1(t_high) = " << flt_high1
+		     << "\nf2(0)_1 = " << fl02
+		     << "\nf2(t_low2) = " << flt_low2
+		     << "\nf2(t_high) = " << flt_high2
+		     << "\nf'(0) =" << fL.F_firstDeriv()
+		     << "\nf''(Max) =" << fL.F_secondDeriv_max(0)
+		     << "\nf(x)=" << (pos | nhat)
+		     << "+" << (part.getVelocity() | nhat)
+		     << " * x - "
+		     << Delta 
+		     << " * cos(("
+		     << t + Sim->dSysTime << "+ x) * "
+		     << Omega << ") - "
+		     << Sigma
+		     << "; set xrange[0:" << t_high << "]; plot f(x)";
+	    ;
+	  }
 #endif
 	  return 0;
 	}
     }
-
-    /*    {
-      COscillatingPlateFunc ftmp(fL);
-      COscillatingPlateFunc ftmp2(fL);
-      ftmp.flipSigma();
-
-      Iflt fl01(ftmp.F_zeroDeriv());
-      ftmp.stream(t_low1);
-      Iflt flt_low1(ftmp.F_zeroDeriv());
-      ftmp.stream(t_high - t_low1);
-      Iflt flt_high1(ftmp.F_zeroDeriv());
-
-      Iflt fl02(ftmp2.F_zeroDeriv());
-      ftmp2.stream(t_low2);
-      Iflt flt_low2(ftmp2.F_zeroDeriv());
-      ftmp2.stream(t_high - t_low2);
-      Iflt flt_high2(ftmp2.F_zeroDeriv());
-
-      D_throw() << "Problem! for partcle " << part.getID()
-		<< "\ndSysTime = " << Sim->dSysTime
-		<< "\nlNColl = " << Sim->lNColl
-		<< "\nlast part = " << (lastpart ? (std::string("True")) : (std::string("False")))
-		<< "\nVel = " << part.getVelocity()[0]
-		<< "\nPos = " << part.getPosition()[0]
-		<< "\nVwall[0] = " << fL.wallVelocity()[0]
-		<< "\nRwall[0] = " << fL.wallPosition()[0]
-		<< "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
-		<< "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
-		<< "\nSigma + Del = " << Sigma+Delta
-		<< "\nt_low1 = " << t_low1
-		<< "\nt_low2 = " << t_low2
-		<< "\nt_high = " << t_high
-		<< "\nroot1 = " << root1
-		<< "\nroot2 = " << root2
-		<< "\nf1(0) = " << fl01
-		<< "\nf1(t_low1) = " << flt_low1
-		<< "\nf1(t_high) = " << flt_high1
-		<< "\nf2(0)_1 = " << fl02
-		<< "\nf2(t_low2) = " << flt_low2
-		<< "\nf2(t_high) = " << flt_high2
-		<< "\nf'(0) =" << fL.F_firstDeriv()
-		<< "\nf''(Max) =" << fL.F_secondDeriv_max(0)
-		<< "\nf(x)=" << (pos | nhat)
-		<< "+" << (part.getVelocity() | nhat)
-		<< " * x - "
-		<< Delta 
-		<< " * cos(("
-		<< t + Sim->dSysTime << "+ x) * "
-		<< Omega << ") - "
-		<< Sigma
-		<< "; set xrange[0:" << t_high << "]; plot f(x)";
-      ;
-      }*/
 
   return (root1 < root2) ? root1 : root2;
 }
@@ -1100,6 +1099,8 @@ LNewtonian::runOscilatingPlate
 
   COscillatingPlateFunc fL(part.getVelocity(), nhat, part.getPosition(),
 			   t + Sim->dSysTime, delta, omega0, sigma);
+
+  //Should force the particle to the plate surface
 
   Vector pos(part.getPosition() - fL.wallPosition()), vel(part.getVelocity());
 
