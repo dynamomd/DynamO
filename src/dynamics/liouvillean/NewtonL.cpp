@@ -985,6 +985,22 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
+#ifdef DYNAMO_DEBUG
+  if (Sigma < 0) D_throw() << "Assuming a positive Sigma here";
+#endif
+
+  if (fL.F_zeroDeriv() > 0)
+    {
+      I_cerr() << "Found a upper overlap, fixing the root finding routine."
+	       << fL.F_zeroDeriv();
+      fL.fixFZeroSign(false);
+      I_cerr() << "New val is"
+	       << fL.F_zeroDeriv();
+
+      if (fL.F_zeroDeriv() > 0)
+	D_throw() << "Failed to sort out the first sign of the f";
+    }
+      
   Iflt t_low1 = 0, t_low2 = 0;
   if (lastpart)
     {
@@ -1004,6 +1020,18 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Iflt root1 = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
   fL.flipSigma();
 
+  if (fL.F_zeroDeriv() < 0)
+    {
+      I_cerr() << "Found a lower overlap, fixing the root finding routine."
+	       << fL.F_zeroDeriv();
+      fL.fixFZeroSign(true);
+      I_cerr() << "New val is"
+	       << fL.F_zeroDeriv();
+
+      if (fL.F_zeroDeriv() < 0)
+	D_throw() << "Failed to sort out the first sign of the f";
+    }
+
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
   
@@ -1012,6 +1040,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
     {
       //This can be a problem
 #ifdef DYNAMO_DEBUG
+      
       I_cerr() << "Particle " << part.getID() 
 	       << " may be outside/heading out of the plates"
 	       << "\nerror = "
@@ -1019,11 +1048,12 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	/ Sim->dynamics.units().unitLength()
 	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
 	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
+      
 #endif
       Iflt rvdot = ((vel - fL.wallVelocity()) | nhat);
       
       //If the particle is going out of bounds, collide now
-      if (rvdot * (nhat | pos) > 0)
+      if (fL.test_root(Sigma))
 	{
 #ifdef DYNAMO_DEBUG
 	  {
@@ -1077,7 +1107,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		     << Sigma
 		     << "; set xrange[0:" << t_high << "]; plot f(x)";
 	    ;
-	  }
+	    }
 #endif
 	  return 0;
 	}
@@ -1132,6 +1162,7 @@ LNewtonian::runOscilatingPlate
       Iflt f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
 	f2 = fL.F_secondDeriv_max(0);
       fL.flipSigma();
+      
       I_cerr() <<"Particle " << part.getID()
 	       << ", is pulling on the oscillating plate!"
 	       << "\nRunning event for part " << part.getID()
@@ -1143,6 +1174,7 @@ LNewtonian::runOscilatingPlate
 	       << "\nRwall[0] = " << fL.wallPosition()[0]
 	       << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
 	       << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
+	       << "\nGood root " << fL.test_root(sigma)
 	       << "\nsigma + Del = " << sigma+delta
 	       << "\nf1(0)* = " << fL.F_zeroDeriv()
 	       << "\nf1'(0) =" << fL.F_firstDeriv()
@@ -1152,12 +1184,13 @@ LNewtonian::runOscilatingPlate
 	       << "\nf2''(Max) =" << f2
 	       << "\nf(x)=" << (pos | nhat)
 	       << "+" << (part.getVelocity() | nhat)
-	       << " * x - "
+		<< " * x - "
 	       << delta
 	       << " * cos(("
 	       << t + Sim->dSysTime << "+ x) * "
 	       << omega0 << ") - "
 	       << sigma;
+      
       return retVal;
     }
 
@@ -1166,10 +1199,11 @@ LNewtonian::runOscilatingPlate
   Iflt inelas = e;
   if (fabs(rvdot / fL.maxWallVel()) < 0.02)
     {
+      /*
       I_cerr() <<"<<!!!>>Particle " << part.getID() 
 	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm())
 	       << "\nCount is " << ++elascount;
-
+      */
       inelas = 1.0;
     }
 

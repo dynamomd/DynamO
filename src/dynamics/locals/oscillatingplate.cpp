@@ -60,7 +60,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 
   Iflt dt = Sim->dynamics.getLiouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
-     caution);
+     false);
 
   if (dt != HUGE_VAL)
     return CLocalEvent(part, dt, WALL, *this);

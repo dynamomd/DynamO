@@ -21,6 +21,7 @@
 #include "../../dynamics.hpp"
 #include "../../../base/is_simdata.hpp"
 #include "shape.hpp"
+#include <limits>
 
 class COscillatingPlateFunc : public CShape {
 public:
@@ -30,8 +31,7 @@ public:
 			const Iflt& nOmega, const Iflt& nSigma):
     vp(nvp), nhat(nnhat), rp(nrp),
     t(nt), Delta(nDelta), Omega(nOmega), Sigma(nSigma)
-  {
-    
+  {    
   }
 
   void stream(const Iflt& dt)
@@ -53,7 +53,12 @@ public:
 
   Vector wallPosition() const
   {
-    return  nhat * (Delta * std::cos(Omega * t));
+    return  nhat * wallnHatPosition();
+  }
+
+  Iflt wallnHatPosition() const
+  {
+    return  (Delta * std::cos(Omega * t));
   }
 
   Vector wallVelocity() const
@@ -62,8 +67,25 @@ public:
   }
 
   Iflt F_zeroDeriv() const
-  { 
-    return ((rp - wallPosition()) | nhat) - Sigma;
+  {
+    return (rp | nhat) - ( Sigma + wallnHatPosition());
+  }
+
+  void fixFZeroSign(bool sign)
+  {
+    //std::cerr << "\nFval Start" << F_zeroDeriv();
+    rp -= (rp | nhat) * nhat;
+    rp += nhat * (wallnHatPosition() + Sigma);
+    Iflt Fval = F_zeroDeriv();
+    //std::cerr << "\nFval Loop1 " << Fval;
+    size_t loop(1);
+    while (sign ? (Fval < 0) : (Fval > 0))
+      {
+	rp -= nhat * ((loop++) * std::numeric_limits<Iflt>::epsilon())
+	  * Sigma;
+	Fval = F_zeroDeriv();
+	//std::cerr << "\nFval Loop" << loop << " " << Fval;
+      }
   }
 
   Iflt F_zeroDerivFlip() const
@@ -95,7 +117,8 @@ public:
 
   virtual bool test_root(const Iflt&) const
   {
-    return true;
+    return (((vp | nhat) - velnHatWall()) 
+	    * ((rp | nhat) - wallnHatPosition())) > 0;
   }
 
   void flipSigma() { Sigma = -Sigma; }
