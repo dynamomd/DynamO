@@ -253,6 +253,28 @@ CScheduler::runNextEvent()
 	Sim->dynamics.getLiouvillean().updateParticle(part);
 	CLocalEvent iEvent(Sim->dynamics.getLocals()[sorter->getNextEvent().p2]->getEvent(part));
 	
+	if ((fabs(1.0 - fabs(iEvent.getdt() / sorter->next_dt())) > 0.01)
+	    && (fabs(sorter->next_dt() - iEvent.getdt()) > 1e-10*Sim->dSysTime))
+	  {
+	    I_cerr() << 
+	      "A recalculated LOCAL event time, performed to confirm the collision time, is"
+	      "\nmore than 1% different to the FEL event time. Either due to free "
+	      "\nstreaming inaccuracies or . Forcing a complete recalculation for "
+	      "\nthe particles involved\n\n======Event Data======\n"
+		     << iEvent.stringData(Sim)
+		     << "\n\n Systime of original event is " 
+		     << (sorter->next_dt() + Sim->dSysTime) 
+	      / Sim->dynamics.units().unitTime()
+		     << "\n\n Systime of recalculated event "
+		     << (iEvent.getdt() + Sim->dSysTime) 
+	      / Sim->dynamics.units().unitTime()
+		     << "\n\n Systime is "
+		     << Sim->dSysTime / Sim->dynamics.units().unitTime();
+	     
+	    this->fullUpdate(part);
+	    return;
+	  }
+
 	if (iEvent.getType() == NONE)
 	  D_throw() << "No global collision found\n"
 		    << iEvent.stringData(Sim);

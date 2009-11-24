@@ -1117,9 +1117,12 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	  //before the overlap is fixed, schedule another test later
 	  //on
 	  Iflt currRoot = (root1 < root2) ? root1 : root2;
-	  //Make a slightly larger root so the particle will be colliding
-	  Iflt tmpt = 1.1 * fabs(surfaceVel - fL.velnHatWall())
-	    / fL.F_secondDeriv_max(Sigma);
+	  //
+	  Iflt tmpt = fabs(surfaceVel - fL.velnHatWall());
+	  //This next line sets what the recoil velocity should be
+	  //We choose the velocity that gives elastic collisions!
+	  tmpt += fL.maxWallVel() * 0.02;
+	  tmpt /= fL.F_secondDeriv_max(Sigma);
 	  if (tmpt < currRoot)
 	    {
 	      
@@ -1129,6 +1132,8 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
 	      return tmpt;
 	    }
+	  else
+	    I_cout() << "The current root is lower than the fake one";	    
 	}
     }
 
@@ -1226,6 +1231,11 @@ LNewtonian::runOscilatingPlate
 	       << "\nCount is " << ++elascount;
       */
       inelas = 1.0;
+      if (fabs(rvdot / fL.maxWallVel()) < 0.01)
+	if (rvdot < 0)
+	  rvdot = -fL.maxWallVel() * 0.01;
+	else
+	  rvdot = fL.maxWallVel() * 0.01;
     }
 
   Vector delP =  nhat * mu * (1.0 + inelas) * rvdot;
