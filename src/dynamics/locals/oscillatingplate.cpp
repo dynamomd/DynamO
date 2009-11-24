@@ -85,14 +85,14 @@ CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) c
 
   Sim->signalParticleUpdate(EDat);
 
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
-
   //Now we're past the event update the scheduler and plugins
   if (strongPlate) 
     Sim->ptrScheduler->fullUpdate(part);
   else
     Sim->ptrScheduler->rebuildList();
+
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
 }
 
 bool 

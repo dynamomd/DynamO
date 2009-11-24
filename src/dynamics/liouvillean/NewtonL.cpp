@@ -1025,8 +1025,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
       I_cerr() << "Found a lower overlap, fixing the root finding routine."
 	       << fL.F_zeroDeriv();
       fL.fixFZeroSign(true);
-      I_cerr() << "New val is"
-	       << fL.F_zeroDeriv();
+      //I_cerr() << "New val is" << fL.F_zeroDeriv();
 
       if (fL.F_zeroDeriv() < 0)
 	D_throw() << "Failed to sort out the first sign of the f";
@@ -1035,8 +1034,9 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
   
-  if ((!lastpart && (fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma))
-      || (((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) || ((t_low1 > t_high) && (t_low2 > t_high))))
+  if ((fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma)
+      || (((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) 
+	  || ((t_low1 > t_high) && (t_low2 > t_high))))
     {
       //This can be a problem
 #ifdef DYNAMO_DEBUG
@@ -1050,7 +1050,6 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
       
 #endif
-      Iflt rvdot = ((vel - fL.wallVelocity()) | nhat);
       
       //If the particle is going out of bounds, collide now
       if (fL.test_root(Sigma))
@@ -1084,6 +1083,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		     << "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
 		     << "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
 		     << "\nSigma + Del = " << Sigma+Delta
+		     << "\nGood root = " << fL.test_root(Sigma)
 		     << "\nt_low1 = " << t_low1
 		     << "\nt_low2 = " << t_low2
 		     << "\nt_high = " << t_high
@@ -1107,9 +1107,28 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 		     << Sigma
 		     << "; set xrange[0:" << t_high << "]; plot f(x)";
 	    ;
-	    }
+	  }
 #endif
 	  return 0;
+	}
+      else
+	{
+	  //The particle and plate are approaching but might not be
+	  //before the overlap is fixed, schedule another test later
+	  //on
+	  Iflt currRoot = (root1 < root2) ? root1 : root2;
+	  //Make a slightly larger root so the particle will be colliding
+	  Iflt tmpt = 1.1 * fabs(surfaceVel - fL.velnHatWall())
+	    / fL.F_secondDeriv_max(Sigma);
+	  if (tmpt < currRoot)
+	    {
+	      
+	      I_cout() << "Making a fake collision at "
+		       << tmpt 
+		       << "for particle " << part.getID();
+
+	      return tmpt;
+	    }
 	}
     }
 
@@ -1155,9 +1174,9 @@ LNewtonian::runOscilatingPlate
 //	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
 //	   << t << "+ x) * " << omega0 << ") - " << sigma;
 
-  Iflt rvdot = ((vel - vwall) | nhat);
   
-  if (rvdot * (nhat | pos) < 0) 
+  //Check the root is valid
+  if (!fL.test_root(sigma))
     {
       Iflt f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
 	f2 = fL.F_secondDeriv_max(0);
@@ -1184,7 +1203,7 @@ LNewtonian::runOscilatingPlate
 	       << "\nf2''(Max) =" << f2
 	       << "\nf(x)=" << (pos | nhat)
 	       << "+" << (part.getVelocity() | nhat)
-		<< " * x - "
+	       << " * x - "
 	       << delta
 	       << " * cos(("
 	       << t + Sim->dSysTime << "+ x) * "
@@ -1197,6 +1216,8 @@ LNewtonian::runOscilatingPlate
   static size_t elascount(0);
 
   Iflt inelas = e;
+
+  Iflt rvdot = ((vel - vwall) | nhat);
   if (fabs(rvdot / fL.maxWallVel()) < 0.02)
     {
       /*

@@ -63,7 +63,7 @@ public:
 
   Vector wallVelocity() const
   {
-    return  -nhat * (Delta * Omega * std::sin(Omega * t));
+    return  nhat * velnHatWall();
   }
 
   Iflt F_zeroDeriv() const
