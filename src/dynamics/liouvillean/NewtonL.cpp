@@ -1121,7 +1121,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	  Iflt tmpt = fabs(surfaceVel - fL.velnHatWall());
 	  //This next line sets what the recoil velocity should be
 	  //We choose the velocity that gives elastic collisions!
-	  tmpt += fL.maxWallVel() * 0.02;
+	  tmpt += fL.maxWallVel() * 0.002;
 	  tmpt /= fL.F_secondDeriv_max(Sigma);
 	  if (tmpt < currRoot)
 	    {
@@ -1223,7 +1223,7 @@ LNewtonian::runOscilatingPlate
   Iflt inelas = e;
 
   Iflt rvdot = ((vel - vwall) | nhat);
-  if (fabs(rvdot / fL.maxWallVel()) < 0.02)
+  if (fabs(rvdot / fL.maxWallVel()) < 0.002)
     {
       /*
       I_cerr() <<"<<!!!>>Particle " << part.getID() 
@@ -1231,7 +1231,7 @@ LNewtonian::runOscilatingPlate
 	       << "\nCount is " << ++elascount;
       */
       inelas = 1.0;
-      if (fabs(rvdot / fL.maxWallVel()) < 0.01)
+      if (fabs(rvdot / fL.maxWallVel()) < 0.001)
 	if (rvdot < 0)
 	  rvdot = -fL.maxWallVel() * 0.01;
 	else
