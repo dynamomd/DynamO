@@ -104,7 +104,7 @@ OPConfig::fileOutput(const char *fileName)
       coutputFile.push(io::file_sink(fileName));
       
       xmlw::XmlStream XML(coutputFile);
-
+      
       XML.setFormatXML(true);
       output(XML);
     }

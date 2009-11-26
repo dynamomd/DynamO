@@ -331,7 +331,8 @@ Simulation::outputData(const char* filename, bool uncompressed)
       coutputFile.push(io::file_sink(filename));
 
       xmlw::XmlStream XML(coutputFile);
-      
+      XML.setFormatXML(true);
+
       XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
 	  << xmlw::prolog() << xmlw::tag("OutputData");
       
@@ -350,6 +351,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
     {
       std::ofstream coutputFile(filename, std::ios::out | std::ios::trunc);
       xmlw::XmlStream XML(coutputFile);
+      XML.setFormatXML(true);
 
       XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
 	  << xmlw::prolog() << xmlw::tag("OutputData");
