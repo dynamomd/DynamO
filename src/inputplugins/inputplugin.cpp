@@ -68,8 +68,13 @@ CInputPlugin::rescaleVels(Iflt val)
 void 
 CInputPlugin::zeroMomentum()
 {
-  I_cout() << "Zeroing Momentum";    
-  Sim->dynamics.zeroMomentum(Sim->vParticleList);
+  I_cout() << "Zeroing Momentum";
+  
+  if (Sim->lN <= 1)
+    I_cerr() << "Refusing to zero momentum for a " 
+	     << Sim->lN << " particle system";
+  else
+    Sim->dynamics.zeroMomentum(Sim->vParticleList);
 }
 
 void 

@@ -1901,7 +1901,8 @@ CIPPacker::initialise()
 //	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L,
 //				    0, 0);
 
-	Vector particleArea = Vector((L + 1) / boxL, (xy + 1) / boxL, (xy + 1) / boxL);
+	Vector particleArea = Vector((L + 1) / boxL, (xy + 1) / boxL, 
+				     (xy + 1) / boxL);
 
 	//The system starts at a full extention, always plus 0.1 to
 	//stop instant collisions
@@ -1947,7 +1948,7 @@ CIPPacker::initialise()
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = 1.0/boxL;
+	Iflt particleDiam = 1.0 / boxL;
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
@@ -1957,25 +1958,29 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, ParticleInelas,
+	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 
+						      ParticleInelas,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect),
+	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), 
+					  Vector(0, 0, -0.5 * Aspect),
 					  "Plate2", new CRAll(Sim), false));
 
 	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
 					  "Plate3", new CRAll(Sim), false));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,+1,0), Vector(0, -0.5 * Aspect, 0),
+	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,+1,0), 
+					  Vector(0, -0.5 * Aspect, 0),
 					  "Plate4", new CRAll(Sim), false));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), Vector(0, +0.5 * Aspect, 0),
+	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), 
+					  Vector(0, +0.5 * Aspect, 0),
 					  "Plate5", new CRAll(Sim), false));
 
 	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+				 (new CSpecies(Sim, new CRAll(Sim), 1.0, 
+					       "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
@@ -1988,18 +1993,23 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(maxPart);
 
-	std::sort(latticeSites.begin(), latticeSites.end(),mySortPredictate);
+	std::sort(latticeSites.begin(), latticeSites.end(), mySortPredictate);
 
 	for (size_t i(0); i < maxPart; ++i)
-	  Sim->vParticleList.push_back(CParticle(latticeSites[i], getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-						 nParticles++));
+	  Sim->vParticleList.push_back
+	    (CParticle(latticeSites[i], 
+		       getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+		       nParticles++));
 
 	bool strongPlate = false;
 	if (vm.count("b1"))
 	  strongPlate = true;
-	Sim->dynamics.addLocal(new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
-						      0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles,
-						      "Plate1", new CRAll(Sim), 0.0, strongPlate));
+
+	Sim->dynamics.addLocal
+	  (new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
+				  0.5 * L / boxL, PlateInelas, Delta / boxL, 
+				  MassRatio * nParticles, "Plate1", 
+				  new CRAll(Sim), 0.0, strongPlate));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
