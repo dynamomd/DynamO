@@ -36,7 +36,7 @@ OPETA::periodicOutput()
 
   double ETA = floor(((Sim->lMaxNColl - Sim->lNColl) * difftime(currTime, start_Time)) / Sim->lNColl);
   double ETA_hours = floor(ETA/3600);
-  double ETA_mins = floor(ETA/60);
+  double ETA_mins = floor(ETA/60) - (ETA_hours * 60);
   double ETA_secs = ETA - (ETA_mins * 60) - (ETA_hours * 3600);
 
   I_Pcout() << "ETA " << ETA_hours << "h " << ETA_mins << "m " << ETA_secs << "s, ";
