@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  DYNAMO:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@ OPETA::OPETA(const DYNAMO::SimData* tmp, const XMLNode&):
 {}
 
 void
-OPETA::initialise() 
+OPETA::initialise()
 {
   time(&start_Time);
 }
@@ -33,8 +33,11 @@ OPETA::periodicOutput()
 {
   time_t currTime;
   time(&currTime);
-  
-  I_Pcout() << "ETA " << ((Sim->lMaxNColl - Sim->lNColl) 
-			  * difftime(currTime, start_Time)) / Sim->lNColl  
-	    << "s, ";
+
+  double ETA = floor(((Sim->lMaxNColl - Sim->lNColl) * difftime(currTime, start_Time)) / Sim->lNColl);
+  double ETA_hours = floor(ETA/3600);
+  double ETA_mins = floor(ETA/60);
+  double ETA_secs = ETA - (ETA_mins * 60) - (ETA_hours * 3600);
+
+  I_Pcout() << "ETA " << ETA_hours << "h " << ETA_mins << "m " << ETA_secs << "s, ";
 }
