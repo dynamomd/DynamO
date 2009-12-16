@@ -348,14 +348,11 @@ CIStepped::write_povray_desc(const DYNAMO::RGB& rgb,
 				const size_t& specID, 
 				std::ostream& os) const
 {
-  /*
   os << "#declare intrep" << ID << "center = " 
      << "sphere {\n <0,0,0> " 
-     << diameter / 2.0
+     << steps.back().first * 0.5
      << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
-     << "#declare intrep" << ID << "well = sphere {\n <0,0,0> " << diameter * lambda * 0.5
-     << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
+     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
 
   BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
@@ -366,16 +363,4 @@ CIStepped::write_povray_desc(const DYNAMO::RGB& rgb,
 	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
     }
   
-  os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->vParticleList[part].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      os << "object {\n intrep" << ID << "well\n translate < "
-	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-    }
-  
-  os << "}\n";
-  */
 }

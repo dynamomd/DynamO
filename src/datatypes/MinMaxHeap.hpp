@@ -96,7 +96,7 @@ public:
   // Returns: true if full, false if not
   inline bool full() const { return _currentSize == array_size - 1; }
 
-  inline void swap(MinMaxHeap<Comparable>& rhs)
+  inline void swap(MinMaxHeap<Comparable,array_size>& rhs)
   {
     _array.swap(rhs._array);
   }
