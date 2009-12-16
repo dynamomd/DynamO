@@ -236,6 +236,5 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
   else if (!Name.compare("MSDOrientationalCorrelator"))
     return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
   else 
-    D_throw() << "Unknown type of OutputPlugin encountered\n"
-	      << Name;
+    D_throw() << Name << ", Unknown type of OutputPlugin encountered";
 }

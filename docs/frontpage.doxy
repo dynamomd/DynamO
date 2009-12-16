@@ -14,7 +14,7 @@
  *
  * - dynahist_rw (programs/dynahist_rw.cpp) - Can perform histogram
  * reweighting on output from a replica exchange/ parallel tempering
- * program (see the simulation engine CEReplexer).
+ * program (see the simulation engine EReplicaExchangeSimulation).
  *
  * - dynareplex_opt (programs/dynareplex_opt.cpp) - This is an
  * implementation of the replica exchange optimisation described by
@@ -40,7 +40,7 @@
  * time it is probably best to start here in main(), in mdrun.cpp then
  * branch out reading just the description of each class.
  *
- * Alternatively if you wish to jump in, CSimulation::runSimulation()
+ * Alternatively if you wish to jump in, Simulation::runSimulation()
  * is the very inner loop of a single simulation.
  */
 

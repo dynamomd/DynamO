@@ -72,5 +72,6 @@ CSystem::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))
     return new CSUmbrella(XML, Sim);
   else
-    D_throw() << "Unknown type of System Interaction encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of System Interaction encountered";
 }

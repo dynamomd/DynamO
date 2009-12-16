@@ -54,7 +54,8 @@ CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
   else if (!strcmp(XML.getAttribute("Type"),"Complex"))
     return new CSComplex(XML, Sim);
   else 
-    D_throw() << "Unknown type of Scheduler encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of Scheduler encountered";
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 

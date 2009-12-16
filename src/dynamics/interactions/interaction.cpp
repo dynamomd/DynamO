@@ -84,5 +84,6 @@ CInteraction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
   else if (!std::strcmp(XML.getAttribute("Type"),"InfiniteMass"))
     return new CIInfiniteMass(XML, Sim);
   else 
-    D_throw() << "Unknown type of interaction encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of interaction encountered";
 }

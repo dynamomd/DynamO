@@ -69,5 +69,6 @@ CTopology::loadClass(const XMLNode& XML, DYNAMO::SimData* Sim, size_t ID)
   if (!strcmp(XML.getAttribute("Type"),"Chain"))
     return new CTChain(XML, Sim, ID);
   else 
-    D_throw() << "Unknown type of Topology encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of Topology encountered";
 }

@@ -125,6 +125,7 @@ CSpecies::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
     return new CSSphericalTop(XML, tmp, nID);
   else 
-    D_throw() << "Unknown type of species encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of species encountered";
 
 }

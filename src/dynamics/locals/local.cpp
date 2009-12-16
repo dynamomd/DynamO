@@ -60,6 +60,7 @@ CLocal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
     return new CLCylinder(XML, Sim);
   else 
-    D_throw() << "Unknown type of Local Interaction encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of Local Interaction encountered";
 }
 

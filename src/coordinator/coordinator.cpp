@@ -192,7 +192,8 @@ Coordinator::initialise()
       _engine.set_ptr(new ECompressingSimulation(vm, _threads));
       break;
     default:
-      D_throw() <<"Unknown Engine Selected"; 
+      D_throw() << vm["engine"].as<size_t>()
+		<<", Unknown Engine Number Selected"; 
     }
   
   _engine->initialisation();

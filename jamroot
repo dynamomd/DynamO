@@ -47,6 +47,9 @@ project	: requirements
 variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
+variant cachegrind_in : <inlining>on <optimization>speed <debug-symbols>on 
+	<profiling>off ;
+
 variant massif : <inlining>off <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 

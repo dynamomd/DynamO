@@ -51,5 +51,6 @@ Units::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"SW"))
     return new USquareWell(XML, Sim);
   else
-   D_throw() << "Could not recognise the type of the units";
+   D_throw() << XML.getAttribute("Type")
+	     << ", Unknown unit type";
 }

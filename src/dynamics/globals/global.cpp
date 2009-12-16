@@ -67,6 +67,7 @@ CGlobal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
     return new CGSOCells(XML, Sim);
   else 
-    D_throw() << "Unknown type of Global Interaction encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of Global Interaction encountered";
 }
 

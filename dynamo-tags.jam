@@ -32,6 +32,7 @@ rule naming ( name : type ? : property-set )
      {
      case debug : result += _d ;
      case fulldebug : result += _fd ;
+     case cachegrind_in : result += _cg_in ;
      case cachegrind : result += _cg ;
      case profile : result += _p ;
      case massif : result += _mf ;

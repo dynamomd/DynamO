@@ -53,7 +53,8 @@ Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
   else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
     return new CLSLLOD(tmp);
   else 
-    D_throw() << "Unknown type of Liouvillean encountered";
+    D_throw() << XML.getAttribute("Type")
+	      << ", Unknown type of Liouvillean encountered";
 }
 
 C2ParticleData 
