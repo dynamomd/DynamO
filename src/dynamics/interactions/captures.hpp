@@ -108,13 +108,8 @@ protected:
   struct cMapKey: public std::pair<size_t,size_t>
   {
     inline cMapKey(const size_t&a, const size_t&b):
-      std::pair<size_t,size_t>(a,b) {}
-
-    inline bool operator==(const cMapKey& o) const
-    {
-      return (((first == o.first) && (second == o.second))
-	      || ((second == o.first) && (first == o.second)));
-    }
+      std::pair<size_t,size_t>(a,b)
+    { if (first > second) std::swap(first, second); }
   };
   
   //  typedef boost::hash<cMapKey> keyHash;
@@ -123,11 +118,12 @@ protected:
   {
     inline size_t operator()(const cMapKey& key) const
     {
-      return key.first * key.second + (key.first ^ key.second);
+      //return key.first * key.second + (key.first ^ key.second);
       //return (key.first > key.second) ?  ((key.first << 16) ^ key.second) : ((key.second << 16) ^ key.first);
+      return (key.first << (sizeof(size_t) * 4)) ^ key.second;
     }
   };
-  
+
   typedef std::unordered_map<cMapKey, int, keyHash> captureMapType;
   typedef captureMapType::iterator cmap_it;
   typedef captureMapType::const_iterator const_cmap_it;
