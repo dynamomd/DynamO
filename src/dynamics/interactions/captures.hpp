@@ -101,30 +101,19 @@ public:
   virtual bool isCaptured(const CParticle&, const CParticle&) const;
 
 protected:
-  
-  //typedef std::pair<size_t, size_t> cMapKey;
 
-  
   struct cMapKey: public std::pair<size_t,size_t>
   {
     inline cMapKey(const size_t&a, const size_t&b):
-      std::pair<size_t,size_t>(a,b) {}
-
-    inline bool operator==(const cMapKey& o) const
-    {
-      return (((first == o.first) && (second == o.second))
-	      || ((second == o.first) && (first == o.second)));
-    }
+      std::pair<size_t,size_t>(std::min(a,b), std::max(a,b))
+    {}
   };
-  
-  //  typedef boost::hash<cMapKey> keyHash;
   
   struct keyHash
   {
     inline size_t operator()(const cMapKey& key) const
     {
-      //return key.first * key.second + (key.first ^ key.second);
-      return (key.first > key.second) ?  ((key.first << 16) ^ key.second) : ((key.second << 16) ^ key.first);
+      return (key.first << (sizeof(size_t) * 4)) ^ key.second;
     }
   };
   
