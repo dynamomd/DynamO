@@ -101,15 +101,12 @@ public:
   virtual bool isCaptured(const CParticle&, const CParticle&) const;
 
 protected:
-  
-  //typedef std::pair<size_t, size_t> cMapKey;
 
-  
   struct cMapKey: public std::pair<size_t,size_t>
   {
     inline cMapKey(const size_t&a, const size_t&b)
-      : std::pair<size_t,size_t>(a,b)
-    { if (first > second) std::swap(first, second);
+      std::pair<size_t,size_t>(std::min(a,b), std::max(a,b))
+    {
       //size_t t1(a),t2(b), t3(a);
       //asm ("PMINUW %1,%0" : "=i" (t1) : "i" (t2));
       //asm ("PMAXUW %1,%0" : "=i" (t2) : "i" (t3));
@@ -117,8 +114,6 @@ protected:
       //second = t2;
     }
   };
-  
-  //  typedef boost::hash<cMapKey> keyHash;
   
   struct keyHash
   {
