@@ -165,7 +165,7 @@ CIStepped::getInternalEnergy() const
 
 CIntEvent
 CIStepped::getEvent(const CParticle &p1, 
-		    const CParticle &p2) const 
+		    const CParticle &p2) const
 {
   
 #ifdef DYNAMO_DEBUG

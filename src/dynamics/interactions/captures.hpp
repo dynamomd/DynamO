@@ -107,9 +107,15 @@ protected:
   
   struct cMapKey: public std::pair<size_t,size_t>
   {
-    inline cMapKey(const size_t&a, const size_t&b):
-      std::pair<size_t,size_t>(a,b)
-    { if (first > second) std::swap(first, second); }
+    inline cMapKey(const size_t&a, const size_t&b)
+      : std::pair<size_t,size_t>(a,b)
+    { if (first > second) std::swap(first, second);
+      //size_t t1(a),t2(b), t3(a);
+      //asm ("PMINUW %1,%0" : "=i" (t1) : "i" (t2));
+      //asm ("PMAXUW %1,%0" : "=i" (t2) : "i" (t3));
+      //first = t1;
+      //second = t2;
+    }
   };
   
   //  typedef boost::hash<cMapKey> keyHash;

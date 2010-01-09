@@ -162,7 +162,8 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 bool 
 LNewtonian::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 {
-  dat.dt = (sqrt(dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2))-dat.rvdot) / dat.v2;
+  dat.dt = (sqrt(dat.rvdot * dat.rvdot 
+		 - dat.v2 * (dat.r2 - d2)) - dat.rvdot) / dat.v2;
 
   if (isnan(dat.dt))
     {//The nan occurs if the spheres aren't moving apart

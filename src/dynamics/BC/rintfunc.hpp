@@ -16,8 +16,18 @@
 */
 #pragma once
 
-#ifdef DYNAMO_double_precsision
-# define rintfunc lrint
-#else
-# define rintfunc lrintf
-#endif
+#define	FLOAT_TO_INT(in,out)		\
+	__asm__ __volatile__ ("fistpl %0" : "=m" (out) : "t" (in) : "st") ;
+
+inline int rintfunc(const Iflt& input)
+{
+  int retval;
+  FLOAT_TO_INT(input, retval);
+  return retval;
+}
+
+//#ifdef DYNAMO_double_precsision
+//# define rintfunc lrint
+//#else
+//# define rintfunc lrintf
+//#endif
