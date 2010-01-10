@@ -104,7 +104,7 @@ protected:
 
   struct cMapKey: public std::pair<size_t,size_t>
   {
-    inline cMapKey(const size_t&a, const size_t&b)
+    inline cMapKey(const size_t&a, const size_t&b):
       std::pair<size_t,size_t>(std::min(a,b), std::max(a,b))
     {
       //size_t t1(a),t2(b), t3(a);
