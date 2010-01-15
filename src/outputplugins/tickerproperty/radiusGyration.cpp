@@ -357,7 +357,7 @@ OPRGyration::output(xmlw::XmlStream& XML)
       for (size_t i = 0; i < NDIM; i++)
 	if (std::isnormal(EigenVal[i]))
 	  {
-	    char lett[2] = {'x' + i, '\0'};
+	    char lett[2] = {char('x' + i), '\0'};
 	    
 	    XML << xmlw::attr(lett)
 		<< EigenVal[i];
