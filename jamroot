@@ -34,7 +34,6 @@ project	: requirements
 	  <color>yes:<define>DYNAMO_Colour
 	  <link>static
 	  <condor>no
-	  <cxxflags>-march=native
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <cxxflags>-std=gnu++0x
