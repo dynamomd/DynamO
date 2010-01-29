@@ -28,10 +28,19 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
+#include "../../outputplugins/1partproperty/uenergy.hpp"
 
-LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp):
+LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp)
 {}
+
+void LNewtonianMC::initialise()
+{
+  LNewtonian::initialise();
+
+  if (Sim->getOutputPlugin<OPUEnergy>() == NULL)
+    D_throw() << "This liouvillean needs the UEnergy plugin";
+}
 
 
 CNParticleData 

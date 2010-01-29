@@ -53,7 +53,7 @@ Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
   else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
     return new LSLLOD(tmp);
   else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-    return new LNewtonianMC(tmp);
+    return new LNewtonianMC(tmp, XML);
   else 
     D_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Liouvillean encountered";

@@ -24,7 +24,7 @@
 class LNewtonianMC: public LNewtonian
 {
 public:
-  LNewtonianMC(DYNAMO::SimData* tmp);
+  LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode&);
 
   //Pair particle dynamics
   virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, 
@@ -35,6 +35,8 @@ public:
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianMC(*this); }
+
+  virtual void initialise();
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
