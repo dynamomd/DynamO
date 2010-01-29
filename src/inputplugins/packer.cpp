@@ -1085,7 +1085,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 
-	Sim->dynamics.setLiouvillean(new CLSLLOD(Sim));
+	Sim->dynamics.setLiouvillean(new LSLLOD(Sim));
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction
@@ -1808,7 +1808,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
 
-	Sim->dynamics.setLiouvillean(new CLSLLOD(Sim));
+	Sim->dynamics.setLiouvillean(new LSLLOD(Sim));
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction

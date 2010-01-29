@@ -15,9 +15,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef LNewtonianMC_H
+#define LNewtonianMC_H
+
 #include "NewtonL.hpp"
-#include "CompressionL.hpp"
-#include "OrientationL.hpp"
-#include "SLLOD.hpp"
-#include "NewtonianGravityL.hpp"
-#include "NewtonMCL.hpp"
+
+
+class LNewtonianMC: public LNewtonian
+{
+public:
+  LNewtonianMC(DYNAMO::SimData* tmp);
+
+  //Pair particle dynamics
+  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, 
+					 const Iflt&) const;
+  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+					   const Iflt&, const Iflt&, 
+					   EEventType&) const;
+
+  //Cloning
+  virtual Liouvillean* Clone() const { return new LNewtonianMC(*this); }
+
+protected:
+  virtual void outputXML(xmlw::XmlStream& ) const;
+};
+#endif

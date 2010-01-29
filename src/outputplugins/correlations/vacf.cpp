@@ -129,7 +129,7 @@ OPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
 void 
 OPVACF::newG(const C1ParticleData& PDat)
 {
-  if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
+  if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
   for (size_t i = 0; i < Sim->lN; ++i)

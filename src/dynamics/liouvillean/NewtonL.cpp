@@ -39,34 +39,31 @@ LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
   for (size_t iDim(1); iDim < NDIM; ++iDim)
     if (fabs(dat.rij[iDim]) > fabs(dat.rij[largedim])) largedim = iDim;
     
-  if (dat.rij[largedim] * dat.vij[largedim] < 0)
-    {      
-      Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+  if (dat.rij[largedim] * dat.vij[largedim] >= 0) return false;
+
+  Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+  
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    {
+      Iflt tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
+      Iflt tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
       
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
+      if (tmptime1 < tmptime2)
 	{
-	  Iflt tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
-	  Iflt tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
-	  
-	  if (tmptime1 < tmptime2)
-	    {
-	      if (tmptime1 > tInMax) tInMax = tmptime1;
-	      if (tmptime2 < tOutMin) tOutMin = tmptime2;
-	    }
-	  else
-	    {
-	      if (tmptime2 > tInMax) tInMax = tmptime2;
-	      if (tmptime1 < tOutMin) tOutMin = tmptime1;
-	    }
+	  if (tmptime1 > tInMax) tInMax = tmptime1;
+	  if (tmptime2 < tOutMin) tOutMin = tmptime2;
 	}
-      
-      if (tInMax < tOutMin)
+      else
 	{
-	  dat.dt = tInMax;
-	  return true;
+	  if (tmptime2 > tInMax) tInMax = tmptime2;
+	  if (tmptime1 < tOutMin) tOutMin = tmptime1;
 	}
     }
-  return false;
+  
+  if (tInMax >= tOutMin) return false;
+
+  dat.dt = tInMax;
+  return true;
 }
 
 bool 
@@ -1219,7 +1216,7 @@ LNewtonian::runOscilatingPlate
       return retVal;
     }
 
-  static size_t elascount(0);
+  //static size_t elascount(0);
 
   Iflt inelas = e;
 

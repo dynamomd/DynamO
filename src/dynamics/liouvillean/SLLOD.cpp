@@ -27,18 +27,18 @@
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
 
-CLSLLOD::CLSLLOD(DYNAMO::SimData* tmp):
+LSLLOD::LSLLOD(DYNAMO::SimData* tmp):
   Liouvillean(tmp)
 {}
 
 void
-CLSLLOD::streamParticle(CParticle& particle, const Iflt& dt) const
+LSLLOD::streamParticle(CParticle& particle, const Iflt& dt) const
 {
   particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
 }
 
 bool 
-CLSLLOD::DSMCSpheresTest(const CParticle& p1, 
+LSLLOD::DSMCSpheresTest(const CParticle& p1, 
 			 const CParticle& p2, 
 			 Iflt& maxprob,
 			 const Iflt& factor,
@@ -60,7 +60,7 @@ CLSLLOD::DSMCSpheresTest(const CParticle& p1,
 }
 
 C2ParticleData
-CLSLLOD::DSMCSpheresRun(const CParticle& p1, 
+LSLLOD::DSMCSpheresRun(const CParticle& p1, 
 			 const CParticle& p2, 
 			 const Iflt& e,
 			 CPDData& pdat) const
@@ -100,21 +100,21 @@ CLSLLOD::DSMCSpheresRun(const CParticle& p1,
 }
 
 void 
-CLSLLOD::outputXML(xmlw::XmlStream& XML) const
+LSLLOD::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") 
       << "SLLOD";
 }
 
 CNParticleData 
-CLSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&, 
+LSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&, 
 			   const EEventType&) const
 {
   D_throw() << "Not Implemented";
 }
 
 CNParticleData 
-CLSLLOD::multibdyWellEvent(const CRange&, const CRange&, 
+LSLLOD::multibdyWellEvent(const CRange&, const CRange&, 
 			   const Iflt&, const Iflt&, 
 			   EEventType&) const
 {
@@ -122,31 +122,31 @@ CLSLLOD::multibdyWellEvent(const CRange&, const CRange&,
 }
 
 bool 
-CLSLLOD::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
+LSLLOD::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
   D_throw() << "Not Implemented";
 }
   
 bool 
-CLSLLOD::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
+LSLLOD::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 {
   D_throw() << "Not Implemented";
 }
 
 bool 
-CLSLLOD::sphereOverlap(const CPDData& dat, const Iflt& d2) const
+LSLLOD::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 {
   D_throw() << "Not Implemented";
 }
 
 C1ParticleData 
-CLSLLOD::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
+LSLLOD::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 {
   D_throw() << "Not Implemented";
 }
 
 Iflt 
-CLSLLOD::getWallCollision(const CParticle &part, 
+LSLLOD::getWallCollision(const CParticle &part, 
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
 {
@@ -155,7 +155,7 @@ CLSLLOD::getWallCollision(const CParticle &part,
 
 
 C1ParticleData 
-CLSLLOD::runWallCollision(const CParticle &part, 
+LSLLOD::runWallCollision(const CParticle &part, 
 			   const Vector  &vNorm,
 			   const Iflt& e
 			   ) const
@@ -164,7 +164,7 @@ CLSLLOD::runWallCollision(const CParticle &part,
 }
 
 C1ParticleData 
-CLSLLOD::runAndersenWallCollision(const CParticle& part, 
+LSLLOD::runAndersenWallCollision(const CParticle& part, 
 			 const Vector & vNorm,
 			 const Iflt& sqrtT
 			 ) const
@@ -173,7 +173,7 @@ CLSLLOD::runAndersenWallCollision(const CParticle& part,
 }
 
 Iflt
-CLSLLOD::getSquareCellCollision2(const CParticle& part, 
+LSLLOD::getSquareCellCollision2(const CParticle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -181,7 +181,7 @@ CLSLLOD::getSquareCellCollision2(const CParticle& part,
 }
 
 int
-CLSLLOD::getSquareCellCollision3(const CParticle& part, 
+LSLLOD::getSquareCellCollision3(const CParticle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -189,14 +189,14 @@ CLSLLOD::getSquareCellCollision3(const CParticle& part,
 }
 
 C2ParticleData 
-CLSLLOD::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
+LSLLOD::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
   D_throw() << "Not Implemented";
 }
 
 C2ParticleData 
-CLSLLOD::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
+LSLLOD::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 			 const Iflt &) const
 {
   D_throw() << "Not Implemented";

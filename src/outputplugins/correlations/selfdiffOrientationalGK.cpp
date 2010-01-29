@@ -149,7 +149,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CIntEvent& iEvent, const C2Par
 void
 OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
 {
-  if (Sim->dynamics.liouvilleanTypeTest<CLSLLOD>())
+  if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
   {
     Sim->dynamics.getLiouvillean().updateAllParticles();
   }

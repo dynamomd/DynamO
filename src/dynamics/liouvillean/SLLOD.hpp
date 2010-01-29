@@ -21,10 +21,10 @@
 #include "liouvillean.hpp"
 
 
-class CLSLLOD: public Liouvillean
+class LSLLOD: public Liouvillean
 {
 public:
-  CLSLLOD(DYNAMO::SimData*);
+  LSLLOD(DYNAMO::SimData*);
 
   //Structure dynamics
   virtual CNParticleData multibdyCollision(const CRange&, const CRange&, 
@@ -79,7 +79,7 @@ public:
 
   virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
 
-  virtual Liouvillean* Clone() const { return new CLSLLOD(*this); }
+  virtual Liouvillean* Clone() const { return new LSLLOD(*this); }
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
