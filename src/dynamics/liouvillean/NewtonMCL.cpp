@@ -66,6 +66,8 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
 		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Energy")) 
 		/ Sim->dynamics.units().unitEnergy();
 
+	      key /= EnergyPotentialStep;
+
 	      Iflt entry = 
 		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Shift"))
 		/ Sim->dynamics.units().unitEnergy();
@@ -97,7 +99,7 @@ LNewtonianMC::outputXML(xmlw::XmlStream& XML) const
       Iflt key = val.first * EnergyPotentialStep 
 	* Sim->dynamics.units().unitEnergy();
       
-      Iflt entry = val.second / Sim->dynamics.units().unitEnergy();
+      Iflt entry = val.second * Sim->dynamics.units().unitEnergy();
 	      
       XML << xmlw::tag("Entry")
 	  << xmlw::attr("Energy") << key
@@ -150,7 +152,17 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
   Iflt R2 = retVal.rij.nrm2();
   Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
-  
+
+  Iflt CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+
+  Iflt Key1FloatVal = CurrentE / EnergyPotentialStep;
+  int Key1 = int(Key1FloatVal + 0.5 - (Key1FloatVal < 0));
+
+  Iflt Key2FloatVal = (CurrentE - deltaKE) / EnergyPotentialStep;
+  int Key2 = int(Key2FloatVal + 0.5 - (Key2FloatVal < 0));
+
+  Iflt MCDeltaKE;
+
   if ((deltaKE < 0) && (sqrtArg < 0))
     {
       event.setType(BOUNCE);
