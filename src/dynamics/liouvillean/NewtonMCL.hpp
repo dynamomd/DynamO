@@ -41,6 +41,9 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
 
-  boost::unordered_map<Iflt, Iflt> _MCEnergyPotential; 
+  boost::unordered_map<int, Iflt> _MCEnergyPotential; 
+
+  Iflt EnergyPotentialStep;
+  
 };
 #endif

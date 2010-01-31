@@ -31,17 +31,24 @@
 #include "../../outputplugins/1partproperty/uenergy.hpp"
 
 LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
-  LNewtonian(tmp)
+  LNewtonian(tmp),
+  EnergyPotentialStep(1)
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
     D_throw() << "Attempting to load NewtonianMC from " 
 	      << XML.getAttribute("Type")
 	      << " entry";
-  
   try 
     {
+      if (XML.isAttributeSet("EnergyStep"))
+	EnergyPotentialStep = boost::lexical_cast<Iflt>
+	  (XML.getAttribute("EnergyStep"));
+      
+      EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
+
       if (XML.hasChild("PotentialDeformation"))
 	{
+	  
 	  const XMLNode xSubNode(XML.getChildNode("PotentialDeformation"));
 	  
 	  int xml_iter = 0;
@@ -63,7 +70,7 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
 		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Shift"))
 		/ Sim->dynamics.units().unitEnergy();
 	      
-	      _MCEnergyPotential[key] = entry;
+	      _MCEnergyPotential[int(key + 0.5 - (key < 0))] = entry;
 	    }
 	}
     }
@@ -71,7 +78,37 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
     {
       D_throw() << "Failed a lexical cast in LNewtonianMC";
     }
-  }
+}
+
+void 
+LNewtonianMC::outputXML(xmlw::XmlStream& XML) const
+{
+  XML << xmlw::attr("Type") 
+      << "NewtonianMC"
+      << xmlw::attr("EnergyStep")
+      << EnergyPotentialStep
+	  * Sim->dynamics.units().unitEnergy()
+      << xmlw::tag("PotentialDeformation");
+
+  typedef std::pair<const Iflt,Iflt> locpair;
+
+  BOOST_FOREACH(const locpair& val, _MCEnergyPotential)
+    {
+      Iflt key = val.first * EnergyPotentialStep 
+	* Sim->dynamics.units().unitEnergy();
+      
+      Iflt entry = val.second / Sim->dynamics.units().unitEnergy();
+	      
+      XML << xmlw::tag("Entry")
+	  << xmlw::attr("Energy") << key
+	  << xmlw::attr("Shift") << entry
+	  << xmlw::endtag("Entry");
+    }
+    
+  XML << xmlw::endtag("PotentialDeformation");
+}
+
+
 
 void LNewtonianMC::initialise()
 {
@@ -92,7 +129,7 @@ LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2,
 
 C2ParticleData 
 LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
-			  const Iflt &) const
+			      const Iflt &) const
 {
   const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
   const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
@@ -162,12 +199,5 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 				  - retVal.particle2_.getOldVel().nrm2()));
 
   return retVal;
-}
-
-void 
-LNewtonianMC::outputXML(xmlw::XmlStream& XML) const
-{
-  XML << xmlw::attr("Type") 
-      << "NewtonianMC";
 }
 
