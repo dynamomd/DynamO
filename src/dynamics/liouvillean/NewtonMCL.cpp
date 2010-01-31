@@ -32,7 +32,46 @@
 
 LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp)
-{}
+{
+  if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
+    D_throw() << "Attempting to load NewtonianMC from " 
+	      << XML.getAttribute("Type")
+	      << " entry";
+  
+  try 
+    {
+      if (XML.hasChild("PotentialDeformation"))
+	{
+	  const XMLNode xSubNode(XML.getChildNode("PotentialDeformation"));
+	  
+	  int xml_iter = 0;
+	  
+	  unsigned long nEnergies = xSubNode.nChildNode("Entry");
+	  
+	  //Reserve some space for the entries
+	  _MCEnergyPotential.rehash(nEnergies);
+
+	  for (unsigned long i = 0; i < nEnergies; ++i)
+	    {
+	      XMLNode xBrowseNode = xSubNode.getChildNode("Entry", &xml_iter);
+
+	      Iflt key = 
+		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Energy")) 
+		/ Sim->dynamics.units().unitEnergy();
+
+	      Iflt entry = 
+		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Shift"))
+		/ Sim->dynamics.units().unitEnergy();
+	      
+	      _MCEnergyPotential[key] = entry;
+	    }
+	}
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      D_throw() << "Failed a lexical cast in LNewtonianMC";
+    }
+  }
 
 void LNewtonianMC::initialise()
 {

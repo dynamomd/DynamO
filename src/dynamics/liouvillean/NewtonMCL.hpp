@@ -19,7 +19,7 @@
 #define LNewtonianMC_H
 
 #include "NewtonL.hpp"
-
+#include <boost/unordered_map.hpp>
 
 class LNewtonianMC: public LNewtonian
 {
@@ -40,5 +40,7 @@ public:
 
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const;
+
+  boost::unordered_map<Iflt, Iflt> _MCEnergyPotential; 
 };
 #endif

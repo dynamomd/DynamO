@@ -36,7 +36,9 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-    D_throw() << "Attempting to load NewtonianGravity from non NewtonianGravity entry";
+    D_throw() << "Attempting to load NewtonianGravity from "
+	      << XML.getAttribute("Type")
+	      << " entry";
   
   try 
     {
@@ -48,7 +50,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CIHardSphere";
+      D_throw() << "Failed a lexical cast in LNewtonianGravity";
     }
   
   Gravity *= Sim->dynamics.units().unitAcceleration();

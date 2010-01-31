@@ -53,7 +53,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
+  //bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
 
   Iflt reducedt = Sim->dSysTime 
     - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
