@@ -151,7 +151,6 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
   Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
   Iflt R2 = retVal.rij.nrm2();
-  Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
 
   Iflt CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
 
@@ -161,9 +160,20 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
   Iflt Key2FloatVal = (CurrentE - deltaKE) / EnergyPotentialStep;
   int Key2 = int(Key2FloatVal + 0.5 - (Key2FloatVal < 0));
 
-  Iflt MCDeltaKE;
+  Iflt MCDeltaKE = deltaKE;
 
-  if ((deltaKE < 0) && (sqrtArg < 0))
+  boost::unordered_map<int, Iflt>::const_iterator iPtr = _MCEnergyPotential.find(Key1);
+  if (iPtr != _MCEnergyPotential.end())
+    MCDeltaKE -= iPtr->second;
+
+  iPtr = _MCEnergyPotential.find(Key2);
+
+  if (iPtr != _MCEnergyPotential.end())
+    MCDeltaKE -= iPtr->second;
+
+  Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
+
+  if ((MCDeltaKE < 0) && (sqrtArg < 0))
     {
       event.setType(BOUNCE);
       retVal.setType(BOUNCE);
@@ -171,7 +181,7 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
     }
   else
     {
-      if (deltaKE < 0)
+      if (MCDeltaKE < 0)
 	{
 	  event.setType(WELL_KEDOWN);
 	  retVal.setType(WELL_KEDOWN);
@@ -181,16 +191,16 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 	  event.setType(WELL_KEUP);
 	  retVal.setType(WELL_KEUP);	  
 	}
-	  
+      
       retVal.particle1_.setDeltaU(-0.5 * deltaKE);
       retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
       if (retVal.rvdot < 0)
 	retVal.dP = retVal.rij 
-	  * (2.0 * deltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
+	  * (2.0 * MCDeltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
       else
 	retVal.dP = retVal.rij 
-	  * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
+	  * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
     }
   
 #ifdef DYNAMO_DEBUG
