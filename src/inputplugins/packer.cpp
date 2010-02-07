@@ -202,8 +202,7 @@ CIPPacker::initialise()
 	"  20: Load a set of triangles and plate it with spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --s1 : File name to load the triangles from\n"
-	"       --f1 : Size of the spheres when checking for overlaps\n"
-	"       --f2 : Size of the spheres in the sim"
+	"       --f1 : Size scale factor of the spheres when checking for overlaps with triangles [1 = no scaling]\n"
 	"  21: Pack a cylinder with spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Length over diameter of the cylinder\n"
@@ -2019,23 +2018,8 @@ CIPPacker::initialise()
 	//Pack of hard spheres then check overlaps against a set of triangles
 	//Pack the system, determine the number of particles
 
-	Iflt overlapDiameter = 0.1;
-	Iflt particleDiam = 0.1;
-	if (vm.count("f1"))
-	  overlapDiameter = vm["f1"].as<Iflt>();
-
-	if (vm.count("f2"))
-	  particleDiam = vm["f2"].as<Iflt>();
-
-	if (!vm.count("s1"))
-	  D_throw() << "No triangle file name specified";
-
-	boost::scoped_ptr<CUCell> packptr(new CUTriangleIntersect(standardPackingHelper(new CUParticle()),
-								  overlapDiameter, vm["s1"].as<std::string>()));
-	packptr->initialise();
-
-	std::vector<Vector>
-	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	size_t N = boost::scoped_ptr<CUCell>(standardPackingHelper(new CUParticle()))
+	  ->placeObjects(Vector(0,0,0)).size();
 
 	if (vm.count("rectangular-box"))
 	  {
@@ -2053,6 +2037,25 @@ CIPPacker::initialise()
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
+
+	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() / N, Iflt(1.0 / 3.0));
+
+	Iflt overlapDiameter = particleDiam;
+
+	if (vm.count("f1"))
+	  overlapDiameter *= vm["f1"].as<Iflt>();
+
+	if (!vm.count("s1"))
+	  D_throw() << "No triangle file name specified";
+
+	boost::scoped_ptr<CUCell> 
+	  packptr(new CUTriangleIntersect(standardPackingHelper(new CUParticle()),
+					  overlapDiameter, vm["s1"].as<std::string>()));
+
+	packptr->initialise();
+
+	std::vector<Vector>
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
