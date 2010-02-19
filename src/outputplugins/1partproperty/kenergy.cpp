@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  DYNAMO:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,16 +31,16 @@ OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
   KECurrent(0.0)
 {}
 
-void 
+void
 OPKEnergy::changeSystem(OutputPlugin* Eplug)
 {
   std::swap(Sim, static_cast<OPKEnergy*>(Eplug)->Sim);
-  
-  std::swap(KECurrent, 
+
+  std::swap(KECurrent,
 	    static_cast<OPKEnergy*>(Eplug)->KECurrent);
 }
 
-void 
+void
 OPKEnergy::temperatureRescale(const Iflt& scale)
 {
   KECurrent *= scale * scale;
@@ -48,32 +48,32 @@ OPKEnergy::temperatureRescale(const Iflt& scale)
 
 void
 OPKEnergy::initialise()
-{  
+{
   InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 }
 
-Iflt 
+Iflt
 OPKEnergy::getAvgTheta() const
 {
   return getAvgkT() / Sim->dynamics.units().unitEnergy();
 }
 
-Iflt 
+Iflt
 OPKEnergy::getAvgkT() const
 {
   return 2.0 * KEacc / (Sim->dSysTime * Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF());
 }
 
-Iflt 
+Iflt
 OPKEnergy::getAvgSqTheta() const
 {
-  return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->lN 
+  return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->lN
 			* Sim->dynamics.getLiouvillean().getParticleDOF()
 			* Sim->dynamics.units().unitEnergy()
 			* Sim->dynamics.units().unitEnergy());
 }
 
-void 
+void
 OPKEnergy::A1ParticleChange(const C1ParticleData& PDat)
 {
   KECurrent += PDat.getDeltaKE();
@@ -85,7 +85,7 @@ OPKEnergy::A2ParticleChange(const C2ParticleData& PDat)
   KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
 }
 
-void 
+void
 OPKEnergy::stream(const Iflt& dt)
 {
   KEacc += KECurrent * dt;
@@ -96,18 +96,18 @@ void
 OPKEnergy::output(xmlw::XmlStream &XML)
 {
   Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
-    * pow(Sim->dynamics.units().unitTime(),3) 
+    * pow(Sim->dynamics.units().unitTime(),3)
     / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
 
   XML << xmlw::tag("KEnergy")
       << xmlw::tag("T") << xmlw::attr("val") << getAvgTheta()
-      << xmlw::attr("current") 
-      << (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy() 
-	  / (static_cast<Iflt>(NDIM) * Sim->lN * Sim->dynamics.units().unitEnergy()))
+      << xmlw::attr("current")
+      << (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
+	  / (Sim->dynamics.getLiouvillean().getParticleDOF() * Sim->lN * Sim->dynamics.units().unitEnergy()))
       << xmlw::endtag("T")
       << xmlw::tag("T2") << xmlw::attr("val") << getAvgSqTheta()
       << xmlw::endtag("T2")
-    
+
       << xmlw::tag("PowerLoss")
       << xmlw::attr("val") << powerloss
       << xmlw::endtag("PowerLoss")
@@ -119,12 +119,12 @@ void
 OPKEnergy::periodicOutput()
 {
   Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
-    * pow(Sim->dynamics.units().unitTime(),3) 
+    * pow(Sim->dynamics.units().unitTime(),3)
     / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
 
 
-  I_Pcout() << "T " 
-	    <<  2.0 * KECurrent / (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF() 
+  I_Pcout() << "T "
+	    <<  2.0 * KECurrent / (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF()
 				   * Sim->dynamics.units().unitEnergy())
 	    << ", <T> " << getAvgTheta() << ", <PwrLoss> " << powerloss << ", ";
 }
