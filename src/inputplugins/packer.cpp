@@ -455,14 +455,26 @@ CIPPacker::initialise()
 	if (vm.count("s1"))
 	  fileName = vm["s1"].as<std::string>();
 
-	Iflt diamScale = 1.0 * vm["density"].as<Iflt>()
-	  / vm["NCells"].as<unsigned long>();
+	CUCell* tmpPtr;
+
+	//Figure out how many particles are in a single unit
+	tmpPtr = new CUFile(Vector (1,1,1), fileName, new CUParticle());
+	tmpPtr->initialise();
+	size_t NUnit = tmpPtr->placeObjects(Vector(0,0,0)).size();
+	delete tmpPtr;
+
+	//Figure out how many units there are
+	tmpPtr = standardPackingHelper(new CUParticle());
+	tmpPtr->initialise();
+	size_t NUnitSites = tmpPtr->placeObjects(Vector(0,0,0)).size();
+	delete tmpPtr;
+
+	Iflt diamScale = pow(vm["density"].as<Iflt>()
+			     / (NUnitSites * NUnit), Iflt(1.0 / 3.0));
 
 	I_cout() << "Lengthscale = " << diamScale;
 
-	CUCell* tmpPtr;
 	//Use the mirror unit cell if needed
-
 	if (vm.count("f1"))
 	  tmpPtr = new CUMirror(vm["f1"].as<Iflt>(),
 				new CUFile(Vector (diamScale,diamScale,diamScale),
