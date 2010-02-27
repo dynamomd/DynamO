@@ -36,7 +36,6 @@ project	: requirements
 	  <condor>no
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
-	  <cxxflags>-std=gnu++0x
 	  <condor>yes:<define>DYNAMO_CONDOR
 	  <condor>yes:<threading>single
 	  <condor>no:<threading>multi
