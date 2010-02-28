@@ -1,6 +1,6 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -152,41 +152,41 @@ CLWall::write_povray_info(std::ostream& os) const
 	   <<  pos[0] << "," <<  pos[1] << "," <<  pos[2] 
 	   << ">\n"
 //Single Colour plane
-//	  " texture { pigment { rgb<0.007843137,0.20392156,0.39607843> } } }";
+	  " texture { pigment { rgb<0.007843137,0.20392156,0.39607843> } } }";
 //Tiled effect
-" texture {                                                \n\
-       tiles {						   \n\
-          texture {					   \n\
-             pigment {					   \n\
-                marble					   \n\
-                color_map {				   \n\
-                   [0.0 color rgb <0.9, 0.9, 0.9>]	   \n\
-                   [0.75 color rgb <0.75, 0.75, 0.75>]	   \n\
-                   [1.0 color rgb <0.2, 0.2, 0.2>]	   \n\
-                }					   \n\
-                turbulence 0.8				   \n\
-             }						   \n\
-             finish { ambient 1 phong 0.7 }		   \n\
- 	    scale 0.5					   \n\
-          }						   \n\
-          tile2						   \n\
-          texture {					   \n\
-             pigment {					   \n\
-                marble					   \n\
-                color_map {				   \n\
-                   [0.0 color rgb <0.2, 0.2, 0.2>]         \n\
-                   [0.75 color rgb <0.25, 0.25, 0.25>]	   \n\
-                   [1.0 color rgb <1, 1, 1>]		   \n\
-                }					   \n\
-                turbulence 0.8				   \n\
-             }						   \n\
-             finish { ambient 1 phong 0.7 }			   \n\
-             rotate <0, 0, 90>				   \n\
- 	    scale 0.25					   \n\
-          }						   \n\
-       }						   \n\
-       scale 0.1					   \n\
-    } } 						   \n\
-\n";
+//" texture {                                                \n\
+//       tiles {						   \n\
+//          texture {					   \n\
+//             pigment {					   \n\
+//                marble					   \n\
+//                color_map {				   \n\
+//                   [0.0 color rgb <0.9, 0.9, 0.9>]	   \n\
+//                   [0.75 color rgb <0.75, 0.75, 0.75>]	   \n\
+//                   [1.0 color rgb <0.2, 0.2, 0.2>]	   \n\
+//                }					   \n\
+//                turbulence 0.8				   \n\
+//             }						   \n\
+//             finish { ambient 1 phong 0.7 }		   \n\
+// 	    scale 0.5					   \n\
+//          }						   \n\
+//          tile2						   \n\
+//          texture {					   \n\
+//             pigment {					   \n\
+//                marble					   \n\
+//                color_map {				   \n\
+//                   [0.0 color rgb <0.2, 0.2, 0.2>]         \n\
+//                   [0.75 color rgb <0.25, 0.25, 0.25>]	   \n\
+//                   [1.0 color rgb <1, 1, 1>]		   \n\
+//                }					   \n\
+//                turbulence 0.8				   \n\
+//             }						   \n\
+//             finish { ambient 1 phong 0.7 }			   \n\
+//             rotate <0, 0, 90>				   \n\
+// 	    scale 0.25					   \n\
+//          }						   \n\
+//       }						   \n\
+//       scale 0.1					   \n\
+//    } } 						   \n\
+//\n";
       }
 }

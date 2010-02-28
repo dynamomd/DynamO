@@ -1,6 +1,6 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -356,12 +356,12 @@ CGCells::addCells(Iflt maxdiam)
       if (cellCount[iDim] < 3)
 	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
 
-//      if (cellCount[iDim] > 200)
-//	{
-//	  I_cout() << "Cell count was " << cellCount[iDim]
-//		   << "\n Restricting to 200 to stop this sim failing";
-//	  cellCount[iDim] = 200;
-//	}
+      if (cellCount[iDim] > 400)
+	{
+	  I_cout() << "Cell count was " << cellCount[iDim]
+		   << "\n Restricting to 400 to stop this sim failing";
+	  cellCount[iDim] = 400;
+	}
 
       NCells *= cellCount[iDim];
     }

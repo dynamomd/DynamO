@@ -1,6 +1,6 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -176,15 +176,16 @@ CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
 				std::ostream& os) const
 { 
   Iflt locDiam = diameter;
-  
+
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
     locDiam *= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
 
   os << "#declare intrep" << ID << " = " 
      << "sphere {\n <0,0,0> " 
      << locDiam / 2.0
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
+    //<< "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G  << "," << rgb.B 
+     << "\n texture { pigment { color rgb<0.8,0.8,0.8" 
+     << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
