@@ -59,6 +59,8 @@ CLocal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
     return new CLOscillatingPlate(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
     return new CLCylinder(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"SphereWall"))
+    return new CLSphere(XML, Sim);
   else 
     D_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Local Interaction encountered";
