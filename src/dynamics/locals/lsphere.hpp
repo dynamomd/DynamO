@@ -49,6 +49,7 @@ protected:
   Vector  vPosition;
   Iflt e;
   Iflt radius;
+  Iflt r2;
   bool render;
 };
 

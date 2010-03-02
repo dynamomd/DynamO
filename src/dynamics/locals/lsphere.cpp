@@ -32,6 +32,7 @@ CLSphere::CLSphere(DYNAMO::SimData* nSim, Iflt ne,
   vPosition(norigin),
   e(ne),
   radius(nr),
+  r2(nr*nr),
   render(nrender)
 {
   localName = nname;
@@ -55,7 +56,7 @@ CLSphere::getEvent(const CParticle& part) const
     
   CPDData colldat(*Sim, part, fakeParticle);
 
-  Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, d2)
+  Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, r2);
 
   return CLocalEvent(part, colldat.dt, WALL, *this);
 }
@@ -101,12 +102,12 @@ CLSphere::operator<<(const XMLNode& XML)
     radius = boost::lexical_cast<Iflt>(XML.getAttribute("Radius"))
       * Sim->dynamics.units().unitLength();
 
+    r2 = radius * radius;
+
     render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
-    XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
-    vNorm << xBrowseNode;
-    vNorm /= vNorm.nrm();
-    xBrowseNode = XML.getChildNode("Origin");
+
+    XMLNode xBrowseNode = XML.getChildNode("Origin");
     vPosition << xBrowseNode;
     vPosition *= Sim->dynamics.units().unitLength();
   } 
