@@ -17,6 +17,7 @@
 
 #include "lsphere.hpp"
 #include "../liouvillean/liouvillean.hpp"
+#include "../liouvillean/NewtonL.hpp"
 #include "localEvent.hpp"
 #include "../NparticleEventData.hpp"
 #include "../overlapFunc/CubePlane.hpp"
@@ -56,7 +57,7 @@ CLSphere::getEvent(const CParticle& part) const
     
   CPDData colldat(*Sim, part, fakeParticle);
 
-  Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, r2);
+  dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean()). LNewtonian::SphereSphereOutRoot(colldat, r2);
 
   return CLocalEvent(part, colldat.dt, WALL, *this);
 }
@@ -66,17 +67,17 @@ CLSphere::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
-  ////Run the collision and catch the data
-  //CNParticleData EDat(Sim->dynamics.getLiouvillean().runCylinderWallCollision
-  //		      (part, vPosition, vNorm, e));
-  //
-  //Sim->signalParticleUpdate(EDat);
-  //
-  ////Now we're past the event update the scheduler and plugins
-  //Sim->ptrScheduler->fullUpdate(part);
-  //
-  //BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-  //  Ptr->eventUpdate(iEvent, EDat);
+  ///Run the collision and catch the data
+  CNParticleData EDat(Sim->dynamics.getLiouvillean().runSphereWallCollision
+  		      (part, vPosition, e));
+  
+  Sim->signalParticleUpdate(EDat);
+  
+  //Now we're past the event update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(part);
+  
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
 }
 
 bool 
@@ -120,7 +121,7 @@ CLSphere::operator<<(const XMLNode& XML)
 void 
 CLSphere::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "CylinderWall" 
+  XML << xmlw::attr("Type") << "SphereWall" 
       << xmlw::attr("Name") << localName
       << xmlw::attr("Elasticity") << e
       << xmlw::attr("Radius") << radius / Sim->dynamics.units().unitLength()

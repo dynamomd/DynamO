@@ -94,6 +94,11 @@ public:
 						  const Iflt&
 						  ) const;
 
+  virtual C1ParticleData runSphereWallCollision(const CParticle&, 
+						const Vector &,
+						const Iflt&
+						) const;
+
   virtual C1ParticleData runWallCollision(const CParticle&, 
 					  const Vector &,
 					  const Iflt&

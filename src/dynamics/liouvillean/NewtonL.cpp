@@ -1324,3 +1324,28 @@ LNewtonian::runCylinderWallCollision(const CParticle& part,
   return retVal; 
 }
 
+C1ParticleData 
+LNewtonian::runSphereWallCollision(const CParticle& part, 
+				   const Vector& origin,
+				   const Iflt& e
+				   ) const
+{
+  updateParticle(part);
+
+  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+  
+  Vector rij =  origin - part.getPosition();
+
+  Sim->dynamics.BCs().applyBC(rij);
+
+  rij /= rij.nrm();
+
+  const_cast<CParticle&>(part).getVelocity()
+    -= (1+e) * (rij | part.getVelocity()) * rij;
+  
+  retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
+		    * (part.getVelocity().nrm2() 
+		       - retVal.getOldVel().nrm2()));
+  
+  return retVal; 
+}

@@ -390,6 +390,18 @@ public:
 						  const Iflt& e
 						  ) const;
 
+  /*! \brief Collides a particle with a containing spherical wall.
+   *
+   * \param part The particle that is colliding with the wall.
+   * \param origin The origin of the sphere
+   * \param e Elasticity of wall.
+   * \return The data for the collision.
+   */
+  virtual C1ParticleData runSphereWallCollision(const CParticle& part, 
+						const Vector & origin,
+						const Iflt& e
+						) const;
+
   /*! \brief Collides a particle with a wall.
    *
    * \param part The particle that is colliding with the wall.
