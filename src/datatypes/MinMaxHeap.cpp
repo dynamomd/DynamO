@@ -29,8 +29,8 @@
 // FindMin
 // Finds and returns the minimum item in the heap
 // Returns: minimum item in the heap
-template <class Comparable, size_t array_size>
-const Comparable & MinMaxHeap<Comparable, array_size>::top() const
+template <class Comparable>
+const Comparable & MinMaxHeap<Comparable>::top() const
 {
 #ifdef DYNAMO_DEBUG
   if (empty())
@@ -43,8 +43,8 @@ const Comparable & MinMaxHeap<Comparable, array_size>::top() const
 // FindMax
 // Finds and returns the maximum item in the heap
 // Returns: maximum item in the heap
-template <class Comparable, size_t array_size>
-const Comparable & MinMaxHeap<Comparable, array_size>::bottom() const
+template <class Comparable>
+const Comparable & MinMaxHeap<Comparable>::bottom() const
 {
 #ifdef DYNAMO_DEBUG
   if ( empty() )
@@ -59,8 +59,8 @@ const Comparable & MinMaxHeap<Comparable, array_size>::bottom() const
     return _array[ 2 ] > _array[ 3 ] ? _array[ 2 ] : _array[ 3 ];
 }
 
-template <class Comparable, size_t array_size>
-Comparable & MinMaxHeap<Comparable, array_size>::unsafe_bottom()
+template <class Comparable>
+Comparable & MinMaxHeap<Comparable>::unsafe_bottom()
 {
 #ifdef DYNAMO_DEBUG
   if ( empty() )
@@ -80,8 +80,8 @@ Comparable & MinMaxHeap<Comparable, array_size>::unsafe_bottom()
 //   Duplicates are allowed.
 // Parameter x: item to be inserted
 // Side Effects: throws Overflow if heap is full
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::insert( const Comparable & x )
+template <class Comparable>
+void MinMaxHeap<Comparable>::insert( const Comparable & x )
 {
 #ifdef DYNAMO_DEBUG
   if( full() )
@@ -99,8 +99,8 @@ void MinMaxHeap<Comparable, array_size>::insert( const Comparable & x )
 //   Determines whether current heap level is a min level
 //   or a max level and calls percolateUpMin or percolateUpMax.
 // Parameter hole: index in array where item was inserted
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateUp( size_t hole )
+template <class Comparable>
+void MinMaxHeap<Comparable>::percolateUp( size_t hole )
 {
   size_t parent = hole / 2;
   size_t level = 0;
@@ -134,8 +134,8 @@ void MinMaxHeap<Comparable, array_size>::percolateUp( size_t hole )
 // Called by percolateUp to maintain min-max heap order on 
 //   the min levels.
 // Parameter hole: index in array of item to be percolated
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateUpMin( size_t hole )
+template <class Comparable>
+void MinMaxHeap<Comparable>::percolateUpMin( size_t hole )
 {
   size_t grandparent = hole / 4;
 
@@ -149,8 +149,8 @@ void MinMaxHeap<Comparable, array_size>::percolateUpMin( size_t hole )
 // Called by percolateUp to maintain min-max heap order on
 //   the max levels.
 // Parameter hole: index in array of item to be percolated
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateUpMax( size_t hole )
+template <class Comparable>
+void MinMaxHeap<Comparable>::percolateUpMax( size_t hole )
 {
   size_t grandparent = hole / 4;
 
@@ -166,8 +166,8 @@ void MinMaxHeap<Comparable, array_size>::percolateUpMax( size_t hole )
 // Parameter minItem: reference from calling function
 //   to put the smallest item in.
 // Side Effects: throws Underflow if heap is empty
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::deleteMin( Comparable & minItem )
+template <class Comparable>
+void MinMaxHeap<Comparable>::deleteMin( Comparable & minItem )
 {
 #ifdef DYNAMO_DEBUG
   if( empty() )
@@ -178,8 +178,8 @@ void MinMaxHeap<Comparable, array_size>::deleteMin( Comparable & minItem )
   pop();
 }
 
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::pop()
+template <class Comparable>
+void MinMaxHeap<Comparable>::pop()
 {
 #ifdef DYNAMO_DEBUG
   if( empty() )
@@ -196,8 +196,8 @@ void MinMaxHeap<Comparable, array_size>::pop()
 // Parameter maxItem: reference from calling function
 //   to put the largest item in.
 // Side Effects: throws Underflow if heap is empty
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::deleteMax( Comparable & maxItem )
+template <class Comparable>
+void MinMaxHeap<Comparable>::deleteMax( Comparable & maxItem )
 {
   size_t maxIndex;
 
@@ -219,8 +219,8 @@ void MinMaxHeap<Comparable, array_size>::deleteMax( Comparable & maxItem )
 
 }
 
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::replaceMax(const Comparable & newMaxItem)
+template <class Comparable>
+void MinMaxHeap<Comparable>::replaceMax(const Comparable & newMaxItem)
 {
   size_t maxIndex;
 
@@ -247,8 +247,8 @@ void MinMaxHeap<Comparable, array_size>::replaceMax(const Comparable & newMaxIte
 //   Determines whether current heap level is a min level
 //   or a max level and calls percolateDownMin or percolateDownMax.
 // Parameter hole: index in array where item was deleted
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateDown( size_t hole )
+template <class Comparable>
+void MinMaxHeap<Comparable>::percolateDown( size_t hole )
 {
   size_t level = 0;
 
@@ -264,8 +264,8 @@ void MinMaxHeap<Comparable, array_size>::percolateDown( size_t hole )
 // Called by percolateDown to maintain min-max heap order on
 //   the min levels.
 // Parameter hole: index in array of item to be percolated
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateDownMin(size_t hole)
+template <class Comparable>
+void MinMaxHeap<Comparable>::percolateDownMin(size_t hole)
 {
   // find minimum value of children and grandchildren
   // hole * 2 = index of first child if it exists
@@ -303,8 +303,8 @@ void MinMaxHeap<Comparable, array_size>::percolateDownMin(size_t hole)
 // Called by percolateDown to maintain min-max heap order on
 //   the max levels.
 // Parameter hole: index in array of item to be percolated
-template <class Comparable, size_t array_size>
-void MinMaxHeap<Comparable, array_size>::percolateDownMax( size_t hole )
+template <class Comparable>
+void MinMaxHeap<Comparable>::percolateDownMax( size_t hole )
 {
   size_t maxIndex;
 
@@ -346,8 +346,8 @@ void MinMaxHeap<Comparable, array_size>::percolateDownMax( size_t hole )
 //   percolated down
 // Parameter child: array index of first child
 // Parameter grandchild: array index of first grandchild
-template <class Comparable, size_t array_size>
-size_t MinMaxHeap<Comparable, array_size>::findMinDescendent( size_t child, size_t grandchild )
+template <class Comparable>
+size_t MinMaxHeap<Comparable>::findMinDescendent( size_t child, size_t grandchild )
 {
   size_t minIndex = 0;
   size_t minChild = child;
@@ -382,8 +382,8 @@ size_t MinMaxHeap<Comparable, array_size>::findMinDescendent( size_t child, size
 //   percolated down
 // Parameter child: array index of first child
 // Parameter grandchild: array index of first grandchild
-template <class Comparable, size_t array_size>
-size_t MinMaxHeap<Comparable, array_size>::findMaxDescendent( size_t child, size_t grandchild )
+template <class Comparable>
+size_t MinMaxHeap<Comparable>::findMaxDescendent( size_t child, size_t grandchild )
 {
   size_t maxIndex = 0;
   size_t maxChild = child;
