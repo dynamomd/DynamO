@@ -51,6 +51,8 @@ class OPTinkerXYZ: public OPTicker
   void *clientsock;
   void *sock;
 
+  int port;
+
   std::vector<float> coords;
 
   void printFileImage();

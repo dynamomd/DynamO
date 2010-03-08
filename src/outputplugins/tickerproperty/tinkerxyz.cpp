@@ -44,7 +44,8 @@ OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   liveOutput(false),
   blockForVMD(true),
   clientsock(NULL),
-  sock(NULL)
+  sock(NULL),
+  port(3333)
 {
   operator<<(XML);
 }
@@ -75,6 +76,8 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
       if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
       if (XML.isAttributeSet("File")) fileOutput = true;
       if (XML.isAttributeSet("NoBlock")) blockForVMD = false;
+      if (XML.isAttributeSet("Port")) 
+	port = boost::lexical_cast<int>(XML.getAttribute("Port"));
     }
   catch (std::exception& excep)
     {
@@ -93,7 +96,6 @@ OPTinkerXYZ::initialise()
       coords.resize(NDIM * Sim->lN + (HEADERSIZE / sizeof(float)));
       fill_header((IMDheader *)&coords[0], IMD_FCOORDS, Sim->lN);
 
-      const int port = 3333;
 
       I_cout() << "Setting up incoming socket of VMD";
       vmdsock_init();
