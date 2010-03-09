@@ -46,7 +46,7 @@ typedef enum {
   STREAM      , /*!< Call to free stream the system an amount. */
   NON_EVENT,    /*!< Anything like a ticker, that is not part of the
 		  system dynamics. Does not require an update of the
-                   system in any way. */
+		  system in any way. */
   VIRTUAL       /*!< This is not an event yet it requires a
                    recalculation of the particles collision
                    list. Possibly used in a sentinal */ 
