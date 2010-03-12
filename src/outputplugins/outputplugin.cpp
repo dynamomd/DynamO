@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  DYNAMO:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,35 +35,35 @@ OutputPlugin::OutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsign
   I_cout() << "Loaded";
 }
 
-void 
-OutputPlugin::output(xmlw::XmlStream&) 
+void
+OutputPlugin::output(xmlw::XmlStream&)
 {}
 
-void 
-OutputPlugin::periodicOutput() 
+void
+OutputPlugin::periodicOutput()
 {}
 
-DYNAMO::Colorise_Text_Stream_Operator 
+DYNAMO::Colorise_Text_Stream_Operator
 OutputPlugin::I_Pcout() const
 {
   return DYNAMO::Colorise_Text_Stream_Operator(IC_blue);
 }
 
-OutputPlugin* 
+OutputPlugin*
 OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 {
   XMLNode XML = XMLNode::createXMLTopNode("Plugin");
 
-  typedef boost::tokenizer<boost::char_separator<char> > 
+  typedef boost::tokenizer<boost::char_separator<char> >
     tokenizer;
-  
+
   boost::char_separator<char> DetailsSep(":");
   boost::char_separator<char> OptionsSep(",");
   boost::char_separator<char> ValueSep("=", "", boost::keep_empty_tokens);
 
   tokenizer tokens(Details, DetailsSep);
   tokenizer::iterator details_iter = tokens.begin();
-  
+
   XML.addAttribute("Type", details_iter->c_str());
   ++details_iter;
   if (details_iter != tokens.end())
@@ -75,9 +75,9 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 
       for (tokenizer::iterator options_iter = option_tokens.begin();
 	   options_iter != option_tokens.end(); ++options_iter)
-	{ 
+	{
 	  tokenizer value_tokens(*options_iter, ValueSep);
-	  
+
 	  tokenizer::iterator value_iter = value_tokens.begin();
 	  std::string opName(*value_iter);
 	  std::string val;
@@ -87,14 +87,14 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 	  else
 	    val = *value_iter;
 
-	  XML.addAttribute(opName.c_str(), val.c_str());	  
+	  XML.addAttribute(opName.c_str(), val.c_str());
 	}
     }
 
   return getPlugin(XML,Sim);
 }
 
-template<class T> OutputPlugin* 
+template<class T> OutputPlugin*
 OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
 {
   try {
@@ -102,20 +102,20 @@ OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
   } catch (std::exception&)
     {
       return new T(Sim, XML);
-    }  
+    }
 
   //It's already in the simulation
   D_throw() << "Plugin is already loaded";
 }
 
-OutputPlugin* 
+OutputPlugin*
 OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
   std::string Name = XML.getAttribute("Type");
-  
+
   {
     std::string XMLstring(XML.createXMLString());
-    
+
     std::string::size_type pos = XMLstring.find_last_of("\n");
 
     if(pos != std::string::npos)
@@ -123,7 +123,7 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
 	XMLstring.erase(pos);
       }
 
-    std::cout << IC_purple << "\nOutputPluginParser:" << IC_reset 
+    std::cout << IC_purple << "\nOutputPluginParser:" << IC_reset
 	      <<  " Parsing XML " << XMLstring;
   }
 
@@ -235,6 +235,8 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<OPMSDOrientational>(Sim, XML);
   else if (!Name.compare("MSDOrientationalCorrelator"))
     return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
-  else 
+  else if (!Name.compare("ChatteringCorrelator"))
+    return testGeneratePlugin<OPChatteringCorrelator>(Sim, XML);
+  else
     D_throw() << Name << ", Unknown type of OutputPlugin encountered";
 }
