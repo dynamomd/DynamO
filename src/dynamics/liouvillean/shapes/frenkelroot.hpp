@@ -27,21 +27,30 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
   Iflt timescale = tolerance * length / fL.F_firstDeriv_max(length);
   bool fwdWorking = false;
 
-  //~ size_t w = 0;
+  size_t w = 0;
 
   while(t_low < t_high)
     {
       //Always try again from the other side
       fwdWorking = !fwdWorking;
 
-      //~ if(++w > 1000)
-	//~ {
-	  //~ std::cerr << "\nWindow shrunk thousands of times\n";
-	  //~ std::cerr << "\nt_low = " << t_low << ", t_high = " << t_high
-		    //~ << ", working_time = " << working_time << "\n";
+      if(++w > 10000)
+      {
+	std::cerr << "\nThe Frenkel rootfinder is converging too slowly."
+	  << "\nt_low = " << t_low << ", t_high = " << t_high;
 
-	  //~ return t_low;
-	//~ }
+	if(fabs(t_high - t_low) < timescale)
+	{
+	  std::cerr << "\nThe gap is small enough to consider the root solved at t_low";
+	  return t_low;
+	}
+	else
+	{
+	  std::cerr << "\nThe gap is too large and is converging too slowly."
+	    << "\n This rootfinding attempt will be aborted and the collision skipped."
+	  return HUGE_VAL;
+	}
+      }
 
       working_time = (fwdWorking ? t_low : t_high);
       T tempfL(fL);
