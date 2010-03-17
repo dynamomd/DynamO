@@ -76,7 +76,7 @@ CGCells::operator<<(const XMLNode& XML)
 {
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
-    if (XML.isAttributeSet("lambda"))
+    if (XML.isAttributeSet("Lambda"))
       lambda = boost::lexical_cast<Iflt>
 	(XML.getAttribute("Lambda"));
 
