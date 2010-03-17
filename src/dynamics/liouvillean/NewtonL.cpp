@@ -881,6 +881,12 @@ LNewtonian::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
       retVal.setType(BOUNCE);
       retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
     }
+  else if (deltaKE==0)
+    {
+      event.setType(NON_EVENT);
+      retVal.setType(NON_EVENT);
+      retVal.dP = Vector(0,0,0);
+    }
   else
     {
       if (deltaKE < 0)

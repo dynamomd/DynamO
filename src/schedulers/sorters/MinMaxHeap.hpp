@@ -23,10 +23,18 @@
 
 class MinMaxHeapPList
 {
-  MinMaxHeap<intPart, 5> _innerHeap;
+  MinMaxHeap<intPart> _innerHeap;
+
+
 public:
-  MinMaxHeapPList()
-  {}
+  static size_t HeapSize;
+
+  MinMaxHeapPList():
+    _innerHeap(HeapSize)
+  {
+    if (!HeapSize)
+      D_throw() << "Heap size has not been set";
+  }
 
   inline size_t size() const { return _innerHeap.size(); }
   inline bool empty() const { return _innerHeap.empty(); }

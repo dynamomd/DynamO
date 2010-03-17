@@ -160,6 +160,12 @@ LCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const
 
       retVal.dP = urij * (2.0 * mu * (retVal.rvdot - growthRate * sqrt(d2)));
     }
+  else if (deltaKE==0)
+    {
+      event.setType(NON_EVENT);
+      retVal.setType(NON_EVENT);
+      retVal.dP = Vector(0,0,0);
+    }
   else
     {
       if (std::signbit(deltaKE))
@@ -182,13 +188,21 @@ LCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const
       else
 	retVal.dP = urij 
 	  * (2.0 * deltaKE / (growthRate * sqrt(d2) - std::sqrt(sqrtArg) - retVal.rvdot ));
+	;
     }
 
   retVal.rvdot *= retVal.rij.nrm();
   
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
-    D_throw() << "A nan dp has ocurred";
+    D_throw() << "A nan dp has ocurred"
+	      << "\ndeltaKE = " << deltaKE
+	      << "\ngrowthRate = " << growthRate
+	      << "\nd2 = " << d2
+	      << "\nsqrtArg = " << sqrtArg
+	      << "\nrvdot = " << retVal.rvdot
+	      << "\nArg " << (growthRate * sqrt(d2) - std::sqrt(sqrtArg) - retVal.rvdot)
+      ;
 #endif
   
   //This function must edit particles so it overrides the const!

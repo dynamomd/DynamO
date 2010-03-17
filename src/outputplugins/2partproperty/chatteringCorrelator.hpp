@@ -15,8 +15,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "rdotv.hpp"
-#include "collisionCorrelator.hpp"
-#include "chatteringCorrelator.hpp"
-#include "rijvijdirection.hpp"
-#include "cubecomponents.hpp"
+#ifndef OPChatteringCorrelator_HPP
+#define OPChatteringCorrelator_HPP
+
+#include "2partproperty.hpp"
+#include "../../datatypes/histogram.hpp"
+#include <boost/circular_buffer.hpp>
+#include <vector>
+
+class OPChatteringCorrelator: public OP2PP
+{
+public:
+  OPChatteringCorrelator(const DYNAMO::SimData*, const XMLNode&);
+
+  virtual void initialise();
+
+  virtual OutputPlugin* Clone() const
+  { return new OPChatteringCorrelator(*this); }
+
+  void output(xmlw::XmlStream &XML);
+
+private:
+
+  virtual void A2ParticleChange(const C2ParticleData&);
+
+  virtual void stream(const Iflt&) {}
+
+  C1DWeightHistogram hist;
+  std::vector<std::pair<Iflt,Iflt> > chatterTracker;
+};
+
+#endif

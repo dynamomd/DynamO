@@ -28,15 +28,17 @@
 
 using namespace std;
 
-template <class Comparable, size_t array_size = 5>
+template <class Comparable>
 class MinMaxHeap
 {
-  size_t _currentSize;           // Number of elements in heap
-  boost::array<Comparable, array_size> _array;  // The heap array
+  size_t _currentSize;            // Number of elements currently in heap
+  std::vector<Comparable> _array; // The heap array
 
 public:
-  typedef typename boost::array<Comparable, array_size>::iterator iterator;
-  typedef typename boost::array<Comparable, array_size>::const_iterator const_iterator;
+  MinMaxHeap(const size_t heapSize):_array(heapSize) {}
+
+  typedef typename std::vector<Comparable>::iterator iterator;
+  typedef typename std::vector<Comparable>::const_iterator const_iterator;
 
   inline iterator begin() { return _array.begin() + 1; }
   inline const_iterator begin() const { return _array.begin() + 1; }
@@ -94,10 +96,11 @@ public:
   // IsFull
   // Checks to see if heap is logically full
   // Returns: true if full, false if not
-  inline bool full() const { return _currentSize == array_size - 1; }
+  inline bool full() const { return _currentSize == _array.size() - 1; }
 
-  inline void swap(MinMaxHeap<Comparable,array_size>& rhs)
+  inline void swap(MinMaxHeap<Comparable>& rhs)
   {
+    std::swap(_currentSize, rhs._currentSize);
     _array.swap(rhs._array);
   }
 

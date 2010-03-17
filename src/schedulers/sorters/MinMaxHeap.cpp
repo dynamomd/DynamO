@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "rdotv.hpp"
-#include "collisionCorrelator.hpp"
-#include "chatteringCorrelator.hpp"
-#include "rijvijdirection.hpp"
-#include "cubecomponents.hpp"
+#include "MinMaxHeap.hpp"
+
+size_t MinMaxHeapPList::HeapSize = 0;

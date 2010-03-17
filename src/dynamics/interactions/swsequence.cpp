@@ -386,13 +386,26 @@ CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
     }
   else 
-    if (r2 < ld2)
-      I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-	       << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
-	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	       << r2 / pow(Sim->dynamics.units().unitLength(),2)
-	       << "\n(lambda * d)^2=" 
-	       << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+    {
+      if (r2 < d2)
+	I_cerr() << "Particles overlapping cores without even being captured."
+		 << "\nProbably a bad initial configuration."
+		 << std::setprecision(std::numeric_limits<float>::digits10)
+		 << "\n ID1=" 
+		 << part1.getID() 
+		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
+		 << "\nd^2=" 
+		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
+      if (r2 < ld2)
+	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
+		 << "Possible missed captured pair in diagnostics\n ID1=" 
+		 << part1.getID() 
+		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
+		 << "\n(lambda * d)^2=" 
+		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+    }
 }
 
 void 
