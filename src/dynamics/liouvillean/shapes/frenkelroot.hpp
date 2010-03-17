@@ -47,7 +47,7 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
 	else
 	{
 	  std::cerr << "\nThe gap is too large and is converging too slowly."
-	    << "\n This rootfinding attempt will be aborted and the collision skipped."
+	    << "\n This rootfinding attempt will be aborted and the collision skipped.";
 	  return HUGE_VAL;
 	}
       }
