@@ -43,6 +43,7 @@ OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   fileOutput(false),
   liveOutput(false),
   blockForVMD(true),
+  P1track(false),
   clientsock(NULL),
   sock(NULL)
 {
@@ -75,6 +76,7 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
       if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
       if (XML.isAttributeSet("File")) fileOutput = true;
       if (XML.isAttributeSet("NoBlock")) blockForVMD = false;
+      if (XML.isAttributeSet("P1Track")) P1track = true;
     }
   catch (std::exception& excep)
     {
@@ -160,9 +162,13 @@ OPTinkerXYZ::printLiveImage()
       if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
 	coeff /= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
 
+      Vector offset(0,0,0);
+      if (P1track)
+	offset = Sim->vParticleList.front().getPosition();
+
       for (size_t ID(0); ID < Sim->lN; ++ID)
 	{
-	  Vector pos = Sim->vParticleList[ID].getPosition();
+	  Vector pos = Sim->vParticleList[ID].getPosition() - offset;
 	  Sim->dynamics.BCs().applyBC(pos);
 	  //The plus two is the header offset
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)

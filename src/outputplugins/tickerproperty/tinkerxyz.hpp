@@ -48,6 +48,8 @@ class OPTinkerXYZ: public OPTicker
   bool liveOutput;
   bool blockForVMD;
 
+  bool P1track;
+
   void *clientsock;
   void *sock;
 
