@@ -572,7 +572,7 @@ CIPPacker::initialise()
 	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
 	//Insert a linear profile, zero momentum then add a vel gradient
-	Sim->dynamics.zeroMomentum(Sim->vParticleList);
+	Sim->dynamics.setCOMVelocity();
 	BOOST_FOREACH(CParticle& part, Sim->vParticleList)
 	  part.getVelocity()[0] += part.getPosition()[1] * ShearRate;
 
