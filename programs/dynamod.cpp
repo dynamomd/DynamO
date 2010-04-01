@@ -22,6 +22,9 @@ using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include "../src/simulation/simulation.hpp"
 #include "../src/dynamics/BC/include.hpp"
 #include "../src/dynamics/dynamics.hpp"
@@ -60,6 +63,8 @@ main(int argc, char *argv[])
 	 "Rescale kinetic temperature to this value")
 	("zero-momentum,Z", "Zero the momentum")
 	("zero-com", "Zero the centre of mass")
+	("set-com-vel", po::value<std::string>(), 
+	 "Sets the velocity of the COM of the system (format x,y,z no spaces)")
 	("mirror-system,M",po::value<unsigned int>(), 
 	 "Mirror the particle co-ordinates and velocities. Argument is "
 	 "dimension to reverse/mirror")
@@ -160,6 +165,26 @@ main(int argc, char *argv[])
       if (vm.count("mirror-system"))
 	CInputPlugin(&sim, "Mirrorer").
 	  mirrorDirection(vm["mirror-system"].as<unsigned int>());
+
+      if (vm.count("set-com-vel"))
+	{
+	  boost::tokenizer<boost::char_separator<char> > 
+	    tokens(vm["set-com-vel"].as<std::string>(), boost::char_separator<char>(","));
+	  
+	  boost::tokenizer<boost::char_separator<char> >::iterator details_iter = tokens.begin();
+
+	  Vector vel(0,0,0);
+
+	  if (details_iter == tokens.end()) D_throw() << "set-com-vel requires 3 components";
+	  vel[0] = boost::lexical_cast<Iflt>(*(details_iter++));
+	  if (details_iter == tokens.end()) D_throw() << "set-com-vel requires 3 components";	  
+	  vel[1] = boost::lexical_cast<Iflt>(*(details_iter++));
+	  if (details_iter == tokens.end()) D_throw() << "set-com-vel requires 3 components";
+	  vel[2] = boost::lexical_cast<Iflt>(*(details_iter));
+	  
+	  CInputPlugin(&sim, "velSetter")
+	    .setCOMVelocity(vel);
+	}
 
 
       //Write out now we've changed the system

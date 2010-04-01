@@ -35,19 +35,15 @@ class CInputPlugin: public DYNAMO::SimBase
 
   void zeroMomentum();  
 
+  void setCOMVelocity(const Vector);
+
   void zeroCentreOfMass();  
   
   void setPackFrac(Iflt);
 
-  //virtual void setSimType(unsigned int);
-
   void mirrorDirection(unsigned int);
   
- protected:
-  
-  //Vector  getRandVelVec();
-  //long nParts;
-  //Iflt diamScale;
+ protected:  
 };
 
 #endif

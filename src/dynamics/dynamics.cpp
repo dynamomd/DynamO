@@ -380,23 +380,29 @@ Dynamics::getPackingFraction() const
 }
 
 void 
-Dynamics::zeroMomentum(std::vector<CParticle> &pList)
+Dynamics::setCOMVelocity(const Vector COMVelocity)
 {  
-  Vector sumMV(0,0,0), velvec;
+  Vector sumMV(0,0,0);
  
+  lIflt sumMass(0);
+
   //Determine the discrepancy VECTOR
-  BOOST_FOREACH( CParticle & Part, pList)
+  BOOST_FOREACH(CParticle & Part, Sim->vParticleList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       BCs().applyBC(pos,vel);
 
-      sumMV += vel * getSpecies(Part).getMass();
+      //Note we sum the negatives!
+      sumMV -= vel * getSpecies(Part).getMass();
+      sumMass += getSpecies(Part).getMass();
     }
   
-  sumMV /= pList.size();
+  sumMV /= sumMass;
   
-  BOOST_FOREACH(CParticle & Part, pList)
-    Part.getVelocity() =  Part.getVelocity() - (sumMV / getSpecies(Part).getMass());
+  sumMV += COMVelocity;
+
+  BOOST_FOREACH(CParticle & Part, Sim->vParticleList)
+    Part.getVelocity() =  Part.getVelocity() + sumMV;
 }
 
 void

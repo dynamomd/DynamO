@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  DYNAMO:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,50 +15,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTinkerXYZ_H
-#define OPTinkerXYZ_H
+#ifndef OPChatteringCorrelator_HPP
+#define OPChatteringCorrelator_HPP
 
-#include "ticker.hpp"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
+#include "2partproperty.hpp"
+#include "../../datatypes/histogram.hpp"
+#include <boost/circular_buffer.hpp>
+#include <vector>
 
-
-class OPTinkerXYZ: public OPTicker
+class OPChatteringCorrelator: public OP2PP
 {
- public:
-  OPTinkerXYZ(const DYNAMO::SimData*, const XMLNode&);
-  ~OPTinkerXYZ();
-
-  virtual OutputPlugin *Clone() const
-  { return new OPTinkerXYZ(*this); }
+public:
+  OPChatteringCorrelator(const DYNAMO::SimData*, const XMLNode&);
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual OutputPlugin* Clone() const
+  { return new OPChatteringCorrelator(*this); }
 
-  virtual void ticker();
-  
-  void operator<<(const XMLNode&);
+  void output(xmlw::XmlStream &XML);
 
- protected:
-  int frameCount;
-  bool fileOutput;
-  bool liveOutput;
-  bool blockForVMD;
+private:
 
-  bool P1track;
+  virtual void A2ParticleChange(const C2ParticleData&);
 
-  void *clientsock;
-  void *sock;
+  virtual void stream(const Iflt&) {}
 
-  int port;
-
-  std::vector<float> coords;
-
-  void printFileImage();
-  void printLiveImage();
+  C1DWeightHistogram hist;
+  std::vector<std::pair<Iflt,Iflt> > chatterTracker;
 };
 
 #endif

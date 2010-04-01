@@ -66,6 +66,19 @@ CInputPlugin::rescaleVels(Iflt val)
 }
 
 void 
+CInputPlugin::setCOMVelocity(const Vector vel)
+{
+  I_cout() << "Setting COM Velocity";
+  
+  if (Sim->lN <= 1)
+    I_cerr() << "Refusing to set momentum for a " 
+	     << Sim->lN << " particle system";
+  else
+    Sim->dynamics.setCOMVelocity(vel);  
+}
+
+
+void 
 CInputPlugin::zeroMomentum()
 {
   I_cout() << "Zeroing Momentum";
@@ -74,7 +87,7 @@ CInputPlugin::zeroMomentum()
     I_cerr() << "Refusing to zero momentum for a " 
 	     << Sim->lN << " particle system";
   else
-    Sim->dynamics.zeroMomentum(Sim->vParticleList);
+    Sim->dynamics.setCOMVelocity();
 }
 
 void 
