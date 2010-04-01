@@ -73,18 +73,15 @@ public:
 
   void fixFZeroSign(bool sign)
   {
-    //std::cerr << "\nFval Start" << F_zeroDeriv();
     rp -= (rp | nhat) * nhat;
     rp += nhat * (wallnHatPosition() + Sigma);
     Iflt Fval = F_zeroDeriv();
-    //std::cerr << "\nFval Loop1 " << Fval;
     size_t loop(1);
     while (sign ? (Fval < 0) : (Fval > 0))
       {
 	rp -= nhat * ((loop++) * std::numeric_limits<Iflt>::epsilon())
 	  * Sigma;
 	Fval = F_zeroDeriv();
-	//std::cerr << "\nFval Loop" << loop << " " << Fval;
       }
   }
 

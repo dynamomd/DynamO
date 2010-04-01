@@ -993,16 +993,21 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
   if (Sigma < 0) D_throw() << "Assuming a positive Sigma here";
 #endif
 
+  //A particle has penetrated the plate, probably due to some small numerical error
+  //We can just adjust the seperation vector till the particle is on the surface of the plate
   if (fL.F_zeroDeriv() > 0)
     {
-      I_cerr() << "Found a upper overlap, fixing the root finding routine."
-	       << fL.F_zeroDeriv();
+#ifdef DYNAMO_DEBUG
+      I_cerr() << "Particle is penetrating the \"upper\" plate"
+	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
+#endif
       fL.fixFZeroSign(false);
-      I_cerr() << "New val is"
-	       << fL.F_zeroDeriv();
 
+#ifdef DYNAMO_DEBUG
+      //This is just incase the oscillating plate shape function is broken
       if (fL.F_zeroDeriv() > 0)
-	D_throw() << "Failed to sort out the first sign of the f";
+	D_throw() << "Failed to adjust the plate position";
+#endif
     }
       
   Iflt t_low1 = 0, t_low2 = 0;
@@ -1026,13 +1031,17 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
   if (fL.F_zeroDeriv() < 0)
     {
-      I_cerr() << "Found a lower overlap, fixing the root finding routine."
-	       << fL.F_zeroDeriv();
+#ifdef DYNAMO_DEBUG
+      I_cerr() << "Particle is penetrating the \"lower\" plate"
+	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
+#endif
       fL.fixFZeroSign(true);
-      //I_cerr() << "New val is" << fL.F_zeroDeriv();
 
+#ifdef DYNAMO_DEBUG
+      //This is just incase the oscillating plate shape function is broken
       if (fL.F_zeroDeriv() < 0)
-	D_throw() << "Failed to sort out the first sign of the f";
+	D_throw() << "Failed to adjust the plate position";
+#endif
     }
 
   Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
