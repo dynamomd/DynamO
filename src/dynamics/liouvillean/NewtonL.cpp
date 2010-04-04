@@ -1000,6 +1000,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 #ifdef DYNAMO_DEBUG
       I_cerr() << "Particle is penetrating the \"upper\" plate"
 	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
+	       << "\nThis is fine if it is a rare event.";
 #endif
       fL.fixFZeroSign(false);
 
@@ -1034,6 +1035,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 #ifdef DYNAMO_DEBUG
       I_cerr() << "Particle is penetrating the \"lower\" plate"
 	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
+	       << "\nThis is fine if it is a rare event.";
 #endif
       fL.fixFZeroSign(true);
 
@@ -1052,8 +1054,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	  || ((t_low1 > t_high) && (t_low2 > t_high))))
     {
       //This can be a problem
-#ifdef DYNAMO_DEBUG
-      
+#ifdef DYNAMO_DEBUG      
       I_cerr() << "Particle " << part.getID() 
 	       << " may be outside/heading out of the plates"
 	       << "\nerror = "
@@ -1061,7 +1062,6 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	/ Sim->dynamics.units().unitLength()
 	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
 	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
-      
 #endif
       
       //If the particle is going out of bounds, collide now
@@ -1138,10 +1138,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 	  tmpt /= fL.F_secondDeriv_max(Sigma);
 	  if (tmpt < currRoot)
 	    {
-	      
-	      I_cout() << "Making a fake collision at "
-		       << tmpt 
-		       << "for particle " << part.getID();
+	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
 
 	      return tmpt;
 	    }
