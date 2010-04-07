@@ -63,6 +63,8 @@ CInteraction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
 {
   if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
     return new CIHardSphere(XML, Sim);
+  else if (!std::strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
+    return new IRoughHardSphere(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"SquareWell"))
     return new CISquareWell(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"SquareWellSeq"))

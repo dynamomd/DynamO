@@ -19,12 +19,12 @@
 
 #include "interaction.hpp"
 
-class CIHardSphere: public CInteraction
+class IRoughHardSphere: public CInteraction
 {
 public:
-  CIHardSphere(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  IRoughHardSphere(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CIHardSphere(const XMLNode&, DYNAMO::SimData*);
+  IRoughHardSphere(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
@@ -54,4 +54,5 @@ public:
 protected:
   Iflt diameter,d2;
   Iflt e;
+  Iflt et;
 };

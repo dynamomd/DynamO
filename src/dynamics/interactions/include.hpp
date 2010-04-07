@@ -16,6 +16,7 @@
 */
 
 #include "hardsphere.hpp"
+#include "roughhardsphere.hpp"
 #include "squarewell.hpp"
 #include "swsequence.hpp"
 #include "squarebond.hpp"
