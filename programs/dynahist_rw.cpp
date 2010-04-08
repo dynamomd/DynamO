@@ -154,7 +154,9 @@ struct SimData
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
 	      sum2 += exp(dot - dat2.logZ);
 	    }
-	  //simdat.back() is H(X,\gamma)
+	  //Probability is H(X,\gamma), in this algorith I've
+	  //normalised so the number of samples is 1 and H integrates
+	  //to 1
 	  sum1 += simdat.Probability / sum2;
 	}
    
@@ -168,9 +170,21 @@ struct SimData
     if (!refZ) new_logZ = calc_logZ(); 
   }
 
-  long double calc_error() 
+  long double calc_error()
   { 
-    return refZ ? 0 : fabs((new_logZ - logZ) / new_logZ);
+    //Return an error of 0 if this is the reference simulation!
+    if (refZ) return 0;
+
+    //In case of new_logZ going to zero don't use relative values
+    if (new_logZ == 0)
+      {
+	if (logZ == 0)
+	  return 0;
+	else
+	  return fabs((new_logZ - logZ) / logZ);
+      }
+    else
+      return fabs((new_logZ - logZ) / new_logZ);
   }
 
   void iterate_logZ() { logZ = new_logZ; }
