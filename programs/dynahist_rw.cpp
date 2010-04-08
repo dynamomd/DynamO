@@ -30,6 +30,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+#include <boost/array.hpp>
 #include "../src/extcode/xmlParser.h"
 #include "../src/base/is_exception.hpp"
 #include <fenv.h>
@@ -37,7 +38,7 @@
 using namespace std;
 using namespace boost;
 
-static const size_t NGamma = 1;
+const size_t NGamma = 1;
 //Set in the main function
 static long double alpha;
 static long double minErr;
@@ -100,18 +101,17 @@ struct SimData
 		      (xMainNode.getChildNode("KEnergy").getChildNode("T")
 		       .getAttribute("val")));
 
-    std::vector<long double> tmpData;
 
-    tmpData.resize(NGamma+1);
+    histogramEntry tmpData;
 
-    while (HistogramData >> tmpData[0])
+    while (HistogramData >> tmpData.X[0])
       {
-	for (size_t i = 1; i < NGamma+1; ++i)
-	  HistogramData >> tmpData[i];
+	for (size_t i = 1; i < NGamma; ++i)
+	  HistogramData >> tmpData.X[i];
+
+	HistogramData >> tmpData.Probability;
 
 	data.push_back(tmpData);
-	tmpData.clear();
-	tmpData.resize(NGamma+1);	  
       }
     
   }
@@ -127,32 +127,55 @@ struct SimData
   long double logZ;
   long double new_logZ;
   bool refZ;
-  std::vector<std::vector<long double> > data;
-};
+  //Contains the histogram, first axis is bin entry
+  //second axis is value of X with the final entry being the probability
+  struct histogramEntry
+  {
+    boost::array<long double, NGamma> X;
+    long double Probability;
+  };
 
-long double
-getlogZ(size_t ID)
-{
-  const std::vector<long double>& gamma = SimulationData[ID].gamma;
+  std::vector<histogramEntry> data;
 
-  long double sum1 = 0.0;
-  for (size_t i = 0; i < SimulationData.size(); ++i)
-    BOOST_FOREACH(const std::vector<long double>& simdat, SimulationData[i].data)
-      {
-	long double sum2 = 0.0;
-	for (size_t j = 0; j < SimulationData.size(); ++j)
-	  {
-	    long double dot = 0.0;
-	    for (size_t i = 0; i < NGamma; ++i)
-	      dot += (SimulationData[j].gamma[i] - gamma[i]) * simdat[i];
-	    sum2 += exp(dot - SimulationData[j].logZ);
-	  }
-	
-	sum1 += simdat.back() / sum2;
-      }
+  long double calc_logZ() const
+  {
+    long double sum1 = 0.0;
+    BOOST_FOREACH(SimData& dat, SimulationData)
+      BOOST_FOREACH(const histogramEntry& simdat, dat.data)
+	{
+	  long double sum2 = 0.0;
+	  BOOST_FOREACH(SimData& dat2, SimulationData)
+	    {
+	      //Determine (\gamma_i- \gamma) \cdot X 
+	      long double dot = 0.0;
+	      for (size_t i = 0; i < NGamma; ++i)
+		dot += (dat2.gamma[i] - gamma[i]) * simdat.X[i];
+
+	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
+	      sum2 += exp(dot - dat2.logZ);
+	    }
+	  //simdat.back() is H(X,\gamma)
+	  sum1 += simdat.Probability / sum2;
+	}
+   
+    std::cout << fileName << " logZ = " << log(sum1) << "\n"; 
+ 
+    return log(sum1);
+  }
   
-  return log(sum1);
-}
+  void recalc_newlogZ() 
+  { 
+    if (!refZ) new_logZ = calc_logZ(); 
+  }
+
+  long double calc_error() 
+  { 
+    return refZ ? 0 : fabs((new_logZ - logZ) / new_logZ);
+  }
+
+  void iterate_logZ() { logZ = new_logZ; }
+
+};
 
 void
 solveWeights()
@@ -166,29 +189,26 @@ solveWeights()
     {
       for (size_t i = NStepsPerStep; i != 0; --i)
 	{
-	  for (size_t i = 0; i < SimulationData.size(); ++i)
-	    if (!SimulationData[i].refZ)
-	      SimulationData[i].new_logZ = getlogZ(i);
+	  BOOST_FOREACH(SimData& dat, SimulationData)
+	    dat.recalc_newlogZ();
 	  
 	  BOOST_FOREACH(SimData& dat, SimulationData)
-	    dat.logZ = dat.new_logZ;
+	    dat.iterate_logZ();
 	}
 
       //Now the error checking run
       err = 0.0;
-      for (size_t i = 0; i < SimulationData.size(); ++i)
-	if (!SimulationData[i].refZ)
-	  {
-	    SimulationData[i].new_logZ = getlogZ(i);
-	    long double tmperr = fabs ((SimulationData[i].new_logZ - SimulationData[i].logZ) / SimulationData[i].new_logZ);
-	    if (tmperr > err)
-	      err = tmperr;
-	  }
-      
-
-      //Now copy over the new values
       BOOST_FOREACH(SimData& dat, SimulationData)
-	dat.logZ = dat.new_logZ;      
+	  {
+	    dat.recalc_newlogZ();
+	    
+	    if (dat.calc_error() > err)
+	      err = dat.calc_error();
+	  }
+
+      //May as well use this as an iteration too
+      BOOST_FOREACH(SimData& dat, SimulationData)
+	dat.iterate_logZ();
 
       printf("\r%E", err);
       fflush(stdout);
@@ -211,8 +231,8 @@ void calcDensityOfStates()
   
   //Box up the internal enery histograms
   BOOST_FOREACH(const SimData& dat, SimulationData)
-    BOOST_FOREACH(const std::vector<long double>& simdat, dat.data)
-    accumilator[simdat.front()] += simdat.back();
+    BOOST_FOREACH(const SimData::histogramEntry& simdat, dat.data)
+    accumilator[simdat.X[0]] += simdat.Probability;
 
   {
     long double sum = 0.0;
@@ -445,19 +465,16 @@ main(int argc, char *argv[])
     //set the reference system about midway to reduce over/underflows
     (SimulationData.begin() + (SimulationData.size()/2) )->refZ = true;
 
-//    for (size_t i = 0; i < SimulationData.size(); ++i)
-//      if (SimulationData[i].refZ == true)
-//	{
-//	  std::cout << "Reference Temperature is " << SimulationData[i].fileName;
-//	  SimulationData[i].logZ = getlogZ(i);
-//	  SimulationData[i].new_logZ = SimulationData[i].logZ;
-//	}
 
     solveWeights();
     
     std::cout << "##################################################\n";
     BOOST_FOREACH(const SimData& dat, SimulationData)
       std::cout << dat.fileName << " logZ = " << dat.logZ << "\n";
+
+
+    BOOST_FOREACH(const SimData& dat, SimulationData)
+      std::cout << dat.fileName << " logZ = " << dat.calc_logZ() << "\n";
         
     //Now start the fun
     outputLogZ();
