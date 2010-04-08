@@ -291,7 +291,10 @@ void outputMoments()
 
   BOOST_FOREACH(const SimData& dat, SimulationData)
     {
-      std::fstream Eof((dat.fileName + std::string(".ReweightedEnergyHist") ).c_str(),  
+      std::cout << "Writing " + (dat.fileName + std::string(".ReweightedEnergyHist"))
+		<< "\n";
+
+      std::fstream Eof((dat.fileName + std::string(".ReweightedEnergyHist")).c_str(),  
 		       ios::trunc | ios::out);
 
       Eof << std::setprecision(std::numeric_limits<long double>::digits10);
