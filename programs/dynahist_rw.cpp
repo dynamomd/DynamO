@@ -14,23 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-/*  DYNAMO:- Event driven molecular dynamics simulator 
-    http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
-
-    This program is free software: you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    version 3 as published by the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include <iostream>
 #include <vector>
 #include <string>
@@ -306,9 +289,34 @@ void outputMoments()
   BOOST_FOREACH(const SimData& dat, SimulationData)
     betas.push_back(dat.gamma[0]);
 
+  BOOST_FOREACH(const SimData& dat, SimulationData)
+    {
+      std::fstream Eof((dat.fileName + std::string(".ReweightedEnergyHist") ).c_str(),  
+		       ios::trunc | ios::out);
+
+      Eof << std::setprecision(std::numeric_limits<long double>::digits10);
+      //Calc Z
+      long double Z = 0.0;
+
+      BOOST_FOREACH(const localpair& dat2, densOStates)
+	Z += exp (log(dat2.second) + dat.gamma[0] * dat2.first);
+      
+      Z = log(Z);
+      
+      //Now calc the normalisation, or first moment
+      long double Norm = 0.0;
+      BOOST_FOREACH(const localpair& dat2, densOStates)
+	Norm += exp(log(dat2.second) + dat.gamma[0] * dat2.first - Z);
+
+      BOOST_FOREACH(const localpair& dat2, densOStates)
+	Eof << dat2.first << " " << exp(log(dat2.second) + dat.gamma[0] * dat2.first - Z) / Norm << "\n";
+    }
+
+
   long double step = (betas.front() - betas.back()) / 1000;
 
   std::vector<std::pair<double,double> > Cv;
+
 
   {
     std::fstream Eof("Energy.out",  ios::trunc | ios::out);
