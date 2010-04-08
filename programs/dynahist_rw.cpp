@@ -154,9 +154,9 @@ struct SimData
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
 	      sum2 += exp(dot - dat2.logZ);
 	    }
-	  //Probability is H(X,\gamma), in this algorith I've
-	  //normalised so the number of samples is 1 and H integrates
-	  //to 1
+	  //Probability is H(X,\gamma), in this algorithm H is
+	  //normalised. Thus this assumes that all simulations are of
+	  //the same length! (This is true for the replica exchange simulations)
 	  sum1 += simdat.Probability / sum2;
 	}
    
