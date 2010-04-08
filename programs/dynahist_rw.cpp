@@ -41,15 +41,12 @@ static const size_t NGamma = 1;
 //Set in the main function
 static long double alpha;
 static long double minErr;
-static size_t dataWindow;
 static size_t NStepsPerStep = 0;
 static boost::program_options::variables_map vm;
 
 struct SimData;
 
 std::vector<SimData> SimulationData;
-//Backup the full list of simulations when piecemeal
-std::vector<SimData> TrueList;
 
 std::vector<std::pair<long double, long double> > densOStates;
 
@@ -136,30 +133,14 @@ struct SimData
 long double
 getlogZ(size_t ID)
 {
-  size_t bottom = 0, top = SimulationData.size();
-
   const std::vector<long double>& gamma = SimulationData[ID].gamma;
 
-  if (dataWindow)
-    {
-      int bID = ID - dataWindow;
-      if (bID < 0)
-	bottom = 0;
-      else 
-	bottom = static_cast<size_t>(bID);
-
-      top = ID + dataWindow;
-      if (top > SimulationData.size())
-	top = SimulationData.size();
-    }
-    
   long double sum1 = 0.0;
-
-  for (size_t i = bottom; i < top; ++i)
+  for (size_t i = 0; i < SimulationData.size(); ++i)
     BOOST_FOREACH(const std::vector<long double>& simdat, SimulationData[i].data)
       {
 	long double sum2 = 0.0;
-	for (size_t j = bottom; j < top; ++j)
+	for (size_t j = 0; j < SimulationData.size(); ++j)
 	  {
 	    long double dot = 0.0;
 	    for (size_t i = 0; i < NGamma; ++i)
@@ -204,6 +185,7 @@ solveWeights()
 	      err = tmperr;
 	  }
       
+
       //Now copy over the new values
       BOOST_FOREACH(SimData& dat, SimulationData)
 	dat.logZ = dat.new_logZ;      
@@ -284,11 +266,6 @@ void outputMoments()
   std::cout << "Calculating  moments\n";
   typedef std::pair<long double, long double> localpair;
   
-  std::vector<long double> betas;
-
-  BOOST_FOREACH(const SimData& dat, SimulationData)
-    betas.push_back(dat.gamma[0]);
-
   BOOST_FOREACH(const SimData& dat, SimulationData)
     {
       std::cout << "Writing " + (dat.fileName + std::string(".ReweightedEnergyHist"))
@@ -315,12 +292,11 @@ void outputMoments()
 	Eof << dat2.first << " " << exp(log(dat2.second) + dat.gamma[0] * dat2.first - Z) / Norm << "\n";
     }
 
+  size_t steps = 100 * (SimulationData.size()-1) + 1;
 
-  long double step = (betas.front() - betas.back()) / 1000;
+  long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().gamma[0]) / 1000;
 
   std::vector<std::pair<double,double> > Cv;
-
-
   {
     std::fstream Eof("Energy.out",  ios::trunc | ios::out);
     std::fstream E2of("Energy2.out",  ios::trunc | ios::out);
@@ -330,10 +306,10 @@ void outputMoments()
     E2of << std::setprecision(std::numeric_limits<long double>::digits10);
     Cvof << std::setprecision(std::numeric_limits<long double>::digits10);
     
-    
-    
-    for (long double Beta = betas.back(); Beta >= betas.front(); Beta += step)
+    for (size_t step = 0; step <= steps; step++)
       {
+	long double Beta = SimulationData.back().gamma[0] + step * stepsize;
+
 	//Calc Z
 	long double Z = 0.0;
 	BOOST_FOREACH(const localpair& dat, densOStates)
@@ -393,159 +369,6 @@ void outputMoments()
   
 }
 
-void piecemealRun(size_t lower_ID, size_t upper_ID, size_t refZ)
-{
-  SimulationData.clear();
-
-  for (size_t i = lower_ID; i < upper_ID; ++i)
-    {
-      SimulationData.push_back(TrueList[i]);
-      //Correctly set what is the reference Z
-      SimulationData.back().refZ = (i == refZ);
-    }
-
-  solveWeights();
-
-  //Copy the data back now
-  for (size_t i = lower_ID; i < upper_ID; ++i)
-    {
-      TrueList[i] = SimulationData[i - lower_ID];
-      TrueList[i].refZ = false;
-    }
-
-  SimulationData.clear();
-}
-
-void solveWeightsPiecemeal()
-{
-  //Backup the full list of simulations
-  TrueList = SimulationData;
-  SimulationData.clear();
-	
-  size_t logZID = 0;
-	
-  //Find the zero or reference logZ
-  for (; logZID < TrueList.size(); ++logZID)
-    if (TrueList[logZID].refZ)
-      break;
-	
-  //Start moving up first
-  long lower_ID = logZID, 
-    upper_ID = logZID + vm["piecemeal"].as<size_t>();
-		
-  while (upper_ID <= static_cast<long>(TrueList.size()))
-    {
-      std::cout << "\nPiece " << lower_ID << " to " << upper_ID - 1;
-      piecemealRun(lower_ID, upper_ID, lower_ID);
-      //Move again
-      lower_ID = upper_ID - 1;
-      upper_ID = lower_ID + vm["piecemeal"].as<size_t>();
-    }
-
-  if (lower_ID != static_cast<long>(TrueList.size()))
-    {
-      //One last one
-      upper_ID = TrueList.size();
-      std::cout << "\nLast Piece " << lower_ID << " to " << upper_ID - 1;
-      piecemealRun(lower_ID, upper_ID, lower_ID);	    
-    }
-
-  //Start moving down
-  upper_ID = logZID + 1, 
-    lower_ID = upper_ID - vm["piecemeal"].as<size_t>();
-
-  while (lower_ID >= 0)
-    {
-      std::cout << "\nPiece " << lower_ID << " to " << upper_ID - 1;
-      piecemealRun(lower_ID, upper_ID, upper_ID - 1);
-      //Move again
-      upper_ID = lower_ID + 1;
-      lower_ID = upper_ID - vm["piecemeal"].as<size_t>();
-    }
-
-  if (upper_ID != 0)
-    {
-      //One last one
-      lower_ID = 0;
-      std::cout << "\nLast Piece " << lower_ID << " to " << upper_ID - 1;
-      piecemealRun(lower_ID, upper_ID, upper_ID - 1);
-    }
-	
-  //Restore the SimulationData list
-  SimulationData = TrueList;
-}
-
-void solveWeightsRollerPiecemeal()
-{
-  std::cout << "##################################################\n";
-  std::cout << "Piecemeal roller solution";
-
-  BOOST_FOREACH(SimData& dat, SimulationData)
-    dat.refZ = false;
-
-  //Because of this we must roll forward
-  SimulationData.front().refZ = true;
-  SimulationData.front().new_logZ = SimulationData.front().logZ;
-
-  if (vm["piecemeal"].as<size_t>() + 1 > SimulationData.size())
-    D_throw() << "Not enough data for that piecemeal roller solution";
-
-  std::list<SimData> StartList;
-  std::list<SimData> FinalList;
-  
-  for (size_t i = 0; i < SimulationData.size(); ++i)
-    StartList.push_back(SimulationData[i]);
-
-  SimulationData.clear();
-
-  for (size_t i = 0; i < vm["piecemeal"].as<size_t>(); ++i)
-    {
-      SimulationData.push_back(StartList.front());
-      StartList.pop_front();
-    }
-
-  std::cout <<"Initial run takes the longest\n";
-
-  long double oldval = SimulationData.back().logZ;
-  
-  solveWeights();
-
-  long double diff =  SimulationData.back().logZ - oldval;
-
-  while (!StartList.empty())
-    {
-      std::cout <<"################ COUNTDOWN " << StartList.size()  << "\n";
-      
-      for (size_t i = 0; i < SimulationData.size()/2; ++i)
-	{
-	  SimulationData[i].refZ = true;
-	  SimulationData[i].new_logZ = SimulationData[i].logZ;
-	}
-      
-      FinalList.push_back(SimulationData.front());
-
-      for (size_t i = 0; i < SimulationData.size()-1; ++i)
-	  SimulationData[i] = SimulationData[i+1];
-      
-      SimulationData.back() = StartList.front();
-      StartList.pop_front();
-
-      oldval = SimulationData.back().logZ;
-      SimulationData.back().logZ += diff;
-
-      solveWeights();
-      diff = SimulationData.back().logZ - oldval;
-    }
-
-  for (size_t i = 0; i < SimulationData.size(); ++i)
-    FinalList.push_back(SimulationData[i]);
-  
-  SimulationData.clear();
-  
-  BOOST_FOREACH(const SimData& dat, FinalList)
-    SimulationData.push_back(dat);
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -570,9 +393,6 @@ main(int argc, char *argv[])
       ("NSteps,N", po::value<size_t>()->default_value(10), "Number of steps to take before testing the error and spitting out the current vals")
       ("load-logZ", po::value<std::string>(), "Loads the logZ's from a previous run, note! It does this by ordering the temperatures and adding in order, do not change anything you do!")
       ("min-err", po::value<long double>()->default_value(1.0e-5), "The minium error allowed before the loop terminates")
-      ("data-window,h", po::value<size_t>()->default_value(0), "The +- simulations around a simulation data to use in calculating Z (0 is all)")
-      ("piecemeal,p", po::value<size_t>(), "If set then the solution is split into chunks of the specified size and solved piecemeal before being combined for the global solution, used to get a fast initial guess which can be very near the final solution")
-      ("fast-piecemeal", "Better piecemeal derivative, requires piecemeal be set")
       ;
 
     boost::program_options::positional_options_description p;
@@ -592,7 +412,6 @@ main(int argc, char *argv[])
     alpha = vm["alpha"].as<long double>();
     NStepsPerStep = vm["NSteps"].as<size_t>();
     minErr = vm["min-err"].as<long double>();
-    dataWindow = vm["data-window"].as<size_t>();
 
     //Data load
     BOOST_FOREACH(std::string fileName, vm["data-file"].as<std::vector<std::string> >())
@@ -621,32 +440,20 @@ main(int argc, char *argv[])
 	  }
 	logZin.close();
 
-	bool done = false;
-	BOOST_FOREACH(SimData& dat, SimulationData)
-	  if (dat.logZ == 0.0)
-	    {
-	      dat.refZ = true;
-	      done = true;
-	      break;
-	    }
-
-	if (!done)
-	  //set the reference system about midway to reduce over/underflows
-	  (SimulationData.begin() + (SimulationData.size()/2) )->refZ = true;	
       }
-    else
-      //set the reference system about midway to reduce over/underflows
-      (SimulationData.begin() + (SimulationData.size()/2) )->refZ = true;
 
-    if (vm.count("piecemeal"))
-      {
-	if (vm.count("fast-piecemeal"))
-	  solveWeightsRollerPiecemeal();
-	else 
-	  solveWeightsPiecemeal();
-      }
-    else
-      solveWeights();
+    //set the reference system about midway to reduce over/underflows
+    (SimulationData.begin() + (SimulationData.size()/2) )->refZ = true;
+
+//    for (size_t i = 0; i < SimulationData.size(); ++i)
+//      if (SimulationData[i].refZ == true)
+//	{
+//	  std::cout << "Reference Temperature is " << SimulationData[i].fileName;
+//	  SimulationData[i].logZ = getlogZ(i);
+//	  SimulationData[i].new_logZ = SimulationData[i].logZ;
+//	}
+
+    solveWeights();
     
     std::cout << "##################################################\n";
     BOOST_FOREACH(const SimData& dat, SimulationData)
