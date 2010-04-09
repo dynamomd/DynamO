@@ -39,10 +39,11 @@ using namespace std;
 using namespace boost;
 
 const size_t NGamma = 1;
+static long double binWidth = 0.5;
+
 //Set in the main function
 static long double alpha;
 static long double minErr;
-static long double logZshift;
 static size_t NStepsPerStep = 0;
 static boost::program_options::variables_map vm;
 
@@ -109,7 +110,9 @@ struct SimData
 	  HistogramData >> tmpData.X[i];
 
 	HistogramData >> tmpData.Probability;
-
+	
+	tmpData.Probability *= binWidth;
+	
 	data.push_back(tmpData);
       }
     
@@ -244,24 +247,7 @@ solveWeights()
     }
   while(err > minErr);
 
-  std::cout << "\nIteration complete\n"
-	    << "Rejigging the reference state\n";
-
-  BOOST_FOREACH(SimData& dat, SimulationData)
-    if (dat.refZ)
-      {
-	logZshift = dat.calc_logZ();
-	break;
-      }
-
-  std::cout << "LogZ shift is " << logZshift << "\n"; 
-
-  BOOST_FOREACH(SimData& dat, SimulationData)
-    if (!dat.refZ)
-      {
-	dat.logZ -= logZshift;
-	dat.new_logZ -= logZshift;
-      }
+  std::cout << "\nIteration complete\n";
 }
 
 
@@ -322,8 +308,6 @@ void outputLogZ()
   std::fstream of("logZ.out",  ios::trunc | ios::out);
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
-
-  of << logZshift << "\n";
 
   BOOST_FOREACH(const SimData& dat, SimulationData)
     of << dat.gamma[0] << " " << dat.logZ << "\n";
@@ -527,21 +511,15 @@ main(int argc, char *argv[])
 
 	long double tmp;
 
-	logZin >> logZshift;
-
 	BOOST_FOREACH(SimData& dat, SimulationData)
 	  {
 	    logZin >> tmp;
 	    logZin >> tmp;
-	    tmp += logZshift;
 	    dat.logZ = tmp;
 	    dat.new_logZ = tmp;
 	  }
 	logZin.close();
 
-	//Set the solver offset on the reference system
-	(SimulationData.begin() + (SimulationData.size()/2))->logZ -= logZshift;
-	(SimulationData.begin() + (SimulationData.size()/2))->new_logZ -= logZshift;	
       }
 
     //set the reference system about midway to reduce over/underflows
