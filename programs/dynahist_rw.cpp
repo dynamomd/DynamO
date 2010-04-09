@@ -42,6 +42,7 @@ const size_t NGamma = 1;
 //Set in the main function
 static long double alpha;
 static long double minErr;
+static long double logZshift;
 static size_t NStepsPerStep = 0;
 static boost::program_options::variables_map vm;
 
@@ -127,6 +128,7 @@ struct SimData
   long double logZ;
   long double new_logZ;
   bool refZ;
+
   //Contains the histogram, first axis is bin entry
   //second axis is value of X with the final entry being the probability
   struct histogramEntry
@@ -134,7 +136,6 @@ struct SimData
     boost::array<long double, NGamma> X;
     long double Probability;
   };
-
   std::vector<histogramEntry> data;
 
   long double calc_logZ() const
@@ -154,14 +155,13 @@ struct SimData
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
 	      sum2 += exp(dot - dat2.logZ);
 	    }
-	  //Probability is H(X,\gamma), in this algorithm H is
+	  //simdat.Probability is H(X,\gamma), in the input H is
 	  //normalised. Thus this assumes that all simulations are of
-	  //the same length! (This is true for the replica exchange simulations)
+	  //the same statistical weight! (This is true for results
+	  //from a single replica exchange simulation)
 	  sum1 += simdat.Probability / sum2;
 	}
    
-    std::cout << fileName << " logZ = " << log(sum1) << "\n"; 
- 
     return log(sum1);
   }
   
@@ -229,7 +229,22 @@ solveWeights()
     }
   while(err > minErr);
 
-  std::cout << "\nIteration complete\n";
+  std::cout << "\nIteration complete\n"
+	    << "Rejigging the reference state\n";
+
+  BOOST_FOREACH(SimData& dat, SimulationData)
+    if (dat.refZ)
+      {
+	logZshift = dat.calc_logZ();
+	break;
+      }
+
+  BOOST_FOREACH(SimData& dat, SimulationData)
+    if (!dat.refZ)
+      {
+	dat.logZ -= logZshift;
+	dat.new_logZ -= logZshift;
+      }
 }
 
 
@@ -287,6 +302,8 @@ void outputLogZ()
   std::fstream of("logZ.out",  ios::trunc | ios::out);
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
+
+  of << logZshift << "\n";
 
   BOOST_FOREACH(const SimData& dat, SimulationData)
     of << dat.gamma[0] << " " << dat.logZ << "\n";
@@ -465,15 +482,21 @@ main(int argc, char *argv[])
 
 	long double tmp;
 
+	logZin >> logZshift;
+
 	BOOST_FOREACH(SimData& dat, SimulationData)
 	  {
 	    logZin >> tmp;
 	    logZin >> tmp;
+	    tmp += logZshift;
 	    dat.logZ = tmp;
 	    dat.new_logZ = tmp;
 	  }
 	logZin.close();
 
+	//Set the solver offset on the reference system
+	(SimulationData.begin() + (SimulationData.size()/2))->logZ -= logZshift;
+	(SimulationData.begin() + (SimulationData.size()/2))->new_logZ -= logZshift;	
       }
 
     //set the reference system about midway to reduce over/underflows
@@ -486,10 +509,6 @@ main(int argc, char *argv[])
     BOOST_FOREACH(const SimData& dat, SimulationData)
       std::cout << dat.fileName << " logZ = " << dat.logZ << "\n";
 
-
-    BOOST_FOREACH(const SimData& dat, SimulationData)
-      std::cout << dat.fileName << " logZ = " << dat.calc_logZ() << "\n";
-        
     //Now start the fun
     outputLogZ();
     calcDensityOfStates();
