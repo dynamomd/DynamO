@@ -190,9 +190,18 @@ struct SimData
 
 };
 
+struct ldbl 
+{
+  long double val;
+  ldbl():val(0) {}
+  ldbl(long double nval):val(nval) {}
 
-typedef std::pair<SimData::histogramEntry::Xtype, long double> densOStatesPair;
-typedef std::map<SimData::histogramEntry::Xtype, long double> densOStatesMap;
+  operator long double&() { return val; }
+  operator const long double&() const { return val; }
+};
+
+typedef std::pair<SimData::histogramEntry::Xtype, ldbl> densOStatesPair;
+typedef std::map<SimData::histogramEntry::Xtype, ldbl> densOStatesMap;
 typedef std::vector<densOStatesPair> densOStatesType;
 densOStatesType densOStates;
   
@@ -245,6 +254,8 @@ solveWeights()
 	break;
       }
 
+  std::cout << "LogZ shift is " << logZshift << "\n"; 
+
   BOOST_FOREACH(SimData& dat, SimulationData)
     if (!dat.refZ)
       {
@@ -252,13 +263,6 @@ solveWeights()
 	dat.new_logZ -= logZshift;
       }
 }
-
-struct ldbl 
-{
-  long double val;
-  ldbl():val(0) {}
-  operator long double&() { return val; }
-};
 
 
 void calcDensityOfStates()
@@ -269,22 +273,15 @@ void calcDensityOfStates()
   std::cout << "##################################################\n";
   std::cout << "Density of states\n";
 
-  //Box up the internal enery histograms
+  //Sum up the histogram entries for each value of X
   BOOST_FOREACH(const SimData& dat, SimulationData)
     BOOST_FOREACH(const SimData::histogramEntry& simdat, dat.data)
     accumilator[simdat.X] += simdat.Probability;
 
-  {
-    long double sum = 0.0;
-
-    BOOST_FOREACH(const densOStatesPair& dat, accumilator)
-      sum += dat.second;
-    
-    std::cout << "Total weight of all data = " << sum << "\n";
-  }
-  
+  //For each X, calculate the density of states
   BOOST_FOREACH(const densOStatesPair& dat, accumilator)
     {
+      //First work out the divisor
       long double sum = 0.0;
       BOOST_FOREACH(const SimData& dat2, SimulationData)
 	{
@@ -295,6 +292,7 @@ void calcDensityOfStates()
 	  sum += exp(tmp - dat2.logZ);
 	}
       
+      //The sum of the histogram entries is already calculated so just push it on
       densOStates.push_back(std::make_pair(dat.first, dat.second / sum));
     }
 }
@@ -355,7 +353,7 @@ void outputMoments()
 	{
 	  long double tmp(0);
 	  for (size_t i(0); i < NGamma; ++i)
-	    tmp += dat.gamma[i] * dat2.first[i]; //ERROR
+	    tmp += dat.gamma[i] * dat2.first[i];
 
 	  Z += exp (log(dat2.second) + tmp);
 	}
@@ -368,7 +366,7 @@ void outputMoments()
 	{
 	  long double tmp(0);
 	  for (size_t i(0); i < NGamma; ++i)
-	    tmp += dat.gamma[i] * dat2.first[i]; //ERROR
+	    tmp += dat.gamma[i] * dat2.first[i];
 
 	  Norm += exp(log(dat2.second) + tmp - Z);
 	}
@@ -377,7 +375,7 @@ void outputMoments()
 	{
 	  long double tmp(0);
 	  for (size_t i(0); i < NGamma; ++i)
-	    tmp += dat.gamma[i] * dat2.first[i]; //ERROR
+	    tmp += dat.gamma[i] * dat2.first[i];
 
 	  for (size_t i(0); i < NGamma; ++i)
 	    Eof << dat2.first[i] << " ";
