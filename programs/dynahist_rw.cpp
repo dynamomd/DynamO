@@ -50,8 +50,6 @@ struct SimData;
 
 std::vector<SimData> SimulationData;
 
-std::vector<std::pair<long double, long double> > densOStates;
-
 struct SimData
 {
   SimData(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
@@ -133,7 +131,8 @@ struct SimData
   //second axis is value of X with the final entry being the probability
   struct histogramEntry
   {
-    boost::array<long double, NGamma> X;
+    typedef boost::array<long double, NGamma> Xtype;
+    Xtype X;
     long double Probability;
   };
   std::vector<histogramEntry> data;
@@ -191,6 +190,13 @@ struct SimData
 
 };
 
+
+typedef std::pair<SimData::histogramEntry::Xtype, long double> densOStatesPair;
+typedef std::map<SimData::histogramEntry::Xtype, long double> densOStatesMap;
+typedef std::vector<densOStatesPair> densOStatesType;
+densOStatesType densOStates;
+  
+
 void
 solveWeights()
 {
@@ -247,35 +253,47 @@ solveWeights()
       }
 }
 
+struct ldbl 
+{
+  long double val;
+  ldbl():val(0) {}
+  operator long double&() { return val; }
+};
+
 
 void calcDensityOfStates()
 {
   densOStates.clear();
 
-  typedef std::pair<long double, long double> localpair;
-
-  std::map<long double, long double> accumilator;
+  densOStatesMap accumilator;
   std::cout << "##################################################\n";
   std::cout << "Density of states\n";
-  
+
   //Box up the internal enery histograms
   BOOST_FOREACH(const SimData& dat, SimulationData)
     BOOST_FOREACH(const SimData::histogramEntry& simdat, dat.data)
-    accumilator[simdat.X[0]] += simdat.Probability;
+    accumilator[simdat.X] += simdat.Probability;
 
   {
     long double sum = 0.0;
-    BOOST_FOREACH(const localpair& dat, accumilator)
+
+    BOOST_FOREACH(const densOStatesPair& dat, accumilator)
       sum += dat.second;
     
     std::cout << "Total weight of all data = " << sum << "\n";
   }
   
-  BOOST_FOREACH(const localpair& dat, accumilator)
+  BOOST_FOREACH(const densOStatesPair& dat, accumilator)
     {
       long double sum = 0.0;
       BOOST_FOREACH(const SimData& dat2, SimulationData)
-	sum += exp(dat2.gamma[0] * dat.first - dat2.logZ);
+	{
+	  long double tmp = 0;
+	  for (size_t i(0); i < NGamma; ++i)
+	    tmp += dat2.gamma[i] * dat.first[i];
+
+	  sum += exp(tmp - dat2.logZ);
+	}
       
       densOStates.push_back(std::make_pair(dat.first, dat.second / sum));
     }
@@ -283,15 +301,19 @@ void calcDensityOfStates()
 
 void outputDensityOfStates()
 {
-  typedef std::pair<long double, long double> localpair;
   
   std::fstream of("StateDensity.out",  ios::trunc | ios::out);
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
 
-  BOOST_FOREACH(const localpair& dat, densOStates)
-    of << dat.first << " " << dat.second << "\n";
+  BOOST_FOREACH(const densOStatesPair& dat, densOStates)
+    {
+      for (size_t i(0); i < NGamma; ++i)
+	of << dat.first[i] << " " ;
 
+      of << dat.second << "\n";
+    }
+  
   of.close();
 }
 
@@ -329,18 +351,39 @@ void outputMoments()
       //Calc Z
       long double Z = 0.0;
 
-      BOOST_FOREACH(const localpair& dat2, densOStates)
-	Z += exp (log(dat2.second) + dat.gamma[0] * dat2.first);
+      BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
+	{
+	  long double tmp(0);
+	  for (size_t i(0); i < NGamma; ++i)
+	    tmp += dat.gamma[i] * dat2.first[i]; //ERROR
+
+	  Z += exp (log(dat2.second) + tmp);
+	}
       
       Z = log(Z);
       
       //Now calc the normalisation, or first moment
       long double Norm = 0.0;
-      BOOST_FOREACH(const localpair& dat2, densOStates)
-	Norm += exp(log(dat2.second) + dat.gamma[0] * dat2.first - Z);
+      BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
+	{
+	  long double tmp(0);
+	  for (size_t i(0); i < NGamma; ++i)
+	    tmp += dat.gamma[i] * dat2.first[i]; //ERROR
 
-      BOOST_FOREACH(const localpair& dat2, densOStates)
-	Eof << dat2.first << " " << exp(log(dat2.second) + dat.gamma[0] * dat2.first - Z) / Norm << "\n";
+	  Norm += exp(log(dat2.second) + tmp - Z);
+	}
+
+      BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
+	{
+	  long double tmp(0);
+	  for (size_t i(0); i < NGamma; ++i)
+	    tmp += dat.gamma[i] * dat2.first[i]; //ERROR
+
+	  for (size_t i(0); i < NGamma; ++i)
+	    Eof << dat2.first[i] << " ";
+
+	  Eof << exp(log(dat2.second) + tmp - Z) / Norm << "\n";
+	}
     }
 
   size_t steps = 100 * (SimulationData.size()-1) + 1;
@@ -363,8 +406,11 @@ void outputMoments()
 
 	//Calc Z
 	long double Z = 0.0;
-	BOOST_FOREACH(const localpair& dat, densOStates)
-	  Z += exp (log(dat.second) + Beta * dat.first);
+	BOOST_FOREACH(const densOStatesPair& dat, densOStates)
+	  {
+	    //ERROR! Not generalised for multipe Histogram arguments!
+	    Z += exp (log(dat.second) + Beta * dat.first[0]);
+	  }
 	
 	Z = log(Z);
 	
@@ -373,12 +419,13 @@ void outputMoments()
 	long double Eavg = 0.0;
 	long double E2avg = 0.0;
 	
-	BOOST_FOREACH(const localpair& dat, densOStates)
+	BOOST_FOREACH(const densOStatesPair& dat, densOStates)
 	  {
-	    long double temp = exp(log(dat.second) + Beta * dat.first - Z);
+	    //ERROR! Not generalised for multipe Histogram arguments!
+	    long double temp = exp(log(dat.second) + Beta * dat.first[0] - Z);
 	    Norm += temp;
-	    Eavg += temp * dat.first;
-	    E2avg += temp * dat.first * dat.first;
+	    Eavg += temp * dat.first[0];
+	    E2avg += temp * dat.first[0] * dat.first[0];
 	  }
 	
 	Eavg /= Norm;
