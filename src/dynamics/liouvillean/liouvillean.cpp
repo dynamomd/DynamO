@@ -372,3 +372,13 @@ Liouvillean::SmoothSpheresCollInfMassSafe(const CIntEvent&, const Iflt&,
 {
   D_throw() << "Not Implemented";
 }
+
+C2ParticleData 
+Liouvillean::RoughSpheresColl(const CIntEvent& event, 
+			      const Iflt& e, 
+			      const Iflt& d2, 
+			      const EEventType& eType
+			      ) const
+{
+  D_throw() << "Not Implemented";
+}
