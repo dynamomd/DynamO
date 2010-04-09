@@ -147,14 +147,14 @@ struct SimData
     long double sum1 = 0.0;
     
     //If top = 0, then use all systems
-    if (top == 0) top = SimulationData.size();
+    if (top == 0) top = SimulationData.size() - 1;
 
-    for (size_t i(bottom); i < top; ++i)
+    for (size_t i(bottom); i <= top; ++i)
       BOOST_FOREACH(const histogramEntry& simdat, SimulationData[i].data)
 	{
 	  long double sum2 = 0.0;
 
-	  for (size_t j(bottom); j < top; ++j)
+	  for (size_t j(bottom); j <= top; ++j)
 	    {
 	      //Determine (\gamma_i- \gamma) \cdot X 
 	      long double dot = 0.0;
@@ -221,7 +221,7 @@ void
 solveWeightsInRange(size_t bottom = 0, size_t top = 0)
 {
   //If top = 0, then use all systems
-  if (top == 0) top = SimulationData.size();
+  if (top == 0) top = SimulationData.size() - 1;
 
   double err = 0.0;
 
@@ -229,16 +229,16 @@ solveWeightsInRange(size_t bottom = 0, size_t top = 0)
     {
       for (size_t i = NStepsPerStep; i != 0; --i)
 	{
-	  for (size_t i(bottom); i < top; ++i)
+	  for (size_t i(bottom); i <= top; ++i)
 	    SimulationData[i].recalc_newlogZ(bottom, top);
 	  
-	  for (size_t i(bottom); i < top; ++i)
+	  for (size_t i(bottom); i <= top; ++i)
 	    SimulationData[i].iterate_logZ();
 	}
 
       //Now the error checking run
       err = 0.0;
-      for (size_t i(bottom); i < top; ++i)
+      for (size_t i(bottom); i <= top; ++i)
 	{
 	  SimulationData[i].recalc_newlogZ(bottom, top);
 	  
@@ -247,7 +247,7 @@ solveWeightsInRange(size_t bottom = 0, size_t top = 0)
 	}
 
       //May as well use this as an iteration too
-      for (size_t i(bottom); i < top; ++i)
+      for (size_t i(bottom); i <= top; ++i)
 	SimulationData[i].iterate_logZ();
 
       printf("\r%E", err);
@@ -264,12 +264,15 @@ solveWeightsPiecemeal()
 
   size_t startingPieceSize = 5;
 
-  size_t stoppingPieceSize = SimulationData.size() / 2;
+  size_t stoppingPieceSize = SimulationData.size() / 2 + 1;
   
   if (startingPieceSize > SimulationData.size()) startingPieceSize = SimulationData.size();
 
-  for (size_t pieceSize = startingPieceSize; pieceSize < stoppingPieceSize; pieceSize *= 2)
+  for (size_t pieceSize = startingPieceSize; pieceSize < stoppingPieceSize; pieceSize += 5)
     {
+      BOOST_FOREACH(SimData& simdat, SimulationData)
+	simdat.refZ = false;
+
       //Set the first system as the reference point
       SimulationData.front().refZ = true;
       
@@ -289,11 +292,14 @@ solveWeightsPiecemeal()
 	  std::cout << "\rSolving " << bottom << " to " << top << "\n";
 	  solveWeightsInRange(bottom, top);
 	}
-      
-      BOOST_FOREACH(SimData& simdat, SimulationData)
-	simdat.refZ = false;
     }
   
+  BOOST_FOREACH(SimData& simdat, SimulationData)
+    simdat.refZ = false;
+
+  //Set the first system as the reference point
+  SimulationData.front().refZ = true;
+
   std::cout << "\rFinal Solution step 0 to " << SimulationData.size()-1 << "\n";
   solveWeightsInRange();
 
