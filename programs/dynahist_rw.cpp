@@ -140,23 +140,31 @@ struct SimData
   };
   std::vector<histogramEntry> data;
 
-  long double calc_logZ() const
+
+  //Bottom and top contain the window of systems used for the calculation
+  long double calc_logZ(size_t bottom=0, size_t top=0) const
   {
     long double sum1 = 0.0;
-    BOOST_FOREACH(SimData& dat, SimulationData)
-      BOOST_FOREACH(const histogramEntry& simdat, dat.data)
+    
+    //If top = 0, then use all systems
+    if (top == 0) top = SimulationData.size();
+
+    for (size_t i(bottom); i < top; ++i)
+      BOOST_FOREACH(const histogramEntry& simdat, SimulationData[i].data)
 	{
 	  long double sum2 = 0.0;
-	  BOOST_FOREACH(SimData& dat2, SimulationData)
+
+	  for (size_t j(bottom); j < top; ++j)
 	    {
 	      //Determine (\gamma_i- \gamma) \cdot X 
 	      long double dot = 0.0;
 	      for (size_t i = 0; i < NGamma; ++i)
-		dot += (dat2.gamma[i] - gamma[i]) * simdat.X[i];
+		dot += (SimulationData[j].gamma[i] - gamma[i]) * simdat.X[i];
 
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
-	      sum2 += exp(dot - dat2.logZ);
+	      sum2 += exp(dot - SimulationData[j].logZ);
 	    }
+	  
 	  //simdat.Probability is H(X,\gamma), in the input H is
 	  //normalised. Thus this assumes that all simulations are of
 	  //the same statistical weight! (This is true for results
@@ -167,9 +175,9 @@ struct SimData
     return log(sum1);
   }
   
-  void recalc_newlogZ() 
+  void recalc_newlogZ(size_t bottom, size_t top) 
   { 
-    if (!refZ) new_logZ = calc_logZ(); 
+    if (!refZ) new_logZ = calc_logZ(bottom, top); 
   }
 
   long double calc_error()
@@ -210,10 +218,10 @@ densOStatesType densOStates;
   
 
 void
-solveWeights()
+solveWeightsInRange(size_t bottom = 0, size_t top = 0)
 {
-  std::cout << "##################################################\n";
-  std::cout << "Solving for Z's, Error below\n";
+  //If top = 0, then use all systems
+  if (top == 0) top = SimulationData.size();
 
   double err = 0.0;
 
@@ -221,31 +229,73 @@ solveWeights()
     {
       for (size_t i = NStepsPerStep; i != 0; --i)
 	{
-	  BOOST_FOREACH(SimData& dat, SimulationData)
-	    dat.recalc_newlogZ();
+	  for (size_t i(bottom); i < top; ++i)
+	    SimulationData[i].recalc_newlogZ(bottom, top);
 	  
-	  BOOST_FOREACH(SimData& dat, SimulationData)
-	    dat.iterate_logZ();
+	  for (size_t i(bottom); i < top; ++i)
+	    SimulationData[i].iterate_logZ();
 	}
 
       //Now the error checking run
       err = 0.0;
-      BOOST_FOREACH(SimData& dat, SimulationData)
-	  {
-	    dat.recalc_newlogZ();
-	    
-	    if (dat.calc_error() > err)
-	      err = dat.calc_error();
-	  }
+      for (size_t i(bottom); i < top; ++i)
+	{
+	  SimulationData[i].recalc_newlogZ(bottom, top);
+	  
+	  if (SimulationData[i].calc_error() > err)
+	    err = SimulationData[i].calc_error();
+	}
 
       //May as well use this as an iteration too
-      BOOST_FOREACH(SimData& dat, SimulationData)
-	dat.iterate_logZ();
+      for (size_t i(bottom); i < top; ++i)
+	SimulationData[i].iterate_logZ();
 
       printf("\r%E", err);
       fflush(stdout);
     }
   while(err > minErr);
+}
+
+void
+solveWeightsPiecemeal()
+{
+  std::cout << "##################################################\n";
+  std::cout << "Solving for Z's, in a rolling piecemeal fashion\n";
+
+  size_t startingPieceSize = 5;
+
+  size_t stoppingPieceSize = SimulationData.size() / 2;
+  
+  if (startingPieceSize > SimulationData.size()) startingPieceSize = SimulationData.size();
+
+  for (size_t pieceSize = startingPieceSize; pieceSize < stoppingPieceSize; pieceSize *= 2)
+    {
+      //Set the first system as the reference point
+      SimulationData.front().refZ = true;
+      
+      std::cout << "\rSolving 0 to " << pieceSize << ", Long iteration step\n";
+      //Now solve the first piece.
+      solveWeightsInRange(0, pieceSize);
+      
+      for (size_t bottom(1), top(pieceSize + 1); top < SimulationData.size(); ++bottom, ++top)
+	{
+	  //Freeze the lower half of the last set of systems 
+	  
+	  //This is required for the first iterations but only one system
+	  //is frozen per further iteration
+	  for (size_t i = bottom-1; i < bottom + (top-bottom)/2; ++i )
+	    SimulationData[i].refZ = true;
+	  
+	  std::cout << "\rSolving " << bottom << " to " << top << "\n";
+	  solveWeightsInRange(bottom, top);
+	}
+      
+      BOOST_FOREACH(SimData& simdat, SimulationData)
+	simdat.refZ = false;
+    }
+  
+  std::cout << "\rFinal Solution step 0 to " << SimulationData.size()-1 << "\n";
+  solveWeightsInRange();
 
   std::cout << "\nIteration complete\n";
 }
@@ -364,7 +414,7 @@ void outputMoments()
 	  for (size_t i(0); i < NGamma; ++i)
 	    Eof << dat2.first[i] << " ";
 
-	  Eof << exp(log(dat2.second) + tmp - Z) / Norm << "\n";
+	  Eof << (exp(log(dat2.second) + tmp - Z) / Norm) / binWidth << "\n";
 	}
     }
 
@@ -522,11 +572,7 @@ main(int argc, char *argv[])
 
       }
 
-    //set the reference system about midway to reduce over/underflows
-    (SimulationData.begin() + (SimulationData.size()/2) )->refZ = true;
-
-
-    solveWeights();
+    solveWeightsPiecemeal();
     
     std::cout << "##################################################\n";
     BOOST_FOREACH(const SimData& dat, SimulationData)
