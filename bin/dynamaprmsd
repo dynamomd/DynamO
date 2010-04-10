@@ -99,8 +99,9 @@ def cluster_analysis(arrayList, minval, threshold):
     count = 1
     for j in range(len(arrayList)):
       if (arrayList[i][j] > minval):
-        local.append(j)
-        count += 1
+        if (i != j):
+          local.append(j)
+          count += 1
     localCluster.append([count, local, i])
   
   clusters = []
