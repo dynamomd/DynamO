@@ -65,8 +65,9 @@ def cluster_analysis(arrayList, length, threshold):
     local.append(i)
     for j in range(len(arrayList)):
       if (arrayList[i][j] < length):
-        local.append(j)
-        count += 1
+        if (i != j):
+          local.append(j)
+          count += 1
     localCluster.append([count, local, i])
   
   clusters = []
@@ -212,6 +213,10 @@ try:
       sum += cluster[0]
       
     print >>f, data[0], len(clusters)
+    print "Found ", sum, " clusters, ", len(data[1][2]), " structures"
+    for cluster in clusters:
+      print cluster[1]
+
     print >>g, data[0], float(sum) / float(len(data[1][2]))
     print >>h, data[0], data[1][1], data[1][0]
 finally:

@@ -93,7 +93,8 @@ OPIntEnergyHist::ticker()
 void 
 OPIntEnergyHist::output(xmlw::XmlStream& XML)
 {
-  XML << xmlw::tag("EnergyHist");
+  XML << xmlw::tag("EnergyHist")
+      << xmlw::attr("BinWidth") << binwidth;
   intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
   XML << xmlw::endtag("EnergyHist");
 }

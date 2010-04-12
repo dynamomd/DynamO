@@ -39,7 +39,6 @@ using namespace std;
 using namespace boost;
 
 const size_t NGamma = 1;
-static long double binWidth = 0.5;
 
 //Set in the main function
 static long double alpha;
@@ -91,6 +90,13 @@ struct SimData
     std::istringstream HistogramData(xMainNode.getChildNode("EnergyHist")
 				     .getChildNode("WeightHistogram").getText());
     
+    if (xMainNode.getChildNode("EnergyHist").isAttributeSet("binWidth"))
+      binWidth = boost::lexical_cast<long double>(xMainNode.getChildNode("EnergyHist").getAttribute("binWidth"));
+    else
+      {
+	binWidth = 0.5;
+	std::cout << "Warning! Could not find a bin width set in " << fileName << ", assuming 0.5kT! If this is wrong the code will probably have a Floating Point Exception";
+      }
     //Load gamma here
     if (xMainNode.hasChild("Energy"))
       gamma.push_back(-1.0 / boost::lexical_cast<long double>
@@ -128,6 +134,7 @@ struct SimData
   std::vector<long double> gamma;
   long double logZ;
   long double new_logZ;
+  long double binWidth;
   bool refZ;
 
   //Contains the histogram, first axis is bin entry
@@ -420,7 +427,7 @@ void outputMoments()
 	  for (size_t i(0); i < NGamma; ++i)
 	    Eof << dat2.first[i] << " ";
 
-	  Eof << (exp(log(dat2.second) + tmp - Z) / Norm) / binWidth << "\n";
+	  Eof << (exp(log(dat2.second) + tmp - Z) / Norm) / SimulationData.front().binWidth << "\n";
 	}
     }
 
@@ -552,7 +559,13 @@ main(int argc, char *argv[])
     //Data load
     BOOST_FOREACH(std::string fileName, vm["data-file"].as<std::vector<std::string> >())
       SimulationData.push_back(SimData(fileName));
-    
+
+    BOOST_FOREACH(const SimData& dat, SimulationData)
+      if (dat.binWidth != SimulationData.front().binWidth)
+	{
+	  std::cout << "Not all of the output files have the same bin width for the internal energy histograms!\n Aborting\n\n";
+	  return 1;
+	}
     //Sort by temperature
     std::sort(SimulationData.begin(), SimulationData.end());
 
