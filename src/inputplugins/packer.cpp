@@ -399,24 +399,43 @@ CIPPacker::initialise()
 	    std::string stringseq = vm["s1"].as<std::string>();
 
 	    //Transcribe the sequence
+		bool has0(false), has1(false);
 	    for (size_t i = 0; i < chainlength; ++i)
+	    {
 	      seq[i] = boost::lexical_cast<size_t>
 		(stringseq[i % stringseq.size()]);
+	      if (seq[i])
+			has1=true;
+	      else
+			has0=true;
+	      if (seq[i]>1) D_throw() << "Dynamod only supports 2 types of monomers, make a sample chain and edit the configuration file by hand to use more";
+	    }
 
-	    Sim->dynamics.addInteraction
-	      (new CISWSequence(Sim, sigma * diamScale, lambda, 1.0,
-				seq, new C2RAll()))->setName("Bulk");
-
-	    CISWSequence& interaction
-	      (static_cast<CISWSequence&>
-	       (*(Sim->dynamics.getInteraction("Bulk"))));
-
-
-	    interaction.getAlphabet().at(0).at(0) = 1.0;
-
-	    interaction.getAlphabet().at(1).at(0) = 0.5;
-
-	    interaction.getAlphabet().at(0).at(1) = 0.5;
+	    if (has1 && has0)
+	      {
+		Sim->dynamics.addInteraction
+		  (new CISWSequence(Sim, sigma * diamScale, lambda, 1.0,
+				    seq, new C2RAll()))->setName("Bulk");
+		
+		CISWSequence& interaction
+		  (static_cast<CISWSequence&>
+		   (*(Sim->dynamics.getInteraction("Bulk"))));
+		interaction.getAlphabet().at(0).at(0) = 1.0;
+		
+		interaction.getAlphabet().at(1).at(0) = 0.5;
+		
+		interaction.getAlphabet().at(0).at(1) = 0.5;
+	      }
+	    else if (has0 && !has1)
+	      Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
+							    lambda, 1.0,
+							    1.0,
+							    new C2RAll()
+							    ))->setName("Bulk");
+	    else if (has1 && !has0)
+	      Sim->dynamics.addInteraction(new CIHardSphere(Sim, sigma * diamScale, 1.0,
+							    new C2RAll()
+							    ))->setName("Bulk");
 	  }
 	else
 	  Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
