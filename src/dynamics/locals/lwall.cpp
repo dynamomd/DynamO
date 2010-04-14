@@ -127,7 +127,7 @@ CLWall::outputXML(xmlw::XmlStream& XML) const
 void 
 CLWall::write_povray_info(std::ostream& os) const
 {
-  const bool asbox = false;
+  const bool asbox = true;
   
   if (render)
     if (asbox)
@@ -191,4 +191,18 @@ CLWall::write_povray_info(std::ostream& os) const
     \n"; 
 */
       }
+}
+
+void 
+CLWall::checkOverlaps(const CParticle& p1) const
+{
+  Vector pos(p1.getPosition() - vPosition);
+  Sim->dynamics.BCs().applyBC(pos);
+
+  Iflt r = (pos | vNorm);
+  
+  if (r < 0)
+    I_cout() << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()
+	     << "\nWall Pos is " << vPosition << " and Normal is " << vNorm
+      ;
 }

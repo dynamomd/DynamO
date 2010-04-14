@@ -597,6 +597,12 @@ Dynamics::SystemOverlapTest()
   for (iPtr1 = Sim->vParticleList.begin(); iPtr1 != Sim->vParticleList.end(); ++iPtr1)
     for (iPtr2 = iPtr1 + 1; iPtr2 != Sim->vParticleList.end(); ++iPtr2)    
       getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
+
+  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    BOOST_FOREACH(const smrtPlugPtr<CLocal>& lcl, locals)
+    if (lcl->isInteraction(part))
+      lcl->checkOverlaps(part);
+    
 }
 
 void 

@@ -43,6 +43,8 @@ public:
 
   virtual void write_povray_info(std::ostream&) const;
 
+  virtual void checkOverlaps(const CParticle&) const;
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
