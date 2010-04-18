@@ -92,7 +92,7 @@ CISquareWell::hardCoreDiam() const
 
 Iflt 
 CISquareWell::maxIntDist() const 
-{ return diameter*lambda; }
+{ return diameter * lambda; }
 
 void 
 CISquareWell::rescaleLengths(Iflt scale) 
@@ -116,8 +116,15 @@ CISquareWell::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  
-  return (((rij | rij) <= ld2) && ((rij | rij) >= d2));
+
+#ifdef DYNAMO_DEBUG
+  if ((rij | rij) <= d2)
+    I_cerr() << "Warning! Two particles might be overlapping"
+	     << "\nrij^2 = " << (rij | rij)
+	     << "\nd^2 = " << d2;
+#endif
+
+  return (rij | rij) <= ld2;
 }
 
 CIntEvent
@@ -272,12 +279,20 @@ CISquareWell::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
     }
   else 
     if (r2 < ld2)
-      I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-	       << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
-	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	       << r2 / pow(Sim->dynamics.units().unitLength(),2)
-	       << "\n(lambda * d)^2=" 
-	       << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+      if (r2 < d2)
+	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
+		 << "Overlap error\n ID1=" << part1.getID() 
+		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
+		 << "\n(d)^2=" 
+		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
+      else
+	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
+		 << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
+		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
+		 << "\n(lambda * d)^2=" 
+		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
 }
   
 void 

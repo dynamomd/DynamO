@@ -105,11 +105,15 @@ CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
+
+#ifdef DYNAMO_DEBUG
+  if ((rij | rij) <= d2)
+    I_cerr() << "Warning! Two particles might be overlapping"
+	     << "\nrij^2 = " << (rij | rij)
+	     << "\nd^2 = " << d2;
+#endif
   
-  if (((rij | rij) <= ld2) && ((rij | rij) >= d2))
-    return true;
-  
-  return false;
+  return (rij | rij) <= ld2;
 }
 
 void

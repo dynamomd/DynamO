@@ -87,12 +87,12 @@ OPPovray::printImage()
 global_settings { max_trace_level 20 }     \n\
 global_settings { noise_generator 1 }      \n\
 global_settings { ambient_light 8 }        \n\
-background { rgb<2.0/255.0, 52.0/255.0, 101.0/255.0> }               \n\
+background { rgb<1, 1, 1> }               \n\
 // camera ---------------------------------\n\
 #declare zoom = "<< zoomlevel << " ;       \n\
 #declare Cam0 =                            \n\
    camera {                                \n\
-           location  <0.0 , 0 , -zoom>  \n\
+           location  <0.5*zoom , 0.7*zoom , 0.2*zoom>  \n\
            look_at   <0.0 , 0.0 , 0.0>}    \n\
 camera{Cam0}                               \n\
 // sun ------------------------------------\n\
