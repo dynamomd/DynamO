@@ -105,14 +105,7 @@ CISoftCore::captureTest(const CParticle& p1, const CParticle& p2) const
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
-#ifdef DYNAMO_DEBUG
-  if (rij.nrm2() >= d2)
-    I_cerr() << "Warning! Two particles might be overlapping"
-	     << "\nrij^2 = " << (rij | rij)
-	     << "\nd^2 = " << d2;
-#endif
-
-  return (rij.nrm2() <= ld2);
+  return (rij.nrm2() <= d2);
 }
 
 CIntEvent 
