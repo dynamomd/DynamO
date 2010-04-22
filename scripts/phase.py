@@ -124,28 +124,36 @@ for i in arange( len(isotherm[beta_min][0]) ):
     Z   = isotherm[beta_min][1][i]
     Zrho = (Z-1.0)/rho
     Zrho_data.append(Zrho)
-Zrho_fit = interpolate.splrep(isotherm[beta_min][0], Zrho_data, s=0)
+x = isotherm[beta_min][0]
+y = Zrho_data
+Zrho_fit = interpolate.splrep(x, y, s=0)
 
 
 # fit U along isochores
 U_fit = {}
 for rho in isochore.keys():
-#    x = isochore[rho][0]
-#    y = isochore[rho][2]
-#    U_fit[rho] = interpolate.splrep(x, y, s=0)
-    U_fit[rho] = interpolate.splrep(isochore[rho][0], isochore[rho][2], s=0)
+    x = isochore[rho][0]
+    y = isochore[rho][2]
+    U_fit[rho] = interpolate.splrep(x, y, s=0)
+#    U_fit[rho] = interpolate.splrep(isochore[rho][0], isochore[rho][2], s=0)
 
 
 # fit Z along isotherms
 Z_fit = {}
 intU_fit = {}
 for beta in isotherm.keys():
-    Z_fit[beta] = interpolate.splrep(isotherm[beta][0], isotherm[beta][1], s=0)
+
     intU_data = []
     for rho in isotherm[beta][0]:
         intU = interpolate.splint(beta_min, beta, U_fit[rho])
         intU_data.append(intU)
     intU_fit[beta] = interpolate.splrep(isotherm[beta][0], intU_data, s=0)
+
+    x = isotherm[beta][0]
+    y = isotherm[beta][1]
+    x.insert(0, 0.0)
+    y.insert(0, 1.0)
+    Z_fit[beta] = interpolate.splrep(x, y, s=0)
 
 
 beta = options.beta
@@ -174,7 +182,7 @@ for beta in beta_list:
     if (ier == 1):
         print 1.0/beta, rho_g*16.0*pi/6.0, rho_l*16.0*pi/6.0
     else:
-        print mesg
+#        print mesg
         sys.exit(2)
 
 
