@@ -48,15 +48,28 @@ def f_res(x, beta):
     residual = []
     residual.append(p_g-p_l)
     residual.append(I1+I2+I3+Z_l-Z_g)
-    print "-----------"
-    print x[0]*16.0*pi/6.0, x[1]*16.0*pi/6.0
-    print residual
-    print "I1=", I1, "I2=", I2
+#    print "-----------"
+#    print x[0]*16.0*pi/6.0, x[1]*16.0*pi/6.0
+#    print residual
+#    print "I1=", I1, "I2=", I2
     return residual
 
 
 ################################################################################
 ################################################################################
+import sys
+from optparse import OptionParser
+
+usage = "usage: %prog [options] arg"
+parser = OptionParser(usage)
+parser.add_option("--beta", type="float", dest="beta", default=0.454545)
+parser.add_option("--y_g", type="float", dest="y_g", default=0.025)
+parser.add_option("--y_l", type="float", dest="y_l", default=0.225)
+
+(options, args) = parser.parse_args()
+
+
+
 # import simulation data
 fit_data = []
 infile = open('data.dat', 'r')
@@ -100,24 +113,28 @@ for data in fit_data:
     isochore[rho][1].append(Z)
     isochore[rho][2].append(U)
 
-    if (beta == 0.001):
-        Zrho = (Z-1.0)/rho
-        Zrho_data.append(Zrho)
+#    if (beta == 0.001):
+#        Zrho = (Z-1.0)/rho
+#        Zrho_data.append(Zrho)
 
 #
-Zrho_fit = interpolate.splrep(isotherm[0.001][0], Zrho_data, s=0)
+beta_min = min(isotherm.keys())
+print beta_min, len(isotherm[beta_min][0])
+for i in arange( len(isotherm[beta_min][0]) ):
+    rho = isotherm[beta_min][0][i]
+    Z   = isotherm[beta_min][1][i]
+    Zrho = (Z-1.0)/rho
+    Zrho_data.append(Zrho)
+Zrho_fit = interpolate.splrep(isotherm[beta_min][0], Zrho_data, s=0)
 
 
 # fit U along isochores
 U_fit = {}
 for rho in isochore.keys():
-    print "rho=", rho
-    print len(isochore[rho][0]), isochore[rho][0]
-    print len(isochore[rho][2]), isochore[rho][2]
-    x = isochore[rho][0]
-    y = isochore[rho][2]
-    U_fit[rho] = interpolate.splrep(x, y, s=0)
-#    U_fit[rho] = interpolate.splrep(isochore[rho][0], isochore[rho][2], s=0)
+#    x = isochore[rho][0]
+#    y = isochore[rho][2]
+#    U_fit[rho] = interpolate.splrep(x, y, s=0)
+    U_fit[rho] = interpolate.splrep(isochore[rho][0], isochore[rho][2], s=0)
 
 
 # fit Z along isotherms
@@ -127,22 +144,22 @@ for beta in isotherm.keys():
     Z_fit[beta] = interpolate.splrep(isotherm[beta][0], isotherm[beta][1], s=0)
     intU_data = []
     for rho in isotherm[beta][0]:
-        intU = interpolate.splint(0.0, beta, U_fit[rho])
+        intU = interpolate.splint(beta_min, beta, U_fit[rho])
         intU_data.append(intU)
     intU_fit[beta] = interpolate.splrep(isotherm[beta][0], intU_data, s=0)
 
 
-beta = 0.45
-rho_g = 0.025/16.*6.0/pi
-rho_l = 0.225/16.*6.0/pi
+beta = options.beta
+rho_g = options.y_g/16.*6.0/pi
+rho_l = options.y_l/16.*6.0/pi
 x = [rho_g, rho_l]
-f = fsolve(f_res, x, args=(beta,))
-print f
+x_soln = fsolve(f_res, x, args=(beta,))
+print x_soln
+print 1.0/beta, x_soln[0]*16.0*pi/6.0, x_soln[1]*16.0*pi/6.0
 
-
-# create a plot of mu vs p to make first initial guess
-for rho in isotherm[beta][0]:
-    p = rho*Z_func(beta, rho)/beta
-    print rho, p, betamu_func(beta, rho) 
+## create a plot of mu vs p to make first initial guess
+#for rho in isotherm[beta][0]:
+#    p = rho*Z_func(beta, rho)/beta
+#    print rho, p, betamu_func(beta, rho) 
 
 
