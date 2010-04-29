@@ -22,7 +22,7 @@
 class IRoughHardSphere: public CInteraction
 {
 public:
-  IRoughHardSphere(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  IRoughHardSphere(DYNAMO::SimData*, Iflt, Iflt, Iflt, C2Range*);
 
   IRoughHardSphere(const XMLNode&, DYNAMO::SimData*);
 

@@ -376,9 +376,10 @@ Liouvillean::SmoothSpheresCollInfMassSafe(const CIntEvent&, const Iflt&,
 C2ParticleData 
 Liouvillean::RoughSpheresColl(const CIntEvent& event, 
 			      const Iflt& e, 
+			      const Iflt& et, 
 			      const Iflt& d2, 
 			      const EEventType& eType
 			      ) const
 {
-  D_throw() << "Not Implemented";
+  D_throw() << "Not Implemented, you need rotational dynamics";
 }

@@ -77,6 +77,25 @@ public:
   
   void initLineOrientations(const Iflt&);
 
+
+  /*! \brief Performs a hard sphere collision between the two rough
+   * particles (they have rotational degrees of freedom).
+   *
+   * The equations used are
+   * \f[ \bm{v}'_i = \bm{v}'_i - \frac{1+\varepsilon^n}{2} \left(\bm{v}_{ij} \cdot \hat{\bm{r}}_{ij}\right) \hat{\bm{r}}_{ij}
+   * \param e Normal elasticity.
+   * \param et Tangential elasticity.
+   * \param event The event containing the data on the two particles.
+   * \param d2 Square of the interaction distance
+   * \param eType A way of setting the collision type from CORE to BOUNCE etc.
+   * \return The collision data.
+   */  
+  virtual C2ParticleData RoughSpheresColl(const CIntEvent& event, 
+					   const Iflt& e, 
+					   const Iflt& et, 
+					   const Iflt& d2, 
+					   const EEventType& eType = CORE
+					   ) const;
 protected:
 
   virtual void extraXMLParticleData(xmlw::XmlStream&, const size_t) const;
