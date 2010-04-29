@@ -52,8 +52,8 @@ IRoughHardSphere::initialise(size_t nID)
 void 
 IRoughHardSphere::operator<<(const XMLNode& XML)
 { 
-  if (strcmp(XML.getAttribute("Type"),"HardSphere"))
-    D_throw() << "Attempting to load Hardsphere from non hardsphere entry";
+  if (strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
+    D_throw() << "Attempting to load Hardsphere from non RoughHardSphere entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   

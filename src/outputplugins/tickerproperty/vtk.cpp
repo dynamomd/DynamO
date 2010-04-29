@@ -18,17 +18,23 @@
 #include "vtk.hpp"
 #include <fstream>
 #include <boost/foreach.hpp>
+#include <iomanip>
+
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../base/is_stream_op.hpp"
+
+
 
 OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"VTK"),
   binWidth(1,1,1),
-  imageCounter(0)
+  imageCounter(0),
+  snapshots(false)
 {
   operator<<(XML);
 }
@@ -42,6 +48,9 @@ OPVTK::operator<<(const XMLNode& XML)
 	(boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
 	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
 	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")));
+    
+    if (XML.isAttributeSet("Snapshots")) snapshots = true;
+    
       }
   catch (std::exception& excep)
     {
@@ -140,6 +149,111 @@ OPVTK::ticker()
       //Energy Field
       mVsquared[id] += velocity.nrm2()
 	* Sim->dynamics.getSpecies(Part).getMass();
+    }
+
+  if (snapshots)
+    {
+      char *fileName;
+      if ( asprintf(&fileName, "%05ld", imageCounter) < 0)
+	D_throw() << "asprintf error in tinkerXYZ";
+      
+      std::ofstream of((std::string("paraview") + fileName + std::string(".vtu")).c_str());
+      
+      free(fileName);
+
+      xmlw::XmlStream XML(of);
+      
+      XML //<< std::scientific
+	//This has a minus one due to the digit in front of the decimal
+	//An extra one is added if we're rounding
+	<< std::setprecision(std::numeric_limits<Iflt>::digits10 - 1)
+	<< xmlw::prolog() << xmlw::tag("VTKFile")
+	<< xmlw::attr("type") << "UnstructuredGrid"
+	<< xmlw::attr("version") << "0.1"
+	<< xmlw::attr("byte_order") << "LittleEndian"
+	<< xmlw::tag("UnstructuredGrid")
+	<< xmlw::tag("Piece") 
+	<< xmlw::attr("NumberOfPoints") << Sim->lN
+	<< xmlw::attr("NumberOfCells") << 0
+	<< xmlw::tag("Points")
+	<< xmlw::tag("DataArray")
+	<< xmlw::attr("type") << "Float32"
+      	<< xmlw::attr("format") << "ascii"
+      	<< xmlw::attr("NumberOfComponents") << "3"
+	<< xmlw::chardata();
+      
+      BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	XML << part.getPosition()[0] / Sim->dynamics.units().unitLength() << " "
+	    << part.getPosition()[1] / Sim->dynamics.units().unitLength() << " "
+	    << part.getPosition()[2] / Sim->dynamics.units().unitLength() << "\n";
+      
+      XML << xmlw::endtag("DataArray")
+	  << xmlw::endtag("Points")
+	  << xmlw::tag("Cells") 
+
+	  << xmlw::tag("DataArray")
+	  << xmlw::attr("type") << "Int32" 
+	  << xmlw::attr("Name") << "connectivity" 
+	  << xmlw::attr("format") << "ascii" 
+	  << xmlw::endtag("DataArray") 
+
+	  << xmlw::tag("DataArray") 
+	  << xmlw::attr("type") << "Int32" 
+	  << xmlw::attr("Name") << "offsets" 
+	  << xmlw::attr("format") << "ascii" 
+	  << xmlw::endtag("DataArray") 
+
+	  << xmlw::tag("DataArray") 
+	  << xmlw::attr("type") << "UInt8" 
+	  << xmlw::attr("Name") << "types" 
+	  << xmlw::attr("format") << "ascii" 
+	  << xmlw::endtag("DataArray") 
+
+	  << xmlw::endtag("Cells")
+	  << xmlw::tag("CellData") << xmlw::endtag("CellData")
+	  << xmlw::tag("PointData"); 
+
+      //Velocity data    
+      XML << xmlw::tag("DataArray")
+	  << xmlw::attr("type") << "Float32"
+	  << xmlw::attr("Name") << "Velocities"
+	  << xmlw::attr("NumberOfComponents") << "3"
+	  << xmlw::attr("format") << "ascii"
+	  << xmlw::chardata();
+    
+      BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	XML << part.getVelocity()[0] / Sim->dynamics.units().unitVelocity() << " "
+	    << part.getVelocity()[1] / Sim->dynamics.units().unitVelocity() << " "
+	    << part.getVelocity()[2] / Sim->dynamics.units().unitVelocity() << "\n";
+    
+      XML << xmlw::endtag("DataArray");
+
+      if (Sim->dynamics.liouvilleanTypeTest<LNOrientation>())
+	{
+	  //Orientation data
+	  XML << xmlw::tag("DataArray")
+	      << xmlw::attr("type") << "Float32"
+	      << xmlw::attr("Name") << "Orientations"
+	      << xmlw::attr("NumberOfComponents") << "3"
+	      << xmlw::attr("format") << "ascii"
+	      << xmlw::chardata();
+    
+	  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	    {
+	      const Vector& tmp = static_cast<const LNOrientation&>
+		(Sim->dynamics.getLiouvillean()).getRotData(part).orientation;
+	     
+	      XML << tmp[0] << " " << tmp[1] << " " << tmp[2] << "\n";
+	    }
+
+	  XML << xmlw::endtag("DataArray");
+	}
+
+      XML << xmlw::endtag("PointData")
+	  << xmlw::endtag("Piece")
+	  << xmlw::endtag("UnstructuredGrid")
+	  << xmlw::endtag("VTKFile")
+	;
     }
 }
 

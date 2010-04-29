@@ -51,6 +51,7 @@ class OPVTK: public OPTicker
   size_t getCellID(Vector );
 
   unsigned long imageCounter;
+  bool snapshots;
 };
 
 #endif
