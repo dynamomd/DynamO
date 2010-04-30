@@ -52,6 +52,7 @@ class OPVTK: public OPTicker
 
   unsigned long imageCounter;
   bool snapshots;
+  bool fields;
 };
 
 #endif

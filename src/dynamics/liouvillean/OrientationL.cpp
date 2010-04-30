@@ -430,3 +430,40 @@ LNOrientation::RoughSpheresColl(const CIntEvent& event,
 
   return retVal;
 }
+
+C1ParticleData 
+LNOrientation::runRoughWallCollision(const CParticle& part, 
+				     const Vector & vNorm,
+				     const Iflt& e,
+				     const Iflt& et,
+				     const Iflt& r
+				     ) const
+{
+  updateParticle(part);
+
+  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+
+  Iflt KE1before = getParticleKineticEnergy(part);
+
+  Iflt p1Mass = retVal.getSpecies().getMass(); 
+
+  Iflt Jbar = retVal.getSpecies().getScalarMomentOfInertia()
+    / (p1Mass * r * r);
+
+  Vector gij = part.getVelocity() - r
+    * (orientationData[part.getID()].angularVelocity ^ vNorm);
+  
+  Vector gijt = (vNorm ^ gij) ^ vNorm;
+  
+  const_cast<CParticle&>(part).getVelocity()
+    -= (1+e) * (vNorm | part.getVelocity()) * vNorm
+    + (Jbar * (1-et) / (Jbar + 1)) * gijt;
+
+  Vector angularVchange = (1-et) / (r * (Jbar+1)) * (vNorm ^ gijt);
+ 
+  orientationData[part.getID()].angularVelocity
+    += angularVchange;
+
+  retVal.setDeltaKE(getParticleKineticEnergy(part) - KE1before);
+  return retVal; 
+}

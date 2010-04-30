@@ -677,18 +677,18 @@ public:
   /*! \brief Collides a particle with a rough wall.
    *
    * \param part The particle that is colliding with the wall.
-   * \param origin The origin of the sphere
    * \param e Elasticity of wall.
    * \param et Tangential elasticity of wall.
-   * \param r Radius (or lever length) that the wall acts on the particle.
+   * \param r Radius of the sphere, or the lever length that the wall acts on.
+   * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
    * \return The data for the collision.
    */
-  virtual C1ParticleData runSphereRoughWallCollision(const CParticle& part, 
-						     const Vector & origin,
-						     const Iflt& e,
-						     const Iflt& et,
-						     const Iflt& r
-						     ) const;
+  virtual C1ParticleData runRoughWallCollision(const CParticle& part, 
+					       const Vector & vNorm,
+					       const Iflt& e,
+					       const Iflt& et,
+					       const Iflt& r
+					       ) const;
 
 protected:
   friend class CGCellsShearing;

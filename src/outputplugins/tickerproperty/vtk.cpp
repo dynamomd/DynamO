@@ -34,7 +34,8 @@ OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"VTK"),
   binWidth(1,1,1),
   imageCounter(0),
-  snapshots(false)
+  snapshots(false),
+  fields(false)
 {
   operator<<(XML);
 }
@@ -50,6 +51,7 @@ OPVTK::operator<<(const XMLNode& XML)
 	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")));
     
     if (XML.isAttributeSet("Snapshots")) snapshots = true;
+    if (XML.isAttributeSet("Fields")) fields = true;
     
       }
   catch (std::exception& excep)
@@ -62,46 +64,49 @@ OPVTK::operator<<(const XMLNode& XML)
 void
 OPVTK::initialise()
 {
-  size_t vecSize = 1;
-  
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
+  if (fields)
     {
-      binWidth[iDim] *= Sim->dynamics.units().unitLength();
-
-      if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
-	D_throw() << "Your bin width is too large for the " << iDim 
-		  << " dimension";
-
-      nBins[iDim] = static_cast<size_t>
-	(Sim->aspectRatio[iDim] / binWidth[iDim]);
+      size_t vecSize = 1;
       
-      //This is just to ensure the bin width fits an integer number of
-      //times into the simulation
-      binWidth[iDim] = Sim->aspectRatio[iDim] / nBins[iDim];
-
-      invBinWidth[iDim] = 1.0 / binWidth[iDim];
-
-      vecSize *= nBins[iDim];
-    }
-  
-  mVsquared.resize(vecSize, 0.0);
-  SampleCounter.resize(vecSize, 0);
-  Momentum.resize(vecSize, Vector (0,0,0));
-
-  std::string tmp("< ");
-
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    tmp += boost::lexical_cast<std::string>(nBins[iDim]) + " ";
-
-  I_cout() << "Number of bins " << tmp << ">";
-  
-  tmp = std::string("< ");
-  
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    tmp +=boost::lexical_cast<std::string>
-      (binWidth[iDim]/Sim->dynamics.units().unitLength()) + " ";
-  
-  I_cout() << "Bin width " << tmp << ">";  
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	{
+	  binWidth[iDim] *= Sim->dynamics.units().unitLength();
+	  
+	  if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
+	    D_throw() << "Your bin width is too large for the " << iDim 
+		      << " dimension";
+	  
+	  nBins[iDim] = static_cast<size_t>
+	    (Sim->aspectRatio[iDim] / binWidth[iDim]);
+	  
+	  //This is just to ensure the bin width fits an integer number of
+	  //times into the simulation
+	  binWidth[iDim] = Sim->aspectRatio[iDim] / nBins[iDim];
+	  
+	  invBinWidth[iDim] = 1.0 / binWidth[iDim];
+	  
+	  vecSize *= nBins[iDim];
+	}
+      
+      mVsquared.resize(vecSize, 0.0);
+      SampleCounter.resize(vecSize, 0);
+      Momentum.resize(vecSize, Vector (0,0,0));
+      
+      std::string tmp("< ");
+      
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	tmp += boost::lexical_cast<std::string>(nBins[iDim]) + " ";
+      
+      I_cout() << "Number of bins " << tmp << ">";
+      
+      tmp = std::string("< ");
+      
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	tmp +=boost::lexical_cast<std::string>
+	  (binWidth[iDim]/Sim->dynamics.units().unitLength()) + " ";
+      
+      I_cout() << "Bin width " << tmp << ">";  
+    } 
 
   ticker();
 }
@@ -129,27 +134,28 @@ void
 OPVTK::ticker()
 {
   ++imageCounter;
-  
-  BOOST_FOREACH(const CParticle & Part, Sim->vParticleList)
-    {
-      Vector  position = Part.getPosition(),
-	velocity = Part.getVelocity();
-      
-      Sim->dynamics.BCs().applyBC(position, velocity);
-      
-      size_t id(getCellID(position));
 
-      //Samples
-      ++SampleCounter[id];
-      
-      //Velocity Vectors
-      Momentum[id] += velocity 
-	* Sim->dynamics.getSpecies(Part).getMass();
-            
-      //Energy Field
-      mVsquared[id] += velocity.nrm2()
-	* Sim->dynamics.getSpecies(Part).getMass();
-    }
+  if (fields)
+    BOOST_FOREACH(const CParticle & Part, Sim->vParticleList)
+      {
+	Vector  position = Part.getPosition(),
+	  velocity = Part.getVelocity();
+	  
+	Sim->dynamics.BCs().applyBC(position, velocity);
+	  
+	size_t id(getCellID(position));
+	  
+	//Samples
+	++SampleCounter[id];
+	  
+	//Velocity Vectors
+	Momentum[id] += velocity 
+	  * Sim->dynamics.getSpecies(Part).getMass();
+	  
+	//Energy Field
+	mVsquared[id] += velocity.nrm2()
+	  * Sim->dynamics.getSpecies(Part).getMass();
+      }
 
   if (snapshots)
     {

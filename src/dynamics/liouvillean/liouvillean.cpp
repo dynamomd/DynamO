@@ -383,3 +383,14 @@ Liouvillean::RoughSpheresColl(const CIntEvent& event,
 {
   D_throw() << "Not Implemented, you need rotational dynamics";
 }
+
+C1ParticleData 
+Liouvillean::runRoughWallCollision(const CParticle& part, 
+				   const Vector & vNorm,
+				   const Iflt& e,
+				   const Iflt& et,
+				   const Iflt& r
+				   ) const
+{
+  D_throw() << "Not Implemented, you need rotational dynamics";
+}

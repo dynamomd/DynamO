@@ -63,8 +63,8 @@ LRoughWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
   ++Sim->lNColl;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision
-		      (part, vNorm, e));
+  CNParticleData EDat(Sim->dynamics.getLiouvillean().runRoughWallCollision
+		      (part, vNorm, e, et, r));
 
   Sim->signalParticleUpdate(EDat);
 
