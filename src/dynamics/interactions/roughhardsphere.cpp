@@ -35,9 +35,9 @@
 #include "../liouvillean/CompressionL.hpp"
 
 IRoughHardSphere::IRoughHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
-			   Iflt ne, C2Range* nR):
+			   Iflt ne, Iflt net, C2Range* nR):
   CInteraction(tmp, nR),
-  diameter(nd), d2(nd*nd), e(ne) {}
+  diameter(nd), d2(nd*nd), e(ne), et(net) {}
 
 IRoughHardSphere::IRoughHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
   CInteraction(tmp,NULL)
@@ -52,8 +52,8 @@ IRoughHardSphere::initialise(size_t nID)
 void 
 IRoughHardSphere::operator<<(const XMLNode& XML)
 { 
-  if (strcmp(XML.getAttribute("Type"),"HardSphere"))
-    D_throw() << "Attempting to load Hardsphere from non hardsphere entry";
+  if (strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
+    D_throw() << "Attempting to load Hardsphere from non RoughHardSphere entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -63,6 +63,8 @@ IRoughHardSphere::operator<<(const XMLNode& XML)
 	boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
       
       e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+
+      et = boost::lexical_cast<Iflt>(XML.getAttribute("TangentialElasticity"));
       
       d2 = diameter * diameter;
       
@@ -135,7 +137,7 @@ IRoughHardSphere::runEvent(const CParticle& p1,
     
   //Run the collision and catch the data
   C2ParticleData EDat
-    (Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2)); 
+    (Sim->dynamics.getLiouvillean().RoughSpheresColl(iEvent, e, et, d2)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -152,6 +154,7 @@ IRoughHardSphere::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::attr("Type") << "HardSphere"
       << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
       << xmlw::attr("Elasticity") << e
+      << xmlw::attr("TangentialElasticity") << et
       << xmlw::attr("Name") << intName
       << range;
 }

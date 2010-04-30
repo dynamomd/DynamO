@@ -366,3 +366,67 @@ LNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
   BOOST_FOREACH(rotData& rdat, orientationData)
     rdat.angularVelocity *= scalefactor;
 }
+
+
+C2ParticleData 
+LNOrientation::RoughSpheresColl(const CIntEvent& event, 
+				const Iflt& e, 
+				const Iflt& et, 
+				const Iflt& d2, 
+				const EEventType& eType
+				) const
+{
+  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  C2ParticleData retVal(particle1, particle2,
+			Sim->dynamics.getSpecies(particle1),
+			Sim->dynamics.getSpecies(particle2),
+			eType);
+    
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  
+  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  //The normal impulse
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
+
+  Vector eijn = retVal.rij / retVal.rij.nrm();
+
+  //Now the tangential impulse
+  Vector gij = retVal.vijold - std::sqrt(d2) * 0.5 
+    * ((orientationData[particle1.getID()].angularVelocity
+	+ orientationData[particle2.getID()].angularVelocity) ^ eijn);
+  
+  Vector gijt = (eijn ^ gij) ^ eijn;
+
+  Iflt Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia() 
+    / (p1Mass * d2 * 0.25);
+  
+  retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
+
+  Iflt KE1before = getParticleKineticEnergy(particle1);
+  Iflt KE2before = getParticleKineticEnergy(particle2);
+
+  //This function must edit particles so it overrides the const!
+  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
+ 
+  orientationData[particle1.getID()].angularVelocity
+    += angularVchange;
+  orientationData[particle2.getID()].angularVelocity 
+    += angularVchange;
+
+  retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
+  retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
+
+  return retVal;
+}
