@@ -51,6 +51,8 @@ CLocal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Wall"))
     return new CLWall(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"RoughWall"))
+    return new LRoughWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
     return new CLAndersenWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"DoubleWall"))

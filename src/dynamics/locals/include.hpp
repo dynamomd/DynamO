@@ -21,3 +21,4 @@
 #include "oscillatingplate.hpp"
 #include "lcylinder.hpp"
 #include "lsphere.hpp"
+#include "lroughwall.hpp"

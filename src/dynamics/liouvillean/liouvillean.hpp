@@ -674,13 +674,26 @@ public:
       }
   }
 
-  //This requires access to the streamParticle function and the
-  //advanceUpdateParticle function
-  friend class CSMultListShear;
-  
+  /*! \brief Collides a particle with a rough wall.
+   *
+   * \param part The particle that is colliding with the wall.
+   * \param origin The origin of the sphere
+   * \param e Elasticity of wall.
+   * \param et Tangential elasticity of wall.
+   * \param r Radius (or lever length) that the wall acts on the particle.
+   * \return The data for the collision.
+   */
+  virtual C1ParticleData runSphereRoughWallCollision(const CParticle& part, 
+						     const Vector & origin,
+						     const Iflt& e,
+						     const Iflt& et,
+						     const Iflt& r
+						     ) const;
+
 protected:
   friend class CGCellsShearing;
-  /*! \brief A dangerous function to predictavly move a particle forward.
+
+  /*! \brief A dangerous function to predictivly move a particle forward.
    *
    * See CGCellsShearing, this just over advances the particle to find
    * its future position in boundary changes.
