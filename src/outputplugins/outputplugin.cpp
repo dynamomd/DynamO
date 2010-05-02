@@ -151,7 +151,7 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<OPUEnergy>(Sim, XML);
   else if (!Name.compare("Misc"))
     return testGeneratePlugin<OPMisc>(Sim, XML);
-  else if (!Name.compare("TinkerXYZ"))
+  else if (!Name.compare("TinkerXYZ") || !Name.compare("VMD"))
     return testGeneratePlugin<OPTinkerXYZ>(Sim, XML);
   else if (!Name.compare("CollisionMatrix"))
     return testGeneratePlugin<OPCollMatrix>(Sim, XML);
