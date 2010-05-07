@@ -36,9 +36,6 @@ class CLocal;
 class CLocalEvent
 {
 public:  
-  //A way to recover the collision name from a type at compile time
-  static const char * getCollEnumName(EEventType);
-
   CLocalEvent(const CParticle&, const Iflt&,
 	      EEventType, const CLocal&);
 

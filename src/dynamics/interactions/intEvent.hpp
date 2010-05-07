@@ -37,9 +37,6 @@ namespace xmlw
 class CIntEvent
 {
 public:  
-  //A way to recover the collision name from a type at compile time
-  static const char* getCollEnumName(EEventType);
-
   friend struct intPart;
 
   inline CIntEvent ():

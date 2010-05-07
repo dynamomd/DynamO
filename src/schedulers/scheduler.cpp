@@ -325,7 +325,7 @@ CScheduler::runNextEvent()
     default:
       D_throw() << "Unhandled event type requested to be run\n"
 		<< "Type is " 
-		<< CIntEvent::getCollEnumName(sorter->getNextEvent().type);
+		<< sorter->getNextEvent().type;
     }
 }
 

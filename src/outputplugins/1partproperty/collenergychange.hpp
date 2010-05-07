@@ -20,6 +20,9 @@
 
 #include "1partproperty.hpp"
 #include <vector>
+#include <map>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
 #include "../../datatypes/histogram.hpp"
 
 class OPCollEnergyChange: public OP1PP
@@ -46,6 +49,17 @@ class OPCollEnergyChange: public OP1PP
 
  protected:  
   Iflt binWidth; 
+
+  static Iflt binwidth;
+
+  struct histogram: public C1DHistogram
+  {
+    histogram(): C1DHistogram(OPCollEnergyChange::binwidth) {}
+  };
+
+  typedef boost::tuple<size_t, size_t, EEventType> mapkey;
+
+  std::map<mapkey, histogram> collisionKE;
 
   std::vector<C1DHistogram> data;
   C1DHistogram specialhist;

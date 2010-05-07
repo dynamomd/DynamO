@@ -17,12 +17,16 @@
 
 #include "collenergychange.hpp"
 #include <boost/foreach.hpp>
+#include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/dynamics.hpp"
 #include "../../dynamics/species/species.hpp"
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
+
+Iflt OPCollEnergyChange::binwidth = 1.0;
+
 
 OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
   OP1PP(tmp,"CollEnergyChange", 250),
@@ -75,6 +79,18 @@ OPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
   Iflt mu = p1Mass * p2Mass / (p1Mass+p2Mass);
 
   specialhist.addVal((PDat.dP.nrm2() / (2.0 * mu)) - (PDat.vijold | PDat.dP));
+
+  collisionKE[mapkey(PDat.particle1_.getSpecies().getID(), 
+		     PDat.particle2_.getSpecies().getID(), 
+		     PDat.getType())]
+    .addVal(Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle())
+	    -PDat.particle1_.getDeltaKE());
+
+  collisionKE[mapkey(PDat.particle2_.getSpecies().getID(), 
+		     PDat.particle1_.getSpecies().getID(), 
+		     PDat.getType())]
+    .addVal(Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle())
+	    -PDat.particle2_.getDeltaKE());
 }
 
 void
@@ -96,6 +112,16 @@ OPCollEnergyChange::output(xmlw::XmlStream &XML)
       data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
 
       XML << xmlw::endtag("Species");
+    }
+
+  typedef std::pair<const mapkey, histogram> locpair;
+  BOOST_FOREACH(const locpair& pdat, collisionKE)
+    {
+      XML << xmlw::tag("Energy_On_Collision");
+      
+      pdat.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());      
+
+      XML << xmlw::endtag("Energy_On_Collision");
     }
 
   XML << xmlw::endtag("CollEnergyChange");

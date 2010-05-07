@@ -120,9 +120,9 @@ OPCollDistCheck::output(xmlw::XmlStream& XML)
       XML << xmlw::tag("Distance") << xmlw::attr("Name") 
 	  << getName(p.first.first, Sim)
 	  << xmlw::attr("Type") 
-	  << CIntEvent::getCollEnumName(p.first.first.second)
+	  << p.first.first.second
 	  << xmlw::attr("EventType") 
-	  << CIntEvent::getCollEnumName(p.first.second);
+	  << p.first.second;
 
       p.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       

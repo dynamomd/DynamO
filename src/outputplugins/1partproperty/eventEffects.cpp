@@ -49,7 +49,6 @@ OPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat)
 	   Pdat.dP);
 }
 
-
 void 
 OPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
@@ -131,7 +130,7 @@ OPEventEffects::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Count")
 	  << xmlw::attr("Name") << getName(ele.first.first, Sim)
-	  << xmlw::attr("Event") << CIntEvent::getCollEnumName(ele.first.second)
+	  << xmlw::attr("Event") << ele.first.second
 	  << xmlw::attr("EnergyLossRate") 
 	  << ele.second.energyLoss * Sim->dynamics.units().unitTime()
 	/ (Sim->dSysTime * Sim->dynamics.units().unitEnergy())

@@ -93,7 +93,7 @@ OPRdotV::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Element")
 	  << xmlw::attr("Type") 
-	  << CIntEvent::getCollEnumName(pair1.first.first)
+	  << pair1.first.first
 	  << xmlw::attr("EventName") 
 	  << getName(pair1.first.second, Sim)
 	  << xmlw::attr("RijdotDeltaMomentum") << pair1.second.getAvg()

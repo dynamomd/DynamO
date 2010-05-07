@@ -140,9 +140,9 @@ OPCollMatrix::output(xmlw::XmlStream &XML)
   BOOST_FOREACH(const locPair& ele, counters)
     {
       XML << xmlw::tag("Count")
-	  << xmlw::attr("Event") << CIntEvent::getCollEnumName(ele.first.first.second)
+	  << xmlw::attr("Event") << ele.first.first.second
 	  << xmlw::attr("Name") << getName(ele.first.first.first, Sim)
-	  << xmlw::attr("lastEvent") << CIntEvent::getCollEnumName(ele.first.second.second)
+	  << xmlw::attr("lastEvent") << ele.first.second.second
 	  << xmlw::attr("lastName") << getName(ele.first.second.first, Sim)
 	  << xmlw::attr("Percent") << 100.0 * ((Iflt) ele.second.count) 
 	/ ((Iflt) totalCount)
@@ -166,7 +166,7 @@ OPCollMatrix::output(xmlw::XmlStream &XML)
   BOOST_FOREACH(const mappair& mp1, totmap)
     XML << xmlw::tag("TotCount")
 	<< xmlw::attr("Name") << getName(mp1.first.first, Sim)
-	<< xmlw::attr("Event") << CIntEvent::getCollEnumName(mp1.first.second)
+	<< xmlw::attr("Event") << mp1.first.second
 	<< xmlw::attr("Percent") 
 	<< 100.0 * (((Iflt) mp1.second.first)
 		    +((Iflt) initialCounter[mp1.first]))

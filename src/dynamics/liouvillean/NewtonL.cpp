@@ -473,7 +473,7 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
     }
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().nrm2() 
+			       * (particle1.getVelocity().nrm2()
 				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()

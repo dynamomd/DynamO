@@ -32,11 +32,6 @@ CLocalEvent::CLocalEvent(const CParticle& part1, const Iflt &delt,
   CType(nType), localID(local.getID())
 {}
   
-const char * 
-CLocalEvent::getCollEnumName(EEventType a)
-{
-  return CIntEvent::getCollEnumName(a);
-}
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
 			    const CLocalEvent &coll)
@@ -54,7 +49,7 @@ CLocalEvent::stringData(const DYNAMO::SimData* Sim) const
 {
   std::ostringstream tmpstring;
   tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
-	    << "\nType :" << getCollEnumName(CType)
+	    << "\nType :" << CType
 	    << "\nP1 :" << particle_->getID();
     return tmpstring.str();
 }
