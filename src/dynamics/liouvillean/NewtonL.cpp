@@ -449,7 +449,7 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
     D_throw() << "Both particles have infinite mass";
 #endif
 
-  if ((p1Mass != 0.0) && (p2Mass != 0.0))
+   if ((p1Mass != 0.0) && (p2Mass != 0.0))
     {
       Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 

@@ -33,7 +33,14 @@ OPRdotV::initialise()
 void 
 OPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
 {
-  mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent))];
+  size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+    speciesIDhigh =pDat.particle2_.getSpecies().getID();
+  
+  if (speciesIDlow > speciesIDhigh) 
+    std::swap(speciesIDhigh,speciesIDlow);
+
+  mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent),
+				 speciesIDlow, speciesIDhigh)];
 
   ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
   ref.costheta.addVal(pDat.rij | pDat.vijold 
@@ -45,8 +52,15 @@ OPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
+      size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+	speciesIDhigh =pDat.particle2_.getSpecies().getID();
+      
+      if (speciesIDlow > speciesIDhigh) 
+	std::swap(speciesIDhigh,speciesIDlow);
+
       mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
-				     getClassKey(globEvent))];
+				     getClassKey(globEvent),
+				     speciesIDlow, speciesIDhigh)];
       
       ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
 
@@ -59,8 +73,15 @@ OPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
+      size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+	speciesIDhigh =pDat.particle2_.getSpecies().getID();
+      
+      if (speciesIDlow > speciesIDhigh) 
+	std::swap(speciesIDhigh,speciesIDlow);
+      
       mapdata& ref = rvdotacc[mapKey(localEvent.getType(), 
-				     getClassKey(localEvent))];
+				     getClassKey(localEvent),
+				     speciesIDlow, speciesIDhigh)];
       
       ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
 
@@ -73,8 +94,15 @@ OPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const 
 {
   BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
     {
+      size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+	speciesIDhigh =pDat.particle2_.getSpecies().getID();
+      
+      if (speciesIDlow > speciesIDhigh) 
+	std::swap(speciesIDhigh,speciesIDlow);
+      
       mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), 
-				     getClassKey(sysEvent))];
+				     getClassKey(sysEvent),
+				     speciesIDlow, speciesIDhigh)];
       
       ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
 
@@ -93,9 +121,13 @@ OPRdotV::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Element")
 	  << xmlw::attr("Type") 
-	  << pair1.first.first
+	  << pair1.first.get<0>()
 	  << xmlw::attr("EventName") 
-	  << getName(pair1.first.second, Sim)
+	  << getName(pair1.first.get<1>(), Sim)
+	  << xmlw::attr("Species1")
+	  << Sim->dynamics.getSpecies()[pair1.first.get<2>()]->getName()
+	  << xmlw::attr("Species2")
+	  << Sim->dynamics.getSpecies()[pair1.first.get<3>()]->getName()
 	  << xmlw::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
 	/ (Sim->dynamics.units().unitVelocity() 
 	   * Sim->dynamics.units().unitLength()

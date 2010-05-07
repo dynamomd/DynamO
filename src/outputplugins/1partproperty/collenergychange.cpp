@@ -25,7 +25,7 @@
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
 
-Iflt OPCollEnergyChange::binwidth = 1.0;
+Iflt OPCollEnergyChange::KEBinWidth = 0.01;
 
 
 OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
@@ -39,6 +39,11 @@ OPCollEnergyChange::operator<<(const XMLNode& XML)
   try {
     if (XML.isAttributeSet("binWidth"))
       binWidth = boost::lexical_cast<Iflt>(XML.getAttribute("binWidth"));
+
+    if (XML.isAttributeSet("KEBinWidth"))
+      KEBinWidth = boost::lexical_cast<Iflt>(XML.getAttribute("KEBinWidth"));
+
+    KEBinWidth *= Sim->dynamics.units().unitEnergy();
       }
   catch (std::exception& excep)
     {
@@ -117,7 +122,12 @@ OPCollEnergyChange::output(xmlw::XmlStream &XML)
   typedef std::pair<const mapkey, histogram> locpair;
   BOOST_FOREACH(const locpair& pdat, collisionKE)
     {
-      XML << xmlw::tag("Energy_On_Collision");
+      XML << xmlw::tag("Energy_On_Collision")
+	  << xmlw::attr("Species") << Sim->dynamics.getSpecies()[pdat.first.get<0>()]->getName()
+	  << xmlw::attr("EventPartnerSpecies")
+	  << Sim->dynamics.getSpecies()[pdat.first.get<1>()]->getName()
+	  << xmlw::attr("EventType") 
+	  << pdat.first.get<2>();
       
       pdat.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());      
 

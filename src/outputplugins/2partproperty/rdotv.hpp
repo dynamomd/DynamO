@@ -22,6 +22,8 @@
 #include "../../datatypes/histogram.hpp"
 #include "../eventtypetracking.hpp"
 #include <map>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
 
 using namespace EventTypeTracking;
 
@@ -64,7 +66,7 @@ class OPRdotV: public OutputPlugin
     C1DHistogram costheta;
   };
   
-  typedef std::pair<EEventType, classKey> mapKey;
+  typedef boost::tuple<EEventType, classKey, size_t, size_t> mapKey;
 
   std::map<mapKey, mapdata> rvdotacc;
 };

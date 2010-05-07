@@ -50,11 +50,11 @@ class OPCollEnergyChange: public OP1PP
  protected:  
   Iflt binWidth; 
 
-  static Iflt binwidth;
+  static Iflt KEBinWidth;
 
   struct histogram: public C1DHistogram
   {
-    histogram(): C1DHistogram(OPCollEnergyChange::binwidth) {}
+    histogram(): C1DHistogram(OPCollEnergyChange::KEBinWidth) {}
   };
 
   typedef boost::tuple<size_t, size_t, EEventType> mapkey;
