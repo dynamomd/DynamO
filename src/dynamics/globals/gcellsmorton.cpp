@@ -317,19 +317,23 @@ CGCellsMorton::addCells(Iflt maxdiam)
   NCells = 1;
   cellCount = 0;
 
+#ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    if (Sim->aspectRatio[iDim] != 1.0) D_throw() << "";
+    if (Sim->aspectRatio[iDim] != 1.0) D_throw() << "You must have a single dimension equal to 1!";
+#endif
 
   cellCount = int(1 / maxdiam);
   
   if (cellCount < 3)
     D_throw() << "Not enough cells, sim too small, need 3+";
 
-  if (cellCount > 200)
+  if (cellCount > std::numeric_limits<unsigned char>::max())
     {
       I_cout() << "Cell count was " << cellCount
-	       << "\n Restricting to 200 to stop this sim grinding to a halt";
-      cellCount = 200;
+	       << "\n Restricting to " << std::numeric_limits<unsigned char>::max() 
+	       << " to stop huge amounts of memory being allocated";
+
+      cellCount = std::numeric_limits<unsigned char>::max();
     }
 
   dilatedCellMax = cellCount - 1;
