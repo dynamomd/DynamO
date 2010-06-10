@@ -197,12 +197,19 @@ public:
     linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					marking empty*/ 
 
+    I_cout() << "Sorting all events, please wait...";
+    std::cout.flush();
+
     //Now insert all of the events!
     for (unsigned long i = 1; i <= N; i++)
       insertInEventQ(i);
 
+    I_cout() << "Finding first event...";
+    std::cout.flush();
     //Find the next event and place it first so nextEventID() works
     orderNextEvent();
+    I_cout() << "Ready for simulation.";
+    std::cout.flush();
   }
 
   inline void push(const intPart& tmpVal, const size_t& pID)
