@@ -62,7 +62,7 @@ CSNeighbourList::initialise()
     (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
     .markAsUsedInScheduler();
 
-  I_cout() << "Reinitialising on collision " << Sim->lNColl;
+  I_cout() << "Rebuilding all events on collision " << Sim->lNColl;
   std::cout.flush();
 
   sorter->clear();
