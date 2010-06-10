@@ -126,32 +126,27 @@ public:
 
   void init()
   {
-    Iflt acc = 0.0;
-    long counter = 0;
+    Iflt minVal(-HUGE_VAL), maxVal(HUGE_VAL);
+    size_t counter(0);
+
     try {
       //Determine nlists and scale by instrumenting the queue
-      std::vector<T> tmpList;
-      tmpList.reserve(Min.size());
-      
-      BOOST_FOREACH(eventQEntry& dat, Min)
-	tmpList.push_back(dat.data);
-      
-      std::sort(tmpList.begin(), tmpList.end());
-      
-      //Find the mean dt value for events that are not infinite
+      //We make a bounded queue of length N
+      //With a date length of the mean time between events
 
-      for (typename std::vector<T>::iterator iPtr = tmpList.begin() +1; 
-	   iPtr != tmpList.end(); ++iPtr)
+      BOOST_FOREACH(const eventQEntry& dat, Min)
 	if (iPtr->getdt() != HUGE_VAL)
-	  { acc += iPtr->getdt() - (iPtr -1)->getdt(); counter++; }
-	else
-	  break; //Jump out, nothing useful left
+	  {
+	    if (iPtr->getdt() < minVal) minVal = iPtr->getdt();
+	    if (iPtr->getdt() > maxVal) maxVal = iPtr->getdt();
+	    ++counter;
+	  }
       
-      if (counter < 2)
-	{
+     if (counter < 2)
+       {
 	  //Something is peculiar about the system
 	  std::cerr << IC_red << 
-	    "BOUNDEDPQ: The event queue doesn't have more than 2 events in it"
+	    "BOUNDEDPQ: The event queue doesn't have more than 2 VALID events in it"
 	    "\nBOUNDEDPQ: This means the queue cannot be instrumented to"
 	    "\nBOUNDEDPQ: determine the settings for the bounded queue, just"
 	    "\nBOUNDEDPQ: using something that hopes the events in sim time"
@@ -162,25 +157,16 @@ public:
 	}
       else
 	{
-	  if (acc < 0) D_throw() << "Queue filled with negative events";
-	  Iflt nscale = counter / acc;
-	  
-	  //Determine where the queue ends
-	  typename std::vector<T>::reverse_iterator rIt = tmpList.rbegin();
-	  while (rIt->getdt() == HUGE_VAL)
-	    ++rIt;
-	  
-	  //Determine the number of lists as the number required to cover
-	  //the current list 
-	  int newnlists = static_cast<int>((rIt->getdt() - tmpList.front().getdt() ) * nscale);
-	  
-	  init(nscale, newnlists);
+	  if (maxVal < 0 ) D_throw() << "Queue filled with negative events";
+
+	  init(counter / (maxVal - minVal), Min.size());
 	}
     }
     catch (std::exception& excep)
       {
 	D_throw() << "Failure in boundedPQ init()"
-		  << "\nacc = " << acc
+		  << "\nminVal = " << minVal
+		  << "\nmaxVal = " << maxVal
 		  << "\ncounter = " << counter
 		  << "\n" << excep.what();
       }
