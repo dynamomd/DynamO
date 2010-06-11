@@ -28,17 +28,17 @@
 
 using namespace std;
 
-template <class Comparable>
+template <class Comparable, size_t Size>
 class MinMaxHeap
 {
+  boost::array<Comparable,Size> _array; // The heap array
   size_t _currentSize;            // Number of elements currently in heap
-  std::vector<Comparable> _array; // The heap array
 
 public:
-  MinMaxHeap(const size_t heapSize):_array(heapSize) {}
+  MinMaxHeap(): _currentSize(0) {}
 
-  typedef typename std::vector<Comparable>::iterator iterator;
-  typedef typename std::vector<Comparable>::const_iterator const_iterator;
+  typedef typename boost::array<Comparable,Size>::iterator iterator;
+  typedef typename boost::array<Comparable,Size>::const_iterator const_iterator;
 
   inline iterator begin() { return _array.begin() + 1; }
   inline const_iterator begin() const { return _array.begin() + 1; }
@@ -98,7 +98,7 @@ public:
   // Returns: true if full, false if not
   inline bool full() const { return _currentSize == _array.size() - 1; }
 
-  inline void swap(MinMaxHeap<Comparable>& rhs)
+  inline void swap(MinMaxHeap<Comparable,Size>& rhs)
   {
     std::swap(_currentSize, rhs._currentSize);
     _array.swap(rhs._array);
@@ -171,8 +171,8 @@ private:
 namespace std
 {
   /*! \brief Template specialisation of the std::swap function for pList*/
-  template<typename T> inline
-  void swap(MinMaxHeap<T>& lhs, MinMaxHeap<T>& rhs)
+  template<typename T,size_t Size> inline
+  void swap(MinMaxHeap<T,Size>& lhs, MinMaxHeap<T,Size>& rhs)
   {
     lhs.swap(rhs);
   }

@@ -33,10 +33,7 @@ CSSorter::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return new CSSBoundedPQ<>(Sim);
   if (!strcmp(XML.getAttribute("Type"),"BoundedPQMinMax"))
     {
-      MinMaxHeapPList::HeapSize 
-	= boost::lexical_cast<size_t>(XML.getAttribute("HeapSize"));
-
-      return new CSSBoundedPQ<MinMaxHeapPList>(Sim);
+      return new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim);
     }
   else if (!strcmp(XML.getAttribute("Type"),"CBT"))
     return new CSSCBT(Sim);

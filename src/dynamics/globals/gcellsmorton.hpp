@@ -76,12 +76,6 @@ protected:
     int cell;
   };
 
-  struct cellStruct
-  {
-    std::vector<size_t> locals;
-    dilatedCoords coords;
-  };
-
   virtual void outputXML(xmlw::XmlStream&) const;
  
   dilatedCoords getCellID(Vector) const;
@@ -105,7 +99,7 @@ protected:
 
   mutable std::vector<int>list;
 
-  mutable std::vector<cellStruct> cells;
+  mutable std::vector<std::vector<size_t> > cells;
 
   mutable std::vector<partCEntry> partCellData;
 

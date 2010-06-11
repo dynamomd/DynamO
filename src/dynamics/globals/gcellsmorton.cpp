@@ -110,7 +110,7 @@ CGCellsMorton::getEvent(const CParticle& part) const
   return CGlobEvent(part,
 		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
-		    (part, calcPosition(cells[partCellData[part.getID()].cell].coords), 
+		    (part, calcPosition(partCellData[part.getID()].cell), 
 		     Vector(cellDimension,cellDimension,cellDimension))
 		    -Sim->dynamics.getLiouvillean().getParticleDelay(part)
 		    ,
@@ -131,12 +131,12 @@ CGCellsMorton::runEvent(const CParticle& part) const
   //Determine the cell transition direction, its saved
   int cellDirectionInt(Sim->dynamics.getLiouvillean().
 			  getSquareCellCollision3
-			  (part, calcPosition(cells[oldCell].coords), 
+			  (part, calcPosition(oldCell), 
 			   Vector(cellDimension,cellDimension,cellDimension)));
   
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
-  dilatedCoords inCell(cells[oldCell].coords);
+  dilatedCoords inCell(oldCell);
 
   {
     dilatedCoords dendCell(inCell);
@@ -231,7 +231,7 @@ CGCellsMorton::runEvent(const CParticle& part) const
     }
 
   //Tell about the new locals
-  BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
+  BOOST_FOREACH(const size_t& lID, cells[endCell])
     {
       if (isUsedInScheduler)
 	Sim->ptrScheduler->addLocalEvent(part, lID);
@@ -377,7 +377,6 @@ CGCellsMorton::addCells(Iflt maxdiam)
 	{
 	  dilatedCoords coords(iDim, jDim, kDim);
 	  size_t id = coords.getMortonNum();
-	  cells[id].coords = coords;
 	  list[id] = -1;
 	}
 
@@ -393,14 +392,20 @@ CGCellsMorton::addCells(Iflt maxdiam)
 void 
 CGCellsMorton::addLocalEvents()
 {
-  BOOST_FOREACH(cellStruct& cell, cells)
-    {
-      cell.locals.clear();
+  for (size_t iDim = 0; iDim < cellCount; ++iDim)
+    for (size_t jDim = 0; jDim < cellCount; ++jDim)
+      for (size_t kDim = 0; kDim < cellCount; ++kDim)
+	{
+	  dilatedCoords coords(iDim, jDim, kDim);
+	  size_t id = coords.getMortonNum();
+	  cells[id].clear();
+	  Vector pos = calcPosition(coords);
+	  
+	  BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->dynamics.getLocals())
+	    if (local->isInCell(pos, Vector(cellDimension,cellDimension,cellDimension)))
+	      cells[id].push_back(local->getID());
 
-      BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->dynamics.getLocals())
-	if (local->isInCell(calcPosition(cell.coords), Vector(cellDimension,cellDimension,cellDimension)))
-	  cell.locals.push_back(local->getID());
-    }
+	}
 }
 
 dilatedCoords
@@ -436,7 +441,7 @@ void
 CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
 					const nbHoodFunc& func) const
 {
-  dilatedCoords coords(cells[partCellData[part.getID()].cell].coords);
+  dilatedCoords coords(partCellData[part.getID()].cell);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
@@ -493,7 +498,7 @@ CGCellsMorton::getParticleLocalNeighbourhood(const CParticle& part,
 				       const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const size_t& id, 
-		cells[partCellData[part.getID()].cell].locals)
+		cells[partCellData[part.getID()].cell])
     func(part, id);
 }
 

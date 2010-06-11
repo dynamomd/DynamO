@@ -21,21 +21,12 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../datatypes/MinMaxHeap.hpp"
 
+template<size_t Size>
 class MinMaxHeapPList
 {
-  MinMaxHeap<intPart> _innerHeap;
-
+  MinMaxHeap<intPart, Size> _innerHeap;
 
 public:
-  static size_t HeapSize;
-
-  MinMaxHeapPList():
-    _innerHeap(HeapSize)
-  {
-    if (!HeapSize)
-      D_throw() << "Heap size has not been set";
-  }
-
   inline size_t size() const { return _innerHeap.size(); }
   inline bool empty() const { return _innerHeap.empty(); }
   inline bool full() const { return _innerHeap.full(); }
@@ -110,8 +101,8 @@ public:
 namespace std
 {
   /*! \brief Template specialisation of the std::swap function for pList*/
-  template<> inline
-  void swap(MinMaxHeapPList& lhs, MinMaxHeapPList& rhs)
+  template<size_t Size> inline
+  void swap(MinMaxHeapPList<Size>& lhs, MinMaxHeapPList<Size>& rhs)
   {
     lhs.swap(rhs);
   }

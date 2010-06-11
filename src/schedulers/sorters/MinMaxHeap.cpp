@@ -16,5 +16,3 @@
 */
 
 #include "MinMaxHeap.hpp"
-
-size_t MinMaxHeapPList::HeapSize = 0;
