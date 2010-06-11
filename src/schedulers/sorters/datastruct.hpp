@@ -40,7 +40,13 @@ public:
     p2(-1)    
   {}
 
-  inline intPart(const Iflt& ndt, const unsigned long long& direction) throw():
+  inline intPart(const Iflt& ndt, const EEventType& nT) throw():
+    dt(ndt),
+    type(nT),
+    p2(0)
+  {}
+
+  inline intPart(const Iflt& ndt, const unsigned long & direction) throw():
     dt(ndt),
     collCounter2(direction),
     type(CELL),
@@ -48,20 +54,14 @@ public:
   {}
   
   inline intPart(const Iflt& ndt, const EEventType& nT, 
-		 const size_t& nID2, const unsigned long long& nCC2) throw():
+		 const size_t& nID2, const unsigned long & nCC2) throw():
     dt(ndt),
     collCounter2(nCC2),
     type(nT),
     p2(nID2)
     {}
 
-  inline intPart(const Iflt& ndt, const EEventType& nT) throw():
-    dt(ndt),
-    type(nT),
-    p2(0)
-  {}
-
-  inline intPart(const CIntEvent& coll, const unsigned long long& nCC2) throw():
+  inline intPart(const CIntEvent& coll, const unsigned long& nCC2) throw():
     dt(coll.getdt()),
     collCounter2(nCC2),
     type(INTERACTION),
@@ -89,7 +89,7 @@ public:
   inline void stream(const Iflt& ndt) throw() { dt -= ndt; }
 
   mutable Iflt dt;
-  unsigned long long collCounter2;
+  unsigned long collCounter2;
   EEventType type;
   size_t p2;  
 };

@@ -13,11 +13,6 @@
 // is ever less than the parent and no child of a max level is ever greater
 // than the parent.
 // 
-//-------------------------------------------------------------------------
-// I have read and I understand the course policy on cheating. By submitting
-// the following program, I am stating that the program was produced by my
-// individual effort. 
-//-------------------------------------------------------------------------
 
 #ifndef MINMAXHEAP_H
 #define MINMAXHEAP_H
@@ -28,6 +23,8 @@
 
 using namespace std;
 
+//The size parameter is one less than the size of the heap!!!
+//An extra element is added to the start to simplify the math!
 template <class Comparable, size_t Size>
 class MinMaxHeap
 {

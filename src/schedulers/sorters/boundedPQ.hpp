@@ -34,9 +34,9 @@ private:
   //Bounded priority queue variables and types
   struct eventQEntry
   {
+    T data;
     int next;
     int previous;
-    T data;
     int qIndex;
   };
 

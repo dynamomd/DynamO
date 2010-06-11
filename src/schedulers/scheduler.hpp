@@ -90,7 +90,7 @@ public:
   
 protected:
   mutable smrtPlugPtr<CSSorter> sorter;
-  mutable std::vector<unsigned long long> eventCount;
+  mutable std::vector<unsigned long> eventCount;
   
   virtual void outputXML(xmlw::XmlStream&) const = 0;
 };
