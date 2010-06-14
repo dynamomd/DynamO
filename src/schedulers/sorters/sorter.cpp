@@ -29,13 +29,13 @@ CSSorter::CSSorter(const DYNAMO::SimData* const& SD, const char *aName):
 CSSorter* 
 CSSorter::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
 {
-  if (!strcmp(XML.getAttribute("Type"),"BoundedPQ"))
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<pList>::name())
     return new CSSBoundedPQ<>(Sim);
-  if (!strcmp(XML.getAttribute("Type"),"BoundedPQMinMax"))
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<5> >::name())
     {
       return new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim);
     }
-  else if (!strcmp(XML.getAttribute("Type"),"CBT"))
+  else if (std::string(XML.getAttribute("Type")) == std::string("CBT"))
     return new CSSCBT(Sim);
   else 
     D_throw() << "Unknown type of Sorter encountered";

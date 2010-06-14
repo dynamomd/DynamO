@@ -26,6 +26,31 @@
 #include "sorter.hpp"
 #include "../../dynamics/units/units.hpp"
 #include "../../base/is_simdata.hpp"
+#include <string>
+#include <boost/static_assert.hpp>
+
+template<size_t Size>
+class MinMaxHeapPList;
+
+class pList;
+
+template<class T>
+struct CSSBoundedPQName
+{
+  BOOST_STATIC_ASSERT(sizeof(T) == 0);
+};
+
+template<>
+struct CSSBoundedPQName<pList>
+{
+  inline static std::string name() { return "BoundedPQ"; }
+};
+
+template<size_t I>
+struct CSSBoundedPQName<MinMaxHeapPList<I> >
+{
+  inline static std::string name() { return "BoundedPQMinMax"; }
+};
 
 template<typename T = pList>
 class CSSBoundedPQ: public CSSorter
@@ -457,7 +482,7 @@ private:
   }
   
   virtual void outputXML(xmlw::XmlStream& XML) const
-  { XML << xmlw::attr("Type") << "BoundedPQ"; }
+  { XML << xmlw::attr("Type") << CSSBoundedPQName<T>::name(); }
 
 };
 #endif

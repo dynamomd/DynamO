@@ -248,7 +248,7 @@ CIPPacker::initialise()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
 	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
 
 	if (vm.count("b1"))
 	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
