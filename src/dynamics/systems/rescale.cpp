@@ -80,6 +80,7 @@ CSysRescale::runEvent() const
     BOOST_FOREACH(const unsigned long& partID, *species->getRange())
     SDat.L1partChanges.push_back(C1ParticleData(Sim->vParticleList[partID], *species, RESCALE));
 
+  Sim->dynamics.getLiouvillean().updateAllParticles();
   Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(1.0/currentkT);
 
   Sim->signalParticleUpdate(SDat);
@@ -97,7 +98,6 @@ CSysRescale::runEvent() const
 
   dt = HUGE_VAL;
   
-  Sim->dynamics.getLiouvillean().updateAllParticles();
   Sim->ptrScheduler->rebuildList();
 }
 
