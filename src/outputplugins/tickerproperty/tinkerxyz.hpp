@@ -19,6 +19,7 @@
 #define OPTinkerXYZ_H
 
 #include "ticker.hpp"
+#include "../../dynamics/liouvillean/liouvillean.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -40,7 +41,7 @@ class OPTinkerXYZ: public OPTicker
 
   virtual void ticker();
 
-  void eventUpdate(const CIntEvent&, const C2ParticleData&) { if (!(Sim->lNColl % 2000)) ticker(); }
+  void eventUpdate(const CIntEvent&, const C2ParticleData&) { if (!(Sim->lNColl % 10000)) {Sim->dynamics.getLiouvillean().updateAllParticles(); ticker(); } }
   
   void operator<<(const XMLNode&);
 
