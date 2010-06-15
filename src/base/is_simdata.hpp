@@ -161,7 +161,7 @@ namespace DYNAMO
 
     /*! \brief A ptr to the CScheduler of the system. */
     CScheduler *ptrScheduler;
-    
+
     /*! \brief The Dynamics of the system. */
     Dynamics dynamics;
     

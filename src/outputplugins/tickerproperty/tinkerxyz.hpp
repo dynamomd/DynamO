@@ -39,6 +39,8 @@ class OPTinkerXYZ: public OPTicker
   virtual void stream(Iflt) {}
 
   virtual void ticker();
+
+  void eventUpdate(const CIntEvent&, const C2ParticleData&) { if (!(Sim->lNColl % 2000)) ticker(); }
   
   void operator<<(const XMLNode&);
 
