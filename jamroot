@@ -57,9 +57,12 @@ variant massif : <inlining>off <optimization>speed <debug-symbols>on
 variant massif_in : <inlining>on <optimization>speed <debug-symbols>on 
 	<profiling>off ;
 
-variant fulldebug : debug : <define>_GLIBCXX_DEBUG <define>DYNAMO_DEBUG ; 
+variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG ; 
+#<cxxflags>ansi
+#<cxxflags>pedantic
+#<cxxflags>Weffc++
 #<define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug
-
+#<define>_GLIBXX_DEBUG_PEDANTIC <define>_GLIBCXX_DEBUG_PEDANTIC  <define>_GLIBCXX_CONCEPT_CHECKS <define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG <define>_GLIBCPP_CONCEPT_CHECKS
 exe dynareplex_opt 
     : programs/dynareplex_opt.cpp boost//program_options
     ;

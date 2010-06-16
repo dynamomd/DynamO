@@ -37,22 +37,31 @@ class OPVTK: public OPTicker
 
   void operator<<(const XMLNode&);
   
+  void eventUpdate(const CIntEvent&, const C2ParticleData&);
+
  protected:
   unsigned long frameCount;
 
   CVector<size_t> nBins;
   Vector  binWidth;
   Vector  invBinWidth;
+  Iflt binVol;
   
   std::vector<Iflt> mVsquared;
   std::vector<unsigned long> SampleCounter;
   std::vector<Vector  > Momentum;
+
+  std::vector<unsigned long> collCounter;
 
   size_t getCellID(Vector );
 
   unsigned long imageCounter;
   bool snapshots;
   bool fields;
+  bool CollisionStats;
+
+  size_t eventCounter;
+  size_t collstatsfilecounter;
 };
 
 #endif

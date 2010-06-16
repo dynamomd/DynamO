@@ -35,7 +35,10 @@ OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
   binWidth(1,1,1),
   imageCounter(0),
   snapshots(false),
-  fields(false)
+  fields(false),
+  CollisionStats(false),
+  eventCounter(0),
+  collstatsfilecounter(0)
 {
   operator<<(XML);
 }
@@ -52,6 +55,7 @@ OPVTK::operator<<(const XMLNode& XML)
     
     if (XML.isAttributeSet("Snapshots")) snapshots = true;
     if (XML.isAttributeSet("Fields")) fields = true;
+    if (XML.isAttributeSet("CollisionStats")) CollisionStats = true;
     
       }
   catch (std::exception& excep)
@@ -61,33 +65,141 @@ OPVTK::operator<<(const XMLNode& XML)
     }
 }
 
+void 
+OPVTK::eventUpdate(const CIntEvent& IEvent, const C2ParticleData& PDat)
+{
+  if (CollisionStats)
+    {
+      ++collCounter[getCellID(PDat.particle1_.getParticle().getPosition())];
+      ++collCounter[getCellID(PDat.particle2_.getParticle().getPosition())];
+
+      if (!(++eventCounter % 50000) && true)
+	{
+	  char *fileName;
+	  if ( asprintf(&fileName, "%05ld", ++collstatsfilecounter) < 0)
+	    D_throw() << "asprintf error in tinkerXYZ";
+	  
+	  std::ofstream of((std::string("CollStats") + fileName + std::string(".vtu")).c_str());
+	  
+	  free(fileName);
+
+	  xmlw::XmlStream XML(of);
+	  
+	  
+	  XML << xmlw::tag("VTKFile")
+	      << xmlw::attr("type") << "ImageData"
+	      << xmlw::attr("version") << "0.1"
+	      << xmlw::attr("byte_order") << "LittleEndian"
+	      << xmlw::attr("compressor") << "vtkZLibDataCompressor"
+	      << xmlw::tag("ImageData")
+	      << xmlw::attr("WholeExtent");
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    XML << " " << "0 " << nBins[iDim] - 1;
+	  
+	  XML << xmlw::attr("Origin");
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    XML << (Sim->aspectRatio[iDim] * (-0.5))
+	      / Sim->dynamics.units().unitLength()
+		<< " ";
+	  
+	  XML << xmlw::attr("Spacing");
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
+	  
+	  XML << xmlw::tag("Piece")
+	      << xmlw::attr("Extent");
+	  
+	  for (size_t iDim(0); iDim < NDIM; ++iDim)
+	    XML << " " << "0 " << nBins[iDim] - 1;
+	  
+	  XML << xmlw::tag("PointData");
+	  
+	  
+	  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
+	  DYNAMO::Line_Breaker lb(6);
+	  
+	  ////////////SAMPLE COUNTS
+	  XML << xmlw::tag("DataArray")
+	      << xmlw::attr("type") << "Int32"
+	      << xmlw::attr("Name") << "Collisions Per Snapshot"
+	      << xmlw::attr("format") << "ascii"
+	      << xmlw::chardata();
+	  
+	  BOOST_FOREACH(const unsigned long& val, collCounter)
+	    XML << val << lb;
+	  
+	  XML << "\n" << xmlw::endtag("DataArray");
+	  
+	  BOOST_FOREACH(unsigned long& val, collCounter)
+	    val = 0;
+	  
+	  std::vector<size_t> density(nBins[0] * nBins[1] * nBins[2], 0);
+
+	  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	    ++density[getCellID(part.getPosition())];
+	  
+	  XML << xmlw::tag("DataArray")
+	      << xmlw::attr("type") << "Float32"
+	      << xmlw::attr("Name") << "Density"
+	      << xmlw::attr("format") << "ascii"
+	      << xmlw::chardata();
+	  
+	  lb.reset();
+	  BOOST_FOREACH(const size_t& val, density)
+	    XML << (val / binVol) << lb;
+	  
+	  XML << "\n" << xmlw::endtag("DataArray");
+
+	  ////////////Postamble
+	  XML << xmlw::endtag("PointData")
+	      << xmlw::tag("CellData")
+	      << xmlw::endtag("CellData")
+	      << xmlw::endtag("Piece")
+	      << xmlw::endtag("ImageData")
+	      << xmlw::endtag("VTKFile");
+	}
+    }
+}
+
 void
 OPVTK::initialise()
 {
-  if (fields)
+  size_t vecSize = 1;
+  
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      size_t vecSize = 1;
+      binWidth[iDim] *= Sim->dynamics.units().unitLength();
       
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	{
-	  binWidth[iDim] *= Sim->dynamics.units().unitLength();
-	  
-	  if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
-	    D_throw() << "Your bin width is too large for the " << iDim 
-		      << " dimension";
-	  
-	  nBins[iDim] = static_cast<size_t>
-	    (Sim->aspectRatio[iDim] / binWidth[iDim]);
-	  
-	  //This is just to ensure the bin width fits an integer number of
-	  //times into the simulation
-	  binWidth[iDim] = Sim->aspectRatio[iDim] / nBins[iDim];
-	  
-	  invBinWidth[iDim] = 1.0 / binWidth[iDim];
-	  
-	  vecSize *= nBins[iDim];
-	}
+      if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
+	D_throw() << "Your bin width is too large for the " << iDim 
+		  << " dimension";
       
+      nBins[iDim] = static_cast<size_t>
+	(Sim->aspectRatio[iDim] / binWidth[iDim]);
+      
+      //This is just to ensure the bin width fits an integer number of
+      //times into the simulation
+      binWidth[iDim] = Sim->aspectRatio[iDim] / nBins[iDim];
+      
+      invBinWidth[iDim] = 1.0 / binWidth[iDim];
+      
+      vecSize *= nBins[iDim];
+    }
+  
+  binVol = binWidth[0] * binWidth[1] * binWidth[2];
+  
+  
+  if (CollisionStats)
+    {
+      collCounter.clear();
+      collCounter.resize(vecSize, 0);
+    }
+  
+  if (fields)
+    {      
       mVsquared.resize(vecSize, 0.0);
       SampleCounter.resize(vecSize, 0);
       Momentum.resize(vecSize, Vector (0,0,0));
