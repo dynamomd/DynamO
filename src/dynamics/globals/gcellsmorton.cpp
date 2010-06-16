@@ -319,7 +319,8 @@ CGCellsMorton::addCells(Iflt maxdiam)
 
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    if (Sim->aspectRatio[iDim] != 1.0) D_throw() << "You must have a single dimension equal to 1!";
+    if (Sim->aspectRatio[iDim] != 1.0) 
+      I_cerr() << "Warning! A non-square system is certainly not optimal for memory usage when using Morton Ordered Lists";
 #endif
 
   cellCount = int(1 / maxdiam);

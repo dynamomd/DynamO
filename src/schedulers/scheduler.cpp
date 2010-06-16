@@ -135,7 +135,7 @@ CScheduler::runNextEvent()
 	      << "\nTime to event "
 	      << sorter->getNextEvent().dt
 	      << "\nEvent Type = " 
-	      << CIntEvent::getCollEnumName(sorter->getNextEvent().type)
+	      << sorter->getNextEvent().type
 	      << "\nOwner Particle = " << sorter->next_ID()
 	      << "\nID2 = " << sorter->getNextEvent().p2;
 
@@ -144,7 +144,7 @@ CScheduler::runNextEvent()
 	      << "\nTime to event "
 	      << sorter->getNextEvent().dt
 	      << "\nEvent Type = " 
-	      << CIntEvent::getCollEnumName(sorter->getNextEvent().type)
+	      << sorter->getNextEvent().type
 	      << "\nOwner Particle = " << sorter->next_ID()
 	      << "\nID2 = " << sorter->getNextEvent().p2;
 
@@ -153,7 +153,7 @@ CScheduler::runNextEvent()
 	      << "\nTime to event "
 	      << sorter->getNextEvent().dt
 	      << "\nEvent Type = " 
-	      << CIntEvent::getCollEnumName(sorter->getNextEvent().type)
+	      << sorter->getNextEvent().type
       	      << "\nOwner Particle = " << sorter->next_ID()
 	      << "\nID2 = " << sorter->getNextEvent().p2;
 #endif  

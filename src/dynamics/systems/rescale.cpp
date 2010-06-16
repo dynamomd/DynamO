@@ -45,8 +45,8 @@ CSysRescale::checker(const CNParticleData&)
 {
   if (!(Sim->lNColl % _frequency)) 
     {
-      Sim->ptrScheduler->rebuildSystemEvents();
       dt = 0;
+      Sim->ptrScheduler->rebuildSystemEvents();
     }
 
 }
