@@ -27,8 +27,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../base/is_stream_op.hpp"
-
-
+#include "../../dynamics/systems/rescale.hpp"
 
 OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"VTK"),
@@ -73,7 +72,7 @@ OPVTK::eventUpdate(const CIntEvent& IEvent, const C2ParticleData& PDat)
       ++collCounter[getCellID(PDat.particle1_.getParticle().getPosition())];
       ++collCounter[getCellID(PDat.particle2_.getParticle().getPosition())];
 
-      if (!(++eventCounter % 50000) && true)
+      if (!(++eventCounter % 50000))
 	{
 	  char *fileName;
 	  if ( asprintf(&fileName, "%05ld", ++collstatsfilecounter) < 0)

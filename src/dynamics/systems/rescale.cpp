@@ -30,9 +30,13 @@
 #include "../ranges/include.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <fstream>
 
 CSysRescale::CSysRescale(const XMLNode& XML, DYNAMO::SimData* tmp): 
-  CSystem(tmp)
+  CSystem(tmp),
+  scaleFactor(1),
+  LastTime(0),
+  RealTime(0)
 {
   operator<<(XML);
   type = RESCALE;
@@ -49,6 +53,20 @@ CSysRescale::checker(const CNParticleData&)
       Sim->ptrScheduler->rebuildSystemEvents();
     }
 
+
+  if (!(Sim->lNColl % (_frequency / 16)))
+    {
+      std::ofstream logfile("HaffLaw.dat", std::ios_base::app);
+      
+      Iflt Temp = (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
+		   * scaleFactor)
+	/ (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF());
+      
+      Iflt Time = RealTime + (Sim->dSysTime - LastTime) / std::sqrt(scaleFactor);
+
+      logfile << Sim->lNColl << " " << Time / Sim->dynamics.units().unitTime() << " "
+	      << Temp / Sim->dynamics.units().unitEnergy() << std::endl;
+    }
 }
 
 void 
@@ -82,6 +100,13 @@ CSysRescale::runEvent() const
 
   Sim->dynamics.getLiouvillean().updateAllParticles();
   Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(1.0/currentkT);
+
+
+  RealTime += (Sim->dSysTime - LastTime) / std::sqrt(scaleFactor);
+
+  LastTime = Sim->dSysTime;
+
+  scaleFactor *= currentkT;
 
   Sim->signalParticleUpdate(SDat);
   

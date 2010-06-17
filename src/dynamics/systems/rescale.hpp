@@ -41,11 +41,17 @@ public:
 
   void checker(const CNParticleData&);
   
+  inline const Iflt& getScaleFactor() const {return scaleFactor; }
+
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   size_t _frequency;
 
+  mutable Iflt scaleFactor;
+
+  mutable Iflt LastTime, RealTime;
+  
 };
 
 #endif
