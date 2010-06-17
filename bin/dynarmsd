@@ -120,8 +120,26 @@ def print_vmd_structure(structure, filename):
   finally:
     f.close()
 
+
+################################################################################
+################################################################################
+################################################################################
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-c", "--cutoff", type="float", dest="cutoff", default=0.6, help="upper value of RMSD to be within the same cluster")
+parser.add_option("-t", "--threshold", type="int", dest="threshold", default=5, help="set minimum number of configurations to form a cluster")
+
+(options, args) = parser.parse_args()
+cutoff = options.cutoff
+threshold = options.threshold
+#cutoff = 0.6
+#threshold = 5
+
+################################################################################
 filedata = []
-for file in  sys.argv[1:]:
+#for file in  sys.argv[1:]:
+for file in args:
   print "Processing file "+file
   if (os.path.exists(file+'.rmspickle3')):
     print "Found pickled data, skipping minimisation"
@@ -200,7 +218,7 @@ g = open('clusterfraction.dat', 'w')
 h = open('avgrmsd.dat', 'w')
 try:
   for data in filedata:
-    clusters = cluster_analysis(data[1][2], 0.6, 5)
+    clusters = cluster_analysis(data[1][2], cutoff, threshold)
     if (len(filedata)==1):
       print clusters
       for cluster in clusters:
