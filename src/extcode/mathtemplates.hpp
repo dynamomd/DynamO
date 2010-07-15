@@ -250,19 +250,19 @@ cubicSolve(const Iflt& p, const Iflt& q, const Iflt& r, Iflt& root1, Iflt& root2
   return 3;
 }
 
-size_t 
+inline size_t 
 neumarkQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
 		    Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
 
-size_t
+inline size_t
 yacfraidQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 		     Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
 
-size_t 
+inline size_t 
 descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
 		      Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
 
-size_t 
+inline size_t 
 ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 		    Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
 
@@ -307,40 +307,36 @@ inline size_t quarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const If
 	return 0;
       
     }
-
-  size_t k = 0;
-  if (a < doub0) k += 2;
-  if (b < doub0) k += 1;
-  if (c < doub0) k += 8;
-  if (d < doub0) k += 4;
-  switch (k)
-     {
-     case 9 : 
-       nr = ferrari(a,b,c,d,rts); 
-       break;
-     case 5 :
-       nr = descartes(a,b,c,d,rts); break;
-     case 15 : 
-       nr = descartes(-a,b,-c,d,rts); 
-       break;
-     default:
-       nr = neumark(a,b,c,d,rts); 
-       break;
-     }
-     if (k == 15)
-       for (j = 0; j < nr; ++j)
-          rts[j] = -rts[j];
-  }
-
   
-
   //Now we have to resort to some dodgy formulae!
-  return neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4);
+  size_t k = 0, nr;
+  if (a < 0.0) k += 2;
+  if (b < 0.0) k += 1;
+  if (c < 0.0) k += 8;
+  if (d < 0.0) k += 4;
+  switch (k)
+    {
+    case 9 : 
+      nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+      break;
+    case 5 :
+      nr = descartesQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+      break;
+    case 15 :
+      //This algorithm is stable if we flip the sign of the roots
+      nr = descartesQuarticSolve(-a,b,-c,d,root1,root2,root3,root4); 
+      root1 *=-1; root2 *=-1; root3 *=-1; root4 *=-1; 
+      break;
+    default:
+      nr = neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+      break;
+    }
+  return nr;
   
 }
 
-Iflt quarticError(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
-		  const boost::array<Iflt, 4>& roots, const size_t rootCount)
+inline Iflt quarticError(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
+			 const boost::array<Iflt, 4>& roots, const size_t rootCount)
 {
   boost::array<Iflt, 4> errors;
 
@@ -375,13 +371,12 @@ Iflt quarticError(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 
 //solve the quartic equation -
 //x**4 + a*x**3 + b*x**2 + c*x + d = 0
-size_t 
+inline size_t 
 neumarkQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
 		    Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
 {
   boost::array<Iflt, 4> rts;
   boost::array<Iflt, 3> worst3;
-  int j,k, n4[4];
   double y,g,gg,h,hh,gdis,gdisrt,hdis,hdisrt,g1,g2,h1,h2;
   double bmy,gerr,herr,y4,bmysq;
   double v1[4],v2[4],v3[4];
@@ -507,7 +502,7 @@ neumarkQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 	  qrts[2*n1+1][j3] = v2[1];
 	}
 
-      for (j = 0; j < nQuarticRoots[j3]; ++j)
+      for (size_t j = 0; j < nQuarticRoots[j3]; ++j)
         rts[j] = qrts[j][j3];
       worst3[j3] = quarticError(a, b, c, d, rts,nQuarticRoots[j3]);
 
@@ -530,7 +525,7 @@ size_t  j3 = 0;
 } /* neumark */
 /****************************************************/
 
-size_t 
+inline size_t 
 descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
 		      Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
 {
@@ -547,7 +542,6 @@ descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d
   int j, n4[4];
   double v1[4],v2[4],v3[4];
   double k,y;
-  double dis;
   double p,q,r;
   double e0,e1,e2;
   double g,h;
@@ -585,12 +579,10 @@ descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d
        qrts[n1*2+1][j3] = v2[1] - ainv4;
        n4[j3]= n1*2 + n2*2;
      } /* y>=0 */
-donej3:
      for (j = 0; j < n4[j3]; ++j)
         rts[j] = qrts[j][j3];
      worst3[j3] = quarticError(a, b, c, d, rts, n4[j3]);
   } /* j3 loop */
-done:
   size_t j3 = 0;
   if (n3 != 1)
   {
@@ -612,13 +604,13 @@ done:
 
 //solve the quartic equation -
 //x**4 + a*x**3 + b*x**2 + c*x + d = 0
-size_t 
+inline size_t 
 yacfraidQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 		     Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
 {
-  int i,j;
+  int j;
   double y;
-  double v1[4],v2[4],v3[4];
+  double v3[4];
   double det0,det1,det2,det3;
   double det0rt,det1rt,det2rt,det3rt;
   double e,f,g,h,k;
@@ -754,7 +746,7 @@ done:
   return (n4[j3]);
 } /* yacfraid */
 /*****************************************/
-size_t 
+inline size_t 
 ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 		    Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
 {
@@ -768,7 +760,7 @@ ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
       return cubicSolve(a,b,c,root2,root3,root4) + 1;
     }
 
-  int j,k, n3;
+  int j;
   int n4[4];
   double asqinv4;
   double ainv2;
@@ -787,7 +779,7 @@ ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
   p = b;
   q = a*c-d4;
   r = (asqinv4 - b)*d4 + c*c;
-  n3 = cubicSolve(p,q,r,v3[0],v3[1],v3[2]);
+  size_t n3 = cubicSolve(p,q,r,v3[0],v3[1],v3[2]);
   for (size_t j3 = 0; j3 < n3; ++j3)
   {
      y = v3[j3];
@@ -876,13 +868,12 @@ ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
            qrts[n1*2+0][j3] = v2[0];
            qrts[n1*2+1][j3] = v2[1];
      }
-donej3:
      for (j = 0; j < n4[j3]; ++j)
         rts[j] = qrts[j][j3];
 
      worst3[j3] = quarticError(a, b, c, d, rts, n4[j3]);
   } /* j3 loop */
-done:
+
   size_t j3 = 0;
   if (n3 != 1)
   {
