@@ -258,6 +258,14 @@ size_t
 yacfraidQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 		     Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
 
+size_t 
+descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
+		      Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
+
+size_t 
+ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
+		    Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4);
+
 //Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0
 inline size_t quarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
 			   Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
@@ -300,6 +308,31 @@ inline size_t quarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const If
       
     }
 
+  size_t k = 0;
+  if (a < doub0) k += 2;
+  if (b < doub0) k += 1;
+  if (c < doub0) k += 8;
+  if (d < doub0) k += 4;
+  switch (k)
+     {
+     case 9 : 
+       nr = ferrari(a,b,c,d,rts); 
+       break;
+     case 5 :
+       nr = descartes(a,b,c,d,rts); break;
+     case 15 : 
+       nr = descartes(-a,b,-c,d,rts); 
+       break;
+     default:
+       nr = neumark(a,b,c,d,rts); 
+       break;
+     }
+     if (k == 15)
+       for (j = 0; j < nr; ++j)
+          rts[j] = -rts[j];
+  }
+
+  
 
   //Now we have to resort to some dodgy formulae!
   return neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4);
@@ -504,6 +537,12 @@ descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d
   boost::array<Iflt, 4> rts;
   boost::array<Iflt, 3> worst3;
   double qrts[4][3];        /* quartic roots for each cubic root */
+
+  if (d == 0.0)
+    {
+      root1 = 0.0;
+      return cubicSolve(a,b,c,root2,root3,root4) + 1;
+    }
 
   int j, n4[4];
   double v1[4],v2[4],v3[4];
@@ -715,3 +754,152 @@ done:
   return (n4[j3]);
 } /* yacfraid */
 /*****************************************/
+size_t 
+ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
+		    Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
+{
+  boost::array<Iflt, 4> rts;
+  boost::array<Iflt, 3> worst3;
+  double qrts[4][3];        /* quartic roots for each cubic root */
+
+  if (d == 0.0)
+    {
+      root1 = 0.0;
+      return cubicSolve(a,b,c,root2,root3,root4) + 1;
+    }
+
+  int j,k, n3;
+  int n4[4];
+  double asqinv4;
+  double ainv2;
+  double d4;
+  double yinv2;
+  double v1[4],v2[4],v3[4];
+  double p,q,r;
+  double y;
+  double e,f,esq,fsq,ef;
+  double g,gg,h,hh;
+
+  ainv2 = a*0.5;
+  asqinv4 = ainv2*ainv2;
+  d4 = d*4.0 ;
+
+  p = b;
+  q = a*c-d4;
+  r = (asqinv4 - b)*d4 + c*c;
+  n3 = cubicSolve(p,q,r,v3[0],v3[1],v3[2]);
+  for (size_t j3 = 0; j3 < n3; ++j3)
+  {
+     y = v3[j3];
+     yinv2 = y*0.5;
+     esq = asqinv4 - b - y;
+     fsq = yinv2*yinv2 - d;
+     if ((esq < 0.0) && (fsq < 0.0))
+       n4[j3] = 0;
+     else
+     {
+        ef = -(0.25*a*y + 0.5*c);
+        if ( ((a > 0.0)&&(y > 0.0)&&(c > 0.0))
+          || ((a > 0.0)&&(y < 0.0)&&(c < 0.0))
+          || ((a < 0.0)&&(y > 0.0)&&(c < 0.0))
+          || ((a < 0.0)&&(y < 0.0)&&(c > 0.0))
+          ||  (a == 0.0)||(y == 0.0)||(c == 0.0))
+/* use ef - */
+        {
+              if ((b < 0.0)&&(y < 0.0))
+              {
+                 e = sqrt(esq);
+                 f = ef/e;
+              }
+              else if (d < 0.0)
+              {
+                 f = sqrt(fsq);
+                 e = ef/f;
+              }
+              else
+              {
+                 if (esq > 0.0)
+                    e = sqrt(esq);
+                 else
+                    e = 0.0;
+                 if (fsq > 0.0)
+                    f = sqrt(fsq);
+                 else
+                    f = 0.0;
+                 if (ef < 0.0)
+                    f = -f;
+              }
+        }
+        else
+/* use esq and fsq - */
+        {
+              if (esq > 0.0)
+                 e = sqrt(esq);
+              else
+                 e = 0.0;
+              if (fsq > 0.0)
+                 f = sqrt(fsq);
+              else
+                 f = 0.0;
+              if (ef < 0.0)
+                 f = -f;
+           }
+/* note that e >= 0.0 */
+           g = ainv2 - e;
+           gg = ainv2 + e;
+           if ( ((b > 0.0)&&(y > 0.0))
+              || ((b < 0.0)&&(y < 0.0)) )
+	     {
+	       if ((a > 0.0) && (e > 0.0)
+		   || (a < 0.0) && (e < 0.0) )
+		 g = (b + y)/gg;
+	     else
+	       if ((a > 0.0) && (e < 0.0)
+		   || (a < 0.0) && (e > 0.0) )
+		   gg = (b + y)/g;
+           }
+           hh = -yinv2 + f;
+           h = -yinv2 - f;
+           if ( ((f > 0.0)&&(y < 0.0))
+             || ((f < 0.0)&&(y > 0.0)) )
+              h = d/hh;
+           else
+           if ( ((f < 0.0)&&(y < 0.0))
+              || ((f > 0.0)&&(y > 0.0)) )
+              hh = d/h;
+
+           bool n1 = quadSolve(hh,gg,1.0,v1[0],v1[1]);
+           bool n2 = quadSolve(h,g,1.0,v2[0],v2[1]);
+           n4[j3] = n1*2+n2*2;
+           qrts[0][j3] = v1[0];
+           qrts[1][j3] = v1[1];
+           qrts[n1*2+0][j3] = v2[0];
+           qrts[n1*2+1][j3] = v2[1];
+     }
+donej3:
+     for (j = 0; j < n4[j3]; ++j)
+        rts[j] = qrts[j][j3];
+
+     worst3[j3] = quarticError(a, b, c, d, rts, n4[j3]);
+  } /* j3 loop */
+done:
+  size_t j3 = 0;
+  if (n3 != 1)
+  {
+     if ((n4[1] > n4[j3]) ||
+        ((worst3[1] < worst3[j3] ) && (n4[1] == n4[j3]))) j3 = 1;
+
+     if ((n4[2] > n4[j3]) ||
+        ((worst3[2] < worst3[j3] ) && (n4[2] == n4[j3]))) j3 = 2;
+  }
+
+  root1 = qrts[0][j3];
+  root2 = qrts[1][j3];
+  root3 = qrts[2][j3];
+  root4 = qrts[3][j3];
+
+  return (n4[j3]);
+} /* ferrari */
+/*****************************************/
+
+
