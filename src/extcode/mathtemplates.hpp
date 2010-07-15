@@ -55,6 +55,7 @@ typedef enum
     ROOT_LARGEST_NEGATIVE  =  32
   } rootTypeEnum;
 
+//Solve a quadratic of the form A x^2 + B x + C == 0
 inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& root1, Iflt& root2)
 {
   // Contingency: if A = 0, not a quadratic = linear
@@ -83,6 +84,67 @@ inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& root1, 
     root2 = C / t;
   }
 
+  return true;
+}
+
+template<rootTypeEnum rootType>
+inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& ans)
+{
+  Iflt root1(0), root2(0);
+
+  if (!quadSolve(C,B,A,root1,root2)) return false;
+
+  switch (rootType)
+    {
+    case ROOT_SMALLEST_EITHER:
+      ans = (fabs(root1) < fabs(root2)) ? root1 : root2;
+      break;
+    case ROOT_LARGEST_EITHER:
+      ans = (fabs(root1) < fabs(root2)) ? root2 : root1;
+    case ROOT_LARGEST_NEGATIVE:
+      if (root1 < 0 && root2 < 0)
+	ans = ((root1 < root2) ? root1 : root2);
+      else if (root1 < 0)
+	ans = root1;
+      else if (root2 < 0)
+	ans = root2;
+      else
+	return false;
+      break;
+    case ROOT_SMALLEST_NEGATIVE:
+      if (root1 < 0 && root2 < 0)
+	ans = ((root1 < root2) ? root2 : root1);
+      else if (root1 < 0)
+	ans = root1;
+      else if (root2 < 0)
+	ans = root2;
+      else
+	return false;
+      break;
+    case ROOT_LARGEST_POSITIVE:
+      if (root1 > 0 && root2 > 0)
+	ans = ((root1 > root2) ? root1 : root2);
+      else if (root1 > 0)
+	ans = root1;
+      else if (root2 > 0)
+	ans = root2;
+      else
+	return false;
+      break;
+    case ROOT_SMALLEST_POSITIVE:
+      if (root1 > 0 && root2 > 0)
+	ans = ((root1 > root2) ? root2 : root1);
+      else if (root1 > 0)
+	ans = root1;
+      else if (root2 > 0)
+	ans = root2;
+      else
+	return false;
+      break;
+    default:
+      D_throw() << "Unknown root selected";
+      break;
+    }
   return true;
 }
 
@@ -189,64 +251,46 @@ cubicSolve(const Iflt& p, const Iflt& q, const Iflt& r, Iflt& root1, Iflt& root2
 }
 
 
-
-template<rootTypeEnum rootType>
-inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& ans)
+//Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0
+inline size_t quarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
+			   Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
 {
-  Iflt root1(0), root2(0);
-
-  if (!quadSolve(C,B,A,root1,root2)) return false;
-
-  switch (rootType)
-    {
-    case ROOT_SMALLEST_EITHER:
-      ans = (fabs(root1) < fabs(root2)) ? root1 : root2;
-      break;
-    case ROOT_LARGEST_EITHER:
-      ans = (fabs(root1) < fabs(root2)) ? root2 : root1;
-    case ROOT_LARGEST_NEGATIVE:
-      if (root1 < 0 && root2 < 0)
-	ans = ((root1 < root2) ? root1 : root2);
-      else if (root1 < 0)
-	ans = root1;
-      else if (root2 < 0)
-	ans = root2;
-      else
-	return false;
-      break;
-    case ROOT_SMALLEST_NEGATIVE:
-      if (root1 < 0 && root2 < 0)
-	ans = ((root1 < root2) ? root2 : root1);
-      else if (root1 < 0)
-	ans = root1;
-      else if (root2 < 0)
-	ans = root2;
-      else
-	return false;
-      break;
-    case ROOT_LARGEST_POSITIVE:
-      if (root1 > 0 && root2 > 0)
-	ans = ((root1 > root2) ? root1 : root2);
-      else if (root1 > 0)
-	ans = root1;
-      else if (root2 > 0)
-	ans = root2;
-      else
-	return false;
-      break;
-    case ROOT_SMALLEST_POSITIVE:
-      if (root1 > 0 && root2 > 0)
-	ans = ((root1 > root2) ? root2 : root1);
-      else if (root1 > 0)
-	ans = root1;
-      else if (root2 > 0)
-	ans = root2;
-      else
-	return false;
-      break;
-    default:
-      D_throw() << "Unknown root selected";
-      break;
+  if (d == 0)
+    {//Solve a cubic with a trivial root of 0
+      
+      root1 = 0;
+      return 1 + cubicSolve(a, b, c, root2, root3, root4);
     }
-  return true;
+  
+  if ((a == 0) && (c== 0))
+    {//We have a biquadratic
+      
+      Iflt quadRoot1,quadRoot2;
+      if (quadSolve(d,b,1, quadRoot1, quadRoot2))
+	{
+	  if (quadRoot1 < quadRoot2) std::swap(quadRoot1,quadRoot2);
+	  
+	  if (quadRoot1 < 0)
+	    return 0;
+	  
+	  root1 = std::sqrt(quadRoot1);
+	  root2 = -std::sqrt(quadRoot1);
+	  
+	  if (quadRoot2 < 0)
+	    return 2;
+
+	  root3 = std::sqrt(quadRoot2);
+	  root4 = -std::sqrt(quadRoot2);
+	  return 4;
+	}
+      else
+	return 0;
+      
+    }
+
+
+  //Now we have to resort to some dodgy formulae!
+
+  
+
 }

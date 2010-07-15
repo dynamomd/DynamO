@@ -30,7 +30,7 @@ path-constant BOOST_ROOT : boost/tools/build/v2 ;
 import dynamo-tags ;
 
 project	: requirements
-	  <define>DYNAMO_double_precsision 
+	  <define>DYNAMO_double_precsision
 	  <color>yes:<define>DYNAMO_Colour
 	  <link>static
 	  <condor>no
