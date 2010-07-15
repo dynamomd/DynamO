@@ -17,7 +17,7 @@
 
 #include "PBC.hpp"
 #include "../../base/is_simdata.hpp"
-#include "rintfunc.hpp"
+#include "../../extcode/mathtemplates.hpp"
 #include "../../extcode/xmlwriter.hpp"
 
 BCSquarePeriodic::BCSquarePeriodic(const DYNAMO::SimData* tmp):

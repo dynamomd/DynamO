@@ -23,7 +23,8 @@
 #include "../interactions/intEvent.hpp"
 #include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
-#include "rintfunc.hpp"
+#include "../../extcode/mathtemplates.hpp"
+
 
 BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
