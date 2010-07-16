@@ -377,11 +377,11 @@ neumarkQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 {
   boost::array<Iflt, 4> rts;
   boost::array<Iflt, 3> worst3;
-  double y,g,gg,h,hh,gdis,gdisrt,hdis,hdisrt,g1,g2,h1,h2;
-  double bmy,gerr,herr,y4,bmysq;
-  double v1[4],v2[4],v3[4];
-  double hmax,gmax;
-  double qrts[4][3];        /* quartic roots for each cubic root */
+  Iflt y,g,gg,h,hh,gdis,gdisrt,hdis,hdisrt,g1,g2,h1,h2;
+  Iflt bmy,gerr,herr,y4,bmysq;
+  Iflt v1[4],v2[4],v3[4];
+  Iflt hmax,gmax;
+  Iflt qrts[4][3];        /* quartic roots for each cubic root */
 
   if (d == 0.0)
     {
@@ -531,7 +531,7 @@ descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d
 {
   boost::array<Iflt, 4> rts;
   boost::array<Iflt, 3> worst3;
-  double qrts[4][3];        /* quartic roots for each cubic root */
+  Iflt qrts[4][3];        /* quartic roots for each cubic root */
 
   if (d == 0.0)
     {
@@ -540,14 +540,14 @@ descartesQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d
     }
 
   int j, n4[4];
-  double v1[4],v2[4],v3[4];
-  double k,y;
-  double p,q,r;
-  double e0,e1,e2;
-  double g,h;
-  double asq;
-  double ainv4;
-  double e1invk;
+  Iflt v1[4],v2[4],v3[4];
+  Iflt k,y;
+  Iflt p,q,r;
+  Iflt e0,e1,e2;
+  Iflt g,h;
+  Iflt asq;
+  Iflt ainv4;
+  Iflt e1invk;
 
   asq = a*a;
   e2 = b - asq * (3.0/8.0);
@@ -609,17 +609,17 @@ yacfraidQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 		     Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
 {
   int j;
-  double y;
-  double v3[4];
-  double det0,det1,det2,det3;
-  double det0rt,det1rt,det2rt,det3rt;
-  double e,f,g,h,k;
-  double fsq,gsq,hsq,invk;
-  double P,Q,R,U;
+  Iflt y;
+  Iflt v3[4];
+  Iflt det0,det1,det2,det3;
+  Iflt det0rt,det1rt,det2rt,det3rt;
+  Iflt e,f,g,h,k;
+  Iflt fsq,gsq,hsq,invk;
+  Iflt P,Q,R,U;
 
   boost::array<Iflt, 4> rts;
   boost::array<Iflt, 3> worst3;
-  double qrts[4][3];        /* quartic roots for each cubic root */
+  Iflt qrts[4][3];        /* quartic roots for each cubic root */
 
   if (d == 0.0)
     {
@@ -752,7 +752,7 @@ ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 {
   boost::array<Iflt, 4> rts;
   boost::array<Iflt, 3> worst3;
-  double qrts[4][3];        /* quartic roots for each cubic root */
+  Iflt qrts[4][3];        /* quartic roots for each cubic root */
 
   if (d == 0.0)
     {
@@ -762,15 +762,15 @@ ferrariQuarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d,
 
   int j;
   int n4[4];
-  double asqinv4;
-  double ainv2;
-  double d4;
-  double yinv2;
-  double v1[4],v2[4],v3[4];
-  double p,q,r;
-  double y;
-  double e,f,esq,fsq,ef;
-  double g,gg,h,hh;
+  Iflt asqinv4;
+  Iflt ainv2;
+  Iflt d4;
+  Iflt yinv2;
+  Iflt v1[4],v2[4],v3[4];
+  Iflt p,q,r;
+  Iflt y;
+  Iflt e,f,esq,fsq,ef;
+  Iflt g,gg,h,hh;
 
   ainv2 = a*0.5;
   asqinv4 = ainv2*ainv2;
