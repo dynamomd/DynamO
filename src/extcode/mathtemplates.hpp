@@ -366,7 +366,7 @@ inline Iflt quarticError(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt
 	}
     }
 
-  return *std::min_element(errors.begin(), errors.begin()+rootCount);
+  return *std::max_element(errors.begin(), errors.begin()+rootCount);
 }
 
 //solve the quartic equation -
