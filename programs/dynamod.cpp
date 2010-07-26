@@ -51,32 +51,33 @@ main(int argc, char *argv[])
       po::options_description allopts("General Options"), loadopts("Load Config File Options");
       
       allopts.add_options()
-	("help", "Produces this message")
+	("help", "Produces this message.")
 	("out-config-file,o", 
 	 po::value<string>()->default_value("config.out.xml.bz2"), 
 	 "Configuration output file.")
 	("random-seed,s", po::value<unsigned int>(),
-	 "Random seed for generator")
+	 "Random seed for generator.")
 	("packfrac,P", po::value<Iflt>(), 
-	 "Rescale lengths to set the packing fraction")
+	 "Rescale lengths to set the packing fraction.")
 	("rescale-T,r", po::value<Iflt>(), 
-	 "Rescale kinetic temperature to this value")
-	("zero-momentum,Z", "Zero the momentum")
-	("zero-com", "Zero the centre of mass")
+	 "Rescale kinetic temperature to this value.")
+	("zero-momentum,Z", "Zero the momentum.")
+	("zero-com", "Zero the centre of mass.")
+	("zero-vel-com", po::value<size_t>(), "Set all velocity component (arg) to zero.")
 	("set-com-vel", po::value<std::string>(), 
-	 "Sets the velocity of the COM of the system (format x,y,z no spaces)")
+	 "Sets the velocity of the COM of the system (format x,y,z no spaces).")
 	("mirror-system,M",po::value<unsigned int>(), 
 	 "Mirror the particle co-ordinates and velocities. Argument is "
-	 "dimension to reverse/mirror")
-	("binary", "Output the XML file with appended binary particle data for efficiency")
-	("text", "Output the XML file with text/XML particle data for readability")
-	("round", "Output the XML config file with one less digit to aid in removing rounding errors for test systems")
-	("uncompressed", "Output the XML config file without bzip compression")
+	 "dimension to reverse/mirror.")
+	("binary", "Output the XML file with appended binary particle data for efficiency.")
+	("text", "Output the XML file with text/XML particle data for readability.")
+	("round", "Output the XML config file with one less digit to aid in removing rounding errors for test systems.")
+	("uncompressed", "Output the XML config file without bzip compression.")
 	;
 
       loadopts.add_options()
 	("config-file", po::value<string>(), 
-	 "Config file to initialise from (Non packer mode)")
+	 "Config file to initialise from (Non packer mode).")
 	;
        
       allopts.add(loadopts);
@@ -165,6 +166,10 @@ main(int argc, char *argv[])
       if (vm.count("mirror-system"))
 	CInputPlugin(&sim, "Mirrorer").
 	  mirrorDirection(vm["mirror-system"].as<unsigned int>());
+
+      if (vm.count("zero-vel-com"))
+	CInputPlugin(&sim, "Vel-Component-Zeroer").
+	  zeroVelComp(vm["zero-vel-com"].as<size_t>());
 
       if (vm.count("set-com-vel"))
 	{

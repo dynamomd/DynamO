@@ -130,3 +130,10 @@ CInputPlugin::mirrorDirection(unsigned int iDim)
       part.getPosition()[iDim] *= -1.0;
     }
 }
+
+void 
+CInputPlugin::zeroVelComp(size_t iDim)
+{
+  BOOST_FOREACH(CParticle& part, Sim->vParticleList)  
+    part.getVelocity()[iDim] = 0.0;
+}

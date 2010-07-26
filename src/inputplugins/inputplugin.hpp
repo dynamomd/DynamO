@@ -42,6 +42,8 @@ class CInputPlugin: public DYNAMO::SimBase
   void setPackFrac(Iflt);
 
   void mirrorDirection(unsigned int);
+
+  void zeroVelComp(size_t);
   
  protected:  
 };

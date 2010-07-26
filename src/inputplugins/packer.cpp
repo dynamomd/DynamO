@@ -61,39 +61,39 @@ CIPPacker::getOptions()
 	       "given by --packer-mode-help)");
 
   retval.add_options()
-    ("packer-mode,m", po::value<size_t>(), "Chooses the system to initialise")
+    ("packer-mode,m", po::value<size_t>(), "Chooses the system to initialise.")
     ("packer-mode-help,h",
-     "Outputs the possible packer modes and their options")
+     "Outputs the possible packer modes and their options.")
     ("NCells,C", po::value<unsigned long>()->default_value(7),
-     "Number of unit cells to a dimension")
+     "Number of unit cells to a dimension.")
     ("xcell,x", po::value<unsigned long>(),
-     "For rectlinear co-ordinates, number of unit cells in the x direction")
+     "For rectlinear co-ordinates, number of unit cells in the x direction.")
     ("ycell,y", po::value<unsigned long>(),
-     "For rectlinear co-ordinates, number of unit cells in the y direction")
+     "For rectlinear co-ordinates, number of unit cells in the y direction.")
     ("zcell,z", po::value<unsigned long>(),
-     "For rectlinear co-ordinates, number of unit cells in the z direction")
+     "For rectlinear co-ordinates, number of unit cells in the z direction.")
     ("rectangular-box", "This will cause the simulation box to be deformed so "
-     "that the x,y,z ecells specify the aspect ratio")
+     "that the x,y,z ecells specify the aspect ratio.")
     ("density,d", po::value<Iflt>()->default_value(0.5),
-     "System number density (init-mode > 1)")
+     "System number density (init-mode > 1).")
     ("Thermostat,T", po::value<Iflt>(),
-     "Apply/Change the Andersen thermostat and set the Ensemble to NVT")
+     "Apply/Change the Andersen thermostat and set the Ensemble to NVT.")
     //("Sentinel,S", "Installs the collision sentinal to study low densities")
     ;
 
   hiddenopts.add_options()
-    ("b1", "boolean option one")
-    ("b2", "boolean option two")
-    ("i1", po::value<size_t>(), "integer option one")
-    ("i2", po::value<size_t>(), "integer option two")
-    ("s1", po::value<std::string>(), "string option one")
-    ("s2", po::value<std::string>(), "string option two")
-    ("f1", po::value<Iflt>(), "Iflt option one")
-    ("f2", po::value<Iflt>(), "Iflt option two")
-    ("f3", po::value<Iflt>(), "Iflt option three")
-    ("f4", po::value<Iflt>(), "Iflt option four")
-    ("f5", po::value<Iflt>(), "Iflt option five")
-    ("f6", po::value<Iflt>(), "Iflt option six")
+    ("b1", "boolean option one.")
+    ("b2", "boolean option two.")
+    ("i1", po::value<size_t>(), "integer option one.")
+    ("i2", po::value<size_t>(), "integer option two.")
+    ("s1", po::value<std::string>(), "string option one.")
+    ("s2", po::value<std::string>(), "string option two.")
+    ("f1", po::value<Iflt>(), "Iflt option one.")
+    ("f2", po::value<Iflt>(), "Iflt option two.")
+    ("f3", po::value<Iflt>(), "Iflt option three.")
+    ("f4", po::value<Iflt>(), "Iflt option four.")
+    ("f5", po::value<Iflt>(), "Iflt option five.")
+    ("f6", po::value<Iflt>(), "Iflt option six.")
     ;
 
   retval.add(hiddenopts);
