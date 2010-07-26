@@ -41,8 +41,6 @@ class OPCContactMap: public OPTicker
 
   virtual void changeSystem(OutputPlugin*);
 
-  void temperatureRescale(const Iflt&) {}
-
   virtual void output(xmlw::XmlStream&);
   
  protected:

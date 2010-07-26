@@ -43,7 +43,7 @@ OPKEnergy::changeSystem(OutputPlugin* Eplug)
 void
 OPKEnergy::temperatureRescale(const Iflt& scale)
 {
-  KECurrent *= scale * scale;
+  KECurrent *= scale;
 }
 
 void

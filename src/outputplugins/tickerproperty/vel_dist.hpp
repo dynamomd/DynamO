@@ -20,6 +20,8 @@
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
+class OPKEnergy;
+
 class OPVelDist: public OPTicker
 {
  public:
@@ -41,4 +43,6 @@ class OPVelDist: public OPTicker
  protected:
   Iflt binWidth;
   std::vector<C1DHistogram> data[NDIM];
+
+  const OPKEnergy* _ptrOPEnergy;
 };

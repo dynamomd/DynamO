@@ -134,6 +134,7 @@ CInputPlugin::mirrorDirection(unsigned int iDim)
 void 
 CInputPlugin::zeroVelComp(size_t iDim)
 {
-  BOOST_FOREACH(CParticle& part, Sim->vParticleList)  
+  I_cout() << "Zeroing the " << iDim << " dimension velocities";
+  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
     part.getVelocity()[iDim] = 0.0;
 }

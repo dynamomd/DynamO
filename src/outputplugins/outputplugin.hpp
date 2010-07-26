@@ -71,8 +71,7 @@ public:
   virtual void changeSystem(OutputPlugin*) 
   { D_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
   
-  virtual void temperatureRescale(const Iflt&)
-  {}
+  virtual void temperatureRescale(const Iflt&) {}
   
 protected:
   DYNAMO::Colorise_Text_Stream_Operator I_Pcout() const;

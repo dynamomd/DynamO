@@ -42,6 +42,7 @@
 #include "../dynamics/locals/include.hpp"
 #include "../dynamics/systems/DSMCspheres.hpp"
 #include "../dynamics/systems/RingDSMC.hpp"
+#include "../dynamics/systems/rescale.hpp"
 
 CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
   SimBase(tmp,"SysPacker", IC_blue),
@@ -109,9 +110,12 @@ CIPPacker::initialise()
       I_cout() <<
 	"Modes available:\n"
 	"  0: Monocomponent hard spheres\n"
+	"       --f1 : Sets the elasticity of the hard spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Adds a temperature rescale event every x events\n"
 	"       --b1 : Installs the collision sentinel for low densities\n"
 	"       --b2 : Forces the use of non-morton cells in square systems\n"
+	"       --b3 : Forces the use of non-morton cells in square systems\n"
 	"  1: Monocomponent square wells\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Lambda [1.5] (well width factor)\n"
@@ -247,6 +251,32 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
+	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
+	  {
+	    CVector<long> cells = getCells();
+	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
+	      {
+		I_cerr() << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
+		  "I'm going to temporarily calculate the density by the 2D definition!";
+		
+		size_t dimension;
+		if (cells[0] == 1)
+		  dimension = 0;
+		if (cells[1] == 1)
+		  dimension = 1;
+		if (cells[2] == 1)
+		  dimension = 2;
+
+		particleDiam = std::sqrt(simVol * vm["density"].as<Iflt>()
+					 / (Sim->aspectRatio[dimension] * latticeSites.size()));		
+		
+		I_cout() << "I'm changing what looks like the unused box dimension (" 
+			 << dimension << ") to the optimal 2D value (3 particle diameters)";
+
+		Sim->aspectRatio[dimension] = 3.0000001 * particleDiam;
+	      }
+	  }
+
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
 
@@ -255,7 +285,12 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0,
+	Iflt elasticity = 1.0;
+
+	if (vm.count("f1"))
+	  elasticity =  vm["f1"].as<Iflt>();
+
+	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -272,6 +307,10 @@ CIPPacker::initialise()
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	
+	if (vm.count("i2"))
+	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
+
 	break;
       }
     case 1:

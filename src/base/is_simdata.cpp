@@ -120,8 +120,8 @@ namespace DYNAMO
 	  
 	  (*iPtr1)->changeSystem(iPtr2->get_ptr());
 	  
-	  (*iPtr1)->temperatureRescale(scale1);
-	  (*iPtr2)->temperatureRescale(scale2);
+	  (*iPtr1)->temperatureRescale(scale1 * scale1);
+	  (*iPtr2)->temperatureRescale(scale2 * scale2);
 	  
 	  ++iPtr1; 
 	  ++iPtr2;

@@ -168,10 +168,6 @@ main(int argc, char *argv[])
 	CInputPlugin(&sim, "Mirrorer").
 	  mirrorDirection(vm["mirror-system"].as<unsigned int>());
 
-      if (vm.count("zero-vel-com"))
-	CInputPlugin(&sim, "Vel-Component-Zeroer").
-	  zeroVelComp(vm["zero-vel-com"].as<size_t>());
-
       if (vm.count("set-com-vel"))
 	{
 	  boost::tokenizer<boost::char_separator<char> > 
@@ -191,6 +187,10 @@ main(int argc, char *argv[])
 	  CInputPlugin(&sim, "velSetter")
 	    .setCOMVelocity(vel);
 	}
+
+      if (vm.count("zero-vel"))
+	CInputPlugin(&sim, "Vel-Component-Zeroer").
+	  zeroVelComp(vm["zero-vel"].as<size_t>());
 
 
       //Write out now we've changed the system

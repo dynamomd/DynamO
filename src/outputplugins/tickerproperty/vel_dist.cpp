@@ -19,11 +19,13 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include "../1partproperty/kenergy.hpp"
 
 OPVelDist::OPVelDist(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
   OPTicker(tmp,"VelDist"),
-  binWidth(0.01)
+  binWidth(0.01),
+  _ptrOPEnergy(NULL)
 { operator<<(XML); }
 
 void 
@@ -43,6 +45,8 @@ OPVelDist::operator<<(const XMLNode& XML)
 void 
 OPVelDist::initialise()
 {
+  _ptrOPEnergy = Sim->getOutputPlugin<OPKEnergy>();
+
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     data[iDim].resize(Sim->dynamics.getSpecies().size(), 
 		      C1DHistogram(Sim->dynamics.units().unitVelocity() 
@@ -52,11 +56,14 @@ OPVelDist::initialise()
 void 
 OPVelDist::ticker()
 {
+  Iflt factor = std::sqrt(Sim->dynamics.units().unitMass() 
+			  / _ptrOPEnergy->getCurrentkT());
+
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim][sp->getID()]
-	.addVal(Sim->vParticleList[ID].getVelocity()[iDim]);
+	.addVal(Sim->vParticleList[ID].getVelocity()[iDim] * factor);
 }
 
 void
@@ -76,8 +83,7 @@ OPVelDist::output(xmlw::XmlStream& XML)
 	      << xmlw::attr("val")
 	      << iDim;
 	  
-	  data[iDim][id].outputHistogram
-	    (XML, 1.0 / Sim->dynamics.units().unitVelocity());
+	  data[iDim][id].outputHistogram(XML, 1.0);
 	  
 	  XML << xmlw::endtag("Dimension");
 	}

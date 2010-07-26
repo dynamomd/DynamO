@@ -44,6 +44,19 @@ CSysRescale::CSysRescale(const XMLNode& XML, DYNAMO::SimData* tmp):
   I_cout() << "Velocity Rescaler Loaded";
 }
 
+CSysRescale::CSysRescale(DYNAMO::SimData* tmp, size_t frequency, std::string name): 
+  CSystem(tmp),
+  _frequency(frequency),
+  scaleFactor(0),
+  LastTime(0),
+  RealTime(0)
+{
+  type = RESCALE;
+  sysName = name;
+
+  I_cout() << "Velocity Rescaler Loaded";
+}
+
 void 
 CSysRescale::checker(const CNParticleData&)
 {
@@ -58,14 +71,14 @@ CSysRescale::checker(const CNParticleData&)
     {
       std::ofstream logfile("HaffLaw.dat", std::ios_base::app);
       
-      Iflt Temp = (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
-		   * scaleFactor)
-	/ (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF());
+      lIflt logTemp = scaleFactor 
+	+ std::log((2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy())
+		   / (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF()));
       
-      Iflt Time = RealTime + (Sim->dSysTime - LastTime) / std::sqrt(scaleFactor);
+      lIflt Time = RealTime + (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 
       logfile << Sim->lNColl << " " << Time / Sim->dynamics.units().unitTime() << " "
-	      << Temp / Sim->dynamics.units().unitEnergy() << std::endl;
+	      << logTemp - std::log(Sim->dynamics.units().unitEnergy()) << std::endl;
     }
 }
 
@@ -80,10 +93,10 @@ CSysRescale::runEvent() const
   
   //dynamics must be updated first
   Sim->dynamics.stream(locdt);
-
+  
   ++Sim->lNColl;
-
-
+  
+  
   /////////Now the actual updates
   I_cout() << "WARNING Rescaling kT to 1";
   
@@ -101,12 +114,11 @@ CSysRescale::runEvent() const
   Sim->dynamics.getLiouvillean().updateAllParticles();
   Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(1.0/currentkT);
 
-
-  RealTime += (Sim->dSysTime - LastTime) / std::sqrt(scaleFactor);
+  RealTime += (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 
   LastTime = Sim->dSysTime;
 
-  scaleFactor *= currentkT;
+  scaleFactor += std::log(currentkT);
 
   Sim->signalParticleUpdate(SDat);
   
@@ -120,6 +132,9 @@ CSysRescale::runEvent() const
 
   BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt); 
+
+  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    Ptr->temperatureRescale(1.0/currentkT);
 
   dt = HUGE_VAL;
   
@@ -150,7 +165,6 @@ CSysRescale::operator<<(const XMLNode& XML)
     _frequency = boost::lexical_cast<size_t>(XML.getAttribute("Freq"));
     
     sysName = XML.getAttribute("Name");
-    
   }
   catch (boost::bad_lexical_cast &)
     {

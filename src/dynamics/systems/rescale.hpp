@@ -30,6 +30,7 @@ class CSysRescale: public CSystem
 {
 public:
   CSysRescale(const XMLNode& XML, DYNAMO::SimData*);
+  CSysRescale(DYNAMO::SimData*, size_t frequency, std::string name);
 
   virtual CSystem* Clone() const { return new CSysRescale(*this); }
 
@@ -41,16 +42,16 @@ public:
 
   void checker(const CNParticleData&);
   
-  inline const Iflt& getScaleFactor() const {return scaleFactor; }
+  inline const lIflt& getScaleFactor() const {return scaleFactor; }
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   size_t _frequency;
 
-  mutable Iflt scaleFactor;
+  mutable lIflt scaleFactor;
 
-  mutable Iflt LastTime, RealTime;
+  mutable lIflt LastTime, RealTime;
   
 };
 

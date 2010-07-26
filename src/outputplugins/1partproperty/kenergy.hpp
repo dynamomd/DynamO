@@ -45,11 +45,13 @@ class OPKEnergy: public OP1PP
   Iflt getAvgTheta() const;
      
   Iflt getAvgSqTheta() const;
-     
+  
   void changeSystem(OutputPlugin*);
 
   void temperatureRescale(const Iflt&);
   
+  const Iflt& getCurrentkT() const { return KECurrent; }
+
  protected:
 
   Iflt InitialKE;

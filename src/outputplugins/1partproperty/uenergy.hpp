@@ -48,8 +48,6 @@ class OPUEnergy: public OP1PP
 
   void changeSystem(OutputPlugin*);
 
-  void temperatureRescale(const Iflt&) {}
-  
  protected:
 
   Iflt intECurrent;
