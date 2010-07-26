@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 	 "Rescale kinetic temperature to this value.")
 	("zero-momentum,Z", "Zero the momentum.")
 	("zero-com", "Zero the centre of mass.")
-	("zero-vel-com", po::value<size_t>(), "Set all velocity component (arg) to zero.")
+	("zero-vel", po::value<size_t>(), "Set all particles velocity component (arg) to zero.")
 	("set-com-vel", po::value<std::string>(), 
 	 "Sets the velocity of the COM of the system (format x,y,z no spaces).")
 	("mirror-system,M",po::value<unsigned int>(), 
@@ -71,7 +71,8 @@ main(int argc, char *argv[])
 	 "dimension to reverse/mirror.")
 	("binary", "Output the XML file with appended binary particle data for efficiency.")
 	("text", "Output the XML file with text/XML particle data for readability.")
-	("round", "Output the XML config file with one less digit to aid in removing rounding errors for test systems.")
+	("round", "Output the XML config file with one less digit to aid in removing rounding errors for"
+	 " test systems.")
 	("uncompressed", "Output the XML config file without bzip compression.")
 	;
 
