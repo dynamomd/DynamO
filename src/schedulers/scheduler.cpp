@@ -164,39 +164,54 @@ CScheduler::runNextEvent()
       {
 	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
 	const CParticle& p2(Sim->vParticleList[sorter->getNextEvent().p2]);
+
+	//Copy the FEL event
+	intPart FELEvent = sorter->getNextEvent();
+
+	//Ready the next event in the FEL
+	sorter->popNextEvent();
+	sorter->update(sorter->next_ID());
+	sorter->sort();
 	
-	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
-	
+	//Now recalculate the FEL event
+	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
 	CIntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
-	if ((fabs(1.0 - fabs(Event.getdt() / sorter->next_dt())) > 0.01)
-	    && (fabs(sorter->next_dt() - Event.getdt()) > 1e-10*Sim->dSysTime))
+	if (Event.getdt() > sorter->getNextEvent().dt)
 	  {
-	    I_cerr() << 
-	      "A recalculated event time, performed to confirm the collision time, is"
-	      "\nmore than 1% different to the FEL event time. Either due to free "
-	      "\nstreaming inaccuracies or . Forcing a complete recalculation for "
-	      "\nthe particles involved\n\n======Event Data======\n"
-		     << Event.stringData(Sim)
-		     << "\n\n Systime of original event is " 
-		     << (sorter->next_dt() + Sim->dSysTime) 
-	      / Sim->dynamics.units().unitTime()
-		     << "\n\n Systime of recalculated event "
-		     << (Event.getdt() + Sim->dSysTime) 
-	      / Sim->dynamics.units().unitTime()
-		     << "\n\n Systime is "
-		     << Sim->dSysTime / Sim->dynamics.units().unitTime();
-	     
+	    //The next FEL event is earlier than the recalculated event
+	    //Grab the next event ID's
+	    const unsigned long np1 = sorter->next_ID(),
+	      np2 = sorter->getNextEvent().p2;
+	    
+	    //Check if the next event is just another copy of this event with possibly reversed ID's
+	    if ((sorter->getNextEvent().type != INTERACTION)
+		|| ((p1.getID() != np1) && (p1.getID() != np2))
+		|| ((p2.getID() != np1) && (p2.getID() != np2)))
+	      {
+		
+#ifdef DYNAMO_DEBUG
+		I_cerr() << "Interaction event found to occur later than the next "
+		  "FEL event [" << p1.getID() << "," << p2.getID()
+			 << "] (small numerical error), recalculating";
+#endif		
+		this->fullUpdate(p1, p2);
+		return;
+	      }
+	    //It's just another version of this event so we can execute it
+	  }
+
+	if (Event.getType() == NONE)
+	  {
+#ifdef DYNAMO_DEBUG
+	    I_cerr() << "Interaction event found not to occur [" << p1.getID() << "," << p2.getID()
+		     << "] (possible glancing collision canceled due to numerical error)";
+#endif		
 	    this->fullUpdate(p1, p2);
 	    return;
 	  }
 	
 #ifdef DYNAMO_DEBUG
-	if (Event.getType() == NONE)
-	  D_throw() << "A NONE event has reached the top of the queue."
-	    "\nThe simulation has run out of events!"
-	    "\n\n======Event Data======\n"
-		    << Event.stringData(Sim);	  
 
 	if (isnan(Event.getdt()))
 	  D_throw() << "A NAN Interaction collision time has been found"
@@ -322,10 +337,16 @@ CScheduler::runNextEvent()
 	this->fullUpdate(Sim->vParticleList[sorter->next_ID()]);
 	break;
       }
+    case NONE:
+      {
+	D_throw() << "A NONE event has reached the top of the queue."
+	  "\nThe simulation has run out of events! Aborting!";
+      }
     default:
       D_throw() << "Unhandled event type requested to be run\n"
 		<< "Type is " 
-		<< sorter->getNextEvent().type;
+		<< sorter->getNextEvent().type
+		<< "";
     }
 }
 
