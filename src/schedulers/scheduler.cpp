@@ -266,35 +266,36 @@ CScheduler::runNextEvent()
       {
 	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
 
-	Sim->dynamics.getLiouvillean().updateParticle(part);
-	CLocalEvent iEvent(Sim->dynamics.getLocals()[sorter->getNextEvent().p2]->getEvent(part));
+	//Copy the FEL event
+	intPart FELEvent = sorter->getNextEvent();
+
+	//Ready the next event in the FEL
+	sorter->popNextEvent();
+	sorter->update(sorter->next_ID());
+	sorter->sort();
 	
-	if ((fabs(1.0 - fabs(iEvent.getdt() / sorter->next_dt())) > 0.01)
-	    && (fabs(sorter->next_dt() - iEvent.getdt()) > 1e-10*Sim->dSysTime))
+	Sim->dynamics.getLiouvillean().updateParticle(part);
+	CLocalEvent iEvent(Sim->dynamics.getLocals()[FELEvent.p2]->getEvent(part));
+
+	if (iEvent.getType() == NONE)
 	  {
-	    I_cerr() << 
-	      "A recalculated LOCAL event time, performed to confirm the collision time, is"
-	      "\nmore than 1% different to the FEL event time. Either due to free "
-	      "\nstreaming inaccuracies or . Forcing a complete recalculation for "
-	      "\nthe particles involved\n\n======Event Data======\n"
-		     << iEvent.stringData(Sim)
-		     << "\n\n Systime of original event is " 
-		     << (sorter->next_dt() + Sim->dSysTime) 
-	      / Sim->dynamics.units().unitTime()
-		     << "\n\n Systime of recalculated event "
-		     << (iEvent.getdt() + Sim->dSysTime) 
-	      / Sim->dynamics.units().unitTime()
-		     << "\n\n Systime is "
-		     << Sim->dSysTime / Sim->dynamics.units().unitTime();
-	     
+#ifdef DYNAMO_DEBUG
+	    I_cerr() << "Local event found not to occur [" << p1.getID() << "," << p2.getID()
+		     << "] (possible glancing/tenuous event canceled due to numerical error)";
+#endif		
 	    this->fullUpdate(part);
 	    return;
 	  }
 
-	if (iEvent.getType() == NONE)
-	  D_throw() << "No global collision found\n"
-		    << iEvent.stringData(Sim);
-	
+	if (iEvent.getdt() > sorter->getNextEvent().dt)
+	  {
+#ifdef DYNAMO_DEBUG 
+	    I_cerr() << "Recalculated LOCAL event time is greater than the next event time, recalculating";
+#endif
+	    this->fullUpdate(part);
+	    return;
+	  }
+
 #ifdef DYNAMO_DEBUG 
 	if (isnan(iEvent.getdt()))
 	  D_throw() << "A NAN Global collision time has been found\n"
@@ -315,8 +316,7 @@ CScheduler::runNextEvent()
 	iEvent.addTime(Sim->freestreamAcc);
 	Sim->freestreamAcc = 0;
 
-	Sim->dynamics.getLocals()[sorter->getNextEvent().p2]
-	->runEvent(part, iEvent);	  
+	Sim->dynamics.getLocals()[FELEvent.p2]->runEvent(part, iEvent);	  
 	break;
       }
     case SYSTEM:
