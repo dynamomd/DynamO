@@ -77,16 +77,14 @@ ThreadPool::wait()
 	D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
     }
   else
-    {
 #endif
+    {
       //Non threaded mode
       BOOST_FOREACH(Functor_T& afunctor, m_waitingFunctors)
 	afunctor();
       
       m_waitingFunctors.clear();
-#ifndef DYNAMO_CONDOR   
     }
-#endif
 }
 
 void 

@@ -444,6 +444,6 @@ HS_replex_test "NeighbourList"
 
 echo ""
 echo "THREADING TESTING"
-echo "Testing replica exchange with 2 threads"
-HS_replex_test "NeighbourList" "-N2"
+echo "Testing replica exchange with 3 threads"
+HS_replex_test "NeighbourList" "-N3"
 
