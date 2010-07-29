@@ -409,3 +409,23 @@ CScheduler::addLocalEvent(const CParticle& part,
     sorter->push(Sim->dynamics.getLocals()[id]->getEvent(part), part.getID());  
 }
 
+void 
+CScheduler::fullUpdate(const CParticle& p1, const CParticle& p2)
+{
+  //Both must be invalidated at once to reduce the number of invalid
+  //events in the queue
+  invalidateEvents(p1);
+  invalidateEvents(p2);
+  addEvents(p1);
+  addEvents(p2);
+  sort(p1);
+  sort(p2);
+}
+
+void 
+CScheduler::fullUpdate(const CParticle& part)
+{
+  invalidateEvents(part);
+  addEvents(part);
+  sort(part);
+}
