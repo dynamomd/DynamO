@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "neighbourlist.hpp"
+#include "threadedNBList.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../simulation/particle.hpp"
 #include "../dynamics/dynamics.hpp"
@@ -33,83 +33,35 @@
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
 
-void 
-CSNeighbourList::operator<<(const XMLNode& XML)
-{
-  sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
+SThreadedNBList::SThreadedNBList(const XMLNode& XML, 
+				 DYNAMO::SimData* const Sim):
+  CSNeighbourList(XML, Sim)
+{ 
+  I_cout() << "Threaded Variant Loaded";
 }
 
-void
-CSNeighbourList::initialise()
+SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns):
+  CSNeighbourList(Sim, ns)
+{ I_cout() << "Threaded Variant Loaded"; }
+
+
+void 
+SThreadedNBList::operator<<(const XMLNode& XML)
 {
-  try {
-    NBListID = Sim->dynamics.getGlobal("SchedulerNBList")->getID();
-  }
-  catch(std::exception& cxp)
-    {
-      D_throw() << "Failed while finding the neighbour list global.\n"
-		<< "You must have a neighbour list enabled for this\n"
-		<< "scheduler called SchedulerNBList.\n"
-		<< cxp.what();
-    }
-  
-  if (dynamic_cast<const CGNeighbourList*>
-      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)
-    D_throw() << "The Global named SchedulerNBList is not a neighbour list!";
-
-  static_cast<CGNeighbourList&>
-    (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
-    .markAsUsedInScheduler();
-
-  I_cout() << "Rebuilding all events on collision " << Sim->lNColl;
-  std::cout.flush();
-
-  sorter->clear();
-  //The plus one is because system events are stored in the last heap;
-  sorter->resize(Sim->lN+1);
-  eventCount.clear();
-  eventCount.resize(Sim->lN+1, 0);
-
-  //Now initialise the interactions
-  {
-    boost::progress_display prog(Sim->lN);
- 
-    BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
-      {
-	addEventsInit(part);
-	++prog;
-      }
-  }
-  
-  sorter->init();
-
-  rebuildSystemEvents();
+  CSNeighbourList::operator<<(XML);
 }
 
 void 
-CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
+SThreadedNBList::outputXML(xmlw::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "NeighbourList"
+  XML << xmlw::attr("Type") << "ThreadedNeighbourList"
       << xmlw::tag("Sorter")
       << sorter
       << xmlw::endtag("Sorter");
 }
 
-CSNeighbourList::CSNeighbourList(const XMLNode& XML, 
-				 DYNAMO::SimData* const Sim):
-  CScheduler(Sim,"NeighbourListScheduler", NULL)
-{ 
-  I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
-  operator<<(XML);
-}
-
-CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
-  CScheduler(Sim,"NeighbourListScheduler", ns)
-{ I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
-
 void 
-CSNeighbourList::addEvents(const CParticle& part)
+SThreadedNBList::addEvents(const CParticle& part)
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
@@ -136,11 +88,32 @@ CSNeighbourList::addEvents(const CParticle& part)
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEvent));  
+    (part, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));  
+
+  nblist.getParticleNeighbourhood
+    (part, fastdelegate::MakeDelegate(this, &SThreadedNBList::addEvents2));  
 }
 
 void 
-CSNeighbourList::addEventsInit(const CParticle& part)
+SThreadedNBList::streamParticles(const CParticle& part, 
+				 const size_t& id) const
+{
+  Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+}
+
+void 
+SThreadedNBList::addEvents2(const CParticle& part, 
+			    const size_t& id) const
+{
+  const CIntEvent& eevent(Sim->dynamics.getEvent(part, Sim->vParticleList[id]));
+  
+  if (eevent.getType() != NONE)
+    sorter->push(intPart(eevent, eventCount[id]), part.getID());
+}
+
+
+void 
+SThreadedNBList::addEventsInit(const CParticle& part)
 {  
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -163,11 +136,9 @@ CSNeighbourList::addEventsInit(const CParticle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate
-     (this, &CScheduler::addLocalEvent));
+    (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate
-     (this, &CScheduler::addInteractionEventInit));  
+    (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEventInit));  
 }

@@ -121,12 +121,10 @@ CSComplex::addEvents(const CParticle& part)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood
-	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent, 
-						static_cast<const CScheduler*>(this)));
+	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
 
 	ent->getParticleNeighbourhood
-	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEvent, 
-						static_cast<const CScheduler*>(this)));
+	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEvent));
       }
 }
 
@@ -144,11 +142,9 @@ CSComplex::addEventsInit(const CParticle& part)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood
-	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addLocalEvent,
-						static_cast<const CScheduler*>(this)));
+	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
 
 	ent->getParticleNeighbourhood
-	  (part, CGNeighbourList::getNBDelegate(&CScheduler::addInteractionEventInit, 
-						static_cast<const CScheduler*>(this)));
+	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEventInit));
       }
 }

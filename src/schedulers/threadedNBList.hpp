@@ -15,9 +15,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//A list of all available schedulers
+#pragma once
+
 #include "neighbourlist.hpp"
-#include "dumbsched.hpp"
-#include "systemonly.hpp"
-#include "complex.hpp"
-#include "threadedNBList.hpp"
+#include "../extcode/threadpool.hpp"
+
+class SThreadedNBList: public CSNeighbourList
+{
+public:
+  SThreadedNBList(const XMLNode&, DYNAMO::SimData* const);
+
+  SThreadedNBList(DYNAMO::SimData* const, CSSorter*);
+
+  virtual void addEvents(const CParticle&);
+  
+  virtual void operator<<(const XMLNode&);
+
+  void addEvents2(const CParticle& part, const size_t& id) const;
+  void streamParticles(const CParticle& part, const size_t& id) const;
+
+protected:
+  virtual void outputXML(xmlw::XmlStream&) const;
+
+  void addEventsInit(const CParticle&);
+
+  ThreadPool _threadPool;
+};

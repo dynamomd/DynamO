@@ -145,8 +145,8 @@ CGCellsShearing::runEvent(const CParticle& part) const
       //neighbours and the extra LE neighbourhood strip but its a lot
       //of code
       if (isUsedInScheduler)
-	getParticleNeighbourhood(part, getNBDelegate(&CScheduler::addInteractionEvent, 
-						     Sim->ptrScheduler));
+	getParticleNeighbourhood(part, fastdelegate::MakeDelegate(Sim->ptrScheduler, 
+								  &CScheduler::addInteractionEvent));
       
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	getParticleNeighbourhood(part, nbs.second);
@@ -169,8 +169,8 @@ CGCellsShearing::runEvent(const CParticle& part) const
       
       //Check the extra LE neighbourhood strip
       if (isUsedInScheduler)
-	getExtraLEParticleNeighbourhood(part, getNBDelegate(&CScheduler::addInteractionEvent, 
-							    Sim->ptrScheduler));
+	getExtraLEParticleNeighbourhood(part, fastdelegate::MakeDelegate(Sim->ptrScheduler,
+									 &CScheduler::addInteractionEvent));
       
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	getExtraLEParticleNeighbourhood(part, nbs.second);
@@ -215,8 +215,8 @@ CGCellsShearing::runEvent(const CParticle& part) const
 	//We just check the entire Extra LE neighbourhood
 	{
 	  if (isUsedInScheduler)
-	    getExtraLEParticleNeighbourhood(part, getNBDelegate(&CScheduler::addInteractionEvent, 
-								Sim->ptrScheduler));
+	    getExtraLEParticleNeighbourhood(part, fastdelegate::MakeDelegate(Sim->ptrScheduler,
+									     &CScheduler::addInteractionEvent));
 
 	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	    getExtraLEParticleNeighbourhood(part, nbs.second);

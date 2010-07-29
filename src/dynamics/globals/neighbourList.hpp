@@ -32,16 +32,6 @@ public:
 
   typedef fastdelegate::FastDelegate0<void> initFunc;  
 
-  template<class T>
-  static nbHoodFunc
-  getNBDelegate
-  (void (T::*func)(const CParticle&, const size_t&) const, const T* tp)
-  { return fastdelegate::MakeDelegate(tp, func); }
-
-  template<class T>
-  static initFunc
-  getInitDelegate(void (T::*func)(), T* tp)
-  { return fastdelegate::MakeDelegate(tp, func); }
 
 protected:
   typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;

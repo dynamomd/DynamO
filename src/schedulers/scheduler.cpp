@@ -53,6 +53,8 @@ CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
     return new CSSystemOnly(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Complex"))
     return new CSComplex(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"ThreadedNeighbourList"))
+    return new SThreadedNBList(XML, Sim);
   else 
     D_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Scheduler encountered";
@@ -280,7 +282,7 @@ CScheduler::runNextEvent()
 	if (iEvent.getType() == NONE)
 	  {
 #ifdef DYNAMO_DEBUG
-	    I_cerr() << "Local event found not to occur [" << p1.getID() << "," << p2.getID()
+	    I_cerr() << "Local event found not to occur [" << part.getID()
 		     << "] (possible glancing/tenuous event canceled due to numerical error)";
 #endif		
 	    this->fullUpdate(part);

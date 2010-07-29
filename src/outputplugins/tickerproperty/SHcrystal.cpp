@@ -73,8 +73,7 @@ OPSHCrystal::ticker()
       static_cast<const CGNeighbourList*>
 	(Sim->dynamics.getGlobals()[nblistID].get_ptr())
 	->getParticleNeighbourhood
-	(part, CGNeighbourList::getNBDelegate
-	 (&sphericalsum::operator(), &ssum));
+	(part, fastdelegate::MakeDelegate(&ssum, &sphericalsum::operator()));
       
       for (size_t l(0); l < maxl; ++l)
 	for (int m(-l); m <= static_cast<int>(l); ++m)
