@@ -30,9 +30,6 @@
 #include <boost/thread/condition.hpp>
 #endif
 
-//Just something to make calling a member function in a class using a member function pointer easy.
-#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
-
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
  *
@@ -55,79 +52,7 @@
  */
 class ThreadPool
 {	
-public:
-  
-  /*! \brief This class will turn a class and a member function
-   * pointer into a functor.
-   *
-   * See the constructor for more details
-   */
-  template<class T>
-  class task_noarg { 
-  public:
-    /*! An example of how to make a functor from this is     
-     * task_noarg<Simulation>(&A_Simulation_class, Simulation::runSimulation)
-     * 
-     * \param nobj A reference to the class to be called
-     * \param nfunc The member function pointer to call on the nobj class
-     */
-    task_noarg(T& nobj, void (T::*nfunc)()): 
-      obj(&nobj), pfunc(nfunc) {}
-        
-    void operator()() 
-    { CALL_MEMBER_FN(*obj,pfunc) (); }
-    
-  private:
-    T *obj;
-    void (T::*pfunc)();
-  };
-
-  /*! \brief This class will turn a class and a member function with 1
-   * argument into a functor.
-   */
-  template<class T, class D>
-  class task_1arg { 
-  public:
-    /*! An example of how to make a functor from this is     
-     * task_noarg<Simulation, size_t>(&A_Simulation_class, Simulation::setSimID, 2)
-     * 
-     * \param nobj A reference to the class to be called
-     * \param nfunc The member function pointer to call on the nobj class
-     * \param data The single argument to the member function
-     */
-    task_1arg(T *nobj, void (T::*nfunc)(D), D data): 
-      jobData(data), obj(nobj), pfunc(nfunc) {}
-
-    void operator()() 
-    { CALL_MEMBER_FN(*obj,pfunc) (jobData); }
-
-  private:   
-    D jobData;
-    T *obj;
-    void (T::*pfunc)(D);
-  };
-
-  /*! \brief This class will turn a class and a member function with 2
-   * arguments into a functor.
-   *
-   * See task_1arg for more details
-   */
-  template<class T, class D1, class D2>
-  class task_2arg { 
-  public:
-    task_2arg(T *nobj, void (T::*nfunc)(D1,D2),D1 data1, D2 data2): 
-      jobData1(data1), jobData2(data2), obj(nobj), pfunc(nfunc) {}
-
-    void operator()() 
-    { CALL_MEMBER_FN(*obj,pfunc) (jobData1, jobData2); }
-
-  private:   
-    D1 jobData1;
-    D2 jobData2;
-    T *obj;
-    void (T::*pfunc)(D1,D2);
-  };
-
+public:  
   /*! \brief A type that will allow generic holding of various (void) functors
    */
   typedef boost::function0<void> Functor_T;
