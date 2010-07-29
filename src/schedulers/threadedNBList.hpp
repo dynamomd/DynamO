@@ -31,13 +31,24 @@ public:
   
   virtual void operator<<(const XMLNode&);
 
+  virtual void fullUpdate(const CParticle& part);
+
+  virtual void fullUpdate(const CParticle& p1, const CParticle& p2);
+
   void addEvents2(const CParticle& part, const size_t& id) const;
   void streamParticles(const CParticle& part, const size_t& id) const;
+
+  
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
   void addEventsInit(const CParticle&);
 
+  void addGlobal(const CParticle& p1, const smrtPlugPtr<CGlobal>& glob);
+
   ThreadPool _threadPool;
+
+  boost::mutex _sorterLock;
+  
 };
