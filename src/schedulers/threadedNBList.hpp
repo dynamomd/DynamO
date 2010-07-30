@@ -25,7 +25,7 @@ class SThreadedNBList: public CSNeighbourList
 public:
   SThreadedNBList(const XMLNode&, DYNAMO::SimData* const);
 
-  SThreadedNBList(DYNAMO::SimData* const, CSSorter*);
+  SThreadedNBList(DYNAMO::SimData* const, CSSorter*, size_t threadCount);
 
   virtual void addEvents(const CParticle&);
   

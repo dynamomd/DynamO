@@ -38,14 +38,14 @@ SThreadedNBList::SThreadedNBList(const XMLNode& XML,
   CSNeighbourList(XML, Sim)
 { 
   I_cout() << "Threaded Variant Loaded";
-  _threadPool.setThreadCount(4);
+  _threadPool.setThreadCount(1);
 }
 
-SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns):
+SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns, size_t threadCount):
   CSNeighbourList(Sim, ns)
 { 
   I_cout() << "Threaded Variant Loaded"; 
-  _threadPool.setThreadCount(4);
+  _threadPool.setThreadCount(threadCount);
 }
 
 
@@ -53,12 +53,14 @@ void
 SThreadedNBList::operator<<(const XMLNode& XML)
 {
   CSNeighbourList::operator<<(XML);
+  _threadPool.setThreadCount(boost::lexical_cast<size_t>(XML.getAttribute("ThreadCount")));
 }
 
 void 
 SThreadedNBList::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "ThreadedNeighbourList"
+      << xmlw::attr("ThreadCount") << _threadPool.getThreadCount()
       << xmlw::tag("Sorter")
       << sorter
       << xmlw::endtag("Sorter");
