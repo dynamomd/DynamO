@@ -38,7 +38,12 @@ public:
   void addEvents2(const CParticle& part, const size_t& id) const;
   void streamParticles(const CParticle& part, const size_t& id) const;
 
-  
+  void threadAddLocalEvent(const CParticle& part, 
+			   const size_t& id);
+
+  void spawnThreadAddLocalEvent(const CParticle& part, 
+				const size_t& id);
+
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
