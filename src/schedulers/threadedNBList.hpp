@@ -35,15 +35,20 @@ public:
 
   virtual void fullUpdate(const CParticle& p1, const CParticle& p2);
 
-  void addEvents2(const CParticle& part, const size_t& id) const;
   void streamParticles(const CParticle& part, const size_t& id) const;
 
   void threadAddLocalEvent(const CParticle& part, 
 			   const size_t& id);
 
+  void threadAddIntEvent(const CParticle& part, 
+			 const size_t& id);
+
   void spawnThreadAddLocalEvent(const CParticle& part, 
 				const size_t& id);
 
+  void spawnThreadAddIntEvents(const CParticle& part, const size_t& id);
+
+  void addEvents2(const CParticle& part, const size_t& id) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

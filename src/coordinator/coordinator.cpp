@@ -43,7 +43,7 @@ Coordinator::signal_handler(int sigtype)
       {
 	//Clear the writes to screen
 	std::cout.flush();
-	std::cerr << "\n<S>hutdown, <E>xit, <D>ata or <P>eek at data output:";
+	std::cerr << "\n<S>hutdown, <D>ata or <P>eek at data output:";
 
 	char c;
 	//Clear the input buffer
@@ -57,13 +57,13 @@ Coordinator::signal_handler(int sigtype)
 	  case 'S':
 	    _engine->forceShutdown();
 	    break;
-	  case 'e':
-	  case 'E':
-	    if (_threads.getThreadCount())
-	      std::cerr << "Cannot <E>xit when threaded, causes program to hang. Try shutting down.";
-	    else
-	      exit(1);
-	    break;
+//	  case 'e':
+//	  case 'E':
+//	    if (_threads.getThreadCount())
+//	      std::cerr << "Cannot <E>xit when threaded, causes program to hang. Try shutting down.";
+//	    else
+//	      exit(1);
+//	    break;
 	  case 'p':
 	  case 'P':
 	    _engine->peekData();
