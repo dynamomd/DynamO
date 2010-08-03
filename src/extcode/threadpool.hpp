@@ -21,14 +21,17 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
-#include <list>
-
-#include <boost/function.hpp>
+#include <queue>
+#include "include/FastDelegate/FastDelegate.h"
+#include "include/FastDelegate/FastDelegateBind.h"
 
 #ifndef DYNAMO_CONDOR
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #endif
+
+
+#include <boost/type_traits.hpp>
 
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
@@ -53,10 +56,88 @@
 class ThreadPool
 {	
 public:  
-  /*! \brief A type that will allow generic holding of various (void) functors
-   */
-  typedef boost::function0<void> Functor_T;
-  
+  class Task
+  {
+  public:
+    virtual void operator()() = 0;
+  };
+
+  template<class T>
+  class Task0 : public Task
+  {
+    typedef fastdelegate::FastDelegate0<T> function;
+  public:
+    Task0(function delegate): _delegate(delegate) {}
+    
+    virtual void operator()() { _delegate(); }
+    
+  private:
+    function _delegate;
+  };
+
+  template<class T, class T1>
+  class Task1 : public Task
+  {
+    typedef fastdelegate::FastDelegate1<T1, T> function;
+  public:
+    Task1(function delegate, T1 arg1): 
+      _delegate(delegate), 
+      _arg1(arg1) 
+    {}
+    
+    virtual void operator()() { _delegate(_arg1); }
+    
+  private:
+    function _delegate;
+    T1 _arg1;
+  };
+
+  template<class T, class T1, class T2>
+  class Task2 : public Task
+  {
+    typedef fastdelegate::FastDelegate2<T1, T2, T> function;
+  public:
+    Task2(function delegate, T1 arg1, T2 arg2): 
+      _delegate(delegate), 
+      _arg1(arg1),  
+      _arg2(arg2) 
+   {}
+    
+    virtual void operator()() { _delegate(_arg1, _arg2); }
+    
+  private:
+    function _delegate;
+    T1 _arg1;
+    T2 _arg2;
+  };
+
+  //0 Arguments
+  template<typename retT>
+  static Task* makeTask(retT (*funcPtr)()) { return new Task0<retT>(funcPtr); }
+
+  template<typename retT, typename classT>
+  static Task* makeTask(retT (classT::*funcPtr)(), classT* classPtr)
+  { return new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr)); }
+
+  //1 Argument
+  template<typename retT, typename arg1T>
+  static Task* makeTask(retT (*funcPtr)(arg1T), arg1T arg1)
+  { return new Task1<retT,arg1T>(funcPtr, arg1); }
+
+  template<typename retT, typename classT, typename arg1T>
+  static Task* makeTask(retT (classT::*funcPtr)(arg1T), classT* classPtr, arg1T arg1)
+  { return new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1); }
+
+  template<typename retT, typename arg1T, typename arg2T>
+  static Task* makeTask(retT (*funcPtr)(arg1T, arg2T), arg1T arg1, arg2T arg2)
+  { return new Task2<retT, arg1T, arg2T>(funcPtr, arg1, arg2); }
+
+  template<typename retT, typename classT, typename arg1T, typename arg2T>
+  static Task* makeTask(retT (classT::*funcPtr)(arg1T, arg2T),
+			classT* classPtr, arg1T arg1, arg2T arg2)
+  { return new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2); }
+
+
   /*! \brief Default Constructor
    *
    * This initialises the pool to 0 threads
@@ -86,22 +167,16 @@ public:
    *
    * \param threadfunc A functor which describes the task to complete.
    */
-  inline void invoke(const Functor_T& threadfunc)
+  inline void invoke(Task* threadfunc)
   {
 #ifndef DYNAMO_CONDOR   
     boost::mutex::scoped_lock lock1(m_mutex);    
     m_needThread.notify_all();
-    m_waitingFunctors.push_back(threadfunc);
-
-    if (m_nextFunctor == m_waitingFunctors.end())
-      --m_nextFunctor;
+    m_waitingFunctors.push(threadfunc);
 
     lock1.unlock();
 #else
-    m_waitingFunctors.push_back(threadfunc);
-
-    if (m_nextFunctor == m_waitingFunctors.end())
-      --m_nextFunctor;
+    m_waitingFunctors.push(threadfunc);
 #endif
   }
   
@@ -131,11 +206,8 @@ private:
   size_t m_nQueueSize;
 
   /*! \brief List of functors/tasks left to be assigned to a thread. */
-  std::list<Functor_T> m_waitingFunctors;
+  std::queue<Task*> m_waitingFunctors;
 
-  /*! \brief Next functor in the list to be assigned. */
-  std::list<Functor_T>::iterator m_nextFunctor;
-  
 #ifndef DYNAMO_CONDOR   
   /*! \brief A mutex to control access to job data.
    * 
@@ -161,6 +233,8 @@ private:
   /*! \brief A collection of threads.
    */
   boost::thread_group m_threads;
+
+  size_t _idlingThreads;
 
 #endif
 

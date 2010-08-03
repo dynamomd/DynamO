@@ -38,10 +38,10 @@ public:
   void streamParticles(const CParticle& part, const size_t& id) const;
 
   void threadAddLocalEvent(const CParticle& part, 
-			   const size_t& id);
+			   const size_t id);
 
   void threadAddIntEvent(const CParticle& part, 
-			 const size_t& id);
+			 const size_t id);
 
   void spawnThreadAddLocalEvent(const CParticle& part, 
 				const size_t& id);

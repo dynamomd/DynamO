@@ -21,11 +21,10 @@
 #include <iostream>
 
 ThreadPool::ThreadPool():
-  ExceptionThrown(false)
-{
-  m_bStop = false;
-  m_nextFunctor = m_waitingFunctors.end();
-}
+  ExceptionThrown(false),
+  _idlingThreads(0),
+  m_bStop(false)
+{}
 
 void 
 ThreadPool::setThreadCount(size_t x)
@@ -68,10 +67,8 @@ ThreadPool::wait()
     {
       //We are in threaded mode!
       boost::mutex::scoped_lock lock1(m_mutex);      
-      while (!m_waitingFunctors.empty())
-	{
-	  m_threadAvailable.wait(lock1);
-	}
+      while (_idlingThreads != m_threads.size())
+	m_threadAvailable.wait(lock1);
       
       if (ExceptionThrown) 
 	D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
@@ -80,10 +77,12 @@ ThreadPool::wait()
 #endif
     {
       //Non threaded mode
-      BOOST_FOREACH(Functor_T& afunctor, m_waitingFunctors)
-	afunctor();
-      
-      m_waitingFunctors.clear();
+      while (!m_waitingFunctors.empty())
+	{
+	  (*m_waitingFunctors.front())();
+	  delete m_waitingFunctors.front();
+	  m_waitingFunctors.pop();
+	}
     }
 }
 
@@ -118,20 +117,25 @@ ThreadPool::beginThread() throw()
 	  if (m_bStop)
 	    break;
 	  
-	  if (m_nextFunctor == m_waitingFunctors.end())
+	  if (m_waitingFunctors.empty())
 	    {
-	      // Wait until someone needs a thread
+	      ++_idlingThreads;
+	      //Let whoever is waiting know that the thread is now available
+	      m_threadAvailable.notify_all();
+	      //And send it to sleep
 	      m_needThread.wait(lock1);
+	      --_idlingThreads;
 	    }
 	  else
 	    {
-	      std::list<Functor_T>::iterator iter = m_nextFunctor++;
-	      
+	      Task* func = m_waitingFunctors.front();
+	      m_waitingFunctors.pop();
+
 	      lock1.unlock();
 	      
 	      try
 		{
-		  (*iter)();
+		  (*func)();
 		}
 	      catch(std::exception& cep)
 		{		  
@@ -142,13 +146,9 @@ ThreadPool::beginThread() throw()
 		  boost::mutex::scoped_lock lock2(m_exception);
 		  ExceptionThrown = true;
 		}
-	      
-	      lock1.lock();
-	      m_waitingFunctors.erase(iter);
-	      lock1.unlock();
-	      
-	      m_threadAvailable.notify_all();
-	      
+
+	      delete func;
+
 	      lock1.lock();
 	    }
 	}

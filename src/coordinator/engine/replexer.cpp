@@ -465,7 +465,8 @@ void EReplicaExchangeSimulation::runSimulation()
 	  //Run the simulations
 	  //This is reversed as the high temperature sims generally run longer
 	  for (unsigned int i = nSims; i != 0;)
-	    threads.invoke(boost::bind(&Simulation::runSilentSimulation, &(Simulations[--i])));
+	    threads.invoke(new ThreadPool::Task0<void>(fastdelegate::MakeDelegate
+						       (&(Simulations[--i]), &Simulation::runSilentSimulation)));
 		  
 	  threads.wait();//This syncs the systems for the replica exchange
 		  
