@@ -66,12 +66,18 @@ ThreadPool::wait()
   if (m_threads.size())
     {
       //We are in threaded mode!
-      boost::mutex::scoped_lock lock1(m_mutex);      
-      while (_idlingThreads != m_threads.size())
-	m_threadAvailable.wait(lock1);
+      {
+	boost::mutex::scoped_lock lock1(m_mutex);      
+	while (_idlingThreads != m_threads.size())
+	  m_threadAvailable.wait(lock1);
+      }
       
-      if (ExceptionThrown) 
-	D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
+
+      {
+	boost::mutex::scoped_lock lock2(m_exception);
+	if (ExceptionThrown) 
+	  D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
+      }
     }
   else
 #endif
@@ -83,6 +89,12 @@ ThreadPool::wait()
 	  delete m_waitingFunctors.front();
 	  m_waitingFunctors.pop();
 	}
+
+      {
+	boost::mutex::scoped_lock lock2(m_exception);
+	if (ExceptionThrown)
+	  D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
+      }
     }
 }
 
@@ -139,11 +151,12 @@ ThreadPool::beginThread() throw()
 		}
 	      catch(std::exception& cep)
 		{		  
-		  std::cout << "\nTHREAD :Error in thread, task threw an exception, Handling gracefully."
-			    << cep.what();
-		  
 		  //Mark the main process to throw an exception as soon as possible
 		  boost::mutex::scoped_lock lock2(m_exception);
+
+		  std::cerr << "\nTHREAD :Error in thread, task threw an exception, Handling gracefully."
+			    << cep.what();
+		  
 		  ExceptionThrown = true;
 		}
 
