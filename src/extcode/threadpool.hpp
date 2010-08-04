@@ -18,8 +18,7 @@
  * \brief Contains the definition of ThreadPool
  */
 
-#ifndef THREADPOOL_H
-#define THREADPOOL_H
+#pragma once
 
 #include <queue>
 #include "include/FastDelegate/FastDelegate.h"
@@ -30,8 +29,7 @@
 #include <boost/thread/condition.hpp>
 #endif
 
-
-#include <boost/type_traits.hpp>
+#include "PoolAllocator.hpp"
 
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
@@ -56,7 +54,7 @@
 class ThreadPool
 {	
 public:  
-  class Task
+  class Task: public PoolAllocated
   {
   public:
     virtual void operator()() = 0;
@@ -111,32 +109,7 @@ public:
     T2 _arg2;
   };
 
-  //0 Arguments
-  template<typename retT>
-  static Task* makeTask(retT (*funcPtr)()) { return new Task0<retT>(funcPtr); }
-
-  template<typename retT, typename classT>
-  static Task* makeTask(retT (classT::*funcPtr)(), classT* classPtr)
-  { return new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr)); }
-
-  //1 Argument
-  template<typename retT, typename arg1T>
-  static Task* makeTask(retT (*funcPtr)(arg1T), arg1T arg1)
-  { return new Task1<retT,arg1T>(funcPtr, arg1); }
-
-  template<typename retT, typename classT, typename arg1T>
-  static Task* makeTask(retT (classT::*funcPtr)(arg1T), classT* classPtr, arg1T arg1)
-  { return new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1); }
-
-  template<typename retT, typename arg1T, typename arg2T>
-  static Task* makeTask(retT (*funcPtr)(arg1T, arg2T), arg1T arg1, arg2T arg2)
-  { return new Task2<retT, arg1T, arg2T>(funcPtr, arg1, arg2); }
-
-  template<typename retT, typename classT, typename arg1T, typename arg2T>
-  static Task* makeTask(retT (classT::*funcPtr)(arg1T, arg2T),
-			classT* classPtr, arg1T arg1, arg2T arg2)
-  { return new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2); }
-
+  template<class T> struct typeWrapper { typedef T Type; };
 
   /*! \brief Default Constructor
    *
@@ -167,7 +140,35 @@ public:
    *
    * \param threadfunc A functor which describes the task to complete.
    */
-  inline void invoke(Task* threadfunc)
+
+  template<typename retT>
+  inline void queue(retT (*funcPtr)()) 
+  { queueTask(new Task0<retT>(funcPtr)); }
+
+  template<typename retT, typename classT>
+  void queue(retT (classT::*funcPtr)(), classT* classPtr)
+  { queueTask(new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr))); }
+
+  //1 Argument
+  template<typename retT, typename arg1T>
+  inline void queue(retT (*funcPtr)(arg1T), typename typeWrapper<arg1T>::Type arg1)
+  { queueTask(new Task1<retT,arg1T>(funcPtr, arg1)); }
+
+  template<typename retT, typename classT, typename arg1T>
+  inline void queue(retT (classT::*funcPtr)(arg1T), classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
+  { queueTask(new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1)); }
+
+  template<typename retT, typename arg1T, typename arg2T>
+  inline void queue(retT (*funcPtr)(arg1T, arg2T), 
+		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
+  { queueTask(new Task2<retT, arg1T, arg2T>(funcPtr, arg1, arg2)); }
+
+  template<typename retT, typename classT, typename arg1T, typename arg2T>
+  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T), classT* classPtr, 
+		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
+  { queueTask(new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
+
+  inline void queueTask(Task* threadfunc)
   {
 #ifndef DYNAMO_CONDOR   
     boost::mutex::scoped_lock lock1(m_mutex);    
@@ -272,6 +273,3 @@ private:
    */
   void stop();
 };
-   
-
-#endif

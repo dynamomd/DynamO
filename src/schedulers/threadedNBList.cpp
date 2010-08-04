@@ -149,13 +149,11 @@ SThreadedNBList::fullUpdate(const CParticle& p1, const CParticle& p2)
   //Add the global events
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(p1))
-      _threadPool.invoke(ThreadPool::makeTask<void, SThreadedNBList, const CParticle&, const smrtPlugPtr<CGlobal>&>
-			 (&SThreadedNBList::addGlobal, this, p1, glob));
+      _threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob);
 
   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(p2))
-      _threadPool.invoke(ThreadPool::makeTask<void, SThreadedNBList, const CParticle&, const smrtPlugPtr<CGlobal>&>
-			 (&SThreadedNBList::addGlobal, this, p2, glob));
+      _threadPool.queue(&SThreadedNBList::addGlobal, this, p2, glob);
   
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
@@ -217,16 +215,14 @@ SThreadedNBList::spawnThreadAddLocalEvent(const CParticle& part,
 					  const size_t& id) 
 {
   if (Sim->dynamics.getLocals()[id]->isInteraction(part))   
-    _threadPool.invoke(ThreadPool::makeTask<void, SThreadedNBList, const CParticle&, size_t>
-		       (&SThreadedNBList::threadAddLocalEvent, this, part, id));
+    _threadPool.queue(&SThreadedNBList::threadAddLocalEvent, this, part, id);
 
 }
 
 void 
 SThreadedNBList::spawnThreadAddIntEvents(const CParticle& part, const size_t& id) 
 {
-  _threadPool.invoke(ThreadPool::makeTask<void, SThreadedNBList, const CParticle&, size_t>
-		     (&SThreadedNBList::threadAddIntEvent, this, part, id));
+  _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, part, id);
 }
 
 void 

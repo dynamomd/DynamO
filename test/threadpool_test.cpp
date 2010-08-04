@@ -26,7 +26,7 @@ struct A
 
 int main()
 {
-  size_t N = 8000;
+  size_t N = 80000;
   sums.resize(N);
 
   A Aclass;
@@ -41,14 +41,14 @@ int main()
   int& val4 = val3;
   
 
-  pool.invoke(ThreadPool::makeTask(&A::memberFunc, &Aclass));
+  pool.queue(&A::memberFunc, &Aclass);
   
-  pool.invoke(ThreadPool::makeTask(&A::memberFunc2, &Aclass, 2));
+  pool.queue(&A::memberFunc2, &Aclass, 2);
   
-  pool.invoke(ThreadPool::makeTask<void, A, int&, int>(&A::memberFunc3, &Aclass, val4, 4));
+  pool.queue(&A::memberFunc3, &Aclass, val4, 4);
 
   for (int i = 0; i < N; ++i)    
-    pool.invoke(ThreadPool::makeTask(function1, i+0));
+    pool.queue(function1, i+0);
 
   std::cerr << "Entering Wait\n";
   pool.wait(); 
