@@ -173,6 +173,8 @@ SThreadedNBList::fullUpdate(const CParticle& p1, const CParticle& p2)
   nblist.getParticleLocalNeighbourhood
     (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent));
 
+  _threadPool.wait();
+
   //Add the interaction events
   nblist.getParticleNeighbourhood
     (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));

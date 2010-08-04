@@ -245,7 +245,7 @@ CScheduler::runNextEvent()
 	stream(Event.getdt());
 	
 	//dynamics must be updated first
-	Sim->dynamics.stream(Event.getdt());	
+	Sim->dynamics.stream(Event.getdt());
 	
 	Event.addTime(Sim->freestreamAcc);
 

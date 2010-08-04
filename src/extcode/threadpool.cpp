@@ -82,6 +82,7 @@ ThreadPool::wait()
   else
 #endif
     {
+      std::cerr << "\nThreadpool IS OFFLINE";
       //Non threaded mode
       while (!m_waitingFunctors.empty())
 	{
@@ -126,8 +127,7 @@ ThreadPool::beginThread() throw()
 
       for(;;)
 	{
-	  if (m_bStop)
-	    break;
+	  if (m_bStop) break;
 	  
 	  if (m_waitingFunctors.empty())
 	    {
