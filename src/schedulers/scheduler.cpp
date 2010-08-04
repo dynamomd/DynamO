@@ -363,11 +363,7 @@ CScheduler::addInteractionEvent(const CParticle& part,
   const CIntEvent& eevent(Sim->dynamics.getEvent(part, part2));
 
   if (eevent.getType() != NONE)
-    {
-      std::cerr << "Pushing " << part.getID() <<  " " << id << "\n"; 
-
-      sorter->push(intPart(eevent, eventCount[id]), part.getID());
-    }
+    sorter->push(intPart(eevent, eventCount[id]), part.getID());
 }
 
 void 

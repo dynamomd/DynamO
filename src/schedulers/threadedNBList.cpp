@@ -231,13 +231,11 @@ SThreadedNBList::threadAddIntEvent(const CParticle& part,
 {
   const CIntEvent& eevent(Sim->dynamics.getEvent(part, Sim->vParticleList[id]));
   
-  if (eevent.getType() == NONE) return;
-
-  {
-    boost::mutex::scoped_lock lock1(_sorterLock);
-    std::cerr << "Pushing " << part.getID() <<  " " << id << " " << &_sorterLock << "\n";
-    sorter->push(intPart(eevent, eventCount[id]), part.getID());
-  }
+  if (eevent.getType() != NONE)
+    {
+      boost::mutex::scoped_lock lock1(_sorterLock);
+      sorter->push(intPart(eevent, eventCount[id]), part.getID());
+    }
 }
 
 void 
