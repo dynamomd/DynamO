@@ -98,13 +98,11 @@ CIHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
-    D_throw() << "Particle 1 is not up to date";
+    D_throw() << "Particle 1 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay1=" << Sim->dynamics.getLiouvillean().getParticleDelay(p1);
   
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
-    D_throw() << "Particle 2 is not up to date";
-#endif
+    D_throw() << "Particle 2 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay2=" << Sim->dynamics.getLiouvillean().getParticleDelay(p2);
 
-#ifdef DYNAMO_DEBUG
   if (p1 == p2)
     D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 

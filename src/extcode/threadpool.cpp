@@ -137,33 +137,29 @@ ThreadPool::beginThread() throw()
 	      //And send it to sleep
 	      m_needThread.wait(lock1);
 	      --_idlingThreads;
+	      continue;
 	    }
-	  else
-	    {
-	      Task* func = m_waitingFunctors.front();
-	      m_waitingFunctors.pop();
 
-	      lock1.unlock();
+	  Task* func = m_waitingFunctors.front();
+	  m_waitingFunctors.pop();
+	  
+	  lock1.unlock();
+	  
+	  try { (*func)(); }
+	  catch(std::exception& cep)
+	    {		  
+	      //Mark the main process to throw an exception as soon as possible
+	      boost::mutex::scoped_lock lock2(m_exception);
 	      
-	      try
-		{
-		  (*func)();
-		}
-	      catch(std::exception& cep)
-		{		  
-		  //Mark the main process to throw an exception as soon as possible
-		  boost::mutex::scoped_lock lock2(m_exception);
-
-		  std::cerr << "\nTHREAD :Error in thread, task threw an exception, Handling gracefully."
-			    << cep.what();
-		  
-		  ExceptionThrown = true;
-		}
-
-	      delete func;
-
-	      lock1.lock();
+	      std::cerr << "\nTHREAD :Error in thread, task threw an exception, Handling gracefully."
+			<< cep.what();
+	      
+	      ExceptionThrown = true;
 	    }
+	  
+	  delete func;
+	  
+	  lock1.lock();
 	}
     }
   catch (std::exception& p)

@@ -35,8 +35,6 @@ public:
 
   virtual void fullUpdate(const CParticle& p1, const CParticle& p2);
 
-  void streamParticles(const CParticle& part, const size_t& id) const;
-
   void threadAddLocalEvent(const CParticle& part, 
 			   const size_t id);
 
@@ -47,6 +45,10 @@ public:
 				const size_t& id);
 
   void spawnThreadAddIntEvents(const CParticle& part, const size_t& id);
+
+  void threadStreamParticles(const CParticle& part, const size_t id) const;
+
+  void streamParticles(const CParticle& part, const size_t& id) const;
 
   void addEvents2(const CParticle& part, const size_t& id) const;
 

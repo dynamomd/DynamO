@@ -175,10 +175,10 @@ SThreadedNBList::fullUpdate(const CParticle& p1, const CParticle& p2)
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));  
+    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));
 
   nblist.getParticleNeighbourhood
-    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));  
+    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));
 
   _threadPool.wait();
 
@@ -252,13 +252,18 @@ SThreadedNBList::threadAddLocalEvent(const CParticle& part,
 
 
 void 
+SThreadedNBList::threadStreamParticles(const CParticle& part, 
+				       const size_t id) const
+{
+  Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+}
+
+void 
 SThreadedNBList::streamParticles(const CParticle& part, 
 				 const size_t& id) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
 }
-
-
 
 void 
 SThreadedNBList::addEvents2(const CParticle& part, 
