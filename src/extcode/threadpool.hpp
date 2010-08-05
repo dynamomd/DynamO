@@ -67,7 +67,7 @@ public:
   {
     typedef fastdelegate::FastDelegate0<T> function;
   public:
-    Task0(function delegate): _delegate(delegate) {}
+    inline Task0(function delegate): _delegate(delegate) {}
     
     virtual void operator()() { _delegate(); }
     
@@ -80,7 +80,7 @@ public:
   {
     typedef fastdelegate::FastDelegate1<T1, T> function;
   public:
-    Task1(function delegate, T1 arg1): 
+    inline Task1(function delegate, T1 arg1): 
       _delegate(delegate), 
       _arg1(arg1) 
     {}
@@ -97,7 +97,7 @@ public:
   {
     typedef fastdelegate::FastDelegate2<T1, T2, T> function;
   public:
-    Task2(function delegate, T1 arg1, T2 arg2): 
+    inline Task2(function delegate, T1 arg1, T2 arg2): 
       _delegate(delegate), 
       _arg1(arg1),  
       _arg2(arg2) 
@@ -148,7 +148,11 @@ public:
   { queueTask(new Task0<retT>(funcPtr)); }
 
   template<typename retT, typename classT>
-  void queue(retT (classT::*funcPtr)(), classT* classPtr)
+  inline void queue(retT (classT::*funcPtr)(), classT* classPtr)
+  { queueTask(new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr))); }
+
+  template<typename retT, typename classT>
+  inline void queue(retT (classT::*funcPtr)() const, classT* classPtr)
   { queueTask(new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr))); }
 
   //1 Argument
@@ -160,6 +164,11 @@ public:
   inline void queue(retT (classT::*funcPtr)(arg1T), classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
   { queueTask(new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1)); }
 
+  template<typename retT, typename classT, typename arg1T>
+  inline void queue(retT (classT::*funcPtr)(arg1T) const, classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
+  { queueTask(new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1)); }
+
+  //2 Argument
   template<typename retT, typename arg1T, typename arg2T>
   inline void queue(retT (*funcPtr)(arg1T, arg2T), 
 		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
@@ -170,6 +179,12 @@ public:
 		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
   { queueTask(new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
 
+  template<typename retT, typename classT, typename arg1T, typename arg2T>
+  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T) const, classT* classPtr, 
+		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
+  { queueTask(new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
+
+  //Actual queuer
   inline void queueTask(Task* threadfunc)
   {
 #ifndef DYNAMO_CONDOR   
@@ -210,7 +225,7 @@ private:
   ThreadPool& operator = (const ThreadPool&);
   
   /*! \brief List of functors/tasks left to be assigned to a thread. */
-  std::queue<Task*, std::deque<Task*, boost::pool_allocator<Task*> > > m_waitingFunctors;
+  std::queue<Task*> m_waitingFunctors;
 
 #ifndef DYNAMO_CONDOR   
   /*! \brief A mutex to control access to job data.

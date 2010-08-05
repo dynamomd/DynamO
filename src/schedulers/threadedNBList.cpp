@@ -44,19 +44,20 @@ SThreadedNBList::SThreadedNBList(const XMLNode& XML,
 	   << " threads in the pool";
 }
 
-SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns, size_t threadCount):
+SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns, 
+				 size_t threadCount):
   CSNeighbourList(Sim, ns)
 { 
   I_cout() << "Threaded Variant Loaded"; 
   _threadPool.setThreadCount(threadCount);
 }
 
-
 void 
 SThreadedNBList::operator<<(const XMLNode& XML)
 {
   CSNeighbourList::operator<<(XML);
-  _threadPool.setThreadCount(boost::lexical_cast<size_t>(XML.getAttribute("ThreadCount")));
+  _threadPool.setThreadCount(boost::lexical_cast<size_t>
+			     (XML.getAttribute("ThreadCount")));
 }
 
 void 
@@ -134,72 +135,76 @@ SThreadedNBList::addEventsInit(const CParticle& part)
     (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEventInit));  
 }
 
+struct NBlistData {
+  void AddNBIDs(const CParticle&p1, const size_t& ID) { nbIDs.push_back(ID); }
+  
+  std::vector<size_t> nbIDs;
+};
+
 void 
 SThreadedNBList::fullUpdate(const CParticle& p1, const CParticle& p2)
 {
-  I_cerr() << "FullUpdate " << p1.getID() << " " << p2.getID();
+#ifdef DYNAMO_DEBUG
+  if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr())
+      == NULL)  D_throw() << "Not a CGNeighbourList!";
+#endif
+
+  //Now grab a reference to the neighbour list
+  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+				(Sim->dynamics.getGlobals()[NBListID].get_ptr()));
+
+  //Now fetch the neighborlist data
+  NBlistData nbIDs1, nbIDs2;  
+  nblist.getParticleNeighbourhood(p1, fastdelegate::MakeDelegate(&nbIDs1, &NBlistData::AddNBIDs));
+  nblist.getParticleNeighbourhood(p2, fastdelegate::MakeDelegate(&nbIDs2, &NBlistData::AddNBIDs));
   
-  //Both must be invalidated at once
+  //Stream all of the particles up to date
+  Sim->dynamics.getLiouvillean().updateParticle(p1);
+  Sim->dynamics.getLiouvillean().updateParticle(p2);
+  BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[ID]);
+  BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[ID]);
+
+  //Both particles events must be invalidated at once
   ++eventCount[p1.getID()];
   ++eventCount[p2.getID()];
 
   sorter->clearPEL(p1.getID());
   sorter->clearPEL(p2.getID());
 
-   Sim->dynamics.getLiouvillean().updateParticle(p1);
-   Sim->dynamics.getLiouvillean().updateParticle(p2);
+  //Add the interaction events, these can churn while try to add the other events
+  BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, p1, ID, _P1SorterLock);
+  BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, p2, ID, _P2SorterLock);
 
-   //Add the global events
-   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
-     if (glob->isInteraction(p1))
-       _threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob);
+  //Add the global events
+  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+    {
+      if (glob->isInteraction(p1))
+	_threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob, _P1SorterLock);
 
-   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
-     if (glob->isInteraction(p2))
-       _threadPool.queue(&SThreadedNBList::addGlobal, this, p2, glob);
-
- #ifdef DYNAMO_DEBUG
-   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr()) == NULL)
-    D_throw() << "Not a CGNeighbourList!";
-#endif
-
-  //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr()));
+      if (glob->isInteraction(p2))
+	_threadPool.queue(&SThreadedNBList::addGlobal, this, p2, glob, _P2SorterLock);
+    }
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent));
+    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent1));
+
   nblist.getParticleLocalNeighbourhood
-    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent));
-
+    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent2));
+    
+  //Now wait for the pool
   _threadPool.wait();
 
-  //Add the interaction events
-  nblist.getParticleNeighbourhood
-    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));
-
-  nblist.getParticleNeighbourhood
-    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));
-
-  _threadPool.wait();
-
-  nblist.getParticleNeighbourhood
-    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddIntEvents));  
-
-  nblist.getParticleNeighbourhood
-    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddIntEvents));  
-
-  _threadPool.wait();
   sorter->update(p1.getID());
   sorter->update(p2.getID());
 }
 
 void 
-SThreadedNBList::addGlobal(const CParticle& part, const smrtPlugPtr<CGlobal>& glob)
+SThreadedNBList::addGlobal(const CParticle& part, const smrtPlugPtr<CGlobal>& glob, boost::mutex& sorterLock)
 {
   CGlobEvent event = glob->getEvent(part);
 
-  boost::mutex::scoped_lock lock1(_sorterLock);      
+  boost::mutex::scoped_lock lock1(sorterLock);      
   sorter->push(event, part.getID());
 }
 
@@ -212,50 +217,51 @@ SThreadedNBList::fullUpdate(const CParticle& part)
 }
 
 void 
-SThreadedNBList::spawnThreadAddLocalEvent(const CParticle& part, 
+SThreadedNBList::spawnThreadAddLocalEvent1(const CParticle& part, 
 					  const size_t& id) 
 {
-  if (Sim->dynamics.getLocals()[id]->isInteraction(part))   
-    _threadPool.queue(&SThreadedNBList::threadAddLocalEvent, this, part, id);
-
+  if (Sim->dynamics.getLocals()[id]->isInteraction(part))
+    _threadPool.queue(&SThreadedNBList::threadAddLocalEvent, this, part, id, _P1SorterLock);
 }
 
 void 
-SThreadedNBList::spawnThreadAddIntEvents(const CParticle& part, const size_t& id) 
+SThreadedNBList::spawnThreadAddLocalEvent2(const CParticle& part, 
+					  const size_t& id) 
 {
-  _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, part, id);
+  if (Sim->dynamics.getLocals()[id]->isInteraction(part))
+    _threadPool.queue(&SThreadedNBList::threadAddLocalEvent, this, part, id, _P2SorterLock);
 }
 
 void 
 SThreadedNBList::threadAddIntEvent(const CParticle& part, 
-				   const size_t id) 
+				   const size_t id,
+				   boost::mutex& sorterLock)
 {
   const CIntEvent& eevent(Sim->dynamics.getEvent(part, Sim->vParticleList[id]));
   
   if (eevent.getType() != NONE)
     {
-      boost::mutex::scoped_lock lock1(_sorterLock);
-      I_cerr() << "Adding Particle Pair " << part.getID() << " " << id;
+      boost::mutex::scoped_lock lock1(sorterLock);
       sorter->push(intPart(eevent, eventCount[id]), part.getID());
     }
 }
 
 void 
 SThreadedNBList::threadAddLocalEvent(const CParticle& part, 
-				     const size_t id)
+				     const size_t id,
+				     boost::mutex& sorterLock)
 {
   CLocalEvent Event = Sim->dynamics.getLocals()[id]->getEvent(part);
 
   {
-    boost::mutex::scoped_lock lock1(_sorterLock);      
+    boost::mutex::scoped_lock lock1(sorterLock);
     sorter->push(Event, part.getID());  
   }
 }
 
 
 void 
-SThreadedNBList::threadStreamParticles(const CParticle& part, 
-				       const size_t id) const
+SThreadedNBList::threadStreamParticles(const size_t id) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
 }
@@ -264,7 +270,6 @@ void
 SThreadedNBList::streamParticles(const CParticle& part, 
 				 const size_t& id) const
 {
-  I_cerr() << "Streaming Particle " << id;
   Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
 }
 

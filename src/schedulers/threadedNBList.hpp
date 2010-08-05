@@ -39,14 +39,16 @@ public:
 			   const size_t id);
 
   void threadAddIntEvent(const CParticle& part, 
-			 const size_t id);
+			 const size_t id,
+			 boost::mutex& sorterLock);
 
-  void spawnThreadAddLocalEvent(const CParticle& part, 
+  void spawnThreadAddLocalEvent1(const CParticle& part, 
 				const size_t& id);
 
-  void spawnThreadAddIntEvents(const CParticle& part, const size_t& id);
+  void spawnThreadAddLocalEvent2(const CParticle& part, 
+				 const size_t& id);
 
-  void threadStreamParticles(const CParticle& part, const size_t id) const;
+  void threadStreamParticles(const size_t id) const;
 
   void streamParticles(const CParticle& part, const size_t& id) const;
 
@@ -57,10 +59,11 @@ protected:
 
   void addEventsInit(const CParticle&);
 
-  void addGlobal(const CParticle& p1, const smrtPlugPtr<CGlobal>& glob);
+  void addGlobal(const CParticle& p1, const smrtPlugPtr<CGlobal>& glob, boost::mutex& sorterLock);
 
   ThreadPool _threadPool;
 
-  boost::mutex _sorterLock;
+  boost::mutex _P1SorterLock;
+  boost::mutex _P2SorterLock;
   
 };

@@ -71,7 +71,6 @@ ThreadPool::wait()
 	while (!m_waitingFunctors.empty() || (_idlingThreads != m_threads.size()))
 	  m_threadAvailable.wait(lock1);
       }
-      
     }
   else
 #endif
