@@ -76,7 +76,8 @@ ThreadPool::wait()
       {
 	boost::mutex::scoped_lock lock2(m_exception);
 	if (ExceptionThrown) 
-	  D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
+	  D_throw() << "Thread Exception found while waiting for tasks/threads to finish"
+		    << ExceptionDetails;
       }
     }
   else
@@ -151,8 +152,8 @@ ThreadPool::beginThread() throw()
 	      //Mark the main process to throw an exception as soon as possible
 	      boost::mutex::scoped_lock lock2(m_exception);
 	      
-	      std::cerr << "\nTHREAD :Error in thread, task threw an exception, Handling gracefully."
-			<< cep.what();
+	      ExceptionDetails << "\nTHREAD :Error in thread, task threw an exception:-"
+			       << cep.what();
 	      
 	      ExceptionThrown = true;
 	    }

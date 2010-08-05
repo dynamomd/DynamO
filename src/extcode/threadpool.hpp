@@ -21,6 +21,7 @@
 #pragma once
 
 #include <queue>
+#include <sstream>
 #include "include/FastDelegate/FastDelegate.h"
 #include "include/FastDelegate/FastDelegateBind.h"
 
@@ -199,6 +200,8 @@ private:
    * system can terminate gracefully.
    */
   bool ExceptionThrown;
+
+  std::ostringstream ExceptionDetails;
   
   ThreadPool (const ThreadPool&);
   ThreadPool& operator = (const ThreadPool&);

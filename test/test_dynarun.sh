@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dynarun="../bin/dynarun_d"
+Dynarun="../bin/dynarun"
 Dynamod="../bin/dynamod"
 #Next is the name of XML starlet
 Xml="xml"
@@ -392,55 +392,55 @@ function BinarySphereTest {
 	tmp.xml.bz2 run.log
 }
 
-#
-#echo "SCHEDULER AND SORTER TESTING"
-#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
-#cannon "Dumb" "CBT"
-#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
-#cannon "Dumb" "BoundedPQ"
-#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
-#cannon "NeighbourList" "CBT"
-#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
-#cannon "NeighbourList" "BoundedPQ"
-#
-#echo ""
-#echo "INTERACTIONS+Dynamod Systems"
-#echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
-#HardSphereTest
-#echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
-#BinarySphereTest "Cells2"
-#echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
-#SquareWellTest
-##echo "Testing Lines, NeighbourLists and BoundedPQ's"
-##linescannon "NeighbourList" "BoundedPQ"
-#
-#echo ""
-#echo "GLOBALS"
-##echo "Testing binary spheres and the ListAndCell neighbourlist"
-##BinarySphereTest "ListAndCell"
-#
-#echo ""
-#echo "SYSTEM EVENTS"
-#echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
-#ThermostatTest
-##echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
-##umbrella "NeighbourList"
-#
-#echo ""
-#echo "LOCAL EVENTS"
-#echo "Testing local events (walls) and square wells"
-#wallsw "NeighbourList"
-#
-#echo ""
-#echo "ENGINE TESTING"
-#echo "Testing local events (walls) and square wells with a " \
-#    "Null compression"
-#wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
-#echo "Testing compression of hard spheres"
-#HS_compressiontest "NeighbourList"
-#
-#echo "Testing replica exchange of hard spheres"
-#HS_replex_test "NeighbourList"
+
+echo "SCHEDULER AND SORTER TESTING"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
+cannon "Dumb" "CBT"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
+cannon "Dumb" "BoundedPQ"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
+cannon "NeighbourList" "CBT"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
+cannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "INTERACTIONS+Dynamod Systems"
+echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
+HardSphereTest
+echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
+BinarySphereTest "Cells2"
+echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
+SquareWellTest
+#echo "Testing Lines, NeighbourLists and BoundedPQ's"
+#linescannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "GLOBALS"
+#echo "Testing binary spheres and the ListAndCell neighbourlist"
+#BinarySphereTest "ListAndCell"
+
+echo ""
+echo "SYSTEM EVENTS"
+echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
+ThermostatTest
+#echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
+#umbrella "NeighbourList"
+
+echo ""
+echo "LOCAL EVENTS"
+echo "Testing local events (walls) and square wells"
+wallsw "NeighbourList"
+
+echo ""
+echo "ENGINE TESTING"
+echo "Testing local events (walls) and square wells with a " \
+    "Null compression"
+wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
+echo "Testing compression of hard spheres"
+HS_compressiontest "NeighbourList"
+
+echo "Testing replica exchange of hard spheres"
+HS_replex_test "NeighbourList"
 
 echo ""
 echo "THREADING TESTING"
