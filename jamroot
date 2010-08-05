@@ -79,17 +79,27 @@ exe dynamod
     : programs/dynamod.cpp src//dynamo_core
     ;
 
+exe threadpool_test 
+    : test/src/threadpool_test.cpp src//dynamo_core
+    ;
+
+install install-test
+	: threadpool_test
+	: <location>test
+	;
+
 install install-bin 
 	: dynarun dynamod dynarun dynahist_rw
 	: <location>bin <condor>no
 	;
 	
-
 install install-bin 
 	: dynarun dynamod 
 	: <location>bin <condor>yes
 	;
 
 alias install : install-bin ;
+
+alias test : install-test ;
 
 explicit install install-bin ;

@@ -137,35 +137,34 @@ SThreadedNBList::addEventsInit(const CParticle& part)
 void 
 SThreadedNBList::fullUpdate(const CParticle& p1, const CParticle& p2)
 {
+  I_cerr() << "FullUpdate " << p1.getID() << " " << p2.getID();
+  
   //Both must be invalidated at once
   ++eventCount[p1.getID()];
   ++eventCount[p2.getID()];
 
   sorter->clearPEL(p1.getID());
-  Sim->dynamics.getLiouvillean().updateParticle(p1);
   sorter->clearPEL(p2.getID());
-  Sim->dynamics.getLiouvillean().updateParticle(p2);
 
-  //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
-    if (glob->isInteraction(p1))
-      _threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob);
+   Sim->dynamics.getLiouvillean().updateParticle(p1);
+   Sim->dynamics.getLiouvillean().updateParticle(p2);
 
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
-    if (glob->isInteraction(p2))
-      _threadPool.queue(&SThreadedNBList::addGlobal, this, p2, glob);
-  
-#ifdef DYNAMO_DEBUG
-  if (dynamic_cast<const CGNeighbourList*>
-      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)
+   //Add the global events
+   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+     if (glob->isInteraction(p1))
+       _threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob);
+
+   BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+     if (glob->isInteraction(p2))
+       _threadPool.queue(&SThreadedNBList::addGlobal, this, p2, glob);
+
+ #ifdef DYNAMO_DEBUG
+   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr()) == NULL)
     D_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
-				(Sim->dynamics.getGlobals()[NBListID]
-				 .get_ptr()));
+  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr()));
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
@@ -236,6 +235,7 @@ SThreadedNBList::threadAddIntEvent(const CParticle& part,
   if (eevent.getType() != NONE)
     {
       boost::mutex::scoped_lock lock1(_sorterLock);
+      I_cerr() << "Adding Particle Pair " << part.getID() << " " << id;
       sorter->push(intPart(eevent, eventCount[id]), part.getID());
     }
 }
@@ -264,6 +264,7 @@ void
 SThreadedNBList::streamParticles(const CParticle& part, 
 				 const size_t& id) const
 {
+  I_cerr() << "Streaming Particle " << id;
   Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
 }
 

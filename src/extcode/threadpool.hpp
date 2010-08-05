@@ -31,6 +31,7 @@
 #endif
 
 #include "PoolAllocator.hpp"
+#include <boost/pool/pool_alloc.hpp>
 
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
@@ -194,6 +195,8 @@ public:
    * actually make the waiting/mother process perform the tasks.
    */
   void wait();
+
+  const size_t& getIdleThreadCount() { return _idlingThreads; }
   
 private:
   /*! \brief Mark if an exception has thrown an exception so the
@@ -206,11 +209,8 @@ private:
   ThreadPool (const ThreadPool&);
   ThreadPool& operator = (const ThreadPool&);
   
-  /*! \brief Current length of the functor/task queue. */
-  size_t m_nQueueSize;
-
   /*! \brief List of functors/tasks left to be assigned to a thread. */
-  std::queue<Task*> m_waitingFunctors;
+  std::queue<Task*, std::deque<Task*, boost::pool_allocator<Task*> > > m_waitingFunctors;
 
 #ifndef DYNAMO_CONDOR   
   /*! \brief A mutex to control access to job data.

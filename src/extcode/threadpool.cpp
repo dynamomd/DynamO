@@ -65,25 +65,17 @@ ThreadPool::wait()
 #ifndef DYNAMO_CONDOR   
   if (m_threads.size())
     {
-      //We are in threaded mode!
+      //We are in threaded mode! Wait until all tasks are gone and all threads are idling
       {
 	boost::mutex::scoped_lock lock1(m_mutex);      
-	while (_idlingThreads != m_threads.size())
+	while (!m_waitingFunctors.empty() || (_idlingThreads != m_threads.size()))
 	  m_threadAvailable.wait(lock1);
       }
       
-
-      {
-	boost::mutex::scoped_lock lock2(m_exception);
-	if (ExceptionThrown) 
-	  D_throw() << "Thread Exception found while waiting for tasks/threads to finish"
-		    << ExceptionDetails;
-      }
     }
   else
 #endif
     {
-      std::cerr << "\nThreadpool IS OFFLINE";
       //Non threaded mode
       while (!m_waitingFunctors.empty())
 	{
@@ -91,13 +83,16 @@ ThreadPool::wait()
 	  delete m_waitingFunctors.front();
 	  m_waitingFunctors.pop();
 	}
-
-      {
-	boost::mutex::scoped_lock lock2(m_exception);
-	if (ExceptionThrown)
-	  D_throw() << "Thread Exception found while waiting for tasks/threads to finish";
-      }
     }
+
+  {
+#ifndef DYNAMO_condor
+    boost::mutex::scoped_lock lock2(m_exception);
+#endif
+    if (ExceptionThrown) 
+      D_throw() << "Thread Exception found while waiting for tasks/threads to finish"
+		<< ExceptionDetails.str();
+  }
 }
 
 void 
@@ -152,7 +147,8 @@ ThreadPool::beginThread() throw()
 	      //Mark the main process to throw an exception as soon as possible
 	      boost::mutex::scoped_lock lock2(m_exception);
 	      
-	      ExceptionDetails << "\nTHREAD :Error in thread, task threw an exception:-"
+	      ExceptionDetails << "\nTHREAD " << boost::this_thread::get_id() 
+			       << ":Task threw an exception:-"
 			       << cep.what();
 	      
 	      ExceptionThrown = true;
