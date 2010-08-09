@@ -222,11 +222,12 @@ public:
   inline void queueTask(Task* threadfunc)
   {
 #ifndef DYNAMO_CONDOR   
-    boost::mutex::scoped_lock lock1(m_mutex);    
-    m_needThread.notify_all();
-    m_waitingFunctors.push(threadfunc);
+    {
+      boost::mutex::scoped_lock lock1(m_mutex);    
+      m_waitingFunctors.push(threadfunc);
+    }
 
-    lock1.unlock();
+    m_needThread.notify_all();
 #else
     m_waitingFunctors.push(threadfunc);
 #endif
