@@ -36,7 +36,8 @@ public:
   virtual void fullUpdate(const CParticle& p1, const CParticle& p2);
 
   void threadAddLocalEvent(const CParticle& part, 
-			   const size_t id);
+			   const size_t id,
+			   boost::mutex& sorterLock);
 
   void threadAddIntEvent(const CParticle& part, 
 			 const size_t id,

@@ -43,7 +43,7 @@ int main()
 
   ThreadPool pool;
 
-  pool.setThreadCount(2);
+  pool.setThreadCount(0);
 
   std::cerr << "Using " << pool.getThreadCount() << " threads\n";
   

@@ -111,6 +111,27 @@ public:
     T2 _arg2;
   };
 
+  template<class T, class T1, class T2, class T3>
+  class Task3 : public Task
+  {
+    typedef fastdelegate::FastDelegate3<T1, T2, T3, T> function;
+  public:
+    inline Task3(function delegate, T1 arg1, T2 arg2, T3 arg3): 
+      _delegate(delegate), 
+      _arg1(arg1),  
+      _arg2(arg2),
+      _arg3(arg3)
+   {}
+    
+    virtual void operator()() { _delegate(_arg1, _arg2, _arg3); }
+    
+  private:
+    function _delegate;
+    T1 _arg1;
+    T2 _arg2;
+    T3 _arg3;
+  };
+
   template<class T> struct typeWrapper { typedef T Type; };
 
   /*! \brief Default Constructor
@@ -183,6 +204,29 @@ public:
   inline void queue(retT (classT::*funcPtr)(arg1T, arg2T) const, classT* classPtr, 
 		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
   { queueTask(new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
+
+  //3 Argument
+  template<typename retT, typename arg1T, typename arg2T, typename arg3T>
+  inline void queue(retT (*funcPtr)(arg1T, arg2T, arg3T), 
+		    typename typeWrapper<arg1T>::Type arg1, 
+		    typename typeWrapper<arg2T>::Type arg2,
+		    typename typeWrapper<arg3T>::Type arg3)
+  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(funcPtr, arg1, arg2, arg3)); }
+
+  template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
+  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T, arg3T), classT* classPtr, 
+		    typename typeWrapper<arg1T>::Type arg1, 
+		    typename typeWrapper<arg2T>::Type arg2,
+		    typename typeWrapper<arg3T>::Type arg3)
+  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
+
+  template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
+  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T, arg3T) const, classT* classPtr, 
+		    typename typeWrapper<arg1T>::Type arg1, 
+		    typename typeWrapper<arg2T>::Type arg2,
+		    typename typeWrapper<arg3T>::Type arg3)
+  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
+
 
   //Actual queuer
   inline void queueTask(Task* threadfunc)
