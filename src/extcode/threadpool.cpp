@@ -24,31 +24,34 @@ ThreadPool::ThreadPool():
   ExceptionThrown(false),
   _idlingThreads(0),
   m_bStop(false)
-{}
+{
+  std::cerr << "\n m_mutex = " << m_mutex.native_handle()
+	    << "\n m_exception = " << m_exception.native_handle()
+	    << "\n m_threadAvailable = " << &m_threadAvailable  << " offset = " << (void*)((long)(&m_threadAvailable) + sizeof(pthread_mutex_t))
+	    << "\n m_needThread = " << &m_needThread << " condition = " << (void*)((long)(&m_needThread) + sizeof(pthread_mutex_t))
+	    << "\n";
+}
 
 void 
 ThreadPool::setThreadCount(size_t x)
 { 
 #ifndef DYNAMO_CONDOR   
-  if (x == m_threads.size()) return;
+  if (x == _threadCount) return;
   
-  if (x > m_threads.size())
+  if (x < _threadCount)
     {
-      for (size_t i=m_threads.size(); i < x; ++i)
-	m_threads.create_thread(beginThreadFunc(*this));
-
-      return;
-    }
-    
-  if (m_threads.size() != 0)
-    {
+      //Stop all threads as we're shrinking our thread pool size
       stop();
       //All threads are dead, reset the kill switch
       m_bStop = false;
-    }      
-  
-  for (size_t i=0; i<x; i++)
+    }
+
+  //Add the required number of threads
+  for (size_t i=m_threads.size(); i < x; ++i)
     m_threads.create_thread(beginThreadFunc(*this));
+
+  _threadCount = x;
+    
 #else
   D_throw() << "Cannot use the thread pool as threading is disabled";
 #endif
@@ -63,14 +66,12 @@ void
 ThreadPool::wait()
 {
 #ifndef DYNAMO_CONDOR   
-  if (m_threads.size())
+  if (_threadCount)
     {
       //We are in threaded mode! Wait until all tasks are gone and all threads are idling
-      {
-	boost::mutex::scoped_lock lock1(m_mutex);      
-	while (!m_waitingFunctors.empty() || (_idlingThreads != m_threads.size()))
-	  m_threadAvailable.wait(lock1);
-      }
+      boost::mutex::scoped_lock lock1(m_mutex);      
+      while (!m_waitingFunctors.empty() || (_idlingThreads != _threadCount))
+	m_threadAvailable.wait(lock1);
     }
   else
 #endif
@@ -85,9 +86,9 @@ ThreadPool::wait()
     }
 
   {
-#ifndef DYNAMO_condor
-    boost::mutex::scoped_lock lock2(m_exception);
-#endif
+    //This mutex is not needed here as the threads have stopped working!
+    //boost::mutex::scoped_lock lock2(m_exception);
+
     if (ExceptionThrown) 
       D_throw() << "Thread Exception found while waiting for tasks/threads to finish"
 		<< ExceptionDetails.str();
@@ -120,10 +121,8 @@ ThreadPool::beginThread() throw()
     {
       boost::mutex::scoped_lock lock1(m_mutex);
 
-      for(;;)
+      while (!m_bStop)
 	{
-	  if (m_bStop) break;
-	  
 	  if (m_waitingFunctors.empty())
 	    {
 	      ++_idlingThreads;

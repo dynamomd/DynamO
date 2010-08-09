@@ -35,22 +35,12 @@
 
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
- *
- * Some helper classes are provided to call a member function of a
- * class as a task. These are functors.
- *
- * - ThreadPool::task_noarg - No arguments
- * - ThreadPool::task_1arg - 1 argument
- * - ThreadPool::task_2arg - 2 arguments
  * 
  * This class will also run in 0 thread mode, where the controlling
  * process will execute the tasks when it enters the ThreadPool::wait() function.
  *
  * This was adapted from an implementation by devguy.com
  * http://www.devguy.com/bb/viewtopic.php?p=1039
- *
- * \bug Check the licence on this class
- * \bug Generalise the exception handling
  *
  */
 class ThreadPool
@@ -153,7 +143,7 @@ public:
   size_t getThreadCount() const
   {
 #ifndef DYNAMO_CONDOR    
-    return m_threads.size(); 
+    return _threadCount; 
 #else
     return 0;
 #endif
@@ -298,7 +288,7 @@ private:
   boost::thread_group m_threads;
 
   size_t _idlingThreads;
-
+  size_t _threadCount;
 #endif
 
   /*! \brief When this is true threads will terminate themselves.
