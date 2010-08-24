@@ -43,6 +43,8 @@
 #include "../dynamics/systems/DSMCspheres.hpp"
 #include "../dynamics/systems/RingDSMC.hpp"
 #include "../dynamics/systems/rescale.hpp"
+#include <boost/tokenizer.hpp>
+
 
 CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
   SimBase(tmp,"SysPacker", IC_blue),
@@ -180,9 +182,10 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --b1 : If set it enables the single occupancy model\n"
 	"       --b2 : If set it bounds the system with mirrors\n"
-	"  16: Stepped Potential approximating a Lennard Jones Fluid\n"
+	"  16: Stepped Potential\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
+	"       --s1 : Sets the form of the stepped potential, list in r1,E1:r2,E2\n"
 	"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Sets the fraction of T(j,k) events [1/3rd] (do not use with b1/b2)\n"
@@ -1719,20 +1722,57 @@ CIPPacker::initialise()
 
 	typedef std::pair<Iflt,Iflt> locpair;
 	std::vector<locpair> diamvec;
-	diamvec.push_back(std::pair<Iflt,Iflt>(2.30, -0.06));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.75, -0.22));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.45, -0.55));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.25, -0.98));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.05, -0.47));
-	diamvec.push_back(std::pair<Iflt,Iflt>(1.00,  0.76));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.95,  3.81));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.90, 10.95));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.85, 27.55));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.80, 66.74));
-	diamvec.push_back(std::pair<Iflt,Iflt>(0.75, 0.0  ));
 
+	if (vm.count("s1"))
+	  {
+	    typedef boost::tokenizer<boost::char_separator<char> >
+	      tokenizer;
+	    
+	    tokenizer steps(vm["s1"].as<std::string>(), boost::char_separator<char>(":"));
+	    BOOST_FOREACH(const std::string& step, steps)
+	      {
+		tokenizer stepData(step, boost::char_separator<char>(","));
+		tokenizer::iterator value_iter = stepData.begin();
+		locpair data;
+		try {
+		  data.first = boost::lexical_cast<Iflt>(*value_iter);
+		  if (++value_iter == stepData.end())
+		    throw std::runtime_error("No comma");
+		  data.second = boost::lexical_cast<Iflt>(*(value_iter));
+		  diamvec.push_back(data);
+
+		  if (++value_iter != stepData.end())
+		    throw std::runtime_error("Too many comma's");
+		} catch (std::exception& except)
+		  {
+		    D_throw() << "Malformed step data, \"" << step << "\"\n" << except.what();
+		  }
+	      }
+	  }
+	else
+	  {
+	    diamvec.push_back(locpair(2.30, -0.06));
+	    diamvec.push_back(locpair(1.75, -0.22));
+	    diamvec.push_back(locpair(1.45, -0.55));
+	    diamvec.push_back(locpair(1.25, -0.98));
+	    diamvec.push_back(locpair(1.05, -0.47));
+	    diamvec.push_back(locpair(1.00,  0.76));
+	    diamvec.push_back(locpair(0.95,  3.81));
+	    diamvec.push_back(locpair(0.90, 10.95));
+	    diamvec.push_back(locpair(0.85, 27.55));
+	    diamvec.push_back(locpair(0.80, 66.74));
+	    diamvec.push_back(locpair(0.75, 1e300));
+	  }
+	
+	I_cout() << "Building stepped potential";
+	Iflt oldr = HUGE_VAL;
 	BOOST_FOREACH(locpair& p, diamvec)
 	  {
+	    I_cout() << "Step r=" << p.first << ", E=" << p.second;
+	    if (p.first > oldr)
+	      D_throw() << "Steps must be in descending order! r=" << p.first
+			<< " is greater than old r=" << oldr;
+	    oldr = p.first;
 	    p.first *= Sim->dynamics.units().unitLength();
 	    p.second *= Sim->dynamics.units().unitEnergy();
 	  }
