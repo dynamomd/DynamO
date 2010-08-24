@@ -207,8 +207,11 @@ CIStepped::getEvent(const CParticle &p1,
   else
     {
       //Within the potential, look for further capture or release
-      if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	  (colldat, runstepdata[capstat->second].first))
+      //First check if there is an inner step to interact with
+      //Then check for that event first
+      if ((capstat->second < static_cast<int>(runstepdata.size()))
+	  && (Sim->dynamics.getLiouvillean().SphereSphereInRoot
+	      (colldat, runstepdata[capstat->second].first)))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
@@ -264,7 +267,6 @@ CIStepped::runEvent(const CParticle& p1,
       }
     case WELL_IN:
       {
-	
 	cmap_it capstat = getCMap_it(p1,p2);
 	
 	if (capstat == captureMap.end())
@@ -275,38 +277,22 @@ CIStepped::runEvent(const CParticle& p1,
 	      : cMapKey(p2.getID(), p1.getID()),
 	      0)).first;
 	
-	if (capstat->second != static_cast<int>(runstepdata.size()))
-	  {
-	    C2ParticleData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent
-	      (iEvent, -runstepdata[capstat->second].second,
-	       runstepdata[capstat->second].first);
-	    
-	    if (retVal.getType() != BOUNCE)
-	      ++(capstat->second);
-	    else if (!capstat->second)
-	      captureMap.erase(capstat);	    
-	    
-	    Sim->signalParticleUpdate(retVal);
-	    
-	    Sim->ptrScheduler->fullUpdate(p1, p2);
-	    
-	    BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	      Ptr->eventUpdate(iEvent, retVal);
-	    
-	  }
-	else
-	  {
-	    C2ParticleData retVal = Sim->dynamics.getLiouvillean().SmoothSpheresColl
-	      (iEvent, 1.0, runstepdata.back().first, CORE);
-	    
-	    Sim->signalParticleUpdate(retVal);
-	    
-	    Sim->ptrScheduler->fullUpdate(p1, p2);
-	    
-	    BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	      Ptr->eventUpdate(iEvent, retVal);
-	  }
+	C2ParticleData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent
+	  (iEvent, -runstepdata[capstat->second].second,
+	   runstepdata[capstat->second].first);
 	
+	if (retVal.getType() != BOUNCE)
+	  ++(capstat->second);
+	else if (!capstat->second)
+	  captureMap.erase(capstat);	    
+	
+	Sim->signalParticleUpdate(retVal);
+	
+	Sim->ptrScheduler->fullUpdate(p1, p2);
+	
+	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  Ptr->eventUpdate(iEvent, retVal);
+	    
 	break;
       }
     default:

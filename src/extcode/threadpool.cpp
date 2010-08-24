@@ -25,11 +25,11 @@ ThreadPool::ThreadPool():
   _idlingThreads(0),
   m_bStop(false)
 {
-  std::cerr << "\n m_mutex = " << m_mutex.native_handle()
-	    << "\n m_exception = " << m_exception.native_handle()
-	    << "\n m_threadAvailable = " << &m_threadAvailable  << " offset = " << (void*)((long)(&m_threadAvailable) + sizeof(pthread_mutex_t))
-	    << "\n m_needThread = " << &m_needThread << " condition = " << (void*)((long)(&m_needThread) + sizeof(pthread_mutex_t))
-	    << "\n";
+//  std::cerr << "\n m_mutex = " << m_mutex.native_handle()
+//	    << "\n m_exception = " << m_exception.native_handle()
+//	    << "\n m_threadAvailable = " << &m_threadAvailable  << " offset = " << (void*)((long)(&m_threadAvailable) + sizeof(pthread_mutex_t))
+//	    << "\n m_needThread = " << &m_needThread << " condition = " << (void*)((long)(&m_needThread) + sizeof(pthread_mutex_t))
+//	    << "\n";
 }
 
 void 
