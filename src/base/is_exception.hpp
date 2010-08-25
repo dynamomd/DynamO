@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IS_Exception_H
-#define IS_Exception_H
+#pragma once
 
 #include <exception>
 #include <features.h>
@@ -90,5 +89,3 @@ namespace DYNAMO
     mutable std::string formattedMsg;
   }; 
 }
-
-#endif

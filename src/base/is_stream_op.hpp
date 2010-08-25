@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IS_Stream_Op_H
-#define IS_Stream_Op_H
+#pragma once
 
 #include <iostream>
 #include <sstream>
@@ -211,5 +210,3 @@ namespace DYNAMO
   };
 
 }
-
-#endif

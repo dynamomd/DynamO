@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IS_SimBase_H
-#define IS_SimBase_H
+#pragma once
 
 #include "../dynamics/dynamics.hpp"
 #include "../datatypes/vector.hpp"
@@ -219,5 +218,3 @@ namespace DYNAMO
   };
 
 }
-
-#endif

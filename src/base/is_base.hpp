@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IS_Base_H
-#define IS_Base_H
+#pragma once
 
 #include "is_stream_op.hpp"
 #include "constants.hpp"
@@ -113,4 +112,3 @@ namespace DYNAMO
   };
 
 }
-#endif

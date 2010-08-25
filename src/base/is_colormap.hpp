@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IS_ColorMap_H
-#define IS_ColorMap_H
+#pragma once
 
 #include <cmath>
 
@@ -79,5 +78,3 @@ namespace DYNAMO
     T end;
   };
 }
-
-#endif
