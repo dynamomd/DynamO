@@ -31,7 +31,7 @@ C2RRing::C2RRing(const XMLNode& XML, const DYNAMO::SimData*):
 }
 
 bool 
-C2RRing::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RRing::isInRange(const Particle&p1, const Particle&p2) const
 {
   if (p1.getID() > p2.getID())
     {

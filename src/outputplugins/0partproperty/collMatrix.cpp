@@ -40,7 +40,7 @@ OPCollMatrix::~OPCollMatrix()
 {}
 
 void 
-OPCollMatrix::eventUpdate(const CIntEvent& iEvent, const C2ParticleData&)
+OPCollMatrix::eventUpdate(const IntEvent& iEvent, const C2ParticleData&)
 {
   newEvent(iEvent.getParticle1ID(), iEvent.getType(), 
 	   getClassKey(iEvent));

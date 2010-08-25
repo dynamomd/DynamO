@@ -32,7 +32,7 @@ public:
   virtual C2Range* Clone() const 
   { return new C2RRangeList(*this); };
 
-  virtual bool isInRange(const CParticle&, const CParticle&) const;
+  virtual bool isInRange(const Particle&, const Particle&) const;
 
   void addRange(C2Range* nRange)
   { ranges.push_back(smrtPlugPtr<C2Range>(nRange)); }

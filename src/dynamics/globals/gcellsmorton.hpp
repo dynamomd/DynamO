@@ -39,18 +39,18 @@ public:
     return new CGCellsMorton(*this); 
   }
 
-  virtual CGlobEvent getEvent(const CParticle &) const;
+  virtual CGlobEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const CParticle&) const;
+  virtual void runEvent(const Particle&) const;
 
   virtual void initialise(size_t);
 
   virtual void reinitialise(const Iflt&);
 
-  virtual void getParticleNeighbourhood(const CParticle&, 
+  virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const;
 
-  virtual void getParticleLocalNeighbourhood(const CParticle&, 
+  virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const;
   
   void setLambda(const Iflt&);

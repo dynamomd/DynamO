@@ -51,7 +51,7 @@ OPCollDistCheck::operator<<(const XMLNode& XML)
 }
 
 void 
-OPCollDistCheck::eventUpdate(const CIntEvent& eevent, 
+OPCollDistCheck::eventUpdate(const IntEvent& eevent, 
 			      const C2ParticleData& PDat)
 {
   const eventKey locPair(getClassKey(eevent), 

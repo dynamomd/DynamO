@@ -25,7 +25,7 @@ class OP1PP: public OutputPlugin
 public:
   OP1PP(const DYNAMO::SimData*, const char*, unsigned char order = 100);
 
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
 
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
 

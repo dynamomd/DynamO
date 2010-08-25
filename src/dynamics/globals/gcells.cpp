@@ -110,7 +110,7 @@ CGCells::setLambda(const Iflt& nL)
 }
 
 CGlobEvent 
-CGCells::getEvent(const CParticle& part) const
+CGCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -133,7 +133,7 @@ CGCells::getEvent(const CParticle& part) const
 }
 
 void
-CGCells::runEvent(const CParticle& part) const
+CGCells::runEvent(const Particle& part) const
 {
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
@@ -418,7 +418,7 @@ CGCells::addCells(Iflt maxdiam)
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
   ////initialise the data structures
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     addToCell(part.getID(), getCellID(part.getPosition()));
 }
 
@@ -495,7 +495,7 @@ CGCells::getCellID(Vector  pos) const
 
 
 void 
-CGCells::getParticleNeighbourhood(const CParticle& part,
+CGCells::getParticleNeighbourhood(const Particle& part,
 				  const nbHoodFunc& func) const
 {
   CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
@@ -546,7 +546,7 @@ CGCells::getParticleNeighbourhood(const CParticle& part,
 }
 
 void 
-CGCells::getParticleLocalNeighbourhood(const CParticle& part, 
+CGCells::getParticleLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const size_t& id, 

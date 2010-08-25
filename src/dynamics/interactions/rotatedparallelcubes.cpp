@@ -34,28 +34,28 @@
 #include "../NparticleEventData.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-CIRotatedParallelCubes::CIRotatedParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
+IRotatedParallelCubes::IRotatedParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
 					       Iflt ne, const Matrix& rot,
 					       C2Range* nR):
-  CInteraction(tmp, nR),
+  Interaction(tmp, nR),
   Rotation(rot),
   diameter(nd), e(ne)
 {}
 
-CIRotatedParallelCubes::CIRotatedParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+IRotatedParallelCubes::IRotatedParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
 
 void 
-CIRotatedParallelCubes::initialise(size_t nID)
+IRotatedParallelCubes::initialise(size_t nID)
 { 
   ID=nID; 
 }
 
 void 
-CIRotatedParallelCubes::operator<<(const XMLNode& XML)
+IRotatedParallelCubes::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
     D_throw() << "Attempting to load RotatedParallelCubes from " 
@@ -81,25 +81,25 @@ CIRotatedParallelCubes::operator<<(const XMLNode& XML)
 }
 
 Iflt 
-CIRotatedParallelCubes::maxIntDist() const 
+IRotatedParallelCubes::maxIntDist() const 
 { return std::sqrt(NDIM) * diameter; }
 
 Iflt 
-CIRotatedParallelCubes::hardCoreDiam() const 
+IRotatedParallelCubes::hardCoreDiam() const 
 { return diameter; }
 
 void 
-CIRotatedParallelCubes::rescaleLengths(Iflt scale) 
+IRotatedParallelCubes::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter;
 }
 
-CInteraction* 
-CIRotatedParallelCubes::Clone() const 
-{ return new CIRotatedParallelCubes(*this); }
+Interaction* 
+IRotatedParallelCubes::Clone() const 
+{ return new IRotatedParallelCubes(*this); }
   
-CIntEvent 
-CIRotatedParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const 
+IntEvent 
+IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -127,16 +127,16 @@ CIRotatedParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const
 	  / Sim->dynamics.units().unitLength();
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      return IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);
+  return IntEvent(p1,p2,HUGE_VAL, NONE, *this);
 }
 
 void
-CIRotatedParallelCubes::runEvent(const CParticle& p1,
-				 const CParticle& p2,
-				 const CIntEvent& iEvent) const
+IRotatedParallelCubes::runEvent(const Particle& p1,
+				 const Particle& p2,
+				 const IntEvent& iEvent) const
 {
 
   ++Sim->lNColl;
@@ -155,7 +155,7 @@ CIRotatedParallelCubes::runEvent(const CParticle& p1,
 }
    
 void 
-CIRotatedParallelCubes::outputXML(xmlw::XmlStream& XML) const
+IRotatedParallelCubes::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "RotatedParallelCubes"
       << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
@@ -168,7 +168,7 @@ CIRotatedParallelCubes::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-CIRotatedParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+IRotatedParallelCubes::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 
@@ -183,7 +183,7 @@ CIRotatedParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& p
 }
 
 void 
-CIRotatedParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
+IRotatedParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
   os << "#declare intrep" << ID << " = "

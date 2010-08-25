@@ -61,7 +61,7 @@ public:
     p2(nID2)
     {}
 
-  inline intPart(const CIntEvent& coll, const unsigned long& nCC2) throw():
+  inline intPart(const IntEvent& coll, const unsigned long& nCC2) throw():
     dt(coll.getdt()),
     collCounter2(nCC2),
     type(INTERACTION),

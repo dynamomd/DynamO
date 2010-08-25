@@ -25,7 +25,7 @@ CRSingle::CRSingle(const XMLNode& XML)
 { operator<<(XML); }
 
 bool 
-CRSingle::isInRange(const CParticle &part) const
+CRSingle::isInRange(const Particle &part) const
 {
   if (part.getID() == ID)
     return true;

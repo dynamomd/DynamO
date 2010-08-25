@@ -47,7 +47,7 @@ CSpecies::CSpecies(DYNAMO::SimData* tmp, const char* name, const char* color,
   ID(nID)
 {}
 
-const CInteraction* 
+const Interaction* 
 CSpecies::getIntPtr() const
 { 
 #ifdef DYNAMO_DEBUG
@@ -59,7 +59,7 @@ CSpecies::getIntPtr() const
 }
 
 void
-CSpecies::setIntPtr(CInteraction* nPtr)
+CSpecies::setIntPtr(Interaction* nPtr)
 { IntPtr = nPtr; }
 
 void
@@ -94,7 +94,7 @@ CSpecies::operator<<(const XMLNode& XML)
 }
 
 bool 
-CSpecies::isSpecies(const CParticle &p1) const
+CSpecies::isSpecies(const Particle &p1) const
 { return range->isInRange(p1); }
 
 void 

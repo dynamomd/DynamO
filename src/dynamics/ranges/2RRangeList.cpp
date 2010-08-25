@@ -26,7 +26,7 @@ C2RRangeList::C2RRangeList(const XMLNode& XML, const DYNAMO::SimData* nSim):
 { operator<<(XML); }
 
 bool 
-C2RRangeList::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RRangeList::isInRange(const Particle&p1, const Particle&p2) const
 {
   BOOST_FOREACH(const smrtPlugPtr<C2Range>& rPtr, ranges)
     if (rPtr->isInRange(p1,p2))

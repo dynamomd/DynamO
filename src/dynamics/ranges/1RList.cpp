@@ -25,7 +25,7 @@ CRList::CRList(const XMLNode& XML)
 { operator<<(XML); }
 
 bool 
-CRList::isInRange(const CParticle &part) const
+CRList::isInRange(const Particle &part) const
 {
   BOOST_FOREACH(const unsigned long ID, IDs)
     if (part.getID() == ID)

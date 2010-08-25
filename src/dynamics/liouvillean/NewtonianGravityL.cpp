@@ -57,7 +57,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void
-LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
+LNewtonianGravity::streamParticle(Particle &particle, const Iflt &dt) const
 {
   particle.getPosition() += dt * particle.getVelocity();
   particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity;
@@ -65,7 +65,7 @@ LNewtonianGravity::streamParticle(CParticle &particle, const Iflt &dt) const
 }
 
 Iflt 
-LNewtonianGravity::getWallCollision(const CParticle &part, 
+LNewtonianGravity::getWallCollision(const Particle &part, 
 				    const Vector  &wallLoc, 
 				    const Vector  &wallNorm) const
 {
@@ -98,7 +98,7 @@ LNewtonianGravity::getWallCollision(const CParticle &part,
 }
 
 Iflt
-LNewtonianGravity::getSquareCellCollision2(const CParticle& part, 
+LNewtonianGravity::getSquareCellCollision2(const Particle& part, 
 					   const Vector & origin, 
 					   const Vector & width) const
 {
@@ -175,7 +175,7 @@ LNewtonianGravity::getSquareCellCollision2(const CParticle& part,
 }
 
 int
-LNewtonianGravity::getSquareCellCollision3(const CParticle& part, 
+LNewtonianGravity::getSquareCellCollision3(const Particle& part, 
 					   const Vector & origin, 
 					   const Vector & width) const
 {
@@ -271,13 +271,13 @@ LNewtonianGravity::outputXML(xmlw::XmlStream& XML) const
 }
 
 Iflt 
-LNewtonianGravity::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
+LNewtonianGravity::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
 {
   D_throw() << "Not implemented yet";  
 }
 
 Iflt
-LNewtonianGravity::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
+LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 				 const Vector& nhat, const Iflt& Delta,
 				 const Iflt& Omega, const Iflt& Sigma,
 				 const Iflt& t, bool lastpart) const
@@ -286,7 +286,7 @@ LNewtonianGravity::getPointPlateCollision(const CParticle& part, const Vector& n
 }
 
 Iflt 
-LNewtonianGravity::getCylinderWallCollision(const CParticle& part, 
+LNewtonianGravity::getCylinderWallCollision(const Particle& part, 
 				   const Vector& wallLoc, 
 				   const Vector& wallNorm,
 				   const Iflt& radius) const
@@ -313,7 +313,7 @@ LNewtonianGravity::getCylinderWallCollision(const CParticle& part,
 }
 
 Iflt 
-LNewtonianGravity::getParabolaSentinelTime(const CParticle& part, 
+LNewtonianGravity::getParabolaSentinelTime(const Particle& part, 
 					   unsigned char& passed) const
 {
 #ifdef DYNAMO_DEBUG
@@ -337,9 +337,9 @@ LNewtonianGravity::getParabolaSentinelTime(const CParticle& part,
 }
 
 void 
-LNewtonianGravity::enforceParabola(const CParticle& part) const
+LNewtonianGravity::enforceParabola(const Particle& part) const
 {
   updateParticle(part);
 
-  const_cast<CParticle&>(part).getVelocity()[GravityDim] = 0.0;
+  const_cast<Particle&>(part).getVelocity()[GravityDim] = 0.0;
 }

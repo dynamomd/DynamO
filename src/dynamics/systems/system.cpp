@@ -29,7 +29,7 @@
 #include "../ranges/1RAll.hpp"
 
 bool 
-CSystem::operator<(const CIntEvent& iEvent) const
+CSystem::operator<(const IntEvent& iEvent) const
 {
   return dt < iEvent.getdt();
 }

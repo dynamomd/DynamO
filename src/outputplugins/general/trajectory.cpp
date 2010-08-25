@@ -73,7 +73,7 @@ OPTrajectory::printData(const size_t& p1,
 }
 
 void 
-OPTrajectory::eventUpdate(const CIntEvent& eevent, 
+OPTrajectory::eventUpdate(const IntEvent& eevent, 
 				   const C2ParticleData&)
 {
   logfile << "INTERACTION " << eevent.getInteractionID()

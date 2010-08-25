@@ -60,18 +60,18 @@ Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
 }
 
 C2ParticleData 
-Liouvillean::runLineLineCollision(const CIntEvent&,
+Liouvillean::runLineLineCollision(const IntEvent&,
 				   const Iflt&, const Iflt&) const
 { D_throw() << "Not implemented for this Liouvillean."; }
 
 bool
 Liouvillean::getLineLineCollision(CPDData&, const Iflt&, 
-				   const CParticle&, const CParticle&
+				   const Particle&, const Particle&
 				   ) const
 { D_throw() << "Not implemented for this Liouvillean."; }
 
 Iflt 
-Liouvillean::getPBCSentinelTime(const CParticle&, const Iflt&) const
+Liouvillean::getPBCSentinelTime(const Particle&, const Iflt&) const
 { D_throw() << "Not implemented for this Liouvillean."; }
 
 void 
@@ -125,7 +125,7 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  vel *= Sim->dynamics.units().unitVelocity();
 	  pos *= Sim->dynamics.units().unitLength();
 	  
-	  Sim->vParticleList.push_back(CParticle(pos, vel, ID));
+	  Sim->vParticleList.push_back(Particle(pos, vel, ID));
 
 	  ++prog;
 	}
@@ -149,7 +149,7 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	      (xBrowseNode.getAttribute("ID")) != i)
 	    outofsequence = true;
 	  
-	  CParticle part(xBrowseNode, i);
+	  Particle part(xBrowseNode, i);
 	  part.scaleVelocity(Sim->dynamics.units().unitVelocity());
 	  part.scalePosition(Sim->dynamics.units().unitLength());
 	  Sim->vParticleList.push_back(part);
@@ -186,9 +186,9 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	
 	boost::progress_display prog(Sim->lN);
 	
-	BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	BOOST_FOREACH(const Particle& part, Sim->vParticleList)
 	  {
-	    CParticle tmp(part);
+	    Particle tmp(part);
 	    Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
 	    
 	    tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
@@ -220,7 +220,7 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
       
       for (unsigned long i = 0; i < Sim->lN; ++i)
 	{
-	  CParticle tmp(Sim->vParticleList[i]);
+	  Particle tmp(Sim->vParticleList[i]);
 	  Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
 	  
 	  tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
@@ -242,13 +242,13 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 }
 
 Iflt 
-Liouvillean::getParticleKineticEnergy(const CParticle& part) const
+Liouvillean::getParticleKineticEnergy(const Particle& part) const
 {
   return 0.5 * (part.getVelocity().nrm2()) * Sim->dynamics.getSpecies(part).getMass();
 }
 
 Vector  
-Liouvillean::getVectorParticleKineticEnergy(const CParticle& part) const
+Liouvillean::getVectorParticleKineticEnergy(const Particle& part) const
 {
   Vector  tmp(0.5 * part.getVelocity() * Sim->dynamics.getSpecies(part).getMass());
 
@@ -263,7 +263,7 @@ Liouvillean::getSystemKineticEnergy() const
 {
   Iflt sumEnergy(0);
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     sumEnergy += getParticleKineticEnergy(part);
 
   return sumEnergy;
@@ -274,7 +274,7 @@ Liouvillean::getVectorSystemKineticEnergy() const
 {
   Vector  sumEnergy(0,0,0);
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     sumEnergy += getVectorParticleKineticEnergy(part);
 
   return sumEnergy;
@@ -291,27 +291,27 @@ Liouvillean::rescaleSystemKineticEnergy(const Iflt& scale)
 {
   Iflt scalefactor(sqrt(scale));
 
-  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->vParticleList)
     part.getVelocity() *= scalefactor;
 }
 
 void
 Liouvillean::rescaleSystemKineticEnergy(const Vector& scalefactors)
 {
-  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->vParticleList)
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       part.getVelocity()[iDim] *= scalefactors[iDim];
 }
 
 C2ParticleData 
-Liouvillean::parallelCubeColl(const CIntEvent& event, 
+Liouvillean::parallelCubeColl(const IntEvent& event, 
 			       const Iflt& e, 
 			       const Iflt& d, 
 			       const EEventType& eType) const
 { D_throw() << "Not Implemented"; }
 
 C2ParticleData 
-Liouvillean::parallelCubeColl(const CIntEvent& event, 
+Liouvillean::parallelCubeColl(const IntEvent& event, 
 			       const Iflt& e, 
 			       const Iflt& d,
 			       const Matrix& Rot,
@@ -319,7 +319,7 @@ Liouvillean::parallelCubeColl(const CIntEvent& event,
 { D_throw() << "Not Implemented"; }
 
 Iflt 
-Liouvillean::getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
+Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				     const Vector& nhat, const Iflt& Delta,
 				     const Iflt& Omega, const Iflt& Sigma,
 				     const Iflt& t, bool) const
@@ -329,7 +329,7 @@ Liouvillean::getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
 
 C1ParticleData 
 Liouvillean::runOscilatingPlate
-(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+(const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e,
  Iflt& t, bool strongPlate) const
 {
@@ -338,7 +338,7 @@ Liouvillean::runOscilatingPlate
 
 
 Iflt 
-Liouvillean::getCylinderWallCollision(const CParticle& part, 
+Liouvillean::getCylinderWallCollision(const Particle& part, 
 				       const Vector& origin, 
 				       const Vector& norm,
 				       const Iflt&
@@ -348,7 +348,7 @@ Liouvillean::getCylinderWallCollision(const CParticle& part,
 }
 
 C1ParticleData 
-Liouvillean::runCylinderWallCollision(const CParticle&, 
+Liouvillean::runCylinderWallCollision(const Particle&, 
 				       const Vector &,
 				       const Vector &,
 				       const Iflt&
@@ -358,7 +358,7 @@ Liouvillean::runCylinderWallCollision(const CParticle&,
 }
 
 C1ParticleData 
-Liouvillean::runSphereWallCollision(const CParticle&, 
+Liouvillean::runSphereWallCollision(const Particle&, 
 				    const Vector &,
 				    const Iflt&
 				    ) const
@@ -367,14 +367,14 @@ Liouvillean::runSphereWallCollision(const CParticle&,
 }
 
 C2ParticleData 
-Liouvillean::SmoothSpheresCollInfMassSafe(const CIntEvent&, const Iflt&, 
+Liouvillean::SmoothSpheresCollInfMassSafe(const IntEvent&, const Iflt&, 
 					   const Iflt&, const EEventType&) const
 {
   D_throw() << "Not Implemented";
 }
 
 C2ParticleData 
-Liouvillean::RoughSpheresColl(const CIntEvent& event, 
+Liouvillean::RoughSpheresColl(const IntEvent& event, 
 			      const Iflt& e, 
 			      const Iflt& et, 
 			      const Iflt& d2, 
@@ -385,7 +385,7 @@ Liouvillean::RoughSpheresColl(const CIntEvent& event,
 }
 
 C1ParticleData 
-Liouvillean::runRoughWallCollision(const CParticle& part, 
+Liouvillean::runRoughWallCollision(const Particle& part, 
 				   const Vector & vNorm,
 				   const Iflt& e,
 				   const Iflt& et,

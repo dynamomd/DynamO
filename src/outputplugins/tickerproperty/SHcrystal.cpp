@@ -68,7 +68,7 @@ OPSHCrystal::ticker()
 {
   sphericalsum ssum(Sim, rg, maxl);
   
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     {
       static_cast<const CGNeighbourList*>
 	(Sim->dynamics.getGlobals()[nblistID].get_ptr())
@@ -162,7 +162,7 @@ OPSHCrystal::sphericalsum::sphericalsum
 
 void 
 OPSHCrystal::sphericalsum::operator()
-  (const CParticle& part, const size_t& ID) const
+  (const Particle& part, const size_t& ID) const
 {
   Vector rij = part.getPosition() - Sim->vParticleList[ID].getPosition();
   Sim->dynamics.BCs().applyBC(rij);

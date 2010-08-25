@@ -41,7 +41,7 @@ class OPSHCrystal: public OPTicker
 
  protected:
 
-  std::complex<Iflt> localq(const CParticle& part, int l, int m);
+  std::complex<Iflt> localq(const Particle& part, int l, int m);
 
   //! Cut-off radius 
   Iflt rg;
@@ -56,7 +56,7 @@ class OPSHCrystal: public OPTicker
     sphericalsum(const DYNAMO::SimData * const, 
 		 const Iflt&, const size_t&);
     
-    void operator()(const CParticle&, const size_t&) const;
+    void operator()(const Particle&, const size_t&) const;
     
     void clear();
 

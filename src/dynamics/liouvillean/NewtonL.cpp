@@ -178,7 +178,7 @@ LNewtonian::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 }
 
 C1ParticleData 
-LNewtonian::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
+LNewtonian::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
 
@@ -193,7 +193,7 @@ LNewtonian::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
 
   //Assign the new velocities
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    const_cast<CParticle&>(part).getVelocity()[iDim] 
+    const_cast<Particle&>(part).getVelocity()[iDim] 
       = Sim->normal_sampler() * factor;
 
   tmpDat.setDeltaKE(0.5 * tmpDat.getSpecies().getMass()
@@ -208,13 +208,13 @@ LNewtonian::LNewtonian(DYNAMO::SimData* tmp):
 {}
 
 void
-LNewtonian::streamParticle(CParticle &particle, const Iflt &dt) const
+LNewtonian::streamParticle(Particle &particle, const Iflt &dt) const
 {
   particle.getPosition() += particle.getVelocity() * dt;
 }
 
 Iflt 
-LNewtonian::getWallCollision(const CParticle &part, 
+LNewtonian::getWallCollision(const Particle &part, 
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
 {
@@ -235,7 +235,7 @@ LNewtonian::getWallCollision(const CParticle &part,
 
 
 C1ParticleData 
-LNewtonian::runWallCollision(const CParticle &part, 
+LNewtonian::runWallCollision(const Particle &part, 
 			   const Vector  &vNorm,
 			   const Iflt& e
 			   ) const
@@ -244,7 +244,7 @@ LNewtonian::runWallCollision(const CParticle &part,
 
   C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
-  const_cast<CParticle&>(part).getVelocity()
+  const_cast<Particle&>(part).getVelocity()
     -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
   
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
@@ -255,7 +255,7 @@ LNewtonian::runWallCollision(const CParticle &part,
 }
 
 C1ParticleData 
-LNewtonian::runAndersenWallCollision(const CParticle& part, 
+LNewtonian::runAndersenWallCollision(const Particle& part, 
 				   const Vector & vNorm,
 				   const Iflt& sqrtT
 				   ) const
@@ -267,11 +267,11 @@ LNewtonian::runAndersenWallCollision(const CParticle& part,
   C1ParticleData tmpDat(part, Sim->dynamics.getSpecies(part), WALL);
  
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    const_cast<CParticle&>(part).getVelocity()[iDim] 
+    const_cast<Particle&>(part).getVelocity()[iDim] 
       = Sim->normal_sampler() * sqrtT 
       / sqrt(Sim->dynamics.getSpecies(part).getMass());
   
-  const_cast<CParticle&>(part).getVelocity() 
+  const_cast<Particle&>(part).getVelocity() 
     //This first line adds a component in the direction of the normal
     += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler())
 			     / Sim->dynamics.getSpecies(part).getMass())
@@ -286,7 +286,7 @@ LNewtonian::runAndersenWallCollision(const CParticle& part,
 }
 
 Iflt
-LNewtonian::getSquareCellCollision2(const CParticle& part, 
+LNewtonian::getSquareCellCollision2(const Particle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -321,7 +321,7 @@ LNewtonian::getSquareCellCollision2(const CParticle& part,
 }
 
 int
-LNewtonian::getSquareCellCollision3(const CParticle& part, 
+LNewtonian::getSquareCellCollision3(const Particle& part, 
 				    const Vector & origin, 
 				    const Vector & width) const
 {
@@ -362,8 +362,8 @@ LNewtonian::getSquareCellCollision3(const CParticle& part,
 }
 
 bool 
-LNewtonian::DSMCSpheresTest(const CParticle& p1, 
-			  const CParticle& p2, 
+LNewtonian::DSMCSpheresTest(const Particle& p1, 
+			  const Particle& p2, 
 			  Iflt& maxprob,
 			  const Iflt& factor,
 			  CPDData& pdat) const
@@ -385,8 +385,8 @@ LNewtonian::DSMCSpheresTest(const CParticle& p1,
 }
 
 C2ParticleData
-LNewtonian::DSMCSpheresRun(const CParticle& p1, 
-			 const CParticle& p2, 
+LNewtonian::DSMCSpheresRun(const Particle& p1, 
+			 const Particle& p2, 
 			 const Iflt& e,
 			 CPDData& pdat) const
 {
@@ -408,8 +408,8 @@ LNewtonian::DSMCSpheresRun(const CParticle& p1,
 			    / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(p1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(p2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (p1.getVelocity().nrm2() 
@@ -424,11 +424,11 @@ LNewtonian::DSMCSpheresRun(const CParticle& p1,
 
 
 C2ParticleData 
-LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
+LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
 				       const Iflt&, const EEventType& eType) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -456,20 +456,20 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
       retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
       //This function must edit particles so it overrides the const!
-      const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-      const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
     }
   else if (p1Mass == 0.0)
     {
       retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
-      const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
     }
   else
     {
       retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
-      const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
     }
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
@@ -484,11 +484,11 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e,
 }
 
 C2ParticleData 
-LNewtonian::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
+LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 			    const Iflt&, const EEventType& eType) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -507,8 +507,8 @@ LNewtonian::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 
@@ -522,11 +522,11 @@ LNewtonian::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
 }
 
 C2ParticleData 
-LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);
 
@@ -558,8 +558,8 @@ LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
 
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 
@@ -573,12 +573,12 @@ LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
 }
 
 C2ParticleData 
-LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
+LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const Matrix& rot,
 			   const EEventType& eType) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);
 
@@ -617,8 +617,8 @@ LNewtonian::parallelCubeColl(const CIntEvent& event, const Iflt& e,
   retVal.vijold = Transpose(rot) * Vector(retVal.vijold);
 
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 
@@ -700,7 +700,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
-      const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
+      const_cast<Particle&>(tmpval.getParticle()).getVelocity()
 	-= dP / structmass1;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
@@ -717,7 +717,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
-      const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
+      const_cast<Particle&>(tmpval.getParticle()).getVelocity()
 	+= dP / structmass2;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
@@ -821,7 +821,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
-      const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
+      const_cast<Particle&>(tmpval.getParticle()).getVelocity()
 	-= dP / structmass1;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
@@ -838,7 +838,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
 
-      const_cast<CParticle&>(tmpval.getParticle()).getVelocity()
+      const_cast<Particle&>(tmpval.getParticle()).getVelocity()
 	+= dP / structmass2;
       
       tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass()
@@ -852,11 +852,11 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 }
 
 C2ParticleData 
-LNewtonian::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
+LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
 			  const Iflt &) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -917,8 +917,8 @@ LNewtonian::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 #endif
   
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 
@@ -939,7 +939,7 @@ LNewtonian::outputXML(xmlw::XmlStream& XML) const
 }
 
 Iflt 
-LNewtonian::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
+LNewtonian::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -964,7 +964,7 @@ LNewtonian::getPBCSentinelTime(const CParticle& part, const Iflt& lMax) const
 }
 
 Iflt
-LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
+LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 				 const Vector& nhat, const Iflt& Delta,
 				 const Iflt& Omega, const Iflt& Sigma,
 				 const Iflt& t, bool lastpart) const
@@ -1152,7 +1152,7 @@ LNewtonian::getPointPlateCollision(const CParticle& part, const Vector& nrw0,
 
 C1ParticleData 
 LNewtonian::runOscilatingPlate
-(const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+(const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
  Iflt& t, bool strongPlate) const
 {
@@ -1250,7 +1250,7 @@ LNewtonian::runOscilatingPlate
 
   Vector delP =  nhat * mu * (1.0 + inelas) * rvdot;
 
-  const_cast<CParticle&>(part).getVelocity() -=  delP / pmass;
+  const_cast<Particle&>(part).getVelocity() -=  delP / pmass;
 
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
 		    * (part.getVelocity().nrm2() 
@@ -1281,7 +1281,7 @@ LNewtonian::runOscilatingPlate
 }
 
 Iflt 
-LNewtonian::getCylinderWallCollision(const CParticle& part, 
+LNewtonian::getCylinderWallCollision(const Particle& part, 
 				   const Vector& wallLoc, 
 				   const Vector& wallNorm,
 				   const Iflt& radius) const
@@ -1308,7 +1308,7 @@ LNewtonian::getCylinderWallCollision(const CParticle& part,
 }
 
 C1ParticleData 
-LNewtonian::runCylinderWallCollision(const CParticle& part, 
+LNewtonian::runCylinderWallCollision(const Particle& part, 
 				   const Vector& origin,
 				   const Vector& vNorm,
 				   const Iflt& e
@@ -1326,7 +1326,7 @@ LNewtonian::runCylinderWallCollision(const CParticle& part,
 
   rij /= rij.nrm();
 
-  const_cast<CParticle&>(part).getVelocity()
+  const_cast<Particle&>(part).getVelocity()
     -= (1+e) * (rij | part.getVelocity()) * rij;
   
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()
@@ -1337,7 +1337,7 @@ LNewtonian::runCylinderWallCollision(const CParticle& part,
 }
 
 C1ParticleData 
-LNewtonian::runSphereWallCollision(const CParticle& part, 
+LNewtonian::runSphereWallCollision(const Particle& part, 
 				   const Vector& origin,
 				   const Iflt& e
 				   ) const
@@ -1352,7 +1352,7 @@ LNewtonian::runSphereWallCollision(const CParticle& part,
 
   rij /= rij.nrm();
 
-  const_cast<CParticle&>(part).getVelocity()
+  const_cast<Particle&>(part).getVelocity()
     -= (1+e) * (rij | part.getVelocity()) * rij;
   
   retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass()

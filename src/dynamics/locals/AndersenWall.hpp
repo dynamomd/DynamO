@@ -33,9 +33,9 @@ public:
 
   virtual CLocal* Clone() const { return new CLAndersenWall(*this); }
 
-  virtual CLocalEvent getEvent(const CParticle &) const;
+  virtual CLocalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const CParticle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const CLocalEvent&) const;
 
   virtual void initialise(size_t);
 

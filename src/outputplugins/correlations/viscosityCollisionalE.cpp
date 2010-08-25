@@ -119,7 +119,7 @@ OPViscosityCollisionalE::eventUpdate(const CSystem&,
 }
   
 void 
-OPViscosityCollisionalE::eventUpdate(const CIntEvent& iEvent, 
+OPViscosityCollisionalE::eventUpdate(const IntEvent& iEvent, 
 				      const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());

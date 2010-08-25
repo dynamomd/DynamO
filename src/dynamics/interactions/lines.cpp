@@ -33,20 +33,20 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 
-CILines::CILines(DYNAMO::SimData* tmp, Iflt nd, 
+ILines::ILines(DYNAMO::SimData* tmp, Iflt nd, 
 		 Iflt ne, C2Range* nR):
-  CISingleCapture(tmp, nR),
+  ISingleCapture(tmp, nR),
   length(nd), l2(nd*nd), e(ne) 
 {}
 
-CILines::CILines(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CISingleCapture(tmp, NULL)
+ILines::ILines(const XMLNode& XML, DYNAMO::SimData* tmp):
+  ISingleCapture(tmp, NULL)
 {
   operator<<(XML);
 }
 
 void 
-CILines::initialise(size_t nID)
+ILines::initialise(size_t nID)
 {
   if (dynamic_cast<const LNOrientation*>(&(Sim->dynamics.getLiouvillean()))
       == NULL)
@@ -54,11 +54,11 @@ CILines::initialise(size_t nID)
   
   ID = nID; 
   
-  CISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap();
 }
 
 void 
-CILines::operator<<(const XMLNode& XML)
+ILines::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"Lines"))
     D_throw() << "Attempting to load Lines from non Lines entry";
@@ -76,7 +76,7 @@ CILines::operator<<(const XMLNode& XML)
       
       intName = XML.getAttribute("Name");
       
-      CISingleCapture::loadCaptureMap(XML);   
+      ISingleCapture::loadCaptureMap(XML);   
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -85,28 +85,28 @@ CILines::operator<<(const XMLNode& XML)
 }
 
 Iflt 
-CILines::maxIntDist() const 
+ILines::maxIntDist() const 
 { return length; }
 
 Iflt 
-CILines::hardCoreDiam() const 
+ILines::hardCoreDiam() const 
 { return 0.0; }
 
 void 
-CILines::rescaleLengths(Iflt scale) 
+ILines::rescaleLengths(Iflt scale) 
 { 
   length += scale * length;
   
   l2 = length * length;
 }
 
-CInteraction* 
-CILines::Clone() const 
-{ return new CILines(*this); }
+Interaction* 
+ILines::Clone() const 
+{ return new ILines(*this); }
 
-CIntEvent 
-CILines::getEvent(const CParticle &p1,
-		  const CParticle &p2) const 
+IntEvent 
+ILines::getEvent(const Particle &p1,
+		  const Particle &p2) const 
 {
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -132,20 +132,20 @@ CILines::getEvent(const CParticle &p1,
       //Upper limit can be HUGE_VAL!
       if (Sim->dynamics.getLiouvillean().getLineLineCollision
 	  (colldat, length, p1, p2))
-	return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+	return IntEvent(p1, p2, colldat.dt, CORE, *this);
       
-      return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+      return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, l2)) 
-    return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+    return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
   
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CILines::runEvent(const CParticle& p1, 
-		  const CParticle& p2,
-		  const CIntEvent& iEvent) const
+ILines::runEvent(const Particle& p1, 
+		  const Particle& p2,
+		  const IntEvent& iEvent) const
 {
   switch (iEvent.getType())
     {
@@ -196,7 +196,7 @@ CILines::runEvent(const CParticle& p1,
 }
    
 void 
-CILines::outputXML(xmlw::XmlStream& XML) const
+ILines::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "Lines"
       << xmlw::attr("Length") << length / Sim->dynamics.units().unitLength()
@@ -204,11 +204,11 @@ CILines::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
 
-  CISingleCapture::outputCaptureMap(XML);
+  ISingleCapture::outputCaptureMap(XML);
 }
 
 bool 
-CILines::captureTest(const CParticle& p1, const CParticle& p2) const
+ILines::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -217,11 +217,11 @@ CILines::captureTest(const CParticle& p1, const CParticle& p2) const
 }
 
 void
-CILines::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+ILines::checkOverlaps(const Particle& part1, const Particle& part2) const
 {}
 
 void 
-CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
+ILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 			   std::ostream& os) const
 {
   try {
@@ -234,7 +234,7 @@ CILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
-      const CParticle& part(Sim->vParticleList[pid]);
+      const Particle& part(Sim->vParticleList[pid]);
 
       const LNOrientation::rotData& 
 	rdat(static_cast<const LNOrientation&>

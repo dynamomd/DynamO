@@ -32,9 +32,9 @@ public:
 
   virtual CLocal* Clone() const { return new CLDblWall(*this); };
 
-  virtual CLocalEvent getEvent(const CParticle&) const;
+  virtual CLocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const CParticle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const CLocalEvent&) const;
   
   virtual bool isInCell(const Vector &, const Vector &) const;
 

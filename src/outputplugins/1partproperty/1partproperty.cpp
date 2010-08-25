@@ -24,7 +24,7 @@ OP1PP::OP1PP(const DYNAMO::SimData* t1,const char *t2, unsigned char order):
 {}
 
 void 
-OP1PP::eventUpdate(const CIntEvent &event, 
+OP1PP::eventUpdate(const IntEvent &event, 
 		    const C2ParticleData &SDat) 
 {
   stream(event.getdt());

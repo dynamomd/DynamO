@@ -44,14 +44,14 @@ OP3DField::~OP3DField()
 {}
 
 void 
-OP3DField::collisionUpdate(const CIntEvent &collision, 
+OP3DField::collisionUpdate(const IntEvent &collision, 
 			    const CIntEventData &preColl)
 {
   if (!(Sim->lNColl % 100))
     {
       imageCounter++;
 
-      BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
+      BOOST_FOREACH( const Particle & Part, Sim->vParticleList)
 	{
 	  Vector  position = Part.getPosition();
 

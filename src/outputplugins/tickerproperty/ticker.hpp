@@ -33,7 +33,7 @@ public:
   OPTicker(const DYNAMO::SimData*, const char*);
 
   //Non virtual to warn if you use them,
-  void eventUpdate(const CIntEvent&, const C2ParticleData&) {}
+  void eventUpdate(const IntEvent&, const C2ParticleData&) {}
   void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
   void eventUpdate(const CLocalEvent&, const CNParticleData&) {}
   void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) {}

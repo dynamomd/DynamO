@@ -35,9 +35,9 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
+ISWSequence::ISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
 			   Iflt ne, std::vector<size_t> seq, C2Range* nR):
-  CISingleCapture(tmp,nR),
+  ISingleCapture(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl),e(ne), sequence(seq) 
 {
   std::set<size_t> letters;
@@ -53,20 +53,20 @@ CISWSequence::CISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
     vec.resize(letters.size(), 0.0);
 }
 
-CISWSequence::CISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CISingleCapture(tmp, NULL) //A temporary value!
+ISWSequence::ISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
+  ISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 Iflt 
-CISWSequence::getColourFraction(const CParticle& part) const
+ISWSequence::getColourFraction(const Particle& part) const
 {
   return (sequence[part.getID() % sequence.size()] + 0.5) / static_cast<Iflt>(alphabet.size());   
 }
 
 void 
-CISWSequence::outputXML(xmlw::XmlStream& XML) const
+ISWSequence::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "SquareWellSeq"
       << xmlw::attr("Diameter") 
@@ -98,11 +98,11 @@ CISWSequence::outputXML(xmlw::XmlStream& XML) const
   XML << xmlw::endtag("Alphabet");
 
   
-  CISingleCapture::outputCaptureMap(XML);  
+  ISingleCapture::outputCaptureMap(XML);  
 }
 
 void 
-CISWSequence::operator<<(const XMLNode& XML)
+ISWSequence::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
     D_throw() << "Attempting to load SquareWell from non SquareWell entry";
@@ -123,7 +123,7 @@ CISWSequence::operator<<(const XMLNode& XML)
     
     intName = XML.getAttribute("Name");
 
-    CISingleCapture::loadCaptureMap(XML);
+    ISingleCapture::loadCaptureMap(XML);
   
     //Load the sequence
     XMLNode subNode = XML.getChildNode("Sequence");
@@ -181,12 +181,12 @@ CISWSequence::operator<<(const XMLNode& XML)
     }
 }
 
-CInteraction* 
-CISWSequence::Clone() const 
-{ return new CISWSequence(*this); }
+Interaction* 
+ISWSequence::Clone() const 
+{ return new ISWSequence(*this); }
 
 Iflt 
-CISWSequence::getInternalEnergy() const 
+ISWSequence::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
   Iflt Energy = 0.0;
@@ -201,15 +201,15 @@ CISWSequence::getInternalEnergy() const
 }
 
 Iflt 
-CISWSequence::hardCoreDiam() const 
+ISWSequence::hardCoreDiam() const 
 { return diameter; }
 
 Iflt 
-CISWSequence::maxIntDist() const 
+ISWSequence::maxIntDist() const 
 { return diameter * lambda; }
 
 void 
-CISWSequence::rescaleLengths(Iflt scale) 
+ISWSequence::rescaleLengths(Iflt scale) 
 { 
   diameter += scale * diameter; 
   d2 = diameter * diameter;
@@ -217,14 +217,14 @@ CISWSequence::rescaleLengths(Iflt scale)
 }
 
 void 
-CISWSequence::initialise(size_t nID)
+ISWSequence::initialise(size_t nID)
 {
   ID = nID;
-  CISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap();
 }
 
 bool 
-CISWSequence::captureTest(const CParticle& p1, const CParticle& p2) const
+ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -239,9 +239,9 @@ CISWSequence::captureTest(const CParticle& p1, const CParticle& p2) const
   return (rij.nrm2() <= ld2);
 }
 
-CIntEvent 
-CISWSequence::getEvent(const CParticle &p1, 
-		       const CParticle &p2) const 
+IntEvent 
+ISWSequence::getEvent(const Particle &p1, 
+		       const Particle &p2) const 
 {    
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -268,11 +268,11 @@ CISWSequence::getEvent(const CParticle &p1,
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif	  
-	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
       else
 	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
-	  return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, ld2)) 
     {
@@ -290,16 +290,16 @@ CISWSequence::getEvent(const CParticle &p1,
 	  
 	}
 #endif
-      return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CISWSequence::runEvent(const CParticle& p1,
-		       const CParticle& p2,
-		       const CIntEvent& iEvent) const
+ISWSequence::runEvent(const Particle& p1,
+		       const Particle& p2,
+		       const IntEvent& iEvent) const
 {  
   ++Sim->lNColl;
 
@@ -365,7 +365,7 @@ CISWSequence::runEvent(const CParticle& p1,
 }
 
 void
-CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+ISWSequence::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -413,7 +413,7 @@ CISWSequence::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 }
 
 void 
-CISWSequence::write_povray_desc(const DYNAMO::RGB& rgb, 
+ISWSequence::write_povray_desc(const DYNAMO::RGB& rgb, 
 				const size_t& specID, 
 				std::ostream& os) const
 {

@@ -39,7 +39,7 @@ public:
 
   virtual void operator<<(XMLNode&) {}
 
-  virtual bool operator<(const CIntEvent&) const { return false; }
+  virtual bool operator<(const IntEvent&) const { return false; }
 
   virtual bool operator<(const CGlobEvent&) const { return false; }
 

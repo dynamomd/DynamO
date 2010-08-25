@@ -79,5 +79,5 @@ CSSystemOnly::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CSSystemOnly::addEvents(const CParticle& part)
+CSSystemOnly::addEvents(const Particle& part)
 {}

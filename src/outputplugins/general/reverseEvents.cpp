@@ -35,7 +35,7 @@ OPReverseEventsCheck::initialise()
 }
 
 void 
-OPReverseEventsCheck::eventUpdate(const CIntEvent& eevent, 
+OPReverseEventsCheck::eventUpdate(const IntEvent& eevent, 
 				   const C2ParticleData&)
 {
   if (eevent.getdt() < localeps) 

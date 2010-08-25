@@ -105,8 +105,8 @@ CSRingDSMC::runEvent() const
     for (size_t n = 0; n < nmax; ++n)
       {
 	size_t pairID(id1sampler());
-	const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
-	const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
+	const Particle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
+	const Particle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
 	
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
@@ -149,7 +149,7 @@ CSRingDSMC::runEvent() const
     
     for (size_t n = 0; n < nmax; ++n)
       {
-	const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+	const Particle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
 	
 	size_t secondID(id1sampler());
 	
@@ -159,7 +159,7 @@ CSRingDSMC::runEvent() const
 		   : ((secondID+1) == p1.getID())))
 	  secondID = id1sampler();
 	
-	const CParticle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
+	const Particle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
 	
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
@@ -218,8 +218,8 @@ CSRingDSMC::initialise(size_t nID)
       for (size_t n = 0; n < 1000; ++n)
 	{
 	  size_t pairID(id1sampler());
-	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
-	  const CParticle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
+	  const Particle& p1(Sim->vParticleList[*(range1->begin() + 2 * pairID)]);
+	  const Particle& p2(Sim->vParticleList[*(range1->begin() + 2 * pairID + 1)]);
 	  
 	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  
@@ -245,7 +245,7 @@ CSRingDSMC::initialise(size_t nID)
       //Just do some quick testing to get an estimate
       for (size_t n = 0; n < 1000; ++n)
 	{
-	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+	  const Particle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
 
 	  size_t secondID(id1sampler());
 
@@ -255,7 +255,7 @@ CSRingDSMC::initialise(size_t nID)
 		     : ((secondID+1) == p1.getID())))
 	    secondID = id1sampler();
 
-	  const CParticle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
+	  const Particle& p2(Sim->vParticleList[*(range1->begin() + secondID)]);
 	  
 	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  

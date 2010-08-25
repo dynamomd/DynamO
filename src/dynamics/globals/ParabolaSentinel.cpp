@@ -44,7 +44,7 @@ CGParabolaSentinel::initialise(size_t nID)
 
   passedParabola.resize(Sim->lN);
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     passedParabola[part.getID()] = false;
 
   Sim->registerParticleUpdateFunc
@@ -65,7 +65,7 @@ CGParabolaSentinel::operator<<(const XMLNode& XML)
 }
 
 CGlobEvent 
-CGParabolaSentinel::getEvent(const CParticle& part) const
+CGParabolaSentinel::getEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -79,7 +79,7 @@ CGParabolaSentinel::getEvent(const CParticle& part) const
 }
 
 void 
-CGParabolaSentinel::runEvent(const CParticle& part) const
+CGParabolaSentinel::runEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

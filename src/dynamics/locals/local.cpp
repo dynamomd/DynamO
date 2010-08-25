@@ -34,7 +34,7 @@ CLocal::CLocal(CRange* nR, DYNAMO::SimData* tmp, const char *name):
 {}
 
 bool 
-CLocal::isInteraction(const CParticle &p1) const
+CLocal::isInteraction(const Particle &p1) const
 {
   return range->isInRange(p1);
 }

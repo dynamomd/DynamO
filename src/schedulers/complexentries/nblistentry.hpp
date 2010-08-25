@@ -29,10 +29,10 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void getParticleNeighbourhood(const CParticle&, 
+  virtual void getParticleNeighbourhood(const Particle&, 
 					const CGNeighbourList::nbHoodFunc&) const;
 
-  virtual void getParticleLocalNeighbourhood(const CParticle&, 
+  virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const CGNeighbourList::nbHoodFunc&) const;
 
   virtual CSCEntry* Clone() const { return new CSCENBList(*this); }

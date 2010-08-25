@@ -23,7 +23,7 @@
 #include <boost/foreach.hpp>
 #include "../extcode/xmlParser.h"
 
-class CIntEvent;
+class IntEvent;
 class CGlobEvent;
 class XMLNode;
 class C2ParticleData;
@@ -45,7 +45,7 @@ public:
   
   virtual void initialise() = 0;
   
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&) = 0;
+  virtual void eventUpdate(const IntEvent&, const C2ParticleData&) = 0;
   
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&) = 0;
 

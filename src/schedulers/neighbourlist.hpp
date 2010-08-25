@@ -31,14 +31,14 @@ public:
 
   virtual void initialise();
 
-  virtual void addEvents(const CParticle&);
+  virtual void addEvents(const Particle&);
   
   virtual void operator<<(const XMLNode&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void addEventsInit(const CParticle&);
+  void addEventsInit(const Particle&);
   
   size_t NBListID;
 };

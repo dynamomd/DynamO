@@ -33,14 +33,14 @@ public:
 
   virtual void initialise();
 
-  virtual void addEvents(const CParticle&);
+  virtual void addEvents(const Particle&);
   
   virtual void operator<<(const XMLNode&);
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void addEventsInit(const CParticle&);
+  void addEventsInit(const Particle&);
 
   std::vector<smrtPlugPtr<CSCEntry> > entries;
 };

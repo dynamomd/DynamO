@@ -32,12 +32,12 @@ OPDens::~OPDens()
 {}
 
 void 
-OPDens::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
+OPDens::collisionUpdate(const IntEvent &collision, const CIntEventData &preColl)
 {
   collcount++;
 
   if ((collcount % 1000) == 0)
-    for (std::vector<CParticle>::const_iterator iPtr = Sim->vParticleList.begin();
+    for (std::vector<Particle>::const_iterator iPtr = Sim->vParticleList.begin();
 	 iPtr != Sim->vParticleList.end(); iPtr++)
       {
 	counter++;
@@ -48,7 +48,7 @@ OPDens::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl
 	  for (long qz = 0; qz < 20; qz++)
 	    xybin[qy][qz] += CComplex(0.0, 2.0*PI*(((Iflt) qy)*pos[1]+((Iflt)qz)*pos[2])).exponent();
 	
-	/*for (std::vector<CParticle>::const_iterator jPtr = iPtr + 1;
+	/*for (std::vector<Particle>::const_iterator jPtr = iPtr + 1;
 	  jPtr != sim.particleList.end(); jPtr++)
 	  {
 	  pos = iPtr->getPosition() - jPtr->getPosition();

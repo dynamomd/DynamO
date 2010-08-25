@@ -46,7 +46,7 @@ C2RChainGroups::C2RChainGroups(size_t r1, size_t r2,
 }
 
 bool 
-C2RChainGroups::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RChainGroups::isInRange(const Particle&p1, const Particle&p2) const
 {
   if (p1.getID() > p2.getID())
     return ((((p1.getID() >= range2) && (p1.getID() < range2 + length))

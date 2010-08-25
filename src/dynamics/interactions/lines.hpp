@@ -20,12 +20,12 @@
 
 #include "captures.hpp"
 
-class CILines: public CISingleCapture
+class ILines: public ISingleCapture
 {
 public:
-  CILines(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  ILines(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CILines(const XMLNode&, DYNAMO::SimData*);
+  ILines(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
@@ -39,17 +39,17 @@ public:
 
   virtual void rescaleLengths(Iflt);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
   
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
    
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
  
-  virtual bool captureTest(const CParticle&, const CParticle&) const;
+  virtual bool captureTest(const Particle&, const Particle&) const;
 
   virtual void write_povray_desc(const DYNAMO::RGB&, 
 				 const size_t&, std::ostream&) const;

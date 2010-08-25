@@ -30,19 +30,19 @@ namespace xmlw
 namespace DYNAMO {
   class SimData;
 }
-class CIntEvent;
+class IntEvent;
 class CLocal;
 
 class CLocalEvent
 {
 public:  
-  CLocalEvent(const CParticle&, const Iflt&,
+  CLocalEvent(const Particle&, const Iflt&,
 	      EEventType, const CLocal&);
 
-  inline bool operator== (const CParticle &partx) const 
+  inline bool operator== (const Particle &partx) const 
     { return (*particle_ == partx); }
   
-  bool areInvolved(const CIntEvent&) const; 
+  bool areInvolved(const IntEvent&) const; 
   
   inline void invalidate() 
   { 
@@ -60,7 +60,7 @@ public:
 
   inline void addTime(const Iflt& deltat) {dt += deltat; }
 
-  inline const CParticle& getParticle() const { return *particle_; }
+  inline const Particle& getParticle() const { return *particle_; }
 
   inline const Iflt& getdt() const { return dt; }
 
@@ -77,7 +77,7 @@ public:
   { dt *= scale; }
 
 protected:
-  const CParticle*  particle_;
+  const Particle*  particle_;
   Iflt dt;
   mutable EEventType CType;
   const size_t localID;

@@ -26,7 +26,7 @@
 #include "../interactions/intEvent.hpp"
 #include <cmath>
 
-CLocalEvent::CLocalEvent(const CParticle& part1, const Iflt &delt, 
+CLocalEvent::CLocalEvent(const Particle& part1, const Iflt &delt, 
 			 EEventType nType, const CLocal& local):
   particle_(&part1), dt(delt), 
   CType(nType), localID(local.getID())
@@ -55,5 +55,5 @@ CLocalEvent::stringData(const DYNAMO::SimData* Sim) const
 }
 
 bool 
-CLocalEvent::areInvolved(const CIntEvent &coll) const 
+CLocalEvent::areInvolved(const IntEvent &coll) const 
 { return (coll == *particle_); }

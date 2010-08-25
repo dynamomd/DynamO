@@ -86,20 +86,20 @@ CScheduler::popNextEvent()
 }
 
 void 
-CScheduler::pushEvent(const CParticle& part,
+CScheduler::pushEvent(const Particle& part,
 		      const intPart& newevent)
 {
   sorter->push(newevent, part.getID());
 }
 
 void 
-CScheduler::sort(const CParticle& part)
+CScheduler::sort(const Particle& part)
 {
   sorter->update(part.getID());
 }
 
 void 
-CScheduler::invalidateEvents(const CParticle& part)
+CScheduler::invalidateEvents(const Particle& part)
 {
   //Invalidate previous entries
   ++eventCount[part.getID()];
@@ -164,8 +164,8 @@ CScheduler::runNextEvent()
     {
     case INTERACTION:
       {
-	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
-	const CParticle& p2(Sim->vParticleList[sorter->next_p2()]);
+	const Particle& p1(Sim->vParticleList[sorter->next_ID()]);
+	const Particle& p2(Sim->vParticleList[sorter->next_p2()]);
 
 	//Ready the next event in the FEL
 	sorter->popNextEvent();
@@ -174,7 +174,7 @@ CScheduler::runNextEvent()
 	
 	//Now recalculate the FEL event
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
-	CIntEvent Event(Sim->dynamics.getEvent(p1, p2));
+	IntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
 	if (Event.getdt() > sorter->next_dt())
 	  {
@@ -228,13 +228,13 @@ CScheduler::runNextEvent()
 		    << "  ID1 " << p1.getID() 
 		    << "  ID2 " << p2.getID()
 		    << "  dt " << Event.getdt()
-		    << "  Type " << CIntEvent::getCollEnumName(Event.getType());
+		    << "  Type " << IntEvent::getCollEnumName(Event.getType());
 	else
 	  std::cerr << "\nsysdt " << Event.getdt() + dSysTime
 		    << "  ID1 " << p2().getID() 
 		    << "  ID2 " << p1().getID()
 		    << "  dt " << Event.getdt()
-		    << "  Type " << CIntEvent::getCollEnumName(Event.getType());
+		    << "  Type " << IntEvent::getCollEnumName(Event.getType());
 #endif
 
 	Sim->dSysTime += Event.getdt();
@@ -263,7 +263,7 @@ CScheduler::runNextEvent()
       }
     case LOCAL:
       {
-	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
+	const Particle& part(Sim->vParticleList[sorter->next_ID()]);
 
 	//Copy the FEL event
 	size_t localID = sorter->next_p2();
@@ -350,21 +350,21 @@ CScheduler::runNextEvent()
 }
 
 void 
-CScheduler::addInteractionEvent(const CParticle& part, 
+CScheduler::addInteractionEvent(const Particle& part, 
 				     const size_t& id) const
 {
-  const CParticle& part2(Sim->vParticleList[id]);
+  const Particle& part2(Sim->vParticleList[id]);
 
   Sim->dynamics.getLiouvillean().updateParticle(part2);
 
-  const CIntEvent& eevent(Sim->dynamics.getEvent(part, part2));
+  const IntEvent& eevent(Sim->dynamics.getEvent(part, part2));
 
   if (eevent.getType() != NONE)
     sorter->push(intPart(eevent, eventCount[id]), part.getID());
 }
 
 void 
-CScheduler::addInteractionEventInit(const CParticle& part, 
+CScheduler::addInteractionEventInit(const Particle& part, 
 					 const size_t& id) const
 {
   //We'll be smart about memory and add evenly on initialisation. Not
@@ -399,7 +399,7 @@ CScheduler::addInteractionEventInit(const CParticle& part,
 }
 
 void 
-CScheduler::addLocalEvent(const CParticle& part, 
+CScheduler::addLocalEvent(const Particle& part, 
 			  const size_t& id) const
 {
   if (Sim->dynamics.getLocals()[id]->isInteraction(part))
@@ -407,7 +407,7 @@ CScheduler::addLocalEvent(const CParticle& part,
 }
 
 void 
-CScheduler::fullUpdate(const CParticle& p1, const CParticle& p2)
+CScheduler::fullUpdate(const Particle& p1, const Particle& p2)
 {
   //Both must be invalidated at once to reduce the number of invalid
   //events in the queue
@@ -420,7 +420,7 @@ CScheduler::fullUpdate(const CParticle& p1, const CParticle& p2)
 }
 
 void 
-CScheduler::fullUpdate(const CParticle& part)
+CScheduler::fullUpdate(const Particle& part)
 {
   invalidateEvents(part);
   addEvents(part);

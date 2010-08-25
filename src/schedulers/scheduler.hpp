@@ -24,7 +24,7 @@
 #include "../dynamics/globals/globEvent.hpp"
 #include <vector>
 
-class CParticle;
+class Particle;
 
 class CScheduler: public DYNAMO::SimBase
 {
@@ -35,19 +35,19 @@ public:
 
   virtual void initialise() = 0;
   
-  virtual void fullUpdate(const CParticle& part);
+  virtual void fullUpdate(const Particle& part);
 
-  virtual void fullUpdate(const CParticle& p1, const CParticle& p2);
+  virtual void fullUpdate(const Particle& p1, const Particle& p2);
 
-  void invalidateEvents(const CParticle&);
+  void invalidateEvents(const Particle&);
 
-  virtual void addEvents(const CParticle&) = 0;
+  virtual void addEvents(const Particle&) = 0;
 
-  void sort(const CParticle&);
+  void sort(const Particle&);
 
   void popNextEvent();
 
-  void pushEvent(const CParticle&, const intPart&);
+  void pushEvent(const Particle&, const intPart&);
   
   void stream(const Iflt& dt) {  sorter->stream(dt); }
   
@@ -67,11 +67,11 @@ public:
 
   void rebuildSystemEvents() const;
 
-  void addInteractionEvent(const CParticle&, const size_t&) const;
+  void addInteractionEvent(const Particle&, const size_t&) const;
 
-  void addInteractionEventInit(const CParticle&, const size_t&) const;
+  void addInteractionEventInit(const Particle&, const size_t&) const;
 
-  void addLocalEvent(const CParticle&, const size_t&) const;
+  void addLocalEvent(const Particle&, const size_t&) const;
   
 protected:
   mutable smrtPlugPtr<CSSorter> sorter;

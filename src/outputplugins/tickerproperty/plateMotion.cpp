@@ -99,7 +99,7 @@ OPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& 
 }
 
 void 
-OPPlateMotion::eventUpdate(const CIntEvent&, const C2ParticleData& pData)
+OPPlateMotion::eventUpdate(const IntEvent&, const C2ParticleData& pData)
 {
   partpartEnergyLoss += pData.particle1_.getDeltaKE()
     + pData.particle2_.getDeltaKE();
@@ -119,7 +119,7 @@ OPPlateMotion::ticker()
   Iflt partEnergy(0.0);
 
   Iflt mass(0);
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     {
       Vector pos(part.getPosition()), vel(part.getVelocity());
       Iflt pmass(Sim->dynamics.getSpecies(part).getMass());

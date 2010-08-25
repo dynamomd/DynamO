@@ -25,8 +25,8 @@
 class C2ParticleData
 {
 public:
-  C2ParticleData(const CParticle& part1,
-		 const CParticle& part2,
+  C2ParticleData(const Particle& part1,
+		 const Particle& part2,
 		 const CSpecies& sp1,
 		 const CSpecies& sp2,
 		 EEventType eType):

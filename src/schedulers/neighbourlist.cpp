@@ -75,7 +75,7 @@ CSNeighbourList::initialise()
   {
     boost::progress_display prog(Sim->lN);
  
-    BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    BOOST_FOREACH(const Particle& part, Sim->vParticleList)
       {
 	addEventsInit(part);
 	++prog;
@@ -109,7 +109,7 @@ CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
 void 
-CSNeighbourList::addEvents(const CParticle& part)
+CSNeighbourList::addEvents(const Particle& part)
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
@@ -140,7 +140,7 @@ CSNeighbourList::addEvents(const CParticle& part)
 }
 
 void 
-CSNeighbourList::addEventsInit(const CParticle& part)
+CSNeighbourList::addEventsInit(const Particle& part)
 {  
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

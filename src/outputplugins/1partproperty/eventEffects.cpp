@@ -38,7 +38,7 @@ OPEventEffects::~OPEventEffects()
 {}
 
 void 
-OPEventEffects::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& Pdat)
+OPEventEffects::eventUpdate(const IntEvent& iEvent, const C2ParticleData& Pdat)
 {
   newEvent(iEvent.getType(),getClassKey(iEvent),
 	   Pdat.particle1_.getDeltaKE(),

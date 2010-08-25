@@ -29,11 +29,11 @@ namespace DYNAMO
   struct SimData;
 }
 
-class CInteraction;
+class Interaction;
 class CGlobEvent;
 class CSystem;
 class CLocalEvent;
-class CIntEvent;
+class IntEvent;
 
 namespace EventTypeTracking {
   
@@ -42,7 +42,7 @@ namespace EventTypeTracking {
 
   std::string getName(const classKey&, const DYNAMO::SimData*);
 
-  classKey getClassKey(const CIntEvent&);
+  classKey getClassKey(const IntEvent&);
 
   classKey getClassKey(const CSystem&);
 

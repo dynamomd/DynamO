@@ -130,11 +130,11 @@ LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2,
 }
 
 C2ParticleData 
-LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, 
+LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
 			      const Iflt &) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -209,8 +209,8 @@ LNewtonianMC::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
 #endif
   
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 

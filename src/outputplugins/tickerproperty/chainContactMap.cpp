@@ -80,16 +80,16 @@ OPCContactMap::ticker()
       dat.counter++;
       for (unsigned long i = 0; i < dat.chainlength; i++)
 	{
-	  const CParticle& part1 = Sim->vParticleList[(*range)[i]];
+	  const Particle& part1 = Sim->vParticleList[(*range)[i]];
 	 
 	  for (unsigned long j = i+1; j < dat.chainlength; j++)
 	    {
-	      const CParticle& part2 = Sim->vParticleList[(*range)[j]];
+	      const Particle& part2 = Sim->vParticleList[(*range)[j]];
 
-	      BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, Sim->dynamics.getInteractions())
+	      BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, Sim->dynamics.getInteractions())
 		if (ptr->isInteraction(part1,part2))
-		  if (dynamic_cast<const CICapture*>(ptr.get_ptr()) != NULL)
-		    if (static_cast<const CICapture*>(ptr.get_ptr())
+		  if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
+		    if (static_cast<const ICapture*>(ptr.get_ptr())
 			->isCaptured(part1,part2))
 		      dat.array[i * dat.chainlength + j]++;
 	    }

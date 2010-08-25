@@ -31,7 +31,7 @@ public:
 
   virtual void initialise();
 
-  virtual void addEvents(const CParticle&);
+  virtual void addEvents(const Particle&);
 
   virtual void operator<<(const XMLNode&);
 

@@ -49,18 +49,18 @@ public:
   virtual void loadParticleXMLData(const XMLNode&);
 
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
-				    const CParticle& p1, const CParticle& p2
+				    const Particle& p1, const Particle& p2
 				    ) const;
   
-  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent, 
+  virtual C2ParticleData runLineLineCollision(const IntEvent& eevent, 
 					      const Iflt& elasticity, const Iflt& length) const;
   
-  virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
+  virtual C1ParticleData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
 						  const Iflt& sqrtT
 						  ) const;
   
-  virtual C1ParticleData randomGaussianEvent(const CParticle& part, 
+  virtual C1ParticleData randomGaussianEvent(const Particle& part, 
 					     const Iflt& sqrtT) const;
 
   struct rotData
@@ -69,7 +69,7 @@ public:
     Vector  angularVelocity;
   };
 
-  const rotData& getRotData(const CParticle& part) const
+  const rotData& getRotData(const Particle& part) const
   { return orientationData[part.getID()]; }
 
   const std::vector<rotData>& getCompleteRotData() const
@@ -77,14 +77,14 @@ public:
   
   void initLineOrientations(const Iflt&);
 
-  virtual C2ParticleData RoughSpheresColl(const CIntEvent& event, 
+  virtual C2ParticleData RoughSpheresColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& et, 
 					  const Iflt& d2, 
 					  const EEventType& eType = CORE
 					  ) const;
 
-  virtual C1ParticleData runRoughWallCollision(const CParticle& part, 
+  virtual C1ParticleData runRoughWallCollision(const Particle& part, 
 					       const Vector & vNorm,
 					       const Iflt& e,
 					       const Iflt& et,
@@ -99,10 +99,10 @@ protected:
 
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual void streamParticle(CParticle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const Iflt&) const;
   
   virtual size_t getParticleDOF() const;
-  virtual Iflt getParticleKineticEnergy(const CParticle& part) const;
+  virtual Iflt getParticleKineticEnergy(const Particle& part) const;
   virtual void rescaleSystemKineticEnergy(const Iflt&);
   
   mutable std::vector<rotData> orientationData;

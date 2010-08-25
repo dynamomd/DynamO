@@ -25,14 +25,14 @@
 class C1ParticleData
 {
 public:
-  C1ParticleData(const CParticle& part, const CSpecies& sp, 
+  C1ParticleData(const Particle& part, const CSpecies& sp, 
 		 EEventType eType):
     particle_(part), oldVelVec(part.getVelocity()),
     species_(sp), Type_(eType), 
     deltaU(0.0), deltaKE(0.0)
   {}
 
-  inline const CParticle& getParticle() const
+  inline const Particle& getParticle() const
   { return particle_; }
   
   inline const Vector & getOldVel() const
@@ -68,7 +68,7 @@ public:
   }
 
 private:
-  const CParticle& particle_;
+  const Particle& particle_;
   const Vector  oldVelVec;
   const CSpecies& species_;
   EEventType Type_;

@@ -65,7 +65,7 @@ OPVTK::operator<<(const XMLNode& XML)
 }
 
 void 
-OPVTK::eventUpdate(const CIntEvent& IEvent, const C2ParticleData& PDat)
+OPVTK::eventUpdate(const IntEvent& IEvent, const C2ParticleData& PDat)
 {
   if (CollisionStats)
     {
@@ -137,7 +137,7 @@ OPVTK::eventUpdate(const CIntEvent& IEvent, const C2ParticleData& PDat)
 	  
 	  std::vector<size_t> density(nBins[0] * nBins[1] * nBins[2], 0);
 
-	  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
 	    ++density[getCellID(part.getPosition())];
 	  
 	  XML << xmlw::tag("DataArray")
@@ -247,7 +247,7 @@ OPVTK::ticker()
   ++imageCounter;
 
   if (fields)
-    BOOST_FOREACH(const CParticle & Part, Sim->vParticleList)
+    BOOST_FOREACH(const Particle & Part, Sim->vParticleList)
       {
 	Vector  position = Part.getPosition(),
 	  velocity = Part.getVelocity();
@@ -299,7 +299,7 @@ OPVTK::ticker()
       	<< xmlw::attr("NumberOfComponents") << "3"
 	<< xmlw::chardata();
       
-      BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+      BOOST_FOREACH(const Particle& part, Sim->vParticleList)
 	XML << part.getPosition()[0] / Sim->dynamics.units().unitLength() << " "
 	    << part.getPosition()[1] / Sim->dynamics.units().unitLength() << " "
 	    << part.getPosition()[2] / Sim->dynamics.units().unitLength() << "\n";
@@ -338,7 +338,7 @@ OPVTK::ticker()
 	  << xmlw::attr("format") << "ascii"
 	  << xmlw::chardata();
     
-      BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+      BOOST_FOREACH(const Particle& part, Sim->vParticleList)
 	XML << part.getVelocity()[0] / Sim->dynamics.units().unitVelocity() << " "
 	    << part.getVelocity()[1] / Sim->dynamics.units().unitVelocity() << " "
 	    << part.getVelocity()[2] / Sim->dynamics.units().unitVelocity() << "\n";
@@ -355,7 +355,7 @@ OPVTK::ticker()
 	      << xmlw::attr("format") << "ascii"
 	      << xmlw::chardata();
     
-	  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+	  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
 	    {
 	      const Vector& tmp = static_cast<const LNOrientation&>
 		(Sim->dynamics.getLiouvillean()).getRotData(part).orientation;

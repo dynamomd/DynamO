@@ -44,7 +44,7 @@ CLWall::CLWall(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CLocalEvent 
-CLWall::getEvent(const CParticle& part) const
+CLWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -56,7 +56,7 @@ CLWall::getEvent(const CParticle& part) const
 }
 
 void
-CLWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
+CLWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
@@ -194,7 +194,7 @@ CLWall::write_povray_info(std::ostream& os) const
 }
 
 void 
-CLWall::checkOverlaps(const CParticle& p1) const
+CLWall::checkOverlaps(const Particle& p1) const
 {
   Vector pos(p1.getPosition() - vPosition);
   Sim->dynamics.BCs().applyBC(pos);

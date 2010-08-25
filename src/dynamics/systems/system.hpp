@@ -27,7 +27,7 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CIntEvent;
+class IntEvent;
 class CGlobEvent;
 class CNParticleData;
 
@@ -48,7 +48,7 @@ public:
 
   virtual void operator<<(const XMLNode&) = 0;
 
-  bool operator<(const CIntEvent&) const;
+  bool operator<(const IntEvent&) const;
 
   bool operator<(const CGlobEvent&) const;
 

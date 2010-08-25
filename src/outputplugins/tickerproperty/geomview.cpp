@@ -89,7 +89,7 @@ OPGeomview::printImage()
       if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) != NULL)
 	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
-	    const CParticle& part = Sim->vParticleList[ID];
+	    const Particle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
 	    Sim->dynamics.BCs().applyBC(pos);
 	   
@@ -112,7 +112,7 @@ OPGeomview::printImage()
       else
 	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
-	    const CParticle& part = Sim->vParticleList[ID];
+	    const Particle& part = Sim->vParticleList[ID];
 	    Vector  pos = part.getPosition();
 	    Sim->dynamics.BCs().applyBC(pos);
 	    
@@ -135,8 +135,8 @@ OPGeomview::printImage()
   //Now add the bonds
   typedef std::pair<const unsigned long, std::list<unsigned long> > mypair;
 
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction> intPtr, Sim->dynamics.getInteractions())
-    if (dynamic_cast<const CISquareBond *>(intPtr.get_ptr()) != NULL)
+  BOOST_FOREACH(const smrtPlugPtr<Interaction> intPtr, Sim->dynamics.getInteractions())
+    if (dynamic_cast<const ISquareBond *>(intPtr.get_ptr()) != NULL)
       if (dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr()) != NULL)
 	BOOST_FOREACH(const mypair& mp, dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr())->getPairMap())
 	  BOOST_FOREACH(const unsigned int ID2, mp.second)

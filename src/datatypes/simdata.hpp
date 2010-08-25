@@ -22,7 +22,7 @@
 
 struct SSimBase
 {
-  SSimBase(  const std::vector<CParticle> &particleList2,
+  SSimBase(  const std::vector<Particle> &particleList2,
 	     const Dynamics * const dynamics2,
 	     const long &nColl2,
 	     const long &maxColl2,
@@ -34,7 +34,7 @@ struct SSimBase
        nColl(nColl2), maxColl(maxColl2), nPrint(nPrint2),
        sysTime(sysTime2), history(history2) {};
     
-  const std::vector<CParticle> &particleList;  
+  const std::vector<Particle> &particleList;  
   const Dynamics * const dynamics;
   const long &nColl;
   const long &maxColl;

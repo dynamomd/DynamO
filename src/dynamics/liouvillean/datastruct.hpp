@@ -27,8 +27,8 @@ struct CPDData
 {
   inline CPDData() {}
 
-  inline CPDData(const DYNAMO::SimData& Sim, const CParticle& p1, 
-		 const CParticle& p2):
+  inline CPDData(const DYNAMO::SimData& Sim, const Particle& p1, 
+		 const Particle& p2):
     rij(p1.getPosition() - p2.getPosition()),
     vij(p1.getVelocity() - p2.getVelocity()),    
     dt(HUGE_VAL)

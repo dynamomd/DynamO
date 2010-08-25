@@ -22,7 +22,7 @@
 #include "../datatypes/vector.xml.hpp"
 #include <ostream>
 
-CParticle::CParticle(const XMLNode& XML, unsigned long nID):
+Particle::Particle(const XMLNode& XML, unsigned long nID):
   ID(nID),
   pecTime(0.0)
 {
@@ -34,7 +34,7 @@ CParticle::CParticle(const XMLNode& XML, unsigned long nID):
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CParticle& particle)
+			    const Particle& particle)
 {
   XML << xmlw::attr("ID") << particle.ID
       << xmlw::tag("P")

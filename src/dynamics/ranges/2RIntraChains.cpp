@@ -43,7 +43,7 @@ C2RIntraChains::C2RIntraChains(const XMLNode& XML, const DYNAMO::SimData*):
 }
 
 bool 
-C2RIntraChains::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RIntraChains::isInRange(const Particle&p1, const Particle&p2) const
 {
   //A version with no ? : operators at the expense of one more <=
   //operator, seems fastest

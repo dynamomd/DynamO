@@ -54,7 +54,7 @@ CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
 }
 
 CLocalEvent 
-CLAndersenWall::getEvent(const CParticle& part) const
+CLAndersenWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -65,7 +65,7 @@ CLAndersenWall::getEvent(const CParticle& part) const
 }
 
 void
-CLAndersenWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
+CLAndersenWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
   

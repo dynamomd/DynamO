@@ -30,7 +30,7 @@ public:
 
   virtual CRange* Clone() const { return new CRRange(*this); }
 
-  inline virtual bool isInRange(const CParticle& part) const
+  inline virtual bool isInRange(const Particle& part) const
   {
     if ((part.getID() >= startID) && (part.getID() <= endID))
       return true;

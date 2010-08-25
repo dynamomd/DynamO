@@ -37,79 +37,79 @@ public:
   virtual bool cubeOverlap(const CPDData&, const Iflt&) const;
   virtual bool cubeOverlap(const CPDData&, const Iflt&, const Matrix&) const;
 
-  virtual void streamParticle(CParticle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const Iflt&) const;
 
-  virtual Iflt getSquareCellCollision2(const CParticle&, 
+  virtual Iflt getSquareCellCollision2(const Particle&, 
 				       const Vector &, 
 				       const Vector &
 				       ) const;
 
-  virtual int getSquareCellCollision3(const CParticle&, 
+  virtual int getSquareCellCollision3(const Particle&, 
 				      const Vector &, 
 				      const Vector &
 				      ) const;
   
-  virtual Iflt getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
+  virtual Iflt getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				      const Vector& nhat, const Iflt& Delta,
 				      const Iflt& Omega, const Iflt& Sigma,
 				      const Iflt& t, bool) const;
 
   virtual C1ParticleData runOscilatingPlate
-  (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+  (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
    const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
    Iflt& t, bool strongPlate) const;
 
-  virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
+  virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
 
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, 
+  virtual C2ParticleData SmoothSpheresColl(const IntEvent&, const Iflt&, 
 					   const Iflt&, 
 					   const EEventType& eType) const;
 
-  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const CIntEvent&, const Iflt&, 
+  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const IntEvent&, const Iflt&, 
 						      const Iflt&,
 						      const EEventType&) const;
 
-  virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, 
+  virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
 			       Iflt&, const Iflt&, CPDData&) const;
 
-  virtual C2ParticleData DSMCSpheresRun(const CParticle&, const CParticle&, 
+  virtual C2ParticleData DSMCSpheresRun(const Particle&, const Particle&, 
 					const Iflt&, CPDData&) const;
   
-  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, 
+  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, 
 					 const Iflt&) const;
 
-  virtual Iflt getWallCollision(const CParticle&, 
+  virtual Iflt getWallCollision(const Particle&, 
 				const Vector &, 
 				const Vector &) const;
 
-  virtual Iflt getCylinderWallCollision(const CParticle&, 
+  virtual Iflt getCylinderWallCollision(const Particle&, 
 					const Vector &, 
 					const Vector &,
 					const Iflt&
 					) const;
 
-  virtual C1ParticleData runCylinderWallCollision(const CParticle&, 
+  virtual C1ParticleData runCylinderWallCollision(const Particle&, 
 						  const Vector &,
 						  const Vector &,
 						  const Iflt&
 						  ) const;
 
-  virtual C1ParticleData runSphereWallCollision(const CParticle&, 
+  virtual C1ParticleData runSphereWallCollision(const Particle&, 
 						const Vector &,
 						const Iflt&
 						) const;
 
-  virtual C1ParticleData runWallCollision(const CParticle&, 
+  virtual C1ParticleData runWallCollision(const Particle&, 
 					  const Vector &,
 					  const Iflt&
 					  ) const;
 
-  virtual C1ParticleData runAndersenWallCollision(const CParticle&, 
+  virtual C1ParticleData runAndersenWallCollision(const Particle&, 
 						  const Vector &,
 						  const Iflt& T
 						  ) const;
 
-  virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
+  virtual C1ParticleData randomGaussianEvent(const Particle&, const Iflt&) const;
 
   //Structure dynamics
   virtual CNParticleData multibdyCollision(const CRange&, const CRange&,
@@ -123,12 +123,12 @@ public:
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonian(*this); }
 
-  virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
+  virtual C2ParticleData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType) const;
 
-  virtual C2ParticleData parallelCubeColl(const CIntEvent& event,
+  virtual C2ParticleData parallelCubeColl(const IntEvent& event,
 					  const Iflt& e, const Iflt& d,
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;

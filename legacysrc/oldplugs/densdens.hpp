@@ -29,7 +29,7 @@ class OPDens: public OutputPlugin
   OPDens(DYNAMO::SimData*);
   ~OPDens();
 
-  void collisionUpdate(const CIntEvent &, const CIntEventData &b);
+  void collisionUpdate(const IntEvent &, const CIntEventData &b);
 
   void output(xmlw::XmlStream &); 
 

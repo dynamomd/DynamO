@@ -36,7 +36,7 @@
 #include "../extcode/include/FastDelegate/FastDelegate.h"
 
 class CScheduler;
-class CParticle;
+class Particle;
 class OutputPlugin;
 
 template <class T>
@@ -150,11 +150,11 @@ namespace DYNAMO
         output collision number.*/
     unsigned long long lPrintLimiter;
 
-    /*! \brief Number of CParticle's in the system. */
+    /*! \brief Number of Particle's in the system. */
     unsigned long lN;
     
-    /*! \brief The CParticle's of the system. */
-    std::vector<CParticle> vParticleList;  
+    /*! \brief The Particle's of the system. */
+    std::vector<Particle> vParticleList;  
     
     /*! \brief A log of the previous simulation history. */
     std::ostringstream ssHistory;

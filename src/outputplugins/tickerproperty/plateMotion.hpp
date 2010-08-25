@@ -42,7 +42,7 @@ class OPPlateMotion: public OPTicker
   
   virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
 
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
 
   virtual void output(xmlw::XmlStream&);
 

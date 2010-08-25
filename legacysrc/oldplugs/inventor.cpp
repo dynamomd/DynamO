@@ -39,7 +39,7 @@ SoSeparator *OPInventor::makeMoleculeScene()
     root->addChild(molMat);
   }
   
-  for (std::vector<CParticle>::const_iterator iPtr = particleList.begin ();
+  for (std::vector<Particle>::const_iterator iPtr = particleList.begin ();
        iPtr  != particleList.end (); iPtr++)
     {
       //Prep the vectors for plotting
@@ -68,7 +68,7 @@ SoSeparator *OPInventor::makeMoleculeScene()
 }
 
 
-OPInventor::OPInventor(const std::vector<CParticle> &pList, const Dynamics * const dyn):
+OPInventor::OPInventor(const std::vector<Particle> &pList, const Dynamics * const dyn):
   OutputPlugin(pList,dyn),
   frameCount(0)
 {
@@ -109,7 +109,7 @@ OPInventor::viewScene()
 }
 
 void 
-OPInventor::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
+OPInventor::collisionUpdate(const IntEvent &collision, const CIntEventData &preColl)
 {
   //This prints a binary inventor file of the current collision
   /*  SoWriteAction wa;

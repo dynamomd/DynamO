@@ -26,34 +26,34 @@ public:
 
   //Pair particle dynamics
 
-  virtual void streamParticle(CParticle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const Iflt&) const;
 
-  virtual Iflt getSquareCellCollision2(const CParticle&, 
+  virtual Iflt getSquareCellCollision2(const Particle&, 
 				       const Vector &, 
 				       const Vector &
 				       ) const;
 
-  virtual int getSquareCellCollision3(const CParticle&, 
+  virtual int getSquareCellCollision3(const Particle&, 
 				      const Vector &, 
 				      const Vector &
 				      ) const;
   
-  virtual Iflt getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
+  virtual Iflt getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				      const Vector& nhat, const Iflt& Delta,
 				      const Iflt& Omega, const Iflt& Sigma,
 				      const Iflt& t, bool) const;
 
-  virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
+  virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
 
-  virtual Iflt getParabolaSentinelTime(const CParticle&, unsigned char&) const;
+  virtual Iflt getParabolaSentinelTime(const Particle&, unsigned char&) const;
 
-  virtual void enforceParabola(const CParticle&) const;
+  virtual void enforceParabola(const Particle&) const;
 
-  virtual Iflt getWallCollision(const CParticle&, 
+  virtual Iflt getWallCollision(const Particle&, 
 				const Vector &, 
 				const Vector &) const;
 
-  virtual Iflt getCylinderWallCollision(const CParticle&, 
+  virtual Iflt getCylinderWallCollision(const Particle&, 
 					const Vector &, 
 					const Vector &,
 					const Iflt&

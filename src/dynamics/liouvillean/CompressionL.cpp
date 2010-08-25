@@ -87,16 +87,16 @@ LCompression::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 }
 
 void
-LCompression::streamParticle(CParticle &particle, const Iflt &dt) const
+LCompression::streamParticle(Particle &particle, const Iflt &dt) const
 {
   particle.getPosition() +=  particle.getVelocity() * dt;
 }
 
 C2ParticleData 
-LCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
+LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -116,8 +116,8 @@ LCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Ifl
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / r2);
 
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 
@@ -131,10 +131,10 @@ LCompression::SmoothSpheresColl(const CIntEvent& event, const Iflt& e, const Ifl
 }
 
 C2ParticleData 
-LCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
+LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
 {
-  const CParticle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const CParticle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
   
@@ -206,8 +206,8 @@ LCompression::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE, const
 #endif
   
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 
@@ -228,7 +228,7 @@ LCompression::outputXML(xmlw::XmlStream& XML) const
 }
 
 Iflt 
-LCompression::getPBCSentinelTime(const CParticle& part,
+LCompression::getPBCSentinelTime(const Particle& part,
 				  const Iflt& lMax) const
 {
 #ifdef DYNAMO_DEBUG
@@ -254,6 +254,6 @@ LCompression::getPBCSentinelTime(const CParticle& part,
 }
 
 C2ParticleData 
-LCompression::parallelCubeColl(const CIntEvent&, const Iflt&,
+LCompression::parallelCubeColl(const IntEvent&, const Iflt&,
 				const Iflt&, const EEventType&) const
 { D_throw() << "Not Implemented"; }

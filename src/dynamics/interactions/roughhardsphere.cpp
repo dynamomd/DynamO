@@ -36,11 +36,11 @@
 
 IRoughHardSphere::IRoughHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, Iflt net, C2Range* nR):
-  CInteraction(tmp, nR),
+  Interaction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne), et(net) {}
 
 IRoughHardSphere::IRoughHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
@@ -91,12 +91,12 @@ IRoughHardSphere::rescaleLengths(Iflt scale)
   d2 = diameter*diameter;
 }
 
-CInteraction* 
+Interaction* 
 IRoughHardSphere::Clone() const 
 { return new IRoughHardSphere(*this); }
   
-CIntEvent 
-IRoughHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const 
+IntEvent 
+IRoughHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -122,16 +122,16 @@ IRoughHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      return IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);  
+  return IntEvent(p1,p2,HUGE_VAL, NONE, *this);  
 }
 
 void
-IRoughHardSphere::runEvent(const CParticle& p1,
-		       const CParticle& p2,
-		       const CIntEvent& iEvent) const
+IRoughHardSphere::runEvent(const Particle& p1,
+		       const Particle& p2,
+		       const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
     
@@ -160,7 +160,7 @@ IRoughHardSphere::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-IRoughHardSphere::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+IRoughHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 

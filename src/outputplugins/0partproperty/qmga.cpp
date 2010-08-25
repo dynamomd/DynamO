@@ -64,7 +64,7 @@ OPQMGA::printImage()
   std::list<unsigned long> tmpList;
 
   unsigned int i = 0;
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     {
       Vector  pos = part.getPosition();
       Sim->dynamics.BCs().applyBC(pos);

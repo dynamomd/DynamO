@@ -107,14 +107,14 @@ CSDSMCSpheres::runEvent() const
 
   for (size_t n = 0; n < nmax; ++n)
     {
-      const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+      const Particle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
       
       size_t p2id = *(range2->begin() + id2sampler());
       
       while (p2id == p1.getID())
 	p2id = *(range2->begin()+id2sampler());
       
-      const CParticle& p2(Sim->vParticleList[p2id]);
+      const Particle& p2(Sim->vParticleList[p2id]);
       
       Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
       
@@ -169,14 +169,14 @@ CSDSMCSpheres::initialise(size_t nID)
       //Just do some quick testing to get an estimate
       for (size_t n = 0; n < 1000; ++n)
 	{
-	  const CParticle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+	  const Particle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
 	  
 	  size_t p2id = *(range2->begin() + id2sampler());
 	  
 	  while (p2id == p1.getID())
 	    p2id = *(range2->begin()+id2sampler());
 	  
-	  const CParticle& p2(Sim->vParticleList[p2id]);
+	  const Particle& p2(Sim->vParticleList[p2id]);
 	  
 	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  

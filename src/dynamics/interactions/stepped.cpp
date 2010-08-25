@@ -36,20 +36,20 @@
 #include <iomanip>
 #include <boost/math/special_functions/pow.hpp>
 
-CIStepped::CIStepped(DYNAMO::SimData* tmp, 
+IStepped::IStepped(DYNAMO::SimData* tmp, 
 		     const std::vector<steppair>& vec, C2Range* nR):
-  CIMultiCapture(tmp,nR),
+  IMultiCapture(tmp,nR),
   steps(vec)
 {}
 
-CIStepped::CIStepped(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CIMultiCapture(tmp, NULL) //A temporary value!
+IStepped::IStepped(const XMLNode& XML, DYNAMO::SimData* tmp):
+  IMultiCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 void 
-CIStepped::operator<<(const XMLNode& XML)
+IStepped::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Stepped"))
     D_throw() << "Attempting to load Stepped from non Stepped entry";
@@ -82,7 +82,7 @@ CIStepped::operator<<(const XMLNode& XML)
     
     std::sort(steps.rbegin(), steps.rend());
 
-    CIMultiCapture::loadCaptureMap(XML);   
+    IMultiCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -90,30 +90,30 @@ CIStepped::operator<<(const XMLNode& XML)
     }
 }
 
-CInteraction* 
-CIStepped::Clone() const 
-{ return new CIStepped(*this); }
+Interaction* 
+IStepped::Clone() const 
+{ return new IStepped(*this); }
 
 Iflt 
-CIStepped::hardCoreDiam() const 
+IStepped::hardCoreDiam() const 
 { return steps.back().first; }
 
 Iflt 
-CIStepped::maxIntDist() const 
+IStepped::maxIntDist() const 
 { return steps.front().first; }
 
 void 
-CIStepped::rescaleLengths(Iflt scale) 
+IStepped::rescaleLengths(Iflt scale) 
 { 
   BOOST_FOREACH(steppair& p, steps)
     p.first += scale * p.first;
 }
 
 void 
-CIStepped::initialise(size_t nID)
+IStepped::initialise(size_t nID)
 {
   ID = nID;
-  CIMultiCapture::initCaptureMap();
+  IMultiCapture::initCaptureMap();
   
   runstepdata = steps;
 
@@ -136,7 +136,7 @@ CIStepped::initialise(size_t nID)
 }
 
 int 
-CIStepped::captureTest(const CParticle& p1, const CParticle& p2) const
+IStepped::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -150,7 +150,7 @@ CIStepped::captureTest(const CParticle& p1, const CParticle& p2) const
 }
 
 Iflt 
-CIStepped::getInternalEnergy() const 
+IStepped::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
   Iflt Energy = 0.0;
@@ -163,9 +163,9 @@ CIStepped::getInternalEnergy() const
   return Energy; 
 }
 
-CIntEvent
-CIStepped::getEvent(const CParticle &p1, 
-		    const CParticle &p2) const
+IntEvent
+IStepped::getEvent(const Particle &p1, 
+		    const Particle &p2) const
 {
   
 #ifdef DYNAMO_DEBUG
@@ -201,7 +201,7 @@ CIStepped::getEvent(const CParticle &p1,
 	      /Sim->dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	  return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
 	}
     }
   else
@@ -225,20 +225,20 @@ CIStepped::getEvent(const CParticle &p1,
 	      /Sim->dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, WELL_IN , *this);
+	  return IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	}
       else if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
 	       (colldat, runstepdata[capstat->second-1].first))
-	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
 
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CIStepped::runEvent(const CParticle& p1, 
-		    const CParticle& p2,
-		    const CIntEvent& iEvent) const
+IStepped::runEvent(const Particle& p1, 
+		    const Particle& p2,
+		    const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
 
@@ -301,7 +301,7 @@ CIStepped::runEvent(const CParticle& p1,
 }
 
 void
-CIStepped::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   const_cmap_it capstat = getCMap_it(part1,part2);
 
@@ -312,7 +312,7 @@ CIStepped::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 }
   
 void 
-CIStepped::outputXML(xmlw::XmlStream& XML) const
+IStepped::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "Stepped"
       << xmlw::attr("Name") << intName
@@ -326,11 +326,11 @@ CIStepped::outputXML(xmlw::XmlStream& XML) const
 	<< s.second / Sim->dynamics.units().unitEnergy()
 	<< xmlw::endtag("Step");
   
-  CIMultiCapture::outputCaptureMap(XML);  
+  IMultiCapture::outputCaptureMap(XML);  
 }
 
 void 
-CIStepped::write_povray_desc(const DYNAMO::RGB& rgb, 
+IStepped::write_povray_desc(const DYNAMO::RGB& rgb, 
 				const size_t& specID, 
 				std::ostream& os) const
 {

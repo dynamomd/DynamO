@@ -34,23 +34,23 @@
 #include "../NparticleEventData.hpp"
 #include "../liouvillean/CompressionL.hpp"
 
-CIHardSphere::CIHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
+IHardSphere::IHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, C2Range* nR):
-  CInteraction(tmp, nR),
+  Interaction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne) {}
 
-CIHardSphere::CIHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+IHardSphere::IHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
 
 void 
-CIHardSphere::initialise(size_t nID)
+IHardSphere::initialise(size_t nID)
 { ID=nID; }
 
 void 
-CIHardSphere::operator<<(const XMLNode& XML)
+IHardSphere::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"HardSphere"))
     D_throw() << "Attempting to load Hardsphere from non hardsphere entry";
@@ -75,26 +75,26 @@ CIHardSphere::operator<<(const XMLNode& XML)
 }
 
 Iflt 
-CIHardSphere::maxIntDist() const 
+IHardSphere::maxIntDist() const 
 { return diameter; }
 
 Iflt 
-CIHardSphere::hardCoreDiam() const 
+IHardSphere::hardCoreDiam() const 
 { return diameter; }
 
 void 
-CIHardSphere::rescaleLengths(Iflt scale) 
+IHardSphere::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter;
   d2 = diameter*diameter;
 }
 
-CInteraction* 
-CIHardSphere::Clone() const 
-{ return new CIHardSphere(*this); }
+Interaction* 
+IHardSphere::Clone() const 
+{ return new IHardSphere(*this); }
   
-CIntEvent 
-CIHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const 
+IntEvent 
+IHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -118,16 +118,16 @@ CIHardSphere::getEvent(const CParticle &p1, const CParticle &p2) const
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      return IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);  
+  return IntEvent(p1,p2,HUGE_VAL, NONE, *this);  
 }
 
 void
-CIHardSphere::runEvent(const CParticle& p1,
-		       const CParticle& p2,
-		       const CIntEvent& iEvent) const
+IHardSphere::runEvent(const Particle& p1,
+		       const Particle& p2,
+		       const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
     
@@ -145,7 +145,7 @@ CIHardSphere::runEvent(const CParticle& p1,
 }
    
 void 
-CIHardSphere::outputXML(xmlw::XmlStream& XML) const
+IHardSphere::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "HardSphere"
       << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
@@ -155,7 +155,7 @@ CIHardSphere::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-CIHardSphere::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+IHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 
@@ -170,7 +170,7 @@ CIHardSphere::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 }
 
 void 
-CIHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
+IHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
   Iflt locDiam = diameter;

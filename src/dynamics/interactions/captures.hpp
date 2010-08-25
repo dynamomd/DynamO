@@ -30,14 +30,14 @@ namespace std {
   using namespace tr1;
 }
 
-class CICapture: public CInteraction
+class ICapture: public Interaction
 {
 public:
-  CICapture(DYNAMO::SimData*, C2Range*);
+  ICapture(DYNAMO::SimData*, C2Range*);
 
   virtual size_t getTotalCaptureCount() const = 0;
   
-  virtual bool isCaptured(const CParticle&, const CParticle&) const = 0;
+  virtual bool isCaptured(const Particle&, const Particle&) const = 0;
 
   virtual Iflt getInternalEnergy() const = 0;
   
@@ -46,17 +46,17 @@ protected:
 };
 
 
-class CISingleCapture: public CICapture
+class ISingleCapture: public ICapture
 {
 public:
-  CISingleCapture(DYNAMO::SimData* Sim, C2Range* r):
-    CICapture(Sim,r),
+  ISingleCapture(DYNAMO::SimData* Sim, C2Range* r):
+    ICapture(Sim,r),
     noXmlLoad(true)
   {}
 
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-  virtual bool isCaptured(const CParticle& p1, const CParticle& p2) const
+  virtual bool isCaptured(const Particle& p1, const Particle& p2) const
   {
 #ifdef DYNAMO_DEBUG
     if (p1.getID() == p2.getID())
@@ -72,7 +72,7 @@ protected:
 
   mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
 
-  virtual bool captureTest(const CParticle&, const CParticle&) const = 0;
+  virtual bool captureTest(const Particle&, const Particle&) const = 0;
 
   bool noXmlLoad;
 
@@ -82,23 +82,23 @@ protected:
 
   void outputCaptureMap(xmlw::XmlStream&) const;
 
-  void addToCaptureMap(const CParticle&, const CParticle&) const;
+  void addToCaptureMap(const Particle&, const Particle&) const;
   
-  void removeFromCaptureMap(const CParticle&, const CParticle&) const;
+  void removeFromCaptureMap(const Particle&, const Particle&) const;
   
 };
 
-class CIMultiCapture: public CICapture
+class IMultiCapture: public ICapture
 {
 public:
-  CIMultiCapture(DYNAMO::SimData* Sim, C2Range* r):
-    CICapture(Sim,r),
+  IMultiCapture(DYNAMO::SimData* Sim, C2Range* r):
+    ICapture(Sim,r),
     noXmlLoad(true)
   {}
 
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-  virtual bool isCaptured(const CParticle&, const CParticle&) const;
+  virtual bool isCaptured(const Particle&, const Particle&) const;
 
 protected:
 
@@ -131,7 +131,7 @@ protected:
 
   mutable captureMapType captureMap;
 
-  virtual int captureTest(const CParticle&, const CParticle&) const = 0;
+  virtual int captureTest(const Particle&, const Particle&) const = 0;
 
   bool noXmlLoad;
 
@@ -141,12 +141,12 @@ protected:
 
   void outputCaptureMap(xmlw::XmlStream&) const;
 
-  inline cmap_it getCMap_it(const CParticle& p1, const CParticle& p2) const
+  inline cmap_it getCMap_it(const Particle& p1, const Particle& p2) const
   {
     return captureMap.find(cMapKey(p1.getID(), p2.getID()));
   }
 
-  inline void addToCaptureMap(const CParticle& p1, const CParticle& p2) const
+  inline void addToCaptureMap(const Particle& p1, const Particle& p2) const
   {
 #ifdef DYNAMO_DEBUG
     if (captureMap.find(cMapKey(p1.getID(), p2.getID())) != captureMap.end())
@@ -156,7 +156,7 @@ protected:
     captureMap[cMapKey(p1.getID(), p2.getID())] = 1;
   }
 
-  inline void delFromCaptureMap(const CParticle& p1, const CParticle& p2) const
+  inline void delFromCaptureMap(const Particle& p1, const Particle& p2) const
   {
 #ifdef DYNAMO_DEBUG
     if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())

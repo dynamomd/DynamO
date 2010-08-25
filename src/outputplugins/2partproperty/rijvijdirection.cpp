@@ -62,7 +62,7 @@ OPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
 }
 
 void 
-OPRijVij::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+OPRijVij::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
 {
   
   process2PED(rvdotacc[mapKey(iEvent.getType(), 

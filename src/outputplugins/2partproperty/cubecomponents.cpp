@@ -32,7 +32,7 @@ OPCubeComp::initialise()
 {}
 
 void 
-OPCubeComp::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+OPCubeComp::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
 {
   mapdata& ref = angles[mapKey(iEvent.getType(), getClassKey(iEvent))];
 

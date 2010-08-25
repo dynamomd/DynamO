@@ -226,7 +226,7 @@ OPTinkerXYZ::printFileImage()
   of << Sim->lN << "\nDYNAMO Tinker TXYZ file\n";
 
   Vector  tmpVec;
-  BOOST_FOREACH (const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH (const Particle& part, Sim->vParticleList)
     {
       tmpVec = part.getPosition();
       Sim->dynamics.BCs().applyBC(tmpVec);

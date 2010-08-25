@@ -78,7 +78,7 @@ OPMSDOrientationalCorrelator::initialise()
 
   const std::vector<LNOrientation::rotData>& initial_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
   {
     historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation));
   }
@@ -88,7 +88,7 @@ void
 OPMSDOrientationalCorrelator::ticker()
 {
   const std::vector<LNOrientation::rotData>& current_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
   {
     historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));
   }
@@ -114,7 +114,7 @@ OPMSDOrientationalCorrelator::accPass()
   Iflt longitudinal_projection(0.0), cos_theta(0.0);
   Vector displacement_term(0,0,0);
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
   {
     for (size_t step(1); step < length; ++step)
     {

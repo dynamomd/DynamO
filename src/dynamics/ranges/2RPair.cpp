@@ -34,7 +34,7 @@ C2RPair::C2RPair(const XMLNode& XML, const DYNAMO::SimData* Sim):
 }
 
 bool 
-C2RPair::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RPair::isInRange(const Particle&p1, const Particle&p2) const
 {
   if ((range1->isInRange(p1) && range2->isInRange(p2))
       || (range1->isInRange(p2) && range2->isInRange(p1)))

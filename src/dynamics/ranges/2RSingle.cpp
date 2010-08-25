@@ -30,7 +30,7 @@ C2RSingle::C2RSingle(const XMLNode& XML, const DYNAMO::SimData* Sim):
 }
 
 bool 
-C2RSingle::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RSingle::isInRange(const Particle&p1, const Particle&p2) const
 {
   return (range->isInRange(p1) && range->isInRange(p2));
 }

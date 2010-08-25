@@ -28,7 +28,7 @@ class CGNeighbourList: public CGlobal
 {
 public:
   typedef fastdelegate::FastDelegate2
-  <const CParticle&, const size_t&, void> nbHoodFunc;
+  <const Particle&, const size_t&, void> nbHoodFunc;
 
   typedef fastdelegate::FastDelegate0<void> initFunc;  
 
@@ -75,15 +75,15 @@ public:
 
   CGNeighbourList(const CGNeighbourList&);
 
-  virtual void getParticleNeighbourhood(const CParticle&, 
+  virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const = 0;
 
-  virtual void getParticleLocalNeighbourhood(const CParticle&, 
+  virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const = 0;
 
   template<class T> size_t
   ConnectSigCellChangeNotify
-  (void (T::*func)(const CParticle&, const size_t&)const , const T* tp) const 
+  (void (T::*func)(const Particle&, const size_t&)const , const T* tp) const 
   {    
     sigCellChangeNotify.push_back
       (nbHoodSlot(++sigCellChangeNotifyCount, 
@@ -104,7 +104,7 @@ public:
 
   template<class T> size_t
   ConnectSigNewLocalNotify
-  (void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
+  (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
   {    
     sigNewLocalNotify.push_back
       (nbHoodSlot(++sigNewLocalNotifyCount, 
@@ -126,7 +126,7 @@ public:
 
   template<class T> size_t
   ConnectSigNewNeighbourNotify
-  (void (T::*func)(const CParticle&, const size_t&) const, const T* tp) const 
+  (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
   {    
     sigNewNeighbourNotify.push_back
       (nbHoodSlot(++sigNewNeighbourNotifyCount, 

@@ -29,10 +29,10 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CParticle;
+class Particle;
 class C2ParticleData;
 class C1ParticleData;
-class CIntEvent;
+class IntEvent;
 class intPart;
 
 template <class T>
@@ -40,7 +40,7 @@ class CVector;
 
 /*! \brief Implements the time operators for the system.
  *
- * This class provides the fundamentals of classes like CInteraction,
+ * This class provides the fundamentals of classes like Interaction,
  * CGlobal, CLocal and CSystem. This describes when objects collide or
  * when an event occurs. Coupled with that are functions to perform
  * the events such flipping the velocity of a particle when it hits a wall.
@@ -93,7 +93,7 @@ public:
   
   /*! \brief Calculates the kinetic energy of a single particle
    */
-  virtual Iflt getParticleKineticEnergy(const CParticle&) const;
+  virtual Iflt getParticleKineticEnergy(const Particle&) const;
 
   /*! \brief Calculates the kinetic energy of the system
    */
@@ -113,7 +113,7 @@ public:
 
   /*! \brief Calculates the translational kinetic energy vector of the system
    */
-  Vector  getVectorParticleKineticEnergy(const CParticle&) const;
+  Vector  getVectorParticleKineticEnergy(const Particle&) const;
 
   /*! \brief Calculates the translational kinetic energy vector of the system
    */
@@ -249,7 +249,7 @@ public:
    * \param width The width of the bounding cell box.
    * \return The time till collision.
    */    
-  virtual Iflt getSquareCellCollision2(const CParticle& part, 
+  virtual Iflt getSquareCellCollision2(const Particle& part, 
 				       const Vector & origin, 
 				       const Vector & width) const = 0;
   
@@ -269,7 +269,7 @@ public:
    * \param width The width of the bounding cell box.
    * \return The time till collision.
    */    
-  virtual int getSquareCellCollision3(const CParticle& part, 
+  virtual int getSquareCellCollision3(const Particle& part, 
 				      const Vector & origin, 
 				      const Vector & width) const = 0;
 
@@ -283,16 +283,16 @@ public:
    * \return Wether the event will occur or not.
    */    
   virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
-				    const CParticle& p1, const CParticle& p2
+				    const Particle& p1, const Particle& p2
 				    ) const;
 
-  virtual Iflt getPointPlateCollision(const CParticle& np1, const Vector& nrw0,
+  virtual Iflt getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				      const Vector& nhat, const Iflt& Delta,
 				      const Iflt& Omega, const Iflt& Sigma,
 				      const Iflt& t, bool lastPart) const;
 
   virtual C1ParticleData runOscilatingPlate
-  (const CParticle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
+  (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
    const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
    Iflt& t, bool strongPlate = false) const;
 
@@ -312,7 +312,7 @@ public:
    * \param maxl The maximum range of the particles interactions.
    * \return Time of the event.
    */    
-  virtual Iflt getPBCSentinelTime(const CParticle& p1, const Iflt& maxl) const;
+  virtual Iflt getPBCSentinelTime(const Particle& p1, const Iflt& maxl) const;
 
   /*! \brief Calculates when a particle has peaked in its parabola to
    *   allow cell lists to not stream the system.
@@ -322,7 +322,7 @@ public:
    * \param passed A bit to set if the parabola is already over.
    * \return Time of the event.
    */    
-  virtual Iflt getParabolaSentinelTime(const CParticle& p1, unsigned char& passed) const
+  virtual Iflt getParabolaSentinelTime(const Particle& p1, unsigned char& passed) const
   { 
     D_throw() << "This is not needed for this type of Liouvillean";
   }
@@ -335,7 +335,7 @@ public:
    * \param passed A bit to set if the parabola is already over.
    * \return Time of the event.
    */    
-  virtual void enforceParabola(const CParticle&) const
+  virtual void enforceParabola(const Particle&) const
   { 
     D_throw() << "This is not needed for this type of Liouvillean";
   }
@@ -345,7 +345,7 @@ public:
    * \param eevent Description of the scheduled event
    * \return Collision data
    */    
-  virtual C2ParticleData runLineLineCollision(const CIntEvent& eevent,
+  virtual C2ParticleData runLineLineCollision(const IntEvent& eevent,
 					      const Iflt& elasticity, const Iflt& length) const;
 
   /*! \brief Determines when the particle center will hit a wall.
@@ -356,7 +356,7 @@ public:
    * \param norm The normal vector to the wall surface.
    * \return The time till collision.
    */    
-  virtual Iflt getWallCollision(const CParticle& part, 
+  virtual Iflt getWallCollision(const Particle& part, 
 				const Vector & origin, 
 				const Vector & norm
 				) const = 0;
@@ -370,7 +370,7 @@ public:
    * \param radius The radius of the cylinder
    * \return The time till collision.
    */    
-  virtual Iflt getCylinderWallCollision(const CParticle& part, 
+  virtual Iflt getCylinderWallCollision(const Particle& part, 
 					const Vector & origin, 
 					const Vector & norm,
 					const Iflt& radius
@@ -384,7 +384,7 @@ public:
    * \param e Elasticity of wall.
    * \return The data for the collision.
    */
-  virtual C1ParticleData runCylinderWallCollision(const CParticle& part, 
+  virtual C1ParticleData runCylinderWallCollision(const Particle& part, 
 						  const Vector & origin,
 						  const Vector & norm,
 						  const Iflt& e
@@ -397,7 +397,7 @@ public:
    * \param e Elasticity of wall.
    * \return The data for the collision.
    */
-  virtual C1ParticleData runSphereWallCollision(const CParticle& part, 
+  virtual C1ParticleData runSphereWallCollision(const Particle& part, 
 						const Vector & origin,
 						const Iflt& e
 						) const;
@@ -409,7 +409,7 @@ public:
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
    * \return The data for the collision.
    */
-  virtual C1ParticleData runWallCollision(const CParticle& part, 
+  virtual C1ParticleData runWallCollision(const Particle& part, 
 					  const Vector & vNorm,
 					  const Iflt& e
 					  ) const = 0;
@@ -425,7 +425,7 @@ public:
    * \param sqrtT Square root of the Temperature of wall.
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
    */    
-  virtual C1ParticleData runAndersenWallCollision(const CParticle& part, 
+  virtual C1ParticleData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
 						  const Iflt& sqrtT
 						  ) const = 0;
@@ -441,7 +441,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent& event, 
+  virtual C2ParticleData SmoothSpheresColl(const IntEvent& event, 
 					   const Iflt& e, 
 					   const Iflt& d2, 
 					   const EEventType& eType = CORE
@@ -459,7 +459,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const CIntEvent& event, const Iflt& e, 
+  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e, 
 						      const Iflt& d2,
 						      const EEventType& eType = CORE) const;
 
@@ -473,7 +473,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData RoughSpheresColl(const CIntEvent& event, 
+  virtual C2ParticleData RoughSpheresColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& et, 
 					  const Iflt& d2, 
@@ -492,7 +492,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
+  virtual C2ParticleData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType = CORE) const;
@@ -509,7 +509,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data
    */
-  virtual C2ParticleData parallelCubeColl(const CIntEvent& event,
+  virtual C2ParticleData parallelCubeColl(const IntEvent& event,
 					  const Iflt& e, const Iflt& d,
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;
@@ -524,8 +524,8 @@ public:
    * \param pdat Some cached calc data
    * \return Whether the collision occurs
    */  
-  virtual bool DSMCSpheresTest(const CParticle& p1,
-			       const CParticle& p2,
+  virtual bool DSMCSpheresTest(const Particle& p1,
+			       const Particle& p2,
 			       Iflt& maxprob,
 			       const Iflt& factor,
 			       CPDData& pdat
@@ -541,8 +541,8 @@ public:
    * \param pdat Some cached calc data
    * \return Data on the collision
    */  
-  virtual C2ParticleData DSMCSpheresRun(const CParticle& p1,
-					const CParticle& p2,
+  virtual C2ParticleData DSMCSpheresRun(const Particle& p1,
+					const Particle& p2,
 					const Iflt& e,
 					CPDData& pdat
 					) const = 0;
@@ -559,7 +559,7 @@ public:
    * \param d2 The square of the interaction distance.
    * \return The event data.
    */  
-  virtual C2ParticleData SphereWellEvent(const CIntEvent& event, 
+  virtual C2ParticleData SphereWellEvent(const IntEvent& event, 
 					 const Iflt& deltaKE, 
 					 const Iflt& d2) const = 0;
 
@@ -574,7 +574,7 @@ public:
    *
    * \bug Does this work for arbitrary mass particles.
    */
-  virtual C1ParticleData randomGaussianEvent(const CParticle& part, 
+  virtual C1ParticleData randomGaussianEvent(const Particle& part, 
 					     const Iflt& sqrtT) const = 0;
 
   /*! \brief A method to allow polymorphic classes to be copied
@@ -603,12 +603,12 @@ public:
   {
     //May as well take this opportunity to reset the streaming
     //Note: the Replexing coordinator RELIES on this behaviour!
-    BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    BOOST_FOREACH(const Particle& part, Sim->vParticleList)
       {
-	streamParticle(const_cast<CParticle&>(part), 
+	streamParticle(const_cast<Particle&>(part), 
 		       part.getPecTime() + partPecTime);
 	
-	const_cast<CParticle&>(part).getPecTime() = 0;
+	const_cast<Particle&>(part).getPecTime() = 0;
       }
 
     const_cast<Iflt&>(partPecTime) = 0;
@@ -620,15 +620,15 @@ public:
    * This synchronises the delayed states of the particle.
    * \param part Particle to syncronise.
    */
-  inline void updateParticle(const CParticle& part) const
+  inline void updateParticle(const Particle& part) const
   {
-    streamParticle(const_cast<CParticle&>(part), 
+    streamParticle(const_cast<Particle&>(part), 
 		   part.getPecTime() + partPecTime);
 
-    const_cast<CParticle&>(part).getPecTime() = -partPecTime;
+    const_cast<Particle&>(part).getPecTime() = -partPecTime;
   }
 
-  inline bool isUpToDate(const CParticle& part) const
+  inline bool isUpToDate(const Particle& part) const
   {
     return part.getPecTime() == -partPecTime;
   }
@@ -638,10 +638,10 @@ public:
    * This is here incase an optimisation or overload is performed later.
    *
    * This synchronises the delayed states of the two particle.
-   * \param p1 A CParticle to syncronise.
-   * \param p2 A CParticle to syncronise.
+   * \param p1 A Particle to syncronise.
+   * \param p2 A Particle to syncronise.
    */
-  inline void updateParticlePair(const CParticle& p1, const CParticle& p2) const
+  inline void updateParticlePair(const Particle& p1, const Particle& p2) const
   {
     //This is slow but sure, other stuff like reverse streaming, and
     //partial streaming are faster but work only for some collision
@@ -651,7 +651,7 @@ public:
     updateParticle(p2);
   }
 
-  inline Iflt getParticleDelay(const CParticle& part) const
+  inline Iflt getParticleDelay(const Particle& part) const
   {
     return partPecTime + part.getPecTime();
   }
@@ -666,7 +666,7 @@ public:
     //Keep the magnitude of the partPecTime boundedx
     if (++streamCount == streamFreq)
       {
-	BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+	BOOST_FOREACH(Particle& part, Sim->vParticleList)
 	  part.getPecTime() += partPecTime;
 
 	partPecTime = 0;
@@ -683,7 +683,7 @@ public:
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
    * \return The data for the collision.
    */
-  virtual C1ParticleData runRoughWallCollision(const CParticle& part, 
+  virtual C1ParticleData runRoughWallCollision(const Particle& part, 
 					       const Vector & vNorm,
 					       const Iflt& e,
 					       const Iflt& et,
@@ -698,12 +698,12 @@ protected:
    * See CGCellsShearing, this just over advances the particle to find
    * its future position in boundary changes.
    */
-  inline void advanceUpdateParticle(const CParticle& part, const Iflt& dt) const
+  inline void advanceUpdateParticle(const Particle& part, const Iflt& dt) const
   {
-    streamParticle(const_cast<CParticle&>(part), 
+    streamParticle(const_cast<Particle&>(part), 
 		   dt + partPecTime + part.getPecTime());
 
-    const_cast<CParticle&>(part).getPecTime() = - dt - partPecTime;
+    const_cast<Particle&>(part).getPecTime() = - dt - partPecTime;
   }
   
   /*! \brief The time by which the delayed state differs from the actual.*/
@@ -724,7 +724,7 @@ protected:
   virtual void extraXMLData(xmlw::XmlStream&) const {}
 
   /*! \brief Moves the particles data along in time. */
-  virtual void streamParticle(CParticle& part, const Iflt& dt) const = 0;
+  virtual void streamParticle(Particle& part, const Iflt& dt) const = 0;
 
 };
 #endif

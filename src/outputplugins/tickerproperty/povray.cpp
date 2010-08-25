@@ -129,7 +129,7 @@ fog { distance 2 fog_type 2 fog_alt 0.01 fog_offset -0.1 color White }\n";
   
 
   DYNAMO::ColorMap<unsigned int> colmap(0,Sim->dynamics.getSpecies().size()-1);
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<Interaction>& intPtr, Sim->dynamics.getInteractions())
     intPtr->write_povray_info(of);
 
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())

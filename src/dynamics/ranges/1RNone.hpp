@@ -31,7 +31,7 @@ public:
 
   virtual CRange* Clone() const { return new CRNone(*this); };
 
-  virtual bool isInRange(const CParticle&) const
+  virtual bool isInRange(const Particle&) const
   { return false; }
 
   //The data output classes

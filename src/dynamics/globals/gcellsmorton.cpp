@@ -95,7 +95,7 @@ CGCellsMorton::setLambda(const Iflt& nL)
 }
 
 CGlobEvent 
-CGCellsMorton::getEvent(const CParticle& part) const
+CGCellsMorton::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -118,7 +118,7 @@ CGCellsMorton::getEvent(const CParticle& part) const
 }
 
 void
-CGCellsMorton::runEvent(const CParticle& part) const
+CGCellsMorton::runEvent(const Particle& part) const
 {
 
   //Despite the system not being streamed this must be done.  This is
@@ -386,7 +386,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
   ////initialise the data structures
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     addToCell(part.getID(), getCellID(part.getPosition()).getMortonNum());
 }
 
@@ -439,7 +439,7 @@ CGCellsMorton::getCellID(Vector  pos) const
 
 
 void 
-CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
+CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 					const nbHoodFunc& func) const
 {
   dilatedCoords coords(partCellData[part.getID()].cell);
@@ -495,7 +495,7 @@ CGCellsMorton::getParticleNeighbourhood(const CParticle& part,
 }
 
 void 
-CGCellsMorton::getParticleLocalNeighbourhood(const CParticle& part, 
+CGCellsMorton::getParticleLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const size_t& id, 

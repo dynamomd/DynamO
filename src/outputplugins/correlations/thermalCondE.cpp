@@ -91,7 +91,7 @@ OPThermalConductivityE::initialise()
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
   
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
@@ -213,7 +213,7 @@ OPThermalConductivityE::eventUpdate(const CSystem&,
 }
   
 void 
-OPThermalConductivityE::eventUpdate(const CIntEvent& iEvent,
+OPThermalConductivityE::eventUpdate(const IntEvent& iEvent,
 				     const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());

@@ -20,12 +20,12 @@
 
 #include "interaction.hpp"
 
-class CINull: public CInteraction
+class INull: public Interaction
 {
 public:
-  CINull(DYNAMO::SimData*, C2Range*);
+  INull(DYNAMO::SimData*, C2Range*);
 
-  CINull(const XMLNode&, DYNAMO::SimData*);
+  INull(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
@@ -39,16 +39,16 @@ public:
 
   virtual void rescaleLengths(Iflt);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
   
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-  virtual void runEvent(const CParticle&, const CParticle&, 
-			const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, 
+			const IntEvent&) const;
    
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
  
 protected:
 };

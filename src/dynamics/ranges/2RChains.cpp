@@ -43,7 +43,7 @@ C2RChains::C2RChains(const XMLNode& XML, const DYNAMO::SimData*):
 }
 
 bool 
-C2RChains::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RChains::isInRange(const Particle&p1, const Particle&p2) const
 {
   if (p1.getID() > p2.getID())
     {

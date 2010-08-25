@@ -33,23 +33,23 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 
-CIInfiniteMass::CIInfiniteMass(DYNAMO::SimData* tmp, Iflt nd, 
+IInfiniteMass::IInfiniteMass(DYNAMO::SimData* tmp, Iflt nd, 
 			       Iflt ne, C2Range* nR):
-  CInteraction(tmp, nR),
+  Interaction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne) {}
 
-CIInfiniteMass::CIInfiniteMass(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+IInfiniteMass::IInfiniteMass(const XMLNode& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
 
 void 
-CIInfiniteMass::initialise(size_t nID)
+IInfiniteMass::initialise(size_t nID)
 { ID=nID; }
 
 void 
-CIInfiniteMass::operator<<(const XMLNode& XML)
+IInfiniteMass::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"InfiniteMass"))
     D_throw() << "Attempting to load InfiniteMass from non InfiniteMass entry";
@@ -74,26 +74,26 @@ CIInfiniteMass::operator<<(const XMLNode& XML)
 }
 
 Iflt 
-CIInfiniteMass::maxIntDist() const 
+IInfiniteMass::maxIntDist() const 
 { return diameter; }
 
 Iflt 
-CIInfiniteMass::hardCoreDiam() const 
+IInfiniteMass::hardCoreDiam() const 
 { return diameter; }
 
 void 
-CIInfiniteMass::rescaleLengths(Iflt scale) 
+IInfiniteMass::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter;
   d2 = diameter*diameter;
 }
 
-CInteraction* 
-CIInfiniteMass::Clone() const 
-{ return new CIInfiniteMass(*this); }
+Interaction* 
+IInfiniteMass::Clone() const 
+{ return new IInfiniteMass(*this); }
   
-CIntEvent 
-CIInfiniteMass::getEvent(const CParticle &p1, const CParticle &p2) const 
+IntEvent 
+IInfiniteMass::getEvent(const Particle &p1, const Particle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -119,16 +119,16 @@ CIInfiniteMass::getEvent(const CParticle &p1, const CParticle &p2) const
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      return IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);  
+  return IntEvent(p1,p2,HUGE_VAL, NONE, *this);  
 }
 
 void
-CIInfiniteMass::runEvent(const CParticle& p1,
-		       const CParticle& p2,
-		       const CIntEvent& iEvent) const
+IInfiniteMass::runEvent(const Particle& p1,
+		       const Particle& p2,
+		       const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
     
@@ -146,7 +146,7 @@ CIInfiniteMass::runEvent(const CParticle& p1,
 }
    
 void 
-CIInfiniteMass::outputXML(xmlw::XmlStream& XML) const
+IInfiniteMass::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "InfiniteMass"
       << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
@@ -156,7 +156,7 @@ CIInfiniteMass::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-CIInfiniteMass::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+IInfiniteMass::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 
@@ -171,7 +171,7 @@ CIInfiniteMass::checkOverlaps(const CParticle& part1, const CParticle& part2) co
 }
 
 void 
-CIInfiniteMass::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
+IInfiniteMass::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
   os << "#declare intrep" << ID << " = " 

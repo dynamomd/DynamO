@@ -26,22 +26,22 @@ namespace xmlw
   class XmlStream;
 }
 
-class CParticle
+class Particle
 {
 public:
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CParticle&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Particle&);
   
-  inline CParticle (const Vector  &position, 
+  inline Particle (const Vector  &position, 
 		    const Vector  &velocity,
 		    const unsigned long& nID):
     posVector(position), velVector(velocity), 
     ID(nID), pecTime(0.0)
   {}
   
-  CParticle(const XMLNode&, unsigned long);
+  Particle(const XMLNode&, unsigned long);
   
-  inline bool operator==(const CParticle &p) const { return (ID == p.ID); }
-  inline bool operator!=(const CParticle &p) const { return (ID != p.ID); }
+  inline bool operator==(const Particle &p) const { return (ID == p.ID); }
+  inline bool operator!=(const Particle &p) const { return (ID != p.ID); }
   
   inline const Vector  &getPosition() const { return posVector; }
   inline const Vector  &getVelocity() const { return velVector; }

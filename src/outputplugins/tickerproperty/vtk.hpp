@@ -37,7 +37,7 @@ class OPVTK: public OPTicker
 
   void operator<<(const XMLNode&);
   
-  void eventUpdate(const CIntEvent&, const C2ParticleData&);
+  void eventUpdate(const IntEvent&, const C2ParticleData&);
 
  protected:
   unsigned long frameCount;

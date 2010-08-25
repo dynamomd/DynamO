@@ -27,7 +27,7 @@ public:
   LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode&);
 
   //Pair particle dynamics
-  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, 
+  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, 
 					 const Iflt&) const;
   virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
 					   const Iflt&, const Iflt&, 

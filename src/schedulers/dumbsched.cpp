@@ -62,7 +62,7 @@ CSDumb::initialise()
   eventCount.resize(Sim->lN+1, 0);
   
   //Now initialise the interactions
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     addEvents(part);
   
   sorter->init();
@@ -79,7 +79,7 @@ CSDumb::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CSDumb::addEvents(const CParticle& part)
+CSDumb::addEvents(const Particle& part)
 {  
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -93,7 +93,7 @@ CSDumb::addEvents(const CParticle& part)
     addLocalEvent(part, local->getID());
 
   //Add the interaction events
-  BOOST_FOREACH(const CParticle& part2, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part2, Sim->vParticleList)
     if (part2 != part)
       addInteractionEvent(part, part2.getID());
 }

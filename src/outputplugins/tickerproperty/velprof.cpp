@@ -47,7 +47,7 @@ OPVelProfile::initialise()
 void 
 OPVelProfile::ticker()
 {
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     {
       Vector  pos(part.getPosition());
       Vector  vel(part.getVelocity());

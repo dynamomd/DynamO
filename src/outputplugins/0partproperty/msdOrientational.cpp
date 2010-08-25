@@ -104,7 +104,7 @@ OPMSDOrientational::calculate() const
 
   const std::vector<LNOrientation::rotData>& latest_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
   {
     displacement_term = part.getPosition() - initialConfiguration[part.getID()].first;
     longitudinal_projection = (displacement_term | initialConfiguration[part.getID()].second);

@@ -99,7 +99,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& id, *spec->getRange())
     {
-      const CParticle& part(Sim->vParticleList[id]);
+      const Particle& part(Sim->vParticleList[id]);
       constDelG[spec->getID()] += part.getVelocity() 
 	* Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
     }
@@ -227,7 +227,7 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CSystem&,
 }
   
 void 
-OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CIntEvent& iEvent,
+OPThermalConductivitySpeciesSpeciesE::eventUpdate(const IntEvent& iEvent,
 				     const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());

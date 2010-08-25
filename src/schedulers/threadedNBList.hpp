@@ -27,40 +27,40 @@ public:
 
   SThreadedNBList(DYNAMO::SimData* const, CSSorter*, size_t threadCount);
 
-  virtual void addEvents(const CParticle&);
+  virtual void addEvents(const Particle&);
   
   virtual void operator<<(const XMLNode&);
 
-  virtual void fullUpdate(const CParticle& part);
+  virtual void fullUpdate(const Particle& part);
 
-  virtual void fullUpdate(const CParticle& p1, const CParticle& p2);
+  virtual void fullUpdate(const Particle& p1, const Particle& p2);
 
-  void threadAddLocalEvent(const CParticle& part, 
+  void threadAddLocalEvent(const Particle& part, 
 			   const size_t id,
 			   boost::mutex& sorterLock);
 
-  void threadAddIntEvent(const CParticle& part, 
+  void threadAddIntEvent(const Particle& part, 
 			 const size_t id,
 			 boost::mutex& sorterLock);
 
-  void spawnThreadAddLocalEvent1(const CParticle& part, 
+  void spawnThreadAddLocalEvent1(const Particle& part, 
 				const size_t& id);
 
-  void spawnThreadAddLocalEvent2(const CParticle& part, 
+  void spawnThreadAddLocalEvent2(const Particle& part, 
 				 const size_t& id);
 
   void threadStreamParticles(const size_t id) const;
 
-  void streamParticles(const CParticle& part, const size_t& id) const;
+  void streamParticles(const Particle& part, const size_t& id) const;
 
-  void addEvents2(const CParticle& part, const size_t& id) const;
+  void addEvents2(const Particle& part, const size_t& id) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void addEventsInit(const CParticle&);
+  void addEventsInit(const Particle&);
 
-  void addGlobal(const CParticle& p1, const smrtPlugPtr<CGlobal>& glob, boost::mutex& sorterLock);
+  void addGlobal(const Particle& p1, const smrtPlugPtr<CGlobal>& glob, boost::mutex& sorterLock);
 
   ThreadPool _threadPool;
 

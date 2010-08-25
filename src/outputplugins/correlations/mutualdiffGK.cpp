@@ -122,7 +122,7 @@ OPMutualDiffusionGK::eventUpdate(const CSystem&, const CNParticleData& PDat, con
 }
 
 void 
-OPMutualDiffusionGK::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+OPMutualDiffusionGK::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
@@ -191,7 +191,7 @@ OPMutualDiffusionGK::initialise()
   BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
   
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     {
       sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
       

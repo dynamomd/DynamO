@@ -42,7 +42,7 @@ CLDblWall::CLDblWall(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CLocalEvent 
-CLDblWall::getEvent(const CParticle& part) const
+CLDblWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -63,7 +63,7 @@ CLDblWall::getEvent(const CParticle& part) const
 }
 
 void
-CLDblWall::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
+CLDblWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 

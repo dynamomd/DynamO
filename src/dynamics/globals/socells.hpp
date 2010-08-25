@@ -38,9 +38,9 @@ public:
     return new CGSOCells(*this); 
   }
 
-  virtual CGlobEvent getEvent(const CParticle &) const;
+  virtual CGlobEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const CParticle&) const;
+  virtual void runEvent(const Particle&) const;
 
   virtual void initialise(size_t);
 

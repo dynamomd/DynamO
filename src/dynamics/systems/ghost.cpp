@@ -105,7 +105,7 @@ CSysGhost::runEvent() const
     (Sim->ranGenerator, 
      boost::uniform_int<unsigned int>(0, range->size() - 1))();
 
-  const CParticle& part(Sim->vParticleList[*(range->begin()+step)]);
+  const Particle& part(Sim->vParticleList[*(range->begin()+step)]);
 
   //Run the collision and catch the data
   CNParticleData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent

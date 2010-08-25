@@ -66,7 +66,7 @@ OPSCParameter::ticker()
     {
       std::complex<Iflt> sum(0, 0);
 
-      BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+      BOOST_FOREACH(const Particle& part, Sim->vParticleList)
 	{
 	  Iflt psum(0);
 	  

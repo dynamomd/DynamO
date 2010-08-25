@@ -61,7 +61,7 @@ OPMSDCorrelator::initialise()
 
   currCorrLength=1;
 
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     posHistory[part.getID()].push_front(part.getPosition());
 
   speciesData.resize(Sim->dynamics.getSpecies().size(), 
@@ -74,7 +74,7 @@ OPMSDCorrelator::initialise()
 void 
 OPMSDCorrelator::ticker()
 {
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     posHistory[part.getID()].push_front(part.getPosition());
   
   if (notReady)

@@ -30,7 +30,7 @@ public:
 
   virtual CRange* Clone() const { return new CRList(*this); };
 
-  virtual bool isInRange(const CParticle &) const;
+  virtual bool isInRange(const Particle &) const;
 
   //The data output classes
   virtual void operator<<(const XMLNode&);

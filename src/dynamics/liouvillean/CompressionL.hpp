@@ -29,17 +29,17 @@ public:
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  
   virtual bool sphereOverlap(const CPDData&, const Iflt&) const;
 
-  virtual void streamParticle(CParticle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const Iflt&) const;
 
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType&) const;
+  virtual C2ParticleData SmoothSpheresColl(const IntEvent&, const Iflt&, const Iflt&, const EEventType&) const;
 
-  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
+  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, const Iflt&) const;
   
   virtual Liouvillean* Clone() const { return new LCompression(*this); };
 
   Iflt getGrowthRate() const { return growthRate; }
 
-  virtual Iflt getPBCSentinelTime(const CParticle&, const Iflt&) const;
+  virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
 
   virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { D_throw() << "Not Implemented"; }
 
@@ -47,7 +47,7 @@ public:
 
   virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { D_throw() << "Not Implemented"; }
 
-  virtual C2ParticleData parallelCubeColl(const CIntEvent& event, 
+  virtual C2ParticleData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType = CORE

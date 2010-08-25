@@ -66,7 +66,7 @@ CSComplex::initialise()
   {
     boost::progress_display prog(Sim->lN);
  
-    BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+    BOOST_FOREACH(const Particle& part, Sim->vParticleList)
       {
 	addEventsInit(part);
 	++prog;
@@ -108,7 +108,7 @@ CSComplex::CSComplex(DYNAMO::SimData* const Sim, CSSorter* ns):
 { I_cout() << "Complex Scheduler Algorithmn Loaded"; }
 
 void 
-CSComplex::addEvents(const CParticle& part)
+CSComplex::addEvents(const Particle& part)
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
@@ -129,7 +129,7 @@ CSComplex::addEvents(const CParticle& part)
 }
 
 void 
-CSComplex::addEventsInit(const CParticle& part)
+CSComplex::addEventsInit(const Particle& part)
 {  
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

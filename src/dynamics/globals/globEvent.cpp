@@ -26,7 +26,7 @@
 #include "global.hpp"
 #include <cmath>
 
-CGlobEvent::CGlobEvent(const CParticle& part1, const Iflt &delt, 
+CGlobEvent::CGlobEvent(const Particle& part1, const Iflt &delt, 
 		       EEventType nType, const CGlobal& glob):
   particle_(&part1), dt(delt), 
   CType(nType), globalID(glob.getID())
@@ -54,5 +54,5 @@ CGlobEvent::stringData(const DYNAMO::SimData* Sim) const
 }
 
 bool 
-CGlobEvent::areInvolved(const CIntEvent &coll) const 
+CGlobEvent::areInvolved(const IntEvent &coll) const 
 { return (coll == *particle_); }

@@ -36,20 +36,20 @@
 #include "../NparticleEventData.hpp"
 
 
-CISoftCore::CISoftCore(DYNAMO::SimData* tmp, Iflt nd, Iflt nWD, 
+ISoftCore::ISoftCore(DYNAMO::SimData* tmp, Iflt nd, Iflt nWD, 
 		       C2Range* nR):
-  CISingleCapture(tmp,nR),
+  ISingleCapture(tmp,nR),
   diameter(nd),d2(nd*nd),wellDepth(nWD) 
 {}
 
-CISoftCore::CISoftCore(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CISingleCapture(tmp,NULL) //A temporary value!
+ISoftCore::ISoftCore(const XMLNode& XML, DYNAMO::SimData* tmp):
+  ISingleCapture(tmp,NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 void 
-CISoftCore::operator<<(const XMLNode& XML)
+ISoftCore::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SoftCore"))
     D_throw() << "Attempting to load SoftCore from non SoftCore entry";
@@ -67,40 +67,40 @@ CISoftCore::operator<<(const XMLNode& XML)
     
     intName = XML.getAttribute("Name");
 
-    CISingleCapture::loadCaptureMap(XML);   
+    ISingleCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)
     { D_throw() << "Failed a lexical cast in CISoftCore"; }
 }
 
-CInteraction* 
-CISoftCore::Clone() const 
-{ return new CISoftCore(*this); }
+Interaction* 
+ISoftCore::Clone() const 
+{ return new ISoftCore(*this); }
 
 Iflt 
-CISoftCore::hardCoreDiam() const 
+ISoftCore::hardCoreDiam() const 
 { return diameter; }
 
 Iflt 
-CISoftCore::maxIntDist() const 
+ISoftCore::maxIntDist() const 
 { return diameter; }
 
 void 
-CISoftCore::rescaleLengths(Iflt scale) 
+ISoftCore::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter; 
   d2 = diameter*diameter;
 }
 
 void 
-CISoftCore::initialise(size_t nID)
+ISoftCore::initialise(size_t nID)
 {
   ID = nID;
-  CISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap();
 }
 
 bool 
-CISoftCore::captureTest(const CParticle& p1, const CParticle& p2) const
+ISoftCore::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -108,9 +108,9 @@ CISoftCore::captureTest(const CParticle& p1, const CParticle& p2) const
   return (rij.nrm2() <= d2);
 }
 
-CIntEvent 
-CISoftCore::getEvent(const CParticle &p1, 
-		     const CParticle &p2) const 
+IntEvent 
+ISoftCore::getEvent(const Particle &p1, 
+		     const Particle &p2) const 
 {
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -128,7 +128,7 @@ CISoftCore::getEvent(const CParticle &p1,
   if (isCaptured(p1, p2)) 
     {
       if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, d2))
-	return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2)) 
     {
@@ -140,14 +140,14 @@ CISoftCore::getEvent(const CParticle &p1,
 		  << (sqrt(colldat.r2) - sqrt(d2)) / Sim->dynamics.units().unitLength();
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CISoftCore::runEvent(const CParticle& p1, const CParticle& p2, const CIntEvent& iEvent) const
+ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
   
@@ -196,7 +196,7 @@ CISoftCore::runEvent(const CParticle& p1, const CParticle& p2, const CIntEvent& 
 }
 
 void
-CISoftCore::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+ISoftCore::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -223,7 +223,7 @@ CISoftCore::checkOverlaps(const CParticle& part1, const CParticle& part2) const
 }
   
 void 
-CISoftCore::outputXML(xmlw::XmlStream& XML) const
+ISoftCore::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "SoftCore"
       << xmlw::attr("Diameter") 
@@ -233,5 +233,5 @@ CISoftCore::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
   
-  CISingleCapture::outputCaptureMap(XML);  
+  ISingleCapture::outputCaptureMap(XML);  
 }

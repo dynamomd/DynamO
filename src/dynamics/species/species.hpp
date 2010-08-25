@@ -30,8 +30,8 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CParticle;
-class CInteraction;
+class Particle;
+class Interaction;
 
 
 class CSpecies:public DYNAMO::SimBase_const
@@ -44,7 +44,7 @@ public:
 
   virtual ~CSpecies() {}
 
-  bool isSpecies(const CParticle &) const;
+  bool isSpecies(const Particle &) const;
   
   const Iflt& getMass() const { return mass; }
   
@@ -62,9 +62,9 @@ public:
 
   const std::string& getIntName() const { return intName; }
 
-  const CInteraction* getIntPtr() const;
+  const Interaction* getIntPtr() const;
 
-  void setIntPtr(CInteraction*);
+  void setIntPtr(Interaction*);
 
   const smrtPlugPtr<CRange>& getRange() const { return range; }
 
@@ -89,7 +89,7 @@ protected:
   std::string spName;
   std::string intName;
 
-  CInteraction* IntPtr;
+  Interaction* IntPtr;
 
   unsigned int ID;
 };

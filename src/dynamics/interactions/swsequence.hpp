@@ -21,16 +21,16 @@
 #include "captures.hpp"
 #include <vector>
 
-class CISWSequence: public CISingleCapture
+class ISWSequence: public ISingleCapture
 {
 public:
-  CISWSequence(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::vector<size_t>, C2Range*);
+  ISWSequence(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::vector<size_t>, C2Range*);
 
-  CISWSequence(const XMLNode&, DYNAMO::SimData*);
+  ISWSequence(const XMLNode&, DYNAMO::SimData*);
   
   void operator<<(const XMLNode&);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
 
   virtual Iflt hardCoreDiam() const;
 
@@ -40,19 +40,19 @@ public:
 
   virtual void rescaleLengths(Iflt);
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual bool captureTest(const CParticle&, const CParticle&) const;
+  virtual bool captureTest(const Particle&, const Particle&) const;
 
   virtual void initialise(size_t);
 
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
   
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual Iflt getColourFraction(const CParticle&) const;
+  virtual Iflt getColourFraction(const Particle&) const;
 
   std::vector<size_t>& getSequence() { return sequence; }
 

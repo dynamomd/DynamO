@@ -43,7 +43,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 }
 
 bool 
-CSCEntry::isApplicable(const CParticle& part) const
+CSCEntry::isApplicable(const Particle& part) const
 {
   return range->isInRange(part);
 }

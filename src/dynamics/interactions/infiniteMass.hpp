@@ -20,12 +20,12 @@
 
 #include "interaction.hpp"
 
-class CIInfiniteMass: public CInteraction
+class IInfiniteMass: public Interaction
 {
 public:
-  CIInfiniteMass(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  IInfiniteMass(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CIInfiniteMass(const XMLNode&, DYNAMO::SimData*);
+  IInfiniteMass(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
@@ -39,15 +39,15 @@ public:
 
   virtual void rescaleLengths(Iflt);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
   
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
    
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
 
   virtual void 
   write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;

@@ -26,7 +26,6 @@
 
 class Dynamics;
 class OutputPlugin;
-class CStreamTask;
 
 /*! \brief A single simulation holding particles, dynamics and output
  * plugins.

@@ -25,7 +25,7 @@
 
 
 class XMLNode;
-class CInteraction;
+class Interaction;
 namespace DYNAMO {
   class SimData;
 }
@@ -34,37 +34,37 @@ namespace xmlw
   class XmlStream;
 }
 
-class CIntEvent
+class IntEvent
 {
 public:  
   friend struct intPart;
 
-  inline CIntEvent ():
+  inline IntEvent ():
   particle1(-1), particle2(-1), 
   dt(HUGE_VAL), CType(NONE),
   intID(-1) {}
 
-  inline CIntEvent(const CParticle& part1, const CParticle& part2, 
+  inline IntEvent(const Particle& part1, const Particle& part2, 
 		   const Iflt &delt, EEventType nType, 
-		   const CInteraction& pI):
+		   const Interaction& pI):
     particle1(part1.getID()), particle2(part2.getID()), dt(delt), 
     CType(nType), intID(pI.getID()) {}
   
-  inline CIntEvent (const CParticle& part1):
+  inline IntEvent (const Particle& part1):
     particle1(part1.getID()), particle2(-1), 
     dt(HUGE_VAL), CType(NONE),
     intID(-1) {}
 
-  inline CIntEvent(const CParticle& part1, const Iflt& dt, 
+  inline IntEvent(const Particle& part1, const Iflt& dt, 
 		     EEventType etype):
     particle1(part1.getID()), particle2(-1), 
     dt(dt), CType(etype),
     intID(-1) {}
 
-  inline bool operator== (const CParticle &partx) const 
+  inline bool operator== (const Particle &partx) const 
   { return ((particle1 == partx.getID()) || (particle2 == partx.getID())); }
   
-  inline bool areInvolved(const CIntEvent &coll) const 
+  inline bool areInvolved(const IntEvent &coll) const 
   { 
     return ((coll.particle1 == particle1) 
 	    || (coll.particle1 == particle2)
@@ -78,10 +78,10 @@ public:
     CType = NONE; 
   }
 
-  inline bool operator< (const CIntEvent & C2) const 
+  inline bool operator< (const IntEvent & C2) const 
   { return dt < C2.dt;}
   
-  inline bool operator> (const CIntEvent & C2) const 
+  inline bool operator> (const IntEvent & C2) const 
     { return dt > C2.dt;}
 
   inline void incrementTime(const Iflt deltat) {dt -= deltat; }
@@ -99,7 +99,7 @@ public:
   inline EEventType getType() const
   { return CType; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CIntEvent&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const IntEvent&);
 
   std::string stringData(const DYNAMO::SimData*) const;
   

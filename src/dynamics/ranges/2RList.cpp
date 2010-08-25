@@ -25,7 +25,7 @@ C2RList::C2RList(const XMLNode& XML)
 { operator<<(XML); }
 
 bool 
-C2RList::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RList::isInRange(const Particle&p1, const Particle&p2) const
 {
   std::map<unsigned long, std::list<unsigned long> >::const_iterator
     iPtr;

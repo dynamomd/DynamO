@@ -33,23 +33,23 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 
-CIParallelCubes::CIParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
+IParallelCubes::IParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
 			   Iflt ne, C2Range* nR):
-  CInteraction(tmp, nR),
+  Interaction(tmp, nR),
   diameter(nd), e(ne) {}
 
-CIParallelCubes::CIParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+IParallelCubes::IParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
 
 void 
-CIParallelCubes::initialise(size_t nID)
+IParallelCubes::initialise(size_t nID)
 { ID=nID; }
 
 void 
-CIParallelCubes::operator<<(const XMLNode& XML)
+IParallelCubes::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"ParallelCubes"))
     D_throw() << "Attempting to load ParallelCubes from non hardsphere entry";
@@ -72,25 +72,25 @@ CIParallelCubes::operator<<(const XMLNode& XML)
 }
 
 Iflt 
-CIParallelCubes::maxIntDist() const 
+IParallelCubes::maxIntDist() const 
 { return std::sqrt(NDIM) * diameter; }
 
 Iflt 
-CIParallelCubes::hardCoreDiam() const 
+IParallelCubes::hardCoreDiam() const 
 { return diameter; }
 
 void 
-CIParallelCubes::rescaleLengths(Iflt scale) 
+IParallelCubes::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter;
 }
 
-CInteraction* 
-CIParallelCubes::Clone() const 
-{ return new CIParallelCubes(*this); }
+Interaction* 
+IParallelCubes::Clone() const 
+{ return new IParallelCubes(*this); }
   
-CIntEvent 
-CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const 
+IntEvent 
+IParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -116,16 +116,16 @@ CIParallelCubes::getEvent(const CParticle &p1, const CParticle &p2) const
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - diameter)/Sim->dynamics.units().unitLength();
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      return IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   
-  return CIntEvent(p1,p2,HUGE_VAL, NONE, *this);
+  return IntEvent(p1,p2,HUGE_VAL, NONE, *this);
 }
 
 void
-CIParallelCubes::runEvent(const CParticle& p1,
-			  const CParticle& p2,
-			  const CIntEvent& iEvent) const
+IParallelCubes::runEvent(const Particle& p1,
+			  const Particle& p2,
+			  const IntEvent& iEvent) const
 {
 
   ++Sim->lNColl;
@@ -144,7 +144,7 @@ CIParallelCubes::runEvent(const CParticle& p1,
 }
    
 void 
-CIParallelCubes::outputXML(xmlw::XmlStream& XML) const
+IParallelCubes::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "ParallelCubes"
       << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
@@ -154,7 +154,7 @@ CIParallelCubes::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-CIParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+IParallelCubes::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 
@@ -169,7 +169,7 @@ CIParallelCubes::checkOverlaps(const CParticle& part1, const CParticle& part2) c
 }
 
 void 
-CIParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
+IParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
   os << "#declare intrep" << ID << " = " 

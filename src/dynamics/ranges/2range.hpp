@@ -23,7 +23,7 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CParticle;
+class Particle;
 
 namespace DYNAMO
 {
@@ -35,7 +35,7 @@ class C2Range
 public:
   virtual ~C2Range() {};
  
-  virtual bool isInRange(const CParticle&, const CParticle&) const =0;  
+  virtual bool isInRange(const Particle&, const Particle&) const =0;  
   virtual void operator<<(const XMLNode& XML) = 0;
   
   virtual C2Range* Clone() const = 0;

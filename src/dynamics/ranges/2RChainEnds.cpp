@@ -54,7 +54,7 @@ C2RChainEnds::C2RChainEnds(size_t r1, size_t r2,
 }
 
 bool 
-C2RChainEnds::isInRange(const CParticle&p1, const CParticle&p2) const
+C2RChainEnds::isInRange(const Particle&p1, const Particle&p2) const
 {
   if (p1.getID() > p2.getID())
     return ((p1.getID() <= rangeEnd) && (p2.getID() >= rangeStart)

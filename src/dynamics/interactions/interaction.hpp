@@ -27,7 +27,7 @@
 #define eps2 1e-10 //Min overlap distance
 
 class C2ParticleData;
-class CIntEvent;
+class IntEvent;
 class XMLNode;
 class CSpecies;
 class CRange;
@@ -37,19 +37,19 @@ namespace xmlw
   class XmlStream;
 }
 
-class CInteraction: public DYNAMO::SimBase
+class Interaction: public DYNAMO::SimBase
 {
 public:
-  CInteraction(DYNAMO::SimData*, C2Range*);
+  Interaction(DYNAMO::SimData*, C2Range*);
   
-  virtual ~CInteraction() {}
+  virtual ~Interaction() {}
 
   virtual void initialise(size_t) = 0;
 
-  virtual CIntEvent getEvent(const CParticle &, 
-			     const CParticle &) const = 0;
+  virtual IntEvent getEvent(const Particle &, 
+			     const Particle &) const = 0;
 
-  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const = 0;
+  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const = 0;
 
   virtual Iflt maxIntDist() const = 0;  
 
@@ -59,18 +59,18 @@ public:
 
   virtual void rescaleLengths(Iflt) = 0;
 
-  virtual CInteraction* Clone() const = 0; //{ return new OPBlank(*this); };
+  virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
 
   virtual void operator<<(const XMLNode&) = 0;
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CInteraction&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Interaction&);
  
-  static CInteraction* getClass(const XMLNode&, DYNAMO::SimData*);
+  static Interaction* getClass(const XMLNode&, DYNAMO::SimData*);
 
-  bool isInteraction(const CParticle &p1, const CParticle &p2) const
+  bool isInteraction(const Particle &p1, const Particle &p2) const
   { return range->isInRange(p1,p2); }
   
-  bool isInteraction(const CIntEvent &) const;
+  bool isInteraction(const IntEvent &) const;
 
   bool isInteraction(const CSpecies &) const;
 
@@ -82,9 +82,9 @@ public:
 
   const smrtPlugPtr<C2Range>& getRange() const;
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const = 0;
+  virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
 
-  virtual Iflt getColourFraction(const CParticle&) const { return 0.5; } 
+  virtual Iflt getColourFraction(const Particle&) const { return 0.5; } 
 
   inline const size_t& getID() const { return ID; }
 

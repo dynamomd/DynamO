@@ -31,7 +31,7 @@ public:
   virtual C2Range* Clone() const 
   { return new C2RList(*this); };
 
-  virtual bool isInRange(const CParticle&, const CParticle&) const;
+  virtual bool isInRange(const Particle&, const Particle&) const;
 
   void addPair(unsigned long, unsigned long);
   

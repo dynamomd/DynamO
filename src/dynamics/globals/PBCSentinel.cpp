@@ -48,7 +48,7 @@ CGPBCSentinel::initialise(size_t nID)
   
   cachedTimes.resize(Sim->lN);
   
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     cachedTimes[part.getID()] = Sim->dSysTime;
 
   Sim->registerParticleUpdateFunc
@@ -82,7 +82,7 @@ CGPBCSentinel::operator<<(const XMLNode& XML)
 }
 
 CGlobEvent 
-CGPBCSentinel::getEvent(const CParticle& part) const
+CGPBCSentinel::getEvent(const Particle& part) const
 {
   Iflt dt 
     = Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
@@ -92,7 +92,7 @@ CGPBCSentinel::getEvent(const CParticle& part) const
 }
 
 void 
-CGPBCSentinel::runEvent(const CParticle& part) const
+CGPBCSentinel::runEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

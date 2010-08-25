@@ -24,7 +24,7 @@ OP2PP::OP2PP(const DYNAMO::SimData* t1,const char *t2):
 {}
 
 void 
-OP2PP::eventUpdate(const CIntEvent &event, 
+OP2PP::eventUpdate(const IntEvent &event, 
 		    const C2ParticleData &SDat) 
 {
   stream(event.getdt());

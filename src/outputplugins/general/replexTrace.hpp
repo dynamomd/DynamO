@@ -31,7 +31,7 @@ public:
 
   ~OPReplexTrace();
 
-  void eventUpdate(const CIntEvent&, const C2ParticleData&) {}
+  void eventUpdate(const IntEvent&, const C2ParticleData&) {}
 
   void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
 

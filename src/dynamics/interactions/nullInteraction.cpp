@@ -23,21 +23,21 @@
 #include "../2particleEventData.hpp"
 #include <cstring>
 
-CINull::CINull(DYNAMO::SimData* tmp, C2Range* nR):
-  CInteraction(tmp, nR) {}
+INull::INull(DYNAMO::SimData* tmp, C2Range* nR):
+  Interaction(tmp, nR) {}
 
-CINull::CINull(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL)
+INull::INull(const XMLNode& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
 
 void 
-CINull::initialise(size_t nID)
+INull::initialise(size_t nID)
 { ID=nID; }
 
 void 
-CINull::operator<<(const XMLNode& XML)
+INull::operator<<(const XMLNode& XML)
 { 
   if (std::strcmp(XML.getAttribute("Type"),"Null"))
     D_throw() << "Attempting to load NullInteraction from " 
@@ -56,35 +56,35 @@ CINull::operator<<(const XMLNode& XML)
 }
 
 Iflt 
-CINull::maxIntDist() const 
+INull::maxIntDist() const 
 { return 0; }
 
 Iflt 
-CINull::hardCoreDiam() const 
+INull::hardCoreDiam() const 
 { return 0; }
 
 void 
-CINull::rescaleLengths(Iflt) 
+INull::rescaleLengths(Iflt) 
 {}
 
-CInteraction* 
-CINull::Clone() const 
-{ return new CINull(*this); }
+Interaction* 
+INull::Clone() const 
+{ return new INull(*this); }
   
-CIntEvent 
-CINull::getEvent(const CParticle &p1, const CParticle &p2) const 
+IntEvent 
+INull::getEvent(const Particle &p1, const Particle &p2) const 
 { 
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CINull::runEvent(const CParticle&, const CParticle&, const CIntEvent&) const
+INull::runEvent(const Particle&, const Particle&, const IntEvent&) const
 { 
   D_throw() << "Null event trying to run a collision!"; 
 }
    
 void 
-CINull::outputXML(xmlw::XmlStream& XML) const
+INull::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "Null"
       << xmlw::attr("Name") << intName
@@ -92,5 +92,5 @@ CINull::outputXML(xmlw::XmlStream& XML) const
 }
 
 void
-CINull::checkOverlaps(const CParticle&, const CParticle&) const
+INull::checkOverlaps(const Particle&, const Particle&) const
 {}

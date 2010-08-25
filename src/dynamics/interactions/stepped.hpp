@@ -20,19 +20,19 @@
 
 #include "captures.hpp"
 
-class CIStepped: public CIMultiCapture
+class IStepped: public IMultiCapture
 {
 public:
   typedef std::pair<Iflt,Iflt> steppair;
 
-  CIStepped(DYNAMO::SimData*, const std::vector<steppair>&,
+  IStepped(DYNAMO::SimData*, const std::vector<steppair>&,
 	    C2Range*);
 
-  CIStepped(const XMLNode&, DYNAMO::SimData*);
+  IStepped(const XMLNode&, DYNAMO::SimData*);
   
   void operator<<(const XMLNode&);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
 
   virtual Iflt hardCoreDiam() const;
 
@@ -40,16 +40,16 @@ public:
 
   virtual void rescaleLengths(Iflt);
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual int captureTest(const CParticle&, const CParticle&) const;
+  virtual int captureTest(const Particle&, const Particle&) const;
 
   virtual void initialise(size_t);
 
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-  virtual void runEvent(const CParticle&, const CParticle&, 
-			const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, 
+			const IntEvent&) const;
   
   virtual void outputXML(xmlw::XmlStream&) const;
 

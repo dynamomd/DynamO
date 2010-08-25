@@ -24,7 +24,7 @@ OPCollTicker::OPCollTicker(const DYNAMO::SimData* t1,const char *t2, unsigned ch
 {}
 
 void 
-OPCollTicker::eventUpdate(const CIntEvent &event, 
+OPCollTicker::eventUpdate(const IntEvent &event, 
 		    const C2ParticleData &) 
 {
   stream(event.getdt());

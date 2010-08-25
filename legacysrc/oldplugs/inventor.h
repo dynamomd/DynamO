@@ -8,7 +8,7 @@
 class COPInventor: public COutputPlugin
 {
  public:
-  COPInventor(const std::vector<CParticle> &, const CDynamics * const);
+  COPInventor(const std::vector<Particle> &, const CDynamics * const);
   ~COPInventor();
   
   void collisionUpdate(const CCollision &, const CEventData &);

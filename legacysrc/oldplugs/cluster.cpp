@@ -48,7 +48,7 @@ OPCluster::makeScene(Iflt length)
   
    
   //Particle points
-  for (std::vector<CParticle>::const_iterator iPtr = particleList.begin ();
+  for (std::vector<Particle>::const_iterator iPtr = particleList.begin ();
        iPtr  != particleList.end (); iPtr++)
     {
       //Prep the vectors for plotting
@@ -76,12 +76,12 @@ OPCluster::makeScene(Iflt length)
   
   Vector  vec, rij, pos1, pos2;
   //Now draw the links in
-  for (std::vector<CParticle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
+  for (std::vector<Particle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
     {
       pos1 = iPtr->getPosition();
       dynamics->setPBC(pos1);
       
-      std::vector<CParticle>::const_iterator jPtr = iPtr;
+      std::vector<Particle>::const_iterator jPtr = iPtr;
       jPtr++;
       
       for (; jPtr != particleList.end(); jPtr++)
@@ -159,7 +159,7 @@ OPCluster::viewClusters(Iflt length)
   SoXt::mainLoop();
 }
 
-OPCluster::OPCluster(const std::vector<CParticle> &pList, const Dynamics * const dyn):
+OPCluster::OPCluster(const std::vector<Particle> &pList, const Dynamics * const dyn):
   OutputPlugin(pList,dyn)
 {
   std::cout << "OPCluster: Loaded\n";
@@ -199,7 +199,7 @@ OPCluster::writeToFile(SoSeparator *root, char *filename)
 
 
 void 
-OPCluster::collisionUpdate(const CIntEvent &collision, const CIntEventData &preColl)
+OPCluster::collisionUpdate(const IntEvent &collision, const CIntEventData &preColl)
 {}
 
 void
@@ -220,9 +220,9 @@ OPCluster::output(xmlw::XmlStream &XML)
     {
       linkCount = 0;
       
-      for (std::vector<CParticle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
+      for (std::vector<Particle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
 	{
-	  std::vector<CParticle>::const_iterator jPtr = iPtr;
+	  std::vector<Particle>::const_iterator jPtr = iPtr;
 	  jPtr++;
 	  for (; jPtr != particleList.end(); jPtr++)
 	    {
@@ -254,9 +254,9 @@ OPCluster::orderParameter(Iflt length)
   
   Vector  rij;
 
-  for (std::vector<CParticle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
+  for (std::vector<Particle>::const_iterator iPtr = particleList.begin(); iPtr != particleList.end(); iPtr++)
     {
-      std::vector<CParticle>::const_iterator jPtr = iPtr;
+      std::vector<Particle>::const_iterator jPtr = iPtr;
       jPtr++;
       for (; jPtr != particleList.end(); jPtr++)
 	{

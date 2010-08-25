@@ -41,7 +41,7 @@ public:
 
   virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&); 
   
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
 
   virtual void operator<<(const XMLNode&);
 

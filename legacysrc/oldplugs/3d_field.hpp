@@ -27,7 +27,7 @@ class OP3DField: public OutputPlugin
   OP3DField(DYNAMO::SimData*);
   ~OP3DField();
 
-  void collisionUpdate(const CIntEvent &, const CIntEventData &);
+  void collisionUpdate(const IntEvent &, const CIntEventData &);
   
   void output(xmlw::XmlStream &);
 

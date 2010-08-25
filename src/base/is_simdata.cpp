@@ -84,14 +84,14 @@ namespace DYNAMO
     Iflt scale1(sqrt(other.Ensemble->getEnsembleVals()[2]
 		     / Ensemble->getEnsembleVals()[2]));
     
-    BOOST_FOREACH(CParticle& part, vParticleList)
+    BOOST_FOREACH(Particle& part, vParticleList)
       part.scaleVelocity(scale1);
     
     other.ptrScheduler->rescaleTimes(scale1);
     
     Iflt scale2(1.0 / scale1);
 
-    BOOST_FOREACH(CParticle& part, other.vParticleList)
+    BOOST_FOREACH(Particle& part, other.vParticleList)
       part.scaleVelocity(scale2);
     
     ptrScheduler->rescaleTimes(scale2);

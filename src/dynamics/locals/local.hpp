@@ -29,7 +29,7 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CIntEvent;
+class IntEvent;
 class CNParticleData;
 class CLocalEvent;
 
@@ -42,13 +42,13 @@ public:
   
   virtual ~CLocal() {}
 
-  bool isInteraction(const CParticle&) const;
+  bool isInteraction(const Particle&) const;
 
   virtual CLocal* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  virtual CLocalEvent getEvent(const CParticle&) const = 0;
+  virtual CLocalEvent getEvent(const Particle&) const = 0;
 
-  virtual void runEvent(const CParticle&, const CLocalEvent&) const = 0;
+  virtual void runEvent(const Particle&, const CLocalEvent&) const = 0;
   
   virtual bool isInCell(const Vector &, const Vector &) const = 0;
 
@@ -68,7 +68,7 @@ public:
 
   virtual void write_povray_info(std::ostream&) const {}
 
-  virtual void checkOverlaps(const CParticle&) const  {}
+  virtual void checkOverlaps(const Particle&) const  {}
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const = 0;

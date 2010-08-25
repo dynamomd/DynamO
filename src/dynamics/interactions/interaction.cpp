@@ -25,66 +25,66 @@
 #include "../../base/is_simdata.hpp"
 #include <cstring>
 
-CInteraction::CInteraction(DYNAMO::SimData* tmp, C2Range* nR):
+Interaction::Interaction(DYNAMO::SimData* tmp, C2Range* nR):
   SimBase(tmp,"Interaction",IC_blue),
   range(nR)
 {}
 
 bool 
-CInteraction::isInteraction(const CIntEvent &coll) const
+Interaction::isInteraction(const IntEvent &coll) const
 { 
   return isInteraction(Sim->vParticleList[coll.getParticle1ID()],
 		       Sim->vParticleList[coll.getParticle2ID()]); 
 }
 
 bool 
-CInteraction::isInteraction(const CSpecies &speci) const
+Interaction::isInteraction(const CSpecies &speci) const
 {
   return !(intName.compare(speci.getIntName()));
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CInteraction& g)
+			    const Interaction& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 smrtPlugPtr<C2Range>& 
-CInteraction::getRange() 
+Interaction::getRange() 
 { return range; }
 
 const smrtPlugPtr<C2Range>& 
-CInteraction::getRange() const
+Interaction::getRange() const
 { return range; }
 
-CInteraction*
-CInteraction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
+Interaction*
+Interaction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
 {
   if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
-    return new CIHardSphere(XML, Sim);
+    return new IHardSphere(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
     return new IRoughHardSphere(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"SquareWell"))
-    return new CISquareWell(XML, Sim);
+    return new ISquareWell(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
-    return new CISWSequence(XML, Sim);
+    return new ISWSequence(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"SquareBond"))
-    return new CISquareBond(XML, Sim);
+    return new ISquareBond(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"SoftCore"))
-    return new CISoftCore(XML, Sim);
+    return new ISoftCore(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Null"))
-    return new CINull(XML, Sim);
+    return new INull(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Lines"))
-    return new CILines(XML, Sim);
+    return new ILines(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"ParallelCubes"))
-    return new CIParallelCubes(XML, Sim);
+    return new IParallelCubes(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
-    return new CIRotatedParallelCubes(XML, Sim);
+    return new IRotatedParallelCubes(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))
-    return new CIStepped(XML, Sim);
+    return new IStepped(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"InfiniteMass"))
-    return new CIInfiniteMass(XML, Sim);
+    return new IInfiniteMass(XML, Sim);
   else 
     D_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of interaction encountered";

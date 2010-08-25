@@ -35,22 +35,22 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-CISquareWell::CISquareWell(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, 
+ISquareWell::ISquareWell(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, 
 			   Iflt nWD, 
 			   Iflt ne, C2Range* nR):
-  CISingleCapture(tmp,nR),
+  ISingleCapture(tmp,nR),
   diameter(nd), d2(nd*nd), lambda(nl), 
   ld2(nd*nd*nl*nl), wellDepth(nWD),
   e(ne) {}
 
-CISquareWell::CISquareWell(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CISingleCapture(tmp, NULL) //A temporary value!
+ISquareWell::ISquareWell(const XMLNode& XML, DYNAMO::SimData* tmp):
+  ISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 void 
-CISquareWell::operator<<(const XMLNode& XML)
+ISquareWell::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SquareWell"))
     D_throw() << "Attempting to load SquareWell from non SquareWell entry";
@@ -74,7 +74,7 @@ CISquareWell::operator<<(const XMLNode& XML)
     
     intName = XML.getAttribute("Name");
 
-    CISingleCapture::loadCaptureMap(XML);   
+    ISingleCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -82,20 +82,20 @@ CISquareWell::operator<<(const XMLNode& XML)
     }
 }
 
-CInteraction* 
-CISquareWell::Clone() const 
-{ return new CISquareWell(*this); }
+Interaction* 
+ISquareWell::Clone() const 
+{ return new ISquareWell(*this); }
 
 Iflt 
-CISquareWell::hardCoreDiam() const 
+ISquareWell::hardCoreDiam() const 
 { return diameter; }
 
 Iflt 
-CISquareWell::maxIntDist() const 
+ISquareWell::maxIntDist() const 
 { return diameter * lambda; }
 
 void 
-CISquareWell::rescaleLengths(Iflt scale) 
+ISquareWell::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter; 
 
@@ -105,14 +105,14 @@ CISquareWell::rescaleLengths(Iflt scale)
 }
 
 void 
-CISquareWell::initialise(size_t nID)
+ISquareWell::initialise(size_t nID)
 {
   ID = nID;
-  CISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap();
 }
 
 bool 
-CISquareWell::captureTest(const CParticle& p1, const CParticle& p2) const
+ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -127,9 +127,9 @@ CISquareWell::captureTest(const CParticle& p1, const CParticle& p2) const
   return (rij | rij) <= ld2;
 }
 
-CIntEvent
-CISquareWell::getEvent(const CParticle &p1, 
-		       const CParticle &p2) const 
+IntEvent
+ISquareWell::getEvent(const Particle &p1, 
+		       const Particle &p2) const 
 {
   
 #ifdef DYNAMO_DEBUG
@@ -158,12 +158,12 @@ CISquareWell::getEvent(const CParticle &p1,
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif
 	  
-	  return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
       else
 	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
 	  {  
-	    return CIntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	    return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
 	  }
     }
   else if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, ld2)) 
@@ -187,16 +187,16 @@ CISquareWell::getEvent(const CParticle &p1,
 	}
 #endif
 
-      return CIntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CISquareWell::runEvent(const CParticle& p1, 
-		       const CParticle& p2,
-		       const CIntEvent& iEvent) const
+ISquareWell::runEvent(const Particle& p1, 
+		       const Particle& p2,
+		       const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
 
@@ -253,7 +253,7 @@ CISquareWell::runEvent(const CParticle& p1,
 }
 
 void
-CISquareWell::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -296,7 +296,7 @@ CISquareWell::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 }
   
 void 
-CISquareWell::outputXML(xmlw::XmlStream& XML) const
+ISquareWell::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "SquareWell"
       << xmlw::attr("Diameter") 
@@ -308,11 +308,11 @@ CISquareWell::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Name") << intName
       << range;
   
-  CISingleCapture::outputCaptureMap(XML);  
+  ISingleCapture::outputCaptureMap(XML);  
 }
 
 void 
-CISquareWell::write_povray_desc(const DYNAMO::RGB& rgb, 
+ISquareWell::write_povray_desc(const DYNAMO::RGB& rgb, 
 				const size_t& specID, 
 				std::ostream& os) const
 {

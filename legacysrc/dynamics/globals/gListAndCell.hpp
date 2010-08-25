@@ -36,7 +36,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void getParticleNeighbourhood(const CParticle&, 
+  virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const;
 
   virtual void operator<<(const XMLNode&);

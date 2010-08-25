@@ -31,7 +31,7 @@ namespace xmlw
 class XmlStream;
 }
 
-class CIntEvent;
+class IntEvent;
 namespace DYNAMO
 {
   class SimData;

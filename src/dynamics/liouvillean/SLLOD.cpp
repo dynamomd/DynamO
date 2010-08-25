@@ -32,14 +32,14 @@ LSLLOD::LSLLOD(DYNAMO::SimData* tmp):
 {}
 
 void
-LSLLOD::streamParticle(CParticle& particle, const Iflt& dt) const
+LSLLOD::streamParticle(Particle& particle, const Iflt& dt) const
 {
   particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
 }
 
 bool 
-LSLLOD::DSMCSpheresTest(const CParticle& p1, 
-			 const CParticle& p2, 
+LSLLOD::DSMCSpheresTest(const Particle& p1, 
+			 const Particle& p2, 
 			 Iflt& maxprob,
 			 const Iflt& factor,
 			 CPDData& pdat) const
@@ -60,8 +60,8 @@ LSLLOD::DSMCSpheresTest(const CParticle& p1,
 }
 
 C2ParticleData
-LSLLOD::DSMCSpheresRun(const CParticle& p1, 
-			 const CParticle& p2, 
+LSLLOD::DSMCSpheresRun(const Particle& p1, 
+			 const Particle& p2, 
 			 const Iflt& e,
 			 CPDData& pdat) const
 {
@@ -85,8 +85,8 @@ LSLLOD::DSMCSpheresRun(const CParticle& p1,
 			    / retVal.rij.nrm2());  
 
   //This function must edit particles so it overrides the const!
-  const_cast<CParticle&>(p1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<CParticle&>(p2).getVelocity() += retVal.dP / p2Mass;
+  const_cast<Particle&>(p1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(p2).getVelocity() += retVal.dP / p2Mass;
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (p1.getVelocity().nrm2() 
@@ -140,13 +140,13 @@ LSLLOD::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 }
 
 C1ParticleData 
-LSLLOD::randomGaussianEvent(const CParticle& part, const Iflt& sqrtT) const
+LSLLOD::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
 {
   D_throw() << "Not Implemented";
 }
 
 Iflt 
-LSLLOD::getWallCollision(const CParticle &part, 
+LSLLOD::getWallCollision(const Particle &part, 
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
 {
@@ -155,7 +155,7 @@ LSLLOD::getWallCollision(const CParticle &part,
 
 
 C1ParticleData 
-LSLLOD::runWallCollision(const CParticle &part, 
+LSLLOD::runWallCollision(const Particle &part, 
 			   const Vector  &vNorm,
 			   const Iflt& e
 			   ) const
@@ -164,7 +164,7 @@ LSLLOD::runWallCollision(const CParticle &part,
 }
 
 C1ParticleData 
-LSLLOD::runAndersenWallCollision(const CParticle& part, 
+LSLLOD::runAndersenWallCollision(const Particle& part, 
 			 const Vector & vNorm,
 			 const Iflt& sqrtT
 			 ) const
@@ -173,7 +173,7 @@ LSLLOD::runAndersenWallCollision(const CParticle& part,
 }
 
 Iflt
-LSLLOD::getSquareCellCollision2(const CParticle& part, 
+LSLLOD::getSquareCellCollision2(const Particle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -181,7 +181,7 @@ LSLLOD::getSquareCellCollision2(const CParticle& part,
 }
 
 int
-LSLLOD::getSquareCellCollision3(const CParticle& part, 
+LSLLOD::getSquareCellCollision3(const Particle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
 {
@@ -189,14 +189,14 @@ LSLLOD::getSquareCellCollision3(const CParticle& part,
 }
 
 C2ParticleData 
-LSLLOD::SmoothSpheresColl(const CIntEvent& event, const Iflt& e,
+LSLLOD::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
   D_throw() << "Not Implemented";
 }
 
 C2ParticleData 
-LSLLOD::SphereWellEvent(const CIntEvent& event, const Iflt& deltaKE,
+LSLLOD::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
 			 const Iflt &) const
 {
   D_throw() << "Not Implemented";

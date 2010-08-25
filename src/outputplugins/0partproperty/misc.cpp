@@ -70,7 +70,7 @@ OPMisc::initialise()
   Vector  sumMV (0,0,0);
 
   //Determine the discrepancy VECTOR
-  BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
+  BOOST_FOREACH( const Particle & Part, Sim->vParticleList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       Sim->dynamics.BCs().applyBC(pos, vel);
@@ -98,7 +98,7 @@ OPMisc::initialise()
 }
 
 void
-OPMisc::eventUpdate(const CIntEvent&, const C2ParticleData&)
+OPMisc::eventUpdate(const IntEvent&, const C2ParticleData&)
 {
   dualEvents++;
 }
@@ -258,7 +258,7 @@ OPMisc::output(xmlw::XmlStream &XML)
   Vector  sumMV (0,0,0);
 
   //Determine the discrepancy VECTOR
-  BOOST_FOREACH( const CParticle & Part, Sim->vParticleList)
+  BOOST_FOREACH( const Particle & Part, Sim->vParticleList)
     sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
 
   XML << xmlw::tag("Total_momentum")

@@ -31,7 +31,7 @@ class OPETA: public OutputPlugin
 
   virtual void initialise();
 
-  virtual void eventUpdate(const CIntEvent&, const C2ParticleData&) {}
+  virtual void eventUpdate(const IntEvent&, const C2ParticleData&) {}
 
   virtual void eventUpdate(const CGlobEvent&, const CNParticleData&) {}
 

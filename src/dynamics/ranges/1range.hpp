@@ -26,7 +26,7 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CParticle;
+class Particle;
 namespace DYNAMO
 {
   class SimData;
@@ -79,7 +79,7 @@ public:
 
   virtual ~CRange() {};
 
-  virtual bool isInRange(const CParticle&) const = 0;
+  virtual bool isInRange(const Particle&) const = 0;
 
   virtual void operator<<(const XMLNode&) = 0;  
 

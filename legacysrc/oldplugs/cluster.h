@@ -10,7 +10,7 @@
 class COPCluster: public COutputPlugin
 {
  public:
-  COPCluster(const std::vector<CParticle> &, const CDynamics * const );
+  COPCluster(const std::vector<Particle> &, const CDynamics * const );
   ~COPCluster();
  
   void collisionUpdate(const CCollision &, const CEventData &b);

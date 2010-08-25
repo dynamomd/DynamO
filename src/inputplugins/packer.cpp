@@ -293,7 +293,7 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  elasticity =  vm["f1"].as<Iflt>();
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, elasticity,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -306,7 +306,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -363,7 +363,7 @@ CIPPacker::initialise()
 	if (vm.count("f2"))
 	  wellDepth = vm["f2"].as<Iflt>();
 
-	Sim->dynamics.addInteraction(new CISquareWell(Sim, particleDiam,
+	Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam,
 						      lambda, wellDepth, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
@@ -376,7 +376,7 @@ CIPPacker::initialise()
 
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -425,7 +425,7 @@ CIPPacker::initialise()
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction
-	  (new CISquareBond(Sim, sigmin * diamScale,
+	  (new ISquareBond(Sim, sigmin * diamScale,
 			    sigmax / sigmin,
 			    new C2RChain(0, latticeSites.size()-1)
 			    )
@@ -456,11 +456,11 @@ CIPPacker::initialise()
 	    if (has1 && has0)
 	      {
 		Sim->dynamics.addInteraction
-		  (new CISWSequence(Sim, sigma * diamScale, lambda, 1.0,
+		  (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
 				    seq, new C2RAll()))->setName("Bulk");
 		
-		CISWSequence& interaction
-		  (static_cast<CISWSequence&>
+		ISWSequence& interaction
+		  (static_cast<ISWSequence&>
 		   (*(Sim->dynamics.getInteraction("Bulk"))));
 		interaction.getAlphabet().at(0).at(0) = 1.0;
 		
@@ -469,18 +469,18 @@ CIPPacker::initialise()
 		interaction.getAlphabet().at(0).at(1) = 0.5;
 	      }
 	    else if (has0 && !has1)
-	      Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
+	      Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
 							    lambda, 1.0,
 							    1.0,
 							    new C2RAll()
 							    ))->setName("Bulk");
 	    else if (has1 && !has0)
-	      Sim->dynamics.addInteraction(new CIHardSphere(Sim, sigma * diamScale, 1.0,
+	      Sim->dynamics.addInteraction(new IHardSphere(Sim, sigma * diamScale, 1.0,
 							    new C2RAll()
 							    ))->setName("Bulk");
 	  }
 	else
-	  Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
+	  Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
 							lambda, 1.0,
 							1.0,
 							new C2RAll()
@@ -501,7 +501,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
 
@@ -556,7 +556,7 @@ CIPPacker::initialise()
 	Sim->dynamics.applyBC<BCSquarePeriodic>();
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -571,7 +571,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -616,7 +616,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, alpha,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, alpha,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -630,11 +630,11 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
-	BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+	BOOST_FOREACH(Particle& part, Sim->vParticleList)
 	  part.getVelocity()[0] += part.getPosition()[1] * ShearRate;
 
 	Sim->Ensemble.reset(new DYNAMO::CENVShear(Sim));
@@ -696,11 +696,11 @@ CIPPacker::initialise()
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction
-	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
+	  (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
 			    new C2RChain(0, latticeSites.size()-1)
 			    ))->setName("Bonds");
 
-	Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
+	Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
 						      lambda, 1.0,
 						      1.0,
 						      new C2RAll()
@@ -720,7 +720,7 @@ CIPPacker::initialise()
 
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -784,7 +784,7 @@ CIPPacker::initialise()
 
 	Iflt lambda = 1.5;
 
-	Sim->dynamics.addInteraction(new CISquareWell(Sim, particleDiam, lambda,
+	Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam, lambda,
 						      1.0, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
@@ -798,7 +798,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -850,7 +850,7 @@ CIPPacker::initialise()
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction
-	  (new CISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
+	  (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
 			    (vm.count("b1"))
 			    ? static_cast<C2Range*>(new C2RChain(0, latticeSites.size()-1))
 			    : static_cast<C2Range*>(new C2RRing(0, latticeSites.size()-1))
@@ -860,7 +860,7 @@ CIPPacker::initialise()
 	  {
 	    Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
 
-	    Sim->dynamics.addInteraction(new CISquareWell(Sim, sigma * diamScale,
+	    Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
 							  lambda, 1.0,
 							  1.0,
 							  new C2RAll()
@@ -870,7 +870,7 @@ CIPPacker::initialise()
 	  {
 	    Sim->dynamics.setUnits(new UHardSphere(diamScale, Sim));
 
-	    Sim->dynamics.addInteraction(new CIHardSphere(Sim, diamScale, 1.0,
+	    Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
 							  new C2RAll()
 							  ))->setName("Bulk");
 	  }
@@ -888,7 +888,7 @@ CIPPacker::initialise()
 
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -946,19 +946,19 @@ CIPPacker::initialise()
 	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, particleDiam, 1.0,
+	  (new IHardSphere(Sim, particleDiam, 1.0,
 			    new C2RSingle(new CRRange(0, nA - 1)))
 	   )->setName("AAInt");
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
+	  (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
 			    1.0,
 			    new C2RPair(new CRRange(0, nA - 1),
 					new CRRange(nA, latticeSites.size()-1)))
 	   )->setName("ABInt");
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0,
+	  (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			    new C2RAll()))->setName("BBInt");
 
 	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
@@ -975,7 +975,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1024,7 +1024,7 @@ CIPPacker::initialise()
 
 	Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
 
-	Sim->dynamics.addInteraction(new CILines(Sim, particleDiam, elasticity,
+	Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -1040,7 +1040,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
@@ -1083,11 +1083,11 @@ CIPPacker::initialise()
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction
-	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+	  (new INull(Sim, new C2RAll()))->setName("Catchall");
 
 	//This is to provide data on the particles
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere
+	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
 	//Iflt chi = 1.0 /
@@ -1115,7 +1115,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1161,11 +1161,11 @@ CIPPacker::initialise()
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction
-	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+	  (new INull(Sim, new C2RAll()))->setName("Catchall");
 
 	//This is to provide data on the particles
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere
+	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
 	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
@@ -1186,7 +1186,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1238,7 +1238,7 @@ CIPPacker::initialise()
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction
-	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+	  (new INull(Sim, new C2RAll()))->setName("Catchall");
 
 	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
@@ -1341,12 +1341,12 @@ CIPPacker::initialise()
 
 	//This is to provide data on the particles
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, particleDiam, 1.0,
+	  (new IHardSphere(Sim, particleDiam, 1.0,
 			    new C2RSingle(new CRRange(0, nA - 1)))
 	   )->setName("AAInt");
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, sizeRatio * particleDiam, 1.0,
+	  (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			    new C2RSingle(new CRRange(nA, latticeSites.size()-1)))
 	   )->setName("BBInt");
 
@@ -1381,7 +1381,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1414,7 +1414,7 @@ CIPPacker::initialise()
 
   Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
 
-	Sim->dynamics.addInteraction(new CILines(Sim, particleDiam, elasticity,
+	Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -1428,7 +1428,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
@@ -1503,12 +1503,12 @@ CIPPacker::initialise()
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, particleDiam, 1.0,
+	  (new IHardSphere(Sim, particleDiam, 1.0,
 			    new C2RSingle(new CRRange(0, nPartA - 1)))
 	   )->setName("AAInt");
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
+	  (new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
 			    1.0,
 			    new C2RPair
 			    (new CRRange(0, nPartA - 1),
@@ -1516,20 +1516,20 @@ CIPPacker::initialise()
 	   )->setName("ABInt");
 
 	Sim->dynamics.addInteraction
-	  (new CISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
+	  (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
 			    new C2RChains(nPartA, latticeSites.size() - 1,
 					  chainlength)
 			    ))->setName("Bonds");
 
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0,
+	  (new IHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0,
 			    new C2RChainEnds
 			    (nPartA, latticeSites.size() - 1,
 			     chainlength)))->setName("RodEnds");
 
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere(Sim, particleDiamB, 1.0,
+	  (new IHardSphere(Sim, particleDiamB, 1.0,
 			    new C2RAll()))->setName("BBInt");
 
 	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
@@ -1546,7 +1546,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1609,12 +1609,12 @@ CIPPacker::initialise()
 						 "Wall3", new CRAll(Sim)));
 	  }
 
-	//Sim->dynamics.addInteraction(new CIRotatedParallelCubes
+	//Sim->dynamics.addInteraction(new IRotatedParallelCubes
 	//			     (Sim, particleDiam, 1.0,
 	//			      Matrix(1,0,0,0,1,0,0,0,1),
 	//			      new C2RAll()))->setName("Bulk");
 
-	Sim->dynamics.addInteraction(new CIParallelCubes
+	Sim->dynamics.addInteraction(new IParallelCubes
 				     (Sim, particleDiam, 1.0,
 				      new C2RAll()))->setName("Bulk");
 
@@ -1628,7 +1628,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position,
+	  (Particle(position,
 		     Vector(Sim->dynamics.units().unitVelocity(),
 			    Sim->dynamics.units().unitVelocity(),
 			    Sim->dynamics.units().unitVelocity()),
@@ -1646,7 +1646,7 @@ CIPPacker::initialise()
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    wobblespacing[iDim] = (Sim->aspectRatio[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
 
-	  BOOST_FOREACH(CParticle& part, Sim->vParticleList)
+	  BOOST_FOREACH(Particle& part, Sim->vParticleList)
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
 	}
@@ -1777,7 +1777,7 @@ CIPPacker::initialise()
 	    p.second *= Sim->dynamics.units().unitEnergy();
 	  }
 
-	Sim->dynamics.addInteraction(new CIStepped(Sim,
+	Sim->dynamics.addInteraction(new IStepped(Sim,
 						   diamvec,
 						   new C2RAll()
 						   ))->setName("Bulk");
@@ -1789,7 +1789,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1830,11 +1830,11 @@ CIPPacker::initialise()
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction
-	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+	  (new INull(Sim, new C2RAll()))->setName("Catchall");
 
 	//This is to provide data on the particles
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere
+	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
 	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
@@ -1875,7 +1875,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -1921,11 +1921,11 @@ CIPPacker::initialise()
 
 	//This is to stop interactions being used for these particles
 	Sim->dynamics.addInteraction
-	  (new CINull(Sim, new C2RAll()))->setName("Catchall");
+	  (new INull(Sim, new C2RAll()))->setName("Catchall");
 
 	//This is to provide data on the particles
 	Sim->dynamics.addInteraction
-	  (new CIHardSphere
+	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
 	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
@@ -1958,7 +1958,7 @@ CIPPacker::initialise()
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  Sim->vParticleList.push_back
-	  (CParticle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
@@ -2067,7 +2067,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 
 						      ParticleInelas,
 						      new C2RAll()
 						      ))->setName("Bulk");
@@ -2106,7 +2106,7 @@ CIPPacker::initialise()
 
 	for (size_t i(0); i < maxPart; ++i)
 	  Sim->vParticleList.push_back
-	    (CParticle(latticeSites[i], 
+	    (Particle(latticeSites[i], 
 		       getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		       nParticles++));
 
@@ -2175,7 +2175,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -2190,7 +2190,7 @@ CIPPacker::initialise()
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  {
 	    Sim->vParticleList.push_back
-	      (CParticle(position, getRandVelVec()
+	      (Particle(position, getRandVelVec()
 			 * Sim->dynamics.units().unitVelocity(),
 			 nParticles++));
 
@@ -2267,7 +2267,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addInteraction(new CIHardSphere(Sim, particleDiam, 1.0,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
@@ -2280,7 +2280,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->vParticleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(CParticle(position * boxlimit, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->vParticleList.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));

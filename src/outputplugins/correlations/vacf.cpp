@@ -113,7 +113,7 @@ OPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt)
 }
 
 void 
-OPVACF::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+OPVACF::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();

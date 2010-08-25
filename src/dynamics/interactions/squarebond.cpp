@@ -35,17 +35,17 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-CISquareBond::CISquareBond(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, C2Range* nR):
-  CInteraction(tmp,nR),
+ISquareBond::ISquareBond(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, C2Range* nR):
+  Interaction(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl) 
 {}
   
-CISquareBond::CISquareBond(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CInteraction(tmp,NULL) //A temporary value!
+ISquareBond::ISquareBond(const XMLNode& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp,NULL) //A temporary value!
 { operator<<(XML); }
 	    
 void 
-CISquareBond::operator<<(const XMLNode& XML)
+ISquareBond::operator<<(const XMLNode& XML)
 {
 if (strcmp(XML.getAttribute("Type"),"SquareBond"))
   D_throw() << "Attempting to load SquareBond from non SquareBond entry";
@@ -70,24 +70,24 @@ if (strcmp(XML.getAttribute("Type"),"SquareBond"))
     }
 }
 
-CInteraction* 
-CISquareBond::Clone() const 
-{ return new CISquareBond(*this); }
+Interaction* 
+ISquareBond::Clone() const 
+{ return new ISquareBond(*this); }
 
 Iflt 
-CISquareBond::getCaptureEnergy() const 
+ISquareBond::getCaptureEnergy() const 
 { return 0.0; }
 
 Iflt 
-CISquareBond::hardCoreDiam() const 
+ISquareBond::hardCoreDiam() const 
 { return diameter; }
 
 Iflt 
-CISquareBond::maxIntDist() const 
+ISquareBond::maxIntDist() const 
 { return diameter*lambda; }
 
 void 
-CISquareBond::rescaleLengths(Iflt scale) 
+ISquareBond::rescaleLengths(Iflt scale) 
 { 
   diameter += scale*diameter;
   d2 = diameter*diameter;
@@ -95,13 +95,13 @@ CISquareBond::rescaleLengths(Iflt scale)
 }
 
 void 
-CISquareBond::initialise(size_t nID)
+ISquareBond::initialise(size_t nID)
 {
   ID = nID;
 }
 
 bool 
-CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
+ISquareBond::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -117,7 +117,7 @@ CISquareBond::captureTest(const CParticle& p1, const CParticle& p2) const
 }
 
 void
-CISquareBond::checkOverlaps(const CParticle& part1, const CParticle& part2) const
+ISquareBond::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
@@ -140,9 +140,9 @@ CISquareBond::checkOverlaps(const CParticle& part1, const CParticle& part2) cons
 	     << ld2 / pow(Sim->dynamics.units().unitLength(),2);
 }
 
-CIntEvent 
-CISquareBond::getEvent(const CParticle &p1, 
-		       const CParticle &p2) const 
+IntEvent 
+ISquareBond::getEvent(const Particle &p1, 
+		       const Particle &p2) const 
 {    
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -166,20 +166,20 @@ CISquareBond::getEvent(const CParticle &p1,
 		  << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif      
-      return CIntEvent(p1, p2, colldat.dt, CORE, *this);
+      return IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
   else
     if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
       {
-	return CIntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
+	return IntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
       }
   
-  return CIntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
 }
 
 void
-CISquareBond::runEvent(const CParticle& p1, const CParticle& p2, 
-		       const CIntEvent& iEvent) const
+ISquareBond::runEvent(const Particle& p1, const Particle& p2, 
+		       const IntEvent& iEvent) const
 {
   ++Sim->lNColl;
 
@@ -202,7 +202,7 @@ CISquareBond::runEvent(const CParticle& p1, const CParticle& p2,
 }
     
 void 
-CISquareBond::outputXML(xmlw::XmlStream& XML) const
+ISquareBond::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Type") << "SquareBond"
       << xmlw::attr("Diameter") 
@@ -213,10 +213,10 @@ CISquareBond::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CISquareBond::write_povray_info(std::ostream& os) const
+ISquareBond::write_povray_info(std::ostream& os) const
 {  
-  BOOST_FOREACH(const CParticle& p1, Sim->vParticleList)
-    BOOST_FOREACH(const CParticle& p2, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& p1, Sim->vParticleList)
+    BOOST_FOREACH(const Particle& p2, Sim->vParticleList)
     if (range->isInRange(p1,p2) && (p1 != p2))
       {
 	Vector  pos1(p1.getPosition()), pos2(p2.getPosition());

@@ -45,7 +45,7 @@ CLCylinder::CLCylinder(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CLocalEvent 
-CLCylinder::getEvent(const CParticle& part) const
+CLCylinder::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -57,7 +57,7 @@ CLCylinder::getEvent(const CParticle& part) const
 }
 
 void
-CLCylinder::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
+CLCylinder::runEvent(const Particle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 

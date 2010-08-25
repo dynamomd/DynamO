@@ -28,7 +28,7 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CIntEvent;
+class IntEvent;
 class CNParticleData;
 class CGlobEvent;
 
@@ -41,13 +41,13 @@ public:
   
   virtual ~CGlobal() {}
 
-  bool isInteraction(const CParticle &) const;
+  bool isInteraction(const Particle &) const;
 
   virtual CGlobal* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  virtual CGlobEvent getEvent(const CParticle &) const = 0;
+  virtual CGlobEvent getEvent(const Particle &) const = 0;
 
-  virtual void runEvent(const CParticle&) const = 0;
+  virtual void runEvent(const Particle&) const = 0;
 
   virtual void initialise(size_t) = 0;
 

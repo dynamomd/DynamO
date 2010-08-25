@@ -23,15 +23,15 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 
-CICapture::CICapture(DYNAMO::SimData* tmp,C2Range* nR): 
-  CInteraction(tmp,nR)
+ICapture::ICapture(DYNAMO::SimData* tmp,C2Range* nR): 
+  Interaction(tmp,nR)
 {}
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
 void 
-CISingleCapture::initCaptureMap()
+ISingleCapture::initCaptureMap()
 {
   //If not loaded or invalidated
   if (noXmlLoad)
@@ -40,10 +40,10 @@ CISingleCapture::initCaptureMap()
       
       captureMap.clear();
       
-      for (std::vector<CParticle>::const_iterator iPtr 
+      for (std::vector<Particle>::const_iterator iPtr 
 	     = Sim->vParticleList.begin();
 	   iPtr != Sim->vParticleList.end(); iPtr++) 
-	for (std::vector<CParticle>::const_iterator iPtr2 = iPtr + 1;
+	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
 	     iPtr2 != Sim->vParticleList.end(); iPtr2++)
 	  if (range->isInRange(*iPtr, *iPtr2))
 	    if (captureTest(*iPtr,*iPtr2))	      
@@ -52,7 +52,7 @@ CISingleCapture::initCaptureMap()
 }
 
 void 
-CISingleCapture::loadCaptureMap(const XMLNode& XML)
+ISingleCapture::loadCaptureMap(const XMLNode& XML)
 {
   if (XML.nChildNode("CaptureMap"))
     {
@@ -85,7 +85,7 @@ CISingleCapture::loadCaptureMap(const XMLNode& XML)
 }
 
 void 
-CISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
+ISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
 {
   XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
 
@@ -101,7 +101,7 @@ CISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const
 }
 
 void
-CISingleCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
+ISingleCapture::addToCaptureMap(const Particle& p1, const Particle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
@@ -125,7 +125,7 @@ CISingleCapture::addToCaptureMap(const CParticle& p1, const CParticle& p2) const
 }
 
 void 
-CISingleCapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) const
+ISingleCapture::removeFromCaptureMap(const Particle& p1, const Particle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
@@ -151,7 +151,7 @@ CISingleCapture::removeFromCaptureMap(const CParticle& p1, const CParticle& p2) 
 //////////////////////////////////////////////////////
 
 void 
-CIMultiCapture::initCaptureMap()
+IMultiCapture::initCaptureMap()
 {
   //If not loaded or invalidated
   if (noXmlLoad)
@@ -160,10 +160,10 @@ CIMultiCapture::initCaptureMap()
       
       captureMap.clear();
       
-      for (std::vector<CParticle>::const_iterator iPtr 
+      for (std::vector<Particle>::const_iterator iPtr 
 	     = Sim->vParticleList.begin();
 	   iPtr != Sim->vParticleList.end(); iPtr++) 
-	for (std::vector<CParticle>::const_iterator iPtr2 = iPtr + 1;
+	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
 	     iPtr2 != Sim->vParticleList.end(); iPtr2++)
 	  if (range->isInRange(*iPtr, *iPtr2))
 	    {
@@ -176,7 +176,7 @@ CIMultiCapture::initCaptureMap()
 }
 
 void 
-CIMultiCapture::loadCaptureMap(const XMLNode& XML)
+IMultiCapture::loadCaptureMap(const XMLNode& XML)
 {
   if (XML.nChildNode("CaptureMap"))
     {
@@ -210,7 +210,7 @@ CIMultiCapture::loadCaptureMap(const XMLNode& XML)
 }
 
 void 
-CIMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
+IMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
 {
   XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
 
@@ -228,7 +228,7 @@ CIMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const
 
 
 bool 
-CIMultiCapture::isCaptured(const CParticle& p1, const CParticle& p2) const
+IMultiCapture::isCaptured(const Particle& p1, const Particle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())

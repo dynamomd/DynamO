@@ -84,7 +84,7 @@ OPMSD::calcMSD() const
 
   Iflt acc = 0.0;
   
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     acc += (part.getPosition() - initPos[part.getID()]).nrm2();
   
   return acc / (initPos.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());

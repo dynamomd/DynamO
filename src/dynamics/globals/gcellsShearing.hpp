@@ -36,12 +36,12 @@ public:
   virtual CGlobal* Clone() const 
   { return new CGCellsShearing(*this); }
   
-  virtual void runEvent(const CParticle&) const;
+  virtual void runEvent(const Particle&) const;
 
-  virtual void getParticleNeighbourhood(const CParticle&, 
+  virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const;
 
-  void getExtraLEParticleNeighbourhood(const CParticle& part,
+  void getExtraLEParticleNeighbourhood(const Particle& part,
 				       const nbHoodFunc& func) const;
 
 protected:

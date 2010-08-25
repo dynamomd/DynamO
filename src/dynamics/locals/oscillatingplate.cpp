@@ -46,7 +46,7 @@ CLOscillatingPlate::CLOscillatingPlate(const XMLNode& XML, DYNAMO::SimData* tmp)
 }
 
 CLocalEvent 
-CLOscillatingPlate::getEvent(const CParticle& part) const
+CLOscillatingPlate::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -71,7 +71,7 @@ CLOscillatingPlate::getEvent(const CParticle& part) const
 
 
 void
-CLOscillatingPlate::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
+CLOscillatingPlate::runEvent(const Particle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
   

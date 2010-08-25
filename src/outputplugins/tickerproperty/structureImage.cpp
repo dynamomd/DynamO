@@ -106,7 +106,7 @@ OPStructureImaging::printImage()
       BOOST_FOREACH(const size_t& pid, *prange)
 	{
 	  //This is all to make sure we walk along the structure
-	  const CParticle& part(Sim->vParticleList[pid]);
+	  const Particle& part(Sim->vParticleList[pid]);
 	  Vector  rij = part.getPosition() - lastpos;
 	  lastpos = part.getPosition();
 	  Sim->dynamics.BCs().applyBC(rij);

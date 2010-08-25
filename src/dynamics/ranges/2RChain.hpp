@@ -32,7 +32,7 @@ public:
   virtual C2Range* Clone() const 
   { return new C2RChain(*this); };
 
-  virtual bool isInRange(const CParticle&, const CParticle&) const;
+  virtual bool isInRange(const Particle&, const Particle&) const;
   
   virtual void operator<<(const XMLNode&);
   

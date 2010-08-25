@@ -112,7 +112,7 @@ OPThermalDiffusionE::initialise()
     sysMass += sp->getMass() * sp->getCount();
 
   //Sum up the constant Del G.
-  BOOST_FOREACH(const CParticle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
     {
       constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
       sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
@@ -296,7 +296,7 @@ OPThermalDiffusionE::eventUpdate(const CSystem&,
 }
   
 void 
-OPThermalDiffusionE::eventUpdate(const CIntEvent& iEvent, 
+OPThermalDiffusionE::eventUpdate(const IntEvent& iEvent, 
 				  const C2ParticleData& PDat)
 {
   stream(iEvent.getdt());

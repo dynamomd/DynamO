@@ -20,16 +20,16 @@
 
 #include "interaction.hpp"
 
-class CISquareBond: public CInteraction
+class ISquareBond: public Interaction
 {
 public:
-  CISquareBond(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  ISquareBond(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CISquareBond(const XMLNode&, DYNAMO::SimData*);
+  ISquareBond(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
 
   virtual Iflt hardCoreDiam() const;
 
@@ -41,13 +41,13 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual bool captureTest(const CParticle&, const CParticle&) const;
+  virtual bool captureTest(const Particle&, const Particle&) const;
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
     
   virtual void outputXML(xmlw::XmlStream&) const;
 

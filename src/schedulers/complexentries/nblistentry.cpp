@@ -66,7 +66,7 @@ CSCENBList::initialise()
 }
 
 void 
-CSCENBList::getParticleNeighbourhood(const CParticle& part, 
+CSCENBList::getParticleNeighbourhood(const Particle& part, 
 				     const CGNeighbourList::nbHoodFunc& func) const
 {
 #ifdef DYNAMO_DEBUG
@@ -81,7 +81,7 @@ CSCENBList::getParticleNeighbourhood(const CParticle& part,
 }
 
 void 
-CSCENBList::getParticleLocalNeighbourhood(const CParticle& part, 
+CSCENBList::getParticleLocalNeighbourhood(const Particle& part, 
 					  const CGNeighbourList::nbHoodFunc& func) const
 {
 #ifdef DYNAMO_DEBUG

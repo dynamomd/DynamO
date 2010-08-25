@@ -29,15 +29,15 @@ namespace xmlw
 {
   class XmlStream;
 }
-class CParticle;
-class CInteraction;
+class Particle;
+class Interaction;
 
 class CTopology:public DYNAMO::SimBase_const
 {
 public:  
   virtual ~CTopology() {}
 
-  bool isInStructure(const CParticle &) const;
+  bool isInStructure(const Particle &) const;
   
   const size_t& getID() const { return ID; }
   

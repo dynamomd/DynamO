@@ -40,44 +40,44 @@ public:
   virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  
   virtual bool sphereOverlap(const CPDData&, const Iflt&) const;
 
-  virtual void streamParticle(CParticle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const Iflt&) const;
 
-  virtual Iflt getSquareCellCollision2(const CParticle&, 
+  virtual Iflt getSquareCellCollision2(const Particle&, 
 				       const Vector &, 
 				       const Vector &
 				       ) const;
 
-  virtual int getSquareCellCollision3(const CParticle&, 
+  virtual int getSquareCellCollision3(const Particle&, 
 				      const Vector &, 
 				      const Vector &
 				      ) const;
   
-  virtual C2ParticleData SmoothSpheresColl(const CIntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
+  virtual C2ParticleData SmoothSpheresColl(const IntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
 
-  virtual bool DSMCSpheresTest(const CParticle&, const CParticle&, 
+  virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
 			       Iflt&, const Iflt&, CPDData&) const;
 
-  virtual C2ParticleData DSMCSpheresRun(const CParticle&, const CParticle&, 
+  virtual C2ParticleData DSMCSpheresRun(const Particle&, const Particle&, 
 					const Iflt&, CPDData&) const;
   
-  virtual C2ParticleData SphereWellEvent(const CIntEvent&, const Iflt&, const Iflt&) const;
+  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, const Iflt&) const;
 
-  virtual Iflt getWallCollision(const CParticle&, 
+  virtual Iflt getWallCollision(const Particle&, 
 				const Vector &, 
 				const Vector &
 				  ) const;
 
-  virtual C1ParticleData runWallCollision(const CParticle&, 
+  virtual C1ParticleData runWallCollision(const Particle&, 
 					  const Vector &,
 					  const Iflt&
 					  ) const;
 
-  virtual C1ParticleData runAndersenWallCollision(const CParticle&, 
+  virtual C1ParticleData runAndersenWallCollision(const Particle&, 
 						  const Vector &,
 						  const Iflt& T
 						  ) const;
 
-  virtual C1ParticleData randomGaussianEvent(const CParticle&, const Iflt&) const;
+  virtual C1ParticleData randomGaussianEvent(const Particle&, const Iflt&) const;
 
   virtual Liouvillean* Clone() const { return new LSLLOD(*this); }
 

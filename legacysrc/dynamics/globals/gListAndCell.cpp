@@ -72,13 +72,13 @@ CGListAndCell::initialise(size_t nID)
 
   Iflt secondMaxDiam = 0.0;
   Iflt maxdiam = 0.0;
-  const CInteraction* biggest = NULL;
+  const Interaction* biggest = NULL;
   
   if (Sim->dynamics.getInteractions().size() < 2)
     D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
 
   //Find the largest interaction
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<Interaction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > maxdiam)
       {
 	maxdiam = intPtr->maxIntDist();
@@ -86,7 +86,7 @@ CGListAndCell::initialise(size_t nID)
       }
 
   //Find the second biggest
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<Interaction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > secondMaxDiam)
       if (intPtr.get_ptr() != biggest)
 	secondMaxDiam = intPtr->maxIntDist();
@@ -114,7 +114,7 @@ CGListAndCell::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CGListAndCell::getParticleNeighbourhood(const CParticle& part,
+CGListAndCell::getParticleNeighbourhood(const Particle& part,
 					const nbHoodFunc& func) const
 {
   CGCells::getParticleNeighbourhood(part, func);
@@ -131,13 +131,13 @@ CGListAndCell::getMaxInteractionLength() const
 {
   Iflt secondMaxDiam = 0.0;
   Iflt maxdiam = 0.0;
-  const CInteraction* biggest = NULL;
+  const Interaction* biggest = NULL;
   
   if (Sim->dynamics.getInteractions().size() < 2)
     D_throw() << "This scheduler doesn't work unless you have more than 1 interaction";
   
   //Find the largest interaction
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<Interaction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > maxdiam)
       {
 	maxdiam = intPtr->maxIntDist();
@@ -145,7 +145,7 @@ CGListAndCell::getMaxInteractionLength() const
       }
   
   //Find the second biggest
-  BOOST_FOREACH(const smrtPlugPtr<CInteraction>& intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const smrtPlugPtr<Interaction>& intPtr, Sim->dynamics.getInteractions())
     if (intPtr->maxIntDist() > secondMaxDiam)
       if (intPtr.get_ptr() != biggest)
 	secondMaxDiam = intPtr->maxIntDist();

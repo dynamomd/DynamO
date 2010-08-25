@@ -31,7 +31,7 @@ OPRdotV::initialise()
 {}
 
 void 
-OPRdotV::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& pDat)
+OPRdotV::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
 {
   size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
     speciesIDhigh =pDat.particle2_.getSpecies().getID();

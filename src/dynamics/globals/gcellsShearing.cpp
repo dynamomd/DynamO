@@ -72,7 +72,7 @@ CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CGCellsShearing::runEvent(const CParticle& part) const
+CGCellsShearing::runEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -318,7 +318,7 @@ CGCellsShearing::runEvent(const CParticle& part) const
 }
 
 void 
-CGCellsShearing::getParticleNeighbourhood(const CParticle& part,
+CGCellsShearing::getParticleNeighbourhood(const Particle& part,
 				   const nbHoodFunc& func) const
 {
   CGCells::getParticleNeighbourhood(part, func);
@@ -330,7 +330,7 @@ CGCellsShearing::getParticleNeighbourhood(const CParticle& part,
 }
 
 void 
-CGCellsShearing::getExtraLEParticleNeighbourhood(const CParticle& part,
+CGCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
 						 const nbHoodFunc& func) const
 {
   size_t cellID = partCellData[part.getID()].cell;

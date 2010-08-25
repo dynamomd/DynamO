@@ -25,7 +25,7 @@
 #include <cmath>
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
-			    const CIntEvent &coll)
+			    const IntEvent &coll)
 {
   XML << xmlw::tag("Collision")
       << xmlw::attr("p1ID") << coll.getParticle1ID()
@@ -39,7 +39,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream &XML,
 }
 
 std::string 
-CIntEvent::stringData(const DYNAMO::SimData* Sim) const
+IntEvent::stringData(const DYNAMO::SimData* Sim) const
 {
   std::ostringstream tmpstring;
   tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()

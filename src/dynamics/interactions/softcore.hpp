@@ -20,16 +20,16 @@
 
 #include "captures.hpp"
 
-class CISoftCore: public CISingleCapture
+class ISoftCore: public ISingleCapture
 {
 public:
-  CISoftCore(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  ISoftCore(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
 
-  CISoftCore(const XMLNode&, DYNAMO::SimData*);
+  ISoftCore(const XMLNode&, DYNAMO::SimData*);
   
   void operator<<(const XMLNode&);
 
-  virtual CInteraction* Clone() const;
+  virtual Interaction* Clone() const;
 
   virtual Iflt hardCoreDiam() const;
 
@@ -37,15 +37,15 @@ public:
 
   virtual void rescaleLengths(Iflt);
 
-  virtual void checkOverlaps(const CParticle&, const CParticle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual bool captureTest(const CParticle&, const CParticle&) const;
+  virtual bool captureTest(const Particle&, const Particle&) const;
 
   virtual void initialise(size_t);
 
-  virtual CIntEvent getEvent(const CParticle&, const CParticle&) const;
+  virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-  virtual void runEvent(const CParticle&, const CParticle&, const CIntEvent&) const;
+  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
   
   virtual void outputXML(xmlw::XmlStream&) const;
 

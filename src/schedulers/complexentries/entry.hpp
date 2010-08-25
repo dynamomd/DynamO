@@ -29,7 +29,7 @@ namespace xmlw
   class XmlStream;
 }
 
-class CParticle;
+class Particle;
 
 class CSCEntry: public DYNAMO::SimBase
 {
@@ -46,12 +46,12 @@ public:
  
   virtual void operator<<(const XMLNode&) = 0;
 
-  bool isApplicable(const CParticle& part) const;
+  bool isApplicable(const Particle& part) const;
   
-  virtual void getParticleNeighbourhood(const CParticle&, 
+  virtual void getParticleNeighbourhood(const Particle&, 
 					const CGNeighbourList::nbHoodFunc&) const {}
 
-  virtual void getParticleLocalNeighbourhood(const CParticle&, 
+  virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const CGNeighbourList::nbHoodFunc&) const {}
 
   virtual CSCEntry* Clone() const = 0;

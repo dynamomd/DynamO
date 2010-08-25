@@ -46,14 +46,14 @@ CLSphere::CLSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CLocalEvent 
-CLSphere::getEvent(const CParticle& part) const
+CLSphere::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
     D_throw() << "Particle is not up to date";
 #endif
 
-  CParticle fakeParticle(vPosition, Vector(0,0,0),-1);
+  Particle fakeParticle(vPosition, Vector(0,0,0),-1);
     
   CPDData colldat(*Sim, part, fakeParticle);
 
@@ -63,7 +63,7 @@ CLSphere::getEvent(const CParticle& part) const
 }
 
 void
-CLSphere::runEvent(const CParticle& part, const CLocalEvent& iEvent) const
+CLSphere::runEvent(const Particle& part, const CLocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 

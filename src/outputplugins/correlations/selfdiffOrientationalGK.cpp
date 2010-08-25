@@ -133,7 +133,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CSystem&, const CNParticleData
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const CIntEvent& iEvent, const C2ParticleData& PDat)
+OPSelfDiffusionOrientationalGK::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();

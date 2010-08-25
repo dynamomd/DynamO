@@ -65,7 +65,7 @@ CGSOCells::operator<<(const XMLNode& XML)
 }
 
 CGlobEvent 
-CGSOCells::getEvent(const CParticle& part) const
+CGSOCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -96,7 +96,7 @@ CGSOCells::getEvent(const CParticle& part) const
 }
 
 void
-CGSOCells::runEvent(const CParticle& part) const
+CGSOCells::runEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

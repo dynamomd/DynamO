@@ -31,9 +31,9 @@ public:
 
   virtual CLocal* Clone() const { return new LRoughWall(*this); };
 
-  virtual CLocalEvent getEvent(const CParticle&) const;
+  virtual CLocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const CParticle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const CLocalEvent&) const;
   
   virtual bool isInCell(const Vector &, const Vector &) const;
 
@@ -43,7 +43,7 @@ public:
 
   virtual void write_povray_info(std::ostream&) const;
 
-  virtual void checkOverlaps(const CParticle&) const;
+  virtual void checkOverlaps(const Particle&) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

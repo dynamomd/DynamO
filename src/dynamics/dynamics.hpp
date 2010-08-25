@@ -34,7 +34,7 @@ class CLocal;
 class CLocalEvent;
 class CSystem;
 class CTopology;
-class CParticle;
+class Particle;
 template<class T>
 class CVector;
 class Liouvillean;
@@ -63,7 +63,7 @@ public:
 
   void setLiouvillean(Liouvillean*);
 
-  CInteraction* addInteraction(CInteraction*);
+  Interaction* addInteraction(Interaction*);
 
   void addSpecies(const smrtPlugPtr<CSpecies>&);
   
@@ -75,16 +75,16 @@ public:
 
   void addStructure(CTopology*);
 
-  const CSpecies& getSpecies(const CParticle&) const;
+  const CSpecies& getSpecies(const Particle&) const;
   
-  const smrtPlugPtr<CInteraction>& 
-    getInteraction(const CParticle&, const CParticle&) const; 
+  const smrtPlugPtr<Interaction>& 
+    getInteraction(const Particle&, const Particle&) const; 
   
   void stream(const Iflt&);
   
-  inline CIntEvent getEvent(const CParticle& p1, const CParticle& p2) const
+  inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
   {
-    BOOST_FOREACH(const smrtPlugPtr<CInteraction>& ptr, interactions)
+    BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	{
 #ifdef DYNAMO_UpdateCollDebug
@@ -134,11 +134,11 @@ public:
 
   Dynamics* Clone() const { return new Dynamics(*this); }
 
-  std::vector<smrtPlugPtr<CInteraction> >& getInteractions() { return interactions; }
-  const std::vector<smrtPlugPtr<CInteraction> >& getInteractions() const { return interactions; }
+  std::vector<smrtPlugPtr<Interaction> >& getInteractions() { return interactions; }
+  const std::vector<smrtPlugPtr<Interaction> >& getInteractions() const { return interactions; }
 
-  smrtPlugPtr<CInteraction>& getInteraction(std::string);
-  const smrtPlugPtr<CInteraction>& getInteraction(std::string) const;
+  smrtPlugPtr<Interaction>& getInteraction(std::string);
+  const smrtPlugPtr<Interaction>& getInteraction(std::string) const;
 
   const std::vector<smrtPlugPtr<CGlobal> >& getGlobals() const { return globals; }
   std::vector<smrtPlugPtr<CGlobal> >& getGlobals() { return globals; }
@@ -212,7 +212,7 @@ public:
  protected:
   void outputXML(xmlw::XmlStream &) const;
 
-  std::vector<smrtPlugPtr<CInteraction> > interactions;
+  std::vector<smrtPlugPtr<Interaction> > interactions;
   std::vector<smrtPlugPtr<CGlobal> > globals;
   std::vector<smrtPlugPtr<CLocal> > locals;
   std::vector<smrtPlugPtr<CSystem> > systems;
