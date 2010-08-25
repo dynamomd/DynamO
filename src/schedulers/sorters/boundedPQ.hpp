@@ -278,9 +278,18 @@ public:
   inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
   inline void popNextEvent() { Min[CBT[1]].data.pop(); }
   inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
-  inline const intPart& getNextEvent() const { return Min[CBT[1]].data.top(); }
+
+  inline intPart copyNextEvent() const 
+  { intPart retval(Min[CBT[1]].data.top());
+    retval.dt -= pecTime;
+    return retval; 
+  }
 
   inline size_t next_ID() const { return CBT[1] - 1; }
+  inline EEventType next_type() const { return Min[CBT[1]].data.top().type; }
+  inline unsigned long next_collCounter2() const { return Min[CBT[1]].data.top().collCounter2; }
+  inline size_t next_p2() const { return Min[CBT[1]].data.top().p2; }
+
   //inline T& next_Data() { return Min[CBT[1]].data; }
   //inline const T& next_Data() const { return Min[CBT[1]].data; }
   inline Iflt next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }

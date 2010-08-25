@@ -116,9 +116,9 @@ CScheduler::runNextEvent()
     D_throw() << "Next particle list is empty but top of list!";
 #endif  
     
-  while ((sorter->getNextEvent().type == INTERACTION)
-	 && (sorter->getNextEvent().collCounter2 
-	     != eventCount[sorter->getNextEvent().p2]))
+  while ((sorter->next_type() == INTERACTION)
+	 && (sorter->next_collCounter2()
+	     != eventCount[sorter->next_p2()]))
     {
       //Not valid, update the list
       sorter->popNextEvent();
@@ -132,43 +132,40 @@ CScheduler::runNextEvent()
     }
   
 #ifdef DYNAMO_DEBUG
-  if (isnan(sorter->getNextEvent().dt))
+  if (isnan(sorter->next_dt()))
     D_throw() << "Next event time is NaN"
 	      << "\nTime to event "
-	      << sorter->getNextEvent().dt
+	      << sorter->next_dt()
 	      << "\nEvent Type = " 
-	      << sorter->getNextEvent().type
+	      << sorter->next_type()
 	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->getNextEvent().p2;
+	      << "\nID2 = " << sorter->next_p2();
 
-  if (isinf(sorter->getNextEvent().dt))
+  if (isinf(sorter->next_dt()))
     D_throw() << "Next event time is Inf!"
 	      << "\nTime to event "
-	      << sorter->getNextEvent().dt
+	      << sorter->next_dt()
 	      << "\nEvent Type = " 
-	      << sorter->getNextEvent().type
+	      << sorter->next_type()
 	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->getNextEvent().p2;
+	      << "\nID2 = " << sorter->next_p2();
 
-  if (sorter->getNextEvent().dt + eps < 0)
+  if (sorter->next_dt() + eps < 0)
     D_throw() << "Next event time is less than -" << eps
 	      << "\nTime to event "
-	      << sorter->getNextEvent().dt
+	      << sorter->next_dt()
 	      << "\nEvent Type = " 
-	      << sorter->getNextEvent().type
+	      << sorter->next_type()
       	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->getNextEvent().p2;
+	      << "\nID2 = " << sorter->next_p2();
 #endif  
   
-  switch (sorter->getNextEvent().type)
+  switch (sorter->next_type())
     {
     case INTERACTION:
       {
 	const CParticle& p1(Sim->vParticleList[sorter->next_ID()]);
-	const CParticle& p2(Sim->vParticleList[sorter->getNextEvent().p2]);
-
-	//Copy the FEL event
-	intPart FELEvent = sorter->getNextEvent();
+	const CParticle& p2(Sim->vParticleList[sorter->next_p2()]);
 
 	//Ready the next event in the FEL
 	sorter->popNextEvent();
@@ -179,15 +176,15 @@ CScheduler::runNextEvent()
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
 	CIntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
-	if (Event.getdt() > sorter->getNextEvent().dt)
+	if (Event.getdt() > sorter->next_dt())
 	  {
 	    //The next FEL event is earlier than the recalculated event
 	    //Grab the next event ID's
 	    const unsigned long np1 = sorter->next_ID(),
-	      np2 = sorter->getNextEvent().p2;
+	      np2 = sorter->next_p2();
 	    
 	    //Check if the next event is just another copy of this event with possibly reversed ID's
-	    if ((sorter->getNextEvent().type != INTERACTION)
+	    if ((sorter->next_type() != INTERACTION)
 		|| ((p1.getID() != np1) && (p1.getID() != np2))
 		|| ((p2.getID() != np1) && (p2.getID() != np2)))
 	      {
@@ -260,7 +257,7 @@ CScheduler::runNextEvent()
       {
 	//We don't stream the system for globals as neighbour lists
 	//optimise this (they dont need it).
-	Sim->dynamics.getGlobals()[sorter->getNextEvent().p2]
+	Sim->dynamics.getGlobals()[sorter->next_p2()]
 	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
 	break;	           
       }
@@ -269,7 +266,7 @@ CScheduler::runNextEvent()
 	const CParticle& part(Sim->vParticleList[sorter->next_ID()]);
 
 	//Copy the FEL event
-	intPart FELEvent = sorter->getNextEvent();
+	size_t localID = sorter->next_p2();
 
 	//Ready the next event in the FEL
 	sorter->popNextEvent();
@@ -277,7 +274,7 @@ CScheduler::runNextEvent()
 	sorter->sort();
 	
 	Sim->dynamics.getLiouvillean().updateParticle(part);
-	CLocalEvent iEvent(Sim->dynamics.getLocals()[FELEvent.p2]->getEvent(part));
+	CLocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
 
 	if (iEvent.getType() == NONE)
 	  {
@@ -289,7 +286,7 @@ CScheduler::runNextEvent()
 	    return;
 	  }
 
-	if (iEvent.getdt() > sorter->getNextEvent().dt)
+	if (iEvent.getdt() > sorter->next_dt())
 	  {
 #ifdef DYNAMO_DEBUG 
 	    I_cerr() << "Recalculated LOCAL event time is greater than the next event time, recalculating";
@@ -318,12 +315,12 @@ CScheduler::runNextEvent()
 	iEvent.addTime(Sim->freestreamAcc);
 	Sim->freestreamAcc = 0;
 
-	Sim->dynamics.getLocals()[FELEvent.p2]->runEvent(part, iEvent);	  
+	Sim->dynamics.getLocals()[localID]->runEvent(part, iEvent);	  
 	break;
       }
     case SYSTEM:
       {
-	Sim->dynamics.getSystemEvents()[sorter->getNextEvent().p2]
+	Sim->dynamics.getSystemEvents()[sorter->next_p2()]
 	  ->runEvent();
 	//This saves the system events rebuilding themselves
 	rebuildSystemEvents();
@@ -347,7 +344,7 @@ CScheduler::runNextEvent()
     default:
       D_throw() << "Unhandled event type requested to be run\n"
 		<< "Type is " 
-		<< sorter->getNextEvent().type
+		<< sorter->next_type()
 		<< "";
     }
 }

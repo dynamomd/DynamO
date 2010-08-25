@@ -97,31 +97,16 @@ public:
   inline void popNextPELEvent(const size_t& ID) { Min[ID+1].pop(); }
   inline void popNextEvent() { Min[CBT[1]].pop(); }
   inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
-  inline const intPart& getNextEvent() const { return Min[CBT[1]].top(); }
 
-//  inline const pList& operator[](const size_t& a) const 
-//  {
-//#ifdef DYNAMO_DEBUG 
-//    if (Min.empty())
-//      D_throw() << "Heap not yet sized";
-//#endif
-//    
-//    return Min[a+1]; 
-//  }
-//  
-//  inline pList& operator[](const size_t& a) 
-//  {
-//#ifdef DYNAMO_DEBUG 
-//    if (Min.empty())
-//      D_throw() << "Heap not yet sized";
-//#endif
-//
-//    return Min[a+1]; 
-//  }
-//  inline pList& next_Data() { return Min[CBT[1]]; }
-//
-//  inline const pList& next_Data() const { return Min[CBT[1]]; }
+  inline intPart copyNextEvent() const 
+  { intPart retval(Min[CBT[1]].top());
+    retval.dt -= pecTime;
+    return retval; 
+  }
 
+  inline EEventType next_type() const { return Min[CBT[1]].top().type; }
+  inline unsigned long next_collCounter2() const { return Min[CBT[1]].top().collCounter2; }
+  inline size_t next_p2() const { return Min[CBT[1]].top().p2; }
 
   inline void push(const intPart& tmpVal, const size_t& pID)
   {
