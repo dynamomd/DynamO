@@ -64,19 +64,19 @@ variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG ;
 #<define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug
 #<define>_GLIBXX_DEBUG_PEDANTIC <define>_GLIBCXX_DEBUG_PEDANTIC  <define>_GLIBCXX_CONCEPT_CHECKS <define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG <define>_GLIBCPP_CONCEPT_CHECKS
 exe dynareplex_opt 
-    : programs/dynareplex_opt.cpp boost//program_options
+    : src/programs/dynareplex_opt.cpp boost//program_options
     ;
 
 exe dynahist_rw 
-    : programs/dynahist_rw.cpp src//dynamo_core 
+    : src/programs/dynahist_rw.cpp src//dynamo_core 
     ;
 
 exe dynarun 
-    : programs/dynarun.cpp src//dynamo_core
+    : src/programs/dynarun.cpp src//dynamo_core
     ;
 
 exe dynamod 
-    : programs/dynamod.cpp src//dynamo_core
+    : src/programs/dynamod.cpp src//dynamo_core
     ;
 
 exe threadpool_test 
