@@ -30,7 +30,7 @@ class OPMSDCorrelator: public OPTicker
 
   virtual void initialise();
 
-  void output(xmlw::XmlStream &); 
+  void output(xml::XmlStream &); 
 
   virtual OutputPlugin *Clone() const 
   { return new OPMSDCorrelator(*this); };

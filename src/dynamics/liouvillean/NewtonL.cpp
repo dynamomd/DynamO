@@ -932,9 +932,9 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
 }
 
 void 
-LNewtonian::outputXML(xmlw::XmlStream& XML) const
+LNewtonian::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") 
+  XML << xml::attr("Type") 
       << "Newtonian";
 }
 

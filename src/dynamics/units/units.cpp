@@ -23,7 +23,7 @@
 #include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Units& g)
 {
   g.outputXML(XML);

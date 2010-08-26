@@ -15,13 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#pragma once
 
 #include "../datatypes/vector.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -29,40 +28,38 @@ namespace xmlw
 class Particle
 {
 public:
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Particle&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Particle&);
   
   inline Particle (const Vector  &position, 
 		    const Vector  &velocity,
 		    const unsigned long& nID):
-    posVector(position), velVector(velocity), 
-    ID(nID), pecTime(0.0)
+    _pos(position), _vel(velocity), 
+    _ID(nID), _peculiarTime(0.0)
   {}
   
   Particle(const XMLNode&, unsigned long);
   
-  inline bool operator==(const Particle &p) const { return (ID == p.ID); }
-  inline bool operator!=(const Particle &p) const { return (ID != p.ID); }
+  inline bool operator==(const Particle &p) const { return (_ID == p._ID); }
+  inline bool operator!=(const Particle &p) const { return (_ID != p._ID); }
   
-  inline const Vector  &getPosition() const { return posVector; }
-  inline const Vector  &getVelocity() const { return velVector; }
+  inline const Vector  &getPosition() const { return _pos; }
+  inline const Vector  &getVelocity() const { return _vel; }
   
-  inline Vector  &getPosition() { return posVector; }
-  inline Vector  &getVelocity() { return velVector; }
+  inline Vector  &getPosition() { return _pos; }
+  inline Vector  &getVelocity() { return _vel; }
   
-  inline const unsigned long &getID() const { return ID; };
-  inline const Iflt& getPecTime() const { return pecTime; }
-  inline Iflt& getPecTime() { return pecTime; }
+  inline const unsigned long &getID() const { return _ID; };
+  inline const Iflt& getPecTime() const { return _peculiarTime; }
+  inline Iflt& getPecTime() { return _peculiarTime; }
   
-  inline void scaleVelocity(const Iflt& vs) { velVector *= vs; }
-  inline void scalePosition(const Iflt& vs) { posVector *= vs; }
+  inline void scaleVelocity(const Iflt& vs) { _vel *= vs; }
+  inline void scalePosition(const Iflt& vs) { _pos *= vs; }
   
 private:
   //NOTE, changing these members type must be reflected in the liouvillean
   //where binary data is written
-  Vector posVector;
-  Vector velVector;
-  unsigned long ID;
-  Iflt pecTime;
+  Vector _pos;
+  Vector _vel;
+  unsigned long _ID;
+  Iflt _peculiarTime;
 };
-
-#endif

@@ -20,7 +20,7 @@
 
 #include "fuzzy_array.hpp"
 
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -45,7 +45,7 @@ class C1DHistogram
   
   typedef std::pair<const long, unsigned long> lv1pair;
   
-  void outputHistogram(xmlw::XmlStream&, Iflt) const;
+  void outputHistogram(xml::XmlStream&, Iflt) const;
   
   CFuzzyArray<unsigned long> data;
   
@@ -77,8 +77,8 @@ class C1DWeightHistogram
 
   typedef std::pair<const long, Iflt> lv1pair;
   
-  void outputHistogram(xmlw::XmlStream&, Iflt) const;
-  void outputClearHistogram(xmlw::XmlStream&, Iflt) const;
+  void outputHistogram(xml::XmlStream&, Iflt) const;
+  void outputClearHistogram(xml::XmlStream&, Iflt) const;
   
   CFuzzyArray<Iflt> data;
   

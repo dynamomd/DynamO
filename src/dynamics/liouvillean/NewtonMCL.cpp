@@ -83,14 +83,14 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-LNewtonianMC::outputXML(xmlw::XmlStream& XML) const
+LNewtonianMC::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") 
+  XML << xml::attr("Type") 
       << "NewtonianMC"
-      << xmlw::attr("EnergyStep")
+      << xml::attr("EnergyStep")
       << EnergyPotentialStep
 	  * Sim->dynamics.units().unitEnergy()
-      << xmlw::tag("PotentialDeformation");
+      << xml::tag("PotentialDeformation");
 
   typedef std::pair<const Iflt,Iflt> locpair;
 
@@ -101,13 +101,13 @@ LNewtonianMC::outputXML(xmlw::XmlStream& XML) const
       
       Iflt entry = val.second * Sim->dynamics.units().unitEnergy();
 	      
-      XML << xmlw::tag("Entry")
-	  << xmlw::attr("Energy") << key
-	  << xmlw::attr("Shift") << entry
-	  << xmlw::endtag("Entry");
+      XML << xml::tag("Entry")
+	  << xml::attr("Energy") << key
+	  << xml::attr("Shift") << entry
+	  << xml::endtag("Entry");
     }
     
-  XML << xmlw::endtag("PotentialDeformation");
+  XML << xml::endtag("PotentialDeformation");
 }
 
 

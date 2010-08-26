@@ -45,7 +45,7 @@ public:
 				       const nbHoodFunc& func) const;
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 };
 
 #endif

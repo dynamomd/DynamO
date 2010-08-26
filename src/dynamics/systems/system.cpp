@@ -54,7 +54,7 @@ System::System(DYNAMO::SimData* tmp):
   type = NONE;
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const System& g)
 {
   g.outputXML(XML);

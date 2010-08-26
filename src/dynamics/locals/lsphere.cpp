@@ -119,17 +119,17 @@ CLSphere::operator<<(const XMLNode& XML)
 }
 
 void 
-CLSphere::outputXML(xmlw::XmlStream& XML) const
+CLSphere::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SphereWall" 
-      << xmlw::attr("Name") << localName
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Radius") << radius / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Render") << render
+  XML << xml::attr("Type") << "SphereWall" 
+      << xml::attr("Name") << localName
+      << xml::attr("Elasticity") << e
+      << xml::attr("Radius") << radius / Sim->dynamics.units().unitLength()
+      << xml::attr("Render") << render
       << range
-      << xmlw::tag("Origin")
+      << xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xmlw::endtag("Origin");
+      << xml::endtag("Origin");
 }
 
 void 

@@ -86,25 +86,25 @@ OPSHCrystal::ticker()
 }
 
 void 
-OPSHCrystal::output(xmlw::XmlStream& XML)
+OPSHCrystal::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("SHCrystal");
+  XML << xml::tag("SHCrystal");
   
   for (int l(0); l < static_cast<int>(maxl); ++l)
     {
-      XML << xmlw::tag("Q")
-	  << xmlw::attr("l") << l;
+      XML << xml::tag("Q")
+	  << xml::attr("l") << l;
       
       Iflt Qsum(0);
       for (int m(-l); m <= l; ++m)
 	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<Iflt>(count, 0));
       
-      XML << xmlw::attr("val")
+      XML << xml::attr("val")
 	  << std::sqrt(Qsum * 4.0 * PI / (2.0 * l + 1.0))
-	  << xmlw::endtag("Q");
+	  << xml::endtag("Q");
       
-      XML << xmlw::tag("W")
-	  << xmlw::attr("l") << l;
+      XML << xml::tag("W")
+	  << xml::attr("l") << l;
 
       std::complex<Iflt> Wsum(0, 0);
       for (int m1(-l); m1 <= l; ++m1)
@@ -120,12 +120,12 @@ OPSHCrystal::output(xmlw::XmlStream& XML)
 		;
 	  }
       
-      XML << xmlw::attr("val")
+      XML << xml::attr("val")
 	  << Wsum * std::pow(Qsum, -1.5)
-	  << xmlw::endtag("W");
+	  << xml::endtag("W");
     }
 
-  XML << xmlw::endtag("SHCrystal");
+  XML << xml::endtag("SHCrystal");
 }
 
 void 

@@ -84,10 +84,10 @@ INull::runEvent(const Particle&, const Particle&, const IntEvent&) const
 }
    
 void 
-INull::outputXML(xmlw::XmlStream& XML) const
+INull::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Null"
-      << xmlw::attr("Name") << intName
+  XML << xml::attr("Type") << "Null"
+      << xml::attr("Name") << intName
       << range;
 }
 

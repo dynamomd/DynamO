@@ -110,17 +110,17 @@ OPThermalConductivityE::rescaleFactor()
 }
 
 void 
-OPThermalConductivityE::output(xmlw::XmlStream &XML)
+OPThermalConductivityE::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("EinsteinCorrelator")
-      << xmlw::attr("name") << name
-      << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
-      << xmlw::attr("LengthInMFT") << dt * accG2.size()
+  XML << xml::tag("EinsteinCorrelator")
+      << xml::attr("name") << name
+      << xml::attr("size") << accG2.size()
+      << xml::attr("dt") << dt/Sim->dynamics.units().unitTime()
+      << xml::attr("LengthInMFT") << dt * accG2.size()
     / Sim->getOutputPlugin<OPMisc>()->getMFT()
-      << xmlw::attr("simFactor") << rescaleFactor()
-      << xmlw::attr("SampleCount") << count
-      << xmlw::chardata();
+      << xml::attr("simFactor") << rescaleFactor()
+      << xml::attr("SampleCount") << count
+      << xml::chardata();
   
   Iflt factor = rescaleFactor();
   
@@ -136,7 +136,7 @@ OPThermalConductivityE::output(xmlw::XmlStream &XML)
       XML << "\n";
     }
   
-  XML << xmlw::endtag("EinsteinCorrelator");
+  XML << xml::endtag("EinsteinCorrelator");
 }
 
 Vector  

@@ -26,7 +26,7 @@ namespace DYNAMO
 {
   class SimData;
 }
-namespace xmlw
+namespace xml
 {
   class  XmlStream;
 }
@@ -130,14 +130,14 @@ class Units: public DYNAMO::SimBase_const
   /*! \brief Calculates the volume of the system*/
   Iflt simVolume() const;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Units&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Units&);
   
   virtual void operator<<(const XMLNode &) = 0;
   
   static Units* loadUnits(const XMLNode&, const DYNAMO::SimData*);
   
  protected:
-  virtual void outputXML(xmlw::XmlStream &) const = 0;
+  virtual void outputXML(xml::XmlStream &) const = 0;
 };
 
 #endif

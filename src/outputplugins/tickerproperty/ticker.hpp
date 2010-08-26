@@ -38,7 +38,7 @@ public:
   void eventUpdate(const LocalEvent&, const NEventData&) {}
   void eventUpdate(const System&, const NEventData&, const Iflt&) {}
 
-  virtual void output(xmlw::XmlStream&) {}
+  virtual void output(xml::XmlStream&) {}
 
   virtual void ticker() = 0;
   

@@ -38,7 +38,7 @@ public:
   virtual void eventUpdate(const System&, const NEventData&, 
 			   const Iflt&);
   
-  void output(xmlw::XmlStream &); 
+  void output(xml::XmlStream &); 
   
   void periodicOutput();
   

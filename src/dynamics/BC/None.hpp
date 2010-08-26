@@ -42,7 +42,7 @@ class BCNone: virtual public BoundaryCondition
 
   virtual void update(const Iflt&);
 
-  virtual void outputXML(xmlw::XmlStream &XML) const;
+  virtual void outputXML(xml::XmlStream &XML) const;
 
   virtual void operator<<(const XMLNode&);
 

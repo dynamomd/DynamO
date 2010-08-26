@@ -57,10 +57,10 @@ public:
 
   static CSSorter* getClass(const XMLNode&, const DYNAMO::SimData*);
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSSorter&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const CSSorter&);
 
 private:
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
   
 };
 

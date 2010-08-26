@@ -174,7 +174,7 @@ public:
   void markAsUsedInScheduler() { isUsedInScheduler = true; }
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 
   
   //Signals

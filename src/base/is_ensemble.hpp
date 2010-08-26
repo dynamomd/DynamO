@@ -24,7 +24,7 @@
 #include "constants.hpp"
 #include "is_base.hpp"
 
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -51,7 +51,7 @@ namespace DYNAMO {
     static CEnsemble* getClass(const XMLNode& XML, 
 			       const DYNAMO::SimData* Sim);
 
-    friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CEnsemble&);
+    friend xml::XmlStream& operator<<(xml::XmlStream&, const CEnsemble&);
     
     virtual std::string getName() const = 0;
 

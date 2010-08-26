@@ -36,7 +36,7 @@ OutputPlugin::OutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsign
 }
 
 void
-OutputPlugin::output(xmlw::XmlStream&)
+OutputPlugin::output(xml::XmlStream&)
 {}
 
 void

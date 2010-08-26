@@ -319,25 +319,25 @@ CGCells::reinitialise(const Iflt& maxdiam)
 }
 
 void 
-CGCells::outputXML(xmlw::XmlStream& XML) const
+CGCells::outputXML(xml::XmlStream& XML) const
 {
   outputXML(XML, "Cells");
 }
 
 void
-CGCells::outputXML(xmlw::XmlStream& XML, const std::string& name) const
+CGCells::outputXML(xml::XmlStream& XML, const std::string& name) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << xmlw::attr("Type") << name
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("Name") << globName;
+  XML << xml::attr("Type") << name
+      << xml::attr("Lambda") << lambda
+      << xml::attr("Name") << globName;
 
   if (MaxIntDist != 0.0)
-    XML << xmlw::attr("CellWidth") << MaxIntDist / Sim->dynamics.units().unitLength();
+    XML << xml::attr("CellWidth") << MaxIntDist / Sim->dynamics.units().unitLength();
   else if (!interaction.empty())
-    XML << xmlw::attr("Interaction") << interaction;
+    XML << xml::attr("Interaction") << interaction;
       
-  if (overlink > 1)   XML << xmlw::attr("OverLink") << overlink;
+  if (overlink > 1)   XML << xml::attr("OverLink") << overlink;
 }
 
 void

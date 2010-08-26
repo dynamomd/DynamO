@@ -32,7 +32,7 @@ class XMLNode;
 class Species;
 class CRange;
 
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -63,7 +63,7 @@ public:
 
   virtual void operator<<(const XMLNode&) = 0;
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Interaction&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Interaction&);
  
   static Interaction* getClass(const XMLNode&, DYNAMO::SimData*);
 
@@ -97,7 +97,7 @@ public:
   {}
 
 protected:
-  virtual void outputXML(xmlw::XmlStream& ) const = 0;
+  virtual void outputXML(xml::XmlStream& ) const = 0;
 
   ClonePtr<C2Range> range;
 

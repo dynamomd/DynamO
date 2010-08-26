@@ -49,8 +49,8 @@ CRSingle::operator<<(const XMLNode& XML)
 }
 
 void 
-CRSingle::outputXML(xmlw::XmlStream& XML) const
+CRSingle::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "Single"
-      << xmlw::attr("ID") << ID;
+  XML << xml::attr("Range") << "Single"
+      << xml::attr("ID") << ID;
 }

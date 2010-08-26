@@ -15,7 +15,7 @@ class COPCluster: public COutputPlugin
  
   void collisionUpdate(const CCollision &, const CEventData &b);
 
-  void output(xmlw::XmlStream &); 
+  void output(xml::XmlStream &); 
 
   void periodicOutput();
 

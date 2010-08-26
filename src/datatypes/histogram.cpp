@@ -20,22 +20,22 @@
 #include "../extcode/xmlwriter.hpp"
 
 void 
-C1DHistogram::outputHistogram(xmlw::XmlStream& XML, Iflt scalex) const
+C1DHistogram::outputHistogram(xml::XmlStream& XML, Iflt scalex) const
 {
 
-  XML << xmlw::tag("Histogram")
-      << xmlw::attr("SampleCount")
+  XML << xml::tag("Histogram")
+      << xml::attr("SampleCount")
       << sampleCount
-      << xmlw::attr("Dimension") << 1
-      << xmlw::attr("BinWidth") << data.binWidth * scalex;
+      << xml::attr("Dimension") << 1
+      << xml::attr("BinWidth") << data.binWidth * scalex;
   
   Iflt avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
     avgSum += (static_cast<Iflt>(p1.first) + 0.5) * p1.second;
   
-  XML << xmlw::attr("AverageVal")
+  XML << xml::attr("AverageVal")
       << (avgSum * data.binWidth * scalex / sampleCount)
-      << xmlw::chardata();
+      << xml::chardata();
   
 ///////Pretty histogram output method
 //  long lastx = data.data.begin()->first - 1;
@@ -68,25 +68,25 @@ C1DHistogram::outputHistogram(xmlw::XmlStream& XML, Iflt scalex) const
 	<< static_cast<Iflt>(p1.second)
     /(data.binWidth * sampleCount * scalex) << "\n";
   
-  XML << xmlw::endtag("Histogram");
+  XML << xml::endtag("Histogram");
 }
 
 void 
-C1DWeightHistogram::outputHistogram(xmlw::XmlStream & XML, Iflt scalex) const
+C1DWeightHistogram::outputHistogram(xml::XmlStream & XML, Iflt scalex) const
 {
-  XML << xmlw::tag("WeightHistogram")
-      << xmlw::attr("TotalWeight")
+  XML << xml::tag("WeightHistogram")
+      << xml::attr("TotalWeight")
       << sampleCount
-      << xmlw::attr("Dimension") << 1
-      << xmlw::attr("BinWidth") << data.binWidth * scalex;
+      << xml::attr("Dimension") << 1
+      << xml::attr("BinWidth") << data.binWidth * scalex;
   
   Iflt avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
     avgSum += static_cast<Iflt>(p1.first) * p1.second;
   
-  XML << xmlw::attr("AverageVal")
+  XML << xml::attr("AverageVal")
       << avgSum * data.binWidth * scalex / sampleCount
-      << xmlw::chardata();
+      << xml::chardata();
   
 
   //This gives pretty but not really useful drawings of histograms
@@ -122,25 +122,25 @@ C1DWeightHistogram::outputHistogram(xmlw::XmlStream & XML, Iflt scalex) const
 	<< static_cast<Iflt>(p1.second)
     / (data.binWidth * sampleCount * scalex) << "\n";
   
-  XML << xmlw::endtag("WeightHistogram");
+  XML << xml::endtag("WeightHistogram");
 }
 
 void 
-C1DWeightHistogram::outputClearHistogram(xmlw::XmlStream & XML, Iflt scalex) const
+C1DWeightHistogram::outputClearHistogram(xml::XmlStream & XML, Iflt scalex) const
 {
-  XML << xmlw::tag("WeightHistogram")
-      << xmlw::attr("TotalWeight")
+  XML << xml::tag("WeightHistogram")
+      << xml::attr("TotalWeight")
       << sampleCount
-      << xmlw::attr("Dimension") << 1
-      << xmlw::attr("BinWidth") << data.binWidth * scalex;
+      << xml::attr("Dimension") << 1
+      << xml::attr("BinWidth") << data.binWidth * scalex;
   
   Iflt avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
     avgSum += static_cast<Iflt>(p1.first)* p1.second;
   
-  XML << xmlw::attr("AverageVal")
+  XML << xml::attr("AverageVal")
       << (avgSum * data.binWidth / sampleCount)
-      << xmlw::chardata();
+      << xml::chardata();
     
   //This one gives histograms usable by the reweight program
   BOOST_FOREACH(const lv1pair &p1, data.data)
@@ -148,5 +148,5 @@ C1DWeightHistogram::outputClearHistogram(xmlw::XmlStream & XML, Iflt scalex) con
 	<< static_cast<Iflt>(p1.second)
     / (data.binWidth * sampleCount * scalex) << "\n";
   
-  XML << xmlw::endtag("WeightHistogram");
+  XML << xml::endtag("WeightHistogram");
 }

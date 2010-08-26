@@ -296,16 +296,16 @@ ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-ISquareWell::outputXML(xmlw::XmlStream& XML) const
+ISquareWell::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SquareWell"
-      << xmlw::attr("Diameter") 
+  XML << xml::attr("Type") << "SquareWell"
+      << xml::attr("Diameter") 
       << diameter / Sim->dynamics.units().unitLength() 
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("WellDepth") 
+      << xml::attr("Elasticity") << e
+      << xml::attr("Lambda") << lambda
+      << xml::attr("WellDepth") 
       << wellDepth / Sim->dynamics.units().unitEnergy()
-      << xmlw::attr("Name") << intName
+      << xml::attr("Name") << intName
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  

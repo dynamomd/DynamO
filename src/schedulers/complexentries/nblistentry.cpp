@@ -97,10 +97,10 @@ CSCENBList::getParticleLocalNeighbourhood(const Particle& part,
 
 
 void 
-CSCENBList::outputXML(xmlw::XmlStream& XML) const
+CSCENBList::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "NeighbourList"
-      << xmlw::attr("NBListName")
+  XML << xml::attr("Type") << "NeighbourList"
+      << xml::attr("NBListName")
       << Sim->dynamics.getGlobals()[nblistID]->getName()
       << range
     ;

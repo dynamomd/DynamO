@@ -37,7 +37,7 @@ class OPConfig: public OutputPlugin
   virtual void eventUpdate(const System&, const NEventData&, 
 			   const Iflt&) {}
 
-  virtual void output(xmlw::XmlStream &); 
+  virtual void output(xml::XmlStream &); 
   
   virtual OutputPlugin *Clone() const { return new OPConfig(*this); };
 

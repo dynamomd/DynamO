@@ -329,25 +329,25 @@ CSRingDSMC::operator<<(const XMLNode& XML)
 }
 
 void 
-CSRingDSMC::outputXML(xmlw::XmlStream& XML) const
+CSRingDSMC::outputXML(xml::XmlStream& XML) const
 {
   if (n12 || n13)
     I_cout()<< "Number of T(1,2) events " << n12
 	    << "\nNumber of T(1,3) events " << n13
 	    << "\nRatio T(1,2)/total " << ((Iflt) n12) / (((Iflt) n13) + ((Iflt) n12));
 
-  XML << xmlw::tag("System")
-      << xmlw::attr("Type") << "RingDSMC"
-      << xmlw::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
-      << xmlw::attr("Chi12") << chi12
-      << xmlw::attr("Chi13") << chi13
-      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Inelasticity") << e
-      << xmlw::attr("Name") << sysName
-      << xmlw::attr("MaxProbability12") << maxprob12
-      << xmlw::attr("MaxProbability13") << maxprob13
-      << xmlw::tag("Range1")
+  XML << xml::tag("System")
+      << xml::attr("Type") << "RingDSMC"
+      << xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
+      << xml::attr("Chi12") << chi12
+      << xml::attr("Chi13") << chi13
+      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << xml::attr("Inelasticity") << e
+      << xml::attr("Name") << sysName
+      << xml::attr("MaxProbability12") << maxprob12
+      << xml::attr("MaxProbability13") << maxprob13
+      << xml::tag("Range1")
       << range1
-      << xmlw::endtag("Range1")
-      << xmlw::endtag("System");
+      << xml::endtag("Range1")
+      << xml::endtag("System");
 }

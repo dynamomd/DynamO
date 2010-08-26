@@ -48,7 +48,7 @@ public:
 protected:
   virtual const unsigned long& getIteratorID(const unsigned long &i) const { return IDs[i]; }
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   std::vector<unsigned long> IDs;
 };

@@ -19,7 +19,7 @@
 #define C2Range_H
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -42,10 +42,10 @@ public:
 
   static C2Range* loadClass(const XMLNode&, const DYNAMO::SimData*);
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const C2Range&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const C2Range&);
 
 protected:
-  virtual void outputXML(xmlw::XmlStream& XML) const = 0;
+  virtual void outputXML(xml::XmlStream& XML) const = 0;
 };
 
 #endif

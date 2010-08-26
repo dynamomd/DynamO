@@ -82,15 +82,15 @@ OPSCParameter::ticker()
 }
 
 void 
-OPSCParameter::output(xmlw::XmlStream& XML)
+OPSCParameter::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("SCParameter")
-      << xmlw::attr("SCWaveNumber") 
+  XML << xml::tag("SCParameter")
+      << xml::attr("SCWaveNumber") 
       << lrint(std::pow(Sim->N, 1.0/3.0))
-      << xmlw::attr("SCWaveNumberVal") 
+      << xml::attr("SCWaveNumberVal") 
       << runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
     / (static_cast<Iflt>(count) * Sim->N) 
-      << xmlw::chardata();
+      << xml::chardata();
   
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
@@ -99,7 +99,7 @@ OPSCParameter::output(xmlw::XmlStream& XML)
 	  << "\n";
     }
 
-  XML << xmlw::endtag("SCParameter");
+  XML << xml::endtag("SCParameter");
 }
 
 void 

@@ -26,7 +26,7 @@
 #include "../../base/is_base.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
 class XmlStream;
 }
@@ -109,14 +109,14 @@ class BoundaryCondition: public DYNAMO::SimBase_const
   virtual BoundaryCondition* Clone () const = 0;
 
   /*! \brief A helper for writing BoundaryCondition's to an XmlStream. */
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const BoundaryCondition&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const BoundaryCondition&);
 
   /*! \brief The class loader for boundary conditions. */
   static BoundaryCondition* loadClass(const XMLNode& ,DYNAMO::SimData*);
 
  protected:
   /*! \brief The XML output for a BoundaryCondition class*/
-  virtual void outputXML(xmlw::XmlStream &XML) const = 0;
+  virtual void outputXML(xml::XmlStream &XML) const = 0;
 };
 
 #endif

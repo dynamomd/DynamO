@@ -49,14 +49,14 @@ C2RPair::operator<<(const XMLNode&)
 }
 
 void 
-C2RPair::outputXML(xmlw::XmlStream& XML) const
+C2RPair::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "Pair" 
-      << xmlw::tag("Range1")
+  XML << xml::attr("Range") << "Pair" 
+      << xml::tag("Range1")
       << range1
-      << xmlw::endtag("Range1")
-      << xmlw::tag("Range2")
+      << xml::endtag("Range1")
+      << xml::tag("Range2")
       << range2
-      << xmlw::endtag("Range2");
+      << xml::endtag("Range2");
 }
 

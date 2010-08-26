@@ -45,7 +45,7 @@ class OPVACF: public OutputPlugin
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
     
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   virtual void initialise();
 

@@ -111,32 +111,32 @@ OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&
 }
 
 void
-OPRdotV::output(xmlw::XmlStream &XML)
+OPRdotV::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("RdotV");
+  XML << xml::tag("RdotV");
   
   typedef std::pair<const mapKey, mapdata> mappair;
 
   BOOST_FOREACH(const mappair& pair1, rvdotacc)
     {
-      XML << xmlw::tag("Element")
-	  << xmlw::attr("Type") 
+      XML << xml::tag("Element")
+	  << xml::attr("Type") 
 	  << pair1.first.get<0>()
-	  << xmlw::attr("EventName") 
+	  << xml::attr("EventName") 
 	  << getName(pair1.first.get<1>(), Sim)
-	  << xmlw::attr("Species1")
+	  << xml::attr("Species1")
 	  << Sim->dynamics.getSpecies()[pair1.first.get<2>()]->getName()
-	  << xmlw::attr("Species2")
+	  << xml::attr("Species2")
 	  << Sim->dynamics.getSpecies()[pair1.first.get<3>()]->getName()
-	  << xmlw::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
+	  << xml::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
 	/ (Sim->dynamics.units().unitVelocity() 
 	   * Sim->dynamics.units().unitLength()
 	   * Sim->dynamics.units().unitMass());
       
       pair1.second.costheta.outputHistogram(XML, 1.0);
       
-      XML << xmlw::endtag("Element");
+      XML << xml::endtag("Element");
     }
 
-    XML << xmlw::endtag("RdotV");
+    XML << xml::endtag("RdotV");
 }

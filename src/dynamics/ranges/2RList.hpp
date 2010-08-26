@@ -40,7 +40,7 @@ public:
   const std::map<unsigned long, std::list<unsigned long> >& getPairMap() const;
   
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   std::map<unsigned long, std::list<unsigned long> > pairmap;
 };

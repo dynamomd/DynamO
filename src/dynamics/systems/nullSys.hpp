@@ -46,7 +46,7 @@ public:
   virtual bool operator<(const System&) const { return false; }
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const {}
+  virtual void outputXML(xml::XmlStream&) const {}
 };
 
 #endif

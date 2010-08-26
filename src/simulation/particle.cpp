@@ -23,26 +23,26 @@
 #include <ostream>
 
 Particle::Particle(const XMLNode& XML, unsigned long nID):
-  ID(nID),
-  pecTime(0.0)
+  _ID(nID),
+  _peculiarTime(0.0)
 {
   XMLNode xBrowseNode = XML.getChildNode("P");
-  posVector << xBrowseNode;
+  _pos << xBrowseNode;
   
   xBrowseNode = XML.getChildNode("V");
-  velVector << xBrowseNode;
+  _vel << xBrowseNode;
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Particle& particle)
 {
-  XML << xmlw::attr("ID") << particle.ID
-      << xmlw::tag("P")
-      << (particle.posVector)
-      << xmlw::endtag("P")
-      << xmlw::tag("V")
-      << (particle.velVector)
-      << xmlw::endtag("V");
+  XML << xml::attr("ID") << particle._ID
+      << xml::tag("P")
+      << (particle._pos)
+      << xml::endtag("P")
+      << xml::tag("V")
+      << (particle._vel)
+      << xml::endtag("V");
   
   return XML;
 }

@@ -93,26 +93,26 @@ OPKEnergy::stream(const Iflt& dt)
 }
 
 void
-OPKEnergy::output(xmlw::XmlStream &XML)
+OPKEnergy::output(xml::XmlStream &XML)
 {
   Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
     / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
 
-  XML << xmlw::tag("KEnergy")
-      << xmlw::tag("T") << xmlw::attr("val") << getAvgTheta()
-      << xmlw::attr("current")
+  XML << xml::tag("KEnergy")
+      << xml::tag("T") << xml::attr("val") << getAvgTheta()
+      << xml::attr("current")
       << (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
 	  / (Sim->dynamics.getLiouvillean().getParticleDOF() * Sim->N * Sim->dynamics.units().unitEnergy()))
-      << xmlw::endtag("T")
-      << xmlw::tag("T2") << xmlw::attr("val") << getAvgSqTheta()
-      << xmlw::endtag("T2")
+      << xml::endtag("T")
+      << xml::tag("T2") << xml::attr("val") << getAvgSqTheta()
+      << xml::endtag("T2")
 
-      << xmlw::tag("PowerLoss")
-      << xmlw::attr("val") << powerloss
-      << xmlw::endtag("PowerLoss")
+      << xml::tag("PowerLoss")
+      << xml::attr("val") << powerloss
+      << xml::endtag("PowerLoss")
 
-      << xmlw::endtag("KEnergy");
+      << xml::endtag("KEnergy");
 }
 
 void

@@ -121,19 +121,19 @@ CLAndersenWall::operator<<(const XMLNode& XML)
 }
 
 void
-CLAndersenWall::outputXML(xmlw::XmlStream& XML) const
+CLAndersenWall::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "AndersenWall"
-      << xmlw::attr("Name") << localName
-      << xmlw::attr("Temperature") << sqrtT * sqrtT 
+  XML << xml::attr("Type") << "AndersenWall"
+      << xml::attr("Name") << localName
+      << xml::attr("Temperature") << sqrtT * sqrtT 
     / Sim->dynamics.units().unitEnergy()
       << range
-      << xmlw::tag("Norm")
+      << xml::tag("Norm")
       << vNorm
-      << xmlw::endtag("Norm")
-      << xmlw::tag("Origin")
+      << xml::endtag("Norm")
+      << xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xmlw::endtag("Origin");
+      << xml::endtag("Origin");
 }
 
 void 

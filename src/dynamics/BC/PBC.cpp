@@ -31,10 +31,10 @@ BCSquarePeriodic::BCSquarePeriodic(const DYNAMO::SimData* tmp):
 }
   
 void 
-BCSquarePeriodic::outputXML(xmlw::XmlStream &XML) const
+BCSquarePeriodic::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Shape") << "Square"
-      << xmlw::attr("Boundary") << "PBC";
+  XML << xml::attr("Shape") << "Square"
+      << xml::attr("Boundary") << "PBC";
 }
 
 BoundaryCondition* 
@@ -98,10 +98,10 @@ BCRectangularPeriodic::applyBC(Vector  &pos, const Iflt&) const
 }
 
 void 
-BCRectangularPeriodic::outputXML(xmlw::XmlStream &XML) const
+BCRectangularPeriodic::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Shape") << "Rectangular"
-      << xmlw::attr("Boundary") << "PBC";
+  XML << xml::attr("Shape") << "Rectangular"
+      << xml::attr("Boundary") << "PBC";
 }
 
 void 
@@ -120,10 +120,10 @@ BCSquarePeriodicExceptX::BCSquarePeriodicExceptX(const DYNAMO::SimData* tmp):
 }
 
 void 
-BCSquarePeriodicExceptX::outputXML(xmlw::XmlStream &XML) const
+BCSquarePeriodicExceptX::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Shape") << "Rectangular"
-      << xmlw::attr("Boundary") << "NoXPBC";
+  XML << xml::attr("Shape") << "Rectangular"
+      << xml::attr("Boundary") << "NoXPBC";
 }
 
 void 
@@ -179,10 +179,10 @@ BCSquarePeriodicXOnly::BCSquarePeriodicXOnly(const DYNAMO::SimData* tmp):
 }
 
 void 
-BCSquarePeriodicXOnly::outputXML(xmlw::XmlStream &XML) const
+BCSquarePeriodicXOnly::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Shape") << "Rectangular"
-      << xmlw::attr("Boundary") << "OnlyXPBC";
+  XML << xml::attr("Shape") << "Rectangular"
+      << xml::attr("Boundary") << "OnlyXPBC";
 }
 
 void 

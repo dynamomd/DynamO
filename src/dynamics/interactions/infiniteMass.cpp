@@ -146,12 +146,12 @@ IInfiniteMass::runEvent(const Particle& p1,
 }
    
 void 
-IInfiniteMass::outputXML(xmlw::XmlStream& XML) const
+IInfiniteMass::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "InfiniteMass"
-      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Name") << intName
+  XML << xml::attr("Type") << "InfiniteMass"
+      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << xml::attr("Elasticity") << e
+      << xml::attr("Name") << intName
       << range;
 }
 

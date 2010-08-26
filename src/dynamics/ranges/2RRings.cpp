@@ -83,14 +83,14 @@ C2RRings::operator<<(const XMLNode&)
 }
 
 void 
-C2RRings::outputXML(xmlw::XmlStream& XML) const
+C2RRings::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "Rings" 
-      << xmlw::attr("Start")
+  XML << xml::attr("Range") << "Rings" 
+      << xml::attr("Start")
       << range1
-      << xmlw::attr("End")
+      << xml::attr("End")
       << range2
-      << xmlw::attr("Interval")
+      << xml::attr("Interval")
       << interval;
 }
 

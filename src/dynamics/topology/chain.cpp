@@ -38,9 +38,9 @@ CTChain::CTChain(DYNAMO::SimData* Sim, unsigned int ID, std::string nName):
 }
 
 void 
-CTChain::outputXML(xmlw::XmlStream& XML) const 
+CTChain::outputXML(xml::XmlStream& XML) const 
 {
-  XML << xmlw::attr("Type") << "Chain";
+  XML << xml::attr("Type") << "Chain";
   Topology::outputXML(XML);
 }
 

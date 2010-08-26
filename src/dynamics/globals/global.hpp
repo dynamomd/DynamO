@@ -23,7 +23,7 @@
 #include "../ranges/1range.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -50,7 +50,7 @@ public:
 
   virtual void initialise(size_t) = 0;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Global&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Global&);
 
   static Global* getClass(const XMLNode&, DYNAMO::SimData*);
 
@@ -63,7 +63,7 @@ public:
   inline const size_t& getID() const { return ID; }
   
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 
   ClonePtr<CRange> range;  
   std::string globName;

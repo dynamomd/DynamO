@@ -40,7 +40,7 @@ class XMLNode;
 class NEventData;
 class PairEventData;
 class ParticleEventData;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -164,7 +164,7 @@ public:
 
   void addSystemTicker();
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Dynamics&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Dynamics&);
 
   //Inlines
   inline const Units& units() const 
@@ -208,7 +208,7 @@ public:
   Iflt getPackingFraction() const;
 
  protected:
-  void outputXML(xmlw::XmlStream &) const;
+  void outputXML(xml::XmlStream &) const;
 
   std::vector<ClonePtr<Interaction> > interactions;
   std::vector<ClonePtr<Global> > globals;

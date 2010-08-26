@@ -55,10 +55,10 @@ C2RRangeList::operator<<(const XMLNode& XML)
 }
 
 void 
-C2RRangeList::outputXML(xmlw::XmlStream& XML) const
+C2RRangeList::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "RangeList";
+  XML << xml::attr("Range") << "RangeList";
 
   BOOST_FOREACH(const ClonePtr<C2Range>& rPtr, ranges)
-    XML << xmlw::tag("RangeListItem") << rPtr << xmlw::endtag("RangeListItem");
+    XML << xml::tag("RangeListItem") << rPtr << xml::endtag("RangeListItem");
 }

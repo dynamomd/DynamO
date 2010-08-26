@@ -35,7 +35,7 @@ class BCRectangularLeesEdwards: virtual public BoundaryCondition, public CLEBC
 
   BCRectangularLeesEdwards(const XMLNode&, const DYNAMO::SimData*);
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   virtual void operator<<(const XMLNode&);
 
@@ -71,7 +71,7 @@ class BCSquareLeesEdwards: virtual public BoundaryCondition, public CLEBC
 
   BCSquareLeesEdwards(const XMLNode&, const DYNAMO::SimData*);
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   virtual void operator<<(const XMLNode&);
 

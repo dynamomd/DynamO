@@ -172,5 +172,5 @@ OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat,
 }
 
 void 
-OPTrajectory::output(xmlw::XmlStream& XML)
+OPTrajectory::output(xml::XmlStream& XML)
 {}

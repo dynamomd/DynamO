@@ -50,15 +50,15 @@ CVector<T>::operator<<(const XMLNode &XML)
 
 template<class T>
 inline
-xmlw::XmlStream& 
-operator<<(xmlw::XmlStream& XML, const CVector<T> &vec)
+xml::XmlStream& 
+operator<<(xml::XmlStream& XML, const CVector<T> &vec)
 {
   char name[2] = "x";
   
   for (int iDim = 0; iDim < NDIM; iDim++)
     {
       name[0]= 'x'+iDim; //Write the dimension
-      XML << xmlw::attr(name) << vec[iDim];
+      XML << xml::attr(name) << vec[iDim];
     }
   
   return XML;
@@ -66,16 +66,16 @@ operator<<(xmlw::XmlStream& XML, const CVector<T> &vec)
 
 template<class T>
 inline
-xmlw::XmlStream& 
-operator<<(xmlw::XmlStream& XML, const CVector<CVector<T> > &vec)
+xml::XmlStream& 
+operator<<(xml::XmlStream& XML, const CVector<CVector<T> > &vec)
 {
   char name[2] = "x";
   
   for (int iDim = 0; iDim < NDIM; iDim++)
     {
       name[0]= 'x'+iDim; //Write the dimension
-      XML << xmlw::tag(name) << vec[iDim]
-	  << xmlw::endtag(name);
+      XML << xml::tag(name) << vec[iDim]
+	  << xml::endtag(name);
     }
   
   return XML;
@@ -83,7 +83,7 @@ operator<<(xmlw::XmlStream& XML, const CVector<CVector<T> > &vec)
 
 // vectors
 template<class A, int B, class C>
-inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+inline xml::XmlStream& operator<<(xml::XmlStream& XML, 
 				    const VectorExpression<A,B,C> & t )
 {
   char name[2] = "x";
@@ -91,7 +91,7 @@ inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       name[0]= 'x'+iDim; //Write the dimension
-      XML << xmlw::attr(name) << t(iDim);
+      XML << xml::attr(name) << t(iDim);
     }
   
   return XML;
@@ -122,7 +122,7 @@ operator<<(VectorExpression<>& data, const XMLNode &XML)
 
 // vectors
 template<class A, int B, class C>
-inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+inline xml::XmlStream& operator<<(xml::XmlStream& XML, 
 				   const MatrixExpression<A,B,C> & t )
 {
   char name[2] = "x";
@@ -130,16 +130,16 @@ inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
       name[0] = 'x'+iDim;
-      XML << xmlw::tag(name);
+      XML << xml::tag(name);
       
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	{
 	  char name2[2] = "x";
 	  name2[0] = 'x'+jDim;
-	  XML << xmlw::attr(name2) << t(iDim,jDim);
+	  XML << xml::attr(name2) << t(iDim,jDim);
 	}
 
-      XML << xmlw::endtag(name);
+      XML << xml::endtag(name);
     }
   
   return XML;

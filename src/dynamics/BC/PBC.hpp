@@ -36,7 +36,7 @@ public:
 
   virtual void applyBC(Vector &, const Iflt&) const;
 
-  inline virtual void outputXML(xmlw::XmlStream &) const;  
+  inline virtual void outputXML(xml::XmlStream &) const;  
   virtual void operator<<(const XMLNode&);
   virtual BoundaryCondition* Clone () const;
 };
@@ -56,7 +56,7 @@ public:
 
   virtual void applyBC(Vector &, const Iflt&) const;
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
   virtual BoundaryCondition* Clone () const;
 };
@@ -78,7 +78,7 @@ public:
   
   virtual void applyBC(Vector  &pos, const Iflt&) const;
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
   virtual BoundaryCondition* Clone () const;
 };
@@ -101,7 +101,7 @@ public:
   
   virtual void applyBC(Vector  &pos, const Iflt&) const;
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
   virtual BoundaryCondition* Clone () const;
 };

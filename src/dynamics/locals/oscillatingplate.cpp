@@ -150,28 +150,28 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
 }
 
 void 
-CLOscillatingPlate::outputXML(xmlw::XmlStream& XML) const
+CLOscillatingPlate::outputXML(xml::XmlStream& XML) const
 {
   Iflt tmp = Sim->dSysTime + timeshift;
 
   tmp -= 2.0 * PI * int(tmp * omega0 / (2.0 * PI) ) / omega0;
 
-  XML << xmlw::attr("Type") << "OscillatingPlate" 
-      << xmlw::attr("Name") << localName
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Omega0") << omega0 * Sim->dynamics.units().unitTime()
-      << xmlw::attr("Sigma") << sigma / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Delta") << delta / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Mass") << mass / Sim->dynamics.units().unitMass()
-      << xmlw::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
-      << xmlw::attr("StrongPlate") << strongPlate
+  XML << xml::attr("Type") << "OscillatingPlate" 
+      << xml::attr("Name") << localName
+      << xml::attr("Elasticity") << e
+      << xml::attr("Omega0") << omega0 * Sim->dynamics.units().unitTime()
+      << xml::attr("Sigma") << sigma / Sim->dynamics.units().unitLength()
+      << xml::attr("Delta") << delta / Sim->dynamics.units().unitLength()
+      << xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
+      << xml::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
+      << xml::attr("StrongPlate") << strongPlate
       << range
-      << xmlw::tag("Norm")
+      << xml::tag("Norm")
       << nhat
-      << xmlw::endtag("Norm")
-      << xmlw::tag("Origin")
+      << xml::endtag("Norm")
+      << xml::tag("Origin")
       << rw0 / Sim->dynamics.units().unitLength()
-      << xmlw::endtag("Origin");
+      << xml::endtag("Origin");
 
 }
 

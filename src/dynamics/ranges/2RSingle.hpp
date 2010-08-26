@@ -39,7 +39,7 @@ public:
   const ClonePtr<CRange>& getRange() const { return range; }
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   ClonePtr<CRange> range;
 };

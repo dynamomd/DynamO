@@ -80,30 +80,30 @@ OPMFT::A1ParticleChange(const ParticleEventData& PDat)
 }
 
 void
-OPMFT::output(xmlw::XmlStream &XML)
+OPMFT::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("MFT");
+  XML << xml::tag("MFT");
   
   for (size_t id = 0; id < data.size(); ++id)
     {
-      XML << xmlw::tag("Species")
-	  << xmlw::attr("Name")
+      XML << xml::tag("Species")
+	  << xml::attr("Name")
 	  << Sim->dynamics.getSpecies()[id]->getName();
       
       for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
 	{
-	  XML << xmlw::tag("Collisions")
-	      << xmlw::attr("val") << collN + 1;
+	  XML << xml::tag("Collisions")
+	      << xml::attr("val") << collN + 1;
 	  
 	  data[id][collN].outputHistogram
 	    (XML, 1.0 / Sim->dynamics.units().unitTime());
 	  
-	  XML << xmlw::endtag("Collisions");
+	  XML << xml::endtag("Collisions");
 	}
 	
-      XML << xmlw::endtag("Species");
+      XML << xml::endtag("Species");
     }
   
-  XML << xmlw::endtag("MFT");
+  XML << xml::endtag("MFT");
 }
 

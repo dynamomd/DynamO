@@ -64,12 +64,12 @@ OPReverseEventsCheck::eventUpdate(const System&, const NEventData&,
 }
 
 void 
-OPReverseEventsCheck::output(xmlw::XmlStream& XML)
+OPReverseEventsCheck::output(xml::XmlStream& XML)
 {
   I_cout() << "Reverse Event Count " << lReverseEvents;
 
-  XML << xmlw::tag("ReverseEvents")
-      << xmlw::attr("Count") << lReverseEvents
-      << xmlw::endtag("ReverseEvents");
+  XML << xml::tag("ReverseEvents")
+      << xml::attr("Count") << lReverseEvents
+      << xml::endtag("ReverseEvents");
 
 }

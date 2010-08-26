@@ -131,10 +131,10 @@ OPMSDCorrelator::accPass()
 }
 
 void
-OPMSDCorrelator::output(xmlw::XmlStream &XML)
+OPMSDCorrelator::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("MSDCorrelator")
-      << xmlw::tag("Particles");
+  XML << xml::tag("MSDCorrelator")
+      << xml::tag("Particles");
   
   Iflt dt = dynamic_cast<const CSTicker&>
     (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
@@ -142,10 +142,10 @@ OPMSDCorrelator::output(xmlw::XmlStream &XML)
   
   BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     {
-      XML << xmlw::tag("Species")
-	  << xmlw::attr("Name")
+      XML << xml::tag("Species")
+	  << xml::attr("Name")
 	  << sp->getName()
-	  << xmlw::chardata();
+	  << xml::chardata();
       
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
@@ -155,19 +155,19 @@ OPMSDCorrelator::output(xmlw::XmlStream &XML)
 	     * Sim->dynamics.units().unitArea())
 	    << "\n";
       
-      XML << xmlw::endtag("Species");
+      XML << xml::endtag("Species");
     }
   
-  XML << xmlw::endtag("Particles")
-      << xmlw::tag("Topology");
+  XML << xml::endtag("Particles")
+      << xml::tag("Topology");
   
   BOOST_FOREACH(const ClonePtr<Topology>& topo, 
 		Sim->dynamics.getTopology())
     {
-      XML << xmlw::tag("Structure")
-	  << xmlw::attr("Name")
+      XML << xml::tag("Structure")
+	  << xml::attr("Name")
 	  << topo->getName()
-	  << xmlw::chardata();
+	  << xml::chardata();
       
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
@@ -177,9 +177,9 @@ OPMSDCorrelator::output(xmlw::XmlStream &XML)
 	     * Sim->dynamics.units().unitArea())
 	    << "\n";
 	
-      XML << xmlw::endtag("Structure");
+      XML << xml::endtag("Structure");
     }
   
-  XML << xmlw::endtag("Topology")
-      << xmlw::endtag("MSDCorrelator");
+  XML << xml::endtag("Topology")
+      << xml::endtag("MSDCorrelator");
 }

@@ -45,11 +45,11 @@ BCRectangularLeesEdwards::BCRectangularLeesEdwards(const XMLNode& XML, const DYN
 }
 
 void 
-BCRectangularLeesEdwards::outputXML(xmlw::XmlStream &XML) const
+BCRectangularLeesEdwards::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Shape") << "Rectangular"
-      << xmlw::attr("Boundary") << "LE"
-      << xmlw::attr("DXD") << dxd;
+  XML << xml::attr("Shape") << "Rectangular"
+      << xml::attr("Boundary") << "LE"
+      << xml::attr("DXD") << dxd;
 }
 
 void 
@@ -141,11 +141,11 @@ BCSquareLeesEdwards::BCSquareLeesEdwards(const XMLNode& XML, const DYNAMO::SimDa
 }
 
 void 
-BCSquareLeesEdwards::outputXML(xmlw::XmlStream &XML) const
+BCSquareLeesEdwards::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Shape") << "Square"
-      << xmlw::attr("Boundary") << "LE"
-      << xmlw::attr("DXD") << dxd;
+  XML << xml::attr("Shape") << "Square"
+      << xml::attr("Boundary") << "LE"
+      << xml::attr("DXD") << dxd;
 }
 
 void 

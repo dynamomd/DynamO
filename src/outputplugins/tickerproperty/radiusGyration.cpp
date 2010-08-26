@@ -331,21 +331,21 @@ OPRGyration::ticker()
 }
 
 void 
-OPRGyration::output(xmlw::XmlStream& XML)
+OPRGyration::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("ChainGyration");
+  XML << xml::tag("ChainGyration");
 
   BOOST_FOREACH(CTCdata& dat, chains)
     {
-      XML << xmlw::tag("Chain") << xmlw::attr("Name") 
+      XML << xml::tag("Chain") << xml::attr("Name") 
 	  << dat.chainPtr->getName().c_str()
-	  << xmlw::tag("GyrationRadii");
+	  << xml::tag("GyrationRadii");
       
       for (size_t i = 0; i< NDIM; i++)
 	dat.gyrationRadii.at(i).outputHistogram(XML,1.0/Sim->dynamics.units().unitArea());
 
-      XML << xmlw::endtag("GyrationRadii")
-	  << xmlw::tag("NematicOrderParameter");
+      XML << xml::endtag("GyrationRadii")
+	  << xml::tag("NematicOrderParameter");
 
       std::list<Vector  > molAxis;
 
@@ -359,24 +359,24 @@ OPRGyration::output(xmlw::XmlStream& XML)
 	  {
 	    char lett[2] = {char('x' + i), '\0'};
 	    
-	    XML << xmlw::attr(lett)
+	    XML << xml::attr(lett)
 		<< EigenVal[i];
 	  }
 
       for (size_t i = 0; i<NDIM; i++)
 	dat.nematicOrder.at(i).outputHistogram(XML, 1.0);
       
-      XML << xmlw::endtag("NematicOrderParameter")
-	  << xmlw::tag("CubaticOrderParameter")
-	  << xmlw::attr("CurrentVal")
+      XML << xml::endtag("NematicOrderParameter")
+	  << xml::tag("CubaticOrderParameter")
+	  << xml::attr("CurrentVal")
 	  << CubaticOrderParameter(molAxis);
 
       dat.cubaticOrder.outputHistogram(XML, 1.0);
 
-      XML << xmlw::endtag("CubaticOrderParameter")
-	  << xmlw::endtag("Chain");
+      XML << xml::endtag("CubaticOrderParameter")
+	  << xml::endtag("Chain");
     }
 
-  XML << xmlw::endtag("ChainGyration");
+  XML << xml::endtag("ChainGyration");
   
 }

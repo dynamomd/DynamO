@@ -44,7 +44,7 @@ class OPPlateMotion: public OPTicker
 
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
  protected:
   mutable std::ofstream logfile;

@@ -35,7 +35,7 @@ CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 	      << XML.getAttribute("Type") << "`encountered";
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const CSCEntry& g)
 {
   g.outputXML(XML);

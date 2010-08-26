@@ -33,7 +33,7 @@ public:
   virtual OutputPlugin* Clone() const 
   { return new OPCollisionCorrelator(*this); }
 
-  void output(xmlw::XmlStream &XML);
+  void output(xml::XmlStream &XML);
 
   void operator<<(const XMLNode&);
 

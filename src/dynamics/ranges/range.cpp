@@ -41,13 +41,13 @@ CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)
 	      << ", Unknown type of Range encountered";
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CRange&g)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const CRange&g)
 {
   g.outputXML(XML);
   return XML;
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const C2Range& g)
 {
   g.outputXML(XML);

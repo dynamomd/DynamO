@@ -88,12 +88,12 @@ CSNeighbourList::initialise()
 }
 
 void 
-CSNeighbourList::outputXML(xmlw::XmlStream& XML) const
+CSNeighbourList::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "NeighbourList"
-      << xmlw::tag("Sorter")
+  XML << xml::attr("Type") << "NeighbourList"
+      << xml::tag("Sorter")
       << sorter
-      << xmlw::endtag("Sorter");
+      << xml::endtag("Sorter");
 }
 
 CSNeighbourList::CSNeighbourList(const XMLNode& XML, 

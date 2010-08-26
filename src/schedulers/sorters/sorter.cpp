@@ -41,7 +41,7 @@ CSSorter::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
     D_throw() << "Unknown type of Sorter encountered";
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CSSorter& srtr)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const CSSorter& srtr)
 {
   srtr.outputXML(XML);
   return XML;

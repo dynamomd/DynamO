@@ -312,19 +312,19 @@ IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-IStepped::outputXML(xmlw::XmlStream& XML) const
+IStepped::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Stepped"
-      << xmlw::attr("Name") << intName
+  XML << xml::attr("Type") << "Stepped"
+      << xml::attr("Name") << intName
       << range;
 
   BOOST_FOREACH(const steppair& s, steps)
-    XML << xmlw::tag("Step")
-	<< xmlw::attr("R") 
+    XML << xml::tag("Step")
+	<< xml::attr("R") 
 	<< s.first / Sim->dynamics.units().unitLength()
-	<< xmlw::attr("E")
+	<< xml::attr("E")
 	<< s.second / Sim->dynamics.units().unitEnergy()
-	<< xmlw::endtag("Step");
+	<< xml::endtag("Step");
   
   IMultiCapture::outputCaptureMap(XML);  
 }

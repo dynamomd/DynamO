@@ -60,7 +60,7 @@ CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 	      << ", Unknown type of Scheduler encountered";
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const CScheduler& g)
 {
   g.outputXML(XML);

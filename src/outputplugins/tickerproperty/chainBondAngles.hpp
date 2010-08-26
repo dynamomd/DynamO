@@ -38,7 +38,7 @@ class OPChainBondAngles: public OPTicker
 
   virtual void changeSystem(OutputPlugin*);
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   virtual void operator<<(const XMLNode&);
   

@@ -33,9 +33,9 @@ CRAll::operator<<(const XMLNode& XML)
 }
 
 void 
-CRAll::outputXML(xmlw::XmlStream& XML) const
+CRAll::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "All";
+  XML << xml::attr("Range") << "All";
 }
 
 

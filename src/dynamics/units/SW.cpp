@@ -87,11 +87,11 @@ USquareWell::operator<<(const XMLNode &XML)
 }
 
 void 
-USquareWell::outputXML(xmlw::XmlStream &XML) const
+USquareWell::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Type") << "SW"
-      << xmlw::attr("BoxLength") << 1.0/UnitOfLength 
-      << xmlw::attr("Energy") << UnitOfEnergy; 
+  XML << xml::attr("Type") << "SW"
+      << xml::attr("BoxLength") << 1.0/UnitOfLength 
+      << xml::attr("Energy") << UnitOfEnergy; 
 }
 
 

@@ -22,7 +22,7 @@
 #include "../../simulation/particle.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -66,7 +66,7 @@ public:
   inline EEventType getType() const
     { return CType; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const GlobalEvent&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const GlobalEvent&);
 
   std::string stringData(const DYNAMO::SimData*) const;
 

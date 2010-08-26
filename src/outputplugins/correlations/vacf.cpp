@@ -208,7 +208,7 @@ OPVACF::newG(const NEventData& PDat)
 }
 
 void 
-OPVACF::output(xmlw::XmlStream& XML)
+OPVACF::output(xml::XmlStream& XML)
 {
   Iflt factor = Sim->dynamics.units().unitTime() 
     / (Sim->dynamics.units().unitDiffusion() * count);
@@ -224,18 +224,18 @@ OPVACF::output(xmlw::XmlStream& XML)
       
       acc *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
-      XML << xmlw::tag("Correlator")
-	  << xmlw::attr("name") << "VACF"
-	  << xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
-	  << xmlw::attr("size") << accG2.size()
-	  << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-	  << xmlw::attr("LengthInMFT") << dt * accG2[i].size() 
+      XML << xml::tag("Correlator")
+	  << xml::attr("name") << "VACF"
+	  << xml::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+	  << xml::attr("size") << accG2.size()
+	  << xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	  << xml::attr("LengthInMFT") << dt * accG2[i].size() 
 	/ Sim->getOutputPlugin<OPMisc>()->getMFT()
-	  << xmlw::attr("simFactor") << factor / specCount
-	  << xmlw::attr("SampleCount") << count
-	  << xmlw::tag("Integral") << acc
-	  << xmlw::endtag("Integral")
-	  << xmlw::chardata();
+	  << xml::attr("simFactor") << factor / specCount
+	  << xml::attr("SampleCount") << count
+	  << xml::tag("Integral") << acc
+	  << xml::endtag("Integral")
+	  << xml::chardata();
             
       for (size_t j = 0; j < accG2[i].size(); ++j)
 	{
@@ -245,7 +245,7 @@ OPVACF::output(xmlw::XmlStream& XML)
 	  XML << "\n";
 	}
       
-      XML << xmlw::endtag("Correlator");
+      XML << xml::endtag("Correlator");
     }
 }
 

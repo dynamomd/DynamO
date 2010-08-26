@@ -72,7 +72,7 @@ OP3DField::collisionUpdate(const IntEvent &collision,
 }
 
 void 
-OP3DField::output(xmlw::XmlStream &XML)
+OP3DField::output(xml::XmlStream &XML)
 {
   //Create a image
   vtkImageData* image = Density.getVTKImage();

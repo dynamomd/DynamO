@@ -41,39 +41,39 @@ OPMSD::initialise()
 }
 
 void
-OPMSD::output(xmlw::XmlStream &XML)
+OPMSD::output(xml::XmlStream &XML)
 {
   {
     Iflt MSD(calcMSD());
 
-    XML << xmlw::tag("MSD") 
-	<< xmlw::tag("Particle") 
-	<< xmlw::attr("val") << MSD
-	<< xmlw::attr("diffusionCoeff") 
+    XML << xml::tag("MSD") 
+	<< xml::tag("Particle") 
+	<< xml::attr("val") << MSD
+	<< xml::attr("diffusionCoeff") 
 	<< MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	<< xmlw::endtag("Particle");
+	<< xml::endtag("Particle");
   }
 
   if (!Sim->dynamics.getTopology().empty())
     {
-      XML << xmlw::tag("Structures");
+      XML << xml::tag("Structures");
 
       BOOST_FOREACH(const ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
 	{
 	  Iflt MSD(calcStructMSD(*topo));
 
-	  XML << xmlw::tag("Structure")
-	      << xmlw::attr("Name") << topo->getName()
-	      << xmlw::attr("val") << MSD
-	      << xmlw::attr("diffusionCoeff") 
+	  XML << xml::tag("Structure")
+	      << xml::attr("Name") << topo->getName()
+	      << xml::attr("val") << MSD
+	      << xml::attr("diffusionCoeff") 
 	      << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	      << xmlw::endtag("Structure");
+	      << xml::endtag("Structure");
 	}
 
-      XML << xmlw::endtag("Structures");
+      XML << xml::endtag("Structures");
     }
 
-  XML << xmlw::endtag("MSD");
+  XML << xml::endtag("MSD");
 }
 
 Iflt

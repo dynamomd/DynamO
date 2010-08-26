@@ -173,11 +173,11 @@ CSysRescale::operator<<(const XMLNode& XML)
 }
 
 void 
-CSysRescale::outputXML(xmlw::XmlStream& XML) const
+CSysRescale::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::tag("System")
-      << xmlw::attr("Type") << "Rescale"
-      << xmlw::attr("Name") << sysName
-      << xmlw::attr("Freq") << _frequency
-      << xmlw::endtag("System");
+  XML << xml::tag("System")
+      << xml::attr("Type") << "Rescale"
+      << xml::attr("Name") << sysName
+      << xml::attr("Freq") << _frequency
+      << xml::endtag("System");
 }

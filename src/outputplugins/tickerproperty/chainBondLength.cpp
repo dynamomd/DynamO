@@ -70,14 +70,14 @@ OPChainBondLength::ticker()
 }
 
 void 
-OPChainBondLength::output(xmlw::XmlStream& XML)
+OPChainBondLength::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("BondAngleLength");
+  XML << xml::tag("BondAngleLength");
   
   BOOST_FOREACH(Cdata& dat, chains)
     {
-      XML << xmlw::tag("Chain")
-	  << xmlw::attr("Name") 
+      XML << xml::tag("Chain")
+	  << xml::attr("Name") 
 	  << Sim->dynamics.getTopology()[dat.chainID]->getName();
             
       size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
@@ -86,8 +86,8 @@ OPChainBondLength::output(xmlw::XmlStream& XML)
       for (size_t i = 0; i < Nc; ++i)
 	dat.BondLengths[i].outputHistogram(XML, 1.0/Sim->dynamics.units().unitLength());
       
-      XML << xmlw::endtag("Chain");
+      XML << xml::endtag("Chain");
     }
   
-  XML << xmlw::endtag("BondAngleLength");
+  XML << xml::endtag("BondAngleLength");
 }

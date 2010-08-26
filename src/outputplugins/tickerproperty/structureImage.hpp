@@ -38,7 +38,7 @@ class OPStructureImaging: public OPTicker
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
   
  protected:
 

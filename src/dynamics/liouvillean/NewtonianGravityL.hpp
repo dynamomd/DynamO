@@ -69,5 +69,5 @@ protected:
   Iflt Gravity;
   size_t GravityDim;
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 };

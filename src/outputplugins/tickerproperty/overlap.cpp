@@ -35,7 +35,7 @@ OPOverlapTest::initialise()
 }
 
 void
-OPOverlapTest::output(xmlw::XmlStream&)
+OPOverlapTest::output(xml::XmlStream&)
 {
   I_cout() << "Testing for overlaps in output configuration";
   ticker();

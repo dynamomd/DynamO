@@ -259,13 +259,13 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 }
 
 void 
-LNewtonianGravity::outputXML(xmlw::XmlStream& XML) const
+LNewtonianGravity::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") 
+  XML << xml::attr("Type") 
       << "NewtonianGravity"
-      << xmlw::attr("Gravity") 
+      << xml::attr("Gravity") 
       << Gravity / Sim->dynamics.units().unitAcceleration()
-      << xmlw::attr("GravityDimension") 
+      << xml::attr("GravityDimension") 
       << GravityDim
     ;
 }

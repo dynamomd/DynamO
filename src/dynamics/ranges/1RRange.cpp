@@ -40,9 +40,9 @@ CRRange::operator<<(const XMLNode& XML)
 }
 
 void 
-CRRange::outputXML(xmlw::XmlStream& XML) const
+CRRange::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "Ranged"
-      << xmlw::attr("Start") << startID
-      << xmlw::attr("End") << endID;
+  XML << xml::attr("Range") << "Ranged"
+      << xml::attr("Start") << startID
+      << xml::attr("End") << endID;
 }

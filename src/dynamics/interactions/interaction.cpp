@@ -43,7 +43,7 @@ Interaction::isInteraction(const Species &speci) const
   return !(intName.compare(speci.getIntName()));
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Interaction& g)
 {
   g.outputXML(XML);

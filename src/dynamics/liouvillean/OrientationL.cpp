@@ -61,9 +61,9 @@ LNOrientation::initialise()
 }
 
 void
-LNOrientation::outputXML(xmlw::XmlStream& XML) const
+LNOrientation::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") 
+  XML << xml::attr("Type") 
       << "NOrientation";
 }
 
@@ -301,23 +301,23 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
 }
 
 void 
-LNOrientation::extraXMLParticleData(xmlw::XmlStream& XML, const size_t ID) const
+LNOrientation::extraXMLParticleData(xml::XmlStream& XML, const size_t ID) const
 {
-  XML << xmlw::tag("O")
+  XML << xml::tag("O")
       << orientationData[ID].angularVelocity
-      << xmlw::endtag("O")
-      << xmlw::tag("U")
+      << xml::endtag("O")
+      << xml::tag("U")
       << orientationData[ID].orientation
-      << xmlw::endtag("U") ;
+      << xml::endtag("U") ;
 }
 
 void 
-LNOrientation::extraXMLData(xmlw::XmlStream& XML) const
+LNOrientation::extraXMLData(xml::XmlStream& XML) const
 {
   if (Sim->binaryXML)
     {
-      XML << xmlw::tag("AppendedBinaryOrientation")
-	  << xmlw::chardata();
+      XML << xml::tag("AppendedBinaryOrientation")
+	  << xml::chardata();
       
       {
 	boost::iostreams::filtering_ostream base64Convertor;
@@ -339,7 +339,7 @@ LNOrientation::extraXMLData(xmlw::XmlStream& XML) const
 	  }
       }
 
-      XML << "\n" << xmlw::endtag("AppendedBinaryOrientation");
+      XML << "\n" << xml::endtag("AppendedBinaryOrientation");
     }
 }
 

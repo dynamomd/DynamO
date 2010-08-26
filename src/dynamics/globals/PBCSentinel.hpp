@@ -43,7 +43,7 @@ public:
 protected:
   void particlesUpdated(const NEventData&);
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   Iflt maxintdist;
 

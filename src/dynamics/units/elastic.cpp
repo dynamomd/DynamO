@@ -78,9 +78,9 @@ UHardSphere::operator<<(const XMLNode &XML)
 }
 
 void 
-UHardSphere::outputXML(xmlw::XmlStream &XML) const
+UHardSphere::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Type") << "HardSphere"
-      << xmlw::attr("BoxLength") << 1.0/UnitOfLength; 
+  XML << xml::attr("Type") << "HardSphere"
+      << xml::attr("BoxLength") << 1.0/UnitOfLength; 
 }
 

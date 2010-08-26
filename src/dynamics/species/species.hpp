@@ -25,7 +25,7 @@
 #include <list>
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -55,7 +55,7 @@ public:
 
   void initialise();
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Species&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Species&);
   
   const std::string& getName() const { return spName; }
 
@@ -79,7 +79,7 @@ protected:
 	   unsigned int ID, std::string nIName="Bulk");
   
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
   
   Iflt mass;
 

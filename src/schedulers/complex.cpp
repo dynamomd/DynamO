@@ -79,20 +79,20 @@ CSComplex::initialise()
 }
 
 void 
-CSComplex::outputXML(xmlw::XmlStream& XML) const
+CSComplex::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Complex"
-      << xmlw::tag("Sorter")
+  XML << xml::attr("Type") << "Complex"
+      << xml::tag("Sorter")
       << sorter
-      << xmlw::endtag("Sorter")
-      << xmlw::tag("Entries");
+      << xml::endtag("Sorter")
+      << xml::tag("Entries");
   
   BOOST_FOREACH(const ClonePtr<CSCEntry>& ent,  entries)
-    XML << xmlw::tag("Entry")
+    XML << xml::tag("Entry")
 	<< ent
-	<< xmlw::endtag("Entry");
+	<< xml::endtag("Entry");
 
-  XML << xmlw::endtag("Entries");
+  XML << xml::endtag("Entries");
 }
 
 CSComplex::CSComplex(const XMLNode& XML, 

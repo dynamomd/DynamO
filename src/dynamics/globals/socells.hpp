@@ -46,7 +46,7 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void outputXML(xmlw::XmlStream& XML) const;
+  virtual void outputXML(xml::XmlStream& XML) const;
 
 protected:
 

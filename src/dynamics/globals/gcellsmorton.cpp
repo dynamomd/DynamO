@@ -298,14 +298,14 @@ CGCellsMorton::reinitialise(const Iflt& maxdiam)
 }
 
 void
-CGCellsMorton::outputXML(xmlw::XmlStream& XML) const
+CGCellsMorton::outputXML(xml::XmlStream& XML) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << xmlw::attr("Type") << "CellsMorton"
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("Name") << globName;
+  XML << xml::attr("Type") << "CellsMorton"
+      << xml::attr("Lambda") << lambda
+      << xml::attr("Name") << globName;
 
-  if (overlink > 1)   XML << xmlw::attr("OverLink") << overlink;
+  if (overlink > 1)   XML << xml::attr("OverLink") << overlink;
 }
 
 void

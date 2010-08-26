@@ -155,16 +155,16 @@ IRotatedParallelCubes::runEvent(const Particle& p1,
 }
    
 void 
-IRotatedParallelCubes::outputXML(xmlw::XmlStream& XML) const
+IRotatedParallelCubes::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "RotatedParallelCubes"
-      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Name") << intName
+  XML << xml::attr("Type") << "RotatedParallelCubes"
+      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << xml::attr("Elasticity") << e
+      << xml::attr("Name") << intName
       << range
-      << xmlw::tag("Rotation")
+      << xml::tag("Rotation")
       << Rotation
-      << xmlw::endtag("Rotation");
+      << xml::endtag("Rotation");
 }
 
 void

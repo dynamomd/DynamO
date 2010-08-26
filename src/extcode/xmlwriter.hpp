@@ -29,24 +29,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __XMLWRITER_H_2CC1D410_9DE8_4452_B8F0_F987EF152E06
-#define __XMLWRITER_H_2CC1D410_9DE8_4452_B8F0_F987EF152E06
-
-#define XML_SPACING "  "
-
-#define DYNAMO_XMLWrite
-
-// disable terrible MSVC warnings which are issued when using STL
-#ifdef	_MSC_VER
-#pragma warning( disable : 4786 ) 
-#pragma warning( disable : 4514 )
-#endif
+#pragma once
 
 #include	<stack>
 #include	<string>
 #include	<sstream>
 
-namespace xmlw {
+namespace xml {
+  //! The spacing unit to use when a tag is opened
+  const std::string XML_SPACING("  ");
   
   class XmlStream {
   public:
@@ -59,24 +50,24 @@ namespace xmlw {
     // Internal helper class
     struct Controller {
       typedef enum {
-	whatProlog, 
-	whatTag, 
-	whatTagEnd, 
-	whatAttribute, 
-	whatCharData
-      }	what_type;
+	Prolog, 
+	Tag, 
+	TagEnd, 
+	Attribute, 
+	CharData
+      }	ControllerType;
       
-      what_type	what;
+      ControllerType _type;
       std::string str;
       
-      inline Controller(const Controller& c) : what(c.what), str(c.str) {}
-      inline Controller(const what_type _what) : what(_what){}
+      inline Controller(const Controller& c) : _type(c._type), str(c.str) {}
+      inline Controller(const ControllerType type) : _type(type){}
       
       // use template constructor because string field <str> may be initialized 
       // from different sources: char*, std::string etc
       template<class t>
-      inline Controller(const what_type _what, const t& _str): 
-	what(_what), str(_str) {}
+      inline Controller(const ControllerType type, const t& _str):
+	_type(type), str(_str) {}
     };
     
     // XmlStream refers std::ostream object to perform actual output operations
@@ -143,35 +134,33 @@ namespace xmlw {
   // E.g. you may use std::string instead of const char*
   
   inline const XmlStream::Controller prolog() {
-    return XmlStream::Controller(XmlStream::Controller::whatProlog);
+    return XmlStream::Controller(XmlStream::Controller::Prolog);
   }
   
   inline const XmlStream::Controller tag() {
-    return XmlStream::Controller(XmlStream::Controller::whatTag);
+    return XmlStream::Controller(XmlStream::Controller::Tag);
   }
   
   inline const XmlStream::Controller tag(const char* const tag_name) {
-    return XmlStream::Controller(XmlStream::Controller::whatTag, tag_name);
+    return XmlStream::Controller(XmlStream::Controller::Tag, tag_name);
   }
   
   inline const XmlStream::Controller endtag() {
-    return XmlStream::Controller(XmlStream::Controller::whatTagEnd);
+    return XmlStream::Controller(XmlStream::Controller::TagEnd);
   }
   
   inline const XmlStream::Controller endtag(const char* const tag_name) {
-    return XmlStream::Controller(XmlStream::Controller::whatTagEnd, tag_name);
+    return XmlStream::Controller(XmlStream::Controller::TagEnd, tag_name);
   }
   
   inline const XmlStream::Controller attr(const char* const attr_name) {
-    return XmlStream::Controller(XmlStream::Controller::whatAttribute, attr_name);
+    return XmlStream::Controller(XmlStream::Controller::Attribute, attr_name);
   }
   
   inline const XmlStream::Controller chardata() {
-    return XmlStream::Controller(XmlStream::Controller::whatCharData);
+    return XmlStream::Controller(XmlStream::Controller::CharData);
   }
   
 }	// namespace
 
-
-#endif  //  __XMLWRITER_H_2CC1D410_9DE8_4452_B8F0_F987EF152E06
 

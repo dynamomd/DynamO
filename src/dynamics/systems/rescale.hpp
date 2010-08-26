@@ -45,7 +45,7 @@ public:
   inline const lIflt& getScaleFactor() const {return scaleFactor; }
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   size_t _frequency;
 

@@ -37,7 +37,7 @@ public:
   void increasedt(Iflt);
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const {}
+  virtual void outputXML(xml::XmlStream&) const {}
 
   Iflt periodt;
 };

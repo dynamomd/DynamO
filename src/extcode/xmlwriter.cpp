@@ -17,7 +17,7 @@
 
 #include "xmlwriter.hpp"
 
-namespace xmlw
+namespace xml
 {
   // Before destroying check whether all the open tags are closed
   XmlStream::~XmlStream() 
@@ -34,15 +34,15 @@ namespace xmlw
   XmlStream& 
   XmlStream::operator<<(const Controller& controller) 
   {
-    switch (controller.what) {
-    case Controller::whatProlog:
+    switch (controller._type) {
+    case Controller::Prolog:
       if (!prologWritten && stateNone == state) {
 	  s << "<?xml version=\"" << versionMajor << '.' << versionMinor << "\"?>\n";
 	  prologWritten = true;
       }
       break;	//	Controller::whatProlog
       
-    case Controller::whatTag:
+    case Controller::Tag:
       closeTagStart();
       if (FormatXML) for (unsigned int i = 0; i < tags.size(); i++) s << XML_SPACING;
       s << '<';
@@ -57,11 +57,11 @@ namespace xmlw
       }
       break;	//	Controller::whatTag
       
-    case Controller::whatTagEnd:
+    case Controller::TagEnd:
       endTag(controller.str);
       break;	//	Controller::whatTagEnd
       
-    case Controller::whatAttribute:
+    case Controller::Attribute:
       switch (state) {
       case stateTagName:
 	tags.push(tagName.str());
@@ -81,7 +81,7 @@ namespace xmlw
       
       break;	//	Controller::whatAttribute
       
-    case Controller::whatCharData:
+    case Controller::CharData:
       closeTagStart();
       state = stateNone;
       break;	//	Controller::whatCharData

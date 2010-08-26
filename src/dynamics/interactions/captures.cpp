@@ -85,19 +85,19 @@ ISingleCapture::loadCaptureMap(const XMLNode& XML)
 }
 
 void 
-ISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
+ISingleCapture::outputCaptureMap(xml::XmlStream& XML) const 
 {
-  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->N;
+  XML << xml::tag("CaptureMap") << xml::attr("Size") << Sim->N;
 
   typedef std::pair<size_t, size_t> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    XML << xmlw::tag("Pair")
-	<< xmlw::attr("ID1") << IDs.first
-	<< xmlw::attr("ID2") << IDs.second
-	<< xmlw::endtag("Pair");
+    XML << xml::tag("Pair")
+	<< xml::attr("ID1") << IDs.first
+	<< xml::attr("ID2") << IDs.second
+	<< xml::endtag("Pair");
   
-  XML << xmlw::endtag("CaptureMap");
+  XML << xml::endtag("CaptureMap");
 }
 
 void
@@ -210,20 +210,20 @@ IMultiCapture::loadCaptureMap(const XMLNode& XML)
 }
 
 void 
-IMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
+IMultiCapture::outputCaptureMap(xml::XmlStream& XML) const 
 {
-  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->N;
+  XML << xml::tag("CaptureMap") << xml::attr("Size") << Sim->N;
 
   typedef std::pair<const cMapKey, int> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    XML << xmlw::tag("Pair")
-	<< xmlw::attr("ID1") << IDs.first.first
-	<< xmlw::attr("ID2") << IDs.first.second
-	<< xmlw::attr("val") << IDs.second
-	<< xmlw::endtag("Pair");
+    XML << xml::tag("Pair")
+	<< xml::attr("ID1") << IDs.first.first
+	<< xml::attr("ID2") << IDs.first.second
+	<< xml::attr("val") << IDs.second
+	<< xml::endtag("Pair");
   
-  XML << xmlw::endtag("CaptureMap");
+  XML << xml::endtag("CaptureMap");
 }
 
 

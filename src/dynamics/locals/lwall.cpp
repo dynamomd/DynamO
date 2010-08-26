@@ -109,19 +109,19 @@ CLWall::operator<<(const XMLNode& XML)
 }
 
 void 
-CLWall::outputXML(xmlw::XmlStream& XML) const
+CLWall::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Wall" 
-      << xmlw::attr("Name") << localName
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Render") << render
+  XML << xml::attr("Type") << "Wall" 
+      << xml::attr("Name") << localName
+      << xml::attr("Elasticity") << e
+      << xml::attr("Render") << render
       << range
-      << xmlw::tag("Norm")
+      << xml::tag("Norm")
       << vNorm
-      << xmlw::endtag("Norm")
-      << xmlw::tag("Origin")
+      << xml::endtag("Norm")
+      << xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xmlw::endtag("Origin");
+      << xml::endtag("Origin");
 }
 
 void 

@@ -36,7 +36,7 @@ class OPCollEnergyChange: public OP1PP
 
   void stream(const Iflt&) {}
 
-  void output(xmlw::XmlStream &); 
+  void output(xml::XmlStream &); 
 
   void periodicOutput() {}
 

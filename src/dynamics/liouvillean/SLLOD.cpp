@@ -100,9 +100,9 @@ LSLLOD::DSMCSpheresRun(const Particle& p1,
 }
 
 void 
-LSLLOD::outputXML(xmlw::XmlStream& XML) const
+LSLLOD::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") 
+  XML << xml::attr("Type") 
       << "SLLOD";
 }
 

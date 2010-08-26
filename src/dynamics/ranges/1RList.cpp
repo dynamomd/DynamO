@@ -52,9 +52,9 @@ CRList::operator<<(const XMLNode& XML)
 }
 
 void 
-CRList::outputXML(xmlw::XmlStream& XML) const
+CRList::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "List";
+  XML << xml::attr("Range") << "List";
   BOOST_FOREACH(unsigned long ID, IDs)
-    XML << xmlw::tag("ID") << xmlw::attr("val") << ID << xmlw::endtag("ID");
+    XML << xml::tag("ID") << xml::attr("val") << ID << xml::endtag("ID");
 }

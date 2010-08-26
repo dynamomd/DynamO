@@ -490,8 +490,8 @@ private:
     --NP;
   }
   
-  virtual void outputXML(xmlw::XmlStream& XML) const
-  { XML << xmlw::attr("Type") << CSSBoundedPQName<T>::name(); }
+  virtual void outputXML(xml::XmlStream& XML) const
+  { XML << xml::attr("Type") << CSSBoundedPQName<T>::name(); }
 
 };
 #endif

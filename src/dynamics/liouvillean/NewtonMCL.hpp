@@ -39,7 +39,7 @@ public:
   virtual void initialise();
 
 protected:
-  virtual void outputXML(xmlw::XmlStream& ) const;
+  virtual void outputXML(xml::XmlStream& ) const;
 
   boost::unordered_map<int, Iflt> _MCEnergyPotential; 
 

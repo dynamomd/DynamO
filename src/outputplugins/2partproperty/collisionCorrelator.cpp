@@ -69,15 +69,15 @@ OPCollisionCorrelator::A2ParticleChange(const PairEventData& PDat)
 }
 
 void
-OPCollisionCorrelator::output(xmlw::XmlStream &XML)
+OPCollisionCorrelator::output(xml::XmlStream &XML)
 {
   for (size_t ID1(0); ID1 < Sim->N; ++ID1)
     for (size_t ID2(ID1+1); ID2 < Sim->N; ++ID2)
       if (lastColl[ID1][ID2] > 100* freetimehist.data.binWidth) freetimehist.addVal(-1.0);
 
-  XML << xmlw::tag("CollisionCorrelator");
+  XML << xml::tag("CollisionCorrelator");
   
   freetimehist.outputHistogram(XML, 1.0/Sim->dynamics.units().unitTime());
 
-  XML << xmlw::endtag("CollisionCorrelator");
+  XML << xml::endtag("CollisionCorrelator");
 }

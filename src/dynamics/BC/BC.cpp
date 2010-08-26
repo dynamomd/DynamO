@@ -21,7 +21,7 @@
 #include "../../base/is_exception.hpp"
 #include <string.h>
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const BoundaryCondition& g)
 {
   g.outputXML(XML);

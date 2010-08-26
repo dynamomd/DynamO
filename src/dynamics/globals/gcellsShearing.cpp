@@ -66,7 +66,7 @@ CGCellsShearing::initialise(size_t nID)
 }
 
 void
-CGCellsShearing::outputXML(xmlw::XmlStream& XML) const
+CGCellsShearing::outputXML(xml::XmlStream& XML) const
 {
   CGCells::outputXML(XML, std::string("ShearingCells"));
 }

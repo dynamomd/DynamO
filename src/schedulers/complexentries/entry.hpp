@@ -24,7 +24,7 @@
 #include "../../dynamics/globals/neighbourList.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -40,7 +40,7 @@ public:
 
   virtual void initialise() {};
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSCEntry&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const CSCEntry&);
 
   static CSCEntry* getClass(const XMLNode&, DYNAMO::SimData* const);
  
@@ -58,7 +58,7 @@ public:
 
 protected:
 
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
   
   ClonePtr<CRange> range;
 };

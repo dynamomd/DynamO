@@ -42,7 +42,7 @@ public:
   const std::list<ClonePtr<C2Range> >& getRanges() const;
   
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   std::list<ClonePtr<C2Range> > ranges;
 };

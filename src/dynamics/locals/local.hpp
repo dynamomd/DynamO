@@ -25,7 +25,7 @@
 #include "../../datatypes/vector.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -54,7 +54,7 @@ public:
 
   virtual void initialise(size_t) = 0;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Local&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Local&);
 
   static Local* getClass(const XMLNode&, DYNAMO::SimData*);
 
@@ -71,7 +71,7 @@ public:
   virtual void checkOverlaps(const Particle&) const  {}
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 
   ClonePtr<CRange> range;  
   std::string localName;

@@ -100,17 +100,17 @@ OPReplexTrace::addPoint()
 }
 
 void 
-OPReplexTrace::output(xmlw::XmlStream& XML)
+OPReplexTrace::output(xml::XmlStream& XML)
 {
   addPoint();
 
-  XML << xmlw::tag("ReplexTrace")
-      << xmlw::chardata();
+  XML << xml::tag("ReplexTrace")
+      << xml::chardata();
   
   tmpfile.seekg (0, std::ios::beg);
   std::copy(std::istreambuf_iterator<char>(tmpfile),
 	    std::istreambuf_iterator<char>(),
 	    std::ostreambuf_iterator<char>(XML.getUnderlyingStream()));  
 
-  XML << xmlw::endtag("ReplexTrace");
+  XML << xml::endtag("ReplexTrace");
 }

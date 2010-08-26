@@ -46,7 +46,7 @@ public:
   void setTemperature(Iflt nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
   
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   mutable boost::variate_generator<DYNAMO::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  

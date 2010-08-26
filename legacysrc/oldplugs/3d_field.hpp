@@ -29,7 +29,7 @@ class OP3DField: public OutputPlugin
 
   void collisionUpdate(const IntEvent &, const CIntEventData &);
   
-  void output(xmlw::XmlStream &);
+  void output(xml::XmlStream &);
 
   virtual OutputPlugin *Clone() const { return new OP3DField(*this); };
   

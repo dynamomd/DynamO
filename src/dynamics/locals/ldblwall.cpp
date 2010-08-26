@@ -152,18 +152,18 @@ CLDblWall::operator<<(const XMLNode& XML)
 }
 
 void 
-CLDblWall::outputXML(xmlw::XmlStream& XML) const
+CLDblWall::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "DoubleWall" 
-      << xmlw::attr("Name") << localName
-      << xmlw::attr("Elasticity") << e
+  XML << xml::attr("Type") << "DoubleWall" 
+      << xml::attr("Name") << localName
+      << xml::attr("Elasticity") << e
       << range
-      << xmlw::tag("Norm")
+      << xml::tag("Norm")
       << vNorm
-      << xmlw::endtag("Norm")
-      << xmlw::tag("Origin")
+      << xml::endtag("Norm")
+      << xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xmlw::endtag("Origin");
+      << xml::endtag("Origin");
 }
 
 void 

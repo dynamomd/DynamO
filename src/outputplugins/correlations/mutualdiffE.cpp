@@ -163,19 +163,19 @@ OPMutualDiffusionE::rescaleFactor()
 }
 
 void 
-OPMutualDiffusionE::output(xmlw::XmlStream& XML)
+OPMutualDiffusionE::output(xml::XmlStream& XML)
 {
   Iflt factor = rescaleFactor();
 
-  XML << xmlw::tag("EinsteinCorrelator")
-      << xmlw::attr("name") << name
-      << xmlw::attr("size") << accG.size()
-      << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-      << xmlw::attr("LengthInMFT") << dt * accG.size() 
+  XML << xml::tag("EinsteinCorrelator")
+      << xml::attr("name") << name
+      << xml::attr("size") << accG.size()
+      << xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+      << xml::attr("LengthInMFT") << dt * accG.size() 
     / Sim->getOutputPlugin<OPMisc>()->getMFT()
-      << xmlw::attr("simFactor") << factor
-      << xmlw::attr("SampleCount") << count
-      << xmlw::chardata();
+      << xml::attr("simFactor") << factor
+      << xml::attr("SampleCount") << count
+      << xml::chardata();
     
   for (size_t i = 0; i < accG.size(); i++)
     {
@@ -186,7 +186,7 @@ OPMutualDiffusionE::output(xmlw::XmlStream& XML)
     }
   
   
-  XML << xmlw::endtag("EinsteinCorrelator"); 
+  XML << xml::endtag("EinsteinCorrelator"); 
 }
 
 void 

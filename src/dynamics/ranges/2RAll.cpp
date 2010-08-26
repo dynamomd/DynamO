@@ -33,8 +33,8 @@ C2RAll::operator<<(const XMLNode&)
 }
 
 void 
-C2RAll::outputXML(xmlw::XmlStream& XML) const
+C2RAll::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "2All"; 
+  XML << xml::attr("Range") << "2All"; 
 }
 

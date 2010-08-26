@@ -46,7 +46,7 @@ public:
   virtual void write_povray_info(std::ostream&) const;
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   Vector  vNorm;
   Vector  vPosition;

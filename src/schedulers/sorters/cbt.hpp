@@ -213,8 +213,8 @@ private:
     --NP;
   }
 
-  virtual void outputXML(xmlw::XmlStream& XML) const
-  { XML << xmlw::attr("Type") << "CBT"; }
+  virtual void outputXML(xml::XmlStream& XML) const
+  { XML << xml::attr("Type") << "CBT"; }
 
 };
 #endif

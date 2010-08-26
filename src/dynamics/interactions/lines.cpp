@@ -196,12 +196,12 @@ ILines::runEvent(const Particle& p1,
 }
    
 void 
-ILines::outputXML(xmlw::XmlStream& XML) const
+ILines::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Lines"
-      << xmlw::attr("Length") << length / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Name") << intName
+  XML << xml::attr("Type") << "Lines"
+      << xml::attr("Length") << length / Sim->dynamics.units().unitLength()
+      << xml::attr("Elasticity") << e
+      << xml::attr("Name") << intName
       << range;
 
   ISingleCapture::outputCaptureMap(XML);

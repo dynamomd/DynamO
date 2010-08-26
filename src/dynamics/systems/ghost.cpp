@@ -163,23 +163,23 @@ CSysGhost::operator<<(const XMLNode& XML)
 }
 
 void 
-CSysGhost::outputXML(xmlw::XmlStream& XML) const
+CSysGhost::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::tag("System")
-      << xmlw::attr("Type") << "Andersen"
-      << xmlw::attr("Name") << sysName
-      << xmlw::attr("MFT") << meanFreeTime
+  XML << xml::tag("System")
+      << xml::attr("Type") << "Andersen"
+      << xml::attr("Name") << sysName
+      << xml::attr("MFT") << meanFreeTime
     * Sim->N
     / Sim->dynamics.units().unitTime()
-      << xmlw::attr("Temperature") << Temp 
+      << xml::attr("Temperature") << Temp 
     / Sim->dynamics.units().unitEnergy();
   
   if (tune)
-    XML << xmlw::attr("SetPoint") << setPoint
-	<< xmlw::attr("SetFrequency") << setFrequency;
+    XML << xml::attr("SetPoint") << setPoint
+	<< xml::attr("SetFrequency") << setFrequency;
   
   XML << range
-      << xmlw::endtag("System");
+      << xml::endtag("System");
 }
 
 Iflt 

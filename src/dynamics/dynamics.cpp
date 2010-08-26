@@ -75,7 +75,7 @@ Dynamics::getSpecies(const Particle& p1) const
 	    << "\nID = " << p1.getID();
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Dynamics& g)
 {
   g.outputXML(XML);
@@ -502,68 +502,68 @@ Dynamics::operator<<(const XMLNode& XML)
 }
 
 void
-Dynamics::outputXML(xmlw::XmlStream &XML) const
+Dynamics::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::tag("Dynamics")
-      << xmlw::tag("Aspect_Ratio")
+  XML << xml::tag("Dynamics")
+      << xml::tag("Aspect_Ratio")
       << Sim->aspectRatio
-      << xmlw::endtag("Aspect_Ratio")
-      << xmlw::tag("Units")
+      << xml::endtag("Aspect_Ratio")
+      << xml::tag("Units")
       << p_units
-      << xmlw::endtag("Units")
-      << xmlw::tag("BC")
+      << xml::endtag("Units")
+      << xml::tag("BC")
       << p_BC
-      << xmlw::endtag("BC")
-      << xmlw::tag("Genus");
+      << xml::endtag("BC")
+      << xml::tag("Genus");
   
   BOOST_FOREACH(const ClonePtr<Species>& ptr, species)
-    XML << xmlw::tag("Species")
+    XML << xml::tag("Species")
 	<< ptr
-	<< xmlw::endtag("Species");
+	<< xml::endtag("Species");
   
-  XML << xmlw::endtag("Genus")
-      << xmlw::tag("Topology");
+  XML << xml::endtag("Genus")
+      << xml::tag("Topology");
   
   BOOST_FOREACH(const ClonePtr<Topology>& ptr, topology)
-    XML << xmlw::tag("Structure")
+    XML << xml::tag("Structure")
 	<< ptr
-	<< xmlw::endtag("Structure");
+	<< xml::endtag("Structure");
   
-  XML << xmlw::endtag("Topology")
-      << xmlw::tag("SystemEvents");
+  XML << xml::endtag("Topology")
+      << xml::tag("SystemEvents");
   
   BOOST_FOREACH(const ClonePtr<System>& ptr, systems)
     XML << ptr;
   
-  XML << xmlw::endtag("SystemEvents")
-      << xmlw::tag("Globals");
+  XML << xml::endtag("SystemEvents")
+      << xml::tag("Globals");
   
   BOOST_FOREACH(const ClonePtr<Global>& ptr, globals)
-    XML << xmlw::tag("Global")
+    XML << xml::tag("Global")
 	<< ptr
-	<< xmlw::endtag("Global");
+	<< xml::endtag("Global");
   
-  XML << xmlw::endtag("Globals")
-      << xmlw::tag("Locals");
+  XML << xml::endtag("Globals")
+      << xml::tag("Locals");
   
   BOOST_FOREACH(const ClonePtr<Local>& ptr, locals)
-    XML << xmlw::tag("Local")
+    XML << xml::tag("Local")
 	<< ptr
-	<< xmlw::endtag("Local");
+	<< xml::endtag("Local");
   
-  XML << xmlw::endtag("Locals")
-      << xmlw::tag("Interactions");
+  XML << xml::endtag("Locals")
+      << xml::tag("Interactions");
   
   BOOST_FOREACH(const ClonePtr<Interaction>& ptr, interactions)
-    XML << xmlw::tag("Interaction")
+    XML << xml::tag("Interaction")
 	<< ptr
-	<< xmlw::endtag("Interaction");
+	<< xml::endtag("Interaction");
   
-  XML << xmlw::endtag("Interactions")
-      << xmlw::tag("Liouvillean")
+  XML << xml::endtag("Interactions")
+      << xml::tag("Liouvillean")
       << p_liouvillean
-      << xmlw::endtag("Liouvillean")
-      << xmlw::endtag("Dynamics");
+      << xml::endtag("Liouvillean")
+      << xml::endtag("Dynamics");
 }
 
 Iflt 

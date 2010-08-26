@@ -31,7 +31,7 @@ Topology::Topology(DYNAMO::SimData* tmp, size_t nID):
   ID(nID)
 { }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const Topology& g)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const Topology& g)
 {
   g.outputXML(XML);
   return XML;
@@ -53,13 +53,13 @@ Topology::operator<<(const XMLNode& XML)
 }
 
 void
-Topology::outputXML(xmlw::XmlStream& XML) const
+Topology::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Name") << spName;
+  XML << xml::attr("Name") << spName;
   
   BOOST_FOREACH(const ClonePtr<CRange>& plugPtr, ranges)
-    XML << xmlw::tag("Molecule") << plugPtr
-	<< xmlw::endtag("Molecule");
+    XML << xml::tag("Molecule") << plugPtr
+	<< xml::endtag("Molecule");
 }
 
 

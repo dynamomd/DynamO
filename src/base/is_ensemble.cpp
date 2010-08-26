@@ -46,12 +46,12 @@ namespace DYNAMO {
   CEnsemble::exchangeProbability(const CEnsemble&) const
   { D_throw() << "Exchange move not written for this Ensemble"; }
 
-  xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+  xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			      const CEnsemble& g)
   {
-    XML << xmlw::tag("Ensemble")
-	<< xmlw::attr("Type") << g.getName()
-	<< xmlw::endtag("Ensemble");
+    XML << xml::tag("Ensemble")
+	<< xml::attr("Type") << g.getName()
+	<< xml::endtag("Ensemble");
     return XML;
   }
 

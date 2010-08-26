@@ -70,12 +70,12 @@ CSSystemOnly::initialise()
 }
 
 void 
-CSSystemOnly::outputXML(xmlw::XmlStream& XML) const
+CSSystemOnly::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SystemOnly"
-      << xmlw::tag("Sorter")
+  XML << xml::attr("Type") << "SystemOnly"
+      << xml::tag("Sorter")
       << sorter
-      << xmlw::endtag("Sorter");
+      << xml::endtag("Sorter");
 }
 
 void 

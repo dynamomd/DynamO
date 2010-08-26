@@ -120,16 +120,16 @@ OPThermalConductivitySpeciesSpeciesE::rescaleFactor()
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
+OPThermalConductivitySpeciesSpeciesE::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("EinsteinCorrelator")
-      << xmlw::attr("name") << name
-      << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt/Sim->dynamics.units().unitTime()
-      << xmlw::attr("LengthInMFT") << dt * accG2.size()
+  XML << xml::tag("EinsteinCorrelator")
+      << xml::attr("name") << name
+      << xml::attr("size") << accG2.size()
+      << xml::attr("dt") << dt/Sim->dynamics.units().unitTime()
+      << xml::attr("LengthInMFT") << dt * accG2.size()
     / Sim->getOutputPlugin<OPMisc>()->getMFT()
-      << xmlw::attr("simFactor") << rescaleFactor()
-      << xmlw::attr("SampleCount") << count;
+      << xml::attr("simFactor") << rescaleFactor()
+      << xml::attr("SampleCount") << count;
   
   Iflt factor = rescaleFactor();
 
@@ -138,10 +138,10 @@ OPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
   for (size_t id1(0); id1 < Nsp; ++id1)
     for (size_t id2(0); id2 < Nsp; ++id2)      
       {
-	XML << xmlw::tag("Component") 
-	    << xmlw::attr("Species1") << id1
-	    << xmlw::attr("Species2") << id2
-	    << xmlw::chardata();
+	XML << xml::tag("Component") 
+	    << xml::attr("Species1") << id1
+	    << xml::attr("Species2") << id2
+	    << xml::chardata();
 
 	for (unsigned int i = 0; i < accG2.size(); i++)
 	  {
@@ -155,10 +155,10 @@ OPThermalConductivitySpeciesSpeciesE::output(xmlw::XmlStream &XML)
 	    XML << "\n";
 	  }
 
-	XML << xmlw::endtag("Component");
+	XML << xml::endtag("Component");
       }
   
-  XML << xmlw::endtag("EinsteinCorrelator");
+  XML << xml::endtag("EinsteinCorrelator");
 }
 
 void 

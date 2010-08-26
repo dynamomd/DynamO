@@ -25,7 +25,7 @@
 #include "datastruct.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -85,7 +85,7 @@ public:
   /*! \brief Writes the XML particle data, either the base64 header or
    * the entire XML form.
    */
-  void outputParticleXMLData(xmlw::XmlStream&) const;
+  void outputParticleXMLData(xml::XmlStream&) const;
 
   /*! \brief Returns the degrees of freedom per particle.
    */
@@ -584,7 +584,7 @@ public:
   /*! \brief An XML output operator for the class. Calls the virtual
    * OutputXML member function.
    */
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Liouvillean&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Liouvillean&);
 
   /*! \brief This is called by each particle to request any extra data
    *   the liouvillean is holding and wants to store in the particles XML.
@@ -717,11 +717,11 @@ protected:
   size_t streamFreq;
   
   /*! \brief Writes out the liouvilleans data to XML. */
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 
-  virtual void extraXMLParticleData(xmlw::XmlStream&, const size_t) const {}
+  virtual void extraXMLParticleData(xml::XmlStream&, const size_t) const {}
 
-  virtual void extraXMLData(xmlw::XmlStream&) const {}
+  virtual void extraXMLData(xml::XmlStream&) const {}
 
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(Particle& part, const Iflt& dt) const = 0;

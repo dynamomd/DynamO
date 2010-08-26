@@ -106,11 +106,11 @@ CGListAndCell::initialise(size_t nID)
 }
 
 void
-CGListAndCell::outputXML(xmlw::XmlStream& XML) const
+CGListAndCell::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "ListAndCell"
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("Name") << globName;
+  XML << xml::attr("Type") << "ListAndCell"
+      << xml::attr("Lambda") << lambda
+      << xml::attr("Name") << globName;
 }
 
 void 

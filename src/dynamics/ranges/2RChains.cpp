@@ -68,14 +68,14 @@ C2RChains::operator<<(const XMLNode&)
 }
 
 void 
-C2RChains::outputXML(xmlw::XmlStream& XML) const
+C2RChains::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "Chains" 
-      << xmlw::attr("Start")
+  XML << xml::attr("Range") << "Chains" 
+      << xml::attr("Start")
       << range1
-      << xmlw::attr("End")
+      << xml::attr("End")
       << range2
-      << xmlw::attr("Interval")
+      << xml::attr("Interval")
       << interval;
 }
 

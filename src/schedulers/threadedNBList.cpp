@@ -61,13 +61,13 @@ SThreadedNBList::operator<<(const XMLNode& XML)
 }
 
 void 
-SThreadedNBList::outputXML(xmlw::XmlStream& XML) const
+SThreadedNBList::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "ThreadedNeighbourList"
-      << xmlw::attr("ThreadCount") << _threadPool.getThreadCount()
-      << xmlw::tag("Sorter")
+  XML << xml::attr("Type") << "ThreadedNeighbourList"
+      << xml::attr("ThreadCount") << _threadPool.getThreadCount()
+      << xml::tag("Sorter")
       << sorter
-      << xmlw::endtag("Sorter");
+      << xml::endtag("Sorter");
 }
 
 void 

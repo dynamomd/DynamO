@@ -35,7 +35,7 @@
 #include <boost/iostreams/filter/linewrapout.hpp>
 #include "../../extcode/binaryHelper.hpp"
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const Liouvillean& g)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 {
   g.outputXML(XML);
   return XML;
@@ -167,16 +167,16 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 }
 
 void 
-Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
+Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 {
   if (Sim->binaryXML)
     {
-      XML << xmlw::tag("ParticleData")
-	  << xmlw::attr("N") << Sim->N
-	  << xmlw::attr("AttachedBinary") << "Y"
-	  << xmlw::endtag("ParticleData")
-	  << xmlw::tag("AppendedBinaryVelPos")
-	  << xmlw::chardata();
+      XML << xml::tag("ParticleData")
+	  << xml::attr("N") << Sim->N
+	  << xml::attr("AttachedBinary") << "Y"
+	  << xml::endtag("ParticleData")
+	  << xml::tag("AppendedBinaryVelPos")
+	  << xml::chardata();
 
       {//have to scope out the iostream writes before closing the XML
 	boost::iostreams::filtering_ostream base64Convertor;
@@ -206,13 +206,13 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  }
       }
 
-      XML << "\n" << xmlw::endtag("AppendedBinaryVelPos");
+      XML << "\n" << xml::endtag("AppendedBinaryVelPos");
     }
   else
     {
-      XML << xmlw::tag("ParticleData")
-	  << xmlw::attr("N") << Sim->N
-	  << xmlw::attr("AttachedBinary") << ("N");
+      XML << xml::tag("ParticleData")
+	  << xml::attr("N") << Sim->N
+	  << xml::attr("AttachedBinary") << ("N");
 
       I_cout() << "Writing Particles ";
       
@@ -226,16 +226,16 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	  tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
 	  tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
 	  
-	  XML << xmlw::tag("Pt") << tmp;
+	  XML << xml::tag("Pt") << tmp;
 
 	  extraXMLParticleData(XML, i);
 
-	  XML << xmlw::endtag("Pt");
+	  XML << xml::endtag("Pt");
 
 	  ++prog;
 	}
 
-      XML << xmlw::endtag("ParticleData");
+      XML << xml::endtag("ParticleData");
     }
 
   extraXMLData(XML);

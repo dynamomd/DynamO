@@ -31,7 +31,7 @@ class ParticleEventData;
 class NEventData;
 class System;
 
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -55,7 +55,7 @@ public:
   
   virtual OutputPlugin *Clone() const = 0;
   
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
   
   virtual void periodicOutput();
   

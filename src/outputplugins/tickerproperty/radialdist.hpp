@@ -34,7 +34,7 @@ class OPRadialDistribution: public OPTicker
 
   virtual void ticker();
   
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   void operator<<(const XMLNode&);
 

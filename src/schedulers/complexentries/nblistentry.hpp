@@ -39,7 +39,7 @@ public:
 
 protected:
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
   
   std::string name;
   size_t nblistID;

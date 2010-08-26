@@ -40,7 +40,7 @@ class OPRGyration: public OPTicker
 
   virtual void changeSystem(OutputPlugin*);
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   struct molGyrationDat
   {

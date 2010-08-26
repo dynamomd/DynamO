@@ -26,7 +26,7 @@
 
 class XMLNode;
 
-namespace xmlw 
+namespace xml 
 {
   class XmlStream;
 }
@@ -237,13 +237,13 @@ class CVector
   
   /*! \brief A helper function to write out a CVector to an XMLStream*/
   template<class S>
-  friend xmlw::XmlStream& 
-  operator<<(xmlw::XmlStream&, const CVector<S>&);
+  friend xml::XmlStream& 
+  operator<<(xml::XmlStream&, const CVector<S>&);
   
   /*! \brief A helper function to write out a CVector matrix to an XMLStream*/
   template<class S>
-  friend xmlw::XmlStream& 
-  operator<<(xmlw::XmlStream&, const CVector<CVector<S> >&);
+  friend xml::XmlStream& 
+  operator<<(xml::XmlStream&, const CVector<CVector<S> >&);
 
   /*! \brief A helper function to change the stored type of a vector. */
   template<class A>

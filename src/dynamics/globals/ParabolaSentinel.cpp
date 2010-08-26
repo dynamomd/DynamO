@@ -112,10 +112,10 @@ CGParabolaSentinel::runEvent(const Particle& part) const
 }
 
 void 
-CGParabolaSentinel::outputXML(xmlw::XmlStream& XML) const
+CGParabolaSentinel::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "ParabolaSentinel"
-      << xmlw::attr("Name") << globName;
+  XML << xml::attr("Type") << "ParabolaSentinel"
+      << xml::attr("Name") << globName;
 }
 
 void 

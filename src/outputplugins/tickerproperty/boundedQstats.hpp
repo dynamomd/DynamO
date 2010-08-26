@@ -36,7 +36,7 @@ class OPBoundedQStats: public OPTicker
 
   virtual void ticker();
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
   
  protected:
   

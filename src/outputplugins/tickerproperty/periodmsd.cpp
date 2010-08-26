@@ -65,30 +65,30 @@ OPPeriodicMSD::ticker()
 }
 
 void
-OPPeriodicMSD::output(xmlw::XmlStream &XML)
+OPPeriodicMSD::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("PeriodicMSD") 
-      << xmlw::tag("Particle") 
-      << xmlw::chardata();
+  XML << xml::tag("PeriodicMSD") 
+      << xml::tag("Particle") 
+      << xml::chardata();
   
   BOOST_FOREACH(const localpair& myp, results)
     XML << myp.first << " " << myp.second << "\n";
   
-  XML << xmlw::endtag("Particle");
+  XML << xml::endtag("Particle");
  
   if (!structResults.empty())
     BOOST_FOREACH(localpair2& dat, structResults)
       {
-	XML << xmlw::tag("Structure")	  
-	    << xmlw::attr("Name") <<  dat.first->getName()
-	    << xmlw::chardata();
+	XML << xml::tag("Structure")	  
+	    << xml::attr("Name") <<  dat.first->getName()
+	    << xml::chardata();
 
 	BOOST_FOREACH(const localpair& myp, dat.second)
 	  XML << myp.first << " " << myp.second << "\n";
 
-	XML << xmlw::endtag("Structure");	
+	XML << xml::endtag("Structure");	
       }
  
   
-  XML << xmlw::endtag("PeriodicMSD");
+  XML << xml::endtag("PeriodicMSD");
 }

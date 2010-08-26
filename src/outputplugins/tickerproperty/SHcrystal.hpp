@@ -35,7 +35,7 @@ class OPSHCrystal: public OPTicker
 
   virtual void ticker();
   
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   virtual void operator<<(const XMLNode&);
 

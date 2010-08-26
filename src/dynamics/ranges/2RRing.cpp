@@ -74,12 +74,12 @@ C2RRing::operator<<(const XMLNode&)
 }
 
 void 
-C2RRing::outputXML(xmlw::XmlStream& XML) const
+C2RRing::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "Ring" 
-      << xmlw::attr("Start")
+  XML << xml::attr("Range") << "Ring" 
+      << xml::attr("Start")
       << range1
-      << xmlw::attr("End")
+      << xml::attr("End")
       << range2;
 }
 

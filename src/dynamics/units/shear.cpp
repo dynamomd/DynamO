@@ -38,8 +38,8 @@ UShear::operator<<(const XMLNode& XML)
 }
 
 void 
-UShear::outputXML(xmlw::XmlStream &XML) const
+UShear::outputXML(xml::XmlStream &XML) const
 {
-  XML << xmlw::attr("Type") << "Shear"
-      << xmlw::attr("BoxLength") << 1.0 / UnitOfLength; 
+  XML << xml::attr("Type") << "Shear"
+      << xml::attr("BoxLength") << 1.0 / UnitOfLength; 
 }

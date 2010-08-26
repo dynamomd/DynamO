@@ -68,21 +68,21 @@ OPMFL::A1ParticleChange(const ParticleEventData& PDat)
 }
 
 void
-OPMFL::output(xmlw::XmlStream &XML)
+OPMFL::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("MFL");
+  XML << xml::tag("MFL");
   
   for (size_t id = 0; id < data.size(); ++id)
     {
-      XML << xmlw::tag("Species")
-	  << xmlw::attr("Name")
+      XML << xml::tag("Species")
+	  << xml::attr("Name")
 	  << Sim->dynamics.getSpecies()[id]->getName();
 
       data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       
-      XML << xmlw::endtag("Species");
+      XML << xml::endtag("Species");
     }
 
-  XML << xmlw::endtag("MFL");
+  XML << xml::endtag("MFL");
 }
 

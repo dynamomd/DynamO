@@ -22,7 +22,7 @@
 #include <iterator>
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -93,7 +93,7 @@ public:
 
   static CRange* loadClass(const XMLNode&, const DYNAMO::SimData * Sim);
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CRange&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const CRange&);
 
   virtual iterator begin() const = 0;
 
@@ -102,7 +102,7 @@ public:
 protected:
   virtual const unsigned long& getIteratorID(const unsigned long &) const =0;// { return i; }
 
-  virtual void outputXML(xmlw::XmlStream& ) const = 0;    
+  virtual void outputXML(xml::XmlStream& ) const = 0;    
 };
 
 #endif

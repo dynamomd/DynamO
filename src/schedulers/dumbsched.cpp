@@ -70,12 +70,12 @@ CSDumb::initialise()
 }
 
 void 
-CSDumb::outputXML(xmlw::XmlStream& XML) const
+CSDumb::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "Dumb"
-      << xmlw::tag("Sorter")
+  XML << xml::attr("Type") << "Dumb"
+      << xml::tag("Sorter")
       << sorter
-      << xmlw::endtag("Sorter");
+      << xml::endtag("Sorter");
 }
 
 void 

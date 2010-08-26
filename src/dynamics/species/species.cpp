@@ -69,7 +69,7 @@ Species::initialise()
     D_throw() << "Species missing a matching interaction";
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const Species& g)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const Species& g)
 {
   g.outputXML(XML);
   return XML;
@@ -98,13 +98,13 @@ Species::isSpecies(const Particle &p1) const
 { return range->isInRange(p1); }
 
 void 
-Species::outputXML(xmlw::XmlStream& XML) const
+Species::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Mass") 
+  XML << xml::attr("Mass") 
       << mass / Sim->dynamics.units().unitMass()
-      << xmlw::attr("Name") << spName
-      << xmlw::attr("IntName") << intName
-      << xmlw::attr("Type") << "Point"
+      << xml::attr("Name") << spName
+      << xml::attr("IntName") << intName
+      << xml::attr("Type") << "Point"
       << range;
 }
 

@@ -57,7 +57,7 @@ class USquareWell: public Units
   virtual void rescaleLength(Iflt);
 
  protected:
-  virtual void outputXML(xmlw::XmlStream &) const;
+  virtual void outputXML(xml::XmlStream &) const;
 
   Iflt UnitOfEnergy;
   Iflt UnitOfLength;

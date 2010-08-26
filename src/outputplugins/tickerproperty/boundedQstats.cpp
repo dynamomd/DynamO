@@ -47,20 +47,20 @@ OPBoundedQStats::ticker()
 }
 
 void 
-OPBoundedQStats::output(xmlw::XmlStream& XML)
+OPBoundedQStats::output(xml::XmlStream& XML)
 {
   const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
 			     (*(Sim->ptrScheduler->getSorter())));
 
-  XML << xmlw::tag("boundedQstats") 
-      << xmlw::attr("ExceptionEvents") << sorter.exceptionEvents()
-      << xmlw::tag("CBTSize");
+  XML << xml::tag("boundedQstats") 
+      << xml::attr("ExceptionEvents") << sorter.exceptionEvents()
+      << xml::tag("CBTSize");
 
   treeSize.outputHistogram(XML,1.0);
 
-  XML << xmlw::endtag("CBTSize")
-    << xmlw::tag("treedist")
-      << xmlw::chardata();
+  XML << xml::endtag("CBTSize")
+    << xml::tag("treedist")
+      << xml::chardata();
 
   if (!Sim->eventCount)
     {
@@ -78,6 +78,6 @@ OPBoundedQStats::output(xmlw::XmlStream& XML)
 	    << "\n";
     }
   
-  XML << xmlw::endtag("treedist")
-      << xmlw::endtag("boundedQstats");
+  XML << xml::endtag("treedist")
+      << xml::endtag("boundedQstats");
 }

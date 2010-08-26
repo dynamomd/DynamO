@@ -53,7 +53,7 @@ class UHardSphere: public Units
   virtual void operator<<(const XMLNode&);
 
  protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   Iflt UnitOfLength;
 };

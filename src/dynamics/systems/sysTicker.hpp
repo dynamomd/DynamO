@@ -41,7 +41,7 @@ public:
 
   const Iflt& getPeriod() const { return period; }
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const {}
+  virtual void outputXML(xml::XmlStream&) const {}
 
   Iflt period;
 };

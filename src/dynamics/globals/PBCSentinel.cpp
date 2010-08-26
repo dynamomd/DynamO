@@ -122,8 +122,8 @@ CGPBCSentinel::runEvent(const Particle& part) const
 }
 
 void 
-CGPBCSentinel::outputXML(xmlw::XmlStream& XML) const
+CGPBCSentinel::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "PBCSentinel"
-      << xmlw::attr("Name") << globName;
+  XML << xml::attr("Type") << "PBCSentinel"
+      << xml::attr("Name") << globName;
 }

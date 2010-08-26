@@ -33,7 +33,7 @@ public:
 
   virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
 
-  virtual void output(xmlw::XmlStream&) {}
+  virtual void output(xml::XmlStream&) {}
 
 private:
   virtual void stream(Iflt) = 0;  

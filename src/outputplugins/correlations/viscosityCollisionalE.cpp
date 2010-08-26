@@ -195,7 +195,7 @@ OPViscosityCollisionalE::impulseDelG(const NEventData& ndat)
 }
 
 inline void 
-OPViscosityCollisionalE::output(xmlw::XmlStream &XML)
+OPViscosityCollisionalE::output(xml::XmlStream &XML)
 {
   Iflt rescaleFactor = 1.0
     / (Sim->dynamics.units().unitTime() 
@@ -204,14 +204,14 @@ OPViscosityCollisionalE::output(xmlw::XmlStream &XML)
        //Count has been taken out due to the extra averaging of the constant piece 
        * Sim->dynamics.units().simVolume());
   
-  XML << xmlw::tag("EinsteinCorrelator")
-      << xmlw::attr("name") << "ViscosityTimesT"
-      << xmlw::attr("size") << accG2.size()
-      << xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-      << xmlw::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<OPMisc>())->getMFT()
-      << xmlw::attr("simFactor") << rescaleFactor
-      << xmlw::attr("SampleCount") << count
-      << xmlw::attr("columns")
+  XML << xml::tag("EinsteinCorrelator")
+      << xml::attr("name") << "ViscosityTimesT"
+      << xml::attr("size") << accG2.size()
+      << xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+      << xml::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<OPMisc>())->getMFT()
+      << xml::attr("simFactor") << rescaleFactor
+      << xml::attr("SampleCount") << count
+      << xml::attr("columns")
       << "t ";
   
   char name[3] = "xx";
@@ -234,36 +234,36 @@ OPViscosityCollisionalE::output(xmlw::XmlStream &XML)
 	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.units().simVolume());
       }
   
-  XML << xmlw::tag("Pressure");
+  XML << xml::tag("Pressure");
  
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
       std::string name = std::string("d") + boost::lexical_cast<std::string>(iDim);
       
-      XML << xmlw::tag(name.c_str());
+      XML << xml::tag(name.c_str());
 
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	{
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
-	  XML << xmlw::attr(name.c_str())
+	  XML << xml::attr(name.c_str())
 	      << P[iDim][jDim] / Sim->dynamics.units().unitPressure();
 	}
       
-      XML << xmlw::endtag(name.c_str());
+      XML << xml::endtag(name.c_str());
     }
   
-  XML << xmlw::endtag("Pressure");
+  XML << xml::endtag("Pressure");
   
   Iflt AvgPressure = 0.0;
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     AvgPressure += P[iDim][iDim];
   
-  XML << xmlw::tag("PressureVals")
-      << xmlw::attr("AvgPressure")
+  XML << xml::tag("PressureVals")
+      << xml::attr("AvgPressure")
       << AvgPressure / (NDIM * Sim->dynamics.units().unitPressure())
-      << xmlw::endtag("PressureVals");
+      << xml::endtag("PressureVals");
   
-  XML << xmlw::chardata();
+  XML << xml::chardata();
   
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
@@ -278,7 +278,7 @@ OPViscosityCollisionalE::output(xmlw::XmlStream &XML)
       XML << "\n";
     }
   
-  XML << xmlw::endtag("EinsteinCorrelator");
+  XML << xml::endtag("EinsteinCorrelator");
 }
 
 void 

@@ -31,9 +31,9 @@ CRNone::operator<<(const XMLNode& XML)
 }
 
 void 
-CRNone::outputXML(xmlw::XmlStream& XML) const
+CRNone::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "All";
+  XML << xml::attr("Range") << "All";
 }
 
 

@@ -169,9 +169,9 @@ OPPlateMotion::operator<<(const XMLNode& XML)
 }
 
 void 
-OPPlateMotion::output(xmlw::XmlStream& XML)
+OPPlateMotion::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("PlateMotion");
+  XML << xml::tag("PlateMotion");
  
   for (size_t ID(0); ID < localEnergyLoss.size(); ++ID)
     {
@@ -191,12 +191,12 @@ OPPlateMotion::output(xmlw::XmlStream& XML)
 	       << "\n";
 	  }
 
-	XML << xmlw::tag("Plate")
-	    << xmlw::attr("ID") << ID
-	    << xmlw::attr("PowerLossRate") 
+	XML << xml::tag("Plate")
+	    << xml::attr("ID") << ID
+	    << xml::attr("PowerLossRate") 
 	    << (sum * Sim->dynamics.units().unitTime() 
 		/ (Sim->dSysTime * Sim->dynamics.units().unitEnergy()))
-	    << xmlw::endtag("Plate");
+	    << xml::endtag("Plate");
       }
       {
 	std::fstream of((Sim->dynamics.getLocals()[ID]->getName() 
@@ -210,5 +210,5 @@ OPPlateMotion::output(xmlw::XmlStream& XML)
 	  of << deltat * (step++) << " " << val / (deltat * Sim->dynamics.units().unitEnergy()) << "\n";
       }
     }
-  XML << xmlw::endtag("PlateMotion");
+  XML << xml::endtag("PlateMotion");
 }

@@ -66,10 +66,10 @@ OPVelProfile::ticker()
 }
 
 void 
-OPVelProfile::output(xmlw::XmlStream& XML)
+OPVelProfile::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("VelProfile")
-      << xmlw::chardata();
+  XML << xml::tag("VelProfile")
+      << xml::chardata();
   
   size_t nybins = static_cast<size_t>(Sim->aspectRatio[1]/binWidth)+1;
   size_t nzbins = static_cast<size_t>(Sim->aspectRatio[2]/binWidth)+1;
@@ -87,5 +87,5 @@ OPVelProfile::output(xmlw::XmlStream& XML)
       XML << "\n";
     }
       
-  XML << xmlw::endtag("VelProfile");
+  XML << xml::endtag("VelProfile");
 }

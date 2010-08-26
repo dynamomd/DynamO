@@ -239,21 +239,21 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
 }
 
 void 
-CSDSMCSpheres::outputXML(xmlw::XmlStream& XML) const
+CSDSMCSpheres::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::tag("System")
-      << xmlw::attr("Type") << "DSMCSpheres"
-      << xmlw::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
-      << xmlw::attr("Chi") << chi
-      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Inelasticity") << e
-      << xmlw::attr("Name") << sysName
-      << xmlw::attr("MaxProbability") << maxprob
-      << xmlw::tag("Range1")
+  XML << xml::tag("System")
+      << xml::attr("Type") << "DSMCSpheres"
+      << xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
+      << xml::attr("Chi") << chi
+      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << xml::attr("Inelasticity") << e
+      << xml::attr("Name") << sysName
+      << xml::attr("MaxProbability") << maxprob
+      << xml::tag("Range1")
       << range1
-      << xmlw::endtag("Range1")
-      << xmlw::tag("Range2")
+      << xml::endtag("Range1")
+      << xml::tag("Range2")
       << range2
-      << xmlw::endtag("Range2")
-      << xmlw::endtag("System");
+      << xml::endtag("Range2")
+      << xml::endtag("System");
 }

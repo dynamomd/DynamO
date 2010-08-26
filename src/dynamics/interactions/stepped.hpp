@@ -51,7 +51,7 @@ public:
   virtual void runEvent(const Particle&, const Particle&, 
 			const IntEvent&) const;
   
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   virtual Iflt getInternalEnergy() const;
 

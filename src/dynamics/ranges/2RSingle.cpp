@@ -42,11 +42,11 @@ C2RSingle::operator<<(const XMLNode&)
 }
 
 void 
-C2RSingle::outputXML(xmlw::XmlStream& XML) const
+C2RSingle::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "2Single" 
-      << xmlw::tag("SingleRange")
+  XML << xml::attr("Range") << "2Single" 
+      << xml::tag("SingleRange")
       << range
-      << xmlw::endtag("SingleRange");
+      << xml::endtag("SingleRange");
 }
 

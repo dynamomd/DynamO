@@ -74,11 +74,11 @@ OPChatteringCorrelator::A2ParticleChange(const PairEventData& PDat)
 }
 
 void
-OPChatteringCorrelator::output(xmlw::XmlStream &XML)
+OPChatteringCorrelator::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("ChatteringCorrelator");
+  XML << xml::tag("ChatteringCorrelator");
 
   hist.outputHistogram(XML, 1.0);
 
-  XML << xmlw::endtag("ChatteringCorrelator");
+  XML << xml::endtag("ChatteringCorrelator");
 }

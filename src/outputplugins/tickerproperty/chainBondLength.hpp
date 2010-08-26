@@ -38,7 +38,7 @@ class OPChainBondLength: public OPTicker
 
   virtual void changeSystem(OutputPlugin*);
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
   
  protected:
 

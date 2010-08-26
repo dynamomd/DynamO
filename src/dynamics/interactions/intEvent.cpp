@@ -24,16 +24,16 @@
 #include "../units/units.hpp"
 #include <cmath>
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
+xml::XmlStream& operator<<(xml::XmlStream &XML, 
 			    const IntEvent &coll)
 {
-  XML << xmlw::tag("Collision")
-      << xmlw::attr("p1ID") << coll.getParticle1ID()
+  XML << xml::tag("Collision")
+      << xml::attr("p1ID") << coll.getParticle1ID()
       << coll.particle1
-      << xmlw::attr("p2ID") << coll.getParticle1ID()
+      << xml::attr("p2ID") << coll.getParticle1ID()
       << coll.particle2
-      << xmlw::attr("dt")   << coll.dt
-      << xmlw::endtag("Collision");
+      << xml::attr("dt")   << coll.dt
+      << xml::endtag("Collision");
   
   return XML;
 }

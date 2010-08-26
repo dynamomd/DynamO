@@ -203,12 +203,12 @@ OPCluster::collisionUpdate(const IntEvent &collision, const CIntEventData &preCo
 {}
 
 void
-OPCluster::output(xmlw::XmlStream &XML)
+OPCluster::output(xml::XmlStream &XML)
 {
   //This does the links vs distance graph
 
-  XML << xmlw::tag("Cluster")
-      << xmlw::chardata();
+  XML << xml::tag("Cluster")
+      << xml::chardata();
 
   Vector  rij;
   long linkCount;
@@ -235,7 +235,7 @@ OPCluster::output(xmlw::XmlStream &XML)
       XML << distance/(dynamics->unitClass().diameter) << " " << linkCount << "\n";
     }
 
-  XML << xmlw::endtag("Cluster");
+  XML << xml::endtag("Cluster");
   
   for (Iflt distance = 1.0; distance < 1.1; distance += 0.01)
     std::cout << distance << " " << orderParameter(distance) << "\n";

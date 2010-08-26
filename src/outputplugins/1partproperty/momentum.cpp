@@ -57,17 +57,17 @@ OPMomentum::stream(const Iflt& dt)
 }
 
 void
-OPMomentum::output(xmlw::XmlStream &XML)
+OPMomentum::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("Momentum")
-      << xmlw::tag("Current")
+  XML << xml::tag("Momentum")
+      << xml::tag("Current")
       << sysMom / Sim->dynamics.units().unitMomentum()
-      << xmlw::endtag("Current")
-      << xmlw::tag("Avg") 
+      << xml::endtag("Current")
+      << xml::tag("Avg") 
       << accMom / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
-      << xmlw::endtag("Avg")    
-      << xmlw::tag("SqAvg") 
+      << xml::endtag("Avg")    
+      << xml::tag("SqAvg") 
       << accMomsq / (Sim->dSysTime * Sim->dynamics.units().unitMomentum() * Sim->dynamics.units().unitMomentum())
-      << xmlw::endtag("SqAvg")
-      << xmlw::endtag("Momentum");
+      << xml::endtag("SqAvg")
+      << xml::endtag("Momentum");
 }

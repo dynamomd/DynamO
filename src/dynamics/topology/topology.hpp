@@ -23,7 +23,7 @@
 #include <list>
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -43,7 +43,7 @@ public:
 
   virtual void initialise() {}
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Topology&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const Topology&);
   
   const std::string& getName() const
   { return spName; }
@@ -63,7 +63,7 @@ public:
 protected:
   Topology(DYNAMO::SimData*, size_t ID);
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
   
   std::list<ClonePtr<CRange> > ranges;
   

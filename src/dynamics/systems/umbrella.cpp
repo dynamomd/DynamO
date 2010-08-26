@@ -293,21 +293,21 @@ CSUmbrella::operator<<(const XMLNode& XML)
 }
 
 void 
-CSUmbrella::outputXML(xmlw::XmlStream& XML) const
+CSUmbrella::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::tag("System")
-      << xmlw::attr("Type") << "Umbrella"
-      << xmlw::attr("a") << a * Sim->dynamics.units().unitArea() 
+  XML << xml::tag("System")
+      << xml::attr("Type") << "Umbrella"
+      << xml::attr("a") << a * Sim->dynamics.units().unitArea() 
     / Sim->dynamics.units().unitEnergy()
-      << xmlw::attr("b") << b / Sim->dynamics.units().unitLength()
-      << xmlw::attr("delU") << delU / Sim->dynamics.units().unitEnergy()
-      << xmlw::attr("currentulevel") << ulevel
-      << xmlw::attr("Name") << sysName
-      << xmlw::tag("Range1")
+      << xml::attr("b") << b / Sim->dynamics.units().unitLength()
+      << xml::attr("delU") << delU / Sim->dynamics.units().unitEnergy()
+      << xml::attr("currentulevel") << ulevel
+      << xml::attr("Name") << sysName
+      << xml::tag("Range1")
       << range1
-      << xmlw::endtag("Range1")
-      << xmlw::tag("Range2")
+      << xml::endtag("Range1")
+      << xml::tag("Range2")
       << range2
-      << xmlw::endtag("Range2")
-      << xmlw::endtag("System");
+      << xml::endtag("Range2")
+      << xml::endtag("System");
 }

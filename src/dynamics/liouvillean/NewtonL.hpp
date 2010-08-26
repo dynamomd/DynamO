@@ -134,6 +134,6 @@ public:
 					  const EEventType& eType = CORE) const;
 
 protected:
-  virtual void outputXML(xmlw::XmlStream& ) const;
+  virtual void outputXML(xml::XmlStream& ) const;
 };
 #endif

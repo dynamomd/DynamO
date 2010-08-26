@@ -55,7 +55,7 @@ public:
 
   virtual void rebuildList() = 0;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CScheduler&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const CScheduler&);
 
   static CScheduler* getClass(const XMLNode&, DYNAMO::SimData* const);
 
@@ -77,7 +77,7 @@ protected:
   mutable ClonePtr<CSSorter> sorter;
   mutable std::vector<unsigned long> eventCount;
   
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 };
 
 #endif

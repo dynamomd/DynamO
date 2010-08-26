@@ -31,7 +31,7 @@ class OPDens: public OutputPlugin
 
   void collisionUpdate(const IntEvent &, const CIntEventData &b);
 
-  void output(xmlw::XmlStream &); 
+  void output(xml::XmlStream &); 
 
   void periodicOutput();
 

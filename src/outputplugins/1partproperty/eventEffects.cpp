@@ -120,26 +120,26 @@ OPEventEffects::newEvent(const EEventType& eType, const classKey& ck,
 }
 
 void
-OPEventEffects::output(xmlw::XmlStream &XML)
+OPEventEffects::output(xml::XmlStream &XML)
 {
-  XML << xmlw::tag("EventEffects");
+  XML << xml::tag("EventEffects");
 
   typedef std::pair<const eventKey, counterData> locPair;  
   
   BOOST_FOREACH(const locPair& ele, counters)
     {
-      XML << xmlw::tag("Count")
-	  << xmlw::attr("Name") << getName(ele.first.first, Sim)
-	  << xmlw::attr("Event") << ele.first.second
-	  << xmlw::attr("EnergyLossRate") 
+      XML << xml::tag("Count")
+	  << xml::attr("Name") << getName(ele.first.first, Sim)
+	  << xml::attr("Event") << ele.first.second
+	  << xml::attr("EnergyLossRate") 
 	  << ele.second.energyLoss * Sim->dynamics.units().unitTime()
 	/ (Sim->dSysTime * Sim->dynamics.units().unitEnergy())
-	  << xmlw::tag("MomentumChangeRate") 
+	  << xml::tag("MomentumChangeRate") 
 	  << ele.second.momentumChange * Sim->dynamics.units().unitTime()
 	/ (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
-	  << xmlw::endtag("MomentumChangeRate") 
-	  << xmlw::endtag("Count");
+	  << xml::endtag("MomentumChangeRate") 
+	  << xml::endtag("Count");
     }
   
-  XML << xmlw::endtag("EventEffects");
+  XML << xml::endtag("EventEffects");
 }

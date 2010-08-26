@@ -40,7 +40,7 @@ class OPRijVij: public OutputPlugin
 
   virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
 
-  void output(xmlw::XmlStream &);
+  void output(xml::XmlStream &);
 
   virtual void changeSystem(OutputPlugin* plug) 
   { std::swap(Sim, static_cast<OPRijVij*>(plug)->Sim); }

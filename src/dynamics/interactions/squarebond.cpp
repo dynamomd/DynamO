@@ -202,13 +202,13 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
 }
     
 void 
-ISquareBond::outputXML(xmlw::XmlStream& XML) const
+ISquareBond::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SquareBond"
-      << xmlw::attr("Diameter") 
+  XML << xml::attr("Type") << "SquareBond"
+      << xml::attr("Diameter") 
       << diameter / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("Name") << intName
+      << xml::attr("Lambda") << lambda
+      << xml::attr("Name") << intName
       << range;
 }
 

@@ -223,14 +223,14 @@ ISoftCore::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-ISoftCore::outputXML(xmlw::XmlStream& XML) const
+ISoftCore::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SoftCore"
-      << xmlw::attr("Diameter") 
+  XML << xml::attr("Type") << "SoftCore"
+      << xml::attr("Diameter") 
       << diameter / Sim->dynamics.units().unitLength() 
-      << xmlw::attr("WellDepth") 
+      << xml::attr("WellDepth") 
       << wellDepth / Sim->dynamics.units().unitEnergy()
-      << xmlw::attr("Name") << intName
+      << xml::attr("Name") << intName
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  

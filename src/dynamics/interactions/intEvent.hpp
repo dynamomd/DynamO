@@ -29,7 +29,7 @@ class Interaction;
 namespace DYNAMO {
   class SimData;
 }
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -99,7 +99,7 @@ public:
   inline EEventType getType() const
   { return CType; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const IntEvent&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const IntEvent&);
 
   std::string stringData(const DYNAMO::SimData*) const;
   

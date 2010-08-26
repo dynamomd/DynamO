@@ -33,7 +33,7 @@ public:
   virtual OutputPlugin* Clone() const
   { return new OPChatteringCorrelator(*this); }
 
-  void output(xmlw::XmlStream &XML);
+  void output(xml::XmlStream &XML);
 
 private:
 

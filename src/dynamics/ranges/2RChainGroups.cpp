@@ -67,13 +67,13 @@ C2RChainGroups::operator<<(const XMLNode&)
 }
 
 void 
-C2RChainGroups::outputXML(xmlw::XmlStream& XML) const
+C2RChainGroups::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "ChainGroups" 
-      << xmlw::attr("Start1")
+  XML << xml::attr("Range") << "ChainGroups" 
+      << xml::attr("Start1")
       << range1
-      << xmlw::attr("Start2")
+      << xml::attr("Start2")
       << range2
-      << xmlw::attr("Length")
+      << xml::attr("Length")
       << length;
 }

@@ -132,28 +132,28 @@ OPStructureImaging::printImage()
 }
 
 void 
-OPStructureImaging::output(xmlw::XmlStream& XML)
+OPStructureImaging::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("StructureImages")
-      << xmlw::attr("version") << 2;
+  XML << xml::tag("StructureImages")
+      << xml::attr("version") << 2;
   
   BOOST_FOREACH(const std::vector<Vector  >& vec, imagelist)
     {
-      XML << xmlw::tag("Image");
+      XML << xml::tag("Image");
 
       size_t id(0);
 
       BOOST_FOREACH(const Vector & vec2, vec)
 	{
-	  XML << xmlw::tag("Atom")
-	      << xmlw::attr("ID")
+	  XML << xml::tag("Atom")
+	      << xml::attr("ID")
 	      << id++
 	      << (vec2 / Sim->dynamics.units().unitLength())
-	      << xmlw::endtag("Atom");
+	      << xml::endtag("Atom");
 	}
 	  
-      XML << xmlw::endtag("Image");
+      XML << xml::endtag("Image");
     }
     
-  XML << xmlw::endtag("StructureImages");
+  XML << xml::endtag("StructureImages");
 }

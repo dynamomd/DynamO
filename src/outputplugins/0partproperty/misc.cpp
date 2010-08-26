@@ -136,7 +136,7 @@ OPMisc::getMFT() const
 
 
 void
-OPMisc::output(xmlw::XmlStream &XML)
+OPMisc::output(xml::XmlStream &XML)
 {
   std::time_t tendTime;
   time(&tendTime);
@@ -179,79 +179,79 @@ OPMisc::output(xmlw::XmlStream &XML)
 	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
 			       * static_cast<Iflt>(tendTime - tstartTime));
 
-  XML << xmlw::tag("Misc")
-      << xmlw::tag("Memusage")
-      << xmlw::attr("MaxKiloBytes") << maxmemusage
-      << xmlw::endtag("Memusage")
-      << xmlw::tag("Density")
-      << xmlw::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
-      << xmlw::endtag("Density")
+  XML << xml::tag("Misc")
+      << xml::tag("Memusage")
+      << xml::attr("MaxKiloBytes") << maxmemusage
+      << xml::endtag("Memusage")
+      << xml::tag("Density")
+      << xml::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
+      << xml::endtag("Density")
 
-      << xmlw::tag("PackingFraction")
-      << xmlw::attr("val") << Sim->dynamics.getPackingFraction()
-      << xmlw::endtag("PackingFraction")
+      << xml::tag("PackingFraction")
+      << xml::attr("val") << Sim->dynamics.getPackingFraction()
+      << xml::endtag("PackingFraction")
 
-      << xmlw::tag("SpeciesCount")
-      << xmlw::attr("val") << Sim->dynamics.getSpecies().size()
-      << xmlw::endtag("SpeciesCount")
+      << xml::tag("SpeciesCount")
+      << xml::attr("val") << Sim->dynamics.getSpecies().size()
+      << xml::endtag("SpeciesCount")
 
-      << xmlw::tag("ParticleCount")
-      << xmlw::attr("val") << Sim->N
-      << xmlw::endtag("ParticleCount")
+      << xml::tag("ParticleCount")
+      << xml::attr("val") << Sim->N
+      << xml::endtag("ParticleCount")
 
-      << xmlw::tag("SimLength")
-      << xmlw::attr("Collisions") << Sim->eventCount
-      << xmlw::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
-      << xmlw::endtag("SimLength")
+      << xml::tag("SimLength")
+      << xml::attr("Collisions") << Sim->eventCount
+      << xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
+      << xml::endtag("SimLength")
 
-      << xmlw::tag("Timing")
+      << xml::tag("Timing")
 
-      << xmlw::tag("Start")
-      << xmlw::attr("val") << sTime
-      << xmlw::endtag("Start")
+      << xml::tag("Start")
+      << xml::attr("val") << sTime
+      << xml::endtag("Start")
 
-      << xmlw::tag("End")
-      << xmlw::attr("val") << eTime
-      << xmlw::endtag("End")
+      << xml::tag("End")
+      << xml::attr("val") << eTime
+      << xml::endtag("End")
 
-      << xmlw::tag("Duration")
-      << xmlw::attr("val")
+      << xml::tag("Duration")
+      << xml::attr("val")
       << tendTime - tstartTime
-      << xmlw::endtag("Duration")
+      << xml::endtag("Duration")
 
-      << xmlw::tag("CollPerSec")
-      << xmlw::attr("val") << collpersec
+      << xml::tag("CollPerSec")
+      << xml::attr("val") << collpersec
 #ifdef DYNAMO_CONDOR
-      << xmlw::attr("CondorWarning") << std::string("true")
+      << xml::attr("CondorWarning") << std::string("true")
 #endif
-      << xmlw::endtag("CollPerSec")
+      << xml::endtag("CollPerSec")
 
-      << xmlw::endtag("Timing")
-      << xmlw::tag("SystemBoxLength")
-      << xmlw::attr("val")
+      << xml::endtag("Timing")
+      << xml::tag("SystemBoxLength")
+      << xml::attr("val")
       << 1.0/Sim->dynamics.units().unitLength();
 
   char name[2] = "x";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       name[0] = 'x' + iDim;
-      XML << xmlw::tag(name) << xmlw::attr("val")
+      XML << xml::tag(name) << xml::attr("val")
 	  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength()
-	  << xmlw::endtag(name);
+	  << xml::endtag(name);
     }
 
-  XML << xmlw::endtag("SystemBoxLength");
+  XML << xml::endtag("SystemBoxLength");
 
   // Output scalar moment of inertia for any species which may have it
   BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
   {
     if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
     {
-      XML << xmlw::tag("ScalarInertia")
-	  << xmlw::attr("Species") << spec->getName()
-	  << xmlw::attr("Mass") << spec->getMass()
-	  << xmlw::attr("inertiaConst") << (spec->getScalarMomentOfInertia() / (Sim->dynamics.units().unitArea() * spec->getMass()))
-	  << xmlw::endtag("ScalarInertia");
+      XML << xml::tag("ScalarInertia")
+	  << xml::attr("Species") << spec->getName()
+	  << xml::attr("Mass") << spec->getMass()
+	  << xml::attr("inertiaConst") << (spec->getScalarMomentOfInertia() / (Sim->dynamics.units().unitArea() * spec->getMass()))
+	  << xml::endtag("ScalarInertia");
     }
   }
 
@@ -261,21 +261,21 @@ OPMisc::output(xmlw::XmlStream &XML)
   BOOST_FOREACH( const Particle & Part, Sim->particleList)
     sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
 
-  XML << xmlw::tag("Total_momentum")
+  XML << xml::tag("Total_momentum")
       << sumMV / Sim->dynamics.units().unitMomentum()
-      << xmlw::endtag("Total_momentum")
-      << xmlw::tag("totMeanFreeTime")
-      << xmlw::attr("val")
+      << xml::endtag("Total_momentum")
+      << xml::tag("totMeanFreeTime")
+      << xml::attr("val")
       << getMFT()
-      << xmlw::endtag("totMeanFreeTime");
+      << xml::endtag("totMeanFreeTime");
 
   std::pair<Iflt, Iflt> mempair = process_mem_usage();
 
-  XML << xmlw::tag("MemoryUsage")
-      << xmlw::attr("VirtualMemory") << mempair.first
-      << xmlw::attr("ResidentSet") << mempair.second
-      << xmlw::endtag("MemoryUsage")
-      << xmlw::endtag("Misc");
+  XML << xml::tag("MemoryUsage")
+      << xml::attr("VirtualMemory") << mempair.first
+      << xml::attr("ResidentSet") << mempair.second
+      << xml::endtag("MemoryUsage")
+      << xml::endtag("Misc");
 }
 
 void

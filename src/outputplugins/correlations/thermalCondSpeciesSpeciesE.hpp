@@ -31,7 +31,7 @@ public:
 
   virtual void initialise();
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   virtual OutputPlugin* Clone() const 
   { return new OPThermalConductivitySpeciesSpeciesE(*this); }

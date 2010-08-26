@@ -221,9 +221,9 @@ LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const 
 }
 
 void 
-LCompression::outputXML(xmlw::XmlStream& XML) const
+LCompression::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") 
+  XML << xml::attr("Type") 
       << "Compression";
 }
 

@@ -33,8 +33,8 @@ C2RNone::operator<<(const XMLNode&)
 }
 
 void 
-C2RNone::outputXML(xmlw::XmlStream& XML) const
+C2RNone::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "2None"; 
+  XML << xml::attr("Range") << "2None"; 
 }
 

@@ -42,7 +42,7 @@ public:
 
   virtual Iflt rescaleFactor();
 
-  virtual void output(xmlw::XmlStream&);
+  virtual void output(xml::XmlStream&);
 
   virtual void initialise();
  

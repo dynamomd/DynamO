@@ -67,7 +67,7 @@ public:
   void operator<<(const XMLNode&);
 
 private:
-  void outputXML(xmlw::XmlStream&) const;
+  void outputXML(xml::XmlStream&) const;
 };
 
 #endif

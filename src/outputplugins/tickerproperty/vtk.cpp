@@ -82,55 +82,55 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  
 	  free(fileName);
 
-	  xmlw::XmlStream XML(of);
+	  xml::XmlStream XML(of);
 	  
 	  
-	  XML << xmlw::tag("VTKFile")
-	      << xmlw::attr("type") << "ImageData"
-	      << xmlw::attr("version") << "0.1"
-	      << xmlw::attr("byte_order") << "LittleEndian"
-	      << xmlw::attr("compressor") << "vtkZLibDataCompressor"
-	      << xmlw::tag("ImageData")
-	      << xmlw::attr("WholeExtent");
+	  XML << xml::tag("VTKFile")
+	      << xml::attr("type") << "ImageData"
+	      << xml::attr("version") << "0.1"
+	      << xml::attr("byte_order") << "LittleEndian"
+	      << xml::attr("compressor") << "vtkZLibDataCompressor"
+	      << xml::tag("ImageData")
+	      << xml::attr("WholeExtent");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << " " << "0 " << nBins[iDim] - 1;
 	  
-	  XML << xmlw::attr("Origin");
+	  XML << xml::attr("Origin");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << (Sim->aspectRatio[iDim] * (-0.5))
 	      / Sim->dynamics.units().unitLength()
 		<< " ";
 	  
-	  XML << xmlw::attr("Spacing");
+	  XML << xml::attr("Spacing");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
 	  
-	  XML << xmlw::tag("Piece")
-	      << xmlw::attr("Extent");
+	  XML << xml::tag("Piece")
+	      << xml::attr("Extent");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << " " << "0 " << nBins[iDim] - 1;
 	  
-	  XML << xmlw::tag("PointData");
+	  XML << xml::tag("PointData");
 	  
 	  
 	  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
 	  DYNAMO::Line_Breaker lb(6);
 	  
 	  ////////////SAMPLE COUNTS
-	  XML << xmlw::tag("DataArray")
-	      << xmlw::attr("type") << "Int32"
-	      << xmlw::attr("Name") << "Collisions Per Snapshot"
-	      << xmlw::attr("format") << "ascii"
-	      << xmlw::chardata();
+	  XML << xml::tag("DataArray")
+	      << xml::attr("type") << "Int32"
+	      << xml::attr("Name") << "Collisions Per Snapshot"
+	      << xml::attr("format") << "ascii"
+	      << xml::chardata();
 	  
 	  BOOST_FOREACH(const unsigned long& val, collCounter)
 	    XML << val << lb;
 	  
-	  XML << "\n" << xmlw::endtag("DataArray");
+	  XML << "\n" << xml::endtag("DataArray");
 	  
 	  BOOST_FOREACH(unsigned long& val, collCounter)
 	    val = 0;
@@ -140,25 +140,25 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  BOOST_FOREACH(const Particle& part, Sim->particleList)
 	    ++density[getCellID(part.getPosition())];
 	  
-	  XML << xmlw::tag("DataArray")
-	      << xmlw::attr("type") << "Float32"
-	      << xmlw::attr("Name") << "Density"
-	      << xmlw::attr("format") << "ascii"
-	      << xmlw::chardata();
+	  XML << xml::tag("DataArray")
+	      << xml::attr("type") << "Float32"
+	      << xml::attr("Name") << "Density"
+	      << xml::attr("format") << "ascii"
+	      << xml::chardata();
 	  
 	  lb.reset();
 	  BOOST_FOREACH(const size_t& val, density)
 	    XML << (val / binVol) << lb;
 	  
-	  XML << "\n" << xmlw::endtag("DataArray");
+	  XML << "\n" << xml::endtag("DataArray");
 
 	  ////////////Postamble
-	  XML << xmlw::endtag("PointData")
-	      << xmlw::tag("CellData")
-	      << xmlw::endtag("CellData")
-	      << xmlw::endtag("Piece")
-	      << xmlw::endtag("ImageData")
-	      << xmlw::endtag("VTKFile");
+	  XML << xml::endtag("PointData")
+	      << xml::tag("CellData")
+	      << xml::endtag("CellData")
+	      << xml::endtag("Piece")
+	      << xml::endtag("ImageData")
+	      << xml::endtag("VTKFile");
 	}
     }
 }
@@ -278,82 +278,82 @@ OPVTK::ticker()
       
       free(fileName);
 
-      xmlw::XmlStream XML(of);
+      xml::XmlStream XML(of);
       
       XML //<< std::scientific
 	//This has a minus one due to the digit in front of the decimal
 	//An extra one is added if we're rounding
 	<< std::setprecision(std::numeric_limits<Iflt>::digits10 - 1)
-	<< xmlw::prolog() << xmlw::tag("VTKFile")
-	<< xmlw::attr("type") << "UnstructuredGrid"
-	<< xmlw::attr("version") << "0.1"
-	<< xmlw::attr("byte_order") << "LittleEndian"
-	<< xmlw::tag("UnstructuredGrid")
-	<< xmlw::tag("Piece") 
-	<< xmlw::attr("NumberOfPoints") << Sim->N
-	<< xmlw::attr("NumberOfCells") << 0
-	<< xmlw::tag("Points")
-	<< xmlw::tag("DataArray")
-	<< xmlw::attr("type") << "Float32"
-      	<< xmlw::attr("format") << "ascii"
-      	<< xmlw::attr("NumberOfComponents") << "3"
-	<< xmlw::chardata();
+	<< xml::prolog() << xml::tag("VTKFile")
+	<< xml::attr("type") << "UnstructuredGrid"
+	<< xml::attr("version") << "0.1"
+	<< xml::attr("byte_order") << "LittleEndian"
+	<< xml::tag("UnstructuredGrid")
+	<< xml::tag("Piece") 
+	<< xml::attr("NumberOfPoints") << Sim->N
+	<< xml::attr("NumberOfCells") << 0
+	<< xml::tag("Points")
+	<< xml::tag("DataArray")
+	<< xml::attr("type") << "Float32"
+      	<< xml::attr("format") << "ascii"
+      	<< xml::attr("NumberOfComponents") << "3"
+	<< xml::chardata();
       
       BOOST_FOREACH(const Particle& part, Sim->particleList)
 	XML << part.getPosition()[0] / Sim->dynamics.units().unitLength() << " "
 	    << part.getPosition()[1] / Sim->dynamics.units().unitLength() << " "
 	    << part.getPosition()[2] / Sim->dynamics.units().unitLength() << "\n";
       
-      XML << xmlw::endtag("DataArray")
-	  << xmlw::endtag("Points")
-	  << xmlw::tag("Cells") 
+      XML << xml::endtag("DataArray")
+	  << xml::endtag("Points")
+	  << xml::tag("Cells") 
 
-	  << xmlw::tag("DataArray")
-	  << xmlw::attr("type") << "Int32" 
-	  << xmlw::attr("Name") << "connectivity" 
-	  << xmlw::attr("format") << "ascii" 
-	  << xmlw::endtag("DataArray") 
+	  << xml::tag("DataArray")
+	  << xml::attr("type") << "Int32" 
+	  << xml::attr("Name") << "connectivity" 
+	  << xml::attr("format") << "ascii" 
+	  << xml::endtag("DataArray") 
 
-	  << xmlw::tag("DataArray") 
-	  << xmlw::attr("type") << "Int32" 
-	  << xmlw::attr("Name") << "offsets" 
-	  << xmlw::attr("format") << "ascii" 
-	  << xmlw::endtag("DataArray") 
+	  << xml::tag("DataArray") 
+	  << xml::attr("type") << "Int32" 
+	  << xml::attr("Name") << "offsets" 
+	  << xml::attr("format") << "ascii" 
+	  << xml::endtag("DataArray") 
 
-	  << xmlw::tag("DataArray") 
-	  << xmlw::attr("type") << "UInt8" 
-	  << xmlw::attr("Name") << "types" 
-	  << xmlw::attr("format") << "ascii" 
-	  << xmlw::endtag("DataArray") 
+	  << xml::tag("DataArray") 
+	  << xml::attr("type") << "UInt8" 
+	  << xml::attr("Name") << "types" 
+	  << xml::attr("format") << "ascii" 
+	  << xml::endtag("DataArray") 
 
-	  << xmlw::endtag("Cells")
-	  << xmlw::tag("CellData") << xmlw::endtag("CellData")
-	  << xmlw::tag("PointData"); 
+	  << xml::endtag("Cells")
+	  << xml::tag("CellData") << xml::endtag("CellData")
+	  << xml::tag("PointData"); 
 
       //Velocity data    
-      XML << xmlw::tag("DataArray")
-	  << xmlw::attr("type") << "Float32"
-	  << xmlw::attr("Name") << "Velocities"
-	  << xmlw::attr("NumberOfComponents") << "3"
-	  << xmlw::attr("format") << "ascii"
-	  << xmlw::chardata();
+      XML << xml::tag("DataArray")
+	  << xml::attr("type") << "Float32"
+	  << xml::attr("Name") << "Velocities"
+	  << xml::attr("NumberOfComponents") << "3"
+	  << xml::attr("format") << "ascii"
+	  << xml::chardata();
     
       BOOST_FOREACH(const Particle& part, Sim->particleList)
 	XML << part.getVelocity()[0] / Sim->dynamics.units().unitVelocity() << " "
 	    << part.getVelocity()[1] / Sim->dynamics.units().unitVelocity() << " "
 	    << part.getVelocity()[2] / Sim->dynamics.units().unitVelocity() << "\n";
     
-      XML << xmlw::endtag("DataArray");
+      XML << xml::endtag("DataArray");
 
       if (Sim->dynamics.liouvilleanTypeTest<LNOrientation>())
 	{
 	  //Orientation data
-	  XML << xmlw::tag("DataArray")
-	      << xmlw::attr("type") << "Float32"
-	      << xmlw::attr("Name") << "Orientations"
-	      << xmlw::attr("NumberOfComponents") << "3"
-	      << xmlw::attr("format") << "ascii"
-	      << xmlw::chardata();
+	  XML << xml::tag("DataArray")
+	      << xml::attr("type") << "Float32"
+	      << xml::attr("Name") << "Orientations"
+	      << xml::attr("NumberOfComponents") << "3"
+	      << xml::attr("format") << "ascii"
+	      << xml::chardata();
     
 	  BOOST_FOREACH(const Particle& part, Sim->particleList)
 	    {
@@ -363,78 +363,78 @@ OPVTK::ticker()
 	      XML << tmp[0] << " " << tmp[1] << " " << tmp[2] << "\n";
 	    }
 
-	  XML << xmlw::endtag("DataArray");
+	  XML << xml::endtag("DataArray");
 	}
 
-      XML << xmlw::endtag("PointData")
-	  << xmlw::endtag("Piece")
-	  << xmlw::endtag("UnstructuredGrid")
-	  << xmlw::endtag("VTKFile")
+      XML << xml::endtag("PointData")
+	  << xml::endtag("Piece")
+	  << xml::endtag("UnstructuredGrid")
+	  << xml::endtag("VTKFile")
 	;
     }
 }
 
 void 
-OPVTK::output(xmlw::XmlStream& XML)
+OPVTK::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("VTK")
-      << xmlw::attr("ImagesTaken") << imageCounter
-      << xmlw::tag("VTKFile")
-      << xmlw::attr("type") << "ImageData"
-      << xmlw::attr("version") << "0.1"
-      << xmlw::attr("byte_order") << "LittleEndian"
-      << xmlw::attr("compressor") << "vtkZLibDataCompressor"
-      << xmlw::tag("ImageData")
-      << xmlw::attr("WholeExtent");
+  XML << xml::tag("VTK")
+      << xml::attr("ImagesTaken") << imageCounter
+      << xml::tag("VTKFile")
+      << xml::attr("type") << "ImageData"
+      << xml::attr("version") << "0.1"
+      << xml::attr("byte_order") << "LittleEndian"
+      << xml::attr("compressor") << "vtkZLibDataCompressor"
+      << xml::tag("ImageData")
+      << xml::attr("WholeExtent");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << " " << "0 " << nBins[iDim] - 1;
    
-  XML << xmlw::attr("Origin");
+  XML << xml::attr("Origin");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << (Sim->aspectRatio[iDim] * (-0.5))
       / Sim->dynamics.units().unitLength()
 	<< " ";
   
-  XML << xmlw::attr("Spacing");
+  XML << xml::attr("Spacing");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
   
-  XML << xmlw::tag("Piece")
-      << xmlw::attr("Extent");
+  XML << xml::tag("Piece")
+      << xml::attr("Extent");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << " " << "0 " << nBins[iDim] - 1;
 
-  XML << xmlw::tag("PointData");
+  XML << xml::tag("PointData");
 
 
   //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
   DYNAMO::Line_Breaker lb(6);
 
   ////////////SAMPLE COUNTS
-  XML << xmlw::tag("DataArray")
-      << xmlw::attr("type") << "Int32"
-      << xmlw::attr("Name") << "Samples per cell"
-      << xmlw::attr("format") << "ascii"
-      << xmlw::chardata();
+  XML << xml::tag("DataArray")
+      << xml::attr("type") << "Int32"
+      << xml::attr("Name") << "Samples per cell"
+      << xml::attr("format") << "ascii"
+      << xml::chardata();
 
   for (size_t id(0); id < SampleCounter.size(); ++id)
     XML << SampleCounter[id] << lb;
 
-  XML << "\n" << xmlw::endtag("DataArray");
+  XML << "\n" << xml::endtag("DataArray");
 
   ////////////Momentum field
   lb.reset();
 
-  XML << xmlw::tag("DataArray")
-      << xmlw::attr("type") << "Float32"
-      << xmlw::attr("Name") << "Avg Particle Momentum"
-      << xmlw::attr("NumberOfComponents") << NDIM   
-      << xmlw::attr("format") << "ascii"
-      << xmlw::chardata();
+  XML << xml::tag("DataArray")
+      << xml::attr("type") << "Float32"
+      << xml::attr("Name") << "Avg Particle Momentum"
+      << xml::attr("NumberOfComponents") << NDIM   
+      << xml::attr("format") << "ascii"
+      << xml::chardata();
 
   for (size_t id(0); id < Momentum.size(); ++id)
     {
@@ -448,17 +448,17 @@ OPVTK::output(xmlw::XmlStream& XML)
 	  XML << 0.0 << lb;
     }
 
-  XML << "\n" << xmlw::endtag("DataArray");
+  XML << "\n" << xml::endtag("DataArray");
   
 
   ////////////Energy
   lb.reset();
 
-  XML << xmlw::tag("DataArray")
-      << xmlw::attr("type") << "Float32"
-      << xmlw::attr("Name") << "Avg Particle Energy"
-      << xmlw::attr("format") << "ascii"
-      << xmlw::chardata();
+  XML << xml::tag("DataArray")
+      << xml::attr("type") << "Float32"
+      << xml::attr("Name") << "Avg Particle Energy"
+      << xml::attr("format") << "ascii"
+      << xml::chardata();
 
   for (size_t id(0); id < SampleCounter.size(); ++id)
     //Nans are not tolerated by paraview
@@ -468,14 +468,14 @@ OPVTK::output(xmlw::XmlStream& XML)
     else
       XML << 0.0 << lb;
 
-  XML << "\n" << xmlw::endtag("DataArray");
+  XML << "\n" << xml::endtag("DataArray");
 
   ////////////Postamble
-  XML << xmlw::endtag("PointData")
-      << xmlw::tag("CellData")
-      << xmlw::endtag("CellData")
-      << xmlw::endtag("Piece")
-      << xmlw::endtag("ImageData")
-      << xmlw::endtag("VTKFile")
-      << xmlw::endtag("VTK");
+  XML << xml::endtag("PointData")
+      << xml::tag("CellData")
+      << xml::endtag("CellData")
+      << xml::endtag("Piece")
+      << xml::endtag("ImageData")
+      << xml::endtag("VTKFile")
+      << xml::endtag("VTK");
 }

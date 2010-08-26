@@ -48,7 +48,7 @@ OPConfig::~OPConfig()
 { I_cout() << "Unloaded"; }
 
 void
-OPConfig::output(xmlw::XmlStream &XML)
+OPConfig::output(xml::XmlStream &XML)
 {  
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
@@ -56,36 +56,36 @@ OPConfig::output(xmlw::XmlStream &XML)
     //This has a minus one due to the digit in front of the decimal
     //An extra one is added if we're rounding
       << std::setprecision(std::numeric_limits<Iflt>::digits10 - 1 - rounding)
-      << xmlw::prolog() << xmlw::tag("DYNAMOconfig") 
-      << xmlw::attr("version") << configFileVersion
-      << xmlw::tag("Simulation")
-      << xmlw::tag("Trajectory")
-      << xmlw::attr("Coll") << Sim->endEventCount
-      << xmlw::attr("nCollPrint") << Sim->eventPrintInterval;
+      << xml::prolog() << xml::tag("DYNAMOconfig") 
+      << xml::attr("version") << configFileVersion
+      << xml::tag("Simulation")
+      << xml::tag("Trajectory")
+      << xml::attr("Coll") << Sim->endEventCount
+      << xml::attr("nCollPrint") << Sim->eventPrintInterval;
 
   //Allow this block to fail if need be
   try {
-    XML << xmlw::attr("lastMFT") 
+    XML << xml::attr("lastMFT") 
 	<< Sim->getOutputPlugin<OPMisc>()->getMFT();
   }
   catch (std::exception&)
     {}
 
-  XML << xmlw::endtag("Trajectory")
+  XML << xml::endtag("Trajectory")
       << *Sim->ensemble
-      << xmlw::tag("Scheduler")
+      << xml::tag("Scheduler")
       << *Sim->ptrScheduler
-      << xmlw::endtag("Scheduler")
-      << xmlw::tag("History") 
-      << xmlw::chardata()
+      << xml::endtag("Scheduler")
+      << xml::tag("History") 
+      << xml::chardata()
       << Sim->ssHistory.str()
       << "\nRun for " << Sim->eventCount << " collisions"
-      << xmlw::endtag("History") << xmlw::endtag("Simulation")
+      << xml::endtag("History") << xml::endtag("Simulation")
       << Sim->dynamics;
 
   Sim->dynamics.getLiouvillean().outputParticleXMLData(XML);
 
-  XML << xmlw::endtag("DYNAMOconfig");
+  XML << xml::endtag("DYNAMOconfig");
 
   I_cout() << "Configuration written out";
 }
@@ -103,7 +103,7 @@ OPConfig::fileOutput(const char *fileName)
       
       coutputFile.push(io::file_sink(fileName));
       
-      xmlw::XmlStream XML(coutputFile);
+      xml::XmlStream XML(coutputFile);
       
       XML.setFormatXML(true);
       output(XML);
@@ -112,7 +112,7 @@ OPConfig::fileOutput(const char *fileName)
 #endif
     {
       std::ofstream coutputFile(fileName, std::ios::out | std::ios::trunc);
-      xmlw::XmlStream XML(coutputFile);
+      xml::XmlStream XML(coutputFile);
       XML.setFormatXML(true);
       output(XML);
     }

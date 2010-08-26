@@ -40,7 +40,7 @@ Global::isInteraction(const Particle &p1) const
   return range->isInRange(p1);
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Global& g)
 {
   g.outputXML(XML);

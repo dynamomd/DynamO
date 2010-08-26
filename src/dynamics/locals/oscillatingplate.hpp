@@ -53,7 +53,7 @@ public:
   const Vector& getCentre() const { return rw0; }
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   bool strongPlate;
   Vector rw0;

@@ -132,16 +132,16 @@ OPMSDOrientationalCorrelator::accPass()
 }
 
 void
-OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
+OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
 {
   // Begin XML output
-  XML << xmlw::tag("MSDOrientationalCorrelator");
+  XML << xml::tag("MSDOrientationalCorrelator");
 
   Iflt dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
 
-  XML << xmlw::tag("Component")
-      << xmlw::attr("Type") << "Parallel"
-      << xmlw::chardata();
+  XML << xml::tag("Component")
+      << xml::attr("Type") << "Parallel"
+      << xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -150,11 +150,11 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xmlw::endtag("Component");
+  XML << xml::endtag("Component");
 
-  XML << xmlw::tag("Component")
-      << xmlw::attr("Type") << "Perpendicular"
-      << xmlw::chardata();
+  XML << xml::tag("Component")
+      << xml::attr("Type") << "Perpendicular"
+      << xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -163,14 +163,14 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xmlw::endtag("Component");
+  XML << xml::endtag("Component");
 
-  XML << xmlw::tag("Component")
-      << xmlw::attr("Type") << "Rotational";
+  XML << xml::tag("Component")
+      << xml::attr("Type") << "Rotational";
 
-  XML << xmlw::tag("Method")
-      << xmlw::attr("Name") << "LegendrePolynomial1"
-      << xmlw::chardata();
+  XML << xml::tag("Method")
+      << xml::attr("Name") << "LegendrePolynomial1"
+      << xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -179,11 +179,11 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xmlw::endtag("Method");
+  XML << xml::endtag("Method");
 
-  XML << xmlw::tag("Method")
-      << xmlw::attr("Name") << "LegendrePolynomial2"
-      << xmlw::chardata();
+  XML << xml::tag("Method")
+      << xml::attr("Name") << "LegendrePolynomial2"
+      << xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -192,9 +192,9 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xmlw::endtag("Method");
+  XML << xml::endtag("Method");
 
-  XML << xmlw::endtag("Component");
+  XML << xml::endtag("Component");
 
-  XML << xmlw::endtag("MSDOrientationalCorrelator");
+  XML << xml::endtag("MSDOrientationalCorrelator");
 }

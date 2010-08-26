@@ -23,7 +23,7 @@
 #include "../eventtypes.hpp"
 
 class XMLNode;
-namespace xmlw
+namespace xml
 {
   class XmlStream;
 }
@@ -56,7 +56,7 @@ public:
   
   Iflt getdt() const { return dt; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const System&);
+  friend xml::XmlStream& operator<<(xml::XmlStream&, const System&);
   
   static System* getClass(const XMLNode&, DYNAMO::SimData*);
   
@@ -71,7 +71,7 @@ public:
   inline const size_t& getID() const { return ID; }
 
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 
   std::string sysName;  
   mutable Iflt dt;

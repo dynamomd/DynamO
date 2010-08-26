@@ -66,36 +66,36 @@ ISWSequence::getColourFraction(const Particle& part) const
 }
 
 void 
-ISWSequence::outputXML(xmlw::XmlStream& XML) const
+ISWSequence::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "SquareWellSeq"
-      << xmlw::attr("Diameter") 
+  XML << xml::attr("Type") << "SquareWellSeq"
+      << xml::attr("Diameter") 
       << diameter / Sim->dynamics.units().unitLength() 
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("Lambda") << lambda
-      << xmlw::attr("Name") << intName
+      << xml::attr("Elasticity") << e
+      << xml::attr("Lambda") << lambda
+      << xml::attr("Name") << intName
       << range;
 
-  XML << xmlw::tag("Sequence");
+  XML << xml::tag("Sequence");
   
   for (size_t i = 0; i < sequence.size(); ++i)
-    XML << xmlw::tag("Element")
-	<< xmlw::attr("seqID") << i
-	<< xmlw::attr("Letter") << sequence[i]
-	<< xmlw::endtag("Element");
+    XML << xml::tag("Element")
+	<< xml::attr("seqID") << i
+	<< xml::attr("Letter") << sequence[i]
+	<< xml::endtag("Element");
 
-  XML << xmlw::endtag("Sequence")
-      << xmlw::tag("Alphabet");
+  XML << xml::endtag("Sequence")
+      << xml::tag("Alphabet");
 
   for (size_t i = 0; i < alphabet.size(); ++i)
     for (size_t j = i; j < alphabet[i].size(); ++j)
-      XML << xmlw::tag("Word")
-	  << xmlw::attr("Letter1") << i
-	  << xmlw::attr("Letter2") << j
-	  << xmlw::attr("Depth") << alphabet[i][j]
-	  << xmlw::endtag("Word");
+      XML << xml::tag("Word")
+	  << xml::attr("Letter1") << i
+	  << xml::attr("Letter2") << j
+	  << xml::attr("Depth") << alphabet[i][j]
+	  << xml::endtag("Word");
 
-  XML << xmlw::endtag("Alphabet");
+  XML << xml::endtag("Alphabet");
 
   
   ISingleCapture::outputCaptureMap(XML);  

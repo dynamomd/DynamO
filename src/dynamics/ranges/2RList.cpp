@@ -89,12 +89,12 @@ C2RList::operator<<(const XMLNode& XML)
 }
 
 void 
-C2RList::outputXML(xmlw::XmlStream& XML) const
+C2RList::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Range") << "List";
+  XML << xml::attr("Range") << "List";
   typedef const std::pair<const unsigned long, std::list<unsigned long> >& thepair;
   BOOST_FOREACH(thepair mypair, pairmap)
     BOOST_FOREACH(unsigned long val, mypair.second)
-    XML << xmlw::tag("RangePair") << xmlw::attr("ID1") << mypair.first
-	<< xmlw::attr("ID2") << val << xmlw::endtag("RangePair");
+    XML << xml::tag("RangePair") << xml::attr("ID1") << mypair.first
+	<< xml::attr("ID2") << val << xml::endtag("RangePair");
 }

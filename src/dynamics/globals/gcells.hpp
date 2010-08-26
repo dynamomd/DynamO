@@ -65,10 +65,10 @@ public:
 
   virtual Iflt getMaxInteractionLength() const;
 
-  virtual void outputXML(xmlw::XmlStream& XML) const;
+  virtual void outputXML(xml::XmlStream& XML) const;
 
 protected:
-  void outputXML(xmlw::XmlStream&, const std::string&) const;
+  void outputXML(xml::XmlStream&, const std::string&) const;
 
   CGCells(DYNAMO::SimData*, const char*, void*);
 
@@ -123,12 +123,12 @@ protected:
   {
 #ifdef DYNAMO_DEBUG
     if (cells.at(cellID).list != -1)
-      partCellData.at(cells.at(cellID).list).prev = ID;
+      partCellData.at(cells.at(cellID).list).prev = _ID;
     
-    partCellData.at(ID).next = cells.at(cellID).list;
-    cells.at(cellID).list = ID;    
-    partCellData.at(ID).prev = -1;
-    partCellData.at(ID).cell = cellID;
+    partCellData.at(_ID).next = cells.at(cellID).list;
+    cells.at(cellID).list = _ID;    
+    partCellData.at(_ID).prev = -1;
+    partCellData.at(_ID).cell = cellID;
 # else
     if (cells[cellID].list != -1)
       partCellData[cells[cellID].list].prev = ID;
@@ -152,7 +152,7 @@ protected:
       partCellData[partCellData[ID].next].prev = partCellData[ID].prev;
 
 #ifdef DYNAMO_DEBUG
-    partCellData[ID].cell = -1;
+    partCellData[_ID].cell = -1;
 #endif
   }
 

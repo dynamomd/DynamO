@@ -149,13 +149,13 @@ IRoughHardSphere::runEvent(const Particle& p1,
 }
    
 void 
-IRoughHardSphere::outputXML(xmlw::XmlStream& XML) const
+IRoughHardSphere::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "HardSphere"
-      << xmlw::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("TangentialElasticity") << et
-      << xmlw::attr("Name") << intName
+  XML << xml::attr("Type") << "HardSphere"
+      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << xml::attr("Elasticity") << e
+      << xml::attr("TangentialElasticity") << et
+      << xml::attr("Name") << intName
       << range;
 }
 

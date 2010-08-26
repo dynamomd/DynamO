@@ -67,29 +67,29 @@ OPVelDist::ticker()
 }
 
 void
-OPVelDist::output(xmlw::XmlStream& XML)
+OPVelDist::output(xml::XmlStream& XML)
 {
-  XML << xmlw::tag("VelDist");
+  XML << xml::tag("VelDist");
   
   for (size_t id = 0; id < Sim->dynamics.getSpecies().size(); ++id)
     {
-      XML << xmlw::tag("Species")
-	  << xmlw::attr("Name")
+      XML << xml::tag("Species")
+	  << xml::attr("Name")
 	  << Sim->dynamics.getSpecies()[id]->getName();
      
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	{
-	  XML << xmlw::tag("Dimension")
-	      << xmlw::attr("val")
+	  XML << xml::tag("Dimension")
+	      << xml::attr("val")
 	      << iDim;
 	  
 	  data[iDim][id].outputHistogram(XML, 1.0);
 	  
-	  XML << xmlw::endtag("Dimension");
+	  XML << xml::endtag("Dimension");
 	}
       
-      XML << xmlw::endtag("Species");
+      XML << xml::endtag("Species");
     }
   
-  XML << xmlw::endtag("VelDist");
+  XML << xml::endtag("VelDist");
 }

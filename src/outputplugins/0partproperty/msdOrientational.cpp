@@ -53,39 +53,39 @@ OPMSDOrientational::initialise()
 }
 
 void
-OPMSDOrientational::output(xmlw::XmlStream &XML)
+OPMSDOrientational::output(xml::XmlStream &XML)
 {
   msdCalcReturn MSDOrientational(calculate());
 
-  XML << xmlw::tag("MSDOrientational")
+  XML << xml::tag("MSDOrientational")
 
-      << xmlw::tag("Perpendicular")
-      << xmlw::attr("val") << MSDOrientational.perpendicular
-      << xmlw::attr("diffusionCoeff")
+      << xml::tag("Perpendicular")
+      << xml::attr("val") << MSDOrientational.perpendicular
+      << xml::attr("diffusionCoeff")
       << MSDOrientational.perpendicular * Sim->dynamics.units().unitTime() / Sim->dSysTime
-      << xmlw::endtag("Perpendicular")
+      << xml::endtag("Perpendicular")
 
-      << xmlw::tag("Parallel")
-      << xmlw::attr("val") << MSDOrientational.parallel
-      << xmlw::attr("diffusionCoeff")
+      << xml::tag("Parallel")
+      << xml::attr("val") << MSDOrientational.parallel
+      << xml::attr("diffusionCoeff")
       << MSDOrientational.parallel * Sim->dynamics.units().unitTime() / Sim->dSysTime
-      << xmlw::endtag("Parallel")
+      << xml::endtag("Parallel")
 
-      << xmlw::tag("Rotational")
-      << xmlw::attr("method") << "LegendrePolynomial1"
-      << xmlw::attr("val") << MSDOrientational.rotational_legendre1
-      << xmlw::attr("diffusionCoeff")
+      << xml::tag("Rotational")
+      << xml::attr("method") << "LegendrePolynomial1"
+      << xml::attr("val") << MSDOrientational.rotational_legendre1
+      << xml::attr("diffusionCoeff")
       << MSDOrientational.rotational_legendre1 * Sim->dynamics.units().unitTime() / Sim->dSysTime
-      << xmlw::endtag("Rotational")
+      << xml::endtag("Rotational")
 
-      << xmlw::tag("Rotational")
-      << xmlw::attr("method") << "LegendrePolynomial2"
-      << xmlw::attr("val") << MSDOrientational.rotational_legendre2
-      << xmlw::attr("diffusionCoeff")
+      << xml::tag("Rotational")
+      << xml::attr("method") << "LegendrePolynomial2"
+      << xml::attr("val") << MSDOrientational.rotational_legendre2
+      << xml::attr("diffusionCoeff")
       << MSDOrientational.rotational_legendre2 * Sim->dynamics.units().unitTime() / Sim->dSysTime
-      << xmlw::endtag("Rotational")
+      << xml::endtag("Rotational")
 
-      << xmlw::endtag("MSDOrientational");
+      << xml::endtag("MSDOrientational");
 }
 
 OPMSDOrientational::msdCalcReturn

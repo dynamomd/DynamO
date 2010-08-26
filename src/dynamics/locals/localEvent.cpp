@@ -33,13 +33,13 @@ LocalEvent::LocalEvent(const Particle& part1, const Iflt &delt,
 {}
   
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
+xml::XmlStream& operator<<(xml::XmlStream &XML, 
 			    const LocalEvent &coll)
 {
-  XML << xmlw::tag("Collision")
-      << xmlw::attr("p1ID") << coll.getParticle().getID()
-      << xmlw::attr("dt")   << coll.dt
-      << xmlw::endtag("Collision");
+  XML << xml::tag("Collision")
+      << xml::attr("p1ID") << coll.getParticle().getID()
+      << xml::attr("dt")   << coll.dt
+      << xml::endtag("Collision");
   
   return XML;
 }

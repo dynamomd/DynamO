@@ -49,7 +49,7 @@ class ClonePtr
    * 
    * \return The xmlw::XmlStream so further writing can take place.
    */
-  friend inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
+  friend inline xml::XmlStream& operator<<(xml::XmlStream& XML, 
 					    const ClonePtr<T>& plugptr)
   { return XML << *(plugptr.obj); };
   

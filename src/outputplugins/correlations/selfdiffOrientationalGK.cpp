@@ -249,7 +249,7 @@ OPSelfDiffusionOrientationalGK::newG(const NEventData& PDat)
 }
 
 void
-OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
+OPSelfDiffusionOrientationalGK::output(xml::XmlStream& XML)
 {
   Iflt factor = Sim->dynamics.units().unitTime() / (Sim->dynamics.units().unitDiffusion() * count);
 
@@ -259,14 +259,14 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
     // Common headers
     Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
 
-    XML << xmlw::tag("Correlator")
-	<< xmlw::attr("name") << "SelfDiffusionOrientationalGK"
-	<< xmlw::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
-	<< xmlw::attr("size") << accG2_perp.size()
-	<< xmlw::attr("dt") << dt / Sim->dynamics.units().unitTime()
-	<< xmlw::attr("LengthInMFT") << dt * accG2_perp[i].size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
-	<< xmlw::attr("simFactor") << factor / specCount
-	<< xmlw::attr("SampleCount") << count;
+    XML << xml::tag("Correlator")
+	<< xml::attr("name") << "SelfDiffusionOrientationalGK"
+	<< xml::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+	<< xml::attr("size") << accG2_perp.size()
+	<< xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	<< xml::attr("LengthInMFT") << dt * accG2_perp[i].size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
+	<< xml::attr("simFactor") << factor / specCount
+	<< xml::attr("SampleCount") << count;
 
 
     // Perpendicular section
@@ -277,12 +277,12 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 
     acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
-    XML << xmlw::tag("Component")
-	<< xmlw::attr("Type") << "Perpendicular"
-	<< xmlw::tag("Integral")
-	<< xmlw::attr("value") << acc_perp
-	<< xmlw::endtag("Integral")
-	<< xmlw::chardata();
+    XML << xml::tag("Component")
+	<< xml::attr("Type") << "Perpendicular"
+	<< xml::tag("Integral")
+	<< xml::attr("value") << acc_perp
+	<< xml::endtag("Integral")
+	<< xml::chardata();
 
     for (size_t j = 0; j < accG2_perp[i].size(); ++j)
     {
@@ -290,7 +290,7 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 	  << "\t" << accG2_perp[i][j] * factor / specCount << "\n";
     }
 
-    XML << xmlw::endtag("Component");
+    XML << xml::endtag("Component");
 
     // Parallel section
     Iflt acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
@@ -302,12 +302,12 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 
     acc_parallel *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
 
-    XML << xmlw::tag("Component")
-	<< xmlw::attr("Type") << "Parallel"
-	<< xmlw::tag("Integral")
-	<< xmlw::attr("value") << acc_parallel
-	<< xmlw::endtag("Integral")
-	<< xmlw::chardata();
+    XML << xml::tag("Component")
+	<< xml::attr("Type") << "Parallel"
+	<< xml::tag("Integral")
+	<< xml::attr("value") << acc_parallel
+	<< xml::endtag("Integral")
+	<< xml::chardata();
 
     for (size_t j = 0; j < accG2_parallel[i].size(); ++j)
     {
@@ -315,8 +315,8 @@ OPSelfDiffusionOrientationalGK::output(xmlw::XmlStream& XML)
 	  << "\t" << accG2_parallel[i][j] * factor / specCount << "\n";
     }
 
-    XML << xmlw::endtag("Component")
-	<< xmlw::endtag("Correlator");
+    XML << xml::endtag("Component")
+	<< xml::endtag("Correlator");
     }
 }
 

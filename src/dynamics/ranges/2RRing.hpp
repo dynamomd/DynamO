@@ -37,7 +37,7 @@ public:
   virtual void operator<<(const XMLNode&);
   
 protected:
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 
   unsigned long range1;
   unsigned long range2;

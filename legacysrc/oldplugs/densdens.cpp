@@ -61,17 +61,17 @@ OPDens::collisionUpdate(const IntEvent &collision, const CIntEventData &preColl)
 }
 
 void
-OPDens::output(xmlw::XmlStream &XML)
+OPDens::output(xml::XmlStream &XML)
 {
   Iflt factor = 1.0 / ((Iflt) Sim->particleList.size() * counter);
   
-  XML << xmlw::tag("rho(q)") << xmlw::chardata();
+  XML << xml::tag("rho(q)") << xml::chardata();
   for (long qy = 0; qy < 20; qy++)
     for (long qz = 0; qz < 20; qz++)
       XML << qy << " " << qz << " " << xybin[qy][qz].getr()*factor 
 	  << " " << xybin[qy][qz].geti()*factor << "\n";
-  XML << xmlw::endtag("rho(q)")
-      << xmlw::tag("|rho(q)|^2") << xmlw::chardata();
+  XML << xml::endtag("rho(q)")
+      << xml::tag("|rho(q)|^2") << xml::chardata();
 
   for (long qy = 0; qy < 20; qy++)
     for (long qz = 0; qz < 20; qz++)
@@ -80,7 +80,7 @@ OPDens::output(xmlw::XmlStream &XML)
 	+ pow(xybin[qy][qz].getr()*factor, 2.0) 
 	  << "\n";
 
-  XML << xmlw::endtag("|rho(q)|^2");
+  XML << xml::endtag("|rho(q)|^2");
 }
 
 void

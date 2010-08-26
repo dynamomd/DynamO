@@ -114,21 +114,21 @@ LRoughWall::operator<<(const XMLNode& XML)
 }
 
 void 
-LRoughWall::outputXML(xmlw::XmlStream& XML) const
+LRoughWall::outputXML(xml::XmlStream& XML) const
 {
-  XML << xmlw::attr("Type") << "RoughWall" 
-      << xmlw::attr("Name") << localName
-      << xmlw::attr("Elasticity") << e
-      << xmlw::attr("TangentialElasticity") << et
-      << xmlw::attr("Radius") << r / Sim->dynamics.units().unitLength()
-      << xmlw::attr("Render") << render
+  XML << xml::attr("Type") << "RoughWall" 
+      << xml::attr("Name") << localName
+      << xml::attr("Elasticity") << e
+      << xml::attr("TangentialElasticity") << et
+      << xml::attr("Radius") << r / Sim->dynamics.units().unitLength()
+      << xml::attr("Render") << render
       << range
-      << xmlw::tag("Norm")
+      << xml::tag("Norm")
       << vNorm
-      << xmlw::endtag("Norm")
-      << xmlw::tag("Origin")
+      << xml::endtag("Norm")
+      << xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xmlw::endtag("Origin");
+      << xml::endtag("Origin");
 }
 
 void 

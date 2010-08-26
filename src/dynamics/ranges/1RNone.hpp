@@ -58,7 +58,7 @@ protected:
   virtual const unsigned long& getIteratorID(const unsigned long &i) const 
   { D_throw() << "Nothing here!"; }
 
-  virtual void outputXML(xmlw::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const;
 };
 
 #endif

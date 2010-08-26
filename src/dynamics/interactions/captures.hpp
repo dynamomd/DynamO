@@ -80,7 +80,7 @@ protected:
 
   void loadCaptureMap(const XMLNode&);
 
-  void outputCaptureMap(xmlw::XmlStream&) const;
+  void outputCaptureMap(xml::XmlStream&) const;
 
   void addToCaptureMap(const Particle&, const Particle&) const;
   
@@ -139,7 +139,7 @@ protected:
 
   void loadCaptureMap(const XMLNode&);
 
-  void outputCaptureMap(xmlw::XmlStream&) const;
+  void outputCaptureMap(xml::XmlStream&) const;
 
   inline cmap_it getCMap_it(const Particle& p1, const Particle& p2) const
   {
