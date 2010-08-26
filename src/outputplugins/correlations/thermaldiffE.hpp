@@ -38,7 +38,7 @@ public:
 
   virtual void eventUpdate(const GlobalEvent&, const NEventData&);
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
-  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
   void operator<<(const XMLNode&);

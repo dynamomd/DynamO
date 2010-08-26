@@ -76,7 +76,7 @@ SThreadedNBList::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -110,7 +110,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -161,8 +161,8 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
   //Stream all of the particles up to date
   Sim->dynamics.getLiouvillean().updateParticle(p1);
   Sim->dynamics.getLiouvillean().updateParticle(p2);
-  BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[ID]);
-  BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[ID]);
+  BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[ID]);
+  BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[ID]);
 
   //Both particles events must be invalidated at once
   ++eventCount[p1.getID()];
@@ -176,7 +176,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
   BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, p2, ID, _P2SorterLock);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     {
       if (glob->isInteraction(p1))
 	_threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob, _P1SorterLock);
@@ -200,7 +200,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 }
 
 void 
-SThreadedNBList::addGlobal(const Particle& part, const smrtPlugPtr<Global>& glob, boost::mutex& sorterLock)
+SThreadedNBList::addGlobal(const Particle& part, const ClonePtr<Global>& glob, boost::mutex& sorterLock)
 {
   GlobalEvent event = glob->getEvent(part);
 
@@ -237,7 +237,7 @@ SThreadedNBList::threadAddIntEvent(const Particle& part,
 				   const size_t id,
 				   boost::mutex& sorterLock)
 {
-  const IntEvent& eevent(Sim->dynamics.getEvent(part, Sim->vParticleList[id]));
+  const IntEvent& eevent(Sim->dynamics.getEvent(part, Sim->particleList[id]));
   
   if (eevent.getType() != NONE)
     {
@@ -263,21 +263,21 @@ SThreadedNBList::threadAddLocalEvent(const Particle& part,
 void 
 SThreadedNBList::threadStreamParticles(const size_t id) const
 {
-  Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+  Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
 }
 
 void 
 SThreadedNBList::streamParticles(const Particle& part, 
 				 const size_t& id) const
 {
-  Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+  Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
 }
 
 void 
 SThreadedNBList::addEvents2(const Particle& part, 
 			    const size_t& id) const
 {
-  const IntEvent& eevent(Sim->dynamics.getEvent(part, Sim->vParticleList[id]));
+  const IntEvent& eevent(Sim->dynamics.getEvent(part, Sim->particleList[id]));
   
   if (eevent.getType() != NONE)
     sorter->push(intPart(eevent, eventCount[id]), part.getID());

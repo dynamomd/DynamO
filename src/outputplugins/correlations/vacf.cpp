@@ -37,7 +37,7 @@ OPVACF::initialise()
 
   dt = getdt();
 
-  G.resize(Sim->lN, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
+  G.resize(Sim->N, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
 
   accG2.resize(Sim->dynamics.getSpecies().size());
 
@@ -99,7 +99,7 @@ OPVACF::eventUpdate(const LocalEvent& iEvent, const NEventData& PDat)
 }
 
 void 
-OPVACF::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt) 
+OPVACF::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt) 
 { 
   //Move the time forward
   currentdt += edt;
@@ -132,8 +132,8 @@ OPVACF::newG(const ParticleEventData& PDat)
   if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  for (size_t i = 0; i < Sim->lN; ++i)
-    G[i].push_front(Sim->vParticleList[i].getVelocity());	      
+  for (size_t i = 0; i < Sim->N; ++i)
+    G[i].push_front(Sim->particleList[i].getVelocity());	      
   
   //Now correct the fact that the wrong velocity has been pushed
   G[PDat.getParticle().getID()].front() = PDat.getOldVel();
@@ -153,8 +153,8 @@ OPVACF::newG(const ParticleEventData& PDat)
 void 
 OPVACF::newG(const PairEventData& PDat)
 {
-  for (size_t i = 0; i < Sim->lN; ++i)
-    G[i].push_front(Sim->vParticleList[i].getVelocity());	      
+  for (size_t i = 0; i < Sim->N; ++i)
+    G[i].push_front(Sim->particleList[i].getVelocity());	      
   
   //Now correct the fact that the wrong velocity has been pushed
   G[PDat.particle1_.getParticle().getID()].front() 
@@ -179,8 +179,8 @@ void
 OPVACF::newG(const NEventData& PDat)
 {  
   //This ensures the list stays at accumilator size
-  for (size_t i = 0; i < Sim->lN; ++i)
-    G[i].push_front(Sim->vParticleList[i].getVelocity());
+  for (size_t i = 0; i < Sim->N; ++i)
+    G[i].push_front(Sim->particleList[i].getVelocity());
   
   //Go back and fix the pushes
   BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
@@ -269,7 +269,7 @@ OPVACF::accPass()
 {
   ++count;
   
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     for (size_t j = 0; j < CorrelatorLength; ++j)
       for (size_t iDim(0); iDim < NDIM; ++iDim)

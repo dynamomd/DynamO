@@ -90,7 +90,7 @@ OPEventEffects::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat
 }
 
 void 
-OPEventEffects::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
+OPEventEffects::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(sysEvent.getType(),getClassKey(sysEvent),

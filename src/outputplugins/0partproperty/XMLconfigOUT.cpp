@@ -60,8 +60,8 @@ OPConfig::output(xmlw::XmlStream &XML)
       << xmlw::attr("version") << configFileVersion
       << xmlw::tag("Simulation")
       << xmlw::tag("Trajectory")
-      << xmlw::attr("Coll") << Sim->lMaxNColl
-      << xmlw::attr("nCollPrint") << Sim->lNPrint;
+      << xmlw::attr("Coll") << Sim->endEventCount
+      << xmlw::attr("nCollPrint") << Sim->eventPrintInterval;
 
   //Allow this block to fail if need be
   try {
@@ -72,14 +72,14 @@ OPConfig::output(xmlw::XmlStream &XML)
     {}
 
   XML << xmlw::endtag("Trajectory")
-      << *Sim->Ensemble
+      << *Sim->ensemble
       << xmlw::tag("Scheduler")
       << *Sim->ptrScheduler
       << xmlw::endtag("Scheduler")
       << xmlw::tag("History") 
       << xmlw::chardata()
       << Sim->ssHistory.str()
-      << "\nRun for " << Sim->lNColl << " collisions"
+      << "\nRun for " << Sim->eventCount << " collisions"
       << xmlw::endtag("History") << xmlw::endtag("Simulation")
       << Sim->dynamics;
 

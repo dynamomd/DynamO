@@ -34,10 +34,10 @@ void
 OPMSD::initialise()
 {
   initPos.clear();
-  initPos.resize(Sim->lN);
+  initPos.resize(Sim->N);
   
-  for (size_t ID = 0; ID < Sim->lN; ++ID)
-    initPos[ID] = Sim->vParticleList[ID].getPosition();
+  for (size_t ID = 0; ID < Sim->N; ++ID)
+    initPos[ID] = Sim->particleList[ID].getPosition();
 }
 
 void
@@ -58,7 +58,7 @@ OPMSD::output(xmlw::XmlStream &XML)
     {
       XML << xmlw::tag("Structures");
 
-      BOOST_FOREACH(const smrtPlugPtr<CTopology>& topo, Sim->dynamics.getTopology())
+      BOOST_FOREACH(const ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
 	{
 	  Iflt MSD(calcStructMSD(*topo));
 
@@ -84,30 +84,30 @@ OPMSD::calcMSD() const
 
   Iflt acc = 0.0;
   
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     acc += (part.getPosition() - initPos[part.getID()]).nrm2();
   
   return acc / (initPos.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
 }
 
 Iflt
-OPMSD::calcStructMSD(const CTopology& Itop) const
+OPMSD::calcStructMSD(const Topology& Itop) const
 {
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
   Iflt acc = 0.0;
-  BOOST_FOREACH(const smrtPlugPtr<CRange>& molRange, Itop.getMolecules())
+  BOOST_FOREACH(const ClonePtr<CRange>& molRange, Itop.getMolecules())
     {
       Vector  origPos(0,0,0), currPos(0,0,0);
       Iflt totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
-	  Iflt pmass = Sim->dynamics.getSpecies(Sim->vParticleList[ID])
+	  Iflt pmass = Sim->dynamics.getSpecies(Sim->particleList[ID])
 	    .getMass();
 
 	  totmass += pmass;
-	  currPos += Sim->vParticleList[ID].getPosition() * pmass;
+	  currPos += Sim->particleList[ID].getPosition() * pmass;
 	  origPos += initPos[ID] * pmass;
 	}
       

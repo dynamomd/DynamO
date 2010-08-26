@@ -20,12 +20,12 @@
 
 #include "system.hpp"
 
-class CSTicker: public CSystem
+class CSTicker: public System
 {
 public:
   CSTicker(DYNAMO::SimData*, Iflt, std::string);
   
-  virtual CSystem* Clone() const { return new CSTicker(*this); }
+  virtual System* Clone() const { return new CSTicker(*this); }
 
   virtual void runEvent() const;
 

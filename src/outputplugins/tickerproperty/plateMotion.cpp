@@ -119,7 +119,7 @@ OPPlateMotion::ticker()
   Iflt partEnergy(0.0);
 
   Iflt mass(0);
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       Vector pos(part.getPosition()), vel(part.getVelocity());
       Iflt pmass(Sim->dynamics.getSpecies(part).getMass());
@@ -147,7 +147,7 @@ OPPlateMotion::ticker()
 	  << " " << com[0] << " " << com[1] << " " << com[2]
 	  << " " << comvel[0] << " " << comvel[1] << " " << comvel[2]
 	  << " " << plateSpeed[0] << " " << plateSpeed[1] << " " << plateSpeed[2]
-	  << " " << (sqmom - ((momentum | momentum) / Sim->lN)) / (Sim->lN * pow(Sim->dynamics.units().unitMomentum(),2))
+	  << " " << (sqmom - ((momentum | momentum) / Sim->N)) / (Sim->N * pow(Sim->dynamics.units().unitMomentum(),2))
 	  << " " << plate.getPlateEnergy() / Sim->dynamics.units().unitEnergy()
 	  << " " << partEnergy / Sim->dynamics.units().unitEnergy() 
 	  << " " << (plate.getPlateEnergy() + partEnergy) / Sim->dynamics.units().unitEnergy()

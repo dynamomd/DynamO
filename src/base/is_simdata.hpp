@@ -39,7 +39,7 @@ class Particle;
 class OutputPlugin;
 
 template <class T>
-class smrtPlugPtr;
+class ClonePtr;
 
 //! \brief Holds the different phases of the simulation initialisation
 typedef enum 
@@ -93,7 +93,7 @@ namespace DYNAMO
     template<class T>
     const T* getOutputPlugin() const
     {
-      BOOST_FOREACH(const smrtPlugPtr<OutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(const ClonePtr<OutputPlugin>& plugin, outputPlugins)
 	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<const T*>(plugin.get_ptr());
       
@@ -108,7 +108,7 @@ namespace DYNAMO
     template<class T>
     T* getOutputPlugin()
     {
-      BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(ClonePtr<OutputPlugin>& plugin, outputPlugins)
 	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<T*>(plugin.get_ptr());
 
@@ -116,7 +116,7 @@ namespace DYNAMO
     }    
 
     /*! \brief The CEnsemble of the Simulation. */
-    boost::scoped_ptr<CEnsemble> Ensemble;
+    boost::scoped_ptr<CEnsemble> ensemble;
 
     /*! \brief The current system time of the simulation. 
      * 
@@ -137,23 +137,23 @@ namespace DYNAMO
     Iflt freestreamAcc;
     
     /*! \brief Number of events executed.*/
-    unsigned long long lNColl;
+    unsigned long long eventCount;
 
     /*! \brief Maximum number of events to execute.*/
-    unsigned long long lMaxNColl;
+    unsigned long long endEventCount;
 
     /*! \brief How many events between periodic output/sampling*/
-    unsigned long long lNPrint;
+    unsigned long long eventPrintInterval;
     
     /*! \brief Speeds the Simulation loop by being the next periodic
         output collision number.*/
-    unsigned long long lPrintLimiter;
+    unsigned long long nextPrintEvent;
 
     /*! \brief Number of Particle's in the system. */
-    unsigned long lN;
+    unsigned long N;
     
     /*! \brief The Particle's of the system. */
-    std::vector<Particle> vParticleList;  
+    std::vector<Particle> particleList;  
     
     /*! \brief A log of the previous simulation history. */
     std::ostringstream ssHistory;
@@ -181,7 +181,7 @@ namespace DYNAMO
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
-    std::vector<smrtPlugPtr<OutputPlugin> > outputPlugins; 
+    std::vector<ClonePtr<OutputPlugin> > outputPlugins; 
 
     /*! \brief The mean free time of the previous simulation run
      *

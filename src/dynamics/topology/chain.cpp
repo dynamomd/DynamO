@@ -20,19 +20,19 @@
 #include <boost/foreach.hpp>
 
 CTChain::CTChain(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
-  CTopology(Sim, ID)
+  Topology(Sim, ID)
 {
-  CTopology::operator<<(XML);
+  Topology::operator<<(XML);
   
   size_t Clength = (*ranges.begin())->size();
-  BOOST_FOREACH(const smrtPlugPtr<CRange>& nRange, ranges)
+  BOOST_FOREACH(const ClonePtr<CRange>& nRange, ranges)
     if (nRange->size() != Clength)
       D_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
 		<< spName << "\"";
 }
 
 CTChain::CTChain(DYNAMO::SimData* Sim, unsigned int ID, std::string nName):
-  CTopology(Sim,ID)
+  Topology(Sim,ID)
 {
   spName = nName;
 }
@@ -41,6 +41,6 @@ void
 CTChain::outputXML(xmlw::XmlStream& XML) const 
 {
   XML << xmlw::attr("Type") << "Chain";
-  CTopology::outputXML(XML);
+  Topology::outputXML(XML);
 }
 

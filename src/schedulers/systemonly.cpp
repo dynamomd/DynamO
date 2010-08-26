@@ -55,15 +55,15 @@ CSSystemOnly::operator<<(const XMLNode& XML)
 void
 CSSystemOnly::initialise()
 {
-  I_cout() << "Reinitialising on collision " << Sim->lNColl;
+  I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
   if (Sim->dynamics.getSystemEvents().empty())
     D_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
   sorter->clear();
-  sorter->resize(Sim->lN+1);
+  sorter->resize(Sim->N+1);
   eventCount.clear();
-  eventCount.resize(Sim->lN+1, 0);  
+  eventCount.resize(Sim->N+1, 0);  
   sorter->init();
   rebuildSystemEvents();
 

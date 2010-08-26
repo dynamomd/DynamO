@@ -57,7 +57,7 @@ OPReverseEventsCheck::eventUpdate(const LocalEvent& eevent,
 }
 
 void 
-OPReverseEventsCheck::eventUpdate(const CSystem&, const NEventData&, 
+OPReverseEventsCheck::eventUpdate(const System&, const NEventData&, 
 				   const Iflt& dt)
 {
   if (dt < localeps) ++lReverseEvents;  

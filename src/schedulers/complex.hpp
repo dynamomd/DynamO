@@ -42,7 +42,7 @@ protected:
 
   void addEventsInit(const Particle&);
 
-  std::vector<smrtPlugPtr<CSCEntry> > entries;
+  std::vector<ClonePtr<CSCEntry> > entries;
 };
 
 #endif

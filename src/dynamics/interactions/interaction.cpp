@@ -33,8 +33,8 @@ Interaction::Interaction(DYNAMO::SimData* tmp, C2Range* nR):
 bool 
 Interaction::isInteraction(const IntEvent &coll) const
 { 
-  return isInteraction(Sim->vParticleList[coll.getParticle1ID()],
-		       Sim->vParticleList[coll.getParticle2ID()]); 
+  return isInteraction(Sim->particleList[coll.getParticle1ID()],
+		       Sim->particleList[coll.getParticle2ID()]); 
 }
 
 bool 
@@ -50,11 +50,11 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
   return XML;
 }
 
-smrtPlugPtr<C2Range>& 
+ClonePtr<C2Range>& 
 Interaction::getRange() 
 { return range; }
 
-const smrtPlugPtr<C2Range>& 
+const ClonePtr<C2Range>& 
 Interaction::getRange() const
 { return range; }
 

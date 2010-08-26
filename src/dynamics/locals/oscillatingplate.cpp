@@ -73,7 +73,7 @@ CLOscillatingPlate::getEvent(const Particle& part) const
 void
 CLOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
-  ++Sim->lNColl;
+  ++Sim->eventCount;
   
   //Run the collision and catch the data
   NEventData EDat(Sim->dynamics.getLiouvillean().runOscilatingPlate
@@ -91,7 +91,7 @@ CLOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) con
   //else
     Sim->ptrScheduler->rebuildList();
 
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }
 

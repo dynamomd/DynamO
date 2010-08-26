@@ -21,12 +21,12 @@
 #include "system.hpp"
 #include "../../datatypes/vector.hpp"
 
-class CSNBListCompressionFix: public CSystem
+class CSNBListCompressionFix: public System
 {
 public:
   CSNBListCompressionFix(DYNAMO::SimData*, Iflt, size_t);
   
-  virtual CSystem* Clone() const { return new CSNBListCompressionFix(*this); }
+  virtual System* Clone() const { return new CSNBListCompressionFix(*this); }
 
   virtual void runEvent() const;
 

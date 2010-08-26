@@ -41,10 +41,10 @@ ISingleCapture::initCaptureMap()
       captureMap.clear();
       
       for (std::vector<Particle>::const_iterator iPtr 
-	     = Sim->vParticleList.begin();
-	   iPtr != Sim->vParticleList.end(); iPtr++) 
+	     = Sim->particleList.begin();
+	   iPtr != Sim->particleList.end(); iPtr++) 
 	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
-	     iPtr2 != Sim->vParticleList.end(); iPtr2++)
+	     iPtr2 != Sim->particleList.end(); iPtr2++)
 	  if (range->isInRange(*iPtr, *iPtr2))
 	    if (captureTest(*iPtr,*iPtr2))	      
 	      addToCaptureMap(*iPtr, *iPtr2); 
@@ -87,7 +87,7 @@ ISingleCapture::loadCaptureMap(const XMLNode& XML)
 void 
 ISingleCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
 {
-  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
+  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->N;
 
   typedef std::pair<size_t, size_t> locpair;
 
@@ -161,10 +161,10 @@ IMultiCapture::initCaptureMap()
       captureMap.clear();
       
       for (std::vector<Particle>::const_iterator iPtr 
-	     = Sim->vParticleList.begin();
-	   iPtr != Sim->vParticleList.end(); iPtr++) 
+	     = Sim->particleList.begin();
+	   iPtr != Sim->particleList.end(); iPtr++) 
 	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
-	     iPtr2 != Sim->vParticleList.end(); iPtr2++)
+	     iPtr2 != Sim->particleList.end(); iPtr2++)
 	  if (range->isInRange(*iPtr, *iPtr2))
 	    {
 	      int capval = captureTest(*iPtr,*iPtr2);
@@ -212,7 +212,7 @@ IMultiCapture::loadCaptureMap(const XMLNode& XML)
 void 
 IMultiCapture::outputCaptureMap(xmlw::XmlStream& XML) const 
 {
-  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->lN;
+  XML << xmlw::tag("CaptureMap") << xmlw::attr("Size") << Sim->N;
 
   typedef std::pair<const cMapKey, int> locpair;
 

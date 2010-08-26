@@ -17,9 +17,7 @@
 /*! \file vector.hpp
  * Contains the non XML functions and definitions of the CVector class.
  */
-
-#ifndef VECTOR_H
-#define VECTOR_H
+#pragma once
 
 #include <cmath> //for length
 #include "../base/is_exception.hpp"
@@ -261,5 +259,3 @@ class CVector
   }
 
 };
-
-#endif

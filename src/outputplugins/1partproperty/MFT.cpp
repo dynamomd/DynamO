@@ -52,7 +52,7 @@ OPMFT::operator<<(const XMLNode& XML)
 void
 OPMFT::initialise()
 {
-  lastTime.resize(Sim->lN, 
+  lastTime.resize(Sim->N, 
 		  boost::circular_buffer<Iflt>(collisionHistoryLength, 0.0));
   
   std::vector<C1DHistogram> vecTemp;

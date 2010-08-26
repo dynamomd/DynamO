@@ -32,7 +32,7 @@ OPQMGA::OPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPQMGA::ticker()
 {
-  if (!(Sim->lNColl % 1000))
+  if (!(Sim->eventCount % 1000))
     printImage();
 }
 
@@ -55,7 +55,7 @@ OPQMGA::printImage()
   if (!of.is_open())
     D_throw() << "Could not open QMGA file for writing";
 
-  of << Sim->lN << "\n"
+  of << Sim->N << "\n"
      << Sim->aspectRatio[0] / Sim->dynamics.units().unitLength() << "\n"
      << Sim->aspectRatio[1] / Sim->dynamics.units().unitLength() << "\n"
      << Sim->aspectRatio[2] / Sim->dynamics.units().unitLength() << "\n"
@@ -64,7 +64,7 @@ OPQMGA::printImage()
   std::list<unsigned long> tmpList;
 
   unsigned int i = 0;
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       Vector  pos = part.getPosition();
       Sim->dynamics.BCs().applyBC(pos);

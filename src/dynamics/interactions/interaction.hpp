@@ -78,9 +78,9 @@ public:
 
   inline const std::string& getName() const { return intName; }
 
-  smrtPlugPtr<C2Range>& getRange();
+  ClonePtr<C2Range>& getRange();
 
-  const smrtPlugPtr<C2Range>& getRange() const;
+  const ClonePtr<C2Range>& getRange() const;
 
   virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
 
@@ -99,7 +99,7 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream& ) const = 0;
 
-  smrtPlugPtr<C2Range> range;
+  ClonePtr<C2Range> range;
 
   std::string intName;
   size_t ID;

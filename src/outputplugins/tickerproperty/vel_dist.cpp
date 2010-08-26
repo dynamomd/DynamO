@@ -59,11 +59,11 @@ OPVelDist::ticker()
   Iflt factor = std::sqrt(Sim->dynamics.units().unitMass() 
 			  / _ptrOPEnergy->getCurrentkT());
 
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim][sp->getID()]
-	.addVal(Sim->vParticleList[ID].getVelocity()[iDim] * factor);
+	.addVal(Sim->particleList[ID].getVelocity()[iDim] * factor);
 }
 
 void

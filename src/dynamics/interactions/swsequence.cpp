@@ -301,7 +301,7 @@ ISWSequence::runEvent(const Particle& p1,
 		       const Particle& p2,
 		       const IntEvent& iEvent) const
 {  
-  ++Sim->lNColl;
+  ++Sim->eventCount;
 
   switch (iEvent.getType())
     {
@@ -312,7 +312,7 @@ ISWSequence::runEvent(const Particle& p1,
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 	break;
@@ -333,7 +333,7 @@ ISWSequence::runEvent(const Particle& p1,
 
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 	break;
@@ -354,7 +354,7 @@ ISWSequence::runEvent(const Particle& p1,
 
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 	break;
@@ -435,7 +435,7 @@ ISWSequence::write_povray_desc(const DYNAMO::RGB& rgb,
 
   BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
-      Vector  pos(Sim->vParticleList[part].getPosition());
+      Vector  pos(Sim->particleList[part].getPosition());
       Sim->dynamics.BCs().applyBC(pos);
       
       os << "object {\n intrep" << ID << "center"<< sequence[part % sequence.size()] << "\n translate < "
@@ -445,7 +445,7 @@ ISWSequence::write_povray_desc(const DYNAMO::RGB& rgb,
   os << "merge {\n";
   BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
-      Vector  pos(Sim->vParticleList[part].getPosition());
+      Vector  pos(Sim->particleList[part].getPosition());
       Sim->dynamics.BCs().applyBC(pos);
       
       os << "object {\n intrep" << ID << "seqwell" << sequence[part % sequence.size()] << "\n translate < "

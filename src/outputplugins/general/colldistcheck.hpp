@@ -40,7 +40,7 @@ public:
 
   void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
+  void eventUpdate(const System&, const NEventData&, const Iflt&);
 
   OutputPlugin *Clone() const { return new OPCollDistCheck(*this); }
 

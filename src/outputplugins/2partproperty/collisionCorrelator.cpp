@@ -44,7 +44,7 @@ void
 OPCollisionCorrelator::initialise()
 {
   //Set the history size
-  lastColl.resize(Sim->lN, std::vector<double>(Sim->lN, 0.0));
+  lastColl.resize(Sim->N, std::vector<double>(Sim->N, 0.0));
 
   if (Sim->lastRunMFT == 0.0)
     D_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
@@ -71,8 +71,8 @@ OPCollisionCorrelator::A2ParticleChange(const PairEventData& PDat)
 void
 OPCollisionCorrelator::output(xmlw::XmlStream &XML)
 {
-  for (size_t ID1(0); ID1 < Sim->lN; ++ID1)
-    for (size_t ID2(ID1+1); ID2 < Sim->lN; ++ID2)
+  for (size_t ID1(0); ID1 < Sim->N; ++ID1)
+    for (size_t ID2(ID1+1); ID2 < Sim->N; ++ID2)
       if (lastColl[ID1][ID2] > 100* freetimehist.data.binWidth) freetimehist.addVal(-1.0);
 
   XML << xmlw::tag("CollisionCorrelator");

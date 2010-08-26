@@ -42,13 +42,13 @@ OPMSDOrientational::initialise()
   }
 
   initialConfiguration.clear();
-  initialConfiguration.resize(Sim->lN);
+  initialConfiguration.resize(Sim->N);
 
   const std::vector<LNOrientation::rotData>& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
 
-  for (size_t ID = 0; ID < Sim->lN; ++ID)
+  for (size_t ID = 0; ID < Sim->N; ++ID)
   {
-    initialConfiguration[ID] = RUpair(Sim->vParticleList[ID].getPosition(), rdat[ID].orientation);
+    initialConfiguration[ID] = RUpair(Sim->particleList[ID].getPosition(), rdat[ID].orientation);
   }
 }
 
@@ -104,7 +104,7 @@ OPMSDOrientational::calculate() const
 
   const std::vector<LNOrientation::rotData>& latest_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
   {
     displacement_term = part.getPosition() - initialConfiguration[part.getID()].first;
     longitudinal_projection = (displacement_term | initialConfiguration[part.getID()].second);

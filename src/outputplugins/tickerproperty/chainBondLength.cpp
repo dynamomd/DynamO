@@ -42,7 +42,7 @@ OPChainBondLength::OPChainBondLength(const DYNAMO::SimData* tmp, const XMLNode&)
 void 
 OPChainBondLength::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, 
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, 
 		Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(plugPtr->getID(), 
@@ -59,14 +59,14 @@ void
 OPChainBondLength::ticker()
 {
   BOOST_FOREACH(Cdata& dat, chains)
-    BOOST_FOREACH(const smrtPlugPtr<CRange>& range, 
+    BOOST_FOREACH(const ClonePtr<CRange>& range, 
 		  Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
     if (range->size() > 2)
       //Walk the polymer
       for (size_t j = 0; j < range->size()-1; ++j)
 	dat.BondLengths[j].addVal
-	  ((Sim->vParticleList[(*range)[j+1]].getPosition()
-	    - Sim->vParticleList[(*range)[j]].getPosition()).nrm());
+	  ((Sim->particleList[(*range)[j+1]].getPosition()
+	    - Sim->particleList[(*range)[j]].getPosition()).nrm());
 }
 
 void 

@@ -43,7 +43,7 @@ class OPPeriodicMSD: public OPTicker
 
   std::list<localpair> results;
 
-  typedef std::pair<const CTopology*, std::list<localpair> > localpair2;
+  typedef std::pair<const Topology*, std::list<localpair> > localpair2;
 
   std::vector<localpair2> structResults;
 

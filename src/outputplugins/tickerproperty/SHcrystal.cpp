@@ -39,7 +39,7 @@ void
 OPSHCrystal::initialise() 
 { 
   double smallestlength = HUGE_VAL;
-  BOOST_FOREACH(const smrtPlugPtr<Global>& pGlob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& pGlob, Sim->dynamics.getGlobals())
     if (dynamic_cast<const CGNeighbourList*>(pGlob.get_ptr()) != NULL)
       {
 	const Iflt l(static_cast<const CGNeighbourList*>(pGlob.get_ptr())
@@ -68,7 +68,7 @@ OPSHCrystal::ticker()
 {
   sphericalsum ssum(Sim, rg, maxl);
   
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       static_cast<const CGNeighbourList*>
 	(Sim->dynamics.getGlobals()[nblistID].get_ptr())
@@ -164,7 +164,7 @@ void
 OPSHCrystal::sphericalsum::operator()
   (const Particle& part, const size_t& ID) const
 {
-  Vector rij = part.getPosition() - Sim->vParticleList[ID].getPosition();
+  Vector rij = part.getPosition() - Sim->particleList[ID].getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
   Iflt norm = rij.nrm();

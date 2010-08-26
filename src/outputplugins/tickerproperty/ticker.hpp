@@ -36,7 +36,7 @@ public:
   void eventUpdate(const IntEvent&, const PairEventData&) {}
   void eventUpdate(const GlobalEvent&, const NEventData&) {}
   void eventUpdate(const LocalEvent&, const NEventData&) {}
-  void eventUpdate(const CSystem&, const NEventData&, const Iflt&) {}
+  void eventUpdate(const System&, const NEventData&, const Iflt&) {}
 
   virtual void output(xmlw::XmlStream&) {}
 

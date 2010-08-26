@@ -33,7 +33,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp): 
-  CSystem(tmp),
+  System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   maxprob(0.0),
   range1(NULL),
@@ -46,7 +46,7 @@ CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp):
 
 CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi, 
 			     Iflt ne, std::string nName, CRange* r1, CRange* r2):
-  CSystem(nSim),
+  System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
   tstep(ntstp),
   chi(nChi),
@@ -99,7 +99,7 @@ CSDSMCSpheres::runEvent() const
  
   size_t nmax = static_cast<size_t>(intPart);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, NEventData(), locdt);
 
   if (Sim->uniform_sampler() < fracpart)
@@ -107,14 +107,14 @@ CSDSMCSpheres::runEvent() const
 
   for (size_t n = 0; n < nmax; ++n)
     {
-      const Particle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+      const Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
       
       size_t p2id = *(range2->begin() + id2sampler());
       
       while (p2id == p1.getID())
 	p2id = *(range2->begin()+id2sampler());
       
-      const Particle& p2(Sim->vParticleList[p2id]);
+      const Particle& p2(Sim->particleList[p2id]);
       
       Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
       
@@ -128,7 +128,7 @@ CSDSMCSpheres::runEvent() const
       if (Sim->dynamics.getLiouvillean().DSMCSpheresTest
 	  (p1, p2, maxprob, factor, PDat))
 	{
-	  ++Sim->lNColl;
+	  ++Sim->eventCount;
 	 
 	  const PairEventData
 	    SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
@@ -137,7 +137,7 @@ CSDSMCSpheres::runEvent() const
   
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  
-	  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(*this, SDat, 0.0);
 	}
     }
@@ -169,14 +169,14 @@ CSDSMCSpheres::initialise(size_t nID)
       //Just do some quick testing to get an estimate
       for (size_t n = 0; n < 1000; ++n)
 	{
-	  const Particle& p1(Sim->vParticleList[*(range1->begin() + id1sampler())]);
+	  const Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
 	  
 	  size_t p2id = *(range2->begin() + id2sampler());
 	  
 	  while (p2id == p1.getID())
 	    p2id = *(range2->begin()+id2sampler());
 	  
-	  const Particle& p2(Sim->vParticleList[p2id]);
+	  const Particle& p2(Sim->particleList[p2id]);
 	  
 	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  

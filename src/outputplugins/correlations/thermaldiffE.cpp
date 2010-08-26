@@ -81,7 +81,7 @@ OPThermalDiffusionE::initialise()
   species1 = Sim->dynamics.getSpecies(species1name).getID();
 
   try {
-    dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
+    dynamic_cast<const DYNAMO::CENVE *>(Sim->ensemble.get());
   }
   catch(std::exception)
     {
@@ -108,11 +108,11 @@ OPThermalDiffusionE::initialise()
     }
   
   Iflt sysMass = 0.0;
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
 
   //Sum up the constant Del G.
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
       sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
@@ -286,7 +286,7 @@ OPThermalDiffusionE::eventUpdate(const LocalEvent& iEvent,
 }
 
 void 
-OPThermalDiffusionE::eventUpdate(const CSystem&, 
+OPThermalDiffusionE::eventUpdate(const System&, 
 				  const NEventData& PDat, 
 				  const Iflt& edt) 
 { 

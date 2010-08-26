@@ -26,13 +26,13 @@
 #include "../ranges/1range.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 
-class CSysRescale: public CSystem
+class CSysRescale: public System
 {
 public:
   CSysRescale(const XMLNode& XML, DYNAMO::SimData*);
   CSysRescale(DYNAMO::SimData*, size_t frequency, std::string name);
 
-  virtual CSystem* Clone() const { return new CSysRescale(*this); }
+  virtual System* Clone() const { return new CSysRescale(*this); }
 
   virtual void runEvent() const;
 

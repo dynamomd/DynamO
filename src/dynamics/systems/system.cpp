@@ -29,25 +29,25 @@
 #include "../ranges/1RAll.hpp"
 
 bool 
-CSystem::operator<(const IntEvent& iEvent) const
+System::operator<(const IntEvent& iEvent) const
 {
   return dt < iEvent.getdt();
 }
 
 bool 
-CSystem::operator<(const GlobalEvent& gEvent) const
+System::operator<(const GlobalEvent& gEvent) const
 {
   return dt < gEvent.getdt();
 }
 
 bool 
-CSystem::operator<(const CSystem& sEvent) const
+System::operator<(const System& sEvent) const
 {
   return dt < sEvent.dt;
 }
 
 
-CSystem::CSystem(DYNAMO::SimData* tmp):
+System::System(DYNAMO::SimData* tmp):
   SimBase(tmp, "SystemInteraction", IC_blue),
   dt(HUGE_VAL)
 {
@@ -55,14 +55,14 @@ CSystem::CSystem(DYNAMO::SimData* tmp):
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CSystem& g)
+			    const System& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
-CSystem* 
-CSystem::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
+System* 
+System::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Andersen"))
     return new CSysGhost(XML,Sim);

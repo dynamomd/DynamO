@@ -94,7 +94,7 @@ OPCollDistCheck::eventUpdate(const LocalEvent& lEvent,
 }
   
 void 
-OPCollDistCheck::eventUpdate(const CSystem& sysEvent, 
+OPCollDistCheck::eventUpdate(const System& sysEvent, 
 			      const NEventData& PDat, const Iflt& dt)
 {
   const eventKey locPair(getClassKey(sysEvent), sysEvent.getType());

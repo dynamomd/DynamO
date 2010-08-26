@@ -33,7 +33,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp): 
-  CSystem(tmp),
+  System(tmp),
   a(1.0),
   b(1.0),
   delU(0.1),
@@ -50,7 +50,7 @@ CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp):
 
 CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt na, Iflt nb, Iflt ndelu, 
 		       std::string nName, CRange* r1, CRange* r2):
-  CSystem(nSim),
+  System(nSim),
   a(na),
   b(nb),
   delU(ndelu),
@@ -81,13 +81,13 @@ CSUmbrella::runEvent() const
   //dynamics must be updated first
   Sim->dynamics.stream(locdt);
 
-  ++Sim->lNColl;
+  ++Sim->eventCount;
 
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
   bool kedown(false); //Will kinetic energy go down?
 
@@ -131,7 +131,7 @@ CSUmbrella::runEvent() const
 
   Sim->freestreamAcc = 0;
 
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt); 
 }
 
@@ -141,10 +141,10 @@ CSUmbrella::initialise(size_t nID)
   ID = nID;
 
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 
@@ -169,10 +169,10 @@ void
 CSUmbrella::recalculateTime()
 {
   BOOST_FOREACH(const size_t& id, *range1)
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
   BOOST_FOREACH(const size_t& id, *range2)
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->vParticleList[id]);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
   CPDData partdata(*Sim, *range1, *range2);
 

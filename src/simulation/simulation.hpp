@@ -79,25 +79,25 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void addGlobal(Global*);
 
-  void addSystem(CSystem*);
+  void addSystem(System*);
 
   void setSimID(const size_t& n) { simID = n; }
 
-  CSystem* getSystem(std::string);
+  System* getSystem(std::string);
 
   lIflt getSysTime();
 
   inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const 
-  { return Ensemble; }
+  { return ensemble; }
 
   inline boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() 
-  { return Ensemble; }
+  { return ensemble; }
   
   std::ostringstream &getHistory()
     { return ssHistory; }
 
   inline const unsigned long long &getnColl() const 
-  { return lNColl; }
+  { return eventCount; }
 
   inline const ESimulationStatus& getStatus() const
   { return status; }

@@ -63,7 +63,7 @@ public:
   
   void rescaleTimes(const Iflt& scale) { sorter->rescaleTimes(scale); }
 
-  const smrtPlugPtr<CSSorter>& getSorter() const { return sorter; }
+  const ClonePtr<CSSorter>& getSorter() const { return sorter; }
 
   void rebuildSystemEvents() const;
 
@@ -74,7 +74,7 @@ public:
   void addLocalEvent(const Particle&, const size_t&) const;
   
 protected:
-  mutable smrtPlugPtr<CSSorter> sorter;
+  mutable ClonePtr<CSSorter> sorter;
   mutable std::vector<unsigned long> eventCount;
   
   virtual void outputXML(xmlw::XmlStream&) const = 0;

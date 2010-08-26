@@ -92,7 +92,7 @@ OPViscosityE::initialise()
 	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	constDelG[iDim][jDim] 
@@ -119,7 +119,7 @@ OPViscosityE::eventUpdate(const LocalEvent& iEvent, const NEventData& PDat)
 }
   
 void 
-OPViscosityE::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt) 
+OPViscosityE::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt) 
 { 
   stream(edt);
   impulseDelG(PDat);

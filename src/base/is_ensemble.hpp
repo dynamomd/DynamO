@@ -30,7 +30,7 @@ namespace xmlw
 }
 
 class XMLNode;
-class CSystem;
+class System;
 
 namespace DYNAMO {
   class SimData;
@@ -99,7 +99,7 @@ namespace DYNAMO {
     virtual Iflt exchangeProbability(const CEnsemble&) const;
 
   protected:
-    const CSystem* thermostat;
+    const System* thermostat;
   };
 
   class CENVShear       : public CEnsemble 
@@ -144,6 +144,6 @@ namespace DYNAMO {
     { return std::string("NTCompression"); }
 
   protected:
-    const CSystem* thermostat;
+    const System* thermostat;
   };
 }

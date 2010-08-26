@@ -24,7 +24,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, Iflt nGR, size_t nblistID):
-  CSystem(nSim),
+  System(nSim),
   growthRate(nGR),
   cellID(nblistID)
 {
@@ -84,7 +84,7 @@ CSNBListCompressionFix::runEvent() const
 			  (*Sim->dynamics.getGlobals()[cellID]));
   
   I_cout() << "Rebuilding the neighbour list named " << nblist.getName()
-	   << "\nNColl = " << Sim->lNColl
+	   << "\nNColl = " << Sim->eventCount
 	   << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime();
   
   nblist.reinitialise(1.0001 * nblist.getMaxSupportedInteractionLength());

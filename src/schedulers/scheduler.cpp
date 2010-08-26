@@ -70,13 +70,13 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 void 
 CScheduler::rebuildSystemEvents() const
 {
-  sorter->clearPEL(Sim->lN);
+  sorter->clearPEL(Sim->N);
 
-  BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysptr, 
+  BOOST_FOREACH(const ClonePtr<System>& sysptr, 
 		Sim->dynamics.getSystemEvents())
-    sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->lN);
+    sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 
-  sorter->update(Sim->lN);
+  sorter->update(Sim->N);
 }
 
 void 
@@ -164,8 +164,8 @@ CScheduler::runNextEvent()
     {
     case INTERACTION:
       {
-	const Particle& p1(Sim->vParticleList[sorter->next_ID()]);
-	const Particle& p2(Sim->vParticleList[sorter->next_p2()]);
+	const Particle& p1(Sim->particleList[sorter->next_ID()]);
+	const Particle& p2(Sim->particleList[sorter->next_p2()]);
 
 	//Ready the next event in the FEL
 	sorter->popNextEvent();
@@ -258,12 +258,12 @@ CScheduler::runNextEvent()
 	//We don't stream the system for globals as neighbour lists
 	//optimise this (they dont need it).
 	Sim->dynamics.getGlobals()[sorter->next_p2()]
-	  ->runEvent(Sim->vParticleList[sorter->next_ID()]);       	
+	  ->runEvent(Sim->particleList[sorter->next_ID()]);       	
 	break;	           
       }
     case LOCAL:
       {
-	const Particle& part(Sim->vParticleList[sorter->next_ID()]);
+	const Particle& part(Sim->particleList[sorter->next_ID()]);
 
 	//Copy the FEL event
 	size_t localID = sorter->next_p2();
@@ -333,7 +333,7 @@ CScheduler::runNextEvent()
 	//for a specific reason)
 	//I_cerr() << "VIRTUAL for " << sorter->next_ID();
 
-	this->fullUpdate(Sim->vParticleList[sorter->next_ID()]);
+	this->fullUpdate(Sim->particleList[sorter->next_ID()]);
 	break;
       }
     case NONE:
@@ -353,7 +353,7 @@ void
 CScheduler::addInteractionEvent(const Particle& part, 
 				     const size_t& id) const
 {
-  const Particle& part2(Sim->vParticleList[id]);
+  const Particle& part2(Sim->particleList[id]);
 
   Sim->dynamics.getLiouvillean().updateParticle(part2);
 

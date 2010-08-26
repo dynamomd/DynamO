@@ -45,7 +45,7 @@ namespace EventTypeTracking {
   {
     return classKey(i.getInteractionID(), INTERACTION);
   }
-  classKey getClassKey(const CSystem& s)
+  classKey getClassKey(const System& s)
   {
     return classKey(s.getID(), SYSTEM);
   }

@@ -49,7 +49,7 @@ class OPRGyration: public OPTicker
     Vector  MassCentre;
   };
   
-  static molGyrationDat getGyrationEigenSystem(const smrtPlugPtr<CRange>&, const DYNAMO::SimData*);
+  static molGyrationDat getGyrationEigenSystem(const ClonePtr<CRange>&, const DYNAMO::SimData*);
 
   static Vector  NematicOrderParameter(const std::list<Vector  >&);
   static Iflt CubaticOrderParameter(const std::list<Vector  >&);

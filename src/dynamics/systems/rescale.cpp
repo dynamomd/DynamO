@@ -33,7 +33,7 @@
 #include <fstream>
 
 CSysRescale::CSysRescale(const XMLNode& XML, DYNAMO::SimData* tmp): 
-  CSystem(tmp),
+  System(tmp),
   scaleFactor(1),
   LastTime(0),
   RealTime(0)
@@ -45,7 +45,7 @@ CSysRescale::CSysRescale(const XMLNode& XML, DYNAMO::SimData* tmp):
 }
 
 CSysRescale::CSysRescale(DYNAMO::SimData* tmp, size_t frequency, std::string name): 
-  CSystem(tmp),
+  System(tmp),
   _frequency(frequency),
   scaleFactor(0),
   LastTime(0),
@@ -60,24 +60,24 @@ CSysRescale::CSysRescale(DYNAMO::SimData* tmp, size_t frequency, std::string nam
 void 
 CSysRescale::checker(const NEventData&)
 {
-  if (!(Sim->lNColl % _frequency)) 
+  if (!(Sim->eventCount % _frequency)) 
     {
       dt = 0;
       Sim->ptrScheduler->rebuildSystemEvents();
     }
 
 
-  if (!(Sim->lNColl % (_frequency / 16)))
+  if (!(Sim->eventCount % (_frequency / 16)))
     {
       std::ofstream logfile("HaffLaw.dat", std::ios_base::app);
       
       lIflt logTemp = scaleFactor 
 	+ std::log((2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy())
-		   / (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF()));
+		   / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF()));
       
       lIflt Time = RealTime + (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 
-      logfile << Sim->lNColl << " " << Time / Sim->dynamics.units().unitTime() << " "
+      logfile << Sim->eventCount << " " << Time / Sim->dynamics.units().unitTime() << " "
 	      << logTemp - std::log(Sim->dynamics.units().unitEnergy()) << std::endl;
     }
 }
@@ -94,7 +94,7 @@ CSysRescale::runEvent() const
   //dynamics must be updated first
   Sim->dynamics.stream(locdt);
   
-  ++Sim->lNColl;
+  ++Sim->eventCount;
   
   
   /////////Now the actual updates
@@ -107,9 +107,9 @@ CSysRescale::runEvent() const
 
   NEventData SDat;
 
-  BOOST_FOREACH(const smrtPlugPtr<Species>& species, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& species, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const unsigned long& partID, *species->getRange())
-    SDat.L1partChanges.push_back(ParticleEventData(Sim->vParticleList[partID], *species, RESCALE));
+    SDat.L1partChanges.push_back(ParticleEventData(Sim->particleList[partID], *species, RESCALE));
 
   Sim->dynamics.getLiouvillean().updateAllParticles();
   Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(1.0/currentkT);
@@ -130,10 +130,10 @@ CSysRescale::runEvent() const
 
   Sim->freestreamAcc = 0;
 
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt); 
 
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->temperatureRescale(1.0/currentkT);
 
   dt = HUGE_VAL;

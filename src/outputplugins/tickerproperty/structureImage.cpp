@@ -61,7 +61,7 @@ OPStructureImaging::initialise()
 {
   id = Sim->dynamics.getTopology().size();
   
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& ptr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
     if (boost::iequals(structureName, ptr->getName()))
       id = ptr->getID();
   
@@ -91,11 +91,11 @@ OPStructureImaging::ticker()
 void
 OPStructureImaging::printImage()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
+  BOOST_FOREACH(const ClonePtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
     {
       std::vector<Vector  > atomDescription;
 
-      Vector  lastpos(Sim->vParticleList[*prange->begin()].getPosition());
+      Vector  lastpos(Sim->particleList[*prange->begin()].getPosition());
       
       Vector  masspos(0,0,0);
 
@@ -106,7 +106,7 @@ OPStructureImaging::printImage()
       BOOST_FOREACH(const size_t& pid, *prange)
 	{
 	  //This is all to make sure we walk along the structure
-	  const Particle& part(Sim->vParticleList[pid]);
+	  const Particle& part(Sim->particleList[pid]);
 	  Vector  rij = part.getPosition() - lastpos;
 	  lastpos = part.getPosition();
 	  Sim->dynamics.BCs().applyBC(rij);

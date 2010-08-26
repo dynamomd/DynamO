@@ -58,7 +58,7 @@ namespace DYNAMO {
   void
   CENVE::initialise()
   {
-    EnsembleVals[0] = Sim->vParticleList.size();
+    EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
     EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
@@ -81,7 +81,7 @@ namespace DYNAMO {
   void
   CENVT::initialise()
   {
-    EnsembleVals[0] = Sim->vParticleList.size();
+    EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
 
     try {
@@ -138,7 +138,7 @@ namespace DYNAMO {
   void
   CENVShear::initialise()
   {
-    EnsembleVals[0] = Sim->vParticleList.size();
+    EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
     EnsembleVals[2] = ShearRate;
 
@@ -161,7 +161,7 @@ namespace DYNAMO {
   void
   CENECompression::initialise()
   {
-    EnsembleVals[0] = Sim->vParticleList.size();
+    EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.calcInternalEnergy() 
       + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
     
@@ -193,7 +193,7 @@ namespace DYNAMO {
   void
   CENTCompression::initialise()
   {
-    EnsembleVals[0] = Sim->vParticleList.size();
+    EnsembleVals[0] = Sim->particleList.size();
 
     try {
       thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();

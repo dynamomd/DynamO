@@ -103,7 +103,7 @@ private:
 
   /*! \brief A smart pointer to the Engine being run.
    */
-  smrtPlugPtr<Engine> _engine;
+  ClonePtr<Engine> _engine;
 
   /*! \brief A thread pool to utilise multiple cores on the computational node.
    *

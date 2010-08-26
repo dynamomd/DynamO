@@ -181,7 +181,7 @@ void
 ISquareBond::runEvent(const Particle& p1, const Particle& p2, 
 		       const IntEvent& iEvent) const
 {
-  ++Sim->lNColl;
+  ++Sim->eventCount;
 
 #ifdef DYNAMO_DEBUG
   if ((iEvent.getType() != BOUNCE) && (iEvent.getType() != CORE))
@@ -196,7 +196,7 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 
 }
@@ -215,8 +215,8 @@ ISquareBond::outputXML(xmlw::XmlStream& XML) const
 void 
 ISquareBond::write_povray_info(std::ostream& os) const
 {  
-  BOOST_FOREACH(const Particle& p1, Sim->vParticleList)
-    BOOST_FOREACH(const Particle& p2, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& p1, Sim->particleList)
+    BOOST_FOREACH(const Particle& p2, Sim->particleList)
     if (range->isInRange(p1,p2) && (p1 != p2))
       {
 	Vector  pos1(p1.getPosition()), pos2(p2.getPosition());

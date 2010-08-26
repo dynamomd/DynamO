@@ -81,7 +81,7 @@ OPGeomview::printImage()
 
   unsigned int i = 0;
 
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     {      
 
       of << "{LIST\n";
@@ -89,7 +89,7 @@ OPGeomview::printImage()
       if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) != NULL)
 	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
-	    const Particle& part = Sim->vParticleList[ID];
+	    const Particle& part = Sim->particleList[ID];
 	    Vector  pos = part.getPosition();
 	    Sim->dynamics.BCs().applyBC(pos);
 	   
@@ -98,9 +98,9 @@ OPGeomview::printImage()
 		   (Sim->dynamics.getLiouvillean()).getRotData(part));	    
  
 	    tmpCol = colmap.getColor(i + Sim->dynamics.getInteraction
-				     (Sim->vParticleList[ID], 
-				      Sim->vParticleList[ID])->getColourFraction
-				     (Sim->vParticleList[ID]));
+				     (Sim->particleList[ID], 
+				      Sim->particleList[ID])->getColourFraction
+				     (Sim->particleList[ID]));
 	    
 	    Vector  point1 = pos - 0.5 * spec->getIntPtr()->maxIntDist() * rdat.orientation;
 	    Vector  point2 = pos + 0.5 * spec->getIntPtr()->maxIntDist() * rdat.orientation;
@@ -112,14 +112,14 @@ OPGeomview::printImage()
       else
 	BOOST_FOREACH(unsigned long ID, *spec->getRange())
 	  {
-	    const Particle& part = Sim->vParticleList[ID];
+	    const Particle& part = Sim->particleList[ID];
 	    Vector  pos = part.getPosition();
 	    Sim->dynamics.BCs().applyBC(pos);
 	    
 	    tmpCol = colmap.getColor(i + Sim->dynamics.getInteraction
-				   (Sim->vParticleList[ID], 
-				    Sim->vParticleList[ID])->getColourFraction
-				     (Sim->vParticleList[ID]));
+				   (Sim->particleList[ID], 
+				    Sim->particleList[ID])->getColourFraction
+				     (Sim->particleList[ID]));
 	    
 	    of << "appearance {\n"
 	       << "material {\ndiffuse "<< tmpCol.R  <<" "<< tmpCol.G <<" " 
@@ -135,15 +135,15 @@ OPGeomview::printImage()
   //Now add the bonds
   typedef std::pair<const unsigned long, std::list<unsigned long> > mypair;
 
-  BOOST_FOREACH(const smrtPlugPtr<Interaction> intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const ClonePtr<Interaction> intPtr, Sim->dynamics.getInteractions())
     if (dynamic_cast<const ISquareBond *>(intPtr.get_ptr()) != NULL)
       if (dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr()) != NULL)
 	BOOST_FOREACH(const mypair& mp, dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr())->getPairMap())
 	  BOOST_FOREACH(const unsigned int ID2, mp.second)
 	  {
 	    
-	    Vector  pos = Sim->vParticleList[mp.first].getPosition();
-	    Vector  rij = Sim->vParticleList[ID2].getPosition() - pos;
+	    Vector  pos = Sim->particleList[mp.first].getPosition();
+	    Vector  rij = Sim->particleList[ID2].getPosition() - pos;
 	    Sim->dynamics.BCs().applyBC(pos);
 	    Sim->dynamics.BCs().applyBC(rij);
 

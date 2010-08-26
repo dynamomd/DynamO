@@ -20,9 +20,7 @@
  * \brief Holds the definition of the smrtPlugPtr class
  */
 
-
-#ifndef smrtPPointr_H
-#define smrtPPointr_H
+#pragma once
 
 #include "../extcode/xmlwriter.hpp"
 #include "../base/is_exception.hpp"
@@ -40,7 +38,7 @@
  * Clone() returning heap allocated copied object.
  */
 template<class T>
-class smrtPlugPtr
+class ClonePtr
 {
  public:
   /*! \brief A helper function to allow contained objects to be
@@ -52,7 +50,7 @@ class smrtPlugPtr
    * \return The xmlw::XmlStream so further writing can take place.
    */
   friend inline xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-					    const smrtPlugPtr<T>& plugptr)
+					    const ClonePtr<T>& plugptr)
   { return XML << *(plugptr.obj); };
   
 
@@ -61,7 +59,7 @@ class smrtPlugPtr
    *
    * \param p1 The plugin with which to exhange the owned objects.
    */
-  inline void swap(smrtPlugPtr<T>& p1)
+  inline void swap(ClonePtr<T>& p1)
   {
       std::swap(p1.obj, obj);    
   }
@@ -78,8 +76,8 @@ class smrtPlugPtr
    * \return True if plug1 < plug2
    */
   template<class A, class B>
-  friend inline bool operator<(const smrtPlugPtr<A>& p1, 
-			       const smrtPlugPtr<B>& p2);
+  friend inline bool operator<(const ClonePtr<A>& p1, 
+			       const ClonePtr<B>& p2);
 
   
   /*! \brief Allows a smrtPlugPtr to be RAII
@@ -91,13 +89,13 @@ class smrtPlugPtr
    * to prevent loose standard pointers.
    *
    */
-  inline explicit smrtPlugPtr(T* pointee) : obj(pointee) {}
+  inline explicit ClonePtr(T* pointee) : obj(pointee) {}
 
   /*! \brief The default constructor
    * 
    * Initialises obj to NULL which allows the error checking to work.
    */
-  inline explicit smrtPlugPtr() : obj(NULL) {}
+  inline explicit ClonePtr() : obj(NULL) {}
 
   /*! \brief The optimised copy constructor.
    * 
@@ -110,7 +108,7 @@ class smrtPlugPtr
    *
    * \param p2 The smrtPlugPtr to be copied.
    */
-  inline smrtPlugPtr(const smrtPlugPtr<T> &p2):
+  inline ClonePtr(const ClonePtr<T> &p2):
     obj(NULL)
     {
       if (p2.obj != NULL)
@@ -128,7 +126,7 @@ class smrtPlugPtr
    * 
    * \param p2 The smrtPlugPtr to be copied.
    */
-  inline smrtPlugPtr& operator=(const smrtPlugPtr<T>& p2)
+  inline ClonePtr& operator=(const ClonePtr<T>& p2)
     {
       if (obj != NULL)
 	delete obj;
@@ -145,7 +143,7 @@ class smrtPlugPtr
    *
    * Deletes the obj stored if there is one.
    */
-  inline ~smrtPlugPtr() 
+  inline ~ClonePtr() 
     { 
       if (obj != NULL) 
 	delete obj; 
@@ -263,7 +261,7 @@ class smrtPlugPtr
  * \return True if contents of p1 < contents of p2
  */
 template<class A, class B>
-inline bool operator<(const smrtPlugPtr<A>& p1, const smrtPlugPtr<B>& p2)
+inline bool operator<(const ClonePtr<A>& p1, const ClonePtr<B>& p2)
 { return (*p1.obj < *p2.obj); }
 
 namespace std {
@@ -274,10 +272,8 @@ namespace std {
    *
    */
   template<class T>
-  inline void swap(smrtPlugPtr<T>& p1, smrtPlugPtr<T>& p2)
+  inline void swap(ClonePtr<T>& p1, ClonePtr<T>& p2)
   {
     p1.swap(p2);
   }
 }
-
-#endif

@@ -19,12 +19,12 @@
 
 #include "system.hpp"
 
-class CSSchedMaintainer: public CSystem
+class CSSchedMaintainer: public System
 {
 public:
   CSSchedMaintainer(DYNAMO::SimData*, Iflt, std::string);
   
-  virtual CSystem* Clone() const { return new CSSchedMaintainer(*this); }
+  virtual System* Clone() const { return new CSSchedMaintainer(*this); }
 
   virtual void runEvent() const;
 

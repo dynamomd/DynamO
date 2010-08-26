@@ -60,7 +60,7 @@ protected:
 
   virtual void outputXML(xmlw::XmlStream&) const = 0;
   
-  smrtPlugPtr<CRange> range;
+  ClonePtr<CRange> range;
 };
 
 #endif

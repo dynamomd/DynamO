@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CNParticleData_HPP
-#define CNParticleData_HPP
+#pragma once
 
 #include "2particleEventData.hpp"
 #include <list>
@@ -31,5 +30,3 @@ public:
   std::list<ParticleEventData> L1partChanges;
   std::list<PairEventData> L2partChanges;
 };
-
-#endif

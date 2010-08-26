@@ -36,12 +36,12 @@ public:
   
   virtual void operator<<(const XMLNode&);
   
-  const smrtPlugPtr<CRange>& getRange() const { return range; }
+  const ClonePtr<CRange>& getRange() const { return range; }
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  smrtPlugPtr<CRange> range;
+  ClonePtr<CRange> range;
 };
 
 #endif

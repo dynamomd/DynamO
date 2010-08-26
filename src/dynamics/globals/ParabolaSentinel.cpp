@@ -42,9 +42,9 @@ CGParabolaSentinel::initialise(size_t nID)
 {
   ID=nID;
 
-  passedParabola.resize(Sim->lN);
+  passedParabola.resize(Sim->N);
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     passedParabola[part.getID()] = false;
 
   Sim->registerParticleUpdateFunc

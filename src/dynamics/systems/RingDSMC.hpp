@@ -26,14 +26,14 @@
 #include "../ranges/1range.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 
-class CSRingDSMC: public CSystem
+class CSRingDSMC: public System
 {
 public:
   CSRingDSMC(const XMLNode& XML, DYNAMO::SimData*);
 
   CSRingDSMC(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
   
-  virtual CSystem* Clone() const { return new CSRingDSMC(*this); }
+  virtual System* Clone() const { return new CSRingDSMC(*this); }
 
   virtual void runEvent() const;
 
@@ -60,7 +60,7 @@ protected:
   mutable unsigned long n12;
   mutable unsigned long n13;
 
-  smrtPlugPtr<CRange> range1;
+  ClonePtr<CRange> range1;
 };
 
 #endif

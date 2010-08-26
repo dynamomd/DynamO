@@ -50,7 +50,7 @@ OP2PP::eventUpdate(const LocalEvent &event, const NEventData& SDat)
 }
 
 void 
-OP2PP::eventUpdate(const CSystem&, const NEventData& SDat, const Iflt& dt)
+OP2PP::eventUpdate(const System&, const NEventData& SDat, const Iflt& dt)
 {
   stream(dt);
 

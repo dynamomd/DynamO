@@ -149,7 +149,7 @@ ISoftCore::getEvent(const Particle &p1,
 void
 ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEvent) const
 {
-  ++Sim->lNColl;
+  ++Sim->eventCount;
   
   switch (iEvent.getType())
     {
@@ -165,7 +165,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
 	Sim->signalParticleUpdate(retVal);
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 
@@ -184,7 +184,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
 	//Now we're past the event, update the scheduler and plugins
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, 
+	BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, 
 		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 

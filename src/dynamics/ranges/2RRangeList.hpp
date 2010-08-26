@@ -35,16 +35,16 @@ public:
   virtual bool isInRange(const Particle&, const Particle&) const;
 
   void addRange(C2Range* nRange)
-  { ranges.push_back(smrtPlugPtr<C2Range>(nRange)); }
+  { ranges.push_back(ClonePtr<C2Range>(nRange)); }
   
   virtual void operator<<(const XMLNode&);
 
-  const std::list<smrtPlugPtr<C2Range> >& getRanges() const;
+  const std::list<ClonePtr<C2Range> >& getRanges() const;
   
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  std::list<smrtPlugPtr<C2Range> > ranges;
+  std::list<ClonePtr<C2Range> > ranges;
 };
 
 #endif

@@ -31,11 +31,10 @@ class GlobalEvent;
 class Global;
 class Local;
 class LocalEvent;
-class CSystem;
-class CTopology;
+class System;
+class Topology;
 class Particle;
-template<class T>
-class CVector;
+template<class T> class CVector;
 class Liouvillean;
 class XMLNode;
 class NEventData;
@@ -64,26 +63,26 @@ public:
 
   Interaction* addInteraction(Interaction*);
 
-  void addSpecies(const smrtPlugPtr<Species>&);
+  void addSpecies(const ClonePtr<Species>&);
   
   void addGlobal(Global*);
 
   void addLocal(Local*);
 
-  void addSystem(CSystem*);
+  void addSystem(System*);
 
-  void addStructure(CTopology*);
+  void addStructure(Topology*);
 
   const Species& getSpecies(const Particle&) const;
   
-  const smrtPlugPtr<Interaction>& 
+  const ClonePtr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
   
   void stream(const Iflt&);
   
   inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
   {
-    BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const ClonePtr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	{
 #ifdef DYNAMO_UpdateCollDebug
@@ -133,35 +132,35 @@ public:
 
   Dynamics* Clone() const { return new Dynamics(*this); }
 
-  std::vector<smrtPlugPtr<Interaction> >& getInteractions() { return interactions; }
-  const std::vector<smrtPlugPtr<Interaction> >& getInteractions() const { return interactions; }
+  std::vector<ClonePtr<Interaction> >& getInteractions() { return interactions; }
+  const std::vector<ClonePtr<Interaction> >& getInteractions() const { return interactions; }
 
-  smrtPlugPtr<Interaction>& getInteraction(std::string);
-  const smrtPlugPtr<Interaction>& getInteraction(std::string) const;
+  ClonePtr<Interaction>& getInteraction(std::string);
+  const ClonePtr<Interaction>& getInteraction(std::string) const;
 
-  const std::vector<smrtPlugPtr<Global> >& getGlobals() const { return globals; }
-  std::vector<smrtPlugPtr<Global> >& getGlobals() { return globals; }
-  smrtPlugPtr<Global>& getGlobal(std::string);
-  const smrtPlugPtr<Global>& getGlobal(std::string) const;
+  const std::vector<ClonePtr<Global> >& getGlobals() const { return globals; }
+  std::vector<ClonePtr<Global> >& getGlobals() { return globals; }
+  ClonePtr<Global>& getGlobal(std::string);
+  const ClonePtr<Global>& getGlobal(std::string) const;
 
-  const std::vector<smrtPlugPtr<Local> >& getLocals() const { return locals; }
-  smrtPlugPtr<Local>& getLocal(std::string);
-  const smrtPlugPtr<Local>& getLocal(std::string) const;
+  const std::vector<ClonePtr<Local> >& getLocals() const { return locals; }
+  ClonePtr<Local>& getLocal(std::string);
+  const ClonePtr<Local>& getLocal(std::string) const;
 
-  const std::vector<smrtPlugPtr<Species> >& getSpecies() const { return species; }
+  const std::vector<ClonePtr<Species> >& getSpecies() const { return species; }
   const Species& getSpecies(std::string) const;
 
-  std::vector<smrtPlugPtr<CTopology> >& getTopology() { return topology; }
-  const std::vector<smrtPlugPtr<CTopology> >& getTopology() const { return topology; }
+  std::vector<ClonePtr<Topology> >& getTopology() { return topology; }
+  const std::vector<ClonePtr<Topology> >& getTopology() const { return topology; }
 
-  smrtPlugPtr<CTopology>& getTopology(std::string);
+  ClonePtr<Topology>& getTopology(std::string);
 
-  const smrtPlugPtr<CTopology>& getTopology(std::string) const;
+  const ClonePtr<Topology>& getTopology(std::string) const;
 
-  std::vector<smrtPlugPtr<CSystem> >& getSystemEvents() { return systems; }
-  const std::vector<smrtPlugPtr<CSystem> >& getSystemEvents() const { return systems; }
-  const smrtPlugPtr<CSystem>& getSystem(std::string) const;
-  smrtPlugPtr<CSystem>& getSystem(std::string);
+  std::vector<ClonePtr<System> >& getSystemEvents() { return systems; }
+  const std::vector<ClonePtr<System> >& getSystemEvents() const { return systems; }
+  const ClonePtr<System>& getSystem(std::string) const;
+  ClonePtr<System>& getSystem(std::string);
 
   void addSystemTicker();
   
@@ -211,13 +210,13 @@ public:
  protected:
   void outputXML(xmlw::XmlStream &) const;
 
-  std::vector<smrtPlugPtr<Interaction> > interactions;
-  std::vector<smrtPlugPtr<Global> > globals;
-  std::vector<smrtPlugPtr<Local> > locals;
-  std::vector<smrtPlugPtr<CSystem> > systems;
-  std::vector<smrtPlugPtr<CTopology> > topology;
-  std::vector<smrtPlugPtr<Species> > species;
-  smrtPlugPtr<BoundaryCondition> p_BC;
-  smrtPlugPtr<Liouvillean> p_liouvillean;
-  mutable smrtPlugPtr<Units> p_units;
+  std::vector<ClonePtr<Interaction> > interactions;
+  std::vector<ClonePtr<Global> > globals;
+  std::vector<ClonePtr<Local> > locals;
+  std::vector<ClonePtr<System> > systems;
+  std::vector<ClonePtr<Topology> > topology;
+  std::vector<ClonePtr<Species> > species;
+  ClonePtr<BoundaryCondition> p_BC;
+  ClonePtr<Liouvillean> p_liouvillean;
+  mutable ClonePtr<Units> p_units;
 };

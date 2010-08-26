@@ -102,7 +102,7 @@ EReplicaExchangeSimulation::initialisation()
   for (unsigned int i = 0; i < nSims; i++)
     {
       bool didWork = false;
-      BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr1, Simulations[i].dynamics.getSystemEvents())
+      BOOST_FOREACH(ClonePtr<System>& sysPtr1, Simulations[i].dynamics.getSystemEvents())
 	if (sysPtr1->getName() == "Thermostat")
 	  {
 	    if (dynamic_cast<CSysGhost*>(sysPtr1.get_ptr()) == NULL)

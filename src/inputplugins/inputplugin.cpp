@@ -70,9 +70,9 @@ CInputPlugin::setCOMVelocity(const Vector vel)
 {
   I_cout() << "Setting COM Velocity";
   
-  if (Sim->lN <= 1)
+  if (Sim->N <= 1)
     I_cerr() << "Refusing to set momentum for a " 
-	     << Sim->lN << " particle system";
+	     << Sim->N << " particle system";
   else
     Sim->dynamics.setCOMVelocity(vel);  
 }
@@ -83,9 +83,9 @@ CInputPlugin::zeroMomentum()
 {
   I_cout() << "Zeroing Momentum";
   
-  if (Sim->lN <= 1)
+  if (Sim->N <= 1)
     I_cerr() << "Refusing to zero momentum for a " 
-	     << Sim->lN << " particle system";
+	     << Sim->N << " particle system";
   else
     Sim->dynamics.setCOMVelocity();
 }
@@ -97,14 +97,14 @@ CInputPlugin::zeroCentreOfMass()
   
   Vector com(0,0,0);  
   Iflt totmass = 0.0;
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)  
+  BOOST_FOREACH(Particle& part, Sim->particleList)  
     {
       totmass += Sim->dynamics.getSpecies(part).getMass();
       com += part.getPosition() * Sim->dynamics.getSpecies(part).getMass();
     }
   com /= totmass;
   
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getPosition() -= com;
 }
 
@@ -113,7 +113,7 @@ CInputPlugin::setPackFrac(Iflt tmp)
 {
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   volume *= PI / (6 * (Sim->dynamics.units().simVolume()));
@@ -124,7 +124,7 @@ CInputPlugin::setPackFrac(Iflt tmp)
 void 
 CInputPlugin::mirrorDirection(unsigned int iDim)
 {
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)  
+  BOOST_FOREACH(Particle& part, Sim->particleList)  
     {
       part.getVelocity()[iDim] *= -1.0;
       part.getPosition()[iDim] *= -1.0;
@@ -135,6 +135,6 @@ void
 CInputPlugin::zeroVelComp(size_t iDim)
 {
   I_cout() << "Zeroing the " << iDim << " dimension velocities";
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getVelocity()[iDim] = 0.0;
 }

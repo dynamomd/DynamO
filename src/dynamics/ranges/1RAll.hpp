@@ -38,18 +38,18 @@ public:
   //The data output classes
   virtual void operator<<(const XMLNode&);
 
-  virtual unsigned long size() const { return Sim->vParticleList.size(); }
+  virtual unsigned long size() const { return Sim->particleList.size(); }
 
   virtual iterator begin() const { return CRange::iterator(0, this); }
 
-  virtual iterator end() const { return CRange::iterator(Sim->vParticleList.size(), this); }
+  virtual iterator end() const { return CRange::iterator(Sim->particleList.size(), this); }
 
   virtual unsigned long operator[](unsigned long i) const  
   { return i; }
 
   virtual unsigned long at(unsigned long i) const 
   { 
-    if (i >= Sim->vParticleList.size())
+    if (i >= Sim->particleList.size())
       D_throw() << "Bad array access value in range.at()";
 
     return i;

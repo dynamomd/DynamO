@@ -40,7 +40,7 @@ class OPRdotV: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
 
   void output(xmlw::XmlStream &);
 

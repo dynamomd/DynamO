@@ -20,12 +20,12 @@
 
 #include "system.hpp"
 
-class CStHalt: public CSystem
+class CStHalt: public System
 {
 public:
   CStHalt(DYNAMO::SimData*, Iflt, std::string);
   
-  virtual CSystem* Clone() const { return new CStHalt(*this); }
+  virtual System* Clone() const { return new CStHalt(*this); }
 
   virtual void runEvent() const;
 

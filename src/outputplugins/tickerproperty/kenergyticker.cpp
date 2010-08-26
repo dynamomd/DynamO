@@ -49,7 +49,7 @@ OPKEnergyTicker::ticker()
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
       localE[iDim][jDim] = 0.0;
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
@@ -71,7 +71,7 @@ OPKEnergyTicker::output(xmlw::XmlStream& XML)
 
   XML << xmlw::tag("KEnergyTicker")
       << xmlw::attr("T")
-      << sumComp / (((Iflt) count) * ((Iflt)NDIM) * Sim->lN * Sim->dynamics.units().unitEnergy());
+      << sumComp / (((Iflt) count) * ((Iflt)NDIM) * Sim->N * Sim->dynamics.units().unitEnergy());
   
 
   XML << xmlw::tag("KineticTensor");
@@ -86,7 +86,7 @@ OPKEnergyTicker::output(xmlw::XmlStream& XML)
 	{
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
 	  XML << xmlw::attr(name.c_str())
-	      << sum[iDim][jDim] / (((Iflt) count) * Sim->lN 				    
+	      << sum[iDim][jDim] / (((Iflt) count) * Sim->N 				    
 				    * Sim->dynamics.units().unitEnergy());;
 	}
       
@@ -106,7 +106,7 @@ OPKEnergyTicker::periodicOutput()
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     sumComp += sum[iDim][iDim];
 
-  sumComp /= ((Iflt) count) * ((Iflt)NDIM) * Sim->lN 
+  sumComp /= ((Iflt) count) * ((Iflt)NDIM) * Sim->N 
     * Sim->dynamics.units().unitEnergy();
 
   I_Pcout() << "<T>_t " <<  sumComp 

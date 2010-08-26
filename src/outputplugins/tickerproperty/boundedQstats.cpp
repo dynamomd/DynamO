@@ -62,7 +62,7 @@ OPBoundedQStats::output(xmlw::XmlStream& XML)
     << xmlw::tag("treedist")
       << xmlw::chardata();
 
-  if (!Sim->lNColl)
+  if (!Sim->eventCount)
     {
       I_cerr() << "Cannot print the tree as the queue is\n"
 	       << "not initialised until an event is run (i.e. N_event != 0).\n"

@@ -304,7 +304,7 @@ CGCells::initialise(size_t nID)
 void
 CGCells::reinitialise(const Iflt& maxdiam)
 {
-  I_cout() << "Reinitialising on collision " << Sim->lNColl;
+  I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
   //Create the cells
   addCells(maxdiam/overlink);
@@ -344,7 +344,7 @@ void
 CGCells::addCells(Iflt maxdiam)
 {
   cells.clear();
-  partCellData.resize(Sim->lN); //Location data for particles
+  partCellData.resize(Sim->N); //Location data for particles
 
   NCells = 1;
   cellCount = CVector<int>(0);
@@ -418,7 +418,7 @@ CGCells::addCells(Iflt maxdiam)
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
   ////initialise the data structures
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     addToCell(part.getID(), getCellID(part.getPosition()));
 }
 
@@ -429,7 +429,7 @@ CGCells::addLocalEvents()
     {
       cell.locals.clear();
 
-      BOOST_FOREACH(const smrtPlugPtr<Local>& local, Sim->dynamics.getLocals())
+      BOOST_FOREACH(const ClonePtr<Local>& local, Sim->dynamics.getLocals())
 	if (local->isInCell(cell.origin, cellDimension))
 	  cell.locals.push_back(local->getID());
     }

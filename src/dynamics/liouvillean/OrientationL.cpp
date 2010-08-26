@@ -41,13 +41,13 @@ LNOrientation::initialise()
 
   Iflt sumEnergy(0.0);
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)  
+  BOOST_FOREACH(const Particle& part, Sim->particleList)  
     sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()
     * orientationData[part.getID()].angularVelocity.nrm2();
   
   //Check if any of the species are overridden
   bool hasInertia(false);
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
       hasInertia = true;
 
@@ -57,7 +57,7 @@ LNOrientation::initialise()
   sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
   
   I_cout() << "System Rotational Energy " << sumEnergy
-	   << "\nRotational kT " << sumEnergy / Sim->lN;
+	   << "\nRotational kT " << sumEnergy / Sim->N;
 }
 
 void
@@ -118,8 +118,8 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 PairEventData 
 LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
-  const Particle& particle1 = Sim->vParticleList[eevent.getParticle1ID()];
-  const Particle& particle2 = Sim->vParticleList[eevent.getParticle2ID()];
+  const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -212,7 +212,7 @@ LNOrientation::randomGaussianEvent(const Particle& part,
 void 
 LNOrientation::initLineOrientations(const Iflt& length)
 {
-  orientationData.resize(Sim->vParticleList.size());
+  orientationData.resize(Sim->particleList.size());
   
   I_cout() << "Initialising the line orientations";
 
@@ -220,7 +220,7 @@ LNOrientation::initLineOrientations(const Iflt& length)
 
   Vector  angVelCrossing;
 
-  for (size_t i = 0; i < Sim->vParticleList.size(); ++i)
+  for (size_t i = 0; i < Sim->particleList.size(); ++i)
     {
       //Assign the new velocities
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -247,7 +247,7 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
   if (XML.getChildNode("ParticleData").isAttributeSet("AttachedBinary")
       && (std::toupper(XML.getChildNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
     {
-      boost::progress_display prog(Sim->lN);
+      boost::progress_display prog(Sim->N);
       boost::iostreams::filtering_istream base64Convertor;	  
       base64Convertor.push(boost::iostreams::base64_decoder());
       base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
@@ -257,9 +257,9 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
 	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
       }
       
-      orientationData.resize(Sim->lN);
+      orientationData.resize(Sim->N);
       
-      for (unsigned long i = 0; i < Sim->lN; ++i)
+      for (unsigned long i = 0; i < Sim->N; ++i)
 	{
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, orientationData[i].orientation[iDim]);
@@ -275,11 +275,11 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
       XMLNode xSubNode = XML.getChildNode("ParticleData");
       int xml_iter = 0;
       
-      boost::progress_display prog(Sim->lN);
+      boost::progress_display prog(Sim->N);
       
-      orientationData.resize(Sim->lN);
+      orientationData.resize(Sim->N);
       
-      for (unsigned long i = 0; i < Sim->lN; ++i)
+      for (unsigned long i = 0; i < Sim->N; ++i)
 	{
 	  XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
 	  
@@ -325,9 +325,9 @@ LNOrientation::extraXMLData(xmlw::XmlStream& XML) const
 	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
 	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
 	
-	boost::progress_display prog(Sim->lN);
+	boost::progress_display prog(Sim->N);
 	
-	BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+	BOOST_FOREACH(const Particle& part, Sim->particleList)
 	  {
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      binarywrite(base64Convertor, orientationData[part.getID()].orientation[iDim]);
@@ -360,7 +360,7 @@ LNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
 {
   Iflt scalefactor(sqrt(scale));
 
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getVelocity() *= scalefactor;
 
   BOOST_FOREACH(rotData& rdat, orientationData)
@@ -376,8 +376,8 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
 				const EEventType& eType
 				) const
 {
-  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 

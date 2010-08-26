@@ -67,7 +67,7 @@ CLAndersenWall::getEvent(const Particle& part) const
 void
 CLAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
-  ++Sim->lNColl;
+  ++Sim->eventCount;
   
   NEventData EDat
     (Sim->dynamics.getLiouvillean().runAndersenWallCollision
@@ -77,7 +77,7 @@ CLAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
   
   Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }
 

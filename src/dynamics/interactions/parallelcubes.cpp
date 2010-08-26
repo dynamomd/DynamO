@@ -128,7 +128,7 @@ IParallelCubes::runEvent(const Particle& p1,
 			  const IntEvent& iEvent) const
 {
 
-  ++Sim->lNColl;
+  ++Sim->eventCount;
     
   //Run the collision and catch the data
   PairEventData EDat
@@ -139,7 +139,7 @@ IParallelCubes::runEvent(const Particle& p1,
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 }
    
@@ -180,7 +180,7 @@ IParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
-      Vector  pos(Sim->vParticleList[pid].getPosition());
+      Vector  pos(Sim->particleList[pid].getPosition());
       Sim->dynamics.BCs().applyBC(pos);
 
       os << "object {\n intrep" << ID << "\n translate <"

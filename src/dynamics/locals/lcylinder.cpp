@@ -59,7 +59,7 @@ CLCylinder::getEvent(const Particle& part) const
 void
 CLCylinder::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
-  ++Sim->lNColl;
+  ++Sim->eventCount;
 
   //Run the collision and catch the data
   NEventData EDat(Sim->dynamics.getLiouvillean().runCylinderWallCollision
@@ -70,7 +70,7 @@ CLCylinder::runEvent(const Particle& part, const LocalEvent& iEvent) const
   //Now we're past the event update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }
 

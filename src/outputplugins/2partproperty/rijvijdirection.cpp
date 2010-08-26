@@ -86,7 +86,7 @@ OPRijVij::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void
-OPRijVij::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
+OPRijVij::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     process2PED(rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))],

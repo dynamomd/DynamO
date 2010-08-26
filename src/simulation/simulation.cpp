@@ -80,10 +80,10 @@ Simulation::scaleTickerPeriod(Iflt nP)
   ptr->setTickerPeriod(nP * ptr->getPeriod());
 }
 
-CSystem* 
+System* 
 Simulation::getSystem(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr, dynamics.getSystemEvents())
+  BOOST_FOREACH(ClonePtr<System>& sysPtr, dynamics.getSystemEvents())
     if (sysPtr->getName() == name)
       return sysPtr.get_ptr();
   
@@ -103,7 +103,7 @@ Simulation::addGlobal(Global* tmp)
 }
 
 void 
-Simulation::addSystem(CSystem* tmp)
+Simulation::addSystem(System* tmp)
 {
   if (tmp == NULL)
     D_throw() << "Adding a NULL systemEvent";
@@ -122,7 +122,7 @@ Simulation::addOutputPlugin(std::string Name)
   
   I_cout() << "Loading output plugin, " << Name;
 
-  smrtPlugPtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
+  ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);
 }
 
@@ -134,18 +134,18 @@ void
 Simulation::setnPrint(unsigned long long newnPrint)
 { 
   I_cout() << "Periodic output length set to " << newnPrint << " collisions";
-  lNPrint = newnPrint; 
+  eventPrintInterval = newnPrint; 
 }
 
 void 
 Simulation::simShutdown()
-{ lPrintLimiter = lMaxNColl = lNColl; }
+{ nextPrintEvent = endEventCount = eventCount; }
 
 void 
 Simulation::setTrajectoryLength(unsigned long long newMaxColl)
 { 
   //I_cout() << "Trajectory length set to " << newMaxColl << " collisions";
-  lMaxNColl = newMaxColl; 
+  endEventCount = newMaxColl; 
 }
 
 void
@@ -157,7 +157,7 @@ Simulation::initialise()
   
   bool needTicker = false;
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, outputPlugins)
     if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
       {
 	needTicker = true; 
@@ -178,11 +178,11 @@ Simulation::initialise()
   I_cout() << "Initialising the dynamics";
   dynamics.initialise();
 
-  Ensemble->initialise();
+  ensemble->initialise();
     
   fflush(stdout);
 
-  if (lMaxNColl) //Only initialise the scheduler if we're simulating
+  if (endEventCount) //Only initialise the scheduler if we're simulating
     {
       I_cout() << "Initialising the scheduler";
       ptrScheduler->initialise();
@@ -191,7 +191,7 @@ Simulation::initialise()
     I_cout() << "Skipping initialisation of the Scheduler";
   
   I_cout() << "Initialising the output plugins";
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, outputPlugins)
     Ptr->initialise();
 
   I_cout() << "System initialised";
@@ -209,27 +209,27 @@ Simulation::runSimulation(bool silentMode)
   if (silentMode)
     try
       {
-	for (; lNColl < lMaxNColl;)
+	for (; eventCount < endEventCount;)
 	  ptrScheduler->runNextEvent();
       }
     catch (std::exception &cep)
       {
 	D_throw() << "\nWhile executing collision "
-		  << lNColl << cep.what();
+		  << eventCount << cep.what();
       }
   else
-    for (lPrintLimiter = lNColl + lNPrint; lNColl < lMaxNColl; 
-	 lPrintLimiter += lNPrint)
+    for (nextPrintEvent = eventCount + eventPrintInterval; eventCount < endEventCount; 
+	 nextPrintEvent += eventPrintInterval)
       try
 	{
-	  for (; lNColl < lPrintLimiter; )
+	  for (; eventCount < nextPrintEvent; )
 	    ptrScheduler->runNextEvent();
 	  
 	  //Periodic work
 	  if (outputPlugins.size())
 	    std::cout << "\n";
 	  //Print the screen data plugins
-	  BOOST_FOREACH( smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
+	  BOOST_FOREACH( ClonePtr<OutputPlugin> & Ptr, outputPlugins)
 	    Ptr->periodicOutput();
 	  
 	  fflush(stdout);
@@ -237,7 +237,7 @@ Simulation::runSimulation(bool silentMode)
       catch (std::exception &cep)
 	{
 	  D_throw() << "\nWhile executing collision "
-		    << lNColl << cep.what();
+		    << eventCount << cep.what();
 	}
 }
 
@@ -300,7 +300,7 @@ Simulation::loadPlugins(std::string pluginFileName)
   if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
     {
       xMainNode=XMLNode::openFileHelper(pluginFileName.c_str(), "Plugins");
-      smrtPlugPtr<OutputPlugin> tmpPlug(NULL);
+      ClonePtr<OutputPlugin> tmpPlug(NULL);
       for (int i = 0; i < xMainNode.nChildNode("Plugin"); ++i)
 	{
 	  tmpPlug.set_ptr(OutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
@@ -338,7 +338,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
       
       
       //Output the data and delete the outputplugins
-      BOOST_FOREACH( smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
+      BOOST_FOREACH( ClonePtr<OutputPlugin> & Ptr, outputPlugins)
 	Ptr->output(XML);
       
       XML << xmlw::endtag("OutputData");
@@ -358,7 +358,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
       
       
       //Output the data and delete the outputplugins
-      BOOST_FOREACH( smrtPlugPtr<OutputPlugin> & Ptr, outputPlugins)
+      BOOST_FOREACH( ClonePtr<OutputPlugin> & Ptr, outputPlugins)
 	Ptr->output(XML);
       
       XML << xmlw::endtag("OutputData");

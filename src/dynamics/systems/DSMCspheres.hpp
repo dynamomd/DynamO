@@ -26,14 +26,14 @@
 #include "../ranges/1range.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 
-class CSDSMCSpheres: public CSystem
+class CSDSMCSpheres: public System
 {
 public:
   CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData*);
 
   CSDSMCSpheres(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string, CRange*, CRange*);
   
-  virtual CSystem* Clone() const { return new CSDSMCSpheres(*this); }
+  virtual System* Clone() const { return new CSDSMCSpheres(*this); }
 
   virtual void runEvent() const;
 
@@ -55,8 +55,8 @@ protected:
   Iflt e;
   Iflt factor;
 
-  smrtPlugPtr<CRange> range1;
-  smrtPlugPtr<CRange> range2;
+  ClonePtr<CRange> range1;
+  ClonePtr<CRange> range2;
 };
 
 #endif

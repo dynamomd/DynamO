@@ -24,7 +24,7 @@
 #include <string>
 #include <list>
 
-class CTChain:public CTopology
+class CTChain:public Topology
 {
 public:  
   CTChain(const XMLNode&, DYNAMO::SimData*, unsigned int ID);

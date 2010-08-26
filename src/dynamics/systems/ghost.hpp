@@ -26,14 +26,14 @@
 #include "../ranges/1range.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 
-class CSysGhost: public CSystem
+class CSysGhost: public System
 {
 public:
   CSysGhost(const XMLNode& XML, DYNAMO::SimData*);
 
   CSysGhost(DYNAMO::SimData*, Iflt, Iflt, std::string);
   
-  virtual CSystem* Clone() const { return new CSysGhost(*this); }
+  virtual System* Clone() const { return new CSysGhost(*this); }
 
   virtual void runEvent() const;
 
@@ -60,7 +60,7 @@ protected:
 
   Iflt getGhostt() const;
   
-  smrtPlugPtr<CRange> range;
+  ClonePtr<CRange> range;
 };
 
 #endif

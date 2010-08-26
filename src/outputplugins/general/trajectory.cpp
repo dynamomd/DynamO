@@ -54,8 +54,8 @@ OPTrajectory::printData(const size_t& p1,
   size_t id2 = ((p1 > p2) 
 		? p1 : p2);
 
-  Vector  rij = Sim->vParticleList[id1].getPosition()
-    - Sim->vParticleList[id2].getPosition();
+  Vector  rij = Sim->particleList[id1].getPosition()
+    - Sim->particleList[id2].getPosition();
 
   Sim->dynamics.BCs().applyBC(rij);
   
@@ -147,7 +147,7 @@ OPTrajectory::eventUpdate(const LocalEvent& eevent,
 }
 
 void 
-OPTrajectory::eventUpdate(const CSystem& sys, const NEventData& SDat, 
+OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat, 
 			   const Iflt& dt)
 {
   logfile << "SYSTEM " << sys.getID()

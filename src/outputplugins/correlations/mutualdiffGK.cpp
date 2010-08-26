@@ -115,7 +115,7 @@ OPMutualDiffusionGK::eventUpdate(const LocalEvent& iEvent, const NEventData& PDa
 }
 
 void 
-OPMutualDiffusionGK::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt) 
+OPMutualDiffusionGK::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt) 
 { 
   stream(edt);
   updateDelG(PDat);
@@ -188,10 +188,10 @@ OPMutualDiffusionGK::initialise()
   
   Iflt sysMass = 0.0;
 
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
   
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
       

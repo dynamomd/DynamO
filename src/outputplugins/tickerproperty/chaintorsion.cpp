@@ -36,7 +36,7 @@ OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPCTorsion::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			       0.005, 0.005, 0.01));
@@ -81,7 +81,7 @@ OPCTorsion::ticker()
     {
       Iflt sysGamma  = 0.0;
       long count = 0;
-      BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
 	  if (range->size() < 3)//Need three for curv and torsion
 	    break;
@@ -100,14 +100,14 @@ OPCTorsion::ticker()
 	  //Calc first and second derivatives
 	  for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
 	    {
-	      tmp = 0.5 * (Sim->vParticleList[*(it+1)].getPosition()
-			   - Sim->vParticleList[*(it-1)].getPosition());
+	      tmp = 0.5 * (Sim->particleList[*(it+1)].getPosition()
+			   - Sim->particleList[*(it-1)].getPosition());
 
 	      dr1.push_back(tmp);
 	      
-	      tmp = Sim->vParticleList[*(it+1)].getPosition() 
-		- (2.0 * Sim->vParticleList[*it].getPosition())
-		+ Sim->vParticleList[*(it-1)].getPosition();
+	      tmp = Sim->particleList[*(it+1)].getPosition() 
+		- (2.0 * Sim->particleList[*it].getPosition())
+		+ Sim->particleList[*(it-1)].getPosition();
 	      
 	      dr2.push_back(tmp);
 	      
@@ -152,12 +152,12 @@ OPCTorsion::ticker()
 		      {
 			//We have three points, calculate the lengths
 			//of the triangle sides
-			Iflt a = (Sim->vParticleList[*it1].getPosition() 
-				  - Sim->vParticleList[*it2].getPosition()).nrm(),
-			  b = (Sim->vParticleList[*(range->begin()+2+i)].getPosition() 
-				  - Sim->vParticleList[*it2].getPosition()).nrm(),
-			  c = (Sim->vParticleList[*it1].getPosition() 
-			       - Sim->vParticleList[*(range->begin()+2+i)].getPosition()).nrm();
+			Iflt a = (Sim->particleList[*it1].getPosition() 
+				  - Sim->particleList[*it2].getPosition()).nrm(),
+			  b = (Sim->particleList[*(range->begin()+2+i)].getPosition() 
+				  - Sim->particleList[*it2].getPosition()).nrm(),
+			  c = (Sim->particleList[*it1].getPosition() 
+			       - Sim->particleList[*(range->begin()+2+i)].getPosition()).nrm();
 
 			//Now calc the area of the triangle
 			Iflt s = (a + b + c) / 2.0;

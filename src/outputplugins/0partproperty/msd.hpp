@@ -36,7 +36,7 @@ class OPMSD: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
 
-  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&) {}
+  virtual void eventUpdate(const System&, const NEventData&, const Iflt&) {}
 
   void output(xmlw::XmlStream &); 
 
@@ -44,7 +44,7 @@ class OPMSD: public OutputPlugin
 
   Iflt calcMSD() const;
 
-  Iflt calcStructMSD(const CTopology&) const;
+  Iflt calcStructMSD(const Topology&) const;
   
  protected:
   

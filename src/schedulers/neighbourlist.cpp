@@ -62,20 +62,20 @@ CSNeighbourList::initialise()
     (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
     .markAsUsedInScheduler();
 
-  I_cout() << "Rebuilding all events on collision " << Sim->lNColl;
+  I_cout() << "Rebuilding all events on collision " << Sim->eventCount;
   std::cout.flush();
 
   sorter->clear();
   //The plus one is because system events are stored in the last heap;
-  sorter->resize(Sim->lN+1);
+  sorter->resize(Sim->N+1);
   eventCount.clear();
-  eventCount.resize(Sim->lN+1, 0);
+  eventCount.resize(Sim->N+1, 0);
 
   //Now initialise the interactions
   {
-    boost::progress_display prog(Sim->lN);
+    boost::progress_display prog(Sim->N);
  
-    BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	addEventsInit(part);
 	++prog;
@@ -114,7 +114,7 @@ CSNeighbourList::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -145,7 +145,7 @@ CSNeighbourList::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   

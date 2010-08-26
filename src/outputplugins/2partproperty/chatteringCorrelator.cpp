@@ -27,7 +27,7 @@ void
 OPChatteringCorrelator::initialise()
 {
   //Set the history size
-  chatterTracker.resize(Sim->lN, std::pair<Iflt,Iflt>(0,0));
+  chatterTracker.resize(Sim->N, std::pair<Iflt,Iflt>(0,0));
 
   //Histogram in mean free times
   hist = C1DWeightHistogram(1);

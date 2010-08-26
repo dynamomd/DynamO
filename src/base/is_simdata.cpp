@@ -24,14 +24,14 @@
 namespace DYNAMO
 {
   SimData::SimData():
-    Ensemble(NULL),
+    ensemble(NULL),
     dSysTime(0.0),
     freestreamAcc(0.0),
-    lNColl(0),
-    lMaxNColl(100000),
-    lNPrint(50000),
-    lPrintLimiter(0),
-    lN(0),
+    eventCount(0),
+    endEventCount(100000),
+    eventPrintInterval(50000),
+    nextPrintEvent(0),
+    N(0),
     ptrScheduler(NULL),
     dynamics(this),
     aspectRatio(1,1,1),
@@ -69,29 +69,29 @@ namespace DYNAMO
     other.dynamics.getLiouvillean().updateAllParticles();
       
     std::swap(dSysTime, other.dSysTime);
-    std::swap(lNColl, other.lNColl);
+    std::swap(eventCount, other.eventCount);
     std::swap(_particleUpdateNotify, other._particleUpdateNotify);
     
     dynamics.getSystemEvents().swap(other.dynamics.getSystemEvents());
 
-    BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(ClonePtr<System>& aPtr, dynamics.getSystemEvents())
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(smrtPlugPtr<CSystem>& aPtr, other.dynamics.getSystemEvents())
+    BOOST_FOREACH(ClonePtr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
     //Rescale the velocities     
-    Iflt scale1(sqrt(other.Ensemble->getEnsembleVals()[2]
-		     / Ensemble->getEnsembleVals()[2]));
+    Iflt scale1(sqrt(other.ensemble->getEnsembleVals()[2]
+		     / ensemble->getEnsembleVals()[2]));
     
-    BOOST_FOREACH(Particle& part, vParticleList)
+    BOOST_FOREACH(Particle& part, particleList)
       part.scaleVelocity(scale1);
     
     other.ptrScheduler->rescaleTimes(scale1);
     
     Iflt scale2(1.0 / scale1);
 
-    BOOST_FOREACH(Particle& part, other.vParticleList)
+    BOOST_FOREACH(Particle& part, other.particleList)
       part.scaleVelocity(scale2);
     
     ptrScheduler->rescaleTimes(scale2);
@@ -108,7 +108,7 @@ namespace DYNAMO
     outputPlugins.swap(other.outputPlugins);      
     
     {
-      std::vector<smrtPlugPtr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
+      std::vector<ClonePtr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
 	iPtr2 = other.outputPlugins.begin();
       
       while (iPtr1 != outputPlugins.end())
@@ -129,6 +129,6 @@ namespace DYNAMO
     }
 
     //This is swapped last as things need it for calcs
-    Ensemble->exchange(*other.Ensemble);
+    ensemble->exchange(*other.ensemble);
   }
 }

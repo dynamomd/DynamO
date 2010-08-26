@@ -95,8 +95,8 @@ LCompression::streamParticle(Particle &particle, const Iflt &dt) const
 PairEventData 
 LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
 {
-  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
@@ -133,8 +133,8 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt
 PairEventData 
 LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
 {
-  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
   

@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2ParticleData_HPP
-#define C2ParticleData_HPP
+#pragma once
 
 #include "1particleEventData.hpp"
 #include "../datatypes/vector.hpp"
@@ -49,5 +48,3 @@ public:
   EEventType getType() const
   { return particle1_.getType(); }
 };
-
-#endif

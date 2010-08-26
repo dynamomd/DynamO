@@ -26,19 +26,19 @@
 #include "../../base/is_simdata.hpp"
 #include "include.hpp"
 
-CTopology::CTopology(DYNAMO::SimData* tmp, size_t nID):
+Topology::Topology(DYNAMO::SimData* tmp, size_t nID):
   SimBase_const(tmp,"Species", IC_blue),
   ID(nID)
 { }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CTopology& g)
+xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const Topology& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 void 
-CTopology::operator<<(const XMLNode& XML)
+Topology::operator<<(const XMLNode& XML)
 {
     try {
       spName = XML.getAttribute("Name");
@@ -49,22 +49,22 @@ CTopology::operator<<(const XMLNode& XML)
       }
     
     for (int i = 0; i < XML.nChildNode(); i++)
-      ranges.push_back(smrtPlugPtr<CRange>(CRange::loadClass(XML.getChildNode(i), Sim)));
+      ranges.push_back(ClonePtr<CRange>(CRange::loadClass(XML.getChildNode(i), Sim)));
 }
 
 void
-CTopology::outputXML(xmlw::XmlStream& XML) const
+Topology::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Name") << spName;
   
-  BOOST_FOREACH(const smrtPlugPtr<CRange>& plugPtr, ranges)
+  BOOST_FOREACH(const ClonePtr<CRange>& plugPtr, ranges)
     XML << xmlw::tag("Molecule") << plugPtr
 	<< xmlw::endtag("Molecule");
 }
 
 
-CTopology* 
-CTopology::loadClass(const XMLNode& XML, DYNAMO::SimData* Sim, size_t ID)
+Topology* 
+Topology::loadClass(const XMLNode& XML, DYNAMO::SimData* Sim, size_t ID)
 {
   if (!strcmp(XML.getAttribute("Type"),"Chain"))
     return new CTChain(XML, Sim, ID);

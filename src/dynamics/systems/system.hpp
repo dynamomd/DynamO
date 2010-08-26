@@ -31,14 +31,14 @@ class IntEvent;
 class GlobalEvent;
 class NEventData;
 
-class CSystem: public DYNAMO::SimBase
+class System: public DYNAMO::SimBase
 {
 public:
-  CSystem(DYNAMO::SimData*);
+  System(DYNAMO::SimData*);
   
-  virtual ~CSystem() {}
+  virtual ~System() {}
   
-  virtual CSystem* Clone() const = 0; //{ return new OPBlank(*this); };
+  virtual System* Clone() const = 0; //{ return new OPBlank(*this); };
 
   inline void stream(const Iflt& ndt) { dt -= ndt; }
 
@@ -52,13 +52,13 @@ public:
 
   bool operator<(const GlobalEvent&) const;
 
-  bool operator<(const CSystem&) const;
+  bool operator<(const System&) const;
   
   Iflt getdt() const { return dt; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSystem&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const System&);
   
-  static CSystem* getClass(const XMLNode&, DYNAMO::SimData*);
+  static System* getClass(const XMLNode&, DYNAMO::SimData*);
   
   void setName(const std::string& tmp) { sysName = tmp; }
 

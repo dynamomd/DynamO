@@ -61,13 +61,13 @@ OPKEnergy::getAvgTheta() const
 Iflt
 OPKEnergy::getAvgkT() const
 {
-  return 2.0 * KEacc / (Sim->dSysTime * Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF());
+  return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
 }
 
 Iflt
 OPKEnergy::getAvgSqTheta() const
 {
-  return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->lN
+  return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->N
 			* Sim->dynamics.getLiouvillean().getParticleDOF()
 			* Sim->dynamics.units().unitEnergy()
 			* Sim->dynamics.units().unitEnergy());
@@ -103,7 +103,7 @@ OPKEnergy::output(xmlw::XmlStream &XML)
       << xmlw::tag("T") << xmlw::attr("val") << getAvgTheta()
       << xmlw::attr("current")
       << (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
-	  / (Sim->dynamics.getLiouvillean().getParticleDOF() * Sim->lN * Sim->dynamics.units().unitEnergy()))
+	  / (Sim->dynamics.getLiouvillean().getParticleDOF() * Sim->N * Sim->dynamics.units().unitEnergy()))
       << xmlw::endtag("T")
       << xmlw::tag("T2") << xmlw::attr("val") << getAvgSqTheta()
       << xmlw::endtag("T2")
@@ -124,7 +124,7 @@ OPKEnergy::periodicOutput()
 
 
   I_Pcout() << "T "
-	    <<  2.0 * KECurrent / (Sim->lN * Sim->dynamics.getLiouvillean().getParticleDOF()
+	    <<  2.0 * KECurrent / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF()
 				   * Sim->dynamics.units().unitEnergy())
 	    << ", <T> " << getAvgTheta() << ", <PwrLoss> " << powerloss << ", ";
 }

@@ -13,25 +13,25 @@ CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1,
   BOOST_FOREACH(const size_t& ID, range1)
     {
       structmass1 += 
-	Sim.dynamics.getSpecies(Sim.vParticleList[ID]).getMass();
+	Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass();
 	
-      COMVel1 += Sim.vParticleList[ID].getVelocity()
-	* Sim.dynamics.getSpecies(Sim.vParticleList[ID]).getMass();
+      COMVel1 += Sim.particleList[ID].getVelocity()
+	* Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass();
 	
-      COMPos1 += Sim.vParticleList[ID].getPosition()
-	* Sim.dynamics.getSpecies(Sim.vParticleList[ID]).getMass();
+      COMPos1 += Sim.particleList[ID].getPosition()
+	* Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass();
     }
     
   BOOST_FOREACH(const size_t& ID, range2)
     {
       structmass2 += 
-	Sim.dynamics.getSpecies(Sim.vParticleList[ID]).getMass();
+	Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass();
 	
-      COMVel2 += Sim.vParticleList[ID].getVelocity()
-	* Sim.dynamics.getSpecies(Sim.vParticleList[ID]).getMass();
+      COMVel2 += Sim.particleList[ID].getVelocity()
+	* Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass();
 	
-      COMPos2 += Sim.vParticleList[ID].getPosition()
-	* Sim.dynamics.getSpecies(Sim.vParticleList[ID]).getMass();
+      COMPos2 += Sim.particleList[ID].getPosition()
+	* Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass();
     }
     
   COMVel1 /= structmass1;

@@ -33,7 +33,7 @@ OPCollMatrix::OPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPCollMatrix::initialise()
 {
-  lastEvent.resize(Sim->lN, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
+  lastEvent.resize(Sim->N, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
 }
 
 OPCollMatrix::~OPCollMatrix()
@@ -85,7 +85,7 @@ OPCollMatrix::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void 
-OPCollMatrix::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
+OPCollMatrix::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));

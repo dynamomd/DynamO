@@ -110,7 +110,7 @@ OPViscosityCollisionalE::eventUpdate(const LocalEvent& iEvent,
 }
   
 void 
-OPViscosityCollisionalE::eventUpdate(const CSystem&, 
+OPViscosityCollisionalE::eventUpdate(const System&, 
 				      const NEventData& PDat, 
 				      const Iflt& edt) 
 { 

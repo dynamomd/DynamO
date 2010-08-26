@@ -36,9 +36,9 @@ OPMomentum::initialise()
   accMomsq = Vector (0,0,0);
   sysMom = Vector (0,0,0);
 
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
-    sysMom += spec->getMass() * Sim->vParticleList[ID].getVelocity();
+    sysMom += spec->getMass() * Sim->particleList[ID].getVelocity();
 }
 
 void 

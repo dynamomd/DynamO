@@ -76,7 +76,7 @@ protected:
 
   /*! \brief A single CIPCompression plugin to manipulate the Simulation.
    */
-  smrtPlugPtr<CIPCompression> compressPlug;
+  ClonePtr<CIPCompression> compressPlug;
 };
 
 #endif

@@ -24,7 +24,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
-  CSystem(nSim)
+  System(nSim)
 {
   if (nPeriod <= 0.0)
     nPeriod = Sim->dynamics.units().unitTime();
@@ -66,7 +66,7 @@ CSTicker::runEvent() const
 
   {
     OPTicker* ptr = NULL;
-    BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
       {
 	ptr = dynamic_cast<OPTicker*>(Ptr.get_ptr());
 	if (ptr != NULL)
@@ -74,7 +74,7 @@ CSTicker::runEvent() const
       }
   }
 
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, NEventData(), locdt);
 }
 
@@ -104,6 +104,6 @@ CSTicker::setTickerPeriod(const Iflt& nP)
 
   dt = nP;
 
-  if ((Sim->status >= INITIALISED) && Sim->lMaxNColl)
+  if ((Sim->status >= INITIALISED) && Sim->endEventCount)
     Sim->ptrScheduler->rebuildSystemEvents();
 }

@@ -22,13 +22,13 @@
 #include "../../base/is_exception.hpp"
 #include "../NparticleEventData.hpp"
 
-class CSysNull: public CSystem
+class CSysNull: public System
 {
 public:
-  CSysNull(DYNAMO::SimData* tmp): CSystem(tmp) 
+  CSysNull(DYNAMO::SimData* tmp): System(tmp) 
   {  sysName = "NULL"; }
   
-  virtual CSystem* Clone() const { return new CSysNull(*this); }
+  virtual System* Clone() const { return new CSysNull(*this); }
 
   virtual void stream(Iflt) {}
 
@@ -43,7 +43,7 @@ public:
 
   virtual bool operator<(const GlobalEvent&) const { return false; }
 
-  virtual bool operator<(const CSystem&) const { return false; }
+  virtual bool operator<(const System&) const { return false; }
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const {}

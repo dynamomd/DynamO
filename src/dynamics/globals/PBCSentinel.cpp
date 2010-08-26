@@ -46,9 +46,9 @@ CGPBCSentinel::initialise(size_t nID)
   
   maxintdist = Sim->dynamics.getLongestInteraction();
   
-  cachedTimes.resize(Sim->lN);
+  cachedTimes.resize(Sim->N);
   
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     cachedTimes[part.getID()] = Sim->dSysTime;
 
   Sim->registerParticleUpdateFunc

@@ -66,7 +66,7 @@ OPRGyration::operator<<(const XMLNode& XML)
 void 
 OPRGyration::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>
 			       (plugPtr.get_ptr()), 
@@ -99,7 +99,7 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 }
 
 OPRGyration::molGyrationDat
-OPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNAMO::SimData* Sim)
+OPRGyration::getGyrationEigenSystem(const ClonePtr<CRange>& range, const DYNAMO::SimData* Sim)
 {
   //Determine the centre of mass. Watch for periodic images
   Vector  tmpVec;  
@@ -107,7 +107,7 @@ OPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNA
   molGyrationDat retVal;
   retVal.MassCentre = Vector (0,0,0);
 
-  Iflt totmass = Sim->dynamics.getSpecies(Sim->vParticleList[*(range->begin())]).getMass();
+  Iflt totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass();
   std::vector<Vector> relVecs;
   relVecs.reserve(range->size());
   relVecs.push_back(Vector(0,0,0));
@@ -115,17 +115,17 @@ OPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNA
   //Walk along the chain
   for (CRange::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
     {
-      Vector currRelPos = Sim->vParticleList[*iPtr].getPosition() 
-	- Sim->vParticleList[*(iPtr - 1)].getPosition();
+      Vector currRelPos = Sim->particleList[*iPtr].getPosition() 
+	- Sim->particleList[*(iPtr - 1)].getPosition();
 
       Sim->dynamics.BCs().applyBC(currRelPos);
 
       relVecs.push_back(currRelPos + relVecs.back());
 
       retVal.MassCentre += relVecs.back() 
-	* Sim->dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
+	* Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass();
 
-      totmass += Sim->dynamics.getSpecies(Sim->vParticleList[*iPtr]).getMass();
+      totmass += Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass();
     }
 
   retVal.MassCentre /= totmass;
@@ -176,7 +176,7 @@ OPRGyration::getGyrationEigenSystem(const smrtPlugPtr<CRange>& range, const DYNA
   gsl_vector_free (eval);
   gsl_matrix_free (evec);
   
-  retVal.MassCentre += Sim->vParticleList[*(range->begin())].getPosition();
+  retVal.MassCentre += Sim->particleList[*(range->begin())].getPosition();
 
   return retVal;
 }
@@ -310,7 +310,7 @@ OPRGyration::ticker()
     {
       std::list<Vector  > molAxis;
 
-      BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
 	  molGyrationDat vals = getGyrationEigenSystem(range, Sim);	  
 	  //Take the largest eigenvector as the molecular axis
@@ -349,7 +349,7 @@ OPRGyration::output(xmlw::XmlStream& XML)
 
       std::list<Vector  > molAxis;
 
-      BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	molAxis.push_back(getGyrationEigenSystem(range, Sim).EigenVec[NDIM-1]);
 
       Vector  EigenVal = NematicOrderParameter(molAxis);

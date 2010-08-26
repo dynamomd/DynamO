@@ -42,9 +42,9 @@ OPSCParameter::initialise()
     if (Sim->aspectRatio[iDim] != 1.0) 
       D_throw() << "Cannot use this parameter in a non-cubic box";
   
-  maxWaveNumber = lrint(std::pow(Sim->lN, 1.0/3.0));
+  maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));
 
-  if (boost::math::pow<3>(maxWaveNumber) != Sim->lN)
+  if (boost::math::pow<3>(maxWaveNumber) != Sim->N)
     D_throw() << "Failed, N does not have an integer cube root!";
 
   I_cout() << "Max wavelength is "
@@ -66,7 +66,7 @@ OPSCParameter::ticker()
     {
       std::complex<Iflt> sum(0, 0);
 
-      BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+      BOOST_FOREACH(const Particle& part, Sim->particleList)
 	{
 	  Iflt psum(0);
 	  
@@ -86,16 +86,16 @@ OPSCParameter::output(xmlw::XmlStream& XML)
 {
   XML << xmlw::tag("SCParameter")
       << xmlw::attr("SCWaveNumber") 
-      << lrint(std::pow(Sim->lN, 1.0/3.0))
+      << lrint(std::pow(Sim->N, 1.0/3.0))
       << xmlw::attr("SCWaveNumberVal") 
-      << runningsum[lrint(std::pow(Sim->lN, 1.0/3.0))] 
-    / (static_cast<Iflt>(count) * Sim->lN) 
+      << runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
+    / (static_cast<Iflt>(count) * Sim->N) 
       << xmlw::chardata();
   
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
       XML << k * Sim->dynamics.units().unitLength() << " "
-	  << runningsum[k] / (static_cast<Iflt>(count) * Sim->lN) 
+	  << runningsum[k] / (static_cast<Iflt>(count) * Sim->N) 
 	  << "\n";
     }
 

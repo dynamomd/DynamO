@@ -47,7 +47,7 @@ OPMFL::operator<<(const XMLNode& XML)
 void
 OPMFL::initialise()
 {
-  lastTime.resize(Sim->lN, 0.0);
+  lastTime.resize(Sim->N, 0.0);
   data.resize(Sim->dynamics.getSpecies().size(), 
 	      C1DHistogram(Sim->dynamics.units().unitLength() * binwidth));
 }

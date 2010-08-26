@@ -60,7 +60,7 @@ protected:
 
   void addEventsInit(const Particle&);
 
-  void addGlobal(const Particle& p1, const smrtPlugPtr<Global>& glob, boost::mutex& sorterLock);
+  void addGlobal(const Particle& p1, const ClonePtr<Global>& glob, boost::mutex& sorterLock);
 
   ThreadPool _threadPool;
 

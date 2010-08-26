@@ -44,20 +44,20 @@ Dynamics::Dynamics(const XMLNode& XML, DYNAMO::SimData* tmp):
 
 Dynamics::~Dynamics() {}
 
-smrtPlugPtr<CTopology>& 
+ClonePtr<Topology>& 
 Dynamics::getTopology(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<CTopology>& sysPtr, topology)
+  BOOST_FOREACH(ClonePtr<Topology>& sysPtr, topology)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find the topology " << name;
 }
 
-const smrtPlugPtr<CTopology>& 
+const ClonePtr<Topology>& 
 Dynamics::getTopology(std::string name) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& sysPtr, topology)
+  BOOST_FOREACH(const ClonePtr<Topology>& sysPtr, topology)
     if (sysPtr->getName() == name)
       return sysPtr;
   
@@ -67,7 +67,7 @@ Dynamics::getTopology(std::string name) const
 const Species& 
 Dynamics::getSpecies(const Particle& p1) const 
 {
-  BOOST_FOREACH(const smrtPlugPtr<Species>& ptr, species)
+  BOOST_FOREACH(const ClonePtr<Species>& ptr, species)
     if (ptr->isSpecies(p1))
       return *ptr;
   
@@ -85,87 +85,87 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream& XML,
 const Species& 
 Dynamics::getSpecies(std::string name) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<Species>& ptr, species)
+  BOOST_FOREACH(const ClonePtr<Species>& ptr, species)
     if (ptr->getName() == name)
       return *ptr;
   
   D_throw() << "Could not find the " << name << " species"; 
 }
 
-smrtPlugPtr<CSystem>&
+ClonePtr<System>&
 Dynamics::getSystem(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<CSystem>& sysPtr, systems)
+  BOOST_FOREACH(ClonePtr<System>& sysPtr, systems)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find system plugin";
 }
 
-const smrtPlugPtr<CSystem>&
+const ClonePtr<System>&
 Dynamics::getSystem(std::string name) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<CSystem>& sysPtr, systems)
+  BOOST_FOREACH(const ClonePtr<System>& sysPtr, systems)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find system plugin";
 }
 
-smrtPlugPtr<Global>&
+ClonePtr<Global>&
 Dynamics::getGlobal(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<Global>& sysPtr, globals)
+  BOOST_FOREACH(ClonePtr<Global>& sysPtr, globals)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find global plugin";
 }
 
-const smrtPlugPtr<Global>&
+const ClonePtr<Global>&
 Dynamics::getGlobal(std::string name) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<Global>& sysPtr, globals)
+  BOOST_FOREACH(const ClonePtr<Global>& sysPtr, globals)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find global plugin";
 }
 
-smrtPlugPtr<Local>&
+ClonePtr<Local>&
 Dynamics::getLocal(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<Local>& sysPtr, locals)
+  BOOST_FOREACH(ClonePtr<Local>& sysPtr, locals)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find local plugin";
 }
 
-const smrtPlugPtr<Local>&
+const ClonePtr<Local>&
 Dynamics::getLocal(std::string name) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<Local>& sysPtr, locals)
+  BOOST_FOREACH(const ClonePtr<Local>& sysPtr, locals)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find local plugin";
 }
 
-smrtPlugPtr<Interaction>&
+ClonePtr<Interaction>&
 Dynamics::getInteraction(std::string name)
 {
-  BOOST_FOREACH(smrtPlugPtr<Interaction>& sysPtr, interactions)
+  BOOST_FOREACH(ClonePtr<Interaction>& sysPtr, interactions)
     if (sysPtr->getName() == name)
       return sysPtr;
   
   D_throw() << "Could not find interaction plugin";
 }
 
-const smrtPlugPtr<Interaction>&
+const ClonePtr<Interaction>&
 Dynamics::getInteraction(std::string name) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<Interaction>& sysPtr, interactions)
+  BOOST_FOREACH(const ClonePtr<Interaction>& sysPtr, interactions)
     if (sysPtr->getName() == name)
       return sysPtr;
   
@@ -173,14 +173,14 @@ Dynamics::getInteraction(std::string name) const
 }
 
 void 
-Dynamics::addSpecies(const smrtPlugPtr<Species>& CSpe)
+Dynamics::addSpecies(const ClonePtr<Species>& CSpe)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add species after simulation initialisation";
 
   species.push_back(CSpe);
 
-  BOOST_FOREACH(smrtPlugPtr<Interaction>& intPtr , interactions)
+  BOOST_FOREACH(ClonePtr<Interaction>& intPtr , interactions)
     {
       if (intPtr->isInteraction(*species.back()))
 	{
@@ -196,7 +196,7 @@ Dynamics::addGlobal(Global* newGlobal)
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add global events after simulation initialisation";
 
-  smrtPlugPtr<Global> 
+  ClonePtr<Global> 
     tempPlug(newGlobal);
   
   globals.push_back(tempPlug);
@@ -208,31 +208,31 @@ Dynamics::addLocal(Local* newLocal)
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add local events after simulation initialisation";
 
-  smrtPlugPtr<Local> 
+  ClonePtr<Local> 
     tempPlug(newLocal);
   
   locals.push_back(tempPlug);
 }
 
 void
-Dynamics::addSystem(CSystem* newSystem)
+Dynamics::addSystem(System* newSystem)
 {
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add system events at this time, system is initialised";
   
-  smrtPlugPtr<CSystem> 
+  ClonePtr<System> 
     tempPlug(newSystem);
   
   systems.push_back(tempPlug); 
 }
 
 void
-Dynamics::addStructure(CTopology* newSystem)
+Dynamics::addStructure(Topology* newSystem)
 { 
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add structure after simulation initialisation";
 
-  smrtPlugPtr<CTopology> 
+  ClonePtr<Topology> 
     tempPlug(newSystem);
   
   topology.push_back(tempPlug); 
@@ -244,7 +244,7 @@ Dynamics::addSystemTicker()
   if (Sim->status >= INITIALISED)
     D_throw() << "Cannot add the system ticker now";
 
-  BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
+  BOOST_FOREACH(ClonePtr<System>& ptr, systems)
     if (ptr->getName() == "SystemTicker")
       D_throw() << "System Ticker already exists";
   
@@ -254,7 +254,7 @@ Dynamics::addSystemTicker()
 Interaction* 
 Dynamics::addInteraction(Interaction* CInt)
 {
-  smrtPlugPtr<Interaction> tempPlug(CInt);
+  ClonePtr<Interaction> tempPlug(CInt);
   interactions.push_back(tempPlug);
   return interactions.back().get_ptr();
 }
@@ -262,14 +262,14 @@ Dynamics::addInteraction(Interaction* CInt)
 void 
 Dynamics::initialise()
 {
-  BOOST_FOREACH(smrtPlugPtr<Species>& ptr, species)
+  BOOST_FOREACH(ClonePtr<Species>& ptr, species)
     ptr->initialise();
   
   unsigned int count = 0;
   //Now confirm that every species has only one species type!
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
-      BOOST_FOREACH(smrtPlugPtr<Species>& ptr, species)
+      BOOST_FOREACH(ClonePtr<Species>& ptr, species)
 	if (ptr->isSpecies(part)) { count++; break; }
       
       if (count < 1)
@@ -283,49 +283,49 @@ Dynamics::initialise()
   //Now confirm that there are not more counts from each species than there are particles
   {
     unsigned long tot = 0;
-    BOOST_FOREACH(smrtPlugPtr<Species>& ptr, species)
+    BOOST_FOREACH(ClonePtr<Species>& ptr, species)
       tot += ptr->getCount();
     
-    if (tot < Sim->lN)
+    if (tot < Sim->N)
       D_throw() << "The particle count according to the species definition is too low\n"
-		<< "discrepancy = " << tot - Sim->lN
-		<< "\nN = " << Sim->lN;
+		<< "discrepancy = " << tot - Sim->N
+		<< "\nN = " << Sim->N;
     
-    if (tot > Sim->lN)
+    if (tot > Sim->N)
       D_throw() << "The particle count according to the species definition is too high\n"
-		<< "discrepancy = " << tot - Sim->lN
-		<< "\nN = " << Sim->lN;
+		<< "discrepancy = " << tot - Sim->N
+		<< "\nN = " << Sim->N;
  }
 
   p_liouvillean->initialise();
 
   size_t ID=0;
 
-  BOOST_FOREACH(smrtPlugPtr<Interaction>& ptr, interactions)
+  BOOST_FOREACH(ClonePtr<Interaction>& ptr, interactions)
     ptr->initialise(ID++);
 
   ID=0;
 
   //Must be initialised before globals. Neighbour lists are
   //implemented as globals and must initialise where locals are and their ID.
-  BOOST_FOREACH(smrtPlugPtr<Local>& ptr, locals)
+  BOOST_FOREACH(ClonePtr<Local>& ptr, locals)
     ptr->initialise(ID++);
 
   ID=0;
 
-  BOOST_FOREACH(smrtPlugPtr<Global>& ptr, globals)
+  BOOST_FOREACH(ClonePtr<Global>& ptr, globals)
     ptr->initialise(ID++);
 
   ID=0;
 
-  BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
+  BOOST_FOREACH(ClonePtr<System>& ptr, systems)
     ptr->initialise(ID++);
 }
 
-const smrtPlugPtr<Interaction>&
+const ClonePtr<Interaction>&
 Dynamics::getInteraction(const Particle& p1, const Particle& p2) const 
 {
-  BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, interactions)
+  BOOST_FOREACH(const ClonePtr<Interaction>& ptr, interactions)
     if (ptr->isInteraction(p1,p2))
       return ptr;
   
@@ -345,7 +345,7 @@ Dynamics::stream(const Iflt& dt)
 
   p_liouvillean->stream(dt);
 
-  BOOST_FOREACH(smrtPlugPtr<CSystem>& ptr, systems)
+  BOOST_FOREACH(ClonePtr<System>& ptr, systems)
     ptr->stream(dt);
 }
 
@@ -355,7 +355,7 @@ Dynamics::calcInternalEnergy() const
 {
   Iflt intECurrent = 0.0;
 
-  BOOST_FOREACH(const smrtPlugPtr<Interaction> & plugptr, 
+  BOOST_FOREACH(const ClonePtr<Interaction> & plugptr, 
 		Sim->dynamics.getInteractions())
     intECurrent += plugptr->getInternalEnergy();
 
@@ -365,7 +365,7 @@ Dynamics::calcInternalEnergy() const
 Iflt 
 Dynamics::getNumberDensity() const
 {
-  return Sim->lN / Sim->dynamics.units().simVolume();
+  return Sim->N / Sim->dynamics.units().simVolume();
 }
 
 Iflt 
@@ -373,7 +373,7 @@ Dynamics::getPackingFraction() const
 {
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   return  PI * volume / (6 * (Sim->dynamics.units().simVolume()));
@@ -387,7 +387,7 @@ Dynamics::setCOMVelocity(const Vector COMVelocity)
   lIflt sumMass(0);
 
   //Determine the discrepancy VECTOR
-  BOOST_FOREACH(Particle & Part, Sim->vParticleList)
+  BOOST_FOREACH(Particle & Part, Sim->particleList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       BCs().applyBC(pos,vel);
@@ -401,7 +401,7 @@ Dynamics::setCOMVelocity(const Vector COMVelocity)
   
   sumMV += COMVelocity;
 
-  BOOST_FOREACH(Particle & Part, Sim->vParticleList)
+  BOOST_FOREACH(Particle & Part, Sim->particleList)
     Part.getVelocity() =  Part.getVelocity() + sumMV;
 }
 
@@ -431,14 +431,14 @@ Dynamics::operator<<(const XMLNode& XML)
       xSubNode = xDynamics.getChildNode("Topology");  
       for (long i=0; i < xSubNode.nChildNode("Structure"); i++)
 	{
-	  smrtPlugPtr<CTopology> tempPlug(CTopology::loadClass(xSubNode.getChildNode("Structure",i),Sim,i));
+	  ClonePtr<Topology> tempPlug(Topology::loadClass(xSubNode.getChildNode("Structure",i),Sim,i));
 	  topology.push_back(tempPlug);
 	}
     }
   
   xSubNode = xDynamics.getChildNode("Genus");  
   for (long i=0; i < xSubNode.nChildNode("Species"); i++)
-    species.push_back(smrtPlugPtr<Species>
+    species.push_back(ClonePtr<Species>
 		      (Species::getClass(xSubNode.getChildNode("Species",i),Sim,i)));
   
   xSubNode = xDynamics.getChildNode("Liouvillean");
@@ -447,15 +447,15 @@ Dynamics::operator<<(const XMLNode& XML)
   xSubNode = xDynamics.getChildNode("Interactions");
   for (long i=0; i < xSubNode.nChildNode("Interaction"); i++)
     {
-      smrtPlugPtr<Interaction> tempPlug(Interaction::getClass
+      ClonePtr<Interaction> tempPlug(Interaction::getClass
 					 (xSubNode.getChildNode("Interaction",
 								i),Sim));
       interactions.push_back(tempPlug);
     }  
   
   //Link the species and interactions
-  BOOST_FOREACH(smrtPlugPtr<Species>& sp , species)
-    BOOST_FOREACH(smrtPlugPtr<Interaction>& intPtr , interactions)
+  BOOST_FOREACH(ClonePtr<Species>& sp , species)
+    BOOST_FOREACH(ClonePtr<Interaction>& intPtr , interactions)
     if (intPtr->isInteraction(*sp))
       {
 	sp->setIntPtr(intPtr.get_ptr());
@@ -467,7 +467,7 @@ Dynamics::operator<<(const XMLNode& XML)
       xSubNode = xDynamics.getChildNode("Globals");  
       for (long i = 0; i < xSubNode.nChildNode("Global"); ++i)
 	{
-	  smrtPlugPtr<Global> 
+	  ClonePtr<Global> 
 	    tempPlug(Global::getClass(xSubNode.getChildNode("Global", i), Sim));
 	  
 	  globals.push_back(tempPlug);
@@ -480,7 +480,7 @@ Dynamics::operator<<(const XMLNode& XML)
       
       for (long i = 0; i < xSubNode.nChildNode("Local"); ++i)
 	{
-	  smrtPlugPtr<Local> 
+	  ClonePtr<Local> 
 	    tempPlug(Local::getClass(xSubNode.getChildNode("Local", i), Sim));
 	  
 	  locals.push_back(tempPlug);
@@ -493,8 +493,8 @@ Dynamics::operator<<(const XMLNode& XML)
       
       for (long i=0; i < xSubNode.nChildNode("System"); i++)
 	{
-	  smrtPlugPtr<CSystem> 
-	    tempPlug(CSystem::getClass(xSubNode.getChildNode("System",i),Sim));
+	  ClonePtr<System> 
+	    tempPlug(System::getClass(xSubNode.getChildNode("System",i),Sim));
 	  
 	  systems.push_back(tempPlug);
 	}
@@ -516,7 +516,7 @@ Dynamics::outputXML(xmlw::XmlStream &XML) const
       << xmlw::endtag("BC")
       << xmlw::tag("Genus");
   
-  BOOST_FOREACH(const smrtPlugPtr<Species>& ptr, species)
+  BOOST_FOREACH(const ClonePtr<Species>& ptr, species)
     XML << xmlw::tag("Species")
 	<< ptr
 	<< xmlw::endtag("Species");
@@ -524,7 +524,7 @@ Dynamics::outputXML(xmlw::XmlStream &XML) const
   XML << xmlw::endtag("Genus")
       << xmlw::tag("Topology");
   
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& ptr, topology)
+  BOOST_FOREACH(const ClonePtr<Topology>& ptr, topology)
     XML << xmlw::tag("Structure")
 	<< ptr
 	<< xmlw::endtag("Structure");
@@ -532,13 +532,13 @@ Dynamics::outputXML(xmlw::XmlStream &XML) const
   XML << xmlw::endtag("Topology")
       << xmlw::tag("SystemEvents");
   
-  BOOST_FOREACH(const smrtPlugPtr<CSystem>& ptr, systems)
+  BOOST_FOREACH(const ClonePtr<System>& ptr, systems)
     XML << ptr;
   
   XML << xmlw::endtag("SystemEvents")
       << xmlw::tag("Globals");
   
-  BOOST_FOREACH(const smrtPlugPtr<Global>& ptr, globals)
+  BOOST_FOREACH(const ClonePtr<Global>& ptr, globals)
     XML << xmlw::tag("Global")
 	<< ptr
 	<< xmlw::endtag("Global");
@@ -546,7 +546,7 @@ Dynamics::outputXML(xmlw::XmlStream &XML) const
   XML << xmlw::endtag("Globals")
       << xmlw::tag("Locals");
   
-  BOOST_FOREACH(const smrtPlugPtr<Local>& ptr, locals)
+  BOOST_FOREACH(const ClonePtr<Local>& ptr, locals)
     XML << xmlw::tag("Local")
 	<< ptr
 	<< xmlw::endtag("Local");
@@ -554,7 +554,7 @@ Dynamics::outputXML(xmlw::XmlStream &XML) const
   XML << xmlw::endtag("Locals")
       << xmlw::tag("Interactions");
   
-  BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, interactions)
+  BOOST_FOREACH(const ClonePtr<Interaction>& ptr, interactions)
     XML << xmlw::tag("Interaction")
 	<< ptr
 	<< xmlw::endtag("Interaction");
@@ -571,7 +571,7 @@ Dynamics::getLongestInteraction() const
 {
   Iflt maxval = 0.0;
 
-  BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, interactions)
+  BOOST_FOREACH(const ClonePtr<Interaction>& ptr, interactions)
     if (ptr->maxIntDist() > maxval)
       maxval = ptr->maxIntDist();
 
@@ -581,7 +581,7 @@ Dynamics::getLongestInteraction() const
 void 
 Dynamics::rescaleLengths(Iflt val)
 {
-  BOOST_FOREACH(smrtPlugPtr<Interaction>& ptr, interactions)
+  BOOST_FOREACH(ClonePtr<Interaction>& ptr, interactions)
     ptr->rescaleLengths(val);
 
   p_units->rescaleLength(val);
@@ -594,12 +594,12 @@ Dynamics::SystemOverlapTest()
 
   std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
-  for (iPtr1 = Sim->vParticleList.begin(); iPtr1 != Sim->vParticleList.end(); ++iPtr1)
-    for (iPtr2 = iPtr1 + 1; iPtr2 != Sim->vParticleList.end(); ++iPtr2)    
+  for (iPtr1 = Sim->particleList.begin(); iPtr1 != Sim->particleList.end(); ++iPtr1)
+    for (iPtr2 = iPtr1 + 1; iPtr2 != Sim->particleList.end(); ++iPtr2)    
       getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
-    BOOST_FOREACH(const smrtPlugPtr<Local>& lcl, locals)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const ClonePtr<Local>& lcl, locals)
     if (lcl->isInteraction(part))
       lcl->checkOverlaps(part);
     

@@ -39,8 +39,8 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  smrtPlugPtr<CRange> range1;
-  smrtPlugPtr<CRange> range2;
+  ClonePtr<CRange> range1;
+  ClonePtr<CRange> range2;
 };
 
 #endif

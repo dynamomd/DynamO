@@ -26,14 +26,14 @@
 #include "../ranges/1range.hpp"
 #include "../../datatypes/pluginpointer.hpp"
 
-class CSUmbrella: public CSystem
+class CSUmbrella: public System
 {
 public:
   CSUmbrella(const XMLNode& XML, DYNAMO::SimData*);
 
   CSUmbrella(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::string, CRange*, CRange*);
   
-  virtual CSystem* Clone() const { return new CSUmbrella(*this); }
+  virtual System* Clone() const { return new CSUmbrella(*this); }
 
   virtual void runEvent() const;
 
@@ -53,8 +53,8 @@ protected:
   mutable int ulevel;
   bool ulevelset;
 
-  smrtPlugPtr<CRange> range1;
-  smrtPlugPtr<CRange> range2;
+  ClonePtr<CRange> range1;
+  ClonePtr<CRange> range2;
 };
 
 #endif

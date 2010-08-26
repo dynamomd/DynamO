@@ -87,7 +87,7 @@ OPCubeComp::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void
-OPCubeComp::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
+OPCubeComp::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
 {
   BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {

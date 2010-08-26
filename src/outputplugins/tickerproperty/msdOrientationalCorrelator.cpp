@@ -63,7 +63,7 @@ OPMSDOrientationalCorrelator::initialise()
 
   I_cout() << "The length of the MSD orientational correlator is " << length;
 
-  historicalData.resize(Sim->lN, boost::circular_buffer<RUpair>(length));
+  historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
 
   stepped_data_parallel.resize(length, Iflt(0.0));
   stepped_data_perpendicular.resize(length, Iflt(0.0));
@@ -78,7 +78,7 @@ OPMSDOrientationalCorrelator::initialise()
 
   const std::vector<LNOrientation::rotData>& initial_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
   {
     historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation));
   }
@@ -88,7 +88,7 @@ void
 OPMSDOrientationalCorrelator::ticker()
 {
   const std::vector<LNOrientation::rotData>& current_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
   {
     historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));
   }
@@ -114,7 +114,7 @@ OPMSDOrientationalCorrelator::accPass()
   Iflt longitudinal_projection(0.0), cos_theta(0.0);
   Vector displacement_term(0,0,0);
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
   {
     for (size_t step(1); step < length; ++step)
     {
@@ -146,7 +146,7 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_parallel[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->lN) * Sim->dynamics.units().unitArea())
+	<< stepped_data_parallel[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N) * Sim->dynamics.units().unitArea())
 	<< "\n";
   }
 
@@ -159,7 +159,7 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_perpendicular[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->lN) * Sim->dynamics.units().unitArea())
+	<< stepped_data_perpendicular[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N) * Sim->dynamics.units().unitArea())
 	<< "\n";
   }
 
@@ -175,7 +175,7 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_rotational_legendre1[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->lN))
+	<< stepped_data_rotational_legendre1[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N))
 	<< "\n";
   }
 
@@ -188,7 +188,7 @@ OPMSDOrientationalCorrelator::output(xmlw::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_rotational_legendre2[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->lN))
+	<< stepped_data_rotational_legendre2[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N))
 	<< "\n";
   }
 

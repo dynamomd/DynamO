@@ -47,9 +47,9 @@ OPMisc::initialise()
 
   Vector  VecEnergy(Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy());
 
-  VecEnergy *= 2.0 / (Sim->lN * Sim->dynamics.units().unitEnergy());
+  VecEnergy *= 2.0 / (Sim->N * Sim->dynamics.units().unitEnergy());
 
-  I_cout() << "Particle Count " << Sim->lN
+  I_cout() << "Particle Count " << Sim->N
 	   << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
 	   << "\nSim Unit Time " << Sim->dynamics.units().unitTime()
 	   << "\nDensity " << Sim->dynamics.getNumberDensity()
@@ -70,7 +70,7 @@ OPMisc::initialise()
   Vector  sumMV (0,0,0);
 
   //Determine the discrepancy VECTOR
-  BOOST_FOREACH( const Particle & Part, Sim->vParticleList)
+  BOOST_FOREACH( const Particle & Part, Sim->particleList)
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       Sim->dynamics.BCs().applyBC(pos, vel);
@@ -118,7 +118,7 @@ OPMisc::eventUpdate(const LocalEvent&, const NEventData& NDat)
 }
 
 void
-OPMisc::eventUpdate(const CSystem&, const NEventData& NDat,
+OPMisc::eventUpdate(const System&, const NEventData& NDat,
 		     const Iflt&)
 {
   dualEvents += NDat.L2partChanges.size();
@@ -128,7 +128,7 @@ OPMisc::eventUpdate(const CSystem&, const NEventData& NDat,
 Iflt
 OPMisc::getMFT() const
 {
-  return Sim->dSysTime * static_cast<Iflt>(Sim->lN)
+  return Sim->dSysTime * static_cast<Iflt>(Sim->N)
     /(Sim->dynamics.units().unitTime()
       * ((2.0 * static_cast<Iflt>(dualEvents))
 	 + static_cast<Iflt>(singleEvents)));
@@ -153,11 +153,11 @@ OPMisc::output(xmlw::XmlStream &XML)
   timespec acc_tendTime;
   clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
 
-  Iflt collpersec = static_cast<Iflt>(Sim->lNColl)
+  Iflt collpersec = static_cast<Iflt>(Sim->eventCount)
     / (Iflt(acc_tendTime.tv_sec) + 1e-9 * Iflt(acc_tendTime.tv_nsec)
        - Iflt(acc_tstartTime.tv_sec) - 1e-9 * Iflt(acc_tstartTime.tv_nsec));
 #else
-  Iflt collpersec = static_cast<Iflt>(Sim->lNColl) / (Iflt(tendTime) - Iflt(tstartTime));
+  Iflt collpersec = static_cast<Iflt>(Sim->eventCount) / (Iflt(tendTime) - Iflt(tstartTime));
 #endif
 
   long int maxmemusage;
@@ -169,7 +169,7 @@ OPMisc::output(xmlw::XmlStream &XML)
   }
 
   I_cout() << "Ended on " << eTime
-	   << "\nTotal Collisions Executed " << Sim->lNColl
+	   << "\nTotal Collisions Executed " << Sim->eventCount
 #ifndef DYNAMO_CONDOR
 	   << "\nAvg Coll/s " << collpersec
 #else
@@ -196,11 +196,11 @@ OPMisc::output(xmlw::XmlStream &XML)
       << xmlw::endtag("SpeciesCount")
 
       << xmlw::tag("ParticleCount")
-      << xmlw::attr("val") << Sim->lN
+      << xmlw::attr("val") << Sim->N
       << xmlw::endtag("ParticleCount")
 
       << xmlw::tag("SimLength")
-      << xmlw::attr("Collisions") << Sim->lNColl
+      << xmlw::attr("Collisions") << Sim->eventCount
       << xmlw::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
       << xmlw::endtag("SimLength")
 
@@ -243,7 +243,7 @@ OPMisc::output(xmlw::XmlStream &XML)
   XML << xmlw::endtag("SystemBoxLength");
 
   // Output scalar moment of inertia for any species which may have it
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
   {
     if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
     {
@@ -258,7 +258,7 @@ OPMisc::output(xmlw::XmlStream &XML)
   Vector  sumMV (0,0,0);
 
   //Determine the discrepancy VECTOR
-  BOOST_FOREACH( const Particle & Part, Sim->vParticleList)
+  BOOST_FOREACH( const Particle & Part, Sim->particleList)
     sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
 
   XML << xmlw::tag("Total_momentum")
@@ -290,16 +290,16 @@ OPMisc::periodicOutput()
   char dateString[12] = "";
   strftime(dateString, 12, "%a %H:%M |", &timeInfo);
 
-  I_Pcout() << dateString << " NColls " << (Sim->lNColl+1)/1000 << "k, t "
+  I_Pcout() << dateString << " NColls " << (Sim->eventCount+1)/1000 << "k, t "
 	    << Sim->dSysTime/Sim->dynamics.units().unitTime() << ", <t_2> "
-	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
+	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->N)
     /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
 	    << ", <t_tot> "
-	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->lN)
+	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->N)
     / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents)
 					   + static_cast<Iflt>(singleEvents)))
 	    << ", ";
 
   oldSysTime = Sim->dSysTime;
-  oldcoll = Sim->lNColl;
+  oldcoll = Sim->eventCount;
 }

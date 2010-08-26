@@ -74,7 +74,7 @@ public:
   
   virtual void initialise() 
   {
-    streamFreq = 10 * Sim->lN;
+    streamFreq = 10 * Sim->N;
   }
 
   /*! \brief Parses the XML data to see if it can load XML particle
@@ -603,7 +603,7 @@ public:
   {
     //May as well take this opportunity to reset the streaming
     //Note: the Replexing coordinator RELIES on this behaviour!
-    BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	streamParticle(const_cast<Particle&>(part), 
 		       part.getPecTime() + partPecTime);
@@ -666,7 +666,7 @@ public:
     //Keep the magnitude of the partPecTime boundedx
     if (++streamCount == streamFreq)
       {
-	BOOST_FOREACH(Particle& part, Sim->vParticleList)
+	BOOST_FOREACH(Particle& part, Sim->particleList)
 	  part.getPecTime() += partPecTime;
 
 	partPecTime = 0;

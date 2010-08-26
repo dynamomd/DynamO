@@ -31,7 +31,7 @@ namespace DYNAMO
 
 class Interaction;
 class GlobalEvent;
-class CSystem;
+class System;
 class LocalEvent;
 class IntEvent;
 
@@ -44,7 +44,7 @@ namespace EventTypeTracking {
 
   classKey getClassKey(const IntEvent&);
 
-  classKey getClassKey(const CSystem&);
+  classKey getClassKey(const System&);
 
   classKey getClassKey(const GlobalEvent&);
 

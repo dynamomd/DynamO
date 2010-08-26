@@ -129,17 +129,17 @@ CIPConfig::initialise()
 
   I_cout() << "Loading Ensemble";
   if (xSubNode.nChildNode("Ensemble"))
-    Sim->Ensemble.reset
+    Sim->ensemble.reset
       (DYNAMO::CEnsemble::getClass(xSubNode.getChildNode("Ensemble"), Sim));
   else
     //Try and determine the Ensemble
     try {
       Sim->dynamics.getSystem("Thermostat");
-      Sim->Ensemble.reset(new DYNAMO::CENVT(Sim));
+      Sim->ensemble.reset(new DYNAMO::CENVT(Sim));
     }
     catch (std::exception&)
       {
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
       }
 
   I_cout() << "Loading Particle data";

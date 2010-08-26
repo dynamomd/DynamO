@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifndef CTopology_H
-#define CTopology_H
+#pragma once
 
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../base/is_base.hpp"
@@ -32,10 +30,10 @@ namespace xmlw
 class Particle;
 class Interaction;
 
-class CTopology:public DYNAMO::SimBase_const
+class Topology:public DYNAMO::SimBase_const
 {
 public:  
-  virtual ~CTopology() {}
+  virtual ~Topology() {}
 
   bool isInStructure(const Particle &) const;
   
@@ -45,33 +43,31 @@ public:
 
   virtual void initialise() {}
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CTopology&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Topology&);
   
   const std::string& getName() const
   { return spName; }
   
-  static CTopology* loadClass(const XMLNode& ,DYNAMO::SimData*, size_t);
+  static Topology* loadClass(const XMLNode& ,DYNAMO::SimData*, size_t);
 
-  virtual CTopology* Clone() const = 0; //{ return new CTopology(this); }
+  virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
 
   inline void addMolecule(CRange* ptr)
-  { ranges.push_back(smrtPlugPtr<CRange>(ptr)); }
+  { ranges.push_back(ClonePtr<CRange>(ptr)); }
 
-  inline const std::list<smrtPlugPtr<CRange> >& getMolecules() const
+  inline const std::list<ClonePtr<CRange> >& getMolecules() const
   { return ranges; }
 
   inline size_t getMoleculeCount() const { return ranges.size(); }
 
 protected:
-  CTopology(DYNAMO::SimData*, size_t ID);
+  Topology(DYNAMO::SimData*, size_t ID);
 
   virtual void outputXML(xmlw::XmlStream&) const;
   
-  std::list<smrtPlugPtr<CRange> > ranges;
+  std::list<ClonePtr<CRange> > ranges;
   
   std::string spName;
   
   size_t ID;
 };
-
-#endif

@@ -47,11 +47,11 @@ void
 OP3DField::collisionUpdate(const IntEvent &collision, 
 			    const CIntEventData &preColl)
 {
-  if (!(Sim->lNColl % 100))
+  if (!(Sim->eventCount % 100))
     {
       imageCounter++;
 
-      BOOST_FOREACH( const Particle & Part, Sim->vParticleList)
+      BOOST_FOREACH( const Particle & Part, Sim->particleList)
 	{
 	  Vector  position = Part.getPosition();
 
@@ -78,7 +78,7 @@ OP3DField::output(xmlw::XmlStream &XML)
   vtkImageData* image = Density.getVTKImage();
 
   //Add the density
-  image->GetPointData()->AddArray(Density.getVTKField("Density", Sim->vParticleList.size() * imageCounter / (NBins * NBins * NBins * getNumberDensity())));
+  image->GetPointData()->AddArray(Density.getVTKField("Density", Sim->particleList.size() * imageCounter / (NBins * NBins * NBins * getNumberDensity())));
 
   //Add the sample counts for each cell
   image->GetPointData()->AddArray(SampleCounter.getVTKField("Samples per Cell"));

@@ -87,13 +87,13 @@ OPRadialDistribution::ticker()
 {
   ++sampleCount;
   
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp1, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const smrtPlugPtr<Species>& sp2, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
     { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
 	BOOST_FOREACH(const size_t& p2, *sp2->getRange())
 	{
-	  Vector  rij = Sim->vParticleList[p1].getPosition()
-	    - Sim->vParticleList[p2].getPosition();
+	  Vector  rij = Sim->particleList[p1].getPosition()
+	    - Sim->particleList[p2].getPosition();
 
 	  Sim->dynamics.BCs().applyBC(rij);
 
@@ -112,8 +112,8 @@ OPRadialDistribution::output(xmlw::XmlStream& XML)
       << sampleCount;
 
   
-  BOOST_FOREACH(const smrtPlugPtr<Species>& sp1, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const smrtPlugPtr<Species>& sp2, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
     {
       Iflt density = sp2->getCount() / Sim->dynamics.units().simVolume();
 

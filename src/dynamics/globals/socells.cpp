@@ -152,7 +152,7 @@ CGSOCells::runEvent(const Particle& part) const
   //Now we're past the event update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 
 }
@@ -162,11 +162,11 @@ CGSOCells::initialise(size_t nID)
 {
   ID=nID;
   
-  cuberootN = (unsigned long)(std::pow(Sim->lN, 1.0/3.0) + 0.5);
+  cuberootN = (unsigned long)(std::pow(Sim->N, 1.0/3.0) + 0.5);
   
-  if (boost::math::pow<3>(cuberootN) != Sim->lN)
+  if (boost::math::pow<3>(cuberootN) != Sim->N)
     D_throw() << "Cannot use single occupancy cells without a integer cube root of N"
-	      << "\nN = " << Sim->lN
+	      << "\nN = " << Sim->N
 	      << "\nN^(1/3) = " << cuberootN;
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)

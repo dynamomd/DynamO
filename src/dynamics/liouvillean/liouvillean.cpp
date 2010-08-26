@@ -125,7 +125,7 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  vel *= Sim->dynamics.units().unitVelocity();
 	  pos *= Sim->dynamics.units().unitLength();
 	  
-	  Sim->vParticleList.push_back(Particle(pos, vel, ID));
+	  Sim->particleList.push_back(Particle(pos, vel, ID));
 
 	  ++prog;
 	}
@@ -152,7 +152,7 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  Particle part(xBrowseNode, i);
 	  part.scaleVelocity(Sim->dynamics.units().unitVelocity());
 	  part.scalePosition(Sim->dynamics.units().unitLength());
-	  Sim->vParticleList.push_back(part);
+	  Sim->particleList.push_back(part);
 	  ++prog;
 	}
       if (outofsequence)
@@ -161,9 +161,9 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 		 << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
 		 << IC_reset;            
     }
-  Sim->lN = Sim->vParticleList.size();
+  Sim->N = Sim->particleList.size();
 
-  I_cout() << "Particle count " << Sim->lN;
+  I_cout() << "Particle count " << Sim->N;
 }
 
 void 
@@ -172,7 +172,7 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
   if (Sim->binaryXML)
     {
       XML << xmlw::tag("ParticleData")
-	  << xmlw::attr("N") << Sim->lN
+	  << xmlw::attr("N") << Sim->N
 	  << xmlw::attr("AttachedBinary") << "Y"
 	  << xmlw::endtag("ParticleData")
 	  << xmlw::tag("AppendedBinaryVelPos")
@@ -184,9 +184,9 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
 	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
 	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
 	
-	boost::progress_display prog(Sim->lN);
+	boost::progress_display prog(Sim->N);
 	
-	BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+	BOOST_FOREACH(const Particle& part, Sim->particleList)
 	  {
 	    Particle tmp(part);
 	    Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
@@ -211,16 +211,16 @@ Liouvillean::outputParticleXMLData(xmlw::XmlStream& XML) const
   else
     {
       XML << xmlw::tag("ParticleData")
-	  << xmlw::attr("N") << Sim->lN
+	  << xmlw::attr("N") << Sim->N
 	  << xmlw::attr("AttachedBinary") << ("N");
 
       I_cout() << "Writing Particles ";
       
-      boost::progress_display prog(Sim->lN);
+      boost::progress_display prog(Sim->N);
       
-      for (unsigned long i = 0; i < Sim->lN; ++i)
+      for (unsigned long i = 0; i < Sim->N; ++i)
 	{
-	  Particle tmp(Sim->vParticleList[i]);
+	  Particle tmp(Sim->particleList[i]);
 	  Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
 	  
 	  tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
@@ -263,7 +263,7 @@ Liouvillean::getSystemKineticEnergy() const
 {
   Iflt sumEnergy(0);
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     sumEnergy += getParticleKineticEnergy(part);
 
   return sumEnergy;
@@ -274,7 +274,7 @@ Liouvillean::getVectorSystemKineticEnergy() const
 {
   Vector  sumEnergy(0,0,0);
 
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     sumEnergy += getVectorParticleKineticEnergy(part);
 
   return sumEnergy;
@@ -283,7 +283,7 @@ Liouvillean::getVectorSystemKineticEnergy() const
 Iflt 
 Liouvillean::getkT() const
 {
-  return 2.0 * getSystemKineticEnergy() / (Sim->vParticleList.size() * static_cast<Iflt>(this->getParticleDOF()));
+  return 2.0 * getSystemKineticEnergy() / (Sim->particleList.size() * static_cast<Iflt>(this->getParticleDOF()));
 }
 
 void
@@ -291,14 +291,14 @@ Liouvillean::rescaleSystemKineticEnergy(const Iflt& scale)
 {
   Iflt scalefactor(sqrt(scale));
 
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getVelocity() *= scalefactor;
 }
 
 void
 Liouvillean::rescaleSystemKineticEnergy(const Vector& scalefactors)
 {
-  BOOST_FOREACH(Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(Particle& part, Sim->particleList)
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       part.getVelocity()[iDim] *= scalefactors[iDim];
 }

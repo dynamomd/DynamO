@@ -22,7 +22,7 @@
 #include "../units/units.hpp"
 
 CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
-  CSystem(nSim),
+  System(nSim),
   periodt(ndt * nSim->dynamics.units().unitTime())
 {
   dt = ndt * Sim->dynamics.units().unitTime();

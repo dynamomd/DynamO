@@ -151,7 +151,7 @@ ILines::runEvent(const Particle& p1,
     {
     case CORE:
       {
-	++Sim->lNColl;
+	++Sim->eventCount;
 	//We have a line interaction! Run it
 	PairEventData retval(Sim->dynamics.getLiouvillean().runLineLineCollision
 			      (iEvent, e, length));
@@ -160,7 +160,7 @@ ILines::runEvent(const Particle& p1,
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(smrtPlugPtr<OutputPlugin> & Ptr, 
+	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, 
 		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
 
@@ -234,7 +234,7 @@ ILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {
-      const Particle& part(Sim->vParticleList[pid]);
+      const Particle& part(Sim->particleList[pid]);
 
       const LNOrientation::rotData& 
 	rdat(static_cast<const LNOrientation&>

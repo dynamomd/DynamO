@@ -33,7 +33,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp): 
-  CSystem(tmp),
+  System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   meanFreeTime(100000),
   Temp(Sim->dynamics.units().unitEnergy()),
@@ -52,7 +52,7 @@ CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp):
 
 CSysGhost::CSysGhost(DYNAMO::SimData* nSim, Iflt mft, Iflt t, 
 		     std::string nName):
-  CSystem(nSim),
+  System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
   meanFreeTime(mft),
   Temp(t),
@@ -70,15 +70,15 @@ CSysGhost::CSysGhost(DYNAMO::SimData* nSim, Iflt mft, Iflt t,
 void 
 CSysGhost::runEvent() const
 {
-  ++Sim->lNColl;
+  ++Sim->eventCount;
   ++eventCount;
 
   if (tune && (eventCount > setFrequency))
     {
       meanFreeTime *= static_cast<Iflt>(eventCount)
-	/ ((Sim->lNColl - lastlNColl) * setPoint);
+	/ ((Sim->eventCount - lastlNColl) * setPoint);
 
-      lastlNColl = Sim->lNColl;
+      lastlNColl = Sim->eventCount;
       eventCount = 0;
     }
 
@@ -105,7 +105,7 @@ CSysGhost::runEvent() const
     (Sim->ranGenerator, 
      boost::uniform_int<unsigned int>(0, range->size() - 1))();
 
-  const Particle& part(Sim->vParticleList[*(range->begin()+step)]);
+  const Particle& part(Sim->particleList[*(range->begin()+step)]);
 
   //Run the collision and catch the data
   NEventData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent
@@ -115,7 +115,7 @@ CSysGhost::runEvent() const
 
   Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt);
 
 }
@@ -124,7 +124,7 @@ void
 CSysGhost::initialise(size_t nID)
 {
   ID = nID;
-  meanFreeTime /= Sim->lN;
+  meanFreeTime /= Sim->N;
   dt = getGhostt();
   sqrtTemp = sqrt(Temp);
 }
@@ -169,7 +169,7 @@ CSysGhost::outputXML(xmlw::XmlStream& XML) const
       << xmlw::attr("Type") << "Andersen"
       << xmlw::attr("Name") << sysName
       << xmlw::attr("MFT") << meanFreeTime
-    * Sim->lN
+    * Sim->N
     / Sim->dynamics.units().unitTime()
       << xmlw::attr("Temperature") << Temp 
     / Sim->dynamics.units().unitEnergy();

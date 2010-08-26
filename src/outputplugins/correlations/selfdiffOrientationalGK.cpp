@@ -44,7 +44,7 @@ OPSelfDiffusionOrientationalGK::initialise()
     D_throw() << "Species does not specify an orientation";
   }
 
-  G.resize(Sim->lN, boost::circular_buffer<VUpair> (CorrelatorLength, VUpair(Vector(0,0,0), Vector(0,0,0) )));
+  G.resize(Sim->N, boost::circular_buffer<VUpair> (CorrelatorLength, VUpair(Vector(0,0,0), Vector(0,0,0) )));
 
   accG2_parallel.resize(Sim->dynamics.getSpecies().size());
   accG2_perp.resize(Sim->dynamics.getSpecies().size());
@@ -119,7 +119,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const LocalEvent& iEvent, const NEve
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt)
+OPSelfDiffusionOrientationalGK::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt)
 {
   //Move the time forward
   currentdt += edt;
@@ -154,14 +154,14 @@ OPSelfDiffusionOrientationalGK::newG(const ParticleEventData& PDat)
     Sim->dynamics.getLiouvillean().updateAllParticles();
   }
 
-  for (size_t i = 0; i < Sim->lN; ++i)
+  for (size_t i = 0; i < Sim->N; ++i)
   {
-    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
-    G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
+    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[i]));
+    G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
   }
 
   //Now correct the fact that the wrong velocity and orientation have been pushed
-  const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.getParticle().getID()]));
+  const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[PDat.getParticle().getID()]));
   G[PDat.getParticle().getID()].front() = VUpair(PDat.getOldVel(), fetchpart.orientation);
 
   //This ensures the list gets to accumilator size
@@ -181,15 +181,15 @@ OPSelfDiffusionOrientationalGK::newG(const ParticleEventData& PDat)
 void
 OPSelfDiffusionOrientationalGK::newG(const PairEventData& PDat)
 {
-  for (size_t i = 0; i < Sim->lN; ++i)
+  for (size_t i = 0; i < Sim->N; ++i)
   {
-    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
-    G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
+    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[i]));
+    G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
   }
 
   //Now correct the fact that the wrong velocities and orientations have been pushed
-  const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.particle1_.getParticle().getID()]));
-  const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat.particle2_.getParticle().getID()]));
+  const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[PDat.particle1_.getParticle().getID()]));
+  const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[PDat.particle2_.getParticle().getID()]));
 
   G[PDat.particle1_.getParticle().getID()].front() = VUpair(PDat.particle1_.getOldVel(), fetch1.orientation);
   G[PDat.particle2_.getParticle().getID()].front() = VUpair(PDat.particle2_.getOldVel(), fetch2.orientation);
@@ -212,23 +212,23 @@ void
 OPSelfDiffusionOrientationalGK::newG(const NEventData& PDat)
 {
   //This ensures the list stays at accumilator size
-  for (size_t i = 0; i < Sim->lN; ++i)
+  for (size_t i = 0; i < Sim->N; ++i)
   {
-    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[i]));
-    G[i].push_front(VUpair(Sim->vParticleList[i].getVelocity(), rdat.orientation));
+    const LNOrientation::rotData& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[i]));
+    G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
   }
 
   //Go back and fix the pushes
   BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
   {
-    const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.getParticle().getID()]));
+    const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[PDat2.getParticle().getID()]));
     G[PDat2.getParticle().getID()].front() = VUpair(PDat2.getOldVel(), fetchpart.orientation);
   }
 
   BOOST_FOREACH(const PairEventData& PDat2, PDat.L2partChanges)
   {
-    const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle1_.getParticle().getID()]));
-    const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle2_.getParticle().getID()]));
+    const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[PDat2.particle1_.getParticle().getID()]));
+    const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->particleList[PDat2.particle2_.getParticle().getID()]));
 
     G[PDat2.particle1_.getParticle().getID()].front() = VUpair(PDat2.particle1_.getOldVel(), fetch1.orientation);
     G[PDat2.particle2_.getParticle().getID()].front() = VUpair(PDat2.particle2_.getOldVel(), fetch2.orientation);
@@ -346,7 +346,7 @@ OPSelfDiffusionOrientationalGK::accPass()
 {
   ++count;
 
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
   {
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     {

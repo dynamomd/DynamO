@@ -37,8 +37,8 @@ OPDens::collisionUpdate(const IntEvent &collision, const CIntEventData &preColl)
   collcount++;
 
   if ((collcount % 1000) == 0)
-    for (std::vector<Particle>::const_iterator iPtr = Sim->vParticleList.begin();
-	 iPtr != Sim->vParticleList.end(); iPtr++)
+    for (std::vector<Particle>::const_iterator iPtr = Sim->particleList.begin();
+	 iPtr != Sim->particleList.end(); iPtr++)
       {
 	counter++;
 	
@@ -63,7 +63,7 @@ OPDens::collisionUpdate(const IntEvent &collision, const CIntEventData &preColl)
 void
 OPDens::output(xmlw::XmlStream &XML)
 {
-  Iflt factor = 1.0 / ((Iflt) Sim->vParticleList.size() * counter);
+  Iflt factor = 1.0 / ((Iflt) Sim->particleList.size() * counter);
   
   XML << xmlw::tag("rho(q)") << xmlw::chardata();
   for (long qy = 0; qy < 20; qy++)

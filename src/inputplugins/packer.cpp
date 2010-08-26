@@ -297,19 +297,19 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	
 	if (vm.count("i2"))
 	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
@@ -368,18 +368,18 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
 
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 2:
@@ -486,7 +486,7 @@ CIPPacker::initialise()
 							new C2RAll()
 							))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
@@ -498,12 +498,12 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 
 	break;
       }
@@ -561,20 +561,20 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 4:
@@ -620,24 +620,24 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
-	BOOST_FOREACH(Particle& part, Sim->vParticleList)
+	BOOST_FOREACH(Particle& part, Sim->particleList)
 	  part.getVelocity()[0] += part.getPosition()[1] * ShearRate;
 
-	Sim->Ensemble.reset(new DYNAMO::CENVShear(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVShear(Sim));
 	break;
       }
     case 5:
@@ -706,7 +706,7 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
@@ -718,12 +718,12 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 6:
@@ -789,19 +789,19 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
 
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 7:
@@ -876,7 +876,7 @@ CIPPacker::initialise()
 	  }
 
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
@@ -886,12 +886,12 @@ CIPPacker::initialise()
 
 	unsigned long nParticles = 0;
 
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 8:
@@ -961,24 +961,24 @@ CIPPacker::initialise()
 	  (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			    new C2RAll()))->setName("BBInt");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 9:
@@ -1030,7 +1030,7 @@ CIPPacker::initialise()
 
 	Iflt inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<Iflt>() : 1.0;
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						     (inertiaMultiplicativeFactor * particleDiam * particleDiam) / 12.0,
 						     "Bulk")));
@@ -1038,14 +1038,14 @@ CIPPacker::initialise()
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 10:
@@ -1107,18 +1107,18 @@ CIPPacker::initialise()
 			     2.0 * tij / latticeSites.size(), chi, 1.0,
 			     "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 11:
@@ -1179,17 +1179,17 @@ CIPPacker::initialise()
 			     chi, alpha, "Thermostat",
 			     new CRAll(Sim), new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 12:
@@ -1369,22 +1369,22 @@ CIPPacker::initialise()
 			     new CRRange(nA, latticeSites.size()-1)));
 
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
       case 13:
@@ -1418,7 +1418,7 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						     particleDiam * particleDiam / 12.0,
 						     "Bulk")));
@@ -1426,14 +1426,14 @@ CIPPacker::initialise()
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 14:
@@ -1532,24 +1532,24 @@ CIPPacker::initialise()
 	  (new IHardSphere(Sim, particleDiamB, 1.0,
 			    new C2RAll()))->setName("BBInt");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRRange(nPartA, latticeSites.size()-1),
 					       massFrac / chainlength, "B", 0, "BBInt")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 15:
@@ -1618,16 +1618,16 @@ CIPPacker::initialise()
 				     (Sim, particleDiam, 1.0,
 				      new C2RAll()))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0,
 					       "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	size_t nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position,
 		     Vector(Sim->dynamics.units().unitVelocity(),
 			    Sim->dynamics.units().unitVelocity(),
@@ -1646,7 +1646,7 @@ CIPPacker::initialise()
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    wobblespacing[iDim] = (Sim->aspectRatio[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
 
-	  BOOST_FOREACH(Particle& part, Sim->vParticleList)
+	  BOOST_FOREACH(Particle& part, Sim->particleList)
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
 	}
@@ -1663,14 +1663,14 @@ CIPPacker::initialise()
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    for (size_t i(0); i < nParticles / 2; ++i)
 	      {
-		while (Sim->vParticleList[ID].getVelocity()[iDim] < 0)
+		while (Sim->particleList[ID].getVelocity()[iDim] < 0)
 		  ID = rangen();
 
-		Sim->vParticleList[ID].getVelocity()[iDim]
+		Sim->particleList[ID].getVelocity()[iDim]
 		  = -Sim->dynamics.units().unitVelocity();
 	      }
 	}
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 16:
@@ -1782,17 +1782,17 @@ CIPPacker::initialise()
 						   new C2RAll()
 						   ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 17:
@@ -1867,18 +1867,18 @@ CIPPacker::initialise()
 			  2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
 			  "RingDSMC", new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 18:
@@ -1950,18 +1950,18 @@ CIPPacker::initialise()
 			  2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
 			  "RingDSMC", new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 19:
@@ -2087,7 +2087,7 @@ CIPPacker::initialise()
 					  Vector(0, +0.5 * Aspect, 0),
 					  "Plate5", new CRAll(Sim), false));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, 
 					       "Bulk", 0, "Bulk")));
 
@@ -2100,12 +2100,12 @@ CIPPacker::initialise()
 	  maxPart = latticeSites.size();
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(maxPart);
+	Sim->particleList.reserve(maxPart);
 
 	std::sort(latticeSites.begin(), latticeSites.end(), mySortPredictate);
 
 	for (size_t i(0); i < maxPart; ++i)
-	  Sim->vParticleList.push_back
+	  Sim->particleList.push_back
 	    (Particle(latticeSites[i], 
 		       getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		       nParticles++));
@@ -2120,7 +2120,7 @@ CIPPacker::initialise()
 				  MassRatio * nParticles, "Plate1", 
 				  new CRAll(Sim), 0.0, strongPlate));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 20:
@@ -2179,25 +2179,25 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
 	  {
-	    Sim->vParticleList.push_back
+	    Sim->particleList.push_back
 	      (Particle(position, getRandVelVec()
 			 * Sim->dynamics.units().unitVelocity(),
 			 nParticles++));
 
-	    Sim->vParticleList.back().getPosition()[2] -= 20 * particleDiam;
+	    Sim->particleList.back().getPosition()[2] -= 20 * particleDiam;
 	  }
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
     case 21:
@@ -2271,19 +2271,19 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+	Sim->dynamics.addSpecies(ClonePtr<Species>
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	unsigned long nParticles = 0;
-	Sim->vParticleList.reserve(latticeSites.size());
+	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->vParticleList.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->Ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
 
@@ -2291,7 +2291,7 @@ CIPPacker::initialise()
       D_throw() << "Did not recognise the packer mode you wanted";
     }
 
-  Sim->lN = Sim->vParticleList.size();
+  Sim->N = Sim->particleList.size();
 }
 
 void
@@ -2300,7 +2300,7 @@ CIPPacker::processOptions()
   if (vm.count("Thermostat"))
     {
       try {
-	CSystem* thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
+	System* thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
 
 	//Only one kind of thermostat so far!
 	if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
@@ -2317,10 +2317,10 @@ CIPPacker::processOptions()
 	}
 
       try {
-	dynamic_cast<const DYNAMO::CENVT&>(*(Sim->Ensemble));
+	dynamic_cast<const DYNAMO::CENVT&>(*(Sim->ensemble));
       } catch (std::bad_cast)
 	{
-	  Sim->Ensemble.reset(new DYNAMO::CENVT(Sim));
+	  Sim->ensemble.reset(new DYNAMO::CENVT(Sim));
 	}
     }
 }

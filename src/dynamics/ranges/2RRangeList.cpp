@@ -28,7 +28,7 @@ C2RRangeList::C2RRangeList(const XMLNode& XML, const DYNAMO::SimData* nSim):
 bool 
 C2RRangeList::isInRange(const Particle&p1, const Particle&p2) const
 {
-  BOOST_FOREACH(const smrtPlugPtr<C2Range>& rPtr, ranges)
+  BOOST_FOREACH(const ClonePtr<C2Range>& rPtr, ranges)
     if (rPtr->isInRange(p1,p2))
       return true;
   
@@ -46,7 +46,7 @@ C2RRangeList::operator<<(const XMLNode& XML)
       XMLNode xSubNode;
       
       for (long i=0; i < XML.nChildNode("RangeListItem"); i++)
-	ranges.push_back(smrtPlugPtr<C2Range>(C2Range::loadClass(XML.getChildNode("RangeListItem",i), Sim)));
+	ranges.push_back(ClonePtr<C2Range>(C2Range::loadClass(XML.getChildNode("RangeListItem",i), Sim)));
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -59,6 +59,6 @@ C2RRangeList::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Range") << "RangeList";
 
-  BOOST_FOREACH(const smrtPlugPtr<C2Range>& rPtr, ranges)
+  BOOST_FOREACH(const ClonePtr<C2Range>& rPtr, ranges)
     XML << xmlw::tag("RangeListItem") << rPtr << xmlw::endtag("RangeListItem");
 }

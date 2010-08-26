@@ -77,7 +77,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
   Sim->getOutputPlugin<OPKEnergy>();
   
   try {
-    dynamic_cast<const DYNAMO::CENVE*>(Sim->Ensemble.get());
+    dynamic_cast<const DYNAMO::CENVE*>(Sim->ensemble.get());
   }
   catch(std::exception)
     {
@@ -96,10 +96,10 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& id, *spec->getRange())
     {
-      const Particle& part(Sim->vParticleList[id]);
+      const Particle& part(Sim->particleList[id]);
       constDelG[spec->getID()] += part.getVelocity() 
 	* Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
     }
@@ -217,7 +217,7 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const LocalEvent& iEvent,
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CSystem&, 
+OPThermalConductivitySpeciesSpeciesE::eventUpdate(const System&, 
 				     const NEventData& PDat,
 				     const Iflt& edt) 
 { 

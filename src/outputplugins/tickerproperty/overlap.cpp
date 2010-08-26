@@ -44,9 +44,9 @@ OPOverlapTest::output(xmlw::XmlStream&)
 void 
 OPOverlapTest::ticker()
 {
-  for (std::vector<Particle>::const_iterator iPtr = Sim->vParticleList.begin();
-       iPtr != Sim->vParticleList.end(); ++iPtr)
+  for (std::vector<Particle>::const_iterator iPtr = Sim->particleList.begin();
+       iPtr != Sim->particleList.end(); ++iPtr)
     for (std::vector<Particle>::const_iterator jPtr = iPtr + 1;
-	 jPtr != Sim->vParticleList.end(); ++jPtr)
+	 jPtr != Sim->particleList.end(); ++jPtr)
       Sim->dynamics.getInteraction(*iPtr, *jPtr)->checkOverlaps(*iPtr, *jPtr);
 }

@@ -15,12 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CollTypes_H
-#define CollTypes_H
-
-#include <ostream>
-
-#define FORWARDSLASH /
+#pragma once
 
 #define ETYPE_ENUM_FACTORY(F)\
   F(NONE, /*!< No collision occurs*/ ) \
@@ -52,6 +47,7 @@ typedef enum {
 ETYPE_ENUM_FACTORY(buildEnum)
 } EEventType; 
 
+#include <ostream>
 
 #define printEnum(VAL,COMMENT) \
   case VAL: return os << #VAL;
@@ -65,5 +61,3 @@ ETYPE_ENUM_FACTORY(printEnum)
 
   return os << "Failed to find a name for the Event Type! Memory corruption?";
 }
-
-#endif

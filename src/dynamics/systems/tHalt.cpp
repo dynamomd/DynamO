@@ -22,7 +22,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CStHalt::CStHalt(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
-  CSystem(nSim)
+  System(nSim)
 {
   dt = ndt * Sim->dynamics.units().unitTime();
 
@@ -51,7 +51,7 @@ CStHalt::runEvent() const
 
   Sim->freestreamAcc += locdt;
   
-  Sim->lPrintLimiter = Sim->lMaxNColl = Sim->lNColl;
+  Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
 }
 
 void 

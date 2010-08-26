@@ -65,7 +65,7 @@ public:
 
   void setIntPtr(Interaction*);
 
-  const smrtPlugPtr<CRange>& getRange() const { return range; }
+  const ClonePtr<CRange>& getRange() const { return range; }
 
   virtual Species* Clone() const { return new Species(*this); }
 
@@ -83,7 +83,7 @@ protected:
   
   Iflt mass;
 
-  smrtPlugPtr<CRange> range;
+  ClonePtr<CRange> range;
 
   std::string spName;
   std::string intName;

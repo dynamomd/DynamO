@@ -62,7 +62,7 @@ OPChainBondAngles::operator<<(const XMLNode& XML)
 void 
 OPChainBondAngles::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, 
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, 
 		Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(plugPtr->getID(), 
@@ -80,22 +80,22 @@ void
 OPChainBondAngles::ticker()
 {
   BOOST_FOREACH(Cdata& dat,chains)
-    BOOST_FOREACH(const smrtPlugPtr<CRange>& range, 
+    BOOST_FOREACH(const ClonePtr<CRange>& range, 
 		  Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
     if (range->size() > 2)
       {
 	//Walk the polymer
 	for (size_t j = 0; j < range->size()-2; ++j)
 	  {
-	    Vector  bond1 = Sim->vParticleList[(*range)[j+1]].getPosition()
-	      - Sim->vParticleList[(*range)[j]].getPosition();
+	    Vector  bond1 = Sim->particleList[(*range)[j+1]].getPosition()
+	      - Sim->particleList[(*range)[j]].getPosition();
 
 	    bond1 /= bond1.nrm();
 
 	    for (size_t i = j+2; i < range->size(); ++i)
 	      {
-		Vector  bond2 = Sim->vParticleList[(*range)[i]].getPosition()
-		  -Sim->vParticleList[(*range)[i-1]].getPosition();
+		Vector  bond2 = Sim->particleList[(*range)[i]].getPosition()
+		  -Sim->particleList[(*range)[i-1]].getPosition();
 		
 		bond2 /= bond2.nrm();
 		

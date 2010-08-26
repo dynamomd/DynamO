@@ -54,15 +54,15 @@ CSDumb::operator<<(const XMLNode& XML)
 void
 CSDumb::initialise()
 {
-  I_cout() << "Reinitialising on collision " << Sim->lNColl;
+  I_cout() << "Reinitialising on collision " << Sim->eventCount;
   
   sorter->clear();
-  sorter->resize(Sim->lN+1);
+  sorter->resize(Sim->N+1);
   eventCount.clear();
-  eventCount.resize(Sim->lN+1, 0);
+  eventCount.resize(Sim->N+1, 0);
   
   //Now initialise the interactions
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     addEvents(part);
   
   sorter->init();
@@ -84,16 +84,16 @@ CSDumb::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
   //Add the local cell events
-  BOOST_FOREACH(const smrtPlugPtr<Local>& local, Sim->dynamics.getLocals())
+  BOOST_FOREACH(const ClonePtr<Local>& local, Sim->dynamics.getLocals())
     addLocalEvent(part, local->getID());
 
   //Add the interaction events
-  BOOST_FOREACH(const Particle& part2, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part2, Sim->particleList)
     if (part2 != part)
       addInteractionEvent(part, part2.getID());
 }

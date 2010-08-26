@@ -95,8 +95,8 @@ OPTinkerXYZ::initialise()
   
   if (liveOutput) 
     {
-      coords.resize(NDIM * Sim->lN + (HEADERSIZE / sizeof(float)));
-      fill_header((IMDheader *)&coords[0], IMD_FCOORDS, Sim->lN);
+      coords.resize(NDIM * Sim->N + (HEADERSIZE / sizeof(float)));
+      fill_header((IMDheader *)&coords[0], IMD_FCOORDS, Sim->N);
 
 
       I_cout() << "Setting up incoming socket of VMD";
@@ -166,18 +166,18 @@ OPTinkerXYZ::printLiveImage()
 
       Vector offset(0,0,0);
       if (P1track)
-	offset = Sim->vParticleList.front().getPosition();
+	offset = Sim->particleList.front().getPosition();
 
-      for (size_t ID(0); ID < Sim->lN; ++ID)
+      for (size_t ID(0); ID < Sim->N; ++ID)
 	{
-	  Vector pos = Sim->vParticleList[ID].getPosition() - offset;
+	  Vector pos = Sim->particleList[ID].getPosition() - offset;
 	  Sim->dynamics.BCs().applyBC(pos);
 	  //The plus two is the header offset
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    coords[ID * NDIM + iDim + (HEADERSIZE / sizeof(float))] = coeff * pos[iDim];
 	}
       
-      int32 size = HEADERSIZE + 12 * Sim->lN;
+      int32 size = HEADERSIZE + 12 * Sim->N;
 
       if (imd_writen(clientsock, (const char*) &coords[0], size) != size) 
 	{
@@ -198,9 +198,9 @@ OPTinkerXYZ::printFileImage()
   
   std::vector<OPRGyration::molGyrationDat> gyrationData;
 
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      BOOST_FOREACH(const smrtPlugPtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+      BOOST_FOREACH(const ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
 
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
@@ -223,10 +223,10 @@ OPTinkerXYZ::printFileImage()
   if (!obj_of.is_open())
     D_throw() << "Could not open object file for writing";
 
-  of << Sim->lN << "\nDYNAMO Tinker TXYZ file\n";
+  of << Sim->N << "\nDYNAMO Tinker TXYZ file\n";
 
   Vector  tmpVec;
-  BOOST_FOREACH (const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH (const Particle& part, Sim->particleList)
     {
       tmpVec = part.getPosition();
       Sim->dynamics.BCs().applyBC(tmpVec);
@@ -275,13 +275,13 @@ OPTinkerXYZ::printFileImage()
       obj_of << " 0.05 1.0 0.0 0.0\n";
     }
 
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      BOOST_FOREACH(const smrtPlugPtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+      BOOST_FOREACH(const ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	for (CRange::const_iterator iPtr = range->begin() + 1; iPtr != range->end(); ++iPtr)
 	  {
-	    Vector  pos1 = Sim->vParticleList[*iPtr].getPosition();
-	    Vector  pos2 = Sim->vParticleList[*(iPtr-1)].getPosition();
+	    Vector  pos1 = Sim->particleList[*iPtr].getPosition();
+	    Vector  pos2 = Sim->particleList[*(iPtr-1)].getPosition();
 	    Vector  rij(pos1);
 	    rij -= pos2;
 	    

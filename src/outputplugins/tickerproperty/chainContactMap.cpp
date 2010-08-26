@@ -44,7 +44,7 @@ OPCContactMap::OPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPCContactMap::initialise()
 {
-  BOOST_FOREACH(const smrtPlugPtr<CTopology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			     plugPtr->getMolecules().front()->size()));
@@ -58,7 +58,7 @@ OPCContactMap::changeSystem(OutputPlugin* OPPlug)
   BOOST_FOREACH(Cdata& dat, chains)
     {
       try {
-	const CTopology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
+	const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
 	dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
       } catch (std::exception&)
 	{
@@ -75,18 +75,18 @@ void
 OPCContactMap::ticker()
 {
   BOOST_FOREACH(Cdata& dat,chains)
-    BOOST_FOREACH(const smrtPlugPtr<CRange>& range,  dat.chainPtr->getMolecules())
+    BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
     {
       dat.counter++;
       for (unsigned long i = 0; i < dat.chainlength; i++)
 	{
-	  const Particle& part1 = Sim->vParticleList[(*range)[i]];
+	  const Particle& part1 = Sim->particleList[(*range)[i]];
 	 
 	  for (unsigned long j = i+1; j < dat.chainlength; j++)
 	    {
-	      const Particle& part2 = Sim->vParticleList[(*range)[j]];
+	      const Particle& part2 = Sim->particleList[(*range)[j]];
 
-	      BOOST_FOREACH(const smrtPlugPtr<Interaction>& ptr, Sim->dynamics.getInteractions())
+	      BOOST_FOREACH(const ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
 		if (ptr->isInteraction(part1,part2))
 		  if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
 		    if (static_cast<const ICapture*>(ptr.get_ptr())

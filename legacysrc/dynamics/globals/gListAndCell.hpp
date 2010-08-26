@@ -46,7 +46,7 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  smrtPlugPtr<CRange> largestParticles;
+  ClonePtr<CRange> largestParticles;
 };
 
 #endif

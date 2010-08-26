@@ -72,7 +72,7 @@ OPThermalConductivityE::initialise()
   Sim->getOutputPlugin<OPKEnergy>();
   
   try {
-    dynamic_cast<const DYNAMO::CENVE *>(Sim->Ensemble.get());
+    dynamic_cast<const DYNAMO::CENVE *>(Sim->ensemble.get());
   }
   catch(std::exception)
     {
@@ -91,7 +91,7 @@ OPThermalConductivityE::initialise()
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const Particle& part, Sim->vParticleList)
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
     constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
   
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
@@ -203,7 +203,7 @@ OPThermalConductivityE::eventUpdate(const LocalEvent& iEvent,
 }
 
 void 
-OPThermalConductivityE::eventUpdate(const CSystem&, 
+OPThermalConductivityE::eventUpdate(const System&, 
 				     const NEventData& PDat,
 				     const Iflt& edt) 
 { 

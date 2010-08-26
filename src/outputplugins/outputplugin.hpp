@@ -29,7 +29,7 @@ class XMLNode;
 class PairEventData;
 class ParticleEventData;
 class NEventData;
-class CSystem;
+class System;
 
 namespace xmlw
 {
@@ -51,7 +51,7 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&) = 0;
 
-  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&) = 0;
+  virtual void eventUpdate(const System&, const NEventData&, const Iflt&) = 0;
   
   virtual OutputPlugin *Clone() const = 0;
   

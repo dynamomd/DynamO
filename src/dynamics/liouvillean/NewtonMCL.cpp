@@ -133,8 +133,8 @@ PairEventData
 LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
 			      const Iflt &) const
 {
-  const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->vParticleList[event.getParticle2ID()];
+  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
   updateParticlePair(particle1, particle2);  
 
