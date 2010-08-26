@@ -115,7 +115,7 @@ CSUmbrella::runEvent() const
     
   EEventType etype(NONE);
 
-  CNParticleData SDat(Sim->dynamics.getLiouvillean().multibdyWellEvent
+  NEventData SDat(Sim->dynamics.getLiouvillean().multibdyWellEvent
 		      (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
 
   if (etype != BOUNCE)
@@ -124,7 +124,7 @@ CSUmbrella::runEvent() const
   Sim->signalParticleUpdate(SDat);
   
   //Only 1ParticleEvents occur
-  BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
     Sim->ptrScheduler->fullUpdate(PDat.getParticle());
   
   locdt += Sim->freestreamAcc;
@@ -234,9 +234,9 @@ CSUmbrella::recalculateTime()
 }
 
 void 
-CSUmbrella::particlesUpdated(const CNParticleData& PDat)
+CSUmbrella::particlesUpdated(const NEventData& PDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pdat, PDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
     if (range1->isInRange(pdat.getParticle())
 	|| range2->isInRange(pdat.getParticle()))
       {
@@ -245,7 +245,7 @@ CSUmbrella::particlesUpdated(const CNParticleData& PDat)
 	return;
       }
 
-  BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
     if (range1->isInRange(pdat.particle1_.getParticle())
 	|| range2->isInRange(pdat.particle1_.getParticle())
 	|| range1->isInRange(pdat.particle2_.getParticle())

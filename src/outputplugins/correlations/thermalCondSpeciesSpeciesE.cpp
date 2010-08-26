@@ -96,7 +96,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& id, *spec->getRange())
     {
       const Particle& part(Sim->vParticleList[id]);
@@ -199,8 +199,8 @@ OPThermalConductivitySpeciesSpeciesE::stream(const Iflt& edt)
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CGlobEvent& iEvent, 
-				     const CNParticleData& PDat) 
+OPThermalConductivitySpeciesSpeciesE::eventUpdate(const GlobalEvent& iEvent, 
+				     const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   //impulseDelG(PDat);
@@ -208,8 +208,8 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CGlobEvent& iEvent,
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CLocalEvent& iEvent, 
-				     const CNParticleData& PDat) 
+OPThermalConductivitySpeciesSpeciesE::eventUpdate(const LocalEvent& iEvent, 
+				     const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   //impulseDelG(PDat);
@@ -218,7 +218,7 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CLocalEvent& iEvent,
 
 void 
 OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CSystem&, 
-				     const CNParticleData& PDat,
+				     const NEventData& PDat,
 				     const Iflt& edt) 
 { 
   stream(edt);
@@ -228,7 +228,7 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const CSystem&,
   
 void 
 OPThermalConductivitySpeciesSpeciesE::eventUpdate(const IntEvent& iEvent,
-				     const C2ParticleData& PDat)
+				     const PairEventData& PDat)
 {
   stream(iEvent.getdt());
   //impulseDelG(PDat);
@@ -236,7 +236,7 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const IntEvent& iEvent,
 }
 
 void
-OPThermalConductivitySpeciesSpeciesE::impulseDelG(const CNParticleData& ndat) 
+OPThermalConductivitySpeciesSpeciesE::impulseDelG(const NEventData& ndat) 
 { 
   /*  Vector  acc(0);
   
@@ -247,7 +247,7 @@ OPThermalConductivitySpeciesSpeciesE::impulseDelG(const CNParticleData& ndat)
 }
 
 void
-OPThermalConductivitySpeciesSpeciesE::impulseDelG(const C2ParticleData& PDat)
+OPThermalConductivitySpeciesSpeciesE::impulseDelG(const PairEventData& PDat)
 {
   //return PDat.rij * PDat.particle1_.getDeltaeCalc();
 }
@@ -301,17 +301,17 @@ OPThermalConductivitySpeciesSpeciesE::accPass()
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const CNParticleData& ndat)
+OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const NEventData& ndat)
 {
-  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& dat, ndat.L1partChanges)
     updateConstDelG(dat);
   
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     updateConstDelG(dat);
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C1ParticleData& PDat)
+OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const ParticleEventData& PDat)
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
@@ -320,7 +320,7 @@ OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C1ParticleData& PDat
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const C2ParticleData& PDat)
+OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const PairEventData& PDat)
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
   Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());

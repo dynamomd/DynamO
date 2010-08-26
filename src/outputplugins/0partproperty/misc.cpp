@@ -98,27 +98,27 @@ OPMisc::initialise()
 }
 
 void
-OPMisc::eventUpdate(const IntEvent&, const C2ParticleData&)
+OPMisc::eventUpdate(const IntEvent&, const PairEventData&)
 {
   dualEvents++;
 }
 
 void
-OPMisc::eventUpdate(const CGlobEvent&, const CNParticleData& NDat)
+OPMisc::eventUpdate(const GlobalEvent&, const NEventData& NDat)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
 void
-OPMisc::eventUpdate(const CLocalEvent&, const CNParticleData& NDat)
+OPMisc::eventUpdate(const LocalEvent&, const NEventData& NDat)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
 void
-OPMisc::eventUpdate(const CSystem&, const CNParticleData& NDat,
+OPMisc::eventUpdate(const CSystem&, const NEventData& NDat,
 		     const Iflt&)
 {
   dualEvents += NDat.L2partChanges.size();
@@ -243,9 +243,9 @@ OPMisc::output(xmlw::XmlStream &XML)
   XML << xmlw::endtag("SystemBoxLength");
 
   // Output scalar moment of inertia for any species which may have it
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
   {
-    if (dynamic_cast<const CSpecInertia*>(spec.get_ptr()) != NULL)
+    if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
     {
       XML << xmlw::tag("ScalarInertia")
 	  << xmlw::attr("Species") << spec->getName()

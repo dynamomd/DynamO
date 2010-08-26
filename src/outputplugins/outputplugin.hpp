@@ -24,11 +24,11 @@
 #include "../extcode/xmlParser.h"
 
 class IntEvent;
-class CGlobEvent;
+class GlobalEvent;
 class XMLNode;
-class C2ParticleData;
-class C1ParticleData;
-class CNParticleData;
+class PairEventData;
+class ParticleEventData;
+class NEventData;
 class CSystem;
 
 namespace xmlw
@@ -45,13 +45,13 @@ public:
   
   virtual void initialise() = 0;
   
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&) = 0;
+  virtual void eventUpdate(const IntEvent&, const PairEventData&) = 0;
   
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&) = 0;
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&) = 0;
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&) = 0;
+  virtual void eventUpdate(const LocalEvent&, const NEventData&) = 0;
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&) = 0;
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&) = 0;
   
   virtual OutputPlugin *Clone() const = 0;
   

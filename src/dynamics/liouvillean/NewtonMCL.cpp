@@ -121,7 +121,7 @@ void LNewtonianMC::initialise()
 }
 
 
-CNParticleData 
+NEventData 
 LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2, 
 				const Iflt&, const Iflt& deltaKE, 
 				EEventType& eType) const
@@ -129,7 +129,7 @@ LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2,
   D_throw() << "Not implemented";
 }
 
-C2ParticleData 
+PairEventData 
 LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
 			      const Iflt &) const
 {
@@ -138,7 +138,7 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			event.getType());

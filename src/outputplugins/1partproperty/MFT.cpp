@@ -64,7 +64,7 @@ OPMFT::initialise()
 }
 
 void 
-OPMFT::A1ParticleChange(const C1ParticleData& PDat)
+OPMFT::A1ParticleChange(const ParticleEventData& PDat)
 {
   //We ignore stuff that hasn't had an event yet
 

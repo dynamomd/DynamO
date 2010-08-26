@@ -26,10 +26,10 @@
 
 #define eps2 1e-10 //Min overlap distance
 
-class C2ParticleData;
+class PairEventData;
 class IntEvent;
 class XMLNode;
-class CSpecies;
+class Species;
 class CRange;
 
 namespace xmlw
@@ -72,7 +72,7 @@ public:
   
   bool isInteraction(const IntEvent &) const;
 
-  bool isInteraction(const CSpecies &) const;
+  bool isInteraction(const Species &) const;
 
   inline void setName(const std::string& tmp) { intName = tmp; }
 

@@ -23,14 +23,14 @@
 #include "../../schedulers/scheduler.hpp"
 
 CGParabolaSentinel::CGParabolaSentinel(DYNAMO::SimData* nSim, const std::string& name):
-  CGlobal(nSim, "ParabolaSentinel")
+  Global(nSim, "ParabolaSentinel")
 {
   globName = name;
   I_cout() << "ParabolaSentinel Loaded";
 }
 
 CGParabolaSentinel::CGParabolaSentinel(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim, "ParabolaSentinel")
+  Global(ptrSim, "ParabolaSentinel")
 {
   operator<<(XML);
 
@@ -64,15 +64,15 @@ CGParabolaSentinel::operator<<(const XMLNode& XML)
     }
 }
 
-CGlobEvent 
+GlobalEvent 
 CGParabolaSentinel::getEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   if (passedParabola[part.getID()])
-    return CGlobEvent(part, HUGE_VAL, VIRTUAL, *this);
+    return GlobalEvent(part, HUGE_VAL, VIRTUAL, *this);
   else
-    return CGlobEvent(part, Sim->dynamics.getLiouvillean()
+    return GlobalEvent(part, Sim->dynamics.getLiouvillean()
 		      .getParabolaSentinelTime
 		      (part, passedParabola[part.getID()]), 
 		      VIRTUAL, *this);
@@ -83,7 +83,7 @@ CGParabolaSentinel::runEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
-  CGlobEvent iEvent(getEvent(part));
+  GlobalEvent iEvent(getEvent(part));
 
   //Stop the parabola occuring again
   passedParabola[part.getID()] = true;
@@ -119,12 +119,12 @@ CGParabolaSentinel::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CGParabolaSentinel::particlesUpdated(const CNParticleData& PDat)
+CGParabolaSentinel::particlesUpdated(const NEventData& PDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pdat, PDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
     passedParabola[pdat.getParticle().getID()] = false;
   
-  BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
     {
       passedParabola[pdat.particle1_.getParticle().getID()] = false;
       passedParabola[pdat.particle2_.getParticle().getID()] = false;

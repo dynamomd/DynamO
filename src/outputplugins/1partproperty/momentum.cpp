@@ -36,13 +36,13 @@ OPMomentum::initialise()
   accMomsq = Vector (0,0,0);
   sysMom = Vector (0,0,0);
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     sysMom += spec->getMass() * Sim->vParticleList[ID].getVelocity();
 }
 
 void 
-OPMomentum::A1ParticleChange(const C1ParticleData& PDat)
+OPMomentum::A1ParticleChange(const ParticleEventData& PDat)
 {
   sysMom += PDat.getDeltaP();
 }

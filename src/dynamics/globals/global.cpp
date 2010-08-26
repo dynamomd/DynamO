@@ -24,31 +24,31 @@
 #include "../ranges/1RAll.hpp"
 
 
-CGlobal::CGlobal(DYNAMO::SimData* tmp, const char *name):
+Global::Global(DYNAMO::SimData* tmp, const char *name):
   SimBase(tmp,name, IC_blue),
   range(new CRAll(tmp))
 {}
 
-CGlobal::CGlobal(CRange* nR, DYNAMO::SimData* tmp, const char *name):
+Global::Global(CRange* nR, DYNAMO::SimData* tmp, const char *name):
   SimBase(tmp, name, IC_blue),
   range(nR)
 {}
 
 bool 
-CGlobal::isInteraction(const Particle &p1) const
+Global::isInteraction(const Particle &p1) const
 {
   return range->isInRange(p1);
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CGlobal& g)
+			    const Global& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
-CGlobal* 
-CGlobal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
+Global* 
+Global::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
 {
   //  if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
   //    return new CGListAndCell(XML, Sim);

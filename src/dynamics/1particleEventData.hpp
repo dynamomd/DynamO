@@ -22,10 +22,10 @@
 #include "species/species.hpp"
 #include "../simulation/particle.hpp"
 
-class C1ParticleData
+class ParticleEventData
 {
 public:
-  C1ParticleData(const Particle& part, const CSpecies& sp, 
+  ParticleEventData(const Particle& part, const Species& sp, 
 		 EEventType eType):
     particle_(part), oldVelVec(part.getVelocity()),
     species_(sp), Type_(eType), 
@@ -41,7 +41,7 @@ public:
   inline Vector  getOldPosition() const
   { D_throw() << "Not yet Implemented"; }
 
-  inline const CSpecies& getSpecies() const
+  inline const Species& getSpecies() const
   { return species_; }
 
   inline void setType(EEventType nType)
@@ -70,7 +70,7 @@ public:
 private:
   const Particle& particle_;
   const Vector  oldVelVec;
-  const CSpecies& species_;
+  const Species& species_;
   EEventType Type_;
   Iflt deltaU;
   Iflt deltaKE;

@@ -26,9 +26,9 @@ class OPKEnergy: public OP1PP
  public:
   OPKEnergy(const DYNAMO::SimData*, const XMLNode&);
 
-  void A1ParticleChange(const C1ParticleData&);
+  void A1ParticleChange(const ParticleEventData&);
 
-  void A2ParticleChange(const C2ParticleData&);
+  void A2ParticleChange(const PairEventData&);
 
   void stream(const Iflt&);  
 

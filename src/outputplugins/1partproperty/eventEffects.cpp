@@ -38,7 +38,7 @@ OPEventEffects::~OPEventEffects()
 {}
 
 void 
-OPEventEffects::eventUpdate(const IntEvent& iEvent, const C2ParticleData& Pdat)
+OPEventEffects::eventUpdate(const IntEvent& iEvent, const PairEventData& Pdat)
 {
   newEvent(iEvent.getType(),getClassKey(iEvent),
 	   Pdat.particle1_.getDeltaKE(),
@@ -50,14 +50,14 @@ OPEventEffects::eventUpdate(const IntEvent& iEvent, const C2ParticleData& Pdat)
 }
 
 void 
-OPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPEventEffects::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(globEvent.getType(),getClassKey(globEvent),
 	     pData.getDeltaKE(),
 	     pData.getDeltaP());
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       newEvent(globEvent.getType(),getClassKey(globEvent),
 	       pData.particle1_.getDeltaKE(),
@@ -70,14 +70,14 @@ OPEventEffects::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& S
 }
 
 void 
-OPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPEventEffects::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(localEvent.getType(),getClassKey(localEvent),
 	     pData.getDeltaKE(),
 	     pData.getDeltaP());
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       newEvent(localEvent.getType(),getClassKey(localEvent),
 	       pData.particle1_.getDeltaKE(),
@@ -90,14 +90,14 @@ OPEventEffects::eventUpdate(const CLocalEvent& localEvent, const CNParticleData&
 }
 
 void 
-OPEventEffects::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPEventEffects::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
 {
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(sysEvent.getType(),getClassKey(sysEvent),
 	     pData.getDeltaKE(),
 	     pData.getDeltaP());
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       newEvent(sysEvent.getType(),getClassKey(sysEvent),
 	       pData.particle1_.getDeltaKE(),

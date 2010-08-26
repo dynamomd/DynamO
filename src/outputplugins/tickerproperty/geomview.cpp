@@ -81,7 +81,7 @@ OPGeomview::printImage()
 
   unsigned int i = 0;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
     {      
 
       of << "{LIST\n";

@@ -27,7 +27,7 @@
 
 CLDblWall::CLDblWall(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
 	       Vector  norigin, std::string nname, CRange* nRange):
-  CLocal(nRange, nSim, "LocalWall"),
+  Local(nRange, nSim, "LocalWall"),
   vNorm(nnorm),
   vPosition(norigin),
   e(ne)
@@ -36,12 +36,12 @@ CLDblWall::CLDblWall(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm,
 }
 
 CLDblWall::CLDblWall(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "LocalDoubleWall")
+  Local(tmp, "LocalDoubleWall")
 {
   operator<<(XML);
 }
 
-CLocalEvent 
+LocalEvent 
 CLDblWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -49,7 +49,7 @@ CLDblWall::getEvent(const Particle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  if (part.getID() == lastID) return CLocalEvent(part, HUGE_VAL, NONE, *this);
+  if (part.getID() == lastID) return LocalEvent(part, HUGE_VAL, NONE, *this);
   
   Vector rij = part.getPosition() - vPosition;
   Sim->dynamics.BCs().applyBC(rij);
@@ -58,12 +58,12 @@ CLDblWall::getEvent(const Particle& part) const
   if ((norm | rij) < 0)
     norm *= -1;
 
-  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
+  return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
 		     (part, vPosition, norm), WALL, *this);
 }
 
 void
-CLDblWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
+CLDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
@@ -76,7 +76,7 @@ CLDblWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
     norm *= -1;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+  NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
 		      (part, norm, e));
 
   Sim->signalParticleUpdate(EDat);
@@ -110,18 +110,18 @@ CLDblWall::initialise(size_t nID)
 }
 
 void
-CLDblWall::particleUpdate(const CNParticleData& PDat) const
+CLDblWall::particleUpdate(const NEventData& PDat) const
 {
   if (lastID == std::numeric_limits<size_t>::max()) return;
 
-  BOOST_FOREACH(const C1ParticleData& pdat, PDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
     if (pdat.getParticle().getID() == lastID)
       {
 	lastID = std::numeric_limits<size_t>::max();
 	return;
       }
   
-  BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
     if (pdat.particle1_.getParticle().getID() == lastID 
 	|| pdat.particle2_.getParticle().getID() == lastID)
       {

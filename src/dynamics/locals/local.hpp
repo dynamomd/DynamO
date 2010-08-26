@@ -30,33 +30,33 @@ namespace xmlw
   class XmlStream;
 }
 class IntEvent;
-class CNParticleData;
-class CLocalEvent;
+class NEventData;
+class LocalEvent;
 
-class CLocal: public DYNAMO::SimBase
+class Local: public DYNAMO::SimBase
 {
 public:
-  CLocal(DYNAMO::SimData*, const char *);
+  Local(DYNAMO::SimData*, const char *);
 
-  CLocal(CRange*, DYNAMO::SimData*, const char *);
+  Local(CRange*, DYNAMO::SimData*, const char *);
   
-  virtual ~CLocal() {}
+  virtual ~Local() {}
 
   bool isInteraction(const Particle&) const;
 
-  virtual CLocal* Clone() const = 0; //{ return new OPBlank(*this); };
+  virtual Local* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  virtual CLocalEvent getEvent(const Particle&) const = 0;
+  virtual LocalEvent getEvent(const Particle&) const = 0;
 
-  virtual void runEvent(const Particle&, const CLocalEvent&) const = 0;
+  virtual void runEvent(const Particle&, const LocalEvent&) const = 0;
   
   virtual bool isInCell(const Vector &, const Vector &) const = 0;
 
   virtual void initialise(size_t) = 0;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CLocal&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Local&);
 
-  static CLocal* getClass(const XMLNode&, DYNAMO::SimData*);
+  static Local* getClass(const XMLNode&, DYNAMO::SimData*);
 
   virtual void operator<<(const XMLNode&) = 0;
 

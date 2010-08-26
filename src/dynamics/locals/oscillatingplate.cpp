@@ -30,7 +30,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       Iflt nomega0, Iflt nsigma, Iflt ne,
 				       Iflt ndelta, Iflt nmass, std::string nname, 
 				       CRange* nRange, Iflt timeshift, bool nstrongPlate):
-  CLocal(nRange, nSim, "OscillatingPlate"),
+  Local(nRange, nSim, "OscillatingPlate"),
   strongPlate(nstrongPlate),
   rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
   e(ne), delta(ndelta), mass(nmass), timeshift(0), lastID(-1), lastdSysTime(HUGE_VAL)
@@ -39,13 +39,13 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 }
 
 CLOscillatingPlate::CLOscillatingPlate(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "OscillatingPlate"),
+  Local(tmp, "OscillatingPlate"),
   lastID(-1), lastdSysTime(HUGE_VAL)
 {
   operator<<(XML);
 }
 
-CLocalEvent 
+LocalEvent 
 CLOscillatingPlate::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -63,20 +63,20 @@ CLOscillatingPlate::getEvent(const Particle& part) const
      false);
 
   if (dt != HUGE_VAL)
-    return CLocalEvent(part, dt, WALL, *this);
+    return LocalEvent(part, dt, WALL, *this);
   else
-    return CLocalEvent(part, HUGE_VAL, NONE, *this);
+    return LocalEvent(part, HUGE_VAL, NONE, *this);
 }
 
 
 
 void
-CLOscillatingPlate::runEvent(const Particle& part, const CLocalEvent& iEvent) const
+CLOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
   ++Sim->lNColl;
   
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runOscilatingPlate
+  NEventData EDat(Sim->dynamics.getLiouvillean().runOscilatingPlate
 		      (part, rw0, nhat, delta, omega0, sigma, mass, 
 		       e, timeshift, strongPlate));
 

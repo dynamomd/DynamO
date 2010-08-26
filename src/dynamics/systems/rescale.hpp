@@ -40,7 +40,7 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  void checker(const CNParticleData&);
+  void checker(const NEventData&);
   
   inline const lIflt& getScaleFactor() const {return scaleFactor; }
 

@@ -31,7 +31,7 @@ OPRijVij::initialise()
 {}
 
 void 
-OPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
+OPRijVij::process2PED(mapdata& ref, const PairEventData& PDat)
 {
   Vector  rijnorm(PDat.rij / PDat.rij.nrm());
   Vector  vijnorm(PDat.vijold / PDat.vijold.nrm());
@@ -62,7 +62,7 @@ OPRijVij::process2PED(mapdata& ref, const C2ParticleData& PDat)
 }
 
 void 
-OPRijVij::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
+OPRijVij::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
 {
   
   process2PED(rvdotacc[mapKey(iEvent.getType(), 
@@ -70,25 +70,25 @@ OPRijVij::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
 }
 
 void 
-OPRijVij::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPRijVij::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     process2PED(rvdotacc[mapKey(globEvent.getType(), getClassKey(globEvent))],
 		pDat);
 }
 
 void 
-OPRijVij::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPRijVij::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     process2PED(rvdotacc[mapKey(localEvent.getType(), getClassKey(localEvent))],
 		pDat);
 }
 
 void
-OPRijVij::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPRijVij::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     process2PED(rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))],
 		pDat);
 }

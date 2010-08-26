@@ -44,7 +44,7 @@ public:
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;
 
-  void particlesUpdated(const CNParticleData&);
+  void particlesUpdated(const NEventData&);
 
   void recalculateTime();
 

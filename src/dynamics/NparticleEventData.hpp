@@ -21,15 +21,15 @@
 #include "2particleEventData.hpp"
 #include <list>
 
-class CNParticleData
+class NEventData
 {
 public:
-  CNParticleData() {};
-  CNParticleData(const C1ParticleData& a) { L1partChanges.push_back(a); }
-  CNParticleData(const C2ParticleData& a) { L2partChanges.push_back(a); }
+  NEventData() {};
+  NEventData(const ParticleEventData& a) { L1partChanges.push_back(a); }
+  NEventData(const PairEventData& a) { L2partChanges.push_back(a); }
 
-  std::list<C1ParticleData> L1partChanges;
-  std::list<C2ParticleData> L2partChanges;
+  std::list<ParticleEventData> L1partChanges;
+  std::list<PairEventData> L2partChanges;
 };
 
 #endif

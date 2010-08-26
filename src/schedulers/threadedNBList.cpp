@@ -76,7 +76,7 @@ SThreadedNBList::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -110,7 +110,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -176,7 +176,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
   BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, p2, ID, _P2SorterLock);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
     {
       if (glob->isInteraction(p1))
 	_threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob, _P1SorterLock);
@@ -200,9 +200,9 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 }
 
 void 
-SThreadedNBList::addGlobal(const Particle& part, const smrtPlugPtr<CGlobal>& glob, boost::mutex& sorterLock)
+SThreadedNBList::addGlobal(const Particle& part, const smrtPlugPtr<Global>& glob, boost::mutex& sorterLock)
 {
-  CGlobEvent event = glob->getEvent(part);
+  GlobalEvent event = glob->getEvent(part);
 
   boost::mutex::scoped_lock lock1(sorterLock);      
   sorter->push(event, part.getID());
@@ -251,7 +251,7 @@ SThreadedNBList::threadAddLocalEvent(const Particle& part,
 				     const size_t id,
 				     boost::mutex& sorterLock)
 {
-  CLocalEvent Event = Sim->dynamics.getLocals()[id]->getEvent(part);
+  LocalEvent Event = Sim->dynamics.getLocals()[id]->getEvent(part);
 
   {
     boost::mutex::scoped_lock lock1(sorterLock);

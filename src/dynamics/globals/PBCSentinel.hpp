@@ -21,7 +21,7 @@
 #include "global.hpp"
 #include <vector>
 
-class CGPBCSentinel: public CGlobal
+class CGPBCSentinel: public Global
 {
 public:
   CGPBCSentinel(const XMLNode&, DYNAMO::SimData*);
@@ -30,9 +30,9 @@ public:
   
   virtual ~CGPBCSentinel() {}
 
-  virtual CGlobal* Clone() const { return new CGPBCSentinel(*this); };
+  virtual Global* Clone() const { return new CGPBCSentinel(*this); };
 
-  virtual CGlobEvent getEvent(const Particle &) const;
+  virtual GlobalEvent getEvent(const Particle &) const;
 
   virtual void runEvent(const Particle&) const;
 
@@ -41,7 +41,7 @@ public:
   virtual void operator<<(const XMLNode&);
 
 protected:
-  void particlesUpdated(const CNParticleData&);
+  void particlesUpdated(const NEventData&);
 
   virtual void outputXML(xmlw::XmlStream&) const;
 

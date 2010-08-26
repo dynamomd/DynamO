@@ -21,20 +21,20 @@
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
 
-CSSphericalTop::CSSphericalTop(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
+SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
 			       std::string nName, unsigned int nID, Iflt inertiaConst,
 			       std::string nIName):
-  CSpecInertia(tmp, "Species", IC_blue, nr, nMass, nName, nID, nIName),
+  SpInertia(tmp, "Species", IC_blue, nr, nMass, nName, nID, nIName),
   inertiaConstant(inertiaConst)
 {}
 
-CSSphericalTop::CSSphericalTop(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
-  CSpecInertia(XML, tmp, nID)
+SpSphericalTop::SpSphericalTop(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
+  SpInertia(XML, tmp, nID)
 { operator<<(XML); }
 
 
 void 
-CSSphericalTop::outputXML(xmlw::XmlStream& XML) const
+SpSphericalTop::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("InertiaConstant") 
       << inertiaConstant / Sim->dynamics.units().unitArea()
@@ -46,9 +46,9 @@ CSSphericalTop::outputXML(xmlw::XmlStream& XML) const
 }
 
 void 
-CSSphericalTop::operator<<(const XMLNode& XML)
+SpSphericalTop::operator<<(const XMLNode& XML)
 {
-  CSpecies::operator<<(XML);
+  Species::operator<<(XML);
 
   try {
     inertiaConstant 

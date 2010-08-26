@@ -15,21 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSphericalTop_H
-#define CSSphericalTop_H
+#pragma once
 
 #include "species.hpp"
 
-class CSSphericalTop: public CSpecInertia
+class SpSphericalTop: public SpInertia
 {
 public:
-  CSSphericalTop(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
+  SpSphericalTop(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
 		 unsigned int ID, Iflt iC, std::string nIName="Bulk");
   
-  CSSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
+  SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
 
 
-  virtual CSpecies* Clone() const { return new CSSphericalTop(*this); }
+  virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
   virtual Iflt getScalarMomentOfInertia() const { return inertiaConstant * mass; }
 
@@ -41,5 +40,3 @@ protected:
   
   Iflt inertiaConstant;
 };
-
-#endif

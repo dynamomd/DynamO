@@ -140,13 +140,13 @@ OPThermalConductivityE::output(xmlw::XmlStream &XML)
 }
 
 Vector  
-OPThermalConductivityE::impulseDelG(const C2ParticleData& PDat)
+OPThermalConductivityE::impulseDelG(const PairEventData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaKE();
 }
 
 void 
-OPThermalConductivityE::updateConstDelG(const C2ParticleData& PDat)
+OPThermalConductivityE::updateConstDelG(const PairEventData& PDat)
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
   Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
@@ -185,8 +185,8 @@ OPThermalConductivityE::stream(const Iflt& edt)
   }
 
 void 
-OPThermalConductivityE::eventUpdate(const CGlobEvent& iEvent, 
-				     const CNParticleData& PDat) 
+OPThermalConductivityE::eventUpdate(const GlobalEvent& iEvent, 
+				     const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   delG += impulseDelG(PDat);
@@ -194,8 +194,8 @@ OPThermalConductivityE::eventUpdate(const CGlobEvent& iEvent,
 }
 
 void 
-OPThermalConductivityE::eventUpdate(const CLocalEvent& iEvent, 
-				     const CNParticleData& PDat) 
+OPThermalConductivityE::eventUpdate(const LocalEvent& iEvent, 
+				     const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   delG += impulseDelG(PDat);
@@ -204,7 +204,7 @@ OPThermalConductivityE::eventUpdate(const CLocalEvent& iEvent,
 
 void 
 OPThermalConductivityE::eventUpdate(const CSystem&, 
-				     const CNParticleData& PDat,
+				     const NEventData& PDat,
 				     const Iflt& edt) 
 { 
   stream(edt);
@@ -214,7 +214,7 @@ OPThermalConductivityE::eventUpdate(const CSystem&,
   
 void 
 OPThermalConductivityE::eventUpdate(const IntEvent& iEvent,
-				     const C2ParticleData& PDat)
+				     const PairEventData& PDat)
 {
   stream(iEvent.getdt());
   delG += impulseDelG(PDat);
@@ -222,11 +222,11 @@ OPThermalConductivityE::eventUpdate(const IntEvent& iEvent,
 }
 
 Vector  
-OPThermalConductivityE::impulseDelG(const CNParticleData& ndat) 
+OPThermalConductivityE::impulseDelG(const NEventData& ndat) 
 { 
   Vector  acc(0,0,0);
   
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     acc += impulseDelG(dat);
   
   return acc;
@@ -266,17 +266,17 @@ OPThermalConductivityE::accPass()
 }
 
 void 
-OPThermalConductivityE::updateConstDelG(const CNParticleData& ndat)
+OPThermalConductivityE::updateConstDelG(const NEventData& ndat)
 {
-  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& dat, ndat.L1partChanges)
     updateConstDelG(dat);
   
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     updateConstDelG(dat);
 }
 
 void 
-OPThermalConductivityE::updateConstDelG(const C1ParticleData& PDat)
+OPThermalConductivityE::updateConstDelG(const ParticleEventData& PDat)
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   

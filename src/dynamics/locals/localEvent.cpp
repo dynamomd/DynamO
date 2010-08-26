@@ -26,15 +26,15 @@
 #include "../interactions/intEvent.hpp"
 #include <cmath>
 
-CLocalEvent::CLocalEvent(const Particle& part1, const Iflt &delt, 
-			 EEventType nType, const CLocal& local):
+LocalEvent::LocalEvent(const Particle& part1, const Iflt &delt, 
+			 EEventType nType, const Local& local):
   particle_(&part1), dt(delt), 
   CType(nType), localID(local.getID())
 {}
   
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
-			    const CLocalEvent &coll)
+			    const LocalEvent &coll)
 {
   XML << xmlw::tag("Collision")
       << xmlw::attr("p1ID") << coll.getParticle().getID()
@@ -45,7 +45,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream &XML,
 }
 
 std::string 
-CLocalEvent::stringData(const DYNAMO::SimData* Sim) const
+LocalEvent::stringData(const DYNAMO::SimData* Sim) const
 {
   std::ostringstream tmpstring;
   tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
@@ -55,5 +55,5 @@ CLocalEvent::stringData(const DYNAMO::SimData* Sim) const
 }
 
 bool 
-CLocalEvent::areInvolved(const IntEvent &coll) const 
+LocalEvent::areInvolved(const IntEvent &coll) const 
 { return (coll == *particle_); }

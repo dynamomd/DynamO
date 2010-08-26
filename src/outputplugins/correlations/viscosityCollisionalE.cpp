@@ -94,16 +94,16 @@ OPViscosityCollisionalE::initialise()
 }
 
 void 
-OPViscosityCollisionalE::eventUpdate(const CGlobEvent& iEvent, 
-				      const CNParticleData& PDat) 
+OPViscosityCollisionalE::eventUpdate(const GlobalEvent& iEvent, 
+				      const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
 }
 
 void 
-OPViscosityCollisionalE::eventUpdate(const CLocalEvent& iEvent, 
-				      const CNParticleData& PDat) 
+OPViscosityCollisionalE::eventUpdate(const LocalEvent& iEvent, 
+				      const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
@@ -111,7 +111,7 @@ OPViscosityCollisionalE::eventUpdate(const CLocalEvent& iEvent,
   
 void 
 OPViscosityCollisionalE::eventUpdate(const CSystem&, 
-				      const CNParticleData& PDat, 
+				      const NEventData& PDat, 
 				      const Iflt& edt) 
 { 
   stream(edt);
@@ -120,7 +120,7 @@ OPViscosityCollisionalE::eventUpdate(const CSystem&,
   
 void 
 OPViscosityCollisionalE::eventUpdate(const IntEvent& iEvent, 
-				      const C2ParticleData& PDat)
+				      const PairEventData& PDat)
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
@@ -177,7 +177,7 @@ OPViscosityCollisionalE::newG(const matrix& Gval)
 
 
 void
-OPViscosityCollisionalE::impulseDelG(const C2ParticleData& colldat)
+OPViscosityCollisionalE::impulseDelG(const PairEventData& colldat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -185,9 +185,9 @@ OPViscosityCollisionalE::impulseDelG(const C2ParticleData& colldat)
 }
 
 void
-OPViscosityCollisionalE::impulseDelG(const CNParticleData& ndat) 
+OPViscosityCollisionalE::impulseDelG(const NEventData& ndat) 
 { 
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       for (size_t jDim(0); jDim < NDIM; ++jDim)
 	delG[iDim][jDim] += dat.particle1_.getDeltaP()[iDim] 

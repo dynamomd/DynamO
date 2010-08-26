@@ -20,7 +20,7 @@
 
 #include "local.hpp"
 
-class LRoughWall: public CLocal
+class LRoughWall: public Local
 {
 public:
   LRoughWall(const XMLNode&, DYNAMO::SimData*);
@@ -29,11 +29,11 @@ public:
 
   virtual ~LRoughWall() {}
 
-  virtual CLocal* Clone() const { return new LRoughWall(*this); };
+  virtual Local* Clone() const { return new LRoughWall(*this); };
 
-  virtual CLocalEvent getEvent(const Particle&) const;
+  virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const LocalEvent&) const;
   
   virtual bool isInCell(const Vector &, const Vector &) const;
 

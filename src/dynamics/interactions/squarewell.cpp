@@ -204,7 +204,7 @@ ISquareWell::runEvent(const Particle& p1,
     {
     case CORE:
       {
-	C2ParticleData retVal(Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
+	PairEventData retVal(Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
 	Sim->signalParticleUpdate(retVal);
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
@@ -216,7 +216,7 @@ ISquareWell::runEvent(const Particle& p1,
       }
     case WELL_IN:
       {
-	C2ParticleData retVal(Sim->dynamics.getLiouvillean()
+	PairEventData retVal(Sim->dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, wellDepth, ld2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -233,7 +233,7 @@ ISquareWell::runEvent(const Particle& p1,
       }
     case WELL_OUT:
       {
-	C2ParticleData retVal(Sim->dynamics.getLiouvillean()
+	PairEventData retVal(Sim->dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, -wellDepth, ld2));
 	
 	if (retVal.getType() != BOUNCE)

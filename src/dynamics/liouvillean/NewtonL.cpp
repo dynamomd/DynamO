@@ -177,7 +177,7 @@ LNewtonian::sphereOverlap(const CPDData& dat, const Iflt& d2) const
   return (dat.r2 - d2) < 0.0;
 }
 
-C1ParticleData 
+ParticleEventData 
 LNewtonian::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
@@ -186,7 +186,7 @@ LNewtonian::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
   updateParticle(part);
 
   //Collect the precoll data
-  C1ParticleData tmpDat(part, Sim->dynamics.getSpecies(part), GAUSSIAN);
+  ParticleEventData tmpDat(part, Sim->dynamics.getSpecies(part), GAUSSIAN);
 
   Iflt factor = 
     sqrtT / std::sqrt(tmpDat.getSpecies().getMass());
@@ -234,7 +234,7 @@ LNewtonian::getWallCollision(const Particle &part,
 }
 
 
-C1ParticleData 
+ParticleEventData 
 LNewtonian::runWallCollision(const Particle &part, 
 			   const Vector  &vNorm,
 			   const Iflt& e
@@ -242,7 +242,7 @@ LNewtonian::runWallCollision(const Particle &part,
 {
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+  ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
   const_cast<Particle&>(part).getVelocity()
     -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
@@ -254,7 +254,7 @@ LNewtonian::runWallCollision(const Particle &part,
   return retVal; 
 }
 
-C1ParticleData 
+ParticleEventData 
 LNewtonian::runAndersenWallCollision(const Particle& part, 
 				   const Vector & vNorm,
 				   const Iflt& sqrtT
@@ -264,7 +264,7 @@ LNewtonian::runAndersenWallCollision(const Particle& part,
 
   //This gives a completely new random unit vector with a properly
   //distributed Normal component. See Granular Simulation Book
-  C1ParticleData tmpDat(part, Sim->dynamics.getSpecies(part), WALL);
+  ParticleEventData tmpDat(part, Sim->dynamics.getSpecies(part), WALL);
  
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     const_cast<Particle&>(part).getVelocity()[iDim] 
@@ -384,7 +384,7 @@ LNewtonian::DSMCSpheresTest(const Particle& p1,
   return prob > Sim->uniform_sampler() * maxprob;
 }
 
-C2ParticleData
+PairEventData
 LNewtonian::DSMCSpheresRun(const Particle& p1, 
 			 const Particle& p2, 
 			 const Iflt& e,
@@ -392,7 +392,7 @@ LNewtonian::DSMCSpheresRun(const Particle& p1,
 {
   updateParticlePair(p1, p2);  
 
-  C2ParticleData retVal(p1, p2,
+  PairEventData retVal(p1, p2,
 			Sim->dynamics.getSpecies(p1),
 			Sim->dynamics.getSpecies(p2),
 			CORE);
@@ -423,7 +423,7 @@ LNewtonian::DSMCSpheresRun(const Particle& p1,
 }
 
 
-C2ParticleData 
+PairEventData 
 LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
 				       const Iflt&, const EEventType& eType) const
 {
@@ -432,7 +432,7 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			eType);
@@ -483,7 +483,7 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
   return retVal;
 }
 
-C2ParticleData 
+PairEventData 
 LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 			    const Iflt&, const EEventType& eType) const
 {
@@ -492,7 +492,7 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			eType);
@@ -521,7 +521,7 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
   return retVal;
 }
 
-C2ParticleData 
+PairEventData 
 LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
@@ -530,7 +530,7 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 
   updateParticlePair(particle1, particle2);
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			eType);
@@ -572,7 +572,7 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
   return retVal;
 }
 
-C2ParticleData 
+PairEventData 
 LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const Matrix& rot,
 			   const EEventType& eType) const
@@ -582,7 +582,7 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 
   updateParticlePair(particle1, particle2);
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			eType);
@@ -631,7 +631,7 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
   return retVal;
 }
 
-CNParticleData 
+NEventData 
 LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const EEventType& eType) const
 {
@@ -692,10 +692,10 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
   static const Iflt e = 1.0;
   Vector  dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());
 
-  CNParticleData retVal;
+  NEventData retVal;
   BOOST_FOREACH(const size_t& ID, range1)
     {
-      C1ParticleData tmpval
+      ParticleEventData tmpval
 	(Sim->vParticleList[ID],
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
@@ -712,7 +712,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
 
   BOOST_FOREACH(const size_t& ID, range2)
     {
-      C1ParticleData tmpval
+      ParticleEventData tmpval
 	(Sim->vParticleList[ID],
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
@@ -730,7 +730,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
   return retVal;
 }
 
-CNParticleData 
+NEventData 
 LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2, 
 			    const Iflt&, const Iflt& deltaKE, EEventType& eType) const
 {
@@ -813,10 +813,10 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 	  * (-2.0 * deltaKE / (rvdot + std::sqrt(sqrtArg)));
     }
   
-  CNParticleData retVal;
+  NEventData retVal;
   BOOST_FOREACH(const size_t& ID, range1)
     {
-      C1ParticleData tmpval
+      ParticleEventData tmpval
 	(Sim->vParticleList[ID],
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
@@ -833,7 +833,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 
   BOOST_FOREACH(const size_t& ID, range2)
     {
-      C1ParticleData tmpval
+      ParticleEventData tmpval
 	(Sim->vParticleList[ID],
 	 Sim->dynamics.getSpecies(Sim->vParticleList[ID]),
 	 eType);
@@ -851,7 +851,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
   return retVal;
 }
 
-C2ParticleData 
+PairEventData 
 LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
 			  const Iflt &) const
 {
@@ -860,7 +860,7 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			event.getType());
@@ -1150,7 +1150,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   return (root1 < root2) ? root1 : root2;
 }
 
-C1ParticleData 
+ParticleEventData 
 LNewtonian::runOscilatingPlate
 (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
@@ -1159,7 +1159,7 @@ LNewtonian::runOscilatingPlate
   std::cout.flush();
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+  ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
 
   COscillatingPlateFunc fL(part.getVelocity(), nhat, part.getPosition(),
 			   t + Sim->dSysTime, delta, omega0, sigma);
@@ -1307,7 +1307,7 @@ LNewtonian::getCylinderWallCollision(const Particle& part,
     return t;
 }
 
-C1ParticleData 
+ParticleEventData 
 LNewtonian::runCylinderWallCollision(const Particle& part, 
 				   const Vector& origin,
 				   const Vector& vNorm,
@@ -1316,7 +1316,7 @@ LNewtonian::runCylinderWallCollision(const Particle& part,
 {
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+  ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
   Vector rij =  origin - part.getPosition();
 
@@ -1336,7 +1336,7 @@ LNewtonian::runCylinderWallCollision(const Particle& part,
   return retVal; 
 }
 
-C1ParticleData 
+ParticleEventData 
 LNewtonian::runSphereWallCollision(const Particle& part, 
 				   const Vector& origin,
 				   const Iflt& e
@@ -1344,7 +1344,7 @@ LNewtonian::runSphereWallCollision(const Particle& part,
 {
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+  ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
   Vector rij =  origin - part.getPosition();
 

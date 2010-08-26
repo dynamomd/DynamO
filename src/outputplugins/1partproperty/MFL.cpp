@@ -53,7 +53,7 @@ OPMFL::initialise()
 }
 
 void 
-OPMFL::A1ParticleChange(const C1ParticleData& PDat)
+OPMFL::A1ParticleChange(const ParticleEventData& PDat)
 {
   //We ignore stuff that hasn't had an event yet
   if (lastTime[PDat.getParticle().getID()] != 0.0)

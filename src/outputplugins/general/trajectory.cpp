@@ -74,7 +74,7 @@ OPTrajectory::printData(const size_t& p1,
 
 void 
 OPTrajectory::eventUpdate(const IntEvent& eevent, 
-				   const C2ParticleData&)
+				   const PairEventData&)
 {
   logfile << "INTERACTION " << eevent.getInteractionID()
 	  << " TYPE " << eevent.getType()
@@ -88,8 +88,8 @@ OPTrajectory::eventUpdate(const IntEvent& eevent,
 }
 
 void 
-OPTrajectory::eventUpdate(const CGlobEvent& eevent, 
-			   const CNParticleData& SDat)
+OPTrajectory::eventUpdate(const GlobalEvent& eevent, 
+			   const NEventData& SDat)
 {
   logfile << "GLOBAL " << eevent.getGlobalID()
 	  << " TYPE " << eevent.getType()
@@ -97,11 +97,11 @@ OPTrajectory::eventUpdate(const CGlobEvent& eevent,
 	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
 	  << "\n";
 
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     logfile << "    1PEvent p1 " << pData.getParticle().getID()
 	    << "\n";
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       logfile << "    2PEvent";
 
@@ -113,8 +113,8 @@ OPTrajectory::eventUpdate(const CGlobEvent& eevent,
 }
 
 void 
-OPTrajectory::eventUpdate(const CLocalEvent& eevent, 
-			   const CNParticleData& SDat)
+OPTrajectory::eventUpdate(const LocalEvent& eevent, 
+			   const NEventData& SDat)
 {
   logfile << "LOCAL " << eevent.getLocalID()
     	  << " TYPE " << eevent.getType()
@@ -122,7 +122,7 @@ OPTrajectory::eventUpdate(const CLocalEvent& eevent,
 	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
 	  << "\n";
 
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     {
       logfile << "    1PEvent p1 " << pData.getParticle().getID()
 	      << " delP1 < ";
@@ -135,7 +135,7 @@ OPTrajectory::eventUpdate(const CLocalEvent& eevent,
       logfile << ">"
 	      << "\n";
     }
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       logfile << "    2PEvent";
       
@@ -147,7 +147,7 @@ OPTrajectory::eventUpdate(const CLocalEvent& eevent,
 }
 
 void 
-OPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat, 
+OPTrajectory::eventUpdate(const CSystem& sys, const NEventData& SDat, 
 			   const Iflt& dt)
 {
   logfile << "SYSTEM " << sys.getID()
@@ -156,11 +156,11 @@ OPTrajectory::eventUpdate(const CSystem& sys, const CNParticleData& SDat,
 	  << " dt " << dt / Sim->dynamics.units().unitTime()
 	  << "\n";
 
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     logfile << "    1PEvent p1 " << pData.getParticle().getID()
 	    << "\n";
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       logfile << "    2PEvent";
       

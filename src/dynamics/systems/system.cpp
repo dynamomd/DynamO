@@ -35,7 +35,7 @@ CSystem::operator<(const IntEvent& iEvent) const
 }
 
 bool 
-CSystem::operator<(const CGlobEvent& gEvent) const
+CSystem::operator<(const GlobalEvent& gEvent) const
 {
   return dt < gEvent.getdt();
 }

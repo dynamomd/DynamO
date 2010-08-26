@@ -27,11 +27,11 @@ public:
   LSLLOD(DYNAMO::SimData*);
 
   //Structure dynamics
-  virtual CNParticleData multibdyCollision(const CRange&, const CRange&, 
+  virtual NEventData multibdyCollision(const CRange&, const CRange&, 
 					   const Iflt&, 
 					   const EEventType&) const;
   
-  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+  virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
 					   const Iflt&, const Iflt&, 
 					   EEventType&) const;
 
@@ -52,32 +52,32 @@ public:
 				      const Vector &
 				      ) const;
   
-  virtual C2ParticleData SmoothSpheresColl(const IntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
+  virtual PairEventData SmoothSpheresColl(const IntEvent&, const Iflt&, const Iflt&, const EEventType& eType) const;
 
   virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
 			       Iflt&, const Iflt&, CPDData&) const;
 
-  virtual C2ParticleData DSMCSpheresRun(const Particle&, const Particle&, 
+  virtual PairEventData DSMCSpheresRun(const Particle&, const Particle&, 
 					const Iflt&, CPDData&) const;
   
-  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, const Iflt&) const;
+  virtual PairEventData SphereWellEvent(const IntEvent&, const Iflt&, const Iflt&) const;
 
   virtual Iflt getWallCollision(const Particle&, 
 				const Vector &, 
 				const Vector &
 				  ) const;
 
-  virtual C1ParticleData runWallCollision(const Particle&, 
+  virtual ParticleEventData runWallCollision(const Particle&, 
 					  const Vector &,
 					  const Iflt&
 					  ) const;
 
-  virtual C1ParticleData runAndersenWallCollision(const Particle&, 
+  virtual ParticleEventData runAndersenWallCollision(const Particle&, 
 						  const Vector &,
 						  const Iflt& T
 						  ) const;
 
-  virtual C1ParticleData randomGaussianEvent(const Particle&, const Iflt&) const;
+  virtual ParticleEventData randomGaussianEvent(const Particle&, const Iflt&) const;
 
   virtual Liouvillean* Clone() const { return new LSLLOD(*this); }
 

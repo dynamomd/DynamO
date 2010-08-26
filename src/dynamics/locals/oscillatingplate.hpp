@@ -20,7 +20,7 @@
 
 #include "local.hpp"
 
-class CLOscillatingPlate: public CLocal
+class CLOscillatingPlate: public Local
 {
 public:
   CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
@@ -30,11 +30,11 @@ public:
 
   virtual ~CLOscillatingPlate() {}
 
-  virtual CLocal* Clone() const { return new CLOscillatingPlate(*this); };
+  virtual Local* Clone() const { return new CLOscillatingPlate(*this); };
 
-  virtual CLocalEvent getEvent(const Particle&) const;
+  virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const LocalEvent&) const;
   
   virtual bool isInCell(const Vector &, const Vector &) const;
 

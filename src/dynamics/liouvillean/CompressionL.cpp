@@ -92,7 +92,7 @@ LCompression::streamParticle(Particle &particle, const Iflt &dt) const
   particle.getPosition() +=  particle.getVelocity() * dt;
 }
 
-C2ParticleData 
+PairEventData 
 LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
 {
   const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
@@ -100,7 +100,7 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			eType);
@@ -130,7 +130,7 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt
   return retVal;
 }
 
-C2ParticleData 
+PairEventData 
 LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
 {
   const Particle& particle1 = Sim->vParticleList[event.getParticle1ID()];
@@ -138,7 +138,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const 
 
   updateParticlePair(particle1, particle2);  
   
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			event.getType());
@@ -253,7 +253,7 @@ LCompression::getPBCSentinelTime(const Particle& part,
   return retval;
 }
 
-C2ParticleData 
+PairEventData 
 LCompression::parallelCubeColl(const IntEvent&, const Iflt&,
 				const Iflt&, const EEventType&) const
 { D_throw() << "Not Implemented"; }

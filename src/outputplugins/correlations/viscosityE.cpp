@@ -103,7 +103,7 @@ OPViscosityE::initialise()
 }
 
 void 
-OPViscosityE::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+OPViscosityE::eventUpdate(const GlobalEvent& iEvent, const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
@@ -111,7 +111,7 @@ OPViscosityE::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
-OPViscosityE::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+OPViscosityE::eventUpdate(const LocalEvent& iEvent, const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
@@ -119,7 +119,7 @@ OPViscosityE::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat)
 }
   
 void 
-OPViscosityE::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+OPViscosityE::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt) 
 { 
   stream(edt);
   impulseDelG(PDat);
@@ -127,7 +127,7 @@ OPViscosityE::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt
 }
   
 void 
-OPViscosityE::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
+OPViscosityE::eventUpdate(const IntEvent& iEvent, const PairEventData& PDat)
 {
   stream(iEvent.getdt());
   impulseDelG(PDat);
@@ -200,7 +200,7 @@ OPViscosityE::newG(const matrix& Gval)
 
 
 void
-OPViscosityE::impulseDelG(const C2ParticleData& colldat)
+OPViscosityE::impulseDelG(const PairEventData& colldat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -208,9 +208,9 @@ OPViscosityE::impulseDelG(const C2ParticleData& colldat)
 }
 
 void
-OPViscosityE::impulseDelG(const CNParticleData& ndat) 
+OPViscosityE::impulseDelG(const NEventData& ndat) 
 { 
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       for (size_t jDim(0); jDim < NDIM; ++jDim)
 	delG[iDim][jDim] += dat.particle1_.getDeltaP()[iDim] 
@@ -303,7 +303,7 @@ OPViscosityE::output(xmlw::XmlStream &XML)
 }
 
 void 
-OPViscosityE::updateConstDelG(const C2ParticleData& PDat)
+OPViscosityE::updateConstDelG(const PairEventData& PDat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -321,7 +321,7 @@ OPViscosityE::updateConstDelG(const C2ParticleData& PDat)
 }
 
 void 
-OPViscosityE::updateConstDelG(const C1ParticleData& PDat)
+OPViscosityE::updateConstDelG(const ParticleEventData& PDat)
 {
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
@@ -333,12 +333,12 @@ OPViscosityE::updateConstDelG(const C1ParticleData& PDat)
 }
 
 void 
-OPViscosityE::updateConstDelG(const CNParticleData& ndat)
+OPViscosityE::updateConstDelG(const NEventData& ndat)
 {
-  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& dat, ndat.L1partChanges)
     updateConstDelG(dat);
   
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     updateConstDelG(dat);
 }
 

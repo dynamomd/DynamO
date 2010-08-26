@@ -33,7 +33,7 @@ public:
 
   virtual void initialise(size_t);
   
-  virtual CGlobal* Clone() const 
+  virtual Global* Clone() const 
   { return new CGCellsShearing(*this); }
   
   virtual void runEvent(const Particle&) const;

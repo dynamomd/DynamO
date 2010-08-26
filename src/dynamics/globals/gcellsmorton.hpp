@@ -34,12 +34,12 @@ public:
 
   virtual ~CGCellsMorton() {}
 
-  virtual CGlobal* Clone() const 
+  virtual Global* Clone() const 
   { 
     return new CGCellsMorton(*this); 
   }
 
-  virtual CGlobEvent getEvent(const Particle &) const;
+  virtual GlobalEvent getEvent(const Particle &) const;
 
   virtual void runEvent(const Particle&) const;
 

@@ -23,31 +23,31 @@
 #include "localEvent.hpp"
 #include "../ranges/1RAll.hpp"
 
-CLocal::CLocal(DYNAMO::SimData* tmp, const char *name):
+Local::Local(DYNAMO::SimData* tmp, const char *name):
   SimBase(tmp,name,IC_blue),
   range(new CRAll(tmp))
 {}
 
-CLocal::CLocal(CRange* nR, DYNAMO::SimData* tmp, const char *name):
+Local::Local(CRange* nR, DYNAMO::SimData* tmp, const char *name):
   SimBase(tmp, name,IC_blue),
   range(nR)
 {}
 
 bool 
-CLocal::isInteraction(const Particle &p1) const
+Local::isInteraction(const Particle &p1) const
 {
   return range->isInRange(p1);
 }
 
 xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, 
-			    const CLocal& g)
+			    const Local& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
-CLocal* 
-CLocal::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
+Local* 
+Local::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Wall"))
     return new CLWall(XML, Sim);

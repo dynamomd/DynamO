@@ -50,12 +50,12 @@ namespace EventTypeTracking {
     return classKey(s.getID(), SYSTEM);
   }
 
-  classKey getClassKey(const CGlobEvent& g)
+  classKey getClassKey(const GlobalEvent& g)
   {
     return classKey(g.getGlobalID(), GLOBAL);
   }
 
-  classKey getClassKey(const CLocalEvent& g)
+  classKey getClassKey(const LocalEvent& g)
   {
     return classKey(g.getLocalID(), LOCAL);
   }

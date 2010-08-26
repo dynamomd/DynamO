@@ -100,7 +100,7 @@ CSDSMCSpheres::runEvent() const
   size_t nmax = static_cast<size_t>(intPart);
   
   BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+    Ptr->eventUpdate(*this, NEventData(), locdt);
 
   if (Sim->uniform_sampler() < fracpart)
     ++nmax;
@@ -130,7 +130,7 @@ CSDSMCSpheres::runEvent() const
 	{
 	  ++Sim->lNColl;
 	 
-	  const C2ParticleData
+	  const PairEventData
 	    SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
 	  Sim->signalParticleUpdate(SDat);

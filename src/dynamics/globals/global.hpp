@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGlobal_HPP
-#define CGlobal_HPP
+#pragma once
 
 #include <string>
 #include "../../datatypes/pluginpointer.hpp"
@@ -29,31 +28,31 @@ namespace xmlw
   class XmlStream;
 }
 class IntEvent;
-class CNParticleData;
-class CGlobEvent;
+class NEventData;
+class GlobalEvent;
 
-class CGlobal: public DYNAMO::SimBase
+class Global: public DYNAMO::SimBase
 {
 public:
-  CGlobal(DYNAMO::SimData*, const char *);
+  Global(DYNAMO::SimData*, const char *);
 
-  CGlobal(CRange*, DYNAMO::SimData*, const char *);
+  Global(CRange*, DYNAMO::SimData*, const char *);
   
-  virtual ~CGlobal() {}
+  virtual ~Global() {}
 
   bool isInteraction(const Particle &) const;
 
-  virtual CGlobal* Clone() const = 0; //{ return new OPBlank(*this); };
+  virtual Global* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  virtual CGlobEvent getEvent(const Particle &) const = 0;
+  virtual GlobalEvent getEvent(const Particle &) const = 0;
 
   virtual void runEvent(const Particle&) const = 0;
 
   virtual void initialise(size_t) = 0;
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CGlobal&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Global&);
 
-  static CGlobal* getClass(const XMLNode&, DYNAMO::SimData*);
+  static Global* getClass(const XMLNode&, DYNAMO::SimData*);
 
   virtual void operator<<(const XMLNode&) = 0;
 
@@ -70,5 +69,3 @@ protected:
   std::string globName;
   size_t ID;
 };
-
-#endif

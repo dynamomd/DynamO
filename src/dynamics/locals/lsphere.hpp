@@ -20,7 +20,7 @@
 
 #include "local.hpp"
 
-class CLSphere: public CLocal
+class CLSphere: public Local
 {
 public:
   CLSphere(const XMLNode&, DYNAMO::SimData*);
@@ -29,11 +29,11 @@ public:
 
   virtual ~CLSphere() {}
 
-  virtual CLocal* Clone() const { return new CLSphere(*this); };
+  virtual Local* Clone() const { return new CLSphere(*this); };
 
-  virtual CLocalEvent getEvent(const Particle&) const;
+  virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const LocalEvent&) const;
   
   virtual bool isInCell(const Vector &, const Vector &) const;
 

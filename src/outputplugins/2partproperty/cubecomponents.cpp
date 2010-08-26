@@ -32,7 +32,7 @@ OPCubeComp::initialise()
 {}
 
 void 
-OPCubeComp::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
+OPCubeComp::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
 {
   mapdata& ref = angles[mapKey(iEvent.getType(), getClassKey(iEvent))];
 
@@ -48,9 +48,9 @@ OPCubeComp::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
 }
 
 void 
-OPCubeComp::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPCubeComp::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       mapdata& ref = angles[mapKey(globEvent.getType(), 
 				   getClassKey(globEvent))];
@@ -67,9 +67,9 @@ OPCubeComp::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 }
 
 void 
-OPCubeComp::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPCubeComp::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       mapdata& ref = angles[mapKey(localEvent.getType(), 
 				   getClassKey(localEvent))];
@@ -87,9 +87,9 @@ OPCubeComp::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDa
 }
 
 void
-OPCubeComp::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPCubeComp::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       mapdata& ref = angles[mapKey(sysEvent.getType(), 
 				     getClassKey(sysEvent))];

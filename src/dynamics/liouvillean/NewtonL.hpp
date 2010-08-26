@@ -54,28 +54,28 @@ public:
 				      const Iflt& Omega, const Iflt& Sigma,
 				      const Iflt& t, bool) const;
 
-  virtual C1ParticleData runOscilatingPlate
+  virtual ParticleEventData runOscilatingPlate
   (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
    const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
    Iflt& t, bool strongPlate) const;
 
   virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
 
-  virtual C2ParticleData SmoothSpheresColl(const IntEvent&, const Iflt&, 
+  virtual PairEventData SmoothSpheresColl(const IntEvent&, const Iflt&, 
 					   const Iflt&, 
 					   const EEventType& eType) const;
 
-  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const IntEvent&, const Iflt&, 
+  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent&, const Iflt&, 
 						      const Iflt&,
 						      const EEventType&) const;
 
   virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
 			       Iflt&, const Iflt&, CPDData&) const;
 
-  virtual C2ParticleData DSMCSpheresRun(const Particle&, const Particle&, 
+  virtual PairEventData DSMCSpheresRun(const Particle&, const Particle&, 
 					const Iflt&, CPDData&) const;
   
-  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, 
+  virtual PairEventData SphereWellEvent(const IntEvent&, const Iflt&, 
 					 const Iflt&) const;
 
   virtual Iflt getWallCollision(const Particle&, 
@@ -88,47 +88,47 @@ public:
 					const Iflt&
 					) const;
 
-  virtual C1ParticleData runCylinderWallCollision(const Particle&, 
+  virtual ParticleEventData runCylinderWallCollision(const Particle&, 
 						  const Vector &,
 						  const Vector &,
 						  const Iflt&
 						  ) const;
 
-  virtual C1ParticleData runSphereWallCollision(const Particle&, 
+  virtual ParticleEventData runSphereWallCollision(const Particle&, 
 						const Vector &,
 						const Iflt&
 						) const;
 
-  virtual C1ParticleData runWallCollision(const Particle&, 
+  virtual ParticleEventData runWallCollision(const Particle&, 
 					  const Vector &,
 					  const Iflt&
 					  ) const;
 
-  virtual C1ParticleData runAndersenWallCollision(const Particle&, 
+  virtual ParticleEventData runAndersenWallCollision(const Particle&, 
 						  const Vector &,
 						  const Iflt& T
 						  ) const;
 
-  virtual C1ParticleData randomGaussianEvent(const Particle&, const Iflt&) const;
+  virtual ParticleEventData randomGaussianEvent(const Particle&, const Iflt&) const;
 
   //Structure dynamics
-  virtual CNParticleData multibdyCollision(const CRange&, const CRange&,
+  virtual NEventData multibdyCollision(const CRange&, const CRange&,
 					   const Iflt&,
 					   const EEventType&) const;
 
-  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+  virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
 					   const Iflt&, const Iflt&, 
 					   EEventType&) const;
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonian(*this); }
 
-  virtual C2ParticleData parallelCubeColl(const IntEvent& event, 
+  virtual PairEventData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType) const;
 
-  virtual C2ParticleData parallelCubeColl(const IntEvent& event,
+  virtual PairEventData parallelCubeColl(const IntEvent& event,
 					  const Iflt& e, const Iflt& d,
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;

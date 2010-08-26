@@ -274,7 +274,7 @@ CScheduler::runNextEvent()
 	sorter->sort();
 	
 	Sim->dynamics.getLiouvillean().updateParticle(part);
-	CLocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
+	LocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
 
 	if (iEvent.getType() == NONE)
 	  {

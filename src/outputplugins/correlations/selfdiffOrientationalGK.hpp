@@ -37,13 +37,13 @@ class OPSelfDiffusionOrientationalGK: public OutputPlugin
 
   virtual void operator<<(const XMLNode&);
 
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
 
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
   virtual void output(xmlw::XmlStream&);
 
@@ -55,9 +55,9 @@ class OPSelfDiffusionOrientationalGK: public OutputPlugin
 
 protected:
 
-  virtual void newG(const C2ParticleData&);
-  virtual void newG(const C1ParticleData&);
-  virtual void newG(const CNParticleData&);
+  virtual void newG(const PairEventData&);
+  virtual void newG(const ParticleEventData&);
+  virtual void newG(const NEventData&);
 
   virtual void accPass();
 

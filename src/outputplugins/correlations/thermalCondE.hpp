@@ -35,13 +35,13 @@ public:
   virtual OutputPlugin* Clone() const 
   { return new OPThermalConductivityE(*this); }
   
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&); 
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&); 
   
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
   virtual void operator<<(const XMLNode&);
 
@@ -64,12 +64,12 @@ protected:
 
   Iflt rescaleFactor();
   
-  Vector  impulseDelG(const C2ParticleData&);
-  Vector  impulseDelG(const CNParticleData&);
+  Vector  impulseDelG(const PairEventData&);
+  Vector  impulseDelG(const NEventData&);
 
-  void updateConstDelG(const CNParticleData&);
-  void updateConstDelG(const C2ParticleData&);
-  void updateConstDelG(const C1ParticleData&);
+  void updateConstDelG(const NEventData&);
+  void updateConstDelG(const PairEventData&);
+  void updateConstDelG(const ParticleEventData&);
 };
 
 #endif

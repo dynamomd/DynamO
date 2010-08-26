@@ -52,15 +52,15 @@ public:
 				    const Particle& p1, const Particle& p2
 				    ) const;
   
-  virtual C2ParticleData runLineLineCollision(const IntEvent& eevent, 
+  virtual PairEventData runLineLineCollision(const IntEvent& eevent, 
 					      const Iflt& elasticity, const Iflt& length) const;
   
-  virtual C1ParticleData runAndersenWallCollision(const Particle& part, 
+  virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
 						  const Iflt& sqrtT
 						  ) const;
   
-  virtual C1ParticleData randomGaussianEvent(const Particle& part, 
+  virtual ParticleEventData randomGaussianEvent(const Particle& part, 
 					     const Iflt& sqrtT) const;
 
   struct rotData
@@ -77,14 +77,14 @@ public:
   
   void initLineOrientations(const Iflt&);
 
-  virtual C2ParticleData RoughSpheresColl(const IntEvent& event, 
+  virtual PairEventData RoughSpheresColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& et, 
 					  const Iflt& d2, 
 					  const EEventType& eType = CORE
 					  ) const;
 
-  virtual C1ParticleData runRoughWallCollision(const Particle& part, 
+  virtual ParticleEventData runRoughWallCollision(const Particle& part, 
 					       const Vector & vNorm,
 					       const Iflt& e,
 					       const Iflt& et,

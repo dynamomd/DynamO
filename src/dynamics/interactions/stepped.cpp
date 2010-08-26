@@ -248,7 +248,7 @@ IStepped::runEvent(const Particle& p1,
       {
 	cmap_it capstat = getCMap_it(p1,p2);
 	
-	C2ParticleData retVal(Sim->dynamics.getLiouvillean().SphereWellEvent
+	PairEventData retVal(Sim->dynamics.getLiouvillean().SphereWellEvent
 			      (iEvent, runstepdata[capstat->second-1].second, 
 			       runstepdata[capstat->second -1].first));
 	
@@ -277,7 +277,7 @@ IStepped::runEvent(const Particle& p1,
 	      : cMapKey(p2.getID(), p1.getID()),
 	      0)).first;
 	
-	C2ParticleData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent
+	PairEventData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent
 	  (iEvent, -runstepdata[capstat->second].second,
 	   runstepdata[capstat->second].first);
 	

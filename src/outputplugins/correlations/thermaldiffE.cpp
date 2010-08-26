@@ -108,7 +108,7 @@ OPThermalDiffusionE::initialise()
     }
   
   Iflt sysMass = 0.0;
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
 
   //Sum up the constant Del G.
@@ -241,20 +241,20 @@ OPThermalDiffusionE::accPass()
 }
 
 inline Vector  
-OPThermalDiffusionE::impulseDelG(const C2ParticleData& PDat)
+OPThermalDiffusionE::impulseDelG(const PairEventData& PDat)
 {
   return PDat.rij * PDat.particle1_.getDeltaKE();
 }
 
 void 
-OPThermalDiffusionE::updateConstDelG(const C2ParticleData& PDat)
+OPThermalDiffusionE::updateConstDelG(const PairEventData& PDat)
 {
   updateConstDelG(PDat.particle1_);
   updateConstDelG(PDat.particle2_);
 }
 
 void 
-OPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat) 
+OPThermalDiffusionE::updateConstDelG(const ParticleEventData& PDat) 
 {
   Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
@@ -268,8 +268,8 @@ OPThermalDiffusionE::updateConstDelG(const C1ParticleData& PDat)
 }
 
 void 
-OPThermalDiffusionE::eventUpdate(const CGlobEvent& iEvent, 
-				  const CNParticleData& PDat) 
+OPThermalDiffusionE::eventUpdate(const GlobalEvent& iEvent, 
+				  const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   delG += impulseDelG(PDat);
@@ -277,8 +277,8 @@ OPThermalDiffusionE::eventUpdate(const CGlobEvent& iEvent,
 }
 
 void 
-OPThermalDiffusionE::eventUpdate(const CLocalEvent& iEvent, 
-				  const CNParticleData& PDat) 
+OPThermalDiffusionE::eventUpdate(const LocalEvent& iEvent, 
+				  const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   delG += impulseDelG(PDat);
@@ -287,7 +287,7 @@ OPThermalDiffusionE::eventUpdate(const CLocalEvent& iEvent,
 
 void 
 OPThermalDiffusionE::eventUpdate(const CSystem&, 
-				  const CNParticleData& PDat, 
+				  const NEventData& PDat, 
 				  const Iflt& edt) 
 { 
   stream(edt);
@@ -297,7 +297,7 @@ OPThermalDiffusionE::eventUpdate(const CSystem&,
   
 void 
 OPThermalDiffusionE::eventUpdate(const IntEvent& iEvent, 
-				  const C2ParticleData& PDat)
+				  const PairEventData& PDat)
 {
   stream(iEvent.getdt());
   delG += impulseDelG(PDat);
@@ -305,22 +305,22 @@ OPThermalDiffusionE::eventUpdate(const IntEvent& iEvent,
 }
 
 Vector  
-OPThermalDiffusionE::impulseDelG(const CNParticleData& ndat) 
+OPThermalDiffusionE::impulseDelG(const NEventData& ndat) 
 { 
   Vector  acc(0,0,0);
     
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     acc += impulseDelG(dat);
   
   return acc;
 }
 
 void 
-OPThermalDiffusionE::updateConstDelG(const CNParticleData& ndat)
+OPThermalDiffusionE::updateConstDelG(const NEventData& ndat)
 {
-  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& dat, ndat.L1partChanges)
     updateConstDelG(dat);
   
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     updateConstDelG(dat);
 }

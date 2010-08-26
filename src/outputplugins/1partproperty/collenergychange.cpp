@@ -64,14 +64,14 @@ OPCollEnergyChange::initialise()
 }
 
 void 
-OPCollEnergyChange::A1ParticleChange(const C1ParticleData& PDat)
+OPCollEnergyChange::A1ParticleChange(const ParticleEventData& PDat)
 {
   data[PDat.getSpecies().getID()]
     .addVal(PDat.getDeltaKE());
 }
 
 void 
-OPCollEnergyChange::A2ParticleChange(const C2ParticleData& PDat)
+OPCollEnergyChange::A2ParticleChange(const PairEventData& PDat)
 {
   data[PDat.particle1_.getSpecies().getID()]
     .addVal(PDat.particle1_.getDeltaKE());

@@ -153,7 +153,7 @@ ILines::runEvent(const Particle& p1,
       {
 	++Sim->lNColl;
 	//We have a line interaction! Run it
-	C2ParticleData retval(Sim->dynamics.getLiouvillean().runLineLineCollision
+	PairEventData retval(Sim->dynamics.getLiouvillean().runLineLineCollision
 			      (iEvent, e, length));
 
 	Sim->signalParticleUpdate(retval);

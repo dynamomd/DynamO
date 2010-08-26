@@ -28,8 +28,8 @@ namespace xmlw
   class XmlStream;
 }
 class IntEvent;
-class CGlobEvent;
-class CNParticleData;
+class GlobalEvent;
+class NEventData;
 
 class CSystem: public DYNAMO::SimBase
 {
@@ -50,7 +50,7 @@ public:
 
   bool operator<(const IntEvent&) const;
 
-  bool operator<(const CGlobEvent&) const;
+  bool operator<(const GlobalEvent&) const;
 
   bool operator<(const CSystem&) const;
   

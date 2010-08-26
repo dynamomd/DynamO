@@ -23,7 +23,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 CGPBCSentinel::CGPBCSentinel(DYNAMO::SimData* nSim, const std::string& name):
-  CGlobal(nSim, "PBCSentinel"),
+  Global(nSim, "PBCSentinel"),
   maxintdist(0)
 {
   globName = name;
@@ -31,7 +31,7 @@ CGPBCSentinel::CGPBCSentinel(DYNAMO::SimData* nSim, const std::string& name):
 }
 
 CGPBCSentinel::CGPBCSentinel(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim, "PBCSentinel"),
+  Global(ptrSim, "PBCSentinel"),
   maxintdist(0)
 {
   operator<<(XML);
@@ -57,12 +57,12 @@ CGPBCSentinel::initialise(size_t nID)
 }
 
 void 
-CGPBCSentinel::particlesUpdated(const CNParticleData& PDat)
+CGPBCSentinel::particlesUpdated(const NEventData& PDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pdat, PDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
     cachedTimes[pdat.getParticle().getID()] = Sim->dSysTime;
   
-  BOOST_FOREACH(const C2ParticleData& pdat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
     {
       cachedTimes[pdat.particle1_.getParticle().getID()] = Sim->dSysTime;
       cachedTimes[pdat.particle2_.getParticle().getID()] = Sim->dSysTime;
@@ -81,14 +81,14 @@ CGPBCSentinel::operator<<(const XMLNode& XML)
     }
 }
 
-CGlobEvent 
+GlobalEvent 
 CGPBCSentinel::getEvent(const Particle& part) const
 {
   Iflt dt 
     = Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
     - (Sim->dSysTime - cachedTimes[part.getID()]);
  
-  return CGlobEvent(part, dt, VIRTUAL, *this);
+  return GlobalEvent(part, dt, VIRTUAL, *this);
 }
 
 void 
@@ -96,7 +96,7 @@ CGPBCSentinel::runEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
-  CGlobEvent iEvent(getEvent(part));
+  GlobalEvent iEvent(getEvent(part));
 
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))

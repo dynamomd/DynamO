@@ -32,7 +32,7 @@
 
 
 CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
-  CGlobal(nSim, "SingleOccupancyCells"),
+  Global(nSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
   cuberootN(0)
@@ -42,7 +42,7 @@ CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
 }
 
 CGSOCells::CGSOCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  CGlobal(ptrSim, "SingleOccupancyCells"),
+  Global(ptrSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
   cuberootN(0)
@@ -64,7 +64,7 @@ CGSOCells::operator<<(const XMLNode& XML)
     }
 }
 
-CGlobEvent 
+GlobalEvent 
 CGSOCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -86,7 +86,7 @@ CGSOCells::getEvent(const Particle& part) const
       ID /= cuberootN;
     }
 
-  return CGlobEvent(part,
+  return GlobalEvent(part,
 		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, CellOrigin,
@@ -117,7 +117,7 @@ CGSOCells::runEvent(const Particle& part) const
 
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
-  CGlobEvent iEvent(getEvent(part));
+  GlobalEvent iEvent(getEvent(part));
 
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
@@ -144,7 +144,7 @@ CGSOCells::runEvent(const Particle& part) const
   vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
     
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+  NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
 		      (part, vNorm, 1.0));
 
   Sim->signalParticleUpdate(EDat);

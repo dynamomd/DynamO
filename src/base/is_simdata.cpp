@@ -55,7 +55,7 @@ namespace DYNAMO
   
   void 
   SimData::signalParticleUpdate
-  (const CNParticleData& pdat) const
+  (const NEventData& pdat) const
   {
     BOOST_FOREACH(const particleUpdateFunc& func, _particleUpdateNotify)
       func(pdat);

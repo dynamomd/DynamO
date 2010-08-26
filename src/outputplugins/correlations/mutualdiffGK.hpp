@@ -32,13 +32,13 @@ public:
 
   virtual void stream(const Iflt);
 
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
   
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
   virtual Iflt rescaleFactor();
 
@@ -49,11 +49,11 @@ public:
   std::list<Vector  > getAvgAcc() const;
   
  protected:  
-  virtual void updateDelG(const C2ParticleData&);
+  virtual void updateDelG(const PairEventData&);
 
-  virtual void updateDelG(const C1ParticleData&);
+  virtual void updateDelG(const ParticleEventData&);
 
-  virtual void updateDelG(const CNParticleData&);
+  virtual void updateDelG(const NEventData&);
     
   virtual void newG();
   

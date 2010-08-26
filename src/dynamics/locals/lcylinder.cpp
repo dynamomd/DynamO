@@ -28,7 +28,7 @@
 CLCylinder::CLCylinder(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
 		       Vector  norigin, Iflt nr, std::string nname, 
 		       CRange* nRange, bool nrender):
-  CLocal(nRange, nSim, "CylinderWall"),
+  Local(nRange, nSim, "CylinderWall"),
   vNorm(nnorm),
   vPosition(norigin),
   e(ne),
@@ -39,12 +39,12 @@ CLCylinder::CLCylinder(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm,
 }
 
 CLCylinder::CLCylinder(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "CylinderWall")
+  Local(tmp, "CylinderWall")
 {
   operator<<(XML);
 }
 
-CLocalEvent 
+LocalEvent 
 CLCylinder::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -52,17 +52,17 @@ CLCylinder::getEvent(const Particle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getCylinderWallCollision
+  return LocalEvent(part, Sim->dynamics.getLiouvillean().getCylinderWallCollision
 		     (part, vPosition, vNorm, radius), WALL, *this);
 }
 
 void
-CLCylinder::runEvent(const Particle& part, const CLocalEvent& iEvent) const
+CLCylinder::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runCylinderWallCollision
+  NEventData EDat(Sim->dynamics.getLiouvillean().runCylinderWallCollision
 		      (part, vPosition, vNorm, e));
 
   Sim->signalParticleUpdate(EDat);

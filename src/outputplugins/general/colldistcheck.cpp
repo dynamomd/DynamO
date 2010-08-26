@@ -52,7 +52,7 @@ OPCollDistCheck::operator<<(const XMLNode& XML)
 
 void 
 OPCollDistCheck::eventUpdate(const IntEvent& eevent, 
-			      const C2ParticleData& PDat)
+			      const PairEventData& PDat)
 {
   const eventKey locPair(getClassKey(eevent), 
 			 eevent.getType());
@@ -64,8 +64,8 @@ OPCollDistCheck::eventUpdate(const IntEvent& eevent,
 }
 
 void 
-OPCollDistCheck::eventUpdate(const CGlobEvent& gEvent, 
-			      const CNParticleData& PDat)
+OPCollDistCheck::eventUpdate(const GlobalEvent& gEvent, 
+			      const NEventData& PDat)
 {
   const eventKey locPair(getClassKey(gEvent), 
 			 gEvent.getType());
@@ -74,13 +74,13 @@ OPCollDistCheck::eventUpdate(const CGlobEvent& gEvent,
       && (distList.find(locPair) == distList.end()))
     distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
   
-  BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.nrm());
 }
 
 void 
-OPCollDistCheck::eventUpdate(const CLocalEvent& lEvent, 
-			      const CNParticleData& PDat)
+OPCollDistCheck::eventUpdate(const LocalEvent& lEvent, 
+			      const NEventData& PDat)
 {
   const eventKey locPair(getClassKey(lEvent), 
 			 lEvent.getType());
@@ -89,13 +89,13 @@ OPCollDistCheck::eventUpdate(const CLocalEvent& lEvent,
       && (distList.find(locPair) == distList.end()))
     distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
   
-  BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.nrm());
 }
   
 void 
 OPCollDistCheck::eventUpdate(const CSystem& sysEvent, 
-			      const CNParticleData& PDat, const Iflt& dt)
+			      const NEventData& PDat, const Iflt& dt)
 {
   const eventKey locPair(getClassKey(sysEvent), sysEvent.getType());
   
@@ -103,7 +103,7 @@ OPCollDistCheck::eventUpdate(const CSystem& sysEvent,
       && (distList.find(locPair) == distList.end()))
     distList[locPair] = C1DHistogram(binwidth * Sim->dynamics.units().unitLength());
   
-  BOOST_FOREACH(const C2ParticleData& dat, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
     distList[locPair].addVal(dat.rij.nrm());
 }
 

@@ -88,7 +88,7 @@ CSRingDSMC::runEvent() const
   Sim->freestreamAcc = 0;
 
   BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+    Ptr->eventUpdate(*this, NEventData(), locdt);
 
   //////////////////// T(1,2) operator
   Iflt intPart;
@@ -123,7 +123,7 @@ CSRingDSMC::runEvent() const
 	    ++Sim->lNColl;
 	    ++n12;
 
-	    const C2ParticleData
+	    const PairEventData
 	      SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 	    
 	    Sim->signalParticleUpdate(SDat);
@@ -176,7 +176,7 @@ CSRingDSMC::runEvent() const
 	    ++Sim->lNColl;
 	    ++n13;
 
-	    const C2ParticleData
+	    const PairEventData
 	      SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, PDat));
 
 	    Sim->signalParticleUpdate(SDat);

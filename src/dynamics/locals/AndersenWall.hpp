@@ -21,7 +21,7 @@
 #include "local.hpp"
 #include "../../datatypes/vector.hpp"
 
-class CLAndersenWall: public CLocal
+class CLAndersenWall: public Local
 {
 public:
   CLAndersenWall(const XMLNode&, DYNAMO::SimData*);
@@ -31,11 +31,11 @@ public:
 
   virtual ~CLAndersenWall() {}
 
-  virtual CLocal* Clone() const { return new CLAndersenWall(*this); }
+  virtual Local* Clone() const { return new CLAndersenWall(*this); }
 
-  virtual CLocalEvent getEvent(const Particle &) const;
+  virtual LocalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const LocalEvent&) const;
 
   virtual void initialise(size_t);
 

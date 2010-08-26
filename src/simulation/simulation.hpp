@@ -77,7 +77,7 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void setRandSeed(unsigned int);
 
-  void addGlobal(CGlobal*);
+  void addGlobal(Global*);
 
   void addSystem(CSystem*);
 

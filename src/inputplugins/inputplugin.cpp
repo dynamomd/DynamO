@@ -113,7 +113,7 @@ CInputPlugin::setPackFrac(Iflt tmp)
 {
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   volume *= PI / (6 * (Sim->dynamics.units().simVolume()));

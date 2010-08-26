@@ -113,7 +113,7 @@ CSComplex::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -134,7 +134,7 @@ CSComplex::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const smrtPlugPtr<CGlobal>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const smrtPlugPtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   

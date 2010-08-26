@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSPECIES_H
-#define CSPECIES_H
+#pragma once
 
 #include "../../datatypes/pluginpointer.hpp"
 #include "../../base/is_base.hpp"
@@ -34,15 +33,15 @@ class Particle;
 class Interaction;
 
 
-class CSpecies:public DYNAMO::SimBase_const
+class Species:public DYNAMO::SimBase_const
 {
 public:  
-  CSpecies(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
+  Species(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
 	   unsigned int ID, std::string nIName="Bulk");
   
-  CSpecies(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
+  Species(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
 
-  virtual ~CSpecies() {}
+  virtual ~Species() {}
 
   bool isSpecies(const Particle &) const;
   
@@ -56,7 +55,7 @@ public:
 
   void initialise();
 
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CSpecies&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const Species&);
   
   const std::string& getName() const { return spName; }
 
@@ -68,14 +67,14 @@ public:
 
   const smrtPlugPtr<CRange>& getRange() const { return range; }
 
-  virtual CSpecies* Clone() const { return new CSpecies(*this); }
+  virtual Species* Clone() const { return new Species(*this); }
 
   virtual Iflt getScalarMomentOfInertia() const { return 0; }
 
-  static CSpecies* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
+  static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 protected:
-  CSpecies(DYNAMO::SimData*, const char* name, const char* color, 
+  Species(DYNAMO::SimData*, const char* name, const char* color, 
 	   CRange*, Iflt nMass, std::string nName, 
 	   unsigned int ID, std::string nIName="Bulk");
   
@@ -94,20 +93,17 @@ protected:
   unsigned int ID;
 };
 
-class CSpecInertia: public CSpecies
+class SpInertia: public Species
 {
 public:
-  CSpecInertia(DYNAMO::SimData* sim, const char* name, const char* color, 
+  SpInertia(DYNAMO::SimData* sim, const char* name, const char* color, 
 	       CRange* r, Iflt nMass, std::string nName, 
 	       unsigned int ID, std::string nIName="Bulk"):
-  CSpecies(sim, name, color, r, nMass, nName, ID, nIName)
+  Species(sim, name, color, r, nMass, nName, ID, nIName)
   {}
 
-  CSpecInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
-    CSpecies(XML,Sim,ID)
+  SpInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+    Species(XML,Sim,ID)
   {}
 
 };
-
-
-#endif

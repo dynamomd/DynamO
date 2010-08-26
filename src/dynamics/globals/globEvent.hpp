@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGlobEvent_H
-#define CGlobEvent_H
+#pragma once
 
 #include <cfloat>
 #include "../eventtypes.hpp"
@@ -31,13 +30,13 @@ namespace DYNAMO {
   class SimData;
 }
 class IntEvent;
-class CGlobal;
+class Global;
 
-class CGlobEvent
+class GlobalEvent
 {
 public:  
-  CGlobEvent (const Particle&, const Iflt&, 
-	      EEventType, const CGlobal&);
+  GlobalEvent (const Particle&, const Iflt&, 
+	      EEventType, const Global&);
 
   inline bool operator== (const Particle &partx) const 
     { return (*particle_ == partx); }
@@ -50,10 +49,10 @@ public:
     CType = NONE; 
   }
 
-  inline bool operator< (const CGlobEvent & C2) const 
+  inline bool operator< (const GlobalEvent & C2) const 
   { return dt < C2.dt;}
   
-  inline bool operator> (const CGlobEvent & C2) const 
+  inline bool operator> (const GlobalEvent & C2) const 
     { return dt > C2.dt;}
 
   inline void incrementTime(const Iflt& deltat) {dt -= deltat; }
@@ -67,7 +66,7 @@ public:
   inline EEventType getType() const
     { return CType; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CGlobEvent&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const GlobalEvent&);
 
   std::string stringData(const DYNAMO::SimData*) const;
 
@@ -82,5 +81,3 @@ protected:
   mutable EEventType CType;
   const size_t globalID;
 };
-
-#endif

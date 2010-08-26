@@ -26,14 +26,14 @@
 #include "global.hpp"
 #include <cmath>
 
-CGlobEvent::CGlobEvent(const Particle& part1, const Iflt &delt, 
-		       EEventType nType, const CGlobal& glob):
+GlobalEvent::GlobalEvent(const Particle& part1, const Iflt &delt, 
+		       EEventType nType, const Global& glob):
   particle_(&part1), dt(delt), 
   CType(nType), globalID(glob.getID())
 {}
   
 xmlw::XmlStream& operator<<(xmlw::XmlStream &XML, 
-			    const CGlobEvent &coll)
+			    const GlobalEvent &coll)
 {
   XML << xmlw::tag("Collision")
       << xmlw::attr("p1ID") << coll.getParticle().getID()
@@ -44,7 +44,7 @@ xmlw::XmlStream& operator<<(xmlw::XmlStream &XML,
 }
 
 std::string 
-CGlobEvent::stringData(const DYNAMO::SimData* Sim) const
+GlobalEvent::stringData(const DYNAMO::SimData* Sim) const
 {
   std::ostringstream tmpstring;
   tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
@@ -54,5 +54,5 @@ CGlobEvent::stringData(const DYNAMO::SimData* Sim) const
 }
 
 bool 
-CGlobEvent::areInvolved(const IntEvent &coll) const 
+GlobalEvent::areInvolved(const IntEvent &coll) const 
 { return (coll == *particle_); }

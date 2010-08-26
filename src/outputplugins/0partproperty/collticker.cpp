@@ -25,28 +25,28 @@ OPCollTicker::OPCollTicker(const DYNAMO::SimData* t1,const char *t2, unsigned ch
 
 void 
 OPCollTicker::eventUpdate(const IntEvent &event, 
-		    const C2ParticleData &) 
+		    const PairEventData &) 
 {
   stream(event.getdt());
   ticker();
 }
 
 void 
-OPCollTicker::eventUpdate(const CGlobEvent &event, const CNParticleData&) 
+OPCollTicker::eventUpdate(const GlobalEvent &event, const NEventData&) 
 {
   stream(event.getdt());
   ticker();
 }
 
 void 
-OPCollTicker::eventUpdate(const CLocalEvent &event, const CNParticleData&) 
+OPCollTicker::eventUpdate(const LocalEvent &event, const NEventData&) 
 {
   stream(event.getdt());
   ticker();
 }
 
 void 
-OPCollTicker::eventUpdate(const CSystem&, const CNParticleData&, const Iflt& dt)
+OPCollTicker::eventUpdate(const CSystem&, const NEventData&, const Iflt& dt)
 {
   stream(dt);
   ticker();

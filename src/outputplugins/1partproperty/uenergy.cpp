@@ -57,13 +57,13 @@ OPUEnergy::getAvgU() const
 }
 
 void 
-OPUEnergy::A1ParticleChange(const C1ParticleData& PDat)
+OPUEnergy::A1ParticleChange(const ParticleEventData& PDat)
 {
   intECurrent += PDat.getDeltaU();
 }
 
 void 
-OPUEnergy::A2ParticleChange(const C2ParticleData& PDat)
+OPUEnergy::A2ParticleChange(const PairEventData& PDat)
 {
   intECurrent += PDat.particle1_.getDeltaU()
     + PDat.particle2_.getDeltaU();

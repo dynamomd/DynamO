@@ -28,7 +28,7 @@
 LRoughWall::LRoughWall(DYNAMO::SimData* nSim, Iflt ne, Iflt net, Iflt nr, Vector  nnorm, 
 		       Vector  norigin, std::string nname, 
 		       CRange* nRange, bool nrender):
-  CLocal(nRange, nSim, "LocalRoughWall"),
+  Local(nRange, nSim, "LocalRoughWall"),
   vNorm(nnorm),
   vPosition(norigin),
   e(ne),
@@ -40,12 +40,12 @@ LRoughWall::LRoughWall(DYNAMO::SimData* nSim, Iflt ne, Iflt net, Iflt nr, Vector
 }
 
 LRoughWall::LRoughWall(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "LocalRoughWall")
+  Local(tmp, "LocalRoughWall")
 {
   operator<<(XML);
 }
 
-CLocalEvent 
+LocalEvent 
 LRoughWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -53,17 +53,17 @@ LRoughWall::getEvent(const Particle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
+  return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
 		     (part, vPosition, vNorm), WALL, *this);
 }
 
 void
-LRoughWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
+LRoughWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
   //Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runRoughWallCollision
+  NEventData EDat(Sim->dynamics.getLiouvillean().runRoughWallCollision
 		      (part, vNorm, e, et, r));
 
   Sim->signalParticleUpdate(EDat);

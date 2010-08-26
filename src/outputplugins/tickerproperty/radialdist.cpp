@@ -87,8 +87,8 @@ OPRadialDistribution::ticker()
 {
   ++sampleCount;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const smrtPlugPtr<Species>& sp2, Sim->dynamics.getSpecies())
     { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
 	BOOST_FOREACH(const size_t& p2, *sp2->getRange())
 	{
@@ -112,8 +112,8 @@ OPRadialDistribution::output(xmlw::XmlStream& XML)
       << sampleCount;
 
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp1, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp2, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const smrtPlugPtr<Species>& sp2, Sim->dynamics.getSpecies())
     {
       Iflt density = sp2->getCount() / Sim->dynamics.units().simVolume();
 

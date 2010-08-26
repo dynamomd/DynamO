@@ -18,7 +18,7 @@
 #include "neighbourList.hpp"
 
 CGNeighbourList::CGNeighbourList(const CGNeighbourList& nb):
-  CGlobal(nb),
+  Global(nb),
   isUsedInScheduler(false)
 
 {

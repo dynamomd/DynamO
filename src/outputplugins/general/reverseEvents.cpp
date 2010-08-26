@@ -36,28 +36,28 @@ OPReverseEventsCheck::initialise()
 
 void 
 OPReverseEventsCheck::eventUpdate(const IntEvent& eevent, 
-				   const C2ParticleData&)
+				   const PairEventData&)
 {
   if (eevent.getdt() < localeps) 
   	++lReverseEvents;
 }
 
 void 
-OPReverseEventsCheck::eventUpdate(const CGlobEvent& eevent, 
-				   const CNParticleData&)
+OPReverseEventsCheck::eventUpdate(const GlobalEvent& eevent, 
+				   const NEventData&)
 {
   if (eevent.getdt() < localeps) ++lReverseEvents;
 }
 
 void 
-OPReverseEventsCheck::eventUpdate(const CLocalEvent& eevent, 
-				   const CNParticleData&)
+OPReverseEventsCheck::eventUpdate(const LocalEvent& eevent, 
+				   const NEventData&)
 {
   if (eevent.getdt() < localeps) ++lReverseEvents;
 }
 
 void 
-OPReverseEventsCheck::eventUpdate(const CSystem&, const CNParticleData&, 
+OPReverseEventsCheck::eventUpdate(const CSystem&, const NEventData&, 
 				   const Iflt& dt)
 {
   if (dt < localeps) ++lReverseEvents;  

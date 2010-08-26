@@ -188,7 +188,7 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
     D_throw() << "Unknown type found";
 #endif
 
-  C2ParticleData EDat(Sim->dynamics.getLiouvillean().SmoothSpheresColl
+  PairEventData EDat(Sim->dynamics.getLiouvillean().SmoothSpheresColl
 		      (iEvent, 1.0, d2, iEvent.getType()));
 
   Sim->signalParticleUpdate(EDat);

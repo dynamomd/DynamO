@@ -30,8 +30,8 @@ namespace xmlw
   class XmlStream;
 }
 class Particle;
-class C2ParticleData;
-class C1ParticleData;
+class PairEventData;
+class ParticleEventData;
 class IntEvent;
 class intPart;
 
@@ -129,11 +129,11 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual CNParticleData multibdyCollision(const CRange& r1, const CRange& r2,
+  virtual NEventData multibdyCollision(const CRange& r1, const CRange& r2,
 					   const Iflt& d2,
 					   const EEventType& eType) const = 0;
 
-  virtual CNParticleData multibdyWellEvent(const CRange&, const CRange&, 
+  virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
 					   const Iflt&, const Iflt&, 
 					   EEventType&) const = 0;
 
@@ -291,7 +291,7 @@ public:
 				      const Iflt& Omega, const Iflt& Sigma,
 				      const Iflt& t, bool lastPart) const;
 
-  virtual C1ParticleData runOscilatingPlate
+  virtual ParticleEventData runOscilatingPlate
   (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
    const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
    Iflt& t, bool strongPlate = false) const;
@@ -345,7 +345,7 @@ public:
    * \param eevent Description of the scheduled event
    * \return Collision data
    */    
-  virtual C2ParticleData runLineLineCollision(const IntEvent& eevent,
+  virtual PairEventData runLineLineCollision(const IntEvent& eevent,
 					      const Iflt& elasticity, const Iflt& length) const;
 
   /*! \brief Determines when the particle center will hit a wall.
@@ -384,7 +384,7 @@ public:
    * \param e Elasticity of wall.
    * \return The data for the collision.
    */
-  virtual C1ParticleData runCylinderWallCollision(const Particle& part, 
+  virtual ParticleEventData runCylinderWallCollision(const Particle& part, 
 						  const Vector & origin,
 						  const Vector & norm,
 						  const Iflt& e
@@ -397,7 +397,7 @@ public:
    * \param e Elasticity of wall.
    * \return The data for the collision.
    */
-  virtual C1ParticleData runSphereWallCollision(const Particle& part, 
+  virtual ParticleEventData runSphereWallCollision(const Particle& part, 
 						const Vector & origin,
 						const Iflt& e
 						) const;
@@ -409,7 +409,7 @@ public:
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
    * \return The data for the collision.
    */
-  virtual C1ParticleData runWallCollision(const Particle& part, 
+  virtual ParticleEventData runWallCollision(const Particle& part, 
 					  const Vector & vNorm,
 					  const Iflt& e
 					  ) const = 0;
@@ -425,7 +425,7 @@ public:
    * \param sqrtT Square root of the Temperature of wall.
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
    */    
-  virtual C1ParticleData runAndersenWallCollision(const Particle& part, 
+  virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
 						  const Iflt& sqrtT
 						  ) const = 0;
@@ -441,7 +441,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData SmoothSpheresColl(const IntEvent& event, 
+  virtual PairEventData SmoothSpheresColl(const IntEvent& event, 
 					   const Iflt& e, 
 					   const Iflt& d2, 
 					   const EEventType& eType = CORE
@@ -459,7 +459,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e, 
+  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e, 
 						      const Iflt& d2,
 						      const EEventType& eType = CORE) const;
 
@@ -473,7 +473,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData RoughSpheresColl(const IntEvent& event, 
+  virtual PairEventData RoughSpheresColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& et, 
 					  const Iflt& d2, 
@@ -492,7 +492,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual C2ParticleData parallelCubeColl(const IntEvent& event, 
+  virtual PairEventData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType = CORE) const;
@@ -509,7 +509,7 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data
    */
-  virtual C2ParticleData parallelCubeColl(const IntEvent& event,
+  virtual PairEventData parallelCubeColl(const IntEvent& event,
 					  const Iflt& e, const Iflt& d,
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;
@@ -541,7 +541,7 @@ public:
    * \param pdat Some cached calc data
    * \return Data on the collision
    */  
-  virtual C2ParticleData DSMCSpheresRun(const Particle& p1,
+  virtual PairEventData DSMCSpheresRun(const Particle& p1,
 					const Particle& p2,
 					const Iflt& e,
 					CPDData& pdat
@@ -559,7 +559,7 @@ public:
    * \param d2 The square of the interaction distance.
    * \return The event data.
    */  
-  virtual C2ParticleData SphereWellEvent(const IntEvent& event, 
+  virtual PairEventData SphereWellEvent(const IntEvent& event, 
 					 const Iflt& deltaKE, 
 					 const Iflt& d2) const = 0;
 
@@ -574,7 +574,7 @@ public:
    *
    * \bug Does this work for arbitrary mass particles.
    */
-  virtual C1ParticleData randomGaussianEvent(const Particle& part, 
+  virtual ParticleEventData randomGaussianEvent(const Particle& part, 
 					     const Iflt& sqrtT) const = 0;
 
   /*! \brief A method to allow polymorphic classes to be copied
@@ -683,7 +683,7 @@ public:
    * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
    * \return The data for the collision.
    */
-  virtual C1ParticleData runRoughWallCollision(const Particle& part, 
+  virtual ParticleEventData runRoughWallCollision(const Particle& part, 
 					       const Vector & vNorm,
 					       const Iflt& e,
 					       const Iflt& et,

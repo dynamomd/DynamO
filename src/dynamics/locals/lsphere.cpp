@@ -29,7 +29,7 @@
 CLSphere::CLSphere(DYNAMO::SimData* nSim, Iflt ne,
 		       Vector  norigin, Iflt nr, std::string nname, 
 		       CRange* nRange, bool nrender):
-  CLocal(nRange, nSim, "CylinderWall"),
+  Local(nRange, nSim, "CylinderWall"),
   vPosition(norigin),
   e(ne),
   radius(nr),
@@ -40,12 +40,12 @@ CLSphere::CLSphere(DYNAMO::SimData* nSim, Iflt ne,
 }
 
 CLSphere::CLSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
-  CLocal(tmp, "CylinderWall")
+  Local(tmp, "CylinderWall")
 {
   operator<<(XML);
 }
 
-CLocalEvent 
+LocalEvent 
 CLSphere::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -59,16 +59,16 @@ CLSphere::getEvent(const Particle& part) const
 
   dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean()). LNewtonian::SphereSphereOutRoot(colldat, r2);
 
-  return CLocalEvent(part, colldat.dt, WALL, *this);
+  return LocalEvent(part, colldat.dt, WALL, *this);
 }
 
 void
-CLSphere::runEvent(const Particle& part, const CLocalEvent& iEvent) const
+CLSphere::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
   ++Sim->lNColl;
 
   ///Run the collision and catch the data
-  CNParticleData EDat(Sim->dynamics.getLiouvillean().runSphereWallCollision
+  NEventData EDat(Sim->dynamics.getLiouvillean().runSphereWallCollision
   		      (part, vPosition, e));
   
   Sim->signalParticleUpdate(EDat);

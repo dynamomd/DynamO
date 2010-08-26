@@ -54,7 +54,7 @@ OPCollisionCorrelator::initialise()
 }
 
 void 
-OPCollisionCorrelator::A2ParticleChange(const C2ParticleData& PDat)
+OPCollisionCorrelator::A2ParticleChange(const PairEventData& PDat)
 {
   size_t ID1 = PDat.particle1_.getParticle().getID();
   size_t ID2 = PDat.particle2_.getParticle().getID();

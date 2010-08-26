@@ -91,7 +91,7 @@ OPSelfDiffusionOrientationalGK::operator<<(const XMLNode& XML)
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat)
+OPSelfDiffusionOrientationalGK::eventUpdate(const GlobalEvent& iEvent, const NEventData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -105,7 +105,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CGlobEvent& iEvent, const CNPa
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat)
+OPSelfDiffusionOrientationalGK::eventUpdate(const LocalEvent& iEvent, const NEventData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -119,7 +119,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CLocalEvent& iEvent, const CNP
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt)
+OPSelfDiffusionOrientationalGK::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt)
 {
   //Move the time forward
   currentdt += edt;
@@ -133,7 +133,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const CSystem&, const CNParticleData
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
+OPSelfDiffusionOrientationalGK::eventUpdate(const IntEvent& iEvent, const PairEventData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -147,7 +147,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const IntEvent& iEvent, const C2Part
 }
 
 void
-OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
+OPSelfDiffusionOrientationalGK::newG(const ParticleEventData& PDat)
 {
   if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
   {
@@ -179,7 +179,7 @@ OPSelfDiffusionOrientationalGK::newG(const C1ParticleData& PDat)
 }
 
 void
-OPSelfDiffusionOrientationalGK::newG(const C2ParticleData& PDat)
+OPSelfDiffusionOrientationalGK::newG(const PairEventData& PDat)
 {
   for (size_t i = 0; i < Sim->lN; ++i)
   {
@@ -209,7 +209,7 @@ OPSelfDiffusionOrientationalGK::newG(const C2ParticleData& PDat)
 }
 
 void
-OPSelfDiffusionOrientationalGK::newG(const CNParticleData& PDat)
+OPSelfDiffusionOrientationalGK::newG(const NEventData& PDat)
 {
   //This ensures the list stays at accumilator size
   for (size_t i = 0; i < Sim->lN; ++i)
@@ -219,13 +219,13 @@ OPSelfDiffusionOrientationalGK::newG(const CNParticleData& PDat)
   }
 
   //Go back and fix the pushes
-  BOOST_FOREACH(const C1ParticleData&PDat2, PDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
   {
     const LNOrientation::rotData& fetchpart(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.getParticle().getID()]));
     G[PDat2.getParticle().getID()].front() = VUpair(PDat2.getOldVel(), fetchpart.orientation);
   }
 
-  BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& PDat2, PDat.L2partChanges)
   {
     const LNOrientation::rotData& fetch1(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle1_.getParticle().getID()]));
     const LNOrientation::rotData& fetch2(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getRotData(Sim->vParticleList[PDat2.particle2_.getParticle().getID()]));
@@ -346,7 +346,7 @@ OPSelfDiffusionOrientationalGK::accPass()
 {
   ++count;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
   {
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     {

@@ -297,8 +297,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -368,8 +368,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -486,8 +486,8 @@ CIPPacker::initialise()
 							new C2RAll()
 							))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -561,8 +561,8 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -620,8 +620,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
@@ -706,8 +706,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -789,8 +789,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -876,8 +876,8 @@ CIPPacker::initialise()
 	  }
 
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "Ring"));
@@ -961,12 +961,12 @@ CIPPacker::initialise()
 	  (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			    new C2RAll()))->setName("BBInt");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -1030,8 +1030,8 @@ CIPPacker::initialise()
 
 	Iflt inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<Iflt>() : 1.0;
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						     (inertiaMultiplicativeFactor * particleDiam * particleDiam) / 12.0,
 						     "Bulk")));
 
@@ -1107,8 +1107,8 @@ CIPPacker::initialise()
 			     2.0 * tij / latticeSites.size(), chi, 1.0,
 			     "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1179,8 +1179,8 @@ CIPPacker::initialise()
 			     chi, alpha, "Thermostat",
 			     new CRAll(Sim), new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1369,12 +1369,12 @@ CIPPacker::initialise()
 			     new CRRange(nA, latticeSites.size()-1)));
 
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(nA, latticeSites.size()-1),
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
 	unsigned long nParticles = 0;
@@ -1418,8 +1418,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						     particleDiam * particleDiam / 12.0,
 						     "Bulk")));
 
@@ -1532,12 +1532,12 @@ CIPPacker::initialise()
 	  (new IHardSphere(Sim, particleDiamB, 1.0,
 			    new C2RAll()))->setName("BBInt");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRRange(nPartA, latticeSites.size()-1),
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRRange(nPartA, latticeSites.size()-1),
 					       massFrac / chainlength, "B", 0, "BBInt")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -1618,8 +1618,8 @@ CIPPacker::initialise()
 				     (Sim, particleDiam, 1.0,
 				      new C2RAll()))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0,
 					       "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -1782,8 +1782,8 @@ CIPPacker::initialise()
 						   new C2RAll()
 						   ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1867,8 +1867,8 @@ CIPPacker::initialise()
 			  2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
 			  "RingDSMC", new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1950,8 +1950,8 @@ CIPPacker::initialise()
 			  2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
 			  "RingDSMC", new CRAll(Sim)));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -2087,8 +2087,8 @@ CIPPacker::initialise()
 					  Vector(0, +0.5 * Aspect, 0),
 					  "Plate5", new CRAll(Sim), false));
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, 
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, 
 					       "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -2179,8 +2179,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -2271,8 +2271,8 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addSpecies(smrtPlugPtr<CSpecies>
-				 (new CSpecies(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+	Sim->dynamics.addSpecies(smrtPlugPtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));

@@ -91,7 +91,7 @@ Simulation::getSystem(std::string name)
 }
 
 void 
-Simulation::addGlobal(CGlobal* tmp)
+Simulation::addGlobal(Global* tmp)
 {
   if (tmp == NULL)
     D_throw() << "Adding a NULL global";

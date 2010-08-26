@@ -155,7 +155,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
     {
     case WELL_IN:
       {
-	C2ParticleData retVal(Sim->dynamics.getLiouvillean()
+	PairEventData retVal(Sim->dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, wellDepth, d2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -173,7 +173,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
       }
     case WELL_OUT:
       {
-	C2ParticleData retVal(Sim->dynamics.getLiouvillean()
+	PairEventData retVal(Sim->dynamics.getLiouvillean()
 			      .SphereWellEvent(iEvent, -wellDepth, d2));
 	
 	if (retVal.getType() != BOUNCE)

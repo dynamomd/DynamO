@@ -31,9 +31,9 @@ public:
 
   virtual void streamParticle(Particle&, const Iflt&) const;
 
-  virtual C2ParticleData SmoothSpheresColl(const IntEvent&, const Iflt&, const Iflt&, const EEventType&) const;
+  virtual PairEventData SmoothSpheresColl(const IntEvent&, const Iflt&, const Iflt&, const EEventType&) const;
 
-  virtual C2ParticleData SphereWellEvent(const IntEvent&, const Iflt&, const Iflt&) const;
+  virtual PairEventData SphereWellEvent(const IntEvent&, const Iflt&, const Iflt&) const;
   
   virtual Liouvillean* Clone() const { return new LCompression(*this); };
 
@@ -47,7 +47,7 @@ public:
 
   virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { D_throw() << "Not Implemented"; }
 
-  virtual C2ParticleData parallelCubeColl(const IntEvent& event, 
+  virtual PairEventData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 
 					  const Iflt& d, 
 					  const EEventType& eType = CORE

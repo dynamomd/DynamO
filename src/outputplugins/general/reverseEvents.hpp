@@ -29,13 +29,13 @@ public:
 
   ~OPReverseEventsCheck() {}
 
-  void eventUpdate(const IntEvent&, const C2ParticleData&);
+  void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
 
   OutputPlugin *Clone() const { return new OPReverseEventsCheck(*this); }
 

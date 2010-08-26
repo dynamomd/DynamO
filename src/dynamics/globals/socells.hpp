@@ -24,7 +24,7 @@
 #include "../../simulation/particle.hpp"
 #include <vector>
 
-class CGSOCells: public CGlobal
+class CGSOCells: public Global
 {
 public:
   CGSOCells(const XMLNode&, DYNAMO::SimData*);
@@ -33,12 +33,12 @@ public:
 
   virtual ~CGSOCells() {}
 
-  virtual CGlobal* Clone() const 
+  virtual Global* Clone() const 
   { 
     return new CGSOCells(*this); 
   }
 
-  virtual CGlobEvent getEvent(const Particle &) const;
+  virtual GlobalEvent getEvent(const Particle &) const;
 
   virtual void runEvent(const Particle&) const;
 

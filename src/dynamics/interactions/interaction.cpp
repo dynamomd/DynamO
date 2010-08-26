@@ -38,7 +38,7 @@ Interaction::isInteraction(const IntEvent &coll) const
 }
 
 bool 
-Interaction::isInteraction(const CSpecies &speci) const
+Interaction::isInteraction(const Species &speci) const
 {
   return !(intName.compare(speci.getIntName()));
 }

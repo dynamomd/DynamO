@@ -37,7 +37,7 @@ public:
 
 private:
 
-  virtual void A2ParticleChange(const C2ParticleData&);
+  virtual void A2ParticleChange(const PairEventData&);
 
   virtual void stream(const Iflt&) {}
 

@@ -136,7 +136,7 @@ IRoughHardSphere::runEvent(const Particle& p1,
   ++Sim->lNColl;
     
   //Run the collision and catch the data
-  C2ParticleData EDat
+  PairEventData EDat
     (Sim->dynamics.getLiouvillean().RoughSpheresColl(iEvent, e, et, d2)); 
 
   Sim->signalParticleUpdate(EDat);

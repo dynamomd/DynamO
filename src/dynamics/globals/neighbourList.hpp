@@ -24,7 +24,7 @@
 
 #include <FastDelegate/FastDelegate.h>
 
-class CGNeighbourList: public CGlobal
+class CGNeighbourList: public Global
 {
 public:
   typedef fastdelegate::FastDelegate2
@@ -65,12 +65,12 @@ protected:
 public:
   CGNeighbourList(DYNAMO::SimData* a, 
 		  const char *b): 
-    CGlobal(a,b)
+    Global(a,b)
   {}
 
   CGNeighbourList(CRange* a, DYNAMO::SimData* b, 
 		  const char * c): 
-    CGlobal(a,b,c)
+    Global(a,b,c)
   {}
 
   CGNeighbourList(const CGNeighbourList&);

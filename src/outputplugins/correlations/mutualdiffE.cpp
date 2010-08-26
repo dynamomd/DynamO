@@ -122,23 +122,23 @@ OPMutualDiffusionE::stream(const Iflt edt)
 }
 
 void 
-OPMutualDiffusionE::eventUpdate(const CGlobEvent& iEvent,
-				 const CNParticleData& PDat) 
+OPMutualDiffusionE::eventUpdate(const GlobalEvent& iEvent,
+				 const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 void 
-OPMutualDiffusionE::eventUpdate(const CLocalEvent& iEvent, 
-				 const CNParticleData& PDat) 
+OPMutualDiffusionE::eventUpdate(const LocalEvent& iEvent, 
+				 const NEventData& PDat) 
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
 }
 
 void 
-OPMutualDiffusionE::eventUpdate(const CSystem&, const CNParticleData& PDat,
+OPMutualDiffusionE::eventUpdate(const CSystem&, const NEventData& PDat,
 				 const Iflt& edt) 
 { 
   stream(edt);
@@ -147,7 +147,7 @@ OPMutualDiffusionE::eventUpdate(const CSystem&, const CNParticleData& PDat,
 
 void 
 OPMutualDiffusionE::eventUpdate(const IntEvent& iEvent, 
-				 const C2ParticleData& PDat)
+				 const PairEventData& PDat)
 {
   stream(iEvent.getdt());
   updateDelG(PDat);
@@ -208,7 +208,7 @@ OPMutualDiffusionE::initialise()
   
   Iflt sysMass = 0.0;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
   
   BOOST_FOREACH(const Particle& part, Sim->vParticleList)
@@ -247,14 +247,14 @@ OPMutualDiffusionE::getAvgAcc() const
 }
 
 void 
-OPMutualDiffusionE::updateDelG(const C2ParticleData& PDat) 
+OPMutualDiffusionE::updateDelG(const PairEventData& PDat) 
 {
   updateDelG(PDat.particle1_);
   updateDelG(PDat.particle2_);
 }
 
 void 
-OPMutualDiffusionE::updateDelG(const C1ParticleData& PDat) 
+OPMutualDiffusionE::updateDelG(const ParticleEventData& PDat) 
 {
   sysMom += PDat.getDeltaP();
   
@@ -267,12 +267,12 @@ OPMutualDiffusionE::updateDelG(const C1ParticleData& PDat)
 }
 
 void 
-OPMutualDiffusionE::updateDelG(const CNParticleData& ndat)
+OPMutualDiffusionE::updateDelG(const NEventData& ndat)
 {
-  BOOST_FOREACH(const C1ParticleData& dat, ndat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& dat, ndat.L1partChanges)
     updateDelG(dat);
   
-  BOOST_FOREACH(const C2ParticleData& dat, ndat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
     updateDelG(dat);
 }
 

@@ -93,7 +93,7 @@ OPMSDCorrelator::accPass()
 {
   ++ticksTaken;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t step(1); step < length; ++step)
       speciesData[sp->getID()][step]
@@ -140,7 +140,7 @@ OPMSDCorrelator::output(xmlw::XmlStream &XML)
     (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
     / Sim->dynamics.units().unitTime();
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& sp, Sim->dynamics.getSpecies())
     {
       XML << xmlw::tag("Species")
 	  << xmlw::attr("Name")

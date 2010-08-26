@@ -31,7 +31,7 @@ OPRdotV::initialise()
 {}
 
 void 
-OPRdotV::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
+OPRdotV::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
 {
   size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
     speciesIDhigh =pDat.particle2_.getSpecies().getID();
@@ -48,9 +48,9 @@ OPRdotV::eventUpdate(const IntEvent& iEvent, const C2ParticleData& pDat)
 }
 
 void 
-OPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPRdotV::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
 	speciesIDhigh =pDat.particle2_.getSpecies().getID();
@@ -69,9 +69,9 @@ OPRdotV::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
 }
 
 void 
-OPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPRdotV::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
 	speciesIDhigh =pDat.particle2_.getSpecies().getID();
@@ -90,9 +90,9 @@ OPRdotV::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
 }
 
 void
-OPRdotV::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPRdotV::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
 {
-  BOOST_FOREACH(const C2ParticleData& pDat, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
 	speciesIDhigh =pDat.particle2_.getSpecies().getID();

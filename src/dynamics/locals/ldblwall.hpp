@@ -21,7 +21,7 @@
 #include "local.hpp"
 #include <vector>
 
-class CLDblWall: public CLocal
+class CLDblWall: public Local
 {
 public:
   CLDblWall(const XMLNode&, DYNAMO::SimData*);
@@ -30,11 +30,11 @@ public:
 
   virtual ~CLDblWall() {}
 
-  virtual CLocal* Clone() const { return new CLDblWall(*this); };
+  virtual Local* Clone() const { return new CLDblWall(*this); };
 
-  virtual CLocalEvent getEvent(const Particle&) const;
+  virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const CLocalEvent&) const;
+  virtual void runEvent(const Particle&, const LocalEvent&) const;
   
   virtual bool isInCell(const Vector &, const Vector &) const;
 
@@ -44,7 +44,7 @@ public:
 
   virtual void write_povray_info(std::ostream&) const;
 
-  virtual void particleUpdate(const CNParticleData &) const;
+  virtual void particleUpdate(const NEventData &) const;
 
 protected:
   virtual void outputXML(xmlw::XmlStream&) const;

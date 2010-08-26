@@ -25,35 +25,35 @@ OP2PP::OP2PP(const DYNAMO::SimData* t1,const char *t2):
 
 void 
 OP2PP::eventUpdate(const IntEvent &event, 
-		    const C2ParticleData &SDat) 
+		    const PairEventData &SDat) 
 {
   stream(event.getdt());
   A2ParticleChange(SDat);
 }
 
 void 
-OP2PP::eventUpdate(const CGlobEvent &event, const CNParticleData& SDat) 
+OP2PP::eventUpdate(const GlobalEvent &event, const NEventData& SDat) 
 {
   stream(event.getdt());
 
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     A2ParticleChange(pData);
 }
 
 void 
-OP2PP::eventUpdate(const CLocalEvent &event, const CNParticleData& SDat) 
+OP2PP::eventUpdate(const LocalEvent &event, const NEventData& SDat) 
 {
   stream(event.getdt());
 
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     A2ParticleChange(pData);
 }
 
 void 
-OP2PP::eventUpdate(const CSystem&, const CNParticleData& SDat, const Iflt& dt)
+OP2PP::eventUpdate(const CSystem&, const NEventData& SDat, const Iflt& dt)
 {
   stream(dt);
 
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     A2ParticleChange(pData);
 }

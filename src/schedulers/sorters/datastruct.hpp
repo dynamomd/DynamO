@@ -68,13 +68,13 @@ public:
     p2(coll.getParticle2ID())
   {}
 
-  inline intPart(const CGlobEvent& coll) throw():
+  inline intPart(const GlobalEvent& coll) throw():
     dt(coll.getdt()),
     type(GLOBAL),
     p2(coll.getGlobalID())
   {}
 
-  inline intPart(const CLocalEvent& coll) throw():
+  inline intPart(const LocalEvent& coll) throw():
     dt(coll.getdt()),
     type(LOCAL),
     p2(coll.getLocalID())

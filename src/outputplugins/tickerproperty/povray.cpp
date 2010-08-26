@@ -132,11 +132,11 @@ fog { distance 2 fog_type 2 fog_alt 0.01 fog_offset -0.1 color White }\n";
   BOOST_FOREACH(const smrtPlugPtr<Interaction>& intPtr, Sim->dynamics.getInteractions())
     intPtr->write_povray_info(of);
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
     spec->getIntPtr()->write_povray_desc
     (colmap.getColor(spec->getID()), spec->getID(), of);
 
-  BOOST_FOREACH(const smrtPlugPtr<CLocal>& ptr, Sim->dynamics.getLocals())
+  BOOST_FOREACH(const smrtPlugPtr<Local>& ptr, Sim->dynamics.getLocals())
     ptr->write_povray_info(of);
 
   //Mirror for the oscillating plate

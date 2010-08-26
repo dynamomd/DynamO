@@ -31,13 +31,13 @@ namespace DYNAMO {
   class SimData;
 }
 class IntEvent;
-class CLocal;
+class Local;
 
-class CLocalEvent
+class LocalEvent
 {
 public:  
-  CLocalEvent(const Particle&, const Iflt&,
-	      EEventType, const CLocal&);
+  LocalEvent(const Particle&, const Iflt&,
+	      EEventType, const Local&);
 
   inline bool operator== (const Particle &partx) const 
     { return (*particle_ == partx); }
@@ -50,10 +50,10 @@ public:
     CType = NONE; 
   }
 
-  inline bool operator< (const CLocalEvent & C2) const 
+  inline bool operator< (const LocalEvent & C2) const 
   { return dt < C2.dt;}
   
-  inline bool operator> (const CLocalEvent & C2) const 
+  inline bool operator> (const LocalEvent & C2) const 
     { return dt > C2.dt;}
 
   inline void incrementTime(const Iflt& deltat) {dt -= deltat; }
@@ -67,7 +67,7 @@ public:
   inline EEventType getType() const
   { return CType; }
   
-  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const CLocalEvent&);
+  friend xmlw::XmlStream& operator<<(xmlw::XmlStream&, const LocalEvent&);
 
   std::string stringData(const DYNAMO::SimData*) const;
 

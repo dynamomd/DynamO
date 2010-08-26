@@ -58,7 +58,7 @@ CSysRescale::CSysRescale(DYNAMO::SimData* tmp, size_t frequency, std::string nam
 }
 
 void 
-CSysRescale::checker(const CNParticleData&)
+CSysRescale::checker(const NEventData&)
 {
   if (!(Sim->lNColl % _frequency)) 
     {
@@ -105,11 +105,11 @@ CSysRescale::runEvent() const
 
   I_cout() << "Current kT " << currentkT;
 
-  CNParticleData SDat;
+  NEventData SDat;
 
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& species, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& species, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const unsigned long& partID, *species->getRange())
-    SDat.L1partChanges.push_back(C1ParticleData(Sim->vParticleList[partID], *species, RESCALE));
+    SDat.L1partChanges.push_back(ParticleEventData(Sim->vParticleList[partID], *species, RESCALE));
 
   Sim->dynamics.getLiouvillean().updateAllParticles();
   Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(1.0/currentkT);
@@ -123,7 +123,7 @@ CSysRescale::runEvent() const
   Sim->signalParticleUpdate(SDat);
   
   //Only 1ParticleEvents occur
-  BOOST_FOREACH(const C1ParticleData& PDat, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
     Sim->ptrScheduler->fullUpdate(PDat.getParticle());
   
   locdt += Sim->freestreamAcc;

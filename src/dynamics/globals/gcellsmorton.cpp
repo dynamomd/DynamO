@@ -94,7 +94,7 @@ CGCellsMorton::setLambda(const Iflt& nL)
   lambda = nL;
 }
 
-CGlobEvent 
+GlobalEvent 
 CGCellsMorton::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -107,7 +107,7 @@ CGCellsMorton::getEvent(const Particle& part) const
   //is not required as we compensate for the delay using 
   //Sim->dynamics.getLiouvillean().getParticleDelay(part)
   
-  return CGlobEvent(part,
+  return GlobalEvent(part,
 		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
 		    (part, calcPosition(partCellData[part.getID()].cell), 
@@ -402,7 +402,7 @@ CGCellsMorton::addLocalEvents()
 	  cells[id].clear();
 	  Vector pos = calcPosition(coords);
 	  
-	  BOOST_FOREACH(const smrtPlugPtr<CLocal>& local, Sim->dynamics.getLocals())
+	  BOOST_FOREACH(const smrtPlugPtr<Local>& local, Sim->dynamics.getLocals())
 	    if (local->isInCell(pos, Vector(cellDimension,cellDimension,cellDimension)))
 	      cells[id].push_back(local->getID());
 

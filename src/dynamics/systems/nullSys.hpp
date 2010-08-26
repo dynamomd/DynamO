@@ -32,7 +32,7 @@ public:
 
   virtual void stream(Iflt) {}
 
-  virtual CNParticleData runEvent()
+  virtual NEventData runEvent()
   { D_throw() << "You're running the null system event"; }
 
   virtual void initialise() {}
@@ -41,7 +41,7 @@ public:
 
   virtual bool operator<(const IntEvent&) const { return false; }
 
-  virtual bool operator<(const CGlobEvent&) const { return false; }
+  virtual bool operator<(const GlobalEvent&) const { return false; }
 
   virtual bool operator<(const CSystem&) const { return false; }
 

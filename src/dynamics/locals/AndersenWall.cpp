@@ -36,7 +36,7 @@
 #include <cmath>
 
 CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):
-  CLocal(ptrSim, "GlobalAndersenWall"),
+  Local(ptrSim, "GlobalAndersenWall"),
   sqrtT(1.0)
 {
   operator<<(XML);
@@ -45,7 +45,7 @@ CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):
 CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
 			       Vector  nnorm, Vector norigin, 
 			       std::string nname, CRange* nRange):
-  CLocal(nRange, nSim, "AndersenWall"),
+  Local(nRange, nSim, "AndersenWall"),
   vNorm(nnorm),
   vPosition(norigin),
   sqrtT(nsqrtT)
@@ -53,7 +53,7 @@ CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
   localName = nname;
 }
 
-CLocalEvent 
+LocalEvent 
 CLAndersenWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
@@ -61,15 +61,15 @@ CLAndersenWall::getEvent(const Particle& part) const
     D_throw() << "Particle is not up to date";
 #endif
 
-  return CLocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
+  return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
 }
 
 void
-CLAndersenWall::runEvent(const Particle& part, const CLocalEvent& iEvent) const
+CLAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 {
   ++Sim->lNColl;
   
-  CNParticleData EDat
+  NEventData EDat
     (Sim->dynamics.getLiouvillean().runAndersenWallCollision
      (part, vNorm, sqrtT));
   

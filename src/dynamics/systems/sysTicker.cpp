@@ -75,7 +75,7 @@ CSTicker::runEvent() const
   }
 
   BOOST_FOREACH(smrtPlugPtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, CNParticleData(), locdt);
+    Ptr->eventUpdate(*this, NEventData(), locdt);
 }
 
 void 

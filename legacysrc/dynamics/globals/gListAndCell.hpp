@@ -31,7 +31,7 @@ public:
 
   virtual ~CGListAndCell() {}
 
-  virtual CGlobal* Clone() const 
+  virtual Global* Clone() const 
   { return new CGListAndCell(*this); }
 
   virtual void initialise(size_t);

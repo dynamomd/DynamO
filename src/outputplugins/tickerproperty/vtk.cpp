@@ -65,7 +65,7 @@ OPVTK::operator<<(const XMLNode& XML)
 }
 
 void 
-OPVTK::eventUpdate(const IntEvent& IEvent, const C2ParticleData& PDat)
+OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 {
   if (CollisionStats)
     {

@@ -28,7 +28,7 @@ class OPMFT: public OP1PP
  public:
   OPMFT(const DYNAMO::SimData*, const XMLNode&);
 
-  void A1ParticleChange(const C1ParticleData&);
+  void A1ParticleChange(const ParticleEventData&);
 
   void stream(const Iflt&) {}
 

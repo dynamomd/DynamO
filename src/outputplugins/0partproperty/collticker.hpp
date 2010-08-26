@@ -25,13 +25,13 @@ class OPCollTicker: public OutputPlugin
 public:
   OPCollTicker(const DYNAMO::SimData*, const char*, unsigned char order=100);
 
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
 
   virtual void output(xmlw::XmlStream&) {}
 

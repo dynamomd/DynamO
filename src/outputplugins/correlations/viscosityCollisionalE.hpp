@@ -37,21 +37,21 @@ public:
   
   virtual OutputPlugin* Clone() const { return new OPViscosityCollisionalE(*this); }
   
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
   
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
   void stream(const Iflt&);
 
   virtual void operator<<(const XMLNode&);
 
 protected:
-  void impulseDelG(const C2ParticleData&);
-  void impulseDelG(const CNParticleData&);
+  void impulseDelG(const PairEventData&);
+  void impulseDelG(const NEventData&);
 
   void newG(const matrix&);
   void accPass();

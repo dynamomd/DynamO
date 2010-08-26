@@ -26,20 +26,20 @@
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 
-CSpecies::CSpecies(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
+Species::Species(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
 		   std::string nName, unsigned int nID, std::string nIName):
   SimBase_const(tmp,"Species", IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
   ID(nID)
 {}
 
-CSpecies::CSpecies(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
+Species::Species(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
   SimBase_const(tmp,"Species", IC_blue),
   mass(1.0),range(NULL),IntPtr(NULL),
   ID(nID)
 { operator<<(XML); }
 
-CSpecies::CSpecies(DYNAMO::SimData* tmp, const char* name, const char* color, 
+Species::Species(DYNAMO::SimData* tmp, const char* name, const char* color, 
 		   CRange* nr, Iflt nMass, std::string nName, 
 		   unsigned int nID, std::string nIName):
   SimBase_const(tmp,name, color),
@@ -48,7 +48,7 @@ CSpecies::CSpecies(DYNAMO::SimData* tmp, const char* name, const char* color,
 {}
 
 const Interaction* 
-CSpecies::getIntPtr() const
+Species::getIntPtr() const
 { 
 #ifdef DYNAMO_DEBUG
   if (IntPtr == NULL)
@@ -59,24 +59,24 @@ CSpecies::getIntPtr() const
 }
 
 void
-CSpecies::setIntPtr(Interaction* nPtr)
+Species::setIntPtr(Interaction* nPtr)
 { IntPtr = nPtr; }
 
 void
-CSpecies::initialise()
+Species::initialise()
 { 
   if (IntPtr == NULL)
     D_throw() << "Species missing a matching interaction";
 }
 
-xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const CSpecies& g)
+xmlw::XmlStream& operator<<(xmlw::XmlStream& XML, const Species& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 void 
-CSpecies::operator<<(const XMLNode& XML)
+Species::operator<<(const XMLNode& XML)
 {
   range.set_ptr(CRange::loadClass(XML,Sim));
     
@@ -94,11 +94,11 @@ CSpecies::operator<<(const XMLNode& XML)
 }
 
 bool 
-CSpecies::isSpecies(const Particle &p1) const
+Species::isSpecies(const Particle &p1) const
 { return range->isInRange(p1); }
 
 void 
-CSpecies::outputXML(xmlw::XmlStream& XML) const
+Species::outputXML(xmlw::XmlStream& XML) const
 {
   XML << xmlw::attr("Mass") 
       << mass / Sim->dynamics.units().unitMass()
@@ -109,21 +109,21 @@ CSpecies::outputXML(xmlw::XmlStream& XML) const
 }
 
 unsigned long 
-CSpecies::getCount() const
+Species::getCount() const
 {
   return range->size();
 }
 
-CSpecies* 
-CSpecies::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
+Species* 
+Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
 {
   if (!XML.isAttributeSet("Type"))
-    return new CSpecies(XML, tmp, nID);
+    return new Species(XML, tmp, nID);
 
   if (!std::strcmp(XML.getAttribute("Type"), "Point"))
-    return new CSpecies(XML, tmp, nID);
+    return new Species(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
-    return new CSSphericalTop(XML, tmp, nID);
+    return new SpSphericalTop(XML, tmp, nID);
   else 
     D_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of species encountered";

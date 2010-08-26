@@ -74,13 +74,13 @@ OPKEnergy::getAvgSqTheta() const
 }
 
 void
-OPKEnergy::A1ParticleChange(const C1ParticleData& PDat)
+OPKEnergy::A1ParticleChange(const ParticleEventData& PDat)
 {
   KECurrent += PDat.getDeltaKE();
 }
 
 void
-OPKEnergy::A2ParticleChange(const C2ParticleData& PDat)
+OPKEnergy::A2ParticleChange(const PairEventData& PDat)
 {
   KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
 }

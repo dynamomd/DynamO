@@ -72,7 +72,7 @@ namespace DYNAMO
   {
   protected:
     typedef fastdelegate::FastDelegate1
-    <const CNParticleData&, void> particleUpdateFunc;
+    <const NEventData&, void> particleUpdateFunc;
     
   public:
     /*! \brief Significant default value initialisation.
@@ -209,7 +209,7 @@ namespace DYNAMO
 
     /*! \brief Call all registered functions requiring a callback on
         particle changes.*/
-    void signalParticleUpdate(const CNParticleData&) const;
+    void signalParticleUpdate(const NEventData&) const;
 
     void replexerSwap(SimData&);
   private:

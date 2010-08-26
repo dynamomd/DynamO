@@ -40,7 +40,7 @@ OPCollMatrix::~OPCollMatrix()
 {}
 
 void 
-OPCollMatrix::eventUpdate(const IntEvent& iEvent, const C2ParticleData&)
+OPCollMatrix::eventUpdate(const IntEvent& iEvent, const PairEventData&)
 {
   newEvent(iEvent.getParticle1ID(), iEvent.getType(), 
 	   getClassKey(iEvent));
@@ -51,13 +51,13 @@ OPCollMatrix::eventUpdate(const IntEvent& iEvent, const C2ParticleData&)
 
 
 void 
-OPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDat)
+OPCollMatrix::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), pData.getType(), 
 	     getClassKey(globEvent));  
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       newEvent(pData.particle1_.getParticle().getID(), 
 	       pData.getType(), getClassKey(globEvent));
@@ -68,13 +68,13 @@ OPCollMatrix::eventUpdate(const CGlobEvent& globEvent, const CNParticleData& SDa
 }
 
 void 
-OPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPCollMatrix::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), 
 	     pData.getType(), getClassKey(localEvent));  
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       newEvent(pData.particle1_.getParticle().getID(), 
 	       pData.getType(), getClassKey(localEvent));
@@ -85,12 +85,12 @@ OPCollMatrix::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& S
 }
 
 void 
-OPCollMatrix::eventUpdate(const CSystem& sysEvent, const CNParticleData& SDat, const Iflt&)
+OPCollMatrix::eventUpdate(const CSystem& sysEvent, const NEventData& SDat, const Iflt&)
 {
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {
       newEvent(pData.particle1_.getParticle().getID(), 
 	       pData.getType(), getClassKey(sysEvent));

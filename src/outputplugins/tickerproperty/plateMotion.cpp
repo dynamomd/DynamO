@@ -76,7 +76,7 @@ OPPlateMotion::initialise()
 }
 
 void 
-OPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& SDat)
+OPPlateMotion::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
   Iflt newPlateEnergy = oldPlateEnergy;
 
@@ -85,10 +85,10 @@ OPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& 
 
   Iflt EnergyChange(0);
 
-  BOOST_FOREACH(const C1ParticleData& pData, SDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     EnergyChange += pData.getDeltaKE();  
   
-  BOOST_FOREACH(const C2ParticleData& pData, SDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     EnergyChange += pData.particle1_.getDeltaKE() + pData.particle2_.getDeltaKE();
   
   localEnergyFlux[localEvent.getLocalID()].first += EnergyChange;
@@ -99,7 +99,7 @@ OPPlateMotion::eventUpdate(const CLocalEvent& localEvent, const CNParticleData& 
 }
 
 void 
-OPPlateMotion::eventUpdate(const IntEvent&, const C2ParticleData& pData)
+OPPlateMotion::eventUpdate(const IntEvent&, const PairEventData& pData)
 {
   partpartEnergyLoss += pData.particle1_.getDeltaKE()
     + pData.particle2_.getDeltaKE();

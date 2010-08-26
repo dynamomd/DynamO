@@ -22,13 +22,13 @@
 #include "../datatypes/vector.hpp"
 #include "../simulation/particle.hpp"
 
-class C2ParticleData
+class PairEventData
 {
 public:
-  C2ParticleData(const Particle& part1,
+  PairEventData(const Particle& part1,
 		 const Particle& part2,
-		 const CSpecies& sp1,
-		 const CSpecies& sp2,
+		 const Species& sp1,
+		 const Species& sp2,
 		 EEventType eType):
     particle1_(part1, sp1, eType), 
     particle2_(part2, sp2, eType),
@@ -36,8 +36,8 @@ public:
     vijold(part1.getVelocity() - part2.getVelocity())
   {}
   
-  C1ParticleData particle1_;
-  C1ParticleData particle2_;
+  ParticleEventData particle1_;
+  ParticleEventData particle2_;
   Vector  rij;
   Vector  vijold;
   Vector  dP;

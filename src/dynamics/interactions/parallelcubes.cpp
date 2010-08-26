@@ -131,7 +131,7 @@ IParallelCubes::runEvent(const Particle& p1,
   ++Sim->lNColl;
     
   //Run the collision and catch the data
-  C2ParticleData EDat
+  PairEventData EDat
     (Sim->dynamics.getLiouvillean().parallelCubeColl(iEvent, e, diameter)); 
 
   Sim->signalParticleUpdate(EDat);

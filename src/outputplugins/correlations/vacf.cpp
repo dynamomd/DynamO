@@ -71,7 +71,7 @@ OPVACF::operator<<(const XMLNode& XML)
 }
 
 void 
-OPVACF::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat) 
+OPVACF::eventUpdate(const GlobalEvent& iEvent, const NEventData& PDat) 
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -85,7 +85,7 @@ OPVACF::eventUpdate(const CGlobEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
-OPVACF::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat) 
+OPVACF::eventUpdate(const LocalEvent& iEvent, const NEventData& PDat) 
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -99,7 +99,7 @@ OPVACF::eventUpdate(const CLocalEvent& iEvent, const CNParticleData& PDat)
 }
 
 void 
-OPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt) 
+OPVACF::eventUpdate(const CSystem&, const NEventData& PDat, const Iflt& edt) 
 { 
   //Move the time forward
   currentdt += edt;
@@ -113,7 +113,7 @@ OPVACF::eventUpdate(const CSystem&, const CNParticleData& PDat, const Iflt& edt)
 }
 
 void 
-OPVACF::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
+OPVACF::eventUpdate(const IntEvent& iEvent, const PairEventData& PDat)
 {
   //Move the time forward
   currentdt += iEvent.getdt();
@@ -127,7 +127,7 @@ OPVACF::eventUpdate(const IntEvent& iEvent, const C2ParticleData& PDat)
 }
 
 void 
-OPVACF::newG(const C1ParticleData& PDat)
+OPVACF::newG(const ParticleEventData& PDat)
 {
   if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
     Sim->dynamics.getLiouvillean().updateAllParticles();
@@ -151,7 +151,7 @@ OPVACF::newG(const C1ParticleData& PDat)
 }
 
 void 
-OPVACF::newG(const C2ParticleData& PDat)
+OPVACF::newG(const PairEventData& PDat)
 {
   for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());	      
@@ -176,17 +176,17 @@ OPVACF::newG(const C2ParticleData& PDat)
 }
 
 void 
-OPVACF::newG(const CNParticleData& PDat)
+OPVACF::newG(const NEventData& PDat)
 {  
   //This ensures the list stays at accumilator size
   for (size_t i = 0; i < Sim->lN; ++i)
     G[i].push_front(Sim->vParticleList[i].getVelocity());
   
   //Go back and fix the pushes
-  BOOST_FOREACH(const C1ParticleData&PDat2, PDat.L1partChanges)
+  BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
     G[PDat2.getParticle().getID()].front() = PDat2.getOldVel();		
   
-  BOOST_FOREACH(const C2ParticleData& PDat2, PDat.L2partChanges)
+  BOOST_FOREACH(const PairEventData& PDat2, PDat.L2partChanges)
     {
       G[PDat2.particle1_.getParticle().getID()].front() 
 	= PDat2.particle1_.getOldVel();
@@ -269,7 +269,7 @@ OPVACF::accPass()
 {
   ++count;
   
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     for (size_t j = 0; j < CorrelatorLength; ++j)
       for (size_t iDim(0); iDim < NDIM; ++iDim)

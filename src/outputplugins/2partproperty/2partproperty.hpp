@@ -25,16 +25,16 @@ class OP2PP: public OutputPlugin
 public:
   OP2PP(const DYNAMO::SimData*, const char*);
 
-  virtual void eventUpdate(const IntEvent&, const C2ParticleData&);
+  virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void eventUpdate(const CGlobEvent&, const CNParticleData&);
+  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CLocalEvent&, const CNParticleData&);
+  virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const CSystem&, const CNParticleData&, const Iflt&);
+  virtual void eventUpdate(const CSystem&, const NEventData&, const Iflt&);
 
 private:
-  virtual void A2ParticleChange(const C2ParticleData&) = 0;
+  virtual void A2ParticleChange(const PairEventData&) = 0;
   virtual void stream(const Iflt&) = 0;  
 };
 

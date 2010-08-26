@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DYNAMICS_H
-#define DYNAMICS_H
+#pragma once
 
 #include "../datatypes/pluginpointer.hpp"
 #include "../base/is_base.hpp"
@@ -27,11 +26,11 @@
 
 class BoundaryCondition;
 class Units;
-class CSpecies;
-class CGlobEvent;
-class CGlobal;
-class CLocal;
-class CLocalEvent;
+class Species;
+class GlobalEvent;
+class Global;
+class Local;
+class LocalEvent;
 class CSystem;
 class CTopology;
 class Particle;
@@ -39,9 +38,9 @@ template<class T>
 class CVector;
 class Liouvillean;
 class XMLNode;
-class CNParticleData;
-class C2ParticleData;
-class C1ParticleData;
+class NEventData;
+class PairEventData;
+class ParticleEventData;
 namespace xmlw
 {
   class XmlStream;
@@ -65,17 +64,17 @@ public:
 
   Interaction* addInteraction(Interaction*);
 
-  void addSpecies(const smrtPlugPtr<CSpecies>&);
+  void addSpecies(const smrtPlugPtr<Species>&);
   
-  void addGlobal(CGlobal*);
+  void addGlobal(Global*);
 
-  void addLocal(CLocal*);
+  void addLocal(Local*);
 
   void addSystem(CSystem*);
 
   void addStructure(CTopology*);
 
-  const CSpecies& getSpecies(const Particle&) const;
+  const Species& getSpecies(const Particle&) const;
   
   const smrtPlugPtr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
@@ -140,17 +139,17 @@ public:
   smrtPlugPtr<Interaction>& getInteraction(std::string);
   const smrtPlugPtr<Interaction>& getInteraction(std::string) const;
 
-  const std::vector<smrtPlugPtr<CGlobal> >& getGlobals() const { return globals; }
-  std::vector<smrtPlugPtr<CGlobal> >& getGlobals() { return globals; }
-  smrtPlugPtr<CGlobal>& getGlobal(std::string);
-  const smrtPlugPtr<CGlobal>& getGlobal(std::string) const;
+  const std::vector<smrtPlugPtr<Global> >& getGlobals() const { return globals; }
+  std::vector<smrtPlugPtr<Global> >& getGlobals() { return globals; }
+  smrtPlugPtr<Global>& getGlobal(std::string);
+  const smrtPlugPtr<Global>& getGlobal(std::string) const;
 
-  const std::vector<smrtPlugPtr<CLocal> >& getLocals() const { return locals; }
-  smrtPlugPtr<CLocal>& getLocal(std::string);
-  const smrtPlugPtr<CLocal>& getLocal(std::string) const;
+  const std::vector<smrtPlugPtr<Local> >& getLocals() const { return locals; }
+  smrtPlugPtr<Local>& getLocal(std::string);
+  const smrtPlugPtr<Local>& getLocal(std::string) const;
 
-  const std::vector<smrtPlugPtr<CSpecies> >& getSpecies() const { return species; }
-  const CSpecies& getSpecies(std::string) const;
+  const std::vector<smrtPlugPtr<Species> >& getSpecies() const { return species; }
+  const Species& getSpecies(std::string) const;
 
   std::vector<smrtPlugPtr<CTopology> >& getTopology() { return topology; }
   const std::vector<smrtPlugPtr<CTopology> >& getTopology() const { return topology; }
@@ -213,14 +212,12 @@ public:
   void outputXML(xmlw::XmlStream &) const;
 
   std::vector<smrtPlugPtr<Interaction> > interactions;
-  std::vector<smrtPlugPtr<CGlobal> > globals;
-  std::vector<smrtPlugPtr<CLocal> > locals;
+  std::vector<smrtPlugPtr<Global> > globals;
+  std::vector<smrtPlugPtr<Local> > locals;
   std::vector<smrtPlugPtr<CSystem> > systems;
   std::vector<smrtPlugPtr<CTopology> > topology;
-  std::vector<smrtPlugPtr<CSpecies> > species;
+  std::vector<smrtPlugPtr<Species> > species;
   smrtPlugPtr<BoundaryCondition> p_BC;
   smrtPlugPtr<Liouvillean> p_liouvillean;
   mutable smrtPlugPtr<Units> p_units;
 };
-
-#endif

@@ -47,8 +47,8 @@ LNOrientation::initialise()
   
   //Check if any of the species are overridden
   bool hasInertia(false);
-  BOOST_FOREACH(const smrtPlugPtr<CSpecies>& spec, Sim->dynamics.getSpecies())
-    if (dynamic_cast<const CSpecInertia*>(spec.get_ptr()) != NULL)
+  BOOST_FOREACH(const smrtPlugPtr<Species>& spec, Sim->dynamics.getSpecies())
+    if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
       hasInertia = true;
 
   if (!hasInertia)
@@ -115,7 +115,7 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     return false;
 }
 
-C2ParticleData 
+PairEventData 
 LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
 {
   const Particle& particle1 = Sim->vParticleList[eevent.getParticle1ID()];
@@ -123,7 +123,7 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elastici
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
                         Sim->dynamics.getSpecies(particle1),
                         Sim->dynamics.getSpecies(particle2),
                         CORE);
@@ -191,7 +191,7 @@ LNOrientation::streamParticle(Particle& part, const Iflt& dt) const
 }
 
 
-C1ParticleData 
+ParticleEventData 
 LNOrientation::runAndersenWallCollision(const Particle& part, 
 					 const Vector & vNorm,
 					 const Iflt& sqrtT
@@ -201,7 +201,7 @@ LNOrientation::runAndersenWallCollision(const Particle& part,
     " of freedom";
 }
   
-C1ParticleData 
+ParticleEventData 
 LNOrientation::randomGaussianEvent(const Particle& part, 
 				    const Iflt& sqrtT) const
 {
@@ -368,7 +368,7 @@ LNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
 }
 
 
-C2ParticleData 
+PairEventData 
 LNOrientation::RoughSpheresColl(const IntEvent& event, 
 				const Iflt& e, 
 				const Iflt& et, 
@@ -381,7 +381,7 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
 
   updateParticlePair(particle1, particle2);  
 
-  C2ParticleData retVal(particle1, particle2,
+  PairEventData retVal(particle1, particle2,
 			Sim->dynamics.getSpecies(particle1),
 			Sim->dynamics.getSpecies(particle2),
 			eType);
@@ -431,7 +431,7 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
   return retVal;
 }
 
-C1ParticleData 
+ParticleEventData 
 LNOrientation::runRoughWallCollision(const Particle& part, 
 				     const Vector & vNorm,
 				     const Iflt& e,
@@ -441,7 +441,7 @@ LNOrientation::runRoughWallCollision(const Particle& part,
 {
   updateParticle(part);
 
-  C1ParticleData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+  ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
 
   Iflt KE1before = getParticleKineticEnergy(part);
 

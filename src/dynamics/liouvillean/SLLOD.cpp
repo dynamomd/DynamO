@@ -59,7 +59,7 @@ LSLLOD::DSMCSpheresTest(const Particle& p1,
   return prob > Sim->uniform_sampler() * maxprob;
 }
 
-C2ParticleData
+PairEventData
 LSLLOD::DSMCSpheresRun(const Particle& p1, 
 			 const Particle& p2, 
 			 const Iflt& e,
@@ -67,7 +67,7 @@ LSLLOD::DSMCSpheresRun(const Particle& p1,
 {
   updateParticlePair(p1, p2);  
 
-  C2ParticleData retVal(p1, p2,
+  PairEventData retVal(p1, p2,
 			Sim->dynamics.getSpecies(p1),
 			Sim->dynamics.getSpecies(p2),
 			CORE);
@@ -106,14 +106,14 @@ LSLLOD::outputXML(xmlw::XmlStream& XML) const
       << "SLLOD";
 }
 
-CNParticleData 
+NEventData 
 LSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&, 
 			   const EEventType&) const
 {
   D_throw() << "Not Implemented";
 }
 
-CNParticleData 
+NEventData 
 LSLLOD::multibdyWellEvent(const CRange&, const CRange&, 
 			   const Iflt&, const Iflt&, 
 			   EEventType&) const
@@ -139,7 +139,7 @@ LSLLOD::sphereOverlap(const CPDData& dat, const Iflt& d2) const
   D_throw() << "Not Implemented";
 }
 
-C1ParticleData 
+ParticleEventData 
 LSLLOD::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
 {
   D_throw() << "Not Implemented";
@@ -154,7 +154,7 @@ LSLLOD::getWallCollision(const Particle &part,
 }
 
 
-C1ParticleData 
+ParticleEventData 
 LSLLOD::runWallCollision(const Particle &part, 
 			   const Vector  &vNorm,
 			   const Iflt& e
@@ -163,7 +163,7 @@ LSLLOD::runWallCollision(const Particle &part,
   D_throw() << "Not Implemented";
 }
 
-C1ParticleData 
+ParticleEventData 
 LSLLOD::runAndersenWallCollision(const Particle& part, 
 			 const Vector & vNorm,
 			 const Iflt& sqrtT
@@ -188,14 +188,14 @@ LSLLOD::getSquareCellCollision3(const Particle& part,
   D_throw() << "Not Implemented";
 }
 
-C2ParticleData 
+PairEventData 
 LSLLOD::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
   D_throw() << "Not Implemented";
 }
 
-C2ParticleData 
+PairEventData 
 LSLLOD::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
 			 const Iflt &) const
 {
