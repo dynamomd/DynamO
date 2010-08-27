@@ -32,7 +32,6 @@ import dynamo-tags ;
 project	: requirements
 	  <define>DYNAMO_double_precsision
 	  <color>yes:<define>DYNAMO_Colour
-	  <link>static
 	  <condor>no
 	  <color>yes
 	  <toolset>gcc:<cxxflags>-Wno-long-long
@@ -65,26 +64,36 @@ variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG ;
 #<define>_GLIBXX_DEBUG_PEDANTIC <define>_GLIBCXX_DEBUG_PEDANTIC  <define>_GLIBCXX_CONCEPT_CHECKS <define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG <define>_GLIBCPP_CONCEPT_CHECKS
 exe dynareplex_opt 
     : src/programs/dynareplex_opt.cpp boost//program_options
+    : <link>static
     ;
 
 exe dynahist_rw 
     : src/programs/dynahist_rw.cpp src//dynamo_core 
+    : <link>static
     ;
 
 exe dynarun 
     : src/programs/dynarun.cpp src//dynamo_core
+    : <link>static
     ;
 
 exe dynamod 
     : src/programs/dynamod.cpp src//dynamo_core
+    : <link>static
     ;
 
 exe threadpool_test 
     : test/src/threadpool_test.cpp src//dynamo_core
+    : <link>static
+    ;
+
+exe gl_test 
+    : test/src/glviewer_test.cpp src/coil//coil
+    : <link>shared
     ;
 
 install install-test
-	: threadpool_test
+	: threadpool_test gl_test
 	: <location>test
 	;
 

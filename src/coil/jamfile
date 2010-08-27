@@ -1,0 +1,17 @@
+lib glut ;
+lib GLU ;
+lib GL ;
+lib Xmu ;
+lib Xext ;
+lib X11 ;
+lib OpenCL ;
+lib rt ;
+lib GLEW ;
+lib gsl ;
+lib m ;
+
+alias coil : [ glob-tree *.cpp ]
+      glut GLU GL Xmu Xext X11 m OpenCL rt GLEW gsl
+    : <include>../extcode/include <include>include
+    : : <define>GLVIEWER <include>include <include>.
+    ;

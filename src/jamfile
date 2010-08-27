@@ -21,7 +21,7 @@ lib gsl
     : <name>gsl
     ;
 
-alias dynamo_core : [ glob-tree *.cpp : programs ]
+alias dynamo_core : [ glob-tree *.cpp : programs coil ]
     ../boost//iostreams
     ../boost//thread/<threadapi>pthread
     ../boost//filesystem
@@ -33,7 +33,7 @@ alias dynamo_core : [ glob-tree *.cpp : programs ]
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <condor>no
     ;
 
-alias dynamo_core : [ glob-tree *.cpp : programs ]
+alias dynamo_core : [ glob-tree *.cpp : programs  coil ]
     ../boost//filesystem/<threading>single
     ../boost//program_options/<threading>single
     gsl
