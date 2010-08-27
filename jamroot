@@ -29,11 +29,25 @@ path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 import dynamo-tags ;
 
+rule trim-nl ( str )
+{
+   return [ MATCH "([^
+]*)" : $(str) ] ;
+}
+
+rule _shell ( cmd )
+{
+   return [ trim-nl [ SHELL $(cmd) ] ] ;
+}
+
+local githash = [ _shell "git rev-parse --verify HEAD" ] ; 
+
 project	: requirements
 	  <define>DYNAMO_double_precsision
 	  <color>yes:<define>DYNAMO_Colour
 	  <condor>no
 	  <color>yes
+	  <define>GITHASH=\\\"$(githash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <condor>yes:<define>DYNAMO_CONDOR
@@ -74,22 +88,22 @@ exe dynahist_rw
 
 exe dynarun 
     : src/programs/dynarun.cpp src//dynamo_core
-    : <link>static
+    : <link>static 
     ;
 
 exe dynamod 
     : src/programs/dynamod.cpp src//dynamo_core
-    : <link>static
+    : <link>static 
     ;
 
 exe threadpool_test 
     : test/src/threadpool_test.cpp src//dynamo_core
-    : <link>static
+    : <link>static 
     ;
 
 exe gl_test 
     : test/src/glviewer_test.cpp src/coil//coil
-    : <link>shared
+    : <link>shared 
     ;
 
 install install-test
