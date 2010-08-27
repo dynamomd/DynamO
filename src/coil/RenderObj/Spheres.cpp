@@ -6,6 +6,7 @@
 #include <fstream>
 
 #include "Primatives/Sphere.hpp"
+#include "Spheres.clh"
 
 RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
 		     const float& cameraX, const float& cameraY, const float& cameraZ,
@@ -116,30 +117,9 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
 					   _workgroupsize*(9216 / _workgroupsize)));
 
   fullSource << "#define WORKGROUP_SIZE " << _workgroupsize << "\n";
-
-  {
-    std::string kernelFile = "RenderObj/Spheres.cl";
-    std::string kernelSource;
-
-    std::ifstream file(kernelFile.c_str());
-    if(!file.is_open()) {
-      std::stringstream strm;
-      strm << "Failed to open kernel file '" << kernelFile <<"'";
-      throw std::runtime_error(strm.str().c_str());
-    }
-    
-    file.seekg(0, std::ios::end);
-    size_t kernelSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-    
-    kernelSource.resize(kernelSize);
-    file.read(&kernelSource[0], kernelSize);
-    file.close();
-
-    fullSource << kernelSource;   
-  }
   
-
+  fullSource << sphereKernelSource;
+  
   //Need to make the c_str() point to a valid data area, so copy the string
   std::string finalSource = fullSource.str();
 

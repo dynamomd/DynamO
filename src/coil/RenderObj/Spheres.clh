@@ -1,3 +1,5 @@
+#define STRINGIFY(A) #A
+const std::string sphereKernelSource = STRINGIFY(
 __kernel void
 SphereRenderKernel(const __global float * positions,
 		   __global float * vertexBuffer,
@@ -42,5 +44,5 @@ SphereRenderKernel(const __global float * positions,
 
       barrier(CLK_LOCAL_MEM_FENCE);
     }
-}
-
+});
+#undef STRINGIFY
