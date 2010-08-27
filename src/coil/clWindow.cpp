@@ -1,5 +1,5 @@
 #define GL_GLEXT_PROTOTYPES
-#include "demoWindow.h"
+#include "clWindow.hpp"
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>

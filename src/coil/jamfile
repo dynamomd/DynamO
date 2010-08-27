@@ -1,3 +1,10 @@
+
+
+if [ GLOB $(cluster_pack_path_native)\\Include : mpi.h ]
+{ 
+
+}
+
 lib glut ;
 lib GLU ;
 lib GL ;
