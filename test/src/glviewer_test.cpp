@@ -1,8 +1,6 @@
-#include "glutMaster.hpp"
-#include "glutWindow.hpp"
-#include "demoWindow.hpp"
 #include <iostream>
 
+#include "clWindow.hpp"
 #include "RenderObj/TestWaves.hpp"
 #include "RenderObj/Spheres.hpp"
 
@@ -22,12 +20,12 @@ int main(int argc, char** argv)
 			"GLCLWindow",//title
 			clplatform);
     
-    //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
+    CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
   
     CLWindow.addRenderObj<RTSpheres>((size_t)125000,
+				     Sphere::icosahedron, (size_t)1,
 				     Sphere::icosahedron, (size_t)0,
-				     Sphere::icosahedron, (size_t)0,
-				     (size_t)1000);
+				     (size_t)10);
     
     bool noFPSLimit = true;
 
