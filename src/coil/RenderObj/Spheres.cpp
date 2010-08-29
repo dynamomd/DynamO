@@ -182,9 +182,6 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
   cl::KernelFunctor sortDataKernelFunc = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
   cl::KernelFunctor sortKernelFunc = _sortKernel.bind(CmdQ, cl::NDRange(_powerOfTwo), cl::NDRange(256));
 
-  //Aqquire buffer objects
-  _clbuf_Positions.acquire(CmdQ);
-
   //Generate the sort data
   sortDataKernelFunc(_spherePositions, _sortData, 
 		     (cl_float)_cameraX, (cl_float)_cameraY, 
@@ -201,7 +198,10 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
       sortKernelFunc(_sortData, stage, stagePass, _N, 1);
   }
 
-  //Finally, run Kernel
+  //Aqquire GL buffer objects
+  _clbuf_Positions.acquire(CmdQ);
+
+  //Finally, run rendering kernel
   renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices1, 
 		   primSphere1.n_vertices, 0, _nSpheres1, 0, _sortData);
 
