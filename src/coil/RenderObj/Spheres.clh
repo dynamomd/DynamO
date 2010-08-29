@@ -1,5 +1,12 @@
 #define STRINGIFY(A) #A
 const std::string sphereKernelSource = STRINGIFY(
+
+typedef struct
+{ 
+  uint ID;
+  float dist;
+} SortDataType;
+
 __kernel void
 SphereRenderKernel(const __global float * positions,
 		   __global float * vertexBuffer,
@@ -7,7 +14,8 @@ SphereRenderKernel(const __global float * positions,
 		   const uint nVertex,
 		   const uint StartParticle,
 		   const uint EndParticle,
-		   const int VertexOffset)
+		   const int VertexOffset,
+		   __global SortDataType* sortedArray)
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
   __local float positionCache[WORKGROUP_SIZE];
@@ -22,7 +30,10 @@ SphereRenderKernel(const __global float * positions,
       
       //Coalesced read from global mem and conflict-free localsss write
       if (data_to_read < 3 * EndParticle)
-	positionCache[get_local_id(0)] = positions[data_to_read];
+	{
+	  data_to_read = 3 * sortedArray[data_to_read / 3].ID + (data_to_read % 3);
+	  positionCache[get_local_id(0)] = positions[data_to_read];
+	}
       
       barrier(CLK_LOCAL_MEM_FENCE);
       
@@ -44,5 +55,67 @@ SphereRenderKernel(const __global float * positions,
 
       barrier(CLK_LOCAL_MEM_FENCE);
     }
+}
+
+__kernel void
+GenerateData(const __global float * positions,
+	     __global SortDataType* data,
+	     float camX, float camY, float camZ,
+	     uint N)
+{
+  if (get_global_id(0) >= N) return;
+
+  float sqdist = positions[3 * get_global_id(0)] - camX;
+  sqdist *= sqdist;
+
+  float temp = positions[3 * get_global_id(0) + 1]  - camY;
+  sqdist += temp * temp;
+
+  temp = positions[3 * get_global_id(0) + 2]  - camZ;
+  sqdist += temp * temp;
+
+  SortDataType entryData;
+  entryData.dist = sqdist;
+  entryData.ID = get_global_id(0);
+  data[get_global_id(0)] = entryData;
+}
+
+__kernel void sphereBitonicSort(__global SortDataType* theArray,
+				const uint stage, 
+				const uint passOfStage,
+				const uint realsize,
+				const uint direction )
+{
+    uint threadId = get_global_id(0);
+    
+    uint pairDistance = 1 << (stage - passOfStage);
+    uint blockWidth   = 2 * pairDistance;
+
+    uint leftId = (threadId % pairDistance) 
+                   + (threadId / pairDistance) * blockWidth;
+
+    uint rightId = leftId + pairDistance;
+
+    if ((leftId >= realsize) || (rightId >= realsize)) return;
+    
+    SortDataType leftElement = theArray[leftId];
+    SortDataType rightElement = theArray[rightId];
+    
+    uint sameDirectionBlockWidth = 1 << stage;
+
+    uint sortIncreasing = direction;
+    sortIncreasing = ( threadId / sameDirectionBlockWidth ) % 2 == 1 ?
+        1 - sortIncreasing : sortIncreasing;
+
+    if ((sortIncreasing && (leftElement.dist > rightElement.dist))
+	|| ((!sortIncreasing) && (leftElement.dist < rightElement.dist)))
+      {
+	SortDataType tempElement = leftElement;
+	leftElement = rightElement;
+	rightElement = tempElement;
+      }
+
+    theArray[leftId]  = leftElement;
+    theArray[rightId] = rightElement;
 });
 #undef STRINGIFY

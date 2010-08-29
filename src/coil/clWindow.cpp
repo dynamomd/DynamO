@@ -79,7 +79,6 @@ CLGLWindow::CameraSetup()
   //Vertical movement
   _cameraY += _vertical * moveAmp;
 
-
   glLoadIdentity();
   //gluLookAt(-viewscale, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
   glRotatef(_rotatey, 1.0, 0.0, 0.0);
@@ -225,17 +224,17 @@ CLGLWindow::initOpenCL()
     switch(iPtr->getInfo<CL_DEVICE_TYPE>()) 
       {
       case CL_DEVICE_TYPE_ACCELERATOR:
-	std::cout << " ACCELERATOR:" << iPtr->getInfo<CL_DEVICE_NAME>();
+	std::cout << " ACCELERATOR:" << iPtr->getInfo<CL_DEVICE_NAME>()  << "\n";
 	break;
       case CL_DEVICE_TYPE_CPU:
-	std::cout << " CPU:" << iPtr->getInfo<CL_DEVICE_NAME>();
+	std::cout << " CPU:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
 	break;
       case CL_DEVICE_TYPE_GPU:
-	std::cout << " GPU:" << iPtr->getInfo<CL_DEVICE_NAME>();
+	std::cout << " GPU:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
 	_cldevice = *iPtr;
 	break;
       default:
-	std::cout << " DEFAULT:" << iPtr->getInfo<CL_DEVICE_NAME>();
+	std::cout << " DEFAULT:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
       }
 
   //Just check if there is a GPU to use instead of a CPU

@@ -8,6 +8,9 @@
 #include "Primatives/Sphere.hpp"
 #include "Spheres.clh"
 
+struct  SortDataType { cl_uint ID; cl_float dist;};
+
+
 RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
 		     const float& cameraX, const float& cameraY, const float& cameraZ,
 		     size_t N, 
@@ -30,8 +33,20 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   {
     size_t Ncuberoot = (size_t)std::pow(_N, 1.0/3.0);
     
+    //We add one on here to allow vector loads and stores to occur
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
-			 sizeof(cl_float) * 3 * _N);
+				  sizeof(cl_float) * (3 * _N + 1));
+
+    //Work out the details for the bitonic sort
+    _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(SortDataType) * _N);
+    
+    _numStages = 0;
+    for (size_t temp = _N; temp > 1; temp >>= 1)
+      ++_numStages;
+
+    _powerOfTwo = 1 << _numStages;
+    if (_powerOfTwo < _N) { _powerOfTwo <<= 1; ++_numStages; }
+
 
     cl_float* Pos = (cl_float*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
 						     CL_MAP_WRITE, 0, 
@@ -145,7 +160,9 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
     throw;
   }
   
-  kernel = cl::Kernel(program, "SphereRenderKernel");
+  _renderKernel = cl::Kernel(program, "SphereRenderKernel");
+  _sortDataKernel = cl::Kernel(program, "GenerateData");
+  _sortKernel = cl::Kernel(program, "sphereBitonicSort");
 
   _primativeVertices1 = cl::Buffer(Context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
 				   sizeof(cl_float) * 3 * primSphere1.n_vertices,
@@ -161,18 +178,37 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
 void 
 RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
-  cl::KernelFunctor kernelFunc = kernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  cl::KernelFunctor renderKernelFunc = _renderKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  cl::KernelFunctor sortDataKernelFunc = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  cl::KernelFunctor sortKernelFunc = _sortKernel.bind(CmdQ, cl::NDRange(_powerOfTwo), cl::NDRange(256));
 
   //Aqquire buffer objects
   _clbuf_Positions.acquire(CmdQ);
 
-  //Run Kernel
-  kernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices1, 
-  	     primSphere1.n_vertices, 0, _nSpheres1, 0);
-  kernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices2, 
-  	     primSphere2.n_vertices, _nSpheres1, _N, 
-  	     3 * _nSpheres1 * (primSphere1.n_vertices - primSphere2.n_vertices));
+  //Generate the sort data
+  sortDataKernelFunc(_spherePositions, _sortData, 
+		     (cl_float)_cameraX, (cl_float)_cameraY, 
+		     (cl_float)_cameraZ, _N);
 
+  //Now sort the data
+  for (cl_uint stage = 0; stage < _numStages-1; ++stage)
+    for (cl_uint stagePass = 0; stagePass < stage+1; ++stagePass)
+      sortKernelFunc(_sortData, stage, stagePass, _N, 0);
+
+  {
+    cl_uint stage = _numStages-1;	
+    for (cl_uint stagePass = 0; stagePass < _numStages; ++stagePass)
+      sortKernelFunc(_sortData, stage, stagePass, _N, 1);
+  }
+
+  //Finally, run Kernel
+  renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices1, 
+		   primSphere1.n_vertices, 0, _nSpheres1, 0, _sortData);
+
+  renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices2, 
+		   primSphere2.n_vertices, _nSpheres1, _N, 
+		   3 * _nSpheres1 * (primSphere1.n_vertices - primSphere2.n_vertices),
+		   _sortData);
 
   //Release resources
   _clbuf_Positions.release(CmdQ);

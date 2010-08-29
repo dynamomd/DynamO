@@ -20,12 +20,12 @@ int main(int argc, char** argv)
 			"GLCLWindow",//title
 			clplatform);
     
-    CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
+    //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
   
     CLWindow.addRenderObj<RTSpheres>((size_t)125000,
 				     Sphere::icosahedron, (size_t)1,
 				     Sphere::icosahedron, (size_t)0,
-				     (size_t)10);
+				     (size_t)1000);
     
     bool noFPSLimit = true;
 

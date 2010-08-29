@@ -19,9 +19,12 @@ public:
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
 protected:
-  cl::Kernel kernel;
+  cl::Kernel _renderKernel;
+  cl::Kernel _sortDataKernel;
+  cl::Kernel _sortKernel;
 
   cl_uint _N;
+  cl_uint _numStages, _powerOfTwo;
 
   static const std::string kernelsrc;
 
@@ -31,12 +34,12 @@ protected:
   cl::Buffer _spherePositions;
   cl::Buffer _primativeVertices1;
   cl::Buffer _primativeVertices2;
+  cl::Buffer _sortData;
   size_t _workgroupsize;
   size_t _globalsize;
   cl_uint _nSpheres1;
 
-  const float& _cameraX,_cameraY,_cameraZ;
-
+  const float& _cameraX,&_cameraY,&_cameraZ;
 };
 
 template<>
