@@ -307,6 +307,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _lastFrameTime = _currFrameTime;
 }
 
+
 void CLGLWindow::drawAxis()
 {
   GLdouble nearPlane = 0.1,
@@ -331,14 +332,13 @@ void CLGLWindow::drawAxis()
   
   glTranslatef (0, 0, -(nearPlane + axisScale));
 
-  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.5); // Color the axis box a transparent blue
+  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.7); // Color the axis box a transparent blue
   glBegin(GL_QUADS);		
   glVertex3f(-1,-1, 0);
   glVertex3f( 1,-1, 0);
   glVertex3f( 1, 1, 0);
   glVertex3f(-1, 1, 0);
   glEnd();
-
 
   glRotatef(_rotatey, 1.0, 0.0, 0.0);
   glRotatef(_rotatex, 0.0, 1.0, 0.0);
@@ -352,7 +352,7 @@ void CLGLWindow::drawAxis()
   float XP[] = {1,0,0};
   float YP[] = {0,1,0};
   float ZP[] = {0,0,1};
-    
+  
   glBegin (GL_LINES);
   glColor3f (1,0,0); // X axis is red.
   glVertex3fv (ORG);
@@ -364,6 +364,17 @@ void CLGLWindow::drawAxis()
   glVertex3fv (ORG);
   glVertex3fv (ZP );
   glEnd();
+
+  //Done the text
+  glColor3f(1,1,1); // Color the axis box a transparent blue
+  glRasterPos3f(1,0,0);
+  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,'X');
+  glRasterPos3f(0,1,0);
+  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,'Y');
+  glRasterPos3f(0,0,1);
+  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,'Z');
+
+
     
   glMatrixMode(GL_PROJECTION);
   glPopMatrix ();

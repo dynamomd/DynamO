@@ -25,9 +25,9 @@ int main(int argc, char** argv)
     std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
 
     size_t N = 125000;
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 1000));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 50000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, N));
+    //sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
+    //sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 50000));
 
     CLWindow.addRenderObj<RTSpheres>((size_t)125000, sphereDetailLevels);
     
