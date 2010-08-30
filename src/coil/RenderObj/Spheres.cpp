@@ -230,6 +230,9 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
       sortKernelFunc(_sortData, stage, stagePass, _N, 1);
   }
 
+  //Aqquire GL buffer objects
+  _clbuf_Positions.acquire(CmdQ);
+
   //Finally, run render kernels
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
