@@ -20,16 +20,16 @@ int main(int argc, char** argv)
 			"GLCLWindow",//title
 			clplatform);
     
-    CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
+    //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
   
     std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
 
-    size_t N = 125000;
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, N));
-    //sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
-    //sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 50000));
+    size_t N = 500000;
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 100));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 100000));
 
-    CLWindow.addRenderObj<RTSpheres>((size_t)125000, sphereDetailLevels);
+    CLWindow.addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
     
     bool noFPSLimit = true;
 

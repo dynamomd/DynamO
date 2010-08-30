@@ -1,3 +1,20 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #define GL_GLEXT_PROTOTYPES
 #include "clWindow.hpp"
 #include <GL/glew.h>
@@ -11,12 +28,44 @@ inline float clamp(float x, float a, float b)
     return x < a ? a : (x > b ? b : x);
 }
 
+//a is the head, b the tail
+void drawArrow(Vector a, Vector b)
+{
+  Vector arrowAxis = a - b;
+  Vector headpoint = b + arrowAxis * 0.75;
+  Vector headaxis = (arrowAxis ^ Vector(1,0,0));
+  double headaxisnorm = headaxis.nrm();
+  if (headaxisnorm == 0)
+    {
+      headaxis = ((a-b) ^ Vector(0,0,1));
+      headaxisnorm = headaxis.nrm();
+    }
+
+  headaxis *= 0.15 * arrowAxis.nrm() / headaxisnorm;
+
+  GLfloat A[]={a.x, a.y, a.z},
+    B[]={b.x, b.y, b.z},
+      C[]={headpoint.x + headaxis.x, headpoint.y + headaxis.y, headpoint.z + headaxis.z},
+    D[]={headpoint.x - headaxis.x, headpoint.y - headaxis.y, headpoint.z - headaxis.z};
+    
+  glBegin (GL_LINES);
+  glVertex3fv (A);
+  glVertex3fv (B);  
+  glVertex3fv (A);
+  glVertex3fv (C);
+  glVertex3fv (A);
+  glVertex3fv (D);
+  glEnd();
+}
+
+
 
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include "GLBuffer.hpp"
+#include <include/glscribe.hpp>
 
 CLGLWindow::CLGLWindow(GlutMaster& gMaster,
                        int setWidth, int setHeight,
@@ -102,6 +151,9 @@ CLGLWindow::CameraSetup()
   //glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
   //glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
 
+
+  _cameraDirection = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0)) * Vector(0,0,-1);
+  
 }
 
 
@@ -288,6 +340,9 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
   drawAxis();
   
+  drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1));
+
+  
   glutSwapBuffers();
 
   ++frameCounter; 
@@ -306,7 +361,6 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
   _lastFrameTime = _currFrameTime;
 }
-
 
 void CLGLWindow::drawAxis()
 {
@@ -348,34 +402,19 @@ void CLGLWindow::drawAxis()
 
   glLineWidth (2.0);
     
-  float ORG[] = {0,0,0};
-  float XP[] = {1,0,0};
-  float YP[] = {0,1,0};
-  float ZP[] = {0,0,1};
-  
-  glBegin (GL_LINES);
   glColor3f (1,0,0); // X axis is red.
-  glVertex3fv (ORG);
-  glVertex3fv (XP );
+  drawArrow(Vector(1,0,0), Vector(0,0,0));
   glColor3f (0,1,0); // Y axis is green.
-  glVertex3fv (ORG);
-  glVertex3fv (YP );
-  glColor3f (0,0,1); // z axis is blue.
-  glVertex3fv (ORG);
-  glVertex3fv (ZP );
-  glEnd();
+  drawArrow(Vector(0,1,0), Vector(0,0,0));
+  glColor3f (0,0,1); // Z axis is blue.
+  drawArrow(Vector(0,0,1), Vector(0,0,0));
+  
+  //Do the text
+  glColor3f(1,1,1);
+  GLScribe::cout << GLScribe::cursor(1,0,0) << "X"
+		 << GLScribe::cursor(0,1,0) << "Y"
+		 << GLScribe::cursor(0,0,1) << "Z";
 
-  //Done the text
-  glColor3f(1,1,1); // Color the axis box a transparent blue
-  glRasterPos3f(1,0,0);
-  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,'X');
-  glRasterPos3f(0,1,0);
-  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,'Y');
-  glRasterPos3f(0,0,1);
-  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12,'Z');
-
-
-    
   glMatrixMode(GL_PROJECTION);
   glPopMatrix ();
   glMatrixMode(GL_MODELVIEW);
