@@ -33,8 +33,8 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   windowTitle(title),
   FPSmode(false),
   frameCounter(0),
-  _rotatex(-20),
-  _rotatey(20),
+  _rotatex(0),
+  _rotatey(0),
   _cameraX(0),
   _cameraY(0),
   _cameraZ(0),
@@ -144,7 +144,7 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   //Setup the viewport
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.0f, 1.0f * _width / _height, 1.0f, 1000.0f);
+  CallBackReshapeFunc(_width, _height);
 
   glMatrixMode(GL_MODELVIEW);
   CameraSetup();
@@ -286,8 +286,9 @@ void CLGLWindow::CallBackDisplayFunc(void)
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
 
+  drawAxis();
+  
   glutSwapBuffers();
-
 
   ++frameCounter; 
 
@@ -306,6 +307,75 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _lastFrameTime = _currFrameTime;
 }
 
+void CLGLWindow::drawAxis()
+{
+  GLdouble nearPlane = 0.1,
+    axisScale = 0.05;
+  
+  //We're drawing an overlayed axis so disable depth testing
+  glViewport(0,0,100,100);
+
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix ();
+  glLoadIdentity();
+  gluPerspective(45.0f, 1, 0.1f, 1000.0f);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix ();
+  glLoadIdentity();  
+  
+  //near plane is at 0.1, the axis are 0.25 long so
+  
+  glTranslatef (0, 0, -(nearPlane + axisScale));
+
+  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.5); // Color the axis box a transparent blue
+  glBegin(GL_QUADS);		
+  glVertex3f(-1,-1, 0);
+  glVertex3f( 1,-1, 0);
+  glVertex3f( 1, 1, 0);
+  glVertex3f(-1, 1, 0);
+  glEnd();
+
+
+  glRotatef(_rotatey, 1.0, 0.0, 0.0);
+  glRotatef(_rotatex, 0.0, 1.0, 0.0);
+  //glRotatef (tip , 1,0,0);
+  //glRotatef (turn, 0,1,0);
+  glScalef (axisScale, axisScale, axisScale);
+
+  glLineWidth (2.0);
+    
+  float ORG[] = {0,0,0};
+  float XP[] = {1,0,0};
+  float YP[] = {0,1,0};
+  float ZP[] = {0,0,1};
+    
+  glBegin (GL_LINES);
+  glColor3f (1,0,0); // X axis is red.
+  glVertex3fv (ORG);
+  glVertex3fv (XP );
+  glColor3f (0,1,0); // Y axis is green.
+  glVertex3fv (ORG);
+  glVertex3fv (YP );
+  glColor3f (0,0,1); // z axis is blue.
+  glVertex3fv (ORG);
+  glVertex3fv (ZP );
+  glEnd();
+    
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix ();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix ();
+
+  glViewport(0, 0, _width,_height);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_LIGHTING);
+}
+
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
   _width = w;
@@ -316,10 +386,23 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   //Now reset the projection matrix
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.0f, 1.0f * _width / _height, 0.1f, 1000.0f);
-  glMatrixMode(GL_MODELVIEW);
 
-  CallBackDisplayFunc();
+
+  //gluPerspective(45.0f, , 0.1f, 1000.0f);
+
+  GLdouble fovy = 45.0f,
+    zNear = 0.1f,
+    zFar = 1000.0f,
+    aspect = ((GLdouble)_width) / _height;
+  GLdouble xmin, xmax, ymin, ymax;
+  
+  ymax = zNear * std::tan(fovy * M_PI / 360.0);
+  ymin = -ymax;
+  xmin = ymin * aspect;
+  xmax = ymax * aspect;
+  glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
+
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void 

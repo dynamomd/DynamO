@@ -84,6 +84,7 @@ private:
   void initOpenGL(int initPosX, int initPosY);
   void initOpenCL();
 
+  void drawAxis();
 
   enum KeyStateType
     {
