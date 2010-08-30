@@ -85,7 +85,7 @@ CLGLWindow::CameraSetup()
   glRotatef(_rotatex, 0.0, 1.0, 0.0);
   glTranslatef(-_cameraX,-_cameraY,-_cameraZ);
 
-  GLfloat light0_diffuse[] = {0.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
+  GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
   GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
   GLfloat light0_position[] = {0.0, 0.0, -2.0, 0.0};
   GLfloat light1_diffuse[] = {1.0, 1.0, 1.0, 1.0};
@@ -93,14 +93,14 @@ CLGLWindow::CameraSetup()
   GLfloat light1_position[] = {-2.0, -3.0, -1.0, 0.0};
    
   glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
+  //glEnable(GL_LIGHT1);
    
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
   glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
-  glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
-  glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+  //glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
+  //glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
+  //glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
 
 }
 

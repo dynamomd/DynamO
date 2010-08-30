@@ -121,8 +121,8 @@ Sphere::Sphere(SphereType type, size_t order):
 
 Sphere::~Sphere()
 {
-  if (vertices) free (vertices); 
-  if (faces) free (faces); 
+  //if (vertices) free (vertices);
+  //if (faces) free (faces);
 }
 
 void
