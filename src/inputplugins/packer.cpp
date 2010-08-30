@@ -117,7 +117,6 @@ CIPPacker::initialise()
 	"       --i2 : Adds a temperature rescale event every x events\n"
 	"       --b1 : Installs the collision sentinel for low densities\n"
 	"       --b2 : Forces the use of non-morton cells in square systems\n"
-	"       --b3 : Forces the use of non-morton cells in square systems\n"
 	"  1: Monocomponent square wells\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Lambda [1.5] (well width factor)\n"

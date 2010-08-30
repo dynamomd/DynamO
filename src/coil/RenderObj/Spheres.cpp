@@ -1,3 +1,20 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "Spheres.hpp"
 #include <iostream>
 #include <sstream>
@@ -14,18 +31,12 @@ struct  SortDataType { cl_uint ID; cl_float dist;};
 RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
 		     const float& cameraX, const float& cameraY, const float& cameraZ,
 		     size_t N, 
-		     Sphere::SphereType type1, 
-		     size_t order1,
-		     Sphere::SphereType type2, 
-		     size_t order2,
-		     size_t nSphere1):
+		     const std::vector<SphereDetails>& renderDetailLevels):
   RTriangles(hostTransfers),
   _N(N),
-  primSphere1(type1, order1),
-  primSphere2(type2, order2),
+  _renderDetailLevels(renderDetailLevels),
   _workgroupsize(0),
   _globalsize(0),
-  _nSpheres1(nSphere1),
   _cameraX(cameraX),
   _cameraY(cameraY),
   _cameraZ(cameraZ)
@@ -65,57 +76,82 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   }
 
   {//Setup initial vertex positions
-    size_t nVerticeComp = 3 * (primSphere1.n_vertices * nSphere1 + primSphere2.n_vertices * (_N - nSphere1));
-    std::vector<float> VertexPos(nVerticeComp, 0.0);
+    size_t nVertice = 0;
+    for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
+	 iPtr != _renderDetailLevels.end(); ++iPtr)
+      nVertice += iPtr->_type.n_vertices * iPtr->_nSpheres;
 
+    std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
-
     initOCLVertexBuffer(Context);
   }
   
   {//Setup inital normal vectors
-    size_t nNormals1 = primSphere1.n_vertices * nSphere1;
-    size_t nNormals2 = primSphere2.n_vertices * (_N - nSphere1);
-    std::vector<float> VertexNormals(3 * (nNormals1 + nNormals2), 0.0);
+    size_t nNormals = 0;
+    for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
+	 iPtr != _renderDetailLevels.end(); ++iPtr)
+      nNormals += iPtr->_type.n_vertices * iPtr->_nSpheres;
 
-    for (size_t i = 0; i < nSphere1; ++i)
-      for (int j = 0; j < 3 * primSphere1.n_vertices; ++j)
-	VertexNormals[3 * primSphere1.n_vertices * i + j] = primSphere1.vertices[j];
+    std::vector<float> VertexNormals(3 * nNormals, 0.0);
+
+    nNormals = 0;
+    for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
+	 iPtr != _renderDetailLevels.end(); ++iPtr)
+      {
+	for (size_t i = 0; i < iPtr->_nSpheres; ++i)
+	  for (int j = 0; j < 3 * iPtr->_type.n_vertices; ++j)
+	    VertexNormals[nNormals + 3 * iPtr->_type.n_vertices * i + j] = iPtr->_type.vertices[j];
+
+	nNormals += 3 * iPtr->_nSpheres * iPtr->_type.n_vertices;
+      }
     
-    for (size_t i = 0; i < (_N - nSphere1); ++i)
-      for (int j = 0; j < 3 * primSphere2.n_vertices; ++j)
-	VertexNormals[3 * (primSphere2.n_vertices * i + nNormals1) + j]
-	  = primSphere2.vertices[j];
-
     setGLNormals(VertexNormals);
   }
 
 
   {//Setup initial Colors
-    size_t nColors1 = 4 * primSphere1.n_vertices * nSphere1;
-    size_t nColors2 = 4 * primSphere2.n_vertices * (_N - nSphere1);
-    std::vector<float> VertexColor(nColors1 + nColors2, 1.0);
+    size_t nColors = 0;
+    for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
+	 iPtr != _renderDetailLevels.end(); ++iPtr)
+      nColors += iPtr->_type.n_vertices * iPtr->_nSpheres;
+
+    std::vector<float> VertexColor(4*nColors, 1.0);
+    
+    for (size_t icol = 0; icol < nColors; ++icol)
+      {
+	VertexColor[4 * icol + 0] = 4.0/256.0;
+	VertexColor[4 * icol + 1] = 104.0/256.0;
+	VertexColor[4 * icol + 2] = 202.0/256.0;
+	VertexColor[4 * icol + 3] = 1.0;
+      }
 
     setGLColors(VertexColor);
   }
    
  
   {//Setup initial element data
-    size_t nElem1 = 3 * primSphere1.n_faces * nSphere1;
-    size_t nElem2 = 3 * primSphere2.n_faces * (_N - nSphere1);
+    size_t nElements = 0;
+    for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
+	 iPtr != _renderDetailLevels.end(); ++iPtr)
+      nElements += 3 * iPtr->_type.n_faces * iPtr->_nSpheres;
 
-    std::vector<int> ElementData(nElem1 + nElem2, 0.0);
+    std::vector<int> ElementData(nElements, 0.0);
+
+    nElements = 0;
+    size_t nSphereVertices = 0;
+    for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
+	 iPtr != _renderDetailLevels.end(); ++iPtr)
+      {
+	for (size_t i = 0; i < iPtr->_nSpheres; ++i)
+	  for (int j = 0; j < 3 * iPtr->_type.n_faces; ++j)
+	    ElementData[nElements + 3 * iPtr->_type.n_faces * i + j] 
+	      = i * iPtr->_type.n_vertices + iPtr->_type.faces[j]
+	      + nSphereVertices;
+
+	nSphereVertices += iPtr->_type.n_vertices * iPtr->_nSpheres;
+	nElements += 3 * iPtr->_type.n_faces * iPtr->_nSpheres;
+      }
     
-    for (size_t i = 0; i < nSphere1; ++i)
-      for (int j = 0; j < 3 * primSphere1.n_faces; ++j)
-	ElementData[3 * primSphere1.n_faces * i + j] 
-	  = i * primSphere1.n_vertices + primSphere1.faces[j];
-
-    for (size_t i = 0; i < _N - nSphere1; ++i)
-      for (int j = 0; j < 3 * primSphere2.n_faces; ++j)
-	ElementData[nElem1 + 3 * primSphere2.n_faces * i + j] 
-	  = primSphere1.n_vertices * nSphere1 + i * primSphere2.n_vertices + primSphere2.faces[j];
-
     setGLElements(ElementData);
   }
   
@@ -164,14 +200,10 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   _sortDataKernel = cl::Kernel(program, "GenerateData");
   _sortKernel = cl::Kernel(program, "sphereBitonicSort");
 
-  _primativeVertices1 = cl::Buffer(Context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				   sizeof(cl_float) * 3 * primSphere1.n_vertices,
-				   primSphere1.vertices);
-
-  _primativeVertices2 = cl::Buffer(Context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				   sizeof(cl_float) * 3 * primSphere2.n_vertices,
-				   primSphere2.vertices);
-
+  for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
+       iPtr != _renderDetailLevels.end(); ++iPtr)
+    iPtr->setupCLBuffers(Context);
+    
   clTick(CmdQ, Context);
 }
 
@@ -198,17 +230,20 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
       sortKernelFunc(_sortData, stage, stagePass, _N, 1);
   }
 
-  //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(CmdQ);
+  //Finally, run render kernels
+  cl_uint renderedSpheres = 0;
+  cl_uint renderedVertexData = 0;
+  for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
+       iPtr != _renderDetailLevels.end(); ++iPtr)
+    {
+      cl_int vertexOffset = renderedVertexData - 3 * renderedSpheres * iPtr->_type.n_vertices;
 
-  //Finally, run rendering kernel
-  renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices1, 
-		   primSphere1.n_vertices, 0, _nSpheres1, 0, _sortData);
+      renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, iPtr->_primativeVertices, 
+		       iPtr->_type.n_vertices, renderedSpheres, renderedSpheres + iPtr->_nSpheres, vertexOffset, _sortData);
 
-  renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, _primativeVertices2, 
-		   primSphere2.n_vertices, _nSpheres1, _N, 
-		   3 * _nSpheres1 * (primSphere1.n_vertices - primSphere2.n_vertices),
-		   _sortData);
+      renderedSpheres += iPtr->_nSpheres;
+      renderedVertexData += 3 * iPtr->_nSpheres * iPtr->_type.n_vertices;
+    }
 
   //Release resources
   _clbuf_Positions.release(CmdQ);

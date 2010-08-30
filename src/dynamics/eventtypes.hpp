@@ -61,3 +61,7 @@ ETYPE_ENUM_FACTORY(printEnum)
 
   return os << "Failed to find a name for the Event Type! Memory corruption?";
 }
+
+#undef ETYPE_ENUM_FACTORY
+#undef buildEnum
+#undef printEnum

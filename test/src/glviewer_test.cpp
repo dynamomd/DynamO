@@ -22,10 +22,14 @@ int main(int argc, char** argv)
     
     //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
   
-    CLWindow.addRenderObj<RTSpheres>((size_t)125000,
-				     Sphere::icosahedron, (size_t)1,
-				     Sphere::icosahedron, (size_t)0,
-				     (size_t)1000);
+    std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
+
+    size_t N = 500000;
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 100));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 100000));
+
+    CLWindow.addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
     
     bool noFPSLimit = true;
 

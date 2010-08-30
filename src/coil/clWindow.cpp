@@ -1,3 +1,20 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #define GL_GLEXT_PROTOTYPES
 #include "clWindow.hpp"
 #include <GL/glew.h>
@@ -11,12 +28,44 @@ inline float clamp(float x, float a, float b)
     return x < a ? a : (x > b ? b : x);
 }
 
+//a is the head, b the tail
+void drawArrow(Vector a, Vector b)
+{
+  Vector arrowAxis = a - b;
+  Vector headpoint = b + arrowAxis * 0.75;
+  Vector headaxis = (arrowAxis ^ Vector(1,0,0));
+  double headaxisnorm = headaxis.nrm();
+  if (headaxisnorm == 0)
+    {
+      headaxis = ((a-b) ^ Vector(0,0,1));
+      headaxisnorm = headaxis.nrm();
+    }
+
+  headaxis *= 0.15 * arrowAxis.nrm() / headaxisnorm;
+
+  GLfloat A[]={a.x, a.y, a.z},
+    B[]={b.x, b.y, b.z},
+      C[]={headpoint.x + headaxis.x, headpoint.y + headaxis.y, headpoint.z + headaxis.z},
+    D[]={headpoint.x - headaxis.x, headpoint.y - headaxis.y, headpoint.z - headaxis.z};
+    
+  glBegin (GL_LINES);
+  glVertex3fv (A);
+  glVertex3fv (B);  
+  glVertex3fv (A);
+  glVertex3fv (C);
+  glVertex3fv (A);
+  glVertex3fv (D);
+  glEnd();
+}
+
+
 
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include "GLBuffer.hpp"
+#include <include/glscribe.hpp>
 
 CLGLWindow::CLGLWindow(GlutMaster& gMaster,
                        int setWidth, int setHeight,
@@ -33,8 +82,8 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   windowTitle(title),
   FPSmode(false),
   frameCounter(0),
-  _rotatex(-20),
-  _rotatey(20),
+  _rotatex(0),
+  _rotatey(0),
   _cameraX(0),
   _cameraY(0),
   _cameraZ(0),
@@ -85,7 +134,7 @@ CLGLWindow::CameraSetup()
   glRotatef(_rotatex, 0.0, 1.0, 0.0);
   glTranslatef(-_cameraX,-_cameraY,-_cameraZ);
 
-  GLfloat light0_diffuse[] = {0.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
+  GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
   GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
   GLfloat light0_position[] = {0.0, 0.0, -2.0, 0.0};
   GLfloat light1_diffuse[] = {1.0, 1.0, 1.0, 1.0};
@@ -93,15 +142,18 @@ CLGLWindow::CameraSetup()
   GLfloat light1_position[] = {-2.0, -3.0, -1.0, 0.0};
    
   glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
+  //glEnable(GL_LIGHT1);
    
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
   glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
-  glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
-  glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+  //glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
+  //glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
+  //glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
 
+
+  _cameraDirection = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0)) * Vector(0,0,-1);
+  
 }
 
 
@@ -144,7 +196,7 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   //Setup the viewport
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.0f, 1.0f * _width / _height, 1.0f, 1000.0f);
+  CallBackReshapeFunc(_width, _height);
 
   glMatrixMode(GL_MODELVIEW);
   CameraSetup();
@@ -286,8 +338,12 @@ void CLGLWindow::CallBackDisplayFunc(void)
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
 
-  glutSwapBuffers();
+  drawAxis();
+  
+  drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1));
 
+  
+  glutSwapBuffers();
 
   ++frameCounter; 
 
@@ -306,6 +362,70 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _lastFrameTime = _currFrameTime;
 }
 
+void CLGLWindow::drawAxis()
+{
+  GLdouble nearPlane = 0.1,
+    axisScale = 0.05;
+  
+  //We're drawing an overlayed axis so disable depth testing
+  glViewport(0,0,100,100);
+
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix ();
+  glLoadIdentity();
+  gluPerspective(45.0f, 1, 0.1f, 1000.0f);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix ();
+  glLoadIdentity();  
+  
+  //near plane is at 0.1, the axis are 0.25 long so
+  
+  glTranslatef (0, 0, -(nearPlane + axisScale));
+
+  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.7); // Color the axis box a transparent blue
+  glBegin(GL_QUADS);		
+  glVertex3f(-1,-1, 0);
+  glVertex3f( 1,-1, 0);
+  glVertex3f( 1, 1, 0);
+  glVertex3f(-1, 1, 0);
+  glEnd();
+
+  glRotatef(_rotatey, 1.0, 0.0, 0.0);
+  glRotatef(_rotatex, 0.0, 1.0, 0.0);
+  //glRotatef (tip , 1,0,0);
+  //glRotatef (turn, 0,1,0);
+  glScalef (axisScale, axisScale, axisScale);
+
+  glLineWidth (2.0);
+    
+  glColor3f (1,0,0); // X axis is red.
+  drawArrow(Vector(1,0,0), Vector(0,0,0));
+  glColor3f (0,1,0); // Y axis is green.
+  drawArrow(Vector(0,1,0), Vector(0,0,0));
+  glColor3f (0,0,1); // Z axis is blue.
+  drawArrow(Vector(0,0,1), Vector(0,0,0));
+  
+  //Do the text
+  glColor3f(1,1,1);
+  GLScribe::cout << GLScribe::cursor(1,0,0) << "X"
+		 << GLScribe::cursor(0,1,0) << "Y"
+		 << GLScribe::cursor(0,0,1) << "Z";
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix ();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix ();
+
+  glViewport(0, 0, _width,_height);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_LIGHTING);
+}
+
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
   _width = w;
@@ -316,10 +436,23 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   //Now reset the projection matrix
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.0f, 1.0f * _width / _height, 0.1f, 1000.0f);
-  glMatrixMode(GL_MODELVIEW);
 
-  CallBackDisplayFunc();
+
+  //gluPerspective(45.0f, , 0.1f, 1000.0f);
+
+  GLdouble fovy = 45.0f,
+    zNear = 0.1f,
+    zFar = 1000.0f,
+    aspect = ((GLdouble)_width) / _height;
+  GLdouble xmin, xmax, ymin, ymax;
+  
+  ymax = zNear * std::tan(fovy * M_PI / 360.0);
+  ymin = -ymax;
+  xmin = ymin * aspect;
+  xmax = ymax * aspect;
+  glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
+
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void 

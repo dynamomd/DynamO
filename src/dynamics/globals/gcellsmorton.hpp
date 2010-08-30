@@ -107,12 +107,12 @@ protected:
   {
 #ifdef DYNAMO_DEBUG
     if (list.at(cellID) != -1)
-      partCellData.at(list.at(cellID)).prev = _ID;
+      partCellData.at(list.at(cellID)).prev = ID;
     
-    partCellData.at(_ID).next = list.at(cellID);
-    list.at(cellID) = _ID;    
-    partCellData.at(_ID).prev = -1;
-    partCellData.at(_ID).cell = cellID;
+    partCellData.at(ID).next = list.at(cellID);
+    list.at(cellID) = ID;    
+    partCellData.at(ID).prev = -1;
+    partCellData.at(ID).cell = cellID;
 # else
     if (list[cellID] != -1)
       partCellData[list[cellID]].prev = ID;
@@ -136,7 +136,7 @@ protected:
       partCellData[partCellData[ID].next].prev = partCellData[ID].prev;
 
 #ifdef DYNAMO_DEBUG
-    partCellData[_ID].cell = -1;
+    partCellData[ID].cell = -1;
 #endif
   }
 
