@@ -51,12 +51,19 @@ public:
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
 protected:
+
+  void FullSort(cl::CommandQueue& CmdQ);
+
+  void IncrementalSort(cl::CommandQueue& CmdQ);
+
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
-  cl::Kernel _sortKernel;
+  cl::Kernel _fullSortKernel;
+  cl::Kernel _incrementalSortKernel;
 
   cl_uint _N;
   cl_uint _numStages, _powerOfTwo;
+  size_t _sortTicker;
 
   static const std::string kernelsrc;
 

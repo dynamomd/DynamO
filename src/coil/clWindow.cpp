@@ -137,9 +137,9 @@ CLGLWindow::CameraSetup()
   GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
   GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
   GLfloat light0_position[] = {0.0, 0.0, -2.0, 0.0};
-  GLfloat light1_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-  GLfloat light1_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
-  GLfloat light1_position[] = {-2.0, -3.0, -1.0, 0.0};
+  //  GLfloat light1_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+  //  GLfloat light1_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
+  //  GLfloat light1_position[] = {-2.0, -3.0, -1.0, 0.0};
    
   glEnable(GL_LIGHT0);
   //glEnable(GL_LIGHT1);
@@ -365,7 +365,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
 void CLGLWindow::drawAxis()
 {
   GLdouble nearPlane = 0.1,
-    axisScale = 0.05;
+    axisScale = 0.07;
   
   //We're drawing an overlayed axis so disable depth testing
   glViewport(0,0,100,100);
@@ -403,17 +403,17 @@ void CLGLWindow::drawAxis()
   glLineWidth (2.0);
     
   glColor3f (1,0,0); // X axis is red.
-  drawArrow(Vector(1,0,0), Vector(0,0,0));
+  drawArrow(Vector( 0.5,-0.5,-0.5), Vector(-0.5,-0.5,-0.5));
   glColor3f (0,1,0); // Y axis is green.
-  drawArrow(Vector(0,1,0), Vector(0,0,0));
+  drawArrow(Vector(-0.5, 0.5,-0.5), Vector(-0.5,-0.5,-0.5));
   glColor3f (0,0,1); // Z axis is blue.
-  drawArrow(Vector(0,0,1), Vector(0,0,0));
+  drawArrow(Vector(-0.5,-0.5, 0.5), Vector(-0.5,-0.5,-0.5));
   
   //Do the text
   glColor3f(1,1,1);
-  GLScribe::cout << GLScribe::cursor(1,0,0) << "X"
-		 << GLScribe::cursor(0,1,0) << "Y"
-		 << GLScribe::cursor(0,0,1) << "Z";
+  GLScribe::cout << GLScribe::cursor( 0.5,-0.5,-0.5) << "X"
+		 << GLScribe::cursor(-0.5, 0.5,-0.5) << "Y"
+		 << GLScribe::cursor(-0.5,-0.5, 0.5) << "Z";
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix ();

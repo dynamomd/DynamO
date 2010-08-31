@@ -134,5 +134,54 @@ __kernel void sphereBitonicSort(__global SortDataType* theArray,
 
     theArray[leftId]  = leftElement;
     theArray[rightId] = rightElement;
-});
+}
+
+//This sorts small blocks that fit into shared memory
+__kernel void sphereBitonicLocalSort(__global SortDataType* theArray,
+				     uint realsize,
+				     uint direction,
+				     __local SortDataType* cache)
+{
+  //__local block must be 2*get_local_size(0) big
+  
+  //offset the data array pointer
+  theArray += 2 * get_group_id(0) * get_local_size(0);
+
+  cache[get_local_id(0)] = theArray[get_local_id(0)];
+  cache[2 * get_local_id(0)] = theArray[2 * get_local_id(0)];
+
+  for (uint stageStride = 2; stageStride < 2 * get_local_size(0); stageStride <<=1)
+    {
+      uint blockDirection = direction ^ (get_local_id(0) & (get_local_size(0) / 2) != 0);
+      for (uint passStride = stageStride / 2; passStride > 0; passStride >>=1)
+	{
+	  barrier(CLK_LOCAL_MEM_FENCE);
+	  uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
+	  if ((cache[pos].dist < cache[pos + passStride].dist) == blockDirection)
+	    {
+	      SortDataType tmp = cache[pos];
+	      cache[pos] = cache[pos + passStride];
+	      cache[pos + passStride] = tmp;
+	    }
+	}
+    }
+
+  for (uint passStride = get_local_size(0); passStride > 0; passStride >>=1)
+    {
+      barrier(CLK_LOCAL_MEM_FENCE);
+      uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
+      if ((cache[pos].dist < cache[pos + passStride].dist) == direction)
+	{
+	  SortDataType tmp = cache[pos];
+	  cache[pos] = cache[pos + passStride];
+	  cache[pos + passStride] = tmp;
+	}
+    }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  theArray[get_local_id(0)] = cache[get_local_id(0)];
+  theArray[2 * get_local_id(0)] = cache[2 * get_local_id(0)];
+}
+);
 #undef STRINGIFY
