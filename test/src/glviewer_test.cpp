@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 			clplatform);
     
     //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
-  
+
     std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
 
     size_t N = 500000;

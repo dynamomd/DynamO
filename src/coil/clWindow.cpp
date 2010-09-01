@@ -64,7 +64,7 @@ void drawArrow(Vector a, Vector b)
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include "GLBuffer.hpp"
+#include <magnet/GLBuffer.hpp>
 #include <include/glscribe.hpp>
 
 CLGLWindow::CLGLWindow(GlutMaster& gMaster,

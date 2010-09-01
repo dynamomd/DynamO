@@ -25,7 +25,7 @@
 #include <static_assert.hpp>
 #include "include/vector2.hpp"
 
-#include "GLBuffer.hpp"
+#include <magnet/GLBuffer.hpp>
 
 #include "RenderObj/RenderObj.hpp"
 
