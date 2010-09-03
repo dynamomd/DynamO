@@ -15,10 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 lib OpenCL : : <link>shared ;
-alias magnetHeaders  ;
 
-lib magnet : [ glob-tree *.cpp ] 
-      OpenCL magnetHeaders 
+lib magnet : [ glob-tree *.cpp : tests ] 
+      OpenCL 
       : <include>.
       : 
       : <include>. ;

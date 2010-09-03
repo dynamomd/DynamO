@@ -8,7 +8,7 @@ lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
 
 lib coil : [ glob-tree *.cpp ]
-      glut GLU GL Xmu Xext X11 rt GLEW magnet//magnet
+      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
     : 
     : : <define>GLVIEWER <include>.
     ;
