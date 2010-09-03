@@ -73,11 +73,11 @@
   F(double4,cl_double4,4,double)				   \
   F(double8,cl_double8,8,double)				   \
   F(double16,cl_double16,16,double)				   \
-  F(half,cl_half,1,half)					   
 
-//  F(half2,cl_half2,2,half)					   \
-//  F(half4,cl_half4,4,half)					   \
-//  F(half8,cl_half8,8,half)					   \
+//  F(half,cl_half,1,half)					   
+//  F(half2,cl_half2,2,half)					   
+//  F(half4,cl_half4,4,half)					   
+//  F(half8,cl_half8,8,half)					   
 //  F(half16,cl_half16,16,half)					   
 
 //  F(bool,magnet::_traits_detail::no_host_type,1,bool)
@@ -125,9 +125,8 @@ namespace magnet {
   {								\
     static const bool is_CL_type = true;			\
     static const int  tensor_order = tensororder;		\
-    typedef basetype base_type;					\
-    typedef hosttype host_type;					\
     static const std::string kernel_type;			\
+    typedef CL_##cl_type base_type;				\
   };
   
   //Call the factory
