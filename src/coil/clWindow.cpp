@@ -28,44 +28,13 @@ inline float clamp(float x, float a, float b)
     return x < a ? a : (x > b ? b : x);
 }
 
-//a is the head, b the tail
-void drawArrow(Vector a, Vector b)
-{
-  Vector arrowAxis = a - b;
-  Vector headpoint = b + arrowAxis * 0.75;
-  Vector headaxis = (arrowAxis ^ Vector(1,0,0));
-  double headaxisnorm = headaxis.nrm();
-  if (headaxisnorm == 0)
-    {
-      headaxis = ((a-b) ^ Vector(0,0,1));
-      headaxisnorm = headaxis.nrm();
-    }
-
-  headaxis *= 0.15 * arrowAxis.nrm() / headaxisnorm;
-
-  GLfloat A[]={a.x, a.y, a.z},
-    B[]={b.x, b.y, b.z},
-      C[]={headpoint.x + headaxis.x, headpoint.y + headaxis.y, headpoint.z + headaxis.z},
-    D[]={headpoint.x - headaxis.x, headpoint.y - headaxis.y, headpoint.z - headaxis.z};
-    
-  glBegin (GL_LINES);
-  glVertex3fv (A);
-  glVertex3fv (B);  
-  glVertex3fv (A);
-  glVertex3fv (C);
-  glVertex3fv (A);
-  glVertex3fv (D);
-  glEnd();
-}
-
-
-
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include <magnet/GLBuffer.hpp>
-#include <include/glscribe.hpp>
+#include "glprimatives/glscribe.hpp"
+#include "glprimatives/arrow.hpp"
 
 CLGLWindow::CLGLWindow(GlutMaster& gMaster,
                        int setWidth, int setHeight,
@@ -340,8 +309,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
   drawAxis();
   
-  drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1));
-
+  //coil::glprimatives::drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1));
   
   glutSwapBuffers();
 
@@ -403,11 +371,16 @@ void CLGLWindow::drawAxis()
   glLineWidth (2.0);
     
   glColor3f (1,0,0); // X axis is red.
-  drawArrow(Vector( 0.5,-0.5,-0.5), Vector(-0.5,-0.5,-0.5));
+  coil::glprimatives::drawArrow(Vector( 0.5,-0.5,-0.5), 
+				Vector(-0.5,-0.5,-0.5));
+
   glColor3f (0,1,0); // Y axis is green.
-  drawArrow(Vector(-0.5, 0.5,-0.5), Vector(-0.5,-0.5,-0.5));
+  coil::glprimatives::drawArrow(Vector(-0.5, 0.5,-0.5), 
+				Vector(-0.5,-0.5,-0.5));
+
   glColor3f (0,0,1); // Z axis is blue.
-  drawArrow(Vector(-0.5,-0.5, 0.5), Vector(-0.5,-0.5,-0.5));
+  coil::glprimatives::drawArrow(Vector(-0.5,-0.5, 0.5), 
+				Vector(-0.5,-0.5,-0.5));
   
   //Do the text
   glColor3f(1,1,1);

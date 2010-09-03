@@ -22,8 +22,8 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.h>
 #include <CL/cl.hpp>
-#include <static_assert.hpp>
-#include "include/vector2.hpp"
+#include "extcode/static_assert.hpp"
+#include "extcode/vector2.hpp"
 
 #include <magnet/GLBuffer.hpp>
 
