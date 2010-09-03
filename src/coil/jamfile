@@ -1,10 +1,3 @@
-
-
-if [ GLOB $(cluster_pack_path_native)\\Include : mpi.h ]
-{ 
-
-}
-
 lib glut ;
 lib GLU ;
 lib GL ;
@@ -13,11 +6,9 @@ lib Xext ;
 lib X11 ;
 lib rt ;
 lib GLEW ;
-lib gsl ;
-lib m ;
 
-alias coil : [ glob-tree *.cpp ]
-      glut GLU GL Xmu Xext X11 m rt GLEW gsl ../magnet//magnet/<link>static
-    : <include>../extcode/include <include>include
+lib coil : [ glob-tree *.cpp ]
+      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
+    : <include>../extcode/include <include>../magnet/magnet/ <include>include
     : : <define>GLVIEWER <include>include <include>.
     ;
