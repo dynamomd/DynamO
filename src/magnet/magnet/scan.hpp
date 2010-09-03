@@ -30,7 +30,6 @@ namespace magnet {
     cl::Kernel _kernel;
     cl::KernelFunctor _functor;
   };
-
 };
 
 //void scan(cl::CommandQueue& queue, cl::Context& context, cl::Buffer& bufferIn, cl_uint size)

@@ -91,18 +91,17 @@ exe dynamod
     : <link>static 
     ;
 
-exe threadpool_test 
-    : test/src/threadpool_test.cpp src//dynamo_core
-    : <link>static 
-    ;
+#exe threadpool_test 
+#    : test/src/threadpool_test.cpp src//dynamo_core
+#    : 
+#    ;
 
 exe gl_test 
-    : test/src/glviewer_test.cpp src/coil//coil
-    : <link>shared 
+    : test/src/glviewer_test.cpp src/coil//coil/<link>static
     ;
 
 install install-test
-	: threadpool_test gl_test
+	: gl_test 
 	: <location>test
 	;
 
