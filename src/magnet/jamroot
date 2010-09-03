@@ -16,7 +16,7 @@
 
 lib OpenCL : : <link>shared ;
 
-alias magnet : OpenCL
+lib magnet : OpenCL [ glob-tree *.cpp : tests ]
       : <include>.
       : 
       : <include>. ;

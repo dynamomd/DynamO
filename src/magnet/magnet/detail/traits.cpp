@@ -14,7 +14,18 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#pragma once
 
-#include <CL/cl.hpp>
 #include <magnet/detail/traits.hpp>
+
+namespace magnet {
+
+#define TRAIT_STRING_FACTORY(cl_type,hosttype,tensororder,basetype) \
+  const std::string traits<CL_##cl_type>::kernel_type = STRINGIFY(cl_type);
+
+  //Call the factory
+  CL_TYPE_FACTORY(TRAIT_STRING_FACTORY)
+
+#undef TRAIT_STRING_FACTORY
+
+  
+}
