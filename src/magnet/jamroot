@@ -16,7 +16,18 @@
 
 lib OpenCL : : <link>shared ;
 
-alias magnet : OpenCL 
+alias magnet : OpenCL
       : <include>.
       : 
       : <include>. ;
+
+
+##################### TESTS ######################
+using testing ;
+
+#### Prefix Scan ####
+unit-test scan_test : tests/scan_test.cpp magnet ;
+
+
+##################################################
+alias test : scan_test ;
