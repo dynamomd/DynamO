@@ -36,7 +36,7 @@ namespace magnet {
     void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
     {
       //Workgroups of 256 work-items process 512 elements
-      cl_uint nGroups = ((size + 512 - 1) / 512);
+      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
       
       cl::Buffer partialSums(detail::functor<scan<T> >::_context,
 			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
@@ -52,7 +52,7 @@ namespace magnet {
 	  operator()(partialSums, partialSums, nGroups);
 	  
 	  _uniformAddKernel.bind(detail::functor<scan<T> >::_queue, 
-				 cl::NDRange(512 * ((nGroups + 511) / 512)), 
+				 cl::NDRange(nGroups * 256), 
 				 cl::NDRange(256))
 	    (output, output, partialSums, size);
 	}
