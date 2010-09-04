@@ -35,10 +35,10 @@ namespace magnet {
 
     void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
     {
-      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-
+      //Workgroups of 256 work-items process 512 elements
+      cl_uint nGroups = ((size + 512 - 1) / 512);
       
-      cl::Buffer partialSums(detail::functor<scan<T> >::_context, 
+      cl::Buffer partialSums(detail::functor<scan<T> >::_context,
 			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
       
       _prescanKernel.bind(detail::functor<scan<T> >::_queue, 
@@ -46,7 +46,7 @@ namespace magnet {
 			  cl::NDRange(256))
 	(input, output, partialSums, size);
       
-      //Recurse if we've got to scan the sub buffers
+      //Recurse if we've got more than one workgroup
       if (nGroups > 1)
 	{
 	  operator()(partialSums, partialSums, nGroups);

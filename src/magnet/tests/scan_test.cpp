@@ -28,6 +28,7 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
   //This is an inclusive scan!
   std::partial_sum(input.begin(), input.end(), answer.begin());
   
+  bool result = true;
   for (size_t i(1); i < output.size(); ++i)
     if (output[i] != answer[i-1])
       {
@@ -35,16 +36,16 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 		  << " output = " << output[i]
 		  << " answer = " << answer[i]
 		  << "\n";
-	return false;
+	result = false;
       }
 
-  return true;
+  return result;
 }
 
 template<class T>
 void runTestType(cl::Context context, cl::CommandQueue queue)
 {
-  cl_uint size = 1024 * 3;
+  cl_uint size = 1024 * 2 + 512;
 
   std::vector<T> input(size);
 
