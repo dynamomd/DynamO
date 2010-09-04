@@ -24,10 +24,10 @@ int main(int argc, char** argv)
 
     std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
 
-    size_t N = 500000;
+    size_t N = 10000;
     sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 100));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 100000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 9000));
+    //sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 100000));
 
     CLWindow.addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
     

@@ -12,3 +12,5 @@ lib coil : [ glob-tree *.cpp ]
     : 
     : : <define>GLVIEWER <include>.
     ;
+
+alias test : ;

@@ -16,5 +16,7 @@
 */
 #pragma once
 
+#define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 #include <magnet/detail/traits.hpp>
+#include <magnet/detail/functors.hpp>

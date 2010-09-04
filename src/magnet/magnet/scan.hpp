@@ -17,20 +17,54 @@
 #pragma once
 
 #include <magnet/detail/common.hpp>
-//#include <magnet/detail/scanKernel.clh>
 
 namespace magnet {
   
   template<class T>
-  class scan {
+  class scan : public detail::functor<scan<T> > 
+  {
+    cl::Kernel _prescanKernel, _uniformAddKernel;
+    
   public:
+    scan(cl::CommandQueue queue, cl::Context context):
+      detail::functor<scan<T> >(queue, context, "")
+    {
+      _prescanKernel = cl::Kernel(detail::functor<scan<T> >::_program, "prescan");
+      _uniformAddKernel = cl::Kernel(detail::functor<scan<T> >::_program, "uniformAdd");
+    }
+
+    void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
+    {
+      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
+      cl::KernelFunctor prescan
+	= _prescanKernel.bind(detail::functor<scan<T> >::_queue, 
+					 cl::NDRange(256 * nGroups), 
+					 cl::NDRange(256));
       
-  private:
-    cl::Program _program;
-    cl::Kernel _kernel;
-    cl::KernelFunctor _functor;
+      cl::Context context = (detail::functor<scan<T> >::_queue);
+
+      cl::Buffer partialSums(context, CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
+      
+      prescan(input, output, partialSums, size);
+      
+      //Recurse if we've got to scan the sub buffers
+      if (nGroups > 1)
+	{
+	  operator()(partialSums, partialSums, nGroups);
+	  
+	  cl::KernelFunctor uniformAdd
+	    = _uniformAddKernel.bind(detail::functor<scan<T> >::_queue, 
+				     cl::NDRange( 256 * nGroups), cl::NDRange(256));
+	  
+	  uniformAdd(output, output, partialSums, size);
+	}
+    }
+
+    static inline std::string kernelSource();
   };
 };
+
+#include "magnet/scan.clh"
 
 //void scan(cl::CommandQueue& queue, cl::Context& context, cl::Buffer& bufferIn, cl_uint size)
 //{

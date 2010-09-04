@@ -42,3 +42,5 @@ alias dynamo_core : [ glob-tree *.cpp : programs  coil magnet ]
     : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>single <link>static <condor>yes
     ;
+
+alias test : ;
