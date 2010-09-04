@@ -60,7 +60,7 @@ namespace magnet
      */
     exception(int line, const char* file, const char* funcname) throw()
     {
-      message << "\nException thrown at ["
+      _message << "\nException thrown at ["
 	      << file << ":" << line << "]"
 #ifndef __MAGNET_NO_EXCEPTION_FUNCTION
 	      << "\nIn " << funcname
@@ -70,7 +70,7 @@ namespace magnet
 
     exception(const exception& e)
     {
-      message << e.message.str();
+      _message << e._message.str();
     }
 
     /*! \brief The stream operator engine for the class
@@ -78,7 +78,7 @@ namespace magnet
     template<class T>
     exception& operator<<(const T& m) 
     { 
-      message << m;
+      _message << m;
       return *this;
     }
     
@@ -93,14 +93,16 @@ namespace magnet
      */
     const char* what() const throw()
      {
-      return message.str().c_str();
+       _whatval = _message.str();
+       return _whatval.c_str();
     }
 
   private:
     /*! \brief Stores the message of the exception.
      */
-    std::ostringstream message;
+    std::ostringstream _message;
 
+    mutable std::string _whatval;
   }; 
 }
 

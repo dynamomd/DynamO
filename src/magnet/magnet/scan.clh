@@ -27,7 +27,6 @@ namespace magnet {
 STRINGIFY(//////////////////////////////////////////////////////////////////////
 	  ////////////          Scan Kernels                       /////////////
 	  //////////////////////////////////////////////////////////////////////
-#define WORKGROUP_SIZE 256
 	  
 	  //Performs a scan on a continuous "block" of "blocksize" elements in local memory
 	  //This function will synchronize the threads before and after the sum
@@ -76,18 +75,18 @@ STRINGIFY(//////////////////////////////////////////////////////////////////////
 	    barrier(CLK_LOCAL_MEM_FENCE);
 	  }
 		     
-	  //This kernel performs scan's on blocks of (2 * WORKGROUP_SIZE) elements.
+	  //This kernel performs scan's on blocks of (2 * 256) elements.
 	  //The code in the kernel just loads the local array with data, calls
 	  //scanLocalBlock(__local scantype* block), and returns the total sum
 	  //in partial_sums.
 		     
-	  __kernel __attribute__((reqd_work_group_size(WORKGROUP_SIZE, 1, 1)))
+	  __kernel __attribute__((reqd_work_group_size(256, 1, 1)))
 	  void prescan(__global scantype *g_idata, __global scantype *g_odata, 
 		       __global scantype *partial_sums, uint n)
 	  {
-	    __local scantype localBlock[2 * WORKGROUP_SIZE]; 
+	    __local scantype localBlock[2 * 256]; 
 		       
-	    size_t memoffset = 2 * WORKGROUP_SIZE * get_group_id(0);
+	    size_t memoffset = 2 * 256 * get_group_id(0);
 		       
 	    //Do the offsets
 	    g_idata += memoffset;
@@ -104,7 +103,7 @@ STRINGIFY(//////////////////////////////////////////////////////////////////////
 	      localBlock[2 * get_local_id(0)+1] = g_idata[2 * get_local_id(0) + 1];
 		       
 	    __local totalSum;
-	    scanLocalBlock(localBlock, 2 * WORKGROUP_SIZE, &totalSum);
+	    scanLocalBlock(localBlock, 2 * 256, &totalSum);
 		       
 	    if (get_local_id(0)==0)
 	      partial_sums[get_group_id(0)] = totalSum;
@@ -116,7 +115,7 @@ STRINGIFY(//////////////////////////////////////////////////////////////////////
 	      g_odata[2 * get_local_id(0) + 1] = localBlock[2*get_local_id(0)+1];
 	  }
 		     
-	  __kernel __attribute__((reqd_work_group_size(WORKGROUP_SIZE, 1, 1)))
+	  __kernel __attribute__((reqd_work_group_size(256, 1, 1)))
 	  void uniformAdd(__global scantype *g_idata, __global scantype *g_odata, 
 			  __global scantype *partial_sums, uint n)
 	  {
@@ -129,19 +128,17 @@ STRINGIFY(//////////////////////////////////////////////////////////////////////
 
 	    barrier(CLK_LOCAL_MEM_FENCE);
 		       
-	    uint offset = 2 * WORKGROUP_SIZE * get_group_id(0);
+	    uint offset = 2 * 256 * get_group_id(0);
 	    g_odata += offset;
 	    g_idata += offset;
 		       
 	    if (offset + get_local_id(0) < n)
 	      g_odata[get_local_id(0)] = g_idata[get_local_id(0)] + increment;
 		       
-	    if (offset + WORKGROUP_SIZE + get_local_id(0) < n)
-	      g_odata[WORKGROUP_SIZE + get_local_id(0)] 
-		= g_idata[WORKGROUP_SIZE + get_local_id(0)] + increment; 
+	    if (offset + 256 + get_local_id(0) < n)
+	      g_odata[256 + get_local_id(0)] 
+		= g_idata[256 + get_local_id(0)] + increment; 
 	  }
-#undef WORKGROUP_SIZE
-#undef scantype
 );
   }
 }

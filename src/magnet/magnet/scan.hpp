@@ -21,7 +21,7 @@
 namespace magnet {
   
   template<class T>
-  class scan : public detail::functor<scan<T> > 
+  class scan : public detail::functor<scan<T> >
   {
     cl::Kernel _prescanKernel, _uniformAddKernel;
     
@@ -36,27 +36,25 @@ namespace magnet {
     void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
     {
       cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-      cl::KernelFunctor prescan
-	= _prescanKernel.bind(detail::functor<scan<T> >::_queue, 
-					 cl::NDRange(256 * nGroups), 
-					 cl::NDRange(256));
-      
-      cl::Context context = (detail::functor<scan<T> >::_queue);
 
-      cl::Buffer partialSums(context, CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
       
-      prescan(input, output, partialSums, size);
+      cl::Buffer partialSums(detail::functor<scan<T> >::_context, 
+			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
+      
+      _prescanKernel.bind(detail::functor<scan<T> >::_queue, 
+			  cl::NDRange(256 * nGroups), 
+			  cl::NDRange(256))
+	(input, output, partialSums, size);
       
       //Recurse if we've got to scan the sub buffers
       if (nGroups > 1)
 	{
 	  operator()(partialSums, partialSums, nGroups);
 	  
-	  cl::KernelFunctor uniformAdd
-	    = _uniformAddKernel.bind(detail::functor<scan<T> >::_queue, 
-				     cl::NDRange( 256 * nGroups), cl::NDRange(256));
-	  
-	  uniformAdd(output, output, partialSums, size);
+	  _uniformAddKernel.bind(detail::functor<scan<T> >::_queue, 
+				 cl::NDRange(512 * ((nGroups + 511) / 512)), 
+				 cl::NDRange(256))
+	    (output, output, partialSums, size);
 	}
     }
 
@@ -65,25 +63,3 @@ namespace magnet {
 };
 
 #include "magnet/scan.clh"
-
-//void scan(cl::CommandQueue& queue, cl::Context& context, cl::Buffer& bufferIn, cl_uint size)
-//{
-//  cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-//  cl::KernelFunctor prescan
-//    = prescanKernel.bind(queue, cl::NDRange( 256 * nGroups), cl::NDRange(256));
-//  
-//  cl::Buffer partialSums(context, CL_MEM_WRITE_ONLY, sizeof(cl_uint) * (nGroups));
-//  
-//  events.push_back(prescan(bufferIn, bufferIn, partialSums, size));
-//
-//  //Recurse if we've got to scan the sub buffers
-//  if (nGroups > 1)
-//    {
-//      scan(queue, context, partialSums, nGroups);
-//
-//      cl::KernelFunctor uniformAdd
-//	= uniformAddKernel.bind(queue, cl::NDRange( 256 * nGroups), cl::NDRange(256));
-//
-//      events.push_back(uniformAdd(bufferIn, bufferIn, partialSums, size));
-//    }
-//}

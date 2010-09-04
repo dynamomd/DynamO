@@ -35,24 +35,24 @@ namespace magnet {
     class functor {
     public:
       inline functor(cl::CommandQueue queue, cl::Context context, std::string buildFlags):
-	_queue(queue)
+	_queue(queue), _context(context)
       {
-	std::string kernelSrc = T::kernelSource();
+	std::string kernelSrc = format_code(T::kernelSource());
 	
 	cl::Program::Sources sources;
 	sources.push_back(std::make_pair(kernelSrc.c_str(),
 					 kernelSrc.size()));
 	
-	cl::Program program(context, sources);
+	_program = cl::Program(_context, sources);
 
-	std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>();
 
 	try {
-	  program.build(devices, buildFlags.c_str());
+	  _program.build(devices, buildFlags.c_str());
 	} catch(cl::Error& err) {
 	  for(size_t dev = 0; dev < devices.size(); ++dev) {
-	    std::string msg = program.getBuildInfo<
-	    CL_PROGRAM_BUILD_LOG>(devices[dev]);
+	    std::string msg 
+	      = format_code(_program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[dev]));
 	    
 	    if (!msg.size())
 	      continue;
@@ -61,13 +61,44 @@ namespace magnet {
 		      << devices[dev].getInfo<CL_DEVICE_NAME>()
 		      << "\nBuild Log:\n" << msg;
 	  }
-	  throw;
 	}
+
+       cl::Kernel(_program, "prescan");
       }
 
     protected:
       cl::Program _program;
       cl::CommandQueue _queue;
+      cl::Context _context;
+
+      /*! \brief Can search and replace elements in a std::string. */
+      inline std::string 
+      format_code(std::string in)
+      {
+	return search_replace(in,";",";\n");
+      }
+
+      inline std::string 
+      search_replace(std::string in, const std::string& from, const std::string& to)
+      {
+	if (!in.empty())
+	  {
+	    std::string::size_type toLen = to.length();
+	    std::string::size_type frLen = from.length();
+	    std::string::size_type loc = 0;
+	    
+	    while (std::string::npos != (loc = in.find(from, loc)))
+	      {
+		in.replace(loc, frLen, to);
+		loc += toLen;
+		
+		if (loc >= in.length())
+	      break;
+	      }
+	  }
+	return in;
+      }
+
     };
   }
 }
