@@ -29,6 +29,9 @@ using testing ;
 #### Prefix Scan ####
 unit-test scan_test : tests/scan_test.cpp magnet ;
 
+#### Radix Sort ####
+unit-test radixsort_test : tests/radixsort_test.cpp magnet ;
+
 
 ##################################################
-alias test : scan_test ;
+alias test : scan_test radixsort_test ;
