@@ -45,11 +45,11 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 template<class T>
 void runTestType(cl::Context context, cl::CommandQueue queue)
 {
-  cl_uint size = 1024 * 2 + 512;
+  cl_uint size = 1024 * 2 + 15;
 
   std::vector<T> input(size);
 
-  std::cout << "Testing scan for " << input.size() << " elements and type " 
+  std::cout << "###Testing scan for " << input.size() << " elements and type " 
 	    << magnet::detail::traits<T>::kernel_type()
 	    << std::endl;
   
@@ -59,7 +59,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   // create input buffer using pinned memory
   cl::Buffer bufferIn(context, CL_MEM_ALLOC_HOST_PTR |
 		      CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE, 
-		      sizeof(cl_uint) * input.size(), &input[0])
+		      sizeof(T) * input.size(), &input[0])
     ;
   
   magnet::scan<T> scanFunctor(queue, context);
@@ -81,6 +81,8 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 void runTest(cl::Context context, cl::CommandQueue queue)
 {
   runTestType<cl_uint>(context, queue);
+  runTestType<cl_int>(context, queue);
+  runTestType<cl_float>(context, queue);
 }
 
 int main(int argc, char *argv[])

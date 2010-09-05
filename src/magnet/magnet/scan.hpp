@@ -62,4 +62,4 @@ namespace magnet {
   };
 };
 
-#include "magnet/scan.clh"
+#include "magnet/detail/kernels/scan.clh"
