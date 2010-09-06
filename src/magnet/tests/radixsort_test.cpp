@@ -70,17 +70,52 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 			  sizeof(T), &output[0]);
 
   if (!testOutput(input, output))
-    M_throw() << "Incorrect output for size " 
+    M_throw() << "Incorrect output for keysort with size " 
 	      << input.size()
 	      << " and type "
 	      << magnet::detail::traits<T>::kernel_type();
+
+  //Now test with some data!
+  //Refresh the input array
+  queue.enqueueWriteBuffer(bufferIn, CL_TRUE, 0, input.size() *
+			   sizeof(T), &input[0]);
+
+  //Write a data array
+  std::vector<T> data(size);
+  for(size_t i = 0; i < input.size(); ++i)
+    data[i] = i;
+
+
+  cl::Buffer dataIn(context, CL_MEM_ALLOC_HOST_PTR |
+		    CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE, 
+		    sizeof(T) * data.size(), &data[0])
+    ;
+
+  radixSortFunctor(bufferIn, dataIn, bufferIn, dataIn);
+  
+  queue.enqueueReadBuffer(dataIn, CL_TRUE, 0, data.size() *
+			  sizeof(T), &data[0]);
+
+  if (!testOutput(input, output))
+    M_throw() << "Incorrect output in keys for data and key sort with size " 
+	      << input.size()
+	      << " and type "
+	      << magnet::detail::traits<T>::kernel_type();
+
+  for(size_t i = 0; i < input.size(); ++i)
+    if (data[i] != T(input.size() - 1 - i)) 
+      M_throw() << "Incorrect output in data for data and key sort with size " 
+		<< input.size()
+		<< " and type "
+		<< magnet::detail::traits<T>::kernel_type();
+     
 }
 
 void runTest(cl::Context context, cl::CommandQueue queue)
 {
     runTestType<cl_uint>(context, queue);
     runTestType<cl_int>(context, queue);
-//    runTestType<cl_float>(context, queue);
+    runTestType<cl_float>(context, queue);
 }
 
 int main(int argc, char *argv[])
