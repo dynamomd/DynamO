@@ -62,7 +62,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   
   magnet::radixSort<T> radixSortFunctor(queue, context);
 
-  radixSortFunctor(bufferIn, bufferIn, size);
+  radixSortFunctor(bufferIn, bufferIn);
 
   std::vector<T> output(size);
  
@@ -80,7 +80,7 @@ void runTest(cl::Context context, cl::CommandQueue queue)
 {
     runTestType<cl_uint>(context, queue);
     runTestType<cl_int>(context, queue);
-//  runTestType<cl_float>(context, queue);
+//    runTestType<cl_float>(context, queue);
 }
 
 int main(int argc, char *argv[])

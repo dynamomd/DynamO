@@ -43,8 +43,9 @@ namespace magnet {
 	= cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeys");
     }
 
-    void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
+    void operator()(cl::Buffer input, cl::Buffer output)
     {
+      cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
       cl_uint groupSize = 256;
       cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
       cl_uint bitsPerPass = 4;
@@ -80,7 +81,7 @@ namespace magnet {
 			     cl::__local(sizeof(cl_uint) * maxRadixDigit));
 	  
 	  //Get the global offsets
-	  _scanFunctor(buckets, buckets, maxRadixDigit * nWorkGroups);
+	  _scanFunctor(buckets, buckets);
 	  
 	  clReorderKeys(doubleBuffer, output, buckets, offsets, 
 			size, startBit, bitsPerPass,

@@ -33,8 +33,10 @@ namespace magnet {
       _uniformAddKernel = cl::Kernel(detail::functor<scan<T> >::_program, "uniformAdd");
     }
 
-    void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
+    void operator()(cl::Buffer input, cl::Buffer output)
     {
+      cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
+
       //Workgroups of 256 work-items process 512 elements
       cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
       
@@ -49,7 +51,7 @@ namespace magnet {
       //Recurse if we've got more than one workgroup
       if (nGroups > 1)
 	{
-	  operator()(partialSums, partialSums, nGroups);
+	  operator()(partialSums, partialSums);
 	  
 	  _uniformAddKernel.bind(detail::functor<scan<T> >::_queue, 
 				 cl::NDRange(nGroups * 256), 

@@ -97,12 +97,14 @@ namespace magnet {
 		//Just a wrapper kernel function around radixBlockSort, allocates local memory and loads and stores to global 
 		//memory
 		__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
-		void radixBlockSortKernel(__global keyType4* const keyData, __global keyType4* outkeyData, 
+		void radixBlockSortKernel(__global keyType4* const keyData, 
+					  __global keyType4* outkeyData, 
 					  uint array_size, uint startBit, uint nBits)
 		{
 		  //Load the 4 keys this thread will sort
-		  keyType4 key= keyData[get_global_id(0)];
-  
+		  //First load the maximum value
+		  keyType4 key = keyData[get_global_id(0)];
+
 		  //This local array is used twice!
 		  //First, to perform a scan on 256 uints to determine the
 		  //little block offsets.
@@ -137,7 +139,7 @@ namespace magnet {
 
 		  //Load the key data
 		  keyBlocks[get_local_id(0)] = keyData[get_global_id(0)];
-
+		  
 		  barrier(CLK_GLOBAL_MEM_FENCE);
 
 		  //Load the offset and block offset data

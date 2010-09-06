@@ -64,7 +64,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   
   magnet::scan<T> scanFunctor(queue, context);
   
-  scanFunctor(bufferIn, bufferIn, size);
+  scanFunctor(bufferIn, bufferIn);
   
   std::vector<T> output(size);
   

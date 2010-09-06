@@ -1,0 +1,148 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+namespace magnet {
+  template<class T>
+  inline std::string 
+  bitonicSort<T>::kernelSource()
+  {
+    return std::string("#define keyType ") + detail::traits<T>::kernel_type() + "\n"
+STRINGIFY(
+//This sorts small blocks that fit into shared memory
+__kernel void bitonicLocalSort(__global uint* inputArray,
+			       uint realsize,
+			       uint direction,
+			       __local uint* cache)
+{
+  //__local block must be 2*get_local_size(0) big
+  
+  //offset the data array pointer
+  int offset = 2 * get_local_size(0) * get_group_id(0) + get_local_id(0);
+  inputArray += offset;
+
+  if (offset < realsize)
+    cache[get_local_id(0)] = inputArray[0];
+
+  if ((offset + get_local_size(0)) < realsize)
+    cache[get_local_id(0) + get_local_size(0)] = inputArray[get_local_size(0)];
+  
+  for (uint stageStride = 2; stageStride < 2 * get_local_size(0); stageStride <<= 1)
+    {
+      uint blockDirection = (get_local_id(0) & (stageStride/2)) == direction;
+      
+      for (uint passStride = stageStride / 2; passStride > 0; passStride >>=1)
+	{
+	  barrier(CLK_LOCAL_MEM_FENCE);
+	  uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
+	  if ((offset + pos + passStride - get_local_id(0)) < realsize)
+	    if ((offset + pos - get_local_id(0)) < realsize)
+	    if ((cache[pos] < cache[pos + passStride]) == blockDirection)
+	      {
+		uint tmp = cache[pos];
+		cache[pos] = cache[pos + passStride];
+		cache[pos + passStride] = tmp;
+	      }
+	}
+    }
+
+  uint blockDirection = (get_group_id(0) & 0x1) == direction;
+  for (uint passStride = get_local_size(0); passStride > 0; passStride >>=1)
+    {
+      barrier(CLK_LOCAL_MEM_FENCE);
+      uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
+      if ((offset + pos + passStride - get_local_id(0)) < realsize)
+	if ((cache[pos] < cache[pos + passStride]) == blockDirection)
+	  {
+	    uint tmp = cache[pos];
+	    cache[pos] = cache[pos + passStride];
+	    cache[pos + passStride] = tmp;
+	  }
+    }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+  if (offset < realsize)
+    inputArray[0] = cache[get_local_id(0)];
+
+  if ((offset + get_local_size(0)) < realsize)
+    inputArray[get_local_size(0)] = cache[get_local_id(0) + get_local_size(0)];
+}
+
+__kernel void bitonicSubStageSort(__global uint* inputArray,
+				  uint realsize,
+				  uint direction,
+				  __local uint* cache,
+				  uint stage)
+{
+  //__local block must be 2*get_local_size(0) big
+  //stage must be >= 8
+ 
+  //offset the data array pointer
+  int offset = 2 * get_local_size(0) * get_group_id(0) + get_local_id(0);
+  inputArray += offset;
+
+  if (offset < realsize)
+    cache[get_local_id(0)] = inputArray[0];
+
+  if ((offset + get_local_size(0)) < realsize)
+    cache[get_local_id(0) + get_local_size(0)] = inputArray[get_local_size(0)];
+  
+  uint stageStride = 2 << stage;
+  {
+    uint blockDirection = (get_local_id(0) & ((stageStride/2) << stage)) != 0;
+    
+    for (uint passStride = get_local_size(0); passStride > 0; passStride >>=1)
+      {
+	barrier(CLK_LOCAL_MEM_FENCE);
+	uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
+	if ((offset + pos + passStride - get_local_id(0)) < realsize)
+	  if ((cache[pos] < cache[pos + passStride]) == blockDirection)
+	    {
+	      uint tmp = cache[pos];
+	      cache[pos] = cache[pos + passStride];
+	      cache[pos + passStride] = tmp;
+	    }
+      }
+  }
+  
+  uint blockDirection = !(get_group_id(0) & (0x1 << (stage-8)));
+  for (uint passStride = get_local_size(0); passStride > 0; passStride >>=1)
+    {
+      barrier(CLK_LOCAL_MEM_FENCE);
+      uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
+      if ((offset + pos + passStride - get_local_id(0)) < realsize)
+	if ((cache[pos] < cache[pos + passStride]) == blockDirection)
+	  {
+	    uint tmp = cache[pos];
+	    cache[pos] = cache[pos + passStride];
+	    cache[pos + passStride] = tmp;
+	  }
+    }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+  if (offset < realsize)
+    inputArray[0] = cache[get_local_id(0)];
+
+  if ((offset + get_local_size(0)) < realsize)
+    inputArray[get_local_size(0)] = cache[get_local_id(0) + get_local_size(0)];
+}
+);
+  }
+}
+
