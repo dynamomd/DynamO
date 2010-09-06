@@ -31,33 +31,37 @@ namespace magnet {
     {
       // set up kernel
       _sortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, "bitonicSort");
-      _smallSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, "bitonicLocalSort");
-      _subSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, "bitonicSubStageSort");
+      _smallSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, 
+				    "bitonicLocalSort");
+      _subSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, 
+				  "bitonicSubStageSort");
     }
 
-    void operator()(cl::Buffer input, cl::Buffer output, bool ascending = true)
+    void operator()(cl::Buffer input, cl_uint ascending = true)
     {
-      cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
-      
+      const cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
+      const cl_uint groupSize = 256;
+
       size_t numStages = 0;
       for (size_t temp = size; temp > 1; temp >>= 1) ++numStages;
 
       cl_uint powerOfTwo = 1 << numStages;
       
       if (size != powerOfTwo)
-	M_throw() << "Cannot use this bitonic sort on non-power of two sized arrays, size = " << size;
-
+	M_throw() << "This bitonic sort only works on power of two sized arrays, size =" 
+		  << size;
+      
       cl::KernelFunctor clsort
 	= _sortKernel.bind(detail::functor<bitonicSort<T> >::_queue, cl::NDRange(powerOfTwo), 
 			   cl::NDRange(groupSize));
       
       cl::KernelFunctor clsmallsort
-	= _smallSortKernel.bind(detail::functor<bitonicSort<T> >::_queue, cl::NDRange(powerOfTwo / 2), 
-				cl::NDRange(groupSize));
+	= _smallSortKernel.bind(detail::functor<bitonicSort<T> >::_queue, 
+				cl::NDRange(powerOfTwo / 2), cl::NDRange(groupSize));
       
       cl::KernelFunctor clsubsort
-	= _subSortKernel.bind(detail::functor<bitonicSort<T> >::_queue, cl::NDRange(powerOfTwo / 2), 
-			      cl::NDRange(groupSize));
+	= _subSortKernel.bind(detail::functor<bitonicSort<T> >::_queue, 
+			      cl::NDRange(powerOfTwo / 2), cl::NDRange(groupSize));
       
       //All stages except the last one use the reverse intended direction!
       cl_uint initial_direction = 1-ascending;
@@ -66,50 +70,24 @@ namespace magnet {
 
       ///////////////////////////////////////////////////////////////////////
       //Small sort on blocks of up to 512
-      clsmallsort(bufferIn, size, initial_direction, 
-		  cl::__local(2 * sizeof(cl_uint ) * groupSize));
+      clsmallsort(input, size, initial_direction);
       
       //Now for the full sort
       for (cl_uint stage = 9; stage < numStages-1; ++stage)
 	{
 	  //Do the first (stage - 8) passes using the slow kernel
 	  for (cl_uint stagePass = 0; stagePass < stage-8/*stage+1*/; ++stagePass)
-	    clsort(bufferIn, stage, stagePass, size, initial_direction);
+	    clsort(input, stage, stagePass, size, initial_direction);
 	  
 	  //The final passes can be done using the small sort kernel
-	  clsubsort(bufferIn, size, initial_direction, 
-		    cl::__local(2 * sizeof(cl_uint ) * groupSize),
-		    stage);
+	  clsubsort(input, size, initial_direction, stage);
 	}
 
       {
 	cl_uint stage = numStages-1;	
 	for (cl_uint stagePass = 0; stagePass < stage+1; ++stagePass)
-	  clsort(bufferIn, stage, stagePass, size, ascending);
+	  clsort(input, stage, stagePass, size, ascending);
       }
-
-//
-//      //Workgroups of 256 work-items process 512 elements
-//      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-//      
-//      cl::Buffer partialSums(detail::functor<bitonicSort<T> >::_context,
-//			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
-//      
-//      _prescanKernel.bind(detail::functor<bitonicSort<T> >::_queue, 
-//			  cl::NDRange(256 * nGroups), 
-//			  cl::NDRange(256))
-//	(input, output, partialSums, size);
-//      
-//      //Recurse if we've got more than one workgroup
-//      if (nGroups > 1)
-//	{
-//	  operator()(partialSums, partialSums);
-//	  
-//	  _uniformAddKernel.bind(detail::functor<bitonicSort<T> >::_queue, 
-//				 cl::NDRange(nGroups * 256), 
-//				 cl::NDRange(256))
-//	    (output, output, partialSums, size);
-//	}
     }
 
     static inline std::string kernelSource();

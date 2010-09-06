@@ -25,13 +25,50 @@ namespace magnet {
   {
     return std::string("#define keyType ") + detail::traits<T>::kernel_type() + "\n"
 STRINGIFY(
-//This sorts small blocks that fit into shared memory
-__kernel void bitonicLocalSort(__global uint* inputArray,
-			       uint realsize,
-			       uint direction,
-			       __local uint* cache)
+__kernel 
+void bitonicSort( __global keyType* theArray,
+		  const uint stage, 
+		  const uint passOfStage,
+		  const uint realsize,
+		  const uint direction )
 {
-  //__local block must be 2*get_local_size(0) big
+    uint threadId = get_global_id(0);
+    
+    uint pairDistance = 1 << (stage - passOfStage);
+    uint blockWidth   = 2 * pairDistance;
+
+    uint leftId = (threadId % pairDistance) 
+                   + (threadId / pairDistance) * blockWidth;
+
+    uint rightId = leftId + pairDistance;
+
+    if ((leftId >= realsize) || (rightId >= realsize)) return;
+    
+    uint leftElement = theArray[leftId];
+    uint rightElement = theArray[rightId];
+    
+    uint sameDirectionBlockWidth = 1 << stage;
+
+    uint sortIncreasing = direction;
+    sortIncreasing = ( threadId / sameDirectionBlockWidth ) % 2 == 1 ?
+        1 - sortIncreasing : sortIncreasing;
+
+
+    keyType greater = leftElement > rightElement ? leftElement : rightElement;
+
+    keyType lesser = leftElement > rightElement ? rightElement : leftElement;
+    
+    theArray [leftId] = sortIncreasing ? lesser : greater;
+    theArray [rightId] = sortIncreasing ? greater : lesser;
+}
+
+//This sorts small blocks that fit into shared memory
+__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
+void bitonicLocalSort(__global keyType* inputArray,
+			       uint realsize,
+			       uint direction)
+{
+  __local keyType cache[512];
   
   //offset the data array pointer
   int offset = 2 * get_local_size(0) * get_group_id(0) + get_local_id(0);
@@ -55,7 +92,7 @@ __kernel void bitonicLocalSort(__global uint* inputArray,
 	    if ((offset + pos - get_local_id(0)) < realsize)
 	    if ((cache[pos] < cache[pos + passStride]) == blockDirection)
 	      {
-		uint tmp = cache[pos];
+		keyType tmp = cache[pos];
 		cache[pos] = cache[pos + passStride];
 		cache[pos + passStride] = tmp;
 	      }
@@ -70,7 +107,7 @@ __kernel void bitonicLocalSort(__global uint* inputArray,
       if ((offset + pos + passStride - get_local_id(0)) < realsize)
 	if ((cache[pos] < cache[pos + passStride]) == blockDirection)
 	  {
-	    uint tmp = cache[pos];
+	    keyType tmp = cache[pos];
 	    cache[pos] = cache[pos + passStride];
 	    cache[pos + passStride] = tmp;
 	  }
@@ -84,14 +121,15 @@ __kernel void bitonicLocalSort(__global uint* inputArray,
     inputArray[get_local_size(0)] = cache[get_local_id(0) + get_local_size(0)];
 }
 
-__kernel void bitonicSubStageSort(__global uint* inputArray,
-				  uint realsize,
-				  uint direction,
-				  __local uint* cache,
-				  uint stage)
+__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
+void bitonicSubStageSort(__global keyType* inputArray,
+			 uint realsize,
+			 uint direction,
+			 uint stage)
 {
   //__local block must be 2*get_local_size(0) big
   //stage must be >= 8
+  __local keyType cache[512];
  
   //offset the data array pointer
   int offset = 2 * get_local_size(0) * get_group_id(0) + get_local_id(0);

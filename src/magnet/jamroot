@@ -32,6 +32,9 @@ unit-test scan_test : tests/scan_test.cpp magnet ;
 #### Radix Sort ####
 unit-test radixsort_test : tests/radixsort_test.cpp magnet ;
 
+#### Bitonic Sort ####
+unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet ;
+
 
 ##################################################
-alias test : scan_test radixsort_test ;
+alias test : scan_test radixsort_test bitonicsort_test ;
