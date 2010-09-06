@@ -26,7 +26,9 @@ namespace magnet {
   {
     cl::Kernel _radixSortKernel, 
       _findRadixOffsetsKernel, 
-      _reorderKeysKernel;
+      _reorderKeysKernel,
+      _radixSortDataKernel,
+      _reorderKeysDataKernel;
 
     scan<cl_uint> _scanFunctor;
     
@@ -41,15 +43,22 @@ namespace magnet {
 	= cl::Kernel(detail::functor<radixSort<T> >::_program, "findRadixOffsetsKernel");
       _reorderKeysKernel 
 	= cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeys");
+      _radixSortDataKernel 
+	= cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortDataKernel");
+      _reorderKeysDataKernel 
+	= cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeysData");
     }
 
-    void operator()(cl::Buffer input, cl::Buffer output)
+    void operator()(cl::Buffer keyInput, cl::Buffer keyOutput)
     {
-      cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
+      cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
       cl_uint groupSize = 256;
       cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
       cl_uint bitsPerPass = 4;
       cl_uint maxRadixDigit = 2 << (bitsPerPass - 1);
+
+      if (size % 1024)				
+	M_throw() << "Radix sort works on whole multiples of 1024 elements only, please pad your data";
 
       cl::KernelFunctor clsort
 	= _radixSortKernel.bind(detail::functor<radixSort<T> >::_queue, 
@@ -74,7 +83,7 @@ namespace magnet {
       
       for (cl_uint startBit = 0; startBit < sizeof(T) * 8; startBit += bitsPerPass)
 	{
-	  clsort(input, doubleBuffer, size, startBit, bitsPerPass);
+	  clsort(keyInput, doubleBuffer, size, startBit, bitsPerPass);
 	  
 	  clfindRadixOffsets(doubleBuffer, buckets, offsets, 
 			     size, startBit, bitsPerPass,
@@ -83,7 +92,66 @@ namespace magnet {
 	  //Get the global offsets
 	  _scanFunctor(buckets, buckets);
 	  
-	  clReorderKeys(doubleBuffer, output, buckets, offsets, 
+	  clReorderKeys(doubleBuffer, keyOutput, buckets, offsets, 
+			size, startBit, bitsPerPass,
+			cl::__local(sizeof(cl_uint) * maxRadixDigit),
+			cl::__local(sizeof(cl_uint) * maxRadixDigit)
+			);
+	}
+    }
+
+    void operator()(cl::Buffer keyInput, cl::Buffer dataInput,
+		    cl::Buffer keyOutput, cl::Buffer dataOutput)
+    {
+      cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
+
+      if (dataInput.getInfo<CL_MEM_SIZE>() / sizeof(cl_uint) != size)
+	M_throw() << "Key and data set size mismatch";
+
+      cl_uint groupSize = 256;
+      cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
+      cl_uint bitsPerPass = 4;
+      cl_uint maxRadixDigit = 2 << (bitsPerPass - 1);
+
+      if (size % 1024)				
+	M_throw() << "Radix sort works on whole multiples of 1024 elements only, please pad your data";
+
+      cl::KernelFunctor clsort
+	= _radixSortDataKernel.bind(detail::functor<radixSort<T> >::_queue, 
+				cl::NDRange(size/4), cl::NDRange(groupSize));
+      
+      cl::KernelFunctor clfindRadixOffsets
+	= _findRadixOffsetsKernel.bind(detail::functor<radixSort<T> >::_queue, 
+				       cl::NDRange(size/4), cl::NDRange(groupSize));
+      
+      cl::KernelFunctor clReorderKeys
+	= _reorderKeysDataKernel.bind(detail::functor<radixSort<T> >::_queue, 
+				      cl::NDRange(size/4), cl::NDRange(groupSize));
+      
+      //Create the buffer holding the bit block offsets
+      cl::Buffer buckets(detail::functor<radixSort<T> >::_context, 
+			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
+	offsets(detail::functor<radixSort<T> >::_context, 
+		CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
+	doubleBuffer(detail::functor<radixSort<T> >::_context, 
+		     CL_MEM_READ_WRITE, sizeof(cl_uint) * size),
+	dataDoubleBuffer(detail::functor<radixSort<T> >::_context, 
+			 CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
+      ;
+      
+      for (cl_uint startBit = 0; startBit < sizeof(T) * 8; startBit += bitsPerPass)
+	{
+	  clsort(keyInput, dataInput, doubleBuffer, dataDoubleBuffer, size, 
+		 startBit, bitsPerPass);
+	  
+	  clfindRadixOffsets(doubleBuffer, buckets, offsets, 
+			     size, startBit, bitsPerPass,
+			     cl::__local(sizeof(cl_uint) * maxRadixDigit));
+	  
+	  //Get the global offsets
+	  _scanFunctor(buckets, buckets);
+	  
+	  clReorderKeys(doubleBuffer, dataDoubleBuffer, keyOutput, dataOutput, buckets, offsets, 
 			size, startBit, bitsPerPass,
 			cl::__local(sizeof(cl_uint) * maxRadixDigit),
 			cl::__local(sizeof(cl_uint) * maxRadixDigit)
