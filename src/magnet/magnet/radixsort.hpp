@@ -27,10 +27,13 @@ namespace magnet {
     cl::Kernel _radixSortKernel, 
       _findRadixOffsetsKernel, 
       _reorderKeysKernel;
+
+    scan<T> _scanFunctor;
     
   public:
     radixSort(cl::CommandQueue queue, cl::Context context):
-      detail::functor<radixSort<T> >(queue, context, "")
+      detail::functor<radixSort<T> >(queue, context, ""),
+      _scanFunctor(queue, context)
     {
       _radixSortKernel 
 	= cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortKernel");
@@ -42,27 +45,49 @@ namespace magnet {
 
     void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
     {
-//      //Workgroups of 256 work-items process 512 elements
-//      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-//      
-//      cl::Buffer partialSums(detail::functor<radixSort<T> >::_context,
-//			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
-//      
-//      _prescanKernel.bind(detail::functor<radixSort<T> >::_queue, 
-//			  cl::NDRange(256 * nGroups), 
-//			  cl::NDRange(256))
-//	(input, output, partialSums, size);
-//      
-//      //Recurse if we've got more than one workgroup
-//      if (nGroups > 1)
-//	{
-//	  operator()(partialSums, partialSums, nGroups);
-//	  
-//	  _uniformAddKernel.bind(detail::functor<radixSort<T> >::_queue, 
-//				 cl::NDRange(nGroups * 256), 
-//				 cl::NDRange(256))
-//	    (output, output, partialSums, size);
-//	}
+      cl_uint groupSize = 256;
+      cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
+      cl_uint bitsPerPass = 4;
+      cl_uint maxRadixDigit = 2 << (bitsPerPass - 1);
+
+      cl::KernelFunctor clsort
+	= _radixSortKernel.bind(detail::functor<radixSort<T> >::_queue, 
+				cl::NDRange(size/4), cl::NDRange(groupSize));
+      
+      cl::KernelFunctor clfindRadixOffsets
+	= _findRadixOffsetsKernel.bind(detail::functor<radixSort<T> >::_queue, 
+				       cl::NDRange(size/4), cl::NDRange(groupSize));
+      
+      cl::KernelFunctor clReorderKeys
+	= _reorderKeysKernel.bind(detail::functor<radixSort<T> >::_queue, 
+				  cl::NDRange(size/4), cl::NDRange(groupSize));
+      
+      //Create the buffer holding the bit block offsets
+      cl::Buffer buckets(detail::functor<radixSort<T> >::_context, 
+			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
+	offsets(detail::functor<radixSort<T> >::_context, 
+		CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
+	doubleBuffer(detail::functor<radixSort<T> >::_context, 
+		     CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
+      ;
+      
+      for (cl_uint startBit = 0; startBit < 32; startBit += bitsPerPass)
+	{
+	  clsort(input, doubleBuffer, size, startBit, bitsPerPass);
+	  
+	  clfindRadixOffsets(doubleBuffer, buckets, offsets, 
+			     size, startBit, bitsPerPass,
+			     cl::__local(sizeof(cl_uint) * maxRadixDigit));
+	  
+	  //Get the global offsets
+	  _scanFunctor(buckets, buckets, maxRadixDigit * nWorkGroups);
+	  
+	  clReorderKeys(doubleBuffer, output, buckets, offsets, 
+			size, startBit, bitsPerPass,
+			cl::__local(sizeof(cl_uint) * maxRadixDigit),
+			cl::__local(sizeof(cl_uint) * maxRadixDigit)
+			);
+	}
     }
 
     static inline std::string kernelSource();

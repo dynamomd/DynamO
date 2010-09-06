@@ -43,7 +43,7 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 template<class T>
 void runTestType(cl::Context context, cl::CommandQueue queue)
 {
-  cl_uint size = 1024 * 4;
+  cl_uint size = 1024 * 5;
 
   std::vector<T> input(size);
 
