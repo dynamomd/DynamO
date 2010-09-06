@@ -28,7 +28,7 @@ namespace magnet {
       _findRadixOffsetsKernel, 
       _reorderKeysKernel;
 
-    scan<T> _scanFunctor;
+    scan<cl_uint> _scanFunctor;
     
   public:
     radixSort(cl::CommandQueue queue, cl::Context context):
@@ -71,7 +71,7 @@ namespace magnet {
 		     CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
       ;
       
-      for (cl_uint startBit = 0; startBit < 32; startBit += bitsPerPass)
+      for (cl_uint startBit = 0; startBit < sizeof(T) * 8; startBit += bitsPerPass)
 	{
 	  clsort(input, doubleBuffer, size, startBit, bitsPerPass);
 	  

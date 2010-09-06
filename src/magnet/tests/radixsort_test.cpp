@@ -79,7 +79,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 void runTest(cl::Context context, cl::CommandQueue queue)
 {
     runTestType<cl_uint>(context, queue);
-//  runTestType<cl_int>(context, queue);
+    runTestType<cl_int>(context, queue);
 //  runTestType<cl_float>(context, queue);
 }
 

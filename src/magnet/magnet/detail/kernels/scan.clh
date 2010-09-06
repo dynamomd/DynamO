@@ -102,7 +102,7 @@ STRINGIFY(//////////////////////////////////////////////////////////////////////
 	    if ((memoffset + 2 * get_local_id(0) + 1) < n)
 	      localBlock[2 * get_local_id(0)+1] = g_idata[2 * get_local_id(0) + 1];
 		       
-	    __local totalSum;
+	    __local uint totalSum;
 	    scanLocalBlock(localBlock, 2 * 256, &totalSum);
 		       
 	    if (get_local_id(0)==0)

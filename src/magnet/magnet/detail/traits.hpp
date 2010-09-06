@@ -28,16 +28,16 @@
 
 //This is for defining vector types in CL_TYPE_FACTORY
 #define VEC_TYPE(F,kernel_type)						\
-  F(kernel_type, cl_##kernel_type, 1, cl_##kernel_type)			\
-  F(kernel_type##2, cl_##kernel_type##2, 2, cl_##kernel_type)		\
-  F(kernel_type##4, cl_##kernel_type##4, 4, cl_##kernel_type)		\
-  F(kernel_type##8, cl_##kernel_type##8, 8, cl_##kernel_type)		\
-  F(kernel_type##16, cl_##kernel_type##16, 16, cl_##kernel_type)
+  F(kernel_type, cl_##kernel_type, 1, cl_##kernel_type,cl_##kernel_type##2,cl_##kernel_type##4,cl_##kernel_type##8,cl_##kernel_type##16) \
+  F(kernel_type##2, cl_##kernel_type##2, 2, cl_##kernel_type,cl_##kernel_type##4,cl_##kernel_type##8,cl_##kernel_type##16,void)		\
+  F(kernel_type##4, cl_##kernel_type##4, 4, cl_##kernel_type,cl_##kernel_type##8,cl_##kernel_type##16,void,void) \
+  F(kernel_type##8, cl_##kernel_type##8, 8, cl_##kernel_type,cl_##kernel_type##16,void,void,void) \
+  F(kernel_type##16, cl_##kernel_type##16, 16, cl_##kernel_type,void,void,void,void)
   
 
 //This macro factory lets us generate type traits in an easy manner
 //The format for the passed macro function F is 
-//F(kernel_type, host_type, tensor_order, basetype)
+//F(kernel_type,host_type,tensororder,base_type,vec2_type,vec4_type,vec8_type,vec16_type)
 #define CL_TYPE_FACTORY(F)			\
   VEC_TYPE(F,char)				\
   VEC_TYPE(F,uchar)				\
@@ -60,13 +60,17 @@ namespace magnet {
     };
     
     //We use the CL_TYPE_FACTORY to generate our type traits
-#define TRAIT_FACTORY(cl_type,hosttype,tensororder,basetype)	\
+#define TRAIT_FACTORY(cl_type,hosttype,tensororder,basetype,vec2type,vec4type,vec8type,vec16type) \
     template<> struct traits<hosttype>				\
     {								\
       static const bool is_CL_type = true;			\
       static const int  tensor_order = tensororder;		\
       static inline std::string kernel_type()			\
       { return STRINGIFY(cl_type); }				\
+      typedef vec2type vec2_type;				\
+      typedef vec4type vec4_type;				\
+      typedef vec8type vec8_type;				\
+      typedef vec16type vec16_type;				\
     };
     
     //Call the factory
