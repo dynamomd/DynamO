@@ -32,7 +32,7 @@ namespace magnet {
       // set up kernel
       _sortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, "bitonicSort");
       _smallSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, 
-				    "bitonicLocalSort");
+				    "bitonicLocalSortKernel");
       _subSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, 
 				  "bitonicSubStageSort");
     }
@@ -70,7 +70,7 @@ namespace magnet {
 
       ///////////////////////////////////////////////////////////////////////
       //Small sort on blocks of up to 512
-      clsmallsort(input, size, initial_direction);
+      clsmallsort(input, initial_direction);
       
       //Now for the full sort
       for (cl_uint stage = 9; stage < numStages-1; ++stage)

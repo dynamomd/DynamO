@@ -62,25 +62,10 @@ void bitonicSort( __global keyType* theArray,
     theArray [rightId] = sortIncreasing ? greater : lesser;
 }
 
-//This sorts small blocks that fit into shared memory
-__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
-void bitonicLocalSort(__global keyType* inputArray,
-			       uint realsize,
-			       uint direction)
+//This sorts small blocks of power of two elements that fit into shared memory
+void bitonicLocalSort(__local keyType* cache, uint direction, uint size)
 {
-  __local keyType cache[512];
-  
-  //offset the data array pointer
-  int offset = 2 * get_local_size(0) * get_group_id(0) + get_local_id(0);
-  inputArray += offset;
-
-  if (offset < realsize)
-    cache[get_local_id(0)] = inputArray[0];
-
-  if ((offset + get_local_size(0)) < realsize)
-    cache[get_local_id(0) + get_local_size(0)] = inputArray[get_local_size(0)];
-  
-  for (uint stageStride = 2; stageStride < 2 * get_local_size(0); stageStride <<= 1)
+  for (uint stageStride = 2; stageStride < size; stageStride <<= 1)
     {
       uint blockDirection = (get_local_id(0) & (stageStride/2)) == direction;
       
@@ -88,37 +73,51 @@ void bitonicLocalSort(__global keyType* inputArray,
 	{
 	  barrier(CLK_LOCAL_MEM_FENCE);
 	  uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
-	  if ((offset + pos + passStride - get_local_id(0)) < realsize)
-	    if ((offset + pos - get_local_id(0)) < realsize)
-	    if ((cache[pos] < cache[pos + passStride]) == blockDirection)
-	      {
-		keyType tmp = cache[pos];
-		cache[pos] = cache[pos + passStride];
-		cache[pos + passStride] = tmp;
-	      }
+	  if ((cache[pos] < cache[pos + passStride]) == blockDirection)
+	    {
+	      keyType tmp = cache[pos];
+	      cache[pos] = cache[pos + passStride];
+	      cache[pos + passStride] = tmp;
+	    }
 	}
     }
 
   uint blockDirection = (get_group_id(0) & 0x1) == direction;
-  for (uint passStride = get_local_size(0); passStride > 0; passStride >>=1)
+  for (uint passStride = size / 2; passStride > 0; passStride >>=1)
     {
       barrier(CLK_LOCAL_MEM_FENCE);
       uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
-      if ((offset + pos + passStride - get_local_id(0)) < realsize)
-	if ((cache[pos] < cache[pos + passStride]) == blockDirection)
-	  {
-	    keyType tmp = cache[pos];
-	    cache[pos] = cache[pos + passStride];
-	    cache[pos + passStride] = tmp;
-	  }
+      if ((cache[pos] < cache[pos + passStride]) == blockDirection)
+	{
+	  keyType tmp = cache[pos];
+	  cache[pos] = cache[pos + passStride];
+	  cache[pos + passStride] = tmp;
+	}
     }
 
   barrier(CLK_LOCAL_MEM_FENCE);
-  if (offset < realsize)
-    inputArray[0] = cache[get_local_id(0)];
+}
 
-  if ((offset + get_local_size(0)) < realsize)
-    inputArray[get_local_size(0)] = cache[get_local_id(0) + get_local_size(0)];
+
+__kernel
+void bitonicLocalSortKernel(__global keyType* inputArray, uint direction)
+{
+  __local keyType cache[512];
+
+  int offset = 2 * get_local_size(0) * get_group_id(0) + get_local_id(0);
+  
+  inputArray += offset;
+
+  //Load
+  cache[get_local_id(0)] = inputArray[0];
+  cache[get_local_id(0) + get_local_size(0)] = inputArray[get_local_size(0)];
+  
+  //Sort
+  bitonicLocalSort(cache, direction, 2 * get_local_size(0));
+
+  //Store
+  inputArray[0] = cache[get_local_id(0)];  
+  inputArray[get_local_size(0)] = cache[get_local_id(0) + get_local_size(0)];
 }
 
 __kernel __attribute__((reqd_work_group_size(256, 1, 1)))
