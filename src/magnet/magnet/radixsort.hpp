@@ -17,45 +17,52 @@
 #pragma once
 
 #include <magnet/detail/common.hpp>
+#include <magnet/scan.hpp>
 
 namespace magnet {
   
   template<class T>
   class radixSort : public detail::functor<radixSort<T> >
   {
-    cl::Kernel _prescanKernel, _uniformAddKernel;
+    cl::Kernel _radixSortKernel, 
+      _findRadixOffsetsKernel, 
+      _reorderKeysKernel;
     
   public:
     radixSort(cl::CommandQueue queue, cl::Context context):
       detail::functor<radixSort<T> >(queue, context, "")
     {
-      _prescanKernel = cl::Kernel(detail::functor<radixSort<T> >::_program, "prescan");
-      _uniformAddKernel = cl::Kernel(detail::functor<radixSort<T> >::_program, "uniformAdd");
+      _radixSortKernel 
+	= cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortKernel");
+      _findRadixOffsetsKernel 
+	= cl::Kernel(detail::functor<radixSort<T> >::_program, "findRadixOffsetsKernel");
+      _reorderKeysKernel 
+	= cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeys");
     }
 
     void operator()(cl::Buffer input, cl::Buffer output, cl_uint size)
     {
-      //Workgroups of 256 work-items process 512 elements
-      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-      
-      cl::Buffer partialSums(detail::functor<radixSort<T> >::_context,
-			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
-      
-      _prescanKernel.bind(detail::functor<radixSort<T> >::_queue, 
-			  cl::NDRange(256 * nGroups), 
-			  cl::NDRange(256))
-	(input, output, partialSums, size);
-      
-      //Recurse if we've got more than one workgroup
-      if (nGroups > 1)
-	{
-	  operator()(partialSums, partialSums, nGroups);
-	  
-	  _uniformAddKernel.bind(detail::functor<radixSort<T> >::_queue, 
-				 cl::NDRange(nGroups * 256), 
-				 cl::NDRange(256))
-	    (output, output, partialSums, size);
-	}
+//      //Workgroups of 256 work-items process 512 elements
+//      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
+//      
+//      cl::Buffer partialSums(detail::functor<radixSort<T> >::_context,
+//			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
+//      
+//      _prescanKernel.bind(detail::functor<radixSort<T> >::_queue, 
+//			  cl::NDRange(256 * nGroups), 
+//			  cl::NDRange(256))
+//	(input, output, partialSums, size);
+//      
+//      //Recurse if we've got more than one workgroup
+//      if (nGroups > 1)
+//	{
+//	  operator()(partialSums, partialSums, nGroups);
+//	  
+//	  _uniformAddKernel.bind(detail::functor<radixSort<T> >::_queue, 
+//				 cl::NDRange(nGroups * 256), 
+//				 cl::NDRange(256))
+//	    (output, output, partialSums, size);
+//	}
     }
 
     static inline std::string kernelSource();

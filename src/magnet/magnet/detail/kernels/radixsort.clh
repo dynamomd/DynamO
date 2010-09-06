@@ -13,7 +13,7 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 //Simple macro to convert a token to a string
 #define STRINGIFY(A) #A
@@ -23,123 +23,226 @@ namespace magnet {
   inline std::string 
   radixSort<T>::kernelSource()
   {
-    return std::string("#define scantype ") + detail::traits<T>::kernel_type() + "\n"
-STRINGIFY(//////////////////////////////////////////////////////////////////////
-	  ////////////          Scan Kernels                       /////////////
-	  //////////////////////////////////////////////////////////////////////
-	  
-	  //Performs a scan on a continuous "block" of "blocksize" elements in local memory
-	  //This function will synchronize the threads before and after the sum
-	  //Also returns the totalSum in a local variable
-	  void scanLocalBlock(__local scantype* block, uint blocksize, __local uint* totalSum)
-	  {
-	    int stride = 1;
-		       
-	    for (int d = blocksize / 2; d > 0; d >>= 1) // build sum in place up the tree
-	      {
-		barrier(CLK_LOCAL_MEM_FENCE);
-			   
-		if (get_local_id(0) < d)
-		  {
-		    int ai = stride*(2*get_local_id(0)+1)-1;
-		    block[ai + stride] += block[ai];
-		  }
-		stride *= 2;
-	      }
-		       
-	    //Store the last element in the totalSum variable
-	    //and clear the last element.
-	    //We sync as we're about to read back from local memory, but a judicious
-	    //choice of the work_item might make this unnecessary
-	    barrier(CLK_LOCAL_MEM_FENCE);
-		       
-	    if (get_local_id(0) == 0)
-	      {
-		totalSum[0] = block[blocksize - 1];
-		block[blocksize - 1] = 0; 
-	      }
-		       
-	    for (int d = 1; d < blocksize; d *= 2) // traverse down tree & build scan
-	      {
-		stride >>= 1;
-		barrier(CLK_LOCAL_MEM_FENCE);
-		if (get_local_id(0) < d)
-		  {
-		    int ai = stride*(2*get_local_id(0)+1)-1;
-		    scantype t = block[ai];
-		    block[ai] = block[ai + stride];
-		    block[ai+stride] += t;
-		  }
-	      }
-		       
-	    barrier(CLK_LOCAL_MEM_FENCE);
-	  }
-		     
-	  //This kernel performs scan's on blocks of (2 * 256) elements.
-	  //The code in the kernel just loads the local array with data, calls
-	  //scanLocalBlock(__local scantype* block), and returns the total sum
-	  //in partial_sums.
-		     
-	  __kernel __attribute__((reqd_work_group_size(256, 1, 1)))
-	  void prescan(__global scantype *g_idata, __global scantype *g_odata, 
-		       __global scantype *partial_sums, uint n)
-	  {
-	    __local scantype localBlock[2 * 256]; 
-		       
-	    size_t memoffset = 2 * 256 * get_group_id(0);
-		       
-	    //Do the offsets
-	    g_idata += memoffset;
-	    g_odata += memoffset;
-		       
-	    localBlock[2 * get_local_id(0)] =  0;
-	    localBlock[2 * get_local_id(0)+1] = 0;
-		       
-	    // load input into shared memory
-	    if ((memoffset + 2*get_local_id(0)) < n)
-	      localBlock[2 * get_local_id(0)] =  g_idata[2 * get_local_id(0)]; 
-		       
-	    if ((memoffset + 2 * get_local_id(0) + 1) < n)
-	      localBlock[2 * get_local_id(0)+1] = g_idata[2 * get_local_id(0) + 1];
-		       
-	    __local totalSum;
-	    scanLocalBlock(localBlock, 2 * 256, &totalSum);
-		       
-	    if (get_local_id(0)==0)
-	      partial_sums[get_group_id(0)] = totalSum;
-		       
-	    if ((memoffset + 2 * get_local_id(0)) < n)
-	      g_odata[2*get_local_id(0)] = localBlock[2*get_local_id(0)]; // write results to device memory
-		       
-	    if ((memoffset + 2 * get_local_id(0) + 1) < n)
-	      g_odata[2 * get_local_id(0) + 1] = localBlock[2*get_local_id(0)+1];
-	  }
-		     
-	  __kernel __attribute__((reqd_work_group_size(256, 1, 1)))
-	  void uniformAdd(__global scantype *g_idata, __global scantype *g_odata, 
-			  __global scantype *partial_sums, uint n)
-	  {
-	    if (get_group_id(0) == 0) return;
-		       
-	    __local scantype increment;
-		       
-	    if (get_local_id(0) == 0)
-	      increment = partial_sums[get_group_id(0)];
+    return  scan<T>::kernelSource() + "\n"
+      STRINGIFY(//////////////////////////////////////////////////////////////////////
+		////////////          Radix Sort Kernels                 /////////////
+		//////////////////////////////////////////////////////////////////////
+		//This function will perform a single bit radix sort on a block of data in local memory
+		void radixBlockSort(uint4* localkey, uint shift, uint startBit, __local uint* share, __local uint* totalTrue)
+		{
+		  //First, perform a scan over our little block of 4 items
+		  uint4 test4;
+		  test4.x = (((*localkey).x >> shift) & 0x1);
+		  test4.y = (((*localkey).y >> shift) & 0x1);
+		  test4.z = (((*localkey).z >> shift) & 0x1);
+		  test4.w = (((*localkey).w >> shift) & 0x1);
+  
+		  uint4 sum4 = test4;
+		  sum4.y += sum4.x;
+		  sum4.z += sum4.y;
+		  sum4.w += sum4.z;
+  
+		  share[get_local_id(0)] = sum4.w;
+  
+		  //Now we must perform a block scan of the sum4.w elements to
+		  //find the offsets of our little blocks
+		  scanLocalBlock(share, 256, totalTrue);
+  
+		  //We need to know the total number of true statements to calculate offsets for them
+		  //If something is true, it should go in the second half
+  
+		  sum4 += share[get_local_id(0)];
+  
+		  uint totalFalse = 4 * 256 - *totalTrue;
+  
+		  //Now calculate the locations to place each data piece
+		  sum4.x = (test4.x) ? totalFalse + sum4.x - 1: 4 * get_local_id(0) + 0 - sum4.x;
+		  sum4.y = (test4.y) ? totalFalse + sum4.y - 1: 4 * get_local_id(0) + 1 - sum4.y;
+		  sum4.z = (test4.z) ? totalFalse + sum4.z - 1: 4 * get_local_id(0) + 2 - sum4.z;
+		  sum4.w = (test4.w) ? totalFalse + sum4.w - 1: 4 * get_local_id(0) + 3 - sum4.w;
+  
+  
+		  //Avoid bank conflicts on the read by interleaving the uint4 data
+		  sum4.x = (sum4.x & 3) * 256 + (sum4.x >> 2);
+		  sum4.y = (sum4.y & 3) * 256 + (sum4.y >> 2);
+		  sum4.z = (sum4.z & 3) * 256 + (sum4.z >> 2);
+		  sum4.w = (sum4.w & 3) * 256 + (sum4.w >> 2);
+  
+		  //Scatter the data out into a shared memory space      
+  
+		  //AMD needs this extra barrier
+		  barrier(CLK_LOCAL_MEM_FENCE);
+		  share[sum4.x] = (*localkey).x;
+		  share[sum4.y] = (*localkey).y;
+		  share[sum4.z] = (*localkey).z;
+		  share[sum4.w] = (*localkey).w;
+		  barrier(CLK_LOCAL_MEM_FENCE);
+  
+		  // The above allows us to read without 4-way bank conflicts:
+		  (*localkey).x = share[get_local_id(0)];
+		  (*localkey).y = share[get_local_id(0) +     256];
+		  (*localkey).z = share[get_local_id(0) + 2 * 256];
+		  (*localkey).w = share[get_local_id(0) + 3 * 256];
+		  barrier(CLK_LOCAL_MEM_FENCE);
+		}
 
-	    barrier(CLK_LOCAL_MEM_FENCE);
-		       
-	    uint offset = 2 * 256 * get_group_id(0);
-	    g_odata += offset;
-	    g_idata += offset;
-		       
-	    if (offset + get_local_id(0) < n)
-	      g_odata[get_local_id(0)] = g_idata[get_local_id(0)] + increment;
-		       
-	    if (offset + 256 + get_local_id(0) < n)
-	      g_odata[256 + get_local_id(0)] 
-		= g_idata[256 + get_local_id(0)] + increment; 
-	  }
-);
+		//Just a wrapper kernel function around radixBlockSort, allocates local memory and loads and stores to global 
+		//memory
+		__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
+		void radixBlockSortKernel(__global uint4* const keyData, __global uint4* outkeyData, 
+					  uint array_size, uint startBit, uint nBits)
+		{
+		  //Load the 4 keys this thread will sort
+		  uint4 key= keyData[get_global_id(0)];
+  
+		  //This local array is used twice!
+		  //First, to perform a scan on 256 uints to determine the
+		  //little block offsets.
+		  //Second, to swap the keys between work items 
+		  __local uint share[4 * 256];  
+		  //We have to allocate this inside the kernel!
+		  __local uint totalTrue;
+  
+		  //Loop over the bits we will sort the block over, and store the totals in the localBuckets array
+		  for (uint shift = startBit; shift < (startBit + nBits); ++shift)
+		    radixBlockSort(&key, shift, startBit, share, &totalTrue);
+  
+		  //Write out the sorted keys
+		  outkeyData[get_global_id(0)] = key;
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		//This kernel takes sorted blocks, offsets, and sizes generated by radixBlockSortKernel.
+		//
+		__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
+		void reorderKeys(__global const uint4* keyData, __global uint* outkey, 
+				 __global uint* buckets, __global uint* offsets,
+				 uint array_size, uint startBit, uint nBits,
+				 __local uint* localOffsets, __local uint* globalOffsets
+				 )
+		{
+		  __local uint4 keyBlocks[256];
+		  __local uint* keys = (__local uint*)keyBlocks;
+
+		  //Load the key data
+		  keyBlocks[get_local_id(0)] = keyData[get_global_id(0)];
+
+		  barrier(CLK_GLOBAL_MEM_FENCE);
+
+		  //Load the offset and block offset data
+		  uint maxRadixDigit = (2 << (nBits - 1));
+
+		  if(get_local_id(0) < maxRadixDigit)
+		    {
+		      globalOffsets[get_local_id(0)] = buckets[get_local_id(0) * get_num_groups(0) + get_group_id(0)];
+		      localOffsets[get_local_id(0)] = offsets[get_group_id(0) * maxRadixDigit + get_local_id(0)];
+		    }
+
+		  barrier(CLK_LOCAL_MEM_FENCE);
+ 
+		  //Now perform a scatter for the two elements
+  
+		  for (uint i = 0; i < 4; ++i)
+		    {
+		      uint radix = (keys[get_local_id(0) + i * 256] >> startBit) & 0xF;
+		      uint globalOffset = globalOffsets[radix] + get_local_id(0) + i * 256 - localOffsets[radix];  
+		      if (globalOffset < array_size)
+			outkey[globalOffset] = keys[get_local_id(0) + i * 256];
+		    }
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////
+		void findRadixOffsets(__global uint* buckets, __global uint* offsets,
+				      __local const uint* block, __local uint* radixOffsets, uint maxRadixDigit)
+		{
+		  //Zero the radix offsets
+		  if (get_local_id(0) < maxRadixDigit)
+		    radixOffsets[get_local_id(0)] = 0;
+
+		  barrier(CLK_LOCAL_MEM_FENCE);
+  
+		  //We check the first element against the previous key in the shared array
+		  if ((get_local_id(0) > 0) && (block[get_local_id(0)] != block[get_local_id(0) -1]))
+		    radixOffsets[block[get_local_id(0)]] = get_local_id(0);
+  
+		  if (block[get_local_id(0) + 1 * 256] != block[get_local_id(0) + 1 * 256 - 1])
+		    radixOffsets[block[get_local_id(0) + 1 * 256]] = get_local_id(0) + 1 * 256;
+  
+		  if (block[get_local_id(0) + 2 * 256] != block[get_local_id(0) + 2 * 256 - 1])
+		    radixOffsets[block[get_local_id(0) + 2 * 256]] = get_local_id(0) + 2 * 256;
+  
+		  if (block[get_local_id(0) + 3 * 256] != block[get_local_id(0) + 3 * 256 - 1])
+		    radixOffsets[block[get_local_id(0) + 3 * 256]] = get_local_id(0) + 3 * 256;
+  
+		  barrier(CLK_LOCAL_MEM_FENCE);
+
+		  //Write out the offsets into this blocks radix chunks
+		  if (get_local_id(0) < maxRadixDigit)
+		    offsets[get_local_id(0)] = radixOffsets[get_local_id(0)];
+  
+		  barrier(CLK_LOCAL_MEM_FENCE);
+  
+		  //Now calculate the size of each block
+		  if (get_local_id(0) > 0)
+		    if (block[get_local_id(0)] != block[get_local_id(0) -1])
+		      radixOffsets[block[get_local_id(0)-1]] = get_local_id(0) - radixOffsets[block[get_local_id(0)-1]];
+  
+		  uint id = get_local_id(0) + 256;
+		  if (block[id] != block[id -1]) 
+		    radixOffsets[block[id - 1]] = id -radixOffsets[block[id - 1]];
+
+		  id += 256;
+		  if (block[id] != block[id -1]) 
+		    radixOffsets[block[id - 1]] = id -radixOffsets[block[id - 1]];
+
+		  id += 256;
+		  if (block[id] != block[id -1]) 
+		    radixOffsets[block[id - 1]] = id -radixOffsets[block[id - 1]];
+
+		  //Now get the length of the last digit
+		  if (get_local_id(0) == 256 - 1)
+		    radixOffsets[block[4 * 256 - 1]]
+		      = 4 * 256 - radixOffsets[block[4 * 256 - 1]];
+
+		  barrier(CLK_LOCAL_MEM_FENCE);
+    
+		  //Now write out the block bucket sizes
+		  if (get_local_id(0) < maxRadixDigit)
+		    buckets[get_local_id(0) * get_num_groups(0) + get_group_id(0)] = radixOffsets[get_local_id(0)];
+		}
+
+		__kernel __attribute__((reqd_work_group_size(256, 1, 1)))
+		void findRadixOffsetsKernel(__global uint4* keyData, __global uint* buckets, __global uint* offsets,
+					    uint array_size, uint startBit, uint nBits, __local uint* radixOffsets)
+		{
+		  __local uint4 keys[256];
+
+		  //Offset into the global key data
+		  keyData += get_group_id(0) * 256;
+
+		  //Calculate the radix mask
+		  uint mask = (0xFFFFFFFF >> ((sizeof(uint) * 8) - nBits));
+
+		  //Load the key radix into a local store
+		  keys[get_local_id(0)] = (keyData[get_local_id(0)] >> startBit) & mask;
+
+		  //Wait for the keys load to finish
+		  barrier(CLK_LOCAL_MEM_FENCE);
+
+		  //And the max radix digit
+		  uint maxRadixDigit = (2 << (nBits - 1));
+
+		  //Offset into the offsets arrays
+		  offsets += maxRadixDigit * get_group_id(0);
+    
+		  //With all the sorted keys in local memory we can do the offset and bucket count/scan
+		  findRadixOffsets(buckets, offsets, (__local uint*)keys, radixOffsets, maxRadixDigit);
+		}
+		);
   }
 }
 

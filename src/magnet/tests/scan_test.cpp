@@ -34,7 +34,7 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
       {
 	std::cout << "Error i = " << i 
 		  << " output = " << output[i]
-		  << " answer = " << answer[i]
+		  << " answer = " << answer[i-1]
 		  << "\n";
 	result = false;
       }
@@ -46,10 +46,10 @@ template<class T>
 void runTestType(cl::Context context, cl::CommandQueue queue)
 {
   cl_uint size = 1024 * 2 + 15;
-
+  
   std::vector<T> input(size);
-
-  std::cout << "###Testing scan for " << input.size() << " elements and type " 
+  
+  std::cout << "##Testing scan for " << input.size() << " elements and type " 
 	    << magnet::detail::traits<T>::kernel_type()
 	    << std::endl;
   
@@ -63,14 +63,14 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
     ;
   
   magnet::scan<T> scanFunctor(queue, context);
-
+  
   scanFunctor(bufferIn, bufferIn, size);
-
+  
   std::vector<T> output(size);
- 
+  
   queue.enqueueReadBuffer(bufferIn, CL_TRUE, 0, input.size() *
 			  sizeof(T), &output[0]);
-
+  
   if (!testOutput(input, output))
     M_throw() << "Incorrect output for size " 
 	      << input.size()
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
       for(std::vector<cl::Device>::const_iterator devIt = allDevices.begin(); 
 	  devIt != allDevices.end(); ++devIt)
 	{
-	  std::cout << "##OpenCL device [" << devIt - allDevices.begin() << "]: " <<
+	  std::cout << "#OpenCL device [" << devIt - allDevices.begin() << "]: " <<
 	    devIt->getInfo<CL_DEVICE_NAME>() << std::endl;
 	  
 	  std::vector<cl::Device> devices;

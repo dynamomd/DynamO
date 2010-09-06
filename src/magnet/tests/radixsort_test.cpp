@@ -17,20 +17,18 @@
 
 #include <iostream>
 #include <magnet/radixsort.hpp>
-#include <numeric>
+#include <algorithm>
 
 template<class T>
 bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 {
-  std::vector<T> answer;
-  answer.resize(input.size());
+  std::vector<T> answer(input);
   
-  //This is an inclusive scan!
-  std::partial_sum(input.begin(), input.end(), answer.begin());
+  std::sort(answer.begin(), answer.end());
   
   bool result = true;
-  for (size_t i(1); i < output.size(); ++i)
-    if (output[i] != answer[i-1])
+  for (size_t i(0); i < output.size(); ++i)
+    if (output[i] != answer[i])
       {
 	std::cout << "Error i = " << i 
 		  << " output = " << output[i]
@@ -45,16 +43,16 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 template<class T>
 void runTestType(cl::Context context, cl::CommandQueue queue)
 {
-  cl_uint size = 1024 * 2 + 15;
+  cl_uint size = 1024 * 4;
 
   std::vector<T> input(size);
 
-  std::cout << "###Testing scan for " << input.size() << " elements and type " 
+  std::cout << "##Testing radix sort for " << input.size() << " elements and type " 
 	    << magnet::detail::traits<T>::kernel_type()
 	    << std::endl;
   
   for(size_t i = 0; i < input.size(); ++i)
-    input[i] = i+1;
+    input[i] = input.size() - i - 1;
   
   // create input buffer using pinned memory
   cl::Buffer bufferIn(context, CL_MEM_ALLOC_HOST_PTR |
@@ -62,9 +60,9 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::radixSort<T> scanFunctor(queue, context);
+  magnet::radixSort<T> radixSortFunctor(queue, context);
 
-  scanFunctor(bufferIn, bufferIn, size);
+  radixSortFunctor(bufferIn, bufferIn, size);
 
   std::vector<T> output(size);
  
@@ -80,9 +78,9 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 
 void runTest(cl::Context context, cl::CommandQueue queue)
 {
-  runTestType<cl_uint>(context, queue);
-  runTestType<cl_int>(context, queue);
-  runTestType<cl_float>(context, queue);
+    runTestType<cl_uint>(context, queue);
+//  runTestType<cl_int>(context, queue);
+//  runTestType<cl_float>(context, queue);
 }
 
 int main(int argc, char *argv[])
@@ -104,7 +102,7 @@ int main(int argc, char *argv[])
       for(std::vector<cl::Device>::const_iterator devIt = allDevices.begin(); 
 	  devIt != allDevices.end(); ++devIt)
 	{
-	  std::cout << "##OpenCL device [" << devIt - allDevices.begin() << "]: " <<
+	  std::cout << "#OpenCL device [" << devIt - allDevices.begin() << "]: " <<
 	    devIt->getInfo<CL_DEVICE_NAME>() << std::endl;
 	  
 	  std::vector<cl::Device> devices;

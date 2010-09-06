@@ -62,8 +62,6 @@ namespace magnet {
 		      << "\nBuild Log:\n" << msg;
 	  }
 	}
-
-       cl::Kernel(_program, "prescan");
       }
 
     protected:
