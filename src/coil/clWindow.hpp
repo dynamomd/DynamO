@@ -128,7 +128,7 @@ private:
   float _cameraY;
   float _cameraZ;
   
-  Vector _cameraDirection;
+  Vector _cameraDirection, _cameraUp;
 
   bool keyStates[256];
 

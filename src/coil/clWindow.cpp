@@ -51,11 +51,11 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   windowTitle(title),
   FPSmode(false),
   frameCounter(0),
-  _rotatex(0),
+  _rotatex(180),
   _rotatey(0),
   _cameraX(0),
   _cameraY(0),
-  _cameraZ(0),
+  _cameraZ(-5),
   _mouseSensitivity(0.3),
   _moveSensitivity(0.005),
   _specialKeys(0),
@@ -120,9 +120,11 @@ CLGLWindow::CameraSetup()
   //glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
   //glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
 
+  Matrix viewTransform = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) 
+    * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0));
 
-  _cameraDirection = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0)) * Vector(0,0,-1);
-  
+  _cameraDirection =  viewTransform * Vector(0,0,-1);
+  _cameraUp = viewTransform * Vector(0,1,0);
 }
 
 
@@ -183,8 +185,6 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   _glutMaster.EnableIdleFunction();
 
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
-
-
 }
 
 void 
@@ -278,7 +278,7 @@ CLGLWindow::initOpenCL()
   std::cout << std::endl;
 
   //Make a command queue
-  _clcmdq = cl::CommandQueue(_clcontext, _cldevice, CL_QUEUE_PROFILING_ENABLE) ;
+  _clcmdq = cl::CommandQueue(_clcontext, _cldevice/*, CL_QUEUE_PROFILING_ENABLE*/) ;
 }
 
 void CLGLWindow::CallBackDisplayFunc(void)
@@ -309,8 +309,9 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
   drawAxis();
   
-  //coil::glprimatives::drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1));
-  
+  //coil::glprimatives::drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1)); 
+  //coil::glprimatives::drawArrow(_cameraUp + Vector(-1,0,-1), Vector(-1,0,-1));
+ 
   glutSwapBuffers();
 
   ++frameCounter; 
