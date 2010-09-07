@@ -27,28 +27,28 @@
   F(kernel_type,cl_##kernel_type,1,cl_##kernel_type)
 
 //This is for defining vector types in CL_TYPE_FACTORY
-#define VEC_TYPE(F,kernel_type)						\
-  F(kernel_type, cl_##kernel_type, 1, cl_##kernel_type,cl_##kernel_type##2,cl_##kernel_type##4,cl_##kernel_type##8,cl_##kernel_type##16) \
-  F(kernel_type##2, cl_##kernel_type##2, 2, cl_##kernel_type,cl_##kernel_type##4,cl_##kernel_type##8,cl_##kernel_type##16,void)		\
-  F(kernel_type##4, cl_##kernel_type##4, 4, cl_##kernel_type,cl_##kernel_type##8,cl_##kernel_type##16,void,void) \
-  F(kernel_type##8, cl_##kernel_type##8, 8, cl_##kernel_type,cl_##kernel_type##16,void,void,void) \
-  F(kernel_type##16, cl_##kernel_type##16, 16, cl_##kernel_type,void,void,void,void)
+#define VEC_TYPE(F,kernel_type,kernel_bitshift_type)					\
+  F(kernel_type, cl_##kernel_type, 1, cl_##kernel_type,cl_##kernel_type##2,cl_##kernel_type##4,cl_##kernel_type##8,cl_##kernel_type##16,cl_##kernel_bitshift_type) \
+  F(kernel_type##2, cl_##kernel_type##2, 2, cl_##kernel_type,cl_##kernel_type##4,cl_##kernel_type##8,cl_##kernel_type##16,void,cl_##kernel_bitshift_type##2) \
+  F(kernel_type##4, cl_##kernel_type##4, 4, cl_##kernel_type,cl_##kernel_type##8,cl_##kernel_type##16,void,void,cl_##kernel_bitshift_type##4) \
+  F(kernel_type##8, cl_##kernel_type##8, 8, cl_##kernel_type,cl_##kernel_type##16,void,void,void,cl_##kernel_bitshift_type##8) \
+  F(kernel_type##16, cl_##kernel_type##16, 16, cl_##kernel_type,void,void,void,void,cl_##kernel_bitshift_type##16)
   
 
 //This macro factory lets us generate type traits in an easy manner
 //The format for the passed macro function F is 
-//F(kernel_type,host_type,tensororder,base_type,vec2_type,vec4_type,vec8_type,vec16_type)
-#define CL_TYPE_FACTORY(F)			\
-  VEC_TYPE(F,char)				\
-  VEC_TYPE(F,uchar)				\
-  VEC_TYPE(F,short)				\
-  VEC_TYPE(F,ushort)				\
-  VEC_TYPE(F,int)				\
-  VEC_TYPE(F,uint)				\
-  VEC_TYPE(F,long)				\
-  VEC_TYPE(F,ulong)				\
-  VEC_TYPE(F,float)				\
-  VEC_TYPE(F,double)				\
+//F(kernel_type,host_type,tensororder,base_type,vec2_type,vec4_type,vec8_type,vec16_type,bitshift_type)
+#define CL_TYPE_FACTORY(F)	\
+  VEC_TYPE(F,char,char)		\
+  VEC_TYPE(F,uchar,uchar)	\
+  VEC_TYPE(F,short,short)	\
+  VEC_TYPE(F,ushort,ushort)	\
+  VEC_TYPE(F,int,int)		\
+  VEC_TYPE(F,uint,uint)		\
+  VEC_TYPE(F,long,long)		\
+  VEC_TYPE(F,ulong,ulong)	\
+  VEC_TYPE(F,float,uint)	\
+  VEC_TYPE(F,double,ulong)	\
 //  VEC_TYPE(F,half)
 
 namespace magnet {
@@ -60,7 +60,7 @@ namespace magnet {
     };
     
     //We use the CL_TYPE_FACTORY to generate our type traits
-#define TRAIT_FACTORY(cl_type,hosttype,tensororder,basetype,vec2type,vec4type,vec8type,vec16type) \
+#define TRAIT_FACTORY(cl_type,hosttype,tensororder,basetype,vec2type,vec4type,vec8type,vec16type,bitshifttype) \
     template<> struct traits<hosttype>				\
     {								\
       static const bool is_CL_type = true;			\
@@ -71,6 +71,7 @@ namespace magnet {
       typedef vec4type vec4_type;				\
       typedef vec8type vec8_type;				\
       typedef vec16type vec16_type;				\
+      typedef bitshifttype bitshiftable_type;			\
     };
     
     //Call the factory
