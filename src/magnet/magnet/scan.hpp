@@ -38,7 +38,7 @@ namespace magnet {
       _uniformAddKernel = cl::Kernel(detail::functor<scan<T> >::_program, "uniformAdd");
     }
 
-    void operator()(cl::Buffer input, cl::Buffer output)
+    inline void operator()(cl::Buffer input, cl::Buffer output)
     {
       cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
 

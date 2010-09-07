@@ -62,6 +62,9 @@ protected:
 
   cl::Buffer _spherePositions;
   cl::Buffer _sortKeys, _sortData;
+
+  size_t _frameCount;
+  size_t _sortFrequency;
   size_t _workgroupsize;
   size_t _globalsize;
 

@@ -24,15 +24,18 @@ int main(int argc, char** argv)
 
     std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
 
-    size_t N = 1 * 102400;
+    size_t N = 10 * 102400;
     //sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, N));
 
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 10000));
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, 10000));
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, N - 10000 - 10000));
 
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 100));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, N-100));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 2, 10));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 1000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::octahedron, 0, 200000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, N - 200000 - 10000 - 1000 -10));
 
     CLWindow.addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
     

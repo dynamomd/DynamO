@@ -36,6 +36,8 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   RTriangles(hostTransfers),
   _N(N),
   _renderDetailLevels(renderDetailLevels),
+  _frameCount(0),
+  _sortFrequency(5),
   _workgroupsize(0),
   _globalsize(0),
   _cameraX(cameraX),
@@ -204,16 +206,19 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
   static magnet::radixSort<cl_float> sortFunctor(CmdQ, Context);
 
-  cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
-  
-  //Generate the sort data
-  sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
-		     (cl_float)_cameraX, (cl_float)_cameraY, 
-		     (cl_float)_cameraZ, _N);
-  
-  if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
-    sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
+  if (!(++_frameCount % _sortFrequency))
+    {
+      cl::KernelFunctor sortDataKernelFunc 
+	= _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+      
+      //Generate the sort data
+      sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
+			 (cl_float)_cameraX, (cl_float)_cameraY, 
+			 (cl_float)_cameraZ, _N);
+      
+      if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
+	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
+    }
 
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(CmdQ);
