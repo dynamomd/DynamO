@@ -50,8 +50,8 @@ namespace magnet {
     }
 
     void operator()(cl::Buffer keyInput, cl::Buffer keyOutput)
-    {
-      cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
+    {     
+      cl_uint size = 5120;//keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
       cl_uint groupSize = 256;
       cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
       cl_uint bitsPerPass = 4;
@@ -107,7 +107,7 @@ namespace magnet {
     {
       cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
 
-      if (dataInput.getInfo<CL_MEM_SIZE>() / sizeof(cl_uint) != size)
+      if ((dataInput.getInfo<CL_MEM_SIZE>() / sizeof(cl_uint)) != size)
 	M_throw() << "Key and data set size mismatch";
 
       cl_uint groupSize = 256;
