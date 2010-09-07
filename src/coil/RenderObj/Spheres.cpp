@@ -28,11 +28,21 @@
 
 struct  SortDataType { cl_uint ID; cl_float dist;};
 
+cl_float4 getclVec(Vector vec)
+{ 
+  cl_float4 clvec;
+  clvec.x = vec[0];
+  clvec.y = vec[1];
+  clvec.z = vec[2];
+  clvec.w = 0;
+  return clvec;
+}
+
 
 RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
 		     const float& cameraX, const float& cameraY, const float& cameraZ,
-		     size_t N, 
-		     const std::vector<SphereDetails>& renderDetailLevels):
+		     const Vector& cameraDirection, const Vector& cameraUp,
+		     size_t N, const std::vector<SphereDetails>& renderDetailLevels):
   RTriangles(hostTransfers),
   _N(N),
   _renderDetailLevels(renderDetailLevels),
@@ -42,7 +52,9 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   _globalsize(0),
   _cameraX(cameraX),
   _cameraY(cameraY),
-  _cameraZ(cameraZ)
+  _cameraZ(cameraZ),
+  _cameraDirection(cameraDirection),
+  _cameraUp(cameraUp)
 {
   {
     size_t Ncuberoot = (size_t)std::pow(_N, 1.0/3.0);
@@ -211,10 +223,13 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
       cl::KernelFunctor sortDataKernelFunc 
 	= _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
       
+      cl_float4 campos = getclVec(Vector(_cameraX, _cameraY, _cameraZ));
+      cl_float4 camdir = getclVec(_cameraDirection);
+      cl_float4 camup = getclVec(_cameraUp);
+
       //Generate the sort data
       sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
-			 (cl_float)_cameraX, (cl_float)_cameraY, 
-			 (cl_float)_cameraZ, _N);
+			 campos, camdir, camup, _N);
       
       if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
 	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);

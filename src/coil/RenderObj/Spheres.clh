@@ -72,18 +72,18 @@ __kernel void
 GenerateData(const __global float * positions,
 	     __global float* keys,
 	     __global uint* data,
-	     float camX, float camY, float camZ,
+	     float4 camPos, float4 camdir, float4 camup,
 	     uint N)
 {
   if (get_global_id(0) >= N) return;
 
-  float sqdist = positions[3 * get_global_id(0)] - camX;
+  float sqdist = positions[3 * get_global_id(0)] - camPos.x;
   sqdist *= sqdist;
 
-  float temp = positions[3 * get_global_id(0) + 1]  - camY;
+  float temp = positions[3 * get_global_id(0) + 1]  - camPos.y;
   sqdist += temp * temp;
 
-  temp = positions[3 * get_global_id(0) + 2]  - camZ;
+  temp = positions[3 * get_global_id(0) + 2]  - camPos.z;
   sqdist += temp * temp;
 
   keys[get_global_id(0)] = sqdist;
