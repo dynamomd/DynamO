@@ -74,12 +74,14 @@ namespace magnet {
       
       //Create the buffer holding the bit block offsets
       cl::Buffer buckets(detail::functor<radixSort<T> >::_context, 
-			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
-	offsets(detail::functor<radixSort<T> >::_context, 
-		CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
-	doubleBuffer(detail::functor<radixSort<T> >::_context, 
-		     CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
-      ;
+			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
+
+      cl::Buffer offsets(detail::functor<radixSort<T> >::_context, 
+			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
+
+      cl::Buffer doubleBuffer(detail::functor<radixSort<T> >::_context, 
+		     CL_MEM_READ_WRITE, sizeof(T) * size);
+      
       
       for (cl_uint startBit = 0; startBit < sizeof(T) * 8; startBit += bitsPerPass)
 	{
@@ -134,7 +136,7 @@ namespace magnet {
 	offsets(detail::functor<radixSort<T> >::_context, 
 		CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
 	doubleBuffer(detail::functor<radixSort<T> >::_context, 
-		     CL_MEM_READ_WRITE, sizeof(cl_uint) * size),
+		     CL_MEM_READ_WRITE, sizeof(T) * size),
 	dataDoubleBuffer(detail::functor<radixSort<T> >::_context, 
 			 CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
       ;

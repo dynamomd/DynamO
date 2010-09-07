@@ -51,15 +51,10 @@
   VEC_TYPE(F,float,uint)
 
 
-#ifdef MAGNET_FP64
+//Need a way to check for the double data type, and the half data type!
 #define CL_TYPE_FACTORY(F)	\
   BASE_CL_TYPE_FACTORY(F)	\
-  VEC_TYPE(F,double,ulong) 
-#else
-#define CL_TYPE_FACTORY(F)	\
-  BASE_CL_TYPE_FACTORY(F)
-#endif 
-//  VEC_TYPE(F,half)
+  VEC_TYPE(F,double,ulong)
 
 namespace magnet {
   namespace detail {
