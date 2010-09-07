@@ -18,13 +18,6 @@
 
 #define STRINGIFY(A) #A
 const std::string sphereKernelSource = STRINGIFY(
-
-typedef struct
-{ 
-  uint ID;
-  float dist;
-} SortDataType;
-
 __kernel void
 SphereRenderKernel(const __global float * positions,
 		   __global float * vertexBuffer,
@@ -33,7 +26,7 @@ SphereRenderKernel(const __global float * positions,
 		   const uint StartParticle,
 		   const uint EndParticle,
 		   const int VertexOffset,
-		   __global SortDataType* sortedArray)
+		   __global const uint* sortedArray)
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
   __local float positionCache[WORKGROUP_SIZE];
@@ -49,7 +42,7 @@ SphereRenderKernel(const __global float * positions,
       //Coalesced read from global mem and conflict-free localsss write
       if (data_to_read < 3 * EndParticle)
 	{
-	  data_to_read = 3 * sortedArray[data_to_read / 3].ID + (data_to_read % 3);
+	  data_to_read = 3 * sortedArray[data_to_read / 3] + (data_to_read % 3);
 	  positionCache[get_local_id(0)] = positions[data_to_read];
 	}
       
@@ -77,7 +70,8 @@ SphereRenderKernel(const __global float * positions,
 
 __kernel void
 GenerateData(const __global float * positions,
-	     __global SortDataType* data,
+	     __global float* keys,
+	     __global uint* data,
 	     float camX, float camY, float camZ,
 	     uint N)
 {
@@ -92,97 +86,8 @@ GenerateData(const __global float * positions,
   temp = positions[3 * get_global_id(0) + 2]  - camZ;
   sqdist += temp * temp;
 
-  SortDataType entryData;
-  entryData.dist = sqdist;
-  entryData.ID = get_global_id(0);
-  data[get_global_id(0)] = entryData;
-}
-
-__kernel void sphereBitonicSort(__global SortDataType* theArray,
-				const uint stage, 
-				const uint passOfStage,
-				const uint realsize,
-				const uint direction )
-{
-    uint threadId = get_global_id(0);
-    
-    uint pairDistance = 1 << (stage - passOfStage);
-    uint blockWidth   = 2 * pairDistance;
-
-    uint leftId = (threadId % pairDistance) 
-                   + (threadId / pairDistance) * blockWidth;
-
-    uint rightId = leftId + pairDistance;
-
-    if ((leftId >= realsize) || (rightId >= realsize)) return;
-    
-    SortDataType leftElement = theArray[leftId];
-    SortDataType rightElement = theArray[rightId];
-    
-    uint sameDirectionBlockWidth = 1 << stage;
-
-    uint sortIncreasing = direction;
-    sortIncreasing = ( threadId / sameDirectionBlockWidth ) % 2 == 1 ?
-        1 - sortIncreasing : sortIncreasing;
-
-    if ((sortIncreasing && (leftElement.dist > rightElement.dist))
-	|| ((!sortIncreasing) && (leftElement.dist < rightElement.dist)))
-      {
-	SortDataType tempElement = leftElement;
-	leftElement = rightElement;
-	rightElement = tempElement;
-      }
-
-    theArray[leftId]  = leftElement;
-    theArray[rightId] = rightElement;
-}
-
-//This sorts small blocks that fit into shared memory
-__kernel void sphereBitonicLocalSort(__global SortDataType* theArray,
-				     uint realsize,
-				     uint direction,
-				     __local SortDataType* cache)
-{
-  //__local block must be 2*get_local_size(0) big
-  
-  //offset the data array pointer
-  theArray += 2 * get_group_id(0) * get_local_size(0);
-
-  cache[get_local_id(0)] = theArray[get_local_id(0)];
-  cache[2 * get_local_id(0)] = theArray[2 * get_local_id(0)];
-
-  for (uint stageStride = 2; stageStride < 2 * get_local_size(0); stageStride <<=1)
-    {
-      uint blockDirection = direction ^ (get_local_id(0) & (get_local_size(0) / 2) != 0);
-      for (uint passStride = stageStride / 2; passStride > 0; passStride >>=1)
-	{
-	  barrier(CLK_LOCAL_MEM_FENCE);
-	  uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
-	  if ((cache[pos].dist < cache[pos + passStride].dist) == blockDirection)
-	    {
-	      SortDataType tmp = cache[pos];
-	      cache[pos] = cache[pos + passStride];
-	      cache[pos + passStride] = tmp;
-	    }
-	}
-    }
-
-  for (uint passStride = get_local_size(0); passStride > 0; passStride >>=1)
-    {
-      barrier(CLK_LOCAL_MEM_FENCE);
-      uint pos = 2 * get_local_id(0) - (get_local_id(0) & (passStride-1));
-      if ((cache[pos].dist < cache[pos + passStride].dist) == direction)
-	{
-	  SortDataType tmp = cache[pos];
-	  cache[pos] = cache[pos + passStride];
-	  cache[pos + passStride] = tmp;
-	}
-    }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  theArray[get_local_id(0)] = cache[get_local_id(0)];
-  theArray[2 * get_local_id(0)] = cache[2 * get_local_id(0)];
+  keys[get_global_id(0)] = sqdist;
+  data[get_global_id(0)] = get_global_id(0);
 }
 );
 #undef STRINGIFY

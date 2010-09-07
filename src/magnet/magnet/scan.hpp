@@ -25,9 +25,14 @@ namespace magnet {
   {
     cl::Kernel _prescanKernel, _uniformAddKernel;
     
+
+    std::vector<cl::Buffer> _partialSumBufferStack;
+    cl_uint _lastSize;
+
   public:
     scan(cl::CommandQueue queue, cl::Context context):
-      detail::functor<scan<T> >(queue, context, "")
+      detail::functor<scan<T> >(queue, context, ""),
+      _lastSize(0)
     {
       _prescanKernel = cl::Kernel(detail::functor<scan<T> >::_program, "prescan");
       _uniformAddKernel = cl::Kernel(detail::functor<scan<T> >::_program, "uniformAdd");
@@ -39,28 +44,54 @@ namespace magnet {
 
       //Workgroups of 256 work-items process 512 elements
       cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
-      
-      cl::Buffer partialSums(detail::functor<scan<T> >::_context,
-			     CL_MEM_READ_WRITE, sizeof(cl_uint) * (nGroups));
-      
+
+      //Check if the size has changed from last call,
+      //We cache the partial sum buffers as reallocating buffers is slow
+      if (size != _lastSize) 
+	{
+	  //Rebuild the stack of buffers
+	  _partialSumBufferStack.clear();
+
+	  for (cl_uint stageSize = nGroups; stageSize > 1; 
+	       stageSize = (stageSize + 511) / 512)
+	    _partialSumBufferStack.push_back(cl::Buffer(detail::functor<scan<T> >::_context,
+							CL_MEM_READ_WRITE, sizeof(cl_uint) * stageSize));	  
+
+	  _partialSumBufferStack.push_back(cl::Buffer(detail::functor<scan<T> >::_context,
+						      CL_MEM_READ_WRITE, sizeof(cl_uint)));	  
+	}
+
+      //Start the recursion
+      recursionFunction(input, output, size, 0);
+
+      _lastSize = size;
+    }
+
+    static inline std::string kernelSource();
+
+  protected:
+    inline void recursionFunction(cl::Buffer input, cl::Buffer output, cl_uint size, cl_uint stage)
+    {
+      cl_uint nGroups = (((size / 2) + 256 - 1) / 256);
+
       _prescanKernel.bind(detail::functor<scan<T> >::_queue, 
 			  cl::NDRange(256 * nGroups), 
 			  cl::NDRange(256))
-	(input, output, partialSums, size);
+	(input, output, _partialSumBufferStack[stage], size);
+      
       
       //Recurse if we've got more than one workgroup
       if (nGroups > 1)
 	{
-	  operator()(partialSums, partialSums);
+	  recursionFunction(_partialSumBufferStack[stage], _partialSumBufferStack[stage], 
+			    nGroups, stage+1);
 	  
-	  _uniformAddKernel.bind(detail::functor<scan<T> >::_queue, 
+	  _uniformAddKernel.bind(detail::functor<scan<T> >::_queue,
 				 cl::NDRange(nGroups * 256), 
 				 cl::NDRange(256))
-	    (output, output, partialSums, size);
+	    (output, output, _partialSumBufferStack[stage], size);
 	}
     }
-
-    static inline std::string kernelSource();
   };
 };
 

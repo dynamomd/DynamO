@@ -24,6 +24,7 @@
 
 #include "Primatives/Sphere.hpp"
 #include "Spheres.clh"
+#include <magnet/radixsort.hpp>
 
 struct  SortDataType { cl_uint ID; cl_float dist;};
 
@@ -34,7 +35,6 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
 		     const std::vector<SphereDetails>& renderDetailLevels):
   RTriangles(hostTransfers),
   _N(N),
-  _sortTicker(0),
   _renderDetailLevels(renderDetailLevels),
   _workgroupsize(0),
   _globalsize(0),
@@ -49,17 +49,9 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float) * (3 * _N + 1));
 
-    //Work out the details for the bitonic sort
-    _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(SortDataType) * _N);
+    _sortKeys = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(float) * _N);
+    _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(cl_uint) * _N);
     
-    _numStages = 0;
-    for (size_t temp = _N; temp > 1; temp >>= 1)
-      ++_numStages;
-
-    _powerOfTwo = 1 << _numStages;
-    if (_powerOfTwo < _N) { _powerOfTwo <<= 1; ++_numStages; }
-
-
     cl_float* Pos = (cl_float*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
 						     CL_MAP_WRITE, 0, 
 						     3 * _N * sizeof(cl_float));
@@ -199,15 +191,10 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   
   _renderKernel = cl::Kernel(program, "SphereRenderKernel");
   _sortDataKernel = cl::Kernel(program, "GenerateData");
-  _fullSortKernel = cl::Kernel(program, "sphereBitonicSort");
 
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     iPtr->setupCLBuffers(Context);
-  
-
-  //Perform a full sort initially
-  FullSort(CmdQ);
 
   clTick(CmdQ, Context);
 }
@@ -215,18 +202,26 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
 void 
 RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
-  cl::KernelFunctor renderKernelFunc 
-    = _renderKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  static magnet::radixSort<cl_float> sortFunctor(CmdQ, Context);
 
-  if (++_sortTicker % 20)
-    IncrementalSort(CmdQ);
-  else
-    FullSort(CmdQ);
+  cl::KernelFunctor sortDataKernelFunc 
+    = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  
+  //Generate the sort data
+  sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
+		     (cl_float)_cameraX, (cl_float)_cameraY, 
+		     (cl_float)_cameraZ, _N);
+  
+  if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
+    sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
 
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(CmdQ);
 
   //Finally, run render kernels
+  cl::KernelFunctor renderKernelFunc 
+    = _renderKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
@@ -244,48 +239,4 @@ RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 
   //Release resources
   _clbuf_Positions.release(CmdQ);
-}
-
-void
-RTSpheres::FullSort(cl::CommandQueue& CmdQ)
-{
-  cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
-  cl::KernelFunctor sortKernelFunc 
-    = _fullSortKernel.bind(CmdQ, cl::NDRange(_powerOfTwo), cl::NDRange(256));
-
-  //Generate the sort data
-  sortDataKernelFunc(_spherePositions, _sortData, 
-		     (cl_float)_cameraX, (cl_float)_cameraY, 
-		     (cl_float)_cameraZ, _N);
-
-  for (cl_uint stage = 0; stage < _numStages-1; ++stage)
-    for (cl_uint stagePass = 0; stagePass < stage+1; ++stagePass)
-      sortKernelFunc(_sortData, stage, stagePass, _N, 0);
-  
-  cl_uint stage = _numStages-1;	
-  for (cl_uint stagePass = 0; stagePass < _numStages; ++stagePass)
-    sortKernelFunc(_sortData, stage, stagePass, _N, 1);
-}
-
-void
-RTSpheres::IncrementalSort(cl::CommandQueue& CmdQ)
-{
-  cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
-  cl::KernelFunctor sortKernelFunc 
-    = _fullSortKernel.bind(CmdQ, cl::NDRange(_powerOfTwo), cl::NDRange(256));
-
-  //Generate the sort data
-  sortDataKernelFunc(_spherePositions, _sortData, 
-		     (cl_float)_cameraX, (cl_float)_cameraY, 
-		     (cl_float)_cameraZ, _N);
-
-  for (cl_uint stage = 0; stage < _numStages-1; ++stage)
-    for (cl_uint stagePass = 0; stagePass < stage+1; ++stagePass)
-      sortKernelFunc(_sortData, stage, stagePass, _N, 0);
-  
-  cl_uint stage = _numStages-1;	
-  for (cl_uint stagePass = 0; stagePass < _numStages; ++stagePass)
-    sortKernelFunc(_sortData, stage, stagePass, _N, 1);
 }

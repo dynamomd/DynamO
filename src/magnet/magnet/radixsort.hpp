@@ -32,10 +32,18 @@ namespace magnet {
 
     scan<cl_uint> _scanFunctor;
     
+    cl::Buffer _buckets, _offsets, _doubleBuffer, _dataDoubleBuffer;
+    
+    cl_uint _lastSize, _lastDataSize;
+
+    //cl::KernelFunctor _dataSort;
+
   public:
     radixSort(cl::CommandQueue queue, cl::Context context):
       detail::functor<radixSort<T> >(queue, context, ""),
-      _scanFunctor(queue, context)
+      _scanFunctor(queue, context),
+      _lastSize(0),
+      _lastDataSize(0)
     {
       _radixSortKernel 
 	= cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortKernel");
@@ -49,62 +57,76 @@ namespace magnet {
 	= cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeysData");
     }
 
-    void operator()(cl::Buffer keyInput, cl::Buffer keyOutput)
-    {     
-      cl_uint size = 5120;//keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
+    void operator()(cl::Buffer keyInput, cl::Buffer keyOutput, cl_uint bits_to_sort = 0, cl_uint bitsPerPass = 4)
+    {
+      if (bits_to_sort == 0) 
+	bits_to_sort = sizeof(T) * 8;
+
+      cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
       cl_uint groupSize = 256;
       cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
-      cl_uint bitsPerPass = 4;
       cl_uint maxRadixDigit = 2 << (bitsPerPass - 1);
+
+      if (bits_to_sort % bitsPerPass)
+	M_throw() << "The number of bits_to_sort must be a whole multiple of bitsPerPass";
 
       if (size % 1024)				
 	M_throw() << "Radix sort works on whole multiples of 1024 elements only, please pad your data";
 
-      cl::KernelFunctor clsort
+      cl::KernelFunctor _blockSortFunc
 	= _radixSortKernel.bind(detail::functor<radixSort<T> >::_queue, 
 				cl::NDRange(size/4), cl::NDRange(groupSize));
       
-      cl::KernelFunctor clfindRadixOffsets
+      cl::KernelFunctor _findRadixOffsetsFunc
 	= _findRadixOffsetsKernel.bind(detail::functor<radixSort<T> >::_queue, 
 				       cl::NDRange(size/4), cl::NDRange(groupSize));
       
-      cl::KernelFunctor clReorderKeys
+      cl::KernelFunctor _ReorderFunc
 	= _reorderKeysKernel.bind(detail::functor<radixSort<T> >::_queue, 
 				  cl::NDRange(size/4), cl::NDRange(groupSize));
-      
+       
       //Create the buffer holding the bit block offsets
-      cl::Buffer buckets(detail::functor<radixSort<T> >::_context, 
-			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
-
-      cl::Buffer offsets(detail::functor<radixSort<T> >::_context, 
-			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
-
-      cl::Buffer doubleBuffer(detail::functor<radixSort<T> >::_context, 
-		     CL_MEM_READ_WRITE, sizeof(T) * size);
-      
-      
-      for (cl_uint startBit = 0; startBit < sizeof(T) * 8; startBit += bitsPerPass)
+      if (_lastSize != size)
 	{
-	  clsort(keyInput, doubleBuffer, size, startBit, bitsPerPass);
+	  _buckets =  cl::Buffer(detail::functor<radixSort<T> >::_context, 
+				CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
 	  
-	  clfindRadixOffsets(doubleBuffer, buckets, offsets, 
-			     size, startBit, bitsPerPass,
-			     cl::__local(sizeof(cl_uint) * maxRadixDigit));
+	  _offsets = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+			     CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
+	  
+	  _doubleBuffer = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+				     CL_MEM_READ_WRITE, sizeof(T) * size);
+	}
+      
+      
+      for (cl_uint startBit = 0; startBit < bits_to_sort; startBit += bitsPerPass)
+	{
+	  _blockSortFunc(keyInput, _doubleBuffer, size, startBit, bitsPerPass);
+	  
+	  _findRadixOffsetsFunc(_doubleBuffer, _buckets, _offsets, 
+				size, startBit, bitsPerPass,
+				cl::__local(sizeof(cl_uint) * maxRadixDigit));
 	  
 	  //Get the global offsets
-	  _scanFunctor(buckets, buckets);
+	  _scanFunctor(_buckets, _buckets);
 	  
-	  clReorderKeys(doubleBuffer, keyOutput, buckets, offsets, 
-			size, startBit, bitsPerPass,
-			cl::__local(sizeof(cl_uint) * maxRadixDigit),
-			cl::__local(sizeof(cl_uint) * maxRadixDigit)
-			);
+	  _ReorderFunc(_doubleBuffer, keyOutput, _buckets, _offsets, 
+		       size, startBit, bitsPerPass,
+		       cl::__local(sizeof(cl_uint) * maxRadixDigit),
+		       cl::__local(sizeof(cl_uint) * maxRadixDigit)
+		       );
 	}
+
+      _lastSize = size;
     }
 
     void operator()(cl::Buffer keyInput, cl::Buffer dataInput,
-		    cl::Buffer keyOutput, cl::Buffer dataOutput)
+		    cl::Buffer keyOutput, cl::Buffer dataOutput, 
+		    cl_uint bits_to_sort = 0, cl_uint bitsPerPass = 4)
     {
+      if (bits_to_sort == 0)
+	bits_to_sort = sizeof(T) * 8;
+
       cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
 
       if ((dataInput.getInfo<CL_MEM_SIZE>() / sizeof(cl_uint)) != size)
@@ -112,53 +134,70 @@ namespace magnet {
 
       cl_uint groupSize = 256;
       cl_uint nWorkGroups = ((size / 4) + groupSize - 1) / groupSize;
-      cl_uint bitsPerPass = 4;
       cl_uint maxRadixDigit = 2 << (bitsPerPass - 1);
+
+      if (bits_to_sort % bitsPerPass)
+	M_throw() << "The number of bits_to_sort must be a whole multiple of bitsPerPass";
 
       if (size % 1024)				
 	M_throw() << "Radix sort works on whole multiples of 1024 elements only, please pad your data";
 
-      cl::KernelFunctor clsort
+      cl::KernelFunctor _blockSortDataFunc
 	= _radixSortDataKernel.bind(detail::functor<radixSort<T> >::_queue, 
-				cl::NDRange(size/4), cl::NDRange(groupSize));
+				    cl::NDRange(size/4), cl::NDRange(groupSize));
       
-      cl::KernelFunctor clfindRadixOffsets
+      cl::KernelFunctor _findRadixOffsetsFunc
 	= _findRadixOffsetsKernel.bind(detail::functor<radixSort<T> >::_queue, 
 				       cl::NDRange(size/4), cl::NDRange(groupSize));
       
-      cl::KernelFunctor clReorderKeys
+      cl::KernelFunctor _reorderDataFunc
 	= _reorderKeysDataKernel.bind(detail::functor<radixSort<T> >::_queue, 
 				      cl::NDRange(size/4), cl::NDRange(groupSize));
       
       //Create the buffer holding the bit block offsets
-      cl::Buffer buckets(detail::functor<radixSort<T> >::_context, 
-			 CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
-	offsets(detail::functor<radixSort<T> >::_context, 
-		CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit),
-	doubleBuffer(detail::functor<radixSort<T> >::_context, 
-		     CL_MEM_READ_WRITE, sizeof(T) * size),
-	dataDoubleBuffer(detail::functor<radixSort<T> >::_context, 
-			 CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
-      ;
-      
-      for (cl_uint startBit = 0; startBit < sizeof(T) * 8; startBit += bitsPerPass)
+      if (_lastSize != size)
 	{
-	  clsort(keyInput, dataInput, doubleBuffer, dataDoubleBuffer, size, 
-		 startBit, bitsPerPass);
+	  _buckets =  cl::Buffer(detail::functor<radixSort<T> >::_context, 
+				CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
 	  
-	  clfindRadixOffsets(doubleBuffer, buckets, offsets, 
-			     size, startBit, bitsPerPass,
-			     cl::__local(sizeof(cl_uint) * maxRadixDigit));
+	  _offsets = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+			     CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
+	  
+	  _doubleBuffer = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+				     CL_MEM_READ_WRITE, sizeof(T) * size);
+	}
+ 
+
+      if (_lastDataSize != size)
+	{
+	  _dataDoubleBuffer = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+					 CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
+	}
+     
+      for (cl_uint startBit = 0; startBit < bits_to_sort; startBit += bitsPerPass)
+	{
+	  _blockSortDataFunc(keyInput, dataInput, _doubleBuffer, _dataDoubleBuffer, size, 
+		 startBit, bitsPerPass)
+	    ;
+	  
+	  _findRadixOffsetsFunc(_doubleBuffer, _buckets, _offsets, 
+				size, startBit, bitsPerPass,
+				cl::__local(sizeof(cl_uint) * maxRadixDigit))
+	    ;
 	  
 	  //Get the global offsets
-	  _scanFunctor(buckets, buckets);
+	  _scanFunctor(_buckets, _buckets);
 	  
-	  clReorderKeys(doubleBuffer, dataDoubleBuffer, keyOutput, dataOutput, buckets, offsets, 
-			size, startBit, bitsPerPass,
-			cl::__local(sizeof(cl_uint) * maxRadixDigit),
-			cl::__local(sizeof(cl_uint) * maxRadixDigit)
-			);
+	  _reorderDataFunc(_doubleBuffer, _dataDoubleBuffer, keyOutput, dataOutput, 
+			   _buckets, _offsets, 
+			   size, startBit, bitsPerPass,
+			   cl::__local(sizeof(cl_uint) * maxRadixDigit),
+			   cl::__local(sizeof(cl_uint) * maxRadixDigit)
+			   )
+	    ;
 	}
+
+      _lastDataSize = _lastSize = size;
     }
 
     static inline std::string kernelSource();

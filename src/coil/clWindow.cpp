@@ -278,7 +278,7 @@ CLGLWindow::initOpenCL()
   std::cout << std::endl;
 
   //Make a command queue
-  _clcmdq = cl::CommandQueue(_clcontext, _cldevice);
+  _clcmdq = cl::CommandQueue(_clcontext, _cldevice, CL_QUEUE_PROFILING_ENABLE) ;
 }
 
 void CLGLWindow::CallBackDisplayFunc(void)

@@ -52,25 +52,16 @@ public:
 
 protected:
 
-  void FullSort(cl::CommandQueue& CmdQ);
-
-  void IncrementalSort(cl::CommandQueue& CmdQ);
-
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
-  cl::Kernel _fullSortKernel;
-  cl::Kernel _incrementalSortKernel;
 
   cl_uint _N;
-  cl_uint _numStages, _powerOfTwo;
-  size_t _sortTicker;
-
   static const std::string kernelsrc;
 
   std::vector<SphereDetails> _renderDetailLevels;
 
   cl::Buffer _spherePositions;
-  cl::Buffer _sortData;
+  cl::Buffer _sortKeys, _sortData;
   size_t _workgroupsize;
   size_t _globalsize;
 
