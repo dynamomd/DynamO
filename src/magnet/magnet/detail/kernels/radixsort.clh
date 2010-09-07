@@ -261,6 +261,7 @@ namespace magnet {
 
 		  //Load the offset and block offset data
 		  uint maxRadixDigit = (2 << (nBits - 1));
+		  uint mask = maxRadixDigit -1;
 
 		  if(get_local_id(0) < maxRadixDigit)
 		    {
@@ -273,7 +274,7 @@ namespace magnet {
 		  //Now perform a scatter for all four elements
 		  for (uint i = 0; i < 4; ++i)
 		    {
-		      uint radix = (keyBits[get_local_id(0) + i * 256] >> startBit) & 0xF;
+		      uint radix = (keyBits[get_local_id(0) + i * 256] >> startBit) & mask;
 		      uint globalOffset = globalOffsets[radix] + get_local_id(0) + i * 256 - localOffsets[radix];
 		      if (globalOffset < array_size)
 			outkey[globalOffset] = keys[get_local_id(0) + i * 256];
@@ -303,7 +304,8 @@ namespace magnet {
 
 		  //Load the offset and block offset data
 		  uint maxRadixDigit = (2 << (nBits - 1));
-
+		  uint mask = maxRadixDigit - 1;
+		  
 		  if(get_local_id(0) < maxRadixDigit)
 		    {
 		      globalOffsets[get_local_id(0)] = buckets[get_local_id(0) * get_num_groups(0) + get_group_id(0)];
@@ -315,7 +317,7 @@ namespace magnet {
 		  //Now perform a scatter for all four elements
 		  for (uint i = 0; i < 4; ++i)
 		    {
-		      uint radix = (keyBits[get_local_id(0) + i * 256] >> startBit) & 0xF;
+		      uint radix = (keyBits[get_local_id(0) + i * 256] >> startBit) & mask;
 		      uint globalOffset = globalOffsets[radix] + get_local_id(0) + i * 256 - localOffsets[radix];  
 		      outkey[globalOffset] = keys[get_local_id(0) + i * 256];
 		      outdata[globalOffset] = data[get_local_id(0) + i * 256];
@@ -408,7 +410,8 @@ namespace magnet {
 		  offsets += maxRadixDigit * get_group_id(0);
     
 		  //With all the sorted keys in local memory we can do the offset and bucket count/scan
-		  findRadixOffsets(buckets, offsets, keyradix, radixOffsets, maxRadixDigit);
+		  findRadixOffsets(buckets, offsets, (__local const shiftableKeyType*)keyradix, 
+				   radixOffsets, maxRadixDigit);
 		}
 		);
   }

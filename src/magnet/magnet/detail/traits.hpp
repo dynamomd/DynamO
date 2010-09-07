@@ -38,7 +38,8 @@
 //This macro factory lets us generate type traits in an easy manner
 //The format for the passed macro function F is 
 //F(kernel_type,host_type,tensororder,base_type,vec2_type,vec4_type,vec8_type,vec16_type,bitshift_type)
-#define CL_TYPE_FACTORY(F)	\
+
+#define BASE_CL_TYPE_FACTORY(F)	\
   VEC_TYPE(F,char,char)		\
   VEC_TYPE(F,uchar,uchar)	\
   VEC_TYPE(F,short,short)	\
@@ -47,8 +48,17 @@
   VEC_TYPE(F,uint,uint)		\
   VEC_TYPE(F,long,long)		\
   VEC_TYPE(F,ulong,ulong)	\
-  VEC_TYPE(F,float,uint)	\
-  VEC_TYPE(F,double,ulong)	\
+  VEC_TYPE(F,float,uint)
+
+
+#ifdef MAGNET_FP64
+#define CL_TYPE_FACTORY(F)	\
+  BASE_CL_TYPE_FACTORY(F)	\
+  VEC_TYPE(F,double,ulong) 
+#else
+#define CL_TYPE_FACTORY(F)	\
+  BASE_CL_TYPE_FACTORY(F)
+#endif 
 //  VEC_TYPE(F,half)
 
 namespace magnet {

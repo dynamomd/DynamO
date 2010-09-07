@@ -16,6 +16,7 @@
 */
 
 #include <iostream>
+#define MAGNET_FP64
 #include <magnet/radixsort.hpp>
 #include <algorithm>
 
@@ -116,6 +117,7 @@ void runTest(cl::Context context, cl::CommandQueue queue)
     runTestType<cl_uint>(context, queue);
     runTestType<cl_int>(context, queue);
     runTestType<cl_float>(context, queue);
+    runTestType<cl_double>(context, queue);
 }
 
 int main(int argc, char *argv[])

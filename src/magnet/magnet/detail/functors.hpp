@@ -20,6 +20,7 @@
 #include <CL/cl.hpp>
 #include <string>
 #include <magnet/detail/exception.hpp>
+#include <magnet/detail/extension_wrangler.hpp>
 
 namespace magnet {
   namespace detail {
@@ -37,12 +38,25 @@ namespace magnet {
       inline functor(cl::CommandQueue queue, cl::Context context, std::string buildFlags):
 	_queue(queue), _context(context)
       {
-	std::string kernelSrc = format_code(T::kernelSource());
-	
 	cl::Program::Sources sources;
+
+	std::string extensions;
+
+	//Load the double extension if it is present
+	if (magnet::detail::detectExtension(context,"cl_khr_fp64"))
+	  extensions += "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n";
+	else if (magnet::detail::detectExtension(context,"cl_amd_fp64"))
+	  extensions += "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
+
+	sources.push_back(std::make_pair(extensions.c_str(),
+					 extensions.size()));
+
+	//Now load the kernel source
+	std::string kernelSrc = format_code(T::kernelSource());	
 	sources.push_back(std::make_pair(kernelSrc.c_str(),
 					 kernelSrc.size()));
 	
+	//Attempt to build the source
 	_program = cl::Program(_context, sources);
 
 	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>();
