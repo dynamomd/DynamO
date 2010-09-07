@@ -61,21 +61,22 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
     
     //We add one on here to allow vector loads and stores to occur
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
-				  sizeof(cl_float) * (3 * _N + 1));
+				  sizeof(cl_float4) *  _N);
 
     _sortKeys = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(float) * _N);
     _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(cl_uint) * _N);
     
-    cl_float* Pos = (cl_float*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
-						     CL_MAP_WRITE, 0, 
-						     3 * _N * sizeof(cl_float));
+    cl_float4* Pos = (cl_float4*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
+						       CL_MAP_WRITE, 0, 
+						       _N * sizeof(cl_float4));
     
     //Generates positions on a simple cubic lattice
     for (size_t partID(0); partID < _N; ++partID)
       {
-	Pos[3 * partID + 0] = (partID % Ncuberoot);
-	Pos[3 * partID + 1] = ((partID / Ncuberoot)  % Ncuberoot);
-	Pos[3 * partID + 2] = (partID / (Ncuberoot * Ncuberoot));
+	Pos[partID].x = (partID % Ncuberoot);
+	Pos[partID].y = ((partID / Ncuberoot)  % Ncuberoot);
+	Pos[partID].z = (partID / (Ncuberoot * Ncuberoot));
+	Pos[partID].w = 1.0;
       }
 
     //Start copying this data to the graphics card

@@ -19,7 +19,7 @@
 #define STRINGIFY(A) #A
 const std::string sphereKernelSource = STRINGIFY(
 __kernel void
-SphereRenderKernel(const __global float * positions,
+SphereRenderKernel(const __global float4* positions,
 		   __global float * vertexBuffer,
 		   const __global float * vertices,
 		   const uint nVertex,
@@ -29,39 +29,37 @@ SphereRenderKernel(const __global float * positions,
 		   __global const uint* sortedArray)
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
-  __local float positionCache[WORKGROUP_SIZE];
-  
+  __local float4 positionCache[WORKGROUP_SIZE];
+  __local const float* positionCacheComponents = (__local const float*)positionCache;
+
   //Iterate on blocks of WORKGROUP_SIZE, with a stride of the global_size
-  for (uint id0 = get_group_id(0) * WORKGROUP_SIZE + 3*StartParticle;
-       id0 < 3 * EndParticle; 
+  for (uint id0 = get_group_id(0) * WORKGROUP_SIZE + StartParticle;
+       id0 < EndParticle; 
        id0 += get_global_size(0))
     {
       //Load the cache
       uint data_to_read = id0 + get_local_id(0);
       
       //Coalesced read from global mem and conflict-free localsss write
-      if (data_to_read < 3 * EndParticle)
-	{
-	  data_to_read = 3 * sortedArray[data_to_read / 3] + (data_to_read % 3);
-	  positionCache[get_local_id(0)] = positions[data_to_read];
-	}
+      if (data_to_read < EndParticle)
+	positionCache[get_local_id(0)] = positions[data_to_read];
       
       barrier(CLK_LOCAL_MEM_FENCE);
       
       //Cache is full, now start blitting out verticies
       //Calculate the number of verticie components to do
-      uint particles_comp_InCache = min((uint)(WORKGROUP_SIZE), 3*EndParticle - id0);
-      uint vertices_components_to_do = particles_comp_InCache * nVertex ;
+      uint particles_InCache = min((uint)(WORKGROUP_SIZE), EndParticle - id0);
+      uint vertices_components_to_do = 3 * particles_InCache * nVertex;
       
       for (uint vertex_component = get_local_id(0);
 	   vertex_component < vertices_components_to_do;
 	   vertex_component += get_local_size(0))
 	{
-	  uint particleID = 3*(vertex_component / (3 * nVertex)) + (vertex_component % 3);
-	  uint vertexID = vertex_component % (3*nVertex);
+	  uint particleID = 4 * (vertex_component / (3 * nVertex)) + (vertex_component % 3);
+	  uint vertexID = vertex_component % (3 * nVertex);
 	  
-	  vertexBuffer[VertexOffset + nVertex * id0 + vertex_component]
-	    = positionCache[particleID] + vertices[vertexID];
+	  vertexBuffer[VertexOffset + 3 * nVertex * id0 + vertex_component]
+	    = positionCacheComponents[particleID] + vertices[vertexID];
 	}
 
       barrier(CLK_LOCAL_MEM_FENCE);
@@ -69,7 +67,7 @@ SphereRenderKernel(const __global float * positions,
 }
 
 __kernel void
-GenerateData(const __global float * positions,
+GenerateData(const __global float4* positions,
 	     __global float* keys,
 	     __global uint* data,
 	     float4 camPos, float4 camdir, float4 camup,
@@ -77,16 +75,22 @@ GenerateData(const __global float * positions,
 {
   if (get_global_id(0) >= N) return;
 
-  float sqdist = positions[3 * get_global_id(0)] - camPos.x;
-  sqdist *= sqdist;
+//  float4 left = cross(camup, camdir);
+//  
+//  float4 topPoint = camdir * 0.1 + camup * (0.1 * tan(45.0 * M_PI / 180.0));
+//
+//  topPoint /= length(topPoint);
+//
+//  float4 topNorm = cross(left,topPoint);
+//
+//  float multiplier = 1;
 
-  float temp = positions[3 * get_global_id(0) + 1]  - camPos.y;
-  sqdist += temp * temp;
+  float4 position = positions[get_global_id(0)];
+  //position -= camPos;
 
-  temp = positions[3 * get_global_id(0) + 2]  - camPos.z;
-  sqdist += temp * temp;
+  position.w = 0;
 
-  keys[get_global_id(0)] = sqdist;
+  keys[get_global_id(0)] = length(position);
   data[get_global_id(0)] = get_global_id(0);
 }
 );
