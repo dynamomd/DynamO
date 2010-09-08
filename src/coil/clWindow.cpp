@@ -97,29 +97,17 @@ CLGLWindow::CameraSetup()
   glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
   glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
   glTranslatef(-_viewPortInfo._cameraX,-_viewPortInfo._cameraY,-_viewPortInfo._cameraZ);
-
-  GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
-  GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
-  GLfloat light0_position[] = {0.0, 0.0, -2.0, 0.0};
-  //  GLfloat light1_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-  //  GLfloat light1_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
-  //  GLfloat light1_position[] = {-2.0, -3.0, -1.0, 0.0};
-   
-  glEnable(GL_LIGHT0);
-  //glEnable(GL_LIGHT1);
-   
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
-  glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-  //glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
-  //glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
-  //glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
-
+  
   Matrix viewTransform = Rodrigues(Vector(0,-_viewPortInfo._rotatex * M_PI/180,0)) 
     * Rodrigues(Vector(-_viewPortInfo._rotatey * M_PI/180.0,0,0));
 
   _viewPortInfo._cameraDirection =  viewTransform * Vector(0,0,-1);
   _viewPortInfo._cameraUp = viewTransform * Vector(0,1,0);
+
+  //Move the world lights
+  GLfloat light0_position[] = {-2.0, -2.0, -2.0, 0.0};
+  glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+
 }
 
 
@@ -155,22 +143,25 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
 
   glEnable(GL_BLEND); //Enable blending
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Blend colors using the alpha channel
-
-  //Light our scene!
-  glEnable(GL_LIGHTING);
-
-  //Setup the viewport
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  CallBackReshapeFunc(_width, _height);
-
-  glMatrixMode(GL_MODELVIEW);
-  CameraSetup();
-
-
   glShadeModel(GL_SMOOTH);
 
   glEnable(GL_CULL_FACE);//Speed rendering by culling faces (only slight speedup)
+
+  //Setup the viewport
+  CallBackReshapeFunc(_width, _height);
+  CameraSetup();
+
+  //Light our scene!
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);   
+
+  GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
+  GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
+
+  GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
@@ -288,15 +279,15 @@ void CLGLWindow::CallBackDisplayFunc(void)
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->clTick(_clcmdq, _clcontext);
 
-  //Flush the OpenCL queue, so GL can use the buffers
-  _clcmdq.finish();
-  
   //Prepare for the GL render
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   //Camera Positioning
   CameraSetup();
 
+  //Flush the OpenCL queue, so GL can use the buffers
+  _clcmdq.finish();
+  
   //Enter the render ticks for all objects
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
