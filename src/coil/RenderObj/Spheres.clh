@@ -69,6 +69,12 @@ SphereRenderKernel(const __global float4* positions,
     }
 }
 
+float frustrumPenalty(const float4 plane, const float4 pos)
+{ 
+  float offset = dot(plane,pos) + pos.w;
+  return (offset < 0) ? 10 + offset * offset : 0;
+}
+
 __kernel void
 GenerateData(const __global float4* positions,
 	     __global float* keys,
@@ -83,45 +89,67 @@ GenerateData(const __global float4* positions,
   float tanfactor = (nearDist * tan(fov * M_PI_F / 360.0f));
 
   float4 left = cross(camup, camdir);
+
+  float penalty = 0;
+
+  float4 pos = positions[get_global_id(0)];
+  pos -= camPos;
+  //The 4th component of the position contains the radius of the sphere
+
   
-  float4 topPoint = camdir * nearDist + camup * tanfactor;
+  //First calculate the view distance penalty
+  {
+    float distance = dot(pos, camdir);
+    penalty += (distance < 0) ? 10000 : distance;
 
-  topPoint /= length(topPoint);
+    float centerdistance = length(pos - distance * camdir);
+    penalty += 2 * centerdistance;
+  }
 
-  float4 topNorm = cross(left,topPoint);
+  //Frustrum Penalties
+  {
+    float4 topPoint = camdir * nearDist + camup * tanfactor;
+    
+    topPoint /= length(topPoint);
+    
+    float4 topNorm = cross(left,topPoint);
+    
+    penalty += frustrumPenalty(topNorm, pos);
+  }
 
-  float4 bottomPoint = camdir * nearDist - camup * tanfactor;
-  
-  bottomPoint /= length(bottomPoint);
+  {
+    float4 bottomPoint = camdir * nearDist - camup * tanfactor;
+    
+    bottomPoint /= length(bottomPoint);
+    
+    float4 bottomNorm = cross(-left,bottomPoint);
 
-  float4 bottomNorm = cross(-left,bottomPoint);
+    penalty += frustrumPenalty(bottomNorm, pos);
+  }
 
   tanfactor *= ratio;
 
-  float4 leftPoint = camdir * nearDist + left * tanfactor;
+  {
+    float4 leftPoint = camdir * nearDist + left * tanfactor;
+    
+    leftPoint /= length(leftPoint);
+    
+    float4 leftNorm = cross(-camup, leftPoint);
 
-  leftPoint /= length(leftPoint);
+    penalty += frustrumPenalty(leftNorm, pos);
+  }
 
-  float4 leftNorm = cross(-camup, leftPoint);
+  {
+    float4 rightPoint = camdir * nearDist - left * tanfactor;
+    
+    rightPoint /= length(rightPoint);
+    
+    float4 rightNorm = cross(camup,rightPoint);
+    
+    penalty += frustrumPenalty(rightNorm, pos);
+  }
 
-  float4 rightPoint = camdir * nearDist - left * tanfactor;
-
-  rightPoint /= length(rightPoint);
-
-  float4 rightNorm = cross(camup,rightPoint);
-
-  float multiplier = 1;
-
-  float4 position = positions[get_global_id(0)];
-  position -= camPos;
-  position.w = 0;
-
-  multiplier -= 2 * (dot(topNorm, position) < 0);
-  multiplier -= 2 * (dot(bottomNorm, position) < 0);
-  multiplier -= 2 * (dot(leftNorm, position) < 0);
-  multiplier -= 2 * (dot(rightNorm, position) < 0);
-
-  keys[get_global_id(0)] = multiplier * length(position);
+  keys[get_global_id(0)] = penalty;
   data[get_global_id(0)] = get_global_id(0);
 }
 );
