@@ -42,7 +42,10 @@ SphereRenderKernel(const __global float4* positions,
       
       //Coalesced read from global mem and conflict-free localsss write
       if (data_to_read < EndParticle)
-	positionCache[get_local_id(0)] = positions[data_to_read];
+	{
+	  data_to_read = sortedArray[data_to_read];
+	  positionCache[get_local_id(0)] = positions[data_to_read];
+	}
       
       barrier(CLK_LOCAL_MEM_FENCE);
       
@@ -73,24 +76,49 @@ GenerateData(const __global float4* positions,
 	     float4 camPos, float4 camdir, float4 camup,
 	     uint N)
 {
+  //Need to add the aspect ratio!
+
   if (get_global_id(0) >= N) return;
 
-//  float4 left = cross(camup, camdir);
-//  
-//  float4 topPoint = camdir * 0.1 + camup * (0.1 * tan(45.0 * M_PI / 180.0));
-//
-//  topPoint /= length(topPoint);
-//
-//  float4 topNorm = cross(left,topPoint);
-//
-//  float multiplier = 1;
+  float4 left = cross(camup, camdir);
+  
+  float4 topPoint = camdir * 0.1f + camup * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+
+  topPoint /= length(topPoint);
+
+  float4 topNorm = cross(left,topPoint);
+
+  float4 bottomPoint = camdir * 0.1f - camup * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+  
+  bottomPoint /= length(bottomPoint);
+
+  float4 bottomNorm = cross(-left,bottomPoint);
+
+  float4 leftPoint = camdir * 0.1f + left * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+
+  leftPoint /= length(leftPoint);
+
+  float4 leftNorm = cross(-camup,leftPoint);
+
+  float4 rightPoint = camdir * 0.1f - left * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+
+  rightPoint /= length(rightPoint);
+
+  float4 rightNorm = cross(camup,rightPoint);
+
+
+  float multiplier = 1;
 
   float4 position = positions[get_global_id(0)];
-  //position -= camPos;
-
+  position -= camPos;
   position.w = 0;
 
-  keys[get_global_id(0)] = length(position);
+  multiplier -= 2 * (dot(topNorm, position) < 0);
+  multiplier -= 2 * (dot(bottomNorm, position) < 0);
+  multiplier -= 2 * (dot(leftNorm, position) < 0);
+  multiplier -= 2 * (dot(rightNorm, position) < 0);
+
+  keys[get_global_id(0)] = multiplier * length(position);
   data[get_global_id(0)] = get_global_id(0);
 }
 );
