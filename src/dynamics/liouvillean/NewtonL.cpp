@@ -1063,8 +1063,10 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	       << "\nerror = "
 	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
 	/ Sim->dynamics.units().unitLength()
-	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
-	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
+	       << "\n Root1 = " 
+	       << root1.second / Sim->dynamics.units().unitTime()
+	       << "\n Root2 = " 
+	       << root2.second / Sim->dynamics.units().unitTime();
 #endif
       
       //If the particle is going out of bounds, collide now
@@ -1103,8 +1105,8 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 		     << "\nt_low1 = " << t_low1
 		     << "\nt_low2 = " << t_low2
 		     << "\nt_high = " << t_high
-		     << "\nroot1 = " << root1
-		     << "\nroot2 = " << root2
+		     << "\nroot1 = " << root1.second
+		     << "\nroot2 = " << root2.second
 		     << "\nf1(0) = " << fl01
 		     << "\nf1(t_low1) = " << flt_low1
 		     << "\nf1(t_high) = " << flt_high1
