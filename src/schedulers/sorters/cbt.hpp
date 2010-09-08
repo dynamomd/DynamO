@@ -75,6 +75,11 @@ public:
       Insert(i);  
   }
 
+  void rebuild()
+  {
+    init();
+  }
+
   inline void stream(const Iflt& dt)
   {    
     pecTime += dt;
