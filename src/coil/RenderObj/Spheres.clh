@@ -58,11 +58,12 @@ SphereRenderKernel(const __global float4* positions,
 	   vertex_component < vertices_components_to_do;
 	   vertex_component += get_local_size(0))
 	{
-	  uint particleID = 4 * (vertex_component / (3 * nVertex)) + (vertex_component % 3);
+	  uint particleID = 4 * (vertex_component / (3 * nVertex));
 	  uint vertexID = vertex_component % (3 * nVertex);
 	  
 	  vertexBuffer[VertexOffset + 3 * nVertex * id0 + vertex_component]
-	    = positionCacheComponents[particleID] + vertices[vertexID];
+	    = positionCacheComponents[particleID  + (vertex_component % 3)] 
+	    + positionCacheComponents[particleID  + 3] * vertices[vertexID];
 	}
 
       barrier(CLK_LOCAL_MEM_FENCE);
