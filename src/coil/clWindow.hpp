@@ -74,6 +74,34 @@ public:
   void addRenderObj(T1, T2, T3, T4, T5) { STATIC_ASSERT(false,'Check Arg Types'); } 
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
   void addRenderObj(T1, T2, T3, T4, T5, T6) { STATIC_ASSERT(false,'Check Arg Types'); } 
+
+  struct viewPortInfoType
+  {
+    viewPortInfoType():
+      _rotatex(180),
+      _rotatey(0),
+      _cameraX(0),
+      _cameraY(0),
+      _cameraZ(-5),
+      _fovY(45),
+      _aspectRatio(1),
+      _zNearDist(0.1),
+      _zFarDist(1000)
+    {}
+
+    float _rotatex;
+    float _rotatey;
+    float _cameraX;
+    float _cameraY;
+    float _cameraZ;
+    
+    GLdouble _fovY;
+    GLdouble _aspectRatio;
+    GLdouble _zNearDist;
+    GLdouble _zFarDist;
+    
+    Vector _cameraDirection, _cameraUp;
+  };
  
 protected:
   cl::Platform _clplatform;
@@ -122,14 +150,9 @@ private:
   int _lastFrameTime;
   int _FPStime; 
 
-  float _rotatex;
-  float _rotatey;
-  float _cameraX;
-  float _cameraY;
-  float _cameraZ;
+  viewPortInfoType _viewPortInfo;
   
-  Vector _cameraDirection, _cameraUp;
-
+  
   bool keyStates[256];
 
   float _mouseSensitivity; 

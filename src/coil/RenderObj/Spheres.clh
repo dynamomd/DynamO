@@ -74,38 +74,41 @@ GenerateData(const __global float4* positions,
 	     __global float* keys,
 	     __global uint* data,
 	     float4 camPos, float4 camdir, float4 camup,
+	     float ratio, float nearDist, float fov,
 	     uint N)
 {
   //Need to add the aspect ratio!
-
   if (get_global_id(0) >= N) return;
+
+  float tanfactor = (nearDist * tan(fov * M_PI_F / 360.0f));
 
   float4 left = cross(camup, camdir);
   
-  float4 topPoint = camdir * 0.1f + camup * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+  float4 topPoint = camdir * nearDist + camup * tanfactor;
 
   topPoint /= length(topPoint);
 
   float4 topNorm = cross(left,topPoint);
 
-  float4 bottomPoint = camdir * 0.1f - camup * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+  float4 bottomPoint = camdir * nearDist - camup * tanfactor;
   
   bottomPoint /= length(bottomPoint);
 
   float4 bottomNorm = cross(-left,bottomPoint);
 
-  float4 leftPoint = camdir * 0.1f + left * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+  tanfactor *= ratio;
+
+  float4 leftPoint = camdir * nearDist + left * tanfactor;
 
   leftPoint /= length(leftPoint);
 
-  float4 leftNorm = cross(-camup,leftPoint);
+  float4 leftNorm = cross(-camup, leftPoint);
 
-  float4 rightPoint = camdir * 0.1f - left * (0.1f * tan(45.0f * M_PI_F / 180.0f));
+  float4 rightPoint = camdir * nearDist - left * tanfactor;
 
   rightPoint /= length(rightPoint);
 
   float4 rightNorm = cross(camup,rightPoint);
-
 
   float multiplier = 1;
 

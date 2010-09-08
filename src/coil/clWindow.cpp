@@ -51,11 +51,6 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   windowTitle(title),
   FPSmode(false),
   frameCounter(0),
-  _rotatex(180),
-  _rotatey(0),
-  _cameraX(0),
-  _cameraY(0),
-  _cameraZ(-5),
   _mouseSensitivity(0.3),
   _moveSensitivity(0.005),
   _specialKeys(0),
@@ -84,24 +79,24 @@ CLGLWindow::CameraSetup()
   int _vertical = (keyStates['q'] || keyStates['Q']) - (keyStates['z'] || keyStates['Z']);
 
   //Forward/Backward movement
-  _cameraZ -= _forward * moveAmp * std::cos(_rotatey * (M_PI/ 180)) 
-    * std::sin(_rotatex  * (M_PI/ 180) + M_PI * 0.5);  
-  _cameraX -= _forward * moveAmp * std::cos(_rotatey * (M_PI/ 180)) 
-    * std::cos(_rotatex  * (M_PI/ 180) + M_PI * 0.5);
-  _cameraY += -_forward * moveAmp * std::sin(_rotatey * (M_PI/ 180));
+  _viewPortInfo._cameraZ -= _forward * moveAmp * std::cos(_viewPortInfo._rotatey * (M_PI/ 180)) 
+    * std::sin(_viewPortInfo._rotatex  * (M_PI/ 180) + M_PI * 0.5);  
+  _viewPortInfo._cameraX -= _forward * moveAmp * std::cos(_viewPortInfo._rotatey * (M_PI/ 180)) 
+    * std::cos(_viewPortInfo._rotatex  * (M_PI/ 180) + M_PI * 0.5);
+  _viewPortInfo._cameraY += -_forward * moveAmp * std::sin(_viewPortInfo._rotatey * (M_PI/ 180));
 
   //Strafe movement
-  _cameraZ += _sideways * moveAmp * std::sin(_rotatex * (M_PI/ 180));
-  _cameraX += _sideways * moveAmp * std::cos(_rotatex * (M_PI/ 180));
+  _viewPortInfo._cameraZ += _sideways * moveAmp * std::sin(_viewPortInfo._rotatex * (M_PI/ 180));
+  _viewPortInfo._cameraX += _sideways * moveAmp * std::cos(_viewPortInfo._rotatex * (M_PI/ 180));
 
   //Vertical movement
-  _cameraY += _vertical * moveAmp;
+  _viewPortInfo._cameraY += _vertical * moveAmp;
 
   glLoadIdentity();
   //gluLookAt(-viewscale, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-  glRotatef(_rotatey, 1.0, 0.0, 0.0);
-  glRotatef(_rotatex, 0.0, 1.0, 0.0);
-  glTranslatef(-_cameraX,-_cameraY,-_cameraZ);
+  glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
+  glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
+  glTranslatef(-_viewPortInfo._cameraX,-_viewPortInfo._cameraY,-_viewPortInfo._cameraZ);
 
   GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; //diffuse intensity of the light
   GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
@@ -120,11 +115,11 @@ CLGLWindow::CameraSetup()
   //glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
   //glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
 
-  Matrix viewTransform = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) 
-    * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0));
+  Matrix viewTransform = Rodrigues(Vector(0,-_viewPortInfo._rotatex * M_PI/180,0)) 
+    * Rodrigues(Vector(-_viewPortInfo._rotatey * M_PI/180.0,0,0));
 
-  _cameraDirection =  viewTransform * Vector(0,0,-1);
-  _cameraUp = viewTransform * Vector(0,1,0);
+  _viewPortInfo._cameraDirection =  viewTransform * Vector(0,0,-1);
+  _viewPortInfo._cameraUp = viewTransform * Vector(0,1,0);
 }
 
 
@@ -363,8 +358,8 @@ void CLGLWindow::drawAxis()
   glVertex3f(-1, 1, 0);
   glEnd();
 
-  glRotatef(_rotatey, 1.0, 0.0, 0.0);
-  glRotatef(_rotatex, 0.0, 1.0, 0.0);
+  glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
+  glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
   //glRotatef (tip , 1,0,0);
   //glRotatef (turn, 0,1,0);
   glScalef (axisScale, axisScale, axisScale);
@@ -411,20 +406,10 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
+  _viewPortInfo._aspectRatio = ((GLdouble)_width) / _height;
 
-  //gluPerspective(45.0f, , 0.1f, 1000.0f);
-
-  GLdouble fovy = 45.0f,
-    zNear = 0.1f,
-    zFar = 1000.0f,
-    aspect = ((GLdouble)_width) / _height;
-  GLdouble xmin, xmax, ymin, ymax;
-  
-  ymax = zNear * std::tan(fovy * M_PI / 360.0);
-  ymin = -ymax;
-  xmin = ymin * aspect;
-  xmax = ymax * aspect;
-  glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
+  gluPerspective(_viewPortInfo._fovY, _viewPortInfo._aspectRatio, _viewPortInfo._zNearDist, 
+		 _viewPortInfo._zFarDist);
 
   glMatrixMode(GL_MODELVIEW);
 }
@@ -519,15 +504,15 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
   switch (keyState)
     {
     case LEFTMOUSE:
-      _rotatex += diffX;
-      _rotatey = clamp(diffY + _rotatey, -90, 90);
+      _viewPortInfo._rotatex += diffX;
+      _viewPortInfo._rotatey = clamp(diffY + _viewPortInfo._rotatey, -90, 90);
       break;
     case RIGHTMOUSE:
-      _cameraZ += (y-_oldMouseY) * _mouseSensitivity * 0.05;
+      _viewPortInfo._cameraZ += (y-_oldMouseY) * _mouseSensitivity * 0.05;
       break;
     case MIDDLEMOUSE:
-      _cameraX += (y-_oldMouseY) * _mouseSensitivity * 0.05;
-      _cameraY += (x-_oldMouseX) * _mouseSensitivity * 0.05;
+      _viewPortInfo._cameraX += (y-_oldMouseY) * _mouseSensitivity * 0.05;
+      _viewPortInfo._cameraY += (x-_oldMouseX) * _mouseSensitivity * 0.05;
       break;
     default:
       break;

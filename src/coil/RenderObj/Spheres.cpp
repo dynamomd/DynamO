@@ -40,21 +40,16 @@ cl_float4 getclVec(Vector vec)
 
 
 RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
-		     const float& cameraX, const float& cameraY, const float& cameraZ,
-		     const Vector& cameraDirection, const Vector& cameraUp,
+		     const CLGLWindow::viewPortInfoType& viewPortInfo,
 		     size_t N, const std::vector<SphereDetails>& renderDetailLevels):
   RTriangles(hostTransfers),
   _N(N),
   _renderDetailLevels(renderDetailLevels),
   _frameCount(0),
-  _sortFrequency(5),
+  _sortFrequency(1),
   _workgroupsize(0),
   _globalsize(0),
-  _cameraX(cameraX),
-  _cameraY(cameraY),
-  _cameraZ(cameraZ),
-  _cameraDirection(cameraDirection),
-  _cameraUp(cameraUp)
+  _viewPortInfo(viewPortInfo)
 {
   {
     size_t Ncuberoot = (size_t)std::pow(_N, 1.0/3.0);
@@ -211,30 +206,39 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
        iPtr != _renderDetailLevels.end(); ++iPtr)
     iPtr->setupCLBuffers(Context);
 
+  sortTick(CmdQ, Context);
   clTick(CmdQ, Context);
+}
+
+void 
+RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
+{
+  static magnet::radixSort<cl_float> sortFunctor(CmdQ, Context);
+
+  cl::KernelFunctor sortDataKernelFunc 
+    = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  
+  cl_float4 campos = getclVec(Vector(_viewPortInfo._cameraX, _viewPortInfo._cameraY, _viewPortInfo._cameraZ));
+  cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
+  cl_float4 camup = getclVec(_viewPortInfo._cameraUp);
+  
+  //Generate the sort data
+  sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
+		     campos, camdir, camup,
+		     (cl_float)_viewPortInfo._aspectRatio,
+		     (cl_float)_viewPortInfo._zNearDist,
+		     (cl_float)_viewPortInfo._fovY,
+		     _N);
+  
+  if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
+    sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
 }
 
 void 
 RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
-  static magnet::radixSort<cl_float> sortFunctor(CmdQ, Context);
-
   if (!(++_frameCount % _sortFrequency))
-    {
-      cl::KernelFunctor sortDataKernelFunc 
-	= _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
-      
-      cl_float4 campos = getclVec(Vector(_cameraX, _cameraY, _cameraZ));
-      cl_float4 camdir = getclVec(_cameraDirection);
-      cl_float4 camup = getclVec(_cameraUp);
-
-      //Generate the sort data
-      sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
-			 campos, camdir, camup, _N);
-      
-      if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
-	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
-    }
+    sortTick(CmdQ, Context);
 
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(CmdQ);

@@ -45,11 +45,12 @@ public:
   };
 
   RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
-	    const float& cameraX, const float& cameraY, const float& cameraZ, 
-	    const Vector& cameraDirection, const Vector& cameraUp,
+	    const CLGLWindow::viewPortInfoType& viewPortInfo,
 	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
 
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
+
+  void sortTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
 protected:
 
@@ -69,8 +70,7 @@ protected:
   size_t _workgroupsize;
   size_t _globalsize;
 
-  const float& _cameraX,&_cameraY,&_cameraZ;
-  const Vector& _cameraDirection, &_cameraUp;
+  const CLGLWindow::viewPortInfoType & _viewPortInfo;
 };
 
 template<>
@@ -78,6 +78,5 @@ inline void CLGLWindow::addRenderObj<RTSpheres, size_t, std::vector<RTSpheres::S
 (size_t N, std::vector<RTSpheres::SphereDetails> renderDetailLevels)
 {
   RenderObjects.push_back(new RTSpheres(_clcmdq, _clcontext, _cldevice, _hostTransfers,
-					_cameraX, _cameraY, _cameraZ, _cameraDirection,
-					_cameraUp, N, renderDetailLevels));
+					_viewPortInfo, N, renderDetailLevels));
 }
