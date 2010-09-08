@@ -34,7 +34,7 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
       //Always try again from the other side
       fwdWorking = !fwdWorking;
 
-      if(++w > 10000)
+      if(++w > 1000)
       {
 	std::cerr << "\nThe Frenkel rootfinder is converging too slowly."
 	  << "\nt_low = " << t_low << ", t_high = " << t_high;
