@@ -96,7 +96,6 @@ GenerateData(const __global float4* positions,
   float4 pos = positions[get_global_id(0)];
   pos -= camPos;
   //The 4th component of the position contains the radius of the sphere
-
   
   //First calculate the view distance penalty
   {

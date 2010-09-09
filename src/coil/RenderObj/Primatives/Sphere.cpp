@@ -122,15 +122,16 @@ Sphere::Sphere(SphereType type, size_t order):
     refine();
 
   
-  //Renormalize to spheres of diameter 1
+  //Renormalize to spheres of diameter 2! (this is to make sure the vectors are all normalised)
   for (int i(0); i < n_vertices; ++i)
     {
-      float len = std::sqrt(vertices[i*3+0] *  vertices[i*3+0]
-			    +vertices[i*3+1] * vertices[i*3+1]
-			    +vertices[i*3+2] * vertices[i*3+2]);
+      double len = 1.0 / std::sqrt(vertices[i * 3 + 0] * vertices[i * 3 + 0]
+				   + vertices[i * 3 + 1] * vertices[i * 3 + 1]
+				   + vertices[i * 3 + 2] * vertices[i * 3 + 2]
+				   );
       
       for (size_t j(0); j < 3; ++j)
-	vertices[i*3+j] *= 0.5 / len;
+	vertices[i * 3 + j] /= len;
     }
 
 }

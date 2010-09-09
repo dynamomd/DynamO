@@ -153,13 +153,13 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
 
   //Light our scene!
   glEnable(GL_LIGHTING);
-  glEnable(GL_NORMALIZE); //Make OpenGL normalize lighting vectors for us
+  //glEnable(GL_NORMALIZE); //Make OpenGL normalize lighting vectors for us
   glEnable(GL_LIGHT0);   
 
   //Light number one
   GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; 
   GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
-  GLfloat specular[] = {0.2, 0.2, 0.2, 1.0};
+  GLfloat specular[] = {0.0, 0.0, 0.0, 1.0};
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
   glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
   glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
@@ -168,9 +168,10 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
-  //float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+  //GLfloat specReflection[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+  //GLfloat specShininess[] = { 100.0f };
   //glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-  //glMateriali(GL_FRONT, GL_SHININESS, 10);
+  //glMaterialfv(GL_FRONT, GL_SHININESS, specShininess);
 
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
@@ -492,6 +493,11 @@ CLGLWindow::CallBackMouseFunc(int button, int state, int x, int y)
 void 
 CLGLWindow::CallBackMouseWheelFunc(int button, int dir, int x, int y)
 {
+  if (dir > 0)
+    _moveSensitivity *= 1.1;
+  else
+    _moveSensitivity /= 1.1;
+
   //viewscale *= (dir > 0) ? 0.9 : (1/0.9);
 }
 
