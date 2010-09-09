@@ -276,7 +276,7 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const Iflt& lMax) co
   D_throw() << "Not implemented yet";  
 }
 
-Iflt
+std::pair<bool,Iflt>
 LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 				 const Vector& nhat, const Iflt& Delta,
 				 const Iflt& Omega, const Iflt& Sigma,

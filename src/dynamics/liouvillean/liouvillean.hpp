@@ -295,12 +295,13 @@ public:
    * \param Delta The current magnitude of the plates oscillation.
    * \param Omega The frequency of the plates oscillation.
    * \param Sigma The distance between the centre point and each wall.
-   * \return Wether the event will occur or not.
+   * \return Whether the returned value is a real event or a requested virtual event (virtual events at a time of HUGE_VAL mean no events will occur).
    */    
-  virtual Iflt getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-				      const Vector& nhat, const Iflt& Delta,
-				      const Iflt& Omega, const Iflt& Sigma,
-				      const Iflt& t, bool lastPart) const;
+  virtual std::pair<bool,Iflt> 
+  getPointPlateCollision(const Particle& np1, const Vector& nrw0,
+			 const Vector& nhat, const Iflt& Delta,
+			 const Iflt& Omega, const Iflt& Sigma,
+			 const Iflt& t, bool lastPart) const;
 
   virtual ParticleEventData runOscilatingPlate
   (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 

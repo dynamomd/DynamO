@@ -318,7 +318,7 @@ Liouvillean::parallelCubeColl(const IntEvent& event,
 			       const EEventType& eType) const
 { D_throw() << "Not Implemented"; }
 
-Iflt 
+std::pair<bool,Iflt>
 Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				     const Vector& nhat, const Iflt& Delta,
 				     const Iflt& Omega, const Iflt& Sigma,

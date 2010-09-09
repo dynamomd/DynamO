@@ -49,10 +49,11 @@ public:
 				      const Vector &
 				      ) const;
   
-  virtual Iflt getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-				      const Vector& nhat, const Iflt& Delta,
-				      const Iflt& Omega, const Iflt& Sigma,
-				      const Iflt& t, bool) const;
+  virtual std::pair<bool,Iflt>
+  getPointPlateCollision(const Particle& np1, const Vector& nrw0,
+			 const Vector& nhat, const Iflt& Delta,
+			 const Iflt& Omega, const Iflt& Sigma,
+			 const Iflt& t, bool) const;
 
   virtual ParticleEventData runOscilatingPlate
   (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 

@@ -58,14 +58,16 @@ CLOscillatingPlate::getEvent(const Particle& part) const
   Iflt reducedt = Sim->dSysTime 
     - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
 
-  Iflt dt = Sim->dynamics.getLiouvillean().getPointPlateCollision
+  std::pair<bool, Iflt> eventData = Sim->dynamics.getLiouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
      false);
 
-  if (dt != HUGE_VAL)
-    return LocalEvent(part, dt, WALL, *this);
-  else
-    return LocalEvent(part, HUGE_VAL, NONE, *this);
+  EEventType type = (eventData.first) ? WALL : VIRTUAL ;
+
+  if (eventData.second == HUGE_VAL)
+    type = NONE;
+  
+  return LocalEvent(part, eventData.second, type, *this);
 }
 
 

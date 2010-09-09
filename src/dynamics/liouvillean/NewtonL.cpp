@@ -963,7 +963,7 @@ LNewtonian::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
   return retval;
 }
 
-Iflt
+std::pair<bool,Iflt>
 LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 				 const Vector& nhat, const Iflt& Delta,
 				 const Iflt& Omega, const Iflt& Sigma,
@@ -1051,10 +1051,11 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   std::pair<bool,Iflt> root2 
     = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
-  
+  //Check if the particle is penetrating a wall
+  //Or if no roots are found at all
   if ((fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma)
-      || (((!root1.first) && (!root2.first))
-	  || ((t_low1 > t_high) && (t_low2 > t_high))))
+      || ((root1.second == HUGE_VAL) && (root2.second == HUGE_VAL))
+      || ((t_low1 > t_high) && (t_low2 > t_high)))
     {
       //This can be a problem
 #ifdef DYNAMO_DEBUG      
@@ -1127,7 +1128,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	    ;
 	  }
 #endif
-	  return 0;
+	  return std::pair<bool, Iflt>(true, 0);
 	}
       else
 	{
@@ -1151,14 +1152,14 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	    {
 	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
 
-	      return tmpt;
+	      return std::pair<bool,Iflt>(true, tmpt);
 	    }
 	  else
 	    I_cout() << "The current root is lower than the fake one";	    
 	}
     }
-
-  return (root1.second < root2.second) ? root1.second : root2.second;
+  
+  return (root1.second < root2.second) ? root1 : root2;
 }
 
 ParticleEventData 
