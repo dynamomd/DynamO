@@ -26,9 +26,8 @@
 #include "extcode/vector2.hpp"
 
 #include <magnet/GLBuffer.hpp>
-
 #include "RenderObj/RenderObj.hpp"
-
+#include "Maths/Maths.h"
 
 class CLGLWindow : public GlutWindow
 {
@@ -82,11 +81,11 @@ public:
       _rotatey(0),
       _cameraX(0),
       _cameraY(0),
-      _cameraZ(-5),
+      _cameraZ(0),
       _fovY(45),
       _aspectRatio(1),
-      _zNearDist(0.1),
-      _zFarDist(1000)
+      _zNearDist(0.0001),
+      _zFarDist(3)
     {}
 
     float _rotatex;
@@ -101,8 +100,46 @@ public:
     GLdouble _zFarDist;
     
     Vector _cameraDirection, _cameraUp;
+
+    MATRIX4X4 _projectionMatrix;
+    MATRIX4X4 _viewMatrix;
   };
  
+  struct lightInfo
+  {
+    lightInfo() {}
+
+    lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle):
+      _position(position),
+      _lookAtPoint(lookAtPoint),
+      _lightHandle(lightHandle)
+    {
+      //Build the view matrix and so on
+      glPushMatrix();
+
+      glLoadIdentity();
+      gluPerspective(45.0f, 1.0f, 0.0001f, 2.0f);
+      glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
+
+      glLoadIdentity();
+      gluLookAt(position.x, position.y, position.z,
+		lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
+		0, 1, 0);
+
+      glGetFloatv(GL_PROJECTION_MATRIX, _viewMatrix);
+
+      glPopMatrix();
+    }
+
+    Vector _position;
+    Vector _lookAtPoint;
+
+    MATRIX4X4 _projectionMatrix;
+    MATRIX4X4 _viewMatrix;
+
+    GLenum _lightHandle;
+  };
+
 protected:
   cl::Platform _clplatform;
   cl::Context _clcontext;
@@ -162,4 +199,10 @@ private:
   int _specialKeys;
 
   bool _hostTransfers;
+
+  bool _shadows;
+  GLuint _shadowMapTexture;
+  int _shadowMapSize;
+
+  lightInfo _light0;
 };

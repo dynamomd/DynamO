@@ -52,8 +52,6 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   _viewPortInfo(viewPortInfo)
 {
   {
-    size_t Ncuberoot = (size_t)std::pow(_N, 1.0/3.0);
-
     //We add one on here to allow vector loads and stores to occur
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);
@@ -64,20 +62,19 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
     cl_float4* Pos = (cl_float4*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
 						       CL_MAP_WRITE, 0, 
 						       _N * sizeof(cl_float4));
-    const float density = 3;
 
+    const float density = 0.1;
+
+    cl_float particleDiam = std::pow(1 * density / _N, float(1.0 / 3.0));
+    
     //Generates positions on a simple cubic lattice
     for (size_t partID(0); partID < _N; ++partID)
       {
-	Pos[partID].x = density * Ncuberoot * (((1.0 * rand()) / RAND_MAX) - 0.5);
-	Pos[partID].y = density * Ncuberoot * (((1.0 * rand()) / RAND_MAX) - 0.5);
-	Pos[partID].z = density * Ncuberoot * (((1.0 * rand()) / RAND_MAX) - 0.5);
+	Pos[partID].x = ((1.0 * rand()) / RAND_MAX) - 0.5;
+	Pos[partID].y = ((1.0 * rand()) / RAND_MAX) - 0.5;
+	Pos[partID].z = ((1.0 * rand()) / RAND_MAX) - 0.5;
 
-	//Pos[partID].x = (partID % Ncuberoot);
-	//Pos[partID].y = ((partID / Ncuberoot)  % Ncuberoot);
-	//Pos[partID].z = (partID / (Ncuberoot * Ncuberoot));
-
-	Pos[partID].w = 0.5;
+	Pos[partID].w = particleDiam * 0.5;
       }
 
     //Start copying this data to the graphics card

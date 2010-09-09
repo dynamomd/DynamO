@@ -52,9 +52,11 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   FPSmode(false),
   frameCounter(0),
   _mouseSensitivity(0.3),
-  _moveSensitivity(0.005),
+  _moveSensitivity(0.00005),
   _specialKeys(0),
-  _hostTransfers(hostTransfers)
+  _hostTransfers(hostTransfers),
+  _shadows(false),
+  _shadowMapSize(65536)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
   
@@ -98,6 +100,10 @@ CLGLWindow::CameraSetup()
   glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
   glTranslatef(-_viewPortInfo._cameraX,-_viewPortInfo._cameraY,-_viewPortInfo._cameraZ);
   
+  //store the matricies for shadow calculations
+  glGetFloatv(GL_MODELVIEW_MATRIX, _viewPortInfo._viewMatrix);
+  glGetFloatv(GL_PROJECTION_MATRIX, _viewPortInfo._projectionMatrix);
+
   Matrix viewTransform = Rodrigues(Vector(0,-_viewPortInfo._rotatex * M_PI/180,0)) 
     * Rodrigues(Vector(-_viewPortInfo._rotatey * M_PI/180.0,0,0));
 
@@ -105,9 +111,8 @@ CLGLWindow::CameraSetup()
   _viewPortInfo._cameraUp = viewTransform * Vector(0,1,0);
 
   //Move the world lights
-  GLfloat light0_position[] = {-2.0, -2.0, -2.0, 0.0};
+  GLfloat light0_position[] = {0, 1.0, 0, 0.0};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-
 }
 
 
@@ -132,10 +137,34 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   if (!glewIsSupported("GL_VERSION_2_0 GL_ARB_vertex_buffer_object"))
     std::runtime_error("Vertex Buffer Objects are not supported by your GPU/Driver, sorry."); 
 
+  //Check for shadow support
+  _shadows = true;
+  if (!glewIsSupported("GL_ARB_depth_texture"))
+    {
+      std::cout << "GL_ARB_depth_texture not supported, shadows disabled\n";
+      _shadows = false;
+    }
+
+  if (!glewIsSupported("GL_ARB_shadow"))
+    {
+      std::cout << "GL_ARB_shadow not supported, shadows disabled\n";
+      _shadows = false;
+    }
+   
   //Now begins the example
   glClearColor(0.8,0.8,0.8,1.0);
-  glEnable(GL_DEPTH_TEST);
+
+  glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
+  glEnable(GL_DEPTH_TEST);
+
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+  //Make OpenGL renormalize lighting vectors for us (incase we use glScale)
+  glEnable(GL_NORMALIZE);
+
+  //We need to cull for shadows
+  glEnable(GL_CULL_FACE);
 
   //Both the front and back materials track the current color
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -145,7 +174,18 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Blend colors using the alpha channel
   glShadeModel(GL_SMOOTH);
 
-  glEnable(GL_CULL_FACE);//Speed rendering by culling faces (only slight speedup)
+  //Shadow map initialisation
+  if (_shadows)
+    {
+      glGenTextures(1, &_shadowMapTexture);
+      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
+      glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _shadowMapSize, _shadowMapSize, 0,
+		    GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    }
 
   //Setup the viewport
   CallBackReshapeFunc(_width, _height);
@@ -153,25 +193,22 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
 
   //Light our scene!
   glEnable(GL_LIGHTING);
-  //glEnable(GL_NORMALIZE); //Make OpenGL normalize lighting vectors for us
   glEnable(GL_LIGHT0);   
 
   //Light number one
-  GLfloat light0_diffuse[] = {1.0, 1.0, 1.0, 1.0}; 
-  GLfloat light0_ambient[] = {0.3, 0.3, 0.3, 1.0}; 
-  GLfloat specular[] = {0.0, 0.0, 0.0, 1.0};
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
- 
+  //Position is set in the CameraSetup!
   //Ambient lighting
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
+  _light0 = lightInfo(Vector(0,0,0), Vector(0,0,-1), GL_LIGHT0);
+  
   //GLfloat specReflection[] = { 1.0f, 0.0f, 0.0f, 1.0f };
   //GLfloat specShininess[] = { 100.0f };
+  //GLfloat specular[] = {0.0, 0.0, 0.0, 1.0};
   //glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
   //glMaterialfv(GL_FRONT, GL_SHININESS, specShininess);
+  //glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
@@ -289,19 +326,143 @@ void CLGLWindow::CallBackDisplayFunc(void)
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->clTick(_clcmdq, _clcontext);
 
-  //Prepare for the GL render
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   //Camera Positioning
   CameraSetup();
 
   //Flush the OpenCL queue, so GL can use the buffers
   _clcmdq.finish();
   
-  //Enter the render ticks for all objects
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-       iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->glRender();
+  //Prepare for the GL render
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  //If shadows are enabled, we must draw first from the lights perspective
+  if (_shadows)
+    {
+//      VECTOR4D white(1,1,1,1);
+//      glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.3f);
+//      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.3f);
+//
+//      ////Store the camera matrices and load the light's
+//      glMatrixMode(GL_PROJECTION);
+//      glPushMatrix();
+//      glLoadMatrixf(_light0._projectionMatrix);
+//      
+//      glMatrixMode(GL_MODELVIEW);
+//      glPushMatrix();
+//      glLoadMatrixf(_light0._viewMatrix);
+//      //glTranslatef(-_viewPortInfo._cameraX,-_viewPortInfo._cameraY,-_viewPortInfo._cameraZ);
+//
+//      //Now render the scene from the lights perspective
+//      //The viewport should change to the shadow maps size
+//      glViewport(0, 0, _shadowMapSize, _shadowMapSize);
+//
+//      //Draw back faces into the shadow map
+//      glCullFace(GL_FRONT);
+//      
+//      //Disable color writes, and use flat shading for speed
+//      glShadeModel(GL_FLAT);
+//      glColorMask(0, 0, 0, 0);
+//      
+//      //Render the scene
+//      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+//	   iPtr != RenderObjects.end(); ++iPtr)
+//	(*iPtr)->glRender();
+//
+//      //Copy the shadow texture
+//      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
+//      glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _shadowMapSize, _shadowMapSize);
+//
+//      glCullFace(GL_BACK);
+//      glShadeModel(GL_SMOOTH);
+//      glColorMask(1, 1, 1, 1);
+//      
+//      //Restore the viewport
+//      glViewport(0, 0, _width,_height);
+//      
+//      ////Restore the Camera matricies
+//      glMatrixMode(GL_PROJECTION);
+//      glPopMatrix();
+//      
+//      glMatrixMode(GL_MODELVIEW);
+//      glPopMatrix();
+
+      //////////////////Pass 2//////////////////
+      //Only clear the depth buffer, the color buffer is already clear
+      glClear(GL_DEPTH_BUFFER_BIT); 
+
+      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+	   iPtr != RenderObjects.end(); ++iPtr)
+	(*iPtr)->glRender();
+      
+//      //////////////////Pass 3//////////////////
+//      //Setup a bright light
+//      glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
+//      glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+//
+//      //Now setup the texgen matrix
+//      static MATRIX4X4 biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
+//				  0.0f, 0.5f, 0.0f, 0.0f,
+//				  0.0f, 0.0f, 0.5f, 0.0f,
+//				  0.5f, 0.5f, 0.5f, 1.0f); //bias from [-1, 1] to [0, 1]
+//
+//      MATRIX4X4 textureMatrix = biasMatrix 
+//	* _light0._projectionMatrix * _light0._viewMatrix;
+//      
+//      //Set up texture coordinate generation.
+//      glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+//      glTexGenfv(GL_S, GL_EYE_PLANE, textureMatrix.GetRow(0));
+//      glEnable(GL_TEXTURE_GEN_S);
+//      
+//      glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+//      glTexGenfv(GL_T, GL_EYE_PLANE, textureMatrix.GetRow(1));
+//      glEnable(GL_TEXTURE_GEN_T);
+//      
+//      glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+//      glTexGenfv(GL_R, GL_EYE_PLANE, textureMatrix.GetRow(2));
+//      glEnable(GL_TEXTURE_GEN_R);
+//      
+//      glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+//      glTexGenfv(GL_Q, GL_EYE_PLANE, textureMatrix.GetRow(3));
+//      glEnable(GL_TEXTURE_GEN_Q);
+//
+//      //Bind & enable shadow map texture
+//      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
+//      glEnable(GL_TEXTURE_2D);
+//      
+//      //Enable shadow comparison
+//      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+//      
+//      //Shadow comparison should be true (ie not in shadow) if r<=texture
+//      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+//      
+//      //Shadow comparison should generate an INTENSITY result
+//      glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
+//      
+//      //Set alpha test to discard false comparisons
+//      glAlphaFunc(GL_GEQUAL, 0.99f);
+//      glEnable(GL_ALPHA_TEST);
+//      
+//      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+//	   iPtr != RenderObjects.end(); ++iPtr)
+//	(*iPtr)->glRender();
+//      
+//      //Disable textures and texgen
+//      glDisable(GL_TEXTURE_2D);
+//      
+//      glDisable(GL_TEXTURE_GEN_S);
+//      glDisable(GL_TEXTURE_GEN_T);
+//      glDisable(GL_TEXTURE_GEN_R);
+//      glDisable(GL_TEXTURE_GEN_Q);
+//      
+//      //Restore other states
+//      glDisable(GL_ALPHA_TEST);
+    }
+  else
+    //Enter the render ticks for all objects
+    for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+	 iPtr != RenderObjects.end(); ++iPtr)
+      (*iPtr)->glRender();
+
 
   drawAxis();
   
