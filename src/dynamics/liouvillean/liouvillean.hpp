@@ -286,6 +286,17 @@ public:
 				    const Particle& p1, const Particle& p2
 				    ) const;
 
+  /*! \brief Tests if and when a point will collide with a pair of
+   * oscillating walls, which are parallel and facing inwards to a centre point
+   *
+   * \param np1 the particle or point.
+   * \param nrw0 The centre point of the plates motion.
+   * \param nhat The wall normal vector in the direction of the plates motion.
+   * \param Delta The current magnitude of the plates oscillation.
+   * \param Omega The frequency of the plates oscillation.
+   * \param Sigma The distance between the centre point and each wall.
+   * \return Wether the event will occur or not.
+   */    
   virtual Iflt getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				      const Vector& nhat, const Iflt& Delta,
 				      const Iflt& Omega, const Iflt& Sigma,
