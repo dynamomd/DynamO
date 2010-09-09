@@ -79,6 +79,32 @@ CSComplex::initialise()
 }
 
 void 
+CSComplex::rebuildList()
+{
+#ifdef DYNAMO_DEBUG
+  initialise();
+#else
+  BOOST_FOREACH(ClonePtr<CSCEntry>& ent, entries)
+    ent->initialise();
+
+  sorter->clear();
+
+  //The plus one is because system events are stored in the last heap;
+  sorter->resize(Sim->N+1);
+  eventCount.clear();
+  eventCount.resize(Sim->N+1, 0);
+
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    addEventsInit(part);
+  
+  sorter->rebuild();
+
+  rebuildSystemEvents();
+#endif
+}
+
+
+void 
 CSComplex::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "Complex"

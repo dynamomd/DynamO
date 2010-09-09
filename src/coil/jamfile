@@ -1,0 +1,16 @@
+lib glut : : <link>shared ;
+lib GLU  : : <link>shared ;
+lib GL   : : <link>shared ;
+lib Xmu  : : <link>shared ;
+lib Xext : : <link>shared ;
+lib X11  : : <link>shared ;
+lib rt   : : <link>shared ;
+lib GLEW : : <link>shared ;
+
+lib coil : [ glob-tree *.cpp ]
+      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
+    : 
+    : : <define>GLVIEWER <include>.
+    ;
+
+alias test : ;

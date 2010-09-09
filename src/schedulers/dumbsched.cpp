@@ -70,6 +70,27 @@ CSDumb::initialise()
 }
 
 void 
+CSDumb::rebuildList()
+{
+#ifdef DYNAMO_DEBUG
+  initialise();
+#else
+  sorter->clear();
+  sorter->resize(Sim->N+1);
+  eventCount.clear();
+  eventCount.resize(Sim->N+1, 0);
+  
+  //Now initialise the interactions
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    addEvents(part);
+  
+  sorter->rebuild();
+  rebuildSystemEvents();
+#endif
+}
+
+
+void 
 CSDumb::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "Dumb"

@@ -1027,7 +1027,9 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   //Must be careful with collisions at the end of the interval
   t_high *= 1.01;
   
-  Iflt root1 = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
+  std::pair<bool,Iflt> root1 
+    = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
+
   fL.flipSigma();
 
   if (fL.F_zeroDeriv() < 0)
@@ -1046,11 +1048,12 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 #endif
     }
 
-  Iflt root2 = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
+  std::pair<bool,Iflt> root2 
+    = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
   
   if ((fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma)
-      || (((root1 == HUGE_VAL) && (root2 == HUGE_VAL)) 
+      || (((!root1.first) && (!root2.first))
 	  || ((t_low1 > t_high) && (t_low2 > t_high))))
     {
       //This can be a problem
@@ -1060,8 +1063,10 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	       << "\nerror = "
 	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
 	/ Sim->dynamics.units().unitLength()
-	       << "\n Root1 = " << root1 / Sim->dynamics.units().unitTime()
-	       << "\n Root2 = " << root2 / Sim->dynamics.units().unitTime();
+	       << "\n Root1 = " 
+	       << root1.second / Sim->dynamics.units().unitTime()
+	       << "\n Root2 = " 
+	       << root2.second / Sim->dynamics.units().unitTime();
 #endif
       
       //If the particle is going out of bounds, collide now
@@ -1100,8 +1105,8 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 		     << "\nt_low1 = " << t_low1
 		     << "\nt_low2 = " << t_low2
 		     << "\nt_high = " << t_high
-		     << "\nroot1 = " << root1
-		     << "\nroot2 = " << root2
+		     << "\nroot1 = " << root1.second
+		     << "\nroot2 = " << root2.second
 		     << "\nf1(0) = " << fl01
 		     << "\nf1(t_low1) = " << flt_low1
 		     << "\nf1(t_high) = " << flt_high1
@@ -1129,7 +1134,13 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	  //The particle and plate are approaching but might not be
 	  //before the overlap is fixed, schedule another test later
 	  //on
-	  Iflt currRoot = (root1 < root2) ? root1 : root2;
+	  Iflt currRoot = HUGE_VAL;
+
+	  if (root1.first)
+	    currRoot = root1.second;
+
+	  if (root2.first && (currRoot > root2.second))
+	    currRoot = root2.second;
 	  //
 	  Iflt tmpt = fabs(surfaceVel - fL.velnHatWall());
 	  //This next line sets what the recoil velocity should be
@@ -1147,7 +1158,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	}
     }
 
-  return (root1 < root2) ? root1 : root2;
+  return (root1.second < root2.second) ? root1.second : root2.second;
 }
 
 ParticleEventData 

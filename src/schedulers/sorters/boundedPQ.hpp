@@ -151,56 +151,63 @@ public:
 
   void init()
   {
-    Iflt minVal(HUGE_VAL), maxVal(-HUGE_VAL);
-    size_t counter(0);
-
-    try {
-      //Determine nlists and scale by instrumenting the queue
-      //We make a bounded queue of length N
-      //With a date length of the mean time between events
-
-      BOOST_FOREACH(const eventQEntry& dat, Min)
-	if (dat.data.getdt() != HUGE_VAL)
-	  {
-	    if (dat.data.getdt() < minVal) minVal = dat.data.getdt();
-	    if (dat.data.getdt() > maxVal) maxVal = dat.data.getdt();
-	    ++counter;
-	  }
-      
-     if (counter < 2)
-       {
-	  //Something is peculiar about the system
-	  std::cerr << IC_red << 
-	    "BOUNDEDPQ: The event queue doesn't have more than 2 VALID events in it"
-	    "\nBOUNDEDPQ: This means the queue cannot be instrumented to"
-	    "\nBOUNDEDPQ: determine the settings for the bounded queue, just"
-	    "\nBOUNDEDPQ: using something that hopes the events in sim time"
-	    "\nBOUNDEDPQ: arent close to 10000\n"
-		    << IC_reset;
-	  
-	  init(10, 1000);
-	}
-      else
-	{
-	  if (maxVal < 0 ) D_throw() << "Queue filled with negative events";
-
-	  init(counter / (maxVal - minVal), Min.size());
-	}
-    }
-    catch (std::exception& excep)
-      {
-	D_throw() << "Failure in boundedPQ init()"
-		  << "\nminVal = " << minVal
-		  << "\nmaxVal = " << maxVal
-		  << "\ncounter = " << counter
-		  << "\n" << excep.what();
-      }
+    init(false);
   }
 
-  void init(const Iflt tmpScale, const int tmpnlists)
+  void rebuild()
   {
-    scale = tmpScale; 
-    nlists = tmpnlists;
+    init(true);
+  }
+
+  void init(bool quiet)
+  {
+      {
+	Iflt minVal(HUGE_VAL), maxVal(-HUGE_VAL);
+	size_t counter(0);
+	
+	try {
+	  //Determine nlists and scale by instrumenting the queue
+	  //We make a bounded queue of length N
+	  //With a date length of the mean time between events
+	  
+	  BOOST_FOREACH(const eventQEntry& dat, Min)
+	    if (dat.data.getdt() != HUGE_VAL)
+	      {
+		if (dat.data.getdt() < minVal) minVal = dat.data.getdt();
+		if (dat.data.getdt() > maxVal) maxVal = dat.data.getdt();
+		++counter;
+	      }
+	  
+	  if (counter < 2)
+	    {
+	      //Something is peculiar about the system
+	      I_cerr() <<
+		"The event queue doesn't have more than 2 VALID events in it"
+		"\nThis means the queue cannot be instrumented to"
+		"\ndetermine the settings for the bounded queue, just"
+		"\nusing something that hopes the events in sim time"
+		"\narent close to 10000";
+	      scale = 10;
+	      nlists = 1000;
+	    }
+	  else
+	    {
+	      if (maxVal < 0 ) D_throw() << "Queue filled with negative events";
+	      
+	      scale = counter / (maxVal - minVal);
+	      nlists = Min.size();
+	    }
+	}
+	catch (std::exception& excep)
+	  {
+	    D_throw() << "Failure in boundedPQ init()"
+		      << "\nminVal = " << minVal
+		      << "\nmaxVal = " << maxVal
+		      << "\ncounter = " << counter
+		      << "\n" << excep.what();
+	  }
+      }
+
     listWidth = nlists / scale;
     if (scale == HUGE_VAL)
       D_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
@@ -210,31 +217,41 @@ public:
 
     if (nlists == 0)
       {
-	I_cout() << "nlists = 0!\n"
+	I_cerr() << "nlists = 0!\n"
 		 << "This is a BAD thing, unless NCells = NParticles and "
 	  "they're in a perfect crystal, if it happens again after the "
 	  "preliminary run its certainly a bug";
 	nlists = 1000;
       }
 
-    I_cout() << "Length of linear list = " << nlists;
-    I_cout() << "Scale factor = " << scale * Sim->dynamics.units().unitTime();
+    if (!quiet)
+      I_cout() << "Length of linear list = " << nlists
+	       << "Scale factor = " << scale * Sim->dynamics.units().unitTime();
+
     linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					marking empty*/ 
 
-    I_cout() << "Sorting all events, please wait...";
-    std::cout.flush();
+    if (!quiet)
+      {
+	I_cout() << "Sorting all events, please wait...";
+	I_cout().getStream().flush();
+      }
 
     //Now insert all of the events!
     for (unsigned long i = 1; i <= N; i++)
       insertInEventQ(i);
 
-    I_cout() << "Finding first event...";
-    std::cout.flush();
+  
+    if (!quiet)
+      {
+	I_cout() << "Finding first event...";
+	I_cout().getStream().flush();
+      }
+    
     //Find the next event and place it first so nextEventID() works
     orderNextEvent();
-    I_cout() << "Ready for simulation.";
-    std::cout.flush();
+    if (!quiet)
+      I_cout() << "Ready for simulation.";
   }
 
   inline void push(const intPart& tmpVal, const size_t& pID)

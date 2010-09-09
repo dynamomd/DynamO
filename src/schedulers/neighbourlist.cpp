@@ -62,7 +62,7 @@ CSNeighbourList::initialise()
     (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
     .markAsUsedInScheduler();
 
-  I_cout() << "Rebuilding all events on collision " << Sim->eventCount;
+  I_cout() << "Building all events on collision " << Sim->eventCount;
   std::cout.flush();
 
   sorter->clear();
@@ -85,6 +85,27 @@ CSNeighbourList::initialise()
   sorter->init();
 
   rebuildSystemEvents();
+}
+
+void 
+CSNeighbourList::rebuildList()
+{ 
+#ifdef DYNAMO_DEBUG
+  initialise();
+#else
+  sorter->clear();
+  //The plus one is because system events are stored in the last heap;
+  sorter->resize(Sim->N+1);
+  eventCount.clear();
+  eventCount.resize(Sim->N+1, 0);
+
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    addEventsInit(part);
+  
+  sorter->rebuild();
+  
+  rebuildSystemEvents();
+#endif
 }
 
 void 

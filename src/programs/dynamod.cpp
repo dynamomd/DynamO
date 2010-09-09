@@ -34,7 +34,6 @@ namespace po = boost::program_options;
 #include "../src/inputplugins/include.hpp"
 #include "../src/outputplugins/0partproperty/XMLconfig.hpp"
 #include "../src/datatypes/complex.hpp"
-
 Simulation sim;
 
 int
@@ -44,7 +43,8 @@ main(int argc, char *argv[])
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
-	    << "the code\n\n";
+	    << "the code\n"
+	       "Git Checkout Hash " << GITHASH << "\n\n";
   ////////////////////////PROGRAM OPTIONS!!!!!!!!!!!!!!!!!!!!!!!
   try 
     {
@@ -197,6 +197,7 @@ main(int argc, char *argv[])
       sim.getHistory() << "\nconfigmod run as so\n";
       for (int i = 0; i< argc; i++)
 	sim.getHistory() << argv[i] << " ";
+      sim.getHistory() << "\nGIT hash " << GITHASH;
       cout << "\nWriting out configuration";
       sim.writeXMLfile(vm["out-config-file"].as<string>().c_str(), 
 		       vm.count("round"), vm.count("uncompressed"));

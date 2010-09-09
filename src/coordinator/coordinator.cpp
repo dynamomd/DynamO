@@ -128,7 +128,7 @@ Coordinator::parseOptions(int argc, char *argv[])
 
   if (vm.count("help") || (argc==1)) 
     {
-      std::cout << "Usage : mdrun <OPTION>...<config-file(s)>\n"
+      std::cout << "Usage : dynarun <OPTION>...<config-file(s)>\n"
 		<< "Initialises a configuration or loads a previous "
 		<< "configuration, then calculates or loads the " 
 		<< "trajectory and outputs data\n"

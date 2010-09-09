@@ -104,11 +104,11 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   if(dtw.second < t_high)
     t_high = dtw.second;
   
-  Iflt root = frenkelRootSearch(fL, length, t_low, t_high);
+  std::pair<bool,Iflt> root = frenkelRootSearch(fL, length, t_low, t_high);
 
-  if (root != HUGE_VAL) 
+  if (root.first) 
     { 
-      PD.dt = root; 
+      PD.dt = root.second;
       return true; 
     }
   else 

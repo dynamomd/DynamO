@@ -29,12 +29,20 @@ path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 import dynamo-tags ;
 
+rule trim-nl ( str )
+{
+   return [ MATCH "([^
+]*)" : $(str) ] ;
+}
+
+local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
+
 project	: requirements
 	  <define>DYNAMO_double_precsision
 	  <color>yes:<define>DYNAMO_Colour
-	  <link>static
 	  <condor>no
 	  <color>yes
+	  <define>GITHASH=\\\"$(githash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <condor>yes:<define>DYNAMO_CONDOR
@@ -65,26 +73,35 @@ variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG ;
 #<define>_GLIBXX_DEBUG_PEDANTIC <define>_GLIBCXX_DEBUG_PEDANTIC  <define>_GLIBCXX_CONCEPT_CHECKS <define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG <define>_GLIBCPP_CONCEPT_CHECKS
 exe dynareplex_opt 
     : src/programs/dynareplex_opt.cpp boost//program_options
+    : <link>static
     ;
 
 exe dynahist_rw 
     : src/programs/dynahist_rw.cpp src//dynamo_core 
+    : <link>static
     ;
 
 exe dynarun 
     : src/programs/dynarun.cpp src//dynamo_core
+    : <link>static 
     ;
 
 exe dynamod 
     : src/programs/dynamod.cpp src//dynamo_core
+    : <link>static 
     ;
 
-exe threadpool_test 
-    : test/src/threadpool_test.cpp src//dynamo_core
+#exe threadpool_test 
+#    : test/src/threadpool_test.cpp src//dynamo_core
+#    : 
+#    ;
+
+exe gl_test 
+    : test/src/glviewer_test.cpp src/coil//coil/<link>static
     ;
 
 install install-test
-	: threadpool_test
+	: gl_test 
 	: <location>test
 	;
 
@@ -100,6 +117,6 @@ install install-bin
 
 alias install : install-bin ;
 
-alias test : install-test ;
-
 explicit install install-bin ;
+
+alias test : src/magnet//test src/coil//test src//test ;

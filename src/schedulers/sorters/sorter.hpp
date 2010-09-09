@@ -31,6 +31,8 @@ public:
   virtual void   resize(const size_t&)                     = 0;
   virtual void   clear()                                   = 0;
   virtual void   init()                                    = 0;
+  //A slient version of init
+  virtual void   rebuild()                                 = 0;
   virtual void   stream(const Iflt&)                       = 0;
   virtual void   push(const intPart&, const size_t&)       = 0;
   virtual void   update(const size_t&)                     = 0;

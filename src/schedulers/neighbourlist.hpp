@@ -27,7 +27,7 @@ public:
 
   CSNeighbourList(DYNAMO::SimData* const, CSSorter*);
 
-  virtual void rebuildList() { initialise(); }
+  virtual void rebuildList();
 
   virtual void initialise();
 

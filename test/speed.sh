@@ -5,13 +5,13 @@ dynarun="/home/mjki2mb2/dynamo/bin/dynarun"
 NUMRUN=4
 NCOLL=10000000
 
-for elas in 0.4 0.5 0.6 0.7 0.8 0.9 1.0; do
+for elas in 1.0; do # 0.4 0.5 0.6 0.7 0.8 0.9 
     for dens in 0.5; do
 	#> dens$dens.dat
-	for C in  30 ; do #5 6 7 8 9 10 15 20 25 30 40 50 100 125 150 160 175
+	for C in  5 6 7 8 9 10 15 20 25 30 40 50 100 125 150 160 175 ; do 
 	    > speedvals
 	    > memvals
-	    $dynamod -m 0 -d $dens -C $C --f1 $elas --i2 2000000
+	    $dynamod -m 0 -d $dens -C $C --f1 $elas #--i2 2000000
 	    
 	    for i in $(seq 0 $NUMRUN); do
 		echo -n "Running test $i for $C cells, $elas elasticity, and $dens density...."
@@ -27,9 +27,9 @@ for elas in 0.4 0.5 0.6 0.7 0.8 0.9 1.0; do
 	    
 	    > speedvals
 	    > memvals
-	    $dynamod -m 0 -d $dens --b2 -C $C --f1 $elas --i2 2000000
+
+	    $dynamod -m 0 -d $dens --b2 -C $C --f1 $elas #--i2 2000000
 	    
-	    mv config.tmp.xml.bz2 config.out.xml.bz2
 	    for i in $(seq 0 $NUMRUN); do
 		echo -n "Running test $i for $C cells, $elas elasticity, and $dens density...."
 		val=$($dynarun config.out.xml.bz2 -c $NCOLL | grep "Avg Coll" | gawk '{print $4}')

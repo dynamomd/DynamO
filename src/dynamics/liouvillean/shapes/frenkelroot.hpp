@@ -20,8 +20,8 @@
 #include "../../../extcode/mathtemplates.hpp"
 
 template<class T>
-Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
-		    const Iflt& tolerance)
+std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
+				    const Iflt& tolerance)
 {
   Iflt working_time = t_low;
   Iflt timescale = tolerance * length / fL.F_firstDeriv_max(length);
@@ -34,7 +34,7 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
       //Always try again from the other side
       fwdWorking = !fwdWorking;
 
-      if(++w > 10000)
+      if(++w > 1000)
       {
 	std::cerr << "\nThe Frenkel rootfinder is converging too slowly."
 	  << "\nt_low = " << t_low << ", t_high = " << t_high;
@@ -42,13 +42,13 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
 	if(fabs(t_high - t_low) < timescale)
 	{
 	  std::cerr << "\nThe gap is small enough to consider the root solved at t_low";
-	  return t_low;
+	  return std::pair<bool,Iflt>(true, t_low);
 	}
 	else
 	{
 	  std::cerr << "\nThe gap is too large and is converging too slowly."
-	    << "\n This rootfinding attempt will be aborted and the collision skipped.";
-	  return HUGE_VAL;
+	    << "\n This rootfinding attempt will be aborted and a fake collision returned.";
+	  return std::pair<bool,Iflt>(false, t_low);
 	}
       }
 
@@ -103,11 +103,11 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
 	    break;
 
 	  if(fabs(deltaT) <  timescale)
-	    return working_time + deltaT;
+	    return std::pair<bool,Iflt>(true, working_time + deltaT);
 	}
     }
 
-  return HUGE_VAL;
+  return std::pair<bool,Iflt>(false, HUGE_VAL);
 }
 
   /* \brief For line line collisions, determines intersections of the infinite lines
@@ -124,51 +124,61 @@ Iflt quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
   **    - If root is invalid, set new concrete t_low just above this found root and go from the top
   */
 template<class T>
-Iflt frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high,
-		       Iflt tol = 1e-10)
+std::pair<bool,Iflt> frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high,
+				       Iflt tol = 1e-10)
 {
-  Iflt root = 0.0;
+  std::pair<bool,Iflt> root(false,HUGE_VAL);
 
   while(t_high > t_low)
     {
       root = quadRootHunter<T>(fL, length, t_low, t_high, tol);
 
-      if (root == HUGE_VAL) return HUGE_VAL;
+      //If no root was found, return the lower bound on the root
+      if (root.first == false) return root;
 
+      //We found a root, now check for earlier roots
       Iflt temp_high = t_high;
-
       do {
-	// Artificial boundary just below root
+	//Start a search, stream the function to the root
 	T tempfL(fL);
-	tempfL.stream(root);
-
+	tempfL.stream(root.second);
+	//Calculate the offset for the upper bound
 	Iflt Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
+	temp_high = root.second - (fabs(2.0 * tempfL.F_firstDeriv())
+				   / Fdoubleprimemax);
 
-	temp_high = root - (fabs(2.0 * tempfL.F_firstDeriv())
-			    / Fdoubleprimemax);
-
+	//Now check if the upper bound is below the lower bound.
+	//If so, the current root is the earliest.
 	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
 
-	Iflt temp_root = quadRootHunter<T>(fL, length, t_low, temp_high, tol);
+	//Search for a root in the new interval
+	std::pair<bool,Iflt> temp_root = quadRootHunter<T>(fL, length, t_low, temp_high, tol);
 
-	if (temp_root == HUGE_VAL)
+	//If there is no root, then the current root is fine
+	if (!temp_root.first)
 	  break;
-	else
-	    root = temp_root;
+	
+	//Otherwise, use the new root as the earliest one so far
+	root = temp_root;
 
       } while(temp_high > t_low);
 
       // At this point $root contains earliest valid root guess.
       // Check root validity.
       T tempfL(fL);
-      tempfL.stream(root);
+      tempfL.stream(root.second);
 
       if (tempfL.test_root(length))
         return root;
-      else
-        t_low = root + ((2.0 * fabs(tempfL.F_firstDeriv()))
-			/ tempfL.F_secondDeriv_max(length));
+
+      //The root was not valid, set the lower bound to the current root value
+      t_low = root.second + ((2.0 * fabs(tempfL.F_firstDeriv()))
+			     / tempfL.F_secondDeriv_max(length));
+
+      //Now invalidate the current root
+      root.first = false;
+      root.second = HUGE_VAL;
     }
 
-  return HUGE_VAL;
+  return root;
 }
