@@ -77,6 +77,9 @@ protected:
   mutable ClonePtr<CSSorter> sorter;
   mutable std::vector<unsigned long> eventCount;
   
+  size_t _interactionRejectionCounter;
+  size_t _localRejectionCounter;
+
   virtual void outputXML(xml::XmlStream&) const = 0;
 };
 

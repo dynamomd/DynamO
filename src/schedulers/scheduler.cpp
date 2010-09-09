@@ -36,7 +36,9 @@
 CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
 		       CSSorter* nS):
   SimBase(tmp, aName, IC_purple),
-  sorter(nS)
+  sorter(nS),
+  _interactionRejectionCounter(0),
+  _localRejectionCounter(0)
 {}
 
 CScheduler::~CScheduler()
@@ -160,6 +162,8 @@ CScheduler::runNextEvent()
 	      << "\nID2 = " << sorter->next_p2();
 #endif  
   
+  const size_t rejectionLimit = 10;
+
   switch (sorter->next_type())
     {
     case INTERACTION:
@@ -176,7 +180,7 @@ CScheduler::runNextEvent()
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
 	IntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
-	if (Event.getdt() > sorter->next_dt())
+	if ((Event.getdt() > sorter->next_dt()) && (++_interactionRejectionCounter < rejectionLimit))
 	  {
 	    //The next FEL event is earlier than the recalculated event
 	    //Grab the next event ID's
@@ -199,7 +203,10 @@ CScheduler::runNextEvent()
 	      }
 	    //It's just another version of this event so we can execute it
 	  }
-
+	
+	//Reset the rejection watchdog, we will run an interaction event now
+	_interactionRejectionCounter = 0;
+	
 	if (Event.getType() == NONE)
 	  {
 #ifdef DYNAMO_DEBUG
@@ -285,8 +292,10 @@ CScheduler::runNextEvent()
 	    this->fullUpdate(part);
 	    return;
 	  }
+	
+	Iflt next_dt = sorter->next_dt();
 
-	if (iEvent.getdt() > sorter->next_dt())
+	if ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit))
 	  {
 #ifdef DYNAMO_DEBUG 
 	    I_cerr() << "Recalculated LOCAL event time is greater than the next event time, recalculating";
@@ -294,6 +303,8 @@ CScheduler::runNextEvent()
 	    this->fullUpdate(part);
 	    return;
 	  }
+
+	_localRejectionCounter = 0;
 
 #ifdef DYNAMO_DEBUG 
 	if (isnan(iEvent.getdt()))
