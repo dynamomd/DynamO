@@ -168,8 +168,8 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL); //and enable it
 
-  glEnable(GL_BLEND); //Enable blending
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Blend colors using the alpha channel
+
   glShadeModel(GL_SMOOTH);
 
   //Shadow map initialisation
@@ -179,8 +179,8 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _shadowMapSize, _shadowMapSize, 0,
 		    GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     }
@@ -367,10 +367,10 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Disable color writes, and use flat shading for speed
       glShadeModel(GL_FLAT);
       glColorMask(0, 0, 0, 0);
-      
+            
       //Render the scene
       drawScene();
-
+      
       //Copy the shadow texture
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _shadowMapSize, _shadowMapSize);
@@ -541,6 +541,8 @@ void CLGLWindow::drawAxis()
   
   glTranslatef (0, 0, -(nearPlane + axisScale));
 
+  glEnable(GL_BLEND); //Enable blending
+
   glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.7); // Color the axis box a transparent blue
   glBegin(GL_QUADS);		
   glVertex3f(-1,-1, 0);
@@ -548,6 +550,8 @@ void CLGLWindow::drawAxis()
   glVertex3f( 1, 1, 0);
   glVertex3f(-1, 1, 0);
   glEnd();
+
+  glDisable(GL_BLEND); //Turn blending back off
 
   glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
   glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
