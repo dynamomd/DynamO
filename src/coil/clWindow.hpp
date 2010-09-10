@@ -87,7 +87,7 @@ public:
       _fovY(45),
       _aspectRatio(1),
       _zNearDist(0.0001),
-      _zFarDist(5)
+      _zFarDist(10)
     {}
 
     float _rotatex;

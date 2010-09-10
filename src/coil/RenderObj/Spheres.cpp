@@ -63,7 +63,7 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
 						       CL_MAP_WRITE, 0, 
 						       _N * sizeof(cl_float4));
 
-    const float density = 0.9;
+    const float density = 0.1;
 
     cl_float particleDiam = std::pow(1 * density / _N, float(1.0 / 3.0));
     

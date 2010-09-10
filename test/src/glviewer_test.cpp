@@ -26,7 +26,9 @@ int main(int argc, char** argv)
 
     //Shadow testing
 //    size_t N = 10 * 1024;
-//    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 2, 100));
+//    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 2, 1024));
+//    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 1024));
+//    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, N-2048));
 
     //Work computer test render
     size_t N = 1024 * 1000;

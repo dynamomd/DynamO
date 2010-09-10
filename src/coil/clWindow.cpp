@@ -345,8 +345,8 @@ void CLGLWindow::CallBackDisplayFunc(void)
   if (_shadows)
     {
       VECTOR4D white(1,1,1,1);
-      glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.3f);
-      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.3f);
+      glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.5f);
+      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.2f);
 
       ////Store the camera matrices and load the light's
       glMatrixMode(GL_PROJECTION);
