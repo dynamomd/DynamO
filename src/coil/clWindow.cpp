@@ -320,12 +320,11 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
   const float rotateSpeed = 1000;
-  _light0 = lightInfo(Vector(0.0f, 1.0f, 0.0f) 
-		      + Vector(0.7 * std::cos(_currFrameTime/rotateSpeed), 
-			       0.0f, 
-			       0.7 * std::sin(_currFrameTime/rotateSpeed)), 
-		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0,
-		      45.0f, 3, 0.01f);
+  _light0 = lightInfo(Vector(2.0f * std::cos(_currFrameTime/rotateSpeed), 
+			     2.0f, 
+			     2.0f * std::sin(_currFrameTime/rotateSpeed)), 
+		      Vector(0.0f, 0.5f, 0.0f), GL_LIGHT0,
+		      45.0f, 5, 0.01f);
 
 
   //Run every objects OpenCL stage
@@ -414,18 +413,19 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Set up texture coordinate generation.
       glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
       glTexGenfv(GL_S, GL_EYE_PLANE, textureMatrix.GetRow(0));
-      glEnable(GL_TEXTURE_GEN_S);
       
       glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
       glTexGenfv(GL_T, GL_EYE_PLANE, textureMatrix.GetRow(1));
-      glEnable(GL_TEXTURE_GEN_T);
       
       glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
       glTexGenfv(GL_R, GL_EYE_PLANE, textureMatrix.GetRow(2));
-      glEnable(GL_TEXTURE_GEN_R);
       
       glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
       glTexGenfv(GL_Q, GL_EYE_PLANE, textureMatrix.GetRow(3));
+
+      glEnable(GL_TEXTURE_GEN_S);
+      glEnable(GL_TEXTURE_GEN_T);
+      glEnable(GL_TEXTURE_GEN_R);
       glEnable(GL_TEXTURE_GEN_Q);
 
       //Bind & enable shadow map texture
@@ -508,14 +508,9 @@ CLGLWindow::drawScene()
   //Draw a ground
   glColor3f(1,1,1);
   glPushMatrix();
-  glTranslatef(0.0f,0.5f,0.0f);
-
-  //The teapot is a mess
-  //glFrontFace(GL_CW);
-  //glutSolidTeapot(0.1f);
-  //glFrontFace(GL_CCW);
-
-  glutSolidTorus(0.04,0.2,100,100);
+  glTranslatef(0.0f,-0.6f,0.0f);
+  glScalef(4.0f, 0.01f, 4.0f);
+  glutSolidCube(1.0);
 
   glPopMatrix();
 
