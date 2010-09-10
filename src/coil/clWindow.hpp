@@ -87,7 +87,7 @@ public:
       _fovY(45),
       _aspectRatio(1),
       _zNearDist(0.0001),
-      _zFarDist(3)
+      _zFarDist(5)
     {}
 
     float _rotatex;
@@ -111,7 +111,9 @@ public:
   {
     lightInfo() {}
 
-    lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle):
+    lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle, 
+	      GLfloat beamAngle = 45.0f,
+	      GLfloat rangeMax = 2.0f, GLfloat rangeMin = 0.001):
       _position(position),
       _lookAtPoint(lookAtPoint),
       _lightHandle(lightHandle)
@@ -120,7 +122,7 @@ public:
       glPushMatrix();
 
       glLoadIdentity();
-      gluPerspective(45.0f, 1.0f, 0.0001f, 2.0f);
+      gluPerspective(beamAngle, 1.0f, rangeMin, rangeMax);
       glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
 
       glLoadIdentity();
@@ -179,6 +181,8 @@ private:
   void initOpenCL();
 
   void drawAxis();
+
+  void drawScene();
 
   enum KeyStateType
     {

@@ -109,10 +109,6 @@ CLGLWindow::CameraSetup()
 
   _viewPortInfo._cameraDirection =  viewTransform * Vector(0,0,-1);
   _viewPortInfo._cameraUp = viewTransform * Vector(0,1,0);
-
-  //Move the world lights
-  GLfloat light0_position[] = {0.0f, 1.0f, 0.0f, 0.0f};
-  glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 }
 
 
@@ -152,7 +148,7 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
     }
    
   //Now begins the example
-  glClearColor(0.8,0.8,0.8,1.0);
+  glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 
   glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
@@ -165,6 +161,8 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
 
   //We need to cull for shadows
   glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW); //The default
 
   //Both the front and back materials track the current color
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -201,7 +199,7 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
-  _light0 = lightInfo(Vector(0,1,0), Vector(0.0,0.0,0.0), GL_LIGHT0);
+  _light0 = lightInfo(Vector(0.0f, 1.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
   
   GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };
   GLfloat specShininess[] = { 0.0f };
@@ -321,6 +319,15 @@ void CLGLWindow::CallBackDisplayFunc(void)
   //Setup the timings
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
+  const float rotateSpeed = 1000;
+  _light0 = lightInfo(Vector(0.0f, 1.0f, 0.0f) 
+		      + Vector(0.7 * std::cos(_currFrameTime/rotateSpeed), 
+			       0.0f, 
+			       0.7 * std::sin(_currFrameTime/rotateSpeed)), 
+		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0,
+		      45.0f, 3, 0.01f);
+
+
   //Run every objects OpenCL stage
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
@@ -363,14 +370,13 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glColorMask(0, 0, 0, 0);
       
       //Render the scene
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->glRender();
+      drawScene();
 
       //Copy the shadow texture
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _shadowMapSize, _shadowMapSize);
 
+      //Restore the draw mode
       glCullFace(GL_BACK);
       glShadeModel(GL_SMOOTH);
       glColorMask(1, 1, 1, 1);
@@ -389,10 +395,8 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Only clear the depth buffer, the color buffer is already clear
       glClear(GL_DEPTH_BUFFER_BIT); 
 
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->glRender();
-      
+      drawScene();
+
       //////////////////Pass 3//////////////////
       //Setup a bright light
       glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
@@ -440,11 +444,9 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Set alpha test to discard false comparisons
       glAlphaFunc(GL_GEQUAL, 0.99f);
       glEnable(GL_ALPHA_TEST);
-      
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->glRender();
-      
+
+      drawScene();
+
       //Disable textures and texgen
       glDisable(GL_TEXTURE_2D);
       
@@ -457,14 +459,18 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glDisable(GL_ALPHA_TEST);
     }
   else
-    //Enter the render ticks for all objects
-    for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->glRender();
-
+    drawScene();
 
   drawAxis();
-  
+
+  //Draw the light source
+  glColor3f(1,1,0);
+  glPushMatrix();
+  glTranslatef(_light0._position.x, _light0._position.y, _light0._position.z);
+  glutSolidSphere(0.1f, 5, 5);
+  glPopMatrix();
+
+
   //coil::glprimatives::drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1)); 
   //coil::glprimatives::drawArrow(_cameraUp + Vector(-1,0,-1), Vector(-1,0,-1));
  
@@ -486,6 +492,35 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
   _lastFrameTime = _currFrameTime;
 }
+
+void 
+CLGLWindow::drawScene()
+{
+  //Move the world lights
+  GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 0.0f};
+  glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+
+  //Enter the render ticks for all objects
+  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->glRender();
+
+  //Draw a ground
+  glColor3f(1,1,1);
+  glPushMatrix();
+  glTranslatef(0.0f,0.5f,0.0f);
+
+  //The teapot is a mess
+  //glFrontFace(GL_CW);
+  //glutSolidTeapot(0.1f);
+  //glFrontFace(GL_CCW);
+
+  glutSolidTorus(0.04,0.2,100,100);
+
+  glPopMatrix();
+
+}
+
 
 void CLGLWindow::drawAxis()
 {
@@ -521,8 +556,6 @@ void CLGLWindow::drawAxis()
 
   glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
   glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
-  //glRotatef (tip , 1,0,0);
-  //glRotatef (turn, 0,1,0);
   glScalef (axisScale, axisScale, axisScale);
 
   glLineWidth (2.0);
