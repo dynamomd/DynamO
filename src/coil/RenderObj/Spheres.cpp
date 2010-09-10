@@ -233,8 +233,8 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 		     (cl_float)_viewPortInfo._fovY,
 		     _N);
   
-//  if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
-//    sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
+  if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
+    sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
 }
 
 void 
