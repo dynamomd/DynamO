@@ -29,6 +29,8 @@
 #include "RenderObj/RenderObj.hpp"
 #include "Maths/Maths.h"
 
+#include <limits>
+
 class CLGLWindow : public GlutWindow
 {
 public:
@@ -122,11 +124,21 @@ public:
       glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
 
       glLoadIdentity();
-      gluLookAt(position.x, position.y, position.z,
-		lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-		0, 1, 0);
+      Vector directionNorm = (lookAtPoint - position);
+      directionNorm /= directionNorm.nrm();
 
-      glGetFloatv(GL_PROJECTION_MATRIX, _viewMatrix);
+      GLfloat rotationAngle = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | directionNorm);
+
+
+      Vector RotationAxis = Vector(0,0,-1) ^ directionNorm;
+      float norm = RotationAxis.nrm();
+      RotationAxis /= norm;
+      if (norm < std::numeric_limits<double>::epsilon())
+	RotationAxis = Vector(1,0,0);
+
+      glRotatef(-rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
+      glTranslatef(-position.x,-position.y,-position.z);
+      glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
 
       glPopMatrix();
     }

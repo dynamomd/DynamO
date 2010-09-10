@@ -56,7 +56,7 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   _specialKeys(0),
   _hostTransfers(hostTransfers),
   _shadows(false),
-  _shadowMapSize(65536)
+  _shadowMapSize(512)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
   
@@ -201,7 +201,7 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
-  _light0 = lightInfo(Vector(0,0,0), Vector(0,0,-1), GL_LIGHT0);
+  _light0 = lightInfo(Vector(0,1,0), Vector(0.0,0.0,0.0), GL_LIGHT0);
   
   //GLfloat specReflection[] = { 1.0f, 0.0f, 0.0f, 1.0f };
   //GLfloat specShininess[] = { 100.0f };
@@ -343,14 +343,13 @@ void CLGLWindow::CallBackDisplayFunc(void)
 //      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.3f);
 //
 //      ////Store the camera matrices and load the light's
-//      glMatrixMode(GL_PROJECTION);
-//      glPushMatrix();
-//      glLoadMatrixf(_light0._projectionMatrix);
-//      
-//      glMatrixMode(GL_MODELVIEW);
-//      glPushMatrix();
-//      glLoadMatrixf(_light0._viewMatrix);
-//      //glTranslatef(-_viewPortInfo._cameraX,-_viewPortInfo._cameraY,-_viewPortInfo._cameraZ);
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+      glLoadMatrixf(_light0._projectionMatrix);
+      
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+      glLoadMatrixf(_light0._viewMatrix);
 //
 //      //Now render the scene from the lights perspective
 //      //The viewport should change to the shadow maps size
@@ -363,10 +362,10 @@ void CLGLWindow::CallBackDisplayFunc(void)
 //      glShadeModel(GL_FLAT);
 //      glColorMask(0, 0, 0, 0);
 //      
-//      //Render the scene
-//      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-//	   iPtr != RenderObjects.end(); ++iPtr)
-//	(*iPtr)->glRender();
+      //Render the scene
+      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+	   iPtr != RenderObjects.end(); ++iPtr)
+	(*iPtr)->glRender();
 //
 //      //Copy the shadow texture
 //      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
@@ -380,20 +379,20 @@ void CLGLWindow::CallBackDisplayFunc(void)
 //      glViewport(0, 0, _width,_height);
 //      
 //      ////Restore the Camera matricies
-//      glMatrixMode(GL_PROJECTION);
-//      glPopMatrix();
-//      
-//      glMatrixMode(GL_MODELVIEW);
-//      glPopMatrix();
-
-      //////////////////Pass 2//////////////////
-      //Only clear the depth buffer, the color buffer is already clear
-      glClear(GL_DEPTH_BUFFER_BIT); 
-
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->glRender();
+      glMatrixMode(GL_PROJECTION);
+      glPopMatrix();
       
+      glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
+//
+//      //////////////////Pass 2//////////////////
+//      //Only clear the depth buffer, the color buffer is already clear
+//      glClear(GL_DEPTH_BUFFER_BIT); 
+//
+//      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+//	   iPtr != RenderObjects.end(); ++iPtr)
+//	(*iPtr)->glRender();
+//      
 //      //////////////////Pass 3//////////////////
 //      //Setup a bright light
 //      glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
