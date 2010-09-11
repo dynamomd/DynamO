@@ -33,11 +33,10 @@
 
 #include <limits>
 
-class CLGLWindow : public GlutWindow
+class CLGLWindow : public CoilWindow
 {
 public:
-  CLGLWindow(GlutMaster& gMaster,
-	     int setWidth, int setHeight,
+  CLGLWindow(int setWidth, int setHeight,
 	     int setInitPositionX, int setInitPositionY,
 	     std::string title,
 	     cl::Platform& plat,
@@ -163,8 +162,6 @@ protected:
   cl::CommandQueue _clcmdq;
 
   size_t _height, _width;
-
-  GlutMaster& _glutMaster;
 
   std::vector<RenderObj*> RenderObjects;
 

@@ -12,10 +12,9 @@ int main(int argc, char** argv)
     
     cl::Platform clplatform = platforms[0];
     
-    GlutMaster glutMaster(argc, argv);
+    CoilMaster::getInstance(argc, argv);
     
-    CLGLWindow CLWindow(glutMaster,
-			500, 500,//height, width
+    CLGLWindow CLWindow(1024, 1024,//height, width
 			200, 400,//initPosition (x,y)
 			"GLCLWindow",//title
 			clplatform);
@@ -57,7 +56,7 @@ int main(int argc, char** argv)
       
       if (noFPSLimit || (currTime - oldTime > 32))
 	{
-	  GlutMaster::CallBackIdleFunc(); 
+	  CoilMaster::CallBackIdleFunc(); 
 	  oldTime = currTime;
 	}      
     }

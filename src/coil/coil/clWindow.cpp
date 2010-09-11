@@ -36,8 +36,7 @@ inline float clamp(float x, float a, float b)
 #include "glprimatives/glscribe.hpp"
 #include "glprimatives/arrow.hpp"
 
-CLGLWindow::CLGLWindow(GlutMaster& gMaster,
-                       int setWidth, int setHeight,
+CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title,
 		       cl::Platform& plat,
@@ -46,7 +45,6 @@ CLGLWindow::CLGLWindow(GlutMaster& gMaster,
   _clplatform(plat),
   _height(setHeight),
   _width(setWidth),
-  _glutMaster(gMaster),
   keyState(DEFAULT),
   windowTitle(title),
   FPSmode(false),
@@ -119,7 +117,7 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   glutInitWindowSize(_width, _height);
   glutInitWindowPosition(initPosX, initPosY);
 
-  _glutMaster.CallGlutCreateWindow(windowTitle.c_str(), this);
+  CoilMaster::getInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
   glViewport(0, 0, _width, _height);   // This may have to be moved to after the next line on some platforms
 
   if (glewInit() != GLEW_OK)
@@ -212,8 +210,8 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   glutIgnoreKeyRepeat(1);
 
   //Finally, make this window the idle one
-  _glutMaster.SetIdleToCurrentWindow();
-  _glutMaster.EnableIdleFunction();
+  CoilMaster::getInstance().SetIdleToCurrentWindow();
+  CoilMaster::getInstance().EnableIdleFunction();
 
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 }
