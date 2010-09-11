@@ -46,20 +46,7 @@ int main(int argc, char** argv)
 
     CLWindow.addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
     
-    bool noFPSLimit = true;
-
-    int oldTime = glutGet(GLUT_ELAPSED_TIME);
-    while (1) { 
-      glutMainLoopEvent();
-      
-      int currTime = glutGet(GLUT_ELAPSED_TIME);
-      
-      if (noFPSLimit || (currTime - oldTime > 32))
-	{
-	  CoilMaster::CallBackIdleFunc(); 
-	  oldTime = currTime;
-	}      
-    }
+    CoilMaster::getInstance().startMainLoop();
     
   } catch(cl::Error& err) {
     std::cerr << "OpenCL error: " << err.what() << "(" << err.err() 

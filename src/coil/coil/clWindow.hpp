@@ -18,7 +18,7 @@
 
 #include <vector>
 
-#include <coil/glutMaster.hpp>
+#include <coil/coilMaster.hpp>
 
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.h>

@@ -209,10 +209,6 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
 
-  //Finally, make this window the idle one
-  CoilMaster::getInstance().SetIdleToCurrentWindow();
-  CoilMaster::getInstance().EnableIdleFunction();
-
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
