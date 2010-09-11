@@ -50,8 +50,6 @@ int main(int argc, char** argv)
 
     CoilMaster::getInstance().bootRenderer();
     
-    std::cerr << "Booted the renderer and now spinlocking to prove it\n";
-
     CoilMaster::getInstance().waitForRendererShutdown();
     
   } catch(cl::Error& err) {
