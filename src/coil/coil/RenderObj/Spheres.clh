@@ -100,10 +100,10 @@ GenerateData(const __global float4* positions,
   //First calculate the view distance penalty
   {
     float distance = dot(pos, camdir);
-    penalty += (distance < 0) ? 10000 : distance;
+    penalty += (distance < 0) ? 10000 : distance / pos.w;
 
     float centerdistance = length(pos - distance * camdir);
-    penalty += 2 * centerdistance;
+    penalty += 2 * centerdistance / pos.w;
   }
 
   //Frustrum Penalties

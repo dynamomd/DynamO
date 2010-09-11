@@ -140,8 +140,12 @@ OPVisualizer::initialise()
 
       BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
 	{
+	  Vector pos = Sim->particleList[ID].getPosition();
+	  
+	  Sim->dynamics.BCs().applyBC(pos);
+
 	  for (size_t i(0); i < NDIM; ++i)
-	    sphereDataPtr[ID].s[i] = Sim->particleList[ID].getPosition()[i];
+	    sphereDataPtr[ID].s[i] = pos[i];
 
 	  sphereDataPtr[ID].w = diam * 0.5;
 	}
@@ -167,8 +171,14 @@ OPVisualizer::ticker()
   cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)
-    for (size_t i(0); i < NDIM; ++i)
-      sphereDataPtr[part.getID()].s[i] = part.getPosition()[i];
+    {
+      Vector pos = part.getPosition();
+      
+      Sim->dynamics.BCs().applyBC(pos);
+      
+      for (size_t i(0); i < NDIM; ++i)
+	sphereDataPtr[part.getID()].s[i] = pos[i];
+    }
   
   //Now update all the particle data
   //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
