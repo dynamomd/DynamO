@@ -96,12 +96,8 @@ exe dynamod
 #    : 
 #    ;
 
-exe gl_test 
-    : test/src/glviewer_test.cpp src/coil//coil/<link>static
-    ;
-
 install install-test
-	: gl_test 
+	: src/coil//gl_test 
 	: <location>test
 	;
 
