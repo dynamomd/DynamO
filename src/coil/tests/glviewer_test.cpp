@@ -44,12 +44,33 @@ int main(int argc, char** argv)
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 1000));
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::octahedron, 0, N - 1000 - 100 - 10));
 
-    CLWindow->addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
+    RTSpheres& sphereObject = CLWindow->addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
 
     CoilMaster::getInstance().addWindow(CLWindow);
 
+    //Start the render thread
     CoilMaster::getInstance().bootRenderer();
-    
+
+    size_t edit = 0;
+
+    while (1)
+      {
+	++edit;
+	
+	sleep(1);
+	
+	//Now try getting access to the sphere position data
+	cl_float4* sphereDataPtr = sphereObject.writePositionData(CLWindow->getCommandQueue());
+	
+	sphereDataPtr[0].w = (edit % 2) ? 1.0 : 0.5;
+
+
+	//Return it
+	sphereObject.returnPositionData(CLWindow->getCommandQueue(), sphereDataPtr);
+	
+      }
+
+    //Wait for the render thread to exit
     CoilMaster::getInstance().waitForRendererShutdown();
     
   } catch(cl::Error& err) {

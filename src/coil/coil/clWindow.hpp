@@ -161,6 +161,8 @@ public:
     GLenum _lightHandle;
   };
 
+
+  cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
 protected:
   cl::Platform _clplatform;
   cl::Context _clcontext;

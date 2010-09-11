@@ -20,6 +20,7 @@
 #include <time.h>
 #include "Primatives/Sphere.hpp"
 #include "../clWindow.hpp"
+#include <pthread.h>
 
 class RTSpheres : public RTriangles
 {
@@ -47,6 +48,11 @@ public:
   RTSpheres(const CLGLWindow::viewPortInfoType& viewPortInfo,
 	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
 
+  ~RTSpheres();
+
+  cl_float4* writePositionData(cl::CommandQueue& cmdq);
+  void returnPositionData(cl::CommandQueue& cmdq, cl_float4* clBufPointer);
+
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
   void sortTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
@@ -54,6 +60,8 @@ public:
   virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers);
   
 protected:
+
+  void clTick_no_sort_or_locking(cl::CommandQueue& CmdQ, cl::Context& Context);
 
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
@@ -72,6 +80,8 @@ protected:
   size_t _globalsize;
 
   const CLGLWindow::viewPortInfoType & _viewPortInfo;
+
+  pthread_mutex_t _sphereDataLock;
 };
 
 template<>
