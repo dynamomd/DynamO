@@ -63,19 +63,25 @@ public:
   bool HostTransferModeAllowed() { return _hostTransfers; }
   
   template<class T>  
-  void addRenderObj() {STATIC_ASSERT(false,'Invalid Render Object'); }
+  T& addRenderObj() {STATIC_ASSERT(false,'Check Arg Types'); }
+
   template<class T, class T1> 
-  void addRenderObj(T1) { STATIC_ASSERT(false,'Check Arg Types');}
+  T& addRenderObj(T1) { STATIC_ASSERT(false,'Check Arg Types');}
+
   template<class T, class T1, class T2> 
-  void addRenderObj(T1, T2) { STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj(T1, T2) { STATIC_ASSERT(false,'Check Arg Types'); }
+
   template<class T, class T1, class T2, class T3> 
-  void addRenderObj(T1, T2, T3) { STATIC_ASSERT(false,'Check Arg Types'); } 
+  T& addRenderObj(T1, T2, T3) { STATIC_ASSERT(false,'Check Arg Types'); }
+
   template<class T, class T1, class T2, class T3, class T4> 
-  void addRenderObj(T1, T2, T3, T4) { STATIC_ASSERT(false,'Check Arg Types'); } 
+  T& addRenderObj(T1, T2, T3, T4) { STATIC_ASSERT(false,'Check Arg Types'); }
+
   template<class T, class T1, class T2, class T3, class T4, class T5> 
-  void addRenderObj(T1, T2, T3, T4, T5) { STATIC_ASSERT(false,'Check Arg Types'); } 
+  T& addRenderObj(T1, T2, T3, T4, T5) { STATIC_ASSERT(false,'Check Arg Types'); }
+
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
-  void addRenderObj(T1, T2, T3, T4, T5, T6) { STATIC_ASSERT(false,'Check Arg Types'); } 
+  T& addRenderObj(T1, T2, T3, T4, T5, T6) { STATIC_ASSERT(false,'Check Arg Types'); }
 
   struct viewPortInfoType
   {

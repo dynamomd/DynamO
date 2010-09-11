@@ -41,8 +41,9 @@ protected:
 };
 
 template<>
-inline void CLGLWindow::addRenderObj<RTTestWaves,size_t,float>(size_t N, float Yoffset)
+inline RTTestWaves& CLGLWindow::addRenderObj<RTTestWaves,size_t,float>(size_t N, float Yoffset)
 {
   RenderObjects.push_back(new RTTestWaves(N, Yoffset));
+  return *((RTTestWaves*)RenderObjects.back());
 }
 
