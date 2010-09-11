@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "clWindow.hpp"
-#include "RenderObj/TestWaves.hpp"
-#include "RenderObj/Spheres.hpp"
+#include <coil/clWindow.hpp>
+#include <coil/RenderObj/TestWaves.hpp>
+#include <coil/RenderObj/Spheres.hpp>
 
 int main(int argc, char** argv)
-{  
+{
   try {
     std::vector<cl::Platform> platforms;
     cl::Platform::get(&platforms);

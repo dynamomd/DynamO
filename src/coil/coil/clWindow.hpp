@@ -16,18 +16,20 @@
 */
 #pragma once
 
-#include "glutMaster.hpp"
 #include <vector>
+
+#include <coil/glutMaster.hpp>
 
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.h>
 #include <CL/cl.hpp>
-#include "extcode/static_assert.hpp"
-#include "extcode/vector2.hpp"
 
 #include <magnet/GLBuffer.hpp>
-#include "RenderObj/RenderObj.hpp"
-#include "Maths/Maths.h"
+
+#include <coil/extcode/static_assert.hpp>
+#include <coil/extcode/vector2.hpp>
+#include <coil/RenderObj/RenderObj.hpp>
+#include <coil/Maths/Maths.h>
 
 #include <limits>
 
