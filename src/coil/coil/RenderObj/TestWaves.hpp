@@ -23,9 +23,12 @@
 class RTTestWaves : public RTriangles
 {
 public:
-  RTTestWaves(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers, size_t N, float Yoffset);
+  RTTestWaves(size_t N, float Yoffset);
 
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
+
+  void initOpenGL();
+  void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers);
 
 protected:
   static const std::string kernelsrc;
@@ -40,6 +43,6 @@ protected:
 template<>
 inline void CLGLWindow::addRenderObj<RTTestWaves,size_t,float>(size_t N, float Yoffset)
 {
-  RenderObjects.push_back(new RTTestWaves(_clcmdq, _clcontext, _cldevice, _hostTransfers, N, Yoffset));
+  RenderObjects.push_back(new RTTestWaves(N, Yoffset));
 }
 

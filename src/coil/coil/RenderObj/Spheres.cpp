@@ -39,10 +39,8 @@ cl_float4 getclVec(Vector vec)
 }
 
 
-RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
-		     const CLGLWindow::viewPortInfoType& viewPortInfo,
+RTSpheres::RTSpheres(const CLGLWindow::viewPortInfoType& viewPortInfo,
 		     size_t N, const std::vector<SphereDetails>& renderDetailLevels):
-  RTriangles(hostTransfers),
   _N(N),
   _renderDetailLevels(renderDetailLevels),
   _frameCount(0),
@@ -50,6 +48,11 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
   _workgroupsize(0),
   _globalsize(0),
   _viewPortInfo(viewPortInfo)
+{
+}
+
+void
+RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers)
 {
   {
     //We add one on here to allow vector loads and stores to occur
@@ -89,7 +92,7 @@ RTSpheres::RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& D
 
     std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(Context);
+    initOCLVertexBuffer(Context, hostTransfers);
   }
   
   {//Setup inital normal vectors

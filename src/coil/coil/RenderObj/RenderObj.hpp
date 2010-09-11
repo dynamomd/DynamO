@@ -30,8 +30,11 @@
 class RenderObj
 {
 public:
-  RenderObj(bool hostTransfers);
+  RenderObj();
   ~RenderObj();
+
+  virtual void initOpenGL() = 0;
+  virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers) = 0;
 
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context) = 0;
   virtual void glRender() = 0;
@@ -47,6 +50,4 @@ public:
 
 protected:
   RenderModeType _RenderMode;
-  bool _hostTransfers;
-
 };

@@ -162,6 +162,7 @@ protected:
   cl::CommandQueue _clcmdq;
 
   size_t _height, _width;
+  int _windowX, _windowY;
 
   std::vector<RenderObj*> RenderObjects;
 
@@ -176,7 +177,7 @@ protected:
 private:
   void CameraSetup();
 
-  void initOpenGL(int initPosX, int initPosY);
+  void initOpenGL();
   void initOpenCL();
 
   void drawAxis();

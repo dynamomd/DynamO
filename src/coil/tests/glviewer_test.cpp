@@ -14,10 +14,10 @@ int main(int argc, char** argv)
     
     CoilMaster::getInstance(argc, argv);
     
-    CLGLWindow CLWindow(1024, 1024,//height, width
-			200, 400,//initPosition (x,y)
-			"GLCLWindow",//title
-			clplatform);
+    CLGLWindow* CLWindow = new CLGLWindow(1024, 1024,//height, width
+					  200, 400,//initPosition (x,y)
+					  "GLCLWindow",//title
+					  clplatform);
     
     //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
 
@@ -44,9 +44,15 @@ int main(int argc, char** argv)
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 1000));
 //    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::octahedron, 0, N - 1000 - 100 - 10));
 
-    CLWindow.addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
+    CLWindow->addRenderObj<RTSpheres>((size_t)N, sphereDetailLevels);
+
+    CoilMaster::getInstance().addWindow(CLWindow);
+
+    CoilMaster::getInstance().bootRenderer();
     
-    CoilMaster::getInstance().startMainLoop();
+    std::cerr << "Booted the renderer and now spinlocking to prove it\n";
+
+    CoilMaster::getInstance().waitForRendererShutdown();
     
   } catch(cl::Error& err) {
     std::cerr << "OpenCL error: " << err.what() << "(" << err.err() 

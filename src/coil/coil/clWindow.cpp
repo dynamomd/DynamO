@@ -45,6 +45,8 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _clplatform(plat),
   _height(setHeight),
   _width(setWidth),
+  _windowX(initPosX),
+  _windowY(initPosY),
   keyState(DEFAULT),
   windowTitle(title),
   FPSmode(false),
@@ -57,9 +59,6 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _shadowMapSize(1024)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
-  
-  initOpenGL(initPosX, initPosY);
-  initOpenCL();
 }
 
 CLGLWindow::~CLGLWindow()
@@ -111,13 +110,14 @@ CLGLWindow::CameraSetup()
 
 
 void 
-CLGLWindow::initOpenGL(int initPosX, int initPosY)
+CLGLWindow::initOpenGL()
 {
   glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowSize(_width, _height);
-  glutInitWindowPosition(initPosX, initPosY);
+  glutInitWindowPosition(_windowX, _windowY);
 
   CoilMaster::getInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
+
   glViewport(0, 0, _width, _height);   // This may have to be moved to after the next line on some platforms
 
   if (glewInit() != GLEW_OK)
@@ -210,6 +210,11 @@ CLGLWindow::initOpenGL(int initPosX, int initPosY)
   glutIgnoreKeyRepeat(1);
 
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
+
+  //Now init the render objects  
+  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->initOpenGL();
 }
 
 void 
@@ -304,6 +309,11 @@ CLGLWindow::initOpenCL()
 
   //Make a command queue
   _clcmdq = cl::CommandQueue(_clcontext, _cldevice/*, CL_QUEUE_PROFILING_ENABLE*/) ;
+
+  //Now init the render objects  
+  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->initOpenCL(_clcmdq, _clcontext, _cldevice, _hostTransfers);
 }
 
 void CLGLWindow::CallBackDisplayFunc(void)

@@ -41,69 +41,78 @@ TestWaveKernel(__global float * positions,__global float * cores, float t, float
 }
 );
 
-RTTestWaves::RTTestWaves(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, 
-			 bool hostTransfers, size_t N, float Yoffset):
-  RTriangles(hostTransfers),
+RTTestWaves::RTTestWaves(size_t N, float Yoffset):
   _N(N),
   _Yoffset(Yoffset)
 {
+}
+
+void 
+RTTestWaves::initOpenGL() 
+{}
+
+void 
+RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers)
+{
+  
+
   {//Setup initial vertex positions
-    std::vector<float> VertexPos(3 * N * N, 0.0);  
-    for (size_t i = 0; i < N; i++)
+    std::vector<float> VertexPos(3 * _N * _N, 0.0);  
+    for (size_t i = 0; i < _N; i++)
       {       
-	for (size_t j = 0; j < N; j++)
+	for (size_t j = 0; j < _N; j++)
 	  {
-	    VertexPos[0 + 3 * (i + N * j)] = 4*((float)i / (float)N-0.5f);	
-	    VertexPos[1 + 3 * (i + N * j)] = 0.0;
-	    VertexPos[2 + 3 * (i + N * j)] = 4*((float)j / (float)N-0.5f);
+	    VertexPos[0 + 3 * (i + _N * j)] = 4*((float)i / (float)_N-0.5f);	
+	    VertexPos[1 + 3 * (i + _N * j)] = 0.0;
+	    VertexPos[2 + 3 * (i + _N * j)] = 4*((float)j / (float)_N-0.5f);
 	  }       
       }
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(Context);
+    initOCLVertexBuffer(Context, hostTransfers);
   }
 
   {//Setup inital normal vectors
-    std::vector<float> VertexNormals(3 * N * N, 0.0);
-    for (size_t i = 0; i < N; i++)
+    std::vector<float> VertexNormals(3 * _N * _N, 0.0);
+    for (size_t i = 0; i < _N; i++)
       {       
-	for (size_t j = 0; j < N; j++)
+	for (size_t j = 0; j < _N; j++)
 	  {
-	    VertexNormals[0 + 3 * (i + N * j)] = 0.0f;
-	    VertexNormals[1 + 3 * (i + N * j)] = 1.0f;
-	    VertexNormals[2 + 3 * (i + N * j)] = 0.0f;
+	    VertexNormals[0 + 3 * (i + _N * j)] = 0.0f;
+	    VertexNormals[1 + 3 * (i + _N * j)] = 1.0f;
+	    VertexNormals[2 + 3 * (i + _N * j)] = 0.0f;
 	  }       
       }
     setGLNormals(VertexNormals);
   }
 
   {//Setup initial Colors
-    std::vector<float> VertexColor(4 * N * N, 0.0);
-    for (size_t i = 0; i < N; i++)
+    std::vector<float> VertexColor(4 * _N * _N, 0.0);
+    for (size_t i = 0; i < _N; i++)
       {       
-	for (size_t j = 0; j < N; j++)
+	for (size_t j = 0; j < _N; j++)
 	  {
-	    VertexColor[0 + 4 * (i + N * j)] = 0.0f;
-	    VertexColor[1 + 4 * (i + N * j)] = 0.0f;
-	    VertexColor[2 + 4 * (i + N * j)] = (float)i/(float)(N-1);
-	    VertexColor[3 + 4 * (i + N * j)] = 1.0f;
+	    VertexColor[0 + 4 * (i + _N * j)] = 0.0f;
+	    VertexColor[1 + 4 * (i + _N * j)] = 0.0f;
+	    VertexColor[2 + 4 * (i + _N * j)] = (float)i/(float)(_N-1);
+	    VertexColor[3 + 4 * (i + _N * j)] = 1.0f;
 	  }       
       }
     setGLColors(VertexColor);
-    initOCLColorBuffer(Context);
+    initOCLColorBuffer(Context, hostTransfers);
   }
    
   {//Setup initial element data
-    std::vector<int> ElementData(3*2*(N-1)*(N-1), 0.0);
-    for  (size_t i = 0; i < N - 1; i++)
+    std::vector<int> ElementData(3*2*(_N-1)*(_N-1), 0.0);
+    for  (size_t i = 0; i < _N - 1; i++)
       {
-	for (size_t j = 0; j < N - 1; j++)
+	for (size_t j = 0; j < _N - 1; j++)
 	  {
-	    ElementData[6 * (i + (N - 1) * j) + 0] = i + N * j;
-	    ElementData[6 * (i + (N - 1) * j) + 1] = i + N * (j + 1);
-	    ElementData[6 * (i + (N - 1) * j) + 2] = i + 1 + N * (j + 1);
-	    ElementData[6 * (i + (N - 1) * j) + 3] = i + N * j;
-	    ElementData[6 * (i + (N - 1) * j) + 4] = i + 1 + N * (j + 1);
-	    ElementData[6 * (i + (N - 1) * j) + 5] = i + 1 + N * j;
+	    ElementData[6 * (i + (_N - 1) * j) + 0] = i + _N * j;
+	    ElementData[6 * (i + (_N - 1) * j) + 1] = i + _N * (j + 1);
+	    ElementData[6 * (i + (_N - 1) * j) + 2] = i + 1 + _N * (j + 1);
+	    ElementData[6 * (i + (_N - 1) * j) + 3] = i + _N * j;
+	    ElementData[6 * (i + (_N - 1) * j) + 4] = i + 1 + _N * (j + 1);
+	    ElementData[6 * (i + (_N - 1) * j) + 5] = i + 1 + _N * j;
 	  }
       }
     setGLElements(ElementData);
@@ -134,6 +143,7 @@ RTTestWaves::RTTestWaves(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Devic
   
   clock_gettime(CLOCK_MONOTONIC, &startTime);
 }
+
 
 void 
 RTTestWaves::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)

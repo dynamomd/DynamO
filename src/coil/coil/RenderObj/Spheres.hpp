@@ -44,14 +44,15 @@ public:
     cl::Buffer _primativeVertices;
   };
 
-  RTSpheres(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers,
-	    const CLGLWindow::viewPortInfoType& viewPortInfo,
+  RTSpheres(const CLGLWindow::viewPortInfoType& viewPortInfo,
 	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
 
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
-
   void sortTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
+  virtual void initOpenGL() {}
+  virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers);
+  
 protected:
 
   cl::Kernel _renderKernel;
@@ -77,6 +78,5 @@ template<>
 inline void CLGLWindow::addRenderObj<RTSpheres, size_t, std::vector<RTSpheres::SphereDetails> >
 (size_t N, std::vector<RTSpheres::SphereDetails> renderDetailLevels)
 {
-  RenderObjects.push_back(new RTSpheres(_clcmdq, _clcontext, _cldevice, _hostTransfers,
-					_viewPortInfo, N, renderDetailLevels));
+  RenderObjects.push_back(new RTSpheres(_viewPortInfo, N, renderDetailLevels));
 }
