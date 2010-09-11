@@ -237,6 +237,10 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
   else if (!Name.compare("ChatteringCorrelator"))
     return testGeneratePlugin<OPChatteringCorrelator>(Sim, XML);
+#ifdef DYNAMO_visualizer
+  else if (!Name.compare("Visualizer"))
+    return testGeneratePlugin<OPVisualizer>(Sim, XML);
+#endif
   else
     D_throw() << Name << ", Unknown type of OutputPlugin encountered";
 }

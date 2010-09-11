@@ -199,7 +199,8 @@ CLGLWindow::initOpenGL()
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
-  _light0 = lightInfo(Vector(0.0f, 1.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
+
+  _light0 = lightInfo(Vector(0.0f, 2.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
   
   GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };
   GLfloat specShininess[] = { 0.0f };
@@ -324,13 +325,6 @@ void CLGLWindow::CallBackDisplayFunc(void)
   glFinish();//Finish with the GL buffers
   //Setup the timings
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
-
-  const float rotateSpeed = 1000;
-  _light0 = lightInfo(Vector(2.0f * std::cos(_currFrameTime/rotateSpeed), 
-			     2.0f, 
-			     2.0f * std::sin(_currFrameTime/rotateSpeed)), 
-		      Vector(0.0f, 0.5f, 0.0f), GL_LIGHT0,
-		      45.0f, 5, 0.01f);
 
 
   //Run every objects OpenCL stage

@@ -260,7 +260,8 @@ void
 RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
   //First check you can get a lock on the position data!
-  if (pthread_mutex_trylock(&_sphereDataLock) == EBUSY) return;
+  if (pthread_mutex_lock(&_sphereDataLock)) 
+    throw std::runtime_error("Could not lock the sphere data for rendering");
 
   if (!(++_frameCount % _sortFrequency))
     sortTick(CmdQ, Context);

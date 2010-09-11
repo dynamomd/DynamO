@@ -14,28 +14,42 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
 
-#include "geomview.hpp"
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "povray.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
-#include "vtk.hpp"
-#include "msdcorrelator.hpp"
-#include "kenergyticker.hpp"
-#include "structureImage.hpp"
-#include "streamticker.hpp"
-#include "boundedQstats.hpp"
-#include "SHcrystal.hpp"
-#include "SCparameter.hpp"
-#include "plateMotion.hpp"
-#include "msdOrientationalCorrelator.hpp"
-#include "dynamo_visualizer.hpp"
+#ifdef DYNAMO_visualizer
+
+#include "ticker.hpp"
+
+class CLGLWindow;
+class RTSpheres;
+
+class OPVisualizer: public OPTicker
+{
+ public:
+  OPVisualizer(const DYNAMO::SimData*, const XMLNode&);
+
+  ~OPVisualizer();
+
+  virtual OutputPlugin *Clone() const
+  { return new OPVisualizer(*this); }
+
+  virtual void initialise();
+
+  virtual void stream(Iflt) {}
+
+  virtual void ticker();
+
+  virtual void output(xml::XmlStream&);
+
+  void operator<<(const XMLNode&);
+  
+  void eventUpdate(const IntEvent&, const PairEventData&);
+
+ protected:
+
+  CLGLWindow* _CLWindow;
+  RTSpheres* _sphereObject;
+  int _lastRenderTime;
+};
+
+#endif
