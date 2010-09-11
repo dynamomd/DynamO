@@ -162,7 +162,9 @@ public:
   };
 
 
-  cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
+  inline cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
+
+  inline const int& getLastFrameTime() const { return _lastFrameTime; }
 protected:
   cl::Platform _clplatform;
   cl::Context _clcontext;

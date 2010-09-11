@@ -23,6 +23,8 @@
 #include <GL/glx.h>
 #include <GL/glext.h>
 
+#include <locale>
+
 inline float clamp(float x, float a, float b)
 {
     return x < a ? a : (x > b ? b : x);
@@ -73,9 +75,9 @@ CLGLWindow::CameraSetup()
 {
   float moveAmp = (_currFrameTime - _lastFrameTime) * _moveSensitivity;
 
-  int _forward = (keyStates['w'] || keyStates['W']) - (keyStates['s'] || keyStates['S']);
-  int _sideways = (keyStates['d'] || keyStates['D']) - (keyStates['a'] || keyStates['A']);
-  int _vertical = (keyStates['q'] || keyStates['Q']) - (keyStates['z'] || keyStates['Z']);
+  int _forward  = keyStates['w'] - keyStates['s'];
+  int _sideways = keyStates['d'] - keyStates['a'];
+  int _vertical = keyStates['q'] - keyStates['z'];
 
   //Forward/Backward movement
   _viewPortInfo._cameraZ -= _forward * moveAmp * std::cos(_viewPortInfo._rotatey * (M_PI/ 180)) 
@@ -727,31 +729,25 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
 void 
 CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
 {
-  keyStates[key] = true;
+  keyStates[std::tolower(key)] = true;
 
   switch (key)
     {
       ///SPECIAL KEYPRESSES
-    case 'F':
-      displayFPS(false);
-      break;
     case 'f':
       displayFPS(true);
     break;
     case 't':
-    case 'T':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::TRIANGLES);
     break;
     case 'l':
-    case 'L':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::LINES);
     break;
     case 'p':
-    case 'P':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::POINTS);
@@ -764,7 +760,7 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
 void 
 CLGLWindow::CallBackKeyboardUpFunc(unsigned char key, int x, int y)
 {
-  keyStates[key] = false;
+  keyStates[std::tolower(key)] = false;
 }
 
 void

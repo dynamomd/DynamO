@@ -53,17 +53,24 @@ int main(int argc, char** argv)
 
     size_t edit = 0;
 
+    int frameTime = CLWindow->getLastFrameTime();
     while (1)
       {
-	++edit;
+	//A loop delay function
+	//struct timespec duree_nanosleep, duree_out;
+	//duree_nanosleep.tv_sec=0;
+	//duree_nanosleep.tv_nsec=10000000; //10 ms
+	//nanosleep(&duree_nanosleep,&duree_out);
 	
-	sleep(1);
-	
-	//Now try getting access to the sphere position data
-	cl_float4* sphereDataPtr = sphereObject.writePositionData(CLWindow->getCommandQueue());
-	
-	sphereDataPtr[0].w = (edit % 2) ? 1.0 : 0.5;
+	//Now for the update test
+	if (frameTime == CLWindow->getLastFrameTime()) continue;
+	//The screen was redrawn!
+	frameTime = CLWindow->getLastFrameTime();
 
+	//Now try getting access to the sphere position data
+	cl_float4* sphereDataPtr = sphereObject.writePositionData(CLWindow->getCommandQueue());	
+	++edit;	
+	sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
 
 	//Return it
 	sphereObject.returnPositionData(CLWindow->getCommandQueue(), sphereDataPtr);
