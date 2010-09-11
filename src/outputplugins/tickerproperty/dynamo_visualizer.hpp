@@ -35,16 +35,12 @@ class OPVisualizer: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
-
   virtual void ticker();
 
   virtual void output(xml::XmlStream&);
 
   void operator<<(const XMLNode&);
   
-  void eventUpdate(const IntEvent&, const PairEventData&);
-
  protected:
 
   CLGLWindow* _CLWindow;

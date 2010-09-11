@@ -32,7 +32,6 @@ OPVisualizer::OPVisualizer(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"Magnet"),
   _CLWindow(NULL),
   _sphereObject(NULL)
-
 {
   operator<<(XML);
 }
@@ -63,11 +62,6 @@ OPVisualizer::operator<<(const XMLNode& XML)
 //      D_throw() << "Error while parsing " << name << "options\n"
 //		<< excep.what();
 //    }
-}
-
-void 
-OPVisualizer::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
-{
 }
 
 void
