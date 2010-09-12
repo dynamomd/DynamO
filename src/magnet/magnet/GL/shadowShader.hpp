@@ -36,46 +36,12 @@ namespace magnet {
 	_shadowMapStepYUniform = glGetUniformLocationARB(_shaderID,"yPixelOffset");
       }
 
-      inline void attach(GLuint shadowTexture, size_t shadowSize)
+      inline void attach(GLuint shadowTexture, size_t shadowSize, GLuint textureUnit)
       {
-	//Apply a matrix to the texture 7 unit
-	double modelView[16];
-	double projection[16];
-	
-	// This is matrix transform every coordinate x,y,z
-	// x = x* 0.5 + 0.5 
-	// y = y* 0.5 + 0.5 
-	// z = z* 0.5 + 0.5 
-	// Moving from unit cube [-1,1] to [0,1]  
-	const GLdouble bias[16] = {	
-	  0.5, 0.0, 0.0, 0.0, 
-	  0.0, 0.5, 0.0, 0.0,
-	  0.0, 0.0, 0.5, 0.0,
-	  0.5, 0.5, 0.5, 1.0};
-	
-	// Grab modelview and transformation matrices
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelView);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-		
-	glMatrixMode(GL_TEXTURE);
-	glActiveTextureARB(GL_TEXTURE7);
-	
-	glLoadIdentity();	
-	glLoadMatrixd(bias);
-	
-	// concatating all matrice into one.
-	glMultMatrixd (projection);
-	glMultMatrixd (modelView);
-	
-	// Go back to normal matrix mode
-	glMatrixMode(GL_MODELVIEW);
-
 	glUseProgramObjectARB(_shaderID);
-	glUniform1iARB(_shadowMapUniform,7);
+	glUniform1iARB(_shadowMapUniform, textureUnit);
 	glUniform1fARB(_shadowMapStepXUniform, 1.0 / (shadowSize * 2));
 	glUniform1fARB(_shadowMapStepYUniform, 1.0 / (shadowSize * 2));
-	glActiveTextureARB(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, shadowTexture);
       }
 
       GLuint _shadowMapUniform;

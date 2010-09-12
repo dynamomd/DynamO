@@ -24,14 +24,14 @@
 #include <CL/cl.h>
 #include <CL/cl.hpp>
 
-#include <magnet/GLBuffer.hpp>
+#include <coil/Maths/Maths.h>
 
+#include <magnet/GLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
 
 #include <coil/extcode/static_assert.hpp>
 #include <coil/extcode/vector2.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
-#include <coil/Maths/Maths.h>
 
 #include <limits>
 

@@ -376,7 +376,9 @@ void CLGLWindow::CallBackDisplayFunc(void)
   //If shadows are enabled, we must draw first from the lights perspective
   if (_shadows)
     {
-      
+      //Use the fixed pipeline 
+      glUseProgramObjectARB(0);
+
       ////Store the camera matrices and load the light's
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
@@ -434,6 +436,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
       drawScene();
 
+
       //////////////////Pass 3//////////////////
       //Setup a bright light
       glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
@@ -447,28 +450,49 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
       MATRIX4X4 textureMatrix = biasMatrix 
 	* _light0._projectionMatrix * _light0._viewMatrix;
-      
-      //Set up texture coordinate generation.
-      glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-      glTexGenfv(GL_S, GL_EYE_PLANE, textureMatrix.GetRow(0));
-      
-      glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-      glTexGenfv(GL_T, GL_EYE_PLANE, textureMatrix.GetRow(1));
-      
-      glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-      glTexGenfv(GL_R, GL_EYE_PLANE, textureMatrix.GetRow(2));
-      
-      glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-      glTexGenfv(GL_Q, GL_EYE_PLANE, textureMatrix.GetRow(3));
 
-      glEnable(GL_TEXTURE_GEN_S);
-      glEnable(GL_TEXTURE_GEN_T);
-      glEnable(GL_TEXTURE_GEN_R);
-      glEnable(GL_TEXTURE_GEN_Q);
-
+      //In both cases we use the texture matrix, instead of the EYE_PLANE
+      glActiveTextureARB(GL_TEXTURE7);
+      glMatrixMode(GL_TEXTURE);	
+      // Moving from unit cube [-1,1] to [0,1]  
+      glLoadIdentity();
+      glLoadMatrixf(textureMatrix);
+      glMatrixMode(GL_MODELVIEW);
       //Bind & enable shadow map texture
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glEnable(GL_TEXTURE_2D);
+
+
+      bool customFunction = false;
+
+      if (customFunction)
+	{
+	  _shadowShader.attach(_shadowMapTexture, _shadowMapSize, 7);
+	}
+      else
+	{
+	  //Set up texture coordinate generation.
+	  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	  glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	  glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+
+	  const GLfloat x[] = {1.0, 0.0, 0.0, 0.0};
+	  const GLfloat y[] = {0.0, 1.0, 0.0, 0.0};
+	  const GLfloat z[] = {0.0, 0.0, 1.0, 0.0};
+	  const GLfloat w[] = {0.0, 0.0, 0.0, 1.0};
+
+	  glTexGenfv(GL_S, GL_EYE_PLANE, x);
+	  glTexGenfv(GL_T, GL_EYE_PLANE, y);	  
+	  glTexGenfv(GL_R, GL_EYE_PLANE, z);
+	  glTexGenfv(GL_Q, GL_EYE_PLANE, w);
+
+	  glEnable(GL_TEXTURE_GEN_S);
+	  glEnable(GL_TEXTURE_GEN_T);
+	  glEnable(GL_TEXTURE_GEN_R);
+	  glEnable(GL_TEXTURE_GEN_Q);
+	}
+
             
       //Set alpha test to discard false comparisons
       glAlphaFunc(GL_GEQUAL, 0.99f);
@@ -479,11 +503,14 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Disable textures and texgen
       glDisable(GL_TEXTURE_2D);
       
-      glDisable(GL_TEXTURE_GEN_S);
-      glDisable(GL_TEXTURE_GEN_T);
-      glDisable(GL_TEXTURE_GEN_R);
-      glDisable(GL_TEXTURE_GEN_Q);
-      
+      if (!customFunction)
+	{
+	  glDisable(GL_TEXTURE_GEN_S);
+	  glDisable(GL_TEXTURE_GEN_T);
+	  glDisable(GL_TEXTURE_GEN_R);
+	  glDisable(GL_TEXTURE_GEN_Q);
+	}
+
       //Restore other states
       glDisable(GL_ALPHA_TEST);
     }
