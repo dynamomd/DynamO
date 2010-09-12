@@ -147,7 +147,8 @@ CLGLWindow::initOpenGL()
       _shadows = false;
     }
    
-  //Now begins the example
+  glDrawBuffer(GL_BACK);
+
   glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 
   glClearDepth(1.0f);
