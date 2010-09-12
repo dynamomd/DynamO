@@ -114,7 +114,7 @@ CLGLWindow::CameraSetup()
 void 
 CLGLWindow::initOpenGL()
 {
-  glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
   glutInitWindowSize(_width, _height);
   glutInitWindowPosition(_windowX, _windowY);
 
@@ -177,9 +177,9 @@ CLGLWindow::initOpenGL()
     {
       glGenTextures(1, &_shadowMapTexture);
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 
 		   _shadowMapSize, _shadowMapSize, 0,
-		   GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+		   GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -204,7 +204,8 @@ CLGLWindow::initOpenGL()
       glReadBuffer(GL_NONE);
 	
       // attach the texture to FBO depth attachment point
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D, _shadowMapTexture, 0);
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+				GL_TEXTURE_2D, _shadowMapTexture, 0);
 	
       // check FBO status
       GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
@@ -436,7 +437,6 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
       drawScene();
 
-
       //////////////////Pass 3//////////////////
       //Setup a bright light
       glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
@@ -468,6 +468,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
       if (customFunction)
 	{
 	  _shadowShader.attach(_shadowMapTexture, _shadowMapSize, 7);
+	  glEnable(GL_BLEND); //Enable blending
 	}
       else
 	{
@@ -491,13 +492,12 @@ void CLGLWindow::CallBackDisplayFunc(void)
 	  glEnable(GL_TEXTURE_GEN_T);
 	  glEnable(GL_TEXTURE_GEN_R);
 	  glEnable(GL_TEXTURE_GEN_Q);
+
+	  //Set alpha test to discard false comparisons
+	  glAlphaFunc(GL_GEQUAL, 0.99f);
+	  glEnable(GL_ALPHA_TEST);
 	}
-
             
-      //Set alpha test to discard false comparisons
-      glAlphaFunc(GL_GEQUAL, 0.99f);
-      glEnable(GL_ALPHA_TEST);
-
       drawScene();
 
       //Disable textures and texgen
@@ -509,10 +509,15 @@ void CLGLWindow::CallBackDisplayFunc(void)
 	  glDisable(GL_TEXTURE_GEN_T);
 	  glDisable(GL_TEXTURE_GEN_R);
 	  glDisable(GL_TEXTURE_GEN_Q);
+
+	  glDisable(GL_ALPHA_TEST);
+	}
+      else
+	{
+	  glDisable(GL_BLEND);
+	  glUseProgramObjectARB(0);
 	}
 
-      //Restore other states
-      glDisable(GL_ALPHA_TEST);
     }
   else    
     {      
