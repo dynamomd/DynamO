@@ -71,8 +71,12 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);
 
-    _sortKeys = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(float) * _N);
-    _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(cl_uint) * _N);
+    //We must pad the sort data out to a multiple of 1024
+
+    size_t paddedN = ((_N + 1023)/1024) * 1024;
+    
+    _sortKeys = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(float) * paddedN);
+    _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
     
     cl_float4* Pos = (cl_float4*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
 						       CL_MAP_WRITE, 0, 
@@ -237,8 +241,10 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
   static magnet::radixSort<cl_float> sortFunctor(CmdQ, Context);
 
+  cl_uint paddedN = ((_N + 1023)/1024) * 1024;
+
   cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+    = _sortDataKernel.bind(CmdQ, cl::NDRange(paddedN), cl::NDRange(256));
   
   cl_float4 campos = getclVec(Vector(_viewPortInfo._cameraX, _viewPortInfo._cameraY, _viewPortInfo._cameraZ));
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
@@ -250,7 +256,7 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 		     (cl_float)_viewPortInfo._aspectRatio,
 		     (cl_float)_viewPortInfo._zNearDist,
 		     (cl_float)_viewPortInfo._fovY,
-		     _N);
+		     _N, paddedN);
   
   if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
     sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);

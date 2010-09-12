@@ -82,10 +82,17 @@ GenerateData(const __global float4* positions,
 	     __global uint* data,
 	     float4 camPos, float4 camdir, float4 camup,
 	     float ratio, float nearDist, float fov,
-	     uint N)
+	     uint N, uint paddedN)
 {
   //Need to add the aspect ratio!
-  if (get_global_id(0) >= N) return;
+  if (get_global_id(0) >= paddedN) return;
+  
+  if (get_global_id(0) >= N)
+    {
+      keys[get_global_id(0)] = MAXFLOAT;
+      data[get_global_id(0)] = -1;
+      return;
+    }
 
   float tanfactor = (nearDist * tan(fov * M_PI_F / 360.0f));
 
