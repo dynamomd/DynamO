@@ -94,4 +94,4 @@ namespace magnet {
   };
 };
 
-#include "magnet/detail/kernels/bitonicSort.clh"
+#include <magnet/detail/kernels/bitonicSort.clh>

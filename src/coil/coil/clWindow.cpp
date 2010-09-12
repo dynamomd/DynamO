@@ -248,6 +248,10 @@ CLGLWindow::initOpenGL()
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
+
+
+  //Build the shaders
+  _shadowShader.build();
 }
 
 void 

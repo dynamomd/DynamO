@@ -26,6 +26,8 @@
 
 #include <magnet/GLBuffer.hpp>
 
+#include <magnet/GL/shadowShader.hpp>
+
 #include <coil/extcode/static_assert.hpp>
 #include <coil/extcode/vector2.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
@@ -166,6 +168,8 @@ public:
 
   inline const int& getLastFrameTime() const { return _lastFrameTime; }
 protected:
+  magnet::GL::shadowShader _shadowShader;
+
   cl::Platform _clplatform;
   cl::Context _clcontext;
   cl::Device _cldevice;

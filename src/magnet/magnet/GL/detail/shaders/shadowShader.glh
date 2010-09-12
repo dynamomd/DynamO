@@ -1,0 +1,129 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+namespace magnet {
+  namespace GL {
+    inline std::string 
+    shadowShader::vertexShaderSource()
+    {
+      return
+STRINGIFY( 
+// Used for shadow lookup
+varying vec4 ShadowCoord;
+
+void main()
+{
+  ShadowCoord= gl_TextureMatrix[7] * gl_Vertex;
+  
+  gl_Position = ftransform();
+  
+  gl_FrontColor = gl_Color;
+}
+);
+    }
+
+    inline std::string 
+    shadowShader::fragmentShaderSource()
+    {
+      return
+STRINGIFY( 
+uniform sampler2DShadow ShadowMap;
+
+varying vec4 ShadowCoord;
+
+// This define the value to move one pixel left or right
+uniform float xPixelOffset ;
+
+// This define the value to move one pixel up or down
+uniform float yPixelOffset ;
+
+float lookup( vec2 offSet)
+{
+  // Values are multiplied by ShadowCoord.w because shadow2DProj does a W division for us.
+  return shadow2DProj(ShadowMap, ShadowCoord + vec4(offSet.x * xPixelOffset * ShadowCoord.w, offSet.y * yPixelOffset * ShadowCoord.w, 0.05, 0.0) ).w;
+}
+
+void main()
+{	
+  // Used to lower moiré pattern and self-shadowing
+//  //shadowCoordinateWdivide.z += ;
+  float shadow ;
+	
+  // Avoid counter shadow
+  if (ShadowCoord.w > 1.0)
+    {
+      // Simple lookup no PCF
+      //shadow = lookup(vec2(0.0,0.0));
+
+      // 8x8 kernel PCF
+      float x;
+      float y;
+      for (y = -3.5 ; y <=3.5 ; y+=1.0)
+	for (x = -3.5 ; x <=3.5 ; x+=1.0)
+	  shadow += lookup(vec2(x,y));
+      
+      shadow /= 64.0 ;
+					
+      // 8x8 PCF wide kernel (step is 10 instead of 1)
+      
+      //float x,y;
+      //for (y = -30.5 ; y <=30.5 ; y+=10.0)
+      //	for (x = -30.5 ; x <=30.5 ; x+=10.0)
+      //	  shadow += lookup(vec2(x,y));
+      //
+      //shadow /= 64.0 ;
+	
+      // 4x4 kernel PCF
+      //
+      //float x,y;
+      //for (y = -1.5 ; y <=1.5 ; y+=1.0)
+      //for (x = -1.5 ; x <=1.5 ; x+=1.0)
+      //shadow += lookup(vec2(x,y));
+      //	
+      //shadow /= 16.0 ;
+      
+      // 4x4  PCF wide kernel (step is 10 instead of 1)
+      /*
+	float x,y;
+	for (y = -10.5 ; y <=10.5 ; y+=10.0)
+	for (x = -10.5 ; x <=10.5 ; x+=10.0)
+	shadow += lookup(vec2(x,y));
+					
+	shadow /= 16.0 ;
+      */
+		
+      // 4x4  PCF dithered
+      
+      // use modulo to vary the sample pattern
+      vec2 o = mod(floor(gl_FragCoord.xy), 2.0);
+				
+      //shadow += lookup(vec2(-1.5, 1.5) + o);
+      //shadow += lookup(vec2( 0.5, 1.5) + o);
+      //shadow += lookup(vec2(-1.5, -0.5) + o);
+      //shadow += lookup(vec2( 0.5, -0.5) + o);
+      //shadow *= 0.25 ;
+      
+    }
+  gl_FragColor = (shadow+0.2) * gl_Color; 
+}
+);
+    }
+  }
+}
