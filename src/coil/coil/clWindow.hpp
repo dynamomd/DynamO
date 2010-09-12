@@ -229,6 +229,7 @@ private:
   bool _shadows;
   GLuint _shadowMapTexture;
   int _shadowMapSize;
+  GLuint _shadowFBO;
 
   lightInfo _light0;
 };

@@ -177,12 +177,42 @@ CLGLWindow::initOpenGL()
     {
       glGenTextures(1, &_shadowMapTexture);
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
-      glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _shadowMapSize, _shadowMapSize, 0,
-		    GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+		   _shadowMapSize, _shadowMapSize, 0,
+		   GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+      //Enable shadow comparison
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+      
+      //Shadow comparison should be true (ie not in shadow) if r<=texture
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+      
+      //Shadow comparison should generate an INTENSITY result
+      glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+
+      //Now we should setup a framebuffer object to use to render into our texture
+      glGenFramebuffersEXT(1, &_shadowFBO);
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _shadowFBO);
+	
+      // Instruct openGL that we won't bind a color texture with the currently binded FBO
+      glDrawBuffer(GL_NONE);
+      glReadBuffer(GL_NONE);
+	
+      // attach the texture to FBO depth attachment point
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D, _shadowMapTexture, 0);
+	
+      // check FBO status
+      GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+      if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
+	throw std::runtime_error("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO");
+      
+      // switch back to window-system-provided framebuffer
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     }
 
   //Setup the viewport
@@ -339,15 +369,10 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _clcmdq.finish();
   
   //Prepare for the GL render
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   //If shadows are enabled, we must draw first from the lights perspective
   if (_shadows)
     {
-      VECTOR4D white(1,1,1,1);
-      glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.5f);
-      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.2f);
-
+      
       ////Store the camera matrices and load the light's
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
@@ -357,9 +382,16 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glPushMatrix();
       glLoadMatrixf(_light0._viewMatrix);
 
+      //Render to the shadow maps FBO
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,_shadowFBO);
+
       //Now render the scene from the lights perspective
       //The viewport should change to the shadow maps size
       glViewport(0, 0, _shadowMapSize, _shadowMapSize);
+
+      //Clear the depth buffer
+      glClear(GL_DEPTH_BUFFER_BIT);
+      //Disable
 
       //Draw back faces into the shadow map
       glCullFace(GL_FRONT);
@@ -371,9 +403,8 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Render the scene
       drawScene();
       
-      //Copy the shadow texture
-      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
-      glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _shadowMapSize, _shadowMapSize);
+      //Restore the default FB
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
       //Restore the draw mode
       glCullFace(GL_BACK);
@@ -391,8 +422,11 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glPopMatrix();
 
       //////////////////Pass 2//////////////////
-      //Only clear the depth buffer, the color buffer is already clear
-      glClear(GL_DEPTH_BUFFER_BIT); 
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+      VECTOR4D white(1,1,1,1);
+      glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.5f);
+      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.2f);
 
       drawScene();
 
@@ -431,16 +465,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Bind & enable shadow map texture
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glEnable(GL_TEXTURE_2D);
-      
-      //Enable shadow comparison
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-      
-      //Shadow comparison should be true (ie not in shadow) if r<=texture
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-      
-      //Shadow comparison should generate an INTENSITY result
-      glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-      
+            
       //Set alpha test to discard false comparisons
       glAlphaFunc(GL_GEQUAL, 0.99f);
       glEnable(GL_ALPHA_TEST);
@@ -458,8 +483,11 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Restore other states
       glDisable(GL_ALPHA_TEST);
     }
-  else
-    drawScene();
+  else    
+    {      
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+      drawScene();
+    }
 
   drawAxis();
 
