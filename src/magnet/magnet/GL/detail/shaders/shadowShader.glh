@@ -29,6 +29,7 @@ STRINGIFY(
 varying vec4 ShadowCoord;
 varying vec3 lightVec;
 varying vec3 normal;
+varying vec3 viewVec;
 
 void main()
 {
@@ -41,6 +42,8 @@ void main()
   lightVec = normalize(vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex));
 
   gl_FrontColor = gl_Color;
+
+  viewVec = vec3 (normalize(- (gl_ModelViewProjectionMatrix *gl_Vertex)));
 }
 );
     }
@@ -55,27 +58,25 @@ uniform sampler2DShadow ShadowMap;
 varying vec4 ShadowCoord;
 varying vec3 lightVec;
 varying vec3 normal;
+varying vec3 viewVec;
 
 void main()
 {
   float shadow = 0;
   
-  if (ShadowCoord.w > 1.0)
-    {
-      const float step = 0.001;
-      for (int x = 0; x < 8; ++x)
-	for (int y = 0; y < 8; ++y)
-      	  shadow += shadow2DProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
-      
-      shadow /= 64.0 ;
-    }
+  const float step = 0.0005;
+  for (int x = 0; x < 8; ++x)
+    for (int y = 0; y < 8; ++y)
+      shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+  
+  shadow /= 64.0 ;
   
   float lightNormDot = dot(normal, lightVec);
   
   float DiffuseTerm = 0.5 * lightNormDot + 0.5;
 
   const float shadowIntensity = 0.5;
-  gl_FragColor = (1 + shadowIntensity * (shadow - 1)) * DiffuseTerm * vec4(1,1,1,0.0) + vec4(0,0,0,1);
+  gl_FragColor =  (1 + shadowIntensity * (shadow - 1)) * DiffuseTerm * vec4(1,1,1,0.0) + vec4(0,0,0,1);
 }
 );
     }

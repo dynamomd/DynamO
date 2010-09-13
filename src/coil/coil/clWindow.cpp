@@ -182,10 +182,13 @@ CLGLWindow::initOpenGL()
 		   _shadowMapSize, _shadowMapSize, 0,
 		   GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
+
+      GLfloat l_ClampColor[] = {0.0, 0.0,0.0,0.0};      
+      glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
       //Enable shadow comparison
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
@@ -232,7 +235,7 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
 
-  _light0 = lightInfo(Vector(0.0f, 2.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
+  _light0 = lightInfo(Vector(1.0f, 1.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
   
   GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };
   GLfloat specShininess[] = { 0.0f };
@@ -443,24 +446,22 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
       glLightfv(GL_LIGHT0, GL_SPECULAR, white);
 
-      //Now setup the texgen matrix
-      static MATRIX4X4 biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
-				  0.0f, 0.5f, 0.0f, 0.0f,
-				  0.0f, 0.0f, 0.5f, 0.0f,
-				  0.5f, 0.5f, 0.5f, 1.0f); //bias from [-1, 1] to [0, 1]
-
-      MATRIX4X4 textureMatrix = (biasMatrix 
-				 * _light0._projectionMatrix * _light0._viewMatrix);
-      
       //In both cases we use the texture matrix, instead of the EYE_PLANE
       glActiveTextureARB(GL_TEXTURE7);
       glMatrixMode(GL_TEXTURE);	
-      // Moving from unit cube [-1,1] to [0,1]  
+
+      MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
+
+      //Build the matrix
       glLoadIdentity();
-      glLoadMatrixf(textureMatrix);
-      MATRIX4X4 tmp = _viewPortInfo._viewMatrix.GetInverse();
-      glMultMatrixf(tmp);
+      glTranslatef(0.5f, 0.5f, 0.5f);
+      glScalef(0.5f, 0.5f, 0.5f);
+      glMultMatrixf(_light0._projectionMatrix);
+      glMultMatrixf(_light0._viewMatrix);
+      glMultMatrixf(invView);
+
       glMatrixMode(GL_MODELVIEW);
+
       //Bind & enable shadow map texture
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glEnable(GL_TEXTURE_2D);
