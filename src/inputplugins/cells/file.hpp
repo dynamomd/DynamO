@@ -17,13 +17,12 @@
 
 #pragma once
 #include "cell.hpp"
-#ifndef DYNAMO_CONDOR
 # include <boost/iostreams/device/file.hpp>
 # include <boost/iostreams/filtering_stream.hpp>
 # include <boost/iostreams/filter/bzip2.hpp>
 # include <boost/iostreams/chain.hpp>
 namespace io = boost::iostreams;
-#endif
+
 #include <boost/filesystem.hpp>
 #include <boost/progress.hpp>
 #include <boost/lexical_cast.hpp>
@@ -44,7 +43,6 @@ struct CUFile: public CUCell
  
   virtual void initialise() 
   { 
-#ifndef DYNAMO_CONDOR
     uc->initialise();
     //Open the file for XML parsing
     XMLNode xMainNode;
@@ -126,9 +124,6 @@ struct CUFile: public CUCell
     BOOST_FOREACH(Vector & vec, particleCache)
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	vec[iDim] *= dimensions[iDim];
-#else
-    D_throw() << "Cannot use the file cell when compiled for CONDOR";
-#endif
   }
 
   virtual std::vector<Vector  > placeObjects(const Vector & centre)

@@ -35,7 +35,6 @@ ThreadPool::ThreadPool():
 void 
 ThreadPool::setThreadCount(size_t x)
 { 
-#ifndef DYNAMO_CONDOR   
   if (x == _threadCount) return;
   
   if (x < _threadCount)
@@ -51,10 +50,6 @@ ThreadPool::setThreadCount(size_t x)
     m_threads.create_thread(beginThreadFunc(*this));
 
   _threadCount = x;
-    
-#else
-  D_throw() << "Cannot use the thread pool as threading is disabled";
-#endif
 }
 
 ThreadPool::~ThreadPool() throw()
@@ -65,7 +60,6 @@ ThreadPool::~ThreadPool() throw()
 void 
 ThreadPool::wait()
 {
-#ifndef DYNAMO_CONDOR   
   if (_threadCount)
     {
       //We are in threaded mode! Wait until all tasks are gone and all threads are idling
@@ -74,7 +68,6 @@ ThreadPool::wait()
 	m_threadAvailable.wait(lock1);
     }
   else
-#endif
     {
       //Non threaded mode
       while (!m_waitingFunctors.empty())
@@ -101,22 +94,17 @@ ThreadPool::stop()
   // m_bStop must be set to true in a critical section.  Otherwise
   // it is possible for a thread to miss notify_all and never
   // terminate.
-#ifndef DYNAMO_CONDOR   
   boost::mutex::scoped_lock lock1(m_mutex);
   m_bStop = true;
   lock1.unlock();
   
   m_needThread.notify_all();
   m_threads.join_all();
-#else
-  m_bStop = true;
-#endif
 }
 
 void 
 ThreadPool::beginThread() throw()
 {
-#ifndef DYNAMO_CONDOR   
   try
     {
       boost::mutex::scoped_lock lock1(m_mutex);
@@ -163,8 +151,4 @@ ThreadPool::beginThread() throw()
 		<< p.what();
       throw;
     }
-
-#else
-  D_throw() << "Cannot beginThread as threading is disabled";
-#endif      
 }    

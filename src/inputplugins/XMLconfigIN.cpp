@@ -17,15 +17,11 @@
 
 #include "XMLconfig.hpp"
 
-#ifndef DYNAMO_CONDOR
 # include <boost/iostreams/device/file.hpp>
 # include <boost/iostreams/filtering_stream.hpp>
 # include <boost/iostreams/filter/bzip2.hpp>
 # include <boost/iostreams/chain.hpp>
 namespace io = boost::iostreams;
-#else
-# include <fstream>
-#endif
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
@@ -57,7 +53,6 @@ CIPConfig::initialise()
 
   //This scopes out the file objects
   {
-#ifndef DYNAMO_CONDOR
     io::filtering_istream inputFile;
     
     if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
@@ -71,16 +66,7 @@ CIPConfig::initialise()
       D_throw() << "Unrecognized extension for input files";
     
     inputFile.push(io::file_source(fileName));
-#else
-    if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-      D_throw() << "Cannot load a compressed file when built for condor!";
-    else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
-      I_cout() << "Uncompressed XML input file " << fileName << " loading";
-    else
-      D_throw() << "Unrecognized extension for input files";
-    
-    std::ifstream inputFile(fileName.c_str());
-#endif
+
     std::cout.flush();
     
     //Copy file to a string

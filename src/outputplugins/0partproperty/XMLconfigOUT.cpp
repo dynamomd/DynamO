@@ -17,14 +17,10 @@
 
 #include "XMLconfig.hpp"
 
-#ifndef DYNAMO_CONDOR
 # include <boost/iostreams/device/file.hpp>
 # include <boost/iostreams/filtering_stream.hpp>
 # include <boost/iostreams/filter/bzip2.hpp>
 # include <boost/iostreams/chain.hpp>
-#else
-# include <fstream>
-#endif
 
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
@@ -93,7 +89,6 @@ OPConfig::output(xml::XmlStream &XML)
 void 
 OPConfig::fileOutput(const char *fileName)
 {
-#ifndef DYNAMO_CONDOR
   namespace io = boost::iostreams;
 
   if (compressedOutput) 
@@ -109,7 +104,6 @@ OPConfig::fileOutput(const char *fileName)
       output(XML);
     }
   else
-#endif
     {
       std::ofstream coutputFile(fileName, std::ios::out | std::ios::trunc);
       xml::XmlStream XML(coutputFile);

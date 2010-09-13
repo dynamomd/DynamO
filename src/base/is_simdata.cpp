@@ -43,9 +43,6 @@ namespace DYNAMO
     status(START),
     binaryXML(true)
   {
-#ifdef DYNAMO_CONDOR
-    binaryXML = false;
-#endif
   }
 
   SimData::~SimData()

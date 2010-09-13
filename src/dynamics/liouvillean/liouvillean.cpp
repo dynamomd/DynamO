@@ -85,7 +85,6 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
   if (xSubNode.isAttributeSet("AttachedBinary")
       && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
     {
-#ifndef DYNAMO_CONDOR
       Sim->binaryXML = true;
 
       unsigned long nPart 
@@ -129,9 +128,6 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 
 	  ++prog;
 	}
-#else
-      D_throw() << "Cannot use appended binary data in Condor executables!";
-#endif
     }
   else
     {

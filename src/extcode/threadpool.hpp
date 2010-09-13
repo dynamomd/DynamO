@@ -25,10 +25,8 @@
 #include "include/FastDelegate/FastDelegate.h"
 #include "include/FastDelegate/FastDelegateBind.h"
 
-#ifndef DYNAMO_CONDOR
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
-#endif
 
 #include "PoolAllocator.hpp"
 #include <boost/pool/pool_alloc.hpp>
@@ -142,11 +140,7 @@ public:
   /*! \brief The current number of threads in the pool */
   size_t getThreadCount() const
   {
-#ifndef DYNAMO_CONDOR    
     return _threadCount; 
-#else
-    return 0;
-#endif
   }
     
   /*! \brief Set a task to be completed by the pool.
@@ -221,16 +215,12 @@ public:
   //Actual queuer
   inline void queueTask(Task* threadfunc)
   {
-#ifndef DYNAMO_CONDOR   
     {
       boost::mutex::scoped_lock lock1(m_mutex);    
       m_waitingFunctors.push(threadfunc);
     }
 
     m_needThread.notify_all();
-#else
-    m_waitingFunctors.push(threadfunc);
-#endif
   }
   
   /*! \brief Destructor
@@ -262,7 +252,6 @@ private:
   /*! \brief List of functors/tasks left to be assigned to a thread. */
   std::queue<Task*> m_waitingFunctors;
 
-#ifndef DYNAMO_CONDOR   
   /*! \brief A mutex to control access to job data.
    * 
    * This mutex is also used as part of the m_needThread condition and
@@ -290,7 +279,6 @@ private:
 
   size_t _idlingThreads;
   size_t _threadCount;
-#endif
 
   /*! \brief When this is true threads will terminate themselves.
    */
