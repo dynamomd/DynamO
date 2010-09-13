@@ -19,6 +19,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <coil/extcode/vector2.hpp>
 
 Sphere::Sphere(SphereType type, size_t order):
   vertices(NULL),
@@ -122,17 +123,38 @@ Sphere::Sphere(SphereType type, size_t order):
     refine();
 
   
-  //Renormalize to spheres of diameter 2! (this is to make sure the vectors are all normalised)
-  for (int i(0); i < n_vertices; ++i)
+  //Renormalize to the volume of a sphere with radius 1!
+  double spherevol = 4.0 * M_PI / 3.0;
+
+  //Now calculate the current volume
+  double volumeSum = 0;
+
+  //Iterate over each surface triangle
+  for (int i(0); i < n_faces; ++i)
     {
-      double len = 1.0 / std::sqrt(vertices[i * 3 + 0] * vertices[i * 3 + 0]
-				   + vertices[i * 3 + 1] * vertices[i * 3 + 1]
-				   + vertices[i * 3 + 2] * vertices[i * 3 + 2]
-				   );
-      
-      for (size_t j(0); j < 3; ++j)
-	vertices[i * 3 + j] /= len;
+      Vector a(vertices[3 * faces[3*i + 0] + 0],
+	       vertices[3 * faces[3*i + 0] + 1],
+	       vertices[3 * faces[3*i + 0] + 2]);
+
+      Vector b(vertices[3 * faces[3*i + 1] + 0],
+	       vertices[3 * faces[3*i + 1] + 1],
+	       vertices[3 * faces[3*i + 1] + 2]);
+
+      Vector c(vertices[3 * faces[3*i + 2] + 0],
+	       vertices[3 * faces[3*i + 2] + 1],
+	       vertices[3 * faces[3*i + 2] + 2]);
+
+      volumeSum += (a | (b ^ c));
     }
+  
+  //Calculate the ratio of the two volumes
+  volumeSum /= 6;
+
+  double lengthscale = std::pow(spherevol / volumeSum, 1.0 / 3.0);
+
+  for (int i(0); i < n_vertices; ++i)
+    for (size_t j(0); j < 3; ++j)
+      vertices[i * 3 + j] *= lengthscale;
 
 }
 

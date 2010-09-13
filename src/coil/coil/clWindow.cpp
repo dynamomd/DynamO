@@ -235,7 +235,7 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
 
-  _light0 = lightInfo(Vector(1.0f, 1.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
+  _light0 = lightInfo(Vector(1.5f, 1.5f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
   
   GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };
   GLfloat specShininess[] = { 0.0f };
@@ -365,6 +365,11 @@ void CLGLWindow::CallBackDisplayFunc(void)
   //Setup the timings
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
+  const float speed = 1000;
+  _light0 = lightInfo(Vector(1.5f*std::cos(_currFrameTime/speed), 1.5f, 
+			     1.5f * std::sin(_currFrameTime/speed)), 
+		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
+
 
   //Run every objects OpenCL stage
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
@@ -402,7 +407,6 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
       //Clear the depth buffer
       glClear(GL_DEPTH_BUFFER_BIT);
-      //Disable
 
       //Draw back faces into the shadow map
       glCullFace(GL_FRONT);
@@ -435,13 +439,6 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //////////////////Pass 2//////////////////
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      VECTOR4D white(1,1,1,1);
-      glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.5f);
-      glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.2f);
-
-      //drawScene();
-
-      //////////////////Pass 3//////////////////
       //Setup a bright light
       glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
       glLightfv(GL_LIGHT0, GL_SPECULAR, white);
@@ -466,61 +463,15 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glEnable(GL_TEXTURE_2D);
 
+      _shadowShader.attach(_shadowMapTexture, _shadowMapSize, 7);
 
-      bool customFunction = true;
-
-      if (customFunction)
-	{
-	  _shadowShader.attach(_shadowMapTexture, _shadowMapSize, 7);
-	  glEnable(GL_BLEND); //Enable blending
-	}
-      else
-	{
-	  //Set up texture coordinate generation.
-	  glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	  glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	  glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	  glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-
-	  const GLfloat x[] = {1.0, 0.0, 0.0, 0.0};
-	  const GLfloat y[] = {0.0, 1.0, 0.0, 0.0};
-	  const GLfloat z[] = {0.0, 0.0, 1.0, 0.0};
-	  const GLfloat w[] = {0.0, 0.0, 0.0, 1.0};
-
-	  glTexGenfv(GL_S, GL_EYE_PLANE, x);
-	  glTexGenfv(GL_T, GL_EYE_PLANE, y);	  
-	  glTexGenfv(GL_R, GL_EYE_PLANE, z);
-	  glTexGenfv(GL_Q, GL_EYE_PLANE, w);
-
-	  glEnable(GL_TEXTURE_GEN_S);
-	  glEnable(GL_TEXTURE_GEN_T);
-	  glEnable(GL_TEXTURE_GEN_R);
-	  glEnable(GL_TEXTURE_GEN_Q);
-
-	  //Set alpha test to discard false comparisons
-	  glAlphaFunc(GL_GEQUAL, 0.99f);
-	  glEnable(GL_ALPHA_TEST);
-	}
-            
       drawScene();
 
       //Disable textures and texgen
       glDisable(GL_TEXTURE_2D);
       
-      if (!customFunction)
-	{
-	  glDisable(GL_TEXTURE_GEN_S);
-	  glDisable(GL_TEXTURE_GEN_T);
-	  glDisable(GL_TEXTURE_GEN_R);
-	  glDisable(GL_TEXTURE_GEN_Q);
-
-	  glDisable(GL_ALPHA_TEST);
-	}
-      else
-	{
-	  glDisable(GL_BLEND);
-	  glUseProgramObjectARB(0);
-	}
+      //Reset to the fixed GL pipeline
+      glUseProgramObjectARB(0);
 
     }
   else    
@@ -532,11 +483,32 @@ void CLGLWindow::CallBackDisplayFunc(void)
   drawAxis();
 
   //Draw the light source
-  glColor3f(1,1,0);
-  glPushMatrix();
-  glTranslatef(_light0._position.x, _light0._position.y, _light0._position.z);
-  glutSolidSphere(0.1f, 5, 5);
-  glPopMatrix();
+  {
+    glColor3f(1,1,0);
+    
+    Vector directionNorm = (_light0._lookAtPoint - _light0._position);
+    directionNorm /= directionNorm.nrm();
+    
+    GLfloat rotationAngle = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | directionNorm);
+    
+    
+    Vector RotationAxis = Vector(0,0,-1) ^ directionNorm;
+    float norm = RotationAxis.nrm();
+    RotationAxis /= norm;
+    if (norm < std::numeric_limits<double>::epsilon())
+      RotationAxis = Vector(1,0,0);
+    
+    glPushMatrix();
+    glTranslatef(_light0._position.x, _light0._position.y, _light0._position.z);
+    glRotatef(-rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
+    
+    glTranslatef(0.0f,0.0f,-0.025f);
+    glutSolidTorus(0.01f, 0.02f, 20, 20);
+    glRotatef(180, 0.0, 1.0, 0.0);
+    glTranslatef(0.0f,0.0f,-0.025f);
+    glutSolidCone(0.02f, 0.05f, 15, 15);
+    glPopMatrix();
+  }
 
 
   //coil::glprimatives::drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1)); 

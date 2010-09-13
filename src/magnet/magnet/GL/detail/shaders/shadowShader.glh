@@ -43,7 +43,7 @@ void main()
 
   gl_FrontColor = gl_Color;
 
-  viewVec = vec3 (normalize(- (gl_ModelViewProjectionMatrix * gl_Vertex)));
+  viewVec = vec3(gl_ModelViewMatrix * gl_Vertex);
 }
 );
     }
@@ -62,7 +62,7 @@ varying vec3 viewVec;
 
 void main()
 {
-  const float shadowIntensity = 0.5;
+  const float shadowIntensity = 0.6;
 
 
   float shadow = 0;
@@ -78,7 +78,8 @@ void main()
   
   float DiffuseTerm = 0.5 * lightNormDot + 0.5;
  
-  float specular = shadow * max(dot(reflect(lightVec, normal), viewVec), 0.0) ;
+  float specular = shadow * max(dot(reflect(normalize(lightVec), normalize(normal)), normalize(viewVec)), 0.0);
+  //float specular = shadow * max(dot(normalize(gl_LightSource[0].halfVector.xyz), viewVec), 0.0) * 2.0 ;
   
   specular *= specular * specular * specular;
 
@@ -86,7 +87,7 @@ void main()
 			       ) * vec4(1.0,1.0,1.0,0) //Conversion to white channel
 			      + vec4(0,0,0,1) //The alpha channel
 			      )
-    + 0.5 * specular * vec4(1.0,1.0,1.0,0); //Specular lighting is pure white
+    + 0.1 * specular * vec4(1.0,1.0,1.0,0); //Specular lighting is pure white
 ;
 }
 );

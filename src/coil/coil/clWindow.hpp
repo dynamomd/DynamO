@@ -122,7 +122,7 @@ public:
 
     lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle, 
 	      GLfloat beamAngle = 45.0f,
-	      GLfloat rangeMax = 2.0f, GLfloat rangeMin = 0.001):
+	      GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.01):
       _position(position),
       _lookAtPoint(lookAtPoint),
       _lightHandle(lightHandle)
