@@ -7,7 +7,7 @@ lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
 
-lib coil : [ glob-tree *.cpp : tests ]
+alias coil : [ glob-tree *.cpp : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
     : <include>.
     : : <define>GLVIEWER <include>.

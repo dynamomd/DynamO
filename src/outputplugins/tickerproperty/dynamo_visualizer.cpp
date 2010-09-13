@@ -39,7 +39,10 @@ OPVisualizer::OPVisualizer(const DYNAMO::SimData* tmp, const XMLNode& XML):
 OPVisualizer::~OPVisualizer()
 {
   if (_CLWindow != NULL)
-    CoilMaster::getInstance().waitForRendererShutdown();
+    {
+      CoilMaster::getInstance().shutdownRenderer();
+      CoilMaster::getInstance().waitForRendererShutdown();
+    }
 }
 
 void 

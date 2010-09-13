@@ -94,7 +94,7 @@ install install-test
 	;
 
 install install-bin 
-	: dynarun dynamod dynarun dynahist_rw
+	: dynarun dynahist_rw dynamod
 	: <location>bin
 	;	
 
