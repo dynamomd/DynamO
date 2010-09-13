@@ -182,8 +182,8 @@ CLGLWindow::initOpenGL()
 		   _shadowMapSize, _shadowMapSize, 0,
 		   GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
@@ -436,7 +436,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glLightfv(GL_LIGHT0, GL_DIFFUSE, white*0.5f);
       glLightfv(GL_LIGHT0, GL_AMBIENT, white*0.2f);
 
-      drawScene();
+      //drawScene();
 
       //////////////////Pass 3//////////////////
       //Setup a bright light
@@ -449,22 +449,24 @@ void CLGLWindow::CallBackDisplayFunc(void)
 				  0.0f, 0.0f, 0.5f, 0.0f,
 				  0.5f, 0.5f, 0.5f, 1.0f); //bias from [-1, 1] to [0, 1]
 
-      MATRIX4X4 textureMatrix = biasMatrix 
-	* _light0._projectionMatrix * _light0._viewMatrix;
-
+      MATRIX4X4 textureMatrix = (biasMatrix 
+				 * _light0._projectionMatrix * _light0._viewMatrix);
+      
       //In both cases we use the texture matrix, instead of the EYE_PLANE
       glActiveTextureARB(GL_TEXTURE7);
       glMatrixMode(GL_TEXTURE);	
       // Moving from unit cube [-1,1] to [0,1]  
       glLoadIdentity();
       glLoadMatrixf(textureMatrix);
+      MATRIX4X4 tmp = _viewPortInfo._viewMatrix.GetInverse();
+      glMultMatrixf(tmp);
       glMatrixMode(GL_MODELVIEW);
       //Bind & enable shadow map texture
       glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
       glEnable(GL_TEXTURE_2D);
 
 
-      bool customFunction = false;
+      bool customFunction = true;
 
       if (customFunction)
 	{

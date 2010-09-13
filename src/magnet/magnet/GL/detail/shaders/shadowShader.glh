@@ -27,11 +27,19 @@ namespace magnet {
 STRINGIFY( 
 // Used for shadow lookup
 varying vec4 ShadowCoord;
+varying vec3 lightVec;
+varying vec3 normal;
 
 void main()
 {
-  ShadowCoord= gl_TextureMatrix[7] * gl_Vertex;
-  gl_Position = ftransform();
+  ShadowCoord= gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
+
+  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  
+  normal = normalize(gl_NormalMatrix * gl_Normal);
+
+  lightVec = normalize(vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex));
+
   gl_FrontColor = gl_Color;
 }
 );
@@ -45,26 +53,29 @@ STRINGIFY(
 uniform sampler2DShadow ShadowMap;
 
 varying vec4 ShadowCoord;
-
-// This define the value to move one pixel left or right
-uniform float xPixelOffset ;
-
-// This define the value to move one pixel up or down
-uniform float yPixelOffset ;
+varying vec3 lightVec;
+varying vec3 normal;
 
 void main()
 {
-  float shadow;
+  float shadow = 0;
+  
+  if (ShadowCoord.w > 1.0)
+    {
+      const float step = 0.001;
+      for (int x = 0; x < 8; ++x)
+	for (int y = 0; y < 8; ++y)
+      	  shadow += shadow2DProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+      
+      shadow /= 64.0 ;
+    }
+  
+  float lightNormDot = dot(normal, lightVec);
+  
+  float DiffuseTerm = 0.5 * lightNormDot + 0.5;
 
-//  for (float y = -30.5 ; y <=30.5 ; y+=10.0)
-//    for (float x = -30.5 ; x <=30.5 ; x+=10.0)
-//      shadow += shadow2DProj(ShadowMap, ShadowCoord + vec4(ShadowCoord.w * x, ShadowCoord.w * y, 0.05, 0.0)).w;
-//
-//  shadow /= 64.0;
-
-  shadow += shadow2DProj(ShadowMap, ShadowCoord + vec4(0, 0, 0, 0.0)).r;
-
-  gl_FragColor = (shadow+0.2) * gl_Color;
+  const float shadowIntensity = 0.5;
+  gl_FragColor = (1 + shadowIntensity * (shadow - 1)) * DiffuseTerm * vec4(1,1,1,0.0) + vec4(0,0,0,1);
 }
 );
     }
