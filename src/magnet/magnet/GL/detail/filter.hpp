@@ -129,6 +129,27 @@ namespace magnet {
 	  //Restore the fixed pipeline
 	  glUseProgramObjectARB(0);
 	}
+
+	void textureToScreen()
+	{
+	  //Save the matrix state and load identities
+	  glMatrixMode(GL_PROJECTION);
+	  glPushMatrix();
+	  glLoadIdentity();
+
+	  glMatrixMode(GL_MODELVIEW);
+	  glPushMatrix();
+	  glLoadIdentity();
+
+	  
+	  
+	  //Restore the matrix state
+	  glMatrixMode(GL_PROJECTION);
+	  glPopMatrix();
+
+	  glMatrixMode(GL_MODELVIEW);
+	  glPopMatrix();
+	}
       protected:
 	
       };
