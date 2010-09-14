@@ -28,6 +28,7 @@
 
 #include <magnet/GLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
+#include <magnet/GL/blur.hpp>
 
 #include <coil/extcode/static_assert.hpp>
 #include <coil/extcode/vector2.hpp>

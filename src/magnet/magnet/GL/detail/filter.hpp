@@ -31,7 +31,7 @@ namespace magnet {
        * functions called  T::vertexShaderSource() and T::fragmentShaderSource().
        */
       template<class T>
-      class filter<T> : public shader<filter<T> > 
+      class filter : public shader<filter<T> > 
       {
       public:
 	//bind to an existing FBO
@@ -47,7 +47,7 @@ namespace magnet {
 	  _height(height)
 	{
 	  glGenFramebuffersEXT(1, &_FBO);
-	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->frame[i]);
+	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 	  	  
 	  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
@@ -60,36 +60,16 @@ namespace magnet {
 	
       protected:
 	GLuint _FBO;
-	
 	GLsizei _width;
 	GLsizei _height;
 	
-	//Helper functions to attach textures to the FBO
-	void bindTexture(GLuint* texture)
-	{
-	  //Bind the FBO
-	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-
-	  //Generate and bind the texture
-	  glGenTextures(1, texture);
-	  glBindTexture(GL_TEXTURE_2D, texture);
-	  
-	  //bind it to the FBO
-	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, fbo->texid[i], 0);
-	  
-	  //Set the textures properties
-	  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, _width, _height, 0, GL_RGBA, GL_FLOAT, NULL);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
-
 	void preInvoke()
 	{
-	  glUseProgram(_shaderID);
+	  glUseProgram(shader<filter<T> >::_shaderID);
 	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	  
-	  glViewport(offsetX, offsetY, width, heigth);
+	  glViewport(0, 0, _width, _height);
 
 	  //Save the matrix state
 	  glMatrixMode(GL_PROJECTION);
@@ -130,26 +110,6 @@ namespace magnet {
 	  glUseProgramObjectARB(0);
 	}
 
-	void textureToScreen()
-	{
-	  //Save the matrix state and load identities
-	  glMatrixMode(GL_PROJECTION);
-	  glPushMatrix();
-	  glLoadIdentity();
-
-	  glMatrixMode(GL_MODELVIEW);
-	  glPushMatrix();
-	  glLoadIdentity();
-
-	  
-	  
-	  //Restore the matrix state
-	  glMatrixMode(GL_PROJECTION);
-	  glPopMatrix();
-
-	  glMatrixMode(GL_MODELVIEW);
-	  glPopMatrix();
-	}
       protected:
 	
       };

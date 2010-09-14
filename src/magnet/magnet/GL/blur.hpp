@@ -16,15 +16,21 @@
  */
 #pragma once
 
-#include <magnet/GL/detail/shader.hpp>
+#include <magnet/GL/detail/filter.hpp>
 
 namespace magnet {
-  namespace GL {
-    
+  namespace GL {    
     class blurFilter: public detail::filter<blurFilter>
     {
     public:      
-      
+      blurFilter(GLuint FBO, GLsizei width, GLsizei height):
+	detail::filter<blurFilter>(FBO, width, height)
+      {}
+
+	//Create our own FBO
+      blurFilter(GLsizei width, GLsizei height):
+	detail::filter<blurFilter>(width, height)
+      {}
 
       static inline std::string vertexShaderSource();
       static inline std::string fragmentShaderSource();
@@ -32,4 +38,4 @@ namespace magnet {
   }
 }
 
-#include <magnet/GL/detail/shaders/shadowShader.glh>
+#include <magnet/GL/detail/shaders/blur.glh>
