@@ -23,17 +23,10 @@ namespace magnet {
     class blurFilter: public detail::filter<blurFilter>
     {
     public:      
-      blurFilter(GLuint FBO, GLsizei width, GLsizei height):
-	detail::filter<blurFilter>(FBO, width, height)
-      {}
-
-	//Create our own FBO
-      blurFilter(GLsizei width, GLsizei height):
-	detail::filter<blurFilter>(width, height)
-      {}
 
       static inline std::string vertexShaderSource();
       static inline std::string fragmentShaderSource();
+      
     };
   }
 }

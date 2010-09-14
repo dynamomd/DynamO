@@ -34,35 +34,83 @@ namespace magnet {
       class filter : public shader<filter<T> > 
       {
       public:
+	
+
 	//bind to an existing FBO
-	filter(GLuint FBO, GLsizei width, GLsizei height):
-	  _FBO(FBO),
-	  _width(width),
-	  _height(height)
-	{}
+	void build(GLuint FBO, GLsizei width, GLsizei height, GLint internalFormat, GLenum type)
+	{
+	  _FBO = FBO;
+	  _width = width;
+	  _height = height;
+	  
+	  bindTexture(internalFormat, type);
+	}
 
 	//Create our own FBO
-	filter(GLsizei width, GLsizei height):
-	  _width(width),
-	  _height(height)
+	void build(GLsizei width, GLsizei height, GLint internalFormat, GLenum type)
 	{
+	  _width = width;
+	  _height = height;
+
 	  glGenFramebuffersEXT(1, &_FBO);
 	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+
+	  bindTexture(internalFormat, type);
 	  	  
-	  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-	    M_throw() << "Error [" <<  status << "] while creating frame buffer";
-	  
 	  // switch back to screen framebuffer
 	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
 	
+	void renderOutput()
+	{
+	  //Save the matrix state
+	  glMatrixMode(GL_PROJECTION);
+	  glPushMatrix();
+	  glLoadIdentity();
+
+	  glMatrixMode(GL_MODELVIEW);
+	  glPushMatrix();
+	  glLoadIdentity();
+
+	  glBegin(GL_QUADS);
+	  glTexCoord2f(0.0f, 0.0f);
+	  glVertex2d(-1, -1);
+	  glTexCoord2f(1.0f, 0.0f);
+	  glVertex2d(1, -1);
+	  glTexCoord2f( 1.0f, 1.0f);
+	  glVertex2d(1, 1);
+	  glTexCoord2f(0.0f, 1.0f);
+	  glVertex2d(-1, 1);
+	  glEnd();
+	
+	  //Restore the matrix state
+	  glMatrixMode(GL_PROJECTION);
+	  glPopMatrix();
+
+	  glMatrixMode(GL_MODELVIEW);
+	  glPopMatrix();
+	}
 	
       protected:
-	GLuint _FBO;
+	GLuint _FBO, _outputTexture;
 	GLsizei _width;
 	GLsizei _height;
 	
+	void bindTexture(GLint internalFormat, GLenum type)
+	{
+	  glGenTextures(1, &_outputTexture);	
+	  glBindTexture(GL_TEXTURE_2D, _outputTexture);
+	  
+	  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, GL_RGBA, type, NULL);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, _outputTexture, 0);
+	  
+	  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+	    M_throw() << "Error [" <<  status << "] while creating frame buffer";
+	}
+
 	void preInvoke()
 	{
 	  glUseProgram(shader<filter<T> >::_shaderID);

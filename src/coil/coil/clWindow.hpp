@@ -29,6 +29,7 @@
 #include <magnet/GLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
 #include <magnet/GL/blur.hpp>
+#include <magnet/GL/downsample.hpp>
 
 #include <coil/extcode/static_assert.hpp>
 #include <coil/extcode/vector2.hpp>
@@ -170,6 +171,7 @@ public:
   inline const int& getLastFrameTime() const { return _lastFrameTime; }
 protected:
   magnet::GL::shadowShader _shadowShader;
+  magnet::GL::downsampleFilter _downsampleFilter;
 
   cl::Platform _clplatform;
   cl::Context _clcontext;

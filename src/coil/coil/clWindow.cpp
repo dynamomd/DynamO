@@ -257,6 +257,7 @@ CLGLWindow::initOpenGL()
 
   //Build the shaders
   _shadowShader.build();
+  _downsampleFilter.build(_width, _height);
 }
 
 void 
@@ -365,10 +366,10 @@ void CLGLWindow::CallBackDisplayFunc(void)
   //Setup the timings
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
-  const float speed = 1000;
-  _light0 = lightInfo(Vector(1.5f*std::cos(_currFrameTime/speed), 1.5f, 
-			     1.5f * std::sin(_currFrameTime/speed)), 
-		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
+//  const float speed = 1000;
+//  _light0 = lightInfo(Vector(1.5f*std::cos(_currFrameTime/speed), 1.5f, 
+//			     1.5f * std::sin(_currFrameTime/speed)), 
+//		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
 
 
   //Run every objects OpenCL stage
