@@ -30,8 +30,9 @@ namespace magnet {
        * functions called  T::vertexShaderSource() and T::fragmentShaderSource().
        */
       template<class T>
-      class shader {
-
+      class shader 
+      {
+	
       protected:
 	inline void build()
 	{
