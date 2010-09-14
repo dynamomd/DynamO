@@ -500,11 +500,10 @@ void CLGLWindow::CallBackDisplayFunc(void)
     
     glPushMatrix();
     glTranslatef(_light0._position.x, _light0._position.y, _light0._position.z);
-    glRotatef(-rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
+    glRotatef(rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
     
     glTranslatef(0.0f,0.0f,-0.025f);
     glutSolidTorus(0.01f, 0.02f, 20, 20);
-    glRotatef(180, 0.0, 1.0, 0.0);
     glTranslatef(0.0f,0.0f,-0.025f);
     glutSolidCone(0.02f, 0.05f, 15, 15);
     glPopMatrix();
