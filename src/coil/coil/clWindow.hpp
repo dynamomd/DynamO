@@ -31,11 +31,10 @@
 #include <magnet/GL/light.hpp>
 #include <magnet/GL/CLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
-#include <magnet/GL/blur.hpp>
 #include <magnet/GL/downsample.hpp>
 #include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/viewPort.hpp>
-#include <magnet/GL/FBO.hpp>
+#include <magnet/GL/multisampledFBO.hpp>
 
 #include <coil/RenderObj/RenderObj.hpp>
 
@@ -97,7 +96,7 @@ protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::downsampleFilter _downsampleFilter;
   magnet::GL::shadowFBO _shadowFBO;
-
+  magnet::GL::multisampledFBO _myFBO;
 
   cl::Platform _clplatform;
   cl::Context _clcontext;

@@ -178,7 +178,7 @@ CLGLWindow::initOpenGL()
   //Build the shaders
   _shadowShader.build();
   _downsampleFilter.build(_width, _height);
-  
+  _myFBO.init(_width, _height);
 }
 
 void 
@@ -340,7 +340,11 @@ void CLGLWindow::CallBackDisplayFunc(void)
 
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
 
+      _myFBO.attach();
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
       drawScene();
+      _myFBO.detach();
 
       //Disable textures and texgen
       glDisable(GL_TEXTURE_2D);
@@ -348,6 +352,8 @@ void CLGLWindow::CallBackDisplayFunc(void)
       //Reset to the fixed GL pipeline
       glUseProgramObjectARB(0);
 
+      //Now blit the stored scene to the 
+      _myFBO.blitToScreen(_width, _height);
     }
   else    
     {      
@@ -486,6 +492,8 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 		 _viewPortInfo._zFarDist);
 
   glMatrixMode(GL_MODELVIEW);
+
+  _myFBO.resize(_width, _height);
 }
 
 void 

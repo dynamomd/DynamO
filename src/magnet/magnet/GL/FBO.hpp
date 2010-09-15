@@ -29,10 +29,13 @@ namespace magnet {
       inline void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
 		       GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
       {
+	if (!GLEW_EXT_framebuffer_object)
+	  M_throw() << "GL_EXT_framebuffer_object extension is not supported! Cannot do offscreen rendering!";
+
 	if (_width || _height) 
 	  M_throw() << "FBO has already been initialised!";
 
-	if (!_width || !_height)
+	if (!width || !height)
 	  M_throw() << "Cannot initialise an FBO with a width or height == 0!";
 
 	_internalformat = internalformat;
@@ -74,6 +77,9 @@ namespace magnet {
       
       inline void resize(GLsizei width, GLsizei height)
       {
+	//If we've not been initialised, then just return
+	if (!_width) return;
+
 	_width = width;
 	_height = height;
 
@@ -91,7 +97,7 @@ namespace magnet {
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
 	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, screenwidth, screenheight, 
-			     GL_COLOR_BUFFER_BIT, GL_LINEAR);
+			     GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
 
@@ -105,12 +111,26 @@ namespace magnet {
 	  }
       }
 
+      inline void attach()
+      {
+	glPushAttrib(GL_VIEWPORT_BIT);
+	glViewport(0, 0, _width, _height);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+      }
+
+      inline void detach()
+      {
+	glPopAttrib();
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      }
+	
+
       inline GLuint getFBO() { return _FBO; }
       inline GLuint getColorTexture() { return _colorTexture; }
       inline GLsizei getWidth() { return _width; }
       inline GLsizei getHeight() { return _height; }
 
-    private:
+    protected:
       GLuint _FBO, _colorTexture, _depthBuffer;
       GLsizei _width, _height;
       GLint _internalformat;
