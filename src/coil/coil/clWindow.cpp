@@ -323,11 +323,13 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
       //In both cases we use the texture matrix, instead of the EYE_PLANE
+      //We bind to the 7th texture unit???? 
       glActiveTextureARB(GL_TEXTURE7);
       glMatrixMode(GL_TEXTURE);
 
-      MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
       _light0.buildShadowTextureMatrix();
+
+      MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
       glMultMatrixf(invView);
 	
       glMatrixMode(GL_MODELVIEW);

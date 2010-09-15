@@ -35,6 +35,7 @@
 #include <magnet/GL/downsample.hpp>
 #include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/viewPort.hpp>
+#include <magnet/GL/FBO.hpp>
 
 #include <coil/RenderObj/RenderObj.hpp>
 

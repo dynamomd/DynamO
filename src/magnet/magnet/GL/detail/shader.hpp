@@ -32,8 +32,26 @@ namespace magnet {
       template<class T>
       class shader 
       {
-	
+      public:
+	shader():_built(false) {}
+
+	~shader()
+	{
+	  if (_built)
+	    {
+	      glDeleteProgram(_shaderID);
+	      glDeleteShader(_vertexShaderHandle);
+	      glDeleteShader(_fragmentShaderHandle);
+	    }
+	}
+
       protected:
+	GLhandleARB _vertexShaderHandle;
+	GLhandleARB _fragmentShaderHandle;
+	GLhandleARB _shaderID;
+
+	bool _built;
+
 	inline void build()
 	{
 	  std::string vertexShaderSrc = format_code(T::vertexShaderSource());
@@ -72,11 +90,9 @@ namespace magnet {
 	  glLinkProgramARB(_shaderID);
 
 	  //Done, now the inheriting shader should grab the locations of its uniforms
+	  _built = true;
 	}
 	
-	GLhandleARB _vertexShaderHandle;
-	GLhandleARB _fragmentShaderHandle;
-	GLhandleARB _shaderID;
 
 	inline std::string getShaderBuildlog(GLhandleARB shaderHandle)
 	{

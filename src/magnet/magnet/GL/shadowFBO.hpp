@@ -78,8 +78,8 @@ namespace magnet {
       {
 	if (_length)
 	  {
-	    glDeleteTextures(1, &_depthTexture);
 	    glDeleteFramebuffersEXT(1, &_FBO);
+	    glDeleteTextures(1, &_depthTexture);
 	  }
       }
 
