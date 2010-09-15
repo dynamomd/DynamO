@@ -177,7 +177,6 @@ CLGLWindow::initOpenGL()
 
   //Build the shaders
   _shadowShader.build();
-  _downsampleFilter.build(_width, _height);
   _myFBO.init(_width, _height);
 }
 

@@ -30,8 +30,8 @@ namespace magnet {
        * type in the template parameter (T) and defines static member
        * functions called  T::vertexShaderSource() and T::fragmentShaderSource().
        */
-      template<class T>
-      class filter : public shader<filter<T> > 
+      template<class T, int stencilwidth>
+      class filter : public shader<filter<T,stencilwidth> > 
       {
       public:
 	
@@ -113,7 +113,7 @@ namespace magnet {
 
 	void preInvoke()
 	{
-	  glUseProgram(shader<filter<T> >::_shaderID);
+	  glUseProgram(shader<filter<T, stencilwidth> >::_shaderID);
 	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	  

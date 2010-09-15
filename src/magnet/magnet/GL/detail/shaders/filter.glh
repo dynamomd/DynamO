@@ -18,34 +18,28 @@
 //Simple macro to convert a token to a string
 #define STRINGIFY(A) #A
 
+#include <sstream>
+
 namespace magnet {
   namespace GL {
+
+    template<class T, int stencilwidth>
     inline std::string 
-    blurFilter::vertexShaderSource()
+    filter::vertexShaderSource()
     {
-      return
+      return std::string("#define stencilwidth ") + ((std::ostringstream() << stencilwidth).str()) +
 STRINGIFY( 
 /////////////////////////////////////////////////
 // 7x1 gaussian blur fragment shader
 /////////////////////////////////////////////////
 uniform vec2 u_Scale;
-uniform vec2 weights;
+uniform vec2 weights[stencilwidth];
 uniform sampler2D u_Texture0;
-
-//const vec2 gaussFilter[7] = 
-//  { -3.0, 0.015625,
-//    -2.0, 0.09375,
-//    -1.0, 0.234375,
-//    0.0, 0.3125,
-//    1.0, 0.234375,
-//    2.0, 0.09375,
-//    3.0, 0.015625
-//  };
 
 void main()
 {
   vec4 color = 0.0;
-  for(int i = 0; i < 7; ++i)
+  for(int i = 0; i < stencilwidth; ++i)
     color += gaussFilter[i].y
       * texture2D(u_Texture0, gl_TexCoord[0].st 
 		  + vec2(weights[i].x * u_Scale.x, weights[i].x * u_Scale.y));
@@ -55,8 +49,9 @@ void main()
 );
     }
 
+    template<class T, int stencilwidth>
     inline std::string 
-    blurFilter::fragmentShaderSource()
+    filter::fragmentShaderSource()
     {
       //Simple writethrough fragment shader
       return
