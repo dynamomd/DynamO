@@ -25,17 +25,18 @@
 #include <CL/cl.hpp>
 
 #include <coil/Maths/Maths.h>
+#include <coil/extcode/vector2.hpp>
+#include <coil/extcode/static_assert.hpp>
 
+#include <magnet/GL/light.hpp>
 #include <magnet/GLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
 #include <magnet/GL/blur.hpp>
 #include <magnet/GL/downsample.hpp>
+#include <magnet/GL/shadowFBO.hpp>
 
-#include <coil/extcode/static_assert.hpp>
-#include <coil/extcode/vector2.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
 
-#include <limits>
 
 class CLGLWindow : public CoilWindow
 {
@@ -118,53 +119,6 @@ public:
     MATRIX4X4 _viewMatrix;
   };
  
-  struct lightInfo
-  {
-    lightInfo() {}
-
-    lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle, 
-	      GLfloat beamAngle = 45.0f,
-	      GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.01):
-      _position(position),
-      _lookAtPoint(lookAtPoint),
-      _lightHandle(lightHandle)
-    {
-      //Build the view matrix and so on
-      glPushMatrix();
-
-      glLoadIdentity();
-      gluPerspective(beamAngle, 1.0f, rangeMin, rangeMax);
-      glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
-
-      glLoadIdentity();
-      Vector directionNorm = (lookAtPoint - position);
-      directionNorm /= directionNorm.nrm();
-
-      GLfloat rotationAngle = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | directionNorm);
-
-
-      Vector RotationAxis = Vector(0,0,-1) ^ directionNorm;
-      float norm = RotationAxis.nrm();
-      RotationAxis /= norm;
-      if (norm < std::numeric_limits<double>::epsilon())
-	RotationAxis = Vector(1,0,0);
-
-      glRotatef(-rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
-      glTranslatef(-position.x,-position.y,-position.z);
-      glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
-
-      glPopMatrix();
-    }
-
-    Vector _position;
-    Vector _lookAtPoint;
-
-    MATRIX4X4 _projectionMatrix;
-    MATRIX4X4 _viewMatrix;
-
-    GLenum _lightHandle;
-  };
-
 
   inline cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
 
@@ -172,6 +126,8 @@ public:
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::downsampleFilter _downsampleFilter;
+  magnet::GL::shadowFBO _shadowFBO;
+
 
   cl::Platform _clplatform;
   cl::Context _clcontext;
@@ -234,9 +190,6 @@ private:
   bool _hostTransfers;
 
   bool _shadows;
-  GLuint _shadowMapTexture;
-  int _shadowMapSize;
-  GLuint _shadowFBO;
 
-  lightInfo _light0;
+  magnet::GL::lightInfo _light0;
 };

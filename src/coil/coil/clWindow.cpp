@@ -57,8 +57,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _moveSensitivity(0.00005),
   _specialKeys(0),
   _hostTransfers(hostTransfers),
-  _shadows(false),
-  _shadowMapSize(1024)
+  _shadows(false)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 }
@@ -135,18 +134,13 @@ CLGLWindow::initOpenGL()
 
   //Check for shadow support
   _shadows = true;
-  if (!glewIsSupported("GL_ARB_depth_texture"))
+  if (!glewIsSupported("GL_ARB_depth_texture") || !glewIsSupported("GL_ARB_shadow"))
     {
-      std::cout << "GL_ARB_depth_texture not supported, shadows disabled\n";
+      std::cout << "GL_ARB_depth_texture or GL_ARB_shadow not supported, shadows disabled\n"
+		<< "This also disables all other effects.";
       _shadows = false;
     }
 
-  if (!glewIsSupported("GL_ARB_shadow"))
-    {
-      std::cout << "GL_ARB_shadow not supported, shadows disabled\n";
-      _shadows = false;
-    }
-   
   glDrawBuffer(GL_BACK);
 
   glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
@@ -157,8 +151,16 @@ CLGLWindow::initOpenGL()
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
+  //We need blending
+  glEnable(GL_BLEND);
+  //Blend colors using the alpha channel
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
   //Make OpenGL renormalize lighting vectors for us (incase we use glScale)
   glEnable(GL_NORMALIZE);
+
+  //Switch on line aliasing
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
   //We need to cull for shadows
   glEnable(GL_CULL_FACE);
@@ -169,56 +171,8 @@ CLGLWindow::initOpenGL()
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL); //and enable it
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Blend colors using the alpha channel
 
   glShadeModel(GL_SMOOTH);
-
-  //Shadow map initialisation
-  if (_shadows)
-    {
-      glGenTextures(1, &_shadowMapTexture);
-      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 
-		   _shadowMapSize, _shadowMapSize, 0,
-		   GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-
-
-      GLfloat l_ClampColor[] = {0.0, 0.0,0.0,0.0};      
-      glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-      //Enable shadow comparison
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-      
-      //Shadow comparison should be true (ie not in shadow) if r<=texture
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-      
-      //Shadow comparison should generate an INTENSITY result
-      glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-
-      //Now we should setup a framebuffer object to use to render into our texture
-      glGenFramebuffersEXT(1, &_shadowFBO);
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _shadowFBO);
-	
-      // Instruct openGL that we won't bind a color texture with the currently binded FBO
-      glDrawBuffer(GL_NONE);
-      glReadBuffer(GL_NONE);
-	
-      // attach the texture to FBO depth attachment point
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-				GL_TEXTURE_2D, _shadowMapTexture, 0);
-	
-      // check FBO status
-      GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-      if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
-	throw std::runtime_error("GL_FRAMEBUFFER_COMPLETE_EXT failed, CANNOT use FBO");
-      
-      // switch back to window-system-provided framebuffer
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    }
 
   //Setup the viewport
   CallBackReshapeFunc(_width, _height);
@@ -235,7 +189,7 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
 
-  _light0 = lightInfo(Vector(1.5f, 1.5f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
+  _light0 = magnet::GL::lightInfo(Vector(1.5f, 1.5f, 0.0f), Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
   
   GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };
   GLfloat specShininess[] = { 0.0f };
@@ -249,6 +203,11 @@ CLGLWindow::initOpenGL()
 
   _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
+
+  //Build the offscreen rendering FBO's
+  if (_shadows)
+    _shadowFBO.init(1024);
+
   //Now init the render objects  
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
@@ -258,6 +217,7 @@ CLGLWindow::initOpenGL()
   //Build the shaders
   _shadowShader.build();
   _downsampleFilter.build(_width, _height);
+  
 }
 
 void 
@@ -387,84 +347,30 @@ void CLGLWindow::CallBackDisplayFunc(void)
   //If shadows are enabled, we must draw first from the lights perspective
   if (_shadows)
     {
-      //Use the fixed pipeline 
-      glUseProgramObjectARB(0);
+      //////////////////Pass 1//////////////////
+      _shadowFBO.setup(_light0);
 
-      ////Store the camera matrices and load the light's
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-      glLoadMatrixf(_light0._projectionMatrix);
-      
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glLoadMatrixf(_light0._viewMatrix);
-
-      //Render to the shadow maps FBO
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,_shadowFBO);
-
-      //Now render the scene from the lights perspective
-      //The viewport should change to the shadow maps size
-      glViewport(0, 0, _shadowMapSize, _shadowMapSize);
-
-      //Clear the depth buffer
-      glClear(GL_DEPTH_BUFFER_BIT);
-
-      //Draw back faces into the shadow map
-      glCullFace(GL_FRONT);
-      
-      //Disable color writes, and use flat shading for speed
-      glShadeModel(GL_FLAT);
-      glColorMask(0, 0, 0, 0);
-            
-      //Render the scene
       drawScene();
-      
-      //Restore the default FB
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
-      //Restore the draw mode
-      glCullFace(GL_BACK);
-      glShadeModel(GL_SMOOTH);
-      glColorMask(1, 1, 1, 1);
-      
-      //Restore the viewport
-      glViewport(0, 0, _width,_height);
-      
-      ////Restore the Camera matricies
-      glMatrixMode(GL_PROJECTION);
-      glPopMatrix();
-      
-      glMatrixMode(GL_MODELVIEW);
-      glPopMatrix();
-
+      _shadowFBO.restore();
       //////////////////Pass 2//////////////////
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      //Setup a bright light
-      glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-      glLightfv(GL_LIGHT0, GL_SPECULAR, white);
-
       //In both cases we use the texture matrix, instead of the EYE_PLANE
       glActiveTextureARB(GL_TEXTURE7);
-      glMatrixMode(GL_TEXTURE);	
+      glMatrixMode(GL_TEXTURE);
 
       MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
-
-      //Build the matrix
-      glLoadIdentity();
-      glTranslatef(0.5f, 0.5f, 0.5f);
-      glScalef(0.5f, 0.5f, 0.5f);
-      glMultMatrixf(_light0._projectionMatrix);
-      glMultMatrixf(_light0._viewMatrix);
+      _light0.buildShadowTextureMatrix();
       glMultMatrixf(invView);
-
+	
       glMatrixMode(GL_MODELVIEW);
 
       //Bind & enable shadow map texture
-      glBindTexture(GL_TEXTURE_2D, _shadowMapTexture);
+      glBindTexture(GL_TEXTURE_2D, _shadowFBO.getShadowTexture());
       glEnable(GL_TEXTURE_2D);
 
-      _shadowShader.attach(_shadowMapTexture, _shadowMapSize, 7);
+      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
 
       drawScene();
 
@@ -484,36 +390,8 @@ void CLGLWindow::CallBackDisplayFunc(void)
   drawAxis();
 
   //Draw the light source
-  {
-    glColor3f(1,1,0);
-    
-    Vector directionNorm = (_light0._lookAtPoint - _light0._position);
-    directionNorm /= directionNorm.nrm();
-    
-    GLfloat rotationAngle = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | directionNorm);
-    
-    
-    Vector RotationAxis = Vector(0,0,-1) ^ directionNorm;
-    float norm = RotationAxis.nrm();
-    RotationAxis /= norm;
-    if (norm < std::numeric_limits<double>::epsilon())
-      RotationAxis = Vector(1,0,0);
-    
-    glPushMatrix();
-    glTranslatef(_light0._position.x, _light0._position.y, _light0._position.z);
-    glRotatef(rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
-    
-    glTranslatef(0.0f,0.0f,-0.025f);
-    glutSolidTorus(0.01f, 0.02f, 20, 20);
-    glTranslatef(0.0f,0.0f,-0.025f);
-    glutSolidCone(0.02f, 0.05f, 15, 15);
-    glPopMatrix();
-  }
+  _light0.drawLight();
 
-
-  //coil::glprimatives::drawArrow(_cameraDirection + Vector(-1,0,-1), Vector(-1,0,-1)); 
-  //coil::glprimatives::drawArrow(_cameraUp + Vector(-1,0,-1), Vector(-1,0,-1));
- 
   glutSwapBuffers();
 
   ++frameCounter; 
@@ -553,7 +431,6 @@ CLGLWindow::drawScene()
   glutSolidCube(1.0);
 
   glPopMatrix();
-
 }
 
 
@@ -581,8 +458,6 @@ void CLGLWindow::drawAxis()
   
   glTranslatef (0, 0, -(nearPlane + axisScale));
 
-  glEnable(GL_BLEND); //Enable blending
-
   glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.7); // Color the axis box a transparent blue
   glBegin(GL_QUADS);		
   glVertex3f(-1,-1, 0);
@@ -590,8 +465,6 @@ void CLGLWindow::drawAxis()
   glVertex3f( 1, 1, 0);
   glVertex3f(-1, 1, 0);
   glEnd();
-
-  glDisable(GL_BLEND); //Turn blending back off
 
   glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
   glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
