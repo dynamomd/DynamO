@@ -34,7 +34,7 @@ inline float clamp(float x, float a, float b)
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <magnet/GLBuffer.hpp>
+#include <magnet/GL/CLBuffer.hpp>
 #include "glprimatives/glscribe.hpp"
 #include "glprimatives/arrow.hpp"
 

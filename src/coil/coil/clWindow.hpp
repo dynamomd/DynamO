@@ -29,7 +29,7 @@
 #include <coil/extcode/static_assert.hpp>
 
 #include <magnet/GL/light.hpp>
-#include <magnet/GLBuffer.hpp>
+#include <magnet/GL/CLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
 #include <magnet/GL/blur.hpp>
 #include <magnet/GL/downsample.hpp>

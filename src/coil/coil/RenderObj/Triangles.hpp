@@ -18,7 +18,7 @@
 #include "RenderObj.hpp"
 #include <vector>
 
-#include <magnet/GLBuffer.hpp>
+#include <magnet/GL/CLBuffer.hpp>
 
 class RTriangles : public RenderObj
 {
