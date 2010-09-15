@@ -25,14 +25,46 @@ namespace magnet {
     {
       return
 STRINGIFY( 
+/////////////////////////////////////////////////
+// 7x1 gaussian blur fragment shader
+/////////////////////////////////////////////////
+uniform vec2 u_Scale;
+uniform vec2 weights;
+uniform sampler2D u_Texture0;
+
+//const vec2 gaussFilter[7] = 
+//  { -3.0, 0.015625,
+//    -2.0, 0.09375,
+//    -1.0, 0.234375,
+//    0.0, 0.3125,
+//    1.0, 0.234375,
+//    2.0, 0.09375,
+//    3.0, 0.015625
+//  };
+
+void main()
+{
+  vec4 color = 0.0;
+  for(int i = 0; i < 7; ++i)
+    color += gaussFilter[i].y
+      * texture2D(u_Texture0, gl_TexCoord[0].st 
+		  + vec2(weights[i].x * u_Scale.x, weights[i].x * u_Scale.y));
+  
+  gl_FragColor = color;
+}
 );
     }
 
     inline std::string 
     blurFilter::fragmentShaderSource()
     {
+      //Simple writethrough fragment shader
       return
-STRINGIFY( 
+	STRINGIFY(
+void main()
+{
+  gl_FragColor =  gl_Color;
+}
 );
     }
   }

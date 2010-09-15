@@ -69,6 +69,9 @@ namespace magnet {
 	//If we've not been initialised, then just return
 	if (!_width) return;
 
+	//Skip identity operations
+	if ((_width == width) && (_height == height)) return;
+
 	FBO::resize(width, height);
 	
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleColorBuffer);

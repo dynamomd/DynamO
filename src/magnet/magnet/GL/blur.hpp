@@ -20,13 +20,12 @@
 
 namespace magnet {
   namespace GL {    
-    class blurFilter: public detail::filter<blurFilter>
+    class blurFilter
     {
     public:      
-
+      
       static inline std::string vertexShaderSource();
       static inline std::string fragmentShaderSource();
-      
     };
   }
 }

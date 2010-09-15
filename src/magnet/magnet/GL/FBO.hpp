@@ -79,6 +79,9 @@ namespace magnet {
       {
 	//If we've not been initialised, then just return
 	if (!_width) return;
+	
+	//Skip identity operations
+	if ((_width == width) && (_height == height)) return;
 
 	_width = width;
 	_height = height;
