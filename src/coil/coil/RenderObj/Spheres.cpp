@@ -40,7 +40,7 @@ cl_float4 getclVec(Vector vec)
 }
 
 
-RTSpheres::RTSpheres(const CLGLWindow::viewPortInfoType& viewPortInfo,
+RTSpheres::RTSpheres(const magnet::GL::viewPort& viewPortInfo,
 		     size_t N, const std::vector<SphereDetails>& renderDetailLevels):
   _N(N),
   _renderDetailLevels(renderDetailLevels),

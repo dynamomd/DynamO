@@ -45,7 +45,7 @@ public:
     cl::Buffer _primativeVertices;
   };
 
-  RTSpheres(const CLGLWindow::viewPortInfoType& viewPortInfo,
+  RTSpheres(const magnet::GL::viewPort& viewPortInfo,
 	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
 
   ~RTSpheres();
@@ -79,7 +79,7 @@ protected:
   size_t _workgroupsize;
   size_t _globalsize;
 
-  const CLGLWindow::viewPortInfoType & _viewPortInfo;
+  const magnet::GL::viewPort & _viewPortInfo;
 
   pthread_mutex_t _sphereDataLock;
 };

@@ -34,6 +34,7 @@
 #include <magnet/GL/blur.hpp>
 #include <magnet/GL/downsample.hpp>
 #include <magnet/GL/shadowFBO.hpp>
+#include <magnet/GL/viewPort.hpp>
 
 #include <coil/RenderObj/RenderObj.hpp>
 
@@ -87,38 +88,6 @@ public:
 
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
   T& addRenderObj(T1, T2, T3, T4, T5, T6) { STATIC_ASSERT(false,'Check Arg Types'); }
-
-  struct viewPortInfoType
-  {
-    viewPortInfoType():
-      _rotatex(180),
-      _rotatey(0),
-      _cameraX(0),
-      _cameraY(0),
-      _cameraZ(0),
-      _fovY(45),
-      _aspectRatio(1),
-      _zNearDist(0.0001),
-      _zFarDist(10)
-    {}
-
-    float _rotatex;
-    float _rotatey;
-    float _cameraX;
-    float _cameraY;
-    float _cameraZ;
-    
-    GLdouble _fovY;
-    GLdouble _aspectRatio;
-    GLdouble _zNearDist;
-    GLdouble _zFarDist;
-    
-    Vector _cameraDirection, _cameraUp;
-
-    MATRIX4X4 _projectionMatrix;
-    MATRIX4X4 _viewMatrix;
-  };
- 
 
   inline cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
 
@@ -176,9 +145,8 @@ private:
   int _lastFrameTime;
   int _FPStime; 
 
-  viewPortInfoType _viewPortInfo;
-  
-  
+  magnet::GL::viewPort _viewPortInfo;
+    
   bool keyStates[256];
 
   float _mouseSensitivity; 

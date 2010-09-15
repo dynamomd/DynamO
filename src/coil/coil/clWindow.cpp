@@ -69,45 +69,6 @@ CLGLWindow::~CLGLWindow()
     delete *iPtr;
 }
 
-void 
-CLGLWindow::CameraSetup()
-{
-  float moveAmp = (_currFrameTime - _lastFrameTime) * _moveSensitivity;
-
-  int _forward  = keyStates['w'] - keyStates['s'];
-  int _sideways = keyStates['d'] - keyStates['a'];
-  int _vertical = keyStates['q'] - keyStates['z'];
-
-  //Forward/Backward movement
-  _viewPortInfo._cameraZ -= _forward * moveAmp * std::cos(_viewPortInfo._rotatey * (M_PI/ 180)) 
-    * std::sin(_viewPortInfo._rotatex  * (M_PI/ 180) + M_PI * 0.5);  
-  _viewPortInfo._cameraX -= _forward * moveAmp * std::cos(_viewPortInfo._rotatey * (M_PI/ 180)) 
-    * std::cos(_viewPortInfo._rotatex  * (M_PI/ 180) + M_PI * 0.5);
-  _viewPortInfo._cameraY += -_forward * moveAmp * std::sin(_viewPortInfo._rotatey * (M_PI/ 180));
-
-  //Strafe movement
-  _viewPortInfo._cameraZ += _sideways * moveAmp * std::sin(_viewPortInfo._rotatex * (M_PI/ 180));
-  _viewPortInfo._cameraX += _sideways * moveAmp * std::cos(_viewPortInfo._rotatex * (M_PI/ 180));
-
-  //Vertical movement
-  _viewPortInfo._cameraY += _vertical * moveAmp;
-
-  glLoadIdentity();
-  //gluLookAt(-viewscale, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-  glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
-  glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
-  glTranslatef(-_viewPortInfo._cameraX,-_viewPortInfo._cameraY,-_viewPortInfo._cameraZ);
-  
-  //store the matricies for shadow calculations
-  glGetFloatv(GL_MODELVIEW_MATRIX, _viewPortInfo._viewMatrix);
-  glGetFloatv(GL_PROJECTION_MATRIX, _viewPortInfo._projectionMatrix);
-
-  Matrix viewTransform = Rodrigues(Vector(0,-_viewPortInfo._rotatex * M_PI/180,0)) 
-    * Rodrigues(Vector(-_viewPortInfo._rotatey * M_PI/180.0,0,0));
-
-  _viewPortInfo._cameraDirection =  viewTransform * Vector(0,0,-1);
-  _viewPortInfo._cameraUp = viewTransform * Vector(0,1,0);
-}
 
 
 void 
@@ -176,7 +137,7 @@ CLGLWindow::initOpenGL()
 
   //Setup the viewport
   CallBackReshapeFunc(_width, _height);
-  CameraSetup();
+  _viewPortInfo.CameraSetup();
 
   //Light our scene!
   glEnable(GL_LIGHTING);
@@ -338,7 +299,12 @@ void CLGLWindow::CallBackDisplayFunc(void)
     (*iPtr)->clTick(_clcmdq, _clcontext);
 
   //Camera Positioning
-  CameraSetup();
+
+  float moveAmp = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
+  float forward  = moveAmp * ( keyStates['w'] - keyStates['s']);
+  float sideways = moveAmp * ( keyStates['d'] - keyStates['a']);
+  float vertical = moveAmp * ( keyStates['q'] - keyStates['z']);
+  _viewPortInfo.CameraSetup(forward, sideways, vertical);
 
   //Flush the OpenCL queue, so GL can use the buffers
   _clcmdq.finish();
