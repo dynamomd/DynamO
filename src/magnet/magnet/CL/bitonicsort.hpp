@@ -66,8 +66,6 @@ namespace magnet {
 	//All stages except the last one use the reverse intended direction!
 	cl_uint initial_direction = 1-ascending;
       
-	std::vector<cl::Event> events;
-
 	///////////////////////////////////////////////////////////////////////
 	//Small sort on blocks of up to 512
 	clsmallsort(input, initial_direction);
