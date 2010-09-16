@@ -35,6 +35,9 @@
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 
+#include <magnet/GL/blur.hpp>
+#include <magnet/GL/laplacianFilter.hpp>
+
 #include <coil/RenderObj/RenderObj.hpp>
 
 
@@ -95,6 +98,12 @@ protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
   magnet::GL::multisampledFBO _myFBO;
+
+  magnet::GL::blurFilter _blurFilter;
+  magnet::GL::laplacianFilter _laplacianFilter;
+
+  //Frame buffers to flip flop data between
+  magnet::GL::FBO _FBO1;
 
   cl::Platform _clplatform;
   cl::Context _clcontext;

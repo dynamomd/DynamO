@@ -26,116 +26,57 @@ namespace magnet {
       /* This is a CRTP base class that builds filters (convolution
        * kernels for textures).
        *
-       * It requires that the type that inherits it, specifies its own
-       * type in the template parameter (T) and defines static member
-       * functions called  T::vertexShaderSource() and T::fragmentShaderSource().
+       * It requires that the type that inherits it, specifies the
+       * width of the seperable filter (stencilwidth) as a template
+       * and a suitable row (2*stencilwidth) of floats of the filter
+       * block in a static const GLfloat ::weights member variable.
        */
       template<class T, int stencilwidth>
       class filter : public shader<filter<T,stencilwidth> > 
       {
       public:
-	
 
-	//bind to an existing FBO
-	void build(GLuint FBO, GLsizei width, GLsizei height, GLint internalFormat, GLenum type)
+	void build()
 	{
-	  _FBO = FBO;
-	  _width = width;
-	  _height = height;
-	  
-	  bindTexture(internalFormat, type);
-	}
+	  shader<filter<T, stencilwidth> >::build();
 
-	//Create our own FBO
-	void build(GLsizei width, GLsizei height, GLint internalFormat, GLenum type)
-	{
-	  _width = width;
-	  _height = height;
-
-	  glGenFramebuffersEXT(1, &_FBO);
-	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-
-	  bindTexture(internalFormat, type);
-	  	  
-	  // switch back to screen framebuffer
-	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	}
-	
-	void renderOutput()
-	{
-	  //Save the matrix state
-	  glMatrixMode(GL_PROJECTION);
-	  glPushMatrix();
-	  glLoadIdentity();
-
-	  glMatrixMode(GL_MODELVIEW);
-	  glPushMatrix();
-	  glLoadIdentity();
-
-	  glBegin(GL_QUADS);
-	  glTexCoord2f(0.0f, 0.0f);
-	  glVertex2d(-1, -1);
-	  glTexCoord2f(1.0f, 0.0f);
-	  glVertex2d(1, -1);
-	  glTexCoord2f( 1.0f, 1.0f);
-	  glVertex2d(1, 1);
-	  glTexCoord2f(0.0f, 1.0f);
-	  glVertex2d(-1, 1);
-	  glEnd();
-	
-	  //Restore the matrix state
-	  glMatrixMode(GL_PROJECTION);
-	  glPopMatrix();
-
-	  glMatrixMode(GL_MODELVIEW);
-	  glPopMatrix();
-	}
-	
-      protected:
-	GLuint _FBO, _outputTexture;
-	GLsizei _width;
-	GLsizei _height;
-	
-	void bindTexture(GLint internalFormat, GLenum type)
-	{
-	  glGenTextures(1, &_outputTexture);	
-	  glBindTexture(GL_TEXTURE_2D, _outputTexture);
-	  
-	  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, GL_RGBA, type, NULL);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, _outputTexture, 0);
-	  
-	  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	  if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-	    M_throw() << "Error [" <<  status << "] while creating frame buffer";
-	}
-
-	void preInvoke()
-	{
+	  //Get the shader args
 	  glUseProgram(shader<filter<T, stencilwidth> >::_shaderID);
-	  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  _scaleUniform = glGetUniformLocationARB(shader<filter<T, stencilwidth> >::_shaderID,"u_Scale");	  
+	  _textureUniform = glGetUniformLocationARB(shader<filter<T, stencilwidth> >::_shaderID,"u_Texture0");	  
+
+	  //Set the weights now
+	  GLint weightsUniform = glGetUniformLocationARB(shader<filter<T, stencilwidth> >::_shaderID, "weights");
+	  glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, T::weights());
+
+	  //Restore the fixed pipeline
+	  glUseProgramObjectARB(0);
+	}
+
+	void invoke(GLint TextureID, GLuint _width, GLuint _height)
+	{
 	  
+	  //Setup the shader arguments
+	  glUseProgram(shader<filter<T, stencilwidth> >::_shaderID);
+	  //Horizontal application
+	  glUniform2fARB(_scaleUniform, 1.0 / _width, 1.0 / _height);
+	  glUniform1iARB(_textureUniform, TextureID);
+	  
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	  //Set the viewport
+	  glPushAttrib(GL_VIEWPORT_BIT);
 	  glViewport(0, 0, _width, _height);
 
 	  //Save the matrix state
 	  glMatrixMode(GL_PROJECTION);
 	  glPushMatrix();
 	  glLoadIdentity();
-
+	  
 	  glMatrixMode(GL_MODELVIEW);
 	  glPushMatrix();
 	  glLoadIdentity();
-
-	}
-
-	//Before calling postInvoke, you should have called preInvoke,
-	//bound the textures you wanted to, and set the shaders
-	//uniforms.
-	void postInvoke()
-	{
-	  //Draw a full screen quad to generate all the fragment shaders
+	  	  
 	  glBegin(GL_QUADS);
 	  glTexCoord2f(0.0f, 0.0f);
 	  glVertex2d(-1, -1);
@@ -146,7 +87,7 @@ namespace magnet {
 	  glTexCoord2f(0.0f, 1.0f);
 	  glVertex2d(-1, 1);
 	  glEnd();
-
+	
 	  //Restore the matrix state
 	  glMatrixMode(GL_PROJECTION);
 	  glPopMatrix();
@@ -154,13 +95,21 @@ namespace magnet {
 	  glMatrixMode(GL_MODELVIEW);
 	  glPopMatrix();
 
+	  //Restore the viewport
+	  glPopAttrib();
+
 	  //Restore the fixed pipeline
 	  glUseProgramObjectARB(0);
 	}
+	
+	static inline std::string vertexShaderSource();
+	static inline std::string fragmentShaderSource();
 
       protected:
-	
+	GLint _scaleUniform, _textureUniform;
       };
     }
   }
 }
+
+#include <magnet/GL/detail/shaders/filter.glh>

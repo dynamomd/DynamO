@@ -177,7 +177,12 @@ CLGLWindow::initOpenGL()
 
   //Build the shaders
   _shadowShader.build();
+  _blurFilter.build();
+  _laplacianFilter.build();
+
+  //Init the FBO's
   _myFBO.init(_width, _height);
+  _FBO1.init(_width, _height);
 }
 
 void 
@@ -345,14 +350,19 @@ void CLGLWindow::CallBackDisplayFunc(void)
       drawScene();
       _myFBO.detach();
 
-      //Disable textures and texgen
-      glDisable(GL_TEXTURE_2D);
-      
-      //Reset to the fixed GL pipeline
-      glUseProgramObjectARB(0);
+      //Now blit the stored scene to the screen
+      //_myFBO.blitToScreen(_width, _height);
 
-      //Now blit the stored scene to the 
-      _myFBO.blitToScreen(_width, _height);
+      //Now we blur the output from the offscreen FBO
+
+      glActiveTextureARB(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, _myFBO.getColorTexture());
+
+      _FBO1.attach();
+      _laplacianFilter.invoke(0, _width, _height);
+
+      _FBO1.detach();
+      _FBO1.blitToScreen(_width, _height);      
     }
   else    
     {      
@@ -493,6 +503,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   glMatrixMode(GL_MODELVIEW);
 
   _myFBO.resize(_width, _height);
+  _FBO1.resize(_width, _height);
 }
 
 void 
