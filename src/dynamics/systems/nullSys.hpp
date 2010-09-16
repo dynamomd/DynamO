@@ -33,7 +33,7 @@ public:
   virtual void stream(Iflt) {}
 
   virtual NEventData runEvent()
-  { D_throw() << "You're running the null system event"; }
+  { M_throw() << "You're running the null system event"; }
 
   virtual void initialise() {}
 

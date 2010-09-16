@@ -17,7 +17,7 @@
 
 #include "threadpool.hpp"
 #include <boost/foreach.hpp>
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <iostream>
 
 ThreadPool::ThreadPool():
@@ -83,7 +83,7 @@ ThreadPool::wait()
     //boost::mutex::scoped_lock lock2(m_exception);
 
     if (ExceptionThrown) 
-      D_throw() << "Thread Exception found while waiting for tasks/threads to finish"
+      M_throw() << "Thread Exception found while waiting for tasks/threads to finish"
 		<< ExceptionDetails.str();
   }
 }

@@ -43,7 +43,7 @@ struct CUTriangleIntersect: public CUCell
     uc->initialise();
     std::ifstream input(_fileName.c_str());
     if (!input)
-      D_throw() << "Could not open " << _fileName << " to load the triangles from";
+      M_throw() << "Could not open " << _fileName << " to load the triangles from";
 
     
     while (!input.eof())

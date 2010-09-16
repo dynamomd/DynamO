@@ -19,7 +19,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../dynamics/ranges/1range.hpp"
 #include <boost/foreach.hpp>
 #include <vector>
@@ -62,12 +61,12 @@ OPCContactMap::changeSystem(OutputPlugin* OPPlug)
 	dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
       } catch (std::exception&)
 	{
-	  D_throw() << "On changing the system OPCContactMap could not find the topology \"" 
+	  M_throw() << "On changing the system OPCContactMap could not find the topology \"" 
 		    << dat.chainPtr->getName() << "\"\n in the new system";
 	}
       
       if (dat.chainPtr == NULL)
-	D_throw() << "On changing the system OPCContactMap found the topology but failed to upcast!";
+	M_throw() << "On changing the system OPCContactMap found the topology but failed to upcast!";
     }
 }
 

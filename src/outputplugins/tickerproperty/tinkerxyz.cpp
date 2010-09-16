@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
@@ -83,7 +82,7 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
     }
   catch (std::exception& excep)
     {
-      D_throw() << "Error while parsing " << name << "options\n"
+      M_throw() << "Error while parsing " << name << "options\n"
 		<< excep.what();
     }
 }
@@ -204,24 +203,24 @@ OPTinkerXYZ::printFileImage()
 	gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
 
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
-    D_throw() << "asprintf error in tinkerXYZ";
+    M_throw() << "asprintf error in tinkerXYZ";
   
   std::ofstream of(fileName);
   
   free(fileName);
 
   if ( asprintf(&fileName, "tinker.frame%05d.r3d", frameCount++) < 0)
-    D_throw() << "asprintf error in tinkerXYZ";
+    M_throw() << "asprintf error in tinkerXYZ";
 
   std::ofstream obj_of(fileName);
 
   free(fileName);
  
   if (!of.is_open())
-    D_throw() << "Could not open file for writing";
+    M_throw() << "Could not open file for writing";
 
   if (!obj_of.is_open())
-    D_throw() << "Could not open object file for writing";
+    M_throw() << "Could not open object file for writing";
 
   of << Sim->N << "\nDYNAMO Tinker TXYZ file\n";
 

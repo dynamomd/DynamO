@@ -60,7 +60,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG
     if (p1.getID() == p2.getID())
-      D_throw() << "Particle is testing if it captured itself";
+      M_throw() << "Particle is testing if it captured itself";
 #endif 
     
     return (p1.getID() < p2.getID())
@@ -150,7 +150,7 @@ protected:
   {
 #ifdef DYNAMO_DEBUG
     if (captureMap.find(cMapKey(p1.getID(), p2.getID())) != captureMap.end())
-      D_throw() << "Adding a particle while its already added!";
+      M_throw() << "Adding a particle while its already added!";
 #endif
     
     captureMap[cMapKey(p1.getID(), p2.getID())] = 1;
@@ -160,7 +160,7 @@ protected:
   {
 #ifdef DYNAMO_DEBUG
     if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())
-      D_throw() << "Deleting a particle while its already gone!";
+      M_throw() << "Deleting a particle while its already gone!";
 #endif 
     captureMap.erase(cMapKey(p1.getID(), p2.getID()));
   }

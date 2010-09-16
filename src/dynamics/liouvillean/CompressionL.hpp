@@ -41,11 +41,11 @@ public:
 
   virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
 
-  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { M_throw() << "Not Implemented"; }
 
-  virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { M_throw() << "Not Implemented"; }
 
-  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const { M_throw() << "Not Implemented"; }
 
   virtual PairEventData parallelCubeColl(const IntEvent& event, 
 					  const Iflt& e, 

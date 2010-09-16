@@ -22,7 +22,6 @@
 #include "../NparticleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
@@ -35,7 +34,7 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   EnergyPotentialStep(1)
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-    D_throw() << "Attempting to load NewtonianMC from " 
+    M_throw() << "Attempting to load NewtonianMC from " 
 	      << XML.getAttribute("Type")
 	      << " entry";
   try 
@@ -78,7 +77,7 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in LNewtonianMC";
+      M_throw() << "Failed a lexical cast in LNewtonianMC";
     }
 }
 
@@ -117,7 +116,7 @@ void LNewtonianMC::initialise()
   LNewtonian::initialise();
 
   if (Sim->getOutputPlugin<OPUEnergy>() == NULL)
-    D_throw() << "This liouvillean needs the UEnergy plugin";
+    M_throw() << "This liouvillean needs the UEnergy plugin";
 }
 
 
@@ -126,7 +125,7 @@ LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2,
 				const Iflt&, const Iflt& deltaKE, 
 				EEventType& eType) const
 {
-  D_throw() << "Not implemented";
+  M_throw() << "Not implemented";
 }
 
 PairEventData 
@@ -205,7 +204,7 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
   
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
-    D_throw() << "A nan dp has ocurred";
+    M_throw() << "A nan dp has ocurred";
 #endif
   
   //This function must edit particles so it overrides the const!

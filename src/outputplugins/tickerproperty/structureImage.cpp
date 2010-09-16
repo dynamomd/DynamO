@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
@@ -45,13 +44,13 @@ OPStructureImaging::operator<<(const XMLNode& XML)
   try 
     {
       if (!(XML.isAttributeSet("Structure")))
-	D_throw() << "You must specify the name of the structure to monitor for StructureImaging";
+	M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
       
       structureName = XML.getAttribute("Structure");
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPVACF";
+      M_throw() << "Failed a lexical cast in OPVACF";
     }
 }
 
@@ -66,7 +65,7 @@ OPStructureImaging::initialise()
       id = ptr->getID();
   
   if (id == Sim->dynamics.getTopology().size())
-    D_throw() << "Could not find a structure named " << structureName << " in the simulation";
+    M_throw() << "Could not find a structure named " << structureName << " in the simulation";
   
   imagelist.clear();
   ticker();

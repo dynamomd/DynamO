@@ -180,7 +180,7 @@ public:
    *
    * \return Whether the event will occur.
    */
-  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if and when two rotated parallel cube will
       intersect.
@@ -196,7 +196,7 @@ public:
    */
   virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d, 
 			      const Matrix& rot) const 
-  { D_throw() << "Not Implemented"; }
+  { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if and when two parallel cubes will stop intersecting.
    *
@@ -208,7 +208,7 @@ public:
    * \return Whether the event will occur (Almost always true for
    * LNewtonian but not for LCompression).
    */
-  virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { D_throw() << "Not Implemented"; }
+  virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if two parallel cubes are overlapping
    *
@@ -220,7 +220,7 @@ public:
    * \return True if the cubes are overlapping.
    */
   virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const 
-  { D_throw() << "Not Implemented"; }
+  { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if two rotated parallel cubes are overlapping
    *
@@ -235,7 +235,7 @@ public:
    */
   virtual bool cubeOverlap(const CPDData& PD, const Iflt& d,
 			   const Matrix& rot) const 
-  { D_throw() << "Not Implemented"; }
+  { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines when the particle center will hit a bounding box.
    *
@@ -336,7 +336,7 @@ public:
    */    
   virtual Iflt getParabolaSentinelTime(const Particle& p1, unsigned char& passed) const
   { 
-    D_throw() << "This is not needed for this type of Liouvillean";
+    M_throw() << "This is not needed for this type of Liouvillean";
   }
 
   /*! \brief Calculates when a particle has peaked in its parabola to
@@ -349,7 +349,7 @@ public:
    */    
   virtual void enforceParabola(const Particle&) const
   { 
-    D_throw() << "This is not needed for this type of Liouvillean";
+    M_throw() << "This is not needed for this type of Liouvillean";
   }
 
   /*! \brief Runs a line line collision event

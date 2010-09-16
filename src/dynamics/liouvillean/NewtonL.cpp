@@ -22,7 +22,6 @@
 #include "../NparticleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
@@ -145,7 +144,7 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 
 #ifdef DYNAMO_DEBUG
 	  if (std::isnan(dat.dt))
-	    D_throw() << "dat.dt is nan";
+	    M_throw() << "dat.dt is nan";
 #endif
 	  return true;
 	}
@@ -297,7 +296,7 @@ LNewtonian::getSquareCellCollision2(const Particle& part,
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-      D_throw() << "You have negative zero velocities, dont use them."
+      M_throw() << "You have negative zero velocities, dont use them."
 		<< "\nPlease think of the neighbour lists.";
 #endif 
 
@@ -336,7 +335,7 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-      D_throw() << "You have negative zero velocities, dont use them."
+      M_throw() << "You have negative zero velocities, dont use them."
 		<< "\nPlease think of the neighbour lists.";
 #endif
 
@@ -355,7 +354,7 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
 
   if (((retVal < 0) && (vel[abs(retVal)-1] > 0))
       || ((retVal > 0) && (vel[abs(retVal)-1] < 0)))
-    D_throw() << "Found an error! retVal " << retVal
+    M_throw() << "Found an error! retVal " << retVal
 	      << " vel is " << vel[abs(retVal)-1];
 
   return retVal;
@@ -446,7 +445,7 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
 
 #ifdef DYNAMO_DEBUG
   if ((p1Mass == 0.0) && (p2Mass == 0.0))
-    D_throw() << "Both particles have infinite mass";
+    M_throw() << "Both particles have infinite mass";
 #endif
 
    if ((p1Mass != 0.0) && (p2Mass != 0.0))
@@ -913,7 +912,7 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
   
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
-    D_throw() << "A nan dp has ocurred";
+    M_throw() << "A nan dp has ocurred";
 #endif
   
   //This function must edit particles so it overrides the const!
@@ -943,7 +942,7 @@ LNewtonian::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   Vector pos(part.getPosition()), vel(part.getVelocity());
@@ -971,7 +970,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
-    D_throw() << "Particle1 " << part.getID() << " is not up to date";
+    M_throw() << "Particle1 " << part.getID() << " is not up to date";
 #endif
   
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
@@ -990,7 +989,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
 #ifdef DYNAMO_DEBUG
-  if (Sigma < 0) D_throw() << "Assuming a positive Sigma here";
+  if (Sigma < 0) M_throw() << "Assuming a positive Sigma here";
 #endif
 
   //A particle has penetrated the plate, probably due to some small numerical error
@@ -1007,7 +1006,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 #ifdef DYNAMO_DEBUG
       //This is just incase the oscillating plate shape function is broken
       if (fL.F_zeroDeriv() > 0)
-	D_throw() << "Failed to adjust the plate position";
+	M_throw() << "Failed to adjust the plate position";
 #endif
     }
       
@@ -1044,7 +1043,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 #ifdef DYNAMO_DEBUG
       //This is just incase the oscillating plate shape function is broken
       if (fL.F_zeroDeriv() < 0)
-	D_throw() << "Failed to adjust the plate position";
+	M_throw() << "Failed to adjust the plate position";
 #endif
     }
 

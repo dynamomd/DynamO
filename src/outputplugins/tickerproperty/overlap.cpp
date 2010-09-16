@@ -18,7 +18,6 @@
 #include "overlap.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 

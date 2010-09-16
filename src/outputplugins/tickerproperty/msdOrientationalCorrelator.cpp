@@ -49,7 +49,7 @@ OPMSDOrientationalCorrelator::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
   {
-    D_throw() << "Failed a lexical cast in OPMSDCorrelator";
+    M_throw() << "Failed a lexical cast in OPMSDCorrelator";
   }
 }
 
@@ -58,7 +58,7 @@ OPMSDOrientationalCorrelator::initialise()
 {
   if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
   {
-    D_throw() << "Plugin requires species to define an orientation";
+    M_throw() << "Plugin requires species to define an orientation";
   }
 
   I_cout() << "The length of the MSD orientational correlator is " << length;

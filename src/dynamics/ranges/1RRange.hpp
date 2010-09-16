@@ -19,7 +19,7 @@
 #define C1RRange_H
 
 #include "1range.hpp"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../../simulation/particle.hpp"
 
 class CRRange: public CRange
@@ -55,7 +55,7 @@ public:
   virtual unsigned long at(unsigned long i) const 
   { 
     if (i > endID - startID)
-      D_throw() << "Bad array access value in range.at()";
+      M_throw() << "Bad array access value in range.at()";
     
     return startID + i;
   }

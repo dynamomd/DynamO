@@ -52,7 +52,7 @@ LNOrientation::initialise()
       hasInertia = true;
 
   if (!hasInertia)
-    D_throw() << "No species have inertia, using the orientational liouvillean is pointless";
+    M_throw() << "No species have inertia, using the orientational liouvillean is pointless";
 
   sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
   
@@ -73,10 +73,10 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 {  
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(p1))
-    D_throw() << "Particle1 " << p1.getID() << " is not up to date";
+    M_throw() << "Particle1 " << p1.getID() << " is not up to date";
 
   if (!isUpToDate(p2))
-    D_throw() << "Particle2 " << p2.getID() << " is not up to date";
+    M_throw() << "Particle2 " << p2.getID() << " is not up to date";
 #endif
 
   Iflt t_low = 0.0;
@@ -197,7 +197,7 @@ LNOrientation::runAndersenWallCollision(const Particle& part,
 					 const Iflt& sqrtT
 					 ) const
 {
-  D_throw() << "Need to implement thermostating of the rotational degrees"
+  M_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";
 }
   
@@ -205,7 +205,7 @@ ParticleEventData
 LNOrientation::randomGaussianEvent(const Particle& part, 
 				    const Iflt& sqrtT) const
 {
-  D_throw() << "Need to implement thermostating of the rotational degrees"
+  M_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";  
 }
 
@@ -289,7 +289,7 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
 	  Iflt oL = orientationData[i].orientation.nrm();
 	  
 	  if (!(oL > 0.0))
-	    D_throw() << "Particle ID " << i 
+	    M_throw() << "Particle ID " << i 
 		      << " orientation vector is zero!";
 	  
 	  //Makes the vector a unit vector

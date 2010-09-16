@@ -16,7 +16,6 @@
 */
 
 #include "nullInteraction.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
@@ -40,7 +39,7 @@ void
 INull::operator<<(const XMLNode& XML)
 { 
   if (std::strcmp(XML.getAttribute("Type"),"Null"))
-    D_throw() << "Attempting to load NullInteraction from " 
+    M_throw() << "Attempting to load NullInteraction from " 
 	      << XML.getAttribute("Type") <<" entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
@@ -51,7 +50,7 @@ INull::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CINull";
+      M_throw() << "Failed a lexical cast in CINull";
     }
 }
 
@@ -80,7 +79,7 @@ INull::getEvent(const Particle &p1, const Particle &p2) const
 void
 INull::runEvent(const Particle&, const Particle&, const IntEvent&) const
 { 
-  D_throw() << "Null event trying to run a collision!"; 
+  M_throw() << "Null event trying to run a collision!"; 
 }
    
 void 

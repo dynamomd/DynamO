@@ -57,10 +57,10 @@ CGCellsShearing::initialise(size_t nID)
 	     << "You must add the ParabolaSentinel Global event.";
 
   if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
-    D_throw() << "You cannot use the shearing neighbour list"
+    M_throw() << "You cannot use the shearing neighbour list"
 	      << " in a system without Lees Edwards BC's";
 
-  if (overlink != 1) D_throw() << "Cannot shear with overlinking yet";
+  if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
 
   reinitialise(Sim->dynamics.getLongestInteraction());
 }
@@ -338,7 +338,7 @@ CGCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
   
 #ifdef DYNAMO_DEBUG
   if ((coords[1] != 0) && (coords[1] != cellCount[1] - 1))
-    D_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
+    M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
 #endif 
 
   //Move to the bottom of x

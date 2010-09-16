@@ -22,7 +22,6 @@
 
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
@@ -59,7 +58,7 @@ OPVTK::operator<<(const XMLNode& XML)
       }
   catch (std::exception& excep)
     {
-      D_throw() << "Error while parsing " << name << "options\n"
+      M_throw() << "Error while parsing " << name << "options\n"
 		<< excep.what();
     }
 }
@@ -76,7 +75,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	{
 	  char *fileName;
 	  if ( asprintf(&fileName, "%05ld", ++collstatsfilecounter) < 0)
-	    D_throw() << "asprintf error in tinkerXYZ";
+	    M_throw() << "asprintf error in tinkerXYZ";
 	  
 	  std::ofstream of((std::string("CollStats") + fileName + std::string(".vtu")).c_str());
 	  
@@ -173,7 +172,7 @@ OPVTK::initialise()
       binWidth[iDim] *= Sim->dynamics.units().unitLength();
       
       if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
-	D_throw() << "Your bin width is too large for the " << iDim 
+	M_throw() << "Your bin width is too large for the " << iDim 
 		  << " dimension";
       
       nBins[iDim] = static_cast<size_t>
@@ -272,7 +271,7 @@ OPVTK::ticker()
     {
       char *fileName;
       if ( asprintf(&fileName, "%05ld", imageCounter) < 0)
-	D_throw() << "asprintf error in tinkerXYZ";
+	M_throw() << "asprintf error in tinkerXYZ";
       
       std::ofstream of((std::string("paraview") + fileName + std::string(".vtu")).c_str());
       

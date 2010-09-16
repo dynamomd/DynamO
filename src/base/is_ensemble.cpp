@@ -18,7 +18,7 @@
 #include "is_ensemble.hpp"
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
-#include "is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../dynamics/systems/ghost.hpp"
 #include "../dynamics/liouvillean/CompressionL.hpp"
 #include "../dynamics/units/units.hpp"
@@ -39,12 +39,12 @@ namespace DYNAMO {
     else if (!strcmp(XML.getAttribute("Type"), "NTCompression"))
       return new CENTCompression(Sim);
     else
-      D_throw() << "Cannot correctly identify the ensemble";
+      M_throw() << "Cannot correctly identify the ensemble";
   }
 
   Iflt 
   CEnsemble::exchangeProbability(const CEnsemble&) const
-  { D_throw() << "Exchange move not written for this Ensemble"; }
+  { M_throw() << "Exchange move not written for this Ensemble"; }
 
   xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			      const CEnsemble& g)
@@ -88,13 +88,13 @@ namespace DYNAMO {
       thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
     } catch (std::exception &)
       {
-	D_throw() << "Could not find the Thermostat in NVT system";
+	M_throw() << "Could not find the Thermostat in NVT system";
       }
     
     //Only one kind of thermostat so far!
     if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
       {
-	D_throw() << "Could not upcast thermostat to Andersens";
+	M_throw() << "Could not upcast thermostat to Andersens";
       }    
     
     EnsembleVals[2] = static_cast<const CSysGhost*>(thermostat)->getTemperature();
@@ -123,7 +123,7 @@ namespace DYNAMO {
       dynamic_cast<const CENVT&>(oE);
     } catch (std::bad_cast)
       {
-	D_throw() << "The ensembles types differ";
+	M_throw() << "The ensembles types differ";
       }    
 #endif
 
@@ -171,7 +171,7 @@ namespace DYNAMO {
     }
     catch (std::exception&)
       {
-	D_throw() << "Compression ensemble requires the use of compression liouvillean";
+	M_throw() << "Compression ensemble requires the use of compression liouvillean";
       }
 
     I_cout() << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
@@ -199,13 +199,13 @@ namespace DYNAMO {
       thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
     } catch (std::exception&)
       {
-	D_throw() << "Could not find the Thermostat in NVT system";
+	M_throw() << "Could not find the Thermostat in NVT system";
       }
     
     //Only one kind of thermostat so far!
     if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
       {
-	D_throw() << "Could not upcast thermostat to Andersens";
+	M_throw() << "Could not upcast thermostat to Andersens";
       }
     
     EnsembleVals[1] = static_cast<const CSysGhost*>
@@ -217,7 +217,7 @@ namespace DYNAMO {
     }
     catch (std::exception&)
       {
-	D_throw() << "Compression ensemble requires the use of compression liouvillean";
+	M_throw() << "Compression ensemble requires the use of compression liouvillean";
       }
 
     I_cout() << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]

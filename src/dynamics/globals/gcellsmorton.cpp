@@ -81,11 +81,11 @@ CGCellsMorton::operator<<(const XMLNode& XML)
   }
   catch(...)
     {
-      D_throw() << "Error loading CGCellsMorton";
+      M_throw() << "Error loading CGCellsMorton";
     }
   
   if (lambda < 0.0 || lambda > 1.0)
-    D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
+    M_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
 }
 
 void 
@@ -99,7 +99,7 @@ CGCellsMorton::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   //This 
@@ -326,7 +326,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
   cellCount = int(1 / maxdiam);
   
   if (cellCount < 3)
-    D_throw() << "Not enough cells, sim too small, need 3+";
+    M_throw() << "Not enough cells, sim too small, need 3+";
 
   if (cellCount > std::numeric_limits<unsigned char>::max())
     {

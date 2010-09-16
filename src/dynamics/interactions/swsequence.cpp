@@ -18,7 +18,6 @@
 #include "swsequence.hpp"
 #include <boost/lexical_cast.hpp>
 #include <cmath>
-#include "../../base/is_exception.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
@@ -105,7 +104,7 @@ void
 ISWSequence::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
-    D_throw() << "Attempting to load SquareWell from non SquareWell entry";
+    M_throw() << "Attempting to load SquareWell from non SquareWell entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -177,7 +176,7 @@ ISWSequence::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CISWSequence";
+      M_throw() << "Failed a lexical cast in CISWSequence";
     }
 }
 
@@ -245,13 +244,13 @@ ISWSequence::getEvent(const Particle &p1,
 {    
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
-    D_throw() << "Particle 1 is not up to date";
+    M_throw() << "Particle 1 is not up to date";
   
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
-    D_throw() << "Particle 2 is not up to date";
+    M_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
-    D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
+    M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
   CPDData colldat(*Sim, p1, p2);
@@ -263,7 +262,7 @@ ISWSequence::getEvent(const Particle &p1,
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
-	    D_throw() << "Overlapping particles found" 
+	    M_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
@@ -280,11 +279,11 @@ ISWSequence::getEvent(const Particle &p1,
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
 	{
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
-	    D_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
+	    M_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 	  else
-	    D_throw() << "Overlapping wells (but not registerd as captured) particles found" 
+	    M_throw() << "Overlapping wells (but not registerd as captured) particles found" 
 		      << "\nparticle1 " << p1.getID() << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(ld2))/Sim->dynamics.units().unitLength();
 	  
@@ -360,7 +359,7 @@ ISWSequence::runEvent(const Particle& p1,
 	break;
       }
     default:
-      D_throw() << "Unknown collision type";
+      M_throw() << "Unknown collision type";
     }
 }
 

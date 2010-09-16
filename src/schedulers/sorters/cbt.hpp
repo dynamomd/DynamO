@@ -19,7 +19,7 @@
 #define CSSCBT_H
 #include <vector>
 #include <cmath>
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "datastruct.hpp"
 #include "sorter.hpp"
 
@@ -118,7 +118,7 @@ public:
     //Exit early
 #ifdef DYNAMO_DEBUG
     if (std::isnan(tmpVal.dt))
-      D_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
+      M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif
 
     if (tmpVal.type == NONE) return;

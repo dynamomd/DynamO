@@ -19,7 +19,6 @@
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <iomanip>
-#include "../../base/is_exception.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
@@ -50,7 +49,7 @@ ILines::initialise(size_t nID)
 {
   if (dynamic_cast<const LNOrientation*>(&(Sim->dynamics.getLiouvillean()))
       == NULL)
-    D_throw() << "Interaction requires an orientation capable Liouvillean.";
+    M_throw() << "Interaction requires an orientation capable Liouvillean.";
   
   ID = nID; 
   
@@ -61,7 +60,7 @@ void
 ILines::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"Lines"))
-    D_throw() << "Attempting to load Lines from non Lines entry";
+    M_throw() << "Attempting to load Lines from non Lines entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -80,7 +79,7 @@ ILines::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CILines";
+      M_throw() << "Failed a lexical cast in CILines";
     }
 }
 
@@ -110,13 +109,13 @@ ILines::getEvent(const Particle &p1,
 {
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
-    D_throw() << "Particle 1 is not up to date";
+    M_throw() << "Particle 1 is not up to date";
   
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
-    D_throw() << "Particle 2 is not up to date";
+    M_throw() << "Particle 2 is not up to date";
 
   if (p1 == p2)
-    D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
+    M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
   
   CPDData colldat(*Sim, p1, p2);
@@ -191,7 +190,7 @@ ILines::runEvent(const Particle& p1,
 	break;
       }
     default:
-      D_throw() << "Unknown collision type";
+      M_throw() << "Unknown collision type";
     }
 }
    
@@ -229,7 +228,7 @@ ILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID,
   }
   catch(std::bad_cast)
     {
-      D_throw() << "Liouvillean is not an orientation liouvillean!";
+      M_throw() << "Liouvillean is not an orientation liouvillean!";
     }
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))

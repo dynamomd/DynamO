@@ -84,7 +84,7 @@ SThreadedNBList::addEvents(const Particle& part)
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
@@ -118,7 +118,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
@@ -146,7 +146,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 {
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)  D_throw() << "Not a CGNeighbourList!";
+      == NULL)  M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Now grab a reference to the neighbour list

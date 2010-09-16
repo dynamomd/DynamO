@@ -39,7 +39,7 @@ public:
   { return oldVelVec; }
 
   inline Vector  getOldPosition() const
-  { D_throw() << "Not yet Implemented"; }
+  { M_throw() << "Not yet Implemented"; }
 
   inline const Species& getSpecies() const
   { return species_; }

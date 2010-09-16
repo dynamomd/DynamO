@@ -19,7 +19,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../dynamics/ranges/1range.hpp"
 #include <boost/foreach.hpp>
 #include <vector>
@@ -58,7 +57,7 @@ OPRGyration::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPRGyration";
+      M_throw() << "Failed a lexical cast in OPRGyration";
     }
   
 }
@@ -82,14 +81,14 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 
 #ifdef DYNAMO_DEBUG
   if (chains.size() != static_cast<OPRGyration*>(plug)->chains.size())
-    D_throw() << "Size mismatch when exchanging!";
+    M_throw() << "Size mismatch when exchanging!";
 #endif
 
   while (iPtr1 != chains.end())
     {
 #ifdef DYNAMO_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
-	D_throw() << "Name mismatch while replexing!";
+	M_throw() << "Name mismatch while replexing!";
 #endif
       std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
 
@@ -234,7 +233,7 @@ Iflt
 OPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
 {
   if (NDIM != 3)
-    D_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
+    M_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
 
   //Cubatic Order Parameter
   Iflt Q_cub[NDIM][NDIM][NDIM][NDIM];

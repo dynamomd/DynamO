@@ -27,7 +27,6 @@ namespace io = boost::iostreams;
 #include <boost/lexical_cast.hpp>
 
 #include "../extcode/xmlParser.h"
-#include "../base/is_exception.hpp"
 #include "../dynamics/dynamics.hpp"
 #include "../schedulers/scheduler.hpp"
 #include "../dynamics/BC/LEBC.hpp"
@@ -49,7 +48,7 @@ CIPConfig::initialise()
   XMLNode xMainNode;
 
   if (!boost::filesystem::exists(fileName))
-    D_throw() << "Could not open XML configuration file";
+    M_throw() << "Could not open XML configuration file";
 
   //This scopes out the file objects
   {
@@ -63,7 +62,7 @@ CIPConfig::initialise()
     else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
       I_cout() << "Uncompressed XML input file " << fileName << " loading";
     else
-      D_throw() << "Unrecognized extension for input files";
+      M_throw() << "Unrecognized extension for input files";
     
     inputFile.push(io::file_source(fileName));
 
@@ -91,7 +90,7 @@ CIPConfig::initialise()
     I_cout() << "Parsing XML file v" << version;
     
     if (version != configFileVersion)
-      D_throw() << "This version of the config file is obsolete"
+      M_throw() << "This version of the config file is obsolete"
 		<< "\nThe current version is " << configFileVersion;
   }
 

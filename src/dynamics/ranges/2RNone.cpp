@@ -23,13 +23,13 @@
 C2RNone::C2RNone(const XMLNode& XML, const DYNAMO::SimData*)
 { 
   if (strcmp(XML.getAttribute("Range"),"2None"))
-    D_throw() << "Attempting to load a 2None from a non 2None";
+    M_throw() << "Attempting to load a 2None from a non 2None";
 }
 
 void 
 C2RNone::operator<<(const XMLNode&)
 {
-  D_throw() << "Due to problems with CRAll C2RNone operator<< cannot work for this class";
+  M_throw() << "Due to problems with CRAll C2RNone operator<< cannot work for this class";
 }
 
 void 

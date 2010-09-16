@@ -19,7 +19,7 @@
 #include "../../simulation/particle.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
+#include <boost/lexical_cast.hpp>
 
 CRRange::CRRange(const XMLNode& XML) 
 { operator<<(XML); }
@@ -28,14 +28,14 @@ void
 CRRange::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"Ranged"))
-    D_throw() << "Attempting to load CRRange from non range";
+    M_throw() << "Attempting to load CRRange from non range";
   try {
     startID = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
     endID = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CRRange";
+      M_throw() << "Failed a lexical cast in CRRange";
     }
 }
 

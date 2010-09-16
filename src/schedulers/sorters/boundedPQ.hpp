@@ -21,7 +21,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "datastruct.hpp"
 #include "sorter.hpp"
 #include "../../dynamics/units/units.hpp"
@@ -192,7 +192,7 @@ public:
 	    }
 	  else
 	    {
-	      if (maxVal < 0 ) D_throw() << "Queue filled with negative events";
+	      if (maxVal < 0 ) M_throw() << "Queue filled with negative events";
 	      
 	      scale = counter / (maxVal - minVal);
 	      nlists = Min.size();
@@ -200,7 +200,7 @@ public:
 	}
 	catch (std::exception& excep)
 	  {
-	    D_throw() << "Failure in boundedPQ init()"
+	    M_throw() << "Failure in boundedPQ init()"
 		      << "\nminVal = " << minVal
 		      << "\nmaxVal = " << maxVal
 		      << "\ncounter = " << counter
@@ -210,10 +210,10 @@ public:
 
     listWidth = nlists / scale;
     if (scale == HUGE_VAL)
-      D_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
+      M_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
 
     if (scale <= 0.0)
-      D_throw() << "Scale factor is zero or negative (negative collisions?)";
+      M_throw() << "Scale factor is zero or negative (negative collisions?)";
 
     if (nlists == 0)
       {
@@ -258,7 +258,7 @@ public:
   {
 #ifdef DYNAMO_DEBUG
     if (std::isnan(tmpVal.dt))
-      D_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
+      M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif 
 
     tmpVal.dt += pecTime;
@@ -275,7 +275,7 @@ public:
 //  {
 //#ifdef DYNAMO_DEBUG 
 //    if (Min.empty())
-//      D_throw() << "Heap not yet sized";
+//      M_throw() << "Heap not yet sized";
 //#endif
 //    
 //    return Min[a+1].data; 
@@ -285,7 +285,7 @@ public:
 //  {
 //#ifdef DYNAMO_DEBUG 
 //    if (Min.empty())
-//      D_throw() << "Heap not yet sized";
+//      M_throw() << "Heap not yet sized";
 //#endif
 //
 //    return Min[a+1].data; 

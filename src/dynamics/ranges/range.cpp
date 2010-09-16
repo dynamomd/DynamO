@@ -20,8 +20,6 @@
 
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
-
 
 CRange* 
 CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)
@@ -37,7 +35,7 @@ CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)
   else if (!strcmp(XML.getAttribute("Range"),"List"))
     return new CRList(XML);
   else 
-    D_throw() << XML.getAttribute("Range")
+    M_throw() << XML.getAttribute("Range")
 	      << ", Unknown type of Range encountered";
 }
 
@@ -84,7 +82,7 @@ C2Range::loadClass(const XMLNode& XML , const DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Range"),"2None"))
     return new C2RNone(XML,Sim);
   else 
-    D_throw() << XML.getAttribute("Range")
+    M_throw() << XML.getAttribute("Range")
 	      << ", Unknown type of C2Range encountered";
 }
 

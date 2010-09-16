@@ -17,4 +17,4 @@
 
 #include "is_base.hpp"
 #include "is_simdata.hpp"
-#include "is_exception.hpp"
+#include <magnet/exception.hpp>

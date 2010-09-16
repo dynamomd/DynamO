@@ -97,7 +97,7 @@ namespace DYNAMO
 	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<const T*>(plugin.get_ptr());
       
-      D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+      M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }   
 
     /*! \brief Finds a plugin of the given type using RTTI.
@@ -112,7 +112,7 @@ namespace DYNAMO
 	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<T*>(plugin.get_ptr());
 
-      D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+      M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
     /*! \brief The CEnsemble of the Simulation. */

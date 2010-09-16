@@ -20,7 +20,6 @@
 #include <boost/lexical_cast.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -158,7 +157,7 @@ void
 CSysRescale::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Rescale"))
-    D_throw() << "Attempting to load Rescale from " 
+    M_throw() << "Attempting to load Rescale from " 
 	      << XML.getAttribute("Type") << " entry"; 
   
   try {
@@ -168,7 +167,7 @@ CSysRescale::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CSysRescale";
+      M_throw() << "Failed a lexical cast in CSysRescale";
     }
 }
 

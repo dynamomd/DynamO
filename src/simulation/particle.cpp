@@ -16,7 +16,7 @@
 */
 
 #include "particle.hpp"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "../datatypes/vector.xml.hpp"

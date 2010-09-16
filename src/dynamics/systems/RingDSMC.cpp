@@ -21,7 +21,6 @@
 #include <boost/random/uniform_int.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -61,7 +60,7 @@ CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi1, I
   sysName = nName;
   type = DSMC;
   if (r1->size() % 2)
-    D_throw() << "Need an even number of particles in"
+    M_throw() << "Need an even number of particles in"
 	      << " the range to make a whole number of velocity pairs";
 }
 
@@ -72,7 +71,7 @@ CSRingDSMC::runEvent() const
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
-    D_throw() << "A NAN system event time has been found";
+    M_throw() << "A NAN system event time has been found";
 #endif
     
   Sim->dSysTime += locdt;
@@ -296,7 +295,7 @@ void
 CSRingDSMC::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"RingDSMC"))
-    D_throw() << "Attempting to load RingDSMC from a " << XML.getAttribute("Type") <<  " entry"; 
+    M_throw() << "Attempting to load RingDSMC from a " << XML.getAttribute("Type") <<  " entry"; 
   
   try {
     tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
@@ -324,7 +323,7 @@ CSRingDSMC::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CGGlobal";
+      M_throw() << "Failed a lexical cast in CGGlobal";
     }
 }
 

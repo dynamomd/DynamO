@@ -20,7 +20,7 @@
 #pragma once
 
 #include <cmath> //for length
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../base/constants.hpp" //For the dimensions
 #include "vector2.hpp"
 
@@ -147,7 +147,7 @@ class CVector
   {
 #ifdef DYNAMO_DEBUG
     if (NDIM != 3) 
-      D_throw() << "Cross product defined only in 3D";
+      M_throw() << "Cross product defined only in 3D";
 #endif
     
     CVector < T > tmpVec;
@@ -204,7 +204,7 @@ class CVector
   inline T & operator[] (const size_t &indx)
   {
 #ifdef DYNAMO_DEBUG
-    if (indx >= NDIM) D_throw() << "CVector out of bounds error";
+    if (indx >= NDIM) M_throw() << "CVector out of bounds error";
 #endif
 
     return data[indx];
@@ -214,7 +214,7 @@ class CVector
   inline const T & operator[] (const size_t &indx) const
   {
 #ifdef DYNAMO_DEBUG
-    if (indx >= NDIM) D_throw() << "CVector out of bounds error";
+    if (indx >= NDIM) M_throw() << "CVector out of bounds error";
 #endif
 
     return data[indx];

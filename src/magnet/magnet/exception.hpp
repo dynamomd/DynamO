@@ -52,7 +52,7 @@ namespace magnet
     
     inline ~exception() throw() {}
     
-    /*! \brief Constructor called by the D_throw() macro.
+    /*! \brief Constructor called by the M_throw() macro.
      *
      * \param line The line number in the source file.
      * \param file The name of the source file.

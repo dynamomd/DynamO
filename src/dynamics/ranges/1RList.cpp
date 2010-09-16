@@ -20,6 +20,7 @@
 #include "../../simulation/particle.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <boost/lexical_cast.hpp>
 
 CRList::CRList(const XMLNode& XML) 
 { operator<<(XML); }
@@ -37,7 +38,7 @@ void
 CRList::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"List"))
-    D_throw() << "Attempting to load CRList from non list";
+    M_throw() << "Attempting to load CRList from non list";
   try {
     
     XMLNode xSubNode;
@@ -47,7 +48,7 @@ CRList::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CRList";
+      M_throw() << "Failed a lexical cast in CRList";
     }
 }
 

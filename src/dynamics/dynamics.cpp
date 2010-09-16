@@ -22,7 +22,7 @@
 #include "../datatypes/vector.xml.hpp"
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <cmath>
 #include "../base/is_simdata.hpp"
 #include "NparticleEventData.hpp"
@@ -51,7 +51,7 @@ Dynamics::getTopology(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find the topology " << name;
+  M_throw() << "Could not find the topology " << name;
 }
 
 const ClonePtr<Topology>& 
@@ -61,7 +61,7 @@ Dynamics::getTopology(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find the topology " << name;
+  M_throw() << "Could not find the topology " << name;
 }
 
 const Species& 
@@ -71,7 +71,7 @@ Dynamics::getSpecies(const Particle& p1) const
     if (ptr->isSpecies(p1))
       return *ptr;
   
-  D_throw() << "Could not find the requested species"
+  M_throw() << "Could not find the requested species"
 	    << "\nID = " << p1.getID();
 }
 
@@ -89,7 +89,7 @@ Dynamics::getSpecies(std::string name) const
     if (ptr->getName() == name)
       return *ptr;
   
-  D_throw() << "Could not find the " << name << " species"; 
+  M_throw() << "Could not find the " << name << " species"; 
 }
 
 ClonePtr<System>&
@@ -99,7 +99,7 @@ Dynamics::getSystem(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find system plugin";
+  M_throw() << "Could not find system plugin";
 }
 
 const ClonePtr<System>&
@@ -109,7 +109,7 @@ Dynamics::getSystem(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find system plugin";
+  M_throw() << "Could not find system plugin";
 }
 
 ClonePtr<Global>&
@@ -119,7 +119,7 @@ Dynamics::getGlobal(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find global plugin";
+  M_throw() << "Could not find global plugin";
 }
 
 const ClonePtr<Global>&
@@ -129,7 +129,7 @@ Dynamics::getGlobal(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find global plugin";
+  M_throw() << "Could not find global plugin";
 }
 
 ClonePtr<Local>&
@@ -139,7 +139,7 @@ Dynamics::getLocal(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find local plugin";
+  M_throw() << "Could not find local plugin";
 }
 
 const ClonePtr<Local>&
@@ -149,7 +149,7 @@ Dynamics::getLocal(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find local plugin";
+  M_throw() << "Could not find local plugin";
 }
 
 ClonePtr<Interaction>&
@@ -159,7 +159,7 @@ Dynamics::getInteraction(std::string name)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find interaction plugin";
+  M_throw() << "Could not find interaction plugin";
 }
 
 const ClonePtr<Interaction>&
@@ -169,14 +169,14 @@ Dynamics::getInteraction(std::string name) const
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  D_throw() << "Could not find interaction plugin";
+  M_throw() << "Could not find interaction plugin";
 }
 
 void 
 Dynamics::addSpecies(const ClonePtr<Species>& CSpe)
 {
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add species after simulation initialisation";
+    M_throw() << "Cannot add species after simulation initialisation";
 
   species.push_back(CSpe);
 
@@ -194,7 +194,7 @@ void
 Dynamics::addGlobal(Global* newGlobal)
 {
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add global events after simulation initialisation";
+    M_throw() << "Cannot add global events after simulation initialisation";
 
   ClonePtr<Global> 
     tempPlug(newGlobal);
@@ -206,7 +206,7 @@ void
 Dynamics::addLocal(Local* newLocal)
 {
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add local events after simulation initialisation";
+    M_throw() << "Cannot add local events after simulation initialisation";
 
   ClonePtr<Local> 
     tempPlug(newLocal);
@@ -218,7 +218,7 @@ void
 Dynamics::addSystem(System* newSystem)
 {
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add system events at this time, system is initialised";
+    M_throw() << "Cannot add system events at this time, system is initialised";
   
   ClonePtr<System> 
     tempPlug(newSystem);
@@ -230,7 +230,7 @@ void
 Dynamics::addStructure(Topology* newSystem)
 { 
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add structure after simulation initialisation";
+    M_throw() << "Cannot add structure after simulation initialisation";
 
   ClonePtr<Topology> 
     tempPlug(newSystem);
@@ -242,11 +242,11 @@ void
 Dynamics::addSystemTicker()
 {
   if (Sim->status >= INITIALISED)
-    D_throw() << "Cannot add the system ticker now";
+    M_throw() << "Cannot add the system ticker now";
 
   BOOST_FOREACH(ClonePtr<System>& ptr, systems)
     if (ptr->getName() == "SystemTicker")
-      D_throw() << "System Ticker already exists";
+      M_throw() << "System Ticker already exists";
   
     addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
@@ -273,10 +273,10 @@ Dynamics::initialise()
 	if (ptr->isSpecies(part)) { count++; break; }
       
       if (count < 1)
-	D_throw() << "Particle ID=" << part.getID() << " has no species";
+	M_throw() << "Particle ID=" << part.getID() << " has no species";
 
       if (count > 1)
-	D_throw() << "Particle ID=" << part.getID() << " has more than one species";
+	M_throw() << "Particle ID=" << part.getID() << " has more than one species";
       count = 0;
     }
 
@@ -287,12 +287,12 @@ Dynamics::initialise()
       tot += ptr->getCount();
     
     if (tot < Sim->N)
-      D_throw() << "The particle count according to the species definition is too low\n"
+      M_throw() << "The particle count according to the species definition is too low\n"
 		<< "discrepancy = " << tot - Sim->N
 		<< "\nN = " << Sim->N;
     
     if (tot > Sim->N)
-      D_throw() << "The particle count according to the species definition is too high\n"
+      M_throw() << "The particle count according to the species definition is too high\n"
 		<< "discrepancy = " << tot - Sim->N
 		<< "\nN = " << Sim->N;
  }
@@ -329,7 +329,7 @@ Dynamics::getInteraction(const Particle& p1, const Particle& p2) const
     if (ptr->isInteraction(p1,p2))
       return ptr;
   
-  D_throw() << "Could not find the interaction requested";
+  M_throw() << "Could not find the interaction requested";
 }
 
 Dynamics::Dynamics(const Dynamics &dyn):

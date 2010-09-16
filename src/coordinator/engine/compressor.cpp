@@ -39,7 +39,7 @@ ECompressingSimulation::ECompressingSimulation(const boost::program_options::var
   ESingleSimulation(nVM, tp)
 {
   if (vm.count("target-pack-frac") && vm.count("target-density"))
-    D_throw() << "Shouldn't specify both the packing fraction and density.";
+    M_throw() << "Shouldn't specify both the packing fraction and density.";
     
 }
 

@@ -18,7 +18,6 @@
 #include "include.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../units/units.hpp"
@@ -55,24 +54,24 @@ Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
   else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
     return new LNewtonianMC(tmp, XML);
   else 
-    D_throw() << XML.getAttribute("Type")
+    M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Liouvillean encountered";
 }
 
 PairEventData 
 Liouvillean::runLineLineCollision(const IntEvent&,
 				   const Iflt&, const Iflt&) const
-{ D_throw() << "Not implemented for this Liouvillean."; }
+{ M_throw() << "Not implemented for this Liouvillean."; }
 
 bool
 Liouvillean::getLineLineCollision(CPDData&, const Iflt&, 
 				   const Particle&, const Particle&
 				   ) const
-{ D_throw() << "Not implemented for this Liouvillean."; }
+{ M_throw() << "Not implemented for this Liouvillean."; }
 
 Iflt 
 Liouvillean::getPBCSentinelTime(const Particle&, const Iflt&) const
-{ D_throw() << "Not implemented for this Liouvillean."; }
+{ M_throw() << "Not implemented for this Liouvillean."; }
 
 void 
 Liouvillean::loadParticleXMLData(const XMLNode& XML)
@@ -111,7 +110,7 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  binaryread(base64Convertor, ID);
 
 	  if (i != ID) 
-	    D_throw() << "Binary data corruption detected, id's don't match"
+	    M_throw() << "Binary data corruption detected, id's don't match"
 		      << "\nMight be because this file was generated on another architecture (32/64bit)"
 		      << "\nTry using the --text option to avoid using the binary format";
 	  
@@ -304,7 +303,7 @@ Liouvillean::parallelCubeColl(const IntEvent& event,
 			       const Iflt& e, 
 			       const Iflt& d, 
 			       const EEventType& eType) const
-{ D_throw() << "Not Implemented"; }
+{ M_throw() << "Not Implemented"; }
 
 PairEventData 
 Liouvillean::parallelCubeColl(const IntEvent& event, 
@@ -312,7 +311,7 @@ Liouvillean::parallelCubeColl(const IntEvent& event,
 			       const Iflt& d,
 			       const Matrix& Rot,
 			       const EEventType& eType) const
-{ D_throw() << "Not Implemented"; }
+{ M_throw() << "Not Implemented"; }
 
 std::pair<bool,Iflt>
 Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
@@ -320,7 +319,7 @@ Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				     const Iflt& Omega, const Iflt& Sigma,
 				     const Iflt& t, bool) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 ParticleEventData 
@@ -329,7 +328,7 @@ Liouvillean::runOscilatingPlate
  const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e,
  Iflt& t, bool strongPlate) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 
@@ -340,7 +339,7 @@ Liouvillean::getCylinderWallCollision(const Particle& part,
 				       const Iflt&
 				       ) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 ParticleEventData 
@@ -350,7 +349,7 @@ Liouvillean::runCylinderWallCollision(const Particle&,
 				       const Iflt&
 				       ) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 ParticleEventData 
@@ -359,14 +358,14 @@ Liouvillean::runSphereWallCollision(const Particle&,
 				    const Iflt&
 				    ) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 PairEventData 
 Liouvillean::SmoothSpheresCollInfMassSafe(const IntEvent&, const Iflt&, 
 					   const Iflt&, const EEventType&) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 PairEventData 
@@ -377,7 +376,7 @@ Liouvillean::RoughSpheresColl(const IntEvent& event,
 			      const EEventType& eType
 			      ) const
 {
-  D_throw() << "Not Implemented, you need rotational dynamics";
+  M_throw() << "Not Implemented, you need rotational dynamics";
 }
 
 ParticleEventData 
@@ -388,5 +387,5 @@ Liouvillean::runRoughWallCollision(const Particle& part,
 				   const Iflt& r
 				   ) const
 {
-  D_throw() << "Not Implemented, you need rotational dynamics";
+  M_throw() << "Not Implemented, you need rotational dynamics";
 }

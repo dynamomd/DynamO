@@ -35,7 +35,7 @@ OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
 	       | std::ios::trunc);
 
   if (!tmpfile.is_open())
-    D_throw() << "Could not open temporary file!";
+    M_throw() << "Could not open temporary file!";
 }
 
 OPReplexTrace::~OPReplexTrace()
@@ -60,7 +60,7 @@ OPReplexTrace::OPReplexTrace(const OPReplexTrace& cop2):
 	       | std::ios::trunc);
 
   if (!tmpfile.is_open())
-    D_throw() << "Could not open temporary file!";
+    M_throw() << "Could not open temporary file!";
 
   //Copy the file stream
   cop2.tmpfile.seekg (0, std::ios::beg);
@@ -73,7 +73,7 @@ void
 OPReplexTrace::initialise() 
 { 
   if (!(tmpfile.is_open()))
-    D_throw() << "OPReplexTrace temp file unopened!";
+    M_throw() << "OPReplexTrace temp file unopened!";
 }
 
 void 
@@ -81,7 +81,7 @@ OPReplexTrace::changeSystem(OutputPlugin* OPP)
 {
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<OPReplexTrace*>(OPP) == NULL)
-    D_throw() << "Not the correct plugin to change System with";
+    M_throw() << "Not the correct plugin to change System with";
 #endif
 
   addPoint();

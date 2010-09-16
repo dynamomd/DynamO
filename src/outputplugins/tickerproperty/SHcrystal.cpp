@@ -53,7 +53,7 @@ OPSHCrystal::initialise()
       }
 
   if (nblistID == std::numeric_limits<size_t>::max())
-    D_throw() << "There is not a suitable neighbourlist for the cut-off radius selected."
+    M_throw() << "There is not a suitable neighbourlist for the cut-off radius selected."
       "\nR_g = " << rg / Sim->dynamics.units().unitLength();
 
   globalcoeff.resize(maxl);
@@ -144,7 +144,7 @@ OPSHCrystal::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPSHCrystal";
+      M_throw() << "Failed a lexical cast in OPSHCrystal";
     }
 
   I_cout() << "Cut off radius of " 

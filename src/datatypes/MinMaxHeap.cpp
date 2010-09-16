@@ -24,7 +24,7 @@
 
 #include <iostream>
 #include "MinMaxHeap.hpp"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 
 // FindMin
 // Finds and returns the minimum item in the heap
@@ -34,7 +34,7 @@ const Comparable & MinMaxHeap<Comparable,Size>::top() const
 {
 #ifdef DYNAMO_DEBUG
   if (empty())
-    D_throw() << "*** FindMin failed: Heap is empty ***";
+    M_throw() << "*** FindMin failed: Heap is empty ***";
 #endif
 
   return _array[ 1 ];
@@ -48,7 +48,7 @@ const Comparable & MinMaxHeap<Comparable,Size>::bottom() const
 {
 #ifdef DYNAMO_DEBUG
   if ( empty() )
-    D_throw() << "*** FindMax failed: Heap is empty ***";
+    M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
 
   if ( _currentSize == 1 )
@@ -64,7 +64,7 @@ Comparable & MinMaxHeap<Comparable,Size>::unsafe_bottom()
 {
 #ifdef DYNAMO_DEBUG
   if ( empty() )
-    D_throw() << "*** FindMax failed: Heap is empty ***";
+    M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
 
   if ( _currentSize == 1 )
@@ -85,7 +85,7 @@ void MinMaxHeap<Comparable,Size>::insert( const Comparable & x )
 {
 #ifdef DYNAMO_DEBUG
   if( full() )
-    D_throw() << "*** Insert failed: Heap is full ***";
+    M_throw() << "*** Insert failed: Heap is full ***";
 #endif
 
   size_t hole = ++_currentSize;
@@ -171,7 +171,7 @@ void MinMaxHeap<Comparable,Size>::deleteMin( Comparable & minItem )
 {
 #ifdef DYNAMO_DEBUG
   if( empty() )
-    D_throw() << "*** DeleteMin failed: Heap is empty ***";
+    M_throw() << "*** DeleteMin failed: Heap is empty ***";
 #endif
 
   minItem = _array[ 1 ];
@@ -183,7 +183,7 @@ void MinMaxHeap<Comparable,Size>::pop()
 {
 #ifdef DYNAMO_DEBUG
   if( empty() )
-    D_throw() << "*** DeleteMin failed: Heap is empty ***";
+    M_throw() << "*** DeleteMin failed: Heap is empty ***";
 #endif
 
   _array[ 1 ] = _array[ _currentSize-- ];
@@ -203,7 +203,7 @@ void MinMaxHeap<Comparable,Size>::deleteMax( Comparable & maxItem )
 
 #ifdef DYNAMO_DEBUG
   if ( empty() )
-    D_throw() << "*** DeleteMax failed: Heap is empty ***";
+    M_throw() << "*** DeleteMax failed: Heap is empty ***";
 #endif
 
   if ( _currentSize == 1 )
@@ -226,7 +226,7 @@ void MinMaxHeap<Comparable,Size>::replaceMax(const Comparable & newMaxItem)
 
 #ifdef DYNAMO_DEBUG
   if ( empty() )
-    D_throw() << "*** DeleteMax failed: Heap is empty ***";
+    M_throw() << "*** DeleteMax failed: Heap is empty ***";
 #endif
 
   if ( _currentSize == 1 )

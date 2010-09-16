@@ -37,7 +37,7 @@ namespace EventTypeTracking {
       return Sim->dynamics.getLocals()[key.first]->getName();
       break;
     default:
-      D_throw() << "Collision matrix found an unknown event class";
+      M_throw() << "Collision matrix found an unknown event class";
     }
   }
 

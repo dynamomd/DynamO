@@ -64,7 +64,7 @@ Local::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"SphereWall"))
     return new CLSphere(XML, Sim);
   else 
-    D_throw() << XML.getAttribute("Type")
+    M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Local Interaction encountered";
 }
 

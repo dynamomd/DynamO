@@ -35,7 +35,7 @@ OPCollisionCorrelator::operator<<(const XMLNode& XML)
       }
   catch (std::exception& excep)
     {
-      D_throw() << "Error while parsing " << name << "options\n"
+      M_throw() << "Error while parsing " << name << "options\n"
 		<< excep.what();
     }
 }
@@ -47,7 +47,7 @@ OPCollisionCorrelator::initialise()
   lastColl.resize(Sim->N, std::vector<double>(Sim->N, 0.0));
 
   if (Sim->lastRunMFT == 0.0)
-    D_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
+    M_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
 
   //Histogram in mean free times
   freetimehist = C1DHistogram(Sim->lastRunMFT*0.1);

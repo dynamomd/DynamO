@@ -21,7 +21,6 @@
 #include <boost/random/uniform_int.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -71,7 +70,7 @@ CSUmbrella::runEvent() const
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
-    D_throw() << "A NAN system event time has been found";
+    M_throw() << "A NAN system event time has been found";
 #endif
   
   Sim->dSysTime += locdt;
@@ -261,7 +260,7 @@ void
 CSUmbrella::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Umbrella"))
-    D_throw() << "Attempting to load Umbrella from a " 
+    M_throw() << "Attempting to load Umbrella from a " 
 	      << XML.getAttribute("Type") <<  " entry"; 
   
   try {
@@ -289,7 +288,7 @@ CSUmbrella::operator<<(const XMLNode& XML)
     
   }
   catch (boost::bad_lexical_cast &)
-    { D_throw() << "Failed a lexical cast in CSUmbrella"; }
+    { M_throw() << "Failed a lexical cast in CSUmbrella"; }
 }
 
 void 

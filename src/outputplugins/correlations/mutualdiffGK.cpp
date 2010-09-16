@@ -57,7 +57,7 @@ OPMutualDiffusionGK::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPMutualDiffusionGK";
+      M_throw() << "Failed a lexical cast in OPMutualDiffusionGK";
     }
   
   try 
@@ -71,13 +71,13 @@ OPMutualDiffusionGK::operator<<(const XMLNode& XML)
 
       } catch (std::exception& nex)
 	{
-	  D_throw() << "You must set Species1 and Species2 for mutal diffusion\n"
+	  M_throw() << "You must set Species1 and Species2 for mutal diffusion\n"
 		    << nex.what();
 	}
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPMutualDiffusionGK";
+      M_throw() << "Failed a lexical cast in OPMutualDiffusionGK";
     }
 }
 

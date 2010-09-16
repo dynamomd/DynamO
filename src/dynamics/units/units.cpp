@@ -20,7 +20,8 @@
 #include <boost/lexical_cast.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
+
 #include "../../base/is_simdata.hpp"
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
@@ -51,6 +52,6 @@ Units::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"SW"))
     return new USquareWell(XML, Sim);
   else
-   D_throw() << XML.getAttribute("Type")
+   M_throw() << XML.getAttribute("Type")
 	     << ", Unknown unit type";
 }

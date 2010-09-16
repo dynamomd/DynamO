@@ -34,14 +34,14 @@ CSCENBList::operator<<(const XMLNode& XML)
   try 
     {
       if (strcmp(XML.getAttribute("Type"),"NeighbourList"))
-	D_throw() << "Attempting to load NeighbourList from "
+	M_throw() << "Attempting to load NeighbourList from "
 		  << XML.getAttribute("Type") << " entry";
   
       name = XML.getAttribute("NBListName");
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CSCENBList";
+      M_throw() << "Failed a lexical cast in CSCENBList";
     }
 }
 
@@ -53,13 +53,13 @@ CSCENBList::initialise()
   }
   catch (std::exception& cep)
     {
-      D_throw() << "Failed to find the global named " 
+      M_throw() << "Failed to find the global named " 
 		<< name << " for the CSCENBList entry."
 		<< "\n" << cep.what();
     }
 
   if (dynamic_cast<const CGNeighbourList* const>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
-    D_throw() << "Global named " << name << " is not a CGNeighbourList";
+    M_throw() << "Global named " << name << " is not a CGNeighbourList";
   
   static_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .markAsUsedInScheduler();				 
@@ -71,7 +71,7 @@ CSCENBList::getParticleNeighbourhood(const Particle& part,
 {
 #ifdef DYNAMO_DEBUG
   if (!isApplicable(part))
-    D_throw() << "This complexNBlist entry ("
+    M_throw() << "This complexNBlist entry ("
 	      << name << ") is not valid for this particle (" 
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
@@ -86,7 +86,7 @@ CSCENBList::getParticleLocalNeighbourhood(const Particle& part,
 {
 #ifdef DYNAMO_DEBUG
   if (!isApplicable(part))
-    D_throw() << "This complexNBlist entry ("
+    M_throw() << "This complexNBlist entry ("
 	      << name << ") is not valid for this particle (" 
 	      << part.getID() << ") yet it is being used anyway!";
 #endif

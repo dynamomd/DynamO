@@ -60,7 +60,7 @@ CGSOCells::operator<<(const XMLNode& XML)
   }
   catch(...)
     {
-      D_throw() << "Error loading CGSOCells";
+      M_throw() << "Error loading CGSOCells";
     }
 }
 
@@ -69,7 +69,7 @@ CGSOCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   //This 
@@ -121,11 +121,11 @@ CGSOCells::runEvent(const Particle& part) const
 
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Interaction collision time has been found"
+    M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);
   
   if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+    M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
 	      << iEvent.stringData(Sim);
 #endif
 
@@ -165,7 +165,7 @@ CGSOCells::initialise(size_t nID)
   cuberootN = (unsigned long)(std::pow(Sim->N, 1.0/3.0) + 0.5);
   
   if (boost::math::pow<3>(cuberootN) != Sim->N)
-    D_throw() << "Cannot use single occupancy cells without a integer cube root of N"
+    M_throw() << "Cannot use single occupancy cells without a integer cube root of N"
 	      << "\nN = " << Sim->N
 	      << "\nN^(1/3) = " << cuberootN;
 

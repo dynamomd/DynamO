@@ -45,18 +45,18 @@ public:
 
   virtual unsigned long operator[](unsigned long i) const  
   {
-    D_throw() << "Nothing to access";
+    M_throw() << "Nothing to access";
   }
 
   virtual unsigned long at(unsigned long i) const 
   { 
-    D_throw() << "Nothing to access";
+    M_throw() << "Nothing to access";
   }
 
 protected:
 
   virtual const unsigned long& getIteratorID(const unsigned long &i) const 
-  { D_throw() << "Nothing here!"; }
+  { M_throw() << "Nothing here!"; }
 
   virtual void outputXML(xml::XmlStream&) const;
 };

@@ -49,7 +49,7 @@ CLCylinder::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   return LocalEvent(part, Sim->dynamics.getLiouvillean().getCylinderWallCollision
@@ -110,7 +110,7 @@ CLCylinder::operator<<(const XMLNode& XML)
   } 
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CLCylinder";
+      M_throw() << "Failed a lexical cast in CLCylinder";
     }
 }
 

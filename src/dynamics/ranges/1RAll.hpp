@@ -50,7 +50,7 @@ public:
   virtual unsigned long at(unsigned long i) const 
   { 
     if (i >= Sim->particleList.size())
-      D_throw() << "Bad array access value in range.at()";
+      M_throw() << "Bad array access value in range.at()";
 
     return i;
   }

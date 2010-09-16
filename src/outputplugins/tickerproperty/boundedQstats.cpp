@@ -32,7 +32,7 @@ OPBoundedQStats::initialise()
 {  
   if (dynamic_cast<const CSSBoundedPQ<>*>
       (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
-    D_throw() << "Not a bounded queue sorter!";
+    M_throw() << "Not a bounded queue sorter!";
 
 }
 

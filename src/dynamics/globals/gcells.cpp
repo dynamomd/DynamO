@@ -96,11 +96,11 @@ CGCells::operator<<(const XMLNode& XML)
   }
   catch(...)
     {
-      D_throw() << "Error loading CGCells";
+      M_throw() << "Error loading CGCells";
     }
   
   if (lambda < 0.0 || lambda > 1.0)
-    D_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
+    M_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
 }
 
 void 
@@ -114,7 +114,7 @@ CGCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   //This 
@@ -354,7 +354,7 @@ CGCells::addCells(Iflt maxdiam)
       cellCount[iDim] = int(Sim->aspectRatio[iDim] / maxdiam);
       
       if (cellCount[iDim] < 3)
-	D_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
+	M_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
 
 //      if (cellCount[iDim] > 400)
 //	{
@@ -398,7 +398,7 @@ CGCells::addCells(Iflt maxdiam)
   }
   catch(std::bad_alloc& er)
     {
-      D_throw() << "The number of cells is causing a bad alloc\n"
+      M_throw() << "The number of cells is causing a bad alloc\n"
 		<< "Number of cells (" << NCells << ") could be too large\n"
 		<< "Max is " << cells.max_size() << ", aborting"
 		<< er.what();

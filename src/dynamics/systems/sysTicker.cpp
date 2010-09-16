@@ -45,7 +45,7 @@ CSTicker::runEvent() const
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
-    D_throw() << "A NAN system event time has been found";
+    M_throw() << "A NAN system event time has been found";
 #endif
     
 

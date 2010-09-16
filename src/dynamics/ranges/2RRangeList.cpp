@@ -39,7 +39,7 @@ void
 C2RRangeList::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"RangeList"))
-    D_throw() << "Attempting to load a List from a non List";    
+    M_throw() << "Attempting to load a List from a non List";    
   
   try 
     {
@@ -50,7 +50,7 @@ C2RRangeList::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in C2RRangeList";
+      M_throw() << "Failed a lexical cast in C2RRangeList";
     }
 }
 

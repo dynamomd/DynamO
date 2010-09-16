@@ -23,7 +23,7 @@
 #pragma once
 
 #include "../extcode/xmlwriter.hpp"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 
 /*! \brief A smart pointer with the ability to copy the polymorphic class it 
  * owns.
@@ -155,7 +155,7 @@ class ClonePtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	D_throw() << "Attempting to dereference a null pluginpointer";
+	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
   
       return obj; 
@@ -167,7 +167,7 @@ class ClonePtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	D_throw() << "Attempting to dereference a null pluginpointer";
+	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
 
       return *obj; 
@@ -180,7 +180,7 @@ class ClonePtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	D_throw() << "Attempting to dereference a null pluginpointer";
+	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
       T* objptr = obj;
       obj = NULL;
@@ -193,7 +193,7 @@ class ClonePtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	D_throw() << "Attempting to dereference a null pluginpointer";
+	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
 
       return obj; 
@@ -205,7 +205,7 @@ class ClonePtr
     { 
 #ifdef DYNAMO_DEBUG
       if (obj == NULL)
-	D_throw() << "Attempting to dereference a null pluginpointer";
+	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
       
       return *obj; 

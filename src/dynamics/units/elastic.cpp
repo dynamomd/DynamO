@@ -19,7 +19,7 @@
 #include <boost/lexical_cast.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <cstring>
 
 UHardSphere::UHardSphere(const DYNAMO::SimData* tmp): 
@@ -73,7 +73,7 @@ UHardSphere::operator<<(const XMLNode &XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in UHardSphere";
+      M_throw() << "Failed a lexical cast in UHardSphere";
     }
 }
 

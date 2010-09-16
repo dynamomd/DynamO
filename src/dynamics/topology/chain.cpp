@@ -27,7 +27,7 @@ CTChain::CTChain(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
   size_t Clength = (*ranges.begin())->size();
   BOOST_FOREACH(const ClonePtr<CRange>& nRange, ranges)
     if (nRange->size() != Clength)
-      D_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
+      M_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
 		<< spName << "\"";
 }
 

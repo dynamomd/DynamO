@@ -21,7 +21,7 @@
 #include <vector>
 #include <map>
 #include <cmath>
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../base/constants.hpp"
 
 template<class T>
@@ -119,9 +119,9 @@ public:
       {
 	long i = static_cast<long>((x-origin)/binWidth);
 	if (i > static_cast<long>(data.size()))
-	  D_throw() << "Data too high, " << i;
+	  M_throw() << "Data too high, " << i;
 	if (i < 0)
-	  D_throw() << "Data too low, " << i;
+	  M_throw() << "Data too low, " << i;
 	
 	return data[i];
       }
@@ -129,9 +129,9 @@ public:
     T& operator[](const long &x)
       {
 	if (x > static_cast<long>(data.size()))
-	  D_throw() << "Data too high, " << x;
+	  M_throw() << "Data too high, " << x;
 	if (x < 0)
-	  D_throw() << "Data too low, " << x;
+	  M_throw() << "Data too low, " << x;
 	
 	return data[x];
       }
@@ -155,18 +155,18 @@ class CFuzzyArray2<CFuzzyArray2<T> >
     {
       long i = static_cast<long>((x-origin)/binWidth);
       if (i > static_cast<long>(data.size()))
-	D_throw() << "Data too high, " << i;
+	M_throw() << "Data too high, " << i;
       if (i < 0)
-	D_throw() << "Data too low, " << i;
+	M_throw() << "Data too low, " << i;
       return data[i];
     }
   
   CFuzzyArray2<T>& operator[](const long &x)
     {
       if (x > static_cast<long>(data.size()))
-	D_throw() << "Data too high, " << x;
+	M_throw() << "Data too high, " << x;
       if (x < 0)
-	D_throw() << "Data too low, " << x;
+	M_throw() << "Data too low, " << x;
       
       return data[x];
     }
