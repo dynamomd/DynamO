@@ -83,13 +83,13 @@ exe dynamod
     : <link>static 
     ;
 
-#exe threadpool_test 
-#    : test/src/threadpool_test.cpp src//dynamo_core
-#    : 
-#    ;
+exe threadpool_test 
+    : test/src/threadpool_test.cpp src//dynamo_core
+    : 
+    ;
 
 install install-test
-	: src/coil//gl_test 
+	: src/coil//gl_test threadpool_test
 	: <location>test
 	;
 

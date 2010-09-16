@@ -28,8 +28,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-#include "PoolAllocator.hpp"
-#include <boost/pool/pool_alloc.hpp>
+#include <magnet/memory/pool.hpp>
 
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
@@ -44,7 +43,7 @@
 class ThreadPool
 {	
 public:  
-  class Task: public PoolAllocated
+  class Task: public magnet::memory::PoolAllocated
   {
   public:
     virtual void operator()() = 0;
