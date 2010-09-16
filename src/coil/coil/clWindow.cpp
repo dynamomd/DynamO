@@ -54,7 +54,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   FPSmode(false),
   frameCounter(0),
   _mouseSensitivity(0.3),
-  _moveSensitivity(0.00005),
+  _moveSensitivity(0.001),
   _specialKeys(0),
   _hostTransfers(hostTransfers),
   _shadows(false)
@@ -101,6 +101,8 @@ CLGLWindow::initOpenGL()
 		<< "This also disables all other effects.";
       _shadows = false;
     }
+
+  _shadows = false;
 
   glDrawBuffer(GL_BACK);
 
@@ -176,13 +178,18 @@ CLGLWindow::initOpenGL()
 
 
   //Build the shaders
-  _shadowShader.build();
-  _blurFilter.build();
-  _laplacianFilter.build();
 
-  //Init the FBO's
-  _myFBO.init(_width, _height);
-  _FBO1.init(_width, _height);
+  if (_shadows)  
+    {
+      _shadowShader.build();
+
+      _blurFilter.build();
+      _laplacianFilter.build();
+            
+      //Init the FBO's
+      _FBO1.init(_width, _height);
+      _myFBO.init(_width, _height);
+    }
 }
 
 void 

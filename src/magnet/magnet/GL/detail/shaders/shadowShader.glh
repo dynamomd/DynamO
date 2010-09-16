@@ -70,7 +70,8 @@ void main()
   const float step = 0.0005;
   for (int x = 0; x < 8; ++x)
     for (int y = 0; y < 8; ++y)
-      shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+    //Replace shadow2DProj with textureProj
+      shadow += shadow2DProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
   
   shadow /= 64.0 ;
   
