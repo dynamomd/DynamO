@@ -21,7 +21,7 @@
 namespace magnet {
   namespace GL {
 
-    class laplacianFilter : public detail::filter<laplacianFilter, 5>
+    class laplacianFilter5 : public detail::filter<laplacianFilter5, 5>
     {
     public:
       inline static const GLfloat* weights()
@@ -39,5 +39,64 @@ namespace magnet {
       }
 	
     };
+
+    class laplacianFilter3A : public detail::filter<laplacianFilter3A, 3>
+    {
+    public:
+      inline static const GLfloat* weights()
+      {
+	static const GLfloat weights[3][3] = 
+	  {
+	    { 0, -1,  0},
+	    {-1,  4, -1},
+	    { 0, -1,  0}
+	  };
+	
+	return (const GLfloat*)weights;
+      }
+	
+    };
+
+    class laplacianFilter3B : public detail::filter<laplacianFilter3B, 3>
+    {
+    public:
+      inline static const GLfloat* weights()
+      {
+	static const GLfloat weights[3][3] = 
+	  {
+	    {-1, -1, -1},
+	    {-1,  8, -1},
+	    {-1, -1, -1}
+	  };
+	
+	return (const GLfloat*)weights;
+      }
+	
+    };
+
+    //Laplacian of Gaussian
+    class LoGFilter : public detail::filter<LoGFilter, 9>
+    {
+    public:
+      inline static const GLfloat* weights()
+      {
+	static const GLfloat weights[9][9] = 
+	  {
+	    {0,1,1,2,2,2,1,1,0},
+	    {1,2,4,5,5,5,4,2,1},
+	    {1,4,5,3,0,3,5,4,1},
+	    {2,5,3,-12,-24,-12,3,5,2},
+	    {2,5,0,-24,-40,-24,0,5,2},
+	    {2,5,3,-12,-24,-12,3,5,2},
+	    {1,4,5,3,0,3,5,4,1},
+	    {1,2,4,5,5,5,4,2,1},
+	    {0,1,1,2,2,2,1,1,0}
+	  };
+	
+	return (const GLfloat*)weights;
+      }
+	
+    };
+
   }
 }

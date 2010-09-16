@@ -39,6 +39,25 @@ namespace magnet {
       }
 	
     };
+
+    class boxFilter : public detail::filter<boxFilter, 5>
+    {
+    public:
+      inline static const GLfloat* weights()
+      {
+	static const GLfloat weights[5][5] = 
+	  {
+	    {1.0/331.0, 4/331.0, 7/331.0, 4/331.0, 1/331.0},
+	    {4/331.0, 20/331.0, 33/331.0, 20/331.0, 4/331.0},
+	    {7/331.0, 33/331.0, 55/331.0, 33/331.0, 7/331.0},
+	    {4/331.0, 20/331.0, 33/331.0, 20/331.0, 4/331.0},
+	    {1/331.0, 4/331.0, 7/331.0, 4/331.0, 1/331.0}
+	  };
+	
+	return (const GLfloat*)weights;
+      }
+	
+    };
   }
 }
 

@@ -18,5 +18,6 @@
 
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
-#include <magnet/detail/traits.hpp>
-#include <magnet/detail/functors.hpp>
+#include <magnet/exception.hpp>
+#include <magnet/CL/detail/traits.hpp>
+#include <magnet/CL/detail/functors.hpp>

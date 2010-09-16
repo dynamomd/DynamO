@@ -338,29 +338,34 @@ void CLGLWindow::CallBackDisplayFunc(void)
 	
       glMatrixMode(GL_MODELVIEW);
 
-      //Bind & enable shadow map texture
-      glBindTexture(GL_TEXTURE_2D, _shadowFBO.getShadowTexture());
-      glEnable(GL_TEXTURE_2D);
-
-      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
-
+      //Bind to the multisample buffer
       _myFBO.attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
+      //Setup and run the shadow shader
+      glBindTexture(GL_TEXTURE_2D, _shadowFBO.getShadowTexture());
+      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
       drawScene();
+      
       _myFBO.detach();
 
+      //Restore the fixed pipeline
+      //And turn off the shadow texture
+      glUseProgramObjectARB(0);
+
       //Now blit the stored scene to the screen
-      //_myFBO.blitToScreen(_width, _height);
+      _myFBO.blitToScreen(_width, _height);
 
+      /////////////FILTERING
       //Now we blur the output from the offscreen FBO
-
+      
       glActiveTextureARB(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, _myFBO.getColorTexture());
-
+      
       _FBO1.attach();
-      _laplacianFilter.invoke(0, _width, _height);
-
+      glBindTexture(GL_TEXTURE_2D, _myFBO.getColorTexture());
+      //_laplacianFilter.invoke(0, _width, _height);
+      _blurFilter.invoke(0, _width, _height);
+      
       _FBO1.detach();
       _FBO1.blitToScreen(_width, _height);      
     }
@@ -369,7 +374,8 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       drawScene();
     }
-
+  
+  glClear(GL_DEPTH_BUFFER_BIT);       
   drawAxis();
 
   //Draw the light source

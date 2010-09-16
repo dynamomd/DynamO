@@ -100,7 +100,7 @@ protected:
   magnet::GL::multisampledFBO _myFBO;
 
   magnet::GL::blurFilter _blurFilter;
-  magnet::GL::laplacianFilter _laplacianFilter;
+  magnet::GL::laplacianFilter5 _laplacianFilter;
 
   //Frame buffers to flip flop data between
   magnet::GL::FBO _FBO1;

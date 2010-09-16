@@ -13,7 +13,7 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #pragma once
 
 #define __CL_ENABLE_EXCEPTIONS
@@ -21,24 +21,26 @@
 #include <string>
 
 namespace magnet {
-  namespace detail {
-    //Check if a device supports an OpenCL extension
-    inline bool detectExtension(cl::Device device, const std::string extension)
-    {
-      std::string extensions = device.getInfo<CL_DEVICE_EXTENSIONS>();
-      return extensions.find(extension) != std::string::npos;
-    }
+  namespace CL {
+    namespace detail {
+      //Check if a device supports an OpenCL extension
+      inline bool detectExtension(cl::Device device, const std::string extension)
+      {
+	std::string extensions = device.getInfo<CL_DEVICE_EXTENSIONS>();
+	return extensions.find(extension) != std::string::npos;
+      }
 
-    //Check if all devices in a context support an OpenCL extension
-    inline bool detectExtension(cl::Context context, const std::string extension)
-    {
-      std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+      //Check if all devices in a context support an OpenCL extension
+      inline bool detectExtension(cl::Context context, const std::string extension)
+      {
+	std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
 
-      for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
-	   devPtr != devices.end(); ++devPtr)
-	if (!detectExtension(*devPtr, extension)) return false;
+	for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
+	     devPtr != devices.end(); ++devPtr)
+	  if (!detectExtension(*devPtr, extension)) return false;
 
-      return true;
+	return true;
+      }
     }
   }
 }

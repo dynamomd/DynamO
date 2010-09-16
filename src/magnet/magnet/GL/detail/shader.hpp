@@ -17,7 +17,7 @@
 #pragma once
 
 #include <string>
-#include <magnet/detail/exception.hpp>
+#include <magnet/exception.hpp>
 
 namespace magnet {
   namespace GL {
