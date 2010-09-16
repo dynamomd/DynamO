@@ -52,7 +52,7 @@ CGPBCSentinel::initialise(size_t nID)
     cachedTimes[part.getID()] = Sim->dSysTime;
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
+    (magnet::function::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
 
 }
 

@@ -148,7 +148,7 @@ CSysRescale::initialise(size_t nID)
   dt = HUGE_VAL;
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CSysRescale::checker));
+    (magnet::function::MakeDelegate(this, &CSysRescale::checker));
   
   I_cout() << "Velocity rescaler initialising";
 }

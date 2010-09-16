@@ -32,7 +32,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_01.hpp>
 #include "../extcode/include/boost/random/01_normal_distribution.hpp"
-#include "../extcode/include/FastDelegate/FastDelegate.h"
+#include <magnet/function/delegate.hpp>
 
 class CScheduler;
 class Particle;
@@ -71,7 +71,7 @@ namespace DYNAMO
   class SimData
   {
   protected:
-    typedef fastdelegate::FastDelegate1
+    typedef magnet::function::Delegate1
     <const NEventData&, void> particleUpdateFunc;
     
   public:

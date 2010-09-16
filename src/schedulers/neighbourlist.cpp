@@ -153,11 +153,11 @@ CSNeighbourList::addEvents(const Particle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEvent));  
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEvent));  
 }
 
 void 
@@ -184,11 +184,11 @@ CSNeighbourList::addEventsInit(const Particle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate
+    (part, magnet::function::MakeDelegate
      (this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate
+    (part, magnet::function::MakeDelegate
      (this, &CScheduler::addInteractionEventInit));  
 }

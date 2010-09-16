@@ -105,7 +105,7 @@ CLDblWall::initialise(size_t nID)
   lastID = std::numeric_limits<size_t>::max();
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CLDblWall::particleUpdate));
+    (magnet::function::MakeDelegate(this, &CLDblWall::particleUpdate));
 
 }
 

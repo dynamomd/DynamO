@@ -20,7 +20,7 @@
 #include <time.h>
 #include "Primatives/Sphere.hpp"
 #include "../clWindow.hpp"
-#include <pthread.h>
+#include <magnet/thread/mutex.hpp>
 
 class RTSpheres : public RTriangles
 {
@@ -47,8 +47,6 @@ public:
 
   RTSpheres(const magnet::GL::viewPort& viewPortInfo,
 	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
-
-  ~RTSpheres();
 
   cl_float4* writePositionData(cl::CommandQueue& cmdq);
   void returnPositionData(cl::CommandQueue& cmdq, cl_float4* clBufPointer);
@@ -81,7 +79,7 @@ protected:
 
   const magnet::GL::viewPort & _viewPortInfo;
 
-  pthread_mutex_t _sphereDataLock;
+  magnet::thread::Mutex _sphereDataLock;
 };
 
 template<>

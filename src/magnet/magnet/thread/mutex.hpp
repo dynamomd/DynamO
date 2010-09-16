@@ -17,6 +17,7 @@
 
 #pragma once
 #include <pthread.h>
+#include <magnet/exception.hpp>
 
 namespace magnet {
   namespace thread {
@@ -24,13 +25,25 @@ namespace magnet {
     {
     public:
 
-      inline Mutex() { pthread_mutex_init(&_pthread_mutex, NULL); }
+      inline Mutex() 
+      { 
+	if (pthread_mutex_init(&_pthread_mutex, NULL))
+	  M_throw() << "Failed to lock the mutex";
+      }
 
       inline ~Mutex() { pthread_mutex_destroy(&_pthread_mutex); }
 
-      inline void lock() { pthread_mutex_lock(&_pthread_mutex); }
+      inline void lock() 
+      { 
+	if (pthread_mutex_lock(&_pthread_mutex)) 
+	  M_throw() << "Failed to lock the mutex.";
+     }
 
-      inline void unlock() { pthread_mutex_unlock(&_pthread_mutex); }
+      inline void unlock() 
+      { 
+	if (pthread_mutex_unlock(&_pthread_mutex))
+	  M_throw() << "Failed to unlock the mutex.";
+      }
 
     protected:
 

@@ -161,7 +161,7 @@ CSUmbrella::initialise(size_t nID)
   recalculateTime();
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CSUmbrella::particlesUpdated));
+    (magnet::function::MakeDelegate(this, &CSUmbrella::particlesUpdated));
 }
 
 void 

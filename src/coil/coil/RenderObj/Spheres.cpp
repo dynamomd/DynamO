@@ -50,18 +50,15 @@ RTSpheres::RTSpheres(const magnet::GL::viewPort& viewPortInfo,
   _globalsize(0),
   _viewPortInfo(viewPortInfo)
 {
-  pthread_mutex_init(&_sphereDataLock, NULL);
-
   //We lock the mutex straight away until initOpenCL() has been called!
   //This stops the data being accessed before it even exists!
 
-  if (pthread_mutex_lock(&_sphereDataLock))
-    throw std::runtime_error("Failed to initially lock the sphere data.");
-}
-
-RTSpheres::~RTSpheres()
-{
-  pthread_mutex_destroy(&_sphereDataLock);
+  try {
+    _sphereDataLock.lock();
+  } catch (std::exception& except)
+    {
+      M_throw() << "Failed to initially lock the sphere data.";
+    }
 }
 
 void
@@ -232,8 +229,12 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 
   clTick_no_sort_or_locking(CmdQ, Context);
 
-  if (pthread_mutex_unlock(&_sphereDataLock))
-    throw std::runtime_error("Failed to initially (UN)lock the sphere data.");
+  try {
+    _sphereDataLock.unlock();
+  } catch (std::exception& except)
+    {
+      M_throw() << "Failed to initially (UN)lock the sphere data.";
+    }
 }
 
 void 
@@ -266,15 +267,12 @@ void
 RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
   //First check you can get a lock on the position data!
-  if (pthread_mutex_lock(&_sphereDataLock)) 
-    throw std::runtime_error("Could not lock the sphere data for rendering");
+  magnet::thread::ScopedLock lock(_sphereDataLock);
 
   if (!(++_frameCount % _sortFrequency))
     sortTick(CmdQ, Context);
   
   clTick_no_sort_or_locking(CmdQ, Context);
-
-  pthread_mutex_unlock(&_sphereDataLock);
 }
 
 void 
@@ -309,9 +307,7 @@ RTSpheres::clTick_no_sort_or_locking(cl::CommandQueue& CmdQ, cl::Context& Contex
 cl_float4* 
 RTSpheres::writePositionData(cl::CommandQueue& cmdq)
 {
-  if (pthread_mutex_lock(&_sphereDataLock)) 
-    throw std::runtime_error("Failed trying to lock the sphere position data, called twice?");
-  
+  _sphereDataLock.lock();
   return (cl_float4*) cmdq.enqueueMapBuffer(_spherePositions, true, CL_MAP_WRITE, 0, _N);
 }
 
@@ -319,7 +315,5 @@ void
 RTSpheres::returnPositionData(cl::CommandQueue& cmdq, cl_float4* clBufPointer)
 {
   cmdq.enqueueUnmapMemObject(_spherePositions, (void*)clBufPointer);  
-
-  if (pthread_mutex_unlock(&_sphereDataLock))
-    throw std::runtime_error("Failed trying to unlock the sphere position data.");
+  _sphereDataLock.unlock();
 }

@@ -48,7 +48,7 @@ CGParabolaSentinel::initialise(size_t nID)
     passedParabola[part.getID()] = false;
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
+    (magnet::function::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
 
 }
 
