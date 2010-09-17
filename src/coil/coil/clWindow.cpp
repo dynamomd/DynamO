@@ -255,7 +255,7 @@ CLGLWindow::initOpenCL()
 	break;
       case CL_DEVICE_TYPE_GPU:
 	std::cout << " GPU:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
-	//_cldevice = *iPtr;
+	_cldevice = *iPtr;
 	break;
       default:
 	std::cout << " DEFAULT:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
