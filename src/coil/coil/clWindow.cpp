@@ -57,7 +57,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _moveSensitivity(0.001),
   _specialKeys(0),
   _hostTransfers(hostTransfers),
-  _shadows(false)
+  _shaderPipeline(false)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 }
@@ -94,13 +94,22 @@ CLGLWindow::initOpenGL()
     std::runtime_error("Vertex Buffer Objects are not supported by your GPU/Driver, sorry."); 
 
   //Check for shadow support
-  _shadows = true;
-  if (!glewIsSupported("GL_ARB_depth_texture") || !glewIsSupported("GL_ARB_shadow"))
+  _shaderPipeline = true;
+  if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
     {
-      std::cout << "GL_ARB_depth_texture or GL_ARB_shadow not supported, shadows disabled\n"
-		<< "This also disables all other effects.";
-      _shadows = false;
+      std::cout << "GL_ARB_depth_texture or GL_ARB_shadow not supported.\n";
+      _shaderPipeline = false;
     }
+  else if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
+	   || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
+    {
+      std::cout << "OpenGL driver doesn't support programmable shaders.\n";
+      _shaderPipeline = false;
+    }
+
+  if (!_shaderPipeline)
+    std::cout << "Shader pipeline disabled.\n"
+	      << "This also disables all other effects.\n";
 
   glDrawBuffer(GL_BACK);
 
@@ -166,28 +175,16 @@ CLGLWindow::initOpenGL()
 
 
   //Build the offscreen rendering FBO's
-  if (_shadows)
-    _shadowFBO.init(1024);
+  if (_shaderPipeline)
+    {
+      _shadowFBO.init(1024);
+      _shadowShader.build();
+    }
 
   //Now init the render objects  
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
-
-
-  //Build the shaders
-
-  if (_shadows)  
-    {
-      _shadowShader.build();
-
-      _blurFilter.build();
-      _laplacianFilter.build();
-            
-      //Init the FBO's
-      _FBO1.init(_width, _height);
-      _myFBO.init(_width, _height);
-    }
 }
 
 void 
@@ -301,7 +298,6 @@ void CLGLWindow::CallBackDisplayFunc(void)
 //			     1.5f * std::sin(_currFrameTime/speed)), 
 //		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
 
-
   //Run every objects OpenCL stage
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
@@ -319,10 +315,10 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _clcmdq.finish();
   
   //Prepare for the GL render
-  //If shadows are enabled, we must draw first from the lights perspective
-  if (_shadows)
+  if (_shaderPipeline)
     {
       //////////////////Pass 1//////////////////
+      ///Here we draw from the 
       _shadowFBO.setup(_light0);
 
       drawScene();
@@ -344,7 +340,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glMatrixMode(GL_MODELVIEW);
 
       //Bind to the multisample buffer
-      _myFBO.attach();
+      //_myFBO.attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
       //Setup and run the shadow shader
@@ -352,27 +348,27 @@ void CLGLWindow::CallBackDisplayFunc(void)
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
       drawScene();
       
-      _myFBO.detach();
+      //_myFBO.detach();
 
       //Restore the fixed pipeline
       //And turn off the shadow texture
       glUseProgramObjectARB(0);
 
       //Now blit the stored scene to the screen
-      _myFBO.blitToScreen(_width, _height);
+      //_myFBO.blitToScreen(_width, _height);
 
       /////////////FILTERING
       //Now we blur the output from the offscreen FBO
-      
-      glActiveTextureARB(GL_TEXTURE0);
-      
-      _FBO1.attach();
-      glBindTexture(GL_TEXTURE_2D, _myFBO.getColorTexture());
-      //_laplacianFilter.invoke(0, _width, _height);
-      _blurFilter.invoke(0, _width, _height);
-      
-      _FBO1.detach();
-      _FBO1.blitToScreen(_width, _height);      
+      //
+      //glActiveTextureARB(GL_TEXTURE0);
+      //
+      //_FBO1.attach();
+      //glBindTexture(GL_TEXTURE_2D, _myFBO.getColorTexture());
+      ////_laplacianFilter.invoke(0, _width, _height);
+      //_blurFilter.invoke(0, _width, _height);
+      //
+      //_FBO1.detach();
+      //_FBO1.blitToScreen(_width, _height);      
     }
   else    
     {      
@@ -512,9 +508,6 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 		 _viewPortInfo._zFarDist);
 
   glMatrixMode(GL_MODELVIEW);
-
-  _myFBO.resize(_width, _height);
-  _FBO1.resize(_width, _height);
 }
 
 void 

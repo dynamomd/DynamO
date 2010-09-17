@@ -24,7 +24,6 @@ namespace magnet {
     class shadowShader: public detail::shader<shadowShader>
     {
     public:      
-      
       inline void build()
       {
 	//First, call the build function in the shader
@@ -44,12 +43,13 @@ namespace magnet {
 	glUniform1fARB(_shadowMapStepYUniform, 1.0 / (shadowSize * 2));
       }
 
+      static inline std::string vertexShaderSource();
+      static inline std::string fragmentShaderSource();
+      
+    protected:
       GLuint _shadowMapUniform;
       GLuint _shadowMapStepXUniform;
       GLuint _shadowMapStepYUniform;
-
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
     };
   }
 }

@@ -54,6 +54,11 @@ namespace magnet {
 
 	inline void build()
 	{
+	  //Check for the ability to use fragment and vertex shaders
+	  if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
+	      || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
+	    M_throw() << "This OpenGL context/driver does not support GLSL (programmable shaders)";
+
 	  std::string vertexShaderSrc = format_code(T::vertexShaderSource());
 	  std::string fragmentShaderSrc = format_code(T::fragmentShaderSource());
 	  
@@ -64,7 +69,7 @@ namespace magnet {
 	    M_throw() << "Failed to create fragment shader handle";
 	  
 	  GLint result;
-
+	  
 	  const GLcharARB* src = vertexShaderSrc.c_str();
 	  glShaderSourceARB(_vertexShaderHandle, 1, &src, NULL);	 
 	  glCompileShaderARB(_vertexShaderHandle);	  

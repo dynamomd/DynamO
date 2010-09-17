@@ -97,10 +97,6 @@ public:
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
-  magnet::GL::multisampledFBO _myFBO;
-
-  magnet::GL::blurFilter _blurFilter;
-  magnet::GL::laplacianFilter5 _laplacianFilter;
 
   //Frame buffers to flip flop data between
   magnet::GL::FBO _FBO1;
@@ -164,7 +160,7 @@ private:
 
   bool _hostTransfers;
 
-  bool _shadows;
+  bool _shaderPipeline;
 
   magnet::GL::lightInfo _light0;
 };
