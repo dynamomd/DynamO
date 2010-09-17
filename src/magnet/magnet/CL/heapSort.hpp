@@ -24,7 +24,6 @@ namespace magnet {
     class heapSort : public detail::functor<heapSort<T> >
     {
       cl::Kernel _sortKernel, _dataSortKernel;
-      cl::KernelFunctor _clsort, _cldatasort;
     
     public:
       heapSort(cl::CommandQueue queue, cl::Context context):
@@ -33,26 +32,29 @@ namespace magnet {
 	// set up kernel
 	_sortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSort");
 
-	_dataSortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapDataSort");
+	_dataSortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSortData");
 	
-	_clsort = _sortKernel.bind(detail::functor<heapSort<T> >::_queue, cl::NDRange(1), 
-				   cl::NDRange(1));
-
-	_cldatasort = _dataSortKernel.bind(detail::functor<heapSort<T> >::_queue, cl::NDRange(1), 
-				   cl::NDRange(1));
       }
 
       void operator()(cl::Buffer input, cl_uint ascending = true)
       {
 	const cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
 
-      
-	//Small sort on blocks of up to 512
-	clsmallsort(input, size);
+	cl::KernelFunctor clsort = _sortKernel.bind(detail::functor<heapSort<T> >::_queue, cl::NDRange(1), 
+						     cl::NDRange(1));      
+	clsort(input, size);
       }
 
       void operator()(cl::Buffer keyInput, cl::Buffer dataInput)
       {
+	const cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
+	if (size != dataInput.getInfo<CL_MEM_SIZE>() / sizeof(cl_uint))
+	  M_throw() << "Data-key buffer size mismatch";
+	
+
+	cl::KernelFunctor clsort = _dataSortKernel.bind(detail::functor<heapSort<T> >::_queue, cl::NDRange(1), 
+							cl::NDRange(1));      
+	clsort(keyInput, dataInput, size);
 
       }
       static inline std::string kernelSource();

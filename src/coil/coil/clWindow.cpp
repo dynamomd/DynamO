@@ -27,7 +27,7 @@
 
 inline float clamp(float x, float a, float b)
 {
-    return x < a ? a : (x > b ? b : x);
+  return x < a ? a : (x > b ? b : x);
 }
 
 #include <cmath>
@@ -257,7 +257,7 @@ CLGLWindow::initOpenCL()
 	break;
       case CL_DEVICE_TYPE_GPU:
 	std::cout << " GPU:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
-	_cldevice = *iPtr;
+	//_cldevice = *iPtr;
 	break;
       default:
 	std::cout << " DEFAULT:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
