@@ -262,10 +262,12 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 		     _N, paddedN);
   
   if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
-    if (CmdQ.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
-      sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
-    else
-      CPUsortFunctor(_sortKeys, _sortData);
+    {
+      if (CmdQ.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
+	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
+      else
+	CPUsortFunctor(_sortKeys, _sortData);
+    }
 }
 
 void 
