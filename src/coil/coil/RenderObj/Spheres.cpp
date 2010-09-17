@@ -25,6 +25,7 @@
 #include "Primatives/Sphere.hpp"
 #include "Spheres.clh"
 #include <magnet/CL/radixsort.hpp>
+#include <magnet/CL/heapSort.hpp>
 #include <errno.h>
 
 struct  SortDataType { cl_uint ID; cl_float dist;};
@@ -241,6 +242,7 @@ void
 RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
   static magnet::CL::radixSort<cl_float> sortFunctor(CmdQ, Context);
+  static magnet::CL::heapSort<cl_float> CPUsortFunctor(CmdQ, Context);
 
   cl_uint paddedN = ((_N + 1023)/1024) * 1024;
 
@@ -260,7 +262,10 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 		     _N, paddedN);
   
   if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
-    sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
+    if (CmdQ.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
+      sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
+    else
+      CPUsortFunctor(_sortKeys, _sortData);
 }
 
 void 

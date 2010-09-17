@@ -102,8 +102,6 @@ CLGLWindow::initOpenGL()
       _shadows = false;
     }
 
-  _shadows = false;
-
   glDrawBuffer(GL_BACK);
 
   glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
