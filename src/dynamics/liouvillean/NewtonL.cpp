@@ -297,13 +297,12 @@ LNewtonian::getSquareCellCollision2(const Particle& part,
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-      D_throw() << "You have negative zero velocities, dont use them."
-		<< "\nPlease think of the neighbour lists.";
+      M_throw() << "You have negative zero velocities, don't use them.";
 #endif 
 
   Iflt retVal;
   if (vel[0] < 0)
-    retVal = -rpos[0]/vel[0];
+    retVal = -rpos[0] / vel[0];
   else
     retVal = (width[0]-rpos[0]) / vel[0];
 

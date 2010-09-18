@@ -83,6 +83,9 @@ protected:
 
   void addCells(Iflt);
 
+  inline Vector calcPosition(const dilatedCoords& coords,
+			     const Particle& part) const;
+
   inline Vector calcPosition(const dilatedCoords& coords) const;
 
   void addLocalEvents();
