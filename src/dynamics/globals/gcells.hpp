@@ -114,6 +114,9 @@ protected:
   std::string interaction;
   Iflt MaxIntDist;
   
+  inline Vector calcPosition(const Vector& coords,
+			     const Particle& part) const;
+
 
   mutable std::vector<cellStruct> cells;
 
