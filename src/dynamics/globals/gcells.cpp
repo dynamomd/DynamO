@@ -30,6 +30,28 @@
 #include <cstdio>
 #include "../liouvillean/NewtonianGravityL.hpp"
 
+Vector 
+CGCells::calcPosition(const Vector& primaryCell,
+		      const Particle& part) const
+{
+  //We always return the cell that is periodically nearest to the particle
+  Vector imageCell;
+  
+  for (size_t i = 0; i < NDIM; ++i)
+    {
+    imageCell[i] = primaryCell[i] - Sim->aspectRatio[i]
+      * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
+
+    Iflt arg = (primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i];
+    Iflt result = rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
+
+    Iflt aspect = Sim->aspectRatio[i];
+    }
+  return imageCell;
+
+}
+
+
 CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name, 
 		 const size_t& overlink):
   CGNeighbourList(nSim, "CellNeighbourList"),
@@ -123,13 +145,13 @@ CGCells::getEvent(const Particle& part) const
   //Sim->dynamics.getLiouvillean().getParticleDelay(part)
   
   return GlobalEvent(part,
-		    Sim->dynamics.getLiouvillean().
-		    getSquareCellCollision2
-		    (part, cells[partCellData[part.getID()].cell].origin, 
-		     cellDimension)
-		    -Sim->dynamics.getLiouvillean().getParticleDelay(part)
-		    ,
-		    CELL, *this);
+		     Sim->dynamics.getLiouvillean().
+		     getSquareCellCollision2
+		     (part, calcPosition(cells[partCellData[part.getID()].cell].origin, part), 
+		      cellDimension)
+		     -Sim->dynamics.getLiouvillean().getParticleDelay(part)
+		     ,
+		     CELL, *this);
 }
 
 void
@@ -142,10 +164,10 @@ CGCells::runEvent(const Particle& part) const
   
   size_t oldCell(partCellData[part.getID()].cell);
 
-  //Determine the cell transition direction, its saved
+  //Determine the cell transition direction
   int cellDirectionInt(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
-		       (part, cells[oldCell].origin, 
+		       (part, calcPosition(cells[oldCell].origin, part), 
 			cellDimension));
   
   size_t cellDirection = abs(cellDirectionInt) - 1;

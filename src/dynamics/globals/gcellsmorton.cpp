@@ -110,7 +110,8 @@ CGCellsMorton::getEvent(const Particle& part) const
   return GlobalEvent(part,
 		    Sim->dynamics.getLiouvillean().
 		    getSquareCellCollision2
-		    (part, calcPosition(partCellData[part.getID()].cell), 
+		     (part, calcPosition(partCellData[part.getID()].cell,
+					 part), 
 		     Vector(cellDimension,cellDimension,cellDimension))
 		    -Sim->dynamics.getLiouvillean().getParticleDelay(part)
 		    ,
@@ -120,7 +121,6 @@ CGCellsMorton::getEvent(const Particle& part) const
 void
 CGCellsMorton::runEvent(const Particle& part) const
 {
-
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
   //expect the particle to be up to date.
@@ -130,9 +130,9 @@ CGCellsMorton::runEvent(const Particle& part) const
   
   //Determine the cell transition direction, its saved
   int cellDirectionInt(Sim->dynamics.getLiouvillean().
-			  getSquareCellCollision3
-			  (part, calcPosition(oldCell), 
-			   Vector(cellDimension,cellDimension,cellDimension)));
+		       getSquareCellCollision3
+		       (part, calcPosition(oldCell, part), 
+			Vector(cellDimension,cellDimension,cellDimension)));
   
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
@@ -167,6 +167,7 @@ CGCellsMorton::runEvent(const Particle& part) const
 	  inCell.data[cellDirection] = inCell.data[cellDirection]
 	    - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
       }
+
     endCell = dendCell.getMortonNum();
   }
     
@@ -516,9 +517,32 @@ CGCellsMorton::getMaxInteractionLength() const
 }
 
 Vector 
+CGCellsMorton::calcPosition(const dilatedCoords& coords, const Particle& part) const
+{
+  //We always return the cell that is periodically nearest to the particle
+  Vector primaryCell;
+  
+  for (size_t i(0); i < NDIM; ++i)
+    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[i];
+
+  
+  Vector imageCell;
+  
+  for (size_t i = 0; i < NDIM; ++i)
+    imageCell[i] = primaryCell[i]
+      - Sim->aspectRatio[i] * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
+
+  return imageCell;
+}
+
+Vector 
 CGCellsMorton::calcPosition(const dilatedCoords& coords) const
 {
-  return Vector(coords.data[0].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[0],
-		coords.data[1].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[1],
-		coords.data[2].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[2]);
+  //We always return the cell that is periodically nearest to the particle
+  Vector primaryCell;
+  
+  for (size_t i(0); i < NDIM; ++i)
+    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[i];
+  
+  return primaryCell;
 }
