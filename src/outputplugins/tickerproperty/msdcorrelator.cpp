@@ -47,7 +47,7 @@ OPMSDCorrelator::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPMSDCorrelator";
+      M_throw() << "Failed a lexical cast in OPMSDCorrelator";
     }    
 
 }

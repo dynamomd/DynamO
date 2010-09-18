@@ -24,7 +24,7 @@ C2RSingle::C2RSingle(const XMLNode& XML, const DYNAMO::SimData* Sim):
 { 
 
   if (strcmp(XML.getAttribute("Range"),"2Single"))
-    D_throw() << "Attempting to load a 2Single from a non pair";
+    M_throw() << "Attempting to load a 2Single from a non pair";
   
   range.set_ptr(CRange::loadClass(XML.getChildNode("SingleRange"), Sim));
 }
@@ -38,7 +38,7 @@ C2RSingle::isInRange(const Particle&p1, const Particle&p2) const
 void 
 C2RSingle::operator<<(const XMLNode&)
 {
-  D_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
+  M_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
 }
 
 void 

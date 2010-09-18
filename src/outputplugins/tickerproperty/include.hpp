@@ -38,3 +38,4 @@
 #include "SCparameter.hpp"
 #include "plateMotion.hpp"
 #include "msdOrientationalCorrelator.hpp"
+#include "dynamo_visualizer.hpp"

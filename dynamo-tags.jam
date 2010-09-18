@@ -18,16 +18,10 @@ import type ;
 
 rule naming ( name : type ? : property-set )
 {
-  local result = ;
+  local result = $(name) ;
 
   if [ type.is-derived $(type) EXE ]
   {  
-     switch [ $(property-set).get <condor> ]
-     {
-     case yes : result += $(name)_condor ;
-     case no : result += $(name) ;
-     }
-
      switch [ $(property-set).get <variant> ]
      {
      case debug : result += _d ;

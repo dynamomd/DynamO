@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
@@ -49,12 +48,12 @@ OPGeomview::printImage()
     return;
 
   if ( asprintf(&fileName, "geomview.frame%05d.list", frameCount++) < 0)
-    D_throw() << "asprintf error in geomview";
+    M_throw() << "asprintf error in geomview";
   
   std::ofstream of(fileName);
   
   if (!of.is_open())
-    D_throw() << "Could not open geomview file for writing";
+    M_throw() << "Could not open geomview file for writing";
 
   of << "{LIST\n";
 

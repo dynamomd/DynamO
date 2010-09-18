@@ -18,7 +18,6 @@
 #include "include.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
-#include "../../base/is_exception.hpp"
 #include <string.h>
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
@@ -42,7 +41,7 @@ BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new BCSquareLeesEdwards(XML,tmp);
       else 
-	D_throw()<< XML.getAttribute("Boundary") 
+	M_throw()<< XML.getAttribute("Boundary") 
 		 << ", Unknown type of square boundary encountered";
     } 
   else if (!strcmp(XML.getAttribute("Shape"),"Rectangular"))
@@ -56,11 +55,11 @@ BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
       else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new BCRectangularLeesEdwards(XML,tmp);
       else 
-	D_throw() << XML.getAttribute("Boundary") 
+	M_throw() << XML.getAttribute("Boundary") 
 		  << ", Unknown type of rectangular boundary encountered";
     }
   else
-    D_throw() << XML.getAttribute("Shape")
+    M_throw() << XML.getAttribute("Shape")
       << "Unknown shape of Boundary encountered";
 
 }

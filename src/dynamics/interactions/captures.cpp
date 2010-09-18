@@ -17,7 +17,6 @@
 
 #include "captures.hpp"
 #include <boost/foreach.hpp>
-#include "../../base/is_exception.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/xmlwriter.hpp"
@@ -105,17 +104,17 @@ ISingleCapture::addToCaptureMap(const Particle& p1, const Particle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
-    D_throw() << "Particle captured itself";
+    M_throw() << "Particle captured itself";
 
   if (p1.getID() < p2.getID())
     {
       if  (captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID())))
-	D_throw() << "Insert found " << p1.getID()
+	M_throw() << "Insert found " << p1.getID()
 		  << " and " << p2.getID() << " in the capture map";
     }      
   else
     if  (captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID())))
-      D_throw() << "Insert found " << p2.getID() 
+      M_throw() << "Insert found " << p2.getID() 
 		<< " and " << p1.getID() << " in the capture map";
 #endif 
   
@@ -129,13 +128,13 @@ ISingleCapture::removeFromCaptureMap(const Particle& p1, const Particle& p2) con
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
-    D_throw() << "Particle disassociated itself";
+    M_throw() << "Particle disassociated itself";
 
   if  (!((p1.getID() < p2.getID())
 	 ? captureMap.erase(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
 	 : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()))
 	 ))
-    D_throw() << "Erase did not find " << p2.getID() 
+    M_throw() << "Erase did not find " << p2.getID() 
 	      << " and " << p1.getID() << " in the capture map";    
 
 #else
@@ -232,7 +231,7 @@ IMultiCapture::isCaptured(const Particle& p1, const Particle& p2) const
 {
 #ifdef DYNAMO_DEBUG
   if (p1.getID() == p2.getID())
-    D_throw() << "Particle is testing if it captured itself";
+    M_throw() << "Particle is testing if it captured itself";
 #endif 
 
   return captureMap.count(cMapKey(p1.getID(), p2.getID()));

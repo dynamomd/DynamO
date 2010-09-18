@@ -19,7 +19,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../dynamics/ranges/1range.hpp"
 #include <boost/foreach.hpp>
 #include <vector>
@@ -42,7 +41,7 @@ OPCTorsion::initialise()
 			       0.005, 0.005, 0.01));
 
   if (!Sim->dynamics.BCTypeTest<BCNone>())
-    D_throw() << "Can only use this plugin with Null BC's"
+    M_throw() << "Can only use this plugin with Null BC's"
 	      << "\nPositions must be unwrapped";
 }
 
@@ -53,7 +52,7 @@ OPCTorsion::changeSystem(OutputPlugin* plug)
   
 #ifdef DYNAMO_DEBUG
   if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
-    D_throw() << "CTorsion chain data size mismatch in replex exchange";
+    M_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
 
   std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
@@ -64,7 +63,7 @@ OPCTorsion::changeSystem(OutputPlugin* plug)
 
 #ifdef DYNAMO_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
-	D_throw() << "Chain name mismatch when swapping chain plugins";
+	M_throw() << "Chain name mismatch when swapping chain plugins";
 #endif
 
       std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
@@ -88,7 +87,7 @@ OPCTorsion::ticker()
 
 #ifdef DYNAMO_DEBUG
 	  if (NDIM != 3)
-	    D_throw() << "Not implemented chain curvature in non 3 dimensional systems";
+	    M_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif
 	  
 	  Vector tmp;

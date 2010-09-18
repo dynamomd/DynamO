@@ -87,9 +87,7 @@ OPMisc::initialise()
 
   std::time(&tstartTime);
 
-#ifndef DYNAMO_CONDOR
   clock_gettime(CLOCK_MONOTONIC, &acc_tstartTime);
-#endif
 
   std::string sTime(std::ctime(&tstartTime));
   sTime[sTime.size()-1] = ' ';
@@ -149,16 +147,12 @@ OPMisc::output(xml::XmlStream &XML)
   //A hack to remove the newline character at the end
   eTime[eTime.size()-1] = ' ';
 
-#ifndef DYNAMO_CONDOR
   timespec acc_tendTime;
   clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
 
   Iflt collpersec = static_cast<Iflt>(Sim->eventCount)
     / (Iflt(acc_tendTime.tv_sec) + 1e-9 * Iflt(acc_tendTime.tv_nsec)
        - Iflt(acc_tstartTime.tv_sec) - 1e-9 * Iflt(acc_tstartTime.tv_nsec));
-#else
-  Iflt collpersec = static_cast<Iflt>(Sim->eventCount) / (Iflt(tendTime) - Iflt(tstartTime));
-#endif
 
   long int maxmemusage;
 
@@ -170,11 +164,7 @@ OPMisc::output(xml::XmlStream &XML)
 
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->eventCount
-#ifndef DYNAMO_CONDOR
 	   << "\nAvg Coll/s " << collpersec
-#else
-  	   << "\nAvg Coll/s (ESTIMATED for Condor jobs)" << collpersec
-#endif
 	   << "\nSim time per second "
 	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
 			       * static_cast<Iflt>(tendTime - tstartTime));
@@ -221,9 +211,7 @@ OPMisc::output(xml::XmlStream &XML)
 
       << xml::tag("CollPerSec")
       << xml::attr("val") << collpersec
-#ifdef DYNAMO_CONDOR
       << xml::attr("CondorWarning") << std::string("true")
-#endif
       << xml::endtag("CollPerSec")
 
       << xml::endtag("Timing")

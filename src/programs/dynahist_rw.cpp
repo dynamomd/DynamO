@@ -32,7 +32,7 @@
 #include <boost/foreach.hpp>
 #include <boost/array.hpp>
 #include "../src/extcode/xmlParser.h"
-#include "../src/base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <fenv.h>
 
 using namespace std;
@@ -59,14 +59,14 @@ struct SimData
     if (std::string(fileName.end() - 4, fileName.end()) == ".xml")
       {
 	if (!boost::filesystem::exists(fileName))
-	  D_throw() << "Could not open XML configuration file";
+	  M_throw() << "Could not open XML configuration file";
 	
 	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "OutputData");
       }
     else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
       {
 	if (!boost::filesystem::exists(fileName))
-	  D_throw() << "Could not open XML configuration file";
+	  M_throw() << "Could not open XML configuration file";
 	
 	io::filtering_istream inputFile;
 	inputFile.push(io::bzip2_decompressor());
@@ -84,7 +84,7 @@ struct SimData
 	xMainNode = tmpNode.getChildNode("OutputData");
       }
     else
-      D_throw() << "Unrecognised extension for input file";
+      M_throw() << "Unrecognised extension for input file";
 
     //Now navigate to the histogram and load the data
     std::istringstream HistogramData(xMainNode.getChildNode("EnergyHist")
@@ -548,7 +548,7 @@ main(int argc, char *argv[])
     
     if (vm.count("help") || !vm.count("data-file")) 
       {
-	D_throw() << "Usage : dynahist_rw <OPTION>...<data-file(s)>\n"
+	M_throw() << "Usage : dynahist_rw <OPTION>...<data-file(s)>\n"
 		  << "Determines the weighting functions for the histograms\n"
 		  << systemopts << "\n";
       }

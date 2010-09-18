@@ -32,7 +32,7 @@ CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, Iflt nGR, 
   type = NON_EVENT;
 
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
-    D_throw() << "The ID passed to CSNBListCompressionFix isn't a CGNeighbourList";
+    M_throw() << "The ID passed to CSNBListCompressionFix isn't a CGNeighbourList";
 }
 
 void
@@ -41,7 +41,7 @@ CSNBListCompressionFix::initialise(size_t nID)
   ID = nID;
 
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
-    D_throw() << "Have the globals been shuffled? The cellID is no longer a CGNeighbourList.";
+    M_throw() << "Have the globals been shuffled? The cellID is no longer a CGNeighbourList.";
   
   const CGNeighbourList& nblist(dynamic_cast<const CGNeighbourList&>
 			       (*Sim->dynamics.getGlobals()[cellID]));
@@ -68,7 +68,7 @@ CSNBListCompressionFix::runEvent() const
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
-    D_throw() << "A NAN system event time has been found";
+    M_throw() << "A NAN system event time has been found";
 #endif
   
   Sim->dSysTime += locdt;

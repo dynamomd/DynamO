@@ -58,7 +58,7 @@ CSSystemOnly::initialise()
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
   if (Sim->dynamics.getSystemEvents().empty())
-    D_throw() << "A SystemOnlyScheduler used when there are no system events?";
+    M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
   sorter->clear();
   sorter->resize(Sim->N+1);
@@ -75,7 +75,7 @@ CSSystemOnly::rebuildList()
   initialise();
 #else
   if (Sim->dynamics.getSystemEvents().empty())
-    D_throw() << "A SystemOnlyScheduler used when there are no system events?";
+    M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
   sorter->clear();
   sorter->resize(Sim->N+1);

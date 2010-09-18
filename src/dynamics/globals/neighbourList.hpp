@@ -21,16 +21,15 @@
 #include "global.hpp"
 #include <boost/function.hpp>
 #include <vector>
-
-#include <FastDelegate/FastDelegate.h>
+#include <magnet/function/delegate.hpp>
 
 class CGNeighbourList: public Global
 {
 public:
-  typedef fastdelegate::FastDelegate2
+  typedef magnet::function::Delegate2
   <const Particle&, const size_t&, void> nbHoodFunc;
 
-  typedef fastdelegate::FastDelegate0<void> initFunc;  
+  typedef magnet::function::Delegate0<void> initFunc;  
 
 
 protected:

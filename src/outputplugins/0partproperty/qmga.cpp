@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
@@ -48,12 +47,12 @@ OPQMGA::printImage()
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
   if ( asprintf(&fileName, "cnf.%04d", frameCount++) < 0)
-    D_throw() << "asprintf error in QMGA";
+    M_throw() << "asprintf error in QMGA";
   
   std::ofstream of(fileName);
   
   if (!of.is_open())
-    D_throw() << "Could not open QMGA file for writing";
+    M_throw() << "Could not open QMGA file for writing";
 
   of << Sim->N << "\n"
      << Sim->aspectRatio[0] / Sim->dynamics.units().unitLength() << "\n"

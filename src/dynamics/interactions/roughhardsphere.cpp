@@ -19,7 +19,6 @@
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <iomanip>
-#include "../../base/is_exception.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
@@ -53,7 +52,7 @@ void
 IRoughHardSphere::operator<<(const XMLNode& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
-    D_throw() << "Attempting to load Hardsphere from non RoughHardSphere entry";
+    M_throw() << "Attempting to load Hardsphere from non RoughHardSphere entry";
   
   range.set_ptr(C2Range::loadClass(XML,Sim));
   
@@ -72,7 +71,7 @@ IRoughHardSphere::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in IRoughHardSphere";
+      M_throw() << "Failed a lexical cast in IRoughHardSphere";
     }
 }
 
@@ -100,15 +99,15 @@ IRoughHardSphere::getEvent(const Particle &p1, const Particle &p2) const
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
-    D_throw() << "Particle 1 is not up to date";
+    M_throw() << "Particle 1 is not up to date";
   
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
-    D_throw() << "Particle 2 is not up to date";
+    M_throw() << "Particle 2 is not up to date";
 #endif
 
 #ifdef DYNAMO_DEBUG
   if (p1 == p2)
-    D_throw() << "You shouldn't pass p1==p2 events to the interactions!";
+    M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
   CPDData colldat(*Sim, p1, p2);
@@ -117,7 +116,7 @@ IRoughHardSphere::getEvent(const Particle &p1, const Particle &p2) const
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
-	D_throw() << "Overlapping particles found" 
+	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif

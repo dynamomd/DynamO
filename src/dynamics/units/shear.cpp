@@ -18,14 +18,14 @@
 #include "shear.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <cstring>
 
 void 
 UShear::operator<<(const XMLNode& XML)
 {
   if (std::strcmp(XML.getAttribute("Type"),"Shear"))
-    D_throw() << "Attempting to load UShear from non shear type";
+    M_throw() << "Attempting to load UShear from non shear type";
   
   try {
     UnitOfLength = 1.0 / boost::lexical_cast<Iflt>
@@ -33,7 +33,7 @@ UShear::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in UHardSphere";
+      M_throw() << "Failed a lexical cast in UHardSphere";
     }
 }
 

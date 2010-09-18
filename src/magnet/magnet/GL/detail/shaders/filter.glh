@@ -1,0 +1,86 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+#include <sstream>
+
+namespace magnet {
+  namespace GL {
+    namespace detail {
+      template<class T, int stencilwidth>
+      inline std::string 
+      filter<T,stencilwidth>::vertexShaderSource()
+      {
+	std::ostringstream data;
+	data << stencilwidth; 
+
+	return std::string("#define stencilwidth ") + data.str() + "\n"
+STRINGIFY( 
+uniform vec2 u_Scale;
+uniform float weights[stencilwidth * stencilwidth];
+uniform sampler2D u_Texture0;
+
+void main()
+{
+  gl_Position = ftransform();
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+);
+      }
+
+      template<class T, int stencilwidth>
+      inline std::string 
+      filter<T,stencilwidth>::fragmentShaderSource()
+      {
+	//Simple writethrough fragment shader
+	std::ostringstream data;
+	data << stencilwidth; 
+	  
+	return std::string("#define stencilwidth ") + data.str() + "\n"
+STRINGIFY(
+uniform vec2 u_Scale;
+uniform float weights[stencilwidth * stencilwidth];
+uniform sampler2D u_Texture0;
+
+void main()
+{
+  vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+
+//  int x = int(gl_TexCoord[0].s * stencilwidth);
+//  int y = int(gl_TexCoord[0].t * stencilwidth);
+//  color = vec4(u_Scale.x * 512,
+//	       u_Scale.y * 512,
+//	       0,
+//	       1);
+
+  for(int x = 0; x < stencilwidth; ++x)
+    for(int y = 0; y < stencilwidth; ++y)
+      color += weights[y * stencilwidth + x]
+	* texture2D(u_Texture0, gl_TexCoord[0].st 
+		    + vec2((x - stencilwidth / 2) * u_Scale.x, (y - stencilwidth / 2) * u_Scale.y));
+  
+  color.a = 1;
+
+  gl_FragColor =  color;
+}
+);
+      }
+    }
+  }
+}

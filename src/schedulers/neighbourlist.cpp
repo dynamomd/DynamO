@@ -47,7 +47,7 @@ CSNeighbourList::initialise()
   }
   catch(std::exception& cxp)
     {
-      D_throw() << "Failed while finding the neighbour list global.\n"
+      M_throw() << "Failed while finding the neighbour list global.\n"
 		<< "You must have a neighbour list enabled for this\n"
 		<< "scheduler called SchedulerNBList.\n"
 		<< cxp.what();
@@ -56,7 +56,7 @@ CSNeighbourList::initialise()
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "The Global named SchedulerNBList is not a neighbour list!";
+    M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
   static_cast<CGNeighbourList&>
     (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
@@ -143,7 +143,7 @@ CSNeighbourList::addEvents(const Particle& part)
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
@@ -153,11 +153,11 @@ CSNeighbourList::addEvents(const Particle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEvent));  
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEvent));  
 }
 
 void 
@@ -174,7 +174,7 @@ CSNeighbourList::addEventsInit(const Particle& part)
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
@@ -184,11 +184,11 @@ CSNeighbourList::addEventsInit(const Particle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate
+    (part, magnet::function::MakeDelegate
      (this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate
+    (part, magnet::function::MakeDelegate
      (this, &CScheduler::addInteractionEventInit));  
 }

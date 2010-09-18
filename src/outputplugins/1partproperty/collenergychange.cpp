@@ -47,7 +47,7 @@ OPCollEnergyChange::operator<<(const XMLNode& XML)
       }
   catch (std::exception& excep)
     {
-      D_throw() << "Error while parsing " << name << "options\n"
+      M_throw() << "Error while parsing " << name << "options\n"
 		<< excep.what();
     }
 }

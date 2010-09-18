@@ -29,7 +29,7 @@ OPRadialDistribution::OPRadialDistribution(const DYNAMO::SimData* tmp,
   sampleCount(0)
 { 
   if (NDIM != 3)
-    D_throw() << "This plugin will not work as I've not correctly calculated "
+    M_throw() << "This plugin will not work as I've not correctly calculated "
       "the volume of a shell";
   operator<<(XML); 
 }
@@ -64,7 +64,7 @@ OPRadialDistribution::operator<<(const XMLNode& XML)
   }
   catch (std::exception& excep)
     {
-      D_throw() << "Error while parsing " << name << "options\n"
+      M_throw() << "Error while parsing " << name << "options\n"
 		<< excep.what();
     }
 }

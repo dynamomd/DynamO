@@ -19,7 +19,7 @@
 #define C1RSingle_H
 
 #include "1range.hpp"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 
 class CRSingle: public CRange
 {
@@ -47,7 +47,7 @@ public:
   virtual unsigned long at(unsigned long i) const 
   { 
     if (i != 0)
-      D_throw() << "Bad array access value in range.at()";
+      M_throw() << "Bad array access value in range.at()";
     
     return ID;
   }

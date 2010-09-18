@@ -31,7 +31,7 @@ CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSCENBList(XML, Sim);      
   else 
-    D_throw() << "Unknown type of ComplexSchedulerEntry `" 
+    M_throw() << "Unknown type of ComplexSchedulerEntry `" 
 	      << XML.getAttribute("Type") << "`encountered";
 }
 

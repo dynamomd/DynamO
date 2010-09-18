@@ -19,7 +19,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../dynamics/ranges/1range.hpp"
 #include <boost/foreach.hpp>
 #include <vector>

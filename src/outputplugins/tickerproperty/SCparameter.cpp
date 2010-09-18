@@ -40,12 +40,12 @@ OPSCParameter::initialise()
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (Sim->aspectRatio[iDim] != 1.0) 
-      D_throw() << "Cannot use this parameter in a non-cubic box";
+      M_throw() << "Cannot use this parameter in a non-cubic box";
   
   maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));
 
   if (boost::math::pow<3>(maxWaveNumber) != Sim->N)
-    D_throw() << "Failed, N does not have an integer cube root!";
+    M_throw() << "Failed, N does not have an integer cube root!";
 
   I_cout() << "Max wavelength is "
 	   << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength());

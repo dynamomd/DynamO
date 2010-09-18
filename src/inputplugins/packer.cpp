@@ -35,7 +35,7 @@
 #include "../dynamics/BC/include.hpp"
 #include "../dynamics/liouvillean/include.hpp"
 #include "../dynamics/systems/ghost.hpp"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../base/is_simdata.hpp"
 #include "../dynamics/topology/include.hpp"
 #include "../base/is_ensemble.hpp"
@@ -449,7 +449,7 @@ CIPPacker::initialise()
 			has1=true;
 	      else
 			has0=true;
-	      if (seq[i]>1) D_throw() << "Dynamod only supports 2 types of monomers, make a sample chain and edit the configuration file by hand to use more";
+	      if (seq[i]>1) M_throw() << "Dynamod only supports 2 types of monomers, make a sample chain and edit the configuration file by hand to use more";
 	    }
 
 	    if (has1 && has0)
@@ -755,7 +755,7 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	//Undo the linking of scheduler cells across the x dimension
-	//D_throw() << "Needs an unlinkable scheduler";
+	//M_throw() << "Needs an unlinkable scheduler";
 	//static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
 
 	//Cut off the x periodic boundaries
@@ -1002,7 +1002,7 @@ CIPPacker::initialise()
 	//We pick a scheduler algorithm based on the density of the system
 	if(vm["density"].as<Iflt>() * 8.0 >= vm["NCells"].as<unsigned long>())
 	{
-	  D_throw() << "Unable to simulate systems where box volume is <= (2L)^3";
+	  M_throw() << "Unable to simulate systems where box volume is <= (2L)^3";
 	}
 	else if (vm["density"].as<Iflt>() * 30.0 > vm["NCells"].as<unsigned long>())
 	{
@@ -1322,7 +1322,7 @@ CIPPacker::initialise()
 	    }
 	    break;
 	  default:
-	    D_throw() << "Unknown mode to set the chi's";
+	    M_throw() << "Unknown mode to set the chi's";
 	  }
 
 	chiAB *= 2.0;
@@ -1557,7 +1557,7 @@ CIPPacker::initialise()
 	//Pack the system, determine the number of particles
 
 	if (!vm.count("i1") || vm["i1"].as<size_t>() != 2)
-	  D_throw() << "You should initialise cubes with simple cubic packing \"--i1 2\"";
+	  M_throw() << "You should initialise cubes with simple cubic packing \"--i1 2\"";
 
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -1566,7 +1566,7 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	if (latticeSites.size() % 2)
-	  D_throw() << "To make sure the system has zero momentum and +-1 velocities, you must"
+	  M_throw() << "To make sure the system has zero momentum and +-1 velocities, you must"
 	    " use an even number of particles";
 
 	if (vm.count("rectangular-box"))
@@ -1744,7 +1744,7 @@ CIPPacker::initialise()
 		    throw std::runtime_error("Too many comma's");
 		} catch (std::exception& except)
 		  {
-		    D_throw() << "Malformed step data, \"" << step << "\"\n" << except.what();
+		    M_throw() << "Malformed step data, \"" << step << "\"\n" << except.what();
 		  }
 	      }
 	  }
@@ -1769,7 +1769,7 @@ CIPPacker::initialise()
 	  {
 	    I_cout() << "Step r=" << p.first << ", E=" << p.second;
 	    if (p.first > oldr)
-	      D_throw() << "Steps must be in descending order! r=" << p.first
+	      M_throw() << "Steps must be in descending order! r=" << p.first
 			<< " is greater than old r=" << oldr;
 	    oldr = p.first;
 	    p.first *= Sim->dynamics.units().unitLength();
@@ -2039,7 +2039,7 @@ CIPPacker::initialise()
 		break;
 	      }
 	    default:
-	      D_throw() << "Not a valid packing type (--i1)";
+	      M_throw() << "Not a valid packing type (--i1)";
 	    }
 
 	boost::scoped_ptr<CUCell> packptr(sysPack);
@@ -2155,7 +2155,7 @@ CIPPacker::initialise()
 	  overlapDiameter *= vm["f1"].as<Iflt>();
 
 	if (!vm.count("s1"))
-	  D_throw() << "No triangle file name specified";
+	  M_throw() << "No triangle file name specified";
 
 	boost::scoped_ptr<CUCell> 
 	  packptr(new CUTriangleIntersect(standardPackingHelper(new CUParticle()),
@@ -2287,7 +2287,7 @@ CIPPacker::initialise()
       }
 
     default:
-      D_throw() << "Did not recognise the packer mode you wanted";
+      M_throw() << "Did not recognise the packer mode you wanted";
     }
 
   Sim->N = Sim->particleList.size();
@@ -2303,7 +2303,7 @@ CIPPacker::processOptions()
 
 	//Only one kind of thermostat so far!
 	if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
-	  D_throw() << "Could not upcast thermostat to Andersens";
+	  M_throw() << "Could not upcast thermostat to Andersens";
 
 	static_cast<CSysGhost*>(thermostat)->setTemperature
 	  (vm["Thermostat"].as<Iflt>() * Sim->dynamics.units().unitEnergy());
@@ -2377,7 +2377,7 @@ CIPPacker::standardPackingHelper(CUCell* tmpPtr)
 	  break;
 	}
       default:
-	D_throw() << "Not a valid packing type (--i1)";
+	M_throw() << "Not a valid packing type (--i1)";
       }
 
 

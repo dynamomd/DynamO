@@ -46,7 +46,7 @@ CLDblWall::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   if (part.getID() == lastID) return LocalEvent(part, HUGE_VAL, NONE, *this);
@@ -105,7 +105,7 @@ CLDblWall::initialise(size_t nID)
   lastID = std::numeric_limits<size_t>::max();
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CLDblWall::particleUpdate));
+    (magnet::function::MakeDelegate(this, &CLDblWall::particleUpdate));
 
 }
 
@@ -147,7 +147,7 @@ CLDblWall::operator<<(const XMLNode& XML)
   } 
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CLDblWall";
+      M_throw() << "Failed a lexical cast in CLDblWall";
     }
 }
 

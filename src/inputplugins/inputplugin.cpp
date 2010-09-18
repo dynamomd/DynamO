@@ -29,7 +29,6 @@
 #include "../dynamics/BC/include.hpp"
 #include "../dynamics/liouvillean/include.hpp"
 #include "../dynamics/systems/ghost.hpp"
-#include "../base/is_exception.hpp"
 #include "../base/is_simdata.hpp"
 #include "../dynamics/topology/include.hpp"
 

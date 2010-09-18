@@ -20,6 +20,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 C2RList::C2RList(const XMLNode& XML) 
 { operator<<(XML); }
@@ -69,7 +70,7 @@ void
 C2RList::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"List"))
-    D_throw() << "Attempting to load a List from a non List";    
+    M_throw() << "Attempting to load a List from a non List";    
   
   try 
     {
@@ -84,7 +85,7 @@ C2RList::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in C2RList";
+      M_throw() << "Failed a lexical cast in C2RList";
     }
 }
 

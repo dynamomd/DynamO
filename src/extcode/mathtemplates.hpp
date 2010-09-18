@@ -19,7 +19,7 @@
 
 #include <cmath>
 #include "../base/constants.hpp"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <boost/array.hpp>
 #include <algorithm>
 
@@ -142,7 +142,7 @@ inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& ans)
 	return false;
       break;
     default:
-      D_throw() << "Unknown root selected";
+      M_throw() << "Unknown root selected";
       break;
     }
   return true;

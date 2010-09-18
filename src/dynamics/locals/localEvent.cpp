@@ -17,7 +17,6 @@
 
 #include "localEvent.hpp"
 #include "local.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"

@@ -22,7 +22,6 @@
 #include "../NparticleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
@@ -110,7 +109,7 @@ NEventData
 LSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&, 
 			   const EEventType&) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 NEventData 
@@ -118,31 +117,31 @@ LSLLOD::multibdyWellEvent(const CRange&, const CRange&,
 			   const Iflt&, const Iflt&, 
 			   EEventType&) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 bool 
 LSLLOD::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
   
 bool 
 LSLLOD::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 bool 
 LSLLOD::sphereOverlap(const CPDData& dat, const Iflt& d2) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 ParticleEventData 
 LSLLOD::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 Iflt 
@@ -150,7 +149,7 @@ LSLLOD::getWallCollision(const Particle &part,
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 
@@ -160,7 +159,7 @@ LSLLOD::runWallCollision(const Particle &part,
 			   const Iflt& e
 			   ) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 ParticleEventData 
@@ -169,7 +168,7 @@ LSLLOD::runAndersenWallCollision(const Particle& part,
 			 const Iflt& sqrtT
 			 ) const
 {  
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 Iflt
@@ -177,7 +176,7 @@ LSLLOD::getSquareCellCollision2(const Particle& part,
 				 const Vector & origin, 
 				 const Vector & width) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 int
@@ -185,19 +184,19 @@ LSLLOD::getSquareCellCollision3(const Particle& part,
 				 const Vector & origin, 
 				 const Vector & width) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 PairEventData 
 LSLLOD::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 			   const Iflt&, const EEventType& eType) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }
 
 PairEventData 
 LSLLOD::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
 			 const Iflt &) const
 {
-  D_throw() << "Not Implemented";
+  M_throw() << "Not Implemented";
 }

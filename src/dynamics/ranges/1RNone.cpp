@@ -18,7 +18,6 @@
 #include "1RNone.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 
 CRNone::CRNone(const XMLNode& XML)
 { operator<<(XML); }
@@ -27,7 +26,7 @@ void
 CRNone::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"None"))
-    D_throw() << "Attempting to load CRNone from non None type";
+    M_throw() << "Attempting to load CRNone from non None type";
 }
 
 void 

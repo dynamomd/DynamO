@@ -84,7 +84,7 @@ SThreadedNBList::addEvents(const Particle& part)
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
@@ -94,14 +94,14 @@ SThreadedNBList::addEvents(const Particle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &SThreadedNBList::streamParticles));  
+    (part, magnet::function::MakeDelegate(this, &SThreadedNBList::streamParticles));  
 
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &SThreadedNBList::addEvents2));  
+    (part, magnet::function::MakeDelegate(this, &SThreadedNBList::addEvents2));  
 }
 
 void 
@@ -118,7 +118,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    D_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
@@ -128,11 +128,11 @@ SThreadedNBList::addEventsInit(const Particle& part)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
 
   //Add the interaction events
   nblist.getParticleNeighbourhood
-    (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEventInit));  
+    (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEventInit));  
 }
 
 struct NBlistData {
@@ -146,7 +146,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 {
 #ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr())
-      == NULL)  D_throw() << "Not a CGNeighbourList!";
+      == NULL)  M_throw() << "Not a CGNeighbourList!";
 #endif
 
   //Now grab a reference to the neighbour list
@@ -155,8 +155,8 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 
   //Now fetch the neighborlist data
   NBlistData nbIDs1, nbIDs2;  
-  nblist.getParticleNeighbourhood(p1, fastdelegate::MakeDelegate(&nbIDs1, &NBlistData::AddNBIDs));
-  nblist.getParticleNeighbourhood(p2, fastdelegate::MakeDelegate(&nbIDs2, &NBlistData::AddNBIDs));
+  nblist.getParticleNeighbourhood(p1, magnet::function::MakeDelegate(&nbIDs1, &NBlistData::AddNBIDs));
+  nblist.getParticleNeighbourhood(p2, magnet::function::MakeDelegate(&nbIDs2, &NBlistData::AddNBIDs));
   
   //Stream all of the particles up to date
   Sim->dynamics.getLiouvillean().updateParticle(p1);
@@ -187,10 +187,10 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
   
   //Add the local cell events
   nblist.getParticleLocalNeighbourhood
-    (p1, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent1));
+    (p1, magnet::function::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent1));
 
   nblist.getParticleLocalNeighbourhood
-    (p2, fastdelegate::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent2));
+    (p2, magnet::function::MakeDelegate(this, &SThreadedNBList::spawnThreadAddLocalEvent2));
     
   //Now wait for the pool
   _threadPool.wait();

@@ -92,7 +92,7 @@ public:
 	  return ptr->getEvent(p1,p2);
 	}
     
-    D_throw() << "Could not find the right interaction to test for";
+    M_throw() << "Could not find the right interaction to test for";
   }
 
   void operator<<(const XMLNode&);

@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
@@ -55,11 +54,11 @@ OPPlateMotion::initialise()
     plateID = Sim->dynamics.getLocal(plateName)->getID();
   } catch(...)
     {
-      D_throw() << "Could not find the PlateName specified. You said " << plateName;
+      M_throw() << "Could not find the PlateName specified. You said " << plateName;
     }
   
   if (dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr()) == NULL) 
-    D_throw() << "The PlateName'd local is not a CLOscillatingPlate";
+    M_throw() << "The PlateName'd local is not a CLOscillatingPlate";
 
   if (logfile.is_open())
     logfile.close();
@@ -164,7 +163,7 @@ OPPlateMotion::operator<<(const XMLNode& XML)
     plateName = std::string(XML.getAttribute("PlateName"));
   } catch(...)
     {
-      D_throw() << "Could not find the PlateName for the PlateMotion plugin. Did you specify one?";
+      M_throw() << "Could not find the PlateName for the PlateMotion plugin. Did you specify one?";
     }
 }
 

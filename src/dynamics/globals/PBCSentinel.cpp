@@ -52,7 +52,7 @@ CGPBCSentinel::initialise(size_t nID)
     cachedTimes[part.getID()] = Sim->dSysTime;
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
+    (magnet::function::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
 
 }
 
@@ -77,7 +77,7 @@ CGPBCSentinel::operator<<(const XMLNode& XML)
   }
   catch(...)
     {
-      D_throw() << "Error loading CGPBCSentinel";
+      M_throw() << "Error loading CGPBCSentinel";
     }
 }
 
@@ -100,11 +100,11 @@ CGPBCSentinel::runEvent(const Particle& part) const
 
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Interaction collision time has been found"
+    M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);
   
   if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+    M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
 	      << iEvent.stringData(Sim);
 #endif
 

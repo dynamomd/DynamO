@@ -16,7 +16,7 @@
 */
 
 #include <iostream>
-#include <magnet/radixsort.hpp>
+#include <magnet/CL/radixsort.hpp>
 #include <algorithm>
 
 template<class T>
@@ -48,7 +48,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   std::vector<T> input(size);
 
   std::cout << "##Testing radix sort for " << input.size() << " elements and type " 
-	    << magnet::detail::traits<T>::kernel_type()
+	    << magnet::CL::detail::traits<T>::kernel_type()
 	    << std::endl;
   
   for(size_t i = 0; i < input.size(); ++i)
@@ -60,7 +60,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::radixSort<T> radixSortFunctor(queue, context);
+  magnet::CL::radixSort<T> radixSortFunctor(queue, context);
 
   radixSortFunctor(bufferIn, bufferIn);
 
@@ -73,7 +73,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
     M_throw() << "Incorrect output for keysort with size " 
 	      << input.size()
 	      << " and type "
-	      << magnet::detail::traits<T>::kernel_type();
+	      << magnet::CL::detail::traits<T>::kernel_type();
 
   //Now test with some data!
   //Refresh the input array
@@ -101,14 +101,14 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
     M_throw() << "Incorrect output in keys for data and key sort with size " 
 	      << input.size()
 	      << " and type "
-	      << magnet::detail::traits<T>::kernel_type();
+	      << magnet::CL::detail::traits<T>::kernel_type();
 
   for(size_t i = 0; i < input.size(); ++i)
     if (data[i] != input.size() - 1 - i)
       M_throw() << "Incorrect output in data for data and key sort with size " 
 		<< input.size()
 		<< " and type "
-		<< magnet::detail::traits<T>::kernel_type();  
+		<< magnet::CL::detail::traits<T>::kernel_type();  
 }
 
 void runTest(cl::Context context, cl::CommandQueue queue)
@@ -117,7 +117,7 @@ void runTest(cl::Context context, cl::CommandQueue queue)
   runTestType<cl_int>(context, queue);
   runTestType<cl_float>(context, queue);
   //Special case for the AMD CPU implementation
-  if (magnet::detail::detectExtension(context, "cl_amd_fp64")
+  if (magnet::CL::detail::detectExtension(context, "cl_amd_fp64")
       && (queue.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU))
     {
       bool expectedfail = false;

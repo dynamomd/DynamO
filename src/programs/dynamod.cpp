@@ -29,7 +29,7 @@ namespace po = boost::program_options;
 #include "../src/dynamics/BC/include.hpp"
 #include "../src/dynamics/dynamics.hpp"
 #include "../src/dynamics/systems/ghost.hpp"
-#include "../src/base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../src/schedulers/include.hpp"
 #include "../src/inputplugins/include.hpp"
 #include "../src/outputplugins/0partproperty/XMLconfig.hpp"
@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 	std::string fileName(vm["out-config-file"].as<std::string>());
 	if (vm.count("uncompressed") 
 	    && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
-	  D_throw() << "You should not use a .bz2 extension for uncompressed"
+	  M_throw() << "You should not use a .bz2 extension for uncompressed"
 	    " comfig files";
       }
 
@@ -177,11 +177,11 @@ main(int argc, char *argv[])
 
 	  Vector vel(0,0,0);
 
-	  if (details_iter == tokens.end()) D_throw() << "set-com-vel requires 3 components";
+	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
 	  vel[0] = boost::lexical_cast<Iflt>(*(details_iter++));
-	  if (details_iter == tokens.end()) D_throw() << "set-com-vel requires 3 components";	  
+	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";	  
 	  vel[1] = boost::lexical_cast<Iflt>(*(details_iter++));
-	  if (details_iter == tokens.end()) D_throw() << "set-com-vel requires 3 components";
+	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
 	  vel[2] = boost::lexical_cast<Iflt>(*(details_iter));
 	  
 	  CInputPlugin(&sim, "velSetter")

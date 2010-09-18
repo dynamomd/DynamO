@@ -19,27 +19,28 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
+#include <boost/lexical_cast.hpp>
 
 
 C2RIntraChains::C2RIntraChains(unsigned long r1, unsigned long r2, unsigned long r3):
   range1(r1),range2(r2),interval(r3) 
 {
   if ((r2-r1 + 1) % r3)
-    D_throw() << "Range of C2RIntraChains does not split evenly into interval";
+    M_throw() << "Range of C2RIntraChains does not split evenly into interval";
 }
 
 C2RIntraChains::C2RIntraChains(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0), interval(0)
 { 
   if (strcmp(XML.getAttribute("Range"),"IntraChains"))
-    D_throw() << "Attempting to load a chains from a non chains";
+    M_throw() << "Attempting to load a chains from a non chains";
   
   range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
   range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
   interval = boost::lexical_cast<unsigned long>(XML.getAttribute("Interval"));
 
   if ((range2-range1 + 1) % interval)
-    D_throw() << "Range of C2RIntraChains does not split evenly into interval";
+    M_throw() << "Range of C2RIntraChains does not split evenly into interval";
 }
 
 bool 
@@ -61,7 +62,7 @@ C2RIntraChains::isInRange(const Particle&p1, const Particle&p2) const
 void 
 C2RIntraChains::operator<<(const XMLNode&)
 {
-  D_throw() << "Due to problems with CRAll C2RIntraChains::operator<< cannot work for this class";
+  M_throw() << "Due to problems with CRAll C2RIntraChains::operator<< cannot work for this class";
 }
 
 void 

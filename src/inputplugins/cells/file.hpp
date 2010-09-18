@@ -17,13 +17,12 @@
 
 #pragma once
 #include "cell.hpp"
-#ifndef DYNAMO_CONDOR
 # include <boost/iostreams/device/file.hpp>
 # include <boost/iostreams/filtering_stream.hpp>
 # include <boost/iostreams/filter/bzip2.hpp>
 # include <boost/iostreams/chain.hpp>
 namespace io = boost::iostreams;
-#endif
+
 #include <boost/filesystem.hpp>
 #include <boost/progress.hpp>
 #include <boost/lexical_cast.hpp>
@@ -44,7 +43,6 @@ struct CUFile: public CUCell
  
   virtual void initialise() 
   { 
-#ifndef DYNAMO_CONDOR
     uc->initialise();
     //Open the file for XML parsing
     XMLNode xMainNode;
@@ -52,7 +50,7 @@ struct CUFile: public CUCell
     if (std::string(fileName.end()-4, fileName.end()) == ".xml")
       {
 	if (!boost::filesystem::exists(fileName))
-	  D_throw() << "Could not open XML configuration file";
+	  M_throw() << "Could not open XML configuration file";
 	
 	std::cout << "Uncompressed XML input file " << fileName << " loading";
 	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
@@ -60,7 +58,7 @@ struct CUFile: public CUCell
     else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
       {
 	if (!boost::filesystem::exists(fileName))
-	  D_throw() << "Could not open XML configuration file";
+	  M_throw() << "Could not open XML configuration file";
 	
 	io::filtering_istream inputFile;
 	inputFile.push(io::bzip2_decompressor());
@@ -84,14 +82,14 @@ struct CUFile: public CUCell
 	xMainNode = tmpNode.getChildNode("DYNAMOconfig");
       }
     else
-      D_throw() << "Unrecognised extension for input file";
+      M_throw() << "Unrecognised extension for input file";
     
     std::cout << "Parsing XML file";
     XMLNode xSubNode = xMainNode.getChildNode("ParticleData");
 
     if (xSubNode.isAttributeSet("AttachedBinary")
 	&& (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
-      D_throw() << "This packer only works on XML config files without binary data,"
+      M_throw() << "This packer only works on XML config files without binary data,"
 		<< " please unscramble using dynamod --text";
 
     unsigned long nPart = xSubNode.nChildNode("Pt");
@@ -126,9 +124,6 @@ struct CUFile: public CUCell
     BOOST_FOREACH(Vector & vec, particleCache)
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	vec[iDim] *= dimensions[iDim];
-#else
-    D_throw() << "Cannot use the file cell when compiled for CONDOR";
-#endif
   }
 
   virtual std::vector<Vector  > placeObjects(const Vector & centre)

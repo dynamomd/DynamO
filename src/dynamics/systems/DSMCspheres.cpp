@@ -21,7 +21,6 @@
 #include <boost/random/uniform_int.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -68,7 +67,7 @@ CSDSMCSpheres::runEvent() const
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
-    D_throw() << "A NAN system event time has been found";
+    M_throw() << "A NAN system event time has been found";
 #endif
     
   Sim->dSysTime += locdt;
@@ -207,7 +206,7 @@ void
 CSDSMCSpheres::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"DSMCSpheres"))
-    D_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
+    M_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
   
   try {
     tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
@@ -234,7 +233,7 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CGGlobal";
+      M_throw() << "Failed a lexical cast in CGGlobal";
     }
 }
 

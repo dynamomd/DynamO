@@ -52,7 +52,7 @@ Species::getIntPtr() const
 { 
 #ifdef DYNAMO_DEBUG
   if (IntPtr == NULL)
-    D_throw() << "Fetching an unset interaction pointer for a species";
+    M_throw() << "Fetching an unset interaction pointer for a species";
 #endif
 
   return IntPtr; 
@@ -66,7 +66,7 @@ void
 Species::initialise()
 { 
   if (IntPtr == NULL)
-    D_throw() << "Species missing a matching interaction";
+    M_throw() << "Species missing a matching interaction";
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, const Species& g)
@@ -88,7 +88,7 @@ Species::operator<<(const XMLNode& XML)
     } 
     catch (boost::bad_lexical_cast &)
       {
-	D_throw() << "Failed a lexical cast in CSpecies";
+	M_throw() << "Failed a lexical cast in CSpecies";
       }
 
 }
@@ -125,7 +125,7 @@ Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
     return new SpSphericalTop(XML, tmp, nID);
   else 
-    D_throw() << XML.getAttribute("Type")
+    M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of species encountered";
 
 }

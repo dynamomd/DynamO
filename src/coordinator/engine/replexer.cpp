@@ -88,12 +88,12 @@ EReplicaExchangeSimulation::initialisation()
       dynamic_cast<const DYNAMO::CENVT&>(*(Simulations[--i].getEnsemble()));
   }
   catch (std::bad_cast&)
-    { D_throw() << "One of the systems does not have an NVT ensemble"; }
+    { M_throw() << "One of the systems does not have an NVT ensemble"; }
   
   //Test a thermostat is available
   for (unsigned int i = 0; i < nSims; i++)
     if (Simulations[i].getSystem("Thermostat") == NULL)
-      D_throw() << "Could not find the Thermostat for system " << i 
+      M_throw() << "Could not find the Thermostat for system " << i 
 		<< "\nFilename " << vm["config-file"].as<std::vector<std::string> >()[i];
   
   //Set up the replex organisation
@@ -194,11 +194,11 @@ EReplicaExchangeSimulation::preSimInit()
     }
   
   if (configFormat.find("%ID") == configFormat.npos)
-    D_throw() << "Replex mode, but format string for config file output"
+    M_throw() << "Replex mode, but format string for config file output"
       " doesnt contain %ID";
   
   if (outputFormat.find("%ID") == outputFormat.npos)
-    D_throw() << "Multiple configs loaded, but format string for output"
+    M_throw() << "Multiple configs loaded, but format string for output"
       " file doesnt contain %ID";  
   
   Simulations.reset(new Simulation[nSims]);
@@ -345,7 +345,7 @@ EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode)
 	    ReplexSwap(RandomPairs);
 	    break;
 	  default:
-	    D_throw() << "Error, randomly picked a replex move that doesn't exist";
+	    M_throw() << "Error, randomly picked a replex move that doesn't exist";
 	  }
       }
       break;
@@ -483,7 +483,7 @@ void EReplicaExchangeSimulation::runSimulation()
 		      
 #ifdef DYNAMO_DEBUG
 	      if (tmpRef == NULL)
-		D_throw() << "Could not find the time halt event error";
+		M_throw() << "Could not find the time halt event error";
 #endif			
 	      tmpRef->increasedt(vm["replex-interval"].as<Iflt>());
 

@@ -43,7 +43,7 @@ CVector<T>::operator<<(const XMLNode &XML)
       }
       catch (boost::bad_lexical_cast &)
 	{
-	  D_throw() << "Failed a lexical cast in CVector";
+	  M_throw() << "Failed a lexical cast in CVector";
 	}
     }
 }
@@ -113,7 +113,7 @@ operator<<(VectorExpression<>& data, const XMLNode &XML)
       }
       catch (boost::bad_lexical_cast &)
 	{
-	  D_throw() << "Failed a lexical cast in CVector";
+	  M_throw() << "Failed a lexical cast in CVector";
 	}
     }
 
@@ -167,7 +167,7 @@ operator<<(MatrixExpression<>& data, const XMLNode &XML)
 	  }
 	  catch (boost::bad_lexical_cast &)
 	    {
-	      D_throw() << "Failed a lexical cast in CVector";
+	      M_throw() << "Failed a lexical cast in CVector";
 	    }
 	}
     }

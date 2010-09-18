@@ -19,12 +19,13 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
+#include <boost/lexical_cast.hpp>
 
 C2RRing::C2RRing(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"Ring"))
-    D_throw() << "Attempting to load a ring from a non ring";
+    M_throw() << "Attempting to load a ring from a non ring";
   
   range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
   range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
@@ -70,7 +71,7 @@ C2RRing::isInRange(const Particle&p1, const Particle&p2) const
 void 
 C2RRing::operator<<(const XMLNode&)
 {
-  D_throw() << "Due to problems with CRAll C2RRing::operator<< cannot work for this class";
+  M_throw() << "Due to problems with CRAll C2RRing::operator<< cannot work for this class";
 }
 
 void 

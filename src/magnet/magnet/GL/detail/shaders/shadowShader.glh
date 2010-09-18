@@ -1,0 +1,97 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+namespace magnet {
+  namespace GL {
+    inline std::string 
+    shadowShader::vertexShaderSource()
+    {
+      return
+STRINGIFY( 
+// Used for shadow lookup
+varying vec4 ShadowCoord;
+varying vec3 lightVec;
+varying vec3 normal;
+varying vec3 viewVec;
+
+void main()
+{
+  ShadowCoord= gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
+
+  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  
+  normal = normalize(gl_NormalMatrix * gl_Normal);
+
+  lightVec = normalize(vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex));
+
+  gl_FrontColor = gl_Color;
+
+  viewVec = vec3(gl_ModelViewMatrix * gl_Vertex);
+}
+);
+    }
+
+    inline std::string 
+    shadowShader::fragmentShaderSource()
+    {
+      return
+STRINGIFY( 
+uniform sampler2DShadow ShadowMap;
+
+varying vec4 ShadowCoord;
+varying vec3 lightVec;
+varying vec3 normal;
+varying vec3 viewVec;
+
+void main()
+{
+  const float shadowIntensity = 0.6;
+
+
+  float shadow = 0;
+  
+  const float step = 0.0005;
+  for (int x = 0; x < 8; ++x)
+    for (int y = 0; y < 8; ++y)
+    //Replace shadow2DProj with textureProj
+      shadow += shadow2DProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+  
+  shadow /= 64.0 ;
+  
+  float lightNormDot = dot(normal, lightVec);
+  
+  float DiffuseTerm = 0.5 * lightNormDot + 0.5;
+ 
+  float specular = shadow * max(dot(reflect(normalize(lightVec), normalize(normal)), normalize(viewVec)), 0.0);
+  //float specular = shadow * max(dot(normalize(gl_LightSource[0].halfVector.xyz), viewVec), 0.0) * 2.0 ;
+  
+  specular *= specular * specular * specular;
+
+  gl_FragColor =  gl_Color * (((1 + shadowIntensity * (shadow - 1)) * DiffuseTerm //Diffuse + Shadow lighting
+			       ) * vec4(1.0,1.0,1.0,0) //Conversion to white channel
+			      + vec4(0,0,0,1) //The alpha channel
+			      )
+    + 0.1 * specular * vec4(1.0,1.0,1.0,0); //Specular lighting is pure white
+;
+}
+);
+    }
+  }
+}

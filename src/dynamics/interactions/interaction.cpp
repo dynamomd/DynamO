@@ -20,7 +20,6 @@
 #include <boost/lexical_cast.hpp>
 #include "../interactions/intEvent.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../species/species.hpp"
 #include "../../base/is_simdata.hpp"
 #include <cstring>
@@ -86,6 +85,6 @@ Interaction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
   else if (!std::strcmp(XML.getAttribute("Type"),"InfiniteMass"))
     return new IInfiniteMass(XML, Sim);
   else 
-    D_throw() << XML.getAttribute("Type")
+    M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of interaction encountered";
 }

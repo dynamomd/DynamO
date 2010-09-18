@@ -50,7 +50,7 @@ CLOscillatingPlate::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   //bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
@@ -147,7 +147,7 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
   } 
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CLOscillatingPlate";
+      M_throw() << "Failed a lexical cast in CLOscillatingPlate";
     }
 }
 

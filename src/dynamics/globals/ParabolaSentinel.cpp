@@ -48,7 +48,7 @@ CGParabolaSentinel::initialise(size_t nID)
     passedParabola[part.getID()] = false;
 
   Sim->registerParticleUpdateFunc
-    (fastdelegate::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
+    (magnet::function::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
 
 }
 
@@ -60,7 +60,7 @@ CGParabolaSentinel::operator<<(const XMLNode& XML)
   }
   catch(...)
     {
-      D_throw() << "Error loading CGParabolaSentinel";
+      M_throw() << "Error loading CGParabolaSentinel";
     }
 }
 
@@ -90,11 +90,11 @@ CGParabolaSentinel::runEvent(const Particle& part) const
 
 #ifdef DYNAMO_DEBUG 
   if (isnan(iEvent.getdt()))
-    D_throw() << "A NAN Interaction collision time has been found"
+    M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);
   
   if (iEvent.getdt() == HUGE_VAL)
-    D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+    M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
 	      << iEvent.stringData(Sim);
 #endif
 

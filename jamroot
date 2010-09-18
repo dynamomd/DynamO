@@ -14,16 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#Add a feature to track if being compiled for condor
 import feature : feature ;
-feature condor : no yes : propagated optional ;
 feature color : no yes : propagated optional ;
+feature visualizer : no yes : propagated optional ;
 
 #using intel-linux ;
-
-#To use a condor binary, uncomment below and change the project
-#parameter to <condor>yes 
-#using gcc : : condor_compile g++ : <compileflags>-DDYNAMO_CONDOR ;
 
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
@@ -40,14 +35,11 @@ local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ;
 project	: requirements
 	  <define>DYNAMO_double_precsision
 	  <color>yes:<define>DYNAMO_Colour
-	  <condor>no
+	  <visualizer>yes
 	  <color>yes
 	  <define>GITHASH=\\\"$(githash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
-	  <condor>yes:<define>DYNAMO_CONDOR
-	  <condor>yes:<threading>single
-	  <condor>no:<threading>multi
 	  <tag>@dynamo-tags.naming
 	: default-build release
 	: build-dir build-dir
@@ -91,29 +83,20 @@ exe dynamod
     : <link>static 
     ;
 
-#exe threadpool_test 
-#    : test/src/threadpool_test.cpp src//dynamo_core
-#    : 
-#    ;
-
-exe gl_test 
-    : test/src/glviewer_test.cpp src/coil//coil/<link>static
+exe threadpool_test 
+    : test/src/threadpool_test.cpp src//dynamo_core
+    : 
     ;
 
 install install-test
-	: gl_test 
+	: src/coil//gl_test threadpool_test
 	: <location>test
 	;
 
 install install-bin 
-	: dynarun dynamod dynarun dynahist_rw
-	: <location>bin <condor>no
-	;
-	
-install install-bin 
-	: dynarun dynamod 
-	: <location>bin <condor>yes
-	;
+	: dynarun dynahist_rw dynamod
+	: <location>bin
+	;	
 
 alias install : install-bin ;
 

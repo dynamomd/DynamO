@@ -18,20 +18,16 @@
 #include "simulation.hpp"
 #include <iomanip>
 
-#ifndef DYNAMO_CONDOR
 # include <boost/iostreams/device/file.hpp>
 # include <boost/iostreams/filtering_stream.hpp>
 # include <boost/iostreams/filter/bzip2.hpp>
 # include <boost/iostreams/chain.hpp>
-#else
-# include <fstream>
-#endif
 
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
 #include "../schedulers/scheduler.hpp"
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include "../dynamics/include.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../outputplugins/outputplugin.hpp"
@@ -51,11 +47,6 @@ Simulation::Simulation():
 void 
 Simulation::setBinaryXML(const bool& v) 
 { 
-#ifdef DYNAMO_CONDOR
-  if (v)
-    D_throw() << "No binary output when compiled with CONDOR";
-#endif
-
   binaryXML = v; 
 }
 
@@ -64,7 +55,7 @@ Simulation::setTickerPeriod(Iflt nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
   if (ptr == NULL)
-    D_throw() << "Could not find system ticker (maybe not required?)";
+    M_throw() << "Could not find system ticker (maybe not required?)";
 
   ptr->setTickerPeriod(nP * dynamics.units().unitTime());
 }
@@ -75,7 +66,7 @@ Simulation::scaleTickerPeriod(Iflt nP)
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
 
   if (ptr == NULL)
-    D_throw() << "Could not find system ticker (maybe not required?)";
+    M_throw() << "Could not find system ticker (maybe not required?)";
 
   ptr->setTickerPeriod(nP * ptr->getPeriod());
 }
@@ -94,10 +85,10 @@ void
 Simulation::addGlobal(Global* tmp)
 {
   if (tmp == NULL)
-    D_throw() << "Adding a NULL global";
+    M_throw() << "Adding a NULL global";
 
   if (status != CONFIG_LOADED)
-    D_throw() << "Cannot add global events now its initialised";
+    M_throw() << "Cannot add global events now its initialised";
 
   dynamics.addGlobal(tmp);
 }
@@ -106,10 +97,10 @@ void
 Simulation::addSystem(System* tmp)
 {
   if (tmp == NULL)
-    D_throw() << "Adding a NULL systemEvent";
+    M_throw() << "Adding a NULL systemEvent";
 
   if (status != CONFIG_LOADED)
-    D_throw() << "Cannot add system events now it is initialised";
+    M_throw() << "Cannot add system events now it is initialised";
 
   dynamics.addSystem(tmp);
 }
@@ -118,7 +109,7 @@ void
 Simulation::addOutputPlugin(std::string Name)
 {
   if (status >= INITIALISED)
-    D_throw() << "Cannot add plugins now";
+    M_throw() << "Cannot add plugins now";
   
   I_cout() << "Loading output plugin, " << Name;
 
@@ -168,12 +159,12 @@ Simulation::initialise()
     dynamics.addSystemTicker();
 
   if (status != CONFIG_LOADED)
-    D_throw() << "Sim initialised at wrong time";
+    M_throw() << "Sim initialised at wrong time";
 
   I_cout() << "Initialising Components";  
 
   if (ptrScheduler == NULL)
-    D_throw() << "The scheduler has not been set!";      
+    M_throw() << "The scheduler has not been set!";      
   
   I_cout() << "Initialising the dynamics";
   dynamics.initialise();
@@ -203,7 +194,7 @@ void
 Simulation::runSimulation(bool silentMode)
 {
   if (status != INITIALISED && status != PRODUCTION)
-    D_throw() << "Bad state for runSimulation()";
+    M_throw() << "Bad state for runSimulation()";
   status = PRODUCTION;
 
   if (silentMode)
@@ -214,7 +205,7 @@ Simulation::runSimulation(bool silentMode)
       }
     catch (std::exception &cep)
       {
-	D_throw() << "\nWhile executing collision "
+	M_throw() << "\nWhile executing collision "
 		  << eventCount << cep.what();
       }
   else
@@ -236,7 +227,7 @@ Simulation::runSimulation(bool silentMode)
 	}
       catch (std::exception &cep)
 	{
-	  D_throw() << "\nWhile executing collision "
+	  M_throw() << "\nWhile executing collision "
 		    << eventCount << cep.what();
 	}
 }
@@ -246,7 +237,7 @@ Simulation::configLoaded()
 {
   //Handled by an input plugin
   if (status != START)
-    D_throw() << "Loading config at wrong time";
+    M_throw() << "Loading config at wrong time";
   
   status = CONFIG_LOADED;
 }
@@ -256,7 +247,7 @@ Simulation::loadXMLfile(const char *fileName)
 {
   //Handled by an input plugin
   if (status != START)
-    D_throw() << "Loading config at wrong time";
+    M_throw() << "Loading config at wrong time";
   
   CIPConfig XMLconfig(fileName,this);
   XMLconfig.initialise();
@@ -268,7 +259,7 @@ void
 Simulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
-    D_throw() << "Cannot write out configuration in this state";
+    M_throw() << "Cannot write out configuration in this state";
   
   //Particle data output handled by an output plugin
   OPConfig XMLconfig(this);
@@ -290,12 +281,12 @@ Simulation::loadPlugins(std::string pluginFileName)
   I_cout() << "Loading outputplugins from file, " << pluginFileName;
   
   if (status >= INITIALISED)
-    D_throw() << "Cannot add plugins now";
+    M_throw() << "Cannot add plugins now";
 
   XMLNode xMainNode;
 
   if (!boost::filesystem::exists(pluginFileName))
-    D_throw() << "Plugin file \"" << pluginFileName << "\" doesn't exist";
+    M_throw() << "Plugin file \"" << pluginFileName << "\" doesn't exist";
 
   if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
     {
@@ -309,7 +300,7 @@ Simulation::loadPlugins(std::string pluginFileName)
 	}
     }
   else
-    D_throw() << "plugin filename should end in .xml and be xml";
+    M_throw() << "plugin filename should end in .xml and be xml";
 }
 
 
@@ -317,9 +308,8 @@ void
 Simulation::outputData(const char* filename, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
-    D_throw() << "Cannot output data when not initialised!";
+    M_throw() << "Cannot output data when not initialised!";
 
-#ifndef DYNAMO_CONDOR  
   if (!uncompressed)
     {
       namespace io = boost::iostreams;
@@ -344,10 +334,6 @@ Simulation::outputData(const char* filename, bool uncompressed)
       XML << xml::endtag("OutputData");
     }
   else
-#else
-  if (!uncompressed)
-    D_throw() << "Cannot output compressed data when compiled for Condor ";
-#endif
     {
       std::ofstream coutputFile(filename, std::ios::out | std::ios::trunc);
       xml::XmlStream XML(coutputFile);

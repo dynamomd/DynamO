@@ -19,7 +19,7 @@
 #include "../../simulation/particle.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
+#include <boost/lexical_cast.hpp>
 
 CRSingle::CRSingle(const XMLNode& XML) 
 { operator<<(XML); }
@@ -38,13 +38,13 @@ void
 CRSingle::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"Single"))
-    D_throw() << "Attempting to load CRSingle from non single";
+    M_throw() << "Attempting to load CRSingle from non single";
     try {
       ID = boost::lexical_cast<unsigned long>(XML.getAttribute("ID"));
     }
     catch (boost::bad_lexical_cast &)
       {
-	D_throw() << "Failed a lexical cast in CRRange";
+	M_throw() << "Failed a lexical cast in CRRange";
       }
 }
 

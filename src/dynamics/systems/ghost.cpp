@@ -21,7 +21,6 @@
 #include <boost/random/uniform_int.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -86,7 +85,7 @@ CSysGhost::runEvent() const
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
-    D_throw() << "A NAN system event time has been found";
+    M_throw() << "A NAN system event time has been found";
 #endif
     
   Sim->dSysTime += locdt;
@@ -133,7 +132,7 @@ void
 CSysGhost::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Andersen"))
-    D_throw() << "Attempting to load Andersen from non Andersen entry"; 
+    M_throw() << "Attempting to load Andersen from non Andersen entry"; 
   
   try {
     meanFreeTime = boost::lexical_cast<Iflt>(XML.getAttribute("MFT"))
@@ -158,7 +157,7 @@ CSysGhost::operator<<(const XMLNode& XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in CGGlobal";
+      M_throw() << "Failed a lexical cast in CGGlobal";
     }
 }
 

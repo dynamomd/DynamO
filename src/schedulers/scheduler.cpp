@@ -58,7 +58,7 @@ CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
   else if (!strcmp(XML.getAttribute("Type"),"ThreadedNeighbourList"))
     return new SThreadedNBList(XML, Sim);
   else 
-    D_throw() << XML.getAttribute("Type")
+    M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Scheduler encountered";
 }
 
@@ -115,7 +115,7 @@ CScheduler::runNextEvent()
   
 #ifdef DYNAMO_DEBUG
   if (sorter->nextPELEmpty())
-    D_throw() << "Next particle list is empty but top of list!";
+    M_throw() << "Next particle list is empty but top of list!";
 #endif  
     
   while ((sorter->next_type() == INTERACTION)
@@ -129,13 +129,13 @@ CScheduler::runNextEvent()
       
 #ifdef DYNAMO_DEBUG
       if (sorter->nextPELEmpty())
-	D_throw() << "Next particle list is empty but top of list!";
+	M_throw() << "Next particle list is empty but top of list!";
 #endif
     }
   
 #ifdef DYNAMO_DEBUG
   if (isnan(sorter->next_dt()))
-    D_throw() << "Next event time is NaN"
+    M_throw() << "Next event time is NaN"
 	      << "\nTime to event "
 	      << sorter->next_dt()
 	      << "\nEvent Type = " 
@@ -144,7 +144,7 @@ CScheduler::runNextEvent()
 	      << "\nID2 = " << sorter->next_p2();
 
   if (isinf(sorter->next_dt()))
-    D_throw() << "Next event time is Inf!"
+    M_throw() << "Next event time is Inf!"
 	      << "\nTime to event "
 	      << sorter->next_dt()
 	      << "\nEvent Type = " 
@@ -153,7 +153,7 @@ CScheduler::runNextEvent()
 	      << "\nID2 = " << sorter->next_p2();
 
   if (sorter->next_dt() + eps < 0)
-    D_throw() << "Next event time is less than -" << eps
+    M_throw() << "Next event time is less than -" << eps
 	      << "\nTime to event "
 	      << sorter->next_dt()
 	      << "\nEvent Type = " 
@@ -220,11 +220,11 @@ CScheduler::runNextEvent()
 #ifdef DYNAMO_DEBUG
 
 	if (isnan(Event.getdt()))
-	  D_throw() << "A NAN Interaction collision time has been found"
+	  M_throw() << "A NAN Interaction collision time has been found"
 		    << Event.stringData(Sim);
 	
 	if (Event.getdt() == HUGE_VAL)
-	  D_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+	  M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
 		    << Event.stringData(Sim);
 #endif
 	
@@ -308,11 +308,11 @@ CScheduler::runNextEvent()
 
 #ifdef DYNAMO_DEBUG 
 	if (isnan(iEvent.getdt()))
-	  D_throw() << "A NAN Global collision time has been found\n"
+	  M_throw() << "A NAN Global collision time has been found\n"
 		    << iEvent.stringData(Sim);
 	
 	if (iEvent.getdt() == HUGE_VAL)
-	  D_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
+	  M_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
 		    << iEvent.stringData(Sim);
 #endif
 	
@@ -349,11 +349,11 @@ CScheduler::runNextEvent()
       }
     case NONE:
       {
-	D_throw() << "A NONE event has reached the top of the queue."
+	M_throw() << "A NONE event has reached the top of the queue."
 	  "\nThe simulation has run out of events! Aborting!";
       }
     default:
-      D_throw() << "Unhandled event type requested to be run\n"
+      M_throw() << "Unhandled event type requested to be run\n"
 		<< "Type is " 
 		<< sorter->next_type()
 		<< "";

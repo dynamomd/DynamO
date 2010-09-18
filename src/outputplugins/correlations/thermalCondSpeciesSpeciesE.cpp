@@ -55,7 +55,7 @@ OPThermalConductivitySpeciesSpeciesE::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPCorrelator";
+      M_throw() << "Failed a lexical cast in OPCorrelator";
     }
   
   }
@@ -81,7 +81,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
   }
   catch(std::exception)
     {
-      D_throw() << "WARNING: This is only valid in the microcanonical"
+      M_throw() << "WARNING: This is only valid in the microcanonical"
 	" ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
 	"\n Essentially you need entropic data too for other ensembles";
     }

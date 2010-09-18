@@ -19,7 +19,7 @@
 #include <boost/lexical_cast.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #include <cmath>
 #include <cstring>
 
@@ -74,7 +74,7 @@ void
 USquareWell::operator<<(const XMLNode &XML)
 {
   if (std::strcmp(XML.getAttribute("Type"),"SW"))
-    D_throw() << "Attempting to load USquareWell from non elastic type";
+    M_throw() << "Attempting to load USquareWell from non elastic type";
   
   try {
     UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
@@ -82,7 +82,7 @@ USquareWell::operator<<(const XMLNode &XML)
   }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in USquareWell";
+      M_throw() << "Failed a lexical cast in USquareWell";
     }
 }
 

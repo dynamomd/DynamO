@@ -21,7 +21,6 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../interactions/intEvent.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/mathtemplates.hpp"
 
@@ -62,7 +61,7 @@ BCRectangularLeesEdwards::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in LEBC";
+      M_throw() << "Failed a lexical cast in LEBC";
     }
 }
 
@@ -158,7 +157,7 @@ BCSquareLeesEdwards::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in LEBC";
+      M_throw() << "Failed a lexical cast in LEBC";
     }
 }
 

@@ -38,7 +38,7 @@ OPMSDOrientational::initialise()
 {
   if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
   {
-    D_throw() << "Plugin requires species to define an orientation";
+    M_throw() << "Plugin requires species to define an orientation";
   }
 
   initialConfiguration.clear();

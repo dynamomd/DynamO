@@ -22,7 +22,6 @@
 #include "../NparticleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
@@ -36,7 +35,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-    D_throw() << "Attempting to load NewtonianGravity from "
+    M_throw() << "Attempting to load NewtonianGravity from "
 	      << XML.getAttribute("Type")
 	      << " entry";
   
@@ -50,7 +49,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in LNewtonianGravity";
+      M_throw() << "Failed a lexical cast in LNewtonianGravity";
     }
   
   Gravity *= Sim->dynamics.units().unitAcceleration();
@@ -109,7 +108,7 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-      D_throw() << "You have negative zero velocities, dont use them."
+      M_throw() << "You have negative zero velocities, dont use them."
 		<< "\nPlease think of the neighbour lists.";
 #endif 
 
@@ -190,7 +189,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-      D_throw() << "You have negative zero velocities, dont use them."
+      M_throw() << "You have negative zero velocities, dont use them."
 		<< "\nPlease think of the neighbour lists.";
 #endif
 
@@ -273,7 +272,7 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
 Iflt 
 LNewtonianGravity::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
 {
-  D_throw() << "Not implemented yet";  
+  M_throw() << "Not implemented yet";  
 }
 
 std::pair<bool,Iflt>
@@ -282,7 +281,7 @@ LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nr
 				 const Iflt& Omega, const Iflt& Sigma,
 				 const Iflt& t, bool lastpart) const
 {
-  D_throw() << "Not implemented yet";
+  M_throw() << "Not implemented yet";
 }
 
 Iflt 
@@ -318,7 +317,7 @@ LNewtonianGravity::getParabolaSentinelTime(const Particle& part,
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
   
   Vector pos(part.getPosition()), vel(part.getVelocity());

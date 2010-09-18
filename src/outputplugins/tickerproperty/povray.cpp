@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
@@ -46,7 +45,7 @@ OPPovray::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPPovray";
+      M_throw() << "Failed a lexical cast in OPPovray";
     }  
 }
 
@@ -70,14 +69,14 @@ OPPovray::printImage()
   const bool fog = false;
 
   if ( asprintf(&fileName, "%05d", frameCount++) < 0)
-    D_throw() << "asprintf error in tinkerXYZ";
+    M_throw() << "asprintf error in tinkerXYZ";
 
   std::ofstream of((std::string("Povray.frame") + fileName + std::string(".pov")).c_str());
   
   free(fileName);
 
   if (!of.is_open())
-    D_throw() << "Could not open povray file for writing";
+    M_throw() << "Could not open povray file for writing";
 
   //Header of povray file
   of << "\

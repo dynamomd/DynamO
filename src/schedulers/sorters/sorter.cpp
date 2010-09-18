@@ -38,7 +38,7 @@ CSSorter::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
   else if (std::string(XML.getAttribute("Type")) == std::string("CBT"))
     return new CSSCBT(Sim);
   else 
-    D_throw() << "Unknown type of Sorter encountered";
+    M_throw() << "Unknown type of Sorter encountered";
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, const CSSorter& srtr)

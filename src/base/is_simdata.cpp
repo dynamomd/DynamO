@@ -43,9 +43,6 @@ namespace DYNAMO
     status(START),
     binaryXML(true)
   {
-#ifdef DYNAMO_CONDOR
-    binaryXML = false;
-#endif
   }
 
   SimData::~SimData()
@@ -115,7 +112,7 @@ namespace DYNAMO
 	{
 #ifdef DYNAMO_DEBUG
 	  if (typeid(*(*iPtr1)) != typeid(*(*iPtr2)))
-	    D_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
+	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif
 	  
 	  (*iPtr1)->changeSystem(iPtr2->get_ptr());

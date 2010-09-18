@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 
 OPVelProfile::OPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
@@ -29,7 +28,7 @@ OPVelProfile::OPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
   binWidth(0.5)
 {
   if (NDIM != 3)
-    D_throw() << "Terrible plugin for 3 dims only";
+    M_throw() << "Terrible plugin for 3 dims only";
 }
 
 void 

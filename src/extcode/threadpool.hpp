@@ -22,16 +22,12 @@
 
 #include <queue>
 #include <sstream>
-#include "include/FastDelegate/FastDelegate.h"
-#include "include/FastDelegate/FastDelegateBind.h"
+#include <magnet/function/delegate.hpp>
 
-#ifndef DYNAMO_CONDOR
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
-#endif
 
-#include "PoolAllocator.hpp"
-#include <boost/pool/pool_alloc.hpp>
+#include <magnet/memory/pool.hpp>
 
 /*! \brief A class providing a pool of worker threads that will
  *   execute "tasks" pushed to it.
@@ -46,7 +42,7 @@
 class ThreadPool
 {	
 public:  
-  class Task: public PoolAllocated
+  class Task: public magnet::memory::PoolAllocated
   {
   public:
     virtual void operator()() = 0;
@@ -55,7 +51,7 @@ public:
   template<class T>
   class Task0 : public Task
   {
-    typedef fastdelegate::FastDelegate0<T> function;
+    typedef magnet::function::Delegate0<T> function;
   public:
     inline Task0(function delegate): _delegate(delegate) {}
     
@@ -68,7 +64,7 @@ public:
   template<class T, class T1>
   class Task1 : public Task
   {
-    typedef fastdelegate::FastDelegate1<T1, T> function;
+    typedef magnet::function::Delegate1<T1, T> function;
   public:
     inline Task1(function delegate, T1 arg1): 
       _delegate(delegate), 
@@ -85,7 +81,7 @@ public:
   template<class T, class T1, class T2>
   class Task2 : public Task
   {
-    typedef fastdelegate::FastDelegate2<T1, T2, T> function;
+    typedef magnet::function::Delegate2<T1, T2, T> function;
   public:
     inline Task2(function delegate, T1 arg1, T2 arg2): 
       _delegate(delegate), 
@@ -104,7 +100,7 @@ public:
   template<class T, class T1, class T2, class T3>
   class Task3 : public Task
   {
-    typedef fastdelegate::FastDelegate3<T1, T2, T3, T> function;
+    typedef magnet::function::Delegate3<T1, T2, T3, T> function;
   public:
     inline Task3(function delegate, T1 arg1, T2 arg2, T3 arg3): 
       _delegate(delegate), 
@@ -142,11 +138,7 @@ public:
   /*! \brief The current number of threads in the pool */
   size_t getThreadCount() const
   {
-#ifndef DYNAMO_CONDOR    
     return _threadCount; 
-#else
-    return 0;
-#endif
   }
     
   /*! \brief Set a task to be completed by the pool.
@@ -160,11 +152,11 @@ public:
 
   template<typename retT, typename classT>
   inline void queue(retT (classT::*funcPtr)(), classT* classPtr)
-  { queueTask(new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr))); }
+  { queueTask(new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr))); }
 
   template<typename retT, typename classT>
   inline void queue(retT (classT::*funcPtr)() const, classT* classPtr)
-  { queueTask(new Task0<retT>(fastdelegate::MakeDelegate(classPtr, funcPtr))); }
+  { queueTask(new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr))); }
 
   //1 Argument
   template<typename retT, typename arg1T>
@@ -173,11 +165,11 @@ public:
 
   template<typename retT, typename classT, typename arg1T>
   inline void queue(retT (classT::*funcPtr)(arg1T), classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
-  { queueTask(new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1)); }
+  { queueTask(new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1)); }
 
   template<typename retT, typename classT, typename arg1T>
   inline void queue(retT (classT::*funcPtr)(arg1T) const, classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
-  { queueTask(new Task1<retT, arg1T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1)); }
+  { queueTask(new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1)); }
 
   //2 Argument
   template<typename retT, typename arg1T, typename arg2T>
@@ -188,12 +180,12 @@ public:
   template<typename retT, typename classT, typename arg1T, typename arg2T>
   inline void queue(retT (classT::*funcPtr)(arg1T, arg2T), classT* classPtr, 
 		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
-  { queueTask(new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
+  { queueTask(new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
 
   template<typename retT, typename classT, typename arg1T, typename arg2T>
   inline void queue(retT (classT::*funcPtr)(arg1T, arg2T) const, classT* classPtr, 
 		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
-  { queueTask(new Task2<retT, arg1T, arg2T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
+  { queueTask(new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
 
   //3 Argument
   template<typename retT, typename arg1T, typename arg2T, typename arg3T>
@@ -208,29 +200,25 @@ public:
 		    typename typeWrapper<arg1T>::Type arg1, 
 		    typename typeWrapper<arg2T>::Type arg2,
 		    typename typeWrapper<arg3T>::Type arg3)
-  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
+  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
 
   template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
   inline void queue(retT (classT::*funcPtr)(arg1T, arg2T, arg3T) const, classT* classPtr, 
 		    typename typeWrapper<arg1T>::Type arg1, 
 		    typename typeWrapper<arg2T>::Type arg2,
 		    typename typeWrapper<arg3T>::Type arg3)
-  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(fastdelegate::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
+  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
 
 
   //Actual queuer
   inline void queueTask(Task* threadfunc)
   {
-#ifndef DYNAMO_CONDOR   
     {
       boost::mutex::scoped_lock lock1(m_mutex);    
       m_waitingFunctors.push(threadfunc);
     }
 
     m_needThread.notify_all();
-#else
-    m_waitingFunctors.push(threadfunc);
-#endif
   }
   
   /*! \brief Destructor
@@ -262,7 +250,6 @@ private:
   /*! \brief List of functors/tasks left to be assigned to a thread. */
   std::queue<Task*> m_waitingFunctors;
 
-#ifndef DYNAMO_CONDOR   
   /*! \brief A mutex to control access to job data.
    * 
    * This mutex is also used as part of the m_needThread condition and
@@ -290,7 +277,6 @@ private:
 
   size_t _idlingThreads;
   size_t _threadCount;
-#endif
 
   /*! \brief When this is true threads will terminate themselves.
    */

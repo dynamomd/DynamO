@@ -21,7 +21,6 @@
 #include "../2particleEventData.hpp"
 #include "../dynamics.hpp"
 #include "../BC/BC.hpp"
-#include "../../base/is_exception.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 
@@ -195,7 +194,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const 
   
 #ifdef DYNAMO_DEBUG
   if (isnan(retVal.dP[0]))
-    D_throw() << "A nan dp has ocurred"
+    M_throw() << "A nan dp has ocurred"
 	      << "\ndeltaKE = " << deltaKE
 	      << "\ngrowthRate = " << growthRate
 	      << "\nd2 = " << d2
@@ -233,7 +232,7 @@ LCompression::getPBCSentinelTime(const Particle& part,
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
-    D_throw() << "Particle is not up to date";
+    M_throw() << "Particle is not up to date";
 #endif
 
   Vector  pos(part.getPosition()), vel(part.getVelocity());
@@ -256,4 +255,4 @@ LCompression::getPBCSentinelTime(const Particle& part,
 PairEventData 
 LCompression::parallelCubeColl(const IntEvent&, const Iflt&,
 				const Iflt&, const EEventType&) const
-{ D_throw() << "Not Implemented"; }
+{ M_throw() << "Not Implemented"; }

@@ -18,7 +18,7 @@
 #include "1RAll.hpp"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 
 CRAll::CRAll(const XMLNode& XML, const DYNAMO::SimData* SimDat):
   SimBase_const(SimDat,"CRAll",IC_red)
@@ -29,7 +29,7 @@ void
 CRAll::operator<<(const XMLNode& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"All"))
-    D_throw() << "Attempting to load CRAll from non All type";
+    M_throw() << "Attempting to load CRAll from non All type";
 }
 
 void 

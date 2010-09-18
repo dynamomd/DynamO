@@ -32,7 +32,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_01.hpp>
 #include "../extcode/include/boost/random/01_normal_distribution.hpp"
-#include "../extcode/include/FastDelegate/FastDelegate.h"
+#include <magnet/function/delegate.hpp>
 
 class CScheduler;
 class Particle;
@@ -71,7 +71,7 @@ namespace DYNAMO
   class SimData
   {
   protected:
-    typedef fastdelegate::FastDelegate1
+    typedef magnet::function::Delegate1
     <const NEventData&, void> particleUpdateFunc;
     
   public:
@@ -97,7 +97,7 @@ namespace DYNAMO
 	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<const T*>(plugin.get_ptr());
       
-      D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+      M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }   
 
     /*! \brief Finds a plugin of the given type using RTTI.
@@ -112,7 +112,7 @@ namespace DYNAMO
 	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<T*>(plugin.get_ptr());
 
-      D_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+      M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
     /*! \brief The CEnsemble of the Simulation. */

@@ -41,7 +41,7 @@ OPSelfDiffusionOrientationalGK::initialise()
 
   if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
   {
-    D_throw() << "Species does not specify an orientation";
+    M_throw() << "Species does not specify an orientation";
   }
 
   G.resize(Sim->N, boost::circular_buffer<VUpair> (CorrelatorLength, VUpair(Vector(0,0,0), Vector(0,0,0) )));
@@ -86,7 +86,7 @@ OPSelfDiffusionOrientationalGK::operator<<(const XMLNode& XML)
 
   catch (boost::bad_lexical_cast &)
   {
-    D_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";
+    M_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";
   }
 }
 

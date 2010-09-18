@@ -53,7 +53,7 @@ OPThermalDiffusionE::operator<<(const XMLNode& XML)
 	  
       } catch (std::exception& nex)
 	{
-	  D_throw() << "The name of the Species must be specified"
+	  M_throw() << "The name of the Species must be specified"
 		    << nex.what();
 	}
       
@@ -71,7 +71,7 @@ OPThermalDiffusionE::operator<<(const XMLNode& XML)
     }
   catch (boost::bad_lexical_cast &)
     {
-      D_throw() << "Failed a lexical cast in OPMutualDiffusion";
+      M_throw() << "Failed a lexical cast in OPMutualDiffusion";
     }
 }
 
@@ -85,7 +85,7 @@ OPThermalDiffusionE::initialise()
   }
   catch(std::exception)
     {
-      D_throw() << "WARNING: This is only valid in the microcanonical"
+      M_throw() << "WARNING: This is only valid in the microcanonical"
 	" ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
 	"\n Essentially you need entropic data too for other ensembles";
     }

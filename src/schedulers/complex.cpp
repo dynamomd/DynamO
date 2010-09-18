@@ -147,10 +147,10 @@ CSComplex::addEvents(const Particle& part)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood
-	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
+	  (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
 
 	ent->getParticleNeighbourhood
-	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEvent));
+	  (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEvent));
       }
 }
 
@@ -168,9 +168,9 @@ CSComplex::addEventsInit(const Particle& part)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood
-	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addLocalEvent));
+	  (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
 
 	ent->getParticleNeighbourhood
-	  (part, fastdelegate::MakeDelegate(this, &CScheduler::addInteractionEventInit));
+	  (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEventInit));
       }
 }

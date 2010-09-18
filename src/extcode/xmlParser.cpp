@@ -1,7 +1,7 @@
 #define _XMLPARSER_NO_MESSAGEBOX_
 
 //MB Made to return my CException class on errors
-#include "../base/is_exception.hpp"
+#include <magnet/exception.hpp>
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
 /**
  ****************************************************************************
@@ -2221,7 +2221,7 @@ XMLNode XMLNode::getChildNode(XMLCSTR name, int *j) const
     }
     
     //  MB
-    D_throw() << "Could not find XML child node " << name 
+    M_throw() << "Could not find XML child node " << name 
 	      << ", in node " << getName();
     // /MB
     
@@ -2305,7 +2305,7 @@ XMLCSTR XMLNode::getAttribute(XMLCSTR lpszAttrib, int *j) const
     }
     
     //  MB
-    D_throw() << "Could not find XML attribute "<< lpszAttrib 
+    M_throw() << "Could not find XML attribute "<< lpszAttrib 
 	      << ", in node " << getName();
     // /MB
     return NULL;

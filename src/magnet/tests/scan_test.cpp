@@ -16,7 +16,7 @@
 */
 
 #include <iostream>
-#include <magnet/scan.hpp>
+#include <magnet/CL/scan.hpp>
 #include <numeric>
 
 template<class T>
@@ -50,7 +50,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   std::vector<T> input(size);
   
   std::cout << "##Testing scan for " << input.size() << " elements and type " 
-	    << magnet::detail::traits<T>::kernel_type()
+	    << magnet::CL::detail::traits<T>::kernel_type()
 	    << std::endl;
   
   for(size_t i = 0; i < input.size(); ++i)
@@ -62,7 +62,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::scan<T> scanFunctor(queue, context);
+  magnet::CL::scan<T> scanFunctor(queue, context);
   
   scanFunctor(bufferIn, bufferIn);
   
@@ -75,7 +75,7 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
     M_throw() << "Incorrect output for size " 
 	      << input.size()
 	      << " and type "
-	      << magnet::detail::traits<T>::kernel_type();
+	      << magnet::CL::detail::traits<T>::kernel_type();
 }
 
 void runTest(cl::Context context, cl::CommandQueue queue)

@@ -20,7 +20,6 @@
 #include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
 #include "../datatypes/complex.hpp"
-#include "../base/is_exception.hpp"
 #include "../base/constants.hpp"
 #include "../simulation/particle.hpp"
 #include "../extcode/xmlParser.h"
@@ -71,7 +70,7 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
       tokenizer option_tokens(*details_iter, OptionsSep);
 
       if (++details_iter != tokens.end())
-	D_throw() << "Two colons in outputplugin options " << *details_iter;
+	M_throw() << "Two colons in outputplugin options " << *details_iter;
 
       for (tokenizer::iterator options_iter = option_tokens.begin();
 	   options_iter != option_tokens.end(); ++options_iter)
@@ -105,7 +104,7 @@ OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
     }
 
   //It's already in the simulation
-  D_throw() << "Plugin is already loaded";
+  M_throw() << "Plugin is already loaded";
 }
 
 OutputPlugin*
@@ -237,6 +236,10 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
     return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
   else if (!Name.compare("ChatteringCorrelator"))
     return testGeneratePlugin<OPChatteringCorrelator>(Sim, XML);
+#ifdef DYNAMO_visualizer
+  else if (!Name.compare("Visualizer"))
+    return testGeneratePlugin<OPVisualizer>(Sim, XML);
+#endif
   else
-    D_throw() << Name << ", Unknown type of OutputPlugin encountered";
+    M_throw() << Name << ", Unknown type of OutputPlugin encountered";
 }

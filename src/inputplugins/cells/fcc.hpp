@@ -25,7 +25,7 @@ struct CUFCC: public CUCell
     cells(ncells),
     dimensions(ndimensions)
   {
-    if (NDIM != 3) D_throw() << "FCC in other than 3 dims not allowed";
+    if (NDIM != 3) M_throw() << "FCC in other than 3 dims not allowed";
   }
 
   CVector<long> cells;
