@@ -212,6 +212,8 @@ CIPPacker::initialise()
 	"  21: Pack a cylinder with spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Length over diameter of the cylinder\n"
+	"  22: Infinite system with spheres falling onto a plate with gravity\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -2285,7 +2287,89 @@ CIPPacker::initialise()
 	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
 	break;
       }
+    case 22:
+      {
+	//Pack of hard spheres on a plate
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+	
+	std::vector<Vector>
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
+	Sim->aspectRatio = getNormalisedCellDimensions();
+	Sim->dynamics.applyBC<BCNone>();
+	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Iflt simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+
+	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
+				/ latticeSites.size(), Iflt(1.0 / 3.0));
+
+	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
+	  {
+	    CVector<long> cells = getCells();
+	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
+	      {
+		I_cerr() << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
+		  "I'm going to temporarily calculate the density by the 2D definition!";
+		
+		size_t dimension;
+		if (cells[0] == 1)
+		  dimension = 0;
+		if (cells[1] == 1)
+		  dimension = 1;
+		if (cells[2] == 1)
+		  dimension = 2;
+
+		particleDiam = std::sqrt(simVol * vm["density"].as<Iflt>()
+					 / (Sim->aspectRatio[dimension] * latticeSites.size()));
+		
+		I_cout() << "I'm changing what looks like the unused box dimension ("
+			 << dimension << ") to the optimal 2D value (3 particle diameters)";
+
+		Sim->aspectRatio[dimension] = 3.0000001 * particleDiam;
+	      }
+	  }
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
+
+
+	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
+
+	Iflt elasticity = 1.0;
+
+	if (vm.count("f1"))
+	  elasticity =  vm["f1"].as<Iflt>();
+
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
+						     new C2RAll()
+						     ))->setName("Bulk");
+	
+	Sim->dynamics.addSpecies(ClonePtr<Species>
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					      "Bulk")));
+	
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+
+	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, Vector(0,1,0), 
+					  Vector(0, -0.5 * Sim->aspectRatio[1], 0),
+					  "GroundPlate", new CRAll(Sim), false));
+
+	unsigned long nParticles = 0;
+	Sim->particleList.reserve(latticeSites.size());
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+					       nParticles++));
+	
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	
+	break;
+      }
     default:
       M_throw() << "Did not recognise the packer mode you wanted";
     }
