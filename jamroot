@@ -35,7 +35,7 @@ local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ;
 project	: requirements
 	  <define>DYNAMO_double_precsision
 	  <color>yes:<define>DYNAMO_Colour
-	  <visualizer>yes
+	  <visualizer>no
 	  <color>yes
 	  <define>GITHASH=\\\"$(githash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
