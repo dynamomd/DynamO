@@ -22,7 +22,7 @@
 #include "../../extcode/mathtemplates.hpp"
 #include "../../datatypes/vector.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/dilatedint.hpp"
+#include <magnet/math/dilatedint.hpp>
 #include <vector>
 
 class CGCellsMorton: public CGNeighbourList
@@ -78,24 +78,24 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
  
-  dilatedCoords getCellID(Vector) const;
-  dilatedCoords getCellID(const CVector<int>&) const;
+  magnet::math::DilatedVector getCellID(Vector) const;
+  magnet::math::DilatedVector getCellID(const CVector<int>&) const;
 
   void addCells(Iflt);
 
-  inline Vector calcPosition(const dilatedCoords& coords) const;
+  inline Vector calcPosition(const magnet::math::DilatedVector& coords) const;
 
   void addLocalEvents();
 
   //Variables
   unsigned int cellCount;
-  MI dilatedCellMax;
+  magnet::math::DilatedInteger dilatedCellMax;
   Iflt  cellDimension;
   Iflt  cellLatticeWidth;
   Iflt lambda;
   size_t NCells;
   size_t overlink;
-  MI dilatedOverlink;
+  magnet::math::DilatedInteger dilatedOverlink;
 
   mutable std::vector<int>list;
 

@@ -136,10 +136,10 @@ CGCellsMorton::runEvent(const Particle& part) const
   
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
-  dilatedCoords inCell(oldCell);
+  magnet::math::DilatedVector inCell(oldCell);
 
   {
-    dilatedCoords dendCell(inCell);
+    magnet::math::DilatedVector dendCell(inCell);
     
     if (cellDirectionInt > 0)
       {
@@ -161,11 +161,11 @@ CGCellsMorton::runEvent(const Particle& part) const
 
 	if (dendCell.data[cellDirection] > dilatedCellMax)
 	  dendCell.data[cellDirection] = dendCell.data[cellDirection]
-	    - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+	    - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::DilatedMaxVal,0) - dilatedCellMax);
 
 	if (inCell.data[cellDirection] > dilatedCellMax)
 	  inCell.data[cellDirection] = inCell.data[cellDirection]
-	    - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+	    - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::DilatedMaxVal,0) - dilatedCellMax);
       }
     endCell = dendCell.getMortonNum();
   }
@@ -191,14 +191,14 @@ CGCellsMorton::runEvent(const Particle& part) const
   
   //Test if the data has looped around
   if (inCell.data[dim1] > dilatedCellMax)
-    inCell.data[dim1] = inCell.data[dim1] - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+    inCell.data[dim1] = inCell.data[dim1] - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::DilatedMaxVal,0) - dilatedCellMax);
 
   if (inCell.data[dim2] > dilatedCellMax) 
-    inCell.data[dim2] = inCell.data[dim2] - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+    inCell.data[dim2] = inCell.data[dim2] - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::DilatedMaxVal,0) - dilatedCellMax);
 
   int walkLength = 2 * overlink + 1;
 
-  const MI saved_coord(inCell.data[dim1]);
+  const magnet::math::DilatedInteger saved_coord(inCell.data[dim1]);
 
   //We now have the lowest cell coord, or corner of the cells to update
   for (int iDim(0); iDim < walkLength; ++iDim)
@@ -361,7 +361,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
   //Find the required size of the morton array
   size_t sizeReq(1);
 
-  for (int i(0); i < ctime_pow<2,MI::S>::result; ++i)
+  for (int i(0); i < ctime_pow<2,magnet::math::DilatedInteger::S>::result; ++i)
     {
       sizeReq *= 2*2*2;
       if (sizeReq >= NCells) break;
@@ -376,7 +376,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
     for (size_t jDim = 0; jDim < cellCount; ++jDim)
       for (size_t kDim = 0; kDim < cellCount; ++kDim)
 	{
-	  dilatedCoords coords(iDim, jDim, kDim);
+	  magnet::math::DilatedVector coords(iDim, jDim, kDim);
 	  size_t id = coords.getMortonNum();
 	  list[id] = -1;
 	}
@@ -397,7 +397,7 @@ CGCellsMorton::addLocalEvents()
     for (size_t jDim = 0; jDim < cellCount; ++jDim)
       for (size_t kDim = 0; kDim < cellCount; ++kDim)
 	{
-	  dilatedCoords coords(iDim, jDim, kDim);
+	  magnet::math::DilatedVector coords(iDim, jDim, kDim);
 	  size_t id = coords.getMortonNum();
 	  cells[id].clear();
 	  Vector pos = calcPosition(coords);
@@ -409,7 +409,7 @@ CGCellsMorton::addLocalEvents()
 	}
 }
 
-dilatedCoords
+magnet::math::DilatedVector
 CGCellsMorton::getCellID(const CVector<int>& coordsold) const
 {
   //PBC for vectors
@@ -421,10 +421,10 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
       if (coords[iDim] < 0) coords[iDim] += cellCount;
     }
   
-  return dilatedCoords(coords[0],coords[1],coords[2]);
+  return magnet::math::DilatedVector(coords[0],coords[1],coords[2]);
 }
 
-dilatedCoords
+magnet::math::DilatedVector
 CGCellsMorton::getCellID(Vector  pos) const
 {
   Sim->dynamics.BCs().applyBC(pos);
@@ -442,7 +442,7 @@ void
 CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 					const nbHoodFunc& func) const
 {
-  dilatedCoords coords(partCellData[part.getID()].cell);
+  magnet::math::DilatedVector coords(partCellData[part.getID()].cell);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
@@ -450,7 +450,7 @@ CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 
       if (coords.data[iDim] > dilatedCellMax) 
 	coords.data[iDim] = coords.data[iDim]
-	  - (MI(MI::dilatedMaxVal,0) - dilatedCellMax);
+	  - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::DilatedMaxVal,0) - dilatedCellMax);
     }
   
   //This loop iterates through each neighbour position
@@ -458,7 +458,7 @@ CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 
   int walkLength(2*overlink+1);
 
-  const dilatedCoords stored_coords(coords);
+  const magnet::math::DilatedVector stored_coords(coords);
 
   for (int iDim(0); iDim < walkLength; ++iDim)
     {
@@ -516,7 +516,7 @@ CGCellsMorton::getMaxInteractionLength() const
 }
 
 Vector 
-CGCellsMorton::calcPosition(const dilatedCoords& coords) const
+CGCellsMorton::calcPosition(const magnet::math::DilatedVector& coords) const
 {
   return Vector(coords.data[0].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[0],
 		coords.data[1].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[1],
