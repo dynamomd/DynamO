@@ -38,15 +38,9 @@ CGCells::calcPosition(const Vector& primaryCell,
   Vector imageCell;
   
   for (size_t i = 0; i < NDIM; ++i)
-    {
     imageCell[i] = primaryCell[i] - Sim->aspectRatio[i]
       * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
 
-    Iflt arg = (primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i];
-    Iflt result = rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
-
-    Iflt aspect = Sim->aspectRatio[i];
-    }
   return imageCell;
 
 }
