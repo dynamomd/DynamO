@@ -362,7 +362,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
   //Find the required size of the morton array
   size_t sizeReq(1);
 
-  for (int i(0); i < ctime_pow<2,magnet::math::DilatedInteger::S>::result; ++i)
+  for (int i(0); i < ctime_pow<2,magnet::math::DilatedInteger::digits>::result; ++i)
     {
       sizeReq *= 2*2*2;
       if (sizeReq >= NCells) break;

@@ -25,17 +25,24 @@
 
 namespace magnet {
   namespace math {
+    
+    /*! \brief A dilated integer class for easy morton order manipulations in 3D
+     *
+     * Please see the original papers "Converting to and from Dilated
+     * Integers"(10.1109/TC.2007.70814) and "Fast Additions on Masked
+     * Integers"(10.1145/1149982.1149987) for more information and a 2D implementation
+     */
     class DilatedInteger
     {
     public:
       //Number of bits in the dilated integer (10 is max for 3 dilated ints)
-      static const uint32_t S = 10;
+      static const uint32_t digits = 10;
       
       //A mask for the number of bits in the dilated integer (also max value)
-      static const uint32_t undilatedMask = 0xFFFFFFFF >> (32 - S);
+      static const uint32_t undilatedMask = 0xFFFFFFFF >> (32 - digits);
       
       //A mask for the dilated integer (also dilated max value)
-      static const uint32_t dilatedMask = 0x49249249 & (0xFFFFFFFF >> (32 - 3 * S));
+      static const uint32_t dilatedMask = 0x49249249 & (0xFFFFFFFF >> (32 - 3 * digits));
       
       // Constructors
       inline DilatedInteger() {}
@@ -150,8 +157,8 @@ namespace std {
     inline static magnet::math::DilatedInteger max() throw() 
     { return magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0); }
 
-    static const int  digits = magnet::math::DilatedInteger::S;
-    static const int  digits10 = (1 << magnet::math::DilatedInteger::S) / 10;
+    static const int  digits = magnet::math::DilatedInteger::digits;
+    static const int  digits10 = (1 << magnet::math::DilatedInteger::digits) / 10;
     static const bool is_signed = false;
     static const bool is_integer = true;
     static const bool is_exact = true;
