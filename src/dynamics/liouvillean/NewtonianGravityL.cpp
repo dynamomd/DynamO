@@ -32,7 +32,6 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
   Gravity(-1),
   GravityDim(1)
-
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
     M_throw() << "Attempting to load NewtonianGravity from "
@@ -54,6 +53,10 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   
   Gravity *= Sim->dynamics.units().unitAcceleration();
 }
+
+LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, Iflt gravity, 
+				     size_t gravityDim):
+  LNewtonian(tmp), Gravity(gravity), GravityDim(gravityDim) {}
 
 void
 LNewtonianGravity::streamParticle(Particle &particle, const Iflt &dt) const
