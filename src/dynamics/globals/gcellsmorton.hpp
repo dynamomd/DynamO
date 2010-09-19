@@ -83,6 +83,9 @@ protected:
 
   void addCells(Iflt);
 
+  inline Vector calcPosition(const magnet::math::DilatedVector& coords,
+			     const Particle& part) const;
+
   inline Vector calcPosition(const magnet::math::DilatedVector& coords) const;
 
   void addLocalEvents();

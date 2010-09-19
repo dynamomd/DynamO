@@ -321,7 +321,16 @@ void CLGLWindow::CallBackDisplayFunc(void)
       ///Here we draw from the 
       _shadowFBO.setup(_light0);
 
+#ifdef GL_VERSION_1_1
+      glEnable (GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset (1., 1.);
+#endif 
+      
       drawScene();
+      
+#ifdef GL_VERSION_1_1
+      glDisable (GL_POLYGON_OFFSET_FILL);
+#endif
 
       _shadowFBO.restore();
       //////////////////Pass 2//////////////////
