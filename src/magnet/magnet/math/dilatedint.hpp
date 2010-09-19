@@ -27,17 +27,21 @@ namespace magnet {
     class DilatedInteger
     {
     public:
+      //Number of bits in the dilated integer
       static const uint32_t S = 10;
-      static const uint32_t Smask = (((uint32_t)0) - 1) >> (sizeof(uint32_t)*CHAR_BIT - S);
-      //Zeros are needed in the last two bits
-      static const uint32_t mask  = 0x09249249;
-      static const uint32_t maxVal = (((uint32_t)0) - 1) >> (sizeof(uint32_t)*CHAR_BIT - S);
-      static const uint32_t DilatedMaxVal = ((((uint32_t)0) - 1) >> (sizeof(uint32_t)*CHAR_BIT - S * 3)) & mask; 
+      //A mask for the number of bits in the dilated integer (also max value)
+      static const uint32_t undilatedMask = 0xFFFFFFFF >> (32 - S);
+      //A mask for the dilated integer (also dilated max value)
+      static const uint32_t dilatedMask  = 0x49249249 & (0xFFFFFFFF >> (32 - 3 * S));
+      //The maximum value in undilated form
+      //static const uint32_t maxVal = undilatedMask;
+      //The maximum value in dilated form
+      //static const uint32_t DilatedMaxVal = dilatedMask; 
       
       // Constructor and Getter
       DilatedInteger() {}
       DilatedInteger(const uint32_t& val):
-	value(dilate_3(val & Smask)) {}
+	value(dilate_3(val & undilatedMask)) {}
       
       //Constructor that takes the actual Dilated int as the arg
       DilatedInteger(const uint32_t& val, void*):
@@ -47,9 +51,9 @@ namespace magnet {
       
       uint32_t getRealVal() const { return undilate_3(value); }
       
-      void setDilatedVal(const uint32_t& i) { value = i & mask; }
+      void setDilatedVal(const uint32_t& i) { value = i & dilatedMask; }
       
-      void operator=(const uint32_t& i) { value = dilate_3(i & Smask); }
+      void operator=(const uint32_t& i) { value = dilate_3(i & undilatedMask); }
       
       void zero() { value = 0; }
       
@@ -57,14 +61,14 @@ namespace magnet {
       
       // Simple operators.
       DilatedInteger operator-(const DilatedInteger& d) const
-      { return DilatedInteger((value - d.value) & mask, 0); }
+      { return DilatedInteger((value - d.value) & dilatedMask, 0); }
       
       DilatedInteger operator+(const DilatedInteger& d) const
-      { return DilatedInteger((value + (~mask) + d.value) & mask, 0); }
+      { return DilatedInteger((value + (~dilatedMask) + d.value) & dilatedMask, 0); }
       
-      DilatedInteger& operator++() { value = (value - mask) & mask; return *this; }
+      DilatedInteger& operator++() { value = (value - dilatedMask) & dilatedMask; return *this; }
       
-      DilatedInteger& operator--() { value = (value -    1) & mask; return *this; }
+      DilatedInteger& operator--() { value = (value -    1) & dilatedMask; return *this; }
       
       bool operator==(const DilatedInteger& d) const
       { return value == d.value; }
