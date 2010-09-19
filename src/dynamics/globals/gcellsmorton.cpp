@@ -161,11 +161,11 @@ CGCellsMorton::runEvent(const Particle& part) const
 
 	if (dendCell.data[cellDirection] > dilatedCellMax)
 	  dendCell.data[cellDirection] = dendCell.data[cellDirection]
-	    - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0) - dilatedCellMax);
+	    - (std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax);
 
 	if (inCell.data[cellDirection] > dilatedCellMax)
 	  inCell.data[cellDirection] = inCell.data[cellDirection]
-	    - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0) - dilatedCellMax);
+	    - (std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax);
       }
 
     endCell = dendCell.getMortonNum();
@@ -192,10 +192,10 @@ CGCellsMorton::runEvent(const Particle& part) const
   
   //Test if the data has looped around
   if (inCell.data[dim1] > dilatedCellMax)
-    inCell.data[dim1] = inCell.data[dim1] - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0) - dilatedCellMax);
+    inCell.data[dim1] = inCell.data[dim1] - (std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax);
 
   if (inCell.data[dim2] > dilatedCellMax) 
-    inCell.data[dim2] = inCell.data[dim2] - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0) - dilatedCellMax);
+    inCell.data[dim2] = inCell.data[dim2] - (std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax);
 
   int walkLength = 2 * overlink + 1;
 
@@ -451,7 +451,7 @@ CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 
       if (coords.data[iDim] > dilatedCellMax) 
 	coords.data[iDim] = coords.data[iDim]
-	  - (magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0) - dilatedCellMax);
+	  - (std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax);
     }
   
   //This loop iterates through each neighbour position

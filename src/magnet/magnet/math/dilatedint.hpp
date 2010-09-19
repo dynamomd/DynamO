@@ -21,71 +21,71 @@
 #pragma once
 
 #include <stdint.h>
+#include <limits>
 
 namespace magnet {
   namespace math {
     class DilatedInteger
     {
     public:
-      //Number of bits in the dilated integer
+      //Number of bits in the dilated integer (10 is max for 3 dilated ints)
       static const uint32_t S = 10;
+      
       //A mask for the number of bits in the dilated integer (also max value)
       static const uint32_t undilatedMask = 0xFFFFFFFF >> (32 - S);
-      //A mask for the dilated integer (also dilated max value)
-      static const uint32_t dilatedMask  = 0x49249249 & (0xFFFFFFFF >> (32 - 3 * S));
-      //The maximum value in undilated form
-      //static const uint32_t maxVal = undilatedMask;
-      //The maximum value in dilated form
-      //static const uint32_t DilatedMaxVal = dilatedMask; 
       
-      // Constructor and Getter
-      DilatedInteger() {}
-      DilatedInteger(const uint32_t& val):
+      //A mask for the dilated integer (also dilated max value)
+      static const uint32_t dilatedMask = 0x49249249 & (0xFFFFFFFF >> (32 - 3 * S));
+      
+      // Constructors
+      inline DilatedInteger() {}
+
+      inline DilatedInteger(const uint32_t val):
 	value(dilate_3(val & undilatedMask)) {}
       
       //Constructor that takes the actual Dilated int as the arg
-      DilatedInteger(const uint32_t& val, void*):
+      inline DilatedInteger(const uint32_t val, void*):
 	value(val) {}
       
-      const uint32_t& getDilatedVal() const { return value; }
+      inline const uint32_t& getDilatedVal() const { return value; }
       
-      uint32_t getRealVal() const { return undilate_3(value); }
+      inline uint32_t getRealVal() const { return undilate_3(value); }
       
-      void setDilatedVal(const uint32_t& i) { value = i & dilatedMask; }
+      inline void setDilatedVal(const uint32_t& i) { value = i & dilatedMask; }
       
-      void operator=(const uint32_t& i) { value = dilate_3(i & undilatedMask); }
+      inline void operator=(const uint32_t& i) { value = dilate_3(i & undilatedMask); }
       
-      void zero() { value = 0; }
+      inline void zero() { value = 0; }
       
-      bool isZero() const { return value == 0; }
+      inline bool isZero() const { return value == 0; }
       
       // Simple operators.
-      DilatedInteger operator-(const DilatedInteger& d) const
+      inline DilatedInteger operator-(const DilatedInteger& d) const
       { return DilatedInteger((value - d.value) & dilatedMask, 0); }
       
-      DilatedInteger operator+(const DilatedInteger& d) const
+      inline DilatedInteger operator+(const DilatedInteger& d) const
       { return DilatedInteger((value + (~dilatedMask) + d.value) & dilatedMask, 0); }
       
-      DilatedInteger& operator++() { value = (value - dilatedMask) & dilatedMask; return *this; }
+      inline DilatedInteger& operator++() { value = (value - dilatedMask) & dilatedMask; return *this; }
       
-      DilatedInteger& operator--() { value = (value -    1) & dilatedMask; return *this; }
+      inline DilatedInteger& operator--() { value = (value -    1) & dilatedMask; return *this; }
       
-      bool operator==(const DilatedInteger& d) const
+      inline bool operator==(const DilatedInteger& d) const
       { return value == d.value; }
       
-      bool operator!=(const DilatedInteger& d) const
+      inline bool operator!=(const DilatedInteger& d) const
       { return value != d.value; }
       
-      bool operator<(const DilatedInteger& d) const
+      inline bool operator<(const DilatedInteger& d) const
       { return value < d.value; }
       
-      bool operator>(const DilatedInteger& d) const
+      inline bool operator>(const DilatedInteger& d) const
       { return value > d.value; }
       
-      bool operator<=(const DilatedInteger& d) const
+      inline bool operator<=(const DilatedInteger& d) const
       { return value <= d.value; }
       
-      bool operator>=(const DilatedInteger& d) const
+      inline bool operator>=(const DilatedInteger& d) const
       { return value >= d.value; }
       
     private:
@@ -114,15 +114,15 @@ namespace magnet {
     
     struct DilatedVector
     {
-      DilatedVector() {}
+      inline DilatedVector() {}
       
-      DilatedVector(const uint32_t& MortonNum)
+      inline DilatedVector(const uint32_t& MortonNum)
       {
 	for (uint32_t i(0); i < 3; ++i)
 	  data[i].setDilatedVal(MortonNum >> i);
       }
       
-      DilatedVector(const uint32_t& x, const uint32_t& y, const uint32_t& z)
+      inline DilatedVector(const uint32_t& x, const uint32_t& y, const uint32_t& z)
       {
 	data[0] = x;
 	data[1] = y;
@@ -134,19 +134,57 @@ namespace magnet {
       
       DilatedInteger data[3];
     };
-    
-//#include <iostream>
-//    
-//    template <typename T>
-//    void print_bits ( T val, std::ostream& out )
-//    {
-//      T n_bits = sizeof ( val ) * CHAR_BIT;
-//      
-//      for ( unsigned i = 0; i < n_bits; ++i ) 
-//    	{
-//    	  out<< !!( val & 1 );
-//    	  val >>= 1;
-//    	}
-//    }
   }
+}
+
+namespace std {
+  template <>
+  class numeric_limits<magnet::math::DilatedInteger> 
+  {
+  public:
+    static const bool is_specialized = true;
+    
+    inline static magnet::math::DilatedInteger min() throw() 
+    { return magnet::math::DilatedInteger(0,0); }
+    
+    inline static magnet::math::DilatedInteger max() throw() 
+    { return magnet::math::DilatedInteger(magnet::math::DilatedInteger::dilatedMask,0); }
+
+    static const int  digits = magnet::math::DilatedInteger::S;
+    static const int  digits10 = (1 << magnet::math::DilatedInteger::S) / 10;
+    static const bool is_signed = false;
+    static const bool is_integer = true;
+    static const bool is_exact = true;
+    static const int radix = 2;
+    inline static magnet::math::DilatedInteger epsilon() throw() 
+    { return magnet::math::DilatedInteger(1,0); }
+    
+    static magnet::math::DilatedInteger round_error() throw();
+    
+    static const int  min_exponent = 0;
+    static const int  min_exponent10 = 0;
+    static const int  max_exponent = 0;
+    static const int  max_exponent10 = 0;
+    
+    static const bool has_infinity = false;
+    static const bool has_quiet_NaN = false;
+    static const bool has_signaling_NaN = false;
+    
+    //static const float_denorm_style has_denorm = denorm absent;
+
+    static const bool has_denorm_loss = false;
+    
+    static magnet::math::DilatedInteger infinity() throw();
+    static magnet::math::DilatedInteger quiet_NaN() throw();
+    static magnet::math::DilatedInteger signaling_NaN() throw();
+    static magnet::math::DilatedInteger denorm_min() throw();
+    
+    static const bool is_iec559 = false;
+    static const bool is_bounded = true;
+    static const bool is_modulo = true;
+    
+    static const bool traps = false;
+    static const bool tinyness_before = false;
+    static const float_round_style round_style = round_toward_zero;
+  };
 }
