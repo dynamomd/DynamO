@@ -213,8 +213,6 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Length over diameter of the cylinder\n"
 	"  22: Infinite system with spheres falling onto a plate with gravity\n"
-	"       *NOTE* An extra particle diameter is added to the longest box length\n"
-	"              This is to ensure the ground plate is within the neighbourlist\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	;
       std::cout << "\n";
@@ -2333,7 +2331,7 @@ CIPPacker::initialise()
 	
 
 	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, Vector(0,1,0), 
-					  Vector(0, -0.49999999 * Sim->aspectRatio[1], 0),
+					  Vector(0, -0.5 * Sim->aspectRatio[1], 0),
 					  "GroundPlate", new CRAll(Sim), false));
 	
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
