@@ -2329,9 +2329,12 @@ CIPPacker::initialise()
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					      "Bulk")));
 	
-
+	//We actually shrink our lattice length scale by 0.999 and our
+	//wall spacing by 0.9995 to prevent particles being
+	//initialised touching the wall and to insert the wall just
+	//inside the primary image
 	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, Vector(0,1,0), 
-					  Vector(0, -0.5 * Sim->aspectRatio[1], 0),
+					  Vector(0, - 0.9995 * 0.5 * Sim->aspectRatio[1], 0),
 					  "GroundPlate", new CRAll(Sim), false));
 	
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
@@ -2339,7 +2342,7 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(0.999 * position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 					       nParticles++));
 	
 	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
