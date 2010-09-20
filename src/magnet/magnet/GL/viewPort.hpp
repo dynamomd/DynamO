@@ -28,8 +28,8 @@ namespace magnet {
 	_cameraZ(0),
 	_fovY(45),
 	_aspectRatio(1),
-	_zNearDist(0.0001),
-	_zFarDist(10)
+	_zNearDist(0.001),
+	_zFarDist(100)
       {}
       
       inline void CameraSetup(float forward = 0, float sideways = 0, float vertical = 0)

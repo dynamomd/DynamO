@@ -424,10 +424,34 @@ CLGLWindow::drawScene()
 
   //Draw a ground
   glColor3f(1,1,1);
-  glPushMatrix();
-  glTranslatef(0.0f,-0.6f,0.0f);
-  glScalef(4.0f, 0.01f, 4.0f);
-  glutSolidCube(1.0);
+  
+   glBegin(GL_QUADS);
+   //Front
+   glNormal3f(0, 1, 0);
+   glVertex3f(-10 + _viewPortInfo._cameraX, -0.51, -10 + _viewPortInfo._cameraZ);
+   glVertex3f(-10 + _viewPortInfo._cameraX, -0.51,  10 + _viewPortInfo._cameraZ);
+   glVertex3f( 10 + _viewPortInfo._cameraX, -0.51,  10 + _viewPortInfo._cameraZ);
+   glVertex3f( 10 + _viewPortInfo._cameraX, -0.51, -10 + _viewPortInfo._cameraZ);
+
+//   glNormal3f(0, -1, 0);
+//   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
+//   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52,  10 + _viewPortInfo._cameraZ);
+//   glVertex3f( 10 + _viewPortInfo._cameraX, - 0.52,  10 + _viewPortInfo._cameraZ);
+//   glVertex3f( 10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
+
+   //Back
+//   glNormal3f(0, -1, 0);
+//   glVertex3f(-10, -0.51, -10);
+//   glVertex3f(-10, -0.51,  10);
+//   glVertex3f( 10, -0.51,  10);
+//   glVertex3f( 10, -0.51, -10);
+
+   glEnd();
+  
+//  glPushMatrix();
+//  glTranslatef(0.0f,-0.6f,0.0f);
+//  glScalef(4.0f, 0.01f, 4.0f);
+//  glutSolidCube(1.0);
 
   glPopMatrix();
 }
