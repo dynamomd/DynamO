@@ -213,6 +213,8 @@ CIPPacker::initialise()
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --f1 : Length over diameter of the cylinder\n"
 	"  22: Infinite system with spheres falling onto a plate with gravity\n"
+	"       *NOTE* An extra particle diameter is added to the longest box length\n"
+	"              This is to ensure the ground plate is within the neighbourlist\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	;
       std::cout << "\n";
@@ -2309,37 +2311,12 @@ CIPPacker::initialise()
 	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
 				/ latticeSites.size(), Iflt(1.0 / 3.0));
 
-	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
-	  {
-	    CVector<long> cells = getCells();
-	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
-	      {
-		I_cerr() << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
-		  "I'm going to temporarily calculate the density by the 2D definition!";
-		
-		size_t dimension;
-		if (cells[0] == 1)
-		  dimension = 0;
-		if (cells[1] == 1)
-		  dimension = 1;
-		if (cells[2] == 1)
-		  dimension = 2;
-
-		particleDiam = std::sqrt(simVol * vm["density"].as<Iflt>()
-					 / (Sim->aspectRatio[dimension] * latticeSites.size()));
-		
-		I_cout() << "I'm changing what looks like the unused box dimension ("
-			 << dimension << ") to the optimal 2D value (3 particle diameters)";
-
-		Sim->aspectRatio[dimension] = 3.0000001 * particleDiam;
-	      }
-	  }
-
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
 
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
-	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
+	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1));
 
 	Iflt elasticity = 1.0;
 
@@ -2354,11 +2331,12 @@ CIPPacker::initialise()
 				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					      "Bulk")));
 	
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
 	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, Vector(0,1,0), 
-					  Vector(0, -0.5 * Sim->aspectRatio[1], 0),
+					  Vector(0, -0.49999999 * Sim->aspectRatio[1], 0),
 					  "GroundPlate", new CRAll(Sim), false));
+	
+	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());

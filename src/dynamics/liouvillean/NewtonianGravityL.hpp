@@ -24,6 +24,9 @@ class LNewtonianGravity: public LNewtonian
 public:
   LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
 
+  LNewtonianGravity(DYNAMO::SimData* tmp, Iflt gravity,
+		    size_t gravityDim);
+
   //Pair particle dynamics
 
   virtual void streamParticle(Particle&, const Iflt&) const;
