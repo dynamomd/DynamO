@@ -394,6 +394,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
 void 
 CGCellsMorton::addLocalEvents()
 {
+  Vector cellDimensionsVector(cellDimension,cellDimension,cellDimension);
   for (size_t iDim = 0; iDim < cellCount; ++iDim)
     for (size_t jDim = 0; jDim < cellCount; ++jDim)
       for (size_t kDim = 0; kDim < cellCount; ++kDim)
@@ -403,8 +404,9 @@ CGCellsMorton::addLocalEvents()
 	  cells[id].clear();
 	  Vector pos = calcPosition(coords);
 	  
+	  //We make the box slightly larger to ensure objects on the boundary are included
 	  BOOST_FOREACH(const ClonePtr<Local>& local, Sim->dynamics.getLocals())
-	    if (local->isInCell(pos, Vector(cellDimension,cellDimension,cellDimension)))
+	    if (local->isInCell(pos - 0.0001 * cellDimensionsVector, 1.0002 * cellDimensionsVector))
 	      cells[id].push_back(local->getID());
 
 	}
