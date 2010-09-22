@@ -185,6 +185,8 @@ CLGLWindow::initOpenGL()
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
+
+  _FBO1.init(_width, _height);
 }
 
 void 
@@ -349,7 +351,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
       glMatrixMode(GL_MODELVIEW);
 
       //Bind to the multisample buffer
-      //_myFBO.attach();
+      _FBO1.attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
       //Setup and run the shadow shader
@@ -357,14 +359,14 @@ void CLGLWindow::CallBackDisplayFunc(void)
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
       drawScene();
       
-      //_myFBO.detach();
+      _FBO1.detach();
 
       //Restore the fixed pipeline
       //And turn off the shadow texture
       glUseProgramObjectARB(0);
 
       //Now blit the stored scene to the screen
-      //_myFBO.blitToScreen(_width, _height);
+      _FBO1.blitToScreen(_width, _height);
 
       /////////////FILTERING
       //Now we blur the output from the offscreen FBO
@@ -428,10 +430,10 @@ CLGLWindow::drawScene()
    glBegin(GL_QUADS);
    //Front
    glNormal3f(0, 1, 0);
-   glVertex3f(-10 + _viewPortInfo._cameraX, -0.51, -10 + _viewPortInfo._cameraZ);
-   glVertex3f(-10 + _viewPortInfo._cameraX, -0.51,  10 + _viewPortInfo._cameraZ);
-   glVertex3f( 10 + _viewPortInfo._cameraX, -0.51,  10 + _viewPortInfo._cameraZ);
-   glVertex3f( 10 + _viewPortInfo._cameraX, -0.51, -10 + _viewPortInfo._cameraZ);
+   glVertex3f(-100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
+   glVertex3f(-100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
+   glVertex3f( 100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
+   glVertex3f( 100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
 
 //   glNormal3f(0, -1, 0);
 //   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
@@ -541,6 +543,8 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 		 _viewPortInfo._zFarDist);
 
   glMatrixMode(GL_MODELVIEW);
+
+  _FBO1.resize(_width, _height);
 }
 
 void 

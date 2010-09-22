@@ -99,7 +99,7 @@ protected:
   magnet::GL::shadowFBO _shadowFBO;
 
   //Frame buffers to flip flop data between
-  magnet::GL::FBO _FBO1;
+  magnet::GL::multisampledFBO _FBO1;
 
   cl::Platform _clplatform;
   cl::Context _clcontext;
