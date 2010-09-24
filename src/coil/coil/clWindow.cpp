@@ -34,9 +34,10 @@ inline float clamp(float x, float a, float b)
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <magnet/CL/GLBuffer.hpp>
 #include "glprimatives/glscribe.hpp"
 #include "glprimatives/arrow.hpp"
+
+#include <magnet/CL/CLGL.hpp>
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
@@ -191,45 +192,9 @@ void
 CLGLWindow::initOpenCL()
 {
   //Ok Now init OpenCL.
-  //Create a OpenCL context from an OpenGL one
+  magnet::cl::GLInterop::init();
   
-  GLXContext GLContext = glXGetCurrentContext();
-  
-  std::cout << "Attempting to make a shared OpenCL/OpenGL context.....";
-  if (GLContext == NULL)
-    throw std::runtime_error("Failed to obtain the GL context");
-  
-  cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)_clplatform(),
-				    CL_GLX_DISPLAY_KHR, (intptr_t) glXGetCurrentDisplay(),
-				    CL_GL_CONTEXT_KHR, (intptr_t) GLContext, 0};
-  
-  //create the OpenCL context 
-  try {
-    _clcontext = cl::Context(CL_DEVICE_TYPE_ALL, cpsGL, NULL, NULL);
-    std::cout << "Success!\n";
-  } catch(cl::Error& err)
-    {
-      std::cout << "\nFailed to create an OpenCL context from the OpenGL one.\n"
-		<< "Try a selecting a different OpenCL platform or a newer driver!\n"
-		<< std::endl;
-    }
-  
-  if (_clcontext() == NULL)
-    {
-      cl::GLBuffer::hostTransfers() = true;
-      
-      std::cout << "Attempting to create a standard OpenCL context. This will force host transfers on.\n";
-      cl_context_properties cpsFallBack[] = {CL_CONTEXT_PLATFORM, 
-					     (cl_context_properties)_clplatform(),
-					     0};
-      try {
-	_clcontext = cl::Context(CL_DEVICE_TYPE_ALL, 
-				 cpsFallBack, NULL, NULL);
-      } catch (cl::Error& err)
-	{
-	  throw std::runtime_error("Failed to create a normal OpenCL context from the supplied platform.");
-	}
-    }
+  _clcontext = magnet::cl::GLInterop::getContext();
 
   if (cl::GLBuffer::hostTransfers()) 
     std::cout << "Host transfers have been enabled, slow performance is expected\n";

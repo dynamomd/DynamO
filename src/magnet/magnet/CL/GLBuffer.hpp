@@ -25,6 +25,9 @@
 #include <CL/cl.hpp>
 #include <stdexcept>
 
+#define __CL_ENABLE_EXCEPTIONS
+#include <CL/cl.hpp>
+
 namespace cl {
 /*! \class Buffer
  * \brief Memory buffer interface.
@@ -40,7 +43,6 @@ namespace cl {
 class GLBuffer : public Buffer
 {
   ::GLuint _bufobj;
-
   ::GLenum _bufType;
 
 public:
