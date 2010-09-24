@@ -39,24 +39,27 @@ namespace cl {
 
 class GLBuffer : public Buffer
 {
-  bool _hostTransfer;
   ::GLuint _bufobj;
 
   ::GLenum _bufType;
 
 public:
+  inline static bool& hostTransfers()
+  {
+    static bool _hostTransfer = false;
+    return _hostTransfer;
+  }
+
   GLBuffer(const Context& context,
 	   cl_mem_flags flags,
 	   ::GLuint bufobj,
 	   ::GLenum bufType,
-	   bool hostTransfer,
 	   cl_int* err = NULL
 	   ):
-    _hostTransfer(hostTransfer),
     _bufobj(bufobj),
     _bufType(bufType)
   {
-    if (_hostTransfer)
+    if (hostTransfers())
       {
 	if ((flags & CL_MEM_COPY_HOST_PTR) || (flags & CL_MEM_USE_HOST_PTR))
 	  throw std::runtime_error("Cannot use CL_MEM_COPY_HOST_PTR/CL_MEM_USE_HOST_PTR on a host transfer GLBuffer");
@@ -85,7 +88,7 @@ public:
   {
     Event retEvent;
 
-    if (_hostTransfer)
+    if (hostTransfers())
       {
 	glBindBuffer(_bufType, _bufobj);
 	const void* glBufPointer = glMapBuffer(_bufType, GL_READ_ONLY);
@@ -122,7 +125,7 @@ public:
   {
     Event retEvent;
 
-    if (_hostTransfer)
+    if (hostTransfers())
       {
 	glBindBuffer(_bufType, _bufobj);
 	void* glBufPointer = glMapBuffer(_bufType, GL_WRITE_ONLY);
@@ -157,7 +160,7 @@ public:
   }
 
   //! Default constructor; buffer is not valid at this point.
-  GLBuffer():_hostTransfer(false)  {}
+  GLBuffer() {}
 
   operator Buffer() {return *this;}
   

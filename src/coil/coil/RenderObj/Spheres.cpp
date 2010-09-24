@@ -61,7 +61,7 @@ RTSpheres::RTSpheres(const magnet::GL::viewPort& viewPortInfo,
 }
 
 void
-RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers)
+RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
 {
   {
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
@@ -104,7 +104,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 
     std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(Context, hostTransfers);
+    initOCLVertexBuffer(Context);
   }
   
   {//Setup inital normal vectors

@@ -52,7 +52,7 @@ RTTestWaves::initOpenGL()
 {}
 
 void 
-RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers)
+RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
 {
   
 
@@ -68,7 +68,7 @@ RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device
 	  }       
       }
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(Context, hostTransfers);
+    initOCLVertexBuffer(Context);
   }
 
   {//Setup inital normal vectors
@@ -98,7 +98,7 @@ RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device
 	  }       
       }
     setGLColors(VertexColor);
-    initOCLColorBuffer(Context, hostTransfers);
+    initOCLColorBuffer(Context);
   }
    
   {//Setup initial element data

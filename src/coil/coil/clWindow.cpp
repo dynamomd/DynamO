@@ -34,15 +34,14 @@ inline float clamp(float x, float a, float b)
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <magnet/GL/CLBuffer.hpp>
+#include <magnet/CL/GLBuffer.hpp>
 #include "glprimatives/glscribe.hpp"
 #include "glprimatives/arrow.hpp"
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title,
-		       cl::Platform& plat,
-		       bool hostTransfers
+		       cl::Platform& plat
 		       ):
   _clplatform(plat),
   _height(setHeight),
@@ -56,7 +55,6 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _mouseSensitivity(0.3),
   _moveSensitivity(0.001),
   _specialKeys(0),
-  _hostTransfers(hostTransfers),
   _shaderPipeline(false)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
@@ -218,7 +216,7 @@ CLGLWindow::initOpenCL()
   
   if (_clcontext() == NULL)
     {
-      _hostTransfers = true;
+      cl::GLBuffer::hostTransfers() = true;
       
       std::cout << "Attempting to create a standard OpenCL context. This will force host transfers on.\n";
       cl_context_properties cpsFallBack[] = {CL_CONTEXT_PLATFORM, 
@@ -233,7 +231,7 @@ CLGLWindow::initOpenCL()
 	}
     }
 
-  if (_hostTransfers) 
+  if (cl::GLBuffer::hostTransfers()) 
     std::cout << "Host transfers have been enabled, slow performance is expected\n";
 
   //Grab the first device
@@ -285,7 +283,7 @@ CLGLWindow::initOpenCL()
   //Now init the render objects  
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->initOpenCL(_clcmdq, _clcontext, _cldevice, _hostTransfers);
+    (*iPtr)->initOpenCL(_clcmdq, _clcontext, _cldevice);
 }
 
 void CLGLWindow::CallBackDisplayFunc(void)

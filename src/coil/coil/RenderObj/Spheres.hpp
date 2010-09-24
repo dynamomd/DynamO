@@ -57,7 +57,7 @@ public:
   void sortTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
   virtual void initOpenGL() {}
-  virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers);
+  virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device);
   
 protected:
 

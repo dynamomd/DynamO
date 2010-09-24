@@ -28,7 +28,7 @@ public:
   virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
 
   void initOpenGL();
-  void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device, bool hostTransfers);
+  void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device);
 
 protected:
   static const std::string kernelsrc;

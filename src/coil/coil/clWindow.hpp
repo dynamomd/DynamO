@@ -29,7 +29,7 @@
 #include <coil/extcode/static_assert.hpp>
 
 #include <magnet/GL/light.hpp>
-#include <magnet/GL/CLBuffer.hpp>
+#include <magnet/CL/GLBuffer.hpp>
 #include <magnet/GL/shadowShader.hpp>
 #include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/viewPort.hpp>
@@ -47,8 +47,7 @@ public:
   CLGLWindow(int setWidth, int setHeight,
 	     int setInitPositionX, int setInitPositionY,
 	     std::string title,
-	     cl::Platform& plat,
-	     bool hostTransfers = false);
+	     cl::Platform& plat);
 
   ~CLGLWindow();
   
@@ -68,8 +67,6 @@ public:
 
   void addRenderObj(RenderObj* nObj) { RenderObjects.push_back(nObj); }
 
-  bool HostTransferModeAllowed() { return _hostTransfers; }
-  
   template<class T>  
   T& addRenderObj() {STATIC_ASSERT(false,'Check Arg Types'); }
 
@@ -157,8 +154,6 @@ private:
  
   int _oldMouseX, _oldMouseY;
   int _specialKeys;
-
-  bool _hostTransfers;
 
   bool _shaderPipeline;
 

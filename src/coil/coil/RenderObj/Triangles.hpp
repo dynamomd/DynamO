@@ -18,7 +18,7 @@
 #include "RenderObj.hpp"
 #include <vector>
 
-#include <magnet/GL/CLBuffer.hpp>
+#include <magnet/CL/GLBuffer.hpp>
 
 class RTriangles : public RenderObj
 {
@@ -33,10 +33,10 @@ public:
   void setGLNormals(std::vector<float>& VertexNormals);
   void setGLElements(std::vector<int>& Elements);
 
-  void initOCLVertexBuffer(cl::Context& Context, bool _hostTransfers);
-  void initOCLColorBuffer(cl::Context& Context, bool _hostTransfers);
-  void initOCLNormBuffer(cl::Context& Context, bool _hostTransfers);
-  void initOCLElementBuffer(cl::Context& Context, bool _hostTransfers);
+  void initOCLVertexBuffer(cl::Context& Context);
+  void initOCLColorBuffer(cl::Context& Context);
+  void initOCLNormBuffer(cl::Context& Context);
+  void initOCLElementBuffer(cl::Context& Context);
 
 protected:
   GLuint _colBuff;
