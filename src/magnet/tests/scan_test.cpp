@@ -62,7 +62,8 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::CL::scan<T> scanFunctor(queue, context);
+  magnet::CL::scan<T> scanFunctor;
+  scanFunctor.build(queue, context);
   
   scanFunctor(bufferIn, bufferIn);
   

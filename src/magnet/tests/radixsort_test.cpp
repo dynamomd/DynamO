@@ -60,8 +60,8 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::CL::radixSort<T> radixSortFunctor(queue, context);
-
+  magnet::CL::radixSort<T> radixSortFunctor;
+  radixSortFunctor.build(queue, context);
   radixSortFunctor(bufferIn, bufferIn);
 
   std::vector<T> output(size);
@@ -113,30 +113,30 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 
 void runTest(cl::Context context, cl::CommandQueue queue)
 {
-  runTestType<cl_uint>(context, queue);
-  runTestType<cl_int>(context, queue);
-  runTestType<cl_float>(context, queue);
-  //Special case for the AMD CPU implementation
-  if (magnet::CL::detail::detectExtension(context, "cl_amd_fp64")
-      && (queue.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU))
-    {
-      bool expectedfail = false;
-      try {
-	runTestType<cl_double>(context, queue);
-      } catch(cl::Error& err) {
-	if (err.err() == -4)
-	  expectedfail = true;
-	else 
-	  throw ;
+    runTestType<cl_uint>(context, queue);
+    runTestType<cl_int>(context, queue);
+    runTestType<cl_float>(context, queue);
+    //Special case for the AMD CPU implementation
+    if (magnet::CL::detail::detectExtension(context, "cl_amd_fp64")
+        && (queue.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU))
+      {
+        bool expectedfail = false;
+        try {
+  	runTestType<cl_double>(context, queue);
+        } catch(cl::Error& err) {
+  	if (err.err() == -4)
+  	  expectedfail = true;
+  	else 
+  	  throw ;
+        }
+  
+        if (expectedfail)
+  	std::cerr << "EXPECTED FAIL: AMD double precision radix sort fails due to a bug in the stream SDK.\n";
+        else
+  	M_throw() << "The bug in the ATI stream SDK has been fixed!";
       }
-
-      if (expectedfail)
-	std::cerr << "EXPECTED FAIL: AMD double precision radix sort fails due to a bug in the stream SDK.\n";
-      else
-	M_throw() << "The bug in the ATI stream SDK has been fixed!";
-    }
-  else
-    runTestType<cl_double>(context, queue);
+    else
+      runTestType<cl_double>(context, queue);
 }
 
 int main(int argc, char *argv[])
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
   //Test all devices and platforms for compatability
   std::vector<cl::Platform> platforms;
   cl::Platform::get(&platforms);
-  
+
   for(std::vector<cl::Platform>::const_iterator pltfmIt =
 	platforms.begin(); pltfmIt != platforms.end(); ++pltfmIt) 
     {

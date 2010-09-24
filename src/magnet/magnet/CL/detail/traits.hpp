@@ -48,7 +48,7 @@
   VEC_TYPE(F,uint,uint)				\
   VEC_TYPE(F,long,long)				\
   VEC_TYPE(F,ulong,ulong)			\
-  VEC_TYPE(F,float,uint)
+  VEC_TYPE(F,float,int)
 
 
 //Need a way to check for the double data type, and the half data type!

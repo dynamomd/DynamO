@@ -30,10 +30,12 @@ namespace magnet {
       cl_uint _lastSize;
 
     public:
-      scan(cl::CommandQueue queue, cl::Context context):
-	detail::functor<scan<T> >(queue, context, ""),
-	_lastSize(0)
+      scan(): _lastSize(0) {}
+
+      void build(cl::CommandQueue queue, cl::Context context)
       {
+	detail::functor<scan<T> >::build(queue, context, "");
+
 	_prescanKernel = cl::Kernel(detail::functor<scan<T> >::_program, "prescan");
 	_uniformAddKernel = cl::Kernel(detail::functor<scan<T> >::_program, "uniformAdd");
       }

@@ -60,7 +60,8 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::CL::heapSort<T> heapSortFunctor(queue, context);
+  magnet::CL::heapSort<T> heapSortFunctor;
+  heapSortFunctor.build(queue, context);
 
   heapSortFunctor(bufferIn);
 

@@ -24,8 +24,6 @@
 
 #include "Primatives/Sphere.hpp"
 #include "Spheres.clh"
-#include <magnet/CL/radixsort.hpp>
-#include <magnet/CL/heapSort.hpp>
 #include <errno.h>
 
 struct  SortDataType { cl_uint ID; cl_float dist;};
@@ -222,6 +220,10 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
   _renderKernel = cl::Kernel(program, "SphereRenderKernel");
   _sortDataKernel = cl::Kernel(program, "GenerateData");
 
+
+  sortFunctor.build(CmdQ, Context);
+  CPUsortFunctor.build(CmdQ,Context);
+
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     iPtr->setupCLBuffers(Context);
@@ -241,8 +243,6 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 void 
 RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 {
-  static magnet::CL::radixSort<cl_float> sortFunctor(CmdQ, Context);
-  static magnet::CL::heapSort<cl_float> CPUsortFunctor(CmdQ, Context);
 
   cl_uint paddedN = ((_N + 1023)/1024) * 1024;
 

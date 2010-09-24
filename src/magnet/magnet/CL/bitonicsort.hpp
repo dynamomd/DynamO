@@ -26,9 +26,9 @@ namespace magnet {
       cl::Kernel _sortKernel, _smallSortKernel, _subSortKernel;
     
     public:
-      bitonicSort(cl::CommandQueue queue, cl::Context context):
-	detail::functor<bitonicSort<T> >(queue, context, "")
+      void build(cl::CommandQueue queue, cl::Context context)
       {
+	detail::functor<bitonicSort<T> >::build(queue, context, "");
 	// set up kernel
 	_sortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, "bitonicSort");
 	_smallSortKernel = cl::Kernel(detail::functor<bitonicSort<T> >::_program, 

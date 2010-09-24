@@ -60,8 +60,8 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::CL::bitonicSort<T> bitonicSortFunctor(queue, context);
-
+  magnet::CL::bitonicSort<T> bitonicSortFunctor;
+  bitonicSortFunctor.build(queue, context);
   bitonicSortFunctor(bufferIn);
 
   std::vector<T> output(size);

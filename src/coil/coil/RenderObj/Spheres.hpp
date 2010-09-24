@@ -21,6 +21,8 @@
 #include "Primatives/Sphere.hpp"
 #include "../clWindow.hpp"
 #include <magnet/thread/mutex.hpp>
+#include <magnet/CL/radixsort.hpp>
+#include <magnet/CL/heapSort.hpp>
 
 class RTSpheres : public RTriangles
 {
@@ -76,6 +78,10 @@ protected:
   size_t _sortFrequency;
   size_t _workgroupsize;
   size_t _globalsize;
+
+
+  magnet::CL::radixSort<cl_float> sortFunctor;
+  magnet::CL::heapSort<cl_float> CPUsortFunctor;
 
   const magnet::GL::viewPort & _viewPortInfo;
 

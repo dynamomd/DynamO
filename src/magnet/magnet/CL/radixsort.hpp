@@ -39,12 +39,19 @@ namespace magnet {
       //cl::KernelFunctor _dataSort;
 
     public:
-      radixSort(cl::CommandQueue queue, cl::Context context):
-	detail::functor<radixSort<T> >(queue, context, ""),
-	_scanFunctor(queue, context),
+      radixSort():
 	_lastSize(0),
 	_lastDataSize(0)
+      {}
+
+      void build (cl::CommandQueue queue, cl::Context context)
       {
+	//Build the scan functor
+	_scanFunctor.build(queue, context);
+
+	//And build this functor
+	detail::functor<radixSort<T> >::build(queue, context, "");
+
 	_radixSortKernel 
 	  = cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortKernel");
 	_findRadixOffsetsKernel 

@@ -26,9 +26,9 @@ namespace magnet {
     {
       return  scan<cl_uint>::kernelSource() 
 	+ "\n#define keyType4 " 
-	+ detail::traits<typename detail::traits<T>::vec4_type>::kernel_type()
+	+ detail::traits<typename detail::traits<typename detail::traits<T>::bitshiftable_type>::vec4_type>::kernel_type()
 	+ "\n#define keyType " 
-	+ detail::traits<T>::kernel_type() 
+	+ detail::traits<typename detail::traits<T>::bitshiftable_type>::kernel_type()
 	+ "\n#define shiftableKeyType " 
 	+ detail::traits<typename detail::traits<T>::bitshiftable_type>::kernel_type()
 	+ "\n#define shiftableKeyType4 " 

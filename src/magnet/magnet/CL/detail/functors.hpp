@@ -26,8 +26,7 @@ namespace magnet {
   namespace CL {
     namespace detail {
     
-      /* This is a CRTP base class that builds kernels into functors on
-       * construction.  
+      /* This is a CRTP base class that builds kernels into functors
        *
        * It requires that the type that inherits it, specifies its own
        * type in the template parameter (T) and defines a static member
@@ -35,10 +34,12 @@ namespace magnet {
        */
       template<class T>
       class functor {
-      public:
-	inline functor(cl::CommandQueue queue, cl::Context context, std::string buildFlags):
-	  _queue(queue), _context(context)
+      protected:
+	inline void build(cl::CommandQueue queue, cl::Context context, std::string buildFlags)
 	{
+	  _queue = queue;
+	  _context = context;
+
 	  cl::Program::Sources sources;
 
 	  std::string extensions;
@@ -79,7 +80,6 @@ namespace magnet {
 	  }
 	}
 
-      protected:
 	cl::Program _program;
 	cl::CommandQueue _queue;
 	cl::Context _context;

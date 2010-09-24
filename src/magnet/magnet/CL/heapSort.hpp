@@ -26,14 +26,14 @@ namespace magnet {
       cl::Kernel _sortKernel, _dataSortKernel;
     
     public:
-      heapSort(cl::CommandQueue queue, cl::Context context):
-	detail::functor<heapSort<T> >(queue, context, "")
+      void build(cl::CommandQueue queue, cl::Context context)
       {
+	detail::functor<heapSort<T> >::build(queue, context, "");
+
 	// set up kernel
 	_sortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSort");
 
-	_dataSortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSortData");
-	
+	_dataSortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSortData");	
       }
 
       void operator()(cl::Buffer input, cl_uint ascending = true)
