@@ -29,10 +29,6 @@ namespace magnet {
 	+ detail::traits<typename detail::traits<typename detail::traits<T>::bitshiftable_type>::vec4_type>::kernel_type()
 	+ "\n#define keyType " 
 	+ detail::traits<typename detail::traits<T>::bitshiftable_type>::kernel_type()
-	+ "\n#define shiftableKeyType " 
-	+ detail::traits<typename detail::traits<T>::bitshiftable_type>::kernel_type()
-	+ "\n#define shiftableKeyType4 " 
-	+ detail::traits<typename detail::traits<typename detail::traits<T>::bitshiftable_type>::vec4_type>::kernel_type()
 	+ "\n"
 	STRINGIFY(//////////////////////////////////////////////////////////////////////
 		  ////////////          Radix Sort Kernels                 /////////////
@@ -44,12 +40,10 @@ namespace magnet {
 		    //First, perform a scan over our little block of 4 items
 		    uint4 test4;
 		  
-		    const shiftableKeyType4* shift_ptr = (const shiftableKeyType4*)localkey;
-
-		    test4.x = (((*shift_ptr).x) >> shift) & 0x1;
-		    test4.y = (((*shift_ptr).y) >> shift) & 0x1;
-		    test4.z = (((*shift_ptr).z) >> shift) & 0x1;
-		    test4.w = (((*shift_ptr).w) >> shift) & 0x1;
+		    test4.x = (((*localkey).x) >> shift) & 0x1;
+		    test4.y = (((*localkey).y) >> shift) & 0x1;
+		    test4.z = (((*localkey).z) >> shift) & 0x1;
+		    test4.w = (((*localkey).w) >> shift) & 0x1;
   
 		    uint4 sum4 = test4;
 		    sum4.y += sum4.x;
@@ -72,10 +66,21 @@ namespace magnet {
 		    uint totalFalse = 4 * 256 - *totalTrue;
   
 		    //Now calculate the locations to place each data piece
-		    sum4.x = (test4.x) ? totalFalse + sum4.x - 1: 4 * get_local_id(0) + 0 - sum4.x;
-		    sum4.y = (test4.y) ? totalFalse + sum4.y - 1: 4 * get_local_id(0) + 1 - sum4.y;
-		    sum4.z = (test4.z) ? totalFalse + sum4.z - 1: 4 * get_local_id(0) + 2 - sum4.z;
-		    sum4.w = (test4.w) ? totalFalse + sum4.w - 1: 4 * get_local_id(0) + 3 - sum4.w;
+		    sum4.x = (test4.x) 
+		      ? totalFalse + sum4.x - 1
+		      : 4 * get_local_id(0) + 0 - sum4.x;
+
+		    sum4.y = (test4.y) 
+		      ? totalFalse + sum4.y - 1
+		      : 4 * get_local_id(0) + 1 - sum4.y;
+
+		    sum4.z = (test4.z) 
+		      ? totalFalse + sum4.z - 1
+		      : 4 * get_local_id(0) + 2 - sum4.z;
+
+		    sum4.w = (test4.w) 
+		      ? totalFalse + sum4.w - 1
+		      : 4 * get_local_id(0) + 3 - sum4.w;
   
   
 		    //Avoid bank conflicts on the read by interleaving the uint4 data
@@ -138,12 +143,11 @@ namespace magnet {
 		  {
 		    //First, perform a scan over our little block of 4 items
 		    uint4 test4;
-		    const shiftableKeyType4* shift_ptr = (const shiftableKeyType4*)localkey;
 
-		    test4.x = (((*shift_ptr).x) >> shift) & 0x1;
-		    test4.y = (((*shift_ptr).y) >> shift) & 0x1;
-		    test4.z = (((*shift_ptr).z) >> shift) & 0x1;
-		    test4.w = (((*shift_ptr).w) >> shift) & 0x1;
+		    test4.x = (((*localkey).x) >> shift) & 0x1;
+		    test4.y = (((*localkey).y) >> shift) & 0x1;
+		    test4.z = (((*localkey).z) >> shift) & 0x1;
+		    test4.w = (((*localkey).w) >> shift) & 0x1;
   
 		    uint4 sum4 = test4;
 		    sum4.y += sum4.x;
@@ -253,7 +257,6 @@ namespace magnet {
 		  {
 		    __local keyType4 keyBlocks[256];
 		    __local keyType* keys = (__local keyType*)keyBlocks;
-		    __local const shiftableKeyType* keyBits = (__local const shiftableKeyType*)keyBlocks;
 
 		    //Load the key data
 		    keyBlocks[get_local_id(0)] = keyData[get_global_id(0)];
@@ -275,7 +278,7 @@ namespace magnet {
 		    //Now perform a scatter for all four elements
 		    for (uint i = 0; i < 4; ++i)
 		      {
-			uint radix = (keyBits[get_local_id(0) + i * 256] >> startBit) & mask;
+			uint radix = (keys[get_local_id(0) + i * 256] >> startBit) & mask;
 			uint globalOffset = globalOffsets[radix] + get_local_id(0) + i * 256 - localOffsets[radix];
 			if (globalOffset < array_size)
 			  outkey[globalOffset] = keys[get_local_id(0) + i * 256];
@@ -292,7 +295,6 @@ namespace magnet {
 		  {
 		    __local keyType4 keyBlocks[256];
 		    __local keyType* keys = (__local keyType*)keyBlocks;
-		    __local const shiftableKeyType* keyBits = (__local const shiftableKeyType*)keyBlocks;
 
 		    __local uint4 dataBlocks[256];
 		    __local uint* data = (__local uint*)dataBlocks;
@@ -318,7 +320,7 @@ namespace magnet {
 		    //Now perform a scatter for all four elements
 		    for (uint i = 0; i < 4; ++i)
 		      {
-			uint radix = (keyBits[get_local_id(0) + i * 256] >> startBit) & mask;
+			uint radix = (keys[get_local_id(0) + i * 256] >> startBit) & mask;
 			uint globalOffset = globalOffsets[radix] + get_local_id(0) + i * 256 - localOffsets[radix];  
 			outkey[globalOffset] = keys[get_local_id(0) + i * 256];
 			outdata[globalOffset] = data[get_local_id(0) + i * 256];
@@ -329,7 +331,7 @@ namespace magnet {
 		  /////////////////////////////////////////////////////////////////////////////////////////////////////
 		  /////////////////////////////////////////////////////////////////////////////////////////////////////
 		  void findRadixOffsets(__global uint* buckets, __global uint* offsets,
-					__local const shiftableKeyType* block, __local uint* radixOffsets, 
+					__local const keyType* block, __local uint* radixOffsets, 
 					uint maxRadixDigit)
 		  {
 		    //Zero the radix offsets
@@ -380,12 +382,12 @@ namespace magnet {
 		  }
 
 		  __kernel __attribute__((reqd_work_group_size(256, 1, 1)))
-		  void findRadixOffsetsKernel(__global shiftableKeyType4* keyData, __global uint* buckets, 
+		  void findRadixOffsetsKernel(__global keyType4* keyData, __global uint* buckets, 
 					      __global uint* offsets,
 					      uint array_size, uint startBit, uint nBits, 
 					      __local uint* radixOffsets)
 		  {
-		    __local shiftableKeyType4 keyradix[256];
+		    __local keyType4 keyradix[256];
 
 		    //Offset into the global key data
 		    keyData += get_group_id(0) * 256;
@@ -396,7 +398,7 @@ namespace magnet {
 		    uint mask = maxRadixDigit - 1;
 
 		    //Load the key radix into a local store		  
-		    shiftableKeyType4 localKey = keyData[get_local_id(0)];
+		    keyType4 localKey = keyData[get_local_id(0)];
 
 		    keyradix[get_local_id(0)].x = (localKey.x >> startBit) & mask;
 		    keyradix[get_local_id(0)].y = (localKey.y >> startBit) & mask;
@@ -411,7 +413,7 @@ namespace magnet {
 		    offsets += maxRadixDigit * get_group_id(0);
     
 		    //With all the sorted keys in local memory we can do the offset and bucket count/scan
-		    findRadixOffsets(buckets, offsets, (__local const shiftableKeyType*)keyradix, 
+		    findRadixOffsets(buckets, offsets, (__local const keyType*)keyradix, 
 				     radixOffsets, maxRadixDigit);
 		  }
 		  );
