@@ -88,9 +88,12 @@ exe threadpool_test
     : 
     ;
 
+local gladecflags = [ trim-nl [ SHELL "pkg-config gtkmm-2.4 --cflags" ] ] ; 
+local gladelibflags = [ trim-nl [ SHELL "pkg-config gtkmm-2.4 --libs" ] ] ; 
+
 exe glade_test
     : test/src/glade_test.cpp
-    : 
+    : <cflags>$(gladecflags) <linkflags>$(gladelibflags)
     ;
 
 install install-test
@@ -102,6 +105,7 @@ install install-bin
 	: dynarun dynahist_rw dynamod
 	: <location>bin
 	;	
+
 
 alias install : install-bin ;
 
