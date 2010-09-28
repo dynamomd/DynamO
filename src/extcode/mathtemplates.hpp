@@ -56,7 +56,8 @@ typedef enum
   } rootTypeEnum;
 
 //Solve a quadratic of the form A x^2 + B x + C == 0
-inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, Iflt& root1, Iflt& root2)
+inline bool quadSolve(const Iflt& C, const Iflt& B, const Iflt& A, 
+		      Iflt& root1, Iflt& root2)
 {
   // Contingency: if A = 0, not a quadratic = linear
   if(A == 0)
