@@ -88,8 +88,13 @@ exe threadpool_test
     : 
     ;
 
+exe glade_test
+    : test/src/glade_test.cpp
+    : 
+    ;
+
 install install-test
-	: src/coil//gl_test threadpool_test
+	: src/coil//gl_test threadpool_test glade_test
 	: <location>test
 	;
 

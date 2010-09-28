@@ -25,7 +25,7 @@
 #include "../../dynamics/units/units.hpp"
 #include "../../dynamics/BC/BC.hpp"
 #include <boost/math/special_functions/spherical_harmonic.hpp>
-#include "../../extcode/wignerThreeJ.hpp"
+#include <magnet/math/wigner3J.hpp>
 
 OPSHCrystal::OPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
@@ -112,7 +112,7 @@ OPSHCrystal::output(xml::XmlStream& XML)
 	  {
 	    int m3 = -(m1+m2);
 	    if (std::abs(m3) <= l)
-	      Wsum += std::complex<Iflt>(DYNAMO::threej(l,l,l,m1,m2,m3) 
+	      Wsum += std::complex<Iflt>(magnet::math::wignerThreej(l,l,l,m1,m2,m3) 
 					 * std::pow(count,-3.0), 0)
 		* globalcoeff[l][m1+l]
 		* globalcoeff[l][m2+l]
