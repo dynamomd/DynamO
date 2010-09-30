@@ -49,7 +49,7 @@ namespace magnet {
 
       //Add the required number of threads
       for (size_t i=m_threads.size(); i < x; ++i)
-	m_threads.create_thread(beginThreadFunc(*this));
+	m_threads.create_thread(function::Task::makeTask(&ThreadPool::beginThread, this));
 
       _threadCount = x;
     }
@@ -106,7 +106,7 @@ namespace magnet {
     }
 
     void 
-    ThreadPool::beginThread() throw()
+    ThreadPool::beginThread()
     {
       try
 	{

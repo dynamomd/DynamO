@@ -113,7 +113,7 @@ namespace magnet {
 
       /*! \brief A collection of threads.
        */
-      boost::thread_group m_threads;
+      magnet::thread::ThreadGroup m_threads;
 
       size_t _idlingThreads;
       size_t _threadCount;
@@ -122,31 +122,9 @@ namespace magnet {
        */
       bool m_bStop;
 
-      //friend struct beginThreadFunc;
-  
-      /*! \brief Functor and entry point for a new thread so a thread can
-       * access data in the owning ThreadPool.
-       */
-      struct beginThreadFunc
-      {
-	beginThreadFunc(ThreadPool& impl)
-	  : m_impl(impl)
-	{}
-    
-	void operator() ()
-	{
-	  m_impl.beginThread();
-	}   
-    
-	/*! \brief A reference back to the original thread pool so we can
-	 * share mutexes in a object orientated program.
-	 */
-	ThreadPool &m_impl;
-      };
-  
       /*! \brief Thread worker loop, called by the threads beginThreadFunc.
        */
-      void beginThread() throw();
+      void beginThread();
 
       /*! \brief Halt the threadpool and terminate all the threads.
        */

@@ -17,8 +17,10 @@
 
 #pragma once
 #include <pthread.h>
-#include <magnet/exception.hpp>
 #include <errno.h>
+#include <vector>
+
+#include <magnet/exception.hpp>
 #include <magnet/function/task.hpp>
 
 namespace magnet {
@@ -140,8 +142,7 @@ namespace magnet {
     public:
       Thread():_task(NULL) {}
       
-      ~Thread()
-      { if (_task) delete _task; }
+      ~Thread() {}
       
 
       Thread(function::Task* task):
@@ -153,22 +154,63 @@ namespace magnet {
 	  M_throw() << "Failed to create a thread";
       }
       
-      void join()
+      inline void join()
       {
 	if (pthread_join(_thread, NULL))
 	  M_throw() << "Failed to join thread, _task=" << _task;
       }
       
-    protected:
+    protected:      
+      Thread(const Thread&);
+      Thread& operator=(const Thread&);
+      
+      
       inline static void* threadEntryPoint(void* arg)
       {
-	(*reinterpret_cast<function::Task* >(arg))();
+	(*reinterpret_cast<function::Task*>(arg))();
+
+	//Now delete the task
+	delete reinterpret_cast<function::Task*>(arg);
+
 	return NULL;
       }
       
-      function::Task* _task;
+      mutable function::Task* _task;
       
-      pthread_t _thread;
+      mutable pthread_t _thread;
+    };
+
+    class ThreadGroup
+    {
+    public:
+      inline ThreadGroup() {}
+
+      inline ~ThreadGroup() 
+      {
+	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
+	     iPtr != _threads.end(); ++iPtr)
+	  delete *iPtr;
+      }
+
+      inline void create_thread(function::Task* task)
+      {
+	_threads.push_back(new Thread(task));
+      }
+
+      inline size_t size() const { return _threads.size(); }
+      
+      inline void join_all()
+      {
+	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
+	     iPtr != _threads.end(); ++iPtr)
+	  (*iPtr)->join();
+      }
+
+    protected:
+      std::vector<Thread*> _threads;
+
+      ThreadGroup(const ThreadGroup&);
+      ThreadGroup& operator=(const ThreadGroup&);
     };
   }
 }
