@@ -207,11 +207,11 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 }
 
 void 
-SThreadedNBList::addGlobal(const Particle& part, const ClonePtr<Global>& glob, boost::mutex& sorterLock)
+SThreadedNBList::addGlobal(const Particle& part, const ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock)
 {
   GlobalEvent event = glob->getEvent(part);
 
-  boost::mutex::scoped_lock lock1(sorterLock);      
+  magnet::thread::ScopedLock lock1(sorterLock);      
   sorter->push(event, part.getID());
 }
 
@@ -244,13 +244,13 @@ SThreadedNBList::spawnThreadAddLocalEvent2(const Particle& part,
 void 
 SThreadedNBList::threadAddIntEvent(const Particle& part, 
 				   const size_t id,
-				   boost::mutex& sorterLock)
+				   magnet::thread::Mutex& sorterLock)
 {
   const IntEvent& eevent(Sim->dynamics.getEvent(part, Sim->particleList[id]));
   
   if (eevent.getType() != NONE)
     {
-      boost::mutex::scoped_lock lock1(sorterLock);
+      magnet::thread::ScopedLock lock1(sorterLock);
       sorter->push(intPart(eevent, eventCount[id]), part.getID());
     }
 }
@@ -258,12 +258,12 @@ SThreadedNBList::threadAddIntEvent(const Particle& part,
 void 
 SThreadedNBList::threadAddLocalEvent(const Particle& part, 
 				     const size_t id,
-				     boost::mutex& sorterLock)
+				     magnet::thread::Mutex& sorterLock)
 {
   LocalEvent Event = Sim->dynamics.getLocals()[id]->getEvent(part);
 
   {
-    boost::mutex::scoped_lock lock1(sorterLock);
+    magnet::thread::ScopedLock lock1(sorterLock);
     sorter->push(Event, part.getID());  
   }
 }

@@ -2,7 +2,7 @@
 #include <vector>
 #include <stdexcept>
 #include <boost/bind.hpp>
-#include "../src/extcode/threadpool.hpp"
+#include <magnet/thread/threadpool.hpp>
 
 std::vector<float> sums;
 

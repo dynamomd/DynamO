@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <queue>
 #include <magnet/memory/pool.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/function/task.hpp>

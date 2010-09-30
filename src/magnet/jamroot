@@ -26,6 +26,7 @@ alias magnet : OpenCL
 ##################### TESTS ######################
 using testing ;
 
+#####################OPENCL
 #### Prefix Scan ####
 unit-test scan_test : tests/scan_test.cpp magnet ;
 
@@ -38,6 +39,14 @@ unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet ;
 #### Heap Sort ####
 unit-test heapsort_test : tests/heapsort_test.cpp magnet ;
 
+alias opencl-test : scan_test radixsort_test bitonicsort_test heapsort_test ;
+
+#####################THREAD
+unit-test threadpool_test : tests/threadpool_test.cpp magnet 
+	  		  : <threading>multi ;
+
+alias thread-test : threadpool_test ;
+
 
 ##################################################
-alias test : scan_test radixsort_test bitonicsort_test heapsort_test ;
+alias test : opencl-test thread-test ;

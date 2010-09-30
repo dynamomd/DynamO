@@ -20,7 +20,7 @@
 #include "../../dynamics/systems/ghost.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
-#include "../../extcode/threadpool.hpp"
+#include <magnet/thread/threadpool.hpp>
 #include <fstream>
 #include <boost/random/uniform_int.hpp>
 #include <limits>

@@ -18,7 +18,7 @@
 #pragma once
 
 #include "neighbourlist.hpp"
-#include "../extcode/threadpool.hpp"
+#include <magnet/thread/threadpool.hpp>
 
 class SThreadedNBList: public CSNeighbourList
 {
@@ -37,11 +37,11 @@ public:
 
   void threadAddLocalEvent(const Particle& part, 
 			   const size_t id,
-			   boost::mutex& sorterLock);
+			   magnet::thread::Mutex& sorterLock);
 
   void threadAddIntEvent(const Particle& part, 
 			 const size_t id,
-			 boost::mutex& sorterLock);
+			 magnet::thread::Mutex& sorterLock);
 
   void spawnThreadAddLocalEvent1(const Particle& part, 
 				const size_t& id);
@@ -60,11 +60,11 @@ protected:
 
   void addEventsInit(const Particle&);
 
-  void addGlobal(const Particle& p1, const ClonePtr<Global>& glob, boost::mutex& sorterLock);
+  void addGlobal(const Particle& p1, const ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock);
 
   magnet::thread::ThreadPool _threadPool;
 
-  boost::mutex _P1SorterLock;
-  boost::mutex _P2SorterLock;
+  magnet::thread::Mutex _P1SorterLock;
+  magnet::thread::Mutex _P2SorterLock;
   
 };

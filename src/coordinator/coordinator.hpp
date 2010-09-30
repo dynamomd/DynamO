@@ -27,7 +27,7 @@
 #include <vector>
 #include "../datatypes/pluginpointer.hpp"
 #include "engine/engine.hpp"
-#include "../extcode/threadpool.hpp"
+#include <magnet/thread/threadpool.hpp>
 
 /*! \brief The main class for the dynarun program.
  *
