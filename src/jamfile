@@ -16,7 +16,7 @@
 
 lib gslcblas ;
  
-lib rt   : : <link>shared ;
+lib rt : : <link>shared ;
 
 lib gsl	
     : gslcblas
@@ -41,7 +41,6 @@ alias dynamo_core : [ glob-tree *.cpp : programs coil magnet ]
     ../boost//iostreams
     ../boost//filesystem
     ../boost//program_options
-    ../boost//thread/<threadapi>pthread
     rt
     : <include>extcode/include 
       <variant>debug:<define>DYNAMO_DEBUG <link>static
