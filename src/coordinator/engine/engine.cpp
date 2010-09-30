@@ -53,8 +53,8 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
 
 
 Engine::Engine(const boost::program_options::variables_map& nvm, 
-		 std::string configFile, std::string outputFile,
-		 ThreadPool& tp):
+	       std::string configFile, std::string outputFile,
+	       magnet::thread::ThreadPool& tp):
   vm(nvm),
   configFormat(configFile),
   outputFormat(outputFile),

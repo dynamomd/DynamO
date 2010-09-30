@@ -25,7 +25,7 @@
 #include <boost/scoped_array.hpp>
 #include "../../simulation/simulation.hpp"
 
-class ThreadPool;
+namespace magnet { namespace thread { class ThreadPool; } }
 
 /*! \brief An engine to control/manipulate one or more Simulation's.
  *
@@ -55,8 +55,8 @@ public:
    * \param tp The processes ThreadPool for parallel processing.
    */
   Engine(const boost::program_options::variables_map& vm,
-	  std::string configFile, std::string outputFile,
-	  ThreadPool& tp);
+	 std::string configFile, std::string outputFile,
+	 magnet::thread::ThreadPool& tp);
   
   /*! \brief The trivial virtual destructor. */
   virtual ~Engine() {}
@@ -153,7 +153,7 @@ protected:
   std::string configFormat;
   std::string outputFormat;
 
-  ThreadPool& threads;
+  magnet::thread::ThreadPool& threads;
 };
 
 #endif

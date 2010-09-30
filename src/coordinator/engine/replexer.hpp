@@ -43,7 +43,7 @@ public:
    * \param tp The ThreadPool for this instance of dynarun.
    */
   EReplicaExchangeSimulation(const boost::program_options::variables_map& vm, 
-	     ThreadPool& tp);
+			     magnet::thread::ThreadPool& tp);
   
   /*! \brief A trivial virtual destructor. 
    */

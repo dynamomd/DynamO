@@ -36,7 +36,7 @@ public:
    * \param tp A reference to the thread pool of the dynarun instance.
    */ 
   ESingleSimulation(const boost::program_options::variables_map& vm, 
-	   ThreadPool& tp);
+		    magnet::thread::ThreadPool& tp);
 
   /*! \brief Trivial virtual destructor */
   virtual ~ESingleSimulation() {}

@@ -22,11 +22,11 @@
 
 #include <queue>
 #include <sstream>
-#include <magnet/function/delegate.hpp>
 
 #include <boost/thread/thread.hpp>
-#include <boost/thread/condition.hpp>
 
+#include <magnet/function/delegate.hpp>
+#include <magnet/thread/taskQueue.hpp>
 #include <magnet/memory/pool.hpp>
 
 /*! \brief A class providing a pool of worker threads that will
@@ -39,276 +39,118 @@
  * http://www.devguy.com/bb/viewtopic.php?p=1039
  *
  */
-class ThreadPool
-{	
-public:  
-  class Task: public magnet::memory::PoolAllocated
-  {
-  public:
-    virtual void operator()() = 0;
-  };
-
-  template<class T>
-  class Task0 : public Task
-  {
-    typedef magnet::function::Delegate0<T> function;
-  public:
-    inline Task0(function delegate): _delegate(delegate) {}
-    
-    virtual void operator()() { _delegate(); }
-    
-  private:
-    function _delegate;
-  };
-
-  template<class T, class T1>
-  class Task1 : public Task
-  {
-    typedef magnet::function::Delegate1<T1, T> function;
-  public:
-    inline Task1(function delegate, T1 arg1): 
-      _delegate(delegate), 
-      _arg1(arg1) 
-    {}
-    
-    virtual void operator()() { _delegate(_arg1); }
-    
-  private:
-    function _delegate;
-    T1 _arg1;
-  };
-
-  template<class T, class T1, class T2>
-  class Task2 : public Task
-  {
-    typedef magnet::function::Delegate2<T1, T2, T> function;
-  public:
-    inline Task2(function delegate, T1 arg1, T2 arg2): 
-      _delegate(delegate), 
-      _arg1(arg1),  
-      _arg2(arg2) 
-   {}
-    
-    virtual void operator()() { _delegate(_arg1, _arg2); }
-    
-  private:
-    function _delegate;
-    T1 _arg1;
-    T2 _arg2;
-  };
-
-  template<class T, class T1, class T2, class T3>
-  class Task3 : public Task
-  {
-    typedef magnet::function::Delegate3<T1, T2, T3, T> function;
-  public:
-    inline Task3(function delegate, T1 arg1, T2 arg2, T3 arg3): 
-      _delegate(delegate), 
-      _arg1(arg1),  
-      _arg2(arg2),
-      _arg3(arg3)
-   {}
-    
-    virtual void operator()() { _delegate(_arg1, _arg2, _arg3); }
-    
-  private:
-    function _delegate;
-    T1 _arg1;
-    T2 _arg2;
-    T3 _arg3;
-  };
-
-  template<class T> struct typeWrapper { typedef T Type; };
-
-  /*! \brief Default Constructor
-   *
-   * This initialises the pool to 0 threads
-   */
-  ThreadPool();
+namespace magnet {
+  namespace thread {
+    class ThreadPool : public TaskQueue
+    {	
+    public:  
+      /*! \brief Default Constructor
+       *
+       * This initialises the pool to 0 threads
+       */
+      ThreadPool();
       
-  /*! \brief Set the number of threads in the pool
-   *
-   * This creates the specified amount of threads to populate the
-   * pool. When lowering the number of threads this pool kills ALL
-   * threads, but waits for all their current tasks to complete first,
-   * then repopulates the pool.
-   */
-  void setThreadCount(size_t);
+      /*! \brief Set the number of threads in the pool
+       *
+       * This creates the specified amount of threads to populate the
+       * pool. When lowering the number of threads this pool kills ALL
+       * threads, but waits for all their current tasks to complete first,
+       * then repopulates the pool.
+       */
+      void setThreadCount(size_t);
   
-  /*! \brief The current number of threads in the pool */
-  size_t getThreadCount() const
-  {
-    return _threadCount; 
+      /*! \brief The current number of threads in the pool */
+      size_t getThreadCount() const
+      {
+	return _threadCount; 
+      }
+
+      //Actual queuer
+      inline void queueTask(function::Task* threadfunc)
+      {
+	TaskQueue::queueTask(threadfunc);
+	m_needThread.notify_all();
+      }
+  
+      /*! \brief Destructor
+       *
+       * Join all threads in the pool and wait until they are terminated.
+       */
+      ~ThreadPool() throw();
+
+      /*! \brief Wait for all tasks to complete.
+       *
+       * If there are no threads in the pool then this function will
+       * actually make the waiting/mother process perform the tasks.
+       */
+      void wait();
+
+      const size_t& getIdleThreadCount() { return _idlingThreads; }
+  
+    private:
+      /*! \brief Mark if an exception has thrown an exception so the
+       * system can terminate gracefully.
+       */
+      bool ExceptionThrown;
+
+      std::ostringstream ExceptionDetails;
+  
+      ThreadPool (const ThreadPool&);
+      ThreadPool& operator = (const ThreadPool&);
+  
+      /*! \brief This mutex is to control access to write that an exception has occurred.
+       */
+      magnet::thread::Mutex m_exception;
+
+      /*! \brief Triggered every time a thread becomes available, to
+       * notify the mother thread stuck in the wait() function.
+       */
+      magnet::thread::Condition m_threadAvailable;
+
+      /*! \brief Triggered to wake threads when jobs are added to the queue.
+       */
+      magnet::thread::Condition m_needThread;
+
+      /*! \brief A collection of threads.
+       */
+      boost::thread_group m_threads;
+
+      size_t _idlingThreads;
+      size_t _threadCount;
+
+      /*! \brief When this is true threads will terminate themselves.
+       */
+      bool m_bStop;
+
+      //friend struct beginThreadFunc;
+  
+      /*! \brief Functor and entry point for a new thread so a thread can
+       * access data in the owning ThreadPool.
+       */
+      struct beginThreadFunc
+      {
+	beginThreadFunc(ThreadPool& impl)
+	  : m_impl(impl)
+	{}
+    
+	void operator() ()
+	{
+	  m_impl.beginThread();
+	}   
+    
+	/*! \brief A reference back to the original thread pool so we can
+	 * share mutexes in a object orientated program.
+	 */
+	ThreadPool &m_impl;
+      };
+  
+      /*! \brief Thread worker loop, called by the threads beginThreadFunc.
+       */
+      void beginThread() throw();
+
+      /*! \brief Halt the threadpool and terminate all the threads.
+       */
+      void stop();
+    };
   }
-    
-  /*! \brief Set a task to be completed by the pool.
-   *
-   * \param threadfunc A functor which describes the task to complete.
-   */
-
-  template<typename retT>
-  inline void queue(retT (*funcPtr)()) 
-  { queueTask(new Task0<retT>(funcPtr)); }
-
-  template<typename retT, typename classT>
-  inline void queue(retT (classT::*funcPtr)(), classT* classPtr)
-  { queueTask(new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr))); }
-
-  template<typename retT, typename classT>
-  inline void queue(retT (classT::*funcPtr)() const, classT* classPtr)
-  { queueTask(new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr))); }
-
-  //1 Argument
-  template<typename retT, typename arg1T>
-  inline void queue(retT (*funcPtr)(arg1T), typename typeWrapper<arg1T>::Type arg1)
-  { queueTask(new Task1<retT,arg1T>(funcPtr, arg1)); }
-
-  template<typename retT, typename classT, typename arg1T>
-  inline void queue(retT (classT::*funcPtr)(arg1T), classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
-  { queueTask(new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1)); }
-
-  template<typename retT, typename classT, typename arg1T>
-  inline void queue(retT (classT::*funcPtr)(arg1T) const, classT* classPtr, typename typeWrapper<arg1T>::Type arg1)
-  { queueTask(new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1)); }
-
-  //2 Argument
-  template<typename retT, typename arg1T, typename arg2T>
-  inline void queue(retT (*funcPtr)(arg1T, arg2T), 
-		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
-  { queueTask(new Task2<retT, arg1T, arg2T>(funcPtr, arg1, arg2)); }
-
-  template<typename retT, typename classT, typename arg1T, typename arg2T>
-  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T), classT* classPtr, 
-		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
-  { queueTask(new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
-
-  template<typename retT, typename classT, typename arg1T, typename arg2T>
-  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T) const, classT* classPtr, 
-		    typename typeWrapper<arg1T>::Type arg1, typename typeWrapper<arg2T>::Type arg2)
-  { queueTask(new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2)); }
-
-  //3 Argument
-  template<typename retT, typename arg1T, typename arg2T, typename arg3T>
-  inline void queue(retT (*funcPtr)(arg1T, arg2T, arg3T), 
-		    typename typeWrapper<arg1T>::Type arg1, 
-		    typename typeWrapper<arg2T>::Type arg2,
-		    typename typeWrapper<arg3T>::Type arg3)
-  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(funcPtr, arg1, arg2, arg3)); }
-
-  template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
-  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T, arg3T), classT* classPtr, 
-		    typename typeWrapper<arg1T>::Type arg1, 
-		    typename typeWrapper<arg2T>::Type arg2,
-		    typename typeWrapper<arg3T>::Type arg3)
-  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
-
-  template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
-  inline void queue(retT (classT::*funcPtr)(arg1T, arg2T, arg3T) const, classT* classPtr, 
-		    typename typeWrapper<arg1T>::Type arg1, 
-		    typename typeWrapper<arg2T>::Type arg2,
-		    typename typeWrapper<arg3T>::Type arg3)
-  { queueTask(new Task3<retT, arg1T, arg2T, arg3T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3)); }
-
-
-  //Actual queuer
-  inline void queueTask(Task* threadfunc)
-  {
-    {
-      boost::mutex::scoped_lock lock1(m_mutex);    
-      m_waitingFunctors.push(threadfunc);
-    }
-
-    m_needThread.notify_all();
-  }
-  
-  /*! \brief Destructor
-   *
-   * Join all threads in the pool and wait until they are terminated.
-   */
-  ~ThreadPool() throw();
-
-  /*! \brief Wait for all tasks to complete.
-   *
-   * If there are no threads in the pool then this function will
-   * actually make the waiting/mother process perform the tasks.
-   */
-  void wait();
-
-  const size_t& getIdleThreadCount() { return _idlingThreads; }
-  
-private:
-  /*! \brief Mark if an exception has thrown an exception so the
-   * system can terminate gracefully.
-   */
-  bool ExceptionThrown;
-
-  std::ostringstream ExceptionDetails;
-  
-  ThreadPool (const ThreadPool&);
-  ThreadPool& operator = (const ThreadPool&);
-  
-  /*! \brief List of functors/tasks left to be assigned to a thread. */
-  std::queue<Task*> m_waitingFunctors;
-
-  /*! \brief A mutex to control access to job data.
-   * 
-   * This mutex is also used as part of the m_needThread condition and
-   * also controls the m_bStop bool used to shutdown the queue. This
-   * also protects m_waitingFunctors and m_nextFunctor.
-   */
-  boost::mutex m_mutex;
-
-  /*! \brief This mutex is to control access to write that an exception has occurred.
-   */
-  boost::mutex m_exception;
-
-  /*! \brief Triggered every time a thread becomes available, to
-   * notify the mother thread stuck in the wait() function.
-   */
-  boost::condition m_threadAvailable;
-
-  /*! \brief Triggered to wake threads when jobs are added to the queue.
-   */
-  boost::condition m_needThread;
-
-  /*! \brief A collection of threads.
-   */
-  boost::thread_group m_threads;
-
-  size_t _idlingThreads;
-  size_t _threadCount;
-
-  /*! \brief When this is true threads will terminate themselves.
-   */
-  bool m_bStop;
-
-  //friend struct beginThreadFunc;
-  
-  /*! \brief Functor and entry point for a new thread so a thread can
-   * access data in the owning ThreadPool.
-   */
-  struct beginThreadFunc
-  {
-    beginThreadFunc(ThreadPool& impl)
-      : m_impl(impl)
-    {}
-    
-    void operator() ()
-    {
-      m_impl.beginThread();
-    }   
-    
-    /*! \brief A reference back to the original thread pool so we can
-     * share mutexes in a object orientated program.
-     */
-    ThreadPool &m_impl;
-  };
-  
-  /*! \brief Thread worker loop, called by the threads beginThreadFunc.
-   */
-  void beginThread() throw();
-
-  /*! \brief Halt the threadpool and terminate all the threads.
-   */
-  void stop();
-};
+}

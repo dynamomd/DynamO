@@ -62,7 +62,7 @@ protected:
 
   void addGlobal(const Particle& p1, const ClonePtr<Global>& glob, boost::mutex& sorterLock);
 
-  ThreadPool _threadPool;
+  magnet::thread::ThreadPool _threadPool;
 
   boost::mutex _P1SorterLock;
   boost::mutex _P2SorterLock;

@@ -172,17 +172,24 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
   sorter->clearPEL(p2.getID());
 
   //Add the interaction events, these can churn while try to add the other events
-  BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, p1, ID, _P1SorterLock);
-  BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) _threadPool.queue(&SThreadedNBList::threadAddIntEvent, this, p2, ID, _P2SorterLock);
+  BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) 
+    _threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::threadAddIntEvent, 
+						     this, p1, ID, _P1SorterLock));
+
+  BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) 
+    _threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::threadAddIntEvent, 
+						     this, p2, ID, _P2SorterLock));
 
   //Add the global events
   BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     {
       if (glob->isInteraction(p1))
-	_threadPool.queue(&SThreadedNBList::addGlobal, this, p1, glob, _P1SorterLock);
+	_threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::addGlobal, 
+							 this, p1, glob, _P1SorterLock));
 
       if (glob->isInteraction(p2))
-	_threadPool.queue(&SThreadedNBList::addGlobal, this, p2, glob, _P2SorterLock);
+	_threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::addGlobal, 
+							 this, p2, glob, _P2SorterLock));
     }
   
   //Add the local cell events
@@ -221,7 +228,8 @@ SThreadedNBList::spawnThreadAddLocalEvent1(const Particle& part,
 					  const size_t& id) 
 {
   if (Sim->dynamics.getLocals()[id]->isInteraction(part))
-    _threadPool.queue(&SThreadedNBList::threadAddLocalEvent, this, part, id, _P1SorterLock);
+    _threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::threadAddLocalEvent, 
+							   this, part, id, _P1SorterLock));
 }
 
 void 
@@ -229,7 +237,8 @@ SThreadedNBList::spawnThreadAddLocalEvent2(const Particle& part,
 					  const size_t& id) 
 {
   if (Sim->dynamics.getLocals()[id]->isInteraction(part))
-    _threadPool.queue(&SThreadedNBList::threadAddLocalEvent, this, part, id, _P2SorterLock);
+    _threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::threadAddLocalEvent, 
+							   this, part, id, _P2SorterLock));
 }
 
 void 

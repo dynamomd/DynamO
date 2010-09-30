@@ -88,12 +88,14 @@ exe threadpool_test
     : 
     ;
 
-local gladecflags = [ trim-nl [ SHELL "pkg-config gtkmm-2.4 --cflags" ] ] ; 
-local gladelibflags = [ trim-nl [ SHELL "pkg-config gtkmm-2.4 --libs" ] ] ; 
+lib gtkmm : : : 
+    :  
+    <cflags>"`pkg-config gtkmm-2.4 --cflags`"
+    <linkflags>"`pkg-config gtkmm-2.4 --libs`"
+    ;
 
 exe glade_test
-    : test/src/glade_test.cpp
-    : <cflags>$(gladecflags) <linkflags>$(gladelibflags)
+    : test/src/glade_test.cpp gtkmm
     ;
 
 install install-test

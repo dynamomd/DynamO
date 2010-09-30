@@ -31,7 +31,7 @@ struct A
   void memberFunc2(int i) { std::cerr << "Inside memberfunc2, i=" << i << "\n"; }
 
   void memberFunc3(int& i, int j) 
-  { std::cerr << "Inside memberfunc2, i=" << i << ", j=" << j << "\n"; }
+  { std::cerr << "Inside memberfunc3, i=" << i << ", j=" << j << "\n"; }
 };
 
 int main()
@@ -41,7 +41,7 @@ int main()
 
   A Aclass;
 
-  ThreadPool pool;
+  magnet::thread::ThreadPool pool;
 
   pool.setThreadCount(4);
 
@@ -53,19 +53,17 @@ int main()
   int& val4 = val3;
   
 
-  pool.queue(&A::memberFunc, &Aclass);
-  
-  pool.queue(&A::memberFunc2, &Aclass, 2);
-  
-  pool.queue(&A::memberFunc3, &Aclass, val4, 4);
+  pool.queueTask(magnet::function::makeTask(&A::memberFunc, &Aclass));  
+  pool.queueTask(magnet::function::makeTask(&A::memberFunc2, &Aclass, 2));  
+  pool.queueTask(magnet::function::makeTask(&A::memberFunc3, &Aclass, val4, 4));
 
 
   for (size_t loop(0); loop < 1000; ++loop)
     {
       //std::cerr << "Function 1\n";
       
-      for (int i = 0; i < N; ++i)    
-	pool.queue(function1, i);
+      for (int i = 0; i < N; ++i)   
+	pool.queueTask(magnet::function::makeTask(function1, i));
       
       pool.wait();
       
@@ -82,7 +80,7 @@ int main()
       
       //std::cerr << "Function 2\n";
       for (int i = 0; i < N; ++i)    
-	pool.queue(function2, i);
+	pool.queueTask(magnet::function::makeTask(function2, i));
       
       pool.wait();
       

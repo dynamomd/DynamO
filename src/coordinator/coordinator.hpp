@@ -109,7 +109,7 @@ private:
    *
    * This ThreadPool is used/referenced by all code in a single dynarun process.
    */
-  ThreadPool _threads;
+  magnet::thread::ThreadPool _threads;
 };
 
 #endif
