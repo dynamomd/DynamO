@@ -22,7 +22,6 @@
 #include <stdexcept>
 #include <fstream>
 
-#include "Primatives/Sphere.hpp"
 #include "Spheres.clh"
 #include <errno.h>
 
@@ -100,7 +99,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
     size_t nVertice = 0;
     for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
-      nVertice += iPtr->_type.n_vertices * iPtr->_nSpheres;
+      nVertice += iPtr->_type.getVertexCount() * iPtr->_nSpheres;
 
     std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
@@ -111,7 +110,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
     size_t nNormals = 0;
     for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
-      nNormals += iPtr->_type.n_vertices * iPtr->_nSpheres;
+      nNormals += iPtr->_type.getVertexCount() * iPtr->_nSpheres;
 
     std::vector<float> VertexNormals(3 * nNormals, 0.0);
 
@@ -120,10 +119,10 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
       {
 	for (size_t i = 0; i < iPtr->_nSpheres; ++i)
-	  for (int j = 0; j < 3 * iPtr->_type.n_vertices; ++j)
-	    VertexNormals[nNormals + 3 * iPtr->_type.n_vertices * i + j] = iPtr->_type.vertices[j];
+	  for (int j = 0; j < 3 * iPtr->_type.getVertexCount(); ++j)
+	    VertexNormals[nNormals + 3 * iPtr->_type.getVertexCount() * i + j] = iPtr->_type.getVertices()[j];
 
-	nNormals += 3 * iPtr->_nSpheres * iPtr->_type.n_vertices;
+	nNormals += 3 * iPtr->_nSpheres * iPtr->_type.getVertexCount();
       }
     
     setGLNormals(VertexNormals);
@@ -134,7 +133,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
     size_t nColors = 0;
     for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
-      nColors += iPtr->_type.n_vertices * iPtr->_nSpheres;
+      nColors += iPtr->_type.getVertexCount() * iPtr->_nSpheres;
 
     std::vector<float> VertexColor(4*nColors, 1.0);
     
@@ -154,7 +153,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
     size_t nElements = 0;
     for (std::vector<SphereDetails>::const_iterator iPtr = _renderDetailLevels.begin();
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
-      nElements += 3 * iPtr->_type.n_faces * iPtr->_nSpheres;
+      nElements += 3 * iPtr->_type.getFaceCount() * iPtr->_nSpheres;
 
     std::vector<int> ElementData(nElements, 0.0);
 
@@ -164,13 +163,13 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
       {
 	for (size_t i = 0; i < iPtr->_nSpheres; ++i)
-	  for (int j = 0; j < 3 * iPtr->_type.n_faces; ++j)
-	    ElementData[nElements + 3 * iPtr->_type.n_faces * i + j] 
-	      = i * iPtr->_type.n_vertices + iPtr->_type.faces[j]
+	  for (int j = 0; j < 3 * iPtr->_type.getFaceCount(); ++j)
+	    ElementData[nElements + 3 * iPtr->_type.getFaceCount() * i + j] 
+	      = i * iPtr->_type.getVertexCount() + iPtr->_type.getFaces()[j]
 	      + nSphereVertices;
 
-	nSphereVertices += iPtr->_type.n_vertices * iPtr->_nSpheres;
-	nElements += 3 * iPtr->_type.n_faces * iPtr->_nSpheres;
+	nSphereVertices += iPtr->_type.getVertexCount() * iPtr->_nSpheres;
+	nElements += 3 * iPtr->_type.getFaceCount() * iPtr->_nSpheres;
       }
     
     setGLElements(ElementData);
@@ -297,14 +296,14 @@ RTSpheres::clTick_no_sort_or_locking(cl::CommandQueue& CmdQ, cl::Context& Contex
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     {
-      cl_int vertexOffset = renderedVertexData - 3 * renderedSpheres * iPtr->_type.n_vertices;
+      cl_int vertexOffset = renderedVertexData - 3 * renderedSpheres * iPtr->_type.getVertexCount();
 
       renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, iPtr->_primativeVertices, 
-		       iPtr->_type.n_vertices, renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
+		       iPtr->_type.getVertexCount(), renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
 		       vertexOffset, _sortData);
 
       renderedSpheres += iPtr->_nSpheres;
-      renderedVertexData += 3 * iPtr->_nSpheres * iPtr->_type.n_vertices;
+      renderedVertexData += 3 * iPtr->_nSpheres * iPtr->_type.getVertexCount();
     }
 
   //Release resources

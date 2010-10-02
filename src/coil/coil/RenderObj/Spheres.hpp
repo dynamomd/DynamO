@@ -18,8 +18,8 @@
 #pragma once
 #include "Triangles.hpp"
 #include <time.h>
-#include "Primatives/Sphere.hpp"
 #include "../clWindow.hpp"
+#include <magnet/GL/primatives/Sphere.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/CL/radixsort.hpp>
 #include <magnet/CL/heapSort.hpp>
@@ -29,19 +29,19 @@ class RTSpheres : public RTriangles
 public:
   struct SphereDetails
   {
-    inline SphereDetails(Sphere::SphereType type, size_t order, size_t n):
+    inline SphereDetails(magnet::GL::primatives::Sphere::SphereType type, size_t order, size_t n):
       _type(type, order),
       _nSpheres(n)
     {}
 
-    Sphere _type;
+    magnet::GL::primatives::Sphere _type;
     cl_uint _nSpheres;
 
     void setupCLBuffers(cl::Context& Context)
     {
       _primativeVertices = cl::Buffer(Context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				      sizeof(cl_float) * 3 * _type.n_vertices,
-				      _type.vertices);
+				      sizeof(cl_float) * 3 * _type.getVertexCount(),
+				      _type.getVertices());
     }
 
     cl::Buffer _primativeVertices;

@@ -108,6 +108,9 @@ void
 OPPlateMotion::ticker()
 {
   BOOST_FOREACH(localEntry& entry, localEnergyLoss)
+    entry.second.push_back(entry.first);
+
+  BOOST_FOREACH(localEntry& entry, localEnergyFlux)
     {
       entry.second.push_back(entry.first);
       entry.first = 0.0;
@@ -150,10 +153,10 @@ OPPlateMotion::ticker()
 	  << " " << plate.getPlateEnergy() / Sim->dynamics.units().unitEnergy()
 	  << " " << partEnergy / Sim->dynamics.units().unitEnergy() 
 	  << " " << (plate.getPlateEnergy() + partEnergy) / Sim->dynamics.units().unitEnergy()
-	  << " " << partpartEnergyLoss  * Sim->dynamics.units().unitTime() / (getTickerTime() * Sim->dynamics.units().unitEnergy())
+	  << " " << partpartEnergyLoss / Sim->dynamics.units().unitEnergy()
 	  << "\n";
   
-  partpartEnergyLoss = 0.0;
+  //partpartEnergyLoss = 0.0;
 }
 
 void 
@@ -186,7 +189,7 @@ OPPlateMotion::output(xml::XmlStream& XML)
 	  {
 	    sum += val;
 	    of << deltat * (step++) << " " 
-	       << val / (deltat *  Sim->dynamics.units().unitEnergy()) 
+	       << val / Sim->dynamics.units().unitEnergy() 
 	       << "\n";
 	  }
 

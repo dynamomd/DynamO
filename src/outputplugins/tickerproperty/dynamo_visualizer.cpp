@@ -95,34 +95,34 @@ OPVisualizer::initialise()
   size_t stage_spheres = std::min(10ul, Sim->N - spheres_rendered);
   if (stage_spheres)
     {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 2, stage_spheres));
+      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 2, stage_spheres));
       spheres_rendered += stage_spheres;
     }
 
   stage_spheres = std::min(1000ul, Sim->N - spheres_rendered);
   if (stage_spheres)
     {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, stage_spheres));
+      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 1, stage_spheres));
       spheres_rendered += stage_spheres;
     }
 
   stage_spheres = std::min(10000ul, Sim->N - spheres_rendered);
   if (stage_spheres)
     {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, stage_spheres));
+      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 0, stage_spheres));
       spheres_rendered += stage_spheres;
     }
 
   stage_spheres = std::min(200000ul, Sim->N - spheres_rendered);
   if (stage_spheres)
     {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::octahedron, 0, stage_spheres));
+      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::octahedron, 0, stage_spheres));
       spheres_rendered += stage_spheres;
     }
 
   stage_spheres = Sim->N - spheres_rendered;
   if (stage_spheres)
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, Sim->N - spheres_rendered));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, Sim->N - spheres_rendered));
 
   _sphereObject = &(_CLWindow->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels));
   
