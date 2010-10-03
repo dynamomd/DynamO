@@ -144,14 +144,19 @@ namespace magnet {
       
       ~Thread() {}
       
-
       Thread(function::Task* task):
 	_task(task)
       {
-	if (pthread_create(&_thread, NULL, 
+	pthread_attr_t data;
+	pthread_attr_init(&data);
+	pthread_attr_setdetachstate(&data, PTHREAD_CREATE_JOINABLE);
+
+	if (pthread_create(&_thread, &data, 
 			   &threadEntryPoint,
 			   static_cast<void*>(_task)))
 	  M_throw() << "Failed to create a thread";
+
+	pthread_attr_destroy(&data);
       }
       
       inline void join()
@@ -161,6 +166,9 @@ namespace magnet {
 
 	if (pthread_join(_thread, NULL))
 	  M_throw() << "Failed to join thread, _task=" << _task;
+
+	//Mark this thread as joined/ended
+	_task = NULL;
       }
 
       Thread& operator=(const Thread& other)
