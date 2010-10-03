@@ -40,8 +40,8 @@ OPVisualizer::~OPVisualizer()
 {
   if (_CLWindow != NULL)
     {
-      CoilMaster::getInstance().shutdownRenderer();
-      CoilMaster::getInstance().waitForRendererShutdown();
+      CoilMaster::getInstance().shutdownCoil();
+      CoilMaster::getInstance().waitForShutdown();
     }
 }
 
@@ -129,7 +129,7 @@ OPVisualizer::initialise()
   CoilMaster::getInstance().addWindow(_CLWindow);
 
   //Start the render thread
-  CoilMaster::getInstance().bootRenderer();
+  CoilMaster::getInstance().bootCoil();
 
   _lastRenderTime = _CLWindow->getLastFrameTime();
 

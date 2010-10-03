@@ -1,0 +1,12 @@
+######This bit registers a convertor for gladexml files
+import type ;
+type.register GLADEXML : gladexml ;
+
+import generators ;
+generators.register-standard glade.objectify-glade : GLADEXML : OBJ ;
+
+actions objectify-glade
+{
+  "ld" -r -b binary -o $(<) $(>)
+  "objcopy" --rename-section .data=.rodata,alloc,load,readonly,data,contents  $(<) $(<)
+}

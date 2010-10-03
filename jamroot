@@ -73,7 +73,7 @@ exe dynahist_rw
     ;
 
 exe dynarun 
-    : src/programs/dynarun.cpp src//dynamo_core
+    : src/programs/dynarun.cpp src//dynamo_core 
     : <link>static 
     ;
 
@@ -82,12 +82,6 @@ exe dynamod
     : <link>static 
     ;
 
-
-lib gtkmm : : : 
-    :  
-    <cflags>"`pkg-config gtkmm-2.4 --cflags`"
-    <linkflags>"`pkg-config gtkmm-2.4 --libs`"
-    ;
 
 #exe glade_test
 #    : test/src/glade_test.cpp gtkmm

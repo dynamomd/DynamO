@@ -15,10 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+
+#include "../clWindow.hpp"
 #include "Triangles.hpp"
 #include <time.h>
 
-#include "../clWindow.hpp"
 
 class RTTestWaves : public RTriangles
 {

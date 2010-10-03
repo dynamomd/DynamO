@@ -31,11 +31,11 @@ int main(int argc, char** argv)
 
     //Work computer test render
     size_t N = 1024 * 1000;
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 2, 10));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 1, 1000));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::icosahedron, 0, 10000));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::octahedron, 0, 200000));
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(Sphere::tetrahedron, 0, N - 200000 - 10000 - 1000 -10));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 2, 10));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 1, 1000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 0, 10000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::octahedron, 0, 200000));
+    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, N - 200000 - 10000 - 1000 -10));
 
     //Home laptop test render
 //    size_t N = 10 * 1024;
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
     CoilMaster::getInstance().addWindow(CLWindow);
 
     //Start the render thread
-    CoilMaster::getInstance().bootRenderer();
+    CoilMaster::getInstance().bootCoil();
 
     size_t edit = 0;
 
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
       }
 
     //Wait for the render thread to exit
-    CoilMaster::getInstance().waitForRendererShutdown();
+    CoilMaster::getInstance().waitForShutdown();
     
   } catch(cl::Error& err) {
     std::cerr << "OpenCL error: " << err.what() << "(" << err.err() 
