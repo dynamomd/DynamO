@@ -19,7 +19,7 @@
 #define CSCEntry_H
 
 #include "../../base/is_base.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../dynamics/ranges/1range.hpp"
 #include "../../dynamics/globals/neighbourList.hpp"
 
@@ -60,7 +60,7 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const = 0;
   
-  ClonePtr<CRange> range;
+  magnet::ClonePtr<CRange> range;
 };
 
 #endif

@@ -74,7 +74,7 @@ Simulation::scaleTickerPeriod(Iflt nP)
 System* 
 Simulation::getSystem(std::string name)
 {
-  BOOST_FOREACH(ClonePtr<System>& sysPtr, dynamics.getSystemEvents())
+  BOOST_FOREACH(magnet::ClonePtr<System>& sysPtr, dynamics.getSystemEvents())
     if (sysPtr->getName() == name)
       return sysPtr.get_ptr();
   
@@ -113,7 +113,7 @@ Simulation::addOutputPlugin(std::string Name)
   
   I_cout() << "Loading output plugin, " << Name;
 
-  ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
+  magnet::ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);
 }
 
@@ -148,7 +148,7 @@ Simulation::initialise()
   
   bool needTicker = false;
   
-  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
     if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
       {
 	needTicker = true; 
@@ -182,7 +182,7 @@ Simulation::initialise()
     I_cout() << "Skipping initialisation of the Scheduler";
   
   I_cout() << "Initialising the output plugins";
-  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
     Ptr->initialise();
 
   I_cout() << "System initialised";
@@ -220,7 +220,7 @@ Simulation::runSimulation(bool silentMode)
 	  if (outputPlugins.size())
 	    std::cout << "\n";
 	  //Print the screen data plugins
-	  BOOST_FOREACH( ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+	  BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
 	    Ptr->periodicOutput();
 	  
 	  fflush(stdout);
@@ -291,7 +291,7 @@ Simulation::loadPlugins(std::string pluginFileName)
   if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
     {
       xMainNode=XMLNode::openFileHelper(pluginFileName.c_str(), "Plugins");
-      ClonePtr<OutputPlugin> tmpPlug(NULL);
+      magnet::ClonePtr<OutputPlugin> tmpPlug(NULL);
       for (int i = 0; i < xMainNode.nChildNode("Plugin"); ++i)
 	{
 	  tmpPlug.set_ptr(OutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
@@ -328,7 +328,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
       
       
       //Output the data and delete the outputplugins
-      BOOST_FOREACH( ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+      BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
 	Ptr->output(XML);
       
       XML << xml::endtag("OutputData");
@@ -344,7 +344,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
       
       
       //Output the data and delete the outputplugins
-      BOOST_FOREACH( ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+      BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
 	Ptr->output(XML);
       
       XML << xml::endtag("OutputData");

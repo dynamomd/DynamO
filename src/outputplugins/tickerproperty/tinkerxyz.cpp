@@ -197,9 +197,9 @@ OPTinkerXYZ::printFileImage()
   
   std::vector<OPRGyration::molGyrationDat> gyrationData;
 
-  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      BOOST_FOREACH(const ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
 
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
@@ -274,9 +274,9 @@ OPTinkerXYZ::printFileImage()
       obj_of << " 0.05 1.0 0.0 0.0\n";
     }
 
-  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      BOOST_FOREACH(const ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
 	for (CRange::const_iterator iPtr = range->begin() + 1; iPtr != range->end(); ++iPtr)
 	  {
 	    Vector  pos1 = Sim->particleList[*iPtr].getPosition();

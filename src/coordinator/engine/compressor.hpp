@@ -76,7 +76,7 @@ protected:
 
   /*! \brief A single CIPCompression plugin to manipulate the Simulation.
    */
-  ClonePtr<CIPCompression> compressPlug;
+  magnet::ClonePtr<CIPCompression> compressPlug;
 };
 
 #endif

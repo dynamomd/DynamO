@@ -20,6 +20,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../extcode/mathtemplates.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPRadialDistribution::OPRadialDistribution(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
@@ -87,8 +88,8 @@ OPRadialDistribution::ticker()
 {
   ++sampleCount;
   
-  BOOST_FOREACH(const ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
     { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
 	BOOST_FOREACH(const size_t& p2, *sp2->getRange())
 	{
@@ -112,8 +113,8 @@ OPRadialDistribution::output(xml::XmlStream& XML)
       << sampleCount;
 
   
-  BOOST_FOREACH(const ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
     {
       Iflt density = sp2->getCount() / Sim->dynamics.units().simVolume();
 

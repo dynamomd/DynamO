@@ -25,9 +25,9 @@
 
 #include <boost/program_options.hpp>
 #include <vector>
-#include "../datatypes/pluginpointer.hpp"
 #include "engine/engine.hpp"
 #include <magnet/thread/threadpool.hpp>
+#include <magnet/cloneptr.hpp>
 
 /*! \brief The main class for the dynarun program.
  *
@@ -103,7 +103,7 @@ private:
 
   /*! \brief A smart pointer to the Engine being run.
    */
-  ClonePtr<Engine> _engine;
+  magnet::ClonePtr<Engine> _engine;
 
   /*! \brief A thread pool to utilise multiple cores on the computational node.
    *

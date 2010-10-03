@@ -18,7 +18,7 @@
 #pragma once
 
 #include <string>
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
 
@@ -65,7 +65,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const = 0;
 
-  ClonePtr<CRange> range;  
+  magnet::ClonePtr<CRange> range;  
   std::string globName;
   size_t ID;
 };

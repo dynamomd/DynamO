@@ -188,7 +188,7 @@ OPMutualDiffusionGK::initialise()
   
   Iflt sysMass = 0.0;
 
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
   
   BOOST_FOREACH(const Particle& part, Sim->particleList)

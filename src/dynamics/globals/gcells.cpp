@@ -446,7 +446,7 @@ CGCells::addLocalEvents()
       cell.locals.clear();
 
       //We make the box slightly larger to ensure objects on the boundary are included
-      BOOST_FOREACH(const ClonePtr<Local>& local, Sim->dynamics.getLocals())
+      BOOST_FOREACH(const magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
 	if (local->isInCell(cell.origin - 0.0001 * cellDimension,  1.0002 * cellDimension))
 	  cell.locals.push_back(local->getID());
     }

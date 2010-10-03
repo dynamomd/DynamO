@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../base/is_base.hpp"
 #include <vector>
 #include "interactions/interaction.hpp"
@@ -63,7 +63,7 @@ public:
 
   Interaction* addInteraction(Interaction*);
 
-  void addSpecies(const ClonePtr<Species>&);
+  void addSpecies(const magnet::ClonePtr<Species>&);
   
   void addGlobal(Global*);
 
@@ -75,14 +75,14 @@ public:
 
   const Species& getSpecies(const Particle&) const;
   
-  const ClonePtr<Interaction>& 
+  const magnet::ClonePtr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
   
   void stream(const Iflt&);
   
   inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
   {
-    BOOST_FOREACH(const ClonePtr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	{
 #ifdef DYNAMO_UpdateCollDebug
@@ -132,35 +132,35 @@ public:
 
   Dynamics* Clone() const { return new Dynamics(*this); }
 
-  std::vector<ClonePtr<Interaction> >& getInteractions() { return interactions; }
-  const std::vector<ClonePtr<Interaction> >& getInteractions() const { return interactions; }
+  std::vector<magnet::ClonePtr<Interaction> >& getInteractions() { return interactions; }
+  const std::vector<magnet::ClonePtr<Interaction> >& getInteractions() const { return interactions; }
 
-  ClonePtr<Interaction>& getInteraction(std::string);
-  const ClonePtr<Interaction>& getInteraction(std::string) const;
+  magnet::ClonePtr<Interaction>& getInteraction(std::string);
+  const magnet::ClonePtr<Interaction>& getInteraction(std::string) const;
 
-  const std::vector<ClonePtr<Global> >& getGlobals() const { return globals; }
-  std::vector<ClonePtr<Global> >& getGlobals() { return globals; }
-  ClonePtr<Global>& getGlobal(std::string);
-  const ClonePtr<Global>& getGlobal(std::string) const;
+  const std::vector<magnet::ClonePtr<Global> >& getGlobals() const { return globals; }
+  std::vector<magnet::ClonePtr<Global> >& getGlobals() { return globals; }
+  magnet::ClonePtr<Global>& getGlobal(std::string);
+  const magnet::ClonePtr<Global>& getGlobal(std::string) const;
 
-  const std::vector<ClonePtr<Local> >& getLocals() const { return locals; }
-  ClonePtr<Local>& getLocal(std::string);
-  const ClonePtr<Local>& getLocal(std::string) const;
+  const std::vector<magnet::ClonePtr<Local> >& getLocals() const { return locals; }
+  magnet::ClonePtr<Local>& getLocal(std::string);
+  const magnet::ClonePtr<Local>& getLocal(std::string) const;
 
-  const std::vector<ClonePtr<Species> >& getSpecies() const { return species; }
+  const std::vector<magnet::ClonePtr<Species> >& getSpecies() const { return species; }
   const Species& getSpecies(std::string) const;
 
-  std::vector<ClonePtr<Topology> >& getTopology() { return topology; }
-  const std::vector<ClonePtr<Topology> >& getTopology() const { return topology; }
+  std::vector<magnet::ClonePtr<Topology> >& getTopology() { return topology; }
+  const std::vector<magnet::ClonePtr<Topology> >& getTopology() const { return topology; }
 
-  ClonePtr<Topology>& getTopology(std::string);
+  magnet::ClonePtr<Topology>& getTopology(std::string);
 
-  const ClonePtr<Topology>& getTopology(std::string) const;
+  const magnet::ClonePtr<Topology>& getTopology(std::string) const;
 
-  std::vector<ClonePtr<System> >& getSystemEvents() { return systems; }
-  const std::vector<ClonePtr<System> >& getSystemEvents() const { return systems; }
-  const ClonePtr<System>& getSystem(std::string) const;
-  ClonePtr<System>& getSystem(std::string);
+  std::vector<magnet::ClonePtr<System> >& getSystemEvents() { return systems; }
+  const std::vector<magnet::ClonePtr<System> >& getSystemEvents() const { return systems; }
+  const magnet::ClonePtr<System>& getSystem(std::string) const;
+  magnet::ClonePtr<System>& getSystem(std::string);
 
   void addSystemTicker();
   
@@ -210,13 +210,13 @@ public:
  protected:
   void outputXML(xml::XmlStream &) const;
 
-  std::vector<ClonePtr<Interaction> > interactions;
-  std::vector<ClonePtr<Global> > globals;
-  std::vector<ClonePtr<Local> > locals;
-  std::vector<ClonePtr<System> > systems;
-  std::vector<ClonePtr<Topology> > topology;
-  std::vector<ClonePtr<Species> > species;
-  ClonePtr<BoundaryCondition> p_BC;
-  ClonePtr<Liouvillean> p_liouvillean;
-  mutable ClonePtr<Units> p_units;
+  std::vector<magnet::ClonePtr<Interaction> > interactions;
+  std::vector<magnet::ClonePtr<Global> > globals;
+  std::vector<magnet::ClonePtr<Local> > locals;
+  std::vector<magnet::ClonePtr<System> > systems;
+  std::vector<magnet::ClonePtr<Topology> > topology;
+  std::vector<magnet::ClonePtr<Species> > species;
+  magnet::ClonePtr<BoundaryCondition> p_BC;
+  magnet::ClonePtr<Liouvillean> p_liouvillean;
+  mutable magnet::ClonePtr<Units> p_units;
 };

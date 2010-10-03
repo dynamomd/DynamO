@@ -24,7 +24,7 @@
 #include "../../extcode/include/boost/random/normal_distribution.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../ranges/1range.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 
 class CSDSMCSpheres: public System
 {
@@ -55,8 +55,8 @@ protected:
   Iflt e;
   Iflt factor;
 
-  ClonePtr<CRange> range1;
-  ClonePtr<CRange> range2;
+  magnet::ClonePtr<CRange> range1;
+  magnet::ClonePtr<CRange> range2;
 };
 
 #endif

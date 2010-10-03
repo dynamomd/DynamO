@@ -18,6 +18,7 @@
 #include "colldistcheck.hpp"
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPCollDistCheck::OPCollDistCheck(const DYNAMO::SimData* t1, 
 				   const XMLNode& XML):

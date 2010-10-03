@@ -49,7 +49,7 @@ Topology::operator<<(const XMLNode& XML)
       }
     
     for (int i = 0; i < XML.nChildNode(); i++)
-      ranges.push_back(ClonePtr<CRange>(CRange::loadClass(XML.getChildNode(i), Sim)));
+      ranges.push_back(magnet::ClonePtr<CRange>(CRange::loadClass(XML.getChildNode(i), Sim)));
 }
 
 void
@@ -57,7 +57,7 @@ Topology::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Name") << spName;
   
-  BOOST_FOREACH(const ClonePtr<CRange>& plugPtr, ranges)
+  BOOST_FOREACH(const magnet::ClonePtr<CRange>& plugPtr, ranges)
     XML << xml::tag("Molecule") << plugPtr
 	<< xml::endtag("Molecule");
 }

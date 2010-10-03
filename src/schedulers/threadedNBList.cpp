@@ -76,7 +76,7 @@ SThreadedNBList::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -110,7 +110,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -181,7 +181,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 						     this, p2, ID, _P2SorterLock));
 
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     {
       if (glob->isInteraction(p1))
 	_threadPool.queueTask(magnet::function::Task::makeTask(&SThreadedNBList::addGlobal, 
@@ -207,7 +207,7 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 }
 
 void 
-SThreadedNBList::addGlobal(const Particle& part, const ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock)
+SThreadedNBList::addGlobal(const Particle& part, const magnet::ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock)
 {
   GlobalEvent event = glob->getEvent(part);
 

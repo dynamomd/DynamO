@@ -21,6 +21,7 @@
 #include <boost/foreach.hpp>
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/collMatrix.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPRdotV::OPRdotV(const DYNAMO::SimData* tmp, const XMLNode&):
   OutputPlugin(tmp, "RdotV")

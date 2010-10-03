@@ -135,7 +135,7 @@ CSNeighbourList::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
@@ -166,7 +166,7 @@ CSNeighbourList::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   

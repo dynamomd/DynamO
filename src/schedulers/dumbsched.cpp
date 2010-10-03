@@ -105,12 +105,12 @@ CSDumb::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
   //Add the local cell events
-  BOOST_FOREACH(const ClonePtr<Local>& local, Sim->dynamics.getLocals())
+  BOOST_FOREACH(const magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
     addLocalEvent(part, local->getID());
 
   //Add the interaction events

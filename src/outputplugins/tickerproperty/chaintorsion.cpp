@@ -35,7 +35,7 @@ OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPCTorsion::initialise()
 {
-  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			       0.005, 0.005, 0.01));
@@ -80,7 +80,7 @@ OPCTorsion::ticker()
     {
       Iflt sysGamma  = 0.0;
       long count = 0;
-      BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
 	  if (range->size() < 3)//Need three for curv and torsion
 	    break;

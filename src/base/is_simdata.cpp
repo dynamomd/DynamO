@@ -71,10 +71,10 @@ namespace DYNAMO
     
     dynamics.getSystemEvents().swap(other.dynamics.getSystemEvents());
 
-    BOOST_FOREACH(ClonePtr<System>& aPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(magnet::ClonePtr<System>& aPtr, dynamics.getSystemEvents())
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(ClonePtr<System>& aPtr, other.dynamics.getSystemEvents())
+    BOOST_FOREACH(magnet::ClonePtr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
     //Rescale the velocities     
@@ -105,7 +105,7 @@ namespace DYNAMO
     outputPlugins.swap(other.outputPlugins);      
     
     {
-      std::vector<ClonePtr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
+      std::vector<magnet::ClonePtr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
 	iPtr2 = other.outputPlugins.begin();
       
       while (iPtr1 != outputPlugins.end())

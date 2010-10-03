@@ -93,14 +93,14 @@ OPMSDCorrelator::accPass()
 {
   ++ticksTaken;
   
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t step(1); step < length; ++step)
       speciesData[sp->getID()][step]
 	+= (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
-  BOOST_FOREACH(const ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
-    BOOST_FOREACH(const ClonePtr<CRange>& range, topo->getMolecules())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, topo->getMolecules())
     {
       Vector  molCOM(0,0,0);
       Iflt molMass(0);
@@ -140,7 +140,7 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
     (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
     / Sim->dynamics.units().unitTime();
   
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     {
       XML << xml::tag("Species")
 	  << xml::attr("Name")
@@ -161,7 +161,7 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
   XML << xml::endtag("Particles")
       << xml::tag("Topology");
   
-  BOOST_FOREACH(const ClonePtr<Topology>& topo, 
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, 
 		Sim->dynamics.getTopology())
     {
       XML << xml::tag("Structure")

@@ -269,7 +269,7 @@ OPVACF::accPass()
 {
   ++count;
   
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     for (size_t j = 0; j < CorrelatorLength; ++j)
       for (size_t iDim(0); iDim < NDIM; ++iDim)

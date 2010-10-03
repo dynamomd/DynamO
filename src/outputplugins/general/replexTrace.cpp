@@ -19,6 +19,7 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include "../../dynamics/include.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
   OutputPlugin(t1,"ReplexTrace"),

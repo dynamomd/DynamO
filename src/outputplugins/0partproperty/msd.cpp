@@ -58,7 +58,7 @@ OPMSD::output(xml::XmlStream &XML)
     {
       XML << xml::tag("Structures");
 
-      BOOST_FOREACH(const ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+      BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
 	{
 	  Iflt MSD(calcStructMSD(*topo));
 
@@ -97,7 +97,7 @@ OPMSD::calcStructMSD(const Topology& Itop) const
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
   Iflt acc = 0.0;
-  BOOST_FOREACH(const ClonePtr<CRange>& molRange, Itop.getMolecules())
+  BOOST_FOREACH(const magnet::ClonePtr<CRange>& molRange, Itop.getMolecules())
     {
       Vector  origPos(0,0,0), currPos(0,0,0);
       Iflt totmass = 0.0;

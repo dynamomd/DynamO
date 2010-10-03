@@ -39,7 +39,7 @@ void
 OPSHCrystal::initialise() 
 { 
   double smallestlength = HUGE_VAL;
-  BOOST_FOREACH(const ClonePtr<Global>& pGlob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& pGlob, Sim->dynamics.getGlobals())
     if (dynamic_cast<const CGNeighbourList*>(pGlob.get_ptr()) != NULL)
       {
 	const Iflt l(static_cast<const CGNeighbourList*>(pGlob.get_ptr())

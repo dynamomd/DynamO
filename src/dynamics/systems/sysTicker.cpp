@@ -66,7 +66,7 @@ CSTicker::runEvent() const
 
   {
     OPTicker* ptr = NULL;
-    BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
       {
 	ptr = dynamic_cast<OPTicker*>(Ptr.get_ptr());
 	if (ptr != NULL)
@@ -74,7 +74,7 @@ CSTicker::runEvent() const
       }
   }
 
-  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, NEventData(), locdt);
 }
 

@@ -20,6 +20,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../1partproperty/kenergy.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPVelDist::OPVelDist(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):
@@ -59,7 +60,7 @@ OPVelDist::ticker()
   Iflt factor = std::sqrt(Sim->dynamics.units().unitMass() 
 			  / _ptrOPEnergy->getCurrentkT());
 
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *sp->getRange())
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim][sp->getID()]

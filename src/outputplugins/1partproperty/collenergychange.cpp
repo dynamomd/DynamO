@@ -24,6 +24,7 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 Iflt OPCollEnergyChange::KEBinWidth = 0.01;
 

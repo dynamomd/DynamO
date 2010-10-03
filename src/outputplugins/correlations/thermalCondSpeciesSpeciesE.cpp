@@ -22,6 +22,7 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../base/is_ensemble.hpp"
 #include "../0partproperty/misc.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPThermalConductivitySpeciesSpeciesE::OPThermalConductivitySpeciesSpeciesE(const DYNAMO::SimData* tmp,
 						 const XMLNode& XML):
@@ -96,7 +97,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
     }
   
   //Sum up the constant Del G.
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& id, *spec->getRange())
     {
       const Particle& part(Sim->particleList[id]);

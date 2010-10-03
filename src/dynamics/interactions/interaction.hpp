@@ -19,7 +19,7 @@
 #define CInteraction_H
 
 #include <string>
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/2range.hpp"
 #include "../../base/is_colormap.hpp"
@@ -78,9 +78,9 @@ public:
 
   inline const std::string& getName() const { return intName; }
 
-  ClonePtr<C2Range>& getRange();
+  magnet::ClonePtr<C2Range>& getRange();
 
-  const ClonePtr<C2Range>& getRange() const;
+  const magnet::ClonePtr<C2Range>& getRange() const;
 
   virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
 
@@ -99,7 +99,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream& ) const = 0;
 
-  ClonePtr<C2Range> range;
+  magnet::ClonePtr<C2Range> range;
 
   std::string intName;
   size_t ID;

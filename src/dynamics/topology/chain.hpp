@@ -19,7 +19,7 @@
 #define CTChains_H
 
 #include "topology.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include <string>
 #include <list>

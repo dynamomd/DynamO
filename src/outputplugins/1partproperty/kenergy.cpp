@@ -22,6 +22,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
   OP1PP(tmp,"KEnergy", 250),

@@ -164,7 +164,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
 	Sim->signalParticleUpdate(retVal);
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 
 
@@ -183,7 +183,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
 	//Now we're past the event, update the scheduler and plugins
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, 
+	BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, 
 		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retVal);
 

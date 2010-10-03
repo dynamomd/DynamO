@@ -65,7 +65,7 @@ OPRGyration::operator<<(const XMLNode& XML)
 void 
 OPRGyration::initialise()
 {
-  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(CTCdata(dynamic_cast<const CTChain*>
 			       (plugPtr.get_ptr()), 
@@ -98,7 +98,7 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 }
 
 OPRGyration::molGyrationDat
-OPRGyration::getGyrationEigenSystem(const ClonePtr<CRange>& range, const DYNAMO::SimData* Sim)
+OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const DYNAMO::SimData* Sim)
 {
   //Determine the centre of mass. Watch for periodic images
   Vector  tmpVec;  
@@ -309,7 +309,7 @@ OPRGyration::ticker()
     {
       std::list<Vector  > molAxis;
 
-      BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
 	  molGyrationDat vals = getGyrationEigenSystem(range, Sim);	  
 	  //Take the largest eigenvector as the molecular axis
@@ -348,7 +348,7 @@ OPRGyration::output(xml::XmlStream& XML)
 
       std::list<Vector  > molAxis;
 
-      BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	molAxis.push_back(getGyrationEigenSystem(range, Sim).EigenVec[NDIM-1]);
 
       Vector  EigenVal = NematicOrderParameter(molAxis);

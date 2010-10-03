@@ -106,7 +106,7 @@ CSysRescale::runEvent() const
 
   NEventData SDat;
 
-  BOOST_FOREACH(const ClonePtr<Species>& species, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& species, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const unsigned long& partID, *species->getRange())
     SDat.L1partChanges.push_back(ParticleEventData(Sim->particleList[partID], *species, RESCALE));
 
@@ -129,10 +129,10 @@ CSysRescale::runEvent() const
 
   Sim->freestreamAcc = 0;
 
-  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, SDat, locdt); 
 
-  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->temperatureRescale(1.0/currentkT);
 
   dt = HUGE_VAL;

@@ -159,7 +159,7 @@ ILines::runEvent(const Particle& p1,
 	
 	Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, 
+	BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, 
 		      Sim->outputPlugins)
 	  Ptr->eventUpdate(iEvent, retval);
 

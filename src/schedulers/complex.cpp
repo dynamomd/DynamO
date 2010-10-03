@@ -42,7 +42,7 @@ CSComplex::operator<<(const XMLNode& XML)
 
   XMLNode xSubNode = XML.getChildNode("Entries");  
   for (long i=0; i < xSubNode.nChildNode("Entry"); i++)
-    entries.push_back(ClonePtr<CSCEntry>
+    entries.push_back(magnet::ClonePtr<CSCEntry>
 		      (CSCEntry::getClass(xSubNode.getChildNode("Entry", i), Sim)));
 }
 
@@ -52,7 +52,7 @@ CSComplex::initialise()
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
   std::cout.flush();
 
-  BOOST_FOREACH(ClonePtr<CSCEntry>& ent, entries)
+  BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
     ent->initialise();
 
   sorter->clear();
@@ -84,7 +84,7 @@ CSComplex::rebuildList()
 #ifdef DYNAMO_DEBUG
   initialise();
 #else
-  BOOST_FOREACH(ClonePtr<CSCEntry>& ent, entries)
+  BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
     ent->initialise();
 
   sorter->clear();
@@ -113,7 +113,7 @@ CSComplex::outputXML(xml::XmlStream& XML) const
       << xml::endtag("Sorter")
       << xml::tag("Entries");
   
-  BOOST_FOREACH(const ClonePtr<CSCEntry>& ent,  entries)
+  BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent,  entries)
     XML << xml::tag("Entry")
 	<< ent
 	<< xml::endtag("Entry");
@@ -139,11 +139,11 @@ CSComplex::addEvents(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
   
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-  BOOST_FOREACH(const ClonePtr<CSCEntry>& ent, entries)
+  BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood
@@ -160,11 +160,11 @@ CSComplex::addEventsInit(const Particle& part)
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   //Add the global events
-  BOOST_FOREACH(const ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+  BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-  BOOST_FOREACH(const ClonePtr<CSCEntry>& ent, entries)
+  BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
     if (ent->isApplicable(part))
       {
 	ent->getParticleLocalNeighbourhood

@@ -60,7 +60,7 @@ protected:
 
   void addEventsInit(const Particle&);
 
-  void addGlobal(const Particle& p1, const ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock);
+  void addGlobal(const Particle& p1, const magnet::ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock);
 
   magnet::thread::ThreadPool _threadPool;
 

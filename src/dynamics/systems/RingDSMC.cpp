@@ -86,7 +86,7 @@ CSRingDSMC::runEvent() const
   locdt += Sim->freestreamAcc;
   Sim->freestreamAcc = 0;
 
-  BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, NEventData(), locdt);
 
   //////////////////// T(1,2) operator
@@ -129,7 +129,7 @@ CSRingDSMC::runEvent() const
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	    BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }
@@ -182,7 +182,7 @@ CSRingDSMC::runEvent() const
 	    
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	    BOOST_FOREACH(ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }

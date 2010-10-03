@@ -19,7 +19,6 @@
 #include "outputplugin.hpp"
 #include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
-#include "../datatypes/complex.hpp"
 #include "../base/constants.hpp"
 #include "../simulation/particle.hpp"
 #include "../extcode/xmlParser.h"

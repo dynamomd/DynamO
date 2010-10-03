@@ -37,7 +37,7 @@ OPPeriodicMSD::initialise()
   ptrOPMSD = Sim->getOutputPlugin<OPMSD>();
 
   //Now cache a local list of the topology
-  BOOST_FOREACH(const ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
     {
       localpair2 tmpPair;
       tmpPair.first = topo.get_ptr();

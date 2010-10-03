@@ -143,7 +143,7 @@ IRoughHardSphere::runEvent(const Particle& p1,
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(p1, p2);
   
-  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent,EDat);
 }
    

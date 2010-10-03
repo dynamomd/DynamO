@@ -61,7 +61,7 @@ OPChainBondAngles::operator<<(const XMLNode& XML)
 void 
 OPChainBondAngles::initialise()
 {
-  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, 
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, 
 		Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(plugPtr->getID(), 
@@ -79,7 +79,7 @@ void
 OPChainBondAngles::ticker()
 {
   BOOST_FOREACH(Cdata& dat,chains)
-    BOOST_FOREACH(const ClonePtr<CRange>& range, 
+    BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, 
 		  Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
     if (range->size() > 2)
       {

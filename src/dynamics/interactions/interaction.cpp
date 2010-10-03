@@ -49,11 +49,11 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
   return XML;
 }
 
-ClonePtr<C2Range>& 
+magnet::ClonePtr<C2Range>& 
 Interaction::getRange() 
 { return range; }
 
-const ClonePtr<C2Range>& 
+const magnet::ClonePtr<C2Range>& 
 Interaction::getRange() const
 { return range; }
 

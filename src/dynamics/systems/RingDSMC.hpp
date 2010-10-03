@@ -24,7 +24,7 @@
 #include "../../extcode/include/boost/random/normal_distribution.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../ranges/1range.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 
 class CSRingDSMC: public System
 {
@@ -60,7 +60,7 @@ protected:
   mutable unsigned long n12;
   mutable unsigned long n13;
 
-  ClonePtr<CRange> range1;
+  magnet::ClonePtr<CRange> range1;
 };
 
 #endif

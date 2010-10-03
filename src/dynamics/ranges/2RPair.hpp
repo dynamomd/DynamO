@@ -20,7 +20,7 @@
 
 #include "1range.hpp"
 #include "2range.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 
 class C2RPair:public C2Range
 {
@@ -39,8 +39,8 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
-  ClonePtr<CRange> range1;
-  ClonePtr<CRange> range2;
+  magnet::ClonePtr<CRange> range1;
+  magnet::ClonePtr<CRange> range2;
 };
 
 #endif

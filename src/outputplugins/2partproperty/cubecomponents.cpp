@@ -22,6 +22,7 @@
 #include <boost/array.hpp>
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/collMatrix.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPCubeComp::OPCubeComp(const DYNAMO::SimData* tmp, const XMLNode&):
   OutputPlugin(tmp, "CubeComponents")

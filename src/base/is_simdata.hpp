@@ -38,8 +38,10 @@ class CScheduler;
 class Particle;
 class OutputPlugin;
 
-template <class T>
-class ClonePtr;
+namespace magnet {
+  template <class T>
+  class ClonePtr;
+}
 
 //! \brief Holds the different phases of the simulation initialisation
 typedef enum 
@@ -93,7 +95,7 @@ namespace DYNAMO
     template<class T>
     const T* getOutputPlugin() const
     {
-      BOOST_FOREACH(const ClonePtr<OutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(const magnet::ClonePtr<OutputPlugin>& plugin, outputPlugins)
 	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<const T*>(plugin.get_ptr());
       
@@ -108,7 +110,7 @@ namespace DYNAMO
     template<class T>
     T* getOutputPlugin()
     {
-      BOOST_FOREACH(ClonePtr<OutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& plugin, outputPlugins)
 	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
 	  return dynamic_cast<T*>(plugin.get_ptr());
 
@@ -181,7 +183,7 @@ namespace DYNAMO
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
-    std::vector<ClonePtr<OutputPlugin> > outputPlugins; 
+    std::vector<magnet::ClonePtr<OutputPlugin> > outputPlugins; 
 
     /*! \brief The mean free time of the previous simulation run
      *

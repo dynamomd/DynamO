@@ -60,7 +60,7 @@ OPStructureImaging::initialise()
 {
   id = Sim->dynamics.getTopology().size();
   
-  BOOST_FOREACH(const ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
     if (boost::iequals(structureName, ptr->getName()))
       id = ptr->getID();
   
@@ -90,7 +90,7 @@ OPStructureImaging::ticker()
 void
 OPStructureImaging::printImage()
 {
-  BOOST_FOREACH(const ClonePtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
+  BOOST_FOREACH(const magnet::ClonePtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
     {
       std::vector<Vector  > atomDescription;
 

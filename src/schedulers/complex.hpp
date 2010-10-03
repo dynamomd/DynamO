@@ -42,7 +42,7 @@ protected:
 
   void addEventsInit(const Particle&);
 
-  std::vector<ClonePtr<CSCEntry> > entries;
+  std::vector<magnet::ClonePtr<CSCEntry> > entries;
 };
 
 #endif

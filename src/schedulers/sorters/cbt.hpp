@@ -20,6 +20,7 @@
 #include <vector>
 #include <cmath>
 #include <magnet/exception.hpp>
+#include "../../extcode/xmlwriter.hpp"
 #include "datastruct.hpp"
 #include "sorter.hpp"
 

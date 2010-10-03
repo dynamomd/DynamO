@@ -16,7 +16,7 @@
 */
 #pragma once
 
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
 #include <string>
@@ -53,9 +53,9 @@ public:
   virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
 
   inline void addMolecule(CRange* ptr)
-  { ranges.push_back(ClonePtr<CRange>(ptr)); }
+  { ranges.push_back(magnet::ClonePtr<CRange>(ptr)); }
 
-  inline const std::list<ClonePtr<CRange> >& getMolecules() const
+  inline const std::list<magnet::ClonePtr<CRange> >& getMolecules() const
   { return ranges; }
 
   inline size_t getMoleculeCount() const { return ranges.size(); }
@@ -65,7 +65,7 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
   
-  std::list<ClonePtr<CRange> > ranges;
+  std::list<magnet::ClonePtr<CRange> > ranges;
   
   std::string spName;
   

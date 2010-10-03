@@ -231,7 +231,7 @@ OPMisc::output(xml::XmlStream &XML)
   XML << xml::endtag("SystemBoxLength");
 
   // Output scalar moment of inertia for any species which may have it
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
   {
     if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
     {

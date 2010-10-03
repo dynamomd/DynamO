@@ -20,7 +20,7 @@
 
 #include "1range.hpp"
 #include "2range.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 
 class C2RRings:public C2Range
 {

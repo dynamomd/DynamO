@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
 #include "../units/units.hpp"
@@ -65,7 +65,7 @@ public:
 
   void setIntPtr(Interaction*);
 
-  const ClonePtr<CRange>& getRange() const { return range; }
+  const magnet::ClonePtr<CRange>& getRange() const { return range; }
 
   virtual Species* Clone() const { return new Species(*this); }
 
@@ -83,7 +83,7 @@ protected:
   
   Iflt mass;
 
-  ClonePtr<CRange> range;
+  magnet::ClonePtr<CRange> range;
 
   std::string spName;
   std::string intName;

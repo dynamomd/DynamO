@@ -80,7 +80,7 @@ OPGeomview::printImage()
 
   unsigned int i = 0;
 
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     {      
 
       of << "{LIST\n";
@@ -134,7 +134,7 @@ OPGeomview::printImage()
   //Now add the bonds
   typedef std::pair<const unsigned long, std::list<unsigned long> > mypair;
 
-  BOOST_FOREACH(const ClonePtr<Interaction> intPtr, Sim->dynamics.getInteractions())
+  BOOST_FOREACH(const magnet::ClonePtr<Interaction> intPtr, Sim->dynamics.getInteractions())
     if (dynamic_cast<const ISquareBond *>(intPtr.get_ptr()) != NULL)
       if (dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr()) != NULL)
 	BOOST_FOREACH(const mypair& mp, dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr())->getPairMap())

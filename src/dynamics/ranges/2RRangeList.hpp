@@ -20,7 +20,7 @@
 
 #include <list>
 #include "2range.hpp"
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 
 class C2RRangeList:public C2Range, DYNAMO::SimBase_const
@@ -35,16 +35,16 @@ public:
   virtual bool isInRange(const Particle&, const Particle&) const;
 
   void addRange(C2Range* nRange)
-  { ranges.push_back(ClonePtr<C2Range>(nRange)); }
+  { ranges.push_back(magnet::ClonePtr<C2Range>(nRange)); }
   
   virtual void operator<<(const XMLNode&);
 
-  const std::list<ClonePtr<C2Range> >& getRanges() const;
+  const std::list<magnet::ClonePtr<C2Range> >& getRanges() const;
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
-  std::list<ClonePtr<C2Range> > ranges;
+  std::list<magnet::ClonePtr<C2Range> > ranges;
 };
 
 #endif

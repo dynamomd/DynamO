@@ -74,7 +74,7 @@ CScheduler::rebuildSystemEvents() const
 {
   sorter->clearPEL(Sim->N);
 
-  BOOST_FOREACH(const ClonePtr<System>& sysptr, 
+  BOOST_FOREACH(const magnet::ClonePtr<System>& sysptr, 
 		Sim->dynamics.getSystemEvents())
     sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 

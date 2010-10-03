@@ -47,7 +47,7 @@ LNOrientation::initialise()
   
   //Check if any of the species are overridden
   bool hasInertia(false);
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
       hasInertia = true;
 

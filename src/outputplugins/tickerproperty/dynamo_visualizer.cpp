@@ -137,7 +137,7 @@ OPVisualizer::initialise()
 
   cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
 
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     {
       Iflt diam = spec->getIntPtr()->hardCoreDiam();
 

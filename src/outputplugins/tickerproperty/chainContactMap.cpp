@@ -43,7 +43,7 @@ OPCContactMap::OPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
 void 
 OPCContactMap::initialise()
 {
-  BOOST_FOREACH(const ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
       chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
 			     plugPtr->getMolecules().front()->size()));
@@ -74,7 +74,7 @@ void
 OPCContactMap::ticker()
 {
   BOOST_FOREACH(Cdata& dat,chains)
-    BOOST_FOREACH(const ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+    BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
     {
       dat.counter++;
       for (unsigned long i = 0; i < dat.chainlength; i++)
@@ -85,7 +85,7 @@ OPCContactMap::ticker()
 	    {
 	      const Particle& part2 = Sim->particleList[(*range)[j]];
 
-	      BOOST_FOREACH(const ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
+	      BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
 		if (ptr->isInteraction(part1,part2))
 		  if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
 		    if (static_cast<const ICapture*>(ptr.get_ptr())

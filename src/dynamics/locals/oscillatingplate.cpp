@@ -93,7 +93,7 @@ CLOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) con
   //else
     Sim->ptrScheduler->rebuildList();
 
-  BOOST_FOREACH(ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }
 

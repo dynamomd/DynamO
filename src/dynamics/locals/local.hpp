@@ -19,7 +19,7 @@
 #define CLocal_HPP
 
 #include <string>
-#include "../../datatypes/pluginpointer.hpp"
+#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
 #include "../../datatypes/vector.hpp"
@@ -73,7 +73,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const = 0;
 
-  ClonePtr<CRange> range;  
+  magnet::ClonePtr<CRange> range;  
   std::string localName;
   size_t ID;
 };

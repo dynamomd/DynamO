@@ -346,7 +346,7 @@ OPSelfDiffusionOrientationalGK::accPass()
 {
   ++count;
 
-  BOOST_FOREACH(const ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
   {
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
     {

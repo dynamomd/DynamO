@@ -19,6 +19,7 @@
 #include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPKEnergyTicker::OPKEnergyTicker(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):

@@ -22,6 +22,7 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../base/is_ensemble.hpp"
 #include "../0partproperty/misc.hpp"
+#include "../../extcode/xmlwriter.hpp"
 
 OPThermalConductivityE::OPThermalConductivityE(const DYNAMO::SimData* tmp,
 						 const XMLNode& XML):

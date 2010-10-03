@@ -68,7 +68,7 @@ CIPCompression::RestoreSystem()
 
   if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {
-      BOOST_FOREACH(ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
+      BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
 	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
 	  {
 	    //Rebulid the collision scheduler without the overlapping cells!
@@ -86,7 +86,7 @@ CIPCompression::RestoreSystem()
   Sim->dynamics.setLiouvillean(oldLio->Clone());
 
   Iflt volume = 0.0;
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Sim->ssHistory << "\nCompression dynamics run"
@@ -137,7 +137,7 @@ CIPCompression::limitPackingFraction(Iflt targetp)
   I_cout() << "Limiting maximum packing fraction to " << targetp;
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Iflt packfrac = PI * volume / (6 * (Sim->dynamics.units().simVolume()));
@@ -158,7 +158,7 @@ CIPCompression::limitDensity(Iflt targetrho)
   //Get the avg molecular volume
   Iflt volume = 0.0;
   
-  BOOST_FOREACH(const ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += std::pow(sp->getIntPtr()->hardCoreDiam(), static_cast<int>(NDIM)) * sp->getCount();
   
   Iflt molVol = PI * volume / (6.0 * Sim->particleList.size()
