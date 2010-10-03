@@ -30,7 +30,7 @@ class OPPovray: public OPTicker
 
   virtual void initialise() { printImage(); }
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   
@@ -38,7 +38,7 @@ class OPPovray: public OPTicker
 
  protected:
   int frameCount;
-  Iflt zoomlevel;
+  double zoomlevel;
 
   void printImage();
 };

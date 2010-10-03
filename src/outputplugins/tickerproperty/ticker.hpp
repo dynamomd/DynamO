@@ -36,7 +36,7 @@ public:
   void eventUpdate(const IntEvent&, const PairEventData&) {}
   void eventUpdate(const GlobalEvent&, const NEventData&) {}
   void eventUpdate(const LocalEvent&, const NEventData&) {}
-  void eventUpdate(const System&, const NEventData&, const Iflt&) {}
+  void eventUpdate(const System&, const NEventData&, const double&) {}
 
   virtual void output(xml::XmlStream&) {}
 
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-  Iflt getTickerTime() const;
+  double getTickerTime() const;
 };
 
 #endif

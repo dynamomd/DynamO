@@ -23,7 +23,7 @@
 #include <algorithm>
 
 struct magSortClass 
-{ inline bool operator()(Iflt i, Iflt j) { return std::abs(i) < std::abs(j);} };  
+{ inline bool operator()(double i, double j) { return std::abs(i) < std::abs(j);} };  
 
 inline 
 long int rintfunc(const double& x)

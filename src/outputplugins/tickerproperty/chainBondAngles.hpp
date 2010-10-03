@@ -32,7 +32,7 @@ class OPChainBondAngles: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
 
@@ -46,15 +46,15 @@ class OPChainBondAngles: public OPTicker
 
   struct Cdata
   {
-    Cdata(size_t, size_t, Iflt);
+    Cdata(size_t, size_t, double);
     const size_t chainID;
     std::vector<C1DHistogram> BondCorrelations;
-    std::vector<Iflt> BondCorrelationsAvg;
+    std::vector<double> BondCorrelationsAvg;
     std::vector<size_t> BondCorrelationsSamples;
   };
 
   std::list<Cdata> chains;
-  Iflt binwidth;
+  double binwidth;
 };
 
 #endif

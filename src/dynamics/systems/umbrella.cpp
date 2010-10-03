@@ -47,7 +47,7 @@ CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp):
   type = UMBRELLA;
 }
 
-CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt na, Iflt nb, Iflt ndelu, 
+CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, double na, double nb, double ndelu, 
 		       std::string nName, CRange* r1, CRange* r2):
   System(nSim),
   a(na),
@@ -66,7 +66,7 @@ CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, Iflt na, Iflt nb, Iflt ndelu,
 void 
 CSUmbrella::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
@@ -149,7 +149,7 @@ CSUmbrella::initialise(size_t nID)
 
   ulevelcenter = int( - a * b * b / delU);
 
-  Iflt r = partdata.rij.nrm();
+  double r = partdata.rij.nrm();
 
   if (!ulevelset)
     {
@@ -175,7 +175,7 @@ CSUmbrella::recalculateTime()
   
   CPDData partdata(*Sim, *range1, *range2);
 
-  Iflt R_max, R_min;
+  double R_max, R_min;
 
   dt = HUGE_VAL;
   type = NONE;
@@ -266,14 +266,14 @@ CSUmbrella::operator<<(const XMLNode& XML)
   try {
     sysName = XML.getAttribute("Name");
 
-    a = boost::lexical_cast<Iflt>(XML.getAttribute("a"))
+    a = boost::lexical_cast<double>(XML.getAttribute("a"))
       * Sim->dynamics.units().unitEnergy() 
       / Sim->dynamics.units().unitArea();
 
-    b = boost::lexical_cast<Iflt>(XML.getAttribute("b"))
+    b = boost::lexical_cast<double>(XML.getAttribute("b"))
       * Sim->dynamics.units().unitLength();
 
-    delU = boost::lexical_cast<Iflt>(XML.getAttribute("delU"))
+    delU = boost::lexical_cast<double>(XML.getAttribute("delU"))
       * Sim->dynamics.units().unitEnergy();
 
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));

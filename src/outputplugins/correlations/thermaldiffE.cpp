@@ -64,11 +64,11 @@ OPThermalDiffusionE::operator<<(const XMLNode& XML)
       
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -104,11 +104,11 @@ OPThermalDiffusionE::initialise()
       if (Sim->lastRunMFT != 0.0)
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength) 
+	dt = 10.0 / (((double) CorrelatorLength) 
 		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
-  Iflt sysMass = 0.0;
+  double sysMass = 0.0;
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
 
@@ -143,7 +143,7 @@ OPThermalDiffusionE::output(xml::XmlStream &XML)
       << xml::attr("SampleCount") << count
       << xml::chardata();
   
-  Iflt factor = rescaleFactor();
+  double factor = rescaleFactor();
   
   for (size_t i = 0; i < accG2.size(); ++i)
     {
@@ -160,7 +160,7 @@ OPThermalDiffusionE::output(xml::XmlStream &XML)
   XML << xml::endtag("EinsteinCorrelator");
 }
 
-Iflt 
+double 
 OPThermalDiffusionE::rescaleFactor() 
 { 
   return 1.0
@@ -173,7 +173,7 @@ OPThermalDiffusionE::rescaleFactor()
 }
 
 void 
-OPThermalDiffusionE::stream(const Iflt edt)
+OPThermalDiffusionE::stream(const double edt)
 {      
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
@@ -257,7 +257,7 @@ OPThermalDiffusionE::updateConstDelG(const PairEventData& PDat)
 void 
 OPThermalDiffusionE::updateConstDelG(const ParticleEventData& PDat) 
 {
-  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+  double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
@@ -289,7 +289,7 @@ OPThermalDiffusionE::eventUpdate(const LocalEvent& iEvent,
 void 
 OPThermalDiffusionE::eventUpdate(const System&, 
 				  const NEventData& PDat, 
-				  const Iflt& edt) 
+				  const double& edt) 
 { 
   stream(edt);
   delG += impulseDelG(PDat);

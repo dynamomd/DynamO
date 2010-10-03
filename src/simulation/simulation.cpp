@@ -51,7 +51,7 @@ Simulation::setBinaryXML(const bool& v)
 }
 
 void 
-Simulation::setTickerPeriod(Iflt nP)
+Simulation::setTickerPeriod(double nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
   if (ptr == NULL)
@@ -61,7 +61,7 @@ Simulation::setTickerPeriod(Iflt nP)
 }
 
 void 
-Simulation::scaleTickerPeriod(Iflt nP)
+Simulation::scaleTickerPeriod(double nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
 
@@ -323,7 +323,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
       xml::XmlStream XML(coutputFile);
       XML.setFormatXML(true);
 
-      XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
+      XML << std::setprecision(std::numeric_limits<double>::digits10)
 	  << xml::prolog() << xml::tag("OutputData");
       
       
@@ -339,7 +339,7 @@ Simulation::outputData(const char* filename, bool uncompressed)
       xml::XmlStream XML(coutputFile);
       XML.setFormatXML(true);
 
-      XML << std::setprecision(std::numeric_limits<Iflt>::digits10)
+      XML << std::setprecision(std::numeric_limits<double>::digits10)
 	  << xml::prolog() << xml::tag("OutputData");
       
       
@@ -353,6 +353,6 @@ Simulation::outputData(const char* filename, bool uncompressed)
   I_cout() << "Output written to " << filename;
 }
 
-lIflt 
+long double 
 Simulation::getSysTime()
 { return dSysTime / dynamics.units().unitTime(); }

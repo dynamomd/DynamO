@@ -38,18 +38,18 @@ CInputPlugin::CInputPlugin(DYNAMO::SimData* tmp, const char *aName,
 {}
 
 void 
-CInputPlugin::rescaleVels(Iflt val)
+CInputPlugin::rescaleVels(double val)
 {
   I_cout() << "WARNING Rescaling kT to " << val;
   
-  Iflt currentkT(Sim->dynamics.getLiouvillean().getkT()
+  double currentkT(Sim->dynamics.getLiouvillean().getkT()
 		 / Sim->dynamics.units().unitEnergy());
 
   I_cout() << "Current kT " << currentkT;
 
   Vector energy = Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy();
 
-  Iflt avg  = energy[0];
+  double avg  = energy[0];
 
   for (size_t iDim(1); iDim < NDIM; ++iDim)
     avg += energy[iDim];
@@ -95,7 +95,7 @@ CInputPlugin::zeroCentreOfMass()
   I_cout() << "Zeroing Centre of Mass";
   
   Vector com(0,0,0);  
-  Iflt totmass = 0.0;
+  double totmass = 0.0;
   BOOST_FOREACH(Particle& part, Sim->particleList)  
     {
       totmass += Sim->dynamics.getSpecies(part).getMass();
@@ -108,14 +108,14 @@ CInputPlugin::zeroCentreOfMass()
 }
 
 void 
-CInputPlugin::setPackFrac(Iflt tmp)
+CInputPlugin::setPackFrac(double tmp)
 {
-  Iflt volume = 0.0;
+  double volume = 0.0;
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  volume *= PI / (6 * (Sim->dynamics.units().simVolume()));
+  volume *= M_PI / (6 * (Sim->dynamics.units().simVolume()));
 
   Sim->dynamics.rescaleLengths(pow(tmp/volume, 1.0/3.0) -1.0);
 }

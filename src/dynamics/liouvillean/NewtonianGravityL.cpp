@@ -41,10 +41,10 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   try 
     {
       if (XML.isAttributeSet("Gravity"))
-	Gravity = boost::lexical_cast<Iflt>(XML.getAttribute("Gravity"));      
+	Gravity = boost::lexical_cast<double>(XML.getAttribute("Gravity"));      
       
       if (XML.isAttributeSet("GravityDimension"))
-	GravityDim = boost::lexical_cast<Iflt>(XML.getAttribute("GravityDimension"));      
+	GravityDim = boost::lexical_cast<double>(XML.getAttribute("GravityDimension"));      
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -54,19 +54,19 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   Gravity *= Sim->dynamics.units().unitAcceleration();
 }
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, Iflt gravity, 
+LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity, 
 				     size_t gravityDim):
   LNewtonian(tmp), Gravity(gravity), GravityDim(gravityDim) {}
 
 void
-LNewtonianGravity::streamParticle(Particle &particle, const Iflt &dt) const
+LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
 {
   particle.getPosition() += dt * particle.getVelocity();
   particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity;
   particle.getVelocity()[GravityDim] += dt * Gravity;
 }
 
-Iflt 
+double 
 LNewtonianGravity::getWallCollision(const Particle &part, 
 				    const Vector  &wallLoc, 
 				    const Vector  &wallNorm) const
@@ -76,17 +76,17 @@ LNewtonianGravity::getWallCollision(const Particle &part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  Iflt adot = wallNorm[GravityDim] * Gravity;
-  Iflt vdot = vel | wallNorm;
-  Iflt rdot = (rij - wallLoc) | wallNorm;
+  double adot = wallNorm[GravityDim] * Gravity;
+  double vdot = vel | wallNorm;
+  double rdot = (rij - wallLoc) | wallNorm;
 
-  Iflt arg = vdot * vdot - 2 * rdot * adot;
+  double arg = vdot * vdot - 2 * rdot * adot;
   
   if (arg > 0)
     {
-      Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-      Iflt x1 = t / adot;
-      Iflt x2 = 2 * rdot / t;
+      double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+      double x1 = t / adot;
+      double x2 = 2 * rdot / t;
 
       if (adot > 0)
 	//The particle is arcing under the plate
@@ -99,7 +99,7 @@ LNewtonianGravity::getWallCollision(const Particle &part,
   return HUGE_VAL;
 }
 
-Iflt
+double
 LNewtonianGravity::getSquareCellCollision2(const Particle& part, 
 					   const Vector & origin, 
 					   const Vector & width) const
@@ -115,22 +115,22 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
 		<< "\nPlease think of the neighbour lists.";
 #endif 
 
-  Iflt retVal = HUGE_VAL;
+  double retVal = HUGE_VAL;
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if (iDim == GravityDim)
       {
-	Iflt adot = Gravity;
-	Iflt vdot = vel[GravityDim];
+	double adot = Gravity;
+	double vdot = vel[GravityDim];
 
 	//First check the "upper" boundary that may have no roots
-	Iflt rdot = (Gravity < 0) ? rpos[iDim]-width[iDim] : rpos[iDim];
-	Iflt arg = vdot * vdot - 2 * rdot * adot;
-	Iflt upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
+	double rdot = (Gravity < 0) ? rpos[iDim]-width[iDim] : rpos[iDim];
+	double arg = vdot * vdot - 2 * rdot * adot;
+	double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
 	if (arg >= 0)
 	  {
-	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
 	    upperRoot1 = t / adot;
 	    upperRoot1 = 2 * rdot / t;
 	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
@@ -140,16 +140,16 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
 	//Now the lower boundary which always has roots
 	rdot = (Gravity < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
 	arg = vdot * vdot - 2 * rdot * adot;
-	Iflt lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
+	double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
 	if (arg >= 0)
 	  {
-	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
 	    lowerRoot1 = t / adot;
 	    lowerRoot2 = 2 * rdot / t;
 	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
 	  }
 
-	Iflt root = HUGE_VAL;
+	double root = HUGE_VAL;
 	//Now, if the velocity is "up", and the upper roots exist,
 	//then pick the shortest one
 	if (!((Gravity < 0) - (vel[GravityDim] > 0))
@@ -165,7 +165,7 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
       }
     else
       {
-	Iflt tmpdt((vel[iDim] < 0)
+	double tmpdt((vel[iDim] < 0)
 		   ? -rpos[iDim]/vel[iDim] 
 		   : (width[iDim]-rpos[iDim]) / vel[iDim]);
 	
@@ -187,7 +187,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
   Sim->dynamics.BCs().applyBC(rpos, vel);
 
   int retVal(0);
-  Iflt time(HUGE_VAL);
+  double time(HUGE_VAL);
   
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -199,17 +199,17 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if (iDim == GravityDim)
       {
-	Iflt adot = Gravity;
-	Iflt vdot = vel[GravityDim];
+	double adot = Gravity;
+	double vdot = vel[GravityDim];
 	
 	//First check the "upper" boundary that may have no roots
-	Iflt rdot = (Gravity < 0) ? rpos[iDim]-width[iDim]: rpos[iDim];
-	Iflt arg = vdot * vdot - 2 * rdot * adot;
-	Iflt upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
+	double rdot = (Gravity < 0) ? rpos[iDim]-width[iDim]: rpos[iDim];
+	double arg = vdot * vdot - 2 * rdot * adot;
+	double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
 	if (arg >= 0)
 	  {
-	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
 	    upperRoot1 = t / adot;
 	    upperRoot1 = 2 * rdot / t;
 	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
@@ -219,10 +219,10 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 	//Now the lower boundary which always has roots
 	rdot = (Gravity < 0) ? rpos[iDim] : rpos[iDim]-width[iDim];
 	arg = vdot * vdot - 2 * rdot * adot;
-	Iflt lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
+	double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
 	if (arg >= 0)
 	  {
-	    Iflt t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
+	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
 	    lowerRoot1 = t / adot;
 	    lowerRoot2 = 2 * rdot / t;
 	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
@@ -246,7 +246,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
       }  
   else
     {
-      Iflt tmpdt = ((vel[iDim] < 0) 
+      double tmpdt = ((vel[iDim] < 0) 
 		  ? -rpos[iDim] / vel[iDim] 
 		  : (width[iDim] - rpos[iDim]) / vel[iDim]);
 
@@ -272,26 +272,26 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
     ;
 }
 
-Iflt 
-LNewtonianGravity::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
+double 
+LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
 {
   M_throw() << "Not implemented yet";  
 }
 
-std::pair<bool,Iflt>
+std::pair<bool,double>
 LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
-				 const Vector& nhat, const Iflt& Delta,
-				 const Iflt& Omega, const Iflt& Sigma,
-				 const Iflt& t, bool lastpart) const
+				 const Vector& nhat, const double& Delta,
+				 const double& Omega, const double& Sigma,
+				 const double& t, bool lastpart) const
 {
   M_throw() << "Not implemented yet";
 }
 
-Iflt 
+double 
 LNewtonianGravity::getCylinderWallCollision(const Particle& part, 
 				   const Vector& wallLoc, 
 				   const Vector& wallNorm,
-				   const Iflt& radius) const
+				   const double& radius) const
 {
   Vector  rij = part.getPosition() - wallLoc,
     vel = part.getVelocity();
@@ -302,11 +302,11 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
 
   vel -= Vector((vel | wallNorm) * wallNorm);
 
-  Iflt B = (vel | rij),
+  double B = (vel | rij),
     A = vel.nrm2(),
     C = rij.nrm2() - radius * radius;
 
-  Iflt t = (std::sqrt(B*B - A*C) - B) / A;
+  double t = (std::sqrt(B*B - A*C) - B) / A;
 
   if (std::isnan(t))
     return HUGE_VAL;
@@ -314,7 +314,7 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
     return t;
 }
 
-Iflt 
+double 
 LNewtonianGravity::getParabolaSentinelTime(const Particle& part, 
 					   unsigned char& passed) const
 {
@@ -327,7 +327,7 @@ LNewtonianGravity::getParabolaSentinelTime(const Particle& part,
   
   Sim->dynamics.BCs().applyBC(pos, vel);
   
-  Iflt turningPoint = - vel[GravityDim] / Gravity;
+  double turningPoint = - vel[GravityDim] / Gravity;
   
   if (turningPoint <= 0)
     {

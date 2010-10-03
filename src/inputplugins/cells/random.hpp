@@ -22,7 +22,7 @@
 struct CURandom: public CUCell
 {
   CURandom(size_t nN, Vector  ndimensions, 
-	   boost::uniform_01<DYNAMO::baseRNG, Iflt>& RNG,
+	   boost::uniform_01<DYNAMO::baseRNG, double>& RNG,
 	   CUCell* nextCell):
     CUCell(nextCell),
     N(nN),
@@ -32,7 +32,7 @@ struct CURandom: public CUCell
 
   size_t N;
   Vector  dimensions;
-  boost::uniform_01<DYNAMO::baseRNG, Iflt>& uniform_sampler;
+  boost::uniform_01<DYNAMO::baseRNG, double>& uniform_sampler;
 
   virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {

@@ -23,7 +23,7 @@
 class CStHalt: public System
 {
 public:
-  CStHalt(DYNAMO::SimData*, Iflt, std::string);
+  CStHalt(DYNAMO::SimData*, double, std::string);
   
   virtual System* Clone() const { return new CStHalt(*this); }
 
@@ -33,9 +33,9 @@ public:
 
   virtual void operator<<(const XMLNode&) {}
 
-  void setdt(Iflt);
+  void setdt(double);
 
-  void increasedt(Iflt);
+  void increasedt(double);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const {}

@@ -37,7 +37,7 @@ OPRijVij::process2PED(mapdata& ref, const PairEventData& PDat)
   Vector  rijnorm(PDat.rij / PDat.rij.nrm());
   Vector  vijnorm(PDat.vijold / PDat.vijold.nrm());
 
-  Iflt rvdot(rijnorm | vijnorm);
+  double rvdot(rijnorm | vijnorm);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
@@ -87,7 +87,7 @@ OPRijVij::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void
-OPRijVij::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
+OPRijVij::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
 {
   BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     process2PED(rvdotacc[mapKey(sysEvent.getType(), getClassKey(sysEvent))],
@@ -158,7 +158,7 @@ OPRijVij::output(xml::XmlStream &XML)
 	      << xml::chardata();
 
 	  for (size_t i(0); i < 1000; ++i)
-	    XML << ( static_cast<Iflt>(i) / -1000.0) << " "
+	    XML << ( static_cast<double>(i) / -1000.0) << " "
 		<< pair1.second.costhetarij[iDim][i].second 
 	      / pair1.second.costhetarij[iDim][i].first
 		<< "\n";
@@ -176,10 +176,10 @@ OPRijVij::output(xml::XmlStream &XML)
 	  for (size_t i1(0); i1 < 200; ++i1)
 	    {	      
 	      for (size_t i2(0); i2 < 100; ++i2)
-		XML << ( (static_cast<Iflt>(i1) - 100.0) / 100.0) << " "
-		    << ( static_cast<Iflt>(i2) / -100.0) << " "
-		    << static_cast<Iflt>(pair1.second.anglemap[iDim][i1][i2])
-		  / static_cast<Iflt>(pair1.second.anglemapcount)
+		XML << ( (static_cast<double>(i1) - 100.0) / 100.0) << " "
+		    << ( static_cast<double>(i2) / -100.0) << " "
+		    << static_cast<double>(pair1.second.anglemap[iDim][i1][i2])
+		  / static_cast<double>(pair1.second.anglemapcount)
 		    << "\n";
 
 	      XML << "\n";

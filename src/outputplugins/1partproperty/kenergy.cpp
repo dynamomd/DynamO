@@ -42,7 +42,7 @@ OPKEnergy::changeSystem(OutputPlugin* Eplug)
 }
 
 void
-OPKEnergy::temperatureRescale(const Iflt& scale)
+OPKEnergy::temperatureRescale(const double& scale)
 {
   KECurrent *= scale;
 }
@@ -53,19 +53,19 @@ OPKEnergy::initialise()
   InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 }
 
-Iflt
+double
 OPKEnergy::getAvgTheta() const
 {
   return getAvgkT() / Sim->dynamics.units().unitEnergy();
 }
 
-Iflt
+double
 OPKEnergy::getAvgkT() const
 {
   return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
 }
 
-Iflt
+double
 OPKEnergy::getAvgSqTheta() const
 {
   return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->N
@@ -87,7 +87,7 @@ OPKEnergy::A2ParticleChange(const PairEventData& PDat)
 }
 
 void
-OPKEnergy::stream(const Iflt& dt)
+OPKEnergy::stream(const double& dt)
 {
   KEacc += KECurrent * dt;
   KEsqAcc += KECurrent * KECurrent * dt;
@@ -96,7 +96,7 @@ OPKEnergy::stream(const Iflt& dt)
 void
 OPKEnergy::output(xml::XmlStream &XML)
 {
-  Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
+  double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
     / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
 
@@ -119,7 +119,7 @@ OPKEnergy::output(xml::XmlStream &XML)
 void
 OPKEnergy::periodicOutput()
 {
-  Iflt powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
+  double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
     / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
 

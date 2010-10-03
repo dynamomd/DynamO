@@ -22,7 +22,7 @@
 
 struct CUringSnake: public CUCell
 {
-  CUringSnake(size_t pcl, Iflt WL, CUCell* nextCell):
+  CUringSnake(size_t pcl, double WL, CUCell* nextCell):
     CUCell(nextCell),
     pairchainlength(pcl),
     walklength(WL)
@@ -31,7 +31,7 @@ struct CUringSnake: public CUCell
   }
 
   size_t pairchainlength;  
-  Iflt walklength;
+  double walklength;
   
   virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
@@ -41,7 +41,7 @@ struct CUringSnake: public CUCell
 
     Vector  x(0,0,0);
 
-    Iflt direction(walklength);
+    double direction(walklength);
     
     for (size_t i(0); i < pairchainlength;)
       {

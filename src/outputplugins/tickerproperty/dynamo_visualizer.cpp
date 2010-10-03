@@ -51,9 +51,9 @@ OPVisualizer::operator<<(const XMLNode& XML)
 //  try {
 //    if (XML.isAttributeSet("binwidth"))
 //      binWidth = Vector 
-//	(boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
-//	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
-//	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")));
+//	(boost::lexical_cast<double>(XML.getAttribute("binwidth")),
+//	 boost::lexical_cast<double>(XML.getAttribute("binwidth")),
+//	 boost::lexical_cast<double>(XML.getAttribute("binwidth")));
 //    
 //    if (XML.isAttributeSet("Snapshots")) snapshots = true;
 //    if (XML.isAttributeSet("Fields")) fields = true;
@@ -139,7 +139,7 @@ OPVisualizer::initialise()
 
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     {
-      Iflt diam = spec->getIntPtr()->hardCoreDiam();
+      double diam = spec->getIntPtr()->hardCoreDiam();
 
       BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
 	{

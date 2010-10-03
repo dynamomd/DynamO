@@ -30,7 +30,7 @@ class OPRadialDistribution: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   
@@ -39,7 +39,7 @@ class OPRadialDistribution: public OPTicker
   void operator<<(const XMLNode&);
 
  protected:
-  Iflt binWidth;
+  double binWidth;
   size_t length;
   unsigned long sampleCount;  
   std::vector<std::vector<std::vector<unsigned long> > > data;

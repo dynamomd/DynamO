@@ -64,17 +64,17 @@ OPSCParameter::ticker()
 
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
-      std::complex<Iflt> sum(0, 0);
+      std::complex<double> sum(0, 0);
 
       BOOST_FOREACH(const Particle& part, Sim->particleList)
 	{
-	  Iflt psum(0);
+	  double psum(0);
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    psum += part.getPosition()[iDim];
 	  
-	  psum *= 2.0 * PI * k;
-	  sum += std::complex<Iflt>(std::cos(psum), std::sin(psum));
+	  psum *= 2.0 * M_PI * k;
+	  sum += std::complex<double>(std::cos(psum), std::sin(psum));
 	}
       
       runningsum[k] += std::abs(sum);
@@ -89,13 +89,13 @@ OPSCParameter::output(xml::XmlStream& XML)
       << lrint(std::pow(Sim->N, 1.0/3.0))
       << xml::attr("SCWaveNumberVal") 
       << runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
-    / (static_cast<Iflt>(count) * Sim->N) 
+    / (static_cast<double>(count) * Sim->N) 
       << xml::chardata();
   
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
       XML << k * Sim->dynamics.units().unitLength() << " "
-	  << runningsum[k] / (static_cast<Iflt>(count) * Sim->N) 
+	  << runningsum[k] / (static_cast<double>(count) * Sim->N) 
 	  << "\n";
     }
 

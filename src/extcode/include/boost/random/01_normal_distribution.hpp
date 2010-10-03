@@ -45,7 +45,7 @@
 namespace boost {
 
 // deterministic polar method, uses trigonometric functions
-template<class RealType = Iflt>
+template<class RealType = double>
 class normal_distribution_01
 {
 public:

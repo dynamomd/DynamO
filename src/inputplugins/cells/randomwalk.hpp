@@ -24,7 +24,7 @@
 
 struct CURandWalk: public CUCell
 {
-  CURandWalk(long CL, Iflt WL, Iflt D, CUCell* nextCell):
+  CURandWalk(long CL, double WL, double D, CUCell* nextCell):
     CUCell(nextCell),
     chainlength(CL),
     walklength(WL),
@@ -33,17 +33,17 @@ struct CURandWalk: public CUCell
   {}
 
   long chainlength;
-  Iflt walklength;
-  Iflt diameter;
+  double walklength;
+  double diameter;
   
   boost::mt19937 ranGenerator;
 
   Vector  getRandVelVec()
   {
     //See http://mathworld.wolfram.com/SpherePointPicking.html
-    boost::normal_distribution<Iflt> normdist(0.0, (1.0 / sqrt(NDIM)));
+    boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(NDIM)));
     
-    boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<Iflt> >
+    boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<double> >
       normal_sampler(ranGenerator, normdist);
     
     Vector  tmpVec;

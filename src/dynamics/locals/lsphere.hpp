@@ -24,7 +24,7 @@ class CLSphere: public Local
 {
 public:
   CLSphere(const XMLNode&, DYNAMO::SimData*);
-  CLSphere(DYNAMO::SimData*, Iflt, Vector , Iflt, 
+  CLSphere(DYNAMO::SimData*, double, Vector , double, 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~CLSphere() {}
@@ -47,9 +47,9 @@ protected:
   virtual void outputXML(xml::XmlStream&) const;
 
   Vector  vPosition;
-  Iflt e;
-  Iflt radius;
-  Iflt r2;
+  double e;
+  double radius;
+  double r2;
   bool render;
 };
 

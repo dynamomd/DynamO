@@ -293,7 +293,7 @@ CScheduler::runNextEvent()
 	    return;
 	  }
 	
-	Iflt next_dt = sorter->next_dt();
+	double next_dt = sorter->next_dt();
 
 	if ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit))
 	  {

@@ -30,7 +30,7 @@ class OPKEnergy: public OP1PP
 
   void A2ParticleChange(const PairEventData&);
 
-  void stream(const Iflt&);  
+  void stream(const double&);  
 
   void output(xml::XmlStream &); 
 
@@ -40,24 +40,24 @@ class OPKEnergy: public OP1PP
 
   virtual OutputPlugin *Clone() const { return new OPKEnergy(*this); }
 
-  Iflt getAvgkT() const;
+  double getAvgkT() const;
 
-  Iflt getAvgTheta() const;
+  double getAvgTheta() const;
      
-  Iflt getAvgSqTheta() const;
+  double getAvgSqTheta() const;
   
   void changeSystem(OutputPlugin*);
 
-  void temperatureRescale(const Iflt&);
+  void temperatureRescale(const double&);
   
-  const Iflt& getCurrentkT() const { return KECurrent; }
+  const double& getCurrentkT() const { return KECurrent; }
 
  protected:
 
-  Iflt InitialKE;
-  Iflt KEacc;
-  Iflt KEsqAcc;
-  Iflt KECurrent;  
+  double InitialKE;
+  double KEacc;
+  double KEsqAcc;
+  double KECurrent;  
 };
 
 #endif

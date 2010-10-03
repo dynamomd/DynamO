@@ -43,8 +43,8 @@ CSRingDSMC::CSRingDSMC(const XMLNode& XML, DYNAMO::SimData* tmp):
   type = DSMC;
 }
 
-CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi1, Iflt nChi2,
-			     Iflt ne, std::string nName, CRange* r1):
+CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, double nd, double ntstp, double nChi1, double nChi2,
+			     double ne, std::string nName, CRange* r1):
   System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
   tstep(ntstp),
@@ -67,7 +67,7 @@ CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi1, I
 void 
 CSRingDSMC::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
@@ -90,8 +90,8 @@ CSRingDSMC::runEvent() const
     Ptr->eventUpdate(*this, NEventData(), locdt);
 
   //////////////////// T(1,2) operator
-  Iflt intPart;
-  Iflt fracpart = std::modf(maxprob12 * range1->size(), &intPart);
+  double intPart;
+  double fracpart = std::modf(maxprob12 * range1->size(), &intPart);
  
   size_t nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
   
@@ -199,11 +199,11 @@ CSRingDSMC::initialise(size_t nID)
   n13 = 0;
 
   factor12 = range1->size()
-    * diameter * PI * chi12 * tstep 
+    * diameter * M_PI * chi12 * tstep 
     / Sim->dynamics.units().simVolume();
   
   factor13 = range1->size()
-    * diameter * PI * chi13 * tstep 
+    * diameter * M_PI * chi13 * tstep 
     / Sim->dynamics.units().simVolume();
   
   if (maxprob12 == 0.0)
@@ -298,28 +298,28 @@ CSRingDSMC::operator<<(const XMLNode& XML)
     M_throw() << "Attempting to load RingDSMC from a " << XML.getAttribute("Type") <<  " entry"; 
   
   try {
-    tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
+    tstep = boost::lexical_cast<double>(XML.getAttribute("tStep"))
       * Sim->dynamics.units().unitTime();
     
-    chi12 = boost::lexical_cast<Iflt>(XML.getAttribute("Chi12"));
-    chi13 = boost::lexical_cast<Iflt>(XML.getAttribute("Chi13"));
+    chi12 = boost::lexical_cast<double>(XML.getAttribute("Chi12"));
+    chi13 = boost::lexical_cast<double>(XML.getAttribute("Chi13"));
     
     sysName = XML.getAttribute("Name");
 
-    diameter = boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"))
+    diameter = boost::lexical_cast<double>(XML.getAttribute("Diameter"))
       * Sim->dynamics.units().unitLength();
 
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Inelasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Inelasticity"));
 
     d2 = diameter * diameter;
 
     range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
 
     if (XML.isAttributeSet("MaxProbability12"))
-      maxprob12 = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability12"));
+      maxprob12 = boost::lexical_cast<double>(XML.getAttribute("MaxProbability12"));
 	
     if (XML.isAttributeSet("MaxProbability13"))
-      maxprob13 = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability13"));
+      maxprob13 = boost::lexical_cast<double>(XML.getAttribute("MaxProbability13"));
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -333,7 +333,7 @@ CSRingDSMC::outputXML(xml::XmlStream& XML) const
   if (n12 || n13)
     I_cout()<< "Number of T(1,2) events " << n12
 	    << "\nNumber of T(1,3) events " << n13
-	    << "\nRatio T(1,2)/total " << ((Iflt) n12) / (((Iflt) n13) + ((Iflt) n12));
+	    << "\nRatio T(1,2)/total " << ((double) n12) / (((double) n13) + ((double) n12));
 
   XML << xml::tag("System")
       << xml::attr("Type") << "RingDSMC"

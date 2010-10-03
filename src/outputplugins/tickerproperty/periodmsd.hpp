@@ -34,12 +34,12 @@ class OPPeriodicMSD: public OPTicker
   virtual OutputPlugin *Clone() const { return new OPPeriodicMSD(*this); };
   
  protected:
-  virtual void stream(Iflt) {}  
+  virtual void stream(double) {}  
   virtual void ticker();
 
   size_t TickerCount;
   
-  typedef std::pair<Iflt, Iflt> localpair;
+  typedef std::pair<double, double> localpair;
 
   std::list<localpair> results;
 

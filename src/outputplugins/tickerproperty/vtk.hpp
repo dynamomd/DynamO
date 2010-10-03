@@ -29,7 +29,7 @@ class OPVTK: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
 
@@ -45,9 +45,9 @@ class OPVTK: public OPTicker
   CVector<size_t> nBins;
   Vector  binWidth;
   Vector  invBinWidth;
-  Iflt binVol;
+  double binVol;
   
-  std::vector<Iflt> mVsquared;
+  std::vector<double> mVsquared;
   std::vector<unsigned long> SampleCounter;
   std::vector<Vector  > Momentum;
 

@@ -51,7 +51,7 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&) = 0;
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&) = 0;
+  virtual void eventUpdate(const System&, const NEventData&, const double&) = 0;
   
   virtual OutputPlugin *Clone() const = 0;
   
@@ -71,7 +71,7 @@ public:
   virtual void changeSystem(OutputPlugin*) 
   { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
   
-  virtual void temperatureRescale(const Iflt&) {}
+  virtual void temperatureRescale(const double&) {}
   
 protected:
   DYNAMO::Colorise_Text_Stream_Operator I_Pcout() const;

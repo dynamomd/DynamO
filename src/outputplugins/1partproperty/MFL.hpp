@@ -29,7 +29,7 @@ class OPMFL: public OP1PP
 
   void A1ParticleChange(const ParticleEventData&);
 
-  void stream(const Iflt&) {}
+  void stream(const double&) {}
 
   void output(xml::XmlStream &); 
 
@@ -43,11 +43,11 @@ class OPMFL: public OP1PP
 
  protected:
 
-  std::vector<Iflt> lastTime;
+  std::vector<double> lastTime;
 
   std::vector<C1DHistogram> data;
 
-  Iflt binwidth;
+  double binwidth;
 };
 
 #endif

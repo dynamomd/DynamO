@@ -23,7 +23,7 @@
 class IStepped: public IMultiCapture
 {
 public:
-  typedef std::pair<Iflt,Iflt> steppair;
+  typedef std::pair<double,double> steppair;
 
   IStepped(DYNAMO::SimData*, const std::vector<steppair>&,
 	    C2Range*);
@@ -34,11 +34,11 @@ public:
 
   virtual Interaction* Clone() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
@@ -53,7 +53,7 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual Iflt getInternalEnergy() const;
+  virtual double getInternalEnergy() const;
 
   virtual void 
   write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;

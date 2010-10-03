@@ -38,14 +38,14 @@ class OPMSDCorrelator: public OPTicker
   virtual void operator<<(const XMLNode&);
   
  protected:
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
   virtual void ticker();
 
   void accPass();
 
   std::vector<boost::circular_buffer<Vector  > > posHistory;
-  std::vector<std::vector<Iflt> > speciesData;
-  std::vector<std::vector<Iflt> > structData;
+  std::vector<std::vector<double> > speciesData;
+  std::vector<std::vector<double> > structData;
   size_t length;
   size_t currCorrLength;
   size_t ticksTaken;

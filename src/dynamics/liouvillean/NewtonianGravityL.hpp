@@ -24,14 +24,14 @@ class LNewtonianGravity: public LNewtonian
 public:
   LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
 
-  LNewtonianGravity(DYNAMO::SimData* tmp, Iflt gravity,
+  LNewtonianGravity(DYNAMO::SimData* tmp, double gravity,
 		    size_t gravityDim);
 
   //Pair particle dynamics
 
-  virtual void streamParticle(Particle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const double&) const;
 
-  virtual Iflt getSquareCellCollision2(const Particle&, 
+  virtual double getSquareCellCollision2(const Particle&, 
 				       const Vector &, 
 				       const Vector &
 				       ) const;
@@ -41,36 +41,36 @@ public:
 				      const Vector &
 				      ) const;
   
-  virtual std::pair<bool,Iflt>
+  virtual std::pair<bool,double>
   getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-			 const Vector& nhat, const Iflt& Delta,
-			 const Iflt& Omega, const Iflt& Sigma,
-			 const Iflt& t, bool) const;
+			 const Vector& nhat, const double& Delta,
+			 const double& Omega, const double& Sigma,
+			 const double& t, bool) const;
 
-  virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
+  virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-  virtual Iflt getParabolaSentinelTime(const Particle&, unsigned char&) const;
+  virtual double getParabolaSentinelTime(const Particle&, unsigned char&) const;
 
   virtual void enforceParabola(const Particle&) const;
 
-  virtual Iflt getWallCollision(const Particle&, 
+  virtual double getWallCollision(const Particle&, 
 				const Vector &, 
 				const Vector &) const;
 
-  virtual Iflt getCylinderWallCollision(const Particle&, 
+  virtual double getCylinderWallCollision(const Particle&, 
 					const Vector &, 
 					const Vector &,
-					const Iflt&
+					const double&
 					) const;
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
   size_t getGravityDimension() const { return GravityDim; }
-  Iflt getGravity() const { return Gravity; }
+  double getGravity() const { return Gravity; }
 
 protected:
-  Iflt Gravity;
+  double Gravity;
   size_t GravityDim;
 
   virtual void outputXML(xml::XmlStream&) const;

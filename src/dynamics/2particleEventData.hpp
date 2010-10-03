@@ -40,7 +40,7 @@ public:
   Vector  rij;
   Vector  vijold;
   Vector  dP;
-  Iflt rvdot;
+  double rvdot;
 
   void setType(EEventType nType)
   { particle1_.setType(nType); particle2_.setType(nType); }

@@ -31,7 +31,7 @@ class CSysGhost: public System
 public:
   CSysGhost(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSysGhost(DYNAMO::SimData*, Iflt, Iflt, std::string);
+  CSysGhost(DYNAMO::SimData*, double, double, std::string);
   
   virtual System* Clone() const { return new CSysGhost(*this); }
 
@@ -41,24 +41,24 @@ public:
 
   virtual void operator<<(const XMLNode&);
 
-  Iflt getTemperature() const { return Temp; }
-  Iflt getReducedTemperature() const;
-  void setTemperature(Iflt nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
+  double getTemperature() const { return Temp; }
+  double getReducedTemperature() const;
+  void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
   mutable boost::variate_generator<DYNAMO::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  
-  mutable Iflt meanFreeTime;
-  Iflt Temp, sqrtTemp;
+  mutable double meanFreeTime;
+  double Temp, sqrtTemp;
   bool tune;
-  Iflt setPoint;
+  double setPoint;
   mutable unsigned long long eventCount;
   mutable unsigned long long lastlNColl;
   unsigned long long setFrequency;
 
-  Iflt getGhostt() const;
+  double getGhostt() const;
   
   magnet::ClonePtr<CRange> range;
 };

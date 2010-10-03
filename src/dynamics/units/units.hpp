@@ -59,76 +59,76 @@ class Units: public DYNAMO::SimBase_const
   virtual Units* Clone() const = 0;
 
   /*! \brief Pure virtual function returning the simulation unit of time */
-  virtual Iflt unitTime() const = 0;
+  virtual double unitTime() const = 0;
 
   /*! \brief Pure virtual function returning the simulation unit of length */
-  virtual Iflt unitLength() const = 0;
+  virtual double unitLength() const = 0;
 
   /*! \brief Pure virtual function returning the method to change the unit length */
-  virtual void setUnitLength(Iflt) = 0;
+  virtual void setUnitLength(double) = 0;
 
   /*! \brief Overridable simulation unit of mass */
-  virtual Iflt unitMass() const
+  virtual double unitMass() const
     { return 1.0; }
   
   /*! \brief Overridable Boltzmanns constant */
-  virtual Iflt unitk() const
+  virtual double unitk() const
     { return 1.0; }
 
   /*! Helper function to generate the unit of velocity*/
-  inline Iflt unitVelocity() const
+  inline double unitVelocity() const
     { return unitLength() / unitTime(); }
-  inline Iflt unitAcceleration() const
+  inline double unitAcceleration() const
   { return unitLength() / (unitTime() * unitTime()); }
   /*! Helper function to generate the unit of energy*/
-  inline Iflt unitEnergy() const
+  inline double unitEnergy() const
     { return unitMass() * unitVelocity() * unitVelocity(); }
   /*! Helper function to generate the unit of area*/
-  inline Iflt unitArea() const
+  inline double unitArea() const
     { return unitLength() * unitLength(); }
   /*! Helper function to generate the unit of volume*/
-  inline Iflt unitVolume() const
+  inline double unitVolume() const
     { return unitLength() * unitLength() * unitLength(); }
   /*! Helper function to generate the unit of momentum*/
-  inline Iflt unitMomentum() const
+  inline double unitMomentum() const
     { return unitMass() * unitVelocity();}
 
   //Some dimensions of some properties
   /*! Helper function to generate the units of diffusion outputted by
       the output plugins (see OPMSD/OPMSDCorrelator)*/
-  inline Iflt unitDiffusion() const
+  inline double unitDiffusion() const
   { return unitArea() / unitTime(); }
 
   /*! Helper function to generate the units of mutal diffusion
       outputted by the output plugins (see OPMutualDiffusionE/OPMutualDiffusionGK)*/
-  inline Iflt unitMutualDiffusion() const
+  inline double unitMutualDiffusion() const
   { return unitMass() * unitTime()/ unitVolume(); }
 
   /*! Helper function to generate the units of mutal diffusion
       outputted by the output plugins (see OPThermalConductivityE)*/
-  inline Iflt unitThermalCond() const
+  inline double unitThermalCond() const
   { return unitk()/(unitLength() * unitTime()); }
 
   /*! Helper function to generate the units of ThermalDiffusion
       outputted by the output plugins (see OPThermalDiffusionE)*/
-  inline Iflt unitThermalDiffusion() const
+  inline double unitThermalDiffusion() const
   { return unitMass()/(unitLength() * unitTime()); }  
 
   /*! Helper function to generate the units of Viscosity
       outputted by the output plugins (see OPViscosityE)*/
-  inline Iflt unitViscosity() const
+  inline double unitViscosity() const
   { return 1.0 /(unitLength() * unitTime()); }
   
   /*! Helper function to generate the units of Viscosity
       outputted by the output plugins (see OPViscosityE)*/
-  inline Iflt unitPressure() const
+  inline double unitPressure() const
   { return unitMass() / (unitLength()*unitTime()*unitTime()); }
 
   /*! \brief Used to rescale the system size after a system compression*/
-  virtual void rescaleLength(Iflt) = 0;
+  virtual void rescaleLength(double) = 0;
 
   /*! \brief Calculates the volume of the system*/
-  Iflt simVolume() const;
+  double simVolume() const;
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Units&);
   

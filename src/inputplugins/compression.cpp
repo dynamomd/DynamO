@@ -34,7 +34,7 @@
 #include "../dynamics/species/species.hpp"
 #include "../dynamics/globals/gcells.hpp"
 
-CIPCompression::CIPCompression(DYNAMO::SimData* tmp, Iflt GR): 
+CIPCompression::CIPCompression(DYNAMO::SimData* tmp, double GR): 
   CInputPlugin(tmp, "CompressionPlugin"),
   growthRate(GR)
 {
@@ -85,13 +85,13 @@ CIPCompression::RestoreSystem()
 
   Sim->dynamics.setLiouvillean(oldLio->Clone());
 
-  Iflt volume = 0.0;
+  double volume = 0.0;
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Sim->ssHistory << "\nCompression dynamics run"
 		 << "\nEnd packing fraction" 
-		 << PI * volume / (6 * Sim->dynamics.units().simVolume());
+		 << M_PI * volume / (6 * Sim->dynamics.units().simVolume());
 }
 
 void
@@ -132,15 +132,15 @@ CIPCompression::CellSchedulerHack()
 }
 
 void 
-CIPCompression::limitPackingFraction(Iflt targetp)
+CIPCompression::limitPackingFraction(double targetp)
 {
   I_cout() << "Limiting maximum packing fraction to " << targetp;
-  Iflt volume = 0.0;
+  double volume = 0.0;
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  Iflt packfrac = PI * volume / (6 * (Sim->dynamics.units().simVolume()));
+  double packfrac = M_PI * volume / (6 * (Sim->dynamics.units().simVolume()));
   
   if (targetp < packfrac)
     M_throw() << "Target packing fraction is lower than current!";
@@ -151,17 +151,17 @@ CIPCompression::limitPackingFraction(Iflt targetp)
 }
 
 void 
-CIPCompression::limitDensity(Iflt targetrho)
+CIPCompression::limitDensity(double targetrho)
 {
   I_cout() << "Limiting maximum density to " << targetrho;
 
   //Get the avg molecular volume
-  Iflt volume = 0.0;
+  double volume = 0.0;
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += std::pow(sp->getIntPtr()->hardCoreDiam(), static_cast<int>(NDIM)) * sp->getCount();
   
-  Iflt molVol = PI * volume / (6.0 * Sim->particleList.size()
+  double molVol = M_PI * volume / (6.0 * Sim->particleList.size()
 			       * Sim->dynamics.units().unitVolume());
 
   I_cout() << "Corresponding packing fraction for that density is "

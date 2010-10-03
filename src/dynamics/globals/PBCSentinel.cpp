@@ -84,7 +84,7 @@ CGPBCSentinel::operator<<(const XMLNode& XML)
 GlobalEvent 
 CGPBCSentinel::getEvent(const Particle& part) const
 {
-  Iflt dt 
+  double dt 
     = Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
     - (Sim->dSysTime - cachedTimes[part.getID()]);
  

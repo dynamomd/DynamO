@@ -118,13 +118,13 @@ OPCContactMap::output(xml::XmlStream& XML)
       for (unsigned long i = 0; i < dat.chainlength; i++)
 	{
 	  for (unsigned long j = 0; j < dat.chainlength; j++)
-	    XML << i - 0.5 << " " << j - 0.5 << " " << (((Iflt) dat.array[i * dat.chainlength + j])/((Iflt) dat.counter)) << "\n"
-		<< i - 0.5 << " " << j + 0.5 << " " << (((Iflt) dat.array[i * dat.chainlength + j])/((Iflt) dat.counter)) << "\n";
+	    XML << i - 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
+		<< i - 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
 	  XML << "\n";
 
 	  for (unsigned long j = 0; j < dat.chainlength; j++)
-	    XML << i + 0.5 << " " << j - 0.5 << " " << (((Iflt) dat.array[i * dat.chainlength + j])/((Iflt) dat.counter)) << "\n"
-		<< i + 0.5 << " " << j + 0.5 << " " << (((Iflt) dat.array[i * dat.chainlength + j])/((Iflt) dat.counter)) << "\n";
+	    XML << i + 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
+		<< i + 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
 	  XML << "\n";
 
 	}

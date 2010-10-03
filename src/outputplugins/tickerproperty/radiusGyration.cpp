@@ -47,13 +47,13 @@ OPRGyration::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("binwidth1"))
-	binwidth1 = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth1"));
+	binwidth1 = boost::lexical_cast<double>(XML.getAttribute("binwidth1"));
 
       if (XML.isAttributeSet("binwidth2"))
-	binwidth2 = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth2"));
+	binwidth2 = boost::lexical_cast<double>(XML.getAttribute("binwidth2"));
 
       if (XML.isAttributeSet("binwidth3"))
-	binwidth3 = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth3"));
+	binwidth3 = boost::lexical_cast<double>(XML.getAttribute("binwidth3"));
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -106,7 +106,7 @@ OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const
   molGyrationDat retVal;
   retVal.MassCentre = Vector (0,0,0);
 
-  Iflt totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass();
+  double totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass();
   std::vector<Vector> relVecs;
   relVecs.reserve(range->size());
   relVecs.push_back(Vector(0,0,0));
@@ -194,7 +194,7 @@ OPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
       for (size_t j = i; j < NDIM; j++)
 	Q[i + (j * NDIM)] += (3.0 * vec[i] * vec[j]) - (i==j ? 1 : 0);
 
-  Iflt Factor = 1.0 / (2.0 * molAxis.size());
+  double Factor = 1.0 / (2.0 * molAxis.size());
 
   for (size_t i = 0; i < NDIM; i++)
     for (size_t j = i; j < NDIM; j++)
@@ -229,14 +229,14 @@ OPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
   return retval;
 }
 
-Iflt 
+double 
 OPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
 {
   if (NDIM != 3)
     M_throw() << "Cubatic Order Parameter not implemented for non 3d sims!";
 
   //Cubatic Order Parameter
-  Iflt Q_cub[NDIM][NDIM][NDIM][NDIM];
+  double Q_cub[NDIM][NDIM][NDIM][NDIM];
   
   BOOST_FOREACH(const Vector & vec, molAxis)
     for (unsigned int iDim = 0; iDim < NDIM; iDim++)
@@ -294,7 +294,7 @@ OPRGyration::CubaticOrderParameter(const std::list<Vector  >& molAxis)
   gsl_eigen_symmv_sort (eval, evec, 
 			GSL_EIGEN_SORT_VAL_ASC);
   
-  Iflt retval = 8.0 * gsl_vector_get(eval, 4) / (7.0 * molAxis.size());
+  double retval = 8.0 * gsl_vector_get(eval, 4) / (7.0 * molAxis.size());
   
   gsl_vector_free (eval);
   gsl_matrix_free (evec);

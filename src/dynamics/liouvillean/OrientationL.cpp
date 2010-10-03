@@ -39,7 +39,7 @@ LNOrientation::initialise()
 {
   Liouvillean::initialise();
 
-  Iflt sumEnergy(0.0);
+  double sumEnergy(0.0);
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)  
     sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()
@@ -68,7 +68,7 @@ LNOrientation::outputXML(xml::XmlStream& XML) const
 }
 
 bool 
-LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length, 
+LNOrientation::getLineLineCollision(CPDData& PD, const double& length, 
 				     const Particle& p1, const Particle& p2) const
 {  
 #ifdef DYNAMO_DEBUG
@@ -79,8 +79,8 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
     M_throw() << "Particle2 " << p2.getID() << " is not up to date";
 #endif
 
-  Iflt t_low = 0.0;
-  Iflt t_high = PD.dt;
+  double t_low = 0.0;
+  double t_high = PD.dt;
   
   CLinesFunc fL(PD.rij, PD.vij,
 		orientationData[p1.getID()].angularVelocity,
@@ -96,7 +96,7 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
       / fL.F_secondDeriv_max(length);
   
   //Find window delimited by discs
-  std::pair<Iflt,Iflt> dtw = fL.discIntersectionWindow(length);
+  std::pair<double,double> dtw = fL.discIntersectionWindow(length);
   
   if(dtw.first > t_low)
     t_low = dtw.first;
@@ -104,7 +104,7 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
   if(dtw.second < t_high)
     t_high = dtw.second;
   
-  std::pair<bool,Iflt> root = frenkelRootSearch(fL, length, t_low, t_high);
+  std::pair<bool,double> root = frenkelRootSearch(fL, length, t_low, t_high);
 
   if (root.first) 
     { 
@@ -116,7 +116,7 @@ LNOrientation::getLineLineCollision(CPDData& PD, const Iflt& length,
 }
 
 PairEventData 
-LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elasticity, const Iflt& length) const
+LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
 {
   const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
@@ -132,8 +132,8 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elastici
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
-  Iflt KE1before = getParticleKineticEnergy(particle1);
-  Iflt KE2before = getParticleKineticEnergy(particle2);
+  double KE1before = getParticleKineticEnergy(particle1);
+  double KE2before = getParticleKineticEnergy(particle2);
 
   CLinesFunc fL(retVal.rij, retVal.vijold,
 		orientationData[particle1.getID()].angularVelocity,
@@ -145,15 +145,15 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elastici
 
   uPerp /= uPerp.nrm();
 
-  std::pair<Iflt, Iflt> cp = fL.getCollisionPoints();
+  std::pair<double, double> cp = fL.getCollisionPoints();
 
   // \Delta {\bf v}_{imp}
   Vector  vr = retVal.vijold
     + (cp.first * fL.getw1() ^ fL.getu1()) 
     - (cp.second * fL.getw2() ^ fL.getu2());
   
-  Iflt mass = retVal.particle1_.getSpecies().getMass();
-  Iflt inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+  double mass = retVal.particle1_.getSpecies().getMass();
+  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
 
   retVal.dP = uPerp
     * (((vr | uPerp) * (1.0 + elasticity))
@@ -179,7 +179,7 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const Iflt& elastici
 }
 
 void
-LNOrientation::streamParticle(Particle& part, const Iflt& dt) const
+LNOrientation::streamParticle(Particle& part, const double& dt) const
 {
   part.getPosition() += part.getVelocity() * dt;
 
@@ -194,7 +194,7 @@ LNOrientation::streamParticle(Particle& part, const Iflt& dt) const
 ParticleEventData 
 LNOrientation::runAndersenWallCollision(const Particle& part, 
 					 const Vector & vNorm,
-					 const Iflt& sqrtT
+					 const double& sqrtT
 					 ) const
 {
   M_throw() << "Need to implement thermostating of the rotational degrees"
@@ -203,20 +203,20 @@ LNOrientation::runAndersenWallCollision(const Particle& part,
   
 ParticleEventData 
 LNOrientation::randomGaussianEvent(const Particle& part, 
-				    const Iflt& sqrtT) const
+				    const double& sqrtT) const
 {
   M_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";  
 }
 
 void 
-LNOrientation::initLineOrientations(const Iflt& length)
+LNOrientation::initLineOrientations(const double& length)
 {
   orientationData.resize(Sim->particleList.size());
   
   I_cout() << "Initialising the line orientations";
 
-  Iflt factor = std::sqrt(6.0/(length*length));
+  double factor = std::sqrt(6.0/(length*length));
 
   Vector  angVelCrossing;
 
@@ -286,7 +286,7 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
 	  orientationData[i].orientation << xBrowseNode.getChildNode("U");
 	  orientationData[i].angularVelocity << xBrowseNode.getChildNode("O");
 	  
-	  Iflt oL = orientationData[i].orientation.nrm();
+	  double oL = orientationData[i].orientation.nrm();
 	  
 	  if (!(oL > 0.0))
 	    M_throw() << "Particle ID " << i 
@@ -346,7 +346,7 @@ LNOrientation::extraXMLData(xml::XmlStream& XML) const
 size_t 
 LNOrientation::getParticleDOF() const { return NDIM+2; }
 
-Iflt
+double
 LNOrientation::getParticleKineticEnergy(const Particle& part) const
 {
   return 0.5 * ((Sim->dynamics.getSpecies(part).getMass()
@@ -356,9 +356,9 @@ LNOrientation::getParticleKineticEnergy(const Particle& part) const
 }
  
 void 
-LNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
+LNOrientation::rescaleSystemKineticEnergy(const double& scale)
 {
-  Iflt scalefactor(sqrt(scale));
+  double scalefactor(sqrt(scale));
 
   BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getVelocity() *= scalefactor;
@@ -370,9 +370,9 @@ LNOrientation::rescaleSystemKineticEnergy(const Iflt& scale)
 
 PairEventData 
 LNOrientation::RoughSpheresColl(const IntEvent& event, 
-				const Iflt& e, 
-				const Iflt& et, 
-				const Iflt& d2, 
+				const double& e, 
+				const double& et, 
+				const double& d2, 
 				const EEventType& eType
 				) const
 {
@@ -388,9 +388,9 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
@@ -406,13 +406,13 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
   
   Vector gijt = (eijn ^ gij) ^ eijn;
 
-  Iflt Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia() 
+  double Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia() 
     / (p1Mass * d2 * 0.25);
   
   retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
 
-  Iflt KE1before = getParticleKineticEnergy(particle1);
-  Iflt KE2before = getParticleKineticEnergy(particle2);
+  double KE1before = getParticleKineticEnergy(particle1);
+  double KE2before = getParticleKineticEnergy(particle2);
 
   //This function must edit particles so it overrides the const!
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
@@ -434,20 +434,20 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
 ParticleEventData 
 LNOrientation::runRoughWallCollision(const Particle& part, 
 				     const Vector & vNorm,
-				     const Iflt& e,
-				     const Iflt& et,
-				     const Iflt& r
+				     const double& e,
+				     const double& et,
+				     const double& r
 				     ) const
 {
   updateParticle(part);
 
   ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
 
-  Iflt KE1before = getParticleKineticEnergy(part);
+  double KE1before = getParticleKineticEnergy(part);
 
-  Iflt p1Mass = retVal.getSpecies().getMass(); 
+  double p1Mass = retVal.getSpecies().getMass(); 
 
-  Iflt Jbar = retVal.getSpecies().getScalarMomentOfInertia()
+  double Jbar = retVal.getSpecies().getScalarMomentOfInertia()
     / (p1Mass * r * r);
 
   Vector gij = part.getVelocity() - r

@@ -21,8 +21,8 @@
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
 
-SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
-			       std::string nName, unsigned int nID, Iflt inertiaConst,
+SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
+			       std::string nName, unsigned int nID, double inertiaConst,
 			       std::string nIName):
   SpInertia(tmp, "Species", IC_blue, nr, nMass, nName, nID, nIName),
   inertiaConstant(inertiaConst)
@@ -52,7 +52,7 @@ SpSphericalTop::operator<<(const XMLNode& XML)
 
   try {
     inertiaConstant 
-      = boost::lexical_cast<Iflt>(XML.getAttribute("InertiaConstant"))
+      = boost::lexical_cast<double>(XML.getAttribute("InertiaConstant"))
       * Sim->dynamics.units().unitArea();
   } 
   catch (boost::bad_lexical_cast &)

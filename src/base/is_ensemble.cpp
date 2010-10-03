@@ -24,6 +24,8 @@
 #include "../dynamics/units/units.hpp"
 #include "../outputplugins/1partproperty/uenergy.hpp"
 
+#include "../dynamics/units/shear.hpp"
+
 namespace DYNAMO {
   CEnsemble* 
   CEnsemble::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
@@ -42,7 +44,7 @@ namespace DYNAMO {
       M_throw() << "Cannot correctly identify the ensemble";
   }
 
-  Iflt 
+  double 
   CEnsemble::exchangeProbability(const CEnsemble&) const
   { M_throw() << "Exchange move not written for this Ensemble"; }
 
@@ -67,10 +69,10 @@ namespace DYNAMO {
 	     << "\nE=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
   }
 
-  boost::array<Iflt,3> 
+  boost::array<double,3> 
   CENVE::getReducedEnsembleVals() const
   {
-    boost::array<Iflt,3> retval;
+    boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
     retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
@@ -104,10 +106,10 @@ namespace DYNAMO {
 	     << "\nT=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
   }
 
-  boost::array<Iflt,3> 
+  boost::array<double,3> 
   CENVT::getReducedEnsembleVals() const
   {
-    boost::array<Iflt,3> retval;
+    boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
     retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
@@ -115,7 +117,7 @@ namespace DYNAMO {
     return retval;
   }
 
-  Iflt 
+  double 
   CENVT::exchangeProbability(const CEnsemble& oE) const
   {
 #ifdef DYNAMO_DEBUG
@@ -140,17 +142,17 @@ namespace DYNAMO {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
-    EnsembleVals[2] = ShearRate;
+    EnsembleVals[2] = UShear::ShearRate;
 
     I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
 	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
   }
 
-  boost::array<Iflt,3> 
+  boost::array<double,3> 
   CENVShear::getReducedEnsembleVals() const
   {
-    boost::array<Iflt,3> retval;
+    boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
     retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
@@ -179,10 +181,10 @@ namespace DYNAMO {
 	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
   }
 
-  boost::array<Iflt,3> 
+  boost::array<double,3> 
   CENECompression::getReducedEnsembleVals() const
   {
-    boost::array<Iflt,3> retval;
+    boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
     retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
@@ -225,10 +227,10 @@ namespace DYNAMO {
 	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
   }
 
-  boost::array<Iflt,3> 
+  boost::array<double,3> 
   CENTCompression::getReducedEnsembleVals() const
   {
-    boost::array<Iflt,3> retval;
+    boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
     retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();

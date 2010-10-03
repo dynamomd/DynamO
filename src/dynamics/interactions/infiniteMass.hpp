@@ -23,21 +23,21 @@
 class IInfiniteMass: public Interaction
 {
 public:
-  IInfiniteMass(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  IInfiniteMass(DYNAMO::SimData*, double, double, C2Range*);
 
   IInfiniteMass(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
-  virtual Iflt getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0.0; }
 
   virtual void initialise(size_t);
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual Interaction* Clone() const;
   
@@ -53,8 +53,8 @@ public:
   write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
 
 protected:
-  Iflt diameter,d2;
-  Iflt e;
+  double diameter,d2;
+  double e;
 };
 
 #endif

@@ -30,7 +30,7 @@ class OPMFT: public OP1PP
 
   void A1ParticleChange(const ParticleEventData&);
 
-  void stream(const Iflt&) {}
+  void stream(const double&) {}
 
   void output(xml::XmlStream &); 
 
@@ -45,10 +45,10 @@ class OPMFT: public OP1PP
  protected:
   size_t collisionHistoryLength;
   
-  Iflt binwidth;
+  double binwidth;
 
   //! Each particles last collision times
-  std::vector<boost::circular_buffer<Iflt> > lastTime;
+  std::vector<boost::circular_buffer<double> > lastTime;
 
   //! A histogram for each species
   std::vector<std::vector<C1DHistogram> > data;

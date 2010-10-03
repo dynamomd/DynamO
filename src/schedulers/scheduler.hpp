@@ -49,7 +49,7 @@ public:
 
   void pushEvent(const Particle&, const intPart&);
   
-  void stream(const Iflt& dt) {  sorter->stream(dt); }
+  void stream(const double& dt) {  sorter->stream(dt); }
   
   void runNextEvent();
 
@@ -61,7 +61,7 @@ public:
 
   virtual void operator<<(const XMLNode&) = 0;
   
-  void rescaleTimes(const Iflt& scale) { sorter->rescaleTimes(scale); }
+  void rescaleTimes(const double& scale) { sorter->rescaleTimes(scale); }
 
   const magnet::ClonePtr<CSSorter>& getSorter() const { return sorter; }
 

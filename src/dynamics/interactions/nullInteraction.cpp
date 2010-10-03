@@ -54,16 +54,16 @@ INull::operator<<(const XMLNode& XML)
     }
 }
 
-Iflt 
+double 
 INull::maxIntDist() const 
 { return 0; }
 
-Iflt 
+double 
 INull::hardCoreDiam() const 
 { return 0; }
 
 void 
-INull::rescaleLengths(Iflt) 
+INull::rescaleLengths(double) 
 {}
 
 Interaction* 

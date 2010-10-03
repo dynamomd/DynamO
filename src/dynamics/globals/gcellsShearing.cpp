@@ -102,7 +102,7 @@ CGCellsShearing::runEvent(const Particle& part) const
       
       //Calculate the final x value
       //Time till transition, assumes the particle is up to date
-      Iflt dt = Sim->dynamics.getLiouvillean().getSquareCellCollision2
+      double dt = Sim->dynamics.getLiouvillean().getSquareCellCollision2
 	(part, cells[partCellData[part.getID()].cell].origin, 
 	 cellDimension);
      

@@ -22,7 +22,7 @@
 class CSSchedMaintainer: public System
 {
 public:
-  CSSchedMaintainer(DYNAMO::SimData*, Iflt, std::string);
+  CSSchedMaintainer(DYNAMO::SimData*, double, std::string);
   
   virtual System* Clone() const { return new CSSchedMaintainer(*this); }
 
@@ -32,12 +32,12 @@ public:
 
   virtual void operator<<(const XMLNode&) {}
 
-  void setdt(Iflt);
+  void setdt(double);
 
-  void increasedt(Iflt);
+  void increasedt(double);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const {}
 
-  Iflt periodt;
+  double periodt;
 };

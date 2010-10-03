@@ -62,14 +62,14 @@ OPViscosityCollisionalE::operator<<(const XMLNode& XML)
 
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
 
       if (XML.isAttributeSet("dtfactor"))
-	dtfactor = boost::lexical_cast<Iflt>(XML.getAttribute("dtfactor"));
+	dtfactor = boost::lexical_cast<double>(XML.getAttribute("dtfactor"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -87,7 +87,7 @@ OPViscosityCollisionalE::initialise()
       if (Sim->lastRunMFT != 0.0)
 	dt = Sim->lastRunMFT * 0.5 * dtfactor;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength) * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	dt = 10.0 / (((double) CorrelatorLength) * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
 
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
@@ -112,7 +112,7 @@ OPViscosityCollisionalE::eventUpdate(const LocalEvent& iEvent,
 void 
 OPViscosityCollisionalE::eventUpdate(const System&, 
 				      const NEventData& PDat, 
-				      const Iflt& edt) 
+				      const double& edt) 
 { 
   stream(edt);
   impulseDelG(PDat);
@@ -127,7 +127,7 @@ OPViscosityCollisionalE::eventUpdate(const IntEvent& iEvent,
 }
 
 void 
-OPViscosityCollisionalE::stream(const Iflt& edt)
+OPViscosityCollisionalE::stream(const double& edt)
 {
   //Move the time forward
   //currentdt += edt;
@@ -197,7 +197,7 @@ OPViscosityCollisionalE::impulseDelG(const NEventData& ndat)
 inline void 
 OPViscosityCollisionalE::output(xml::XmlStream &XML)
 {
-  Iflt rescaleFactor = 1.0
+  double rescaleFactor = 1.0
     / (Sim->dynamics.units().unitTime() 
        //This line should be 1 however we have scaled the correlator time as well
        * Sim->dynamics.units().unitViscosity() * 2.0 
@@ -229,7 +229,7 @@ OPViscosityCollisionalE::output(xml::XmlStream &XML)
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     for (size_t jDim = 0; jDim < NDIM; ++jDim)
       {
-	traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((Iflt) G.size()) + ((Iflt) count));
+	traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((double) G.size()) + ((double) count));
 	
 	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.units().simVolume());
       }
@@ -254,7 +254,7 @@ OPViscosityCollisionalE::output(xml::XmlStream &XML)
   
   XML << xml::endtag("Pressure");
   
-  Iflt AvgPressure = 0.0;
+  double AvgPressure = 0.0;
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     AvgPressure += P[iDim][iDim];
   

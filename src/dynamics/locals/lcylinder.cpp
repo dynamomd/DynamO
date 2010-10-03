@@ -25,8 +25,8 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLCylinder::CLCylinder(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
-		       Vector  norigin, Iflt nr, std::string nname, 
+CLCylinder::CLCylinder(DYNAMO::SimData* nSim, double ne, Vector  nnorm, 
+		       Vector  norigin, double nr, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "CylinderWall"),
   vNorm(nnorm),
@@ -94,9 +94,9 @@ CLCylinder::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
 
-    radius = boost::lexical_cast<Iflt>(XML.getAttribute("Radius"))
+    radius = boost::lexical_cast<double>(XML.getAttribute("Radius"))
       * Sim->dynamics.units().unitLength();
 
     render = boost::lexical_cast<bool>(XML.getAttribute("Render"));

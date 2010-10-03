@@ -23,7 +23,7 @@
 #include "../units/units.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
+CSTicker::CSTicker(DYNAMO::SimData* nSim, double nPeriod, std::string nName):
   System(nSim)
 {
   if (nPeriod <= 0.0)
@@ -41,7 +41,7 @@ CSTicker::CSTicker(DYNAMO::SimData* nSim, Iflt nPeriod, std::string nName):
 void
 CSTicker::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
@@ -83,19 +83,19 @@ CSTicker::initialise(size_t nID)
 { ID = nID; }
 
 void 
-CSTicker::setdt(Iflt ndt)
+CSTicker::setdt(double ndt)
 { 
   dt = ndt * Sim->dynamics.units().unitTime(); 
 }
 
 void 
-CSTicker::increasedt(Iflt ndt)
+CSTicker::increasedt(double ndt)
 { 
   dt += ndt * Sim->dynamics.units().unitTime(); 
 }
 
 void 
-CSTicker::setTickerPeriod(const Iflt& nP)
+CSTicker::setTickerPeriod(const double& nP)
 { 
   I_cout() << "Setting system ticker period to " 
 	   << nP / Sim->dynamics.units().unitTime();

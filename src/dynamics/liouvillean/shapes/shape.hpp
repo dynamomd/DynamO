@@ -19,19 +19,19 @@
 
 class CShape {
 public:
-  virtual void stream(const Iflt& dt) = 0;
+  virtual void stream(const double& dt) = 0;
 
   virtual CShape* Clone() const = 0;
   
-  virtual Iflt F_zeroDeriv() const = 0;
+  virtual double F_zeroDeriv() const = 0;
 
-  virtual Iflt F_firstDeriv() const = 0;
+  virtual double F_firstDeriv() const = 0;
 
-  virtual Iflt F_firstDeriv_max(const Iflt& length) const = 0;
+  virtual double F_firstDeriv_max(const double& length) const = 0;
 
-  virtual Iflt F_secondDeriv() const = 0;
+  virtual double F_secondDeriv() const = 0;
 
-  virtual Iflt F_secondDeriv_max(const Iflt& length) const = 0;
+  virtual double F_secondDeriv_max(const double& length) const = 0;
 
-  virtual bool test_root(const Iflt&) const = 0;
+  virtual bool test_root(const double&) const = 0;
 };

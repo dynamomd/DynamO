@@ -33,7 +33,7 @@ class OPCTorsion: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
 
@@ -49,7 +49,7 @@ class OPCTorsion: public OPTicker
     C1DHistogram gammaMol;
     C1DHistogram gammaSys;
     C1DHistogram f;
-    CTCdata(const CTChain* ptr, Iflt binwidth1, Iflt binwidth2, Iflt binwidth3):
+    CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
       chainPtr(ptr), gammaMol(binwidth1),
       gammaSys(binwidth2), f(binwidth3)
     {}

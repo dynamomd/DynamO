@@ -31,12 +31,12 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   virtual void output(xml::XmlStream&) {}
 
 private:
-  virtual void stream(Iflt) = 0;  
+  virtual void stream(double) = 0;  
   virtual void ticker() = 0;
 };
 

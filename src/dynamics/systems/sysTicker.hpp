@@ -23,7 +23,7 @@
 class CSTicker: public System
 {
 public:
-  CSTicker(DYNAMO::SimData*, Iflt, std::string);
+  CSTicker(DYNAMO::SimData*, double, std::string);
   
   virtual System* Clone() const { return new CSTicker(*this); }
 
@@ -33,17 +33,17 @@ public:
 
   virtual void operator<<(const XMLNode&) {}
 
-  void setdt(Iflt);
+  void setdt(double);
 
-  void increasedt(Iflt);
+  void increasedt(double);
 
-  void setTickerPeriod(const Iflt&);
+  void setTickerPeriod(const double&);
 
-  const Iflt& getPeriod() const { return period; }
+  const double& getPeriod() const { return period; }
 protected:
   virtual void outputXML(xml::XmlStream&) const {}
 
-  Iflt period;
+  double period;
 };
 
 #endif

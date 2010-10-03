@@ -78,7 +78,7 @@ public:
   const magnet::ClonePtr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
   
-  void stream(const Iflt&);
+  void stream(const double&);
   
   inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
   {
@@ -99,7 +99,7 @@ public:
 
   void initialise();
   
-  Iflt getLongestInteraction() const;
+  double getLongestInteraction() const;
   
   /*! \brief Sets the Centre of Mass (COM) velocity of the system 
    * 
@@ -124,11 +124,11 @@ public:
    */  
   void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
 
-  void rescaleLengths(Iflt);
+  void rescaleLengths(double);
 
   void SystemOverlapTest();
   
-  Iflt calcInternalEnergy() const;
+  double calcInternalEnergy() const;
 
   Dynamics* Clone() const { return new Dynamics(*this); }
 
@@ -203,9 +203,9 @@ public:
       p_BC.set_ptr(new T(Sim));
     }
 
-  Iflt getNumberDensity() const;
+  double getNumberDensity() const;
   
-  Iflt getPackingFraction() const;
+  double getPackingFraction() const;
 
  protected:
   void outputXML(xml::XmlStream &) const;

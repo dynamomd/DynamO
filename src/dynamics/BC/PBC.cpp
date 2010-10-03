@@ -61,7 +61,7 @@ BCSquarePeriodic::applyBC(Vector & pos, Vector&) const
 }
 
 void 
-BCSquarePeriodic::applyBC(Vector  &pos, const Iflt&) const 
+BCSquarePeriodic::applyBC(Vector  &pos, const double&) const 
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
@@ -90,7 +90,7 @@ BCRectangularPeriodic::applyBC(Vector & pos, Vector&) const
 }
 
 void 
-BCRectangularPeriodic::applyBC(Vector  &pos, const Iflt&) const 
+BCRectangularPeriodic::applyBC(Vector  &pos, const double&) const 
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -137,7 +137,7 @@ BCSquarePeriodicExceptX::Clone () const
 void 
 BCSquarePeriodicExceptX::applyBC(Vector & pos) const
 { 
-  Iflt x = pos[0];
+  double x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -149,7 +149,7 @@ BCSquarePeriodicExceptX::applyBC(Vector & pos) const
 void 
 BCSquarePeriodicExceptX::applyBC(Vector & pos, Vector&) const
 { 
-  Iflt x = pos[0];
+  double x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -159,9 +159,9 @@ BCSquarePeriodicExceptX::applyBC(Vector & pos, Vector&) const
 }
 
 void 
-BCSquarePeriodicExceptX::applyBC(Vector  &pos, const Iflt&) const 
+BCSquarePeriodicExceptX::applyBC(Vector  &pos, const double&) const 
 { 
-  Iflt x = pos[0];
+  double x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -207,7 +207,7 @@ BCSquarePeriodicXOnly::applyBC(Vector & pos, Vector&) const
 }
 
 void 
-BCSquarePeriodicXOnly::applyBC(Vector  &pos, const Iflt&) const 
+BCSquarePeriodicXOnly::applyBC(Vector  &pos, const double&) const 
 { 
   applyBC(pos); 
 }

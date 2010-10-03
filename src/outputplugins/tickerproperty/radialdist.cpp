@@ -40,7 +40,7 @@ OPRadialDistribution::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binWidth"))
-      binWidth = boost::lexical_cast<Iflt>(XML.getAttribute("binWidth")) 
+      binWidth = boost::lexical_cast<double>(XML.getAttribute("binWidth")) 
 	* Sim->dynamics.units().unitLength();
     else
       binWidth = 0.1 * Sim->dynamics.units().unitLength();
@@ -116,7 +116,7 @@ OPRadialDistribution::output(xml::XmlStream& XML)
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const magnet::ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
     {
-      Iflt density = sp2->getCount() / Sim->dynamics.units().simVolume();
+      double density = sp2->getCount() / Sim->dynamics.units().simVolume();
 
       unsigned long originsTaken = sampleCount * sp1->getCount();
 
@@ -132,10 +132,10 @@ OPRadialDistribution::output(xml::XmlStream& XML)
       //when sp1==sp2
       for (size_t i = 1; i < length; ++i)
 	{
-	  Iflt radius = binWidth * i;
-	  Iflt volshell = (4.0 * PI * binWidth * radius * radius) +
-	    ((PI * binWidth * binWidth * binWidth) / 3.0);
-	  Iflt GR = static_cast<Iflt>(data[sp1->getID()][sp2->getID()][i])
+	  double radius = binWidth * i;
+	  double volshell = (4.0 * M_PI * binWidth * radius * radius) +
+	    ((M_PI * binWidth * binWidth * binWidth) / 3.0);
+	  double GR = static_cast<double>(data[sp1->getID()][sp2->getID()][i])
 	    / (density * originsTaken * volshell);
 
 	  XML << radius / Sim->dynamics.units().unitLength() << " " 

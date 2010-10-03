@@ -32,8 +32,8 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 
-IInfiniteMass::IInfiniteMass(DYNAMO::SimData* tmp, Iflt nd, 
-			       Iflt ne, C2Range* nR):
+IInfiniteMass::IInfiniteMass(DYNAMO::SimData* tmp, double nd, 
+			       double ne, C2Range* nR):
   Interaction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne) {}
 
@@ -58,9 +58,9 @@ IInfiniteMass::operator<<(const XMLNode& XML)
   try 
     {
       diameter = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
+	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
       
-      e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
       
       d2 = diameter * diameter;
       
@@ -72,16 +72,16 @@ IInfiniteMass::operator<<(const XMLNode& XML)
     }
 }
 
-Iflt 
+double 
 IInfiniteMass::maxIntDist() const 
 { return diameter; }
 
-Iflt 
+double 
 IInfiniteMass::hardCoreDiam() const 
 { return diameter; }
 
 void 
-IInfiniteMass::rescaleLengths(Iflt scale) 
+IInfiniteMass::rescaleLengths(double scale) 
 { 
   diameter += scale*diameter;
   d2 = diameter*diameter;

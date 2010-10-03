@@ -18,17 +18,6 @@
 
 #include <cstddef>
 
-#ifdef DYNAMO_double_precsision
-   typedef double Iflt;
-   typedef long double lIflt;
-   const Iflt eps(1e-8);
-#else
-   typedef float Iflt;
-   typedef float lIflt;
-   const Iflt eps(1e-2);
-#endif
-const Iflt PI(3.14159265358979323846);
 const size_t NDIM(3);
-const Iflt ShearRate(1);
 const char configFileVersion[] = "1.2.0";
 

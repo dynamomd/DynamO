@@ -24,7 +24,7 @@ class CLCylinder: public Local
 {
 public:
   CLCylinder(const XMLNode&, DYNAMO::SimData*);
-  CLCylinder(DYNAMO::SimData*, Iflt, Vector , Vector , Iflt, 
+  CLCylinder(DYNAMO::SimData*, double, Vector , Vector , double, 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~CLCylinder() {}
@@ -48,8 +48,8 @@ protected:
 
   Vector  vNorm;
   Vector  vPosition;
-  Iflt e;
-  Iflt radius;
+  double e;
+  double radius;
   bool render;
 };
 

@@ -24,22 +24,20 @@
 
 OPReverseEventsCheck::OPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
   OutputPlugin(t1,"ReverseEventsChecker"),
-  lReverseEvents(0),
-  localeps(0)
+  lReverseEvents(0)
 {
 }
 
 void
 OPReverseEventsCheck::initialise()
 {
-  localeps = -eps * Sim->dynamics.units().unitTime();
 }
 
 void 
 OPReverseEventsCheck::eventUpdate(const IntEvent& eevent, 
 				   const PairEventData&)
 {
-  if (eevent.getdt() < localeps) 
+  if (eevent.getdt() < 0) 
   	++lReverseEvents;
 }
 
@@ -47,21 +45,21 @@ void
 OPReverseEventsCheck::eventUpdate(const GlobalEvent& eevent, 
 				   const NEventData&)
 {
-  if (eevent.getdt() < localeps) ++lReverseEvents;
+  if (eevent.getdt() < 0) ++lReverseEvents;
 }
 
 void 
 OPReverseEventsCheck::eventUpdate(const LocalEvent& eevent, 
 				   const NEventData&)
 {
-  if (eevent.getdt() < localeps) ++lReverseEvents;
+  if (eevent.getdt() < 0) ++lReverseEvents;
 }
 
 void 
 OPReverseEventsCheck::eventUpdate(const System&, const NEventData&, 
-				   const Iflt& dt)
+				   const double& dt)
 {
-  if (dt < localeps) ++lReverseEvents;  
+  if (dt < 0) ++lReverseEvents;  
 }
 
 void 

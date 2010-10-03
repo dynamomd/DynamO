@@ -34,7 +34,7 @@ class OPRGyration: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
 
@@ -52,7 +52,7 @@ class OPRGyration: public OPTicker
   static molGyrationDat getGyrationEigenSystem(const magnet::ClonePtr<CRange>&, const DYNAMO::SimData*);
 
   static Vector  NematicOrderParameter(const std::list<Vector  >&);
-  static Iflt CubaticOrderParameter(const std::list<Vector  >&);
+  static double CubaticOrderParameter(const std::list<Vector  >&);
 
   virtual void operator<<(const XMLNode&);
   
@@ -65,7 +65,7 @@ class OPRGyration: public OPTicker
     std::vector<C1DHistogram> nematicOrder;
     C1DHistogram cubaticOrder;    
 
-    CTCdata(const CTChain* ptr, Iflt binwidth1, Iflt binwidth2, Iflt binwidth3):
+    CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
       chainPtr(ptr),
       cubaticOrder(binwidth3)
     {
@@ -80,7 +80,7 @@ class OPRGyration: public OPTicker
 
   std::list<CTCdata> chains;
 
-  Iflt binwidth1, binwidth2, binwidth3;  
+  double binwidth1, binwidth2, binwidth3;  
 };
 
 #endif

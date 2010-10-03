@@ -25,7 +25,7 @@
 /*! \brief The Correlator class for the viscosity.*/
 class OPViscosityE: public OutputPlugin
 {
-  typedef boost::array<Iflt, NDIM> col;
+  typedef boost::array<double, NDIM> col;
   typedef boost::array<col, NDIM> matrix;
   
 public:
@@ -41,11 +41,11 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void stream(const Iflt&);
+  void stream(const double&);
 
   virtual void operator<<(const XMLNode&);
 
@@ -63,7 +63,7 @@ protected:
   matrix avgTrace;
 
   size_t count;
-  Iflt dt, currentdt;
+  double dt, currentdt;
   matrix constDelG, delG;
 
   size_t currlen;
@@ -73,7 +73,7 @@ protected:
 
   boost::circular_buffer<matrix> G;
   std::vector<matrix> accG2;
-  Iflt dtfactor;
+  double dtfactor;
 };
 
 #endif

@@ -30,7 +30,7 @@ class CFuzzyArray
 public:  
   typedef std::pair<const long, T> mapType;
 
-  CFuzzyArray(Iflt binwidth):
+  CFuzzyArray(double binwidth):
     binWidth(binwidth)
   {}
   
@@ -38,15 +38,15 @@ public:
     binWidth(0.0)
   {}
 
-  void setBinWidth(Iflt bw)
+  void setBinWidth(double bw)
     {
       binWidth = bw;
       data.clear();
     }
   
-  T& operator[](const Iflt& x)
+  T& operator[](const double& x)
   { 
-    Iflt val = x/binWidth;
+    double val = x/binWidth;
     return data[static_cast<long>(val) - static_cast<long>(val < 0)]; 
   }
 
@@ -55,7 +55,7 @@ public:
     return data[x];
   }
   
-  Iflt binWidth;
+  double binWidth;
   
   std::map<long, T> data;
 };
@@ -66,7 +66,7 @@ class CFuzzyArray<CFuzzyArray<T> >
 public:
   typedef std::pair<const long, CFuzzyArray<T> > mapType;
   
-  CFuzzyArray(Iflt binwidth):
+  CFuzzyArray(double binwidth):
     binWidth(binwidth)
   {}
   
@@ -74,14 +74,14 @@ public:
     binWidth(0.0)
   {}
 
-  void setBinWidth(Iflt bw)
+  void setBinWidth(double bw)
     {
       binWidth = bw;
       data.clear();
     }
   
 
-  CFuzzyArray<T>& operator[](const Iflt&x)
+  CFuzzyArray<T>& operator[](const double&x)
     {
       long i = lround((x/binWidth)-0.5);
       
@@ -99,7 +99,7 @@ public:
     return data[i];
   }
   
-  Iflt binWidth;
+  double binWidth;
   
   std::map<long, CFuzzyArray<T> > data;
 };
@@ -109,13 +109,13 @@ template<class T>
 class CFuzzyArray2
 {
 public:  
-  CFuzzyArray2(Iflt binwidth, Iflt origin2, long nbins):
+  CFuzzyArray2(double binwidth, double origin2, long nbins):
     binWidth(binwidth),
     origin(origin2),
     data(nbins, T(0))
     {}
   
-    T& operator[](const Iflt &x)
+    T& operator[](const double &x)
       {
 	long i = static_cast<long>((x-origin)/binWidth);
 	if (i > static_cast<long>(data.size()))
@@ -136,7 +136,7 @@ public:
 	return data[x];
       }
   
-  Iflt binWidth, origin;
+  double binWidth, origin;
   std::vector<T> data;
 };
 
@@ -145,13 +145,13 @@ class CFuzzyArray2<CFuzzyArray2<T> >
 {
  public:
   
- CFuzzyArray2(Iflt binwidth, Iflt origin2, long nbins):
+ CFuzzyArray2(double binwidth, double origin2, long nbins):
   binWidth(binwidth),
     origin(origin2),
     data(nbins, CFuzzyArray2<T>(binwidth,origin2,nbins))
       {}
   
-  CFuzzyArray2<T>& operator[](const Iflt &x)
+  CFuzzyArray2<T>& operator[](const double &x)
     {
       long i = static_cast<long>((x-origin)/binWidth);
       if (i > static_cast<long>(data.size()))
@@ -171,7 +171,7 @@ class CFuzzyArray2<CFuzzyArray2<T> >
       return data[x];
     }
   
-  Iflt binWidth, origin;
+  double binWidth, origin;
   std::vector<CFuzzyArray2<T> > data;
 };
 

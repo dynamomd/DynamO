@@ -27,10 +27,10 @@ public:
   LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode&);
 
   //Pair particle dynamics
-  virtual PairEventData SphereWellEvent(const IntEvent&, const Iflt&, 
-					 const Iflt&) const;
+  virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 
+					 const double&) const;
   virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
-					   const Iflt&, const Iflt&, 
+					   const double&, const double&, 
 					   EEventType&) const;
 
   //Cloning
@@ -41,9 +41,9 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 
-  boost::unordered_map<int, Iflt> _MCEnergyPotential; 
+  boost::unordered_map<int, double> _MCEnergyPotential; 
 
-  Iflt EnergyPotentialStep;
+  double EnergyPotentialStep;
   
 };
 #endif

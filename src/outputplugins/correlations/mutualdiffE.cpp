@@ -50,11 +50,11 @@ OPMutualDiffusionE::operator<<(const XMLNode& XML)
 
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
 
 	if (XML.isAttributeSet("t"))
 	  dt = Sim->dynamics.units().unitTime() * 
-	    boost::lexical_cast<Iflt>(XML.getAttribute("t")) / CorrelatorLength;
+	    boost::lexical_cast<double>(XML.getAttribute("t")) / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -84,7 +84,7 @@ OPMutualDiffusionE::operator<<(const XMLNode& XML)
 }
 
 void 
-OPMutualDiffusionE::stream(const Iflt edt)
+OPMutualDiffusionE::stream(const double edt)
 {
   Vector  grad1 = (delGsp1 - (massFracSp1 * sysMom)),
     grad2 = (delGsp2 - (massFracSp2 * sysMom));  
@@ -139,7 +139,7 @@ OPMutualDiffusionE::eventUpdate(const LocalEvent& iEvent,
 
 void 
 OPMutualDiffusionE::eventUpdate(const System&, const NEventData& PDat,
-				 const Iflt& edt) 
+				 const double& edt) 
 { 
   stream(edt);
   updateDelG(PDat);
@@ -153,7 +153,7 @@ OPMutualDiffusionE::eventUpdate(const IntEvent& iEvent,
   updateDelG(PDat);
 }
 
-Iflt 
+double 
 OPMutualDiffusionE::rescaleFactor()
 {
   return 0.5 / (Sim->dynamics.units().unitTime()
@@ -165,7 +165,7 @@ OPMutualDiffusionE::rescaleFactor()
 void 
 OPMutualDiffusionE::output(xml::XmlStream& XML)
 {
-  Iflt factor = rescaleFactor();
+  double factor = rescaleFactor();
 
   XML << xml::tag("EinsteinCorrelator")
       << xml::attr("name") << name
@@ -206,7 +206,7 @@ OPMutualDiffusionE::initialise()
 
   dt = getdt();
   
-  Iflt sysMass = 0.0;
+  double sysMass = 0.0;
 
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
@@ -241,7 +241,7 @@ OPMutualDiffusionE::getAvgAcc() const
   std::list<Vector  > tmp;
   
   BOOST_FOREACH(const Vector  &val, accG)
-    tmp.push_back(val/((Iflt) count));
+    tmp.push_back(val/((double) count));
   
   return tmp;
 }
@@ -311,7 +311,7 @@ OPMutualDiffusionE::accPass()
     }
 }
 
-Iflt 
+double 
 OPMutualDiffusionE::getdt()
 {
   //Get the simulation temperature
@@ -320,7 +320,7 @@ OPMutualDiffusionE::getdt()
       if (Sim->lastRunMFT != 0.0)
 	return Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	return 5.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	return 5.0 / (((double) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   else 
     return dt;

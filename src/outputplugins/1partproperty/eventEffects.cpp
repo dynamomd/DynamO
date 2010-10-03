@@ -90,7 +90,7 @@ OPEventEffects::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat
 }
 
 void 
-OPEventEffects::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
+OPEventEffects::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
 {
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(sysEvent.getType(),getClassKey(sysEvent),
@@ -112,7 +112,7 @@ OPEventEffects::eventUpdate(const System& sysEvent, const NEventData& SDat, cons
 
 void 
 OPEventEffects::newEvent(const EEventType& eType, const classKey& ck, 
-			  const Iflt& deltaKE, const Vector & delP)
+			  const double& deltaKE, const Vector & delP)
 {
   counterData& ref(counters[eventKey(ck, eType)]);
   ref.energyLoss += deltaKE;

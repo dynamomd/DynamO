@@ -31,10 +31,10 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
   return XML;
 }
 
-Iflt 
+double 
 Units::simVolume() const
 { 
-  Iflt vol = 1.0;
+  double vol = 1.0;
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     vol *= Sim->aspectRatio[iDim];
   

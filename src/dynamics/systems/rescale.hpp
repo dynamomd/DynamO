@@ -42,16 +42,16 @@ public:
 
   void checker(const NEventData&);
   
-  inline const lIflt& getScaleFactor() const {return scaleFactor; }
+  inline const long double& getScaleFactor() const {return scaleFactor; }
 
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
   size_t _frequency;
 
-  mutable lIflt scaleFactor;
+  mutable long double scaleFactor;
 
-  mutable lIflt LastTime, RealTime;
+  mutable long double LastTime, RealTime;
   
 };
 

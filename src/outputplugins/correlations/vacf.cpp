@@ -58,11 +58,11 @@ OPVACF::operator<<(const XMLNode& XML)
 
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -99,7 +99,7 @@ OPVACF::eventUpdate(const LocalEvent& iEvent, const NEventData& PDat)
 }
 
 void 
-OPVACF::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt) 
+OPVACF::eventUpdate(const System&, const NEventData& PDat, const double& edt) 
 { 
   //Move the time forward
   currentdt += edt;
@@ -210,12 +210,12 @@ OPVACF::newG(const NEventData& PDat)
 void 
 OPVACF::output(xml::XmlStream& XML)
 {
-  Iflt factor = Sim->dynamics.units().unitTime() 
+  double factor = Sim->dynamics.units().unitTime() 
     / (Sim->dynamics.units().unitDiffusion() * count);
 
   for (size_t i = 0; i < accG2.size(); ++i)
     {
-      Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
+      double specCount = Sim->dynamics.getSpecies()[i]->getCount();
 
       Vector  acc = 0.5*(accG2[i].front() + accG2[i].back());
       
@@ -249,7 +249,7 @@ OPVACF::output(xml::XmlStream& XML)
     }
 }
 
-Iflt 
+double 
 OPVACF::getdt()
 {
   //Get the simulation temperature
@@ -258,7 +258,7 @@ OPVACF::getdt()
       if (Sim->lastRunMFT != 0.0)
 	return Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	return 10.0 / (((double) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   else 
     return dt;

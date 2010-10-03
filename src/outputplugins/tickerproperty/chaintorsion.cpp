@@ -78,7 +78,7 @@ OPCTorsion::ticker()
 {
   BOOST_FOREACH(CTCdata& dat,chains)
     {
-      Iflt sysGamma  = 0.0;
+      double sysGamma  = 0.0;
       long count = 0;
       BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
 	{
@@ -120,20 +120,20 @@ OPCTorsion::ticker()
 	  size_t derivsize = dr3.size();
 
 	  //Gamma Calc
-	  Iflt gamma = 0.0;
-	  Iflt fsum = 0.0;
+	  double gamma = 0.0;
+	  double fsum = 0.0;
 
 	  for (unsigned int i = 0; i < derivsize; i++)
 	    {
-	      Iflt torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
-	      Iflt curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
+	      double torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
+	      double curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
 
-	      Iflt instGamma = torsion / curvature;
+	      double instGamma = torsion / curvature;
 	      gamma += instGamma;
 
-	      Iflt helixradius = 1.0/(curvature * (1.0+instGamma*instGamma));
+	      double helixradius = 1.0/(curvature * (1.0+instGamma*instGamma));
 
-	      Iflt minradius = HUGE_VAL;
+	      double minradius = HUGE_VAL;
 
 	      for (CRange::iterator it1 = range->begin(); 
 		   it1 != range->end(); it1++)
@@ -151,7 +151,7 @@ OPCTorsion::ticker()
 		      {
 			//We have three points, calculate the lengths
 			//of the triangle sides
-			Iflt a = (Sim->particleList[*it1].getPosition() 
+			double a = (Sim->particleList[*it1].getPosition() 
 				  - Sim->particleList[*it2].getPosition()).nrm(),
 			  b = (Sim->particleList[*(range->begin()+2+i)].getPosition() 
 				  - Sim->particleList[*it2].getPosition()).nrm(),
@@ -159,9 +159,9 @@ OPCTorsion::ticker()
 			       - Sim->particleList[*(range->begin()+2+i)].getPosition()).nrm();
 
 			//Now calc the area of the triangle
-			Iflt s = (a + b + c) / 2.0;
-			Iflt A = std::sqrt(s * (s - a) * (s - b) * (s - c));
-			Iflt R = a * b * c / (4.0 * A);
+			double s = (a + b + c) / 2.0;
+			double A = std::sqrt(s * (s - a) * (s - b) * (s - c));
+			double R = a * b * c / (4.0 * A);
 			if (R < minradius) minradius = R;			 
 		      }
 	      fsum += minradius / helixradius;

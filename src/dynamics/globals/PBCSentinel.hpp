@@ -45,9 +45,9 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
 
-  Iflt maxintdist;
+  double maxintdist;
 
-  mutable std::vector<Iflt> cachedTimes;
+  mutable std::vector<double> cachedTimes;
 };
 
 #endif

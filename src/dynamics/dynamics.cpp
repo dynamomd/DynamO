@@ -339,7 +339,7 @@ Dynamics::Dynamics(const Dynamics &dyn):
 {}
 
 void 
-Dynamics::stream(const Iflt& dt)
+Dynamics::stream(const double& dt)
 {
   p_BC->update(dt);
 
@@ -350,10 +350,10 @@ Dynamics::stream(const Iflt& dt)
 }
 
 
-Iflt
+double
 Dynamics::calcInternalEnergy() const
 {
-  Iflt intECurrent = 0.0;
+  double intECurrent = 0.0;
 
   BOOST_FOREACH(const magnet::ClonePtr<Interaction> & plugptr, 
 		Sim->dynamics.getInteractions())
@@ -362,21 +362,21 @@ Dynamics::calcInternalEnergy() const
   return intECurrent;
 }
 
-Iflt 
+double 
 Dynamics::getNumberDensity() const
 {
   return Sim->N / Sim->dynamics.units().simVolume();
 }
 
-Iflt 
+double 
 Dynamics::getPackingFraction() const
 {
-  Iflt volume = 0.0;
+  double volume = 0.0;
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
-  return  PI * volume / (6 * (Sim->dynamics.units().simVolume()));
+  return  M_PI * volume / (6 * (Sim->dynamics.units().simVolume()));
 }
 
 void 
@@ -384,7 +384,7 @@ Dynamics::setCOMVelocity(const Vector COMVelocity)
 {  
   Vector sumMV(0,0,0);
  
-  lIflt sumMass(0);
+  long double sumMass(0);
 
   //Determine the discrepancy VECTOR
   BOOST_FOREACH(Particle & Part, Sim->particleList)
@@ -566,10 +566,10 @@ Dynamics::outputXML(xml::XmlStream &XML) const
       << xml::endtag("Dynamics");
 }
 
-Iflt 
+double 
 Dynamics::getLongestInteraction() const
 {
-  Iflt maxval = 0.0;
+  double maxval = 0.0;
 
   BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
     if (ptr->maxIntDist() > maxval)
@@ -579,7 +579,7 @@ Dynamics::getLongestInteraction() const
 }
 
 void 
-Dynamics::rescaleLengths(Iflt val)
+Dynamics::rescaleLengths(double val)
 {
   BOOST_FOREACH(magnet::ClonePtr<Interaction>& ptr, interactions)
     ptr->rescaleLengths(val);

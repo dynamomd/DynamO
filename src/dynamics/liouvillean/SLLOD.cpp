@@ -31,7 +31,7 @@ LSLLOD::LSLLOD(DYNAMO::SimData* tmp):
 {}
 
 void
-LSLLOD::streamParticle(Particle& particle, const Iflt& dt) const
+LSLLOD::streamParticle(Particle& particle, const double& dt) const
 {
   particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
 }
@@ -39,8 +39,8 @@ LSLLOD::streamParticle(Particle& particle, const Iflt& dt) const
 bool 
 LSLLOD::DSMCSpheresTest(const Particle& p1, 
 			 const Particle& p2, 
-			 Iflt& maxprob,
-			 const Iflt& factor,
+			 double& maxprob,
+			 const double& factor,
 			 CPDData& pdat) const
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
@@ -50,7 +50,7 @@ LSLLOD::DSMCSpheresTest(const Particle& p1,
   if (!std::signbit(pdat.rvdot))
     return false; //Positive rvdot
   
-  Iflt prob = factor * (-pdat.rvdot);
+  double prob = factor * (-pdat.rvdot);
   
   if (prob > maxprob)
     maxprob = prob;
@@ -61,7 +61,7 @@ LSLLOD::DSMCSpheresTest(const Particle& p1,
 PairEventData
 LSLLOD::DSMCSpheresRun(const Particle& p1, 
 			 const Particle& p2, 
-			 const Iflt& e,
+			 const double& e,
 			 CPDData& pdat) const
 {
   updateParticlePair(p1, p2);  
@@ -76,9 +76,9 @@ LSLLOD::DSMCSpheresRun(const Particle& p1,
   retVal.rij = pdat.rij;
   retVal.rvdot = pdat.rvdot;
 
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
 			    / retVal.rij.nrm2());  
@@ -106,7 +106,7 @@ LSLLOD::outputXML(xml::XmlStream& XML) const
 }
 
 NEventData 
-LSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&, 
+LSLLOD::multibdyCollision(const CRange&, const CRange&, const double&, 
 			   const EEventType&) const
 {
   M_throw() << "Not Implemented";
@@ -114,37 +114,37 @@ LSLLOD::multibdyCollision(const CRange&, const CRange&, const Iflt&,
 
 NEventData 
 LSLLOD::multibdyWellEvent(const CRange&, const CRange&, 
-			   const Iflt&, const Iflt&, 
+			   const double&, const double&, 
 			   EEventType&) const
 {
   M_throw() << "Not Implemented";
 }
 
 bool 
-LSLLOD::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
+LSLLOD::SphereSphereInRoot(CPDData& dat, const double& d2) const
 {
   M_throw() << "Not Implemented";
 }
   
 bool 
-LSLLOD::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
+LSLLOD::SphereSphereOutRoot(CPDData& dat, const double& d2) const
 {
   M_throw() << "Not Implemented";
 }
 
 bool 
-LSLLOD::sphereOverlap(const CPDData& dat, const Iflt& d2) const
+LSLLOD::sphereOverlap(const CPDData& dat, const double& d2) const
 {
   M_throw() << "Not Implemented";
 }
 
 ParticleEventData 
-LSLLOD::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
+LSLLOD::randomGaussianEvent(const Particle& part, const double& sqrtT) const
 {
   M_throw() << "Not Implemented";
 }
 
-Iflt 
+double 
 LSLLOD::getWallCollision(const Particle &part, 
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
@@ -156,7 +156,7 @@ LSLLOD::getWallCollision(const Particle &part,
 ParticleEventData 
 LSLLOD::runWallCollision(const Particle &part, 
 			   const Vector  &vNorm,
-			   const Iflt& e
+			   const double& e
 			   ) const
 {
   M_throw() << "Not Implemented";
@@ -165,13 +165,13 @@ LSLLOD::runWallCollision(const Particle &part,
 ParticleEventData 
 LSLLOD::runAndersenWallCollision(const Particle& part, 
 			 const Vector & vNorm,
-			 const Iflt& sqrtT
+			 const double& sqrtT
 			 ) const
 {  
   M_throw() << "Not Implemented";
 }
 
-Iflt
+double
 LSLLOD::getSquareCellCollision2(const Particle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
@@ -188,15 +188,15 @@ LSLLOD::getSquareCellCollision3(const Particle& part,
 }
 
 PairEventData 
-LSLLOD::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
-			   const Iflt&, const EEventType& eType) const
+LSLLOD::SmoothSpheresColl(const IntEvent& event, const double& e,
+			   const double&, const EEventType& eType) const
 {
   M_throw() << "Not Implemented";
 }
 
 PairEventData 
-LSLLOD::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
-			 const Iflt &) const
+LSLLOD::SphereWellEvent(const IntEvent& event, const double& deltaKE,
+			 const double &) const
 {
   M_throw() << "Not Implemented";
 }

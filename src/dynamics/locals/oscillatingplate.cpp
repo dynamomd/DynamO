@@ -27,9 +27,9 @@
 
 CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
 				       Vector nrw0, Vector nnhat,
-				       Iflt nomega0, Iflt nsigma, Iflt ne,
-				       Iflt ndelta, Iflt nmass, std::string nname, 
-				       CRange* nRange, Iflt timeshift, bool nstrongPlate):
+				       double nomega0, double nsigma, double ne,
+				       double ndelta, double nmass, std::string nname, 
+				       CRange* nRange, double timeshift, bool nstrongPlate):
   Local(nRange, nSim, "OscillatingPlate"),
   strongPlate(nstrongPlate),
   rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
@@ -55,10 +55,10 @@ CLOscillatingPlate::getEvent(const Particle& part) const
 
   //bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
 
-  Iflt reducedt = Sim->dSysTime 
+  double reducedt = Sim->dSysTime 
     - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
 
-  std::pair<bool, Iflt> eventData = Sim->dynamics.getLiouvillean().getPointPlateCollision
+  std::pair<bool, double> eventData = Sim->dynamics.getLiouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
      false);
 
@@ -115,7 +115,7 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
 
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     nhat << xBrowseNode;
@@ -126,21 +126,21 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
     rw0 *= Sim->dynamics.units().unitLength();
 
     if (XML.isAttributeSet("StrongPlate"))
-      strongPlate = boost::lexical_cast<Iflt>(XML.getAttribute("StrongPlate"));
+      strongPlate = boost::lexical_cast<double>(XML.getAttribute("StrongPlate"));
 
-    omega0 =  boost::lexical_cast<Iflt>(XML.getAttribute("Omega0"))
+    omega0 =  boost::lexical_cast<double>(XML.getAttribute("Omega0"))
       / Sim->dynamics.units().unitTime();
 
-    sigma = boost::lexical_cast<Iflt>(XML.getAttribute("Sigma"))
+    sigma = boost::lexical_cast<double>(XML.getAttribute("Sigma"))
       * Sim->dynamics.units().unitLength();
 
-    delta = boost::lexical_cast<Iflt>(XML.getAttribute("Delta"))
+    delta = boost::lexical_cast<double>(XML.getAttribute("Delta"))
       * Sim->dynamics.units().unitLength();
 
-    mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"))
+    mass = boost::lexical_cast<double>(XML.getAttribute("Mass"))
       * Sim->dynamics.units().unitMass();
 
-    timeshift = boost::lexical_cast<Iflt>(XML.getAttribute("TimeShift"))
+    timeshift = boost::lexical_cast<double>(XML.getAttribute("TimeShift"))
       * Sim->dynamics.units().unitTime();
 
     localName = XML.getAttribute("Name");
@@ -154,9 +154,9 @@ CLOscillatingPlate::operator<<(const XMLNode& XML)
 void 
 CLOscillatingPlate::outputXML(xml::XmlStream& XML) const
 {
-  Iflt tmp = Sim->dSysTime + timeshift;
+  double tmp = Sim->dSysTime + timeshift;
 
-  tmp -= 2.0 * PI * int(tmp * omega0 / (2.0 * PI) ) / omega0;
+  tmp -= 2.0 * M_PI * int(tmp * omega0 / (2.0 * M_PI) ) / omega0;
 
   XML << xml::attr("Type") << "OscillatingPlate" 
       << xml::attr("Name") << localName
@@ -189,7 +189,7 @@ CLOscillatingPlate::getVelocity() const
   return - nhat * (delta * omega0 * std::sin(omega0 * (Sim->dSysTime + timeshift)));
 }
 
-Iflt 
+double 
 CLOscillatingPlate::getPlateEnergy() const
 {
   return 0.5 * mass 

@@ -44,7 +44,7 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   void output(xml::XmlStream &);
 
@@ -56,13 +56,13 @@ public:
  protected:
   typedef std::pair<classKey, EEventType> eventKey;
 
-  void newEvent(const EEventType&, const classKey&, const Iflt&, const Vector &);
+  void newEvent(const EEventType&, const classKey&, const double&, const Vector &);
   
   struct counterData
   {
     counterData():count(0), energyLoss(0), momentumChange(0,0,0) {}
     unsigned long count;
-    Iflt energyLoss;
+    double energyLoss;
     Vector  momentumChange;
   };
   

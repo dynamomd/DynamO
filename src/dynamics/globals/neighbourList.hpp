@@ -164,11 +164,11 @@ public:
       sigReInitNotify.end());
   }
 
-  virtual Iflt getMaxSupportedInteractionLength() const = 0;
+  virtual double getMaxSupportedInteractionLength() const = 0;
 
-  virtual Iflt getMaxInteractionLength() const = 0;
+  virtual double getMaxInteractionLength() const = 0;
 
-  virtual void reinitialise(const Iflt&) = 0;
+  virtual void reinitialise(const double&) = 0;
 
   void markAsUsedInScheduler() { isUsedInScheduler = true; }
 

@@ -48,11 +48,11 @@ OPThermalConductivitySpeciesSpeciesE::operator<<(const XMLNode& XML)
       
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -92,7 +92,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
       if (Sim->lastRunMFT != 0.0)
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength) 
+	dt = 10.0 / (((double) CorrelatorLength) 
 		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
@@ -108,7 +108,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
-Iflt 
+double 
 OPThermalConductivitySpeciesSpeciesE::rescaleFactor() 
 { 
   return Sim->dynamics.units().unitk() 
@@ -132,7 +132,7 @@ OPThermalConductivitySpeciesSpeciesE::output(xml::XmlStream &XML)
       << xml::attr("simFactor") << rescaleFactor()
       << xml::attr("SampleCount") << count;
   
-  Iflt factor = rescaleFactor();
+  double factor = rescaleFactor();
 
   size_t Nsp(Sim->dynamics.getSpecies().size());
   
@@ -163,7 +163,7 @@ OPThermalConductivitySpeciesSpeciesE::output(xml::XmlStream &XML)
 }
 
 void 
-OPThermalConductivitySpeciesSpeciesE::stream(const Iflt& edt)
+OPThermalConductivitySpeciesSpeciesE::stream(const double& edt)
 {
   size_t Nsp(Sim->dynamics.getSpecies().size());
   
@@ -220,7 +220,7 @@ OPThermalConductivitySpeciesSpeciesE::eventUpdate(const LocalEvent& iEvent,
 void 
 OPThermalConductivitySpeciesSpeciesE::eventUpdate(const System&, 
 				     const NEventData& PDat,
-				     const Iflt& edt) 
+				     const double& edt) 
 { 
   stream(edt);
   //impulseDelG(PDat);
@@ -314,7 +314,7 @@ OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const NEventData& ndat)
 void 
 OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const ParticleEventData& PDat)
 {
-  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+  double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG[PDat.getSpecies().getID()] += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
@@ -323,8 +323,8 @@ OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const ParticleEventData& P
 void 
 OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const PairEventData& PDat)
 {
-  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
+  double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  double p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
   constDelG[Sim->dynamics.getSpecies(PDat.particle1_.getParticle()).getID()]
     += PDat.particle1_.getParticle().getVelocity() * p1E

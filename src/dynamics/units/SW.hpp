@@ -38,29 +38,29 @@ class USquareWell: public Units
  public:
   USquareWell(const DYNAMO::SimData*); 
 
-  USquareWell(Iflt, Iflt, const DYNAMO::SimData*);
+  USquareWell(double, double, const DYNAMO::SimData*);
 
   USquareWell(const XMLNode&, const DYNAMO::SimData*);
 
   virtual ~USquareWell();
 
-  virtual Iflt unitLength() const;
+  virtual double unitLength() const;
 
-  virtual void setUnitLength(Iflt);
+  virtual void setUnitLength(double);
 
-  virtual Iflt unitTime() const;
+  virtual double unitTime() const;
   
   virtual Units* Clone() const;
   
   virtual void operator<<(const XMLNode&);
 
-  virtual void rescaleLength(Iflt);
+  virtual void rescaleLength(double);
 
  protected:
   virtual void outputXML(xml::XmlStream &) const;
 
-  Iflt UnitOfEnergy;
-  Iflt UnitOfLength;
+  double UnitOfEnergy;
+  double UnitOfLength;
 };
 
 #endif

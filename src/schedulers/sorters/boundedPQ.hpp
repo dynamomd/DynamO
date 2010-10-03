@@ -68,9 +68,9 @@ private:
   std::vector<int> linearLists;
   int currentIndex;
 
-  Iflt scale;
-  Iflt pecTime;
-  Iflt listWidth;
+  double scale;
+  double pecTime;
+  double listWidth;
   int nlists;  
 
   //Binary tree variables
@@ -97,7 +97,7 @@ public:
   inline bool empty() const { return Min.empty(); }
 
   inline const int& NLists() const { return nlists; }
-  inline const Iflt& scaleFactor() const { return scale; }
+  inline const double& scaleFactor() const { return scale; }
   inline const size_t& exceptionEvents() const { return exceptionCount; }
   inline const size_t& treeSize() const { return NP; }
 
@@ -147,7 +147,7 @@ public:
     pecTime = 0.0;
   }
 
-  inline void stream(const Iflt& ndt) { pecTime += ndt; }
+  inline void stream(const double& ndt) { pecTime += ndt; }
 
   void init()
   {
@@ -162,7 +162,7 @@ public:
   void init(bool quiet)
   {
       {
-	Iflt minVal(HUGE_VAL), maxVal(-HUGE_VAL);
+	double minVal(HUGE_VAL), maxVal(-HUGE_VAL);
 	size_t counter(0);
 	
 	try {
@@ -309,11 +309,11 @@ public:
 
   //inline T& next_Data() { return Min[CBT[1]].data; }
   //inline const T& next_Data() const { return Min[CBT[1]].data; }
-  inline Iflt next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
+  inline double next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
   inline void sort() { orderNextEvent(); }
 
-  inline void rescaleTimes(const Iflt& factor)
+  inline void rescaleTimes(const double& factor)
   {
     BOOST_FOREACH(eventQEntry& dat, Min)
       dat.data.rescaleTimes(factor);
@@ -330,7 +330,7 @@ private:
   ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
   inline void insertInEventQ(int p)
   {
-    Iflt box = scale * Min[p].data.getdt();
+    double box = scale * Min[p].data.getdt();
 
     int i = (box > std::numeric_limits<int>::max())
       ? (nlists + nlists) //Put this in the overflow list

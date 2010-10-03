@@ -24,7 +24,7 @@ class LRoughWall: public Local
 {
 public:
   LRoughWall(const XMLNode&, DYNAMO::SimData*);
-  LRoughWall(DYNAMO::SimData*, Iflt, Iflt, Iflt, Vector , Vector , 
+  LRoughWall(DYNAMO::SimData*, double, double, double, Vector , Vector , 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~LRoughWall() {}
@@ -50,9 +50,9 @@ protected:
 
   Vector  vNorm;
   Vector  vPosition;
-  Iflt e;
-  Iflt et;
-  Iflt r;
+  double e;
+  double et;
+  double r;
   bool render;
 };
 

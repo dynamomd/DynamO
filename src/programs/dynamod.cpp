@@ -56,9 +56,9 @@ main(int argc, char *argv[])
 	 "Configuration output file.")
 	("random-seed,s", po::value<unsigned int>(),
 	 "Random seed for generator.")
-	("packfrac,P", po::value<Iflt>(), 
+	("packfrac,P", po::value<double>(), 
 	 "Rescale lengths to set the packing fraction.")
-	("rescale-T,r", po::value<Iflt>(), 
+	("rescale-T,r", po::value<double>(), 
 	 "Rescale kinetic temperature to this value.")
 	("zero-momentum,Z", "Zero the momentum.")
 	("zero-com", "Zero the centre of mass.")
@@ -149,7 +149,7 @@ main(int argc, char *argv[])
 
       if (vm.count("packfrac"))
 	CInputPlugin(&sim, "Resizer")
-	  .setPackFrac(vm["packfrac"].as<Iflt>());
+	  .setPackFrac(vm["packfrac"].as<double>());
       
       if (vm.count("zero-momentum"))
 	CInputPlugin(&sim, "MomentumZeroer")
@@ -161,7 +161,7 @@ main(int argc, char *argv[])
 
       if (vm.count("rescale-T"))
 	CInputPlugin(&sim, "Rescaler")
-	  .rescaleVels(vm["rescale-T"].as<Iflt>());
+	  .rescaleVels(vm["rescale-T"].as<double>());
 
       if (vm.count("mirror-system"))
 	CInputPlugin(&sim, "Mirrorer").
@@ -177,11 +177,11 @@ main(int argc, char *argv[])
 	  Vector vel(0,0,0);
 
 	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
-	  vel[0] = boost::lexical_cast<Iflt>(*(details_iter++));
+	  vel[0] = boost::lexical_cast<double>(*(details_iter++));
 	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";	  
-	  vel[1] = boost::lexical_cast<Iflt>(*(details_iter++));
+	  vel[1] = boost::lexical_cast<double>(*(details_iter++));
 	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
-	  vel[2] = boost::lexical_cast<Iflt>(*(details_iter));
+	  vel[2] = boost::lexical_cast<double>(*(details_iter));
 	  
 	  CInputPlugin(&sim, "velSetter")
 	    .setCOMVelocity(vel);

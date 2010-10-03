@@ -46,7 +46,7 @@ OPCollTicker::eventUpdate(const LocalEvent &event, const NEventData&)
 }
 
 void 
-OPCollTicker::eventUpdate(const System&, const NEventData&, const Iflt& dt)
+OPCollTicker::eventUpdate(const System&, const NEventData&, const double& dt)
 {
   stream(dt);
   ticker();

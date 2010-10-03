@@ -36,7 +36,7 @@ class Interaction;
 class Species:public DYNAMO::SimBase_const
 {
 public:  
-  Species(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
+  Species(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
 	   unsigned int ID, std::string nIName="Bulk");
   
   Species(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
@@ -45,7 +45,7 @@ public:
 
   bool isSpecies(const Particle &) const;
   
-  const Iflt& getMass() const { return mass; }
+  const double& getMass() const { return mass; }
   
   unsigned long getCount() const;
   
@@ -69,19 +69,19 @@ public:
 
   virtual Species* Clone() const { return new Species(*this); }
 
-  virtual Iflt getScalarMomentOfInertia() const { return 0; }
+  virtual double getScalarMomentOfInertia() const { return 0; }
 
   static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 protected:
   Species(DYNAMO::SimData*, const char* name, const char* color, 
-	   CRange*, Iflt nMass, std::string nName, 
+	   CRange*, double nMass, std::string nName, 
 	   unsigned int ID, std::string nIName="Bulk");
   
 
   virtual void outputXML(xml::XmlStream&) const;
   
-  Iflt mass;
+  double mass;
 
   magnet::ClonePtr<CRange> range;
 
@@ -97,7 +97,7 @@ class SpInertia: public Species
 {
 public:
   SpInertia(DYNAMO::SimData* sim, const char* name, const char* color, 
-	       CRange* r, Iflt nMass, std::string nName, 
+	       CRange* r, double nMass, std::string nName, 
 	       unsigned int ID, std::string nIName="Bulk"):
   Species(sim, name, color, r, nMass, nName, ID, nIName)
   {}

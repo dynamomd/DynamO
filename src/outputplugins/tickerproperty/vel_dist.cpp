@@ -34,7 +34,7 @@ OPVelDist::operator<<(const XMLNode& XML)
 {
   try {
     if (XML.isAttributeSet("binWidth"))
-      binWidth = boost::lexical_cast<Iflt>(XML.getAttribute("binWidth"));
+      binWidth = boost::lexical_cast<double>(XML.getAttribute("binWidth"));
       }
   catch (std::exception& excep)
     {
@@ -57,7 +57,7 @@ OPVelDist::initialise()
 void 
 OPVelDist::ticker()
 {
-  Iflt factor = std::sqrt(Sim->dynamics.units().unitMass() 
+  double factor = std::sqrt(Sim->dynamics.units().unitMass() 
 			  / _ptrOPEnergy->getCurrentkT());
 
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())

@@ -75,7 +75,7 @@ OPGeomview::printImage()
     }
   */
 
-  DYNAMO::ColorMap<Iflt> colmap(0, Sim->dynamics.getSpecies().size());
+  DYNAMO::ColorMap<double> colmap(0, Sim->dynamics.getSpecies().size());
   DYNAMO::RGB tmpCol(0,0,0);
 
   unsigned int i = 0;
@@ -152,7 +152,7 @@ OPGeomview::printImage()
 	  }
 	 
   //This is for walls
-  /*Iflt x = 0.3;
+  /*double x = 0.3;
   of << "{POLY\n " << x << " -0.5 -0.5  " << x << " -0.5 0.5 " 
      << x << " 0.5 0.5 " << x << " 0.5 -0.5}";
 

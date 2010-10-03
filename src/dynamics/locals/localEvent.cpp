@@ -25,7 +25,7 @@
 #include "../interactions/intEvent.hpp"
 #include <cmath>
 
-LocalEvent::LocalEvent(const Particle& part1, const Iflt &delt, 
+LocalEvent::LocalEvent(const Particle& part1, const double &delt, 
 			 EEventType nType, const Local& local):
   particle_(&part1), dt(delt), 
   CType(nType), localID(local.getID())

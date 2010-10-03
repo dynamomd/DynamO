@@ -24,21 +24,21 @@
 class IRotatedParallelCubes: public Interaction
 {
 public:
-  IRotatedParallelCubes(DYNAMO::SimData*, Iflt, Iflt, const Matrix&, C2Range*);
+  IRotatedParallelCubes(DYNAMO::SimData*, double, double, const Matrix&, C2Range*);
 
   IRotatedParallelCubes(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
 
-  virtual Iflt getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0.0; }
 
   virtual void initialise(size_t);
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual Interaction* Clone() const;
   
@@ -55,8 +55,8 @@ public:
 
 protected:
   Matrix Rotation;
-  Iflt diameter;
-  Iflt e;
+  double diameter;
+  double e;
 };
 
 #endif

@@ -29,7 +29,7 @@ UHardSphere::UHardSphere(const DYNAMO::SimData* tmp):
   I_cout() << "HardSphere units loaded";
 }
   
-UHardSphere::UHardSphere(Iflt diameter, const DYNAMO::SimData* tmp):
+UHardSphere::UHardSphere(double diameter, const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfLength(diameter)
 {
@@ -45,15 +45,15 @@ UHardSphere::UHardSphere(const XMLNode &XML, const DYNAMO::SimData* tmp):
 
 UHardSphere::~UHardSphere() {}
 
-Iflt
+double
 UHardSphere::unitLength() const
 { return UnitOfLength; }
 
 void 
-UHardSphere::setUnitLength(Iflt scalar)
+UHardSphere::setUnitLength(double scalar)
 { UnitOfLength = scalar; }
 
-Iflt 
+double 
 UHardSphere::unitTime() const
 { return 1.0; }
   
@@ -62,14 +62,14 @@ UHardSphere::Clone() const
 { return new UHardSphere(*this); }
 
 void 
-UHardSphere::rescaleLength(Iflt rs)
+UHardSphere::rescaleLength(double rs)
 { UnitOfLength += rs * UnitOfLength; }
   
 void 
 UHardSphere::operator<<(const XMLNode &XML)
 {  
   try {
-    UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
+    UnitOfLength = 1.0/(boost::lexical_cast<double>(XML.getAttribute("BoxLength")));
   }
   catch (boost::bad_lexical_cast &)
     {

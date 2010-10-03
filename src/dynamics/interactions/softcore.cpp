@@ -35,7 +35,7 @@
 #include "../NparticleEventData.hpp"
 
 
-ISoftCore::ISoftCore(DYNAMO::SimData* tmp, Iflt nd, Iflt nWD, 
+ISoftCore::ISoftCore(DYNAMO::SimData* tmp, double nd, double nWD, 
 		       C2Range* nR):
   ISingleCapture(tmp,nR),
   diameter(nd),d2(nd*nd),wellDepth(nWD) 
@@ -57,9 +57,9 @@ ISoftCore::operator<<(const XMLNode& XML)
   
   try {
     diameter = Sim->dynamics.units().unitLength() 
-      * boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
+      * boost::lexical_cast<double>(XML.getAttribute("Diameter"));
     
-    wellDepth = boost::lexical_cast<Iflt>(XML.getAttribute("WellDepth"))
+    wellDepth = boost::lexical_cast<double>(XML.getAttribute("WellDepth"))
       * Sim->dynamics.units().unitEnergy();
     
     d2 = diameter * diameter;
@@ -76,16 +76,16 @@ Interaction*
 ISoftCore::Clone() const 
 { return new ISoftCore(*this); }
 
-Iflt 
+double 
 ISoftCore::hardCoreDiam() const 
 { return diameter; }
 
-Iflt 
+double 
 ISoftCore::maxIntDist() const 
 { return diameter; }
 
 void 
-ISoftCore::rescaleLengths(Iflt scale) 
+ISoftCore::rescaleLengths(double scale) 
 { 
   diameter += scale*diameter; 
   d2 = diameter*diameter;
@@ -199,7 +199,7 @@ ISoftCore::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  Iflt r2 = rij.nrm2();
+  double r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))
     {

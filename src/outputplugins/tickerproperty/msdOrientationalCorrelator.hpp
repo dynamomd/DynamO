@@ -39,13 +39,13 @@ class OPMSDOrientationalCorrelator: public OPTicker
   typedef std::pair<Vector,Vector> RUpair;
 
  protected:
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
   virtual void ticker();
 
   void accPass();
 
   std::vector<boost::circular_buffer<RUpair> > historicalData;
-  std::vector<Iflt> stepped_data_parallel, stepped_data_perpendicular,
+  std::vector<double> stepped_data_parallel, stepped_data_perpendicular,
 		    stepped_data_rotational_legendre1,
 		    stepped_data_rotational_legendre2;
 

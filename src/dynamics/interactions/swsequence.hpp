@@ -24,7 +24,7 @@
 class ISWSequence: public ISingleCapture
 {
 public:
-  ISWSequence(DYNAMO::SimData*, Iflt, Iflt, Iflt, std::vector<size_t>, C2Range*);
+  ISWSequence(DYNAMO::SimData*, double, double, double, std::vector<size_t>, C2Range*);
 
   ISWSequence(const XMLNode&, DYNAMO::SimData*);
   
@@ -32,13 +32,13 @@ public:
 
   virtual Interaction* Clone() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual Iflt getInternalEnergy() const;
+  virtual double getInternalEnergy() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
@@ -52,23 +52,23 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual Iflt getColourFraction(const Particle&) const;
+  virtual double getColourFraction(const Particle&) const;
 
   std::vector<size_t>& getSequence() { return sequence; }
 
-  std::vector<std::vector<Iflt> >& getAlphabet() { return alphabet; }
+  std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
   virtual void write_povray_desc(const DYNAMO::RGB&, 
 				 const size_t&, 
 				 std::ostream&) const;
 
 protected:
-  Iflt diameter,d2;
-  Iflt lambda, ld2;
-  Iflt e;
+  double diameter,d2;
+  double lambda, ld2;
+  double e;
 
   std::vector<size_t> sequence;
-  std::vector<std::vector<Iflt> > alphabet;
+  std::vector<std::vector<double> > alphabet;
 };
 
 #endif

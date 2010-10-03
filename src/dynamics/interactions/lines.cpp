@@ -32,8 +32,8 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 
-ILines::ILines(DYNAMO::SimData* tmp, Iflt nd, 
-		 Iflt ne, C2Range* nR):
+ILines::ILines(DYNAMO::SimData* tmp, double nd, 
+		 double ne, C2Range* nR):
   ISingleCapture(tmp, nR),
   length(nd), l2(nd*nd), e(ne) 
 {}
@@ -67,11 +67,11 @@ ILines::operator<<(const XMLNode& XML)
   try 
     {
       length = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<Iflt>(XML.getAttribute("Length"));
+	boost::lexical_cast<double>(XML.getAttribute("Length"));
       
       l2 = length * length;
       
-      e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
       
       intName = XML.getAttribute("Name");
       
@@ -83,16 +83,16 @@ ILines::operator<<(const XMLNode& XML)
     }
 }
 
-Iflt 
+double 
 ILines::maxIntDist() const 
 { return length; }
 
-Iflt 
+double 
 ILines::hardCoreDiam() const 
 { return 0.0; }
 
 void 
-ILines::rescaleLengths(Iflt scale) 
+ILines::rescaleLengths(double scale) 
 { 
   length += scale * length;
   

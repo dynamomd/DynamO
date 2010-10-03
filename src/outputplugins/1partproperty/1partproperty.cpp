@@ -56,7 +56,7 @@ OP1PP::eventUpdate(const LocalEvent &event, const NEventData& SDat)
 }
 
 void 
-OP1PP::eventUpdate(const System&, const NEventData& SDat, const Iflt& dt)
+OP1PP::eventUpdate(const System&, const NEventData& SDat, const double& dt)
 {
   stream(dt);
 

@@ -35,7 +35,7 @@ class OPConfig: public OutputPlugin
   virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
 
   virtual void eventUpdate(const System&, const NEventData&, 
-			   const Iflt&) {}
+			   const double&) {}
 
   virtual void output(xml::XmlStream &); 
   

@@ -39,7 +39,7 @@ public:
   
   virtual bool isCaptured(const Particle&, const Particle&) const = 0;
 
-  virtual Iflt getInternalEnergy() const = 0;
+  virtual double getInternalEnergy() const = 0;
   
 protected:
 

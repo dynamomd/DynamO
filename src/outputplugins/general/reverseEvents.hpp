@@ -35,7 +35,7 @@ public:
 
   void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const System&, const NEventData&, const Iflt&);
+  void eventUpdate(const System&, const NEventData&, const double&);
 
   OutputPlugin *Clone() const { return new OPReverseEventsCheck(*this); }
 
@@ -48,7 +48,6 @@ public:
 private:
 
   unsigned long lReverseEvents;
-  Iflt localeps;
 };
 
 #endif

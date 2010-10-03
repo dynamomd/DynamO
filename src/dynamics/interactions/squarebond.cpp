@@ -34,7 +34,7 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-ISquareBond::ISquareBond(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, C2Range* nR):
+ISquareBond::ISquareBond(DYNAMO::SimData* tmp, double nd, double nl, C2Range* nR):
   Interaction(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl) 
 {}
@@ -52,10 +52,10 @@ if (strcmp(XML.getAttribute("Type"),"SquareBond"))
     range.set_ptr(C2Range::loadClass(XML,Sim));
       
       try {
-    diameter = boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"))
+    diameter = boost::lexical_cast<double>(XML.getAttribute("Diameter"))
       * Sim->dynamics.units().unitLength();
 
-    lambda = boost::lexical_cast<Iflt>(XML.getAttribute("Lambda"));
+    lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
 
     intName = XML.getAttribute("Name");
     
@@ -73,20 +73,20 @@ Interaction*
 ISquareBond::Clone() const 
 { return new ISquareBond(*this); }
 
-Iflt 
+double 
 ISquareBond::getCaptureEnergy() const 
 { return 0.0; }
 
-Iflt 
+double 
 ISquareBond::hardCoreDiam() const 
 { return diameter; }
 
-Iflt 
+double 
 ISquareBond::maxIntDist() const 
 { return diameter*lambda; }
 
 void 
-ISquareBond::rescaleLengths(Iflt scale) 
+ISquareBond::rescaleLengths(double scale) 
 { 
   diameter += scale*diameter;
   d2 = diameter*diameter;
@@ -120,7 +120,7 @@ ISquareBond::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  Iflt r2 = rij.nrm2();
+  double r2 = rij.nrm2();
 
   if (r2 < d2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)

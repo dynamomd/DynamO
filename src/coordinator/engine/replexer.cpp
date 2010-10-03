@@ -32,9 +32,9 @@ EReplicaExchangeSimulation::getOptions(boost::program_options::options_descripti
     ropts("REplica EXchange Engine Options");
 
   ropts.add_options()
-    ("sim-end-time,f", boost::program_options::value<Iflt>()->default_value(std::numeric_limits<Iflt>::max()), 
+    ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max()), 
      "Simulation end time")
-    ("replex-interval,i", boost::program_options::value<Iflt>()->default_value(1.0), 
+    ("replex-interval,i", boost::program_options::value<double>()->default_value(1.0), 
      "Interval between attempting swaps")
     ("replex-swap-mode", boost::program_options::value<unsigned int>()->default_value(4), 
      "System Swap Mode:\n"
@@ -76,10 +76,10 @@ EReplicaExchangeSimulation::initialisation()
       postSimInit(Simulations[i]);
 
       if (vm.count("ticker-period"))
-	Simulations[i].setTickerPeriod(vm["ticker-period"].as<Iflt>());
+	Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>());
 
       if (vm.count("scale-ticker"))
-	Simulations[i].scaleTickerPeriod(vm["scale-ticker"].as<Iflt>());
+	Simulations[i].scaleTickerPeriod(vm["scale-ticker"].as<double>());
     }
 
   //Ensure we are in the right ensemble for all simulations
@@ -148,8 +148,8 @@ EReplicaExchangeSimulation::outputData()
     BOOST_FOREACH(const replexPair& myPair, temperatureList)
       replexof << myPair.second.realTemperature << " " 
 	       << myPair.second.swaps << " " 
-	       << (static_cast<Iflt>(myPair.second.swaps) 
-		   / static_cast<Iflt>(myPair.second.attempts))  << " "
+	       << (static_cast<double>(myPair.second.swaps) 
+		   / static_cast<double>(myPair.second.attempts))  << " "
 	       << myPair.second.upSims << " "
 	       << myPair.second.downSims
 	       << "\n";
@@ -162,7 +162,7 @@ EReplicaExchangeSimulation::outputData()
     
     replexof << "Number_of_replex_cycles " << replexSwapCalls
 	     << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-	     << "\nReplex Rate " << static_cast<Iflt>(replexSwapCalls) / static_cast<Iflt>((end_Time - start_Time).total_seconds())
+	     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
 	     << "\n";	
     
     replexof.close();
@@ -185,7 +185,7 @@ EReplicaExchangeSimulation::preSimInit()
   
   nSims = vm["config-file"].as<std::vector<std::string> >().size();
   
-  replicaEndTime = vm["sim-end-time"].as<Iflt>();
+  replicaEndTime = vm["sim-end-time"].as<double>();
   
   if (nSims < 2 && vm.count("replex"))
     {
@@ -230,7 +230,7 @@ EReplicaExchangeSimulation::setupSim(Simulation & Sim, const std::string filenam
 {
   Engine::setupSim(Sim, filename);
 
-  Sim.addSystem(new CStHalt(&Sim, vm["replex-interval"].as<Iflt>(), 
+  Sim.addSystem(new CStHalt(&Sim, vm["replex-interval"].as<double>(), 
 			    "ReplexHalt"));
 
   Sim.addOutputPlugin("UEnergy");
@@ -255,7 +255,7 @@ EReplicaExchangeSimulation::printStatus()
       std::cout << " " << std::setw(8)
 		<< Simulations[dat.second.simID].getnColl()/1000 << "k" 
 		<< " " << std::setw(9)
-		<< ( static_cast<Iflt>(dat.second.swaps) / dat.second.attempts)
+		<< ( static_cast<double>(dat.second.swaps) / dat.second.attempts)
 		<< " " << std::setw(9)
 		<< dat.second.swaps 
 		<< " " << std::setw(9)
@@ -400,7 +400,7 @@ EReplicaExchangeSimulation::AttemptSwap(const unsigned int sim1ID, const unsigne
   //No need to check sign, it will just accept the move anyway due to
   //the [0,1) limits of the random number generator
   if (exp(sim1.getEnsemble()->exchangeProbability(*sim2.getEnsemble()))
-      > boost::uniform_01<DYNAMO::baseRNG, Iflt>(sim1.ranGenerator)())
+      > boost::uniform_01<DYNAMO::baseRNG, double>(sim1.ranGenerator)())
     {
       sim1.replexerSwap(sim2);
 
@@ -439,8 +439,8 @@ void EReplicaExchangeSimulation::runSimulation()
 	    BOOST_FOREACH(const replexPair& myPair, temperatureList)
 	      replexof << myPair.second.realTemperature << " " 
 		       << myPair.second.swaps << " " 
-		       << (static_cast<Iflt>(myPair.second.swaps) 
-			   / static_cast<Iflt>(myPair.second.attempts))  << " "
+		       << (static_cast<double>(myPair.second.swaps) 
+			   / static_cast<double>(myPair.second.attempts))  << " "
 		       << myPair.second.upSims << " "
 		       << myPair.second.downSims
 		       << "\n";
@@ -453,7 +453,7 @@ void EReplicaExchangeSimulation::runSimulation()
 		    
 	    replexof << "Number_of_replex_cycles " << replexSwapCalls
 		     << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-		     << "\nReplex Rate " << static_cast<Iflt>(replexSwapCalls) / static_cast<Iflt>((end_Time - start_Time).total_seconds())
+		     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
 		     << "\n";	
 		    
 	    replexof.close();
@@ -486,7 +486,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	      if (tmpRef == NULL)
 		M_throw() << "Could not find the time halt event error";
 #endif			
-	      tmpRef->increasedt(vm["replex-interval"].as<Iflt>());
+	      tmpRef->increasedt(vm["replex-interval"].as<double>());
 
 	      Simulations[i].ptrScheduler->rebuildSystemEvents();
 

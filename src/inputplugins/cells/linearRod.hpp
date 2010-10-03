@@ -22,7 +22,7 @@
 
 struct CUlinearRod: public CUCell
 {
-  CUlinearRod(size_t pcl, Iflt WL, CUCell* nextCell):
+  CUlinearRod(size_t pcl, double WL, CUCell* nextCell):
     CUCell(nextCell),
     pairchainlength(pcl),
     walklength(WL)
@@ -31,7 +31,7 @@ struct CUlinearRod: public CUCell
   }
 
   size_t pairchainlength;  
-  Iflt walklength;
+  double walklength;
   
   virtual std::vector<Vector> placeObjects(const Vector & centre)
   {
@@ -41,7 +41,7 @@ struct CUlinearRod: public CUCell
 
     for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
       { 
-	tmp[0] = (Iflt(iStep) - (Iflt(walklength) * 0.5)) * walklength;
+	tmp[0] = (double(iStep) - (double(walklength) * 0.5)) * walklength;
 	
 	BOOST_FOREACH(const Vector & vec, uc->placeObjects(tmp + centre))
 	  retval.push_back(vec);

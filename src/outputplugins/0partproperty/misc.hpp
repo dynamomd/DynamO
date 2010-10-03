@@ -36,7 +36,7 @@ public:
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
   virtual void eventUpdate(const System&, const NEventData&, 
-			   const Iflt&);
+			   const double&);
   
   void output(xml::XmlStream &); 
   
@@ -45,7 +45,7 @@ public:
   virtual OutputPlugin *Clone() const 
   { return new OPMisc(*this); }
   
-  Iflt getMFT() const;
+  double getMFT() const;
   
   void changeSystem(OutputPlugin*);
 
@@ -53,7 +53,7 @@ protected:
   std::time_t tstartTime;
   timespec acc_tstartTime;
 
-  Iflt oldSysTime;
+  double oldSysTime;
 
   unsigned long dualEvents;  
   unsigned long singleEvents;

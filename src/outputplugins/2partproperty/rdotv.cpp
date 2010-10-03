@@ -91,7 +91,7 @@ OPRdotV::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void
-OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
+OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
 {
   BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {

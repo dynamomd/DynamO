@@ -47,16 +47,16 @@ public:
   inline void setType(EEventType nType)
   { Type_ = nType; }
 
-  inline Iflt getDeltaU() const
+  inline double getDeltaU() const
   { return deltaU; }
   
-  inline void setDeltaU(const Iflt& dU)
+  inline void setDeltaU(const double& dU)
   { deltaU = dU; }
 
-  inline Iflt getDeltaKE() const
+  inline double getDeltaKE() const
   { return deltaKE; }
   
-  inline void setDeltaKE(const Iflt& dKE)
+  inline void setDeltaKE(const double& dKE)
   { deltaKE = dKE; }
 
   inline EEventType getType() const
@@ -72,8 +72,8 @@ private:
   const Vector  oldVelVec;
   const Species& species_;
   EEventType Type_;
-  Iflt deltaU;
-  Iflt deltaKE;
+  double deltaU;
+  double deltaKE;
 };
 
 #endif

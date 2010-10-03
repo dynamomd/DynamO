@@ -34,8 +34,8 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-ISWSequence::ISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
-			   Iflt ne, std::vector<size_t> seq, C2Range* nR):
+ISWSequence::ISWSequence(DYNAMO::SimData* tmp, double nd, double nl,
+			   double ne, std::vector<size_t> seq, C2Range* nR):
   ISingleCapture(tmp,nR),
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl),e(ne), sequence(seq) 
 {
@@ -48,7 +48,7 @@ ISWSequence::ISWSequence(DYNAMO::SimData* tmp, Iflt nd, Iflt nl,
   
   alphabet.resize(letters.size());
   
-  BOOST_FOREACH(std::vector<Iflt>& vec, alphabet)
+  BOOST_FOREACH(std::vector<double>& vec, alphabet)
     vec.resize(letters.size(), 0.0);
 }
 
@@ -58,10 +58,10 @@ ISWSequence::ISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
   operator<<(XML);
 }
 
-Iflt 
+double 
 ISWSequence::getColourFraction(const Particle& part) const
 {
-  return (sequence[part.getID() % sequence.size()] + 0.5) / static_cast<Iflt>(alphabet.size());   
+  return (sequence[part.getID() % sequence.size()] + 0.5) / static_cast<double>(alphabet.size());   
 }
 
 void 
@@ -110,11 +110,11 @@ ISWSequence::operator<<(const XMLNode& XML)
   
   try { 
     diameter = Sim->dynamics.units().unitLength() 
-      * boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
+      * boost::lexical_cast<double>(XML.getAttribute("Diameter"));
     
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
         
-    lambda = boost::lexical_cast<Iflt>(XML.getAttribute("Lambda"));
+    lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
     
     d2 = diameter * diameter;
     
@@ -150,7 +150,7 @@ ISWSequence::operator<<(const XMLNode& XML)
     //Initialise all the well depths to 1.0
     alphabet.resize(letters.size());
 
-    BOOST_FOREACH(std::vector<Iflt>& vec, alphabet)
+    BOOST_FOREACH(std::vector<double>& vec, alphabet)
       vec.resize(letters.size(), 0.0);
 
     //Load the sequence
@@ -165,12 +165,12 @@ ISWSequence::operator<<(const XMLNode& XML)
 	alphabet
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter1")))
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter2")))
-	  = boost::lexical_cast<Iflt>(browseNode.getAttribute("Depth"));
+	  = boost::lexical_cast<double>(browseNode.getAttribute("Depth"));
 
 	alphabet
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter2")))
 	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter1")))
-	  = boost::lexical_cast<Iflt>(browseNode.getAttribute("Depth"));
+	  = boost::lexical_cast<double>(browseNode.getAttribute("Depth"));
       }
 
   }
@@ -184,11 +184,11 @@ Interaction*
 ISWSequence::Clone() const 
 { return new ISWSequence(*this); }
 
-Iflt 
+double 
 ISWSequence::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
-  Iflt Energy = 0.0;
+  double Energy = 0.0;
   typedef std::pair<size_t, size_t> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
@@ -199,16 +199,16 @@ ISWSequence::getInternalEnergy() const
   return -Energy; 
 }
 
-Iflt 
+double 
 ISWSequence::hardCoreDiam() const 
 { return diameter; }
 
-Iflt 
+double 
 ISWSequence::maxIntDist() const 
 { return diameter * lambda; }
 
 void 
-ISWSequence::rescaleLengths(Iflt scale) 
+ISWSequence::rescaleLengths(double scale) 
 { 
   diameter += scale * diameter; 
   d2 = diameter * diameter;
@@ -368,7 +368,7 @@ ISWSequence::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  Iflt r2 = rij.nrm2();
+  double r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))
     {

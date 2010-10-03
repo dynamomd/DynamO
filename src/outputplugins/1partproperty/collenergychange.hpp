@@ -34,7 +34,7 @@ class OPCollEnergyChange: public OP1PP
 
   void A2ParticleChange(const PairEventData&);
 
-  void stream(const Iflt&) {}
+  void stream(const double&) {}
 
   void output(xml::XmlStream &); 
 
@@ -48,9 +48,9 @@ class OPCollEnergyChange: public OP1PP
   void operator<<(const XMLNode&);
 
  protected:  
-  Iflt binWidth; 
+  double binWidth; 
 
-  static Iflt KEBinWidth;
+  static double KEBinWidth;
 
   struct histogram: public C1DHistogram
   {

@@ -44,7 +44,7 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   void output(xml::XmlStream &);
 
@@ -61,7 +61,7 @@ public:
     counterData():count(0), initialCount(0), totalTime(0) {}
     unsigned long count;
     size_t initialCount;
-    Iflt totalTime;
+    double totalTime;
   };
   
   unsigned long totalCount;
@@ -74,7 +74,7 @@ public:
   
   std::map<eventKey, size_t> initialCounter;
 
-  typedef std::pair<Iflt, eventKey> lastEventData;
+  typedef std::pair<double, eventKey> lastEventData;
 
   std::vector<lastEventData> lastEvent; 
 };

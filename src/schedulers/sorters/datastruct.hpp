@@ -40,20 +40,20 @@ public:
     p2(-1)    
   {}
 
-  inline intPart(const Iflt& ndt, const EEventType& nT) throw():
+  inline intPart(const double& ndt, const EEventType& nT) throw():
     dt(ndt),
     type(nT),
     p2(0)
   {}
 
-  inline intPart(const Iflt& ndt, const unsigned long & direction) throw():
+  inline intPart(const double& ndt, const unsigned long & direction) throw():
     dt(ndt),
     collCounter2(direction),
     type(CELL),
     p2(0)
   {}
   
-  inline intPart(const Iflt& ndt, const EEventType& nT, 
+  inline intPart(const double& ndt, const EEventType& nT, 
 		 const size_t& nID2, const unsigned long & nCC2) throw():
     dt(ndt),
     collCounter2(nCC2),
@@ -86,9 +86,9 @@ public:
   inline bool operator> (const intPart& ip) const throw()
   { return dt > ip.dt; }
 
-  inline void stream(const Iflt& ndt) throw() { dt -= ndt; }
+  inline void stream(const double& ndt) throw() { dt -= ndt; }
 
-  mutable Iflt dt;
+  mutable double dt;
   unsigned long collCounter2;
   EEventType type;
   size_t p2;  
@@ -133,18 +133,18 @@ public:
       : (ip.c.empty() || (c.front().dt < ip.c.front().dt)); 
   }
 
-  inline Iflt getdt() const 
+  inline double getdt() const 
   { 
     return (c.empty()) ? HUGE_VAL : c.front().dt; 
   }
   
-  inline void stream(const Iflt& ndt) throw()
+  inline void stream(const double& ndt) throw()
   {
     BOOST_FOREACH(intPart& dat, c)
       dat.dt -= ndt;
   }
 
-  inline void addTime(const Iflt& ndt) throw()
+  inline void addTime(const double& ndt) throw()
   {
     BOOST_FOREACH(intPart& dat, c)
       dat.dt += ndt;
@@ -156,7 +156,7 @@ public:
     std::push_heap(c.begin(), c.end(), comp);
   }
 
-  inline void rescaleTimes(const Iflt& scale) throw()
+  inline void rescaleTimes(const double& scale) throw()
   { 
     BOOST_FOREACH(intPart& dat, c)
       dat.dt *= scale;

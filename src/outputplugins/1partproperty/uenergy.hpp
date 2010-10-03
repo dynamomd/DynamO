@@ -30,7 +30,7 @@ class OPUEnergy: public OP1PP
 
   void A2ParticleChange(const PairEventData&);
 
-  void stream(const Iflt&);  
+  void stream(const double&);  
 
   void output(xml::XmlStream &); 
 
@@ -40,19 +40,19 @@ class OPUEnergy: public OP1PP
 
   virtual OutputPlugin *Clone() const { return new OPUEnergy(*this); }
 
-  Iflt getAvgU() const;
+  double getAvgU() const;
 
-  Iflt getAvgSqU() const;
+  double getAvgSqU() const;
 
-  Iflt getSimU() const { return intECurrent; }
+  double getSimU() const { return intECurrent; }
 
   void changeSystem(OutputPlugin*);
 
  protected:
 
-  Iflt intECurrent;
-  Iflt intEsqAcc;
-  Iflt intEAcc;
+  double intECurrent;
+  double intEsqAcc;
+  double intEAcc;
 };
 
 #endif

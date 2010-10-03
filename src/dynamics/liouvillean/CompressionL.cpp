@@ -24,22 +24,22 @@
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 
-LCompression::LCompression(DYNAMO::SimData* tmp, Iflt GR):
+LCompression::LCompression(DYNAMO::SimData* tmp, double GR):
   LNewtonian(tmp),
   growthRate(GR) {}
 
 bool 
-LCompression::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
+LCompression::SphereSphereInRoot(CPDData& dat, const double& d2) const
 {
-  Iflt b = dat.rvdot - d2 
+  double b = dat.rvdot - d2 
     * (growthRate * growthRate * Sim->dSysTime + growthRate);
   
   if (b < -0.0) 
     {
-      Iflt a = dat.v2 - growthRate * growthRate * d2;
-      Iflt c = dat.r2 - d2 * (1.0 + growthRate * Sim->dSysTime 
+      double a = dat.v2 - growthRate * growthRate * d2;
+      double c = dat.r2 - d2 * (1.0 + growthRate * Sim->dSysTime 
 			      * (2.0 + growthRate * Sim->dSysTime));
-      Iflt arg = (b * b) - a * c;
+      double arg = (b * b) - a * c;
       
       if (arg > 0.0) 
 	{
@@ -52,15 +52,15 @@ LCompression::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 }
   
 bool 
-LCompression::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
+LCompression::SphereSphereOutRoot(CPDData& dat, const double& d2) const
 {
-  Iflt a = dat.v2 - growthRate * growthRate * d2;
-  Iflt b = dat.rvdot - d2 * (growthRate * growthRate 
+  double a = dat.v2 - growthRate * growthRate * d2;
+  double b = dat.rvdot - d2 * (growthRate * growthRate 
 			       * Sim->dSysTime + growthRate);
-  Iflt c = d2 * (1.0 + growthRate * Sim->dSysTime 
+  double c = d2 * (1.0 + growthRate * Sim->dSysTime 
 		 * (2.0 + growthRate * Sim->dSysTime)) - dat.r2;
 
-  Iflt arg = (b * b) + a * c;
+  double arg = (b * b) + a * c;
   
   if (arg > 0.0) 
     if (a > 0.0)
@@ -77,22 +77,22 @@ LCompression::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 }
 
 bool 
-LCompression::sphereOverlap(const CPDData& dat, const Iflt& d2) const
+LCompression::sphereOverlap(const CPDData& dat, const double& d2) const
 {
-  Iflt currd2 = d2 * (1 + 2.0 * Sim->dSysTime * growthRate 
+  double currd2 = d2 * (1 + 2.0 * Sim->dSysTime * growthRate 
 			+ pow(Sim->dSysTime * growthRate,2));
   
   return ((dat.r2 - currd2) < 0.0);
 }
 
 void
-LCompression::streamParticle(Particle &particle, const Iflt &dt) const
+LCompression::streamParticle(Particle &particle, const double &dt) const
 {
   particle.getPosition() +=  particle.getVelocity() * dt;
 }
 
 PairEventData 
-LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt& d2, const EEventType& eType) const
+LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -106,10 +106,10 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt
 
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass(); 
-  Iflt mu = p1Mass*p2Mass/(p1Mass+p2Mass);    
-  Iflt r2 = retVal.rij.nrm2();
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass(); 
+  double mu = p1Mass*p2Mass/(p1Mass+p2Mass);    
+  double r2 = retVal.rij.nrm2();
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
@@ -130,7 +130,7 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const Iflt& e, const Iflt
 }
 
 PairEventData 
-LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const Iflt& d2) const
+LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -144,14 +144,14 @@ LCompression::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, const 
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+  double p1Mass = retVal.particle1_.getSpecies().getMass();
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
   Vector  urij = retVal.rij / retVal.rij.nrm();
 
   retVal.rvdot = (urij | retVal.vijold);
 
-  Iflt sqrtArg = std::pow(retVal.rvdot - growthRate * sqrt(d2), 2)  + (2.0 * deltaKE / mu);
+  double sqrtArg = std::pow(retVal.rvdot - growthRate * sqrt(d2), 2)  + (2.0 * deltaKE / mu);
   if (std::signbit(deltaKE) && std::signbit(sqrtArg))
     {
       event.setType(BOUNCE);
@@ -226,9 +226,9 @@ LCompression::outputXML(xml::XmlStream& XML) const
       << "Compression";
 }
 
-Iflt 
+double 
 LCompression::getPBCSentinelTime(const Particle& part,
-				  const Iflt& lMax) const
+				  const double& lMax) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -239,11 +239,11 @@ LCompression::getPBCSentinelTime(const Particle& part,
 
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
+  double retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 
   for (size_t i(1); i < NDIM; ++i)
     {
-      Iflt tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
+      double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
       
       if (tmp < retval)
 	retval = tmp;
@@ -253,6 +253,6 @@ LCompression::getPBCSentinelTime(const Particle& part,
 }
 
 PairEventData 
-LCompression::parallelCubeColl(const IntEvent&, const Iflt&,
-				const Iflt&, const EEventType&) const
+LCompression::parallelCubeColl(const IntEvent&, const double&,
+				const double&, const EEventType&) const
 { M_throw() << "Not Implemented"; }

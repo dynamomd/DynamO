@@ -26,8 +26,8 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLSphere::CLSphere(DYNAMO::SimData* nSim, Iflt ne,
-		       Vector  norigin, Iflt nr, std::string nname, 
+CLSphere::CLSphere(DYNAMO::SimData* nSim, double ne,
+		       Vector  norigin, double nr, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "CylinderWall"),
   vPosition(norigin),
@@ -98,9 +98,9 @@ CLSphere::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
 
-    radius = boost::lexical_cast<Iflt>(XML.getAttribute("Radius"))
+    radius = boost::lexical_cast<double>(XML.getAttribute("Radius"))
       * Sim->dynamics.units().unitLength();
 
     r2 = radius * radius;

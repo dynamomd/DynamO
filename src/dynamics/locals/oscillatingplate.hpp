@@ -24,9 +24,9 @@ class CLOscillatingPlate: public Local
 {
 public:
   CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
-  CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, Iflt, 
-		     Iflt, Iflt, Iflt, Iflt, std::string, CRange*, 
-		     Iflt timeshift = 0, bool nstrongPlate = false);
+  CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, double, 
+		     double, double, double, double, std::string, CRange*, 
+		     double timeshift = 0, bool nstrongPlate = false);
 
   virtual ~CLOscillatingPlate() {}
 
@@ -48,7 +48,7 @@ public:
 
   Vector getVelocity() const;
 
-  Iflt getPlateEnergy() const;
+  double getPlateEnergy() const;
 
   const Vector& getCentre() const { return rw0; }
 
@@ -58,14 +58,14 @@ protected:
   bool strongPlate;
   Vector rw0;
   Vector nhat;
-  Iflt omega0;
-  Iflt sigma;
-  Iflt e;
-  mutable Iflt delta;
-  Iflt mass;
-  mutable Iflt timeshift;
+  double omega0;
+  double sigma;
+  double e;
+  mutable double delta;
+  double mass;
+  mutable double timeshift;
   mutable size_t lastID;
-  mutable lIflt lastdSysTime;
+  mutable long double lastdSysTime;
 };
 
 #endif

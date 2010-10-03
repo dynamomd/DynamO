@@ -26,12 +26,12 @@
 
 struct CUTriangleIntersect: public CUCell
 {
-  Iflt _diameter, _diametersq;
+  double _diameter, _diametersq;
   std::string _fileName;
   typedef boost::array<Vector, NDIM+1> triangle_type;
   std::vector<triangle_type> _triangles;
 
-  CUTriangleIntersect(CUCell* nextCell, Iflt diameter, std::string fileName):
+  CUTriangleIntersect(CUCell* nextCell, double diameter, std::string fileName):
     CUCell(nextCell),
     _diameter(diameter),
     _diametersq(diameter * diameter),
@@ -102,7 +102,7 @@ struct CUTriangleIntersect: public CUCell
     
     //Check the plane of the triangle and sphere intersect
     //Elevation of the sphere over the triangle
-    Iflt p = (sphere - triangle[0]) | triangle[3];
+    double p = (sphere - triangle[0]) | triangle[3];
 
     if (fabs(p) > 0.5 * _diameter)
       return false;
@@ -126,16 +126,16 @@ struct CUTriangleIntersect: public CUCell
             
       //!Taken from http://www.blackpawn.com/texts/pointinpoly/default.html
       //v0 = triangle[1], v1 = triangle[2], v2 = C
-      Iflt dot00 = triangle[1].nrm2();
-      Iflt dot11 = triangle[2].nrm2();
-      Iflt dot01 = triangle[1] | triangle[2];
-      Iflt dot02 = triangle[1] | C;
-      Iflt dot12 = triangle[2] | C;
+      double dot00 = triangle[1].nrm2();
+      double dot11 = triangle[2].nrm2();
+      double dot01 = triangle[1] | triangle[2];
+      double dot02 = triangle[1] | C;
+      double dot12 = triangle[2] | C;
     
       // Compute barycentric coordinates
-      Iflt invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-      Iflt u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-      Iflt v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+      double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+      double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+      double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
     	
     	// Check if point is in triangle
       if ((u > 0) && (v > 0) && (u + v < 1)) 
@@ -155,16 +155,16 @@ struct CUTriangleIntersect: public CUCell
   {
     //Taken from http://jgt.akpeters.com/papers/KarabassiEtAl99/collision.html
     //n = edge,  
-    Iflt a = edge | linecentre;
-    Iflt b = edge | sphere;
-    Iflt c = edge | edge;
+    double a = edge | linecentre;
+    double b = edge | sphere;
+    double c = edge | edge;
 
-    Iflt t = (b - a) / c;
+    double t = (b - a) / c;
 
     Vector q = linecentre + t * edge;
     
     Vector ijk = sphere - q;
-    Iflt d = ijk.nrm2();
+    double d = ijk.nrm2();
     if (d > _diametersq) return false;
 
     if (d == _diametersq)
@@ -173,9 +173,9 @@ struct CUTriangleIntersect: public CUCell
       else
 	return false;
 
-    Iflt r = std::sqrt((_diametersq-d) / c);
-    Iflt t1 = t - r;
-    Iflt t2 = t + r;
+    double r = std::sqrt((_diametersq-d) / c);
+    double t1 = t - r;
+    double t2 = t + r;
 
     if ( ( (t1<0) && (t2<0) )
 	 ||( (t1>1) && (t2>1) ) )
@@ -184,15 +184,15 @@ struct CUTriangleIntersect: public CUCell
     return true;
 
 //    const Vector r0(linecentre - sphere);
-//    Iflt a = edge.nrm2();
-//    Iflt b = (r0 | edge);
-//    Iflt c = r0.nrm2() - (_diametersq * 0.25);
-//    Iflt arg = b * b - a * c;
+//    double a = edge.nrm2();
+//    double b = (r0 | edge);
+//    double c = r0.nrm2() - (_diametersq * 0.25);
+//    double arg = b * b - a * c;
 //    //They are approaching? Previous tests ensured the vertex is not in the sphere already
 //    if (b < 0)
 //	if (arg >= 0)
 //	  {
-//	    Iflt x = c / (b - std::sqrt(arg));
+//	    double x = c / (b - std::sqrt(arg));
 //	    if ((x > 0) && (x < 1)) return true;
 //	  }
 //

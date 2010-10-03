@@ -23,7 +23,7 @@
 class ISquareWell: public ISingleCapture
 {
 public:
-  ISquareWell(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, C2Range*);
+  ISquareWell(DYNAMO::SimData*, double, double, double, double, C2Range*);
 
   ISquareWell(const XMLNode&, DYNAMO::SimData*);
   
@@ -31,11 +31,11 @@ public:
 
   virtual Interaction* Clone() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
@@ -49,17 +49,17 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual Iflt getInternalEnergy() const 
+  virtual double getInternalEnergy() const 
   { return -(getTotalCaptureCount() * wellDepth); }
 
   virtual void 
   write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
 
 protected:
-  Iflt diameter,d2;
-  Iflt lambda, ld2;
-  Iflt wellDepth;
-  Iflt e;
+  double diameter,d2;
+  double lambda, ld2;
+  double wellDepth;
+  double e;
 };
 
 #endif

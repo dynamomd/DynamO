@@ -30,7 +30,7 @@ class OPGeomview: public OPTicker
 
   virtual void initialise() { printImage(); }
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   

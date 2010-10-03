@@ -23,13 +23,13 @@ ECompressingSimulation::getOptions(boost::program_options::options_description& 
   boost::program_options::options_description ropts("Compression Engine");
 
   ropts.add_options()
-    ("growth-rate",boost::program_options::value<Iflt>()->default_value(1.0),
+    ("growth-rate",boost::program_options::value<double>()->default_value(1.0),
      "Compression rate for the simulation")
     ("check-system", "Check that the system has not violated any interaction"
      " information")
-    ("target-pack-frac",boost::program_options::value<Iflt>(),
+    ("target-pack-frac",boost::program_options::value<double>(),
      "Target packing fraction that compression has to attain to exit")
-    ("target-density",boost::program_options::value<Iflt>(),
+    ("target-density",boost::program_options::value<double>(),
      "Target number density that compression has to attain to exit")
     ;
   opts.add(ropts);
@@ -50,7 +50,7 @@ ECompressingSimulation::preSimInit()
   ESingleSimulation::preSimInit();
 
   compressPlug.set_ptr(new CIPCompression
-		       (&simulation, vm["growth-rate"].as<Iflt>()));
+		       (&simulation, vm["growth-rate"].as<double>()));
 }
 
 void 
@@ -62,10 +62,10 @@ ECompressingSimulation::setupSim(Simulation& Sim, const std::string filename)
             
   if (vm.count("target-pack-frac"))
     compressPlug->limitPackingFraction
-      (vm["target-pack-frac"].as<Iflt>());
+      (vm["target-pack-frac"].as<double>());
   else if (vm.count("target-density"))
     compressPlug->limitDensity
-      (vm["target-density"].as<Iflt>());
+      (vm["target-density"].as<double>());
 
   //This adds a system event to prevent the cellular scheduler 
   //failing during compression

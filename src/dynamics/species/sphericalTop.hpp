@@ -22,15 +22,15 @@
 class SpSphericalTop: public SpInertia
 {
 public:
-  SpSphericalTop(DYNAMO::SimData*, CRange*, Iflt nMass, std::string nName, 
-		 unsigned int ID, Iflt iC, std::string nIName="Bulk");
+  SpSphericalTop(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
+		 unsigned int ID, double iC, std::string nIName="Bulk");
   
   SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
 
 
   virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
-  virtual Iflt getScalarMomentOfInertia() const { return inertiaConstant * mass; }
+  virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
 
   virtual void operator<<(const XMLNode&);
 
@@ -38,5 +38,5 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
   
-  Iflt inertiaConstant;
+  double inertiaConstant;
 };

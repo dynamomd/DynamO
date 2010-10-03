@@ -20,7 +20,7 @@
 #include "../extcode/xmlwriter.hpp"
 
 void 
-C1DHistogram::outputHistogram(xml::XmlStream& XML, Iflt scalex) const
+C1DHistogram::outputHistogram(xml::XmlStream& XML, double scalex) const
 {
 
   XML << xml::tag("Histogram")
@@ -29,9 +29,9 @@ C1DHistogram::outputHistogram(xml::XmlStream& XML, Iflt scalex) const
       << xml::attr("Dimension") << 1
       << xml::attr("BinWidth") << data.binWidth * scalex;
   
-  Iflt avgSum = 0.0;
+  double avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
-    avgSum += (static_cast<Iflt>(p1.first) + 0.5) * p1.second;
+    avgSum += (static_cast<double>(p1.first) + 0.5) * p1.second;
   
   XML << xml::attr("AverageVal")
       << (avgSum * data.binWidth * scalex / sampleCount)
@@ -45,7 +45,7 @@ C1DHistogram::outputHistogram(xml::XmlStream& XML, Iflt scalex) const
 //
 //      BOOST_FOREACH(const lv1pair &p1, data.data)
 //	{
-//	  Iflt y = static_cast<Iflt>(p1.second)
+//	  double y = static_cast<double>(p1.second)
 //	    /(data.binWidth * sampleCount * scalex);
 //	  
 //	  if (p1.first - 1 != lastx)
@@ -65,14 +65,14 @@ C1DHistogram::outputHistogram(xml::XmlStream& XML, Iflt scalex) const
 
   BOOST_FOREACH(const lv1pair &p1, data.data)
     XML << p1.first * data.binWidth * scalex << " " 
-	<< static_cast<Iflt>(p1.second)
+	<< static_cast<double>(p1.second)
     /(data.binWidth * sampleCount * scalex) << "\n";
   
   XML << xml::endtag("Histogram");
 }
 
 void 
-C1DWeightHistogram::outputHistogram(xml::XmlStream & XML, Iflt scalex) const
+C1DWeightHistogram::outputHistogram(xml::XmlStream & XML, double scalex) const
 {
   XML << xml::tag("WeightHistogram")
       << xml::attr("TotalWeight")
@@ -80,9 +80,9 @@ C1DWeightHistogram::outputHistogram(xml::XmlStream & XML, Iflt scalex) const
       << xml::attr("Dimension") << 1
       << xml::attr("BinWidth") << data.binWidth * scalex;
   
-  Iflt avgSum = 0.0;
+  double avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
-    avgSum += static_cast<Iflt>(p1.first) * p1.second;
+    avgSum += static_cast<double>(p1.first) * p1.second;
   
   XML << xml::attr("AverageVal")
       << avgSum * data.binWidth * scalex / sampleCount
@@ -97,7 +97,7 @@ C1DWeightHistogram::outputHistogram(xml::XmlStream & XML, Iflt scalex) const
       //
       //BOOST_FOREACH(const lv1pair &p1, data.data)
       //	{
-      //	  Iflt y = static_cast<Iflt>(p1.second)
+      //	  double y = static_cast<double>(p1.second)
       //	    /(data.binWidth * sampleCount * scalex);
       //	  
       //	  if (p1.first - 1 != lastx)
@@ -119,14 +119,14 @@ C1DWeightHistogram::outputHistogram(xml::XmlStream & XML, Iflt scalex) const
       //This gives mathmatically correct but not really pretty
   BOOST_FOREACH(const lv1pair &p1, data.data)
     XML << p1.first * data.binWidth * scalex << " "
-	<< static_cast<Iflt>(p1.second)
+	<< static_cast<double>(p1.second)
     / (data.binWidth * sampleCount * scalex) << "\n";
   
   XML << xml::endtag("WeightHistogram");
 }
 
 void 
-C1DWeightHistogram::outputClearHistogram(xml::XmlStream & XML, Iflt scalex) const
+C1DWeightHistogram::outputClearHistogram(xml::XmlStream & XML, double scalex) const
 {
   XML << xml::tag("WeightHistogram")
       << xml::attr("TotalWeight")
@@ -134,9 +134,9 @@ C1DWeightHistogram::outputClearHistogram(xml::XmlStream & XML, Iflt scalex) cons
       << xml::attr("Dimension") << 1
       << xml::attr("BinWidth") << data.binWidth * scalex;
   
-  Iflt avgSum = 0.0;
+  double avgSum = 0.0;
   BOOST_FOREACH(const lv1pair &p1, data.data)
-    avgSum += static_cast<Iflt>(p1.first)* p1.second;
+    avgSum += static_cast<double>(p1.first)* p1.second;
   
   XML << xml::attr("AverageVal")
       << (avgSum * data.binWidth / sampleCount)
@@ -145,7 +145,7 @@ C1DWeightHistogram::outputClearHistogram(xml::XmlStream & XML, Iflt scalex) cons
   //This one gives histograms usable by the reweight program
   BOOST_FOREACH(const lv1pair &p1, data.data)
     XML << p1.first * data.binWidth * scalex << " " 
-	<< static_cast<Iflt>(p1.second)
+	<< static_cast<double>(p1.second)
     / (data.binWidth * sampleCount * scalex) << "\n";
   
   XML << xml::endtag("WeightHistogram");

@@ -28,7 +28,7 @@
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/interactions/captures.hpp"
 
-OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, Iflt bw):
+OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
   chainID(ID)
 {
   BondCorrelations.resize(CL-2, C1DHistogram(bw));
@@ -50,7 +50,7 @@ OPChainBondAngles::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
     }
   catch (boost::bad_lexical_cast &)
     {

@@ -48,20 +48,20 @@ public:
 
   virtual void loadParticleXMLData(const XMLNode&);
 
-  virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
+  virtual bool getLineLineCollision(CPDData& PD, const double& length, 
 				    const Particle& p1, const Particle& p2
 				    ) const;
   
   virtual PairEventData runLineLineCollision(const IntEvent& eevent, 
-					      const Iflt& elasticity, const Iflt& length) const;
+					      const double& elasticity, const double& length) const;
   
   virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
-						  const Iflt& sqrtT
+						  const double& sqrtT
 						  ) const;
   
   virtual ParticleEventData randomGaussianEvent(const Particle& part, 
-					     const Iflt& sqrtT) const;
+					     const double& sqrtT) const;
 
   struct rotData
   {
@@ -75,20 +75,20 @@ public:
   const std::vector<rotData>& getCompleteRotData() const
   { return orientationData; }
   
-  void initLineOrientations(const Iflt&);
+  void initLineOrientations(const double&);
 
   virtual PairEventData RoughSpheresColl(const IntEvent& event, 
-					  const Iflt& e, 
-					  const Iflt& et, 
-					  const Iflt& d2, 
+					  const double& e, 
+					  const double& et, 
+					  const double& d2, 
 					  const EEventType& eType = CORE
 					  ) const;
 
   virtual ParticleEventData runRoughWallCollision(const Particle& part, 
 					       const Vector & vNorm,
-					       const Iflt& e,
-					       const Iflt& et,
-					       const Iflt& r
+					       const double& e,
+					       const double& et,
+					       const double& r
 					       ) const;
 
 protected:
@@ -99,14 +99,14 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual void streamParticle(Particle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const double&) const;
   
   virtual size_t getParticleDOF() const;
-  virtual Iflt getParticleKineticEnergy(const Particle& part) const;
-  virtual void rescaleSystemKineticEnergy(const Iflt&);
+  virtual double getParticleKineticEnergy(const Particle& part) const;
+  virtual void rescaleSystemKineticEnergy(const double&);
   
   mutable std::vector<rotData> orientationData;
-  mutable lIflt lastAbsoluteClock;
+  mutable long double lastAbsoluteClock;
   mutable unsigned int lastCollParticle1;
   mutable unsigned int lastCollParticle2;  
 };

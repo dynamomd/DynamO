@@ -33,7 +33,7 @@ class OPIntEnergyHist: public OPCollTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt);
+  virtual void stream(double);
 
   virtual void ticker();
 
@@ -47,8 +47,8 @@ class OPIntEnergyHist: public OPCollTicker
 
   C1DWeightHistogram intEnergyHist;
   const OPUEnergy* ptrOPEnergy;
-  Iflt weight;
-  Iflt binwidth;
+  double weight;
+  double binwidth;
 
 };
 

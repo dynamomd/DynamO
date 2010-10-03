@@ -40,7 +40,7 @@ public:
   
   virtual System* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  inline void stream(const Iflt& ndt) { dt -= ndt; }
+  inline void stream(const double& ndt) { dt -= ndt; }
 
   virtual void runEvent() const = 0;
 
@@ -54,7 +54,7 @@ public:
 
   bool operator<(const System&) const;
   
-  Iflt getdt() const { return dt; }
+  double getdt() const { return dt; }
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const System&);
   
@@ -74,7 +74,7 @@ protected:
   virtual void outputXML(xml::XmlStream&) const = 0;
 
   std::string sysName;  
-  mutable Iflt dt;
+  mutable double dt;
   EEventType type;
   size_t ID;
 };

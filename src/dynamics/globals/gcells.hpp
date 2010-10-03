@@ -44,7 +44,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void reinitialise(const Iflt&);
+  virtual void reinitialise(const double&);
 
   virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const;
@@ -52,18 +52,18 @@ public:
   virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const;
   
-  void setLambda(const Iflt&);
+  void setLambda(const double&);
 
-  inline const Iflt& getLambda() const { return lambda; }
+  inline const double& getLambda() const { return lambda; }
 
   virtual void operator<<(const XMLNode&);
 
   Vector  getCellDimensions() const 
   { return cellDimension; }
 
-  virtual Iflt getMaxSupportedInteractionLength() const;
+  virtual double getMaxSupportedInteractionLength() const;
 
-  virtual Iflt getMaxInteractionLength() const;
+  virtual double getMaxInteractionLength() const;
 
   virtual void outputXML(xml::XmlStream& XML) const;
 
@@ -99,7 +99,7 @@ protected:
 
   size_t getCellID(Vector ) const;
 
-  void addCells(Iflt);
+  void addCells(double);
 
   void addLocalEvents();
 
@@ -107,12 +107,12 @@ protected:
   CVector<int> cellCount;
   Vector  cellDimension;
   Vector  cellLatticeWidth;
-  Iflt lambda;
+  double lambda;
   size_t NCells;
   size_t overlink;
 
   std::string interaction;
-  Iflt MaxIntDist;
+  double MaxIntDist;
   
   inline Vector calcPosition(const Vector& coords,
 			     const Particle& part) const;

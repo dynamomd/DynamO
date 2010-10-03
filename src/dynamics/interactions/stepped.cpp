@@ -65,10 +65,10 @@ IStepped::operator<<(const XMLNode& XML)
 	for (long i = 0; i < counter; ++i)
 	  {
 	    XMLNode browseNode = XML.getChildNode("Step",&xml_iter);
-	    steps.push_back(steppair(boost::lexical_cast<Iflt>
+	    steps.push_back(steppair(boost::lexical_cast<double>
 				     (browseNode.getAttribute("R"))
 				     * Sim->dynamics.units().unitLength(),
-				     boost::lexical_cast<Iflt>
+				     boost::lexical_cast<double>
 				     (browseNode.getAttribute("E"))
 				     * Sim->dynamics.units().unitEnergy()
 				     ));
@@ -93,16 +93,16 @@ Interaction*
 IStepped::Clone() const 
 { return new IStepped(*this); }
 
-Iflt 
+double 
 IStepped::hardCoreDiam() const 
 { return steps.back().first; }
 
-Iflt 
+double 
 IStepped::maxIntDist() const 
 { return steps.front().first; }
 
 void 
-IStepped::rescaleLengths(Iflt scale) 
+IStepped::rescaleLengths(double scale) 
 { 
   BOOST_FOREACH(steppair& p, steps)
     p.first += scale * p.first;
@@ -120,10 +120,10 @@ IStepped::initialise(size_t nID)
   BOOST_FOREACH(steppair& pdat, runstepdata)
     pdat.first *= pdat.first;
 
-  Iflt oldE(0.0);
+  double oldE(0.0);
   BOOST_FOREACH(steppair& pdat, runstepdata)
     {
-      Iflt tmp(pdat.second);
+      double tmp(pdat.second);
       pdat.second -= oldE;
       oldE = tmp;
     }
@@ -140,7 +140,7 @@ IStepped::captureTest(const Particle& p1, const Particle& p2) const
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
-  Iflt r = rij.nrm();
+  double r = rij.nrm();
 
   for (size_t i(0); i < steps.size(); ++i)
     if (r > steps[i].first) return i;
@@ -148,11 +148,11 @@ IStepped::captureTest(const Particle& p1, const Particle& p2) const
   return steps.size() - 1;
 }
 
-Iflt 
+double 
 IStepped::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
-  Iflt Energy = 0.0;
+  double Energy = 0.0;
 
   typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
 

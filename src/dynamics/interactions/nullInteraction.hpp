@@ -29,15 +29,15 @@ public:
 
   void operator<<(const XMLNode&);
 
-  virtual Iflt getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0.0; }
 
   virtual void initialise(size_t);
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual Interaction* Clone() const;
   

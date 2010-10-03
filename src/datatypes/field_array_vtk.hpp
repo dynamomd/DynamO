@@ -60,7 +60,7 @@ namespace DYNAMO
   }
 
   template<class T> 
-  vtkFloatArray* getVTKFloatField(CFieldArray<T>& FA, const char *fieldName, Iflt scale = 1.0)
+  vtkFloatArray* getVTKFloatField(CFieldArray<T>& FA, const char *fieldName, double scale = 1.0)
   {
     vtkFloatArray *scalars = vtkFloatArray::New();
     scalars->SetName(fieldName);
@@ -78,7 +78,7 @@ namespace DYNAMO
   }
 
   template<class T>
-  inline vtkIntArray* getVTKIntField(CFieldArray<T>& FA,const char *fieldName, Iflt scale = 1.0)
+  inline vtkIntArray* getVTKIntField(CFieldArray<T>& FA,const char *fieldName, double scale = 1.0)
   {
     vtkIntArray *scalars = vtkIntArray::New();
     scalars->SetName(fieldName);
@@ -96,7 +96,7 @@ namespace DYNAMO
   }
 
   template<class T>
-  vtkFloatArray* getVTKField(CFieldArray<CVector<T> >& FA, const char *fieldName, Iflt scale = 1.0)
+  vtkFloatArray* getVTKField(CFieldArray<CVector<T> >& FA, const char *fieldName, double scale = 1.0)
   {
     vtkFloatArray *vectors = vtkFloatArray::New();
     vectors->SetNumberOfComponents(3);

@@ -22,10 +22,10 @@
 namespace DYNAMO
 {
   struct RGB {
-    RGB(Iflt a, Iflt b, Iflt c): R(a),G(b),B(c) {}
-    Iflt R;
-    Iflt G;
-    Iflt B;
+    RGB(double a, double b, double c): R(a),G(b),B(c) {}
+    double R;
+    double G;
+    double B;
   };
 
   template<class T>
@@ -44,11 +44,11 @@ namespace DYNAMO
       else if (val > end)
 	return RGB(1, 0, 0);
 	      
-      Iflt normval = static_cast<Iflt>(val - start) / static_cast<Iflt>(end - start);      
+      double normval = static_cast<double>(val - start) / static_cast<double>(end - start);      
 
-      Iflt R = 2.0 * normval - 0.84;
-      Iflt G;
-      Iflt B = std::fabs(2.0 * normval - 0.5);
+      double R = 2.0 * normval - 0.84;
+      double G;
+      double B = std::fabs(2.0 * normval - 0.5);
 
       if (val < 0.3)
 	G = 4.0 * normval;
@@ -66,7 +66,7 @@ namespace DYNAMO
     
   private:
 
-    inline void boundVal(Iflt& val)
+    inline void boundVal(double& val)
     {
       if (val > 1.0) 
 	val = 1.0;

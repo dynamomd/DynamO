@@ -44,14 +44,14 @@ OPUEnergy::initialise()
   intECurrent = Sim->dynamics.calcInternalEnergy();
 }
 
-Iflt 
+double 
 OPUEnergy::getAvgSqU() const
 { 
   return intEsqAcc / ( Sim->dSysTime 
 		       * pow(Sim->dynamics.units().unitEnergy(), 2)); 
 }
 
-Iflt 
+double 
 OPUEnergy::getAvgU() const
 { 
   return intEAcc / ( Sim->dSysTime * Sim->dynamics.units().unitEnergy()); 
@@ -71,7 +71,7 @@ OPUEnergy::A2ParticleChange(const PairEventData& PDat)
 }
 
 void 
-OPUEnergy::stream(const Iflt& dt)
+OPUEnergy::stream(const double& dt)
 {
   intEAcc += intECurrent * dt;
   intEsqAcc += intECurrent * intECurrent * dt;

@@ -51,11 +51,11 @@ OPThermalConductivityE::operator<<(const XMLNode& XML)
       
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
       
       if (XML.isAttributeSet("t"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("t"))/CorrelatorLength;
+	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -87,7 +87,7 @@ OPThermalConductivityE::initialise()
       if (Sim->lastRunMFT != 0.0)
 	dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
       else
-	dt = 10.0 / (((Iflt) CorrelatorLength) 
+	dt = 10.0 / (((double) CorrelatorLength) 
 		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
@@ -98,7 +98,7 @@ OPThermalConductivityE::initialise()
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
-Iflt 
+double 
 OPThermalConductivityE::rescaleFactor() 
 { 
   return Sim->dynamics.units().unitk() 
@@ -123,7 +123,7 @@ OPThermalConductivityE::output(xml::XmlStream &XML)
       << xml::attr("SampleCount") << count
       << xml::chardata();
   
-  Iflt factor = rescaleFactor();
+  double factor = rescaleFactor();
   
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
@@ -149,8 +149,8 @@ OPThermalConductivityE::impulseDelG(const PairEventData& PDat)
 void 
 OPThermalConductivityE::updateConstDelG(const PairEventData& PDat)
 {
-  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
-  Iflt p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
+  double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
+  double p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
   constDelG += PDat.particle1_.getParticle().getVelocity() * p1E 
     + PDat.particle2_.getParticle().getVelocity() * p2E
@@ -159,7 +159,7 @@ OPThermalConductivityE::updateConstDelG(const PairEventData& PDat)
 }
 
 void 
-OPThermalConductivityE::stream(const Iflt& edt)
+OPThermalConductivityE::stream(const double& edt)
 {
     //Now test if we've gone over the step time
     if (currentdt + edt >= dt)
@@ -206,7 +206,7 @@ OPThermalConductivityE::eventUpdate(const LocalEvent& iEvent,
 void 
 OPThermalConductivityE::eventUpdate(const System&, 
 				     const NEventData& PDat,
-				     const Iflt& edt) 
+				     const double& edt) 
 { 
   stream(edt);
   delG += impulseDelG(PDat);
@@ -279,7 +279,7 @@ OPThermalConductivityE::updateConstDelG(const NEventData& ndat)
 void 
 OPThermalConductivityE::updateConstDelG(const ParticleEventData& PDat)
 {
-  Iflt p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+  double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
   
   constDelG += PDat.getParticle().getVelocity() * p1E 
     - PDat.getOldVel() * (p1E - PDat.getDeltaKE());

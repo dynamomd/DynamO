@@ -30,7 +30,7 @@ public:
   
   virtual System* Clone() const { return new CSysNull(*this); }
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual NEventData runEvent()
   { M_throw() << "You're running the null system event"; }

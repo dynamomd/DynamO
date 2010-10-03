@@ -39,7 +39,7 @@ namespace xml
  * and I failed at using liboil to take advantage of the systems MMX
  * extensions etc.
  */
-template <typename T = Iflt> 
+template <typename T = double> 
 class CVector
 {
  public:

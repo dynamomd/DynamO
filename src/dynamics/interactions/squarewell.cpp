@@ -34,9 +34,9 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-ISquareWell::ISquareWell(DYNAMO::SimData* tmp, Iflt nd, Iflt nl, 
-			   Iflt nWD, 
-			   Iflt ne, C2Range* nR):
+ISquareWell::ISquareWell(DYNAMO::SimData* tmp, double nd, double nl, 
+			   double nWD, 
+			   double ne, C2Range* nR):
   ISingleCapture(tmp,nR),
   diameter(nd), d2(nd*nd), lambda(nl), 
   ld2(nd*nd*nl*nl), wellDepth(nWD),
@@ -58,14 +58,14 @@ ISquareWell::operator<<(const XMLNode& XML)
   
   try {
     diameter = Sim->dynamics.units().unitLength() 
-      * boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
+      * boost::lexical_cast<double>(XML.getAttribute("Diameter"));
     
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
     
-    wellDepth = boost::lexical_cast<Iflt>(XML.getAttribute("WellDepth"))
+    wellDepth = boost::lexical_cast<double>(XML.getAttribute("WellDepth"))
       * Sim->dynamics.units().unitEnergy();
     
-    lambda = boost::lexical_cast<Iflt>(XML.getAttribute("Lambda"));
+    lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
     
     d2 = diameter * diameter;
     
@@ -85,16 +85,16 @@ Interaction*
 ISquareWell::Clone() const 
 { return new ISquareWell(*this); }
 
-Iflt 
+double 
 ISquareWell::hardCoreDiam() const 
 { return diameter; }
 
-Iflt 
+double 
 ISquareWell::maxIntDist() const 
 { return diameter * lambda; }
 
 void 
-ISquareWell::rescaleLengths(Iflt scale) 
+ISquareWell::rescaleLengths(double scale) 
 { 
   diameter += scale*diameter; 
 
@@ -256,7 +256,7 @@ ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
 {
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  Iflt r2 = rij.nrm2();
+  double r2 = rij.nrm2();
 
   if (isCaptured(part1, part2))
     {

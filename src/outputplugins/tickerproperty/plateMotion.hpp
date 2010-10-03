@@ -34,7 +34,7 @@ class OPPlateMotion: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
 
@@ -50,11 +50,11 @@ class OPPlateMotion: public OPTicker
   mutable std::ofstream logfile;
   size_t plateID;
   std::string plateName;
-  typedef std::pair<Iflt,std::vector<Iflt> > localEntry;
+  typedef std::pair<double,std::vector<double> > localEntry;
   std::vector<localEntry> localEnergyFlux;
   std::vector<localEntry> localEnergyLoss;
-  Iflt partpartEnergyLoss;
-  Iflt oldPlateEnergy;
+  double partpartEnergyLoss;
+  double oldPlateEnergy;
 
 };
 

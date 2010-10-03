@@ -21,7 +21,7 @@
 #include "../units/units.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-CStHalt::CStHalt(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
+CStHalt::CStHalt(DYNAMO::SimData* nSim, double ndt, std::string nName):
   System(nSim)
 {
   dt = ndt * Sim->dynamics.units().unitTime();
@@ -35,7 +35,7 @@ CStHalt::CStHalt(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
 void
 CStHalt::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
@@ -61,11 +61,11 @@ CStHalt::initialise(size_t nID)
 }
 
 void 
-CStHalt::setdt(Iflt ndt)
+CStHalt::setdt(double ndt)
 { dt = ndt * Sim->dynamics.units().unitTime(); }
 
 void 
-CStHalt::increasedt(Iflt ndt)
+CStHalt::increasedt(double ndt)
 { 
   dt += ndt * Sim->dynamics.units().unitTime(); 
 }

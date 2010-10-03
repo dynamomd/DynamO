@@ -65,14 +65,14 @@ OPKEnergyTicker::ticker()
 void
 OPKEnergyTicker::output(xml::XmlStream& XML)
 {
-  Iflt sumComp(0);
+  double sumComp(0);
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     sumComp += sum[iDim][iDim];
 
   XML << xml::tag("KEnergyTicker")
       << xml::attr("T")
-      << sumComp / (((Iflt) count) * ((Iflt)NDIM) * Sim->N * Sim->dynamics.units().unitEnergy());
+      << sumComp / (((double) count) * ((double)NDIM) * Sim->N * Sim->dynamics.units().unitEnergy());
   
 
   XML << xml::tag("KineticTensor");
@@ -87,7 +87,7 @@ OPKEnergyTicker::output(xml::XmlStream& XML)
 	{
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
 	  XML << xml::attr(name.c_str())
-	      << sum[iDim][jDim] / (((Iflt) count) * Sim->N 				    
+	      << sum[iDim][jDim] / (((double) count) * Sim->N 				    
 				    * Sim->dynamics.units().unitEnergy());;
 	}
       
@@ -102,12 +102,12 @@ OPKEnergyTicker::output(xml::XmlStream& XML)
 void
 OPKEnergyTicker::periodicOutput()
 {
-  Iflt sumComp(0);
+  double sumComp(0);
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     sumComp += sum[iDim][iDim];
 
-  sumComp /= ((Iflt) count) * ((Iflt)NDIM) * Sim->N 
+  sumComp /= ((double) count) * ((double)NDIM) * Sim->N 
     * Sim->dynamics.units().unitEnergy();
 
   I_Pcout() << "<T>_t " <<  sumComp 

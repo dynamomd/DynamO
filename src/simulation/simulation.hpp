@@ -85,7 +85,7 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   System* getSystem(std::string);
 
-  lIflt getSysTime();
+  long double getSysTime();
 
   inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const 
   { return ensemble; }
@@ -106,9 +106,9 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void addOutputPlugin(std::string);
   
-  void setTickerPeriod(Iflt);
+  void setTickerPeriod(double);
 
-  void scaleTickerPeriod(Iflt);
+  void scaleTickerPeriod(double);
   
  private:
 

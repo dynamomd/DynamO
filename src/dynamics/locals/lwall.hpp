@@ -24,7 +24,7 @@ class CLWall: public Local
 {
 public:
   CLWall(const XMLNode&, DYNAMO::SimData*);
-  CLWall(DYNAMO::SimData*, Iflt, Vector , Vector , 
+  CLWall(DYNAMO::SimData*, double, Vector , Vector , 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~CLWall() {}
@@ -50,7 +50,7 @@ protected:
 
   Vector  vNorm;
   Vector  vPosition;
-  Iflt e;
+  double e;
   bool render;
 };
 

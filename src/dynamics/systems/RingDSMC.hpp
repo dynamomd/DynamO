@@ -31,7 +31,7 @@ class CSRingDSMC: public System
 public:
   CSRingDSMC(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSRingDSMC(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, Iflt, std::string, CRange*);
+  CSRingDSMC(DYNAMO::SimData*, double, double, double, double, double, std::string, CRange*);
   
   virtual System* Clone() const { return new CSRingDSMC(*this); }
 
@@ -47,15 +47,15 @@ protected:
   mutable boost::variate_generator<DYNAMO::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  
 
-  Iflt tstep;
-  Iflt chi12, chi13;
-  Iflt d2;
-  Iflt diameter;
-  mutable Iflt maxprob12;
-  mutable Iflt maxprob13;
-  Iflt e;
-  Iflt factor12;
-  Iflt factor13;
+  double tstep;
+  double chi12, chi13;
+  double d2;
+  double diameter;
+  mutable double maxprob12;
+  mutable double maxprob13;
+  double e;
+  double factor12;
+  double factor13;
 
   mutable unsigned long n12;
   mutable unsigned long n13;

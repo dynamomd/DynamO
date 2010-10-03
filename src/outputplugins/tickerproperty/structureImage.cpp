@@ -98,7 +98,7 @@ OPStructureImaging::printImage()
       
       Vector  masspos(0,0,0);
 
-      Iflt sysMass(0.0);
+      double sysMass(0.0);
 
       Vector  sumrij(0,0,0);
       
@@ -112,7 +112,7 @@ OPStructureImaging::printImage()
 	  
 	  sumrij += rij;
 	  
-	  Iflt pmass = Sim->dynamics.getSpecies(part).getMass();
+	  double pmass = Sim->dynamics.getSpecies(part).getMass();
 	  sysMass += pmass;
 	  masspos += sumrij * pmass;
 	  

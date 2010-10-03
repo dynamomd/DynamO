@@ -40,7 +40,7 @@ public:
 
   void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const System&, const NEventData&, const Iflt&);
+  void eventUpdate(const System&, const NEventData&, const double&);
 
   OutputPlugin *Clone() const { return new OPCollDistCheck(*this); }
 
@@ -56,7 +56,7 @@ private:
   
   std::map<eventKey, C1DHistogram> distList;
   
-  Iflt binwidth;
+  double binwidth;
 };
 
 #endif

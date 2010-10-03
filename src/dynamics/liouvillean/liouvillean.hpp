@@ -93,19 +93,19 @@ public:
   
   /*! \brief Calculates the kinetic energy of a single particle
    */
-  virtual Iflt getParticleKineticEnergy(const Particle&) const;
+  virtual double getParticleKineticEnergy(const Particle&) const;
 
   /*! \brief Calculates the kinetic energy of the system
    */
-  Iflt getSystemKineticEnergy() const;
+  double getSystemKineticEnergy() const;
 
   /*! \brief Calculates the thermal unit of the system
    */
-  Iflt getkT() const;
+  double getkT() const;
 
   /*! \brief Rescales the kinetic energy of the system by a factor
    */
-  virtual void rescaleSystemKineticEnergy(const Iflt&);
+  virtual void rescaleSystemKineticEnergy(const double&);
 
   /*! \brief Rescales the translational kinetic energy vector of the system by a vector of factors
    */
@@ -130,11 +130,11 @@ public:
    * \return The collision data.
    */  
   virtual NEventData multibdyCollision(const CRange& r1, const CRange& r2,
-					   const Iflt& d2,
+					   const double& d2,
 					   const EEventType& eType) const = 0;
 
   virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
-					   const Iflt&, const Iflt&, 
+					   const double&, const double&, 
 					   EEventType&) const = 0;
 
   /*! \brief Determines if and when two spheres will intersect.
@@ -146,7 +146,7 @@ public:
    *
    * \return Whether the event will occur
    */
-  virtual bool SphereSphereInRoot(CPDData& pd, const Iflt& d2) const = 0;
+  virtual bool SphereSphereInRoot(CPDData& pd, const double& d2) const = 0;
 
   /*! \brief Determines if and when two spheres will stop intersecting.
    *
@@ -158,7 +158,7 @@ public:
    * \return Whether the event will occur (Always false for LNewtonian
    * but not for LCompression!)
    */
-  virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const = 0;  
+  virtual bool SphereSphereOutRoot(CPDData&, const double&) const = 0;  
 
   /*! \brief Determines if two spheres are overlapping
    *
@@ -169,7 +169,7 @@ public:
    *
    * \return True if the spheres are overlapping.
    */
-  virtual bool sphereOverlap(const CPDData& PD, const Iflt& d2) const = 0;
+  virtual bool sphereOverlap(const CPDData& PD, const double& d2) const = 0;
 
   /*! \brief Determines if and when two parallel cube will intersect.
    *
@@ -180,7 +180,7 @@ public:
    *
    * \return Whether the event will occur.
    */
-  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d) const { M_throw() << "Not Implemented"; }
+  virtual bool CubeCubeInRoot(CPDData& pd, const double& d) const { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if and when two rotated parallel cube will
       intersect.
@@ -194,7 +194,7 @@ public:
    *
    * \return Whether the event will occur.
    */
-  virtual bool CubeCubeInRoot(CPDData& pd, const Iflt& d, 
+  virtual bool CubeCubeInRoot(CPDData& pd, const double& d, 
 			      const Matrix& rot) const 
   { M_throw() << "Not Implemented"; }
 
@@ -208,7 +208,7 @@ public:
    * \return Whether the event will occur (Almost always true for
    * LNewtonian but not for LCompression).
    */
-  virtual bool CubeCubeOutRoot(CPDData&, const Iflt& d) const { M_throw() << "Not Implemented"; }
+  virtual bool CubeCubeOutRoot(CPDData&, const double& d) const { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if two parallel cubes are overlapping
    *
@@ -219,7 +219,7 @@ public:
    *
    * \return True if the cubes are overlapping.
    */
-  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d) const 
+  virtual bool cubeOverlap(const CPDData& PD, const double& d) const 
   { M_throw() << "Not Implemented"; }
 
   /*! \brief Determines if two rotated parallel cubes are overlapping
@@ -233,7 +233,7 @@ public:
    *
    * \return True if the cubes are overlapping.
    */
-  virtual bool cubeOverlap(const CPDData& PD, const Iflt& d,
+  virtual bool cubeOverlap(const CPDData& PD, const double& d,
 			   const Matrix& rot) const 
   { M_throw() << "Not Implemented"; }
 
@@ -249,7 +249,7 @@ public:
    * \param width The width of the bounding cell box.
    * \return The time till collision.
    */    
-  virtual Iflt getSquareCellCollision2(const Particle& part, 
+  virtual double getSquareCellCollision2(const Particle& part, 
 				       const Vector & origin, 
 				       const Vector & width) const = 0;
   
@@ -282,7 +282,7 @@ public:
    * \param twindow Maximum time to check till.
    * \return Wether the event will occur or not.
    */    
-  virtual bool getLineLineCollision(CPDData& PD, const Iflt& length, 
+  virtual bool getLineLineCollision(CPDData& PD, const double& length, 
 				    const Particle& p1, const Particle& p2
 				    ) const;
 
@@ -297,16 +297,16 @@ public:
    * \param Sigma The distance between the centre point and each wall.
    * \return Whether the returned value is a real event or a requested virtual event (virtual events at a time of HUGE_VAL mean no events will occur).
    */    
-  virtual std::pair<bool,Iflt> 
+  virtual std::pair<bool,double> 
   getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-			 const Vector& nhat, const Iflt& Delta,
-			 const Iflt& Omega, const Iflt& Sigma,
-			 const Iflt& t, bool lastPart) const;
+			 const Vector& nhat, const double& Delta,
+			 const double& Omega, const double& Sigma,
+			 const double& t, bool lastPart) const;
 
   virtual ParticleEventData runOscilatingPlate
-  (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
-   const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
-   Iflt& t, bool strongPlate = false) const;
+  (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+   const double& omega0, const double& sigma, const double& mass, const double& e, 
+   double& t, bool strongPlate = false) const;
 
   /*! \brief Calculates when a particle has travelled far enough to
    *   change its nearest-images. 
@@ -324,7 +324,7 @@ public:
    * \param maxl The maximum range of the particles interactions.
    * \return Time of the event.
    */    
-  virtual Iflt getPBCSentinelTime(const Particle& p1, const Iflt& maxl) const;
+  virtual double getPBCSentinelTime(const Particle& p1, const double& maxl) const;
 
   /*! \brief Calculates when a particle has peaked in its parabola to
    *   allow cell lists to not stream the system.
@@ -334,7 +334,7 @@ public:
    * \param passed A bit to set if the parabola is already over.
    * \return Time of the event.
    */    
-  virtual Iflt getParabolaSentinelTime(const Particle& p1, unsigned char& passed) const
+  virtual double getParabolaSentinelTime(const Particle& p1, unsigned char& passed) const
   { 
     M_throw() << "This is not needed for this type of Liouvillean";
   }
@@ -358,7 +358,7 @@ public:
    * \return Collision data
    */    
   virtual PairEventData runLineLineCollision(const IntEvent& eevent,
-					      const Iflt& elasticity, const Iflt& length) const;
+					      const double& elasticity, const double& length) const;
 
   /*! \brief Determines when the particle center will hit a wall.
    *
@@ -368,7 +368,7 @@ public:
    * \param norm The normal vector to the wall surface.
    * \return The time till collision.
    */    
-  virtual Iflt getWallCollision(const Particle& part, 
+  virtual double getWallCollision(const Particle& part, 
 				const Vector & origin, 
 				const Vector & norm
 				) const = 0;
@@ -382,10 +382,10 @@ public:
    * \param radius The radius of the cylinder
    * \return The time till collision.
    */    
-  virtual Iflt getCylinderWallCollision(const Particle& part, 
+  virtual double getCylinderWallCollision(const Particle& part, 
 					const Vector & origin, 
 					const Vector & norm,
-					const Iflt& radius
+					const double& radius
 					) const;
 
   /*! \brief Collides a particle with a cylindrical wall.
@@ -399,7 +399,7 @@ public:
   virtual ParticleEventData runCylinderWallCollision(const Particle& part, 
 						  const Vector & origin,
 						  const Vector & norm,
-						  const Iflt& e
+						  const double& e
 						  ) const;
 
   /*! \brief Collides a particle with a containing spherical wall.
@@ -411,7 +411,7 @@ public:
    */
   virtual ParticleEventData runSphereWallCollision(const Particle& part, 
 						const Vector & origin,
-						const Iflt& e
+						const double& e
 						) const;
 
   /*! \brief Collides a particle with a wall.
@@ -423,7 +423,7 @@ public:
    */
   virtual ParticleEventData runWallCollision(const Particle& part, 
 					  const Vector & vNorm,
-					  const Iflt& e
+					  const double& e
 					  ) const = 0;
 
   /*! \brief Collides a particle with an Andersen thermostat wall.
@@ -439,7 +439,7 @@ public:
    */    
   virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
-						  const Iflt& sqrtT
+						  const double& sqrtT
 						  ) const = 0;
   
   /*! \brief Performs a hard sphere collision between the two particles.
@@ -454,8 +454,8 @@ public:
    * \return The collision data.
    */  
   virtual PairEventData SmoothSpheresColl(const IntEvent& event, 
-					   const Iflt& e, 
-					   const Iflt& d2, 
+					   const double& e, 
+					   const double& d2, 
 					   const EEventType& eType = CORE
 					   ) const = 0;
 
@@ -471,8 +471,8 @@ public:
    * \param eType A way of setting the collision type from CORE to BOUNCE etc.
    * \return The collision data.
    */  
-  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e, 
-						      const Iflt& d2,
+  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent& event, const double& e, 
+						      const double& d2,
 						      const EEventType& eType = CORE) const;
 
   /*! \brief Performs a hard sphere collision between the two rough
@@ -486,9 +486,9 @@ public:
    * \return The collision data.
    */  
   virtual PairEventData RoughSpheresColl(const IntEvent& event, 
-					  const Iflt& e, 
-					  const Iflt& et, 
-					  const Iflt& d2, 
+					  const double& e, 
+					  const double& et, 
+					  const double& d2, 
 					  const EEventType& eType = CORE
 					  ) const;
 
@@ -505,8 +505,8 @@ public:
    * \return The collision data.
    */  
   virtual PairEventData parallelCubeColl(const IntEvent& event, 
-					  const Iflt& e, 
-					  const Iflt& d, 
+					  const double& e, 
+					  const double& d, 
 					  const EEventType& eType = CORE) const;
 
   /*! \brief Performs a hard sphere collision between the two particles.
@@ -522,7 +522,7 @@ public:
    * \return The collision data
    */
   virtual PairEventData parallelCubeColl(const IntEvent& event,
-					  const Iflt& e, const Iflt& d,
+					  const double& e, const double& d,
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;
 
@@ -538,8 +538,8 @@ public:
    */  
   virtual bool DSMCSpheresTest(const Particle& p1,
 			       const Particle& p2,
-			       Iflt& maxprob,
-			       const Iflt& factor,
+			       double& maxprob,
+			       const double& factor,
 			       CPDData& pdat
 			       ) const = 0;
   
@@ -555,7 +555,7 @@ public:
    */  
   virtual PairEventData DSMCSpheresRun(const Particle& p1,
 					const Particle& p2,
-					const Iflt& e,
+					const double& e,
 					CPDData& pdat
 					) const = 0;
 
@@ -572,8 +572,8 @@ public:
    * \return The event data.
    */  
   virtual PairEventData SphereWellEvent(const IntEvent& event, 
-					 const Iflt& deltaKE, 
-					 const Iflt& d2) const = 0;
+					 const double& deltaKE, 
+					 const double& d2) const = 0;
 
   /* \brief Reassigns the velocity componets of a particle from a
    * Gaussian.
@@ -587,7 +587,7 @@ public:
    * \bug Does this work for arbitrary mass particles.
    */
   virtual ParticleEventData randomGaussianEvent(const Particle& part, 
-					     const Iflt& sqrtT) const = 0;
+					     const double& sqrtT) const = 0;
 
   /*! \brief A method to allow polymorphic classes to be copied
    */
@@ -623,7 +623,7 @@ public:
 	const_cast<Particle&>(part).getPecTime() = 0;
       }
 
-    const_cast<Iflt&>(partPecTime) = 0;
+    const_cast<double&>(partPecTime) = 0;
     const_cast<size_t&>(streamCount) = 0;
   }
 
@@ -663,7 +663,7 @@ public:
     updateParticle(p2);
   }
 
-  inline Iflt getParticleDelay(const Particle& part) const
+  inline double getParticleDelay(const Particle& part) const
   {
     return partPecTime + part.getPecTime();
   }
@@ -671,7 +671,7 @@ public:
   /*! \brief Called when the system is moved forward in time to update
    * the delayed states state.
    */
-  inline void stream(const Iflt& dt)
+  inline void stream(const double& dt)
   {
     partPecTime += dt;
 
@@ -697,9 +697,9 @@ public:
    */
   virtual ParticleEventData runRoughWallCollision(const Particle& part, 
 					       const Vector & vNorm,
-					       const Iflt& e,
-					       const Iflt& et,
-					       const Iflt& r
+					       const double& e,
+					       const double& et,
+					       const double& r
 					       ) const;
 
 protected:
@@ -710,7 +710,7 @@ protected:
    * See CGCellsShearing, this just over advances the particle to find
    * its future position in boundary changes.
    */
-  inline void advanceUpdateParticle(const Particle& part, const Iflt& dt) const
+  inline void advanceUpdateParticle(const Particle& part, const double& dt) const
   {
     streamParticle(const_cast<Particle&>(part), 
 		   dt + partPecTime + part.getPecTime());
@@ -719,7 +719,7 @@ protected:
   }
   
   /*! \brief The time by which the delayed state differs from the actual.*/
-  Iflt partPecTime;
+  double partPecTime;
 
   /*! \brief How many time increments have occured since the last
       system syncronise.*/
@@ -736,7 +736,7 @@ protected:
   virtual void extraXMLData(xml::XmlStream&) const {}
 
   /*! \brief Moves the particles data along in time. */
-  virtual void streamParticle(Particle& part, const Iflt& dt) const = 0;
+  virtual void streamParticle(Particle& part, const double& dt) const = 0;
 
 };
 #endif

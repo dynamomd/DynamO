@@ -40,7 +40,7 @@ class OPRdotV: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   void output(xml::XmlStream &);
 
@@ -55,12 +55,12 @@ class OPRdotV: public OutputPlugin
     
     unsigned long count;
 
-    Iflt accRdotV;
+    double accRdotV;
 
-    void addVal(const Iflt& dval)
+    void addVal(const double& dval)
     { accRdotV += dval; ++count; }
 
-    Iflt getAvg() const
+    double getAvg() const
     { return accRdotV / count; }
 
     C1DHistogram costheta;

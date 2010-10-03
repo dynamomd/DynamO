@@ -30,17 +30,17 @@ public:
 
   virtual OutputPlugin* Clone() const { return new OPMutualDiffusionGK(*this); }
 
-  virtual void stream(const Iflt);
+  virtual void stream(const double);
 
   virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual Iflt rescaleFactor();
+  virtual double rescaleFactor();
 
   virtual void output(xml::XmlStream&);
 
@@ -59,12 +59,12 @@ public:
   
   virtual void accPass();
 
-  Iflt getdt();
+  double getdt();
     
   boost::circular_buffer<Vector  > G;
   std::vector<Vector  > accG;
   size_t count;
-  Iflt dt, currentdt;
+  double dt, currentdt;
   Vector  delGsp1, delGsp2;
 
   size_t species1;
@@ -72,8 +72,8 @@ public:
   
   Vector  sysMom;
 
-  Iflt massFracSp1;
-  Iflt massFracSp2;
+  double massFracSp1;
+  double massFracSp2;
 
   size_t CorrelatorLength;
   size_t currCorrLen;

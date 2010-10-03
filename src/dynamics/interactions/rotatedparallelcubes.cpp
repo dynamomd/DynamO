@@ -33,8 +33,8 @@
 #include "../NparticleEventData.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-IRotatedParallelCubes::IRotatedParallelCubes(DYNAMO::SimData* tmp, Iflt nd, 
-					       Iflt ne, const Matrix& rot,
+IRotatedParallelCubes::IRotatedParallelCubes(DYNAMO::SimData* tmp, double nd, 
+					       double ne, const Matrix& rot,
 					       C2Range* nR):
   Interaction(tmp, nR),
   Rotation(rot),
@@ -65,9 +65,9 @@ IRotatedParallelCubes::operator<<(const XMLNode& XML)
   try 
     {
       diameter = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
+	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
       
-      e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
             
       intName = XML.getAttribute("Name");
 
@@ -79,16 +79,16 @@ IRotatedParallelCubes::operator<<(const XMLNode& XML)
     }
 }
 
-Iflt 
+double 
 IRotatedParallelCubes::maxIntDist() const 
 { return std::sqrt(NDIM) * diameter; }
 
-Iflt 
+double 
 IRotatedParallelCubes::hardCoreDiam() const 
 { return diameter; }
 
 void 
-IRotatedParallelCubes::rescaleLengths(Iflt scale) 
+IRotatedParallelCubes::rescaleLengths(double scale) 
 { 
   diameter += scale*diameter;
 }

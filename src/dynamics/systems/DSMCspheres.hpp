@@ -31,7 +31,7 @@ class CSDSMCSpheres: public System
 public:
   CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData*);
 
-  CSDSMCSpheres(DYNAMO::SimData*, Iflt, Iflt, Iflt, Iflt, std::string, CRange*, CRange*);
+  CSDSMCSpheres(DYNAMO::SimData*, double, double, double, double, std::string, CRange*, CRange*);
   
   virtual System* Clone() const { return new CSDSMCSpheres(*this); }
 
@@ -47,13 +47,13 @@ protected:
   mutable boost::variate_generator<DYNAMO::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  
 
-  Iflt tstep;
-  Iflt chi;
-  Iflt d2;
-  Iflt diameter;
-  mutable Iflt maxprob;
-  Iflt e;
-  Iflt factor;
+  double tstep;
+  double chi;
+  double d2;
+  double diameter;
+  mutable double maxprob;
+  double e;
+  double factor;
 
   magnet::ClonePtr<CRange> range1;
   magnet::ClonePtr<CRange> range2;

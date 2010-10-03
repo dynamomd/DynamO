@@ -32,7 +32,7 @@ private:
   std::vector<pList> Min;
   unsigned long NP, N, streamFreq, nUpdate;
 
-  Iflt pecTime;
+  double pecTime;
 
 public:  
   CSSCBT(const DYNAMO::SimData* const& SD):
@@ -81,7 +81,7 @@ public:
     init();
   }
 
-  inline void stream(const Iflt& dt)
+  inline void stream(const double& dt)
   {    
     pecTime += dt;
     ++nUpdate;
@@ -129,11 +129,11 @@ public:
 
   inline void update(const size_t& a) { UpdateCBT(a+1); }
 
-  inline Iflt next_dt() const { return Min[CBT[1]].getdt() - pecTime; }
+  inline double next_dt() const { return Min[CBT[1]].getdt() - pecTime; }
 
   inline size_t next_ID() const { return CBT[1] - 1; }
 
-  inline void rescaleTimes(const Iflt& factor)
+  inline void rescaleTimes(const double& factor)
   {
     BOOST_FOREACH(pList& pDat, Min)
       BOOST_FOREACH(intPart& event, pDat)

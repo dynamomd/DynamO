@@ -37,7 +37,7 @@ OPMFL::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
       }
   catch (boost::bad_lexical_cast&)
       {

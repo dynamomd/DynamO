@@ -97,10 +97,10 @@ class BoundaryCondition: public DYNAMO::SimBase_const
    * \param pos The position vector to affect.
    * \param dt The time difference to predict at.
    */
-  virtual void applyBC(Vector  &pos, const Iflt& dt) const = 0;
+  virtual void applyBC(Vector  &pos, const double& dt) const = 0;
 
   /*! \brief Stream the boundary conditions forward in time.*/
-  virtual void update(const Iflt&) {};
+  virtual void update(const double&) {};
 
   /*! \brief Load the Boundary condition from an XML file. */
   virtual void operator<<(const XMLNode &) = 0;

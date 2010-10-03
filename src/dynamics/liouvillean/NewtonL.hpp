@@ -27,19 +27,19 @@ public:
   LNewtonian(DYNAMO::SimData*);
 
   //Pair particle dynamics
-  virtual bool SphereSphereInRoot(CPDData&, const Iflt&) const;
-  virtual bool SphereSphereOutRoot(CPDData&, const Iflt&) const;  
-  virtual bool sphereOverlap(const CPDData&, const Iflt&) const;
+  virtual bool SphereSphereInRoot(CPDData&, const double&) const;
+  virtual bool SphereSphereOutRoot(CPDData&, const double&) const;  
+  virtual bool sphereOverlap(const CPDData&, const double&) const;
 
-  virtual bool CubeCubeInRoot(CPDData&, const Iflt&) const;
-  virtual bool CubeCubeInRoot(CPDData&, const Iflt&, const Matrix&) const;
+  virtual bool CubeCubeInRoot(CPDData&, const double&) const;
+  virtual bool CubeCubeInRoot(CPDData&, const double&, const Matrix&) const;
 
-  virtual bool cubeOverlap(const CPDData&, const Iflt&) const;
-  virtual bool cubeOverlap(const CPDData&, const Iflt&, const Matrix&) const;
+  virtual bool cubeOverlap(const CPDData&, const double&) const;
+  virtual bool cubeOverlap(const CPDData&, const double&, const Matrix&) const;
 
-  virtual void streamParticle(Particle&, const Iflt&) const;
+  virtual void streamParticle(Particle&, const double&) const;
 
-  virtual Iflt getSquareCellCollision2(const Particle&, 
+  virtual double getSquareCellCollision2(const Particle&, 
 				       const Vector &, 
 				       const Vector &
 				       ) const;
@@ -49,88 +49,88 @@ public:
 				      const Vector &
 				      ) const;
   
-  virtual std::pair<bool,Iflt>
+  virtual std::pair<bool,double>
   getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-			 const Vector& nhat, const Iflt& Delta,
-			 const Iflt& Omega, const Iflt& Sigma,
-			 const Iflt& t, bool) const;
+			 const Vector& nhat, const double& Delta,
+			 const double& Omega, const double& Sigma,
+			 const double& t, bool) const;
 
   virtual ParticleEventData runOscilatingPlate
-  (const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
-   const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
-   Iflt& t, bool strongPlate) const;
+  (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+   const double& omega0, const double& sigma, const double& mass, const double& e, 
+   double& t, bool strongPlate) const;
 
-  virtual Iflt getPBCSentinelTime(const Particle&, const Iflt&) const;
+  virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-  virtual PairEventData SmoothSpheresColl(const IntEvent&, const Iflt&, 
-					   const Iflt&, 
+  virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, 
+					   const double&, 
 					   const EEventType& eType) const;
 
-  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent&, const Iflt&, 
-						      const Iflt&,
+  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent&, const double&, 
+						      const double&,
 						      const EEventType&) const;
 
   virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
-			       Iflt&, const Iflt&, CPDData&) const;
+			       double&, const double&, CPDData&) const;
 
   virtual PairEventData DSMCSpheresRun(const Particle&, const Particle&, 
-					const Iflt&, CPDData&) const;
+					const double&, CPDData&) const;
   
-  virtual PairEventData SphereWellEvent(const IntEvent&, const Iflt&, 
-					 const Iflt&) const;
+  virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 
+					 const double&) const;
 
-  virtual Iflt getWallCollision(const Particle&, 
+  virtual double getWallCollision(const Particle&, 
 				const Vector &, 
 				const Vector &) const;
 
-  virtual Iflt getCylinderWallCollision(const Particle&, 
+  virtual double getCylinderWallCollision(const Particle&, 
 					const Vector &, 
 					const Vector &,
-					const Iflt&
+					const double&
 					) const;
 
   virtual ParticleEventData runCylinderWallCollision(const Particle&, 
 						  const Vector &,
 						  const Vector &,
-						  const Iflt&
+						  const double&
 						  ) const;
 
   virtual ParticleEventData runSphereWallCollision(const Particle&, 
 						const Vector &,
-						const Iflt&
+						const double&
 						) const;
 
   virtual ParticleEventData runWallCollision(const Particle&, 
 					  const Vector &,
-					  const Iflt&
+					  const double&
 					  ) const;
 
   virtual ParticleEventData runAndersenWallCollision(const Particle&, 
 						  const Vector &,
-						  const Iflt& T
+						  const double& T
 						  ) const;
 
-  virtual ParticleEventData randomGaussianEvent(const Particle&, const Iflt&) const;
+  virtual ParticleEventData randomGaussianEvent(const Particle&, const double&) const;
 
   //Structure dynamics
   virtual NEventData multibdyCollision(const CRange&, const CRange&,
-					   const Iflt&,
+					   const double&,
 					   const EEventType&) const;
 
   virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
-					   const Iflt&, const Iflt&, 
+					   const double&, const double&, 
 					   EEventType&) const;
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonian(*this); }
 
   virtual PairEventData parallelCubeColl(const IntEvent& event, 
-					  const Iflt& e, 
-					  const Iflt& d, 
+					  const double& e, 
+					  const double& d, 
 					  const EEventType& eType) const;
 
   virtual PairEventData parallelCubeColl(const IntEvent& event,
-					  const Iflt& e, const Iflt& d,
+					  const double& e, const double& d,
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;
 

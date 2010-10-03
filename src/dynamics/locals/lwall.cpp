@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLWall::CLWall(DYNAMO::SimData* nSim, Iflt ne, Vector  nnorm, 
+CLWall::CLWall(DYNAMO::SimData* nSim, double ne, Vector  nnorm, 
 	       Vector  norigin, std::string nname, 
 	       CRange* nRange, bool nrender):
   Local(nRange, nSim, "LocalWall"),
@@ -92,7 +92,7 @@ CLWall::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
     render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
     XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
@@ -199,7 +199,7 @@ CLWall::checkOverlaps(const Particle& p1) const
   Vector pos(p1.getPosition() - vPosition);
   Sim->dynamics.BCs().applyBC(pos);
 
-  Iflt r = (pos | vNorm);
+  double r = (pos | vNorm);
   
   if (r < 0)
     I_cout() << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()

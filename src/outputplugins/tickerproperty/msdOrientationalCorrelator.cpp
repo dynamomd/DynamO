@@ -65,10 +65,10 @@ OPMSDOrientationalCorrelator::initialise()
 
   historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
 
-  stepped_data_parallel.resize(length, Iflt(0.0));
-  stepped_data_perpendicular.resize(length, Iflt(0.0));
-  stepped_data_rotational_legendre1.resize(length, Iflt(0.0));
-  stepped_data_rotational_legendre2.resize(length, Iflt(0.0));
+  stepped_data_parallel.resize(length, double(0.0));
+  stepped_data_perpendicular.resize(length, double(0.0));
+  stepped_data_rotational_legendre1.resize(length, double(0.0));
+  stepped_data_rotational_legendre2.resize(length, double(0.0));
 
   // The Legendre polynomials are equal to 1 at t = 0
   stepped_data_rotational_legendre1[0] = 1.0;
@@ -111,7 +111,7 @@ OPMSDOrientationalCorrelator::accPass()
 {
   ++ticksTaken;
 
-  Iflt longitudinal_projection(0.0), cos_theta(0.0);
+  double longitudinal_projection(0.0), cos_theta(0.0);
   Vector displacement_term(0,0,0);
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)
@@ -137,7 +137,7 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
   // Begin XML output
   XML << xml::tag("MSDOrientationalCorrelator");
 
-  Iflt dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
+  double dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
 
   XML << xml::tag("Component")
       << xml::attr("Type") << "Parallel"
@@ -146,7 +146,7 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_parallel[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N) * Sim->dynamics.units().unitArea())
+	<< stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
 	<< "\n";
   }
 
@@ -159,7 +159,7 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_perpendicular[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N) * Sim->dynamics.units().unitArea())
+	<< stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
 	<< "\n";
   }
 
@@ -175,7 +175,7 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_rotational_legendre1[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N))
+	<< stepped_data_rotational_legendre1[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
 	<< "\n";
   }
 
@@ -188,7 +188,7 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
   for (size_t step(0); step < length; ++step)
   {
     XML << dt * step << "\t"
-	<< stepped_data_rotational_legendre2[step] / (static_cast<Iflt>(ticksTaken) * static_cast<Iflt>(Sim->N))
+	<< stepped_data_rotational_legendre2[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
 	<< "\n";
   }
 

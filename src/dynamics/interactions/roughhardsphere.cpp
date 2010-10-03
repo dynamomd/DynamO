@@ -33,8 +33,8 @@
 #include "../NparticleEventData.hpp"
 #include "../liouvillean/CompressionL.hpp"
 
-IRoughHardSphere::IRoughHardSphere(DYNAMO::SimData* tmp, Iflt nd, 
-			   Iflt ne, Iflt net, C2Range* nR):
+IRoughHardSphere::IRoughHardSphere(DYNAMO::SimData* tmp, double nd, 
+			   double ne, double net, C2Range* nR):
   Interaction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne), et(net) {}
 
@@ -59,11 +59,11 @@ IRoughHardSphere::operator<<(const XMLNode& XML)
   try 
     {
       diameter = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"));
+	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
       
-      e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
+      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
 
-      et = boost::lexical_cast<Iflt>(XML.getAttribute("TangentialElasticity"));
+      et = boost::lexical_cast<double>(XML.getAttribute("TangentialElasticity"));
       
       d2 = diameter * diameter;
       
@@ -75,16 +75,16 @@ IRoughHardSphere::operator<<(const XMLNode& XML)
     }
 }
 
-Iflt 
+double 
 IRoughHardSphere::maxIntDist() const 
 { return diameter; }
 
-Iflt 
+double 
 IRoughHardSphere::hardCoreDiam() const 
 { return diameter; }
 
 void 
-IRoughHardSphere::rescaleLengths(Iflt scale) 
+IRoughHardSphere::rescaleLengths(double scale) 
 { 
   diameter += scale*diameter;
   d2 = diameter*diameter;
@@ -177,7 +177,7 @@ void
 IRoughHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 				std::ostream& os) const
 { 
-  Iflt locDiam = diameter;
+  double locDiam = diameter;
 
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
     locDiam *= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;

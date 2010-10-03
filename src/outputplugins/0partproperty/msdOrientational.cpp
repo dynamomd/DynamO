@@ -96,7 +96,7 @@ OPMSDOrientational::calculate() const
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  Iflt 	acc_perp(0.0), acc_parallel(0.0), longitudinal_projection(0.0),
+  double 	acc_perp(0.0), acc_parallel(0.0), longitudinal_projection(0.0),
 	acc_rotational_legendre1(0.0), acc_rotational_legendre2(0.0),
 	cos_theta(0.0);
 

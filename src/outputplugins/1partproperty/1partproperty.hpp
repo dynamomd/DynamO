@@ -31,14 +31,14 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
 private:
   virtual void A2ParticleChange(const PairEventData&);
 
   /* This class of plugins implement these functions */
   virtual void A1ParticleChange(const ParticleEventData&) = 0;
-  virtual void stream(const Iflt&) = 0;  
+  virtual void stream(const double&) = 0;  
 };
 
 #endif

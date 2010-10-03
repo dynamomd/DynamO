@@ -40,7 +40,7 @@ OPPovray::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("Zoom"))
-	zoomlevel = boost::lexical_cast<Iflt>
+	zoomlevel = boost::lexical_cast<double>
 	  (XML.getAttribute("Zoom"));
     }
   catch (boost::bad_lexical_cast &)

@@ -27,7 +27,7 @@ struct SSimBase
 	     const long &nColl2,
 	     const long &maxColl2,
 	     const long &nPrint2,
-	     const Iflt &sysTime2,
+	     const double &sysTime2,
 	     const std::ostringstream &history2
 	     ):
     particleList(particleList2), dynamics(dynamics2),
@@ -39,7 +39,7 @@ struct SSimBase
   const long &nColl;
   const long &maxColl;
   const long &nPrint;
-  const Iflt &sysTime;
+  const double &sysTime;
   const std::ostringstream &history;
 
 };

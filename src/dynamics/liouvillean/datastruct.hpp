@@ -42,10 +42,10 @@ struct CPDData
   CPDData(const DYNAMO::SimData&, const CRange&, const CRange&);
 
   Vector  rij, vij;
-  Iflt rvdot;
-  Iflt r2;
-  Iflt v2;
-  Iflt dt;
+  double rvdot;
+  double r2;
+  double v2;
+  double dt;
 };
 
 #endif

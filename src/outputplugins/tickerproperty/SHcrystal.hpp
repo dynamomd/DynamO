@@ -31,7 +31,7 @@ class OPSHCrystal: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   
@@ -41,30 +41,30 @@ class OPSHCrystal: public OPTicker
 
  protected:
 
-  std::complex<Iflt> localq(const Particle& part, int l, int m);
+  std::complex<double> localq(const Particle& part, int l, int m);
 
   //! Cut-off radius 
-  Iflt rg;
+  double rg;
   size_t maxl;
   size_t nblistID;
   long count;
   
-  std::vector<std::vector<std::complex<Iflt> > > globalcoeff;
+  std::vector<std::vector<std::complex<double> > > globalcoeff;
 
   struct sphericalsum
   {
     sphericalsum(const DYNAMO::SimData * const, 
-		 const Iflt&, const size_t&);
+		 const double&, const size_t&);
     
     void operator()(const Particle&, const size_t&) const;
     
     void clear();
 
     const DYNAMO::SimData* const Sim;
-    const Iflt rg;
+    const double rg;
     const size_t maxl;
     mutable size_t count;
-    mutable std::vector<std::vector<std::complex<Iflt> > > coeffsum;
+    mutable std::vector<std::vector<std::complex<double> > > coeffsum;
   };
 };
 

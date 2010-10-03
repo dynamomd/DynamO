@@ -40,7 +40,7 @@ struct CUFCC: public CUCell
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
-    Iflt rcoord[4][3];
+    double rcoord[4][3];
     
     // sublattice a ---
     rcoord[0][0] = 0.0;

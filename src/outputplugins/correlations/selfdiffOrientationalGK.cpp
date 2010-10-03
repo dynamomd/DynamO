@@ -49,12 +49,12 @@ OPSelfDiffusionOrientationalGK::initialise()
   accG2_parallel.resize(Sim->dynamics.getSpecies().size());
   accG2_perp.resize(Sim->dynamics.getSpecies().size());
 
-  BOOST_FOREACH(std::vector<Iflt>& listref_parallel, accG2_parallel)
+  BOOST_FOREACH(std::vector<double>& listref_parallel, accG2_parallel)
   {
     listref_parallel.resize(CorrelatorLength, 0);
   }
 
-  BOOST_FOREACH(std::vector<Iflt>& listref_perp, accG2_perp)
+  BOOST_FOREACH(std::vector<double>& listref_perp, accG2_perp)
   {
     listref_perp.resize(CorrelatorLength, 0);
   }
@@ -75,12 +75,12 @@ OPSelfDiffusionOrientationalGK::operator<<(const XMLNode& XML)
     if (XML.isAttributeSet("dt"))
     {
       dt = Sim->dynamics.units().unitTime() *
-      boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+      boost::lexical_cast<double>(XML.getAttribute("dt"));
     }
 
     if (XML.isAttributeSet("t"))
     {
-      dt = Sim->dynamics.units().unitTime() * boost::lexical_cast<Iflt> (XML.getAttribute("t"))/CorrelatorLength;
+      dt = Sim->dynamics.units().unitTime() * boost::lexical_cast<double> (XML.getAttribute("t"))/CorrelatorLength;
     }
   }
 
@@ -119,7 +119,7 @@ OPSelfDiffusionOrientationalGK::eventUpdate(const LocalEvent& iEvent, const NEve
 }
 
 void
-OPSelfDiffusionOrientationalGK::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt)
+OPSelfDiffusionOrientationalGK::eventUpdate(const System&, const NEventData& PDat, const double& edt)
 {
   //Move the time forward
   currentdt += edt;
@@ -251,13 +251,13 @@ OPSelfDiffusionOrientationalGK::newG(const NEventData& PDat)
 void
 OPSelfDiffusionOrientationalGK::output(xml::XmlStream& XML)
 {
-  Iflt factor = Sim->dynamics.units().unitTime() / (Sim->dynamics.units().unitDiffusion() * count);
+  double factor = Sim->dynamics.units().unitTime() / (Sim->dynamics.units().unitDiffusion() * count);
 
   // Counting over the PERPENDICULAR vector - both should be same size anyway
   for (size_t i = 0; i < accG2_perp.size(); ++i)
   {
     // Common headers
-    Iflt specCount = Sim->dynamics.getSpecies()[i]->getCount();
+    double specCount = Sim->dynamics.getSpecies()[i]->getCount();
 
     XML << xml::tag("Correlator")
 	<< xml::attr("name") << "SelfDiffusionOrientationalGK"
@@ -270,7 +270,7 @@ OPSelfDiffusionOrientationalGK::output(xml::XmlStream& XML)
 
 
     // Perpendicular section
-    Iflt acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
+    double acc_perp = 0.5*(accG2_perp[i].front() + accG2_perp[i].back());
 
     for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
       { acc_perp += accG2_perp[i][j];}
@@ -293,7 +293,7 @@ OPSelfDiffusionOrientationalGK::output(xml::XmlStream& XML)
     XML << xml::endtag("Component");
 
     // Parallel section
-    Iflt acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
+    double acc_parallel = 0.5*(accG2_parallel[i].front() + accG2_parallel[i].back());
 
     for (size_t j = 1; j < accG2_parallel[i].size() - 1; ++j)
     {
@@ -320,7 +320,7 @@ OPSelfDiffusionOrientationalGK::output(xml::XmlStream& XML)
     }
 }
 
-Iflt
+double
 OPSelfDiffusionOrientationalGK::getdt()
 {
   //Get the simulation temperature
@@ -332,7 +332,7 @@ OPSelfDiffusionOrientationalGK::getdt()
     }
     else
     {
-      return 10.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+      return 10.0 / (((double) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   }
   else

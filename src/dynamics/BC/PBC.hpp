@@ -34,7 +34,7 @@ public:
 
   virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void applyBC(Vector &, const Iflt&) const;
+  virtual void applyBC(Vector &, const double&) const;
 
   inline virtual void outputXML(xml::XmlStream &) const;  
   virtual void operator<<(const XMLNode&);
@@ -54,7 +54,7 @@ public:
   
   virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void applyBC(Vector &, const Iflt&) const;
+  virtual void applyBC(Vector &, const double&) const;
 
   virtual void outputXML(xml::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
@@ -76,7 +76,7 @@ public:
   
   virtual void applyBC(Vector & pos, Vector &) const;
   
-  virtual void applyBC(Vector  &pos, const Iflt&) const;
+  virtual void applyBC(Vector  &pos, const double&) const;
 
   virtual void outputXML(xml::XmlStream&) const;
   virtual void operator<<(const XMLNode&);
@@ -99,7 +99,7 @@ public:
   
   virtual void applyBC(Vector & pos, Vector &) const;
   
-  virtual void applyBC(Vector  &pos, const Iflt&) const;
+  virtual void applyBC(Vector  &pos, const double&) const;
 
   virtual void outputXML(xml::XmlStream&) const;
   virtual void operator<<(const XMLNode&);

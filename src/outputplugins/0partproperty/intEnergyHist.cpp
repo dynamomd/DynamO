@@ -39,7 +39,7 @@ OPIntEnergyHist::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("BinWidth"))
-	binwidth = boost::lexical_cast<Iflt>
+	binwidth = boost::lexical_cast<double>
 	   (XML.getAttribute("BinWidth"));
     }
   catch (boost::bad_lexical_cast &)
@@ -77,7 +77,7 @@ OPIntEnergyHist::changeSystem(OutputPlugin* EHist2)
 }
 
 void 
-OPIntEnergyHist::stream(Iflt dt)
+OPIntEnergyHist::stream(double dt)
 {
   weight += dt;
 }

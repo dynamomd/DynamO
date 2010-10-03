@@ -34,7 +34,7 @@ class OPMSDOrientational: public OutputPlugin
   virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
   virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
   virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&) {}
+  virtual void eventUpdate(const System&, const NEventData&, const double&) {}
 
   void output(xml::XmlStream &);
 
@@ -42,10 +42,10 @@ class OPMSDOrientational: public OutputPlugin
 
   struct msdCalcReturn
   {
-    Iflt parallel;
-    Iflt perpendicular;
-    Iflt rotational_legendre1;
-    Iflt rotational_legendre2;
+    double parallel;
+    double perpendicular;
+    double rotational_legendre1;
+    double rotational_legendre2;
   };
 
   msdCalcReturn calculate() const;

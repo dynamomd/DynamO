@@ -57,16 +57,16 @@ namespace DYNAMO {
 
     virtual void initialise() = 0;
 
-    virtual boost::array<Iflt,3> getReducedEnsembleVals() const = 0;
+    virtual boost::array<double,3> getReducedEnsembleVals() const = 0;
     
     virtual void exchange(CEnsemble& rhs) { std::swap(EnsembleVals, rhs.EnsembleVals); }
 
-    virtual Iflt exchangeProbability(const CEnsemble&) const;
+    virtual double exchangeProbability(const CEnsemble&) const;
     
-    const boost::array<Iflt,3>& getEnsembleVals() const { return EnsembleVals; }
+    const boost::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
 
   protected:
-    boost::array<Iflt,3> EnsembleVals;
+    boost::array<double,3> EnsembleVals;
   };
   
   class CENVE           : public CEnsemble 
@@ -77,7 +77,7 @@ namespace DYNAMO {
 
     virtual void initialise();
 
-    virtual boost::array<Iflt,3> getReducedEnsembleVals() const;
+    virtual boost::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NVE"); }
@@ -91,12 +91,12 @@ namespace DYNAMO {
 
     virtual void initialise();
 
-    virtual boost::array<Iflt,3> getReducedEnsembleVals() const;
+    virtual boost::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NVT"); }
 
-    virtual Iflt exchangeProbability(const CEnsemble&) const;
+    virtual double exchangeProbability(const CEnsemble&) const;
 
   protected:
     const System* thermostat;
@@ -110,7 +110,7 @@ namespace DYNAMO {
 
     virtual void initialise();
 
-    virtual boost::array<Iflt,3> getReducedEnsembleVals() const;
+    virtual boost::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NVShear"); }
@@ -124,7 +124,7 @@ namespace DYNAMO {
 
     virtual void initialise();
 
-    virtual boost::array<Iflt,3> getReducedEnsembleVals() const;
+    virtual boost::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NECompression"); }
@@ -138,7 +138,7 @@ namespace DYNAMO {
 
     virtual void initialise();
 
-    virtual boost::array<Iflt,3> getReducedEnsembleVals() const;
+    virtual boost::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NTCompression"); }

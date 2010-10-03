@@ -41,7 +41,7 @@ class OPSelfDiffusionOrientationalGK: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
@@ -61,12 +61,12 @@ protected:
 
   virtual void accPass();
 
-  Iflt getdt();
+  double getdt();
 
   std::vector<boost::circular_buffer<VUpair> > G;
-  std::vector<std::vector<Iflt> > accG2_parallel, accG2_perp;
+  std::vector<std::vector<double> > accG2_parallel, accG2_perp;
   long count;
-  Iflt dt, currentdt;
+  double dt, currentdt;
 
   size_t CorrelatorLength;
   size_t currCorrLen;

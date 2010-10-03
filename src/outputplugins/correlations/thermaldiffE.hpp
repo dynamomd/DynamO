@@ -38,7 +38,7 @@ public:
 
   virtual void eventUpdate(const GlobalEvent&, const NEventData&);
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
   void operator<<(const XMLNode&);
@@ -47,7 +47,7 @@ protected:
   boost::circular_buffer<Vector  > G;
   std::vector<Vector  > accG2;
   size_t count;
-  Iflt dt, currentdt;
+  double dt, currentdt;
   Vector  constDelG, delG;
   size_t currlen;
   bool notReady;
@@ -57,11 +57,11 @@ protected:
   Vector  delGsp1;
   size_t species1;
   Vector  sysMom;
-  Iflt massFracSp1;
+  double massFracSp1;
 
   std::string species1name;
 
-  Iflt rescaleFactor();
+  double rescaleFactor();
   
   Vector  impulseDelG(const PairEventData&);
   Vector  impulseDelG(const NEventData&); 
@@ -70,7 +70,7 @@ protected:
   void updateConstDelG(const ParticleEventData&);
   void updateConstDelG(const NEventData&);
 
-  void stream(const Iflt);
+  void stream(const double);
 
   void newG();
 

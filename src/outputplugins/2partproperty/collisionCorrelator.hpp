@@ -41,10 +41,10 @@ private:
 
   virtual void A2ParticleChange(const PairEventData&);
 
-  virtual void stream(const Iflt&) {}  
+  virtual void stream(const double&) {}  
 
   C1DHistogram freetimehist;
-  std::vector<std::vector<Iflt> > lastColl;
+  std::vector<std::vector<double> > lastColl;
 };
 
 #endif

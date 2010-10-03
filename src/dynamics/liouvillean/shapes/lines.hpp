@@ -31,27 +31,27 @@ public:
     w12(nw1-nw2), r12(nr12), v12(nv12)
   {}
 
-  void stream(const Iflt& dt)
+  void stream(const double& dt)
   {
     u1 = Rodrigues(w1 * dt) * Vector(u1);
     u2 = Rodrigues(w2 * dt) * Vector(u2);
     r12 += v12 * dt;
   }
   
-  std::pair<Iflt, Iflt> getCollisionPoints() const
+  std::pair<double, double> getCollisionPoints() const
   {
-    Iflt rijdotui = (r12 | u1);
-    Iflt rijdotuj = (r12 | u2);
-    Iflt uidotuj = (u1 | u2);
+    double rijdotui = (r12 | u1);
+    double rijdotuj = (r12 | u2);
+    double uidotuj = (u1 | u2);
 
     return std::make_pair(- (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj),
 			  (rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj));
   }
 
-  Iflt F_zeroDeriv() const
+  double F_zeroDeriv() const
   { return ((u1 ^ u2) | r12); }
 
-  Iflt F_firstDeriv() const
+  double F_firstDeriv() const
   {    
     return ((u1 | r12) * (w12 | u2)) 
       + ((u2 | r12) * (w12 | u1)) 
@@ -59,10 +59,10 @@ public:
       + (((u1 ^ u2) | v12));
   }
 
-  Iflt F_firstDeriv_max(const Iflt& length) const
+  double F_firstDeriv_max(const double& length) const
   { return length * w12.nrm() + v12.nrm(); }
 
-  Iflt F_secondDeriv() const
+  double F_secondDeriv() const
   {
     return 2.0 
       * (((u1 | v12) * (w12 | u2)) 
@@ -75,19 +75,19 @@ public:
       + ((w12 | u2) * (r12 | (w1 ^ u1))); 
   }
 
-  Iflt F_secondDeriv_max(const Iflt& length) const
+  double F_secondDeriv_max(const double& length) const
   {
     return w12.nrm() 
       * ((2 * v12.nrm()) + (length * (w1.nrm() + w2.nrm())));
   }
 
-  std::pair<Iflt, Iflt> discIntersectionWindow(const Iflt& length) const
+  std::pair<double, double> discIntersectionWindow(const double& length) const
   {
     Vector  Ahat = w1 / w1.nrm();
-    Iflt dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
-    Iflt signChangeTerm = (length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
+    double dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
+    double signChangeTerm = (length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
     
-    std::pair<Iflt,Iflt> 
+    std::pair<double,double> 
       retVal(((-1.0 * (r12 | Ahat)) - signChangeTerm) / (v12 | Ahat),
 	     ((-1.0 * (r12 | Ahat)) + signChangeTerm) / (v12 | Ahat));
   
@@ -106,9 +106,9 @@ public:
 
   virtual CShape* Clone() const { return new CLinesFunc(*this); };
 
-  virtual bool test_root(const Iflt& length) const
+  virtual bool test_root(const double& length) const
   {
-    std::pair<Iflt,Iflt> cp = getCollisionPoints();
+    std::pair<double,double> cp = getCollisionPoints();
     
     return (fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0);
   }

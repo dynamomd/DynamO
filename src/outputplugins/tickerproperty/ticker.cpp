@@ -25,7 +25,7 @@ OPTicker::OPTicker(const DYNAMO::SimData* t1,const char *t2):
   OutputPlugin(t1,t2)
 {}
 
-Iflt 
+double 
 OPTicker::getTickerTime() const
 {
   try {

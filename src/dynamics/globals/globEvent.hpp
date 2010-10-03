@@ -35,7 +35,7 @@ class Global;
 class GlobalEvent
 {
 public:  
-  GlobalEvent (const Particle&, const Iflt&, 
+  GlobalEvent (const Particle&, const double&, 
 	      EEventType, const Global&);
 
   inline bool operator== (const Particle &partx) const 
@@ -55,13 +55,13 @@ public:
   inline bool operator> (const GlobalEvent & C2) const 
     { return dt > C2.dt;}
 
-  inline void incrementTime(const Iflt& deltat) {dt -= deltat; }
+  inline void incrementTime(const double& deltat) {dt -= deltat; }
 
-  inline void addTime(const Iflt& deltat) {dt += deltat; }
+  inline void addTime(const double& deltat) {dt += deltat; }
 
   inline const Particle& getParticle() const { return *particle_; }
 
-  inline const Iflt& getdt() const { return dt; }
+  inline const double& getdt() const { return dt; }
 
   inline EEventType getType() const
     { return CType; }
@@ -72,12 +72,12 @@ public:
 
   const size_t& getGlobalID() const { return globalID; } 
 
-  inline void scaleTime(const Iflt& scale)
+  inline void scaleTime(const double& scale)
   { dt *= scale; }
 
 protected:
   const Particle*  particle_;
-  Iflt dt;
+  double dt;
   mutable EEventType CType;
   const size_t globalID;
 };

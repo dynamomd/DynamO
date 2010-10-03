@@ -25,10 +25,10 @@
 namespace magnet {
   namespace math {
     //Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0
-    inline size_t quarticSolve(const Iflt& a, const Iflt& b, const Iflt& c, const Iflt& d, 
-			       Iflt& root1, Iflt& root2, Iflt& root3, Iflt& root4)
+    inline size_t quarticSolve(const double& a, const double& b, const double& c, const double& d, 
+			       double& root1, double& root2, double& root3, double& root4)
     {
-      static const Iflt maxSqrt = std::sqrt(std::numeric_limits<Iflt>::max());
+      static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
 
       if (std::abs(a) > maxSqrt)
 	yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4);
@@ -43,7 +43,7 @@ namespace magnet {
       if ((a == 0) && (c== 0))
 	{//We have a biquadratic
       
-	  Iflt quadRoot1,quadRoot2;
+	  double quadRoot1,quadRoot2;
 	  if (quadSolve(d,b,1, quadRoot1, quadRoot2))
 	    {
 	      if (quadRoot1 < quadRoot2) std::swap(quadRoot1,quadRoot2);

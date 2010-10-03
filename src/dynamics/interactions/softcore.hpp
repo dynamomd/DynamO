@@ -23,7 +23,7 @@
 class ISoftCore: public ISingleCapture
 {
 public:
-  ISoftCore(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  ISoftCore(DYNAMO::SimData*, double, double, C2Range*);
 
   ISoftCore(const XMLNode&, DYNAMO::SimData*);
   
@@ -31,11 +31,11 @@ public:
 
   virtual Interaction* Clone() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
@@ -49,11 +49,11 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual Iflt getInternalEnergy() const { return -(getTotalCaptureCount() * wellDepth); }
+  virtual double getInternalEnergy() const { return -(getTotalCaptureCount() * wellDepth); }
 
 protected:
-  Iflt diameter,d2;
-  Iflt wellDepth;
+  double diameter,d2;
+  double wellDepth;
 };
 
 #endif

@@ -43,7 +43,7 @@ OPMisc::changeSystem(OutputPlugin* misc2)
 void
 OPMisc::initialise()
 {
-  Iflt kt = Sim->dynamics.getLiouvillean().getkT();
+  double kt = Sim->dynamics.getLiouvillean().getkT();
 
   Vector  VecEnergy(Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy());
 
@@ -117,19 +117,19 @@ OPMisc::eventUpdate(const LocalEvent&, const NEventData& NDat)
 
 void
 OPMisc::eventUpdate(const System&, const NEventData& NDat,
-		     const Iflt&)
+		     const double&)
 {
   dualEvents += NDat.L2partChanges.size();
   singleEvents += NDat.L1partChanges.size();
 }
 
-Iflt
+double
 OPMisc::getMFT() const
 {
-  return Sim->dSysTime * static_cast<Iflt>(Sim->N)
+  return Sim->dSysTime * static_cast<double>(Sim->N)
     /(Sim->dynamics.units().unitTime()
-      * ((2.0 * static_cast<Iflt>(dualEvents))
-	 + static_cast<Iflt>(singleEvents)));
+      * ((2.0 * static_cast<double>(dualEvents))
+	 + static_cast<double>(singleEvents)));
 }
 
 
@@ -150,9 +150,9 @@ OPMisc::output(xml::XmlStream &XML)
   timespec acc_tendTime;
   clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
 
-  Iflt collpersec = static_cast<Iflt>(Sim->eventCount)
-    / (Iflt(acc_tendTime.tv_sec) + 1e-9 * Iflt(acc_tendTime.tv_nsec)
-       - Iflt(acc_tstartTime.tv_sec) - 1e-9 * Iflt(acc_tstartTime.tv_nsec));
+  double collpersec = static_cast<double>(Sim->eventCount)
+    / (double(acc_tendTime.tv_sec) + 1e-9 * double(acc_tendTime.tv_nsec)
+       - double(acc_tstartTime.tv_sec) - 1e-9 * double(acc_tstartTime.tv_nsec));
 
   long int maxmemusage;
 
@@ -167,7 +167,7 @@ OPMisc::output(xml::XmlStream &XML)
 	   << "\nAvg Coll/s " << collpersec
 	   << "\nSim time per second "
 	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
-			       * static_cast<Iflt>(tendTime - tstartTime));
+			       * static_cast<double>(tendTime - tstartTime));
 
   XML << xml::tag("Misc")
       << xml::tag("Memusage")
@@ -257,7 +257,7 @@ OPMisc::output(xml::XmlStream &XML)
       << getMFT()
       << xml::endtag("totMeanFreeTime");
 
-  std::pair<Iflt, Iflt> mempair = process_mem_usage();
+  std::pair<double, double> mempair = process_mem_usage();
 
   XML << xml::tag("MemoryUsage")
       << xml::attr("VirtualMemory") << mempair.first
@@ -280,12 +280,12 @@ OPMisc::periodicOutput()
 
   I_Pcout() << dateString << " NColls " << (Sim->eventCount+1)/1000 << "k, t "
 	    << Sim->dSysTime/Sim->dynamics.units().unitTime() << ", <t_2> "
-	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->N)
-    /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<Iflt>(dualEvents))
+	    <<   Sim->dSysTime * static_cast<double>(Sim->N)
+    /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<double>(dualEvents))
 	    << ", <t_tot> "
-	    <<   Sim->dSysTime * static_cast<Iflt>(Sim->N)
-    / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<Iflt>(dualEvents)
-					   + static_cast<Iflt>(singleEvents)))
+	    <<   Sim->dSysTime * static_cast<double>(Sim->N)
+    / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<double>(dualEvents)
+					   + static_cast<double>(singleEvents)))
 	    << ", ";
 
   oldSysTime = Sim->dSysTime;

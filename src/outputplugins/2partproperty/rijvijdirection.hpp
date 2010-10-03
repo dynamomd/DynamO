@@ -38,7 +38,7 @@ class OPRijVij: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   void output(xml::XmlStream &);
 
@@ -57,8 +57,8 @@ class OPRijVij: public OutputPlugin
 	  rij[iDim] = C1DHistogram(0.001);
 	  vij[iDim] = C1DHistogram(0.001);
 
-	  rijcostheta[iDim].resize(2000, std::pair<size_t,Iflt>(0, 0));
-	  costhetarij[iDim].resize(1000, std::pair<size_t,Iflt>(0, 0));
+	  rijcostheta[iDim].resize(2000, std::pair<size_t,double>(0, 0));
+	  costhetarij[iDim].resize(1000, std::pair<size_t,double>(0, 0));
 	  anglemap[iDim].resize(200, std::vector<size_t>(100, 0));
 	}
     }
@@ -66,8 +66,8 @@ class OPRijVij: public OutputPlugin
     C1DHistogram rij[NDIM];
     C1DHistogram vij[NDIM];
     
-    std::vector<std::pair<size_t,Iflt> > rijcostheta[NDIM];
-    std::vector<std::pair<size_t,Iflt> > costhetarij[NDIM];
+    std::vector<std::pair<size_t,double> > rijcostheta[NDIM];
+    std::vector<std::pair<size_t,double> > costhetarij[NDIM];
     std::vector<std::vector<size_t> > anglemap[NDIM];
     size_t anglemapcount;
   };

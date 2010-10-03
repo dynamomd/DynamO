@@ -23,7 +23,7 @@
 class ISquareBond: public Interaction
 {
 public:
-  ISquareBond(DYNAMO::SimData*, Iflt, Iflt, C2Range*);
+  ISquareBond(DYNAMO::SimData*, double, double, C2Range*);
 
   ISquareBond(const XMLNode&, DYNAMO::SimData*);
 
@@ -31,13 +31,13 @@ public:
 
   virtual Interaction* Clone() const;
 
-  virtual Iflt hardCoreDiam() const;
+  virtual double hardCoreDiam() const;
 
-  virtual Iflt maxIntDist() const;
+  virtual double maxIntDist() const;
 
-  virtual void rescaleLengths(Iflt);
+  virtual void rescaleLengths(double);
 
-  virtual Iflt getCaptureEnergy() const;
+  virtual double getCaptureEnergy() const;
 
   virtual void initialise(size_t);
 
@@ -51,15 +51,15 @@ public:
     
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual Iflt getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0.0; }
 
   virtual void 
   write_povray_info(std::ostream&) const;
 
 protected:
 
-  Iflt diameter,d2;
-  Iflt lambda, ld2;
+  double diameter,d2;
+  double lambda, ld2;
 };
 
 #endif

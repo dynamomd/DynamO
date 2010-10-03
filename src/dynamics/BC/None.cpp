@@ -33,11 +33,11 @@ BCNone::applyBC(Vector  &, Vector &) const
 {}
 
 void 
-BCNone::applyBC(Vector  &, const Iflt&) const 
+BCNone::applyBC(Vector  &, const double&) const 
 {}
 
 void 
-BCNone::update(const Iflt &) 
+BCNone::update(const double &) 
 {}
 
 void 

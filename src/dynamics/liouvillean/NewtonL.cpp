@@ -29,7 +29,7 @@
 #include "shapes/oscillatingplate.hpp"
 
 bool 
-LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
+LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const
 {
   //To be approaching, the largest dimension of rij must be being
   //reduced
@@ -40,12 +40,12 @@ LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
     
   if (dat.rij[largedim] * dat.vij[largedim] >= 0) return false;
 
-  Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+  double tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      Iflt tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
-      Iflt tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
+      double tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
+      double tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
       
       if (tmptime1 < tmptime2)
 	{
@@ -66,7 +66,7 @@ LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d) const
 }
 
 bool 
-LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
+LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d, const Matrix& Rot) const
 {
   //To be approaching, the largest dimension of rij must be being
   //reduced
@@ -79,12 +79,12 @@ LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
     
   if (rij[largedim] * vij[largedim] < 0)
     {      
-      Iflt tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
+      double tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  Iflt tmptime1 = -(rij[iDim] + d) / vij[iDim];
-	  Iflt tmptime2 = -(rij[iDim] - d) / vij[iDim];
+	  double tmptime1 = -(rij[iDim] + d) / vij[iDim];
+	  double tmptime2 = -(rij[iDim] - d) / vij[iDim];
 	  
 	  if (tmptime1 < tmptime2)
 	    {
@@ -108,7 +108,7 @@ LNewtonian::CubeCubeInRoot(CPDData& dat, const Iflt& d, const Matrix& Rot) const
 }
 
 bool 
-LNewtonian::cubeOverlap(const CPDData& dat, const Iflt& d) const
+LNewtonian::cubeOverlap(const CPDData& dat, const double& d) const
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (fabs(dat.rij[iDim]) > d) return false;
@@ -117,7 +117,7 @@ LNewtonian::cubeOverlap(const CPDData& dat, const Iflt& d) const
 }
 
 bool 
-LNewtonian::cubeOverlap(const CPDData& dat, const Iflt& d, 
+LNewtonian::cubeOverlap(const CPDData& dat, const double& d, 
 		      const Matrix& rot) const
 {
   Vector rij = rot * dat.rij;
@@ -130,11 +130,11 @@ LNewtonian::cubeOverlap(const CPDData& dat, const Iflt& d,
 }
 
 bool 
-LNewtonian::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
+LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2) const
 {
   if (dat.rvdot < 0)
     {
-      Iflt arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
+      double arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
 
       if (arg > 0)
 	{
@@ -156,7 +156,7 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const Iflt& d2) const
 }
   
 bool 
-LNewtonian::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
+LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2) const
 {
   dat.dt = (sqrt(dat.rvdot * dat.rvdot 
 		 - dat.v2 * (dat.r2 - d2)) - dat.rvdot) / dat.v2;
@@ -171,13 +171,13 @@ LNewtonian::SphereSphereOutRoot(CPDData& dat, const Iflt& d2) const
 }
 
 bool 
-LNewtonian::sphereOverlap(const CPDData& dat, const Iflt& d2) const
+LNewtonian::sphereOverlap(const CPDData& dat, const double& d2) const
 {
   return (dat.r2 - d2) < 0.0;
 }
 
 ParticleEventData 
-LNewtonian::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
+LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT) const
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
 
@@ -187,7 +187,7 @@ LNewtonian::randomGaussianEvent(const Particle& part, const Iflt& sqrtT) const
   //Collect the precoll data
   ParticleEventData tmpDat(part, Sim->dynamics.getSpecies(part), GAUSSIAN);
 
-  Iflt factor = 
+  double factor = 
     sqrtT / std::sqrt(tmpDat.getSpecies().getMass());
 
   //Assign the new velocities
@@ -207,12 +207,12 @@ LNewtonian::LNewtonian(DYNAMO::SimData* tmp):
 {}
 
 void
-LNewtonian::streamParticle(Particle &particle, const Iflt &dt) const
+LNewtonian::streamParticle(Particle &particle, const double &dt) const
 {
   particle.getPosition() += particle.getVelocity() * dt;
 }
 
-Iflt 
+double 
 LNewtonian::getWallCollision(const Particle &part, 
 			   const Vector  &wallLoc, 
 			   const Vector  &wallNorm) const
@@ -222,7 +222,7 @@ LNewtonian::getWallCollision(const Particle &part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  Iflt rvdot = (vel | wallNorm);
+  double rvdot = (vel | wallNorm);
 
   rij -= wallLoc;
 
@@ -236,7 +236,7 @@ LNewtonian::getWallCollision(const Particle &part,
 ParticleEventData 
 LNewtonian::runWallCollision(const Particle &part, 
 			   const Vector  &vNorm,
-			   const Iflt& e
+			   const double& e
 			   ) const
 {
   updateParticle(part);
@@ -256,7 +256,7 @@ LNewtonian::runWallCollision(const Particle &part,
 ParticleEventData 
 LNewtonian::runAndersenWallCollision(const Particle& part, 
 				   const Vector & vNorm,
-				   const Iflt& sqrtT
+				   const double& sqrtT
 				   ) const
 {  
   updateParticle(part);
@@ -284,7 +284,7 @@ LNewtonian::runAndersenWallCollision(const Particle& part,
   return tmpDat; 
 }
 
-Iflt
+double
 LNewtonian::getSquareCellCollision2(const Particle& part, 
 				 const Vector & origin, 
 				 const Vector & width) const
@@ -299,7 +299,7 @@ LNewtonian::getSquareCellCollision2(const Particle& part,
       M_throw() << "You have negative zero velocities, don't use them.";
 #endif 
 
-  Iflt retVal;
+  double retVal;
   if (vel[0] < 0)
     retVal = -rpos[0] / vel[0];
   else
@@ -307,7 +307,7 @@ LNewtonian::getSquareCellCollision2(const Particle& part,
 
   for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
-      Iflt tmpdt((vel[iDim] < 0)
+      double tmpdt((vel[iDim] < 0)
 		 ? -rpos[iDim]/vel[iDim] 
 		 : (width[iDim]-rpos[iDim]) / vel[iDim]);
       
@@ -329,7 +329,7 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
   Sim->dynamics.BCs().applyBC(rpos, vel);
 
   int retVal(0);
-  Iflt time(HUGE_VAL);
+  double time(HUGE_VAL);
   
 #ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -340,7 +340,7 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
-      Iflt tmpdt = ((vel[iDim] < 0) 
+      double tmpdt = ((vel[iDim] < 0) 
 		  ? -rpos[iDim]/vel[iDim] 
 		  : (width[iDim]-rpos[iDim]) / vel[iDim]);
 
@@ -362,8 +362,8 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
 bool 
 LNewtonian::DSMCSpheresTest(const Particle& p1, 
 			  const Particle& p2, 
-			  Iflt& maxprob,
-			  const Iflt& factor,
+			  double& maxprob,
+			  const double& factor,
 			  CPDData& pdat) const
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
@@ -374,7 +374,7 @@ LNewtonian::DSMCSpheresTest(const Particle& p1,
   if (pdat.rvdot > 0)
     return false; //Positive rvdot
 
-  Iflt prob = factor * (-pdat.rvdot);
+  double prob = factor * (-pdat.rvdot);
 
   if (prob > maxprob)
     maxprob = prob;
@@ -385,7 +385,7 @@ LNewtonian::DSMCSpheresTest(const Particle& p1,
 PairEventData
 LNewtonian::DSMCSpheresRun(const Particle& p1, 
 			 const Particle& p2, 
-			 const Iflt& e,
+			 const double& e,
 			 CPDData& pdat) const
 {
   updateParticlePair(p1, p2);  
@@ -398,9 +398,9 @@ LNewtonian::DSMCSpheresRun(const Particle& p1,
   retVal.rij = pdat.rij;
   retVal.rvdot = pdat.rvdot;
 
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
 			    / retVal.rij.nrm2());  
@@ -422,8 +422,8 @@ LNewtonian::DSMCSpheresRun(const Particle& p1,
 
 
 PairEventData 
-LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
-				       const Iflt&, const EEventType& eType) const
+LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const double& e,
+				       const double&, const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -437,8 +437,8 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
  
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
@@ -449,7 +449,7 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
 
    if ((p1Mass != 0.0) && (p2Mass != 0.0))
     {
-      Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);
+      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
       retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
@@ -482,8 +482,8 @@ LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const Iflt& e,
 }
 
 PairEventData 
-LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
-			    const Iflt&, const EEventType& eType) const
+LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
+			    const double&, const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -497,9 +497,9 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
@@ -520,8 +520,8 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const Iflt& e,
 }
 
 PairEventData 
-LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
-			   const Iflt&, const EEventType& eType) const
+LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
+			   const double&, const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -540,9 +540,9 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
   for (size_t iDim(1); iDim < NDIM; ++iDim)
     if (fabs(retVal.rij[dim]) < fabs(retVal.rij[iDim])) dim = iDim;
 
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
   
   Vector collvec(0,0,0);
 
@@ -571,8 +571,8 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 }
 
 PairEventData 
-LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
-			   const Iflt&, const Matrix& rot,
+LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
+			   const double&, const Matrix& rot,
 			   const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -595,9 +595,9 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
   for (size_t iDim(1); iDim < NDIM; ++iDim)
     if (fabs(retVal.rij[dim]) < fabs(retVal.rij[iDim])) dim = iDim;
 
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass/ (p1Mass + p2Mass);
+  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass/ (p1Mass + p2Mass);
   
   Vector collvec(0,0,0);
 
@@ -631,11 +631,11 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const Iflt& e,
 
 NEventData 
 LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2, 
-			    const Iflt&, const EEventType& eType) const
+			    const double&, const EEventType& eType) const
 {
   Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
-  Iflt structmass1(0), structmass2(0);
+  double structmass1(0), structmass2(0);
   
   BOOST_FOREACH(const size_t& ID, range1)
     {
@@ -683,11 +683,11 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
   
   Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
   Sim->dynamics.BCs().applyBC(rij, vij);
-  Iflt rvdot = (rij | vij);
+  double rvdot = (rij | vij);
 
-  Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
+  double mu = structmass1 * structmass2 / (structmass1 + structmass2);
 
-  static const Iflt e = 1.0;
+  static const double e = 1.0;
   Vector  dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());
 
   NEventData retVal;
@@ -730,11 +730,11 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
 
 NEventData 
 LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2, 
-			    const Iflt&, const Iflt& deltaKE, EEventType& eType) const
+			    const double&, const double& deltaKE, EEventType& eType) const
 {
   Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
-  Iflt structmass1(0), structmass2(0);
+  double structmass1(0), structmass2(0);
   
   BOOST_FOREACH(const size_t& ID, range1)
     {
@@ -782,12 +782,12 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
   
   Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
   Sim->dynamics.BCs().applyBC(rij, vij);
-  Iflt rvdot = (rij | vij);
+  double rvdot = (rij | vij);
 
-  Iflt mu = structmass1 * structmass2 / (structmass1 + structmass2);
+  double mu = structmass1 * structmass2 / (structmass1 + structmass2);
 
-  Iflt R2 = rij.nrm2();
-  Iflt sqrtArg = rvdot * rvdot + 2.0 * R2 * deltaKE / mu;
+  double R2 = rij.nrm2();
+  double sqrtArg = rvdot * rvdot + 2.0 * R2 * deltaKE / mu;
 
   Vector  dP(0,0,0);
 
@@ -850,8 +850,8 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 }
 
 PairEventData 
-LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
-			  const Iflt &) const
+LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
+			  const double &) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -867,11 +867,11 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
   
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
-  Iflt R2 = retVal.rij.nrm2();
-  Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
+  double p1Mass = retVal.particle1_.getSpecies().getMass();
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+  double R2 = retVal.rij.nrm2();
+  double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
   
   if ((deltaKE < 0) && (sqrtArg < 0))
     {
@@ -936,8 +936,8 @@ LNewtonian::outputXML(xml::XmlStream& XML) const
       << "Newtonian";
 }
 
-Iflt 
-LNewtonian::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
+double 
+LNewtonian::getPBCSentinelTime(const Particle& part, const double& lMax) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -948,11 +948,11 @@ LNewtonian::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
 
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  Iflt retval = (0.5 * Sim->aspectRatio[0] - lMax) / fabs(vel[0]);
+  double retval = (0.5 * Sim->aspectRatio[0] - lMax) / fabs(vel[0]);
 
   for (size_t i(1); i < NDIM; ++i)
     {
-      Iflt tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
+      double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
 
       if (tmp < retval)
 	retval = tmp;
@@ -961,11 +961,11 @@ LNewtonian::getPBCSentinelTime(const Particle& part, const Iflt& lMax) const
   return retval;
 }
 
-std::pair<bool,Iflt>
+std::pair<bool,double>
 LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
-				 const Vector& nhat, const Iflt& Delta,
-				 const Iflt& Omega, const Iflt& Sigma,
-				 const Iflt& t, bool lastpart) const
+				 const Vector& nhat, const double& Delta,
+				 const double& Omega, const double& Sigma,
+				 const double& t, bool lastpart) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -975,9 +975,9 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  Iflt t_high;
-  Iflt surfaceOffset = pos | nhat;
-  Iflt surfaceVel = vel | nhat;
+  double t_high;
+  double surfaceOffset = pos | nhat;
+  double surfaceVel = vel | nhat;
   
   if (surfaceVel > 0)
     t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
@@ -1009,7 +1009,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 #endif
     }
       
-  Iflt t_low1 = 0, t_low2 = 0;
+  double t_low1 = 0, t_low2 = 0;
   if (lastpart)
     {
       if (-fL.F_zeroDeriv() < fL.F_zeroDerivFlip())
@@ -1025,7 +1025,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   //Must be careful with collisions at the end of the interval
   t_high *= 1.01;
   
-  std::pair<bool,Iflt> root1 
+  std::pair<bool,double> root1 
     = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
 
   fL.flipSigma();
@@ -1046,7 +1046,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 #endif
     }
 
-  std::pair<bool,Iflt> root2 
+  std::pair<bool,double> root2 
     = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
 
   //Check if the particle is penetrating a wall
@@ -1077,17 +1077,17 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	    COscillatingPlateFunc ftmp2(fL);
 	    ftmp.flipSigma();
 	    
-	    Iflt fl01(ftmp.F_zeroDeriv());
+	    double fl01(ftmp.F_zeroDeriv());
 	    ftmp.stream(t_low1);
-	    Iflt flt_low1(ftmp.F_zeroDeriv());
+	    double flt_low1(ftmp.F_zeroDeriv());
 	    ftmp.stream(t_high - t_low1);
-	    Iflt flt_high1(ftmp.F_zeroDeriv());
+	    double flt_high1(ftmp.F_zeroDeriv());
 	    
-	    Iflt fl02(ftmp2.F_zeroDeriv());
+	    double fl02(ftmp2.F_zeroDeriv());
 	    ftmp2.stream(t_low2);
-	    Iflt flt_low2(ftmp2.F_zeroDeriv());
+	    double flt_low2(ftmp2.F_zeroDeriv());
 	    ftmp2.stream(t_high - t_low2);
-	    Iflt flt_high2(ftmp2.F_zeroDeriv());
+	    double flt_high2(ftmp2.F_zeroDeriv());
 	    
 	    I_cerr() << "****Forcing collision"
 		     << "\ndSysTime = " << Sim->dSysTime
@@ -1126,14 +1126,14 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	    ;
 	  }
 #endif
-	  return std::pair<bool, Iflt>(true, 0);
+	  return std::pair<bool, double>(true, 0);
 	}
       else
 	{
 	  //The particle and plate are approaching but might not be
 	  //before the overlap is fixed, schedule another test later
 	  //on
-	  Iflt currRoot = HUGE_VAL;
+	  double currRoot = HUGE_VAL;
 
 	  if (root1.first)
 	    currRoot = root1.second;
@@ -1141,7 +1141,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	  if (root2.first && (currRoot > root2.second))
 	    currRoot = root2.second;
 	  //
-	  Iflt tmpt = fabs(surfaceVel - fL.velnHatWall());
+	  double tmpt = fabs(surfaceVel - fL.velnHatWall());
 	  //This next line sets what the recoil velocity should be
 	  //We choose the velocity that gives elastic collisions!
 	  tmpt += fL.maxWallVel() * 0.002;
@@ -1150,7 +1150,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	    {
 	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
 
-	      return std::pair<bool,Iflt>(true, tmpt);
+	      return std::pair<bool,double>(true, tmpt);
 	    }
 	  else
 	    I_cout() << "The current root is lower than the fake one";	    
@@ -1162,9 +1162,9 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 
 ParticleEventData 
 LNewtonian::runOscilatingPlate
-(const Particle& part, const Vector& rw0, const Vector& nhat, Iflt& delta, 
- const Iflt& omega0, const Iflt& sigma, const Iflt& mass, const Iflt& e, 
- Iflt& t, bool strongPlate) const
+(const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+ const double& omega0, const double& sigma, const double& mass, const double& e, 
+ double& t, bool strongPlate) const
 {
   std::cout.flush();
   updateParticle(part);
@@ -1180,8 +1180,8 @@ LNewtonian::runOscilatingPlate
 
   Sim->dynamics.BCs().applyBC(pos, vel);
   
-  Iflt pmass = retVal.getSpecies().getMass();
-  Iflt mu = (pmass * mass) / (mass + pmass);
+  double pmass = retVal.getSpecies().getMass();
+  double mu = (pmass * mass) / (mass + pmass);
 
   Vector vwall(fL.wallVelocity());
 
@@ -1203,7 +1203,7 @@ LNewtonian::runOscilatingPlate
   //Check the root is valid
   if (!fL.test_root(sigma))
     {
-      Iflt f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
+      double f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
 	f2 = fL.F_secondDeriv_max(0);
       fL.flipSigma();
       
@@ -1240,9 +1240,9 @@ LNewtonian::runOscilatingPlate
 
   //static size_t elascount(0);
 
-  Iflt inelas = e;
+  double inelas = e;
 
-  Iflt rvdot = ((vel - vwall) | nhat);
+  double rvdot = ((vel - vwall) | nhat);
   if (fabs(rvdot / fL.maxWallVel()) < 0.002)
     {
       /*
@@ -1269,15 +1269,15 @@ LNewtonian::runOscilatingPlate
   //Don't progress if you want to not change the plate data
   if (strongPlate) return retVal;
 
-  Iflt numerator = -nhat | ((delP / mass) + vwall);
+  double numerator = -nhat | ((delP / mass) + vwall);
 
-  Iflt reducedt = Sim->dSysTime 
-    - 2.0 * PI * int(Sim->dSysTime * omega0 / (2.0*PI)) / omega0;
+  double reducedt = Sim->dSysTime 
+    - 2.0 * M_PI * int(Sim->dSysTime * omega0 / (2.0*M_PI)) / omega0;
   
-  Iflt denominator = omega0 * delta * std::cos(omega0 * (reducedt + t));
+  double denominator = omega0 * delta * std::cos(omega0 * (reducedt + t));
   
 
-  Iflt newt = std::atan2(numerator, denominator)/ omega0 
+  double newt = std::atan2(numerator, denominator)/ omega0 
     - Sim->dSysTime;
   
   delta *= std::cos(omega0 * (Sim->dSysTime + t)) 
@@ -1285,16 +1285,16 @@ LNewtonian::runOscilatingPlate
   
   t = newt;
 
-  t -= 2.0 * PI * int(t * omega0 / (2.0*PI)) / omega0;
+  t -= 2.0 * M_PI * int(t * omega0 / (2.0*M_PI)) / omega0;
 
   return retVal; 
 }
 
-Iflt 
+double 
 LNewtonian::getCylinderWallCollision(const Particle& part, 
 				   const Vector& wallLoc, 
 				   const Vector& wallNorm,
-				   const Iflt& radius) const
+				   const double& radius) const
 {
   Vector  rij = part.getPosition() - wallLoc,
     vel = part.getVelocity();
@@ -1305,11 +1305,11 @@ LNewtonian::getCylinderWallCollision(const Particle& part,
 
   vel -= Vector((vel | wallNorm) * wallNorm);
 
-  Iflt B = (vel | rij),
+  double B = (vel | rij),
     A = vel.nrm2(),
     C = rij.nrm2() - radius * radius;
 
-  Iflt t = (std::sqrt(B*B - A*C) - B) / A;
+  double t = (std::sqrt(B*B - A*C) - B) / A;
 
   if (std::isnan(t))
     return HUGE_VAL;
@@ -1321,7 +1321,7 @@ ParticleEventData
 LNewtonian::runCylinderWallCollision(const Particle& part, 
 				   const Vector& origin,
 				   const Vector& vNorm,
-				   const Iflt& e
+				   const double& e
 				   ) const
 {
   updateParticle(part);
@@ -1349,7 +1349,7 @@ LNewtonian::runCylinderWallCollision(const Particle& part,
 ParticleEventData 
 LNewtonian::runSphereWallCollision(const Particle& part, 
 				   const Vector& origin,
-				   const Iflt& e
+				   const double& e
 				   ) const
 {
   updateParticle(part);

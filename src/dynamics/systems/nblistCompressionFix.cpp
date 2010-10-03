@@ -23,7 +23,7 @@
 #include "../NparticleEventData.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, Iflt nGR, size_t nblistID):
+CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, double nGR, size_t nblistID):
   System(nSim),
   growthRate(nGR),
   cellID(nblistID)
@@ -64,7 +64,7 @@ CSNBListCompressionFix::initialise(size_t nID)
 void
 CSNBListCompressionFix::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))

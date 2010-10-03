@@ -60,18 +60,18 @@ public:
       : (ip._innerHeap.empty() || (_innerHeap.top().dt < ip._innerHeap.top().dt)); 
   }
 
-  inline Iflt getdt() const 
+  inline double getdt() const 
   { 
     return (empty()) ? HUGE_VAL : _innerHeap.top().dt; 
   }
   
-  inline void stream(const Iflt& ndt) throw()
+  inline void stream(const double& ndt) throw()
   {
     BOOST_FOREACH(intPart& dat, _innerHeap)
       dat.dt -= ndt;
   }
 
-  inline void addTime(const Iflt& ndt) throw()
+  inline void addTime(const double& ndt) throw()
   {
     BOOST_FOREACH(intPart& dat, _innerHeap)
       dat.dt += ndt;
@@ -87,7 +87,7 @@ public:
     _innerHeap.unsafe_bottom().type = VIRTUAL;
   }
 
-  inline void rescaleTimes(const Iflt& scale) throw()
+  inline void rescaleTimes(const double& scale) throw()
   { 
     BOOST_FOREACH(intPart& dat, _innerHeap)
       dat.dt *= scale;

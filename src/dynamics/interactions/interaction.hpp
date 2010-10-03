@@ -51,13 +51,13 @@ public:
 
   virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const = 0;
 
-  virtual Iflt maxIntDist() const = 0;  
+  virtual double maxIntDist() const = 0;  
 
-  virtual Iflt getInternalEnergy() const = 0; 
+  virtual double getInternalEnergy() const = 0; 
 
-  virtual Iflt hardCoreDiam() const = 0;
+  virtual double hardCoreDiam() const = 0;
 
-  virtual void rescaleLengths(Iflt) = 0;
+  virtual void rescaleLengths(double) = 0;
 
   virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
 
@@ -84,7 +84,7 @@ public:
 
   virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
 
-  virtual Iflt getColourFraction(const Particle&) const { return 0.5; } 
+  virtual double getColourFraction(const Particle&) const { return 0.5; } 
 
   inline const size_t& getID() const { return ID; }
 

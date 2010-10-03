@@ -39,7 +39,7 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&); 
+  virtual void eventUpdate(const System&, const NEventData&, const double&); 
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
@@ -49,20 +49,20 @@ protected:
   boost::circular_buffer<Vector  > G;
   std::vector<Vector  > accG2;
   size_t count;
-  Iflt dt, currentdt;
+  double dt, currentdt;
   Vector  constDelG, delG;
   size_t currlen;
   bool notReady;
 
   size_t CorrelatorLength;
 
-  void stream(const Iflt&);
+  void stream(const double&);
 
   void newG();
 
   void accPass();
 
-  Iflt rescaleFactor();
+  double rescaleFactor();
   
   Vector  impulseDelG(const PairEventData&);
   Vector  impulseDelG(const NEventData&);

@@ -28,7 +28,7 @@ UShear::operator<<(const XMLNode& XML)
     M_throw() << "Attempting to load UShear from non shear type";
   
   try {
-    UnitOfLength = 1.0 / boost::lexical_cast<Iflt>
+    UnitOfLength = 1.0 / boost::lexical_cast<double>
       (XML.getAttribute("BoxLength"));
   }
   catch (boost::bad_lexical_cast &)

@@ -37,9 +37,9 @@ OPVelProfile::initialise()
   binWidth *= Sim->dynamics.units().unitLength();
   
   vx.resize(static_cast<size_t>(Sim->aspectRatio[1]/binWidth)+1,
-	    std::vector<std::pair<size_t, Iflt> >
+	    std::vector<std::pair<size_t, double> >
 	    (static_cast<size_t>(Sim->aspectRatio[2]/binWidth)+1,
-	     std::pair<size_t, Iflt>(0, 0)));
+	     std::pair<size_t, double>(0, 0)));
 
 }
 
@@ -55,7 +55,7 @@ OPVelProfile::ticker()
 
       pos += Sim->aspectRatio / 2.0;
 
-      std::pair<size_t, Iflt>& locpair(vx[static_cast<size_t>(pos[1]/binWidth)]
+      std::pair<size_t, double>& locpair(vx[static_cast<size_t>(pos[1]/binWidth)]
 				       [static_cast<size_t>(pos[2]/binWidth)]);
       ++locpair.first;
       locpair.second += vel[0];

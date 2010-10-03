@@ -43,7 +43,7 @@ class CIPCompression: public CInputPlugin
    * \param sim The Simulation this plugin is in control of
    * \param cr The compression rate of the Simulation.
    */
-  CIPCompression(DYNAMO::SimData* sim, Iflt cr);
+  CIPCompression(DYNAMO::SimData* sim, double cr);
 
   /*! \brief Stores the old CLiovillean and installs the LCompression.
    */  
@@ -63,14 +63,14 @@ class CIPCompression: public CInputPlugin
    *
    * \param mxpf The maximum packing fraction allowed.
    */
-  void limitPackingFraction(Iflt mxpf);
+  void limitPackingFraction(double mxpf);
 
   /*! \brief Limits the maximum density by installing a
    *  CStHalt system event at the right time.
    *
    * \param mxrho The maximum number density allowed.
    */
-  void limitDensity(Iflt mxrho);
+  void limitDensity(double mxrho);
 
   /*! \brief An expensive sanity check for the system.
    *
@@ -82,7 +82,7 @@ class CIPCompression: public CInputPlugin
 private:
   /*! \brief The compression rate of the simulation.
    */
-  Iflt growthRate;
+  double growthRate;
   
   /*! \brief The old Liouvillean of the simulation.
    */
@@ -91,7 +91,7 @@ private:
   /*! \brief Stores a cell overlap parameter of the cellular scheduler
    * to be restored later.
    */
-  Iflt oldLambda;
+  double oldLambda;
 };
 
 #endif

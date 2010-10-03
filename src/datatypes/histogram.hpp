@@ -28,7 +28,7 @@ namespace xml
 class C1DHistogram
 {
  public:
-  C1DHistogram(Iflt binwidth):
+  C1DHistogram(double binwidth):
     data(binwidth),
     sampleCount(0)
     {};
@@ -37,7 +37,7 @@ class C1DHistogram
     sampleCount(0)
     {};
   
-  void addVal(const Iflt& val)
+  void addVal(const double& val)
     {
       ++data[val + 0.5 * data.binWidth];
       ++sampleCount;
@@ -45,7 +45,7 @@ class C1DHistogram
   
   typedef std::pair<const long, unsigned long> lv1pair;
   
-  void outputHistogram(xml::XmlStream&, Iflt) const;
+  void outputHistogram(xml::XmlStream&, double) const;
   
   CFuzzyArray<unsigned long> data;
   
@@ -55,7 +55,7 @@ class C1DHistogram
 class C1DWeightHistogram
 {
  public:
-  C1DWeightHistogram(Iflt binwidth):
+  C1DWeightHistogram(double binwidth):
     data(binwidth),
     sampleCount(0.0)
     {};
@@ -64,25 +64,25 @@ class C1DWeightHistogram
     sampleCount(0.0)
     {};
   
-  void addVal(Iflt val, Iflt weight)
+  void addVal(double val, double weight)
     {
       data[val + 0.5 * data.binWidth] += weight;
       sampleCount += weight;
     }
   
-  void resetBinWidth(Iflt val)
+  void resetBinWidth(double val)
   {
-    data = CFuzzyArray<Iflt>(val);
+    data = CFuzzyArray<double>(val);
   }
 
-  typedef std::pair<const long, Iflt> lv1pair;
+  typedef std::pair<const long, double> lv1pair;
   
-  void outputHistogram(xml::XmlStream&, Iflt) const;
-  void outputClearHistogram(xml::XmlStream&, Iflt) const;
+  void outputHistogram(xml::XmlStream&, double) const;
+  void outputClearHistogram(xml::XmlStream&, double) const;
   
-  CFuzzyArray<Iflt> data;
+  CFuzzyArray<double> data;
   
-  Iflt sampleCount;
+  double sampleCount;
 };
 
 #endif

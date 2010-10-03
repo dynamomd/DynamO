@@ -26,7 +26,7 @@ class CLAndersenWall: public Local
 public:
   CLAndersenWall(const XMLNode&, DYNAMO::SimData*);
 
-  CLAndersenWall(DYNAMO::SimData*, Iflt, Vector , Vector , 
+  CLAndersenWall(DYNAMO::SimData*, double, Vector , Vector , 
 		 std::string, CRange*);
 
   virtual ~CLAndersenWall() {}
@@ -50,7 +50,7 @@ protected:
 
   Vector  vNorm;
   Vector  vPosition;
-  Iflt sqrtT;
+  double sqrtT;
 };
 
 #endif

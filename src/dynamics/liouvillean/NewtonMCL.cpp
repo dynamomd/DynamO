@@ -40,7 +40,7 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   try 
     {
       if (XML.isAttributeSet("EnergyStep"))
-	EnergyPotentialStep = boost::lexical_cast<Iflt>
+	EnergyPotentialStep = boost::lexical_cast<double>
 	  (XML.getAttribute("EnergyStep"));
       
       EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
@@ -61,14 +61,14 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
 	    {
 	      XMLNode xBrowseNode = xSubNode.getChildNode("Entry", &xml_iter);
 
-	      Iflt key = 
-		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Energy")) 
+	      double key = 
+		boost::lexical_cast<double>(xBrowseNode.getAttribute("Energy")) 
 		/ Sim->dynamics.units().unitEnergy();
 
 	      key /= EnergyPotentialStep;
 
-	      Iflt entry = 
-		boost::lexical_cast<Iflt>(xBrowseNode.getAttribute("Shift"))
+	      double entry = 
+		boost::lexical_cast<double>(xBrowseNode.getAttribute("Shift"))
 		/ Sim->dynamics.units().unitEnergy();
 	      
 	      _MCEnergyPotential[int(key + 0.5 - (key < 0))] = entry;
@@ -91,14 +91,14 @@ LNewtonianMC::outputXML(xml::XmlStream& XML) const
 	  * Sim->dynamics.units().unitEnergy()
       << xml::tag("PotentialDeformation");
 
-  typedef std::pair<const Iflt,Iflt> locpair;
+  typedef std::pair<const double,double> locpair;
 
   BOOST_FOREACH(const locpair& val, _MCEnergyPotential)
     {
-      Iflt key = val.first * EnergyPotentialStep 
+      double key = val.first * EnergyPotentialStep 
 	* Sim->dynamics.units().unitEnergy();
       
-      Iflt entry = val.second * Sim->dynamics.units().unitEnergy();
+      double entry = val.second * Sim->dynamics.units().unitEnergy();
 	      
       XML << xml::tag("Entry")
 	  << xml::attr("Energy") << key
@@ -122,15 +122,15 @@ void LNewtonianMC::initialise()
 
 NEventData 
 LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2, 
-				const Iflt&, const Iflt& deltaKE, 
+				const double&, const double& deltaKE, 
 				EEventType& eType) const
 {
   M_throw() << "Not implemented";
 }
 
 PairEventData 
-LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE, 
-			      const Iflt &) const
+LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
+			      const double &) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -146,22 +146,22 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
   
-  Iflt p1Mass = retVal.particle1_.getSpecies().getMass();
-  Iflt p2Mass = retVal.particle2_.getSpecies().getMass();
-  Iflt mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
-  Iflt R2 = retVal.rij.nrm2();
+  double p1Mass = retVal.particle1_.getSpecies().getMass();
+  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+  double R2 = retVal.rij.nrm2();
 
-  Iflt CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+  double CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
 
-  Iflt Key1FloatVal = CurrentE / EnergyPotentialStep;
+  double Key1FloatVal = CurrentE / EnergyPotentialStep;
   int Key1 = int(Key1FloatVal + 0.5 - (Key1FloatVal < 0));
 
-  Iflt Key2FloatVal = (CurrentE - deltaKE) / EnergyPotentialStep;
+  double Key2FloatVal = (CurrentE - deltaKE) / EnergyPotentialStep;
   int Key2 = int(Key2FloatVal + 0.5 - (Key2FloatVal < 0));
 
-  Iflt MCDeltaKE = deltaKE;
+  double MCDeltaKE = deltaKE;
 
-  boost::unordered_map<int, Iflt>::const_iterator iPtr = _MCEnergyPotential.find(Key1);
+  boost::unordered_map<int, double>::const_iterator iPtr = _MCEnergyPotential.find(Key1);
   if (iPtr != _MCEnergyPotential.end())
     MCDeltaKE -= iPtr->second;
 
@@ -170,7 +170,7 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const Iflt& deltaKE,
   if (iPtr != _MCEnergyPotential.end())
     MCDeltaKE -= iPtr->second;
 
-  Iflt sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
+  double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
 
   if ((MCDeltaKE < 0) && (sqrtArg < 0))
     {

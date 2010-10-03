@@ -49,7 +49,7 @@ CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp):
   type = GAUSSIAN;
 }
 
-CSysGhost::CSysGhost(DYNAMO::SimData* nSim, Iflt mft, Iflt t, 
+CSysGhost::CSysGhost(DYNAMO::SimData* nSim, double mft, double t, 
 		     std::string nName):
   System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
@@ -74,14 +74,14 @@ CSysGhost::runEvent() const
 
   if (tune && (eventCount > setFrequency))
     {
-      meanFreeTime *= static_cast<Iflt>(eventCount)
+      meanFreeTime *= static_cast<double>(eventCount)
 	/ ((Sim->eventCount - lastlNColl) * setPoint);
 
       lastlNColl = Sim->eventCount;
       eventCount = 0;
     }
 
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
@@ -135,10 +135,10 @@ CSysGhost::operator<<(const XMLNode& XML)
     M_throw() << "Attempting to load Andersen from non Andersen entry"; 
   
   try {
-    meanFreeTime = boost::lexical_cast<Iflt>(XML.getAttribute("MFT"))
+    meanFreeTime = boost::lexical_cast<double>(XML.getAttribute("MFT"))
       * Sim->dynamics.units().unitTime();
     
-    Temp = boost::lexical_cast<Iflt>(XML.getAttribute("Temperature")) 
+    Temp = boost::lexical_cast<double>(XML.getAttribute("Temperature")) 
       * Sim->dynamics.units().unitEnergy();
     
     sysName = XML.getAttribute("Name");
@@ -150,7 +150,7 @@ CSysGhost::operator<<(const XMLNode& XML)
 	setFrequency = boost::lexical_cast<unsigned long>
 	  (XML.getAttribute("SetFrequency"));
 
-	setPoint = boost::lexical_cast<Iflt>(XML.getAttribute("SetPoint"));
+	setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
       }
 
     range.set_ptr(CRange::loadClass(XML,Sim));
@@ -181,13 +181,13 @@ CSysGhost::outputXML(xml::XmlStream& XML) const
       << xml::endtag("System");
 }
 
-Iflt 
+double 
 CSysGhost::getGhostt() const
 { 
   return  - meanFreeTime * log(1.0-uniformRand());
 }
 
-Iflt 
+double 
 CSysGhost::getReducedTemperature() const
 {
   return Temp / Sim->dynamics.units().unitEnergy();

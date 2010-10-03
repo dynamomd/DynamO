@@ -22,7 +22,7 @@
 
 struct CUringRod: public CUCell
 {
-  CUringRod(size_t pcl, Iflt WL, CUCell* nextCell):
+  CUringRod(size_t pcl, double WL, CUCell* nextCell):
     CUCell(nextCell),
     pairchainlength(pcl),
     walklength(WL)
@@ -31,7 +31,7 @@ struct CUringRod: public CUCell
   }
 
   size_t pairchainlength;  
-  Iflt walklength;
+  double walklength;
   
   virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {

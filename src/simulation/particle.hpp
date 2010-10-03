@@ -49,11 +49,11 @@ public:
   inline Vector  &getVelocity() { return _vel; }
   
   inline const unsigned long &getID() const { return _ID; };
-  inline const Iflt& getPecTime() const { return _peculiarTime; }
-  inline Iflt& getPecTime() { return _peculiarTime; }
+  inline const double& getPecTime() const { return _peculiarTime; }
+  inline double& getPecTime() { return _peculiarTime; }
   
-  inline void scaleVelocity(const Iflt& vs) { _vel *= vs; }
-  inline void scalePosition(const Iflt& vs) { _pos *= vs; }
+  inline void scaleVelocity(const double& vs) { _vel *= vs; }
+  inline void scalePosition(const double& vs) { _pos *= vs; }
   
 private:
   //NOTE, changing these members type must be reflected in the liouvillean
@@ -61,5 +61,5 @@ private:
   Vector _pos;
   Vector _vel;
   unsigned long _ID;
-  Iflt _peculiarTime;
+  double _peculiarTime;
 };

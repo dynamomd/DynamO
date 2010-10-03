@@ -122,10 +122,10 @@ namespace DYNAMO
 
     /*! \brief The current system time of the simulation. 
      * 
-     * This class is lIflt to reduce roundoff error as this gets
+     * This class is long double to reduce roundoff error as this gets
      * very large compared to an events delta t.
      */
-    lIflt dSysTime;
+    long double dSysTime;
 
 
     /*! \brief This accumilator holds the time steps taken in between
@@ -136,7 +136,7 @@ namespace DYNAMO
      *  accumilate the time delta here and add it to the time we send
      *  to output plugins.
      */
-    Iflt freestreamAcc;
+    double freestreamAcc;
     
     /*! \brief Number of events executed.*/
     unsigned long long eventCount;
@@ -177,9 +177,9 @@ namespace DYNAMO
      */
     mutable baseRNG ranGenerator;
 
-    mutable boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution_01<Iflt> > normal_sampler;
+    mutable boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution_01<double> > normal_sampler;
 
-    mutable boost::uniform_01<DYNAMO::baseRNG, Iflt> uniform_sampler;  
+    mutable boost::uniform_01<DYNAMO::baseRNG, double> uniform_sampler;  
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
@@ -190,7 +190,7 @@ namespace DYNAMO
      * This is zero in the case that there is no previous simulation
      * data and is already in the units of the simulation once loaded
      */
-    Iflt lastRunMFT;
+    double lastRunMFT;
 
     /*! \brief This is just the ID number of the Simulation in its container.
      *

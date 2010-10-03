@@ -72,7 +72,7 @@ CGCellsMorton::operator<<(const XMLNode& XML)
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
     if (XML.isAttributeSet("Lambda"))
-      lambda = boost::lexical_cast<Iflt>
+      lambda = boost::lexical_cast<double>
 	(XML.getAttribute("Lambda"));
 
     if (XML.isAttributeSet("OverLink"))
@@ -91,7 +91,7 @@ CGCellsMorton::operator<<(const XMLNode& XML)
 }
 
 void 
-CGCellsMorton::setLambda(const Iflt& nL)
+CGCellsMorton::setLambda(const double& nL)
 {
   lambda = nL;
 }
@@ -284,7 +284,7 @@ CGCellsMorton::initialise(size_t nID)
 }
 
 void
-CGCellsMorton::reinitialise(const Iflt& maxdiam)
+CGCellsMorton::reinitialise(const double& maxdiam)
 {
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
@@ -312,7 +312,7 @@ CGCellsMorton::outputXML(xml::XmlStream& XML) const
 }
 
 void
-CGCellsMorton::addCells(Iflt maxdiam)
+CGCellsMorton::addCells(double maxdiam)
 {
   cells.clear();
   partCellData.resize(Sim->N); //Location data for particles
@@ -508,13 +508,13 @@ CGCellsMorton::getParticleLocalNeighbourhood(const Particle& part,
     func(part, id);
 }
 
-Iflt 
+double 
 CGCellsMorton::getMaxSupportedInteractionLength() const
 {
   return cellLatticeWidth + lambda * (cellLatticeWidth - cellDimension);
 }
 
-Iflt 
+double 
 CGCellsMorton::getMaxInteractionLength() const
 {
   return Sim->dynamics.getLongestInteraction();

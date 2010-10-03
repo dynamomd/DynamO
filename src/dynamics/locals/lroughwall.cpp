@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-LRoughWall::LRoughWall(DYNAMO::SimData* nSim, Iflt ne, Iflt net, Iflt nr, Vector  nnorm, 
+LRoughWall::LRoughWall(DYNAMO::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 
 		       Vector  norigin, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "LocalRoughWall"),
@@ -94,9 +94,9 @@ LRoughWall::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Elasticity"));
-    et = boost::lexical_cast<Iflt>(XML.getAttribute("TangentialElasticity"));
-    r = boost::lexical_cast<Iflt>(XML.getAttribute("Radius"))
+    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
+    et = boost::lexical_cast<double>(XML.getAttribute("TangentialElasticity"));
+    r = boost::lexical_cast<double>(XML.getAttribute("Radius"))
       * Sim->dynamics.units().unitLength();
     render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
     XMLNode xBrowseNode = XML.getChildNode("Norm");
@@ -206,7 +206,7 @@ LRoughWall::checkOverlaps(const Particle& p1) const
   Vector pos(p1.getPosition() - vPosition);
   Sim->dynamics.BCs().applyBC(pos);
 
-  Iflt r = (pos | vNorm);
+  double r = (pos | vNorm);
   
   if (r < 0)
     I_cout() << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()

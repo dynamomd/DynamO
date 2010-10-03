@@ -42,7 +42,7 @@ OPSHCrystal::initialise()
   BOOST_FOREACH(const magnet::ClonePtr<Global>& pGlob, Sim->dynamics.getGlobals())
     if (dynamic_cast<const CGNeighbourList*>(pGlob.get_ptr()) != NULL)
       {
-	const Iflt l(static_cast<const CGNeighbourList*>(pGlob.get_ptr())
+	const double l(static_cast<const CGNeighbourList*>(pGlob.get_ptr())
 		     ->getMaxSupportedInteractionLength());
 	if ((l >= rg) && (l < smallestlength))
 	  {
@@ -58,7 +58,7 @@ OPSHCrystal::initialise()
 
   globalcoeff.resize(maxl);
   for (size_t l=0; l < maxl; ++l)
-    globalcoeff[l].resize(2*l+1,std::complex<Iflt>(0,0));
+    globalcoeff[l].resize(2*l+1,std::complex<double>(0,0));
 
   ticker();
 }
@@ -95,24 +95,24 @@ OPSHCrystal::output(xml::XmlStream& XML)
       XML << xml::tag("Q")
 	  << xml::attr("l") << l;
       
-      Iflt Qsum(0);
+      double Qsum(0);
       for (int m(-l); m <= l; ++m)
-	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<Iflt>(count, 0));
+	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<double>(count, 0));
       
       XML << xml::attr("val")
-	  << std::sqrt(Qsum * 4.0 * PI / (2.0 * l + 1.0))
+	  << std::sqrt(Qsum * 4.0 * M_PI / (2.0 * l + 1.0))
 	  << xml::endtag("Q");
       
       XML << xml::tag("W")
 	  << xml::attr("l") << l;
 
-      std::complex<Iflt> Wsum(0, 0);
+      std::complex<double> Wsum(0, 0);
       for (int m1(-l); m1 <= l; ++m1)
 	for (int m2(-l); m2 <= l; ++m2)
 	  {
 	    int m3 = -(m1+m2);
 	    if (std::abs(m3) <= l)
-	      Wsum += std::complex<Iflt>(magnet::math::wignerThreej(l,l,l,m1,m2,m3) 
+	      Wsum += std::complex<double>(magnet::math::wignerThreej(l,l,l,m1,m2,m3) 
 					 * std::pow(count,-3.0), 0)
 		* globalcoeff[l][m1+l]
 		* globalcoeff[l][m2+l]
@@ -136,7 +136,7 @@ OPSHCrystal::operator<<(const XMLNode& XML)
   try
     {
       if (XML.isAttributeSet("CutOffR"))
-	rg = boost::lexical_cast<Iflt>(XML.getAttribute("CutOffR"))
+	rg = boost::lexical_cast<double>(XML.getAttribute("CutOffR"))
 	  * Sim->dynamics.units().unitLength();
 
       if (XML.isAttributeSet("MaxL"))
@@ -152,12 +152,12 @@ OPSHCrystal::operator<<(const XMLNode& XML)
 }
 
 OPSHCrystal::sphericalsum::sphericalsum
-(const DYNAMO::SimData * const nSim, const Iflt& nrg, const size_t& nl):
+(const DYNAMO::SimData * const nSim, const double& nrg, const size_t& nl):
   Sim(nSim), rg(nrg), maxl(nl), count(0)
 {
   coeffsum.resize(maxl);
   for (size_t l=0; l < maxl; ++l)
-    coeffsum[l].resize(2*l+1,std::complex<Iflt>(0,0));
+    coeffsum[l].resize(2*l+1,std::complex<double>(0,0));
 }
 
 void 
@@ -167,23 +167,23 @@ OPSHCrystal::sphericalsum::operator()
   Vector rij = part.getPosition() - Sim->particleList[ID].getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
-  Iflt norm = rij.nrm();
+  double norm = rij.nrm();
   if (norm <= rg)
     {
       ++count;
       rij /= norm;
-      Iflt theta = std::acos(rij[0]);
-      Iflt sintheta = std::sin(theta);
-      Iflt phi = rij[1] / sintheta;
+      double theta = std::acos(rij[0]);
+      double sintheta = std::sin(theta);
+      double phi = rij[1] / sintheta;
       
       if (fabs(phi) > 1.0)
-	phi = (phi > 0) ? 0.5 * PI : 1.5 * PI;
+	phi = (phi > 0) ? 0.5 * M_PI : 1.5 * M_PI;
       else
 	phi = std::asin(phi);
 
       if (std::sin(theta) == 0) phi = 0;
       
-      if (phi < 0) phi += 2.0*PI;
+      if (phi < 0) phi += 2.0 * M_PI;
 
       for (size_t l(0); l < maxl; ++l)
 	for (int m(-l); m <= static_cast<int>(l); ++m)
@@ -198,6 +198,6 @@ OPSHCrystal::sphericalsum::clear()
 
   for (size_t l(0); l < maxl; ++l)
     for (int m(-l); m <= static_cast<int>(l); ++m)
-      coeffsum[l][m+l] = std::complex<Iflt>(0,0);
+      coeffsum[l][m+l] = std::complex<double>(0,0);
 }
 

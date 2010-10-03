@@ -24,7 +24,7 @@
 class CSNBListCompressionFix: public System
 {
 public:
-  CSNBListCompressionFix(DYNAMO::SimData*, Iflt, size_t);
+  CSNBListCompressionFix(DYNAMO::SimData*, double, size_t);
   
   virtual System* Clone() const { return new CSNBListCompressionFix(*this); }
 
@@ -37,7 +37,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const {}
   
-  Iflt growthRate;
+  double growthRate;
   size_t cellID;
 };
 

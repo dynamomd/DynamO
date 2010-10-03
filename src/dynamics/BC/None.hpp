@@ -38,9 +38,9 @@ class BCNone: virtual public BoundaryCondition
 
   virtual void applyBC(Vector  &, Vector  &) const;
 
-  virtual void applyBC(Vector  &, const Iflt&) const;
+  virtual void applyBC(Vector  &, const double&) const;
 
-  virtual void update(const Iflt&);
+  virtual void update(const double&);
 
   virtual void outputXML(xml::XmlStream &XML) const;
 

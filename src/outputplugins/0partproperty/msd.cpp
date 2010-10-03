@@ -44,7 +44,7 @@ void
 OPMSD::output(xml::XmlStream &XML)
 {
   {
-    Iflt MSD(calcMSD());
+    double MSD(calcMSD());
 
     XML << xml::tag("MSD") 
 	<< xml::tag("Particle") 
@@ -60,7 +60,7 @@ OPMSD::output(xml::XmlStream &XML)
 
       BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
 	{
-	  Iflt MSD(calcStructMSD(*topo));
+	  double MSD(calcStructMSD(*topo));
 
 	  XML << xml::tag("Structure")
 	      << xml::attr("Name") << topo->getName()
@@ -76,13 +76,13 @@ OPMSD::output(xml::XmlStream &XML)
   XML << xml::endtag("MSD");
 }
 
-Iflt
+double
 OPMSD::calcMSD() const
 {
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  Iflt acc = 0.0;
+  double acc = 0.0;
   
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     acc += (part.getPosition() - initPos[part.getID()]).nrm2();
@@ -90,20 +90,20 @@ OPMSD::calcMSD() const
   return acc / (initPos.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
 }
 
-Iflt
+double
 OPMSD::calcStructMSD(const Topology& Itop) const
 {
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  Iflt acc = 0.0;
+  double acc = 0.0;
   BOOST_FOREACH(const magnet::ClonePtr<CRange>& molRange, Itop.getMolecules())
     {
       Vector  origPos(0,0,0), currPos(0,0,0);
-      Iflt totmass = 0.0;
+      double totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
-	  Iflt pmass = Sim->dynamics.getSpecies(Sim->particleList[ID])
+	  double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID])
 	    .getMass();
 
 	  totmass += pmass;

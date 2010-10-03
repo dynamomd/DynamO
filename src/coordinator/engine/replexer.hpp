@@ -125,7 +125,7 @@ protected:
   {
     /*! \brief A simple RAII constructor.
      */
-    explicit simData(int ID, Iflt rT):
+    explicit simData(int ID, double rT):
       simID(ID), swaps(0), attempts(0), upSims(0), downSims(0),
       realTemperature(rT)
     {}
@@ -151,10 +151,10 @@ protected:
         the hottest temperature was found in this box. */
     size_t downSims;
     /*! \brief The temperature of this simulation point */
-    Iflt realTemperature;
+    double realTemperature;
   };
 
-  typedef std::pair<Iflt, simData> replexPair;
+  typedef std::pair<double, simData> replexPair;
 
   /*! \brief The array of Simulations being run.
    */
@@ -162,7 +162,7 @@ protected:
   
   /*! \brief The system time to end the Simulations at
    */
-  Iflt replicaEndTime;  
+  double replicaEndTime;  
 
   /*! \brief What type of replica exchange moves to attempt.
    */

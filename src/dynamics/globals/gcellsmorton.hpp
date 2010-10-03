@@ -45,7 +45,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void reinitialise(const Iflt&);
+  virtual void reinitialise(const double&);
 
   virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const;
@@ -53,18 +53,18 @@ public:
   virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const;
   
-  void setLambda(const Iflt&);
+  void setLambda(const double&);
 
-  inline const Iflt& getLambda() const { return lambda; }
+  inline const double& getLambda() const { return lambda; }
 
   virtual void operator<<(const XMLNode&);
 
-  Iflt  getCellDimensions() const 
+  double  getCellDimensions() const 
   { return cellDimension; }
 
-  virtual Iflt getMaxSupportedInteractionLength() const;
+  virtual double getMaxSupportedInteractionLength() const;
 
-  virtual Iflt getMaxInteractionLength() const;
+  virtual double getMaxInteractionLength() const;
 
 protected:
   CGCellsMorton(DYNAMO::SimData*, const char*, void*);
@@ -81,7 +81,7 @@ protected:
   magnet::math::DilatedVector getCellID(Vector) const;
   magnet::math::DilatedVector getCellID(const CVector<int>&) const;
 
-  void addCells(Iflt);
+  void addCells(double);
 
   inline Vector calcPosition(const magnet::math::DilatedVector& coords,
 			     const Particle& part) const;
@@ -93,9 +93,9 @@ protected:
   //Variables
   unsigned int cellCount;
   magnet::math::DilatedInteger dilatedCellMax;
-  Iflt  cellDimension;
-  Iflt  cellLatticeWidth;
-  Iflt lambda;
+  double  cellDimension;
+  double  cellLatticeWidth;
+  double lambda;
   size_t NCells;
   size_t overlink;
   magnet::math::DilatedInteger dilatedOverlink;

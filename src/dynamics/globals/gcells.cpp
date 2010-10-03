@@ -93,7 +93,7 @@ CGCells::operator<<(const XMLNode& XML)
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
     if (XML.isAttributeSet("Lambda"))
-      lambda = boost::lexical_cast<Iflt>
+      lambda = boost::lexical_cast<double>
 	(XML.getAttribute("Lambda"));
 
     if (XML.isAttributeSet("OverLink"))
@@ -105,7 +105,7 @@ CGCells::operator<<(const XMLNode& XML)
 	(XML.getAttribute("Interaction"));
 
     if (XML.isAttributeSet("CellWidth"))
-      MaxIntDist = boost::lexical_cast<Iflt>
+      MaxIntDist = boost::lexical_cast<double>
 	(XML.getAttribute("CellWidth")) * Sim->dynamics.units().unitLength();
     
     globName = XML.getAttribute("Name");	
@@ -120,7 +120,7 @@ CGCells::operator<<(const XMLNode& XML)
 }
 
 void 
-CGCells::setLambda(const Iflt& nL)
+CGCells::setLambda(const double& nL)
 {
   lambda = nL;
 }
@@ -318,7 +318,7 @@ CGCells::initialise(size_t nID)
 }
 
 void
-CGCells::reinitialise(const Iflt& maxdiam)
+CGCells::reinitialise(const double& maxdiam)
 {
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
@@ -357,7 +357,7 @@ CGCells::outputXML(xml::XmlStream& XML, const std::string& name) const
 }
 
 void
-CGCells::addCells(Iflt maxdiam)
+CGCells::addCells(double maxdiam)
 {
   cells.clear();
   partCellData.resize(Sim->N); //Location data for particles
@@ -571,7 +571,7 @@ CGCells::getParticleLocalNeighbourhood(const Particle& part,
     func(part, id);
 }
 
-Iflt 
+double 
 CGCells::getMaxSupportedInteractionLength() const
 {
   size_t minDiam = 0;
@@ -587,7 +587,7 @@ CGCells::getMaxSupportedInteractionLength() const
     + lambda * (cellLatticeWidth[minDiam] - cellDimension[minDiam]);
 }
 
-Iflt 
+double 
 CGCells::getMaxInteractionLength() const
 {
   if (MaxIntDist != 0.0)

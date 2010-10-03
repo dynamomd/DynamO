@@ -45,7 +45,7 @@ public:
   intID(-1) {}
 
   inline IntEvent(const Particle& part1, const Particle& part2, 
-		   const Iflt &delt, EEventType nType, 
+		   const double &delt, EEventType nType, 
 		   const Interaction& pI):
     particle1(part1.getID()), particle2(part2.getID()), dt(delt), 
     CType(nType), intID(pI.getID()) {}
@@ -55,7 +55,7 @@ public:
     dt(HUGE_VAL), CType(NONE),
     intID(-1) {}
 
-  inline IntEvent(const Particle& part1, const Iflt& dt, 
+  inline IntEvent(const Particle& part1, const double& dt, 
 		     EEventType etype):
     particle1(part1.getID()), particle2(-1), 
     dt(dt), CType(etype),
@@ -84,9 +84,9 @@ public:
   inline bool operator> (const IntEvent & C2) const 
     { return dt > C2.dt;}
 
-  inline void incrementTime(const Iflt deltat) {dt -= deltat; }
+  inline void incrementTime(const double deltat) {dt -= deltat; }
   
-  inline void addTime(const Iflt deltat) {dt += deltat; }
+  inline void addTime(const double deltat) {dt += deltat; }
   
   inline const size_t& getParticle1ID() const { return particle1; }
   
@@ -94,7 +94,7 @@ public:
   
   inline bool hasParticle2() const { return particle2 != size_t(-1); }
 
-  inline const Iflt& getdt() const { return dt; }
+  inline const double& getdt() const { return dt; }
 
   inline EEventType getType() const
   { return CType; }
@@ -109,7 +109,7 @@ public:
     CType = a;
   }
   
-  inline void scaleTime(const Iflt& scale)
+  inline void scaleTime(const double& scale)
   { dt *= scale; }
 
   inline const size_t& getInteractionID() const 
@@ -118,7 +118,7 @@ public:
 private:
   const size_t  particle1;
   const size_t  particle2;
-  Iflt dt;
+  double dt;
   mutable EEventType CType;
   const size_t intID;
 };

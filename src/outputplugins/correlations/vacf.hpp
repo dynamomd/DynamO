@@ -41,7 +41,7 @@ class OPVACF: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
     
@@ -59,12 +59,12 @@ protected:
   
   virtual void accPass();
 
-  Iflt getdt();
+  double getdt();
 
   std::vector<boost::circular_buffer<Vector  > > G;
   std::vector<std::vector<Vector  > > accG2;
   long count;
-  Iflt dt, currentdt;
+  double dt, currentdt;
   
   size_t CorrelatorLength;
   size_t currCorrLen;

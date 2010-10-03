@@ -31,7 +31,7 @@ class OPSCParameter: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   
@@ -43,7 +43,7 @@ class OPSCParameter: public OPTicker
   
   size_t maxWaveNumber;
   size_t count;
-  std::vector<Iflt> runningsum;
+  std::vector<double> runningsum;
 };
 
 #endif

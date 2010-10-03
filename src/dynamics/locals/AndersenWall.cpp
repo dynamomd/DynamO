@@ -42,7 +42,7 @@ CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):
   operator<<(XML);
 }
 
-CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, Iflt nsqrtT,
+CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, double nsqrtT,
 			       Vector  nnorm, Vector norigin, 
 			       std::string nname, CRange* nRange):
   Local(nRange, nSim, "AndersenWall"),
@@ -102,7 +102,7 @@ CLAndersenWall::operator<<(const XMLNode& XML)
   
   try {
     
-    sqrtT = sqrt(boost::lexical_cast<Iflt>(XML.getAttribute("Temperature")) 
+    sqrtT = sqrt(boost::lexical_cast<double>(XML.getAttribute("Temperature")) 
 		 * Sim->dynamics.units().unitEnergy());
 
     XMLNode xBrowseNode = XML.getChildNode("Norm");

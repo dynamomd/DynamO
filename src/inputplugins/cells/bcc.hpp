@@ -43,7 +43,7 @@ struct CUBCC: public CUCell
     while (iterVec[NDIM - 1] != cells[NDIM-1])
       {      
 	for (size_t iDim = 0; iDim < NDIM; iDim++)
-	  position[iDim] = cellWidth[iDim] * static_cast<Iflt>(iterVec[iDim]) - 0.5 * dimensions[iDim] 
+	  position[iDim] = cellWidth[iDim] * static_cast<double>(iterVec[iDim]) - 0.5 * dimensions[iDim] 
 	    + centre[iDim];
 	
 	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))

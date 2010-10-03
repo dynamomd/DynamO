@@ -32,7 +32,7 @@ class OPVelDist: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   
@@ -41,7 +41,7 @@ class OPVelDist: public OPTicker
   void operator<<(const XMLNode&);
 
  protected:
-  Iflt binWidth;
+  double binWidth;
   std::vector<C1DHistogram> data[NDIM];
 
   const OPKEnergy* _ptrOPEnergy;

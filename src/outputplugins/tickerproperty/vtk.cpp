@@ -47,9 +47,9 @@ OPVTK::operator<<(const XMLNode& XML)
   try {
     if (XML.isAttributeSet("binwidth"))
       binWidth = Vector 
-	(boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
-	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")),
-	 boost::lexical_cast<Iflt>(XML.getAttribute("binwidth")));
+	(boost::lexical_cast<double>(XML.getAttribute("binwidth")),
+	 boost::lexical_cast<double>(XML.getAttribute("binwidth")),
+	 boost::lexical_cast<double>(XML.getAttribute("binwidth")));
     
     if (XML.isAttributeSet("Snapshots")) snapshots = true;
     if (XML.isAttributeSet("Fields")) fields = true;
@@ -282,7 +282,7 @@ OPVTK::ticker()
       XML //<< std::scientific
 	//This has a minus one due to the digit in front of the decimal
 	//An extra one is added if we're rounding
-	<< std::setprecision(std::numeric_limits<Iflt>::digits10 - 1)
+	<< std::setprecision(std::numeric_limits<double>::digits10 - 1)
 	<< xml::prolog() << xml::tag("VTKFile")
 	<< xml::attr("type") << "UnstructuredGrid"
 	<< xml::attr("version") << "0.1"

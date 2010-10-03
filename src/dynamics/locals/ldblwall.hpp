@@ -25,7 +25,7 @@ class CLDblWall: public Local
 {
 public:
   CLDblWall(const XMLNode&, DYNAMO::SimData*);
-  CLDblWall(DYNAMO::SimData*, Iflt, Vector , Vector , 
+  CLDblWall(DYNAMO::SimData*, double, Vector , Vector , 
 	 std::string, CRange*);
 
   virtual ~CLDblWall() {}
@@ -51,7 +51,7 @@ protected:
 
   Vector  vNorm;
   Vector  vPosition;
-  Iflt e;
+  double e;
   mutable size_t lastID;
 };
 

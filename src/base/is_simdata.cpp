@@ -36,7 +36,7 @@ namespace DYNAMO
     dynamics(this),
     aspectRatio(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
-    normal_sampler(ranGenerator, boost::normal_distribution_01<Iflt>()),
+    normal_sampler(ranGenerator, boost::normal_distribution_01<double>()),
     uniform_sampler(ranGenerator),
     lastRunMFT(0.0),
     simID(0),
@@ -78,7 +78,7 @@ namespace DYNAMO
       aPtr->changeSystem(&other);
 
     //Rescale the velocities     
-    Iflt scale1(sqrt(other.ensemble->getEnsembleVals()[2]
+    double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
 		     / ensemble->getEnsembleVals()[2]));
     
     BOOST_FOREACH(Particle& part, particleList)
@@ -86,7 +86,7 @@ namespace DYNAMO
     
     other.ptrScheduler->rescaleTimes(scale1);
     
-    Iflt scale2(1.0 / scale1);
+    double scale2(1.0 / scale1);
 
     BOOST_FOREACH(Particle& part, other.particleList)
       part.scaleVelocity(scale2);

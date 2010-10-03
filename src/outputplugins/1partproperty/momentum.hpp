@@ -28,7 +28,7 @@ class OPMomentum: public OP1PP
 
   void A1ParticleChange(const ParticleEventData&);
 
-  void stream(const Iflt&);  
+  void stream(const double&);  
 
   void output(xml::XmlStream &); 
 

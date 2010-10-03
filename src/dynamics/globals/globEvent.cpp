@@ -25,7 +25,7 @@
 #include "global.hpp"
 #include <cmath>
 
-GlobalEvent::GlobalEvent(const Particle& part1, const Iflt &delt, 
+GlobalEvent::GlobalEvent(const Particle& part1, const double &delt, 
 		       EEventType nType, const Global& glob):
   particle_(&part1), dt(delt), 
   CType(nType), globalID(glob.getID())

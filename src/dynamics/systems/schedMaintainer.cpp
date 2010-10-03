@@ -21,7 +21,7 @@
 #include "../NparticleEventData.hpp"
 #include "../units/units.hpp"
 
-CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, Iflt ndt, std::string nName):
+CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, double ndt, std::string nName):
   System(nSim),
   periodt(ndt * nSim->dynamics.units().unitTime())
 {
@@ -35,7 +35,7 @@ CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, Iflt ndt, std::strin
 void 
 CSSchedMaintainer::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(dt))
@@ -61,11 +61,11 @@ CSSchedMaintainer::initialise(size_t nID)
 { ID = nID; }
 
 void 
-CSSchedMaintainer::setdt(Iflt ndt)
+CSSchedMaintainer::setdt(double ndt)
 { dt = ndt * Sim->dynamics.units().unitTime(); }
 
 void 
-CSSchedMaintainer::increasedt(Iflt ndt)
+CSSchedMaintainer::increasedt(double ndt)
 { 
   dt += ndt * Sim->dynamics.units().unitTime(); 
 }

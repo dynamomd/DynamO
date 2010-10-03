@@ -38,7 +38,7 @@ class OPCubeComp: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&);
+  virtual void eventUpdate(const System&, const NEventData&, const double&);
 
   void output(xml::XmlStream &);
 

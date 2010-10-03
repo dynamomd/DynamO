@@ -65,8 +65,8 @@ OPPlateMotion::initialise()
   
   logfile.open("plateMotion.out", std::ios::out|std::ios::trunc);
 
-  localEnergyLoss.resize(Sim->dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
-  localEnergyFlux.resize(Sim->dynamics.getLocals().size(), std::make_pair(Iflt(0),std::vector<Iflt>()));
+  localEnergyLoss.resize(Sim->dynamics.getLocals().size(), std::make_pair(double(0),std::vector<double>()));
+  localEnergyFlux.resize(Sim->dynamics.getLocals().size(), std::make_pair(double(0),std::vector<double>()));
 
   oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
   partpartEnergyLoss = 0;
@@ -77,12 +77,12 @@ OPPlateMotion::initialise()
 void 
 OPPlateMotion::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 {
-  Iflt newPlateEnergy = oldPlateEnergy;
+  double newPlateEnergy = oldPlateEnergy;
 
   if (localEvent.getLocalID() == plateID)
     newPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
 
-  Iflt EnergyChange(0);
+  double EnergyChange(0);
 
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     EnergyChange += pData.getDeltaKE();  
@@ -117,14 +117,14 @@ OPPlateMotion::ticker()
     }
 
   Vector com(0,0,0), momentum(0,0,0);
-  Iflt sqmom(0);
-  Iflt partEnergy(0.0);
+  double sqmom(0);
+  double partEnergy(0.0);
 
-  Iflt mass(0);
+  double mass(0);
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       Vector pos(part.getPosition()), vel(part.getVelocity());
-      Iflt pmass(Sim->dynamics.getSpecies(part).getMass());
+      double pmass(Sim->dynamics.getSpecies(part).getMass());
       Sim->dynamics.BCs().applyBC(pos, vel);
       momentum += vel * pmass;
       sqmom += (vel | vel) * (pmass * pmass);
@@ -183,9 +183,9 @@ OPPlateMotion::output(xml::XmlStream& XML)
 		      std::ios::out | std::ios::trunc);
       
 	size_t step(0);
-	Iflt deltat(getTickerTime() / Sim->dynamics.units().unitTime());
-	Iflt sum = localEnergyLoss[ID].first;
-	BOOST_FOREACH(const Iflt& val, localEnergyLoss[ID].second)
+	double deltat(getTickerTime() / Sim->dynamics.units().unitTime());
+	double sum = localEnergyLoss[ID].first;
+	BOOST_FOREACH(const double& val, localEnergyLoss[ID].second)
 	  {
 	    sum += val;
 	    of << deltat * (step++) << " " 
@@ -206,9 +206,9 @@ OPPlateMotion::output(xml::XmlStream& XML)
 			std::ios::out | std::ios::trunc);
 	
 	size_t step(0);
-	Iflt deltat(getTickerTime() / Sim->dynamics.units().unitTime());
+	double deltat(getTickerTime() / Sim->dynamics.units().unitTime());
 	
-	BOOST_FOREACH(const Iflt& val, localEnergyFlux[ID].second)
+	BOOST_FOREACH(const double& val, localEnergyFlux[ID].second)
 	  of << deltat * (step++) << " " << val / (deltat * Sim->dynamics.units().unitEnergy()) << "\n";
       }
     }

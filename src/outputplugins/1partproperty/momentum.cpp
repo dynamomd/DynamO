@@ -48,7 +48,7 @@ OPMomentum::A1ParticleChange(const ParticleEventData& PDat)
 }
 
 void 
-OPMomentum::stream(const Iflt& dt)
+OPMomentum::stream(const double& dt)
 {
   Vector  tmp(sysMom * dt);
   accMom += tmp;

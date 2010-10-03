@@ -31,7 +31,7 @@ class CInputPlugin: public DYNAMO::SimBase
   virtual void initialise() {};
 
   //Rescaling system
-  void rescaleVels(Iflt val = 1.0);
+  void rescaleVels(double val = 1.0);
 
   void zeroMomentum();  
 
@@ -39,7 +39,7 @@ class CInputPlugin: public DYNAMO::SimBase
 
   void zeroCentreOfMass();  
   
-  void setPackFrac(Iflt);
+  void setPackFrac(double);
 
   void mirrorDirection(unsigned int);
 

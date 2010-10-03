@@ -20,6 +20,8 @@
 
 #include "elastic.hpp"
 
+
+
 /*! \brief For running a simulation with a time scale set by the shear
  * rate.
  *
@@ -37,13 +39,15 @@
 class UShear: public UHardSphere
 {
 public:
+  static const double ShearRate = 1;
+
   UShear(const DYNAMO::SimData* tmp): 
     UHardSphere(1.0, tmp)
   {
     I_cout() << "Shearing units loaded";
   }
   
-  UShear(const Iflt& length, const DYNAMO::SimData* tmp):
+  UShear(const double& length, const DYNAMO::SimData* tmp):
     UHardSphere(length, tmp)
   {
     I_cout() << "Shearing units loaded";
@@ -58,7 +62,7 @@ public:
   
   virtual ~UShear() {}
   
-  virtual Iflt unitTime() const
+  virtual double unitTime() const
   { return 1.0 / ShearRate; }
   
   virtual Units* Clone() const

@@ -25,7 +25,7 @@ class OPKEnergyTicker: public OPTicker
  public:
   OPKEnergyTicker(const DYNAMO::SimData*, const XMLNode&);
 
-  typedef boost::array<Iflt, NDIM> col;
+  typedef boost::array<double, NDIM> col;
   typedef boost::array<col, NDIM> matrix;
 
   virtual OutputPlugin *Clone() const
@@ -33,7 +33,7 @@ class OPKEnergyTicker: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
   

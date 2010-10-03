@@ -37,7 +37,7 @@ OPCubeComp::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
 {
   mapdata& ref = angles[mapKey(iEvent.getType(), getClassKey(iEvent))];
 
-  std::vector<Iflt> vals(NDIM, 0);
+  std::vector<double> vals(NDIM, 0);
 
   for (size_t i(0); i < NDIM; ++i)
     vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
@@ -55,7 +55,7 @@ OPCubeComp::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
     {
       mapdata& ref = angles[mapKey(globEvent.getType(), 
 				   getClassKey(globEvent))];
-      std::vector<Iflt> vals(NDIM, 0);
+      std::vector<double> vals(NDIM, 0);
       
       for (size_t i(0); i < NDIM; ++i)
 	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
@@ -75,7 +75,7 @@ OPCubeComp::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
       mapdata& ref = angles[mapKey(localEvent.getType(), 
 				   getClassKey(localEvent))];
       
-      std::vector<Iflt> vals(NDIM, 0);
+      std::vector<double> vals(NDIM, 0);
       
       for (size_t i(0); i < NDIM; ++i)
 	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
@@ -88,14 +88,14 @@ OPCubeComp::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void
-OPCubeComp::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
+OPCubeComp::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
 {
   BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
     {
       mapdata& ref = angles[mapKey(sysEvent.getType(), 
 				     getClassKey(sysEvent))];
       
-      std::vector<Iflt> vals(NDIM, 0);
+      std::vector<double> vals(NDIM, 0);
       
       for (size_t i(0); i < NDIM; ++i)
 	vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();

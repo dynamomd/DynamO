@@ -23,7 +23,7 @@
 #include "../interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/mathtemplates.hpp"
-
+#include "../units/shear.hpp"
 
 BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
@@ -57,7 +57,7 @@ BCRectangularLeesEdwards::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("DXD"))
-	dxd = boost::lexical_cast<Iflt>(XML.getAttribute("DXD"));
+	dxd = boost::lexical_cast<double>(XML.getAttribute("DXD"));
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -88,7 +88,7 @@ BCRectangularLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
   
   //Adjust the velocity due to the box shift
   vel[0] -= rint(pos[1] / Sim->aspectRatio[1]) 
-    * ShearRate * Sim->aspectRatio[1];
+    * UShear::ShearRate * Sim->aspectRatio[1];
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -96,9 +96,9 @@ BCRectangularLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
 }
 
 void 
-BCRectangularLeesEdwards::applyBC(Vector  &posVec, const Iflt& dt) const 
+BCRectangularLeesEdwards::applyBC(Vector  &posVec, const double& dt) const 
 { 
-  Iflt localdxd = dxd + dt * ShearRate * Sim->aspectRatio[1];
+  double localdxd = dxd + dt * UShear::ShearRate * Sim->aspectRatio[1];
   
   //Shift the x distance due to the Lee's Edwards conditions
   posVec[0] -= rint(posVec[1] / Sim->aspectRatio[1]) * localdxd;
@@ -109,10 +109,10 @@ BCRectangularLeesEdwards::applyBC(Vector  &posVec, const Iflt& dt) const
 }
 
 void 
-BCRectangularLeesEdwards::update(const Iflt& dt) 
+BCRectangularLeesEdwards::update(const double& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * ShearRate * Sim->aspectRatio[1];
+  dxd += dt * UShear::ShearRate * Sim->aspectRatio[1];
   
   //PBC for the shift to keep accuracy?
   dxd -= floor(dxd/Sim->aspectRatio[0])*Sim->aspectRatio[0];
@@ -153,7 +153,7 @@ BCSquareLeesEdwards::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("DXD"))
-	dxd = boost::lexical_cast<Iflt>(XML.getAttribute("DXD"));
+	dxd = boost::lexical_cast<double>(XML.getAttribute("DXD"));
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -182,16 +182,16 @@ BCSquareLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
   pos[0] -= rint(pos[1]) * dxd;
   
   //Adjust the velocity due to the box shift
-  vel[0] -= rint(pos[1]) * ShearRate;
+  vel[0] -= rint(pos[1]) * UShear::ShearRate;
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
 }
 
 void 
-BCSquareLeesEdwards::applyBC(Vector  &posVec, const Iflt& dt) const 
+BCSquareLeesEdwards::applyBC(Vector  &posVec, const double& dt) const 
 {
-  Iflt localdxd = dxd + dt * ShearRate;
+  double localdxd = dxd + dt * UShear::ShearRate;
   
   //Shift the x distance due to the Lee's Edwards conditions
   posVec[0] -= rint(posVec[1]) * localdxd;
@@ -201,10 +201,10 @@ BCSquareLeesEdwards::applyBC(Vector  &posVec, const Iflt& dt) const
 }
 
 void 
-BCSquareLeesEdwards::update(const Iflt& dt) 
+BCSquareLeesEdwards::update(const double& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * ShearRate;
+  dxd += dt * UShear::ShearRate;
   
   //PBC for the shift to keep accuracy?
   dxd -= floor(dxd);

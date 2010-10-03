@@ -148,7 +148,7 @@ OPTrajectory::eventUpdate(const LocalEvent& eevent,
 
 void 
 OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat, 
-			   const Iflt& dt)
+			   const double& dt)
 {
   logfile << "SYSTEM " << sys.getID()
 	  << " TYPE " << sys.getType()

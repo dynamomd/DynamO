@@ -65,10 +65,10 @@ OPMSDCorrelator::initialise()
     posHistory[part.getID()].push_front(part.getPosition());
 
   speciesData.resize(Sim->dynamics.getSpecies().size(), 
-		     std::vector<Iflt>(length, 0.0));
+		     std::vector<double>(length, 0.0));
 
   structData.resize(Sim->dynamics.getTopology().size(), 
-		    std::vector<Iflt>(length, 0.0));
+		    std::vector<double>(length, 0.0));
 }
 
 void 
@@ -103,7 +103,7 @@ OPMSDCorrelator::accPass()
     BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, topo->getMolecules())
     {
       Vector  molCOM(0,0,0);
-      Iflt molMass(0);
+      double molMass(0);
 
       BOOST_FOREACH(const size_t& ID, *range)
 	{
@@ -136,7 +136,7 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
   XML << xml::tag("MSDCorrelator")
       << xml::tag("Particles");
   
-  Iflt dt = dynamic_cast<const CSTicker&>
+  double dt = dynamic_cast<const CSTicker&>
     (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
     / Sim->dynamics.units().unitTime();
   
@@ -150,8 +150,8 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
 	    << speciesData[sp->getID()][step] 
-	  / (static_cast<Iflt>(ticksTaken) 
-	     * static_cast<Iflt>(sp->getCount())
+	  / (static_cast<double>(ticksTaken) 
+	     * static_cast<double>(sp->getCount())
 	     * Sim->dynamics.units().unitArea())
 	    << "\n";
       
@@ -172,8 +172,8 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
 	    << structData[topo->getID()][step]
-	  / (static_cast<Iflt>(ticksTaken) 
-	     * static_cast<Iflt>(topo->getMolecules().size())
+	  / (static_cast<double>(ticksTaken) 
+	     * static_cast<double>(topo->getMolecules().size())
 	     * Sim->dynamics.units().unitArea())
 	    << "\n";
 	

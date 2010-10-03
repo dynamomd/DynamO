@@ -31,7 +31,7 @@ class OPVelProfile: public OPTicker
 
   virtual void initialise();
 
-  virtual void stream(Iflt) {}
+  virtual void stream(double) {}
 
   virtual void ticker();
 
@@ -39,10 +39,10 @@ class OPVelProfile: public OPTicker
   
  protected:
 
-  std::vector<std::vector<std::pair<size_t, Iflt> > > vx;
+  std::vector<std::vector<std::pair<size_t, double> > > vx;
 
   size_t samplesTaken;
-  Iflt binWidth;
+  double binWidth;
 };
 
 #endif

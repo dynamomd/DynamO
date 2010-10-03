@@ -70,11 +70,11 @@ CSysRescale::checker(const NEventData&)
     {
       std::ofstream logfile("HaffLaw.dat", std::ios_base::app);
       
-      lIflt logTemp = scaleFactor 
+      long double logTemp = scaleFactor 
 	+ std::log((2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy())
 		   / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF()));
       
-      lIflt Time = RealTime + (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
+      long double Time = RealTime + (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 
       logfile << Sim->eventCount << " " << Time / Sim->dynamics.units().unitTime() << " "
 	      << logTemp - std::log(Sim->dynamics.units().unitEnergy()) << std::endl;
@@ -84,7 +84,7 @@ CSysRescale::checker(const NEventData&)
 void 
 CSysRescale::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
 
   Sim->dSysTime += locdt;
   
@@ -99,7 +99,7 @@ CSysRescale::runEvent() const
   /////////Now the actual updates
   I_cout() << "WARNING Rescaling kT to 1";
   
-  Iflt currentkT(Sim->dynamics.getLiouvillean().getkT()
+  double currentkT(Sim->dynamics.getLiouvillean().getkT()
 		 / Sim->dynamics.units().unitEnergy());
 
   I_cout() << "Current kT " << currentkT;

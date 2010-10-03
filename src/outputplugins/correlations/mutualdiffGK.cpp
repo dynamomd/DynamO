@@ -49,11 +49,11 @@ OPMutualDiffusionGK::operator<<(const XMLNode& XML)
 
       if (XML.isAttributeSet("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<Iflt>(XML.getAttribute("dt"));
+	  boost::lexical_cast<double>(XML.getAttribute("dt"));
 
 	if (XML.isAttributeSet("t"))
 	  dt = Sim->dynamics.units().unitTime() * 
-	    boost::lexical_cast<Iflt>(XML.getAttribute("t")) / CorrelatorLength;
+	    boost::lexical_cast<double>(XML.getAttribute("t")) / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -82,7 +82,7 @@ OPMutualDiffusionGK::operator<<(const XMLNode& XML)
 }
 
 void 
-OPMutualDiffusionGK::stream(const Iflt edt)
+OPMutualDiffusionGK::stream(const double edt)
 {
   //Now test if we've gone over the step time
   if (currentdt + edt >= dt)
@@ -115,7 +115,7 @@ OPMutualDiffusionGK::eventUpdate(const LocalEvent& iEvent, const NEventData& PDa
 }
 
 void 
-OPMutualDiffusionGK::eventUpdate(const System&, const NEventData& PDat, const Iflt& edt) 
+OPMutualDiffusionGK::eventUpdate(const System&, const NEventData& PDat, const double& edt) 
 { 
   stream(edt);
   updateDelG(PDat);
@@ -128,7 +128,7 @@ OPMutualDiffusionGK::eventUpdate(const IntEvent& iEvent, const PairEventData& PD
   updateDelG(PDat);
 }
 
-Iflt 
+double 
 OPMutualDiffusionGK::rescaleFactor()
 {
   return 1.0 / (Sim->dynamics.units().unitMutualDiffusion()
@@ -139,7 +139,7 @@ OPMutualDiffusionGK::rescaleFactor()
 void 
 OPMutualDiffusionGK::output(xml::XmlStream& XML)
 {
-  Iflt factor = rescaleFactor();
+  double factor = rescaleFactor();
   
   Vector  acc = 0.5*(accG[0] + accG[accG.size()-1]);
 
@@ -186,7 +186,7 @@ OPMutualDiffusionGK::initialise()
   G.resize(CorrelatorLength, Vector (0,0,0));
   dt = getdt();
   
-  Iflt sysMass = 0.0;
+  double sysMass = 0.0;
 
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     sysMass += sp->getMass() * sp->getCount();
@@ -221,7 +221,7 @@ OPMutualDiffusionGK::getAvgAcc() const
   std::list<Vector  > tmp;
   
   BOOST_FOREACH(const Vector  &val, accG)
-    tmp.push_back(val/((Iflt) count));
+    tmp.push_back(val/((double) count));
   
   return tmp;
 }
@@ -283,7 +283,7 @@ OPMutualDiffusionGK::accPass()
       accG[i][j] += (delGsp1[j] - (massFracSp1 * sysMom[j])) * (G[i][j] - (massFracSp2 * sysMom[j]));
 }
 
-Iflt 
+double 
 OPMutualDiffusionGK::getdt()
 {
   //Get the simulation temperature
@@ -292,7 +292,7 @@ OPMutualDiffusionGK::getdt()
 	if (Sim->lastRunMFT != 0.0)
 	  return Sim->lastRunMFT * 50.0 / CorrelatorLength;
 	else
-	  return 5.0 / (((Iflt) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	  return 5.0 / (((double) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
       }
     else 
       return dt;

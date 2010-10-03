@@ -45,13 +45,13 @@ class BCRectangularLeesEdwards: virtual public BoundaryCondition, public CLEBC
 
   virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void applyBC(Vector &, const Iflt& dt) const;
+  virtual void applyBC(Vector &, const double& dt) const;
 
-  virtual void update(const Iflt&);
+  virtual void update(const double&);
 
  protected:  
   /*! \brief The current offset of the simulation boundary conditions.*/
-  Iflt dxd;
+  double dxd;
 };
 
 
@@ -81,13 +81,13 @@ class BCSquareLeesEdwards: virtual public BoundaryCondition, public CLEBC
 
   virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void applyBC(Vector &, const Iflt&) const;
+  virtual void applyBC(Vector &, const double&) const;
 
-  virtual void update(const Iflt&);
+  virtual void update(const double&);
 
  protected:  
   /*! \brief The current offset of the simulation boundary conditions.*/
-  Iflt dxd;
+  double dxd;
 };
 
 #endif

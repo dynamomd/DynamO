@@ -8,7 +8,7 @@ CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1,
 {
   Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
-  Iflt structmass1(0), structmass2(0);
+  double structmass1(0), structmass2(0);
     
   BOOST_FOREACH(const size_t& ID, range1)
     {

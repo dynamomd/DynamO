@@ -51,7 +51,7 @@ OPConfig::output(xml::XmlStream &XML)
   XML << std::scientific
     //This has a minus one due to the digit in front of the decimal
     //An extra one is added if we're rounding
-      << std::setprecision(std::numeric_limits<Iflt>::digits10 - 1 - rounding)
+      << std::setprecision(std::numeric_limits<double>::digits10 - 1 - rounding)
       << xml::prolog() << xml::tag("DYNAMOconfig") 
       << xml::attr("version") << configFileVersion
       << xml::tag("Simulation")

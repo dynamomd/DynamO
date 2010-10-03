@@ -77,9 +77,9 @@ CIPPacker::getOptions()
      "For rectlinear co-ordinates, number of unit cells in the z direction.")
     ("rectangular-box", "This will cause the simulation box to be deformed so "
      "that the x,y,z ecells specify the aspect ratio.")
-    ("density,d", po::value<Iflt>()->default_value(0.5),
+    ("density,d", po::value<double>()->default_value(0.5),
      "System number density (init-mode > 1).")
-    ("Thermostat,T", po::value<Iflt>(),
+    ("Thermostat,T", po::value<double>(),
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT.")
     //("Sentinel,S", "Installs the collision sentinal to study low densities")
     ;
@@ -91,12 +91,12 @@ CIPPacker::getOptions()
     ("i2", po::value<size_t>(), "integer option two.")
     ("s1", po::value<std::string>(), "string option one.")
     ("s2", po::value<std::string>(), "string option two.")
-    ("f1", po::value<Iflt>(), "Iflt option one.")
-    ("f2", po::value<Iflt>(), "Iflt option two.")
-    ("f3", po::value<Iflt>(), "Iflt option three.")
-    ("f4", po::value<Iflt>(), "Iflt option four.")
-    ("f5", po::value<Iflt>(), "Iflt option five.")
-    ("f6", po::value<Iflt>(), "Iflt option six.")
+    ("f1", po::value<double>(), "double option one.")
+    ("f2", po::value<double>(), "double option two.")
+    ("f3", po::value<double>(), "double option three.")
+    ("f4", po::value<double>(), "double option four.")
+    ("f5", po::value<double>(), "double option five.")
+    ("f6", po::value<double>(), "double option six.")
     ;
 
   retval.add(hiddenopts);
@@ -247,13 +247,13 @@ CIPPacker::initialise()
 	      Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	  {
@@ -271,7 +271,7 @@ CIPPacker::initialise()
 		if (cells[2] == 1)
 		  dimension = 2;
 
-		particleDiam = std::sqrt(simVol * vm["density"].as<Iflt>()
+		particleDiam = std::sqrt(simVol * vm["density"].as<double>()
 					 / (Sim->aspectRatio[dimension] * latticeSites.size()));		
 		
 		I_cout() << "I'm changing what looks like the unused box dimension (" 
@@ -289,10 +289,10 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Iflt elasticity = 1.0;
+	double elasticity = 1.0;
 
 	if (vm.count("f1"))
-	  elasticity =  vm["f1"].as<Iflt>();
+	  elasticity =  vm["f1"].as<double>();
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						      new C2RAll()
@@ -335,13 +335,13 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-        Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+        double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	//Just a square well system
@@ -356,13 +356,13 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Iflt lambda = 1.5, wellDepth = 1.0;
+	double lambda = 1.5, wellDepth = 1.0;
 
 	if (vm.count("f1"))
-	  lambda = vm["f1"].as<Iflt>();
+	  lambda = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  wellDepth = vm["f2"].as<Iflt>();
+	  wellDepth = vm["f2"].as<double>();
 
 	Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam,
 						      lambda, wellDepth, 1.0,
@@ -391,23 +391,23 @@ CIPPacker::initialise()
 	if (vm.count("i1"))
 	  chainlength = vm["i1"].as<size_t>();
 
-	Iflt sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5);
+	double sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5);
 
 	if (vm.count("f1"))
-	  sigma = vm["f1"].as<Iflt>();
+	  sigma = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  lambda = vm["f2"].as<Iflt>();
+	  lambda = vm["f2"].as<double>();
 
 	if (vm.count("f3"))
-	  sigmin = vm["f3"].as<Iflt>();
+	  sigmin = vm["f3"].as<double>();
 
 	if (vm.count("f4"))
-	  sigmax = vm["f4"].as<Iflt>();
+	  sigmax = vm["f4"].as<double>();
 
 	//Sit the particles 95% away of max distance from each other
 	//to help with seriously overlapping wells
-	Iflt diamScale = 1.0 / chainlength;
+	double diamScale = 1.0 / chainlength;
 
 	CURandWalk sysPack(chainlength, (sigmin + 0.95 * (sigmax - sigmin))
 			   * diamScale, sigma * diamScale, new CUParticle());
@@ -531,14 +531,14 @@ CIPPacker::initialise()
 	size_t NUnitSites = tmpPtr->placeObjects(Vector(0,0,0)).size();
 	delete tmpPtr;
 
-	Iflt diamScale = pow(vm["density"].as<Iflt>()
-			     / (NUnitSites * NUnit), Iflt(1.0 / 3.0));
+	double diamScale = pow(vm["density"].as<double>()
+			     / (NUnitSites * NUnit), double(1.0 / 3.0));
 
 	I_cout() << "Lengthscale = " << diamScale;
 
 	//Use the mirror unit cell if needed
 	if (vm.count("f1"))
-	  tmpPtr = new CUMirror(vm["f1"].as<Iflt>(),
+	  tmpPtr = new CUMirror(vm["f1"].as<double>(),
 				new CUFile(Vector (diamScale,diamScale,diamScale),
 					   fileName, new CUParticle()));
 	else
@@ -593,18 +593,18 @@ CIPPacker::initialise()
 	    Sim->aspectRatio = getNormalisedCellDimensions();
 	  }
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Iflt alpha = 1.0;
+	double alpha = 1.0;
 
 	if (vm.count("f1"))
-	  alpha = vm["f1"].as<Iflt>();
+	  alpha = vm["f1"].as<double>();
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
@@ -636,7 +636,7 @@ CIPPacker::initialise()
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
 	BOOST_FOREACH(Particle& part, Sim->particleList)
-	  part.getVelocity()[0] += part.getPosition()[1] * ShearRate;
+	  part.getVelocity()[0] += part.getPosition()[1] * UShear::ShearRate;
 
 	Sim->ensemble.reset(new DYNAMO::CENVShear(Sim));
 	break;
@@ -654,27 +654,27 @@ CIPPacker::initialise()
 	if (vm.count("i2"))
 	  ringlength = vm["i2"].as<size_t>();
 
-	Iflt sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5),
+	double sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5),
 	  tightness(0.05);
 
 	if (vm.count("f1"))
-	  sigma = vm["f1"].as<Iflt>();
+	  sigma = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  lambda = vm["f2"].as<Iflt>();
+	  lambda = vm["f2"].as<double>();
 
 	if (vm.count("f3"))
-	  sigmin = vm["f3"].as<Iflt>();
+	  sigmin = vm["f3"].as<double>();
 
 	if (vm.count("f4"))
-	  sigmax = vm["f4"].as<Iflt>();
+	  sigmax = vm["f4"].as<double>();
 
 	if (vm.count("f5"))
-	  tightness = vm["f5"].as<Iflt>();
+	  tightness = vm["f5"].as<double>();
 
 	//Sit the particles 95% away of max distance from each other
 	//to help with seriously overlapping wells
-	Iflt diamScale = 1.0 / chainlength;
+	double diamScale = 1.0 / chainlength;
 
 	//Space the hard spheres 2% further apart than minimum and set
 	//the bonds to 2% max length to coil this as much as possible
@@ -750,7 +750,7 @@ CIPPacker::initialise()
 	std::vector<Vector  > latticeSites(sysPack->placeObjects
 					   (Vector (0,0,0)));
 
-	Iflt particleDiam = 1.0 / 10.0;
+	double particleDiam = 1.0 / 10.0;
 
 	//Just a square well system
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
@@ -783,7 +783,7 @@ CIPPacker::initialise()
 	/*Sim->dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin,
 	  "HighWall", new CRAll(Sim)));*/
 
-	Iflt lambda = 1.5;
+	double lambda = 1.5;
 
 	Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam, lambda,
 						      1.0, 1.0,
@@ -815,19 +815,19 @@ CIPPacker::initialise()
 	if (vm.count("i1"))
 	  chainlength = vm["i1"].as<size_t>();
 
-	Iflt sigma(1.0), sigmin(1.0), sigmax(1.05), lambda(1.5);
+	double sigma(1.0), sigmin(1.0), sigmax(1.05), lambda(1.5);
 
 	if (vm.count("f1"))
-	  sigmin = vm["f1"].as<Iflt>();
+	  sigmin = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  sigmax = vm["f2"].as<Iflt>();
+	  sigmax = vm["f2"].as<double>();
 
 	if (vm.count("f3"))
-	  lambda = vm["f3"].as<Iflt>();
+	  lambda = vm["f3"].as<double>();
 
 	//10 % more than double whats needed
-	Iflt diamScale = 0.5 / (sigmax * chainlength + 2 * sigma);
+	double diamScale = 0.5 / (sigmax * chainlength + 2 * sigma);
 
 	//CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
 	//                               * diamScale, new CUParticle());
@@ -907,16 +907,16 @@ CIPPacker::initialise()
 	std::vector<Vector  >
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
-	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
+	double molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
 	if (vm.count("f1"))
-	  sizeRatio = vm["f1"].as<Iflt>();
+	  sizeRatio = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  massFrac = vm["f2"].as<Iflt>();
+	  massFrac = vm["f2"].as<double>();
 
 	if (vm.count("f3"))
-	  molFrac = vm["f3"].as<Iflt>();
+	  molFrac = vm["f3"].as<double>();
 
 	if (vm.count("rectangular-box"))
 	  {
@@ -926,13 +926,13 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	//Sim->ptrScheduler = new CSMultList(Sim);
@@ -997,16 +997,16 @@ CIPPacker::initialise()
 
 	Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt particleDiam = pow(vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	//We pick a scheduler algorithm based on the density of the system
-	if(vm["density"].as<Iflt>() * 8.0 >= vm["NCells"].as<unsigned long>())
+	if(vm["density"].as<double>() * 8.0 >= vm["NCells"].as<unsigned long>())
 	{
 	  M_throw() << "Unable to simulate systems where box volume is <= (2L)^3";
 	}
-	else if (vm["density"].as<Iflt>() * 30.0 > vm["NCells"].as<unsigned long>())
+	else if (vm["density"].as<double>() * 30.0 > vm["NCells"].as<unsigned long>())
 	{
 	  // Choose the dumb scheduler if the system volume is roughly smaller than (3L)^3
 	  I_cout() << "Dumb scheduler selected due to density/particle ratio";
@@ -1023,13 +1023,13 @@ CIPPacker::initialise()
 
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
-	Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
+	double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
 	Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Iflt inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<Iflt>() : 1.0;
+	double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
 				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -1067,13 +1067,13 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
@@ -1091,16 +1091,16 @@ CIPPacker::initialise()
 	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
-	//Iflt chi = 1.0 /
-	//(4.0 * tij * vm["density"].as<Iflt>() * std::sqrt(PI));
+	//double chi = 1.0 /
+	//(4.0 * tij * vm["density"].as<double>() * std::sqrt(M_PI));
 
-	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
+	double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
-	Iflt chi = (1.0 - 0.5 * packfrac)
+	double chi = (1.0 - 0.5 * packfrac)
 	  / std::pow(1.0 - packfrac, 3);
 
-	Iflt tij = 1.0
-	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi);
+	double tij = 1.0
+	  / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi);
 
 	//No thermostat added yet
 	Sim->dynamics.addSystem
@@ -1140,18 +1140,18 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt alpha = 1.0;
+	double alpha = 1.0;
 
 	if (vm.count("f1"))
-	  alpha = vm["f1"].as<Iflt>();
+	  alpha = vm["f1"].as<double>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
 
@@ -1169,9 +1169,9 @@ CIPPacker::initialise()
 	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
-	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
+	double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
-	Iflt chi = (1.0 - 0.5 * packfrac)
+	double chi = (1.0 - 0.5 * packfrac)
 	  / std::pow(1.0 - packfrac, 3);
 
 	//No thermostat added yet
@@ -1211,24 +1211,24 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
+	double molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
 	if (vm.count("f1"))
-	  sizeRatio = vm["f1"].as<Iflt>();
+	  sizeRatio = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  massFrac = vm["f2"].as<Iflt>();
+	  massFrac = vm["f2"].as<double>();
 
 	if (vm.count("f3"))
-	  molFrac = vm["f3"].as<Iflt>();
+	  molFrac = vm["f3"].as<double>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
@@ -1243,19 +1243,19 @@ CIPPacker::initialise()
 
 	size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
-	Iflt chiAA(1.0), chiAB(1.0), chiBB(1.0);
+	double chiAA(1.0), chiAB(1.0), chiBB(1.0);
 
 	size_t chimode(0);
 	if (vm.count("i2"))
 	  chimode = vm["i2"].as<size_t>();
 
-	Iflt xi1 = (1.0/6.0) * PI * vm["density"].as<Iflt>()
+	double xi1 = (1.0/6.0) * M_PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio );
 
-	Iflt xi2 = (1.0/6.0) * PI * vm["density"].as<Iflt>()
+	double xi2 = (1.0/6.0) * M_PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio*sizeRatio );
 
-	Iflt xi3 = (1.0/6.0) * PI * vm["density"].as<Iflt>()
+	double xi3 = (1.0/6.0) * M_PI * vm["density"].as<double>()
 	  * (molFrac + (1.0 - molFrac)*sizeRatio*sizeRatio*sizeRatio);
 
 	switch (chimode)
@@ -1298,9 +1298,9 @@ CIPPacker::initialise()
 	  case 2:
 	    {
 	      //HC2
-	      Iflt x(3.0 * (xi2 - xi3) * 0.5);
+	      double x(3.0 * (xi2 - xi3) * 0.5);
 
-	      Iflt R(1.0 / sizeRatio);
+	      double R(1.0 / sizeRatio);
 
 	      chiAA = (1.0 /(1.0 - xi3)) + (3.0 - xi3 + xi3 * xi3 * 0.5)
 		* xi2 / (2.0 * (1.0 - xi3) * (1.0 - xi3))
@@ -1329,15 +1329,15 @@ CIPPacker::initialise()
 
 	chiAB *= 2.0;
 
-	Iflt tAA = std::sqrt(PI)
-	  / (chiAA * 4.0 * PI * molFrac * vm["density"].as<Iflt>());
+	double tAA = std::sqrt(M_PI)
+	  / (chiAA * 4.0 * M_PI * molFrac * vm["density"].as<double>());
 
-	Iflt tAB = std::sqrt(2.0 * PI * massFrac/(1.0+massFrac))
-	  / (chiAB * 4.0 * PI * (1.0 - molFrac) * vm["density"].as<Iflt>()
+	double tAB = std::sqrt(2.0 * M_PI * massFrac/(1.0+massFrac))
+	  / (chiAB * 4.0 * M_PI * (1.0 - molFrac) * vm["density"].as<double>()
 	     * (0.5+0.5 * sizeRatio) * (0.5+0.5 * sizeRatio));
 
-	Iflt tBB = std::sqrt(PI * massFrac)
-	  / (chiBB * 4.0 * PI * (1.0 - molFrac) * vm["density"].as<Iflt>()
+	double tBB = std::sqrt(M_PI * massFrac)
+	  / (chiBB * 4.0 * M_PI * (1.0 - molFrac) * vm["density"].as<double>()
 	     * sizeRatio * sizeRatio);
 
 	//This is to provide data on the particles
@@ -1403,8 +1403,8 @@ CIPPacker::initialise()
 
 	Sim->dynamics.applyBC<BCSquareLeesEdwards>();
 
-	Iflt particleDiam = pow(vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
@@ -1413,7 +1413,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
-  Iflt elasticity = (vm.count("f1")) ? vm["f1"].as<Iflt>() : 1.0;
+  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
 	Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
@@ -1441,15 +1441,15 @@ CIPPacker::initialise()
       {
 	//Pack of Mings system
 	//Pack the system, determine the number of particles
-	Iflt molfrac(0.5), massFrac(1.0), rodlength(1.0);
+	double molfrac(0.5), massFrac(1.0), rodlength(1.0);
 	size_t chainlength(10);
 	size_t nPart;
 
 	if (vm.count("f1"))
-	  molfrac = vm["f1"].as<Iflt>();
+	  molfrac = vm["f1"].as<double>();
 
 	if (vm.count("f2"))
-	  rodlength = vm["f2"].as<Iflt>();
+	  rodlength = vm["f2"].as<double>();
 
 	if (vm.count("i2"))
 	  chainlength = vm["i2"].as<size_t>();
@@ -1476,15 +1476,15 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
+	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ nPart, 1.0 / 3.0);
 
-	Iflt particleDiamB = rodlength * particleDiam / chainlength;
+	double particleDiamB = rodlength * particleDiam / chainlength;
 
 	boost::scoped_ptr<CUCell> packptr
 	  (standardPackingHelper
@@ -1579,13 +1579,13 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
@@ -1636,8 +1636,8 @@ CIPPacker::initialise()
 		     nParticles++));
 
 	{
-	  boost::uniform_real<Iflt> normdist(-0.5,0.5);
-	  boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<Iflt> >
+	  boost::uniform_real<double> normdist(-0.5,0.5);
+	  boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<double> >
 	    unisampler(Sim->ranGenerator, normdist);
 
 	  CVector<long> tmp = getCells();
@@ -1692,13 +1692,13 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-        Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+        double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	//Just a square well system
@@ -1721,7 +1721,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	typedef std::pair<Iflt,Iflt> locpair;
+	typedef std::pair<double,double> locpair;
 	std::vector<locpair> diamvec;
 
 	if (vm.count("s1"))
@@ -1736,10 +1736,10 @@ CIPPacker::initialise()
 		tokenizer::iterator value_iter = stepData.begin();
 		locpair data;
 		try {
-		  data.first = boost::lexical_cast<Iflt>(*value_iter);
+		  data.first = boost::lexical_cast<double>(*value_iter);
 		  if (++value_iter == stepData.end())
 		    throw std::runtime_error("No comma");
-		  data.second = boost::lexical_cast<Iflt>(*(value_iter));
+		  data.second = boost::lexical_cast<double>(*(value_iter));
 		  diamvec.push_back(data);
 
 		  if (++value_iter != stepData.end())
@@ -1766,7 +1766,7 @@ CIPPacker::initialise()
 	  }
 	
 	I_cout() << "Building stepped potential";
-	Iflt oldr = HUGE_VAL;
+	double oldr = HUGE_VAL;
 	BOOST_FOREACH(locpair& p, diamvec)
 	  {
 	    I_cout() << "Step r=" << p.first << ", E=" << p.second;
@@ -1814,13 +1814,13 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
@@ -1838,12 +1838,12 @@ CIPPacker::initialise()
 	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
-	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
+	double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
-	Iflt chi12 = (1.0 - 0.5 * packfrac)
+	double chi12 = (1.0 - 0.5 * packfrac)
 	  / std::pow(1.0 - packfrac, 3);
 
-	Iflt chi13 = chi12;
+	double chi13 = chi12;
 
 	if (vm.count("b1"))
 	  chi12 = 1.0;
@@ -1851,12 +1851,12 @@ CIPPacker::initialise()
 	if (vm.count("b2"))
 	  chi13 = 1.0;
 
-	Iflt tij = 1.0
-	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi12);
+	double tij = 1.0
+	  / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi12);
 
 	if (vm.count("f1"))
 	  {
-	    Iflt frac = vm["f1"].as<Iflt>();
+	    double frac = vm["f1"].as<double>();
 	    chi12 = 2.0*frac*chi12;
 	    chi13 = 2.0*(1.0-frac)*chi13;
 	  }
@@ -1900,18 +1900,18 @@ CIPPacker::initialise()
 	else
 	  Sim->dynamics.applyBC<BCSquarePeriodic>();
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Iflt inelasticity = 0.9;
+	double inelasticity = 0.9;
 
 	if (vm.count("f1"))
-	  inelasticity = vm["f1"].as<Iflt>();
+	  inelasticity = vm["f1"].as<double>();
 
 	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
 
@@ -1929,12 +1929,12 @@ CIPPacker::initialise()
 	  (new IHardSphere
 	   (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
 
-	Iflt packfrac = vm["density"].as<Iflt>() * PI / 6.0;
+	double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
-	Iflt chi12 = (1.0 - 0.5 * packfrac)
+	double chi12 = (1.0 - 0.5 * packfrac)
 	  / std::pow(1.0 - packfrac, 3);
 
-	Iflt chi13 = chi12;
+	double chi13 = chi12;
 
 	if (vm.count("b1"))
 	  chi12 = 1.0;
@@ -1942,8 +1942,8 @@ CIPPacker::initialise()
 	if (vm.count("b2"))
 	  chi13 = 1.0;
 
-	Iflt tij = 1.0
-	  / (4.0 * std::sqrt(PI) * vm["density"].as<Iflt>() * chi12);
+	double tij = 1.0
+	  / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi12);
 
 	//No thermostat added yet
 	Sim->dynamics.addSystem
@@ -1967,39 +1967,39 @@ CIPPacker::initialise()
       }
     case 19:
       {
-	Iflt L = 4.0;
+	double L = 4.0;
 	if (vm.count("f2"))
-	  L = vm["f2"].as<Iflt>();
+	  L = vm["f2"].as<double>();
 
 	L -= 1; //This is to account for centre of mass walls
 
-	Iflt Delta = 13.0;
+	double Delta = 13.0;
 	if (vm.count("f4"))
-	  Delta = vm["f4"].as<Iflt>();
+	  Delta = vm["f4"].as<double>();
 
 	//the  2.0 * L is to give an extra half box width on each side of the sim
-	Iflt boxL = 2.0 * L + 2.0 * Delta;
-	Iflt xy = 5.2;
+	double boxL = 2.0 * L + 2.0 * Delta;
+	double xy = 5.2;
 
 	xy -= 1;//Again to account for centre of mass walls
 
-	Iflt Aspect =  xy / boxL;
-	Iflt MassRatio = 1.0;
-	Iflt PlateInelas = 0.96;
+	double Aspect =  xy / boxL;
+	double MassRatio = 1.0;
+	double PlateInelas = 0.96;
 	if (vm.count("f6"))
-	  PlateInelas = vm["f6"].as<Iflt>();
+	  PlateInelas = vm["f6"].as<double>();
 
-	Iflt ParticleInelas = 0.88;
+	double ParticleInelas = 0.88;
 	if (vm.count("f5"))
-	  ParticleInelas = vm["f5"].as<Iflt>();
-	Iflt boundaryInelas = PlateInelas;
-	Iflt Omega0 = PI * 2.0;
+	  ParticleInelas = vm["f5"].as<double>();
+	double boundaryInelas = PlateInelas;
+	double Omega0 = M_PI * 2.0;
 
 	if (vm.count("f1"))
-	  MassRatio = vm["f1"].as<Iflt>();
+	  MassRatio = vm["f1"].as<double>();
 
 	if (vm.count("f3"))
-	  Omega0 *= vm["f3"].as<Iflt>();
+	  Omega0 *= vm["f3"].as<double>();
 
 
 	//This slight exaggeration is required to stop the cells failing with walls near the edge of the simulation
@@ -2053,12 +2053,12 @@ CIPPacker::initialise()
 	Sim->dynamics.applyBC<BCNone>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = 1.0 / boxL;
+	double particleDiam = 1.0 / boxL;
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
@@ -2144,17 +2144,17 @@ CIPPacker::initialise()
 	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>() / N, Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>() / N, double(1.0 / 3.0));
 
-	Iflt overlapDiameter = particleDiam;
+	double overlapDiameter = particleDiam;
 
 	if (vm.count("f1"))
-	  overlapDiameter *= vm["f1"].as<Iflt>();
+	  overlapDiameter *= vm["f1"].as<double>();
 
 	if (!vm.count("s1"))
 	  M_throw() << "No triangle file name specified";
@@ -2212,14 +2212,14 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 	
 
-	Iflt LoverD = 1;
+	double LoverD = 1;
 	if (vm.count("f1"))
-	  LoverD = vm["f1"].as<Iflt>();
+	  LoverD = vm["f1"].as<double>();
 
 	Sim->aspectRatio = Vector(1,1,1);
 	
-	Iflt boxlimit;
-	Iflt cylRad = 0.5;
+	double boxlimit;
+	double cylRad = 0.5;
 	if (LoverD < 1)
 	  {
 	    //D is unity
@@ -2251,8 +2251,8 @@ CIPPacker::initialise()
 	Sim->dynamics.applyBC<BCSquarePeriodicXOnly>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Iflt particleDiam 
-	  = pow(vm["density"].as<Iflt>() / latticeSites.size(), Iflt(1.0 / 3.0))
+	double particleDiam 
+	  = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0))
 	  * boxlimit;
 
 	//Set up a standard simulation
@@ -2301,13 +2301,13 @@ CIPPacker::initialise()
 	Sim->dynamics.applyBC<BCNone>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Iflt simVol = 1.0;
+	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  simVol *= Sim->aspectRatio[iDim];
 
-	Iflt particleDiam = pow(simVol * vm["density"].as<Iflt>()
-				/ latticeSites.size(), Iflt(1.0 / 3.0));
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
@@ -2316,10 +2316,10 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1));
 
-	Iflt elasticity = 1.0;
+	double elasticity = 1.0;
 
 	if (vm.count("f1"))
-	  elasticity =  vm["f1"].as<Iflt>();
+	  elasticity =  vm["f1"].as<double>();
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						     new C2RAll()
@@ -2369,12 +2369,12 @@ CIPPacker::processOptions()
 	  M_throw() << "Could not upcast thermostat to Andersens";
 
 	static_cast<CSysGhost*>(thermostat)->setTemperature
-	  (vm["Thermostat"].as<Iflt>() * Sim->dynamics.units().unitEnergy());
+	  (vm["Thermostat"].as<double>() * Sim->dynamics.units().unitEnergy());
       } catch (std::exception&)
 	{
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
-	    (new CSysGhost(Sim, 2.0, vm["Thermostat"].as<Iflt>()
+	    (new CSysGhost(Sim, 2.0, vm["Thermostat"].as<double>()
 			   * Sim->dynamics.units().unitEnergy(), "Thermostat"));
 	}
 
@@ -2401,8 +2401,8 @@ CIPPacker::getNormalisedCellDimensions()
   Vector  retval;
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    retval[iDim] = static_cast<Iflt>(cells[iDim])
-      / static_cast<Iflt>(cells[maxdim]);
+    retval[iDim] = static_cast<double>(cells[iDim])
+      / static_cast<double>(cells[maxdim]);
 
   return retval;
 }
@@ -2468,9 +2468,9 @@ Vector
 CIPPacker::getRandVelVec()
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
-  boost::normal_distribution<Iflt> normdist(0.0, (1.0 / sqrt(NDIM)));
+  boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(NDIM)));
 
-  boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<Iflt> >
+  boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<double> >
     normal_sampler(Sim->ranGenerator, normdist);
 
   Vector  tmpVec;

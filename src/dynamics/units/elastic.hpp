@@ -34,19 +34,19 @@ class UHardSphere: public Units
  public:
   UHardSphere(const DYNAMO::SimData*);
   
-  UHardSphere(Iflt, const DYNAMO::SimData*);
+  UHardSphere(double, const DYNAMO::SimData*);
 
   UHardSphere(const XMLNode&, const DYNAMO::SimData*);
 
   virtual ~UHardSphere();
 
-  virtual Iflt unitLength() const;
+  virtual double unitLength() const;
 
-  virtual void setUnitLength(Iflt);
+  virtual void setUnitLength(double);
 
-  virtual Iflt unitTime() const;
+  virtual double unitTime() const;
 
-  virtual void rescaleLength(Iflt);
+  virtual void rescaleLength(double);
   
   virtual Units* Clone() const;
   
@@ -55,7 +55,7 @@ class UHardSphere: public Units
  protected:
   virtual void outputXML(xml::XmlStream&) const;
 
-  Iflt UnitOfLength;
+  double UnitOfLength;
 };
 
 #endif

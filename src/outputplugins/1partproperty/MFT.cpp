@@ -38,7 +38,7 @@ OPMFT::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
       
       if (XML.isAttributeSet("length"))
 	collisionHistoryLength 
@@ -54,7 +54,7 @@ void
 OPMFT::initialise()
 {
   lastTime.resize(Sim->N, 
-		  boost::circular_buffer<Iflt>(collisionHistoryLength, 0.0));
+		  boost::circular_buffer<double>(collisionHistoryLength, 0.0));
   
   std::vector<C1DHistogram> vecTemp;
   

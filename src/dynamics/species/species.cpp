@@ -26,7 +26,7 @@
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 
-Species::Species(DYNAMO::SimData* tmp, CRange* nr, Iflt nMass, 
+Species::Species(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 		   std::string nName, unsigned int nID, std::string nIName):
   SimBase_const(tmp,"Species", IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
@@ -40,7 +40,7 @@ Species::Species(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
 { operator<<(XML); }
 
 Species::Species(DYNAMO::SimData* tmp, const char* name, const char* color, 
-		   CRange* nr, Iflt nMass, std::string nName, 
+		   CRange* nr, double nMass, std::string nName, 
 		   unsigned int nID, std::string nIName):
   SimBase_const(tmp,name, color),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
@@ -81,7 +81,7 @@ Species::operator<<(const XMLNode& XML)
   range.set_ptr(CRange::loadClass(XML,Sim));
     
     try {
-      mass = boost::lexical_cast<Iflt>(XML.getAttribute("Mass"))
+      mass = boost::lexical_cast<double>(XML.getAttribute("Mass"))
 	* Sim->dynamics.units().unitMass();
       spName = XML.getAttribute("Name");
       intName = XML.getAttribute("IntName");

@@ -42,7 +42,7 @@ OPCollDistCheck::operator<<(const XMLNode& XML)
   try 
     {
       if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<Iflt>(XML.getAttribute("binwidth"));
+	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -96,7 +96,7 @@ OPCollDistCheck::eventUpdate(const LocalEvent& lEvent,
   
 void 
 OPCollDistCheck::eventUpdate(const System& sysEvent, 
-			      const NEventData& PDat, const Iflt& dt)
+			      const NEventData& PDat, const double& dt)
 {
   const eventKey locPair(getClassKey(sysEvent), sysEvent.getType());
   

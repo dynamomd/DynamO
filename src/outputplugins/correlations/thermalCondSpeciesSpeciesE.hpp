@@ -40,7 +40,7 @@ public:
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&); 
+  virtual void eventUpdate(const System&, const NEventData&, const double&); 
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
@@ -52,19 +52,19 @@ protected:
   size_t count;
   std::vector<Vector  > constDelG;
   std::vector<Vector  > delG;
-  Iflt dt, currentdt;
+  double dt, currentdt;
   size_t currlen;
   bool notReady;
 
   size_t CorrelatorLength;
 
-  void stream(const Iflt&);
+  void stream(const double&);
 
   void newG();
 
   void accPass();
 
-  Iflt rescaleFactor();
+  double rescaleFactor();
   
   void impulseDelG(const PairEventData&);
 

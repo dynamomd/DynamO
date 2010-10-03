@@ -20,11 +20,11 @@
 #include <magnet/math/quadratic.hpp>
 
 template<class T>
-std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
-				    const Iflt& tolerance)
+std::pair<bool,double> quadRootHunter(const T& fL, double length, double& t_low, double& t_high,
+				    const double& tolerance)
 {
-  Iflt working_time = t_low;
-  Iflt timescale = tolerance * length / fL.F_firstDeriv_max(length);
+  double working_time = t_low;
+  double timescale = tolerance * length / fL.F_firstDeriv_max(length);
   bool fwdWorking = false;
 
   size_t w = 0;
@@ -42,13 +42,13 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
 	if(fabs(t_high - t_low) < timescale)
 	{
 	  std::cerr << "\nThe gap is small enough to consider the root solved at t_low";
-	  return std::pair<bool,Iflt>(true, t_low);
+	  return std::pair<bool,double>(true, t_low);
 	}
 	else
 	{
 	  std::cerr << "\nThe gap is too large and is converging too slowly."
 	    << "\n This rootfinding attempt will be aborted and a fake collision returned.";
-	  return std::pair<bool,Iflt>(false, t_low);
+	  return std::pair<bool,double>(false, t_low);
 	}
       }
 
@@ -56,9 +56,9 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
       T tempfL(fL);
       tempfL.stream(working_time);
 
-      Iflt deltaT;
+      double deltaT;
       {
-	Iflt f0 = tempfL.F_zeroDeriv(),
+	double f0 = tempfL.F_zeroDeriv(),
 	  f1 = tempfL.F_firstDeriv(),
 	  halff2 = 0.5 * tempfL.F_secondDeriv(),
 	  halff2max = 0.5 * tempfL.F_secondDeriv_max(length);
@@ -66,7 +66,7 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
 	if (f0 > 0) halff2max = -halff2max;
 
 	{
-	  Iflt boundEnhancer;
+	  double boundEnhancer;
 	  // Enhance bound, no point continuing if the bounds are out of bounds
 	  if (fwdWorking)
 	    { if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_POSITIVE>(f0, f1, halff2max, boundEnhancer)) break; }
@@ -99,15 +99,15 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
 
 	  if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(),
 									   tempfL.F_firstDeriv(),
-									   Iflt(0.5 * tempfL.F_secondDeriv()), deltaT))
+									   double(0.5 * tempfL.F_secondDeriv()), deltaT))
 	    break;
 
 	  if(fabs(deltaT) <  timescale)
-	    return std::pair<bool,Iflt>(true, working_time + deltaT);
+	    return std::pair<bool,double>(true, working_time + deltaT);
 	}
     }
 
-  return std::pair<bool,Iflt>(false, HUGE_VAL);
+  return std::pair<bool,double>(false, HUGE_VAL);
 }
 
   /* \brief For line line collisions, determines intersections of the infinite lines
@@ -124,10 +124,10 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
   **    - If root is invalid, set new concrete t_low just above this found root and go from the top
   */
 template<class T>
-std::pair<bool,Iflt> frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Iflt t_high,
-				       Iflt tol = 1e-10)
+std::pair<bool,double> frenkelRootSearch(const T& fL, double length, double t_low, double t_high,
+				       double tol = 1e-10)
 {
-  std::pair<bool,Iflt> root(false,HUGE_VAL);
+  std::pair<bool,double> root(false,HUGE_VAL);
 
   while(t_high > t_low)
     {
@@ -137,13 +137,13 @@ std::pair<bool,Iflt> frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Ifl
       if (root.first == false) return root;
 
       //We found a root, now check for earlier roots
-      Iflt temp_high = t_high;
+      double temp_high = t_high;
       do {
 	//Start a search, stream the function to the root
 	T tempfL(fL);
 	tempfL.stream(root.second);
 	//Calculate the offset for the upper bound
-	Iflt Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
+	double Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
 	temp_high = root.second - (fabs(2.0 * tempfL.F_firstDeriv())
 				   / Fdoubleprimemax);
 
@@ -152,7 +152,7 @@ std::pair<bool,Iflt> frenkelRootSearch(const T& fL, Iflt length, Iflt t_low, Ifl
 	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
 
 	//Search for a root in the new interval
-	std::pair<bool,Iflt> temp_root = quadRootHunter<T>(fL, length, t_low, temp_high, tol);
+	std::pair<bool,double> temp_root = quadRootHunter<T>(fL, length, t_low, temp_high, tol);
 
 	//If there is no root, then the current root is fine
 	if (!temp_root.first)

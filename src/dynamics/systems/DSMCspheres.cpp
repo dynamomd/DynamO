@@ -43,8 +43,8 @@ CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp):
   type = DSMC;
 }
 
-CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nChi, 
-			     Iflt ne, std::string nName, CRange* r1, CRange* r2):
+CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, double nd, double ntstp, double nChi, 
+			     double ne, std::string nName, CRange* r1, CRange* r2):
   System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
   tstep(ntstp),
@@ -63,7 +63,7 @@ CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, Iflt nd, Iflt ntstp, Iflt nC
 void 
 CSDSMCSpheres::runEvent() const
 {
-  Iflt locdt = dt;
+  double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
   if (isnan(locdt))
@@ -92,8 +92,8 @@ CSDSMCSpheres::runEvent() const
     id2sampler(Sim->ranGenerator, 
 	       boost::uniform_int<size_t>(0, range2->size() - 1));
 
-  Iflt intPart;
-  Iflt fracpart = std::modf(0.5 * maxprob * range1->size(),
+  double intPart;
+  double fracpart = std::modf(0.5 * maxprob * range1->size(),
 			    &intPart);
  
   size_t nmax = static_cast<size_t>(intPart);
@@ -150,7 +150,7 @@ CSDSMCSpheres::initialise(size_t nID)
   dt = tstep;
 
   factor = 4.0 * range2->size()
-    * diameter * PI * chi * tstep 
+    * diameter * M_PI * chi * tstep 
     / Sim->dynamics.units().simVolume();
   
   if (maxprob == 0.0)
@@ -209,17 +209,17 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
     M_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
   
   try {
-    tstep = boost::lexical_cast<Iflt>(XML.getAttribute("tStep"))
+    tstep = boost::lexical_cast<double>(XML.getAttribute("tStep"))
       * Sim->dynamics.units().unitTime();
     
-    chi = boost::lexical_cast<Iflt>(XML.getAttribute("Chi"));
+    chi = boost::lexical_cast<double>(XML.getAttribute("Chi"));
     
     sysName = XML.getAttribute("Name");
 
-    diameter = boost::lexical_cast<Iflt>(XML.getAttribute("Diameter"))
+    diameter = boost::lexical_cast<double>(XML.getAttribute("Diameter"))
       * Sim->dynamics.units().unitLength();
 
-    e = boost::lexical_cast<Iflt>(XML.getAttribute("Inelasticity"));
+    e = boost::lexical_cast<double>(XML.getAttribute("Inelasticity"));
 
     d2 = diameter * diameter;
 
@@ -228,7 +228,7 @@ CSDSMCSpheres::operator<<(const XMLNode& XML)
     range2.set_ptr(CRange::loadClass(XML.getChildNode("Range2"), Sim));
 
     if (XML.isAttributeSet("MaxProbability"))
-      maxprob = boost::lexical_cast<Iflt>(XML.getAttribute("MaxProbability"));
+      maxprob = boost::lexical_cast<double>(XML.getAttribute("MaxProbability"));
 	
   }
   catch (boost::bad_lexical_cast &)

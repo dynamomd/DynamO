@@ -85,7 +85,7 @@ OPCollMatrix::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 }
 
 void 
-OPCollMatrix::eventUpdate(const System& sysEvent, const NEventData& SDat, const Iflt&)
+OPCollMatrix::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
 {
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
     newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));
@@ -126,7 +126,7 @@ OPCollMatrix::output(xml::XmlStream &XML)
   XML << xml::tag("CollCounters") 
       << xml::tag("TransitionMatrix");
   
-  std::map<eventKey, std::pair<unsigned long long, Iflt> > totmap;
+  std::map<eventKey, std::pair<unsigned long long, double> > totmap;
   
   typedef std::pair<const counterKey, counterData> locPair;
   
@@ -144,33 +144,33 @@ OPCollMatrix::output(xml::XmlStream &XML)
 	  << xml::attr("Name") << getName(ele.first.first.first, Sim)
 	  << xml::attr("lastEvent") << ele.first.second.second
 	  << xml::attr("lastName") << getName(ele.first.second.first, Sim)
-	  << xml::attr("Percent") << 100.0 * ((Iflt) ele.second.count) 
-	/ ((Iflt) totalCount)
+	  << xml::attr("Percent") << 100.0 * ((double) ele.second.count) 
+	/ ((double) totalCount)
 	  << xml::attr("mft") << ele.second.totalTime
-	/ (Sim->dynamics.units().unitTime() * ((Iflt) ele.second.count))
+	/ (Sim->dynamics.units().unitTime() * ((double) ele.second.count))
 	  << xml::endtag("Count");
       
       //Add the total count
       totmap[ele.first.first].first += ele.second.count;
       
       //Add the rate
-      totmap[ele.first.first].second += ((Iflt) ele.second.count) 
+      totmap[ele.first.first].second += ((double) ele.second.count) 
 	/ ele.second.totalTime;
     }
   
   XML << xml::endtag("TransitionMatrix")
       << xml::tag("Totals");
   
-  typedef std::pair<eventKey, std::pair<unsigned long long, Iflt> > mappair;
+  typedef std::pair<eventKey, std::pair<unsigned long long, double> > mappair;
   
   BOOST_FOREACH(const mappair& mp1, totmap)
     XML << xml::tag("TotCount")
 	<< xml::attr("Name") << getName(mp1.first.first, Sim)
 	<< xml::attr("Event") << mp1.first.second
 	<< xml::attr("Percent") 
-	<< 100.0 * (((Iflt) mp1.second.first)
-		    +((Iflt) initialCounter[mp1.first]))
-    / (((Iflt) totalCount) + ((Iflt) initialsum))
+	<< 100.0 * (((double) mp1.second.first)
+		    +((double) initialCounter[mp1.first]))
+    / (((double) totalCount) + ((double) initialsum))
 	<< xml::attr("Count") << mp1.second.first + initialCounter[mp1.first]
 	<< xml::attr("EventMeanFreeTime")
 	<< Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])

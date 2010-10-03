@@ -36,15 +36,15 @@ class OPMSD: public OutputPlugin
 
   virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
 
-  virtual void eventUpdate(const System&, const NEventData&, const Iflt&) {}
+  virtual void eventUpdate(const System&, const NEventData&, const double&) {}
 
   void output(xml::XmlStream &); 
 
   virtual OutputPlugin *Clone() const { return new OPMSD(*this); };
 
-  Iflt calcMSD() const;
+  double calcMSD() const;
 
-  Iflt calcStructMSD(const Topology&) const;
+  double calcStructMSD(const Topology&) const;
   
  protected:
   

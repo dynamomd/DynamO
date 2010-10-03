@@ -31,7 +31,7 @@ USquareWell::USquareWell(const DYNAMO::SimData* tmp):
   I_cout() << "SW units loaded";
 }
 
-USquareWell::USquareWell(Iflt diameter, Iflt energy, const DYNAMO::SimData* tmp):
+USquareWell::USquareWell(double diameter, double energy, const DYNAMO::SimData* tmp):
   Units(tmp),
   UnitOfEnergy(energy),
   UnitOfLength(diameter)
@@ -48,19 +48,19 @@ USquareWell::USquareWell(const XMLNode &XML, const DYNAMO::SimData* tmp):
 
 USquareWell::~USquareWell() {}
 
-Iflt 
+double 
 USquareWell::unitLength() const
 { return UnitOfLength; }
 
 void 
-USquareWell::setUnitLength(Iflt scalar)
+USquareWell::setUnitLength(double scalar)
 { UnitOfLength = scalar; }
 
 void 
-USquareWell::rescaleLength(Iflt rs)
+USquareWell::rescaleLength(double rs)
 { UnitOfLength += rs * UnitOfLength; }
 
-Iflt 
+double 
 USquareWell::unitTime() const
 {
   return sqrt(unitLength()*unitLength()*unitMass()/UnitOfEnergy);
@@ -77,8 +77,8 @@ USquareWell::operator<<(const XMLNode &XML)
     M_throw() << "Attempting to load USquareWell from non elastic type";
   
   try {
-    UnitOfLength = 1.0/(boost::lexical_cast<Iflt>(XML.getAttribute("BoxLength")));
-    UnitOfEnergy = boost::lexical_cast<Iflt>(XML.getAttribute("Energy"));
+    UnitOfLength = 1.0/(boost::lexical_cast<double>(XML.getAttribute("BoxLength")));
+    UnitOfEnergy = boost::lexical_cast<double>(XML.getAttribute("Energy"));
   }
   catch (boost::bad_lexical_cast &)
     {

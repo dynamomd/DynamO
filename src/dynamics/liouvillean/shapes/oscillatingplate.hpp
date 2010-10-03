@@ -27,26 +27,26 @@ class COscillatingPlateFunc : public CShape {
 public:
   COscillatingPlateFunc(const Vector& nvp, const Vector& nnhat,
 		        const Vector& nrp, 
-			const Iflt& nt, const Iflt& nDelta,
-			const Iflt& nOmega, const Iflt& nSigma):
+			const double& nt, const double& nDelta,
+			const double& nOmega, const double& nSigma):
     vp(nvp), nhat(nnhat), rp(nrp),
     t(nt), Delta(nDelta), Omega(nOmega), Sigma(nSigma)
   {    
   }
 
-  void stream(const Iflt& dt)
+  void stream(const double& dt)
   {
     t += dt;
     rp += vp * dt;
   }
   
-  Iflt velnHatWall() const
+  double velnHatWall() const
   {
-    Iflt retval = - Delta * Omega * std::sin(Omega * t);
+    double retval = - Delta * Omega * std::sin(Omega * t);
     return  retval;
   }
 
-  Iflt maxWallVel() const
+  double maxWallVel() const
   {    
     return  Delta * Omega;
   }
@@ -56,7 +56,7 @@ public:
     return  nhat * wallnHatPosition();
   }
 
-  Iflt wallnHatPosition() const
+  double wallnHatPosition() const
   {
     return  (Delta * std::cos(Omega * t));
   }
@@ -66,7 +66,7 @@ public:
     return  nhat * velnHatWall();
   }
 
-  Iflt F_zeroDeriv() const
+  double F_zeroDeriv() const
   {
     return (rp | nhat) - ( Sigma + wallnHatPosition());
   }
@@ -75,44 +75,44 @@ public:
   {
     rp -= (rp | nhat) * nhat;
     rp += nhat * (wallnHatPosition() + Sigma);
-    Iflt Fval = F_zeroDeriv();
+    double Fval = F_zeroDeriv();
     size_t loop(1);
     while (sign ? (Fval < 0) : (Fval > 0))
       {
-	rp -= nhat * ((loop++) * std::numeric_limits<Iflt>::epsilon())
+	rp -= nhat * ((loop++) * std::numeric_limits<double>::epsilon())
 	  * Sigma;
 	Fval = F_zeroDeriv();
       }
   }
 
-  Iflt F_zeroDerivFlip() const
+  double F_zeroDerivFlip() const
   { 
     return ((rp - wallPosition()) | nhat) + Sigma;
   }
 
-  Iflt F_firstDeriv() const
+  double F_firstDeriv() const
   {    
     return (vp | nhat) - velnHatWall();
   }
 
-  Iflt F_firstDeriv_max(const Iflt&) const
+  double F_firstDeriv_max(const double&) const
   {
     return std::fabs(vp | nhat) + Delta * Omega; 
   }
 
-  Iflt F_secondDeriv() const
+  double F_secondDeriv() const
   {
     return Delta * Omega * Omega * std::cos(Omega * t);
   }
 
-  Iflt F_secondDeriv_max(const Iflt&) const
+  double F_secondDeriv_max(const double&) const
   {
     return Delta * Omega * Omega;
   }
 
   virtual CShape* Clone() const { return new COscillatingPlateFunc(*this); };
 
-  virtual bool test_root(const Iflt&) const
+  virtual bool test_root(const double&) const
   {
     return (((vp | nhat) - velnHatWall()) 
 	    * ((rp | nhat) - wallnHatPosition())) > 0;
@@ -124,8 +124,8 @@ private:
   const Vector& vp;
   const Vector& nhat;
   Vector rp;
-  lIflt t;
-  Iflt Delta;
-  Iflt Omega;
-  Iflt Sigma;  
+  long double t;
+  double Delta;
+  double Omega;
+  double Sigma;  
 };

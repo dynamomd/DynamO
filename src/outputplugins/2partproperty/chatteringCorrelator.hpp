@@ -39,10 +39,10 @@ private:
 
   virtual void A2ParticleChange(const PairEventData&);
 
-  virtual void stream(const Iflt&) {}
+  virtual void stream(const double&) {}
 
   C1DWeightHistogram hist;
-  std::vector<std::pair<Iflt,Iflt> > chatterTracker;
+  std::vector<std::pair<double,double> > chatterTracker;
 };
 
 #endif

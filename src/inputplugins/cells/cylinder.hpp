@@ -25,8 +25,8 @@
 
 struct CUCylinder: public CUCell
 {
-  CUCylinder(Iflt partD, Iflt cylD, Vector naxis,
-	     boost::uniform_01<DYNAMO::baseRNG, Iflt>& rng, 
+  CUCylinder(double partD, double cylD, Vector naxis,
+	     boost::uniform_01<DYNAMO::baseRNG, double>& rng, 
 	     CUCell* nextCell):
     CUCell(nextCell),
     diameter(cylD),
@@ -35,10 +35,10 @@ struct CUCylinder: public CUCell
     uniformRng(rng)
   {}
 
-  Iflt diameter;
-  Iflt minSpacing;
+  double diameter;
+  double minSpacing;
   Vector axis;
-  boost::uniform_01<DYNAMO::baseRNG, Iflt>& uniformRng;
+  boost::uniform_01<DYNAMO::baseRNG, double>& uniformRng;
 
   virtual std::vector<Vector> placeObjects(const Vector & centre)
   {
@@ -58,8 +58,8 @@ struct CUCylinder: public CUCell
     
     size_t nperrad = M_PI * diameter / minSpacing;
     size_t nrings = axis.nrm() / minSpacing;
-    Iflt arcsize = 2.0 * M_PI / nperrad;
-    Iflt ringstep = axis.nrm() / nrings;
+    double arcsize = 2.0 * M_PI / nperrad;
+    double ringstep = axis.nrm() / nrings;
 
     for (size_t iStep = 0; iStep < nrings; ++iStep)
       {
