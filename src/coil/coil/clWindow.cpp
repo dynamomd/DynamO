@@ -253,6 +253,8 @@ CLGLWindow::initOpenCL()
 
 void CLGLWindow::CallBackDisplayFunc(void)
 { 
+  if (!CoilMaster::getInstance().isRunning()) return;
+
   //Prepare for the OpenCL ticks
   glFinish();//Finish with the GL buffers
   //Setup the timings
@@ -491,6 +493,8 @@ void CLGLWindow::drawAxis()
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
+  if (!CoilMaster::getInstance().isRunning()) return;
+
   _width = w;
   _height = h;
   
