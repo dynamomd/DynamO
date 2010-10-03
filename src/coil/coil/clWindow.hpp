@@ -26,7 +26,7 @@
 
 #include <coil/Maths/Maths.h>
 #include <coil/extcode/vector2.hpp>
-#include <coil/extcode/static_assert.hpp>
+#include <magnet/static_assert.hpp>
 
 #include <magnet/GL/light.hpp>
 #include <magnet/CL/GLBuffer.hpp>
@@ -68,25 +68,25 @@ public:
   void addRenderObj(RenderObj* nObj) { RenderObjects.push_back(nObj); }
 
   template<class T>  
-  T& addRenderObj() {STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj() {M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1> 
-  T& addRenderObj(T1) { STATIC_ASSERT(false,'Check Arg Types');}
+  T& addRenderObj(T1) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types);}
 
   template<class T, class T1, class T2> 
-  T& addRenderObj(T1, T2) { STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj(T1, T2) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3> 
-  T& addRenderObj(T1, T2, T3) { STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj(T1, T2, T3) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3, class T4> 
-  T& addRenderObj(T1, T2, T3, T4) { STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj(T1, T2, T3, T4) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3, class T4, class T5> 
-  T& addRenderObj(T1, T2, T3, T4, T5) { STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj(T1, T2, T3, T4, T5) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
-  T& addRenderObj(T1, T2, T3, T4, T5, T6) { STATIC_ASSERT(false,'Check Arg Types'); }
+  T& addRenderObj(T1, T2, T3, T4, T5, T6) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   inline cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
 

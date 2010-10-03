@@ -19,12 +19,14 @@
 
 #include "datastruct.hpp"
 #include "../../extcode/xmlwriter.hpp"
-#include "../../datatypes/MinMaxHeap.hpp"
+
+#include <boost/array.hpp>
+#include <magnet/containers/MinMaxHeap.hpp>
 
 template<size_t Size>
 class MinMaxHeapPList
 {
-  MinMaxHeap<intPart, Size> _innerHeap;
+  magnet::containers::MinMaxHeap<Size, boost::array<intPart,Size> > _innerHeap;
 
 public:
   inline size_t size() const { return _innerHeap.size(); }
