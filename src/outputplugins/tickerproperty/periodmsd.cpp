@@ -23,6 +23,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
+#include <magnet/math/ctime_pow.hpp>
 
 OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"PeriodicMSD"),
@@ -51,7 +52,7 @@ OPPeriodicMSD::ticker()
   //Don't do this MSD calc often as its expensive! Taking advantage of
   //a modulus of a power of 2 being fast
 
-  if (!(++TickerCount % ctime_pow<2,4>::result))
+  if (!(++TickerCount % magnet::math::ctime_pow<2,4>::result))
     {
       results.push_back
 	(std::make_pair(Sim->dSysTime / Sim->dynamics.units().unitTime(), 

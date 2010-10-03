@@ -29,6 +29,8 @@
 #include <boost/static_assert.hpp>
 #include <cstdio>
 #include "../liouvillean/NewtonianGravityL.hpp"
+#include <magnet/math/ctime_pow.hpp>
+
 
 CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "MortonCellNeighbourList"),
@@ -362,7 +364,7 @@ CGCellsMorton::addCells(Iflt maxdiam)
   //Find the required size of the morton array
   size_t sizeReq(1);
 
-  for (int i(0); i < ctime_pow<2,magnet::math::DilatedInteger::digits>::result; ++i)
+  for (int i(0); i < magnet::math::ctime_pow<2,magnet::math::DilatedInteger::digits>::result; ++i)
     {
       sizeReq *= 2*2*2;
       if (sizeReq >= NCells) break;

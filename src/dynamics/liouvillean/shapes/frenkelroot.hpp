@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "../../../extcode/mathtemplates.hpp"
+#include <magnet/math/quadratic.hpp>
 
 template<class T>
 std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt& t_high,
@@ -69,16 +69,16 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
 	  Iflt boundEnhancer;
 	  // Enhance bound, no point continuing if the bounds are out of bounds
 	  if (fwdWorking)
-	    { if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2max, boundEnhancer)) break; }
+	    { if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_POSITIVE>(f0, f1, halff2max, boundEnhancer)) break; }
 	  else
-	    if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2max, boundEnhancer)) break;
+	    if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2max, boundEnhancer)) break;
 
 	  (fwdWorking ? t_low : t_high) += boundEnhancer;
 
 	  if (fwdWorking)
-	    { if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT)) continue; }
+	    { if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT)) continue; }
 	  else
-	    { if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2, deltaT)) continue; }
+	    { if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2, deltaT)) continue; }
 	}
 
       }
@@ -97,9 +97,9 @@ std::pair<bool,Iflt> quadRootHunter(const T& fL, Iflt length, Iflt& t_low, Iflt&
 
 	  tempfL.stream(deltaT);
 
-	  if (!quadSolve<ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(),
-					       tempfL.F_firstDeriv(),
-					       Iflt(0.5 * tempfL.F_secondDeriv()), deltaT))
+	  if (!magnet::math::quadSolve<magnet::math::ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(),
+									   tempfL.F_firstDeriv(),
+									   Iflt(0.5 * tempfL.F_secondDeriv()), deltaT))
 	    break;
 
 	  if(fabs(deltaT) <  timescale)

@@ -17,23 +17,17 @@
 
 #pragma once
 
-#include <cmath>
-#include "../base/constants.hpp"
-#include <magnet/exception.hpp>
-#include <algorithm>
-
-struct magSortClass 
-{ inline bool operator()(Iflt i, Iflt j) { return std::abs(i) < std::abs(j);} };  
-
-inline 
-long int rintfunc(const double& x)
-{ return lrint(x); }
-
-inline 
-long int rintfunc(const float& x)
-{ return lrintf(x); }
-
-
-
-
+namespace magnet {
+  namespace math {
+    template<int X, int Y>
+    struct ctime_pow {
+      static const int result = X * ctime_pow<X, Y-1>::result;
+    };
+    
+    template<int X>
+    struct ctime_pow<X,1> {
+      static const int result = X;
+    };
+  }
+}
 
