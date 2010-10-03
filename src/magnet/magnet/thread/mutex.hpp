@@ -156,13 +156,27 @@ namespace magnet {
       
       inline void join()
       {
+	if (_task == NULL)
+	  M_throw() << "Cannot join, this thread had no task!";
+
 	if (pthread_join(_thread, NULL))
 	  M_throw() << "Failed to join thread, _task=" << _task;
+      }
+
+      Thread& operator=(const Thread& other)
+      {
+	if (_task != NULL)
+	  M_throw() << "Trying to assign to a thread which is still valid!";
+
+	_task = other._task;
+	other._task = NULL;
+	_thread = other._thread;
+
+	return *this;
       }
       
     protected:      
       Thread(const Thread&);
-      Thread& operator=(const Thread&);
       
       
       inline static void* threadEntryPoint(void* arg)
