@@ -47,25 +47,7 @@ OPVisualizer::~OPVisualizer()
 
 void 
 OPVisualizer::operator<<(const XMLNode& XML)
-{
-//  try {
-//    if (XML.isAttributeSet("binwidth"))
-//      binWidth = Vector 
-//	(boost::lexical_cast<double>(XML.getAttribute("binwidth")),
-//	 boost::lexical_cast<double>(XML.getAttribute("binwidth")),
-//	 boost::lexical_cast<double>(XML.getAttribute("binwidth")));
-//    
-//    if (XML.isAttributeSet("Snapshots")) snapshots = true;
-//    if (XML.isAttributeSet("Fields")) fields = true;
-//    if (XML.isAttributeSet("CollisionStats")) CollisionStats = true;
-//    
-//      }
-//  catch (std::exception& excep)
-//    {
-//      M_throw() << "Error while parsing " << name << "options\n"
-//		<< excep.what();
-//    }
-}
+{}
 
 void
 OPVisualizer::initialise()
@@ -129,37 +111,36 @@ OPVisualizer::initialise()
   CoilMaster::getInstance().addWindow(_CLWindow);
 
   //Start the render thread
-  CoilMaster::getInstance().bootCoil();
+  //  CoilMaster::getInstance().bootCoil();
 
   _lastRenderTime = _CLWindow->getLastFrameTime();
 
   //Place the initial radii into the visualizer
 
-  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
-
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    {
-      double diam = spec->getIntPtr()->hardCoreDiam();
-
-      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	{
-	  Vector pos = Sim->particleList[ID].getPosition();
-	  
-	  Sim->dynamics.BCs().applyBC(pos);
-
-	  for (size_t i(0); i < NDIM; ++i)
-	    sphereDataPtr[ID].s[i] = pos[i];
-
-	  sphereDataPtr[ID].w = diam * 0.5;
-	}
-    }
-  
-  //Now update all the particle data
-  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
-  
-  //Return it
-  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
-
+//  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+//
+//  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+//    {
+//      double diam = spec->getIntPtr()->hardCoreDiam();
+//
+//      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+//	{
+//	  Vector pos = Sim->particleList[ID].getPosition();
+//	  
+//	  Sim->dynamics.BCs().applyBC(pos);
+//
+//	  for (size_t i(0); i < NDIM; ++i)
+//	    sphereDataPtr[ID].s[i] = pos[i];
+//
+//	  sphereDataPtr[ID].w = diam * 0.5;
+//	}
+//    }
+//  
+//  //Now update all the particle data
+//  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
+//  
+//  //Return it
+//  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
 }
 
 void 
