@@ -78,8 +78,10 @@ private:
 
   ///////////////////////////GTK window layer/////////////////////////////
   void windowThreadEntryPoint();
+  bool onControlWindowDelete(GdkEventAny * pEvent);
 
   Gtk::Main _GTKit;
+  Glib::RefPtr<Gtk::Builder> _refXml;
 
   static bool GTKIldeFunc();
 

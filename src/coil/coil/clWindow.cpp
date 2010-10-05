@@ -192,12 +192,12 @@ void
 CLGLWindow::initOpenCL()
 {
   //Ok Now init OpenCL.
-  magnet::cl::GLInterop::init();
+  if (magnet::cl::GLInterop::init())
   
   _clcontext = magnet::cl::GLInterop::getContext();
 
   if (cl::GLBuffer::hostTransfers()) 
-    std::cout << "Host transfers have been enabled, slow performance is expected\n";
+    std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
 
   //Grab the first device
   std::vector<cl::Device> devices = _clcontext.getInfo<CL_CONTEXT_DEVICES>();

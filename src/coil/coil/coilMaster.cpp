@@ -159,8 +159,6 @@ void CoilMaster::renderThreadEntryPoint()
 	  glutMainLoopEvent();
 	  iPtr->second->CallBackIdleFunc();
 	}
-
-
   } catch (std::exception& except)
     {
       std::cerr << "\nRender thread caught an exception\n"
@@ -202,25 +200,28 @@ void CoilMaster::windowThreadEntryPoint()
 {
   try {
     //Build the windows from the glade data
-    Glib::RefPtr<Gtk::Builder> refXml;
     {
       Glib::ustring glade_data(reinterpret_cast<const char *>(_binary_src_coil_coil_gui_gladexml_start), 
 			       _binary_src_coil_coil_gui_gladexml_end
 			       -_binary_src_coil_coil_gui_gladexml_start);
       
-      refXml = Gtk::Builder::create_from_string(glade_data);
+      _refXml = Gtk::Builder::create_from_string(glade_data);
     }
     
-    //Register the idle function
-    sigc::slot<bool> my_slot = sigc::ptr_fun(&GTKIldeFunc);
     
-    sigc::connection conn = Glib::signal_timeout().connect(my_slot, 100);
+    {//Register the idle function
+      sigc::slot<bool> my_slot = sigc::ptr_fun(&GTKIldeFunc);
+      sigc::connection conn = Glib::signal_timeout().connect(my_slot, 100);
+    }
     
-    //Now setup some callback functions
-    Gtk::Window* controlwindow;
-    refXml->get_widget("controlWindow", controlwindow);
-    
-    
+    {//Now setup some callback functions
+      Gtk::Window* controlwindow;
+      _refXml->get_widget("controlWindow", controlwindow);
+      
+      //Setup the on_close button
+      controlwindow->signal_delete_event().connect(sigc::mem_fun(this, &CoilMaster::onControlWindowDelete));
+    }
+
     _GTKit.run();
   } catch (std::exception& except)
     {
@@ -234,6 +235,13 @@ void CoilMaster::windowThreadEntryPoint()
 		<< "\n As we're in a thread we can only exit(1)!";
       std::exit(1);
     }
+}
+
+bool CoilMaster::onControlWindowDelete(GdkEventAny * pEvent)
+{
+  shutdownCoil();
+
+  return false;
 }
 
 bool CoilMaster::GTKIldeFunc()
