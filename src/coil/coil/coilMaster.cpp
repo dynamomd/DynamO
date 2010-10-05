@@ -188,8 +188,8 @@ CoilMaster::bootCoil()
 void 
 CoilMaster::waitForShutdown()
 {
-  _renderThread.join();
-  _windowThread.join();
+  if (_renderThread.validTask()) _renderThread.join();
+  if (_windowThread.validTask()) _windowThread.join();
 }
 
 //The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data

@@ -142,7 +142,11 @@ namespace magnet {
     public:
       Thread():_task(NULL) {}
       
-      ~Thread() {}
+      ~Thread() 
+      {
+	if (_task != NULL)
+	  M_throw() << "Destroying an active thread!";
+      }
       
       Thread(function::Task* task):
 	_task(task)
@@ -182,6 +186,8 @@ namespace magnet {
 
 	return *this;
       }
+
+      inline bool validTask() { return _task != NULL; }
       
     protected:      
       Thread(const Thread&);
