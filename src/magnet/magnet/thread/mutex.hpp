@@ -29,9 +29,24 @@ namespace magnet {
     {
     public:
       inline Mutex()
-      { 
+      {
+#ifdef MAGNET_DEBUG
+	pthread_mutexattr_t attr;
+	if (pthread_mutexattr_init(&attr))
+	  M_throw() << "Could not initialize mutexattr";
+	
+	if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK))
+	  M_throw() << "Failed to set mutexattr type";
+
+	if (pthread_mutex_init(&_pthread_mutex, &attr))
+	  M_throw() << "Failed to create the mutex";
+
+	if (pthread_mutexattr_destroy(&attr))
+	  M_throw() << "Could not destroy mutexattr";
+#else
 	if (pthread_mutex_init(&_pthread_mutex, NULL))
 	  M_throw() << "Failed to create the mutex";
+#endif
       }
 
       inline ~Mutex() 

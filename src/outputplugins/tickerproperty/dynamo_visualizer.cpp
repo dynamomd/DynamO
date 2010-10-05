@@ -111,36 +111,32 @@ OPVisualizer::initialise()
   CoilMaster::getInstance().addWindow(_CLWindow);
 
   //Start the render thread
-  //  CoilMaster::getInstance().bootCoil();
+  CoilMaster::getInstance().bootCoil();
 
   _lastRenderTime = _CLWindow->getLastFrameTime();
 
   //Place the initial radii into the visualizer
+  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
 
-//  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
-//
-//  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-//    {
-//      double diam = spec->getIntPtr()->hardCoreDiam();
-//
-//      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-//	{
-//	  Vector pos = Sim->particleList[ID].getPosition();
-//	  
-//	  Sim->dynamics.BCs().applyBC(pos);
-//
-//	  for (size_t i(0); i < NDIM; ++i)
-//	    sphereDataPtr[ID].s[i] = pos[i];
-//
-//	  sphereDataPtr[ID].w = diam * 0.5;
-//	}
-//    }
-//  
-//  //Now update all the particle data
-//  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
-//  
-//  //Return it
-//  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    {
+      double diam = spec->getIntPtr()->hardCoreDiam();
+
+      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+	{
+	  Vector pos = Sim->particleList[ID].getPosition();
+	  
+	  Sim->dynamics.BCs().applyBC(pos);
+
+	  for (size_t i(0); i < NDIM; ++i)
+	    sphereDataPtr[ID].s[i] = pos[i];
+
+	  sphereDataPtr[ID].w = diam * 0.5;
+	}
+    }
+
+  //Return it
+  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
 }
 
 void 

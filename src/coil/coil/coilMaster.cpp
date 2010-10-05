@@ -21,9 +21,12 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <iostream>
+#include <unistd.h>
                          
 CoilMaster::CoilMaster(int argc, char** argv):
   _runFlag(false),
+  _renderReadyFlag(false),
+  _windowReadyFlag(false),
   _GTKit(argc, argv)
 {
   if (!argc || (argv == NULL))
@@ -151,6 +154,8 @@ void CoilMaster::renderThreadEntryPoint()
 	(*iPtr)->initOpenCL();
       }
 
+    _renderReadyFlag = true;
+
     while (CoilMaster::getInstance()._runFlag)
       for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
 	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
@@ -183,6 +188,13 @@ CoilMaster::bootCoil()
   
   _renderThread = magnet::thread::Thread(magnet::function::Task::makeTask(&CoilMaster::renderThreadEntryPoint, this));
   _windowThread = magnet::thread::Thread(magnet::function::Task::makeTask(&CoilMaster::windowThreadEntryPoint, this));
+
+  timespec sleeptime;
+
+  sleeptime.tv_sec = 0;
+  sleeptime.tv_nsec = 100000000;
+
+  while (!_renderReadyFlag || !_windowReadyFlag) { nanosleep(&sleeptime, NULL); }
 }
 
 void 
@@ -190,6 +202,8 @@ CoilMaster::waitForShutdown()
 {
   if (_renderThread.validTask()) _renderThread.join();
   if (_windowThread.validTask()) _windowThread.join();
+
+  std::cerr << "!!!!!!!!!!!!!!!!!Thread JOINED!!!!!!!!!!!!!!!!!!";
 }
 
 //The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
@@ -209,10 +223,8 @@ void CoilMaster::windowThreadEntryPoint()
     }
     
     
-    {//Register the idle function
-      sigc::slot<bool> my_slot = sigc::ptr_fun(&GTKIldeFunc);
-      sigc::connection conn = Glib::signal_timeout().connect(my_slot, 100);
-    }
+    //Register the idle function
+    Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::GTKIldeFunc), 100);
     
     {//Now setup some callback functions
       Gtk::Window* controlwindow;
@@ -222,6 +234,7 @@ void CoilMaster::windowThreadEntryPoint()
       controlwindow->signal_delete_event().connect(sigc::mem_fun(this, &CoilMaster::onControlWindowDelete));
     }
 
+    _windowReadyFlag = true;
     _GTKit.run();
   } catch (std::exception& except)
     {
@@ -247,7 +260,14 @@ bool CoilMaster::onControlWindowDelete(GdkEventAny * pEvent)
 bool CoilMaster::GTKIldeFunc()
 {
   if (!CoilMaster::getInstance().isRunning()) 
-    Gtk::Main::quit();
-  
+    {
+      Gtk::Main::quit();
+      Gtk::Window* controlwindow;
+      _refXml->get_widget("controlWindow", controlwindow);
+      
+      //Setup the on_close button
+      controlwindow->hide();
+    }
+
   return true;
 }

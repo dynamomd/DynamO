@@ -47,21 +47,18 @@ RTSpheres::RTSpheres(const magnet::GL::viewPort& viewPortInfo,
   _workgroupsize(0),
   _globalsize(0),
   _viewPortInfo(viewPortInfo)
-{
-  //We lock the mutex straight away until initOpenCL() has been called!
-  //This stops the data being accessed before it even exists!
+{}
 
+void
+RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
+{
   try {
     _sphereDataLock.lock();
   } catch (std::exception& except)
     {
       M_throw() << "Failed to initially lock the sphere data.";
     }
-}
 
-void
-RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
-{
   {
     _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);

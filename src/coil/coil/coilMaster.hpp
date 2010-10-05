@@ -44,7 +44,14 @@ public:
   void addWindow(CoilWindow* window) { _windows.push_back(window); }
 
   void bootCoil();
-  inline void shutdownCoil() { _runFlag = false; }
+  inline void 
+  shutdownCoil() 
+  { 
+    _runFlag = false; 
+    _renderReadyFlag = false;
+    _windowReadyFlag = false;
+  }
+
   void waitForShutdown();
 
   inline bool isRunning() { return _runFlag; }
@@ -53,8 +60,10 @@ private:
   CoilMaster(int argc, char** argv);
   ~CoilMaster();
 
-  volatile bool _runFlag;
-  
+  volatile bool _runFlag; 
+  volatile bool _renderReadyFlag;
+  volatile bool _windowReadyFlag;
+   
   ///////////////////////////Glut GL render layer//////////////////////////
   magnet::thread::Thread _renderThread;
   magnet::thread::TaskQueue _renderQueue;
@@ -83,7 +92,7 @@ private:
   Gtk::Main _GTKit;
   Glib::RefPtr<Gtk::Builder> _refXml;
 
-  static bool GTKIldeFunc();
+  bool GTKIldeFunc();
 
   magnet::thread::Thread _windowThread;
   magnet::thread::TaskQueue _windowQueue;

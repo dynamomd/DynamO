@@ -21,6 +21,13 @@
 #include <features.h>
 #include <sstream>
 
+#ifdef MAGNET_DEBUG
+# ifdef __GNUC__
+#  include <execinfo.h>
+#  include <stdlib.h>
+# endif
+#endif
+
 # ifndef DOXYGEN_SHOULD_IGNORE_THIS
 #  if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
 #    define __MAGNET_EXCEPTION_FUNCTION	__PRETTY_FUNCTION__
@@ -34,9 +41,18 @@
 #  endif
 # endif
 
-#define M_throw()							\
-  throw magnet::exception(__LINE__,__FILE__, __MAGNET_EXCEPTION_FUNCTION)
+#ifdef MAGNET_DEBUG
+# ifdef __GNUC__
+#  define M_throw()							\
+  throw magnet::exception(__LINE__,__FILE__, __MAGNET_EXCEPTION_FUNCTION) \
+  << magnet::stack_trace()
+# endif
+#endif
 
+#ifndef M_throw
+# define M_throw()							\
+  throw magnet::exception(__LINE__,__FILE__, __MAGNET_EXCEPTION_FUNCTION)
+#endif
 namespace magnet
 {
   /*! \brief An exception class that works like a stream object.
@@ -46,6 +62,28 @@ namespace magnet
    *
    * Remember to catch the exception class by reference!
    */
+  
+#ifdef MAGNET_DEBUG
+# ifdef __GNUC__
+  inline std::string stack_trace()
+  {
+    void* ptrs[100];
+    size_t stack_size = backtrace(ptrs, 100);
+    char** funcnames = backtrace_symbols(ptrs, stack_size);
+    
+    std::ostringstream output;
+    output << "Exception Stack Trace:";
+    for (size_t i(1); i < stack_size; ++i)
+      output << "\n#" << i << ":"
+	     << funcnames[i];
+
+    free(funcnames);
+
+    return output.str();
+  }
+# endif
+#endif
+
   class exception : public std::exception
   {
   public:

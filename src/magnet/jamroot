@@ -20,8 +20,7 @@ lib OpenCL : : <link>shared ;
 alias magnet : OpenCL 
       : <include>.
       : 
-      : <include>. ;
-
+      : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic ;
 
 ##################### TESTS ######################
 using testing ;
