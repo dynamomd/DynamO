@@ -33,6 +33,16 @@ CoilMaster::CoilMaster():
 {
   glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
   glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+
+  _runFlag = true;
+  _renderThread = magnet::thread::Thread
+    (magnet::function::Task::makeTask(&CoilMaster::renderThreadEntryPoint, this));
+
+  _windowThread = magnet::thread::Thread
+    (magnet::function::Task::makeTask(&CoilMaster::windowThreadEntryPoint, this));
+
+  //Spinlock waiting for the boot thread to come up
+  while (!_renderReadyFlag || !_windowReadyFlag) { smallSleep(); }
 }
 
 CoilMaster::~CoilMaster(){
@@ -214,21 +224,6 @@ void CoilMaster::smallSleep()
 }
 
 void 
-CoilMaster::bootCoil()
-{
-  if (_runFlag)
-    throw std::runtime_error("Renderer is already running!");
-
-  _runFlag = true;
-  
-  _renderThread = magnet::thread::Thread(magnet::function::Task::makeTask(&CoilMaster::renderThreadEntryPoint, this));
-  _windowThread = magnet::thread::Thread(magnet::function::Task::makeTask(&CoilMaster::windowThreadEntryPoint, this));
-
-  //Spinlock waiting for the boot thread to come up
-  while (!_renderReadyFlag || !_windowReadyFlag) { smallSleep(); }
-}
-
-void 
 CoilMaster::waitForShutdown()
 {
   if (_renderThread.validTask()) _renderThread.join();
@@ -294,9 +289,10 @@ bool CoilMaster::GTKIldeFunc()
       Gtk::Window* controlwindow;
       _refXml->get_widget("controlWindow", controlwindow);
       
-      //Setup the on_close button
       controlwindow->hide();
     }
+
+  _windowQueue.drainQueue();
 
   return true;
 }

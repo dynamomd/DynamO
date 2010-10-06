@@ -21,10 +21,12 @@
 #include <features.h>
 #include <sstream>
 
+//For the stack tracer
 #ifdef MAGNET_DEBUG
 # ifdef __GNUC__
 #  include <execinfo.h>
 #  include <stdlib.h>
+#  include <cxxabi.h>
 # endif
 #endif
 
@@ -65,6 +67,38 @@ namespace magnet
   
 #ifdef MAGNET_DEBUG
 # ifdef __GNUC__
+  inline std::string demangle(char* funcname)
+  {
+    char * begin = 0, *end = 0;
+    for (char* j=  funcname; *j; ++j)
+      if (*j == '(')
+	begin = j+1;
+      else if (*j == ')')
+	end = j;
+    
+    std::string retval(funcname);
+
+    if (begin && end) {
+      *end = '\0';
+      // found our mangled name, now in [begin, end)
+      retval += "\n!!!!!Found mangled name!!!!!\n";
+      retval += begin;
+      int status;
+      char *demangledname = abi::__cxa_demangle(begin, 0, 0, &status);
+      retval += "\n!!!!!status is ";
+      retval += ('3'+status) ;
+      retval += "-3!!!!!\n";      
+      if (status == 0) {
+	retval += "\n!!!!!Demangled it!!!!!\n";
+	retval += demangledname;
+      }
+      if (demangledname != NULL) free(demangledname);
+    }
+    
+
+    return retval;
+  }
+
   inline std::string stack_trace()
   {
     void* ptrs[100];
@@ -75,7 +109,7 @@ namespace magnet
     output << "Stack Trace:";
     for (size_t i(1); i < stack_size; ++i)
       output << "\n#" << i << ":"
-	     << funcnames[i];
+	     << demangle(funcnames[i]);
 
     free(funcnames);
 

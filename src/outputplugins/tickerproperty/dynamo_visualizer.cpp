@@ -48,13 +48,10 @@ OPVisualizer::operator<<(const XMLNode& XML)
 void
 OPVisualizer::initialise()
 {
-  //Start the render thread
-  CoilMaster::getInstance().bootCoil();
-  
-  //Now build a window, ready to display it
+  //Build a window, ready to display it
   _CLWindow = new CLGLWindow(1024, 1024,//height, width
 			     0, 0,//initPosition (x,y)
-			     "GLCLWindow"//title
+			     "Visualizer"//title
 			     );
     
 //  //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
@@ -99,6 +96,8 @@ OPVisualizer::initialise()
   _sphereObject = &(_CLWindow->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels));
   
   CoilMaster::getInstance().addWindow(_CLWindow);
+
+  M_throw() << "Test exception";
 
   //We must lock coil before doing anything with the window
   {

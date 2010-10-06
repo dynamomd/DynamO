@@ -50,8 +50,6 @@ public:
     while (!window->isReady()) { smallSleep(); }
   }
 
-  void bootCoil();
-
   inline void 
   shutdownCoil() 
   { 
