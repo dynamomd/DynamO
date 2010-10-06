@@ -46,6 +46,15 @@ namespace magnet {
 	  }
       }
 
+      ~TaskQueue()
+      {
+	thread::ScopedLock lock1(_queue_mutex);
+
+	//Just drain the queue
+	while (!_waitingFunctors.empty())
+	  delete _waitingFunctors.front();
+      }
+
     protected:
       std::queue<function::Task*> _waitingFunctors;
       thread::Mutex _queue_mutex;

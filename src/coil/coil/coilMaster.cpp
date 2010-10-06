@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <magnet/arg_share.hpp>
 #include <coil/coilMaster.hpp>
 #include <coil/coilWindow.hpp>
 #include <GL/freeglut_ext.h>
@@ -22,22 +23,21 @@
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
-                         
-CoilMaster::CoilMaster(int argc, char** argv):
+                 
+        
+CoilMaster::CoilMaster():
   _runFlag(false),
   _renderReadyFlag(false),
   _windowReadyFlag(false),
-  _GTKit(argc, argv)
+  _GTKit(magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv())
 {
-  if (!argc || (argv == NULL))
-    throw std::runtime_error("You must pass argc and argv the first time you use CoilMaster::getInstance()");
-
-  glutInit(&argc, argv);
-  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+  glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
+  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 }
 
 CoilMaster::~CoilMaster(){
-
+  shutdownCoil();
+  waitForShutdown();
 }
  
 void CoilMaster::CallBackDisplayFunc(void){
@@ -47,7 +47,7 @@ void CoilMaster::CallBackDisplayFunc(void){
 
 void CoilMaster::CallBackCloseWindow()
 {
-  //Shutdown all windows and get ready to join();
+  //Shutdown all windows, we can't recover from a window close in glut
   CoilMaster::getInstance().shutdownCoil();
 }
 
@@ -123,10 +123,10 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
    // so CoilMaster can send events to propoer callback functions.
 
    CoilMaster::getInstance()._viewPorts[windowID] = coilWindow;
+   CoilMaster::getInstance()._windows[coilWindow] = windowID;
 
    // Hand address of universal static callback functions to Glut.
    // This must be for each new window, even though the address are constant.
-
    glutDisplayFunc(CallBackDisplayFunc);
    
    //Idling is handled in coilMasters main loop
@@ -144,26 +144,54 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
    glutCloseFunc(CallBackCloseWindow);
 }
 
+void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow)
+{
+  glutDestroyWindow(_windows[coilWindow]);
+}
+
 void CoilMaster::renderThreadEntryPoint()
 {
   try {
-    for (std::vector<CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._windows.begin();
-	 iPtr != CoilMaster::getInstance()._windows.end(); ++iPtr)
-      {
-	(*iPtr)->initOpenGL();
-	(*iPtr)->initOpenCL();
-      }
-
     _renderReadyFlag = true;
 
     while (CoilMaster::getInstance()._runFlag)
-      for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
-	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
 	{
-	  glutSetWindow(iPtr->first);
-	  glutMainLoopEvent();
-	  iPtr->second->CallBackIdleFunc();
+	  //Don't just burn cycles if we have no windows!
+	  if (CoilMaster::getInstance()._viewPorts.empty())
+	    smallSleep();
+	  else
+	    glutMainLoopEvent();
+	  
+	  
+	  for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
+	       iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+	    {
+	      glutSetWindow(iPtr->first);
+	      iPtr->second->CallBackIdleFunc();
+	    }
+
+	  //Now we drain our task queue
+	  _renderQueue.drainQueue();
 	}
+
+    //If we reach here, we must just delete all windows that we own to
+    //free up the memory. There is a danger that the renderQueue has
+    //some non-zero size, with a window left to initialize.
+    //! \todo{Fix the race condition on adding windows and deleting them}
+    for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
+	 iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+      delete iPtr->second;
+
+    _viewPorts.clear();
+    _windows.clear();
+
+
+    //Run glutMainLoopEvent to let destroyed windows close
+    glutMainLoopEvent();
+    //Finally we should sleep a little to let the window system catch
+    //up
+    smallSleep();
+
   } catch (std::exception& except)
     {
       std::cerr << "\nRender thread caught an exception\n"
@@ -178,6 +206,14 @@ void CoilMaster::renderThreadEntryPoint()
     }
 }
 
+void CoilMaster::smallSleep()
+{
+  timespec sleeptime;
+  sleeptime.tv_sec = 0;
+  sleeptime.tv_nsec = 100000000;
+  nanosleep(&sleeptime, NULL);
+}
+
 void 
 CoilMaster::bootCoil()
 {
@@ -189,12 +225,8 @@ CoilMaster::bootCoil()
   _renderThread = magnet::thread::Thread(magnet::function::Task::makeTask(&CoilMaster::renderThreadEntryPoint, this));
   _windowThread = magnet::thread::Thread(magnet::function::Task::makeTask(&CoilMaster::windowThreadEntryPoint, this));
 
-  timespec sleeptime;
-
-  sleeptime.tv_sec = 0;
-  sleeptime.tv_nsec = 100000000;
-
-  while (!_renderReadyFlag || !_windowReadyFlag) { nanosleep(&sleeptime, NULL); }
+  //Spinlock waiting for the boot thread to come up
+  while (!_renderReadyFlag || !_windowReadyFlag) { smallSleep(); }
 }
 
 void 
@@ -202,8 +234,6 @@ CoilMaster::waitForShutdown()
 {
   if (_renderThread.validTask()) _renderThread.join();
   if (_windowThread.validTask()) _windowThread.join();
-
-  std::cerr << "!!!!!!!!!!!!!!!!!Thread JOINED!!!!!!!!!!!!!!!!!!";
 }
 
 //The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data

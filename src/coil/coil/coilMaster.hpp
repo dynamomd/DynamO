@@ -32,18 +32,26 @@ class CoilMaster{
 public:
 
   inline static 
-  CoilMaster& getInstance(int argc = 0, char** argv = NULL)
+  CoilMaster& getInstance()
   {
-    static CoilMaster singletonInstance(argc, argv);
+    static CoilMaster singletonInstance;
     return singletonInstance;
   }
   
   //Only for window objects to call
   void  CallGlutCreateWindow(const char*, CoilWindow*);
+  void  CallGlutDestroyWindow(CoilWindow*);
 
-  void addWindow(CoilWindow* window) { _windows.push_back(window); }
+  void addWindow(CoilWindow* window)
+  {
+    _renderQueue.queueTask(magnet::function::Task::makeTask(addWindowFunc, window));
+
+    //Spinlock waiting for the window to initialize
+    while (!window->isReady()) { smallSleep(); }
+  }
 
   void bootCoil();
+
   inline void 
   shutdownCoil() 
   { 
@@ -57,8 +65,16 @@ public:
   inline bool isRunning() { return _runFlag; }
 
 private:
-  CoilMaster(int argc, char** argv);
+  CoilMaster();
   ~CoilMaster();
+
+  static inline void addWindowFunc(CoilWindow* window)
+  { 
+    window->init();
+  }
+
+
+  void smallSleep();
 
   volatile bool _runFlag; 
   volatile bool _renderReadyFlag;
@@ -69,7 +85,7 @@ private:
   magnet::thread::TaskQueue _renderQueue;
 
   std::map<int, CoilWindow*> _viewPorts;
-  std::vector<CoilWindow*> _windows;
+  std::map<CoilWindow*, int> _windows;
   static void CallBackDisplayFunc(); 
   static void CallBackCloseWindow();
   static void CallBackKeyboardFunc(unsigned char key, int x, int y);

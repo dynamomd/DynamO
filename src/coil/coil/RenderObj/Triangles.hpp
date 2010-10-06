@@ -46,7 +46,7 @@ protected:
   GLuint _posBuff;
   size_t _posBuffSize;
   cl::GLBuffer _clbuf_Positions;
-
+  
   GLuint _normBuff;
   size_t _normBuffSize;
   cl::GLBuffer _clbuf_Normals;

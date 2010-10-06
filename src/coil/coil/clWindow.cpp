@@ -41,10 +41,8 @@ inline float clamp(float x, float a, float b)
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
-                       std::string title,
-		       cl::Platform& plat
+                       std::string title
 		       ):
-  _clplatform(plat),
   _height(setHeight),
   _width(setWidth),
   _windowX(initPosX),
@@ -67,8 +65,6 @@ CLGLWindow::~CLGLWindow()
        iPtr != RenderObjects.end(); ++iPtr)
     delete *iPtr;
 }
-
-
 
 void 
 CLGLWindow::initOpenGL()

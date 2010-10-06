@@ -28,6 +28,8 @@
 #include <coil/RenderObj/TestWaves.hpp>
 #include <coil/RenderObj/Spheres.hpp>
 
+#include <magnet/CL/CLGL.hpp>
+
 OPVisualizer::OPVisualizer(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"Magnet"),
   _CLWindow(NULL),
@@ -37,13 +39,7 @@ OPVisualizer::OPVisualizer(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 OPVisualizer::~OPVisualizer()
-{
-  if (_CLWindow != NULL)
-    {
-      CoilMaster::getInstance().shutdownCoil();
-      CoilMaster::getInstance().waitForShutdown();
-    }
-}
+{}
 
 void 
 OPVisualizer::operator<<(const XMLNode& XML)
@@ -52,20 +48,14 @@ OPVisualizer::operator<<(const XMLNode& XML)
 void
 OPVisualizer::initialise()
 {
-  std::vector<cl::Platform> platforms;
-  cl::Platform::get(&platforms);
+  //Start the render thread
+  CoilMaster::getInstance().bootCoil();
   
-  cl::Platform clplatform = platforms[0];
-    
-  int argc = 1;
-  const char* argv = "dynarun";
-
-  CoilMaster::getInstance(argc, (char**)&argv);
-    
+  //Now build a window, ready to display it
   _CLWindow = new CLGLWindow(1024, 1024,//height, width
 			     0, 0,//initPosition (x,y)
-			     "GLCLWindow",//title
-			     clplatform);
+			     "GLCLWindow"//title
+			     );
     
 //  //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
 //
@@ -110,8 +100,6 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
-  //Start the render thread
-  CoilMaster::getInstance().bootCoil();
 
   _lastRenderTime = _CLWindow->getLastFrameTime();
 
@@ -142,32 +130,32 @@ OPVisualizer::initialise()
 void 
 OPVisualizer::ticker()
 {
-  //Now for the update test
-  if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
-
-  //The screen was redrawn! Lets continue
-  
-  //Now try getting access to the sphere position data
-  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    {
-      Vector pos = part.getPosition();
-      
-      Sim->dynamics.BCs().applyBC(pos);
-      
-      for (size_t i(0); i < NDIM; ++i)
-	sphereDataPtr[part.getID()].s[i] = pos[i];
-    }
-  
-  //Now update all the particle data
-  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
-  
-  //Return it
-  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
-
-  //Mark when the last update was
-  _lastRenderTime = _CLWindow->getLastFrameTime();
+//  //Now for the update test
+//  if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
+//
+//  //The screen was redrawn! Lets continue
+//  
+//  //Now try getting access to the sphere position data
+//  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+//
+//  BOOST_FOREACH(const Particle& part, Sim->particleList)
+//    {
+//      Vector pos = part.getPosition();
+//      
+//      Sim->dynamics.BCs().applyBC(pos);
+//      
+//      for (size_t i(0); i < NDIM; ++i)
+//	sphereDataPtr[part.getID()].s[i] = pos[i];
+//    }
+//  
+//  //Now update all the particle data
+//  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
+//  
+//  //Return it
+//  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
+//
+//  //Mark when the last update was
+//  _lastRenderTime = _CLWindow->getLastFrameTime();
 }
 
 void 

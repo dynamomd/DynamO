@@ -49,6 +49,12 @@ RTSpheres::RTSpheres(const magnet::GL::viewPort& viewPortInfo,
   _viewPortInfo(viewPortInfo)
 {}
 
+RTSpheres::~RTSpheres()
+{
+  //We get a lock to ensure we don't destroy during a data transfer
+  magnet::thread::ScopedLock tmp(_sphereDataLock);
+}
+
 void
 RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
 {

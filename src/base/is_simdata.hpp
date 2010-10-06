@@ -80,7 +80,7 @@ namespace DYNAMO
     /*! \brief Significant default value initialisation.
      */
     SimData();
-    
+
     /*! \brief Handles deleting the CScheduler pointer
      *
      * \bug Make the Scheduler handled by a smrtPlugPtr, and make the

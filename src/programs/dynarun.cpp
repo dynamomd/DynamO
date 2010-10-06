@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <boost/program_options.hpp>
 #include "../src/coordinator/coordinator.hpp"
+#include <magnet/arg_share.hpp>
 
 /*! \brief The programs single instantiation of the simulation control class.
  */
@@ -96,7 +97,19 @@ main(int argc, char *argv[])
   //Run the simulation
   try 
     {      
-      coord.parseOptions(argc,argv);
+      magnet::ArgShare::getInstance().setArgs(argc, argv);
+      
+      //Strip off all arguments after our special -GLGTK marker
+      
+      int args = argc;
+      for (int i(0); i < argc; ++i)
+	if (!strcmp("-GLGTK", argv[i]))
+	  {
+	    args = i;
+	    break;
+	  }
+
+      coord.parseOptions(args,argv);
 
       coord.initialise();
       

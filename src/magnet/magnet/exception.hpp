@@ -72,7 +72,7 @@ namespace magnet
     char** funcnames = backtrace_symbols(ptrs, stack_size);
     
     std::ostringstream output;
-    output << "Exception Stack Trace:";
+    output << "Stack Trace:";
     for (size_t i(1); i < stack_size; ++i)
       output << "\n#" << i << ":"
 	     << funcnames[i];

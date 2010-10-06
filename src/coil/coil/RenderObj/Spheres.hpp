@@ -50,6 +50,8 @@ public:
   RTSpheres(const magnet::GL::viewPort& viewPortInfo,
 	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
 
+  ~RTSpheres();
+
   cl_float4* writePositionData(cl::CommandQueue& cmdq);
   void returnPositionData(cl::CommandQueue& cmdq, cl_float4* clBufPointer);
 

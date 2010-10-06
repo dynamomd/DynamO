@@ -46,8 +46,7 @@ class CLGLWindow : public CoilWindow
 public:
   CLGLWindow(int setWidth, int setHeight,
 	     int setInitPositionX, int setInitPositionY,
-	     std::string title,
-	     cl::Platform& plat);
+	     std::string title);
 
   ~CLGLWindow();
   
@@ -55,7 +54,6 @@ public:
   virtual void CallBackIdleFunc(void);
   void CallBackReshapeFunc(int w, int h);    
 
-  cl::Platform& getCLPlatform() { return _clplatform; }
   cl::Context& getCLContext() { return  _clcontext; }
   cl::Device& getCLDevice() { return  _cldevice; }
   cl::CommandQueue& getCLCommandQueue() { return  _clcmdq; }
@@ -98,13 +96,13 @@ protected:
   //Frame buffers to flip flop data between
   magnet::GL::multisampledFBO _FBO1;
 
-  cl::Platform _clplatform;
   cl::Context _clcontext;
   cl::Device _cldevice;
   cl::CommandQueue _clcmdq;
 
   size_t _height, _width;
   int _windowX, _windowY;
+
 
   std::vector<RenderObj*> RenderObjects;
 
