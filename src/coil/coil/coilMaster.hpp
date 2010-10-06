@@ -55,6 +55,7 @@ public:
   inline void 
   shutdownCoil() 
   { 
+    magnet::thread::ScopedLock lock(_coilLock);
     _runFlag = false; 
     _renderReadyFlag = false;
     _windowReadyFlag = false;
@@ -64,15 +65,25 @@ public:
 
   inline bool isRunning() { return _runFlag; }
 
+  //This mutex exists to stop coil killing itself while the main
+  //program is accessing it. It is locked while windows are added or
+  //destroyed and before shutting down.  It should be locked by the
+  //main program while doing anything that requires a window to stay
+  //alive. You should lock, then check isRunning() and abort the
+  //action if it's not.
+  magnet::thread::Mutex _coilLock;
+
 private:
   CoilMaster();
   ~CoilMaster();
 
   static inline void addWindowFunc(CoilWindow* window)
-  { 
+  {
+    magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
     window->init();
   }
 
+  
 
   void smallSleep();
 

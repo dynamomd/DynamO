@@ -174,24 +174,23 @@ void CoilMaster::renderThreadEntryPoint()
 	  _renderQueue.drainQueue();
 	}
 
-    //If we reach here, we must just delete all windows that we own to
-    //free up the memory. There is a danger that the renderQueue has
-    //some non-zero size, with a window left to initialize.
-    //! \todo{Fix the race condition on adding windows and deleting them}
-    for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
-	 iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
-      delete iPtr->second;
 
-    _viewPorts.clear();
-    _windows.clear();
-
+    {
+      magnet::thread::ScopedLock lock(_coilLock);
+      //If we reach here, we must just delete all windows that we own to
+      //free up the memory. There is a danger that the renderQueue has
+      //some non-zero size, with a window left to initialize.
+      //! \todo{Fix the race condition on adding windows and deleting them}
+      for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
+	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+	delete iPtr->second;
+      
+      _viewPorts.clear();
+      _windows.clear();
+    }
 
     //Run glutMainLoopEvent to let destroyed windows close
     glutMainLoopEvent();
-    //Finally we should sleep a little to let the window system catch
-    //up
-    smallSleep();
-
   } catch (std::exception& except)
     {
       std::cerr << "\nRender thread caught an exception\n"

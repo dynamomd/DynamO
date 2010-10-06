@@ -100,62 +100,76 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
+  //We must lock coil before doing anything with the window
+  {
+    magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
+    
+    if (!CoilMaster::getInstance().isRunning())
+      M_throw() << "Coil aborted before initial data was loaded into the rendered spheres";
 
-  _lastRenderTime = _CLWindow->getLastFrameTime();
+    _lastRenderTime = _CLWindow->getLastFrameTime();
+    
+    //Place the initial radii into the visualizer
+    cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+    
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      {
+	double diam = spec->getIntPtr()->hardCoreDiam();
+	
+	BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+	  {
+	    Vector pos = Sim->particleList[ID].getPosition();
+	    
+	    Sim->dynamics.BCs().applyBC(pos);
+	    
+	    for (size_t i(0); i < NDIM; ++i)
+	      sphereDataPtr[ID].s[i] = pos[i];
+	    
+	    sphereDataPtr[ID].w = diam * 0.5;
+	  }
+      }
 
-  //Place the initial radii into the visualizer
-  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+    //Return it
+    _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
+  }
 
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    {
-      double diam = spec->getIntPtr()->hardCoreDiam();
-
-      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	{
-	  Vector pos = Sim->particleList[ID].getPosition();
-	  
-	  Sim->dynamics.BCs().applyBC(pos);
-
-	  for (size_t i(0); i < NDIM; ++i)
-	    sphereDataPtr[ID].s[i] = pos[i];
-
-	  sphereDataPtr[ID].w = diam * 0.5;
-	}
-    }
-
-  //Return it
-  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
 }
 
 void 
 OPVisualizer::ticker()
 {
-//  //Now for the update test
-//  if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
-//
-//  //The screen was redrawn! Lets continue
-//  
-//  //Now try getting access to the sphere position data
-//  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
-//
-//  BOOST_FOREACH(const Particle& part, Sim->particleList)
-//    {
-//      Vector pos = part.getPosition();
-//      
-//      Sim->dynamics.BCs().applyBC(pos);
-//      
-//      for (size_t i(0); i < NDIM; ++i)
-//	sphereDataPtr[part.getID()].s[i] = pos[i];
-//    }
-//  
-//  //Now update all the particle data
-//  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
-//  
-//  //Return it
-//  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
-//
-//  //Mark when the last update was
-//  _lastRenderTime = _CLWindow->getLastFrameTime();
+  //Now for the update test
+  if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
+  //The screen was redrawn! Lets continue
+
+  //First, lock coil from killing itself
+  magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
+    
+  //Check it is actually still running
+  if (!CoilMaster::getInstance().isRunning()) return;
+  //Still running, so lets do an update
+  
+  //Now try getting access to the sphere position data
+  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    {
+      Vector pos = part.getPosition();
+      
+      Sim->dynamics.BCs().applyBC(pos);
+      
+      for (size_t i(0); i < NDIM; ++i)
+	sphereDataPtr[part.getID()].s[i] = pos[i];
+    }
+  
+  //Now update all the particle data
+  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
+  
+  //Return it
+  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
+
+  //Mark when the last update was
+  _lastRenderTime = _CLWindow->getLastFrameTime();
 }
 
 void 
