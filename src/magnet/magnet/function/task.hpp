@@ -33,6 +33,7 @@ namespace magnet {
     {
     public:
       virtual void operator()() = 0;
+      virtual Task* Clone() = 0;
 
       template<typename retT>
       inline static Task* makeTask(retT (*funcPtr)()) 
@@ -138,11 +139,12 @@ namespace magnet {
     {
       typedef function::Delegate0<T> function;
 
-
     public:
       inline Task0(function delegate): _delegate(delegate) {}
       
       virtual void operator()() { _delegate(); }
+
+      virtual Task* Clone() { return new Task0<T>(*this); }
       
     private:
       function _delegate;
@@ -159,6 +161,8 @@ namespace magnet {
       {}
       
       virtual void operator()() { _delegate(_arg1); }
+
+      virtual Task* Clone() { return new Task1<T, T1>(*this); }
       
     private:
       function _delegate;
@@ -178,6 +182,8 @@ namespace magnet {
       
       virtual void operator()() { _delegate(_arg1, _arg2); }
       
+      virtual Task* Clone() { return new Task2<T, T1, T2>(*this); }
+
     private:
       function _delegate;
       T1 _arg1;
@@ -197,6 +203,8 @@ namespace magnet {
       {}
       
       virtual void operator()() { _delegate(_arg1, _arg2, _arg3); }
+
+      virtual Task* Clone() { return new Task3<T, T1, T2, T3>(*this); }
       
     private:
       function _delegate;
