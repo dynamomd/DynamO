@@ -68,10 +68,11 @@ void main()
   float shadow = 0;
   
   const float step = 0.001;
-  for (int x = 0; x < 4; ++x)
-    for (int y = 0; y < 4; ++y)
-      //Replace textureProj with shadow2DProj to make it work on old versions of GLSL
-      shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+  if (ShadowCoord.w > 1.0)
+    for (int x = 0; x < 4; ++x)
+      for (int y = 0; y < 4; ++y)
+	//Replace textureProj with shadow2DProj to make it work on old versions of GLSL
+	shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
   
   shadow /= 16.0 ;
   

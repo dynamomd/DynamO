@@ -154,12 +154,12 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
 
-  _light0 = magnet::GL::lightInfo(Vector(1.5f, 3.5f, 0.0f),//Position
-				  Vector(0.0f, 0.0f, 0.0f),//Lookat
+  _light0 = magnet::GL::lightInfo(Vector(2.5f, 0.5f, 0.0f),//Position
+				  Vector(0.0f, 0.5f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
 				  120.0f,//Beam angle
-				  100,//rangeMax
-				  0.01//rangeMin
+				  50,//rangeMax
+				  0.005//rangeMin
 				  );
   
   GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };

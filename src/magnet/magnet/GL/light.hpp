@@ -26,8 +26,9 @@ namespace magnet {
       inline lightInfo() {}
       
       inline lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle, 
-		GLfloat beamAngle = 45.0f,
-		GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.01):
+		       GLfloat beamAngle = 45.0f,
+		       GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.01,
+		       Vector up = Vector(0,1,0)):
 	_position(position),
 	_lookAtPoint(lookAtPoint),
 	_lightHandle(lightHandle)
@@ -40,23 +41,32 @@ namespace magnet {
 	glPushMatrix();
 	
 	glLoadIdentity();
+
+	up /= up.nrm();
+
+	//Setup the beam width and range
 	gluPerspective(beamAngle, 1.0f, rangeMin, rangeMax);
 	glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
 	
 	glLoadIdentity();
+
+	//Now rotate about the up vector, we do tilt seperately
 	Vector directionNorm = (lookAtPoint - position);
 	directionNorm /= directionNorm.nrm();
+	double upprojection = (directionNorm | up);
+	Vector directionInXZplane = directionNorm - upprojection * up;
+	directionInXZplane /= directionInXZplane.nrm();
+	double panrotation = (180.0 / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
+	glRotatef(-panrotation, up.x, up.y, up.z);      
+
+
+	Vector rotationAxis = up ^ directionInXZplane;
+	rotationAxis /= rotationAxis.nrm();
+	double tiltrotation = (180.0 / M_PI) * std::acos(directionInXZplane | directionNorm);
+	glRotatef(-tiltrotation, rotationAxis.x, rotationAxis.y, rotationAxis.z);      
 	
-	GLfloat rotationAngle = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | directionNorm);
-	
-	
-	Vector RotationAxis = Vector(0,0,-1) ^ directionNorm;
-	float norm = RotationAxis.nrm();
-	RotationAxis /= norm;
-	if (norm < std::numeric_limits<double>::epsilon())
-	  RotationAxis = Vector(1,0,0);
-	
-	glRotatef(-rotationAngle, RotationAxis.x,RotationAxis.y,RotationAxis.z);
+
+	//Finally positioning
 	glTranslatef(-position.x,-position.y,-position.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
 	
