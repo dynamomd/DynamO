@@ -24,9 +24,13 @@
 //For the stack tracer
 #ifdef MAGNET_DEBUG
 # ifdef __GNUC__
-#  include <execinfo.h>
+#  include <execinfo.h>  // for backtrace
+#  include <dlfcn.h>     // for dladdr
+#  include <cxxabi.h>    // for __cxa_demangle
+#  include <string>
+#  include <sstream>
+#  include <cstdio>
 #  include <stdlib.h>
-#  include <cxxabi.h>
 # endif
 #endif
 
@@ -47,7 +51,7 @@
 # ifdef __GNUC__
 #  define M_throw()							\
   throw magnet::exception(__LINE__,__FILE__, __MAGNET_EXCEPTION_FUNCTION) \
-  << magnet::stack_trace()
+  << magnet::stacktrace()
 # endif
 #endif
 
@@ -67,53 +71,38 @@ namespace magnet
   
 #ifdef MAGNET_DEBUG
 # ifdef __GNUC__
-  inline std::string demangle(char* funcname)
+  inline std::string stacktrace(int skip = 1)
   {
-    char * begin = 0, *end = 0;
-    for (char* j=  funcname; *j; ++j)
-      if (*j == '(')
-	begin = j+1;
-      else if (*j == ')')
-	end = j;
+    const int nMaxFrames = 128;
+    void *callstack[nMaxFrames]; //The return addresses, including return offsets
+    int nFrames = backtrace(callstack, nMaxFrames);
+    char **symbols = backtrace_symbols(callstack, nFrames);
     
-    std::string retval(funcname);
-
-    if (begin && end) {
-      *end = '\0';
-      // found our mangled name, now in [begin, end)
-      retval += "\n!!!!!Found mangled name!!!!!\n";
-      retval += begin;
-      int status;
-      char *demangledname = abi::__cxa_demangle(begin, 0, 0, &status);
-      retval += "\n!!!!!status is ";
-      retval += ('3'+status) ;
-      retval += "-3!!!!!\n";      
-      if (status == 0) {
-	retval += "\n!!!!!Demangled it!!!!!\n";
-	retval += demangledname;
+    std::ostringstream trace_buf;
+    for (int i = skip; i < nFrames; i++) 
+      {
+	Dl_info info;
+	if (dladdr(callstack[i], &info))
+	  {
+	    int status;
+	    char *demangled = abi::__cxa_demangle(info.dli_sname, NULL, 0, &status);
+	    
+	    trace_buf << i << " " << callstack[i] << " "
+		      << (status == 0 ? demangled : info.dli_sname)
+		      << " + return offset=" << ((char *)callstack[i] - (char *)info.dli_saddr)
+		      << "\n";
+	    
+	    free(demangled);
+	  }
+	else 
+	  trace_buf << i << " " << callstack[i] << "\n";
       }
-      if (demangledname != NULL) free(demangledname);
-    }
-    
+    free(symbols);
 
-    return retval;
-  }
+    if (nFrames == nMaxFrames)
+      trace_buf << "[truncated]\n";
 
-  inline std::string stack_trace()
-  {
-    void* ptrs[100];
-    size_t stack_size = backtrace(ptrs, 100);
-    char** funcnames = backtrace_symbols(ptrs, stack_size);
-    
-    std::ostringstream output;
-    output << "Stack Trace:";
-    for (size_t i(1); i < stack_size; ++i)
-      output << "\n#" << i << ":"
-	     << demangle(funcnames[i]);
-
-    free(funcnames);
-
-    return output.str();
+    return trace_buf.str();
   }
 # endif
 #endif

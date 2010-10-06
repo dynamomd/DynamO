@@ -97,8 +97,6 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
-  M_throw() << "Test exception";
-
   //We must lock coil before doing anything with the window
   {
     magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
