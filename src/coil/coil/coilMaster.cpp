@@ -17,13 +17,13 @@
 
 #include <magnet/arg_share.hpp>
 #include <coil/coilMaster.hpp>
+#include <magnet/CL/CLGL.hpp>
 #include <coil/coilWindow.hpp>
 #include <GL/freeglut_ext.h>
 #include <stdexcept>
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
-                 
         
 CoilMaster::CoilMaster():
   _runFlag(false),

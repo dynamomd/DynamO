@@ -37,9 +37,9 @@ public:
     magnet::GL::primatives::Sphere _type;
     cl_uint _nSpheres;
 
-    void setupCLBuffers(cl::Context& Context)
+    void setupCLBuffers(magnet::CL::CLGLState& CLState)
     {
-      _primativeVertices = cl::Buffer(Context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+      _primativeVertices = cl::Buffer(CLState.getContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
 				      sizeof(cl_float) * 3 * _type.getVertexCount(),
 				      _type.getVertices());
     }
@@ -52,18 +52,18 @@ public:
 
   ~RTSpheres();
 
-  cl_float4* writePositionData(cl::CommandQueue& cmdq);
-  void returnPositionData(cl::CommandQueue& cmdq, cl_float4* clBufPointer);
+  cl_float4* writePositionData(magnet::CL::CLGLState&);
+  void returnPositionData(magnet::CL::CLGLState&, cl_float4* );
 
-  virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
-  void sortTick(cl::CommandQueue& CmdQ, cl::Context& Context);
+  virtual void clTick(magnet::CL::CLGLState&);
+  void sortTick(magnet::CL::CLGLState&);
 
   virtual void initOpenGL() {}
-  virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device);
+  virtual void initOpenCL(magnet::CL::CLGLState&);
   
 protected:
 
-  void clTick_no_sort_or_locking(cl::CommandQueue& CmdQ, cl::Context& Context);
+  void clTick_no_sort_or_locking(magnet::CL::CLGLState&);
 
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;

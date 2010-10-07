@@ -27,6 +27,8 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
+#include <magnet/CL/CLGL.hpp>
+
 class RenderObj
 {
 public:
@@ -34,9 +36,9 @@ public:
   ~RenderObj();
 
   virtual void initOpenGL() = 0;
-  virtual void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device) = 0;
+  virtual void initOpenCL(magnet::CL::CLGLState&) = 0;
 
-  virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context) = 0;
+  virtual void clTick(magnet::CL::CLGLState&) = 0;
   virtual void glRender() = 0;
 
   enum RenderModeType 

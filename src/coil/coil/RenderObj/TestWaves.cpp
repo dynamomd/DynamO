@@ -52,10 +52,8 @@ RTTestWaves::initOpenGL()
 {}
 
 void 
-RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
+RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 {
-  
-
   {//Setup initial vertex positions
     std::vector<float> VertexPos(3 * _N * _N, 0.0);  
     for (size_t i = 0; i < _N; i++)
@@ -68,7 +66,7 @@ RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device
 	  }       
       }
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(Context);
+    initOCLVertexBuffer(CLState.getContext());
   }
 
   {//Setup inital normal vectors
@@ -98,7 +96,7 @@ RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device
 	  }       
       }
     setGLColors(VertexColor);
-    initOCLColorBuffer(Context);
+    initOCLColorBuffer(CLState.getContext());
   }
    
   {//Setup initial element data
@@ -121,19 +119,18 @@ RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device
   cl::Program::Sources kernelSource;
   kernelSource.push_back(std::pair<const char*, ::size_t>(kernelsrc.c_str(), kernelsrc.size()));
   
-  cl::Program program(CmdQ.getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
+  cl::Program program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
   std::string buildOptions;
   
-  cl::Device clDevice = CmdQ.getInfo<CL_QUEUE_DEVICE>();
   try {
-    program.build(std::vector<cl::Device>(1, clDevice), buildOptions.c_str());
+    program.build(std::vector<cl::Device>(1, CLState.getDevice()), buildOptions.c_str());
   } catch(cl::Error& err) {
     
-    std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(Device);
+    std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
     
     std::cout << "Compilation failed for device " <<
-      Device.getInfo<CL_DEVICE_NAME>()
+      CLState.getDevice().getInfo<CL_DEVICE_NAME>()
 	      << "\nBuild Log:" << msg;
     
     throw;
@@ -146,9 +143,9 @@ RTTestWaves::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device
 
 
 void 
-RTTestWaves::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
+RTTestWaves::clTick(magnet::CL::CLGLState& CLState)
 {
-  cl::KernelFunctor kernelFunc = kernel.bind(CmdQ, cl::NDRange(_N * _N), cl::NDRange(200));
+  cl::KernelFunctor kernelFunc = kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), cl::NDRange(200));
   timespec currTime;
   clock_gettime(CLOCK_MONOTONIC, &currTime);
   
@@ -156,13 +153,13 @@ RTTestWaves::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(CmdQ);
-  _clbuf_Positions.acquire(CmdQ);
+  _clbuf_Colors.acquire(CLState.getCommandQueue());
+  _clbuf_Positions.acquire(CLState.getCommandQueue());
   
   //Run Kernel
   kernelFunc((cl::Buffer)_clbuf_Positions, (cl::Buffer)_clbuf_Colors, tempo, _Yoffset);
   
   //Release resources
-  _clbuf_Colors.release(CmdQ);
-  _clbuf_Positions.release(CmdQ);
+  _clbuf_Colors.release(CLState.getCommandQueue());
+  _clbuf_Positions.release(CLState.getCommandQueue());
 }

@@ -107,7 +107,7 @@ OPVisualizer::initialise()
     _lastRenderTime = _CLWindow->getLastFrameTime();
     
     //Place the initial radii into the visualizer
-    cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+    cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());
     
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
       {
@@ -127,7 +127,7 @@ OPVisualizer::initialise()
       }
 
     //Return it
-    _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
+    _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
   }
 
 }
@@ -147,7 +147,7 @@ OPVisualizer::ticker()
   //Still running, so lets do an update
   
   //Now try getting access to the sphere position data
-  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCommandQueue());
+  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
@@ -163,7 +163,7 @@ OPVisualizer::ticker()
   //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
   
   //Return it
-  _sphereObject->returnPositionData(_CLWindow->getCommandQueue(), sphereDataPtr);
+  _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
 
   //Mark when the last update was
   _lastRenderTime = _CLWindow->getLastFrameTime();

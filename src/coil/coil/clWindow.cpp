@@ -193,68 +193,19 @@ CLGLWindow::initOpenGL()
 void 
 CLGLWindow::initOpenCL()
 {
-  //Ok Now init OpenCL.
-  if (magnet::cl::GLInterop::init())
+  _CLState.init();
   
-  _clcontext = magnet::cl::GLInterop::getContext();
-
   if (cl::GLBuffer::hostTransfers()) 
     std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
-
-  //Grab the first device
-  std::vector<cl::Device> devices = _clcontext.getInfo<CL_CONTEXT_DEVICES>();
-
-  _cldevice = devices.front();
-
-  std::cout << "Found these usable OpenCL Devices\n";
-  for (std::vector<cl::Device>::const_iterator iPtr = devices.begin();
-       iPtr != devices.end(); ++iPtr)
-    switch(iPtr->getInfo<CL_DEVICE_TYPE>()) 
-      {
-      case CL_DEVICE_TYPE_ACCELERATOR:
-	std::cout << " ACCELERATOR:" << iPtr->getInfo<CL_DEVICE_NAME>()  << "\n";
-	break;
-      case CL_DEVICE_TYPE_CPU:
-	std::cout << " CPU:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
-	break;
-      case CL_DEVICE_TYPE_GPU:
-	std::cout << " GPU:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
-	_cldevice = *iPtr;
-	break;
-      default:
-	std::cout << " DEFAULT:" << iPtr->getInfo<CL_DEVICE_NAME>() << "\n";
-      }
-
-  //Just check if there is a GPU to use instead of a CPU
-  std::cout << "\nUsing OpenCL Device ";
-  switch(_cldevice.getInfo<CL_DEVICE_TYPE>()) 
-    {
-    case CL_DEVICE_TYPE_ACCELERATOR:
-      std::cout << " ACCELERATOR:" << _cldevice.getInfo<CL_DEVICE_NAME>();
-      break;
-    case CL_DEVICE_TYPE_CPU:
-      std::cout << " CPU:" << _cldevice.getInfo<CL_DEVICE_NAME>();
-      break;
-    case CL_DEVICE_TYPE_GPU:
-      std::cout << " GPU:" << _cldevice.getInfo<CL_DEVICE_NAME>();
-      break;
-    default:
-      std::cout << " DEFAULT:" << _cldevice.getInfo<CL_DEVICE_NAME>();
-    }
-  
-  std::cout << std::endl;
-
-  //Make a command queue
-  _clcmdq = cl::CommandQueue(_clcontext, _cldevice/*, CL_QUEUE_PROFILING_ENABLE*/) ;
 
   //Now init the render objects  
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->initOpenCL(_clcmdq, _clcontext, _cldevice);
+    (*iPtr)->initOpenCL(_CLState);
 }
 
 void CLGLWindow::CallBackDisplayFunc(void)
-{ 
+{
   if (!CoilMaster::getInstance().isRunning()) return;
 
   //Prepare for the OpenCL ticks
@@ -270,7 +221,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
   //Run every objects OpenCL stage
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->clTick(_clcmdq, _clcontext);
+    (*iPtr)->clTick(_CLState);
 
   //Camera Positioning
 
@@ -281,7 +232,7 @@ void CLGLWindow::CallBackDisplayFunc(void)
   _viewPortInfo.CameraSetup(forward, sideways, vertical);
 
   //Flush the OpenCL queue, so GL can use the buffers
-  _clcmdq.finish();
+  _CLState.getCommandQueue().finish();
   
   //Prepare for the GL render
   if (_shaderPipeline)

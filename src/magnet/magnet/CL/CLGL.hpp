@@ -17,96 +17,131 @@
 #pragma once
 
 #include <magnet/CL/GLBuffer.hpp>
+#include <magnet/exception.hpp>
 
 namespace magnet {
-  namespace cl {
-    class GLInterop {
-    private:
-      static inline ::cl::Platform& setPlatform() 
-      {
-	static ::cl::Platform _platform;
-	return _platform;
-      }
-
-      static inline ::cl::Context& setContext() 
-      {
-	static ::cl::Context _context;
-	return _context;
-      }
-
+  namespace CL {
+    class CLGLState {
     public:
+      CLGLState():_initialised(false) {}
 
-      static inline const ::cl::Platform& getPlatform() 
+      //Only call this when you're in a valid OpenGL context
+      inline void init()
       {
-	return setPlatform();
+	if (_initialised) M_throw() << "Initialising twice!";
+	initContext();
+	initDevice();
+	_commandQ =cl::CommandQueue(_context, _device);
+	_initialised = true;
+      }
+ 
+      inline cl::Platform getPlatform() 
+      { 
+	if (!_initialised) M_throw() << "Not initialised()!";
+	return _platform; 
       }
 
-      static inline const ::cl::Context& getContext() 
-      {
-	return setContext();
+      inline cl::Context getContext() 
+      { 
+	if (!_initialised) M_throw() << "Not initialised()!";
+	return _context; 
       }
 
-      //Setup the best OpenCL/GL context we can
-      static bool init()
+      inline cl::Device getDevice() 
+      { 
+	if (!_initialised) M_throw() << "Not initialised()!";
+	return _device; 
+      }
+
+      inline cl::CommandQueue getCommandQueue() 
+      { 
+	if (!_initialised) M_throw() << "Not initialised()!";
+	return _commandQ; 
+      }
+      
+    private:
+
+     cl::Platform _platform;
+     cl::Context _context;
+     cl::Device _device;
+     cl::CommandQueue _commandQ;
+
+      bool _initialised;
+
+      inline void initContext()
       {
-	std::vector< ::cl::Platform> platforms;
-        ::cl::Platform::get(&platforms);
+	std::vector<cl::Platform> platforms;
+       cl::Platform::get(&platforms);
       
         //Now cycle through the platforms trying to get a context
-        for (std::vector< ::cl::Platform>::const_iterator iPtr = platforms.begin();
+        for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
              iPtr != platforms.end(); ++iPtr)
 	  {
 	    try {
-	      setContext() = getCLGLContext(*iPtr);
+	      _context = getCLGLContext(*iPtr);
 	      //Success! now set the platform and return!
-	      setPlatform() = *iPtr;
-	      ::cl::GLBuffer::hostTransfers() = false;
-	      return true;
+	      _platform = *iPtr;
+	     cl::GLBuffer::hostTransfers() = false;
+	      return;
 	    } catch (...)
 	      {/*Failed so we just carry on*/}
 	  }
-
+	
 	//No CLGL platform was found so just give the first platform
-	setPlatform() = platforms.front();
+	_platform = platforms.front();
 	//Make sure to set host transfers on!
-        ::cl::GLBuffer::hostTransfers() = true;
+       cl::GLBuffer::hostTransfers() = true;
 	
 	cl_context_properties cpsFallBack[] = {CL_CONTEXT_PLATFORM, 
 					       (cl_context_properties)getPlatform()(),
 					       0};
 	try {
-	  setContext() = ::cl::Context(CL_DEVICE_TYPE_ALL, cpsFallBack, NULL, NULL);
-	} catch (::cl::Error& err)
+	  _context =cl::Context(CL_DEVICE_TYPE_ALL, cpsFallBack, NULL, NULL);
+	} catch (...)
 	  {
 	    throw std::runtime_error("Failed to create a normal OpenCL context!");
 	  }
-
-	return true;
       }
-
-      static ::cl::Context getCLGLContext(::cl::Platform clplatform)
+      
+      inline cl::Context getCLGLContext(::cl::Platform clplatform)
       {
-	GLXContext GLContext = glXGetCurrentContext();
-	
-	if (GLContext == NULL)
+	if (glXGetCurrentContext() == NULL)
 	  throw std::runtime_error("Failed to obtain the GL context");
 	
-	cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, 
-					  (cl_context_properties)clplatform(),
-					  CL_GLX_DISPLAY_KHR, (intptr_t) glXGetCurrentDisplay(),
-					  CL_GL_CONTEXT_KHR, (intptr_t) GLContext, 0};
+	cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, (cl_context_properties) clplatform(),
+					  CL_GLX_DISPLAY_KHR, (cl_context_properties) glXGetCurrentDisplay(),
+					  CL_GL_CONTEXT_KHR, (cl_context_properties) glXGetCurrentContext(), 0};
 	
 	::cl::Context clcontext;
 	
 	//create the OpenCL context 
 	try {
-	  clcontext = ::cl::Context(CL_DEVICE_TYPE_ALL, cpsGL, NULL, NULL);
-	} catch(::cl::Error& err)
+	  clcontext =cl::Context(CL_DEVICE_TYPE_ALL, cpsGL, NULL, NULL);
+	} catch(...)
 	  {
 	    throw std::runtime_error("Could not generate CLGL context");
 	  }
 	
 	return clcontext;
+      }
+
+      inline void initDevice()
+      {
+	//Grab the first device
+	std::vector<cl::Device> devices = getContext().getInfo<CL_CONTEXT_DEVICES>();
+	
+	//Default to the first device
+	_device = devices.front();
+	
+	//But check if there is a GPU to use
+	for (std::vector<cl::Device>::const_iterator iPtr = devices.begin();
+	     iPtr != devices.end(); ++iPtr)
+	  if (iPtr->getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_GPU)
+	    {
+	      //Take the first GPU
+	      _device = *iPtr;
+	      break;
+	    }
       }
     };
   }

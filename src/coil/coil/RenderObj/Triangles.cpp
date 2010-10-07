@@ -130,23 +130,23 @@ RTriangles::setGLPositions(std::vector<float>& VertexPos)
 }
 
 void 
-RTriangles::initOCLVertexBuffer(cl::Context& Context)
+RTriangles::initOCLVertexBuffer(cl::Context Context)
 {
   _clbuf_Positions = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _posBuff, GL_ARRAY_BUFFER);
 }
 
 void 
-RTriangles::initOCLColorBuffer(cl::Context& Context)
+RTriangles::initOCLColorBuffer(cl::Context Context)
 {
   _clbuf_Colors = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _colBuff, GL_ARRAY_BUFFER);
 }
 void 
-RTriangles::initOCLNormBuffer(cl::Context& Context)
+RTriangles::initOCLNormBuffer(cl::Context Context)
 {
   _clbuf_Normals = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _normBuff, GL_ARRAY_BUFFER);
 }
 void 
-RTriangles::initOCLElementBuffer(cl::Context& Context)
+RTriangles::initOCLElementBuffer(cl::Context Context)
 {
   _clbuf_Elements = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _normBuff, GL_ELEMENT_ARRAY_BUFFER);
 }

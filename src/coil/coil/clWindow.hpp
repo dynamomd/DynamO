@@ -54,10 +54,6 @@ public:
   virtual void CallBackIdleFunc(void);
   void CallBackReshapeFunc(int w, int h);    
 
-  cl::Context& getCLContext() { return  _clcontext; }
-  cl::Device& getCLDevice() { return  _cldevice; }
-  cl::CommandQueue& getCLCommandQueue() { return  _clcmdq; }
-
   const std::string& getWindowTitle() const { return windowTitle; }
   void setWindowtitle(const std::string& newtitle);
   
@@ -86,9 +82,10 @@ public:
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
   T& addRenderObj(T1, T2, T3, T4, T5, T6) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
-  inline cl::CommandQueue& getCommandQueue() { return _clcmdq; } 
-
   inline const int& getLastFrameTime() const { return _lastFrameTime; }
+
+  magnet::CL::CLGLState& getCLState() { return _CLState; }
+
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
@@ -96,13 +93,8 @@ protected:
   //Frame buffers to flip flop data between
   magnet::GL::multisampledFBO _FBO1;
 
-  cl::Context _clcontext;
-  cl::Device _cldevice;
-  cl::CommandQueue _clcmdq;
-
   size_t _height, _width;
   int _windowX, _windowY;
-
 
   std::vector<RenderObj*> RenderObjects;
 
@@ -116,6 +108,8 @@ protected:
 
 private:
   void CameraSetup();
+
+  magnet::CL::CLGLState _CLState;
 
   void initOpenGL();
   void initOpenCL();

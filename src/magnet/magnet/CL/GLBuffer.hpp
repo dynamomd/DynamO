@@ -86,7 +86,7 @@ public:
       }
   }
 
-  Event acquire(CommandQueue & cmdq, cl_int* err = NULL)
+  Event acquire(CommandQueue cmdq, cl_int* err = NULL)
   {
     Event retEvent;
 
@@ -123,7 +123,7 @@ public:
     return retEvent;
   }
 
-  Event release(CommandQueue & cmdq, cl_int* err = NULL)
+  Event release(CommandQueue cmdq, cl_int* err = NULL)
   {
     Event retEvent;
 

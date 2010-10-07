@@ -33,10 +33,10 @@ public:
   void setGLNormals(std::vector<float>& VertexNormals);
   void setGLElements(std::vector<int>& Elements);
 
-  void initOCLVertexBuffer(cl::Context& Context);
-  void initOCLColorBuffer(cl::Context& Context);
-  void initOCLNormBuffer(cl::Context& Context);
-  void initOCLElementBuffer(cl::Context& Context);
+  void initOCLVertexBuffer(cl::Context Context);
+  void initOCLColorBuffer(cl::Context Context);
+  void initOCLNormBuffer(cl::Context Context);
+  void initOCLElementBuffer(cl::Context Context);
 
 protected:
   GLuint _colBuff;

@@ -56,7 +56,7 @@ RTSpheres::~RTSpheres()
 }
 
 void
-RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device)
+RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 {
   try {
     _sphereDataLock.lock();
@@ -66,19 +66,19 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
     }
 
   {
-    _spherePositions = cl::Buffer(Context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
+    _spherePositions = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);
 
     //We must pad the sort data out to a multiple of 1024
 
     size_t paddedN = ((_N + 1023)/1024) * 1024;
     
-    _sortKeys = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(float) * paddedN);
-    _sortData = cl::Buffer(Context, CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
+    _sortKeys = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(float) * paddedN);
+    _sortData = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
     
-    cl_float4* Pos = (cl_float4*)CmdQ.enqueueMapBuffer(_spherePositions, true, 
-						       CL_MAP_WRITE, 0, 
-						       _N * sizeof(cl_float4));
+    cl_float4* Pos = (cl_float4*)CLState.getCommandQueue().enqueueMapBuffer(_spherePositions, true, 
+									    CL_MAP_WRITE, 0, 
+									    _N * sizeof(cl_float4));
 
     const float density = 0.1;
 
@@ -95,7 +95,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
       }
 
     //Start copying this data to the graphics card
-    CmdQ.enqueueUnmapMemObject(_spherePositions, (void*)Pos);
+    CLState.getCommandQueue().enqueueUnmapMemObject(_spherePositions, (void*)Pos);
   }
 
   {//Setup initial vertex positions
@@ -106,7 +106,7 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 
     std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(Context);
+    initOCLVertexBuffer(CLState.getContext());
   }
   
   {//Setup inital normal vectors
@@ -201,19 +201,19 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
   kernelSource.push_back(std::pair<const char*, ::size_t>
 			 (finalSource.c_str(), finalSource.size()));
   
-  cl::Program program(CmdQ.getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
+  cl::Program program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
   std::string buildOptions;
   
-  cl::Device clDevice = CmdQ.getInfo<CL_QUEUE_DEVICE>();
+  cl::Device clDevice = CLState.getCommandQueue().getInfo<CL_QUEUE_DEVICE>();
   try {
     program.build(std::vector<cl::Device>(1, clDevice), buildOptions.c_str());
   } catch(cl::Error& err) {
     
-    std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(Device);
+    std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
     
     std::cout << "Compilation failed for device " <<
-      Device.getInfo<CL_DEVICE_NAME>()
+      CLState.getDevice().getInfo<CL_DEVICE_NAME>()
 	      << "\nBuild Log:" << msg;
     
     throw;
@@ -223,16 +223,16 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
   _sortDataKernel = cl::Kernel(program, "GenerateData");
 
 
-  sortFunctor.build(CmdQ, Context);
-  CPUsortFunctor.build(CmdQ,Context);
+  sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
+  CPUsortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
 
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
-    iPtr->setupCLBuffers(Context);
+    iPtr->setupCLBuffers(CLState);
 
-  sortTick(CmdQ, Context);
+  sortTick(CLState);
 
-  clTick_no_sort_or_locking(CmdQ, Context);
+  clTick_no_sort_or_locking(CLState);
 
   try {
     _sphereDataLock.unlock();
@@ -243,13 +243,13 @@ RTSpheres::initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& 
 }
 
 void 
-RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
+RTSpheres::sortTick(magnet::CL::CLGLState& CLState)
 {
 
   cl_uint paddedN = ((_N + 1023)/1024) * 1024;
 
   cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CmdQ, cl::NDRange(paddedN), cl::NDRange(256));
+    = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
   
   cl_float4 campos = getclVec(Vector(_viewPortInfo._cameraX, _viewPortInfo._cameraY, _viewPortInfo._cameraZ));
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
@@ -265,7 +265,7 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
   
   if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
     {
-      if (CmdQ.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
+      if (CLState.getCommandQueue().getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
 	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
       else
 	CPUsortFunctor(_sortKeys, _sortData);
@@ -273,26 +273,25 @@ RTSpheres::sortTick(cl::CommandQueue& CmdQ, cl::Context& Context)
 }
 
 void 
-RTSpheres::clTick(cl::CommandQueue& CmdQ, cl::Context& Context)
+RTSpheres::clTick(magnet::CL::CLGLState& CLState)
 {
   //First check you can get a lock on the position data!
   magnet::thread::ScopedLock lock(_sphereDataLock);
 
-  if (!(++_frameCount % _sortFrequency))
-    sortTick(CmdQ, Context);
+  if (!(++_frameCount % _sortFrequency)) sortTick(CLState);
   
-  clTick_no_sort_or_locking(CmdQ, Context);
+  clTick_no_sort_or_locking(CLState);
 }
 
 void 
-RTSpheres::clTick_no_sort_or_locking(cl::CommandQueue& CmdQ, cl::Context& Context)
+RTSpheres::clTick_no_sort_or_locking(magnet::CL::CLGLState& CLState)
 {
   //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(CmdQ);
+  _clbuf_Positions.acquire(CLState.getCommandQueue());
 
   //Finally, run render kernels
   cl::KernelFunctor renderKernelFunc 
-    = _renderKernel.bind(CmdQ, cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+    = _renderKernel.bind(CLState.getCommandQueue(), cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
 
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
@@ -310,19 +309,19 @@ RTSpheres::clTick_no_sort_or_locking(cl::CommandQueue& CmdQ, cl::Context& Contex
     }
 
   //Release resources
-  _clbuf_Positions.release(CmdQ);
+  _clbuf_Positions.release(CLState.getCommandQueue());
 }
 
 cl_float4* 
-RTSpheres::writePositionData(cl::CommandQueue& cmdq)
+RTSpheres::writePositionData(magnet::CL::CLGLState& CLState)
 {
   _sphereDataLock.lock();
-  return (cl_float4*) cmdq.enqueueMapBuffer(_spherePositions, true, CL_MAP_WRITE, 0, _N);
+  return (cl_float4*) CLState.getCommandQueue().enqueueMapBuffer(_spherePositions, true, CL_MAP_WRITE, 0, _N);
 }
 
 void 
-RTSpheres::returnPositionData(cl::CommandQueue& cmdq, cl_float4* clBufPointer)
+RTSpheres::returnPositionData(magnet::CL::CLGLState& CLState, cl_float4* clBufPointer)
 {
-  cmdq.enqueueUnmapMemObject(_spherePositions, (void*)clBufPointer);  
+  CLState.getCommandQueue().enqueueUnmapMemObject(_spherePositions, (void*)clBufPointer);  
   _sphereDataLock.unlock();
 }

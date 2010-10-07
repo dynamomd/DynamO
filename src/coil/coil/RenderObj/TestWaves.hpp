@@ -26,10 +26,10 @@ class RTTestWaves : public RTriangles
 public:
   RTTestWaves(size_t N, float Yoffset);
 
-  virtual void clTick(cl::CommandQueue& CmdQ, cl::Context& Context);
+  virtual void clTick(magnet::CL::CLGLState&);
 
   void initOpenGL();
-  void initOpenCL(cl::CommandQueue& CmdQ, cl::Context& Context, cl::Device& Device);
+  void initOpenCL(magnet::CL::CLGLState&);
 
 protected:
   static const std::string kernelsrc;

@@ -35,12 +35,12 @@ namespace magnet {
       template<class T>
       class functor {
       protected:
-	inline void build(cl::CommandQueue queue, cl::Context context, std::string buildFlags)
+	inline void build(::cl::CommandQueue queue,cl::Context context, std::string buildFlags)
 	{
 	  _queue = queue;
 	  _context = context;
 
-	  cl::Program::Sources sources;
+	 cl::Program::Sources sources;
 
 	  std::string extensions;
 
@@ -59,13 +59,13 @@ namespace magnet {
 					   kernelSrc.size()));
 	
 	  //Attempt to build the source
-	  _program = cl::Program(_context, sources);
+	  _program =cl::Program(_context, sources);
 
 	  std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>();
 
 	  try {
 	    _program.build(devices, buildFlags.c_str());
-	  } catch(cl::Error& err) {
+	  } catch(::cl::Error& err) {
 	    for(size_t dev = 0; dev < devices.size(); ++dev) {
 	      std::string msg 
 		= format_code(_program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[dev]));
@@ -80,9 +80,9 @@ namespace magnet {
 	  }
 	}
 
-	cl::Program _program;
-	cl::CommandQueue _queue;
-	cl::Context _context;
+	::cl::Program _program;
+	::cl::CommandQueue _queue;
+	::cl::Context _context;
 
 	/*! \brief Can search and replace elements in a std::string. */
 	inline std::string 
