@@ -16,8 +16,7 @@
 
 lib OpenCL : : <link>shared ;
 
-#lib magnet : OpenCL [ glob-tree *.cpp : tests ]
-alias magnet : OpenCL 
+alias magnet :
       : <include>.
       : 
       : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic ;
@@ -27,21 +26,21 @@ using testing ;
 
 #####################OPENCL
 #### Prefix Scan ####
-unit-test scan_test : tests/scan_test.cpp magnet ;
+unit-test scan_test : tests/scan_test.cpp magnet OpenCL ;
 
 #### Radix Sort ####
-unit-test radixsort_test : tests/radixsort_test.cpp magnet ;
+unit-test radixsort_test : tests/radixsort_test.cpp magnet OpenCL ;
 
 #### Bitonic Sort ####
-unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet ;
+unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet OpenCL ;
 
 #### Heap Sort ####
-unit-test heapsort_test : tests/heapsort_test.cpp magnet ;
+unit-test heapsort_test : tests/heapsort_test.cpp magnet OpenCL ;
 
-alias opencl-test : scan_test radixsort_test bitonicsort_test heapsort_test ;
+alias opencl-test : scan_test radixsort_test bitonicsort_test heapsort_test OpenCL ;
 
 #####################THREAD
-unit-test threadpool_test : tests/threadpool_test.cpp magnet 
+unit-test threadpool_test : tests/threadpool_test.cpp magnet
 	  		  : <threading>multi ;
 
 alias thread-test : threadpool_test ;
