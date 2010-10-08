@@ -35,7 +35,6 @@ local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ;
 project	: requirements
 	  <color>yes:<define>DYNAMO_Colour
 	  <visualizer>no
-	  <visualizer>yes:<mag_opencl>yes
 	  <color>yes
 	  <define>GITHASH=\\\"$(githash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
@@ -87,11 +86,6 @@ exe dynamod
 #exe glade_test
 #    : test/src/glade_test.cpp gtkmm
 #    ;
-
-install install-test
-	: src/coil//gl_test 
-	: <location>test
-	;
 
 install install-bin 
 	: dynarun dynahist_rw dynamod
