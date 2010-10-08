@@ -158,10 +158,7 @@ OPVisualizer::ticker()
       for (size_t i(0); i < NDIM; ++i)
 	sphereDataPtr[part.getID()].s[i] = pos[i];
     }
-  
-  //Now update all the particle data
-  //sphereDataPtr[0].w = (edit % 2) ? 0.01 : 0.05;
-  
+    
   //Return it
   _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
 
