@@ -128,7 +128,7 @@ namespace magnet {
       inline void initDevice()
       {
 	//Grab the first device
-	std::vector<cl::Device> devices = getContext().getInfo<CL_CONTEXT_DEVICES>();
+	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>();
 	
 	//Default to the first device
 	_device = devices.front();
