@@ -18,6 +18,8 @@
 
 #include <vector>
 
+#include <gtkmm.h>
+
 #include <coil/coilMaster.hpp>
 
 #define __CL_ENABLE_EXCEPTIONS
@@ -111,8 +113,8 @@ private:
 
   magnet::CL::CLGLState _CLState;
 
-  void initOpenGL();
-  void initOpenCL();
+  virtual void initOpenGL();
+  virtual void initOpenCL();
 
   void drawAxis();
 
@@ -150,4 +152,8 @@ private:
   bool _shaderPipeline;
 
   magnet::GL::lightInfo _light0;
+
+  /////////GTK members
+  virtual void initGTK();
+  Glib::RefPtr<Gtk::Builder> _refXml;
 };

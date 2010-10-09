@@ -204,6 +204,27 @@ CLGLWindow::initOpenCL()
     (*iPtr)->initOpenCL(_CLState);
 }
 
+//The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
+extern const char _binary_src_coil_coil_clwingtk_gladexml_start[];
+extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
+
+void
+CLGLWindow::initGTK()
+{
+  {
+    Glib::ustring glade_data
+      (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
+       _binary_src_coil_coil_clwingtk_gladexml_end
+       -_binary_src_coil_coil_clwingtk_gladexml_start);
+    
+    _refXml = Gtk::Builder::create_from_string(glade_data);
+  }
+  
+  //Load the xml file and create a builder object to hold our windows
+  Gtk::Window* controlwindow;
+  _refXml->get_widget("controlWindow", controlwindow);
+}
+
 void CLGLWindow::CallBackDisplayFunc(void)
 {
   if (!CoilMaster::getInstance().isRunning()) return;

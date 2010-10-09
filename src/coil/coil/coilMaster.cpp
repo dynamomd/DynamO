@@ -53,7 +53,9 @@ void CoilMaster::CallBackDisplayFunc(void){
 
 void CoilMaster::CallBackCloseWindow()
 {
-  //Shutdown all windows, we can't recover from a window close in glut
+  int windowID = glutGetWindow();
+  
+  //Shutdown all windows, we can't yet recover from a window close
   CoilMaster::getInstance().shutdownCoil();
 }
 
@@ -169,34 +171,12 @@ CoilMaster::waitForShutdown()
   if (_coilThread.validTask()) _coilThread.join();
 }
 
-//The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
-extern const char _binary_src_coil_coil_gui_gladexml_start[];
-extern const char _binary_src_coil_coil_gui_gladexml_end[];
-
 void CoilMaster::coilThreadEntryPoint()
 {
   try {
-    //Build the windows from the glade data
-    {
-      Glib::ustring glade_data(reinterpret_cast<const char *>(_binary_src_coil_coil_gui_gladexml_start), 
-			       _binary_src_coil_coil_gui_gladexml_end
-			       -_binary_src_coil_coil_gui_gladexml_start);
-      
-      _refXml = Gtk::Builder::create_from_string(glade_data);
-    }
-    
-    
-    //Register the idle function
+      //Register the idle function
     Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::GTKIldeFunc));
     
-    {//Now setup some callback functions
-      Gtk::Window* controlwindow;
-      _refXml->get_widget("controlWindow", controlwindow);
-      
-      //Setup the on_close button
-      controlwindow->signal_delete_event().connect(sigc::mem_fun(this, &CoilMaster::onControlWindowDelete));
-    }
-
     _coilReadyFlag = true;
     _GTKit.run();
   } catch (std::exception& except)
@@ -213,30 +193,35 @@ void CoilMaster::coilThreadEntryPoint()
     }
 }
 
-bool CoilMaster::onControlWindowDelete(GdkEventAny * pEvent)
-{
-  shutdownCoil();
-
-  return false;
-}
-
 bool CoilMaster::GTKIldeFunc()
 {
   if (!CoilMaster::getInstance().isRunning()) 
     {
-      Gtk::Main::quit();
-      Gtk::Window* controlwindow;
-      _refXml->get_widget("controlWindow", controlwindow);
+      //bool CoilMaster::onControlWindowDelete(GdkEventAny * pEvent)
+      //{
+      //  shutdownCoil();
+      //
+      //  return false;
+      //}
       
-      controlwindow->hide();
+      //
+      //controlwindow->hide();
+      //{//Now setup some callback functions
+      //	Gtk::Window* controlwindow;
+      //	_refXml->get_widget("controlWindow", controlwindow);
+      //	
+      //	//Setup the on_close button
+      //	controlwindow->signal_delete_event().connect(sigc::mem_fun(this, &CoilMaster::onControlWindowDelete));
+      //}
 
+      //Drain the task queue, it should not get any more tasks as CoilMaster::getInstance().isRunning() is false
+      _coilQueue.drainQueue();
 
+      //! \todo{There is a race condition here if a window is added as coil is shutting down}
       {
 	magnet::thread::ScopedLock lock(_coilLock);
-	//If we reach here, we must just delete all windows that we own to
-	//free up the memory. There is a danger that the coilQueue has
-	//some non-zero size, with a window left to initialize.
-	//! \todo{Fix the race condition on adding windows and deleting them}
+
+	//Delete all windows that we own
 	for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
 	     iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
 	  delete iPtr->second;
@@ -245,23 +230,25 @@ bool CoilMaster::GTKIldeFunc()
 	_windows.clear();
       }
 
+      Gtk::Main::quit();
+
       //Run glutMainLoopEvent to let destroyed windows close
       glutMainLoopEvent();
-      //Now close
-      return true;
     }
-
-  //Fire off a tick to glut
-  glutMainLoopEvent();
-	  
-  for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
-       iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+  else
     {
-      glutSetWindow(iPtr->first);
-      iPtr->second->CallBackIdleFunc();
+      //Fire off a tick to glut
+      glutMainLoopEvent();
+      
+      for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
+	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+	{
+	  glutSetWindow(iPtr->first);
+	  iPtr->second->CallBackIdleFunc();
+	}
+      
+      _coilQueue.drainQueue();
     }
-
-  _coilQueue.drainQueue();
   
   return true;
 }

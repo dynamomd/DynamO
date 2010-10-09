@@ -9,8 +9,8 @@ lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
 
-alias coil : [ glob-tree *.cpp : tests ]
-      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet coil/gui.gladexml
+alias coil : [ glob-tree *.cpp *.gladexml : tests ]
+      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet 
     : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     : : <define>GLVIEWER <include>. 
     <linkflags>"`pkg-config gtkmm-2.4 --libs`" 

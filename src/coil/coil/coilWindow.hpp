@@ -46,6 +46,7 @@ public:
   {
     initOpenGL();
     initOpenCL();
+    initGTK();
     _readyFlag = true;
   }
 
@@ -56,4 +57,5 @@ protected:
 
   virtual void initOpenGL() = 0;  
   virtual void initOpenCL() = 0;
+  virtual void initGTK() = 0;
 };
