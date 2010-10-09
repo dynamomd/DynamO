@@ -44,7 +44,7 @@ public:
 
   void addWindow(CoilWindow* window)
   {
-    _renderQueue.queueTask(magnet::function::Task::makeTask(addWindowFunc, window));
+    _coilQueue.queueTask(magnet::function::Task::makeTask(addWindowFunc, window));
 
     //Spinlock waiting for the window to initialize
     while (!window->isReady()) { smallSleep(); }
@@ -55,8 +55,7 @@ public:
   { 
     magnet::thread::ScopedLock lock(_coilLock);
     _runFlag = false; 
-    _renderReadyFlag = false;
-    _windowReadyFlag = false;
+    _coilReadyFlag = false;
   }
 
   void waitForShutdown();
@@ -74,24 +73,18 @@ public:
 private:
   CoilMaster();
   ~CoilMaster();
-
-  static inline void addWindowFunc(CoilWindow* window)
-  {
-    magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
-    window->init();
-  }
-
   
+  void coilThreadEntryPoint();
 
   void smallSleep();
 
   volatile bool _runFlag; 
-  volatile bool _renderReadyFlag;
-  volatile bool _windowReadyFlag;
+  volatile bool _coilReadyFlag;
+
+  magnet::thread::Thread _coilThread;
+  magnet::thread::TaskQueue _coilQueue;
    
   ///////////////////////////Glut GL render layer//////////////////////////
-  magnet::thread::Thread _renderThread;
-  magnet::thread::TaskQueue _renderQueue;
 
   std::map<int, CoilWindow*> _viewPorts;
   std::map<CoilWindow*, int> _windows;
@@ -108,17 +101,17 @@ private:
   static void CallBackSpecialUpFunc(int key, int x, int y);   
   static void CallBackVisibilityFunc(int visible);
     
-  void renderThreadEntryPoint();
-
   ///////////////////////////GTK window layer/////////////////////////////
-  void windowThreadEntryPoint();
   bool onControlWindowDelete(GdkEventAny * pEvent);
+
+  static inline void addWindowFunc(CoilWindow* window)
+  {
+    magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
+    window->init();
+  }
 
   Gtk::Main _GTKit;
   Glib::RefPtr<Gtk::Builder> _refXml;
 
   bool GTKIldeFunc();
-
-  magnet::thread::Thread _windowThread;
-  magnet::thread::TaskQueue _windowQueue;
 };
