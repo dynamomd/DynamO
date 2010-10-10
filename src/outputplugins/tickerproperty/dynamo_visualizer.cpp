@@ -49,7 +49,7 @@ void
 OPVisualizer::initialise()
 {
   //Build a window, ready to display it
-  _CLWindow = new CLGLWindow(1024, 1024,//height, width
+  _CLWindow = new CLGLWindow(200, 200,//height, width
 			     0, 0,//initPosition (x,y)
 			     "Visualizer"//title
 			     );
@@ -98,9 +98,9 @@ OPVisualizer::initialise()
   CoilMaster::getInstance().addWindow(_CLWindow);
 
   //Second window test
-  CLGLWindow *_CLWindow2 = new CLGLWindow(1024, 1024,//height, width
-					  0, 0,//initPosition (x,y)
-					  "Visualizer2"//title
+  CLGLWindow *_CLWindow2 = new CLGLWindow(200, 200, //height, width
+					  0, 0, //initPosition (x,y)
+					  "Visualizer2" //title
 					  );
 
   _CLWindow2->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
@@ -140,24 +140,19 @@ OPVisualizer::initialise()
     //Return it
     _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
   }
-
 }
 
 void 
 OPVisualizer::ticker()
 {
-  return;
 
   //Now for the update test
   if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
   //The screen was redrawn! Lets continue
 
-  //First, lock coil from killing itself
-  magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
-    
-  //Check it is actually still running
-  if (!CoilMaster::getInstance().isRunning()) return;
-  //Still running, so lets do an update
+  //First we lock the window from destroying itself
+  const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
+  if (!_CLWindow->isReady()) return;
   
   //Now try getting access to the sphere position data
   cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());

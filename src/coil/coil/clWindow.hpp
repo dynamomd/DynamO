@@ -89,9 +89,9 @@ public:
   magnet::CL::CLGLState& getCLState() { return _CLState; }
 
   void init();
-  void deinit();
-  bool acquire();
-  void release();
+  void deinit(bool andGlutDestroy);
+
+  magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
 
 protected:
   magnet::GL::shadowShader _shadowShader;

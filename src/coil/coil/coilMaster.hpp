@@ -40,7 +40,7 @@ public:
   
   //Only for window objects to call
   void  CallGlutCreateWindow(const char*, CoilWindow*);
-  void  CallGlutDestroyWindow(CoilWindow*);
+  void  CallGlutDestroyWindow(CoilWindow*, bool);
 
   void addWindow(CoilWindow* window)
   {

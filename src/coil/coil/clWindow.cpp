@@ -61,7 +61,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 
 CLGLWindow::~CLGLWindow()
 {
-  deinit();
+  deinit(true);
 }
 
 void 
@@ -217,10 +217,6 @@ CLGLWindow::initGTK()
     
     _refXml = Gtk::Builder::create_from_string(glade_data);
   }
-  
-  //Load the xml file and create a builder object to hold our windows
-  Gtk::Window* controlwindow;
-  _refXml->get_widget("controlWindow", controlwindow);
 }
 
 void
@@ -238,21 +234,27 @@ CLGLWindow::init()
 
 
 void
-CLGLWindow::deinit()
+CLGLWindow::deinit(bool andGlutDestroy)
 {
   magnet::thread::ScopedLock lock(_destroyLock);
   
   if (!_readyFlag) return;
-  
   _readyFlag = false;
-  _refXml.reset(); //Destroy GTK instance
+
+  ////////////////////GTK
+  {
+    Gtk::Window* controlwindow;
+    _refXml->get_widget("controlWindow", controlwindow);  
+    controlwindow->hide_all();
+  }
   
-  //Delete the render objects
+  _refXml.reset(); //Destroy GTK instance
+
+  /////////////////OpenCL
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     delete *iPtr;
 
-  //Destroy the opencl state
   _CLState = magnet::CL::CLGLState();
 
   ///////////////////OpenGL
@@ -265,10 +267,11 @@ CLGLWindow::deinit()
   _FBO1 = magnet::GL::multisampledFBO();
 
   ///////////////////Finally, unregister with COIL
-  CoilMaster::getInstance().CallGlutDestroyWindow(this);
+  CoilMaster::getInstance().CallGlutDestroyWindow(this, andGlutDestroy);
 }
 
-void CLGLWindow::CallBackDisplayFunc(void)
+void 
+CLGLWindow::CallBackDisplayFunc(void)
 {
   if (!CoilMaster::getInstance().isRunning()) return;
 

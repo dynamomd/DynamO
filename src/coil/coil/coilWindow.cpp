@@ -15,12 +15,7 @@
 
 CoilWindow::CoilWindow():
   _readyFlag(false)
-{
-  
-}
+{}
 
 CoilWindow::~CoilWindow() 
-{
-  if (_readyFlag)
-    CoilMaster::getInstance().CallGlutDestroyWindow(this);
-}
+{}

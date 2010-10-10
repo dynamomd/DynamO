@@ -47,7 +47,7 @@ CoilMaster::~CoilMaster(){
   waitForShutdown();
 }
  
-void CoilMaster::CallBackDisplayFunc(void){
+void CoilMaster::CallBackDisplayFunc(){
    int windowID = glutGetWindow();   
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackDisplayFunc();
 }
@@ -56,10 +56,11 @@ void CoilMaster::CallBackCloseWindow()
 {
   int windowID = glutGetWindow();
   
-  std::cerr << "\nWindow=" << windowID << "recived terminate call, cannot continue\n";
+  
+  CoilMaster::getInstance()._viewPorts[windowID]->deinit(false);
 
   //Shutdown all windows, we can't yet recover from a window close
-  CoilMaster::getInstance().shutdownCoil();
+  //CoilMaster::getInstance().shutdownCoil();
 }
 
 void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
@@ -155,9 +156,9 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
    glutCloseFunc(CallBackCloseWindow);
 }
 
-void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow)
+void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow, bool andGlutDestroy)
 {
-  glutDestroyWindow(_windows[coilWindow]);
+  if (andGlutDestroy) glutDestroyWindow(_windows[coilWindow]);
 
   int windowID = CoilMaster::getInstance()._windows[coilWindow];
 
