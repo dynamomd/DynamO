@@ -97,24 +97,12 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
-  //Second window test
-  CLGLWindow *_CLWindow2 = new CLGLWindow(200, 200, //height, width
-					  0, 0, //initPosition (x,y)
-					  "Visualizer2" //title
-					  );
-
-  _CLWindow2->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
-  
-  CoilMaster::getInstance().addWindow(_CLWindow2);
-
-
-  //We must lock coil before doing anything with the window
+  //We must lock before doing anything with the window
   {
-    magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
+    const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
+    if (!_CLWindow->isReady()) return; //We failed to send data to the
+				       //window before it closed
     
-    if (!CoilMaster::getInstance().isRunning())
-      M_throw() << "Coil aborted before initial data was loaded into the rendered spheres";
-
     _lastRenderTime = _CLWindow->getLastFrameTime();
     
     //Place the initial radii into the visualizer
