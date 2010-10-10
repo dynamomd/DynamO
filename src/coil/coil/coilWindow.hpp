@@ -42,13 +42,9 @@ public:
   void    SetWindowID(const int newWindowID) { windowID = newWindowID; }
   int     GetWindowID() { return windowID; }
   
-  inline void init() 
-  {
-    initOpenGL();
-    initOpenCL();
-    initGTK();
-    _readyFlag = true;
-  }
+  virtual void init() = 0;
+
+  virtual void deinit() = 0;
 
   inline bool isReady() const { return _readyFlag; }
   

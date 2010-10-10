@@ -97,6 +97,17 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
+  //Second window test
+  CLGLWindow *_CLWindow2 = new CLGLWindow(1024, 1024,//height, width
+					  0, 0,//initPosition (x,y)
+					  "Visualizer2"//title
+					  );
+
+  _CLWindow2->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
+  
+  CoilMaster::getInstance().addWindow(_CLWindow2);
+
+
   //We must lock coil before doing anything with the window
   {
     magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
@@ -135,6 +146,8 @@ OPVisualizer::initialise()
 void 
 OPVisualizer::ticker()
 {
+  return;
+
   //Now for the update test
   if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
   //The screen was redrawn! Lets continue

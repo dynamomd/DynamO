@@ -31,7 +31,8 @@ CoilMaster::CoilMaster():
   _GTKit(magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv())
 {
   glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
-  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+  //glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
   _runFlag = true;
   _coilThread = magnet::thread::Thread
@@ -47,7 +48,7 @@ CoilMaster::~CoilMaster(){
 }
  
 void CoilMaster::CallBackDisplayFunc(void){
-   int windowID = glutGetWindow();
+   int windowID = glutGetWindow();   
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackDisplayFunc();
 }
 
@@ -55,6 +56,8 @@ void CoilMaster::CallBackCloseWindow()
 {
   int windowID = glutGetWindow();
   
+  std::cerr << "\nWindow=" << windowID << "recived terminate call, cannot continue\n";
+
   //Shutdown all windows, we can't yet recover from a window close
   CoilMaster::getInstance().shutdownCoil();
 }
@@ -155,6 +158,11 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
 void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow)
 {
   glutDestroyWindow(_windows[coilWindow]);
+
+  int windowID = CoilMaster::getInstance()._windows[coilWindow];
+
+  CoilMaster::getInstance()._windows.erase(coilWindow);
+  CoilMaster::getInstance()._viewPorts.erase(windowID);
 }
 
 void CoilMaster::smallSleep()
@@ -197,23 +205,6 @@ bool CoilMaster::GTKIldeFunc()
 {
   if (!CoilMaster::getInstance().isRunning()) 
     {
-      //bool CoilMaster::onControlWindowDelete(GdkEventAny * pEvent)
-      //{
-      //  shutdownCoil();
-      //
-      //  return false;
-      //}
-      
-      //
-      //controlwindow->hide();
-      //{//Now setup some callback functions
-      //	Gtk::Window* controlwindow;
-      //	_refXml->get_widget("controlWindow", controlwindow);
-      //	
-      //	//Setup the on_close button
-      //	controlwindow->signal_delete_event().connect(sigc::mem_fun(this, &CoilMaster::onControlWindowDelete));
-      //}
-
       //Drain the task queue, it should not get any more tasks as CoilMaster::getInstance().isRunning() is false
       _coilQueue.drainQueue();
 
@@ -240,7 +231,8 @@ bool CoilMaster::GTKIldeFunc()
       //Fire off a tick to glut
       glutMainLoopEvent();
       
-      for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
+      for (std::map<int,CoilWindow*>::iterator iPtr 
+	     = CoilMaster::getInstance()._viewPorts.begin();
 	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
 	{
 	  glutSetWindow(iPtr->first);

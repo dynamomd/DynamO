@@ -61,9 +61,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 
 CLGLWindow::~CLGLWindow()
 {
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-       iPtr != RenderObjects.end(); ++iPtr)
-    delete *iPtr;
+  deinit();
 }
 
 void 
@@ -223,6 +221,51 @@ CLGLWindow::initGTK()
   //Load the xml file and create a builder object to hold our windows
   Gtk::Window* controlwindow;
   _refXml->get_widget("controlWindow", controlwindow);
+}
+
+void
+CLGLWindow::init()
+{
+  magnet::thread::ScopedLock lock(_destroyLock);
+
+  if (_readyFlag) return;
+
+  initOpenGL();
+  initOpenCL();
+  initGTK();
+  _readyFlag = true;
+}
+
+
+void
+CLGLWindow::deinit()
+{
+  magnet::thread::ScopedLock lock(_destroyLock);
+  
+  if (!_readyFlag) return;
+  
+  _readyFlag = false;
+  _refXml.reset(); //Destroy GTK instance
+  
+  //Delete the render objects
+  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    delete *iPtr;
+
+  //Destroy the opencl state
+  _CLState = magnet::CL::CLGLState();
+
+  ///////////////////OpenGL
+  if (_shaderPipeline)
+    {
+      _shadowFBO = magnet::GL::shadowFBO();
+      _shadowShader = magnet::GL::shadowShader();
+    }
+
+  _FBO1 = magnet::GL::multisampledFBO();
+
+  ///////////////////Finally, unregister with COIL
+  CoilMaster::getInstance().CallGlutDestroyWindow(this);
 }
 
 void CLGLWindow::CallBackDisplayFunc(void)
@@ -611,22 +654,22 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
       ///SPECIAL KEYPRESSES
     case 'f':
       displayFPS(true);
-    break;
+      break;
     case 't':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::TRIANGLES);
-    break;
+      break;
     case 'l':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::LINES);
-    break;
+      break;
     case 'p':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::POINTS);
-    break;
+      break;
     default:
       break;
     }
@@ -636,17 +679,5 @@ void
 CLGLWindow::CallBackKeyboardUpFunc(unsigned char key, int x, int y)
 {
   keyStates[std::tolower(key)] = false;
-}
-
-void
-CLGLWindow::CallBackSpecialFunc(int key, int x, int y)
-{
-  //specialKeys = glutGetModifiers();
-}
-
-void
-CLGLWindow::CallBackSpecialUpFunc(int key, int x, int y)
-{
-  //specialKeys = glutGetModifiers();  
 }
 

@@ -88,6 +88,11 @@ public:
 
   magnet::CL::CLGLState& getCLState() { return _CLState; }
 
+  void init();
+  void deinit();
+  bool acquire();
+  void release();
+
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
@@ -100,8 +105,8 @@ protected:
 
   std::vector<RenderObj*> RenderObjects;
 
-  void CallBackSpecialUpFunc(int key, int x, int y);
-  void CallBackSpecialFunc(int key, int x, int y);
+  void CallBackSpecialUpFunc(int key, int x, int y) {}
+  void CallBackSpecialFunc(int key, int x, int y) {} 
   void CallBackKeyboardFunc(unsigned char key, int x, int y);
   void CallBackKeyboardUpFunc(unsigned char key, int x, int y);
   void CallBackMouseWheelFunc(int button, int dir, int x, int y);
@@ -109,10 +114,13 @@ protected:
   void CallBackMotionFunc(int x, int y);
 
 private:
+  magnet::thread::Mutex _destroyLock;
+
   void CameraSetup();
 
   magnet::CL::CLGLState _CLState;
 
+  
   virtual void initOpenGL();
   virtual void initOpenCL();
 
