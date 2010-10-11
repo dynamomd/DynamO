@@ -26,8 +26,9 @@ namespace magnet {
 	_height(0)
       {}
 
-      inline void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
-		       GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
+      inline 
+      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
+			GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
       {
 	if (!GLEW_EXT_framebuffer_object)
 	  M_throw() << "GL_EXT_framebuffer_object extension is not supported! Cannot do offscreen rendering!";
@@ -75,7 +76,8 @@ namespace magnet {
 
       }
       
-      inline void resize(GLsizei width, GLsizei height)
+      inline 
+      virtual void resize(GLsizei width, GLsizei height)
       {
 	//If we've not been initialised, then just return
 	if (!_width) return;
@@ -104,7 +106,8 @@ namespace magnet {
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
 
-      inline ~FBO()
+      inline 
+      virtual ~FBO()
       {
 	if (_width)
 	  {
@@ -114,14 +117,16 @@ namespace magnet {
 	  }
       }
 
-      inline void attach()
+      inline 
+      virtual void attach()
       {
 	glPushAttrib(GL_VIEWPORT_BIT);
 	glViewport(0, 0, _width, _height);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
       }
 
-      inline void detach()
+      inline 
+      virtual void detach()
       {
 	glPopAttrib();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);

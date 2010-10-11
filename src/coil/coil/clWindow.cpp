@@ -152,10 +152,10 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
 
-  _light0 = magnet::GL::lightInfo(Vector(2.5f, 0.5f, 0.0f),//Position
-				  Vector(0.0f, 0.5f, 0.0f),//Lookat
+  _light0 = magnet::GL::lightInfo(Vector(1.5f,  1.5f, 1.0f),//Position
+				  Vector(0.0f, -0.3f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
-				  120.0f,//Beam angle
+				  45.0f,//Beam angle
 				  50,//rangeMax
 				  0.005//rangeMin
 				  );
@@ -184,7 +184,11 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
 
-  _FBO1.init(_width, _height);
+  if (_shaderPipeline)
+    {
+      _renderTarget.reset(new magnet::GL::FBO());
+      _renderTarget->init(_width, _height);
+    }
 }
 
 void 
@@ -238,7 +242,6 @@ CLGLWindow::initGTK()
 
 	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
       }
-
     }
   
 }
@@ -330,7 +333,7 @@ CLGLWindow::deinit(bool andGlutDestroy)
       _shadowShader = magnet::GL::shadowShader();
     }
 
-  _FBO1 = magnet::GL::multisampledFBO();
+  _renderTarget.reset();
 
   ///////////////////Finally, unregister with COIL
   CoilMaster::getInstance().CallGlutDestroyWindow(this, andGlutDestroy);
@@ -402,7 +405,7 @@ CLGLWindow::CallBackDisplayFunc(void)
       glMatrixMode(GL_MODELVIEW);
 
       //Bind to the multisample buffer
-      _FBO1.attach();
+      _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
       //Setup and run the shadow shader
@@ -410,14 +413,14 @@ CLGLWindow::CallBackDisplayFunc(void)
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
       drawScene();
       
-      _FBO1.detach();
+      _renderTarget->detach();
 
       //Restore the fixed pipeline
       //And turn off the shadow texture
       glUseProgramObjectARB(0);
 
       //Now blit the stored scene to the screen
-      _FBO1.blitToScreen(_width, _height);
+      _renderTarget->blitToScreen(_width, _height);
 
       /////////////FILTERING
       //Now we blur the output from the offscreen FBO
@@ -566,7 +569,7 @@ void CLGLWindow::drawAxis()
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
-  if (!CoilMaster::getInstance().isRunning()) return;
+  if (!CoilMaster::getInstance().isRunning() || !_readyFlag) return;
 
   _width = w;
   _height = h;
@@ -584,7 +587,8 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 
   glMatrixMode(GL_MODELVIEW);
 
-  _FBO1.resize(_width, _height);
+  if (_shaderPipeline)
+    _renderTarget->resize(_width, _height);
 }
 
 void 

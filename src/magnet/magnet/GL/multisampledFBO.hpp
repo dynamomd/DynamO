@@ -23,10 +23,13 @@ namespace magnet {
     class multisampledFBO: public FBO
     {
     public:
-      inline multisampledFBO() {}
+      inline multisampledFBO(GLsizei samples):
+	_samples(samples)
+      {}
 
-      inline void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
-		       GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE, GLsizei samples = 4)
+      inline 
+      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
+			GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
       {
 	if (!GLEW_EXT_framebuffer_multisample)
 	  M_throw() << "GLEW_EXT_framebuffer_multisample is not supported, cannot perform anti-aliasing";
@@ -34,8 +37,6 @@ namespace magnet {
 	//Setup the RTT FBO
 	FBO::init(width, height, internalformat, format, type);
 
-	_samples = samples;
-	
 	//Now create the multisampling color buffer
 	glGenRenderbuffersEXT(1, &_multisampleColorBuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleColorBuffer);
@@ -64,7 +65,8 @@ namespace magnet {
 
       }
       
-      inline void resize(GLsizei width, GLsizei height)
+      inline 
+      virtual void resize(GLsizei width, GLsizei height)
       {
 	//If we've not been initialised, then just return
 	if (!_width) return;
@@ -90,14 +92,16 @@ namespace magnet {
 	  }
       }
 
-      inline void attach()
+      inline 
+      virtual void attach()
       {
 	glPushAttrib(GL_VIEWPORT_BIT);
 	glViewport(0, 0, _width, _height);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
       }
 
-      inline void detach()
+      inline 
+      virtual void detach()
       {
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _multisampleFBO);

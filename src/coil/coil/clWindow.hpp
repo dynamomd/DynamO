@@ -42,6 +42,7 @@
 
 #include <coil/RenderObj/RenderObj.hpp>
 
+#include <memory>
 
 class CLGLWindow : public CoilWindow
 {
@@ -98,7 +99,7 @@ protected:
   magnet::GL::shadowFBO _shadowFBO;
 
   //Frame buffers to flip flop data between
-  magnet::GL::multisampledFBO _FBO1;
+  std::auto_ptr<magnet::GL::FBO> _renderTarget;
 
   size_t _height, _width;
   int _windowX, _windowY;
