@@ -49,7 +49,6 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _windowY(initPosY),
   keyState(DEFAULT),
   windowTitle(title),
-  FPSmode(false),
   frameCounter(0),
   _mouseSensitivity(0.3),
   _moveSensitivity(0.001),
@@ -170,8 +169,8 @@ CLGLWindow::initOpenGL()
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
 
-  _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
-
+  _FPStime = _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
+  frameCounter = 0;
 
   //Build the offscreen rendering FBO's
   if (_shaderPipeline)
@@ -209,14 +208,14 @@ extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
 void
 CLGLWindow::initGTK()
 {
-  {
-    Glib::ustring glade_data
-      (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
-       _binary_src_coil_coil_clwingtk_gladexml_end
-       -_binary_src_coil_coil_clwingtk_gladexml_start);
-    
-    _refXml = Gtk::Builder::create_from_string(glade_data);
-  }
+  Glib::ustring glade_data
+    (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
+     _binary_src_coil_coil_clwingtk_gladexml_end
+     -_binary_src_coil_coil_clwingtk_gladexml_start);
+  
+  _refXml = Gtk::Builder::create_from_string(glade_data);
+  
+  _refXml->get_widget("controlWindow", controlwindow);
 }
 
 void
@@ -382,14 +381,17 @@ CLGLWindow::CallBackDisplayFunc(void)
 
   ++frameCounter; 
 
-  if (FPSmode && (_currFrameTime - _FPStime > 1000))
+  if (_currFrameTime - _FPStime > 1000)
     {
       float fps = frameCounter * 1000.0 / (_currFrameTime - _FPStime);
       
-      std::stringstream newWinTitle;
-      newWinTitle << getWindowTitle() << " FPS : " << fps;
+      std::stringstream fpsstring;
+      fpsstring << " FPS:" << fps;
+
+      Gtk::Label* fpslabel;
+      _refXml->get_widget("renderStatusLabel", fpslabel);
+      fpslabel->set_text(fpsstring.str());
       
-      glutSetWindowTitle(newWinTitle.str().c_str());
       frameCounter = 0;
       _FPStime = _currFrameTime;
     }
@@ -548,24 +550,6 @@ CLGLWindow::setWindowtitle(const std::string& newtitle)
 }
 
 void 
-CLGLWindow::displayFPS(bool enable) 
-{ 
-  if (enable && !FPSmode) 
-    {
-      _FPStime = _currFrameTime; 
-      frameCounter = 0;
-
-      glutSetWindowTitle((windowTitle + " FPS : N/A").c_str());
-      FPSmode = true;
-    } 
-  else if (!enable && FPSmode)
-    {
-      glutSetWindowTitle(windowTitle.c_str());
-      FPSmode = false;
-    }
-}
-
-void 
 CLGLWindow::CallBackMouseFunc(int button, int state, int x, int y)
 {
   switch (button)
@@ -655,9 +639,6 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
   switch (key)
     {
       ///SPECIAL KEYPRESSES
-    case 'f':
-      displayFPS(true);
-      break;
     case 't':
       for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)

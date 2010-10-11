@@ -8,7 +8,6 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -102,7 +101,6 @@
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkAspectFrame" id="aspectframe1">
                     <property name="visible">True</property>
@@ -257,9 +255,47 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStatusbar" id="statusbar1">
+          <object class="GtkHBox" id="hbox2">
             <property name="visible">True</property>
-            <property name="spacing">2</property>
+            <child>
+              <object class="GtkLabel" id="renderStatusLabel">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">FPS:N/A</property>
+              </object>
+              <packing>
+                <property name="padding">1</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="SimUpdateLabel">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">UPS:N/A</property>
+              </object>
+              <packing>
+                <property name="padding">1</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="SimDataLabel">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">t:N/A</property>
+              </object>
+              <packing>
+                <property name="padding">1</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="SimData2Label">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="padding">1</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>

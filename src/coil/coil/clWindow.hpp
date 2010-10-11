@@ -59,8 +59,6 @@ public:
   const std::string& getWindowTitle() const { return windowTitle; }
   void setWindowtitle(const std::string& newtitle);
   
-  void displayFPS(bool enable = true);
-
   void addRenderObj(RenderObj* nObj) { RenderObjects.push_back(nObj); }
 
   template<class T>  
@@ -164,4 +162,5 @@ private:
   /////////GTK members
   virtual void initGTK();
   Glib::RefPtr<Gtk::Builder> _refXml;
+  Gtk::Window* controlwindow;
 };
