@@ -178,8 +178,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkFrame" id="frame1">
+              <object class="GtkFrame" id="RenderPipelineFrame">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">none</property>
                 <child>
@@ -192,10 +193,12 @@
                   </object>
                 </child>
                 <child type="label">
-                  <object class="GtkLabel" id="label4">
+                  <object class="GtkCheckButton" id="ShaderPipelineEnable">
+                    <property name="label" translatable="yes">Enable Shader Pipeline</property>
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;frame1&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
                   </object>
                 </child>
               </object>
@@ -206,7 +209,7 @@
             <child type="tab">
               <object class="GtkLabel" id="label2">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Pipeline</property>
+                <property name="label" translatable="yes">Render Pipeline</property>
               </object>
               <packing>
                 <property name="position">1</property>
@@ -214,40 +217,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkFrame" id="frame2">
-                <property name="visible">True</property>
-                <property name="label_xalign">0</property>
-                <property name="shadow_type">none</property>
-                <child>
-                  <object class="GtkAlignment" id="alignment2">
-                    <property name="visible">True</property>
-                    <property name="left_padding">12</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label5">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;frame2&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel" id="label3">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">View</property>
-              </object>
-              <packing>
-                <property name="position">2</property>
-                <property name="tab_fill">False</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -258,7 +228,7 @@
           <object class="GtkHBox" id="hbox2">
             <property name="visible">True</property>
             <child>
-              <object class="GtkLabel" id="renderStatusLabel">
+              <object class="GtkLabel" id="RenderUpdateLabel">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">FPS:N/A</property>
               </object>

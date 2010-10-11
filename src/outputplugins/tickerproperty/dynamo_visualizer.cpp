@@ -160,6 +160,8 @@ OPVisualizer::ticker()
 
   //Mark when the last update was
   _lastRenderTime = _CLWindow->getLastFrameTime();
+
+  _CLWindow->simupdateTick();
 }
 
 void 

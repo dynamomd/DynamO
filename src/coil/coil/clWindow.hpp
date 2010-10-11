@@ -91,6 +91,8 @@ public:
 
   magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
 
+  void simupdateTick() { ++_updateCounter; }
+  
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
@@ -138,10 +140,8 @@ private:
   
   std::string windowTitle;
   bool FPSmode;
-  size_t frameCounter;
+  size_t _frameCounter, _updateCounter;
 
-
-  int _currFrameTime;
   int _lastFrameTime;
   int _FPStime; 
 
@@ -161,6 +161,13 @@ private:
 
   /////////GTK members
   virtual void initGTK();
+
+  bool GTKTick();
   Glib::RefPtr<Gtk::Builder> _refXml;
   Gtk::Window* controlwindow;
+
+  sigc::connection _timeout_connection;
+  
+  //Callback for enabling/disabling the shader pipeline
+  void pipelineEnableCallback();
 };

@@ -49,7 +49,8 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _windowY(initPosY),
   keyState(DEFAULT),
   windowTitle(title),
-  frameCounter(0),
+  _frameCounter(0),
+  _updateCounter(0),
   _mouseSensitivity(0.3),
   _moveSensitivity(0.001),
   _specialKeys(0),
@@ -169,8 +170,7 @@ CLGLWindow::initOpenGL()
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
 
-  _FPStime = _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
-  frameCounter = 0;
+  _FPStime = glutGet(GLUT_ELAPSED_TIME);
 
   //Build the offscreen rendering FBO's
   if (_shaderPipeline)
@@ -208,15 +208,79 @@ extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
 void
 CLGLWindow::initGTK()
 {
-  Glib::ustring glade_data
-    (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
-     _binary_src_coil_coil_clwingtk_gladexml_end
-     -_binary_src_coil_coil_clwingtk_gladexml_start);
-  
-  _refXml = Gtk::Builder::create_from_string(glade_data);
-  
+  {
+    Glib::ustring glade_data
+      (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
+       _binary_src_coil_coil_clwingtk_gladexml_end
+       -_binary_src_coil_coil_clwingtk_gladexml_start);
+    
+    _refXml = Gtk::Builder::create_from_string(glade_data);
+  }
+
+  _timeout_connection
+    = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 2);
+
   _refXml->get_widget("controlWindow", controlwindow);
+  
+  if (_shaderPipeline)
+    {
+      {//Enable the whole shader frame
+	Gtk::Frame* shaderFrame;
+	_refXml->get_widget("RenderPipelineFrame", shaderFrame);
+	shaderFrame->set_sensitive(true);
+      }
+      
+      {//Setup the checkbox
+	Gtk::CheckButton* shaderEnable;
+	_refXml->get_widget("ShaderPipelineEnable", shaderEnable);
+	
+	shaderEnable->set_active(true);
+
+	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
+      }
+
+    }
+  
 }
+
+bool 
+CLGLWindow::GTKTick()
+{
+  //This callback is used to calculate the FPS and sim update rates
+  int currFrameTime = glutGet(GLUT_ELAPSED_TIME);
+
+  float fps = _frameCounter * 1000.0 / (currFrameTime - _FPStime);
+  float ups = _updateCounter * 1000.0 / (currFrameTime - _FPStime);
+  
+  std::stringstream fpsstring;
+  fpsstring << "FPS:" << fps;
+  
+  Gtk::Label* label;
+  _refXml->get_widget("RenderUpdateLabel", label);
+  label->set_text(fpsstring.str());
+
+  fpsstring.str("");
+  fpsstring << "UPS:" << ups;
+
+  _refXml->get_widget("SimUpdateLabel", label);
+  label->set_text(fpsstring.str());
+
+  _frameCounter = 0;
+  _updateCounter = 0;
+  _FPStime = currFrameTime;
+
+  return true;
+}
+
+void 
+CLGLWindow::pipelineEnableCallback()
+{
+  Gtk::CheckButton* shaderEnable;
+  _refXml->get_widget("ShaderPipelineEnable", shaderEnable);
+  
+  _shaderPipeline = shaderEnable->get_active();
+}
+
 
 void
 CLGLWindow::init()
@@ -241,6 +305,9 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _readyFlag = false;
 
   ////////////////////GTK
+
+  _timeout_connection.disconnect();
+
   {
     Gtk::Window* controlwindow;
     _refXml->get_widget("controlWindow", controlwindow);  
@@ -277,7 +344,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   //Prepare for the OpenCL ticks
   glFinish();//Finish with the GL buffers
   //Setup the timings
-  _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
+  int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
 //  const float speed = 1000;
 //  _light0 = lightInfo(Vector(1.5f*std::cos(_currFrameTime/speed), 1.5f, 
@@ -379,23 +446,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 
   glutSwapBuffers();
 
-  ++frameCounter; 
-
-  if (_currFrameTime - _FPStime > 1000)
-    {
-      float fps = frameCounter * 1000.0 / (_currFrameTime - _FPStime);
-      
-      std::stringstream fpsstring;
-      fpsstring << " FPS:" << fps;
-
-      Gtk::Label* fpslabel;
-      _refXml->get_widget("renderStatusLabel", fpslabel);
-      fpslabel->set_text(fpsstring.str());
-      
-      frameCounter = 0;
-      _FPStime = _currFrameTime;
-    }
-
+  ++_frameCounter; 
   _lastFrameTime = _currFrameTime;
 }
 
