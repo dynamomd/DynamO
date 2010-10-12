@@ -293,7 +293,6 @@ CLGLWindow::initGTK()
 	  _renderTarget.reset(new magnet::GL::FBO());
 	  _renderTarget->init(_width, _height);
 	}
-
     }
 }
 
