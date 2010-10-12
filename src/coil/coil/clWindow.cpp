@@ -330,7 +330,21 @@ CLGLWindow::pipelineEnableCallback()
 void 
 CLGLWindow::multisampleEnableCallback()
 {
-  std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!\n";
+  Gtk::CheckButton* multisampleEnable;
+  _refXml->get_widget("multisampleEnable", multisampleEnable);
+  if (multisampleEnable->get_active())
+    {
+      Gtk::ComboBox* aliasSelections;
+      _refXml->get_widget("multisampleLevels", aliasSelections);
+
+      _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
+      _renderTarget->init(_width, _height);
+    }
+  else
+    {
+      _renderTarget.reset(new magnet::GL::FBO());
+      _renderTarget->init(_width, _height);
+    }
 }
 
 void
