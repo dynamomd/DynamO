@@ -242,8 +242,51 @@ CLGLWindow::initGTK()
 
 	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
       }
+
+      if (GLEW_EXT_framebuffer_multisample)
+	{//Offer anti aliasing
+	  {//Turn on the antialiasing box
+	    Gtk::HBox* multisampleBox;
+	    _refXml->get_widget("multisampleBox", multisampleBox);
+	    multisampleBox->set_sensitive(true);
+	  }
+
+	  {//Connect the anti aliasing checkbox
+	    Gtk::CheckButton* multisampleEnable;
+	    _refXml->get_widget("multisampleEnable", multisampleEnable);
+	    multisampleEnable->signal_toggled()
+	      .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+	  }
+	  
+	  Gtk::ComboBox* aliasSelections;
+	  _refXml->get_widget("multisampleLevels", aliasSelections);
+
+	  struct aliasColumns : public Gtk::TreeModel::ColumnRecord
+	  {
+	    aliasColumns() { add(m_col_id); }
+	    Gtk::TreeModelColumn<int> m_col_id;
+	  };
+
+	  aliasColumns vals;
+	  Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
+	  aliasSelections->set_model(m_refTreeModel);
+
+	  GLint maxSamples;
+	  glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+
+	  for ( ; maxSamples > 1; maxSamples >>= 1)
+	    {
+	      Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());
+	      row[vals.m_col_id] = maxSamples;
+	    }
+
+	  aliasSelections->pack_start(vals.m_col_id);
+	  aliasSelections->set_active(0);
+
+	  aliasSelections->signal_changed()
+	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+	}
     }
-  
 }
 
 bool 
@@ -284,6 +327,11 @@ CLGLWindow::pipelineEnableCallback()
   _shaderPipeline = shaderEnable->get_active();
 }
 
+void 
+CLGLWindow::multisampleEnableCallback()
+{
+  std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!\n";
+}
 
 void
 CLGLWindow::init()

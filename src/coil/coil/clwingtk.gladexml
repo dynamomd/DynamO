@@ -193,6 +193,7 @@
                         <child>
                           <object class="GtkHBox" id="multisampleBox">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <child>
                               <object class="GtkCheckButton" id="multisampleEnable">
                                 <property name="label" translatable="yes">Enable Antialiasing</property>
@@ -206,7 +207,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkComboBox" id="multisampleLevel">
+                              <object class="GtkComboBox" id="multisampleLevels">
                                 <property name="visible">True</property>
                               </object>
                               <packing>

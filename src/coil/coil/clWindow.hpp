@@ -171,4 +171,6 @@ private:
   
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();
+
+  void multisampleEnableCallback();
 };
