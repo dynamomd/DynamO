@@ -321,10 +321,17 @@ CLGLWindow::GTKTick()
 void 
 CLGLWindow::pipelineEnableCallback()
 {
-  Gtk::CheckButton* shaderEnable;
-  _refXml->get_widget("ShaderPipelineEnable", shaderEnable);
-  
-  _shaderPipeline = shaderEnable->get_active();
+  {
+    Gtk::CheckButton* shaderEnable;
+    _refXml->get_widget("ShaderPipelineEnable", shaderEnable);  
+    _shaderPipeline = shaderEnable->get_active();
+  }
+
+  {
+    Gtk::VBox* shaderPipelineOptions;
+    _refXml->get_widget("shaderPipelineOptions", shaderPipelineOptions);
+    shaderPipelineOptions ->set_sensitive(_shaderPipeline); 
+  }
 }
 
 void 
