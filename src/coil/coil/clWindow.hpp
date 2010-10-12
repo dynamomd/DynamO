@@ -93,6 +93,17 @@ public:
   magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
 
   void simupdateTick() { ++_updateCounter; }
+
+  void connect_RunControl(sigc::slot<void, const bool&> sl)
+  {
+    Gtk::ToggleButton* togButton;
+    _refXml->get_widget("SimRunButton", togButton);
+
+    togButton->signal_toggled()
+      .connect(sigc::bind(sigc::mem_fun(this, &CLGLWindow::runCallback), sl));
+
+    sl(togButton->get_active());
+  }
   
 protected:
   magnet::GL::shadowShader _shadowShader;
@@ -171,6 +182,12 @@ private:
   
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();
-
   void multisampleEnableCallback();
+  void runCallback(sigc::slot<void, const bool&> sl) 
+  { 
+    Gtk::ToggleButton* togButton;
+    _refXml->get_widget("SimRunButton", togButton);
+    
+    sl(togButton->get_active()); 
+  }
 };

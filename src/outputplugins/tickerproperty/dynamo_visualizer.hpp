@@ -43,9 +43,17 @@ class OPVisualizer: public OPTicker
   
  protected:
 
+  void set_simlock(bool nv) 
+  { 
+    std::cerr << "\n!!!!!!!!!!!toggle!!!!!!!!!!" << nv << "\n";
+    _simrun = nv;
+  }
+
   CLGLWindow* _CLWindow;
   RTSpheres* _sphereObject;
   int _lastRenderTime;
+
+  volatile bool _simrun;
 };
 
 #endif

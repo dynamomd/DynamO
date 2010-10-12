@@ -375,7 +375,6 @@ CLGLWindow::init()
   _readyFlag = true;
 }
 
-
 void
 CLGLWindow::deinit(bool andGlutDestroy)
 {

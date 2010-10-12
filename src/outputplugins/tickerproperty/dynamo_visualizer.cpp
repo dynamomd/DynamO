@@ -33,7 +33,8 @@
 OPVisualizer::OPVisualizer(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"Magnet"),
   _CLWindow(NULL),
-  _sphereObject(NULL)
+  _sphereObject(NULL),
+  _simrun(false)
 {
   operator<<(XML);
 }
@@ -53,7 +54,7 @@ OPVisualizer::initialise()
 			     0, 0,//initPosition (x,y)
 			     "Visualizer"//title
 			     );
-    
+  
 //  //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
 //
   std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
@@ -97,6 +98,10 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
+  //Now lets connect some handlers
+  _CLWindow->connect_RunControl
+    (sigc::mem_fun(this, &OPVisualizer::set_simlock));
+
   //We must lock before doing anything with the window
   {
     const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
@@ -133,6 +138,7 @@ OPVisualizer::initialise()
 void 
 OPVisualizer::ticker()
 {
+  while (true) { if (_simrun) break; };
 
   //Now for the update test
   if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
