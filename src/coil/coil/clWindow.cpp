@@ -184,11 +184,6 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
 
-  if (_shaderPipeline)
-    {
-      _renderTarget.reset(new magnet::GL::FBO());
-      _renderTarget->init(_width, _height);
-    }
 }
 
 void 
@@ -243,7 +238,10 @@ CLGLWindow::initGTK()
 	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
       }
 
-      if (GLEW_EXT_framebuffer_multisample)
+      GLint maxSamples;
+      glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+
+      if (GLEW_EXT_framebuffer_multisample && (maxSamples > 1))
 	{//Offer anti aliasing
 	  {//Turn on the antialiasing box
 	    Gtk::HBox* multisampleBox;
@@ -251,12 +249,12 @@ CLGLWindow::initGTK()
 	    multisampleBox->set_sensitive(true);
 	  }
 
-	  {//Connect the anti aliasing checkbox
-	    Gtk::CheckButton* multisampleEnable;
-	    _refXml->get_widget("multisampleEnable", multisampleEnable);
-	    multisampleEnable->signal_toggled()
-	      .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-	  }
+	  //Connect the anti aliasing checkbox
+	  Gtk::CheckButton* multisampleEnable;
+	  _refXml->get_widget("multisampleEnable", multisampleEnable);
+	  multisampleEnable->signal_toggled()
+	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+	  
 	  
 	  Gtk::ComboBox* aliasSelections;
 	  _refXml->get_widget("multisampleLevels", aliasSelections);
@@ -271,21 +269,31 @@ CLGLWindow::initGTK()
 	  Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
 	  aliasSelections->set_model(m_refTreeModel);
 
-	  GLint maxSamples;
-	  glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
-
+	  Gtk::TreeModel::Row row;
+	  int lastrow = -1;
 	  for ( ; maxSamples > 1; maxSamples >>= 1)
 	    {
-	      Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());
+	      row = *(m_refTreeModel->prepend());
 	      row[vals.m_col_id] = maxSamples;
+	      ++lastrow;
 	    }
 
 	  aliasSelections->pack_start(vals.m_col_id);
-	  aliasSelections->set_active(0);
+	  aliasSelections->set_active(lastrow);
+	  multisampleEnable->set_active(true);
+
+	  _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
+	  _renderTarget->init(_width, _height);
 
 	  aliasSelections->signal_changed()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
 	}
+      else
+	{
+	  _renderTarget.reset(new magnet::GL::FBO());
+	  _renderTarget->init(_width, _height);
+	}
+
     }
 }
 
