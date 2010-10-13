@@ -20,6 +20,8 @@
 
 #include "ticker.hpp"
 
+#include <coil/clWindow.hpp>
+
 class CLGLWindow;
 class RTSpheres;
 
@@ -44,9 +46,14 @@ class OPVisualizer: public OPTicker
  protected:
   void set_simlock(bool nv) { _simrun = nv; }
 
+  void dataBuild();
+
   CLGLWindow* _CLWindow;
   RTSpheres* _sphereObject;
   int _lastRenderTime;
+
+  cl::Event lastUpdate;
+  std::vector<cl_float4> particleData;
 
   volatile bool _simrun;
 };

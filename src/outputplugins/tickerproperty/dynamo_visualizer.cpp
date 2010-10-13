@@ -102,40 +102,43 @@ OPVisualizer::initialise()
   _CLWindow->connect_RunControl
     (sigc::mem_fun(this, &OPVisualizer::set_simlock));
 
-  //We must lock before doing anything with the window
+  //Build the array of data
+  particleData.resize(Sim->N);
+  
+  dataBuild();
+
   {
     const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
-    if (!_CLWindow->isReady()) return; //We failed to send data to the
-				       //window before it closed
-    
+    if (!_CLWindow->isReady()) return;
+    _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
+								 false, 0, Sim->N * sizeof(cl_float4),
+								 &particleData[0]);
     _lastRenderTime = _CLWindow->getLastFrameTime();
-    
-    //Place the initial radii into the visualizer
-    cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());
-    
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      {
-	double diam = spec->getIntPtr()->hardCoreDiam();
-	
-	BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	  {
-	    Vector pos = Sim->particleList[ID].getPosition();
-	    
-	    Sim->dynamics.BCs().applyBC(pos);
-	    
-	    for (size_t i(0); i < NDIM; ++i)
-	      sphereDataPtr[ID].s[i] = pos[i];
-	    
-	    sphereDataPtr[ID].w = diam * 0.5;
-	  }
-      }
-
-    //Return it
-    _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
   }
 
   I_cout() << "OpenCL Plaftorm:" << _CLWindow->getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
 	   << "\nOpenCL Device:" << _CLWindow->getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
+}
+
+void
+OPVisualizer::dataBuild()
+{
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    {
+      double diam = spec->getIntPtr()->hardCoreDiam();
+      
+      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+	{
+	  Vector pos = Sim->particleList[ID].getPosition();
+	  
+	  Sim->dynamics.BCs().applyBC(pos);
+	  
+	  for (size_t i(0); i < NDIM; ++i)
+	    particleData[ID].s[i] = pos[i];
+	  
+	  particleData[ID].w = diam * 0.5;
+	}
+    }
 }
 
 void 
@@ -154,31 +157,19 @@ OPVisualizer::ticker()
   //Now for the update test
   if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
   //The screen was redrawn! Lets continue
+  dataBuild();
 
-  //First we lock the window from destroying itself
-  const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
-  if (!_CLWindow->isReady()) return;
-  
-  //Now try getting access to the sphere position data
-  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    {
-      Vector pos = part.getPosition();
-      
-      Sim->dynamics.BCs().applyBC(pos);
-      
-      for (size_t i(0); i < NDIM; ++i)
-	sphereDataPtr[part.getID()].s[i] = pos[i];
-    }
+  {
+    const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
+    if (!_CLWindow->isReady()) return;
+    _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
+								 false, 0, Sim->N * sizeof(cl_float4),
+								 &particleData[0]);
+    //Mark when the last update was
+    _lastRenderTime = _CLWindow->getLastFrameTime();
     
-  //Return it
-  _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
-
-  //Mark when the last update was
-  _lastRenderTime = _CLWindow->getLastFrameTime();
-
-  _CLWindow->simupdateTick();
+    _CLWindow->simupdateTick();
+  }
 }
 
 void 

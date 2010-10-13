@@ -458,6 +458,8 @@ CLGLWindow::deinit(bool andGlutDestroy)
        iPtr != RenderObjects.end(); ++iPtr)
     delete *iPtr;
 
+  _CLState.getCommandQueue().finish();
+
   _CLState = magnet::CL::CLGLState();
 
   ///////////////////OpenGL

@@ -52,14 +52,13 @@ public:
 
   ~RTSpheres();
 
-  cl_float4* writePositionData(magnet::CL::CLGLState&);
-  void returnPositionData(magnet::CL::CLGLState&, cl_float4* );
-
   virtual void clTick(magnet::CL::CLGLState&);
   void sortTick(magnet::CL::CLGLState&);
 
   virtual void initOpenGL() {}
   virtual void initOpenCL(magnet::CL::CLGLState&);
+
+  cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
   
 protected:
 
@@ -80,7 +79,6 @@ protected:
   size_t _sortFrequency;
   size_t _workgroupsize;
   size_t _globalsize;
-
 
   magnet::CL::radixSort<cl_float> sortFunctor;
   magnet::CL::heapSort<cl_float> CPUsortFunctor;

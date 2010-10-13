@@ -25,7 +25,7 @@
 #include "Spheres.clh"
 #include <errno.h>
 
-struct  SortDataType { cl_uint ID; cl_float dist;};
+struct  SortDataType { cl_uint ID; cl_float dist; };
 
 cl_float4 getclVec(Vector vec)
 { 
@@ -310,18 +310,4 @@ RTSpheres::clTick_no_sort_or_locking(magnet::CL::CLGLState& CLState)
 
   //Release resources
   _clbuf_Positions.release(CLState.getCommandQueue());
-}
-
-cl_float4* 
-RTSpheres::writePositionData(magnet::CL::CLGLState& CLState)
-{
-  _sphereDataLock.lock();
-  return (cl_float4*) CLState.getCommandQueue().enqueueMapBuffer(_spherePositions, true, CL_MAP_WRITE, 0, _N);
-}
-
-void 
-RTSpheres::returnPositionData(magnet::CL::CLGLState& CLState, cl_float4* clBufPointer)
-{
-  CLState.getCommandQueue().enqueueUnmapMemObject(_spherePositions, (void*)clBufPointer);  
-  _sphereDataLock.unlock();
 }
