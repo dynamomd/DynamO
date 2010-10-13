@@ -159,7 +159,7 @@ OPVisualizer::ticker()
   //The screen was redrawn! Lets continue
   dataBuild();
 
-  {
+  { 
     const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
     if (!_CLWindow->isReady()) return;
     _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
@@ -172,9 +172,6 @@ OPVisualizer::ticker()
   }
 }
 
-void 
-OPVisualizer::output(xml::XmlStream& XML)
-{
-}
+void OPVisualizer::output(xml::XmlStream& XML) {}
 
 #endif
