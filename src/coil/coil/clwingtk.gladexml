@@ -17,7 +17,6 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -65,9 +64,14 @@
                       <object class="GtkImage" id="image1">
                         <property name="visible">True</property>
                         <property name="stock">gtk-media-play</property>
+                        <property name="icon-size">3</property>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="x_options"></property>
+                    <property name="y_options"></property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -117,7 +121,6 @@
                     <child>
                       <object class="GtkVBox" id="shaderPipelineOptions">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkHBox" id="multisampleBox">
                             <property name="visible">True</property>
@@ -206,7 +209,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkHBox" id="hbox1">
                                 <property name="visible">True</property>
@@ -226,7 +228,6 @@
                                 <child>
                                   <object class="GtkVBox" id="vbox4">
                                     <property name="visible">True</property>
-                                    <property name="orientation">vertical</property>
                                     <child>
                                       <object class="GtkButton" id="filterUp">
                                         <property name="visible">True</property>
@@ -236,6 +237,7 @@
                                           <object class="GtkImage" id="filterUpImage">
                                             <property name="visible">True</property>
                                             <property name="stock">gtk-go-up</property>
+                                            <property name="icon-size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -254,6 +256,7 @@
                                           <object class="GtkImage" id="filterDownImage">
                                             <property name="visible">True</property>
                                             <property name="stock">gtk-go-down</property>
+                                            <property name="icon-size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -272,6 +275,7 @@
                                           <object class="GtkImage" id="filterEditImage">
                                             <property name="visible">True</property>
                                             <property name="stock">gtk-edit</property>
+                                            <property name="icon-size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -290,6 +294,7 @@
                                           <object class="GtkImage" id="filterDeleteImage">
                                             <property name="visible">True</property>
                                             <property name="stock">gtk-delete</property>
+                                            <property name="icon-size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -332,6 +337,7 @@
                                       <object class="GtkImage" id="filterAddImage">
                                         <property name="visible">True</property>
                                         <property name="stock">gtk-add</property>
+                                        <property name="icon-size">3</property>
                                       </object>
                                     </child>
                                   </object>
