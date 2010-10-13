@@ -74,6 +74,23 @@ namespace magnet {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
       
+      inline 
+      virtual void resize(GLsizei length)
+      {
+	//If we've not been initialised, then just return
+	if (!_length) return;
+	
+	//Skip identity operations
+	if (_length == length) return;
+
+	_length = length;
+	
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _length, _length, 0,
+		     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+      }
+
+
       inline ~shadowFBO()
       {
 	if (_length)

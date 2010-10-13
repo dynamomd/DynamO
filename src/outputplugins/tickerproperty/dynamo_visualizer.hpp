@@ -42,12 +42,7 @@ class OPVisualizer: public OPTicker
   void operator<<(const XMLNode&);
   
  protected:
-
-  void set_simlock(bool nv) 
-  { 
-    std::cerr << "\n!!!!!!!!!!!toggle!!!!!!!!!!" << nv << "\n";
-    _simrun = nv;
-  }
+  void set_simlock(bool nv) { _simrun = nv; }
 
   CLGLWindow* _CLWindow;
   RTSpheres* _sphereObject;

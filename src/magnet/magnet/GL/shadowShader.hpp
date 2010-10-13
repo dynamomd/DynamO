@@ -33,14 +33,16 @@ namespace magnet {
 	_shadowMapUniform = glGetUniformLocationARB(_shaderID,"ShadowMap");
 	_shadowMapStepXUniform = glGetUniformLocationARB(_shaderID,"xPixelOffset");
 	_shadowMapStepYUniform = glGetUniformLocationARB(_shaderID,"yPixelOffset");
+	_shadowMapEnable = glGetUniformLocationARB(_shaderID,"shadowMapping");
       }
 
-      inline void attach(GLuint shadowTexture, size_t shadowSize, GLuint textureUnit)
+      inline void attach(GLuint shadowTexture, size_t shadowSize, GLuint textureUnit, GLint shadowMapping)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1iARB(_shadowMapUniform, textureUnit);
 	glUniform1fARB(_shadowMapStepXUniform, 1.0 / (shadowSize * 2));
 	glUniform1fARB(_shadowMapStepYUniform, 1.0 / (shadowSize * 2));
+	glUniform1iARB(_shadowMapEnable, shadowMapping);	
       }
 
       static inline std::string vertexShaderSource();
@@ -50,6 +52,7 @@ namespace magnet {
       GLuint _shadowMapUniform;
       GLuint _shadowMapStepXUniform;
       GLuint _shadowMapStepYUniform;
+      GLuint _shadowMapEnable;
     };
   }
 }

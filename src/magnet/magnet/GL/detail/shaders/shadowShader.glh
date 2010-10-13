@@ -30,10 +30,12 @@ varying vec4 ShadowCoord;
 varying vec3 lightVec;
 varying vec3 normal;
 varying vec3 viewVec;
+uniform int shadowMapping;
 
 void main()
 {
-  ShadowCoord= gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
+  if (shadowMapping == 1)
+    ShadowCoord= gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
 
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
   
@@ -54,7 +56,7 @@ void main()
       return
 STRINGIFY( 
 uniform sampler2DShadow ShadowMap;
-
+uniform int shadowMapping;
 varying vec4 ShadowCoord;
 varying vec3 lightVec;
 varying vec3 normal;
@@ -64,17 +66,21 @@ void main()
 {
   const float shadowIntensity = 0.6;
 
-
-  float shadow = 0;
+  float shadow = 0 ;
   
-  const float step = 0.001;
-  if (ShadowCoord.w > 1.0)
-    for (int x = 0; x < 4; ++x)
-      for (int y = 0; y < 4; ++y)
-	//Replace textureProj with shadow2DProj to make it work on old versions of GLSL
-	shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+  if (shadowMapping == 1)
+    {
+      const float step = 0.001;
+      if (ShadowCoord.w > 1.0)
+	for (int x = 0; x < 4; ++x)
+	  for (int y = 0; y < 4; ++y)
+	    //Replace textureProj with shadow2DProj to make it work on old versions of GLSL
+	    shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
   
-  shadow /= 16.0 ;
+      shadow /= 16.0 ;
+    }
+  else
+    shadow = 1.0;
   
   float lightNormDot = dot(normal, lightVec);
   

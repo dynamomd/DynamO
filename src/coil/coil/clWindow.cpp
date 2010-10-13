@@ -54,7 +54,8 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _mouseSensitivity(0.3),
   _moveSensitivity(0.001),
   _specialKeys(0),
-  _shaderPipeline(false)
+  _shaderPipeline(false),
+  _shadowMapping(true)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 }
@@ -222,7 +223,8 @@ CLGLWindow::initGTK()
   _refXml->get_widget("controlWindow", controlwindow);
   
   if (_shaderPipeline)
-    {
+    {///////////////////////Render Pipeline//////////////////////////////////
+
       {//Enable the whole shader frame
 	Gtk::Frame* shaderFrame;
 	_refXml->get_widget("RenderPipelineFrame", shaderFrame);
@@ -238,6 +240,8 @@ CLGLWindow::initGTK()
 	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
       }
 
+
+      ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
       GLint maxSamples;
       glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
 
@@ -293,6 +297,23 @@ CLGLWindow::initGTK()
 	  _renderTarget.reset(new magnet::GL::FBO());
 	  _renderTarget->init(_width, _height);
 	}
+
+      ///////////////////////Shadow Mapping//////////////////////////////////
+      {
+	Gtk::CheckButton* shadowmapEnable;
+	_refXml->get_widget("shadowmapEnable", shadowmapEnable);
+	shadowmapEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+      }
+
+      {
+	Gtk::SpinButton* shadowmapSize;
+	_refXml->get_widget("shadowmapSize", shadowmapSize);
+	shadowmapSize->set_value(1024);
+	shadowmapSize->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+      }
+
+      ///////////////////////Filters//////////////////////////////////
+      
     }
 }
 
@@ -358,6 +379,24 @@ CLGLWindow::multisampleEnableCallback()
     {
       _renderTarget.reset(new magnet::GL::FBO());
       _renderTarget->init(_width, _height);
+    }
+}
+
+void 
+CLGLWindow::shadowEnableCallback()
+{
+  Gtk::CheckButton* shadowmapEnable;
+  _refXml->get_widget("shadowmapEnable", shadowmapEnable);
+  
+  _shadowMapping = shadowmapEnable->get_active();
+
+
+  if (_shadowMapping)
+    {
+      Gtk::SpinButton* shadowmapSize;
+      _refXml->get_widget("shadowmapSize", shadowmapSize);
+      
+      _shadowFBO.resize(shadowmapSize->get_value());
     }
 }
 
@@ -448,44 +487,45 @@ CLGLWindow::CallBackDisplayFunc(void)
   //Prepare for the GL render
   if (_shaderPipeline)
     {
-      //////////////////Pass 1//////////////////
-      ///Here we draw from the 
-      _shadowFBO.setup(_light0);
-
+      if (_shadowMapping)
+	{
+	  //////////////////Pass 1//////////////////
+	  ///Here we draw from the 
+	  _shadowFBO.setup(_light0);
+	  
 #ifdef GL_VERSION_1_1
-      glEnable (GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset (1., 1.);
+	  glEnable (GL_POLYGON_OFFSET_FILL);
+	  glPolygonOffset (1., 1.);
 #endif 
-      
-      drawScene();
-      
+	  
+	  drawScene();
+	  
 #ifdef GL_VERSION_1_1
-      glDisable (GL_POLYGON_OFFSET_FILL);
+	  glDisable (GL_POLYGON_OFFSET_FILL);
 #endif
+	  
+	  _shadowFBO.restore();
 
-      _shadowFBO.restore();
-      //////////////////Pass 2//////////////////
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	  //In both cases we use the texture matrix, instead of the EYE_PLANE
+	  //We bind to the 7th texture unit???? 
+	  glActiveTextureARB(GL_TEXTURE7);
+	  glMatrixMode(GL_TEXTURE);
+	  
+	  _light0.buildShadowTextureMatrix();
+	  
+	  MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
+	  glMultMatrixf(invView);
+	  
+	  glMatrixMode(GL_MODELVIEW);	  
 
-      //In both cases we use the texture matrix, instead of the EYE_PLANE
-      //We bind to the 7th texture unit???? 
-      glActiveTextureARB(GL_TEXTURE7);
-      glMatrixMode(GL_TEXTURE);
-
-      _light0.buildShadowTextureMatrix();
-
-      MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
-      glMultMatrixf(invView);
-	
-      glMatrixMode(GL_MODELVIEW);
-
+	  glBindTexture(GL_TEXTURE_2D, _shadowFBO.getShadowTexture());
+	}
+      
       //Bind to the multisample buffer
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      //Setup and run the shadow shader
-      glBindTexture(GL_TEXTURE_2D, _shadowFBO.getShadowTexture());
-      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7);
+      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping);
       drawScene();
       
       _renderTarget->detach();

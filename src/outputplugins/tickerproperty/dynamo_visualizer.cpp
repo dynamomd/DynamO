@@ -138,7 +138,14 @@ OPVisualizer::initialise()
 void 
 OPVisualizer::ticker()
 {
-  while (true) { if (_simrun) break; };
+  while (true) 
+    { 
+      if (_simrun) break;  
+      timespec sleeptime;
+      sleeptime.tv_sec = 0;
+      sleeptime.tv_nsec = 100000000;
+      nanosleep(&sleeptime, NULL);
+    };
 
   //Now for the update test
   if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;

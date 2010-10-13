@@ -168,6 +168,7 @@ private:
   int _specialKeys;
 
   bool _shaderPipeline;
+  bool _shadowMapping;
 
   magnet::GL::lightInfo _light0;
 
@@ -183,6 +184,7 @@ private:
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();
   void multisampleEnableCallback();
+  void shadowEnableCallback();
   void runCallback(sigc::slot<void, const bool&> sl) 
   { 
     Gtk::ToggleButton* togButton;
