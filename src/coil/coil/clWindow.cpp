@@ -189,6 +189,12 @@ CLGLWindow::initOpenGL()
 }
 
 void 
+CLGLWindow::CallBackIdleFunc()
+{
+  CallBackDisplayFunc();
+}
+
+void 
 CLGLWindow::initOpenCL()
 {
   _CLState.init();
@@ -222,7 +228,17 @@ CLGLWindow::initGTK()
     = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 2);
 
   _refXml->get_widget("controlWindow", controlwindow);
-  
+
+  /////////////////////Setup the FPS limiter
+  const size_t initial_fps = 30;
+
+  {
+    Gtk::SpinButton* fpsLimit;
+    _refXml->get_widget("targetFPS", fpsLimit);
+    fpsLimit->set_value(initial_fps);
+    fpsLimit->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::FPSCallback));
+  }
+
   if (_shaderPipeline)
     {///////////////////////Render Pipeline//////////////////////////////////
 
@@ -729,12 +745,6 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 }
 
 void 
-CLGLWindow::CallBackIdleFunc(void)
-{
-  CallBackDisplayFunc();
-}
-
-void 
 CLGLWindow::setWindowtitle(const std::string& newtitle) 
 { 
   windowTitle = newtitle;
@@ -855,6 +865,13 @@ void
 CLGLWindow::CallBackKeyboardUpFunc(unsigned char key, int x, int y)
 {
   keyStates[std::tolower(key)] = false;
+}
+
+void 
+CLGLWindow::FPSCallback()
+{
+  Gtk::SpinButton* fpsLimit;
+  _refXml->get_widget("targetFPS", fpsLimit);
 }
 
 void 

@@ -55,8 +55,9 @@ public:
 
   ~CLGLWindow();
   
-  virtual void CallBackDisplayFunc(void); 
-  virtual void CallBackIdleFunc(void);
+  virtual void CallBackDisplayFunc();
+  virtual void CallBackIdleFunc();
+
   void CallBackReshapeFunc(int w, int h);    
 
   const std::string& getWindowTitle() const { return windowTitle; }
@@ -185,6 +186,7 @@ private:
   
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();
+
   //Filter control callbacks
   void filterUpCallback();
   void filterDownCallback();
@@ -192,8 +194,8 @@ private:
   void filterDeleteCallback();
   void filterAddCallback();
   
-
   //Other callbacks
+  void FPSCallback();
   void multisampleEnableCallback();
   void shadowEnableCallback();
   void runCallback(sigc::slot<void, const bool&> sl) 

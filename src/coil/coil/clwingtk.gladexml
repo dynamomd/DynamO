@@ -51,51 +51,158 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkTable" id="table1">
+              <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
-                <property name="n_rows">3</property>
-                <property name="n_columns">3</property>
                 <child>
-                  <object class="GtkToggleButton" id="SimRunButton">
+                  <object class="GtkHBox" id="hbox6">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                     <child>
-                      <object class="GtkImage" id="image1">
+                      <object class="GtkToggleButton" id="SimRunButton">
                         <property name="visible">True</property>
-                        <property name="stock">gtk-media-play</property>
-                        <property name="icon-size">3</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Simulation run/stop</property>
+                        <child>
+                          <object class="GtkImage" id="image1">
+                            <property name="visible">True</property>
+                            <property name="xpad">10</property>
+                            <property name="stock">gtk-media-play</property>
+                            <property name="icon-size">3</property>
+                          </object>
+                        </child>
                       </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label4">
+                        <property name="visible">True</property>
+                        <property name="xalign">0.94999998807907104</property>
+                        <property name="label" translatable="yes">Target FPS:</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="targetFPS">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="tooltip_text" translatable="yes">The FPS the renderer tries to achieve</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">framerateAdjustment</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleButton" id="SimLockButton">
+                        <property name="label" translatable="yes">Frame Lock</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Locks simulation updates to screen updates (for capturing video)</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkHSeparator" id="hseparator1">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="padding">10</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
+                  <object class="GtkHBox" id="hbox7">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkButton" id="SimSnapshot">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Take a snapshot</property>
+                        <child>
+                          <object class="GtkImage" id="SimSnapshotImage">
+                            <property name="visible">True</property>
+                            <property name="pixel_size">0</property>
+                            <property name="icon_name">emblem-photos</property>
+                            <property name="icon-size">3</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleButton" id="SimRecordButton">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Continuously record simulation</property>
+                        <child>
+                          <object class="GtkImage" id="image2">
+                            <property name="visible">True</property>
+                            <property name="xpad">10</property>
+                            <property name="stock">gtk-media-record</property>
+                            <property name="icon-size">3</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label5">
+                        <property name="visible">True</property>
+                        <property name="xalign">0.94999998807907104</property>
+                        <property name="label" translatable="yes">Snapshot Folder</property>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFileChooserButton" id="filechooserbutton1">
+                        <property name="visible">True</property>
+                        <property name="tooltip_text" translatable="yes">The folder to output snapshots to.</property>
+                        <property name="action">select-folder</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">2</property>
+                  </packing>
                 </child>
               </object>
             </child>
@@ -174,7 +281,7 @@
                                 <child>
                                   <object class="GtkLabel" id="label3">
                                     <property name="visible">True</property>
-                                    <property name="xalign">0.95999997854232788</property>
+                                    <property name="xalign">0.94999998807907104</property>
                                     <property name="label" translatable="yes">Shadow Map Size</property>
                                   </object>
                                   <packing>
@@ -324,7 +431,6 @@
                                     <property name="visible">True</property>
                                   </object>
                                   <packing>
-                                    <property name="padding">10</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -336,6 +442,7 @@
                                     <child>
                                       <object class="GtkImage" id="filterAddImage">
                                         <property name="visible">True</property>
+                                        <property name="xpad">10</property>
                                         <property name="stock">gtk-add</property>
                                         <property name="icon-size">3</property>
                                       </object>
@@ -344,7 +451,6 @@
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
-                                    <property name="padding">14</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -450,5 +556,11 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkAdjustment" id="framerateAdjustment">
+    <property name="value">30</property>
+    <property name="lower">30</property>
+    <property name="upper">150</property>
+    <property name="step_increment">1</property>
   </object>
 </interface>
