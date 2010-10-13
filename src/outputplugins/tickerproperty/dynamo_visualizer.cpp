@@ -160,19 +160,19 @@ OPVisualizer::ticker()
   if (!_CLWindow->isReady()) return;
   
   //Now try getting access to the sphere position data
-cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());
+  cl_float4* sphereDataPtr = _sphereObject->writePositionData(_CLWindow->getCLState());
 
-//  BOOST_FOREACH(const Particle& part, Sim->particleList)
-//    {
-//      Vector pos = part.getPosition();
-//      
-//      Sim->dynamics.BCs().applyBC(pos);
-//      
-//      for (size_t i(0); i < NDIM; ++i)
-//	sphereDataPtr[part.getID()].s[i] = pos[i];
-//    }
-//    
-//  //Return it
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    {
+      Vector pos = part.getPosition();
+      
+      Sim->dynamics.BCs().applyBC(pos);
+      
+      for (size_t i(0); i < NDIM; ++i)
+	sphereDataPtr[part.getID()].s[i] = pos[i];
+    }
+    
+  //Return it
   _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
 
   //Mark when the last update was
