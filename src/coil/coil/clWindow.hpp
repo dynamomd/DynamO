@@ -44,6 +44,8 @@
 
 #include <memory>
 
+#include <coil/filters/filter.hpp>
+
 class CLGLWindow : public CoilWindow
 {
 public:
@@ -183,6 +185,15 @@ private:
   
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();
+  //Filter control callbacks
+  void filterUpCallback();
+  void filterDownCallback();
+  void filterEditCallback();
+  void filterDeleteCallback();
+  void filterAddCallback();
+  
+
+  //Other callbacks
   void multisampleEnableCallback();
   void shadowEnableCallback();
   void runCallback(sigc::slot<void, const bool&> sl) 
@@ -192,4 +203,5 @@ private:
     
     sl(togButton->get_active()); 
   }
+
 };

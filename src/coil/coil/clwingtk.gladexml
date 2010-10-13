@@ -246,24 +246,6 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkButton" id="filterDelete">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">True</property>
-                                        <child>
-                                          <object class="GtkImage" id="filterDeleteImage">
-                                            <property name="visible">True</property>
-                                            <property name="stock">gtk-delete</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
                                       <object class="GtkButton" id="filterDown">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -278,7 +260,43 @@
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">False</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="filterEdit">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterEditImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-edit</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
                                         <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="filterDelete">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterDeleteImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-delete</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">3</property>
                                       </packing>
                                     </child>
                                   </object>

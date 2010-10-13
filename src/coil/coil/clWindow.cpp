@@ -25,6 +25,7 @@
 
 #include <locale>
 
+
 inline float clamp(float x, float a, float b)
 {
   return x < a ? a : (x > b ? b : x);
@@ -312,8 +313,27 @@ CLGLWindow::initGTK()
 	shadowmapSize->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
       }
 
-      ///////////////////////Filters//////////////////////////////////
-      
+      {///////////////////////Filters//////////////////////////////////
+	//{///Connect the control buttons
+	//  Gtk::Button* btn;
+	//  _refXml->get_widget("filterUp", btn);
+	//  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
+	//  _refXml->get_widget("filterDown", btn);
+	//  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
+	//  _refXml->get_widget("filterEdit", btn);
+	//  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterEditCallback));
+	//  _refXml->get_widget("filterDelete", btn);
+	//  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
+	//  _refXml->get_widget("filterAdd", btn);
+	//  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
+	//}
+
+	{///Fill the selector widgit with the available filters
+	  //Gtk::ComboBox* filterSelectBox;
+	  //_refXml->get_widget("filterSelectBox", filterSelectBox);
+	  //coil::filter::populateComboBox(filterSelectBox);
+	}
+      }
     }
 }
 
@@ -835,3 +855,32 @@ CLGLWindow::CallBackKeyboardUpFunc(unsigned char key, int x, int y)
   keyStates[std::tolower(key)] = false;
 }
 
+void 
+CLGLWindow::filterUpCallback()
+{
+
+}
+
+void 
+CLGLWindow::filterDownCallback()
+{
+
+}
+
+void 
+CLGLWindow::filterEditCallback()
+{
+
+}
+
+void 
+CLGLWindow::filterDeleteCallback()
+{
+
+}
+
+void 
+CLGLWindow::filterAddCallback()
+{
+
+}

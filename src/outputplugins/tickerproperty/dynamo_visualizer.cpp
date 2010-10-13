@@ -138,9 +138,11 @@ OPVisualizer::initialise()
 void 
 OPVisualizer::ticker()
 {
+  return;
+
   while (true) 
     { 
-      if (_simrun) break;  
+      if (_simrun || !_CLWindow->isReady()) break;  
       timespec sleeptime;
       sleeptime.tv_sec = 0;
       sleeptime.tv_nsec = 100000000;
