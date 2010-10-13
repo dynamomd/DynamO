@@ -133,15 +133,16 @@ OPVisualizer::initialise()
     //Return it
     _sphereObject->returnPositionData(_CLWindow->getCLState(), sphereDataPtr);
   }
+
+  I_cout() << "OpenCL Plaftorm:" << _CLWindow->getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
+	   << "\nOpenCL Device:" << _CLWindow->getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
 }
 
 void 
 OPVisualizer::ticker()
 {
-  return;
-
   while (true) 
-    { 
+    {
       if (_simrun || !_CLWindow->isReady()) break;  
       timespec sleeptime;
       sleeptime.tv_sec = 0;
