@@ -16,12 +16,8 @@
 */
 
 #include <coil/filters/filter.hpp>
+#include <magnet/exception.hpp>
 #include "Laplacian.hpp"
-
-//Format is F(enumeration,stringname,type)
-#define FilterFactory(F) \
-  F(0, "5x5 Laplacian", Laplacian5x5Filter)		\
-  F(1, "9x9 Laplacian of Gaussian", Laplacian5x5Filter)
 
 namespace coil 
 {
@@ -39,15 +35,52 @@ namespace coil
     Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
     filterSelectBox->set_model(m_refTreeModel);
 
-#define ComboBoxGenFunc(enumeration,stringname,type)			\
+#define COMBO_BOX_GEN_FUNC(enumeration,stringname,type)			\
     {									\
       Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());		\
       row[vals.m_col_id] = enumeration;					\
       row[vals.m_col_name] = stringname;				\
     }
     
-    FilterFactory(ComboBoxGenFunc)
+    FILTER_FACTORY(COMBO_BOX_GEN_FUNC)
+
+#undef COMBO_BOX_GEN_FUNC
 
     filterSelectBox->pack_start(vals.m_col_name);
+  }
+  
+  filter* 
+  filter::createFromID(size_t type_id)
+  {
+
+#define CREATE_GEN_FUNC(enumeration,stringname,type)\
+    case enumeration :				    \
+      return new type;
+
+    switch (type_id)
+      {
+	FILTER_FACTORY(CREATE_GEN_FUNC)
+      default:
+	M_throw() << "Bad id passed";
+      }
+#undef CREATE_GEN_FUNC
+  }
+
+  std::string 
+  filter::getName(size_t type_id)
+  {
+
+#define NAME_GEN_FUNC(enumeration,stringname,type)\
+    case enumeration :				    \
+      return stringname;
+
+    switch (type_id)
+      {
+	FILTER_FACTORY(NAME_GEN_FUNC)
+      default:
+	M_throw() << "Bad id passed";
+      }
+#undef NAME_GEN_FUNC
+    
   }
 }

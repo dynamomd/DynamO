@@ -19,13 +19,46 @@
 
 #include <gtkmm.h>
 
+//Format is F(enumeration,stringname,type)
+#define FILTER_FACTORY(F) \
+  F(0, "5x5 Laplacian", Laplacian5x5Filter)
+
+
 namespace coil 
 {
+  ////////Generate prototypes for all of the filter classes
+#define PROTOTYPE_GEN_FUNC(enumeration,stringname,type) \
+  class type;
+
+  FILTER_FACTORY(PROTOTYPE_GEN_FUNC)
+
+#undef PROTOTYPE_GEN_FUNC
+
+  namespace detail 
+  {
+
+    ////////Generate a type trait for the filter enumerations (type id's)
+    template<class T> struct filterEnum {};
+
+#define ENUM_GEN_FUNC(enumeration,stringname,type) \
+    template<> struct filterEnum<type> { static const size_t val = enumeration; };
+    
+    FILTER_FACTORY(ENUM_GEN_FUNC)
+
+#undef ENUM_GEN_FUNC
+  }
+
   class filter
   {
   public:
     static void populateComboBox(Gtk::ComboBox*);
     
+    static filter* createFromID(size_t type_id);
+
+    virtual size_t type_id() = 0;
+
+    static std::string getName(size_t type_id);
+
   protected:
   };
 }

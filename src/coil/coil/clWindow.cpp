@@ -371,6 +371,16 @@ CLGLWindow::initGTK()
       }
 
       {///////////////////////Filters//////////////////////////////////
+	///Tree view must be built
+	
+	//Build the store
+	_filterStore = Gtk::ListStore::create(_filterModelColumns);
+
+	//Setup the filter store
+	_refXml->get_widget("filterView", filterView);
+	filterView->set_model(_filterStore);
+	filterView->append_column("Filter Name", _filterModelColumns.m_name);
+
 	{///Connect the control buttons
 	  Gtk::Button* btn;
 	  _refXml->get_widget("filterUp", btn);
@@ -1048,5 +1058,12 @@ CLGLWindow::filterDeleteCallback()
 void 
 CLGLWindow::filterAddCallback()
 {
+  //Grab the filter select box
+  Gtk::ComboBox* filterSelectBox;
+  _refXml->get_widget("filterSelectBox", filterSelectBox);
 
+  //Check the filterSelectBox is on a valid row
+  if (filterSelectBox->get_active_row_number() < 0) return;
+
+  
 }
