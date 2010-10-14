@@ -25,6 +25,7 @@ namespace coil
   {
   public:
     static void populateComboBox(Gtk::ComboBox*);
+    
   protected:
   };
 }
