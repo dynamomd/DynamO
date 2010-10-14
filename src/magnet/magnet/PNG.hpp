@@ -316,7 +316,6 @@ public:
 	    pngData[rowSize * y + x * channels + 2] = (pixel >> 16) & 0xff;
 	  }
 
-
     // set up error handling the hard way
     if(setjmp(png_jmpbuf(png))) {
       png_destroy_write_struct(&png, &pngInfo);
