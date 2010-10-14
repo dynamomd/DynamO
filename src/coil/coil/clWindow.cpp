@@ -145,7 +145,7 @@ CLGLWindow::initOpenGL()
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL); //and enable it
 
-
+  
   glShadeModel(GL_SMOOTH);
 
   //Setup the viewport
@@ -156,7 +156,7 @@ CLGLWindow::initOpenGL()
 
   //Light our scene!
   glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);   
+  glEnable(GL_LIGHT0);
 
   //Light number one
   //Position is set in the CameraSetup!
@@ -659,7 +659,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 
       if (_snapshot)
 	{
-	  PNGImage::writeFile(path + "/snapshot.png", pixels, _width, _height, true);
+	  PNGImage::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, true);
 	  _snapshot = false;
 	}
 
@@ -667,7 +667,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 	{
 	  std::ostringstream filename;
 	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
-	  PNGImage::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, true);
+	  PNGImage::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true);
 	}
     }
 
