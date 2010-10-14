@@ -164,6 +164,11 @@ private:
   bool _shadowMapping;
   volatile bool _simrun;
   volatile bool _simframelock;
+  bool _snapshot;
+  bool _record;
+  bool _showAxis;
+
+  size_t _snapshot_counter;
 
   magnet::GL::lightInfo _light0;
 
@@ -192,6 +197,9 @@ private:
 
   void simRunControlCallback();
   void simFramelockControlCallback();
+  void snapshotCallback();
+  void recordCallback();
+  void axisShowCallback();
 
   void runCallback(); 
 };

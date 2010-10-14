@@ -82,6 +82,7 @@
                     <child>
                       <object class="GtkLabel" id="label4">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="xalign">0.94999998807907104</property>
                         <property name="label" translatable="yes">Update Freq:</property>
                       </object>
@@ -92,6 +93,7 @@
                     <child>
                       <object class="GtkSpinButton" id="targetFPS">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="tooltip_text" translatable="yes">The FPS the renderer tries to achieve</property>
                         <property name="invisible_char">&#x25CF;</property>
@@ -146,8 +148,9 @@
                         <child>
                           <object class="GtkImage" id="SimSnapshotImage">
                             <property name="visible">True</property>
+                            <property name="xpad">10</property>
+                            <property name="stock">gtk-orientation-portrait</property>
                             <property name="pixel_size">0</property>
-                            <property name="icon_name">emblem-photos</property>
                             <property name="icon-size">3</property>
                           </object>
                         </child>
@@ -165,7 +168,7 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Continuously record simulation</property>
                         <child>
-                          <object class="GtkImage" id="image2">
+                          <object class="GtkImage" id="SimRecordButtonImage">
                             <property name="visible">True</property>
                             <property name="xpad">10</property>
                             <property name="stock">gtk-media-record</property>
@@ -190,10 +193,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkFileChooserButton" id="filechooserbutton1">
+                      <object class="GtkFileChooserButton" id="snapshotDirectory">
                         <property name="visible">True</property>
                         <property name="tooltip_text" translatable="yes">The folder to output snapshots to.</property>
                         <property name="action">select-folder</property>
+                        <property name="title" translatable="yes">Select a directory for saving snapshots</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -205,6 +209,30 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHSeparator" id="hseparator2">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="padding">10</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="axisShow">
+                    <property name="label" translatable="yes">Display axis</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>

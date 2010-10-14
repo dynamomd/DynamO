@@ -39,6 +39,9 @@ inline float clamp(float x, float a, float b)
 #include "glprimatives/arrow.hpp"
 
 #include <magnet/CL/CLGL.hpp>
+#define PNG_SKIP_SETJMP_CHECK
+#include <magnet/PNG.hpp>
+#include <iomanip>
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
@@ -57,7 +60,12 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _specialKeys(0),
   _shaderPipeline(false),
   _shadowMapping(true),
-  _simrun(false)
+  _simrun(false),
+  _simframelock(false),
+  _snapshot(false),
+  _record(false),
+  _showAxis(true),
+  _snapshot_counter(0)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 }
@@ -143,6 +151,8 @@ CLGLWindow::initOpenGL()
   //Setup the viewport
   CallBackReshapeFunc(_width, _height);
   _viewPortInfo.CameraSetup();
+  glReadBuffer(GL_BACK);
+  glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
   //Light our scene!
   glEnable(GL_LIGHTING);
@@ -248,6 +258,26 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::simFramelockControlCallback));
   }
 
+  {//////Show axis checkbox
+    Gtk::CheckButton* axisShowButton;    
+    _refXml->get_widget("axisShow", axisShowButton); 
+
+    axisShowButton->signal_toggled()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::axisShowCallback));
+  }
+
+  {//////Snapshot button
+    Gtk::Button* btn;
+    _refXml->get_widget("SimSnapshot", btn);
+    btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::snapshotCallback));    
+  }
+
+  {///////Recording button
+    Gtk::ToggleButton* recordButton;
+    _refXml->get_widget("SimRecordButton", recordButton);
+    recordButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::recordCallback));
+  }
 
   ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
@@ -613,8 +643,37 @@ CLGLWindow::CallBackDisplayFunc(void)
 
   glutSwapBuffers();
 
+  if (_snapshot || _record)
+    {
+      std::vector<uint32_t> pixels;
+      pixels.resize(_width * _height);
+      //Read the pixels into our container
+      glReadPixels(0,0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+      
+      std::string path;
+      {
+	Gtk::FileChooserButton* fileChooser;
+	_refXml->get_widget("snapshotDirectory", fileChooser);
+	path = fileChooser->get_filename();
+      }
+
+      if (_snapshot)
+	{
+	  PNGImage::writeFile(path + "/snapshot.png", pixels, _width, _height, true);
+	  _snapshot = false;
+	}
+
+      if (_record)
+	{
+	  std::ostringstream filename;
+	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
+	  PNGImage::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, true);
+	}
+    }
+
   ++_frameCounter; 
   _lastFrameTime = _currFrameTime;
+
 }
 
 void 
@@ -666,6 +725,8 @@ CLGLWindow::drawScene()
 
 void CLGLWindow::drawAxis()
 {
+  if (!_showAxis) return;
+  
   GLdouble nearPlane = 0.1,
     axisScale = 0.07;
   
@@ -934,6 +995,30 @@ CLGLWindow::simFramelockControlCallback()
   _refXml->get_widget("SimLockButton", framelockButton);
 
   _simframelock = framelockButton->get_active();
+}
+
+void 
+CLGLWindow::snapshotCallback()
+{
+  _snapshot = true;
+}
+
+void 
+CLGLWindow::recordCallback()
+{
+  Gtk::ToggleButton* recordButton;
+  _refXml->get_widget("SimRecordButton", recordButton);
+
+  _record = recordButton->get_active();  
+}
+
+void 
+CLGLWindow::axisShowCallback()
+{
+  Gtk::CheckButton* axisShowButton;
+  _refXml->get_widget("axisShow", axisShowButton);
+  
+  _showAxis = axisShowButton->get_active();
 }
 
 void 
