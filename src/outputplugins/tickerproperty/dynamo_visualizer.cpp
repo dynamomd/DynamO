@@ -98,10 +98,6 @@ OPVisualizer::initialise()
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
-  //Now lets connect some handlers
-  _CLWindow->connect_RunControl
-    (sigc::mem_fun(this, &OPVisualizer::set_simlock));
-
   //Build the array of data
   particleData.resize(Sim->N);
   
@@ -144,32 +140,18 @@ OPVisualizer::dataBuild()
 void 
 OPVisualizer::ticker()
 {
-
-  while (true) 
+  //Update test
+  if (_CLWindow->simupdateTick())
     {
-      if (_simrun || !_CLWindow->isReady()) break;  
-      timespec sleeptime;
-      sleeptime.tv_sec = 0;
-      sleeptime.tv_nsec = 100000000;
-      nanosleep(&sleeptime, NULL);
-    };
-
-  //Now for the update test
-  if (_lastRenderTime == _CLWindow->getLastFrameTime()) return;
-  //The screen was redrawn! Lets continue
-  dataBuild();
-
-  { 
-    const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
-    if (!_CLWindow->isReady()) return;
-    _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
-								 false, 0, Sim->N * sizeof(cl_float4),
-								 &particleData[0]);
-    //Mark when the last update was
-    _lastRenderTime = _CLWindow->getLastFrameTime();
-    
-    _CLWindow->simupdateTick();
-  }
+      dataBuild();
+      {
+	const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
+	if (!_CLWindow->isReady()) return;
+	_CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
+								     false, 0, Sim->N * sizeof(cl_float4),
+								     &particleData[0]);
+      }
+    }
 }
 
 void OPVisualizer::output(xml::XmlStream& XML) {}

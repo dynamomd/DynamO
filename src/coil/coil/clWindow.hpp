@@ -86,7 +86,7 @@ public:
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
   T& addRenderObj(T1, T2, T3, T4, T5, T6) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
-  inline const int& getLastFrameTime() const { return _lastFrameTime; }
+  inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
   magnet::CL::CLGLState& getCLState() { return _CLState; }
 
@@ -95,18 +95,7 @@ public:
 
   magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
 
-  void simupdateTick() { ++_updateCounter; }
-
-  void connect_RunControl(sigc::slot<void, const bool&> sl)
-  {
-    Gtk::ToggleButton* togButton;
-    _refXml->get_widget("SimRunButton", togButton);
-
-    togButton->signal_toggled()
-      .connect(sigc::bind(sigc::mem_fun(this, &CLGLWindow::runCallback), sl));
-
-    sl(togButton->get_active());
-  }
+  bool simupdateTick();
   
 protected:
   magnet::GL::shadowShader _shadowShader;
@@ -157,8 +146,9 @@ private:
   bool FPSmode;
   size_t _frameCounter, _updateCounter;
 
-  int _lastFrameTime;
+  volatile int _lastFrameTime;
   int _FPStime; 
+  int _lastUpdateTime;
 
   magnet::GL::viewPort _viewPortInfo;
     
@@ -172,6 +162,8 @@ private:
 
   bool _shaderPipeline;
   bool _shadowMapping;
+  volatile bool _simrun;
+  volatile bool _simframelock;
 
   magnet::GL::lightInfo _light0;
 
@@ -195,15 +187,11 @@ private:
   void filterAddCallback();
   
   //Other callbacks
-  void FPSCallback();
   void multisampleEnableCallback();
   void shadowEnableCallback();
-  void runCallback(sigc::slot<void, const bool&> sl) 
-  { 
-    Gtk::ToggleButton* togButton;
-    _refXml->get_widget("SimRunButton", togButton);
-    
-    sl(togButton->get_active()); 
-  }
 
+  void simRunControlCallback();
+  void simFramelockControlCallback();
+
+  void runCallback(); 
 };

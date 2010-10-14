@@ -17,6 +17,7 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -53,6 +54,7 @@
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkHBox" id="hbox6">
                     <property name="visible">True</property>
@@ -63,7 +65,7 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Simulation run/stop</property>
                         <child>
-                          <object class="GtkImage" id="image1">
+                          <object class="GtkImage" id="SimRunButtonImage">
                             <property name="visible">True</property>
                             <property name="xpad">10</property>
                             <property name="stock">gtk-media-play</property>
@@ -81,7 +83,7 @@
                       <object class="GtkLabel" id="label4">
                         <property name="visible">True</property>
                         <property name="xalign">0.94999998807907104</property>
-                        <property name="label" translatable="yes">Target FPS:</property>
+                        <property name="label" translatable="yes">Update Freq:</property>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -94,6 +96,7 @@
                         <property name="tooltip_text" translatable="yes">The FPS the renderer tries to achieve</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">framerateAdjustment</property>
+                        <property name="numeric">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -228,6 +231,7 @@
                     <child>
                       <object class="GtkVBox" id="shaderPipelineOptions">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkHBox" id="multisampleBox">
                             <property name="visible">True</property>
@@ -316,6 +320,7 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkHBox" id="hbox1">
                                 <property name="visible">True</property>
@@ -558,9 +563,8 @@
     </child>
   </object>
   <object class="GtkAdjustment" id="framerateAdjustment">
-    <property name="value">30</property>
-    <property name="lower">30</property>
-    <property name="upper">150</property>
-    <property name="step_increment">1</property>
+    <property name="value">1</property>
+    <property name="upper">10000000000</property>
+    <property name="step_increment">0.01</property>
   </object>
 </interface>

@@ -52,7 +52,7 @@ public:
   inline bool isReady() const { return _readyFlag; }
   
 protected:
-  bool _readyFlag;
+  volatile bool _readyFlag;
 
   virtual void initOpenGL() = 0;  
   virtual void initOpenCL() = 0;

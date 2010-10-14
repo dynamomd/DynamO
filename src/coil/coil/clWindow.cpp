@@ -56,7 +56,8 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _moveSensitivity(0.001),
   _specialKeys(0),
   _shaderPipeline(false),
-  _shadowMapping(true)
+  _shadowMapping(true),
+  _simrun(false)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 }
@@ -172,8 +173,8 @@ CLGLWindow::initOpenGL()
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
 
-  _FPStime = glutGet(GLUT_ELAPSED_TIME);
-
+  _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
+  
   //Build the offscreen rendering FBO's
   if (_shaderPipeline)
     {
@@ -215,7 +216,7 @@ extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
 void
 CLGLWindow::initGTK()
 {
-  {
+  {////////Glade XML loader 
     Glib::ustring glade_data
       (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
        _binary_src_coil_coil_clwingtk_gladexml_end
@@ -223,24 +224,34 @@ CLGLWindow::initGTK()
     
     _refXml = Gtk::Builder::create_from_string(glade_data);
   }
-
+  
+  /////////Timeout for FPS and UPS calculation
   _timeout_connection
     = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 2);
 
+  ////////Store the control window
   _refXml->get_widget("controlWindow", controlwindow);
 
-  /////////////////////Setup the FPS limiter
-  const size_t initial_fps = 30;
+  
+  {////////Simulation run control
+    Gtk::ToggleButton* togButton;
+    _refXml->get_widget("SimRunButton", togButton);
 
-  {
-    Gtk::SpinButton* fpsLimit;
-    _refXml->get_widget("targetFPS", fpsLimit);
-    fpsLimit->set_value(initial_fps);
-    fpsLimit->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::FPSCallback));
+    togButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::runCallback));
   }
 
+  {///////Frame lock control
+    Gtk::ToggleButton* framelockButton;
+    _refXml->get_widget("SimLockButton", framelockButton);
+    framelockButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::simFramelockControlCallback));
+  }
+
+
+  ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
-    {///////////////////////Render Pipeline//////////////////////////////////
+    {
 
       {//Enable the whole shader frame
 	Gtk::Frame* shaderFrame;
@@ -867,11 +878,62 @@ CLGLWindow::CallBackKeyboardUpFunc(unsigned char key, int x, int y)
   keyStates[std::tolower(key)] = false;
 }
 
-void 
-CLGLWindow::FPSCallback()
+bool 
+CLGLWindow::simupdateTick()
 {
-  Gtk::SpinButton* fpsLimit;
-  _refXml->get_widget("targetFPS", fpsLimit);
+  ++_updateCounter;//For the updates per second
+
+  for (;;)
+    {
+      //Block the simulation if _simrun is false or if we're in frame lock
+      //and a new frame has not been drawn.
+      if (_simrun && (!_simframelock || (_lastUpdateTime != getLastFrameTime()))) break;
+      
+      //Jump out without an update if the window has been killed
+      if (!isReady()) return false;
+
+      //1ms delay to lower CPU usage while blocking, but not to affect framelocked render rates
+      timespec sleeptime;
+      sleeptime.tv_sec = 0;
+      sleeptime.tv_nsec = 1000000;
+      nanosleep(&sleeptime, NULL);
+    }
+
+  //Only redraw if the screen has actually refreshed
+  if (_lastUpdateTime == getLastFrameTime()) return false;
+
+  _lastUpdateTime = getLastFrameTime();
+
+  return true;
+}
+
+void 
+CLGLWindow::runCallback()
+{ 
+  Gtk::ToggleButton* togButton;
+  _refXml->get_widget("SimRunButton", togButton);
+
+  Gtk::Image* togButtonImage;
+  _refXml->get_widget("SimRunButtonImage", togButtonImage);
+  
+  Gtk::StockID origimage;
+  Gtk::IconSize origsize;
+  togButtonImage->get_stock(origimage, origsize);
+
+  //Set the icon depending on the state
+  if (_simrun = togButton->get_active())
+    togButtonImage->set(Gtk::StockID("gtk-media-pause"), origsize);
+  else
+    togButtonImage->set(Gtk::StockID("gtk-media-play"), origsize);
+}
+
+void 
+CLGLWindow::simFramelockControlCallback()
+{
+  Gtk::ToggleButton* framelockButton;
+  _refXml->get_widget("SimLockButton", framelockButton);
+
+  _simframelock = framelockButton->get_active();
 }
 
 void 
