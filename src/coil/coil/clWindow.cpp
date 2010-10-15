@@ -43,6 +43,8 @@ inline float clamp(float x, float a, float b)
 #include <magnet/PNG.hpp>
 #include <iomanip>
 
+#include <coil/extcode/bitmap_image.hpp>
+
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title
@@ -704,7 +706,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 
   if (_snapshot || _record)
     {
-      std::vector<uint32_t> pixels;
+      std::vector<png::Pixel<png::RGBA> > pixels;
       pixels.resize(_width * _height);
       //Read the pixels into our container
       glReadPixels(0,0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
@@ -718,7 +720,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 
       if (_snapshot)
 	{
-	  PNGImage::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, true);
+	  png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, true);
 	  _snapshot = false;
 	}
 
@@ -726,7 +728,19 @@ CLGLWindow::CallBackDisplayFunc(void)
 	{
 	  std::ostringstream filename;
 	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
-	  PNGImage::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true);
+	  
+	  bitmap_image img(_width, _height);
+	  	  
+	  for (size_t y(0); y < _height; ++y)	  
+	    for (size_t x(0); x < _width; ++x)
+	      img.set_pixel(x, y, 
+			    pixels[(_height -1 - y) * _width + x].red(),
+			    pixels[(_height -1 - y) * _width + x].green(),
+			    pixels[(_height -1 - y) * _width + x].blue());
+
+	  img.save_image(path + "/" + filename.str() +".bmp");
+
+	  //png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true);
 	}
     }
 
