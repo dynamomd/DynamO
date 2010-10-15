@@ -32,7 +32,7 @@ namespace magnet {
        * block in a static const GLfloat ::weights member variable.
        */
       template<class T, int stencilwidth>
-      class filter : public shader<filter<T,stencilwidth> > 
+      class filter : public shader<filter<T,stencilwidth> >
       {
       public:
 

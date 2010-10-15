@@ -21,6 +21,7 @@
 
 #include <magnet/GL/laplacianFilter.hpp>
 #include <magnet/GL/blur.hpp>
+#include <magnet/GL/DoF.hpp>
 
 namespace coil { template<class T> class magnetFilterWrapper; }
 
@@ -31,7 +32,8 @@ namespace coil { template<class T> class magnetFilterWrapper; }
   F(2, "3x3 Laplacian B", magnetFilterWrapper<magnet::GL::laplacianFilter3B>) \
   F(3, "9x9 Laplacian of Gaussian", magnetFilterWrapper<magnet::GL::LoGFilter>)	\
   F(4, "5x5 Gaussian Blur", magnetFilterWrapper<magnet::GL::blurFilter>) \
-  F(5, "5x5 Box Filter", magnetFilterWrapper<magnet::GL::boxFilter>) 
+  F(5, "5x5 Box Filter", magnetFilterWrapper<magnet::GL::boxFilter>) \
+  F(6, "Depth of Field", magnetFilterWrapper<magnet::GL::DoF>) 
 
 
 namespace coil 
