@@ -31,18 +31,20 @@ namespace magnet {
 	//Get the shader args
 	glUseProgram(detail::shader<DoF>::_shaderID);
 	_scaleUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Scale");
-	_textureUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Texture0");	 	//Restore the fixed pipeline
+	_colorTextureUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Texture0");
+	_depthTextureUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Texture1");
 	glUseProgramObjectARB(0);
       }
 
-      void invoke(GLint TextureID, GLuint _width, GLuint _height)
+      void invoke(GLint colorTextureID, GLint depthTextureID, GLuint _width, GLuint _height)
       {
 	  
 	//Setup the shader arguments
 	glUseProgram(detail::shader<DoF>::_shaderID);
 	//Horizontal application
 	glUniform2fARB(_scaleUniform, 1.0 / _width, 1.0 / _height);
-	glUniform1iARB(_textureUniform, TextureID);
+	glUniform1iARB(_colorTextureUniform, colorTextureID);
+	glUniform1iARB(_depthTextureUniform, depthTextureID);
 	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -88,7 +90,7 @@ namespace magnet {
       static inline std::string fragmentShaderSource();
 
     protected:
-      GLint _scaleUniform, _textureUniform;
+      GLint _scaleUniform, _colorTextureUniform, _depthTextureUniform;
     };
   }
 }

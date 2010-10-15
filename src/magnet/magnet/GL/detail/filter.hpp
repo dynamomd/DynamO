@@ -53,7 +53,7 @@ namespace magnet {
 	  glUseProgramObjectARB(0);
 	}
 
-	void invoke(GLint TextureID, GLuint _width, GLuint _height)
+	void invoke(GLint TextureID, GLint unusedDepthTextureID, GLuint _width, GLuint _height)
 	{
 	  
 	  //Setup the shader arguments
