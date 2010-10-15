@@ -550,6 +550,8 @@ CLGLWindow::deinit(bool andGlutDestroy)
 
   _renderTarget.reset();
 
+  filterClearCallback();
+
   ///////////////////Finally, unregister with COIL
   CoilMaster::getInstance().CallGlutDestroyWindow(this, andGlutDestroy);
 }
@@ -638,9 +640,8 @@ CLGLWindow::CallBackDisplayFunc(void)
       
       bool FBOalternate = false;
 
-      glActiveTextureARB(GL_TEXTURE1);
-
       //The depth texture always comes from the original rendering
+      glActiveTextureARB(GL_TEXTURE1);
       glBindTexture(GL_TEXTURE_2D, _renderTarget->getDepthTexture());
 
       for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
@@ -654,8 +655,9 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  else
 	    _filterTarget2.attach();
 	  
-	  void* tmp_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
-	  reinterpret_cast<coil::filter*>(tmp_ptr)->invoke(0, 1, _width, _height);
+	  void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	  
+	  static_cast<coil::filter*>(filter_ptr)->invoke(0, 1, _width, _height);
 
 	  if (FBOalternate)
 	    _filterTarget1.detach();
@@ -1126,8 +1128,7 @@ CLGLWindow::filterDeleteCallback()
   Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
   
   void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
-  
-  delete reinterpret_cast<coil::filter*>(tmp_ptr);
+  delete static_cast<coil::filter*>(tmp_ptr);
 
   _filterStore->erase(iter);
 
@@ -1178,14 +1179,14 @@ CLGLWindow::filterSelectCallback()
       Gtk::TreeModel::iterator next_iter = iter;
       ++next_iter;
 
-      void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
-      coil::filter* filter_ptr = reinterpret_cast<coil::filter*>(tmp_ptr);
-
+      void* filter_ptr 
+	= (*iter)[_filterModelColumns.m_filter_ptr];
+      
       //Enable the filter buttons
       upbtn    ->set_sensitive(iter != _filterStore->children().begin());
       downbtn  ->set_sensitive(next_iter);
       deletebtn->set_sensitive(true);
-      editbtn->set_sensitive(filter_ptr->isEditable()); 
+      editbtn->set_sensitive(static_cast<coil::filter*>(filter_ptr)->isEditable()); 
     }
   else
     {
@@ -1200,6 +1201,12 @@ CLGLWindow::filterSelectCallback()
 void 
 CLGLWindow::filterClearCallback()
 {
-//  for (Gtk::TreeModel::Iterator iPtr = _filterStore.children().begin();
-//       )
+  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
+       iPtr; ++iPtr)
+    {
+      void* tmp_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+      delete static_cast<coil::filter*>(tmp_ptr);
+    }
+
+  _filterStore->clear();
 }

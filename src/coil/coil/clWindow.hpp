@@ -37,8 +37,8 @@
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 
-#include <magnet/GL/blur.hpp>
-#include <magnet/GL/laplacianFilter.hpp>
+#include <magnet/thread/refPtr.hpp>
+
 
 #include <coil/RenderObj/RenderObj.hpp>
 

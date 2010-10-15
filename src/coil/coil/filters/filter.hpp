@@ -20,6 +20,7 @@
 #include <gtkmm.h>
 
 #include <magnet/GL/laplacianFilter.hpp>
+#include <magnet/GL/blur.hpp>
 
 namespace coil { template<class T> class magnetFilterWrapper; }
 
