@@ -24,6 +24,7 @@
 #include <coil/coilWindow.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/thread/taskQueue.hpp>
+#include <magnet/thread/refPtr.hpp>
 
 #include <map>
 #include <vector>
@@ -42,7 +43,7 @@ public:
   void  CallGlutCreateWindow(const char*, CoilWindow*);
   void  CallGlutDestroyWindow(CoilWindow*, bool);
 
-  void addWindow(CoilWindow* window)
+  void addWindow(magnet::thread::RefPtr<CoilWindow> window)
   {
     if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
 
@@ -88,8 +89,8 @@ private:
    
   ///////////////////////////Glut GL render layer//////////////////////////
 
-  std::map<int, CoilWindow*> _viewPorts;
-  std::map<CoilWindow*, int> _windows;
+  std::map<int, magnet::thread::RefPtr<CoilWindow> > _viewPorts;
+
   static void CallBackDisplayFunc(); 
   static void CallBackCloseWindow();
   static void CallBackKeyboardFunc(unsigned char key, int x, int y);
@@ -104,11 +105,13 @@ private:
   static void CallBackVisibilityFunc(int visible);
     
   ///////////////////////////GTK window layer/////////////////////////////
-  static inline void addWindowFunc(CoilWindow* window)
+  static inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow> window)
   {
     magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
 
     window->init();
+
+    CoilMaster::getInstance()._viewPorts[window->GetWindowID()] = window;
   }
 
   Gtk::Main _GTKit;

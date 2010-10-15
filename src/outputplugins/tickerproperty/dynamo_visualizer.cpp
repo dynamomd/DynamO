@@ -94,7 +94,7 @@ OPVisualizer::initialise()
   if (stage_spheres)
     sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, Sim->N - spheres_rendered));
 
-  _sphereObject = _CLWindow->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
+  _sphereObject = static_cast<CLGLWindow&>(*_CLWindow).addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
@@ -104,17 +104,19 @@ OPVisualizer::initialise()
   dataBuild();
 
   {
-    const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
+    const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
     if (!_CLWindow->isReady()) return;
-    _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer
+    static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
        false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
 
-    _lastRenderTime = _CLWindow->getLastFrameTime();
+    _lastRenderTime = static_cast<CLGLWindow&>(*_CLWindow).getLastFrameTime();
   }
 
-  I_cout() << "OpenCL Plaftorm:" << _CLWindow->getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
-	   << "\nOpenCL Device:" << _CLWindow->getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
+  I_cout() << "OpenCL Plaftorm:" 
+	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
+	   << "\nOpenCL Device:" 
+	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
 }
 
 void
@@ -142,13 +144,14 @@ void
 OPVisualizer::ticker()
 {
   //Update test
-  if (_CLWindow->simupdateTick())
+  if (static_cast<CLGLWindow&>(*_CLWindow).simupdateTick())
     {
       dataBuild();
+      
       {
-	const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
-	if (!_CLWindow->isReady()) return;
-	_CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer
+	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
+	if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
+	static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
 	  (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
 	   false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
       }

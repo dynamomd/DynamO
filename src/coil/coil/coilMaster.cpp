@@ -134,9 +134,6 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
    // Store the address of new window in global array 
    // so CoilMaster can send events to propoer callback functions.
 
-   CoilMaster::getInstance()._viewPorts[windowID] = coilWindow;
-   CoilMaster::getInstance()._windows[coilWindow] = windowID;
-
    // Hand address of universal static callback functions to Glut.
    // This must be for each new window, even though the address are constant.
    glutDisplayFunc(CallBackDisplayFunc);
@@ -158,11 +155,8 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
 
 void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow, bool andGlutDestroy)
 {
-  if (andGlutDestroy) glutDestroyWindow(_windows[coilWindow]);
-
-  int windowID = CoilMaster::getInstance()._windows[coilWindow];
-
-  CoilMaster::getInstance()._windows.erase(coilWindow);
+  int windowID = coilWindow->GetWindowID();
+  if (andGlutDestroy) glutDestroyWindow(windowID);
   CoilMaster::getInstance()._viewPorts.erase(windowID);
 }
 
@@ -213,13 +207,7 @@ bool CoilMaster::GTKIldeFunc()
       {
 	magnet::thread::ScopedLock lock(_coilLock);
 
-	//Delete all windows that we own
-	for (std::map<int,CoilWindow*>::iterator iPtr = CoilMaster::getInstance()._viewPorts.begin();
-	     iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
-	  delete iPtr->second;
-	
 	_viewPorts.clear();
-	_windows.clear();
       }
 
       Gtk::Main::quit();
@@ -232,7 +220,7 @@ bool CoilMaster::GTKIldeFunc()
       //Fire off a tick to glut
       glutMainLoopEvent();
       
-      for (std::map<int,CoilWindow*>::iterator iPtr 
+      for (std::map<int,magnet::thread::RefPtr<CoilWindow> >::iterator iPtr 
 	     = CoilMaster::getInstance()._viewPorts.begin();
 	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
 	{

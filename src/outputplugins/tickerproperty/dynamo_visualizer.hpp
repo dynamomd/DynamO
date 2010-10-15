@@ -48,7 +48,7 @@ class OPVisualizer: public OPTicker
 
   void dataBuild();
 
-  CLGLWindow* _CLWindow;
+  magnet::thread::RefPtr<CoilWindow> _CLWindow;
   magnet::thread::RefPtr<RenderObj> _sphereObject;
   int _lastRenderTime;
 

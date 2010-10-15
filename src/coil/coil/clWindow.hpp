@@ -66,31 +66,25 @@ public:
   void addRenderObj(RenderObj* nObj) { RenderObjects.push_back(nObj); }
 
   template<class T>  
-  magnet::thread::RefPtr<RenderObj>& addRenderObj() {M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj();
 
   template<class T, class T1> 
-  magnet::thread::RefPtr<RenderObj>&
-  addRenderObj(T1) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types);}
+  magnet::thread::RefPtr<RenderObj>& addRenderObj(T1);
 
   template<class T, class T1, class T2> 
-  magnet::thread::RefPtr<RenderObj>& 
-  addRenderObj(T1, T2) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj(T1, T2);
 
   template<class T, class T1, class T2, class T3> 
-  magnet::thread::RefPtr<RenderObj>& 
-  addRenderObj(T1, T2, T3) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj(T1, T2, T3);
 
   template<class T, class T1, class T2, class T3, class T4> 
-  magnet::thread::RefPtr<RenderObj>& 
-  addRenderObj(T1, T2, T3, T4) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj(T1, T2, T3, T4);
 
   template<class T, class T1, class T2, class T3, class T4, class T5> 
-  magnet::thread::RefPtr<RenderObj>& 
-  addRenderObj(T1, T2, T3, T4, T5) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj(T1, T2, T3, T4, T5);
 
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
-  magnet::thread::RefPtr<RenderObj>&
-  addRenderObj(T1, T2, T3, T4, T5, T6) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj(T1, T2, T3, T4, T5, T6);
 
   inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
