@@ -42,9 +42,10 @@ protected:
 };
 
 template<>
-inline RTTestWaves& CLGLWindow::addRenderObj<RTTestWaves,size_t,float>(size_t N, float Yoffset)
+inline magnet::thread::RefPtr<RenderObj>&
+CLGLWindow::addRenderObj<RTTestWaves,size_t,float>(size_t N, float Yoffset)
 {
   RenderObjects.push_back(new RTTestWaves(N, Yoffset));
-  return *((RTTestWaves*)RenderObjects.back());
+  return RenderObjects.back();
 }
 

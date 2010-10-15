@@ -89,9 +89,10 @@ protected:
 };
 
 template<>
-inline RTSpheres& CLGLWindow::addRenderObj<RTSpheres, size_t, std::vector<RTSpheres::SphereDetails> >
+inline magnet::thread::RefPtr<RenderObj>& 
+CLGLWindow::addRenderObj<RTSpheres, size_t, std::vector<RTSpheres::SphereDetails> >
 (size_t N, std::vector<RTSpheres::SphereDetails> renderDetailLevels)
 {
   RenderObjects.push_back(new RTSpheres(_viewPortInfo, N, renderDetailLevels));
-  return *((RTSpheres*)RenderObjects.back());
+  return RenderObjects.back();
 }

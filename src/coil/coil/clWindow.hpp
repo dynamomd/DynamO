@@ -66,25 +66,31 @@ public:
   void addRenderObj(RenderObj* nObj) { RenderObjects.push_back(nObj); }
 
   template<class T>  
-  T& addRenderObj() {M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& addRenderObj() {M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1> 
-  T& addRenderObj(T1) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types);}
+  magnet::thread::RefPtr<RenderObj>&
+  addRenderObj(T1) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types);}
 
   template<class T, class T1, class T2> 
-  T& addRenderObj(T1, T2) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& 
+  addRenderObj(T1, T2) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3> 
-  T& addRenderObj(T1, T2, T3) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& 
+  addRenderObj(T1, T2, T3) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3, class T4> 
-  T& addRenderObj(T1, T2, T3, T4) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& 
+  addRenderObj(T1, T2, T3, T4) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3, class T4, class T5> 
-  T& addRenderObj(T1, T2, T3, T4, T5) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>& 
+  addRenderObj(T1, T2, T3, T4, T5) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   template<class T, class T1, class T2, class T3, class T4, class T5, class T6> 
-  T& addRenderObj(T1, T2, T3, T4, T5, T6) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
+  magnet::thread::RefPtr<RenderObj>&
+  addRenderObj(T1, T2, T3, T4, T5, T6) { M_STATIC_ASSERT(!sizeof(T),Check_Arg_Types); }
 
   inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
@@ -110,7 +116,7 @@ protected:
   size_t _height, _width;
   int _windowX, _windowY;
 
-  std::vector<RenderObj*> RenderObjects;
+  std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
 
   void CallBackSpecialUpFunc(int key, int x, int y) {}
   void CallBackSpecialFunc(int key, int x, int y) {} 

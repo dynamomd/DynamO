@@ -49,7 +49,7 @@ class OPVisualizer: public OPTicker
   void dataBuild();
 
   CLGLWindow* _CLWindow;
-  RTSpheres* _sphereObject;
+  magnet::thread::RefPtr<RenderObj> _sphereObject;
   int _lastRenderTime;
 
   cl::Event lastUpdate;

@@ -198,7 +198,7 @@ CLGLWindow::initOpenGL()
     }
 
   //Now init the render objects  
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
 }
@@ -218,7 +218,7 @@ CLGLWindow::initOpenCL()
     std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
 
   //Now init the render objects  
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenCL(_CLState);
 }
@@ -535,9 +535,7 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _refXml.reset(); //Destroy GTK instance
 
   /////////////////OpenCL
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
-       iPtr != RenderObjects.end(); ++iPtr)
-    delete *iPtr;
+  RenderObjects.clear();
 
   _CLState.getCommandQueue().finish();
 
@@ -574,7 +572,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 //		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
 
   //Run every objects OpenCL stage
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->clTick(_CLState);
 
@@ -757,7 +755,7 @@ CLGLWindow::drawScene()
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 
   //Enter the render ticks for all objects
-  for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
 
@@ -991,17 +989,17 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
     {
       ///SPECIAL KEYPRESSES
     case 't':
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+      for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::TRIANGLES);
       break;
     case 'l':
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+      for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::LINES);
       break;
     case 'p':
-      for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
+      for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	   iPtr != RenderObjects.end(); ++iPtr)
 	(*iPtr)->setRenderMode(RenderObj::POINTS);
       break;

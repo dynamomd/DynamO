@@ -94,7 +94,7 @@ OPVisualizer::initialise()
   if (stage_spheres)
     sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, Sim->N - spheres_rendered));
 
-  _sphereObject = &(_CLWindow->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels));
+  _sphereObject = _CLWindow->addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
@@ -106,9 +106,10 @@ OPVisualizer::initialise()
   {
     const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
     if (!_CLWindow->isReady()) return;
-    _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
-								 false, 0, Sim->N * sizeof(cl_float4),
-								 &particleData[0]);
+    _CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer
+      (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
+       false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
+
     _lastRenderTime = _CLWindow->getLastFrameTime();
   }
 
@@ -147,9 +148,9 @@ OPVisualizer::ticker()
       {
 	const magnet::thread::ScopedLock lock(_CLWindow->getDestroyLock());
 	if (!_CLWindow->isReady()) return;
-	_CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer(_sphereObject->getSphereDataBuffer(),
-								     false, 0, Sim->N * sizeof(cl_float4),
-								     &particleData[0]);
+	_CLWindow->getCLState().getCommandQueue().enqueueWriteBuffer
+	  (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
+	   false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
       }
     }
 }
