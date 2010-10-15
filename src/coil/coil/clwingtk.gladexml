@@ -370,6 +370,7 @@
                                     <child>
                                       <object class="GtkButton" id="filterUp">
                                         <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <child>
@@ -389,6 +390,7 @@
                                     <child>
                                       <object class="GtkButton" id="filterDown">
                                         <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <child>
@@ -408,6 +410,7 @@
                                     <child>
                                       <object class="GtkButton" id="filterEdit">
                                         <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <child>
@@ -427,6 +430,7 @@
                                     <child>
                                       <object class="GtkButton" id="filterDelete">
                                         <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <child>

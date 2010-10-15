@@ -377,9 +377,17 @@ CLGLWindow::initGTK()
 	_filterStore = Gtk::ListStore::create(_filterModelColumns);
 
 	//Setup the filter store
-	_refXml->get_widget("filterView", filterView);
-	filterView->set_model(_filterStore);
-	filterView->append_column("Filter Name", _filterModelColumns.m_name);
+	_refXml->get_widget("filterView", _filterView);
+	_filterView->set_model(_filterStore);
+	_filterView->append_column("Filter Name", _filterModelColumns.m_name);
+
+	//////Connect the filterView select callback
+	{
+	  Glib::RefPtr<Gtk::TreeSelection> treeSelection
+	    = _filterView->get_selection();
+	  
+	  treeSelection->signal_changed().connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
+	}
 
 	{///Connect the control buttons
 	  Gtk::Button* btn;
@@ -1034,25 +1042,53 @@ CLGLWindow::axisShowCallback()
 void 
 CLGLWindow::filterUpCallback()
 {
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _filterView->get_selection();
 
+  Gtk::TreeModel::iterator iter_1 = refTreeSelection->get_selected();  
+  Gtk::TreeModel::iterator iter_2 = iter_1;
+  --iter_2;
+  _filterStore->iter_swap(iter_1, iter_2);
+
+  filterSelectCallback();
 }
 
 void 
 CLGLWindow::filterDownCallback()
 {
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _filterView->get_selection();
 
+  Gtk::TreeModel::iterator iter_1 = refTreeSelection->get_selected();  
+  Gtk::TreeModel::iterator iter_2 = iter_1;
+  ++iter_2;
+  _filterStore->iter_swap(iter_1, iter_2);
+  
+  filterSelectCallback();
 }
 
 void 
 CLGLWindow::filterEditCallback()
 {
 
+  filterSelectCallback();
 }
 
 void 
 CLGLWindow::filterDeleteCallback()
 {
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _filterView->get_selection();
+  
+  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
+  
+  void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
+  
+  delete reinterpret_cast<coil::filter*>(tmp_ptr);
 
+  _filterStore->erase(iter);
+
+  filterSelectCallback();
 }
 
 void 
@@ -1065,5 +1101,55 @@ CLGLWindow::filterAddCallback()
   //Check the filterSelectBox is on a valid row
   if (filterSelectBox->get_active_row_number() < 0) return;
 
+  Gtk::TreeModel::iterator iter = _filterStore->append();
+
+  size_t type_id = (*filterSelectBox->get_active())
+    [coil::filter::getSelectColumnsInstance().m_col_id];
+
+  (*iter)[_filterModelColumns.m_filter_ptr] 
+    = coil::filter::createFromID(type_id);
+
+  (*iter)[_filterModelColumns.m_name]
+    = coil::filter::getName(type_id);
   
+  filterSelectCallback();
+}
+
+void 
+CLGLWindow::filterSelectCallback()
+{
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _filterView->get_selection();
+
+  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
+
+  Gtk::Button *upbtn, *downbtn, *editbtn, *deletebtn;
+  _refXml->get_widget("filterUp", upbtn);
+  _refXml->get_widget("filterDown", downbtn);
+  _refXml->get_widget("filterEdit", editbtn);
+  _refXml->get_widget("filterDelete", deletebtn);
+  
+
+  if(iter)
+    {
+      Gtk::TreeModel::iterator next_iter = iter;
+      ++next_iter;
+
+      void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
+      coil::filter* filter_ptr = reinterpret_cast<coil::filter*>(tmp_ptr);
+
+      //Enable the filter buttons
+      upbtn    ->set_sensitive(iter != _filterStore->children().begin());
+      downbtn  ->set_sensitive(next_iter);
+      deletebtn->set_sensitive(true);
+      editbtn->set_sensitive(filter_ptr->isEditable()); 
+    }
+  else
+    {
+      //Disable all of the filter buttons
+      upbtn    ->set_sensitive(false);
+      downbtn  ->set_sensitive(false); 
+      editbtn  ->set_sensitive(false); 
+      deletebtn->set_sensitive(false);
+    }
 }

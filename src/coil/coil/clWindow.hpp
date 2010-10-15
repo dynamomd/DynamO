@@ -172,8 +172,6 @@ private:
 
   magnet::GL::lightInfo _light0;
 
-  std::vector<coil::filter*> filters;
-
   /////////GTK members
   virtual void initGTK();
 
@@ -185,15 +183,16 @@ private:
   struct FilterModelColumnsType : Gtk::TreeModelColumnRecord
   {
     FilterModelColumnsType()
-    { add(m_name); }
+    { add(m_name); add(m_filter_ptr);}
     
     Gtk::TreeModelColumn<Glib::ustring> m_name;
+    Gtk::TreeModelColumn<void*> m_filter_ptr;
   };
   
 
   FilterModelColumnsType _filterModelColumns;
   Glib::RefPtr<Gtk::ListStore> _filterStore;
-  Gtk::TreeView* filterView;
+  Gtk::TreeView* _filterView;
 
 
   //Callback for enabling/disabling the shader pipeline
@@ -205,6 +204,7 @@ private:
   void filterEditCallback();
   void filterDeleteCallback();
   void filterAddCallback();
+  void filterSelectCallback();
   
   //Other callbacks
   void multisampleEnableCallback();

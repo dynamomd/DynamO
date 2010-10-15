@@ -51,14 +51,31 @@ namespace coil
   class filter
   {
   public:
+    //////////////Static members
     static void populateComboBox(Gtk::ComboBox*);
     
     static filter* createFromID(size_t type_id);
 
-    virtual size_t type_id() = 0;
-
     static std::string getName(size_t type_id);
 
+    struct filterSelectColumns : public Gtk::TreeModel::ColumnRecord
+    {
+      filterSelectColumns() { add(m_col_name); add(m_col_id); }
+      Gtk::TreeModelColumn<int> m_col_id;
+      Gtk::TreeModelColumn<Glib::ustring> m_col_name;
+    };
+
+    inline static filterSelectColumns& getSelectColumnsInstance()
+    { 
+      static filterSelectColumns vals;
+      return vals;
+    }
+
+    //////////////Virtual members
+    virtual size_t type_id() = 0;
+    virtual bool isEditable() = 0;
+    virtual void edit() {}
+    
   protected:
   };
 }

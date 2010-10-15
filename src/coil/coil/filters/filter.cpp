@@ -23,30 +23,22 @@ namespace coil
 {
   void 
   filter::populateComboBox(Gtk::ComboBox* filterSelectBox)
-  {
-    struct filterSelectColumns : public Gtk::TreeModel::ColumnRecord
-    {
-      filterSelectColumns() { add(m_col_name); add(m_col_id); }
-      Gtk::TreeModelColumn<int> m_col_id;
-      Gtk::TreeModelColumn<Glib::ustring> m_col_name;
-    };
-    
-    filterSelectColumns vals;
-    Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
+  { 
+    Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(getSelectColumnsInstance());
     filterSelectBox->set_model(m_refTreeModel);
 
 #define COMBO_BOX_GEN_FUNC(enumeration,stringname,type)			\
     {									\
       Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());		\
-      row[vals.m_col_id] = enumeration;					\
-      row[vals.m_col_name] = stringname;				\
+      row[getSelectColumnsInstance().m_col_id] = enumeration;					\
+      row[getSelectColumnsInstance().m_col_name] = stringname;				\
     }
     
     FILTER_FACTORY(COMBO_BOX_GEN_FUNC)
 
 #undef COMBO_BOX_GEN_FUNC
 
-    filterSelectBox->pack_start(vals.m_col_name);
+    filterSelectBox->pack_start(getSelectColumnsInstance().m_col_name);
   }
   
   filter* 
