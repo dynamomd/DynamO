@@ -64,6 +64,7 @@ namespace magnet {
 	glGenTextures(1, &_colorTexture);
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, _format, _type, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	//Build the FBO
 	glGenFramebuffersEXT(1, &_FBO);
