@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace GL {
-
+    
     class laplacianFilter5 : public detail::filter<laplacianFilter5, 5>
     {
     public:

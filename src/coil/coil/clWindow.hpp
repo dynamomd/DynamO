@@ -104,6 +104,9 @@ protected:
   //Frame buffers to flip flop data between
   std::auto_ptr<magnet::GL::FBO> _renderTarget;
 
+  magnet::GL::FBO _filterTarget1;
+  magnet::GL::FBO _filterTarget2;
+
   size_t _height, _width;
   int _windowX, _windowY;
 
@@ -205,6 +208,7 @@ private:
   void filterDeleteCallback();
   void filterAddCallback();
   void filterSelectCallback();
+  void filterClearCallback();
   
   //Other callbacks
   void multisampleEnableCallback();

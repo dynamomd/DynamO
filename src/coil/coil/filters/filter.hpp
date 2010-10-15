@@ -19,21 +19,22 @@
 
 #include <gtkmm.h>
 
+#include <magnet/GL/laplacianFilter.hpp>
+
+namespace coil { template<class T> class magnetFilterWrapper; }
+
 //Format is F(enumeration,stringname,type)
-#define FILTER_FACTORY(F) \
-  F(0, "5x5 Laplacian", Laplacian5x5Filter)
+#define FILTER_FACTORY(F)						\
+  F(0, "5x5 Laplacian", magnetFilterWrapper<magnet::GL::laplacianFilter5>) \
+  F(1, "3x3 Laplacian A", magnetFilterWrapper<magnet::GL::laplacianFilter3A>) \
+  F(2, "3x3 Laplacian B", magnetFilterWrapper<magnet::GL::laplacianFilter3B>) \
+  F(3, "9x9 Laplacian of Gaussian", magnetFilterWrapper<magnet::GL::LoGFilter>)	\
+  F(4, "5x5 Gaussian Blur", magnetFilterWrapper<magnet::GL::blurFilter>) \
+  F(5, "5x5 Box Filter", magnetFilterWrapper<magnet::GL::boxFilter>) 
 
 
 namespace coil 
 {
-  ////////Generate prototypes for all of the filter classes
-#define PROTOTYPE_GEN_FUNC(enumeration,stringname,type) \
-  class type;
-
-  FILTER_FACTORY(PROTOTYPE_GEN_FUNC)
-
-#undef PROTOTYPE_GEN_FUNC
-
   namespace detail 
   {
 
@@ -75,6 +76,7 @@ namespace coil
     virtual size_t type_id() = 0;
     virtual bool isEditable() = 0;
     virtual void edit() {}
+    virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) = 0;
     
   protected:
   };

@@ -46,9 +46,19 @@ namespace magnet {
 	_height = height;
 
 	//Build depth buffer
-	glGenRenderbuffersEXT(1, &_depthBuffer);
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _depthBuffer);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _width, _height);
+	glGenTextures(1, &_depthTexture);
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0,
+		     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+	
+	GLfloat l_ClampColor[] = {0.0, 0.0, 0.0, 0.0};
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	//////////////////////////////////////////////////////////////////////////
 
 	//Build color texture
 	glGenTextures(1, &_colorTexture);
@@ -59,11 +69,11 @@ namespace magnet {
 	glGenFramebuffersEXT(1, &_FBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 
-	//Bind the depth buffer
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 
-				     _depthBuffer);
+	//Bind the depth texture
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+				  GL_TEXTURE_2D, _depthTexture, 0);
 
-	//Bind the texture
+	//Bind the color texture
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, _colorTexture, 0);
 
 	// check FBO status
@@ -73,7 +83,6 @@ namespace magnet {
 	
 	// switch back to window-system-provided framebuffer
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
       }
       
       inline 
@@ -88,9 +97,10 @@ namespace magnet {
 	_width = width;
 	_height = height;
 
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _depthBuffer);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, _width, _height);
-	
+	glBindTexture(GL_TEXTURE_2D, _depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0,
+		     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, _format, _type, NULL);
       }
@@ -113,7 +123,7 @@ namespace magnet {
 	  {
 	    glDeleteFramebuffersEXT(1, &_FBO);
 	    glDeleteTextures(1, &_colorTexture);
-	    glDeleteRenderbuffersEXT(1, &_depthBuffer);
+	    glDeleteTextures(1, &_depthTexture);
 	  }
       }
 
@@ -135,16 +145,16 @@ namespace magnet {
 
       inline GLuint getFBO() { return _FBO; }
       inline GLuint getColorTexture() { return _colorTexture; }
+      inline GLuint getDepthTexture() { return _depthTexture; }
       inline GLsizei getWidth() { return _width; }
       inline GLsizei getHeight() { return _height; }
 
     protected:
-      GLuint _FBO, _colorTexture, _depthBuffer;
+      GLuint _FBO, _colorTexture, _depthTexture;
       GLsizei _width, _height;
       GLint _internalformat;
       GLenum _format;	
-      GLenum _type;		
-
+      GLenum _type;
     };
   }
 }

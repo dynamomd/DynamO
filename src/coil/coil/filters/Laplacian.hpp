@@ -21,14 +21,19 @@
 
 namespace coil 
 {
-  class Laplacian5x5Filter: public filter
+  template <class T>
+  class magnetFilterWrapper: public filter
   {
   public:
+    magnetFilterWrapper() { _filter.build(); }
 
-    virtual size_t type_id() { return detail::filterEnum<Laplacian5x5Filter>::val; }
-    
-    virtual bool isEditable() { return false; }
+    inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T> >::val; }    
+    inline virtual bool isEditable() { return false; }
+    inline virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) 
+    { _filter.invoke(colorTextureUnit, width, height); }
 
   protected:
+    T _filter;
   };
+
 }

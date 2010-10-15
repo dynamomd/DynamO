@@ -373,6 +373,7 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
+                                        <property name="tooltip_text" translatable="yes">Move Selected Filter Up</property>
                                         <child>
                                           <object class="GtkImage" id="filterUpImage">
                                             <property name="visible">True</property>
@@ -393,6 +394,7 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
+                                        <property name="tooltip_text" translatable="yes">Move Selected Filter Down</property>
                                         <child>
                                           <object class="GtkImage" id="filterDownImage">
                                             <property name="visible">True</property>
@@ -413,6 +415,7 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
+                                        <property name="tooltip_text" translatable="yes">Edit Selected Filter</property>
                                         <child>
                                           <object class="GtkImage" id="filterEditImage">
                                             <property name="visible">True</property>
@@ -433,6 +436,7 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
+                                        <property name="tooltip_text" translatable="yes">Delete Selected Filter</property>
                                         <child>
                                           <object class="GtkImage" id="filterDeleteImage">
                                             <property name="visible">True</property>
@@ -445,6 +449,26 @@
                                         <property name="expand">False</property>
                                         <property name="fill">False</property>
                                         <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="filterClear">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="tooltip_text" translatable="yes">Clear All filters</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterClearImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-clear</property>
+                                            <property name="icon-size">3</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">4</property>
                                       </packing>
                                     </child>
                                   </object>

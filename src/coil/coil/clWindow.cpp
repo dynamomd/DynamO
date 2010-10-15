@@ -188,6 +188,9 @@ CLGLWindow::initOpenGL()
   //Build the offscreen rendering FBO's
   if (_shaderPipeline)
     {
+      _filterTarget1.init(_width, _height);
+      _filterTarget2.init(_width, _height);
+
       _shadowFBO.init(1024);
       _shadowShader.build();
     }
@@ -196,7 +199,6 @@ CLGLWindow::initOpenGL()
   for (std::vector<RenderObj*>::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
-
 }
 
 void 
@@ -401,6 +403,8 @@ CLGLWindow::initGTK()
 	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
 	  _refXml->get_widget("filterAdd", btn);
 	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
+	  _refXml->get_widget("filterClear", btn);
+	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
 	}
 
 	{//Fill the selector widgit with the available filters
@@ -627,12 +631,47 @@ CLGLWindow::CallBackDisplayFunc(void)
       
       _renderTarget->detach();
 
+
+      //////////////FILTERING////////////
+      //Store what the last FBO was for later blitting to the screen
+      magnet::GL::FBO* lastFBO = &(*_renderTarget);
+      
+      bool FBOalternate = false;
+
+      glActiveTextureARB(GL_TEXTURE1);
+
+      //The depth texture always comes from the original rendering
+      glBindTexture(GL_TEXTURE_2D, _renderTarget->getDepthTexture());
+
+      for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	   iPtr != _filterStore->children().end(); ++iPtr)
+	{
+	  glActiveTextureARB(GL_TEXTURE0);
+	  glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
+
+	  if (FBOalternate)
+	    _filterTarget1.attach();
+	  else
+	    _filterTarget2.attach();
+	  
+	  void* tmp_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	  reinterpret_cast<coil::filter*>(tmp_ptr)->invoke(0, 1, _width, _height);
+
+	  if (FBOalternate)
+	    _filterTarget1.detach();
+	  else
+	    _filterTarget2.detach();
+
+	  lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
+
+	  FBOalternate = !FBOalternate;
+	}
+
       //Restore the fixed pipeline
       //And turn off the shadow texture
       glUseProgramObjectARB(0);
-
       //Now blit the stored scene to the screen
-      _renderTarget->blitToScreen(_width, _height);
+      lastFBO->blitToScreen(_width, _height);
 
       /////////////FILTERING
       //Now we blur the output from the offscreen FBO
@@ -831,7 +870,11 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   glMatrixMode(GL_MODELVIEW);
 
   if (_shaderPipeline)
-    _renderTarget->resize(_width, _height);
+    {
+      _renderTarget->resize(_width, _height);
+      _filterTarget1.resize(_width, _height);
+      _filterTarget2.resize(_width, _height);
+    }
 }
 
 void 
@@ -1152,4 +1195,11 @@ CLGLWindow::filterSelectCallback()
       editbtn  ->set_sensitive(false); 
       deletebtn->set_sensitive(false);
     }
+}
+
+void 
+CLGLWindow::filterClearCallback()
+{
+//  for (Gtk::TreeModel::Iterator iPtr = _filterStore.children().begin();
+//       )
 }
