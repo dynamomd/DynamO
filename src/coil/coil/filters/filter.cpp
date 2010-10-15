@@ -16,10 +16,8 @@
 */
 #include <coil/clWindow.hpp>
 #include <coil/filters/filter.hpp>
+#include <coil/filters/filterWrapper.hpp>
 #include <magnet/exception.hpp>
-#include "Laplacian.hpp"
-#include <magnet/GL/laplacianFilter.hpp>
-
 
 namespace coil 
 {

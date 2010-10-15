@@ -1115,7 +1115,6 @@ CLGLWindow::filterDownCallback()
 void 
 CLGLWindow::filterEditCallback()
 {
-
   filterSelectCallback();
 }
 
