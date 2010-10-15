@@ -38,16 +38,48 @@ cl_float4 getclVec(Vector vec)
 }
 
 
-RTSpheres::RTSpheres(const magnet::GL::viewPort& viewPortInfo,
-		     size_t N, const std::vector<SphereDetails>& renderDetailLevels):
+RTSpheres::RTSpheres(size_t N):
   _N(N),
-  _renderDetailLevels(renderDetailLevels),
   _frameCount(0),
   _sortFrequency(1),
   _workgroupsize(0),
-  _globalsize(0),
-  _viewPortInfo(viewPortInfo)
-{}
+  _globalsize(0)
+{
+  //Work computer test render
+  size_t spheres_rendered = 0;
+
+  size_t stage_spheres = std::min(10ul, N - spheres_rendered);
+  if (stage_spheres)
+    {
+      _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 2, stage_spheres));
+      spheres_rendered += stage_spheres;
+    }
+
+  stage_spheres = std::min(1000ul, N - spheres_rendered);
+  if (stage_spheres)
+    {
+      _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 1, stage_spheres));
+      spheres_rendered += stage_spheres;
+    }
+
+  stage_spheres = std::min(10000ul, N - spheres_rendered);
+  if (stage_spheres)
+    {
+      _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 0, stage_spheres));
+      spheres_rendered += stage_spheres;
+    }
+
+  stage_spheres = std::min(200000ul, N - spheres_rendered);
+  if (stage_spheres)
+    {
+      _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::octahedron, 0, stage_spheres));
+      spheres_rendered += stage_spheres;
+    }
+
+  stage_spheres = N - spheres_rendered;
+  if (stage_spheres)
+    _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, N - spheres_rendered));
+}
 
 RTSpheres::~RTSpheres()
 {
@@ -230,10 +262,6 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
        iPtr != _renderDetailLevels.end(); ++iPtr)
     iPtr->setupCLBuffers(CLState);
 
-  sortTick(CLState);
-
-  clTick_no_sort_or_locking(CLState);
-
   try {
     _sphereDataLock.unlock();
   } catch (std::exception& except)
@@ -243,9 +271,8 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 }
 
 void 
-RTSpheres::sortTick(magnet::CL::CLGLState& CLState)
+RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
-
   cl_uint paddedN = ((_N + 1023)/1024) * 1024;
 
   cl::KernelFunctor sortDataKernelFunc 
@@ -273,12 +300,12 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState)
 }
 
 void 
-RTSpheres::clTick(magnet::CL::CLGLState& CLState)
+RTSpheres::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&  _viewPortInfo)
 {
   //First check you can get a lock on the position data!
   magnet::thread::ScopedLock lock(_sphereDataLock);
 
-  if (!(++_frameCount % _sortFrequency)) sortTick(CLState);
+  if (!(++_frameCount % _sortFrequency)) sortTick(CLState, _viewPortInfo);
   
   clTick_no_sort_or_locking(CLState);
 }

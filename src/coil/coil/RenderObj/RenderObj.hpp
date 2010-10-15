@@ -28,6 +28,11 @@
 #include <CL/cl.hpp>
 
 #include <magnet/CL/CLGL.hpp>
+#include <coil/Maths/Maths.h>
+#include <coil/extcode/vector2.hpp>
+
+
+#include <magnet/GL/viewPort.hpp>
 
 class RenderObj
 {
@@ -38,7 +43,7 @@ public:
   virtual void initOpenGL() = 0;
   virtual void initOpenCL(magnet::CL::CLGLState&) = 0;
 
-  virtual void clTick(magnet::CL::CLGLState&) = 0;
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) = 0;
   virtual void glRender() = 0;
 
   enum RenderModeType 

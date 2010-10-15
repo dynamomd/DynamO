@@ -143,7 +143,7 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 
 
 void 
-RTTestWaves::clTick(magnet::CL::CLGLState& CLState)
+RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&)
 {
   cl::KernelFunctor kernelFunc = kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), cl::NDRange(200));
   timespec currTime;

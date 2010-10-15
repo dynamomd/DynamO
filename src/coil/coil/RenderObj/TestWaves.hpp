@@ -26,7 +26,7 @@ class RTTestWaves : public RTriangles
 public:
   RTTestWaves(size_t N, float Yoffset);
 
-  virtual void clTick(magnet::CL::CLGLState&);
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
   void initOpenGL();
   void initOpenCL(magnet::CL::CLGLState&);
@@ -40,12 +40,3 @@ protected:
   size_t _N;
   float _Yoffset;
 };
-
-template<>
-inline magnet::thread::RefPtr<RenderObj>&
-CLGLWindow::addRenderObj<RTTestWaves,size_t,float>(size_t N, float Yoffset)
-{
-  RenderObjects.push_back(new RTTestWaves(N, Yoffset));
-  return RenderObjects.back();
-}
-

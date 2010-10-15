@@ -574,7 +574,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   //Run every objects OpenCL stage
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->clTick(_CLState);
+    (*iPtr)->clTick(_CLState, _viewPortInfo);
 
   //Camera Positioning
 

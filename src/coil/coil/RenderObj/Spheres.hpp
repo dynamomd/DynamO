@@ -24,6 +24,8 @@
 #include <magnet/CL/radixsort.hpp>
 #include <magnet/CL/heapSort.hpp>
 
+
+
 class RTSpheres : public RTriangles
 {
 public:
@@ -47,13 +49,12 @@ public:
     cl::Buffer _primativeVertices;
   };
 
-  RTSpheres(const magnet::GL::viewPort& viewPortInfo,
-	    size_t N, const std::vector<SphereDetails>& renderDetailLevels);
+  RTSpheres(size_t N);
 
   ~RTSpheres();
 
-  virtual void clTick(magnet::CL::CLGLState&);
-  void sortTick(magnet::CL::CLGLState&);
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
+  void sortTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
   virtual void initOpenGL() {}
   virtual void initOpenCL(magnet::CL::CLGLState&);
@@ -83,16 +84,5 @@ protected:
   magnet::CL::radixSort<cl_float> sortFunctor;
   magnet::CL::heapSort<cl_float> CPUsortFunctor;
 
-  const magnet::GL::viewPort & _viewPortInfo;
-
   magnet::thread::Mutex _sphereDataLock;
 };
-
-template<>
-inline magnet::thread::RefPtr<RenderObj>& 
-CLGLWindow::addRenderObj<RTSpheres, size_t, std::vector<RTSpheres::SphereDetails> >
-(size_t N, std::vector<RTSpheres::SphereDetails> renderDetailLevels)
-{
-  RenderObjects.push_back(new RTSpheres(_viewPortInfo, N, renderDetailLevels));
-  return RenderObjects.back();
-}

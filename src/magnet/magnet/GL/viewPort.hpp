@@ -16,6 +16,8 @@
  */
 #pragma once
 
+#include <cmath>
+
 namespace magnet {
   namespace GL {    
     struct viewPort

@@ -55,46 +55,11 @@ OPVisualizer::initialise()
 			     "Visualizer"//title
 			     );
   
-//  //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
-//
-  std::vector<RTSpheres::SphereDetails> sphereDetailLevels;
+  //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
 
-  //Work computer test render
-  size_t spheres_rendered = 0;
-
-  size_t stage_spheres = std::min(10ul, Sim->N - spheres_rendered);
-  if (stage_spheres)
-    {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 2, stage_spheres));
-      spheres_rendered += stage_spheres;
-    }
-
-  stage_spheres = std::min(1000ul, Sim->N - spheres_rendered);
-  if (stage_spheres)
-    {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 1, stage_spheres));
-      spheres_rendered += stage_spheres;
-    }
-
-  stage_spheres = std::min(10000ul, Sim->N - spheres_rendered);
-  if (stage_spheres)
-    {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 0, stage_spheres));
-      spheres_rendered += stage_spheres;
-    }
-
-  stage_spheres = std::min(200000ul, Sim->N - spheres_rendered);
-  if (stage_spheres)
-    {
-      sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::octahedron, 0, stage_spheres));
-      spheres_rendered += stage_spheres;
-    }
-
-  stage_spheres = Sim->N - spheres_rendered;
-  if (stage_spheres)
-    sphereDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, Sim->N - spheres_rendered));
-
-  _sphereObject = static_cast<CLGLWindow&>(*_CLWindow).addRenderObj<RTSpheres>((size_t)Sim->N, sphereDetailLevels);
+  _sphereObject = new RTSpheres((size_t)Sim->N);
+  
+  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(_sphereObject);
   
   CoilMaster::getInstance().addWindow(_CLWindow);
 
