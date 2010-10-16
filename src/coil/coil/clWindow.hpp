@@ -51,7 +51,7 @@ class CLGLWindow : public CoilWindow
 public:
   CLGLWindow(int setWidth, int setHeight,
 	     int setInitPositionX, int setInitPositionY,
-	     std::string title);
+	     std::string title, double updateIntervalValue);
 
   ~CLGLWindow();
   
@@ -77,6 +77,8 @@ public:
 
   bool simupdateTick();
   
+  const double& getUpdateInterval() {return _updateIntervalValue; }
+
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
@@ -101,6 +103,10 @@ protected:
   void CallBackMotionFunc(int x, int y);
 
 private:
+  //Task queue for the simulation thread
+  magnet::thread::TaskQueue _systemQueue;
+  double _updateIntervalValue;
+
   magnet::thread::Mutex _destroyLock;
 
   void CameraSetup();
@@ -171,7 +177,6 @@ private:
     Gtk::TreeModelColumn<Glib::ustring> m_name;
     Gtk::TreeModelColumn<void*> m_filter_ptr;
   };
-  
 
   FilterModelColumnsType _filterModelColumns;
   Glib::RefPtr<Gtk::ListStore> _filterStore;
@@ -195,6 +200,7 @@ private:
   void shadowEnableCallback();
 
   void simRunControlCallback();
+  void simUpdateRateCallback();
   void simFramelockControlCallback();
   void snapshotCallback();
   void recordCallback();

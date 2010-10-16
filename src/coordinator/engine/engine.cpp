@@ -23,6 +23,9 @@
 #include "../../outputplugins/0partproperty/misc.hpp"
 #include "../../outputplugins/general/reverseEvents.hpp"
 
+#ifdef DYNAMO_visualizer
+#include "../../dynamics/systems/visualizer.hpp"
+#endif
 void
 Engine::getCommonOptions(boost::program_options::options_description& opts)
 {
@@ -40,9 +43,14 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
      "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
     ("scale-ticker",boost::program_options::value<double>(), 
      "Useful when MFT data is available, can slow down or speed up the ticker in replex mode")
+#ifdef DYNAMO_visualizer    
+    ("visualizer,V", boost::program_options::value<double>()->default_value(1), 
+     "Enables the visualizer and sets the initial update frequency")
+#endif
     ("equilibrate,E", "Turns off most output for a fast silent run")
     ("plugin-file,P", boost::program_options::value<std::string>(), "A list of output plugins to load")
-    ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), "Additional individual plugins to load")
+    ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), 
+     "Additional individual plugins to load")
     ("halt-time,h", boost::program_options::value<double>(),"Halt the system at this time")
     ("scheduler-maintainance,m", boost::program_options::value<double>(),"Rebuild the scheduler"
      " periodically, for systems where we've not built the scheduler correctly")
@@ -94,7 +102,12 @@ Engine::setupSim(Simulation& Sim, const std::string filename)
 
   if (vm.count("scheduler-maintainance"))
     Sim.addSystem(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder"));
-  
+
+#ifdef DYNAMO_visualizer
+  if (vm.count("visualizer"))
+    Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
+#endif  
+
   if (vm.count("plugin-file"))
     //Just add the plugins
     Sim.loadPlugins(vm["plugin-file"].as<std::string>());

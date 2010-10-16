@@ -86,7 +86,7 @@ private:
 
   magnet::thread::Thread _coilThread;
   magnet::thread::TaskQueue _coilQueue;
-   
+
   ///////////////////////////Glut GL render layer//////////////////////////
 
   std::map<int, magnet::thread::RefPtr<CoilWindow> > _viewPorts;

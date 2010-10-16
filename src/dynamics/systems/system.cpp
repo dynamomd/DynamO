@@ -21,6 +21,7 @@
 #include "DSMCspheres.hpp"
 #include "RingDSMC.hpp"
 #include "umbrella.hpp"
+#include "visualizer.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"

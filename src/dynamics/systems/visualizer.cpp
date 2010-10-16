@@ -17,43 +17,34 @@
 
 #ifdef DYNAMO_visualizer
 
+#include "visualizer.hpp"
+#include "../../base/is_simdata.hpp"
+#include "../NparticleEventData.hpp"
+#include "../liouvillean/liouvillean.hpp"
+#include "../../outputplugins/tickerproperty/ticker.hpp"
+#include "../units/units.hpp"
+#include "../../schedulers/scheduler.hpp"
 #include <boost/foreach.hpp>
-
 #include <algorithm>
-
 #include "../../dynamics/include.hpp"
-#include "dynamo_visualizer.hpp"
-
 #include <coil/clWindow.hpp>
 #include <coil/RenderObj/TestWaves.hpp>
 #include <coil/RenderObj/Spheres.hpp>
-
 #include <magnet/CL/CLGL.hpp>
 
-OPVisualizer::OPVisualizer(const DYNAMO::SimData* tmp, const XMLNode& XML):
-  OPTicker(tmp,"Magnet"),
-  _CLWindow(NULL),
-  _sphereObject(NULL),
-  _simrun(false)
+SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFreq):
+  System(nSim)
 {
-  operator<<(XML);
-}
+  _updateTime = tickFreq * Sim->dynamics.units().unitTime();
+  dt = _updateTime;
 
-OPVisualizer::~OPVisualizer()
-{}
+  sysName = "Visualizer";
 
-void 
-OPVisualizer::operator<<(const XMLNode& XML)
-{}
-
-void
-OPVisualizer::initialise()
-{
   //Build a window, ready to display it
   _CLWindow = new CLGLWindow(800, 600,//height, width
 			     0, 0,//initPosition (x,y)
-			     "Visualizer"//title
-			     );
+			     "Visualizer : " + nName,
+			     tickFreq);
   
   //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
 
@@ -78,14 +69,15 @@ OPVisualizer::initialise()
     _lastRenderTime = static_cast<CLGLWindow&>(*_CLWindow).getLastFrameTime();
   }
 
-  I_cout() << "OpenCL Plaftorm:" 
-	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
-	   << "\nOpenCL Device:" 
-	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
+ I_cout() << "Visualizer initialised"
+	  << "OpenCL Plaftorm:" 
+	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
+	  << "\nOpenCL Device:" 
+	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
 }
 
 void
-OPVisualizer::dataBuild()
+SVisualizer::dataBuild() const
 {
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     {
@@ -105,12 +97,30 @@ OPVisualizer::dataBuild()
     }
 }
 
-void 
-OPVisualizer::ticker()
+
+void
+SVisualizer::runEvent() const
 {
+  _updateTime = static_cast<CLGLWindow&>(*_CLWindow).getUpdateInterval();
+  
+  double locdt = dt;
+  dt += _updateTime;
+
   //Update test
   if (static_cast<CLGLWindow&>(*_CLWindow).simupdateTick())
     {
+      //Actually move forward the system time
+      Sim->dSysTime += locdt;
+      Sim->ptrScheduler->stream(locdt);      
+      //dynamics must be updated first
+      Sim->dynamics.stream(locdt);
+      locdt += Sim->freestreamAcc;
+      Sim->freestreamAcc = 0;
+      Sim->dynamics.getLiouvillean().updateAllParticles();
+      
+      BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	Ptr->eventUpdate(*this, NEventData(), locdt);
+      
       dataBuild();
       
       {
@@ -123,6 +133,8 @@ OPVisualizer::ticker()
     }
 }
 
-void OPVisualizer::output(xml::XmlStream& XML) {}
+void 
+SVisualizer::initialise(size_t nID)
+{ ID = nID; }
 
 #endif

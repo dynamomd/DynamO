@@ -14,48 +14,37 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #pragma once
 
 #ifdef DYNAMO_visualizer
 
-#include "ticker.hpp"
-
+#include "system.hpp"
 #include <coil/clWindow.hpp>
 
-class CLGLWindow;
-class RTSpheres;
-
-class OPVisualizer: public OPTicker
+class SVisualizer: public System
 {
- public:
-  OPVisualizer(const DYNAMO::SimData*, const XMLNode&);
-
-  ~OPVisualizer();
-
-  virtual OutputPlugin *Clone() const
-  { return new OPVisualizer(*this); }
-
-  virtual void initialise();
-
-  virtual void ticker();
-
-  virtual void output(xml::XmlStream&);
-
-  void operator<<(const XMLNode&);
+public:
+  SVisualizer(DYNAMO::SimData*, std::string, double);
   
- protected:
-  void set_simlock(bool nv) { _simrun = nv; }
+  virtual System* Clone() const { return new SVisualizer(*this); }
 
-  void dataBuild();
+  virtual void runEvent() const;
 
-  magnet::thread::RefPtr<CoilWindow> _CLWindow;
-  magnet::thread::RefPtr<RenderObj> _sphereObject;
-  int _lastRenderTime;
+  virtual void initialise(size_t);
 
-  cl::Event lastUpdate;
-  std::vector<cl_float4> particleData;
+  virtual void operator<<(const XMLNode&) {}
 
-  volatile bool _simrun;
+protected:
+  virtual void outputXML(xml::XmlStream&) const {}
+
+  void dataBuild() const;
+
+  mutable double _updateTime;
+  mutable magnet::thread::RefPtr<CoilWindow> _CLWindow;
+  mutable magnet::thread::RefPtr<RenderObj> _sphereObject;
+  mutable int _lastRenderTime;
+  mutable std::vector<cl_float4> particleData;
 };
 
 #endif

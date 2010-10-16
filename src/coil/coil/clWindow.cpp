@@ -45,14 +45,18 @@ inline float clamp(float x, float a, float b)
 
 #include <coil/extcode/bitmap_image.hpp>
 
+#include <magnet/function/task.hpp>
+
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
-                       std::string title
+                       std::string title,
+		       double updateIntervalValue
 		       ):
   _height(setHeight),
   _width(setWidth),
   _windowX(initPosX),
   _windowY(initPosY),
+  _updateIntervalValue(updateIntervalValue),
   keyState(DEFAULT),
   windowTitle(title),
   _frameCounter(0),
@@ -283,6 +287,13 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::recordCallback));
   }
 
+  {///////Control the update rate from the simulation
+    Gtk::SpinButton* updateButton;
+    _refXml->get_widget("updateFreq", updateButton);
+    updateButton->set_value(_updateIntervalValue);
+    updateButton->signal_value_changed()
+      .connect(sigc::mem_fun(this, &CLGLWindow::simUpdateRateCallback));
+  }
   ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
     {
@@ -949,8 +960,6 @@ CLGLWindow::CallBackMouseWheelFunc(int button, int dir, int x, int y)
     _moveSensitivity *= 1.1;
   else
     _moveSensitivity /= 1.1;
-
-  //viewscale *= (dir > 0) ? 0.9 : (1/0.9);
 }
 
 void 
@@ -966,7 +975,6 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
       _viewPortInfo._rotatey = clamp(diffY + _viewPortInfo._rotatey, -90, 90);
       break;
     case RIGHTMOUSE:
-      _viewPortInfo._cameraZ += (y-_oldMouseY) * _mouseSensitivity * 0.05;
       break;
     case MIDDLEMOUSE:
       _viewPortInfo._cameraX += (y-_oldMouseY) * _mouseSensitivity * 0.05;
@@ -1021,6 +1029,8 @@ CLGLWindow::simupdateTick()
 
   for (;;)
     {
+      _systemQueue.drainQueue();
+
       //Block the simulation if _simrun is false or if we're in frame lock
       //and a new frame has not been drawn.
       if (_simrun && (!_simframelock || (_lastUpdateTime != getLastFrameTime()))) break;
@@ -1220,4 +1230,16 @@ CLGLWindow::filterClearCallback()
     }
 
   _filterStore->clear();
+}
+
+void 
+CLGLWindow::simUpdateRateCallback()
+{
+  Gtk::SpinButton* updateButton;
+  _refXml->get_widget("updateFreq", updateButton);
+  
+  if (updateButton->get_value() <= 0)
+    updateButton->set_value(0.000001);
+  
+  _updateIntervalValue = updateButton->get_value();
 }
