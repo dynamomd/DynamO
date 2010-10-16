@@ -159,6 +159,7 @@ private:
   bool _snapshot;
   bool _record;
   bool _showAxis;
+  bool _filterEnable;
 
   size_t _snapshot_counter;
 
@@ -197,6 +198,7 @@ private:
   void filterAddCallback();
   void filterSelectCallback();
   void filterClearCallback();
+  void filterEnableCallback();
   
   //Other callbacks
   void multisampleEnableCallback();

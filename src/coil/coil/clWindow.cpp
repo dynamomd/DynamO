@@ -71,6 +71,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _snapshot(false),
   _record(false),
   _showAxis(true),
+  _filterEnable(true),
   _snapshot_counter(0)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
@@ -421,6 +422,12 @@ CLGLWindow::initGTK()
 	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
 	}
 
+	{
+	  Gtk::CheckButton* btn;
+	  _refXml->get_widget("filterEnable", btn);
+	  btn->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::filterEnableCallback));
+	}
+
 	{//Fill the selector widgit with the available filters
 	  Gtk::ComboBox* filterSelectBox;
 	  _refXml->get_widget("filterSelectBox", filterSelectBox);
@@ -652,54 +659,56 @@ CLGLWindow::CallBackDisplayFunc(void)
       
       bool FBOalternate = false;
 
-
-      //Check if we need an extra pass where we calculate normals and depth values
-      bool renderNormsAndDepth = false;
-
-      for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
-	   iPtr != _filterStore->children().end(); ++iPtr)
+      if (_filterEnable)
 	{
-	  void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
-
-	  if (static_cast<coil::filter*>(filter_ptr)->needsNormalDepth())
-	    { renderNormsAndDepth = true; break; }
-	}
-
-      if (renderNormsAndDepth)
-	{
-	  _normalAndDepths.attach();
-	  _nrmldepthShader.attach();
-	  drawScene();
-	  _normalAndDepths.detach();
-	}
-
-      //Now bind the texture which has the normals and depths
-      glActiveTextureARB(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, _normalAndDepths.getColorTexture());
-
-      for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
-	   iPtr != _filterStore->children().end(); ++iPtr)
-	{
-	  glActiveTextureARB(GL_TEXTURE0);
-	  glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
-
-	  if (FBOalternate)
-	    _filterTarget1.attach();
-	  else
-	    _filterTarget2.attach();
+	  //Check if we need an extra pass where we calculate normals and depth values
+	  bool renderNormsAndDepth = false;
 	  
-	  void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	       iPtr != _filterStore->children().end(); ++iPtr)
+	    {
+	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+
+	      if (static_cast<coil::filter*>(filter_ptr)->needsNormalDepth())
+		{ renderNormsAndDepth = true; break; }
+	    }
+
+	  if (renderNormsAndDepth)
+	    {
+	      _normalAndDepths.attach();
+	      _nrmldepthShader.attach();
+	      drawScene();
+	      _normalAndDepths.detach();
+	    }
+
+	  //Now bind the texture which has the normals and depths
+	  glActiveTextureARB(GL_TEXTURE1);
+	  glBindTexture(GL_TEXTURE_2D, _normalAndDepths.getColorTexture());
+
+	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	       iPtr != _filterStore->children().end(); ++iPtr)
+	    {
+	      glActiveTextureARB(GL_TEXTURE0);
+	      glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
+
+	      if (FBOalternate)
+		_filterTarget1.attach();
+	      else
+		_filterTarget2.attach();
 	  
-	  static_cast<coil::filter*>(filter_ptr)->invoke(0, 1, _width, _height);
+	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	  
+	      static_cast<coil::filter*>(filter_ptr)->invoke(0, 1, _width, _height);
 
-	  if (FBOalternate)
-	    _filterTarget1.detach();
-	  else
-	    _filterTarget2.detach();
+	      if (FBOalternate)
+		_filterTarget1.detach();
+	      else
+		_filterTarget2.detach();
 
-	  lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
+	      lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
 
-	  FBOalternate = !FBOalternate;
+	      FBOalternate = !FBOalternate;
+	    }
 	}
 
       //Restore the fixed pipeline
@@ -1241,6 +1250,16 @@ CLGLWindow::filterSelectCallback()
       deletebtn->set_sensitive(false);
     }
 }
+
+void 
+CLGLWindow::filterEnableCallback()
+{
+  Gtk::CheckButton* btn;
+  _refXml->get_widget("filterEnable", btn);
+
+  _filterEnable = btn->get_active();
+}
+
 
 void 
 CLGLWindow::filterClearCallback()

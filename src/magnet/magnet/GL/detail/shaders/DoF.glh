@@ -27,7 +27,7 @@ namespace magnet {
     {
       return 
 STRINGIFY( 
-varying vec2 uv;
+//varying vec2 uv;
 	  
 void main(void)
 {
@@ -45,7 +45,7 @@ STRINGIFY(
 uniform sampler2D u_Texture0;
 uniform sampler2D u_Texture1;
 //uniform sampler2D rnm;
-varying vec2 uv;
+//varying vec2 uv;
 const float totStrength = 1.38;
 const float strength = 0.07;
 const float offset = 18.0;
@@ -70,12 +70,12 @@ void main(void)
   // grab a normal for reflecting the sample rays later on
   vec3 fres = vec3(1,0,0);//normalize((texture2D(rnm,uv*offset).xyz*2.0) - vec3(1.0));
   
-  vec4 currentPixelSample = texture2D(u_Texture1, uv);
+  vec4 currentPixelSample = texture2D(u_Texture1, gl_TexCoord[0].st);
   
   float currentPixelDepth = currentPixelSample.a;
   
   // current fragment coords in screen space
-  vec3 ep = vec3(uv.xy, currentPixelDepth);
+  vec3 ep = vec3(gl_TexCoord[0].st, currentPixelDepth);
   // get the normal of current fragment
   vec3 norm = currentPixelSample.xyz;
   
@@ -88,7 +88,7 @@ void main(void)
   float depthDifference;
   vec4 occluderFragment;
   vec3 ray;
-  for(int i=0; i < 10; ++i)
+  for(int i = 0; i < 10; ++i)
     {
       // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
       ray = radD*reflect(pSphere[i],fres);
@@ -104,7 +104,12 @@ void main(void)
     }
   
   // output the result
-  gl_FragColor.r = 1.0+bl*invSamples;  
+  //gl_FragColor.r = 1.0 + bl * invSamples;
+  float val = 1.0+bl*invSamples;
+  if (val > 1) val = 1;
+  if (val < 0) val = 1;
+  
+  gl_FragColor = vec4(texture2D(u_Texture0, gl_TexCoord[0].st).xyz * val, 1.0);
 }
 );
     }
