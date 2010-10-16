@@ -1,0 +1,56 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+#include <sstream>
+
+namespace magnet {
+  namespace GL {
+    inline std::string 
+    NormalAndDepthShader::vertexShaderSource()
+    {
+      return 
+STRINGIFY(
+varying vec3 Normal;
+varying float depth; // in eye space
+void main( void )
+{
+  vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
+  depth = -viewPos.z;
+  gl_Position = ftransform();
+  Normal      = normalize(( gl_ModelViewMatrix * vec4( gl_Normal.xyz, 0.0 ) ).xyz);
+}
+);
+    }
+    
+    inline std::string 
+    NormalAndDepthShader::fragmentShaderSource()
+    {
+      return 
+STRINGIFY(
+varying vec3 Normal;
+varying float depth;
+void main( void )
+{
+   gl_FragColor = vec4(normalize(Normal),depth);
+}
+);
+    }
+  }
+}

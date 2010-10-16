@@ -196,9 +196,10 @@ CLGLWindow::initOpenGL()
     {
       _filterTarget1.init(_width, _height);
       _filterTarget2.init(_width, _height);
-
+      _normalAndDepths.init(_width, _height);
       _shadowFBO.init(1024);
       _shadowShader.build();
+      _nrmldepthShader.build();
     }
 
   //Now init the render objects  
@@ -651,9 +652,30 @@ CLGLWindow::CallBackDisplayFunc(void)
       
       bool FBOalternate = false;
 
-      //The depth texture always comes from the original rendering
+
+      //Check if we need an extra pass where we calculate normals and depth values
+      bool renderNormsAndDepth = false;
+
+      for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	   iPtr != _filterStore->children().end(); ++iPtr)
+	{
+	  void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+
+	  if (static_cast<coil::filter*>(filter_ptr)->needsNormalDepth())
+	    { renderNormsAndDepth = true; break; }
+	}
+
+      if (renderNormsAndDepth)
+	{
+	  _normalAndDepths.attach();
+	  _nrmldepthShader.attach();
+	  drawScene();
+	  _normalAndDepths.detach();
+	}
+
+      //Now bind the texture which has the normals and depths
       glActiveTextureARB(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, _renderTarget->getDepthTexture());
+      glBindTexture(GL_TEXTURE_2D, _normalAndDepths.getColorTexture());
 
       for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	   iPtr != _filterStore->children().end(); ++iPtr)
@@ -899,6 +921,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
       _renderTarget->resize(_width, _height);
       _filterTarget1.resize(_width, _height);
       _filterTarget2.resize(_width, _height);
+      _normalAndDepths.resize(_width, _height);
     }
 }
 

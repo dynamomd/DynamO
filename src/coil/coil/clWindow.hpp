@@ -36,7 +36,7 @@
 #include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
-
+#include <magnet/GL/nrmlNdepthShader.hpp>
 #include <magnet/thread/refPtr.hpp>
 
 
@@ -88,6 +88,9 @@ protected:
 
   magnet::GL::FBO _filterTarget1;
   magnet::GL::FBO _filterTarget2;
+
+  magnet::GL::NormalAndDepthShader _nrmldepthShader;
+  magnet::GL::FBO _normalAndDepths;
 
   size_t _height, _width;
   int _windowX, _windowY;

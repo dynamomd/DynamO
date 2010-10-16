@@ -23,17 +23,25 @@
 #include <magnet/GL/blur.hpp>
 #include <magnet/GL/DoF.hpp>
 
-namespace coil { template<class T> class magnetFilterWrapper; }
+namespace coil { template<class T, bool> class magnetFilterWrapper; }
+
+typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter5,false> lap5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3A,false> lap3x3A;
+typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3B,false> lap3x3B;
+typedef coil::magnetFilterWrapper<magnet::GL::LoGFilter,false> lapgauss9x9;
+typedef coil::magnetFilterWrapper<magnet::GL::blurFilter,false> gauss5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::boxFilter,false> box5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::DoF,true> DoF;
 
 //Format is F(enumeration,stringname,type)
 #define FILTER_FACTORY(F)						\
-  F(0, "5x5 Laplacian", magnetFilterWrapper<magnet::GL::laplacianFilter5>) \
-  F(1, "3x3 Laplacian A", magnetFilterWrapper<magnet::GL::laplacianFilter3A>) \
-  F(2, "3x3 Laplacian B", magnetFilterWrapper<magnet::GL::laplacianFilter3B>) \
-  F(3, "9x9 Laplacian of Gaussian", magnetFilterWrapper<magnet::GL::LoGFilter>)	\
-  F(4, "5x5 Gaussian Blur", magnetFilterWrapper<magnet::GL::blurFilter>) \
-  F(5, "5x5 Box Filter", magnetFilterWrapper<magnet::GL::boxFilter>) \
-  F(6, "Depth of Field", magnetFilterWrapper<magnet::GL::DoF>) 
+  F(0, "5x5 Laplacian", lap5x5)						\
+  F(1, "3x3 Laplacian A", lap3x3A)					\
+  F(2, "3x3 Laplacian B", lap3x3B)					\
+  F(3, "9x9 Laplacian of Gaussian", lapgauss9x9)			\
+  F(4, "5x5 Gaussian Blur", gauss5x5)					\
+  F(5, "5x5 Box Filter", box5x5)					\
+  F(6, "Depth of Field", DoF) 
 
 
 namespace coil 
@@ -74,6 +82,8 @@ namespace coil
       static filterSelectColumns vals;
       return vals;
     }
+    
+    inline virtual bool needsNormalDepth() = 0;
 
     //////////////Virtual members
     virtual size_t type_id() = 0;

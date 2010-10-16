@@ -21,16 +21,18 @@
 
 namespace coil 
 {
-  template <class T>
+  template <class T, bool reqNormalDepth>
   class magnetFilterWrapper: public filter
   {
   public:
     magnetFilterWrapper() { _filter.build(); }
 
-    inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T> >::val; }    
+    inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T,reqNormalDepth> >::val; }    
     inline virtual bool isEditable() { return false; }
     inline virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) 
     { _filter.invoke(colorTextureUnit, depthTextureUnit, width, height); }
+
+    inline virtual bool needsNormalDepth()  { return reqNormalDepth; }
 
   protected:
     T _filter;
