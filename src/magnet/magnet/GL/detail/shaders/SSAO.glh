@@ -108,7 +108,7 @@ void main(void)
   //gl_FragColor.r = 1.0 + bl * invSamples;
   float val = 1.0 - bl * totStrength * invSamples;
   if (val > 1) val = 1;
-  if (val < 0) val = 1;
+  if (val < 0) val = 0;
   
   gl_FragColor = vec4(texture2D(u_Texture0, gl_TexCoord[0].st).xyz * val, 1.0);
 
