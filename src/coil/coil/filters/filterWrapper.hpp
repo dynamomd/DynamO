@@ -48,12 +48,16 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
     inline virtual bool isEditable() { return true; }
     inline virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) 
-    { _filter.invoke(colorTextureUnit, depthTextureUnit, width, height); }
+    { _filter.invoke(colorTextureUnit, depthTextureUnit, width, height, _radius); }
 
     inline virtual bool needsNormalDepth()  { return true; }
     virtual void edit();
+
   protected:
-    magnet::GL::DoF _filter;
+    magnet::GL::SSAO _filter;
     Glib::RefPtr<Gtk::Builder> _refXml;
+    GLfloat _radius;
+
+    void settingsCallback();
   };
 }

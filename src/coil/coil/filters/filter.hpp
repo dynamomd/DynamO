@@ -21,7 +21,7 @@
 
 #include <magnet/GL/laplacianFilter.hpp>
 #include <magnet/GL/blur.hpp>
-#include <magnet/GL/DoF.hpp>
+#include <magnet/GL/SSAO.hpp>
 
 namespace coil { template<class T, bool> class magnetFilterWrapper; class SSAOWrapper; }
 

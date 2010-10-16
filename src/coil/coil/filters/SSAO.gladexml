@@ -3,6 +3,9 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="SSAOeditWindow">
+    <property name="width_request">400</property>
+    <property name="height_request">150</property>
+    <property name="title" translatable="yes">SSAO settings</property>
     <child>
       <object class="GtkTable" id="table2">
         <property name="visible">True</property>
@@ -32,11 +35,13 @@
           <placeholder/>
         </child>
         <child>
-          <object class="GtkSpinButton" id="spinbutton1">
+          <object class="GtkSpinButton" id="radiusSetting">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="invisible_char">&#x25CF;</property>
             <property name="adjustment">radiusAdjustment</property>
+            <property name="digits">8</property>
+            <property name="numeric">True</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -50,7 +55,5 @@
   <object class="GtkAdjustment" id="radiusAdjustment">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
 </interface>

@@ -21,30 +21,30 @@
 namespace magnet {
   namespace GL {
     
-    class DoF : public detail::shader<DoF>
+    class SSAO : public detail::shader<SSAO>
     {
     public:
       void build()
       {
-	detail::shader<DoF>::build();
+	detail::shader<SSAO>::build();
 
 	//Get the shader args
-	glUseProgram(detail::shader<DoF>::_shaderID);
-	_scaleUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Scale");
-	_colorTextureUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Texture0");
-	_depthTextureUniform = glGetUniformLocationARB(detail::shader<DoF>::_shaderID,"u_Texture1");
+	glUseProgram(detail::shader<SSAO>::_shaderID);
+	_radiusUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"radius");
+	_colorTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture0");
+	_depthTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture1");
 	glUseProgramObjectARB(0);
       }
 
-      void invoke(GLint colorTextureID, GLint depthTextureID, GLuint _width, GLuint _height)
+      void invoke(GLint colorTextureID, GLint depthTextureID, GLuint _width, GLuint _height, GLfloat radius)
       {
-	  
 	//Setup the shader arguments
-	glUseProgram(detail::shader<DoF>::_shaderID);
+	glUseProgram(detail::shader<SSAO>::_shaderID);
 	//Horizontal application
-	glUniform2fARB(_scaleUniform, 1.0 / _width, 1.0 / _height);
 	glUniform1iARB(_colorTextureUniform, colorTextureID);
 	glUniform1iARB(_depthTextureUniform, depthTextureID);
+
+	glUniform1fARB(_radiusUniform, radius);
 	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -90,9 +90,10 @@ namespace magnet {
       static inline std::string fragmentShaderSource();
 
     protected:
-      GLint _scaleUniform, _colorTextureUniform, _depthTextureUniform;
+      GLint _colorTextureUniform, _depthTextureUniform;
+      GLint _radiusUniform;
     };
   }
 }
 
-#include <magnet/GL/detail/shaders/DoF.glh>
+#include <magnet/GL/detail/shaders/SSAO.glh>

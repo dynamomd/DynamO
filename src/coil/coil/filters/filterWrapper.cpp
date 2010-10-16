@@ -25,6 +25,8 @@ namespace coil
 {
   SSAOWrapper::SSAOWrapper()
   { 
+    _radius = 0.006;
+
     _filter.build(); 
 
     Glib::ustring glade_data
@@ -33,6 +35,14 @@ namespace coil
        -_binary_src_coil_coil_filters_SSAO_gladexml_start);
     
     _refXml = Gtk::Builder::create_from_string(glade_data);
+
+    {
+      Gtk::SpinButton* btn;
+      _refXml->get_widget("radiusSetting", btn);
+      btn->set_value(_radius);
+      btn->signal_value_changed()
+	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+    }
   }
 
   SSAOWrapper::~SSAOWrapper()
@@ -49,4 +59,12 @@ namespace coil
     _refXml->get_widget("SSAOeditWindow", win);
     win->show();
   }
+
+  void SSAOWrapper::settingsCallback()
+  {
+    Gtk::SpinButton* btn;
+    _refXml->get_widget("radiusSetting", btn);
+    _radius = btn->get_value();
+  }
+
 }
