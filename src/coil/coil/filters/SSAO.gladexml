@@ -9,12 +9,12 @@
     <child>
       <object class="GtkTable" id="table2">
         <property name="visible">True</property>
-        <property name="n_rows">3</property>
+        <property name="n_rows">5</property>
         <property name="n_columns">2</property>
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
-            <property name="xalign">0.95999997854232788</property>
+            <property name="xalign">0.94999998807907104</property>
             <property name="label" translatable="yes">Radius</property>
           </object>
           <packing>
@@ -23,24 +23,12 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
           <object class="GtkSpinButton" id="radiusSetting">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="invisible_char">&#x25CF;</property>
             <property name="adjustment">radiusAdjustment</property>
-            <property name="digits">8</property>
+            <property name="digits">9</property>
             <property name="numeric">True</property>
           </object>
           <packing>
@@ -49,11 +37,131 @@
             <property name="y_options">GTK_FILL</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="xalign">0.94999998807907104</property>
+            <property name="label" translatable="yes">Total Strength</property>
+          </object>
+          <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="xalign">0.94999998807907104</property>
+            <property name="label" translatable="yes">Strength</property>
+          </object>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label4">
+            <property name="visible">True</property>
+            <property name="xalign">0.94999998807907104</property>
+            <property name="label" translatable="yes">Offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label5">
+            <property name="visible">True</property>
+            <property name="xalign">0.94999998807907104</property>
+            <property name="label" translatable="yes">Fall-Off</property>
+          </object>
+          <packing>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="totStrengthSetting">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">TotalStrengthAdjust</property>
+            <property name="digits">9</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="strengthSetting">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">StrengthAdjust</property>
+            <property name="digits">9</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="offsetSetting">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">OffsetAdjust</property>
+            <property name="digits">9</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSpinButton" id="falloffSetting">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">FallOffAdjust</property>
+            <property name="digits">9</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
       </object>
     </child>
   </object>
   <object class="GtkAdjustment" id="radiusAdjustment">
     <property name="upper">100</property>
-    <property name="step_increment">1</property>
+    <property name="step_increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="TotalStrengthAdjust">
+    <property name="upper">100</property>
+    <property name="step_increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="StrengthAdjust">
+    <property name="upper">100</property>
+    <property name="step_increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="OffsetAdjust">
+    <property name="upper">100</property>
+    <property name="step_increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="FallOffAdjust">
+    <property name="upper">100</property>
+    <property name="step_increment">0.01</property>
   </object>
 </interface>

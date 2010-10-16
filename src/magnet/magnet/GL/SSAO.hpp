@@ -28,15 +28,21 @@ namespace magnet {
       {
 	detail::shader<SSAO>::build();
 
-	//Get the shader args
 	glUseProgram(detail::shader<SSAO>::_shaderID);
-	_radiusUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"radius");
+
+	_radiusUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"radius");
+	_totstrengthUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"totStrength");
+	_strengthUniform    = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"strength");
+	_offsetUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"offset");
+	_falloffUniform     = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"falloff");
+
 	_colorTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture0");
 	_depthTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture1");
 	glUseProgramObjectARB(0);
       }
 
-      void invoke(GLint colorTextureID, GLint depthTextureID, GLuint _width, GLuint _height, GLfloat radius)
+      void invoke(GLint colorTextureID, GLint depthTextureID, GLuint _width, GLuint _height, 
+		  GLfloat radius, GLfloat totStrength, GLfloat strength, GLfloat offset, GLfloat falloff)
       {
 	//Setup the shader arguments
 	glUseProgram(detail::shader<SSAO>::_shaderID);
@@ -45,6 +51,10 @@ namespace magnet {
 	glUniform1iARB(_depthTextureUniform, depthTextureID);
 
 	glUniform1fARB(_radiusUniform, radius);
+	glUniform1fARB(_totstrengthUniform, totStrength);
+	glUniform1fARB(_strengthUniform, strength);
+	glUniform1fARB(_offsetUniform, offset);
+	glUniform1fARB(_falloffUniform, falloff);
 	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -92,6 +102,10 @@ namespace magnet {
     protected:
       GLint _colorTextureUniform, _depthTextureUniform;
       GLint _radiusUniform;
+      GLint _totstrengthUniform;
+      GLint _strengthUniform   ;
+      GLint _offsetUniform     ;
+      GLint _falloffUniform    ;
     };
   }
 }

@@ -26,6 +26,10 @@ namespace coil
   SSAOWrapper::SSAOWrapper()
   { 
     _radius = 0.006;
+    _totStrength = 1.38;
+    _strength = 0.07;
+    _offset = 18.0;
+    _falloff = 0.000002;
 
     _filter.build(); 
 
@@ -38,11 +42,32 @@ namespace coil
 
     {
       Gtk::SpinButton* btn;
+
       _refXml->get_widget("radiusSetting", btn);
       btn->set_value(_radius);
       btn->signal_value_changed()
 	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
-    }
+
+      _refXml->get_widget("totStrengthSetting", btn);
+      btn->set_value(_totStrength);
+      btn->signal_value_changed()
+	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+
+      _refXml->get_widget("strengthSetting", btn);
+      btn->set_value(_strength);
+      btn->signal_value_changed()
+	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+
+      _refXml->get_widget("offsetSetting", btn);
+      btn->set_value(_offset);
+      btn->signal_value_changed()
+	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+
+      _refXml->get_widget("falloffSetting", btn);
+      btn->set_value(_falloff);
+      btn->signal_value_changed()
+	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+    }    
   }
 
   SSAOWrapper::~SSAOWrapper()
@@ -65,6 +90,18 @@ namespace coil
     Gtk::SpinButton* btn;
     _refXml->get_widget("radiusSetting", btn);
     _radius = btn->get_value();
+
+    _refXml->get_widget("totStrengthSetting", btn);
+    _totStrength = btn->get_value();
+
+    _refXml->get_widget("strengthSetting", btn);
+    _strength = btn->get_value();
+
+    _refXml->get_widget("offsetSetting", btn);
+    _offset = btn->get_value();
+
+    _refXml->get_widget("falloffSetting", btn);
+    _falloff = btn->get_value();
   }
 
 }
