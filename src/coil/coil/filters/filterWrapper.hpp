@@ -18,6 +18,7 @@
 #pragma once
 
 #include <gtkmm.h>
+#include "filter.hpp"
 
 namespace coil 
 {
@@ -33,9 +34,26 @@ namespace coil
     { _filter.invoke(colorTextureUnit, depthTextureUnit, width, height); }
 
     inline virtual bool needsNormalDepth()  { return reqNormalDepth; }
-
+    
   protected:
     T _filter;
   };
 
+  class SSAOWrapper: public filter
+  {
+  public:
+    SSAOWrapper();
+    ~SSAOWrapper();
+
+    inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
+    inline virtual bool isEditable() { return true; }
+    inline virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) 
+    { _filter.invoke(colorTextureUnit, depthTextureUnit, width, height); }
+
+    inline virtual bool needsNormalDepth()  { return true; }
+    virtual void edit();
+  protected:
+    magnet::GL::DoF _filter;
+    Glib::RefPtr<Gtk::Builder> _refXml;
+  };
 }

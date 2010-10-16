@@ -1169,6 +1169,14 @@ CLGLWindow::filterDownCallback()
 void 
 CLGLWindow::filterEditCallback()
 {
+    Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _filterView->get_selection();
+  
+  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
+  
+  void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
+  static_cast<coil::filter*>(tmp_ptr)->edit();
+
   filterSelectCallback();
 }
 

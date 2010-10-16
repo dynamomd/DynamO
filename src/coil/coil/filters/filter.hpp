@@ -23,7 +23,7 @@
 #include <magnet/GL/blur.hpp>
 #include <magnet/GL/DoF.hpp>
 
-namespace coil { template<class T, bool> class magnetFilterWrapper; }
+namespace coil { template<class T, bool> class magnetFilterWrapper; class SSAOWrapper; }
 
 typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter5,false> lap5x5;
 typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3A,false> lap3x3A;
@@ -31,7 +31,6 @@ typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3B,false> lap3x3B;
 typedef coil::magnetFilterWrapper<magnet::GL::LoGFilter,false> lapgauss9x9;
 typedef coil::magnetFilterWrapper<magnet::GL::blurFilter,false> gauss5x5;
 typedef coil::magnetFilterWrapper<magnet::GL::boxFilter,false> box5x5;
-typedef coil::magnetFilterWrapper<magnet::GL::DoF,true> DoF;
 
 //Format is F(enumeration,stringname,type)
 #define FILTER_FACTORY(F)						\
@@ -41,7 +40,7 @@ typedef coil::magnetFilterWrapper<magnet::GL::DoF,true> DoF;
   F(3, "9x9 Laplacian of Gaussian", lapgauss9x9)			\
   F(4, "5x5 Gaussian Blur", gauss5x5)					\
   F(5, "5x5 Box Filter", box5x5)					\
-  F(6, "Depth of Field", DoF) 
+  F(6, "SSAO", SSAOWrapper) 
 
 
 namespace coil 
@@ -63,6 +62,8 @@ namespace coil
   class filter
   {
   public:
+    virtual inline ~filter() {}
+
     //////////////Static members
     static void populateComboBox(Gtk::ComboBox*);
     
