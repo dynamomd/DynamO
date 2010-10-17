@@ -629,7 +629,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  _shadowFBO.restore();
 
 	  //In both cases we use the texture matrix, instead of the EYE_PLANE
-	  //We bind to the 7th texture unit???? 
+	  //We bind to the 7th texture unit
 	  glActiveTextureARB(GL_TEXTURE7);
 	  glMatrixMode(GL_TEXTURE);
 	  
@@ -681,6 +681,10 @@ CLGLWindow::CallBackDisplayFunc(void)
 	      _normalAndDepths.detach();
 	    }
 
+	  //Bind the original image to texture unit 0
+	  glActiveTextureARB(GL_TEXTURE0);
+	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getColorTexture());
+
 	  //Now bind the texture which has the normals and depths
 	  glActiveTextureARB(GL_TEXTURE1);
 	  glBindTexture(GL_TEXTURE_2D, _normalAndDepths.getColorTexture());
@@ -688,7 +692,8 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
 	    {
-	      glActiveTextureARB(GL_TEXTURE0);
+	      //The last output goes into texture 2
+	      glActiveTextureARB(GL_TEXTURE2);
 	      glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
 
 	      if (FBOalternate)
@@ -698,7 +703,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  
 	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
 	  
-	      static_cast<coil::filter*>(filter_ptr)->invoke(0, 1, _width, _height);
+	      static_cast<coil::filter*>(filter_ptr)->invoke(2, _width, _height);
 
 	      if (FBOalternate)
 		_filterTarget1.detach();

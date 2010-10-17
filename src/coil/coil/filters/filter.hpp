@@ -21,9 +21,13 @@
 
 #include <magnet/GL/laplacianFilter.hpp>
 #include <magnet/GL/blur.hpp>
-#include <magnet/GL/SSAO.hpp>
 
-namespace coil { template<class T, bool> class magnetFilterWrapper; class SSAOWrapper; }
+namespace coil 
+{ 
+  template<class T, bool> class magnetFilterWrapper; 
+  class SSAOWrapper; 
+  class SSAOBlurWrapper; 
+}
 
 typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter5,false> lap5x5;
 typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3A,false> lap3x3A;
@@ -40,8 +44,8 @@ typedef coil::magnetFilterWrapper<magnet::GL::boxFilter,false> box5x5;
   F(3, "9x9 Laplacian of Gaussian", lapgauss9x9)			\
   F(4, "5x5 Gaussian Blur", gauss5x5)					\
   F(5, "5x5 Box Filter", box5x5)					\
-  F(6, "SSAO", SSAOWrapper) 
-
+  F(6, "SSAO: Shadow Gen (Pass 1)", SSAOWrapper)			\
+  F(7, "SSAO: Blur (Pass 2)", SSAOBlurWrapper) 
 
 namespace coil 
 {
@@ -90,7 +94,7 @@ namespace coil
     virtual size_t type_id() = 0;
     virtual bool isEditable() = 0;
     virtual void edit() {}
-    virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) = 0;
+    virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height) = 0;
     
   protected:
   };

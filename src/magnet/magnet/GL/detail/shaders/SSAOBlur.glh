@@ -1,0 +1,87 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+#include <sstream>
+#include <magnet/GL/SSAOBlur.hpp>
+
+namespace magnet {
+  namespace GL {
+    inline std::string 
+    SSAOBlur::vertexShaderSource()
+    {
+      return 
+STRINGIFY( 
+void main(void)
+{
+  gl_Position = ftransform();
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+);
+    }
+    
+    inline std::string 
+    SSAOBlur::fragmentShaderSource()
+    {
+      return 
+STRINGIFY(
+uniform sampler2D u_Texture0;
+uniform sampler2D u_Texture1; //This contains the original image
+uniform float radius;
+uniform float totStrength;
+uniform float strength;
+uniform float offset;
+uniform float falloff;
+const float invSamples = 1.0 / 10.0;
+
+const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
+
+float gaussWeight(int i, int j) { return 1.0; /*weight[i] * weight[j]*/; }
+
+void main(void)
+{
+  vec2 currentPixelSample = texture2D(u_Texture0, gl_TexCoord[0].st).ra;
+
+  float shade = 0.0;
+  float weight = 0.0;
+
+
+  for(int x = 0; x < 5; ++x)
+    for(int y = 0; y < 5; ++y)
+      {
+	vec2 sample = texture2D(u_Texture0, gl_TexCoord[0].st 
+				+ vec2((x - 2) * radius, (y - 2) * radius)).ra;
+	
+	float Zdifference = abs(sample.y - currentPixelSample.y);
+	float sampleweight = (1.0 - step(totStrength, Zdifference)) * gaussWeight(x,y);
+	shade += sampleweight * sample.x;
+	weight += sampleweight;
+      }
+  
+  shade /= weight;
+
+  vec3 origcolor = texture2D(u_Texture1, gl_TexCoord[0].st).rgb;
+
+  //gl_FragColor =  vec4(shade,0,0,1);
+  gl_FragColor =  vec4(shade * origcolor,1);
+}
+);
+    }
+  }
+}
