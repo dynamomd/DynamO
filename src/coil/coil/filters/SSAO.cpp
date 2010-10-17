@@ -129,7 +129,7 @@ namespace coil
     glActiveTextureARB(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, _randomTexture);
 
-    _filter.invoke(colorTextureUnit, 7, width, height, 
+    _filter.invoke(colorTextureUnit, 1, 2, 7, width, height, 
 		   _radius, _totStrength, _strength, _offset, _falloff); 
   }
 
@@ -240,7 +240,7 @@ namespace coil
   void SSAOBlurWrapper::invoke(GLuint colorTextureUnit, 
 			   size_t width, size_t height) 
   {
-    _filter.invoke(colorTextureUnit, 0, width, height, 
+    _filter.invoke(colorTextureUnit, 0, 2, width, height,
 		   _radius, _totStrength, _strength, _offset, _falloff); 
   }
 

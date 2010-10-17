@@ -681,19 +681,23 @@ CLGLWindow::CallBackDisplayFunc(void)
 	      _normalAndDepths.detach();
 	    }
 
-	  //Bind the original image to texture unit 0
+	  //Bind the original image to texture (unit 0)
 	  glActiveTextureARB(GL_TEXTURE0);
 	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getColorTexture());
 
-	  //Now bind the texture which has the normals and depths
+	  //Now bind the texture which has the normals and depths (unit 1)
 	  glActiveTextureARB(GL_TEXTURE1);
 	  glBindTexture(GL_TEXTURE_2D, _normalAndDepths.getColorTexture());
+
+	  //High quality depth information is attached to (unit 2)
+	  glActiveTextureARB(GL_TEXTURE2);
+	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getDepthTexture());
 
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
 	    {
-	      //The last output goes into texture 2
-	      glActiveTextureARB(GL_TEXTURE2);
+	      //The last output goes into texture 3
+	      glActiveTextureARB(GL_TEXTURE3);
 	      glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
 
 	      if (FBOalternate)
@@ -703,7 +707,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  
 	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
 	  
-	      static_cast<coil::filter*>(filter_ptr)->invoke(2, _width, _height);
+	      static_cast<coil::filter*>(filter_ptr)->invoke(3, _width, _height);
 
 	      if (FBOalternate)
 		_filterTarget1.detach();

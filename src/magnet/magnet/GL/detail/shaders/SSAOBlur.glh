@@ -41,8 +41,9 @@ void main(void)
     {
       return 
 STRINGIFY(
-uniform sampler2D u_Texture0;
+uniform sampler2D u_Texture0; //SSAO pass output
 uniform sampler2D u_Texture1; //This contains the original image
+uniform sampler2D u_Texture2; //Depth buffer
 uniform float radius;
 uniform float totStrength;
 uniform float strength;
@@ -52,11 +53,20 @@ const float invSamples = 1.0 / 10.0;
 
 const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
 
-float gaussWeight(int i, int j) { return 1.0; /*weight[i] * weight[j]*/; }
+float sampleWeight(int i, int j) { return 1.0; /*weight[i] * weight[j]*/; }
+
+float LinearizeDepth(float zoverw)
+{
+	float n = 0.001;
+	float f = 100.0;
+	
+	return(2.0 * n) / (f + n - zoverw * (f - n));	
+}
 
 void main(void)
 {
-  vec2 currentPixelSample = texture2D(u_Texture0, gl_TexCoord[0].st).ra;
+  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r) * 20;
+  //currentPixelDepth = texture2D(u_Texture0, gl_TexCoord[0].st).a;
 
   float shade = 0.0;
   float weight = 0.0;
@@ -65,11 +75,13 @@ void main(void)
   for(int x = 0; x < 5; ++x)
     for(int y = 0; y < 5; ++y)
       {
-	vec2 sample = texture2D(u_Texture0, gl_TexCoord[0].st 
-				+ vec2((x - 2) * radius, (y - 2) * radius)).ra;
-	
-	float Zdifference = abs(sample.y - currentPixelSample.y);
-	float sampleweight = (1.0 - step(totStrength, Zdifference)) * gaussWeight(x,y);
+	vec2 sampleLoc = gl_TexCoord[0].st + vec2((x - 2) * radius, (y - 2) * radius);
+	float sample = texture2D(u_Texture0, sampleLoc).r;
+	float sampleDepth = LinearizeDepth(texture2D(u_Texture2, sampleLoc).r) * 20;
+	//sampleDepth = texture2D(u_Texture0, sampleLoc).a;
+
+	float Zdifference = abs(currentPixelDepth - sampleDepth);
+	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
 	shade += sampleweight * sample.x;
 	weight += sampleweight;
       }
