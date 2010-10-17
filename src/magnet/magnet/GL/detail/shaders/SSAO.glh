@@ -117,15 +117,20 @@ void main(void)
 //	bl -= occluderDot * step(0,depthDifference);
 //	;
 
-      bl += step(0, occluderDot) * occluderDot * step(0, depthDifference) * (1.0 - smoothstep(0, strength, depthDifference));
+      bl += step(0, occluderDot) * occluderDot * step(0, depthDifference) 
+	* (1.0 - smoothstep(0, strength, depthDifference));
       ;
 
       //step(falloff, depthDifference) * *(1.0 - smoothstep(falloff, strength, depthDifference))
     }
 
-  gl_FragColor = vec4(clamp(1.0-totStrength*bl*invSamples, 0, 1) 
-		      * texture2D(u_Texture0, gl_TexCoord[0].st).xyz,
-		      1.0);
+//  gl_FragColor = vec4(clamp(1.0-totStrength*bl*invSamples, 0, 1) 
+//		      * texture2D(u_Texture0, gl_TexCoord[0].st).xyz,
+//		      1.0);
+
+  //Store the pixel depth too for the blur stage
+  gl_FragColor.r = clamp(1.0-totStrength*bl*invSamples, 0, 1);
+  gl_FragColor.a = currentPixelDepth;
 
   //gl_FragColor = vec4(texture2D(rnm, gl_TexCoord[0].st * offset).xyz,1.0);
 }

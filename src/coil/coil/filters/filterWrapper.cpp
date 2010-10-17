@@ -25,10 +25,10 @@ namespace coil
 {
   SSAOWrapper::SSAOWrapper()
   { 
-    _radius = 0.001;
-    _totStrength = 2.38;
-    _strength = 0.07;
-    _offset = 18.0;
+    _radius = 0.02;
+    _totStrength = 3.0;
+    _strength = 0.11;
+    _offset = 13.11;
     _falloff = 0.000002;
 
     _filter.build(); 
