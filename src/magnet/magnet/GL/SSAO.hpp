@@ -51,7 +51,7 @@ namespace magnet {
 	//Horizontal application
 	glUniform1iARB(_colorTextureUniform, colorTextureID);
 	glUniform1iARB(_depthTextureUniform, depthTextureID);
-	glUniform1iARB(_rnmTextureUniform, depthTextureID);
+	glUniform1iARB(_rnmTextureUniform, rnmTextureID);
 
 	glUniform1fARB(_radiusUniform, radius);
 	glUniform1fARB(_totstrengthUniform, totStrength);

@@ -126,6 +126,8 @@ void main(void)
   gl_FragColor = vec4(clamp(1.0-totStrength*bl*invSamples, 0, 1) 
 		      * texture2D(u_Texture0, gl_TexCoord[0].st).xyz,
 		      1.0);
+
+  //gl_FragColor = vec4(texture2D(rnm, gl_TexCoord[0].st * offset).xyz,1.0);
 }
 );
     }
