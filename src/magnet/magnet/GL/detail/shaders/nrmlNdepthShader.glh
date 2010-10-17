@@ -49,7 +49,7 @@ varying vec3 Normal;
 varying float depth;
 void main( void )
 {
-  gl_FragColor = vec4(0.5*normalize(Normal)+0.5,depth);
+  gl_FragColor = vec4(0.5 * normalize(Normal) + 0.5,depth);
 }
 );
     }

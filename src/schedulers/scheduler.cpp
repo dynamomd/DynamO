@@ -152,14 +152,14 @@ CScheduler::runNextEvent()
 	      << "\nOwner Particle = " << sorter->next_ID()
 	      << "\nID2 = " << sorter->next_p2();
 
-  if (sorter->next_dt() < 0)
-    M_throw() << "Next event time is less than 0"
-	      << "\nTime to event "
-	      << sorter->next_dt()
-	      << "\nEvent Type = " 
-	      << sorter->next_type()
-      	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->next_p2();
+//  if (sorter->next_dt() < 0)
+//    M_throw() << "Next event time is less than 0"
+//	      << "\nTime to event "
+//	      << sorter->next_dt()
+//	      << "\nEvent Type = " 
+//	      << sorter->next_type()
+//      	      << "\nOwner Particle = " << sorter->next_ID()
+//	      << "\nID2 = " << sorter->next_p2();
 #endif  
   
   const size_t rejectionLimit = 10;
