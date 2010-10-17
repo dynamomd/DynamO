@@ -87,7 +87,6 @@ namespace coil
 
   SSAOWrapper::~SSAOWrapper()
   { 
-    std::cerr << "!!!!!!!!!!!!!DESTROYING THE FILTER!!!!!!!!!!!!";
     Gtk::Window* win;
     _refXml->get_widget("SSAOeditWindow", win);
     win->hide();

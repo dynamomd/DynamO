@@ -132,8 +132,8 @@ CLGLWindow::initOpenGL()
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  //We need blending
-  glEnable(GL_BLEND);
+  //We need blending only for the axis
+  glDisable(GL_BLEND);
   //Blend colors using the alpha channel
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
@@ -675,12 +675,10 @@ CLGLWindow::CallBackDisplayFunc(void)
 
 	  if (renderNormsAndDepth)
 	    {
-	      glDisable(GL_BLEND);
 	      _normalAndDepths.attach();
 	      _nrmldepthShader.attach();
 	      drawScene();
 	      _normalAndDepths.detach();
-	      glEnable(GL_BLEND);
 	    }
 
 	  //Now bind the texture which has the normals and depths
@@ -830,11 +828,10 @@ CLGLWindow::drawScene()
    glEnd();
   
 //  glPushMatrix();
-//  glTranslatef(0.0f,-0.6f,0.0f);
-//  glScalef(4.0f, 0.01f, 4.0f);
-//  glutSolidCube(1.0);
-
-  glPopMatrix();
+//  glTranslatef(2.0f,0.5f,2.0f);
+////  glScalef(4.0f, 0.01f, 4.0f);
+//  glutSolidSphere(1.0, 20, 20);
+//  glPopMatrix();
 }
 
 
@@ -863,6 +860,8 @@ void CLGLWindow::drawAxis()
   //near plane is at 0.1, the axis are 0.25 long so
   
   glTranslatef (0, 0, -(nearPlane + axisScale));
+
+  glEnable(GL_BLEND);
 
   glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.7); // Color the axis box a transparent blue
   glBegin(GL_QUADS);		
@@ -902,7 +901,8 @@ void CLGLWindow::drawAxis()
   glPopMatrix ();
 
   glViewport(0, 0, _width,_height);
-
+  
+  glDisable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
 }
