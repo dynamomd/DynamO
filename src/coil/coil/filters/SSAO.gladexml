@@ -145,23 +145,26 @@
     </child>
   </object>
   <object class="GtkAdjustment" id="radiusAdjustment">
-    <property name="upper">100</property>
+    <property name="upper">1000</property>
     <property name="step_increment">0.01</property>
   </object>
   <object class="GtkAdjustment" id="TotalStrengthAdjust">
-    <property name="upper">100</property>
+    <property name="upper">10000</property>
     <property name="step_increment">0.01</property>
   </object>
   <object class="GtkAdjustment" id="StrengthAdjust">
-    <property name="upper">100</property>
+    <property name="lower">-10000</property>
+    <property name="upper">10000</property>
     <property name="step_increment">0.01</property>
   </object>
   <object class="GtkAdjustment" id="OffsetAdjust">
-    <property name="upper">100</property>
+    <property name="lower">-10000</property>
+    <property name="upper">10000</property>
     <property name="step_increment">0.01</property>
   </object>
   <object class="GtkAdjustment" id="FallOffAdjust">
-    <property name="upper">100</property>
+    <property name="lower">-1000</property>
+    <property name="upper">1000</property>
     <property name="step_increment">0.01</property>
   </object>
 </interface>

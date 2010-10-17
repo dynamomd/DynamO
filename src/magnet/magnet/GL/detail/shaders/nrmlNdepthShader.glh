@@ -29,10 +29,10 @@ namespace magnet {
 STRINGIFY(
 varying vec3 Normal;
 varying float depth; // in eye space
-void main( void )
+void main()
 {
   vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-  depth = -viewPos.z / 100.0;
+  depth = -viewPos.z / 10.0;
   gl_Position = ftransform();
 
   Normal = normalize((gl_ModelViewMatrix * vec4(gl_Normal.xyz,0.0)).xyz);
@@ -49,7 +49,6 @@ varying vec3 Normal;
 varying float depth;
 void main( void )
 {
-  vec3 nrm = 
   gl_FragColor = vec4(0.5*normalize(Normal)+0.5,depth);
 }
 );
