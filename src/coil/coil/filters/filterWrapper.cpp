@@ -67,7 +67,22 @@ namespace coil
       btn->set_value(_falloff);
       btn->signal_value_changed()
 	.connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
-    }    
+    }
+
+    glGenTextures( 1, &_randomTexture);
+    glBindTexture(GL_TEXTURE_2D, _randomTexture);
+
+    std::vector<char> texture;
+    texture.resize(64 * 64);
+    
+    for (size_t i(0); i < 64*64; ++i)
+      texture[i] = (rand() * 255.0) / RAND_MAX;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, &texture[0]);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
   }
 
   SSAOWrapper::~SSAOWrapper()
@@ -76,6 +91,8 @@ namespace coil
     Gtk::Window* win;
     _refXml->get_widget("SSAOeditWindow", win);
     win->hide();
+
+    glDeleteTextures(1, &_randomTexture);
   }
 
   void SSAOWrapper::edit()
@@ -102,6 +119,16 @@ namespace coil
 
     _refXml->get_widget("falloffSetting", btn);
     _falloff = btn->get_value();
+  }
+
+  void SSAOWrapper::invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, 
+			   size_t width, size_t height) 
+  {
+    glActiveTextureARB(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, _randomTexture);
+
+    _filter.invoke(colorTextureUnit, depthTextureUnit, 5, width, height, 
+		   _radius, _totStrength, _strength, _offset, _falloff); 
   }
 
 }

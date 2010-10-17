@@ -31,10 +31,11 @@ varying vec3 Normal;
 varying float depth; // in eye space
 void main( void )
 {
-  vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-  depth = -viewPos.z;
+  vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+  depth = -viewPos.z / 10.0;
+  Normal = normalize(gl_NormalMatrix * gl_Normal);
+
   gl_Position = ftransform();
-  Normal      = normalize(( gl_ModelViewMatrix * vec4( gl_Normal.xyz, 0.0 ) ).xyz);
 }
 );
     }
@@ -48,7 +49,7 @@ varying vec3 Normal;
 varying float depth;
 void main( void )
 {
-   gl_FragColor = vec4(normalize(Normal),depth);
+  gl_FragColor = vec4(normalize(Normal),depth);
 }
 );
     }

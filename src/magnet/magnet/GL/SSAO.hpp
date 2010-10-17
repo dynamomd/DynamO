@@ -38,10 +38,12 @@ namespace magnet {
 
 	_colorTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture0");
 	_depthTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture1");
+	_rnmTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID, "rnm");
+
 	glUseProgramObjectARB(0);
       }
 
-      void invoke(GLint colorTextureID, GLint depthTextureID, GLuint _width, GLuint _height, 
+      void invoke(GLint colorTextureID, GLint depthTextureID, GLint rnmTextureID, GLuint _width, GLuint _height, 
 		  GLfloat radius, GLfloat totStrength, GLfloat strength, GLfloat offset, GLfloat falloff)
       {
 	//Setup the shader arguments
@@ -49,6 +51,7 @@ namespace magnet {
 	//Horizontal application
 	glUniform1iARB(_colorTextureUniform, colorTextureID);
 	glUniform1iARB(_depthTextureUniform, depthTextureID);
+	glUniform1iARB(_rnmTextureUniform, depthTextureID);
 
 	glUniform1fARB(_radiusUniform, radius);
 	glUniform1fARB(_totstrengthUniform, totStrength);
@@ -100,7 +103,7 @@ namespace magnet {
       static inline std::string fragmentShaderSource();
 
     protected:
-      GLint _colorTextureUniform, _depthTextureUniform;
+      GLint _colorTextureUniform, _depthTextureUniform, _rnmTextureUniform;
       GLint _radiusUniform;
       GLint _totstrengthUniform;
       GLint _strengthUniform   ;

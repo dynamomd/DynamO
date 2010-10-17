@@ -197,7 +197,7 @@ CLGLWindow::initOpenGL()
     {
       _filterTarget1.init(_width, _height);
       _filterTarget2.init(_width, _height);
-      _normalAndDepths.init(_width, _height);
+      _normalAndDepths.init(_width, _height, GL_RGBA, GL_RGBA, GL_FLOAT);
       _shadowFBO.init(1024);
       _shadowShader.build();
       _nrmldepthShader.build();
@@ -675,10 +675,12 @@ CLGLWindow::CallBackDisplayFunc(void)
 
 	  if (renderNormsAndDepth)
 	    {
+	      glDisable(GL_BLEND);
 	      _normalAndDepths.attach();
 	      _nrmldepthShader.attach();
 	      drawScene();
 	      _normalAndDepths.detach();
+	      glEnable(GL_BLEND);
 	    }
 
 	  //Now bind the texture which has the normals and depths

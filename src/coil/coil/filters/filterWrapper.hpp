@@ -47,9 +47,8 @@ namespace coil
 
     inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
     inline virtual bool isEditable() { return true; }
-    inline virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, size_t width, size_t height) 
-    { _filter.invoke(colorTextureUnit, depthTextureUnit, width, height, 
-		     _radius, _totStrength, _strength, _offset, _falloff); }
+    inline virtual void invoke(GLuint colorTextureUnit, GLuint depthTextureUnit, 
+			       size_t width, size_t height);
 
     inline virtual bool needsNormalDepth()  { return true; }
     virtual void edit();
@@ -62,6 +61,8 @@ namespace coil
     GLfloat _strength;
     GLfloat _offset;
     GLfloat _falloff;
+
+    GLuint _randomTexture;
 
     void settingsCallback();
   };
