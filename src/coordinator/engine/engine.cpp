@@ -44,7 +44,7 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
     ("scale-ticker",boost::program_options::value<double>(), 
      "Useful when MFT data is available, can slow down or speed up the ticker in replex mode")
 #ifdef DYNAMO_visualizer    
-    ("visualizer,V", boost::program_options::value<double>()->default_value(1), 
+    ("visualizer,V", boost::program_options::value<double>(), 
      "Enables the visualizer and sets the initial update frequency")
 #endif
     ("equilibrate,E", "Turns off most output for a fast silent run")
