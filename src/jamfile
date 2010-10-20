@@ -27,7 +27,7 @@ lib gsl
 alias dynamo_visualizer :
       coil//coil/<link>static
       : <visualizer>yes
-      : : <visualizer>yes <define>DYNAMO_visualizer
+      : : <visualizer>yes <define>DYNAMO_visualizer 
       ;
 
 alias dynamo_visualizer :
