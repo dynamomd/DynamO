@@ -143,7 +143,8 @@ CIPPacker::initialise()
 	"       --f3 : Bond inner core (>0) [0.9]\n"
 	"       --f4 : Bond outer well (>0) [1.1]\n"
 	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
-	"  6: Example System: Monocomponent square wells confined by two walls\n"
+	"  6: Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells\n"
+	"       --f1 : Elasticity of the particle and wall collisions [1.6]\n"	
 	"  7: Ring/Linear polymer, dropped as a straight rod\n"
 	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
@@ -729,80 +730,60 @@ CIPPacker::initialise()
       }
     case 6:
       {
-	//FCC simple cubic pack of hard spheres and walls
-	//Pack the system, determine the number of particles
-	CVector<long> cells;
 
-	cells[0] = 3;
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
 
-	cells[1] = 5;
+	std::vector<Vector  >
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
-	cells[2] = 5;
-
-	Vector  dimensions(1,1,1);
-
-	dimensions[0] = 0.45;
-
-	boost::scoped_ptr<CUCell> sysPack(new CUFCC(cells, dimensions,
-						    new CUParticle()));
-	Sim->aspectRatio[0] = 0.6;
-
-	std::vector<Vector  > latticeSites(sysPack->placeObjects
-					   (Vector (0,0,0)));
-
-	double particleDiam = 1.0 / 10.0;
-
-	//Just a square well system
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-
-	//Undo the linking of scheduler cells across the x dimension
-	//M_throw() << "Needs an unlinkable scheduler";
-	//static_cast<CSCells*>(Sim->ptrScheduler)->addUnlinkTask(0);
-
+	Sim->aspectRatio = getNormalisedCellDimensions();
 	//Cut off the x periodic boundaries
 	Sim->dynamics.applyBC<BCSquarePeriodicExceptX>();
+	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Sim->dynamics.setUnits(new USquareWell(particleDiam, 1.0, Sim));
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
+
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
+
+	if (vm.count("b1"))
+	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
+	
+	double elasticity = 1;
+	if (vm.count("f1"))
+	  elasticity =  vm["f1"].as<double>();
 
-	Vector  norm(0,0,0), origin(0,0,0);
-	norm[0] = 1.0;
-	origin[0] = -0.25;
-
-	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, norm, origin,
+	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(1,0,0), Vector(-Sim->aspectRatio[0] / 2,0,0),
 					  "LowWall", new CRAll(Sim)));
-	/*Sim->dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin,
-	  "LowWall", new CRAll(Sim)));*/
+	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(-1,0,0), Vector(Sim->aspectRatio[0] / 2,0,0),
+					  "HighWall", new CRAll(Sim)));
 
-	norm[0] = -1.0;
-	origin[0] = 0.25;
-	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, norm, origin,
-					   "HighWall", new CRAll(Sim)));
-
-	/*Sim->dynamics.addGlobal(new CGWall(Sim, 1.0, norm, origin,
-	  "HighWall", new CRAll(Sim)));*/
-
-	double lambda = 1.5;
-
-	Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam, lambda,
-						      1.0, 1.0,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	unsigned long nParticles = 0;
-
 	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->particleList.push_back
-	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-		     nParticles++));
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+						 nParticles++));
 
 	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+
 	break;
       }
     case 7:
