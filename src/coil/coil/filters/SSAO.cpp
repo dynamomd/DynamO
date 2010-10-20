@@ -143,7 +143,7 @@ namespace coil
   SSAOBlurWrapper::SSAOBlurWrapper()
   {
     _radius = 0.005;
-    _totStrength = 0.005;
+    _totStrength = 0.001;
     _strength = 0.11;
     _offset = 13.11;
     _falloff = 0.000002;

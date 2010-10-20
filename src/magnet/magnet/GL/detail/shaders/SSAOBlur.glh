@@ -53,7 +53,7 @@ const float invSamples = 1.0 / 10.0;
 
 const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
 
-float sampleWeight(int i, int j) { return 1.0; /*weight[i] * weight[j]*/; }
+float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
 
 float LinearizeDepth(float zoverw)
 {
@@ -71,9 +71,8 @@ void main(void)
   float shade = 0.0;
   float weight = 0.0;
 
-
-  for(int x = 0; x < 5; ++x)
-    for(int y = 0; y < 5; ++y)
+  for (int x = 0; x < 5; ++x)
+    for (int y = 0; y < 5; ++y)
       {
 	vec2 sampleLoc = gl_TexCoord[0].st + vec2((x - 2) * radius, (y - 2) * radius);
 	float sample = texture2D(u_Texture0, sampleLoc).r;
@@ -90,8 +89,8 @@ void main(void)
 
   vec3 origcolor = texture2D(u_Texture1, gl_TexCoord[0].st).rgb;
 
-  //gl_FragColor =  vec4(shade,0,0,1);
-  gl_FragColor =  vec4(shade * origcolor,1);
+  gl_FragColor =  vec4(shade,0,0,1);
+  //gl_FragColor =  vec4(shade * origcolor,1);
 }
 );
     }
