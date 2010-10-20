@@ -730,8 +730,7 @@ CIPPacker::initialise()
       }
     case 6:
       {
-
-	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle(), true));
 	packptr->initialise();
 
 	std::vector<Vector  >
@@ -2389,13 +2388,13 @@ CIPPacker::getNormalisedCellDimensions()
 }
 
 CUCell*
-CIPPacker::standardPackingHelper(CUCell* tmpPtr)
+CIPPacker::standardPackingHelper(CUCell* tmpPtr, bool forceRectangular)
 {
   CUCell* sysPack;
 
   Vector  boxDimensions(1,1,1);
 
-  if (vm.count("rectangular-box"))
+  if (vm.count("rectangular-box") || forceRectangular)
     {
       boxDimensions = getNormalisedCellDimensions();
     }

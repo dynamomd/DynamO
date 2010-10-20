@@ -42,7 +42,7 @@ class CIPPacker: public DYNAMO::SimBase
   CVector<long> getCells();
   Vector  getNormalisedCellDimensions();
   Vector  getRandVelVec();
-  CUCell* standardPackingHelper(CUCell* );
+  CUCell* standardPackingHelper(CUCell*, bool forceRectangular = false);
 
   po::variables_map& vm;
 };

@@ -390,6 +390,10 @@ CGCells::addCells(double maxdiam)
       + (cellLatticeWidth[iDim] - maxdiam) 
       * lambda;
   
+  //This is just to center the grid of cells about the origin (0,0,0) of the system
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
+    cellOffset = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
+
   I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
 	   << cellCount[1] << "," << cellCount[2];
 
@@ -426,7 +430,9 @@ CGCells::addCells(double maxdiam)
 
       for (size_t iDim = 0; iDim < NDIM; iDim++)
 	cells[id].origin[iDim] = cells[id].coords[iDim] 
-	  * cellLatticeWidth[iDim] - 0.5 * Sim->aspectRatio[iDim];
+	  * cellLatticeWidth[iDim] 
+	  - 0.5 * Sim->aspectRatio[iDim]
+	  + cellOffset[iDim];
     }
 
   //Add the particles section
@@ -447,7 +453,7 @@ CGCells::addLocalEvents()
 
       //We make the box slightly larger to ensure objects on the boundary are included
       BOOST_FOREACH(const magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
-	if (local->isInCell(cell.origin - 0.0001 * cellDimension,  1.0002 * cellDimension))
+	if (local->isInCell(cell.origin - 0.0001 * cellDimension, 1.0002 * cellDimension))
 	  cell.locals.push_back(local->getID());
     }
 }

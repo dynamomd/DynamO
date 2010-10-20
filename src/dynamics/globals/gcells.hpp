@@ -107,6 +107,7 @@ protected:
   CVector<int> cellCount;
   Vector  cellDimension;
   Vector  cellLatticeWidth;
+  Vector  cellOffset;
   double lambda;
   size_t NCells;
   size_t overlink;

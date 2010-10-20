@@ -19,6 +19,8 @@
 #include "../../base/constants.hpp"
 #include "../../datatypes/vector.hpp"
 
+#include <limits>
+
 namespace DYNAMO
 {
   namespace OverlapFunctions
@@ -29,6 +31,7 @@ namespace DYNAMO
      * This is used in the collision CLSentinel to install itself in cells
      */
     bool CubePlane(const Vector& CubeOrigin, const Vector& CubeDimensions,
-		   const Vector& PlaneOrigin, const Vector& PlaneNormal);
+		   const Vector& PlaneOrigin, const Vector& PlaneNormal,
+		   const double tol = 0);
   };
 };
