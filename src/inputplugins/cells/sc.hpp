@@ -49,7 +49,7 @@ struct CUSC: public CUCell
 	      position[iDim] = cellWidth[iDim] * (iterVec[iDim] + 0.5) - 0.5 * dimensions[iDim] + centre[iDim];
 
 	      //Get the next unit cells positions and push them to your list
-	      BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
+	    BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 		retval.push_back(vec);
 	  }
     
