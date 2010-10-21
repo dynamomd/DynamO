@@ -18,7 +18,6 @@
 #pragma once
 
 #include <exception>
-#include <features.h>
 #include <sstream>
 
 //For the stack tracer
@@ -34,31 +33,19 @@
 # endif
 #endif
 
-# ifndef DOXYGEN_SHOULD_IGNORE_THIS
-#  if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
-#    define __MAGNET_EXCEPTION_FUNCTION	__PRETTY_FUNCTION__
-#  else
-#   if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
-#    define __MAGNET_EXCEPTION_FUNCTION	__func__
-#   else
-#    define __MAGNET_EXCEPTION_FUNCTION 'Unknown Function'
-#    define __MAGNET_NO_EXCEPTION_FUNCTION 1
-#   endif
-#  endif
-# endif
-
 #ifdef MAGNET_DEBUG
 # ifdef __GNUC__
-#  define M_throw()							\
-  throw magnet::exception(__LINE__,__FILE__, __MAGNET_EXCEPTION_FUNCTION) \
-  << magnet::stacktrace()
+#  define M_throw()					 \
+  throw magnet::exception(__LINE__,__FILE__, __func__)	 \
+         << magnet::stacktrace()
 # endif
 #endif
 
 #ifndef M_throw
-# define M_throw()							\
-  throw magnet::exception(__LINE__,__FILE__, __MAGNET_EXCEPTION_FUNCTION)
+# define M_throw()					 \
+  throw magnet::exception(__LINE__, __FILE__, __func__)
 #endif
+
 namespace magnet
 {
   /*! \brief An exception class that works like a stream object.
@@ -123,9 +110,7 @@ namespace magnet
     {
       _message << "\nException thrown at ["
 	      << file << ":" << line << "]"
-#ifndef __MAGNET_NO_EXCEPTION_FUNCTION
 	      << "\nIn " << funcname
-#endif
 	      << "\n";
     }
 
