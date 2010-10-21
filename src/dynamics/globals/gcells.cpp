@@ -397,7 +397,10 @@ CGCells::addCells(double maxdiam)
   I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
 	   << cellCount[1] << "," << cellCount[2];
 
-  I_cout() << "Cells dimension <x,y,z>  " 
+  I_cout() << "Cell Offset <x,y,z>  " << cellOffset[0] << ","
+	   << cellOffset[1] << "," << cellOffset[2];
+
+  I_cout() << "Cells Dimension <x,y,z>  " 
 	   << cellDimension[0] / Sim->dynamics.units().unitLength()
 	   << ","
 	   << cellDimension[1] / Sim->dynamics.units().unitLength()
