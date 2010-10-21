@@ -42,25 +42,26 @@ struct CUFCC: public CUCell
     
     double rcoord[4][3];
     
+    //The unit cell is centered in the cell box
     // sublattice a ---
-    rcoord[0][0] = 0.0;
-    rcoord[0][1] = 0.0;
-    rcoord[0][2] = 0.0;
+    rcoord[0][0] = cellWidth[0] * 0.25;
+    rcoord[0][1] = cellWidth[1] * 0.25;
+    rcoord[0][2] = cellWidth[2] * 0.25;
     
     // sublattice b ---
-    rcoord[1][0] = cellWidth[0] * 0.5;
-    rcoord[1][1] = cellWidth[1] * 0.5;
-    rcoord[1][2] = 0.0;
+    rcoord[1][0] = cellWidth[0] * 0.75;
+    rcoord[1][1] = cellWidth[1] * 0.75;
+    rcoord[1][2] = cellWidth[2] * 0.25;
     
     // sublattice c ---
-    rcoord[2][0] = 0.0;
-    rcoord[2][1] = cellWidth[1] * 0.5;
-    rcoord[2][2] = cellWidth[2] * 0.5;
+    rcoord[2][0] = cellWidth[0] * 0.25;
+    rcoord[2][1] = cellWidth[1] * 0.75;
+    rcoord[2][2] = cellWidth[2] * 0.75;
     
     // sublattice d ---
-    rcoord[3][0] = cellWidth[0] * 0.5;
-    rcoord[3][1] = 0.0;
-    rcoord[3][2] = cellWidth[2] * 0.5;
+    rcoord[3][0] = cellWidth[0] * 0.75;
+    rcoord[3][1] = cellWidth[1] * 0.25;
+    rcoord[3][2] = cellWidth[2] * 0.75;
     
     Vector  position;
     CVector<int> iterVec;
