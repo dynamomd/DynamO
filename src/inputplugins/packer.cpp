@@ -144,7 +144,7 @@ CIPPacker::initialise()
 	"       --f4 : Bond outer well (>0) [1.1]\n"
 	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
 	"  6: Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells\n"
-	"       --f1 : Elasticity of the particle and wall collisions [1.6]\n"	
+	"       --f1 : Elasticity of the particle and wall collisions [1]\n"	
 	"  7: Ring/Linear polymer, dropped as a straight rod\n"
 	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
 	"       --f1 : Bond inner core (>0) [1.0]\n"
