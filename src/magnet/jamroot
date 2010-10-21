@@ -15,9 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 lib OpenCL : : <link>shared ;
+lib dl : : <link>shared ;
 
-alias magnet :
-      : <include>.
+alias magnet : dl
+      : <include>. 
       : 
       : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic ;
 
