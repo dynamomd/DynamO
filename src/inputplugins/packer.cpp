@@ -763,9 +763,13 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  elasticity =  vm["f1"].as<double>();
 
-	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(1,0,0), Vector(-Sim->aspectRatio[0] / 2,0,0),
+	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(1,0,0), 
+					  Vector(-Sim->aspectRatio[0] / 2 
+						 + 10 * std::numeric_limits<double>::epsilon(), 0, 0),
 					  "LowWall", new CRAll(Sim)));
-	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(-1,0,0), Vector(Sim->aspectRatio[0] / 2,0,0),
+	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(-1,0,0), 
+					  Vector(Sim->aspectRatio[0] / 2 
+						 - 10 * std::numeric_limits<double>::epsilon(), 0, 0),
 					  "HighWall", new CRAll(Sim)));
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
