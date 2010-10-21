@@ -70,7 +70,7 @@ CSRingDSMC::runEvent() const
   double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-  if (isnan(locdt))
+  if (boost::math::isnan(locdt))
     M_throw() << "A NAN system event time has been found";
 #endif
     

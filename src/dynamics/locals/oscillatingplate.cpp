@@ -56,7 +56,7 @@ CLOscillatingPlate::getEvent(const Particle& part) const
   //bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
 
   double reducedt = Sim->dSysTime 
-    - 2.0 * M_PIl * int(Sim->dSysTime * omega0 / (2.0*M_PIl)) / omega0;
+    - 2.0 * M_PI * int(Sim->dSysTime * omega0 / (2.0*M_PI)) / omega0;
 
   std::pair<bool, double> eventData = Sim->dynamics.getLiouvillean().getPointPlateCollision
     (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 

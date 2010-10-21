@@ -27,6 +27,7 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
+#include <boost/math/special_functions/fpclassify.hpp>
 
 bool 
 LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const
@@ -143,7 +144,7 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2) const
 	  dat.dt = (d2 - dat.r2) / (dat.rvdot-sqrt(arg));
 
 #ifdef DYNAMO_DEBUG
-	  if (std::isnan(dat.dt))
+	  if (boost::math::isnan(dat.dt))
 	    M_throw() << "dat.dt is nan";
 #endif
 	  return true;
@@ -161,7 +162,7 @@ LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2) const
   dat.dt = (sqrt(dat.rvdot * dat.rvdot 
 		 - dat.v2 * (dat.r2 - d2)) - dat.rvdot) / dat.v2;
 
-  if (isnan(dat.dt))
+  if (boost::math::isnan(dat.dt))
     {//The nan occurs if the spheres aren't moving apart
       dat.dt = HUGE_VAL;
       return false;
@@ -910,7 +911,7 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE,
     }
   
 #ifdef DYNAMO_DEBUG
-  if (isnan(retVal.dP[0]))
+  if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred";
 #endif
   
@@ -1311,7 +1312,7 @@ LNewtonian::getCylinderWallCollision(const Particle& part,
 
   double t = (std::sqrt(B*B - A*C) - B) / A;
 
-  if (std::isnan(t))
+  if (boost::math::isnan(t))
     return HUGE_VAL;
   else
     return t;

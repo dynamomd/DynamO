@@ -134,7 +134,7 @@ CScheduler::runNextEvent()
     }
   
 #ifdef DYNAMO_DEBUG
-  if (isnan(sorter->next_dt()))
+  if (boost::math::isnan(sorter->next_dt()))
     M_throw() << "Next event time is NaN"
 	      << "\nTime to event "
 	      << sorter->next_dt()
@@ -219,7 +219,7 @@ CScheduler::runNextEvent()
 	
 #ifdef DYNAMO_DEBUG
 
-	if (isnan(Event.getdt()))
+	if (boost::math::isnan(Event.getdt()))
 	  M_throw() << "A NAN Interaction collision time has been found"
 		    << Event.stringData(Sim);
 	
@@ -307,7 +307,7 @@ CScheduler::runNextEvent()
 	_localRejectionCounter = 0;
 
 #ifdef DYNAMO_DEBUG 
-	if (isnan(iEvent.getdt()))
+	if (boost::math::isnan(iEvent.getdt()))
 	  M_throw() << "A NAN Global collision time has been found\n"
 		    << iEvent.stringData(Sim);
 	

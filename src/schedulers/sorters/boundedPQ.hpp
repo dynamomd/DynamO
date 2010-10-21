@@ -257,7 +257,7 @@ public:
   inline void push(const intPart& tmpVal, const size_t& pID)
   {
 #ifdef DYNAMO_DEBUG
-    if (std::isnan(tmpVal.dt))
+    if (boost::math::isnan(tmpVal.dt))
       M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif 
 

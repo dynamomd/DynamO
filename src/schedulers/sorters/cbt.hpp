@@ -23,6 +23,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "datastruct.hpp"
 #include "sorter.hpp"
+#include <boost/math/special_functions/fpclassify.hpp>
 
 class CSSCBT: public CSSorter
 {
@@ -118,7 +119,7 @@ public:
   {
     //Exit early
 #ifdef DYNAMO_DEBUG
-    if (std::isnan(tmpVal.dt))
+    if (boost::math::isnan(tmpVal.dt))
       M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif
 

@@ -28,6 +28,7 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
+#include <boost/math/special_functions/fpclassify.hpp>
 
 LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
@@ -203,7 +204,7 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
     }
   
 #ifdef DYNAMO_DEBUG
-  if (isnan(retVal.dP[0]))
+  if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred";
 #endif
   

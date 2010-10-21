@@ -89,7 +89,7 @@ CGParabolaSentinel::runEvent(const Particle& part) const
   passedParabola[part.getID()] = true;
 
 #ifdef DYNAMO_DEBUG 
-  if (isnan(iEvent.getdt()))
+  if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);
   

@@ -27,6 +27,7 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
+#include <boost/math/special_functions/fpclassify.hpp>
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
@@ -308,7 +309,7 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
 
   double t = (std::sqrt(B*B - A*C) - B) / A;
 
-  if (std::isnan(t))
+  if (boost::math::isnan(t))
     return HUGE_VAL;
   else
     return t;

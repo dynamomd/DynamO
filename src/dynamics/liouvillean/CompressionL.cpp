@@ -23,6 +23,7 @@
 #include "../BC/BC.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
+#include <boost/math/special_functions/fpclassify.hpp>
 
 LCompression::LCompression(DYNAMO::SimData* tmp, double GR):
   LNewtonian(tmp),
@@ -193,7 +194,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
   retVal.rvdot *= retVal.rij.nrm();
   
 #ifdef DYNAMO_DEBUG
-  if (isnan(retVal.dP[0]))
+  if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred"
 	      << "\ndeltaKE = " << deltaKE
 	      << "\ngrowthRate = " << growthRate

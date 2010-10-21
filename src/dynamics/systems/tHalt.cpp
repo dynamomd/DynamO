@@ -38,7 +38,7 @@ CStHalt::runEvent() const
   double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-  if (isnan(dt))
+  if (boost::math::isnan(dt))
     M_throw() << "A NAN system event time has been found";
 #endif
     
