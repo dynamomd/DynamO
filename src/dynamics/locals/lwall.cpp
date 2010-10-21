@@ -76,8 +76,7 @@ CLWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 bool 
 CLWall::isInCell(const Vector & Origin, const Vector& CellDim) const
 {
-  return DYNAMO::OverlapFunctions::CubePlane
-    (Origin, CellDim, vPosition, vNorm);
+  return DYNAMO::OverlapFunctions::CubePlane(Origin, CellDim, vPosition, vNorm);
 }
 
 void 
