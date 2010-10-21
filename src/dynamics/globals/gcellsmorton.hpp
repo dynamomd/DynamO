@@ -95,6 +95,7 @@ protected:
   magnet::math::DilatedInteger dilatedCellMax;
   double  cellDimension;
   double  cellLatticeWidth;
+  double cellOffset;
   double lambda;
   size_t NCells;
   size_t overlink;

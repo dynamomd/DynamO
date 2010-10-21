@@ -367,7 +367,7 @@ CGCells::addCells(double maxdiam)
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
-      cellCount[iDim] = int(Sim->aspectRatio[iDim] / maxdiam);
+      cellCount[iDim] = int(Sim->aspectRatio[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
       
       if (cellCount[iDim] < 3)
 	M_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";

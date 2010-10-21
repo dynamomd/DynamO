@@ -289,7 +289,7 @@ CGCellsMorton::reinitialise(const double& maxdiam)
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
   //Create the cells
-  addCells(maxdiam / overlink);
+  addCells((maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())) / overlink);
 
   addLocalEvents();
 
@@ -351,6 +351,9 @@ CGCellsMorton::addCells(double maxdiam)
   cellDimension = cellLatticeWidth + (cellLatticeWidth - maxdiam) 
       * lambda;
   
+  cellOffset = -(cellLatticeWidth - maxdiam) * lambda * 0.5;
+
+
   I_cout() << "Cells <N>  " << NCells;
 
   I_cout() << "Cells dimension <x>  " 
@@ -430,13 +433,13 @@ CGCellsMorton::getCellID(const CVector<int>& coordsold) const
 }
 
 magnet::math::DilatedVector
-CGCellsMorton::getCellID(Vector  pos) const
+CGCellsMorton::getCellID(Vector pos) const
 {
   Sim->dynamics.BCs().applyBC(pos);
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) 
+    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim] - cellOffset)
 		     / cellLatticeWidth);
   
   return getCellID(temp);
@@ -527,7 +530,7 @@ CGCellsMorton::calcPosition(const magnet::math::DilatedVector& coords, const Par
   Vector primaryCell;
   
   for (size_t i(0); i < NDIM; ++i)
-    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[i];
+    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[i] + cellOffset;
 
   
   Vector imageCell;
@@ -546,7 +549,8 @@ CGCellsMorton::calcPosition(const magnet::math::DilatedVector& coords) const
   Vector primaryCell;
   
   for (size_t i(0); i < NDIM; ++i)
-    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[i];
+    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth 
+      - 0.5 * Sim->aspectRatio[i] + cellOffset;
   
   return primaryCell;
 }
