@@ -19,17 +19,17 @@
 
 #include <gtkmm.h>
 #include "filter.hpp"
-#include <magnet/GL/SSAO.hpp>
+#include <magnet/GL/BilateralBlur.hpp>
 
 namespace coil 
 {
-  class SSAOWrapper: public filter
+  class BilateralBlurWrapper: public filter
   {
   public:
-    SSAOWrapper();
-    ~SSAOWrapper();
+    BilateralBlurWrapper();
+    ~BilateralBlurWrapper();
 
-    inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
+    inline virtual size_t type_id() { return detail::filterEnum<BilateralBlurWrapper>::val; }    
     inline virtual bool isEditable() { return true; }
     inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height);
 
@@ -37,12 +37,10 @@ namespace coil
     virtual void edit();
 
   protected:
-    magnet::GL::SSAO _filter;
+    magnet::GL::BilateralBlur _filter;
     Glib::RefPtr<Gtk::Builder> _refXml;
     GLfloat _radius;
     GLfloat _totStrength;
-    GLfloat _strength;
-    GLfloat _offset;
 
     GLuint _randomTexture;
 

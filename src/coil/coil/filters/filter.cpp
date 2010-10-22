@@ -18,6 +18,7 @@
 #include <coil/filters/filter.hpp>
 #include <coil/filters/filterWrapper.hpp>
 #include <coil/filters/SSAO.hpp>
+#include <coil/filters/bilateralBlur.hpp>
 #include <magnet/exception.hpp>
 
 namespace coil 
