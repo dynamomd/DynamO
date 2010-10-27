@@ -47,6 +47,8 @@ inline float clamp(float x, float a, float b)
 
 #include <magnet/function/task.hpp>
 
+#include <gtkmm/volumebutton.h>
+
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title,
@@ -66,11 +68,13 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _specialKeys(0),
   _shaderPipeline(false),
   _shadowMapping(true),
+  _shadowIntensity(0.6),
   _simrun(false),
   _simframelock(false),
   _snapshot(false),
   _record(false),
   _showAxis(true),
+  _showLight(true),
   _filterEnable(true),
   _snapshot_counter(0)
 {
@@ -276,6 +280,14 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(*this, &CLGLWindow::axisShowCallback));
   }
 
+  {//////Show light checkbox
+    Gtk::CheckButton* lightShowButton;    
+    _refXml->get_widget("lightShow", lightShowButton); 
+
+    lightShowButton->signal_toggled()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::lightShowCallback));
+  }
+
   {//////Snapshot button
     Gtk::Button* btn;
     _refXml->get_widget("SimSnapshot", btn);
@@ -306,7 +318,7 @@ CLGLWindow::initGTK()
 	shaderFrame->set_sensitive(true);
       }
       
-      {//Setup the checkbox
+      {//Setup the shader enable
 	Gtk::CheckButton* shaderEnable;
 	_refXml->get_widget("ShaderPipelineEnable", shaderEnable);
 	
@@ -314,7 +326,6 @@ CLGLWindow::initGTK()
 
 	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
       }
-
 
       ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
       GLint maxSamples;
@@ -385,6 +396,14 @@ CLGLWindow::initGTK()
 	_refXml->get_widget("shadowmapSize", shadowmapSize);
 	shadowmapSize->set_value(1024);
 	shadowmapSize->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+      }
+
+      {//Setup the shadow intensity
+	Gtk::VolumeButton* shadowButton;
+	_refXml->get_widget("shadowIntensity", shadowButton);
+	shadowButton->set_value(0.6);
+
+	shadowButton->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
       }
 
       {///////////////////////Filters//////////////////////////////////
@@ -647,7 +666,7 @@ CLGLWindow::CallBackDisplayFunc(void)
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping);
+      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping, _shadowIntensity);
       drawScene();
       
       _renderTarget->detach();
@@ -749,7 +768,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   drawAxis();
 
   //Draw the light source
-  _light0.drawLight();
+  if (_showLight) _light0.drawLight();
 
   glutSwapBuffers();
 
@@ -1148,6 +1167,22 @@ CLGLWindow::axisShowCallback()
   
   _showAxis = axisShowButton->get_active();
 }
+
+void 
+CLGLWindow::lightShowCallback()
+{
+  Gtk::CheckButton* lightShowButton;
+  _refXml->get_widget("lightShow", lightShowButton);
+  
+  _showLight = lightShowButton->get_active();
+}
+
+void 
+CLGLWindow::shadowIntensityCallback(double val)
+{
+  _shadowIntensity = val;
+}
+
 
 void 
 CLGLWindow::filterUpCallback()

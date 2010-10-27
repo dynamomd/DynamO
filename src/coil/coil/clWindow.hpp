@@ -154,11 +154,13 @@ private:
 
   bool _shaderPipeline;
   bool _shadowMapping;
+  GLfloat _shadowIntensity;
   volatile bool _simrun;
   volatile bool _simframelock;
   bool _snapshot;
   bool _record;
   bool _showAxis;
+  bool _showLight;
   bool _filterEnable;
 
   size_t _snapshot_counter;
@@ -210,6 +212,8 @@ private:
   void snapshotCallback();
   void recordCallback();
   void axisShowCallback();
+  void lightShowCallback();
+  void shadowIntensityCallback(double);
 
   void runCallback(); 
 };
