@@ -29,8 +29,8 @@ namespace coil
 
   BilateralBlurWrapper::BilateralBlurWrapper()
   {
-    _radius = 0.005;
-    _totStrength = 0.001;
+    _radius = 1;
+    _totStrength = 0.01245;
 
     _filter.build(); 
 

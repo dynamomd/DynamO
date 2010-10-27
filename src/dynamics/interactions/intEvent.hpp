@@ -40,9 +40,9 @@ public:
   friend struct intPart;
 
   inline IntEvent ():
-  particle1(-1), particle2(-1), 
+    particle1(std::numeric_limits<size_t>::max()), particle2(std::numeric_limits<size_t>::max()), 
   dt(HUGE_VAL), CType(NONE),
-  intID(-1) {}
+  intID(std::numeric_limits<size_t>::max()) {}
 
   inline IntEvent(const Particle& part1, const Particle& part2, 
 		   const double &delt, EEventType nType, 
@@ -51,15 +51,15 @@ public:
     CType(nType), intID(pI.getID()) {}
   
   inline IntEvent (const Particle& part1):
-    particle1(part1.getID()), particle2(-1), 
+    particle1(part1.getID()), particle2(std::numeric_limits<size_t>::max()), 
     dt(HUGE_VAL), CType(NONE),
-    intID(-1) {}
+    intID(std::numeric_limits<size_t>::max()) {}
 
   inline IntEvent(const Particle& part1, const double& dt, 
 		     EEventType etype):
-    particle1(part1.getID()), particle2(-1), 
+    particle1(part1.getID()), particle2(std::numeric_limits<size_t>::max()), 
     dt(dt), CType(etype),
-    intID(-1) {}
+    intID(std::numeric_limits<size_t>::max()) {}
 
   inline bool operator== (const Particle &partx) const 
   { return ((particle1 == partx.getID()) || (particle2 == partx.getID())); }
@@ -92,7 +92,7 @@ public:
   
   inline const size_t& getParticle2ID() const { return particle2; }
   
-  inline bool hasParticle2() const { return particle2 != size_t(-1); }
+  inline bool hasParticle2() const { return particle2 != std::numeric_limits<size_t>::max(); }
 
   inline const double& getdt() const { return dt; }
 
