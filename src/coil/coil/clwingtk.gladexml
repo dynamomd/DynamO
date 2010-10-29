@@ -358,7 +358,6 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="label4">
-                        <property name="visible">True</property>
                         <property name="xalign">0.94999998807907104</property>
                         <property name="label" translatable="yes">Coordinates</property>
                       </object>
@@ -368,7 +367,6 @@
                     </child>
                     <child>
                       <object class="GtkEntry" id="entry2">
-                        <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="width_chars">4</property>
@@ -381,7 +379,6 @@
                     </child>
                     <child>
                       <object class="GtkEntry" id="entry1">
-                        <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="width_chars">4</property>
@@ -394,7 +391,6 @@
                     </child>
                     <child>
                       <object class="GtkEntry" id="entry3">
-                        <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="width_chars">4</property>

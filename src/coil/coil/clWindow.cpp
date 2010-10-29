@@ -75,6 +75,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _record(false),
   _showAxis(true),
   _showLight(true),
+  _showGround(true),
   _PNGFileFormat(true),
   _fpsLimit(true),
   _fpsLimitValue(60),
@@ -293,6 +294,14 @@ CLGLWindow::initGTK()
 
     lightShowButton->signal_toggled()
       .connect(sigc::mem_fun(*this, &CLGLWindow::lightShowCallback));
+  }
+
+  {//////Show ground checkbox
+    Gtk::CheckButton* Button;    
+    _refXml->get_widget("showGround", Button); 
+
+    Button->signal_toggled()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::groundShowCallback));
   }
 
   {//////Snapshot button
@@ -879,36 +888,19 @@ CLGLWindow::drawScene()
     (*iPtr)->glRender();
 
   //Draw a ground
-  glColor3f(1,1,1);
-  
-   glBegin(GL_QUADS);
-   //Front
-   glNormal3f(0, 1, 0);
-   glVertex3f(-100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
-   glVertex3f(-100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
-   glVertex3f( 100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
-   glVertex3f( 100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
-
-//   glNormal3f(0, -1, 0);
-//   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
-//   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52,  10 + _viewPortInfo._cameraZ);
-//   glVertex3f( 10 + _viewPortInfo._cameraX, - 0.52,  10 + _viewPortInfo._cameraZ);
-//   glVertex3f( 10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
-
-   //Back
-//   glNormal3f(0, -1, 0);
-//   glVertex3f(-10, -0.51, -10);
-//   glVertex3f(-10, -0.51,  10);
-//   glVertex3f( 10, -0.51,  10);
-//   glVertex3f( 10, -0.51, -10);
-
-   glEnd();
-  
-//  glPushMatrix();
-//  glTranslatef(2.0f,0.5f,2.0f);
-////  glScalef(4.0f, 0.01f, 4.0f);
-//  glutSolidSphere(1.0, 20, 20);
-//  glPopMatrix();
+  if (_showGround)
+    {
+      glColor3f(1,1,1);
+      
+      glBegin(GL_QUADS);
+      //Front
+      glNormal3f(0, 1, 0);
+      glVertex3f(-100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
+      glVertex3f(-100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
+      glVertex3f( 100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
+      glVertex3f( 100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
+      glEnd();
+    }
 }
 
 
@@ -1224,6 +1216,15 @@ CLGLWindow::lightShowCallback()
   _refXml->get_widget("lightShow", lightShowButton);
   
   _showLight = lightShowButton->get_active();
+}
+
+void 
+CLGLWindow::groundShowCallback()
+{
+  Gtk::CheckButton* Button;
+  _refXml->get_widget("showGround", Button);
+  
+  _showGround = Button->get_active();
 }
 
 void 
