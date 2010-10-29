@@ -100,6 +100,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">&#x25CF;</property>
+                            <property name="width_chars">8</property>
+                            <property name="xalign">1</property>
                             <property name="adjustment">framerateAdjustment</property>
                             <property name="digits">6</property>
                             <property name="numeric">True</property>
@@ -199,27 +201,28 @@
                         <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkRadioButton" id="radiobutton1">
+                          <object class="GtkRadioButton" id="snapshotBMP">
                             <property name="label" translatable="yes">Bitmap</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
-                            <property name="active">True</property>
+                            <property name="tooltip_text" translatable="yes">BMP output file format (faster, but larger files)</property>
                             <property name="draw_indicator">True</property>
-                            <property name="group">radiobutton2</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkRadioButton" id="radiobutton2">
+                          <object class="GtkRadioButton" id="snapshotPNG">
                             <property name="label" translatable="yes">PNG</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="tooltip_text" translatable="yes">PNG output file format</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
+                            <property name="group">snapshotBMP</property>
                           </object>
                           <packing>
                             <property name="position">1</property>
@@ -228,18 +231,6 @@
                       </object>
                       <packing>
                         <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label5">
-                        <property name="visible">True</property>
-                        <property name="xalign">0.94999998807907104</property>
-                        <property name="label" translatable="yes">Snapshot Folder</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">3</property>
                       </packing>
                     </child>
                     <child>
@@ -252,7 +243,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">4</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </object>
@@ -280,6 +271,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="active">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -292,7 +284,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
-                        <property name="adjustment">adjustment1</property>
+                        <property name="xalign">1</property>
+                        <property name="adjustment">FPSAdjustment</property>
+                        <property name="numeric">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -313,7 +307,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkCheckButton" id="axisShow">
-                        <property name="label" translatable="yes">Display axis</property>
+                        <property name="label" translatable="yes">Display Axis</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -321,7 +315,6 @@
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -335,8 +328,6 @@
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
                         <property name="padding">10</property>
                         <property name="position">1</property>
                       </packing>
@@ -346,6 +337,78 @@
                     <property name="expand">False</property>
                     <property name="padding">5</property>
                     <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox10">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkCheckButton" id="showGround">
+                        <property name="label" translatable="yes">Show Ground</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label4">
+                        <property name="visible">True</property>
+                        <property name="xalign">0.94999998807907104</property>
+                        <property name="label" translatable="yes">Coordinates</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="width_chars">4</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="width_chars">4</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="width_chars">4</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">4</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
               </object>
@@ -781,10 +844,9 @@
     <property name="upper">1</property>
     <property name="step_increment">0.01</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment1">
+  <object class="GtkAdjustment" id="FPSAdjustment">
+    <property name="value">60</property>
     <property name="upper">100</property>
     <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
 </interface>

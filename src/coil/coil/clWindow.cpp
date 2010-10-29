@@ -75,6 +75,9 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _record(false),
   _showAxis(true),
   _showLight(true),
+  _PNGFileFormat(true),
+  _fpsLimit(true),
+  _fpsLimitValue(60),
   _filterEnable(true),
   _snapshot_counter(0)
 {
@@ -216,6 +219,10 @@ CLGLWindow::initOpenGL()
 void 
 CLGLWindow::CallBackIdleFunc()
 {
+  //Check if limiting the FPS
+  if (_fpsLimit && (_fpsLimitValue * (glutGet(GLUT_ELAPSED_TIME) - _lastFrameTime) < 1000))
+      return;
+
   CallBackDisplayFunc();
 }
 
@@ -301,6 +308,17 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::recordCallback));
   }
 
+  {///////File format selection
+    Gtk::RadioButton* radioButton;
+    _refXml->get_widget("snapshotBMP", radioButton);
+    radioButton->set_active(false);
+    radioButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::snapshotFileFormatCallback));
+    _refXml->get_widget("snapshotPNG", radioButton);
+    radioButton->set_active(true);
+  }
+  
+
   {///////Control the update rate from the simulation
     Gtk::SpinButton* updateButton;
     _refXml->get_widget("updateFreq", updateButton);
@@ -308,6 +326,23 @@ CLGLWindow::initGTK()
     updateButton->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::simUpdateRateCallback));
   }
+
+  {///////FPS lock
+    Gtk::ToggleButton* fpslockButton;
+    _refXml->get_widget("FPSLimit", fpslockButton);
+    fpslockButton->set_active(_fpsLimit);
+    fpslockButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
+  }
+
+  {///////FPS lock value
+    Gtk::SpinButton* fpsButton;
+    _refXml->get_widget("FPSLimitVal", fpsButton);
+    fpsButton->set_value(_fpsLimitValue);
+    fpsButton->signal_value_changed()
+      .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
+  }
+
   ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
     {
@@ -788,8 +823,21 @@ CLGLWindow::CallBackDisplayFunc(void)
 
       if (_snapshot)
 	{
-	  png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, true);
 	  _snapshot = false;
+
+	  if (_PNGFileFormat)
+	    png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, false, true);
+	  else
+	    {
+	      bitmap_image img(_width, _height);	  	  
+	      for (size_t y(0); y < _height; ++y)
+		for (size_t x(0); x < _width; ++x)
+		  img.set_pixel(x, y, 
+				pixels[(_height -1 - y) * _width + x].red(),
+				pixels[(_height -1 - y) * _width + x].green(),
+				pixels[(_height -1 - y) * _width + x].blue());	  
+	      img.save_image(path + "/snapshot.bmp");
+	    }
 	}
 
       if (_record)
@@ -797,18 +845,19 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  std::ostringstream filename;
 	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	  
-	  bitmap_image img(_width, _height);
-	  	  
-	  for (size_t y(0); y < _height; ++y)	  
-	    for (size_t x(0); x < _width; ++x)
-	      img.set_pixel(x, y, 
-	  		    pixels[(_height -1 - y) * _width + x].red(),
-	  		    pixels[(_height -1 - y) * _width + x].green(),
-	  		    pixels[(_height -1 - y) * _width + x].blue());
-	  
-	  img.save_image(path + "/" + filename.str() +".bmp");
-
-	  //png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true, true);
+	  if (_PNGFileFormat)
+	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true, true);
+	  else
+	    {
+	      bitmap_image img(_width, _height);	  	  
+	      for (size_t y(0); y < _height; ++y)	  
+		for (size_t x(0); x < _width; ++x)
+		  img.set_pixel(x, y, 
+				pixels[(_height -1 - y) * _width + x].red(),
+				pixels[(_height -1 - y) * _width + x].green(),
+				pixels[(_height -1 - y) * _width + x].blue());	  
+	      img.save_image(path + "/" + filename.str() +".bmp");
+	    }
 	}
     }
 
@@ -1183,6 +1232,13 @@ CLGLWindow::shadowIntensityCallback(double val)
   _shadowIntensity = val;
 }
 
+void 
+CLGLWindow::snapshotFileFormatCallback()
+{
+  Gtk::RadioButton* radioButton;
+  _refXml->get_widget("snapshotPNG", radioButton);
+  _PNGFileFormat = radioButton->get_active();
+}
 
 void 
 CLGLWindow::filterUpCallback()
@@ -1314,7 +1370,6 @@ CLGLWindow::filterEnableCallback()
   _filterEnable = btn->get_active();
 }
 
-
 void 
 CLGLWindow::filterClearCallback()
 {
@@ -1338,4 +1393,16 @@ CLGLWindow::simUpdateRateCallback()
     updateButton->set_value(0.000001);
   
   _updateIntervalValue = updateButton->get_value();
+}
+
+void
+CLGLWindow::FPSLimitCallback()
+{
+  Gtk::ToggleButton* fpslockButton;
+  _refXml->get_widget("FPSLimit", fpslockButton);
+  _fpsLimit = fpslockButton->get_active();
+
+  Gtk::SpinButton* fpsButton;
+  _refXml->get_widget("FPSLimitVal", fpsButton);
+  _fpsLimitValue = fpsButton->get_value();
 }

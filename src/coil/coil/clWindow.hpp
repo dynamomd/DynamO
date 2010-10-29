@@ -161,6 +161,9 @@ private:
   bool _record;
   bool _showAxis;
   bool _showLight;
+  bool _PNGFileFormat;
+  bool _fpsLimit;
+  int  _fpsLimitValue;
   bool _filterEnable;
 
   size_t _snapshot_counter;
@@ -214,6 +217,8 @@ private:
   void axisShowCallback();
   void lightShowCallback();
   void shadowIntensityCallback(double);
+  void snapshotFileFormatCallback();
+  void FPSLimitCallback();
 
   void runCallback(); 
 };
