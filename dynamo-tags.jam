@@ -18,7 +18,10 @@ import type ;
 
 rule naming ( name : type ? : property-set )
 {
-  local result = $(name) ;
+  local fullname	;
+
+  fullname = [ type.generated-target-prefix $(type) : $(property-set) ] ;
+  fullname += $(name) ;
 
   if [ type.is-derived $(type) EXE ]
   {  
@@ -34,7 +37,7 @@ rule naming ( name : type ? : property-set )
      }
   }
 
-  #This joins all list elements with no seperator
-  return $(result:J=) ;
+  fullname += [ type.generated-target-suffix $(type) : $(property-set) ] ;
+  return $(fullname:J=) ;
 }
 
