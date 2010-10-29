@@ -73,12 +73,30 @@ namespace magnet {
 	std::vector<cl::Platform> platforms;
        cl::Platform::get(&platforms);
       
-        //Now cycle through the platforms trying to get a context
+        //Now cycle through the platforms trying to get a context with a GPU
         for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
              iPtr != platforms.end(); ++iPtr)
 	  {
 	    try {
-	      _context = getCLGLContext(*iPtr);
+	      _context = getCLGLContext(*iPtr, CL_DEVICE_TYPE_GPU);
+	      //We must check the context for 
+	      
+	      //Success! now set the platform and return!
+	      _platform = *iPtr;
+	     cl::GLBuffer::hostTransfers() = false;
+	      return;
+	    } catch (...)
+	      {/*Failed so we just carry on*/}
+	  }
+
+        //Now cycle through the platforms trying to get a context with a GPU
+        for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
+             iPtr != platforms.end(); ++iPtr)
+	  {
+	    try {
+	      _context = getCLGLContext(*iPtr, CL_DEVICE_TYPE_ALL);
+	      //We must check the context for 
+	      
 	      //Success! now set the platform and return!
 	      _platform = *iPtr;
 	     cl::GLBuffer::hostTransfers() = false;
@@ -96,14 +114,14 @@ namespace magnet {
 					       (cl_context_properties)getPlatform()(),
 					       0};
 	try {
-	  _context =cl::Context(CL_DEVICE_TYPE_ALL, cpsFallBack, NULL, NULL);
+	  _context = cl::Context(CL_DEVICE_TYPE_ALL, cpsFallBack, NULL, NULL);
 	} catch (...)
 	  {
 	    throw std::runtime_error("Failed to create a normal OpenCL context!");
 	  }
       }
       
-      inline cl::Context getCLGLContext(::cl::Platform clplatform)
+      inline cl::Context getCLGLContext(::cl::Platform clplatform, cl_device_type dev_type)
       {
 	if (glXGetCurrentContext() == NULL)
 	  throw std::runtime_error("Failed to obtain the GL context");
@@ -116,7 +134,7 @@ namespace magnet {
 	
 	//create the OpenCL context 
 	try {
-	  clcontext =cl::Context(CL_DEVICE_TYPE_ALL, cpsGL, NULL, NULL);
+	  clcontext =cl::Context(dev_type, cpsGL, NULL, NULL);
 	} catch(...)
 	  {
 	    throw std::runtime_error("Could not generate CLGL context");
