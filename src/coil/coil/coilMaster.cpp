@@ -49,14 +49,24 @@ CoilMaster::~CoilMaster(){
  
 void CoilMaster::CallBackDisplayFunc(){
    int windowID = glutGetWindow();   
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackDisplayFunc();
 }
 
 void CoilMaster::CallBackCloseWindow()
 {
   int windowID = glutGetWindow();
-  
-  
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
   CoilMaster::getInstance()._viewPorts[windowID]->deinit(false);
 
   //Shutdown all windows, we can't yet recover from a window close
@@ -66,60 +76,119 @@ void CoilMaster::CallBackCloseWindow()
 void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackKeyboardFunc(key, x, y);
 }
 
 void CoilMaster::CallBackKeyboardUpFunc(unsigned char key, int x, int y){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackKeyboardUpFunc(key, x, y);
 }
 
 void CoilMaster::CallBackMotionFunc(int x, int y){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackMotionFunc(x, y);
 }
 
 void CoilMaster::CallBackMouseFunc(int button, int state, int x, int y){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackMouseFunc(button, state, x, y);
 }
 
 void CoilMaster::CallBackMouseWheelFunc(int button, int dir, int x, int y){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackMouseWheelFunc(button, dir, x, y);
 }
 
 void CoilMaster::CallBackPassiveMotionFunc(int x, int y){
-
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackPassiveMotionFunc(x, y);
 }
 
 void CoilMaster::CallBackReshapeFunc(int w, int h){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackReshapeFunc(w, h);
 }
 
 void CoilMaster::CallBackSpecialFunc(int key, int x, int y){
 
-   int windowID = glutGetWindow();
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackSpecialFunc(key, x, y);
+  int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
+  CoilMaster::getInstance()._viewPorts[windowID]->CallBackSpecialFunc(key, x, y);
 }   
 
 void CoilMaster::CallBackSpecialUpFunc(int key, int x, int y){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackSpecialUpFunc(key, x, y);
 }   
 
 void CoilMaster::CallBackVisibilityFunc(int visible){
 
    int windowID = glutGetWindow();
+
+#ifdef DYNAMO_DEBUG
+  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+    M_throw() << "Missing viewport!";
+#endif
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackVisibilityFunc(visible);
 }
 
