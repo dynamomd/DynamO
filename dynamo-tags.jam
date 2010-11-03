@@ -27,13 +27,13 @@ rule naming ( name : type ? : property-set )
   {  
      switch [ $(property-set).get <variant> ]
      {
-     case debug : result += _d ;
-     case fulldebug : result += _fd ;
-     case cachegrind_in : result += _cg_in ;
-     case cachegrind : result += _cg ;
-     case profile : result += _p ;
-     case massif : result += _mf ;
-     case PGO : result += _pgo ;
+     case debug : fullname += _d ;
+     case fulldebug : fullname += _fd ;
+     case cachegrind_in : fullname += _cg_in ;
+     case cachegrind : fullname += _cg ;
+     case profile : fullname += _p ;
+     case massif : fullname += _mf ;
+     case PGO : fullname += _pgo ;
      }
   }
 

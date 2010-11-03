@@ -40,6 +40,10 @@ CoilMaster::CoilMaster():
 
   //Spinlock waiting for the boot thread to come up
   while (!_coilReadyFlag) { smallSleep(); }
+
+#ifndef CL_VERSION_1_1
+#error "Coil requires an OpenCL 1.1 installation as it uses the thread safety!"
+#endif
 }
 
 CoilMaster::~CoilMaster(){
