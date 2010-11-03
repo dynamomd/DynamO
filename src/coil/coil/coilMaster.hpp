@@ -47,7 +47,7 @@ public:
   {
     if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
 
-    _coilQueue.queueTask(magnet::function::Task::makeTask(addWindowFunc, window));
+    _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, window));
 
     //Spinlock waiting for the window to initialize
     while (!window->isReady()) { smallSleep(); }
@@ -105,13 +105,11 @@ private:
   static void CallBackVisibilityFunc(int visible);
     
   ///////////////////////////GTK window layer/////////////////////////////
-  static inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow> window)
+  inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow> window)
   {
-    magnet::thread::ScopedLock lock(CoilMaster::getInstance()._coilLock);
-
+    magnet::thread::ScopedLock lock(_coilLock);
     window->init();
-
-    CoilMaster::getInstance()._viewPorts[window->GetWindowID()] = window;
+    _viewPorts[window->GetWindowID()] = window;
   }
 
   Gtk::Main _GTKit;
