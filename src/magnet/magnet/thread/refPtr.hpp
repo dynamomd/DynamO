@@ -18,8 +18,6 @@
 #pragma once
 
 #include <magnet/thread/mutex.hpp>
-#include <iostream>
-#include <magnet/exception.hpp>
 
 namespace magnet {
   namespace thread {
@@ -37,10 +35,7 @@ namespace magnet {
 	_obj(obj),
 	_counter(new size_t(1)),
 	_mutex(new Mutex)
-      {
-	std::cerr << "\n New RefPtr, count=" << *_counter << "\n";
-	std::cerr << "\n" << magnet::stacktrace();
-      }
+      {}
 
       inline RefPtr(const RefPtr<T>& other):
 	_obj(NULL),
@@ -53,10 +48,6 @@ namespace magnet {
 	    _obj = other._obj;
 	    ++(*(_counter = other._counter));
 	    _mutex = other._mutex;	    
-
-	    std::cerr << "\n Copy RefPtr, count=" << *other._counter << "\n";	    
-	    std::cerr << "\n" << magnet::stacktrace();
-
 	    _mutex->unlock();
 	  }
       }
@@ -74,10 +65,6 @@ namespace magnet {
 	    _mutex = other._mutex;
 	    _counter = other._counter;
 	    ++(*_counter);
-	    
-	    std::cerr << "\n operator= RefPtr, count=" << *_counter << "\n";
-	    std::cerr << "\n" << magnet::stacktrace();
-
 	    _mutex->unlock();
 	  }
 
@@ -95,31 +82,20 @@ namespace magnet {
 	if (_obj != NULL)
 	  {
 	    _mutex->lock();
-
 	    --(*_counter);
-
-	    std::cerr << "\n release() RefPtr, count=" << *_counter;
-
 	    if(*_counter == 0)
 	      {
-		std::cerr << ">>>>Deleting!\n";
-
 		delete _obj;
 		delete _counter;
 		_mutex->unlock();
 		delete _mutex;
 	      }
 	    else
-	      {
-		_mutex->unlock();
-		std::cerr << ">>>>Not Deleting!\n";
-	      }
+	      _mutex->unlock();
 
 	    _obj = NULL;
 	    _counter = NULL;
 	    _mutex = NULL;
-
-	    std::cerr << "\n" << magnet::stacktrace();
 	  }
       }
 

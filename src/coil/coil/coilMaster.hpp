@@ -43,7 +43,7 @@ public:
   void  CallGlutCreateWindow(const char*, CoilWindow*);
   void  CallGlutDestroyWindow(CoilWindow*, bool);
 
-  void addWindow(magnet::thread::RefPtr<CoilWindow> window)
+  void addWindow(magnet::thread::RefPtr<CoilWindow>& window)
   {
     if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
 
@@ -105,7 +105,7 @@ private:
   static void CallBackVisibilityFunc(int visible);
     
   ///////////////////////////GTK window layer/////////////////////////////
-  inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow> window)
+  inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow>& window)
   {
     magnet::thread::ScopedLock lock(_coilLock);
     window->init();
