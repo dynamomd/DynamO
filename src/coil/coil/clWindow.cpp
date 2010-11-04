@@ -624,17 +624,14 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _CLState = magnet::CL::CLGLState();
 
   ///////////////////OpenGL
-  if (_shaderPipeline)
-    {
-      _shadowFBO = magnet::GL::shadowFBO();
-      _shadowShader = magnet::GL::shadowShader();
-    }
+  _renderTarget->deinit();
 
-  _renderTarget.reset();
-  _filterTarget1 = magnet::GL::FBO();
-  _filterTarget2 = magnet::GL::FBO();
-  _normalAndDepths = magnet::GL::FBO();
-  _nrmldepthShader = magnet::GL::NormalAndDepthShader();
+  _shadowFBO.deinit();
+  _shadowShader.deinit();
+  _filterTarget1.deinit();
+  _filterTarget2.deinit();
+  _normalAndDepths.deinit();
+  _nrmldepthShader.deinit();
 
   filterClearCallback();
 

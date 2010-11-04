@@ -18,7 +18,6 @@
 #pragma once
 
 #include <magnet/thread/mutex.hpp>
-#include <iostream>
 
 namespace magnet {
   namespace thread {
@@ -86,7 +85,6 @@ namespace magnet {
 	    --(*_counter);
 	    if(*_counter == 0)
 	      {
-		std::cerr << "\nDeleting!!!!!!!!!\n";
 		delete _obj;
 		delete _counter;
 		_mutex->unlock();

@@ -35,7 +35,9 @@ namespace magnet {
       public:
 	shader():_built(false) {}
 
-	~shader()
+	~shader() { deinit(); }
+
+	void deinit()
 	{
 	  if (_built)
 	    {
@@ -43,6 +45,8 @@ namespace magnet {
 	      glDeleteShader(_vertexShaderHandle);
 	      glDeleteShader(_fragmentShaderHandle);
 	    }
+
+	  _built = false;
 	}
 
       protected:
