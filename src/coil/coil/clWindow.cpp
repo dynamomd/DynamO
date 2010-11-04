@@ -631,6 +631,10 @@ CLGLWindow::deinit(bool andGlutDestroy)
     }
 
   _renderTarget.reset();
+  _filterTarget1 = magnet::GL::FBO();
+  _filterTarget2 = magnet::GL::FBO();
+  _normalAndDepths = magnet::GL::FBO();
+  _nrmldepthShader = magnet::GL::NormalAndDepthShader();
 
   filterClearCallback();
 

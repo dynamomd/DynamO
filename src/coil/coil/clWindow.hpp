@@ -83,9 +83,10 @@ protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
 
-  //Frame buffers to flip flop data between
+  //Primary render target
   std::auto_ptr<magnet::GL::FBO> _renderTarget;
 
+  //Frame buffers to flip flop filters between
   magnet::GL::FBO _filterTarget1;
   magnet::GL::FBO _filterTarget2;
 
