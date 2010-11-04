@@ -65,6 +65,7 @@ protected:
 
   void clTick_no_sort_or_locking(magnet::CL::CLGLState&);
 
+  cl::Program _program;
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
 
