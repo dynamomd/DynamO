@@ -254,7 +254,9 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   _renderKernel = cl::Kernel(_program, "SphereRenderKernel");
   _sortDataKernel = cl::Kernel(_program, "GenerateData");
 
-
+  cl_uint paddedN = ((_N + 1023)/1024) * 1024;
+  _sortDataKernelFunc = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
+  
   sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
   CPUsortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
 
@@ -273,22 +275,17 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 void 
 RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
-  cl_uint paddedN = ((_N + 1023)/1024) * 1024;
-
-  cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
-  
   cl_float4 campos = getclVec(Vector(_viewPortInfo._cameraX, _viewPortInfo._cameraY, _viewPortInfo._cameraZ));
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
   cl_float4 camup = getclVec(_viewPortInfo._cameraUp);
   
   //Generate the sort data
-  sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
+  _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
 		     campos, camdir, camup,
 		     (cl_float)_viewPortInfo._aspectRatio,
 		     (cl_float)_viewPortInfo._zNearDist,
 		     (cl_float)_viewPortInfo._fovY,
-		     _N, paddedN);
+		     _N);
   
   if ((_renderDetailLevels.size() > 2) 
       || (_renderDetailLevels.front()._nSpheres != _N))

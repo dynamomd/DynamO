@@ -82,11 +82,8 @@ GenerateData(const __global float4* positions,
 	     __global uint* data,
 	     float4 camPos, float4 camdir, float4 camup,
 	     float ratio, float nearDist, float fov,
-	     uint N, uint paddedN)
+	     uint N)
 {
-  //Need to add the aspect ratio!
-  if (get_global_id(0) >= paddedN) return;
-  
   if (get_global_id(0) >= N)
     {
       keys[get_global_id(0)] = MAXFLOAT;

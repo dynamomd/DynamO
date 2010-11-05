@@ -69,6 +69,10 @@ protected:
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
 
+  cl::KernelFunctor _sortDataKernelFunc;
+  cl::KernelFunctor _renderKernelFunc;
+
+
   cl_uint _N;
   static const std::string kernelsrc;
 
