@@ -24,16 +24,16 @@
             <child>
               <object class="GtkMenuItem" id="menuitem1">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">_Menu</property>
+                <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu1">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkImageMenuItem" id="quitMenuItem">
-                        <property name="label">gtk-quit</property>
+                      <object class="GtkImageMenuItem" id="aboutItem">
+                        <property name="label">gnome-stock-about</property>
                         <property name="visible">True</property>
-                        <property name="use_underline">True</property>
+                        <property name="right_justified">True</property>
                         <property name="use_stock">True</property>
                       </object>
                     </child>
@@ -844,5 +844,12 @@
     <property name="value">60</property>
     <property name="upper">100</property>
     <property name="step_increment">1</property>
+  </object>
+  <object class="GtkWindow" id="aboutSplashWindow">
+    <child>
+      <object class="GtkImage" id="aboutSplashImage">
+        <property name="visible">True</property>
+      </object>
+    </child>
   </object>
 </interface>
