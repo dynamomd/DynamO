@@ -16,9 +16,9 @@
    width="1213.532"
    height="343.79944"
    sodipodi:docname="dynamologo.svg"
-   inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-   inkscape:export-xdpi="29.5812"
-   inkscape:export-ydpi="29.5812">
+   inkscape:export-filename="/home/mss/Desktop/dynamo_logo.png"
+   inkscape:export-xdpi="29.665472"
+   inkscape:export-ydpi="29.665472">
   <metadata
      id="metadata8">
     <rdf:RDF>
@@ -542,6 +542,67 @@
          x="0"
          style="fill:black;stroke:none" />
     </pattern>
+    <pattern
+       patternTransform="matrix(1.1871827,-2.0562608,20.130347,11.622261,822.85566,183.87423)"
+       id="pattern3027"
+       xlink:href="#Strips1_5-93"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective3020"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5-93"
+       patternTransform="matrix(2.3743654,0,0,23.244522,909.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506-5"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       patternTransform="matrix(1.1871827,2.0562608,-20.130347,11.622261,1131.7749,-59.59093)"
+       id="pattern3060"
+       xlink:href="#pattern3027-0"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective3052"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       patternTransform="matrix(1.1871827,-2.0562608,20.130347,11.622261,822.85566,183.87423)"
+       id="pattern3027-0"
+       xlink:href="#Strips1_5-93-5"
+       inkscape:collect="always" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5-93-5"
+       patternTransform="matrix(2.3743654,0,0,23.244522,909.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506-5-6"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -552,13 +613,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1054"
+     inkscape:window-width="1366"
+     inkscape:window-height="739"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="0.83053206"
-     inkscape:cx="361.3498"
-     inkscape:cy="12.989578"
+     inkscape:zoom="0.41526603"
+     inkscape:cx="914.25173"
+     inkscape:cy="38.291461"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -1043,14 +1104,12 @@
      inkscape:export-ydpi="29.5812" />
   <path
      style="fill:url(#Strips1_5);fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="m 951.86282,125.66785 47.86088,0 15.5718,8.99037 0,7.41478 5.9506,0 0,18.06071 -5.8698,0 0,6.32125 -16.171,9.33638 -46.43938,0 0,-17.01218 -5.8698,0 0,-16.10414 4.8162,0 0.1505,-17.00717 z"
-     id="path2904-4-3-9"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
+     clip-path="none"
+     d="M 951.875 125.65625 L 951.71875 142.6875 L 946.90625 142.6875 L 946.90625 158.78125 L 952.78125 158.78125 L 952.78125 175.78125 L 999.21875 175.78125 L 1015.375 166.46875 L 1015.375 160.125 L 1021.25 160.125 L 1021.25 142.0625 L 1015.2812 142.0625 L 1015.2812 134.65625 L 999.71875 125.65625 L 951.875 125.65625 z M 953.5625 142.375 L 1014.4688 142.375 L 1014.4688 159.9375 L 953.5625 159.9375 L 953.5625 142.375 z "
+     id="path2904-4-3-9" />
   <path
      style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="m 1006.1622,62.115233 24.5172,-14.461024 0,-4.04411 m -67.89838,40.86673 5.1084,0.21285 24.34368,-14.358668"
+     d="m 1006.375,62.753776 24.5172,-14.461024 0,-4.04411 m -67.89834,40.86673 5.1084,0.21285 24.34368,-14.358668"
      id="path5151-2-7-4"
      sodipodi:nodetypes="cccccc"
      inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
@@ -1454,17 +1513,21 @@
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
   </g>
   <path
-     style="fill:url(#pattern3000);fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="m 1019.4889,54.739586 23.9304,41.448704 0,17.98076 -6.4214,3.70739 2.9753,5.15337 -15.641,9.03035 -2.9349,-5.08339 -5.4744,3.16062 -16.171,-9.33631 -23.2197,-40.217643 14.733,-8.506088 -2.9349,-5.083396 13.9466,-8.05207 2.4081,4.170952 14.8039,-8.373249 z"
-     id="path2904-4-3-9-2"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
+     style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 952.85304,126.16786 0,-14.90008"
+     id="path2993" />
   <path
-     style="fill:url(#pattern3032);fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="m 976.0806,222.50238 23.9305,-41.44876 15.5718,-8.99039 6.4214,3.70739 2.9753,-5.15337 15.641,9.03036 -2.9349,5.08339 5.4744,3.16063 0,18.67269 -23.2197,40.2177 -14.733,-8.50609 -2.9349,5.08339 -13.9466,-8.05207 2.4081,-4.17095 -14.6534,-8.63392 z"
-     id="path2904-4-3-9-9"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
+     style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 953.30456,175.2328 0,15.80312"
+     id="path2995" />
+  <path
+     style="fill:url(#pattern3027);fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     clip-path="none"
+     d="m 975.98645,222.93449 14.67137,8.65095 -2.40625,4.16774 13.93763,8.04688 2.9375,-5.0879 14.7224,8.5 23.2188,-40.21601 0.013,-18.64802 -5.4939,-3.17187 2.9375,-5.0879 -15.6426,-9.03125 -2.9844,5.16913 -6.414,-3.70313 -15.57545,8.97752 -23.9219,41.43386 z m 15.32261,6.89796 30.45324,-52.7464 15.2095,8.78125 -30.4531,52.7464 -15.20964,-8.78125 z"
+     id="path2904-4-3-9-7" />
+  <path
+     style="fill:url(#pattern3060);fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     clip-path="none"
+     d="m 1021.3823,53.494096 -14.8276,8.380304 -2.4062,-4.167744 -13.93768,8.046902 2.9375,5.087899 -14.72242,8.499973 23.2187,40.21607 16.1432,9.33527 5.4938,-3.17192 2.9375,5.08789 15.6426,-9.03126 -2.9844,-5.16913 6.414,-3.70312 0.013,-17.977535 -23.9218,-41.433859 z m -13.6351,9.820789 30.4531,52.746475 -15.2095,8.78119 -30.45321,-52.746355 15.20961,-8.78131 z"
+     id="path2904-4-3-9-7-7" />
 </svg>
