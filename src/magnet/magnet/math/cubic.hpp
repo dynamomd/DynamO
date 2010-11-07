@@ -27,10 +27,13 @@ namespace magnet {
     //For solving cubics like x^3 + p * x^2 + q * x + r == 0
     //This function always returns root1 >= root2 >= root3!
     inline size_t 
-    cubicSolve(const double& p, const double& q, const double& r, double& root1, double& root2, double& root3)
+    cubicSolve(const double& p, const double& q, const double& r, 
+	       double& root1, double& root2, double& root3)
     {
-      static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
-      static const double maxCubeRoot = std::pow(std::numeric_limits<double>::max(), 1.0/3.0);
+      static const double maxSqrt 
+	= std::sqrt(std::numeric_limits<double>::max());
+      static const double maxCubeRoot 
+	= std::pow(std::numeric_limits<double>::max(), 1.0/3.0);
 
       if (r == 0)
 	{
@@ -98,7 +101,7 @@ namespace magnet {
 
       double j = 4.0 * (u / 3.0) * (u / 3.0) * (u / 3.0) + v * v;
   
-      if (j > 0) //Only one root
+      if (j >= 0) //Only one root
 	{
 	  double w = std::sqrt(j);
 	  if (v < 0)
@@ -107,9 +110,12 @@ namespace magnet {
 	    root1 = (u / 3.0) * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
       
 	  //Special cases for overflows
-	  if (std::abs(p) > 27 * maxCubeRoot) root1 = - p;
-	  if (std::abs(v) > maxSqrt) root1 = - std::pow(v, 1.0 / 3.0);
-	  if (std::abs(u) > 0.75 * maxCubeRoot) root1 = std::pow(4, 1.0 / 3.0) * u / 3.0;
+	  if (std::abs(p) > 27 * maxCubeRoot) 
+	    root1 = - p;
+	  if (std::abs(v) > maxSqrt) 
+	    root1 = - std::pow(v, 1.0 / 3.0);
+	  if (std::abs(u) > 0.75 * maxCubeRoot) 
+	    root1 = std::pow(4, 1.0 / 3.0) * u / 3.0;
       
 	  return 1;
 	}

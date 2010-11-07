@@ -18,6 +18,7 @@
 #pragma once
 
 #include <cmath>
+#include <boost/array.hpp>
 
 namespace magnet {
   namespace math {

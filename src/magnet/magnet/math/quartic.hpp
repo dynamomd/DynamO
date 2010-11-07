@@ -25,23 +25,27 @@
 namespace magnet {
   namespace math {
     //Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0
-    inline size_t quarticSolve(const double& a, const double& b, const double& c, const double& d, 
+    inline size_t quarticSolve(const double& a, const double& b, const double& c, const double& d,
 			       double& root1, double& root2, double& root3, double& root4)
     {
       static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
 
       if (std::abs(a) > maxSqrt)
-	yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4);
+	{
+	  std::cout << " yacfraid ";
+	  yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4);
+	}
 
       if (d == 0)
 	{//Solve a cubic with a trivial root of 0
-      
+	  std::cout << " cubic ";
 	  root1 = 0;
 	  return 1 + cubicSolve(a, b, c, root2, root3, root4);
 	}
   
       if ((a == 0) && (c== 0))
 	{//We have a biquadratic
+	  std::cout << " biquadratic ";
       
 	  double quadRoot1,quadRoot2;
 	  if (quadSolve(d,b,1, quadRoot1, quadRoot2))
@@ -63,7 +67,6 @@ namespace magnet {
 	    }
 	  else
 	    return 0;
-      
 	}
   
       //Now we have to resort to some dodgy formulae!
@@ -74,19 +77,24 @@ namespace magnet {
       if (d < 0.0) k += 4;
       switch (k)
 	{
+	case 3 :
 	case 9 : 
+	  std::cout << "\nFerrari ";
 	  nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	case 5 :
+	  std::cout << "\nDescartes ";
 	  nr = descartesQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	case 15 :
 	  //This algorithm is stable if we flip the sign of the roots
+	  std::cout << "\nDescartes ";
 	  nr = descartesQuarticSolve(-a,b,-c,d,root1,root2,root3,root4); 
 	  root1 *=-1; root2 *=-1; root3 *=-1; root4 *=-1; 
 	  break;
 	default:
-	  nr = neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  std::cout << "\nYacfraid ";
+	  nr = yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	}
       return nr;  
