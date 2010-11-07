@@ -33,7 +33,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkImageMenuItem" id="aboutItem">
-                        <property name="label">gnome-stock-about</property>
+                        <property name="label">gtk-about</property>
                         <property name="visible">True</property>
                         <property name="right_justified">True</property>
                         <property name="use_underline">True</property>
