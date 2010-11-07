@@ -1,0 +1,1144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   width="48"
+   height="48"
+   sodipodi:docname="coilicon.svg"
+   inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+   inkscape:export-xdpi="29.665472"
+   inkscape:export-ydpi="29.665472">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#Strips1_5"
+       id="pattern4159"
+       patternTransform="matrix(0.3312952,0,0,3.2433082,5.1423544,-3.5260508)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3027"
+       id="pattern4104"
+       patternTransform="matrix(0.1656476,-0.28691007,2.8087873,1.6216541,-6.8964456,25.825939)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern3060"
+       id="pattern4101"
+       patternTransform="matrix(0.1656476,0.28691007,-2.8087873,1.6216541,36.207055,-8.1447608)" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5"
+       patternTransform="matrix(2.3743654,0,0,23.244522,909.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern5977"
+       id="pattern6863"
+       patternTransform="matrix(0.12216201,0,0,0.8356573,-2.3827264,21.0702)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern5803-2"
+       id="pattern6826"
+       patternTransform="matrix(0.56779185,0.45974133,-4.5273378,5.5913736,-2.3827264,21.0702)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern5773-9"
+       id="pattern6796"
+       patternTransform="matrix(0.27996281,0,0,14.256951,-2.3827264,21.0702)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern5770-4"
+       id="pattern6793"
+       patternTransform="matrix(0.1399814,0.2424549,-12.346882,7.1284757,212.52347,-49.50297)" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern5767-6"
+       id="pattern6790"
+       patternTransform="matrix(0.1399814,-0.2424549,-12.346882,-7.1284757,211.46267,395.39822)" />
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective10" />
+    <inkscape:perspective
+       id="perspective3605"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3641"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3696"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3696-9"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5318"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5342"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5364"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5386"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5408"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5452"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5452-4"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5452-9"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5452-0"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5452-08"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5452-5"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5529"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective2915"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective2947"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5137"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5165"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5165-9"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5251"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5286"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5310"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5347"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5390"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective2955"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5218"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5240"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5240-0"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5383"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       patternTransform="matrix(0.12216201,0,0,0.8356573,-2.3827264,-6.9298001)"
+       id="pattern5977"
+       xlink:href="#pattern5840-2"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective5856"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern2955-9-0"
+       id="pattern5767-6"
+       patternTransform="matrix(0.1399814,-0.2424549,-12.346882,-7.1284757,211.46267,367.39822)" />
+    <pattern
+       patternTransform="matrix(0.1399814,-0.2424549,-12.346882,-7.1284757,213.84537,374.32802)"
+       id="pattern2955-9-0"
+       xlink:href="#pattern2922-5-3-1"
+       inkscape:collect="always" />
+    <pattern
+       patternTransform="matrix(0.1399814,0.2424549,-12.346882,7.1284757,214.9062,-70.573165)"
+       id="pattern2922-5-3-1"
+       xlink:href="#Strips1_2-8-0-2-2"
+       inkscape:collect="always" />
+    <pattern
+       inkscape:stockid="Stripes 1:2"
+       id="Strips1_2-8-0-2-2"
+       patternTransform="scale(0.27996281,14.256951)"
+       height="1"
+       width="3"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4410-9-4-0-5"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#pattern2922-3-2"
+       id="pattern5770-4"
+       patternTransform="matrix(0.1399814,0.2424549,-12.346882,7.1284757,212.52347,-77.50297)" />
+    <pattern
+       patternTransform="matrix(0.1399814,0.2424549,-12.346882,7.1284757,214.9062,-70.573165)"
+       id="pattern2922-3-2"
+       xlink:href="#Strips1_2-8-7-5"
+       inkscape:collect="always" />
+    <pattern
+       inkscape:stockid="Stripes 1:2"
+       id="Strips1_2-8-7-5"
+       patternTransform="scale(0.27996281,14.256951)"
+       height="1"
+       width="3"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4410-9-7-3"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#Strips1_2-7-6"
+       id="pattern5773-9"
+       patternTransform="matrix(0.27996281,0,0,14.256951,-2.3827264,-6.9298001)" />
+    <pattern
+       inkscape:stockid="Stripes 1:2"
+       id="Strips1_2-7-6"
+       patternTransform="scale(0.27996281,14.256951)"
+       height="1"
+       width="3"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4410-7-3"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#Strips1_1-8-8"
+       id="pattern5803-2"
+       patternTransform="matrix(0.56779185,0.45974133,-4.5273378,5.5913736,-2.3827264,-6.9298001)" />
+    <pattern
+       inkscape:stockid="Stripes 1:1"
+       id="Strips1_1-8-8"
+       patternTransform="matrix(0.56779185,0.45974133,-4.5273378,5.5913736,0,0)"
+       height="1"
+       width="2"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4496-0-1"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#Wavy-5-5"
+       id="pattern5840-2"
+       patternTransform="matrix(0.12216201,0,0,0.8356573,947.491,0)" />
+    <pattern
+       inkscape:stockid="Wavy"
+       id="Wavy-5-5"
+       height="5.1805778"
+       width="30.066020"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always"
+       patternTransform="scale(0.12216201,0.8356573)">
+      <path
+         id="path5116-5-3"
+         d="M 7.597,0.061 C 5.079,-0.187 2.656,0.302 -0.01,1.788 L -0.01,3.061 C 2.773,1.431 5.173,1.052 7.472,1.280 C 9.770,1.508 11.969,2.361 14.253,3.218 C 18.820,4.931 23.804,6.676 30.066,3.061 L 30.062,1.788 C 23.622,5.497 19.246,3.770 14.691,2.061 C 12.413,1.207 10.115,0.311 7.597,0.061 z "
+         style="fill:black;stroke:none;" />
+    </pattern>
+    <inkscape:perspective
+       id="perspective6973"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective7473"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4494"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4537"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       patternTransform="matrix(1.1871827,2.0562608,-20.130347,11.622261,1129.8976,-58.340695)"
+       id="pattern3000"
+       xlink:href="#Strips1_5-1"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective2993"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5-1"
+       patternTransform="matrix(2.3743654,0,0,23.244522,933.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506-7"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       patternTransform="matrix(1.1871827,-2.0562608,20.130347,11.622261,822.94589,183.42575)"
+       id="pattern3032"
+       xlink:href="#Strips1_5-9"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective3025"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5-9"
+       patternTransform="matrix(2.3743654,0,0,23.244522,933.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506-0"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       patternTransform="matrix(1.1871827,-2.0562608,20.130347,11.622261,822.85566,183.87423)"
+       id="pattern3027"
+       xlink:href="#Strips1_5-93"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective3020"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5-93"
+       patternTransform="matrix(2.3743654,0,0,23.244522,909.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506-5"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+    <pattern
+       patternTransform="matrix(1.1871827,2.0562608,-20.130347,11.622261,1131.7749,-59.59093)"
+       id="pattern3060"
+       xlink:href="#pattern3027-0"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       id="perspective3052"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <pattern
+       patternTransform="matrix(1.1871827,-2.0562608,20.130347,11.622261,822.85566,183.87423)"
+       id="pattern3027-0"
+       xlink:href="#Strips1_5-93-5"
+       inkscape:collect="always" />
+    <pattern
+       inkscape:stockid="Stripes 1:5"
+       id="Strips1_5-93-5"
+       patternTransform="matrix(2.3743654,0,0,23.244522,909.13678,-26.489044)"
+       height="1"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect4506-5-6"
+         height="2"
+         width="1"
+         y="-0.5"
+         x="0"
+         style="fill:black;stroke:none" />
+    </pattern>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1024"
+     inkscape:window-height="747"
+     id="namedview4"
+     showgrid="false"
+     inkscape:zoom="8"
+     inkscape:cx="21.842025"
+     inkscape:cy="21.730678"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5268"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <text
+     xml:space="preserve"
+     style="font-size:6.69744015px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+     x="45.441299"
+     y="62.571888"
+     id="text7353"><tspan
+       sodipodi:role="line"
+       id="tspan7355"
+       x="45.441299"
+       y="62.571888" /></text>
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.14;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 24.360605,40.250689 c 2.03079,0.0342 6.05936,-0.75136 6.74126,2.67852"
+     id="path3621-1-9-9"
+     sodipodi:nodetypes="cs"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:none;stroke:#000000;stroke-width:0.13656837;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3623-4-1-8"
+     width="9.1890354"
+     height="1.396153"
+     x="31.154322"
+     y="41.714314"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:0.13953, 0.27906;stroke-dashoffset:0"
+     d="M 24.198825,0.61214922 24.414535,48.070539"
+     id="path3665-9-2-4"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3749-4-7-4"
+     width="3.3812382"
+     height="0.44489938"
+     x="33.179363"
+     y="41.193653"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3751-9-0-1"
+     width="1.8304443"
+     height="1.0169135"
+     x="34.043728"
+     y="40.176746"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3753-8-5-5"
+     width="1.0169135"
+     height="0.36863115"
+     x="34.463207"
+     y="39.83353"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.13952999999999999;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3755-4-0-3"
+     width="9.5462761"
+     height="0.47032255"
+     x="30.929438"
+     y="43.100376"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3757-6-4-3"
+     width="5.2851386"
+     height="1.3302729"
+     x="1.3325009"
+     y="46.236912"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3759-9-2-1"
+     width="4.7817922"
+     height="1.2943196"
+     x="42.642879"
+     y="46.236912"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3761-9-4-8"
+     width="5.141326"
+     height="2.6425693"
+     x="41.564281"
+     y="43.540409"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.13952999999999999;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3763-7-9-3"
+     width="3.7391458"
+     height="0.46739322"
+     x="42.211437"
+     y="43.073017"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect3765-8-0-9"
+     width="18.264288"
+     height="1.2943196"
+     x="24.378597"
+     y="46.236912"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 41.568885,43.545269 -26.51602,0 0,0.78811 9.33018,0 0,1.83045 17.10957,0"
+     id="path3769-0-1-1"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 24.357625,47.562079 0,-3.2287 -16.0926611,0 0,3.27955 16.0926611,-0.0508 z"
+     id="path3771-1-5-3"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 6.5362144,47.562079 0,-1.34741 0.661,0 0,-2.64397 7.8556506,0 0,0.71183 -6.7370501,0 0,3.27955 -1.7796005,0 z"
+     id="path3773-4-0-8"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.50000000000000000;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect5265-3-4-0"
+     width="5.1354132"
+     height="2.6185524"
+     x="2.0872159"
+     y="43.570698"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <rect
+     style="fill:#000000;stroke:#000000;stroke-width:0.13952999999999999;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect5267-5-1-2"
+     width="3.6608887"
+     height="0.43218827"
+     x="2.9007535"
+     y="43.138508"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.14;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 19.451025,40.647069 c -1.37284,0.78811 -1.7337,1.7244 -1.7303,2.15658 0.003,0.42628 0.003,0.72365 0.003,0.72365"
+     id="path5290-9-9-7"
+     sodipodi:nodetypes="csc"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 8.3613839,43.108979 -0.018,-1.55498 c 0,0 2.3369711,-1.50105 2.2560711,-6.02218"
+     id="path5292-4-4-7"
+     sodipodi:nodetypes="ccc"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#000000;stroke:#000000;stroke-width:0.13952999999999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 8.2355439,43.549409 0,-0.41347 9.4467411,0 0,0.43144"
+     id="path5294-3-4-8"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <g
+     id="g5330-2-0-9"
+     transform="matrix(0.13953,0,0,0.13953,1.0448844,0.07221922)"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812">
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-048-7-9"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       id="path5270-2-2-0"
+       d="m 28,168.13094 c -1,0 -6,0 -6,0 l 0,-14 -17,0 0,-6 L 22,148 l 0,-14.86906 6,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-2-5-0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="138"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-3-1-7"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-75-3-2-7"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-7-2-7-4"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="158.92"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-6-7-0-2"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  </g>
+  <g
+     transform="matrix(0.069765,-0.12083652,0.12083652,0.069765,-5.5801856,31.464669)"
+     id="g5330-5-2-8-2"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812">
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-04-4-7-5"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       id="path5270-9-54-5-4"
+       d="m 28,168.13094 c -1,0 -6,0 -6,0 l 0,-14 -17,0 0,-6 L 22,148 l 0,-14.86906 6,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-6-1-3-1"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="138"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-7-6-2-8"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-75-4-8-8-7"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-7-3-0-9-2"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="158.92"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-6-0-4-7-5"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  </g>
+  <g
+     transform="matrix(0.069765,0.12083652,0.12083652,-0.069765,-5.6765256,11.366809)"
+     id="g5330-5-4-8-3-1"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812">
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-04-7-8-0-1"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       id="path5270-9-5-3-2-6"
+       d="m 28,168.13094 c -1,0 -6,0 -6,0 l 0,-14 -17,0 0,-6 L 22,148 l 0,-14.86906 6,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-6-3-5-2-0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="138"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-7-8-2-5-2"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-75-4-2-4-3-6"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-7-3-7-7-0-3"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="158.92"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-6-0-3-4-8-3"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  </g>
+  <path
+     style="fill:none;stroke:#000000;stroke-width:1.39530003;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     d="m 36.272594,5.5740964 c 3.897815,3.0788634 6.621762,7.6254426 7.372363,12.8255636 M 29.297378,40.581187 c -1.596279,0.428718 -3.272439,0.657082 -5.000965,0.657082 -10.801282,0 -19.5574567,-8.917145 -19.5574567,-19.917001 0,-10.999855 8.7561747,-19.9169992 19.5574567,-19.9169992 2.561924,0 5.008792,0.5016564 7.251053,1.4137738 M 43.639544,24.280151 c -0.64742,4.426978 -2.725356,8.378322 -5.739653,11.350778"
+     id="path2822-0-7-1"
+     sodipodi:nodetypes="cccsssscs"
+     inkscape:connector-curvature="0" />
+  <g
+     id="g5330-2-0-9-3"
+     transform="matrix(-0.13953,0,0,0.13953,48.242505,0.27521922)"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812">
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-048-7-9-0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       id="path5270-2-2-0-0"
+       d="m 28,168.13094 c -1,0 -6,0 -6,0 l 0,-14 -17,0 0,-6 L 22,148 l 0,-14.86906 6,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-2-5-0-4"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="138"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-3-1-7-8"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-75-3-2-7-2"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-7-2-7-4-2"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="158.92"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-6-7-0-2-0"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  </g>
+  <g
+     transform="matrix(-0.069765,0.12083652,-0.12083652,-0.069765,54.326055,10.696329)"
+     id="g5330-5-4-8-3-1-3"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812">
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-04-7-8-0-1-4"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       id="path5270-9-5-3-2-6-4"
+       d="m 28,168.13094 c -1,0 -6,0 -6,0 l 0,-14 -17,0 0,-6 L 22,148 l 0,-14.86906 6,0"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <rect
+       transform="scale(-1,1)"
+       y="135"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-6-3-5-2-0-9"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="138"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-7-8-2-5-2-1"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-21"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-75-4-2-4-3-6-7"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       transform="scale(-1,1)"
+       y="155.92"
+       x="-16"
+       height="11.080004"
+       width="4.8958154"
+       id="rect3627-9-8-0-7-3-7-7-0-3-5"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    <rect
+       y="158.92"
+       x="8.1041851"
+       height="5"
+       width="3"
+       id="rect5300-6-0-3-4-8-3-7"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  </g>
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+     d="m 40.341855,41.550889 c -1.00666,-0.86288 -2.66098,-2.0149 -2.55268,-5.4649"
+     id="path3625-6-4-9-4"
+     sodipodi:nodetypes="cc"
+     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
+     inkscape:export-xdpi="29.5812"
+     inkscape:export-ydpi="29.5812" />
+  <path
+     style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 40.328922,43.566679 0,-2.145156"
+     id="path4705"
+     inkscape:connector-curvature="0" />
+  <path
+     sodipodi:type="arc"
+     style="fill:none;stroke:#000000;stroke-opacity:1"
+     id="path3180"
+     sodipodi:cx="24.3125"
+     sodipodi:cy="21.375"
+     sodipodi:rx="13.8125"
+     sodipodi:ry="13.8125"
+     d="m 38.125,21.375 a 13.8125,13.8125 0 1 1 -27.625,0 13.8125,13.8125 0 1 1 27.625,0 z" />
+</svg>

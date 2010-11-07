@@ -1,4 +1,5 @@
 import glade ;
+import pixbuf ;
 
 lib glut : : <link>shared ;
 lib GLU  : : <link>shared ;
@@ -11,9 +12,9 @@ lib GLEW : : <link>shared ;
 
 lib OpenCL : : <link>shared ;
 
-alias coil : [ glob-tree *.cpp *.gladexml : tests ]
+alias coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet 
-      OpenCL
+      OpenCL 
     : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     : : <define>GLVIEWER <include>. 
     <linkflags>"`pkg-config gtkmm-2.4 --libs`" 

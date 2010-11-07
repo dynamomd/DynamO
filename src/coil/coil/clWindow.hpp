@@ -222,6 +222,7 @@ private:
   void shadowIntensityCallback(double);
   void snapshotFileFormatCallback();
   void FPSLimitCallback();
+  void aboutCallback();
 
   void runCallback(); 
 };

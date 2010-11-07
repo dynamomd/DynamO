@@ -245,6 +245,10 @@ CLGLWindow::initOpenCL()
 extern const char _binary_src_coil_coil_clwingtk_gladexml_start[];
 extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
 
+extern const guint8 coilicon[];
+extern const size_t coilicon_size;
+
+
 void
 CLGLWindow::initGTK()
 {
@@ -263,8 +267,22 @@ CLGLWindow::initGTK()
 
   ////////Store the control window
   _refXml->get_widget("controlWindow", controlwindow);
-
   
+  ////////Setup the window icon
+  controlwindow->set_icon(Gdk::Pixbuf::create_from_inline
+			  (coilicon_size, coilicon));
+
+
+  ///////Register the about button
+  {
+    Gtk::ImageMenuItem* aboutButton;
+    _refXml->get_widget("aboutItem", aboutButton);
+
+    aboutButton->signal_activate()
+      .connect(sigc::mem_fun(this, &CLGLWindow::aboutCallback));
+  }
+  
+
   {////////Simulation run control
     Gtk::ToggleButton* togButton;
     _refXml->get_widget("SimRunButton", togButton);
@@ -1407,4 +1425,25 @@ CLGLWindow::FPSLimitCallback()
   Gtk::SpinButton* fpsButton;
   _refXml->get_widget("FPSLimitVal", fpsButton);
   _fpsLimitValue = fpsButton->get_value();
+}
+
+extern const guint8 coilsplash[];
+extern const size_t coilsplash_size;
+
+void
+CLGLWindow::aboutCallback()
+{
+  {
+    Gtk::Window* aboutWindow;
+    _refXml->get_widget("aboutSplashWindow", aboutWindow);
+    aboutWindow->show();
+  }
+
+  {
+    Gtk::Image* aboutImage;
+    _refXml->get_widget("aboutSplashImage", aboutImage);
+  
+    aboutImage->set(Gdk::Pixbuf::create_from_inline
+		    (coilsplash_size, coilsplash));
+  }
 }

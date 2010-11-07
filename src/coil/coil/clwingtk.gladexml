@@ -12,6 +12,7 @@
     <property name="width_request">658</property>
     <property name="height_request">404</property>
     <property name="visible">True</property>
+    <property name="title" translatable="yes">Coil</property>
     <property name="deletable">False</property>
     <signal name="destroy" handler="on_controlWindow_destroy"/>
     <child>
@@ -24,6 +25,7 @@
             <child>
               <object class="GtkMenuItem" id="menuitem1">
                 <property name="visible">True</property>
+                <property name="right_justified">True</property>
                 <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -34,6 +36,7 @@
                         <property name="label">gnome-stock-about</property>
                         <property name="visible">True</property>
                         <property name="right_justified">True</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                       </object>
                     </child>
@@ -846,6 +849,8 @@
     <property name="step_increment">1</property>
   </object>
   <object class="GtkWindow" id="aboutSplashWindow">
+    <property name="title" translatable="yes">About Coil</property>
+    <property name="resizable">False</property>
     <child>
       <object class="GtkImage" id="aboutSplashImage">
         <property name="visible">True</property>
