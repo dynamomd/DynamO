@@ -61,8 +61,8 @@ namespace magnet {
 	{
 	  //Special case
 	  //Equation is x^3 == -r
-	  root1 = std::pow(-r, 1.0 / 3.0);
-	  return 1;
+	  root1 = root2 = root3 = std::pow(-r, 1.0 / 3.0);
+	  return 3;
 	}
 
       if ((p > maxSqrt) || (p < -maxSqrt))
@@ -91,42 +91,118 @@ namespace magnet {
 	{
 	  //Another special case
 	  //Equation is x^3 == -r
-	  root1 = std::pow(-r, 1.0 / 3.0);
+	  root1 = -std::pow(r, 1.0 / 3.0);
 	  return 1;
-	}    
+	}
 
-      //Need to insert the special cases for overflows here as well
-      double u = q - p * p / 3.0;
-      double v = r - p * q / 3.0 + 2.0 * p * p * p / 27.0;
+      double v = r + (2.0 * p * p / 9.0 - q) * (p / 3.0);
 
-      double j = 4.0 * (u / 3.0) * (u / 3.0) * (u / 3.0) + v * v;
+      if ((v > maxSqrt) || (v < -maxSqrt))
+	{
+	  root1 = -p;
+	  return 1;
+	}
+
+      double uo3 = q / 3.0 - p * p / 9.0;
+      double u2o3 = uo3 + uo3;
+      
+      if ((u2o3 > maxSqrt) || (u2o3 < -maxSqrt))
+	{
+	  if (p==0)
+	    {
+	      if (q > 0)
+		{
+		  root1 = -r / q;
+		  return 1;
+		}
+	      
+	      if (q < 0)
+		{
+		  root1 = -std::sqrt(-q);
+		  return 1;
+		}
+		
+	      root1 = 0;
+	      return 1;
+	    }
+
+	  root1 = -q/p;
+	  return 1;
+	}
+
+      double uo3sq4 = u2o3 * u2o3;
+      if (uo3sq4 > maxSqrt)
+	{
+	  if (p == 0)
+	    {
+	      if (q > 0)
+		{
+		  root1 = -r / q;
+		  return 1;
+		}
+
+	      if (q < 0)
+		{
+		  root1 = -std::sqrt(-q);
+		  return 1;
+		}
+
+	      root1 = 0;
+	      return 1;
+	    }
+
+	  root1 = -q / p;
+	  return 1;
+	}
+
+      double j = (uo3sq4 * uo3) + v * v;
   
-      if (j >= 0) //Only one root
+      if (j > 0) //Only one root
 	{
 	  double w = std::sqrt(j);
+	  double mcube;
 	  if (v < 0)
-	    root1 = std::pow(0.5*(w-v), 1.0/3.0) - (u / 3.0) * std::pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
+	    root1 = std::pow(0.5*(w-v), 1.0/3.0) - (uo3) * std::pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
 	  else
-	    root1 = (u / 3.0) * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
-      
-	  //Special cases for overflows
-	  if (std::abs(p) > 27 * maxCubeRoot) 
-	    root1 = - p;
-	  if (std::abs(v) > maxSqrt) 
-	    root1 = - std::pow(v, 1.0 / 3.0);
-	  if (std::abs(u) > 0.75 * maxCubeRoot) 
-	    root1 = std::pow(4, 1.0 / 3.0) * u / 3.0;
-      
+	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
+	  
 	  return 1;
 	}
   
-      double s = std::sqrt(-u / 3.0);
-      double t = - v / (2.0 * s * s * s);
+      if (uo3 >= 0)
+	{//Multiple root detected	  
+	  root1 = root2 = root3 = std::pow(v, 1.0 / 3.0) - p / 3.0;
+	  return 3;
+	}
+
+      double muo3 = - uo3;
+      double s;
+      if (muo3 > 0)
+	{
+	  s = std::sqrt(muo3);
+	  if (p > 0) s = -s;
+	}
+      else
+	s = 0;
+      
+      double scube = s * muo3;
+      if (scube == 0)
+	{
+	  root1 = - p / 3.0;
+	  return 1;
+	}
+      
+      double t = - v / (scube + scube);
       double k = std::acos(t) / 3.0;
-  
-      root1 = 2 * s * std::cos(k) - p / 3.0;
-      root2 = s * (-std::cos(k) + std::sqrt(3) * std::sin(k)) - p / 3.0;
-      root3 = s * (-std::cos(k) - std::sqrt(3) * std::sin(k)) - p / 3.0;
+      double cosk = std::cos(k);
+      root1 = (s + s) * cosk - p / 3.0;
+      
+      double sinsqk = 1.0 - cosk * cosk;
+      if (sinsqk < 0) return 1;
+
+      double rt3sink = std::sqrt(3) * std::sqrt(sinsqk);
+      root2 = s * (-cosk + rt3sink) - p / 3.0;
+      root3 = s * (-cosk - rt3sink) - p / 3.0;
       return 3;
     }
   }
