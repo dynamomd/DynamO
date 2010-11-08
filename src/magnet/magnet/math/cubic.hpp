@@ -157,7 +157,7 @@ namespace magnet {
 
       double j = (uo3sq4 * uo3) + v * v;
   
-      if (j > 0) //Only one root
+      if (j > 0) //Only one root (but this test can be wrong?)
 	{
 	  double w = std::sqrt(j);
 	  double mcube;
@@ -165,7 +165,11 @@ namespace magnet {
 	    root1 = std::pow(0.5*(w-v), 1.0/3.0) - (uo3) * std::pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
 	  else
 	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
-	  
+	 
+	  //We double check that there are no more roots by using a quadratic formula on the factored problem.
+	  if (quadSolve(-r/root1, p + root1, 1.0, root2, root3))
+	    return 3;
+ 
 	  return 1;
 	}
   
