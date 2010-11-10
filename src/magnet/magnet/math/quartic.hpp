@@ -24,6 +24,22 @@
 
 namespace magnet {
   namespace math {
+    namespace detail {
+      inline void quarticNewtonRootPolish(const double& a, const double& b, const double& c, const double& d,
+					  double& root, size_t iterations)
+      {
+	for (size_t it = 0; it < iterations; ++it)
+	  {
+	    double error = (((root + a)*root + b) * root + c) * root + d;
+	    double derivative = ((4 * root + 3 * a) * root + 2 * b) * root + c;
+	    
+	    if ((error == 0) || derivative == 0) return;
+	    
+	    root -= error / derivative;
+	  }
+      } 
+    }
+
     //Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0
     inline size_t quarticSolve(const double& a, const double& b, const double& c, const double& d,
 			       double& root1, double& root2, double& root3, double& root4)
@@ -31,22 +47,16 @@ namespace magnet {
       static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
 
       if (std::abs(a) > maxSqrt)
-	{
-	  std::cout << " yacfraid ";
-	  yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4);
-	}
+	yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4);
 
       if (d == 0)
 	{//Solve a cubic with a trivial root of 0
-	  std::cout << " cubic ";
 	  root1 = 0;
 	  return 1 + cubicSolve(a, b, c, root2, root3, root4);
 	}
   
       if ((a == 0) && (c== 0))
 	{//We have a biquadratic
-	  std::cout << " biquadratic ";
-      
 	  double quadRoot1,quadRoot2;
 	  if (quadSolve(d,b,1, quadRoot1, quadRoot2))
 	    {
@@ -79,24 +89,27 @@ namespace magnet {
 	{
 	case 3 :
 	case 9 : 
-	  std::cout << "\nFerrari ";
 	  nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	case 5 :
-	  std::cout << "\nDescartes ";
 	  nr = descartesQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	case 15 :
 	  //This algorithm is stable if we flip the sign of the roots
-	  std::cout << "\nDescartes ";
 	  nr = descartesQuarticSolve(-a,b,-c,d,root1,root2,root3,root4); 
 	  root1 *=-1; root2 *=-1; root3 *=-1; root4 *=-1; 
 	  break;
 	default:
-	  std::cout << "\nYacfraid ";
-	  nr = yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  //nr = neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	}
+
+      if (nr)   detail::quarticNewtonRootPolish(a, b, c, d, root1, 15);
+      if (nr>1) detail::quarticNewtonRootPolish(a, b, c, d, root2, 15);
+      if (nr>2) detail::quarticNewtonRootPolish(a, b, c, d, root3, 15);
+      if (nr>3) detail::quarticNewtonRootPolish(a, b, c, d, root4, 15);
+      
       return nr;  
     }
   }

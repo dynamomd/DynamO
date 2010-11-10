@@ -24,8 +24,8 @@
 namespace magnet {
   namespace math {
     namespace detail {
-      inline void cubicNewtonPolish(const double& p, const double& q, const double& r,
-				    double& root, size_t iterations)
+      inline void cubicNewtonRootPolish(const double& p, const double& q, const double& r,
+					double& root, size_t iterations)
       {
 	for (size_t it = 0; it < iterations; ++it)
 	  {
@@ -185,7 +185,7 @@ namespace magnet {
 	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
 
 	  //We now polish the root up before we use it in other calculations
-	  detail::cubicNewtonPolish(p, q, r, root1, 15);
+	  detail::cubicNewtonRootPolish(p, q, r, root1, 15);
 	 
 	  //We double check that there are no more roots by using a
 	  //quadratic formula on the factored problem, this helps when
@@ -245,9 +245,9 @@ namespace magnet {
       root2 = s * (-cosk + rt3sink) - p / 3.0;
       root3 = s * (-cosk - rt3sink) - p / 3.0;
 
-      detail::cubicNewtonPolish(p, q, r, root1, 15);
-      detail::cubicNewtonPolish(p, q, r, root2, 15);
-      detail::cubicNewtonPolish(p, q, r, root3, 15);
+      detail::cubicNewtonRootPolish(p, q, r, root1, 15);
+      detail::cubicNewtonRootPolish(p, q, r, root2, 15);
+      detail::cubicNewtonRootPolish(p, q, r, root3, 15);
 
       return 3;
     }
