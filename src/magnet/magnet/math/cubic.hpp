@@ -23,6 +23,22 @@
 
 namespace magnet {
   namespace math {
+    namespace detail {
+      inline void cubicNewtonPolish(const double& p, const double& q, const double& r,
+				    double& root, size_t iterations)
+      {
+	for (size_t it = 0; it < iterations; ++it)
+	  {
+	    double error = ((root + p)*root + q) * root + r;
+	    double derivative = (3.0 * root + 2 * p) * root + q;
+	    
+	    if ((error == 0) || derivative == 0) return;
+	    
+	    root -= error / derivative;
+	  }
+      }
+    }
+
     //Please read  http://linus.it.uts.edu.au/~don/pubs/solving.html
     //For solving cubics like x^3 + p * x^2 + q * x + r == 0
     //This function always returns root1 >= root2 >= root3!
@@ -167,6 +183,9 @@ namespace magnet {
 	    root1 = std::pow(0.5*(w-v), 1.0/3.0) - (uo3) * std::pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
 	  else
 	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
+
+	  //We now polish the root up before we use it in other calculations
+	  detail::cubicNewtonPolish(p, q, r, root1, 1);
 	 
 	  //We double check that there are no more roots by using a
 	  //quadratic formula on the factored problem, this helps when
@@ -225,6 +244,11 @@ namespace magnet {
       double rt3sink = std::sqrt(3) * std::sqrt(sinsqk);
       root2 = s * (-cosk + rt3sink) - p / 3.0;
       root3 = s * (-cosk - rt3sink) - p / 3.0;
+
+      detail::cubicNewtonPolish(p, q, r, root1, 15);
+      detail::cubicNewtonPolish(p, q, r, root2, 15);
+      detail::cubicNewtonPolish(p, q, r, root3, 15);
+
       return 3;
     }
   }
