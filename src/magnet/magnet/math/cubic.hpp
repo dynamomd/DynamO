@@ -157,8 +157,10 @@ namespace magnet {
 
       double j = (uo3sq4 * uo3) + v * v;
   
-      if (j > 0) //Only one root (but this test can be wrong?)
-	{
+      if (j > 0) 
+	{//Only one root (but this test can be wrong due to a
+	  //catastrophic cancellation in j 
+	  //(i.e. (uo3sq4 * uo3) == v * v)
 	  double w = std::sqrt(j);
 	  double mcube;
 	  if (v < 0)
@@ -166,10 +168,22 @@ namespace magnet {
 	  else
 	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
 	 
-	  //We double check that there are no more roots by using a quadratic formula on the factored problem.
+	  //We double check that there are no more roots by using a
+	  //quadratic formula on the factored problem, this helps when
+	  //the j test is wrong.
+	  
+	  //We have a choice of either -r/root1, or q -
+	  //(p+root1)*root1 for the constant term.  We try both, the
+	  //division one usually results in more accurate roots but
+	  //fails more often than the multiply. So we need the multiply to clean up.
+	  static size_t divcount = 0, multcount = 0, avgcount = 0;
+
 	  if (quadSolve(-r/root1, p + root1, 1.0, root2, root3))
 	    return 3;
  
+	  if (quadSolve(q-(p+root1)*root1, p + root1, 1.0, root2, root3))
+	    return 3;
+
 	  return 1;
 	}
   

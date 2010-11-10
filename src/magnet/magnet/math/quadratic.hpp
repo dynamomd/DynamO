@@ -35,22 +35,18 @@ namespace magnet {
 	  root1 = -1.0 * C / B;
 	  root2 = root1;
 	}
-      else
-	{
-	  double discriminant = (B * B) - (4 * A * C);
 
-	  //Cannot do imaginary numbers, yet
-	  if (discriminant < 0) return false;
-    
-	  //This avoids a cancellation of errors. See
-	  //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
-	  double t((B < 0)
-		 ? -0.5 * (B-std::sqrt(discriminant))
-		 : -0.5 * (B+std::sqrt(discriminant)));
-    
-	  root1 = t / A;
-	  root2 = C / t;
-	}
+      double discriminant = (B * B) - (4 * A * C);
+      
+      //Cannot do imaginary numbers, yet
+      if (discriminant < 0) return false;
+      
+      //This avoids a cancellation of errors. See
+      //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
+      double t = -0.5 * ( B + ((B < 0) ? -1 : 1) * std::sqrt(discriminant));
+      
+      root1 = t / A;
+      root2 = C / t;
 
       return true;
     }
