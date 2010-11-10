@@ -1338,7 +1338,7 @@ int cubic(
 done:
   if (debug < 1)
   {
-     printf("cubic %d %g %g %g\n",n3,p,q,r);
+    //printf("cubic %d %g %g %g\n",n3,p,q,r);
      for (j = 0; j < n3; ++j)
         printf("   %d %13g %13g\n",j,v3[j],r+v3[j]*(q+v3[j]*(p+v3[j])));
      printf("v %g,  uo3 %g,  m1 %g,   m2 %g,  po3 %g, cosk %g\n",
@@ -1872,7 +1872,7 @@ int neumark(
      printf("neumarka %g %g %g %g,  %g %g %g\n",
      a,b,c,d,p,q,r);
   n3 = cubic(p,q,r,v3);
-  printf("cubic %d %g\n",n3,v3[0]);
+  //printf("cubic %d %g\n",n3,v3[0]);
   for (j3 = 0; j3 < n3; ++j3)
   {
      y = v3[j3];
@@ -2054,8 +2054,8 @@ int neumark(
 
         n1 = quadratic(gg,hh,v1);
         n2 = quadratic(g,h,v2);
-        printf("quadratic roots 1: %d %g %g\n",n1,v1[0],v1[2]);
-        printf("quadratic roots 2: %d %g %g\n",n2,v2[0],v2[2]);
+        //printf("quadratic roots 1: %d %g %g\n",n1,v1[0],v1[2]);
+        //printf("quadratic roots 2: %d %g %g\n",n2,v2[0],v2[2]);
         n4[j3] = n1 + n2;
         qrts[0][j3] = v1[0];
         qrts[1][j3] = v1[1];

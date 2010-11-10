@@ -100,8 +100,8 @@ namespace magnet {
 	  root1 *=-1; root2 *=-1; root3 *=-1; root4 *=-1; 
 	  break;
 	default:
-	  //nr = neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
-	  nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  nr = neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  //nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	}
 

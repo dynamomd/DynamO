@@ -6,6 +6,7 @@
 
 int main()
 {
+  setcns();
 
   //Test for triple roots
   const size_t nroots = 11;
