@@ -8,9 +8,9 @@ int main()
   double rootvals[nroots] = {-1e-6, -100, -1, 0, 1, +100, 1e6 };
 
   for (size_t root1 = 0; root1 < nroots; ++root1)
-    for (size_t root2 = 0; root2 < nroots; ++root2)
-      for (size_t root3 = 0; root3 < nroots; ++root3)
-	for (size_t root4 = 0; root4 < nroots; ++root4)
+    for (size_t root2 = root1; root2 < nroots; ++root2)
+      for (size_t root3 = root2; root3 < nroots; ++root3)
+	for (size_t root4 = root3; root4 < nroots; ++root4)
  	  {
  	    double a = rootvals[root1] + rootvals[root2] + rootvals[root3]
  	      + rootvals[root4],
@@ -39,6 +39,8 @@ int main()
  							  roots[0], roots[1], 
 							  roots[2], roots[3]);
 	    
+	    if (rootcount == 4) continue;
+
  	    sort(originals.begin(), originals.end());
  	    sort(roots.begin(), roots.end());
 
@@ -49,7 +51,6 @@ int main()
 		      << originals[2] << ","
 		      << originals[3];
 
-	    //if (rootcount == 4) continue;
 
 	    std::cout << "\nAlgorithm found " << rootcount << ", roots = ";
 	    for (size_t i = 0; i < rootcount; ++i)
