@@ -185,7 +185,7 @@ namespace magnet {
 	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
 
 	  //We now polish the root up before we use it in other calculations
-	  detail::cubicNewtonPolish(p, q, r, root1, 1);
+	  detail::cubicNewtonPolish(p, q, r, root1, 15);
 	 
 	  //We double check that there are no more roots by using a
 	  //quadratic formula on the factored problem, this helps when
