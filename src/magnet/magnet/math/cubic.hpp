@@ -39,7 +39,7 @@ namespace magnet {
 	{
 	  //no constant term, so divide by x and the result is a
 	  //quadratic, but we must include the trivial x = 0 root
-	  if (quadSolve(q,p,1.0, root1, root2))
+	  if (quadraticSolve(p,q, root1, root2))
 	    {
 	      root3 = 0;
 	      if (root1 < root2) std::swap(root1,root2);
@@ -170,19 +170,23 @@ namespace magnet {
 	 
 	  //We double check that there are no more roots by using a
 	  //quadratic formula on the factored problem, this helps when
-	  //the j test is wrong.
+	  //the j test is wrong due to numerical error.
 	  
 	  //We have a choice of either -r/root1, or q -
-	  //(p+root1)*root1 for the constant term.  We try both, the
-	  //division one usually results in more accurate roots but
-	  //fails more often than the multiply. So we need the multiply to clean up.
-	  static size_t divcount = 0, multcount = 0, avgcount = 0;
-
-	  if (quadSolve(-r/root1, p + root1, 1.0, root2, root3))
+	  //(p+root1)*root1 for the constant term of the quadratic. 
+	  //
+	  //The division one usually results in more accurate roots
+	  //when it finds them but fails to detect real roots more
+	  //often than the multiply.
+	  if (quadraticSolve(p + root1, -r/root1, root2, root3))
 	    return 3;
- 
-	  if (quadSolve(q-(p+root1)*root1, p + root1, 1.0, root2, root3))
-	    return 3;
+	  //
+	  //However, the multiply detects roots where there are none,
+	  //the division does not. So we must either accept missing
+	  //roots or extra roots, here we choose missing roots
+	  //
+	  //if (quadSolve(q-(p+root1)*root1, p + root1, 1.0, root2, root3)) 
+	  //  return 3;
 
 	  return 1;
 	}

@@ -116,6 +116,10 @@ int main()
 						      roots[2]);
 	  if (rootcount != 1)
 	    {
+	      rootcount = magnet::math::cubicSolve(a, b, c,
+						   roots[0], roots[1], 
+						   roots[2]);
+
 	      std::cout << "\n\nRoot Count Failed"
 			<< "\nActual             roots = " 
 			<< root1val.real() << ","
@@ -138,31 +142,29 @@ int main()
 	      break;
 	    }
 
-//	  for (size_t i = 0; i < rootcount; ++i)
-//	    if (std::abs((roots[i] - originals[i]) / originals[i]) > 0.000001)
-//	      {
-//		static size_t accuracyfails = 0;
-//
-//		std::cout << "\n\nRoot accuracy Failure = " << ++accuracyfails
-//			  << "\nActual             roots = " 
-//			  << originals[0] << ","
-//			  << originals[1] << ","
-//			  << originals[2]
-//			  << "\nAlgorithm found " << rootcount << ", roots = ";
-//		for (size_t i = 0; i < rootcount; ++i)
-//		  std::cout << roots[i] << ",";
-//		
-//		double rts[4];
-//		int nroots = cubic(a,b,c,rts);
-//		
-//		std::cout << "\n\nOriginal found " << nroots
-//			  << "\nOriginal           roots = ";
-//		for (size_t i = 0; i < nroots; ++i)
-//		  std::cout << roots[i] << ",";
-//
-//		std::cout.flush();
-//		break;
-//	      }
+	  for (size_t i = 0; i < rootcount; ++i)
+	    if (std::abs((roots[0] - root1val.real()) / root1val.real()) > 0.000001)
+	      {
+		static size_t accuracyfails = 0;
+
+		std::cout << "\n\nRoot accuracy Failure = " << ++accuracyfails
+			  << "\nActual             roots = " 
+			  << root2val.real() << " + " << root2val.imag() << " i,"
+			  << root3val.real() << " + " << root3val.imag() << " i,"
+			  << "\nAlgorithm found " << rootcount << ", roots = "
+			  << root1val.real() << ",";
+		
+		double rts[4];
+		int nroots = cubic(a,b,c,rts);
+		
+		std::cout << "\n\nOriginal found " << nroots
+			  << "\nOriginal           roots = ";
+		for (size_t i = 0; i < nroots; ++i)
+		  std::cout << roots[i] << ",";
+
+		std::cout.flush();
+		break;
+	      }
 	}
 
 
