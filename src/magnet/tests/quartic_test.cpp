@@ -186,9 +186,13 @@ int main()
  							  roots[0], roots[1], 
 							  roots[2], roots[3]);
 
- 	    sort(roots.begin(), roots.end());
-
 	    if (rootcount == 0) continue;
+
+ 	    rootcount = magnet::math::quarticSolve(a, b, c, d,
+ 							  roots[0], roots[1], 
+							  roots[2], roots[3]);
+
+ 	    sort(roots.begin(), roots.end());
 
 	    std::cout << "\n\nActual             roots = " 
 		      << root1val.real() << " + " << root1val.imag() <<  " i,"
