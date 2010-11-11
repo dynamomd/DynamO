@@ -105,10 +105,10 @@ namespace magnet {
 	  break;
 	}
 
-      //if (nr)   detail::quarticNewtonRootPolish(a, b, c, d, root1, 15);
-      //if (nr>1) detail::quarticNewtonRootPolish(a, b, c, d, root2, 15);
-      //if (nr>2) detail::quarticNewtonRootPolish(a, b, c, d, root3, 15);
-      //if (nr>3) detail::quarticNewtonRootPolish(a, b, c, d, root4, 15);
+      if (nr)   detail::quarticNewtonRootPolish(a, b, c, d, root1, 18);
+      if (nr>1) detail::quarticNewtonRootPolish(a, b, c, d, root2, 18);
+      if (nr>2) detail::quarticNewtonRootPolish(a, b, c, d, root3, 18);
+      if (nr>3) detail::quarticNewtonRootPolish(a, b, c, d, root4, 18);
       
       return nr;  
     }

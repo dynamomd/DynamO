@@ -8,8 +8,8 @@ int main()
 {
   setcns();
 
-  const size_t nroots = 9;
-  double rootvals[nroots] = {-1e6,-1e3, -100, -1, 0, 1, +100, 1e3,1e6};
+  const size_t nroots = 7;
+  double rootvals[nroots] = {-1e3, -100, -1, 0, 1, +100, 1e3};
 
   std::cout << "\n\n///////////////////////4 real roots//////////////////////////";
 
@@ -59,12 +59,17 @@ int main()
 	    bool accuracyfail = false;
 
 	    for (size_t i = 0; i < rootcount; ++i)
-	      if (std::abs((roots[i] - originals[i]) / originals[i]) > 0.001)
+	      if (std::abs((roots[i] - originals[i]) / originals[i]) > 0.0002)
 		accuracyfail = true;
 
 	    if ((rootcount == 4) && !accuracyfail) continue;
-
-	    std::cout << "\n\nActual             roots = " 
+	    
+	    if (accuracyfail) 
+	      std::cout << "\n\nAccuracy fail";
+	    else
+	      std::cout << "\n\nRoot count fail";
+	      
+	    std::cout << "\nActual             roots = " 
 		      << originals[0] << ","
 		      << originals[1] << ","
 		      << originals[2] << ","
@@ -145,7 +150,141 @@ int main()
 	      std::cout << rts[i] << ",";
 	    
 	  }	  
-  std::cout << "\nTested " << counter << " roots";
+  std::cout << "\nTested " << counter << " root combinations";
+
+
+
+  std::cout << "\n\n////////////////////2 imaginary and 2 real roots//////////////////////";
+
+  counter = 0;
+  for (size_t root1real = 0; root1real < nroots; ++root1real)
+    for (size_t root3real   = 0; root3real < nroots; ++root3real)
+      for (size_t root2real = 0; root2real < nroots; ++root2real)
+	for (size_t root2im   = 0; root2im  < nroots; ++root2im)
+ 	  {
+	    if (rootvals[root2im] == 0) continue; //skip real double roots
+
+	    ++counter;
+	    
+	    std::complex<double>
+	      root1val(rootvals[root1real], 0),	    
+	      root2val(rootvals[root3real], 0),
+	      root3val(rootvals[root2real],  rootvals[root2im]),
+	      root4val(rootvals[root2real], -rootvals[root2im]);
+
+ 	    double a = (- root1val - root2val 
+			- root3val - root4val).real(),
+ 	      b = (+ root1val * root2val
+		   + root1val * root3val
+		   + root1val * root4val
+		   + root2val * root3val
+		   + root2val * root4val
+		   + root3val * root4val).real(),
+ 	      c = (- root1val * root2val * root3val
+		   - root1val * root2val * root4val
+		   - root1val * root3val * root4val
+		   - root2val * root3val * root4val).real(),
+ 	      d = (root1val * root2val * root3val
+		   * root4val).real();
+	    
+ 	    std::vector<double> roots(4);
+	    
+ 	    size_t rootcount = magnet::math::quarticSolve(a, b, c, d,
+ 							  roots[0], roots[1], 
+							  roots[2], roots[3]);
+
+	    if (rootcount == 2) continue;
+
+ 	    rootcount = magnet::math::quarticSolve(a, b, c, d,
+ 							  roots[0], roots[1], 
+							  roots[2], roots[3]);
+
+ 	    sort(roots.begin(), roots.end());
+
+	    std::cout << "\n\nActual             roots = " 
+		      << root1val.real() << " + " << root1val.imag() <<  " i,"
+		      << root2val.real() << " + " << root2val.imag() <<  " i,"
+		      << root3val.real() << " + " << root3val.imag() <<  " i,"
+		      << root4val.real() << " + " << root4val.imag() <<  " i,";
+	    
+
+	    std::cout << "\nAlgorithm found " << rootcount << ", roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    double rts[4];
+	    int origrootcount = quartic(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::ferrariQuarticSolve(a, b, c, d,
+	    						  roots[0], roots[1],
+	    						  roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    
+	    std::cout << "\nFerrari found " << rootcount << ",   roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = ferrari(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::yacfraidQuarticSolve(a, b, c, d,
+	    						   roots[0], roots[1],
+	    						   roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nYacfraid found " << rootcount << ",  roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = yacfraid(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+
+	    
+	    rootcount = magnet::math::descartesQuarticSolve(a, b, c, d,
+	    						    roots[0], roots[1], 
+	    						    roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nDescartes found " << rootcount << ", roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = descartes(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::neumarkQuarticSolve(a, b, c, d,
+	    						  roots[0], roots[1],
+	    						  roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nNeumark found " << rootcount << ",   roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = neumark(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	  }
+
+  std::cout << "\nTested " << counter << " root combinations";
+
 
   std::cout << "\n\n///////////////////////4 imaginary roots//////////////////////////";
 
@@ -275,7 +414,7 @@ int main()
 	      std::cout << rts[i] << ",";
 	    
 	  }	  
-  std::cout << "\nTested " << counter << " roots";
+  std::cout << "\nTested " << counter << " root combinations";
 
   return 0;
 }
