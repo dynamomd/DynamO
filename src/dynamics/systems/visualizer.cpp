@@ -115,7 +115,7 @@ SVisualizer::runEvent() const
       Sim->dynamics.stream(locdt);
       locdt += Sim->freestreamAcc;
       Sim->freestreamAcc = 0;
-      //Sim->dynamics.getLiouvillean().updateAllParticles();
+      Sim->dynamics.getLiouvillean().updateAllParticles();
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(*this, NEventData(), locdt);
