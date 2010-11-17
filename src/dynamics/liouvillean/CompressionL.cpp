@@ -89,7 +89,7 @@ LCompression::sphereOverlap(const CPDData& dat, const double& d2) const
 void
 LCompression::streamParticle(Particle &particle, const double &dt) const
 {
-  if (particle.getState().testState(ParticleState::DYNAMIC))
+  if (particle.testState(Particle::DYNAMIC))
     particle.getPosition() +=  particle.getVelocity() * dt;
 }
 

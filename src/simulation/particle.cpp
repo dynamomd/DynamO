@@ -24,7 +24,8 @@
 
 Particle::Particle(const XMLNode& XML, unsigned long nID):
   _ID(nID),
-  _peculiarTime(0.0)
+  _peculiarTime(0.0),
+  _state(DEFAULT)
 {
   XMLNode xBrowseNode = XML.getChildNode("P");
   _pos << xBrowseNode;

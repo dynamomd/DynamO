@@ -27,20 +27,6 @@ namespace xml
 
 struct ParticleState
 {
-  typedef enum {
-    DEFAULT = 0x01 | 0x02,
-    DYNAMIC = 0x01, //Will the free streaming part of the
-    //Liouvillean be applied to his particle
-    //and will events be generated for this
-    //particle.                            
-    ALIVE = 0x02 //Is this particle in the simulation
-  } State;
-
-  inline ParticleState():_state(DEFAULT) {}
-
-  inline bool testState(State teststate) const { return (_state & teststate); }
-
-  State _state;
 };
 
 class Particle
@@ -52,7 +38,8 @@ public:
 		    const Vector  &velocity,
 		    const unsigned long& nID):
     _pos(position), _vel(velocity), 
-    _ID(nID), _peculiarTime(0.0)
+    _ID(nID), _peculiarTime(0.0),
+    _state(DEFAULT)
   {}
   
   Particle(const XMLNode&, unsigned long);
@@ -74,7 +61,18 @@ public:
   inline void scalePosition(const double& vs) { _pos *= vs; }
   
 
-  inline const ParticleState& getState() const { return _particleState; }
+  typedef enum {
+    DEFAULT = 0x01 | 0x02,
+    DYNAMIC = 0x01, //Will the free streaming part of the
+    //Liouvillean be applied to his particle
+    //and will events be generated for this
+    //particle.                            
+    ALIVE = 0x02 //Is this particle in the simulation
+  } State;
+
+  inline bool testState(State teststate) const { return _state & teststate; }
+  inline void setState(State nState) { _state |= nState; }
+  inline void clearState(State nState) { _state &= (~nState); }
   
 private:
   //NOTE, changing these members type must be reflected in the liouvillean
@@ -84,5 +82,5 @@ private:
   unsigned long _ID;
   double _peculiarTime;
 
-  ParticleState _particleState;
+  int _state;
 };

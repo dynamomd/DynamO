@@ -181,7 +181,7 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
 void
 LNOrientation::streamParticle(Particle& part, const double& dt) const
 {
-  if (part.getState().testState(ParticleState::DYNAMIC))
+  if (part.testState(Particle::DYNAMIC))
     {
       part.getPosition() += part.getVelocity() * dt;
       
