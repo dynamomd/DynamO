@@ -17,33 +17,22 @@
 
 #pragma once
 #include "filter.hpp"
-#include <magnet/GL/SSAO.hpp>
+#include <magnet/GL/multiplyTexture.hpp>
 
 namespace coil 
 {
-  class SSAOWrapper: public filter
+  class MultiplyFilter: public filter
   {
   public:
-    SSAOWrapper();
-    ~SSAOWrapper();
+    MultiplyFilter() { _filter.build(); }
 
-    inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
-    inline virtual bool isEditable() { return true; }
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height);
+    inline virtual size_t type_id() { return detail::filterEnum<MultiplyFilter>::val; }
+    inline virtual bool isEditable() { return false; }
+    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height)
+    { _filter.invoke(colorTextureUnit, 0, width, height); }
 
-    inline virtual bool needsNormalDepth()  { return true; }
-    virtual void edit();
-
+    inline virtual bool needsNormalDepth()  { return false; }
   protected:
-    magnet::GL::SSAO _filter;
-    Glib::RefPtr<Gtk::Builder> _refXml;
-    GLfloat _radius;
-    GLfloat _totStrength;
-    GLfloat _strength;
-    GLfloat _offset;
-
-    GLuint _randomTexture;
-
-    void settingsCallback();
+    magnet::GL::MultiplyTexture _filter;
   };
 }

@@ -93,11 +93,17 @@ namespace magnet {
 
       inline ~shadowFBO()
       {
+	deinit();
+      }
+
+      inline void deinit()
+      {
 	if (_length)
 	  {
 	    glDeleteFramebuffersEXT(1, &_FBO);
 	    glDeleteTextures(1, &_depthTexture);
 	  }
+	_length = 0;
       }
 
       inline void setup(const lightInfo& light)

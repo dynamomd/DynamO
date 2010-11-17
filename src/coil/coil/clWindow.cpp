@@ -47,6 +47,8 @@ inline float clamp(float x, float a, float b)
 
 #include <magnet/function/task.hpp>
 
+#include <gtkmm/volumebutton.h>
+
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title,
@@ -66,11 +68,17 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _specialKeys(0),
   _shaderPipeline(false),
   _shadowMapping(true),
+  _shadowIntensity(0.6),
   _simrun(false),
   _simframelock(false),
   _snapshot(false),
   _record(false),
   _showAxis(true),
+  _showLight(true),
+  _showGround(true),
+  _PNGFileFormat(true),
+  _fpsLimit(true),
+  _fpsLimitValue(60),
   _filterEnable(true),
   _snapshot_counter(0)
 {
@@ -212,6 +220,10 @@ CLGLWindow::initOpenGL()
 void 
 CLGLWindow::CallBackIdleFunc()
 {
+  //Check if limiting the FPS
+  if (_fpsLimit && (_fpsLimitValue * (glutGet(GLUT_ELAPSED_TIME) - _lastFrameTime) < 1000))
+      return;
+
   CallBackDisplayFunc();
 }
 
@@ -233,6 +245,10 @@ CLGLWindow::initOpenCL()
 extern const char _binary_src_coil_coil_clwingtk_gladexml_start[];
 extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
 
+extern const guint8 coilicon[];
+extern const size_t coilicon_size;
+
+
 void
 CLGLWindow::initGTK()
 {
@@ -251,8 +267,22 @@ CLGLWindow::initGTK()
 
   ////////Store the control window
   _refXml->get_widget("controlWindow", controlwindow);
-
   
+  ////////Setup the window icon
+  controlwindow->set_icon(Gdk::Pixbuf::create_from_inline
+			  (coilicon_size, coilicon));
+
+
+  ///////Register the about button
+  {
+    Gtk::ImageMenuItem* aboutButton;
+    _refXml->get_widget("aboutItem", aboutButton);
+
+    aboutButton->signal_activate()
+      .connect(sigc::mem_fun(this, &CLGLWindow::aboutCallback));
+  }
+  
+
   {////////Simulation run control
     Gtk::ToggleButton* togButton;
     _refXml->get_widget("SimRunButton", togButton);
@@ -276,6 +306,22 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(*this, &CLGLWindow::axisShowCallback));
   }
 
+  {//////Show light checkbox
+    Gtk::CheckButton* lightShowButton;    
+    _refXml->get_widget("lightShow", lightShowButton); 
+
+    lightShowButton->signal_toggled()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::lightShowCallback));
+  }
+
+  {//////Show ground checkbox
+    Gtk::CheckButton* Button;    
+    _refXml->get_widget("showGround", Button); 
+
+    Button->signal_toggled()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::groundShowCallback));
+  }
+
   {//////Snapshot button
     Gtk::Button* btn;
     _refXml->get_widget("SimSnapshot", btn);
@@ -289,6 +335,17 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::recordCallback));
   }
 
+  {///////File format selection
+    Gtk::RadioButton* radioButton;
+    _refXml->get_widget("snapshotBMP", radioButton);
+    radioButton->set_active(false);
+    radioButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::snapshotFileFormatCallback));
+    _refXml->get_widget("snapshotPNG", radioButton);
+    radioButton->set_active(true);
+  }
+  
+
   {///////Control the update rate from the simulation
     Gtk::SpinButton* updateButton;
     _refXml->get_widget("updateFreq", updateButton);
@@ -296,6 +353,23 @@ CLGLWindow::initGTK()
     updateButton->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::simUpdateRateCallback));
   }
+
+  {///////FPS lock
+    Gtk::ToggleButton* fpslockButton;
+    _refXml->get_widget("FPSLimit", fpslockButton);
+    fpslockButton->set_active(_fpsLimit);
+    fpslockButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
+  }
+
+  {///////FPS lock value
+    Gtk::SpinButton* fpsButton;
+    _refXml->get_widget("FPSLimitVal", fpsButton);
+    fpsButton->set_value(_fpsLimitValue);
+    fpsButton->signal_value_changed()
+      .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
+  }
+
   ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
     {
@@ -306,7 +380,7 @@ CLGLWindow::initGTK()
 	shaderFrame->set_sensitive(true);
       }
       
-      {//Setup the checkbox
+      {//Setup the shader enable
 	Gtk::CheckButton* shaderEnable;
 	_refXml->get_widget("ShaderPipelineEnable", shaderEnable);
 	
@@ -314,7 +388,6 @@ CLGLWindow::initGTK()
 
 	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
       }
-
 
       ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
       GLint maxSamples;
@@ -385,6 +458,14 @@ CLGLWindow::initGTK()
 	_refXml->get_widget("shadowmapSize", shadowmapSize);
 	shadowmapSize->set_value(1024);
 	shadowmapSize->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+      }
+
+      {//Setup the shadow intensity
+	Gtk::VolumeButton* shadowButton;
+	_refXml->get_widget("shadowIntensity", shadowButton);
+	shadowButton->set_value(0.6);
+
+	shadowButton->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
       }
 
       {///////////////////////Filters//////////////////////////////////
@@ -561,13 +642,14 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _CLState = magnet::CL::CLGLState();
 
   ///////////////////OpenGL
-  if (_shaderPipeline)
-    {
-      _shadowFBO = magnet::GL::shadowFBO();
-      _shadowShader = magnet::GL::shadowShader();
-    }
+  _renderTarget->deinit();
 
-  _renderTarget.reset();
+  _shadowFBO.deinit();
+  _shadowShader.deinit();
+  _filterTarget1.deinit();
+  _filterTarget2.deinit();
+  _normalAndDepths.deinit();
+  _nrmldepthShader.deinit();
 
   filterClearCallback();
 
@@ -647,7 +729,7 @@ CLGLWindow::CallBackDisplayFunc(void)
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping);
+      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping, _shadowIntensity);
       drawScene();
       
       _renderTarget->detach();
@@ -749,7 +831,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   drawAxis();
 
   //Draw the light source
-  _light0.drawLight();
+  if (_showLight) _light0.drawLight();
 
   glutSwapBuffers();
 
@@ -769,8 +851,21 @@ CLGLWindow::CallBackDisplayFunc(void)
 
       if (_snapshot)
 	{
-	  png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, true);
 	  _snapshot = false;
+
+	  if (_PNGFileFormat)
+	    png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, false, true);
+	  else
+	    {
+	      bitmap_image img(_width, _height);	  	  
+	      for (size_t y(0); y < _height; ++y)
+		for (size_t x(0); x < _width; ++x)
+		  img.set_pixel(x, y, 
+				pixels[(_height -1 - y) * _width + x].red(),
+				pixels[(_height -1 - y) * _width + x].green(),
+				pixels[(_height -1 - y) * _width + x].blue());	  
+	      img.save_image(path + "/snapshot.bmp");
+	    }
 	}
 
       if (_record)
@@ -778,18 +873,19 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  std::ostringstream filename;
 	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	  
-	  bitmap_image img(_width, _height);
-	  	  
-	  for (size_t y(0); y < _height; ++y)	  
-	    for (size_t x(0); x < _width; ++x)
-	      img.set_pixel(x, y, 
-			    pixels[(_height -1 - y) * _width + x].red(),
-			    pixels[(_height -1 - y) * _width + x].green(),
-			    pixels[(_height -1 - y) * _width + x].blue());
-
-	  img.save_image(path + "/" + filename.str() +".bmp");
-
-	  //png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true);
+	  if (_PNGFileFormat)
+	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true, true);
+	  else
+	    {
+	      bitmap_image img(_width, _height);	  	  
+	      for (size_t y(0); y < _height; ++y)	  
+		for (size_t x(0); x < _width; ++x)
+		  img.set_pixel(x, y, 
+				pixels[(_height -1 - y) * _width + x].red(),
+				pixels[(_height -1 - y) * _width + x].green(),
+				pixels[(_height -1 - y) * _width + x].blue());	  
+	      img.save_image(path + "/" + filename.str() +".bmp");
+	    }
 	}
     }
 
@@ -811,36 +907,19 @@ CLGLWindow::drawScene()
     (*iPtr)->glRender();
 
   //Draw a ground
-  glColor3f(1,1,1);
-  
-   glBegin(GL_QUADS);
-   //Front
-   glNormal3f(0, 1, 0);
-   glVertex3f(-100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
-   glVertex3f(-100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
-   glVertex3f( 100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
-   glVertex3f( 100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
-
-//   glNormal3f(0, -1, 0);
-//   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
-//   glVertex3f(-10 + _viewPortInfo._cameraX, - 0.52,  10 + _viewPortInfo._cameraZ);
-//   glVertex3f( 10 + _viewPortInfo._cameraX, - 0.52,  10 + _viewPortInfo._cameraZ);
-//   glVertex3f( 10 + _viewPortInfo._cameraX, - 0.52, -10 + _viewPortInfo._cameraZ);
-
-   //Back
-//   glNormal3f(0, -1, 0);
-//   glVertex3f(-10, -0.51, -10);
-//   glVertex3f(-10, -0.51,  10);
-//   glVertex3f( 10, -0.51,  10);
-//   glVertex3f( 10, -0.51, -10);
-
-   glEnd();
-  
-//  glPushMatrix();
-//  glTranslatef(2.0f,0.5f,2.0f);
-////  glScalef(4.0f, 0.01f, 4.0f);
-//  glutSolidSphere(1.0, 20, 20);
-//  glPopMatrix();
+  if (_showGround)
+    {
+      glColor3f(1,1,1);
+      
+      glBegin(GL_QUADS);
+      //Front
+      glNormal3f(0, 1, 0);
+      glVertex3f(-100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
+      glVertex3f(-100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
+      glVertex3f( 100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
+      glVertex3f( 100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
+      glEnd();
+    }
 }
 
 
@@ -1150,6 +1229,38 @@ CLGLWindow::axisShowCallback()
 }
 
 void 
+CLGLWindow::lightShowCallback()
+{
+  Gtk::CheckButton* lightShowButton;
+  _refXml->get_widget("lightShow", lightShowButton);
+  
+  _showLight = lightShowButton->get_active();
+}
+
+void 
+CLGLWindow::groundShowCallback()
+{
+  Gtk::CheckButton* Button;
+  _refXml->get_widget("showGround", Button);
+  
+  _showGround = Button->get_active();
+}
+
+void 
+CLGLWindow::shadowIntensityCallback(double val)
+{
+  _shadowIntensity = val;
+}
+
+void 
+CLGLWindow::snapshotFileFormatCallback()
+{
+  Gtk::RadioButton* radioButton;
+  _refXml->get_widget("snapshotPNG", radioButton);
+  _PNGFileFormat = radioButton->get_active();
+}
+
+void 
 CLGLWindow::filterUpCallback()
 {
   Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
@@ -1279,7 +1390,6 @@ CLGLWindow::filterEnableCallback()
   _filterEnable = btn->get_active();
 }
 
-
 void 
 CLGLWindow::filterClearCallback()
 {
@@ -1303,4 +1413,37 @@ CLGLWindow::simUpdateRateCallback()
     updateButton->set_value(0.000001);
   
   _updateIntervalValue = updateButton->get_value();
+}
+
+void
+CLGLWindow::FPSLimitCallback()
+{
+  Gtk::ToggleButton* fpslockButton;
+  _refXml->get_widget("FPSLimit", fpslockButton);
+  _fpsLimit = fpslockButton->get_active();
+
+  Gtk::SpinButton* fpsButton;
+  _refXml->get_widget("FPSLimitVal", fpsButton);
+  _fpsLimitValue = fpsButton->get_value();
+}
+
+extern const guint8 coilsplash[];
+extern const size_t coilsplash_size;
+
+void
+CLGLWindow::aboutCallback()
+{
+  {
+    Gtk::Window* aboutWindow;
+    _refXml->get_widget("aboutSplashWindow", aboutWindow);
+    aboutWindow->show();
+  }
+
+  {
+    Gtk::Image* aboutImage;
+    _refXml->get_widget("aboutSplashImage", aboutImage);
+  
+    aboutImage->set(Gdk::Pixbuf::create_from_inline
+		    (coilsplash_size, coilsplash));
+  }
 }

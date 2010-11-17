@@ -117,7 +117,9 @@ CScheduler::runNextEvent()
   if (sorter->nextPELEmpty())
     M_throw() << "Next particle list is empty but top of list!";
 #endif  
-    
+  //This is the lazy deletion scheme for interaction events. Any event
+  //whose event counter mismatches the particles current event counter
+  //is out of date and should be deleted
   while ((sorter->next_type() == INTERACTION)
 	 && (sorter->next_collCounter2()
 	     != eventCount[sorter->next_p2()]))
@@ -152,17 +154,46 @@ CScheduler::runNextEvent()
 	      << "\nOwner Particle = " << sorter->next_ID()
 	      << "\nID2 = " << sorter->next_p2();
 
-//  if (sorter->next_dt() < 0)
-//    M_throw() << "Next event time is less than 0"
-//	      << "\nTime to event "
-//	      << sorter->next_dt()
-//	      << "\nEvent Type = " 
-//	      << sorter->next_type()
-//      	      << "\nOwner Particle = " << sorter->next_ID()
-//	      << "\nID2 = " << sorter->next_p2();
+  ////////////////////////////////////////////////////////////////////
+  // We can't perform such strict testing as commented out
+  // below. Sometimes negative event times occur, usually at the start
+  // of a simulation when particles are initialized just on the edge
+  // of a cell, or if we have a system event which is "triggered" and
+  // sets its own event time to 0. These must be tolerated and we must
+  // trust in the determinism of the dynamics and the precision of the
+  // calculations to minimise any effects. So far no system has
+  // crashed because of negative event times that were not caused by a
+  // physically incorrect initial configuration
+  ////////////////////////////////////////////////////////////////////
+  //  if (sorter->next_dt() < 0)
+  //    M_throw() << "Next event time is less than 0"
+  //	      << "\nTime to event "
+  //	      << sorter->next_dt()
+  //	      << "\nEvent Type = " 
+  //	      << sorter->next_type()
+  //      	      << "\nOwner Particle = " << sorter->next_ID()
+  //	      << "\nID2 = " << sorter->next_p2();
 #endif  
   
+  /*! This is our dimensionless parameter which we need to correct a
+  edge case for the collision testing. If an event is scheduled to
+  occur its collision time is always double checked before it is
+  executed. If two events are close together in time, the earliest
+  might be popped off the queue, retested and then appear to occur
+  later than the next event. In this case the original event is
+  discarded and the new version is reinserted into the event
+  queue. However, a rounding error might then cause the new event to
+  appear earlier than the second event and we're back where we
+  started. Basically, if rejectionLimit rejections occur in a row we
+  just accept the next event in the queue. This breaks these loops and
+  allows the simulation to continue. 
+
+  With this method the system is guarranteed to maintain the correct
+  event sequence to within machine precision. The queue can even
+  handle negative time events provided the dynamics allow it.
+  */
   const size_t rejectionLimit = 10;
+
 
   switch (sorter->next_type())
     {

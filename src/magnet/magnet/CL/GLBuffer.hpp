@@ -86,10 +86,8 @@ public:
       }
   }
 
-  Event acquire(CommandQueue cmdq, cl_int* err = NULL)
+  void acquire(CommandQueue cmdq, cl_int* err = NULL)
   {
-    Event retEvent;
-
     if (hostTransfers())
       {
 	glBindBuffer(_bufType, _bufobj);
@@ -109,10 +107,10 @@ public:
       {
 	cl_int error = ::clEnqueueAcquireGLObjects(cmdq(),
 						   1,
-						   &(*this)(),
+						   &((*this)()),
 						   0,
-						   0,
-						   &retEvent());
+						   NULL,
+						   NULL);
 	
 	detail::errHandler(error, __ENQUEUE_ACQUIRE_GL_ERR);
 	
@@ -120,13 +118,10 @@ public:
 	  *err = error;
 	}
       }
-    return retEvent;
   }
 
-  Event release(CommandQueue cmdq, cl_int* err = NULL)
+  void release(CommandQueue cmdq, cl_int* err = NULL)
   {
-    Event retEvent;
-
     if (hostTransfers())
       {
 	glBindBuffer(_bufType, _bufobj);
@@ -150,7 +145,7 @@ public:
 						   &(*this)(),
 						   0,
 						   NULL,
-						   &retEvent());
+						   NULL);
 	
 	detail::errHandler(error, __ENQUEUE_RELEASE_GL_ERR);
 	
@@ -158,7 +153,6 @@ public:
 	  *err = error;
 	}
       }
-    return retEvent;
   }
 
   //! Default constructor; buffer is not valid at this point.

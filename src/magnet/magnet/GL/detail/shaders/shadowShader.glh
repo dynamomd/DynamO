@@ -57,6 +57,7 @@ void main()
 STRINGIFY( 
 uniform sampler2DShadow ShadowMap;
 uniform int shadowMapping;
+uniform float shadowIntensity;
 varying vec4 ShadowCoord;
 varying vec3 lightVec;
 varying vec3 normal;
@@ -64,8 +65,6 @@ varying vec3 viewVec;
 
 void main()
 {
-  const float shadowIntensity = 0.6;
-
   float shadow = 0 ;
   
   if (shadowMapping == 1)

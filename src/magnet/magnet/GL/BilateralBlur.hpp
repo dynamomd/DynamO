@@ -21,43 +21,35 @@
 namespace magnet {
   namespace GL {
     
-    class SSAOBlur : public detail::shader<SSAOBlur>
+    class BilateralBlur : public detail::shader<BilateralBlur>
     {
     public:
       void build()
       {
-	detail::shader<SSAOBlur>::build();
+	detail::shader<BilateralBlur>::build();
 
-	glUseProgram(detail::shader<SSAOBlur>::_shaderID);
+	glUseProgram(detail::shader<BilateralBlur>::_shaderID);
 
-	_radiusUniform      = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"radius");
-	_totstrengthUniform = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"totStrength");
-	_strengthUniform    = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"strength");
-	_offsetUniform      = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"offset");
-	_falloffUniform     = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"falloff");
+	_scaleUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"scale");
+	_totstrengthUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"totStrength");
 
-	_SSAOTextureUniform = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"u_Texture0");
-	_imageTextureUniform = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"u_Texture1");
-	_depthTextureUniform = glGetUniformLocationARB(detail::shader<SSAOBlur>::_shaderID,"u_Texture2");
+	_SSAOTextureUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"u_Texture0");
+	_depthTextureUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"u_Texture2");
 
 	glUseProgramObjectARB(0);
       }
 
-      void invoke(GLint SSAOTextureID, GLint imageTextureID, GLint depthTextureID, GLuint _width, GLuint _height, 
-		  GLfloat radius, GLfloat totStrength, GLfloat strength, GLfloat offset, GLfloat falloff)
+      void invoke(GLint SSAOTextureID, GLint depthTextureID, GLuint _width, GLuint _height,
+		  GLfloat pixelSkip, GLfloat totStrength)
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<SSAOBlur>::_shaderID);
+	glUseProgram(detail::shader<BilateralBlur>::_shaderID);
 	//Horizontal application
 	glUniform1iARB(_SSAOTextureUniform, SSAOTextureID);
-	glUniform1iARB(_imageTextureUniform, imageTextureID);
 	glUniform1iARB(_depthTextureUniform, depthTextureID);
 
-	glUniform1fARB(_radiusUniform, radius);
+	glUniform2fARB(_scaleUniform, pixelSkip / _width, pixelSkip / _height);
 	glUniform1fARB(_totstrengthUniform, totStrength);
-	glUniform1fARB(_strengthUniform, strength);
-	glUniform1fARB(_offsetUniform, offset);
-	glUniform1fARB(_falloffUniform, falloff);
 	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -103,14 +95,11 @@ namespace magnet {
       static inline std::string fragmentShaderSource();
 
     protected:
-      GLint _SSAOTextureUniform, _imageTextureUniform, _depthTextureUniform;
-      GLint _radiusUniform     ;
+      GLint _SSAOTextureUniform, _depthTextureUniform;
+      GLint _scaleUniform     ;
       GLint _totstrengthUniform;
-      GLint _strengthUniform   ;
-      GLint _offsetUniform     ;
-      GLint _falloffUniform    ;
     };
   }
 }
 
-#include <magnet/GL/detail/shaders/SSAOBlur.glh>
+#include <magnet/GL/detail/shaders/BilateralBlur.glh>

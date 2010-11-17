@@ -83,9 +83,10 @@ protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
 
-  //Frame buffers to flip flop data between
+  //Primary render target
   std::auto_ptr<magnet::GL::FBO> _renderTarget;
 
+  //Frame buffers to flip flop filters between
   magnet::GL::FBO _filterTarget1;
   magnet::GL::FBO _filterTarget2;
 
@@ -154,11 +155,17 @@ private:
 
   bool _shaderPipeline;
   bool _shadowMapping;
+  GLfloat _shadowIntensity;
   volatile bool _simrun;
   volatile bool _simframelock;
   bool _snapshot;
   bool _record;
   bool _showAxis;
+  bool _showLight; 
+  bool _showGround;
+  bool _PNGFileFormat;
+  bool _fpsLimit;
+  int  _fpsLimitValue;
   bool _filterEnable;
 
   size_t _snapshot_counter;
@@ -210,6 +217,12 @@ private:
   void snapshotCallback();
   void recordCallback();
   void axisShowCallback();
+  void lightShowCallback();
+  void groundShowCallback();
+  void shadowIntensityCallback(double);
+  void snapshotFileFormatCallback();
+  void FPSLimitCallback();
+  void aboutCallback();
 
   void runCallback(); 
 };

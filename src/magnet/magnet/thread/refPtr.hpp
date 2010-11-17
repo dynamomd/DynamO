@@ -37,23 +37,18 @@ namespace magnet {
 	_mutex(new Mutex)
       {}
 
-      inline RefPtr(const RefPtr<T>& other)
+      inline RefPtr(const RefPtr<T>& other):
+	_obj(NULL),
+	_counter(NULL),
+	_mutex(NULL)	
       {
 	if (other._obj != NULL)
 	  {
 	    other._mutex->lock();
-	    
 	    _obj = other._obj;
 	    ++(*(_counter = other._counter));
-	    _mutex = other._mutex;
-	    
+	    _mutex = other._mutex;	    
 	    _mutex->unlock();
-	  }
-	else
-	  {
-	    _obj = NULL;
-	    _counter = NULL;
-	    _mutex = NULL;
 	  }
       }
 
@@ -65,12 +60,11 @@ namespace magnet {
 
 	if (other._obj != NULL)
 	  {
-	    other._mutex->lock();
-	    
+	    other._mutex->lock();	    
 	    _obj = other._obj;
-	    ++(*(_counter = other._counter));
 	    _mutex = other._mutex;
-	    
+	    _counter = other._counter;
+	    ++(*_counter);
 	    _mutex->unlock();
 	  }
 
@@ -88,8 +82,8 @@ namespace magnet {
 	if (_obj != NULL)
 	  {
 	    _mutex->lock();
-	    
-	    if(--(*_counter) == 0)
+	    --(*_counter);
+	    if(*_counter == 0)
 	      {
 		delete _obj;
 		delete _counter;

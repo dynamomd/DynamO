@@ -33,7 +33,8 @@ LSLLOD::LSLLOD(DYNAMO::SimData* tmp):
 void
 LSLLOD::streamParticle(Particle& particle, const double& dt) const
 {
-  particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
+  if (particle.getState().testState(ParticleState::DYNAMIC))
+    particle.getVelocity()[0] += particle.getVelocity()[1] * dt;
 }
 
 bool 

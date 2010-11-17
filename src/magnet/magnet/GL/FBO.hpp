@@ -122,12 +122,20 @@ namespace magnet {
       inline 
       virtual ~FBO()
       {
+	deinit();
+      }
+
+      inline void deinit()
+      {
 	if (_width)
 	  {
 	    glDeleteFramebuffersEXT(1, &_FBO);
 	    glDeleteTextures(1, &_colorTexture);
 	    glDeleteTextures(1, &_depthTexture);
 	  }
+
+	_width = 0;
+	_height = 0;
       }
 
       inline 

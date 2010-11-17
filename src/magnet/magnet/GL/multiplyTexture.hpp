@@ -21,46 +21,29 @@
 namespace magnet {
   namespace GL {
     
-    class SSAO : public detail::shader<SSAO>
+    class MultiplyTexture : public detail::shader<MultiplyTexture>
     {
     public:
       void build()
       {
-	detail::shader<SSAO>::build();
+	detail::shader<MultiplyTexture>::build();
 
-	glUseProgram(detail::shader<SSAO>::_shaderID);
+	glUseProgram(detail::shader<MultiplyTexture>::_shaderID);
 
-	_radiusUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"radius");
-	_totstrengthUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"totStrength");
-	_strengthUniform    = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"strength");
-	_offsetUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"offset");
-
-	_colorTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture0");
-	_normalTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture1");
-	_depthTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture2");
-	_rnmTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID, "rnm");
+	_Input1Uniform = glGetUniformLocationARB(detail::shader<MultiplyTexture>::_shaderID,"u_Texture0");
+	_Input2Uniform = glGetUniformLocationARB(detail::shader<MultiplyTexture>::_shaderID,"u_Texture1");
 
 	glUseProgramObjectARB(0);
       }
 
-      void invoke(GLint colorTextureID, GLint normalTextureID, 
-		  GLint depthTextureID, GLint rnmTextureID, 
-		  GLuint _width, GLuint _height, 
-		  GLfloat radius, GLfloat totStrength, GLfloat strength, GLfloat offset)
+      void invoke(GLint inputTex1, GLint inputTex2, GLuint _width, GLuint _height)
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<SSAO>::_shaderID);
+	glUseProgram(detail::shader<MultiplyTexture>::_shaderID);
 	//Horizontal application
-	glUniform1iARB(_colorTextureUniform, colorTextureID);
-	glUniform1iARB(_normalTextureUniform, normalTextureID);
-	glUniform1iARB(_depthTextureUniform, depthTextureID);
-	glUniform1iARB(_rnmTextureUniform, rnmTextureID);
+	glUniform1iARB(_Input1Uniform, inputTex1);
+	glUniform1iARB(_Input2Uniform, inputTex2);
 
-	glUniform1fARB(_radiusUniform, radius);
-	glUniform1fARB(_totstrengthUniform, totStrength);
-	glUniform1fARB(_strengthUniform, strength);
-	glUniform1fARB(_offsetUniform, offset);
-	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Set the viewport
@@ -105,13 +88,9 @@ namespace magnet {
       static inline std::string fragmentShaderSource();
 
     protected:
-      GLint _colorTextureUniform, _normalTextureUniform, _depthTextureUniform, _rnmTextureUniform;
-      GLint _radiusUniform;
-      GLint _totstrengthUniform;
-      GLint _strengthUniform   ;
-      GLint _offsetUniform     ;
+      GLint _Input1Uniform, _Input2Uniform;
     };
   }
 }
 
-#include <magnet/GL/detail/shaders/SSAO.glh>
+#include <magnet/GL/detail/shaders/multiplyTexture.glh>

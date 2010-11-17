@@ -62,9 +62,12 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity,
 void
 LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
 {
-  particle.getPosition() += dt * particle.getVelocity();
-  particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity;
-  particle.getVelocity()[GravityDim] += dt * Gravity;
+  if (particle.getState().testState(ParticleState::DYNAMIC))
+    {
+      particle.getPosition() += dt * particle.getVelocity();
+      particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity;
+      particle.getVelocity()[GravityDim] += dt * Gravity;
+    }
 }
 
 double 

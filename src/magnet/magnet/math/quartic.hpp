@@ -24,8 +24,24 @@
 
 namespace magnet {
   namespace math {
+    namespace detail {
+      inline void quarticNewtonRootPolish(const double& a, const double& b, const double& c, const double& d,
+					  double& root, size_t iterations)
+      {
+	for (size_t it = 0; it < iterations; ++it)
+	  {
+	    double error = (((root + a)*root + b) * root + c) * root + d;
+	    double derivative = ((4 * root + 3 * a) * root + 2 * b) * root + c;
+	    
+	    if ((error == 0) || derivative == 0) return;
+	    
+	    root -= error / derivative;
+	  }
+      } 
+    }
+
     //Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0
-    inline size_t quarticSolve(const double& a, const double& b, const double& c, const double& d, 
+    inline size_t quarticSolve(const double& a, const double& b, const double& c, const double& d,
 			       double& root1, double& root2, double& root3, double& root4)
     {
       static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
@@ -35,14 +51,12 @@ namespace magnet {
 
       if (d == 0)
 	{//Solve a cubic with a trivial root of 0
-      
 	  root1 = 0;
 	  return 1 + cubicSolve(a, b, c, root2, root3, root4);
 	}
   
       if ((a == 0) && (c== 0))
 	{//We have a biquadratic
-      
 	  double quadRoot1,quadRoot2;
 	  if (quadSolve(d,b,1, quadRoot1, quadRoot2))
 	    {
@@ -63,7 +77,6 @@ namespace magnet {
 	    }
 	  else
 	    return 0;
-      
 	}
   
       //Now we have to resort to some dodgy formulae!
@@ -74,6 +87,7 @@ namespace magnet {
       if (d < 0.0) k += 4;
       switch (k)
 	{
+	case 3 :
 	case 9 : 
 	  nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
@@ -87,8 +101,16 @@ namespace magnet {
 	  break;
 	default:
 	  nr = neumarkQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  //nr = ferrariQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
+	  //nr = yacfraidQuarticSolve(a,b,c,d,root1,root2,root3,root4); 
 	  break;
 	}
+
+      if (nr)   detail::quarticNewtonRootPolish(a, b, c, d, root1, 15);
+      if (nr>1) detail::quarticNewtonRootPolish(a, b, c, d, root2, 15);
+      if (nr>2) detail::quarticNewtonRootPolish(a, b, c, d, root3, 15);
+      if (nr>3) detail::quarticNewtonRootPolish(a, b, c, d, root4, 15);
+      
       return nr;  
     }
   }

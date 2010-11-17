@@ -25,6 +25,24 @@ namespace xml
   class XmlStream;
 }
 
+struct ParticleState
+{
+  typedef enum {
+    DEFAULT = 0x01 | 0x02,
+    DYNAMIC = 0x01, //Will the free streaming part of the
+    //Liouvillean be applied to his particle
+    //and will events be generated for this
+    //particle.                            
+    ALIVE = 0x02 //Is this particle in the simulation
+  } State;
+
+  inline ParticleState():_state(DEFAULT) {}
+
+  inline bool testState(State teststate) const { return (_state & teststate); }
+
+  State _state;
+};
+
 class Particle
 {
 public:
@@ -55,6 +73,9 @@ public:
   inline void scaleVelocity(const double& vs) { _vel *= vs; }
   inline void scalePosition(const double& vs) { _pos *= vs; }
   
+
+  inline const ParticleState& getState() const { return _particleState; }
+  
 private:
   //NOTE, changing these members type must be reflected in the liouvillean
   //where binary data is written
@@ -62,4 +83,6 @@ private:
   Vector _vel;
   unsigned long _ID;
   double _peculiarTime;
+
+  ParticleState _particleState;
 };

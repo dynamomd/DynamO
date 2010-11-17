@@ -69,8 +69,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
     _lastRenderTime = static_cast<CLGLWindow&>(*_CLWindow).getLastFrameTime();
   }
 
- I_cout() << "Visualizer initialised"
-	  << "OpenCL Plaftorm:" 
+ I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 
 	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
 	  << "\nOpenCL Device:" 
 	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
-#include <boost/bind.hpp>
 #include <magnet/thread/threadpool.hpp>
 
 std::vector<float> sums;

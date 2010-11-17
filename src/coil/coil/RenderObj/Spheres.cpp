@@ -233,16 +233,16 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   kernelSource.push_back(std::pair<const char*, ::size_t>
 			 (finalSource.c_str(), finalSource.size()));
   
-  cl::Program program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
+  _program = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
   std::string buildOptions;
   
   cl::Device clDevice = CLState.getCommandQueue().getInfo<CL_QUEUE_DEVICE>();
   try {
-    program.build(std::vector<cl::Device>(1, clDevice), buildOptions.c_str());
+    _program.build(std::vector<cl::Device>(1, clDevice), buildOptions.c_str());
   } catch(cl::Error& err) {
     
-    std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
+    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
     
     std::cout << "Compilation failed for device " <<
       CLState.getDevice().getInfo<CL_DEVICE_NAME>()
@@ -251,10 +251,12 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
     throw;
   }
   
-  _renderKernel = cl::Kernel(program, "SphereRenderKernel");
-  _sortDataKernel = cl::Kernel(program, "GenerateData");
+  _renderKernel = cl::Kernel(_program, "SphereRenderKernel");
+  _sortDataKernel = cl::Kernel(_program, "GenerateData");
 
-
+  cl_uint paddedN = ((_N + 1023)/1024) * 1024;
+  _sortDataKernelFunc = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
+  
   sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
   CPUsortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
 
@@ -273,24 +275,20 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 void 
 RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
-  cl_uint paddedN = ((_N + 1023)/1024) * 1024;
-
-  cl::KernelFunctor sortDataKernelFunc 
-    = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
-  
   cl_float4 campos = getclVec(Vector(_viewPortInfo._cameraX, _viewPortInfo._cameraY, _viewPortInfo._cameraZ));
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
   cl_float4 camup = getclVec(_viewPortInfo._cameraUp);
   
   //Generate the sort data
-  sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
+  _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
 		     campos, camdir, camup,
 		     (cl_float)_viewPortInfo._aspectRatio,
 		     (cl_float)_viewPortInfo._zNearDist,
 		     (cl_float)_viewPortInfo._fovY,
-		     _N, paddedN);
+		     _N);
   
-  if ((_renderDetailLevels.size() > 2) || (_renderDetailLevels.front()._nSpheres != _N))
+  if ((_renderDetailLevels.size() > 2) 
+      || (_renderDetailLevels.front()._nSpheres != _N))
     {
       if (CLState.getCommandQueue().getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
 	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
