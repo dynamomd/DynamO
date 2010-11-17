@@ -18,6 +18,7 @@
 #pragma once
 
 #include "../../extcode/xmlwriter.hpp"
+#include "species.hpp"
 
 class SpFixedCollider:public Species
 {
@@ -32,6 +33,7 @@ public:
     Species(XML, Sim, nID)
   { operator<<(XML); }
   
+  virtual void initialise();
 
   virtual void operator<<(const XMLNode& XML)
   { Species::operator<<(XML); }

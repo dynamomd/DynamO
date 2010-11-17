@@ -28,13 +28,13 @@
 
 Species::Species(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 		   std::string nName, unsigned int nID, std::string nIName):
-  SimBase_const(tmp,"Species", IC_blue),
+  SimBase(tmp,"Species", IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
   ID(nID)
 {}
 
 Species::Species(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
-  SimBase_const(tmp,"Species", IC_blue),
+  SimBase(tmp,"Species", IC_blue),
   mass(1.0),range(NULL),IntPtr(NULL),
   ID(nID)
 { operator<<(XML); }
@@ -42,7 +42,7 @@ Species::Species(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
 Species::Species(DYNAMO::SimData* tmp, std::string name, 
 		   CRange* nr, double nMass, std::string nName, 
 		   unsigned int nID, std::string nIName):
-  SimBase_const(tmp,name, IC_blue),
+  SimBase(tmp,name, IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
   ID(nID)
 {}

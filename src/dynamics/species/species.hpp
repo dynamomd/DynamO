@@ -33,7 +33,7 @@ class Particle;
 class Interaction;
 
 
-class Species:public DYNAMO::SimBase_const
+class Species:public DYNAMO::SimBase
 {
 public:  
   Species(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
@@ -53,7 +53,7 @@ public:
   
   virtual void operator<<(const XMLNode&);
 
-  void initialise();
+  virtual void initialise();
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Species&);
   
