@@ -181,13 +181,16 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
 void
 LNOrientation::streamParticle(Particle& part, const double& dt) const
 {
-  part.getPosition() += part.getVelocity() * dt;
-
-  //The Vector copy is required to make sure that the cached
-  //orientation doesn't change during calculation
-  orientationData[part.getID()].orientation 
-    = Rodrigues(orientationData[part.getID()].angularVelocity * dt)
-    * Vector(orientationData[part.getID()].orientation);    
+  if (particle.getState().testState(ParticleState::DYNAMIC))
+    {
+      part.getPosition() += part.getVelocity() * dt;
+      
+      //The Vector copy is required to make sure that the cached
+      //orientation doesn't change during calculation
+      orientationData[part.getID()].orientation 
+	= Rodrigues(orientationData[part.getID()].angularVelocity * dt)
+	* Vector(orientationData[part.getID()].orientation); 
+    }
 }
 
 
