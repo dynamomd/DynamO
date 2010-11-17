@@ -16,7 +16,7 @@
 
 import feature : feature ;
 feature color : no yes : propagated optional ;
-feature visualizer : no yes : propagated optional ;
+feature visualizer : no yes : propagated ;
 
 #using intel-linux ;
 
@@ -34,7 +34,6 @@ local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ;
 
 project	: requirements
 	  <color>yes:<define>DYNAMO_Colour
-	  <visualizer>yes
 	  <color>yes
 	  <define>GITHASH=\\\"$(githash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
