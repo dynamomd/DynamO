@@ -24,12 +24,12 @@
 SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 			       std::string nName, unsigned int nID, double inertiaConst,
 			       std::string nIName):
-  SpInertia(tmp, "Species", IC_blue, nr, nMass, nName, nID, nIName),
+  SpInertia(tmp, "Species", nr, nMass, nName, nID, nIName),
   inertiaConstant(inertiaConst)
 {}
 
-SpSphericalTop::SpSphericalTop(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
-  SpInertia(XML, tmp, nID)
+SpSphericalTop::SpSphericalTop(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int nID):
+  SpInertia(XML, Sim, nID)
 { operator<<(XML); }
 
 

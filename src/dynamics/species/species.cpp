@@ -39,10 +39,10 @@ Species::Species(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
   ID(nID)
 { operator<<(XML); }
 
-Species::Species(DYNAMO::SimData* tmp, const char* name, const char* color, 
+Species::Species(DYNAMO::SimData* tmp, std::string name, 
 		   CRange* nr, double nMass, std::string nName, 
 		   unsigned int nID, std::string nIName):
-  SimBase_const(tmp,name, color),
+  SimBase_const(tmp,name, IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
   ID(nID)
 {}
@@ -124,6 +124,8 @@ Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
     return new Species(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
     return new SpSphericalTop(XML, tmp, nID);
+  else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
+    return new SpFixedCollider(XML, tmp, nID);
   else 
     M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of species encountered";

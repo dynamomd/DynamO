@@ -74,7 +74,7 @@ public:
   static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 protected:
-  Species(DYNAMO::SimData*, const char* name, const char* color, 
+  Species(DYNAMO::SimData*, std::string name, 
 	   CRange*, double nMass, std::string nName, 
 	   unsigned int ID, std::string nIName="Bulk");
   
@@ -96,14 +96,13 @@ protected:
 class SpInertia: public Species
 {
 public:
-  SpInertia(DYNAMO::SimData* sim, const char* name, const char* color, 
-	       CRange* r, double nMass, std::string nName, 
-	       unsigned int ID, std::string nIName="Bulk"):
-  Species(sim, name, color, r, nMass, nName, ID, nIName)
+  SpInertia(DYNAMO::SimData* sim, std::string name, 
+	    CRange* r, double nMass, std::string nName, 
+	    unsigned int ID, std::string nIName="Bulk"):
+    Species(sim, name, r, nMass, nName, ID, nIName)
   {}
 
   SpInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
     Species(XML,Sim,ID)
   {}
-
 };
