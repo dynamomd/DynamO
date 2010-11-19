@@ -22,22 +22,53 @@
 
 const std::string 
 RTTestWaves::kernelsrc = STRINGIFY(
+__constant float decayrate = 2.5f;
+__constant float invWaveLength = 40.0f;
+__constant float freq = -4;
+
+float wavefunc(float x, float z, float t)
+{
+  float r = native_sqrt(x * x + z * z);
+  return native_exp( - decayrate * r) * native_sin(invWaveLength * r + freq * t);
+}
+
+float3 waveNormal(float x, float z, float t)
+{
+  float r = native_sqrt(x * x + z * z);
+
+  float dfodr = native_exp(- decayrate * r) 
+    * (invWaveLength * native_cos(r * invWaveLength + freq * t)
+       + decayrate * native_sin(r * invWaveLength + freq * t));
+
+  return normalize((float3)(- dfodr * x / r, 1, - dfodr * z / r));
+}
+
 __kernel void
-TestWaveKernel(__global float * positions,__global float * cores, float t, float Yoffset)
+TestWaveKernel(__global float * positions,
+	       __global float * colors,
+	       __global float * normals,
+	       float t, float Yoffset)
 {
   int i = get_global_id(0);
   
-  float x = positions[3*i]+0.7f;
-  float y = positions[3*i+2];
-  float r = native_sqrt(x*x+y*y);
+  float x = positions[3*i];
+  float z = positions[3*i+2];
   
-  float valor = native_exp(- r * 2.5f)*native_sin(40*r-4*t);
-  x -= 1.4f;
-  r = native_sqrt(x*x+y*y);
-  valor += native_exp(- r * 1.5f)*native_sin(40*r-4*t);
+  float val =  wavefunc(x + 0.7f, z, t) + wavefunc(x - 0.7f, z, t) + Yoffset;
+  positions[3*i+1] = val;
+
+  float3 normal = 0.5 * (waveNormal(x + 0.7f, z, t) + waveNormal(x - 0.7f, z, t));
+  normals[3*i+0] = normal.x;
+  normals[3*i+1] = normal.y;
+  normals[3*i+2] = normal.z;
+
+//  colors[4*i+0] = 0.5;//clamp(val, 0.0f, 1.0f); 
+//  colors[4*i+1] = 0.5;//clamp(val, 0.0f, 1.0f); 
+//  colors[4*i+2] = 0.5;//clamp(val, 0.0f, 1.0f); 
   
-  positions[3*i+1] = valor + Yoffset;
-  cores[4*i] = clamp(valor,0,1); 
+  colors[4*i+0] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
+  colors[4*i+1] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
+  colors[4*i+2] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
 }
 );
 
@@ -81,6 +112,8 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 	  }       
       }
     setGLNormals(VertexNormals);
+    _clbuf_Normals = cl::GLBuffer(CLState.getContext(), CL_MEM_READ_WRITE, 
+				  _normBuff, GL_ARRAY_BUFFER);
   }
 
   {//Setup initial Colors
@@ -155,11 +188,16 @@ RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&)
   //Aqquire buffer objects
   _clbuf_Colors.acquire(CLState.getCommandQueue());
   _clbuf_Positions.acquire(CLState.getCommandQueue());
+  _clbuf_Normals.acquire(CLState.getCommandQueue());
   
   //Run Kernel
-  kernelFunc((cl::Buffer)_clbuf_Positions, (cl::Buffer)_clbuf_Colors, tempo, _Yoffset);
+  kernelFunc((cl::Buffer)_clbuf_Positions, 
+	     (cl::Buffer)_clbuf_Colors, 
+	     (cl::Buffer)_clbuf_Normals, 
+	     tempo, _Yoffset);
   
   //Release resources
   _clbuf_Colors.release(CLState.getCommandQueue());
   _clbuf_Positions.release(CLState.getCommandQueue());
+  _clbuf_Normals.release(CLState.getCommandQueue());
 }

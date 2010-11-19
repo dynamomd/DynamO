@@ -64,7 +64,7 @@ void main(void)
   float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r) * 20;
 
   vec3 accum = vec3(0, 0, 0);
-  float weight = 0.0;
+  float totalWeight = 0.0;
 
   for (int x = 0; x < 5; ++x)
     for (int y = 0; y < 5; ++y)
@@ -75,12 +75,10 @@ void main(void)
 	float Zdifference = abs(currentPixelDepth - sampleDepth);
 	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
 	accum += sampleweight * texture2D(u_Texture0, sampleLoc).rgb;
-	weight += sampleweight;
+	totalWeight += sampleweight;
       }
 
-  accum /= weight;
-
-  gl_FragColor =  vec4(accum, 1);
+  gl_FragColor = vec4(accum / totalWeight, 1);
 }
 );
     }

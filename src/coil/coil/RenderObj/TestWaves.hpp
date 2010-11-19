@@ -39,4 +39,6 @@ protected:
 
   size_t _N;
   float _Yoffset;
+
+  cl::GLBuffer _clbuf_Normals;
 };

@@ -46,7 +46,8 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 			     "Visualizer : " + nName,
 			     tickFreq);
   
-  //CLWindow.addRenderObj<RTTestWaves>((size_t)1000, 0.0f);
+  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RTTestWaves((size_t)1000, 0.0f));
+
 
   _sphereObject = new RTSpheres((size_t)Sim->N);
   
