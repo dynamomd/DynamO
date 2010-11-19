@@ -46,7 +46,7 @@ float3 waveNormal(float x, float z, float t)
 __kernel void
 TestWaveKernel(__global float * positions,
 	       __global float * colors,
-	       //__global float * normals,
+	       __global float * normals,
 	       float t, float Yoffset)
 {
   int i = get_global_id(0);
@@ -57,10 +57,10 @@ TestWaveKernel(__global float * positions,
   float val =  wavefunc(x + 0.7f, z, t) + wavefunc(x - 0.7f, z, t) + Yoffset;
   positions[3*i+1] = val;
 
-  //float3 normal = 0.5 * (waveNormal(x + 0.7f, z, t) + waveNormal(x - 0.7f, z, t));
-  //normals[3*i+0] = normal.x;
-  //normals[3*i+1] = normal.y;
-  //normals[3*i+2] = normal.z;
+  float3 normal = (float3)(1,1,0.5f) * (waveNormal(x + 0.7f, z, t) + waveNormal(x - 0.7f, z, t));
+  normals[3*i+0] = normal.x;
+  normals[3*i+1] = normal.y;
+  normals[3*i+2] = normal.z;
 
   colors[4*i+0] = clamp(val, 0.0f, 1.0f); 
   
@@ -95,7 +95,6 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 	  }       
       }
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(CLState.getContext());
   }
 
   {//Setup inital normal vectors
@@ -110,7 +109,6 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 	  }       
       }
     setGLNormals(VertexNormals);
-    initOCLNormBuffer(CLState.getContext());
   }
 
   {//Setup initial Colors
@@ -126,7 +124,6 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 	  }       
       }
     setGLColors(VertexColor);
-    initOCLColorBuffer(CLState.getContext());
   }
    
   {//Setup initial element data
@@ -151,21 +148,28 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
   
   program = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
-  try {
-    program.build(std::vector<cl::Device>(1, CLState.getDevice()));
-  } catch(cl::Error& err) {
-    
-    std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
-    
-    std::cout << "Compilation failed for device " <<
-      CLState.getDevice().getInfo<CL_DEVICE_NAME>()
-	      << "\nBuild Log:" << msg;
-    throw;
-  }
+  try 
+    {
+      program.build(std::vector<cl::Device>(1, CLState.getDevice()));
+    }
+  catch(cl::Error& err) 
+    {    
+      std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
+      
+      std::cout << "Compilation failed for device " <<
+	CLState.getDevice().getInfo<CL_DEVICE_NAME>()
+		<< "\nBuild Log:" << msg;
+      throw;
+    }
   
   kernel = cl::Kernel(program, "TestWaveKernel");
   
   clock_gettime(CLOCK_MONOTONIC, &startTime);
+  glFinish();
+
+  initOCLVertexBuffer(CLState.getContext());
+  initOCLNormBuffer(CLState.getContext());
+  initOCLColorBuffer(CLState.getContext());
 }
 
 
@@ -186,16 +190,16 @@ RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& 
   _clbuf_Colors.acquire(CLState.getCommandQueue());
   _clbuf_Positions.acquire(CLState.getCommandQueue());
   try {
-    //_clbuf_Normals.acquire(CLState.getCommandQueue());
+    _clbuf_Normals.acquire(CLState.getCommandQueue());
       
     //Run Kernel
     kernelFunc((cl::Buffer)_clbuf_Positions, 
 	       (cl::Buffer)_clbuf_Colors, 
-	       //(cl::Buffer)_clbuf_Normals, 
+	       (cl::Buffer)_clbuf_Normals, 
 	       tempo, _Yoffset);
       
       //Release resources
-    //_clbuf_Normals.release(CLState.getCommandQueue());
+    _clbuf_Normals.release(CLState.getCommandQueue());
   } catch (cl::Error& err)
     {
       std::cerr << "OpenCL error: " << err.what() << "(" << err.err() <<
