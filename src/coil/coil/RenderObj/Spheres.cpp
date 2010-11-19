@@ -300,6 +300,8 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& 
 void 
 RTSpheres::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&  _viewPortInfo)
 {
+  RTriangles::clTick(CLState, _viewPortInfo);
+
   //First check you can get a lock on the position data!
   magnet::thread::ScopedLock lock(_sphereDataLock);
 

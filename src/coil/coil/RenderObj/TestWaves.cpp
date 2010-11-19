@@ -46,7 +46,7 @@ float3 waveNormal(float x, float z, float t)
 __kernel void
 TestWaveKernel(__global float * positions,
 	       __global float * colors,
-	       __global float * normals,
+	       //__global float * normals,
 	       float t, float Yoffset)
 {
   int i = get_global_id(0);
@@ -57,18 +57,16 @@ TestWaveKernel(__global float * positions,
   float val =  wavefunc(x + 0.7f, z, t) + wavefunc(x - 0.7f, z, t) + Yoffset;
   positions[3*i+1] = val;
 
-  float3 normal = 0.5 * (waveNormal(x + 0.7f, z, t) + waveNormal(x - 0.7f, z, t));
-  normals[3*i+0] = normal.x;
-  normals[3*i+1] = normal.y;
-  normals[3*i+2] = normal.z;
+  //float3 normal = 0.5 * (waveNormal(x + 0.7f, z, t) + waveNormal(x - 0.7f, z, t));
+  //normals[3*i+0] = normal.x;
+  //normals[3*i+1] = normal.y;
+  //normals[3*i+2] = normal.z;
 
-//  colors[4*i+0] = 0.5;//clamp(val, 0.0f, 1.0f); 
-//  colors[4*i+1] = 0.5;//clamp(val, 0.0f, 1.0f); 
-//  colors[4*i+2] = 0.5;//clamp(val, 0.0f, 1.0f); 
+  colors[4*i+0] = clamp(val, 0.0f, 1.0f); 
   
-  colors[4*i+0] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
-  colors[4*i+1] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
-  colors[4*i+2] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
+//  colors[4*i+0] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
+//  colors[4*i+1] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
+//  colors[4*i+2] = clamp(dot(normal, (float3)(0,0,1)), 0.0f, 1.0f);
 }
 );
 
@@ -112,8 +110,7 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 	  }       
       }
     setGLNormals(VertexNormals);
-    _clbuf_Normals = cl::GLBuffer(CLState.getContext(), CL_MEM_READ_WRITE, 
-				  _normBuff, GL_ARRAY_BUFFER);
+    initOCLNormBuffer(CLState.getContext());
   }
 
   {//Setup initial Colors
@@ -152,12 +149,10 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
   cl::Program::Sources kernelSource;
   kernelSource.push_back(std::pair<const char*, ::size_t>(kernelsrc.c_str(), kernelsrc.size()));
   
-  cl::Program program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
-  
-  std::string buildOptions;
+  program = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
   try {
-    program.build(std::vector<cl::Device>(1, CLState.getDevice()), buildOptions.c_str());
+    program.build(std::vector<cl::Device>(1, CLState.getDevice()));
   } catch(cl::Error& err) {
     
     std::string msg = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
@@ -165,7 +160,6 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
     std::cout << "Compilation failed for device " <<
       CLState.getDevice().getInfo<CL_DEVICE_NAME>()
 	      << "\nBuild Log:" << msg;
-    
     throw;
   }
   
@@ -176,8 +170,10 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 
 
 void 
-RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&)
+RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
+  //RTriangles::clTick(CLState, _viewPortInfo);
+
   cl::KernelFunctor kernelFunc = kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), cl::NDRange(200));
   timespec currTime;
   clock_gettime(CLOCK_MONOTONIC, &currTime);
@@ -186,18 +182,26 @@ RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
   //Aqquire buffer objects
+
   _clbuf_Colors.acquire(CLState.getCommandQueue());
   _clbuf_Positions.acquire(CLState.getCommandQueue());
-  _clbuf_Normals.acquire(CLState.getCommandQueue());
+  try {
+    //_clbuf_Normals.acquire(CLState.getCommandQueue());
+      
+    //Run Kernel
+    kernelFunc((cl::Buffer)_clbuf_Positions, 
+	       (cl::Buffer)_clbuf_Colors, 
+	       //(cl::Buffer)_clbuf_Normals, 
+	       tempo, _Yoffset);
+      
+      //Release resources
+    //_clbuf_Normals.release(CLState.getCommandQueue());
+  } catch (cl::Error& err)
+    {
+      std::cerr << "OpenCL error: " << err.what() << "(" << err.err() <<
+	")" << std::endl;
+    }
   
-  //Run Kernel
-  kernelFunc((cl::Buffer)_clbuf_Positions, 
-	     (cl::Buffer)_clbuf_Colors, 
-	     (cl::Buffer)_clbuf_Normals, 
-	     tempo, _Yoffset);
-  
-  //Release resources
   _clbuf_Colors.release(CLState.getCommandQueue());
   _clbuf_Positions.release(CLState.getCommandQueue());
-  _clbuf_Normals.release(CLState.getCommandQueue());
 }

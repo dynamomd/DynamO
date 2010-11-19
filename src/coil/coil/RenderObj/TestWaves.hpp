@@ -35,6 +35,7 @@ protected:
   static const std::string kernelsrc;
 
   cl::Kernel kernel;
+  cl::Program program;
   timespec startTime;
 
   size_t _N;

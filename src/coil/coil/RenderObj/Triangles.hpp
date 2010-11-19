@@ -27,6 +27,9 @@ public:
   ~RTriangles();
 
   virtual void glRender();
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
+
+  void enableRenderNormals(magnet::CL::CLGLState&);
 
   void setGLColors(std::vector<float>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);
@@ -54,4 +57,12 @@ protected:
   GLuint _elementBuff;
   size_t _elementBuffSize;
   cl::GLBuffer _clbuf_Elements;
+
+  
+  //Stuff for visualizing normals
+  static const std::string normalKernelsrc;
+  cl::Kernel _normalkernel;
+  cl::Program _normalkernelProgram;
+  bool _normalRenderInitialised;
+  cl::Buffer _clbuf_Normal_Line_Vertices;
 };
