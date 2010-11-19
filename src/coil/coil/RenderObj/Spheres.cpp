@@ -275,7 +275,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 void 
 RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
-  cl_float4 campos = getclVec(Vector(_viewPortInfo._cameraX, _viewPortInfo._cameraY, _viewPortInfo._cameraZ));
+  cl_float4 campos = getclVec(_viewPortInfo._position);
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
   cl_float4 camup = getclVec(_viewPortInfo._cameraUp);
   

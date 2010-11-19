@@ -22,39 +22,45 @@ namespace magnet {
   namespace GL {    
     struct viewPort
     {
-      inline viewPort():
+      inline viewPort(Vector position = Vector(0,0,0), 
+		      Vector lookAtPoint = Vector(0,0,1),
+		      GLfloat fovY = 45.0f,
+		      GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
+		      Vector up = Vector(0,1,0)
+		      ):
 	_rotatex(180),
 	_rotatey(0),
-	_cameraX(0),
-	_cameraY(0),
-	_cameraZ(0),
-	_fovY(45),
+	_position(position),
+	_fovY(fovY),
 	_aspectRatio(1),
-	_zNearDist(0.001),
-	_zFarDist(100)
-      {}
+	_zNearDist(zNearDist),
+	_zFarDist(zFarDist)
+      {
+	_rotatex = 180 + std::acos((lookAtPoint - Vector(0,1,0) * (lookAtPoint | Vector(0,1,0))) | Vector(0,0,1));
+	_rotatey = 0   + std::acos((lookAtPoint - Vector(0,0,1) * (lookAtPoint | Vector(0,1,0))) | Vector(0,1,0));
+      }
       
       inline void CameraSetup(float forward = 0, float sideways = 0, float vertical = 0)
       {
 	//Forward/Backward movement
-	_cameraZ -= forward * std::cos(_rotatey * (M_PI/ 180)) 
+	_position[2] -= forward * std::cos(_rotatey * (M_PI/ 180)) 
 	  * std::sin(_rotatex  * (M_PI/ 180) + M_PI * 0.5);  
-	_cameraX -= forward * std::cos(_rotatey * (M_PI/ 180)) 
+	_position[0] -= forward * std::cos(_rotatey * (M_PI/ 180)) 
 	  * std::cos(_rotatex  * (M_PI/ 180) + M_PI * 0.5);
-	_cameraY += -forward * std::sin(_rotatey * (M_PI/ 180));
+	_position[1] += -forward * std::sin(_rotatey * (M_PI/ 180));
 	
 	//Strafe movement
-	_cameraZ += sideways * std::sin(_rotatex * (M_PI/ 180));
-	_cameraX += sideways * std::cos(_rotatex * (M_PI/ 180));
+	_position[2] += sideways * std::sin(_rotatex * (M_PI/ 180));
+	_position[0] += sideways * std::cos(_rotatex * (M_PI/ 180));
 	
 	//Vertical movement
-	_cameraY += vertical;
+	_position[1] += vertical;
 	
 	glLoadIdentity();
 	//gluLookAt(-viewscale, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 	glRotatef(_rotatey, 1.0, 0.0, 0.0);
 	glRotatef(_rotatex, 0.0, 1.0, 0.0);
-	glTranslatef(-_cameraX,-_cameraY,-_cameraZ);
+	glTranslatef(-_position[0], -_position[1], -_position[2]);
 	
 	//store the matricies for shadow calculations
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
@@ -69,9 +75,7 @@ namespace magnet {
       
       float _rotatex;
       float _rotatey;
-      float _cameraX;
-      float _cameraY;
-      float _cameraZ;
+      Vector _position;
       
       GLdouble _fovY;
       GLdouble _aspectRatio;

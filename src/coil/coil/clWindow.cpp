@@ -695,7 +695,7 @@ CLGLWindow::CallBackDisplayFunc(void)
       if (_shadowMapping)
 	{
 	  //////////////////Pass 1//////////////////
-	  ///Here we draw from the 
+	  ///Here we draw from the lights perspective
 	  _shadowFBO.setup(_light0);
 
 #ifdef GL_VERSION_1_1
@@ -915,10 +915,10 @@ CLGLWindow::drawScene()
       glBegin(GL_QUADS);
       //Front
       glNormal3f(0, 1, 0);
-      glVertex3f(-100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
-      glVertex3f(-100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
-      glVertex3f( 100 + _viewPortInfo._cameraX, -0.51,  100 + _viewPortInfo._cameraZ);
-      glVertex3f( 100 + _viewPortInfo._cameraX, -0.51, -100 + _viewPortInfo._cameraZ);
+      glVertex3f(-100 + _viewPortInfo._position[0], -0.51, -100 + _viewPortInfo._position[2]);
+      glVertex3f(-100 + _viewPortInfo._position[0], -0.51,  100 + _viewPortInfo._position[2]);
+      glVertex3f( 100 + _viewPortInfo._position[0], -0.51,  100 + _viewPortInfo._position[2]);
+      glVertex3f( 100 + _viewPortInfo._position[0], -0.51, -100 + _viewPortInfo._position[2]);
       glEnd();
     }
 }
@@ -1100,9 +1100,6 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
     case RIGHTMOUSE:
       break;
     case MIDDLEMOUSE:
-      _viewPortInfo._cameraX += (y-_oldMouseY) * _mouseSensitivity * 0.05;
-      _viewPortInfo._cameraY += (x-_oldMouseX) * _mouseSensitivity * 0.05;
-      break;
     default:
       break;
     }

@@ -183,29 +183,19 @@ RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& 
   float tempo = float(currTime.tv_sec) - float(startTime.tv_sec)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
-  tempo = 100;
-
   //Aqquire buffer objects
-
   _clbuf_Colors.acquire(CLState.getCommandQueue());
   _clbuf_Positions.acquire(CLState.getCommandQueue());
-  try {
-    _clbuf_Normals.acquire(CLState.getCommandQueue());
+  _clbuf_Normals.acquire(CLState.getCommandQueue());
       
-    //Run Kernel
-    kernelFunc((cl::Buffer)_clbuf_Positions, 
-	       (cl::Buffer)_clbuf_Colors, 
-	       (cl::Buffer)_clbuf_Normals, 
-	       tempo, _Yoffset);
-      
-      //Release resources
-    _clbuf_Normals.release(CLState.getCommandQueue());
-  } catch (cl::Error& err)
-    {
-      std::cerr << "OpenCL error: " << err.what() << "(" << err.err() <<
-	")" << std::endl;
-    }
+  //Run Kernel
+  kernelFunc((cl::Buffer)_clbuf_Positions, 
+	     (cl::Buffer)_clbuf_Colors, 
+	     (cl::Buffer)_clbuf_Normals, 
+	     tempo, _Yoffset);
   
+  //Release resources
+  _clbuf_Normals.release(CLState.getCommandQueue());
   _clbuf_Colors.release(CLState.getCommandQueue());
   _clbuf_Positions.release(CLState.getCommandQueue());
 }
