@@ -16,94 +16,14 @@
 */
 #include "Triangles.hpp"
 #include <iostream>
-
-#define STRINGIFY(A) #A
-
-const std::string 
-RTriangles::normalKernelsrc = STRINGIFY(
-__kernel void
-NormalRenderKernel(__global float3 * positions,
-		   __global float3 * normals,
-		   __global float3 * vertices,
-		   float scale,
-		   cl_uint size
-		   )
-{
-  int i = get_global_id(0);
-
-  if (i >= size) return;
-
-  float3 pos = positions[i];
-  vertices[i*2+0] = pos;
-
-  float3 normal =  normals[i];
-  vertices[i*2+1] = pos + scale * normal;
-}
-);
-
-void 
-RTriangles::enableRenderNormals(magnet::CL::CLGLState& CLState)
-{
-  if (!_normalRenderInitialised)
-    {
-      _clbuf_Normal_Line_Vertices = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, 
-					       2 * _normBuffSize * sizeof(float));
-
-      cl::Program::Sources kernelSource;
-      kernelSource.push_back(std::pair<const char*, ::size_t>(normalKernelsrc.c_str(), 
-							      normalKernelsrc.size()));
-      
-      _normalkernelProgram = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), 
-					 kernelSource);
-      
-      try {
-	_normalkernelProgram.build(std::vector<cl::Device>(1, CLState.getDevice()));
-      } catch(cl::Error& err) 
-	{
-	  std::string msg = _normalkernelProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
-	  
-	  std::cout << "Compilation failed for device " <<
-	    CLState.getDevice().getInfo<CL_DEVICE_NAME>()
-		    << "\nBuild Log:" << msg;
-	  
-	  throw;
-	}
-      
-      _normalkernel = cl::Kernel(_normalkernelProgram, "NormalRenderKernel");
-    }
-
-  _normalRenderInitialised = true; 
-}
-
-void 
-RTriangles::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&)
-{
-  if (_normalRenderInitialised)
-    {
-      size_t _workgroupsize = 256;
-      size_t _globalsize = _workgroupsize * ((_normBuffSize +_workgroupsize - 1) / _workgroupsize);
-      
-      cl::KernelFunctor functor
-	= _normalkernel.bind(CLState.getCommandQueue(), cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
-      
-      cl_float scale = 0.1;
-      cl_uint size = _normBuffSize;
-      
-      _clbuf_Positions.acquire(CLState.getCommandQueue());
-      _clbuf_Normals.acquire(CLState.getCommandQueue());
-      functor((cl::Buffer)_clbuf_Positions, (cl::Buffer)_clbuf_Normals, _clbuf_Normal_Line_Vertices, 
-	      scale, size);
-      _clbuf_Normals.release(CLState.getCommandQueue());
-      _clbuf_Positions.release(CLState.getCommandQueue());
-    }
-}
+#include <coil/glprimatives/arrow.hpp>
 
 RTriangles::RTriangles():
   _colBuffSize(0),
   _posBuffSize(0),
   _normBuffSize(0),
   _elementBuffSize(0),
-  _normalRenderInitialised(false)
+  _renderNormals(false)
 {}
 
 RTriangles::~RTriangles()
@@ -155,6 +75,32 @@ RTriangles::glRender()
   glDisableClientState(GL_COLOR_ARRAY);	
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
+
+  if (_renderNormals)
+    {
+      glBindBuffer(GL_ARRAY_BUFFER, _posBuff);
+      const float* posPointer = (const float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+      glBindBuffer(GL_ARRAY_BUFFER, _normBuff);
+      const float* normPointer = (const float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+
+      const float scale = 0.005;
+      for (size_t i= 0; i < _posBuffSize; i+= 3)
+	{
+	  Vector point1, point2;
+	  for (size_t iDim = 0; iDim < 3; ++iDim)
+	    {
+	      point1[iDim] = posPointer[i + iDim];
+	      point2[iDim] = point1[iDim] + scale * normPointer[i + iDim];
+	    }
+	  coil::glprimatives::drawArrow(point1, point2);
+	}
+      
+      glBindBuffer(GL_ARRAY_BUFFER, _posBuff);
+      glUnmapBuffer(GL_ARRAY_BUFFER);
+      glBindBuffer(GL_ARRAY_BUFFER, _normBuff);
+      glUnmapBuffer(GL_ARRAY_BUFFER);
+    }
+
 }
 
 void 

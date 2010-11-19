@@ -176,14 +176,14 @@ RTTestWaves::initOpenCL(magnet::CL::CLGLState& CLState)
 void 
 RTTestWaves::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
-  RTriangles::clTick(CLState, _viewPortInfo);
-
   cl::KernelFunctor kernelFunc = kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), cl::NDRange(200));
   timespec currTime;
   clock_gettime(CLOCK_MONOTONIC, &currTime);
   
   float tempo = float(currTime.tv_sec) - float(startTime.tv_sec)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
+
+  tempo = 100;
 
   //Aqquire buffer objects
 

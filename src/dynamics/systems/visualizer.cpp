@@ -46,7 +46,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 			     "Visualizer : " + nName,
 			     tickFreq);
   
-  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RTTestWaves((size_t)1000, 0.0f));
+  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RTTestWaves((size_t)500, 0.0f));
 
   _sphereObject = new RTSpheres((size_t)Sim->N);
   
@@ -123,11 +123,11 @@ SVisualizer::runEvent() const
       dataBuild();
       
       {
-	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
-	if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
-	static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
-	  (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
-	   false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
+      	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
+      	if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
+      	static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
+      	  (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
+      	   false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
       }
     }
 }

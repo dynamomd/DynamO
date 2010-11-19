@@ -151,7 +151,7 @@ CLGLWindow::initOpenGL()
   //Switch on line aliasing
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-  //We need to cull for shadows
+  ////We don't cull anymore
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   glFrontFace(GL_CCW); //The default
@@ -688,6 +688,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   //Flush the OpenCL queue, so GL can use the buffers
   _CLState.getCommandQueue().finish();
   
+
   //Prepare for the GL render
   if (_shaderPipeline)
     {
@@ -696,10 +697,10 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the 
 	  _shadowFBO.setup(_light0);
-	  
+
 #ifdef GL_VERSION_1_1
 	  glEnable (GL_POLYGON_OFFSET_FILL);
-	  glPolygonOffset (1., 1.);
+	  glPolygonOffset(1.0f, 4.0f);
 #endif 
 	  
 	  drawScene();
@@ -966,16 +967,16 @@ void CLGLWindow::drawAxis()
   glLineWidth (2.0);
     
   glColor3f (1,0,0); // X axis is red.
-  coil::glprimatives::drawArrow(Vector( 0.5,-0.5,-0.5), 
-				Vector(-0.5,-0.5,-0.5));
+  coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
+				Vector( 0.5,-0.5,-0.5));
 
   glColor3f (0,1,0); // Y axis is green.
-  coil::glprimatives::drawArrow(Vector(-0.5, 0.5,-0.5), 
-				Vector(-0.5,-0.5,-0.5));
+  coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5), 
+				Vector(-0.5, 0.5,-0.5));
 
   glColor3f (0,0,1); // Z axis is blue.
-  coil::glprimatives::drawArrow(Vector(-0.5,-0.5, 0.5), 
-				Vector(-0.5,-0.5,-0.5));
+  coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
+				Vector(-0.5,-0.5, 0.5));
   
   //Do the text
   glColor3f(1,1,1);

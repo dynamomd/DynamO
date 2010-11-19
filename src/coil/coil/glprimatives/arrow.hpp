@@ -20,12 +20,13 @@
 namespace coil {
   namespace glprimatives { 
     //a is the head, b the tail
-    void drawArrow(Vector a, Vector b)
+    inline void drawArrow(Vector b, Vector a)
     {
       Vector arrowAxis = a - b;
       Vector headpoint = b + arrowAxis * 0.75;
       Vector headaxis = (arrowAxis ^ Vector(1,0,0));
       double headaxisnorm = headaxis.nrm();
+
       if (headaxisnorm == 0)
 	{
 	  headaxis = ((a-b) ^ Vector(0,0,1));
