@@ -52,7 +52,8 @@ inline float clamp(float x, float a, float b)
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title,
-		       double updateIntervalValue
+		       double updateIntervalValue,
+		       bool dynamo
 		       ):
   _height(setHeight),
   _width(setWidth),
@@ -80,7 +81,8 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _fpsLimit(true),
   _fpsLimitValue(60),
   _filterEnable(true),
-  _snapshot_counter(0)
+  _snapshot_counter(0),
+  _dynamo(dynamo)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 }
@@ -525,6 +527,32 @@ CLGLWindow::initGTK()
 	  _refXml->get_widget("filterSelectBox", filterSelectBox);
 	  coil::filter::populateComboBox(filterSelectBox);
 	}
+      }
+    }
+
+  if (_dynamo)
+    {
+      {
+	Gtk::Box* dynamoOpts;
+	_refXml->get_widget("dynamoOpts", dynamoOpts);
+	
+	dynamoOpts->set_visible();
+      }
+      
+      {
+	Gtk::Label* dynamoLabel;
+	_refXml->get_widget("simOptionsLabel", dynamoLabel);
+	
+	dynamoLabel->set_visible();
+      }
+
+      {
+	Gtk::CheckButton* btn;
+	_refXml->get_widget("forceParticleSync", btn);
+	btn->signal_toggled()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::dynamoParticleSyncCallBack));
+
+	_particleSync = btn->get_active();
       }
     }
 }
@@ -1459,4 +1487,13 @@ CLGLWindow::aboutCallback()
     aboutImage->set(Gdk::Pixbuf::create_from_inline
 		    (coilsplash_size, coilsplash));
   }
+}
+
+void
+CLGLWindow::dynamoParticleSyncCallBack()
+{
+ Gtk::CheckButton* btn;
+  _refXml->get_widget("forceParticleSync", btn);
+
+  _particleSync = btn->get_active();
 }

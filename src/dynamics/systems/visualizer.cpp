@@ -44,8 +44,9 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   _CLWindow = new CLGLWindow(800, 600,//height, width
 			     0, 0,//initPosition (x,y)
 			     "Visualizer : " + nName,
-			     tickFreq);
-  
+			     tickFreq,
+			     true);
+    
   //static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RTTestWaves((size_t)1000, 0.0f));
 
   _sphereObject = new RTSpheres((size_t)Sim->N);
@@ -115,7 +116,9 @@ SVisualizer::runEvent() const
       Sim->dynamics.stream(locdt);
       locdt += Sim->freestreamAcc;
       Sim->freestreamAcc = 0;
-      Sim->dynamics.getLiouvillean().updateAllParticles();
+
+      if (static_cast<CLGLWindow&>(*_CLWindow).dynamoParticleSync())
+	Sim->dynamics.getLiouvillean().updateAllParticles();
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(*this, NEventData(), locdt);

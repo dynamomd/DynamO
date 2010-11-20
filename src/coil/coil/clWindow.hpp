@@ -51,7 +51,8 @@ class CLGLWindow : public CoilWindow
 public:
   CLGLWindow(int setWidth, int setHeight,
 	     int setInitPositionX, int setInitPositionY,
-	     std::string title, double updateIntervalValue);
+	     std::string title, double updateIntervalValue,
+	     bool dynamo = false);
 
   ~CLGLWindow();
   
@@ -225,4 +226,15 @@ private:
   void aboutCallback();
 
   void runCallback(); 
+
+  //Dynamo specifc stuff
+public:
+  inline bool dynamoParticleSync() { return _particleSync; }
+
+private:
+  void dynamoParticleSyncCallBack();
+  bool _dynamo;
+  bool _particleSync;
+
+
 };

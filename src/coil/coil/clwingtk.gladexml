@@ -18,7 +18,6 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -57,7 +56,6 @@
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkHBox" id="hbox6">
                     <property name="visible">True</property>
@@ -202,7 +200,6 @@
                     <child>
                       <object class="GtkVBox" id="vbox5">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkRadioButton" id="snapshotBMP">
                             <property name="label" translatable="yes">Bitmap</property>
@@ -434,7 +431,6 @@
                     <child>
                       <object class="GtkVBox" id="shaderPipelineOptions">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkHBox" id="multisampleBox">
                             <property name="visible">True</property>
@@ -544,7 +540,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkCheckButton" id="filterEnable">
                                 <property name="label" translatable="yes">Enable Filters</property>
@@ -583,7 +578,6 @@
                                 <child>
                                   <object class="GtkVBox" id="vbox4">
                                     <property name="visible">True</property>
-                                    <property name="orientation">vertical</property>
                                     <child>
                                       <object class="GtkButton" id="filterUp">
                                         <property name="visible">True</property>
@@ -773,10 +767,55 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkHBox" id="dynamoOpts">
+                <child>
+                  <object class="GtkVBox" id="vbox7">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkCheckButton" id="forceParticleSync">
+                        <property name="label" translatable="yes">Force particle sync on draw</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
             </child>
             <child type="tab">
-              <placeholder/>
+              <object class="GtkLabel" id="simOptionsLabel">
+                <property name="label" translatable="yes">Simulation</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="tab_fill">False</property>
+              </packing>
             </child>
           </object>
           <packing>
