@@ -133,7 +133,7 @@ namespace magnet {
 	//The viewport should change to the shadow maps size
 	glViewport(0, 0, _length, _length);
       	//Draw back faces into the shadow map
-	glCullFace(GL_FRONT);	
+	//glCullFace(GL_FRONT);	
 	//Use flat shading for speed
 	glShadeModel(GL_FLAT);
 	//Mask color writes

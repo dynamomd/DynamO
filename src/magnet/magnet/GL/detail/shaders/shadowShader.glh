@@ -67,26 +67,39 @@ void main()
 {
   float shadow = 0 ;
   
+  const int steps = 3;
+  const float step = 0.001f;
+  const float stepoffset = (steps - 1.0f) * 0.5f;
+
+  float lightNormDot = dot(normalize(normal), normalize(lightVec));
+  
   if (shadowMapping == 1)
     {
-      const float step = 0.001;
       if (ShadowCoord.w > 1.0)
-	for (int x = 0; x < 4; ++x)
-	  for (int y = 0; y < 4; ++y)
+	for (int x = 0; x < 3; ++x)
+	  for (int y = 0; y < 3; ++y)
 	    //Replace textureProj with shadow2DProj to make it work on old versions of GLSL
-	    shadow += textureProj(ShadowMap, ShadowCoord + vec4((-3.5 + x) * step, (-3.5 + y) * step, 0, 0)).r;
+	    shadow += textureProj(ShadowMap, ShadowCoord 
+				  + vec4((-stepoffset + x) * step * ShadowCoord.w, 
+					 (-stepoffset + y) * step * ShadowCoord.w, 
+					 0,//-0.00002,
+					 0)).r;
   
-      shadow /= 16.0 ;
+      shadow /= steps * steps;
+
+      //Now set a minimum on the shadow term depending on if the
+      //surface is pointing away from the light source
+      if (lightNormDot < 0)
+	shadow = clamp(shadow, 0.0, 1+2*lightNormDot);
     }
   else
     shadow = 1.0;
   
-  float lightNormDot = dot(normal, lightVec);
-  
   float DiffuseTerm = 0.5 * lightNormDot + 0.5;
  
-  float specular = shadow * max(dot(reflect(normalize(lightVec), normalize(normal)), normalize(viewVec)), 0.0);
-  //float specular = shadow * max(dot(normalize(gl_LightSource[0].halfVector.xyz), viewVec), 0.0) * 2.0 ;
+  float specular = shadow * max(dot(reflect(normalize(lightVec), normalize(normal)), 
+				    normalize(viewVec)), 
+				0.0);
   
   specular *= specular * specular * specular;
 
@@ -94,7 +107,7 @@ void main()
 			       ) * vec4(1.0,1.0,1.0,0) //Conversion to white channel
 			      + vec4(0,0,0,1) //The alpha channel
 			      )
-    + 0.1 * specular * vec4(1.0,1.0,1.0,0); //Specular lighting is pure white
+    + 0.2 * specular * vec4(1.0,1.0,1.0,0); //Specular lighting is pure white
 ;
 }
 );

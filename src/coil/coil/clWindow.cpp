@@ -68,7 +68,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _specialKeys(0),
   _shaderPipeline(false),
   _shadowMapping(true),
-  _shadowIntensity(0.6),
+  _shadowIntensity(0.9),
   _simrun(false),
   _simframelock(false),
   _snapshot(false),
@@ -151,10 +151,10 @@ CLGLWindow::initOpenGL()
   //Switch on line aliasing
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-  ////We don't cull anymore
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW); //The default
+  //
+  //glEnable(GL_CULL_FACE);
+  //glCullFace(GL_BACK);
+  //glFrontFace(GL_CCW); //The default
 
   //Both the front and back materials track the current color
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -450,22 +450,25 @@ CLGLWindow::initGTK()
       {
 	Gtk::CheckButton* shadowmapEnable;
 	_refXml->get_widget("shadowmapEnable", shadowmapEnable);
-	shadowmapEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+	shadowmapEnable->signal_toggled()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
       }
 
       {
 	Gtk::SpinButton* shadowmapSize;
 	_refXml->get_widget("shadowmapSize", shadowmapSize);
 	shadowmapSize->set_value(1024);
-	shadowmapSize->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+	shadowmapSize->signal_value_changed()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
       }
 
       {//Setup the shadow intensity
 	Gtk::VolumeButton* shadowButton;
 	_refXml->get_widget("shadowIntensity", shadowButton);
-	shadowButton->set_value(0.6);
+	shadowButton->set_value(_shadowIntensity);
 
-	shadowButton->signal_value_changed().connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
+	shadowButton->signal_value_changed()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
       }
 
       {///////////////////////Filters//////////////////////////////////
@@ -484,29 +487,37 @@ CLGLWindow::initGTK()
 	  Glib::RefPtr<Gtk::TreeSelection> treeSelection
 	    = _filterView->get_selection();
 	  
-	  treeSelection->signal_changed().connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
+	  treeSelection->signal_changed()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
 	}
 
 	{///Connect the control buttons
 	  Gtk::Button* btn;
 	  _refXml->get_widget("filterUp", btn);
-	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
 	  _refXml->get_widget("filterDown", btn);
-	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
 	  _refXml->get_widget("filterEdit", btn);
-	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterEditCallback));
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEditCallback));
 	  _refXml->get_widget("filterDelete", btn);
-	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
 	  _refXml->get_widget("filterAdd", btn);
-	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
 	  _refXml->get_widget("filterClear", btn);
-	  btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
 	}
 
 	{
 	  Gtk::CheckButton* btn;
 	  _refXml->get_widget("filterEnable", btn);
-	  btn->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::filterEnableCallback));
+	  btn->signal_toggled()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEnableCallback));
 	}
 
 	{//Fill the selector widgit with the available filters
@@ -697,16 +708,16 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the lights perspective
 	  _shadowFBO.setup(_light0);
+	  
+#ifdef GL_VERSION_1_1
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(5.0f, 10.0f);
+#endif 
+
+      drawScene();
 
 #ifdef GL_VERSION_1_1
-	  glEnable (GL_POLYGON_OFFSET_FILL);
-	  glPolygonOffset(1.0f, 4.0f);
-#endif 
-	  
-	  drawScene();
-	  
-#ifdef GL_VERSION_1_1
-	  glDisable (GL_POLYGON_OFFSET_FILL);
+      glDisable(GL_POLYGON_OFFSET_FILL);
 #endif
 	  
 	  _shadowFBO.restore();
@@ -730,7 +741,11 @@ CLGLWindow::CallBackDisplayFunc(void)
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
+
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping, _shadowIntensity);
+
+	  
+
       drawScene();
       
       _renderTarget->detach();
