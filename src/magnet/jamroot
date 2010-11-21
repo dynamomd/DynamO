@@ -40,12 +40,20 @@ unit-test heapsort_test : tests/heapsort_test.cpp magnet OpenCL ;
 
 alias opencl-test : scan_test radixsort_test bitonicsort_test heapsort_test OpenCL ;
 
-#####################THREAD
+#################### THREAD ######################
 unit-test threadpool_test : tests/threadpool_test.cpp magnet
 	  		  : <threading>multi ;
 
 alias thread-test : threadpool_test ;
 
+#################### MATH ########################
+
+unit-test cubic-test : tests/cubic_test.cpp magnet ;
+
+unit-test quartic-test : tests/cubic_test.cpp magnet ;
+
+alias math-test : quartic-test cubic-test ;
 
 ##################################################
-alias test : opencl-test thread-test ;
+alias test : opencl-test thread-test math-test ;
+##################################################

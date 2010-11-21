@@ -526,7 +526,6 @@ void docoeffs()
    calls cubictest, quartictest.
 */
 {
-  int ix0,ix1,ix2,ix3;
   // float fa,fb,fc,fd;
   float fp,fq,fr;
 
@@ -727,8 +726,6 @@ void compare()
    calls errors, descartes, ferrari, neumark, yacfraid, chris.
 */
 {
-  int n;
-
   ++tot;
   nrtsd = descartes(a,b,c,d,rtsd);
   if(iterate==TRUE) quanewton(a,b,c,d,nrtsd,rtsd);
@@ -942,9 +939,8 @@ int quadratic(
     called by  cubic,quartic,chris,descartes,ferrari,neumark.
 */
 {
-  int j,nquad;
+  int nquad;
   double dis,rtdis ;
-  double ans[2] ;
 
   dis = b*b - doub4*c;
   rts[0] = doub0;
@@ -1067,7 +1063,6 @@ int cubic(
   double v,vsq,wsq;
   double m1,m2,mcube;
   double muo3,s,scube,t,cosk,rt3sink,sinsqk;
-  double ans;
 
   m1=doub0;  m2=doub0;  po3=doub0;
   v=doub0;  uo3=doub0; cosk=doub0;
@@ -1447,7 +1442,6 @@ int quartic(
 */
 {
   int j,k,nq,nr;
-  double odd, even;
   double roots[4];
 
   if (fabs(a) > doubmax)
@@ -1529,7 +1523,6 @@ int descartes(
   int j;
   double v1[4],v2[4],v3[4];
   double k,y;
-  double dis;
   double p,q,r;
   double e0,e1,e2;
   double g,h;
@@ -1571,12 +1564,10 @@ int descartes(
         n4[j3]= n1 + n2;
         ++ndes[1];
      } /* y>=0 */
-donej3:
      for (j = 0; j < n4[j3]; ++j)
         rts[j] = qrts[j][j3];
      worst3[j3] = errors(a,b,c,d,rts,rterd,n4[j3]);
   } /* j3 loop */
-done:
   j3 = 0;
   if (n3 != 1)
   {
@@ -1629,7 +1620,7 @@ int ferrari(
     calls  cubic, quadratic
 */
 {
-  int j,k;
+  int j;
   double asqinv4;
   double ainv2;
   double d4;
@@ -1745,15 +1736,15 @@ int ferrari(
            if ( ((b > doub0)&&(y > doub0))
               || ((b < doub0)&&(y < doub0)) )
            {
-              if ((a > doub0) && (e > doub0)
-                || (a < doub0) && (e < doub0) )
+	     if (((a > doub0) && (e > doub0))
+		 || ((a < doub0) && (e < doub0)))
               {
                  g = (b + y)/gg;
                  ++nfer[13];
               }
               else
-                if ((a > doub0) && (e < doub0)
-                || (a < doub0) && (e > doub0) )
+                if (((a > doub0) && (e < doub0))
+		    || ((a < doub0) && (e > doub0)))
               {
                  gg = (b + y)/g;
                  ++nfer[14];
@@ -1787,12 +1778,10 @@ int ferrari(
            qrts[n1+0][j3] = v2[0];
            qrts[n1+1][j3] = v2[1];
      }
-donej3:
      for (j = 0; j < n4[j3]; ++j)
         rts[j] = qrts[j][j3];
      worst3[j3] = errors(a,b,c,d,rts,rterf,n4[j3]);
   } /* j3 loop */
-done:
   j3 = 0;
   if (n3 != 1)
   {
@@ -1845,7 +1834,7 @@ int neumark(
 
 */
 {
-  int j,k;
+  int j;
   double y,g,gg,h,hh,gdis,gdisrt,hdis,hdisrt,g1,g2,h1,h2;
   double bmy,gerr,herr,y4,bmysq;
   double v1[4],v2[4],v3[4];
@@ -2062,7 +2051,6 @@ int neumark(
         qrts[n1+0][j3] = v2[0];
         qrts[n1+1][j3] = v2[1];
      }
-donej3:
      for (j = 0; j < n4[j3]; ++j)
         rts[j] = qrts[j][j3];
      worst3[j3] = errors(a,b,c,d,rts,rtern,n4[j3]);
@@ -2124,14 +2112,14 @@ int yacfraid(
     14 Nov 2003 Don Herbison-Evans
 */
 {
-  int i,j;
+  int j;
   double y;
-  double v1[4],v2[4],v3[4];
+  double v3[4];
   double asq,acu;
   double b4;
   double det0,det1,det2,det3;
   double det0rt,det1rt,det2rt,det3rt;
-  double e,f,g,h,k;
+  double e,f,g=0,h=0,k;
   double fsq,gsq,hsq,invk;
   double P,Q,R,U;
 
@@ -2390,7 +2378,7 @@ int chris(
         else
             k1 = sqrt(fabs(ysq + inv2*e2 + inv4*e1/y));
         g1 = (doub4*ycu + doub2* y*e2 + e1)*k;
-        printf("chrisc %g %g %g %g %g\n",k,k1,y,g,g1,h);
+        //printf("chrisc %g %g %g %g %g\n",k,k1,y,g,g1,h);
      }
      n0 = quadratic(g*kquinv,h*kquinv-doub2,v0);
      if (n0 < 1)

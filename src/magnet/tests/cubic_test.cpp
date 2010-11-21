@@ -1,11 +1,15 @@
 #include <iostream>
 #include <magnet/math/quartic.hpp>
 #include <vector>
-#include "quartic.c"
+#include "quartic_original.hpp"
 #include <complex>
 
 int main()
 {
+  const bool debugInfo = false;
+  size_t errors = 0;
+
+
   setcns();
 
   //Test for triple roots
@@ -42,6 +46,8 @@ int main()
 	  
 	  if (rootcount != 3)
 	    {
+	      ++errors;
+	      if (!debugInfo) continue;
 	      rootcount = magnet::math::cubicSolve(a, b, c,
 						   roots[0], roots[1], 
 						   roots[2]);
@@ -59,7 +65,7 @@ int main()
 	      int nroots = cubic(a,b,c,rts);
 
 	      std::cout << "\nOriginal found  " << nroots << ", roots = ";
-	      for (size_t i = 0; i < nroots; ++i)
+	      for (int i = 0; i < nroots; ++i)
 		std::cout << roots[i] << ",";
 
 	      break;
@@ -68,6 +74,8 @@ int main()
 	  for (size_t i = 0; i < rootcount; ++i)
 	    if (std::abs((roots[i] - originals[i]) / originals[i]) > 0.001)
 	      {
+		++errors;
+		if (!debugInfo) continue;
 		static size_t accuracyfails = 0;
 
 		std::cout << "\n\n>>> Root accuracy Failure = " << ++accuracyfails
@@ -83,10 +91,8 @@ int main()
 		int nroots = cubic(a,b,c,rts);
 		
 		std::cout << "\nOriginal found  " << nroots << ", roots = ";
-		for (size_t i = 0; i < nroots; ++i)
+		for (int i = 0; i < nroots; ++i)
 		  std::cout << roots[i] << ",";
-
-		break;
 	      }
 	}
 
@@ -120,6 +126,8 @@ int main()
 						      roots[2]);
 	  if (rootcount != 1)
 	    {
+	      ++errors;
+	      if (!debugInfo) continue;
 	      rootcount = magnet::math::cubicSolve(a, b, c,
 						   roots[0], roots[1], 
 						   roots[2]);
@@ -137,7 +145,7 @@ int main()
 	      int nroots = cubic(a,b,c,rts);
 
 	      std::cout << "\nOriginal found  " << nroots << ", roots = ";
-	      for (size_t i = 0; i < nroots; ++i)
+	      for (int i = 0; i < nroots; ++i)
 		std::cout << roots[i] << ",";
 
 	      break;
@@ -145,6 +153,8 @@ int main()
 
 	  if (std::abs((roots[0] - root1val.real()) / root1val.real()) > 0.00001)
 	    {
+	      ++errors;
+	      if (!debugInfo) continue;
 	      static size_t accuracyfails = 0;
 	      
 	      std::cout << "\n\n>>> Root accuracy Failure = " << ++accuracyfails
@@ -158,7 +168,7 @@ int main()
 	      int nroots = cubic(a,b,c,rts);
 	      
 	      std::cout << "\nOriginal found  " << nroots << ", roots = ";
-	      for (size_t i = 0; i < nroots; ++i)
+	      for (int i = 0; i < nroots; ++i)
 		std::cout << roots[i] << ",";
 	      
 	      break;
@@ -166,6 +176,7 @@ int main()
 	}
 
   std::cout << "\nTested " << counter << " single roots";
+  std::cout << "\nFound " << errors << " errors\n";
 
-  return 0;
+  return (errors < 37) ? 0 : 1;
 }

@@ -1,11 +1,14 @@
 #include <iostream>
 #include <magnet/math/quartic.hpp>
 #include <vector>
-#include "quartic.c"
+#include "quartic_original.hpp"
 #include <complex>
 
 int main()
 {
+  const bool debugInfo = false;
+  size_t errors = 0;
+
   setcns();
 
   const size_t nroots = 9;
@@ -63,93 +66,98 @@ int main()
 		{ ++accuracy; accuracyfail = true; }
 
 	    if ((rootcount == 4) && !accuracyfail) continue;	    
+
+	    ++errors;
+	    if (!debugInfo) continue;
+
 	    if (rootcount != 4) ++rootcountfail;	   
+
 		
-//	    if (accuracyfail) 
-//	      std::cout << "\n\nAccuracy fail";
-//	    else
-//	      std::cout << "\n\nRoot count fail";
-//	      
-//	    std::cout << "\nActual             roots = " 
-//		      << originals[0] << ","
-//		      << originals[1] << ","
-//		      << originals[2] << ","
-//		      << originals[3];
-//	    
-//
-//	    std::cout << "\nAlgorithm found " << rootcount << ", roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    double rts[4];
-//	    int origrootcount = quartic(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-//	    rootcount = magnet::math::ferrariQuarticSolve(a, b, c, d,
-//	    						  roots[0], roots[1],
-//	    						  roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    
-//	    std::cout << "\nFerrari found " << rootcount << ",   roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = ferrari(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-//	    rootcount = magnet::math::yacfraidQuarticSolve(a, b, c, d,
-//	    						   roots[0], roots[1],
-//	    						   roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    std::cout << "\nYacfraid found " << rootcount << ",  roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = yacfraid(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//
-//	    
-//	    rootcount = magnet::math::descartesQuarticSolve(a, b, c, d,
-//	    						    roots[0], roots[1], 
-//	    						    roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    std::cout << "\nDescartes found " << rootcount << ", roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = descartes(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-//	    rootcount = magnet::math::neumarkQuarticSolve(a, b, c, d,
-//	    						  roots[0], roots[1],
-//	    						  roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    std::cout << "\nNeumark found " << rootcount << ",   roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = neumark(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
+	    if (accuracyfail) 
+	      std::cout << "\n\nAccuracy fail";
+	    else
+	      std::cout << "\n\nRoot count fail";
+	      
+	    std::cout << "\nActual             roots = " 
+		      << originals[0] << ","
+		      << originals[1] << ","
+		      << originals[2] << ","
+		      << originals[3];
+	    
+
+	    std::cout << "\nAlgorithm found " << rootcount << ", roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    double rts[4];
+	    int origrootcount = quartic(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::ferrariQuarticSolve(a, b, c, d,
+	    						  roots[0], roots[1],
+	    						  roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    
+	    std::cout << "\nFerrari found " << rootcount << ",   roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = ferrari(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::yacfraidQuarticSolve(a, b, c, d,
+	    						   roots[0], roots[1],
+	    						   roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nYacfraid found " << rootcount << ",  roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = yacfraid(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+
+	    
+	    rootcount = magnet::math::descartesQuarticSolve(a, b, c, d,
+	    						    roots[0], roots[1], 
+	    						    roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nDescartes found " << rootcount << ", roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = descartes(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::neumarkQuarticSolve(a, b, c, d,
+	    						  roots[0], roots[1],
+	    						  roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nNeumark found " << rootcount << ",   roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = neumark(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
 	  }	  
   std::cout << "\nTested " << counter << " root combinations";
   std::cout << "\nAccuracy Failed in " << accuracy << " root combinations";
@@ -210,6 +218,9 @@ int main()
 	    if (rootcount != 2) ++rootcountfail;
 
 	    if ((rootcount == 2) && !accuracyfail) continue;
+
+	    ++errors;
+	    if (!debugInfo) continue;
 
  	    rootcount = magnet::math::quarticSolve(a, b, c, d,
 						   roots[0], roots[1], 
@@ -347,95 +358,100 @@ int main()
 	    else
 	      ++rootcountfail;
 
-// 	    rootcount = magnet::math::quarticSolve(a, b, c, d,
-// 							  roots[0], roots[1], 
-//							  roots[2], roots[3]);
-//
-// 	    sort(roots.begin(), roots.end());
-//
-//	    std::cout << "\n\nActual             roots = " 
-//		      << root1val.real() << " + " << root1val.imag() <<  " i,"
-//		      << root2val.real() << " + " << root2val.imag() <<  " i,"
-//		      << root3val.real() << " + " << root3val.imag() <<  " i,"
-//		      << root4val.real() << " + " << root4val.imag() <<  " i,";
-//	    
-//
-//	    std::cout << "\nAlgorithm found " << rootcount << ", roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    double rts[4];
-//	    int origrootcount = quartic(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-//	    rootcount = magnet::math::ferrariQuarticSolve(a, b, c, d,
-//	    						  roots[0], roots[1],
-//	    						  roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    
-//	    std::cout << "\nFerrari found " << rootcount << ",   roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = ferrari(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-//	    rootcount = magnet::math::yacfraidQuarticSolve(a, b, c, d,
-//	    						   roots[0], roots[1],
-//	    						   roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    std::cout << "\nYacfraid found " << rootcount << ",  roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = yacfraid(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//
-//	    
-//	    rootcount = magnet::math::descartesQuarticSolve(a, b, c, d,
-//	    						    roots[0], roots[1], 
-//	    						    roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    std::cout << "\nDescartes found " << rootcount << ", roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = descartes(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-//	    rootcount = magnet::math::neumarkQuarticSolve(a, b, c, d,
-//	    						  roots[0], roots[1],
-//	    						  roots[2], roots[3]);
-// 	    sort(roots.begin(), roots.end());
-//	    std::cout << "\nNeumark found " << rootcount << ",   roots = ";
-//	    for (size_t i = 0; i < rootcount; ++i)
-//	      std::cout << roots[i] << ",";
-//
-//	    origrootcount = neumark(a,b,c,d,rts);
-//	    std::sort(rts, rts+4);
-//
-//	    std::cout << "\n Original found " << origrootcount << ", roots = ";
-//	    for (size_t i = 0; i < origrootcount; ++i)
-//	      std::cout << rts[i] << ",";
-//	    
-	  }	  
-  std::cout << "\nTested " << counter << " root combinations";
-  std::cout << "\nRoot count failed in " << rootcountfail << " root combinations";
+	    ++errors;
+	    if (!debugInfo) continue;
 
-  return 0;
+ 	    rootcount = magnet::math::quarticSolve(a, b, c, d,
+ 							  roots[0], roots[1], 
+							  roots[2], roots[3]);
+
+ 	    sort(roots.begin(), roots.end());
+
+	    std::cout << "\n\nActual             roots = " 
+		      << root1val.real() << " + " << root1val.imag() <<  " i,"
+		      << root2val.real() << " + " << root2val.imag() <<  " i,"
+		      << root3val.real() << " + " << root3val.imag() <<  " i,"
+		      << root4val.real() << " + " << root4val.imag() <<  " i,";
+	    
+
+	    std::cout << "\nAlgorithm found " << rootcount << ", roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    double rts[4];
+	    int origrootcount = quartic(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::ferrariQuarticSolve(a, b, c, d,
+	    						  roots[0], roots[1],
+	    						  roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    
+	    std::cout << "\nFerrari found " << rootcount << ",   roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = ferrari(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::yacfraidQuarticSolve(a, b, c, d,
+	    						   roots[0], roots[1],
+	    						   roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nYacfraid found " << rootcount << ",  roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = yacfraid(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+
+	    
+	    rootcount = magnet::math::descartesQuarticSolve(a, b, c, d,
+	    						    roots[0], roots[1], 
+	    						    roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nDescartes found " << rootcount << ", roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = descartes(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	    rootcount = magnet::math::neumarkQuarticSolve(a, b, c, d,
+	    						  roots[0], roots[1],
+	    						  roots[2], roots[3]);
+ 	    sort(roots.begin(), roots.end());
+	    std::cout << "\nNeumark found " << rootcount << ",   roots = ";
+	    for (size_t i = 0; i < rootcount; ++i)
+	      std::cout << roots[i] << ",";
+
+	    origrootcount = neumark(a,b,c,d,rts);
+	    std::sort(rts, rts+4);
+
+	    std::cout << "\n Original found " << origrootcount << ", roots = ";
+	    for (size_t i = 0; i < origrootcount; ++i)
+	      std::cout << rts[i] << ",";
+	    
+	  }	  
+  std::cout << "\nTested " << counter << " root combinations"
+	    << "\nRoot count failed in " << rootcountfail << " root combinations";
+
+  std::cout << "\nFound " << errors << " errors\n";
+
+  return (errors < 45) ? 0 : 1;
 }

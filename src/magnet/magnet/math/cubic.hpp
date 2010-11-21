@@ -48,8 +48,6 @@ namespace magnet {
     {
       static const double maxSqrt 
 	= std::sqrt(std::numeric_limits<double>::max());
-      static const double maxCubeRoot 
-	= std::pow(std::numeric_limits<double>::max(), 1.0/3.0);
 
       if (r == 0)
 	{
@@ -178,7 +176,6 @@ namespace magnet {
 	  //catastrophic cancellation in j 
 	  //(i.e. (uo3sq4 * uo3) == v * v)
 	  double w = std::sqrt(j);
-	  double mcube;
 	  if (v < 0)
 	    root1 = std::pow(0.5*(w-v), 1.0/3.0) - (uo3) * std::pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
 	  else
