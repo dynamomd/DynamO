@@ -34,18 +34,17 @@ uniform int shadowMapping;
 
 void main()
 {
-  if (shadowMapping == 1)
-    ShadowCoord= gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
-
-  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-  
   normal = normalize(gl_NormalMatrix * gl_Normal);
+
+  gl_Position = ftransform();
 
   lightVec = normalize(vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex));
 
-  gl_FrontColor = gl_Color;
-
   viewVec = vec3(gl_ModelViewMatrix * gl_Vertex);
+
+  ShadowCoord = gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
+
+  gl_FrontColor = gl_Color;
 }
 );
     }
@@ -71,7 +70,7 @@ void main()
   const float step = 0.001f;
   const float stepoffset = (steps - 1.0f) * 0.5f;
 
-  float lightNormDot = dot(normalize(normal), normalize(lightVec));
+  float lightNormDot = dot(normal, normalize(lightVec));
   
   if (shadowMapping == 1)
     {
@@ -87,10 +86,11 @@ void main()
   
       shadow /= steps * steps;
 
+      float shadeFactor = max(0, min(1, 1 + 2 * lightNormDot));
+      
       //Now set a minimum on the shadow term depending on if the
       //surface is pointing away from the light source
-      if (lightNormDot < 0)
-	shadow = clamp(shadow, 0.0, 1+2*lightNormDot);
+      shadow = min(shadow, shadeFactor);
     }
   else
     shadow = 1.0;
