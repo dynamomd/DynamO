@@ -88,8 +88,10 @@ void main()
   const float step = 0.001f;
   const float stepoffset = (steps - 1.0f) * 0.5f;
   
+  vec3 renormLightDir = normalize(lightDir);
+
   vec3 renormal = normalize(normal); //Renormalize the normals again
-  float lightNormDot = dot(renormal, normalize(lightDir));  //Now get the diffuse term to smooth shadow acne on back faces
+  float lightNormDot = dot(renormal, renormLightDir);  //Now get the diffuse term to smooth shadow acne on back faces
   if (shadowMapping == 1)
     {
       if (ShadowCoord.w > 1.0)
@@ -124,27 +126,20 @@ void main()
   //Shadow intensity
   float scaledShadow = (1 + shadowIntensity * (shadow - 1));
 
-  //Specular calculation
+  //Specular and ambient light calculation
   if (lightNormDot > 0.0) 
-    {     
-      float spotEffect = dot(normalize(gl_LightSource[0].spotDirection), normalize(-lightDir));
-      if (spotEffect > gl_LightSource[0].spotCosCutoff) {
-	spotEffect = pow(spotEffect, gl_LightSource[0].spotExponent);
-	
-	vec3 halfV = normalize(halfVector);
-	float NdotHV = max(dot(renormal,halfV),0.0);
-
-	//We multiply by shadow to stop the specular highlight appearing in the shadow
-	color += shadow * attenuation * spotEffect * gl_FrontMaterial.specular * gl_LightSource[0].specular 
-	  * pow(NdotHV, gl_FrontMaterial.shininess)
-	  ;
-	
-	//We add on the ambient component of the spotlight
-	color += attenuation * ambient;
-
-	//color += scaledShadow * attenuation * lightNormDot * diffuse;
-
-      }
+    {
+      //We use a shadow map instead of a spotlight calculation
+      vec3 halfV = normalize(halfVector);
+      float NdotHV = dot(renormal, halfV);
+      
+      //We multiply by shadow to stop the specular highlight appearing in the shadow
+      color += shadow * attenuation * gl_FrontMaterial.specular * gl_LightSource[0].specular 
+	* pow(NdotHV, gl_FrontMaterial.shininess)
+	;
+      
+      //We add on the ambient component of the spotlight
+      color += shadow * attenuation * ambient;
     }
 
   //The diffusive term

@@ -30,14 +30,20 @@ namespace magnet {
 	detail::shader<shadowShader>::build();
 	
 	//Now we fetch the uniforms out of the shader
-	_shadowMapUniform = glGetUniformLocationARB(_shaderID,"ShadowMap");
-	_shadowIntensityUniform = glGetUniformLocationARB(_shaderID,"shadowIntensity");
-	_shadowMapStepXUniform = glGetUniformLocationARB(_shaderID,"xPixelOffset");
-	_shadowMapStepYUniform = glGetUniformLocationARB(_shaderID,"yPixelOffset");
+	_shadowMapUniform 
+	  = glGetUniformLocationARB(_shaderID,"ShadowMap");
+	_shadowIntensityUniform 
+	  = glGetUniformLocationARB(_shaderID,"shadowIntensity");
+	_shadowMapStepXUniform 
+	  = glGetUniformLocationARB(_shaderID,"xPixelOffset");
+	_shadowMapStepYUniform 
+	  = glGetUniformLocationARB(_shaderID,"yPixelOffset");
 	_shadowMapEnable = glGetUniformLocationARB(_shaderID,"shadowMapping");
       }
 
-      inline void attach(GLuint shadowTexture, size_t shadowSize, GLuint textureUnit, GLint shadowMapping, GLfloat intensity)
+      inline void attach(GLuint shadowTexture, size_t shadowSize, 
+			 GLuint textureUnit, GLint shadowMapping, 
+			 GLfloat intensity)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1iARB(_shadowMapUniform, textureUnit);
