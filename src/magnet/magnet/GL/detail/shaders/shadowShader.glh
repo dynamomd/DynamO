@@ -25,26 +25,38 @@ namespace magnet {
     {
       return
 STRINGIFY( 
-// Used for shadow lookup
-varying vec4 ShadowCoord;
-varying vec3 lightVec;
-varying vec3 normal;
-varying vec3 viewVec;
-uniform int shadowMapping;
+varying vec4 ShadowCoord; // Used for shadow lookup
+varying vec3 lightDir; //Direction of the light
+varying float lightDist; //Distance to the light
+varying vec3 normal; //The surface normal
+varying vec4 diffuse; //Lighting terms
+varying vec4 ambientGlobal; //Lighting terms
+varying vec4 ambient; //Lighting terms
+varying vec3 halfVector;
 
 void main()
 {
+  //Normal calculations
   normal = normalize(gl_NormalMatrix * gl_Normal);
 
-  gl_Position = ftransform();
-
-  lightVec = normalize(vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex));
-
-  viewVec = vec3(gl_ModelViewMatrix * gl_Vertex);
-
+  //Shadow coordinate calculations
   ShadowCoord = gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
 
-  gl_FrontColor = gl_Color;
+  //light position calculations
+  vec3 lightVec = vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex);
+  lightDir = normalize(lightVec);
+  lightDist = length(lightVec);
+
+  //Lighting calculations
+  diffuse = gl_Color * gl_LightSource[0].diffuse;
+  ambient = gl_Color * gl_LightSource[0].ambient;
+  ambientGlobal = gl_LightModel.ambient * gl_Color;
+
+  //Specular calculations
+  halfVector = normalize(gl_LightSource[0].halfVector.xyz);
+  
+  //Standard vertex transformation
+  gl_Position = ftransform();
 }
 );
     }
@@ -54,24 +66,30 @@ void main()
     {
       return
 STRINGIFY( 
-uniform sampler2DShadow ShadowMap;
-uniform int shadowMapping;
-uniform float shadowIntensity;
-varying vec4 ShadowCoord;
-varying vec3 lightVec;
-varying vec3 normal;
-varying vec3 viewVec;
+uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
+varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
+uniform int shadowMapping; //If shadow mapping is enabled or not
+uniform float shadowIntensity; //How dark the shadow is
+
+varying vec3 lightDir; //Direction of the light
+varying float lightDist; //Distance to the light
+varying vec3 normal; //The surface normal
+varying vec4 diffuse; //Lighting terms
+varying vec4 ambientGlobal;
+varying vec4 ambient; 
+
+varying vec3 halfVector;
 
 void main()
 {
-  float shadow = 0 ;
-  
+  ///Shadow map calculations and PCF.
+  float shadow = 0 ;  
   const int steps = 3;
   const float step = 0.001f;
   const float stepoffset = (steps - 1.0f) * 0.5f;
-
-  float lightNormDot = dot(normal, normalize(lightVec));
   
+  vec3 renormal = normalize(normal); //Renormalize the normals again
+  float lightNormDot = dot(renormal, normalize(lightDir));  //Now get the diffuse term to smooth shadow acne on back faces
   if (shadowMapping == 1)
     {
       if (ShadowCoord.w > 1.0)
@@ -94,21 +112,46 @@ void main()
     }
   else
     shadow = 1.0;
-  
-  float DiffuseTerm = 0.5 * lightNormDot + 0.5;
- 
-  float specular = shadow * max(dot(reflect(normalize(lightVec), normalize(normal)), 
-				    normalize(viewVec)), 
-				0.0);
-  
-  specular *= specular * specular * specular;
 
-  gl_FragColor =  gl_Color * (((1 + shadowIntensity * (shadow - 1)) * DiffuseTerm //Diffuse + Shadow lighting
-			       ) * vec4(1.0,1.0,1.0,0) //Conversion to white channel
-			      + vec4(0,0,0,1) //The alpha channel
-			      )
-    + 0.2 * specular * vec4(1.0,1.0,1.0,0); //Specular lighting is pure white
-;
+  //Start the color calculation with the global ambient
+  vec4 color = ambientGlobal;
+
+  //This is the attenuation of the light source with distance
+  float attenuation =  1.0 / (gl_LightSource[0].constantAttenuation +
+		      gl_LightSource[0].linearAttenuation * lightDist +
+		      gl_LightSource[0].quadraticAttenuation * lightDist * lightDist);
+ 
+  //Shadow intensity
+  float scaledShadow = (1 + shadowIntensity * (shadow - 1));
+
+  //Specular calculation
+  if (lightNormDot > 0.0) 
+    {     
+      float spotEffect = dot(normalize(gl_LightSource[0].spotDirection), normalize(-lightDir));
+      if (spotEffect > gl_LightSource[0].spotCosCutoff) {
+	spotEffect = pow(spotEffect, gl_LightSource[0].spotExponent);
+	
+	vec3 halfV = normalize(halfVector);
+	float NdotHV = max(dot(renormal,halfV),0.0);
+
+	//We multiply by shadow to stop the specular highlight appearing in the shadow
+	color += shadow * attenuation * spotEffect * gl_FrontMaterial.specular * gl_LightSource[0].specular 
+	  * pow(NdotHV, gl_FrontMaterial.shininess)
+	  ;
+	
+	//We add on the ambient component of the spotlight
+	color += attenuation * ambient;
+
+	//color += scaledShadow * attenuation * lightNormDot * diffuse;
+
+      }
+    }
+
+  //The diffusive term
+  float rescaledDot = 0.5 * lightNormDot + 0.5;
+  color += attenuation * scaledShadow * rescaledDot * rescaledDot * diffuse;
+
+  gl_FragColor = color;
 }
 );
     }

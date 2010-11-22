@@ -181,7 +181,6 @@ CLGLWindow::initOpenGL()
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
-
   _light0 = magnet::GL::lightInfo(Vector(1.5f,  1.5f, 1.0f),//Position
 				  Vector(0.0f, -0.3f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
@@ -190,12 +189,11 @@ CLGLWindow::initOpenGL()
 				  0.005//rangeMin
 				  );
   
-  GLfloat specReflection[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  GLfloat specShininess[] = { 0.0f };
-  GLfloat specular[] = {0.0, 0.0, 0.0, 1.0};
+  GLfloat specReflection[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+  //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
   glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-  glMaterialfv(GL_FRONT, GL_SHININESS, specShininess);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+  glMateriali(GL_FRONT, GL_SHININESS, 50);
+  //glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
