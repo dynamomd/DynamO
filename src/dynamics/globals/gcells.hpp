@@ -109,6 +109,7 @@ protected:
   Vector  cellLatticeWidth;
   Vector  cellOffset;
   double lambda;
+  double _oversizeCells;
   size_t NCells;
   size_t overlink;
 

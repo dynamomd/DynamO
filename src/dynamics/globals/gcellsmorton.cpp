@@ -36,6 +36,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
+  _oversizeCells(1.0),
   lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
@@ -48,6 +49,7 @@ CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
+  _oversizeCells(1.0),
   lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
@@ -61,6 +63,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1),
+  _oversizeCells(1.0),
   lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
@@ -78,6 +81,13 @@ CGCellsMorton::operator<<(const XMLNode& XML)
     if (XML.isAttributeSet("OverLink"))
       overlink = boost::lexical_cast<size_t>
 	(XML.getAttribute("OverLink"));
+
+    if (XML.isAttributeSet("Oversize"))
+      _oversizeCells = boost::lexical_cast<double>
+	(XML.getAttribute("Oversize"));
+
+    if (_oversizeCells < 1.0)
+      M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
     
     globName = XML.getAttribute("Name");	
   }
@@ -289,7 +299,7 @@ CGCellsMorton::reinitialise(const double& maxdiam)
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
   //Create the cells
-  addCells((maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())) / overlink);
+  addCells(_oversizeCells * (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())) / overlink);
 
   addLocalEvents();
 
@@ -309,6 +319,8 @@ CGCellsMorton::outputXML(xml::XmlStream& XML) const
       << xml::attr("Name") << globName;
 
   if (overlink > 1)   XML << xml::attr("OverLink") << overlink;
+  if (_oversizeCells != 1.0) XML << xml::attr("Oversize") << _oversizeCells;
+
 }
 
 void
