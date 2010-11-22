@@ -96,6 +96,7 @@ protected:
   double  cellDimension;
   double  cellLatticeWidth;
   double cellOffset;
+  double _oversizeCells;
   double lambda;
   size_t NCells;
   size_t overlink;

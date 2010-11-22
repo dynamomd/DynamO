@@ -78,7 +78,7 @@ CIPPacker::getOptions()
     ("rectangular-box", "This will cause the simulation box to be deformed so "
      "that the x,y,z ecells specify the aspect ratio.")
     ("density,d", po::value<double>()->default_value(0.5),
-     "System number density (init-mode > 1).")
+     "System number density.")
     ("Thermostat,T", po::value<double>(),
      "Apply/Change the Andersen thermostat and set the Ensemble to NVT.")
     //("Sentinel,S", "Installs the collision sentinal to study low densities")

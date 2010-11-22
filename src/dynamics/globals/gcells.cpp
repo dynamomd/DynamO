@@ -52,6 +52,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
+  _oversizeCells(1.0),
   NCells(0),
   overlink(overlink),
   interaction(""),
@@ -66,6 +67,7 @@ CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
+  _oversizeCells(1.0),
   NCells(0),
   overlink(1),
   interaction(""),
@@ -81,6 +83,7 @@ CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   cellCount(0),
   cellDimension(1,1,1),
   lambda(0.9), //Default to higher overlap
+  _oversizeCells(1.0),
   NCells(0),
   overlink(1),
   interaction(""),
@@ -99,6 +102,13 @@ CGCells::operator<<(const XMLNode& XML)
     if (XML.isAttributeSet("OverLink"))
       overlink = boost::lexical_cast<size_t>
 	(XML.getAttribute("OverLink"));
+
+    if (XML.isAttributeSet("Oversize"))
+      _oversizeCells = boost::lexical_cast<double>
+	(XML.getAttribute("Oversize"));
+
+    if (_oversizeCells < 1.0)
+      M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
 
     if (XML.isAttributeSet("Interaction"))
       interaction = boost::lexical_cast<std::string>
@@ -323,7 +333,7 @@ CGCells::reinitialise(const double& maxdiam)
   I_cout() << "Reinitialising on collision " << Sim->eventCount;
 
   //Create the cells
-  addCells(maxdiam/overlink);
+  addCells(_oversizeCells * maxdiam / overlink);
 
   addLocalEvents();
 
@@ -354,6 +364,7 @@ CGCells::outputXML(xml::XmlStream& XML, const std::string& name) const
     XML << xml::attr("Interaction") << interaction;
       
   if (overlink > 1)   XML << xml::attr("OverLink") << overlink;
+  if (_oversizeCells != 1.0) XML << xml::attr("Oversize") << _oversizeCells;
 }
 
 void
