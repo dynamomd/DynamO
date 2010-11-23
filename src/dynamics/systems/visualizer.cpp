@@ -29,6 +29,7 @@
 #include "../../dynamics/include.hpp"
 #include <coil/clWindow.hpp>
 #include <coil/RenderObj/TestWaves.hpp>
+#include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/Spheres.hpp>
 #include <magnet/CL/CLGL.hpp>
 #include "../liouvillean/CompressionL.hpp"
@@ -49,6 +50,23 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 			     true);
     
   //static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RTTestWaves((size_t)1000, 0.0f));
+  
+  Vector axis1 = Vector(1,1,0);
+  axis1 /= axis1.nrm();
+  Vector orthvec = Vector(1,0,0.3);
+  orthvec /= orthvec.nrm();
+  Vector axis2 = (orthvec ^ axis1);
+  axis2 /= axis2.nrm();
+
+  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
+								  Vector(-1.5,-0.5,-1.5),
+								  axis1,
+								  axis2,
+								  -0.7,
+								  -0.7,
+								  1.4,
+								  1.4
+								  ));
 
   _sphereObject = new RTSpheres((size_t)Sim->N);
   

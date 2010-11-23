@@ -222,6 +222,7 @@ CLGLWindow::initOpenGL()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
+
 }
 
 void 

@@ -47,8 +47,6 @@ RTriangles::glRender()
   glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
   glColorPointer(4, GL_FLOAT, 0, 0);
 
-  //glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
   glBindBufferARB(GL_ARRAY_BUFFER, _posBuff);
   glVertexPointer(3, GL_FLOAT, 0, 0);
   
