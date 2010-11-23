@@ -57,15 +57,20 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   orthvec /= orthvec.nrm();
   Vector axis2 = (orthvec ^ axis1);
   axis2 /= axis2.nrm();
+  Vector axis3 = axis2 ^ axis1;
+  axis3 /= axis3.nrm();
 
   static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
 								  Vector(-1.5,-0.5,-1.5),
 								  axis1,
 								  axis2,
+								  axis3,
 								  -0.7,
 								  -0.7,
 								  1.4,
-								  1.4
+								  1.4,
+								  true,
+								  false
 								  ));
 
   _sphereObject = new RTSpheres((size_t)Sim->N);

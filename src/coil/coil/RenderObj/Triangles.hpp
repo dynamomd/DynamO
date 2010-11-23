@@ -38,6 +38,8 @@ public:
   void initOCLNormBuffer(cl::Context Context);
   void initOCLElementBuffer(cl::Context Context);
 
+  inline void setDisplayNormals(bool val) { _renderNormals = val; }
+
 protected:
   GLuint _colBuff;
   size_t _colBuffSize;
