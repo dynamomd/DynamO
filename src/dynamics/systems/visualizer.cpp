@@ -31,6 +31,7 @@
 #include <coil/RenderObj/TestWaves.hpp>
 #include <coil/RenderObj/Spheres.hpp>
 #include <magnet/CL/CLGL.hpp>
+#include "../liouvillean/CompressionL.hpp"
 
 SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFreq):
   System(nSim)
@@ -79,22 +80,42 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 void
 SVisualizer::dataBuild() const
 {
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    {
-      double diam = spec->getIntPtr()->hardCoreDiam();
-      
-      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	{
-	  Vector pos = Sim->particleList[ID].getPosition();
-	  
-	  Sim->dynamics.BCs().applyBC(pos);
-	  
-	  for (size_t i(0); i < NDIM; ++i)
-	    particleData[ID].s[i] = pos[i];
-	  
-	  particleData[ID].w = diam * 0.5;
-	}
-    }
+  //Check if the system is compressing
+  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      {
+	double diam = spec->getIntPtr()->hardCoreDiam() 
+	  * (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+	
+	BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+	  {
+	    Vector pos = Sim->particleList[ID].getPosition();
+	    
+	    Sim->dynamics.BCs().applyBC(pos);
+	    
+	    for (size_t i(0); i < NDIM; ++i)
+	      particleData[ID].s[i] = pos[i];
+	    
+	    particleData[ID].w = diam * 0.5;
+	  }
+      }
+  else
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      {
+	double diam = spec->getIntPtr()->hardCoreDiam();
+	
+	BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+	  {
+	    Vector pos = Sim->particleList[ID].getPosition();
+	    
+	    Sim->dynamics.BCs().applyBC(pos);
+	    
+	    for (size_t i(0); i < NDIM; ++i)
+	      particleData[ID].s[i] = pos[i];
+	    
+	    particleData[ID].w = diam * 0.5;
+	  }
+      }    
 }
 
 

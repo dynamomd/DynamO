@@ -181,6 +181,7 @@ CLGLWindow::initOpenGL()
   GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
+  //Light0 parameters
   _light0 = magnet::GL::lightInfo(Vector(1.5f,  1.5f, 1.0f),//Position
 				  Vector(0.0f, -0.3f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
@@ -188,11 +189,17 @@ CLGLWindow::initOpenGL()
 				  50,//rangeMax
 				  0.005//rangeMin
 				  );
-  
+  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
+  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.00f);
+
+  //Default material parameters
   GLfloat specReflection[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-  //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
   glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
   glMateriali(GL_FRONT, GL_SHININESS, 50);
+
+
+  //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
   //glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 
   //Setup the keyboard controls
@@ -951,8 +958,7 @@ CLGLWindow::drawScene()
   //Draw a ground
   if (_showGround)
     {
-      glColor3f(1,1,1);
-      
+      glColor3f(1,1,1);      
       glBegin(GL_QUADS);
       //Front
       glNormal3f(0, 1, 0);
