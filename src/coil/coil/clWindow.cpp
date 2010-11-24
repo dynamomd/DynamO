@@ -197,10 +197,10 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
   //Light0 parameters
-  _light0 = magnet::GL::lightInfo(Vector(1.5f,  1.5f, 1.0f),//Position
+  _light0 = magnet::GL::lightInfo(Vector(1.1f,  1.1f, 1.1f),//Position
 				  Vector(0.0f, -0.3f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
-				  45.0f,//Beam angle
+				  75.0f,//Beam angle
 				  50,//rangeMax
 				  0.005//rangeMin
 				  );
@@ -209,9 +209,9 @@ CLGLWindow::initOpenGL()
   glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
 
   //Default material parameters
-  GLfloat specReflection[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+  GLfloat specReflection[] = { 0.5f, 0.5f, 0.5f, 1.0f };
   glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-  glMateriali(GL_FRONT, GL_SHININESS, 50);
+  glMateriali(GL_FRONT, GL_SHININESS, 25);
 
 
   //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
@@ -909,9 +909,9 @@ CLGLWindow::CallBackDisplayFunc(void)
   //Draw the light source
   if (_showLight) _light0.drawLight();
   
-  glDisable(GL_DEPTH_TEST);
+  //We clear the depth as merely disabling gives artifacts
+  glClear(GL_DEPTH_BUFFER_BIT); 
   drawAxis();
-  glEnable(GL_DEPTH_TEST);
 
   glutSwapBuffers();
 
@@ -978,7 +978,7 @@ void
 CLGLWindow::drawScene()
 {
   //Move the world lights
-  GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 0.0f};
+  GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 1.0f};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 
   //Enter the render ticks for all objects

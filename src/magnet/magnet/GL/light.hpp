@@ -27,7 +27,7 @@ namespace magnet {
       
       inline lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle, 
 		       GLfloat beamAngle = 45.0f,
-		       GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.01,
+		       GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.001,
 		       Vector up = Vector(0,1,0)):
 	_position(position),
 	_lookAtPoint(lookAtPoint),
@@ -66,7 +66,7 @@ namespace magnet {
 	glRotatef(-tiltrotation, rotationAxis.x, rotationAxis.y, rotationAxis.z);      
 	
 
-	//Finally positioning
+	//Finally positioningd
 	glTranslatef(-position.x,-position.y,-position.z);
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
 	

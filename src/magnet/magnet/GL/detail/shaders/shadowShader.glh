@@ -27,12 +27,12 @@ namespace magnet {
 STRINGIFY( 
 varying vec4 ShadowCoord; // Used for shadow lookup
 varying vec3 lightDir; //Direction of the light
-varying float lightDist; //Distance to the light
 varying vec3 normal; //The surface normal
 varying vec4 diffuse; //Lighting terms
 varying vec4 ambientGlobal; //Lighting terms
 varying vec4 ambient; //Lighting terms
-varying vec3 halfVector;
+
+varying vec3 eyeVector;
 
 void main()
 {
@@ -40,20 +40,17 @@ void main()
   normal = normalize(gl_NormalMatrix * gl_Normal);
   
   //Shadow coordinate calculations
-  ShadowCoord = gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
+  vec4 vVertex = gl_ModelViewMatrix * gl_Vertex;
+  ShadowCoord = gl_TextureMatrix[7] * vVertex;
 
   //light position calculations
-  vec3 lightVec = vec3(gl_LightSource[0].position - gl_ModelViewMatrix * gl_Vertex);
-  lightDir = normalize(lightVec);
-  lightDist = length(lightVec);
+  lightDir = gl_LightSource[0].position.xyz - vVertex.xyz;
+  eyeVector = -vVertex.xyz;
 
   //Lighting calculations
   diffuse = gl_Color * gl_LightSource[0].diffuse;
   ambient = gl_Color * gl_LightSource[0].ambient;
   ambientGlobal = gl_LightModel.ambient * gl_Color;
-
-  //Specular calculations
-  halfVector = normalize(gl_LightSource[0].halfVector.xyz);
   
   //Standard vertex transformation
   gl_Position = ftransform();
@@ -72,21 +69,20 @@ uniform int shadowMapping; //If shadow mapping is enabled or not
 uniform float shadowIntensity; //How dark the shadow is
 
 varying vec3 lightDir; //Direction of the light
-varying float lightDist; //Distance to the light
 varying vec3 normal; //The surface normal
 varying vec4 diffuse; //Lighting terms
 varying vec4 ambientGlobal;
-varying vec4 ambient; 
+varying vec4 ambient;
+varying vec3 eyeVector;
 
-varying vec3 halfVector;
 
 void main()
 {
   ///Shadow map calculations and PCF.
   float shadow = 0 ;  
   const int steps = 3;
-  const float step = 0.001f;
-  const float stepoffset = (steps - 1.0f) * 0.5f;
+  const float step = 0.001;
+  const float stepoffset = (steps - 1.0) * 0.5;
   
   vec3 renormLightDir = normalize(lightDir);
 
@@ -94,7 +90,7 @@ void main()
   vec3 renormal = (-1 + 2 * (gl_FrontFacing)) * normalize(normal);  
   
   //Now get the diffuse term to smooth shadow acne on back faces
-  float lightNormDot = dot(renormal, renormLightDir);  
+  float lightNormDot = dot(renormal, renormLightDir);
   if (shadowMapping == 1)
     {
       if (ShadowCoord.w > 1.0)
@@ -121,28 +117,29 @@ void main()
   //Start the color calculation with the global ambient
   vec4 color = ambientGlobal;
 
+  float lightDist = length(lightDir);
+
   //This is the attenuation of the light source with distance
-  float attenuation =  1.0 / (gl_LightSource[0].constantAttenuation +
-		      gl_LightSource[0].linearAttenuation * lightDist +
-		      gl_LightSource[0].quadraticAttenuation * lightDist * lightDist);
+  float attenuation = 1.0 / (gl_LightSource[0].constantAttenuation +
+			     gl_LightSource[0].linearAttenuation * lightDist +
+			     gl_LightSource[0].quadraticAttenuation * lightDist * lightDist);
  
   //Shadow intensity
   float scaledShadow = (1 + shadowIntensity * (shadow - 1));
 
   //Specular and ambient light calculation
-  if (lightNormDot > 0.0) 
+  if (lightNormDot > 0.0)
     {
       //We use a shadow map instead of a spotlight calculation
-      vec3 halfV = normalize(halfVector);
-      float NdotHV = dot(renormal, halfV);
-      
+      vec3 Eye = normalize(eyeVector);
+      vec3 ReflectedRay = reflect(-renormLightDir, renormal);
+
+      //gl_LightSource[0].specular       
+      vec4 Specular = gl_FrontMaterial.specular * gl_LightSource[0].specular
+	* pow(max(dot(ReflectedRay, Eye), 0.0), gl_FrontMaterial.shininess);
+
       //We multiply by shadow to stop the specular highlight appearing in the shadow
-      color += shadow * attenuation * gl_FrontMaterial.specular * gl_LightSource[0].specular 
-	* pow(NdotHV, gl_FrontMaterial.shininess)
-	;
-      
-      //We add on the ambient component of the spotlight
-      color += shadow * attenuation * ambient;
+      color += shadow * attenuation * (ambient + Specular);
     }
 
   //The diffusive term
