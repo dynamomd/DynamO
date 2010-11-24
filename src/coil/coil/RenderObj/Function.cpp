@@ -19,81 +19,23 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 
-#define STRINGIFY(A) #A
-
-const std::string 
-RFunction::kernelsrc = STRINGIFY(
-__constant float decayrate = 2.5f;
-__constant float invWaveLength = 40.0f;
-__constant float freq = -4;
-
-float func(float2 pos, float t)
-{
-  float r = native_sqrt(pos.x * pos.x + pos.y * pos.y);
-  return native_exp( - decayrate * r) * native_sin(invWaveLength * r + freq * t);
-}
-
-float3 funcNormal(float2 pos, float t)
-{
-  float r = native_sqrt(pos.x * pos.x + pos.y * pos.y);
-
-  float dfodr = native_exp(- decayrate * r) 
-    * (invWaveLength * native_cos(r * invWaveLength + freq * t)
-       + decayrate * native_sin(r * invWaveLength + freq * t));
-
-  return normalize((float3)(-dfodr * pos.x / r, -dfodr * pos.y / r,1));
-}
-
-__kernel void
-TestWaveKernel(__global float * positions,
-	       __global float * colors,
-	       __global float * normals,
-	       float t,
-	       float2 functionOrigin,
-	       float2 functionRange,
-	       float3 axis1,
-	       float3 axis2,
-	       float3 axis3,
-	       float3 origin,
-	       uint N
-	       )
-{
-  float2 normPos = (float2)(get_global_id(0) % N, get_global_id(0) / N);
-  normPos /= N;
-
-  float2 functionPosition = normPos * functionRange + functionOrigin;
-
-  float val = func(functionPosition, t);
-  
-  float3 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + val * axis3 + origin;
-
-  const uint id = get_global_id(0);
-
-  positions[3*id+0] = vertexPosition.x;
-  positions[3*id+1] = vertexPosition.y;
-  positions[3*id+2] = vertexPosition.z;
-
-  //colors[id] = (float4)(clamp(val, 0.0f, 1.0f),0,0,1); 
-
-  float3 normal = funcNormal(functionPosition, t);
-  float3 rotatedNormal = normalize(normal.x * axis1 + normal.y * axis2 + normal.z * axis3);
-  normals[3*id+0] = rotatedNormal.x;
-  normals[3*id+1] = rotatedNormal.y;
-  normals[3*id+2] = rotatedNormal.z;
-}
-);
-
 RFunction::RFunction(size_t N, Vector origin, Vector axis1,
 		     Vector axis2, Vector axis3, cl_float functionOriginX,
 		     cl_float functionOriginY, cl_float functionRangeX, 
-		     cl_float functionRangeY, bool drawAxis, bool staticShape):
-  _N(N),
+		     cl_float functionRangeY, bool drawAxis, bool staticShape,
+		     std::string function,
+		     std::string normalCalc,
+		     std::string colorCalc):
   _origin(origin),
   _axis1(axis1),
   _axis2(axis2),
   _axis3(axis3),
   _drawAxis(drawAxis),
-  _staticShape(staticShape)
+  _staticShape(staticShape),
+  _function(function),
+  _normalCalc(normalCalc),
+  _colorCalc(colorCalc)
+    
 {
   //Copy to the cl types
   for (size_t i(0); i < 3; ++i)
@@ -109,8 +51,9 @@ RFunction::RFunction(size_t N, Vector origin, Vector axis1,
   _functionRange.s[0] = functionRangeX;
   _functionRange.s[1] = functionRangeY;
 
-  //Change N to a multiple of 16 so the workgroup size of 256 always fits
-  _N = ((_N +15) / 16) * 16;
+  //Set N to a multiple of 16 so the workgroup size of 256 always fits
+  _N = (N + 15) / 16;
+  _N *= 16;
 }
 
 void 
@@ -187,7 +130,9 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
   }
   
   cl::Program::Sources kernelSource;
-  kernelSource.push_back(std::pair<const char*, ::size_t>(kernelsrc.c_str(), kernelsrc.size()));
+  std::string kernsrc = kernelsrc();
+
+  kernelSource.push_back(std::pair<const char*, ::size_t>(kernsrc.c_str(), kernsrc.size()));
   
   _program = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
@@ -277,4 +222,60 @@ RFunction::glRender()
       coil::glprimatives::drawArrow(_origin, _origin + _axis2);
       coil::glprimatives::drawArrow(_origin, _origin + _axis3);
     }
+}
+
+std::string
+RFunction::kernelsrc()
+{
+
+#define STRINGIFY(A) #A
+
+  return std::string(STRINGIFY(
+__kernel void
+TestWaveKernel(__global float * positions,
+	       __global float * colors,
+	       __global float * normals,
+	       float t,
+	       float2 functionOrigin,
+	       float2 functionRange,
+	       float3 axis1,
+	       float3 axis2,
+	       float3 axis3,
+	       float3 origin,
+	       uint N)
+{
+
+  positions += 3 * get_global_id(0);
+  normals += 3 * get_global_id(0);
+  colors += 4 * get_global_id(0);
+
+  float2 normPos = (float2)(get_global_id(0) % N, get_global_id(0) / N);
+  normPos /= N;
+
+  float2 pos = normPos * functionRange + functionOrigin;
+
+  float f; 
+  )) + _function + std::string(STRINGIFY(
+  
+  float3 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + f * axis3 + origin;
+
+  positions[0] = vertexPosition.x;
+  positions[1] = vertexPosition.y;
+  positions[2] = vertexPosition.z;
+
+  float3 normal;
+  )) + _normalCalc + std::string(STRINGIFY(
+  normal /= (float3)(functionRange,length(axis3));
+  float3 rotatedNormal 
+    = normalize((normal.x * axis1 +
+		 normal.y * axis2 +
+		 normal.z * axis3));
+
+  normals[0] = rotatedNormal.x;
+  normals[1] = rotatedNormal.y;
+  normals[2] = rotatedNormal.z;
+
+  )) + _colorCalc + std::string(STRINGIFY(
+}
+));
 }

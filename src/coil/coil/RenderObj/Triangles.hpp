@@ -59,11 +59,4 @@ protected:
 
   
   bool _renderNormals;
-
-  //Stuff for visualizing normals
-  //static const std::string normalKernelsrc;
-  //cl::Kernel _normalkernel;
-  //cl::Program _normalkernelProgram;
-  //bool _normalRenderInitialised;
-  //cl::Buffer _clbuf_Normal_Line_Vertices;
 };

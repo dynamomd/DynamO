@@ -31,7 +31,10 @@ public:
 	    cl_float functionRangeX,
 	    cl_float functionRangeY,
 	    bool drawAxis,
-	    bool staticShape);
+	    bool staticShape,
+	    std::string function = "f = pos.x * pos.y * native_sin(t);\n",
+	    std::string normalCalc = "normal = normalize((float3)(pos.y * native_sin(t), pos.x * native_sin(t),1));\n",
+	    std::string colorCalc = "\n");
 
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
@@ -44,7 +47,7 @@ public:
   inline void setStaticShape(bool val) { _staticShape = val; }
 
 protected:
-  static const std::string kernelsrc;
+  std::string kernelsrc();
 
   cl::Kernel _kernel;
   cl::KernelFunctor _kernelFunc;
@@ -69,4 +72,8 @@ protected:
 
   bool _drawAxis;
   bool _staticShape;
+  
+  std::string _function;
+  std::string _normalCalc;
+  std::string _colorCalc;
 };

@@ -38,7 +38,7 @@ void main()
 {
   //Normal calculations
   normal = normalize(gl_NormalMatrix * gl_Normal);
-
+  
   //Shadow coordinate calculations
   ShadowCoord = gl_TextureMatrix[7] * gl_ModelViewMatrix * gl_Vertex;
 
@@ -90,8 +90,11 @@ void main()
   
   vec3 renormLightDir = normalize(lightDir);
 
-  vec3 renormal = normalize(normal); //Renormalize the normals again
-  float lightNormDot = dot(renormal, renormLightDir);  //Now get the diffuse term to smooth shadow acne on back faces
+  //Flip the normal for 2 sided rendering and renormalize the normals again
+  vec3 renormal = (-1 + 2 * (gl_FrontFacing)) * normalize(normal);  
+  
+  //Now get the diffuse term to smooth shadow acne on back faces
+  float lightNormDot = dot(renormal, renormLightDir);  
   if (shadowMapping == 1)
     {
       if (ShadowCoord.w > 1.0)
