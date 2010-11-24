@@ -87,7 +87,8 @@ void main()
   vec3 renormLightDir = normalize(lightDir);
 
   //Flip the normal for 2 sided rendering and renormalize the normals again
-  vec3 renormal = (-1 + 2 * (gl_FrontFacing)) * normalize(normal);  
+  vec3 renormal = normalize(normal);  
+  if (!gl_FrontFacing) renormal = -renormal;
   
   //Now get the diffuse term to smooth shadow acne on back faces
   float lightNormDot = dot(renormal, renormLightDir);

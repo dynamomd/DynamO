@@ -47,10 +47,11 @@ public:
   inline void setStaticShape(bool val) { _staticShape = val; }
 
 protected:
-  std::string kernelsrc();
+  std::string genKernelSrc();
 
   cl::Kernel _kernel;
   cl::KernelFunctor _kernelFunc;
+  std::string _kernelsrc;
 
   cl::Program _program;
   timespec startTime;
@@ -62,10 +63,10 @@ protected:
   Vector _axis2;     
   Vector _axis3;
 
-  cl_float3 _cl_origin;
-  cl_float3 _cl_axis1;
-  cl_float3 _cl_axis2;
-  cl_float3 _cl_axis3;
+  cl_float4 _cl_origin;
+  cl_float4 _cl_axis1;
+  cl_float4 _cl_axis2;
+  cl_float4 _cl_axis3;
 
   cl_float2 _functionOrigin;
   cl_float2 _functionRange;

@@ -45,6 +45,11 @@ RFunction::RFunction(size_t N, Vector origin, Vector axis1,
       _cl_axis3.s[i] = axis3[i];
     }
 
+  _cl_origin.s[3] = 0;
+  _cl_axis1.s[3]  = 0;
+  _cl_axis2.s[3]  = 0;
+  _cl_axis3.s[3]  = 0;
+
   _functionOrigin.s[0] = functionOriginX;
   _functionOrigin.s[1] = functionOriginY;
   _functionRange.s[0] = functionRangeX;
@@ -128,17 +133,16 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
     setGLElements(ElementData);
   }
   
-  cl::Program::Sources kernelSource;
-  std::string kernsrc = kernelsrc();
+  _kernelsrc = genKernelSrc();
 
-  kernelSource.push_back(std::pair<const char*, ::size_t>(kernsrc.c_str(), kernsrc.size()));
+  cl::Program::Sources kernelSource;
+
+  kernelSource.push_back(std::pair<const char*, ::size_t>(_kernelsrc.c_str(), _kernelsrc.size()));
   
-  _program = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
-  
-  try 
-    {
-      _program.build(std::vector<cl::Device>(1, CLState.getDevice()));
-    }
+  _program = cl::Program(CLState.getContext(), kernelSource);
+
+  try
+    { _program.build(std::vector<cl::Device>(1, CLState.getDevice())); }
   catch(cl::Error& err) 
     {    
       std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
@@ -149,10 +153,10 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
       throw;
     }
   
-  _kernel = cl::Kernel(_program, "TestWaveKernel");
+  _kernel = cl::Kernel(_program, "FunctionRenderKernel");
   
   const size_t workgroupSize = 256;
-
+  
   //N is a multiple of 16, so a workgroup size of 256 is always good
   _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), 
 			     cl::NDRange(workgroupSize));
@@ -224,26 +228,26 @@ RFunction::glRender()
 }
 
 std::string
-RFunction::kernelsrc()
+RFunction::genKernelSrc()
 {
 
 #define STRINGIFY(A) #A
 
   return std::string(STRINGIFY(
-__kernel void
-TestWaveKernel(__global float * positions,
-	       __global float * colors,
-	       __global float * normals,
-	       float t,
-	       float2 functionOrigin,
-	       float2 functionRange,
-	       float3 axis1,
-	       float3 axis2,
-	       float3 axis3,
-	       float3 origin,
-	       uint N)
-{
 
+__kernel void
+FunctionRenderKernel(__global float * positions,
+		     __global float * colors,
+		     __global float * normals,
+		     float t,
+		     float2 functionOrigin,
+		     float2 functionRange,
+		     float4 axis1,
+		     float4 axis2,
+		     float4 axis3,
+		     float4 origin,
+		     uint N)
+{
   positions += 3 * get_global_id(0);
   normals += 3 * get_global_id(0);
   colors += 4 * get_global_id(0);
@@ -256,7 +260,7 @@ TestWaveKernel(__global float * positions,
   float f; 
   )) + _function + std::string(STRINGIFY(
   
-  float3 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + f * axis3 + origin;
+  float3 vertexPosition = normPos.x * axis1.xyz + normPos.y * axis2.xyz + f * axis3.xyz + origin.xyz;
 
   positions[0] = vertexPosition.x;
   positions[1] = vertexPosition.y;
@@ -264,12 +268,12 @@ TestWaveKernel(__global float * positions,
 
   float3 normal;
   )) + _normalCalc + std::string(STRINGIFY(
-  normal *= (float3)(functionRange * length(axis3) , 1.0f / length(axis3));
+  normal *= (float3)(functionRange * length(axis3.xyz) , 1.0f / length(axis3.xyz));
 
   float3 rotatedNormal 
-  = normalize((normal.x * axis1 +
-	       normal.y * axis2 +
-	       normal.z * axis3
+  = normalize((normal.x * axis1.xyz +
+	       normal.y * axis2.xyz +
+	       normal.z * axis3.xyz
 	       ));
 
   normals[0] = rotatedNormal.x;
