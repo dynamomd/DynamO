@@ -79,7 +79,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 								  axis1, axis2, axis3, //Axis of the function, x,y,z
 								  -0.7, -0.7,//Start point of the functions evaluation (x,y)
 								  1.4, 1.4,//Range of the function to evaluate (xrange,yrange
-								  true, //Render a set of Axis as well?
+								  false, //Render a set of Axis as well?
 								  false, //Is the shape static, i.e. is there no time dependence
 								  _function,
 								  _normalCalc,

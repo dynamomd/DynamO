@@ -200,7 +200,7 @@ CLGLWindow::initOpenGL()
   _light0 = magnet::GL::lightInfo(Vector(1.1f,  1.1f, 1.1f),//Position
 				  Vector(0.0f, -0.3f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
-				  75.0f,//Beam angle
+				  90.0f,//Beam angle
 				  50,//rangeMax
 				  0.005//rangeMin
 				  );
