@@ -174,9 +174,9 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
     
     for (size_t icol = 0; icol < nColors; ++icol)
       {
-	VertexColor[4 * icol + 0] = 4.0/256.0;
-	VertexColor[4 * icol + 1] = 104.0/256.0;
-	VertexColor[4 * icol + 2] = 202.0/256.0;
+	VertexColor[4 * icol + 0] = 198.0/256.0;
+	VertexColor[4 * icol + 1] = 233.0/256.0;
+	VertexColor[4 * icol + 2] = 255.0/256.0;
 	VertexColor[4 * icol + 3] = 1;
       }
 

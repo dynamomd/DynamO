@@ -48,43 +48,43 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 			     tickFreq,
 			     true);
     
-  Vector axis1 = Vector(1,-1,0);
-  axis1 /= axis1.nrm();
-  Vector orthvec = Vector(-1,0,-0.3);
-  orthvec /= orthvec.nrm();
-  Vector axis2 = (orthvec ^ axis1);
-  axis2 /= axis2.nrm();
-  Vector axis3 = axis2 ^ axis1;
-  axis3 /= axis3.nrm();
-  axis3 *= 0.1f;
-
-  std::string _function = 
-    "const float decayrate = 2.5f;\n"
-    "const float invWaveLength = 40.0f;\n"
-    "const float freq = -4;\n"
-    "float r = native_sqrt(pos.x * pos.x + pos.y * pos.y);\n"
-    "f = native_exp( - decayrate * r) * native_sin(invWaveLength * r + freq * t);\n";
-;
-  std::string _normalCalc = 
-    "float dfodr = native_exp(- decayrate * r)\n"
-    "  * (invWaveLength * native_cos(r * invWaveLength + freq * t)\n"
-    "  + decayrate * native_sin(r * invWaveLength + freq * t));\n"
-    "normal = normalize((float3)(-dfodr * pos.x / r, -dfodr * pos.y / r,1));\n"
-    "if (r==0) normal = (float3)(0,0,1);";
-
-  std::string _colorCalc;
-
-  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
-								  Vector(-1, 0.7, -1),
-								  axis1, axis2, axis3, //Axis of the function, x,y,z
-								  -0.7, -0.7,//Start point of the functions evaluation (x,y)
-								  1.4, 1.4,//Range of the function to evaluate (xrange,yrange
-								  false, //Render a set of Axis as well?
-								  false, //Is the shape static, i.e. is there no time dependence
-								  _function,
-								  _normalCalc,
-								  _colorCalc
-								  ));
+//  Vector axis1 = Vector(1,-1,0);
+//  axis1 /= axis1.nrm();
+//  Vector orthvec = Vector(-1,0,-0.3);
+//  orthvec /= orthvec.nrm();
+//  Vector axis2 = (orthvec ^ axis1);
+//  axis2 /= axis2.nrm();
+//  Vector axis3 = axis2 ^ axis1;
+//  axis3 /= axis3.nrm();
+//  axis3 *= 0.1f;
+//
+//  std::string _function = 
+//    "const float decayrate = 2.5f;\n"
+//    "const float invWaveLength = 40.0f;\n"
+//    "const float freq = -4;\n"
+//    "float r = native_sqrt(pos.x * pos.x + pos.y * pos.y);\n"
+//    "f = native_exp( - decayrate * r) * native_sin(invWaveLength * r + freq * t);\n";
+//
+//  std::string _normalCalc = 
+//    "float dfodr = native_exp(- decayrate * r)\n"
+//    "  * (invWaveLength * native_cos(r * invWaveLength + freq * t)\n"
+//    "  + decayrate * native_sin(r * invWaveLength + freq * t));\n"
+//    "normal = normalize((float3)(-dfodr * pos.x / r, -dfodr * pos.y / r,1));\n"
+//    "if (r==0) normal = (float3)(0,0,1);";
+//
+//  std::string _colorCalc;
+//
+//  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
+//								  Vector(-1, 0.7, -1),
+//								  axis1, axis2, axis3, //Axis of the function, x,y,z
+//								  -0.7, -0.7,//Start point of the functions evaluation (x,y)
+//								  1.4, 1.4,//Range of the function to evaluate (xrange,yrange
+//								  false, //Render a set of Axis as well?
+//								  false, //Is the shape static, i.e. is there no time dependence
+//								  _function,
+//								  _normalCalc,
+//								  _colorCalc
+//								  ));
 
 //static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
 //								  Vector(-1,1,-1),
