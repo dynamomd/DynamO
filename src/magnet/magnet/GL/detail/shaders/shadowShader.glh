@@ -97,13 +97,16 @@ void main()
       if (ShadowCoord.w > 1.0)
 	for (int x = 0; x < 3; ++x)
 	  for (int y = 0; y < 3; ++y)
-	    //Replace textureProj with shadow2DProj to make it work on old versions of GLSL
-	    shadow += textureProj(ShadowMap, ShadowCoord 
-				  + vec4((-stepoffset + x) * step * ShadowCoord.w, 
-					 (-stepoffset + y) * step * ShadowCoord.w, 
-					 0,//-0.00002,
-					 0)).r;
-  
+	    {
+	      vec4 sampleCoords = ShadowCoord + vec4((-stepoffset + x) * step * ShadowCoord.w, 
+						     (-stepoffset + y) * step * ShadowCoord.w, 
+						     0,//-0.00002,
+						     0);
+	      vec2 circle =  (sampleCoords.xy) / sampleCoords.w  - vec2(0.5,0.5);
+	      if (dot(circle, circle) < 0.25)
+		shadow += textureProj(ShadowMap, sampleCoords).r;
+	    }
+	      
       shadow /= steps * steps;
 
       float shadeFactor = max(0, min(1, 1 + 2 * lightNormDot));

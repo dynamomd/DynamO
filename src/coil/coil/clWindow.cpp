@@ -149,7 +149,7 @@ CLGLWindow::initOpenGL()
 
   glDrawBuffer(GL_BACK);
 
-  glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
   glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
@@ -197,16 +197,16 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
   //Light0 parameters
-  _light0 = magnet::GL::lightInfo(Vector(1.1f,  1.1f, 1.1f),//Position
+  _light0 = magnet::GL::lightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
 				  Vector(0.0f, -0.3f, 0.0f),//Lookat
 				  GL_LIGHT0, //GL handle
-				  90.0f,//Beam angle
+				  75.0f,//Beam angle
 				  50,//rangeMax
 				  0.005//rangeMin
 				  );
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.001f);
 
   //Default material parameters
   GLfloat specReflection[] = { 0.5f, 0.5f, 0.5f, 1.0f };
