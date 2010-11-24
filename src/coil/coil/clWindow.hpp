@@ -163,7 +163,6 @@ private:
   bool _record;
   bool _showAxis;
   bool _showLight; 
-  bool _showGround;
   bool _PNGFileFormat;
   bool _fpsLimit;
   int  _fpsLimitValue;
@@ -224,6 +223,7 @@ private:
   void snapshotFileFormatCallback();
   void FPSLimitCallback();
   void aboutCallback();
+  void renderNormalsCallback();
 
   void runCallback(); 
 

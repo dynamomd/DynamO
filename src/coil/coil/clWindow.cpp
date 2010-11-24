@@ -49,6 +49,8 @@ inline float clamp(float x, float a, float b)
 
 #include <gtkmm/volumebutton.h>
 
+#include <coil/RenderObj/Function.hpp>
+
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
                        std::string title,
@@ -76,7 +78,6 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _record(false),
   _showAxis(true),
   _showLight(true),
-  _showGround(true),
   _PNGFileFormat(true),
   _fpsLimit(true),
   _fpsLimitValue(60),
@@ -85,6 +86,20 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _dynamo(dynamo)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
+
+  //First render object is the ground
+  RenderObjects.push_back(new RFunction((size_t)64,
+					Vector(-5, -0.6, -5),
+					Vector(10,0,0), Vector(0,0,10), Vector(0,1,0), //Axis of the function, x,y,z
+					-1, -1,//Start point of the functions evaluation (x,y)
+					1, 1,//Range of the function to evaluate (xrange,yrange
+					false, //Render a set of Axis as well?
+					true, //Is the shape static, i.e. is there no time dependence
+					"f=0;\n",
+					"normal = (float3)(0,0,1);\n",
+					""
+					));
+
 }
 
 CLGLWindow::~CLGLWindow()
@@ -191,7 +206,7 @@ CLGLWindow::initOpenGL()
 				  );
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.00f);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
 
   //Default material parameters
   GLfloat specReflection[] = { 0.3f, 0.3f, 0.3f, 1.0f };
@@ -330,6 +345,14 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(*this, &CLGLWindow::groundShowCallback));
   }
 
+  {//////Render the surface normals checkbox
+    Gtk::CheckButton* Button;    
+    _refXml->get_widget("showNormals", Button); 
+
+    Button->signal_toggled()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::renderNormalsCallback));
+  }
+
   {//////Snapshot button
     Gtk::Button* btn;
     _refXml->get_widget("SimSnapshot", btn);
@@ -401,6 +424,10 @@ CLGLWindow::initGTK()
       GLint maxSamples;
       glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
 
+      
+      //Put the default FBO on
+      _renderTarget.reset(new magnet::GL::FBO());
+
       if (GLEW_EXT_framebuffer_multisample && (maxSamples > 1))
 	{//Offer anti aliasing
 	  {//Turn on the antialiasing box
@@ -431,28 +458,30 @@ CLGLWindow::initGTK()
 
 	  Gtk::TreeModel::Row row;
 	  int lastrow = -1;
-	  for ( ; maxSamples > 1; maxSamples >>= 1)
+	  GLint currentSamples = maxSamples;
+	  for ( ; currentSamples > 1; currentSamples >>= 1)
 	    {
 	      row = *(m_refTreeModel->prepend());
-	      row[vals.m_col_id] = maxSamples;
+	      row[vals.m_col_id] = currentSamples;
 	      ++lastrow;
 	    }
 
 	  aliasSelections->pack_start(vals.m_col_id);
 	  aliasSelections->set_active(lastrow);
-	  multisampleEnable->set_active(true);
 
-	  _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
-	  _renderTarget->init(_width, _height);
+	  if (false)
+	    {
+	      multisampleEnable->set_active(true);
+	      
+	      _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
+	    }
 
 	  aliasSelections->signal_changed()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+
 	}
-      else
-	{
-	  _renderTarget.reset(new magnet::GL::FBO());
-	  _renderTarget->init(_width, _height);
-	}
+
+      _renderTarget->init(_width, _height);
 
       ///////////////////////Shadow Mapping//////////////////////////////////
       {
@@ -876,12 +905,13 @@ CLGLWindow::CallBackDisplayFunc(void)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       drawScene();
     }
-  
-  glClear(GL_DEPTH_BUFFER_BIT);       
-  drawAxis();
 
   //Draw the light source
   if (_showLight) _light0.drawLight();
+  
+  glDisable(GL_DEPTH_TEST);
+  drawAxis();
+  glEnable(GL_DEPTH_TEST);
 
   glutSwapBuffers();
 
@@ -955,20 +985,6 @@ CLGLWindow::drawScene()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
-
-  //Draw a ground
-  if (_showGround)
-    {
-      glColor3f(1,1,1);      
-      glBegin(GL_QUADS);
-      //Front
-      glNormal3f(0, 1, 0);
-      glVertex3f(-100 + _viewPortInfo._position[0], -0.51, -100 + _viewPortInfo._position[2]);
-      glVertex3f(-100 + _viewPortInfo._position[0], -0.51,  100 + _viewPortInfo._position[2]);
-      glVertex3f( 100 + _viewPortInfo._position[0], -0.51,  100 + _viewPortInfo._position[2]);
-      glVertex3f( 100 + _viewPortInfo._position[0], -0.51, -100 + _viewPortInfo._position[2]);
-      glEnd();
-    }
 }
 
 
@@ -1289,7 +1305,7 @@ CLGLWindow::groundShowCallback()
   Gtk::CheckButton* Button;
   _refXml->get_widget("showGround", Button);
   
-  _showGround = Button->get_active();
+  RenderObjects.front()->setVisible(Button->get_active());
 }
 
 void 
@@ -1492,6 +1508,19 @@ CLGLWindow::aboutCallback()
     aboutImage->set(Gdk::Pixbuf::create_from_inline
 		    (coilsplash_size, coilsplash));
   }
+}
+
+void
+CLGLWindow::renderNormalsCallback()
+{
+  Gtk::CheckButton* Button;
+  _refXml->get_widget("showNormals", Button);
+  
+  bool showNormals = Button->get_active();
+
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->setDisplayNormals(showNormals);
 }
 
 void

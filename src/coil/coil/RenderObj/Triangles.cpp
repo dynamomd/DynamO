@@ -22,8 +22,7 @@ RTriangles::RTriangles():
   _colBuffSize(0),
   _posBuffSize(0),
   _normBuffSize(0),
-  _elementBuffSize(0),
-  _renderNormals(false)
+  _elementBuffSize(0)
 {}
 
 RTriangles::~RTriangles()
@@ -44,6 +43,7 @@ RTriangles::~RTriangles()
 void 
 RTriangles::glRender()
 {
+  if (!_visible) return;
   glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
   glColorPointer(4, GL_FLOAT, 0, 0);
 

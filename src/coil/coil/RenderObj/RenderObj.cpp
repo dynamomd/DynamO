@@ -17,7 +17,9 @@
 #include "RenderObj.hpp"
 
 RenderObj::RenderObj():
-  _RenderMode(TRIANGLES)
+  _RenderMode(TRIANGLES),
+  _renderNormals(false),
+  _visible(true)
 {}
 
 RenderObj::~RenderObj()

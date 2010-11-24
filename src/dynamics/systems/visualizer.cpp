@@ -58,8 +58,6 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   axis3 /= axis3.nrm();
   axis3 *= 0.1f;
 
-  axis2 *= 0.5;
-
   std::string _function = 
     "const float decayrate = 2.5f;\n"
     "const float invWaveLength = 40.0f;\n"
@@ -77,7 +75,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   std::string _colorCalc;
 
   static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
-								  Vector(-1,0.5,-1),
+								  Vector(-1, 0.7, -1),
 								  axis1, axis2, axis3, //Axis of the function, x,y,z
 								  -0.7, -0.7,//Start point of the functions evaluation (x,y)
 								  1.4, 1.4,//Range of the function to evaluate (xrange,yrange

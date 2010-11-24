@@ -34,10 +34,8 @@ RFunction::RFunction(size_t N, Vector origin, Vector axis1,
   _staticShape(staticShape),
   _function(function),
   _normalCalc(normalCalc),
-  _colorCalc(colorCalc)
-    
+  _colorCalc(colorCalc)    
 {
-  _renderNormals = true;
   //Copy to the cl types
   for (size_t i(0); i < 3; ++i)
     {
@@ -179,7 +177,7 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
 void 
 RFunction::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
-  if (_staticShape) return;
+  if (_staticShape || !_visible) return;
 
   timespec currTime;
   clock_gettime(CLOCK_MONOTONIC, &currTime);
@@ -217,7 +215,7 @@ RFunction::glRender()
   RTriangles::glRender();
 
   //Draw the axis of the plotted function
-  if (_drawAxis)
+  if (_drawAxis && _visible)
     {
       coil::glprimatives::drawArrow(_origin, _origin + _axis1);
       coil::glprimatives::drawArrow(_origin, _origin + _axis2);

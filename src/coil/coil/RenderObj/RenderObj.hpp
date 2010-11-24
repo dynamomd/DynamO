@@ -54,7 +54,13 @@ public:
     };
 
   void setRenderMode(RenderModeType rm) { _RenderMode = rm; } 
+  
+  inline void setDisplayNormals(bool val) { _renderNormals = val; }
+  inline void setVisible(bool val) { _visible = val; }
 
 protected:
   RenderModeType _RenderMode;
+
+  bool _renderNormals;
+  bool _visible;
 };
