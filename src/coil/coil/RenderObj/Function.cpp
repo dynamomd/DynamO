@@ -37,6 +37,7 @@ RFunction::RFunction(size_t N, Vector origin, Vector axis1,
   _colorCalc(colorCalc)
     
 {
+  _renderNormals = true;
   //Copy to the cl types
   for (size_t i(0); i < 3; ++i)
     {
@@ -265,11 +266,13 @@ TestWaveKernel(__global float * positions,
 
   float3 normal;
   )) + _normalCalc + std::string(STRINGIFY(
-  normal /= (float3)(functionRange,length(axis3));
+  normal *= (float3)(functionRange * length(axis3) , 1.0f / length(axis3));
+
   float3 rotatedNormal 
-    = normalize((normal.x * axis1 +
-		 normal.y * axis2 +
-		 normal.z * axis3));
+  = normalize((normal.x * axis1 +
+	       normal.y * axis2 +
+	       normal.z * axis3
+	       ));
 
   normals[0] = rotatedNormal.x;
   normals[1] = rotatedNormal.y;

@@ -56,7 +56,9 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   axis2 /= axis2.nrm();
   Vector axis3 = axis2 ^ axis1;
   axis3 /= axis3.nrm();
-  axis3 *= 0.1;
+  axis3 *= 0.1f;
+
+  axis2 *= 0.5;
 
   std::string _function = 
     "const float decayrate = 2.5f;\n"
