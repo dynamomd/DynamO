@@ -143,8 +143,10 @@ void main()
 	* pow(max(dot(ReflectedRay, Eye), 0.0), gl_FrontMaterial.shininess);
 
       //We multiply by shadow to stop the specular highlight appearing in the shadow
-      color += shadow * attenuation * (ambient + Specular);
+      color += shadow * attenuation * Specular;
     }
+
+  color += attenuation * ambient;
 
   //The diffusive term
   float rescaledDot = 0.5 * lightNormDot + 0.5;

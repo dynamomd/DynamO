@@ -206,12 +206,14 @@ CLGLWindow::initOpenGL()
 				  );
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.001f);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
+  GLfloat ambientLight0[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+  glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight0);
 
   //Default material parameters
-  GLfloat specReflection[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+  GLfloat specReflection[] = { 1.0f, 1.0f, 1.0f, 1.0f };
   glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-  glMateriali(GL_FRONT, GL_SHININESS, 25);
+  glMateriali(GL_FRONT, GL_SHININESS, 50);
 
 
   //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
