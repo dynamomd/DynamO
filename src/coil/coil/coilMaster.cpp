@@ -134,6 +134,8 @@ void CoilMaster::CallBackMouseWheelFunc(int button, int dir, int x, int y){
     M_throw() << "Missing viewport!";
 #endif
 
+  std::cerr << "Mouse Wheel event!";
+
    CoilMaster::getInstance()._viewPorts[windowID]->CallBackMouseWheelFunc(button, dir, x, y);
 }
 

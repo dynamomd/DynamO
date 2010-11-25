@@ -1137,6 +1137,12 @@ CLGLWindow::CallBackMouseFunc(int button, int state, int x, int y)
       else
 	keyState &= ~MIDDLEMOUSE;
       break;
+    case 3:
+      if (state == GLUT_UP) _moveSensitivity *= 1.1;
+      break;
+    case 4:
+      if (state == GLUT_UP) _moveSensitivity /= 1.1;
+      break;
     default:
       break;
     }
