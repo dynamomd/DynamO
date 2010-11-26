@@ -1592,13 +1592,9 @@ CIPPacker::initialise()
 						 "Wall3", new CRAll(Sim)));
 	  }
 
-	//Sim->dynamics.addInteraction(new IRotatedParallelCubes
-	//			     (Sim, particleDiam, 1.0,
-	//			      Matrix(1,0,0,0,1,0,0,0,1),
-	//			      new C2RAll()))->setName("Bulk");
-
-	Sim->dynamics.addInteraction(new IParallelCubes
+	Sim->dynamics.addInteraction(new IRotatedParallelCubes
 				     (Sim, particleDiam, 1.0,
+				      Matrix::identity(),
 				      new C2RAll()))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>

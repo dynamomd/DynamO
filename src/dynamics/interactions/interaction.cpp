@@ -76,8 +76,6 @@ Interaction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
     return new INull(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Lines"))
     return new ILines(XML, Sim);
-  else if (!std::strcmp(XML.getAttribute("Type"),"ParallelCubes"))
-    return new IParallelCubes(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
     return new IRotatedParallelCubes(XML, Sim);
   else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))

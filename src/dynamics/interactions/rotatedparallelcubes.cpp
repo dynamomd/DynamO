@@ -115,10 +115,13 @@ IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const
 
   CPDData colldat(*Sim, p1, p2);
 
-  if (Sim->dynamics.getLiouvillean().CubeCubeInRoot(colldat, diameter, Rotation))
+  colldat.rij = Rotation * Vector(colldat.rij);
+  colldat.vij = Rotation * Vector(colldat.vij);
+  
+  if (Sim->dynamics.getLiouvillean().CubeCubeInRoot(colldat, diameter))
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, diameter, Rotation))
+      if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, diameter))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " 

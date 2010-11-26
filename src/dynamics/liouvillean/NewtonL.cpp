@@ -32,8 +32,7 @@
 bool 
 LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const
 {
-  //To be approaching, the largest dimension of rij must be being
-  //reduced
+  //To be approaching, the largest dimension of rij must be shrinking
   
   size_t largedim(0);
   for (size_t iDim(1); iDim < NDIM; ++iDim)
@@ -67,65 +66,10 @@ LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const
 }
 
 bool 
-LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d, const Matrix& Rot) const
-{
-  //To be approaching, the largest dimension of rij must be being
-  //reduced
-
-  Vector rij = Rot * dat.rij, vij = Rot * dat.vij;
-  
-  size_t largedim(0);
-  for (size_t iDim(1); iDim < NDIM; ++iDim)
-    if (fabs(rij[iDim]) > fabs(rij[largedim])) largedim = iDim;
-    
-  if (rij[largedim] * vij[largedim] < 0)
-    {      
-      double tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
-      
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	{
-	  double tmptime1 = -(rij[iDim] + d) / vij[iDim];
-	  double tmptime2 = -(rij[iDim] - d) / vij[iDim];
-	  
-	  if (tmptime1 < tmptime2)
-	    {
-	      if (tmptime1 > tInMax) tInMax = tmptime1;
-	      if (tmptime2 < tOutMin) tOutMin = tmptime2;
-	    }
-	  else
-	    {
-	      if (tmptime2 > tInMax) tInMax = tmptime2;
-	      if (tmptime1 < tOutMin) tOutMin = tmptime1;
-	    }
-	}
-      
-      if (tInMax < tOutMin)
-	{
-	  dat.dt = tInMax;
-	  return true;
-	}
-    }
-  return false;
-}
-
-bool 
 LNewtonian::cubeOverlap(const CPDData& dat, const double& d) const
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     if (fabs(dat.rij[iDim]) > d) return false;
-  
-  return true;
-}
-
-bool 
-LNewtonian::cubeOverlap(const CPDData& dat, const double& d, 
-		      const Matrix& rot) const
-{
-  Vector rij = rot * dat.rij;
-
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    if (fabs(rij[iDim]) > d) 
-	return false;
   
   return true;
 }
@@ -477,57 +421,6 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2()
-				  - retVal.particle1_.getOldVel().nrm2()));
-  
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (particle2.getVelocity().nrm2() 
-				  - retVal.particle2_.getOldVel().nrm2()));
-
-  return retVal;
-}
-
-PairEventData 
-LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
-			   const double&, const EEventType& eType) const
-{
-  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
-
-  updateParticlePair(particle1, particle2);
-
-  PairEventData retVal(particle1, particle2,
-			Sim->dynamics.getSpecies(particle1),
-			Sim->dynamics.getSpecies(particle2),
-			eType);
-    
-  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
-  
-  size_t dim(0);
-   
-  for (size_t iDim(1); iDim < NDIM; ++iDim)
-    if (fabs(retVal.rij[dim]) < fabs(retVal.rij[iDim])) dim = iDim;
-
-  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  double p2Mass = retVal.particle2_.getSpecies().getMass();
-  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
-  
-  Vector collvec(0,0,0);
-
-  if (retVal.rij[dim] < 0)
-    collvec[dim] = -1;
-  else
-    collvec[dim] = 1;
-
-  retVal.rvdot = (retVal.rij | retVal.vijold);
-
-  retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
-
-  //This function must edit particles so it overrides the const!
-  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
-
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()

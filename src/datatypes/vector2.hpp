@@ -179,6 +179,8 @@ class MatrixExpression<>
   inline DOUBLE tr() const;                  // trace 
   inline DOUBLE det() const;                 // determinant 
 
+  static inline Matrix identity() { return Matrix(1,0,0,0,1,0,0,0,1); }
+
   inline DOUBLE& operator()(int i, int j);   // return element i,j
   inline const DOUBLE&operator()(int i,int j) const;
 

@@ -32,10 +32,8 @@ public:
   virtual bool sphereOverlap(const CPDData&, const double&) const;
 
   virtual bool CubeCubeInRoot(CPDData&, const double&) const;
-  virtual bool CubeCubeInRoot(CPDData&, const double&, const Matrix&) const;
 
   virtual bool cubeOverlap(const CPDData&, const double&) const;
-  virtual bool cubeOverlap(const CPDData&, const double&, const Matrix&) const;
 
   virtual void streamParticle(Particle&, const double&) const;
 
@@ -119,11 +117,6 @@ public:
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonian(*this); }
-
-  virtual PairEventData parallelCubeColl(const IntEvent& event, 
-					  const double& e, 
-					  const double& d, 
-					  const EEventType& eType) const;
 
   virtual PairEventData parallelCubeColl(const IntEvent& event,
 					  const double& e, const double& d,

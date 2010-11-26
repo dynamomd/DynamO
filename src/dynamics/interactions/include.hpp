@@ -23,6 +23,5 @@
 #include "softcore.hpp"
 #include "nullInteraction.hpp"
 #include "lines.hpp"
-#include "parallelcubes.hpp"
 #include "rotatedparallelcubes.hpp"
 #include "stepped.hpp"
