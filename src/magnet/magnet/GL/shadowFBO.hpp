@@ -106,21 +106,10 @@ namespace magnet {
 	_length = 0;
       }
 
-      inline void setup(const lightInfo& light)
+      inline void setup()
       {
-	//Now render the scene from the lights perspective
-
 	//Use the fixed pipeline 
 	glUseProgramObjectARB(0);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(light._projectionMatrix);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(light._viewMatrix);
-	
 
 	//Render to the shadow maps FBO
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,_FBO);
@@ -148,13 +137,6 @@ namespace magnet {
 
 	//Restore the default FB
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-	
-	////Restore the Camera matricies
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();	
       }
 
       inline GLuint getFBO() { return _FBO; }

@@ -17,73 +17,35 @@
 #pragma once
 
 #include <limits>
+#include <magnet/GL/viewPort.hpp>
 
 namespace magnet {
   namespace GL {        
-    class lightInfo
+    class lightInfo: public viewPort
     {
     public:
-      inline lightInfo() {}
-      
-      inline lightInfo(Vector position, Vector lookAtPoint, GLenum lightHandle, 
-		       GLfloat beamAngle = 45.0f,
-		       GLfloat rangeMax = 3.0f, GLfloat rangeMin = 0.001,
+      inline lightInfo(GLenum lightHandle = GL_LIGHT0, 
+		       Vector position = Vector(0,0,0), 
+		       Vector lookAtPoint = Vector(0,0,1),
+		       GLfloat fovY = 45.0f,
+		       GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
 		       Vector up = Vector(0,1,0)):
-	_position(position),
-	_lookAtPoint(lookAtPoint),
+	viewPort(position, lookAtPoint, fovY, zNearDist, zFarDist, up, 1.0),
 	_lightHandle(lightHandle)
       {
 	//Setup a bright light
 	glLightfv(lightHandle, GL_DIFFUSE, white);
 	glLightfv(lightHandle, GL_SPECULAR, white);
-
-	//Build the view matrix and so on
-	glPushMatrix();
-	
-	glLoadIdentity();
-
-	up /= up.nrm();
-
-	//Setup the beam width and range
-	gluPerspective(beamAngle, 1.0f, rangeMin, rangeMax);
-	glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
-	
-	glLoadIdentity();
-
-	//Now rotate about the up vector, we do tilt seperately
-	Vector directionNorm = (lookAtPoint - position);
-	directionNorm /= directionNorm.nrm();
-	double upprojection = (directionNorm | up);
-	Vector directionInXZplane = directionNorm - upprojection * up;
-	directionInXZplane /= directionInXZplane.nrm();
-	double panrotation = (180.0 / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
-	glRotatef(-panrotation, up.x, up.y, up.z);      
-
-
-	Vector rotationAxis = up ^ directionInXZplane;
-	rotationAxis /= rotationAxis.nrm();
-	double tiltrotation = (180.0 / M_PI) * std::acos(directionInXZplane | directionNorm);
-	glRotatef(-tiltrotation, rotationAxis.x, rotationAxis.y, rotationAxis.z);      
-	
-
-	//Finally positioningd
-	glTranslatef(-position.x,-position.y,-position.z);
-	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
-	
-	glPopMatrix();
       }
 
       inline void drawLight()
       {
 	glColor3f(1,1,0);
 	
-	Vector directionNorm = (_lookAtPoint - _position);
-	directionNorm /= directionNorm.nrm();
-    
-	GLfloat rotationAngle = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | directionNorm);
+	GLfloat rotationAngle 
+	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | _cameraDirection);
 	
-	
-	Vector RotationAxis = Vector(0,0,-1) ^ directionNorm;
+	Vector RotationAxis = Vector(0,0,-1) ^ _cameraDirection;
 	float norm = RotationAxis.nrm();
 	RotationAxis /= norm;
 	if (norm < std::numeric_limits<double>::epsilon())
@@ -100,7 +62,7 @@ namespace magnet {
 	glPopMatrix();
       }
 
-      inline void buildShadowTextureMatrix()
+      inline void loadShadowTextureMatrix(const viewPort& vp)
       {
 	//Build the texture matrix
 	glLoadIdentity();
@@ -108,14 +70,10 @@ namespace magnet {
 	glScalef(0.5f, 0.5f, 0.5f);
 	glMultMatrixf(_projectionMatrix);
 	glMultMatrixf(_viewMatrix);
+	MATRIX4X4 invView = vp._viewMatrix.GetInverse();
+	glMultMatrixf(invView);
       }
 
-      Vector _position;
-      Vector _lookAtPoint;
-      
-      MATRIX4X4 _projectionMatrix;
-      MATRIX4X4 _viewMatrix;
-      
       GLenum _lightHandle;
     };
   }

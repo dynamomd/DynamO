@@ -197,9 +197,9 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
   //Light0 parameters
-  _light0 = magnet::GL::lightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
+  _light0 = magnet::GL::lightInfo(GL_LIGHT0,
+				  Vector(0.8f,  1.5f, 0.8f),//Position
 				  Vector(0.0f, -0.3f, 0.0f),//Lookat
-				  GL_LIGHT0, //GL handle
 				  75.0f,//Beam angle
 				  50,//rangeMax
 				  0.005//rangeMin
@@ -772,19 +772,21 @@ CLGLWindow::CallBackDisplayFunc(void)
 	{
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the lights perspective
-	  _shadowFBO.setup(_light0);
+	  _light0.loadMatrices();
+	  
+	  //Setup the FBO for shadow maps
+	  _shadowFBO.setup();
 	  
 #ifdef GL_VERSION_1_1
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(5.0f, 10.0f);
+	  glEnable(GL_POLYGON_OFFSET_FILL);
+	  glPolygonOffset(5.0f, 10.0f);
 #endif 
 
-      drawScene();
+	  drawScene();
 
 #ifdef GL_VERSION_1_1
-      glDisable(GL_POLYGON_OFFSET_FILL);
+	  glDisable(GL_POLYGON_OFFSET_FILL);
 #endif
-	  
 	  _shadowFBO.restore();
 
 	  //In both cases we use the texture matrix, instead of the EYE_PLANE
@@ -792,10 +794,7 @@ CLGLWindow::CallBackDisplayFunc(void)
 	  glActiveTextureARB(GL_TEXTURE7);
 	  glMatrixMode(GL_TEXTURE);
 	  
-	  _light0.buildShadowTextureMatrix();
-	  
-	  MATRIX4X4 invView = _viewPortInfo._viewMatrix.GetInverse();
-	  glMultMatrixf(invView);
+	  _light0.loadShadowTextureMatrix(_viewPortInfo);
 	  
 	  glMatrixMode(GL_MODELVIEW);	  
 
@@ -806,15 +805,13 @@ CLGLWindow::CallBackDisplayFunc(void)
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-
-      _viewPortInfo.loadMatricies();
+      _viewPortInfo.loadMatrices();
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
 			   7, _shadowMapping, _shadowIntensity);
 
       drawScene();
       
       _renderTarget->detach();
-
 
       //////////////FILTERING////////////
       //Store what the last FBO was for later blitting to the screen
@@ -1074,7 +1071,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 
   //Update the viewport
   _viewPortInfo._aspectRatio = ((GLdouble)_width) / _height;
-  _viewPortInfo.buildMatricies();
+  _viewPortInfo.buildMatrices();
   
   if (_shaderPipeline)
     {

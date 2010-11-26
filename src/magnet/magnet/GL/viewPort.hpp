@@ -40,7 +40,7 @@ namespace magnet {
 	_rotatex = 180 + std::acos((lookAtPoint - Vector(0,1,0) * (lookAtPoint | Vector(0,1,0))) | Vector(0,0,1));
 	_rotatey = 0   + std::acos((lookAtPoint - Vector(0,0,1) * (lookAtPoint | Vector(0,1,0))) | Vector(0,1,0));
 
-	buildMatricies();
+	buildMatrices();
       }
       
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
@@ -59,16 +59,10 @@ namespace magnet {
 	//Vertical movement
 	_position[1] += vertical;
 
-	Matrix viewTransform = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) 
-	  * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0));
-	
-	_cameraDirection =  viewTransform * Vector(0,0,-1);
-	_cameraUp = viewTransform * Vector(0,1,0);
-	
-	buildMatricies();
+	buildMatrices();
       }
       
-      void buildMatricies()
+      inline void buildMatrices()
       {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -86,9 +80,16 @@ namespace magnet {
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
 	
 	glPopMatrix();
+
+	Matrix viewTransform = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) 
+	  * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0));
+	
+	_cameraDirection =  viewTransform * Vector(0,0,-1);
+	_cameraUp = viewTransform * Vector(0,1,0);
+
       }
 
-      void loadMatricies()
+      inline void loadMatrices()
       {
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(_projectionMatrix);
