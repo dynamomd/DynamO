@@ -201,8 +201,8 @@ CLGLWindow::initOpenGL()
 				  Vector(0.8f,  1.5f, 0.8f),//Position
 				  Vector(0.0f, 0.0f, 0.0f),//Lookat
 				  75.0f,//Beam angle
-				  100,//rangeMax
-				  0.0001//rangeMin
+				  0.0001,//rangeMin
+				  1000//rangeMax
 				  );
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
