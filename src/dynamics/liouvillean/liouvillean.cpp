@@ -362,13 +362,6 @@ Liouvillean::runSphereWallCollision(const Particle&,
 }
 
 PairEventData 
-Liouvillean::SmoothSpheresCollInfMassSafe(const IntEvent&, const double&, 
-					   const double&, const EEventType&) const
-{
-  M_throw() << "Not Implemented";
-}
-
-PairEventData 
 Liouvillean::RoughSpheresColl(const IntEvent& event, 
 			      const double& e, 
 			      const double& et, 

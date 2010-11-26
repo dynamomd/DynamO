@@ -66,10 +66,6 @@ public:
 					   const double&, 
 					   const EEventType& eType) const;
 
-  virtual PairEventData SmoothSpheresCollInfMassSafe(const IntEvent&, const double&, 
-						      const double&,
-						      const EEventType&) const;
-
   virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
 			       double&, const double&, CPDData&) const;
 

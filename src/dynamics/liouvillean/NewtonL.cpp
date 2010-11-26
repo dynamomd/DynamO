@@ -422,67 +422,6 @@ LNewtonian::DSMCSpheresRun(const Particle& p1,
   return retVal;
 }
 
-
-PairEventData 
-LNewtonian::SmoothSpheresCollInfMassSafe(const IntEvent& event, const double& e,
-				       const double&, const EEventType& eType) const
-{
-  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
-
-  updateParticlePair(particle1, particle2);  
-
-  PairEventData retVal(particle1, particle2,
-			Sim->dynamics.getSpecies(particle1),
-			Sim->dynamics.getSpecies(particle2),
-			eType);
-    
-  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
-  
-  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  double p2Mass = retVal.particle2_.getSpecies().getMass();
- 
-  retVal.rvdot = (retVal.rij | retVal.vijold);
-
-#ifdef DYNAMO_DEBUG
-  if ((p1Mass == 0.0) && (p2Mass == 0.0))
-    M_throw() << "Both particles have infinite mass";
-#endif
-
-   if ((p1Mass != 0.0) && (p2Mass != 0.0))
-    {
-      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
-
-      retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
-
-      //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
-    }
-  else if (p1Mass == 0.0)
-    {
-      retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
-      //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
-    }
-  else
-    {
-      retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
-      //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    }
-
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().nrm2()
-				  - retVal.particle1_.getOldVel().nrm2()));
-  
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
-			       * (particle2.getVelocity().nrm2() 
-				  - retVal.particle2_.getOldVel().nrm2()));
-
-  return retVal;
-}
-
 PairEventData 
 LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 			    const double&, const EEventType& eType) const
@@ -501,17 +440,43 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
   
   double p1Mass = retVal.particle1_.getSpecies().getMass(); 
   double p2Mass = retVal.particle2_.getSpecies().getMass();
-  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
-  
+ 
   retVal.rvdot = (retVal.rij | retVal.vijold);
-  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
-  //This function must edit particles so it overrides the const!
-  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+  //Treat special cases if one particle has infinite mass
+  if ((p1Mass == 0) && (p2Mass != 0))
+    {
+      retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
+      //This function must edit particles so it overrides the const!
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    }
+  else if ((p2Mass == 0) && (p1Mass != 0))
+    {
+      retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
+      //This function must edit particles so it overrides the const!
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+    }
+  else
+    {
+      bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
+
+      //If both particles have infinite mass we just collide them as identical masses
+      if (isInfInf) p1Mass = p2Mass = 1;
+
+      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
+
+      retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+
+      //This function must edit particles so it overrides the const!
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+      //If both particles have infinite mass we pretend no momentum was transferred
+      retVal.dP *= !isInfInf;
+    }
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
-			       * (particle1.getVelocity().nrm2() 
+			       * (particle1.getVelocity().nrm2()
 				  - retVal.particle1_.getOldVel().nrm2()));
   
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
