@@ -327,7 +327,8 @@ public:
    * \return Collision data
    */    
   virtual PairEventData runLineLineCollision(const IntEvent& eevent,
-					      const double& elasticity, const double& length) const;
+					     const double& elasticity, 
+					     const double& length) const;
 
   /*! \brief Determines when the particle center will hit a wall.
    *

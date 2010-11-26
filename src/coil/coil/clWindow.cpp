@@ -182,7 +182,7 @@ CLGLWindow::initOpenGL()
 
   //Setup the viewport
   CallBackReshapeFunc(_width, _height);
-  _viewPortInfo.CameraSetup();
+
   glReadBuffer(GL_BACK);
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
@@ -759,7 +759,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   float forward  = moveAmp * ( keyStates['w'] - keyStates['s']);
   float sideways = moveAmp * ( keyStates['d'] - keyStates['a']);
   float vertical = moveAmp * ( keyStates['q'] - keyStates['z']);
-  _viewPortInfo.CameraSetup(forward, sideways, vertical);
+  _viewPortInfo.CameraUpdate(forward, sideways, vertical);
 
   //Flush the OpenCL queue, so GL can use the buffers
   _CLState.getCommandQueue().finish();
@@ -807,9 +807,9 @@ CLGLWindow::CallBackDisplayFunc(void)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 7, _shadowMapping, _shadowIntensity);
-
-	  
+      _viewPortInfo.loadMatricies();
+      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
+			   7, _shadowMapping, _shadowIntensity);
 
       drawScene();
       
@@ -1071,17 +1071,11 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   
   //Setup the viewport
   glViewport(0, 0, _width, _height); 
-  //Now reset the projection matrix
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
 
+  //Update the viewport
   _viewPortInfo._aspectRatio = ((GLdouble)_width) / _height;
-
-  gluPerspective(_viewPortInfo._fovY, _viewPortInfo._aspectRatio, _viewPortInfo._zNearDist, 
-		 _viewPortInfo._zFarDist);
-
-  glMatrixMode(GL_MODELVIEW);
-
+  _viewPortInfo.buildMatricies();
+  
   if (_shaderPipeline)
     {
       _renderTarget->resize(_width, _height);
@@ -1425,7 +1419,6 @@ CLGLWindow::filterSelectCallback()
   _refXml->get_widget("filterDown", downbtn);
   _refXml->get_widget("filterEdit", editbtn);
   _refXml->get_widget("filterDelete", deletebtn);
-  
 
   if(iter)
     {

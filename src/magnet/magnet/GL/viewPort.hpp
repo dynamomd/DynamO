@@ -26,21 +26,24 @@ namespace magnet {
 		      Vector lookAtPoint = Vector(0,0,1),
 		      GLfloat fovY = 45.0f,
 		      GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
-		      Vector up = Vector(0,1,0)
+		      Vector up = Vector(0,1,0),
+		      GLfloat aspectRatio = 1
 		      ):
 	_rotatex(180),
 	_rotatey(0),
 	_position(position),
 	_fovY(fovY),
-	_aspectRatio(1),
+	_aspectRatio(aspectRatio),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist)
       {
 	_rotatex = 180 + std::acos((lookAtPoint - Vector(0,1,0) * (lookAtPoint | Vector(0,1,0))) | Vector(0,0,1));
 	_rotatey = 0   + std::acos((lookAtPoint - Vector(0,0,1) * (lookAtPoint | Vector(0,1,0))) | Vector(0,1,0));
+
+	buildMatricies();
       }
       
-      inline void CameraSetup(float forward = 0, float sideways = 0, float vertical = 0)
+      inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
 	//Forward/Backward movement
 	_position[2] -= forward * std::cos(_rotatey * (M_PI/ 180)) 
@@ -55,24 +58,45 @@ namespace magnet {
 	
 	//Vertical movement
 	_position[1] += vertical;
-	
-	glLoadIdentity();
-	//gluLookAt(-viewscale, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-	glRotatef(_rotatey, 1.0, 0.0, 0.0);
-	glRotatef(_rotatex, 0.0, 1.0, 0.0);
-	glTranslatef(-_position[0], -_position[1], -_position[2]);
-	
-	//store the matricies for shadow calculations
-	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
-	glGetFloatv(GL_PROJECTION_MATRIX, _projectionMatrix);
-	
+
 	Matrix viewTransform = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) 
 	  * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0));
 	
 	_cameraDirection =  viewTransform * Vector(0,0,-1);
 	_cameraUp = viewTransform * Vector(0,1,0);
+	
+	buildMatricies();
       }
       
+      void buildMatricies()
+      {
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+
+	//Build the projection matrix
+	glLoadIdentity();
+	gluPerspective(_fovY, _aspectRatio, _zNearDist, _zFarDist);
+	glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
+
+	//setup the view matrix
+	glLoadIdentity();
+	glRotatef(_rotatey, 1.0, 0.0, 0.0);
+	glRotatef(_rotatex, 0.0, 1.0, 0.0);
+	glTranslatef(-_position[0], -_position[1], -_position[2]);	
+	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
+	
+	glPopMatrix();
+      }
+
+      void loadMatricies()
+      {
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(_projectionMatrix);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(_viewMatrix);
+      }
+
       float _rotatex;
       float _rotatey;
       Vector _position;
