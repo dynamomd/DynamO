@@ -37,6 +37,9 @@ namespace magnet {
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist)
       {
+	if (_zNearDist > _zFarDist) 
+	  M_throw() << "zNearDist > _zFarDist!";
+
 	up /= up.nrm();
 	
 	//Now rotate about the up vector, we do tilt seperately
