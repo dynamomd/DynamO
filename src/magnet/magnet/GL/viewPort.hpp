@@ -22,39 +22,51 @@ namespace magnet {
   namespace GL {    
     struct viewPort
     {
-      inline viewPort(Vector position = Vector(0,0,0), 
-		      Vector lookAtPoint = Vector(0,0,1),
+      inline viewPort(Vector position = Vector(1,1,1), 
+		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 45.0f,
 		      GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
 		      Vector up = Vector(0,1,0),
 		      GLfloat aspectRatio = 1
 		      ):
-	_rotatex(180),
-	_rotatey(0),
+	_panrotation(180),
+	_tiltrotation(0),
 	_position(position),
 	_fovY(fovY),
 	_aspectRatio(aspectRatio),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist)
       {
-	_rotatex = 180 + std::acos((lookAtPoint - Vector(0,1,0) * (lookAtPoint | Vector(0,1,0))) | Vector(0,0,1));
-	_rotatey = 0   + std::acos((lookAtPoint - Vector(0,0,1) * (lookAtPoint | Vector(0,1,0))) | Vector(0,1,0));
+	up /= up.nrm();
+	
+	//Now rotate about the up vector, we do tilt seperately
+	Vector directionNorm = (lookAtPoint - position);
+	directionNorm /= directionNorm.nrm();
+	double upprojection = (directionNorm | up);
+	Vector directionInXZplane = directionNorm - upprojection * up;
+	directionInXZplane /= directionInXZplane.nrm();
+	_panrotation = -(180.0 / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
+		
+	Vector rotationAxis = up ^ directionInXZplane;
+	rotationAxis /= rotationAxis.nrm();
 
+	_tiltrotation = (180.0 / M_PI) * std::acos(directionInXZplane | directionNorm);
+		
 	buildMatrices();
       }
       
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
 	//Forward/Backward movement
-	_position[2] -= forward * std::cos(_rotatey * (M_PI/ 180)) 
-	  * std::sin(_rotatex  * (M_PI/ 180) + M_PI * 0.5);  
-	_position[0] -= forward * std::cos(_rotatey * (M_PI/ 180)) 
-	  * std::cos(_rotatex  * (M_PI/ 180) + M_PI * 0.5);
-	_position[1] += -forward * std::sin(_rotatey * (M_PI/ 180));
+	_position[2] -= forward * std::cos(_tiltrotation * (M_PI/ 180)) 
+	  * std::sin(_panrotation  * (M_PI/ 180) + M_PI * 0.5);  
+	_position[0] -= forward * std::cos(_tiltrotation * (M_PI/ 180)) 
+	  * std::cos(_panrotation  * (M_PI/ 180) + M_PI * 0.5);
+	_position[1] += -forward * std::sin(_tiltrotation * (M_PI/ 180));
 	
 	//Strafe movement
-	_position[2] += sideways * std::sin(_rotatex * (M_PI/ 180));
-	_position[0] += sideways * std::cos(_rotatex * (M_PI/ 180));
+	_position[2] += sideways * std::sin(_panrotation * (M_PI/ 180));
+	_position[0] += sideways * std::cos(_panrotation * (M_PI/ 180));
 	
 	//Vertical movement
 	_position[1] += vertical;
@@ -74,15 +86,15 @@ namespace magnet {
 
 	//setup the view matrix
 	glLoadIdentity();
-	glRotatef(_rotatey, 1.0, 0.0, 0.0);
-	glRotatef(_rotatex, 0.0, 1.0, 0.0);
+	glRotatef(_tiltrotation, 1.0, 0.0, 0.0);
+	glRotatef(_panrotation, 0.0, 1.0, 0.0);
 	glTranslatef(-_position[0], -_position[1], -_position[2]);	
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
 	
 	glPopMatrix();
 
-	Matrix viewTransform = Rodrigues(Vector(0,-_rotatex * M_PI/180,0)) 
-	  * Rodrigues(Vector(-_rotatey * M_PI/180.0,0,0));
+	Matrix viewTransform = Rodrigues(Vector(0,-_panrotation * M_PI/180,0)) 
+	  * Rodrigues(Vector(-_tiltrotation * M_PI/180.0,0,0));
 	
 	_cameraDirection =  viewTransform * Vector(0,0,-1);
 	_cameraUp = viewTransform * Vector(0,1,0);
@@ -98,8 +110,8 @@ namespace magnet {
 	glLoadMatrixf(_viewMatrix);
       }
 
-      float _rotatex;
-      float _rotatey;
+      float _panrotation;
+      float _tiltrotation;
       Vector _position;
       
       GLdouble _fovY;

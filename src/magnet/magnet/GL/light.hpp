@@ -25,8 +25,8 @@ namespace magnet {
     {
     public:
       inline lightInfo(GLenum lightHandle = GL_LIGHT0, 
-		       Vector position = Vector(0,0,0), 
-		       Vector lookAtPoint = Vector(0,0,1),
+		       Vector position = Vector(0,2,0), 
+		       Vector lookAtPoint = Vector(0,0,0),
 		       GLfloat fovY = 45.0f,
 		       GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
 		       Vector up = Vector(0,1,0)):

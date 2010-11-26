@@ -199,10 +199,10 @@ CLGLWindow::initOpenGL()
   //Light0 parameters
   _light0 = magnet::GL::lightInfo(GL_LIGHT0,
 				  Vector(0.8f,  1.5f, 0.8f),//Position
-				  Vector(0.0f, -0.3f, 0.0f),//Lookat
+				  Vector(0.0f, 0.0f, 0.0f),//Lookat
 				  75.0f,//Beam angle
-				  50,//rangeMax
-				  0.005//rangeMin
+				  100,//rangeMax
+				  0.0001//rangeMin
 				  );
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
@@ -976,7 +976,6 @@ CLGLWindow::CallBackDisplayFunc(void)
 void 
 CLGLWindow::drawScene()
 {
-  //Move the world lights
   GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 1.0f};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 
@@ -1023,8 +1022,8 @@ void CLGLWindow::drawAxis()
   glVertex3f(-1, 1, 0);
   glEnd();
 
-  glRotatef(_viewPortInfo._rotatey, 1.0, 0.0, 0.0);
-  glRotatef(_viewPortInfo._rotatex, 0.0, 1.0, 0.0);
+  glRotatef(_viewPortInfo._tiltrotation, 1.0, 0.0, 0.0);
+  glRotatef(_viewPortInfo._panrotation, 0.0, 1.0, 0.0);
   glScalef (axisScale, axisScale, axisScale);
 
   glLineWidth (2.0);
@@ -1157,8 +1156,8 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
   switch (keyState)
     {
     case LEFTMOUSE:
-      _viewPortInfo._rotatex += diffX;
-      _viewPortInfo._rotatey = clamp(diffY + _viewPortInfo._rotatey, -90, 90);
+      _viewPortInfo._panrotation += diffX;
+      _viewPortInfo._tiltrotation = clamp(diffY + _viewPortInfo._tiltrotation, -90, 90);
       break;
     case RIGHTMOUSE:
       break;
