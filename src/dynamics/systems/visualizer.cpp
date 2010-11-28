@@ -199,6 +199,8 @@ SVisualizer::runEvent() const
       	static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
       	  (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
       	   false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
+
+	static_cast<CLGLWindow&>(*_CLWindow).flagNewData();
       }
     }
 }

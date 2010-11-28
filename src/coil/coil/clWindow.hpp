@@ -80,6 +80,8 @@ public:
   
   const double& getUpdateInterval() {return _updateIntervalValue; }
 
+  void flagNewData() { _newData = true; }
+
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
@@ -235,6 +237,6 @@ private:
   void dynamoParticleSyncCallBack();
   bool _dynamo;
   bool _particleSync;
-
+  volatile bool _newData;
 
 };

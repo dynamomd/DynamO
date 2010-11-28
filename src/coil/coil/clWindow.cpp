@@ -914,8 +914,12 @@ CLGLWindow::CallBackDisplayFunc(void)
 
   glutSwapBuffers();
 
-  if (_snapshot || _record)
+  //Check if we're recording and then check that if we're
+  //framelocking, check that new data is available
+  if ((_snapshot || _record) && (!_simframelock || _newData))
     {
+      _newData = false;
+
       std::vector<png::Pixel<png::RGBA> > pixels;
       pixels.resize(_width * _height);
       //Read the pixels into our container
