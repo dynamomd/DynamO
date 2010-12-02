@@ -23,7 +23,7 @@
 class ISquareBond: public Interaction
 {
 public:
-  ISquareBond(DYNAMO::SimData*, double, double, C2Range*);
+  ISquareBond(DYNAMO::SimData*, double, double, double, C2Range*);
 
   ISquareBond(const XMLNode&, DYNAMO::SimData*);
 
@@ -60,6 +60,7 @@ protected:
 
   double diameter,d2;
   double lambda, ld2;
+  double elasticity;
 };
 
 #endif

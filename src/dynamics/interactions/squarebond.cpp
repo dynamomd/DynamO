@@ -34,9 +34,9 @@
 #include "../NparticleEventData.hpp"
 #include <iomanip>
 
-ISquareBond::ISquareBond(DYNAMO::SimData* tmp, double nd, double nl, C2Range* nR):
+ISquareBond::ISquareBond(DYNAMO::SimData* tmp, double nd, double nl, double e, C2Range* nR):
   Interaction(tmp,nR),
-  diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl) 
+  diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl), elasticity(e) 
 {}
   
 ISquareBond::ISquareBond(const XMLNode& XML, DYNAMO::SimData* tmp):
@@ -56,6 +56,10 @@ if (strcmp(XML.getAttribute("Type"),"SquareBond"))
       * Sim->dynamics.units().unitLength();
 
     lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
+
+    elasticity = 1.0;
+    if (XML.isAttributeSet("Elasticity"))
+      elasticity = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
 
     intName = XML.getAttribute("Name");
     
@@ -188,7 +192,7 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
 #endif
 
   PairEventData EDat(Sim->dynamics.getLiouvillean().SmoothSpheresColl
-		      (iEvent, 1.0, d2, iEvent.getType()));
+		      (iEvent, elasticity, d2, iEvent.getType()));
 
   Sim->signalParticleUpdate(EDat);
     
@@ -208,6 +212,7 @@ ISquareBond::outputXML(xml::XmlStream& XML) const
       << diameter / Sim->dynamics.units().unitLength()
       << xml::attr("Lambda") << lambda
       << xml::attr("Name") << intName
+      << xml::attr("Elasticity") << elasticity
       << range;
 }
 

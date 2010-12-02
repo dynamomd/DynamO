@@ -428,11 +428,11 @@ CIPPacker::initialise()
 
 	Sim->dynamics.addInteraction
 	  (new ISquareBond(Sim, sigmin * diamScale,
-			    sigmax / sigmin,
-			    new C2RChain(0, latticeSites.size()-1)
-			    )
-				     )->setName("Bonds");
-
+			   sigmax / sigmin, 1.0,
+			   new C2RChain(0, latticeSites.size()-1)
+			   )
+	   )->setName("Bonds");
+	
 	if (vm.count("s1"))
 	  {
 	    //A sequence has been supplied
@@ -698,10 +698,10 @@ CIPPacker::initialise()
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction
-	  (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
-			    new C2RChain(0, latticeSites.size()-1)
-			    ))->setName("Bonds");
-
+	  (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
+			   new C2RChain(0, latticeSites.size()-1)
+			   ))->setName("Bonds");
+	
 	Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
 						      lambda, 1.0,
 						      1.0,
@@ -833,7 +833,7 @@ CIPPacker::initialise()
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction
-	  (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin,
+	  (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
 			    (vm.count("b1"))
 			    ? static_cast<C2Range*>(new C2RChain(0, latticeSites.size()-1))
 			    : static_cast<C2Range*>(new C2RRing(0, latticeSites.size()-1))
@@ -1499,7 +1499,7 @@ CIPPacker::initialise()
 	   )->setName("ABInt");
 
 	Sim->dynamics.addInteraction
-	  (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9,
+	  (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9, 1.0,
 			    new C2RChains(nPartA, latticeSites.size() - 1,
 					  chainlength)
 			    ))->setName("Bonds");

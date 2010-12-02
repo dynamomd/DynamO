@@ -37,6 +37,7 @@ rule naming ( name : type ? : property-set )
      }
   }
 
+
   local suffix = [ type.generated-target-suffix $(type) : $(property-set) ] ;
   if $(suffix) {
     fullname += . ;

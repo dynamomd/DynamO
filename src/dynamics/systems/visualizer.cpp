@@ -72,7 +72,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 //    "normal = normalize((float3)(-dfodr * pos.x / r, -dfodr * pos.y / r,1));\n"
 //    "if (r==0) normal = (float3)(0,0,1);";
 //
-//  std::string _colorCalc;
+//  std::string _colorCalc = "colors[0] = 2.5 * f ; colors[1] = 0.75; colors[2] = 0.75;";
 //
 //  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
 //								  Vector(-1, 0.7, -1),
@@ -84,17 +84,6 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 //								  _function,
 //								  _normalCalc,
 //								  _colorCalc
-//								  ));
-
-//static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RFunction((size_t)100,
-//								  Vector(-1,1,-1),
-//								  axis1, axis2, axis3, //Axis of the function, x,y,z
-//								  -0.7, -0.7,//Start point of the functions evaluation (x,y)
-//								  1.4, 1.4,//Range of the function to evaluate (xrange,yrange
-//								  true, //Render a set of Axis as well?
-//								  false, //Is the shape static, i.e. is there no time dependence
-//								  "f = pos.x * pos.y * native_sin(t);\n",
-//								  "normal = normalize((float3)(pos.y * native_sin(t), pos.x * native_sin(t),1));\n"
 //								  ));
 
   _sphereObject = new RTSpheres((size_t)Sim->N);
