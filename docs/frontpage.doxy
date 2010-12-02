@@ -10,7 +10,8 @@
  * trajectories and collects/outputs data.
  * 
  * - dynamod (programs/dynamod.cpp) - The configuration
- * editor/generator.
+ * editor/generator. This can generate example configuration files and
+ * can edit/modify existing configuration files
  *
  * - dynahist_rw (programs/dynahist_rw.cpp) - Can perform histogram
  * reweighting on output from a replica exchange/ parallel tempering
@@ -37,10 +38,10 @@
  * Unfortunately doxygen doesn't support multiple programs in one
  * documentation, thus only the main() function of dynarun is
  * available here. If you are looking at the source code for the first
- * time it is probably best to start here in main(), in mdrun.cpp then
+ * time it is probably best to start here in main(), in dynarun.cpp then
  * branch out reading just the description of each class.
  *
- * Alternatively if you wish to jump in, Simulation::runSimulation()
+ * Alternatively if you wish to jump in, Simulation::runSimulation(bool)
  * is the very inner loop of a single simulation.
  */
 
