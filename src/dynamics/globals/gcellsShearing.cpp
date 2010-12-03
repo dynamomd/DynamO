@@ -71,6 +71,24 @@ CGCellsShearing::outputXML(xml::XmlStream& XML) const
   CGCells::outputXML(XML, std::string("ShearingCells"));
 }
 
+GlobalEvent 
+CGCellsShearing::getEvent(const Particle& part) const
+{
+#ifdef ISSS_DEBUG
+  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+    M_throw() << "Particle is not up to date";
+#endif
+
+  return GlobalEvent(part,
+		     Sim->dynamics.getLiouvillean().
+		     getSquareCellCollision2
+		     (part, cells[partCellData[part.getID()].cell].origin, 
+		      cellDimension)
+		     -Sim->dynamics.getLiouvillean().getParticleDelay(part)
+		     ,
+		     CELL, *this);
+}
+
 void 
 CGCellsShearing::runEvent(const Particle& part) const
 {

@@ -36,6 +36,8 @@ public:
   virtual Global* Clone() const 
   { return new CGCellsShearing(*this); }
   
+  virtual GlobalEvent getEvent(const Particle &) const;
+
   virtual void runEvent(const Particle&) const;
 
   virtual void getParticleNeighbourhood(const Particle&, 
