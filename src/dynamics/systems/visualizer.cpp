@@ -37,7 +37,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   System(nSim)
 {
   _updateTime = tickFreq * Sim->dynamics.units().unitTime();
-  dt = _updateTime;
+  dt = 0;
 
   sysName = "Visualizer";
 

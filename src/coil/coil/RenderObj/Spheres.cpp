@@ -181,6 +181,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
       }
 
     setGLColors(VertexColor);
+    initOCLColorBuffer(CLState.getContext());
   }
    
  
@@ -253,13 +254,14 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   
   _renderKernel = cl::Kernel(_program, "SphereRenderKernel");
   _sortDataKernel = cl::Kernel(_program, "GenerateData");
+  _colorKernel = cl::Kernel(_program, "SphereColorKernel");
 
   cl_uint paddedN = ((_N + 1023)/1024) * 1024;
   _sortDataKernelFunc = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
   
   sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
   CPUsortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
-
+  
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     iPtr->setupCLBuffers(CLState);
@@ -295,6 +297,30 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& 
       else
 	CPUsortFunctor(_sortKeys, _sortData);
     }
+
+    //Aqquire GL buffer objects
+  _clbuf_Colors.acquire(CLState.getCommandQueue());
+
+  //Run color kernels
+  _colorKernelFunc = _colorKernel.bind(CLState.getCommandQueue(), cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  
+  cl_uint renderedSpheres = 0;
+  cl_uint renderedVertexData = 0;
+  for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
+       iPtr != _renderDetailLevels.end(); ++iPtr)
+    {
+      cl_int vertexOffset = renderedVertexData - renderedSpheres * iPtr->_type.getVertexCount();
+
+      _colorKernelFunc((cl::Buffer)_clbuf_Colors, iPtr->_type.getVertexCount(), renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
+		       vertexOffset, _sortData);
+
+      renderedSpheres += iPtr->_nSpheres;
+      renderedVertexData += iPtr->_nSpheres * iPtr->_type.getVertexCount();
+    }
+
+  //Release resources
+  _clbuf_Colors.release(CLState.getCommandQueue());
+
 }
 
 void 

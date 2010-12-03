@@ -70,6 +70,53 @@ SphereRenderKernel(const __global float4* positions,
     }
 }
 
+__kernel void
+SphereColorKernel(__global float4 * colorBuffer,
+		  const uint nVertex,
+		  const uint StartParticle,
+		  const uint EndParticle,
+		  const int ColorOffset,
+		  __global const uint* sortedArray)
+{
+  //We're trying to coalesce the reads and writes from memory, so we cache
+  __local float4 colorCache[WORKGROUP_SIZE];
+
+  colorBuffer += ColorOffset;
+
+  //Iterate on blocks of WORKGROUP_SIZE, with a stride of the global_size
+  for (uint id0 = get_group_id(0) * WORKGROUP_SIZE + StartParticle;
+       id0 < EndParticle; id0 += get_global_size(0))
+    {
+      //Coalesced read from global mem and conflict-free localsss write
+      uint particleID = id0 + get_local_id(0);
+      if (particleID < EndParticle)
+	{
+	  particleID = sortedArray[particleID];
+	  //Calculate color and store it in the shared array
+	  colorCache[get_local_id(0)] = (float4)(0,1,0,1);
+	}
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      //Color cache is full, now start blitting out colors
+      //Calculate the number of verticie components to do
+      uint particles_InCache = min((uint)(WORKGROUP_SIZE), EndParticle - id0);
+      uint colors_to_do = particles_InCache * nVertex;
+      
+      for (uint vertex = get_local_id(0);
+	   vertex < colors_to_do;
+	   vertex += get_local_size(0))
+	{
+	  uint particleID = vertex / nVertex;
+	  
+	  colorBuffer[nVertex * id0 + vertex]
+	    = colorCache[particleID];
+	}
+
+      barrier(CLK_LOCAL_MEM_FENCE);
+    }
+}
+
 float frustrumPenalty(const float4 plane, const float4 pos)
 { 
   float offset = dot(plane,pos) + pos.w;

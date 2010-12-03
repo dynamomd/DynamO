@@ -68,9 +68,11 @@ protected:
   cl::Program _program;
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
+  cl::Kernel _colorKernel;
 
   cl::KernelFunctor _sortDataKernelFunc;
   cl::KernelFunctor _renderKernelFunc;
+  cl::KernelFunctor _colorKernelFunc;
 
 
   cl_uint _N;
