@@ -110,15 +110,42 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const do
     
   double p1Mass = retVal.particle1_.getSpecies().getMass(); 
   double p2Mass = retVal.particle2_.getSpecies().getMass(); 
-  double mu = p1Mass*p2Mass/(p1Mass+p2Mass);    
   double r2 = retVal.rij.nrm2();
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
-  retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / r2);
+  //Treat special cases if one particle has infinite mass
+  if ((p1Mass == 0) && (p2Mass != 0))
+    {
+      retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+      //This function must edit particles so it overrides the const!
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    }
+  else if ((p2Mass == 0) && (p1Mass != 0))
+    {
+      retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+      //This function must edit particles so it overrides the const!
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+    }
+  else
+    {
+      bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
 
-  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+      //If both particles have infinite mass we just collide them as identical masses
+      if (isInfInf) p1Mass = p2Mass = 1;
+
+      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
+
+      retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+
+      //This function must edit particles so it overrides the const!
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+      //If both particles have infinite mass we pretend no momentum was transferred
+      retVal.dP *= !isInfInf;
+    }
+
 
   retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
 			       * (particle1.getVelocity().nrm2() 

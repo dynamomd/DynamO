@@ -428,7 +428,7 @@ function IsolatedPolymerTest {
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.0228955240576105)/0.0228955240576105; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    | gawk '{var=($1-0.0242022660749388)/0.0242022660749388; print ((var < 0.05) && (var > -0.05))}') != "1" ]; then
 	    echo "IsolatedPolymerTest -: FAILED"
 	    exit 1
 	else
@@ -436,6 +436,47 @@ function IsolatedPolymerTest {
 	fi
     else
 	echo "Error, no output.0.xml.bz2 in IsolatedPolymer test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
+function HeavySphereTest {
+    > run.log
+
+    $Dynarun -c 100000 hvySpheres.xml.bz2 >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{var=($1-5.74807417926229)/5.74807417926229; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "HeavySphereTest -: FAILED"
+	    exit 1
+	else
+	    echo "HeavySphereTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in HeavySphereTest"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
+function HeavySphereCompressionTest {
+    > run.log
+
+    $Dynarun --engine 3 --target-pack-frac 0.2 hvySpheres.xml.bz2 >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	echo "HeavySphereCompressionTest -: PASSED"
+    else
+	echo "Error, no output.0.xml.bz2 in HeavySphereCompressionTest"
 	exit 1
     fi
     
@@ -462,6 +503,8 @@ echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
 BinarySphereTest "Cells2"
 echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
 SquareWellTest
+echo "Testing infinitely heavy particles"
+HeavySphereTest
 #echo "Testing Lines, NeighbourLists and BoundedPQ's"
 #linescannon "NeighbourList" "BoundedPQ"
 
@@ -493,6 +536,8 @@ echo "Testing local events (walls) and square wells with a " \
 wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
 echo "Testing compression of hard spheres"
 HS_compressiontest "NeighbourList"
+echo "Testing compression in the prescence of infinitely heavy particles"
+HeavySphereCompressionTest
 
 echo "Testing replica exchange of hard spheres"
 HS_replex_test "NeighbourList"
