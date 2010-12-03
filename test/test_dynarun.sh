@@ -392,6 +392,31 @@ function BinarySphereTest {
 	tmp.xml.bz2 run.log
 }
 
+function ShearingTest {
+    > run.log
+
+    $Dynamod -s1 -m 4 --f1 0.9 &> run.log    
+    $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
+    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{var=($1-0.113195634)/0.113195634; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "ShearingTest -: FAILED"
+	    exit 1
+	else
+	    echo "ShearingTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in Shearing test"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
 
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
@@ -416,6 +441,8 @@ SquareWellTest
 
 echo ""
 echo "GLOBALS"
+echo "Testing shearing boundary conditions with inelastic particles"
+ShearingTest
 #echo "Testing binary spheres and the ListAndCell neighbourlist"
 #BinarySphereTest "ListAndCell"
 
