@@ -275,7 +275,8 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 }
 
 void 
-RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
+RTSpheres::sortTick(magnet::CL::CLGLState& CLState, 
+		    const magnet::GL::viewPort& _viewPortInfo)
 {
   cl_float4 campos = getclVec(_viewPortInfo._position);
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
@@ -311,8 +312,9 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& 
     {
       cl_int vertexOffset = renderedVertexData - renderedSpheres * iPtr->_type.getVertexCount();
 
-      _colorKernelFunc((cl::Buffer)_clbuf_Colors, iPtr->_type.getVertexCount(), renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
-		       vertexOffset, _sortData);
+      _colorKernelFunc((cl::Buffer)_clbuf_Colors, iPtr->_type.getVertexCount(), 
+		       renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
+		       vertexOffset, _sortData, _N);
 
       renderedSpheres += iPtr->_nSpheres;
       renderedVertexData += iPtr->_nSpheres * iPtr->_type.getVertexCount();

@@ -70,13 +70,74 @@ SphereRenderKernel(const __global float4* positions,
     }
 }
 
+
+void HSVtoRGB(__local float4* color, float h, float s, float v) 
+{
+  float temp;
+  h = fract(h, &temp);
+
+  s = clamp(s, 0.0, 1.0);
+  v = clamp(v, 0.0, 1.0);
+
+  h = h * 6;
+
+  unsigned int i = h;
+  float f = h - i;
+  float p = v * (1 - s);
+  float q = v * (1 - s * f);
+  float t = v * (1 - s * (1 - f));
+
+  float r;
+  float g;
+  float b;
+
+  switch(i) {
+  case 0:	
+    r = v;
+    g = t;
+    b = p;
+    break;
+
+  case 1:	
+    r = q;
+    g = v;
+    b = p;
+    break;
+
+  case 2:
+    r = p;
+    g = v;
+    b = t;
+    break;
+
+  case 3:
+    r = p;
+    g = q;
+    b = v;
+    break;
+
+  case 4:
+    r = t;
+    g = p;
+    b = v;
+    break;
+
+  case 5:
+    r = v;
+    g = p;
+    b = q;
+    break;
+  }
+  *color = (float4)(r,g,b,1.0);
+}
 __kernel void
 SphereColorKernel(__global float4 * colorBuffer,
 		  const uint nVertex,
 		  const uint StartParticle,
 		  const uint EndParticle,
 		  const int ColorOffset,
-		  __global const uint* sortedArray)
+		  __global const uint* sortedArray,
+		  const uint N)
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
   __local float4 colorCache[WORKGROUP_SIZE];
@@ -93,7 +154,7 @@ SphereColorKernel(__global float4 * colorBuffer,
 	{
 	  particleID = sortedArray[particleID];
 	  //Calculate color and store it in the shared array
-	  colorCache[get_local_id(0)] = (float4)(0,1,0,1);
+	  HSVtoRGB(colorCache + get_local_id(0), particleID / (float)(N),1,1);
 	}
       
       barrier(CLK_LOCAL_MEM_FENCE);
