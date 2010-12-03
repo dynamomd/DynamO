@@ -116,42 +116,44 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 void
 SVisualizer::dataBuild() const
 {
-  //Check if the system is compressing
+  //Check if the system is compressing and adjust the radius scaling factor
+  float factor = 1;
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      {
-	double diam = spec->getIntPtr()->hardCoreDiam() 
-	  * (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
-	
-	BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	  {
-	    Vector pos = Sim->particleList[ID].getPosition();
-	    
-	    Sim->dynamics.BCs().applyBC(pos);
-	    
-	    for (size_t i(0); i < NDIM; ++i)
-	      particleData[ID].s[i] = pos[i];
-	    
-	    particleData[ID].w = diam * 0.5;
-	  }
-      }
-  else
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      {
-	double diam = spec->getIntPtr()->hardCoreDiam();
-	
-	BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	  {
-	    Vector pos = Sim->particleList[ID].getPosition();
-	    
-	    Sim->dynamics.BCs().applyBC(pos);
-	    
-	    for (size_t i(0); i < NDIM; ++i)
-	      particleData[ID].s[i] = pos[i];
-	    
-	    particleData[ID].w = diam * 0.5;
-	  }
-      }    
+    factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+ 
+  double sysMass = 0;
+  Vector COM;
+
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    {
+      double diam = spec->getIntPtr()->hardCoreDiam() * factor;
+
+      sysMass += spec->getRange()->size() * spec->getMass();
+      
+      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
+	{
+	  Vector pos = Sim->particleList[ID].getPosition();
+	  
+	  Sim->dynamics.BCs().applyBC(pos);
+	  
+	  COM += pos * spec->getMass();
+
+	  for (size_t i(0); i < NDIM; ++i)
+	    particleData[ID].s[i] = pos[i];
+	  
+	  particleData[ID].w = diam * 0.5;
+	}
+    }
+
+  if (static_cast<CLGLWindow&>(*_CLWindow).dynamoCOMAdjust())
+    {
+      COM /= sysMass;
+
+      for (size_t ID(0); ID < Sim->N; ++ID)
+	for (size_t i(0); i < NDIM; ++i)
+	  particleData[ID].s[i] -= COM[i];
+    }
+
 }
 
 

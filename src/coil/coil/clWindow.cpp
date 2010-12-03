@@ -605,6 +605,15 @@ CLGLWindow::initGTK()
 
 	_particleSync = btn->get_active();
       }
+
+      {
+	Gtk::CheckButton* btn;
+	_refXml->get_widget("COMadjust", btn);
+	btn->signal_toggled()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::dynamoCOMAdjustCallBack));
+
+	_COMAdjust = btn->get_active();
+      }
     }
 }
 
@@ -1547,4 +1556,12 @@ CLGLWindow::dynamoParticleSyncCallBack()
   _refXml->get_widget("forceParticleSync", btn);
 
   _particleSync = btn->get_active();
+}
+
+void
+CLGLWindow::dynamoCOMAdjustCallBack()
+{
+  Gtk::CheckButton* btn;
+  _refXml->get_widget("COMadjust", btn);
+  _COMAdjust = btn->get_active();
 }

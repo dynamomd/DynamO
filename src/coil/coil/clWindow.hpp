@@ -232,12 +232,15 @@ private:
 
   //Dynamo specifc stuff
 public:
-  inline bool dynamoParticleSync() { return _particleSync; }
+  inline bool dynamoParticleSync() const { return _particleSync; }
+  inline bool dynamoCOMAdjust() const { return _COMAdjust; }
 
 private:
   void dynamoParticleSyncCallBack();
+  void dynamoCOMAdjustCallBack();
   bool _dynamo;
   bool _particleSync;
+  bool _COMAdjust;
   volatile bool _newData;
 
 };

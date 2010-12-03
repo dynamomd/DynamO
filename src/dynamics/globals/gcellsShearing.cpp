@@ -79,6 +79,8 @@ CGCellsShearing::getEvent(const Particle& part) const
     M_throw() << "Particle is not up to date";
 #endif
 
+  //We do not inherit GCells get Event as the calcPosition thing done
+  //for infinite systems is breaking it for shearing for some reason.
   return GlobalEvent(part,
 		     Sim->dynamics.getLiouvillean().
 		     getSquareCellCollision2
