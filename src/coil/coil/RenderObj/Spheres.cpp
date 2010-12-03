@@ -311,10 +311,10 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState,
        iPtr != _renderDetailLevels.end(); ++iPtr)
     {
       cl_int vertexOffset = renderedVertexData - renderedSpheres * iPtr->_type.getVertexCount();
-
+      const cl_float colorCycles = 10.0f;
       _colorKernelFunc((cl::Buffer)_clbuf_Colors, iPtr->_type.getVertexCount(), 
 		       renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
-		       vertexOffset, _sortData, _N);
+		       vertexOffset, _sortData, _N, colorCycles);
 
       renderedSpheres += iPtr->_nSpheres;
       renderedVertexData += iPtr->_nSpheres * iPtr->_type.getVertexCount();

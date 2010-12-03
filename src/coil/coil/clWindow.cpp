@@ -378,7 +378,6 @@ CLGLWindow::initGTK()
     radioButton->set_active(true);
   }
   
-
   {///////Control the update rate from the simulation
     Gtk::SpinButton* updateButton;
     _refXml->get_widget("updateFreq", updateButton);
@@ -401,6 +400,21 @@ CLGLWindow::initGTK()
     fpsButton->set_value(_fpsLimitValue);
     fpsButton->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
+  }
+
+  {///////RenderMode Selection
+    Gtk::RadioButton* radioButton;
+    _refXml->get_widget("renderModeTri", radioButton);
+    radioButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
+
+    _refXml->get_widget("renderModeLines", radioButton);
+    radioButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
+
+    _refXml->get_widget("renderModePoints", radioButton);
+    radioButton->signal_toggled()
+      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
   }
 
   ///////////////////////Render Pipeline//////////////////////////////////
@@ -1181,22 +1195,6 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
 
   switch (key)
     {
-      ///SPECIAL KEYPRESSES
-    case 't':
-      for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->setRenderMode(RenderObj::TRIANGLES);
-      break;
-    case 'l':
-      for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->setRenderMode(RenderObj::LINES);
-      break;
-    case 'p':
-      for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	   iPtr != RenderObjects.end(); ++iPtr)
-	(*iPtr)->setRenderMode(RenderObj::POINTS);
-      break;
     default:
       break;
     }
@@ -1522,6 +1520,24 @@ CLGLWindow::renderNormalsCallback()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->setDisplayNormals(showNormals);
+}
+
+void
+CLGLWindow::renderModeCallback()
+{
+  Gtk::RadioButton* radioButton;
+
+  RenderObj::RenderModeType rmode = RenderObj::TRIANGLES;
+
+  _refXml->get_widget("renderModeLines", radioButton);
+  if (radioButton->get_active()) rmode = RenderObj::LINES;
+
+  _refXml->get_widget("renderModePoints", radioButton);
+  if (radioButton->get_active()) rmode = RenderObj::POINTS;
+
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr 
+	 = RenderObjects.begin(); iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->setRenderMode(rmode);
 }
 
 void

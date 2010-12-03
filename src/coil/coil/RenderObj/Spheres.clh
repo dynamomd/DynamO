@@ -31,11 +31,11 @@ SphereRenderKernel(const __global float4* positions,
   //We're trying to coalesce the reads and writes from memory, so we cache
   __local float4 positionCache[WORKGROUP_SIZE];
   __local const float* positionCacheComponents = (__local const float*)positionCache;
+  vertexBuffer += VertexOffset;
 
   //Iterate on blocks of WORKGROUP_SIZE, with a stride of the global_size
   for (uint id0 = get_group_id(0) * WORKGROUP_SIZE + StartParticle;
-       id0 < EndParticle; 
-       id0 += get_global_size(0))
+       id0 < EndParticle; id0 += get_global_size(0))
     {
       //Load the cache
       uint data_to_read = id0 + get_local_id(0);
@@ -61,7 +61,7 @@ SphereRenderKernel(const __global float4* positions,
 	  uint particleID = 4 * (vertex_component / (3 * nVertex));
 	  uint vertexID = vertex_component % (3 * nVertex);
 	  
-	  vertexBuffer[VertexOffset + 3 * nVertex * id0 + vertex_component]
+	  vertexBuffer[3 * nVertex * id0 + vertex_component]
 	    = positionCacheComponents[particleID  + (vertex_component % 3)] 
 	    + positionCacheComponents[particleID  + 3] * vertices[vertexID];
 	}
@@ -137,26 +137,29 @@ SphereColorKernel(__global float4 * colorBuffer,
 		  const uint EndParticle,
 		  const int ColorOffset,
 		  __global const uint* sortedArray,
-		  const uint N)
+		  const uint N,
+		  const float colorCycles
+		  )
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
   __local float4 colorCache[WORKGROUP_SIZE];
-
   colorBuffer += ColorOffset;
 
   //Iterate on blocks of WORKGROUP_SIZE, with a stride of the global_size
   for (uint id0 = get_group_id(0) * WORKGROUP_SIZE + StartParticle;
        id0 < EndParticle; id0 += get_global_size(0))
     {
-      //Coalesced read from global mem and conflict-free localsss write
-      uint particleID = id0 + get_local_id(0);
-      if (particleID < EndParticle)
-	{
-	  particleID = sortedArray[particleID];
-	  //Calculate color and store it in the shared array
-	  HSVtoRGB(colorCache + get_local_id(0), particleID / (float)(N),1,1);
-	}
-      
+      //Coalesced read from global mem and conflict-free locals write
+      {
+	uint loadParticleID = id0 + get_local_id(0);
+	if (loadParticleID < EndParticle)
+	  {
+	    //Calculate color and store it in the shared array
+	    HSVtoRGB(colorCache + get_local_id(0), 
+		     colorCycles * sortedArray[loadParticleID] / (float)(N),
+		     1, 1);
+	  }
+      }
       barrier(CLK_LOCAL_MEM_FENCE);
       
       //Color cache is full, now start blitting out colors
