@@ -420,7 +420,18 @@ CIPPacker::initialise()
 					   (Vector (0,0,0)));
 
 	//Set up the system now
-	Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ<>(Sim));
+
+	if (chainlength > 49)
+	  {
+	    Sim->ptrScheduler 
+	      = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+
+	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	  }
+	else
+	  {
+	    Sim->ptrScheduler = new CSDumb(Sim, new CSSBoundedPQ<>(Sim));
+	  }
 
 	Sim->dynamics.applyBC<BCNone>();
 
