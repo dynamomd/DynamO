@@ -46,6 +46,19 @@
 #include <boost/tokenizer.hpp>
 
 
+namespace {
+  struct speciesData 
+  { 
+    double diameter; 
+    double lambda; 
+    double mass;
+    double wellDepth;
+    double molfraction; 
+    size_t idStart; 
+    size_t idEnd; 
+  };
+}
+
 CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
   SimBase(tmp,"SysPacker", IC_blue),
   vm(vm2)
@@ -357,22 +370,128 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	double lambda = 1.5, wellDepth = 1.0;
+	if (!vm.count("s1"))
+	  {
+	    //Only one species
+	    double lambda = 1.5, wellDepth = 1.0;
+	    if (vm.count("f1"))
+	      lambda = vm["f1"].as<double>();
+	    
+	    if (vm.count("f2"))
+	      wellDepth = vm["f2"].as<double>();
+	    
+	    Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam,
+							 lambda, wellDepth, 1.0,
+							 new C2RAll()
+							 ))->setName("Bulk");
+	    
+	    Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+				     (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+						  "Bulk")));
+	  }
+	else
+	  {
+	    //Multiple species specified by a string
+	    
+	    std::vector<speciesData> speciesList;
 
-	if (vm.count("f1"))
-	  lambda = vm["f1"].as<double>();
+	    typedef boost::tokenizer<boost::char_separator<char> >
+	      tokenizer;
+	    
+	    //Split up over species delimited by ":"
+	    tokenizer speciesStrings(vm["s1"].as<std::string>(), boost::char_separator<char>(":"));
+	    
+	    double totMoleFrac = 0;
+	    BOOST_FOREACH(const std::string& species, speciesStrings)
+	      {
+		tokenizer speciesStringData(species, boost::char_separator<char>(","));
+		tokenizer::iterator value_iter = speciesStringData.begin();
+		
+		speciesData dat;
 
-	if (vm.count("f2"))
-	  wellDepth = vm["f2"].as<double>();
+		try {
+		  if (value_iter == speciesStringData.end())
+		    throw std::runtime_error("Stray : in species definition");
+		  dat.diameter = boost::lexical_cast<double>(*value_iter);
 
-	Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam,
-						      lambda, wellDepth, 1.0,
-						      new C2RAll()
-						      ))->setName("Bulk");
+		  if (++value_iter == speciesStringData.end())
+		    throw std::runtime_error("No lambda specified for a species");
+		  dat.lambda = boost::lexical_cast<double>(*(value_iter));
 
-	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+		  if (++value_iter == speciesStringData.end())
+		    throw std::runtime_error("No mass specified for a species");
+		  dat.mass = boost::lexical_cast<double>(*(value_iter));
+
+		  if (++value_iter == speciesStringData.end())
+		    throw std::runtime_error("No well depth specified for a species");
+		  dat.wellDepth = boost::lexical_cast<double>(*(value_iter));
+
+		  if (++value_iter == speciesStringData.end())
+		    throw std::runtime_error("No mole fraction specified for a species");
+		  dat.molfraction = boost::lexical_cast<double>(*(value_iter));
+		  totMoleFrac += dat.molfraction;
+
+		  if (++value_iter != speciesStringData.end())
+		    throw std::runtime_error("Too many comma's");
+
+		  speciesList.push_back(dat);
+		} catch (std::exception& except)
+		  {
+		    M_throw() << "Malformed square well species data, \"" 
+			      << species << "\"\n" << except.what();
+		  }
+	      }
+
+	    //Normalize the mole fraction and calculate the range
+	    const size_t N = latticeSites.size();
+	    size_t idStart = 0;
+	    BOOST_FOREACH(speciesData& dat, speciesList)
+	      {
+		dat.molfraction /= totMoleFrac;
+		dat.idStart = idStart;
+		//The minus 0.5 is to make the double to size_t into a
+		//"round to nearest minus 1"
+		dat.idEnd = (N * dat.molfraction - 0.5) + idStart;
+		idStart = dat.idEnd + 1;
+	      }
+
+	    //Chuck the rounding error amount of spheres into the last species
+	    speciesList.back().idEnd = N - 1;
+
+	    //Now we have the particle ranges we should build the species and interactions
+	    for (size_t spID1(0); spID1 < speciesList.size(); ++spID1)
+	      {
+		const speciesData& spdat1 = speciesList[spID1];
+		std::string sp1Name = "A";
+		sp1Name[0] += spID1;
+		for (size_t spID2(spID1); spID2 < speciesList.size(); ++spID2)
+		  {
+		    const speciesData& spdat2 = speciesList[spID2];
+		    std::string sp2Name = "A";
+		    sp2Name[0] += spID2;
+		    Sim->dynamics.addInteraction
+		      (new ISquareWell(Sim, 0.5 * particleDiam 
+				       * (spdat1.diameter + spdat2.diameter),
+				       0.5 * (spdat1.lambda + spdat2.lambda), 
+				       0.5 * (spdat1.wellDepth + spdat2.wellDepth), 1.0,
+				       new C2RPair(new CRRange(spdat1.idStart, spdat1.idEnd),
+						   new CRRange(spdat2.idStart, spdat2.idEnd))
+				       ))->setName(sp1Name + sp2Name);
+		  }
+	      }
+
+	    for (size_t spID1(0); spID1 < speciesList.size(); ++spID1)
+	      {
+		const speciesData& spdat1 = speciesList[spID1];
+		std::string sp1Name = "A";
+		sp1Name[0] += spID1;
+		Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+					 (new Species(Sim, new CRRange(spdat1.idStart, 
+								       spdat1.idEnd), 
+						      spdat1.mass, sp1Name, spID1, 
+						      sp1Name + sp1Name)));
+	      }
+	  }
 
 	unsigned long nParticles = 0;
 
