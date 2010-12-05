@@ -142,7 +142,7 @@ CLGLWindow::initOpenGL()
       std::cout << "OpenGL driver doesn't support programmable shaders.\n";
       _shaderPipeline = false;
     }
-
+  
   if (!_shaderPipeline)
     std::cout << "Shader pipeline disabled.\n"
 	      << "This also disables all other effects.\n";
@@ -925,6 +925,7 @@ CLGLWindow::CallBackDisplayFunc(void)
   else    
     {      
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+      _viewPortInfo.loadMatrices();
       drawScene();
     }
 
