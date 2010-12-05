@@ -45,7 +45,7 @@ RTriangles::glRender()
 {
   if (!_visible) return;
   glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
-  glColorPointer(4, GL_FLOAT, 0, 0);
+  glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 
   glBindBufferARB(GL_ARRAY_BUFFER, _posBuff);
   glVertexPointer(3, GL_FLOAT, 0, 0);
@@ -104,17 +104,17 @@ RTriangles::glRender()
 }
 
 void 
-RTriangles::setGLColors(std::vector<float>& VertexColor)
+RTriangles::setGLColors(std::vector<cl_uchar4>& VertexColor)
 {
   if (!VertexColor.size())
     throw std::runtime_error("VertexColor.size() == 0!");
 
-  if (VertexColor.size() % 4)
-    throw std::runtime_error("VertexColor.size() is not a multiple of 4!");
+//  if (VertexColor.size() % 4)
+//    throw std::runtime_error("VertexColor.size() is not a multiple of 4!");
 
   if (_posBuffSize)
-    if ((VertexColor.size() / 4) != (_posBuffSize / 3))
-      throw std::runtime_error("VertexColor.size()/4 != posBuffSize/3");
+    if ((VertexColor.size()) != (_posBuffSize / 3))
+      throw std::runtime_error("VertexColor.size() != posBuffSize/3");
 
   if (_colBuffSize)
     glDeleteBuffers(1, &_colBuff);
@@ -124,7 +124,7 @@ RTriangles::setGLColors(std::vector<float>& VertexColor)
   glGenBuffersARB(1, &_colBuff);
   
   glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
-  glBufferDataARB(GL_ARRAY_BUFFER, VertexColor.size() * sizeof(float), &VertexColor[0], 
+  glBufferDataARB(GL_ARRAY_BUFFER, VertexColor.size() * sizeof(cl_uchar4), &VertexColor[0], 
 	       GL_STREAM_DRAW);
 }
 
@@ -138,7 +138,7 @@ RTriangles::setGLPositions(std::vector<float>& VertexPos)
     throw std::runtime_error("VertexPos.size() is not a multiple of 3!");
 
   if (_colBuffSize)
-    if ((_colBuffSize / 4) != (VertexPos.size() / 3))
+    if ((_colBuffSize) != (VertexPos.size() / 3))
       throw std::runtime_error("VertexPos.size()/3 != colBuffSize/4 ");
   
   if (_normBuffSize)

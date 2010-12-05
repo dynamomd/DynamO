@@ -28,7 +28,7 @@ public:
 
   virtual void glRender();
 
-  void setGLColors(std::vector<float>& VertexColor);
+  void setGLColors(std::vector<cl_uchar4>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);
   void setGLNormals(std::vector<float>& VertexNormals);
   void setGLElements(std::vector<int>& Elements);

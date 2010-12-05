@@ -102,15 +102,15 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
   }
 
   {//Setup initial Colors
-    std::vector<float> VertexColor(4 * _N * _N, 0.0);
+    std::vector<cl_uchar4> VertexColor(_N * _N);
     for (size_t i = 0; i < _N; i++)
       {       
 	for (size_t j = 0; j < _N; j++)
 	  {
-	    VertexColor[0 + 4 * (i + _N * j)] = 1.0f;
-	    VertexColor[1 + 4 * (i + _N * j)] = 1.0f;
-	    VertexColor[2 + 4 * (i + _N * j)] = 1.0f;
-	    VertexColor[3 + 4 * (i + _N * j)] = 1.0f;
+	    VertexColor[(i + _N * j)].s[0] = 255;
+	    VertexColor[(i + _N * j)].s[1] = 255;
+	    VertexColor[(i + _N * j)].s[2] = 255;
+	    VertexColor[(i + _N * j)].s[3] = 255;
 	  }       
       }
     setGLColors(VertexColor);
@@ -237,7 +237,7 @@ RFunction::genKernelSrc()
 
 __kernel void
 FunctionRenderKernel(__global float * positions,
-		     __global float * colors,
+		     __global uchar4 * colors,
 		     __global float * normals,
 		     float t,
 		     float2 functionOrigin,
@@ -250,7 +250,7 @@ FunctionRenderKernel(__global float * positions,
 {
   positions += 3 * get_global_id(0);
   normals += 3 * get_global_id(0);
-  colors += 4 * get_global_id(0);
+  colors += get_global_id(0);
 
   float2 normPos = (float2)(get_global_id(0) % N, get_global_id(0) / N);
   normPos /= N;

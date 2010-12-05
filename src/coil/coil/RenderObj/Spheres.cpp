@@ -170,14 +170,14 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
       nColors += iPtr->_type.getVertexCount() * iPtr->_nSpheres;
 
-    std::vector<float> VertexColor(4*nColors, 1.0);
+    std::vector<cl_uchar4> VertexColor(nColors);
     
     for (size_t icol = 0; icol < nColors; ++icol)
       {
-	VertexColor[4 * icol + 0] = 256.0/256.0;
-	VertexColor[4 * icol + 1] = 0.0/256.0;
-	VertexColor[4 * icol + 2] = 0.0/256.0;
-	VertexColor[4 * icol + 3] = 0.1f;
+	VertexColor[icol].s[0] = 255;
+	VertexColor[icol].s[1] = 255;
+	VertexColor[icol].s[2] = 255;
+	VertexColor[icol].s[3] = 255;
       }
 
     setGLColors(VertexColor);
