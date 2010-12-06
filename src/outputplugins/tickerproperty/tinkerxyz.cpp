@@ -222,7 +222,7 @@ OPTinkerXYZ::printFileImage()
   if (!obj_of.is_open())
     M_throw() << "Could not open object file for writing";
 
-  of << Sim->N << "\nDYNAMO Tinker TXYZ file\n";
+  of << Sim->N << "\nDYNAMO Tinker TXYZ file NOTE: All units here have been scaled by 3.4 (the van-der-Walls radius of Carbon!)\n";
 
   Vector  tmpVec;
   BOOST_FOREACH (const Particle& part, Sim->particleList)
