@@ -71,7 +71,7 @@ SphereRenderKernel(const __global float4* positions,
 }
 
 
-void HSVtoRGB(__local float4* color, float h, float s, float v) 
+void HSVtoRGB(__local uchar4* color, float h, float s, float v) 
 {
   float temp;
   h = fract(h, &temp);
@@ -128,10 +128,10 @@ void HSVtoRGB(__local float4* color, float h, float s, float v)
     b = q;
     break;
   }
-  *color = (float4)(r,g,b,1.0);
+  *color = (uchar4)(r*255,g*255,b*255,255);
 }
 __kernel void
-SphereColorKernel(__global float4 * colorBuffer,
+SphereColorKernel(__global uchar4 * colorBuffer,
 		  const uint nVertex,
 		  const uint StartParticle,
 		  const uint EndParticle,
@@ -142,7 +142,7 @@ SphereColorKernel(__global float4 * colorBuffer,
 		  )
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
-  __local float4 colorCache[WORKGROUP_SIZE];
+  __local uchar4 colorCache[WORKGROUP_SIZE];
   colorBuffer += ColorOffset;
 
   //Iterate on blocks of WORKGROUP_SIZE, with a stride of the global_size
