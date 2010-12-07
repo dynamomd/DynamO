@@ -27,7 +27,6 @@ public:
   
   SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
 
-
   virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
   virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
@@ -36,7 +35,29 @@ public:
 
 protected:
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
+
+  void outputXML(xml::XmlStream& XML, std::string type) const;
   
   double inertiaConstant;
+};
+
+class SpLines : public SpSphericalTop
+{
+public:
+  SpLines(DYNAMO::SimData* Sim, CRange* R, double nMass, std::string nName, 
+	  unsigned int ID, double r, std::string nIName="Bulk"):
+    SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
+  {}
+  
+  SpLines(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+    SpSphericalTop(XML, Sim, ID)
+  {}
+
+  virtual Species* Clone() const { return new SpLines(*this); }
+
+protected:
+
+  virtual void outputXML(xml::XmlStream& XML) const 
+  { SpSphericalTop::outputXML(XML, "Lines"); }
 };

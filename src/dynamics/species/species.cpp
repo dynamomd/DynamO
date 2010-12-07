@@ -124,6 +124,8 @@ Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
     return new Species(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
     return new SpSphericalTop(XML, tmp, nID);
+  else if (!std::strcmp(XML.getAttribute("Type"), "Lines"))
+    return new SpLines(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
     return new SpFixedCollider(XML, tmp, nID);
   else 

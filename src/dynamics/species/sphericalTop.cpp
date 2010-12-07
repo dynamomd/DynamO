@@ -34,14 +34,14 @@ SpSphericalTop::SpSphericalTop(const XMLNode& XML, DYNAMO::SimData* Sim, unsigne
 
 
 void 
-SpSphericalTop::outputXML(xml::XmlStream& XML) const
+SpSphericalTop::outputXML(xml::XmlStream& XML, std::string type) const
 {
   XML << xml::attr("InertiaConstant") 
       << inertiaConstant / Sim->dynamics.units().unitArea()
       << xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
       << xml::attr("Name") << spName
       << xml::attr("IntName") << intName
-      << xml::attr("Type") << "SphericalTop"
+      << xml::attr("Type") << type
       << range;
 }
 
