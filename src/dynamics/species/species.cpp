@@ -120,7 +120,7 @@ Species::getCount() const
 # include "../liouvillean/CompressionL.hpp"
 
 magnet::thread::RefPtr<RenderObj>& 
-Species::getCoilRenderObj()
+Species::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
@@ -132,7 +132,7 @@ Species::getCoilRenderObj()
 }
 
 void
-Species::updateRenderObj(magnet::CL::CLGLState& CLState)
+Species::updateRenderObj(magnet::CL::CLGLState& CLState) const
 {
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
@@ -147,7 +147,8 @@ Species::updateRenderObj(magnet::CL::CLGLState& CLState)
 
   double diam = getIntPtr()->hardCoreDiam() * factor;
   sysMass += range->size() * getMass();
-      
+  
+  size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
       Vector pos = Sim->particleList[ID].getPosition();
@@ -155,9 +156,9 @@ Species::updateRenderObj(magnet::CL::CLGLState& CLState)
       Sim->dynamics.BCs().applyBC(pos);
       
       for (size_t i(0); i < NDIM; ++i)
-	particleData[ID].s[i] = pos[i];
+	particleData[sphID].s[i] = pos[i];
       
-      particleData[ID].w = diam * 0.5;
+      particleData[sphID++].w = diam * 0.5;
     }
 
   {

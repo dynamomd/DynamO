@@ -30,7 +30,7 @@ public:
 
   virtual void initOpenGL();
 
-  virtual void initOpenCL(magnet::CL::CLGLState&) {}
+  virtual void initOpenCL(magnet::CL::CLGLState&);
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
 
   void setGLColors(std::vector<cl_uchar4>& VertexColor);
@@ -40,6 +40,8 @@ public:
   void initOCLVertexBuffer(cl::Context Context);
   void initOCLColorBuffer(cl::Context Context);
   void initOCLElementBuffer(cl::Context Context);
+
+  cl::GLBuffer& getVertexBuffer() { return _clbuf_Positions; }
 
 protected:
   size_t _N;

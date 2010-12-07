@@ -80,9 +80,9 @@ public:
   static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj();
+  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
 
-  virtual void updateRenderObj(magnet::CL::CLGLState&);
+  virtual void updateRenderObj(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
@@ -105,7 +105,7 @@ protected:
   unsigned int ID;
 
 #ifdef DYNAMO_visualizer
-  magnet::thread::RefPtr<RenderObj> _renderObj;
+  mutable magnet::thread::RefPtr<RenderObj> _renderObj;
   mutable std::vector<cl_float4> particleData;
 #endif
 
