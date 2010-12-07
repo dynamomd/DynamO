@@ -39,7 +39,7 @@ static const size_t HEADERSIZE = 8;
 OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),
-  fileOutput(false),
+  fileOutput(true),
   liveOutput(false),
   blockForVMD(true),
   P1track(false),
@@ -75,6 +75,7 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
     {
       if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
       if (XML.isAttributeSet("File")) fileOutput = true;
+      if (XML.isAttributeSet("NoFile")) fileOutput = false;
       if (XML.isAttributeSet("NoBlock")) blockForVMD = false;
       if (XML.isAttributeSet("P1Track")) P1track = true;
       if (XML.isAttributeSet("Port")) 
@@ -222,7 +223,7 @@ OPTinkerXYZ::printFileImage()
   if (!obj_of.is_open())
     M_throw() << "Could not open object file for writing";
 
-  of << Sim->N << "\nDYNAMO Tinker TXYZ file\n";
+  of << Sim->N << "\nDYNAMO Tinker TXYZ file NOTE: All units here have been scaled by 3.4 (the van-der-Walls radius of Carbon!)\n";
 
   Vector  tmpVec;
   BOOST_FOREACH (const Particle& part, Sim->particleList)

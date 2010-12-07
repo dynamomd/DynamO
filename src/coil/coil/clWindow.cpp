@@ -213,7 +213,7 @@ CLGLWindow::initOpenGL()
   //Default material parameters
   GLfloat specReflection[] = { 1.0f, 1.0f, 1.0f, 1.0f };
   glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-  glMateriali(GL_FRONT, GL_SHININESS, 50);
+  glMateriali(GL_FRONT, GL_SHININESS, 25);
 
 
   //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
