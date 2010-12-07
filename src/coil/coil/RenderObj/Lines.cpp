@@ -18,7 +18,8 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 
-RLines::RLines():
+RLines::RLines(size_t N):
+  _N(N),
   _colBuffSize(0),
   _posBuffSize(0),
   _elementBuffSize(0)
@@ -35,6 +36,52 @@ RLines::~RLines()
   if (_elementBuffSize)
     glDeleteBuffersARB(1, &_elementBuff);
 }
+
+void 
+RLines::initOpenGL()
+{
+  {//Setup initial vertex positions
+    std::vector<float> VertexPos(3 * _N * 2, 0.0);
+    for (size_t i(0); i < _N; ++i)
+      { 
+	VertexPos[6*i+0] = i * 1.0f / _N;
+	VertexPos[6*i+1] = i * 1.0f / _N;
+	VertexPos[6*i+2] = i * 1.0f / _N;
+	VertexPos[6*i+3] = i * 1.0f / _N;
+	VertexPos[6*i+4] = (i + 0.5f) * 1.0f / _N;
+	VertexPos[6*i+5] = i * 1.0f / _N;
+      }
+    setGLPositions(VertexPos);
+  }
+  
+  {
+    std::vector<cl_uchar4> VertexColor(_N * 2);
+    
+    for (size_t icol = 0; icol < _N * 2; ++icol)
+      {
+	VertexColor[icol].s[0] = 255;
+	VertexColor[icol].s[1] = 255;
+	VertexColor[icol].s[2] = 255;
+	VertexColor[icol].s[3] = 255;
+      }
+
+    setGLColors(VertexColor);
+  }
+   
+  {//Setup initial element data
+    std::vector<int> ElementData(2 * _N, 0);
+
+    for (size_t i(0); i < _N; ++i)
+      {
+	ElementData[2 * i + 0] = 2 * i + 0;
+	ElementData[2 * i + 1] = 2 * i + 1;
+      }
+    
+    setGLElements(ElementData);
+  }
+
+}
+
 
 void 
 RLines::glRender()

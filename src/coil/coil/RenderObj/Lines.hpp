@@ -23,10 +23,15 @@
 class RLines : public RenderObj
 {
 public:
-  RLines();
+  RLines(size_t N);
   ~RLines();
 
   virtual void glRender();
+
+  virtual void initOpenGL();
+
+  virtual void initOpenCL(magnet::CL::CLGLState&) {}
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
 
   void setGLColors(std::vector<cl_uchar4>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);
@@ -37,6 +42,7 @@ public:
   void initOCLElementBuffer(cl::Context Context);
 
 protected:
+  size_t _N;
   GLuint _colBuff;
   size_t _colBuffSize;
   cl::GLBuffer _clbuf_Colors;

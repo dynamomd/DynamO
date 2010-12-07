@@ -30,6 +30,7 @@
 #include <coil/clWindow.hpp>
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/Spheres.hpp>
+#include <coil/RenderObj/Lines.hpp>
 #include <magnet/CL/CLGL.hpp>
 #include "../liouvillean/CompressionL.hpp"
 
@@ -89,7 +90,10 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   _sphereObject = new RTSpheres((size_t)Sim->N);
   
   static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(_sphereObject);
+
+  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RLines(100));
   
+
   CoilMaster::getInstance().addWindow(_CLWindow);
 
   //Build the array of data
