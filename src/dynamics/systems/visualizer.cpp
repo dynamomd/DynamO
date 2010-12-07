@@ -91,7 +91,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   
   static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(_sphereObject);
 
-  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RLines(100));
+  //static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RLines(100));
   
 
   CoilMaster::getInstance().addWindow(_CLWindow);
@@ -185,7 +185,12 @@ SVisualizer::runEvent() const
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(*this, NEventData(), locdt);
+
+      //    const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
+      //    if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
       
+      //    static_cast<CLGLWindow&>(*_CLWindow).flagNewData();
+
       dataBuild();
       
       {
