@@ -485,6 +485,36 @@ function HeavySphereCompressionTest {
 	tmp.xml.bz2 run.log
 }
 
+function HardLinesTest {
+    > run.log
+
+    dens=0.1
+    $Dynamod -s1 -m 9 -C 1000 -d $dens  &> run.log
+    $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft=1.0/(1.237662399*'$dens'); var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "Hard Lines -: FAILED"
+	    gawk 'BEGIN {mft=1.0/(1.237662399*'$dens'); print "MFT is supposed to be ",mft}'
+	    bzcat output.xml.bz2 \
+		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+		| gawk '{print "MFT is " $0}'
+	    exit 1
+	else
+	    echo "Hard Lines -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in HardLinesTest"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
 cannon "Dumb" "CBT"
@@ -505,7 +535,8 @@ echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
 SquareWellTest
 echo "Testing infinitely heavy particles"
 HeavySphereTest
-#echo "Testing Lines, NeighbourLists and BoundedPQ's"
+echo "Testing Lines, NeighbourLists and BoundedPQ's"
+HardLinesTest
 #linescannon "NeighbourList" "BoundedPQ"
 
 echo ""
