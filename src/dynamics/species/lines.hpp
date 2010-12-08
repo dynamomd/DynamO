@@ -17,27 +17,34 @@
 
 #pragma once
 
-#include "species.hpp"
+#include "sphericalTop.hpp"
 
-class SpSphericalTop: public SpInertia
+class SpLines : public SpSphericalTop
 {
 public:
-  SpSphericalTop(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
-		 unsigned int ID, double iC, std::string nIName="Bulk");
+  SpLines(DYNAMO::SimData* Sim, CRange* R, double nMass, std::string nName, 
+	  unsigned int ID, double r, std::string nIName="Bulk"):
+    SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
+  {}
   
-  SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
+  SpLines(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+    SpSphericalTop(XML, Sim, ID)
+  {}
 
-  virtual Species* Clone() const { return new SpSphericalTop(*this); }
+  virtual Species* Clone() const { return new SpLines(*this); }
 
-  virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
+#ifdef DYNAMO_visualizer
+  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
 
-  virtual void operator<<(const XMLNode&);
+  virtual void updateRenderObj(magnet::CL::CLGLState&) const;
+#endif
 
 protected:
 
-  virtual void outputXML(xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
+  virtual void outputXML(xml::XmlStream& XML) const 
+  { SpSphericalTop::outputXML(XML, "Lines"); }
 
-  void outputXML(xml::XmlStream& XML, std::string type) const;
-  
-  double inertiaConstant;
+    mutable std::vector<cl_float> particleData;
+
 };
+

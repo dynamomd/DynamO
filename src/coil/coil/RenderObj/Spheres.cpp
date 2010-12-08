@@ -21,13 +21,14 @@
 #include <cmath>
 #include <stdexcept>
 #include <fstream>
+#include <magnet/HSV.hpp>
 
 #include "Spheres.clh"
 #include <errno.h>
 
 struct  SortDataType { cl_uint ID; cl_float dist; };
 
-cl_float4 getclVec(Vector vec)
+static cl_float4 getclVec(Vector vec)
 { 
   cl_float4 clvec;
   clvec.x = vec[0];
@@ -225,6 +226,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 
   fullSource << "#define WORKGROUP_SIZE " << _workgroupsize << "\n";
   
+  fullSource << magnet::color::getOpenCLHSV();
   fullSource << sphereKernelSource;
   
   //Need to make the c_str() point to a valid data area, so copy the string

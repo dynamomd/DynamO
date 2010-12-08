@@ -18,3 +18,4 @@
 #include "species.hpp"
 #include "sphericalTop.hpp"
 #include "fixedCollider.hpp"
+#include "lines.hpp"

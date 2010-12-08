@@ -38,13 +38,8 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const {}
 
-  void dataBuild() const;
-
   mutable double _updateTime;
   mutable magnet::thread::RefPtr<CoilWindow> _CLWindow;
-  mutable magnet::thread::RefPtr<RenderObj> _sphereObject;
-  mutable int _lastRenderTime;
-  mutable std::vector<cl_float4> particleData;
 };
 
 #endif

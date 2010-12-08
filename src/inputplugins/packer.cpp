@@ -1146,9 +1146,9 @@ CIPPacker::initialise()
 	double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-						     (inertiaMultiplicativeFactor * particleDiam * particleDiam) / 12.0,
-						     "Bulk")));
+				 (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					      std::sqrt(inertiaMultiplicativeFactor) * particleDiam,
+					      "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
@@ -1527,16 +1527,15 @@ CIPPacker::initialise()
 
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
-  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
+	double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
 
 	Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
 						      new C2RAll()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new SpSphericalTop(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-						     particleDiam * particleDiam / 12.0,
-						     "Bulk")));
+				 (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					      particleDiam, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 

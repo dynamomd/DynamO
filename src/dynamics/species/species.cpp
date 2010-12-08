@@ -26,6 +26,7 @@
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 
+
 Species::Species(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 		   std::string nName, unsigned int nID, std::string nIName):
   SimBase(tmp,"Species", IC_blue),
@@ -114,6 +115,61 @@ Species::getCount() const
   return range->size();
 }
 
+#ifdef DYNAMO_visualizer
+# include <magnet/thread/mutex.hpp>
+# include "../liouvillean/CompressionL.hpp"
+
+magnet::thread::RefPtr<RenderObj>& 
+Species::getCoilRenderObj() const
+{
+  if (!_renderObj.isValid())
+    {
+      _renderObj = new RTSpheres(range->size());
+      particleData.resize(range->size());
+    }
+
+  return _renderObj;
+}
+
+void
+Species::updateRenderObj(magnet::CL::CLGLState& CLState) const
+{
+  if (!_renderObj.isValid())
+    M_throw() << "Updating before the render object has been fetched";
+  
+  //Check if the system is compressing and adjust the radius scaling factor
+  float factor = 1;
+  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
+    factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+ 
+  double sysMass = 0;
+  Vector COM;
+
+  double diam = getIntPtr()->hardCoreDiam() * factor;
+  sysMass += range->size() * getMass();
+  
+  size_t sphID(0);
+  BOOST_FOREACH(unsigned long ID, *range)
+    {
+      Vector pos = Sim->particleList[ID].getPosition();
+      
+      Sim->dynamics.BCs().applyBC(pos);
+      
+      for (size_t i(0); i < NDIM; ++i)
+	particleData[sphID].s[i] = pos[i];
+      
+      particleData[sphID++].w = diam * 0.5;
+    }
+
+  {
+    CLState.getCommandQueue().enqueueWriteBuffer
+      (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
+       false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
+  }
+
+}
+#endif
+
 Species* 
 Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
 {
@@ -124,6 +180,8 @@ Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
     return new Species(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
     return new SpSphericalTop(XML, tmp, nID);
+  else if (!std::strcmp(XML.getAttribute("Type"), "Lines"))
+    return new SpLines(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
     return new SpFixedCollider(XML, tmp, nID);
   else 

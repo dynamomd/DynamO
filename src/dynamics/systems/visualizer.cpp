@@ -30,6 +30,7 @@
 #include <coil/clWindow.hpp>
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/Spheres.hpp>
+#include <coil/RenderObj/Lines.hpp>
 #include <magnet/CL/CLGL.hpp>
 #include "../liouvillean/CompressionL.hpp"
 
@@ -85,77 +86,27 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 //								  _normalCalc,
 //								  _colorCalc
 //								  ));
+  //static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(new RLines(100));
 
-  _sphereObject = new RTSpheres((size_t)Sim->N);
   
-  static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(_sphereObject);
-  
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(spec->getCoilRenderObj());
+
   CoilMaster::getInstance().addWindow(_CLWindow);
-
-  //Build the array of data
-  particleData.resize(Sim->N);
-  
-  dataBuild();
 
   {
     const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
     if (!_CLWindow->isReady()) return;
-    static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
-      (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
-       false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
 
-    _lastRenderTime = static_cast<CLGLWindow&>(*_CLWindow).getLastFrameTime();
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
   }
 
- I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 
+  I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 
 	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
 	  << "\nOpenCL Device:" 
 	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
 }
-
-void
-SVisualizer::dataBuild() const
-{
-  //Check if the system is compressing and adjust the radius scaling factor
-  float factor = 1;
-  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-    factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
- 
-  double sysMass = 0;
-  Vector COM;
-
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    {
-      double diam = spec->getIntPtr()->hardCoreDiam() * factor;
-
-      sysMass += spec->getRange()->size() * spec->getMass();
-      
-      BOOST_FOREACH(unsigned long ID, *(spec->getRange()))
-	{
-	  Vector pos = Sim->particleList[ID].getPosition();
-	  
-	  Sim->dynamics.BCs().applyBC(pos);
-	  
-	  COM += pos * spec->getMass();
-
-	  for (size_t i(0); i < NDIM; ++i)
-	    particleData[ID].s[i] = pos[i];
-	  
-	  particleData[ID].w = diam * 0.5;
-	}
-    }
-
-  if (static_cast<CLGLWindow&>(*_CLWindow).dynamoCOMAdjust())
-    {
-      COM /= sysMass;
-
-      for (size_t ID(0); ID < Sim->N; ++ID)
-	for (size_t i(0); i < NDIM; ++i)
-	  particleData[ID].s[i] -= COM[i];
-    }
-
-}
-
 
 void
 SVisualizer::runEvent() const
@@ -181,15 +132,13 @@ SVisualizer::runEvent() const
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(*this, NEventData(), locdt);
-      
-      dataBuild();
-      
+
       {
-      	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
-      	if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
-      	static_cast<CLGLWindow&>(*_CLWindow).getCLState().getCommandQueue().enqueueWriteBuffer
-      	  (static_cast<RTSpheres&>(*_sphereObject).getSphereDataBuffer(),
-      	   false, 0, Sim->N * sizeof(cl_float4), &particleData[0]);
+	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
+	if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
+	
+	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+	  spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
 
 	static_cast<CLGLWindow&>(*_CLWindow).flagNewData();
       }

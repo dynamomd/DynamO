@@ -54,6 +54,8 @@ namespace magnet {
 
       inline ~RefPtr() { release(); }
       
+      inline bool isValid() const { return _obj != NULL; }
+
       inline RefPtr<T>& operator=(const RefPtr<T>& other)
       {
 	release();

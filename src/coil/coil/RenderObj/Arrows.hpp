@@ -14,30 +14,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 #pragma once
 
-#include "species.hpp"
+#include <coil/RenderObj/Lines.hpp>
+#include <magnet/thread/mutex.hpp>
 
-class SpSphericalTop: public SpInertia
+class RArrows : public RLines
 {
 public:
-  SpSphericalTop(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
-		 unsigned int ID, double iC, std::string nIName="Bulk");
-  
-  SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
+  RArrows(size_t N);
 
-  virtual Species* Clone() const { return new SpSphericalTop(*this); }
+  virtual void initOpenCL(magnet::CL::CLGLState&);
+  virtual void initOpenGL();
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
-  virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
-
-  virtual void operator<<(const XMLNode&);
+  cl::Buffer& getPointData() { return _pointData; }
+  cl::Buffer& getDirectionData() { return _directionData; }
 
 protected:
-
-  virtual void outputXML(xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
-
-  void outputXML(xml::XmlStream& XML, std::string type) const;
-  
-  double inertiaConstant;
+  cl::Buffer _pointData;
+  cl::Buffer _directionData;
+  cl::Program _program;
+  cl::Kernel _kernel;
+  cl::KernelFunctor _kernelFunc;
 };
