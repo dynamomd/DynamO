@@ -25,6 +25,7 @@ public:
   RArrows(size_t N);
 
   virtual void initOpenCL(magnet::CL::CLGLState&);
+  virtual void initOpenGL();
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
   cl::Buffer& getPointData() { return _pointData; }
@@ -36,6 +37,4 @@ protected:
   cl::Program _program;
   cl::Kernel _kernel;
   cl::KernelFunctor _kernelFunc;
-
-  magnet::thread::Mutex _lineDataLock;
 };

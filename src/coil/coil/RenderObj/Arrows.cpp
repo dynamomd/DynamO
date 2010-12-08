@@ -17,6 +17,8 @@
 #include "Arrows.hpp"
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
+#include <magnet/HSV.hpp>
+#include <sstream>
 
 #define STRINGIFY(A) #A
 
@@ -80,12 +82,12 @@ LineRenderKernel(const __global float* pointData,
   float3 sidesVec = normalize(cross(pointToView, dir));
   
   //Arrow verts
-  point = pos + 0.3f * dir + 0.2 * length(dir) * sidesVec;
+  point = pos + 0.3f * dir + 0.1 * length(dir) * sidesVec;
   vertexBuffer[6] = point.x;
   vertexBuffer[7] = point.y;
   vertexBuffer[8] = point.z;
 
-  point = pos + 0.3f * dir - 0.2 * length(dir) * sidesVec;
+  point = pos + 0.3f * dir - 0.1 * length(dir) * sidesVec;
   vertexBuffer[12] = point.x;
   vertexBuffer[13] = point.y;
   vertexBuffer[14] = point.z;
@@ -96,15 +98,24 @@ RArrows::RArrows(size_t N):
 {}
 
 void 
+RArrows::initOpenGL()
+{
+  RLines::initOpenGL();
+  {
+    std::vector<cl_uchar4> VertexColor(2 * _N);
+    
+    for (size_t icol = 0; icol < _N / 3; ++icol)
+      for (size_t jcol = 0; jcol < 6; ++jcol)
+	magnet::color::HSVtoRGB(VertexColor[6*icol+jcol],
+				float(icol)/ (_N/3));
+
+    setGLColors(VertexColor);
+  }
+}
+
+void 
 RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
 {
-  try {
-    _lineDataLock.lock();
-  } catch (std::exception& except)
-    {
-      M_throw() << "Failed to initially lock the line data.";
-    }
-
   RLines::initOpenCL(CLState);
   
   //Build buffer for line data
@@ -115,10 +126,18 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
 			      sizeof(cl_float) *  _N);
 
   //Build render kernel
+  std::stringstream fullSource;
+
+  fullSource << magnet::color::getOpenCLHSV();
+  fullSource << lineKernelSource;
+  
+  //Need to make the c_str() point to a valid data area, so copy the string
+  std::string finalSource = fullSource.str();
+
   cl::Program::Sources kernelSource;
   kernelSource.push_back(std::pair<const char*, ::size_t>
-			 (lineKernelSource.c_str(), lineKernelSource.size()));
-  
+			 (finalSource.c_str(), finalSource.size()));
+
   _program = cl::Program(CLState.getContext(), kernelSource);
 
   try {
@@ -139,13 +158,6 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
   cl_uint paddedN = (((_N/3) + 255) / 256) * 256;
 
   _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
-    
-  try {
-    _lineDataLock.unlock();
-  } catch (std::exception& except)
-    {
-      M_throw() << "Failed to initially (UN)lock the line data.";
-    }
 }
 
 

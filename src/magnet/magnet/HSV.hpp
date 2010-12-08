@@ -17,67 +17,140 @@
 
 #pragma once
 
+#include <cmath>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
 
 namespace magnet {
   namespace color {
-    inline void HSVtoRGB(double& r, double& g, double& b, double h, double s = 1, double v = 1) 
+    inline void HSVtoRGB(cl_uchar4& color, float h, float s = 1, float v = 1) 
     {
-      double temp;
-      h = modf(h, &temp);
-
-      s = clamp(s, 0.0, 1.0);
-      v = clamp(v, 0.0, 1.0);
-
+      float temp;
+      h = std::modf(h, &temp);
+      
+      s = clamp(s, 0.0f, 1.0f);
+      v = clamp(v, 0.0f, 1.0f);
+      
       h = h * 6;
-
+      
       unsigned int i = h;
-      double f = h - i;
-      double p = v * (1 - s);
-      double q = v * (1 - s * f);
-      double t = v * (1 - s * (1 - f));
-
+      float f = h - i;
+      float p = v * (1 - s);
+      float q = v * (1 - s * f);
+      float t = v * (1 - s * (1 - f));
+      
+      float r;
+      float g;
+      float b;
+      
       switch(i) {
       case 0:	
 	r = v;
 	g = t;
 	b = p;
 	break;
-
+	
       case 1:	
 	r = q;
 	g = v;
 	b = p;
 	break;
-
+	
       case 2:
 	r = p;
 	g = v;
 	b = t;
 	break;
-
+	
       case 3:
 	r = p;
 	g = q;
 	b = v;
 	break;
-
+	
       case 4:
 	r = t;
 	g = p;
 	b = v;
 	break;
-
+	
       case 5:
 	r = v;
 	g = p;
 	b = q;
 	break;
-
-      default:
-	M_throw() << "Out of range H? Can not happen";
       }
+      color.s[0] = r * 255;
+      color.s[1] = g * 255;
+      color.s[2] = b * 255;
+      color.s[3] =     255;
+    }
+
+    inline std::string getOpenCLHSV()
+    {
+#define STRINGIFY(A) #A
+
+      return STRINGIFY(
+    void HSVtoRGB(__local uchar4* color, float h, float s, float v) 
+{
+  float temp;
+  h = fract(h, &temp);
+
+  s = clamp(s, 0.0, 1.0);
+  v = clamp(v, 0.0, 1.0);
+
+  h = h * 6;
+
+  unsigned int i = h;
+  float f = h - i;
+  float p = v * (1 - s);
+  float q = v * (1 - s * f);
+  float t = v * (1 - s * (1 - f));
+
+  float r;
+  float g;
+  float b;
+
+  switch(i) {
+  case 0:	
+    r = v;
+    g = t;
+    b = p;
+    break;
+
+  case 1:	
+    r = q;
+    g = v;
+    b = p;
+    break;
+
+  case 2:
+    r = p;
+    g = v;
+    b = t;
+    break;
+
+  case 3:
+    r = p;
+    g = q;
+    b = v;
+    break;
+
+  case 4:
+    r = t;
+    g = p;
+    b = v;
+    break;
+
+  case 5:
+    r = v;
+    g = p;
+    b = q;
+    break;
+  }
+  *color = (uchar4)(r*255,g*255,b*255,255);
+});
+#undef STRINGIFY
     }
   }
 }

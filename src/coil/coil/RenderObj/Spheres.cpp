@@ -21,6 +21,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <fstream>
+#include <magnet/HSV.hpp>
 
 #include "Spheres.clh"
 #include <errno.h>
@@ -225,6 +226,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 
   fullSource << "#define WORKGROUP_SIZE " << _workgroupsize << "\n";
   
+  fullSource << magnet::color::getOpenCLHSV();
   fullSource << sphereKernelSource;
   
   //Need to make the c_str() point to a valid data area, so copy the string
