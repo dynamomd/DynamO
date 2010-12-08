@@ -42,6 +42,7 @@ OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   fileOutput(true),
   liveOutput(false),
   blockForVMD(true),
+  max_frame_count(1000),
   P1track(false),
   clientsock(NULL),
   sock(NULL),
@@ -80,6 +81,9 @@ OPTinkerXYZ::operator<<(const XMLNode& XML)
       if (XML.isAttributeSet("P1Track")) P1track = true;
       if (XML.isAttributeSet("Port")) 
 	port = boost::lexical_cast<int>(XML.getAttribute("Port"));
+
+      if (XML.isAttributeSet("MaxFrames")) 
+	max_frame_count = boost::lexical_cast<size_t>(XML.getAttribute("MaxFrames"));
     }
   catch (std::exception& excep)
     {
@@ -193,7 +197,7 @@ OPTinkerXYZ::printFileImage()
   char *fileName;
   
   //Dont let this fill up your hard drive!
-  if (frameCount > 1000)
+  if (frameCount > max_frame_count)
     return;
   
   std::vector<OPRGyration::molGyrationDat> gyrationData;
