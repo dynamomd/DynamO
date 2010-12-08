@@ -40,25 +40,21 @@ SpLines::updateRenderObj(magnet::CL::CLGLState& CLState) const
       Vector b = pos + 0.5 * diam * orientation;
 
       for (size_t i(0); i < NDIM; ++i)
-	particleData[6 * lineID + i] = a[i];
+	particleData[3 * lineID + i] = a[i];
 
       for (size_t i(0); i < NDIM; ++i)
-	particleData[6 * lineID + 3 + i] = b[i];
+	particleData[3 * (range->size() + lineID) + i] = b[i];
 
       ++lineID;
     }
 
-  {
-    cl::GLBuffer& linedata(static_cast<RArrows&>(*_renderObj).getVertexBuffer());
-    linedata.acquire(CLState.getCommandQueue());
-    
-    CLState.getCommandQueue().enqueueWriteBuffer
-      ((cl::Buffer)linedata,
-       false, 0, 6 * range->size() * sizeof(cl_float), &particleData[0]);
-    
-    linedata.release(CLState.getCommandQueue());
-  }
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RArrows&>(*_renderObj).getPointData(),
+     false, 0, 3 * range->size() * sizeof(cl_float), &particleData[0]);
 
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RArrows&>(*_renderObj).getDirectionData(),
+     false, 0, 3 * range->size() * sizeof(cl_float), &particleData[3*range->size()]);
 }
 #endif
 

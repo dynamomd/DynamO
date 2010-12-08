@@ -27,10 +27,12 @@ public:
   virtual void initOpenCL(magnet::CL::CLGLState&);
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
-  cl::Buffer& getArrowData() { return _arrowData; }
+  cl::Buffer& getPointData() { return _pointData; }
+  cl::Buffer& getDirectionData() { return _directionData; }
 
 protected:
-  cl::Buffer _arrowData;
+  cl::Buffer _pointData;
+  cl::Buffer _directionData;
   cl::Program _program;
   cl::Kernel _kernel;
   cl::KernelFunctor _kernelFunc;

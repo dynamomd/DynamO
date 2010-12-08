@@ -32,14 +32,17 @@ static cl_float4 getclVec(Vector vec)
 
 static const std::string lineKernelSource = STRINGIFY(
 __kernel void
-LineRenderKernel(const __global float* lineData,
+LineRenderKernel(const __global float* pointData,
+		 const __global float* directionData,
 		 __global float * vertexBuffer,
 		 float4 camPos, float4 camdir, float4 camup,
 		 uint Nlines)
 {
-  lineData += get_global_id(0)*6;
-  float3 pos = *((const __global float3*)lineData);
-  float3 axis = *((const __global float3*)lineData);
+  pointData += get_global_id(0) * 3;
+  directionData += get_global_id(0) * 3;
+
+//  float3 pos = *((const __global float3*)pointData);
+//  float3 axis = *((const __global float3*)lineData);
 }
 						      );
 RArrows::RArrows(size_t N):
@@ -59,8 +62,11 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
   RLines::initOpenCL(CLState);
   
   //Build buffer for line data
-  _arrowData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
-			  sizeof(cl_float) *  (_N/3) * 2);
+  _pointData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+			  sizeof(cl_float) *  _N);
+
+  _directionData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+			      sizeof(cl_float) *  _N);
 
   //Build render kernel
   cl::Program::Sources kernelSource;
@@ -109,7 +115,7 @@ RArrows::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _vie
   cl_uint NArrows = _N / 3;
 
   //Generate the sort data
-  _kernelFunc(_arrowData, (cl::Buffer)_clbuf_Positions, 
+  _kernelFunc(_pointData, _directionData, (cl::Buffer)_clbuf_Positions, 
 	      campos, camdir, camup, NArrows);
 
   //Release resources
