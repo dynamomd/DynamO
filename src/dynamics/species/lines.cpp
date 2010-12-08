@@ -10,7 +10,7 @@ SpLines::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-      _renderObj = new RLines(range->size());
+      _renderObj = new RArrows(range->size());
       particleData.resize(range->size()*6);
     }
 
@@ -28,22 +28,18 @@ SpLines::updateRenderObj(magnet::CL::CLGLState& CLState) const
   size_t lineID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
+      //Position
       Vector pos = Sim->particleList[ID].getPosition();
-      
       Sim->dynamics.BCs().applyBC(pos);
+      for (size_t i(0); i < NDIM; ++i)
+	particleData[3 * lineID + i] = pos[i];
       
+      //Vector
       Vector orientation 
-	= static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
+	= diam * static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
 	.getRotData(Sim->particleList[ID]).orientation;
-
-      Vector a = pos - 0.5 * diam * orientation;
-      Vector b = pos + 0.5 * diam * orientation;
-
       for (size_t i(0); i < NDIM; ++i)
-	particleData[3 * lineID + i] = a[i];
-
-      for (size_t i(0); i < NDIM; ++i)
-	particleData[3 * (range->size() + lineID) + i] = b[i];
+	particleData[3 * (range->size() + lineID) + i] = orientation[i];
 
       ++lineID;
     }

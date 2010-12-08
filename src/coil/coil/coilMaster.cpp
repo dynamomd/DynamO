@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define __CL_ENABLE_EXCEPTIONS
+
 #include <magnet/arg_share.hpp>
 #include <coil/coilMaster.hpp>
 #include <magnet/CL/CLGL.hpp>
@@ -273,37 +275,43 @@ void CoilMaster::coilThreadEntryPoint()
 
 bool CoilMaster::GTKIldeFunc()
 {
-  if (!CoilMaster::getInstance().isRunning()) 
-    {
-      //Drain the task queue, it should not get any more tasks as CoilMaster::getInstance().isRunning() is false
-      _coilQueue.drainQueue();
-
-      //! \todo{There is a race condition here if a window is added as coil is shutting down}
+  try {
+    if (!CoilMaster::getInstance().isRunning()) 
       {
-	magnet::thread::ScopedLock lock(_coilLock);
-
-	_viewPorts.clear();
-      }
-
-      Gtk::Main::quit();
-
-      //Run glutMainLoopEvent to let destroyed windows close
-      glutMainLoopEvent();
-    }
-  else
-    {
-      //Fire off a tick to glut
-      glutMainLoopEvent();
-      
-      for (std::map<int,magnet::thread::RefPtr<CoilWindow> >::iterator iPtr 
-	     = CoilMaster::getInstance()._viewPorts.begin();
-	   iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+	//Drain the task queue, it should not get any more tasks as CoilMaster::getInstance().isRunning() is false
+	_coilQueue.drainQueue();
+	
+	//! \todo{There is a race condition here if a window is added as coil is shutting down}
 	{
-	  glutSetWindow(iPtr->first);
-	  iPtr->second->CallBackIdleFunc();
+	  magnet::thread::ScopedLock lock(_coilLock);
+	  
+	  _viewPorts.clear();
 	}
-      
-      _coilQueue.drainQueue();
+
+	Gtk::Main::quit();
+	
+	//Run glutMainLoopEvent to let destroyed windows close
+	glutMainLoopEvent();
+      }
+    else
+      {
+	//Fire off a tick to glut
+	glutMainLoopEvent();
+	
+	for (std::map<int,magnet::thread::RefPtr<CoilWindow> >::iterator iPtr 
+	       = CoilMaster::getInstance()._viewPorts.begin();
+	     iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+	  {
+	    glutSetWindow(iPtr->first);
+	    iPtr->second->CallBackIdleFunc();
+	  }
+	
+	_coilQueue.drainQueue();
+      }
+  } catch (cl::Error err)
+    {
+      M_throw() << "An OpenCL error occured," << err.what()
+		<< "\nError num of " << err.err() << "\n";
     }
   
   return true;

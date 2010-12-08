@@ -35,18 +35,64 @@ __kernel void
 LineRenderKernel(const __global float* pointData,
 		 const __global float* directionData,
 		 __global float * vertexBuffer,
-		 float4 camPos, float4 camdir, float4 camup,
-		 uint Nlines)
+		 float4 camPos, uint Nlines)
 {
+  //Position data
+  if (get_global_id(0) >= Nlines) return;
+  
   pointData += get_global_id(0) * 3;
   directionData += get_global_id(0) * 3;
+  
+  vertexBuffer += 6 * 3 * get_global_id(0); 
+  
+  float3 pos ;
+  pos.x = pointData[0];
+  pos.y = pointData[1];
+  pos.z = pointData[2];
+  
+  float3 dir ;
+  dir.x = directionData[0];
+  dir.y = directionData[1];
+  dir.z = directionData[2];
+  
+  float3 point = pos - 0.5f * dir;
+  
+  //Arrow Bottom
+  vertexBuffer[0] = point.x;
+  vertexBuffer[1] = point.y;
+  vertexBuffer[2] = point.z;
+  
+  //Arrow Head
+  point = pos + 0.5f * dir;
+  vertexBuffer[3] = point.x;
+  vertexBuffer[4] = point.y;
+  vertexBuffer[5] = point.z;
 
-//  float3 pos = *((const __global float3*)pointData);
-//  float3 axis = *((const __global float3*)lineData);
+  vertexBuffer[9] = point.x;
+  vertexBuffer[10] = point.y;
+  vertexBuffer[11] = point.z;
+
+  vertexBuffer[15] = point.x;
+  vertexBuffer[16] = point.y;
+  vertexBuffer[17] = point.z;
+
+  float3 pointToView = point - camPos.xyz;
+  float3 sidesVec = normalize(cross(pointToView, dir));
+  
+  //Arrow verts
+  point = pos + 0.3f * dir + 0.2 * length(dir) * sidesVec;
+  vertexBuffer[6] = point.x;
+  vertexBuffer[7] = point.y;
+  vertexBuffer[8] = point.z;
+
+  point = pos + 0.3f * dir - 0.2 * length(dir) * sidesVec;
+  vertexBuffer[12] = point.x;
+  vertexBuffer[13] = point.y;
+  vertexBuffer[14] = point.z;
 }
 						      );
 RArrows::RArrows(size_t N):
-  RLines(3*N) //3 lines per arrow
+  RLines(3*N)
 {}
 
 void 
@@ -90,7 +136,7 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
   
   _kernel = cl::Kernel(_program, "LineRenderKernel");
 
-  cl_uint paddedN = (((_N/3) + 255)/256) * 256;
+  cl_uint paddedN = (((_N/3) + 255) / 256) * 256;
 
   _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
     
@@ -102,12 +148,11 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
     }
 }
 
+
 void 
 RArrows::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
 {
   cl_float4 campos = getclVec(_viewPortInfo._position);
-  cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
-  cl_float4 camup = getclVec(_viewPortInfo._cameraUp);
 
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(CLState.getCommandQueue());
@@ -116,8 +161,8 @@ RArrows::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _vie
 
   //Generate the sort data
   _kernelFunc(_pointData, _directionData, (cl::Buffer)_clbuf_Positions, 
-	      campos, camdir, camup, NArrows);
-
+	      campos, NArrows);
+  
   //Release resources
   _clbuf_Positions.release(CLState.getCommandQueue());
 }
