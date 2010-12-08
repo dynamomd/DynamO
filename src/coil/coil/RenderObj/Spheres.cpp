@@ -27,7 +27,7 @@
 
 struct  SortDataType { cl_uint ID; cl_float dist; };
 
-cl_float4 getclVec(Vector vec)
+static cl_float4 getclVec(Vector vec)
 { 
   cl_float4 clvec;
   clvec.x = vec[0];

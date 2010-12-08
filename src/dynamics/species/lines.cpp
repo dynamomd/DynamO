@@ -2,7 +2,7 @@
 
 #ifdef DYNAMO_visualizer
 # include <magnet/thread/mutex.hpp>
-# include <coil/RenderObj/Lines.hpp>
+# include <coil/RenderObj/Arrows.hpp>
 # include "../liouvillean/OrientationL.hpp"
 
 magnet::thread::RefPtr<RenderObj>& 
@@ -49,13 +49,13 @@ SpLines::updateRenderObj(magnet::CL::CLGLState& CLState) const
     }
 
   {
-    cl::GLBuffer& linedata(static_cast<RLines&>(*_renderObj).getVertexBuffer());
+    cl::GLBuffer& linedata(static_cast<RArrows&>(*_renderObj).getVertexBuffer());
     linedata.acquire(CLState.getCommandQueue());
     
-//    CLState.getCommandQueue().enqueueWriteBuffer
-//      ((cl::Buffer)linedata,
-//       false, 0, 6 * range->size() * sizeof(cl_float), &particleData[0]);
-
+    CLState.getCommandQueue().enqueueWriteBuffer
+      ((cl::Buffer)linedata,
+       false, 0, 6 * range->size() * sizeof(cl_float), &particleData[0]);
+    
     linedata.release(CLState.getCommandQueue());
   }
 
