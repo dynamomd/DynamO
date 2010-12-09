@@ -82,22 +82,9 @@ RTSpheres::RTSpheres(size_t N):
     _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, N - spheres_rendered));
 }
 
-RTSpheres::~RTSpheres()
-{
-  //We get a lock to ensure we don't destroy during a data transfer
-  magnet::thread::ScopedLock tmp(_sphereDataLock);
-}
-
 void
 RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 {
-  try {
-    _sphereDataLock.lock();
-  } catch (std::exception& except)
-    {
-      M_throw() << "Failed to initially lock the sphere data.";
-    }
-
   {
     _spherePositions = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);
@@ -267,13 +254,6 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     iPtr->setupCLBuffers(CLState);
-
-  try {
-    _sphereDataLock.unlock();
-  } catch (std::exception& except)
-    {
-      M_throw() << "Failed to initially (UN)lock the sphere data.";
-    }
 }
 
 void 
@@ -332,17 +312,11 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState,
 void 
 RTSpheres::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&  _viewPortInfo)
 {
-  //First check you can get a lock on the position data!
-  magnet::thread::ScopedLock lock(_sphereDataLock);
+  if (!_visible) return;
 
   if (!(++_frameCount % _sortFrequency)) sortTick(CLState, _viewPortInfo);
   
-  clTick_no_sort_or_locking(CLState);
-}
 
-void 
-RTSpheres::clTick_no_sort_or_locking(magnet::CL::CLGLState& CLState)
-{
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(CLState.getCommandQueue());
 

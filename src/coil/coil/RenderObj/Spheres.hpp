@@ -51,8 +51,6 @@ public:
 
   RTSpheres(size_t N);
 
-  ~RTSpheres();
-
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
   void sortTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
 
@@ -62,9 +60,6 @@ public:
   cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
   
 protected:
-
-  void clTick_no_sort_or_locking(magnet::CL::CLGLState&);
-
   cl::Program _program;
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
@@ -90,6 +85,4 @@ protected:
 
   magnet::CL::radixSort<cl_float> sortFunctor;
   magnet::CL::heapSort<cl_float> CPUsortFunctor;
-
-  magnet::thread::Mutex _sphereDataLock;
 };
