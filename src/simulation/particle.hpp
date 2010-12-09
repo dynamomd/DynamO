@@ -25,10 +25,6 @@ namespace xml
   class XmlStream;
 }
 
-struct ParticleState
-{
-};
-
 class Particle
 {
 public:

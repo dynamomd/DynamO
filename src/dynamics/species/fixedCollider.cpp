@@ -27,3 +27,28 @@ SpFixedCollider::initialise()
   BOOST_FOREACH(size_t ID, *range)
     Sim->particleList[ID].clearState(Particle::DYNAMIC);
 }
+
+void 
+SpFixedCollider::operator<<(const XMLNode& XML)
+{
+  range.set_ptr(CRange::loadClass(XML,Sim));
+  
+  try {
+    mass = 0;
+    spName = XML.getAttribute("Name");
+    intName = XML.getAttribute("IntName");
+  } 
+  catch (boost::bad_lexical_cast &)
+    {
+      M_throw() << "Failed a lexical cast in SpFixedCollider";
+    }
+}
+
+void 
+SpFixedCollider::outputXML(xml::XmlStream& XML) const
+{
+  XML << xml::attr("Name") << spName
+      << xml::attr("IntName") << intName
+      << xml::attr("Type") << "FixedCollider"
+      << range;
+}

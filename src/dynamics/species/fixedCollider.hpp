@@ -29,24 +29,17 @@ public:
     Species(sim, name, r, 0.0, nName, ID, nIName)
   {}
   
-  SpFixedCollider(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int nID):
-    Species(XML, Sim, nID)
+  SpFixedCollider(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
+    Species(nSim, "", NULL, 0, "", nID,"")
   { operator<<(XML); }
   
   virtual void initialise();
 
-  virtual void operator<<(const XMLNode& XML)
-  { Species::operator<<(XML); }
+  virtual void operator<<(const XMLNode& XML);
 
   virtual SpFixedCollider* Clone() const { return new SpFixedCollider(*this); }
 
 protected:
 
-  virtual void outputXML(xml::XmlStream& XML) const
-  {
-    XML << xml::attr("Name") << spName
-	<< xml::attr("IntName") << intName
-	<< xml::attr("Type") << "FixedCollider"
-	<< range;
-  }
+  virtual void outputXML(xml::XmlStream& XML) const;
 };

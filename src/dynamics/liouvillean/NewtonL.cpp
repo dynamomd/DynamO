@@ -387,14 +387,16 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
  
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
-  //Treat special cases if one particle has infinite mass
-  if ((p1Mass == 0) && (p2Mass != 0))
+  //Treat special cases if one particle has infinite mass (sleeping)
+  if (!particle1.testState(Particle::DYNAMIC)
+      && particle2.testState(Particle::DYNAMIC))
     {
       retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
       const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
     }
-  else if ((p2Mass == 0) && (p1Mass != 0))
+  else if (particle1.testState(Particle::DYNAMIC) 
+	   && !particle2.testState(Particle::DYNAMIC))
     {
       retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
@@ -402,7 +404,8 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
     }
   else
     {
-      bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
+      bool isInfInf = !particle1.testState(Particle::DYNAMIC) 
+	&& !particle1.testState(Particle::DYNAMIC);
 
       //If both particles have infinite mass we just collide them as identical masses
       if (isInfInf) p1Mass = p2Mass = 1;
