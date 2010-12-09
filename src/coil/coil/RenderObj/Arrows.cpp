@@ -45,7 +45,7 @@ LineRenderKernel(const __global float* pointData,
   pointData += get_global_id(0) * 3;
   directionData += get_global_id(0) * 3;
   
-  vertexBuffer += 6 * 3 * get_global_id(0); 
+  vertexBuffer += 4 * 3 * get_global_id(0); 
   
   float3 pos ;
   pos.x = pointData[0];
@@ -70,14 +70,6 @@ LineRenderKernel(const __global float* pointData,
   vertexBuffer[4] = point.y;
   vertexBuffer[5] = point.z;
 
-  vertexBuffer[9] = point.x;
-  vertexBuffer[10] = point.y;
-  vertexBuffer[11] = point.z;
-
-  vertexBuffer[15] = point.x;
-  vertexBuffer[16] = point.y;
-  vertexBuffer[17] = point.z;
-
   float3 pointToView = point - camPos.xyz;
   float3 sidesVec = normalize(cross(pointToView, dir));
   
@@ -88,29 +80,78 @@ LineRenderKernel(const __global float* pointData,
   vertexBuffer[8] = point.z;
 
   point = pos + 0.3f * dir - 0.1 * length(dir) * sidesVec;
-  vertexBuffer[12] = point.x;
-  vertexBuffer[13] = point.y;
-  vertexBuffer[14] = point.z;
+  vertexBuffer[9] = point.x;
+  vertexBuffer[10] = point.y;
+  vertexBuffer[11] = point.z;
 }
 						      );
 RArrows::RArrows(size_t N):
-  RLines(3*N)
+  RLines(N)
 {}
 
 void 
 RArrows::initOpenGL()
 {
-  RLines::initOpenGL();
-  {
-    std::vector<cl_uchar4> VertexColor(2 * _N);
+  {//Setup initial vertex positions, arrows have 4 verts
+    std::vector<float> VertexPos(3 * _N * 4, 0.0);
+    for (size_t i(0); i < _N; ++i)
+      { 
+	//Base
+	VertexPos[12*i+0] = i * 1.0f / _N;
+	VertexPos[12*i+1] = i * 1.0f / _N;
+	VertexPos[12*i+2] = i * 1.0f / _N;
+
+	//Head
+	VertexPos[12*i+3] = i * 1.0f / _N;
+	VertexPos[12*i+4] = (i + 0.5f) * 1.0f / _N;
+	VertexPos[12*i+5] = i * 1.0f / _N;
+
+	//Side 1
+	VertexPos[12*i+6] = (i + 0.10f) * 1.0f / _N;
+	VertexPos[12*i+7] = (i + 0.35f) * 1.0f / _N;
+	VertexPos[12*i+8] = i * 1.0f / _N;
+	
+	//Side 2
+	VertexPos[12*i+ 9] = (i - 0.10f) * 1.0f / _N;
+	VertexPos[12*i+10] = (i + 0.35f) * 1.0f / _N;
+	VertexPos[12*i+11] = i * 1.0f / _N;
+      }
+    setGLPositions(VertexPos);
+  }
+  
+  {//4 vertexes per line
+    std::vector<cl_uchar4> VertexColor(4 * _N);
     
-    for (size_t icol = 0; icol < _N / 3; ++icol)
-      for (size_t jcol = 0; jcol < 6; ++jcol)
-	magnet::color::HSVtoRGB(VertexColor[6*icol+jcol],
-				float(icol)/ (_N/3));
+    for (size_t icol = 0; icol < _N; ++icol)
+      for (size_t jcol = 0; jcol < 4; ++jcol)
+	magnet::color::HSVtoRGB(VertexColor[4*icol+jcol],
+				float(icol)/ _N);
 
     setGLColors(VertexColor);
   }
+
+  {//Setup initial element data
+    //3 line segments, 2 vertices each
+    std::vector<int> ElementData(6 * _N, 0);
+
+    for (size_t i(0); i < _N; ++i)
+      {
+	//Base-head
+	ElementData[6 * i + 0] = 4 * i + 0;
+	ElementData[6 * i + 1] = 4 * i + 1;
+
+	//head-side1
+	ElementData[6 * i + 2] = 4 * i + 1;
+	ElementData[6 * i + 3] = 4 * i + 2;
+
+	//head-side2
+	ElementData[6 * i + 4] = 4 * i + 1;
+	ElementData[6 * i + 5] = 4 * i + 3;
+      }
+    
+    setGLElements(ElementData);
+  }
+  
 }
 
 void 
@@ -120,10 +161,10 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
   
   //Build buffer for line data
   _pointData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
-			  sizeof(cl_float) *  _N);
+			  sizeof(cl_float) *  _N * 3);
 
   _directionData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
-			      sizeof(cl_float) *  _N);
+			      sizeof(cl_float) *  _N * 3);
 
   //Build render kernel
   std::stringstream fullSource;
@@ -155,7 +196,7 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
   
   _kernel = cl::Kernel(_program, "LineRenderKernel");
 
-  cl_uint paddedN = (((_N/3) + 255) / 256) * 256;
+  cl_uint paddedN = ((_N + 255) / 256) * 256;
 
   _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
 }
@@ -169,7 +210,7 @@ RArrows::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _vie
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(CLState.getCommandQueue());
   
-  cl_uint NArrows = _N / 3;
+  cl_uint NArrows = _N;
 
   //Generate the sort data
   _kernelFunc(_pointData, _directionData, (cl::Buffer)_clbuf_Positions, 
