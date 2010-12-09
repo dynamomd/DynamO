@@ -154,8 +154,7 @@ LNewtonian::LNewtonian(DYNAMO::SimData* tmp):
 void
 LNewtonian::streamParticle(Particle &particle, const double &dt) const
 {
-  if (particle.testState(Particle::DYNAMIC))
-    particle.getPosition() += particle.getVelocity() * dt;
+  particle.getPosition() += particle.getVelocity() * dt;
 }
 
 double 

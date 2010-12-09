@@ -63,7 +63,7 @@ LNOrientation::initialise()
 void
 LNOrientation::outputXML(xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") 
+  XML << xml::attr("Type")
       << "NOrientation";
 }
 
@@ -181,16 +181,13 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
 void
 LNOrientation::streamParticle(Particle& part, const double& dt) const
 {
-  if (part.testState(Particle::DYNAMIC))
-    {
-      part.getPosition() += part.getVelocity() * dt;
-      
-      //The Vector copy is required to make sure that the cached
-      //orientation doesn't change during calculation
-      orientationData[part.getID()].orientation 
-	= Rodrigues(orientationData[part.getID()].angularVelocity * dt)
-	* Vector(orientationData[part.getID()].orientation); 
-    }
+  part.getPosition() += part.getVelocity() * dt;
+  
+  //The Vector copy is required to make sure that the cached
+  //orientation doesn't change during calculation
+  orientationData[part.getID()].orientation 
+    = Rodrigues(orientationData[part.getID()].angularVelocity * dt)
+    * Vector(orientationData[part.getID()].orientation); 
 }
 
 
