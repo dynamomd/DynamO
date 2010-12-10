@@ -515,6 +515,35 @@ function HardLinesTest {
 	tmp.xml.bz2 run.log
 }
 
+function GravityPlateTest {
+    > run.log
+
+    $Dynamod -s1 -m 22 -d 0.1  &> run.log
+    $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft=3.42937393269836; var=($1 - mft) / mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "Gravity Plate -: FAILED"
+	    gawk 'BEGIN {mft=3.42937393269836; print "MFT is supposed to be ",mft}'
+	    bzcat output.xml.bz2 \
+		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+		| gawk '{print "MFT is " $0}'
+	    exit 1
+	else
+	    echo "Gravity Plate -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in Gravity Plate"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
 cannon "Dumb" "CBT"
@@ -545,6 +574,8 @@ echo "Testing shearing boundary conditions with inelastic particles"
 ShearingTest
 echo "Testing infinite systems with neighbour lists and a 50mer polymer"
 IsolatedPolymerTest
+echo "Testing infinite systems with neighbour lists and gravity!"
+GravityPlateTest
 #echo "Testing binary spheres and the ListAndCell neighbourlist"
 #BinarySphereTest "ListAndCell"
 

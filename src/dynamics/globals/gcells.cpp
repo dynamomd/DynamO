@@ -35,11 +35,13 @@ CGCells::calcPosition(const Vector& primaryCell,
 		      const Particle& part) const
 {
   //We always return the cell that is periodically nearest to the particle
-  Vector imageCell = primaryCell - part.getPosition();
-  Sim->dynamics.BCs().applyBC(imageCell);
-
-  return imageCell + part.getPosition();
-
+  Vector imageCell;
+  
+  for (size_t i = 0; i < NDIM; ++i)
+    imageCell[i] = primaryCell[i] - Sim->aspectRatio[i]
+      * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
+  
+  return imageCell;
 }
 
 
