@@ -81,7 +81,7 @@ LNewtonianGravity::getWallCollision(const Particle &part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  double adot = wallNorm[GravityDim] * Gravity;
+  double adot = wallNorm[GravityDim] * Gravity * part.testState(Particle::DYNAMIC);
   double vdot = vel | wallNorm;
   double rdot = (rij - wallLoc) | wallNorm;
 
@@ -123,7 +123,7 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
   double retVal = HUGE_VAL;
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if (iDim == GravityDim)
+    if ((iDim == GravityDim) && part.testState(Particle::DYNAMIC))
       {
 	double adot = Gravity;
 	double vdot = vel[GravityDim];
@@ -202,7 +202,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 #endif
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if (iDim == GravityDim)
+    if ((iDim == GravityDim) && part.testState(Particle::DYNAMIC))
       {
 	double adot = Gravity;
 	double vdot = vel[GravityDim];

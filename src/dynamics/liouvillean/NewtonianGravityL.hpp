@@ -58,10 +58,10 @@ public:
 				const Vector &) const;
 
   virtual double getCylinderWallCollision(const Particle&, 
-					const Vector &, 
-					const Vector &,
-					const double&
-					) const;
+					  const Vector &, 
+					  const Vector &,
+					  const double&
+					  ) const;
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
