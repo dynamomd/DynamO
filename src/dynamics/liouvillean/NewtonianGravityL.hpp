@@ -29,6 +29,9 @@ public:
 
   //Pair particle dynamics
 
+  virtual bool SphereSphereInRoot(CPDData&, const double&) const;
+  virtual bool SphereSphereOutRoot(CPDData&, const double&) const;  
+
   virtual void streamParticle(Particle&, const double&) const;
 
   virtual double getSquareCellCollision2(const Particle&, 

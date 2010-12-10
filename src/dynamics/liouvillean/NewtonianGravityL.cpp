@@ -64,12 +64,23 @@ LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
 {
   particle.getPosition() += dt * particle.getVelocity();
 
-  if (particle.testState(Particle::DYNAMIC))
-    {
-      particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity;
-      particle.getVelocity()[GravityDim] += dt * Gravity;
-    }
+  bool isDynamic = particle.testState(Particle::DYNAMIC);
+  particle.getPosition()[GravityDim] += 0.5 * dt * dt * Gravity * isDynamic;
+  particle.getVelocity()[GravityDim] += dt * Gravity * isDynamic;
 }
+
+bool 
+LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2) const
+{
+  LNewtonian::SphereSphereInRoot(dat,d2);
+}
+  
+bool 
+LNewtonianGravity::SphereSphereOutRoot(CPDData& dat, const double& d2) const
+{
+  LNewtonian::SphereSphereOutRoot(dat,d2);
+}
+
 
 double 
 LNewtonianGravity::getWallCollision(const Particle &part, 
@@ -298,25 +309,7 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
 				   const Vector& wallNorm,
 				   const double& radius) const
 {
-  Vector  rij = part.getPosition() - wallLoc,
-    vel = part.getVelocity();
-
-  Sim->dynamics.BCs().applyBC(rij, vel);
-
-  rij -= Vector((rij | wallNorm) * wallNorm);
-
-  vel -= Vector((vel | wallNorm) * wallNorm);
-
-  double B = (vel | rij),
-    A = vel.nrm2(),
-    C = rij.nrm2() - radius * radius;
-
-  double t = (std::sqrt(B*B - A*C) - B) / A;
-
-  if (boost::math::isnan(t))
-    return HUGE_VAL;
-  else
-    return t;
+  M_throw() << "Not implemented yet";
 }
 
 double 

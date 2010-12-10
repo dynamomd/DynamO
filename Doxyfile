@@ -533,7 +533,9 @@ RECURSIVE              = YES
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = src/extcode/include/boost/ \
-		       src/extcode/include/FastDelegate
+		       src/extcode/include/FastDelegate \
+		       src/magnet/tests 
+		       
 		       
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
