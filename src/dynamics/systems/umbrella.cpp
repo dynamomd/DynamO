@@ -189,7 +189,7 @@ CSUmbrella::recalculateTime()
       
       //Just look for escaping as we're in the well step spanning r = 0 
       if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
-	  (partdata, R_max * R_max))
+	  (partdata, R_max * R_max, true, true))
 	{
 	  dt = partdata.dt;
 	  type = WELL_OUT;
@@ -219,13 +219,13 @@ CSUmbrella::recalculateTime()
       R_max = b + sqrt(((ulevel + 1) * delU) / a);
     }
 
-  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min))
+  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min, true, true))
     {
       dt = partdata.dt;
       type = WELL_IN;
     }
   else 
-    if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max))
+    if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max, true, true))
       {
 	dt = partdata.dt;
 	type = WELL_OUT;

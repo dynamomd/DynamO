@@ -122,13 +122,13 @@ LSLLOD::multibdyWellEvent(const CRange&, const CRange&,
 }
 
 bool 
-LSLLOD::SphereSphereInRoot(CPDData& dat, const double& d2) const
+LSLLOD::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
   M_throw() << "Not Implemented";
 }
   
 bool 
-LSLLOD::SphereSphereOutRoot(CPDData& dat, const double& d2) const
+LSLLOD::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
   M_throw() << "Not Implemented";
 }

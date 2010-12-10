@@ -30,7 +30,7 @@ LCompression::LCompression(DYNAMO::SimData* tmp, double GR):
   growthRate(GR) {}
 
 bool 
-LCompression::SphereSphereInRoot(CPDData& dat, const double& d2) const
+LCompression::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
   double b = dat.rvdot - d2 
     * (growthRate * growthRate * Sim->dSysTime + growthRate);
@@ -53,7 +53,7 @@ LCompression::SphereSphereInRoot(CPDData& dat, const double& d2) const
 }
   
 bool 
-LCompression::SphereSphereOutRoot(CPDData& dat, const double& d2) const
+LCompression::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
   double a = dat.v2 - growthRate * growthRate * d2;
   double b = dat.rvdot - d2 * (growthRate * growthRate 

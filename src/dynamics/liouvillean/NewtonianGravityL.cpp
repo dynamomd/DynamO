@@ -38,7 +38,6 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
     M_throw() << "Attempting to load NewtonianGravity from "
 	      << XML.getAttribute("Type")
 	      << " entry";
-  
   try 
     {
       if (XML.isAttributeSet("Gravity"))
@@ -70,15 +69,21 @@ LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
 }
 
 bool 
-LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2) const
+LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
-  LNewtonian::SphereSphereInRoot(dat,d2);
+  if (p1Dynamic == p2Dynamic)
+    return LNewtonian::SphereSphereInRoot(dat,d2,p1Dynamic,p2Dynamic);
+  
+  M_throw() << "Unsupported";
 }
   
 bool 
-LNewtonianGravity::SphereSphereOutRoot(CPDData& dat, const double& d2) const
+LNewtonianGravity::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
-  LNewtonian::SphereSphereOutRoot(dat,d2);
+  if (p1Dynamic == p2Dynamic)
+    return LNewtonian::SphereSphereOutRoot(dat,d2,p1Dynamic,p2Dynamic);
+
+  M_throw() << "Unsupported";
 }
 
 

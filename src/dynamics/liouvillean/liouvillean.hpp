@@ -146,7 +146,7 @@ public:
    *
    * \return Whether the event will occur
    */
-  virtual bool SphereSphereInRoot(CPDData& pd, const double& d2) const = 0;
+  virtual bool SphereSphereInRoot(CPDData& pd, const double& d2, bool p1Dynamic, bool p2Dynamic) const = 0;
 
   /*! \brief Determines if and when two spheres will stop intersecting.
    *
@@ -158,7 +158,7 @@ public:
    * \return Whether the event will occur (Always false for LNewtonian
    * but not for LCompression!)
    */
-  virtual bool SphereSphereOutRoot(CPDData&, const double&) const = 0;  
+  virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const = 0;  
 
   /*! \brief Determines if two spheres are overlapping
    *

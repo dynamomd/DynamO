@@ -25,8 +25,8 @@ class LCompression: public LNewtonian
 public:
   LCompression(DYNAMO::SimData*, double);
 
-  virtual bool SphereSphereInRoot(CPDData&, const double&) const;
-  virtual bool SphereSphereOutRoot(CPDData&, const double&) const;  
+  virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
+  virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
   virtual bool sphereOverlap(const CPDData&, const double&) const;
 
   virtual void streamParticle(Particle&, const double&) const;

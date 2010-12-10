@@ -29,7 +29,7 @@
 CLSphere::CLSphere(DYNAMO::SimData* nSim, double ne,
 		       Vector  norigin, double nr, std::string nname, 
 		       CRange* nRange, bool nrender):
-  Local(nRange, nSim, "CylinderWall"),
+  Local(nRange, nSim, "SphereWall"),
   vPosition(norigin),
   e(ne),
   radius(nr),
@@ -40,7 +40,7 @@ CLSphere::CLSphere(DYNAMO::SimData* nSim, double ne,
 }
 
 CLSphere::CLSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
-  Local(tmp, "CylinderWall")
+  Local(tmp, "SphereWall")
 {
   operator<<(XML);
 }
@@ -57,7 +57,9 @@ CLSphere::getEvent(const Particle& part) const
     
   CPDData colldat(*Sim, part, fakeParticle);
 
-  dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean()). LNewtonian::SphereSphereOutRoot(colldat, r2);
+  dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean())
+    . LNewtonian::SphereSphereOutRoot(colldat, r2,
+				      part.testState(Particle::DYNAMIC), false);
 
   return LocalEvent(part, colldat.dt, WALL, *this);
 }

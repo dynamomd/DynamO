@@ -186,7 +186,7 @@ IStepped::getEvent(const Particle &p1,
     {
       //Not captured, test for capture
       if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	  (colldat, runstepdata.front().first))
+	  (colldat, runstepdata.front().first, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
@@ -210,7 +210,8 @@ IStepped::getEvent(const Particle &p1,
       //Then check for that event first
       if ((capstat->second < static_cast<int>(runstepdata.size()))
 	  && (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	      (colldat, runstepdata[capstat->second].first)))
+	      (colldat, runstepdata[capstat->second].first, 
+	       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
@@ -227,7 +228,8 @@ IStepped::getEvent(const Particle &p1,
 	  return IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	}
       else if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
-	       (colldat, runstepdata[capstat->second-1].first))
+	       (colldat, runstepdata[capstat->second-1].first,
+		p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
 

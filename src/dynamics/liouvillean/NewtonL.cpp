@@ -75,7 +75,7 @@ LNewtonian::cubeOverlap(const CPDData& dat, const double& d) const
 }
 
 bool 
-LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2) const
+LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2, bool, bool) const
 {
   if (dat.rvdot < 0)
     {
@@ -101,7 +101,7 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2) const
 }
   
 bool 
-LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2) const
+LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2, bool, bool) const
 {
   dat.dt = (sqrt(dat.rvdot * dat.rvdot 
 		 - dat.v2 * (dat.r2 - d2)) - dat.rvdot) / dat.v2;
