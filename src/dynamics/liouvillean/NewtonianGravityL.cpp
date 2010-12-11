@@ -69,16 +69,6 @@ LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
   particle.getVelocity()[GravityDim] += dt * Gravity * isDynamic;
 }
 
-namespace {
-  double fspheresphere(CPDData& dat, const double& d2, const Vector& g, const double& t)
-  {
-    return (((0.25 * g.nrm2() * t 
-	      + (g|dat.vij)) * t
-	     + dat.v2 + (g|dat.rij)) * t
-	    + 2 * dat.rvdot) * t + dat.r2 - d2;
-  }
-}
-
 bool 
 LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
@@ -109,19 +99,19 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dyn
   //Sort the roots in ascending order
   std::sort(roots, roots + rootCount);
 
-  double tm = ((rootCount > 1) && (roots[0] < 0)) ? roots[0] : roots[2];
+  double tm = ((rootCount > 1) && (roots[0] < 0)) ? roots[2] : roots[0];
 
-  //Only accept positive roots (collision was in the past)
+  //Only accept positive minimums (otherwise collision was in the past)
   if (tm < 0) return false;
 
-  //Check an overlap actually occurs at some point
-  if ((((coeffs[0] * roots[0] + coeffs[1]) * roots[0] + coeffs[2]) * roots[0] + coeffs[3]) * roots[0] + coeffs[4] < 0) 
+  //Check an overlap actually occurs at the minimum
+  if ((((coeffs[0] * tm + coeffs[1]) * tm + coeffs[2]) * tm + coeffs[3]) * tm + coeffs[4] > 0)
     return false;
 
   //Now bisect the root
 
   double t1 = 0, t2 = tm;
-  for(size_t i = 0; i < 10; ++i)
+  for(size_t i = 0; i < 500; ++i)
     {
       tm = 0.5 * (t1 + t2);
 
