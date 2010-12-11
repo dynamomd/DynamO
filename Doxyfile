@@ -534,9 +534,8 @@ RECURSIVE              = YES
 
 EXCLUDE                = src/extcode/include/boost/ \
 		       src/extcode/include/FastDelegate \
-		       src/magnet/tests 
-		       
-		       
+		       src/magnet/tests \
+		       src/coil/tests
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 
