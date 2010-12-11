@@ -44,7 +44,9 @@ protected:
   virtual void outputXML(xml::XmlStream& XML) const 
   { SpSphericalTop::outputXML(XML, "Lines"); }
 
-    mutable std::vector<cl_float> particleData;
+#ifdef DYNAMO_visualizer
+  mutable std::vector<cl_float> particleData;
+#endif
 
 };
 
