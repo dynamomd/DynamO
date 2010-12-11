@@ -70,12 +70,13 @@ LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
 }
 
 bool 
-LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
+LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, 
+				      bool p1Dynamic, bool p2Dynamic) const
 {
   if (p1Dynamic == p2Dynamic)
     return LNewtonian::SphereSphereInRoot(dat,d2,p1Dynamic,p2Dynamic);
 
-  Vector g;
+  Vector g(0,0,0);
   g[GravityDim] = (p1Dynamic) ? Gravity : -Gravity;
 
   //Generate the coefficients of the quartic
@@ -90,7 +91,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dyn
   const double cubicnorm = 0.25 / coeffs[0];
   
   //We calculate the roots of the cubic
-  double roots[4];
+  double roots[3];
   size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm * 3, 
 					      coeffs[2] * cubicnorm * 2, 
 					      coeffs[3] * cubicnorm, 
