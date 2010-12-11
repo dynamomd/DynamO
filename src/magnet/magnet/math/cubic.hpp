@@ -41,7 +41,6 @@ namespace magnet {
 
     //Please read  http://linus.it.uts.edu.au/~don/pubs/solving.html
     //For solving cubics like x^3 + p * x^2 + q * x + r == 0
-    //This function always returns root1 >= root2 >= root3!
     inline size_t 
     cubicSolve(const double& p, const double& q, const double& r, 
 	       double& root1, double& root2, double& root3)
