@@ -28,6 +28,7 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/math/cubic.hpp>
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
@@ -38,7 +39,6 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
     M_throw() << "Attempting to load NewtonianGravity from "
 	      << XML.getAttribute("Type")
 	      << " entry";
-  
   try 
     {
       if (XML.isAttributeSet("Gravity"))
@@ -70,15 +70,71 @@ LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
 }
 
 bool 
-LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2) const
+LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
-  LNewtonian::SphereSphereInRoot(dat,d2);
+  if (p1Dynamic == p2Dynamic)
+    return LNewtonian::SphereSphereInRoot(dat,d2,p1Dynamic,p2Dynamic);
+
+  Vector g;
+  g[GravityDim] = (p1Dynamic) ? Gravity : -Gravity;
+
+  //Generate the coefficients of the quartic
+  const double coeffs[5] = {0.25 * Gravity * Gravity,
+			    g | dat.vij,
+			    dat.v2 + (g | dat.rij),
+			    2 * dat.rvdot, 
+			    dat.r2 - d2};
+
+  //This value is used to make the derivative of the quartic have a
+  //unit coefficient for the t^3 term
+  const double cubicnorm = 0.25 / coeffs[0];
+  
+  //We calculate the roots of the cubic
+  double roots[4];
+  size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm * 3, 
+					      coeffs[2] * cubicnorm * 2, 
+					      coeffs[3] * cubicnorm, 
+					      roots[0], roots[1], roots[2]);
+  
+  //Sort the roots in ascending order
+  std::sort(roots, roots + rootCount);
+
+  double tm = ((rootCount > 1) && (roots[0] < 0)) ? roots[2] : roots[0];
+
+  //Only accept positive minimums (otherwise collision was in the past)
+  if (tm < 0) return false;
+
+  //Check an overlap actually occurs at the minimum
+  if ((((coeffs[0] * tm + coeffs[1]) * tm + coeffs[2]) * tm + coeffs[3]) * tm + coeffs[4] > 0)
+    return false;
+
+  //Now bisect the root
+
+  double t1 = 0, t2 = tm;
+  for(size_t i = 0; i < 500; ++i)
+    {
+      tm = 0.5 * (t1 + t2);
+
+      double f = (((coeffs[0] * tm + coeffs[1]) * tm + coeffs[2]) * tm + coeffs[3]) * tm + coeffs[4];
+      if(fabs(f)< 1e-16 && f > 0.0)
+	break;
+      if(f < 0.0)
+	t2 = tm;
+      else
+	t1 = tm;
+    }
+
+  dat.dt = tm;
+  return true;
 }
   
 bool 
-LNewtonianGravity::SphereSphereOutRoot(CPDData& dat, const double& d2) const
+LNewtonianGravity::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
 {
-  LNewtonian::SphereSphereOutRoot(dat,d2);
+  if (p1Dynamic == p2Dynamic)
+    return LNewtonian::SphereSphereOutRoot(dat,d2,p1Dynamic,p2Dynamic);
+
+  M_throw() << "Unsupported";
 }
 
 

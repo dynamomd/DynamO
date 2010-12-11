@@ -108,7 +108,9 @@ IHardSphere::getEvent(const Particle &p1, const Particle &p2) const
 
   CPDData colldat(*Sim, p1, p2);
 
-  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2))
+  if (Sim->dynamics.getLiouvillean()
+      .SphereSphereInRoot(colldat, d2,
+			  p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))

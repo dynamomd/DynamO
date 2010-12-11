@@ -146,7 +146,9 @@ ISquareWell::getEvent(const Particle &p1,
   
   if (isCaptured(p1, p2)) 
     {
-      if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, d2)) 
+      if (Sim->dynamics.getLiouvillean()
+	  .SphereSphereInRoot(colldat, d2,
+			      p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
@@ -160,12 +162,16 @@ ISquareWell::getEvent(const Particle &p1,
 	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
       else
-	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(colldat, ld2))
+	if (Sim->dynamics.getLiouvillean()
+	    .SphereSphereOutRoot(colldat, ld2,
+				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	  {  
 	    return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
 	  }
     }
-  else if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(colldat, ld2)) 
+  else if (Sim->dynamics.getLiouvillean()
+	   .SphereSphereInRoot(colldat, ld2, 
+			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
