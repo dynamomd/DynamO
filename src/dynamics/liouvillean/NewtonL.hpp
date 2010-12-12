@@ -125,5 +125,10 @@ public:
 
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
+
+  mutable long double lastAbsoluteClock;
+  mutable unsigned int lastCollParticle1;
+  mutable unsigned int lastCollParticle2;  
+
 };
 #endif

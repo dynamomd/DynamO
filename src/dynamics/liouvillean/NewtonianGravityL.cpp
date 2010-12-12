@@ -57,7 +57,10 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity, 
 				     size_t gravityDim):
-  LNewtonian(tmp), Gravity(gravity), GravityDim(gravityDim) {}
+  LNewtonian(tmp), 
+  Gravity(gravity), 
+  GravityDim(gravityDim)
+{}
 
 void
 LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
@@ -89,9 +92,41 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //This value is used to make the derivative of the quartic have a
   //unit coefficient for the t^3 term
   const double cubicnorm = 0.25 / coeffs[0];
+  const double rootthreshold = 1e-16 * sqrt(d2);
+  double roots[3];
+
+  //First check if we're already at a root
+  if ((dat.p1 != NULL) && (dat.p2 != NULL))
+    if (((dat.p1->getID() == lastCollParticle1 && dat.p2->getID() == lastCollParticle2)
+	 || (dat.p1->getID() == lastCollParticle2 && dat.p2->getID() == lastCollParticle1))
+	&& Sim->dSysTime == lastAbsoluteClock)
+      {
+	//This collision has already happened, we can factor out this
+	//root and use the cubic formula to test for more
+	size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm, 
+						    coeffs[2] * cubicnorm, 
+						    coeffs[3] * cubicnorm, 
+						    roots[0], roots[1], roots[2]);
+	
+	//If there is just one root, it's the entrance root to the
+	//current exit root.
+	if (rootCount != 3) return false;
+	
+	//Sort all roots
+	std::sort(roots, roots + 3);
+	
+	//t=0 is either the second or fourth root of the quartic (we
+	//just had a collision so t=0 is the exit root).  Check the
+	//second of the cubics roots, if it's positive it's the
+	//re-entry root
+	if (roots[1] > 0)
+	  { dat.dt = roots[1]; return true; }
+	
+	//There is the chance that this is the 
+	return false;
+      }
   
   //We calculate the roots of the cubic
-  double roots[3];
   size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm * 3, 
 					      coeffs[2] * cubicnorm * 2, 
 					      coeffs[3] * cubicnorm, 
@@ -115,13 +150,13 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   for(size_t i = 0; i < 500; ++i)
     {
       tm = 0.5 * (t1 + t2);
-
       double f = (((coeffs[0] * tm + coeffs[1]) * tm + coeffs[2]) * tm + coeffs[3]) * tm + coeffs[4];
-      if(fabs(f)< 1e-16 && f > 0.0)
-	break;
-      if(f < 0.0)
+
+      if (((f * f) < rootthreshold) && f > 0.0) break;
+
+      if (f < 0.0) 
 	t2 = tm;
-      else
+      else 
 	t1 = tm;
     }
 

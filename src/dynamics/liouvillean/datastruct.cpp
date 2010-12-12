@@ -4,7 +4,9 @@
 
 CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1, 
 		 const CRange& range2):
-  dt(HUGE_VAL)
+  dt(HUGE_VAL),
+  p1(NULL),
+  p2(NULL)
 {
   Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   

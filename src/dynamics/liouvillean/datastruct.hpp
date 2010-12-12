@@ -25,13 +25,15 @@
 //Pair dynamics data, can be allocated in compile time saving new() calls
 struct CPDData
 {
-  inline CPDData() {}
+  inline CPDData(): p1(NULL), p2(NULL) {}
 
-  inline CPDData(const DYNAMO::SimData& Sim, const Particle& p1, 
-		 const Particle& p2):
-    rij(p1.getPosition() - p2.getPosition()),
-    vij(p1.getVelocity() - p2.getVelocity()),    
-    dt(HUGE_VAL)
+  inline CPDData(const DYNAMO::SimData& Sim, const Particle& np1, 
+		 const Particle& np2):
+    rij(np1.getPosition() - np2.getPosition()),
+    vij(np1.getVelocity() - np2.getVelocity()),    
+    dt(HUGE_VAL),
+    p1(&np1),
+    p2(&np2)
   {
     Sim.dynamics.BCs().applyBC(rij, vij);
     rvdot = rij | vij;
@@ -46,6 +48,8 @@ struct CPDData
   double r2;
   double v2;
   double dt;
+  const Particle* const p1;
+  const Particle* const p2;
 };
 
 #endif

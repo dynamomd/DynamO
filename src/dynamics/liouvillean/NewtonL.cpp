@@ -148,7 +148,10 @@ LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT) const
 }
 
 LNewtonian::LNewtonian(DYNAMO::SimData* tmp):
-  Liouvillean(tmp)
+  Liouvillean(tmp),
+  lastAbsoluteClock(-1),
+  lastCollParticle1(0),
+  lastCollParticle2(0)  
 {}
 
 void
@@ -428,6 +431,10 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
   retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
 			       * (particle2.getVelocity().nrm2() 
 				  - retVal.particle2_.getOldVel().nrm2()));
+
+  lastCollParticle1 = particle1.getID();
+  lastCollParticle2 = particle2.getID();
+  lastAbsoluteClock = Sim->dSysTime;
 
   return retVal;
 }

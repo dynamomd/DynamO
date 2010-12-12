@@ -29,18 +29,9 @@ class LNOrientation: public LNewtonian
 {
 public:  
   LNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
-    LNewtonian(Sim),
-    lastAbsoluteClock(-1),
-    lastCollParticle1(0),
-    lastCollParticle2(0)
-  {}
+    LNewtonian(Sim) {}
 
-  LNOrientation(DYNAMO::SimData* Sim):
-    LNewtonian(Sim),
-    lastAbsoluteClock(-1),
-    lastCollParticle1(0),
-    lastCollParticle2(0)
-  {}
+  LNOrientation(DYNAMO::SimData* Sim): LNewtonian(Sim) {}
 
   virtual void initialise();
 
@@ -106,8 +97,5 @@ protected:
   virtual void rescaleSystemKineticEnergy(const double&);
   
   mutable std::vector<rotData> orientationData;
-  mutable long double lastAbsoluteClock;
-  mutable unsigned int lastCollParticle1;
-  mutable unsigned int lastCollParticle2;  
 };
 #endif
