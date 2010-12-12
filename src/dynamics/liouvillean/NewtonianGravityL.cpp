@@ -383,7 +383,46 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
 double 
 LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
 {
-  M_throw() << "Not implemented yet";  
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(part))
+    M_throw() << "Particle is not up to date";
+#endif
+
+  if (!part.testState(Particle::DYNAMIC)) return LNewtonian::getPBCSentinelTime(part, lMax);
+
+  Vector pos(part.getPosition()), vel(part.getVelocity());
+
+  Sim->dynamics.BCs().applyBC(pos, vel);
+
+  double retval = HUGE_VAL;
+
+  for (size_t i(0); i < NDIM; ++i)
+    if (i != GravityDim)
+      {
+	double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
+	
+	if (tmp < retval)
+	  retval = tmp;
+      }
+    else
+      {
+	double roots[2];
+	if (magnet::math::quadSolve((0.5 * Sim->aspectRatio[i] - lMax),
+				    vel[i], Gravity, roots[0], roots[1]))
+	  {
+	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
+	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
+	  }
+
+	if (magnet::math::quadSolve(-(0.5 * Sim->aspectRatio[i] - lMax),
+				    vel[i], Gravity, roots[0], roots[1]))
+	  {
+	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
+	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
+	  }
+      }
+
+  return retval;
 }
 
 std::pair<bool,double>

@@ -124,8 +124,12 @@ main(int argc, char *argv[])
 	  plug.initialise();
 
 	  std::cout << "\nMain: Finialising the packing routines";
-	  CInputPlugin(&sim, "Rescaler").zeroMomentum();
-	  CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
+
+	  if (vm["packer-mode"].as<size_t>() != 23)
+	    {
+	      CInputPlugin(&sim, "Rescaler").zeroMomentum();
+	      CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
+	    }
 	}
       else
 	{

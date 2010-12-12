@@ -23,10 +23,9 @@
 class SpFixedCollider:public Species
 {
 public:  
-  SpFixedCollider(DYNAMO::SimData* sim, std::string name, 
-		  CRange* r, std::string nName, 
+  SpFixedCollider(DYNAMO::SimData* sim, CRange* r, std::string nName, 
 		  unsigned int ID, std::string nIName="Bulk"):
-    Species(sim, name, r, 0.0, nName, ID, nIName)
+    Species(sim, "SpFixedCollider", r, 0.0, nName, ID, nIName)
   {}
   
   SpFixedCollider(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
