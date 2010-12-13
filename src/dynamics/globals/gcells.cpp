@@ -297,6 +297,7 @@ CGCells::runEvent(const Particle& part) const
   //This doesn't stream the system as its a virtual event
 
   //Debug section
+
 #ifdef DYNAMO_WallCollDebug
   {      
     CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;

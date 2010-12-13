@@ -268,7 +268,7 @@ CGCellsMorton::runEvent(const Particle& part) const
 #ifdef DYNAMO_WallCollDebug
   {
     magnet::math::DilatedVector inCellv(oldCell);
-    magnet::math::DilatedVector endCellv(oldCell);
+    magnet::math::DilatedVector endCellv(endCell);
     
     std::cerr << "\nCGWall sysdt " 
 	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
