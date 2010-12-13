@@ -138,8 +138,9 @@ CGCellsMorton::runEvent(const Particle& part) const
   //expect the particle to be up to date.
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
-  size_t endCell, oldCell(partCellData[part.getID()].cell);
-  
+  const size_t oldCell(partCellData[part.getID()].cell);
+  size_t endCell;
+
   //Determine the cell transition direction, its saved
   int cellDirectionInt(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
@@ -265,18 +266,20 @@ CGCellsMorton::runEvent(const Particle& part) const
 
   //Debug section
 #ifdef DYNAMO_WallCollDebug
-  {      
-    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
-    CVector<int> tmp2 = cells[endCell].coords;
+  {
+    magnet::math::DilatedVector inCellv(oldCell);
+    magnet::math::DilatedVector endCellv(oldCell);
     
     std::cerr << "\nCGWall sysdt " 
 	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  from <" 
-	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
+	      << inCellv.data[0].getRealVal() << "," << inCellv.data[1].getRealVal() 
+	      << "," << inCellv.data[2].getRealVal()
 	      << "> to <" 
-	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
+	      << endCellv.data[0].getRealVal() << "," << endCellv.data[1].getRealVal() 
+	      << "," << endCellv.data[2].getRealVal();
   }
 #endif
 }

@@ -195,6 +195,7 @@ CScheduler::runNextEvent()
   const size_t rejectionLimit = 10;
 
 
+
   switch (sorter->next_type())
     {
     case INTERACTION:
@@ -261,18 +262,11 @@ CScheduler::runNextEvent()
 	
 	//Debug section
 #ifdef DYNAMO_CollDebug
-	if (p2.getID() < p2.getID())
-	  std::cerr << "\nsysdt " << Event.getdt() + dSysTime
-		    << "  ID1 " << p1.getID() 
-		    << "  ID2 " << p2.getID()
-		    << "  dt " << Event.getdt()
-		    << "  Type " << IntEvent::getCollEnumName(Event.getType());
-	else
-	  std::cerr << "\nsysdt " << Event.getdt() + dSysTime
-		    << "  ID1 " << p2().getID() 
-		    << "  ID2 " << p1().getID()
-		    << "  dt " << Event.getdt()
-		    << "  Type " << IntEvent::getCollEnumName(Event.getType());
+	std::cerr << "\nsysdt " << Event.getdt() + Sim->dSysTime
+		  << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
+		  << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
+		  << "  dt " << Event.getdt()
+		  << "  Type " << Event.getType();
 #endif
 
 	Sim->dSysTime += Event.getdt();

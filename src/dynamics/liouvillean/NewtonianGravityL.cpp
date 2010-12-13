@@ -408,14 +408,14 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) 
       {
 	double roots[2];
 	if (magnet::math::quadSolve((0.5 * Sim->aspectRatio[i] - lMax),
-				    vel[i], Gravity, roots[0], roots[1]))
+				    vel[i], 0.5 * Gravity, roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
 	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
 	  }
 
 	if (magnet::math::quadSolve(-(0.5 * Sim->aspectRatio[i] - lMax),
-				    vel[i], Gravity, roots[0], roots[1]))
+				    vel[i], 0.5 * Gravity, roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
 	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
