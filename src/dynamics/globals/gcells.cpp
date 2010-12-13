@@ -301,7 +301,7 @@ CGCells::runEvent(const Particle& part) const
 #ifdef DYNAMO_WallCollDebug
   {      
     CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
-    CVector<int> tmp2 = cells[endCell].coords;
+    CVector<int> tmp2 = cells[oldCell].coords;
     
     std::cerr << "\nCGWall sysdt " 
 	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
