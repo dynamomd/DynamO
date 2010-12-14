@@ -72,6 +72,19 @@ LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
   particle.getVelocity()[GravityDim] += dt * Gravity * isDynamic;
 }
 
+namespace {
+  struct QuarticFunc
+  {
+  public:
+    inline double operator()(double t)
+    {
+      return (((coeffs[0] * t + coeffs[1]) * t + coeffs[2]) * t + coeffs[3]) * t + coeffs[4];
+    }
+
+    double coeffs[5]
+  };
+}
+
 bool 
 LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, 
 				      bool p1Dynamic, bool p2Dynamic) const
@@ -82,13 +95,13 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   Vector g(0,0,0);
   g[GravityDim] = (p1Dynamic) ? Gravity : -Gravity;
 
-  //Generate the coefficients of the quartic
-  const double coeffs[5] = {0.25 * Gravity * Gravity,
-			    g | dat.vij,
-			    dat.v2 + (g | dat.rij),
-			    2 * dat.rvdot, 
-			    dat.r2 - d2};
-
+  magnet::math::Bisect<QuarticFunc> quartic;
+  quartic.coeffs[0] = 0.25 * Gravity * Gravity;
+  quartic.coeffs[1] = g | dat.vij;
+  quartic.coeffs[2] = dat.v2 + (g | dat.rij);
+  quartic.coeffs[3] = 2 * dat.rvdot;
+  quartic.coeffs[4] = dat.r2 - d2;
+  
   //This value is used to make the derivative of the quartic have a
   //unit coefficient for the t^3 term
   const double cubicnorm = 0.25 / coeffs[0];
