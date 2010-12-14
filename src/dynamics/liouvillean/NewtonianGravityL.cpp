@@ -89,9 +89,6 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 			    2 * dat.rvdot, 
 			    dat.r2 - d2};
 
-  //This value is used to make the derivative of the quartic have a
-  //unit coefficient for the t^3 term
-  const double cubicnorm = 0.25 / coeffs[0];
   const double rootthreshold = 1e-16 * sqrt(d2);
   double roots[3];
 
@@ -102,10 +99,12 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	&& Sim->dSysTime == lastAbsoluteClock)
       {
 	//This collision has already happened, we can factor out this
-	//root and use the cubic formula to test for more
-	size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm, 
-						    coeffs[2] * cubicnorm, 
-						    coeffs[3] * cubicnorm, 
+	//root and use the cubic formula to test for more.
+	//\f$A t^4 + B t^3 + C t^2 + D t + 0 == 0\f$ is rewritten as
+	//\f$t^3 + (B/A) t^2 + (C/A) t + (D/A) == 0\f$
+	size_t rootCount = magnet::math::cubicSolve(coeffs[1] / coeffs[0], 
+						    coeffs[2] / coeffs[0], 
+						    coeffs[3] / coeffs[0], 
 						    roots[0], roots[1], roots[2]);
 	
 	//If there is just one root, it's the entrance root to the
@@ -126,10 +125,13 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	return false;
       }
   
-  //We calculate the roots of the cubic
-  size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm * 3, 
-					      coeffs[2] * cubicnorm * 2, 
-					      coeffs[3] * cubicnorm, 
+  //We calculate the roots of the cubic differential of F
+  //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
+  //\f$F=4 A t^3 + 3 B t^2 + 2C t + D == 0\f$ and normalizing the cubic term gives
+  //\f$F=t^3 + \frac{3 B}{4 A} t^2 + \frac{2C}{4 A} t + \frac{D}{4 A} == 0\f$
+  size_t rootCount = magnet::math::cubicSolve(coeffs[1] * 3 / (4 * coeffs[0]), 
+					      coeffs[2] * 2 / (4 * coeffs[0]), 
+					      coeffs[3] * 1 / (4 * coeffs[0]), 
 					      roots[0], roots[1], roots[2]);
   
   //Sort the roots in ascending order
