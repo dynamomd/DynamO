@@ -122,7 +122,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 						    roots[0], roots[1], roots[2]);
 	
 	//If there is just one root, it's the entrance root to the
-	//current exit root.
+	//current exit root. (assuming our last collision was an exit!)
 	if (rootCount != 3) return false;
 	
 	//Sort all roots

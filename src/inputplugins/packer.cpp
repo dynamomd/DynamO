@@ -2500,11 +2500,24 @@ CIPPacker::initialise()
 						     ))->setName("Bulk");
 	
 	///Now build our funnel, so we know how many particles it takes
-	size_t Nv = static_cast<size_t>(std::sqrt(H * H + R * R) / Sr); //Number of circles	
+	size_t Nv = static_cast<size_t>(std::sqrt(H * H + R * R) / Sv); //Number of circles	
 	double deltaZ = H / Nv;
 	for (size_t circle(rowskip); circle <= Nv; ++circle)
 	  {
 	    double r = R * circle / Nv;
+	    size_t Nr = static_cast<size_t>(M_PI / std::asin(Sr / (2 * r)));
+	    double deltaPhi = 2 * M_PI / Nr;
+	    
+	    for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+	      funnelSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
+							  circle * deltaZ - 0.5,
+							  r * std::cos(radialstep * deltaPhi))
+				    - Vector(0,0.5,0));
+	  }
+
+	for (size_t circle(Nv+1); particleDiam * (circle * deltaZ - 0.5) - 0.5 < 0.4; ++circle)
+	  {
+	    double r = R;
 	    size_t Nr = static_cast<size_t>(M_PI / std::asin(Sr / (2 * r)));
 	    double deltaPhi = 2 * M_PI / Nr;
 	    

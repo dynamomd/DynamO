@@ -70,7 +70,7 @@ CGParabolaSentinel::getEvent(const Particle& part) const
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   if (passedParabola[part.getID()])
-    return GlobalEvent(part, HUGE_VAL, VIRTUAL, *this);
+    return GlobalEvent(part, HUGE_VAL, NONE, *this);
   else
     return GlobalEvent(part, Sim->dynamics.getLiouvillean()
 		      .getParabolaSentinelTime
@@ -94,7 +94,7 @@ CGParabolaSentinel::runEvent(const Particle& part) const
 	      << iEvent.stringData(Sim);
   
   if (iEvent.getdt() == HUGE_VAL)
-    M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+    M_throw() << "We got an infinite time when recalculating this global\n"
 	      << iEvent.stringData(Sim);
 #endif
 
