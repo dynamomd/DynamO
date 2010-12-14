@@ -20,7 +20,7 @@ lib dl : : <link>shared ;
 alias magnet : dl
       : <include>. 
       : 
-      : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic ;
+      : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic ;
 
 ##################### TESTS ######################
 using testing ;
