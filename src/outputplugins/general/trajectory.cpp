@@ -23,6 +23,7 @@
 #include "../../dynamics/NparticleEventData.hpp"
 #include "../../dynamics/systems/system.hpp"
 #include "../../dynamics/BC/BC.hpp"
+#include <iomanip>
 
 OPTrajectory::OPTrajectory(const DYNAMO::SimData* t1, const XMLNode&):
   OutputPlugin(t1,"Trajectory")
@@ -40,8 +41,10 @@ OPTrajectory::initialise()
 {
   if (logfile.is_open())
     logfile.close();
-  
+ 
   logfile.open("trajectory.out", std::ios::out|std::ios::trunc);
+  logfile.precision(4);
+  logfile.setf(std::ios::fixed);
 }
 
 void
@@ -55,31 +58,47 @@ OPTrajectory::printData(const size_t& p1,
 		? p1 : p2);
 
   Vector  rij = Sim->particleList[id1].getPosition()
-    - Sim->particleList[id2].getPosition();
+    - Sim->particleList[id2].getPosition(),
+    vij = Sim->particleList[id1].getVelocity()
+    - Sim->particleList[id2].getVelocity();
+  
 
-  Sim->dynamics.BCs().applyBC(rij);
+  Sim->dynamics.BCs().applyBC(rij, vij);
   
   rij /= Sim->dynamics.units().unitLength();
+  vij /= Sim->dynamics.units().unitVelocity();
 
-  logfile << " p1 " << id1
-	  << " p2 " << id2
-	  << " |r12| " << rij.nrm()
-	  << " r12 < ";
+  logfile << " p1 " << std::setw(5) << id1
+	  << " p2 " << std::setw(5) << id2
+	  << " |r12| " << std::setw(5) << rij.nrm()
+	  << " post-r12 < ";
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    logfile << rij[iDim] << " ";
+    logfile << std::setw(7) << rij[iDim] << " ";
+
+  logfile << ">";
+
+  logfile << " post-v12 < ";
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    logfile << std::setw(7) << vij[iDim] << " ";
 
   logfile << ">";
 }
 
 void 
 OPTrajectory::eventUpdate(const IntEvent& eevent, 
-				   const PairEventData&)
+			  const PairEventData& pdat)
 {
   logfile << "INTERACTION " << eevent.getInteractionID()
 	  << " TYPE " << eevent.getType()
-	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime();
+	  << " t " << std::setw(5) << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+	  << " dt " << std::setw(5) << eevent.getdt() / Sim->dynamics.units().unitTime();
+
+  logfile << " deltaP < ";
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    logfile << std::setw(7) << pdat.dP[iDim] << " ";
+
+  logfile << " >";
   
   printData(eevent.getParticle1ID(),
 	    eevent.getParticle2ID());

@@ -817,9 +817,9 @@ LNewtonian::getPBCSentinelTime(const Particle& part, const double& lMax) const
 
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  double retval = (0.5 * Sim->aspectRatio[0] - lMax) / fabs(vel[0]);
+  double retval = HUGE_VAL;
 
-  for (size_t i(1); i < NDIM; ++i)
+  for (size_t i(0); i < NDIM; ++i)
     {
       double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
 

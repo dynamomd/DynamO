@@ -49,7 +49,12 @@ CGPBCSentinel::initialise(size_t nID)
   cachedTimes.resize(Sim->N);
   
   BOOST_FOREACH(const Particle& part, Sim->particleList)
-    cachedTimes[part.getID()] = Sim->dSysTime;
+    {
+      Sim->dynamics.getLiouvillean().updateParticle(part);
+
+      cachedTimes[part.getID()]
+	= Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist);
+    }
 
   Sim->registerParticleUpdateFunc
     (magnet::function::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
@@ -60,12 +65,20 @@ void
 CGPBCSentinel::particlesUpdated(const NEventData& PDat)
 {
   BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-    cachedTimes[pdat.getParticle().getID()] = Sim->dSysTime;
+    {
+      cachedTimes[pdat.getParticle().getID()] 
+	= Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(pdat.getParticle(), maxintdist);
+    }
   
   BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
     {
-      cachedTimes[pdat.particle1_.getParticle().getID()] = Sim->dSysTime;
-      cachedTimes[pdat.particle2_.getParticle().getID()] = Sim->dSysTime;
+      cachedTimes[pdat.particle1_.getParticle().getID()]
+	= Sim->dSysTime 
+	+ Sim->dynamics.getLiouvillean().getPBCSentinelTime(pdat.particle1_.getParticle(), maxintdist);
+
+      cachedTimes[pdat.particle2_.getParticle().getID()]
+	= Sim->dSysTime
+	+ Sim->dynamics.getLiouvillean().getPBCSentinelTime(pdat.particle2_.getParticle(), maxintdist);
     }
 }
 
@@ -84,18 +97,12 @@ CGPBCSentinel::operator<<(const XMLNode& XML)
 GlobalEvent 
 CGPBCSentinel::getEvent(const Particle& part) const
 {
-  double dt 
-    = Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist)
-    - (Sim->dSysTime - cachedTimes[part.getID()]);
- 
-  return GlobalEvent(part, dt, VIRTUAL, *this);
+  return GlobalEvent(part, cachedTimes[part.getID()] - Sim->dSysTime, VIRTUAL, *this);
 }
 
 void 
 CGPBCSentinel::runEvent(const Particle& part) const
 {
-  Sim->dynamics.getLiouvillean().updateParticle(part);
-
   GlobalEvent iEvent(getEvent(part));
 
 #ifdef DYNAMO_DEBUG 
@@ -114,9 +121,24 @@ CGPBCSentinel::runEvent(const Particle& part) const
   
   Sim->dynamics.stream(iEvent.getdt());
 
-  cachedTimes[part.getID()] = Sim->dSysTime;
+  Sim->dynamics.getLiouvillean().updateParticle(part);
+  cachedTimes[part.getID()] 
+    = Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist);
 
+#ifdef DYNAMO_DEBUG
+  iEvent.addTime(Sim->freestreamAcc);
+  
+  Sim->freestreamAcc = 0;
+
+  NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
+
+  Sim->signalParticleUpdate(EDat);
+
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
+#else
   Sim->freestreamAcc += iEvent.getdt();
+#endif
 
   Sim->ptrScheduler->fullUpdate(part);
 }

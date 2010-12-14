@@ -401,8 +401,7 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) 
       {
 	double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
 	
-	if (tmp < retval)
-	  retval = tmp;
+	if (tmp < retval) retval = tmp;
       }
     else
       {
