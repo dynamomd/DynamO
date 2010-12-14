@@ -25,7 +25,7 @@ public:
   LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
 
   LNewtonianGravity(DYNAMO::SimData* tmp, double gravity,
-		    size_t gravityDim);
+		    size_t gravityDim, double eV = 0);
 
   //Pair particle dynamics
 
@@ -66,6 +66,10 @@ public:
 					  const double&
 					  ) const;
 
+  virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, 
+					  const double&, 
+					  const EEventType& eType) const;
+
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
@@ -75,6 +79,7 @@ public:
 protected:
   double Gravity;
   size_t GravityDim;
+  double elasticV;
 
   virtual void outputXML(xml::XmlStream&) const;
 };
