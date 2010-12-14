@@ -56,7 +56,7 @@ variant massif_in : <inlining>on <optimization>speed <debug-symbols>on
 	<profiling>off ;
 
 #
-variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all ; 
+variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all  <define>DYNAMO_OverlapTesting ; 
 #<cxxflags>ansi
 #<cxxflags>pedantic
 #<cxxflags>Weffc++
