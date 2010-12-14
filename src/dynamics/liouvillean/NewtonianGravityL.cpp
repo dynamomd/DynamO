@@ -29,6 +29,7 @@
 #include "shapes/oscillatingplate.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/cubic.hpp>
+#include <magnet/math/bisect.hpp>
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
@@ -81,7 +82,7 @@ namespace {
       return (((coeffs[0] * t + coeffs[1]) * t + coeffs[2]) * t + coeffs[3]) * t + coeffs[4];
     }
 
-    double coeffs[5]
+    double coeffs[5];
   };
 }
 
@@ -102,9 +103,6 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   quartic.coeffs[3] = 2 * dat.rvdot;
   quartic.coeffs[4] = dat.r2 - d2;
   
-  //This value is used to make the derivative of the quartic have a
-  //unit coefficient for the t^3 term
-  const double cubicnorm = 0.25 / coeffs[0];
   const double rootthreshold = 1e-16 * sqrt(d2);
   double roots[3];
 
@@ -115,10 +113,12 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	&& Sim->dSysTime == lastAbsoluteClock)
       {
 	//This collision has already happened, we can factor out this
-	//root and use the cubic formula to test for more
-	size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm, 
-						    coeffs[2] * cubicnorm, 
-						    coeffs[3] * cubicnorm, 
+	//root and use the cubic formula to test for more.
+	//\f$A t^4 + B t^3 + C t^2 + D t + 0 == 0\f$ is rewritten as
+	//\f$t^3 + (B/A) t^2 + (C/A) t + (D/A) == 0\f$
+	size_t rootCount = magnet::math::cubicSolve(quartic.coeffs[1] / quartic.coeffs[0], 
+						    quartic.coeffs[2] / quartic.coeffs[0], 
+						    quartic.coeffs[3] / quartic.coeffs[0], 
 						    roots[0], roots[1], roots[2]);
 	
 	//If there is just one root, it's the entrance root to the
@@ -139,42 +139,39 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	return false;
       }
   
-  //We calculate the roots of the cubic
-  size_t rootCount = magnet::math::cubicSolve(coeffs[1] * cubicnorm * 3, 
-					      coeffs[2] * cubicnorm * 2, 
-					      coeffs[3] * cubicnorm, 
+  //We calculate the roots of the cubic differential of F
+  //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
+  //\f$F=4 A t^3 + 3 B t^2 + 2C t + D == 0\f$ and normalizing the cubic term gives
+  //\f$F=t^3 + \frac{3 B}{4 A} t^2 + \frac{2C}{4 A} t + \frac{D}{4 A} == 0\f$
+  size_t rootCount = magnet::math::cubicSolve(quartic.coeffs[1] * 3 / (4 * quartic.coeffs[0]), 
+					      quartic.coeffs[2] * 2 / (4 * quartic.coeffs[0]), 
+					      quartic.coeffs[3] * 1 / (4 * quartic.coeffs[0]), 
 					      roots[0], roots[1], roots[2]);
   
   //Sort the roots in ascending order
   std::sort(roots, roots + rootCount);
 
-  double tm = ((rootCount > 1) && (roots[0] < 0)) ? roots[2] : roots[0];
+  //The roots are (in order) a minimum, (and if we have 3 roots), a
+  //local maximum, then another minimum
 
-  //Only accept positive minimums (otherwise collision was in the past)
-  if (tm < 0) return false;
+  //Only accept time-positive minimums (otherwise collision was in the
+  //past) and check an overlap actually occurs at the minimum
 
-  //Check an overlap actually occurs at the minimum
-  if ((((coeffs[0] * tm + coeffs[1]) * tm + coeffs[2]) * tm + coeffs[3]) * tm + coeffs[4] > 0)
-    return false;
-
-  //Now bisect the root
-
-  double t1 = 0, t2 = tm;
-  for(size_t i = 0; i < 500; ++i)
+  //Check the first minimum (we always have one)
+  if ((roots[0] >= 0) && (quartic(roots[0]) <= 0))
     {
-      tm = 0.5 * (t1 + t2);
-      double f = (((coeffs[0] * tm + coeffs[1]) * tm + coeffs[2]) * tm + coeffs[3]) * tm + coeffs[4];
-
-      if (((f * f) < rootthreshold) && f > 0.0) break;
-
-      if (f < 0.0) 
-	t2 = tm;
-      else 
-	t1 = tm;
+      dat.dt = quartic.bisectRoot(0, roots[0], rootthreshold);
+      return true;
     }
 
-  dat.dt = tm;
-  return true;
+  //Check the second minimum if we have one
+  if ((rootCount > 1) && (roots[2] >= 0) && (quartic(roots[2]) <= 0))
+    {
+      dat.dt = quartic.bisectRoot(0, roots[2], rootthreshold);
+      return true;
+    }
+  
+  return false;
 }
   
 bool 
