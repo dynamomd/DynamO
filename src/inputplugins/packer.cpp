@@ -2480,6 +2480,7 @@ CIPPacker::initialise()
 
 	double Sv = 1.0; //Vertical spacing
 	double Sr = 1.0; //Radial spacing
+	const double elasticV = 1.0;
 
 	Sim->aspectRatio = Vector(1,1,1);
 	
@@ -2494,7 +2495,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
 
 	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1,
-							   0.01 * Sim->dynamics.units().unitVelocity()));
+							   elasticV * Sim->dynamics.units().unitVelocity()));
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						     new C2RAll()
