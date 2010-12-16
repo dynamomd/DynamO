@@ -2512,12 +2512,12 @@ CIPPacker::initialise()
 	    
 	    for (size_t radialstep(0); radialstep < Nr; ++radialstep)
 	      funnelSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
-							  circle * deltaZ - 0.5,
+							  circle * deltaZ,
 							  r * std::cos(radialstep * deltaPhi))
 				    - Vector(0,0.5,0));
 	  }
 
-	for (size_t circle(Nv+1); particleDiam * (circle * deltaZ - 0.5) - 0.5 < 0.4; ++circle)
+	for (size_t circle(0); particleDiam * ((circle+1) * Sv + Nv * deltaZ - 0.5) - 0.5 < 0.4; ++circle)
 	  {
 	    double r = R;
 	    size_t Nr = static_cast<size_t>(M_PI / std::asin(Sr / (2 * r)));
@@ -2525,7 +2525,7 @@ CIPPacker::initialise()
 	    
 	    for (size_t radialstep(0); radialstep < Nr; ++radialstep)
 	      funnelSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
-							  circle * deltaZ - 0.5,
+							  (circle+1) * Sv + Nv * deltaZ,
 							  r * std::cos(radialstep * deltaPhi))
 				    - Vector(0,0.5,0));
 	  }
