@@ -167,7 +167,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //Check the second minimum if we have one
   if ((rootCount > 1) && (roots[2] >= 0) && (quartic(roots[2]) <= 0))
     {
-      dat.dt = quartic.bisectRoot(0, roots[2], rootthreshold);
+      dat.dt = quartic.bisectRoot(roots[1], roots[2], rootthreshold);
       return true;
     }
   
