@@ -2489,7 +2489,6 @@ CIPPacker::initialise()
 	Sim->dynamics.applyBC<BCSquarePeriodic>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
-	std::vector<Vector> funnelSites;
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
@@ -2502,6 +2501,7 @@ CIPPacker::initialise()
 						     ))->setName("Bulk");
 	
 	///Now build our funnel, so we know how many particles it takes
+	std::vector<Vector> funnelSites;
 	size_t Nv = static_cast<size_t>(std::sqrt(H * H + R * R) / Sv); //Number of circles	
 	double deltaZ = H / Nv;
 	for (size_t circle(rowskip); circle <= Nv; ++circle)
@@ -2530,79 +2530,49 @@ CIPPacker::initialise()
 				    - Vector(0,0.5,0));
 	  }
 
+	//Build a list of the dynamic particles
+	std::vector<Vector> dynamicSites;
+	Sr = std::max(1.1, Sr); //Increase the spacing to a min of 1.1
+	Sv = std::max(1.1, Sv); //....
+	for (size_t circle(0); particleDiam * ((circle+1) * Sv + Nv * deltaZ - 0.5) - 0.5 < 0.4; ++circle)
+	  for (double r(R-Sr); r > 0; r -= Sr)
+	    {
+	      size_t Nr = static_cast<size_t>(M_PI / std::asin(Sr / (2 * r)));
+	      double deltaPhi = 2 * M_PI / Nr;
+	      
+	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+		dynamicSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
+							     (circle+1) * Sv + Nv * deltaZ,
+							     r * std::cos(radialstep * deltaPhi))
+				       - Vector(0,0.5,0));
+	    }
+
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
 				 (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 						      0, "Bulk")));
+	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+				 (new Species(Sim, new CRRange(funnelSites.size(), 
+							       funnelSites.size() + dynamicSites.size() - 1), 
+					      1.0, "Bulk", 0, "Bulk")));
 	
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	unsigned long nParticles = 0;
-	Sim->particleList.reserve(funnelSites.size() + 16);
+	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
 
 	BOOST_FOREACH(const Vector & position, funnelSites)
 	  Sim->particleList.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
 
+	BOOST_FOREACH(const Vector & position, dynamicSites)
+	  {
+	    Vector vel = getRandVelVec() * Sim->dynamics.units().unitVelocity();
+	    if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
+	    Sim->particleList.push_back(Particle(position, vel, nParticles++));
+	  }
 
-	///////Now add an interesting particle 
-	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(funnelSites.size(), funnelSites.size()+15), 
-					      1.0, "Bulk", 0, "Bulk")));
-	
-	Sim->particleList.push_back(Particle(Vector(0, -1.5 , 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(0, 0, 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(0, 1.5, 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(0, 3, 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-
-	Sim->particleList.push_back(Particle(Vector(1.5, -1.5 , 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(1.5, 0, 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(1.5, 1.5, 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(1.5, 3, 0) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-
-	Sim->particleList.push_back(Particle(Vector(1.5, -1.5 , 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(1.5, 0, 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(1.5, 1.5, 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(1.5, 3, 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-
-	Sim->particleList.push_back(Particle(Vector(0, -1.5 , 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(0, 0, 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(0, 1.5, 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
-	Sim->particleList.push_back(Particle(Vector(0, 3, 1.5) * particleDiam, 
-					     getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-					     nParticles++));
 	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
-	
 	break;
       }
     default:
