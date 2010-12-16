@@ -87,6 +87,12 @@ public:
   virtual void updateColorObj(magnet::CL::CLGLState&) const;
 #endif
 
+  void setConstantColor(unsigned char r, unsigned char g, unsigned char b)
+  { 
+    _constColor[0] = r; _constColor[1] = g; _constColor[2] = b; 
+    _colorMode = CONSTANT;
+  }
+
 protected:
   Species(DYNAMO::SimData*, std::string name, 
 	   CRange*, double nMass, std::string nName, 

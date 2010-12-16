@@ -2555,7 +2555,9 @@ CIPPacker::initialise()
 				 (new Species(Sim, new CRRange(funnelSites.size(), 
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
-	
+
+	Sim->dynamics.getSpecies("Bulk")->setConstantColor(255,255,255);
+
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
