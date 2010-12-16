@@ -75,6 +75,7 @@ Dynamics::getSpecies(const Particle& p1) const
 	    << "\nID = " << p1.getID();
 }
 
+
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Dynamics& g)
 {
@@ -86,6 +87,16 @@ const Species&
 Dynamics::getSpecies(std::string name) const
 {
   BOOST_FOREACH(const magnet::ClonePtr<Species>& ptr, species)
+    if (ptr->getName() == name)
+      return *ptr;
+  
+  M_throw() << "Could not find the " << name << " species"; 
+}
+
+Species& 
+Dynamics::getSpecies(std::string name)
+{
+  BOOST_FOREACH(magnet::ClonePtr<Species>& ptr, species)
     if (ptr->getName() == name)
       return *ptr;
   

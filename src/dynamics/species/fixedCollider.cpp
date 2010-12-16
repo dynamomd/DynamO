@@ -84,11 +84,15 @@ SpFixedCollider::outputXML(xml::XmlStream& XML) const
       << xml::attr("IntName") << intName
       << xml::attr("Type") << "FixedCollider";
 
-  if (_colorMode == CONSTANT) 
-    XML << xml::attr("Color")
-	<< (boost::lexical_cast<std::string>(_constColor[0])
-	    + "," + boost::lexical_cast<std::string>(_constColor[1])
-	    + "," + boost::lexical_cast<std::string>(_constColor[2]));
+  if (_colorMode == CONSTANT)
+    {
+      std::string colorval = boost::lexical_cast<std::string>(_constColor[0] + 0);
+      colorval += ",";
+      colorval += boost::lexical_cast<std::string>(_constColor[1] + 0);
+      colorval += ",";
+      colorval += boost::lexical_cast<std::string>(_constColor[2] + 0);
+      XML << xml::attr("Color") << colorval;
+    }
   
   XML << range;
 }

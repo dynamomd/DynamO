@@ -25,7 +25,6 @@
 #include "../ranges/1RAll.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
-#include <magnet/HSV.hpp>
 #include <boost/tokenizer.hpp>
 
 Species::Species(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
@@ -141,12 +140,15 @@ Species::outputXML(xml::XmlStream& XML) const
       << xml::attr("IntName") << intName
       << xml::attr("Type") << "Point";
 
-  if (_colorMode == CONSTANT) 
-    XML << xml::attr("Color")
-	<< (boost::lexical_cast<std::string>(_constColor[0])
-	    + "," + boost::lexical_cast<std::string>(_constColor[1])
-	    + "," + boost::lexical_cast<std::string>(_constColor[2]));
-
+  if (_colorMode == CONSTANT)
+    {
+      std::string colorval = boost::lexical_cast<std::string>(_constColor[0] + 0);
+      colorval += ",";
+      colorval += boost::lexical_cast<std::string>(_constColor[1] + 0);
+      colorval += ",";
+      colorval += boost::lexical_cast<std::string>(_constColor[2] + 0);
+      XML << xml::attr("Color") << colorval;
+    }
   XML << range;
 }
 
@@ -159,6 +161,7 @@ Species::getCount() const
 #ifdef DYNAMO_visualizer
 # include <magnet/thread/mutex.hpp>
 # include "../liouvillean/CompressionL.hpp"
+# include <magnet/HSV.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 Species::getCoilRenderObj() const

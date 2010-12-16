@@ -149,6 +149,7 @@ public:
 
   const std::vector<magnet::ClonePtr<Species> >& getSpecies() const { return species; }
   const Species& getSpecies(std::string) const;
+  Species& getSpecies(std::string);
 
   std::vector<magnet::ClonePtr<Topology> >& getTopology() { return topology; }
   const std::vector<magnet::ClonePtr<Topology> >& getTopology() const { return topology; }
