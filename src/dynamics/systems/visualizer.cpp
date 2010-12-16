@@ -99,7 +99,10 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
     if (!_CLWindow->isReady()) return;
 
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+      {
+	spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+	spec->updateColorObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+      }
   }
 
   I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 

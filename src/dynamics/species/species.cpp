@@ -25,19 +25,20 @@
 #include "../ranges/1RAll.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
-
+#include <magnet/HSV.hpp>
+#include <boost/tokenizer.hpp>
 
 Species::Species(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 		   std::string nName, unsigned int nID, std::string nIName):
   SimBase(tmp,"Species", IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
-  ID(nID)
+  ID(nID),_colorMode(IDHSV)
 {}
 
 Species::Species(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID):
   SimBase(tmp,"Species", IC_blue),
   mass(1.0),range(NULL),IntPtr(NULL),
-  ID(nID)
+  ID(nID),_colorMode(IDHSV)
 { operator<<(XML); }
 
 Species::Species(DYNAMO::SimData* tmp, std::string name, 
@@ -45,7 +46,7 @@ Species::Species(DYNAMO::SimData* tmp, std::string name,
 		   unsigned int nID, std::string nIName):
   SimBase(tmp,name, IC_blue),
   mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
-  ID(nID)
+  ID(nID),_colorMode(IDHSV)
 {}
 
 const Interaction* 
@@ -86,10 +87,43 @@ Species::operator<<(const XMLNode& XML)
 	* Sim->dynamics.units().unitMass();
       spName = XML.getAttribute("Name");
       intName = XML.getAttribute("IntName");
+
+      if (XML.isAttributeSet("Color"))
+	{
+	  typedef boost::tokenizer<boost::char_separator<char> >
+	    Tokenizer;
+	  
+	  boost::char_separator<char> colorSep(",");
+	  
+	  std::string data(XML.getAttribute("Color"));
+	  
+	  Tokenizer tokens(data, colorSep);
+	  Tokenizer::iterator value_iter = tokens.begin();
+	  
+	  if (value_iter == tokens.end())
+	    throw std::runtime_error("Malformed color in species");
+	  _constColor[0] = boost::lexical_cast<int>(*value_iter);
+	  
+	  if (++value_iter == tokens.end())
+	    throw std::runtime_error("Malformed color in species");
+	  _constColor[1] = boost::lexical_cast<int>(*value_iter);
+	  
+	  if (++value_iter == tokens.end())
+	    throw std::runtime_error("Malformed color in species");
+	  _constColor[2] = boost::lexical_cast<int>(*value_iter);
+	  
+	  if (++value_iter != tokens.end())
+	    throw std::runtime_error("Malformed color in species");
+	  
+	  _constColor[3] = 255;
+	  
+	  _colorMode = CONSTANT;
+	}
+
     } 
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CSpecies";
+	M_throw() << "Failed a lexical cast in Species";
       }
 
 }
@@ -105,8 +139,15 @@ Species::outputXML(xml::XmlStream& XML) const
       << mass / Sim->dynamics.units().unitMass()
       << xml::attr("Name") << spName
       << xml::attr("IntName") << intName
-      << xml::attr("Type") << "Point"
-      << range;
+      << xml::attr("Type") << "Point";
+
+  if (_colorMode == CONSTANT) 
+    XML << xml::attr("Color")
+	<< (boost::lexical_cast<std::string>(_constColor[0])
+	    + "," + boost::lexical_cast<std::string>(_constColor[1])
+	    + "," + boost::lexical_cast<std::string>(_constColor[2]));
+
+  XML << range;
 }
 
 unsigned long 
@@ -126,6 +167,7 @@ Species::getCoilRenderObj() const
     {
       _renderObj = new RTSpheres(range->size());
       particleData.resize(range->size());
+      particleColorData.resize(range->size());
     }
 
   return _renderObj;
@@ -168,6 +210,37 @@ Species::updateRenderObj(magnet::CL::CLGLState& CLState) const
   }
 
 }
+
+void 
+Species::updateColorObj(magnet::CL::CLGLState& CLState) const
+{
+
+  switch (_colorMode)
+    {
+    case IDHSV:
+      {
+	size_t sphID(0);
+	BOOST_FOREACH(unsigned long ID, *range)
+	  {
+	    magnet::color::HSVtoRGB(particleColorData[sphID], ((float)(sphID)) / range->size());
+	    sphID++;
+	  }
+      }
+      break;
+    case CONSTANT:
+      for (size_t id(0); id < range->size(); ++id)
+	for (size_t cc(0); cc < 4; ++cc)
+	  particleColorData[id].s[cc] = _constColor[cc];
+      break;
+    }
+
+  {
+    CLState.getCommandQueue().enqueueWriteBuffer
+      (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
+       false, 0, range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+  }
+}
+
 #endif
 
 Species* 

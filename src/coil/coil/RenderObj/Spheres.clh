@@ -71,19 +71,18 @@ SphereRenderKernel(const __global float4* positions,
 }
 
 __kernel void
-SphereColorKernel(__global uchar4 * colorBuffer,
+SphereColorKernel(__global uchar4* glcolorBuffer,
+		  __global uchar4* colors,
 		  const uint nVertex,
 		  const uint StartParticle,
 		  const uint EndParticle,
 		  const int ColorOffset,
 		  __global const uint* sortedArray,
-		  const uint N,
-		  const float colorCycles
-		  )
+		  const uint N)
 {
   //We're trying to coalesce the reads and writes from memory, so we cache
   __local uchar4 colorCache[WORKGROUP_SIZE];
-  colorBuffer += ColorOffset;
+  glcolorBuffer += ColorOffset;
 
   //Iterate on blocks of WORKGROUP_SIZE, with a stride of the global_size
   for (uint id0 = get_group_id(0) * WORKGROUP_SIZE + StartParticle;
@@ -94,12 +93,12 @@ SphereColorKernel(__global uchar4 * colorBuffer,
 	uint loadParticleID = id0 + get_local_id(0);
 	if (loadParticleID < EndParticle)
 	  {
-	    //Calculate color and store it in the shared array
-	    HSVtoRGB(colorCache + get_local_id(0), 
-		     colorCycles * sortedArray[loadParticleID] / (float)(N),
-		     1, 1);
+	    //load color and store it in the shared array
+	    uint particleID = sortedArray[loadParticleID];
+	    colorCache[get_local_id(0)]  = colors[particleID];
 	  }
       }
+
       barrier(CLK_LOCAL_MEM_FENCE);
       
       //Color cache is full, now start blitting out colors
@@ -113,7 +112,7 @@ SphereColorKernel(__global uchar4 * colorBuffer,
 	{
 	  uint particleID = vertex / nVertex;
 	  
-	  colorBuffer[nVertex * id0 + vertex]
+	  glcolorBuffer[nVertex * id0 + vertex]
 	    = colorCache[particleID];
 	}
 

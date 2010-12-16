@@ -83,6 +83,8 @@ public:
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
 
   virtual void updateRenderObj(magnet::CL::CLGLState&) const;
+
+  virtual void updateColorObj(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
@@ -107,8 +109,16 @@ protected:
 #ifdef DYNAMO_visualizer
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
   mutable std::vector<cl_float4> particleData;
+  mutable std::vector<cl_uchar4> particleColorData;
 #endif
 
+  typedef enum {
+    IDHSV,
+    CONSTANT
+  } colorMode_t;
+
+  colorMode_t _colorMode;
+  unsigned char _constColor[4];
 };
 
 class SpInertia: public Species

@@ -95,7 +95,8 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
     
     _sortKeys = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(float) * paddedN);
     _sortData = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
-    
+    _sphereColors = cl::Buffer(CLState.getContext(), CL_MEM_READ_ONLY, sizeof(cl_uchar4) * paddedN);
+
     cl_float4* Pos = (cl_float4*)CLState.getCommandQueue().enqueueMapBuffer(_spherePositions, true, 
 									    CL_MAP_WRITE, 0, 
 									    _N * sizeof(cl_float4));
@@ -213,7 +214,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 
   fullSource << "#define WORKGROUP_SIZE " << _workgroupsize << "\n";
   
-  fullSource << magnet::color::getOpenCLHSV();
+  //fullSource << magnet::color::getOpenCLHSV();
   fullSource << sphereKernelSource;
   
   //Need to make the c_str() point to a valid data area, so copy the string
@@ -294,11 +295,9 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState,
     {
       cl_int vertexOffset = renderedVertexData - renderedSpheres * iPtr->_type.getVertexCount();
 
-      const cl_float colorCycles = 3.14159265f; //Pick something nice
-						//and irrational
-      _colorKernelFunc((cl::Buffer)_clbuf_Colors, iPtr->_type.getVertexCount(), 
+      _colorKernelFunc((cl::Buffer)_clbuf_Colors, _sphereColors, iPtr->_type.getVertexCount(), 
 		       renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
-		       vertexOffset, _sortData, _N, colorCycles);
+		       vertexOffset, _sortData, _N);
 
       renderedSpheres += iPtr->_nSpheres;
       renderedVertexData += iPtr->_nSpheres * iPtr->_type.getVertexCount();

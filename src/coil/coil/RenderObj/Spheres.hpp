@@ -58,6 +58,7 @@ public:
   virtual void initOpenCL(magnet::CL::CLGLState&);
 
   cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
+  cl::Buffer& getColorDataBuffer() { return _sphereColors; }
   
 protected:
   cl::Program _program;
@@ -75,7 +76,8 @@ protected:
 
   std::vector<SphereDetails> _renderDetailLevels;
 
-  cl::Buffer _spherePositions;
+  cl::Buffer _spherePositions; 
+  cl::Buffer _sphereColors;
   cl::Buffer _sortKeys, _sortData;
 
   size_t _frameCount;
