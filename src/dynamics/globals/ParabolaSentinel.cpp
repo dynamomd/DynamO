@@ -88,14 +88,19 @@ CGParabolaSentinel::runEvent(const Particle& part) const
   //Stop the parabola occuring again
   passedParabola[part.getID()] = true;
 
+  if (iEvent.getdt() == HUGE_VAL)
+    {
+      //We've numerically drifted slightly passed the parabola, so
+      //just reschedule the particles events, no need to enforce anything
+      Sim->ptrScheduler->fullUpdate(part);
+      return;
+    }
+
 #ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
-    M_throw() << "A NAN Interaction collision time has been found"
+    M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
 	      << iEvent.stringData(Sim);
   
-  if (iEvent.getdt() == HUGE_VAL)
-    M_throw() << "We got an infinite time when recalculating this global\n"
-	      << iEvent.stringData(Sim);
 #endif
 
   Sim->dSysTime += iEvent.getdt();
@@ -106,6 +111,21 @@ CGParabolaSentinel::runEvent(const Particle& part) const
 
   Sim->dynamics.getLiouvillean().enforceParabola(part);
   
+#ifdef DYNAMO_DEBUG
+  iEvent.addTime(Sim->freestreamAcc);
+  
+  Sim->freestreamAcc = 0;
+
+  NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
+
+  Sim->signalParticleUpdate(EDat);
+
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
+#else
+  Sim->freestreamAcc += iEvent.getdt();
+#endif
+
   Sim->freestreamAcc += iEvent.getdt();
 
   Sim->ptrScheduler->fullUpdate(part);

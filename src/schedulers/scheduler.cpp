@@ -63,7 +63,7 @@ CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
-			    const CScheduler& g)
+			   const CScheduler& g)
 {
   g.outputXML(XML);
   return XML;
@@ -184,7 +184,7 @@ CScheduler::runNextEvent()
   discarded and the new version is reinserted into the event
   queue. However, a rounding error might then cause the new event to
   appear earlier than the second event and we're back where we
-  started. Basically, if rejectionLimit rejections occur in a row we
+  started. Basically, if "rejectionLimit" rejections occur in a row we
   just accept the next event in the queue. This breaks these loops and
   allows the simulation to continue. 
 
@@ -289,6 +289,7 @@ CScheduler::runNextEvent()
       {
 	//We don't stream the system for globals as neighbour lists
 	//optimise this (they dont need it).
+	double originalt = sorter->next_dt();
 	Sim->dynamics.getGlobals()[sorter->next_p2()]
 	  ->runEvent(Sim->particleList[sorter->next_ID()]);       	
 	break;	           

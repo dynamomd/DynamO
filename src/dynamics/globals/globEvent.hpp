@@ -78,6 +78,6 @@ public:
 protected:
   const Particle*  particle_;
   double dt;
-  mutable EEventType CType;
-  const size_t globalID;
+  EEventType CType;
+  size_t globalID;
 };
