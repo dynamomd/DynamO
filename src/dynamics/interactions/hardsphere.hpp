@@ -53,6 +53,5 @@ public:
 
 protected:
   double diameter,d2;
-  double elasV;
   double e;
 };

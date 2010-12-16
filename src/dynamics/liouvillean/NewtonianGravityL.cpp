@@ -34,7 +34,8 @@
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
   Gravity(-1),
-  GravityDim(1)
+  GravityDim(1),
+  elasticV(0)
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
     M_throw() << "Attempting to load NewtonianGravity from "
@@ -47,6 +48,10 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
       
       if (XML.isAttributeSet("GravityDimension"))
 	GravityDim = boost::lexical_cast<double>(XML.getAttribute("GravityDimension"));      
+
+      if (XML.isAttributeSet("ElasticV"))
+	elasticV = boost::lexical_cast<double>(XML.getAttribute("ElasticV")) 
+	  * Sim->dynamics.units().unitVelocity();
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -57,10 +62,11 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity, 
-				     size_t gravityDim):
+				     size_t gravityDim, double eV):
   LNewtonian(tmp), 
   Gravity(gravity), 
-  GravityDim(gravityDim)
+  GravityDim(gravityDim),
+  elasticV(eV)
 {}
 
 void
@@ -388,6 +394,11 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
       << xml::attr("GravityDimension") 
       << GravityDim
     ;
+
+  if (elasticV)
+    XML << xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
+
+
 }
 
 double 
@@ -442,6 +453,29 @@ LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nr
 {
   M_throw() << "Not implemented yet";
 }
+
+PairEventData 
+LNewtonianGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
+				     const double& d2, const EEventType& eType) const
+{
+  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  Vector rij = particle1.getPosition() - particle2.getPosition(),
+    vij = particle1.getVelocity() - particle2.getVelocity();
+
+  Sim->dynamics.BCs().applyBC(rij, vij);
+
+  double vnrm = std::fabs((rij | vij) / rij.nrm());
+  
+  double e = ne;
+  if (vnrm < elasticV) e = 1.0;
+
+  return LNewtonian::SmoothSpheresColl(event, e, d2, eType);
+}
+
 
 double 
 LNewtonianGravity::getCylinderWallCollision(const Particle& part, 

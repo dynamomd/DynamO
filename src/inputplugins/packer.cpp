@@ -2494,7 +2494,9 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
 
-	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1));
+	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1,
+							   0.01 * Sim->dynamics.units().unitVelocity()));
+
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						     new C2RAll()
 						     ))->setName("Bulk");

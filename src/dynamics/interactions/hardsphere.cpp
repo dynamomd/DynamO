@@ -36,11 +36,10 @@
 IHardSphere::IHardSphere(DYNAMO::SimData* tmp, double nd, 
 			   double ne, C2Range* nR):
   Interaction(tmp, nR),
-  diameter(nd), d2(nd*nd), elasV(0), e(ne) {}
+  diameter(nd), d2(nd*nd), e(ne) {}
 
 IHardSphere::IHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
-  Interaction(tmp,NULL),
-  elasV(0)
+  Interaction(tmp,NULL)
 {
   operator<<(XML);
 }
@@ -65,10 +64,6 @@ IHardSphere::operator<<(const XMLNode& XML)
       d2 = diameter * diameter;
       
       e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-
-      if (XML.isAttributeSet("ElasticV"))
-	elasV = boost::lexical_cast<double>
-	  (XML.getAttribute("ElasticV")) * Sim->dynamics.units().unitVelocity();
 
       intName = XML.getAttribute("Name");
     }
@@ -136,16 +131,9 @@ IHardSphere::runEvent(const Particle& p1,
 		       const IntEvent& iEvent) const
 {
   ++Sim->eventCount;
-    
-  //Run the collision and catch the data
-  Vector rij = p1.getPosition() - p2.getPosition(),
-    vij = p1.getVelocity() - p2.getVelocity();
-
-  Sim->dynamics.BCs().applyBC(rij, vij);
-  rij /= rij.nrm();
 
   PairEventData EDat
-    (Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, (elasV > std::fabs(rij|vij)) ? 1.0 : e, d2)); 
+    (Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -163,9 +151,6 @@ IHardSphere::outputXML(xml::XmlStream& XML) const
       << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
       << xml::attr("Elasticity") << e
       << xml::attr("Name") << intName;
-
-  if (elasV)
-    XML << xml::attr("ElasticV") << elasV / Sim->dynamics.units().unitVelocity();
 
   XML << range;
 }
