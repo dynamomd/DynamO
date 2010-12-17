@@ -109,6 +109,8 @@ protected:
   void CallBackMouseFunc(int button, int state, int x, int y);
   void CallBackMotionFunc(int x, int y);
 
+  void performPicking(int x, int y);
+
 private:
   //Task queue for the simulation thread
   magnet::thread::TaskQueue _systemQueue;
@@ -169,6 +171,7 @@ private:
   bool _fpsLimit;
   int  _fpsLimitValue;
   bool _filterEnable;
+  bool _pickingEnabled;
 
   size_t _snapshot_counter;
 

@@ -59,12 +59,17 @@ public:
 
   cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
   cl::Buffer& getColorDataBuffer() { return _sphereColors; }
+
+  virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset);
+  virtual void pickingRender();
+  virtual void finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val);
   
 protected:
   cl::Program _program;
   cl::Kernel _renderKernel;
   cl::Kernel _sortDataKernel;
   cl::Kernel _colorKernel;
+  cl::Kernel _pickingKernel;
 
   cl::KernelFunctor _sortDataKernelFunc;
   cl::KernelFunctor _renderKernelFunc;
@@ -87,4 +92,6 @@ protected:
 
   magnet::CL::radixSort<cl_float> sortFunctor;
   magnet::CL::heapSort<cl_float> CPUsortFunctor;
+
+  void recolor(magnet::CL::CLGLState& CLState);
 };

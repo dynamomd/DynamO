@@ -46,6 +46,10 @@ public:
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) = 0;
   virtual void glRender() = 0;
 
+  virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset) {}
+  virtual void pickingRender() {}
+  virtual void finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val) {}
+
   enum RenderModeType 
     {
       POINTS,

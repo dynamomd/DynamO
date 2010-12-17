@@ -97,7 +97,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 					true, //Is the shape static, i.e. is there no time dependence
 					"f=0;\n",
 					"normal = (float3)(0,0,1);\n",
-					""
+					"colors[0] = (uchar4)(255,255,255,255);"
 					));
 
 }
@@ -147,6 +147,23 @@ CLGLWindow::initOpenGL()
     std::cout << "Shader pipeline disabled.\n"
 	      << "This also disables all other effects.\n";
 
+  
+  _pickingEnabled = true;
+  {
+    GLint bits;
+    glGetIntegerv(GL_ALPHA_BITS, &bits);
+    if (bits < 8) _pickingEnabled = false;
+    glGetIntegerv(GL_RED_BITS, &bits);
+    if (bits < 8) _pickingEnabled = false;
+    glGetIntegerv(GL_GREEN_BITS, &bits);
+    if (bits < 8) _pickingEnabled = false;
+    glGetIntegerv(GL_BLUE_BITS, &bits);
+    if (bits < 8) _pickingEnabled = false;
+  }
+
+  if (!_pickingEnabled)
+    std::cout << "\nPicking won't work! Your screen color depth is too low! We need/want 32bits (24bit color plus 8bit alpha)";
+
   glDrawBuffer(GL_BACK);
 
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -176,7 +193,6 @@ CLGLWindow::initOpenGL()
   //Both the front and back materials track the current color
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL); //and enable it
-
   
   glShadeModel(GL_SMOOTH);
 
@@ -908,19 +924,6 @@ CLGLWindow::CallBackDisplayFunc(void)
       glUseProgramObjectARB(0);
       //Now blit the stored scene to the screen
       lastFBO->blitToScreen(_width, _height);
-
-      /////////////FILTERING
-      //Now we blur the output from the offscreen FBO
-      //
-      //glActiveTextureARB(GL_TEXTURE0);
-      //
-      //_FBO1.attach();
-      //glBindTexture(GL_TEXTURE_2D, _myFBO.getColorTexture());
-      ////_laplacianFilter.invoke(0, _width, _height);
-      //_blurFilter.invoke(0, _width, _height);
-      //
-      //_FBO1.detach();
-      //_FBO1.blitToScreen(_width, _height);      
     }
   else    
     {      
@@ -1140,6 +1143,9 @@ CLGLWindow::CallBackMouseFunc(int button, int state, int x, int y)
 	  _oldMouseY = y;
 	  
 	  keyState |= RIGHTMOUSE;
+
+	  //Now perform a picking selection
+	  if (_pickingEnabled) performPicking(x,y);
 	}
       else
 	keyState &= ~RIGHTMOUSE;
@@ -1187,9 +1193,9 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
       _viewPortInfo._panrotation += diffX;
       _viewPortInfo._tiltrotation = clamp(diffY + _viewPortInfo._tiltrotation, -90, 90);
       break;
-    case RIGHTMOUSE:
-      break;
-    case MIDDLEMOUSE:
+//    case RIGHTMOUSE:
+//      break;
+//    case MIDDLEMOUSE:
     default:
       break;
     }
@@ -1565,4 +1571,49 @@ CLGLWindow::dynamoCOMAdjustCallBack()
   Gtk::CheckButton* btn;
   _refXml->get_widget("COMadjust", btn);
   _COMAdjust = btn->get_active();
+}
+
+void
+CLGLWindow::performPicking(int x, int y)
+{
+  glUseProgramObjectARB(0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+  _viewPortInfo.loadMatrices();
+  //Perform unique coloring of screen objects
+
+  cl_uint startVal = 0;
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->initPicking(_CLState, startVal);
+
+  //Now render the scene
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  glDisable(GL_BLEND); 
+  glDisable(GL_DITHER); 
+  glDisable(GL_FOG); 
+  glDisable(GL_LIGHTING); 
+  glDisable(GL_TEXTURE_1D); 
+  glDisable(GL_TEXTURE_2D); 
+  glDisable(GL_TEXTURE_3D); 
+  glShadeModel (GL_FLAT);
+
+  //Enter the render ticks for all objects
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->pickingRender();
+
+  unsigned char pixel[4];
+  
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  
+  glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+  glPopAttrib();
+
+  //Now let the objects know what was picked
+  const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
+  startVal = 0;
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->finishPicking(_CLState, startVal, objID);
 }

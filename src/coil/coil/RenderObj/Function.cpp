@@ -154,12 +154,15 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
     }
   
   _kernel = cl::Kernel(_program, "FunctionRenderKernel");
-  
+  _pickKernel = cl::Kernel(_program, "FunctionPickKernel");
   const size_t workgroupSize = 256;
   
   //N is a multiple of 16, so a workgroup size of 256 is always good
   _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), 
 			     cl::NDRange(workgroupSize));
+
+  _pickFunc = _pickKernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), 
+			       cl::NDRange(workgroupSize));
 
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   glFinish();
@@ -186,7 +189,7 @@ RFunction::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _v
   timespec currTime;
   clock_gettime(CLOCK_MONOTONIC, &currTime);
   
-  float tempo = float(currTime.tv_sec) - float(startTime.tv_sec)
+  tempo = float(currTime.tv_sec) - float(startTime.tv_sec)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
   //Aqquire buffer objects
@@ -282,5 +285,68 @@ FunctionRenderKernel(__global float * positions,
 
   )) + _colorCalc + std::string(STRINGIFY(
 }
+
+__kernel void
+FunctionPickKernel(__global uint * colors, uint offset)
+{
+  colors[get_global_id(0)] = get_global_id(0) + offset;
+}
 ));
+}
+
+
+void 
+RFunction::initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset)
+{
+  //Aqquire buffer objects
+  _clbuf_Colors.acquire(CLState.getCommandQueue());
+  //Run Kernel
+  _pickFunc((cl::Buffer)_clbuf_Colors, offset);
+  //Release resources
+  _clbuf_Colors.release(CLState.getCommandQueue());
+
+  offset += _N * _N;
+}
+
+void 
+RFunction::pickingRender()
+{
+  RTriangles::glRender();
+}
+
+void 
+RFunction::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val)
+{
+  if (val - offset < _N * _N)
+    {
+      std::cerr << "\nYou picked a function point with coords of " 
+		<< (val - offset) % _N
+		<< ","
+		<< (val - offset) / _N;
+    }
+
+  //Aqquire buffer objects
+  _clbuf_Colors.acquire(CLState.getCommandQueue());
+  _clbuf_Positions.acquire(CLState.getCommandQueue());
+  _clbuf_Normals.acquire(CLState.getCommandQueue());
+      
+  //Run Kernel
+  _kernelFunc((cl::Buffer)_clbuf_Positions, 
+	      (cl::Buffer)_clbuf_Colors, 
+	      (cl::Buffer)_clbuf_Normals, 
+	      tempo,
+	      _functionOrigin,
+	      _functionRange,
+	      _cl_axis1,
+	      _cl_axis2,
+	      _cl_axis3,
+	      _cl_origin,
+	      _N);
+  
+  //Release resources
+  _clbuf_Normals.release(CLState.getCommandQueue());
+  _clbuf_Colors.release(CLState.getCommandQueue());
+  _clbuf_Positions.release(CLState.getCommandQueue());
+
+  offset += _N * _N;
 }

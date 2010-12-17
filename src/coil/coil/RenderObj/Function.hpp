@@ -46,17 +46,24 @@ public:
   inline void setDrawAxis(bool val) { _drawAxis = val; }
   inline void setStaticShape(bool val) { _staticShape = val; }
 
+  virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset);
+  virtual void pickingRender();
+  virtual void finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val);
+
 protected:
   std::string genKernelSrc();
 
   cl::Kernel _kernel;
+  cl::Kernel _pickKernel;
   cl::KernelFunctor _kernelFunc;
+  cl::KernelFunctor _pickFunc;
   std::string _kernelsrc;
 
   cl::Program _program;
   timespec startTime;
 
   cl_uint _N;
+  cl_float tempo;
 
   Vector _origin;
   Vector _axis1;
