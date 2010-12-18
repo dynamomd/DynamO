@@ -1028,20 +1028,40 @@ CLGLWindow::drawScene()
 
 
 void CLGLWindow::drawAxis()
-{
-  if (!_showAxis) return;
-  
+{  
   GLdouble nearPlane = 0.1,
     axisScale = 0.07;
+
+  //Disable anything that might affect the rastering 
+  glDisable(GL_LIGHTING);
+ 
+  //Draw the console and anything else of interest
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  const int ConsoleFontSize = 16;
+  glColor3f(0,0,0);
+  _consoleFont->FaceSize(ConsoleFontSize);
+  GLfloat consoleheight = (_height - 2.0 * ConsoleFontSize)/_height;
+  glRasterPos3f(-1.0,consoleheight,0);
   
-  //We're drawing an overlayed axis so disable depth testing
+  std::ostringstream console;
+  console << "Height is " << _height
+	  << "\nConsole height is " << consoleheight;
+  std::string output = console.str();
+  _consoleFont->Render(output.c_str());
+
+
+
+  if (!_showAxis) return;
+
+  //The axis is in a little 100x100 pixel area in the lower left
   glViewport(0,0,100,100);
 
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
-
   glMatrixMode(GL_PROJECTION);
-  glPushMatrix ();
+  glPushMatrix();
   glLoadIdentity();
   gluPerspective(45.0f, 1, 0.1f, 1000.0f);
 
@@ -1050,12 +1070,14 @@ void CLGLWindow::drawAxis()
   glLoadIdentity();  
   
   //near plane is at 0.1, the axis are 0.25 long so
-  
-  glTranslatef (0, 0, -(nearPlane + axisScale));
+    glTranslatef (0, 0, -(nearPlane + axisScale));
 
+  //We want the arrow drawing to always succeed
+  glDisable(GL_DEPTH_TEST);
+  //We want a semi transparent axis overlay so enable blending
   glEnable(GL_BLEND);
 
-  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.7); // Color the axis box a transparent blue
+  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.5); // Color the axis box a transparent blue
   glBegin(GL_QUADS);		
   glVertex3f(-1,-1, 0);
   glVertex3f( 1,-1, 0);
@@ -1081,7 +1103,7 @@ void CLGLWindow::drawAxis()
   coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
 				Vector(-0.5,-0.5, 0.5));
   
-  //Do the text
+  //Do the axis labels
   glColor3f(1,1,1);
   _consoleFont->FaceSize(16);
   glRasterPos3f( 0.5,-0.5,-0.5);
