@@ -1,0 +1,12 @@
+######This bit registers a convertor for gladexml files
+import type ;
+type.register TTF : ttf ;
+
+import generators ;
+generators.register-standard ttf.objectify-ttf : TTF : OBJ ;
+
+actions objectify-ttf
+{
+  "ld" -r -b binary -o $(<) $(>)
+  "objcopy" --rename-section .data=.rodata,alloc,load,readonly,data,contents  $(<) $(<)
+}

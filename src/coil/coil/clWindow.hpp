@@ -46,6 +46,8 @@
 
 #include <coil/filters/filter.hpp>
 
+#include <FTGL/ftgl.h>
+
 class CLGLWindow : public CoilWindow
 {
 public:
@@ -198,6 +200,9 @@ private:
   Glib::RefPtr<Gtk::ListStore> _filterStore;
   Gtk::TreeView* _filterView;
 
+
+  //FTGL font handlers
+  std::auto_ptr<FTGLPixmapFont> _consoleFont;
 
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();

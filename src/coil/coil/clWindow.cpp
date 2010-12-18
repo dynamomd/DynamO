@@ -35,7 +35,6 @@ inline float clamp(float x, float a, float b)
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include "glprimatives/glscribe.hpp"
 #include "glprimatives/arrow.hpp"
 
 #include <magnet/CL/CLGL.hpp>
@@ -106,6 +105,9 @@ CLGLWindow::~CLGLWindow()
 {
   deinit(true);
 }
+
+extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
+extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
 
 void 
 CLGLWindow::initOpenGL()
@@ -256,6 +258,13 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
 
+  _consoleFont.reset(new FTGLPixmapFont(_binary_src_coil_coil_coilfont_ttf_start,
+					_binary_src_coil_coil_coilfont_ttf_end
+					-_binary_src_coil_coil_coilfont_ttf_start));
+  
+  if (_consoleFont->Error()) 
+    M_throw() << "Could not load coil's embedded font! Errno " 
+	      << _consoleFont->Error();
 }
 
 void 
@@ -1014,6 +1023,7 @@ CLGLWindow::drawScene()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
+
 }
 
 
@@ -1073,9 +1083,13 @@ void CLGLWindow::drawAxis()
   
   //Do the text
   glColor3f(1,1,1);
-  GLScribe::cout << GLScribe::cursor( 0.5,-0.5,-0.5) << "X"
-		 << GLScribe::cursor(-0.5, 0.5,-0.5) << "Y"
-		 << GLScribe::cursor(-0.5,-0.5, 0.5) << "Z";
+  _consoleFont->FaceSize(16);
+  glRasterPos3f( 0.5,-0.5,-0.5);
+  _consoleFont->Render("X");
+  glRasterPos3f(-0.5, 0.5,-0.5);
+  _consoleFont->Render("Y");
+  glRasterPos3f(-0.5,-0.5, 0.5);
+  _consoleFont->Render("Z");
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix ();

@@ -15,7 +15,7 @@
    inkscape:version="0.48.0 r9654"
    width="48"
    height="48"
-   sodipodi:docname="coilicon.svg"
+   sodipodi:docname="coilicon.pixbufsvg"
    inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
    inkscape:export-xdpi="29.665472"
    inkscape:export-ydpi="29.665472">
@@ -27,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -597,13 +597,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1024"
-     inkscape:window-height="747"
+     inkscape:window-width="1366"
+     inkscape:window-height="741"
      id="namedview4"
      showgrid="false"
      inkscape:zoom="8"
-     inkscape:cx="21.842025"
-     inkscape:cy="21.730678"
+     inkscape:cx="18.097752"
+     inkscape:cy="24.367686"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -639,51 +639,11 @@
      inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
      inkscape:export-xdpi="29.5812"
      inkscape:export-ydpi="29.5812" />
-  <rect
-     style="fill:none;stroke:#000000;stroke-width:0.13656837;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-     id="rect3623-4-1-8"
-     width="9.1890354"
-     height="1.396153"
-     x="31.154322"
-     y="41.714314"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
   <path
      inkscape:connector-curvature="0"
      style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:0.13953, 0.27906;stroke-dashoffset:0"
      d="M 24.198825,0.61214922 24.414535,48.070539"
      id="path3665-9-2-4"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
-  <rect
-     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-     id="rect3749-4-7-4"
-     width="3.3812382"
-     height="0.44489938"
-     x="33.179363"
-     y="41.193653"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
-  <rect
-     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-     id="rect3751-9-0-1"
-     width="1.8304443"
-     height="1.0169135"
-     x="34.043728"
-     y="40.176746"
-     inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
-     inkscape:export-xdpi="29.5812"
-     inkscape:export-ydpi="29.5812" />
-  <rect
-     style="fill:none;stroke:#000000;stroke-width:0.13953;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-     id="rect3753-8-5-5"
-     width="1.0169135"
-     height="0.36863115"
-     x="34.463207"
-     y="39.83353"
      inkscape:export-filename="/home/mjki2mb2/Desktop/dynamo_logo.png"
      inkscape:export-xdpi="29.5812"
      inkscape:export-ydpi="29.5812" />
@@ -1141,4 +1101,43 @@
      sodipodi:rx="13.8125"
      sodipodi:ry="13.8125"
      d="m 38.125,21.375 a 13.8125,13.8125 0 1 1 -27.625,0 13.8125,13.8125 0 1 1 27.625,0 z" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect3901"
+     width="5.125"
+     height="5.125"
+     x="0.5"
+     y="18.5" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect3901-9"
+     width="5.125"
+     height="5.125"
+     x="6.5233169"
+     y="-13.049596"
+     transform="matrix(0.5,0.8660254,-0.8660254,0.5,0,0)" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect3901-5"
+     width="5.125"
+     height="5.125"
+     x="28.844385"
+     y="-17.664183"
+     transform="matrix(0.8660254,0.5,-0.5,0.8660254,0,0)" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect3901-8"
+     width="5.125"
+     height="5.125"
+     x="29.420107"
+     y="24.583004"
+     transform="matrix(0.8660254,0.5,-0.5,0.8660254,0,0)" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke:none"
+     id="rect3901-2"
+     width="5.125"
+     height="5.125"
+     x="-23.8125"
+     y="42.6875"
+     transform="matrix(0,-1,1,0,0,0)" />
 </svg>

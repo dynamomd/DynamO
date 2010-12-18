@@ -1,4 +1,5 @@
 import glade ;
+import ttf ;
 import pixbuf ;
 
 lib glut : : <link>shared ;
@@ -10,11 +11,13 @@ lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
 
+lib ftgl : : <link>shared ;
+
 lib OpenCL : : <link>shared ;
 
-alias coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg : tests ]
+alias coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet 
-      OpenCL 
+      OpenCL ftgl
     : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     : : <define>GLVIEWER <include>. 
     <linkflags>"`pkg-config gtkmm-2.4 --libs`" 
