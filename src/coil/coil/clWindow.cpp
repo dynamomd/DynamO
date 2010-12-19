@@ -256,6 +256,8 @@ CLGLWindow::initOpenGL()
     (*iPtr)->initOpenGL();
   
   _console.reset(new coil::Console(_width, _height));
+  
+  (*_console) << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
 }
 
 void 
@@ -288,7 +290,6 @@ extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
 
 extern const guint8 coilicon[];
 extern const size_t coilicon_size;
-
 
 void
 CLGLWindow::initGTK()
@@ -1023,24 +1024,7 @@ void CLGLWindow::drawAxis()
   GLdouble nearPlane = 0.1,
     axisScale = 0.07;
 
-  //Disable anything that might affect the rastering 
-  glDisable(GL_LIGHTING);
- 
-  //Draw the console and anything else of interest
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  const int ConsoleFontSize = 16;
-  glColor3f(0,0,0);
-  _console->getFont().FaceSize(ConsoleFontSize);
-  GLfloat consoleheight = (_height - 2.0 * ConsoleFontSize)/_height;
-  glRasterPos3f(-1.0,consoleheight,0);
-  
-  (*_console) << "Height is " << _height
-	      << "\nConsole height is " << consoleheight
-	      << coil::Console::end();
+  _console->draw();
   
   if (!_showAxis) return;
 
