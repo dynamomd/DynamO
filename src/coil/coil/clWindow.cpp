@@ -106,9 +106,6 @@ CLGLWindow::~CLGLWindow()
   deinit(true);
 }
 
-extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
-extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
-
 void 
 CLGLWindow::initOpenGL()
 {
@@ -257,14 +254,8 @@ CLGLWindow::initOpenGL()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
-
-  _consoleFont.reset(new FTGLPixmapFont(_binary_src_coil_coil_coilfont_ttf_start,
-					_binary_src_coil_coil_coilfont_ttf_end
-					-_binary_src_coil_coil_coilfont_ttf_start));
   
-  if (_consoleFont->Error()) 
-    M_throw() << "Could not load coil's embedded font! Errno " 
-	      << _consoleFont->Error();
+  _console.reset(new coil::Console);
 }
 
 void 
@@ -1043,18 +1034,14 @@ void CLGLWindow::drawAxis()
 
   const int ConsoleFontSize = 16;
   glColor3f(0,0,0);
-  _consoleFont->FaceSize(ConsoleFontSize);
+  _console->getFont().FaceSize(ConsoleFontSize);
   GLfloat consoleheight = (_height - 2.0 * ConsoleFontSize)/_height;
   glRasterPos3f(-1.0,consoleheight,0);
   
-  std::ostringstream console;
-  console << "Height is " << _height
-	  << "\nConsole height is " << consoleheight;
-  std::string output = console.str();
-  _consoleFont->Render(output.c_str());
-
-
-
+  (*_console) << "Height is " << _height
+	      << "\nConsole height is " << consoleheight
+	      << coil::Console::end();
+  
   if (!_showAxis) return;
 
   //The axis is in a little 100x100 pixel area in the lower left
@@ -1105,13 +1092,14 @@ void CLGLWindow::drawAxis()
   
   //Do the axis labels
   glColor3f(1,1,1);
-  _consoleFont->FaceSize(16);
+  _console->getFont().FaceSize(16);
+
   glRasterPos3f( 0.5,-0.5,-0.5);
-  _consoleFont->Render("X");
+  _console->getFont().Render("X");
   glRasterPos3f(-0.5, 0.5,-0.5);
-  _consoleFont->Render("Y");
+  _console->getFont().Render("Y");
   glRasterPos3f(-0.5,-0.5, 0.5);
-  _consoleFont->Render("Z");
+  _console->getFont().Render("Z");
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix ();

@@ -39,14 +39,11 @@
 #include <magnet/GL/nrmlNdepthShader.hpp>
 #include <magnet/thread/refPtr.hpp>
 
-
-#include <coil/RenderObj/RenderObj.hpp>
-
 #include <memory>
 
 #include <coil/filters/filter.hpp>
-
-#include <FTGL/ftgl.h>
+#include <coil/RenderObj/RenderObj.hpp>
+#include <coil/console.hpp>
 
 class CLGLWindow : public CoilWindow
 {
@@ -202,7 +199,7 @@ private:
 
 
   //FTGL font handlers
-  std::auto_ptr<FTGLPixmapFont> _consoleFont;
+  std::auto_ptr<coil::Console> _console;
 
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();

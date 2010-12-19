@@ -16,6 +16,9 @@
  */
 #pragma once
 
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glew.h>
+
 #include <string>
 #include <magnet/exception.hpp>
 

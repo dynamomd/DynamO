@@ -16,15 +16,11 @@
 */
 
 #pragma once
-#include "../clWindow.hpp"
 #include "Triangles.hpp"
-#include <time.h>
 #include <magnet/GL/primatives/Sphere.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/CL/radixsort.hpp>
 #include <magnet/CL/heapSort.hpp>
-
-
 
 class RTSpheres : public RTriangles
 {

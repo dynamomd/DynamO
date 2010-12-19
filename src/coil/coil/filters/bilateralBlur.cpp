@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <coil/clWindow.hpp>
 #include <coil/filters/bilateralBlur.hpp>
 
 extern const char _binary_src_coil_coil_filters_bilateralBlurWin_gladexml_start[];

@@ -17,7 +17,6 @@
 #pragma once
 
 #include <gtkmm.h>
-
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
 #include <GL/freeglut.h>

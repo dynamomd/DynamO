@@ -16,7 +16,6 @@
 */
 #pragma once
 
-#include "../clWindow.hpp"
 #include "Triangles.hpp"
 #include <time.h>
 
