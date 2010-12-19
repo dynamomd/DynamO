@@ -255,7 +255,7 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
   
-  _console.reset(new coil::Console);
+  _console.reset(new coil::Console(_width, _height));
 }
 
 void 
@@ -1120,6 +1120,8 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   _width = w;
   _height = h;
   
+  _console->resize(_width, _height);
+
   //Setup the viewport
   glViewport(0, 0, _width, _height); 
 
