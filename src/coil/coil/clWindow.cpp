@@ -1221,6 +1221,9 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
 
   switch (key)
     {
+    case 'k':
+      (*_console) << "Testing key press" << coil::Console::end();
+      break;
     default:
       break;
     }
