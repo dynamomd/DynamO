@@ -1028,6 +1028,10 @@ void CLGLWindow::drawAxis()
   
   if (!_showAxis) return;
 
+
+  glDisable(GL_LIGHTING);
+  glDisable(GL_DEPTH_TEST);
+
   //The axis is in a little 100x100 pixel area in the lower left
   glViewport(0,0,100,100);
 

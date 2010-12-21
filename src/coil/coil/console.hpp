@@ -58,7 +58,7 @@ namespace coil {
   template<>
   inline Console& Console::operator<< <Console::end>(const Console::end&)
   {
-    _consoleEntries.push_back(consoleEntry(0, os.str()));
+    _consoleEntries.push_front(consoleEntry(0, os.str()));
     os.str("");
     return *this;
   }

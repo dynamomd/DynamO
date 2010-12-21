@@ -40,7 +40,7 @@ namespace coil {
       M_throw() << "Could not load coil's embedded font! Errno " 
 		<< _consoleFont.Error();
 
-    _consoleFont.FaceSize(12);
+    _consoleFont.FaceSize(10);
 
     _consoleLayout.SetFont(&_consoleFont);
 
@@ -76,27 +76,33 @@ namespace coil {
 
     GLfloat lineHeight = _consoleFont.FaceSize() / (0.5f * _height);
     GLfloat consoleHeight = 1.0f - lineHeight;
+
     //Calculate how long since the last redraw
-    int glutTime = glutGet(GLUT_ELAPSED_TIME);
-    int tdelta = glutTime - _glutLastTime;
-    _glutLastTime = glutTime;
+    int tdelta = glutGet(GLUT_ELAPSED_TIME) - _glutLastTime;
+    _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
+
+    glColor4f(0.25, 0.25, 0.25, 1);
+    glRasterPos3f(-1.0, consoleHeight, 0);
+    _consoleLayout.Render(_consoleEntries.front().second.c_str());
+    consoleHeight -= lineHeight;
   
-    //glEnable(GL_BLEND);
-    for (std::list<consoleEntry>::iterator iPtr = _consoleEntries.begin();
-	 iPtr != _consoleEntries.end(); ++iPtr)
+    for (std::list<consoleEntry>::iterator iPtr = ++_consoleEntries.begin();
+	 iPtr != _consoleEntries.end();)
       {
-	std::ostringstream os;
-	GLfloat textAlpha = iPtr->first / 1000;
-	os << iPtr->second << " Alpha val " << textAlpha;
-	std::string str = os.str();
-	glColor4f(0, 0, 0, textAlpha);
-	glRasterPos3f(-1.0, consoleHeight, 0);
-	_consoleLayout.Render(str.c_str());
+	//Fade the color based on it's time in the queue
+	glColor4f(0.25, 0.25, 0.25, 1.0f - iPtr->first / 1000.0f);
+	glRasterPos3f(-1, consoleHeight, 0);
+	_consoleLayout.Render(iPtr->second.c_str());
 	iPtr->first += tdelta;
 	consoleHeight -= lineHeight;
+
+	std::list<consoleEntry>::iterator prev = iPtr++;
+	//If this element is invisible, erase it
+	if (prev->first > 1000) _consoleEntries.erase(prev);
       }
 
-    //glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
   }
   
 }
