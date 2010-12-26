@@ -27,7 +27,8 @@ namespace coil {
   public:
     struct end {};
 
-    Console(size_t width, size_t height);
+    Console(size_t width, size_t height,
+	    float r = 0.0, float g = 0.8, float b = 0.8, int faceSize = 10);
 
     template<class T>
     Console& operator<<(const T& value) 
@@ -53,6 +54,8 @@ namespace coil {
     std::list<consoleEntry> _consoleEntries;
     
     int _glutLastTime;
+
+    float _color[3];
   };
 
   template<>

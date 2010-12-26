@@ -31,16 +31,20 @@ extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
 extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
 
 namespace coil {
-  Console::Console(size_t width, size_t height):
+  Console::Console(size_t width, size_t height, float r, float g, float b, int faceSize):
     _consoleFont(_binary_src_coil_coil_coilfont_ttf_start,
 		 _binary_src_coil_coil_coilfont_ttf_end
 		 -_binary_src_coil_coil_coilfont_ttf_start)
   {
+    _color[0] = r;
+    _color[1] = g;
+    _color[2] = b;
+
     if (_consoleFont.Error()) 
       M_throw() << "Could not load coil's embedded font! Errno " 
 		<< _consoleFont.Error();
 
-    _consoleFont.FaceSize(10);
+    _consoleFont.FaceSize(faceSize);
 
     _consoleLayout.SetFont(&_consoleFont);
 
@@ -74,14 +78,14 @@ namespace coil {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    GLfloat lineHeight = _consoleFont.FaceSize() / (0.5f * _height);
-    GLfloat consoleHeight = 1.0f - lineHeight;
+    float lineHeight = _consoleFont.FaceSize() / (0.5f * _height);
+    float consoleHeight = 1.0f - lineHeight;
 
     //Calculate how long since the last redraw
     int tdelta = glutGet(GLUT_ELAPSED_TIME) - _glutLastTime;
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    glColor4f(0.25, 0.25, 0.25, 1);
+    glColor4f(_color[0], _color[1], _color[2], 1);
     glRasterPos3f(-1.0, consoleHeight, 0);
     _consoleLayout.Render(_consoleEntries.front().second.c_str());
     consoleHeight -= lineHeight;
@@ -90,7 +94,7 @@ namespace coil {
 	 iPtr != _consoleEntries.end();)
       {
 	//Fade the color based on it's time in the queue
-	glColor4f(0.25, 0.25, 0.25, 1.0f - iPtr->first / 1000.0f);
+	glColor4f(_color[0], _color[1], _color[2],  1.0f - iPtr->first / 1000.0f);
 	glRasterPos3f(-1, consoleHeight, 0);
 	_consoleLayout.Render(iPtr->second.c_str());
 	iPtr->first += tdelta;
