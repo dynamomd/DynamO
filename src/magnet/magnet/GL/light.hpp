@@ -55,7 +55,7 @@ namespace magnet {
 	glTranslatef(_position.x, _position.y, _position.z);
 	glRotatef(rotationAngle, RotationAxis.x, RotationAxis.y, RotationAxis.z);
 	
-	glTranslatef(0.0f,0.0f,-0.025f);
+	glTranslatef(0.0f,0.0f,0.05f);
 	glutSolidTorus(0.01f, 0.02f, 20, 20);
 	glTranslatef(0.0f,0.0f,-0.025f);
 	glutSolidCone(0.02f, 0.05f, 15, 15);

@@ -932,9 +932,6 @@ CLGLWindow::CallBackDisplayFunc(void)
       _viewPortInfo.loadMatrices();
       drawScene();
     }
-
-  //Draw the light source
-  if (_showLight) _light0.drawLight();
   
   //We clear the depth as merely disabling gives artifacts
   glClear(GL_DEPTH_BUFFER_BIT); 
@@ -1016,6 +1013,7 @@ CLGLWindow::drawScene()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
 
+  if (_showLight) _light0.drawLight();
 }
 
 

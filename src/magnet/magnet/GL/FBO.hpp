@@ -115,7 +115,7 @@ namespace magnet {
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
 	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, screenwidth, screenheight, 
-			     GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
 
