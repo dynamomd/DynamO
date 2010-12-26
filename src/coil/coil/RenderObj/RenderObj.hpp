@@ -37,8 +37,13 @@
 class RenderObj
 {
 public:
-  RenderObj();
-  ~RenderObj();
+  RenderObj():
+    _RenderMode(TRIANGLES),
+    _renderNormals(false),
+    _visible(true)
+  {}
+  
+  ~RenderObj() {}
 
   virtual void initOpenGL() = 0;
   virtual void initOpenCL(magnet::CL::CLGLState&) = 0;
