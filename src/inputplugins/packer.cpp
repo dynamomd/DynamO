@@ -3088,57 +3088,43 @@ CIPPacker::initialise()
 	      std::cout << i << "  " << seq[i] << std::endl;
 	    }
 
+	    Sim->dynamics.addInteraction
+	      (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
+				    seq, new C2RAll()))->setName("Bulk");
+		
+	    ISWSequence& interaction
+	      (static_cast<ISWSequence&>
+	       (*(Sim->dynamics.getInteraction("Bulk"))));
+
+//	    interaction.getAlphabet().at(0).at(0) = 1.0;
+//	    interaction.getAlphabet().at(1).at(0) = 0.5;
+//	    interaction.getAlphabet().at(0).at(1) = 0.5;
+
 	    // set interaction matrix
+	    std::map<std::string, double>::iterator it_MJ;
 	    std::string pair;
 	    BOOST_FOREACH(e1, mapping) { 
 	      BOOST_FOREACH(e2, mapping) { 
-//		pair = e1.first + e2.first;
-//		it = mapping.find(pair);
-//		if (it == mapping.end()) {
-//		  M_throw() << "Entered a monomer not in the database."
-//		    } 
-//		std::cout << e1.second << "  " 
-//			  << e2.second << "  " 
-//			  << e1.first << e2.first << "  "
-//			  << MJinter[pair]
-//			  << std::endl;
-//		interaction.getAlphabet().at(e1.second).at(e2.second) 
-//		  = -MJinter[pair];
-//		pair = e2.first + e1.first;
-//		interaction.getAlphabet().at(e2.second).at(e1.second) 
-//		  = -MJinter[pair];
+		pair = e1.first + e2.first;
+		it_MJ = MJinter.find(pair);
+		std::cout << e1.second << "  " 
+			  << e2.second << "  " 
+			  << e1.first << e2.first << "  " << pair
+		  //<< MJinter[pair]
+			  << std::endl;
+		if (it_MJ == MJinter.end()) {
+		  M_throw() << "Entered a monomer not in the database.";
+		} 
+		interaction.getAlphabet().at(e1.second).at(e2.second) 
+		  = -MJinter[pair];
+		pair = e2.first + e1.first;
+		interaction.getAlphabet().at(e2.second).at(e1.second) 
+		  = -MJinter[pair];
 	      }
 	    }
 
 
 
-		bool has0(false), has1(false);
-	    for (size_t i = 0; i < chainlength; ++i)
-	    {
-	      seq[i] = boost::lexical_cast<size_t>
-		(stringseq[i % stringseq.size()]);
-	      if (seq[i])
-			has1=true;
-	      else
-			has0=true;
-	      if (seq[i]>1) M_throw() << "Dynamod only supports 2 types of monomers, make a sample chain and edit the configuration file by hand to use more";
-	    }
-
-	    if (has1 && has0)
-	      {
-		Sim->dynamics.addInteraction
-		  (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
-				    seq, new C2RAll()))->setName("Bulk");
-		
-		ISWSequence& interaction
-		  (static_cast<ISWSequence&>
-		   (*(Sim->dynamics.getInteraction("Bulk"))));
-		interaction.getAlphabet().at(0).at(0) = 1.0;
-		
-		interaction.getAlphabet().at(1).at(0) = 0.5;
-		
-		interaction.getAlphabet().at(0).at(1) = 0.5;
-	      }
 	  }
 	else
 	  Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
