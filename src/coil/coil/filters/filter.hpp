@@ -90,7 +90,9 @@ namespace coil
       return vals;
     }
     
-    inline virtual bool needsNormalDepth() = 0;
+    //If any filter has this set to true the Normals and Depths will
+    //be regenerated at each frame, requiring an extra render pass.
+    inline virtual bool needsNormalDepth() { return false; }
 
     //////////////Virtual members
     virtual size_t type_id() = 0;

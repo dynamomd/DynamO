@@ -23,7 +23,6 @@
 #include <coil/coilMaster.hpp>
 
 #define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.h>
 #include <CL/cl.hpp>
 
 #include <coil/Maths/Maths.h>

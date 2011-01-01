@@ -15,39 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define GL_GLEXT_PROTOTYPES
 #include "clWindow.hpp"
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
-#include <GL/glext.h>
-
 #include <locale>
-
-
-inline float clamp(float x, float a, float b)
-{
-  return x < a ? a : (x > b ? b : x);
-}
-
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include "glprimatives/arrow.hpp"
-
-#include <magnet/CL/CLGL.hpp>
-#define PNG_SKIP_SETJMP_CHECK
-#include <magnet/PNG.hpp>
 #include <iomanip>
+#include <magnet/clamp.hpp>
 
+#include "glprimatives/arrow.hpp"
+#include <magnet/PNG.hpp>
 #include <coil/extcode/bitmap_image.hpp>
-
 #include <magnet/function/task.hpp>
-
 #include <gtkmm/volumebutton.h>
-
 #include <coil/RenderObj/Function.hpp>
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
@@ -500,18 +481,17 @@ CLGLWindow::initGTK()
 	    }
 
 	  aliasSelections->pack_start(vals.m_col_id);
-	  aliasSelections->set_active(lastrow);
 
-	  if (false)
-	    {
-	      multisampleEnable->set_active(true);
-	      
-	      _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
-	    }
+	  //Activate a multisample of 2<<(2)=8 by default
+	  aliasSelections->set_active(std::min(lastrow, 2));
+
+	  multisampleEnable->set_active(true);
+	  
+	  _renderTarget.reset(new magnet::GL::multisampledFBO
+			      (2 << aliasSelections->get_active_row_number()));
 
 	  aliasSelections->signal_changed()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-
 	}
 
       _renderTarget->init(_width, _height);
@@ -1203,7 +1183,7 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
     {
     case LEFTMOUSE:
       _viewPortInfo._panrotation += diffX;
-      _viewPortInfo._tiltrotation = clamp(diffY + _viewPortInfo._tiltrotation, -90, 90);
+      _viewPortInfo._tiltrotation = magnet::clamp(diffY + _viewPortInfo._tiltrotation, -90.0f, 90.0f);
       break;
 //    case RIGHTMOUSE:
 //      break;

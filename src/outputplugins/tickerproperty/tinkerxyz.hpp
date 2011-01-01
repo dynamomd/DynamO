@@ -50,7 +50,7 @@ class OPTinkerXYZ: public OPTicker
   bool fileOutput;
   bool liveOutput;
   bool blockForVMD;
-  size_t max_frame_count;
+  int max_frame_count;
 
 
   bool P1track;

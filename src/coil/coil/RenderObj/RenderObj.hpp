@@ -15,23 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-
-#define GL_GLEXT_PROTOTYPES
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
-#include <GL/glext.h>
-
-
-#define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.hpp>
-
 #include <magnet/CL/CLGL.hpp>
 #include <coil/Maths/Maths.h>
 #include <coil/extcode/vector2.hpp>
-
-
 #include <magnet/GL/viewPort.hpp>
 
 class RenderObj

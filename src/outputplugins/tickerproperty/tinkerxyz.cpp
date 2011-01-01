@@ -35,7 +35,6 @@
 
 static const size_t HEADERSIZE = 8;
 
-
 OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),

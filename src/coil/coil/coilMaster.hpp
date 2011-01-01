@@ -28,7 +28,7 @@
 #include <map>
 #include <vector>
 
-class CoilMaster{
+class CoilMaster {
 public:
 
   inline static 

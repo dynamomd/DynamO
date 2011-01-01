@@ -22,11 +22,9 @@
 #include <GL/glu.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
-#include <CL/cl.hpp>
-#include <stdexcept>
-
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
+#include <stdexcept>
 
 namespace cl {
 /*! \class Buffer
