@@ -41,8 +41,6 @@ class OPTinkerXYZ: public OPTicker
 
   virtual void ticker();
 
-  void eventUpdate(const IntEvent&, const PairEventData&) { if (!(Sim->eventCount % 50000)) {Sim->dynamics.getLiouvillean().updateAllParticles(); ticker(); } }
-  
   void operator<<(const XMLNode&);
 
  protected:
