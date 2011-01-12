@@ -13,7 +13,7 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include <iostream>
 #include <magnet/CL/radixsort.hpp>
@@ -30,10 +30,10 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
   for (size_t i(0); i < output.size(); ++i)
     if (output[i] != answer[i])
       {
-	std::cout << "Error i = " << i 
-		  << " output = " << output[i]
-		  << " answer = " << answer[i]
-		  << "\n";
+	//std::cout << "Error i = " << i 
+	//	  << " output = " << output[i]
+	//	  << " answer = " << answer[i]
+	//	  << "\n";
 	result = false;
       }
 
@@ -41,15 +41,14 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 }
 
 template<class T>
-void runTestType(cl::Context context, cl::CommandQueue queue)
+bool runTestType(cl::Context context, cl::CommandQueue queue)
 {
   cl_uint size = 1024 * 5;
 
   std::vector<T> input(size);
 
   std::cout << "##Testing radix sort for " << input.size() << " elements and type " 
-	    << magnet::CL::detail::traits<T>::kernel_type()
-	    << std::endl;
+	    << magnet::CL::detail::traits<T>::kernel_type();
   
   for(size_t i = 0; i < input.size(); ++i)
     input[i] = input.size() - i - 1;
@@ -69,18 +68,14 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   queue.enqueueReadBuffer(bufferIn, CL_TRUE, 0, input.size() *
 			  sizeof(T), &output[0]);
 
-  if (!testOutput(input, output))
-    M_throw() << "Incorrect output for keysort with size " 
-	      << input.size()
-	      << " and type "
-	      << magnet::CL::detail::traits<T>::kernel_type();
+  bool failed = !testOutput(input, output);
+
+  std::cout << " key(only) " << (failed ? "FAILED" : "PASSED") << ", "; 
 
   //Now test with some data!
   //Refresh the input array
   queue.enqueueWriteBuffer(bufferIn, CL_TRUE, 0, input.size() *
 			   sizeof(T), &input[0]);
-
-  std::cout << "##key Sort passed, trying data sort\n";
 
   //Write a data array
   std::vector<cl_uint> data(size);
@@ -97,80 +92,74 @@ void runTestType(cl::Context context, cl::CommandQueue queue)
   queue.enqueueReadBuffer(dataIn, CL_TRUE, 0, data.size() *
 			  sizeof(cl_uint), &data[0]);
 
-  if (!testOutput(input, output))
-    M_throw() << "Incorrect output in keys for data and key sort with size " 
-	      << input.size()
-	      << " and type "
-	      << magnet::CL::detail::traits<T>::kernel_type();
+  bool keyfail = !testOutput(input, output);
 
+  std::cout << " key " << (keyfail ? "FAILED" : "PASSED"); 
+
+  bool datafail = false;
   for(size_t i = 0; i < input.size(); ++i)
     if (data[i] != input.size() - 1 - i)
-      M_throw() << "Incorrect output in data for data and key sort with size " 
-		<< input.size()
-		<< " and type "
-		<< magnet::CL::detail::traits<T>::kernel_type();  
+      datafail = true;
+
+  std::cout << " data " << (datafail ? "FAILED" : "PASSED") << std::endl;
+  
+  return failed || keyfail || datafail;
 }
 
-void runTest(cl::Context context, cl::CommandQueue queue)
+bool runTest(cl::Context context, cl::CommandQueue queue)
 {
-    runTestType<cl_uint>(context, queue);
-    runTestType<cl_int>(context, queue);
-    runTestType<cl_float>(context, queue);
-    //Special case for the AMD CPU implementation
-    if (magnet::CL::detail::detectExtension(context, "cl_amd_fp64")
-        && (queue.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU))
-      {
-        bool expectedfail = false;
-        try {
-  	runTestType<cl_double>(context, queue);
-        } catch(cl::Error& err) {
-  	if (err.err() == -4)
-  	  expectedfail = true;
-  	else 
-  	  throw ;
-        }
-  
-        if (expectedfail)
-  	std::cerr << "EXPECTED FAIL: AMD double precision radix sort fails due to a bug in the stream SDK.\n";
-        else
-  	M_throw() << "The bug in the ATI stream SDK has been fixed!";
-      }
-    else
-      runTestType<cl_double>(context, queue);
+  bool fail = runTestType<cl_uint>(context, queue)
+    || runTestType<cl_int>(context, queue)
+    || runTestType<cl_float>(context, queue);
+
+  //Special case for the AMD CPU implementation
+  //if (magnet::CL::detail::detectExtension(context, "cl_amd_fp64")
+  //    && (queue.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU))
+  //  {
+  //    if (runTestType<cl_double>(context, queue))
+  //	std::cerr << "EXPECTED FAIL: AMD double precision radix sort fails due to a bug in the stream SDK.\n";
+  //    else
+  //	M_throw() << "The bug in the ATI stream SDK has been fixed!";
+  //  }
+  //else
+  //fail = fail || runTestType<cl_double>(context, queue);
+
+  return fail;
 }
 
 int main(int argc, char *argv[])
 {
+  bool fail = false;
   try {
-  //Test all devices and platforms for compatability
-  std::vector<cl::Platform> platforms;
-  cl::Platform::get(&platforms);
+    //Test all devices and platforms for compatability
+    std::vector<cl::Platform> platforms;
+    cl::Platform::get(&platforms);
 
-  for(std::vector<cl::Platform>::const_iterator pltfmIt =
-	platforms.begin(); pltfmIt != platforms.end(); ++pltfmIt) 
-    {
-      std::cout << "OpenCL platform [" << pltfmIt - platforms.begin() << "]: " <<
-	pltfmIt->getInfo<CL_PLATFORM_NAME>() << std::endl;
+    for(std::vector<cl::Platform>::const_iterator pltfmIt =
+	  platforms.begin(); pltfmIt != platforms.end(); ++pltfmIt) 
+      {
+	std::cout << "OpenCL platform [" << pltfmIt - platforms.begin() << "]: " <<
+	  pltfmIt->getInfo<CL_PLATFORM_NAME>() << std::endl;
       
-      std::vector<cl::Device> allDevices;
-      pltfmIt->getDevices(CL_DEVICE_TYPE_ALL, &allDevices);
+	std::vector<cl::Device> allDevices;
+	pltfmIt->getDevices(CL_DEVICE_TYPE_ALL, &allDevices);
       
-      for(std::vector<cl::Device>::const_iterator devIt = allDevices.begin(); 
-	  devIt != allDevices.end(); ++devIt)
-	{
-	  std::cout << "#OpenCL device [" << devIt - allDevices.begin() << "]: " <<
-	    devIt->getInfo<CL_DEVICE_NAME>() << std::endl;
+	for(std::vector<cl::Device>::const_iterator devIt = allDevices.begin(); 
+	    devIt != allDevices.end(); ++devIt)
+	  {
+	    std::cout << "#OpenCL device [" << devIt - allDevices.begin() << "]: " <<
+	      devIt->getInfo<CL_DEVICE_NAME>() << std::endl;
 	  
-	  std::vector<cl::Device> devices;
-	  devices.push_back(*devIt);
+	    std::vector<cl::Device> devices;
+	    devices.push_back(*devIt);
 	  
-	  cl::Context context(devices);
-	  cl::CommandQueue queue(context, devices.front());
+	    cl::Context context(devices);
+	    cl::CommandQueue queue(context, devices.front());
 	  
-	  runTest(context, queue);
+	    fail |= runTest(context, queue);
 	  
-	}
-    }
+	  }
+      }
   } catch(magnet::exception& err) {
     std::cerr << "Magnet error: " << err.what()
 	      << std::endl;
@@ -184,6 +173,6 @@ int main(int argc, char *argv[])
     return 1;//Test failed
   } 
   
-  return 0; //Test passed
+  return fail;
 }
 
