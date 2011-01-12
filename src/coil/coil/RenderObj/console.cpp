@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <coil/console.hpp>
+#include <coil/RenderObj/console.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/clamp.hpp>
 

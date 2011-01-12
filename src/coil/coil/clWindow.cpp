@@ -30,6 +30,7 @@
 #include <magnet/function/task.hpp>
 #include <gtkmm/volumebutton.h>
 #include <coil/RenderObj/Function.hpp>
+#include <coil/RenderObj/console.hpp>
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
@@ -80,6 +81,8 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 					"colors[0] = (uchar4)(255,255,255,255);"
 					));
 
+  //Second render object is the console
+  RenderObjects.push_back(new coil::Console(_width, _height));  
 }
 
 CLGLWindow::~CLGLWindow()
@@ -236,9 +239,7 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
   
-  _console.reset(new coil::Console(_width, _height));
-  
-  (*_console) << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
+  //(*_console) << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
 }
 
 void 
@@ -1002,10 +1003,7 @@ void CLGLWindow::drawAxis()
   GLdouble nearPlane = 0.1,
     axisScale = 0.07;
 
-  _console->draw();
-  
   if (!_showAxis) return;
-
 
   glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
@@ -1055,17 +1053,19 @@ void CLGLWindow::drawAxis()
   glColor3f (0,0,1); // Z axis is blue.
   coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
 				Vector(-0.5,-0.5, 0.5));
+
+  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
   
   //Do the axis labels
   glColor3f(1,1,1);
-  _console->getFont().FaceSize(16);
+  _console.getFont().FaceSize(16);
 
   glRasterPos3f( 0.5,-0.5,-0.5);
-  _console->getFont().Render("X");
+  _console.getFont().Render("X");
   glRasterPos3f(-0.5, 0.5,-0.5);
-  _console->getFont().Render("Y");
+  _console.getFont().Render("Y");
   glRasterPos3f(-0.5,-0.5, 0.5);
-  _console->getFont().Render("Z");
+  _console.getFont().Render("Z");
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix ();
@@ -1086,7 +1086,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   _width = w;
   _height = h;
   
-  _console->resize(_width, _height);
+  //_console->resize(_width, _height);
 
   //Setup the viewport
   glViewport(0, 0, _width, _height); 
@@ -1203,9 +1203,6 @@ CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
 
   switch (key)
     {
-    case 'k':
-      (*_console) << "Testing key press" << coil::Console::end();
-      break;
     default:
       break;
     }

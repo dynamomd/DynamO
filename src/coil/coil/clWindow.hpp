@@ -39,7 +39,6 @@
 
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
-#include <coil/console.hpp>
 
 class CLGLWindow : public CoilWindow
 {
@@ -192,10 +191,6 @@ private:
   FilterModelColumnsType _filterModelColumns;
   Glib::RefPtr<Gtk::ListStore> _filterStore;
   Gtk::TreeView* _filterView;
-
-
-  //FTGL font handlers
-  std::auto_ptr<coil::Console> _console;
 
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();
