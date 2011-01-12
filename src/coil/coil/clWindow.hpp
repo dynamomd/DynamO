@@ -17,11 +17,8 @@
 #pragma once
 
 #include <vector>
-
 #include <gtkmm.h>
-
 #include <coil/coilMaster.hpp>
-
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 

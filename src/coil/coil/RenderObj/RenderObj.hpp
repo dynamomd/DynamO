@@ -31,11 +31,11 @@ public:
   
   ~RenderObj() {}
 
-  virtual void initOpenGL() = 0;
-  virtual void initOpenCL(magnet::CL::CLGLState&) = 0;
+  virtual void initOpenGL() {}
+  virtual void initOpenCL(magnet::CL::CLGLState&) {}
 
-  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) = 0;
-  virtual void glRender() = 0;
+  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
+  virtual void glRender() {}
 
   virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset) {}
   virtual void pickingRender() {}

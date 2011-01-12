@@ -66,7 +66,7 @@ namespace coil {
   }
 
   void 
-  Console::draw()
+  Console::glRender()
   {
     //Disable anything that might affect the rastering 
     glDisable(GL_LIGHTING);

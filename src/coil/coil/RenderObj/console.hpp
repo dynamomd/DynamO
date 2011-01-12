@@ -17,12 +17,13 @@
 
 #pragma once
 
+#include <coil/RenderObj/RenderObj.hpp>
 #include <FTGL/ftgl.h>
 #include <sstream>
 #include <list>
 
 namespace coil {
-  class Console
+  class Console: public RenderObj
   {
   public:
     struct end {};
@@ -41,7 +42,7 @@ namespace coil {
     
     void resize(size_t width, size_t height);
 
-    void draw();
+    virtual void glRender();
     
   private:
     
