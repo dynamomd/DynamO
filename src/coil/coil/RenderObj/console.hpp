@@ -18,6 +18,7 @@
 #pragma once
 
 #include <coil/RenderObj/RenderObj.hpp>
+#include <memory>
 #include <FTGL/ftgl.h>
 #include <sstream>
 #include <list>
@@ -29,7 +30,7 @@ namespace coil {
     struct end {};
 
     Console(size_t width, size_t height,
-	    float r = 0.0, float g = 0.8, float b = 0.8, int faceSize = 10);
+	    float r = 0.5, float g = 0.5, float b = 0.5);
 
     template<class T>
     Console& operator<<(const T& value) 
@@ -38,19 +39,20 @@ namespace coil {
       return *this;
     }
 
-    inline FTGLPixmapFont& getFont() { return _consoleFont; }
+    inline FTGLPixmapFont& getFont() { return *_consoleFont; }
     
     void resize(size_t width, size_t height);
 
-    virtual void glRender();
+    virtual void interfaceRender();
+
+    virtual void initOpenGL();
     
   private:
     
     std::ostringstream os;
-    FTGLPixmapFont _consoleFont;
-    FTSimpleLayout _consoleLayout;
+    std::auto_ptr<FTGLPixmapFont> _consoleFont;
+    std::auto_ptr<FTSimpleLayout> _consoleLayout;
     size_t _width, _height;
-
     typedef std::pair<float, std::string> consoleEntry;
     std::list<consoleEntry> _consoleEntries;
     

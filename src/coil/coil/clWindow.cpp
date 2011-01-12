@@ -82,7 +82,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 					));
 
   //Second render object is the console
-  RenderObjects.push_back(new coil::Console(_width, _height));  
+  RenderObjects.push_back(new coil::Console(_width, _height));
 }
 
 CLGLWindow::~CLGLWindow()
@@ -239,7 +239,8 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
   
-  //(*_console) << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
+  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
+  _console << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
 }
 
 void 
@@ -755,7 +756,7 @@ CLGLWindow::deinit(bool andGlutDestroy)
 }
 
 void 
-CLGLWindow::CallBackDisplayFunc(void)
+CLGLWindow::CallBackDisplayFunc()
 {
   if (!CoilMaster::getInstance().isRunning()) return;
 
@@ -1003,6 +1004,11 @@ void CLGLWindow::drawAxis()
   GLdouble nearPlane = 0.1,
     axisScale = 0.07;
 
+  //Enter the render ticks for all objects
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->interfaceRender();
+
   if (!_showAxis) return;
 
   glDisable(GL_LIGHTING);
@@ -1086,8 +1092,6 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   _width = w;
   _height = h;
   
-  //_console->resize(_width, _height);
-
   //Setup the viewport
   glViewport(0, 0, _width, _height); 
 
@@ -1102,6 +1106,10 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
       _filterTarget2.resize(_width, _height);
       _normalAndDepths.resize(_width, _height);
     }
+
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->resize(_width, _height);
 }
 
 void 

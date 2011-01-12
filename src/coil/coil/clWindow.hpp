@@ -35,10 +35,9 @@
 #include <magnet/GL/nrmlNdepthShader.hpp>
 #include <magnet/thread/refPtr.hpp>
 
-#include <memory>
-
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
+#include <memory>
 
 class CLGLWindow : public CoilWindow
 {
