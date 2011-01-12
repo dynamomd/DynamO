@@ -259,9 +259,8 @@ namespace magnet {
 		    __local keyType* keys = (__local keyType*)keyBlocks;
 
 		    //Load the key data
-		    keyBlocks[get_local_id(0)] = keyData[get_global_id(0)];
-		  
-		    barrier(CLK_GLOBAL_MEM_FENCE);
+		    keyBlocks[get_local_id(0)] = keyData[get_global_id(0)];		  
+		    barrier(CLK_LOCAL_MEM_FENCE);
 
 		    //Load the offset and block offset data
 		    uint maxRadixDigit = (2 << (nBits - 1));
@@ -301,9 +300,8 @@ namespace magnet {
 
 		    //Load the key and data
 		    keyBlocks[get_local_id(0)] = keyData[get_global_id(0)];
-		    dataBlocks[get_local_id(0)] = dataData[get_global_id(0)];
-		  
-		    barrier(CLK_GLOBAL_MEM_FENCE);
+		    dataBlocks[get_local_id(0)] = dataData[get_global_id(0)];		  
+		    barrier(CLK_LOCAL_MEM_FENCE);
 
 		    //Load the offset and block offset data
 		    uint maxRadixDigit = (2 << (nBits - 1));

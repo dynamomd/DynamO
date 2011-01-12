@@ -30,7 +30,7 @@ using testing ;
 unit-test scan_test : tests/scan_test.cpp magnet OpenCL ;
 
 #### Radix Sort ####
-unit-test radixsort_test : tests/radixsort_test.cpp magnet OpenCL ;
+unit-test radixsort_test : tests/radixsort_test.cpp magnet OpenCL scan_test ;
 
 #### Bitonic Sort ####
 unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet OpenCL ;

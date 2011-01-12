@@ -93,8 +93,12 @@ namespace magnet {
 		    g_idata += memoffset;
 		    g_odata += memoffset;
 		       
-		    localBlock[2 * get_local_id(0)] =  0;
-		    localBlock[2 * get_local_id(0)+1] = 0;
+		    localBlock[2 * get_local_id(0) + 0] = 0;
+		    localBlock[2 * get_local_id(0) + 1] = 0;
+
+		    //Seems redundant but around 10.11 the ati drivers
+		    //started misbehaving without it
+		    barrier(CLK_LOCAL_MEM_FENCE); 
 		       
 		    // load input into shared memory
 		    if ((memoffset + 2*get_local_id(0)) < n)
