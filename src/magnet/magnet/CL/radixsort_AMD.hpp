@@ -141,7 +141,7 @@ namespace magnet {
 	cl_uint groupSize = 64;
 	cl_uint bitsPerPass = 8;
 	cl_uint maxRadixDigit = 1 << bitsPerPass;
-	cl_uint nWorkGroups = size / (groupSize * maxRadixDigit);
+	cl_uint nWorkGroups = std::min(size / (groupSize * maxRadixDigit), cl_uint(16));
 
 	if (bits_to_sort % bitsPerPass)
 	  M_throw() << "The number of bits_to_sort must be a whole multiple of bitsPerPass";
@@ -172,7 +172,7 @@ namespace magnet {
       
 	cl::KernelFunctor _dataPermuteFunc
 	  = _dataPermuteKernel.bind(detail::functor<radixSortAMD<T> >::_queue, 
-				cl::NDRange(nWorkGroups * groupSize), cl::NDRange(groupSize));
+				    cl::NDRange(nWorkGroups * groupSize), cl::NDRange(groupSize));
        
 	try {
 	  detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(keyInput, keyOutput, 0, 0, 

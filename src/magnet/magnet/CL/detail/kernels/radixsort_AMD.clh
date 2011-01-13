@@ -42,29 +42,37 @@ void histogram(__global const uint* unsortedData,
                uint shiftCount,
                __local ushort* sharedArray,
 	       uint N)
-{ 
-  /* Initialize shared array to zero */
-  for(int i = 0; i < 256; ++i)
-    sharedArray[get_local_id(0) * 256 + i] = 0;
+{
+  for (uint blockOffset = get_group_id(0) * get_local_size(0);
+       blockOffset * 256 < N;
+       blockOffset += get_global_size(0))
+    {
+      uint globalID = blockOffset + get_local_id(0);
+      uint globalSize = N / 256;
 
-  barrier(CLK_LOCAL_MEM_FENCE);
-    
-  /* Calculate thread-histograms */
-  for(int i = 0; i < 256; ++i)
-    {
-      uint value = unsortedData[get_global_id(0) * 256 + i] >> shiftCount;
-      value &= 0xFF;
-      sharedArray[get_local_id(0) * 256 + value]++;
-    }
-    
-  barrier(CLK_LOCAL_MEM_FENCE);
-    
-  /* Copy calculated histogram bin to global memory */
-  for(int i = 0; i < 256; ++i)
-    {
-      //uint bucketPos = get_group_id(0) * 256 * get_local_size(0) + get_local_id(0) * 256 + i;
-      uint bucketPos = i * get_global_size(0) + get_global_id(0);
-      buckets[bucketPos] = sharedArray[get_local_id(0) * 256 + i];
+      /* Initialize shared array to zero */
+      for(int i = 0; i < 256; ++i)
+	sharedArray[get_local_id(0) * 256 + i] = 0;
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Calculate thread-histograms */
+      for(int i = 0; i < 256; ++i)
+	{
+	  uint value = unsortedData[globalID * 256 + i] >> shiftCount;
+	  value &= 0xFF;
+	  sharedArray[get_local_id(0) * 256 + value]++;
+	}
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Copy calculated histogram bin to global memory */
+      for(int i = 0; i < 256; ++i)
+	{
+	  //uint bucketPos = get_group_id(0) * 256 * get_local_size(0) + get_local_id(0) * 256 + i;
+	  uint bucketPos = i * globalSize + globalID;
+	  buckets[bucketPos] = sharedArray[get_local_id(0) * 256 + i];
+	}
     }
 }
 
@@ -78,31 +86,39 @@ void histogram(__global const uint* unsortedData,
  * @param   sortedData          array for sorted elements
  */
 __kernel
-void permute(__global const uint* unsortedData,
+void permute(__global const uint* unsortedKeys,
              __global const uint* scanedBuckets,
              uint shiftCount,
              __local ushort* sharedBuckets,
-             __global uint* sortedData,
+             __global uint* sortedKeys,
 	     uint N)
 {
-  /* Copy prescaned thread histograms to corresponding thread shared block */
-  for(int i = 0; i < 256; ++i)
+  for (uint blockOffset = get_group_id(0) * get_local_size(0);
+       blockOffset * 256 < N;
+       blockOffset += get_global_size(0))
     {
-      uint bucketPos = i * get_global_size(0) + get_global_id(0);
-      sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
-    }
+      uint globalID = blockOffset + get_local_id(0);
+      uint globalSize = N / 256;
 
-  barrier(CLK_LOCAL_MEM_FENCE);
-    
-  /* Premute elements to appropriate location */
-  for(int i = 0; i < 256; ++i)
-    {
-      uint value = unsortedData[get_global_id(0) * 256 + i];
-      value = (value >> shiftCount) & 0xFFU;
-      uint index = sharedBuckets[get_local_id(0) * 256 + value];
-      sortedData[index] = unsortedData[get_global_id(0) * 256 + i];
-      sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+      /* Copy prescaned thread histograms to corresponding thread shared block */
+      for(int i = 0; i < 256; ++i)
+	{
+	  uint bucketPos = i * globalSize + globalID;
+	  sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
+	}
+
       barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Premute elements to appropriate location */
+      for(int i = 0; i < 256; ++i)
+	{
+	  uint value = unsortedKeys[globalID * 256 + i];
+	  value = (value >> shiftCount) & 0xFFU;
+	  uint index = sharedBuckets[get_local_id(0) * 256 + value];
+	  sortedKeys[index] = unsortedKeys[globalID * 256 + i];
+	  sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+	  barrier(CLK_LOCAL_MEM_FENCE);
+	}
     }
 }
 
@@ -116,25 +132,33 @@ void datapermute(__global const uint* unsortedKeys,
 		 __global uint* sortedData,
 		 uint N)
 {
-  /* Copy prescaned thread histograms to corresponding thread shared block */
-  for(int i = 0; i < 256; ++i)
+  for (uint blockOffset = get_group_id(0) * get_local_size(0);
+       blockOffset * 256 < N;
+       blockOffset += get_global_size(0))
     {
-      uint bucketPos = i * get_global_size(0) + get_global_id(0);
-      sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
-    }
+      uint globalID = blockOffset + get_local_id(0);
+      uint globalSize = N / 256;
 
-  barrier(CLK_LOCAL_MEM_FENCE);
-    
-  /* Premute elements to appropriate location */
-  for(int i = 0; i < 256; ++i)
-    {
-      uint value = unsortedKeys[get_global_id(0) * 256 + i];
-      value = (value >> shiftCount) & 0xFFU;
-      uint index = sharedBuckets[get_local_id(0) * 256 + value];
-      sortedKeys[index] = unsortedKeys[get_global_id(0) * 256 + i];
-      sortedData[index] = unsortedData[get_global_id(0) * 256 + i];
-      sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+      /* Copy prescaned thread histograms to corresponding thread shared block */
+      for(int i = 0; i < 256; ++i)
+	{
+	  uint bucketPos = i * globalSize + globalID;
+	  sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
+	}
+
       barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Premute elements to appropriate location */
+      for(int i = 0; i < 256; ++i)
+	{
+	  uint value = unsortedKeys[globalID * 256 + i];
+	  value = (value >> shiftCount) & 0xFFU;
+	  uint index = sharedBuckets[get_local_id(0) * 256 + value];
+	  sortedKeys[index] = unsortedKeys[globalID * 256 + i];
+	  sortedData[index] = unsortedData[globalID * 256 + i];
+	  sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+	  barrier(CLK_LOCAL_MEM_FENCE);
+	}
     }
 }
 		  );
