@@ -85,7 +85,7 @@ protected:
   size_t _workgroupsize;
   size_t _globalsize;
 
-  magnet::CL::sort<cl_float> sortFunctor;
+  magnet::CL::sort<cl_uint> sortFunctor;
 
   void recolor(magnet::CL::CLGLState& CLState);
 };
