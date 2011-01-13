@@ -30,7 +30,8 @@ using testing ;
 unit-test scan_test : tests/scan_test.cpp magnet OpenCL ;
 
 #### Radix Sort ####
-unit-test radixsort_test : tests/radixsort_test.cpp magnet OpenCL scan_test ;
+unit-test radixsort_NVIDIA_test : tests/radixsort_NVIDIA_test.cpp magnet OpenCL scan_test ;
+unit-test radixsort_AMD_test : tests/radixsort_AMD_test.cpp magnet OpenCL scan_test ;
 
 #### Bitonic Sort ####
 unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet OpenCL ;
@@ -38,7 +39,9 @@ unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet OpenCL ;
 #### Heap Sort ####
 unit-test heapsort_test : tests/heapsort_test.cpp magnet OpenCL ;
 
-alias opencl-test : scan_test radixsort_test bitonicsort_test heapsort_test OpenCL ;
+unit-test sorter_test : tests/sorter_test.cpp magnet OpenCL ;
+
+alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test OpenCL sorter_test ;
 
 #################### THREAD ######################
 unit-test threadpool_test : tests/threadpool_test.cpp magnet

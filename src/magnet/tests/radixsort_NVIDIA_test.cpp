@@ -16,7 +16,7 @@
  */
 
 #include <iostream>
-#include <magnet/CL/radixsort.hpp>
+#include <magnet/CL/radixsort_NVIDIA.hpp>
 #include <algorithm>
 
 template<class T>
@@ -47,7 +47,7 @@ bool runTestType(cl::Context context, cl::CommandQueue queue)
 
   std::vector<T> input(size);
 
-  std::cout << "##Testing radix sort for " << input.size() << " elements and type " 
+  std::cout << "##Testing NVIDIA radix sort for " << input.size() << " elements and type " 
 	    << magnet::CL::detail::traits<T>::kernel_type();
   
   for(size_t i = 0; i < input.size(); ++i)
@@ -59,7 +59,7 @@ bool runTestType(cl::Context context, cl::CommandQueue queue)
 		      sizeof(T) * input.size(), &input[0])
     ;
   
-  magnet::CL::radixSort<T> radixSortFunctor;
+  magnet::CL::radixSortNVIDIA<T> radixSortFunctor;
   radixSortFunctor.build(queue, context);
   radixSortFunctor(bufferIn, bufferIn);
 
@@ -111,18 +111,6 @@ bool runTest(cl::Context context, cl::CommandQueue queue)
   bool fail = runTestType<cl_uint>(context, queue)
     || runTestType<cl_int>(context, queue)
     || runTestType<cl_float>(context, queue);
-
-  //Special case for the AMD CPU implementation
-  //if (magnet::CL::detail::detectExtension(context, "cl_amd_fp64")
-  //    && (queue.getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU))
-  //  {
-  //    if (runTestType<cl_double>(context, queue))
-  //	std::cerr << "EXPECTED FAIL: AMD double precision radix sort fails due to a bug in the stream SDK.\n";
-  //    else
-  //	M_throw() << "The bug in the ATI stream SDK has been fixed!";
-  //  }
-  //else
-  //fail = fail || runTestType<cl_double>(context, queue);
 
   return fail;
 }

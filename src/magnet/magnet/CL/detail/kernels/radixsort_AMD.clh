@@ -1,0 +1,142 @@
+/*    DYNAMO:- Event driven molecular dynamics simulator 
+ *    http://www.marcusbannerman.co.uk/dynamo
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *
+ *    This program is free software: you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    version 3 as published by the Free Software Foundation.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//Simple macro to convert a token to a string
+#define STRINGIFY(A) #A
+
+namespace magnet {
+  namespace CL {
+    template<class T>
+    inline std::string 
+    radixSortAMD<T>::kernelSource()
+    {
+      return
+	"\n#define keyType " 
+	+ detail::traits<typename detail::traits<T>::bitshiftable_type>::kernel_type()
+	+ "\n#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
+	STRINGIFY(
+/**
+ * @brief   Calculates block-histogram bin whose bin size is 256
+ * @param   unsortedData    array of unsorted elements
+ * @param   buckets         histogram buckets    
+ * @param   shiftCount      shift count
+ * @param   sharedArray     shared array for thread-histogram bins
+  */
+__kernel
+void histogram(__global const uint* unsortedData,
+               __global uint* buckets,
+               uint shiftCount,
+               __local ushort* sharedArray)
+{ 
+  /* Initialize shared array to zero */
+  for(int i = 0; i < 256; ++i)
+    sharedArray[get_local_id(0) * 256 + i] = 0;
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+    
+  /* Calculate thread-histograms */
+  for(int i = 0; i < 256; ++i)
+    {
+      uint value = unsortedData[get_global_id(0) * 256 + i] >> shiftCount;
+      value &= 0xFF;
+      sharedArray[get_local_id(0) * 256 + value]++;
+    }
+    
+  barrier(CLK_LOCAL_MEM_FENCE);
+    
+  /* Copy calculated histogram bin to global memory */
+  for(int i = 0; i < 256; ++i)
+    {
+      //uint bucketPos = get_group_id(0) * 256 * get_local_size(0) + get_local_id(0) * 256 + i;
+      uint bucketPos = i * get_global_size(0) + get_global_id(0);
+      buckets[bucketPos] = sharedArray[get_local_id(0) * 256 + i];
+    }
+}
+
+/**
+ * @brief   Permutes the element to appropriate places based on
+ *          prescaned buckets values
+ * @param   unsortedData        array of unsorted elments
+ * @param   scanedBuckets       prescaned buckets for permuations
+ * @param   shiftCount          shift count
+ * @param   sharedBuckets       shared array for scaned buckets
+ * @param   sortedData          array for sorted elements
+ */
+__kernel
+void permute(__global const uint* unsortedData,
+             __global const uint* scanedBuckets,
+             uint shiftCount,
+             __local ushort* sharedBuckets,
+             __global uint* sortedData)
+{
+  /* Copy prescaned thread histograms to corresponding thread shared block */
+  for(int i = 0; i < 256; ++i)
+    {
+      uint bucketPos = i * get_global_size(0) + get_global_id(0);
+      sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
+    }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+    
+  /* Premute elements to appropriate location */
+  for(int i = 0; i < 256; ++i)
+    {
+      uint value = unsortedData[get_global_id(0) * 256 + i];
+      value = (value >> shiftCount) & 0xFFU;
+      uint index = sharedBuckets[get_local_id(0) * 256 + value];
+      sortedData[index] = unsortedData[get_global_id(0) * 256 + i];
+      sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+      barrier(CLK_LOCAL_MEM_FENCE);
+    }
+}
+
+__kernel
+void datapermute(__global const uint* unsortedKeys,
+		 __global const uint* scanedBuckets,
+		 __global const uint* unsortedData,
+		 uint shiftCount,
+		 __local ushort* sharedBuckets,
+		 __global uint* sortedKeys,
+		 __global uint* sortedData
+		 )
+{
+  /* Copy prescaned thread histograms to corresponding thread shared block */
+  for(int i = 0; i < 256; ++i)
+    {
+      uint bucketPos = i * get_global_size(0) + get_global_id(0);
+      sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
+    }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+    
+  /* Premute elements to appropriate location */
+  for(int i = 0; i < 256; ++i)
+    {
+      uint value = unsortedKeys[get_global_id(0) * 256 + i];
+      value = (value >> shiftCount) & 0xFFU;
+      uint index = sharedBuckets[get_local_id(0) * 256 + value];
+      sortedKeys[index] = unsortedKeys[get_global_id(0) * 256 + i];
+      sortedData[index] = unsortedData[get_global_id(0) * 256 + i];
+      sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+      barrier(CLK_LOCAL_MEM_FENCE);
+    }
+}
+		  );
+    }
+  }
+}
+

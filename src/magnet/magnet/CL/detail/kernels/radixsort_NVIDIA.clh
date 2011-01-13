@@ -22,9 +22,11 @@ namespace magnet {
   namespace CL {
     template<class T>
     inline std::string 
-    radixSort<T>::kernelSource()
+    radixSortNVIDIA<T>::kernelSource()
     {
-      return  scan<cl_uint>::kernelSource() 
+      return  
+        "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
+	+ scan<cl_uint>::kernelSource() 
 	+ "\n#define keyType4 " 
 	+ detail::traits<typename detail::traits<typename detail::traits<T>::bitshiftable_type>::vec4_type>::kernel_type()
 	+ "\n#define keyType " 

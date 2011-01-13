@@ -22,7 +22,7 @@
 namespace magnet {
   namespace CL {
     template<class T>
-    class radixSort : public detail::functor<radixSort<T> >
+    class radixSortNVIDIA : public detail::functor<radixSortNVIDIA<T> >
     {
       cl::Kernel _radixSortKernel, 
 	_findRadixOffsetsKernel, 
@@ -39,7 +39,7 @@ namespace magnet {
       //cl::KernelFunctor _dataSort;
 
     public:
-      radixSort():
+      radixSortNVIDIA():
 	_lastSize(0),
 	_lastDataSize(0)
       {}
@@ -50,18 +50,18 @@ namespace magnet {
 	_scanFunctor.build(queue, context);
 
 	//And build this functor
-	detail::functor<radixSort<T> >::build(queue, context, "");
+	detail::functor<radixSortNVIDIA<T> >::build(queue, context, "");
 
 	_radixSortKernel 
-	  = cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortKernel");
+	  = cl::Kernel(detail::functor<radixSortNVIDIA<T> >::_program, "radixBlockSortKernel");
 	_findRadixOffsetsKernel 
-	  = cl::Kernel(detail::functor<radixSort<T> >::_program, "findRadixOffsetsKernel");
+	  = cl::Kernel(detail::functor<radixSortNVIDIA<T> >::_program, "findRadixOffsetsKernel");
 	_reorderKeysKernel 
-	  = cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeys");
+	  = cl::Kernel(detail::functor<radixSortNVIDIA<T> >::_program, "reorderKeys");
 	_radixSortDataKernel 
-	  = cl::Kernel(detail::functor<radixSort<T> >::_program, "radixBlockSortDataKernel");
+	  = cl::Kernel(detail::functor<radixSortNVIDIA<T> >::_program, "radixBlockSortDataKernel");
 	_reorderKeysDataKernel 
-	  = cl::Kernel(detail::functor<radixSort<T> >::_program, "reorderKeysData");
+	  = cl::Kernel(detail::functor<radixSortNVIDIA<T> >::_program, "reorderKeysData");
       }
 
       void operator()(cl::Buffer keyInput, cl::Buffer keyOutput, cl_uint bits_to_sort = 0, cl_uint bitsPerPass = 4)
@@ -81,27 +81,27 @@ namespace magnet {
 	  M_throw() << "Radix sort works on whole multiples of 1024 elements only, please pad your data";
 
 	cl::KernelFunctor _blockSortFunc
-	  = _radixSortKernel.bind(detail::functor<radixSort<T> >::_queue, 
+	  = _radixSortKernel.bind(detail::functor<radixSortNVIDIA<T> >::_queue, 
 				  cl::NDRange(size/4), cl::NDRange(groupSize));
       
 	cl::KernelFunctor _findRadixOffsetsFunc
-	  = _findRadixOffsetsKernel.bind(detail::functor<radixSort<T> >::_queue, 
+	  = _findRadixOffsetsKernel.bind(detail::functor<radixSortNVIDIA<T> >::_queue, 
 					 cl::NDRange(size/4), cl::NDRange(groupSize));
       
 	cl::KernelFunctor _ReorderFunc
-	  = _reorderKeysKernel.bind(detail::functor<radixSort<T> >::_queue, 
+	  = _reorderKeysKernel.bind(detail::functor<radixSortNVIDIA<T> >::_queue, 
 				    cl::NDRange(size/4), cl::NDRange(groupSize));
        
 	//Create the buffer holding the bit block offsets
 	if (_lastSize != size)
 	  {
-	    _buckets =  cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _buckets =  cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
 	  
-	    _offsets = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _offsets = cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 				  CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
 	  
-	    _doubleBuffer = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _doubleBuffer = cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
 	  }
       
@@ -150,34 +150,34 @@ namespace magnet {
 	  M_throw() << "Radix sort works on whole multiples of 1024 elements only, please pad your data";
 
 	cl::KernelFunctor _blockSortDataFunc
-	  = _radixSortDataKernel.bind(detail::functor<radixSort<T> >::_queue, 
+	  = _radixSortDataKernel.bind(detail::functor<radixSortNVIDIA<T> >::_queue, 
 				      cl::NDRange(size/4), cl::NDRange(groupSize));
       
 	cl::KernelFunctor _findRadixOffsetsFunc
-	  = _findRadixOffsetsKernel.bind(detail::functor<radixSort<T> >::_queue, 
+	  = _findRadixOffsetsKernel.bind(detail::functor<radixSortNVIDIA<T> >::_queue, 
 					 cl::NDRange(size/4), cl::NDRange(groupSize));
       
 	cl::KernelFunctor _reorderDataFunc
-	  = _reorderKeysDataKernel.bind(detail::functor<radixSort<T> >::_queue, 
+	  = _reorderKeysDataKernel.bind(detail::functor<radixSortNVIDIA<T> >::_queue, 
 					cl::NDRange(size/4), cl::NDRange(groupSize));
       
 	//Create the buffer holding the bit block offsets
 	if (_lastSize != size)
 	  {
-	    _buckets =  cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _buckets =  cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
 	  
-	    _offsets = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _offsets = cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 				  CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit);
 	  
-	    _doubleBuffer = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _doubleBuffer = cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
 	  }
  
 
 	if (_lastDataSize != size)
 	  {
-	    _dataDoubleBuffer = cl::Buffer(detail::functor<radixSort<T> >::_context, 
+	    _dataDoubleBuffer = cl::Buffer(detail::functor<radixSortNVIDIA<T> >::_context, 
 					   CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
 	  }
      
@@ -212,4 +212,4 @@ namespace magnet {
   }
 }
 
-#include "magnet/CL/detail/kernels/radixsort.clh"
+#include "magnet/CL/detail/kernels/radixsort_NVIDIA.clh"
