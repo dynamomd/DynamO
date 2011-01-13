@@ -81,7 +81,7 @@ namespace magnet {
 	if (_lastSize != size)
 	  {
 	    _buckets =  cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
-				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit * groupSize);
+				   CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
 	    
 	    _doubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
@@ -110,7 +110,8 @@ namespace magnet {
 	    _histogramFunc(keyOutput, 
 			   _buckets, 
 			   startBit,
-			   cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize)
+			   cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
+			   size
 			   );
 
 	    //Get the global offsets
@@ -119,7 +120,8 @@ namespace magnet {
 
 	    _permuteFunc(keyOutput, _buckets, startBit, 
 			 cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
-			 _doubleBuffer);
+			 _doubleBuffer,
+			 size);
 	    
 	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
 									   sizeof(T) * size);
@@ -152,7 +154,7 @@ namespace magnet {
 	if (_lastSize != size)
 	  {
 	    _buckets =  cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
-				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * maxRadixDigit * groupSize);
+				   CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
 	    
 	    _doubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
@@ -193,7 +195,8 @@ namespace magnet {
 	    _histogramFunc(keyOutput, 
 			   _buckets, 
 			   startBit,
-			   cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize)
+			   cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
+			   size
 			   );
 
 	    //Get the global offsets
@@ -202,7 +205,8 @@ namespace magnet {
 
 	    _dataPermuteFunc(keyOutput, _buckets, dataOutput, startBit, 
 			     cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
-			     _doubleBuffer, _dataDoubleBuffer);
+			     _doubleBuffer, _dataDoubleBuffer,
+			     size);
 	    
 	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
 									   sizeof(T) * size);
