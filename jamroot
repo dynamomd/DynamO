@@ -94,7 +94,6 @@ install install-bin
 
 
 alias install : install-bin ;
-
-explicit install install-bin ;
-
 alias test : src/magnet//test src/coil//test src//test ;
+
+explicit install install-bin test ;

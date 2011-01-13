@@ -40,6 +40,22 @@ namespace magnet {
 
       modeType getMode() { return _mode; }
 
+      size_t padding()
+      {
+	switch(_mode)
+	  {
+	  case CPU:
+	    return 1;
+	  case NVIDIA:
+	    return 1024;
+	  case AMD:
+	    return 64 * 256;
+	  default:
+	    M_throw() << "Functor has not yet been built";
+	  }
+      }
+
+
       void build (cl::CommandQueue queue, cl::Context context)
       {
 	cl::Device dev = queue.getInfo<CL_QUEUE_DEVICE>();

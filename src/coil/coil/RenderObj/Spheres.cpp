@@ -85,15 +85,19 @@ RTSpheres::RTSpheres(size_t N):
 void
 RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 {
+  //Build the sort functor now so we can grab the padding
+  sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
+  
+  //We must pad the sort data out to a multiple of sortFunctor.padding()
+  cl_uint padding = sortFunctor.padding();
+  cl_uint paddedN = ((_N + padding - 1) / padding) * padding;
+
   {
     _spherePositions = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);
 
-    //We must pad the sort data out to a multiple of 1024
-
-    size_t paddedN = ((_N + 1023)/1024) * 1024;
     
-    _sortKeys = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(float) * paddedN);
+    _sortKeys = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(cl_float) * paddedN);
     _sortData = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
     _sphereColors = cl::Buffer(CLState.getContext(), CL_MEM_READ_ONLY, sizeof(cl_uchar4) * paddedN);
 
@@ -247,11 +251,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   _colorKernel = cl::Kernel(_program, "SphereColorKernel");
   _pickingKernel = cl::Kernel(_program, "SpherePickingKernel");
 
-  cl_uint paddedN = ((_N + 1023)/1024) * 1024;
   _sortDataKernelFunc = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
-  
-  sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
-  CPUsortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
   
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
@@ -276,12 +276,7 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState,
   
   if ((_renderDetailLevels.size() > 2) 
       || (_renderDetailLevels.front()._nSpheres != _N))
-    {
-      if (CLState.getCommandQueue().getInfo<CL_QUEUE_DEVICE>().getInfo<CL_DEVICE_TYPE>() != CL_DEVICE_TYPE_CPU)
-	sortFunctor(_sortKeys, _sortData, _sortKeys, _sortData);
-      else
-	CPUsortFunctor(_sortKeys, _sortData);
-    }
+    sortFunctor(_sortKeys, _sortData);
 
   recolor(CLState);
 }

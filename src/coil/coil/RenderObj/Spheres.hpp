@@ -19,8 +19,7 @@
 #include "Triangles.hpp"
 #include <magnet/GL/primatives/Sphere.hpp>
 #include <magnet/thread/mutex.hpp>
-#include <magnet/CL/radixsort.hpp>
-#include <magnet/CL/heapSort.hpp>
+#include <magnet/CL/sort.hpp>
 
 class RTSpheres : public RTriangles
 {
@@ -86,8 +85,7 @@ protected:
   size_t _workgroupsize;
   size_t _globalsize;
 
-  magnet::CL::radixSort<cl_float> sortFunctor;
-  magnet::CL::heapSort<cl_float> CPUsortFunctor;
+  magnet::CL::sort<cl_float> sortFunctor;
 
   void recolor(magnet::CL::CLGLState& CLState);
 };

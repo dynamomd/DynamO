@@ -43,7 +43,7 @@ bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
 template<class T>
 bool runTestType(cl::Context context, cl::CommandQueue queue)
 {
-  cl_uint size = 64 * 256;
+  cl_uint size = 3 * 64 * 256;
 
   std::vector<T> input(size);
 
@@ -56,8 +56,7 @@ bool runTestType(cl::Context context, cl::CommandQueue queue)
   // create input buffer using pinned memory
   cl::Buffer bufferIn(context, CL_MEM_ALLOC_HOST_PTR |
 		      CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE, 
-		      sizeof(T) * input.size(), &input[0])
-    ;
+		      sizeof(T) * input.size(), &input[0]);
   
   magnet::CL::radixSortAMD<T> radixSortFunctor;
   radixSortFunctor.build(queue, context);
