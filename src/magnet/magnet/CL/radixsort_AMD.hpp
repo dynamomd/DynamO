@@ -66,7 +66,7 @@ namespace magnet {
 
 	cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
 	cl_uint groupSize = 64;
-	cl_uint bitsPerPass = 8;
+	cl_uint bitsPerPass = 4;
 	cl_uint maxRadixDigit = 1 << bitsPerPass;
 	cl_uint keysPerWorkitem = 256;
 	cl_uint nWorkGroups = size / (groupSize * keysPerWorkitem);
@@ -141,7 +141,7 @@ namespace magnet {
 
 	cl_uint size = keyInput.getInfo<CL_MEM_SIZE>() / sizeof(T);
 	cl_uint groupSize = 64;
-	cl_uint bitsPerPass = 8;
+	cl_uint bitsPerPass = 4;
 	cl_uint maxRadixDigit = 1 << bitsPerPass;
 	cl_uint keysPerWorkitem = 256;
 	cl_uint nWorkGroups = size / (groupSize * keysPerWorkitem);
@@ -207,7 +207,7 @@ namespace magnet {
 	    
 
 	    _dataPermuteFunc(keyOutput, _buckets, dataOutput, startBit, 
-			     cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
+			     cl::__local(sizeof(cl_uint) * maxRadixDigit * groupSize),
 			     _doubleBuffer, _dataDoubleBuffer,
 			     size, keysPerWorkitem, bitsPerPass
 			     );

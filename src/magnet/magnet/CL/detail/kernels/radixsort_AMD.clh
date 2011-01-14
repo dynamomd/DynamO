@@ -94,35 +94,38 @@ __kernel
 void permute(__global const uint* unsortedKeys,
              __global const uint* scanedBuckets,
              uint shiftCount,
-             __local ushort* sharedBuckets,
+             __local uint* sharedBuckets,
              __global uint* sortedKeys,
 	     uint N,
 	     const uint itemsPerThread, const uint radix)
 {
+  const uint radices = 1 << radix;
+  const uint mask = radices - 1;
+  
   for (uint blockOffset = get_group_id(0) * get_local_size(0);
-       blockOffset * 256 < N;
+       blockOffset * itemsPerThread < N;
        blockOffset += get_global_size(0))
     {
       uint globalID = blockOffset + get_local_id(0);
-      uint globalSize = N / 256;
-
+      uint globalSize = N / itemsPerThread;
+      
       /* Copy prescaned thread histograms to corresponding thread shared block */
-      for(int i = 0; i < 256; ++i)
+      for(int i = 0; i < radices; ++i)
 	{
 	  uint bucketPos = i * globalSize + globalID;
-	  sharedBuckets[get_local_id(0) * 256 + i] = scanedBuckets[bucketPos];
+	  sharedBuckets[get_local_id(0) * radices + i] = scanedBuckets[bucketPos];
 	}
 
       barrier(CLK_LOCAL_MEM_FENCE);
       
       /* Premute elements to appropriate location */
-      for(int i = 0; i < 256; ++i)
+      for(int i = 0; i < itemsPerThread; ++i)
 	{
-	  uint value = unsortedKeys[globalID * 256 + i];
-	  value = (value >> shiftCount) & 0xFFU;
-	  uint index = sharedBuckets[get_local_id(0) * 256 + value];
-	  sortedKeys[index] = unsortedKeys[globalID * 256 + i];
-	  sharedBuckets[get_local_id(0) * 256 + value] = index + 1;
+	  uint value = unsortedKeys[globalID * itemsPerThread + i];
+	  value = (value >> shiftCount) & mask;
+	  uint index = sharedBuckets[get_local_id(0) * radices + value];
+	  sortedKeys[index] = unsortedKeys[globalID * itemsPerThread + i];
+	  sharedBuckets[get_local_id(0) * radices + value] = index + 1;
 	  barrier(CLK_LOCAL_MEM_FENCE);
 	}
     }
@@ -133,7 +136,7 @@ void datapermute(__global const uint* unsortedKeys,
 		 __global const uint* scanedBuckets,
 		 __global const uint* unsortedData,
 		 uint shiftCount,
-		 __local ushort* sharedBuckets,
+		 __local uint* sharedBuckets,
 		 __global uint* sortedKeys,
 		 __global uint* sortedData,
 		 uint N,
