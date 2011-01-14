@@ -68,20 +68,21 @@ namespace magnet {
 	cl_uint groupSize = 64;
 	cl_uint bitsPerPass = 8;
 	cl_uint maxRadixDigit = 1 << bitsPerPass;
-	cl_uint nWorkGroups = size / (groupSize * maxRadixDigit);
+	cl_uint keysPerWorkitem = 256;
+	cl_uint nWorkGroups = size / (groupSize * keysPerWorkitem);
 
 	if (bits_to_sort % bitsPerPass)
 	  M_throw() << "The number of bits_to_sort must be a whole multiple of bitsPerPass";
 
-	if (size % (groupSize * maxRadixDigit))
+	if (size % (groupSize * keysPerWorkitem))
 	  M_throw() << "Radix sort works on whole multiples of " 
-		    << groupSize * maxRadixDigit << " elements only, please pad your data";
+		    << groupSize * keysPerWorkitem << " elements only, please pad your data";
 
 	//Create the buffer holding the bit block offsets
 	if (_lastSize != size)
 	  {
 	    _buckets =  cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
-				   CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
+				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * groupSize * maxRadixDigit);
 	    
 	    _doubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
@@ -111,7 +112,7 @@ namespace magnet {
 			   _buckets, 
 			   startBit,
 			   cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
-			   size
+			   size, keysPerWorkitem, bitsPerPass
 			   );
 
 	    //Get the global offsets
@@ -121,7 +122,8 @@ namespace magnet {
 	    _permuteFunc(keyOutput, _buckets, startBit, 
 			 cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
 			 _doubleBuffer,
-			 size);
+			 size, keysPerWorkitem, bitsPerPass
+			 );
 	    
 	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
 									   sizeof(T) * size);
@@ -141,7 +143,8 @@ namespace magnet {
 	cl_uint groupSize = 64;
 	cl_uint bitsPerPass = 8;
 	cl_uint maxRadixDigit = 1 << bitsPerPass;
-	cl_uint nWorkGroups = std::min(size / (groupSize * maxRadixDigit), cl_uint(16));
+	cl_uint keysPerWorkitem = 256;
+	cl_uint nWorkGroups = size / (groupSize * keysPerWorkitem);
 
 	if (bits_to_sort % bitsPerPass)
 	  M_throw() << "The number of bits_to_sort must be a whole multiple of bitsPerPass";
@@ -154,7 +157,7 @@ namespace magnet {
 	if (_lastSize != size)
 	  {
 	    _buckets =  cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
-				   CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
+				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * groupSize * maxRadixDigit);
 	    
 	    _doubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
@@ -196,7 +199,7 @@ namespace magnet {
 			   _buckets, 
 			   startBit,
 			   cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
-			   size
+			   size, keysPerWorkitem, bitsPerPass
 			   );
 
 	    //Get the global offsets
@@ -206,7 +209,8 @@ namespace magnet {
 	    _dataPermuteFunc(keyOutput, _buckets, dataOutput, startBit, 
 			     cl::__local(sizeof(cl_ushort) * maxRadixDigit * groupSize),
 			     _doubleBuffer, _dataDoubleBuffer,
-			     size);
+			     size, keysPerWorkitem, bitsPerPass
+			     );
 	    
 	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
 									   sizeof(T) * size);
