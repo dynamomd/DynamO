@@ -149,9 +149,9 @@ namespace magnet {
 	if (bits_to_sort % bitsPerPass)
 	  M_throw() << "The number of bits_to_sort must be a whole multiple of bitsPerPass";
 
-	if (size % (groupSize * maxRadixDigit))
+	if (size % (groupSize * keysPerWorkitem))
 	  M_throw() << "Radix sort works on whole multiples of " 
-		    << groupSize * maxRadixDigit << " elements only, please pad your data";
+		    << groupSize * keysPerWorkitem << " elements only, please pad your data";
 
 	//Create the buffer holding the bit block offsets
 	if (_lastSize != size)
