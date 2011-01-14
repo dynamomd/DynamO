@@ -89,7 +89,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
   
   //We must pad the sort data out to a multiple of sortFunctor.padding()
-  cl_uint padding = sortFunctor.padding();
+  cl_uint padding = std::max(sortFunctor.padding(), size_t(1024));
   cl_uint paddedN = ((_N + padding - 1) / padding) * padding;
 
   {
@@ -277,7 +277,7 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState,
   if ((_renderDetailLevels.size() > 2) 
       || (_renderDetailLevels.front()._nSpheres != _N))
     sortFunctor(_sortKeys, _sortData);
-
+  
   recolor(CLState);
 }
 void
