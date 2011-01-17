@@ -101,6 +101,12 @@ namespace magnet {
 	  }
       }
 
+      template<class T2> 
+      T2& as() { return dynamic_cast<T2&>(*_obj); }
+
+      template<class T2> 
+      T2& as() const { return dynamic_cast<const T2&>(*_obj); }
+
     private:
       T* _obj;
       size_t *_counter;

@@ -15,7 +15,7 @@ lib ftgl : : <link>shared ;
 
 lib OpenCL : : <link>shared ;
 
-alias coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
+lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet 
       OpenCL ftgl
     : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"

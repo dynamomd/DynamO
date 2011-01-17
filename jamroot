@@ -82,10 +82,12 @@ exe dynamod
     : <link>static 
     ;
 
+alias coil : src/coil//coil ;
 
-#exe glade_test
-#    : test/src/glade_test.cpp gtkmm
-#    ;
+install install-coil
+	: coil
+	: <location>lib
+	;	
 
 install install-bin 
 	: dynarun dynahist_rw dynamod
