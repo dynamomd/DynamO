@@ -346,7 +346,7 @@ function SquareWellTest {
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.0365025)/0.0365025; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    | gawk '{var=($1-0.0356025)/0.0356025; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
 	    echo "SquareWellTest -: FAILED"
 	    exit 1
 	else

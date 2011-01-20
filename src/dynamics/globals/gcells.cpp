@@ -50,7 +50,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
   CGNeighbourList(nSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
-  lambda(0.9), //Default to higher overlap
+  lambda(0.999), //Default to highest overlap
   _oversizeCells(1.0),
   NCells(0),
   overlink(overlink),
@@ -65,7 +65,7 @@ CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
-  lambda(0.9), //Default to higher overlap
+  lambda(0.999), //Default to highest overlap
   _oversizeCells(1.0),
   NCells(0),
   overlink(1),
@@ -81,7 +81,7 @@ CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1,1,1),
-  lambda(0.9), //Default to higher overlap
+  lambda(0.999), //Default to highest overlap
   _oversizeCells(1.0),
   NCells(0),
   overlink(1),
@@ -403,13 +403,15 @@ CGCells::addCells(double maxdiam)
   
   //This is just to center the grid of cells about the origin (0,0,0) of the system
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    cellOffset = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
+    cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda / 2;
 
   I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
 	   << cellCount[1] << "," << cellCount[2];
 
-  I_cout() << "Cell Offset <x,y,z>  " << cellOffset[0] << ","
-	   << cellOffset[1] << "," << cellOffset[2];
+  I_cout() << "Cell Offset <x,y,z>  "
+           << cellOffset[0] / Sim->dynamics.units().unitLength() << ","
+	   << cellOffset[1] / Sim->dynamics.units().unitLength() << ","
+	   << cellOffset[2] / Sim->dynamics.units().unitLength();
 
   I_cout() << "Cells Dimension <x,y,z>  " 
 	   << cellDimension[0] / Sim->dynamics.units().unitLength()
@@ -425,15 +427,13 @@ CGCells::addCells(double maxdiam)
 	   << "," 
 	   << cellLatticeWidth[2] / Sim->dynamics.units().unitLength();
 
-  fflush(stdout);
-
   try {
     cells.resize(NCells); //Empty Cells created!
   }
   catch(std::bad_alloc& er)
     {
       M_throw() << "The number of cells is causing a bad alloc\n"
-		<< "Number of cells (" << NCells << ") could be too large\n"
+		<< "Number of cells (" << NCells << ") and thus the system size could be too large\n"
 		<< "Max is " << cells.max_size() << ", aborting"
 		<< er.what();
     }
