@@ -255,7 +255,10 @@ void CoilMaster::coilThreadEntryPoint()
 {
   try {
       //Register the idle function
-    Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::GTKIldeFunc));
+    //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::GTKIdleFunc));
+    Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30, Glib::PRIORITY_DEFAULT_IDLE);
+    Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, Glib::PRIORITY_LOW);
+    
     
     _coilReadyFlag = true;
     _GTKit.run();
@@ -273,41 +276,44 @@ void CoilMaster::coilThreadEntryPoint()
     }
 }
 
-bool CoilMaster::GTKIldeFunc()
+bool 
+CoilMaster::taskTimeout()
+{
+  _coilQueue.drainQueue();
+
+  if (!CoilMaster::getInstance().isRunning()) 
+    {
+      //The task queue should not get any more tasks as
+      //CoilMaster::getInstance().isRunning() is false
+      
+      //! \todo{There is a race condition here if a window is added as coil is shutting down}
+      {
+	magnet::thread::ScopedLock lock(_coilLock);
+	
+	_viewPorts.clear();
+      }
+      
+      Gtk::Main::quit();
+      
+      //Run glutMainLoopEvent to let destroyed windows close
+      glutMainLoopEvent();
+    }
+
+  return true;
+}
+
+bool 
+CoilMaster::glutIdleTimeout()
 {
   try {
-    if (!CoilMaster::getInstance().isRunning()) 
-      {
-	//Drain the task queue, it should not get any more tasks as CoilMaster::getInstance().isRunning() is false
-	_coilQueue.drainQueue();
-	
-	//! \todo{There is a race condition here if a window is added as coil is shutting down}
-	{
-	  magnet::thread::ScopedLock lock(_coilLock);
-	  
-	  _viewPorts.clear();
-	}
+    //Fire off a tick to glut
+    glutMainLoopEvent();
+    
+    //for (std::map<int,magnet::thread::RefPtr<CoilWindow> >::iterator iPtr 
+    //	   = CoilMaster::getInstance()._viewPorts.begin();
+    //	 iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
+    //  iPtr->second->CallBackIdleFunc();
 
-	Gtk::Main::quit();
-	
-	//Run glutMainLoopEvent to let destroyed windows close
-	glutMainLoopEvent();
-      }
-    else
-      {
-	//Fire off a tick to glut
-	glutMainLoopEvent();
-	
-	for (std::map<int,magnet::thread::RefPtr<CoilWindow> >::iterator iPtr 
-	       = CoilMaster::getInstance()._viewPorts.begin();
-	     iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
-	  {
-	    glutSetWindow(iPtr->first);
-	    iPtr->second->CallBackIdleFunc();
-	  }
-	
-	_coilQueue.drainQueue();
-      }
   } catch (cl::Error err)
     {
       M_throw() << "An OpenCL error occured," << err.what()

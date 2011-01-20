@@ -50,7 +50,7 @@ public:
   ~CLGLWindow();
   
   virtual void CallBackDisplayFunc();
-  virtual void CallBackIdleFunc();
+  virtual bool CallBackIdleFunc();
 
   void CallBackReshapeFunc(int w, int h);    
 
@@ -140,6 +140,9 @@ private:
   volatile int _lastFrameTime;
   int _FPStime; 
   int _lastUpdateTime;
+  int _frameRenderTime;
+
+  sigc::connection _renderTimeout;
 
   magnet::GL::viewPort _viewPortInfo;
     

@@ -27,7 +27,7 @@ public:
   ~CoilWindow();
   
   virtual void CallBackDisplayFunc() {}
-  virtual void CallBackIdleFunc() {}
+  virtual bool CallBackIdleFunc() { return false; }
   virtual void CallBackKeyboardFunc(unsigned char key, int x, int y) {}
   virtual void CallBackKeyboardUpFunc(unsigned char key, int x, int y) {}
   virtual void CallBackMotionFunc(int x, int y) {}

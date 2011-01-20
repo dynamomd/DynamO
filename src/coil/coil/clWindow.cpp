@@ -222,7 +222,7 @@ CLGLWindow::initOpenGL()
   glutIgnoreKeyRepeat(1);
 
   _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
-  
+  _frameRenderTime = 0;
   //Build the offscreen rendering FBO's
   if (_shaderPipeline)
     {
@@ -243,14 +243,18 @@ CLGLWindow::initOpenGL()
   _console << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
 }
 
-void 
+bool
 CLGLWindow::CallBackIdleFunc()
 {
   //Check if limiting the FPS
-  if (_fpsLimit && (_fpsLimitValue * (glutGet(GLUT_ELAPSED_TIME) - _lastFrameTime) < 1000))
-      return;
+//  if (_fpsLimit 
+//      && ((glutGet(GLUT_ELAPSED_TIME) - _lastFrameTime) < (1000 / _fpsLimitValue)))
+//      return;
 
+  glutSetWindow(windowID);
   CallBackDisplayFunc();
+
+  return true;
 }
 
 void 
@@ -288,7 +292,11 @@ CLGLWindow::initGTK()
   
   /////////Timeout for FPS and UPS calculation
   _timeout_connection
-    = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 2);
+    = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
+
+  //Timeout for render
+  _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
+						  1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
 
   ////////Store the control window
   _refXml->get_widget("controlWindow", controlwindow);
@@ -759,11 +767,11 @@ void
 CLGLWindow::CallBackDisplayFunc()
 {
   if (!CoilMaster::getInstance().isRunning()) return;
+  //Setup the timings
+  int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
   //Prepare for the OpenCL ticks
   glFinish();//Finish with the GL buffers
-  //Setup the timings
-  int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
 //  const float speed = 1000;
 //  _light0 = lightInfo(Vector(1.5f*std::cos(_currFrameTime/speed), 1.5f, 
@@ -981,7 +989,7 @@ CLGLWindow::CallBackDisplayFunc()
 
   ++_frameCounter; 
   _lastFrameTime = _currFrameTime;
-
+  _frameRenderTime = glutGet(GLUT_ELAPSED_TIME) - _currFrameTime;
 }
 
 void 
@@ -1502,6 +1510,11 @@ CLGLWindow::FPSLimitCallback()
   Gtk::SpinButton* fpsButton;
   _refXml->get_widget("FPSLimitVal", fpsButton);
   _fpsLimitValue = fpsButton->get_value();
+
+  _renderTimeout.disconnect();
+  _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
+						  _fpsLimit ? 1000 / _fpsLimitValue : 10, 
+						  Glib::PRIORITY_DEFAULT_IDLE);
 }
 
 extern const guint8 coilsplash[];
