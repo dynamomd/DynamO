@@ -31,12 +31,13 @@ extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
 extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
 
 namespace coil {
-  Console::Console(size_t width, size_t height, float r, float g, float b)
+  Console::Console(size_t width, size_t height, float r, float g, float b):
+    _width(width),
+    _height(height)
   {
     _color[0] = r;
     _color[1] = g;
     _color[2] = b;
-
   }
 
   void 
