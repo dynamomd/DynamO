@@ -61,7 +61,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _showLight(true),
   _PNGFileFormat(true),
   _fpsLimit(true),
-  _fpsLimitValue(60),
+  _fpsLimitValue(35),
   _filterEnable(true),
   _snapshot_counter(0),
   _dynamo(dynamo)
@@ -731,6 +731,7 @@ CLGLWindow::deinit(bool andGlutDestroy)
   ////////////////////GTK
 
   _timeout_connection.disconnect();
+  _renderTimeout.disconnect();
 
   {
     Gtk::Window* controlwindow;
