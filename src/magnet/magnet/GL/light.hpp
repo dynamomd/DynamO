@@ -62,6 +62,12 @@ namespace magnet {
 	glPopMatrix();
       }
 
+      lightInfo& operator=(const viewPort& vp)
+      { 
+	static_cast<viewPort&>(*this) = vp;
+	return *this; 
+      }
+
       inline void loadShadowTextureMatrix(const viewPort& vp)
       {
 	//Build the texture matrix

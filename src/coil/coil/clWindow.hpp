@@ -218,6 +218,7 @@ private:
   void recordCallback();
   void axisShowCallback();
   void lightShowCallback();
+  void lightPlaceCallback();
   void groundShowCallback();
   void shadowIntensityCallback(double);
   void snapshotFileFormatCallback();

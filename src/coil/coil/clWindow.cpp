@@ -339,6 +339,14 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(*this, &CLGLWindow::axisShowCallback));
   }
 
+  {//////Place light button
+    Gtk::Button* lightButton;    
+    _refXml->get_widget("lightLocation", lightButton); 
+
+    lightButton->signal_clicked()
+      .connect(sigc::mem_fun(*this, &CLGLWindow::lightPlaceCallback));
+  }
+
   {//////Show light checkbox
     Gtk::CheckButton* lightShowButton;    
     _refXml->get_widget("lightShow", lightShowButton); 
@@ -1325,6 +1333,12 @@ CLGLWindow::lightShowCallback()
 }
 
 void 
+CLGLWindow::lightPlaceCallback()
+{
+  _light0 = _viewPortInfo;
+}
+
+void 
 CLGLWindow::groundShowCallback()
 {
   Gtk::CheckButton* Button;
@@ -1631,3 +1645,4 @@ CLGLWindow::performPicking(int x, int y)
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->finishPicking(_CLState, startVal, objID);
 }
+
