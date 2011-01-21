@@ -69,7 +69,7 @@ protected:
   cl::KernelFunctor _sortDataKernelFunc;
   cl::KernelFunctor _renderKernelFunc;
   cl::KernelFunctor _colorKernelFunc;
-
+  cl::KernelFunctor _pickingKernelFunc;
 
   cl_uint _N;
   static const std::string kernelsrc;
