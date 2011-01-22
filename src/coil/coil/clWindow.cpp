@@ -246,11 +246,6 @@ CLGLWindow::initOpenGL()
 bool
 CLGLWindow::CallBackIdleFunc()
 {
-  //Check if limiting the FPS
-//  if (_fpsLimit 
-//      && ((glutGet(GLUT_ELAPSED_TIME) - _lastFrameTime) < (1000 / _fpsLimitValue)))
-//      return;
-
   glutSetWindow(windowID);
   CallBackDisplayFunc();
 
@@ -595,6 +590,75 @@ CLGLWindow::initGTK()
 	}
       }
     }
+
+  {///////////////////////Render Objects//////////////////////////////////
+    ///Tree view must be built
+    
+    //Build the store
+    _renderObjStore = Gtk::ListStore::create(_renderObjModelColumns);
+    
+    //Setup the filter store
+    _refXml->get_widget("renderObjView", _renderObjView);
+    _renderObjView->set_model(_renderObjStore);
+    _renderObjView->append_column("Visible", _renderObjModelColumns.m_visible);
+    _renderObjView->append_column("Object Name", _renderObjModelColumns.m_name);
+    
+    {//Adding a test render object item
+      Gtk::TreeModel::iterator iter = _renderObjStore->append();
+      
+      (*iter)[_renderObjModelColumns.m_name]
+	= "Test Object";
+
+      (*iter)[_renderObjModelColumns.m_visible]
+	= true;
+    }
+
+    
+//    //////Connect the filterView select callback
+//    {
+//      Glib::RefPtr<Gtk::TreeSelection> treeSelection
+//	= _filterView->get_selection();
+//      
+//      treeSelection->signal_changed()
+//	.connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
+//    }
+//
+//	{///Connect the control buttons
+//	  Gtk::Button* btn;
+//	  _refXml->get_widget("filterUp", btn);
+//	  btn->signal_clicked()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
+//	  _refXml->get_widget("filterDown", btn);
+//	  btn->signal_clicked()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
+//	  _refXml->get_widget("filterEdit", btn);
+//	  btn->signal_clicked()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEditCallback));
+//	  _refXml->get_widget("filterDelete", btn);
+//	  btn->signal_clicked()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
+//	  _refXml->get_widget("filterAdd", btn);
+//	  btn->signal_clicked()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
+//	  _refXml->get_widget("filterClear", btn);
+//	  btn->signal_clicked()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
+//	}
+//
+//	{
+//	  Gtk::CheckButton* btn;
+//	  _refXml->get_widget("filterEnable", btn);
+//	  btn->signal_toggled()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEnableCallback));
+//	}
+//
+//	{//Fill the selector widgit with the available filters
+//	  Gtk::ComboBox* filterSelectBox;
+//	  _refXml->get_widget("filterSelectBox", filterSelectBox);
+//	  coil::filter::populateComboBox(filterSelectBox);
+//	}
+      }
+
 
   if (_dynamo)
     {

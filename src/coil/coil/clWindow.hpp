@@ -190,9 +190,23 @@ private:
     Gtk::TreeModelColumn<void*> m_filter_ptr;
   };
 
+  struct RenderObjModelColumnsType : Gtk::TreeModelColumnRecord
+  {
+    RenderObjModelColumnsType()
+    { add(m_name); add(m_visible);}
+    
+    Gtk::TreeModelColumn<Glib::ustring> m_name;
+    Gtk::TreeModelColumn<bool> m_visible;
+  };
+
   FilterModelColumnsType _filterModelColumns;
+  RenderObjModelColumnsType _renderObjModelColumns;
+
   Glib::RefPtr<Gtk::ListStore> _filterStore;
+  Glib::RefPtr<Gtk::ListStore> _renderObjStore;
+
   Gtk::TreeView* _filterView;
+  Gtk::TreeView* _renderObjView;
 
   //Callback for enabling/disabling the shader pipeline
   void pipelineEnableCallback();

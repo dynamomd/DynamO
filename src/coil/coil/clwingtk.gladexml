@@ -468,7 +468,7 @@
                   <object class="GtkHBox" id="hbox13">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkTreeView" id="treeview1">
+                      <object class="GtkTreeView" id="renderObjView">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                       </object>
