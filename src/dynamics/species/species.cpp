@@ -162,6 +162,7 @@ Species::getCount() const
 # include <magnet/thread/mutex.hpp>
 # include "../liouvillean/CompressionL.hpp"
 # include <magnet/HSV.hpp>
+# include <coil/RenderObj/Spheres.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 Species::getCoilRenderObj() const

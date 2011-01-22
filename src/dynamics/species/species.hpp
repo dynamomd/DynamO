@@ -26,7 +26,7 @@
 #include <magnet/thread/refPtr.hpp>
 
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Spheres.hpp>
+# include <coil/RenderObj/RenderObj.hpp>
 # include <vector>
 #endif
 
