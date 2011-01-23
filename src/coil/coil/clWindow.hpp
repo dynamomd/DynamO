@@ -119,8 +119,6 @@ private:
   virtual void initOpenGL();
   virtual void initOpenCL();
 
-  void drawAxis();
-
   void drawScene();
 
   enum KeyStateType
@@ -161,7 +159,6 @@ private:
   volatile bool _simframelock;
   bool _snapshot;
   bool _record;
-  bool _showAxis;
   bool _showLight; 
   bool _PNGFileFormat;
   bool _fpsLimit;

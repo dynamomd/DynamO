@@ -24,13 +24,13 @@
 #include <iomanip>
 #include <magnet/clamp.hpp>
 
-#include "glprimatives/arrow.hpp"
 #include <magnet/PNG.hpp>
 #include <coil/extcode/bitmap_image.hpp>
 #include <magnet/function/task.hpp>
 #include <gtkmm/volumebutton.h>
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/console.hpp>
+#include <coil/RenderObj/axis.hpp>
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
@@ -57,7 +57,6 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _simframelock(false),
   _snapshot(false),
   _record(false),
-  _showAxis(true),
   _showLight(true),
   _PNGFileFormat(true),
   _fpsLimit(true),
@@ -84,6 +83,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 
   //Second render object is the console
   RenderObjects.push_back(new coil::Console(_width, _height));
+  RenderObjects.push_back(new coil::Axis());
 }
 
 CLGLWindow::~CLGLWindow()
@@ -158,7 +158,6 @@ CLGLWindow::initOpenGL()
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  //We need blending only for the axis
   glDisable(GL_BLEND);
   //Blend colors using the alpha channel
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
@@ -325,14 +324,6 @@ CLGLWindow::initGTK()
     _refXml->get_widget("SimLockButton", framelockButton);
     framelockButton->signal_toggled()
       .connect(sigc::mem_fun(this, &CLGLWindow::simFramelockControlCallback));
-  }
-
-  {//////Show axis checkbox
-    Gtk::CheckButton* axisShowButton;    
-    _refXml->get_widget("axisShow", axisShowButton); 
-
-    axisShowButton->signal_toggled()
-      .connect(sigc::mem_fun(*this, &CLGLWindow::axisShowCallback));
   }
 
   {//////Place light button
@@ -960,7 +951,11 @@ CLGLWindow::CallBackDisplayFunc()
   
   //We clear the depth as merely disabling gives artifacts
   glClear(GL_DEPTH_BUFFER_BIT); 
-  drawAxis();
+
+  //Enter the interface draw for all objects
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->interfaceRender(_viewPortInfo);
 
   glutSwapBuffers();
 
@@ -1039,93 +1034,6 @@ CLGLWindow::drawScene()
     (*iPtr)->glRender();
 
   if (_showLight) _light0.drawLight();
-}
-
-
-void CLGLWindow::drawAxis()
-{  
-  GLdouble nearPlane = 0.1,
-    axisScale = 0.07;
-
-  //Enter the render ticks for all objects
-  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-       iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->interfaceRender();
-
-  if (!_showAxis) return;
-
-  glDisable(GL_LIGHTING);
-  glDisable(GL_DEPTH_TEST);
-
-  //The axis is in a little 100x100 pixel area in the lower left
-  glViewport(0,0,100,100);
-
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluPerspective(45.0f, 1, 0.1f, 1000.0f);
-
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix ();
-  glLoadIdentity();  
-  
-  //near plane is at 0.1, the axis are 0.25 long so
-    glTranslatef (0, 0, -(nearPlane + axisScale));
-
-  //We want the arrow drawing to always succeed
-  glDisable(GL_DEPTH_TEST);
-  //We want a semi transparent axis overlay so enable blending
-  glEnable(GL_BLEND);
-
-  glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.5); // Color the axis box a transparent blue
-  glBegin(GL_QUADS);		
-  glVertex3f(-1,-1, 0);
-  glVertex3f( 1,-1, 0);
-  glVertex3f( 1, 1, 0);
-  glVertex3f(-1, 1, 0);
-  glEnd();
-
-  glRotatef(_viewPortInfo._tiltrotation, 1.0, 0.0, 0.0);
-  glRotatef(_viewPortInfo._panrotation, 0.0, 1.0, 0.0);
-  glScalef (axisScale, axisScale, axisScale);
-
-  glLineWidth (2.0);
-    
-  glColor3f (1,0,0); // X axis is red.
-  coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
-				Vector( 0.5,-0.5,-0.5));
-
-  glColor3f (0,1,0); // Y axis is green.
-  coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5), 
-				Vector(-0.5, 0.5,-0.5));
-
-  glColor3f (0,0,1); // Z axis is blue.
-  coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
-				Vector(-0.5,-0.5, 0.5));
-
-  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-  
-  //Do the axis labels
-  glColor3f(1,1,1);
-  _console.getFont().FaceSize(16);
-
-  glRasterPos3f( 0.5,-0.5,-0.5);
-  _console.getFont().Render("X");
-  glRasterPos3f(-0.5, 0.5,-0.5);
-  _console.getFont().Render("Y");
-  glRasterPos3f(-0.5,-0.5, 0.5);
-  _console.getFont().Render("Z");
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix ();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix ();
-
-  glViewport(0, 0, _width,_height);
-  
-  glDisable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LIGHTING);
 }
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1338,15 +1246,6 @@ CLGLWindow::recordCallback()
   _refXml->get_widget("SimRecordButton", recordButton);
 
   _record = recordButton->get_active();  
-}
-
-void 
-CLGLWindow::axisShowCallback()
-{
-  Gtk::CheckButton* axisShowButton;
-  _refXml->get_widget("axisShow", axisShowButton);
-  
-  _showAxis = axisShowButton->get_active();
 }
 
 void 

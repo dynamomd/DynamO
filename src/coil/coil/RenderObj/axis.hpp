@@ -20,52 +20,18 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <memory>
 #include <FTGL/ftgl.h>
-#include <sstream>
-#include <list>
 
 namespace coil {
-  class Console: public RenderObj
+  class Axis: public RenderObj
   {
   public:
-    struct end {};
-
-    Console(size_t width, size_t height,
-	    float r = 0.5, float g = 0.5, float b = 0.5);
-
-    template<class T>
-    Console& operator<<(const T& value) 
-    {
-      os << value;
-      return *this;
-    }
-
-    inline FTGLPixmapFont& getFont() { return *_consoleFont; }
+    Axis();
     
-    void resize(size_t width, size_t height);
-
     virtual void interfaceRender(const magnet::GL::viewPort&);
-
     virtual void initOpenGL();
-    
+
   private:
-    
-    std::ostringstream os;
-    std::auto_ptr<FTGLPixmapFont> _consoleFont;
-    std::auto_ptr<FTSimpleLayout> _consoleLayout;
-    size_t _width, _height;
-    typedef std::pair<float, std::string> consoleEntry;
-    std::list<consoleEntry> _consoleEntries;
-    
-    int _glutLastTime;
+    std::auto_ptr<FTGLPixmapFont> _axisFont;
 
-    float _color[3];
   };
-
-  template<>
-  inline Console& Console::operator<< <Console::end>(const Console::end&)
-  {
-    _consoleEntries.push_front(consoleEntry(0, os.str()));
-    os.str("");
-    return *this;
-  }
 }

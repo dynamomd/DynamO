@@ -53,6 +53,8 @@ namespace coil {
       M_throw() << "Could not load coil's embedded font! Errno " 
 		<< _consoleFont->Error();
     
+    _consoleFont->FaceSize(16);
+
     _consoleLayout->SetFont(&(*_consoleFont));
     
     if (_consoleLayout->Error()) 
@@ -73,7 +75,7 @@ namespace coil {
   }
 
   void 
-  Console::interfaceRender()
+  Console::interfaceRender(const magnet::GL::viewPort&)
   {
     //Only draw if the console has something in it or if it's visible
     if (_consoleEntries.empty() || !_visible) return;
@@ -84,8 +86,10 @@ namespace coil {
 
     //Draw the console in orthograpic projection
     glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
     glLoadIdentity();
 
     float lineHeight = _consoleFont->FaceSize() / (0.5f * _height);
@@ -117,6 +121,10 @@ namespace coil {
 
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix ();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix ();
   }
   
 }

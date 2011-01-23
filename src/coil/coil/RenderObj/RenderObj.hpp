@@ -37,7 +37,7 @@ public:
 
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
   virtual void glRender() {}
-  virtual void interfaceRender() {}
+  virtual void interfaceRender(const magnet::GL::viewPort&) {}
 
   virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset) {}
   virtual void pickingRender() {}
