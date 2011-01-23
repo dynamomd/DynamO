@@ -18,7 +18,8 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 
-RTriangles::RTriangles():
+RTriangles::RTriangles(std::string name):
+  RenderObj(name),
   _colBuffSize(0),
   _posBuffSize(0),
   _normBuffSize(0),

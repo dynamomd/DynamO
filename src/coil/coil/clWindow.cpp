@@ -76,6 +76,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 					1, 1,//Range of the function to evaluate (xrange,yrange
 					false, //Render a set of Axis as well?
 					true, //Is the shape static, i.e. is there no time dependence
+					"Ground",
 					"f=0;\n",
 					"normal = (float3)(0,0,1);\n",
 					"colors[0] = (uchar4)(255,255,255,255);"
@@ -350,14 +351,6 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(*this, &CLGLWindow::lightShowCallback));
   }
 
-  {//////Show ground checkbox
-    Gtk::CheckButton* Button;    
-    _refXml->get_widget("showGround", Button); 
-
-    Button->signal_toggled()
-      .connect(sigc::mem_fun(*this, &CLGLWindow::groundShowCallback));
-  }
-
   {//////Render the surface normals checkbox
     Gtk::CheckButton* Button;    
     _refXml->get_widget("showNormals", Button); 
@@ -603,62 +596,40 @@ CLGLWindow::initGTK()
     _renderObjView->append_column("Visible", _renderObjModelColumns.m_visible);
     _renderObjView->append_column("Object Name", _renderObjModelColumns.m_name);
     
-    {//Adding a test render object item
-      Gtk::TreeModel::iterator iter = _renderObjStore->append();
+    //Populate the render object view
+    rebuildRenderView();
+    selectRObjCallback();
+
+    //////Connect the view to the select callback
+    {
+      Glib::RefPtr<Gtk::TreeSelection> treeSelection
+	= _renderObjView->get_selection();
       
-      (*iter)[_renderObjModelColumns.m_name]
-	= "Test Object";
-
-      (*iter)[_renderObjModelColumns.m_visible]
-	= true;
+      treeSelection->signal_changed()
+	.connect(sigc::mem_fun(this, &CLGLWindow::selectRObjCallback));
     }
-
     
-//    //////Connect the filterView select callback
-//    {
-//      Glib::RefPtr<Gtk::TreeSelection> treeSelection
-//	= _filterView->get_selection();
-//      
-//      treeSelection->signal_changed()
-//	.connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
-//    }
-//
-//	{///Connect the control buttons
-//	  Gtk::Button* btn;
-//	  _refXml->get_widget("filterUp", btn);
-//	  btn->signal_clicked()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
-//	  _refXml->get_widget("filterDown", btn);
-//	  btn->signal_clicked()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
-//	  _refXml->get_widget("filterEdit", btn);
-//	  btn->signal_clicked()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEditCallback));
-//	  _refXml->get_widget("filterDelete", btn);
-//	  btn->signal_clicked()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
-//	  _refXml->get_widget("filterAdd", btn);
-//	  btn->signal_clicked()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
-//	  _refXml->get_widget("filterClear", btn);
-//	  btn->signal_clicked()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
-//	}
-//
-//	{
-//	  Gtk::CheckButton* btn;
-//	  _refXml->get_widget("filterEnable", btn);
-//	  btn->signal_toggled()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEnableCallback));
-//	}
-//
-//	{//Fill the selector widgit with the available filters
-//	  Gtk::ComboBox* filterSelectBox;
-//	  _refXml->get_widget("filterSelectBox", filterSelectBox);
-//	  coil::filter::populateComboBox(filterSelectBox);
-//	}
-      }
+    {///Connect the control buttons
+      Gtk::Button* btn;
+      _refXml->get_widget("robjDelete", btn);
+      btn->signal_clicked()
+	.connect(sigc::mem_fun(this, &CLGLWindow::deleteRObjCallback));
 
+      _refXml->get_widget("robjEdit", btn);
+      btn->signal_clicked()
+	.connect(sigc::mem_fun(this, &CLGLWindow::editRObjCallback));
+
+      _refXml->get_widget("robjAdd", btn);
+      btn->signal_clicked()
+	.connect(sigc::mem_fun(this, &CLGLWindow::addRObjCallback));
+    }
+    {
+      Gtk::ToggleButton* btn;
+      _refXml->get_widget("robjVisible", btn);
+      btn->signal_toggled()
+	.connect(sigc::mem_fun(this, &CLGLWindow::visibleRObjCallback));
+    }    
+  }
 
   if (_dynamo)
     {
@@ -683,15 +654,6 @@ CLGLWindow::initGTK()
 	  .connect(sigc::mem_fun(this, &CLGLWindow::dynamoParticleSyncCallBack));
 
 	_particleSync = btn->get_active();
-      }
-
-      {
-	Gtk::CheckButton* btn;
-	_refXml->get_widget("COMadjust", btn);
-	btn->signal_toggled()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::dynamoCOMAdjustCallBack));
-
-	_COMAdjust = btn->get_active();
       }
     }
 }
@@ -1403,15 +1365,6 @@ CLGLWindow::lightPlaceCallback()
 }
 
 void 
-CLGLWindow::groundShowCallback()
-{
-  Gtk::CheckButton* Button;
-  _refXml->get_widget("showGround", Button);
-  
-  RenderObjects.front()->setVisible(Button->get_active());
-}
-
-void 
 CLGLWindow::shadowIntensityCallback(double val)
 {
   _shadowIntensity = val;
@@ -1658,14 +1611,6 @@ CLGLWindow::dynamoParticleSyncCallBack()
 }
 
 void
-CLGLWindow::dynamoCOMAdjustCallBack()
-{
-  Gtk::CheckButton* btn;
-  _refXml->get_widget("COMadjust", btn);
-  _COMAdjust = btn->get_active();
-}
-
-void
 CLGLWindow::performPicking(int x, int y)
 {
   glUseProgramObjectARB(0);
@@ -1710,3 +1655,91 @@ CLGLWindow::performPicking(int x, int y)
     (*iPtr)->finishPicking(_CLState, startVal, objID);
 }
 
+void 
+CLGLWindow::rebuildRenderView()
+{
+  _renderObjStore->clear();
+  
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    {//Adding a test render object item
+      Gtk::TreeModel::iterator iter = _renderObjStore->append();
+      
+      (*iter)[_renderObjModelColumns.m_name]
+	= (*iPtr)->getName();
+      
+      (*iter)[_renderObjModelColumns.m_visible]
+	= (*iPtr)->isVisible();
+
+      (*iter)[_renderObjModelColumns.m_id]
+	= iPtr - RenderObjects.begin();
+    }
+}
+
+void CLGLWindow::visibleRObjCallback() 
+{
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _renderObjView->get_selection();
+  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
+
+  Gtk::ToggleButton *visibleBtn;
+  _refXml->get_widget("robjVisible", visibleBtn);
+
+  if(iter)
+    {
+      size_t objID = (*iter)[_renderObjModelColumns.m_id]; 
+      bool newState = visibleBtn->get_active();
+
+      RenderObjects[objID]->setVisible(newState);
+      (*iter)[_renderObjModelColumns.m_visible] = newState;
+    }
+
+  selectRObjCallback();
+}
+void CLGLWindow::editRObjCallback() {}
+void CLGLWindow::deleteRObjCallback() {}
+void CLGLWindow::addRObjCallback() {}
+void CLGLWindow::selectRObjCallback() 
+{
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _renderObjView->get_selection();
+
+  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
+
+  Gtk::Button *deleteBtn, *editBtn, *addBtn;
+  Gtk::ToggleButton *visibleBtn;
+  Gtk::Image *visibleImg;
+  _refXml->get_widget("robjDelete", deleteBtn);
+  _refXml->get_widget("robjEdit", editBtn);
+  _refXml->get_widget("robjAdd", addBtn);
+  _refXml->get_widget("robjVisible", visibleBtn);
+  _refXml->get_widget("robjVisibleImg", visibleImg);
+
+  if(iter)
+    {
+      //Enable the filter buttons
+      deleteBtn->set_sensitive(false);
+      editBtn->set_sensitive(false); 
+      visibleBtn->set_sensitive(true);
+
+      if (RenderObjects[(*iter)[_renderObjModelColumns.m_id]]->isVisible())
+	{//Object is visible
+	  visibleBtn->set_active(true);
+	  visibleImg->set(Gtk::Stock::YES, Gtk::ICON_SIZE_BUTTON);
+	}
+      else
+	{//Object is not visible
+	  visibleBtn->set_active(false);
+	  visibleImg->set(Gtk::Stock::NO, Gtk::ICON_SIZE_BUTTON);
+	}
+    }
+  else
+    {
+      //Disable all of the filter buttons
+      deleteBtn->set_sensitive(false);
+      editBtn->set_sensitive(false); 
+      visibleBtn->set_sensitive(false);
+    }
+
+  addBtn->set_sensitive(false); 
+}

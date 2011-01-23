@@ -85,8 +85,8 @@ LineRenderKernel(const __global float* pointData,
   vertexBuffer[11] = point.z;
 }
 						      );
-RArrows::RArrows(size_t N):
-  RLines(N)
+RArrows::RArrows(size_t N, std::string name):
+  RLines(N, name)
 {}
 
 void 

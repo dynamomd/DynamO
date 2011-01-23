@@ -23,7 +23,8 @@
 class RenderObj
 {
 public:
-  RenderObj():
+  RenderObj(std::string name):
+    _name(name),
     _RenderMode(TRIANGLES),
     _renderNormals(false),
     _visible(true)
@@ -55,8 +56,13 @@ public:
   
   inline void setDisplayNormals(bool val) { _renderNormals = val; }
   inline void setVisible(bool val) { _visible = val; }
+  inline bool isVisible() const { return _visible; }
+
+  inline const std::string& getName() const { return _name; }
 
 protected:
+  std::string _name;
+
   RenderModeType _RenderMode;
 
   bool _renderNormals;

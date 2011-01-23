@@ -23,7 +23,7 @@
 class RLines : public RenderObj
 {
 public:
-  RLines(size_t N);
+  RLines(size_t N, std::string name);
   ~RLines();
 
   virtual void glRender();

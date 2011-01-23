@@ -18,7 +18,8 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 
-RLines::RLines(size_t N):
+RLines::RLines(size_t N, std::string name):
+  RenderObj(name),
   _N(N),
   _colBuffSize(0),
   _posBuffSize(0),

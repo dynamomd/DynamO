@@ -32,6 +32,7 @@ extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
 
 namespace coil {
   Console::Console(size_t width, size_t height, float r, float g, float b):
+    RenderObj("Console"),
     _width(width),
     _height(height)
   {
@@ -74,8 +75,8 @@ namespace coil {
   void 
   Console::interfaceRender()
   {
-    //Only draw if the console has something in it
-    if (_consoleEntries.empty()) return;
+    //Only draw if the console has something in it or if it's visible
+    if (_consoleEntries.empty() || !_visible) return;
 
     //Disable anything that might affect the rastering 
     glDisable(GL_LIGHTING);

@@ -10,7 +10,7 @@ SpLines::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-      _renderObj = new RArrows(range->size());
+      _renderObj = new RArrows(range->size(), "Species: " + spName);
       particleData.resize(range->size()*6);
     }
 

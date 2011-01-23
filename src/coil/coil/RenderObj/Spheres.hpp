@@ -44,7 +44,7 @@ public:
     cl::Buffer _primativeVertices;
   };
 
-  RTSpheres(size_t N);
+  RTSpheres(size_t N, std::string name);
 
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
   void sortTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);

@@ -23,7 +23,7 @@
 class RTriangles : public RenderObj
 {
 public:
-  RTriangles();
+  RTriangles(std::string name);
   ~RTriangles();
 
   virtual void glRender();

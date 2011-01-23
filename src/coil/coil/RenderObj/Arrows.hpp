@@ -22,7 +22,7 @@
 class RArrows : public RLines
 {
 public:
-  RArrows(size_t N);
+  RArrows(size_t N, std::string name);
 
   virtual void initOpenCL(magnet::CL::CLGLState&);
   virtual void initOpenGL();

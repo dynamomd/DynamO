@@ -72,6 +72,7 @@ main(int argc, char *argv[])
 //				1.4, 1.4,//Range of the function to evaluate (xrange,yrange
 //				false, //Render a set of Axis as well?
 //				false, //Is the shape static, i.e. is there no time dependence
+//                              "Test Function",
 //				_function,
 //				_normalCalc,
 //				_colorCalc
@@ -80,7 +81,7 @@ main(int argc, char *argv[])
   //////////////////////////Visualizing Spheres///////////////////////////////////////////////////
   size_t N = 10;
 
-  magnet::thread::RefPtr<RenderObj> Spheres = new RTSpheres(N);
+  magnet::thread::RefPtr<RenderObj> Spheres = new RTSpheres(N, "Spheres");
   Window.as<CLGLWindow>().addRenderObj(Spheres);
 
 

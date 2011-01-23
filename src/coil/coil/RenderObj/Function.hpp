@@ -31,6 +31,7 @@ public:
 	    cl_float functionRangeY,
 	    bool drawAxis,
 	    bool staticShape,
+	    std::string name,
 	    std::string function = "f = pos.x * pos.y * native_sin(t);\n",
 	    std::string normalCalc = "normal = normalize((float3)(pos.y * native_sin(t), pos.x * native_sin(t),1));\n",
 	    std::string colorCalc = "\n");

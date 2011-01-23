@@ -342,74 +342,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox10">
-                    <property name="visible">True</property>
-                    <child>
-                      <object class="GtkCheckButton" id="showGround">
-                        <property name="label" translatable="yes">Show Ground</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="active">True</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label4">
-                        <property name="xalign">0.94999998807907104</property>
-                        <property name="label" translatable="yes">Coordinates</property>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="entry2">
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
-                        <property name="width_chars">4</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="entry1">
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
-                        <property name="width_chars">4</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">3</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="entry3">
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
-                        <property name="width_chars">4</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">4</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkCheckButton" id="axisShow">
                     <property name="label" translatable="yes">Display Axis</property>
                     <property name="visible">True</property>
@@ -421,7 +353,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">7</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -446,7 +378,7 @@
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="padding">5</property>
-                    <property name="position">8</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
               </object>
@@ -481,7 +413,7 @@
                         <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkButton" id="button2">
+                          <object class="GtkButton" id="robjDelete">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -497,7 +429,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button3">
+                          <object class="GtkButton" id="robjEdit">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -513,12 +445,12 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkToggleButton" id="togglebutton1">
+                          <object class="GtkToggleButton" id="robjVisible">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <child>
-                              <object class="GtkImage" id="image4">
+                              <object class="GtkImage" id="robjVisibleImg">
                                 <property name="visible">True</property>
                                 <property name="stock">gtk-yes</property>
                               </object>
@@ -551,7 +483,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button1">
+                      <object class="GtkButton" id="robjAdd">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1036,18 +968,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="COMadjust">
-                        <property name="label" translatable="yes">Adjust particle coordinates for COM shift</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>

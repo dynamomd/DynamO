@@ -39,7 +39,8 @@ static cl_float4 getclVec(Vector vec)
 }
 
 
-RTSpheres::RTSpheres(size_t N):
+RTSpheres::RTSpheres(size_t N, std::string name):
+  RTriangles(name),
   _N(N),
   _frameCount(0),
   _sortFrequency(1),

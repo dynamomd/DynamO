@@ -193,10 +193,11 @@ private:
   struct RenderObjModelColumnsType : Gtk::TreeModelColumnRecord
   {
     RenderObjModelColumnsType()
-    { add(m_name); add(m_visible);}
+    { add(m_name); add(m_visible); add(m_id);}
     
     Gtk::TreeModelColumn<Glib::ustring> m_name;
     Gtk::TreeModelColumn<bool> m_visible;
+    Gtk::TreeModelColumn<size_t> m_id;
   };
 
   FilterModelColumnsType _filterModelColumns;
@@ -221,6 +222,15 @@ private:
   void filterClearCallback();
   void filterEnableCallback();
   
+  //Render Object Contol Callbacks
+  void rebuildRenderView();
+  void visibleRObjCallback();
+  void editRObjCallback();
+  void deleteRObjCallback();
+  void addRObjCallback();
+  void selectRObjCallback();
+
+
   //Other callbacks
   void multisampleEnableCallback();
   void shadowEnableCallback();
@@ -233,7 +243,6 @@ private:
   void axisShowCallback();
   void lightShowCallback();
   void lightPlaceCallback();
-  void groundShowCallback();
   void shadowIntensityCallback(double);
   void snapshotFileFormatCallback();
   void FPSLimitCallback();
@@ -246,14 +255,11 @@ private:
   //Dynamo specifc stuff
 public:
   inline bool dynamoParticleSync() const { return _particleSync; }
-  inline bool dynamoCOMAdjust() const { return _COMAdjust; }
 
 private:
   void dynamoParticleSyncCallBack();
-  void dynamoCOMAdjustCallBack();
   bool _dynamo;
   bool _particleSync;
-  bool _COMAdjust;
   volatile bool _newData;
 
 };

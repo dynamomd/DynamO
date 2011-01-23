@@ -169,7 +169,7 @@ Species::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-      _renderObj = new RTSpheres(range->size());
+      _renderObj = new RTSpheres(range->size(), "Species: " + spName);
       particleData.resize(range->size());
       particleColorData.resize(range->size());
     }
