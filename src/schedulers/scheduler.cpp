@@ -135,25 +135,25 @@ CScheduler::runNextEvent()
 #endif
     }
   
-#ifdef DYNAMO_DEBUG
-  if (boost::math::isnan(sorter->next_dt()))
-    M_throw() << "Next event time is NaN"
-	      << "\nTime to event "
-	      << sorter->next_dt()
-	      << "\nEvent Type = " 
-	      << sorter->next_type()
-	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->next_p2();
-
-  if (isinf(sorter->next_dt()))
-    M_throw() << "Next event time is Inf!"
-	      << "\nTime to event "
-	      << sorter->next_dt()
-	      << "\nEvent Type = " 
-	      << sorter->next_type()
-	      << "\nOwner Particle = " << sorter->next_ID()
-	      << "\nID2 = " << sorter->next_p2();
-
+    if (boost::math::isnan(sorter->next_dt()))
+      M_throw() << "Next event time is NaN"
+		<< "\nTime to event "
+		<< sorter->next_dt()
+		<< "\nEvent Type = " 
+		<< sorter->next_type()
+		<< "\nOwner Particle = " << sorter->next_ID()
+		<< "\nID2 = " << sorter->next_p2();
+    
+    if (isinf(sorter->next_dt()))
+      M_throw() << "Next event time is Inf!"
+		<< "\nTime to event "
+		<< sorter->next_dt()
+		<< "\nEvent Type = " 
+		<< sorter->next_type()
+		<< "\nOwner Particle = " << sorter->next_ID()
+		<< "\nID2 = " << sorter->next_p2();
+    
+  //#ifdef DYNAMO_DEBUG
   ////////////////////////////////////////////////////////////////////
   // We can't perform such strict testing as commented out
   // below. Sometimes negative event times occur, usually at the start
@@ -173,7 +173,7 @@ CScheduler::runNextEvent()
   //	      << sorter->next_type()
   //      	      << "\nOwner Particle = " << sorter->next_ID()
   //	      << "\nID2 = " << sorter->next_p2();
-#endif  
+  //#endif  
   
   /*! This is our dimensionless parameter which we need to correct a
   edge case for the collision testing. If an event is scheduled to

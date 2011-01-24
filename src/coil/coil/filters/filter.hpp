@@ -87,7 +87,7 @@ namespace coil
     };
 
     inline static filterSelectColumns& getSelectColumnsInstance()
-    { 
+    {
       static filterSelectColumns vals;
       return vals;
     }
@@ -98,8 +98,7 @@ namespace coil
 
     //////////////Virtual members
     virtual size_t type_id() = 0;
-    virtual bool isEditable() = 0;
-    virtual void edit() {}
+    virtual void showControls(Gtk::ScrolledWindow*) {}
     virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height) = 0;
     
   protected:

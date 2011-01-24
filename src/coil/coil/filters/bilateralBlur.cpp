@@ -17,9 +17,6 @@
 
 #include <coil/filters/bilateralBlur.hpp>
 
-extern const char _binary_src_coil_coil_filters_bilateralBlurWin_gladexml_start[];
-extern const char _binary_src_coil_coil_filters_bilateralBlurWin_gladexml_end[];
-
 namespace coil 
 {
   ///////////////////////////////////////////////////////////////////////////
@@ -32,27 +29,6 @@ namespace coil
     _totStrength = 0.01245;
 
     _filter.build(); 
-
-    Glib::ustring glade_data
-      (reinterpret_cast<const char *>(_binary_src_coil_coil_filters_bilateralBlurWin_gladexml_start), 
-       _binary_src_coil_coil_filters_bilateralBlurWin_gladexml_end
-       -_binary_src_coil_coil_filters_bilateralBlurWin_gladexml_start);
-    
-    _refXml = Gtk::Builder::create_from_string(glade_data);
-
-    {
-      Gtk::HScale* btn;
-      _refXml->get_widget("radiusSetting", btn);
-      btn->set_value(_radius);
-      btn->signal_value_changed()
-	.connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
-
-      _refXml->get_widget("zdiffsetting", btn);
-      btn->set_range(0.0001, 1.0);
-      btn->set_value(_totStrength); 
-     btn->signal_value_changed()
-	.connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
-    }
 
     glGenTextures( 1, &_randomTexture);
     glBindTexture(GL_TEXTURE_2D, _randomTexture);
@@ -71,32 +47,62 @@ namespace coil
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    //Build the controls
+
+    {
+      Gtk::VBox* labelVbox = manage(new Gtk::VBox);
+      Gtk::Label* Label1 = manage(new Gtk::Label("Radius"));
+      Gtk::Label* Label2 = manage(new Gtk::Label("Depth Cutoff"));
+      labelVbox->add(*Label1); Label1->show();
+      labelVbox->add(*Label2); Label2->show();
+      _optlist.add(*labelVbox);
+      labelVbox->show();
+    }
+
+    {
+      Gtk::VBox* sliderVbox = manage(new Gtk::VBox);
+      sliderVbox->add(_radiusSlider);
+      sliderVbox->add(_zdiffSlider);
+      _optlist.add(*sliderVbox);
+      sliderVbox->show();
+    }
+    _optlist.show();
+
+    _radiusSlider.set_range(1,20);
+    _radiusSlider.set_increments(1,1);
+    _radiusSlider.set_value(_radius);
+    _radiusSlider.signal_value_changed()
+      .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
+    _radiusSlider.show();
+
+    _zdiffSlider.set_increments(0.0001,0.0001);
+    _zdiffSlider.set_range(0.0001, 1.0);
+    _zdiffSlider.set_digits(4);
+    _zdiffSlider.set_value(_totStrength); 
+    _zdiffSlider.signal_value_changed()
+      .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
+    _zdiffSlider.show();
   }
 
   BilateralBlurWrapper::~BilateralBlurWrapper()
   { 
-    Gtk::Window* win;
-    _refXml->get_widget("BilateralBlurWindow", win);
-    win->hide();
-
     glDeleteTextures(1, &_randomTexture);
   }
 
-  void BilateralBlurWrapper::edit()
+  void BilateralBlurWrapper::showControls(Gtk::ScrolledWindow* start)
   {
-    Gtk::Window* win;
-    _refXml->get_widget("BilateralBlurWindow", win);
-    win->show();
+    _optlist.unparent();
+    start->add(_optlist);
+    start->show();
+
+
   }
 
   void BilateralBlurWrapper::settingsCallback()
   {
-    Gtk::HScale* btn;
-    _refXml->get_widget("radiusSetting", btn);
-    _radius = btn->get_value();
-
-    _refXml->get_widget("zdiffsetting", btn);
-    _totStrength = btn->get_value();
+    _radius = _radiusSlider.get_value();
+    _totStrength = _zdiffSlider.get_value();
   }
 
   void BilateralBlurWrapper::invoke(GLuint colorTextureUnit, 

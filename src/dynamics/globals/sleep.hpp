@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -17,36 +18,33 @@
 
 #pragma once
 
-#include <gtkmm.h>
-#include "filter.hpp"
-#include <magnet/GL/BilateralBlur.hpp>
+#include "global.hpp"
+#include <vector>
 
-namespace coil 
+class GSleep: public Global
 {
-  class BilateralBlurWrapper: public filter
-  {
-  public:
-    BilateralBlurWrapper();
-    ~BilateralBlurWrapper();
+public:
+  GSleep(const XMLNode&, DYNAMO::SimData*);
 
-    inline virtual size_t type_id() { return detail::filterEnum<BilateralBlurWrapper>::val; }    
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height);
+  GSleep(DYNAMO::SimData*, const std::string&);
+  
+  virtual ~GSleep() {}
 
-    inline virtual bool needsNormalDepth()  { return true; }
+  virtual Global* Clone() const { return new GSleep(*this); };
 
-    virtual void showControls(Gtk::ScrolledWindow*);
+  virtual GlobalEvent getEvent(const Particle &) const;
 
-  protected:
-    magnet::GL::BilateralBlur _filter;
-    GLfloat _radius;
-    GLfloat _totStrength;
+  virtual void runEvent(const Particle&) const;
 
-    GLuint _randomTexture;
+  virtual void initialise(size_t);
 
-    void settingsCallback();
+  virtual void operator<<(const XMLNode&);
 
-    Gtk::HScale _radiusSlider;
-    Gtk::HScale _zdiffSlider;
-    Gtk::HBox _optlist;
-  };
-}
+protected:
+  void particlesUpdated(const NEventData&);
+
+  virtual void outputXML(xml::XmlStream&) const;
+  
+  mutable std::vector<double> sleepTime;
+};
+

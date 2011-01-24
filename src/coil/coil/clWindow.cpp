@@ -546,9 +546,6 @@ CLGLWindow::initGTK()
 	  _refXml->get_widget("filterDown", btn);
 	  btn->signal_clicked()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
-	  _refXml->get_widget("filterEdit", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEditCallback));
 	  _refXml->get_widget("filterDelete", btn);
 	  btn->signal_clicked()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
@@ -1306,20 +1303,6 @@ CLGLWindow::filterDownCallback()
 }
 
 void 
-CLGLWindow::filterEditCallback()
-{
-    Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
-    _filterView->get_selection();
-  
-  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
-  
-  void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
-  static_cast<coil::filter*>(tmp_ptr)->edit();
-
-  filterSelectCallback();
-}
-
-void 
 CLGLWindow::filterDeleteCallback()
 {
   Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
@@ -1367,32 +1350,34 @@ CLGLWindow::filterSelectCallback()
 
   Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
 
-  Gtk::Button *upbtn, *downbtn, *editbtn, *deletebtn;
+  Gtk::Button *upbtn, *downbtn, *deletebtn;
   _refXml->get_widget("filterUp", upbtn);
   _refXml->get_widget("filterDown", downbtn);
-  _refXml->get_widget("filterEdit", editbtn);
   _refXml->get_widget("filterDelete", deletebtn);
+
+  Gtk::ScrolledWindow* frame;
+  _refXml->get_widget("FilterOptions", frame);
+  frame->remove();
 
   if(iter)
     {
       Gtk::TreeModel::iterator next_iter = iter;
       ++next_iter;
 
-      void* filter_ptr 
-	= (*iter)[_filterModelColumns.m_filter_ptr];
+      coil::filter* filter_ptr
+	= (coil::filter*)((void*)((*iter)[_filterModelColumns.m_filter_ptr]));
       
       //Enable the filter buttons
       upbtn    ->set_sensitive(iter != _filterStore->children().begin());
       downbtn  ->set_sensitive(next_iter);
       deletebtn->set_sensitive(true);
-      editbtn->set_sensitive(static_cast<coil::filter*>(filter_ptr)->isEditable()); 
+      filter_ptr->showControls(frame);
     }
   else
     {
       //Disable all of the filter buttons
       upbtn    ->set_sensitive(false);
       downbtn  ->set_sensitive(false); 
-      editbtn  ->set_sensitive(false); 
       deletebtn->set_sensitive(false);
     }
 }

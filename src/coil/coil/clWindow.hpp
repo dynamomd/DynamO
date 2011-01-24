@@ -212,7 +212,6 @@ private:
   //Filter control callbacks
   void filterUpCallback();
   void filterDownCallback();
-  void filterEditCallback();
   void filterDeleteCallback();
   void filterAddCallback();
   void filterSelectCallback();

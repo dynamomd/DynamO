@@ -1,6 +1,6 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
-    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -66,6 +66,8 @@ Global::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
     return new CGCellsMorton(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
     return new CGSOCells(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"Sleep"))
+    return new GSleep(XML, Sim);
   else 
     M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Global Interaction encountered";
