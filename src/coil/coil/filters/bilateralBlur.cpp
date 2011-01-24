@@ -26,7 +26,7 @@ namespace coil
   BilateralBlurWrapper::BilateralBlurWrapper()
   {
     _radius = 1;
-    _totStrength = 0.01245;
+    _zdiff = 0.01245;
 
     _filter.build(); 
 
@@ -79,7 +79,7 @@ namespace coil
     _zdiffSlider.set_increments(0.0001,0.0001);
     _zdiffSlider.set_range(0.0001, 1.0);
     _zdiffSlider.set_digits(4);
-    _zdiffSlider.set_value(_totStrength); 
+    _zdiffSlider.set_value(_zdiff); 
     _zdiffSlider.signal_value_changed()
       .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
     _zdiffSlider.show();
@@ -95,19 +95,17 @@ namespace coil
     _optlist.unparent();
     start->add(_optlist);
     start->show();
-
-
   }
 
   void BilateralBlurWrapper::settingsCallback()
   {
     _radius = _radiusSlider.get_value();
-    _totStrength = _zdiffSlider.get_value();
+    _zdiff = _zdiffSlider.get_value();
   }
 
   void BilateralBlurWrapper::invoke(GLuint colorTextureUnit, 
 				    size_t width, size_t height) 
   {
-    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _totStrength); 
+    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff); 
   }
 }

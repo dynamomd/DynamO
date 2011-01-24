@@ -39,7 +39,7 @@ namespace coil
   protected:
     magnet::GL::BilateralBlur _filter;
     GLfloat _radius;
-    GLfloat _totStrength;
+    GLfloat _zdiff;
 
     GLuint _randomTexture;
 
