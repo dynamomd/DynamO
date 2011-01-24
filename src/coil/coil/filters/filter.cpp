@@ -20,6 +20,7 @@
 #include <coil/filters/SSAO.hpp>
 #include <coil/filters/bilateralBlur.hpp>
 #include <coil/filters/multiply.hpp>
+#include <coil/filters/DOF.hpp>
 #include <magnet/exception.hpp>
 
 namespace coil 

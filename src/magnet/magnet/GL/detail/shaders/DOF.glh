@@ -19,12 +19,12 @@
 #define STRINGIFY(A) #A
 
 #include <sstream>
-#include <magnet/GL/BilateralBlur.hpp>
+#include <magnet/GL/multiplyTexture.hpp>
 
 namespace magnet {
   namespace GL {
     inline std::string 
-    BilateralBlur::vertexShaderSource()
+    DOF::vertexShaderSource()
     {
       return 
 STRINGIFY( 
@@ -37,19 +37,15 @@ void main(void)
     }
     
     inline std::string 
-    BilateralBlur::fragmentShaderSource()
+    DOF::fragmentShaderSource()
     {
       return 
 STRINGIFY(
-uniform sampler2D u_Texture0; //input
+uniform sampler2D u_Texture0; //Blurred image
+uniform sampler2D u_Texture1; //Original
 uniform sampler2D u_Texture2; //Depth buffer
-uniform vec2 scale;
-uniform float totStrength;
-const float invSamples = 1.0 / 10.0;
-
-const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
-
-float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
+uniform float focalDistance;
+uniform float focalRange;
 
 float LinearizeDepth(float zoverw)
 {
@@ -61,24 +57,16 @@ float LinearizeDepth(float zoverw)
 
 void main(void)
 {
-  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  float focalDistance = LinearizeDepth(texture2D(u_Texture2, vec2(0.5,0.5)).r);
 
-  vec3 accum = vec3(0, 0, 0);
-  float totalWeight = 0.0;
+  vec4 original = texture2D(u_Texture1, gl_TexCoord[0].st);
+  vec4 blurred = texture2D(u_Texture0, gl_TexCoord[0].st);
 
-  for (int x = 0; x < 5; ++x)
-    for (int y = 0; y < 5; ++y)
-      {
-	vec2 sampleLoc = gl_TexCoord[0].st + vec2((x - 2) * scale.x, (y - 2) * scale.y);
-	float sampleDepth = LinearizeDepth(texture2D(u_Texture2, sampleLoc).r);
+  float depth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  float blur = clamp(abs(depth - focalDistance) / focalRange, 0.0, 1.0);
 
-	float Zdifference = abs(currentPixelDepth - sampleDepth);
-	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
-	accum += sampleweight * texture2D(u_Texture0, sampleLoc).rgb;
-	totalWeight += sampleweight;
-      }
-
-  gl_FragColor = vec4(accum / totalWeight, 1);
+  //gl_FragColor =  vec4(blur,0,0,0);
+  gl_FragColor = original + blur * (blurred - original);
 }
 );
     }
