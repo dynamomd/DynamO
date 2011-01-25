@@ -75,6 +75,8 @@ public:
 
   void flagNewData() { _newData = true; }
 
+  void setUpdateRateUnitToSteps(size_t defaultsteps = 100);
+
 protected:
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
@@ -216,7 +218,6 @@ private:
   void filterAddCallback();
   void filterSelectCallback();
   void filterClearCallback();
-  void filterEnableCallback();
   
   //Render Object Contol Callbacks
   void rebuildRenderView();
@@ -232,7 +233,6 @@ private:
   void shadowEnableCallback();
 
   void simRunControlCallback();
-  void simUpdateRateCallback();
   void simFramelockControlCallback();
   void snapshotCallback();
   void recordCallback();
@@ -248,12 +248,14 @@ private:
 
   void runCallback(); 
 
+  //Generic Value update callback
+  void guiUpdateCallback();
+
   //Dynamo specifc stuff
 public:
   inline bool dynamoParticleSync() const { return _particleSync; }
 
 private:
-  void dynamoParticleSyncCallBack();
   bool _dynamo;
   bool _particleSync;
   volatile bool _newData;

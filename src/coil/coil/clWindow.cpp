@@ -378,7 +378,7 @@ CLGLWindow::initGTK()
     _refXml->get_widget("updateFreq", updateButton);
     updateButton->set_value(_updateIntervalValue);
     updateButton->signal_value_changed()
-      .connect(sigc::mem_fun(this, &CLGLWindow::simUpdateRateCallback));
+      .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
 
   {///////FPS lock
@@ -395,6 +395,14 @@ CLGLWindow::initGTK()
     fpsButton->set_value(_fpsLimitValue);
     fpsButton->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
+  }
+
+  {///////FOV setting
+    Gtk::HScale* FOVscale;
+    _refXml->get_widget("fovScale", FOVscale);
+    FOVscale->set_value(_viewPortInfo._fovY);
+    FOVscale->signal_value_changed()
+      .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
 
   {///////RenderMode Selection
@@ -561,7 +569,7 @@ CLGLWindow::initGTK()
 	  Gtk::CheckButton* btn;
 	  _refXml->get_widget("filterEnable", btn);
 	  btn->signal_toggled()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterEnableCallback));
+	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
 
 	{//Fill the selector widgit with the available filters
@@ -639,7 +647,7 @@ CLGLWindow::initGTK()
 	Gtk::CheckButton* btn;
 	_refXml->get_widget("forceParticleSync", btn);
 	btn->signal_toggled()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::dynamoParticleSyncCallBack));
+	  .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 
 	_particleSync = btn->get_active();
       }
@@ -1383,15 +1391,6 @@ CLGLWindow::filterSelectCallback()
 }
 
 void 
-CLGLWindow::filterEnableCallback()
-{
-  Gtk::CheckButton* btn;
-  _refXml->get_widget("filterEnable", btn);
-
-  _filterEnable = btn->get_active();
-}
-
-void 
 CLGLWindow::filterClearCallback()
 {
   for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
@@ -1402,18 +1401,6 @@ CLGLWindow::filterClearCallback()
     }
 
   _filterStore->clear();
-}
-
-void 
-CLGLWindow::simUpdateRateCallback()
-{
-  Gtk::SpinButton* updateButton;
-  _refXml->get_widget("updateFreq", updateButton);
-  
-  if (updateButton->get_value() <= 0)
-    updateButton->set_value(0.000001);
-  
-  _updateIntervalValue = updateButton->get_value();
 }
 
 void
@@ -1483,15 +1470,6 @@ CLGLWindow::renderModeCallback()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr 
 	 = RenderObjects.begin(); iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->setRenderMode(rmode);
-}
-
-void
-CLGLWindow::dynamoParticleSyncCallBack()
-{
- Gtk::CheckButton* btn;
-  _refXml->get_widget("forceParticleSync", btn);
-
-  _particleSync = btn->get_active();
 }
 
 void
@@ -1626,4 +1604,51 @@ void CLGLWindow::selectRObjCallback()
     }
 
   addBtn->set_sensitive(false); 
+}
+
+void 
+CLGLWindow::setUpdateRateUnitToSteps(size_t defaultsteps)
+{
+  {//Sim Update Frequency Control
+    Gtk::SpinButton* updateButton;
+    _refXml->get_widget("updateFreq", updateButton);
+    updateButton->set_range(1,100000);
+    updateButton->set_digits(0);
+    updateButton->set_value(defaultsteps);
+  }
+}
+
+
+void
+CLGLWindow::guiUpdateCallback()
+{
+  {///////FOV setting
+    Gtk::HScale* FOVscale;
+    _refXml->get_widget("fovScale", FOVscale);
+    _viewPortInfo._fovY = FOVscale->get_value();
+  }
+
+  {//Dynamo particle sync checkbox
+    Gtk::CheckButton* btn;
+    _refXml->get_widget("forceParticleSync", btn);
+    
+    _particleSync = btn->get_active();
+  }
+
+  {//Filter enable/disable
+    Gtk::CheckButton* btn;
+    _refXml->get_widget("filterEnable", btn);
+    
+    _filterEnable = btn->get_active();
+  }
+
+  {//Sim Update Frequency Control
+    Gtk::SpinButton* updateButton;
+    _refXml->get_widget("updateFreq", updateButton);
+    
+    if (updateButton->get_value() <= 0)
+      updateButton->set_value(0.000001);
+    
+    _updateIntervalValue = updateButton->get_value();
+  }
 }
