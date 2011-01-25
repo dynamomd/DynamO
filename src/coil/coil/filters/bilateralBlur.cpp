@@ -23,33 +23,13 @@ namespace coil
   ////////////////////////////Blur Phase/////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////
 
-  BilateralBlurWrapper::BilateralBlurWrapper()
+  BilateralBlurWrapper::BilateralBlurWrapper():
+    _radius(1),
+    _zdiff(0.01245)
   {
-    _radius = 1;
-    _zdiff = 0.01245;
-
     _filter.build(); 
 
-    glGenTextures( 1, &_randomTexture);
-    glBindTexture(GL_TEXTURE_2D, _randomTexture);
-
-    std::vector<GLubyte> texture;
-    texture.resize(3 * 64 * 64);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    
-    srand(120121);
-    for (size_t i(0); i < 3 * 64 * 64; ++i)
-      texture[i] = (rand() * 255.0) / RAND_MAX;
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, &texture[0]);
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
     //Build the controls
-
     {
       Gtk::VBox* labelVbox = manage(new Gtk::VBox);
       Gtk::Label* Label1 = manage(new Gtk::Label("Radius"));
@@ -71,6 +51,7 @@ namespace coil
 
     _radiusSlider.set_range(1,20);
     _radiusSlider.set_increments(1,1);
+    _radiusSlider.set_digits(0);
     _radiusSlider.set_value(_radius);
     _radiusSlider.signal_value_changed()
       .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
@@ -83,11 +64,6 @@ namespace coil
     _zdiffSlider.signal_value_changed()
       .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
     _zdiffSlider.show();
-  }
-
-  BilateralBlurWrapper::~BilateralBlurWrapper()
-  { 
-    glDeleteTextures(1, &_randomTexture);
   }
 
   void BilateralBlurWrapper::showControls(Gtk::ScrolledWindow* start)

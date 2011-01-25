@@ -27,7 +27,6 @@ namespace coil
   {
   public:
     BilateralBlurWrapper();
-    ~BilateralBlurWrapper();
 
     inline virtual size_t type_id() { return detail::filterEnum<BilateralBlurWrapper>::val; }    
     inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height);
@@ -38,10 +37,8 @@ namespace coil
 
   protected:
     magnet::GL::BilateralBlur _filter;
-    GLfloat _radius;
+    GLuint _radius;
     GLfloat _zdiff;
-
-    GLuint _randomTexture;
 
     void settingsCallback();
 

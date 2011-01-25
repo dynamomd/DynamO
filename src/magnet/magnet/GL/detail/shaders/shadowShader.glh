@@ -94,7 +94,7 @@ void main()
   float lightNormDot = dot(renormal, renormLightDir);
   if (shadowMapping == 1)
     {
-      if (ShadowCoord.w > 1.0)
+      if (ShadowCoord.w > 0.0)
 	for (int x = 0; x < 3; ++x)
 	  for (int y = 0; y < 3; ++y)
 	    {

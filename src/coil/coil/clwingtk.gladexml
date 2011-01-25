@@ -9,8 +9,8 @@
     <property name="step_increment">1</property>
   </object>
   <object class="GtkWindow" id="controlWindow">
-    <property name="width_request">658</property>
-    <property name="height_request">404</property>
+    <property name="width_request">600</property>
+    <property name="height_request">600</property>
     <property name="visible">True</property>
     <property name="title" translatable="yes">Coil</property>
     <property name="deletable">False</property>
@@ -834,6 +834,8 @@
                                     </child>
                                   </object>
                                   <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>

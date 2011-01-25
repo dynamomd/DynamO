@@ -28,11 +28,12 @@ namespace coil
     ~SSAOWrapper();
 
     inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
-    inline virtual bool isEditable() { return true; }
+
     inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height);
 
     inline virtual bool needsNormalDepth()  { return true; }
-    virtual void edit();
+
+    virtual void showControls(Gtk::ScrolledWindow*);
 
   protected:
     magnet::GL::SSAO _filter;
@@ -45,5 +46,12 @@ namespace coil
     GLuint _randomTexture;
 
     void settingsCallback();
+
+    Gtk::HScale _radiusSlider;
+    Gtk::HScale _totStrengthSlider;
+    Gtk::HScale _strengthSlider;
+    Gtk::HScale _randomOffsetSlider;
+    Gtk::HBox _optlist;
+
   };
 }

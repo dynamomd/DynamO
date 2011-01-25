@@ -53,13 +53,13 @@ namespace magnet {
 	  glUseProgramObjectARB(0);
 	}
 
-	void invoke(GLint TextureID, GLuint _width, GLuint _height)
+	void invoke(GLint TextureID, GLuint _width, GLuint _height, GLuint radius)
 	{
 	  
 	  //Setup the shader arguments
 	  glUseProgram(shader<filter<T, stencilwidth> >::_shaderID);
 	  //Horizontal application
-	  glUniform2fARB(_scaleUniform, 1.0 / _width, 1.0 / _height);
+	  glUniform2fARB(_scaleUniform, GLfloat(radius) / _width, GLfloat(radius) / _height);
 	  glUniform1iARB(_textureUniform, TextureID);
 	  
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

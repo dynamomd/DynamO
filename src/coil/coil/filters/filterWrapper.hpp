@@ -26,16 +26,54 @@ namespace coil
   class magnetFilterWrapper: public filter
   {
   public:
-    magnetFilterWrapper() { _filter.build(); }
+    magnetFilterWrapper():
+      _radius(1)
+    { 
+      _filter.build(); 
+      
+      {
+	Gtk::Label* Label1 = manage(new Gtk::Label("Radius"));
+	_optlist.add(*Label1); Label1->show();
+      }
+
+      _radiusSlider.set_range(1,20);
+      _radiusSlider.set_increments(1,1);
+      _radiusSlider.set_digits(0);
+      _radiusSlider.set_value(_radius);
+      _radiusSlider.signal_value_changed()
+	.connect(sigc::mem_fun(this, &magnetFilterWrapper<T,reqNormalDepth>::settingsCallback));
+      _optlist.add(_radiusSlider); _radiusSlider.show();
+      
+      _optlist.show();
+    }
 
     inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T,reqNormalDepth> >::val; }    
-    inline virtual bool isEditable() { return false; }
+
+
     inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height) 
-    { _filter.invoke(colorTextureUnit, width, height); }
+    { _filter.invoke(colorTextureUnit, width, height, _radius); }
 
     inline virtual bool needsNormalDepth()  { return reqNormalDepth; }
+
+    virtual void showControls(Gtk::ScrolledWindow* start)
+    {
+      _optlist.unparent();
+      start->add(_optlist);
+      start->show();
+    }
+
     
   protected:
     T _filter;
+
+    GLuint _radius;
+
+    Gtk::HScale _radiusSlider;
+    Gtk::HBox _optlist;
+
+    void settingsCallback()
+    {
+      _radius = _radiusSlider.get_value();
+    }
   };
 }
