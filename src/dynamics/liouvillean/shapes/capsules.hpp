@@ -77,6 +77,7 @@ public:
 
     double F_secondDeriv_max(const double& length) const
     {
+      ntpaos = 0;
       return 2.0* ((2*L)*(+ w1.nrm()*w1.nrm()*L/2.0 + w2.nrm()*w2.nrm()*L/2.0 ) + 
 		   (v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0)*(v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0));
     }
