@@ -1,1 +1,156 @@
-kaka
+\documentclass[aps,pre,onecolumn,preprint,showpacs]{revtex4}
+\usepackage{times,mathptmx,amssymb}
+\usepackage{graphicx}
+\usepackage{amsmath}    % need for subequations
+
+
+\begin{document}
+
+\title{Cooling and agreggation in sticky granulates}
+
+\author{S. Gonz\'alez, A.R. Thornton, S. Luding}
+\affiliation{Multi Scale Mechanics, CTW, UTwente}
+\pacs{
+45.70.-n,	%Granular systems
+}
+
+
+\begin{abstract}
+
+  Motivated by nanoaerosols where van der Walls force acts as glue
+  between particles, a cluster based event-driven algorithm is
+  developed to simulate the formation of clusters in a 3D gas with
+  periodic boundary conditions: particles move freely until they
+  collide and stick together or break, depending on the energy of the
+ interaction.
+
+\end{abstract}
+\maketitle
+
+\section{Capsules}
+
+Since in DYNAMO the dynamics of hard lines is already implemented we
+decided to start to understand the dynamics of nonsymetric bodies
+starting with capusles. A capsules is a cylindrical section with two
+half spheres in the extrema. 
+
+The equation to solve for the collision time between hard lines is
+anologous the one needed in the cylindrical part of the capsule. For
+the two half spheres the problem is a bit more complex. In the
+following we use Frenkel-Maguire's notation  \cite{frenkel}. 
+
+One can write as vectors the equation for the collision time 
+between two off center spheres. 
+
+\begin{equation}
+  \label{eq:f}
+  f(t_c) \equiv \|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\| - d = 0~,
+\end{equation}
+where $\mathbf{r}_{ij}$ is the distance between the centers of mass of
+the capsules, $\mathbf{u}$ is the unitary vector that signals the
+position of the two half spheres at $\pm L/2,$ and $d$ is the diameter 
+of the spheres. In order to use Frenkel and Maguire's algorithm, we need to 
+calculate the first two derivatives of the distance function.
+
+We must remember that 
+\begin{equation}
+  \label{eq:xprime}
+  \dot{\|\mathbf{x}\|}  = \frac{\mathbf{x}\cdotp\dot{\mathbf{x}}}{\|\mathbf{x}\|}~,
+\end{equation}
+and
+\begin{equation}
+    \label{eq:x2prime}
+  \ddot{\|\mathbf{x}\|}  = 
+  \frac{(\dot{\mathbf{x}\cdotp\dot{\mathbf{x}}})\|\mathbf{x}\| - \mathbf{x}\cdotp\dot{\mathbf{x}}\dot{\|\mathbf{x}\|} }{\|\mathbf{x}\|^2}
+  = \frac{(\dot{\mathbf{x}}^2 + \mathbf{x}\cdotp\ddot{\mathbf{x}})\|\mathbf{x}\| - \mathbf{x}\cdotp\dot{\mathbf{x}}\dot{\|\mathbf{x}\|} }{\|\mathbf{x}\|^2}~.
+\end{equation}
+
+Using the Eq. \eqref{eq:xprime} one can rewrite the second derivative as the sum of three terms,
+\begin{equation}
+  \label{eq:x2primeb}
+  \ddot{\|\mathbf{x}\|}  =  \frac{\dot{\mathbf{x}}^2 }{\|\mathbf{x}\|^2} +  \frac{  \mathbf{x}\cdotp\ddot{\mathbf{x}} }{\|\mathbf{x}\|} - \frac{(\mathbf{x}\cdotp\dot{\mathbf{x}})^2 }{\|\mathbf{x}\|^3} ~.
+\end{equation}
+
+The derivatives of the ceters' position are easy to calculate. Indeed,
+$\dot{\mathbf{r}}_{ij} = \mathbf{v}_{ij}~,$ while
+$\ddot{\mathbf{r}}_{ij} = 0~,$ since we assume that both particles
+are under the action of gravity.
+
+By definition one has that $\dot{\mathbf{u}} =
+\mathbf{\omega}\times\mathbf{u}.$ Since $\mathbf{u}$ is a unitary vector, the
+second derivative of it will be $\ddot{\mathbf{u}} =
+\dot{\mathbf{\omega}}\times\mathbf{u} + \mathbf{\omega}\times\dot{\mathbf{u}} = 
+\dot{\mathbf{\omega}}\times\mathbf{u} - \omega^2\mathbf{u}.$ In the case of the capsule, the
+vector $\mathbf{u}$ coincides with one of the principal axes of the body,
+so the angular aceleration can be easily written using Euler's
+equations in the solid body frame of reference and in the abscence of 
+torques
+
+\begin{eqnarray}
+I_1\dot{\tilde{\omega}}_{1}+(I_3-I_2)\tilde{\omega}_2\tilde{\omega}_3 &=& 0~,\nonumber\\
+I_2\dot{\tilde{\omega}}_{2}+(I_1-I_3)\tilde{\omega}_3\tilde{\omega}_1 &=& 0~,\\
+I_3\dot{\tilde{\omega}}_{3}+(I_2-I_1)\tilde{\omega}_1\tilde{\omega}_2 &=& 0~,\nonumber
+\end{eqnarray}
+where $I_1$, $I_2$, and $I_3$ are the principal components of the
+moment of inertia tensor and $\tilde{\omega}_i$ are the three
+components of the angular velocity in the solid body frame.
+
+With this, one can write the first derivative of the indicator function as 
+\begin{eqnarray}
+\dot{f} &=&
+\frac{(\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)\cdotp(\mathbf{v}_{ij} \pm \mathbf{\omega}_i\times\mathbf{u}_{i}L/2 \pm \mathbf{\omega}_j\times\mathbf{u}_{j}L/2)}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|}~.
+\end{eqnarray}
+
+The second derivative is more cumbersome but nevertheless straightforward to write down when following Eq. \eqref{eq:x2primeb}
+
+\begin{eqnarray}
+  \label{eq:ddotf}
+ \nonumber  \ddot{f} &=&  \frac{\|\mathbf{v}_{ij} \pm \mathbf{\omega}_i\times\mathbf{u}_{i}L/2 \pm \mathbf{\omega}_j\times\mathbf{u}_{j}L/2\|^2}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|} \\
+&+&  \frac{ (\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)\cdotp(\pm (\dot{\mathbf{\omega}}_i\times\mathbf{u}_i - \omega_i^2\mathbf{u}_i) \pm (\dot{\mathbf{\omega}}_j\times\mathbf{u}_j - \omega_j^2\mathbf{u}_j))L/2}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|} \\
+ \nonumber &-& \frac{\{(\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)\cdotp(\mathbf{v}_{ij} \pm \mathbf{\omega}_i\times\mathbf{u}_{i}L/2 \pm \mathbf{\omega}_j\times\mathbf{u}_{j}L/2)\}^2}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|^3} ~.
+\end{eqnarray}
+
+
+If we consider the simple case of a symmetric top, the angular
+velocity in the laboratory frame of reference is constant. This
+slightly simplifies Eq. \eqref{eq:ddotf} (making the implementation of
+it not dependent on the angular acceleration, which for the case of
+the asymmetric body can only be written using special functions):
+\begin{eqnarray}
+  \label{eq:ddotfST}
+  \nonumber \ddot{f} &=&  \frac{\|\mathbf{v}_{ij} \pm \mathbf{\omega}_i\times\mathbf{u}_{i}L/2 \pm \mathbf{\omega}_j\times\mathbf{u}_{j}L/2\|^2}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|} \\
+&+&  \frac{ (\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)\cdotp(\mp  \omega_i^2\mathbf{u}_i \mp  \omega_j^2\mathbf{u}_j)L/2}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|} \\
+&-& \nonumber \frac{\{(\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)\cdotp(\mathbf{v}_{ij} \pm \mathbf{\omega}_i\times\mathbf{u}_{i}L/2 \pm \mathbf{\omega}_j\times\mathbf{u}_{j}L/2)\}^2}{\|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\|^3} ~.
+\end{eqnarray}
+
+In the laboratory frame of reference, the orientation vector will have
+a temporal dependence of the form \[\mathbf{u}_i =
+\left( {\begin{array}{cc}
+x(t) \\
+y(t) \\
+z(t) \\
+ \end{array} } \right) ~,\] where $\omega$ is the
+angular velocity and $\delta$ is the initial angle at the last
+collision, from where the time $t$ is measured. With this, one can
+derive an upper bound for the first and second derivative easily. We
+need this in order to ``obtain improved bounds on the interval within
+which collisions may occur'' \cite{frenkel}.
+
+
+Naturally, all the aforementioned problem with the norm of the vector can be avoided using the
+square of the  collision time:
+
+\begin{equation}
+  \label{eq:f}
+  f(t_c) \equiv \|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\| - d = 0~,
+\end{equation}
+
+\begin{thebibliography}{}
+
+\bibitem{frenkel}  D. Frenkel, J. F. Maguire, Mol. Phys. 49, 503 (1983).
+
+
+\end{thebibliography}
+
+
+\end{document}
