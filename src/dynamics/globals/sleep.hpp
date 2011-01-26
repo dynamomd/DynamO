@@ -20,6 +20,7 @@
 
 #include "global.hpp"
 #include <vector>
+#include "../../datatypes/vector.hpp"
 
 class GSleep: public Global
 {
@@ -46,5 +47,7 @@ protected:
   virtual void outputXML(xml::XmlStream&) const;
   
   mutable std::vector<double> sleepTime;
+  mutable std::vector<Vector> lastVelocity;
+  mutable std::vector<Vector> lastPosition;
 };
 

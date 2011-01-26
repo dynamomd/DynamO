@@ -44,9 +44,15 @@ GSleep::initialise(size_t nID)
   ID=nID;
 
   sleepTime.resize(Sim->N);
-
+  lastPosition.resize(Sim->N);
+  lastVelocity.resize(Sim->N);
+  Vector aux(0,0,0);
   BOOST_FOREACH(const Particle& part, Sim->particleList)
-    sleepTime[part.getID()] = HUGE_VAL;
+    {
+      sleepTime[part.getID()] = HUGE_VAL;
+      lastVelocity[part.getID()] = aux;
+      lastPosition[part.getID()] = aux;
+    }
 
   Sim->registerParticleUpdateFunc
     (magnet::function::MakeDelegate(this, &GSleep::particlesUpdated));
@@ -65,28 +71,46 @@ GSleep::particlesUpdated(const NEventData& PDat)
       //We will assume that there are only two states
       if( p1.testState(Particle::DYNAMIC) !=  p2.testState(Particle::DYNAMIC))
 	{
-	  //We must assign p1 to the dynamic particle before continuing
-
+	  //This is the particle which is dynamic
+	  const Particle& dp = p1.testState(Particle::DYNAMIC) ? p1 : p2;
+	  	  
 	  bool collision = FALSE; //We chech if the event is a collision event
-	  //bool convergePos = ; //We chech if the position converges
-	  //bool convergeVel = ; //We chech if the velocity converges
+	  bool convergePos = FALSE; //We chech if the position converges
+	  bool convergeVel = FALSE; //We chech if the velocity converges
+	
 	  Vector g(0,0,-1);        //We need gravity in order to assure the 
-	                          //geometry of the sleeping position  
-	  bool Vg = (p1.getVelocity() | g) > 0?TRUE:FALSE; // We need this to be negative, i.e., particle goes down
-	  double SleepVel = 0.5 * Sim->dynamics.units().unitVelocity(); //Sleeping velocity, under this you sleep. 
-	  //It has to be larger than VElastic
-	  double vel = p1.getVelocity().nrm();
-	  if(vel < SleepVel &&  Vg)
+	                          //geometry of the sleeping position 
+
+	  //It has to be larger than ElasticV, it needs to be added from command line
+	  double sleepVel = 0.2 * Sim->dynamics.units().unitVelocity(); //Sleeping velocity, under this you sleep. 
+	  double converge = 0.01;
+	  // Here we check the last velocity MARCUS!!!
+	  double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
+	  if (aux < converge && aux > 0) // Small and converging (>0)
+	    convergeVel = TRUE;
+	  
+	  //Position
+	  if(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge)
+	    convergePos = TRUE;
+
+	  // We need this to be negative, i.e., particle goes down
+	  bool Vg = (dp.getVelocity() | g) > 0;
+	  
+	 
+	  double vel = dp.getVelocity().nrm();
+	  if(vel < sleepVel &&  Vg && convergeVel && convergePos)
 	    {
-	      //std::cerr << "\nRequesting sleep! pID = " 
-	      //		<< (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
+	      std::cerr << "\nRequesting sleep! pID = " 
+	      		<< (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
 	      //We sleep just the particle that is awake
-	      if (p1.testState(Particle::DYNAMIC))
-		sleepTime[p1.getID()] = 0;
-	      else
-		sleepTime[p2.getID()] = 0;
+	      sleepTime[dp.getID()] = 0;
 	    }
 	}
+
+      lastVelocity[p1.getID()] = p1.getVelocity();
+      lastVelocity[p2.getID()] = p2.getVelocity();
+      lastPosition[p1.getID()] = p1.getPosition();
+      lastPosition[p2.getID()] = p2.getPosition();
     }
 }
 
