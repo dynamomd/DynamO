@@ -3146,6 +3146,229 @@ CIPPacker::initialise()
 
 	break;
       }
+    case 25:
+      {
+	//Pack of hard spheres to form a funnel, slide and cup
+
+	double elasticity = 0.4;
+	if (vm.count("f1"))
+	  elasticity = vm["f3"].as<double>();
+
+	const double elasticV = 1.0;
+
+	Sim->aspectRatio = Vector(1,1,1);
+	
+	double Rmax = 0.02;
+	double l= 4;
+	double particleDiam = (2 * Rmax) / l;
+
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.applyBC<BCSquarePeriodic>();
+	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
+
+	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1,
+							   elasticV * Sim->dynamics.units().unitVelocity()));
+
+	///Now build our funnel, so we know how many particles it takes
+	std::vector<Vector> funnelSites;
+	Vector move(0,0,-0.1);
+	double factor = particleDiam / Rmax;
+	double x,y,z;
+	int dim = 6;
+
+	//d=0.2;
+	y=0.05;
+	for(int i=0;i<16;i++){
+	  x=cos(i*2*M_PI/16)*0.1;
+	  z=sin(i*2*M_PI/16)*0.1;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.08;
+	//d=0.24
+	for(int i=0;i<19;i++){
+	  x=cos(i*2*M_PI/19)*0.12;
+	  z=sin(i*2*M_PI/19)*0.12;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.11;
+	//d=0.28
+	for(int i=0;i<22;i++){
+	  x=cos(i*2*M_PI/22)*0.14;
+	  z=sin(i*2*M_PI/22)*0.14;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.14;
+	//d=0.32
+	for(int i=0;i<25;i++){
+	  x=cos(i*2*M_PI/25)*0.16;
+	  z=sin(i*2*M_PI/25)*0.16;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.17;
+	//d=0.36
+	for(int i=0;i<28;i++){
+	  x=cos(i*2*M_PI/28)*0.18;
+	  z=sin(i*2*M_PI/28)*0.18;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.2;
+	//d=0.4
+	for(int i=0;i<31;i++){
+	  x=cos(i*2*M_PI/31)*0.2;
+	  z=sin(i*2*M_PI/31)*0.2;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.23;
+	//d=0.44
+	for(int i=0;i<34;i++){
+	  x=cos(i*2*M_PI/34)*0.22;
+	  z=sin(i*2*M_PI/34)*0.22;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.26;
+	//d=0.48
+	for(int i=0;i<37;i++){
+	  x=cos(i*2*M_PI/37)*0.24;
+	  z=sin(i*2*M_PI/37)*0.24;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.29;
+	//d=0.52
+	for(int i=0;i<40;i++){
+	  x=cos(i*2*M_PI/40)*0.26;
+	  z=sin(i*2*M_PI/40)*0.26;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.32;
+	//d=0.56
+	for(int i=0;i<43;i++){
+	  x=cos(i*2*M_PI/43)*0.28;
+	  z=sin(i*2*M_PI/43)*0.28;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	y=0.35;
+	//d=0.60
+	for(int i=0;i<46;i++){
+	  x=cos(i*2*M_PI/46)*0.30;
+	  z=sin(i*2*M_PI/46)*0.30;
+	  funnelSites.push_back(factor * Vector(x,y,z) - move);
+	}
+
+	//slope
+	//d=0.2;
+	for(int k=-1;k<15;k++){
+	  for(int i=-1;i<10;i++){
+	    x=cos(i*2*M_PI/16)*0.1;
+	    y=-sin(i*2*M_PI/16)*0.1-k*0.02+0.05;
+	    z=k*0.03-0.1;
+	    funnelSites.push_back(factor * Vector(x,y,z) - move);
+	  }
+	}
+	//wall
+	for (int k=-2;k<2;k++){
+	  for(int i=-2;i<1;i++){
+	    x=k*2*Rmax+0.02;
+	    y=i*2*Rmax+0.08;
+	    z=-0.14;
+	    funnelSites.push_back(factor * Vector(x,y,z) - move);
+	  }
+	}
+	//box
+	for(int i=0;i<9;i++){
+	  for(int k=0;k<9;k++)
+	    {
+	      z=0.30+k*0.04;
+	      x=-4*0.04+i*0.04;
+	      y=-0.6;
+	      funnelSites.push_back(factor * Vector(x,y,z) - move);
+	    }
+	}
+	for(int k=0;k<6;k++){
+	  for(int i=0;i<25;i++){
+	    x=cos(i*2*M_PI/25)*0.16;
+	    y=-0.56+k*0.04;
+	    z=sin(i*2*M_PI/25)*0.16+0.46;
+	    funnelSites.push_back(factor * Vector(x,y,z) - move);
+	  }
+	}
+	
+	//Clear out overlapping funnel particles
+	for (std::vector<Vector>::iterator iPtr = funnelSites.begin();
+	     iPtr != funnelSites.end(); ++iPtr)
+	  {
+	    bool overlapping = false;
+	    for (std::vector<Vector>::iterator jPtr = iPtr + 1;
+		 jPtr != funnelSites.end(); ++jPtr)
+	      if (((*iPtr) - (*jPtr)).nrm() < particleDiam) 
+		{ overlapping = true; break;}
+
+	    if (overlapping)
+	      {
+		iPtr = funnelSites.erase(iPtr);
+		if (iPtr == funnelSites.end()) break;
+	      }
+	  }
+
+	//Build a list of the dynamic particles
+	std::vector<Vector> dynamicSites;
+	for(int i=0;i<dim;i++){
+	  for(int k=0;k<1.5*dim;k++){
+	    for(int l=0;l<1.5*dim;l++){
+	      double x=0.03*k-0.1;
+	      double y=0.29+0.03*i;
+	      double z=0.03*l-0.1;
+	      dynamicSites.push_back(factor * Vector(x,y,z) - move);
+	    }
+	  }
+	}
+	
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam * 1.45, elasticity,
+						     new C2RAll()
+						     ))->setName("Bulk");
+	
+	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+				 (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
+						      0, "Bulk")));
+	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+				 (new Species(Sim, new CRRange(funnelSites.size(), 
+							       funnelSites.size() + dynamicSites.size() - 1), 
+					      1.0, "Bulk", 0, "Bulk")));
+
+	Sim->dynamics.getSpecies("FunnelParticles").setConstantColor(255,255,255);
+
+	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
+	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
+	unsigned long nParticles = 0;
+	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
+
+	BOOST_FOREACH(const Vector & position, funnelSites)
+	  Sim->particleList.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+
+	BOOST_FOREACH(const Vector & position, dynamicSites)
+	  {
+	    Vector vel = getRandVelVec() * Sim->dynamics.units().unitVelocity();
+	    if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
+	    Sim->particleList.push_back(Particle(position, vel, nParticles++));
+	  }
+
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
     default:
       M_throw() << "Did not recognise the packer mode you wanted";
     }
