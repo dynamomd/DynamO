@@ -508,7 +508,7 @@ LNewtonianGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
     {
       double gnrm = g.nrm();
       if (gnrm > 0)
-	if (std::fabs((rij | g) / gnrm) < elasticV) e = 1.0;  
+	if (std::fabs((vij | g) / gnrm) < elasticV) e = 1.0;  
     }
   
   //Now the tc model;
