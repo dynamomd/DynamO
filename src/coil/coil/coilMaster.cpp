@@ -279,25 +279,39 @@ void CoilMaster::coilThreadEntryPoint()
 bool 
 CoilMaster::taskTimeout()
 {
-  _coilQueue.drainQueue();
-
-  if (!CoilMaster::getInstance().isRunning()) 
-    {
-      //The task queue should not get any more tasks as
-      //CoilMaster::getInstance().isRunning() is false
-      
-      //! \todo{There is a race condition here if a window is added as coil is shutting down}
+  try {
+    _coilQueue.drainQueue();
+    
+    if (!CoilMaster::getInstance().isRunning()) 
       {
-	magnet::thread::ScopedLock lock(_coilLock);
+	//The task queue should not get any more tasks as
+	//CoilMaster::getInstance().isRunning() is false
 	
-	_viewPorts.clear();
+	//! \todo{There is a race condition here if a window is added as coil is shutting down}
+	{
+	  magnet::thread::ScopedLock lock(_coilLock);
+	  
+	  _viewPorts.clear();
+	}
+	
+	Gtk::Main::quit();
+	
+	//Run glutMainLoopEvent to let destroyed windows close
+	glutMainLoopEvent();
       }
-      
-      Gtk::Main::quit();
-      
-      //Run glutMainLoopEvent to let destroyed windows close
-      glutMainLoopEvent();
-    }
+  } catch (cl::Error err)
+    {
+      std::cerr << "\nCoil caught an exception while performing its tasks\n"
+		<< "An OpenCL error occured," << err.what()
+		<< "\nError num of " << err.err()
+		<< "\n As we're in a thread we can only exit(1)!";
+      std::exit(1);
+    } catch (std::exception& except)
+    {
+      std::cerr << "\nCoil caught an exception while performing its tasks\n"
+		<< except.what();
+      std::exit(1);
+    } 
 
   return true;
 }
