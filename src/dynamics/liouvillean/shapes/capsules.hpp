@@ -71,7 +71,8 @@ public:
 
     double F_secondDeriv() const
     {
-      return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) + (v12 + w1^u1*L/2.0 + + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + + w2^u2*L/2.0)) ;
+      return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
+		   + (v12 + w1^u1*L/2.0 + + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + + w2^u2*L/2.0)) ;
     }
 
     double F_secondDeriv_max(const double& length) const
