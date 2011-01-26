@@ -243,7 +243,7 @@ CIPPacker::initialise()
 	"       --f4 : Bond outer well [1.1]\n"
 	"       --s1 : Sequence to use [GVGTGSGRGQGVGTGSGRGQ]\n"
 	"  25: Funnel and cup simulation (with sleepy particles)\n"
-	"       --f1 : Elasticity [4]\n"
+	"       --f1 : Elasticity [0.4]\n"
 	"       --f2 : Elastic Velocity [1.0]\n"
 	"       --b1 : Sleeping Particles\n"
 	;
@@ -3184,7 +3184,6 @@ CIPPacker::initialise()
 	Vector move(0,0,-0.1);
 	double factor = particleDiam / Rmax;
 	double x,y,z;
-	int dim = 6;
 
 	//d=0.2;
 	y=0.05;
