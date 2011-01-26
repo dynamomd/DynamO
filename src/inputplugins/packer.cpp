@@ -242,6 +242,10 @@ CIPPacker::initialise()
 	"       --f3 : Bond inner core [0.9]\n"
 	"       --f4 : Bond outer well [1.1]\n"
 	"       --s1 : Sequence to use [GVGTGSGRGQGVGTGSGRGQ]\n"
+	"  25: Funnel and cup simulation (with sleepy particles)\n"
+	"       --f1 : Elasticity [4]\n"
+	"       --f2 : Elastic Velocity [1.0]\n"
+	"       --b1 : Sleeping Particles\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -3149,12 +3153,14 @@ CIPPacker::initialise()
     case 25:
       {
 	//Pack of hard spheres to form a funnel, slide and cup
-
 	double elasticity = 0.4;
 	if (vm.count("f1"))
-	  elasticity = vm["f3"].as<double>();
+	  elasticity = vm["f1"].as<double>();
 
-	const double elasticV = 1.0;
+	double elasticV = 1.0;
+
+	if (vm.count("f2"))
+	  elasticV = vm["f2"].as<double>();
 
 	Sim->aspectRatio = Vector(1,1,1);
 	
@@ -3268,7 +3274,6 @@ CIPPacker::initialise()
 	  funnelSites.push_back(factor * Vector(x,y,z) - move);
 	}
 
-	//slope
 	//d=0.2;
 	for(int k=-1;k<15;k++){
 	  for(int i=-1;i<10;i++){
@@ -3279,7 +3284,7 @@ CIPPacker::initialise()
 	  }
 	}
 	//wall
-	for (int k=-2;k<2;k++){
+	for (int k=-2;k<2;k++){ //Slide blocking Wall
 	  for(int i=-2;i<1;i++){
 	    x=k*2*Rmax+0.02;
 	    y=i*2*Rmax+0.08;
@@ -3288,7 +3293,7 @@ CIPPacker::initialise()
 	  }
 	}
 	//box
-	for(int i=0;i<9;i++){
+	for(int i=0;i<9;i++){//Box bottom
 	  for(int k=0;k<9;k++)
 	    {
 	      z=0.30+k*0.04;
@@ -3297,7 +3302,7 @@ CIPPacker::initialise()
 	      funnelSites.push_back(factor * Vector(x,y,z) - move);
 	    }
 	}
-	for(int k=0;k<6;k++){
+	for(int k=0;k<7;k++){ //Box Walls
 	  for(int i=0;i<25;i++){
 	    x=cos(i*2*M_PI/25)*0.16;
 	    y=-0.56+k*0.04;
@@ -3306,14 +3311,23 @@ CIPPacker::initialise()
 	  }
 	}
 	
-	//Clear out overlapping funnel particles
+	double spacing = 2.1 * particleDiam / factor;
+	for (int j = 1; j < 6; ++j)
+	  for(int i=0;i<46;i++){
+	    x=cos(i*2*M_PI/46)*0.30;
+	    z=sin(i*2*M_PI/46)*0.30;
+	    y=0.35 + spacing * j;
+	    funnelSites.push_back(factor * Vector(x,y,z) - move);
+	  }
+
+	//Clear out severly overlapping funnel particles
 	for (std::vector<Vector>::iterator iPtr = funnelSites.begin();
 	     iPtr != funnelSites.end(); ++iPtr)
 	  {
 	    bool overlapping = false;
 	    for (std::vector<Vector>::iterator jPtr = iPtr + 1;
 		 jPtr != funnelSites.end(); ++jPtr)
-	      if (((*iPtr) - (*jPtr)).nrm() < particleDiam) 
+	      if (((*iPtr) - (*jPtr)).nrm() < particleDiam * 1.5) 
 		{ overlapping = true; break;}
 
 	    if (overlapping)
@@ -3325,18 +3339,30 @@ CIPPacker::initialise()
 
 	//Build a list of the dynamic particles
 	std::vector<Vector> dynamicSites;
-	for(int i=0;i<dim;i++){
-	  for(int k=0;k<1.5*dim;k++){
-	    for(int l=0;l<1.5*dim;l++){
-	      double x=0.03*k-0.1;
-	      double y=0.29+0.03*i;
-	      double z=0.03*l-0.1;
-	      dynamicSites.push_back(factor * Vector(x,y,z) - move);
-	    }
+
+
+	for (double r = 0.30 - spacing; r > spacing; r -= spacing)
+	  {
+	    size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
+	    for (double y = 0.35 + spacing; y < 0.45; y += spacing)
+	      for(size_t i=0; i<Nr;i++) {
+		x=cos(i*2*M_PI/Nr)*r;
+		z=sin(i*2*M_PI/Nr)*r;
+		dynamicSites.push_back(factor * Vector(x,y,z) - move);
+	      }
 	  }
-	}
+//	for(int i=0;i<dim;i++){
+//	  for(int k=0;k<1.5*dim;k++){
+//	    for(int l=0;l<1.5*dim;l++){
+//	      double x=0.041*k-0.15;
+//	      double y=0.30+0.041*i;
+//	      double z=0.041*l-0.15;
+//	      dynamicSites.push_back(factor * Vector(x,y,z) - move);
+//	    }
+//	  }
+//	}
 	
-	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam * 1.45, elasticity,
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam * 2.0, elasticity,
 						     new C2RAll()
 						     ))->setName("Bulk");
 	
@@ -3353,6 +3379,9 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
+	if (vm.count("b1"))
+	  Sim->dynamics.addGlobal(new GSleep(Sim, "SleepControl"));
+
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
 
@@ -3361,7 +3390,7 @@ CIPPacker::initialise()
 
 	BOOST_FOREACH(const Vector & position, dynamicSites)
 	  {
-	    Vector vel = getRandVelVec() * Sim->dynamics.units().unitVelocity();
+	    Vector vel = 0.001 * getRandVelVec() * Sim->dynamics.units().unitVelocity();
 	    if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
 	    Sim->particleList.push_back(Particle(position, vel, nParticles++));
 	  }
