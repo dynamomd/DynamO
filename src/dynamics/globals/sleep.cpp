@@ -70,13 +70,13 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	  bool collision = FALSE; //We chech if the event is a collision event
 	  //bool convergePos = ; //We chech if the position converges
 	  //bool convergeVel = ; //We chech if the velocity converges
-	  Vector g(0,0,0);        //We need gravity in order to assure the 
+	  Vector g(0,0,-1);        //We need gravity in order to assure the 
 	                          //geometry of the sleeping position  
 	  bool Vg = (p1.getVelocity() | g) > 0?TRUE:FALSE; // We need this to be negative, i.e., particle goes down
-	  double SleepVel = 1.1 * Sim->dynamics.units().unitVelocity(); //Sleeping velocity, under this you sleep. 
+	  double SleepVel = 0.5 * Sim->dynamics.units().unitVelocity(); //Sleeping velocity, under this you sleep. 
 	  //It has to be larger than VElastic
 	  double vel = p1.getVelocity().nrm();
-	  if(vel < SleepVel)
+	  if(vel < SleepVel &&  Vg)
 	    {
 	      //std::cerr << "\nRequesting sleep! pID = " 
 	      //		<< (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
