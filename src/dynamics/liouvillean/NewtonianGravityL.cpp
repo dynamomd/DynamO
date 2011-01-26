@@ -155,7 +155,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	//second of the cubics roots, if it's positive it's the
 	//re-entry root
 	if (roots[1] > 0)
-	  { dat.dt = 0.999 * roots[1]; return true; }
+	  { dat.dt = std::max(0.0, 0.999 * roots[1]); return true; }
 	
 	//There is the chance that this is the 
 	return false;
@@ -182,7 +182,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //Check the first minimum (we always have one)
   if ((roots[0] >= 0) && (quartic(roots[0]) <= 0))
     {
-      dat.dt = 0.999 * quartic.bisectRoot(0, roots[0], rootthreshold);
+      dat.dt = std::max(0.0, 0.999 * quartic.bisectRoot(0, roots[0], rootthreshold));
       return true;
     }
 
@@ -192,7 +192,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
       && (quartic(roots[2]) < 0)
       && (quartic(std::max(0.0, roots[1])) > 0))
     {
-      dat.dt = 0.999 * quartic.bisectRoot(std::max(0.0, roots[1]), roots[2], rootthreshold);
+      dat.dt = std::max(0.0, 0.999 * quartic.bisectRoot(std::max(0.0, roots[1]), roots[2], rootthreshold));
       return true;
     }
   
