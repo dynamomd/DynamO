@@ -30,12 +30,14 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/cubic.hpp>
 #include <magnet/math/bisect.hpp>
+#include <algorithm>
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
   Gravity(-1),
   GravityDim(1),
-  elasticV(0)
+  elasticV(0),
+  _tc(-HUGE_VAL)
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
     M_throw() << "Attempting to load NewtonianGravity from "
@@ -52,6 +54,15 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
       if (XML.isAttributeSet("ElasticV"))
 	elasticV = boost::lexical_cast<double>(XML.getAttribute("ElasticV")) 
 	  * Sim->dynamics.units().unitVelocity();
+
+      if (XML.isAttributeSet("tc"))
+	{
+	  _tc = boost::lexical_cast<double>(XML.getAttribute("tc")) 
+	    * Sim->dynamics.units().unitTime();
+
+	  if (_tc <= 0) M_throw() << "tc must be positive! (tc = " << _tc/ Sim->dynamics.units().unitTime() << ")";
+	}
+      
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -59,15 +70,20 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
     }
   
   Gravity *= Sim->dynamics.units().unitAcceleration();
+
+  g[GravityDim] = Gravity;
 }
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity, 
-				     size_t gravityDim, double eV):
+				     size_t gravityDim, double eV, double tc):
   LNewtonian(tmp), 
   Gravity(gravity), 
   GravityDim(gravityDim),
-  elasticV(eV)
-{}
+  elasticV(eV),
+  _tc(tc)
+{
+  g[GravityDim] = Gravity;
+}
 
 void
 LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
@@ -99,13 +115,13 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   if (p1Dynamic == p2Dynamic)
     return LNewtonian::SphereSphereInRoot(dat,d2,p1Dynamic,p2Dynamic);
 
-  Vector g(0,0,0);
-  g[GravityDim] = (p1Dynamic) ? Gravity : -Gravity;
+  Vector gLocal = g;
+  if (p2Dynamic) gLocal = -g;
 
   magnet::math::Bisect<QuarticFunc> quartic;
   quartic.coeffs[0] = 0.25 * Gravity * Gravity;
-  quartic.coeffs[1] = g | dat.vij;
-  quartic.coeffs[2] = dat.v2 + (g | dat.rij);
+  quartic.coeffs[1] = gLocal | dat.vij;
+  quartic.coeffs[2] = dat.v2 + (gLocal | dat.rij);
   quartic.coeffs[3] = 2 * dat.rvdot;
   quartic.coeffs[4] = dat.r2 - d2;
   
@@ -171,9 +187,12 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
     }
 
   //Check the second minimum if we have one
-  if ((rootCount > 1) && (roots[2] >= 0) && (quartic(roots[2]) <= 0))
+  if ((rootCount > 1)
+      && (roots[2] > 0)
+      && (quartic(roots[2]) < 0)
+      && (quartic(std::max(0.0, roots[1])) > 0))
     {
-      dat.dt = quartic.bisectRoot(roots[1], roots[2], rootthreshold);
+      dat.dt = quartic.bisectRoot(std::max(0.0, roots[1]), roots[2], rootthreshold);
       return true;
     }
   
@@ -398,7 +417,8 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
   if (elasticV)
     XML << xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
 
-
+  if (_tc > 0)
+    XML << xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
 }
 
 double 
@@ -454,6 +474,13 @@ LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nr
   M_throw() << "Not implemented yet";
 }
 
+void
+LNewtonianGravity::initialise()
+{
+  if (_tc > 0) _tcList.resize(Sim->N, -HUGE_VAL);
+  LNewtonian::initialise();
+}
+
 PairEventData 
 LNewtonianGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
 				     const double& d2, const EEventType& eType) const
@@ -468,10 +495,32 @@ LNewtonianGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
 
   Sim->dynamics.BCs().applyBC(rij, vij);
 
-  double vnrm = std::fabs((rij | vij) / rij.nrm());
-  
+
+  //Check if two particles are collapsing
+  //First, the elastic V calculation
+  double vnrm = std::fabs((rij | vij) / rij.nrm());  
   double e = ne;
   if (vnrm < elasticV) e = 1.0;
+  
+  //Check if a particle is collapsing on a static particle
+  if (!particle1.testState(Particle::DYNAMIC) 
+      || !particle2.testState(Particle::DYNAMIC))
+    {
+      double gnrm = g.nrm();
+      if (gnrm > 0)
+	if (std::fabs((rij | g) / gnrm) < elasticV) e = 1.0;  
+    }
+  
+  //Now the tc model;
+  if (_tc > 0)
+    {
+      if ((Sim->dSysTime - _tcList[particle1.getID()] < _tc)
+	  || (Sim->dSysTime - _tcList[particle2.getID()] < _tc))
+	e = 1.0;
+      
+      _tcList[particle1.getID()] = Sim->dSysTime;
+      _tcList[particle2.getID()] = Sim->dSysTime;
+    }
 
   return LNewtonian::SmoothSpheresColl(event, e, d2, eType);
 }
