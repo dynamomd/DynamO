@@ -38,7 +38,9 @@
   F(STREAM, /*!< Call to free stream the system an amount*/ ) \
   F(NON_EVENT, /*!< Anything that is not part of the system dynamics*/ ) \
   F(RESCALE, /*!< A rescaling of the system energy*/ ) \
-  F(VIRTUAL, /*!< Fake events that cause a particle to free stream*/ )
+  F(VIRTUAL, /*!< Fake events that cause a particle to free stream*/ ) \
+  F(SLEEP, /*!< Event to transition a particle from dynamic to static*/ ) \
+  F(WAKEUP, /*!< Event to transition a particle from static to dynamic*/ )
 
 #define buildEnum(VAL,COMMENT) \
   VAL, COMMENT

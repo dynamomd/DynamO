@@ -20,6 +20,7 @@
 
 #include "global.hpp"
 #include <vector>
+#include <set>
 #include "../../datatypes/vector.hpp"
 
 class GSleep: public Global
@@ -46,7 +47,7 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
   double sleepVelocity;
-  mutable std::vector<double> sleepTime;
+  mutable std::set<size_t> stateChange;
   mutable std::vector<Vector> lastVelocity;
   mutable std::vector<Vector> lastPosition;
 };
