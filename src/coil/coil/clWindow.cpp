@@ -249,19 +249,19 @@ CLGLWindow::CallBackIdleFunc()
   try {
     glutSetWindow(windowID);
     CallBackDisplayFunc();
-  } catch (std::exception& except)
-    {
-      std::cerr << "\n Window render caught a std::exception\n"
-		<< except.what();
-      std::exit(1);
-    } catch (cl::Error err)
+  } catch (cl::Error err)
     {
       std::cerr << "\n Window render caught an OpenCL exception\n"
 		<< "An OpenCL error occured," << err.what()
 		<< "\nError num of " << err.err()
 		<< "\n As we're in a thread we can only exit(1)!";
       std::exit(1);
-    } catch (...)
+    } catch (std::exception& except)
+    {
+      std::cerr << "\n Window render caught a std::exception\n"
+		<< except.what();
+      std::exit(1);
+    }  catch (...)
     {
       std::cerr << "\nRender thread caught an unknown exception!\n";
       std::exit(1);

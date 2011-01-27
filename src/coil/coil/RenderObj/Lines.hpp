@@ -41,6 +41,9 @@ public:
   void initOCLColorBuffer(cl::Context Context);
   void initOCLElementBuffer(cl::Context Context);
 
+  GLuint& getVertexGLData() { return _posBuff; }
+  GLuint& getColorGLData() { return _colBuff; }
+
 protected:
   size_t _N;
   GLuint _colBuff;

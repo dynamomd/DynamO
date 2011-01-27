@@ -25,9 +25,9 @@ public:
   LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
 
   LNewtonianGravity(DYNAMO::SimData* tmp, double gravity,
-		    size_t gravityDim, double eV = 0);
+		    size_t gravityDim, double eV = 0, double tc = -HUGE_VAL);
 
-  //Pair particle dynamics
+  void initialise();
 
   virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
   virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
@@ -80,6 +80,10 @@ protected:
   double Gravity;
   size_t GravityDim;
   double elasticV;
+  Vector g;
+
+  mutable std::vector<long double> _tcList;
+  double _tc;
 
   virtual void outputXML(xml::XmlStream&) const;
 };

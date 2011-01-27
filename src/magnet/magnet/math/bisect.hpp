@@ -27,7 +27,11 @@ namespace magnet {
 	  {
 	    T tm = 0.5 * (t1 + t2);
 	    T f = Functor::operator()(tm);
-	    if (((f * f) < rootthreshold) && f > 0.0) { t1 = tm; break; }
+	    if ((std::abs(f) < rootthreshold) && f > 0.0)
+	      {
+	        t1 = tm;
+	        break;
+	      }
 	    
 	    if (f < 0.0)
 	      t2 = tm;
