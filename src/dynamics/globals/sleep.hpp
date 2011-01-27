@@ -27,7 +27,7 @@ class GSleep: public Global
 public:
   GSleep(const XMLNode&, DYNAMO::SimData*);
 
-  GSleep(DYNAMO::SimData*, const std::string&);
+  GSleep(DYNAMO::SimData*, const std::string&, const double );
   
   virtual ~GSleep() {}
 
@@ -45,7 +45,7 @@ protected:
   void particlesUpdated(const NEventData&);
 
   virtual void outputXML(xml::XmlStream&) const;
-  
+  double sleepVelocity;
   mutable std::vector<double> sleepTime;
   mutable std::vector<Vector> lastVelocity;
   mutable std::vector<Vector> lastPosition;

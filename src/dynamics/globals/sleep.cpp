@@ -23,8 +23,8 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-GSleep::GSleep(DYNAMO::SimData* nSim, const std::string& name):
-  Global(nSim, "Sleep")
+GSleep::GSleep(DYNAMO::SimData* nSim, const std::string& name,const double sl):
+  Global(nSim, "Sleep"),sleepVelocity(sl)
 {
   globName = name;
   I_cout() << "Sleep Loaded";
@@ -82,7 +82,6 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	                          //geometry of the sleeping position 
 
 	  //It has to be larger than ElasticV, it needs to be added from command line
-	  double sleepVel = 0.2 * Sim->dynamics.units().unitVelocity(); //Sleeping velocity, under this you sleep. 
 	  double converge = 0.01;
 	  // Here we check the last velocity MARCUS!!!
 	  double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
@@ -98,19 +97,21 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	  
 	 
 	  double vel = dp.getVelocity().nrm();
-	  if(vel < sleepVel &&  Vg && convergeVel && convergePos)
+	  if(vel < sleepVelocity &&  Vg && convergeVel && convergePos)
 	    {
 	      std::cerr << "\nRequesting sleep! pID = " 
 	      		<< (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
 	      //We sleep just the particle that is awake
 	      sleepTime[dp.getID()] = 0;
 	    }
+	  lastVelocity[p1.getID()] = p1.getVelocity();
+	  lastVelocity[p2.getID()] = p2.getVelocity();
+	  lastPosition[p1.getID()] = p1.getPosition();
+	  lastPosition[p2.getID()] = p2.getPosition();
+
 	}
 
-      lastVelocity[p1.getID()] = p1.getVelocity();
-      lastVelocity[p2.getID()] = p2.getVelocity();
-      lastPosition[p1.getID()] = p1.getPosition();
-      lastPosition[p2.getID()] = p2.getPosition();
+      
     }
 }
 
@@ -118,7 +119,10 @@ void
 GSleep::operator<<(const XMLNode& XML)
 {
   try {
-    globName = XML.getAttribute("Name");	
+    globName = XML.getAttribute("Name");
+    sleepVelocity = Sim->dynamics.units().unitVelocity() * 
+      boost::lexical_cast<double>(XML.getAttribute("SleepV"));
+
   }
   catch(...)
     {
@@ -173,5 +177,6 @@ void
 GSleep::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "Sleep"
-      << xml::attr("Name") << globName;
+      << xml::attr("Name") << globName
+      << xml::attr("SleepV") << sleepVelocity/Sim->dynamics.units().unitVelocity();
 }

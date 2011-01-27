@@ -245,7 +245,7 @@ CIPPacker::initialise()
 	"  25: Funnel and cup simulation (with sleepy particles)\n"
 	"       --f1 : Elasticity [0.4]\n"
 	"       --f2 : Elastic Velocity [1.0]\n"
-	"       --b1 : Sleeping Particles\n"
+	"       --f3 : Sleep velocity [Disabled]\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -3158,9 +3158,12 @@ CIPPacker::initialise()
 	  elasticity = vm["f1"].as<double>();
 
 	double elasticV = 1.0;
-
 	if (vm.count("f2"))
 	  elasticV = vm["f2"].as<double>();
+
+	double sleepV = 0.01;
+	if (vm.count("f3"))
+	  sleepV = vm["f3"].as<double>();
 
 	Sim->aspectRatio = Vector(1,1,1);
 	
@@ -3378,8 +3381,8 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
-	if (vm.count("b1"))
-	  Sim->dynamics.addGlobal(new GSleep(Sim, "SleepControl"));
+	if (vm.count("f3"))
+	  Sim->dynamics.addGlobal(new GSleep(Sim, "SleepControl",sleepV * Sim->dynamics.units().unitVelocity()));
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
