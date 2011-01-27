@@ -142,13 +142,27 @@ square of the  collision time:
 
 \begin{equation}
   \label{eq:f}
-  f(t_c) \equiv \|\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2\| - d = 0~,
+  f(t_c) \equiv (\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)^2 - d^2 = 0~,
 \end{equation}
 
+The first derivative is easily written using chain's rule:
+\begin{eqnarray}
+\dot{f} &=& 2(r_{12} + u_1 L/2 + u_2 L/2)\cdot(v_{12} + \omega_1\times u_1 L/2 + \omega_2\times u_2 L/2)
+\end{eqnarray}
+
+
+\begin{eqnarray}
+  \ddot{f} &=& 2 \{ (r_{12} + u_1L/2 + u_2L/2)\cdot(- w_1^2 u_1 L/2 - w_2^2 u_2L/2 )
+  + (v_{12} + w_1\times u_1L/2 + + w_2\times u_2L/2)^2 \} 
+\end{eqnarray}
+
+
+The collision rule is given by \cite{Montaine}
 \begin{thebibliography}{}
 
 \bibitem{frenkel}  D. Frenkel, J. F. Maguire, Mol. Phys. 49, 503 (1983).
-
+\bibitem{Montaine} M. Montaine, M. Heckel, C. Krülle, T. Schwager and T. Pöschel. The
+Coefficient of Restitution as a Fluctuating Quantity.
 
 \end{thebibliography}
 
