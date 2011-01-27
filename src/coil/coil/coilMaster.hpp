@@ -64,6 +64,8 @@ public:
 
   inline bool isRunning() { return _runFlag; }
 
+  magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
+
   //This mutex exists to stop coil killing itself while the main
   //program is accessing it. It is locked while windows are added or
   //destroyed and before shutting down.  It should be locked by the
