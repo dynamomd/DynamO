@@ -99,12 +99,7 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	      // We need this to be negative, i.e., particle goes down
 	      bool Vg = (dp.getVelocity() | g) > 0;
 	      if(vel < sleepVelocity &&  Vg && convergeVel && convergePos)
-		{
-		  std::cerr << "\nRequesting sleep! pID = " 
-			    << (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
-		  //We sleep just the particle that is awake
-		  stateChange.insert(dp.getID());
-		}
+		stateChange.insert(dp.getID());
 	    }
 
 	  if ((vel > 2.0 * sleepVelocity) && range->isInRange(sp))
@@ -140,13 +135,13 @@ GSleep::operator<<(const XMLNode& XML)
 GlobalEvent
 GSleep::getEvent(const Particle& part) const
 {
-  if (stateChange.find(part.getID()) != stateChange.end())
+  if (stateChange.find(part.getID()) != stateChange.end())//Check if we want a state change
     return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : WAKEUP, *this);
-  else
-    if (range->isInRange(part))
-      return GlobalEvent(part, 0.1 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
-    else
-      return GlobalEvent(part, HUGE_VAL, NONE, *this);
+//  else
+//    if (!part.testState(Particle::DYNAMIC))//Check if the particle is asleep and needs a periodic wakeup check
+//      return GlobalEvent(part, 0.1 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
+
+  return GlobalEvent(part, HUGE_VAL, NONE, *this);
 }
 
 void 
@@ -173,9 +168,6 @@ GSleep::runEvent(const Particle& part, const double dt) const
   Sim->dynamics.stream(iEvent.getdt());
 
   Sim->dynamics.getLiouvillean().updateParticle(part);
-
-  //std::cerr << "\nPerforming sleep! pID = " 
-  //	    << part.getID() << "\n";
 
   //Here is where the particle goes to sleep or wakes
   ++Sim->eventCount;
