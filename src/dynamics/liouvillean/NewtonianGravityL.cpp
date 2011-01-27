@@ -71,6 +71,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   
   Gravity *= Sim->dynamics.units().unitAcceleration();
 
+  g=Vector(0,0,0);
   g[GravityDim] = Gravity;
 }
 
@@ -82,6 +83,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity,
   elasticV(eV),
   _tc(tc)
 {
+  g=Vector(0,0,0);
   g[GravityDim] = Gravity;
 }
 
