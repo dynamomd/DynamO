@@ -3382,7 +3382,11 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	if (vm.count("f3"))
-	  Sim->dynamics.addGlobal(new GSleep(Sim, "SleepControl",sleepV * Sim->dynamics.units().unitVelocity()));
+	  Sim->dynamics.addGlobal(new GSleep(Sim, new CRRange(funnelSites.size(), 
+							      funnelSites.size() 
+							      + dynamicSites.size() - 1), 
+					     "SleepControl", 
+					     sleepV * Sim->dynamics.units().unitVelocity()));
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());

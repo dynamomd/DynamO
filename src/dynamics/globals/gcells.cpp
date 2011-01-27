@@ -158,7 +158,7 @@ CGCells::getEvent(const Particle& part) const
 }
 
 void
-CGCells::runEvent(const Particle& part) const
+CGCells::runEvent(const Particle& part, const double) const
 {
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems

@@ -62,6 +62,7 @@ public:
   inline const Particle& getParticle() const { return *particle_; }
 
   inline const double& getdt() const { return dt; }
+  inline void setdt(double nt) { dt = nt; }
 
   inline EEventType getType() const
     { return CType; }

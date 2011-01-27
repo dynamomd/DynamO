@@ -67,10 +67,10 @@ public:
     Global(a,b)
   {}
 
-  CGNeighbourList(CRange* a, DYNAMO::SimData* b, 
-		  const char * c): 
-    Global(a,b,c)
-  {}
+//  CGNeighbourList(CRange* a, DYNAMO::SimData* b, 
+//		  const char * c): 
+//    Global(a,b,c)
+//  {}
 
   CGNeighbourList(const CGNeighbourList&);
 

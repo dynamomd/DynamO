@@ -28,7 +28,7 @@ class GSleep: public Global
 public:
   GSleep(const XMLNode&, DYNAMO::SimData*);
 
-  GSleep(DYNAMO::SimData*, const std::string&, const double );
+  GSleep(DYNAMO::SimData*, CRange*, const std::string&, const double );
   
   virtual ~GSleep() {}
 
@@ -36,7 +36,7 @@ public:
 
   virtual GlobalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&) const;
+  virtual void runEvent(const Particle&, const double) const;
 
   virtual void initialise(size_t);
 

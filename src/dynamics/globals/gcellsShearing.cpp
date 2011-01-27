@@ -92,7 +92,7 @@ CGCellsShearing::getEvent(const Particle& part) const
 }
 
 void 
-CGCellsShearing::runEvent(const Particle& part) const
+CGCellsShearing::runEvent(const Particle& part, const double) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

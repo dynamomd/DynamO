@@ -101,7 +101,7 @@ CGPBCSentinel::getEvent(const Particle& part) const
 }
 
 void 
-CGPBCSentinel::runEvent(const Particle& part) const
+CGPBCSentinel::runEvent(const Particle& part, const double) const
 {
   GlobalEvent iEvent(getEvent(part));
 

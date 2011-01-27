@@ -79,7 +79,7 @@ CGParabolaSentinel::getEvent(const Particle& part) const
 }
 
 void 
-CGParabolaSentinel::runEvent(const Particle& part) const
+CGParabolaSentinel::runEvent(const Particle& part, const double) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

@@ -96,7 +96,7 @@ CGSOCells::getEvent(const Particle& part) const
 }
 
 void
-CGSOCells::runEvent(const Particle& part) const
+CGSOCells::runEvent(const Particle& part, const double) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 

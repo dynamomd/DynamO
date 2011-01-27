@@ -23,15 +23,16 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-GSleep::GSleep(DYNAMO::SimData* nSim, const std::string& name,const double sl):
-  Global(nSim, "Sleep"),sleepVelocity(sl)
+GSleep::GSleep(DYNAMO::SimData* nSim,  CRange* range, const std::string& name,const double sl):
+  Global(range, nSim, "Sleep"),
+  sleepVelocity(sl)
 {
   globName = name;
   I_cout() << "Sleep Loaded";
 }
 
 GSleep::GSleep(const XMLNode &XML, DYNAMO::SimData* ptrSim):
-  Global(ptrSim, "Sleep")
+  Global(NULL, ptrSim, "Sleep")
 {
   operator<<(XML);
 
@@ -65,44 +66,48 @@ GSleep::particlesUpdated(const NEventData& PDat)
       const Particle& p2 = pdat.particle2_.getParticle();
     
       //We will assume that there are only two states
-      if( p1.testState(Particle::DYNAMIC) !=  p2.testState(Particle::DYNAMIC))
+      if (range->isInRange(p1) || range->isInRange(p2))
+	if (p1.testState(Particle::DYNAMIC) !=  p2.testState(Particle::DYNAMIC))
 	{
 	  //This is the particle which is dynamic
 	  const Particle& dp = p1.testState(Particle::DYNAMIC) ? p1 : p2;
 	  const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
 	  	  
-	  bool collision = FALSE; //We chech if the event is a collision event
-	  bool convergePos = FALSE; //We chech if the position converges
-	  bool convergeVel = FALSE; //We chech if the velocity converges
-	
-	  Vector g(0,0,-1);        //We need gravity in order to assure the 
-	                          //geometry of the sleeping position 
-
-	  //It has to be larger than ElasticV, it needs to be added from command line
-	  double converge = 0.01;
-	  double wakeUpVel = 0.1;
-	  // Here we check the last velocity MARCUS!!!
-	  double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
-	  if (aux < converge && aux > 0) // Small and converging (>0)
-	    convergeVel = TRUE;
-	  
-	  //Position
-	  if(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge)
-	    convergePos = TRUE;
-
-	  // We need this to be negative, i.e., particle goes down
-	  bool Vg = (dp.getVelocity() | g) > 0;
-	  
-	 
 	  double vel = dp.getVelocity().nrm();
-	  if(vel < sleepVelocity &&  Vg && convergeVel && convergePos)
+
+	  if (range->isInRange(dp))
 	    {
-	      std::cerr << "\nRequesting sleep! pID = " 
-	      		<< (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
-	      //We sleep just the particle that is awake
-	      stateChange.insert(dp.getID());
+	      bool collision = FALSE; //We chech if the event is a collision event
+	      bool convergePos = FALSE; //We chech if the position converges
+	      bool convergeVel = FALSE; //We chech if the velocity converges
+	      
+	      Vector g(0,0,-1);        //We need gravity in order to assure the 
+	      //geometry of the sleeping position 
+	      
+	      //It has to be larger than ElasticV, it needs to be added from command line
+	      double converge = 0.01;
+	      double wakeUpVel = 0.1;
+	      // Here we check the last velocity MARCUS!!!
+	      double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
+	      if (aux < converge && aux > 0) // Small and converging (>0)
+		convergeVel = TRUE;
+	      
+	      //Position
+	      if(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge)
+		convergePos = TRUE;
+	      
+	      // We need this to be negative, i.e., particle goes down
+	      bool Vg = (dp.getVelocity() | g) > 0;
+	      if(vel < sleepVelocity &&  Vg && convergeVel && convergePos)
+		{
+		  std::cerr << "\nRequesting sleep! pID = " 
+			    << (p1.testState(Particle::DYNAMIC) ? p1.getID() : p2.getID()) <<"\n";
+		  //We sleep just the particle that is awake
+		  stateChange.insert(dp.getID());
+		}
 	    }
-	  if ((vel > 2.0*sleepVelocity) && (sp.getID()>998))
+
+	  if ((vel > 2.0 * sleepVelocity) && range->isInRange(sp))
 	    stateChange.insert(sp.getID());
 	    
 	  lastVelocity[p1.getID()] = p1.getVelocity();
@@ -119,11 +124,12 @@ GSleep::particlesUpdated(const NEventData& PDat)
 void 
 GSleep::operator<<(const XMLNode& XML)
 {
+  range.set_ptr(CRange::loadClass(XML, Sim));
+
   try {
     globName = XML.getAttribute("Name");
     sleepVelocity = Sim->dynamics.units().unitVelocity() * 
       boost::lexical_cast<double>(XML.getAttribute("SleepV"));
-
   }
   catch(...)
     {
@@ -131,21 +137,25 @@ GSleep::operator<<(const XMLNode& XML)
     }
 }
 
-GlobalEvent 
+GlobalEvent
 GSleep::getEvent(const Particle& part) const
 {
   if (stateChange.find(part.getID()) != stateChange.end())
     return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : WAKEUP, *this);
   else
-    //return GlobalEvent(part, (part.getID() > 998) ? 0.1 * Sim->dynamics.units().unitTime() : HUGE_VAL, WAKEUP, *this);
-    return GlobalEvent(part, HUGE_VAL, VIRTUAL, *this);
+    if (range->isInRange(part))
+      return GlobalEvent(part, 0.1 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
+    else
+      return GlobalEvent(part, HUGE_VAL, NONE, *this);
 }
 
 void 
-GSleep::runEvent(const Particle& part) const
+GSleep::runEvent(const Particle& part, const double dt) const
 {
   GlobalEvent iEvent(getEvent(part));
-
+  iEvent.setdt(dt); //We only trust the schedulers time, as we don't
+		    //track the motion of the system in Globals
+  
 #ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found"
@@ -167,7 +177,9 @@ GSleep::runEvent(const Particle& part) const
   //std::cerr << "\nPerforming sleep! pID = " 
   //	    << part.getID() << "\n";
 
-  //Here is where the particle goes to sleep
+  //Here is where the particle goes to sleep or wakes
+  ++Sim->eventCount;
+  ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), iEvent.getType());
   if (iEvent.getType() == SLEEP)
     {
       const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
@@ -180,12 +192,20 @@ GSleep::runEvent(const Particle& part) const
       newVel *= sleepVelocity / newVel.nrm();
       const_cast<Particle&>(part).getVelocity() = newVel;
     }
-
   stateChange.erase(part.getID());
 
-  Sim->freestreamAcc += iEvent.getdt();
+  EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
+		  * (part.getVelocity().nrm2() 
+		     - EDat.getOldVel().nrm2()));
 
+  Sim->signalParticleUpdate(EDat);
+
+  //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);
+
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
+
 }
 
 void 
@@ -193,5 +213,6 @@ GSleep::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "Sleep"
       << xml::attr("Name") << globName
-      << xml::attr("SleepV") << sleepVelocity/Sim->dynamics.units().unitVelocity();
+      << xml::attr("SleepV") << sleepVelocity/Sim->dynamics.units().unitVelocity()
+      << range;
 }

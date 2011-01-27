@@ -46,7 +46,7 @@ public:
 
   virtual GlobalEvent getEvent(const Particle &) const = 0;
 
-  virtual void runEvent(const Particle&) const = 0;
+  virtual void runEvent(const Particle&, const double) const = 0;
 
   virtual void initialise(size_t) = 0;
 
