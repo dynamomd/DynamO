@@ -137,11 +137,11 @@ GSleep::getEvent(const Particle& part) const
 {
   if (stateChange.find(part.getID()) != stateChange.end())//Check if we want a state change
     return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : WAKEUP, *this);
-//  else
-//    if (!part.testState(Particle::DYNAMIC))//Check if the particle is asleep and needs a periodic wakeup check
-//      return GlobalEvent(part, 0.1 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
-
-  return GlobalEvent(part, HUGE_VAL, NONE, *this);
+  //  else
+   if (!part.testState(Particle::DYNAMIC))//Check if the particle is asleep and needs a periodic wakeup check
+     return GlobalEvent(part, 0.5 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
+   else
+     return GlobalEvent(part, HUGE_VAL, NONE, *this);
 }
 
 void 
@@ -181,9 +181,10 @@ GSleep::runEvent(const Particle& part, const double dt) const
     {
       const_cast<Particle&>(part).setState(Particle::DYNAMIC);
       Vector newVel(Sim->normal_sampler(), Sim->normal_sampler(), Sim->normal_sampler());
-      newVel *= sleepVelocity / newVel.nrm();
+      newVel *= sleepVelocity / newVel.nrm()/2;
       const_cast<Particle&>(part).getVelocity() = newVel;
-    }
+      //M_throw() << "Should not reach here!";
+   }
   stateChange.erase(part.getID());
 
   EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()

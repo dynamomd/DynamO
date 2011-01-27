@@ -130,37 +130,44 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   double roots[3];
 
   //First check if we're already at a root
-  if ((dat.p1 != NULL) && (dat.p2 != NULL))
-    if (((dat.p1->getID() == lastCollParticle1 && dat.p2->getID() == lastCollParticle2)
-	 || (dat.p1->getID() == lastCollParticle2 && dat.p2->getID() == lastCollParticle1))
-	&& Sim->dSysTime == lastAbsoluteClock)
-      {
-	//This collision has already happened, we can factor out this
-	//root and use the cubic formula to test for more.
-	//\f$A t^4 + B t^3 + C t^2 + D t + 0 == 0\f$ is rewritten as
-	//\f$t^3 + (B/A) t^2 + (C/A) t + (D/A) == 0\f$
-	size_t rootCount = magnet::math::cubicSolve(quartic.coeffs[1] / quartic.coeffs[0], 
-						    quartic.coeffs[2] / quartic.coeffs[0], 
-						    quartic.coeffs[3] / quartic.coeffs[0], 
-						    roots[0], roots[1], roots[2]);
+  // if ((dat.p1 != NULL) && (dat.p2 != NULL))
+  //   if (((dat.p1->getID() == lastCollParticle1 && dat.p2->getID() == lastCollParticle2)
+  //   	 || (dat.p1->getID() == lastCollParticle2 && dat.p2->getID() == lastCollParticle1))
+  //   	&& Sim->dSysTime == lastAbsoluteClock)
+  //     {
+  //   	//This collision has already happened, we can factor out this
+  //   	//root and use the cubic formula to test for more.
+  //   	//\f$A t^4 + B t^3 + C t^2 + D t + 0 == 0\f$ is rewritten as
+  //   	//\f$t^3 + (B/A) t^2 + (C/A) t + (D/A) == 0\f$
+  //   	size_t rootCount = magnet::math::cubicSolve(quartic.coeffs[1] / quartic.coeffs[0], 
+  //   						    quartic.coeffs[2] / quartic.coeffs[0], 
+  //   						    quartic.coeffs[3] / quartic.coeffs[0], 
+  //   						    roots[0], roots[1], roots[2]);
 	
-	//If there is just one root, it's the entrance root to the
-	//current exit root. (assuming our last collision was an exit!)
-	if (rootCount != 3) return false;
+  //   	//If there is just one root, it's the entrance root to the
+  //   	//current exit root. (assuming our last collision was an exit!)
+  //   	if (rootCount != 3) return false;
 	
-	//Sort all roots
-	std::sort(roots, roots + 3);
+  //   	//Sort all roots
+  //   	std::sort(roots, roots + 3);
 	
-	//t=0 is either the second or fourth root of the quartic (we
-	//just had a collision so t=0 is the exit root).  Check the
-	//second of the cubics roots, if it's positive it's the
-	//re-entry root
-	if (roots[1] > 0)
-	  { dat.dt = std::max(0.0, roots[1]); return true; }
+  //   	//t=0 is either the second or fourth root of the quartic (we
+  //   	//just had a collision so t=0 is the exit root).  Check the
+  //   	//second of the cubics roots, if it's positive it's the
+  //   	//re-entry root
+  //   	if (roots[1] > 0)
+  //   	  { dat.dt = std::max(0.0, roots[1]); return true; }
 	
-	//There is the chance that this is the 
-	return false;
-      }
+  //   	//There is the chance that this is the 
+  //   	return false;
+  //     }
+
+  if(quartic(0.0) < 0 &&  dat.rvdot < 0 )
+    {
+      dat.dt = 0.0;
+      return true;
+      //M_throw() << "I'm inside of a particle!"<< quartic(0.0);
+    }	
   
   //We calculate the roots of the cubic differential of F
   //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
