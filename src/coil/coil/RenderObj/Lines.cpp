@@ -87,7 +87,6 @@ void
 RLines::initOpenCL(magnet::CL::CLGLState& CLState)
 {
   initOCLVertexBuffer(CLState.getContext());
-  initOCLColorBuffer(CLState.getContext());
 }
 
 void 
