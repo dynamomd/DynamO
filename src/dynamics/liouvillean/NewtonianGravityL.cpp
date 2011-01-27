@@ -127,7 +127,6 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   quartic.coeffs[3] = 2 * dat.rvdot;
   quartic.coeffs[4] = dat.r2 - d2;
   
-  const double rootthreshold = 1e-16 * sqrt(d2);
   double roots[3];
 
   //First check if we're already at a root
@@ -157,7 +156,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	//second of the cubics roots, if it's positive it's the
 	//re-entry root
 	if (roots[1] > 0)
-	  { dat.dt = std::max(0.0, 0.999 * roots[1]); return true; }
+	  { dat.dt = std::max(0.0, roots[1]); return true; }
 	
 	//There is the chance that this is the 
 	return false;
@@ -181,10 +180,12 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //Only accept time-positive minimums (otherwise collision was in the
   //past) and check an overlap actually occurs at the minimum
 
+  const double rootthreshold = 1e-16 * sqrt(d2);
+
   //Check the first minimum (we always have one)
   if ((roots[0] >= 0) && (quartic(roots[0]) <= 0))
     {
-      dat.dt = std::max(0.0, 0.999 * quartic.bisectRoot(0, roots[0], rootthreshold));
+      dat.dt = std::max(0.0, quartic.bisectRoot(0, roots[0], rootthreshold));
       return true;
     }
 
@@ -194,7 +195,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
       && (quartic(roots[2]) < 0)
       && (quartic(std::max(0.0, roots[1])) > 0))
     {
-      dat.dt = std::max(0.0, 0.999 * quartic.bisectRoot(std::max(0.0, roots[1]), roots[2], rootthreshold));
+      dat.dt = std::max(0.0, quartic.bisectRoot(std::max(0.0, roots[1]), roots[2], rootthreshold));
       return true;
     }
   

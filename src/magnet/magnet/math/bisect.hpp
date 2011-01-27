@@ -23,11 +23,16 @@ namespace magnet {
     struct Bisect: public Functor {
       inline T bisectRoot(double t1, double t2, double rootthreshold, const size_t nIt = 500)
       {
+        rootthreshold *= rootthreshold;
 	for(size_t i = 0; i < nIt; ++i)
 	  {
 	    T tm = 0.5 * (t1 + t2);
 	    T f = Functor::operator()(tm);
-	    if (((f * f) < rootthreshold) && f > 0.0) { t1 = tm; break; }
+	    if (((f * f) < rootthreshold) && f > 0.0)
+	      {
+	        t1 = tm;
+	        break;
+	      }
 	    
 	    if (f < 0.0)
 	      t2 = tm;
