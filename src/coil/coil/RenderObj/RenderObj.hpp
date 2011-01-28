@@ -19,6 +19,7 @@
 #include <coil/Maths/Maths.h>
 #include <coil/extcode/vector2.hpp>
 #include <magnet/GL/viewPort.hpp>
+#include <magnet/thread/refPtr.hpp>
 
 class RenderObj
 {
@@ -31,10 +32,15 @@ public:
   {}
   
   ~RenderObj() {}
+  
+  void accessoryData(const magnet::thread::RefPtr<RenderObj>& console) 
+  {
+    _console = console;
+  }
 
   virtual void initOpenGL() {}
   virtual void initOpenCL(magnet::CL::CLGLState&) {}
-
+  
   virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
   virtual void glRender() {}
   virtual void interfaceRender(const magnet::GL::viewPort&) {}
@@ -67,4 +73,5 @@ protected:
 
   bool _renderNormals;
   bool _visible;
+  magnet::thread::RefPtr<RenderObj> _console;
 };

@@ -3312,10 +3312,19 @@ CIPPacker::initialise()
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
+
+	for(int k=7;k<11;k++){ //Box Deflection wall
+	  for(int i=4;i<22;i++){
+	    x=sin(i*2*M_PI/25)*0.16;
+	    y=-0.56+k*0.04;
+	    z=-cos(i*2*M_PI/25)*0.16+0.46;
+	    funnelSites.push_back(factor * Vector(x,y,z) - move);
+	  }
+	}
 	
 	double spacing = 2.1 * particleDiam / factor;
 	for (int j = 1; j < 6; ++j)
-	  for(int i=0;i<46;i++){
+	  for(int i=0;i<46;i++){//Funnel circular walls
 	    x=cos(i*2*M_PI/46)*0.30;
 	    z=sin(i*2*M_PI/46)*0.30;
 	    y=0.35 + spacing * j;

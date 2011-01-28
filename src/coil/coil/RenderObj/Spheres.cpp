@@ -25,6 +25,7 @@
 
 #include "Spheres.clh"
 #include <errno.h>
+#include <coil/RenderObj/console.hpp>
 
 struct  SortDataType { cl_uint ID; cl_float dist; };
 
@@ -386,11 +387,10 @@ void
 RTSpheres::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val)
 {
   if (val - offset < _N)
-    {
-      std::cerr << "\nYou picked a sphere! with an ID of " << val - offset;
-    }
-
+    (_console.as<coil::Console>()) << "You picked a sphere! with an ID of " 
+				   << (val - offset) << coil::Console::end();
+  
   recolor(CLState);
-
+  
   offset += _N;
 }

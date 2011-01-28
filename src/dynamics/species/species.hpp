@@ -22,7 +22,6 @@
 #include "../ranges/1range.hpp"
 #include "../units/units.hpp"
 #include <string>
-#include <list>
 #include <magnet/thread/refPtr.hpp>
 
 #ifdef DYNAMO_visualizer

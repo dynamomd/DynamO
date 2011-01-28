@@ -223,12 +223,9 @@ Species::updateColorObj(magnet::CL::CLGLState& CLState) const
     {
     case IDHSV:
       {
-	size_t sphID(0);
-	BOOST_FOREACH(unsigned long ID, *range)
-	  {
-	    magnet::color::HSVtoRGB(particleColorData[sphID], ((float)(sphID)) / range->size());
-	    sphID++;
-	  }
+	size_t np = range->size();
+	for (size_t sphID(0); sphID < np; ++ sphID)
+	  magnet::color::HSVtoRGB(particleColorData[sphID], ((float)(sphID)) / np);
       }
       break;
     case CONSTANT:
