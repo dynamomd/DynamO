@@ -12,6 +12,7 @@ SpLines::getCoilRenderObj() const
     {
       _renderObj = new RArrows(range->size(), "Species: " + spName);
       particleData.resize(range->size()*6);
+      particleColorData.resize(range->size());
     }
 
   return _renderObj;
