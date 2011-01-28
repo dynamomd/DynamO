@@ -64,7 +64,11 @@ namespace magnet {
 
       lightInfo& operator=(const viewPort& vp)
       { 
-	static_cast<viewPort&>(*this) = vp;
+	_panrotation = vp._panrotation;
+	_tiltrotation = vp._tiltrotation;
+	_position = vp._position;
+	
+	buildMatrices();
 	return *this; 
       }
 

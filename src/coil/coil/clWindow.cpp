@@ -423,6 +423,14 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
 
+  {///////Light FOV setting
+    Gtk::HScale* FOVscale;
+    _refXml->get_widget("lightFOVScale", FOVscale);
+    FOVscale->set_value(_light0._fovY);
+    FOVscale->signal_value_changed()
+      .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+  }
+
   {///////RenderMode Selection
     Gtk::RadioButton* radioButton;
     _refXml->get_widget("renderModeTri", radioButton);
@@ -1651,6 +1659,13 @@ CLGLWindow::guiUpdateCallback()
     Gtk::HScale* FOVscale;
     _refXml->get_widget("fovScale", FOVscale);
     _viewPortInfo._fovY = FOVscale->get_value();
+  }
+
+  {///////FOV setting
+    Gtk::HScale* FOVscale;
+    _refXml->get_widget("lightFOVScale", FOVscale);
+    _light0._fovY = FOVscale->get_value();
+    _light0.buildMatrices();
   }
 
   {//Dynamo particle sync checkbox
