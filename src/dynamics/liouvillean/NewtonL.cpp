@@ -370,7 +370,7 @@ LNewtonian::DSMCSpheresRun(const Particle& p1,
 
 PairEventData 
 LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
-			    const double&, const EEventType& eType) const
+			      const double&, const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -389,16 +389,14 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
  
   retVal.rvdot = (retVal.rij | retVal.vijold);
 
-  //Treat special cases if one particle has infinite mass (sleeping)
-  if (!particle1.testState(Particle::DYNAMIC)
-      && particle2.testState(Particle::DYNAMIC))
+  //Treat special cases if one particle has infinite mass
+  if ((p1Mass == 0) && (p2Mass != 0))
     {
       retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
       const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
     }
-  else if (particle1.testState(Particle::DYNAMIC) 
-	   && !particle2.testState(Particle::DYNAMIC))
+  else if ((p1Mass != 0) && (p2Mass == 0))
     {
       retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
@@ -406,8 +404,7 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
     }
   else
     {
-      bool isInfInf = !particle1.testState(Particle::DYNAMIC) 
-	&& !particle1.testState(Particle::DYNAMIC);
+      bool isInfInf = (p1Mass == 0) && (p2Mass == 0);
 
       //If both particles have infinite mass we just collide them as identical masses
       if (isInfInf) p1Mass = p2Mass = 1;
