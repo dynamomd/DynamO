@@ -22,6 +22,29 @@
 #include "../../base/is_simdata.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+namespace {
+  class densityCalculator
+  {
+  public:
+    densityCalculator() { density = 0; }
+    
+    void foundparticle(Particle p1, size_t p2ID)
+    { 
+      density += 1;	
+    } 
+    
+    double density;
+  };
+}
+
+double GSleep::getDensity(const Particle& part)
+{
+  densityCalculator dcalc;
+
+  
+  // nblist.getParticleNeighbourhood(particle, &densityCalculator::foundparticle, &dcalc);
+  return dcalc.density;
+}
 
 GSleep::GSleep(DYNAMO::SimData* nSim,  CRange* range, const std::string& name,const double sl):
   Global(range, nSim, "Sleep"),
@@ -42,6 +65,29 @@ GSleep::GSleep(const XMLNode &XML, DYNAMO::SimData* ptrSim):
 void 
 GSleep::initialise(size_t nID)
 {
+
+  //Neighbour
+  // try {
+  //   NBListID = Sim->dynamics.getGlobal("SchedulerNBList")->getID();
+  // }
+  // catch(std::exception& cxp)
+  //   {
+  //     M_throw() << "Failed while finding the neighbour list global.\n"
+  // 		<< "You must have a neighbour list enabled for this\n"
+  // 		<< "scheduler called SchedulerNBList.\n"
+  // 		<< cxp.what();
+  //   }
+  
+  // if (dynamic_cast<const CGNeighbourList*>
+  //     (Sim->dynamics.getGlobals()[NBListID].get_ptr())
+  //     == NULL)
+  //   M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
+
+  // static_cast<CGNeighbourList&>
+  //   (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
+  //   .markAsUsedInScheduler();
+  //end neighbour creation
+
   ID=nID;
 
   lastPosition.resize(Sim->N);
@@ -98,12 +144,14 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	      
 	      // We need this to be negative, i.e., particle goes down
 	      bool Vg = (dp.getVelocity() | g) > 0;
-	      if(vel < sleepVelocity &&  Vg && convergeVel && convergePos)
+	      if((vel < sleepVelocity) &&  Vg && convergeVel && convergePos)
 		stateChange.insert(dp.getID());
 	    }
 
-	  if ((vel > 2.0 * sleepVelocity) && range->isInRange(sp))
-	    stateChange.insert(sp.getID());
+	  double normalVel = dp.getVelocity()|(dp.getPosition()-sp.getPosition());
+
+	  if (range->isInRange(sp))
+	    stateChange.insert(sp.getID());	 
 	    
 	  lastVelocity[p1.getID()] = p1.getVelocity();
 	  lastVelocity[p2.getID()] = p2.getVelocity();
@@ -136,15 +184,9 @@ GlobalEvent
 GSleep::getEvent(const Particle& part) const
 {
   if (stateChange.find(part.getID()) != stateChange.end())//Check if we want a state change
-    return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : WAKEUP, *this);
-  //  else
-   if (!part.testState(Particle::DYNAMIC))//Check if the particle is asleep and needs a periodic wakeup check
-     { // The checking time should depend on the local density of the system
-       double density = 0;
-       return GlobalEvent(part, 0.5 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
-     }   
-   else
-     return GlobalEvent(part, HUGE_VAL, NONE, *this);
+    return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : CHECK, *this);
+
+  return GlobalEvent(part, HUGE_VAL, NONE, *this);
 }
 
 void 
@@ -175,19 +217,29 @@ GSleep::runEvent(const Particle& part, const double dt) const
   //Here is where the particle goes to sleep or wakes
   ++Sim->eventCount;
   ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), iEvent.getType());
-  if (iEvent.getType() == SLEEP)
+
+  switch (iEvent.getType())
     {
+    case SLEEP:
       const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
       const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+      break;
+    case CHECK:
+      if (part.getVelocity().nrm() > 2000000.0 * sleepVelocity)
+	{
+	  const_cast<Particle&>(part).setState(Particle::DYNAMIC);
+	  iEvent.setType(WAKEUP);
+	}
+      else
+	{
+	  const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+	  iEvent.setType(RESLEEP);
+	}
+      break;
+    default:
+      M_throw() << "Bad event type";
     }
-  else
-    {
-      const_cast<Particle&>(part).setState(Particle::DYNAMIC);
-      Vector newVel(Sim->normal_sampler(), Sim->normal_sampler(), Sim->normal_sampler());
-      newVel *= sleepVelocity / newVel.nrm()/2;
-      const_cast<Particle&>(part).getVelocity() = newVel;
-      //M_throw() << "Should not reach here!";
-   }
+
   stateChange.erase(part.getID());
 
   EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()

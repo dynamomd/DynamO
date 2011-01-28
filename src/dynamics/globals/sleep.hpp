@@ -38,6 +38,8 @@ public:
 
   virtual void runEvent(const Particle&, const double) const;
 
+  double getDensity(const Particle&);
+
   virtual void initialise(size_t);
 
   virtual void operator<<(const XMLNode&);

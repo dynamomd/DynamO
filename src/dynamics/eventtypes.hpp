@@ -40,7 +40,9 @@
   F(RESCALE, /*!< A rescaling of the system energy*/ ) \
   F(VIRTUAL, /*!< Fake events that cause a particle to free stream*/ ) \
   F(SLEEP, /*!< Event to transition a particle from dynamic to static*/ ) \
-  F(WAKEUP, /*!< Event to transition a particle from static to dynamic*/ )
+  F(RESLEEP, /*!< Event to zero a sleeping particles velocity after being hit*/ ) \
+  F(WAKEUP, /*!< Event to transition a particle from static to dynamic*/ ) \
+  F(CHECK, /*!< An intermediate event, that is used before a real event is executed*/ ) \
 
 #define buildEnum(VAL,COMMENT) \
   VAL, COMMENT

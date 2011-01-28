@@ -244,8 +244,9 @@ CIPPacker::initialise()
 	"       --s1 : Sequence to use [GVGTGSGRGQGVGTGSGRGQ]\n"
 	"  25: Funnel and cup simulation (with sleepy particles)\n"
 	"       --f1 : Elasticity [0.4]\n"
-	"       --f2 : Elastic Velocity [1.0]\n"
+	"       --f2 : Elastic Velocity [Disabled]\n"
 	"       --f3 : Sleep velocity [Disabled]\n"
+	"       --f4 : tc model time [Disabled]\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -3157,13 +3158,17 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  elasticity = vm["f1"].as<double>();
 
-	double elasticV = 1.0;
+	double elasticV = 0.0;
 	if (vm.count("f2"))
 	  elasticV = vm["f2"].as<double>();
 
 	double sleepV = 0.01;
 	if (vm.count("f3"))
 	  sleepV = vm["f3"].as<double>();
+
+	double tc = -HUGE_VAL;
+	if (vm.count("f4"))
+	  tc = vm["f4"].as<double>();
 
 	Sim->aspectRatio = Vector(1,1,1);
 	
@@ -3180,7 +3185,8 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
 
 	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1,
-							   elasticV * Sim->dynamics.units().unitVelocity()));
+							   elasticV * Sim->dynamics.units().unitVelocity(),
+							   tc * Sim->dynamics.units().unitTime()));
 
 	///Now build our funnel, so we know how many particles it takes
 	std::vector<Vector> funnelSites;
