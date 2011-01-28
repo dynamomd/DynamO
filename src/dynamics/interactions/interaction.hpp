@@ -24,8 +24,6 @@
 #include "../ranges/2range.hpp"
 #include "../../base/is_colormap.hpp"
 
-#define eps2 1e-10 //Min overlap distance
-
 class PairEventData;
 class IntEvent;
 class XMLNode;

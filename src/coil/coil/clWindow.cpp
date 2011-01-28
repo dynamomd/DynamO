@@ -762,6 +762,13 @@ CLGLWindow::init()
 
   if (_readyFlag) return;
 
+  //Inform objects about the accessory objects, like the console or the pointer
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    {
+      (*iPtr)->accessoryData(RenderObjects[1]); //This is the console
+    }
+
   initOpenGL();
   initOpenCL();
   initGTK();

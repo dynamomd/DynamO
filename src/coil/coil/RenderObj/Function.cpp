@@ -18,6 +18,7 @@
 #include "Function.hpp"
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
+#include <coil/RenderObj/console.hpp>
 
 RFunction::RFunction(size_t N, Vector origin, Vector axis1,
 		     Vector axis2, Vector axis3, cl_float functionOriginX,
@@ -320,12 +321,11 @@ void
 RFunction::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val)
 {
   if (val - offset < _N * _N)
-    {
-      std::cerr << "\nYou picked a function point with coords of " 
-		<< (val - offset) % _N
-		<< ","
-		<< (val - offset) / _N;
-    }
+    (_console.as<coil::Console>()) << "You picked a function point with coords of " 
+				   << (val - offset) % _N
+				   << ","
+				   << (val - offset) / _N 
+				   << coil::Console::end();
 
   //Aqquire buffer objects
   _clbuf_Colors.acquire(CLState.getCommandQueue());
