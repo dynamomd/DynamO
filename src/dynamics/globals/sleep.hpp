@@ -46,6 +46,7 @@ protected:
   void particlesUpdated(const NEventData&);
 
   virtual void outputXML(xml::XmlStream&) const;
+  size_t NBListID;  
   double sleepVelocity;
   mutable std::set<size_t> stateChange;
   mutable std::vector<Vector> lastVelocity;
