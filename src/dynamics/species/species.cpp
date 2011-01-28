@@ -188,11 +188,7 @@ Species::updateRenderObj(magnet::CL::CLGLState& CLState) const
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
     factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
  
-  double sysMass = 0;
-  Vector COM;
-
   double diam = getIntPtr()->hardCoreDiam() * factor;
-  sysMass += range->size() * getMass();
   
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
@@ -256,6 +252,8 @@ Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
     return new SpSphericalTop(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "Lines"))
     return new SpLines(XML, tmp, nID);
+  else if (!std::strcmp(XML.getAttribute("Type"), "Dumbbells"))
+    return new SpDumbbells(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
     return new SpFixedCollider(XML, tmp, nID);
   else 

@@ -19,3 +19,4 @@
 #include "sphericalTop.hpp"
 #include "fixedCollider.hpp"
 #include "lines.hpp"
+#include "dumbbell.hpp"
