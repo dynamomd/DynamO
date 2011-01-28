@@ -39,31 +39,21 @@ public:
   }
   
   std::pair<double, double> getCollisionPoints() const
-  {
-    double rijdotui = (r12 | u1);
-    double rijdotuj = (r12 | u2);
-    double uidotuj = (u1 | u2);
-
-    return std::make_pair(- (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj),
-			  (rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj));
+  { // Marcus, can you check the math?
+    return 0.5*((r1 + u1) - (r2 + u2)); 
   }
-  //Distance between the particles
-  //for the case of the capsule it is the minimum
-  //between the line and the 2 spheres.
-  //Maybe a better option would be to take the time for each 
-  //component and then take the minimum
-  double F_zeroDeriv() const
+  
+  //Distance between 2 particles
+   double F_zeroDeriv() const
   // For the moment we will assume only one sided dumbbell
   // so the equation get simpler. 
   { return   (r12 + u1*L/2.0 + u2*L/2.0)| (r12 + u1*L/2.0 + u2*L/2.0)  - Diameter*Diameter;}
 			      
 
-  //for the following functions we need to save the value of F
-  //to decide which derivative to use. 
   double F_firstDeriv() const
   {    
     // Simply chain rule
-    return 2.0* (r12 + u1*L/2.0 + u2*L/2.0)|(v12 + w1^u1*L/2.0 + + w2^u2*L/2.0);
+    return 2.0* (r12 + u1*L/2.0 + u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0);
   }
 
   double F_firstDeriv_max(const double& length) const
@@ -72,21 +62,21 @@ public:
     double F_secondDeriv() const
     {
       return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
-		   + (v12 + w1^u1*L/2.0 + + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + + w2^u2*L/2.0)) ;
+		   + (v12 + w1^u1*L/2.0 + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0)) ;
     }
 
     double F_secondDeriv_max(const double& length) const
     {
-      ntpaos = 0;
       return 2.0* ((2*L)*(+ w1.nrm()*w1.nrm()*L/2.0 + w2.nrm()*w2.nrm()*L/2.0 ) + 
 		   (v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0)*(v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0));
     }
 
     std::pair<double, double> discIntersectionWindow(const double& length) const
     {
+      //I think this remains the same exept the length goes to lenght + diameter 
       Vector  Ahat = w1 / w1.nrm();
       double dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
-      double signChangeTerm = (length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
+      double signChangeTerm = (length / 2.0 + r) * sqrt(1.0 - pow(dotproduct, 2.0));
     
       std::pair<double,double> 
 	retVal(((-1.0 * (r12 | Ahat)) - signChangeTerm) / (v12 | Ahat),
@@ -109,9 +99,9 @@ public:
 
     virtual bool test_root(const double& length) const
     {
-      std::pair<double,double> cp = getCollisionPoints();
+      double cp = getCollisionPoints();
     
-      return (fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0);
+      return  fabs(cp) < 1e-16 ;
     }
   
   private:

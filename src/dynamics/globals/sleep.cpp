@@ -139,7 +139,10 @@ GSleep::getEvent(const Particle& part) const
     return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : WAKEUP, *this);
   //  else
    if (!part.testState(Particle::DYNAMIC))//Check if the particle is asleep and needs a periodic wakeup check
-     return GlobalEvent(part, 0.5 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
+     { // The checking time should depend on the local density of the system
+       double density = 0;
+       return GlobalEvent(part, 0.5 * Sim->dynamics.units().unitTime(), WAKEUP, *this);
+     }   
    else
      return GlobalEvent(part, HUGE_VAL, NONE, *this);
 }
