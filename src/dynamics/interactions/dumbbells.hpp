@@ -28,7 +28,11 @@ public:
   IDumbbells(const XMLNode&, DYNAMO::SimData*);
 
   void operator<<(const XMLNode&);
+  
+  double getDiameter() const { return 2.0 * r; }
 
+  double getLength() const { return length; }
+  
   virtual double getInternalEnergy() const { return 0.0; }
 
   virtual void initialise(size_t);

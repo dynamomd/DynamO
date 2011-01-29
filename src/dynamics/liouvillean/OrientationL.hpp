@@ -24,6 +24,7 @@
 #include "../../datatypes/vector.hpp"
 
 class CLinesFunc;
+class CDumbbellsFunc;
 class CShape;
 
 class LNOrientation: public LNewtonian

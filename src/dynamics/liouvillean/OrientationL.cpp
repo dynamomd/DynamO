@@ -34,6 +34,7 @@
 #include "shapes/frenkelroot.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
+#include "shapes/dumbbells.hpp"
 #include "../../extcode/binaryHelper.hpp"
 #include <magnet/math/matrix.hpp>
 
@@ -230,11 +231,11 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
   double t_low = 0.0;
   double t_high = PD.dt;
   
-  CLinesFunc fL(PD.rij, PD.vij,
+  CDumbbellsFunc fL(PD.rij, PD.vij,
 		orientationData[p1.getID()].angularVelocity,
 		orientationData[p2.getID()].angularVelocity,
 		orientationData[p1.getID()].orientation,
-		orientationData[p2.getID()].orientation);
+		    orientationData[p2.getID()].orientation,1,1);//AD L and r
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -283,38 +284,38 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   double KE1before = getParticleKineticEnergy(particle1);
   double KE2before = getParticleKineticEnergy(particle2);
 
-  CLinesFunc fL(retVal.rij, retVal.vijold,
-		orientationData[particle1.getID()].angularVelocity,
-		orientationData[particle2.getID()].angularVelocity,
-		orientationData[particle1.getID()].orientation,
-		orientationData[particle2.getID()].orientation);
+  CDumbbellsFunc fL(retVal.rij, retVal.vijold,
+		    orientationData[particle1.getID()].angularVelocity,
+		    orientationData[particle2.getID()].angularVelocity,
+		    orientationData[particle1.getID()].orientation,
+		    orientationData[particle2.getID()].orientation,1,1);//Add Radius and L Marcus!!
 
   Vector uPerp = fL.getu1() ^ fL.getu2();
 
   uPerp /= uPerp.nrm();
 
-  std::pair<double, double> cp = fL.getCollisionPoints();
+  Vector cp = fL.getCollisionPoints();
 
   // \Delta {\bf v}_{imp}
-  Vector  vr = retVal.vijold
-    + (cp.first * fL.getw1() ^ fL.getu1()) 
-    - (cp.second * fL.getw2() ^ fL.getu2());
-  
+  //Vector  vr = retVal.vijold
+  //  + (cp.first * fL.getw1() ^ fL.getu1()) 
+  //  - (cp.second * fL.getw2() ^ fL.getu2());
+  Vector vr = cp;
   double mass = retVal.particle1_.getSpecies().getMass();
   double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
-
+  //I NEED TO FIX THIS
   retVal.dP = uPerp
     * (((vr | uPerp) * (1.0 + elasticity))
-       / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
+       / ((2.0 / mass) ));
   
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / mass;
   const_cast<Particle&>(particle2).getVelocity() += retVal.dP / mass;
 
   orientationData[particle1.getID()].angularVelocity 
-    -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
+    -=  (fL.getu1() ^ retVal.dP);
 
   orientationData[particle2.getID()].angularVelocity 
-    += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
+    += (fL.getu2() ^ retVal.dP);
 
   retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
   retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);

@@ -25,3 +25,4 @@
 #include "lines.hpp"
 #include "rotatedparallelcubes.hpp"
 #include "stepped.hpp"
+#include "dumbbells.hpp"
