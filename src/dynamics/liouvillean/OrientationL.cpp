@@ -235,7 +235,7 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
 		orientationData[p1.getID()].angularVelocity,
 		orientationData[p2.getID()].angularVelocity,
 		orientationData[p1.getID()].orientation,
-		    orientationData[p2.getID()].orientation,1,1);//AD L and r
+		    orientationData[p2.getID()].orientation,1,.1);//AD L and r
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -288,7 +288,7 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
 		    orientationData[particle1.getID()].angularVelocity,
 		    orientationData[particle2.getID()].angularVelocity,
 		    orientationData[particle1.getID()].orientation,
-		    orientationData[particle2.getID()].orientation,1,1);//Add Radius and L Marcus!!
+		    orientationData[particle2.getID()].orientation,1,.1);//Add Radius and L Marcus!!
 
   Vector uPerp = fL.getu1() ^ fL.getu2();
 
