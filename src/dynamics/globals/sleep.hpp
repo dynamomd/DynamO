@@ -38,6 +38,8 @@ public:
 
   virtual void runEvent(const Particle&, const double) const;
 
+  double getDensity(const Particle&);
+
   virtual void initialise(size_t);
 
   virtual void operator<<(const XMLNode&);
@@ -46,6 +48,7 @@ protected:
   void particlesUpdated(const NEventData&);
 
   virtual void outputXML(xml::XmlStream&) const;
+  size_t NBListID;  
   double sleepVelocity;
   mutable std::set<size_t> stateChange;
   mutable std::vector<Vector> lastVelocity;

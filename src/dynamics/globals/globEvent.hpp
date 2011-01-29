@@ -66,6 +66,8 @@ public:
 
   inline EEventType getType() const
     { return CType; }
+
+  inline void setType(EEventType t) { CType = t; }
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const GlobalEvent&);
 
