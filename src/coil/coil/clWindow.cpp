@@ -678,6 +678,10 @@ CLGLWindow::initGTK()
 	_particleSync = btn->get_active();
       }
     }
+
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->initGTK();
 }
 
 bool 
@@ -1632,7 +1636,7 @@ void CLGLWindow::selectRObjCallback()
 	}
 
       //Load the controls for the window
-      RenderObjects[(*iter)[_renderObjModelColumns.m_id]]->callShowControls(win);
+      RenderObjects[(*iter)[_renderObjModelColumns.m_id]]->showControls(win);
     }
   else
     {

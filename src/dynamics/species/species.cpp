@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "include.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <cstring>
-#include "include.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../ranges/1range.hpp"
 #include "../../simulation/particle.hpp"

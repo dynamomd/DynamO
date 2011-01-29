@@ -15,9 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "species.hpp"
+#include "point.hpp"
 #include "sphericalTop.hpp"
 #include "fixedCollider.hpp"
 #include "lines.hpp"
 #include "dumbbell.hpp"
-#include "point.hpp"

@@ -2574,8 +2574,6 @@ CIPPacker::initialise()
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
 
-	static_cast<SpPoint&>(Sim->dynamics.getSpecies("FunnelParticles")).setConstantColor(255,255,255);
-
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
@@ -3390,8 +3388,6 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
-
-	static_cast<SpPoint&>(Sim->dynamics.getSpecies("FunnelParticles")).setConstantColor(255,255,255);
 
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));

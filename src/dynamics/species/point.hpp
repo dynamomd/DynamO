@@ -19,6 +19,12 @@
 
 #include "../../extcode/xmlwriter.hpp"
 #include "species.hpp"
+#include <memory>
+
+namespace Gtk {
+  class VBox;
+  class RadioButton;
+}
 
 class SpPoint: public Species
 {
@@ -26,16 +32,14 @@ public:
   SpPoint(DYNAMO::SimData* sim, CRange* r, double nmass, std::string nName,
 	  unsigned int ID, std::string nIName="Bulk"):
     Species(sim, "SpPoint", r, nmass, nName, ID, nIName),
-    _colorMode(IDHSV),
     _initialColorData(true)
   {}
   
   SpPoint(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
     Species(nSim, "", NULL, 0, "", nID,""),
-    _colorMode(IDHSV),
     _initialColorData(true)
   { operator<<(XML); }
-  
+
   virtual void initialise();
 
   virtual void operator<<(const XMLNode& XML);
@@ -46,37 +50,18 @@ public:
 
 #ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
-
   virtual void updateRenderObj(magnet::CL::CLGLState&) const;
-
   virtual void updateColorObj(magnet::CL::CLGLState&) const;
-  
-  virtual void showControls(Gtk::ScrolledWindow*);
-#endif
-
-  void setConstantColor(unsigned char r, unsigned char g, unsigned char b)
-  { 
-    _constColor[0] = r; _constColor[1] = g; _constColor[2] = b; 
-    _colorMode = CONSTANT;
-  }
-
 protected:
-
-#ifdef DYNAMO_visualizer
-  void gtkControlCallback();
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
   mutable std::vector<cl_float4> particleData;
   mutable std::vector<cl_uchar4> particleColorData;
+public:
 #endif
 
-  typedef enum {
-    IDHSV,
-    CONSTANT
-  } colorMode_t;
-
-  colorMode_t _colorMode;
-  unsigned char _constColor[4];
+protected:
+  
   mutable bool _initialColorData;
-
+  
   virtual void outputXML(xml::XmlStream& XML) const;
 };

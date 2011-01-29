@@ -77,7 +77,6 @@ public:
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const = 0;
   virtual void updateRenderObj(magnet::CL::CLGLState&) const = 0;
   virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;
-  virtual void showControls(Gtk::ScrolledWindow*) = 0;
 #endif
 
 protected:

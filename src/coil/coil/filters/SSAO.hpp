@@ -46,7 +46,7 @@ namespace coil
     GLuint _randomTexture;
 
     void settingsCallback();
-
+    
     Gtk::HScale _radiusSlider;
     Gtk::HScale _totStrengthSlider;
     Gtk::HScale _strengthSlider;

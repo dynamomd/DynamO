@@ -38,38 +38,6 @@ SpFixedCollider::operator<<(const XMLNode& XML)
     mass = 0;
     spName = XML.getAttribute("Name");
     intName = XML.getAttribute("IntName");
-
-    if (XML.isAttributeSet("Color"))
-      {
-	typedef boost::tokenizer<boost::char_separator<char> >
-	  Tokenizer;
-	
-	boost::char_separator<char> colorSep(",");
-	
-	std::string data(XML.getAttribute("Color"));
-
-	Tokenizer tokens(data, colorSep);
-	Tokenizer::iterator value_iter = tokens.begin();
-
-	if (value_iter == tokens.end())
-	  throw std::runtime_error("Malformed color in species");
-	_constColor[0] = boost::lexical_cast<int>(*value_iter);
-	
-	if (++value_iter == tokens.end())
-	  throw std::runtime_error("Malformed color in species");
-	_constColor[1] = boost::lexical_cast<int>(*value_iter);
-	
-	if (++value_iter == tokens.end())
-	  throw std::runtime_error("Malformed color in species");
-	_constColor[2] = boost::lexical_cast<int>(*value_iter);
-	
-	if (++value_iter != tokens.end())
-	  throw std::runtime_error("Malformed color in species");
-	
-	_constColor[3] = 255;
-	
-	_colorMode = CONSTANT;
-      }    
   } 
   catch (boost::bad_lexical_cast &)
     {
@@ -83,16 +51,6 @@ SpFixedCollider::outputXML(xml::XmlStream& XML) const
   XML << xml::attr("Name") << spName
       << xml::attr("IntName") << intName
       << xml::attr("Type") << "FixedCollider";
-
-  if (_colorMode == CONSTANT)
-    {
-      std::string colorval = boost::lexical_cast<std::string>(_constColor[0] + 0);
-      colorval += ",";
-      colorval += boost::lexical_cast<std::string>(_constColor[1] + 0);
-      colorval += ",";
-      colorval += boost::lexical_cast<std::string>(_constColor[2] + 0);
-      XML << xml::attr("Color") << colorval;
-    }
   
   XML << range;
 }
