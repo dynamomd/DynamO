@@ -72,7 +72,8 @@ IDumbbells::operator<<(const XMLNode& XML)
       
       e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
       
-      r = boost::lexical_cast<double>(XML.getAttribute("Radius"));
+      r = Sim->dynamics.units().unitLength() *
+	boost::lexical_cast<double>(XML.getAttribute("Radius"));
       
       intName = XML.getAttribute("Name");
       

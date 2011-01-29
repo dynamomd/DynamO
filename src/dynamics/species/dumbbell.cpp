@@ -5,6 +5,7 @@
 # include <magnet/color/HSV.hpp>
 # include "dumbbell.hpp"
 
+
 magnet::thread::RefPtr<RenderObj>& 
 SpDumbbells::getCoilRenderObj() const
 {
@@ -12,6 +13,7 @@ SpDumbbells::getCoilRenderObj() const
     {
       _renderObj = new SphereParticleRenderer(2 * range->size(), "Species: " + spName,
 					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj));
+
       particleData.resize(2 * range->size());
       particleColorData.resize(range->size()); //We just queue two copies
     }
@@ -42,12 +44,9 @@ SpDumbbells::sendRenderData(magnet::CL::CLGLState& CLState) const
 void
 SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
 {
-  if (!_renderObj.isValid())
-    M_throw() << "Updating before the render object has been fetched";
-  
-  double diam = getIntPtr()->maxIntDist();
-  double spacing = diam;
-  
+  double diam = static_cast<const IDumbbells&>(*getIntPtr()).getDiameter();
+  double spacing = static_cast<const IDumbbells&>(*getIntPtr()).getLength();
+
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
