@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -213,6 +214,118 @@ LNOrientation::randomGaussianEvent(const Particle& part,
   M_throw() << "Need to implement thermostating of the rotational degrees"
     " of freedom";  
 }
+//Here starts my code for offCenterSpheres
+bool 
+LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
+				     const Particle& p1, const Particle& p2) const
+{  
+#ifdef DYNAMO_DEBUG
+  if (!isUpToDate(p1))
+    M_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+  if (!isUpToDate(p2))
+    M_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
+  double t_low = 0.0;
+  double t_high = PD.dt;
+  
+  CLinesFunc fL(PD.rij, PD.vij,
+		orientationData[p1.getID()].angularVelocity,
+		orientationData[p2.getID()].angularVelocity,
+		orientationData[p1.getID()].orientation,
+		orientationData[p2.getID()].orientation);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += fabs(2.0 * fL.F_firstDeriv())
+      / fL.F_secondDeriv_max(length);
+  
+  //Find window delimited by discs
+  std::pair<double,double> dtw = fL.discIntersectionWindow(length);
+  
+  if(dtw.first > t_low)
+    t_low = dtw.first;
+  
+  if(dtw.second < t_high)
+    t_high = dtw.second;
+  
+  std::pair<bool,double> root = frenkelRootSearch(fL, length, t_low, t_high);
+
+  if (root.first) 
+    { 
+      PD.dt = root.second;
+      return true; 
+    }
+  else 
+    return false;
+}
+
+PairEventData 
+LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
+{
+  const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  PairEventData retVal(particle1, particle2,
+                        Sim->dynamics.getSpecies(particle1),
+                        Sim->dynamics.getSpecies(particle2),
+                        CORE);
+  
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  double KE1before = getParticleKineticEnergy(particle1);
+  double KE2before = getParticleKineticEnergy(particle2);
+
+  CLinesFunc fL(retVal.rij, retVal.vijold,
+		orientationData[particle1.getID()].angularVelocity,
+		orientationData[particle2.getID()].angularVelocity,
+		orientationData[particle1.getID()].orientation,
+		orientationData[particle2.getID()].orientation);
+
+  Vector uPerp = fL.getu1() ^ fL.getu2();
+
+  uPerp /= uPerp.nrm();
+
+  std::pair<double, double> cp = fL.getCollisionPoints();
+
+  // \Delta {\bf v}_{imp}
+  Vector  vr = retVal.vijold
+    + (cp.first * fL.getw1() ^ fL.getu1()) 
+    - (cp.second * fL.getw2() ^ fL.getu2());
+  
+  double mass = retVal.particle1_.getSpecies().getMass();
+  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+
+  retVal.dP = uPerp
+    * (((vr | uPerp) * (1.0 + elasticity))
+       / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
+  
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / mass;
+
+  orientationData[particle1.getID()].angularVelocity 
+    -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
+
+  orientationData[particle2.getID()].angularVelocity 
+    += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
+
+  retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
+  retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
+
+  lastCollParticle1 = particle1.getID();
+  lastCollParticle2 = particle2.getID();
+  lastAbsoluteClock = Sim->dSysTime;
+
+  return retVal;
+}
+//Here ends offCenterSpheres
 
 void 
 LNOrientation::initLineOrientations(const double& length)

@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -254,6 +255,18 @@ public:
   virtual bool getLineLineCollision(CPDData& PD, const double& length, 
 				    const Particle& p1, const Particle& p2
 				    ) const;
+ /*! \brief Tests if and when two off center spheres will collide.
+   *
+   * \param PD Some precalculated data on the spehres.
+   * \param length The length of the lines, or interaction length.
+   * \param p1 First particle.
+   * \param p2 Second particle.
+   * \param twindow Maximum time to check till.
+   * \return Wether the event will occur or not.
+   */    
+  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
+				    const Particle& p1, const Particle& p2
+				    ) const;
 
   /*! \brief Tests if and when a point will collide with a pair of
    * oscillating walls, which are parallel and facing inwards to a centre point
@@ -327,6 +340,15 @@ public:
    * \return Collision data
    */    
   virtual PairEventData runLineLineCollision(const IntEvent& eevent,
+					     const double& elasticity, 
+					     const double& length) const;
+  
+  /*! \brief Runs a offCenterSphere offCenterSphere collision event
+   *
+   * \param eevent Description of the scheduled event
+   * \return Collision data
+   */    
+  virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent,
 					     const double& elasticity, 
 					     const double& length) const;
 

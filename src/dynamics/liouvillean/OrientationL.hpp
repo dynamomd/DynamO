@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -44,7 +45,14 @@ public:
 				    ) const;
   
   virtual PairEventData runLineLineCollision(const IntEvent& eevent, 
-					      const double& elasticity, const double& length) const;
+					     const double& elasticity, const double& length) const;
+  
+  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
+							  const Particle& p1, const Particle& p2
+							  ) const;
+  
+  virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, 
+								   const double& elasticity, const double& length) const;
   
   virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,

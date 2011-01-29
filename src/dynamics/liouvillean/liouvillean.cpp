@@ -69,6 +69,16 @@ Liouvillean::getLineLineCollision(CPDData&, const double&,
 				   ) const
 { M_throw() << "Not implemented for this Liouvillean."; }
 
+PairEventData 
+Liouvillean::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
+				   const double&, const double&) const
+{ M_throw() << "Not implemented for this Liouvillean."; }
+
+bool
+Liouvillean::getOffCenterSphereOffCenterSphereCollision(CPDData&, const double&, 
+				   const Particle&, const Particle&
+				   ) const
+{ M_throw() << "Not implemented for this Liouvillean."; }
 double 
 Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
 { M_throw() << "Not implemented for this Liouvillean."; }
