@@ -20,6 +20,11 @@
 #include <coil/extcode/vector2.hpp>
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/thread/refPtr.hpp>
+#include <magnet/function/delegate.hpp>
+
+namespace Gtk {
+  class ScrolledWindow;
+}
 
 class RenderObj
 {
@@ -29,7 +34,9 @@ public:
     _RenderMode(TRIANGLES),
     _renderNormals(false),
     _visible(true)
-  {}
+  {
+    _controlDelegate = magnet::function::MakeDelegate(this, &RenderObj::showControls);
+  }
   
   ~RenderObj() {}
   
@@ -51,6 +58,14 @@ public:
 
   virtual void resize(size_t width, size_t height) {}
 
+  //!Actual entry point for window showControls
+  void callShowControls(Gtk::ScrolledWindow* win) { _controlDelegate(win); }
+
+  virtual void showControls(Gtk::ScrolledWindow* win) {}
+
+  magnet::function::Delegate1<Gtk::ScrolledWindow*, void>&
+  getControlDelegate() { return _controlDelegate; }
+
   enum RenderModeType 
     {
       POINTS,
@@ -70,8 +85,10 @@ protected:
   std::string _name;
 
   RenderModeType _RenderMode;
-
   bool _renderNormals;
   bool _visible;
   magnet::thread::RefPtr<RenderObj> _console;
+  
+  //When the window wants to see the controls for this Object this delegate is called
+  magnet::function::Delegate1<Gtk::ScrolledWindow*, void> _controlDelegate;
 };

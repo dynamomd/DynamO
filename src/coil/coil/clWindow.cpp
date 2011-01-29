@@ -1604,12 +1604,15 @@ void CLGLWindow::selectRObjCallback()
   Gtk::Button *deleteBtn, *editBtn, *addBtn;
   Gtk::ToggleButton *visibleBtn;
   Gtk::Image *visibleImg;
+  Gtk::ScrolledWindow* win;
   _refXml->get_widget("robjDelete", deleteBtn);
   _refXml->get_widget("robjEdit", editBtn);
   _refXml->get_widget("robjAdd", addBtn);
   _refXml->get_widget("robjVisible", visibleBtn);
   _refXml->get_widget("robjVisibleImg", visibleImg);
+  _refXml->get_widget("ObjectOptions", win);
 
+  win->remove(); //Clear the current object controls
   if(iter)
     {
       //Enable the filter buttons
@@ -1627,6 +1630,9 @@ void CLGLWindow::selectRObjCallback()
 	  visibleBtn->set_active(false);
 	  visibleImg->set(Gtk::Stock::NO, Gtk::ICON_SIZE_BUTTON);
 	}
+
+      //Load the controls for the window
+      RenderObjects[(*iter)[_renderObjModelColumns.m_id]]->callShowControls(win);
     }
   else
     {
