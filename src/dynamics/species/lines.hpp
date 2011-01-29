@@ -38,7 +38,7 @@ public:
 
   virtual void updateRenderObj(magnet::CL::CLGLState&) const;
 
-  virtual void updateColorObj(magnet::CL::CLGLState&) const {}
+  virtual void updateColorObj(magnet::CL::CLGLState&) const;
 #endif
 
 protected:

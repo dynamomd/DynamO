@@ -140,6 +140,7 @@ SpPoint::updateRenderObj(magnet::CL::CLGLState& CLState) const
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
   
+  ///////////////////////POSITION DATA UPDATE
   //Check if the system is compressing and adjust the radius scaling factor
   float factor = 1;
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
@@ -166,6 +167,12 @@ SpPoint::updateRenderObj(magnet::CL::CLGLState& CLState) const
        false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
   }
 
+  ///////////////////////COLOR DATA UPDATE
+  if (_initialColorData)
+    {
+      _initialColorData = false;
+      updateColorObj(CLState);
+    }
 }
 
 void 

@@ -230,8 +230,6 @@
                             <property name="label" translatable="yes">Update Interval :</property>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
                             <property name="padding">4</property>
                             <property name="position">2</property>
                           </packing>

@@ -53,5 +53,12 @@ SpLines::updateRenderObj(magnet::CL::CLGLState& CLState) const
     (static_cast<RArrows&>(*_renderObj).getDirectionData(),
      false, 0, 3 * range->size() * sizeof(cl_float), &particleData[3*range->size()]);
 }
+
+void 
+SpLines::updateColorObj(magnet::CL::CLGLState&) const
+{
+
+}
+
 #endif
 

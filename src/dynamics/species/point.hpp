@@ -26,12 +26,14 @@ public:
   SpPoint(DYNAMO::SimData* sim, CRange* r, double nmass, std::string nName,
 	  unsigned int ID, std::string nIName="Bulk"):
     Species(sim, "SpPoint", r, nmass, nName, ID, nIName),
-    _colorMode(IDHSV)
+    _colorMode(IDHSV),
+    _initialColorData(true)
   {}
   
   SpPoint(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
     Species(nSim, "", NULL, 0, "", nID,""),
-    _colorMode(IDHSV)
+    _colorMode(IDHSV),
+    _initialColorData(true)
   { operator<<(XML); }
   
   virtual void initialise();
@@ -74,6 +76,7 @@ protected:
 
   colorMode_t _colorMode;
   unsigned char _constColor[4];
+  mutable bool _initialColorData;
 
   virtual void outputXML(xml::XmlStream& XML) const;
 };
