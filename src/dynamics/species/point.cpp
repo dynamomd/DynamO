@@ -97,9 +97,21 @@ namespace {
       _B.reset(new Gtk::SpinButton);
       _A.reset(new Gtk::SpinButton);
 
+      _R->set_increments(1.0, 1.0);
+      _R->set_range(0.0, 255.0);
       _R->set_value(_color.s[0]);
-      _R->set_range(0, 255);
-      
+
+      _G->set_increments(1.0, 1.0);
+      _G->set_range(0.0, 255.0);
+      _G->set_value(_color.s[0]);
+
+      _B->set_increments(1.0, 1.0);
+      _B->set_range(0.0, 255.0);
+      _B->set_value(_color.s[0]);
+
+      _A->set_increments(1.0, 1.0);
+      _A->set_range(0.0, 255.0);
+      _A->set_value(_color.s[0]);      
 
       _optList->add(*_colorMode);
       _colorMode->show();
@@ -109,12 +121,11 @@ namespace {
       {//RGBA boxes
 	Gtk::HBox* box = manage(new Gtk::HBox);
 	Gtk::Label* label = manage(new Gtk::Label("RGBA"));
-	box->add(*label); label->show();
-	
-	box->add(*_R); _R->show();
-	box->add(*_G); _G->show();
-	box->add(*_B); _B->show();
-	box->add(*_A); _A->show();
+	box->pack_start(*label, true, true); label->show();	
+	box->pack_start(*_R, false, false); _R->show();
+	box->pack_start(*_G, false, false); _G->show();
+	box->pack_start(*_B, false, false); _B->show();
+	box->pack_start(*_A, false, false); _A->show();
 	
 	_optList->add(*box);
 	box->show();
