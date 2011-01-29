@@ -18,19 +18,19 @@
 #pragma once
 
 #include "../../extcode/xmlwriter.hpp"
-#include "species.hpp"
+#include "point.hpp"
 
-class SpFixedCollider:public Species
+class SpFixedCollider:public SpPoint
 {
 public:  
   SpFixedCollider(DYNAMO::SimData* sim, CRange* r, std::string nName, 
 		  unsigned int ID, std::string nIName="Bulk"):
-    Species(sim, "SpFixedCollider", r, 0.0, nName, ID, nIName)
-  {}
+    SpPoint(sim, r, 0, nName, ID, nIName)
+  { name = "SpFixedCollider"; }
   
   SpFixedCollider(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
-    Species(nSim, "", NULL, 0, "", nID,"")
-  { operator<<(XML); }
+    SpPoint(nSim, NULL, 0, "", nID,"")
+  { name = "SpFixedCollider"; operator<<(XML); }
   
   virtual void initialise();
 

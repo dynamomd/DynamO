@@ -13,7 +13,7 @@ SpDumbbells::getCoilRenderObj() const
     {
       _renderObj = new RTSpheres(2 * range->size(), "Species: " + spName);
       particleData.resize(2 * range->size());
-      particleColorData.resize(2 * range->size());
+      particleColorData.resize(range->size()); //We just queue two copies
     }
 
   return _renderObj;
@@ -22,30 +22,12 @@ SpDumbbells::getCoilRenderObj() const
 void 
 SpDumbbells::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
-
-  switch (_colorMode)
-    {
-    case IDHSV:
-      {
-	size_t np = range->size();
-	for (size_t sphID(0); sphID < np; ++ sphID)
-	  {
-	    magnet::color::HSVtoRGB(particleColorData[2 * sphID + 0], ((float)(sphID)) / np);
-	    magnet::color::HSVtoRGB(particleColorData[2 * sphID + 1], ((float)(sphID)) / np);
-	  }
-      }
-      break;
-    case CONSTANT:
-      for (size_t id(0); id < 2 * range->size(); ++id)
-	for (size_t cc(0); cc < 4; ++cc)
-	  particleColorData[id].s[cc] = _constColor[cc];
-      break;
-    }
-
-  {
+  SpPoint::updateColorObj(CLState);
+  
+  {//A second copy to just duplicate the data for the two spheres of the dumbbells
     CLState.getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-       false, 0, 2 * range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+       false, range->size() * sizeof(cl_uchar4), range->size() * sizeof(cl_uchar4), &particleColorData[0]);
   }
 }
 
@@ -71,14 +53,14 @@ SpDumbbells::updateRenderObj(magnet::CL::CLGLState& CLState) const
       
       Vector pos = cpos + orientation;
       for (size_t i(0); i < NDIM; ++i)
-	particleData[2 * sphID + 0].s[i] = pos[i];
+	particleData[sphID].s[i] = pos[i];
 
       pos = cpos - orientation;
       for (size_t i(0); i < NDIM; ++i)
-	particleData[2 * sphID + 1].s[i] = pos[i];
+	particleData[range->size() + sphID].s[i] = pos[i];
       
-      particleData[2 * sphID + 0].w = diam * 0.5;
-      particleData[2 * sphID + 1].w = diam * 0.5;
+      particleData[sphID].w = diam * 0.5;
+      particleData[range->size() + sphID].w = diam * 0.5;
       ++sphID;
     }
 

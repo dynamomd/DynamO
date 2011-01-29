@@ -24,9 +24,11 @@
 SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 			       std::string nName, unsigned int nID, double inertiaConst,
 			       std::string nIName):
-  SpInertia(tmp, "Species", nr, nMass, nName, nID, nIName),
+  SpInertia(tmp, nr, nMass, nName, nID, nIName),
   inertiaConstant(inertiaConst)
-{}
+{
+  spName = "SpSphericalTop";
+}
 
 SpSphericalTop::SpSphericalTop(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int nID):
   SpInertia(XML, Sim, nID)
@@ -48,7 +50,7 @@ SpSphericalTop::outputXML(xml::XmlStream& XML, std::string type) const
 void 
 SpSphericalTop::operator<<(const XMLNode& XML)
 {
-  Species::operator<<(XML);
+  SpPoint::operator<<(XML);
 
   try {
     inertiaConstant 

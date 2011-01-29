@@ -17,27 +17,21 @@
 
 #pragma once
 
-#include "inertia.hpp"
+#include "point.hpp"
 
-class SpSphericalTop: public SpInertia
+/*! A thin class to just dynamically check that a species has inertia*/
+class SpInertia: public SpPoint
 {
 public:
-  SpSphericalTop(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
-		 unsigned int ID, double iC, std::string nIName="Bulk");
+  SpInertia(DYNAMO::SimData* sim, CRange* r, 
+	    double nMass, std::string nName,
+	    unsigned int ID, std::string nIName="Bulk"):
+    SpPoint(sim, r, nMass, nName, ID, nIName)
+  {}
+
+  SpInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+    SpPoint(XML,Sim,ID)
+  {}
+
   
-  SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
-
-  virtual Species* Clone() const { return new SpSphericalTop(*this); }
-
-  virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
-
-  virtual void operator<<(const XMLNode&);
-
-protected:
-
-  virtual void outputXML(xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
-
-  void outputXML(xml::XmlStream& XML, std::string type) const;
-  
-  double inertiaConstant;
 };

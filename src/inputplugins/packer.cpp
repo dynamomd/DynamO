@@ -332,8 +332,8 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					       "Bulk")));
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					      "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
@@ -405,7 +405,7 @@ CIPPacker::initialise()
 							 ))->setName("Bulk");
 	    
 	    Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				     (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				     (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						  "Bulk")));
 	  }
 	else
@@ -505,7 +505,7 @@ CIPPacker::initialise()
 		std::string sp1Name = "A";
 		sp1Name[0] += spID1;
 		Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-					 (new Species(Sim, new CRRange(spdat1.idStart, 
+					 (new SpPoint(Sim, new CRRange(spdat1.idStart, 
 								       spdat1.idEnd), 
 						      spdat1.mass, sp1Name, spID1, 
 						      sp1Name + sp1Name)));
@@ -638,7 +638,7 @@ CIPPacker::initialise()
 							))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -713,7 +713,7 @@ CIPPacker::initialise()
 
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -772,7 +772,7 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
@@ -858,7 +858,7 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -924,7 +924,7 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk")));
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -1009,7 +1009,7 @@ CIPPacker::initialise()
 
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "Ring"));
@@ -1094,11 +1094,11 @@ CIPPacker::initialise()
 			    new C2RAll()))->setName("BBInt");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+				 (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(nA, latticeSites.size()-1),
+				 (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -1240,7 +1240,7 @@ CIPPacker::initialise()
 			     "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1312,7 +1312,7 @@ CIPPacker::initialise()
 			     new CRAll(Sim), new CRAll(Sim)));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1502,11 +1502,11 @@ CIPPacker::initialise()
 
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+				 (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(nA, latticeSites.size()-1),
+				 (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
 	unsigned long nParticles = 0;
@@ -1664,11 +1664,11 @@ CIPPacker::initialise()
 			    new C2RAll()))->setName("BBInt");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
+				 (new SpPoint(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
 					       "AAInt")));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(nPartA, latticeSites.size()-1),
+				 (new SpPoint(Sim, new CRRange(nPartA, latticeSites.size()-1),
 					       massFrac / chainlength, "B", 0, "BBInt")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -1746,7 +1746,7 @@ CIPPacker::initialise()
 				      new C2RAll()))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0,
 					       "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -1910,7 +1910,7 @@ CIPPacker::initialise()
 						   ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -1995,7 +1995,7 @@ CIPPacker::initialise()
 			  "RingDSMC", new CRAll(Sim)));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -2078,7 +2078,7 @@ CIPPacker::initialise()
 			  "RingDSMC", new CRAll(Sim)));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	unsigned long nParticles = 0;
@@ -2215,7 +2215,7 @@ CIPPacker::initialise()
 					  "Plate5", new CRAll(Sim), false));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, 
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, 
 					       "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -2307,7 +2307,7 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -2399,7 +2399,7 @@ CIPPacker::initialise()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
@@ -2452,7 +2452,7 @@ CIPPacker::initialise()
 						     ))->setName("Bulk");
 	
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					      "Bulk")));
 	
 	//We actually shrink our lattice length scale by 0.999 and our
@@ -2570,11 +2570,11 @@ CIPPacker::initialise()
 				 (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 						      0, "Bulk")));
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(funnelSites.size(), 
+				 (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.getSpecies("FunnelParticles").setConstantColor(255,255,255);
+	static_cast<SpPoint&>(Sim->dynamics.getSpecies("FunnelParticles")).setConstantColor(255,255,255);
 
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
@@ -3131,7 +3131,7 @@ CIPPacker::initialise()
 	}
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
 	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
@@ -3387,11 +3387,11 @@ CIPPacker::initialise()
 				 (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 						      0, "Bulk")));
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new Species(Sim, new CRRange(funnelSites.size(), 
+				 (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.getSpecies("FunnelParticles").setConstantColor(255,255,255);
+	static_cast<SpPoint&>(Sim->dynamics.getSpecies("FunnelParticles")).setConstantColor(255,255,255);
 
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));

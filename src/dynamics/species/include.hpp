@@ -20,3 +20,4 @@
 #include "fixedCollider.hpp"
 #include "lines.hpp"
 #include "dumbbell.hpp"
+#include "point.hpp"

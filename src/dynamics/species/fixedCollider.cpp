@@ -23,7 +23,7 @@
 void 
 SpFixedCollider::initialise()
 {
-  Species::initialise();
+  SpPoint::initialise();
 
   BOOST_FOREACH(size_t ID, *range)
     Sim->particleList[ID].clearState(Particle::DYNAMIC);

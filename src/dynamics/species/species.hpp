@@ -36,106 +36,71 @@ namespace xml
 }
 class Particle;
 class Interaction;
-
+class RenderObj;
+namespace magnet {
+  namespace GL {
+    class CLGLState;
+  }
+}
+namespace Gtk {
+  class ScrolledWindow;
+}
 
 class Species:public DYNAMO::SimBase
 {
-public:  
-  Species(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
-	   unsigned int ID, std::string nIName="Bulk");
-  
-  Species(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
-
+public:
   virtual ~Species() {}
 
-  bool isSpecies(const Particle &) const;
-  
-  const double& getMass() const { return mass; }
-  
-  unsigned long getCount() const;
-  
-  unsigned int getID() const { return ID; }
-  
-  virtual void operator<<(const XMLNode&);
+  inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
 
-  virtual void initialise();
+  inline const double& getMass() const { return mass; }
+  inline unsigned long getCount() const { return range->size(); }
+  inline unsigned int getID() const { return ID; }
+  inline const std::string& getName() const { return spName; }
+  inline const std::string& getIntName() const { return intName; }
+  inline const magnet::ClonePtr<CRange>& getRange() const { return range; }
+  inline const Interaction* getIntPtr() const { return IntPtr; }
+  inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
+  virtual double getScalarMomentOfInertia() const = 0;
+
+  virtual void operator<<(const XMLNode&) = 0;
+
+  virtual void initialise() = 0;
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Species&);
   
-  const std::string& getName() const { return spName; }
-
-  const std::string& getIntName() const { return intName; }
-
-  const Interaction* getIntPtr() const;
-
-  void setIntPtr(Interaction*);
-
-  const magnet::ClonePtr<CRange>& getRange() const { return range; }
-
-  virtual Species* Clone() const { return new Species(*this); }
-
-  virtual double getScalarMomentOfInertia() const { return 0; }
+  virtual Species* Clone() const = 0;
 
   static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
-
-  virtual void updateRenderObj(magnet::CL::CLGLState&) const;
-
-  virtual void updateColorObj(magnet::CL::CLGLState&) const;
+  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const = 0;
+  virtual void updateRenderObj(magnet::CL::CLGLState&) const = 0;
+  virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;
+  virtual void showControls(Gtk::ScrolledWindow*) = 0;
 #endif
-
-  void setConstantColor(unsigned char r, unsigned char g, unsigned char b)
-  { 
-    _constColor[0] = r; _constColor[1] = g; _constColor[2] = b; 
-    _colorMode = CONSTANT;
-  }
 
 protected:
-  Species(DYNAMO::SimData*, std::string name, 
-	   CRange*, double nMass, std::string nName, 
-	   unsigned int ID, std::string nIName="Bulk");
-  
+  Species(DYNAMO::SimData* tmp, std::string name, 
+	  CRange* nr, double nMass, std::string nName, 
+	  unsigned int nID, std::string nIName):
+    SimBase(tmp,name, IC_blue),
+    mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
+    ID(nID)
+  {}
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(xml::XmlStream&) const = 0;
   
   double mass;
-
   magnet::ClonePtr<CRange> range;
-
   std::string spName;
   std::string intName;
-
   Interaction* IntPtr;
-
   unsigned int ID;
-
-#ifdef DYNAMO_visualizer
-  mutable magnet::thread::RefPtr<RenderObj> _renderObj;
-  mutable std::vector<cl_float4> particleData;
-  mutable std::vector<cl_uchar4> particleColorData;
-#endif
-
-  typedef enum {
-    IDHSV,
-    CONSTANT
-  } colorMode_t;
-
-  colorMode_t _colorMode;
-  unsigned char _constColor[4];
 };
 
-class SpInertia: public Species
+inline xml::XmlStream& operator<<(xml::XmlStream& XML, const Species& g)
 {
-public:
-  SpInertia(DYNAMO::SimData* sim, std::string name, 
-	    CRange* r, double nMass, std::string nName, 
-	    unsigned int ID, std::string nIName="Bulk"):
-    Species(sim, name, r, nMass, nName, ID, nIName)
-  {}
-
-  SpInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
-    Species(XML,Sim,ID)
-  {}
-};
+  g.outputXML(XML);
+  return XML;
+}

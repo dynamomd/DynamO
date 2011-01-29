@@ -25,6 +25,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include "../../extcode/memUsage.hpp"
+#include "../../dynamics/species/inertia.hpp"
 
 OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   OutputPlugin(tmp,"Misc",0),

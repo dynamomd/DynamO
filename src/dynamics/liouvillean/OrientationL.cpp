@@ -33,6 +33,7 @@
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
 #include "../../extcode/binaryHelper.hpp"
+#include "../species/inertia.hpp"
 
 void 
 LNOrientation::initialise() 
