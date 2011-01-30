@@ -391,14 +391,17 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 
   //Treat special cases if one particle has infinite mass
   if ((p1Mass == 0) && (p2Mass != 0))
+    //if (!particle1.testState(Particle::DYNAMIC) && particle2.testState(Particle::DYNAMIC))
     {
       retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
       //This function must edit particles so it overrides the const!
       const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
     }
-  else if ((p1Mass != 0) && (p2Mass == 0))
+  else 
+    if ((p1Mass != 0) && (p2Mass == 0))
+      //if (particle1.testState(Particle::DYNAMIC) && !particle2.testState(Particle::DYNAMIC))
     {
-      retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
+      retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
       //This function must edit particles so it overrides the const!
       const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
     }

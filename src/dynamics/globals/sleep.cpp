@@ -157,10 +157,7 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	  lastVelocity[p2.getID()] = p2.getVelocity();
 	  lastPosition[p1.getID()] = p1.getPosition();
 	  lastPosition[p2.getID()] = p2.getPosition();
-
 	}
-
-      
     }
 }
 
@@ -225,16 +222,8 @@ GSleep::runEvent(const Particle& part, const double dt) const
       const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
       break;
     case CHECK:
-      if (part.getVelocity().nrm() > 2000000.0 * sleepVelocity)
-	{
-	  const_cast<Particle&>(part).setState(Particle::DYNAMIC);
-	  iEvent.setType(WAKEUP);
-	}
-      else
-	{
-	  const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
-	  iEvent.setType(RESLEEP);
-	}
+      //const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+      iEvent.setType(RESLEEP);
       break;
     default:
       M_throw() << "Bad event type";
