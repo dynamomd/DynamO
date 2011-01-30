@@ -1,17 +1,18 @@
-#include "dumbbell.hpp"
-
 #ifdef DYNAMO_visualizer
+# include "renderobjs/spheres.hpp"
 # include <magnet/thread/mutex.hpp>
-# include <coil/RenderObj/Spheres.hpp>
 # include "../liouvillean/OrientationL.hpp"
 # include <magnet/HSV.hpp>
+# include "dumbbell.hpp"
+
 
 magnet::thread::RefPtr<RenderObj>& 
 SpDumbbells::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-      _renderObj = new RTSpheres(2 * range->size(), "Species: " + spName);
+      _renderObj = new SphereParticleRenderer(2 * range->size(), "Species: " + spName,
+					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj));
       particleData.resize(2 * range->size());
       particleColorData.resize(range->size()); //We just queue two copies
     }
