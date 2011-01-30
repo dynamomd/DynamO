@@ -76,6 +76,8 @@ SpPoint::initialise()
 
 
 #ifdef DYNAMO_visualizer
+# include <magnet/gtk/numericEntry.hpp>
+
 namespace { 
   class DynamoSphereRenderer: public RTSpheres
   {
@@ -89,72 +91,94 @@ namespace {
     
     virtual void initGTK() 
     {
-      _optList.reset(new Gtk::VBox);
+      _optList.reset(new Gtk::VBox);//The Vbox of options
       _colorMode.reset(new Gtk::RadioButton("Single Color"));
-
       _R.reset(new Gtk::SpinButton);
       _G.reset(new Gtk::SpinButton);
       _B.reset(new Gtk::SpinButton);
       _A.reset(new Gtk::SpinButton);
+      _characteristicV.reset(new Gtk::Entry);
 
-      _R->set_increments(1.0, 1.0);
-      _R->set_range(0.0, 255.0);
-      _R->set_value(_color.s[0]);
-
-      _G->set_increments(1.0, 1.0);
-      _G->set_range(0.0, 255.0);
-      _G->set_value(_color.s[0]);
-
-      _B->set_increments(1.0, 1.0);
-      _B->set_range(0.0, 255.0);
-      _B->set_value(_color.s[0]);
-
-      _A->set_increments(1.0, 1.0);
-      _A->set_range(0.0, 255.0);
-      _A->set_value(_color.s[0]);      
-
-      _optList->add(*_colorMode);
-      _colorMode->show();
-
-      Gtk::RadioButton::Group group = _colorMode->get_group();
-
-      {//RGBA boxes
+      {//Single color and RGBA boxes
 	Gtk::HBox* box = manage(new Gtk::HBox);
+	
+	box->pack_start(*_colorMode, true, true);_colorMode->show();
+	_colorMode->signal_group_changed()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+
 	Gtk::Label* label = manage(new Gtk::Label("RGBA"));
-	box->pack_start(*label, true, true); label->show();	
+	box->pack_start(*label, false, false); label->show();
+
+	
+	_R->set_increments(1.0, 1.0);
+	_R->set_range(0.0, 255.0);
+	_R->set_value(_color.s[0]);
+	
+	_G->set_increments(1.0, 1.0);
+	_G->set_range(0.0, 255.0);
+	_G->set_value(_color.s[0]);
+	
+	_B->set_increments(1.0, 1.0);
+	_B->set_range(0.0, 255.0);
+	_B->set_value(_color.s[0]);
+	
+	_A->set_increments(1.0, 1.0);
+	_A->set_range(0.0, 255.0);
+	_A->set_value(_color.s[0]);      
+
 	box->pack_start(*_R, false, false); _R->show();
 	box->pack_start(*_G, false, false); _G->show();
 	box->pack_start(*_B, false, false); _B->show();
 	box->pack_start(*_A, false, false); _A->show();
 	
+	_R->signal_changed()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+	_G->signal_changed()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+	_B->signal_changed()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+	_A->signal_changed()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+	
 	_optList->add(*box);
 	box->show();
-      }
 
-      {//Horizontal Line
+	//Horizontal seperator
 	Gtk::HSeparator* line = manage(new Gtk::HSeparator);
 	line->show();
 	_optList->add(*line);
       }
 
-      {
+      Gtk::RadioButton::Group group = _colorMode->get_group();
+
+      {//Color by ID
 	Gtk::RadioButton* btn = manage(new Gtk::RadioButton("Color by ID"));
 	btn->set_group(group);
 	btn->show();
 	_optList->add(*btn);
-      }
 
-      {//Horizontal Line
+	//Horizontal seperator
 	Gtk::HSeparator* line = manage(new Gtk::HSeparator);
 	line->show();
 	_optList->add(*line);
       }
 
-      {
+      {//Color by Speed
+	Gtk::HBox* box = manage(new Gtk::HBox);	
+	
 	Gtk::RadioButton* btn = manage(new Gtk::RadioButton("Color by Speed"));
 	btn->set_group(group);
 	btn->show();
-	_optList->add(*btn);
+	box->pack_start(*btn, true, true);
+	
+	box->pack_start(*_characteristicV, false, false);
+	_characteristicV->show();
+	_characteristicV->set_text("1.00");
+	
+	_characteristicV->signal_changed()
+	  .connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, *_characteristicV));
+	box->show();
+	_optList->add(*box);
       }
       
       _optList->show();
@@ -167,7 +191,14 @@ namespace {
       win->add(*_optList);
       win->show();
     }
+    
   protected:
+
+    void guiUpdate()
+    {
+
+    }
+
 
     std::auto_ptr<Gtk::VBox> _optList;
     std::auto_ptr<Gtk::RadioButton> _colorMode;
@@ -175,6 +206,7 @@ namespace {
     std::auto_ptr<Gtk::SpinButton> _G;
     std::auto_ptr<Gtk::SpinButton> _B;
     std::auto_ptr<Gtk::SpinButton> _A;
+    std::auto_ptr<Gtk::Entry> _characteristicV;
 
     cl_uchar4 _color;
   };
