@@ -222,6 +222,7 @@ namespace {
     inline volatile const DrawMode& getDrawMode() { return _mode; }
     inline volatile const double& getScaleV() { return _scaleV; }
     inline volatile const cl_uchar4& getColor() { return _color; }
+    inline volatile const bool& getRecolorOnUpdate() { return _recolorOnUpdate; }
   protected:
 
     void guiUpdate()
@@ -232,9 +233,9 @@ namespace {
       _scaleV = boost::lexical_cast<double>(val);
       if (_scaleV == 0) {_scaleV = 1; _characteristicV->set_text("1.0"); }
       
-      if (_singleColorMode->get_active())  _mode = SINGLE_COLOR;
-      if (_colorByIDMode->get_active())    _mode = COLOR_BY_ID;
-      if (_colorBySpeedMode->get_active()) _mode = COLOR_BY_SPEED;
+      if (_singleColorMode->get_active())  { _mode = SINGLE_COLOR; _recolorOnUpdate = false; }
+      if (_colorByIDMode->get_active())    { _mode = COLOR_BY_ID; _recolorOnUpdate = false; }
+      if (_colorBySpeedMode->get_active()) { _mode = COLOR_BY_SPEED; _recolorOnUpdate = true; }
       _color.s[0] = _R->get_value();
       _color.s[1] = _G->get_value();
       _color.s[2] = _B->get_value();
@@ -257,6 +258,7 @@ namespace {
     volatile cl_uchar4 _color;
     volatile DrawMode _mode;
     volatile double _scaleV;
+    volatile bool _recolorOnUpdate;
 
     magnet::function::Delegate1<magnet::CL::CLGLState&, void> _updateColorFunc;
   };
@@ -308,16 +310,15 @@ SpPoint::updateRenderObj(magnet::CL::CLGLState& CLState) const
     CLState.getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
        false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
-  }  
+  }
+  
+  if (_renderObj.as<DynamoSphereRenderer>().getRecolorOnUpdate())
+    updateColorObj(CLState);
 }
 
 void 
 SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
-  std::cerr << "\n\n\nUPDATING COLOR DATA " 
-	    << _renderObj.as<DynamoSphereRenderer>().getDrawMode() 
-	    << "\n\n\n";
-
   switch (_renderObj.as<DynamoSphereRenderer>().getDrawMode())
     {
     case DynamoSphereRenderer::SINGLE_COLOR:
@@ -332,11 +333,21 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 	break;
       }
     case DynamoSphereRenderer::COLOR_BY_ID:
-    case DynamoSphereRenderer::COLOR_BY_SPEED:
       {
 	size_t np = range->size();
 	for (size_t sphID(0); sphID < np; ++ sphID)
 	  magnet::color::HSVtoRGB(particleColorData[sphID], ((float)(sphID)) / np);
+	break;
+      }
+    case DynamoSphereRenderer::COLOR_BY_SPEED:
+      {
+	double scaleV = _renderObj.as<DynamoSphereRenderer>().getScaleV();
+	size_t sphID(0);
+	BOOST_FOREACH(unsigned long ID, *range)
+	  {
+	    Vector vel = Sim->particleList[ID].getVelocity();
+	    magnet::color::HSVtoRGB(particleColorData[sphID++], magnet::clamp(vel.nrm() / scaleV, 0.0, 1.0));
+	  }
 	break;
       }
     default:
