@@ -224,13 +224,13 @@ namespace {
       
       _singleColorMode->signal_toggled()
 	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _RFixed->signal_changed()
+      _RFixed->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _GFixed->signal_changed()
+      _GFixed->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _BFixed->signal_changed()
+      _BFixed->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _AFixed->signal_changed()
+      _AFixed->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
 
       _colorByIDMode->signal_toggled()
@@ -246,13 +246,13 @@ namespace {
 
       _colorIfStatic->signal_toggled()
 	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _RStatic->signal_changed()
+      _RStatic->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _GStatic->signal_changed()
+      _GStatic->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _BStatic->signal_changed()
+      _BStatic->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-      _AStatic->signal_changed()
+      _AStatic->signal_value_changed()
 	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
 
       _optList->show();
