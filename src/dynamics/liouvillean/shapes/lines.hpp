@@ -26,9 +26,11 @@ class CLinesFunc : public CShape {
 public:
   CLinesFunc(const Vector& nr12, const Vector& nv12,
 	     const Vector& nw1, const Vector& nw2, 
-	     const Vector& nu1, const Vector& nu2):
+	     const Vector& nu1, const Vector& nu2,
+	     const double& length):
     w1(nw1), w2(nw2), u1(nu1), u2(nu2),
-    w12(nw1-nw2), r12(nr12), v12(nv12)
+    w12(nw1 - nw2), r12(nr12), v12(nv12),
+    _length(length)
   {}
 
   void stream(const double& dt)
@@ -59,8 +61,8 @@ public:
       + (((u1 ^ u2) | v12));
   }
 
-  double F_firstDeriv_max(const double& length) const
-  { return length * w12.nrm() + v12.nrm(); }
+  double F_firstDeriv_max() const
+  { return _length * w12.nrm() + v12.nrm(); }
 
   double F_secondDeriv() const
   {
@@ -75,17 +77,17 @@ public:
       + ((w12 | u2) * (r12 | (w1 ^ u1))); 
   }
 
-  double F_secondDeriv_max(const double& length) const
+  double F_secondDeriv_max() const
   {
     return w12.nrm() 
-      * ((2 * v12.nrm()) + (length * (w1.nrm() + w2.nrm())));
+      * ((2 * v12.nrm()) + (_length * (w1.nrm() + w2.nrm())));
   }
 
-  std::pair<double, double> discIntersectionWindow(const double& length) const
+  std::pair<double, double> discIntersectionWindow() const
   {
     Vector  Ahat = w1 / w1.nrm();
     double dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
-    double signChangeTerm = (length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
+    double signChangeTerm = (_length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
     
     std::pair<double,double> 
       retVal(((-1.0 * (r12 | Ahat)) - signChangeTerm) / (v12 | Ahat),
@@ -106,11 +108,11 @@ public:
 
   virtual CShape* Clone() const { return new CLinesFunc(*this); };
 
-  virtual bool test_root(const double& length) const
+  virtual bool test_root() const
   {
     std::pair<double,double> cp = getCollisionPoints();
     
-    return (fabs(cp.first) < length / 2.0 && fabs(cp.second) < length / 2.0);
+    return (fabs(cp.first) < _length / 2.0 && fabs(cp.second) < _length / 2.0);
   }
   
 private:
@@ -121,4 +123,6 @@ private:
   Vector w12;
   Vector r12;
   Vector v12;
+
+  const double _length;
 };

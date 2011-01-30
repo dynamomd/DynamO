@@ -87,17 +87,18 @@ LNOrientation::getLineLineCollision(CPDData& PD, const double& length,
 		orientationData[p1.getID()].angularVelocity,
 		orientationData[p2.getID()].angularVelocity,
 		orientationData[p1.getID()].orientation,
-		orientationData[p2.getID()].orientation);
+		orientationData[p2.getID()].orientation,
+		length);
   
   if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
     t_low += fabs(2.0 * fL.F_firstDeriv())
-      / fL.F_secondDeriv_max(length);
+      / fL.F_secondDeriv_max();
   
   //Find window delimited by discs
-  std::pair<double,double> dtw = fL.discIntersectionWindow(length);
+  std::pair<double,double> dtw = fL.discIntersectionWindow();
   
   if(dtw.first > t_low)
     t_low = dtw.first;
@@ -105,7 +106,7 @@ LNOrientation::getLineLineCollision(CPDData& PD, const double& length,
   if(dtw.second < t_high)
     t_high = dtw.second;
   
-  std::pair<bool,double> root = frenkelRootSearch(fL, length, t_low, t_high);
+  std::pair<bool,double> root = frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
 
   if (root.first) 
     { 
@@ -140,7 +141,8 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
 		orientationData[particle1.getID()].angularVelocity,
 		orientationData[particle2.getID()].angularVelocity,
 		orientationData[particle1.getID()].orientation,
-		orientationData[particle2.getID()].orientation);
+		orientationData[particle2.getID()].orientation,
+		length);
 
   Vector uPerp = fL.getu1() ^ fL.getu2();
 

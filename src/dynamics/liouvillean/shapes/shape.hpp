@@ -27,11 +27,11 @@ public:
 
   virtual double F_firstDeriv() const = 0;
 
-  virtual double F_firstDeriv_max(const double& length) const = 0;
+  virtual double F_firstDeriv_max() const = 0;
 
   virtual double F_secondDeriv() const = 0;
 
-  virtual double F_secondDeriv_max(const double& length) const = 0;
+  virtual double F_secondDeriv_max() const = 0;
 
-  virtual bool test_root(const double&) const = 0;
+  virtual bool test_root() const = 0;
 };

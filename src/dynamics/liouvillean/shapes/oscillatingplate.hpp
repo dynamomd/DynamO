@@ -95,7 +95,7 @@ public:
     return (vp | nhat) - velnHatWall();
   }
 
-  double F_firstDeriv_max(const double&) const
+  double F_firstDeriv_max() const
   {
     return std::fabs(vp | nhat) + Delta * Omega; 
   }
@@ -105,14 +105,14 @@ public:
     return Delta * Omega * Omega * std::cos(Omega * t);
   }
 
-  double F_secondDeriv_max(const double&) const
+  double F_secondDeriv_max() const
   {
     return Delta * Omega * Omega;
   }
 
   virtual CShape* Clone() const { return new COscillatingPlateFunc(*this); };
 
-  virtual bool test_root(const double&) const
+  virtual bool test_root() const
   {
     return (((vp | nhat) - velnHatWall()) 
 	    * ((rp | nhat) - wallnHatPosition())) > 0;

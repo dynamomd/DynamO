@@ -19,12 +19,14 @@
 
 #include <magnet/math/quadratic.hpp>
 
+//! Shooting root finder using quadratic estimation 
+//! toleranceLengthScale should be 10^-10 the typical length scale of the system
 template<class T>
-std::pair<bool,double> quadRootHunter(const T& fL, double length, double& t_low, double& t_high,
-				    const double& tolerance)
+std::pair<bool,double> quadRootHunter(const T& fL, double& t_low, double& t_high,
+				      const double& toleranceLengthScale)
 {
   double working_time = t_low;
-  double timescale = tolerance * length / fL.F_firstDeriv_max(length);
+  double timescale = toleranceLengthScale / fL.F_firstDeriv_max();
   bool fwdWorking = false;
 
   size_t w = 0;
@@ -61,7 +63,7 @@ std::pair<bool,double> quadRootHunter(const T& fL, double length, double& t_low,
 	double f0 = tempfL.F_zeroDeriv(),
 	  f1 = tempfL.F_firstDeriv(),
 	  halff2 = 0.5 * tempfL.F_secondDeriv(),
-	  halff2max = 0.5 * tempfL.F_secondDeriv_max(length);
+	  halff2max = 0.5 * tempfL.F_secondDeriv_max();
 
 	if (f0 > 0) halff2max = -halff2max;
 
@@ -110,7 +112,9 @@ std::pair<bool,double> quadRootHunter(const T& fL, double length, double& t_low,
   return std::pair<bool,double>(false, HUGE_VAL);
 }
 
-  /* \brief For line line collisions, determines intersections of the infinite lines
+  /* \brief A root finder that is guarranteed to find the earliest
+  ** root in an interval, for functions with known maximum first and
+  ** second derivatives.
   **
   **   Firstly, search for root in main window
   **  - If a root is not found, return failure
@@ -122,16 +126,18 @@ std::pair<bool,double> quadRootHunter(const T& fL, double length, double& t_low,
   **  - Check root validity
   **    - If root is valid, this is earliest possible root - roll with it
   **    - If root is invalid, set new concrete t_low just above this found root and go from the top
+  **
+  ** \param toleranceLengthScale Should be 10^-10 the typical length scale of the system
   */
 template<class T>
-std::pair<bool,double> frenkelRootSearch(const T& fL, double length, double t_low, double t_high,
-				       double tol = 1e-10)
+std::pair<bool,double> frenkelRootSearch(const T& fL, double t_low, double t_high,
+					 double toleranceLengthScale)
 {
   std::pair<bool,double> root(false,HUGE_VAL);
 
   while(t_high > t_low)
     {
-      root = quadRootHunter<T>(fL, length, t_low, t_high, tol);
+      root = quadRootHunter<T>(fL, t_low, t_high, toleranceLengthScale);
 
       //If no root was found, return the lower bound on the root
       if (root.first == false) return root;
@@ -143,7 +149,7 @@ std::pair<bool,double> frenkelRootSearch(const T& fL, double length, double t_lo
 	T tempfL(fL);
 	tempfL.stream(root.second);
 	//Calculate the offset for the upper bound
-	double Fdoubleprimemax = tempfL.F_secondDeriv_max(length);
+	double Fdoubleprimemax = tempfL.F_secondDeriv_max();
 	temp_high = root.second - (fabs(2.0 * tempfL.F_firstDeriv())
 				   / Fdoubleprimemax);
 
@@ -152,7 +158,7 @@ std::pair<bool,double> frenkelRootSearch(const T& fL, double length, double t_lo
 	if ((temp_high < t_low) || (Fdoubleprimemax == 0)) break;
 
 	//Search for a root in the new interval
-	std::pair<bool,double> temp_root = quadRootHunter<T>(fL, length, t_low, temp_high, tol);
+	std::pair<bool,double> temp_root = quadRootHunter<T>(fL, t_low, temp_high, toleranceLengthScale);
 
 	//If there is no root, then the current root is fine
 	if (!temp_root.first)
@@ -168,12 +174,11 @@ std::pair<bool,double> frenkelRootSearch(const T& fL, double length, double t_lo
       T tempfL(fL);
       tempfL.stream(root.second);
 
-      if (tempfL.test_root(length))
-        return root;
+      if (tempfL.test_root()) return root;
 
       //The root was not valid, set the lower bound to the current root value
       t_low = root.second + ((2.0 * fabs(tempfL.F_firstDeriv()))
-			     / tempfL.F_secondDeriv_max(length));
+			     / tempfL.F_secondDeriv_max());
 
       //Now invalidate the current root
       root.first = false;

@@ -881,10 +881,10 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
       if (-fL.F_zeroDeriv() < fL.F_zeroDerivFlip())
 	//Shift the lower bound up so we don't find the same root again
 	t_low1 = fabs(2.0 * fL.F_firstDeriv())
-	  / fL.F_secondDeriv_max(0.0);
+	  / fL.F_secondDeriv_max();
       else
 	t_low2 = fabs(2.0 * fL.F_firstDeriv())
-	  / fL.F_secondDeriv_max(0.0);
+	  / fL.F_secondDeriv_max();
     }
 
 
@@ -892,7 +892,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   t_high *= 1.01;
   
   std::pair<bool,double> root1 
-    = frenkelRootSearch(fL, Sigma, t_low1, t_high, 1e-12);
+    = frenkelRootSearch(fL, t_low1, t_high, 1e-12 * Sigma);
 
   fL.flipSigma();
 
@@ -913,7 +913,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
     }
 
   std::pair<bool,double> root2 
-    = frenkelRootSearch(fL, Sigma, t_low2, t_high, 1e-12);
+    = frenkelRootSearch(fL, t_low2, t_high, 1e-12 * Sigma);
 
   //Check if the particle is penetrating a wall
   //Or if no roots are found at all
@@ -935,7 +935,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 #endif
       
       //If the particle is going out of bounds, collide now
-      if (fL.test_root(Sigma))
+      if (fL.test_root())
 	{
 #ifdef DYNAMO_DEBUG
 	  {
@@ -1011,7 +1011,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	  //This next line sets what the recoil velocity should be
 	  //We choose the velocity that gives elastic collisions!
 	  tmpt += fL.maxWallVel() * 0.002;
-	  tmpt /= fL.F_secondDeriv_max(Sigma);
+	  tmpt /= fL.F_secondDeriv_max();
 	  if (tmpt < currRoot)
 	    {
 	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
@@ -1067,10 +1067,10 @@ LNewtonian::runOscilatingPlate
 
   
   //Check the root is valid
-  if (!fL.test_root(sigma))
+  if (!fL.test_root())
     {
       double f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
-	f2 = fL.F_secondDeriv_max(0);
+	f2 = fL.F_secondDeriv_max();
       fL.flipSigma();
       
       I_cerr() <<"Particle " << part.getID()
@@ -1084,11 +1084,11 @@ LNewtonian::runOscilatingPlate
 	       << "\nRwall[0] = " << fL.wallPosition()[0]
 	       << "\nRwall[0]+sigma = " << fL.wallPosition()[0] + sigma
 	       << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
-	       << "\nGood root " << fL.test_root(sigma)
+	       << "\nGood root " << fL.test_root()
 	       << "\nsigma + Del = " << sigma+delta
 	       << "\nf1(0)* = " << fL.F_zeroDeriv()
 	       << "\nf1'(0) =" << fL.F_firstDeriv()
-	       << "\nf1''(Max) =" << fL.F_secondDeriv_max(0)
+	       << "\nf1''(Max) =" << fL.F_secondDeriv_max()
 	       << "\nf2(0)* = " << f0
 	       << "\nf2'(0) =" << f1
 	       << "\nf2''(Max) =" << f2
