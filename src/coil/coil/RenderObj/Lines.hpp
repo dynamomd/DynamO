@@ -30,8 +30,8 @@ public:
 
   virtual void initOpenGL();
 
-  virtual void initOpenCL(magnet::CL::CLGLState&);
-  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
+  virtual void initOpenCL();
+  virtual void clTick(const magnet::GL::viewPort&) {}
 
   void setGLColors(std::vector<cl_uchar4>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);

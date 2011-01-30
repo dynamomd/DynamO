@@ -67,6 +67,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
 
+  _systemQueue = new magnet::thread::TaskQueue;
   //First render object is the ground
   RenderObjects.push_back(new RFunction((size_t)64,
 					Vector(-5, -0.6, -5),
@@ -273,7 +274,7 @@ CLGLWindow::CallBackIdleFunc()
 void 
 CLGLWindow::initOpenCL()
 {
-  _CLState.init();
+  _CLState->init();
   
   if (cl::GLBuffer::hostTransfers()) 
     std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
@@ -281,7 +282,7 @@ CLGLWindow::initOpenCL()
   //Now init the render objects  
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->initOpenCL(_CLState);
+    (*iPtr)->initOpenCL();
 }
 
 //The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
@@ -774,13 +775,14 @@ CLGLWindow::init()
 
   if (_readyFlag) return;
 
+  _CLState = new magnet::CL::CLGLState;
+
   //Inform objects about the accessory objects, like the console or the pointer
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    {
-      (*iPtr)->accessoryData(RenderObjects[1]); //This is the console
-    }
-
+    //This is the console and the simulation/system task queue
+    (*iPtr)->accessoryData(RenderObjects[1], _systemQueue, _CLState); 
+  
   initOpenGL();
   initOpenCL();
   initGTK();
@@ -811,9 +813,9 @@ CLGLWindow::deinit(bool andGlutDestroy)
   /////////////////OpenCL
   RenderObjects.clear();
 
-  _CLState.getCommandQueue().finish();
+  _CLState->getCommandQueue().finish();
 
-  _CLState = magnet::CL::CLGLState();
+  _CLState.release();
 
   ///////////////////OpenGL
   _renderTarget->deinit();
@@ -849,7 +851,7 @@ CLGLWindow::CallBackDisplayFunc()
   //Run every objects OpenCL stage
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->clTick(_CLState, _viewPortInfo);
+    (*iPtr)->clTick(_viewPortInfo);
 
   //Camera Positioning
 
@@ -860,7 +862,7 @@ CLGLWindow::CallBackDisplayFunc()
   _viewPortInfo.CameraUpdate(forward, sideways, vertical);
 
   //Flush the OpenCL queue, so GL can use the buffers
-  _CLState.getCommandQueue().finish();
+  _CLState->getCommandQueue().finish();
   
 
   //Prepare for the GL render
@@ -1222,7 +1224,7 @@ CLGLWindow::simupdateTick()
 
   for (;;)
     {
-      _systemQueue.drainQueue();
+      _systemQueue->drainQueue();
 
       //Block the simulation if _simrun is false or if we're in frame lock
       //and a new frame has not been drawn.
@@ -1520,7 +1522,7 @@ CLGLWindow::performPicking(int x, int y)
   cl_uint startVal = 0;
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->initPicking(_CLState, startVal);
+    (*iPtr)->initPicking(startVal);
 
   //Now render the scene
   glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -1551,7 +1553,7 @@ CLGLWindow::performPicking(int x, int y)
   startVal = 0;
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->finishPicking(_CLState, startVal, objID);
+    (*iPtr)->finishPicking(startVal, objID);
 }
 
 void 

@@ -24,9 +24,9 @@ class RArrows : public RLines
 public:
   RArrows(size_t N, std::string name);
 
-  virtual void initOpenCL(magnet::CL::CLGLState&);
+  virtual void initOpenCL();
   virtual void initOpenGL();
-  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
+  virtual void clTick(const magnet::GL::viewPort&);
 
   cl::Buffer& getPointData() { return _pointData; }
   cl::Buffer& getDirectionData() { return _directionData; }

@@ -68,7 +68,7 @@ RFunction::initOpenGL()
 {}
 
 void 
-RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
+RFunction::initOpenCL()
 {
   {//Setup initial vertex positions
     float spacingFactor = 1.0 / (_N + 0.5f);
@@ -142,16 +142,16 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
 
   kernelSource.push_back(std::pair<const char*, ::size_t>(_kernelsrc.c_str(), _kernelsrc.size()));
   
-  _program = cl::Program(CLState.getContext(), kernelSource);
+  _program = cl::Program(_CLState->getContext(), kernelSource);
 
   try
-    { _program.build(std::vector<cl::Device>(1, CLState.getDevice())); }
+    { _program.build(std::vector<cl::Device>(1, _CLState->getDevice())); }
   catch(cl::Error& err) 
     {    
-      std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
+      std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(_CLState->getDevice());
       
       std::cout << "Compilation failed for device " <<
-	CLState.getDevice().getInfo<CL_DEVICE_NAME>()
+	_CLState->getDevice().getInfo<CL_DEVICE_NAME>()
 		<< "\nBuild Log:" << msg;
       throw;
     }
@@ -161,31 +161,31 @@ RFunction::initOpenCL(magnet::CL::CLGLState& CLState)
   const size_t workgroupSize = 256;
   
   //N is a multiple of 16, so a workgroup size of 256 is always good
-  _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), 
+  _kernelFunc = _kernel.bind(_CLState->getCommandQueue(), cl::NDRange(_N * _N), 
 			     cl::NDRange(workgroupSize));
 
-  _pickFunc = _pickKernel.bind(CLState.getCommandQueue(), cl::NDRange(_N * _N), 
+  _pickFunc = _pickKernel.bind(_CLState->getCommandQueue(), cl::NDRange(_N * _N), 
 			       cl::NDRange(workgroupSize));
 
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   glFinish();
 
-  initOCLVertexBuffer(CLState.getContext());
-  initOCLNormBuffer(CLState.getContext());
-  initOCLColorBuffer(CLState.getContext());
+  initOCLVertexBuffer(_CLState->getContext());
+  initOCLNormBuffer(_CLState->getContext());
+  initOCLColorBuffer(_CLState->getContext());
 
   //Now do the first clTick if the shape is static!
   if (_staticShape)
     {
       _staticShape = false;
-      clTick(CLState, magnet::GL::viewPort());
+      clTick(magnet::GL::viewPort());
       _staticShape = true;      
     }
 }
 
 
 void 
-RFunction::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
+RFunction::clTick(const magnet::GL::viewPort& _viewPortInfo)
 {
   if (_staticShape || !_visible) return;
 
@@ -196,9 +196,9 @@ RFunction::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _v
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(CLState.getCommandQueue());
-  _clbuf_Positions.acquire(CLState.getCommandQueue());
-  _clbuf_Normals.acquire(CLState.getCommandQueue());
+  _clbuf_Colors.acquire(_CLState->getCommandQueue());
+  _clbuf_Positions.acquire(_CLState->getCommandQueue());
+  _clbuf_Normals.acquire(_CLState->getCommandQueue());
       
   //Run Kernel
   _kernelFunc((cl::Buffer)_clbuf_Positions, 
@@ -214,9 +214,9 @@ RFunction::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _v
 	      _N);
   
   //Release resources
-  _clbuf_Normals.release(CLState.getCommandQueue());
-  _clbuf_Colors.release(CLState.getCommandQueue());
-  _clbuf_Positions.release(CLState.getCommandQueue());
+  _clbuf_Normals.release(_CLState->getCommandQueue());
+  _clbuf_Colors.release(_CLState->getCommandQueue());
+  _clbuf_Positions.release(_CLState->getCommandQueue());
 }
 
 void 
@@ -299,14 +299,14 @@ FunctionPickKernel(__global uint * colors, uint offset)
 
 
 void 
-RFunction::initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset)
+RFunction::initPicking(cl_uint& offset)
 {
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(CLState.getCommandQueue());
+  _clbuf_Colors.acquire(_CLState->getCommandQueue());
   //Run Kernel
   _pickFunc((cl::Buffer)_clbuf_Colors, offset);
   //Release resources
-  _clbuf_Colors.release(CLState.getCommandQueue());
+  _clbuf_Colors.release(_CLState->getCommandQueue());
 
   offset += _N * _N;
 }
@@ -318,7 +318,7 @@ RFunction::pickingRender()
 }
 
 void 
-RFunction::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val)
+RFunction::finishPicking(cl_uint& offset, const cl_uint val)
 {
   if (val - offset < _N * _N)
     (_console.as<coil::Console>()) << "You picked a function point with coords of " 
@@ -328,9 +328,9 @@ RFunction::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const 
 				   << coil::Console::end();
 
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(CLState.getCommandQueue());
-  _clbuf_Positions.acquire(CLState.getCommandQueue());
-  _clbuf_Normals.acquire(CLState.getCommandQueue());
+  _clbuf_Colors.acquire(_CLState->getCommandQueue());
+  _clbuf_Positions.acquire(_CLState->getCommandQueue());
+  _clbuf_Normals.acquire(_CLState->getCommandQueue());
       
   //Run Kernel
   _kernelFunc((cl::Buffer)_clbuf_Positions, 
@@ -346,9 +346,9 @@ RFunction::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const 
 	      _N);
   
   //Release resources
-  _clbuf_Normals.release(CLState.getCommandQueue());
-  _clbuf_Colors.release(CLState.getCommandQueue());
-  _clbuf_Positions.release(CLState.getCommandQueue());
+  _clbuf_Normals.release(_CLState->getCommandQueue());
+  _clbuf_Colors.release(_CLState->getCommandQueue());
+  _clbuf_Positions.release(_CLState->getCommandQueue());
 
   offset += _N * _N;
 }

@@ -29,14 +29,16 @@
 
 struct  SortDataType { cl_uint ID; cl_float dist; };
 
-static cl_float4 getclVec(Vector vec)
-{ 
-  cl_float4 clvec;
-  clvec.x = vec[0];
-  clvec.y = vec[1];
-  clvec.z = vec[2];
-  clvec.w = 0;
-  return clvec;
+namespace {
+  inline cl_float4 getclVec(Vector vec)
+  { 
+    cl_float4 clvec;
+    clvec.x = vec[0];
+    clvec.y = vec[1];
+    clvec.z = vec[2];
+    clvec.w = 0;
+    return clvec;
+  }
 }
 
 
@@ -85,25 +87,25 @@ RTSpheres::RTSpheres(size_t N, std::string name):
 }
 
 void
-RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
+RTSpheres::initOpenCL()
 {
   //Build the sort functor now so we can grab the padding
-  sortFunctor.build(CLState.getCommandQueue(), CLState.getContext());
+  sortFunctor.build(_CLState->getCommandQueue(), _CLState->getContext());
   
   //We must pad the sort data out to a multiple of sortFunctor.padding()
   cl_uint padding = std::max(sortFunctor.padding(), size_t(1024));
   cl_uint paddedN = ((_N + padding - 1) / padding) * padding;
 
   {
-    _spherePositions = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
+    _spherePositions = cl::Buffer(_CLState->getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, 
 				  sizeof(cl_float4) *  _N);
 
     
-    _sortKeys = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(cl_float) * paddedN);
-    _sortData = cl::Buffer(CLState.getContext(), CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
-    _sphereColors = cl::Buffer(CLState.getContext(), CL_MEM_READ_ONLY, sizeof(cl_uchar4) * paddedN);
+    _sortKeys = cl::Buffer(_CLState->getContext(), CL_MEM_READ_WRITE, sizeof(cl_float) * paddedN);
+    _sortData = cl::Buffer(_CLState->getContext(), CL_MEM_READ_WRITE, sizeof(cl_uint) * paddedN);
+    _sphereColors = cl::Buffer(_CLState->getContext(), CL_MEM_READ_ONLY, sizeof(cl_uchar4) * paddedN);
 
-    cl_float4* Pos = (cl_float4*)CLState.getCommandQueue().enqueueMapBuffer(_spherePositions, true, 
+    cl_float4* Pos = (cl_float4*)_CLState->getCommandQueue().enqueueMapBuffer(_spherePositions, true, 
 									    CL_MAP_WRITE, 0, 
 									    _N * sizeof(cl_float4));
 
@@ -122,7 +124,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
       }
 
     //Start copying this data to the graphics card
-    CLState.getCommandQueue().enqueueUnmapMemObject(_spherePositions, (void*)Pos);
+    _CLState->getCommandQueue().enqueueUnmapMemObject(_spherePositions, (void*)Pos);
   }
 
   {//Setup initial vertex positions
@@ -133,7 +135,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
 
     std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(CLState.getContext());
+    initOCLVertexBuffer(_CLState->getContext());
   }
   
   {//Setup inital normal vectors
@@ -176,7 +178,7 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
       }
 
     setGLColors(VertexColor);
-    initOCLColorBuffer(CLState.getContext());
+    initOCLColorBuffer(_CLState->getContext());
   }
    
  
@@ -230,19 +232,19 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   kernelSource.push_back(std::pair<const char*, ::size_t>
 			 (finalSource.c_str(), finalSource.size()));
   
-  _program = cl::Program(CLState.getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
+  _program = cl::Program(_CLState->getCommandQueue().getInfo<CL_QUEUE_CONTEXT>(), kernelSource);
   
   std::string buildOptions;
   
-  cl::Device clDevice = CLState.getCommandQueue().getInfo<CL_QUEUE_DEVICE>();
+  cl::Device clDevice = _CLState->getCommandQueue().getInfo<CL_QUEUE_DEVICE>();
   try {
     _program.build(std::vector<cl::Device>(1, clDevice), buildOptions.c_str());
   } catch(cl::Error& err) {
     
-    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
+    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(_CLState->getDevice());
     
     std::cout << "Compilation failed for device " <<
-      CLState.getDevice().getInfo<CL_DEVICE_NAME>()
+      _CLState->getDevice().getInfo<CL_DEVICE_NAME>()
 	      << "\nBuild Log:" << msg;
     
     throw;
@@ -253,23 +255,22 @@ RTSpheres::initOpenCL(magnet::CL::CLGLState& CLState)
   _colorKernel = cl::Kernel(_program, "SphereColorKernel");
   _pickingKernel = cl::Kernel(_program, "SpherePickingKernel");
 
-  _sortDataKernelFunc = _sortDataKernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), 
+  _sortDataKernelFunc = _sortDataKernel.bind(_CLState->getCommandQueue(), cl::NDRange(paddedN), 
 					     cl::NDRange(256));
 
-  _renderKernelFunc = _renderKernel.bind(CLState.getCommandQueue(), cl::NDRange(_globalsize), 
+  _renderKernelFunc = _renderKernel.bind(_CLState->getCommandQueue(), cl::NDRange(_globalsize), 
 					 cl::NDRange(_workgroupsize));
 
-  _pickingKernelFunc = _pickingKernel.bind(CLState.getCommandQueue(), cl::NDRange(_globalsize), 
+  _pickingKernelFunc = _pickingKernel.bind(_CLState->getCommandQueue(), cl::NDRange(_globalsize), 
 					   cl::NDRange(_workgroupsize));
 
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
-    iPtr->setupCLBuffers(CLState);
+    iPtr->setupCLBuffers(*_CLState);
 }
 
 void 
-RTSpheres::sortTick(magnet::CL::CLGLState& CLState, 
-		    const magnet::GL::viewPort& _viewPortInfo)
+RTSpheres::sortTick(const magnet::GL::viewPort& _viewPortInfo)
 {
   cl_float4 campos = getclVec(_viewPortInfo._position);
   cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
@@ -287,16 +288,16 @@ RTSpheres::sortTick(magnet::CL::CLGLState& CLState,
       || (_renderDetailLevels.front()._nSpheres != _N))
     sortFunctor(_sortKeys, _sortData);
   
-  recolor(CLState);
+  recolor();
 }
 void
-RTSpheres::recolor(magnet::CL::CLGLState& CLState)
+RTSpheres::recolor()
 {
     //Aqquire GL buffer objects
-  _clbuf_Colors.acquire(CLState.getCommandQueue());
+  _clbuf_Colors.acquire(_CLState->getCommandQueue());
 
   //Run color kernels
-  _colorKernelFunc = _colorKernel.bind(CLState.getCommandQueue(), cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
+  _colorKernelFunc = _colorKernel.bind(_CLState->getCommandQueue(), cl::NDRange(_globalsize), cl::NDRange(_workgroupsize));
   
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
@@ -314,19 +315,19 @@ RTSpheres::recolor(magnet::CL::CLGLState& CLState)
     }
 
   //Release resources
-  _clbuf_Colors.release(CLState.getCommandQueue());
+  _clbuf_Colors.release(_CLState->getCommandQueue());
 }
 
 void 
-RTSpheres::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&  _viewPortInfo)
+RTSpheres::clTick(const magnet::GL::viewPort&  _viewPortInfo)
 {
   if (!_visible) return;
 
-  if (!(++_frameCount % _sortFrequency)) sortTick(CLState, _viewPortInfo);
+  if (!(++_frameCount % _sortFrequency)) sortTick(_viewPortInfo);
   
 
   //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(CLState.getCommandQueue());
+  _clbuf_Positions.acquire(_CLState->getCommandQueue());
 
   //Finally, run render kernels
   cl_uint renderedSpheres = 0;
@@ -345,15 +346,15 @@ RTSpheres::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort&  _
     }
 
   //Release resources
-  _clbuf_Positions.release(CLState.getCommandQueue());
+  _clbuf_Positions.release(_CLState->getCommandQueue());
 }
 
 
 void 
-RTSpheres::initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset)
+RTSpheres::initPicking(cl_uint& offset)
 {
   //Aqquire GL buffer objects
-  _clbuf_Colors.acquire(CLState.getCommandQueue());
+  _clbuf_Colors.acquire(_CLState->getCommandQueue());
   
   //Run color kernels  
   cl_uint renderedSpheres = 0;
@@ -372,7 +373,7 @@ RTSpheres::initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset)
     }
 
   //Release resources
-  _clbuf_Colors.release(CLState.getCommandQueue());
+  _clbuf_Colors.release(_CLState->getCommandQueue());
 
   offset += _N;
 }
@@ -384,13 +385,11 @@ RTSpheres::pickingRender()
 }
 
 void 
-RTSpheres::finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val)
+RTSpheres::finishPicking(cl_uint& offset, const cl_uint val)
 {
   if (val - offset < _N)
     (_console.as<coil::Console>()) << "You picked a sphere! with an ID of " 
 				   << (val - offset) << coil::Console::end();
-  
-  recolor(CLState);
-  
+  recolor();
   offset += _N;
 }

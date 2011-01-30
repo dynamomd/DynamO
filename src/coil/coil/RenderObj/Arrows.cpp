@@ -155,15 +155,15 @@ RArrows::initOpenGL()
 }
 
 void 
-RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
+RArrows::initOpenCL()
 {
-  RLines::initOpenCL(CLState);
+  RLines::initOpenCL();
   
   //Build buffer for line data
-  _pointData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+  _pointData = cl::Buffer(_CLState->getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
 			  sizeof(cl_float) *  _N * 3);
 
-  _directionData = cl::Buffer(CLState.getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+  _directionData = cl::Buffer(_CLState->getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
 			      sizeof(cl_float) *  _N * 3);
 
   //Build render kernel
@@ -179,16 +179,16 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
   kernelSource.push_back(std::pair<const char*, ::size_t>
 			 (finalSource.c_str(), finalSource.size()));
 
-  _program = cl::Program(CLState.getContext(), kernelSource);
+  _program = cl::Program(_CLState->getContext(), kernelSource);
 
   try {
-    _program.build(std::vector<cl::Device>(1, CLState.getDevice()));
+    _program.build(std::vector<cl::Device>(1, _CLState->getDevice()));
   } catch(cl::Error& err) {
     
-    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(CLState.getDevice());
+    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(_CLState->getDevice());
     
     std::cout << "Compilation failed for device " <<
-      CLState.getDevice().getInfo<CL_DEVICE_NAME>()
+      _CLState->getDevice().getInfo<CL_DEVICE_NAME>()
 	      << "\nBuild Log:" << msg;
     
     throw;
@@ -198,17 +198,17 @@ RArrows::initOpenCL(magnet::CL::CLGLState& CLState)
 
   cl_uint paddedN = ((_N + 255) / 256) * 256;
 
-  _kernelFunc = _kernel.bind(CLState.getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
+  _kernelFunc = _kernel.bind(_CLState->getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
 }
 
 
 void 
-RArrows::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _viewPortInfo)
+RArrows::clTick(const magnet::GL::viewPort& _viewPortInfo)
 {
   cl_float4 campos = getclVec(_viewPortInfo._position);
 
   //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(CLState.getCommandQueue());
+  _clbuf_Positions.acquire(_CLState->getCommandQueue());
   
   cl_uint NArrows = _N;
 
@@ -217,5 +217,5 @@ RArrows::clTick(magnet::CL::CLGLState& CLState, const magnet::GL::viewPort& _vie
 	      campos, NArrows);
   
   //Release resources
-  _clbuf_Positions.release(CLState.getCommandQueue());
+  _clbuf_Positions.release(_CLState->getCommandQueue());
 }

@@ -31,13 +31,11 @@ class SpPoint: public Species
 public:  
   SpPoint(DYNAMO::SimData* sim, CRange* r, double nmass, std::string nName,
 	  unsigned int ID, std::string nIName="Bulk"):
-    Species(sim, "SpPoint", r, nmass, nName, ID, nIName),
-    _initialColorData(true)
+    Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
   {}
   
   SpPoint(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
-    Species(nSim, "", NULL, 0, "", nID,""),
-    _initialColorData(true)
+    Species(nSim, "", NULL, 0, "", nID,"")
   { operator<<(XML); }
 
   virtual void initialise();
@@ -60,8 +58,5 @@ public:
 #endif
 
 protected:
-  
-  mutable bool _initialColorData;
-  
   virtual void outputXML(xml::XmlStream& XML) const;
 };

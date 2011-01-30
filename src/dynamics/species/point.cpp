@@ -82,8 +82,11 @@ namespace {
   class DynamoSphereRenderer: public RTSpheres
   {
   public:
-    DynamoSphereRenderer(size_t N, std::string name):
-      RTSpheres(N, name)
+    DynamoSphereRenderer(size_t N, std::string name, 
+			 magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc):
+      RTSpheres(N, name),
+      _mode(COLOR_BY_ID),
+      _updateColorFunc(updateColorFunc)
     {
       for (size_t i(0); i < 4; ++i)
 	_color.s[i] = 255;
@@ -92,7 +95,10 @@ namespace {
     virtual void initGTK() 
     {
       _optList.reset(new Gtk::VBox);//The Vbox of options
-      _colorMode.reset(new Gtk::RadioButton("Single Color"));
+      _singleColorMode.reset(new Gtk::RadioButton("Single Color"));
+      _colorByIDMode.reset(new Gtk::RadioButton("Color by ID"));
+      _colorBySpeedMode.reset(new Gtk::RadioButton("Color by Speed"));
+
       _R.reset(new Gtk::SpinButton);
       _G.reset(new Gtk::SpinButton);
       _B.reset(new Gtk::SpinButton);
@@ -102,13 +108,11 @@ namespace {
       {//Single color and RGBA boxes
 	Gtk::HBox* box = manage(new Gtk::HBox);
 	
-	box->pack_start(*_colorMode, true, true);_colorMode->show();
-	_colorMode->signal_group_changed()
-	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+	box->pack_start(*_singleColorMode, true, true);_singleColorMode->show();
+	if (_mode == SINGLE_COLOR) _singleColorMode->set_active();
 
 	Gtk::Label* label = manage(new Gtk::Label("RGBA"));
 	box->pack_start(*label, false, false); label->show();
-
 	
 	_R->set_increments(1.0, 1.0);
 	_R->set_range(0.0, 255.0);
@@ -130,16 +134,7 @@ namespace {
 	box->pack_start(*_G, false, false); _G->show();
 	box->pack_start(*_B, false, false); _B->show();
 	box->pack_start(*_A, false, false); _A->show();
-	
-	_R->signal_changed()
-	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-	_G->signal_changed()
-	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-	_B->signal_changed()
-	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-	_A->signal_changed()
-	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
-	
+		
 	_optList->add(*box);
 	box->show();
 
@@ -149,14 +144,15 @@ namespace {
 	_optList->add(*line);
       }
 
-      Gtk::RadioButton::Group group = _colorMode->get_group();
-
+      Gtk::RadioButton::Group group = _singleColorMode->get_group();
+      
       {//Color by ID
-	Gtk::RadioButton* btn = manage(new Gtk::RadioButton("Color by ID"));
-	btn->set_group(group);
-	btn->show();
-	_optList->add(*btn);
+	_colorByIDMode->set_group(group);
+	_colorByIDMode->show();
+	if (_mode == COLOR_BY_ID) _colorByIDMode->set_active();
 
+	_optList->add(*_colorByIDMode);
+	
 	//Horizontal seperator
 	Gtk::HSeparator* line = manage(new Gtk::HSeparator);
 	line->show();
@@ -166,22 +162,47 @@ namespace {
       {//Color by Speed
 	Gtk::HBox* box = manage(new Gtk::HBox);	
 	
-	Gtk::RadioButton* btn = manage(new Gtk::RadioButton("Color by Speed"));
-	btn->set_group(group);
-	btn->show();
-	box->pack_start(*btn, true, true);
+	_colorBySpeedMode->set_group(group);
+	_colorBySpeedMode->show();
+	if (_mode == COLOR_BY_SPEED) _colorBySpeedMode->set_active();
+
+	box->pack_start(*_colorBySpeedMode, true, true);
 	
+	Gtk::Label* label = manage(new Gtk::Label("Max Speed"));
+	box->pack_start(*label, false, false); label->show();
+
 	box->pack_start(*_characteristicV, false, false);
 	_characteristicV->show();
-	_characteristicV->set_text("1.00");
-	
-	_characteristicV->signal_changed()
-	  .connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, *_characteristicV));
+	_characteristicV->set_text("1.0");
+
 	box->show();
 	_optList->add(*box);
       }
       
+      _singleColorMode->signal_toggled()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+      _R->signal_changed()
+	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+      _G->signal_changed()
+	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+      _B->signal_changed()
+	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+      _A->signal_changed()
+	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+
+      _colorByIDMode->signal_toggled()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+
+      _colorBySpeedMode->signal_toggled()
+	  .connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+      _characteristicV->signal_changed()
+	.connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, *_characteristicV));
+      _characteristicV->signal_activate()
+	.connect(sigc::mem_fun(*this, &DynamoSphereRenderer::guiUpdate));
+
       _optList->show();
+
+      guiUpdate();
     }
 
     virtual void showControls(Gtk::ScrolledWindow* win) 
@@ -192,23 +213,52 @@ namespace {
       win->show();
     }
     
+    typedef enum {
+      SINGLE_COLOR = 1,
+      COLOR_BY_ID = 2,
+      COLOR_BY_SPEED = 3
+    } DrawMode;
+
+    inline volatile const DrawMode& getDrawMode() { return _mode; }
+    inline volatile const double& getScaleV() { return _scaleV; }
+    inline volatile const cl_uchar4& getColor() { return _color; }
   protected:
 
     void guiUpdate()
     {
+      std::string val = _characteristicV->get_text();
+      if (val.empty()) {val = "1.0"; _characteristicV->set_text("1.0"); }
 
+      _scaleV = boost::lexical_cast<double>(val);
+      if (_scaleV == 0) {_scaleV = 1; _characteristicV->set_text("1.0"); }
+      
+      if (_singleColorMode->get_active())  _mode = SINGLE_COLOR;
+      if (_colorByIDMode->get_active())    _mode = COLOR_BY_ID;
+      if (_colorBySpeedMode->get_active()) _mode = COLOR_BY_SPEED;
+      _color.s[0] = _R->get_value();
+      _color.s[1] = _G->get_value();
+      _color.s[2] = _B->get_value();
+      _color.s[3] = _A->get_value();
+      
+      _systemQueue->queueTask(new magnet::function::Task1<void, magnet::CL::CLGLState&>
+			      (_updateColorFunc, *_CLState));
     }
 
-
     std::auto_ptr<Gtk::VBox> _optList;
-    std::auto_ptr<Gtk::RadioButton> _colorMode;
+    std::auto_ptr<Gtk::RadioButton> _singleColorMode;
+    std::auto_ptr<Gtk::RadioButton> _colorByIDMode;
+    std::auto_ptr<Gtk::RadioButton> _colorBySpeedMode;
     std::auto_ptr<Gtk::SpinButton> _R;
     std::auto_ptr<Gtk::SpinButton> _G;
     std::auto_ptr<Gtk::SpinButton> _B;
     std::auto_ptr<Gtk::SpinButton> _A;
     std::auto_ptr<Gtk::Entry> _characteristicV;
+    
+    volatile cl_uchar4 _color;
+    volatile DrawMode _mode;
+    volatile double _scaleV;
 
-    cl_uchar4 _color;
+    magnet::function::Delegate1<magnet::CL::CLGLState&, void> _updateColorFunc;
   };
 }
 
@@ -218,7 +268,8 @@ SpPoint::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-      _renderObj = new DynamoSphereRenderer(range->size(), "Species: " + spName);
+      _renderObj = new DynamoSphereRenderer(range->size(), "Species: " + spName,
+					    magnet::function::MakeDelegate(this, &SpPoint::updateColorObj));
       particleData.resize(range->size());
       particleColorData.resize(range->size());
     }
@@ -257,35 +308,40 @@ SpPoint::updateRenderObj(magnet::CL::CLGLState& CLState) const
     CLState.getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
        false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
-  }
-
-  ///////////////////////COLOR DATA UPDATE
-  if (_initialColorData)
-    {
-      _initialColorData = false;
-      updateColorObj(CLState);
-    }
+  }  
 }
 
 void 
 SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
+  std::cerr << "\n\n\nUPDATING COLOR DATA " 
+	    << _renderObj.as<DynamoSphereRenderer>().getDrawMode() 
+	    << "\n\n\n";
 
-//  switch (_colorMode)
-//    {
-//    case IDHSV:
-//      {
+  switch (_renderObj.as<DynamoSphereRenderer>().getDrawMode())
+    {
+    case DynamoSphereRenderer::SINGLE_COLOR:
+      {
+	cl_uchar4 color;
+	for (size_t cc(0); cc < 4; ++cc)
+	  color.s[cc] = _renderObj.as<DynamoSphereRenderer>().getColor().s[cc];
+	
+	for (size_t id(0); id < range->size(); ++id)
+	  for (size_t cc(0); cc < 4; ++cc)
+	    particleColorData[id].s[cc] = color.s[cc];
+	break;
+      }
+    case DynamoSphereRenderer::COLOR_BY_ID:
+    case DynamoSphereRenderer::COLOR_BY_SPEED:
+      {
 	size_t np = range->size();
 	for (size_t sphID(0); sphID < np; ++ sphID)
 	  magnet::color::HSVtoRGB(particleColorData[sphID], ((float)(sphID)) / np);
-//      }
-//      break;
-//    case CONSTANT:
-//      for (size_t id(0); id < range->size(); ++id)
-//	for (size_t cc(0); cc < 4; ++cc)
-//	  particleColorData[id].s[cc] = _constColor[cc];
-//      break;
-//    }
+	break;
+      }
+    default:
+      M_throw() << "Not Implemented";
+    }
 
   {
     CLState.getCommandQueue().enqueueWriteBuffer

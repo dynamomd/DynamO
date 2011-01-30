@@ -62,7 +62,7 @@ public:
 
   inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
-  magnet::CL::CLGLState& getCLState() { return _CLState; }
+  magnet::CL::CLGLState& getCLState() { return *_CLState; }
 
   void init();
   void deinit(bool andGlutDestroy);
@@ -108,14 +108,14 @@ protected:
 
 private:
   //Task queue for the simulation thread
-  magnet::thread::TaskQueue _systemQueue;
+  magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   double _updateIntervalValue;
 
   magnet::thread::Mutex _destroyLock;
 
   void CameraSetup();
 
-  magnet::CL::CLGLState _CLState;
+  magnet::thread::RefPtr<magnet::CL::CLGLState> _CLState;
 
   
   virtual void initOpenGL();

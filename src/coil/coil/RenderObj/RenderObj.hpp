@@ -20,6 +20,7 @@
 #include <coil/extcode/vector2.hpp>
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/thread/refPtr.hpp>
+#include <magnet/thread/taskQueue.hpp>
 
 namespace Gtk {
   class ScrolledWindow;
@@ -37,22 +38,26 @@ public:
   
   ~RenderObj() {}
   
-  void accessoryData(const magnet::thread::RefPtr<RenderObj>& console) 
+  void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
+		     const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
+		     const magnet::thread::RefPtr<magnet::CL::CLGLState>& CLState)
   {
     _console = console;
+    _systemQueue = systemQueue;
+    _CLState = CLState;
   }
 
   virtual void initGTK() {}
   virtual void initOpenGL() {}
-  virtual void initOpenCL(magnet::CL::CLGLState&) {}
+  virtual void initOpenCL() {}
   
-  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&) {}
+  virtual void clTick(const magnet::GL::viewPort&) {}
   virtual void glRender() {}
   virtual void interfaceRender(const magnet::GL::viewPort&) {}
 
-  virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset) {}
+  virtual void initPicking(cl_uint& offset) {}
   virtual void pickingRender() {}
-  virtual void finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val) {}
+  virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
 
   virtual void resize(size_t width, size_t height) {}
 
@@ -80,4 +85,6 @@ protected:
   bool _renderNormals;
   bool _visible;
   magnet::thread::RefPtr<RenderObj> _console;
+  magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
+  magnet::thread::RefPtr<magnet::CL::CLGLState> _CLState;
 };

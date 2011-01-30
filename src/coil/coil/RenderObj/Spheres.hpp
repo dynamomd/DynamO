@@ -46,18 +46,18 @@ public:
 
   RTSpheres(size_t N, std::string name);
 
-  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
-  void sortTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
+  virtual void clTick(const magnet::GL::viewPort&);
+  void sortTick(const magnet::GL::viewPort&);
 
   virtual void initOpenGL() {}
-  virtual void initOpenCL(magnet::CL::CLGLState&);
+  virtual void initOpenCL();
 
   cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
   cl::Buffer& getColorDataBuffer() { return _sphereColors; }
 
-  virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset);
+  virtual void initPicking(cl_uint& offset);
   virtual void pickingRender();
-  virtual void finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val);
+  virtual void finishPicking(cl_uint& offset, const cl_uint val);
   
 protected:
   cl::Program _program;
@@ -87,5 +87,5 @@ protected:
 
   magnet::CL::sort<cl_uint> sortFunctor;
 
-  void recolor(magnet::CL::CLGLState& CLState);
+  void recolor();
 };

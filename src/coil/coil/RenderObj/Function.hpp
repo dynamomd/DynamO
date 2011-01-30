@@ -36,19 +36,19 @@ public:
 	    std::string normalCalc = "normal = normalize((float3)(pos.y * native_sin(t), pos.x * native_sin(t),1));\n",
 	    std::string colorCalc = "\n");
 
-  virtual void clTick(magnet::CL::CLGLState&, const magnet::GL::viewPort&);
+  virtual void clTick(const magnet::GL::viewPort&);
 
   void initOpenGL();
-  void initOpenCL(magnet::CL::CLGLState&);
+  void initOpenCL();
 
   virtual void glRender();
 
   inline void setDrawAxis(bool val) { _drawAxis = val; }
   inline void setStaticShape(bool val) { _staticShape = val; }
 
-  virtual void initPicking(magnet::CL::CLGLState& CLState, cl_uint& offset);
+  virtual void initPicking(cl_uint& offset);
   virtual void pickingRender();
-  virtual void finishPicking(magnet::CL::CLGLState& CLState, cl_uint& offset, const cl_uint val);
+  virtual void finishPicking(cl_uint& offset, const cl_uint val);
 
 protected:
   std::string genKernelSrc();
