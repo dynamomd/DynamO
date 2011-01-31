@@ -23,41 +23,31 @@
 #include <map>
 #include "../../datatypes/vector.hpp"
 
-class GSleep: public Global
+class GWaker: public Global
 {
 public:
-  GSleep(const XMLNode&, DYNAMO::SimData*);
+  GWaker(const XMLNode&, DYNAMO::SimData*);
 
-  GSleep(DYNAMO::SimData*, CRange*, const std::string&, const double );
+  GWaker(DYNAMO::SimData*, const std::string&, CRange*, const double, const double);
   
-  virtual ~GSleep() {}
+  virtual ~GWaker() {}
 
-  virtual Global* Clone() const { return new GSleep(*this); };
+  virtual Global* Clone() const { return new GWaker(*this); };
 
   virtual GlobalEvent getEvent(const Particle &) const;
 
   virtual void runEvent(const Particle&, const double) const;
-
-  double getDensity(const Particle&);
 
   virtual void initialise(size_t);
 
   virtual void operator<<(const XMLNode&);
 
 protected:
-  class zeroedVector: public Vector
-  {
-  public:
-    zeroedVector():Vector(0,0,0) {}
-  };
-
   void particlesUpdated(const NEventData&);
 
   virtual void outputXML(xml::XmlStream&) const;
   size_t NBListID;  
-  double sleepVelocity;
-  mutable std::map<size_t, zeroedVector> stateChange;
-  mutable std::vector<Vector> lastVelocity;
-  mutable std::vector<Vector> lastPosition;
+  double _wakeTime;
+  double _wakeVelocity;
 };
 
