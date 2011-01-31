@@ -23,11 +23,15 @@
 SphereParticleRenderer::SphereParticleRenderer(size_t N, std::string name, 
 					       magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc):
   RTSpheres(N, name),
-    _mode(COLOR_BY_ID),
+  _mode(SINGLE_COLOR),
   _updateColorFunc(updateColorFunc)
 {
   for (size_t i(0); i < 4; ++i)
     _colorStatic.s[i] = _colorFixed.s[i] = 255;
+
+  _colorFixed.s[0] = 255;
+  for (size_t i(1); i < 4; ++i)
+    _colorFixed.s[i] = 0;
 }
 
 void 
@@ -55,7 +59,7 @@ SphereParticleRenderer::initGTK()
     Gtk::HBox* box = manage(new Gtk::HBox);
       
     box->pack_start(*_colorIfStatic, true, true);_colorIfStatic->show();
-    //_colorIfStatic->set_active();//Off by default
+    _colorIfStatic->set_active();//Off by default
       
     Gtk::Label* label = manage(new Gtk::Label("RGBA"));
     box->pack_start(*label, false, false); label->show();

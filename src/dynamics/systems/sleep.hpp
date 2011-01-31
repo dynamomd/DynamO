@@ -48,17 +48,10 @@ protected:
 
   void recalculateTime();
 
+  bool sleepCondition(const Vector&, const Vector&);
+
   magnet::ClonePtr<CRange> _range;
   double _sleepVelocity;
 
-  /*std::vector<Vector> lastVelocity;
-    std::vector<Vector> lastPosition;*/
-
-  class zeroedVector: public Vector
-  {
-  public:
-    zeroedVector():Vector(0,0,0) {}
-  };
-
-  mutable std::map<size_t, zeroedVector> stateChange;
+  mutable std::map<size_t, Vector> stateChange;
 };

@@ -180,8 +180,18 @@ OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat,
 	  << "\n";
 
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-    logfile << "    1PEvent p1 " << pData.getParticle().getID()
-	    << "\n";
+    {
+      logfile << "    1PEvent " << pData.getType() 
+	      << " p1 " << pData.getParticle().getID()
+	      << " post-vel [";
+
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	logfile << std::setw(7) << std::scientific
+		<< pData.getParticle().getVelocity()[iDim]
+	  / Sim->dynamics.units().unitVelocity() << ",";
+      
+      logfile << "]\n";
+    }
   
   BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {

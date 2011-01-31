@@ -57,15 +57,6 @@ SSleep::initialise(size_t nID)
   Sim->registerParticleUpdateFunc
     (magnet::function::MakeDelegate(this, &SSleep::particlesUpdated));
 
-  /*  lastPosition.resize(Sim->N);
-  lastVelocity.resize(Sim->N);
-  Vector aux(0,0,0);
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    {
-      lastVelocity[part.getID()] = aux;
-      lastPosition[part.getID()] = aux;
-    }*/
-
   recalculateTime();
 }
 
@@ -103,9 +94,16 @@ SSleep::outputXML(xml::XmlStream& XML) const
 void 
 SSleep::recalculateTime()
 {
-  dt = (stateChange.empty()) ? HUGE_VAL : 0;
+  dt = (stateChange.empty()) ? HUGE_VAL : -std::numeric_limits<float>::max();
   type = (stateChange.empty()) ? NONE : SLEEP;
 }
+
+bool 
+SSleep::sleepCondition(const Vector& vel, const Vector& g)
+{
+  return ((vel.nrm() < _sleepVelocity));
+}
+
 
 void 
 SSleep::particlesUpdated(const NEventData& PDat)
@@ -114,55 +112,67 @@ SSleep::particlesUpdated(const NEventData& PDat)
     {
       const Particle& p1 = pdat.particle1_.getParticle();
       const Particle& p2 = pdat.particle2_.getParticle();
-    
+      
+      //FC = Fixed collider, DP = Dynamic particle, SP = Static
+      //particle, ODP = other dynamic particle, OSP = other static
+      //particle
+
       //Check if either particle is static and should not move
-      if (_range->isInRange(p1) && !p1.testState(Particle::DYNAMIC))
-	  stateChange[p1.getID()] = zeroedVector();
 
-      if (_range->isInRange(p2) && !p2.testState(Particle::DYNAMIC))
-	  stateChange[p2.getID()] = zeroedVector();
+       //[O?P-O?P]
+      if (!_range->isInRange(p1) && !_range->isInRange(p2)) break;
 
-      //Check for a collision between a static and dynamic particle
-      if (_range->isInRange(p1) || _range->isInRange(p2))
-	if (p1.testState(Particle::DYNAMIC) !=  p2.testState(Particle::DYNAMIC))
+      //DP-[DP/ODP]
+      if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) break; 
+ 
+      //SP-[FC/SP/OSP]
+      if (!p1.testState(Particle::DYNAMIC) && !p2.testState(Particle::DYNAMIC))
 	{
-	  //Sort the particles
-	  const Particle& dp = p1.testState(Particle::DYNAMIC) ? p1 : p2;
-	  const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
-	  	  
-	  //If the static particle is a wakeable particle, we have to
-	  //transfer its momentum to the dynamic
-	  //particle. Non-wakeable particles have infinite mass
-	  //dynamics so they don't need it
-	  if (_range->isInRange(sp))
-	    stateChange[dp.getID()] -= sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
-
-	  //Now check the dynamic particle
-	  double vel = dp.getVelocity().nrm();
-	  if (_range->isInRange(dp))
-	    {	      
-	      Vector g(static_cast<const LNewtonianGravity&>(Sim->dynamics.getLiouvillean()).getGravityVector());
-	      
-	      //It has to be larger than ElasticV, it needs to be added from command line
-	      //double converge = 0.01;
-	      // Here we check the last velocity MARCUS!!!
-	      //double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
-	      
-	      //bool convergeVel(aux < converge && aux > 0); // Small and converging (>0)
-	      //bool convergePos(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge);
-	      
-	      // We need this to be negative, i.e., particle goes down
-	      bool Vg = (dp.getVelocity() | g) > 0;
-
-	      //If the dynamic particle is going to fall asleep, mark its impulse as 0
-	      if((vel < _sleepVelocity) &&  Vg /*&& convergeVel && convergePos*/)
-		stateChange[dp.getID()] = zeroedVector();
-	    }
-	  /*lastVelocity[p1.getID()] = p1.getVelocity();
-	  lastVelocity[p2.getID()] = p2.getVelocity();
-	  lastPosition[p1.getID()] = p1.getPosition();
-	  lastPosition[p2.getID()] = p2.getPosition();*/
+	  //	  M_throw() << "event:" << Sim->eventCount << " Static particles colliding";
+//	  if (_range->isInRange(p1)) stateChange[p1.getID()] = Vector(0,0,0);
+//	  if (_range->isInRange(p2)) stateChange[p2.getID()] = Vector(0,0,0);
+	  break;
 	}
+
+      //We're guaranteed by the previous tests that
+      //p1.testState(Particle::DYNAMIC) != p2.testState(Particle::DYNAMIC)
+      //and that at least one particle is in the range
+
+      //Sort the particles
+      const Particle& dp = p1.testState(Particle::DYNAMIC) ? p1 : p2;
+      const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
+
+      //Other variables
+      Vector g(static_cast<const LNewtonianGravity&>(Sim->dynamics.getLiouvillean()).getGravityVector());
+
+      if (!_range->isInRange(sp))  //DP-FC
+	{
+	  //If the dynamic particle is going to fall asleep, mark its impulse as 0
+	  if (sleepCondition(dp.getVelocity(), g))
+	    stateChange[dp.getID()] = Vector(0,0,0);
+	  break;
+	}
+
+      if (!_range->isInRange(dp)) break;
+//
+//      //Final case
+//      //DP-SP
+//      //sp is in the range (a wakeable particle)
+//
+//      //If the static particle sleeps
+//      if ((sleepCondition(sp.getVelocity(), g)))
+	{
+	  stateChange[sp.getID()] = Vector(0,0,0);
+	  stateChange[dp.getID()] = -sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
+
+	  if ((sleepCondition(dp.getVelocity() + stateChange[dp.getID()] 
+	  		      / Sim->dynamics.getSpecies(dp).getMass(), g)))
+	    stateChange[dp.getID()] = Vector(0,0,0);
+
+	  break;
+	}
+
+      stateChange[sp.getID()] = Vector(1,1,1);
     }
 
   if (!stateChange.empty())
@@ -175,7 +185,7 @@ SSleep::particlesUpdated(const NEventData& PDat)
 void 
 SSleep::runEvent() const
 {
-  double locdt = dt;
+  double locdt = 0;
 
   dt = HUGE_VAL;
     
@@ -190,28 +200,57 @@ SSleep::runEvent() const
   //dynamics must be updated first
   Sim->dynamics.stream(locdt);
 
-  ++Sim->eventCount;
+  //++Sim->eventCount;
 
   NEventData SDat;
 
-  typedef std::map<size_t, zeroedVector>::value_type locPair;
+  typedef std::map<size_t, Vector>::value_type locPair;
   BOOST_FOREACH(const locPair& p, stateChange)
     {
       const Particle& part = Sim->particleList[p.first];
       Sim->dynamics.getLiouvillean().updateParticle(part);
       
-      ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), SLEEP);
+#ifdef DYNAMO_DEBUG 
+      if (stateChange.find(part.getID()) == stateChange.end())
+	M_throw() << "Running an event for a particle with no state change!";
+#endif
 
-      if (!part.testState(Particle::DYNAMIC))
-	const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
-      else if (stateChange[part.getID()].nrm() != 0)
-	const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()] / EDat.getSpecies().getMass();
+      EEventType type = WAKEUP;
+      if ((stateChange[part.getID()][0] == 0) 
+	  && (stateChange[part.getID()][1] == 0) 
+	  && (stateChange[part.getID()][2] == 0))
+	{
+	  if (part.testState(Particle::DYNAMIC)) 
+	    type = SLEEP;
+	  else
+	    type = RESLEEP;
+	}
       else
 	{
-	  const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
-	  const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+	  if (part.testState(Particle::DYNAMIC)) 
+	    type = CORRECT;
+	  else
+	    type = WAKEUP;
 	}
 
+      ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), type);
+
+      switch (type)
+	{
+	case SLEEP:
+	  const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
+	case RESLEEP:
+	  const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+  	  break;
+	case CORRECT:
+	  const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()] / EDat.getSpecies().getMass();
+	case WAKEUP:
+	  const_cast<Particle&>(part).setState(Particle::DYNAMIC);
+	  break;
+	default:
+	  M_throw() << "Bad event type!";
+	}
+	  
       EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
 		      * (part.getVelocity().nrm2() 
 			 - EDat.getOldVel().nrm2()));
