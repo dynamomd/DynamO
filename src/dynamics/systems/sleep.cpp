@@ -126,13 +126,10 @@ SSleep::particlesUpdated(const NEventData& PDat)
       if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) break; 
  
       //SP-[FC/SP/OSP]
+#ifdef DYNAMO_DEBUG
       if (!p1.testState(Particle::DYNAMIC) && !p2.testState(Particle::DYNAMIC))
-	{
-	  //	  M_throw() << "event:" << Sim->eventCount << " Static particles colliding";
-//	  if (_range->isInRange(p1)) stateChange[p1.getID()] = Vector(0,0,0);
-//	  if (_range->isInRange(p2)) stateChange[p2.getID()] = Vector(0,0,0);
-	  break;
-	}
+          M_throw() << "Static particles colliding!";
+#endif
 
       //We're guaranteed by the previous tests that
       //p1.testState(Particle::DYNAMIC) != p2.testState(Particle::DYNAMIC)
@@ -154,12 +151,12 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	}
 
       if (!_range->isInRange(dp)) break;
-//
-//      //Final case
-//      //DP-SP
-//      //sp is in the range (a wakeable particle)
-//
-//      //If the static particle sleeps
+
+      //Final case
+      //DP-SP
+      //sp is in the range (a wakeable particle)
+
+      //If the static particle sleeps
 //      if ((sleepCondition(sp.getVelocity(), g)))
 	{
 	  stateChange[sp.getID()] = Vector(0,0,0);
@@ -171,8 +168,10 @@ SSleep::particlesUpdated(const NEventData& PDat)
 
 	  break;
 	}
-
-      stateChange[sp.getID()] = Vector(1,1,1);
+//	else
+//	  {
+//	      stateChange[sp.getID()] = Vector(1,1,1);
+//	  }
     }
 
   if (!stateChange.empty())
