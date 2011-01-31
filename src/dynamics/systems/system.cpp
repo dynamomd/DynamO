@@ -22,6 +22,7 @@
 #include "RingDSMC.hpp"
 #include "umbrella.hpp"
 #include "visualizer.hpp"
+#include "sleep.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"
@@ -75,7 +76,9 @@ System::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
     return new CSRingDSMC(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))
     return new CSUmbrella(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"), "Sleep"))
+    return new SSleep(XML, Sim);
   else
     M_throw() << XML.getAttribute("Type")
-	      << ", Unknown type of System Interaction encountered";
+	      << ", Unknown type of System event encountered";
 }

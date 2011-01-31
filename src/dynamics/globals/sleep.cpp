@@ -35,6 +35,7 @@ namespace {
     
     double density;
   };
+
 }
 
 double GSleep::getDensity(const Particle& part)
@@ -121,6 +122,13 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	  	  
 	  double vel = dp.getVelocity().nrm();
 
+	  //If the static particle is in range, resleep it and mark its momentum to be transferred to the other particle 
+	  if (range->isInRange(sp))
+	    {
+	      stateChange[sp.getID()] = zeroedVector();
+	      stateChange[dp.getID()] -= sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
+	    }
+	  
 	  if (range->isInRange(dp))
 	    {
 	      bool collision = FALSE; //We chech if the event is a collision event
@@ -144,14 +152,13 @@ GSleep::particlesUpdated(const NEventData& PDat)
 	      
 	      // We need this to be negative, i.e., particle goes down
 	      bool Vg = (dp.getVelocity() | g) > 0;
+
+	      //If the dynamic particle is going to fall asleep, mark its impulse as 0
 	      if((vel < sleepVelocity) &&  Vg && convergeVel && convergePos)
-		stateChange.insert(dp.getID());
+		stateChange[dp.getID()] = zeroedVector();
 	    }
 
 	  double normalVel = dp.getVelocity()|(dp.getPosition()-sp.getPosition());
-
-	  if (range->isInRange(sp))
-	    stateChange.insert(sp.getID());	 
 	    
 	  lastVelocity[p1.getID()] = p1.getVelocity();
 	  lastVelocity[p2.getID()] = p2.getVelocity();
@@ -181,7 +188,7 @@ GlobalEvent
 GSleep::getEvent(const Particle& part) const
 {
   if (stateChange.find(part.getID()) != stateChange.end())//Check if we want a state change
-    return GlobalEvent(part, 0, (part.testState(Particle::DYNAMIC)) ? SLEEP : CHECK, *this);
+    return GlobalEvent(part, 0, CHECK, *this);
 
   return GlobalEvent(part, HUGE_VAL, NONE, *this);
 }
@@ -215,20 +222,23 @@ GSleep::runEvent(const Particle& part, const double dt) const
   ++Sim->eventCount;
   ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), iEvent.getType());
 
-  switch (iEvent.getType())
+  if (part.testState(Particle::DYNAMIC))
+    if (stateChange[part.getID()].nrm() == 0)
+      {
+	const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
+	const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+	iEvent.setType(SLEEP);
+      }
+    else
+      {
+	const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()] / EDat.getSpecies().getMass();
+	iEvent.setType(CHECK);
+      }
+  else
     {
-    case SLEEP:
-      const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
       const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
-      break;
-    case CHECK:
-      //const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
       iEvent.setType(RESLEEP);
-      break;
-    default:
-      M_throw() << "Bad event type";
     }
-
   stateChange.erase(part.getID());
 
   EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()

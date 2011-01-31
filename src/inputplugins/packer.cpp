@@ -43,6 +43,7 @@
 #include "../dynamics/systems/DSMCspheres.hpp"
 #include "../dynamics/systems/RingDSMC.hpp"
 #include "../dynamics/systems/rescale.hpp"
+#include "../dynamics/systems/sleep.hpp"
 #include <boost/tokenizer.hpp>
 
 
@@ -3393,10 +3394,10 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	if (vm.count("f3"))
-	  Sim->dynamics.addGlobal(new GSleep(Sim, new CRRange(funnelSites.size(), 
-							      funnelSites.size() 
-							      + dynamicSites.size() - 1), 
-					     "SleepControl", 
+	  Sim->dynamics.addSystem(new SSleep(Sim, "SleepControl",
+					     new CRRange(funnelSites.size(),
+							 funnelSites.size()
+							 + dynamicSites.size() - 1),
 					     sleepV * Sim->dynamics.units().unitVelocity()));
 
 	unsigned long nParticles = 0;

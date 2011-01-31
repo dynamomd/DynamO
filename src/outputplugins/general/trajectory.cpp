@@ -82,7 +82,7 @@ OPTrajectory::printData(const size_t& p1,
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     logfile << std::setw(7) << vij[iDim] << " ";
 
-  logfile << ">";
+  logfile << "> post-rvdot " << (vij | rij) ;
 }
 
 void 

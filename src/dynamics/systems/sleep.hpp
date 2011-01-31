@@ -1,7 +1,6 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
-    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -18,46 +17,48 @@
 
 #pragma once
 
-#include "global.hpp"
-#include <vector>
+#include "system.hpp"
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real.hpp>
+#include "../../extcode/include/boost/random/normal_distribution.hpp"
+#include "../../base/is_simdata.hpp"
+#include "../ranges/1range.hpp"
+#include <magnet/cloneptr.hpp>
 #include <map>
-#include "../../datatypes/vector.hpp"
 
-class GSleep: public Global
+class SSleep: public System
 {
 public:
-  GSleep(const XMLNode&, DYNAMO::SimData*);
+  SSleep(const XMLNode& XML, DYNAMO::SimData*);
 
-  GSleep(DYNAMO::SimData*, CRange*, const std::string&, const double );
+  SSleep(DYNAMO::SimData*, std::string, CRange*, double);
   
-  virtual ~GSleep() {}
+  virtual System* Clone() const { return new SSleep(*this); }
 
-  virtual Global* Clone() const { return new GSleep(*this); };
-
-  virtual GlobalEvent getEvent(const Particle &) const;
-
-  virtual void runEvent(const Particle&, const double) const;
-
-  double getDensity(const Particle&);
+  virtual void runEvent() const;
 
   virtual void initialise(size_t);
 
   virtual void operator<<(const XMLNode&);
 
 protected:
+  virtual void outputXML(xml::XmlStream&) const;
+
+  void particlesUpdated(const NEventData&);
+
+  void recalculateTime();
+
+  magnet::ClonePtr<CRange> _range;
+  double _sleepVelocity;
+
+  std::vector<Vector> lastVelocity;
+  std::vector<Vector> lastPosition;
+
   class zeroedVector: public Vector
   {
   public:
     zeroedVector():Vector(0,0,0) {}
   };
 
-  void particlesUpdated(const NEventData&);
-
-  virtual void outputXML(xml::XmlStream&) const;
-  size_t NBListID;  
-  double sleepVelocity;
   mutable std::map<size_t, zeroedVector> stateChange;
-  mutable std::vector<Vector> lastVelocity;
-  mutable std::vector<Vector> lastPosition;
 };
-
