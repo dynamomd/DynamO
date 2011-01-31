@@ -51,8 +51,8 @@ protected:
   magnet::ClonePtr<CRange> _range;
   double _sleepVelocity;
 
-  std::vector<Vector> lastVelocity;
-  std::vector<Vector> lastPosition;
+  /*std::vector<Vector> lastVelocity;
+    std::vector<Vector> lastPosition;*/
 
   class zeroedVector: public Vector
   {

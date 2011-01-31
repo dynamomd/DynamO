@@ -62,6 +62,13 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
       {
 	spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
       }
+    
+    std::ostringstream os;
+    os << "t:" << Sim->dSysTime;
+    _CLWindow.as<CLGLWindow>().setSimStatus1(os.str());
+    os.str("");
+    os << "Events:" << Sim->eventCount;
+    _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
   }
 
   I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 

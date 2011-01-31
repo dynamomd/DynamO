@@ -57,14 +57,14 @@ SSleep::initialise(size_t nID)
   Sim->registerParticleUpdateFunc
     (magnet::function::MakeDelegate(this, &SSleep::particlesUpdated));
 
-  lastPosition.resize(Sim->N);
+  /*  lastPosition.resize(Sim->N);
   lastVelocity.resize(Sim->N);
   Vector aux(0,0,0);
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       lastVelocity[part.getID()] = aux;
       lastPosition[part.getID()] = aux;
-    }
+    }*/
 
   recalculateTime();
 }
@@ -137,7 +137,6 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	  if (_range->isInRange(sp))
 	    stateChange[dp.getID()] -= sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
 
-
 	  //Now check the dynamic particle
 	  double vel = dp.getVelocity().nrm();
 	  if (_range->isInRange(dp))
@@ -145,24 +144,24 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	      Vector g(static_cast<const LNewtonianGravity&>(Sim->dynamics.getLiouvillean()).getGravityVector());
 	      
 	      //It has to be larger than ElasticV, it needs to be added from command line
-	      double converge = 0.01;
+	      //double converge = 0.01;
 	      // Here we check the last velocity MARCUS!!!
-	      double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
+	      //double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
 	      
-	      bool convergeVel(aux < converge && aux > 0); // Small and converging (>0)
-	      bool convergePos(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge);
+	      //bool convergeVel(aux < converge && aux > 0); // Small and converging (>0)
+	      //bool convergePos(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge);
 	      
 	      // We need this to be negative, i.e., particle goes down
 	      bool Vg = (dp.getVelocity() | g) > 0;
 
 	      //If the dynamic particle is going to fall asleep, mark its impulse as 0
-	      if((vel < _sleepVelocity) &&  Vg && convergeVel && convergePos)
+	      if((vel < _sleepVelocity) &&  Vg /*&& convergeVel && convergePos*/)
 		stateChange[dp.getID()] = zeroedVector();
 	    }
-	  lastVelocity[p1.getID()] = p1.getVelocity();
+	  /*lastVelocity[p1.getID()] = p1.getVelocity();
 	  lastVelocity[p2.getID()] = p2.getVelocity();
 	  lastPosition[p1.getID()] = p1.getPosition();
-	  lastPosition[p2.getID()] = p2.getPosition();
+	  lastPosition[p2.getID()] = p2.getPosition();*/
 	}
     }
 
