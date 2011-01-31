@@ -28,7 +28,7 @@
 #include "../species/species.hpp"
 #include "../NparticleEventData.hpp"
 #include "../ranges/include.hpp"
-#include "../liouvillean/liouvillean.hpp"
+#include "../liouvillean/NewtonianGravityL.hpp"
 #include "../../schedulers/scheduler.hpp"
 
 SSleep::SSleep(const XMLNode& XML, DYNAMO::SimData* tmp): 
@@ -115,43 +115,42 @@ SSleep::particlesUpdated(const NEventData& PDat)
       const Particle& p1 = pdat.particle1_.getParticle();
       const Particle& p2 = pdat.particle2_.getParticle();
     
-      //We will assume that there are only two states
+      //Check if either particle is static and should not move
+      if (_range->isInRange(p1) && !p1.testState(Particle::DYNAMIC))
+	  stateChange[p1.getID()] = zeroedVector();
+
+      if (_range->isInRange(p2) && !p2.testState(Particle::DYNAMIC))
+	  stateChange[p2.getID()] = zeroedVector();
+
+      //Check for a collision between a static and dynamic particle
       if (_range->isInRange(p1) || _range->isInRange(p2))
 	if (p1.testState(Particle::DYNAMIC) !=  p2.testState(Particle::DYNAMIC))
 	{
-	  //This is the particle which is dynamic
+	  //Sort the particles
 	  const Particle& dp = p1.testState(Particle::DYNAMIC) ? p1 : p2;
 	  const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
 	  	  
-	  double vel = dp.getVelocity().nrm();
-
-	  //If the static particle is in range, resleep it and mark its momentum to be transferred to the other particle 
+	  //If the static particle is a wakeable particle, we have to
+	  //transfer its momentum to the dynamic
+	  //particle. Non-wakeable particles have infinite mass
+	  //dynamics so they don't need it
 	  if (_range->isInRange(sp))
-	    {
-	      stateChange[sp.getID()] = zeroedVector();
-	      stateChange[dp.getID()] -= sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
-	    }
-	  
+	    stateChange[dp.getID()] -= sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
+
+
+	  //Now check the dynamic particle
+	  double vel = dp.getVelocity().nrm();
 	  if (_range->isInRange(dp))
-	    {
-	      bool collision = FALSE; //We chech if the event is a collision event
-	      bool convergePos = FALSE; //We chech if the position converges
-	      bool convergeVel = FALSE; //We chech if the velocity converges
-	      
-	      Vector g(0,0,-1);        //We need gravity in order to assure the 
-	      //geometry of the sleeping position 
+	    {	      
+	      Vector g(static_cast<const LNewtonianGravity&>(Sim->dynamics.getLiouvillean()).getGravityVector());
 	      
 	      //It has to be larger than ElasticV, it needs to be added from command line
 	      double converge = 0.01;
-	      double wakeUpVel = 0.1;
 	      // Here we check the last velocity MARCUS!!!
 	      double aux = (dp.getVelocity() - lastVelocity[dp.getID()])|g;
-	      if (aux < converge && aux > 0) // Small and converging (>0)
-		convergeVel = TRUE;
 	      
-	      //Position
-	      if(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge)
-		convergePos = TRUE;
+	      bool convergeVel(aux < converge && aux > 0); // Small and converging (>0)
+	      bool convergePos(((dp.getPosition()-lastPosition[dp.getID()])|g) < converge);
 	      
 	      // We need this to be negative, i.e., particle goes down
 	      bool Vg = (dp.getVelocity() | g) > 0;
@@ -160,9 +159,6 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	      if((vel < _sleepVelocity) &&  Vg && convergeVel && convergePos)
 		stateChange[dp.getID()] = zeroedVector();
 	    }
-
-	  double normalVel = dp.getVelocity()|(dp.getPosition()-sp.getPosition());
-	    
 	  lastVelocity[p1.getID()] = p1.getVelocity();
 	  lastVelocity[p2.getID()] = p2.getVelocity();
 	  lastPosition[p1.getID()] = p1.getPosition();
@@ -207,16 +203,15 @@ SSleep::runEvent() const
       
       ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), SLEEP);
 
-      if (part.testState(Particle::DYNAMIC))
-	if (stateChange[part.getID()].nrm() == 0)
-	  {
-	    const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
-	    const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
-	  }
-	else
-	  const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()] / EDat.getSpecies().getMass();
-      else
+      if (!part.testState(Particle::DYNAMIC))
 	const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+      else if (stateChange[part.getID()].nrm() != 0)
+	const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()] / EDat.getSpecies().getMass();
+      else
+	{
+	  const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
+	  const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+	}
 
       EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
 		      * (part.getVelocity().nrm2() 

@@ -55,7 +55,7 @@ SphereParticleRenderer::initGTK()
     Gtk::HBox* box = manage(new Gtk::HBox);
       
     box->pack_start(*_colorIfStatic, true, true);_colorIfStatic->show();
-    _colorIfStatic->set_active();
+    //_colorIfStatic->set_active();//Off by default
       
     Gtk::Label* label = manage(new Gtk::Label("RGBA"));
     box->pack_start(*label, false, false); label->show();
