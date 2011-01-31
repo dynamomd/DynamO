@@ -144,7 +144,7 @@ std::pair<bool,double> frenkelRootSearch(const T& fL, double t_low, double t_hig
   while(t_high > t_low)
     {
       root = quadRootHunter<T>(fL, t_low, t_high, toleranceLengthScale);
-
+      M_throw() << "We return " << root.first;
       //If no root was found, return the lower bound on the root
       if (root.first == false) return root;
 

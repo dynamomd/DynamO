@@ -242,8 +242,33 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
     t_low += fabs(2.0 * fL.F_firstDeriv())
-      / fL.F_secondDeriv_max(length);
+      / fL.F_secondDeriv_max();
   
+  I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
+  std::pair<bool,double> root = frenkelRootSearch(fL, t_low, t_high,1e-6);
+
+  if (root.first) 
+    { 
+      PD.dt = root.second;
+      return true; 
+    }
+  else 
+    return false;
+
+  CDumbbellsFunc fL2(PD.rij, PD.vij,
+		orientationData[p1.getID()].angularVelocity,
+		orientationData[p2.getID()].angularVelocity,
+		-orientationData[p1.getID()].orientation,
+		 orientationData[p2.getID()].orientation,length,diameter);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += fabs(2.0 * fL2.F_firstDeriv())
+      / fL2.F_secondDeriv_max();
+  
+
   //Find window delimited by discs
   std::pair<double,double> dtw = fL.discIntersectionWindow(length);
   
@@ -254,6 +279,7 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
     t_high = dtw.second;
   
   std::pair<bool,double> root = frenkelRootSearch(fL, length, t_low, t_high);
+
 
   if (root.first) 
     { 
@@ -302,7 +328,7 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   //  - (cp.second * fL.getw2() ^ fL.getu2());
   Vector vr = cp;
   double mass = retVal.particle1_.getSpecies().getMass();
-  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+  //double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
   //I NEED TO FIX THIS
   retVal.dP = uPerp
     * (((vr | uPerp) * (1.0 + elasticity))
