@@ -1704,3 +1704,30 @@ CLGLWindow::guiUpdateCallback()
     _updateIntervalValue = updateButton->get_value();
   }
 }
+
+
+void 
+CLGLWindow::setSimStatus1(std::string status)
+{
+  Gtk::Label* label;
+  _refXml->get_widget("SimDataLabel1", label);
+
+  CoilMaster::getInstance().getTaskQueue()
+    .queueTask(magnet::function::Task::makeTask(&CLGLWindow::setLabelText, this, label, status));
+}
+
+void 
+CLGLWindow::setSimStatus2(std::string status)
+{
+  Gtk::Label* label;
+  _refXml->get_widget("SimDataLabel2", label);
+  
+  CoilMaster::getInstance().getTaskQueue()
+    .queueTask(magnet::function::Task::makeTask(&CLGLWindow::setLabelText, this, label, status));
+}
+
+void 
+CLGLWindow::setLabelText(Gtk::Label* label, std::string text)
+{
+  label->set_text(text);
+}

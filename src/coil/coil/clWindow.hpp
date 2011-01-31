@@ -77,7 +77,12 @@ public:
 
   void setUpdateRateUnitToSteps(size_t defaultsteps = 100);
 
+  void setSimStatus1(std::string);
+  void setSimStatus2(std::string);
+
 protected:
+  void setLabelText(Gtk::Label*, std::string);
+
   magnet::GL::shadowShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
 
