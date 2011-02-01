@@ -3304,35 +3304,45 @@ CIPPacker::initialise()
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
-	//box
-	for(int i=0;i<9;i++){//Box bottom
-	  for(int k=0;k<9;k++)
-	    {
-	      z=0.30+k*0.04;
-	      x=-4*0.04+i*0.04;
-	      y=-0.6;
+	
+	//End container
+	double spacing = 2.1 * particleDiam / factor;	
+	double r = 0.26;
+	size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
+	for(int k=0;k<7;k++){ //Box Walls
+	  {
+	    for(int i=0;i<Nr;i++){
+	      x=sin(i*2*M_PI/Nr)*r;
+	      y=-0.56+k*0.04;
+	      z=-cos(i*2*M_PI/Nr)*r+0.46;
 	      funnelSites.push_back(factor * Vector(x,y,z) - move);
 	    }
-	}
-	for(int k=0;k<7;k++){ //Box Walls
-	  for(int i=0;i<25;i++){
-	    x=cos(i*2*M_PI/25)*0.16;
-	    y=-0.56+k*0.04;
-	    z=sin(i*2*M_PI/25)*0.16+0.46;
-	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
 
-	for(int k=7;k<11;k++){ //Box Deflection wall
-	  for(int i=4;i<22;i++){
-	    x=sin(i*2*M_PI/25)*0.16;
+	for(int k=7;k<11;k++){ //Box Deflection wall, 1/4 is missing
+	  for(int i=Nr / 8;i< (Nr * 7)/8;i++){
+	    x=sin(i*2*M_PI/Nr)*r;
 	    y=-0.56+k*0.04;
-	    z=-cos(i*2*M_PI/25)*0.16+0.46;
+	    z=-cos(i*2*M_PI/Nr)*r+0.46;
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
 	
-	double spacing = 2.1 * particleDiam / factor;
+	//Box bottom
+	y = -0.6;
+	funnelSites.push_back(factor * Vector(0, y, 0.46) - move);
+	for (double lr = spacing; lr < r + spacing; lr += spacing)
+	  {
+	    size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * lr)));
+	    for(size_t i=0; i<Nr;i++) {
+	      x=cos(i*2*M_PI/Nr)*lr;
+	      z=sin(i*2*M_PI/Nr)*lr + 0.46;
+	      funnelSites.push_back(factor * Vector(x,y,z) - move);
+	    }
+	  }
+
+
 	for (int j = 1; j < 6; ++j)
 	  for(int i=0;i<46;i++){//Funnel circular walls
 	    x=cos(i*2*M_PI/46)*0.30;
@@ -3365,7 +3375,7 @@ CIPPacker::initialise()
 	for (double r = 0.30 - spacing; r > spacing; r -= spacing)
 	  {
 	    size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
-	    for (double y = 0.35 + spacing; y < 0.45; y += spacing)
+	    for (double y = 0.35 + spacing; y < 0.6; y += spacing)
 	      for(size_t i=0; i<Nr;i++) {
 		x=cos(i*2*M_PI/Nr)*r;
 		z=sin(i*2*M_PI/Nr)*r;

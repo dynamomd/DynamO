@@ -422,13 +422,14 @@ function IsolatedPolymerTest {
     > run.log
 
     $Dynamod -s1 -m 2 --i1 50  &> run.log
-    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    $Dynarun -s2 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    $Dynarun -s3 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
+    MFT=0.0240657157464771
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.0242022660749388)/0.0242022660749388; print ((var < 0.05) && (var > -0.05))}') != "1" ]; then
+	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.05) && (var > -0.05))}') != "1" ]; then
 	    echo "IsolatedPolymerTest -: FAILED"
 	    exit 1
 	else
