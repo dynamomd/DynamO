@@ -554,6 +554,8 @@ LNewtonianGravity::getParabolaSentinelTime(const Particle& part,
     M_throw() << "Particle is not up to date";
 #endif
   
+  if (!part.testState(Particle::DYNAMIC)) return HUGE_VAL; //Particle is not dynamic (does not feel gravity)
+
   Vector pos(part.getPosition()), vel(part.getVelocity());
   
   Sim->dynamics.BCs().applyBC(pos, vel);

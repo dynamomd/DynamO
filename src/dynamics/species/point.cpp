@@ -172,7 +172,8 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
       }
     case SphereParticleRenderer::COLOR_BY_SPEED:
       {
-	double scaleV = _renderObj.as<SphereParticleRenderer>().getScaleV();
+	double scaleV = _renderObj.as<SphereParticleRenderer>().getScaleV() 
+	  * Sim->dynamics.units().unitVelocity();
 	size_t sphID(0);
 	BOOST_FOREACH(unsigned long ID, *range)
 	  {

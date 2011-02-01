@@ -82,14 +82,15 @@ OPTrajectory::printData(const size_t& p1,
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     logfile << std::setw(7) << vij[iDim] << " ";
 
-  logfile << ">";
+  logfile << "> post-rvdot " << (vij | rij) ;
 }
 
 void 
 OPTrajectory::eventUpdate(const IntEvent& eevent, 
 			  const PairEventData& pdat)
 {
-  logfile << "INTERACTION " << eevent.getInteractionID()
+  logfile << std::setw(8) << Sim->eventCount
+	  << " INTERACTION " << eevent.getInteractionID()
 	  << " TYPE " << eevent.getType()
 	  << " t " << std::setw(5) << Sim->dSysTime / Sim->dynamics.units().unitTime() 
 	  << " dt " << std::setw(5) << eevent.getdt() / Sim->dynamics.units().unitTime();
@@ -110,7 +111,8 @@ void
 OPTrajectory::eventUpdate(const GlobalEvent& eevent, 
 			   const NEventData& SDat)
 {
-  logfile << "GLOBAL " << eevent.getGlobalID()
+  logfile << std::setw(8) << Sim->eventCount
+	  << " GLOBAL " << eevent.getGlobalID()
 	  << " TYPE " << eevent.getType()
 	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
@@ -135,7 +137,8 @@ void
 OPTrajectory::eventUpdate(const LocalEvent& eevent, 
 			   const NEventData& SDat)
 {
-  logfile << "LOCAL " << eevent.getLocalID()
+  logfile << std::setw(8) << Sim->eventCount 
+	  << " LOCAL " << eevent.getLocalID()
     	  << " TYPE " << eevent.getType()
 	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
 	  << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
@@ -169,15 +172,26 @@ void
 OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat, 
 			   const double& dt)
 {
-  logfile << "SYSTEM " << sys.getID()
+  logfile << std::setw(8) << Sim->eventCount
+	  << " SYSTEM " << sys.getID()
 	  << " TYPE " << sys.getType()
 	  << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
 	  << " dt " << dt / Sim->dynamics.units().unitTime()
 	  << "\n";
 
   BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-    logfile << "    1PEvent p1 " << pData.getParticle().getID()
-	    << "\n";
+    {
+      logfile << "    1PEvent " << pData.getType() 
+	      << " p1 " << pData.getParticle().getID()
+	      << " post-vel [";
+
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	logfile << std::setw(7) << std::scientific
+		<< pData.getParticle().getVelocity()[iDim]
+	  / Sim->dynamics.units().unitVelocity() << ",";
+      
+      logfile << "]\n";
+    }
   
   BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
     {

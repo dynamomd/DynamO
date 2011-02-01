@@ -66,8 +66,8 @@ Global::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
     return new CGCellsMorton(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
     return new CGSOCells(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Sleep"))
-    return new GSleep(XML, Sim);
+  else if (!strcmp(XML.getAttribute("Type"),"Waker"))
+    return new GWaker(XML, Sim);
   else 
     M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Global Interaction encountered";

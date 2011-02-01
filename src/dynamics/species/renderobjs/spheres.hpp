@@ -41,7 +41,7 @@ public:
   inline volatile const double& getScaleV() { return _scaleV; }
   inline volatile const cl_uchar4& getColorFixed() { return _colorFixed; }
   inline volatile const cl_uchar4& getColorStatic() { return _colorStatic; }
-  inline volatile const bool& getRecolorOnUpdate() { return _recolorOnUpdate; }
+  inline volatile bool getRecolorOnUpdate() { return _colorStaticParticles || _recolorOnUpdate; }
   inline volatile bool getColorIfStatic() { return _colorStaticParticles; }
 protected:
 

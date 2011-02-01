@@ -62,6 +62,13 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
       {
 	spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
       }
+    
+    std::ostringstream os;
+    os << "t:" << Sim->dSysTime;
+    _CLWindow.as<CLGLWindow>().setSimStatus1(os.str());
+    os.str("");
+    os << "Events:" << Sim->eventCount;
+    _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
   }
 
   I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 
@@ -73,13 +80,13 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 void
 SVisualizer::runEvent() const
 {
-  _updateTime = static_cast<CLGLWindow&>(*_CLWindow).getUpdateInterval();
+  _updateTime = _CLWindow.as<CLGLWindow>().getUpdateInterval();
   
   double locdt = dt;
   dt += _updateTime;
 
   //Update test
-  if (static_cast<CLGLWindow&>(*_CLWindow).simupdateTick())
+  if (_CLWindow.as<CLGLWindow>().simupdateTick())
     {
       //Actually move forward the system time
       Sim->dSysTime += locdt;
@@ -89,7 +96,7 @@ SVisualizer::runEvent() const
       locdt += Sim->freestreamAcc;
       Sim->freestreamAcc = 0;
 
-      if (static_cast<CLGLWindow&>(*_CLWindow).dynamoParticleSync())
+      if (_CLWindow.as<CLGLWindow>().dynamoParticleSync())
 	Sim->dynamics.getLiouvillean().updateAllParticles();
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
@@ -97,13 +104,21 @@ SVisualizer::runEvent() const
 
       {
 	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
-	if (!static_cast<CLGLWindow&>(*_CLWindow).isReady()) return;
+	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	  spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+	  spec->updateRenderObj(_CLWindow.as<CLGLWindow>().getCLState());
 
-	static_cast<CLGLWindow&>(*_CLWindow).flagNewData();
+	_CLWindow.as<CLGLWindow>().flagNewData();
       }
+
+      std::ostringstream os;
+      os << "t:" << Sim->dSysTime;
+      
+      _CLWindow.as<CLGLWindow>().setSimStatus1(os.str());
+      os.str("");
+      os << "Events:" << Sim->eventCount;
+      _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
     }
 }
 

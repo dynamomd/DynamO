@@ -43,6 +43,7 @@
 #include "../dynamics/systems/DSMCspheres.hpp"
 #include "../dynamics/systems/RingDSMC.hpp"
 #include "../dynamics/systems/rescale.hpp"
+#include "../dynamics/systems/sleep.hpp"
 #include <boost/tokenizer.hpp>
 
 
@@ -247,6 +248,7 @@ CIPPacker::initialise()
 	"       --f2 : Elastic Velocity [Disabled]\n"
 	"       --f3 : Sleep velocity [Disabled]\n"
 	"       --f4 : tc model time [Disabled]\n"
+	"       --f5 : If using a sleep velocity, this sets the periodic wake up time [Disabled]\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -3168,6 +3170,10 @@ CIPPacker::initialise()
 	if (vm.count("f4"))
 	  tc = vm["f4"].as<double>();
 
+	double wakeTime = 0.1;
+	if (vm.count("f5"))
+	  wakeTime = vm["f5"].as<double>();
+
 	Sim->aspectRatio = Vector(1,1,1);
 	
 	double Rmax = 0.02;
@@ -3393,11 +3399,22 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
 	if (vm.count("f3"))
-	  Sim->dynamics.addGlobal(new GSleep(Sim, new CRRange(funnelSites.size(), 
-							      funnelSites.size() 
-							      + dynamicSites.size() - 1), 
-					     "SleepControl", 
-					     sleepV * Sim->dynamics.units().unitVelocity()));
+	  {
+	    Sim->dynamics.addSystem(new SSleep(Sim, "Sleeper",
+					       new CRRange(funnelSites.size(),
+							   funnelSites.size()
+							   + dynamicSites.size() - 1),
+					       sleepV * Sim->dynamics.units().unitVelocity()));
+	    
+	    if (vm.count("f5"))
+	      Sim->dynamics.addGlobal(new GWaker(Sim, "Waker",
+						 new CRRange(funnelSites.size(),
+							     funnelSites.size()
+							     + dynamicSites.size() - 1),
+						 wakeTime * Sim->dynamics.units().unitTime(),
+						 2 * sleepV * Sim->dynamics.units().unitVelocity()
+						 ));
+	  }
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
