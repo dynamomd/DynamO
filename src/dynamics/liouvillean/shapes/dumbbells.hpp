@@ -64,7 +64,7 @@ public:
 
   double F_secondDeriv() const
   {
-    return 2 * ((r12 + (u1 + u2) * L / 2) | (-w1.nrm2() * u1 - w2.nrm2() * u2) * L / 2
+    return 2 * (((r12 + (u1 + u2) * L / 2) | (-w1.nrm2() * u1 - w2.nrm2() * u2)) * L / 2
 		+ (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L / 2).nrm2());
   }
   
