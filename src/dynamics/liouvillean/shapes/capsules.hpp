@@ -39,31 +39,33 @@ public:
   }
   
   std::pair<double, double> getCollisionPoints() const
-  { // Marcus, can you check the math?
-    return 0.5*((r1 + u1) - (r2 + u2)); 
+  {
+    M_throw() << "Don't use!";
   }
   
   //Distance between 2 particles
    double F_zeroDeriv() const
   // For the moment we will assume only one sided dumbbell
-  // so the equation get simpler. 
-  { return   (r12 + u1*L/2.0 + u2*L/2.0)| (r12 + u1*L/2.0 + u2*L/2.0)  - Diameter*Diameter;}
+  // so the equation get simpler.
+  { return (r12 + (u1 + u2) * L * 0.5).nrm2()  - Diameter * Diameter;}
 			      
 
   double F_firstDeriv() const
   {    
     // Simply chain rule
-    return 2.0* (r12 + u1*L/2.0 + u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0);
+    return 2.0* (r12 + (u1 + u2) * L * 0.5 ) | (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L * 0.5);
   }
 
   double F_firstDeriv_max(const double& length) const
-  { return  2.0* (2.0*L)*(v12.nrm() + w1.nrm()*L/2.0 + + w2.nrm()*L/2.0);
+  { 
+    return  2 * (3 * L + Diameter) * (v12.nrm() + (w1.nrm() + w2.nrm()) * L / 2);
+  }
 
-    double F_secondDeriv() const
-    {
-      return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
-		   + (v12 + w1^u1*L/2.0 + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0)) ;
-    }
+  double F_secondDeriv() const
+  {
+    return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
+		 + (v12 + w1^u1*L/2.0 + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0)) ;
+  }
 
     double F_secondDeriv_max(const double& length) const
     {

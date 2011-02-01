@@ -40,43 +40,40 @@ public:
   }
   
   Vector getCollisionPoints() const
-  { // Marcus, can you check the math?
-    M_throw() << "We return " << (r12 + u1 - u2).nrm();
-    return 0.5*(r12 + u1 - u2); 
+  {
+    M_throw() << "Don't need this function!";
   }
   
   //Distance between 2 particles
-   double F_zeroDeriv() const
+  double F_zeroDeriv() const
   // For the moment we will assume only one sided dumbbell
-  // so the equation get simpler. 
-  { return   ((r12 + u1*L/2.0 - u2*L/2.0)|(r12 + u1*L/2.0 - u2*L/2.0)) - (diameter*diameter);}
-			      
-
+  // so the equation get simpler.
+  { return (r12 + (u1 + u2) * L * 0.5).nrm2()  - diameter * diameter;}
+  
   double F_firstDeriv() const
   {    
     // Simply chain rule
-    return 2.0* (r12 + u1*L/2.0 - u2*L/2.0)|(v12 + w1^u1*L/2.0 - w2^u2*L/2.0);
+    return 2 * (r12 + (u1 + u2) * L / 2) | (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L / 2);
   }
 
   double F_firstDeriv_max() const
   { 
-    return  2.0*(3.0*L + diameter)*(v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0);
+    return 2 * (3 * L + diameter) * (v12.nrm() + (w1.nrm() + w2.nrm()) * L / 2);
   }
-  
+
+
   double F_secondDeriv() const
   {
-    return 2.0* (((r12 + u1*L/2.0 - u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 + w2.nrm()*w2.nrm()*u2*L/2.0 )) 
-    		 + ((v12 + w1^u1*L/2.0 - w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 - w2^u2*L/2.0))) ;
-   
+    return 2 * ((r12 + (u1 + u2) * L / 2) | (-w1.nrm2() * u1 - w2.nrm2() * u2) * L / 2
+		+ (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L / 2).nrm2());
   }
   
   double F_secondDeriv_max() const
   {
-    return 2.0* ((3.0*L + diameter)*(w1.nrm()*w1.nrm()*L/2.0 + w2.nrm()*w2.nrm()*L/2.0 ) + 
-   		 (v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0)*(v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0));
+    double term1 = v12.nrm() + (w1.nrm() + w2.nrm()) * L / 2;
+    return 2 * ((L / 2) * (3 * L + diameter) * (w1.nrm2() + w2.nrm2()) 
+		+ term1 * term1);
   }
-  
-    
   
   const Vector& getu1() const { return u1; }
   const Vector& getu2() const { return u2; }
@@ -90,9 +87,7 @@ public:
   
   virtual bool test_root() const
   {
-    Vector cp = getCollisionPoints();
-    M_throw() << "We return " <<(cp.nrm() - diameter < 1e-16);
-    return  (cp.nrm() - diameter) < 1e-16 ;
+    return true;
   }
   
 private:
