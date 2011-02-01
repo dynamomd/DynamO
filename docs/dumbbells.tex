@@ -2,7 +2,7 @@
 \usepackage{times,mathptmx,amssymb}
 \usepackage{graphicx}
 \usepackage{amsmath}    % need for subequations
-
+\usepackage{bm}
 
 \begin{document}
 
@@ -124,13 +124,14 @@ the asymmetric body can only be written using special functions):
 \end{eqnarray}
 
 In the laboratory frame of reference, the orientation vector will have
-a temporal dependence of the form \[\mathbf{u}_i =
+a temporal dependence of the form 
+\[\mathbf{u}_i =
 \left( {\begin{array}{cc}
 x(t) \\
 y(t) \\
 z(t) \\
- \end{array} } \right) ~,\] where $\omega$ is the
-angular velocity and $\delta$ is the initial angle at the last
+\end{array} } \right) ~,\]
+where $\omega$ is the angular velocity and $\delta$ is the initial angle at the last
 collision, from where the time $t$ is measured. With this, one can
 derive an upper bound for the first and second derivative easily. We
 need this in order to ``obtain improved bounds on the interval within
@@ -142,21 +143,28 @@ square of the  collision time:
 
 \begin{equation}
   \label{eq:f}
-  f(t_c) \equiv (\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \pm \mathbf{u}_{j}L/2)^2 - d^2 = 0~,
+  f(t_c) \equiv (\mathbf{r}_{ij} \pm \mathbf{u}_{i}L/2 \mp \mathbf{u}_{j}L/2)^2 - d^2 = 0~,
 \end{equation}
 
 The first derivative is easily written using chain's rule:
-\begin{eqnarray}
-\dot{f} &=& 2(r_{12} + u_1 L/2 + u_2 L/2)\cdot(v_{12} + \omega_1\times u_1 L/2 + \omega_2\times u_2 L/2)
-\end{eqnarray}
-
-
-\begin{eqnarray}
-  \ddot{f} &=& 2 \{ (r_{12} + u_1L/2 + u_2L/2)\cdot(- w_1^2 u_1 L/2 - w_2^2 u_2L/2 )
-  + (v_{12} + w_1\times u_1L/2 + + w_2\times u_2L/2)^2 \} 
-\end{eqnarray}
-
-
+\begin{align}
+  \dot{f} &= 2(\mathbf{r}_{12} \pm \mathbf{u}_1 L/2 \mp \mathbf{u}_2 L/2)\cdot(\mathbf{v}_{12} \pm \dot{\mathbf{u}}_1 L/2 \mp \dot{\mathbf{u}}_2 L/2)\\
+  \ddot{f} &=2 \left[ (\mathbf{r}_{12} \pm \mathbf{u}_1 L/2 \mp \mathbf{u}_2L/2)
+    \cdot(\pm\ddot{\mathbf{u}}_1 L/2 \mp \ddot{\mathbf{u}}_1L/2 )
+    + (\mathbf{v}_{12} \pm \dot{\mathbf{u}}_1 L/2 \mp \dot{\mathbf{u}}_2 L/2)^2 \right]
+\end{align}
+The maximums of various variables are
+\begin{align*}
+  \left|\mathbf{r}_{12}^{max}\right|&= 2L + d & \left|\mathbf{v}_{12}^{max}\right|&= \left| \mathbf{v}_{12}\right|\\ 
+  \left|\mathbf{u}\right|&= 1 & \left|\dot{\mathbf{u}}_i\right|&= \left|\omega_i\right|\\
+  \left|\ddot{\mathbf{u}}_i\right|&= \omega_i^2\\
+\end{align*}
+Yielding some conservative estimates for the maximum derivatives as
+\begin{align}
+  \left|\dot{f}\right|^{max} &= 2(3L + d)\left[\left|\mathbf{v}_{12}\right| +  (L / 2) (\left|\omega_1\right| + \left|\omega_2\right|)\right]\\
+  \left|\ddot{f}\right|^{max} &=2 \left((L / 2) (3L + d) (\omega_1^2 +  \omega_2^2)
+  + \left[\left|\mathbf{v}_{12}\right| + (L/2) \left(\left|\omega_1\right| + \left|\omega_2\right|\right)\right]^2 \right)
+\end{align}
 The collision rule is given by \cite{Montaine}
 \begin{thebibliography}{}
 
