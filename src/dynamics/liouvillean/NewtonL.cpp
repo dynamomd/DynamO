@@ -969,7 +969,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 		     << "\nRwall[0]+Sigma = " << fL.wallPosition()[0] + Sigma
 		     << "\nRwall[0]-Sigma = " << fL.wallPosition()[0] - Sigma
 		     << "\nSigma + Del = " << Sigma+Delta
-		     << "\nGood root = " << fL.test_root(Sigma)
+		     << "\nGood root = " << fL.test_root()
 		     << "\nt_low1 = " << t_low1
 		     << "\nt_low2 = " << t_low2
 		     << "\nt_high = " << t_high
@@ -982,7 +982,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 		     << "\nf2(t_low2) = " << flt_low2
 		     << "\nf2(t_high) = " << flt_high2
 		     << "\nf'(0) =" << fL.F_firstDeriv()
-		     << "\nf''(Max) =" << fL.F_secondDeriv_max(0)
+		     << "\nf''(Max) =" << fL.F_secondDeriv_max()
 		     << "\nf(x)=" << (pos | nhat)
 		     << "+" << (part.getVelocity() | nhat)
 		     << " * x - "
