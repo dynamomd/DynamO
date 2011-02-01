@@ -30,8 +30,9 @@ SphereParticleRenderer::SphereParticleRenderer(size_t N, std::string name,
     _colorStatic.s[i] = _colorFixed.s[i] = 255;
 
   _colorFixed.s[0] = 255;
-  for (size_t i(1); i < 4; ++i)
-    _colorFixed.s[i] = 0;
+  _colorFixed.s[1] = 0;
+  _colorFixed.s[2] = 0;
+  _colorFixed.s[3] = 255;
 }
 
 void 

@@ -3309,28 +3309,28 @@ CIPPacker::initialise()
 	double spacing = 2.1 * particleDiam / factor;	
 	double r = 0.26;
 	size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
-	for(int k=0;k<7;k++){ //Box Walls
+	for(int k=0;k<8;k++){ //Box Walls
 	  {
 	    for(int i=0;i<Nr;i++){
 	      x=sin(i*2*M_PI/Nr)*r;
-	      y=-0.56+k*0.04;
+	      y=-0.68+k*0.04;
 	      z=-cos(i*2*M_PI/Nr)*r+0.46;
 	      funnelSites.push_back(factor * Vector(x,y,z) - move);
 	    }
 	  }
 	}
 
-	for(int k=7;k<11;k++){ //Box Deflection wall, 1/4 is missing
+	for(int k=7;k<19;k++){ //Box Deflection wall, 1/4 is missing
 	  for(int i=Nr / 8;i< (Nr * 7)/8;i++){
 	    x=sin(i*2*M_PI/Nr)*r;
-	    y=-0.56+k*0.04;
+	    y=-0.68+k*0.04;
 	    z=-cos(i*2*M_PI/Nr)*r+0.46;
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
 	
 	//Box bottom
-	y = -0.6;
+	y = -0.72;
 	funnelSites.push_back(factor * Vector(0, y, 0.46) - move);
 	for (double lr = spacing; lr < r + spacing; lr += spacing)
 	  {
@@ -3343,7 +3343,7 @@ CIPPacker::initialise()
 	  }
 
 
-	for (int j = 1; j < 6; ++j)
+	for (int j = 1; j < 10; ++j)
 	  for(int i=0;i<46;i++){//Funnel circular walls
 	    x=cos(i*2*M_PI/46)*0.30;
 	    z=sin(i*2*M_PI/46)*0.30;
@@ -3375,7 +3375,7 @@ CIPPacker::initialise()
 	for (double r = 0.30 - spacing; r > spacing; r -= spacing)
 	  {
 	    size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
-	    for (double y = 0.35 + spacing; y < 0.6; y += spacing)
+	    for (double y = 0.35 + spacing; y < 0.65; y += spacing)
 	      for(size_t i=0; i<Nr;i++) {
 		x=cos(i*2*M_PI/Nr)*r;
 		z=sin(i*2*M_PI/Nr)*r;
