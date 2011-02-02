@@ -29,6 +29,7 @@ namespace coil
   class BilateralBlurWrapper;
   class MultiplyFilter;
   class DOFFilter;
+  class FlushToOriginal;
 }
 
 typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter5,false> lap5x5;
@@ -49,7 +50,8 @@ typedef coil::magnetFilterWrapper<magnet::GL::boxFilter,false> box5x5;
   F(6, "5x5 Gaussian Bilateral Blur", BilateralBlurWrapper)		\
   F(7, "SSAO: Shadow (After, use a bilateral blur, then multiply)", SSAOWrapper)	\
   F(8, "Multiply with Original Image", MultiplyFilter)			\
-  F(9, "DOF Filter (Make a fully blurred image first)", DOFFilter)
+  F(9, "DOF Filter (Make a fully blurred image first)", DOFFilter)      \
+  F(10, "Flush Current (Do after a SSAO/DOF filter to allow further processing)", FlushToOriginal) 
 
 namespace coil 
 {

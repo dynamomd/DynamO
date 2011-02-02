@@ -956,27 +956,38 @@ CLGLWindow::CallBackDisplayFunc()
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
 	    {
-	      //The last output goes into texture 3
-	      glActiveTextureARB(GL_TEXTURE3);
-	      glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
-
-	      if (FBOalternate)
-		_filterTarget1.attach();
-	      else
-		_filterTarget2.attach();
-	  
 	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
-	  
-	      static_cast<coil::filter*>(filter_ptr)->invoke(3, _width, _height);
+	      coil::filter& filter = *static_cast<coil::filter*>(filter_ptr);
 
-	      if (FBOalternate)
-		_filterTarget1.detach();
+	      if (filter.type_id() == coil::detail::filterEnum<coil::FlushToOriginal>::val)
+		{//Check if we're trying to flush the drawing
+		  lastFBO->attach();
+		  glActiveTextureARB(GL_TEXTURE0);
+		  //Now copy the texture 
+		  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _width, _height);
+		}
 	      else
-		_filterTarget2.detach();
-
-	      lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
-
-	      FBOalternate = !FBOalternate;
+		{
+		  //The last output goes into texture 3
+		  glActiveTextureARB(GL_TEXTURE3);
+		  glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
+		  
+		  if (FBOalternate)
+		    _filterTarget1.attach();
+		  else
+		    _filterTarget2.attach();
+		  
+		  filter.invoke(3, _width, _height);
+		  
+		  if (FBOalternate)
+		    _filterTarget1.detach();
+		  else
+		    _filterTarget2.detach();
+		  
+		  lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
+		  
+		  FBOalternate = !FBOalternate;
+		}
 	    }
 	}
 
