@@ -17,7 +17,7 @@
 #include "Arrows.hpp"
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
-#include <magnet/HSV.hpp>
+#include <magnet/color/HSV.hpp>
 #include <sstream>
 
 #define STRINGIFY(A) #A

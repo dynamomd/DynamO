@@ -42,7 +42,7 @@ class OPMSD: public OutputPlugin
 
   virtual OutputPlugin *Clone() const { return new OPMSD(*this); };
 
-  double calcMSD() const;
+  double calcMSD(const CRange& range) const;
 
   double calcStructMSD(const Topology&) const;
   

@@ -50,9 +50,6 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 Global* 
 Global::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
 {
-  //  if (!strcmp(XML.getAttribute("Type"),"ListAndCell"))
-  //    return new CGListAndCell(XML, Sim);
-  //else 
   if (!strcmp(XML.getAttribute("Type"),"Cells2")
       || !strcmp(XML.getAttribute("Type"),"Cells"))
     return new CGCells(XML, Sim);

@@ -2,7 +2,7 @@
 # include "renderobjs/spheres.hpp"
 # include <magnet/thread/mutex.hpp>
 # include "../liouvillean/OrientationL.hpp"
-# include <magnet/HSV.hpp>
+# include <magnet/color/HSV.hpp>
 # include "dumbbell.hpp"
 
 

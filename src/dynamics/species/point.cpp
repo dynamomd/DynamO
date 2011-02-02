@@ -18,7 +18,7 @@
 #ifdef DYNAMO_visualizer
 # include "renderobjs/spheres.hpp"
 # include "../liouvillean/CompressionL.hpp"
-# include <magnet/HSV.hpp>
+# include <magnet/gtk/colorMapSelector.hpp>
 #endif
 
 #include <boost/lexical_cast.hpp>

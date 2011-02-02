@@ -24,6 +24,7 @@
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include <magnet/math/ctime_pow.hpp>
+#include "../../dynamics/ranges/1RAll.hpp"
 
 OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"PeriodicMSD"),
@@ -56,7 +57,7 @@ OPPeriodicMSD::ticker()
     {
       results.push_back
 	(std::make_pair(Sim->dSysTime / Sim->dynamics.units().unitTime(), 
-			ptrOPMSD->calcMSD()));
+			ptrOPMSD->calcMSD(CRAll(Sim))));
 
       BOOST_FOREACH(localpair2& dat, structResults)
 	dat.second.push_back(std::make_pair

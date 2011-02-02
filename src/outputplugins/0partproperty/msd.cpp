@@ -43,16 +43,22 @@ OPMSD::initialise()
 void
 OPMSD::output(xml::XmlStream &XML)
 {
-  {
-    double MSD(calcMSD());
-
-    XML << xml::tag("MSD") 
-	<< xml::tag("Particle") 
-	<< xml::attr("val") << MSD
-	<< xml::attr("diffusionCoeff") 
-	<< MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	<< xml::endtag("Particle");
-  }
+  //Required to get the correct results
+  Sim->dynamics.getLiouvillean().updateAllParticles();
+  
+  XML << xml::tag("MSD");
+  
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    {
+      double MSD(calcMSD(*(sp->getRange())));
+      
+      XML << xml::tag("Species")
+	  << xml::attr("Name") << sp->getName()
+	  << xml::attr("val") << MSD
+	  << xml::attr("diffusionCoeff") 
+	  << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	  << xml::endtag("Species");
+    }
 
   if (!Sim->dynamics.getTopology().empty())
     {
@@ -77,17 +83,14 @@ OPMSD::output(xml::XmlStream &XML)
 }
 
 double
-OPMSD::calcMSD() const
+OPMSD::calcMSD(const CRange& range) const
 {
-  //Required to get the correct results
-  Sim->dynamics.getLiouvillean().updateAllParticles();
-
   double acc = 0.0;
+
+  BOOST_FOREACH(const size_t ID, range)
+    acc += (Sim->particleList[ID].getPosition() - initPos[ID]).nrm2();
   
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    acc += (part.getPosition() - initPos[part.getID()]).nrm2();
-  
-  return acc / (initPos.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
+  return acc / (range.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
 }
 
 double
