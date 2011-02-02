@@ -20,6 +20,7 @@
 # include <gtkmm.h>
 # include <coil/RenderObj/Spheres.hpp>
 # include <memory>
+# include <magnet/gtk/colorMapSelector.hpp>
 
 class SphereParticleRenderer: public RTSpheres
 {
@@ -43,11 +44,14 @@ public:
   inline volatile const cl_uchar4& getColorStatic() { return _colorStatic; }
   inline volatile bool getRecolorOnUpdate() { return _colorStaticParticles || _recolorOnUpdate; }
   inline volatile bool getColorIfStatic() { return _colorStaticParticles; }
+
+  inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
 protected:
 
   void guiUpdate();
 
   std::auto_ptr<Gtk::VBox> _optList;
+  std::auto_ptr<magnet::Gtk::ColorMapSelector> _colorMap;
   std::auto_ptr<Gtk::CheckButton> _colorIfStatic;
   std::auto_ptr<Gtk::SpinButton> _RStatic;
   std::auto_ptr<Gtk::SpinButton> _GStatic;

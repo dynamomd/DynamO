@@ -164,7 +164,7 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 	      for (size_t cc(0); cc < 4; ++cc)
 		particleColorData[sphID].s[cc] = sleepcolor.s[cc];
 	    else
-	      magnet::color::HSVtoRGB(particleColorData[sphID], ((float)(sphID)) / np);
+	      _renderObj.as<SphereParticleRenderer>().map(particleColorData[sphID], ((float)(sphID)) / np);
 
 	    ++sphID;
 	  }
@@ -183,7 +183,8 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 	    else
 	      {
 		Vector vel = Sim->particleList[ID].getVelocity();
-		magnet::color::HSVtoRGB(particleColorData[sphID], magnet::clamp(vel.nrm() / scaleV, 0.0, 1.0));
+		_renderObj.as<SphereParticleRenderer>()
+		  .map(particleColorData[sphID], magnet::clamp(vel.nrm() / scaleV, 0.0, 1.0));
 	      }
 	    ++sphID;
 	  }

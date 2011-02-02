@@ -3311,7 +3311,7 @@ CIPPacker::initialise()
 	size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
 	for(int k=0;k<8;k++){ //Box Walls
 	  {
-	    for(int i=0;i<Nr;i++){
+	    for(size_t i=0;i<Nr;i++){
 	      x=sin(i*2*M_PI/Nr)*r;
 	      y=-0.68+k*0.04;
 	      z=-cos(i*2*M_PI/Nr)*r+0.46;
@@ -3321,7 +3321,7 @@ CIPPacker::initialise()
 	}
 
 	for(int k=7;k<19;k++){ //Box Deflection wall, 1/4 is missing
-	  for(int i=Nr / 8;i< (Nr * 7)/8;i++){
+	  for(size_t i=Nr / 8;i< (Nr * 7)/8;i++){
 	    x=sin(i*2*M_PI/Nr)*r;
 	    y=-0.68+k*0.04;
 	    z=-cos(i*2*M_PI/Nr)*r+0.46;

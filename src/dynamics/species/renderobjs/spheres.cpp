@@ -39,6 +39,8 @@ void
 SphereParticleRenderer::initGTK()
 {
   _optList.reset(new Gtk::VBox);//The Vbox of options
+  _colorMap.reset(new magnet::Gtk::ColorMapSelector);
+
   _singleColorMode.reset(new Gtk::RadioButton("Single Color"));
   _colorByIDMode.reset(new Gtk::RadioButton("Color by ID"));
   _colorBySpeedMode.reset(new Gtk::RadioButton("Color by Speed"));
@@ -55,6 +57,14 @@ SphereParticleRenderer::initGTK()
   _BStatic.reset(new Gtk::SpinButton);
   _AStatic.reset(new Gtk::SpinButton);
     
+  {
+    _optList->add(*_colorMap); _colorMap->show();
+    //Horizontal seperator
+    Gtk::HSeparator* line = manage(new Gtk::HSeparator);
+    line->show();
+    _optList->add(*line);
+  }
+
     
   {//Static color and RGBA boxes
     Gtk::HBox* box = manage(new Gtk::HBox);
@@ -167,6 +177,8 @@ SphereParticleRenderer::initGTK()
   }
     
   _singleColorMode->signal_toggled()
+    .connect(sigc::mem_fun(*this, &SphereParticleRenderer::guiUpdate));
+  _colorMap->signal_changed()
     .connect(sigc::mem_fun(*this, &SphereParticleRenderer::guiUpdate));
   _RFixed->signal_value_changed()
     .connect(sigc::mem_fun(*this, &SphereParticleRenderer::guiUpdate));
