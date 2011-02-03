@@ -23,8 +23,8 @@ protected:
   int          windowID;
 public:
   
-  CoilWindow();
-  ~CoilWindow();
+  CoilWindow();//Defined in coilMaster.cpp for the VTable
+  ~CoilWindow() {}
   
   virtual void CallBackDisplayFunc() {}
   virtual bool CallBackIdleFunc() { return false; }

@@ -336,3 +336,8 @@ CoilMaster::glutIdleTimeout()
   
   return true;
 }
+
+//Somewhere for the vtable to live
+CoilWindow::CoilWindow():
+  _readyFlag(false)
+{}
