@@ -26,28 +26,31 @@ Particle::Particle(const XMLNode& XML, unsigned long nID):
   _peculiarTime(0.0),
   _state(DEFAULT)
 {
+  if (XML.hasChild("Static"))
+    clearState(DYNAMIC);
+
   XMLNode xBrowseNode = XML.getChildNode("P");
   _pos << xBrowseNode;
   
   xBrowseNode = XML.getChildNode("V");
   
-  if (xBrowseNode.hasChild("Static"))
-    clearState(DYNAMIC);
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Particle& particle)
 {
-  XML << xml::attr("ID") << particle._ID
-      << xml::tag("P")
+  XML << xml::attr("ID") << particle._ID;
+
+  if (!particle.testState(Particle::DYNAMIC))
+    XML << xml::attr("Static") <<  "Static";
+
+  XML << xml::tag("P")
       << (particle._pos)
       << xml::endtag("P")
       << xml::tag("V")
       << (particle._vel)
       << xml::endtag("V");
   
-  if (!particle.testState(Particle::DYNAMIC))
-    XML << xml::attr("Static") <<  "Static";
 
   return XML;
 }
