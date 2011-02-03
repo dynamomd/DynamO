@@ -26,8 +26,7 @@ Particle::Particle(const XMLNode& XML, unsigned long nID):
   _peculiarTime(0.0),
   _state(DEFAULT)
 {
-  if (XML.hasChild("Static"))
-    clearState(DYNAMIC);
+  if (XML.hasChild("Static")) clearState(DYNAMIC);
 
   XMLNode xBrowseNode = XML.getChildNode("P");
   _pos << xBrowseNode;
