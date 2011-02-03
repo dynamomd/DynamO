@@ -141,7 +141,6 @@ void main()
       //gl_LightSource[0].specular       
       vec4 Specular = gl_FrontMaterial.specular * gl_LightSource[0].specular
 	* pow(max(dot(ReflectedRay, Eye), 0.0), gl_FrontMaterial.shininess);
-
       //We multiply by shadow to stop the specular highlight appearing in the shadow
       color += shadow * attenuation * Specular;
     }
@@ -151,6 +150,8 @@ void main()
   //The diffusive term
   float rescaledDot = 0.5 * lightNormDot + 0.5;
   color += attenuation * scaledShadow * rescaledDot * rescaledDot * diffuse;
+
+  color.a = diffuse.a;
 
   gl_FragColor = color;
 }

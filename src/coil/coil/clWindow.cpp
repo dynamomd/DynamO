@@ -1080,6 +1080,7 @@ CLGLWindow::CallBackDisplayFunc()
 void 
 CLGLWindow::drawScene()
 {
+  glEnable(GL_BLEND);
   GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 1.0f};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 
