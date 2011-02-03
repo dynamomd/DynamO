@@ -19,6 +19,7 @@
 #include "../../extcode/xmlParser.h"
 #include "../../extcode/xmlwriter.hpp"
 #include <string.h>
+#include <magnet/exception.hpp>
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const BoundaryCondition& g)

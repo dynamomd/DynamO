@@ -17,7 +17,7 @@
 #pragma once
 
 #include "../../base/constants.hpp"
-#include "../../datatypes/vector.hpp"
+#include <magnet/math/vector.hpp>
 
 #include <limits>
 

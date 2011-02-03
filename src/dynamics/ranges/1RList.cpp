@@ -21,6 +21,7 @@
 #include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include <boost/lexical_cast.hpp>
+#include <magnet/exception.hpp>
 
 CRList::CRList(const XMLNode& XML) 
 { operator<<(XML); }

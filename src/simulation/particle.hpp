@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "../datatypes/vector.hpp"
+#include <magnet/math/vector.hpp>
 
 class XMLNode;
 namespace xml

@@ -18,6 +18,7 @@
 #pragma once
 #include "../base/is_base.hpp"
 #include "../datatypes/vector.hpp"
+#include <magnet/math/vector.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 

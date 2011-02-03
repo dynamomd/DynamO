@@ -55,7 +55,9 @@ unit-test cubic-test : tests/cubic_test.cpp magnet ;
 
 unit-test quartic-test : tests/cubic_test.cpp magnet ;
 
-alias math-test : quartic-test cubic-test ;
+unit-test vector-test : tests/vector_test.cpp magnet ;
+
+alias math-test : quartic-test cubic-test vector-test ;
 
 ##################################################
 alias test : opencl-test thread-test math-test ;

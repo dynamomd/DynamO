@@ -19,13 +19,14 @@
  * Contains the definition of the XML functions for a CVector
  */
 
-#ifndef VECTOR_XML_H
-#define VECTOR_XML_H
+#pragma once
 
 #include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "../base/constants.hpp"
 #include <boost/lexical_cast.hpp> //For xml Parsing
+#include <magnet/math/vector.hpp>
+#include "vector.hpp"
 
 template<class T>
 void 
@@ -109,7 +110,7 @@ operator<<(VectorExpression<>& data, const XMLNode &XML)
 	name[0] = '0'+iDim;
       
       try {
-	data[iDim] = boost::lexical_cast<DOUBLE>(XML.getAttribute(name));
+	data[iDim] = boost::lexical_cast<double>(XML.getAttribute(name));
       }
       catch (boost::bad_lexical_cast &)
 	{
@@ -163,7 +164,7 @@ operator<<(MatrixExpression<>& data, const XMLNode &XML)
 	  name2[0] = 'x'+jDim;
 
 	  try {
-	    data(iDim,jDim) = boost::lexical_cast<DOUBLE>(BrowseNode.getAttribute(name2));
+	    data(iDim,jDim) = boost::lexical_cast<double>(BrowseNode.getAttribute(name2));
 	  }
 	  catch (boost::bad_lexical_cast &)
 	    {
@@ -174,5 +175,3 @@ operator<<(MatrixExpression<>& data, const XMLNode &XML)
 
   return data;
 }
-
-#endif

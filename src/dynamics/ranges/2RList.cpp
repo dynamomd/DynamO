@@ -21,6 +21,7 @@
 #include "../../extcode/xmlParser.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <magnet/exception.hpp>
 
 C2RList::C2RList(const XMLNode& XML) 
 { operator<<(XML); }

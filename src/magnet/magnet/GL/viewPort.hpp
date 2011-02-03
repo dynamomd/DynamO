@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cmath>
+#include <magnet/math/vector.hpp>
 
 namespace magnet {
   namespace GL {    

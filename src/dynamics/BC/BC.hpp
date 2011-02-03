@@ -18,11 +18,8 @@
  *  Defines the BC class.
  */
 
-#ifndef BC_H
-#define BC_H
-
-#include "../../datatypes/vector.hpp"
-
+#pragma once
+#include <magnet/math/vector.hpp>
 #include "../../base/is_base.hpp"
 
 class XMLNode;
@@ -118,5 +115,3 @@ class BoundaryCondition: public DYNAMO::SimBase_const
   /*! \brief The XML output for a BoundaryCondition class*/
   virtual void outputXML(xml::XmlStream &XML) const = 0;
 };
-
-#endif

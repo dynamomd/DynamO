@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CIRotatedParallelCubes_H
-#define CIRotatedParallelCubes_H
-
+#pragma once
 #include "interaction.hpp"
-#include "../../datatypes/vector2.hpp"
+#include <magnet/math/vector.hpp>
 
 class IRotatedParallelCubes: public Interaction
 {
@@ -58,5 +56,3 @@ protected:
   double diameter;
   double e;
 };
-
-#endif

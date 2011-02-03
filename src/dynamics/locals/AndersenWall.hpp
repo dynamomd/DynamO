@@ -19,7 +19,7 @@
 #define CLAndersenWall_HPP
 
 #include "local.hpp"
-#include "../../datatypes/vector.hpp"
+#include <magnet/math/vector.hpp>
 
 class CLAndersenWall: public Local
 {

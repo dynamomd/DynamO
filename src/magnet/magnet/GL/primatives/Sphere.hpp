@@ -20,7 +20,7 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <coil/extcode/vector2.hpp>
+#include <magnet/math/vector.hpp>
 #include <magnet/exception.hpp>
 
 namespace magnet {

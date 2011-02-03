@@ -17,7 +17,6 @@
 #pragma once
 #include <magnet/CL/CLGL.hpp>
 #include <coil/Maths/Maths.h>
-#include <coil/extcode/vector2.hpp>
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>

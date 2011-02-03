@@ -22,7 +22,7 @@
 #include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
-#include "../../datatypes/vector.hpp"
+#include <magnet/math/vector.hpp>
 
 class XMLNode;
 namespace xml

@@ -23,7 +23,7 @@
 #include <CL/cl.hpp>
 
 #include <coil/Maths/Maths.h>
-#include <coil/extcode/vector2.hpp>
+#include <magnet/math/vector.hpp>
 #include <magnet/static_assert.hpp>
 
 #include <magnet/GL/light.hpp>

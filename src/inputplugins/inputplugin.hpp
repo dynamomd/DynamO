@@ -19,7 +19,7 @@
 #define INPUTPLUGIN_H
 
 #include "../base/is_base.hpp"
-#include "../datatypes/vector.hpp"
+#include <magnet/math/vector.hpp>
 
 class CInputPlugin: public DYNAMO::SimBase
 {

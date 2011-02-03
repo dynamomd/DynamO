@@ -1,3 +1,22 @@
+/*  DYNAMO:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+
 //
 // vecmat3.h
 //
@@ -67,16 +86,12 @@
 //  - www.oonumerics.org/blitz
 //  - tvmet.sourceforge.net
  
-#ifndef _VECMAT3_
-#define _VECMAT3_
-
-#include <cstdlib>
 #include <cmath>
+#include <algorithm>
 
-// type of elements is set by #defining the macro DOUBLE (default = double)
-#ifndef DOUBLE
-#define DOUBLE double
-#endif
+namespace {
+  template<typename T> inline T SQR(T a) { return a * a; }
+};
 
 // list of operators that can act of Vectors and/or Matrices
 enum {
@@ -109,99 +124,185 @@ template <>
 class VectorExpression<>
 {
  public:
-  DOUBLE x;                                  // elements of the vector
-  DOUBLE y;
-  DOUBLE z;
+  double x;                                  // elements of the vector
+  double y;
+  double z;
 
   inline VectorExpression<>() {}             // default constructor
-  inline explicit VectorExpression<>         // from three numbers
-    (DOUBLE a,DOUBLE b,DOUBLE c); 
-    
-  template<class A,int B,class C>            // construct from VectorExpression
-  inline VectorExpression<>
-  	(const VectorExpression<A,B,C>&e);
 
-  inline void zero();                        // make zero
+  inline VectorExpression (double a, double b, double c)
+    : x(a), y(b), z(c) {}
 
-  inline DOUBLE nrm() const;                 // norm
-  inline DOUBLE nrm2() const;                // square norm
+  // constuctor from a vector expression
+  template<class A,int B,class C> 
+  inline VectorExpression(const VectorExpression<A, B, C> &e):
+    x(e.eval<0>()),
+    y(e.eval<1>()),
+    z(e.eval<2>())
+  {}
 
-  inline DOUBLE& operator()(int i);          // return element i
-  inline const DOUBLE& operator()(int i) const;
+  // assign zero to all elements
+  inline void zero() { x = y = z = 0;}
 
-  inline DOUBLE& operator[](int i);          // return element i
-  inline const DOUBLE& operator[](int i) const;
+  inline double nrm2() const { return x*x+y*y+z*z; }
+  inline double nrm() const
+  {
+    double biggest=std::max(std::max(std::abs(x), std::abs(y)), std::abs(z));
+    if (biggest!=0)
+      return biggest*(double)(std::sqrt(SQR(x/biggest)
+					+SQR(y/biggest)
+					+SQR(z/biggest)));
+    else
+      return 0;
+  }
 
-  inline VectorExpression<>& operator*=(const DOUBLE d); // multiply by number
-  inline VectorExpression<>& operator/=(const DOUBLE d); // divide by number
+  inline double& operator()(int i) { return *(&x+i); }// return element i
+  inline const double& operator()(int i) const { return *(&x+i); }// return element i
 
-  inline CommaOp operator=(DOUBLE c);        // start comma expression
+  inline double& operator[](int i) { return *(&x+i); }// return element i
+  inline const double& operator[](int i) const { return *(&x+i); };
 
-  template<class A,int B,class C> inline 
-  VectorExpression<>& 
-  operator=(const VectorExpression<A,B,C> & e); //assign VectorExpression
-  template<class A,int B,class C> inline 
-  VectorExpression<>& 
-  operator+=(const VectorExpression<A,B,C> & e);//add VectorExpression
-  template<class A,int B,class C> inline 
-  VectorExpression<>& 
-  operator-=(const VectorExpression<A,B,C> & e);//subtract VectorExpression
+  inline CommaOp operator=(double c);        // start comma expression
 
-  template<int I> inline DOUBLE eval() const;// template evaluation
+  // assignment from an expression
+  template<class A,int B,class C> 
+  inline VectorExpression<>& operator=(const VectorExpression<A,B,C> &e)
+  { x = e.eval<0>(); y = e.eval<1>(); z = e.eval<2>(); return *this; }
+  
+  // addto-assignment from an expression
+  template<class A,int B,class C> 
+  inline VectorExpression<>& operator+=(const VectorExpression<A,B,C> &e)
+  { x += e.eval<0>(); y += e.eval<1>(); z += e.eval<2>(); return *this; }
+
+
+  // subtract-from assignment from an expression
+  template<class A,int B,class C>
+  inline VectorExpression<>& operator-=(const VectorExpression<A,B,C> &e)
+  { x -= e.eval<0>(); y -= e.eval<1>(); z -= e.eval<2>(); return *this; }
+
+  // multiply-by assignment from an expression
+  inline VectorExpression<>& operator*=(const double d)
+  { x *= d; y *= d; z *= d; return *this; }
+  
+  // divide-by assignment from an expression
+  inline VectorExpression<>& operator/=(const double d)
+  { x /= d; y /= d; z /= d; return *this; }
+
+  // passive access to the elements through eval
+  template<int I> inline double eval() const;// template evaluation
 };
 
+template <> inline double VectorExpression<>::eval<0>() const { return x; }
+template <> inline double VectorExpression<>::eval<1>() const { return y; }
+template <> inline double VectorExpression<>::eval<2>() const { return z; }
 
 // define default MatrixExpression, which is the Matrix type
 template <>
 class MatrixExpression<>
 {
  public:
-  DOUBLE xx, xy, xz,                         // elements of the matrix
+  double xx, xy, xz,                         // elements of the matrix
          yx, yy, yz,
          zx, zy, zz;
 
   inline MatrixExpression<>() {}             // default constructor
-  inline explicit MatrixExpression<>         // from 9 numbers
-    (DOUBLE a,     DOUBLE b = 0, DOUBLE c = 0,
-     DOUBLE d = 0, DOUBLE e = 0, DOUBLE f = 0,
-     DOUBLE g = 0, DOUBLE h = 0, DOUBLE i = 0);
 
-  template<class A,int B,class C>            // construct from MatrixExpression
-  inline MatrixExpression<>
-    (const MatrixExpression<A,B,C>&e);
+  inline MatrixExpression
+  (double a, double b, double c,
+   double d, double e, double f,
+   double g, double h, double i) :
+    xx(a), xy(b), xz(c),
+    yx(d), yy(e), yz(f),
+    zx(g), zy(h), zz(i)
+  {}
 
-  inline void zero();                        // make zero
-  inline void one();                         // make identity 
+  template<class A,int B,class C>
+  inline MatrixExpression(const MatrixExpression<A,B,C>&e):
+    xx(e.eval<0,0>()), xy(e.eval<0,1>()), xz(e.eval<0,2>()),
+    yx(e.eval<1,0>()), yy(e.eval<1,1>()), yz(e.eval<1,2>()),
+    zx(e.eval<2,0>()), zy(e.eval<2,1>()), zz(e.eval<2,2>())
+  {}
+
+  // set all elements to zero
+  inline void zero()
+  { xx = xy = xz = yx = yy = yz = zx = zy = zz = 0; }
+
+  inline void one() // turn into an identity matrix
+  { xx = yy = zz = 1; xy = xz = yx = yz = zx = zy = 0; }
+
   inline void reorthogonalize();             // Gramm-Schmidt
+    
+  inline double nrm2() const // norm squared
+  { 
+    return SQR(xx)+SQR(xy)+SQR(xz)
+      +SQR(yx)+SQR(yy)+SQR(yz)
+      +SQR(zx)+SQR(zy)+SQR(zz);
+  }
+
+  inline double tr() const { return xx+yy+zz; }  // trace
+
+  // determininant
+  inline double det() const
+  { return xx*(yy*zz-yz*zy)+xy*(yz*zx-yx*zz)+xz*(yx*zy-yy*zx); }
   
-  inline DOUBLE nrm2() const;                // norm squared
-  inline DOUBLE nrm() const;                 // norm 
-  inline DOUBLE tr() const;                  // trace 
-  inline DOUBLE det() const;                 // determinant 
+
+  // norm
+  inline double nrm() const 
+  {
+    double biggestRow1=std::max(std::max(std::abs(xx), std::abs(xy)), std::abs(xz));
+    double biggestRow2=std::max(std::max(std::abs(yx), std::abs(yy)), std::abs(yz));
+    double biggestRow3=std::max(std::max(std::abs(zx), std::abs(zy)), std::abs(zz));
+    double biggest = std::max(std::max(biggestRow1, biggestRow2), biggestRow3);
+    if (biggest!=0) 
+      return biggest*(double)(std::sqrt(SQR(xx/biggest)
+					+SQR(xy/biggest)
+					+SQR(xz/biggest)
+					+SQR(yx/biggest)
+					+SQR(yy/biggest)
+					+SQR(yz/biggest)
+					+SQR(zx/biggest)
+					+SQR(zy/biggest)
+					+SQR(zz/biggest)));
+    else 
+      return 0;
+  }
 
   static inline Matrix identity() { return Matrix(1,0,0,0,1,0,0,0,1); }
 
-  inline DOUBLE& operator()(int i, int j);   // return element i,j
-  inline const DOUBLE&operator()(int i,int j) const;
+  // access to elements through parenthesis
+  inline double& operator()(int i, int j) { return *(&xx+3*i+j); }
+  inline const double& operator() (int i, int j) const { return *(&xx+3*i+j); }  
 
-  inline VectorExpression<MatrixExpression<>,RowOp,Base> 
-  row(int i);                                // return i-th row   
+  inline VectorExpression<MatrixExpression<>,RowOp,Base> row(int i);// return i-th row   
   
-  inline VectorExpression<MatrixExpression<>,ColumnOp,Base> 
-  column(int j);                             // return j-th column
+  inline VectorExpression<MatrixExpression<>,ColumnOp,Base> column(int j); // return j-th column
   
+  // set the elements of a row equal to those of a vector
   template<class A, int B, class C> inline 
-  void setRow(int i,                         // assign vector to row i
-	      const VectorExpression<A,B,C>&e);
+  void setRow(const int i, const VectorExpression<A,B,C> &e)
+  {
+    switch(i) {
+    case 0: xx = e.eval<0>(); xy = e.eval<1>(); xz = e.eval<2>(); break;
+    case 1: yx = e.eval<0>(); yy = e.eval<1>(); yz = e.eval<2>(); break;
+    case 2: zx = e.eval<0>(); zy = e.eval<1>(); zz = e.eval<2>(); break;
+    }
+  }
 
+  // set the elements of a column equal to those of a vector
   template<class A, int B, class C> inline 
-  void setColumn(int j,                      // or to column j
-		 const VectorExpression<A,B,C>&e); 
+  void setColumn(const int j, const VectorExpression<A,B,C>&e)
+  {
+    switch(j) {
+    case 0: xx = e.eval<0>(); yx = e.eval<1>(); zx = e.eval<2>(); break;
+    case 1: xy = e.eval<0>(); yy = e.eval<1>(); zy = e.eval<2>(); break;
+    case 2: xz = e.eval<0>(); yz = e.eval<1>(); zz = e.eval<2>(); break;
+    }
+  }
 
-  inline MatrixExpression<>& operator*=(const DOUBLE d);  // multiply by number
-  inline MatrixExpression<>& operator/=(const DOUBLE d);  // divide by number
+  inline MatrixExpression<>& operator*=(const double d);  // multiply by number
+  inline MatrixExpression<>& operator/=(const double d);  // divide by number
 
-  inline CommaOp operator=(DOUBLE c);        // start of comma expression
+  inline CommaOp operator=(double c);        // start of comma expression
 
   template<class A,int B,class C> inline     // assign MatrixExpression
   MatrixExpression<>& 
@@ -219,9 +320,21 @@ class MatrixExpression<>
   MatrixExpression<>& 
   operator*=(const MatrixExpression<A,B,C> &m);//multiply MatrixExpression
 
-  template<int I,int J> inline DOUBLE eval() const; //evaluate components
+  template<int I,int J> inline double eval() const; //evaluate components
 };
- 
+
+// passive access to the elements through eval
+template <> inline double MatrixExpression<>::eval<0,0>() const { return xx; }
+template <> inline double MatrixExpression<>::eval<0,1>() const { return xy; }
+template <> inline double MatrixExpression<>::eval<0,2>() const { return xz; }
+template <> inline double MatrixExpression<>::eval<1,0>() const { return yx; }
+template <> inline double MatrixExpression<>::eval<1,1>() const { return yy; }
+template <> inline double MatrixExpression<>::eval<1,2>() const { return yz; }
+template <> inline double MatrixExpression<>::eval<2,0>() const { return zx; }
+template <> inline double MatrixExpression<>::eval<2,1>() const { return zy; }
+template <> inline double MatrixExpression<>::eval<2,2>() const { return zz; }
+
+
 // definition of vector-matrix operations:
 
 // operator+ takes two vector expressions and returns an appropriate
@@ -248,23 +361,23 @@ operator^(const VectorExpression<A,B,C> & a,
 // operator* takes a scalar and a vector expression, and returns an
 // appropriate vector expression
 template<class A,int B,class C>
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
-operator* (DOUBLE b, 
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
+operator* (double b, 
 	   const VectorExpression<A,B,C> & a);
 
 // operator* takes a vector expression and a scalar, and returns an
 // appropriate vector expression
 template<class A,int B,class C>
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
 operator* (const VectorExpression<A,B,C> & a, 
-	   DOUBLE b);
+	   double b);
 
 // operator/ takes a vector expression and a scalar, and returns an
 // appropriate vector expression
 template<class A,int B,class C>
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
 operator/ (const VectorExpression<A,B,C> & a, 
-	   DOUBLE b);
+	   double b);
 
 // unary operator- takes a vector expression, and returns an
 // appropriate vector expression
@@ -273,16 +386,16 @@ inline VectorExpression<VectorExpression<A,B,C>, NegativeOp, Base>
 operator- (const VectorExpression<A,B,C> & a);
 
 // define dot product as operator| as takes two vector expressions and
-// returns a DOUBLE
+// returns a double
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE 
+inline double 
 operator|(const VectorExpression<A,B,C> &a, 
 	  const VectorExpression<D,B,C> &b);
 
 // also define dot product as operator* as takes two vector
-// expressions and returns a DOUBLE
+// expressions and returns a double
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE 
+inline double 
 operator* (const VectorExpression<A,B,C> & a, 
 	   const VectorExpression<D,B,C> & b);
 
@@ -317,23 +430,23 @@ operator*(const MatrixExpression<A,B,C> & a,
 // operator* takes a scalar and a matrix expression, and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
-operator* (DOUBLE b, 
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+operator* (double b, 
 	   const MatrixExpression<A,B,C> & a);
 
 // operator* takes a matrix expression and a scalar, and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
 operator* (const MatrixExpression<A,B,C> & a, 
-	   DOUBLE b);
+	   double b);
 
 // operator/ takes a matrix expression and a scalar, and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
 operator/ (const MatrixExpression<A,B,C> & a, 
-	   DOUBLE b);
+	   double b);
 
 // unary operator- takes a matrix expression and returns an
 // appropriate matrix expression
@@ -362,338 +475,27 @@ inline MatrixExpression<> Rodrigues(const Vector &V);
 
 // distance between two vectors
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE dist(const VectorExpression<A,B,C> &a, 
+inline double dist(const VectorExpression<A,B,C> &a, 
 		   const  VectorExpression<D,E,F> &b); 
 
 // distance squared between two vectors
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE dist2(const VectorExpression<A,B,C> &a, 
+inline double dist2(const VectorExpression<A,B,C> &a, 
 		    const  VectorExpression<D,E,F> &b);
 
 // distance between two vectors with the first one shifted by s
 template<class A,int B,class C,class D,int E,class F,class G,int H,class I>
-inline DOUBLE distwithshift(const VectorExpression<A,B,C> & a, 
+inline double distwithshift(const VectorExpression<A,B,C> & a, 
 			    const VectorExpression<D,E,F> & b,
 			    const VectorExpression<G,H,I> & s);
-
-// output to stream
-
-// handle difference between compilers cxx (compaq alpha) 
-// and g++ (e.g. linux) regarding ostream definition
-#ifdef __alpha
-#include <iostream.h>
-#define OSTREAM ostream
-#else
-#include <iostream>
-#define OSTREAM std::ostream
-#endif
-
-// output for vector expressions
-template<class A, int B, class C>
-inline OSTREAM& operator<< ( OSTREAM& o, 
-			     const VectorExpression<A,B,C> & t );
-
-// output for matrix expressions
-template<class A, int B, class C>
-inline OSTREAM& operator<< ( OSTREAM& o, 
-			     const MatrixExpression<A,B,C> & t );
 
 //
 // INLINE IMPLEMENTATION
 //
 
-// make sure a function for taking a square exists
-
-#ifndef SQR
-#ifdef _MYINLINEH_
-#define SQR sqr
-#else
-inline DOUBLE vec3et_sqr(DOUBLE x) { return x*x; }
-#define SQR vec3et_sqr
-#endif
-#endif
-
-// make sure a SINCOS function is defined
-#ifndef SINCOS
-#define SINCOS1(t,s,c) sincos(t, s, c)
-#define SINCOS2(t,s,c) sincos(s, c ,t)
-#define SINCOS3(t,s,c) (*s=sin(t)),(*c=cos(t))
-#ifdef __alpha
-#define SINCOS(t,s,c) SINCOS3(t,s,c)
-#else
-#ifdef __GNUC__
-#ifdef __DJGPP__
-#define SINCOS(t,s,c) SINCOS2(t,s,c)
-#else
-#ifdef __USE_GNU
-#define SINCOS(t,s,c) SINCOS1(t,s,c)
-#else
-#define SINCOS(t,s,c) SINCOS3(t,s,c)
-#endif
-#endif
-#else
-#define SINCOS(t,s,c) SINCOS3(t,s,c)
-#endif
-#endif
-#endif
-
-//
-// member functions of the basic Vector type
-//
-
-// constructor
-inline VectorExpression<>::VectorExpression (DOUBLE a, DOUBLE b, DOUBLE c)
-  : x(a), y(b), z(c) {}
-
-// constuctor from a vector expression
-template<class A,int B,class C> 
-inline VectorExpression<>::VectorExpression(const VectorExpression<A,B,C> &e) :
-  x( e.eval<0>() ),
-  y( e.eval<1>() ),
-  z( e.eval<2>() )
-{}
-
-// assign zero to all elements
-inline void VectorExpression<>::zero()
-{
-  x = y = z = 0;
-}
-
-// access to elements through parenthesis
-// active: for assignment to ()
-inline DOUBLE& VectorExpression<>:: operator()(int i) 
-{ 
-  return *(&x+i);
-}
-// passive
-inline const DOUBLE& VectorExpression<>:: operator() (int i) const
-{ 
-  return *(&x+i);
-}
-
-// access to elements through parenthesis
-// active: for assignment to ()
-inline DOUBLE& VectorExpression<>:: operator[](int i) 
-{ 
-  return *(&x+i);
-}
-// passive
-inline const DOUBLE& VectorExpression<>:: operator[](int i) const
-{ 
-  return *(&x+i);
-}
-
-// passive access to the elements through eval
-template <> inline DOUBLE VectorExpression<>::eval<0>() const { return x; }
-template <> inline DOUBLE VectorExpression<>::eval<1>() const { return y; }
-template <> inline DOUBLE VectorExpression<>::eval<2>() const { return z; }
-
-// norm squared
-inline DOUBLE VectorExpression<>::nrm2() const 
-{
-   return x*x+y*y+z*z;
-}
-
-// norm 
-inline DOUBLE VectorExpression<>::nrm() const
-{
-  DOUBLE biggest=x<0?-x:x;
-  DOUBLE absval=y<0?-y:y;
-  if (absval>biggest) biggest=absval;
-  absval=z<0?-z:z;
-  if (absval>biggest) biggest=absval;
-  if (biggest!=0)
-    return biggest*(DOUBLE)(sqrt(SQR(x/biggest)
-				 +SQR(y/biggest)
-				 +SQR(z/biggest)));
-  else
-    return 0;
-}
-
-// assignment from an expression
-template<class A,int B,class C> 
-inline VectorExpression<>& VectorExpression<>:: operator=(const VectorExpression<A,B,C> &e)
-{
-  x = e.eval<0>();
-  y = e.eval<1>();
-  z = e.eval<2>();
-  return *this;
-}
-
-// addto-assignment from an expression
-template<class A,int B,class C> 
-inline VectorExpression<>& VectorExpression<>:: operator+=(const VectorExpression<A,B,C> &e)
-{
-  x += e.eval<0>();
-  y += e.eval<1>();
-  z += e.eval<2>();
-  return *this;
-}
-
-// subtract-from assignment from an expression
-template<class A,int B,class C>
-inline VectorExpression<>& VectorExpression<>:: operator-=(const VectorExpression<A,B,C> &e)
-{
-  x -= e.eval<0>();
-  y -= e.eval<1>();
-  z -= e.eval<2>();
-  return *this;
-}
-
-// multiply-by assignment from an expression
-inline VectorExpression<>&  VectorExpression<>:: operator*=(const DOUBLE d)
-{
-  x *= d;
-  y *= d;
-  z *= d;
-  return *this;
-}
-
-// divide-by assignment from an expression
-inline VectorExpression<>&  VectorExpression<>:: operator/=(const DOUBLE d)
-{
-  x /= d;
-  y /= d;
-  z /= d;
-  return *this;
-}
-
 //                                           
 // member functions of the basic Matrix type 
 //                                           
-
-// constructor
-inline MatrixExpression<>::MatrixExpression
-  (DOUBLE a, DOUBLE b, DOUBLE c,
-   DOUBLE d, DOUBLE e, DOUBLE f,
-   DOUBLE g, DOUBLE h, DOUBLE i) :
-    xx(a), xy(b), xz(c),
-    yx(d), yy(e), yz(f),
-    zx(g), zy(h), zz(i)
-{}
-
-// constructor from an MatrixExpression
-template<class A,int B,class C>
-  inline MatrixExpression<>::MatrixExpression(const MatrixExpression<A,B,C>&e):
-  xx(e.eval<0,0>()), xy(e.eval<0,1>()), xz(e.eval<0,2>()),
-  yx(e.eval<1,0>()), yy(e.eval<1,1>()), yz(e.eval<1,2>()),
-  zx(e.eval<2,0>()), zy(e.eval<2,1>()), zz(e.eval<2,2>())
-{}
-
-// set all elements to zero
-inline void MatrixExpression<>::zero()
-{
-  xx = xy = xz = yx = yy = yz = zx = zy = zz = 0;
-}
-
-// turn into an identity matrix
-inline void MatrixExpression<>::one()
-{
-  xx = yy = zz = 1;
-  xy = xz = yx = yz = zx = zy = 0;
-}
-
-// set the elements of a row equal to those of a vector
-template<class A, int B, class C> inline 
-void MatrixExpression<>::setRow(const int i, 
-				const VectorExpression<A,B,C> &e)
-{
-  switch(i) {
-  case 0: xx = e.eval<0>(); xy = e.eval<1>(); xz = e.eval<2>(); break;
-  case 1: yx = e.eval<0>(); yy = e.eval<1>(); yz = e.eval<2>(); break;
-  case 2: zx = e.eval<0>(); zy = e.eval<1>(); zz = e.eval<2>(); break;
-  }
-}
-
-// set the elements of a column equal to those of a vector
-template<class A, int B, class C> inline 
-void MatrixExpression<>::setColumn(const int j,
-				   const VectorExpression<A,B,C>&e)
-{
-  switch(j) {
-  case 0: xx = e.eval<0>(); yx = e.eval<1>(); zx = e.eval<2>(); break;
-  case 1: xy = e.eval<0>(); yy = e.eval<1>(); zy = e.eval<2>(); break;
-  case 2: xz = e.eval<0>(); yz = e.eval<1>(); zz = e.eval<2>(); break;
-  }
-}
-
-// access to elements through parenthesis
-// active: for assignment to ()
-inline DOUBLE& MatrixExpression<>:: operator()(int i, int j) 
-{ 
-  return *(&xx+3*i+j);
-}
-// passive:
-inline const DOUBLE& MatrixExpression<>:: operator() (int i, int j) const
-{ 
-  return *(&xx+3*i+j);
-}
-
-// passive access to the elements through eval
-template <> inline DOUBLE MatrixExpression<>::eval<0,0>() const { return xx; }
-template <> inline DOUBLE MatrixExpression<>::eval<0,1>() const { return xy; }
-template <> inline DOUBLE MatrixExpression<>::eval<0,2>() const { return xz; }
-template <> inline DOUBLE MatrixExpression<>::eval<1,0>() const { return yx; }
-template <> inline DOUBLE MatrixExpression<>::eval<1,1>() const { return yy; }
-template <> inline DOUBLE MatrixExpression<>::eval<1,2>() const { return yz; }
-template <> inline DOUBLE MatrixExpression<>::eval<2,0>() const { return zx; }
-template <> inline DOUBLE MatrixExpression<>::eval<2,1>() const { return zy; }
-template <> inline DOUBLE MatrixExpression<>::eval<2,2>() const { return zz; }
-
-// trace
-inline DOUBLE MatrixExpression<>::tr() const 
-{ 
-  return xx+yy+zz; 
-}
-
-// determininant
-inline DOUBLE MatrixExpression<>::det() const
-{
-  return xx*(yy*zz-yz*zy)+xy*(yz*zx-yx*zz)+xz*(yx*zy-yy*zx);
-}
-
-// norm squared
-inline DOUBLE MatrixExpression<>::nrm2() const 
-{ 
-  return SQR(xx)+SQR(xy)+SQR(xz)
-        +SQR(yx)+SQR(yy)+SQR(yz)
-        +SQR(zx)+SQR(zy)+SQR(zz);
-}
-
-// norm
-inline DOUBLE MatrixExpression<>::nrm() const 
-{
-  DOUBLE absval;
-  DOUBLE biggest=xx<0?-xx:xx;
-  absval=xy<0?-xy:xy;
-  if (absval>biggest) biggest=absval;
-  absval=xz<0?-xz:xz;
-  if (absval>biggest) biggest=absval;
-  absval=yx<0?-yx:yx;
-  if (absval>biggest) biggest=absval;
-  absval=yy<0?-yy:yy;
-  if (absval>biggest) biggest=absval;
-  absval=yz<0?-yz:yz;
-  if (absval>biggest) biggest=absval;
-  absval=zx<0?-zx:zx;
-  if (absval>biggest) biggest=absval;
-  absval=zy<0?-zy:zy;
-  if (absval>biggest) biggest=absval;
-  absval=zz<0?-zz:zz;
-  if (absval>biggest) biggest=absval;
-  if (biggest!=0) 
-    return biggest*(DOUBLE)(sqrt(SQR(xx/biggest)
-			       +SQR(xy/biggest)
-			       +SQR(xz/biggest)
-			       +SQR(yx/biggest)
-			       +SQR(yy/biggest)
-			       +SQR(yz/biggest)
-			       +SQR(zx/biggest)
-			       +SQR(zy/biggest)
-			       +SQR(zz/biggest)));
-  else 
-    return 0;
-} 
 
 // assignment from an expression
 template<class A,int B,class C>
@@ -706,7 +508,7 @@ inline MatrixExpression<>& MatrixExpression<>:: operator=(const MatrixExpression
 }
 
 // multiply-by assignment from an expression
-inline MatrixExpression<>& MatrixExpression<>:: operator*=(const DOUBLE d)
+inline MatrixExpression<>& MatrixExpression<>:: operator*=(const double d)
 {
   xx *= d;  xy *= d;  xz *= d;
   yx *= d;  yy *= d;  yz *= d;
@@ -714,7 +516,7 @@ inline MatrixExpression<>& MatrixExpression<>:: operator*=(const DOUBLE d)
   return *this;
 }
 // divide-by assignment from an expression
-inline MatrixExpression<>& MatrixExpression<>:: operator/=(const DOUBLE d)
+inline MatrixExpression<>& MatrixExpression<>:: operator/=(const double d)
 {
   xx /= d;  xy /= d;  xz /= d;
   yx /= d;  yy /= d;  yz /= d;
@@ -747,7 +549,7 @@ template<class A,int B,class C>
 inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression<A,B,C> & m)
 {
   MatrixExpression<> rhs(m);
-  DOUBLE x = xx, y = xy;
+  double x = xx, y = xy;
   xx *= rhs.xx; xx += y*rhs.yx+xz*rhs.zx;
   xy *= rhs.yy; xy += x*rhs.xy+xz*rhs.zy;
   xz *= rhs.zz; xz += x*rhs.xz+ y*rhs.yz;
@@ -810,16 +612,16 @@ inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression
 // to get the norm of a vector
 #define VECNRM nrm() const\
 {\
-  DOUBLE x=eval<0>(); \
-  DOUBLE y=eval<1>(); \
-  DOUBLE z=eval<2>(); \
-  DOUBLE biggest=x<0?-x:x; \
-  DOUBLE absval=y<0?-y:y; \
+  double x=eval<0>(); \
+  double y=eval<1>(); \
+  double z=eval<2>(); \
+  double biggest=x<0?-x:x; \
+  double absval=y<0?-y:y; \
   if (absval>biggest) biggest=absval; \
   absval=z<0?-z:z; \
   if (absval>biggest) biggest=absval; \
   if (biggest!=0) \
-    return biggest*(DOUBLE)(sqrt(SQR(x/biggest) \
+    return biggest*(double)(sqrt(SQR(x/biggest) \
 			       +SQR(y/biggest) \
 			       +SQR(z/biggest))); \
   else \
@@ -829,11 +631,11 @@ inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression
 // to get the norm of a matrix
 #define MATNRM nrm() const \
 { \
-  DOUBLE xx=eval<0,0>(), xy=eval<0,1>(), xz=eval<0,2>(); \
-  DOUBLE yx=eval<1,0>(), yy=eval<1,1>(), yz=eval<1,2>(); \
-  DOUBLE zx=eval<2,0>(), zy=eval<2,1>(), zz=eval<2,2>(); \
-  DOUBLE absval;\
-  DOUBLE biggest=xx<0?-xx:xx;\
+  double xx=eval<0,0>(), xy=eval<0,1>(), xz=eval<0,2>(); \
+  double yx=eval<1,0>(), yy=eval<1,1>(), yz=eval<1,2>(); \
+  double zx=eval<2,0>(), zy=eval<2,1>(), zz=eval<2,2>(); \
+  double absval;\
+  double biggest=xx<0?-xx:xx;\
   absval=xy<0?-xy:xy;\
   if (absval>biggest) biggest=absval;\
   absval=xz<0?-xz:xz;\
@@ -851,7 +653,7 @@ inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression
   absval=zz<0?-zz:zz;\
   if (absval>biggest) biggest=absval;\
   if (biggest!=0) \
-    return biggest*(DOUBLE)(sqrt(SQR(xx/biggest)\
+    return biggest*(double)(sqrt(SQR(xx/biggest)\
 			       +SQR(xy/biggest)\
 			       +SQR(xz/biggest)\
 			       +SQR(yx/biggest)\
@@ -888,9 +690,9 @@ inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression
 // to get the determinant of a matrix expression
 #define MATDET det() const \
 { \
-  DOUBLE xx=eval<0,0>(), xy=eval<0,1>(), xz=eval<0,2>(); \
-  DOUBLE yx=eval<1,0>(), yy=eval<1,1>(), yz=eval<1,2>(); \
-  DOUBLE zx=eval<2,0>(), zy=eval<2,1>(), zz=eval<2,2>(); \
+  double xx=eval<0,0>(), xy=eval<0,1>(), xz=eval<0,2>(); \
+  double yx=eval<1,0>(), yy=eval<1,1>(), yz=eval<1,2>(); \
+  double zx=eval<2,0>(), zy=eval<2,1>(), zz=eval<2,2>(); \
   return xx*(yy*zz-yz*zy)+xy*(yz*zx-yx*zz)+xz*(yx*zy-yy*zx); \
 }
 
@@ -920,12 +722,12 @@ class VectorExpression<VectorExpression<A,B,C>,PlusOp,VectorExpression<D,E,F> >
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
 
   // define what this operation evaluates to
-  template<int I> inline DOUBLE eval() const
+  template<int I> inline double eval() const
   { 
     return a->eval<I>() + b->eval<I>(); 
   }
@@ -953,12 +755,12 @@ class VectorExpression<VectorExpression<A,B,C>,MinusOp,VectorExpression<D,E,F> >
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
 
   // define what this operation evaluates to
-  template <int I> inline DOUBLE eval() const
+  template <int I> inline double eval() const
   { 
     return a->eval<I>() - b->eval<I>(); 
   }
@@ -987,12 +789,12 @@ class VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression<D,E,F>
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
  
   // define what this operation evaluates to
-  template <const int I> inline DOUBLE eval() const
+  template <const int I> inline double eval() const
   {
     // despite its looks, a switch statement is actually quite efficient
     switch (I) {
@@ -1019,35 +821,35 @@ class VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression<D,E,F>
 };
 
 
-// Expression template class for '*' between a Vector and a DOUBLE
+// Expression template class for '*' between a Vector and a double
 //
 // A and C are classes, B is an Operator
 // if B=NoOp and A=C=Base, the VectorExpression is actually a Vector
 template<class A,int B,class C>
-class VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
+class VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
 {
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2  
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2  
+  inline double VECNRM
+  inline double VECPARENTHESES
  
   // define what this operation evaluates to
-  template <int I> inline DOUBLE eval() const
+  template <int I> inline double eval() const
   { 
     return a->eval<I>() * b; 
   }
 
-  // optimize a second multiplication with a DOUBLE
-  inline VectorExpression & operator* (DOUBLE c)
+  // optimize a second multiplication with a double
+  inline VectorExpression & operator* (double c)
   {
     b *= c;
     return *this;
   }
 
-  // optimize a subsequent division by a DOUBLE
-  inline VectorExpression & operator/ (DOUBLE c)
+  // optimize a subsequent division by a double
+  inline VectorExpression & operator/ (double c)
   {
     b /= c;
     return *this;
@@ -1055,24 +857,24 @@ class VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
 
   // constructor
   inline VectorExpression(const VectorExpression<A,B,C> & _a, 
-			  DOUBLE _b) 
+			  double _b) 
     : a(&_a), b(_b) {}
 
  private:
   // pointer to the subexpression 
   const VectorExpression<A,B,C>* a;
-  // the DOUBLE to multiply with
-  DOUBLE b;
+  // the double to multiply with
+  double b;
 
-  // be-friend multiplication operators that optimize further DOUBLE
+  // be-friend multiplication operators that optimize further double
   // multiplication
   template<class D,int E,class F> 
-  friend VectorExpression < VectorExpression<D,E,F>, TimesOp, DOUBLE >&
-  operator* (DOUBLE b, VectorExpression < VectorExpression<D,E,F>, TimesOp, DOUBLE > &a);
+  friend VectorExpression < VectorExpression<D,E,F>, TimesOp, double >&
+  operator* (double b, VectorExpression < VectorExpression<D,E,F>, TimesOp, double > &a);
 
   template<class D,int E,class F> 
-  friend VectorExpression < VectorExpression<D,E,F>, TimesOp, DOUBLE >&
-  operator/ (DOUBLE b, VectorExpression < VectorExpression<D,E,F>, TimesOp, DOUBLE > &a);
+  friend VectorExpression < VectorExpression<D,E,F>, TimesOp, double >&
+  operator/ (double b, VectorExpression < VectorExpression<D,E,F>, TimesOp, double > &a);
 
 };
 
@@ -1087,12 +889,12 @@ class VectorExpression<VectorExpression<A,B,C>, NegativeOp, Base>
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
 
   // define what this operation evaluates to
-  template <int I> inline DOUBLE eval() const
+  template <int I> inline double eval() const
   {
     return  - a->eval<I>();
   }
@@ -1119,11 +921,11 @@ class MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F
  public:
 
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(), element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS 
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS 
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
@@ -1133,7 +935,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F
 #undef CLASS
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   { 
     return a->eval<I,J>() + b->eval<I,J>(); 
   }
@@ -1163,11 +965,11 @@ class MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,
 
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(), and
   // element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
@@ -1177,7 +979,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,
 #undef CLASS
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   { 
     return a->eval<I,J>() - b->eval<I,J>(); 
   }
@@ -1195,26 +997,26 @@ class MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,
 };
 
 
-// Expression template class for '*' between a MatrixExpression and a DOUBLE
+// Expression template class for '*' between a MatrixExpression and a double
 //
 // A and C are classes, B is an operator
 // if B=NoOp and A=C=Base, the sub-expression is actually a Matrix
 template<class A,int B,class C>
-class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
+class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
 {
  public:
   
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
   // element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,TimesOp,DOUBLE >
+#define CLASS MatrixExpression<MatrixExpression<A,B,C>,TimesOp,double >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -1222,37 +1024,37 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
   // constructor
   inline 
   MatrixExpression(const MatrixExpression<A,B,C> & _a, 
-		   DOUBLE _b) 
+		   double _b) 
     : a(&_a), b(_b) {}
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   { return a->eval<I,J>() * b; }
 
-  inline MatrixExpression & operator* (DOUBLE c)
+  inline MatrixExpression & operator* (double c)
   {
     b *= c;
     return *this;
   }
 
-  inline MatrixExpression & operator/ (DOUBLE c)
+  inline MatrixExpression & operator/ (double c)
   {
     b /= c;
     return *this;
   }
 
  private:
-  // store the DOUBLE and a pointer to the sub-MatrixExpression
+  // store the double and a pointer to the sub-MatrixExpression
   const MatrixExpression<A,B,C>* a;
-  DOUBLE b;
+  double b;
 
   template<class D,int E,class F> 
-  friend MatrixExpression < MatrixExpression<D,E,F>, TimesOp, DOUBLE >&
-  operator* (DOUBLE b, MatrixExpression < MatrixExpression<D,E,F>, TimesOp, DOUBLE > &a);
+  friend MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double >&
+  operator* (double b, MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double > &a);
 
   template<class D,int E,class F> 
-  friend MatrixExpression < MatrixExpression<D,E,F>, TimesOp, DOUBLE >&
-  operator/ (DOUBLE b, MatrixExpression < MatrixExpression<D,E,F>, TimesOp, DOUBLE > &a);
+  friend MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double >&
+  operator/ (double b, MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double > &a);
 };
 
 
@@ -1268,11 +1070,11 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,
 
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
   // element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
@@ -1282,7 +1084,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,
 #undef CLASS
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   {
     return  a->eval<I,0>() * b->eval<0,J>()
           + a->eval<I,1>() * b->eval<1,J>()
@@ -1311,11 +1113,11 @@ class MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
 
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
   // element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
@@ -1325,7 +1127,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
 #undef CLASS
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   {
     return  - a->eval<I,J>;
   }
@@ -1351,11 +1153,11 @@ class MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base >
 
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
   // element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
@@ -1365,7 +1167,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base >
 #undef CLASS
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   {
     return  a->eval<J,I>();
   }
@@ -1393,11 +1195,11 @@ class MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E
 
   // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
   // element access (*this)(i,j)
-  inline DOUBLE MATNRM2
-  inline DOUBLE MATNRM
-  inline DOUBLE MATDET
-  inline DOUBLE MATTR
-  inline DOUBLE MATPARENTHESIS
+  inline double MATNRM2
+  inline double MATNRM
+  inline double MATDET
+  inline double MATTR
+  inline double MATPARENTHESIS
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
@@ -1407,7 +1209,7 @@ class MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E
 #undef CLASS
 
   // define what this operation evaluates to  
-  template <int I, int J> inline DOUBLE eval() const
+  template <int I, int J> inline double eval() const
   {
     return a->eval<I>() * b->eval<J>();
   }
@@ -1435,12 +1237,12 @@ class VectorExpression < MatrixExpression<A,B,C>, RowOp, Base >
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
 
   // define what this operation evaluates to  
-  template <const int J> inline DOUBLE eval() const
+  template <const int J> inline double eval() const
   {
     switch(i) {
       case 0: return a->eval<0,J>();
@@ -1474,12 +1276,12 @@ class VectorExpression < MatrixExpression<A,B,C>, ColumnOp, Base>
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
 
   // define what this operation evaluates to  
-  template <const int I> inline DOUBLE eval() const
+  template <const int I> inline double eval() const
   {
     switch(j) {
       case 0: return a->eval<I,0>();
@@ -1515,12 +1317,12 @@ class VectorExpression < MatrixExpression<A,B,C>, TimesOp, VectorExpression <D,E
  public:
 
   // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-  inline DOUBLE VECNRM2
-  inline DOUBLE VECNRM
-  inline DOUBLE VECPARENTHESES
+  inline double VECNRM2
+  inline double VECNRM
+  inline double VECPARENTHESES
 
   // define what this operation evaluates to  
-  template <int I> inline DOUBLE eval() const
+  template <int I> inline double eval() const
   {
     return  a->eval<I,0>() * b->eval<0>()
           + a->eval<I,1>() * b->eval<1>()
@@ -1545,7 +1347,7 @@ class CommaOp
  public:
 
   // the comma operatorset one element and moves the pointer to the next one
-  inline CommaOp& operator,(DOUBLE c) 
+  inline CommaOp& operator,(double c) 
   { 
     // make sure the vector or matrix is not completely filled yet
     if (ptr <= end) 
@@ -1563,24 +1365,24 @@ class CommaOp
  private:
   // store pointers to the next element to be filled and the last
   // element fillable.
-  DOUBLE * ptr;
-  DOUBLE * const end; 
+  double * ptr;
+  double * const end; 
 
   // constructor: set pointer to the element to be filled next and to
   // the last element
-  inline CommaOp(DOUBLE & a,DOUBLE & b) 
+  inline CommaOp(double & a,double & b) 
     : ptr(&a), end(&b) {}
 
   // this constructor is private, and so that the CommaOp class can
   // only be used by the friend member functions operator= of
   // VectorExpression<> and MatrixExpression<>
-  friend CommaOp VectorExpression<>::operator=(DOUBLE c);
-  friend CommaOp MatrixExpression<>::operator=(DOUBLE c);
+  friend CommaOp VectorExpression<>::operator=(double c);
+  friend CommaOp MatrixExpression<>::operator=(double c);
 };
 
 // assignment operatorof VectorExpression<> that triggers a comma
 // separated initializer list
-inline CommaOp VectorExpression<>::operator=(DOUBLE c)
+inline CommaOp VectorExpression<>::operator=(double c)
 {
   x = c;
   return CommaOp(y, z);
@@ -1588,7 +1390,7 @@ inline CommaOp VectorExpression<>::operator=(DOUBLE c)
 
 // assignment operatorof MatrixExpression<> that triggers a comma
 // separated initializer list
-inline CommaOp MatrixExpression<>::operator=(DOUBLE c)
+inline CommaOp MatrixExpression<>::operator=(double c)
 {
   xx = c;
   return CommaOp(xy, zz);
@@ -1626,46 +1428,46 @@ operator^ (const VectorExpression<A,B,C> & a,
   return VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression< D,E,F> > (a, b);
 }
 
-// DOUBLE * Vector
+// double * Vector
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
-operator* (DOUBLE b, 
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
+operator* (double b, 
 	   const VectorExpression<A,B,C> & a)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>(a, b);
+  return VectorExpression<VectorExpression<A,B,C>, TimesOp, double>(a, b);
 }
 
-// Vector * DOUBLE
+// Vector * double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
 operator* (const VectorExpression<A,B,C> & a, 
-	   DOUBLE b)
+	   double b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>(a, b);
+  return VectorExpression<VectorExpression<A,B,C>, TimesOp, double>(a, b);
 }
 
-// Vector / DOUBLE
+// Vector / double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
 operator/ (const VectorExpression<A,B,C> & a, 
-	   DOUBLE b)
+	   double b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>(a, 1.0/b);
+  return VectorExpression<VectorExpression<A,B,C>, TimesOp, double>(a, 1.0/b);
 }
 
-// Vector * DOUBLE * DOUBLE
+// Vector * double * double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>&
-operator*(DOUBLE b,VectorExpression<VectorExpression<A,B,C>,TimesOp,DOUBLE>&a)
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>&
+operator*(double b,VectorExpression<VectorExpression<A,B,C>,TimesOp,double>&a)
 { 
   a.b *= b; 
   return a; 
 }
 
-// Vector * DOUBLE / DOUBLE
+// Vector * double / double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, DOUBLE>&
-operator/(DOUBLE b,VectorExpression<VectorExpression<A,B,C>,TimesOp,DOUBLE>&a)
+inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>&
+operator/(double b,VectorExpression<VectorExpression<A,B,C>,TimesOp,double>&a)
 { 
   a.b /= b; 
   return a; 
@@ -1681,7 +1483,7 @@ operator-(const VectorExpression<A,B,C> & a)
 
 // Vector | Vector
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE 
+inline double 
 operator|(const VectorExpression<A,B,C> & a, 
 	  const VectorExpression<D,E,F> & b)
 {
@@ -1693,7 +1495,7 @@ operator|(const VectorExpression<A,B,C> & a,
 
 // Vector * Vector
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE 
+inline double 
 operator*(const VectorExpression<A,B,C> & a, const VectorExpression<D,E,F> & b)
 {
   return 
@@ -1720,46 +1522,46 @@ operator- (const MatrixExpression<A,B,C> & a,
   return MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,F> >(a, b);
 }
 
-// DOUBLE * Matrix
+// double * Matrix
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
-operator* (DOUBLE b, 
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+operator* (double b, 
 	   const MatrixExpression<A,B,C> & a)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >(a, b);
+  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >(a, b);
 }
 
-// Matrix * DOUBLE
+// Matrix * double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
 operator* (const MatrixExpression<A,B,C> & a, 
-	   DOUBLE b)
+	   double b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >(a, b);
+  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >(a, b);
 }
 
-// Matrix / DOUBLE
+// Matrix / double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
 operator/ (const MatrixExpression<A,B,C> & a, 
-	   DOUBLE b)
+	   double b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >(a, 1.0/b);
+  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >(a, 1.0/b);
 }
 
-// Matrix * DOUBLE * DOUBLE
+// Matrix * double * double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >&
-operator* (DOUBLE b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE > &a)
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >&
+operator* (double b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double > &a)
 { 
   a.b *= b; 
   return a; 
 }
 
-// Matrix * DOUBLE / DOUBLE
+// Matrix * double / double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE >&
-operator/ (DOUBLE b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, DOUBLE > &a)
+inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >&
+operator/ (double b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double > &a)
 { 
   a.b /= b; 
   return a; 
@@ -1810,7 +1612,7 @@ MatrixExpression<>::column(int j)
 // Can now implement Gramm-Schmidt orthogonalization of the rows of the matrix
 inline void Matrix::reorthogonalize()
 {
-  DOUBLE z;
+  double z;
   int num=10;
   while ( fabs(det()-1) > 1E-16 && --num) {
     z = 1/row(0).nrm();   
@@ -1841,13 +1643,13 @@ inline void Matrix::reorthogonalize()
 
 // return |a-b|
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE dist(const VectorExpression<A,B,C> & a, 
+inline double dist(const VectorExpression<A,B,C> & a, 
 		   const VectorExpression<D,E,F> & b)
 {
-  DOUBLE x = fabs(a.template eval<0>()-b.template eval<0>());
-  DOUBLE y = fabs(a.template eval<1>()-b.template eval<1>());
-  DOUBLE z = fabs(a.template eval<2>()-b.template eval<2>());
-  DOUBLE biggest=x;
+  double x = fabs(a.template eval<0>()-b.template eval<0>());
+  double y = fabs(a.template eval<1>()-b.template eval<1>());
+  double z = fabs(a.template eval<2>()-b.template eval<2>());
+  double biggest=x;
   if (y>biggest) biggest=y;
   if (z>biggest) biggest=z;   
   if (biggest!=0) {
@@ -1862,11 +1664,11 @@ inline DOUBLE dist(const VectorExpression<A,B,C> & a,
 
 // return (a-b)|(a-b)
 template<class A,int B,class C,class D,int E,class F>
-inline DOUBLE dist2(const VectorExpression<A,B,C> & a, 
+inline double dist2(const VectorExpression<A,B,C> & a, 
 		    const VectorExpression<D,E,F> & b)
 {
-  DOUBLE d = a.template eval<0>() - b.template eval<0>();
-  DOUBLE c = d * d;
+  double d = a.template eval<0>() - b.template eval<0>();
+  double c = d * d;
   d = a.template eval<1>() - b.template eval<1>();
   c += d * d;
   d = a.template eval<2>() - b.template eval<2>();
@@ -1875,14 +1677,14 @@ inline DOUBLE dist2(const VectorExpression<A,B,C> & a,
 
 // return |a+s-b|
 template<class A,int B,class C,class D,int E,class F,class G,int H,class I>
-inline DOUBLE distwithshift(const VectorExpression<A,B,C> &a, 
+inline double distwithshift(const VectorExpression<A,B,C> &a, 
 			    const VectorExpression<D,E,F> & b, 
 			    const VectorExpression<G,H,I>& s)
 {
- DOUBLE x=fabs(s.template eval<0>()+a.template eval<0>()-b.template eval<0>());
- DOUBLE y=fabs(s.template eval<1>()+a.template eval<1>()-b.template eval<1>());
- DOUBLE z=fabs(s.template eval<2>()+a.template eval<2>()-b.template eval<2>());
- DOUBLE biggest=x;
+ double x=fabs(s.template eval<0>()+a.template eval<0>()-b.template eval<0>());
+ double y=fabs(s.template eval<1>()+a.template eval<1>()-b.template eval<1>());
+ double z=fabs(s.template eval<2>()+a.template eval<2>()-b.template eval<2>());
+ double biggest=x;
  if (y>biggest) biggest=y;
  if (z>biggest) biggest=z;   
  if (biggest!=0) {
@@ -1898,7 +1700,7 @@ inline DOUBLE distwithshift(const VectorExpression<A,B,C> &a,
 // the inverse of a matrix
 inline MatrixExpression<> Inverse(const MatrixExpression<> &M) 
 {
-  DOUBLE d = 1/M.det();
+  double d = 1/M.det();
   return MatrixExpression<>(
     (M.yy*M.zz-M.yz*M.zy)*d, -(M.xy*M.zz-M.xz*M.zy)*d,  (M.xy*M.yz-M.xz*M.yy)*d,
    -(M.yx*M.zz-M.yz*M.zx)*d,  (M.xx*M.zz-M.xz*M.zx)*d, -(M.xx*M.yz-M.xz*M.yx)*d,
@@ -1908,21 +1710,20 @@ inline MatrixExpression<> Inverse(const MatrixExpression<> &M)
 // rotation matrix built using the Rodrigues formula
 inline MatrixExpression<> Rodrigues(const Vector &V) 
 {
-  DOUBLE theta = V.nrm();
+  double theta = V.nrm();
   if (theta != 0) {
-    DOUBLE s, c;
-    SINCOS(theta,&s,&c);
-    DOUBLE inrm = 1/theta;
-    DOUBLE wx = V.x*inrm;
-    DOUBLE wy = V.y*inrm;
-    DOUBLE wz = V.z*inrm;
-    DOUBLE oneminusc = 1-c;
-    DOUBLE wxwy1mc = wx*wy*oneminusc;
-    DOUBLE wxwz1mc = wx*wz*oneminusc;
-    DOUBLE wywz1mc = wy*wz*oneminusc;
-    DOUBLE wxs = wx*s;
-    DOUBLE wys = wy*s;
-    DOUBLE wzs = wz*s;
+    double s(std::sin(theta)), c(std::cos(theta));
+    double inrm = 1/theta;
+    double wx = V.x*inrm;
+    double wy = V.y*inrm;
+    double wz = V.z*inrm;
+    double oneminusc = 1-c;
+    double wxwy1mc = wx*wy*oneminusc;
+    double wxwz1mc = wx*wz*oneminusc;
+    double wywz1mc = wy*wz*oneminusc;
+    double wxs = wx*s;
+    double wys = wy*s;
+    double wzs = wz*s;
     return MatrixExpression<>(c+wx*wx*oneminusc,wxwy1mc-wzs,      wxwz1mc+wys,
 			      wxwy1mc+wzs,      c+wy*wy*oneminusc,wywz1mc-wxs,
 			      wxwz1mc-wys,     wywz1mc+wxs, c+wz*wz*oneminusc);
@@ -1948,38 +1749,6 @@ Dyadic (const VectorExpression<A,B,C> & a,
   return MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E,F> > (a,b);
 }
 
-//
-// Output
-//
-
-// vectors
-template<class A, int B, class C>
-inline OSTREAM& operator<< ( OSTREAM & o, 
-			     const VectorExpression<A,B,C> & t )
-{
-  return o << t.template eval<0>() << ' ' 
-	   << t.template eval<1>() << ' ' 
-	   << t.template eval<2>();
-}
-
-// matrices
-template<class A,int B,class C>
-OSTREAM& operator<< ( OSTREAM & o, 
-		      const MatrixExpression<A,B,C> & t )
-{
-  return o << '\n'<< t.template eval<0,0>() 
-	   << ' ' << t.template eval<0,1>() 
-	   << ' ' << t.template eval<0,2>()
-	   << '\n'<< t.template eval<1,0>() 
-	   << ' ' << t.template eval<1,1>() 
-	   << ' ' << t.template eval<1,2>()
-	   << '\n'<< t.template eval<2,0>() 
-	   << ' ' << t.template eval<2,1>() 
-	   << ' ' << t.template eval<2,2>() 
-	   << '\n';
-}
-
-#undef OSTREAM
 #undef VECNRM
 #undef VECNRM2
 #undef VECPARENTHESIS
@@ -1990,6 +1759,3 @@ OSTREAM& operator<< ( OSTREAM & o,
 #undef MATDET
 #undef MATROW
 #undef MATCOLUMN
-
-
-#endif
