@@ -32,7 +32,7 @@ Particle::Particle(const XMLNode& XML, unsigned long nID):
   _pos << xBrowseNode;
   
   xBrowseNode = XML.getChildNode("V");
-  
+  _vel << xBrowseNode;
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
