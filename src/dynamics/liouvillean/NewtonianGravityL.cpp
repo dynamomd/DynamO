@@ -195,7 +195,7 @@ LNewtonianGravity::getWallCollision(const Particle &part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  double adot = wallNorm[GravityDim] * Gravity * part.testState(Particle::DYNAMIC);
+  double adot = (wallNorm | g) * part.testState(Particle::DYNAMIC);
   double vdot = vel | wallNorm;
   double rdot = (rij - wallLoc) | wallNorm;
 
