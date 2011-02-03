@@ -1,24 +1,42 @@
-v1.0 Initial version control
+The XML file format occasionally goes through changes and old config
+files will no longer work. Each config file specifies which version of
+the file format is in use in the opening tag, e.g.,
+<DYNAMOconfig version="1.X.X">
+This file details the changes, and how to upgrade an old configuration.
 
-v1.1 Moved the orientational liouvilleans data to inside the
-liouvillean tags instead of the particle data, this only effect the
-orientational liouvillean
+v1.3.0 The binary/XML format has been changed to now store particle
+       states. If you want to convert a "text" v1.2.0 file, just
+       change the version to 1.3.0. If you have a binary file, you
+       must first convert it to text format using an old version of
+       dynamod (dynamod --text config.old.xml.bz2 -o
+       config.old.text.xml.bz2), and then change the version tag by
+       hand. It should work then. A suitably old version of dynamo is
+       tagged as XML-1.2.0-last in the git tree.
 
-v1.1.1 Required the <EOXML /> tag at the end of the XML to indicate the
-start of the base64 encoded binary data section 
-      - Removed Backwards compatibility for configs using Particle tags,
-should be Pt now, and removed ISSSconfig now the switch to DYNAMOconfig is
-complete
-
-
-v1.1.2  renamed EOXML to AppendedBinaryData and made it valid XML. The
-base64 now tolerates spaces and newlines but not '<' characters as
-these indicate a new XML tag
+v1.2.0 The appended binary tags are now split for extra data,
+       extendable and handled neatly in the code.  As such
+       AppendedBinaryData is now AppendedBinaryPosVel, and there is an
+       extra AppendedBinaryOrientation
 
 v1.1.3 The document is now valid XML moved the AppendedBinaryData into
-the document tags and used a trick to fool the XML parser.
-    - The binary data now contains the orientational data.
-    - There is also an attribute in the particleData to indicate if the binary stream contains orientational data, 
+       the document tags and used a trick to fool the XML parser.
+       - The binary data now contains the orientational data.
+       - There is also an attribute in the particleData to indicate if
+         the binary stream contains orientational data,
 
-v1.2.0 The appended binary tags are now split for extra data, extendable and handled neatly in the code.
-       As such AppendedBinaryData is now AppendedBinaryPosVel, and there is an extra AppendedBinaryOrientation
+v1.1.2 Renamed EOXML to AppendedBinaryData and made it valid XML. The
+       base64 now tolerates spaces and newlines but not '<' characters
+       as these indicate a new XML tag
+
+v1.1.1 Required the <EOXML /> tag at the end of the XML to indicate
+       the start of the base64 encoded binary data section - Removed
+       Backwards compatibility for configs using Particle tags, should
+       be Pt now, and removed ISSSconfig now the switch to
+       DYNAMOconfig is complete
+
+v1.1   Moved the orientational liouvilleans data to inside the
+       liouvillean tags instead of the particle data, this only effect
+       the orientational liouvillean
+
+v1.0   Initial start of XML file format version control
+

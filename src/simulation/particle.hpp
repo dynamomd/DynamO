@@ -31,8 +31,8 @@ public:
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Particle&);
   
   inline Particle (const Vector  &position, 
-		    const Vector  &velocity,
-		    const unsigned long& nID):
+		   const Vector  &velocity,
+		   const unsigned long& nID):
     _pos(position), _vel(velocity), 
     _ID(nID), _peculiarTime(0.0),
     _state(DEFAULT)
@@ -70,6 +70,8 @@ public:
   inline void setState(State nState) { _state |= nState; }
   inline void clearState(State nState) { _state &= (~nState); }
   
+  inline int& getState() { return _state; }
+
 private:
   //NOTE, changing these members type must be reflected in the liouvillean
   //where binary data is written

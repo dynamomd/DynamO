@@ -83,7 +83,6 @@ CIPConfig::initialise()
     xMainNode = tmpNode.getChildNode("DYNAMOconfig");
   }
 
-
   {
     std::string version(xMainNode.getAttribute("version"));
     
@@ -91,7 +90,9 @@ CIPConfig::initialise()
     
     if (version != configFileVersion)
       M_throw() << "This version of the config file is obsolete"
-		<< "\nThe current version is " << configFileVersion;
+		<< "\nThe current version is " << configFileVersion
+		<< "\nPlease look at the XMLFILE.VERSION file in the root directory of the dynamo source."
+	;
   }
 
   XMLNode xSubNode= xMainNode.getChildNode("Simulation");

@@ -19,5 +19,5 @@
 #include <cstddef>
 
 const size_t NDIM(3);
-const char configFileVersion[] = "1.2.0";
+const char configFileVersion[] = "1.3.0";
 

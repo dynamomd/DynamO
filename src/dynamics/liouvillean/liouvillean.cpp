@@ -119,11 +119,13 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, pos[iDim]);
-	  
+
 	  vel *= Sim->dynamics.units().unitVelocity();
 	  pos *= Sim->dynamics.units().unitLength();
 	  
 	  Sim->particleList.push_back(Particle(pos, vel, ID));
+
+	  binaryread(base64Convertor, Sim->particleList.back().getState());
 
 	  ++prog;
 	}
@@ -196,6 +198,8 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 	    
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      binarywrite(base64Convertor, tmp.getPosition()[iDim]);
+	    
+	    binarywrite(base64Convertor, tmp.getState());	  
 	    
 	    ++prog;
 	  }

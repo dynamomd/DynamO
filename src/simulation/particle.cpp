@@ -30,7 +30,9 @@ Particle::Particle(const XMLNode& XML, unsigned long nID):
   _pos << xBrowseNode;
   
   xBrowseNode = XML.getChildNode("V");
-  _vel << xBrowseNode;
+  
+  if (xBrowseNode.hasChild("Static"))
+    clearState(DYNAMIC);
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
@@ -44,5 +46,8 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
       << (particle._vel)
       << xml::endtag("V");
   
+  if (!particle.testState(Particle::DYNAMIC))
+    XML << xml::attr("Static") <<  "Static";
+
   return XML;
 }
