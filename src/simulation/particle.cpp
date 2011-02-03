@@ -28,11 +28,8 @@ Particle::Particle(const XMLNode& XML, unsigned long nID):
 {
   if (XML.hasChild("Static")) clearState(DYNAMIC);
 
-  XMLNode xBrowseNode = XML.getChildNode("P");
-  _pos << xBrowseNode;
-  
-  xBrowseNode = XML.getChildNode("V");
-  _vel << xBrowseNode;
+  _pos << XML.getChildNode("P");
+  _vel << XML.getChildNode("V");
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 

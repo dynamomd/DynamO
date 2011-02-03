@@ -24,8 +24,7 @@ class LNewtonianGravity: public LNewtonian
 public:
   LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
 
-  LNewtonianGravity(DYNAMO::SimData* tmp, double gravity,
-		    size_t gravityDim, double eV = 0, double tc = -HUGE_VAL);
+  LNewtonianGravity(DYNAMO::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 
   void initialise();
 
@@ -75,12 +74,7 @@ public:
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
-  size_t getGravityDimension() const { return GravityDim; }
-  double getGravity() const { return Gravity; }
-
 protected:
-  double Gravity;
-  size_t GravityDim;
   double elasticV;
   Vector g;
 

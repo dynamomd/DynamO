@@ -2442,7 +2442,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 
-	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1));
+	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0)));
 
 	double elasticity = 1.0;
 
@@ -2513,8 +2513,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
 
-	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1,
-							   elasticV * Sim->dynamics.units().unitVelocity()));
+	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity()));
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						     new C2RAll()
@@ -3188,7 +3187,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSCBT(Sim));
 
-	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, -Sim->dynamics.units().unitAcceleration(), 1,
+	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
 							   elasticV * Sim->dynamics.units().unitVelocity(),
 							   tc * Sim->dynamics.units().unitTime()));
 

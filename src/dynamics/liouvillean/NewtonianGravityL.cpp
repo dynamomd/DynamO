@@ -31,12 +31,14 @@
 #include <magnet/math/cubic.hpp>
 #include <magnet/math/bisect.hpp>
 #include <algorithm>
+#include "../datatypes/vector.xml.hpp"
+
+
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),
-  Gravity(-1),
-  GravityDim(1),
   elasticV(0),
+  g(0, -1, 0),
   _tc(-HUGE_VAL)
 {
   if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
@@ -45,12 +47,6 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 	      << " entry";
   try 
     {
-      if (XML.isAttributeSet("Gravity"))
-	Gravity = boost::lexical_cast<double>(XML.getAttribute("Gravity"));      
-      
-      if (XML.isAttributeSet("GravityDimension"))
-	GravityDim = boost::lexical_cast<double>(XML.getAttribute("GravityDimension"));      
-
       if (XML.isAttributeSet("ElasticV"))
 	elasticV = boost::lexical_cast<double>(XML.getAttribute("ElasticV")) 
 	  * Sim->dynamics.units().unitVelocity();
@@ -62,30 +58,23 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
 
 	  if (_tc <= 0) M_throw() << "tc must be positive! (tc = " << _tc/ Sim->dynamics.units().unitTime() << ")";
 	}
-      
+
+      g << XML.getChildNode("g");
     }
   catch (boost::bad_lexical_cast &)
     {
       M_throw() << "Failed a lexical cast in LNewtonianGravity";
     }
   
-  Gravity *= Sim->dynamics.units().unitAcceleration();
-
-  g=Vector(0,0,0);
-  g[GravityDim] = Gravity;
+  g *= Sim->dynamics.units().unitAcceleration();
 }
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, double gravity, 
-				     size_t gravityDim, double eV, double tc):
+LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, Vector gravity, double eV, double tc):
   LNewtonian(tmp), 
-  Gravity(gravity), 
-  GravityDim(gravityDim),
   elasticV(eV),
+  g(gravity),
   _tc(tc)
-{
-  g=Vector(0,0,0);
-  g[GravityDim] = Gravity;
-}
+{}
 
 void
 LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
@@ -237,33 +226,30 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
   double retVal = HUGE_VAL;
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if ((iDim == GravityDim) && part.testState(Particle::DYNAMIC))
+    if ((g[iDim] != 0) && part.testState(Particle::DYNAMIC))
       {
-	double adot = Gravity;
-	double vdot = vel[GravityDim];
-
 	//First check the "upper" boundary that may have no roots
-	double rdot = (Gravity < 0) ? rpos[iDim]-width[iDim] : rpos[iDim];
-	double arg = vdot * vdot - 2 * rdot * adot;
+	double rdot = (g[iDim] < 0) ? rpos[iDim] - width[iDim] : rpos[iDim];
+	double arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
 	double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
 	if (arg >= 0)
 	  {
-	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    upperRoot1 = t / adot;
+	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
+	    upperRoot1 = t / g[iDim];
 	    upperRoot1 = 2 * rdot / t;
 	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
 	  }
 
 	
 	//Now the lower boundary which always has roots
-	rdot = (Gravity < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
-	arg = vdot * vdot - 2 * rdot * adot;
+	rdot = (g[iDim] < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
+	arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
 	double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
 	if (arg >= 0)
 	  {
-	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    lowerRoot1 = t / adot;
+	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
+	    lowerRoot1 = t / g[iDim];
 	    lowerRoot2 = 2 * rdot / t;
 	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
 	  }
@@ -271,7 +257,7 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
 	double root = HUGE_VAL;
 	//Now, if the velocity is "up", and the upper roots exist,
 	//then pick the shortest one
-	if (!((Gravity < 0) - (vel[GravityDim] > 0))
+	if (!((g[iDim] < 0) - (vel[iDim] > 0))
 	    && (upperRoot1 != HUGE_VAL))
 	  root = upperRoot1;
 
@@ -316,51 +302,48 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 #endif
 
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if ((iDim == GravityDim) && part.testState(Particle::DYNAMIC))
+    if ((g[iDim] != 0) && part.testState(Particle::DYNAMIC))
       {
-	double adot = Gravity;
-	double vdot = vel[GravityDim];
-	
 	//First check the "upper" boundary that may have no roots
-	double rdot = (Gravity < 0) ? rpos[iDim]-width[iDim]: rpos[iDim];
-	double arg = vdot * vdot - 2 * rdot * adot;
+	double rdot = (g[iDim] < 0) ? rpos[iDim] - width[iDim]: rpos[iDim];
+	double arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
 	double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
 	if (arg >= 0)
 	  {
-	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    upperRoot1 = t / adot;
+	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
+	    upperRoot1 = t / g[iDim];
 	    upperRoot1 = 2 * rdot / t;
 	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
 	  }
 
 	
 	//Now the lower boundary which always has roots
-	rdot = (Gravity < 0) ? rpos[iDim] : rpos[iDim]-width[iDim];
-	arg = vdot * vdot - 2 * rdot * adot;
+	rdot = (g[iDim] < 0) ? rpos[iDim] : rpos[iDim]-width[iDim];
+	arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
 	double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
 	if (arg >= 0)
 	  {
-	    double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-	    lowerRoot1 = t / adot;
+	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
+	    lowerRoot1 = t / g[iDim];
 	    lowerRoot2 = 2 * rdot / t;
 	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
 	  }
 
 	//Now, if the velocity is "up", and the upper roots exist,
 	//then pick the shortest one
-	if (!((Gravity < 0) - (vel[GravityDim] > 0)))
+	if (!((g[iDim] < 0) - (vel[iDim] > 0)))
 	  if (upperRoot1 < time)
 	    {
 	      time = upperRoot1;
-	      retVal = (Gravity < 0) ? (iDim + 1) : -(iDim + 1);
+	      retVal = (g[iDim] < 0) ? (iDim + 1) : -(iDim + 1);
 	    }
 
 	//Otherwise its usually the latest lowerRoot
 	if (lowerRoot2 < time)
 	  {
 	    time = lowerRoot2;
-	    retVal = (Gravity < 0) ? - (iDim + 1) : (iDim + 1);
+	    retVal = (g[iDim] < 0) ? - (iDim + 1) : (iDim + 1);
 	  }
       }  
   else
@@ -383,18 +366,15 @@ void
 LNewtonianGravity::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") 
-      << "NewtonianGravity"
-      << xml::attr("Gravity") 
-      << Gravity / Sim->dynamics.units().unitAcceleration()
-      << xml::attr("GravityDimension") 
-      << GravityDim
-    ;
+      << "NewtonianGravity";
 
   if (elasticV)
     XML << xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
 
   if (_tc > 0)
     XML << xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
+
+  XML << xml::tag("g") << g / Sim->dynamics.units().unitAcceleration() << xml::endtag("g");
 }
 
 double 
@@ -414,7 +394,7 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) 
   double retval = HUGE_VAL;
 
   for (size_t i(0); i < NDIM; ++i)
-    if (i != GravityDim)
+    if (g[i] == 0)
       {
 	double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
 	
@@ -424,14 +404,14 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) 
       {
 	double roots[2];
 	if (magnet::math::quadSolve((0.5 * Sim->aspectRatio[i] - lMax),
-				    vel[i], 0.5 * Gravity, roots[0], roots[1]))
+				    vel[i], 0.5 * g[i], roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
 	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
 	  }
 
 	if (magnet::math::quadSolve(-(0.5 * Sim->aspectRatio[i] - lMax),
-				    vel[i], 0.5 * Gravity, roots[0], roots[1]))
+				    vel[i], 0.5 * g[i], roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
 	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
@@ -526,7 +506,7 @@ LNewtonianGravity::getParabolaSentinelTime(const Particle& part,
   
   Sim->dynamics.BCs().applyBC(pos, vel);
   
-  double turningPoint = - vel[GravityDim] / Gravity;
+  double turningPoint = - (vel | g) / g.nrm2();
   
   if (turningPoint <= 0)
     {
@@ -542,5 +522,16 @@ LNewtonianGravity::enforceParabola(const Particle& part) const
 {
   updateParticle(part);
 
-  const_cast<Particle&>(part).getVelocity()[GravityDim] = 0.0;
+  double gnrm2 = g.nrm2();
+  if (gnrm2 > 0)
+    {
+      //If the projection is negative, the particle is numerically before the parabola
+      double projection = part.getVelocity() | g;
+
+      for (double factor(1); projection < 0; factor +=1)
+	{
+	  const_cast<Particle&>(part).getVelocity() -= factor * (g / gnrm2) * projection;
+	  projection = part.getVelocity() | g;
+        }
+    }
 }
