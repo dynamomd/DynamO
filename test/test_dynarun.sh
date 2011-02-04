@@ -521,13 +521,14 @@ function GravityPlateTest {
 
     $Dynamod -s1 -m 22 -d 0.1  &> run.log
     $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+    MFT=3.56921819828845
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{mft=3.42937393269836; var=($1 - mft) / mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    | gawk '{mft='$MFT'; var=($1 - mft) / mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
 	    echo "Gravity Plate -: FAILED"
-	    gawk 'BEGIN {mft=3.42937393269836; print "MFT is supposed to be ",mft}'
+	    gawk 'BEGIN {mft='$MFT'; print "MFT is supposed to be ",mft}'
 	    bzcat output.xml.bz2 \
 		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
 		| gawk '{print "MFT is " $0}'
