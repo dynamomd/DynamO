@@ -17,7 +17,7 @@
 
 #pragma once
 #include "interaction.hpp"
-#include <magnet/math/vector.hpp>
+#include <magnet/math/matrix.hpp>
 
 class IRotatedParallelCubes: public Interaction
 {

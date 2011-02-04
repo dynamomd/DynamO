@@ -28,6 +28,7 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/math/matrix.hpp>
 
 bool 
 LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const

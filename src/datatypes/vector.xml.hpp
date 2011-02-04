@@ -146,6 +146,7 @@ inline xml::XmlStream& operator<<(xml::XmlStream& XML,
   return XML;
 }
 
+#ifdef MATRIX_HEADER
 inline
 MatrixExpression<>& 
 operator<<(MatrixExpression<>& data, const XMLNode &XML)
@@ -175,3 +176,4 @@ operator<<(MatrixExpression<>& data, const XMLNode &XML)
 
   return data;
 }
+#endif

@@ -19,6 +19,7 @@
 #include "../../dynamics/liouvillean/SLLOD.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <magnet/math/matrix.hpp>
 
 OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const DYNAMO::SimData* tmp,const XMLNode& XML):
   OutputPlugin(tmp, "SelfDiffusionOrientationalGK", 60), //Note the sort order set later

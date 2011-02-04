@@ -34,6 +34,8 @@
 #include "shapes/lines.hpp"
 #include "../../extcode/binaryHelper.hpp"
 #include "../species/inertia.hpp"
+#include <magnet/math/matrix.hpp>
+
 
 void 
 LNOrientation::initialise() 

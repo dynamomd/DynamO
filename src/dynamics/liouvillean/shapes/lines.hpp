@@ -21,6 +21,7 @@
 #include "../../dynamics.hpp"
 #include "../../../base/is_simdata.hpp"
 #include "shape.hpp"
+#include <magnet/math/matrix.hpp>
 
 class CLinesFunc : public CShape {
 public:

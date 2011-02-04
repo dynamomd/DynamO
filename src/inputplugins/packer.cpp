@@ -17,6 +17,7 @@
 
 #include "packer.hpp"
 #include <cmath>
+#include <magnet/math/matrix.hpp>
 #include "../datatypes/vector.hpp"
 #include "../simulation/particle.hpp"
 #include "../base/is_simdata.hpp"

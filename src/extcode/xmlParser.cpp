@@ -1619,11 +1619,12 @@ XMLNode XMLNode::parseFile(XMLCSTR filename, XMLCSTR tag, XMLResults *pResults)
   FILE *f=_tfopen(filename,_T("rb"));
   if (f==NULL) { if (pResults) pResults->error=eXMLErrorFileNotFound; return emptyXMLNode; }
   fseek(f,0,SEEK_END);
-  int l=ftell(f),headerSz=0;
+  size_t l=ftell(f),headerSz=0;
   if (!l) { if (pResults) pResults->error=eXMLErrorEmpty; return emptyXMLNode; }
   fseek(f,0,SEEK_SET);
   unsigned char *buf=(unsigned char*)malloc(l+1);
-  fread(buf,l,1,f);
+  size_t readBytes(fread(buf,l,1,f));
+  if (readBytes != l) M_throw() << "Couldn't read the number of bytes that are there!";
   fclose(f);
   buf[l]=0;
 #ifdef _XMLUNICODE
