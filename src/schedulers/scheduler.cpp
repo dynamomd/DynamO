@@ -290,7 +290,7 @@ CScheduler::runNextEvent()
 	//We don't stream the system for globals as neighbour lists
 	//optimise this (they dont need it).
 
-	//We also don't recheck Global events! (Some events like sleep rely on this behaviour!)
+	//We also don't recheck Global events! (Check, some events might rely on this behavior
 	Sim->dynamics.getGlobals()[sorter->next_p2()]
 	  ->runEvent(Sim->particleList[sorter->next_ID()], sorter->next_dt());       	
 	break;	           

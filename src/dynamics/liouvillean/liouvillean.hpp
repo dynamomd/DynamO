@@ -303,7 +303,7 @@ public:
    * \param passed A bit to set if the parabola is already over.
    * \return Time of the event.
    */    
-  virtual double getParabolaSentinelTime(const Particle& p1, unsigned char& passed) const
+  virtual double getParabolaSentinelTime(const Particle& p1) const
   { 
     M_throw() << "This is not needed for this type of Liouvillean";
   }

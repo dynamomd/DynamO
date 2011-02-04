@@ -229,28 +229,28 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
     if ((g[iDim] != 0) && part.testState(Particle::DYNAMIC))
       {
 	//First check the "upper" boundary that may have no roots
-	double rdot = (g[iDim] < 0) ? rpos[iDim] - width[iDim] : rpos[iDim];
-	double arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
+	double r = (g[iDim] < 0) ? rpos[iDim] - width[iDim] : rpos[iDim];
+	double arg = vel[iDim] * vel[iDim] - 2 * r * g[iDim];
 	double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
 	
 	if (arg >= 0)
 	  {
 	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
 	    upperRoot1 = t / g[iDim];
-	    upperRoot1 = 2 * rdot / t;
+	    upperRoot2 = 2 * r / t;
 	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
 	  }
 
 	
 	//Now the lower boundary which always has roots
-	rdot = (g[iDim] < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
-	arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
+	r = (g[iDim] < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
+	arg = vel[iDim] * vel[iDim] - 2 * r * g[iDim];
 	double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
 	if (arg >= 0)
 	  {
 	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
 	    lowerRoot1 = t / g[iDim];
-	    lowerRoot2 = 2 * rdot / t;
+	    lowerRoot2 = 2 * r / t;
 	    if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
 	  }
 
@@ -313,7 +313,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 	  {
 	    double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
 	    upperRoot1 = t / g[iDim];
-	    upperRoot1 = 2 * rdot / t;
+	    upperRoot2 = 2 * rdot / t;
 	    if (upperRoot2 < upperRoot1) std::swap(upperRoot2, upperRoot1);
 	  }
 
@@ -492,8 +492,7 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
 }
 
 double 
-LNewtonianGravity::getParabolaSentinelTime(const Particle& part, 
-					   unsigned char& passed) const
+LNewtonianGravity::getParabolaSentinelTime(const Particle& part) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -502,36 +501,45 @@ LNewtonianGravity::getParabolaSentinelTime(const Particle& part,
   
   if (!part.testState(Particle::DYNAMIC)) return HUGE_VAL; //Particle is not dynamic (does not feel gravity)
 
-  Vector pos(part.getPosition()), vel(part.getVelocity());
-  
+  Vector pos(part.getPosition()), vel(part.getVelocity());  
   Sim->dynamics.BCs().applyBC(pos, vel);
   
-  double turningPoint = - (vel | g) / g.nrm2();
+  //We return the time of the next turning point, per dimension
+  double time = HUGE_VAL;
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (g[iDim] != 0)
+      {
+        double tmpTime = - vel[iDim] / g[iDim];
+        if ((tmpTime > 0) && (tmpTime < time)) time = tmpTime;
+      }
   
-  if (turningPoint <= 0)
-    {
-      passed = true;
-      return HUGE_VAL;
-    }
-  
-  return turningPoint;
+  return time;
 }
 
 void 
 LNewtonianGravity::enforceParabola(const Particle& part) const
 {
   updateParticle(part);
+  Vector pos(part.getPosition()), vel(part.getVelocity());
+  Sim->dynamics.BCs().applyBC(pos, vel);
 
-  double gnrm2 = g.nrm2();
-  if (gnrm2 > 0)
-    {
-      //If the projection is negative, the particle is numerically before the parabola
-      double projection = part.getVelocity() | g;
+  //Find the dimension that is closest to 
+  size_t dim = NDIM;
+  double time = HUGE_VAL;
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (g[iDim] != 0)
+      {
+        double tmpTime = std::abs(- vel[iDim] / g[iDim]);
+        if ((std::abs(tmpTime) < time)) 
+	  {
+	    time = tmpTime;
+	    dim = iDim;
+	  }
+      }
 
-      for (double factor(1); projection < 0; factor +=1)
-	{
-	  const_cast<Particle&>(part).getVelocity() -= factor * (g / gnrm2) * projection;
-	  projection = part.getVelocity() | g;
-        }
-    }
+#ifdef DYNAMO_DEBUG
+  if (dim >= NDIM) M_throw() << "Could not find a dimension to enforce the parabola in!";
+#endif
+
+  const_cast<Particle&>(part).getVelocity()[dim] = 0;
 }

@@ -53,7 +53,7 @@ public:
 
   virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-  virtual double getParabolaSentinelTime(const Particle&, unsigned char&) const;
+  virtual double getParabolaSentinelTime(const Particle&) const;
 
   virtual void enforceParabola(const Particle&) const;
 

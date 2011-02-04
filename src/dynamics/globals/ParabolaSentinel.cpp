@@ -41,15 +41,6 @@ void
 CGParabolaSentinel::initialise(size_t nID)
 {
   ID=nID;
-
-  passedParabola.resize(Sim->N);
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    passedParabola[part.getID()] = false;
-
-  Sim->registerParticleUpdateFunc
-    (magnet::function::MakeDelegate(this, &CGParabolaSentinel::particlesUpdated));
-
 }
 
 void 
@@ -69,13 +60,9 @@ CGParabolaSentinel::getEvent(const Particle& part) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
-  if (passedParabola[part.getID()])
-    return GlobalEvent(part, HUGE_VAL, NONE, *this);
-  else
-    return GlobalEvent(part, Sim->dynamics.getLiouvillean()
-		      .getParabolaSentinelTime
-		      (part, passedParabola[part.getID()]), 
-		      VIRTUAL, *this);
+  return GlobalEvent(part, Sim->dynamics.getLiouvillean()
+		     .getParabolaSentinelTime(part), 
+		     VIRTUAL, *this);
 }
 
 void 
@@ -84,9 +71,6 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   GlobalEvent iEvent(getEvent(part));
-
-  //Stop the parabola occuring again
-  passedParabola[part.getID()] = true;
 
   if (iEvent.getdt() == HUGE_VAL)
     {
@@ -136,17 +120,4 @@ CGParabolaSentinel::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "ParabolaSentinel"
       << xml::attr("Name") << globName;
-}
-
-void 
-CGParabolaSentinel::particlesUpdated(const NEventData& PDat)
-{
-  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-    passedParabola[pdat.getParticle().getID()] = false;
-  
-  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
-    {
-      passedParabola[pdat.particle1_.getParticle().getID()] = false;
-      passedParabola[pdat.particle2_.getParticle().getID()] = false;
-    }
 }
