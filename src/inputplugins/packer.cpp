@@ -3176,7 +3176,7 @@ CIPPacker::initialise()
 
 	Sim->aspectRatio = Vector(1,1,1);
 	
-	double Rmax = 0.02;
+	double Rmax = 0.01999;
 	double l= 4;
 	double particleDiam = (2 * Rmax) / l;
 
@@ -3198,132 +3198,66 @@ CIPPacker::initialise()
 	double factor = particleDiam / Rmax;
 	double x,y,z;
 
-	//d=0.2;
-	y=0.05;
-	for(int i=0;i<16;i++){
-	  x=cos(i*2*M_PI/16)*0.1;
-	  z=sin(i*2*M_PI/16)*0.1;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
+	double spacing = 2.01 * particleDiam / factor;	
 
-	y=0.08;
-	//d=0.24
-	for(int i=0;i<19;i++){
-	  x=cos(i*2*M_PI/19)*0.12;
-	  z=sin(i*2*M_PI/19)*0.12;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
+	///Build our funnel, so we know how many particles it takes
+	double R = 0.3;
+	double H = 0.34;
+	size_t Nv = static_cast<size_t>(std::sqrt(H * H + R * R) / (spacing)); //Number of circles
+	double deltaZ = H / Nv;
+	for (size_t circle(3); circle <= Nv; ++circle)
+	  {
+	    double r = R * circle / Nv;
+	    size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
+	    double deltaPhi = 2 * M_PI / Nr;
+	    
+	    for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+	      funnelSites.push_back(factor * Vector(r * std::sin(radialstep * deltaPhi),
+						    circle * deltaZ + 0.0052,
+						    r * std::cos(radialstep * deltaPhi))
+				    - move);
+	  }
 
-	y=0.11;
-	//d=0.28
-	for(int i=0;i<22;i++){
-	  x=cos(i*2*M_PI/22)*0.14;
-	  z=sin(i*2*M_PI/22)*0.14;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
+	spacing = 2.1 * particleDiam / factor;	
 
-	y=0.14;
-	//d=0.32
-	for(int i=0;i<25;i++){
-	  x=cos(i*2*M_PI/25)*0.16;
-	  z=sin(i*2*M_PI/25)*0.16;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.17;
-	//d=0.36
-	for(int i=0;i<28;i++){
-	  x=cos(i*2*M_PI/28)*0.18;
-	  z=sin(i*2*M_PI/28)*0.18;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.2;
-	//d=0.4
-	for(int i=0;i<31;i++){
-	  x=cos(i*2*M_PI/31)*0.2;
-	  z=sin(i*2*M_PI/31)*0.2;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.23;
-	//d=0.44
-	for(int i=0;i<34;i++){
-	  x=cos(i*2*M_PI/34)*0.22;
-	  z=sin(i*2*M_PI/34)*0.22;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.26;
-	//d=0.48
-	for(int i=0;i<37;i++){
-	  x=cos(i*2*M_PI/37)*0.24;
-	  z=sin(i*2*M_PI/37)*0.24;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.29;
-	//d=0.52
-	for(int i=0;i<40;i++){
-	  x=cos(i*2*M_PI/40)*0.26;
-	  z=sin(i*2*M_PI/40)*0.26;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.32;
-	//d=0.56
-	for(int i=0;i<43;i++){
-	  x=cos(i*2*M_PI/43)*0.28;
-	  z=sin(i*2*M_PI/43)*0.28;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	y=0.35;
-	//d=0.60
-	for(int i=0;i<46;i++){
-	  x=cos(i*2*M_PI/46)*0.30;
-	  z=sin(i*2*M_PI/46)*0.30;
-	  funnelSites.push_back(factor * Vector(x,y,z) - move);
-	}
-
-	//d=0.2;
-	for(int k=-1;k<15;k++){
+	//Slide
+	for(int k=-1;k<13;k++){
 	  for(int i=-1;i<10;i++){
-	    x=cos(i*2*M_PI/16)*0.1;
-	    y=-sin(i*2*M_PI/16)*0.1-k*0.02+0.05;
-	    z=k*0.03-0.1;
+	    x=cos(i*2*M_PI/16)*0.11;
+	    y=-sin(i*2*M_PI/16)*0.11-k*0.02+0.05;
+	    z=k*0.02 *2 - 0.1;
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
+
 	//wall
 	for (int k=-2;k<2;k++){ //Slide blocking Wall
 	  for(int i=-2;i<1;i++){
 	    x=k*2*Rmax+0.02;
 	    y=i*2*Rmax+0.08;
-	    z=-0.14;
+	    z=-0.18;
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 	}
 	
 	//End container
-	double spacing = 2.1 * particleDiam / factor;	
 	double r = 0.26;
 	size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * r)));
 	for(int k=0;k<8;k++){ //Box Walls
 	  {
 	    for(size_t i=0;i<Nr;i++){
 	      x=sin(i*2*M_PI/Nr)*r;
-	      y=-0.68+k*0.04;
+	      y=-0.68+k*0.04001;
 	      z=-cos(i*2*M_PI/Nr)*r+0.46;
 	      funnelSites.push_back(factor * Vector(x,y,z) - move);
 	    }
 	  }
 	}
 
-	for(int k=7;k<19;k++){ //Box Deflection wall, 1/4 is missing
+	for(int k=8;k<19;k++){ //Box Deflection wall, 1/4 is missing
 	  for(size_t i=Nr / 8;i< (Nr * 7)/8;i++){
 	    x=sin(i*2*M_PI/Nr)*r;
-	    y=-0.68+k*0.04;
+	    y=-0.68+k*0.04001;
 	    z=-cos(i*2*M_PI/Nr)*r+0.46;
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
@@ -3351,15 +3285,18 @@ CIPPacker::initialise()
 	    funnelSites.push_back(factor * Vector(x,y,z) - move);
 	  }
 
-	//Clear out severly overlapping funnel particles
+	//Clear out overlapping funnel particles
 	for (std::vector<Vector>::iterator iPtr = funnelSites.begin();
 	     iPtr != funnelSites.end(); ++iPtr)
 	  {
 	    bool overlapping = false;
 	    for (std::vector<Vector>::iterator jPtr = iPtr + 1;
 		 jPtr != funnelSites.end(); ++jPtr)
-	      if (((*iPtr) - (*jPtr)).nrm() < particleDiam * 1.5) 
-		{ overlapping = true; break;}
+	      {
+		Vector rij = (*iPtr) - (*jPtr);
+		if (rij.nrm() < 2.0 * particleDiam) 
+		  { overlapping = true; break;}
+	      }
 
 	    if (overlapping)
 	      {
