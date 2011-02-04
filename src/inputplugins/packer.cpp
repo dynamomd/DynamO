@@ -3422,7 +3422,7 @@ CIPPacker::initialise()
 							     funnelSites.size()
 							     + dynamicSites.size() - 1),
 						 wakeTime * Sim->dynamics.units().unitTime(),
-						 2 * sleepV * Sim->dynamics.units().unitVelocity()
+						 sleepV * Sim->dynamics.units().unitVelocity()
 						 ));
 	  }
 

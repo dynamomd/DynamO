@@ -258,12 +258,13 @@ SSleep::runEvent() const
       SDat.L1partChanges.push_back(EDat);
     }
 
+  //Must clear the state before calling the signal, otherwise this
+  //will erroneously schedule itself again
+  stateChange.clear(); 
   Sim->signalParticleUpdate(SDat);
 
   BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
     Sim->ptrScheduler->fullUpdate(PDat.getParticle());
-  
-  stateChange.clear();
   
   locdt += Sim->freestreamAcc;
 
