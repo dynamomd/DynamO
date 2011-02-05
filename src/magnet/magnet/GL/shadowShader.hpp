@@ -43,13 +43,13 @@ namespace magnet {
 
       inline void attach(GLuint shadowTexture, size_t shadowSize, 
 			 GLuint textureUnit, GLint shadowMapping, 
-			 GLfloat intensity)
+			 GLfloat intensity, size_t width, size_t height)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1iARB(_shadowMapUniform, textureUnit);
 	glUniform1fARB(_shadowIntensityUniform, intensity);
-	glUniform1fARB(_shadowMapStepXUniform, 1.0 / (shadowSize * 2));
-	glUniform1fARB(_shadowMapStepYUniform, 1.0 / (shadowSize * 2));
+	glUniform1fARB(_shadowMapStepXUniform, 1.0f / width);
+	glUniform1fARB(_shadowMapStepYUniform, 1.0f / height);
 	glUniform1iARB(_shadowMapEnable, shadowMapping);	
       }
 

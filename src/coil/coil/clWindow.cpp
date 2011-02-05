@@ -907,7 +907,7 @@ CLGLWindow::CallBackDisplayFunc()
 
       _viewPortInfo.loadMatrices();
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
-			   7, _shadowMapping, _shadowIntensity);
+			   7, _shadowMapping, _shadowIntensity, _width, _height);
 
       drawScene();
       
