@@ -23,9 +23,9 @@ namespace coil
 {
   SSAOWrapper::SSAOWrapper()
   { 
-    _radius = 0.001;
+    _radius = 0.005;
     _totStrength = 1;
-    _dropoff = 0.005;
+    _dropoff = 0.05;
 
     _filter.build(); 
 
@@ -79,14 +79,14 @@ namespace coil
     _radiusSlider.signal_value_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
     _radiusSlider.show();
 
-    _totStrengthSlider.set_range(0,5);
+    _totStrengthSlider.set_range(0,2);
     _totStrengthSlider.set_increments(1,1);
     _totStrengthSlider.set_digits(3);
     _totStrengthSlider.set_value(_totStrength);
     _totStrengthSlider.signal_value_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
     _totStrengthSlider.show();
 
-    _dropoffSlider.set_range(0.00001,0.01);
+    _dropoffSlider.set_range(0.00001,0.20);
     _dropoffSlider.set_increments(0.1,0.1);
     _dropoffSlider.set_digits(5);
     _dropoffSlider.set_value(_dropoff);

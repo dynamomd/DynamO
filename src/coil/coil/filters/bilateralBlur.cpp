@@ -25,7 +25,7 @@ namespace coil
 
   BilateralBlurWrapper::BilateralBlurWrapper():
     _radius(1),
-    _zdiff(0.001)
+    _zdiff(0.0005)
   {
     _filter.build(); 
 
@@ -58,7 +58,7 @@ namespace coil
     _radiusSlider.show();
 
     _zdiffSlider.set_increments(0.0001,0.0001);
-    _zdiffSlider.set_range(0.0001, 0.01);
+    _zdiffSlider.set_range(0.0001, 0.005);
     _zdiffSlider.set_digits(6);
     _zdiffSlider.set_value(_zdiff); 
     _zdiffSlider.signal_value_changed()
