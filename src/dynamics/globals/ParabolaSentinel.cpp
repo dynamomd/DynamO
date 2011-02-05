@@ -84,7 +84,6 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
 	      << iEvent.stringData(Sim);
-  
 #endif
 
   Sim->dSysTime += iEvent.getdt();
@@ -109,8 +108,6 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
 #else
   Sim->freestreamAcc += iEvent.getdt();
 #endif
-
-  Sim->freestreamAcc += iEvent.getdt();
 
   Sim->ptrScheduler->fullUpdate(part);
 }

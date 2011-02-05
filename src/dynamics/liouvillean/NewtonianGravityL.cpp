@@ -120,8 +120,10 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
     {
       dat.dt = 0.0;
       return true;
-    }	
+    }
   
+
+
   //We calculate the roots of the cubic differential of F
   //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
   //\f$F=4 A t^3 + 3 B t^2 + 2C t + D == 0\f$ and normalizing the cubic term gives

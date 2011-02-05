@@ -23,6 +23,14 @@ namespace magnet {
     struct Bisect: public Functor {
       inline T bisectRoot(double t1, double t2, double rootthreshold, const size_t nIt = 500)
       {
+#ifdef MAGNET_DEBUG
+	if ((Functor::operator()(t1) < 0) == (Functor::operator()(t2) < 0))
+	  M_throw() << "No sign change in the interval!";
+	
+	if ((Functor::operator()(t1) < 0))
+	  M_throw() << "bisecting from negative to positive!";
+#endif
+
 	for(size_t i = 0; i < nIt; ++i)
 	  {
 	    T tm = 0.5 * (t1 + t2);

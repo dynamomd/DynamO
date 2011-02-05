@@ -46,8 +46,10 @@ protected:
   void particlesUpdated(const NEventData&);
 
   virtual void outputXML(xml::XmlStream&) const;
-  size_t NBListID;  
   double _wakeTime;
   double _wakeVelocity;
+
+  std::string _nblistName;
+  size_t _NBListID;  
 };
 

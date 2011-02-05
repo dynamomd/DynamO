@@ -23,6 +23,7 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../units/units.hpp"
+#include "neighbourList.hpp"
 
 GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range, 
 	       const double wt,const double wv):
@@ -46,6 +47,22 @@ void
 GWaker::initialise(size_t nID)
 {
   ID=nID;
+
+  try {
+    NBListID = Sim->dynamics.getGlobal(_nblistName)->getID();
+  }
+  catch(std::exception& cxp)
+    {
+      M_throw() << "Failed while finding the neighbour list global.\n"
+		<< "You must have a neighbour list for this waker event"
+		<< cxp.what();
+    }
+  
+  if (dynamic_cast<const CGNeighbourList*>
+      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
+      == NULL)
+    M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
+
 }
 
 void 
@@ -61,6 +78,8 @@ GWaker::operator<<(const XMLNode& XML)
 
     _wakeVelocity = Sim->dynamics.units().unitVelocity() * 
       boost::lexical_cast<double>(XML.getAttribute("WakeVelocity"));
+
+    _nblistName = XML.getAttribute("NBList");
   }
   catch(...)
     {
@@ -133,5 +152,6 @@ GWaker::outputXML(xml::XmlStream& XML) const
       << xml::attr("Name") << globName
       << xml::attr("WakeVelocity") << _wakeVelocity / Sim->dynamics.units().unitVelocity()
       << xml::attr("WakeTime") << _wakeTime / Sim->dynamics.units().unitTime()
+      << xml::attr("NBList") << _nblistName
       << range;
 }
