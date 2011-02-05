@@ -72,7 +72,7 @@ namespace coil
     }
     _optlist.show();
 
-    _radiusSlider.set_range(0.00001, 0.003);
+    _radiusSlider.set_range(0.00001, 0.01);
     _radiusSlider.set_increments(1,1);
     _radiusSlider.set_digits(6);
     _radiusSlider.set_value(_radius);

@@ -107,17 +107,15 @@ void main(void)
       float d = currentPixelDepth - occluderDepth;
       
       vec3 occluderNorm = normalize(occluderFragment.xyz * 2.0 - 1.0);
-      float occluderDot = -dot(occluderNorm,norm);
+      float occluderDot = dot(occluderNorm, norm);
       
-      bl += max(0, occluderDot) * step(0, d) 
-	* (1.0 - smoothstep(0, depthDropoff, d));
-      ;
+      //bl +=  max(0, -occluderDot) * step(0, d) * (1.0 - smoothstepstep(0, depthDropoff, d));
+      bl += max(0, 0.9 - occluderDot) * step(0, d) * step(0, depthDropoff - d);
     }
 
-  //Store the pixel depth too for the blur stage
-  float val = clamp(1.0-totStrength*bl*invSamples, 0, 1);
+  float val = clamp(1.0 - totStrength * bl * invSamples, 0, 1);
 
-  gl_FragColor = vec4(val,val,val,1.0);
+  gl_FragColor = vec4(val, val, val, 1.0);
 }
 );
     }
