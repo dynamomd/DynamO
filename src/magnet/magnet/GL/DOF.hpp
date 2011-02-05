@@ -34,6 +34,9 @@ namespace magnet {
 	_Input2Uniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"u_Texture1");
 	_Input3Uniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"u_Texture2");
 
+	_nearDistUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"nearDist");
+	_farDistUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"farDist");
+
 	_focalDistUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"focalDistance");
 	_focalRangeUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"focalRange");
 
@@ -41,7 +44,8 @@ namespace magnet {
       }
 
       void invoke(GLint inputTex1, GLint originalTex2, GLint depthTex2, 
-		  GLfloat focalDistance, GLfloat focalRange, GLuint _width, GLuint _height)
+		  GLfloat focalDistance, GLfloat focalRange, GLuint _width, GLuint _height,
+		  GLfloat neardist, GLfloat fardist)
       {
 	//Setup the shader arguments
 	glUseProgram(detail::shader<DOF>::_shaderID);
@@ -51,6 +55,9 @@ namespace magnet {
 	glUniform1iARB(_Input3Uniform, depthTex2);
 	glUniform1fARB(_focalDistUniform, focalDistance);
 	glUniform1fARB(_focalRangeUniform, focalRange);
+
+	glUniform1fARB(_nearDistUniform, neardist);
+	glUniform1fARB(_farDistUniform, fardist);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -98,6 +105,8 @@ namespace magnet {
     protected:
       GLint _Input1Uniform, _Input2Uniform, _Input3Uniform,
 	_focalRangeUniform,_focalDistUniform;
+
+      GLint _nearDistUniform, _farDistUniform;
     };
   }
 }

@@ -46,24 +46,25 @@ uniform sampler2D u_Texture1; //Original
 uniform sampler2D u_Texture2; //Depth buffer
 uniform float focalDistance;
 uniform float focalRange;
+uniform float nearDist;
+uniform float farDist;
 
 float LinearizeDepth(float zoverw)
 {
-	float n = 0.001;
-	float f = 100.0;
-	
-	return(2.0 * n) / (f + n - zoverw * (f - n));	
+  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
 }
 
 void main(void)
 {
-  float focalDistance = LinearizeDepth(texture2D(u_Texture2, vec2(0.5,0.5)).r);
+  float fcldist = focalDistance;
+  if (fcldist == 0) //Automatic mode
+    fcldist = LinearizeDepth(texture2D(u_Texture2, vec2(0.5,0.5)).r);
 
   vec4 original = texture2D(u_Texture1, gl_TexCoord[0].st);
   vec4 blurred = texture2D(u_Texture0, gl_TexCoord[0].st);
 
   float depth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
-  float blur = clamp(abs(depth - focalDistance) / focalRange, 0.0, 1.0);
+  float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
 
   //gl_FragColor =  vec4(blur,0,0,0);
   gl_FragColor = original + blur * (blurred - original);

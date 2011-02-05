@@ -25,14 +25,14 @@ namespace coil
   {
   public:
     DOFFilter():
-      _focalLength(0.025f), _focalWidth(0.01f)
+      _focalLength(0.25f), _focalWidth(0.01f)
     { 
       _filter.build();
       
       //Build the controls
       {
 	Gtk::VBox* labelVbox = manage(new Gtk::VBox);
-	Gtk::Label* Label1 = manage(new Gtk::Label("Focal Length"));
+	Gtk::Label* Label1 = manage(new Gtk::Label("Focal Length (0=auto)"));
 	Gtk::Label* Label2 = manage(new Gtk::Label("Focal Width"));
 	labelVbox->add(*Label1); Label1->show();
 	labelVbox->add(*Label2); Label2->show();
@@ -49,15 +49,15 @@ namespace coil
       }
       _optlist.show();
       
-      _focalLengthSlider.set_range(0, 0.1);
-      _focalLengthSlider.set_increments(0.01,0.01);
-      _focalLengthSlider.set_digits(3);
+      _focalLengthSlider.set_range(0, 1);
+      _focalLengthSlider.set_increments(0.01,0.001);
+      _focalLengthSlider.set_digits(4);
       _focalLengthSlider.set_value(_focalLength);
       _focalLengthSlider.signal_value_changed().connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));
       _focalLengthSlider.show();
       
+      _focalWidthSlider.set_range(0, 1);
       _focalWidthSlider.set_increments(0.001,0.001);
-      _focalWidthSlider.set_range(0.0001, 0.25);
       _focalWidthSlider.set_digits(4);
       _focalWidthSlider.set_value(_focalWidth); 
       _focalWidthSlider.signal_value_changed().connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));
@@ -67,7 +67,8 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<DOFFilter>::val; }
     inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::viewPort& vp)
-    { _filter.invoke(colorTextureUnit, 0, 2, _focalLength, _focalWidth, width, height); }
+    { _filter.invoke(colorTextureUnit, 0, 2, _focalLength, _focalWidth, width, 
+		     height, vp._zNearDist, vp._zFarDist); }
 
     inline virtual bool needsNormalDepth()  { return false; }
 
