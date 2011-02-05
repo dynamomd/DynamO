@@ -18,7 +18,6 @@
 #pragma once
 #include <pthread.h>
 #include <errno.h>
-#include <vector>
 
 #include <magnet/exception.hpp>
 #include <magnet/function/task.hpp>
@@ -150,110 +149,6 @@ namespace magnet {
 
     protected:
       pthread_cond_t _pthread_condition;
-    };
-
-    class Thread
-    {
-    public:
-      Thread():_task(NULL) {}
-      
-      ~Thread() 
-      {
-	if (_task != NULL)
-	  M_throw() << "Destroying an active thread!";
-      }
-      
-      Thread(function::Task* task):
-	_task(task)
-      {
-	pthread_attr_t data;
-	pthread_attr_init(&data);
-	pthread_attr_setdetachstate(&data, PTHREAD_CREATE_JOINABLE);
-
-	if (pthread_create(&_thread, &data, 
-			   &threadEntryPoint,
-			   static_cast<void*>(_task)))
-	  M_throw() << "Failed to create a thread";
-
-	pthread_attr_destroy(&data);
-      }
-      
-      inline void join()
-      {
-	if (_task == NULL)
-	  M_throw() << "Cannot join, this thread had no task!";
-
-	if (pthread_join(_thread, NULL))
-	  M_throw() << "Failed to join thread, _task=" << _task;
-
-	//Mark this thread as joined/ended
-	_task = NULL;
-      }
-
-      Thread& operator=(const Thread& other)
-      {
-	if (_task != NULL)
-	  M_throw() << "Trying to assign to a thread which is still valid!";
-
-	_task = other._task;
-	other._task = NULL;
-	_thread = other._thread;
-
-	return *this;
-      }
-
-      inline bool validTask() { return _task != NULL; }
-      
-    protected:      
-      Thread(const Thread&);
-      
-      
-      inline static void* threadEntryPoint(void* arg)
-      {
-	(*reinterpret_cast<function::Task*>(arg))();
-
-	//Now delete the task
-	delete reinterpret_cast<function::Task*>(arg);
-
-	return NULL;
-      }
-      
-      mutable function::Task* _task;
-      
-      mutable pthread_t _thread;
-    };
-
-    class ThreadGroup
-    {
-    public:
-      inline ThreadGroup() {}
-
-      inline ~ThreadGroup() 
-      {
-	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
-	     iPtr != _threads.end(); ++iPtr)
-	  delete *iPtr;
-      }
-
-      inline void create_thread(function::Task* task)
-      {
-	_threads.push_back(new Thread(task));
-      }
-
-      inline size_t size() const { return _threads.size(); }
-      
-      inline void join_all()
-      {
-	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
-	     iPtr != _threads.end(); ++iPtr)
-	  (*iPtr)->join();
-      }
-
-    protected:
-      std::vector<Thread*> _threads;
-
-      ThreadGroup(const ThreadGroup&);
-      ThreadGroup& operator=(const ThreadGroup&);
     };
   }
 }

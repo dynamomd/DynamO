@@ -32,8 +32,7 @@
 #include <magnet/math/bisect.hpp>
 #include <algorithm>
 #include "../datatypes/vector.xml.hpp"
-
-
+#include "../units/units.hpp"
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),

@@ -22,6 +22,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include "../units/units.hpp"
 
 GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range, 
 	       const double wt,const double wv):

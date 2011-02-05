@@ -29,6 +29,7 @@
 #include "shapes/oscillatingplate.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
+#include "../units/units.hpp"
 
 LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),

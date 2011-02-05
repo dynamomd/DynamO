@@ -21,12 +21,12 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <coil/coilWindow.hpp>
+#include <magnet/thread/thread.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/thread/refPtr.hpp>
 
 #include <map>
-#include <vector>
 
 class CoilMaster {
 public:

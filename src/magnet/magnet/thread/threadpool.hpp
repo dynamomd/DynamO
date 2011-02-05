@@ -23,9 +23,8 @@
 #include <sstream>
 #include <iostream>
 
-#include <magnet/function/delegate.hpp>
+#include <magnet/thread/threadgroup.hpp>
 #include <magnet/thread/taskQueue.hpp>
-#include <magnet/memory/pool.hpp>
 
 namespace magnet {
   namespace thread {

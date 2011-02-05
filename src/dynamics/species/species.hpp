@@ -20,13 +20,11 @@
 #include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
-#include "../units/units.hpp"
-#include <string>
 #include <magnet/thread/refPtr.hpp>
+#include <string>
 
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/RenderObj.hpp>
-# include <vector>
 #endif
 
 class XMLNode;

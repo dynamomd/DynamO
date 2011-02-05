@@ -16,48 +16,47 @@
 */
 
 #pragma once
+#include <pthread.h>
+#include <errno.h>
+#include <vector>
 
-#include <queue>
-#include <magnet/thread/mutex.hpp>
+#include <magnet/exception.hpp>
 #include <magnet/function/task.hpp>
+#include <magnet/thread/thread.hpp>
 
 namespace magnet {
   namespace thread {
-    class TaskQueue
+    class ThreadGroup
     {
     public:
-      //Actual queuer
-      inline virtual void queueTask(function::Task* threadfunc)
+      inline ThreadGroup() {}
+
+      inline ~ThreadGroup() 
       {
-	thread::ScopedLock lock1(_queue_mutex);    
-	_waitingFunctors.push(threadfunc);
+	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
+	     iPtr != _threads.end(); ++iPtr)
+	  delete *iPtr;
       }
 
-      void drainQueue()
+      inline void create_thread(function::Task* task)
       {
-	thread::ScopedLock lock1(_queue_mutex);
-
-	while (!_waitingFunctors.empty())
-	  {
-	    (*_waitingFunctors.front())();
-	    delete _waitingFunctors.front();
-	    _waitingFunctors.pop();
-	  }
+	_threads.push_back(new Thread(task));
       }
 
-      ~TaskQueue()
+      inline size_t size() const { return _threads.size(); }
+      
+      inline void join_all()
       {
-	thread::ScopedLock lock1(_queue_mutex);
-
-	//Just drain the queue
-	while (!_waitingFunctors.empty())
-	  delete _waitingFunctors.front();
+	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
+	     iPtr != _threads.end(); ++iPtr)
+	  (*iPtr)->join();
       }
 
     protected:
-      std::queue<function::Task*> _waitingFunctors;
-      thread::Mutex _queue_mutex;
+      std::vector<Thread*> _threads;
 
+      ThreadGroup(const ThreadGroup&);
+      ThreadGroup& operator=(const ThreadGroup&);
     };
   }
 }
