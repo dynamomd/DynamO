@@ -50,7 +50,7 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T,reqNormalDepth> >::val; }    
 
 
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height) 
+    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height, const magnet::GL::viewPort&) 
     { _filter.invoke(colorTextureUnit, width, height, _radius); }
 
     inline virtual bool needsNormalDepth()  { return reqNormalDepth; }

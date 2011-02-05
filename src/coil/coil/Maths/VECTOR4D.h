@@ -13,8 +13,8 @@
 //	http://www.paulsprojects.net/NewBSDLicense.txt)
 //////////////////////////////////////////////////////////////////////////////////////////	
 
-#ifndef VECTOR4D_H
-#define VECTOR4D_H
+#pragma once
+#include "VECTOR3D.h"
 
 class VECTOR4D
 {
@@ -133,5 +133,3 @@ public:
 	float z;
 	float w;
 };
-
-#endif	//VECTOR3D_H

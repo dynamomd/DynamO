@@ -17,8 +17,8 @@
 //	http://www.paulsprojects.net/NewBSDLicense.txt)
 //////////////////////////////////////////////////////////////////////////////////////////	
 
-#ifndef MATRIX4X4_H
-#define MATRIX4X4_H
+#pragma once
+#include "VECTOR4D.h"
 
 class MATRIX4X4
 {
@@ -128,5 +128,3 @@ public:
 	//member variables
 	float entries[16];
 };
-
-#endif	//MATRIX4X4_H

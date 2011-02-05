@@ -1084,7 +1084,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = DOXYGEN_SHOULD_IGNORE_THIS
+PREDEFINED             = DOXYGEN_SHOULD_IGNORE_THIS DYNAMO_visualizer DYNAMO_DEBUG DYNAMO_DEBUG
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

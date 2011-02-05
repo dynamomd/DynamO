@@ -977,7 +977,7 @@ CLGLWindow::CallBackDisplayFunc()
 		  else
 		    _filterTarget2.attach();
 		  
-		  filter.invoke(3, _width, _height);
+		  filter.invoke(3, _width, _height, _viewPortInfo);
 		  
 		  if (FBOalternate)
 		    _filterTarget1.detach();

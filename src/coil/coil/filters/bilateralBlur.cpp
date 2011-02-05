@@ -80,7 +80,8 @@ namespace coil
   }
 
   void BilateralBlurWrapper::invoke(GLuint colorTextureUnit, 
-				    size_t width, size_t height) 
+				    size_t width, size_t height,
+				    const magnet::GL::viewPort& vp) 
   {
     _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff); 
   }

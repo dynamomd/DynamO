@@ -16,13 +16,17 @@
 */
 #pragma once
 #include <magnet/CL/CLGL.hpp>
-#include <coil/Maths/Maths.h>
-#include <magnet/GL/viewPort.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
 
 namespace Gtk {
   class ScrolledWindow;
+}
+
+namespace magnet {
+  namespace GL {
+    class viewPort;
+  }
 }
 
 class RenderObj

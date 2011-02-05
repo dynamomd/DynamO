@@ -65,7 +65,8 @@ namespace coil
     }
 
     inline virtual size_t type_id() { return detail::filterEnum<DOFFilter>::val; }
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height)
+    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
+			       const magnet::GL::viewPort& vp)
     { _filter.invoke(colorTextureUnit, 0, 2, _focalLength, _focalWidth, width, height); }
 
     inline virtual bool needsNormalDepth()  { return false; }

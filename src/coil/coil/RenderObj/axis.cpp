@@ -27,6 +27,7 @@
 #include <GL/freeglut.h>
 
 #include <coil/glprimatives/arrow.hpp>
+#include <magnet/GL/viewPort.hpp>
 
 extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
 extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];

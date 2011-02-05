@@ -16,6 +16,8 @@
 */
 
 #include <coil/filters/SSAO.hpp>
+#include <coil/Maths/VECTOR4D.h>
+#include <coil/Maths/MATRIX4X4.h>
 
 namespace coil 
 {
@@ -129,7 +131,8 @@ namespace coil
   }
 
   void SSAOWrapper::invoke(GLuint colorTextureUnit, 
-			   size_t width, size_t height) 
+			   size_t width, size_t height,
+			   const magnet::GL::viewPort& vp)
   {
     glActiveTextureARB(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, _randomTexture);

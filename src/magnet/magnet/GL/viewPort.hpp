@@ -16,8 +16,13 @@
  */
 #pragma once
 
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glew.h>
+
 #include <cmath>
 #include <magnet/math/matrix.hpp>
+#include <coil/Maths/VECTOR4D.h>
+#include <coil/Maths/MATRIX4X4.h>
 
 namespace magnet {
   namespace GL {    
@@ -26,7 +31,7 @@ namespace magnet {
       inline viewPort(Vector position = Vector(1,1,1), 
 		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 45.0f,
-		      GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
+		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		      Vector up = Vector(0,1,0),
 		      GLfloat aspectRatio = 1
 		      ):

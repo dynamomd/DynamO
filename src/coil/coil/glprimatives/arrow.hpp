@@ -16,6 +16,7 @@
 */
 
 #pragma once
+#include <magnet/math/vector.hpp>
 
 namespace coil {
   namespace glprimatives { 

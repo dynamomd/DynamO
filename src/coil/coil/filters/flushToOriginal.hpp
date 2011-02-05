@@ -26,7 +26,8 @@ namespace coil
     FlushToOriginal() {}
 
     inline virtual size_t type_id() { return detail::filterEnum<FlushToOriginal>::val; }    
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height)
+    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
+			       const magnet::GL::viewPort& vp)
     {}
 
   protected:

@@ -18,8 +18,8 @@
 #pragma once
 
 #include <gtkmm.h>
-#include "filter.hpp"
 #include <magnet/GL/BilateralBlur.hpp>
+#include "filter.hpp"
 
 namespace coil 
 {
@@ -29,7 +29,8 @@ namespace coil
     BilateralBlurWrapper();
 
     inline virtual size_t type_id() { return detail::filterEnum<BilateralBlurWrapper>::val; }    
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height);
+    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height, 
+			       const magnet::GL::viewPort& vp);
 
     inline virtual bool needsNormalDepth()  { return true; }
 

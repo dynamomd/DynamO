@@ -19,6 +19,7 @@
 
 #include <gtkmm.h>
 
+#include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/laplacianFilter.hpp>
 #include <magnet/GL/blur.hpp>
 
@@ -101,7 +102,7 @@ namespace coil
     //////////////Virtual members
     virtual size_t type_id() = 0;
     virtual void showControls(Gtk::ScrolledWindow*) {}
-    virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height) = 0;
+    virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height, const magnet::GL::viewPort& vp) = 0;
     
   protected:
   };

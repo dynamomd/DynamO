@@ -178,14 +178,14 @@ RFunction::initOpenCL()
   if (_staticShape)
     {
       _staticShape = false;
-      clTick(magnet::GL::viewPort());
+      clTick();
       _staticShape = true;      
     }
 }
 
 
 void 
-RFunction::clTick(const magnet::GL::viewPort& _viewPortInfo)
+RFunction::clTick()
 {
   if (_staticShape || !_visible) return;
 

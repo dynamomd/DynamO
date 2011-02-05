@@ -18,7 +18,7 @@
 
 #include "Triangles.hpp"
 #include <time.h>
-
+#include <magnet/math/vector.hpp>
 
 class RFunction : public RTriangles
 {
@@ -36,7 +36,8 @@ public:
 	    std::string normalCalc = "normal = normalize((float3)(pos.y * native_sin(t), pos.x * native_sin(t),1));\n",
 	    std::string colorCalc = "\n");
 
-  virtual void clTick(const magnet::GL::viewPort&);
+  virtual void clTick(const magnet::GL::viewPort&) { clTick(); }
+  virtual void clTick();
 
   void initOpenGL();
   void initOpenCL();

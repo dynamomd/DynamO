@@ -25,6 +25,7 @@
 #include "Spheres.clh"
 #include <errno.h>
 #include <coil/RenderObj/console.hpp>
+#include <magnet/GL/viewPort.hpp>
 
 struct  SortDataType { cl_uint ID; cl_float dist; };
 

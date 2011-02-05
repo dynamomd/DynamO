@@ -19,6 +19,7 @@
 #include <coil/glprimatives/arrow.hpp>
 #include <magnet/color/HSV.hpp>
 #include <sstream>
+#include <magnet/GL/viewPort.hpp>
 
 #define STRINGIFY(A) #A
 
