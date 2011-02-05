@@ -3359,7 +3359,7 @@ CIPPacker::initialise()
 							     funnelSites.size()
 							     + dynamicSites.size() - 1),
 						 wakeTime * Sim->dynamics.units().unitTime(),
-						 sleepV * Sim->dynamics.units().unitVelocity(),
+						 0.5 * sleepV * Sim->dynamics.units().unitVelocity(),
 						 "SchedulerNBList"));
 	  }
 
