@@ -26,10 +26,11 @@
 #include "neighbourList.hpp"
 
 GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range, 
-	       const double wt,const double wv):
+	       const double wt,const double wv, std::string nblist):
   Global(range, nSim, "GWaker"),
   _wakeTime(wt),
-  _wakeVelocity(wv)
+  _wakeVelocity(wv),
+  _nblistName(nblist)
 {
   globName = name;
   I_cout() << "GWaker Loaded";
@@ -49,7 +50,7 @@ GWaker::initialise(size_t nID)
   ID=nID;
 
   try {
-    NBListID = Sim->dynamics.getGlobal(_nblistName)->getID();
+    _NBListID = Sim->dynamics.getGlobal(_nblistName)->getID();
   }
   catch(std::exception& cxp)
     {
@@ -59,7 +60,7 @@ GWaker::initialise(size_t nID)
     }
   
   if (dynamic_cast<const CGNeighbourList*>
-      (Sim->dynamics.getGlobals()[NBListID].get_ptr())
+      (Sim->dynamics.getGlobals()[_NBListID].get_ptr())
       == NULL)
     M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
@@ -123,26 +124,41 @@ GWaker::runEvent(const Particle& part, const double dt) const
 
   //Here is where the particle goes to sleep or wakes
   ++Sim->eventCount;
-  ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), iEvent.getType());
+  
+  _neighbors = 0;
+    //Grab a reference to the neighbour list
+  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[_NBListID]
+								     .get_ptr()));
+  //Add the interaction events
+  nblist.getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));  
+  
+  if (_neighbors < 15)
+    {
+      iEvent.addTime(Sim->freestreamAcc);      
+      Sim->freestreamAcc = 0;
 
-  Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());
-  newVel *= _wakeVelocity / newVel.nrm();
-
-  const_cast<Particle&>(part).getVelocity() = newVel;
-  const_cast<Particle&>(part).setState(Particle::DYNAMIC);
-
-  EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
-		  * (part.getVelocity().nrm2() 
-		     - EDat.getOldVel().nrm2()));
-
-  Sim->signalParticleUpdate(EDat);
+      ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), iEvent.getType());
+      
+      Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());
+      newVel *= _wakeVelocity / newVel.nrm();
+      
+      const_cast<Particle&>(part).getVelocity() = newVel;
+      const_cast<Particle&>(part).setState(Particle::DYNAMIC);
+      
+      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
+		      * (part.getVelocity().nrm2() 
+			 - EDat.getOldVel().nrm2()));
+      
+      Sim->signalParticleUpdate(EDat);
+      
+      BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	Ptr->eventUpdate(iEvent, EDat);
+    }
+  else
+    Sim->freestreamAcc += iEvent.getdt();
 
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);
-
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
-
 }
 
 void 

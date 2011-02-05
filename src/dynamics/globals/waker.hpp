@@ -28,7 +28,8 @@ class GWaker: public Global
 public:
   GWaker(const XMLNode&, DYNAMO::SimData*);
 
-  GWaker(DYNAMO::SimData*, const std::string&, CRange*, const double, const double);
+  GWaker(DYNAMO::SimData*, const std::string&, CRange*, const double, const double,
+	 std::string nblist);
   
   virtual ~GWaker() {}
 
@@ -44,6 +45,12 @@ public:
 
 protected:
   void particlesUpdated(const NEventData&);
+
+  void nblistCallback(const Particle&, const size_t&) const
+  {
+    ++_neighbors;
+  }
+  mutable size_t _neighbors;
 
   virtual void outputXML(xml::XmlStream&) const;
   double _wakeTime;
