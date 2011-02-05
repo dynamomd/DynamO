@@ -1,6 +1,6 @@
 /*    DYNAMO:- Event driven molecular dynamics simulator 
  *    http://www.marcusbannerman.co.uk/dynamo
- *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
  *    This program is free software: you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -45,6 +45,8 @@ uniform sampler2D u_Texture0; //input
 uniform sampler2D u_Texture2; //Depth buffer
 uniform vec2 scale;
 uniform float totStrength;
+uniform float nearDist;
+uniform float farDist;
 const float invSamples = 1.0 / 10.0;
 
 const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
@@ -53,10 +55,7 @@ float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
 
 float LinearizeDepth(float zoverw)
 {
-	float n = 0.001;
-	float f = 100.0;
-	
-	return(2.0 * n) / (f + n - zoverw * (f - n));	
+  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
 }
 
 void main(void)

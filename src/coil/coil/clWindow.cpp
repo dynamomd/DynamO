@@ -1080,15 +1080,15 @@ CLGLWindow::CallBackDisplayFunc()
 void 
 CLGLWindow::drawScene()
 {
-  glEnable(GL_BLEND);
+  //glEnable(GL_BLEND); //SSAO is buggered up by transparency somehow
   GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 1.0f};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-
+  
   //Enter the render ticks for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
-
+  
   if (_showLight) _light0.drawLight();
 }
 

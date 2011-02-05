@@ -25,7 +25,7 @@ namespace coil
 
   BilateralBlurWrapper::BilateralBlurWrapper():
     _radius(1),
-    _zdiff(0.01245)
+    _zdiff(0.001)
   {
     _filter.build(); 
 
@@ -58,8 +58,8 @@ namespace coil
     _radiusSlider.show();
 
     _zdiffSlider.set_increments(0.0001,0.0001);
-    _zdiffSlider.set_range(0.0001, 0.1);
-    _zdiffSlider.set_digits(4);
+    _zdiffSlider.set_range(0.0001, 0.01);
+    _zdiffSlider.set_digits(6);
     _zdiffSlider.set_value(_zdiff); 
     _zdiffSlider.signal_value_changed()
       .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
@@ -83,6 +83,6 @@ namespace coil
 				    size_t width, size_t height,
 				    const magnet::GL::viewPort& vp) 
   {
-    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff); 
+    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff, vp._zNearDist, vp._zFarDist); 
   }
 }

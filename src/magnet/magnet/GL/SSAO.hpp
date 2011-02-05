@@ -32,8 +32,11 @@ namespace magnet {
 
 	_radiusUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"radius");
 	_totstrengthUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"totStrength");
-	_strengthUniform    = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"strength");
+	_depthDropoffUniform    = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"depthDropoff");
 	_offsetUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"offset");
+
+	_nearDistUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"nearDist");
+	_farDistUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"farDist");
 
 	_colorTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture0");
 	_normalTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture1");
@@ -46,7 +49,8 @@ namespace magnet {
       void invoke(GLint colorTextureID, GLint normalTextureID, 
 		  GLint depthTextureID, GLint rnmTextureID, 
 		  GLuint _width, GLuint _height, 
-		  GLfloat radius, GLfloat totStrength, GLfloat strength, GLfloat offset)
+		  GLfloat radius, GLfloat totStrength, GLfloat strength, 
+		  size_t randomTexSize, GLfloat neardist, GLfloat fardist)
       {
 	//Setup the shader arguments
 	glUseProgram(detail::shader<SSAO>::_shaderID);
@@ -58,7 +62,13 @@ namespace magnet {
 
 	glUniform1fARB(_radiusUniform, radius);
 	glUniform1fARB(_totstrengthUniform, totStrength);
-	glUniform1fARB(_strengthUniform, strength);
+	glUniform1fARB(_depthDropoffUniform, strength);
+
+	glUniform1fARB(_nearDistUniform, neardist);
+	glUniform1fARB(_farDistUniform, fardist);
+
+	//Just tile the texture over the screen by multiplying the texture reads by this factor
+	GLfloat offset = GLfloat(std::max(_width, _height)) / randomTexSize; 
 	glUniform1fARB(_offsetUniform, offset);
 	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -106,10 +116,11 @@ namespace magnet {
 
     protected:
       GLint _colorTextureUniform, _normalTextureUniform, _depthTextureUniform, _rnmTextureUniform;
+      GLint _nearDistUniform, _farDistUniform;
       GLint _radiusUniform;
       GLint _totstrengthUniform;
-      GLint _strengthUniform   ;
-      GLint _offsetUniform     ;
+      GLint _depthDropoffUniform;
+      GLint _offsetUniform;
     };
   }
 }

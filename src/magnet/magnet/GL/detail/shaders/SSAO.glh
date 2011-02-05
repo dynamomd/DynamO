@@ -46,16 +46,16 @@ uniform sampler2D u_Texture2;
 uniform sampler2D rnm;
 uniform float radius;
 uniform float totStrength;
-uniform float strength;
+uniform float depthDropoff;
 uniform float offset;
+uniform float nearDist;
+uniform float farDist;
+
 const float invSamples = 1.0 / 10.0;
 
 float LinearizeDepth(float zoverw)
 {
-	float n = 0.001;
-	float f = 100.0;
-	
-	return(2.0 * n) / (f + n - zoverw * (f - n));	
+  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
 }
 
 //uniform sampler2D rnm;
@@ -76,17 +76,15 @@ void main(void)
 			      vec3(0.29264435, -0.40794238, 0.15964167));
   
   // grab a normal for reflecting the sample rays later on
-  vec3 fres = normalize((texture2D(rnm, gl_TexCoord[0].st * offset).xyz * 2.0) - vec3(1.0));
-  
-  vec4 currentPixelSample = texture2D(u_Texture1, gl_TexCoord[0].st);
-  
-  //Depth definition
-  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r) * 20;
+  vec3 fres = normalize((texture2D(rnm, gl_TexCoord[0].st * offset).xyz * 2) - vec3(1.0));
+  //vec3 fres = vec3(1,0,0);
+    
+  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
   
   // current fragment coords in screen space
   vec3 ep = vec3(gl_TexCoord[0].st, currentPixelDepth);
   // get the normal of current fragment
-  vec3 norm = normalize(2.0*currentPixelSample.xyz - 1.0);
+  vec3 norm = normalize(2.0 * texture2D(u_Texture1, gl_TexCoord[0].st).xyz - 1.0);
   
   float bl = 0.0;
   // adjust for the depth ( not shure if this is good..)
@@ -103,16 +101,16 @@ void main(void)
       vec2 occluderLoc = ep.xy + sign(dot(ray,norm) )*ray.xy;
       vec4 occluderFragment = texture2D(u_Texture1, occluderLoc);
 
-      float occluderDepth = LinearizeDepth(texture2D(u_Texture2, occluderLoc).r) * 20;
+      float occluderDepth = LinearizeDepth(texture2D(u_Texture2, occluderLoc).r);
 
-      // if depthDifference is negative = occluder is behind current fragment
-      float depthDifference = currentPixelDepth - occluderDepth;
+      // if d (depth difference) is negative = occluder is behind current fragment
+      float d = currentPixelDepth - occluderDepth;
       
       vec3 occluderNorm = normalize(occluderFragment.xyz * 2.0 - 1.0);
       float occluderDot = -dot(occluderNorm,norm);
-
-      bl += step(0, occluderDot) * occluderDot * step(0, depthDifference) 
-	* (1.0 - smoothstep(0, strength, depthDifference));
+      
+      bl += max(0, occluderDot) * step(0, d) 
+	* (1.0 - smoothstep(0, depthDropoff, d));
       ;
     }
 

@@ -41,8 +41,7 @@ namespace coil
     Glib::RefPtr<Gtk::Builder> _refXml;
     GLfloat _radius;
     GLfloat _totStrength;
-    GLfloat _strength;
-    GLfloat _offset;
+    GLfloat _dropoff;
 
     GLuint _randomTexture;
 
@@ -50,9 +49,8 @@ namespace coil
     
     Gtk::HScale _radiusSlider;
     Gtk::HScale _totStrengthSlider;
-    Gtk::HScale _strengthSlider;
-    Gtk::HScale _randomOffsetSlider;
+    Gtk::HScale _dropoffSlider;
     Gtk::HBox _optlist;
-
+    static const size_t _randomTextureSize = 64;
   };
 }

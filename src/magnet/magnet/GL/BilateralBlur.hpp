@@ -33,6 +33,9 @@ namespace magnet {
 	_scaleUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"scale");
 	_totstrengthUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"totStrength");
 
+	_nearDistUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"nearDist");
+	_farDistUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"farDist");
+
 	_SSAOTextureUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"u_Texture0");
 	_depthTextureUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"u_Texture2");
 
@@ -40,7 +43,7 @@ namespace magnet {
       }
 
       void invoke(GLint SSAOTextureID, GLint depthTextureID, GLuint _width, GLuint _height,
-		  GLfloat pixelSkip, GLfloat totStrength)
+		  GLfloat pixelSkip, GLfloat totStrength, GLfloat neardist, GLfloat fardist)
       {
 	//Setup the shader arguments
 	glUseProgram(detail::shader<BilateralBlur>::_shaderID);
@@ -50,6 +53,9 @@ namespace magnet {
 
 	glUniform2fARB(_scaleUniform, pixelSkip / _width, pixelSkip / _height);
 	glUniform1fARB(_totstrengthUniform, totStrength);
+
+	glUniform1fARB(_nearDistUniform, neardist);
+	glUniform1fARB(_farDistUniform, fardist);
 	  
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -98,6 +104,7 @@ namespace magnet {
       GLint _SSAOTextureUniform, _depthTextureUniform;
       GLint _scaleUniform     ;
       GLint _totstrengthUniform;
+      GLint _nearDistUniform, _farDistUniform;
     };
   }
 }
