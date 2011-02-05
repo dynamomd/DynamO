@@ -132,7 +132,7 @@ GWaker::runEvent(const Particle& part, const double dt) const
   //Add the interaction events
   nblist.getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));  
   
-  if (_neighbors < 15)
+  if (_neighbors < 3)
     {
       iEvent.addTime(Sim->freestreamAcc);      
       Sim->freestreamAcc = 0;
@@ -170,4 +170,13 @@ GWaker::outputXML(xml::XmlStream& XML) const
       << xml::attr("WakeTime") << _wakeTime / Sim->dynamics.units().unitTime()
       << xml::attr("NBList") << _nblistName
       << range;
+}
+
+void 
+GWaker::nblistCallback(const Particle& part, const size_t& oid) const
+{
+  Vector sep = part.getPosition() - Sim->particleList[oid].getPosition();
+  Sim->dynamics.BCs().applyBC(sep);
+  if (sep.nrm() < 2.01 * Sim->dynamics.units().unitLength())
+    ++_neighbors;
 }

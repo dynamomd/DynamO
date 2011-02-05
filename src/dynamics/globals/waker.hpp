@@ -46,10 +46,8 @@ public:
 protected:
   void particlesUpdated(const NEventData&);
 
-  void nblistCallback(const Particle&, const size_t&) const
-  {
-    ++_neighbors;
-  }
+  void nblistCallback(const Particle& part, const size_t& oid) const;
+
   mutable size_t _neighbors;
 
   virtual void outputXML(xml::XmlStream&) const;
