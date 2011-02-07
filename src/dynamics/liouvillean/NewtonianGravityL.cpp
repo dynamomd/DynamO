@@ -128,8 +128,22 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //Sort the roots in ascending order
   std::sort(roots, roots + rootCount);
 
-  //Test if we're overlapping already
+  //We need to define the dynamics of overlapping particles
+  //
+  //We follow the convention that, if particles are overlapped and
+  //approaching, we collide them now.
+  //
+  //But, there are some cases where the particle is overlapped,
+  //receeding but will not escape the overlap before turning around
+  //and approaching again.
+  //
+  //Here we make another choice, we collide instantly. This is because
+  //collisions between spheres will rotate the velocity vectors, and
+  //may even fix our problem for us. Alternatively, we get some kind
+  //of inelastic collapse, which is fair, and may be avoided by
+  //sleeping the particles.
   if (quartic(0.0) < 0)
+    //We're overlapping!
     if (dat.rvdot < 0)
       {
 	//We're overlapping and approaching! Cause an instantaneous collision
@@ -137,12 +151,18 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	return true;
       }
     else
-      //We're overlapping but departing
-      //We are in trouble if we're before the local maximum, and it's inside the particle
-      if ((roots[1] >= 0) && (quartic(roots[1]) < 0))
-	{
-	  M_throw() << "Overlapping and won't escape!";
-	}
+      //We're overlapping but receeding. If there's only one cubic
+      //root, then we're fine, we'll escape the particle soon enough
+      if (rootCount == 3)
+	//We may be in trouble if the local maxima is in the future,
+	//and it's still an overlapped state!
+	if ((roots[1] >= 0) && (quartic(roots[1]) < 0))
+	  {
+	    //M_throw() << "Overlapping and won't escape!";
+	    dat.dt = roots[1]; //return the local maximum 
+	    //dat.dt = 0; 
+	    return true;
+	  }
   
   //The roots are (in order) a minimum, (and if we have 3 roots), a
   //local maximum, then another minimum
