@@ -54,10 +54,25 @@ namespace magnet {
       {
 	if (_task == NULL)
 	  M_throw() << "Cannot join, this thread had no task!";
-
-	if (pthread_join(_thread, NULL))
-	  M_throw() << "Failed to join thread, _task=" << _task;
-
+	
+	int errval = pthread_join(_thread, NULL);
+	if (errval)
+	  switch (errval)
+	    {
+	    case EINVAL:
+	      M_throw() << "Failed to join thread, _task=" << _task
+			<< "\n error is EINVAL";
+	    case ESRCH:
+	      M_throw() << "Failed to join thread, _task=" << _task
+			<< "\n error is ESRCH";
+	    case EDEADLK:
+	      M_throw() << "Failed to join thread, _task=" << _task
+			<< "\n error is EDEADLK";
+	    default:
+	      M_throw() << "Failed to join thread, _task=" << _task
+			<< "\n error is UNKNOWN! errval = " << errval;
+	    }
+	
 	//Mark this thread as joined/ended
 	_task = NULL;
       }
