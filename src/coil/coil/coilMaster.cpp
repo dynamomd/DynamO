@@ -26,31 +26,27 @@
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
-        
+
+volatile size_t CoilRegister::_counter(0);
+magnet::thread::Mutex CoilRegister::_mutex;
+
 CoilMaster::CoilMaster():
   _runFlag(false),
   _coilReadyFlag(false),
   _GTKit(magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv())
-{
-  glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
-  //glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+{}
 
+CoilMaster::~CoilMaster(){
+}
+
+void CoilMaster::bootRenderThread()
+{
   _runFlag = true;
   _coilThread = magnet::thread::Thread
     (magnet::function::Task::makeTask(&CoilMaster::coilThreadEntryPoint, this));
-
+  
   //Spinlock waiting for the boot thread to come up
   while (!_coilReadyFlag) { smallSleep(); }
-
-#ifndef CL_VERSION_1_1
-#error "Coil requires an OpenCL 1.1 installation as it uses the thread safety!"
-#endif
-}
-
-CoilMaster::~CoilMaster(){
-  shutdownCoil();
-  waitForShutdown();
 }
  
 void CoilMaster::CallBackDisplayFunc(){
@@ -253,6 +249,9 @@ CoilMaster::waitForShutdown()
 
 void CoilMaster::coilThreadEntryPoint()
 {
+  glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
+  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
   try {
       //Register the idle function
     //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::GTKIdleFunc));

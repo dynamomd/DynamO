@@ -27,6 +27,8 @@
 # include <typeinfo>
 #endif
 
+Coordinator* Coordinator::_signal_handler = NULL;
+
 void 
 Coordinator::signal_handler(int sigtype)
 {
@@ -37,7 +39,7 @@ Coordinator::signal_handler(int sigtype)
       return;
     case SIGUSR2:
       //Just try and shutdown before we're (kill -9)ed
-      _engine->forceShutdown();
+      _signal_handler->_engine->forceShutdown();
       return;
     case SIGINT:
       {
@@ -55,7 +57,7 @@ Coordinator::signal_handler(int sigtype)
 	  {
 	  case 's':
 	  case 'S':
-	    _engine->forceShutdown();
+	    _signal_handler->_engine->forceShutdown();
 	    break;
 //	  case 'e':
 //	  case 'E':
@@ -66,11 +68,11 @@ Coordinator::signal_handler(int sigtype)
 //	    break;
 	  case 'p':
 	  case 'P':
-	    _engine->peekData();
+	    _signal_handler->_engine->peekData();
 	    break;
 	  case 'd':
 	  case 'D':
-	    _engine->printStatus();
+	    _signal_handler->_engine->printStatus();
 	    break;
 	  }
 	break;
@@ -177,6 +179,38 @@ Coordinator::parseOptions(int argc, char *argv[])
 void 
 Coordinator::initialise()
 {
+  //Register the signal handlers so we can respond to
+  //attempts/warnings that the program will be killed
+  {
+    if (_signal_handler != NULL)
+      M_throw() << "Can only have one instance of the Coordinator!";
+    
+    _signal_handler = this;
+    
+    //Build the handler response
+    struct sigaction new_action, old_action;
+    new_action.sa_handler = Coordinator::signal_handler;
+    sigemptyset(&new_action.sa_mask);
+    new_action.sa_flags = 0;
+    
+    //This is for Ctrl-c events
+    sigaction (SIGINT, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGINT, &new_action, NULL);
+    
+    //Sun Grid Engine sends this before a SIGSTOP if -notify is passed
+    //to qsub
+    sigaction (SIGUSR1, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGUSR1, &new_action, NULL);
+    
+    //Sun Grid Engine sends this before a SIGKILL if -notify is passed
+    //to qsub
+    sigaction (SIGUSR2, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGUSR2, &new_action, NULL);
+  }
+
   if (vm.count("n-_threads"))
     _threads.setThreadCount(vm["n-_threads"].as<unsigned int>());
 

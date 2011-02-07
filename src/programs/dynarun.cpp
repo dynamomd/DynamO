@@ -30,25 +30,10 @@
 #include "../src/coordinator/coordinator.hpp"
 #include <magnet/arg_share.hpp>
 
-/*! \brief The programs single instantiation of the simulation control class.
- */
-Coordinator coord;
-
-
-/*! \brief A function that merely wraps the Coordinator::signal_handler.
-
-  \param sigtype The type of signal that has been recieved.
- */
-void sig_handler_helper(int sigtype)
-{
-  coord.signal_handler(sigtype);
-}
-
 /*! \brief Starting point for the dynarun program.
  *
- * This merely registers some signal handlers and boots the
- * Coordinator class. The Coordinator class is the true "main"
- * function for the simulations.
+ * This merely boots the Coordinator class. The Coordinator class is
+ * the true "main" function for the simulations.
  *
  * \param argc The number of command line arguments.
  * \param argv A pointer to the array of command line arguments.
@@ -56,6 +41,10 @@ void sig_handler_helper(int sigtype)
 int
 main(int argc, char *argv[])
 {
+  /*! \brief The programs single instantiation of the simulation control class.
+   */
+  Coordinator coord;
+
   //Output the program licence
   std::cout << "dynarun  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
@@ -66,33 +55,6 @@ main(int argc, char *argv[])
 
   //Reasonable precision for periodic output
   std::cout << std::setprecision(std::numeric_limits<float>::digits10);
-
-  //Register the signal handlers so we can respond to
-  //attempts/warnings that the program will be killed
-  {
-    //Build the handler response
-    struct sigaction new_action, old_action;
-    new_action.sa_handler = sig_handler_helper;
-    sigemptyset (&new_action.sa_mask);
-    new_action.sa_flags = 0;
-    
-    //This is for Ctrl-c events
-    sigaction (SIGINT, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
-      sigaction (SIGINT, &new_action, NULL);
-    
-    //Sun Grid Engine sends this before a SIGSTOP if -notify is passed
-    //to qsub
-    sigaction (SIGUSR1, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
-      sigaction (SIGUSR1, &new_action, NULL);
-    
-    //Sun Grid Engine sends this before a SIGKILL if -notify is passed
-    //to qsub
-    sigaction (SIGUSR2, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
-      sigaction (SIGUSR2, &new_action, NULL);
-  }
 
   //Run the simulation
   try 

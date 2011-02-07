@@ -75,7 +75,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	{
 	  char *fileName;
 	  if ( asprintf(&fileName, "%05ld", ++collstatsfilecounter) < 0)
-	    M_throw() << "asprintf error in tinkerXYZ";
+	    M_throw() << "asprintf error in VTK";
 	  
 	  std::ofstream of((std::string("CollStats") + fileName + std::string(".vtu")).c_str());
 	  

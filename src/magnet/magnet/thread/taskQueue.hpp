@@ -51,7 +51,10 @@ namespace magnet {
 
 	//Just drain the queue
 	while (!_waitingFunctors.empty())
-	  delete _waitingFunctors.front();
+	  {
+	    delete _waitingFunctors.front();
+	    _waitingFunctors.pop();
+	  }
       }
 
     protected:

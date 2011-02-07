@@ -61,7 +61,7 @@ class OPVTK: public OPTicker
   bool CollisionStats;
 
   size_t eventCounter;
-  size_t collstatsfilecounter;
+  long collstatsfilecounter;
 };
 
 #endif

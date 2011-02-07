@@ -60,8 +60,6 @@ public:
     _coilReadyFlag = false;
   }
 
-  void waitForShutdown();
-
   inline bool isRunning() { return _runFlag; }
 
   magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
@@ -75,6 +73,11 @@ public:
   magnet::thread::Mutex _coilLock;
 
 private:
+  friend class CoilRegister;
+
+  void waitForShutdown();
+  void bootRenderThread();
+
   CoilMaster();
   ~CoilMaster();
   
@@ -121,4 +124,41 @@ private:
   //thread are performed. This is performed in a timer as it's too
   //expensive to do all the time (due to the lock)
   bool taskTimeout();
+};
+
+class CoilRegister
+{
+public:
+  CoilRegister() { increment(); }
+  CoilRegister(const CoilRegister&) { increment(); }
+  CoilRegister& operator=(const CoilRegister&) { increment(); return *this; }
+  ~CoilRegister() { decrement(); }
+
+  void increment()
+  {
+    _mutex.lock();
+
+    if ((++_counter) == 1)
+      {
+	//Boot coil render thread
+	CoilMaster::getInstance().bootRenderThread();
+      }
+
+    _mutex.unlock();
+  }
+
+  void decrement() 
+  {
+    _mutex.lock();
+
+    if ((--_counter) == 0)
+      {//Destroy coil render thread
+	CoilMaster::getInstance().shutdownCoil();
+	CoilMaster::getInstance().waitForShutdown();	
+      }
+
+    _mutex.unlock();
+  }
+  volatile static size_t _counter;
+  static magnet::thread::Mutex _mutex;
 };

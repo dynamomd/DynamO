@@ -93,7 +93,7 @@ public:
    * gracefully exit. We catch these signals and shutdown as quickly
    * as possible.
    */
-  void signal_handler(int);
+  static void signal_handler(int);
 
 private:
   /*! \brief Contains the parsed command line options, engines carry references
@@ -110,6 +110,8 @@ private:
    * This ThreadPool is used/referenced by all code in a single dynarun process.
    */
   magnet::thread::ThreadPool _threads;
+
+  static Coordinator* _signal_handler;
 };
 
 #endif
