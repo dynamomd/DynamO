@@ -115,15 +115,6 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   quartic.coeffs[3] = 2 * dat.rvdot;
   quartic.coeffs[4] = dat.r2 - d2;
   
-  //Just check if we're overlapping and heading inwards and force a collision now.
-  if((quartic(0.0) < 0) &&  (dat.rvdot < 0))
-    {
-      dat.dt = 0.0;
-      return true;
-    }
-  
-
-
   //We calculate the roots of the cubic differential of F
   //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
   //\f$F=4 A t^3 + 3 B t^2 + 2C t + D == 0\f$ and normalizing the cubic term gives
@@ -133,10 +124,26 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 					      quartic.coeffs[2] * 2 / (4 * quartic.coeffs[0]), 
 					      quartic.coeffs[3] * 1 / (4 * quartic.coeffs[0]), 
 					      roots[0], roots[1], roots[2]);
-  
+
   //Sort the roots in ascending order
   std::sort(roots, roots + rootCount);
 
+  //Test if we're overlapping already
+  if (quartic(0.0) < 0)
+    if (dat.rvdot < 0)
+      {
+	//We're overlapping and approaching! Cause an instantaneous collision
+	dat.dt = 0.0;
+	return true;
+      }
+    else
+      //We're overlapping but departing
+      //We are in trouble if we're before the local maximum, and it's inside the particle
+      if ((roots[1] >= 0) && (quartic(roots[1]) < 0))
+	{
+	  M_throw() << "Overlapping and won't escape!";
+	}
+  
   //The roots are (in order) a minimum, (and if we have 3 roots), a
   //local maximum, then another minimum
 

@@ -562,6 +562,7 @@ CLGLWindow::initGTK()
 	//Setup the filter store
 	_refXml->get_widget("filterView", _filterView);
 	_filterView->set_model(_filterStore);
+	_filterView->append_column("Active", _filterModelColumns.m_active);
 	_filterView->append_column("Filter Name", _filterModelColumns.m_name);
 
 	//////Connect the filterView select callback
@@ -958,6 +959,8 @@ CLGLWindow::CallBackDisplayFunc()
 	    {
 	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
 	      coil::filter& filter = *static_cast<coil::filter*>(filter_ptr);
+
+	      if (!((*iPtr)[_filterModelColumns.m_active])) break; //Only run active filters
 
 	      if (filter.type_id() == coil::detail::filterEnum<coil::FlushToOriginal>::val)
 		{//Check if we're trying to flush the drawing
@@ -1398,6 +1401,9 @@ CLGLWindow::filterAddCallback()
   (*iter)[_filterModelColumns.m_name]
     = coil::filter::getName(type_id);
   
+  (*iter)[_filterModelColumns.m_active]
+    = true;
+
   filterSelectCallback();
 }
 
@@ -1575,7 +1581,7 @@ CLGLWindow::rebuildRenderView()
   
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    {//Adding a test render object item
+    {
       Gtk::TreeModel::iterator iter = _renderObjStore->append();
       
       (*iter)[_renderObjModelColumns.m_name]

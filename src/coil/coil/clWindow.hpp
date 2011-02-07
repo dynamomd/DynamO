@@ -188,8 +188,9 @@ private:
   struct FilterModelColumnsType : Gtk::TreeModelColumnRecord
   {
     FilterModelColumnsType()
-    { add(m_name); add(m_filter_ptr);}
+    { add(m_active); add(m_name); add(m_filter_ptr);}
     
+    Gtk::TreeModelColumn<bool> m_active;
     Gtk::TreeModelColumn<Glib::ustring> m_name;
     Gtk::TreeModelColumn<void*> m_filter_ptr;
   };

@@ -73,6 +73,7 @@ namespace coil
   class filter
   {
   public:
+    inline filter ():_active(true) {}
     virtual inline ~filter() {}
 
     //////////////Static members
@@ -104,6 +105,10 @@ namespace coil
     virtual void showControls(Gtk::ScrolledWindow*) {}
     virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height, const magnet::GL::viewPort& vp) = 0;
     
+    inline bool getActive() const { return _active; }
+    inline void setActive(bool nv) { _active = nv; }
+
   protected:
+    bool _active;
   };
 }
