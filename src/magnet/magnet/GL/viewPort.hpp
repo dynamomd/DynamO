@@ -29,10 +29,8 @@ namespace magnet {
     struct viewPort
     {
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline viewPort() {}
-
-      inline viewPort(Vector position, 
-		      Vector lookAtPoint,
+      inline viewPort(Vector position = Vector(1,1,1), 
+		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 45.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		      Vector up = Vector(0,1,0),
@@ -63,8 +61,6 @@ namespace magnet {
 	rotationAxis /= rotationAxis.nrm();
 
 	_tiltrotation = (180.0 / M_PI) * std::acos(directionInXZplane | directionNorm);
-		
-	buildMatrices();
       }
       
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
@@ -82,7 +78,7 @@ namespace magnet {
 	
 	//Vertical movement
 	_position[1] += vertical;
-
+	
 	buildMatrices();
       }
       

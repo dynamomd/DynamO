@@ -102,7 +102,12 @@ void main()
 	      vec4 sampleCoords = ShadowCoord + vec4((x - stepoffset) * xPixelOffset * ShadowCoord.w, 
 						     (y - stepoffset) * yPixelOffset * ShadowCoord.w, 
 						     0, 0);
-	      shadow += textureProj(ShadowMap, sampleCoords).r;
+	      vec2 circle =  (sampleCoords.xy) / sampleCoords.w  - vec2(0.5,0.5);
+	      
+	      //Makes the light source a spotlight (and fixes a wierd
+	      //line perpendicular to the light beam).
+	      if (dot(circle, circle) < 0.25) 
+		shadow += textureProj(ShadowMap, sampleCoords).r;
 	    }
 	      
       shadow /= steps * steps;

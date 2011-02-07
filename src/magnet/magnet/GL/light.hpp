@@ -31,7 +31,7 @@ namespace magnet {
 		       Vector lookAtPoint,
 		       GLenum lightHandle = GL_LIGHT0,
 		       GLfloat fovY = 45.0f,
-		       GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
+		       GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		       Vector up = Vector(0,1,0)):
 	viewPort(position, lookAtPoint, fovY, zNearDist, zFarDist, up, 1.0),
 	_lightHandle(lightHandle)

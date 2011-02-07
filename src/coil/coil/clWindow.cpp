@@ -149,6 +149,8 @@ CLGLWindow::initOpenGL()
   if (!_pickingEnabled)
     std::cout << "\nPicking won't work! Your screen color depth is too low! We need/want 32bits (24bit color plus 8bit alpha)";
 
+  _viewPortInfo.buildMatrices();
+
   glDrawBuffer(GL_BACK);
 
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -201,9 +203,12 @@ CLGLWindow::initOpenGL()
 				  Vector(0.0f, 0.0f, 0.0f),//Lookat
 				  GL_LIGHT0,
 				  75.0f,//Beam angle
-				  0.0001,//rangeMin
-				  1000//rangeMax
+				  0.01,//rangeMin
+				  10//rangeMax
 				  );
+  
+  _light0.buildMatrices();
+
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
   glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
