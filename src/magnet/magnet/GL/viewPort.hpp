@@ -28,8 +28,11 @@ namespace magnet {
   namespace GL {    
     struct viewPort
     {
-      inline viewPort(Vector position = Vector(1,1,1), 
-		      Vector lookAtPoint = Vector(0,0,0),
+      //We need a default constructor as viewPorts may be created without GL being initialized
+      inline viewPort() {}
+
+      inline viewPort(Vector position, 
+		      Vector lookAtPoint,
 		      GLfloat fovY = 45.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		      Vector up = Vector(0,1,0),
