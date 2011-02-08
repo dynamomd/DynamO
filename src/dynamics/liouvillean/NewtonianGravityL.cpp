@@ -158,10 +158,10 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	//and it's still an overlapped state!
 	if ((roots[1] >= 0) && (quartic(roots[1]) < 0))
 	  {
-	    //M_throw() << "Overlapping and won't escape!";
-	    dat.dt = roots[1]; //return the local maximum 
+	    M_throw() << "Overlapping and won't escape!";
+	    //dat.dt = roots[1]; //return the local maximum 
 	    //dat.dt = 0; 
-	    return true;
+	    //return true;
 	  }
   
   //The roots are (in order) a minimum, (and if we have 3 roots), a
