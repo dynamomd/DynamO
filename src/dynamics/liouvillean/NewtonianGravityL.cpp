@@ -157,11 +157,12 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 	//We may be in trouble if the local maxima is in the future,
 	//and it's still an overlapped state!
 	if ((roots[1] >= 0) && (quartic(roots[1]) < 0))
-	  {
-	    M_throw() << "Overlapping and won't escape!";
-	    //dat.dt = roots[1]; //return the local maximum 
-	    //dat.dt = 0; 
-	    //return true;
+	  {//Return an event at the local maximum, it's the furthest
+	   //away we're going to get without approaching again. Either
+	   //we'll have another event or we'll have to handle it by
+	   //sleeping the particle.
+	    dat.dt = roots[1]; //return the local maximum 
+	    return true;
 	  }
   
   //The roots are (in order) a minimum, (and if we have 3 roots), a
