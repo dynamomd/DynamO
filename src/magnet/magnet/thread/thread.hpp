@@ -27,22 +27,21 @@ namespace magnet {
     class Thread
     {
     public:
-      Thread():_task(NULL) {}
+      Thread():_task(NULL), _joinable(false) {}
       
       ~Thread() 
-      {
-	if (_task != NULL) join();
-      }
+      { if (_joinable) join(); }
       
       Thread(function::Task* task):
-	_task(NULL)
-      {
-        startTask(task);
-      }
+	_task(NULL), _joinable(false)
+      { startTask(task); }
 
       inline void startTask(function::Task* task)
       {
-        if (_task != NULL) M_throw() << "Trying to make a thread start another task!";
+	if (_joinable) join();
+#ifdef MAGNET_DEBUG
+        if (_task != NULL) M_throw() << "Task is not NULL!";
+#endif
         _task = task;
         pthread_attr_t data;
         pthread_attr_init(&data);
@@ -53,13 +52,15 @@ namespace magnet {
                            &threadEntryPoint,
                            static_cast<void*>(this)))
           M_throw() << "Failed to create a thread";
-
+	
         pthread_attr_destroy(&data);
+	_joinable = true;
       }
       
       inline void join()
       {
 	int errval = pthread_join(_thread, NULL);
+	_joinable = false;
 	if (errval)
 	  switch (errval)
 	    {
@@ -107,6 +108,7 @@ namespace magnet {
       
       //! The pointer itself is volatile, but the object is not
       mutable function::Task* volatile _task;
+      volatile bool _joinable;
       mutable pthread_t _thread;
     };
   }
