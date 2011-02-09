@@ -40,8 +40,6 @@ protected:
 
   mutable double _updateTime;
   mutable magnet::thread::RefPtr<CoilWindow> _CLWindow;
-  
-  CoilRegister _coilRegister;
 };
 
 #endif

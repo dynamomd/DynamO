@@ -17,9 +17,7 @@
 
 #pragma once
 #include <pthread.h>
-#include <errno.h>
-
-#include <magnet/exception.hpp>
+#include <magnet/errno.hpp>
 #include <magnet/function/task.hpp>
 
 namespace magnet {
@@ -31,47 +29,55 @@ namespace magnet {
       {
 #ifdef MAGNET_DEBUG
 	pthread_mutexattr_t attr;
-	if (pthread_mutexattr_init(&attr))
-	  M_throw() << "Could not initialize mutexattr";
+	int errornum = pthread_mutexattr_init(&attr);
+	if (errornum)
+	  M_throw() << "Could not initialize mutexattr\nError:" << magnet::strerror(errornum);
 	
-	if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK))
-	  M_throw() << "Failed to set mutexattr type";
+	errornum = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+	if (errornum)
+	  M_throw() << "Failed to set mutexattr type\nError:" << magnet::strerror(errornum);
 
-	if (pthread_mutex_init(&_pthread_mutex, &attr))
-	  M_throw() << "Failed to create the mutex";
+	errornum = pthread_mutex_init(&_pthread_mutex, &attr);
+	if (errornum)
+	  M_throw() << "Failed to create the mutex\nError:" << magnet::strerror(errornum);
 
-	if (pthread_mutexattr_destroy(&attr))
-	  M_throw() << "Could not destroy mutexattr";
+	errornum = pthread_mutexattr_destroy(&attr);
+	if (errornum)
+	  M_throw() << "Could not destroy mutexattr\nError:" << magnet::strerror(errornum);
 #else
-	if (pthread_mutex_init(&_pthread_mutex, NULL))
-	  M_throw() << "Failed to create the mutex";
+	int errornum = pthread_mutex_init(&_pthread_mutex, NULL);
+	if (errornum)
+	  M_throw() << "Failed to create the mutex\nError:" << magnet::strerror(errornum);
 #endif
       }
 
       inline ~Mutex() 
       { 
-	if (pthread_mutex_destroy(&_pthread_mutex) != 0)
-	  M_throw() << "Failed to destroy the mutex";
+	int errornum = pthread_mutex_destroy(&_pthread_mutex);
+	if (errornum)
+	  M_throw() << "Failed to destroy the mutex\nError:" << magnet::strerror(errornum);
       }
 
       inline void lock() 
       { 
-	if (pthread_mutex_lock(&_pthread_mutex))
-	  M_throw() << "Failed to lock the mutex.";
+	int errornum = pthread_mutex_lock(&_pthread_mutex);
+	if (errornum)
+	  M_throw() << "Failed to lock the mutex\nError:" << magnet::strerror(errornum);
      }
 
       inline bool try_lock() 
       { 
-	int const val = pthread_mutex_trylock(&_pthread_mutex);
-	if ((val != 0) && (val != EBUSY))
-	  M_throw() << "Failed to try_lock the mutex.";
-	return !val;
+	int errornum = pthread_mutex_trylock(&_pthread_mutex);
+	if ((errornum != 0) && (errornum != EBUSY))
+	  M_throw() << "Failed to try_lock the mutex\nError:" << magnet::strerror(errornum);
+	return !errornum;
       }
 
       inline void unlock() 
       {
-	if (pthread_mutex_unlock(&_pthread_mutex))
-	  M_throw() << "Failed to unlock the mutex.";
+	int errornum = pthread_mutex_unlock(&_pthread_mutex);
+	if (errornum)
+	  M_throw() << "Failed to unlock the mutex\nError:" << magnet::strerror(errornum);
       }
 
       inline pthread_mutex_t* native_handle()
@@ -118,33 +124,37 @@ namespace magnet {
     public:
       inline Condition()
       {
-	if (pthread_cond_init(&_pthread_condition, NULL))
-	  M_throw() << "Failed to initialise the condition variable";
+	int errornum = pthread_cond_init(&_pthread_condition, NULL);
+	if (errornum)
+	  M_throw() << "Failed to initialise the condition variable\nError:" << magnet::strerror(errornum);
       }
       
       inline ~Condition()
       {
-	if (pthread_cond_destroy(&_pthread_condition))
-	  M_throw() << "Failed to destroy the condition variable";
+	int errornum = pthread_cond_destroy(&_pthread_condition);
+	if (errornum)
+	  M_throw() << "Failed to destroy the condition variable\nError:" << magnet::strerror(errornum);
       }
 
       inline void wait(Mutex& mutex)
       {
-	if (pthread_cond_wait(&_pthread_condition,
-			      mutex.native_handle()) != 0)
-	  M_throw() << "Failed to wait on the condition & mutex!";
+	int errornum = pthread_cond_wait(&_pthread_condition, mutex.native_handle());
+	if (errornum)
+	  M_throw() << "Failed to wait on the condition & mutex!\nError:" << magnet::strerror(errornum);
       }
 
       inline void notify_one()
       {
-	if (pthread_cond_signal(&_pthread_condition) != 0)
-	  M_throw() << "Failed to notify_one() on the condition";
+	int errornum = pthread_cond_signal(&_pthread_condition);
+	if (errornum)
+	  M_throw() << "Failed to notify_one() on the condition\nError:" << magnet::strerror(errornum);
       }
 
       inline void notify_all()
       {
-	if (pthread_cond_broadcast(&_pthread_condition) != 0)
-	  M_throw() << "Failed to notify_all() on the condition";
+	int errornum = pthread_cond_broadcast(&_pthread_condition);
+	if (errornum)
+	  M_throw() << "Failed to notify_all() on the condition\nError:" << magnet::strerror(errornum);
       }
 
     protected:

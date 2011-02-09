@@ -27,16 +27,19 @@
 #include <iostream>
 #include <unistd.h>
 
-volatile size_t CoilRegister::_counter(0);
-magnet::thread::Mutex CoilRegister::_mutex;
-
 CoilMaster::CoilMaster():
   _runFlag(false),
   _coilReadyFlag(false),
   _GTKit(magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv())
-{}
+{
+  bootRenderThread();
+}
 
-CoilMaster::~CoilMaster(){
+CoilMaster::~CoilMaster()
+{
+  //The thread must be shut down first before we can destroy the data members of this class
+  shutdownCoil();
+  waitForShutdown();
 }
 
 void CoilMaster::bootRenderThread()
