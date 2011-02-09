@@ -30,7 +30,8 @@
 CoilMaster::CoilMaster():
   _runFlag(false),
   _coilReadyFlag(false),
-  _GTKit(magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv())
+  _GTKit(magnet::ArgShare::getInstance().getArgc(), 
+	 magnet::ArgShare::getInstance().getArgv())
 {
   bootRenderThread();
 }
@@ -251,11 +252,11 @@ CoilMaster::waitForShutdown()
 
 void CoilMaster::coilThreadEntryPoint()
 {
-  glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
-  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-
   try {
-      //Register the idle function
+    glutInit(&magnet::ArgShare::getInstance().getArgc(), magnet::ArgShare::getInstance().getArgv());
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+    //Register the idle function
     //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::GTKIdleFunc));
     Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30, Glib::PRIORITY_DEFAULT_IDLE);
     Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, Glib::PRIORITY_LOW);
