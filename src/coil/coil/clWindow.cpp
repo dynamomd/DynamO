@@ -823,16 +823,21 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _CLState.release();
 
   ///////////////////OpenGL
+    {
+    }
 
-  if (_renderTarget.get() != NULL) _renderTarget->deinit();
-  _shadowFBO.deinit();
-  _shadowShader.deinit();
-  _filterTarget1.deinit();
-  _filterTarget2.deinit();
-  _normalAndDepths.deinit();
-  _nrmldepthShader.deinit();
+  if (_shaderPipeline)
+    {
+      _renderTarget->deinit();
+      _filterTarget1.deinit();
+      _filterTarget2.deinit();
+      _normalAndDepths.deinit();
+      _shadowFBO.deinit();
+      _shadowShader.deinit();
+      _nrmldepthShader.deinit();
 
-  filterClearCallback();
+      filterClearCallback();//Get rid of any filters
+    }
 
   ///////////////////Finally, unregister with COIL
   CoilMaster::getInstance().CallGlutDestroyWindow(this, andGlutDestroy);
