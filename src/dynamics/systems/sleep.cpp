@@ -158,7 +158,7 @@ SSleep::particlesUpdated(const NEventData& PDat)
       //sp is in the range (a wakeable particle)
 
       //If the static particle sleeps
-      if ((sleepCondition(sp.getVelocity(), g)))
+      //      if ((sleepCondition(sp.getVelocity(), g)))
 	{
 	  stateChange[sp.getID()] = Vector(0,0,0);
 	  stateChange[dp.getID()] = -sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
@@ -169,10 +169,10 @@ SSleep::particlesUpdated(const NEventData& PDat)
 
 	  break;
 	}
-	else
-	  {
-	      stateChange[sp.getID()] = Vector(1,1,1);
-	  }
+//	else
+//	  {
+//	      stateChange[sp.getID()] = Vector(1,1,1);
+//	  }
     }
 
   if (!stateChange.empty())

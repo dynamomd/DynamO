@@ -589,6 +589,12 @@ CLGLWindow::initGTK()
 	  _refXml->get_widget("filterClear", btn);
 	  btn->signal_clicked()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
+	  {
+	    Gtk::ToggleButton* btn;
+	    _refXml->get_widget("filterActive", btn);
+	    btn->signal_toggled()
+	      .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
+	  }    
 	}
 
 	{
@@ -958,7 +964,7 @@ CLGLWindow::CallBackDisplayFunc()
 	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
 	      coil::filter& filter = *static_cast<coil::filter*>(filter_ptr);
 
-	      if (!((*iPtr)[_filterModelColumns.m_active])) break; //Only run active filters
+	      if (!((*iPtr)[_filterModelColumns.m_active])) continue; //Only run active filters, skip to the next filter
 
 	      if (filter.type_id() == coil::detail::filterEnum<coil::FlushToOriginal>::val)
 		{//Check if we're trying to flush the drawing
@@ -1414,9 +1420,13 @@ CLGLWindow::filterSelectCallback()
   Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
 
   Gtk::Button *upbtn, *downbtn, *deletebtn;
+  Gtk::ToggleButton *activeBtn;
+  Gtk::Image *activeImage;
   _refXml->get_widget("filterUp", upbtn);
   _refXml->get_widget("filterDown", downbtn);
   _refXml->get_widget("filterDelete", deletebtn);
+  _refXml->get_widget("filterActive", activeBtn);
+  _refXml->get_widget("filterActiveImage", activeImage);
 
   Gtk::ScrolledWindow* frame;
   _refXml->get_widget("FilterOptions", frame);
@@ -1434,6 +1444,19 @@ CLGLWindow::filterSelectCallback()
       upbtn    ->set_sensitive(iter != _filterStore->children().begin());
       downbtn  ->set_sensitive(next_iter);
       deletebtn->set_sensitive(true);
+      activeBtn->set_sensitive(true);
+      
+      if (filter_ptr->getActive())
+	{//Object is visible
+	  activeBtn->set_active(true);
+	  activeImage->set(Gtk::Stock::YES, Gtk::ICON_SIZE_BUTTON);
+	}
+      else
+	{//Object is not visible
+	  activeBtn->set_active(false);
+	  activeImage->set(Gtk::Stock::NO, Gtk::ICON_SIZE_BUTTON);
+	}
+
       filter_ptr->showControls(frame);
     }
   else
@@ -1442,20 +1465,60 @@ CLGLWindow::filterSelectCallback()
       upbtn    ->set_sensitive(false);
       downbtn  ->set_sensitive(false); 
       deletebtn->set_sensitive(false);
+      activeBtn ->set_sensitive(false);
+    }
+}
+
+void
+CLGLWindow::filterActiveCallback()
+{
+  Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
+    _filterView->get_selection();
+  Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
+
+  if (iter)
+    {
+      Gtk::ToggleButton *filterActive;
+      _refXml->get_widget("filterActive", filterActive);
+      
+      bool newState = filterActive->get_active();
+      
+      coil::filter* filter_ptr
+	= (coil::filter*)((void*)((*iter)[_filterModelColumns.m_filter_ptr]));
+      filter_ptr->setActive(newState);
+      (*iter)[_filterModelColumns.m_active] = newState;
     }
 }
 
 void 
 CLGLWindow::filterClearCallback()
 {
-  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
-       iPtr; ++iPtr)
-    {
-      void* tmp_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
-      delete static_cast<coil::filter*>(tmp_ptr);
-    }
+  if (_filterStore->children().empty()) return;
 
-  _filterStore->clear();
+  Gtk::Window* window;
+  _refXml->get_widget("controlWindow", window);
+
+  Gtk::MessageDialog confirmation(*window, "Are you sure you wish to erase all filters?",
+				  false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
+
+  switch(confirmation.run())
+    {
+    case Gtk::RESPONSE_OK:
+      {
+	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
+	     iPtr; ++iPtr)
+	  {
+	    void* tmp_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	    delete static_cast<coil::filter*>(tmp_ptr);
+	  }
+	
+	_filterStore->clear();
+      }
+    case Gtk::RESPONSE_CANCEL:
+      break;
+    default:
+      M_throw() << "Unexpected return value!";
+    }
 }
 
 void

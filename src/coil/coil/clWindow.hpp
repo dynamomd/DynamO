@@ -224,6 +224,7 @@ private:
   void filterAddCallback();
   void filterSelectCallback();
   void filterClearCallback();
+  void filterActiveCallback();
   
   //Render Object Contol Callbacks
   void rebuildRenderView();

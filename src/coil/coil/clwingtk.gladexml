@@ -63,6 +63,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Play/Pause the simulation</property>
                     <child>
                       <object class="GtkImage" id="SimRunButtonImage">
                         <property name="visible">True</property>
@@ -90,6 +91,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Take a single snapshot</property>
                             <child>
                               <object class="GtkImage" id="image4">
                                 <property name="visible">True</property>
@@ -109,6 +111,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Record a continuous series of snapshots </property>
                             <child>
                               <object class="GtkImage" id="image5">
                                 <property name="visible">True</property>
@@ -199,6 +202,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Limit the visualizers FPS, allowing multithreaded simulations more CPU time</property>
                             <property name="active">True</property>
                           </object>
                           <packing>
@@ -211,6 +215,7 @@
                           <object class="GtkSpinButton" id="FPSLimitVal">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="tooltip_text" translatable="yes">Target FPS when limited</property>
                             <property name="invisible_char">&#x25CF;</property>
                             <property name="xalign">1</property>
                             <property name="adjustment">FPSAdjustment</property>
@@ -238,6 +243,7 @@
                           <object class="GtkSpinButton" id="updateFreq">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="tooltip_text" translatable="yes">The simulation time interval between updates of the visualization</property>
                             <property name="invisible_char">&#x25CF;</property>
                             <property name="width_chars">8</property>
                             <property name="xalign">1</property>
@@ -256,6 +262,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Forces the simulator to wait for the visualizer (useful for rendering movies)</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -430,6 +437,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Delete object</property>
                             <child>
                               <object class="GtkImage" id="image2">
                                 <property name="visible">True</property>
@@ -446,6 +454,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Edit object's settings</property>
                             <child>
                               <object class="GtkImage" id="image3">
                                 <property name="visible">True</property>
@@ -462,6 +471,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Toggle object's visibility</property>
                             <child>
                               <object class="GtkImage" id="robjVisibleImg">
                                 <property name="visible">True</property>
@@ -500,6 +510,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">Add a new object</property>
                         <child>
                           <object class="GtkImage" id="image1">
                             <property name="visible">True</property>
@@ -671,6 +682,7 @@
                                 <child>
                                   <object class="GtkComboBox" id="multisampleLevels">
                                     <property name="visible">True</property>
+                                    <property name="tooltip_text" translatable="yes">Number of sub-pixel samples used for anti-aliasing</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -707,6 +719,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
+                                    <property name="tooltip_text" translatable="yes">Shadow intensity</property>
                                     <property name="relief">half</property>
                                     <property name="focus_on_click">False</property>
                                     <property name="orientation">vertical</property>
@@ -739,6 +752,7 @@
                                       <object class="GtkSpinButton" id="shadowmapSize">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="tooltip_text" translatable="yes">The number of pixels used in the shadow map. Shadow map is X by X pixels where X is the value here</property>
                                         <property name="invisible_char">&#x25CF;</property>
                                         <property name="adjustment">ShadowMapSizeAdjustment</property>
                                         <property name="climb_rate">1</property>
@@ -818,6 +832,7 @@
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_text" translatable="yes">Move selected filter up the chain</property>
                                             <child>
                                               <object class="GtkImage" id="filterUpImage">
                                                 <property name="visible">True</property>
@@ -836,6 +851,7 @@
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_text" translatable="yes">Delete the selected filter</property>
                                             <child>
                                               <object class="GtkImage" id="filterDeleteImage">
                                                 <property name="visible">True</property>
@@ -854,6 +870,7 @@
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_text" translatable="yes">Move selected filter down the chain</property>
                                             <child>
                                               <object class="GtkImage" id="filterDownImage">
                                                 <property name="visible">True</property>
@@ -871,6 +888,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
+                                            <property name="tooltip_text" translatable="yes">Remove all filters</property>
                                             <child>
                                               <object class="GtkImage" id="filterClearImage">
                                                 <property name="visible">True</property>
@@ -881,6 +899,23 @@
                                           </object>
                                           <packing>
                                             <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkToggleButton" id="filterActive">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="tooltip_text" translatable="yes">Enable/Disable the selected filter</property>
+                                            <child>
+                                              <object class="GtkImage" id="filterActiveImage">
+                                                <property name="visible">True</property>
+                                                <property name="stock">gtk-yes</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="position">4</property>
                                           </packing>
                                         </child>
                                       </object>
@@ -912,6 +947,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
+                                        <property name="tooltip_text" translatable="yes">Add a new filter</property>
                                         <child>
                                           <object class="GtkImage" id="filterAddImage">
                                             <property name="visible">True</property>
