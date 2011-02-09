@@ -42,9 +42,10 @@ namespace magnet {
 	pthread_attr_init(&data);
 	pthread_attr_setdetachstate(&data, PTHREAD_CREATE_JOINABLE);
 
+	//We pass a pointer to the task
 	if (pthread_create(&_thread, &data, 
 			   &threadEntryPoint,
-			   static_cast<void*>(_task)))
+			   static_cast<void*>(&_task)))
 	  M_throw() << "Failed to create a thread";
 
 	pthread_attr_destroy(&data);
@@ -52,9 +53,6 @@ namespace magnet {
       
       inline void join()
       {
-	if (_task == NULL)
-	  M_throw() << "Cannot join, this thread had no task!";
-	
 	int errval = pthread_join(_thread, NULL);
 	if (errval)
 	  switch (errval)
@@ -72,9 +70,6 @@ namespace magnet {
 	      M_throw() << "Failed to join thread, _task=" << _task
 			<< "\n error is UNKNOWN! errval = " << errval;
 	    }
-	
-	//Mark this thread as joined/ended
-	_task = NULL;
       }
 
       Thread& operator=(const Thread& other)
@@ -93,20 +88,40 @@ namespace magnet {
       
     protected:      
       Thread(const Thread&);
-      
-      
+
+      //! This class is a way of making sure when the threadEntryPoint
+      //! function is left, the task is always cleaned up
+      struct threadCleanUpHandler
+      {
+	typedef function::Task** taskPtr;
+
+	threadCleanUpHandler(taskPtr task):
+	  _task(task) 
+	{}
+	
+	void operator()() { (**_task)(); }
+
+	~threadCleanUpHandler()
+	{
+	  delete *_task;
+	  *_task = NULL;
+	}
+
+	taskPtr _task;
+      };
+
       inline static void* threadEntryPoint(void* arg)
       {
-	(*reinterpret_cast<function::Task*>(arg))();
+	function::Task** taskPtr = reinterpret_cast<function::Task**>(arg);
 
-	//Now delete the task
-	delete reinterpret_cast<function::Task*>(arg);
+	threadCleanUpHandler tcuh(taskPtr);
+
+	tcuh();
 
 	return NULL;
       }
       
-      mutable function::Task* _task;
-      
+      volatile mutable function::Task* _task;
       mutable pthread_t _thread;
     };
   }
