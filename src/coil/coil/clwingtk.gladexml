@@ -394,38 +394,6 @@
                     <property name="position">4</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkHBox" id="hbox10">
-                    <property name="visible">True</property>
-                    <child>
-                      <object class="GtkLabel" id="label6">
-                        <property name="visible">True</property>
-                        <property name="xpad">7</property>
-                        <property name="label" translatable="yes">Field of View</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHScale" id="fovScale">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="adjustment">FOVadjustment</property>
-                        <property name="digits">0</property>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">5</property>
-                  </packing>
-                </child>
               </object>
             </child>
             <child type="tab">

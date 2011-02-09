@@ -43,7 +43,7 @@ namespace magnet {
 
       inline void drawLight()
       {
-	glColor3f(1,1,0);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	
 	GLfloat rotationAngle 
 	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | _cameraDirection);
@@ -58,10 +58,12 @@ namespace magnet {
 	glTranslatef(_position.x, _position.y, _position.z);
 	glRotatef(rotationAngle, RotationAxis.x, RotationAxis.y, RotationAxis.z);
 	
-	glTranslatef(0.0f,0.0f,0.05f);
-	glutSolidTorus(0.01f, 0.02f, 20, 20);
-	glTranslatef(0.0f,0.0f,-0.025f);
-	glutSolidCone(0.02f, 0.05f, 15, 15);
+	GLfloat r = 0.05f;
+	
+	glTranslatef(0.0f,0.0f,0.0025f);
+	glutSolidCone(r * std::sin(_fovY * M_PI / 360.0f), 
+		      r * std::cos(_fovY * M_PI / 360.0f), 
+		      15, 15);
 	glPopMatrix();
       }
 

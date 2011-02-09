@@ -421,13 +421,6 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::FPSLimitCallback));
   }
 
-  {///////FOV setting
-    Gtk::HScale* FOVscale;
-    _refXml->get_widget("fovScale", FOVscale);
-    FOVscale->set_value(_viewPortInfo._fovY);
-    FOVscale->signal_value_changed()
-      .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
-  }
 
   {///////Light FOV setting
     Gtk::HScale* FOVscale;
@@ -1690,13 +1683,7 @@ CLGLWindow::setUpdateRateUnitToSteps(size_t defaultsteps)
 void
 CLGLWindow::guiUpdateCallback()
 {
-  {///////FOV setting
-    Gtk::HScale* FOVscale;
-    _refXml->get_widget("fovScale", FOVscale);
-    _viewPortInfo._fovY = FOVscale->get_value();
-  }
-
-  {///////FOV setting
+  {///////light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
     _light0._fovY = FOVscale->get_value();
