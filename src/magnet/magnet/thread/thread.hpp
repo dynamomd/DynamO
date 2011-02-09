@@ -31,24 +31,30 @@ namespace magnet {
       
       ~Thread() 
       {
-	if (_task != NULL)
-	  M_throw() << "Destroying an active thread!";
+	if (_task != NULL) join();
       }
       
       Thread(function::Task* task):
-	_task(task)
+	_task(NULL)
       {
-	pthread_attr_t data;
-	pthread_attr_init(&data);
-	pthread_attr_setdetachstate(&data, PTHREAD_CREATE_JOINABLE);
+        startTask(task);
+      }
 
-	//We pass a pointer to the task
-	if (pthread_create(&_thread, &data, 
-			   &threadEntryPoint,
-			   static_cast<void*>(&_task)))
-	  M_throw() << "Failed to create a thread";
+      inline void startTask(function::Task* task)
+      {
+        if (_task != NULL) M_throw() << "Trying to make a thread start another task!";
+        _task = task;
+        pthread_attr_t data;
+        pthread_attr_init(&data);
+        pthread_attr_setdetachstate(&data, PTHREAD_CREATE_JOINABLE);
 
-	pthread_attr_destroy(&data);
+        //We pass a pointer to the task
+        if (pthread_create(&_thread, &data,
+                           &threadEntryPoint,
+                           static_cast<void*>(this)))
+          M_throw() << "Failed to create a thread";
+
+        pthread_attr_destroy(&data);
       }
       
       inline void join()
@@ -72,56 +78,35 @@ namespace magnet {
 	    }
       }
 
-      Thread& operator=(const Thread& other)
-      {
-	if (_task != NULL)
-	  M_throw() << "Trying to assign to a thread which is still valid!";
-
-	_task = other._task;
-	other._task = NULL;
-	_thread = other._thread;
-
-	return *this;
-      }
-
       inline bool validTask() { return _task != NULL; }
       
-    protected:      
+    protected:
+      //! Cannot be copied as the task pointer is a key communication variable to track thread activity
       Thread(const Thread&);
+      //! See Thread(const Thread&)
+      Thread& operator=(const Thread&);
 
-      //! This class is a way of making sure when the threadEntryPoint
-      //! function is left, the task is always cleaned up
-      struct threadCleanUpHandler
+      inline static void threadCleanup(void* arg) 
       {
-	typedef function::Task** taskPtr;
-
-	threadCleanUpHandler(taskPtr task):
-	  _task(task) 
-	{}
-	
-	void operator()() { (**_task)(); }
-
-	~threadCleanUpHandler()
-	{
-	  delete *_task;
-	  *_task = NULL;
-	}
-
-	taskPtr _task;
-      };
+	Thread* thread = reinterpret_cast<Thread*>(arg);
+	delete thread->_task;
+	thread->_task = NULL;
+      }
 
       inline static void* threadEntryPoint(void* arg)
       {
-	function::Task** taskPtr = reinterpret_cast<function::Task**>(arg);
+        Thread* thread_ptr = reinterpret_cast<Thread*>(arg);
+	pthread_cleanup_push(&Thread::threadCleanup, arg); //Set the cleanup function
 
-	threadCleanUpHandler tcuh(taskPtr);
+	(*(*thread_ptr)._task)();
 
-	tcuh();
-
+	pthread_cleanup_pop(1); //Pop the cleanup function and run it
+	
 	return NULL;
       }
       
-      volatile mutable function::Task* _task;
+      //! The pointer itself is volatile, but the object is not
+      mutable function::Task* volatile _task;
       mutable pthread_t _thread;
     };
   }

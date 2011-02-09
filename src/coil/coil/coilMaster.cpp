@@ -42,8 +42,7 @@ CoilMaster::~CoilMaster(){
 void CoilMaster::bootRenderThread()
 {
   _runFlag = true;
-  _coilThread = magnet::thread::Thread
-    (magnet::function::Task::makeTask(&CoilMaster::coilThreadEntryPoint, this));
+  _coilThread.startTask(magnet::function::Task::makeTask(&CoilMaster::coilThreadEntryPoint, this));
   
   //Spinlock waiting for the boot thread to come up
   while (!_coilReadyFlag) { smallSleep(); }
