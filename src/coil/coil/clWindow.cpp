@@ -823,8 +823,8 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _CLState.release();
 
   ///////////////////OpenGL
-  _renderTarget->deinit();
 
+  if (_renderTarget.get() != NULL) _renderTarget->deinit();
   _shadowFBO.deinit();
   _shadowShader.deinit();
   _filterTarget1.deinit();
