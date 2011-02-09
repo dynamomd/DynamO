@@ -232,7 +232,7 @@ void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow, bool andGlutDest
 {
   int windowID = coilWindow->GetWindowID();
   if (andGlutDestroy) glutDestroyWindow(windowID);
-  CoilMaster::getInstance()._viewPorts.erase(windowID);
+  _viewPorts.erase(windowID);
 }
 
 void CoilMaster::smallSleep()
@@ -283,7 +283,7 @@ CoilMaster::taskTimeout()
   try {
     _coilQueue.drainQueue();
     
-    if (!CoilMaster::getInstance().isRunning()) 
+    if (!isRunning()) 
       {
 	//The task queue should not get any more tasks as
 	//CoilMaster::getInstance().isRunning() is false
@@ -312,7 +312,7 @@ CoilMaster::taskTimeout()
       std::cerr << "\nCoil caught an exception while performing its tasks\n"
 		<< except.what();
       std::exit(1);
-    } 
+    }
 
   return true;
 }
