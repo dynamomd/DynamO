@@ -62,8 +62,6 @@ namespace coil {
     glDisable(GL_DEPTH_TEST);
     //We want the arrow drawing to always succeed
     glDisable(GL_DEPTH_TEST);
-    //We want a semi transparent axis overlay so enable blending
-    glEnable(GL_BLEND);
     
     //The axis is in a little 100x100 pixel area in the lower left
     GLint viewportDim[4];
@@ -125,7 +123,6 @@ namespace coil {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();    
     glViewport(viewportDim[0], viewportDim[1], viewportDim[2], viewportDim[3]);
-    glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
   }

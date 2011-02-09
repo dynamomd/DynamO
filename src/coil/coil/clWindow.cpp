@@ -161,7 +161,7 @@ CLGLWindow::initOpenGL()
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  glDisable(GL_BLEND);
+  glEnable(GL_BLEND);
   //Blend colors using the alpha channel
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
@@ -234,10 +234,10 @@ CLGLWindow::initOpenGL()
     {
       _filterTarget1.init(_width, _height);
       _filterTarget2.init(_width, _height);
-      _normalAndDepths.init(_width, _height, GL_RGBA, GL_RGBA, GL_FLOAT);
+      _normalsFBO.init(_width, _height, GL_RGBA, GL_RGBA, GL_FLOAT);
       _shadowFBO.init(1024);
       _shadowShader.build();
-      _nrmldepthShader.build();
+      _nrmlShader.build();
     }
 
   //Now init the render objects  
@@ -831,10 +831,10 @@ CLGLWindow::deinit(bool andGlutDestroy)
       _renderTarget->deinit();
       _filterTarget1.deinit();
       _filterTarget2.deinit();
-      _normalAndDepths.deinit();
+      _normalsFBO.deinit();
       _shadowFBO.deinit();
       _shadowShader.deinit();
-      _nrmldepthShader.deinit();
+      _nrmlShader.deinit();
 
       filterClearCallback();//Get rid of any filters
     }
@@ -945,10 +945,10 @@ CLGLWindow::CallBackDisplayFunc()
 
 	  if (renderNormsAndDepth)
 	    {
-	      _normalAndDepths.attach();
-	      _nrmldepthShader.attach();
+	      _normalsFBO.attach();
+	      _nrmlShader.attach();
 	      drawScene();
-	      _normalAndDepths.detach();
+	      _normalsFBO.detach();
 	    }
 
 	  //Bind the original image to texture (unit 0)
@@ -957,7 +957,7 @@ CLGLWindow::CallBackDisplayFunc()
 
 	  //Now bind the texture which has the normals and depths (unit 1)
 	  glActiveTextureARB(GL_TEXTURE1);
-	  glBindTexture(GL_TEXTURE_2D, _normalAndDepths.getColorTexture());
+	  glBindTexture(GL_TEXTURE_2D, _normalsFBO.getColorTexture());
 
 	  //High quality depth information is attached to (unit 2)
 	  glActiveTextureARB(GL_TEXTURE2);
@@ -1092,7 +1092,7 @@ CLGLWindow::CallBackDisplayFunc()
 void 
 CLGLWindow::drawScene()
 {
-  //glEnable(GL_BLEND); //SSAO is buggered up by transparency somehow
+  //SSAO is buggered up by transparency somehow
   GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 1.0f};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
   
@@ -1123,7 +1123,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
       _renderTarget->resize(_width, _height);
       _filterTarget1.resize(_width, _height);
       _filterTarget2.resize(_width, _height);
-      _normalAndDepths.resize(_width, _height);
+      _normalsFBO.resize(_width, _height);
     }
 
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();

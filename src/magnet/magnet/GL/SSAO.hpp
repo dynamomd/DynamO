@@ -70,7 +70,7 @@ namespace magnet {
 	//Just tile the texture over the screen by multiplying the texture reads by this factor
 	GLfloat offset = GLfloat(std::max(_width, _height)) / randomTexSize; 
 	glUniform1fARB(_offsetUniform, offset);
-	  
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Set the viewport

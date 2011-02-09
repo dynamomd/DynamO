@@ -21,15 +21,15 @@
 namespace magnet {
   namespace GL {
     
-    class NormalAndDepthShader : public detail::shader<NormalAndDepthShader>
+    class NormalShader : public detail::shader<NormalShader>
     {
     public:
-      inline void build() { detail::shader<NormalAndDepthShader>::build(); }
+      inline void build() { detail::shader<NormalShader>::build(); }
 
       inline void attach()
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<NormalAndDepthShader>::_shaderID);
+	glUseProgram(detail::shader<NormalShader>::_shaderID);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       }
 
@@ -41,4 +41,4 @@ namespace magnet {
   }
 }
 
-#include <magnet/GL/detail/shaders/nrmlNdepthShader.glh>
+#include <magnet/GL/detail/shaders/nrmlShader.glh>

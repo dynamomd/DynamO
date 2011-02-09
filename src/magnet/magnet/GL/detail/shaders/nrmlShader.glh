@@ -23,33 +23,29 @@
 namespace magnet {
   namespace GL {
     inline std::string 
-    NormalAndDepthShader::vertexShaderSource()
+    NormalShader::vertexShaderSource()
     {
       return 
 STRINGIFY(
 varying vec3 Normal;
-varying float depth; // in eye space
 void main()
 {
   vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-  depth = -viewPos.z / 5.0;
   gl_Position = ftransform();
-
   Normal = normalize((gl_ModelViewMatrix * vec4(gl_Normal.xyz,0.0)).xyz);
 }
 );
     }
     
     inline std::string 
-    NormalAndDepthShader::fragmentShaderSource()
+    NormalShader::fragmentShaderSource()
     {
       return 
 STRINGIFY(
 varying vec3 Normal;
-varying float depth;
 void main( void )
 {
-  gl_FragColor = vec4(0.5 * normalize(Normal) + 0.5,depth);
+  gl_FragColor = vec4(0.5 * normalize(Normal) + 0.5, 1.0);
 }
 );
     }
