@@ -50,6 +50,12 @@ namespace magnet {
 	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
 	     iPtr != _threads.end(); ++iPtr)
 	  (*iPtr)->join();
+
+	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
+	     iPtr != _threads.end(); ++iPtr)
+	  delete *iPtr;
+
+	_threads.clear();       
       }
 
     protected:

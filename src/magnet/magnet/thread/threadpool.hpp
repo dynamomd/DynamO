@@ -72,6 +72,7 @@ namespace magnet {
       inline ThreadPool():
 	_exception_flag(false),
 	_idlingThreads(0),
+	_threadCount(0),
 	_stop_flag(false)
       {}
       
