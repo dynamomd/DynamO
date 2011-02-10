@@ -49,10 +49,14 @@ protected:
 
   void recalculateTime();
 
-  bool sleepCondition(const Vector&, const Vector&);
+  bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
 
   magnet::ClonePtr<CRange> _range;
+  double _sleepDistance;
+  double _sleepTime;
   double _sleepVelocity;
 
   mutable std::map<size_t, Vector> stateChange;
+
+  std::vector<std::pair<Vector, long double> > _lastData;
 };

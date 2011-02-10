@@ -59,6 +59,13 @@ SSleep::initialise(size_t nID)
     (magnet::function::MakeDelegate(this, &SSleep::particlesUpdated));
 
   recalculateTime();
+
+  _lastData.resize(Sim->N);
+  BOOST_FOREACH(const Particle& part, Sim->particleList)
+    {
+      _lastData[part.getID()].first = part.getPosition();
+      _lastData[part.getID()].second = - HUGE_VAL;
+    }
 }
 
 void
@@ -73,6 +80,9 @@ SSleep::operator<<(const XMLNode& XML)
     
     _sleepVelocity = Sim->dynamics.units().unitVelocity() * 
       boost::lexical_cast<double>(XML.getAttribute("SleepV"));
+
+    _sleepDistance = Sim->dynamics.units().unitLength() * 0.01;
+    _sleepTime = Sim->dynamics.units().unitTime() * 0.0001;
 
     _range.set_ptr(CRange::loadClass(XML, Sim));
   }
@@ -100,11 +110,16 @@ SSleep::recalculateTime()
 }
 
 bool 
-SSleep::sleepCondition(const Vector& vel, const Vector& g)
+SSleep::sleepCondition(const Particle& part, const Vector& g, const Vector& vel)
 {
-  return ((vel.nrm() < _sleepVelocity));
-}
+  Vector diff(part.getPosition() - _lastData[part.getID()].first);
+  Sim->dynamics.BCs().applyBC(diff);
 
+  return ((diff.nrm() < _sleepDistance) 
+	  + ((Sim->dSysTime - _lastData[part.getID()].second) < _sleepTime)
+	  + ((part.getVelocity() + vel).nrm() < _sleepVelocity)
+	  ) > 1;
+}
 
 void 
 SSleep::particlesUpdated(const NEventData& PDat)
@@ -125,11 +140,11 @@ SSleep::particlesUpdated(const NEventData& PDat)
 
       //DP-[DP/ODP]
       if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) break; 
- 
+      
       //SP-[FC/SP/OSP]
 #ifdef DYNAMO_DEBUG
       if (!p1.testState(Particle::DYNAMIC) && !p2.testState(Particle::DYNAMIC))
-          M_throw() << "Static particles colliding!";
+	M_throw() << "Static particles colliding!";
 #endif
 
       //We're guaranteed by the previous tests that
@@ -146,7 +161,7 @@ SSleep::particlesUpdated(const NEventData& PDat)
       if (!_range->isInRange(sp))  //DP-FC
 	{
 	  //If the dynamic particle is going to fall asleep, mark its impulse as 0
-	  if (sleepCondition(dp.getVelocity(), g))
+	  if (sleepCondition(dp, g))
 	    stateChange[dp.getID()] = Vector(0,0,0);
 	  break;
 	}
@@ -158,21 +173,30 @@ SSleep::particlesUpdated(const NEventData& PDat)
       //sp is in the range (a wakeable particle)
 
       //If the static particle sleeps
-      //      if ((sleepCondition(sp.getVelocity(), g)))
+      if ((sleepCondition(sp, g)))
 	{
 	  stateChange[sp.getID()] = Vector(0,0,0);
 	  stateChange[dp.getID()] = -sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
-
-	  if ((sleepCondition(dp.getVelocity() + stateChange[dp.getID()] 
-	  		      / Sim->dynamics.getSpecies(dp).getMass(), g)))
+	  
+	  if ((sleepCondition(dp, g, stateChange[dp.getID()] / Sim->dynamics.getSpecies(dp).getMass())))
 	    stateChange[dp.getID()] = Vector(0,0,0);
-
+	  
 	  break;
 	}
-//	else
-//	  {
-//	      stateChange[sp.getID()] = Vector(1,1,1);
-//	  }
+      else
+	stateChange[sp.getID()] = Vector(1,1,1);
+	
+    }
+
+  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
+    {
+      const Particle& p1 = pdat.particle1_.getParticle();
+      _lastData[p1.getID()].first = p1.getPosition();
+      _lastData[p1.getID()].second = Sim->dSysTime;
+
+      const Particle& p2 = pdat.particle2_.getParticle();
+      _lastData[p2.getID()].first = p2.getPosition();
+      _lastData[p2.getID()].second = Sim->dSysTime;
     }
 
   if (!stateChange.empty())
