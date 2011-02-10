@@ -38,7 +38,7 @@ namespace magnet {
     class ThreadPool : public TaskQueue
     {	
     private:
-      bool _exception_flag;
+      volatile bool _exception_flag;
       std::ostringstream _exception_data;
   
       ThreadPool (const ThreadPool&);
@@ -59,10 +59,8 @@ namespace magnet {
 
       magnet::thread::ThreadGroup _threads;
 
-      size_t _idlingThreads;
-      size_t _threadCount;
-
-      bool _stop_flag;
+      volatile size_t _idlingThreads;
+      volatile bool _stop_flag;
 
     public:  
       /*! \brief Default Constructor
@@ -72,7 +70,6 @@ namespace magnet {
       inline ThreadPool():
 	_exception_flag(false),
 	_idlingThreads(0),
-	_threadCount(0),
 	_stop_flag(false)
       {}
       
@@ -85,9 +82,9 @@ namespace magnet {
        */
       inline void setThreadCount(size_t x)
       { 
-	if (x == _threadCount) return;
+	if (x == _threads.size()) return;
 	
-	if (x < _threadCount)
+	if (x < _threads.size())
 	  {
 	    //Stop all threads as we're shrinking our thread pool size
 	    stop();
@@ -98,12 +95,10 @@ namespace magnet {
 	//Add the required number of threads
 	for (size_t i=_threads.size(); i < x; ++i)
 	  _threads.create_thread(function::Task::makeTask(&ThreadPool::beginThread, this));
-	
-	_threadCount = x;
       }
 
       /*! \brief The current number of threads in the pool */
-      inline size_t getThreadCount() const { return _threadCount; }
+      inline size_t getThreadCount() const { return _threads.size(); }
 
       //Actual queuer
       inline void queueTask(function::Task* threadfunc)
@@ -125,11 +120,12 @@ namespace magnet {
        */
       inline void wait()
       {
-	if (_threadCount)
+	if (_threads.size())
 	  {
 	    //We are in threaded mode! Wait until all tasks are gone and all threads are idling
 	    magnet::thread::ScopedLock lock1(_queue_mutex);      
-	    while (!_waitingFunctors.empty() || (_idlingThreads != _threadCount))
+	    while (!_waitingFunctors.empty() 
+		   || (_idlingThreads != _threads.size()))
 	      _threadAvailable_condition.wait(lock1);
 	  }
 	else
@@ -148,7 +144,7 @@ namespace magnet {
 		    << _exception_data.str();
       }
 
-      inline const size_t& getIdleThreadCount() { return _idlingThreads; }
+      inline size_t getIdleThreadCount() { return _idlingThreads; }
   
     private:
       /*! \brief Thread worker loop, called by the threads beginThreadFunc.
