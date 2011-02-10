@@ -112,7 +112,9 @@ OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
   std::string Name = XML.getAttribute("Type");
 
   {
-    std::string XMLstring(XML.createXMLString());
+    XMLSTR str = XML.createXMLString();
+    std::string XMLstring(str);
+    free(str);
 
     std::string::size_type pos = XMLstring.find_last_of("\n");
 
