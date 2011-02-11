@@ -132,8 +132,8 @@ GWaker::runEvent(const Particle& part, const double dt) const
   //Add the interaction events
   nblist.getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));  
   
-  if (_neighbors < 3)
-    {
+//  if (_neighbors < 10)
+//    {
       iEvent.addTime(Sim->freestreamAcc);      
       Sim->freestreamAcc = 0;
 
@@ -153,9 +153,9 @@ GWaker::runEvent(const Particle& part, const double dt) const
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(iEvent, EDat);
-    }
-  else
-    Sim->freestreamAcc += iEvent.getdt();
+//    }
+//  else
+//    Sim->freestreamAcc += iEvent.getdt();
 
   //Now we're past the event, update the scheduler and plugins
   Sim->ptrScheduler->fullUpdate(part);

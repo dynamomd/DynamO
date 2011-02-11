@@ -114,11 +114,11 @@ SSleep::sleepCondition(const Particle& part, const Vector& g, const Vector& vel)
 {
   Vector diff(part.getPosition() - _lastData[part.getID()].first);
   Sim->dynamics.BCs().applyBC(diff);
-
-  return ((diff.nrm() < _sleepDistance) 
-	  + ((Sim->dSysTime - _lastData[part.getID()].second) < _sleepTime)
-	  + ((part.getVelocity() + vel).nrm() < _sleepVelocity)
-	  ) > 1;
+  
+  return (diff.nrm() < _sleepDistance) 
+    && ((Sim->dSysTime - _lastData[part.getID()].second) < _sleepTime)
+    && ((part.getVelocity() + vel).nrm() < _sleepVelocity)
+	  ;
 }
 
 void 
