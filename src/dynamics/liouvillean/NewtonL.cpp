@@ -1019,12 +1019,16 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	  tmpt /= fL.F_secondDeriv_max();
 	  if (tmpt < currRoot)
 	    {
+#ifdef DYNAMO_DEBUG
 	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
+#endif
 
 	      return std::pair<bool,double>(true, tmpt);
 	    }
+#ifdef DYNAMO_DEBUG
 	  else
 	    I_cout() << "The current root is lower than the fake one";	    
+#endif
 	}
     }
   
