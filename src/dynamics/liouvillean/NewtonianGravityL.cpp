@@ -142,7 +142,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //may even fix our problem for us. Alternatively, we get some kind
   //of inelastic collapse, which is fair, and may be avoided by
   //sleeping the particles.
-  if (quartic(0.0) < 0)
+  if (quartic(0.0) <= 0)
     //We're overlapping!
     if (dat.rvdot < 0)
       {
@@ -184,7 +184,7 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   if ((rootCount > 1)
       && (roots[2] > 0)
       && (quartic(roots[2]) < 0)
-      && (quartic(std::max(0.0, roots[1])) > 0))
+      && (quartic(std::max(0.0, roots[1])) >= 0))
     {
       dat.dt = std::max(0.0, quartic.bisectRoot(std::max(0.0, roots[1]), roots[2], rootthreshold));
       return true;
