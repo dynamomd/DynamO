@@ -115,10 +115,12 @@ SSleep::sleepCondition(const Particle& part, const Vector& g, const Vector& vel)
   Vector diff(part.getPosition() - _lastData[part.getID()].first);
   Sim->dynamics.BCs().applyBC(diff);
   
-  return (diff.nrm() < _sleepDistance) 
+  double gnrm = g.nrm();
+
+  return (gnrm != 0)
+    && (diff.nrm() < _sleepDistance)
     && ((Sim->dSysTime - _lastData[part.getID()].second) < _sleepTime)
-    && ((part.getVelocity() + vel).nrm() < _sleepVelocity)
-	  ;
+    && (((part.getVelocity() + vel) | (g / gnrm)) < _sleepVelocity);
 }
 
 void 
@@ -136,10 +138,10 @@ SSleep::particlesUpdated(const NEventData& PDat)
       //Check if either particle is static and should not move
 
        //[O?P-O?P]
-      if (!_range->isInRange(p1) && !_range->isInRange(p2)) break;
+      if (!_range->isInRange(p1) && !_range->isInRange(p2)) continue;
 
       //DP-[DP/ODP]
-      if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) break; 
+      if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) continue; 
       
       //SP-[FC/SP/OSP]
 #ifdef DYNAMO_DEBUG
@@ -163,10 +165,10 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	  //If the dynamic particle is going to fall asleep, mark its impulse as 0
 	  if (sleepCondition(dp, g))
 	    stateChange[dp.getID()] = Vector(0,0,0);
-	  break;
+	  continue;
 	}
 
-      if (!_range->isInRange(dp)) break;
+      if (!_range->isInRange(dp)) continue;
 
       //Final case
       //DP-SP
@@ -175,17 +177,38 @@ SSleep::particlesUpdated(const NEventData& PDat)
       //If the static particle sleeps
       if ((sleepCondition(sp, g)))
 	{
+	  double massRatio = Sim->dynamics.getSpecies(sp).getMass() 
+	    / Sim->dynamics.getSpecies(dp).getMass();
+
 	  stateChange[sp.getID()] = Vector(0,0,0);
-	  stateChange[dp.getID()] = -sp.getVelocity() * Sim->dynamics.getSpecies(sp).getMass();
+	  stateChange[dp.getID()] = -sp.getVelocity() * massRatio;
 	  
-	  if ((sleepCondition(dp, g, stateChange[dp.getID()] / Sim->dynamics.getSpecies(dp).getMass())))
-	    stateChange[dp.getID()] = Vector(0,0,0);
-	  
-	  break;
+	  //Check if the sleep conditions match
+	  if ((sleepCondition(dp, g, -sp.getVelocity() * massRatio)))
+	    {
+	      stateChange[dp.getID()] = Vector(0,0,0);
+	      continue;
+	    }
+
+	  //We're not going to sleep the particle due to the standard
+	  //rule, but here we try to catch anything that might cause a
+	  //problem.
+
+	  //Sometimes our relative velocity effectively goes to zero
+	  //(in comparison to the other components). This means the
+	  //particle will just keep having an event, we sleep it
+	  //instead.
+	  if ((pdat.dP.nrm() / Sim->dynamics.getSpecies(dp).getMass()) < _sleepVelocity)
+	    {
+	      stateChange[dp.getID()] = Vector(0,0,0);
+	      continue;
+	    }
+	    
+	  continue;
 	}
-      else
-	stateChange[sp.getID()] = Vector(1,1,1);
-	
+
+      //Finally, just wake up the static particle
+      stateChange[sp.getID()] = Vector(1,1,1);	
     }
 
   BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
@@ -267,7 +290,7 @@ SSleep::runEvent() const
 	  const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
   	  break;
 	case CORRECT:
-	  const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()] / EDat.getSpecies().getMass();
+	  const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()];
 	case WAKEUP:
 	  const_cast<Particle&>(part).setState(Particle::DYNAMIC);
 	  break;
