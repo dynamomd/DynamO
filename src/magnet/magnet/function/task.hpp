@@ -48,7 +48,7 @@ namespace magnet {
       }
       
       template<typename retT, typename classT>
-      inline static Task* makeTask(retT (classT::*funcPtr)() const, classT* classPtr)
+      inline static Task* makeTask(retT (classT::*funcPtr)() const, const classT* classPtr)
       { 
 	return new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr)); 
       }
@@ -66,7 +66,7 @@ namespace magnet {
       }
       
       template<typename retT, typename classT, typename arg1T>
-      inline static Task* makeTask(retT (classT::*funcPtr)(arg1T) const, classT* classPtr, 
+      inline static Task* makeTask(retT (classT::*funcPtr)(arg1T) const, const classT* classPtr, 
 			    typename detail::typeWrapper<arg1T>::Type arg1)
       { 
 	return new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1); 
@@ -82,7 +82,6 @@ namespace magnet {
       }
       
       template<typename retT, typename classT, typename arg1T, typename arg2T>
-
       inline static Task*
       makeTask(retT (classT::*funcPtr)(arg1T, arg2T), classT* classPtr, 
 	       typename detail::typeWrapper<arg1T>::Type arg1, typename detail::typeWrapper<arg2T>::Type arg2)
@@ -91,9 +90,8 @@ namespace magnet {
       }
       
       template<typename retT, typename classT, typename arg1T, typename arg2T>
-
       inline static Task*
-      makeTask(retT (classT::*funcPtr)(arg1T, arg2T) const, classT* classPtr, 
+      makeTask(retT (classT::*funcPtr)(arg1T, arg2T) const, const classT* classPtr, 
 	       typename detail::typeWrapper<arg1T>::Type arg1, typename detail::typeWrapper<arg2T>::Type arg2)
       { 
 	return new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2); 
@@ -123,7 +121,7 @@ namespace magnet {
       
       template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
       inline static Task*
-      makeTask(retT (classT::*funcPtr)(arg1T, arg2T, arg3T) const, classT* classPtr, 
+      makeTask(retT (classT::*funcPtr)(arg1T, arg2T, arg3T) const, const classT* classPtr, 
 	       typename detail::typeWrapper<arg1T>::Type arg1, 
 	       typename detail::typeWrapper<arg2T>::Type arg2,
 	       typename detail::typeWrapper<arg3T>::Type arg3)

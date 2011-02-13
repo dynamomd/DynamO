@@ -80,6 +80,7 @@ public:
   void setSimStatus1(std::string);
   void setSimStatus2(std::string);
 
+  magnet::thread::RefPtr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
 protected:
   void setLabelText(Gtk::Label*, std::string);
 
@@ -110,6 +111,8 @@ protected:
   void CallBackMotionFunc(int x, int y);
 
   void performPicking(int x, int y);
+
+
 
 private:
   //Task queue for the simulation thread

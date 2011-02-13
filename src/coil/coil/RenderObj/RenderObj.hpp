@@ -81,6 +81,8 @@ public:
 
   inline const std::string& getName() const { return _name; }
 
+  magnet::thread::RefPtr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
+
 protected:
   std::string _name;
 
