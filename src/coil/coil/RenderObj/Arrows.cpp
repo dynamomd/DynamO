@@ -48,17 +48,19 @@ LineRenderKernel(const __global float* pointData,
   
   vertexBuffer += 4 * 3 * get_global_id(0); 
   
-  float3 pos ;
+  float4 pos ;
   pos.x = pointData[0];
   pos.y = pointData[1];
   pos.z = pointData[2];
+  pos.w = 0;
   
-  float3 dir ;
+  float4 dir ;
   dir.x = directionData[0];
   dir.y = directionData[1];
   dir.z = directionData[2];
-  
-  float3 point = pos - 0.5f * dir;
+  dir.w = 0;
+
+  float4 point = pos - 0.5f * dir;
   
   //Arrow Bottom
   vertexBuffer[0] = point.x;
@@ -71,8 +73,8 @@ LineRenderKernel(const __global float* pointData,
   vertexBuffer[4] = point.y;
   vertexBuffer[5] = point.z;
 
-  float3 pointToView = point - camPos.xyz;
-  float3 sidesVec = normalize(cross(pointToView, dir));
+  float4 pointToView = point - camPos;
+  float4 sidesVec = normalize(cross(pointToView, dir));
   
   //Arrow verts
   point = pos + 0.3f * dir + 0.1 * length(dir) * sidesVec;

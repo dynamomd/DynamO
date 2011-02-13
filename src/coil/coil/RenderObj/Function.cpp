@@ -266,21 +266,21 @@ FunctionRenderKernel(__global float * positions,
   float f; 
   )) + _function + std::string(STRINGIFY(
   
-  float3 vertexPosition = normPos.x * axis1.xyz + normPos.y * axis2.xyz + f * axis3.xyz + origin.xyz;
+  float4 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + f * axis3 + origin;
 
   positions[0] = vertexPosition.x;
   positions[1] = vertexPosition.y;
   positions[2] = vertexPosition.z;
 
-  float3 normal;
+  float4 normal;
   )) + _normalCalc + std::string(STRINGIFY(
-  normal *= (float3)(functionRange * length(axis3.xyz) , 1.0f / length(axis3.xyz));
+  normal *= (float4)(functionRange * length(axis3) , 1.0f / length(axis3), 0);
 
-  float3 rotatedNormal 
-  = normalize((normal.x * axis1.xyz +
-	       normal.y * axis2.xyz +
-	       normal.z * axis3.xyz
-	       ));
+  float4 rotatedNormal 
+  = normalize(normal.x * axis1 +
+	      normal.y * axis2 +
+	      normal.z * axis3
+	      );
 
   normals[0] = rotatedNormal.x;
   normals[1] = rotatedNormal.y;

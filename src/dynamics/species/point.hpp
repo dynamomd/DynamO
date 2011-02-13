@@ -48,7 +48,8 @@ public:
 
 #ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
-  virtual void updateRenderObj(magnet::CL::CLGLState&) const;
+  virtual void updateRenderData(magnet::CL::CLGLState&) const;
+  virtual void sendRenderData(magnet::CL::CLGLState&) const;
   virtual void updateColorObj(magnet::CL::CLGLState&) const;
 protected:
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;

@@ -59,9 +59,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
     if (!_CLWindow->isReady()) return;
 
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      {
-	spec->updateRenderObj(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
-      }
+      spec->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
     
     std::ostringstream os;
     os << "t:" << Sim->dSysTime;
@@ -107,7 +105,7 @@ SVisualizer::runEvent() const
 	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	  spec->updateRenderObj(_CLWindow.as<CLGLWindow>().getCLState());
+	  spec->updateRenderData(_CLWindow.as<CLGLWindow>().getCLState());
 
 	_CLWindow.as<CLGLWindow>().flagNewData();
       }

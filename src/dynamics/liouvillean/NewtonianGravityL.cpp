@@ -104,9 +104,13 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   if (p1Dynamic == p2Dynamic)
     return LNewtonian::SphereSphereInRoot(dat,d2,p1Dynamic,p2Dynamic);
 
-  //One particle feels gravity and the other does not. Here we get the sign right on the acceleration g12
+  //One particle feels gravity and the other does not. Here we get the
+  //sign right on the acceleration g12
   Vector gij(g);
   if (p2Dynamic) gij = -g;
+
+  //This is our lengthscale to which we bisect the roots
+  const double rootthreshold = 1e-16 * sqrt(d2);
 
   magnet::math::Bisect<QuarticFunc> quartic;
   quartic.coeffs[0] = 0.25 * gij.nrm2();
@@ -127,6 +131,8 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
 
   //Sort the roots in ascending order
   std::sort(roots, roots + rootCount);
+  //The roots are (in order) a minimum, (and if we have 3 roots), a
+  //local maximum, then another minimum
 
   //We need to define the dynamics of overlapping particles
   //
@@ -137,50 +143,67 @@ LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2,
   //receeding but will not escape the overlap before turning around
   //and approaching again.
   //
-  //Here we make another choice, we collide instantly. This is because
-  //collisions between spheres will rotate the velocity vectors, and
-  //may even fix our problem for us. Alternatively, we get some kind
-  //of inelastic collapse, which is fair, and may be avoided by
-  //sleeping the particles.
+  //Here we make another choice, we collide whenever the particle is
+  //touching/overlapping and approaching. We may get some kind of
+  //inelastic collapse, which is fair, but it may be avoided by
+  //sleeping the particles or by other dynamics
   if (quartic(0.0) <= 0)
-    //We're overlapping!
-    if (dat.rvdot < 0)
-      {
-	//We're overlapping and approaching! Cause an instantaneous collision
-	dat.dt = 0.0;
-	return true;
-      }
-    else
+    {//We're overlapping! We need the overlapped dynamics!
+      if (dat.rvdot < 0)
+	{
+	  //We're overlapping and approaching! Cause an instantaneous collision
+	  dat.dt = 0.0;
+	  return true;
+	}
+      
       //We're overlapping but receeding. If there's only one cubic
-      //root, then we're fine, we'll escape the particle soon enough
-      if (rootCount == 3)
-	//We may be in trouble if the local maxima is in the future,
-	//and it's still an overlapped state!
-	if ((roots[1] >= 0) && (quartic(roots[1]) < 0))
-	  {//Return an event at the local maximum, it's the furthest
-	   //away we're going to get without approaching again. Either
-	   //we'll have another event or we'll have to handle it by
-	   //sleeping the particle.
-	    dat.dt = roots[1]; //return the local maximum 
-	    return true;
-	  }
-  
-  //The roots are (in order) a minimum, (and if we have 3 roots), a
-  //local maximum, then another minimum
+      //root, then we're fine, we've passed the local minimum (we're
+      //receeding) so we'll escape the particle (never to return) soon
+      //enough, return no collision
+      if (rootCount == 1) return false;
 
-  //Only accept time-positive minimums (otherwise collision was in the
-  //past) and check an overlap actually occurs at the minimum
+      //We have a local minimum, maximum and minimum. We must be after
+      //the first local minimum as we're overlapping but receeding. If
+      //the maximum is in the past, and we're receeding, we must be
+      //past the second minimum and we will only get further away! so
+      //return no collision
+      if (roots[1] < 0) return false;
 
-  const double rootthreshold = 1e-16 * sqrt(d2);
+      //The local maximum is in the future (or now). Check if we will be
+      //outside the particle then.
+      if (quartic(roots[1]) > 0)
+	{ //We will be outside the particle, so check if we re-enter it!
+	  if (quartic(roots[2]) < 0)
+	    {//We do reenter! So return the time of this reentry as the next event
+	      dat.dt = std::max(0.0, quartic.bisectRoot(roots[1], roots[2], rootthreshold));
+	      return true;
+	    }
+	  //We wont reenter, so return false as we'll escape
+	  return false;
+	}
+      
+      //Our local maxima is in the future, and it's still an
+      //overlapped state!  Return an event at the local maximum, it's
+      //the furthest away we're going to get without approaching
+      //again. Either we'll have another event before we reach it or
+      //we'll have to handle it by sleeping the particle.
+      dat.dt = roots[1]; //return the local maximum 
+      return true;
+    }
+      
+  //We're not overlapping, so check for standard events  
 
-  //Check the first minimum (we always have one)
+  //Check the first minimum (we always have one), if it's in the
+  //future check that we overlap then, and then bisect the event
   if ((roots[0] >= 0) && (quartic(roots[0]) <= 0))
     {
       dat.dt = std::max(0.0, quartic.bisectRoot(0, roots[0], rootthreshold));
       return true;
     }
 
-  //Check the second minimum if we have one
+  //Check the second minimum if we have one. When bisecting we use
+  //either now or the local maximum, depending on which is later as
+  //the first point.
   if ((rootCount > 1)
       && (roots[2] > 0)
       && (quartic(roots[2]) < 0)

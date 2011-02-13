@@ -78,7 +78,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 					true, //Is the shape static, i.e. is there no time dependence
 					"Ground",
 					"f=0;\n",
-					"normal = (float3)(0,0,1);\n",
+					"normal = (float4)(0,0,1,0);\n",
 					"colors[0] = (uchar4)(255,255,255,255);"
 					));
 

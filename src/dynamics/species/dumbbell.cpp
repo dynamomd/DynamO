@@ -32,9 +32,16 @@ SpDumbbells::updateColorObj(magnet::CL::CLGLState& CLState) const
   }
 }
 
+void
+SpDumbbells::sendRenderData(magnet::CL::CLGLState& CLState) const
+{
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
+     false, 0, 2 * range->size() * sizeof(cl_float4), &particleData[0]);
+}
 
 void
-SpDumbbells::updateRenderObj(magnet::CL::CLGLState& CLState) const
+SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
 {
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
@@ -65,11 +72,8 @@ SpDumbbells::updateRenderObj(magnet::CL::CLGLState& CLState) const
       ++sphID;
     }
 
-  {
-    CLState.getCommandQueue().enqueueWriteBuffer
-      (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
-       false, 0, 2 * range->size() * sizeof(cl_float4), &particleData[0]);
-  }
+  _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpDumbbells::sendRenderData, this, 
+								    CLState));
 }
 #endif
 

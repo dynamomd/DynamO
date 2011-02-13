@@ -19,7 +19,19 @@ SpLines::getCoilRenderObj() const
 }
 
 void
-SpLines::updateRenderObj(magnet::CL::CLGLState& CLState) const
+SpLines::sendRenderData(magnet::CL::CLGLState& CLState) const
+{
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RArrows&>(*_renderObj).getPointData(),
+     false, 0, 3 * range->size() * sizeof(cl_float), &particleData[0]);
+  
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RArrows&>(*_renderObj).getDirectionData(),
+     false, 0, 3 * range->size() * sizeof(cl_float), &particleData[3*range->size()]);
+}
+
+void
+SpLines::updateRenderData(magnet::CL::CLGLState& CLState) const
 {
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
@@ -45,13 +57,8 @@ SpLines::updateRenderObj(magnet::CL::CLGLState& CLState) const
       ++lineID;
     }
 
-  CLState.getCommandQueue().enqueueWriteBuffer
-    (static_cast<RArrows&>(*_renderObj).getPointData(),
-     false, 0, 3 * range->size() * sizeof(cl_float), &particleData[0]);
-
-  CLState.getCommandQueue().enqueueWriteBuffer
-    (static_cast<RArrows&>(*_renderObj).getDirectionData(),
-     false, 0, 3 * range->size() * sizeof(cl_float), &particleData[3*range->size()]);
+  _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpLines::sendRenderData, this, 
+								     CLState));
 }
 
 void 

@@ -88,7 +88,20 @@ SpPoint::getCoilRenderObj() const
 }
 
 void
-SpPoint::updateRenderObj(magnet::CL::CLGLState& CLState) const
+SpPoint::sendRenderData(magnet::CL::CLGLState& CLState) const
+{
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
+     false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
+
+  if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
+    CLState.getCommandQueue().enqueueWriteBuffer
+      (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
+       false, 0, range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+}
+
+void
+SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
 {
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
@@ -114,14 +127,11 @@ SpPoint::updateRenderObj(magnet::CL::CLGLState& CLState) const
       particleData[sphID++].w = diam * 0.5;
     }
 
-  {
-    CLState.getCommandQueue().enqueueWriteBuffer
-      (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
-       false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
-  }
-  
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
     updateColorObj(CLState);
+
+  _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpPoint::sendRenderData, this, 
+								    CLState));
 }
 
 void 
@@ -194,11 +204,5 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
     default:
       M_throw() << "Not Implemented";
     }
-
-  {
-    CLState.getCommandQueue().enqueueWriteBuffer
-      (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-       false, 0, range->size() * sizeof(cl_uchar4), &particleColorData[0]);
-  }
 }
 #endif
