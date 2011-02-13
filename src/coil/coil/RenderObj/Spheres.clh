@@ -18,6 +18,8 @@
 
 #define STRINGIFY(A) #A
 const std::string sphereKernelSource = STRINGIFY(
+
+
 __kernel void
 SphereRenderKernel(const __global float4* positions,
 		   __global float * vertexBuffer,
@@ -192,7 +194,7 @@ GenerateData(const __global float4* positions,
       return;
     }
 
-  float tanfactor = (nearDist * tan(fov * M_PI_F / 360.0f));
+  float tanfactor = (nearDist * tan(fov * 3.14159265f / 360.0f));
 
   float4 left = cross(camup, camdir);
 
