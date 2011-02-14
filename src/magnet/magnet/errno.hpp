@@ -101,11 +101,11 @@ F(ETXTBSY, "Text file busy.") \
 F(EXDEV, "Cross-device link.") 
 
 #define ENUM_FUNC(F,G) \
-  case (F): return std::string(#F ": " G);
+  case (F): return #F ": " G;
 
 namespace magnet {
   namespace detail {
-    inline std::string strerror_enum(int errnum)
+    inline const char* strerror_enum(int errnum)
     {
       switch (errnum)
 	{
