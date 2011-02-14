@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLocal_HPP
-#define CLocal_HPP
+#pragma once
 
 #include <string>
 #include <magnet/cloneptr.hpp>
@@ -77,5 +76,3 @@ protected:
   std::string localName;
   size_t ID;
 };
-
-#endif

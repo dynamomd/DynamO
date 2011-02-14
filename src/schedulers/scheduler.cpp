@@ -145,14 +145,17 @@ CScheduler::runNextEvent()
 		<< "\nID2 = " << sorter->next_p2();
     
     if (isinf(sorter->next_dt()))
-      M_throw() << "Next event time is Inf!"
-		<< "\nTime to event "
-		<< sorter->next_dt()
-		<< "\nEvent Type = " 
-		<< sorter->next_type()
-		<< "\nOwner Particle = " << sorter->next_ID()
-		<< "\nID2 = " << sorter->next_p2();
-    
+      {
+	I_cerr() << "Next event time is Inf! (Queue has run out of events!)\n"
+		 << "Shutting simulation down..."
+		 << "\nEvent details, Type = " 
+		 << sorter->next_type()
+		 << "\nOwner Particle = " << sorter->next_ID()
+		 << "\nID2 = " << sorter->next_p2()
+	  ;
+	Sim->endEventCount = Sim->eventCount;
+	return;
+      }
   //#ifdef DYNAMO_DEBUG
   ////////////////////////////////////////////////////////////////////
   // We can't perform such strict testing as commented out

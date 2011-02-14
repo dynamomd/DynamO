@@ -17,10 +17,13 @@
 
 #include "XMLconfig.hpp"
 
-# include <boost/iostreams/device/file.hpp>
-# include <boost/iostreams/filtering_stream.hpp>
-# include <boost/iostreams/filter/bzip2.hpp>
-# include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/copy.hpp>
+
 namespace io = boost::iostreams;
 
 #include <boost/filesystem.hpp>
@@ -52,8 +55,13 @@ CIPConfig::initialise()
 
   //This scopes out the file objects
   {
+    //We use the boost iostreams library to load the file into a string
+    std::string fileString;
+
+    //We make our filtering iostream
     io::filtering_istream inputFile;
     
+    //Now check if we should add a decompressor filter
     if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
       {
 	I_cout() << "Bzip compressed XML input file " << fileName << " loading";
@@ -63,19 +71,15 @@ CIPConfig::initialise()
       I_cout() << "Uncompressed XML input file " << fileName << " loading";
     else
       M_throw() << "Unrecognized extension for input files";
-    
-    inputFile.push(io::file_source(fileName));
 
     std::cout.flush();
-    
-    //Copy file to a string
-    std::string fileString; //The file is loaded into this
-    std::string line;
-    {
-      while(getline(inputFile,line))
-	fileString.append(line + "\n");
-    }
 
+    //Finally, add the file as a source
+    inputFile.push(io::file_source(fileName));
+
+    //Force the copy to occur
+    io::copy(inputFile, io::back_inserter(fileString));
+    
     I_cout() << "File loaded, parsing XML";
     std::cout.flush();  
 

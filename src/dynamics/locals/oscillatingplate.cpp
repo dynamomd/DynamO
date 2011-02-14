@@ -245,3 +245,56 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }
+
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/Function.hpp>
+
+magnet::thread::RefPtr<RenderObj>& 
+CLOscillatingPlate::getCoilRenderObj() const
+{
+  if (!_renderObj.isValid())
+    {
+      Vector axis3 = nhat / nhat.nrm();
+      Vector axis2(0,0,1);
+      
+      for (size_t i(0); i < NDIM; ++i)
+	{
+	  Vector tryaxis = Vector(0,0,0);
+	  tryaxis[i] = 1;
+	  Vector tryaxis2 = axis3 ^ tryaxis;
+	  
+	  if (tryaxis2.nrm() != 0) { axis2 = tryaxis2 / tryaxis2.nrm(); break; }
+	}
+
+      Vector axis1 = axis2 ^ axis3;
+
+      std::ostringstream os;
+      os << axis3[0] << ", "
+	 << axis3[1] << ", "
+	 << axis3[2] << ", 0";
+
+      axis1 *= Sim->aspectRatio[1] / axis1.nrm();
+      axis2 *= Sim->aspectRatio[2] / axis2.nrm();
+
+      _renderObj = new RFunction(10, 
+				 rw0 - 0.5 * (axis1 + axis2), 
+				 axis1, axis2, axis3,
+				 0, 0, 1, 1, true, false,
+				 "Oscillating wall",
+				 "f = A;",
+				 "normal = -(float4)(" + os.str() + ");"
+				 );
+    }
+  
+  return _renderObj;
+}
+
+void 
+CLOscillatingPlate::updateRenderData(magnet::CL::CLGLState&) const
+{
+  if (_renderObj.isValid())
+    static_cast<RFunction&>(*_renderObj)
+      .setConstantA(delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
+		    - (sigma + 0.5 * Sim->dynamics.units().unitLength()));
+}
+#endif

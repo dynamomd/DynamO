@@ -112,6 +112,7 @@ CIPPacker::getOptions()
     ("f4", po::value<double>(), "double option four.")
     ("f5", po::value<double>(), "double option five.")
     ("f6", po::value<double>(), "double option six.")
+    ("f7", po::value<double>(), "double option seven.")
     ;
 
   retval.add(hiddenopts);
@@ -223,6 +224,7 @@ CIPPacker::initialise()
 	"       --f4 : Initial displacement [130]\n"
 	"       --f5 : Particle-Particle inelasticity [0.88]\n"
 	"       --f6 : Particle-Wall inelasticity [0.96]\n"
+	"       --f7 : Cross section area [0.96]\n"
 	"  20: Load a set of triangles and plate it with spheres\n"
 	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	"       --s1 : File name to load the triangles from\n"
@@ -2108,7 +2110,10 @@ CIPPacker::initialise()
 
 	//the  2.0 * L is to give an extra half box width on each side of the sim
 	double boxL = 2.0 * L + 2.0 * Delta;
+
 	double xy = 5.2;
+	if (vm.count("f7"))
+	  xy = vm["f7"].as<double>();
 
 	xy -= 1;//Again to account for centre of mass walls
 
