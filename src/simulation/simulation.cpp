@@ -195,41 +195,29 @@ Simulation::runSimulation(bool silentMode)
 {
   if (status != INITIALISED && status != PRODUCTION)
     M_throw() << "Bad state for runSimulation()";
+
   status = PRODUCTION;
 
-  if (silentMode)
+  for (; eventCount < endEventCount;)
     try
       {
-	for (; eventCount < endEventCount;)
-	  ptrScheduler->runNextEvent();
+	ptrScheduler->runNextEvent();
+	
+	//Periodic work
+	if (!silentMode && outputPlugins.size())
+	  {
+	    std::cout << "\n";
+	    //Print the screen data plugins
+	    BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, 
+			   outputPlugins)
+	      Ptr->periodicOutput();
+	  }
       }
     catch (std::exception &cep)
       {
 	M_throw() << "\nWhile executing collision "
 		  << eventCount << cep.what();
       }
-  else
-    for (nextPrintEvent = eventCount + eventPrintInterval; eventCount < endEventCount; 
-	 nextPrintEvent += eventPrintInterval)
-      try
-	{
-	  for (; eventCount < nextPrintEvent; )
-	    ptrScheduler->runNextEvent();
-	  
-	  //Periodic work
-	  if (outputPlugins.size())
-	    std::cout << "\n";
-	  //Print the screen data plugins
-	  BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-	    Ptr->periodicOutput();
-	  
-	  fflush(stdout);
-	}
-      catch (std::exception &cep)
-	{
-	  M_throw() << "\nWhile executing collision "
-		    << eventCount << cep.what();
-	}
 }
 
 void 
