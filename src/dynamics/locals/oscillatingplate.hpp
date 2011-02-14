@@ -15,12 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLOscillatingPlate_HPP
-#define CLOscillatingPlate_HPP
+#pragma once
 
 #include "local.hpp"
+#include "../coilRenderObj.hpp"
 
-class CLOscillatingPlate: public Local
+class CLOscillatingPlate: public Local, public CoilRenderObj
 {
 public:
   CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
@@ -52,7 +52,16 @@ public:
 
   const Vector& getCentre() const { return rw0; }
 
+#ifdef DYNAMO_visualizer
+  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
+  virtual void updateRenderData(magnet::CL::CLGLState&) const;
+#endif
+
 protected:
+#ifdef DYNAMO_visualizer
+  mutable magnet::thread::RefPtr<RenderObj> _renderObj;
+#endif
+
   virtual void outputXML(xml::XmlStream&) const;
 
   bool strongPlate;
@@ -67,5 +76,3 @@ protected:
   mutable size_t lastID;
   mutable long double lastdSysTime;
 };
-
-#endif

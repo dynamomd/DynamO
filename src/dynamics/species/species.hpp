@@ -20,12 +20,8 @@
 #include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
-#include <magnet/thread/refPtr.hpp>
 #include <string>
-
-#ifdef DYNAMO_visualizer
-# include <coil/RenderObj/RenderObj.hpp>
-#endif
+#include "../coilRenderObj.hpp"
 
 class XMLNode;
 namespace xml
@@ -44,7 +40,7 @@ namespace Gtk {
   class ScrolledWindow;
 }
 
-class Species:public DYNAMO::SimBase
+class Species:public DYNAMO::SimBase, public CoilRenderObj
 {
 public:
   virtual ~Species() {}
@@ -72,8 +68,6 @@ public:
   static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const = 0;
-  virtual void updateRenderData(magnet::CL::CLGLState&) const = 0;
   virtual void sendRenderData(magnet::CL::CLGLState&) const = 0;
   virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;
 #endif

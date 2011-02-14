@@ -166,14 +166,14 @@ RFunction::initOpenCL()
 
   _pickFunc = _pickKernel.bind(_CLState->getCommandQueue(), cl::NDRange(_N * _N), 
 			       cl::NDRange(workgroupSize));
-
+  
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   glFinish();
-
+  
   initOCLVertexBuffer(_CLState->getContext());
   initOCLNormBuffer(_CLState->getContext());
   initOCLColorBuffer(_CLState->getContext());
-
+  
   //Now do the first clTick if the shape is static!
   if (_staticShape)
     {
@@ -211,7 +211,7 @@ RFunction::clTick()
 	      _cl_axis2,
 	      _cl_axis3,
 	      _cl_origin,
-	      _N);
+	      _N, _A);
   
   //Release resources
   _clbuf_Normals.release(_CLState->getCommandQueue());
@@ -252,7 +252,7 @@ FunctionRenderKernel(__global float * positions,
 		     float4 axis2,
 		     float4 axis3,
 		     float4 origin,
-		     uint N)
+		     uint N, float A)
 {
   positions += 3 * get_global_id(0);
   normals += 3 * get_global_id(0);

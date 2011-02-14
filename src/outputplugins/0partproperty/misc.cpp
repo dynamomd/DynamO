@@ -23,8 +23,7 @@
 #include "../../datatypes/vector.xml.hpp"
 #include <ctime>
 #include <sys/time.h>
-#include <sys/resource.h>
-#include "../../extcode/memUsage.hpp"
+#include <magnet/memUsage.hpp>
 #include "../../dynamics/species/inertia.hpp"
 
 OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
@@ -155,14 +154,6 @@ OPMisc::output(xml::XmlStream &XML)
     / (double(acc_tendTime.tv_sec) + 1e-9 * double(acc_tendTime.tv_nsec)
        - double(acc_tstartTime.tv_sec) - 1e-9 * double(acc_tstartTime.tv_nsec));
 
-  long int maxmemusage;
-
-  {
-    struct rusage ru;
-    getrusage(RUSAGE_SELF, &ru);
-    maxmemusage = ru.ru_maxrss;
-  }
-
   I_cout() << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->eventCount
 	   << "\nAvg Coll/s " << collpersec
@@ -172,7 +163,7 @@ OPMisc::output(xml::XmlStream &XML)
 
   XML << xml::tag("Misc")
       << xml::tag("Memusage")
-      << xml::attr("MaxKiloBytes") << maxmemusage
+      << xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
       << xml::endtag("Memusage")
       << xml::tag("Density")
       << xml::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
@@ -258,11 +249,8 @@ OPMisc::output(xml::XmlStream &XML)
       << getMFT()
       << xml::endtag("totMeanFreeTime");
 
-  std::pair<double, double> mempair = process_mem_usage();
-
   XML << xml::tag("MemoryUsage")
-      << xml::attr("VirtualMemory") << mempair.first
-      << xml::attr("ResidentSet") << mempair.second
+      << xml::attr("ResidentSet") << magnet::process_mem_usage()
       << xml::endtag("MemoryUsage")
       << xml::endtag("Misc");
 }
