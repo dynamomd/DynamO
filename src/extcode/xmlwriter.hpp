@@ -30,10 +30,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #pragma once
-
-#include	<stack>
-#include	<string>
-#include	<sstream>
+#include <stack>
+#include <string>
+#include <sstream>
 
 namespace xml {
   //! The spacing unit to use when a tag is opened
@@ -42,10 +41,8 @@ namespace xml {
   class XmlStream {
   public:
     // XML version constants
-    enum {
-      versionMajor = 1, 
-      versionMinor = 0
-    };
+    static const int versionMajor = 1;
+    static const int versionMinor = 0;
     
     // Internal helper class
     struct Controller {
@@ -77,11 +74,73 @@ namespace xml {
     inline XmlStream(const XmlStream &XML):
       state(XML.state), s(XML.s), prologWritten(XML.prologWritten), FormatXML(XML.FormatXML) {}
     
-    ~XmlStream();
+    inline ~XmlStream()
+    {
+      if (stateTagName == state) {
+	s << "/>";
+	state = stateNone;
+      }
+      while (tags.size())
+	endTag(tags.top());
+    }
+
     
     // this is the main working horse
-    XmlStream& operator<<(const Controller&);
+    inline XmlStream& operator<<(const Controller& controller)
+    {
+      switch (controller._type) {
+      case Controller::Prolog:
+	if (!prologWritten && stateNone == state) {
+	  s << "<?xml version=\"" << versionMajor << '.' << versionMinor << "\"?>\n";
+	  prologWritten = true;
+	}
+	break;	//	Controller::whatProlog
+	
+      case Controller::Tag:
+	closeTagStart();
+	if (FormatXML) for (unsigned int i = 0; i < tags.size(); i++) s << XML_SPACING;
+	s << '<';
+	if (controller.str.empty()) {
+	  clearTagName();
+	  state = stateTagName;
+	}
+	else {
+	  s << controller.str;
+	  tags.push(controller.str);
+	  state = stateTag;
+	}
+	break;	//	Controller::whatTag
+      
+      case Controller::TagEnd:
+	endTag(controller.str);
+	break;	//	Controller::whatTagEnd
+      
+      case Controller::Attribute:
+	switch (state) {
+	case stateTagName:
+	  tags.push(tagName.str());
+	  break;
+	
+	case stateAttribute:
+	  s << '\"';
+	default:
+	  break;
+	}
+      
+	if (stateNone != state) {
+	  s << ' ' << controller.str << "=\"";
+	  state = stateAttribute;
+	}
+	break;//Controller::whatAttribute
+      case Controller::CharData:
+	closeTagStart();
+	state = stateNone;
+	break;//Controller::whatCharData
+      }
     
+      return	*this;
+    }
+
     // default behaviour - delegate object output to std::stream
     template<class t>
     XmlStream& operator<<(const t& value) {
@@ -91,7 +150,7 @@ namespace xml {
       return *this;
     }
 
-    std::ostream& getUnderlyingStream() { return s; }
+    inline std::ostream& getUnderlyingStream() { return s; }
 
     inline void setFormatXML(const bool& tf) { FormatXML = tf; }
     
@@ -123,11 +182,47 @@ namespace xml {
     }
     
     // Close current tag
-    void closeTagStart(bool self_closed = false);
-    
-    // Close tag (may be with closing all of its children)
-    void endTag(const std::string&);
+    inline void closeTagStart(bool self_closed = false)
+    {
+      if (stateTagName == state)
+	tags.push(tagName.str());
+      
+      // note: absence of 'break's is not an error
+      switch (state) {
+      case stateAttribute:
+	s << '\"';
+      case stateTagName:
+      case stateTag:
+	if (self_closed)
+	  s << '/';
+	s << '>' << '\n';
+      default:
+	break;
+      }
+    }
 
+    // Close tag (may be with closing all of its children)
+    inline void endTag(const std::string& tag)
+    {
+      bool brk = false;
+    
+      while (tags.size() > 0 && !brk) {
+	if (stateNone == state)
+	  {
+	    if (FormatXML) 
+	      for (unsigned int i = 0; i < tags.size()-1; i++) 
+		s << XML_SPACING;
+
+	    s << "</" << tags.top() << '>' << '\n';
+	  }
+	else {
+	  closeTagStart(true);
+	  state = stateNone;
+	}
+	brk = tag.empty() || tag == tags.top();
+	tags.pop();
+      }
+    }    
   };	//	class XmlStream
   
   // Helper functions, they may be simply overwritten
@@ -160,7 +255,6 @@ namespace xml {
   inline const XmlStream::Controller chardata() {
     return XmlStream::Controller(XmlStream::Controller::CharData);
   }
-  
-}	// namespace
+}
 
 
