@@ -198,19 +198,26 @@ Simulation::runSimulation(bool silentMode)
 
   status = PRODUCTION;
 
+  size_t lastprint = eventCount + eventPrintInterval;
+
   for (; eventCount < endEventCount;)
     try
       {
 	ptrScheduler->runNextEvent();
 	
 	//Periodic work
-	if (!silentMode && outputPlugins.size())
+	if ((eventCount > lastprint)
+	    && !silentMode
+	    && outputPlugins.size())
 	  {
 	    std::cout << "\n";
 	    //Print the screen data plugins
 	    BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, 
 			   outputPlugins)
 	      Ptr->periodicOutput();
+
+	    lastprint = eventCount + eventPrintInterval;
+	    std::cout.flush();
 	  }
       }
     catch (std::exception &cep)

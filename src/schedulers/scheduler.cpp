@@ -146,9 +146,9 @@ CScheduler::runNextEvent()
     
     if (isinf(sorter->next_dt()))
       {
-	I_cerr() << "Next event time is Inf (Queue has run out of events!)\n"
+	I_cerr() << "Next event time is Inf! (Queue has run out of events!)\n"
 		 << "Shutting simulation down..."
-		 << "\nEvent Type = " 
+		 << "\nEvent details, Type = " 
 		 << sorter->next_type()
 		 << "\nOwner Particle = " << sorter->next_ID()
 		 << "\nID2 = " << sorter->next_p2()
