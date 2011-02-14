@@ -33,6 +33,7 @@
 #include <coil/RenderObj/Lines.hpp>
 #include <magnet/CL/CLGL.hpp>
 #include "../liouvillean/CompressionL.hpp"
+#include "../coilRenderObj.hpp"
 
 SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFreq):
   System(nSim)
@@ -52,14 +53,29 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(spec->getCoilRenderObj());
 
+  BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
+    {
+      CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
+
+      if (obj != NULL)
+	static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(obj->getCoilRenderObj());
+    }
+
   CoilMaster::getInstance().addWindow(_CLWindow);
 
   {
     const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
     if (!_CLWindow->isReady()) return;
-
+    
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
       spec->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+    
+    BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
+      {
+	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
+	
+	if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+      }
     
     std::ostringstream os;
     os << "t:" << Sim->dSysTime;
@@ -68,11 +84,11 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
     os << "Events:" << Sim->eventCount;
     _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
   }
-
+  
   I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 
-	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
-	  << "\nOpenCL Device:" 
-	  << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
+	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
+	   << "\nOpenCL Device:" 
+	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
 }
 
 void
@@ -82,7 +98,7 @@ SVisualizer::runEvent() const
   
   double locdt = dt;
   dt += _updateTime;
-
+  
   //Update test
   if (_CLWindow.as<CLGLWindow>().simupdateTick())
     {
@@ -93,23 +109,27 @@ SVisualizer::runEvent() const
       Sim->dynamics.stream(locdt);
       locdt += Sim->freestreamAcc;
       Sim->freestreamAcc = 0;
-
+      
       if (_CLWindow.as<CLGLWindow>().dynamoParticleSync())
 	Sim->dynamics.getLiouvillean().updateAllParticles();
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(*this, NEventData(), locdt);
-
+      
       {
 	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
 	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
 	  spec->updateRenderData(_CLWindow.as<CLGLWindow>().getCLState());
-
-	_CLWindow.as<CLGLWindow>().flagNewData();
-      }
-
+	
+	BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
+	  {
+	    CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
+	    
+	    if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+	  }
+      }	
       std::ostringstream os;
       os << "t:" << Sim->dSysTime;
       

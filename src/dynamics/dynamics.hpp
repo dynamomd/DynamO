@@ -143,6 +143,7 @@ public:
   magnet::ClonePtr<Global>& getGlobal(std::string);
   const magnet::ClonePtr<Global>& getGlobal(std::string) const;
 
+  std::vector<magnet::ClonePtr<Local> >& getLocals() { return locals; }
   const std::vector<magnet::ClonePtr<Local> >& getLocals() const { return locals; }
   magnet::ClonePtr<Local>& getLocal(std::string);
   const magnet::ClonePtr<Local>& getLocal(std::string) const;

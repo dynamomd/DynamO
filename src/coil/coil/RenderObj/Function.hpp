@@ -51,6 +51,8 @@ public:
   virtual void pickingRender();
   virtual void finishPicking(cl_uint& offset, const cl_uint val);
 
+  void setConstantA(cl_float val) { _A = val; }
+
 protected:
   std::string genKernelSrc();
 
@@ -85,4 +87,6 @@ protected:
   std::string _function;
   std::string _normalCalc;
   std::string _colorCalc;
+
+  cl_float _A;
 };
