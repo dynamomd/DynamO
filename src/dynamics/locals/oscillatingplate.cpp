@@ -278,7 +278,7 @@ CLOscillatingPlate::getCoilRenderObj() const
 
       _renderObj = new RFunction(10, 
 				 rw0 - 0.5 * (axis1 + axis2), 
-				 axis1, axis2, axis3 * delta,
+				 axis1, axis2, axis3,
 				 0, 0, 1, 1, true, false,
 				 "Oscillating wall",
 				 "f = A;",
@@ -294,7 +294,7 @@ CLOscillatingPlate::updateRenderData(magnet::CL::CLGLState&) const
 {
   if (_renderObj.isValid())
     static_cast<RFunction&>(*_renderObj)
-      .setConstantA(std::cos(omega0 * (Sim->dSysTime + timeshift)) 
-		    - (sigma + 0.5 * Sim->dynamics.units().unitLength()) / delta);
+      .setConstantA(delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
+		    - (sigma + 0.5 * Sim->dynamics.units().unitLength()));
 }
 #endif

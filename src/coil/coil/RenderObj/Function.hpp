@@ -88,5 +88,5 @@ protected:
   std::string _normalCalc;
   std::string _colorCalc;
 
-  cl_float _A;
+  volatile cl_float _A;
 };

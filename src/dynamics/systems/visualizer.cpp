@@ -129,6 +129,8 @@ SVisualizer::runEvent() const
 	    
 	    if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
 	  }
+
+	_CLWindow.as<CLGLWindow>().flagNewData();
       }	
       std::ostringstream os;
       os << "t:" << Sim->dSysTime;
