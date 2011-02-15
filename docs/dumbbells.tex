@@ -165,7 +165,35 @@ Yielding some conservative estimates for the maximum derivatives as
   \left|\ddot{f}\right|^{max} &=2 \left((L / 2) (3L + d) (\omega_1^2 +  \omega_2^2)
   + \left[\left|\mathbf{v}_{12}\right| + (L/2) \left(\left|\omega_1\right| + \left|\omega_2\right|\right)\right]^2 \right)
 \end{align}
-The collision rule is given by \cite{Montaine}
+
+When a collision occurs, the transfer of momentum will occur along the
+normal that connects the centers of the two colliding particles.  The
+collision rule is given by \cite{Montaine,vanZon}:
+\begin{align}
+  \Delta \mathbf{v}_C &= \frac{\mathbf{P}}{\mu} + 
+\end{align}
+
+
+On the contact point, the velocity of the particles in the normal
+direction (defined by the line that joins the centers of the
+particles, since our collisions are between spheres) is inverted and
+dissipated. Since the angular momentum has to be conserved on the
+collision, this will implies a change both in the momentum and in the
+angular momentum of the dumbbells. Following the notation of
+\cite{vanZon} we can write the collision rule for particles $i$ and
+$j$ as:
+
+\begin{align}
+  \Delta \mathbf{P}_i &= -  \Delta \mathbf{P}_j = - S\hat{\mathbf{r}}~,\\
+  \Delta \mathbf{\omega}_i &=  - S\mathbf{I}^{-1}_aihat{\mathbf{n}}_i~,\\
+\end{align}
+where $\hat{\mathbf{r}}$ is the unit vector that goes from 
+particle $i$ to $j$ and $S = - b/a$ with 
+\begin{align}
+  a &= \frac{1}{2M_i} + \frac{1}{2M_j} + \frac{\Delta E_{\omega i} + \Delta E_{\omega j}}{2}~,\\
+  b &=  \mathbf{v}\cdot \hat{\mathbf{r}}~,\\
+\end{align}
+
 \begin{thebibliography}{}
 
 \bibitem{frenkel}  D. Frenkel, J. F. Maguire, Mol. Phys. 49, 503 (1983).
