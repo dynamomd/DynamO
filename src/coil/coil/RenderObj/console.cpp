@@ -27,8 +27,8 @@
 #include <GL/glext.h>
 #include <GL/freeglut.h>
 
-extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
-extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
+extern const unsigned char _binary_coilfont_ttf_start[];
+extern const unsigned char _binary_coilfont_ttf_end[];
 
 namespace coil {
   Console::Console(size_t width, size_t height, float r, float g, float b):
@@ -44,9 +44,9 @@ namespace coil {
   void 
   Console::initOpenGL() 
   {
-    _consoleFont.reset(new FTGLPixmapFont(_binary_src_coil_coil_coilfont_ttf_start,
-					  _binary_src_coil_coil_coilfont_ttf_end
-					  -_binary_src_coil_coil_coilfont_ttf_start));
+    _consoleFont.reset(new FTGLPixmapFont(_binary_coilfont_ttf_start,
+					  _binary_coilfont_ttf_end
+					  -_binary_coilfont_ttf_start));
     _consoleLayout.reset(new FTSimpleLayout());
 
     if (_consoleFont->Error()) 

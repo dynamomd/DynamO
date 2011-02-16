@@ -29,8 +29,8 @@
 #include <coil/glprimatives/arrow.hpp>
 #include <magnet/GL/viewPort.hpp>
 
-extern const unsigned char _binary_src_coil_coil_coilfont_ttf_start[];
-extern const unsigned char _binary_src_coil_coil_coilfont_ttf_end[];
+extern const unsigned char _binary_coilfont_ttf_start[];
+extern const unsigned char _binary_coilfont_ttf_end[];
 
 namespace coil {
   Axis::Axis():
@@ -40,9 +40,9 @@ namespace coil {
   void 
   Axis::initOpenGL() 
   {
-    _axisFont.reset(new FTGLPixmapFont(_binary_src_coil_coil_coilfont_ttf_start,
-				       _binary_src_coil_coil_coilfont_ttf_end
-				       -_binary_src_coil_coil_coilfont_ttf_start));
+    _axisFont.reset(new FTGLPixmapFont(_binary_coilfont_ttf_start,
+				       _binary_coilfont_ttf_end
+				       -_binary_coilfont_ttf_start));
     if (_axisFont->Error()) 
       M_throw() << "Could not load coil's embedded font! Errno " 
 		<< _axisFont->Error();

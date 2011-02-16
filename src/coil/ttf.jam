@@ -7,6 +7,12 @@ generators.register-standard ttf.objectify-ttf : TTF : OBJ ;
 
 actions objectify-ttf
 {
-  "ld" -r -b binary -o $(<) $(>)
-  "objcopy" --rename-section .data=.rodata,alloc,load,readonly,data,contents  $(<) $(<)
+  #Copy the file to a local location, so the symbol name is short
+  "cp" $(>) $(>:B)$(>:S)
+
+  #Now link the file into a binary with a fixed symbol name
+  "ld" -r -b binary -o $(<) $(>:B)$(>:S)
+
+  #Finally, change the symbol properties
+  "objcopy" --rename-section .data=.rodata,alloc,load,readonly,data,contents  $(<) $(<) 
 }

@@ -291,9 +291,8 @@ CLGLWindow::initOpenCL()
 }
 
 //The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
-extern const char _binary_src_coil_coil_clwingtk_gladexml_start[];
-extern const char _binary_src_coil_coil_clwingtk_gladexml_end[];
-
+extern const char _binary_clwingtk_gladexml_start[];
+extern const char _binary_clwingtk_gladexml_end[];
 extern const guint8 coilicon[];
 extern const size_t coilicon_size;
 
@@ -302,9 +301,9 @@ CLGLWindow::initGTK()
 {
   {////////Glade XML loader 
     Glib::ustring glade_data
-      (reinterpret_cast<const char *>(_binary_src_coil_coil_clwingtk_gladexml_start), 
-       _binary_src_coil_coil_clwingtk_gladexml_end
-       -_binary_src_coil_coil_clwingtk_gladexml_start);
+      (reinterpret_cast<const char *>(_binary_clwingtk_gladexml_start), 
+       _binary_clwingtk_gladexml_end
+       -_binary_clwingtk_gladexml_start);
     
     _refXml = Gtk::Builder::create_from_string(glade_data);
   }
