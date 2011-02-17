@@ -30,7 +30,6 @@ namespace magnet {
       {
 	if (_initialised) M_throw() << "Initialising twice!";
 	initContext();
-	initDevice();
 	_commandQ =cl::CommandQueue(_context, _device);
 	_initialised = true;
       }
@@ -77,24 +76,40 @@ namespace magnet {
         for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
              iPtr != platforms.end(); ++iPtr)
 	  {
-	    if (!getCLGLContext(*iPtr, CL_DEVICE_TYPE_GPU)) continue;
-	    
-	    //Success! now set the platform and return!
-	    _platform = *iPtr;
-	    cl::GLBuffer::hostTransfers() = false;
-	    return;
+	    std::vector<cl::Device> devices;
+	    iPtr->getDevices(CL_DEVICE_TYPE_GPU, &devices);
+
+	    for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
+		 devPtr != devices.end(); ++devPtr)
+	      {
+		if (!getCLGLContext(*iPtr, *devPtr)) continue;
+		
+		//Success! now set the platform+device and return!
+		_platform = *iPtr;
+		cl::GLBuffer::hostTransfers() = false;
+		_device = *devPtr;
+		return;
+	      }
 	  }
 
-        //Now cycle through the platforms trying to get a context with a GPU
+        //Try and see if there's another OpenCL-OpenGL platform available
         for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
              iPtr != platforms.end(); ++iPtr)
 	  {
-	    if (!getCLGLContext(*iPtr, CL_DEVICE_TYPE_ALL)) continue;
-	    
-	    //Success! now set the platform and return!
-	    _platform = *iPtr;
-	    cl::GLBuffer::hostTransfers() = false;
-	    return;
+	    std::vector<cl::Device> devices;
+	    iPtr->getDevices(CL_DEVICE_TYPE_ALL, &devices);
+
+	    for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
+		 devPtr != devices.end(); ++devPtr)
+	      {
+		if (!getCLGLContext(*iPtr, *devPtr)) continue;
+		
+		//Success! now set the platform+device and return!
+		_platform = *iPtr;
+		cl::GLBuffer::hostTransfers() = false;
+		_device = *devPtr;
+		return;
+	      }
 	  }
 	
 	//No CLGL platform was found so just give the first platform
@@ -107,13 +122,14 @@ namespace magnet {
 					       0};
 	try {
 	  _context = cl::Context(CL_DEVICE_TYPE_ALL, cpsFallBack, NULL, NULL);
+	  _device = _context.getInfo<CL_CONTEXT_DEVICES>().front();
 	} catch (...)
 	  {
 	    throw std::runtime_error("Failed to create a normal OpenCL context!");
 	  }
       }
       
-      inline bool getCLGLContext(::cl::Platform clplatform, cl_device_type dev_type)
+      inline bool getCLGLContext(::cl::Platform clplatform, ::cl::Device dev)
       {
 	if (glXGetCurrentContext() == NULL)
 	  throw std::runtime_error("Failed to obtain the GL context");
@@ -122,36 +138,18 @@ namespace magnet {
 					  CL_GLX_DISPLAY_KHR, (cl_context_properties) glXGetCurrentDisplay(),
 					  CL_GL_CONTEXT_KHR, (cl_context_properties) glXGetCurrentContext(), 0};
 	
-	::cl::Context clcontext;
+	std::vector< ::cl::Device> devlist;
+	devlist.push_back(dev);
 	
 	//create the OpenCL context 
 	try {
-	  _context =cl::Context(dev_type, cpsGL, NULL, NULL);
+	  _context =cl::Context(devlist, cpsGL);
 	} catch(...)
-	  {
-	    return false; 
-	  }
+	  //If we fail, it's probably because it's not the correct
+	  //device for the GL context
+	  { return false; }
 	
 	return true;
-      }
-
-      inline void initDevice()
-      {
-	//Grab the first device
-	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>();
-	
-	//Default to the first device
-	_device = devices.front();
-	
-	//But check if there is a GPU to use
-	for (std::vector<cl::Device>::const_iterator iPtr = devices.begin();
-	     iPtr != devices.end(); ++iPtr)
-	  if (iPtr->getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_GPU)
-	    {
-	      //Take the first GPU
-	      _device = *iPtr;
-	      break;
-	    }
       }
     };
   }
