@@ -5,7 +5,6 @@
 # include <magnet/color/HSV.hpp>
 # include "dumbbell.hpp"
 
-
 magnet::thread::RefPtr<RenderObj>& 
 SpDumbbells::getCoilRenderObj() const
 {

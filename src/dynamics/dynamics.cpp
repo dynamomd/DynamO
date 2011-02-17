@@ -184,21 +184,22 @@ Dynamics::getInteraction(std::string name) const
 }
 
 void 
-Dynamics::addSpecies(const magnet::ClonePtr<Species>& CSpe)
+Dynamics::addSpecies(const magnet::ClonePtr<Species>& sp)
 {
   if (Sim->status >= INITIALISED)
     M_throw() << "Cannot add species after simulation initialisation";
 
-  species.push_back(CSpe);
+  species.push_back(sp);
 
   BOOST_FOREACH(magnet::ClonePtr<Interaction>& intPtr , interactions)
-    {
-      if (intPtr->isInteraction(*species.back()))
-	{
-	  species.back()->setIntPtr(intPtr.get_ptr());
-	  break;
-	}
-    }
+    if (intPtr->isInteraction(*species.back()))
+      {
+	species.back()->setIntPtr(intPtr.get_ptr());
+	return;
+      }
+
+  M_throw() << "Could not find the interaction for the species \"" 
+	    << sp->getName() << "\"";
 }
 
 void 

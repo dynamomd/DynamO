@@ -77,32 +77,24 @@ namespace magnet {
         for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
              iPtr != platforms.end(); ++iPtr)
 	  {
-	    try {
-	      _context = getCLGLContext(*iPtr, CL_DEVICE_TYPE_GPU);
-	      //We must check the context for 
-	      
-	      //Success! now set the platform and return!
-	      _platform = *iPtr;
-	     cl::GLBuffer::hostTransfers() = false;
-	      return;
-	    } catch (...)
-	      {/*Failed so we just carry on*/}
+	    if (!getCLGLContext(*iPtr, CL_DEVICE_TYPE_GPU)) continue;
+	    
+	    //Success! now set the platform and return!
+	    _platform = *iPtr;
+	    cl::GLBuffer::hostTransfers() = false;
+	    return;
 	  }
 
         //Now cycle through the platforms trying to get a context with a GPU
         for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
              iPtr != platforms.end(); ++iPtr)
 	  {
-	    try {
-	      _context = getCLGLContext(*iPtr, CL_DEVICE_TYPE_ALL);
-	      //We must check the context for 
-	      
-	      //Success! now set the platform and return!
-	      _platform = *iPtr;
-	     cl::GLBuffer::hostTransfers() = false;
-	      return;
-	    } catch (...)
-	      {/*Failed so we just carry on*/}
+	    if (!getCLGLContext(*iPtr, CL_DEVICE_TYPE_ALL)) continue;
+	    
+	    //Success! now set the platform and return!
+	    _platform = *iPtr;
+	    cl::GLBuffer::hostTransfers() = false;
+	    return;
 	  }
 	
 	//No CLGL platform was found so just give the first platform
@@ -111,7 +103,7 @@ namespace magnet {
        cl::GLBuffer::hostTransfers() = true;
 	
 	cl_context_properties cpsFallBack[] = {CL_CONTEXT_PLATFORM, 
-					       (cl_context_properties)getPlatform()(),
+					       (cl_context_properties)_platform(),
 					       0};
 	try {
 	  _context = cl::Context(CL_DEVICE_TYPE_ALL, cpsFallBack, NULL, NULL);
@@ -121,7 +113,7 @@ namespace magnet {
 	  }
       }
       
-      inline cl::Context getCLGLContext(::cl::Platform clplatform, cl_device_type dev_type)
+      inline bool getCLGLContext(::cl::Platform clplatform, cl_device_type dev_type)
       {
 	if (glXGetCurrentContext() == NULL)
 	  throw std::runtime_error("Failed to obtain the GL context");
@@ -134,13 +126,13 @@ namespace magnet {
 	
 	//create the OpenCL context 
 	try {
-	  clcontext =cl::Context(dev_type, cpsGL, NULL, NULL);
+	  _context =cl::Context(dev_type, cpsGL, NULL, NULL);
 	} catch(...)
 	  {
-	    throw std::runtime_error("Could not generate CLGL context");
+	    return false; 
 	  }
 	
-	return clcontext;
+	return true;
       }
 
       inline void initDevice()
