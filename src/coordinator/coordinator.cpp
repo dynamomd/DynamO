@@ -21,7 +21,6 @@
 
 #include "coordinator.hpp"
 #include "engine/include.hpp"
-#include <signal.h>
 #include <cstdio>
 #ifdef DYNAMO_DEBUG
 # include <typeinfo>
@@ -32,6 +31,9 @@ Coordinator* Coordinator::_signal_handler = NULL;
 void 
 Coordinator::signal_handler(int sigtype)
 {
+  //Restore the old method
+  sigaction (SIGINT, &(_signal_handler->_old_SIGINT_handler), NULL);
+
   switch (sigtype)
     {
     case SIGUSR1:
@@ -78,6 +80,12 @@ Coordinator::signal_handler(int sigtype)
 	break;
       }
     }
+
+  struct sigaction new_action;
+  new_action.sa_handler = Coordinator::signal_handler;
+  sigemptyset(&new_action.sa_mask);
+  new_action.sa_flags = 0;
+  sigaction (SIGINT, &new_action, NULL);
 }
 
 boost::program_options::variables_map& 
@@ -188,16 +196,17 @@ Coordinator::initialise()
     _signal_handler = this;
     
     //Build the handler response
-    struct sigaction new_action, old_action;
+    struct sigaction new_action;
     new_action.sa_handler = Coordinator::signal_handler;
     sigemptyset(&new_action.sa_mask);
     new_action.sa_flags = 0;
     
     //This is for Ctrl-c events
-    sigaction (SIGINT, NULL, &old_action);
-    if (old_action.sa_handler != SIG_IGN)
+    sigaction (SIGINT, NULL, &_old_SIGINT_handler);
+    if (_old_SIGINT_handler.sa_handler != SIG_IGN)
       sigaction (SIGINT, &new_action, NULL);
     
+    struct sigaction old_action;
     //Sun Grid Engine sends this before a SIGSTOP if -notify is passed
     //to qsub
     sigaction (SIGUSR1, NULL, &old_action);

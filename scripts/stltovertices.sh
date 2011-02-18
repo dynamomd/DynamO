@@ -1,4 +1,8 @@
 #!/bin/bash
+
+#Converts the positions of the triangles into a normalized [-0.5:0.5]
+#box centered about the origin
+
 cat $1 | grep vertex | gawk '{print $2+0,$3+0,$4+0}' > tmp.vertex
 
 xmin=$(cat tmp.vertex | gawk 'BEGIN {xval=1e200} {if ($1 < xval) xval = $1 } END {print xval}')
@@ -24,7 +28,7 @@ maxord=$(echo $xmax $ymax $zmax | gawk '{val = $1; if ($2 > val) val = $2; if ($
 echo Maximum ordinate val is $maxord
 
 cat tmp2.vertex \
-    | gawk '{print $1/'$maxord' - 0.5, $2/'$maxord' - 0.5, $3/'$maxord' - 0.5}' \
+    | gawk '{print ($1 - 0.5 * '$xmax') / '$maxord', ($2 - 0.5 * '$ymax') / '$maxord', ($3 - 0.5 * '$zmax') / '$maxord'}' \
     > fixed.vertex
 
 #rm tmp.vertex tmp2.vertex

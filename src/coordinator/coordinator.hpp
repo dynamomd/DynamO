@@ -28,6 +28,7 @@
 #include "engine/engine.hpp"
 #include <magnet/thread/threadpool.hpp>
 #include <magnet/cloneptr.hpp>
+#include <signal.h>
 
 /*! \brief The main class for the dynarun program.
  *
@@ -112,6 +113,8 @@ private:
   magnet::thread::ThreadPool _threads;
 
   static Coordinator* _signal_handler;
+
+  struct sigaction _old_SIGINT_handler;
 };
 
 #endif
