@@ -77,7 +77,10 @@ namespace magnet {
              iPtr != platforms.end(); ++iPtr)
 	  {
 	    std::vector<cl::Device> devices;
-	    iPtr->getDevices(CL_DEVICE_TYPE_GPU, &devices);
+	    try {
+	      iPtr->getDevices(CL_DEVICE_TYPE_GPU, &devices);
+	    } catch (...)
+	      { continue; }
 
 	    for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
 		 devPtr != devices.end(); ++devPtr)
@@ -97,7 +100,10 @@ namespace magnet {
              iPtr != platforms.end(); ++iPtr)
 	  {
 	    std::vector<cl::Device> devices;
-	    iPtr->getDevices(CL_DEVICE_TYPE_ALL, &devices);
+	    try {
+	      iPtr->getDevices(CL_DEVICE_TYPE_ALL, &devices);
+	    } catch (...)
+	      { continue; }
 
 	    for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
 		 devPtr != devices.end(); ++devPtr)
