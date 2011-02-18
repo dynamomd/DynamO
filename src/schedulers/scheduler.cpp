@@ -144,7 +144,7 @@ CScheduler::runNextEvent()
 		<< "\nOwner Particle = " << sorter->next_ID()
 		<< "\nID2 = " << sorter->next_p2();
     
-    if (isinf(sorter->next_dt()))
+    if (sorter->next_dt() == HUGE_VAL)
       {
 	I_cerr() << "Next event time is Inf! (Queue has run out of events!)\n"
 		 << "Shutting simulation down..."

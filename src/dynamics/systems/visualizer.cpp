@@ -39,7 +39,8 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   System(nSim)
 {
   _updateTime = tickFreq * Sim->dynamics.units().unitTime();
-  dt = 0;
+  dt = -HUGE_VAL;//We want to ensure we get at least one update before
+		 //anything occurs
 
   sysName = "Visualizer";
 
@@ -95,6 +96,7 @@ void
 SVisualizer::runEvent() const
 {
   _updateTime = _CLWindow.as<CLGLWindow>().getUpdateInterval();
+  if (dt == -HUGE_VAL) dt = 0;
   
   double locdt = dt;
   dt += _updateTime;
