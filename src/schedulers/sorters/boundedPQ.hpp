@@ -171,7 +171,7 @@ public:
 	  //With a date length of the mean time between events
 	  
 	  BOOST_FOREACH(const eventQEntry& dat, Min)
-	    if (dat.data.getdt() != HUGE_VAL)
+	    if (!std::isinf(dat.data.getdt()))
 	      {
 		if (dat.data.getdt() < minVal) minVal = dat.data.getdt();
 		if (dat.data.getdt() > maxVal) maxVal = dat.data.getdt();
