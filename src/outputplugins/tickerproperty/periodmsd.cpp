@@ -28,7 +28,6 @@
 
 OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"PeriodicMSD"),
-  TickerCount(0),
   ptrOPMSD(NULL)
 {}
 
@@ -45,39 +44,42 @@ OPPeriodicMSD::initialise()
       tmpPair.first = topo.get_ptr();
       structResults.push_back(tmpPair);
     }
+
+  //Species
+  speciesData.resize(Sim->dynamics.getSpecies().size());
+
 }
 
 void 
 OPPeriodicMSD::ticker()
 {
-  //Don't do this MSD calc often as its expensive! Taking advantage of
-  //a modulus of a power of 2 being fast
+  BOOST_FOREACH(localpair2& dat, structResults)
+    dat.second.push_back(std::make_pair
+			 (Sim->dSysTime / Sim->dynamics.units().unitTime(),
+			  ptrOPMSD->calcStructMSD(*dat.first)));
 
-  if (!(++TickerCount % magnet::math::ctime_pow<2,4>::result))
-    {
-      results.push_back
-	(std::make_pair(Sim->dSysTime / Sim->dynamics.units().unitTime(), 
-			ptrOPMSD->calcMSD(CRAll(Sim))));
-
-      BOOST_FOREACH(localpair2& dat, structResults)
-	dat.second.push_back(std::make_pair
-			     (Sim->dSysTime / Sim->dynamics.units().unitTime(),
-			      ptrOPMSD->calcStructMSD(*dat.first)));
-    }
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    speciesData[sp->getID()].push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
 }
 
 void
 OPPeriodicMSD::output(xml::XmlStream &XML)
 {
-  XML << xml::tag("PeriodicMSD") 
-      << xml::tag("Particle") 
-      << xml::chardata();
+  XML << xml::tag("PeriodicMSD");
   
-  BOOST_FOREACH(const localpair& myp, results)
-    XML << myp.first << " " << myp.second << "\n";
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    {
+      XML << xml::tag("Species") 
+	  << xml::attr("Name") << sp->getName()
+	  << xml::chardata();
+      
+      BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
+	XML << dat.first / Sim->dynamics.units().unitTime() << " " 
+	    << dat.second * 6 << "\n";
+
+      XML << xml::tag("Species");
+    }
   
-  XML << xml::endtag("Particle");
- 
   if (!structResults.empty())
     BOOST_FOREACH(localpair2& dat, structResults)
       {

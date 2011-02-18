@@ -37,8 +37,6 @@ class OPPeriodicMSD: public OPTicker
   virtual void stream(double) {}  
   virtual void ticker();
 
-  size_t TickerCount;
-  
   typedef std::pair<double, double> localpair;
 
   std::list<localpair> results;
@@ -46,6 +44,7 @@ class OPPeriodicMSD: public OPTicker
   typedef std::pair<const Topology*, std::list<localpair> > localpair2;
 
   std::vector<localpair2> structResults;
+  std::vector<std::vector<localpair> > speciesData;
 
   const OPMSD* ptrOPMSD;
 };
