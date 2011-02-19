@@ -65,7 +65,7 @@ public:
   magnet::CL::CLGLState& getCLState() { return *_CLState; }
 
   void init();
-  void deinit(bool andGlutDestroy);
+  void deinit();
 
   magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
 

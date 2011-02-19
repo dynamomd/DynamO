@@ -62,7 +62,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 	static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(obj->getCoilRenderObj());
     }
 
-  CoilMaster::getInstance().addWindow(_CLWindow);
+  _coil.getInstance().addWindow(_CLWindow);
 
   {
     const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());

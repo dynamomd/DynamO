@@ -88,9 +88,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
 }
 
 CLGLWindow::~CLGLWindow()
-{
-  deinit(true);
-}
+{}
 
 void 
 CLGLWindow::initOpenGL()
@@ -99,7 +97,7 @@ CLGLWindow::initOpenGL()
   glutInitWindowSize(_width, _height);
   glutInitWindowPosition(_windowX, _windowY);
 
-  CoilMaster::getInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
+  CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
 
   glViewport(0, 0, _width, _height);   // This may have to be moved to after the next line on some platforms
 
@@ -794,7 +792,7 @@ CLGLWindow::init()
 }
 
 void
-CLGLWindow::deinit(bool andGlutDestroy)
+CLGLWindow::deinit()
 {
   magnet::thread::ScopedLock lock(_destroyLock);
   
@@ -841,13 +839,13 @@ CLGLWindow::deinit(bool andGlutDestroy)
     }
 
   ///////////////////Finally, unregister with COIL
-  CoilMaster::getInstance().CallGlutDestroyWindow(this, andGlutDestroy);
+  CoilRegister::getCoilInstance().unregisterWindow(this);
 }
 
 void 
 CLGLWindow::CallBackDisplayFunc()
 {
-  if (!CoilMaster::getInstance().isRunning()) return;
+  if (!CoilRegister::getCoilInstance().isRunning()) return;
   //Setup the timings
   int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
@@ -1107,7 +1105,7 @@ CLGLWindow::drawScene()
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
-  if (!CoilMaster::getInstance().isRunning() || !_readyFlag) return;
+  if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
   _width = w;
   _height = h;
@@ -1791,7 +1789,7 @@ CLGLWindow::setSimStatus1(std::string status)
   Gtk::Label* label;
   _refXml->get_widget("SimDataLabel1", label);
 
-  CoilMaster::getInstance().getTaskQueue()
+  CoilRegister::getCoilInstance().getTaskQueue()
     .queueTask(magnet::function::Task::makeTask(&CLGLWindow::setLabelText, this, label, status));
 }
 
@@ -1801,7 +1799,7 @@ CLGLWindow::setSimStatus2(std::string status)
   Gtk::Label* label;
   _refXml->get_widget("SimDataLabel2", label);
   
-  CoilMaster::getInstance().getTaskQueue()
+  CoilRegister::getCoilInstance().getTaskQueue()
     .queueTask(magnet::function::Task::makeTask(&CLGLWindow::setLabelText, this, label, status));
 }
 

@@ -30,17 +30,11 @@
 
 class CoilMaster {
 public:
-
-  inline static 
-  CoilMaster& getInstance()
-  {
-    static CoilMaster singletonInstance;
-    return singletonInstance;
-  }
-  
   //Only for window objects to call
   void  CallGlutCreateWindow(const char*, CoilWindow*);
-  void  CallGlutDestroyWindow(CoilWindow*, bool);
+  void  unregisterWindow(CoilWindow*);
+
+  inline bool isRunning() { return _runFlag; }
 
   void addWindow(magnet::thread::RefPtr<CoilWindow>& window)
   {
@@ -51,16 +45,6 @@ public:
     //Spinlock waiting for the window to initialize
     while (!window->isReady()) { smallSleep(); }
   }
-
-  inline void 
-  shutdownCoil() 
-  { 
-    magnet::thread::ScopedLock lock(_coilLock);
-    _runFlag = false; 
-    _coilReadyFlag = false;
-  }
-
-  inline bool isRunning() { return _runFlag; }
 
   magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
 
@@ -74,6 +58,14 @@ public:
 
 private:
   friend class CoilRegister;
+
+  inline void 
+  shutdownCoil() 
+  { 
+    magnet::thread::ScopedLock lock(_coilLock);
+    _runFlag = false; 
+    _coilReadyFlag = false;
+  }
 
   void waitForShutdown();
   void bootRenderThread();
@@ -124,4 +116,52 @@ private:
   //thread are performed. This is performed in a timer as it's too
   //expensive to do all the time (due to the lock)
   bool taskTimeout();
+};
+
+
+//!This class is like a connection register for the CoilMaster singleton.
+class CoilRegister
+{
+public:
+  inline CoilRegister() { increment(); }
+
+  inline CoilRegister(const CoilRegister&) { increment(); }
+
+  inline CoilRegister& operator=(const CoilRegister&) { return *this; }
+  
+  inline ~CoilRegister() { decrement(); }
+
+  inline CoilMaster& getInstance() { return *_instance; }
+
+private:
+  friend class CoilMaster;
+  friend class CLGLWindow;
+  //! This instance is only for the CoilMaster and window classes to
+  //! use, Everything else should use an instance of the register class
+  //! to access coil!
+  inline static 
+  CoilMaster& getCoilInstance() { return *_instance; }
+  
+  inline void increment()
+  {
+    _mutex.lock();
+    if (++_counter == 1)
+      _instance = new CoilMaster;
+    
+    _mutex.unlock();
+  }
+
+  inline void decrement()
+  {
+    _mutex.lock();
+
+    if (--_counter == 0)
+      { delete _instance; _instance = NULL; }
+    
+    _mutex.unlock();
+  }
+
+  static CoilMaster* _instance;
+  static magnet::thread::Mutex _mutex;
+  static size_t _counter;
 };

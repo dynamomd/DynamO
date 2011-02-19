@@ -47,7 +47,7 @@ public:
   //If glut is closing the window through its window controls you
   //should not glutDestroyWindow, it will be called automatically.
   //Otherwise you should call it with deinit(true);
-  virtual void deinit(bool andGlutDestroy = true) = 0;
+  virtual void deinit() = 0;
 
   inline bool isReady() const { return _readyFlag; }
   

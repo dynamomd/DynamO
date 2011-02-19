@@ -27,6 +27,10 @@
 #include <iostream>
 #include <unistd.h>
 
+CoilMaster* CoilRegister::_instance = NULL;
+magnet::thread::Mutex CoilRegister::_mutex;
+size_t CoilRegister::_counter = 0;
+
 CoilMaster::CoilMaster():
   _runFlag(false),
   _coilReadyFlag(false),
@@ -56,11 +60,11 @@ void CoilMaster::CallBackDisplayFunc(){
    int windowID = glutGetWindow();   
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackDisplayFunc();
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackDisplayFunc();
 }
 
 void CoilMaster::CallBackCloseWindow()
@@ -68,14 +72,11 @@ void CoilMaster::CallBackCloseWindow()
   int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-  CoilMaster::getInstance()._viewPorts[windowID]->deinit(false);
-
-  //Shutdown all windows, we can't yet recover from a window close
-  //CoilMaster::getInstance().shutdownCoil();
+  CoilRegister::getCoilInstance()._viewPorts[windowID]->deinit();
 }
 
 void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
@@ -83,11 +84,11 @@ void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackKeyboardFunc(key, x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackKeyboardFunc(key, x, y);
 }
 
 void CoilMaster::CallBackKeyboardUpFunc(unsigned char key, int x, int y){
@@ -95,11 +96,11 @@ void CoilMaster::CallBackKeyboardUpFunc(unsigned char key, int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackKeyboardUpFunc(key, x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackKeyboardUpFunc(key, x, y);
 }
 
 void CoilMaster::CallBackMotionFunc(int x, int y){
@@ -107,11 +108,11 @@ void CoilMaster::CallBackMotionFunc(int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackMotionFunc(x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackMotionFunc(x, y);
 }
 
 void CoilMaster::CallBackMouseFunc(int button, int state, int x, int y){
@@ -119,11 +120,11 @@ void CoilMaster::CallBackMouseFunc(int button, int state, int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackMouseFunc(button, state, x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackMouseFunc(button, state, x, y);
 }
 
 void CoilMaster::CallBackMouseWheelFunc(int button, int dir, int x, int y){
@@ -131,24 +132,24 @@ void CoilMaster::CallBackMouseWheelFunc(int button, int dir, int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
   std::cerr << "Mouse Wheel event!";
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackMouseWheelFunc(button, dir, x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackMouseWheelFunc(button, dir, x, y);
 }
 
 void CoilMaster::CallBackPassiveMotionFunc(int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackPassiveMotionFunc(x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackPassiveMotionFunc(x, y);
 }
 
 void CoilMaster::CallBackReshapeFunc(int w, int h){
@@ -156,11 +157,11 @@ void CoilMaster::CallBackReshapeFunc(int w, int h){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackReshapeFunc(w, h);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackReshapeFunc(w, h);
 }
 
 void CoilMaster::CallBackSpecialFunc(int key, int x, int y){
@@ -168,11 +169,11 @@ void CoilMaster::CallBackSpecialFunc(int key, int x, int y){
   int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-  CoilMaster::getInstance()._viewPorts[windowID]->CallBackSpecialFunc(key, x, y);
+  CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackSpecialFunc(key, x, y);
 }   
 
 void CoilMaster::CallBackSpecialUpFunc(int key, int x, int y){
@@ -180,11 +181,11 @@ void CoilMaster::CallBackSpecialUpFunc(int key, int x, int y){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackSpecialUpFunc(key, x, y);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackSpecialUpFunc(key, x, y);
 }   
 
 void CoilMaster::CallBackVisibilityFunc(int visible){
@@ -192,11 +193,11 @@ void CoilMaster::CallBackVisibilityFunc(int visible){
    int windowID = glutGetWindow();
 
 #ifdef DYNAMO_DEBUG
-  if (!CoilMaster::getInstance()._viewPorts.count(windowID))
+  if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
 
-   CoilMaster::getInstance()._viewPorts[windowID]->CallBackVisibilityFunc(visible);
+   CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackVisibilityFunc(visible);
 }
 
 void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWindow){
@@ -229,10 +230,9 @@ void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWi
    glutCloseFunc(CallBackCloseWindow);
 }
 
-void CoilMaster::CallGlutDestroyWindow(CoilWindow * coilWindow, bool andGlutDestroy)
+void CoilMaster::unregisterWindow(CoilWindow * coilWindow)
 {
   int windowID = coilWindow->GetWindowID();
-  if (andGlutDestroy) glutDestroyWindow(windowID);
   _viewPorts.erase(windowID);
 }
 
@@ -287,19 +287,29 @@ CoilMaster::taskTimeout()
     if (!isRunning()) 
       {
 	//The task queue should not get any more tasks as
-	//CoilMaster::getInstance().isRunning() is false
+	//CoilRegister::getCoilInstance().isRunning() is false
 	
 	//! \todo{There is a race condition here if a window is added as coil is shutting down}
 	{
 	  magnet::thread::ScopedLock lock(_coilLock);
 	  
-	  _viewPorts.clear();
+	  //Now we must get glut to destroy all the windows
+
+	  while (!_viewPorts.empty())
+	    {
+	      glutDestroyWindow(_viewPorts.begin()->first);
+	      //Run glutMainLoopEvent to let destroyed windows close
+	      glutMainLoopEvent();
+	      glutMainLoopEvent();
+	      glutMainLoopEvent();
+	      glutMainLoopEvent();	      
+	      glutMainLoopEvent();
+	      glutMainLoopEvent();
+	    }
 	}
 	
 	Gtk::Main::quit();
 	
-	//Run glutMainLoopEvent to let destroyed windows close
-	glutMainLoopEvent();
       }
   } catch (cl::Error err)
     {
@@ -325,11 +335,6 @@ CoilMaster::glutIdleTimeout()
     //Fire off a tick to glut
     glutMainLoopEvent();
     
-    //for (std::map<int,magnet::thread::RefPtr<CoilWindow> >::iterator iPtr 
-    //	   = CoilMaster::getInstance()._viewPorts.begin();
-    //	 iPtr != CoilMaster::getInstance()._viewPorts.end(); ++iPtr)
-    //  iPtr->second->CallBackIdleFunc();
-
   } catch (cl::Error err)
     {
       M_throw() << "An OpenCL error occured," << err.what()
