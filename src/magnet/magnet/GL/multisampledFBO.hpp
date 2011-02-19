@@ -83,14 +83,7 @@ namespace magnet {
       }
 
       inline ~multisampledFBO()
-      {
-	if (_width)
-	  {
-	    glDeleteFramebuffersEXT(1, &_multisampleFBO);
-	    glDeleteRenderbuffersEXT(1, &_multisampleDepthBuffer);
-	    glDeleteRenderbuffersEXT(1, &_multisampleColorBuffer);
-	  }
-      }
+      { deinit(); }
 
       inline 
       virtual void attach()
@@ -115,6 +108,20 @@ namespace magnet {
 	//Now blit to the other FBO
 	FBO::detach();
       }
+
+      inline 
+      virtual void deinit()
+      {
+	if (_width)
+	  {
+	    glDeleteFramebuffersEXT(1, &_multisampleFBO);
+	    glDeleteRenderbuffersEXT(1, &_multisampleDepthBuffer);
+	    glDeleteRenderbuffersEXT(1, &_multisampleColorBuffer);
+	  }
+
+	FBO::deinit();
+      }
+
       
     private:
       GLuint _multisampleFBO;

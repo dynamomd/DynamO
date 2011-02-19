@@ -121,11 +121,10 @@ namespace magnet {
 
       inline 
       virtual ~FBO()
-      {
-	deinit();
-      }
+      { deinit(); }
 
-      inline void deinit()
+      inline 
+      virtual void deinit()
       {
 	if (_width)
 	  {
