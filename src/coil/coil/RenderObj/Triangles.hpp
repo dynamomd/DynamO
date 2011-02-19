@@ -38,6 +38,8 @@ public:
   void initOCLNormBuffer(cl::Context Context);
   void initOCLElementBuffer(cl::Context Context);
 
+  virtual void releaseCLGLResources();
+
 protected:
   GLuint _colBuff;
   size_t _colBuffSize;

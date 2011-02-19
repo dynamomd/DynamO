@@ -83,6 +83,8 @@ public:
 
   magnet::thread::RefPtr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
 
+  virtual void releaseCLGLResources() {}
+
 protected:
   std::string _name;
 

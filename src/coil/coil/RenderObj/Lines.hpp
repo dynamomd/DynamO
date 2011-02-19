@@ -44,6 +44,8 @@ public:
   GLuint& getVertexGLData() { return _posBuff; }
   GLuint& getColorGLData() { return _colBuff; }
 
+  virtual void releaseCLGLResources();
+
 protected:
   size_t _N;
   GLuint _colBuff;

@@ -27,19 +27,7 @@ RTriangles::RTriangles(std::string name):
 {}
 
 RTriangles::~RTriangles()
-{
-  if (_colBuffSize)
-    glDeleteBuffersARB(1, &_colBuff);
-
-  if (_posBuffSize)
-    glDeleteBuffersARB(1, &_posBuff);
-
-  if (_normBuffSize)
-    glDeleteBuffersARB(1, &_normBuff);
-
-  if (_elementBuffSize)
-    glDeleteBuffersARB(1, &_elementBuff);
-}
+{ releaseCLGLResources(); }
 
 void 
 RTriangles::glRender()
@@ -225,4 +213,24 @@ RTriangles::setGLElements(std::vector<int>& Elements)
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, _elementBuff);
   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, Elements.size() * sizeof(int), &Elements[0], 
 	       GL_STATIC_DRAW);
+}
+
+void 
+RTriangles::releaseCLGLResources()
+{
+  if (_colBuffSize)
+    glDeleteBuffersARB(1, &_colBuff);
+  _colBuffSize = 0;
+
+  if (_posBuffSize)
+    glDeleteBuffersARB(1, &_posBuff);
+  _posBuffSize = 0;
+
+  if (_normBuffSize)
+    glDeleteBuffersARB(1, &_normBuff);
+  _normBuffSize = 0;
+
+  if (_elementBuffSize)
+    glDeleteBuffersARB(1, &_elementBuff);
+  _elementBuffSize = 0;
 }

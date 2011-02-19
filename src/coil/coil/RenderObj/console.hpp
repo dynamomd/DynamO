@@ -46,6 +46,8 @@ namespace coil {
     virtual void interfaceRender(const magnet::GL::viewPort&);
 
     virtual void initOpenGL();
+
+    virtual void releaseCLGLResources() { _consoleFont.reset(); _consoleLayout.reset(); }
     
   private:
     

@@ -30,6 +30,8 @@ namespace coil {
     virtual void interfaceRender(const magnet::GL::viewPort&);
     virtual void initOpenGL();
 
+    virtual void releaseCLGLResources() { _axisFont.reset(); }
+
   private:
     std::auto_ptr<FTGLPixmapFont> _axisFont;
 

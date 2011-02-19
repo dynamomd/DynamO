@@ -815,15 +815,17 @@ CLGLWindow::deinit(bool andGlutDestroy)
   _refXml.reset(); //Destroy GTK instance
 
   /////////////////OpenCL
-  RenderObjects.clear();
 
   _CLState->getCommandQueue().finish();
 
   _CLState.release();
 
   ///////////////////OpenGL
-    {
-    }
+  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+       iPtr != RenderObjects.end(); ++iPtr)
+    (*iPtr)->releaseCLGLResources();
+
+  RenderObjects.clear();
 
   if (_shaderPipeline)
     {
