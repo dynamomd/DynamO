@@ -90,7 +90,7 @@ install install-coil
 	;	
 
 install install-bin 
-	: dynarun dynahist_rw dynamod
+	: dynarun dynahist_rw dynamod 
 	: <location>bin
 	;	
 

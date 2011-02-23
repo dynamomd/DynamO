@@ -39,6 +39,10 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <memory>
 
+#ifdef COIL_wiimote
+# include <coil/extcode/wiiheadtracking.hpp>
+#endif 
+
 class CLGLWindow : public CoilWindow
 {
 public:
@@ -99,6 +103,10 @@ protected:
 
   size_t _height, _width;
   int _windowX, _windowY;
+
+#ifdef COIL_wiimote
+  TrackWiimote _wiiMoteTracker;
+#endif
 
   std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
 
