@@ -45,6 +45,10 @@ namespace {
   //Distance between the two IR sources being tracked (in cm)
   const double IRPointSeparation = 16.5;
 
+  //We normalize by the screen dimensions
+  const double ScreenHeight = 27;
+  const double ScreenWidth = 48;
+
 }
 // TrackWiimote
 // ==================================================================================
@@ -165,8 +169,8 @@ int TrackWiimote::updateHeadPos()
 
   //Assuming that we worked out the distance to the points, and the
   //distance is a radius we can work out the distance from the centre
-  eye_pos[0] = eye_pos[2] * std::sin(Xangle);
-  eye_pos[1] = eye_pos[2] * std::sin(Yangle);
+  eye_pos[0] = eye_pos[2] * std::sin(Xangle) / ScreenWidth;
+  eye_pos[1] = eye_pos[2] * std::sin(Yangle) / ScreenHeight;
 
   return 1;
 }
