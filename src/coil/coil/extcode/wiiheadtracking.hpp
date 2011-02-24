@@ -24,8 +24,6 @@
 #include <GL/glut.h> 
 #include <GL/glu.h>
 
-#include <string>
-#include <cmath>
 #include <cwiid.h> /* cwiid wii remote library */
 
 // Head/camera information structure
@@ -42,9 +40,11 @@ private:
   bdaddr_t m_bt_address; /* bluetooth address */
   cwiid_wiimote_t *m_wiimote; /* wiimote connection through cwiid library */
   struct cwiid_state m_state; /* wiimote state (updated every frame) using cwiid library */
+  bool calibrate_request;
 
   int updateIRPositions();
   int updateHeadPos();
+  void calibrate();
 public:
   TrackWiimote();
 
@@ -52,7 +52,7 @@ public:
 
   int connect();
 
-  void calibrate();
+  inline void requestCalibration() { calibrate_request = true; }
 
   double eye_pos[3]; // calculated viewpoint position relative to the screen, in cm.
   double ini_pos[3]; // initial offests of the viewpoint from the center of the screen in real space in cm

@@ -18,32 +18,33 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include <GL/glut.h> 
-#include <GL/glu.h>
-    
 #include "wiiheadtracking.hpp"
+#include <cmath>
+#include <iostream>
     
 namespace {
   // desired IR dot coordinate range.
 // the coordinates will range from -RANGE/2 to +RANGE/2
 // with 0,0 always being center of the wiimote's field of view
-  const size_t HRANGE = 100;
   const float TANWIIFOVH = 0.4142; // tangent of half the horizontal field of view, i.e. tan(WIIFOVH/2)
   const size_t WIIFOVH = 45;       // wiimote's horizontal field of view in degrees
   const size_t WIIFOVV = 37;       // wiimote's vertical field of view
   const float TANWIIFOVV = 0.3346;   // tangent of half the vertical field of view
   const float initial_dist = 65;
   const float IRBarWidth = 16.5;
-  const float VRANGE = HRANGE * TANWIIFOVV * 2;
+  const float VRANGE = TANWIIFOVV * 2;
 
-  double calc_distance(double x1, double y1, double x2, double y2)
-  {
-    double xdiff = x1-x2;
-    double ydiff = y1-y2;
-    double distsqr = (xdiff*xdiff)+(ydiff*ydiff);
-    return std::sqrt(distsqr);
-  }
+  //Data taken from http://wiibrew.org/wiki/Wiimote#IR_Camera. The
+  //wiimote is factory calibrated such that the angle per pixel for
+  //both dimensions is correct! Thus, only the calibration data is
+  //needed for the X dimension
+  const double WiiFOVX = (45.0f / 180.0) * M_PI; 
+  //The angle corresponding to a pixel
+  const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX); 
+ 
+  //Distance between the two IR sources being tracked (in cm)
+  const double IRPointSeparation = 16.5;
+
 }
 // TrackWiimote
 // ==================================================================================
@@ -52,9 +53,10 @@ TrackWiimote::TrackWiimote():
   m_max_attempts(10),
   m_bt_address(*BDADDR_ANY),
   m_wiimote(NULL),
-  ini_wii_to_real(2*TANWIIFOVH*initial_dist/HRANGE),
-  cur_wii_to_real(2*TANWIIFOVH*initial_dist/HRANGE),
-  ini_point_dist(HRANGE*IRBarWidth/(2 * TANWIIFOVH * initial_dist))
+  calibrate_request(false),
+  ini_wii_to_real(2*TANWIIFOVH*initial_dist),
+  cur_wii_to_real(2*TANWIIFOVH*initial_dist),
+  ini_point_dist(IRBarWidth/(2 * TANWIIFOVH * initial_dist))
 {
   eye_pos[0] = 40; eye_pos[1] = 0; eye_pos[2] = initial_dist;
   ini_pos[0] = 40; ini_pos[1] = 0; ini_pos[2] = initial_dist;
@@ -114,18 +116,24 @@ int TrackWiimote::updateIRPositions()
 	{
 	  if (m_state.ir_src[i].valid)
 	    {
-	      ir_positions[i][0] = ((m_state.ir_src[i].pos[CWIID_X] * HRANGE
-					   / (double)CWIID_IR_X_MAX) -(HRANGE/2));
-	      ir_positions[i][1] = (m_state.ir_src[i].pos[CWIID_Y] * VRANGE
-				    / (double)CWIID_IR_Y_MAX) -(VRANGE/2);
+	      ir_positions[i][0] = m_state.ir_src[i].pos[CWIID_X];
+	      ir_positions[i][1] = m_state.ir_src[i].pos[CWIID_Y];
 	      if (m_state.ir_src[i].size != -1)
 		ir_sizes[i] = m_state.ir_src[i].size+1;
 
 	      ret++;
 	    }
+	}            
+      if (ret > 1) 
+	{
+	  if (calibrate_request)
+	    {       
+	      calibrate();
+	      calibrate_request = false;
+	    }
+
+	  updateHeadPos();
 	}
-      if (ret > 1) updateHeadPos();
-      
       return ret;
     }
   return 0;
@@ -134,36 +142,45 @@ int TrackWiimote::updateIRPositions()
 /* update the camera position using ir points camerapt_1 and camerapt_2 */
 int TrackWiimote::updateHeadPos()
 {
-  const size_t pt1=0, pt2=1;
-  double cur_pt_dist = calc_distance(ir_positions[pt1][0],
-				     ir_positions[pt1][1],
-				     ir_positions[pt2][0],
-				     ir_positions[pt2][1]);
-  double x = (ir_positions[pt1][0] + ir_positions[pt2][0]) / 2;
-  double y = (ir_positions[pt1][1] + ir_positions[pt2][1]) / 2;
+  //The positions of the IR points, in angles from the centre of the
+  //wiimote's view
+  double x1 = (ir_positions[0][0] - CWIID_IR_X_MAX / 2) * anglePerPixel;
+  double y1 = (ir_positions[0][1] - CWIID_IR_Y_MAX / 2) * anglePerPixel;
+  double x2 = (ir_positions[1][0] - CWIID_IR_X_MAX / 2) * anglePerPixel;
+  double y2 = (ir_positions[1][1] - CWIID_IR_Y_MAX / 2) * anglePerPixel;
 
-  double z_scale = (ini_point_dist/cur_pt_dist);
+  //The seperation angles of the two IR points
+  double dx = x1 - x2;
+  double dy = y1 - y2;
 
-  if (z_scale > 100 || cur_pt_dist < 0.01 || cur_pt_dist > 100.0)
-    return 0;
+  //The absolute angle between the two points
+  double pointsAngle = std::sqrt(dx * dx + dy * dy);
 
-  cur_wii_to_real = z_scale * ini_wii_to_real; // is this needed?
-  eye_pos[0] = x * cur_wii_to_real;
-  eye_pos[1] = y * cur_wii_to_real;
-  eye_pos[2] = z_scale * ini_pos[2];
+  //The distance to the points from the camera (Z coordinate)
+  eye_pos[2] = (IRPointSeparation / 2) / std::tan(pointsAngle / 2);
+
+  //The "position" angle of the IR points
+  double Xangle = (x1 + x2) / 2;
+  double Yangle = (y1 + y2) / 2;
+
+  //Assuming that we worked out the distance to the points, and the
+  //distance is a radius we can work out the distance from the centre
+  eye_pos[0] = eye_pos[2] * std::sin(Xangle);
+  eye_pos[1] = eye_pos[2] * std::sin(Yangle);
+
   return 1;
 }
 
 
 void TrackWiimote::calibrate()
 {
-  const size_t pt1=0, pt2=1;
-  double cur_pt_dist =  calc_distance(ir_positions[pt1][0],
-				      ir_positions[pt1][1],
-				      ir_positions[pt2][0],
-				      ir_positions[pt2][1]);
-
-  printf("Old distance between IR sources: %.2fcm. New: %.2fcm.\n", ini_point_dist, cur_pt_dist);
-  ini_point_dist = cur_pt_dist;
-  printf("Assuming your head is %.2f units (usually cm) from the wiimote, calibration is complete.\n",ini_pos[2]);
+//  const size_t pt1=0, pt2=1;
+//  double cur_pt_dist =  calc_distance(ir_positions[pt1][0],
+//				      ir_positions[pt1][1],
+//				      ir_positions[pt2][0],
+//				      ir_positions[pt2][1]);
+//  
+//  printf("Old distance between IR sources: %.2fcm. New: %.2fcm.\n", ini_point_dist, cur_pt_dist);
+//  ini_point_dist = cur_pt_dist;
+//  printf("Assuming your head is %.2f units (usually cm) from the wiimote, calibration is complete.\n",ini_pos[2]);
 }
