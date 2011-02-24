@@ -885,49 +885,21 @@ CLGLWindow::CallBackDisplayFunc()
   
 
 #ifdef COIL_wiimote
-  const size_t WIIFOVH = 45;       // wiimote's horizontal field of view in degrees
-  const float TANWIIFOVH = 0.4142; // tangent of half the horizontal field of view, i.e. tan(WIIFOVH/2)
-  const size_t WIIFOVV = 37;       // wiimote's vertical field of view
-  const float TANWIIFOVV = 0.3346;   // tangent of half the vertical field of view
-
-// desired IR dot coordinate range.
-// the coordinates will range from -RANGE/2 to +RANGE/2
-// with 0,0 always being center of the wiimote's field of view
-  const size_t HRANGE = 100;
-  const float VRANGE = HRANGE * TANWIIFOVV * 2;
-
-  const float initial_dist = 65;
-  const float IRBarWidth = 16.5;
-
-  head_info_t my_camera = {{40.0, /*eyepos x (calculated)*/
-			    0.0,  /*eyepos y (calculated)*/
-			    initial_dist  /*eyepos z (calculated)*/}, 
-			   // initial position
-			   {40.0, /*INITIALEYEHEIGHT*/
-			    0.0,  /*INITIALEYEXOFFSET*/
-			    initial_dist  /*INITIALDISTANCE*/},
-			   2*TANWIIFOVH*initial_dist/HRANGE, // initial conversion factor
-			   2*TANWIIFOVH*initial_dist/HRANGE, // current conversion factor
-			   HRANGE*IRBarWidth/(2 * TANWIIFOVH * initial_dist), // IR bar width (in wii coords) at initial position
-			   false }; // calibrate request
-  
-  double ir_positions[4][2] = { {0,0}, {0,0}, {0,0}, {0,0} };
-  int ir_sizes[4] = {4,4,4,4};
   
   _wiiMoteTracker.updateState();
-  if (_wiiMoteTracker.updateIRPositions(ir_positions,ir_sizes))
-    {
-      if (my_camera.calibrate_request)
-	{       
-	  _wiiMoteTracker.calibrate(&my_camera, ir_positions, ir_sizes,0,1);
-	  my_camera.calibrate_request = false;
-	}
-      _wiiMoteTracker.updateHeadPos(&my_camera, ir_positions, ir_sizes, 0, 1);  
+//  if (_wiiMoteTracker.updateIRPositions(ir_positions,ir_sizes))
+//    {
+//      if (_wiiMoteTracker.calibrate_request)
+//	{       
+//	  _wiiMoteTracker.calibrate(&_wiiMoteTracker, ir_positions, ir_sizes,0,1);
+//	  _wiiMoteTracker.calibrate_request = false;
+//	}
+//      _wiiMoteTracker.updateHeadPos(&_wiiMoteTracker, ir_positions, ir_sizes, 0, 1);  
 
       coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-      _console << " X = " << my_camera.eye_pos[0]
-	       << " Y = " << my_camera.eye_pos[1] 
-	       << " Z = " << my_camera.eye_pos[2]
+      _console << " X = " << _wiiMoteTracker.eye_pos[0]
+	       << " Y = " << _wiiMoteTracker.eye_pos[1] 
+	       << " Z = " << _wiiMoteTracker.eye_pos[2]
 	       << coil::Console::end();  
 
 //      _console << " IR1 = " << ir_positions[0][0] << "," << ir_positions[0][1]
@@ -935,8 +907,8 @@ CLGLWindow::CallBackDisplayFunc()
 //	       << coil::Console::end();  
 
       //glMatrixMode(GL_MODELVIEW);
-      //glTranslatef(-my_camera.eye_pos[0],-my_camera.eye_pos[1],-my_camera.eye_pos[2]);
-    }
+      //glTranslatef(-_wiiMoteTracker.eye_pos[0],-_wiiMoteTracker.eye_pos[1],-_wiiMoteTracker.eye_pos[2]);
+      //    }
 #endif
 
   //Prepare for the GL render
@@ -1082,18 +1054,18 @@ CLGLWindow::CallBackDisplayFunc()
       
       //Forward/Backward movement
       Vector _position(0,0,0);
-      _position[2] -= my_camera.eye_pos[2]/100.0f * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
+      _position[2] -= _wiiMoteTracker.eye_pos[2]/100.0f * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
 	* std::sin(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);  
-      _position[0] -= my_camera.eye_pos[2]/100.0f * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
+      _position[0] -= _wiiMoteTracker.eye_pos[2]/100.0f * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
 	* std::cos(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
-      _position[1] += my_camera.eye_pos[2]/100.0f * std::sin(_viewPortInfo._tiltrotation * (M_PI/ 180));
+      _position[1] -= _wiiMoteTracker.eye_pos[2]/100.0f * std::sin(_viewPortInfo._tiltrotation * (M_PI/ 180));
 	
       //Strafe movement
-      _position[2] += my_camera.eye_pos[0]/100.0f * std::sin(_viewPortInfo._panrotation * (M_PI/ 180));
-      _position[0] += my_camera.eye_pos[0]/100.0f * std::cos(_viewPortInfo._panrotation * (M_PI/ 180));
+      _position[2] += _wiiMoteTracker.eye_pos[0]/100.0f * std::sin(_viewPortInfo._panrotation * (M_PI/ 180));
+      _position[0] += _wiiMoteTracker.eye_pos[0]/100.0f * std::cos(_viewPortInfo._panrotation * (M_PI/ 180));
 	
       //Vertical movement
-      _position[1] -= my_camera.eye_pos[1]/100.0f;
+      _position[1] -= _wiiMoteTracker.eye_pos[1]/100.0f;
 	
       glTranslatef(_position[0], _position[1], _position[2]);
 
