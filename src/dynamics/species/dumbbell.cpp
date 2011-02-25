@@ -2,7 +2,6 @@
 # include "renderobjs/spheres.hpp"
 # include <magnet/thread/mutex.hpp>
 # include "../liouvillean/OrientationL.hpp"
-
 # include "../interactions/dumbbells.hpp"
 # include <magnet/color/HSV.hpp>
 # include "dumbbell.hpp"
@@ -13,6 +12,10 @@ SpDumbbells::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
+
+      if (dynamic_cast<const IDumbbells*>(getIntPtr()) == NULL)
+	M_throw() << "You must use the IDumbbells interaction for the Dumbbells species type";
+
       _renderObj = new SphereParticleRenderer(2 * range->size(), "Species: " + spName,
 					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj));
 
