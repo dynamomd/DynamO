@@ -30,7 +30,7 @@ namespace {
   //than 45 degree's on other websites, this value yeilds accurate
   //(+-5mm) measurements on my wiimote for all distances
   const double WiiFOVX = (45.0f / 180.0) * M_PI; 
-  //The angle corresponding to a pixel (the camera only sees angles, not distances)
+  //The angle corresponding to a pixel (the camera only "sees" angles, not distances)
   const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX);  
   //Distance between the two IR sources being tracked (in cm)
   const double IRPointSeparation = 16.5;
@@ -38,6 +38,8 @@ namespace {
   //The screen dimensions in cm
   const double ScreenXlength = 41.1;
   const double ScreenYlength = 30.9;
+  //These resolutions are used to calculate your current OpenGL window
+  //size! (this is because my apps run in a window)
   const double ScreenXres = 1600;
   const double ScreenYres = 1200;  
 }
