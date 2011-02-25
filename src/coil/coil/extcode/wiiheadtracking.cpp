@@ -71,7 +71,7 @@ bool TrackWiimote::connect(bdaddr_t* bt_address)
 		    ) != 0)
     throw std::runtime_error("Failed to enable Wii functions.");
 
-  if (cwiid_command(m_wiimote, CWIID_CMD_LED_MODE,
+  if (cwiid_command(m_wiimote, CWIID_CMD_LED,
 		    CWIID_LED1_ON) != 0)
     throw std::runtime_error("Failed to enable Wii functions.");
 
@@ -137,7 +137,7 @@ void TrackWiimote::updateHeadPos()
 
   //Assuming that we worked out the distance to the points, and the
   //distance is a radius we can work out the distance from the centre
-  eye_pos[0] = eye_pos[2] * std::sin(Xangle);
+  eye_pos[0] = -eye_pos[2] * std::sin(Xangle);
   eye_pos[1] = eye_pos[2] * std::sin(Yangle);
 }
 
