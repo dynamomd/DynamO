@@ -790,15 +790,6 @@ CLGLWindow::init()
   initGTK();
   
   _readyFlag = true;
-
-#ifdef COIL_wiimote
-  if (!_wiiMoteTracker.connect())
-    {
-      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-      _console << "Could not connect to the Wii remote!" << coil::Console::end();  
-    }
-#endif
-
 }
 
 void
@@ -1022,52 +1013,62 @@ CLGLWindow::CallBackDisplayFunc()
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       _viewPortInfo.loadMatrices();
 
-#ifdef COIL_wiimote 
+#ifdef COIL_wiimote  
+      if (keyStates['l'])
+	{
+	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
+	  _console << "Connecting to the wii remote" << coil::Console::end();  
+	  if (!_wiiMoteTracker.connect())
+	    _console << "Could not connect to the Wii remote!" << coil::Console::end();  
+	  else
+	    _console << "Wiimote connected" << coil::Console::end();  
+	}
+
       if (keyStates['c']) _wiiMoteTracker.requestCalibration();
+      
+      //Distance between the two IR sources being tracked (in cm)
+      const double IRPointSeparation = 16.5;
+      //We normalize by the screen dimensions, thus if a person's head is
+      //at (-0.5,-0.5), they have moved half a screen width left and half
+      //a screen height down
+      const double ScreenHeight = 27;
+      const double ScreenWidth = 48;
       
       if (_wiiMoteTracker.updateState())
 	{
-	  //Distance between the two IR sources being tracked (in cm)
-	  const double IRPointSeparation = 16.5;
-	  //We normalize by the screen dimensions, thus if a person's head is
-	  //at (-0.5,-0.5), they have moved half a screen width left and half
-	  //a screen height down
-	  const double ScreenHeight = 27;
-	  const double ScreenWidth = 48;
-	  
 	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
 	  _console << " X = " << _wiiMoteTracker.getHeadPosition(0) * IRPointSeparation
 		   << " Y = " << _wiiMoteTracker.getHeadPosition(1) * IRPointSeparation
 		   << " Z = " << _wiiMoteTracker.getHeadPosition(2) * IRPointSeparation
 		   << coil::Console::end();  
-	  
-	  glMatrixMode(GL_MODELVIEW);
-	  
-	  //Forward/Backward movement
-	  Vector _position(0,0,0);
-	  _position[2] -= _wiiMoteTracker.getHeadPosition(2) 
-	    * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180))
-	    * std::sin(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
-	  
-	  _position[0] -= _wiiMoteTracker.getHeadPosition(2) 
-	    * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
-	    * std::cos(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
-
-	  _position[1] -= _wiiMoteTracker.getHeadPosition(2)
-	    * std::sin(_viewPortInfo._tiltrotation * (M_PI/ 180));
-	  
-	  //Strafe movement
-	  _position[2] += _wiiMoteTracker.getHeadPosition(0) 
-	    * std::sin(_viewPortInfo._panrotation * (M_PI/ 180));
-
-	  _position[0] += _wiiMoteTracker.getHeadPosition(0)
-	    * std::cos(_viewPortInfo._panrotation * (M_PI/ 180));
-
-	  //Vertical movement
-	  _position[1] -= _wiiMoteTracker.getHeadPosition(1);
-
-	  glTranslatef(_position[0], _position[1], _position[2]);
 	}
+      
+      glMatrixMode(GL_MODELVIEW);
+      
+      //Forward/Backward movement
+      Vector _position(0,0,0);
+      _position[2] -= _wiiMoteTracker.getHeadPosition(2) 
+	* std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180))
+	* std::sin(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
+      
+      _position[0] -= _wiiMoteTracker.getHeadPosition(2) 
+	* std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
+	* std::cos(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
+      
+      _position[1] -= _wiiMoteTracker.getHeadPosition(2)
+	* std::sin(_viewPortInfo._tiltrotation * (M_PI/ 180));
+      
+      //Strafe movement
+      _position[2] += _wiiMoteTracker.getHeadPosition(0) 
+	* std::sin(_viewPortInfo._panrotation * (M_PI/ 180));
+      
+      _position[0] += _wiiMoteTracker.getHeadPosition(0)
+	* std::cos(_viewPortInfo._panrotation * (M_PI/ 180));
+      
+      //Vertical movement
+      _position[1] -= _wiiMoteTracker.getHeadPosition(1);
+      
+      glTranslatef(_position[0], _position[1], _position[2]);
 #endif
 
       drawScene();

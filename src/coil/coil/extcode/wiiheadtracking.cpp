@@ -50,6 +50,8 @@ TrackWiimote::TrackWiimote():
 
 bool TrackWiimote::updateState()
 {
+  if (!m_wiimote) return false;
+
   if (cwiid_get_state(m_wiimote, &m_state))
     return false; //Failed to obtain data from the remote
 
@@ -58,14 +60,19 @@ bool TrackWiimote::updateState()
 
 bool TrackWiimote::connect(bdaddr_t* bt_address)
 {
-  m_wiimote = cwiid_connect(bt_address, CWIID_FLAG_CONTINUOUS|CWIID_FLAG_NONBLOCK);
+  if (m_wiimote) return true;
 
+  m_wiimote = cwiid_connect(bt_address, CWIID_FLAG_CONTINUOUS|CWIID_FLAG_NONBLOCK);
+  
   if (!m_wiimote) return false;//Couldn't connect
 
   if (cwiid_command(m_wiimote, CWIID_CMD_RPT_MODE, 
 		    CWIID_RPT_IR | CWIID_RPT_ACC | CWIID_RPT_BTN
-		    | CWIID_LED1_ON
 		    ) != 0)
+    throw std::runtime_error("Failed to enable Wii functions.");
+
+  if (cwiid_command(m_wiimote, CWIID_CMD_LED_MODE,
+		    CWIID_LED1_ON) != 0)
     throw std::runtime_error("Failed to enable Wii functions.");
 
   return true;
@@ -119,8 +126,9 @@ void TrackWiimote::updateHeadPos()
   //The absolute angle between the two points
   double pointsAngle = std::sqrt(dx * dx + dy * dy);
 
-  //The distance to the points from the camera (Z coordinate) (this
-  //should be multiplied by the real distance between the IR sources)
+  //The distance to the points from the camera (Z coordinate). As with
+  //all values in eye_pos, the units are such that the distance
+  //between the IR sources is equal to 1. Just multiply by the 
   eye_pos[2] = 0.5 / std::tan(pointsAngle / 2);
 
   //The "position" angle of the IR points
