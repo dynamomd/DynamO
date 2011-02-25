@@ -883,31 +883,6 @@ CLGLWindow::CallBackDisplayFunc()
   //Flush the OpenCL queue, so GL can use the buffers
   _CLState->getCommandQueue().finish();
   
-
-#ifdef COIL_wiimote
-  if (keyStates['c']) _wiiMoteTracker.requestCalibration();
-
-  _wiiMoteTracker.updateState();
-
-//  if (_wiiMoteTracker.updateIRPositions(ir_positions,ir_sizes))
-//    {
-//      _wiiMoteTracker.updateHeadPos(&_wiiMoteTracker, ir_positions, ir_sizes, 0, 1);  
-
-      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-      _console << " X = " << _wiiMoteTracker.eye_pos[0]
-	       << " Y = " << _wiiMoteTracker.eye_pos[1] 
-	       << " Z = " << _wiiMoteTracker.eye_pos[2]
-	       << coil::Console::end();  
-
-//      _console << " IR1 = " << ir_positions[0][0] << "," << ir_positions[0][1]
-//	       << " IR2 = " << ir_positions[1][0] << "," << ir_positions[1][1]
-//	       << coil::Console::end();  
-
-      //glMatrixMode(GL_MODELVIEW);
-      //glTranslatef(-_wiiMoteTracker.eye_pos[0],-_wiiMoteTracker.eye_pos[1],-_wiiMoteTracker.eye_pos[2]);
-      //    }
-#endif
-
   //Prepare for the GL render
   if (_shaderPipeline)
     {
@@ -1048,22 +1023,51 @@ CLGLWindow::CallBackDisplayFunc()
       _viewPortInfo.loadMatrices();
 
 #ifdef COIL_wiimote 
-      glMatrixMode(GL_MODELVIEW);
-	
-      //Forward/Backward movement
-      Vector _position(0,0,0);
-      _position[2] -= _wiiMoteTracker.eye_pos[2] * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
-	* std::sin(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);  
-      _position[0] -= _wiiMoteTracker.eye_pos[2] * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
-	* std::cos(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
-      _position[1] -= _wiiMoteTracker.eye_pos[2] * std::sin(_viewPortInfo._tiltrotation * (M_PI/ 180));
-	
-      //Strafe movement
-      _position[2] += _wiiMoteTracker.eye_pos[0] * std::sin(_viewPortInfo._panrotation * (M_PI/ 180));
-      _position[0] += _wiiMoteTracker.eye_pos[0] * std::cos(_viewPortInfo._panrotation * (M_PI/ 180));
-      //Vertical movement
-      _position[1] -= _wiiMoteTracker.eye_pos[1];	
-      glTranslatef(_position[0], _position[1], _position[2]);
+      if (keyStates['c']) _wiiMoteTracker.requestCalibration();
+      
+      if (_wiiMoteTracker.updateState())
+	{
+	  //Distance between the two IR sources being tracked (in cm)
+	  const double IRPointSeparation = 16.5;
+	  //We normalize by the screen dimensions, thus if a person's head is
+	  //at (-0.5,-0.5), they have moved half a screen width left and half
+	  //a screen height down
+	  const double ScreenHeight = 27;
+	  const double ScreenWidth = 48;
+	  
+	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
+	  _console << " X = " << _wiiMoteTracker.getHeadPosition(0) * IRPointSeparation
+		   << " Y = " << _wiiMoteTracker.getHeadPosition(1) * IRPointSeparation
+		   << " Z = " << _wiiMoteTracker.getHeadPosition(2) * IRPointSeparation
+		   << coil::Console::end();  
+	  
+	  glMatrixMode(GL_MODELVIEW);
+	  
+	  //Forward/Backward movement
+	  Vector _position(0,0,0);
+	  _position[2] -= _wiiMoteTracker.getHeadPosition(2) 
+	    * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180))
+	    * std::sin(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
+	  
+	  _position[0] -= _wiiMoteTracker.getHeadPosition(2) 
+	    * std::cos(_viewPortInfo._tiltrotation * (M_PI/ 180)) 
+	    * std::cos(_viewPortInfo._panrotation  * (M_PI/ 180) + M_PI * 0.5);
+
+	  _position[1] -= _wiiMoteTracker.getHeadPosition(2)
+	    * std::sin(_viewPortInfo._tiltrotation * (M_PI/ 180));
+	  
+	  //Strafe movement
+	  _position[2] += _wiiMoteTracker.getHeadPosition(0) 
+	    * std::sin(_viewPortInfo._panrotation * (M_PI/ 180));
+
+	  _position[0] += _wiiMoteTracker.getHeadPosition(0)
+	    * std::cos(_viewPortInfo._panrotation * (M_PI/ 180));
+
+	  //Vertical movement
+	  _position[1] -= _wiiMoteTracker.getHeadPosition(1);
+
+	  glTranslatef(_position[0], _position[1], _position[2]);
+	}
 #endif
 
       drawScene();

@@ -26,42 +26,37 @@
 
 #include <cwiid.h> /* cwiid wii remote library */
 
-// Head/camera information structure
-// ========================================================================
-typedef struct {
-} head_info_t;
-
 // TrackWiimote
 // ==================================================================================
 class TrackWiimote {
-private:
-  int m_connect_attempts; /* number of connection attempts */
-  int m_max_attempts; /* max number of connection attempts */
-  bdaddr_t m_bt_address; /* bluetooth address */
-  cwiid_wiimote_t *m_wiimote; /* wiimote connection through cwiid library */
-  struct cwiid_state m_state; /* wiimote state (updated every frame) using cwiid library */
-  bool calibrate_request;
-
-  int updateIRPositions();
-  int updateHeadPos();
-  void calibrate();
 public:
   TrackWiimote();
 
-  int updateState();
+  bool updateState();
 
-  int connect();
+  bool connect(bdaddr_t* bt_address = BDADDR_ANY);
 
   inline void requestCalibration() { calibrate_request = true; }
 
-  double eye_pos[3]; // calculated viewpoint position relative to the screen, in cm.
-  double ini_pos[3]; // initial offests of the viewpoint from the center of the screen in real space in cm
-  double ini_wii_to_real; //conversion from wii dot coordinates to cm (relative to viewpoint)
-  // at the initial head position. ONLY valid when the infrared sources are the initial distance
-  // from the screen in real space
-  double cur_wii_to_real; // conversion from wii dot coordinates to cm at the distance the camera is
-  // calculated to be from the screen
-  double ini_point_dist; // distance between IR points in wiis
-  double ir_positions[4][2];
-  int ir_sizes[4];
+  inline const double& getHeadPosition(const size_t dim) { return eye_pos[dim]; }
+
+private:
+  size_t updateIRPositions();
+
+  void updateHeadPos();
+
+  void calibrate();
+
+  cwiid_wiimote_t *m_wiimote; /* wiimote connection through cwiid library */
+
+  struct cwiid_state m_state; /* wiimote state (updated every frame) using cwiid library */
+
+  bool calibrate_request;
+
+  // calculated viewing position
+  double eye_pos[3]; 
+
+  //Raw IR positions
+  uint16_t ir_positions[4][2];
+  int8_t ir_sizes[4];
 };
