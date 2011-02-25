@@ -19,10 +19,12 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
 
-#include <cmath>
 #include <magnet/math/matrix.hpp>
 #include <coil/Maths/VECTOR4D.h>
 #include <coil/Maths/MATRIX4X4.h>
+
+#include <magnet/exception.hpp>
+#include <cmath>
 
 namespace magnet {
   namespace GL {    
@@ -103,6 +105,12 @@ namespace magnet {
 	_cameraDirection =  viewTransform * Vector(0,0,-1);
 	_cameraUp = viewTransform * Vector(0,1,0);
 
+      }
+
+      inline void saveMatrices()
+      {
+	glGetFloatv(GL_PROJECTION_MATRIX, _projectionMatrix);
+	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
       }
 
       inline void loadMatrices()

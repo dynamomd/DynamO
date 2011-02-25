@@ -32,14 +32,24 @@ namespace {
   const double WiiFOVX = (45.0f / 180.0) * M_PI; 
   //The angle corresponding to a pixel (the camera only sees angles, not distances)
   const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX);  
+  //Distance between the two IR sources being tracked (in cm)
+  const double IRPointSeparation = 16.5;
+  const double simlength = 50; //The length of a simulation unit length in cm (the zoom factor)
+  //The screen dimensions in cm
+  const double ScreenXlength = 41.1;
+  const double ScreenYlength = 30.9;
+  const double ScreenXres = 1600;
+  const double ScreenYres = 1200;  
 }
 
-TrackWiimote::TrackWiimote():
+TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
   m_wiimote(NULL),
-  calibrate_request(false)
+  calibrate_request(false),
+  v_angle(0),
+  _wiimoteAboveScreen(wiimoteAboveScreen)
 {
-  eye_pos[0] = eye_pos[1] = eye_pos[2] = 0;
-  
+  eye_pos[0] = eye_pos[1] = 0;
+  eye_pos[2] = 10;
   for (size_t i(0); i < 4; ++i)
     for (size_t j(0); j < 2; ++j)
       ir_positions[i][j] = 0;
@@ -126,20 +136,78 @@ void TrackWiimote::updateHeadPos()
   //The absolute angle between the two points
   double pointsAngle = std::sqrt(dx * dx + dy * dy);
 
-  //The distance to the points from the camera (Z coordinate). As with
-  //all values in eye_pos, the units are such that the distance
-  //between the IR sources is equal to 1. Just multiply by the 
-  eye_pos[2] = 0.5 / std::tan(pointsAngle / 2);
+  //The distance to the points from the camera (Z coordinate). All
+  //distances in eye_pos are in whatever units IRPointSeparation is
+  //in.
+  eye_pos[2] = 0.5 * IRPointSeparation / std::tan(pointsAngle / 2);
 
   //The "position" angle of the IR points
   double Xangle = (x1 + x2) / 2;
-  double Yangle = (y1 + y2) / 2;
+  //The Y angle is corrected for the angle of the remote (it should be
+  //parallel to the normal of the screen, but that rarely works thanks
+  //to the remotes design). v_angle is set in the calibration routines
+  double Yangle = (y1 + y2) / 2 + v_angle;
 
   //Assuming that we worked out the distance to the points, and the
   //distance is a radius we can work out the distance from the centre
   eye_pos[0] = -eye_pos[2] * std::sin(Xangle);
-  eye_pos[1] = eye_pos[2] * std::sin(Yangle);
+
+  //We try to correct for the remote being off the center of the
+  //screen. We simply add the vector to the camera from the screen
+  //(only the y component is done here).
+  eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
+}
+
+#include <iostream>
+void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, size_t xpixels, size_t ypixels)
+{
+  //Build a matrix to rotate from camera to world
+  Matrix Transformation 
+    = Rodrigues(Vector(0, -vp._panrotation * M_PI/180, 0))
+    * Rodrigues(Vector(-vp._tiltrotation * M_PI / 180.0, 0, 0));
+  
+  Vector movement = Transformation * Vector(eye_pos[0], eye_pos[1], eye_pos[2]);
+
+  glMatrixMode(GL_MODELVIEW);
+  glTranslatef(-movement[0] / simlength,
+	       -movement[1] / simlength,
+	       -movement[2] / simlength);
+  
+  //We have moved the camera to the location of the head in sim
+  //space. Now we must create a viewing frustrum which, in real
+  //space, cuts through the image on the screen. The trick is to
+  //take the real world relative coordinates of the screen and
+  //head transform them to simulation units.
+  //
+  //This allows us to calculate the left, right, bottom and top of
+  //the frustrum as if the near plane of the frustrum was at the
+  //screens location.
+  //
+  //Finally, all length scales are multiplied by
+  //(vp._zNearDist/eye_pos[2]).
+  //
+  //This is to allow the frustrum's near plane to be placed
+  //somewhere other than the screen (this factor places it at
+  //_zNearDist)!
+  //
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glFrustum((-0.5f * (xpixels / double(ScreenXres)) * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// left
+	    (+0.5f * (xpixels / double(ScreenXres)) * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// right
+	    (-0.5f * (ypixels / double(ScreenYres)) * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// bottom 
+	    (+0.5f * (ypixels / double(ScreenYres)) * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// top
+	    vp._zNearDist,//Near distance
+	    vp._zFarDist//Far distance
+	    );
+  
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void TrackWiimote::calibrate()
-{}
+{
+  //The person is in the center of the screen, so we can determine the
+  //tilt of the camera
+  v_angle = std::acos(0.5 *  ScreenYlength / eye_pos[2]) - M_PI / 2;
+  if (!_wiimoteAboveScreen)
+    v_angle = -v_angle;
+}

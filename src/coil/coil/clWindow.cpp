@@ -865,11 +865,42 @@ CLGLWindow::CallBackDisplayFunc()
 
   //Camera Positioning
 
-  float moveAmp = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
+  float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
   float forward  = moveAmp * ( keyStates['w'] - keyStates['s']);
   float sideways = moveAmp * ( keyStates['d'] - keyStates['a']);
   float vertical = moveAmp * ( keyStates['q'] - keyStates['z']);
   _viewPortInfo.CameraUpdate(forward, sideways, vertical);
+
+#ifdef COIL_wiimote
+  _viewPortInfo.loadMatrices();
+  if (keyStates['l'])
+    {
+      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
+      _console << "Connecting to the wii remote" << coil::Console::end();  
+      if (!_wiiMoteTracker.connect())
+	_console << "Could not connect to the Wii remote!" << coil::Console::end();  
+      else
+	_console << "Wiimote connected" << coil::Console::end();  
+    }
+
+  static double depthCalibration = 1.0f;
+  if (keyStates['c']) _wiiMoteTracker.requestCalibration(); 
+      
+  //if (_wiiMoteTracker.connected())
+  if (!keyStates['x'])
+    {
+      _wiiMoteTracker.updateState();
+      _wiiMoteTracker.glPerspective(_viewPortInfo, _width, _height);
+      //Now tell the viewport to save the modified matricies
+      _viewPortInfo.saveMatrices();
+    }
+
+//	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
+//	  _console << "X=" << scaledHeadPos[0]
+//		   << ",Y=" << scaledHeadPos[1]
+//		   << ",Z=" << scaledHeadPos[2]
+//		   << coil::Console::end();  
+#endif
 
   //Flush the OpenCL queue, so GL can use the buffers
   _CLState->getCommandQueue().finish();
@@ -915,6 +946,7 @@ CLGLWindow::CallBackDisplayFunc()
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
       _viewPortInfo.loadMatrices();
+
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
 			   7, _shadowMapping, _shadowIntensity, _width, _height);
 
@@ -1012,63 +1044,6 @@ CLGLWindow::CallBackDisplayFunc()
     {      
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       _viewPortInfo.loadMatrices();
-
-#ifdef COIL_wiimote  
-      if (keyStates['l'])
-	{
-	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-	  _console << "Connecting to the wii remote" << coil::Console::end();  
-	  if (!_wiiMoteTracker.connect())
-	    _console << "Could not connect to the Wii remote!" << coil::Console::end();  
-	  else
-	    _console << "Wiimote connected" << coil::Console::end();  
-	}
-
-      if (keyStates['c']) _wiiMoteTracker.requestCalibration();
-      
-      //Distance between the two IR sources being tracked (in cm)
-      const double IRPointSeparation = 16.5;
-      //The screen dimensions in cm
-      const double ScreenHeight = 27;
-      const double ScreenWidth = 48;
-      const double simlength = 25; //The length of a simulation unit length in cm (the zoom factor)
-      
-      if (_wiiMoteTracker.updateState())
-	{
-	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-	  _console << " X = " << _wiiMoteTracker.getHeadPosition(0) * IRPointSeparation
-		   << " Y = " << _wiiMoteTracker.getHeadPosition(1) * IRPointSeparation
-		   << " Z = " << _wiiMoteTracker.getHeadPosition(2) * IRPointSeparation
-		   << coil::Console::end();  
-	}
-
-      //We get the position of the viewpoint in simulation units
-      Vector scaledHeadPos(_wiiMoteTracker.getHeadPosition(0), 
-			   _wiiMoteTracker.getHeadPosition(1), 
-			   _wiiMoteTracker.getHeadPosition(2));      
-      scaledHeadPos *= IRPointSeparation / simlength;
-
-      //Build a matrix to rotate from camera to world
-      Matrix Transformation = Rodrigues(Vector(0,-_viewPortInfo._panrotation * M_PI/180,0))
-	* Rodrigues(Vector(-_viewPortInfo._tiltrotation * M_PI/180.0,0,0));
-
-      Vector movement = Transformation * scaledHeadPos;
-      glTranslatef(-movement[0], -movement[1], -movement[2]);
-      
-//      glMatrixMode(GL_PROJECTION);
-//      glLoadIdentity();
-//      glFrustum(-0.5f - scaledHeadPos[0],// left
-//		+0.5f + scaledHeadPos[0],// right
-//		-0.5f - scaledHeadPos[1], // bottom
-//		+0.5f + scaledHeadPos[1], // top
-//		_position[2] * simlength,//_viewPortInfo._zNearDist,// zNear
-//		100//_viewPortInfo._zFarDist  // zFar
-//		);
-//      
-//      glMatrixMode(GL_MODELVIEW);
-#endif
-
-
       drawScene();
     }
   
