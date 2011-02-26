@@ -1,6 +1,6 @@
 #    DYNAMO:- Event driven molecular dynamics simulator 
 #    http://www.marcusbannerman.co.uk/dynamo
-#    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 #
 #    This program is free software: you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import feature : feature ;
+import git ;
+
 feature color : no yes : propagated optional ;
 feature visualizer : no yes : propagated ;
 
@@ -24,18 +26,10 @@ path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 import dynamo-tags ;
 
-rule trim-nl ( str )
-{
-   return [ MATCH "([^
-]*)" : $(str) ] ;
-}
-
-local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
-
 project	: requirements
 	  <color>yes:<define>DYNAMO_Colour
 	  <color>yes
-	  <define>GITHASH=\\\"$(githash)\\\"
+	  <define>GITHASH=\\\"$(git.hash)\\\"
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <tag>@dynamo-tags.naming
