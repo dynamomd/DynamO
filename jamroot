@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import src/magnet/jam/git : githashdefine ;
+
 import feature : feature ;
 feature color : no yes : propagated optional ;
 feature visualizer : no yes : propagated ;
@@ -30,12 +32,12 @@ rule trim-nl ( str )
 ]*)" : $(str) ] ;
 }
 
-local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
+local githashdefine = [ githashdefine ] ; 
 
 project	: requirements
 	  <color>yes:<define>DYNAMO_Colour
 	  <color>yes
-	  <define>GITHASH=\\\"$(githash)\\\"
+	  <define>$(githashdefine)
 	  <toolset>gcc:<cxxflags>-Wno-long-long
 	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <tag>@dynamo-tags.naming

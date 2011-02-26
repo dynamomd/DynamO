@@ -1,0 +1,21 @@
+
+local rule trim-nl ( str )
+{
+   return [ MATCH "([^
+]*)" : $(str) ] ;
+}
+
+.hash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
+
+rule hash ( )
+{
+  return $(.hash) ;
+}
+
+rule githashdefine ( )
+{
+  local hashdefine = GITHASH=\\\" $(.hash) \\\" ;
+
+  return $(hashdefine:J) ;
+
+}
