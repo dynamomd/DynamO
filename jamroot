@@ -19,6 +19,13 @@
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
 ##########################################################################
+#Aliases for the libraries of dynamo
+use-project dynamo_core : src/ ;
+use-project magnet : src/magnet ;
+use-project coil : src/coil ;
+
+
+##########################################################################
 #These are the options that can be set when calling bjam
 import feature : feature ;
 feature color : yes no : propagated ;
