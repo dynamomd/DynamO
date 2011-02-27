@@ -36,18 +36,12 @@ static int32 imd_htonl(int32 h) {
   return n;
 }
 
-typedef struct {
-  unsigned int highest : 8;
-  unsigned int high    : 8;
-  unsigned int low     : 8;
-  unsigned int lowest  : 8;
-} netint;
-
 static int32 imd_ntohl(int32 n) {
   int32 h = 0;
-  netint net;
-  net = *((netint *)&n);
-  h |= net.highest << 24 | net.high << 16 | net.low << 8 | net.lowest;
+  h |= ((char *)&n)[0] << 24;
+  h |= ((char *)&n)[1] << 16;
+  h |= ((char *)&n)[2] << 8;
+  h |= ((char *)&n)[3];
   return h;
 }
 

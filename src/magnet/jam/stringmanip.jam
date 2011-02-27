@@ -1,0 +1,7 @@
+
+#Trims the newline character off the end of a string
+rule trim-nl ( str )
+{
+   return [ MATCH "([^
+]*)" : $(str) ] ;
+}

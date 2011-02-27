@@ -25,6 +25,7 @@
 #include <boost/program_options.hpp>
 #include <string>
 #include <fenv.h>
+#include <buildinfo.hpp>
 
 using namespace std;
 

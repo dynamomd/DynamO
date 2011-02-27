@@ -137,31 +137,23 @@ OPGeomview::printImage()
   BOOST_FOREACH(const magnet::ClonePtr<Interaction> intPtr, Sim->dynamics.getInteractions())
     if (dynamic_cast<const ISquareBond *>(intPtr.get_ptr()) != NULL)
       if (dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr()) != NULL)
-	BOOST_FOREACH(const mypair& mp, dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr())->getPairMap())
-	  BOOST_FOREACH(const unsigned int ID2, mp.second)
-	  {
-	    
-	    Vector  pos = Sim->particleList[mp.first].getPosition();
-	    Vector  rij = Sim->particleList[ID2].getPosition() - pos;
-	    Sim->dynamics.BCs().applyBC(pos);
-	    Sim->dynamics.BCs().applyBC(rij);
-
-	    of << "{VECT 1 2 1 \n 2 \n 1 \n " << pos[0] << " " << pos[1] 
-	       << " " << pos[2] << "\n" << pos[0] + rij[0] << " " << pos[1] + rij[1] << " " 
-	       << pos[2] + rij[2] << " \n 0.0 0.0 1.0 1.0 }\n";
-	  }
-	 
-  //This is for walls
-  /*double x = 0.3;
-  of << "{POLY\n " << x << " -0.5 -0.5  " << x << " -0.5 0.5 " 
-     << x << " 0.5 0.5 " << x << " 0.5 -0.5}";
-
-  x = -0.3;
-  of << "{POLY\n " << x << " -0.5 -0.5  " << x << " -0.5 0.5 " 
-     << x << " 0.5 0.5 " << x << " 0.5 -0.5}";
-  */
-  
-  
+	{
+	  BOOST_FOREACH(const mypair& mp, 
+			dynamic_cast<const C2RList*>(intPtr->getRange().get_ptr())
+			->getPairMap())
+	    BOOST_FOREACH(const unsigned int ID2, mp.second)
+	    {
+	      
+	      Vector  pos = Sim->particleList[mp.first].getPosition();
+	      Vector  rij = Sim->particleList[ID2].getPosition() - pos;
+	      Sim->dynamics.BCs().applyBC(pos);
+	      Sim->dynamics.BCs().applyBC(rij);
+	      
+	      of << "{VECT 1 2 1 \n 2 \n 1 \n " << pos[0] << " " << pos[1] 
+		 << " " << pos[2] << "\n" << pos[0] + rij[0] << " " << pos[1] + rij[1] << " " 
+		 << pos[2] + rij[2] << " \n 0.0 0.0 1.0 1.0 }\n";
+	    }
+	}
   of << "}\n";
   of.close();
 }

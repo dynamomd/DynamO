@@ -246,26 +246,28 @@ OPVTK::ticker()
   ++imageCounter;
 
   if (fields)
-    BOOST_FOREACH(const Particle & Part, Sim->particleList)
-      {
-	Vector  position = Part.getPosition(),
-	  velocity = Part.getVelocity();
+    {
+      BOOST_FOREACH(const Particle & Part, Sim->particleList)
+	{
+	  Vector  position = Part.getPosition(),
+	    velocity = Part.getVelocity();
 	  
-	Sim->dynamics.BCs().applyBC(position, velocity);
+	  Sim->dynamics.BCs().applyBC(position, velocity);
 	  
-	size_t id(getCellID(position));
+	  size_t id(getCellID(position));
 	  
-	//Samples
-	++SampleCounter[id];
+	  //Samples
+	  ++SampleCounter[id];
 	  
-	//Velocity Vectors
-	Momentum[id] += velocity 
-	  * Sim->dynamics.getSpecies(Part).getMass();
+	  //Velocity Vectors
+	  Momentum[id] += velocity 
+	    * Sim->dynamics.getSpecies(Part).getMass();
 	  
-	//Energy Field
-	mVsquared[id] += velocity.nrm2()
-	  * Sim->dynamics.getSpecies(Part).getMass();
-      }
+	  //Energy Field
+	  mVsquared[id] += velocity.nrm2()
+	    * Sim->dynamics.getSpecies(Part).getMass();
+	}
+    }
 
   if (snapshots)
     {

@@ -203,8 +203,10 @@ OPTinkerXYZ::printFileImage()
 
   BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
-	gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
+      {
+	BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+	  gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
+      }
 
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
     M_throw() << "asprintf error in tinkerXYZ";
@@ -283,38 +285,39 @@ OPTinkerXYZ::printFileImage()
 
   BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
     if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
-	for (CRange::const_iterator iPtr = range->begin() + 1; iPtr != range->end(); ++iPtr)
-	  {
-	    Vector  pos1 = Sim->particleList[*iPtr].getPosition();
-	    Vector  pos2 = Sim->particleList[*(iPtr-1)].getPosition();
-	    Vector  rij(pos1);
-	    rij -= pos2;
+      {
+	BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+	  for (CRange::const_iterator iPtr = range->begin() + 1; iPtr != range->end(); ++iPtr)
+	    {
+	      Vector  pos1 = Sim->particleList[*iPtr].getPosition();
+	      Vector  pos2 = Sim->particleList[*(iPtr-1)].getPosition();
+	      Vector  rij(pos1);
+	      rij -= pos2;
 	    
-	    Sim->dynamics.BCs().applyBC(pos1);
+	      Sim->dynamics.BCs().applyBC(pos1);
 
-	    Sim->dynamics.BCs().applyBC(pos2);
+	      Sim->dynamics.BCs().applyBC(pos2);
 
-	    Sim->dynamics.BCs().applyBC(rij);	    	    
+	      Sim->dynamics.BCs().applyBC(rij);	    	    
 
-	    //Check theres no periodic wrap around, 1.01 is a fudge factor
-	    if ((pos1 - pos2).nrm2() < 1.01 * rij.nrm2())
-	      {
-		pos1 *= 3.4 / Sim->dynamics.units().unitLength();
+	      //Check theres no periodic wrap around, 1.01 is a fudge factor
+	      if ((pos1 - pos2).nrm2() < 1.01 * rij.nrm2())
+		{
+		  pos1 *= 3.4 / Sim->dynamics.units().unitLength();
 		
-		pos2 *= 3.4 / Sim->dynamics.units().unitLength();
+		  pos2 *= 3.4 / Sim->dynamics.units().unitLength();
 
-		obj_of << "5\n";
-		for (size_t iDim = 0; iDim < NDIM; iDim++)
-		  obj_of << pos1[iDim] << " ";
-		obj_of << " 0.05 ";
+		  obj_of << "5\n";
+		  for (size_t iDim = 0; iDim < NDIM; iDim++)
+		    obj_of << pos1[iDim] << " ";
+		  obj_of << " 0.05 ";
 		
 		
-		for (size_t iDim = 0; iDim < NDIM; iDim++)
-		  obj_of << pos2[iDim] << " ";
-		obj_of << " 0.05 1.0 1.0 1.0\n";
-	      }
-	  }
-	    
+		  for (size_t iDim = 0; iDim < NDIM; iDim++)
+		    obj_of << pos2[iDim] << " ";
+		  obj_of << " 0.05 1.0 1.0 1.0\n";
+		}
+	    }
+      }	    
   obj_of.close();
 }

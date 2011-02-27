@@ -360,13 +360,13 @@ EReplicaExchangeSimulation::ReplexSwapTicker()
   ++replexSwapCalls;
 
   BOOST_FOREACH(replexPair& dat, temperatureList)
-    {
-      if (SimDirection[dat.second.simID])
+    if (SimDirection[dat.second.simID])
+      {
 	if (SimDirection[dat.second.simID] > 0)
 	  ++dat.second.upSims;
 	else
-	  ++dat.second.downSims;	  
-    }
+	  ++dat.second.downSims;
+      }
 
   if (SimDirection[temperatureList.front().second.simID] == -1)
     {
