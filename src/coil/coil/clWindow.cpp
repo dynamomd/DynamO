@@ -942,7 +942,34 @@ CLGLWindow::CallBackDisplayFunc()
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
 			   7, _shadowMapping, _shadowIntensity, _width, _height);
 
-      drawScene();
+
+#ifdef COIL_wiimote
+      if (keyStates['b'])
+	{
+	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+	  _viewPortInfo.buildMatrices();
+	  _viewPortInfo.loadMatrices();
+
+	  const double eyedist = 8.5;
+	  Vector eyeDisplacement(0.5 *eyedist, 0, 0);
+	  
+	  _wiiMoteTracker.glPerspective(_viewPortInfo, _width, _height, -eyeDisplacement);
+
+	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+	  drawScene();
+	  
+	  _viewPortInfo.loadMatrices();
+	  _wiiMoteTracker.glPerspective(_viewPortInfo, _width, _height, eyeDisplacement);
+	  
+	  glClear(GL_DEPTH_BUFFER_BIT);
+	  glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
+	  drawScene();
+	  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	}
+      else	
+#endif
+	drawScene();
       
       _renderTarget->detach();
 
@@ -1033,10 +1060,41 @@ CLGLWindow::CallBackDisplayFunc()
       lastFBO->blitToScreen(_width, _height);
     }
   else    
-    {      
+    {
+      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);      
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       _viewPortInfo.loadMatrices();
+      
+      //Build a matrix to rotate from camera to world
+      
+      const float focallength = 0.5;
+      const float eyedist = focallength / 30;
+      
+      Matrix Transformation 
+	= Rodrigues(Vector(0, -_viewPortInfo._panrotation * M_PI/180, 0))
+	* Rodrigues(Vector(-_viewPortInfo._tiltrotation * M_PI / 180.0, 0, 0));
+      
+      Vector leftEye = Transformation * Vector( 0.5 *eyedist, 0, -focallength);
+      Vector rightEye = Transformation * Vector(-0.5 *eyedist, 0, -focallength);
+      
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+      glTranslatef(leftEye[0],
+		   leftEye[1],
+		   leftEye[2]);
+
+      glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
       drawScene();
+
+      glPopMatrix();
+      glTranslatef(rightEye[0],
+		   rightEye[1],
+		   rightEye[2]);
+
+      glClear(GL_DEPTH_BUFFER_BIT);             
+      glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
+      drawScene();
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
   
   //We clear the depth as merely disabling gives artifacts

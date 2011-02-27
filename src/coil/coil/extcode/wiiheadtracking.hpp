@@ -41,7 +41,7 @@ public:
 
   inline bool connected() const { return m_wiimote; }
 
-  void glPerspective(const magnet::GL::viewPort& vp, size_t xpixel, size_t ypixels);
+  void glPerspective(const magnet::GL::viewPort& vp, size_t xpixel, size_t ypixels, const Vector offset = Vector(0,0,0));
 
 private:
   size_t updateIRPositions();

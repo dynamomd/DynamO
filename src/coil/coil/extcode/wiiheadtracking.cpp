@@ -41,7 +41,9 @@ namespace {
   //These resolutions are used to calculate your current OpenGL window
   //size! (this is because my apps run in a window)
   const double ScreenXres = 1600;
-  const double ScreenYres = 1200;  
+  const double ScreenYres = 1200;
+
+  const double spacingOfEyes = 8.5;
 }
 
 TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
@@ -160,14 +162,14 @@ void TrackWiimote::updateHeadPos()
   eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
 }
 
-void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, size_t xpixels, size_t ypixels)
+void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, size_t xpixels, size_t ypixels, const Vector offset)
 {
   //Build a matrix to rotate from camera to world
   Matrix Transformation 
     = Rodrigues(Vector(0, -vp._panrotation * M_PI/180, 0))
     * Rodrigues(Vector(-vp._tiltrotation * M_PI / 180.0, 0, 0));
   
-  Vector movement = Transformation * Vector(eye_pos[0], eye_pos[1], eye_pos[2]);
+  Vector movement = Transformation * (Vector(eye_pos[0], eye_pos[1], eye_pos[2]) + offset ) ;
 
   glMatrixMode(GL_MODELVIEW);
   glTranslatef(-movement[0] / simlength,
