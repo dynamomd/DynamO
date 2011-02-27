@@ -74,7 +74,7 @@ bool TrackWiimote::connect(bdaddr_t* bt_address)
 {
   if (m_wiimote) return true;
 
-  m_wiimote = cwiid_connect(bt_address, CWIID_FLAG_CONTINUOUS|CWIID_FLAG_NONBLOCK);
+  m_wiimote = cwiid_open(bt_address, CWIID_FLAG_CONTINUOUS|CWIID_FLAG_NONBLOCK);
   
   if (!m_wiimote) return false;//Couldn't connect
 
@@ -160,7 +160,6 @@ void TrackWiimote::updateHeadPos()
   eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
 }
 
-#include <iostream>
 void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, size_t xpixels, size_t ypixels)
 {
   //Build a matrix to rotate from camera to world

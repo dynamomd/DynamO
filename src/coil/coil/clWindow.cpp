@@ -883,23 +883,15 @@ CLGLWindow::CallBackDisplayFunc()
 	_console << "Wiimote connected" << coil::Console::end();  
     }
 
-  static double depthCalibration = 1.0f;
   if (keyStates['c']) _wiiMoteTracker.requestCalibration(); 
       
-  //if (_wiiMoteTracker.connected())
-  if (!keyStates['x'])
+  if (_wiiMoteTracker.connected())
     {
       _wiiMoteTracker.updateState();
       _wiiMoteTracker.glPerspective(_viewPortInfo, _width, _height);
       //Now tell the viewport to save the modified matricies
       _viewPortInfo.saveMatrices();
     }
-
-//	  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-//	  _console << "X=" << scaledHeadPos[0]
-//		   << ",Y=" << scaledHeadPos[1]
-//		   << ",Z=" << scaledHeadPos[2]
-//		   << coil::Console::end();  
 #endif
 
   //Flush the OpenCL queue, so GL can use the buffers
