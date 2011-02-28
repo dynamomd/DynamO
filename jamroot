@@ -18,7 +18,7 @@
 #Location of the boost build root directory
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
-using gcc ;
+#using gcc ;
 
 ##########################################################################
 #Aliases for the libraries of dynamo

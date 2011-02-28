@@ -21,6 +21,7 @@
 
 #pragma once
 
+#ifdef COIL_wiimote
 #include <magnet/GL/viewPort.hpp>
 #include <cwiid.h> /* cwiid wii remote library */
 
@@ -69,3 +70,4 @@ private:
 
   bool _wiimoteAboveScreen;
 };
+#endif
