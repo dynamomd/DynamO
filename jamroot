@@ -31,8 +31,6 @@ use-project coil : src/coil ;
 #These are the options that can be set when calling bjam
 import feature : feature ;
 feature color : yes no : propagated ;
-feature visualizer : no yes : propagated ;
-feature wiimote : no yes : propagated ;
 
 ##########################################################################
 #Imports 

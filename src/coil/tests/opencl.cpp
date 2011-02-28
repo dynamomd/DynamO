@@ -15,11 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//Test file for CWiid support
-#include "cwiid.h"
+#include "CL/cl.h"
+
+//#ifndef CL_VERSION_1_1
+//# error "OpenCL 1.1 is not supported by the OpenCL headers"
+//#endif
 
 int main(int argc, char *argv[])
 {
-  //Something to mean it has to dynamically link
-  cwiid_open(BDADDR_ANY, CWIID_FLAG_CONTINUOUS | CWIID_FLAG_NONBLOCK);
+  
 }

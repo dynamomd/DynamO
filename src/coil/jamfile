@@ -10,22 +10,27 @@ lib Xext : : <link>shared ;
 lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
-
 lib ftgl : : <link>shared ;
-
 lib OpenCL : : <link>shared ;
-
+lib cwiid : : <link>shared ;
 alias gtkmm :  :  :  : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
-# The wii remote library
-lib cwiid : : <link>shared ;
+#Test executables for determining what is available in the build environment
 exe cwiidtest : tests/wiimote.cpp cwiid ;
+exe OpenCLtest : tests/opencl.cpp OpenCL ;
+exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
+
+
+exe coilDependencies : tests/buildreq.cpp : 
+[ check-target-builds OpenCLpptest "OpenCL C++ Headers " : : <define>BUILDFAIL ]
+[ check-target-builds OpenCLtest "OpenCL " : : <build>BUILDFAIL ]
+: : ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet gtkmm
-      OpenCL ftgl : <include>. 
-      #Check if the wii library is installed
-     [ check-target-builds cwiidtest "CWiid library (wii remote support)" : <dependency>cwiid <define>COIL_wiimote : ]
+      ftgl OpenCL : <include>.
+      #Check if the wii library is installed 
+[ check-target-builds cwiidtest "CWiid library (wii remote support)" : <source>cwiid <define>COIL_wiimote : ]
     : : <define>GLVIEWER <include>. 
     ;
 
