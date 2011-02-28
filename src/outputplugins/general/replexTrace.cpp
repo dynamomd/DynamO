@@ -97,7 +97,11 @@ OPReplexTrace::changeSystem(OutputPlugin* OPP)
 void 
 OPReplexTrace::addPoint()
 {
-  tmpfile << Sim->dSysTime << " " << Sim->simID << "\n";
+  const boost::array<double,3>& ensembleVals(Sim->ensemble->getReducedEnsembleVals());
+    
+  tmpfile << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+	  << " " 
+	  << ensembleVals[0] << "," << ensembleVals[1] << "," << ensembleVals[2] << "\n";
 }
 
 void 
