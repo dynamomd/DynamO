@@ -226,8 +226,9 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
   
-  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-  _console << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
+  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
+  _console << "Welcome to coil, part of the dynamo simulator..." 
+	   << coil::Console::end();
 }
 
 bool
@@ -777,7 +778,9 @@ CLGLWindow::init()
 					"colors[0] = (uchar4)(255,255,255,255);"
 					));
 
+
   //Second render object is the console
+  _consoleID = RenderObjects.size();
   RenderObjects.push_back(new coil::Console(_width, _height));
   RenderObjects.push_back(new coil::Axis());
 
@@ -879,7 +882,7 @@ CLGLWindow::CallBackDisplayFunc()
   _viewPortInfo->loadMatrices();
   if (keyStates['l'])
     {
-      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
+      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
       _console << "Connecting to the wii remote" << coil::Console::end();  
       if (!_wiiMoteTracker.connect())
 	_console << "Could not connect to the Wii remote!" << coil::Console::end();  
@@ -1065,40 +1068,9 @@ CLGLWindow::CallBackDisplayFunc()
     }
   else    
     {
-      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);      
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       _viewPortInfo->loadMatrices();
-      
-      //Build a matrix to rotate from camera to world
-      
-      const float focallength = 0.5;
-      const float eyedist = focallength / 30;
-      
-      Matrix Transformation 
-	= Rodrigues(Vector(0, -_viewPortInfo->_panrotation * M_PI/180, 0))
-	* Rodrigues(Vector(-_viewPortInfo->_tiltrotation * M_PI / 180.0, 0, 0));
-      
-      Vector leftEye = Transformation * Vector( 0.5 *eyedist, 0, -focallength);
-      Vector rightEye = Transformation * Vector(-0.5 *eyedist, 0, -focallength);
-      
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glTranslatef(leftEye[0],
-		   leftEye[1],
-		   leftEye[2]);
-
-      glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
       drawScene();
-
-      glPopMatrix();
-      glTranslatef(rightEye[0],
-		   rightEye[1],
-		   rightEye[2]);
-
-      glClear(GL_DEPTH_BUFFER_BIT);             
-      glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
-      drawScene();
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
   
   //We clear the depth as merely disabling gives artifacts

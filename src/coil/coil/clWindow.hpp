@@ -120,12 +120,11 @@ protected:
 
   void performPicking(int x, int y);
 
-
-
 private:
   //Task queue for the simulation thread
   magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   double _updateIntervalValue;
+  size_t _consoleID;
 
   magnet::thread::Mutex _destroyLock;
 
