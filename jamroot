@@ -18,6 +18,8 @@
 #Location of the boost build root directory
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
+using gcc ;
+
 ##########################################################################
 #Aliases for the libraries of dynamo
 use-project dynamo_core : src/ ;
@@ -76,7 +78,7 @@ make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
 always buildinfo.hpp ;
 
 obj dynarun_src : src/programs/dynarun.cpp
-                : <use>src//dynamo_core  <implicit-dependency>buildinfo.hpp ;
+                : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
 exe dynarun : dynarun_src src//dynamo_core ;
 
 obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp : <implicit-dependency>buildinfo.hpp ;

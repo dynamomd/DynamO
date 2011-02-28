@@ -15,20 +15,18 @@ lib ftgl : : <link>shared ;
 
 lib OpenCL : : <link>shared ;
 
+alias gtkmm :  :  :  : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
+
 # The wii remote library
 lib cwiid : : <link>shared ;
-
-alias wiimote_handler :
-      cwiid : : : <define>COIL_wiimote
-      ;
+exe cwiidtest : tests/wiimote.cpp cwiid ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
-      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet 
-      OpenCL ftgl wiimote_handler
-    : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
+      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet gtkmm
+      OpenCL ftgl : <include>. 
+      #Check if the wii library is installed
+     [ check-target-builds cwiidtest "CWiid library (wii remote support)" : <dependency>cwiid <define>COIL_wiimote : ]
     : : <define>GLVIEWER <include>. 
-    <linkflags>"`pkg-config gtkmm-2.4 --libs`" 
-    <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     ;
 
 alias test : ;
