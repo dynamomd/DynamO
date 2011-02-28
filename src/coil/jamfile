@@ -20,11 +20,12 @@ exe cwiidtest : tests/wiimote.cpp cwiid ;
 exe OpenCLtest : tests/opencl.cpp OpenCL ;
 exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
 
-
 exe coilDependencies : tests/buildreq.cpp : 
 [ check-target-builds OpenCLpptest "OpenCL C++ Headers " : : <define>BUILDFAIL ]
-[ check-target-builds OpenCLtest "OpenCL " : : <build>BUILDFAIL ]
+[ check-target-builds OpenCLtest "OpenCL " : : <define>BUILDFAIL ]
 : : ;
+
+explicit cwiidtest OpenCLtest OpenCLpptest coilDependencies ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
