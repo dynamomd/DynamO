@@ -160,7 +160,7 @@ private:
 
   sigc::connection _renderTimeout;
 
-  magnet::GL::viewPort _viewPortInfo;
+  std::auto_ptr<magnet::GL::viewPort> _viewPortInfo;
     
   bool keyStates[256];
 
@@ -186,7 +186,7 @@ private:
 
   size_t _snapshot_counter;
 
-  magnet::GL::lightInfo _light0;
+  std::auto_ptr<magnet::GL::lightInfo> _light0;
 
   /////////GTK members
   virtual void initGTK();
@@ -216,8 +216,8 @@ private:
     Gtk::TreeModelColumn<size_t> m_id;
   };
 
-  FilterModelColumnsType _filterModelColumns;
-  RenderObjModelColumnsType _renderObjModelColumns;
+  std::auto_ptr<FilterModelColumnsType> _filterModelColumns;
+  std::auto_ptr<RenderObjModelColumnsType> _renderObjModelColumns;
 
   Glib::RefPtr<Gtk::ListStore> _filterStore;
   Glib::RefPtr<Gtk::ListStore> _renderObjStore;
