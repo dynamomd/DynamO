@@ -10,29 +10,33 @@ lib Xext : : <link>shared ;
 lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
-lib ftgl : : <link>shared ;
+lib ftgl : : <link>shared : : <linkflags>"`pkg-config ftgl --libs`" <cflags>"`pkg-config ftgl --cflags`" ;
 lib OpenCL : : <link>shared ;
 lib cwiid : : <link>shared ;
-
 
 #Test executables for determining what is available in the build environment
 exe cwiidtest : tests/wiimote.cpp cwiid ;
 exe OpenCLtest : tests/opencl.cpp OpenCL ;
 exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
+exe ftgltest : tests/ftgl.cpp ftgl ;
+exe gluttest : tests/gluttest.cpp glut ;
 
 exe coilDependencies : tests/buildreq.cpp : 
-[ check-target-builds OpenCLpptest "OpenCL C++ Headers " : : <define>BUILDFAIL ]
-[ check-target-builds OpenCLtest "OpenCL " : : <define>BUILDFAIL ]
+[ check-target-builds ftgltest "Coil: FTGL " : : <define>BUILDFAIL ]
+[ check-target-builds OpenCLpptest "Coil: OpenCL C++ " : : <define>BUILDFAIL ]
+[ check-target-builds OpenCLtest "Coil: OpenCL " : : <define>BUILDFAIL ]
+[ check-target-builds gluttest "Coil: FreeGlut " : : <define>BUILDFAIL ]
 : : ;
 
-explicit cwiidtest OpenCLtest OpenCLpptest coilDependencies ;
+explicit gluttest ftgltest cwiidtest OpenCLtest OpenCLpptest coilDependencies ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
-      OpenCL ftgl : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
+      OpenCL ftgl 
+      : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
       #Check if the wii library is installed 
-[ check-target-builds cwiidtest "CWiid library (wii remote support)" : <source>cwiid <define>COIL_wiimote : ]
-    : : <define>GLVIEWER <include>. 
+      [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid <define>COIL_wiimote : ]
+      : : <define>GLVIEWER <include>. 
     <linkflags>"`pkg-config gtkmm-2.4 --libs`" 
     <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     ;
