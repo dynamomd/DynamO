@@ -199,34 +199,15 @@ OPTinkerXYZ::printFileImage()
   if (frameCount > max_frame_count)
     return;
   
-  std::vector<OPRGyration::molGyrationDat> gyrationData;
-
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
-    if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      {
-	BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
-	  gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
-      }
-
   if ( asprintf(&fileName, "tinker.frame%05d.xyz", frameCount) < 0)
     M_throw() << "asprintf error in tinkerXYZ";
   
   std::ofstream of(fileName);
   
   free(fileName);
-
-  if ( asprintf(&fileName, "tinker.frame%05d.r3d", frameCount++) < 0)
-    M_throw() << "asprintf error in tinkerXYZ";
-
-  std::ofstream obj_of(fileName);
-
-  free(fileName);
  
   if (!of.is_open())
     M_throw() << "Could not open file for writing";
-
-  if (!obj_of.is_open())
-    M_throw() << "Could not open object file for writing";
 
   of << Sim->N << "\nDYNAMO Tinker TXYZ file, t = " 
      << Sim->dSysTime / Sim->dynamics.units().unitLength() 
@@ -244,6 +225,26 @@ OPTinkerXYZ::printFileImage()
 	  / Sim->dynamics.units().unitLength() << " ";
       of << "\n";
     }
+
+#ifdef DYNAMO_GSL
+  if ( asprintf(&fileName, "tinker.frame%05d.r3d", frameCount++) < 0)
+    M_throw() << "asprintf error in tinkerXYZ";
+
+  std::ofstream obj_of(fileName);
+
+  free(fileName);
+
+  if (!obj_of.is_open())
+    M_throw() << "Could not open object file for writing";
+
+  std::vector<OPRGyration::molGyrationDat> gyrationData;
+  
+  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+    if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
+      {
+	BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, static_cast<const CTChain*>(plugPtr.get_ptr())->getMolecules())
+	  gyrationData.push_back(OPRGyration::getGyrationEigenSystem(range,Sim));	    
+      }
 
 
   obj_of << "r3d input script\n"
@@ -319,5 +320,5 @@ OPTinkerXYZ::printFileImage()
 		}
 	    }
       }	    
-  obj_of.close();
+#endif
 }
