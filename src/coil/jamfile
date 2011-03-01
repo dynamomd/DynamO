@@ -28,7 +28,8 @@ exe coilDependencies : tests/buildreq.cpp :
 [ check-target-builds gluttest "Coil: FreeGlut " : : <define>BUILDFAIL ]
 : : ;
 
-explicit gluttest ftgltest cwiidtest OpenCLtest OpenCLpptest coilDependencies ;
+always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest coilDependencies ;
+explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest coilDependencies ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet

@@ -22,6 +22,7 @@
 int main(int argc, char *argv[])
 {
   const size_t NDIM = 3;
+  double data[NDIM * NDIM];
   gsl_matrix_view m = gsl_matrix_view_array(data, NDIM, NDIM);
   gsl_vector *eval = gsl_vector_alloc (NDIM);
   gsl_matrix *evec = gsl_matrix_alloc (NDIM, NDIM);
@@ -48,6 +49,5 @@ int main(int argc, char *argv[])
   //Cleanup GSL
   gsl_vector_free (eval);
   gsl_matrix_free (evec);
-
 }
 
