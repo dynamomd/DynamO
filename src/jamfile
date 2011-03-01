@@ -51,3 +51,5 @@ alias dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
     ;
 
 alias test : ;
+
+explicit dynamo_core visualizer test ;

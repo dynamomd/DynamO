@@ -48,3 +48,4 @@ exe gl_test
     : tests/glviewer_test.cpp coil/<link>static
     ;
 
+explicit gl_test test coil ;
