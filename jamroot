@@ -119,4 +119,4 @@ install install-bin
 alias install : install-bin : [ critical_dependencies ] ;
 alias test : src/magnet//test src/coil//test src//test ;
 
-explicit install install-bin test buildinfo.hpp ;
+explicit install install-coil coil install-bin test buildinfo.hpp dynamod_src dynahist_rw_src dynareplex_opt_src dynarun_src ;
