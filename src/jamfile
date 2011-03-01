@@ -23,6 +23,16 @@ lib gsl
 lib rt : : <link>shared ;
 
 exe gsltest : tests/gsltest.cpp gsl ;
+exe zlibtest : tests/zlibtest.cpp ;
+exe bzip2test : tests/bzip2test.cpp ;
+
+exe dynamoDependencies : coil/tests/buildreq.cpp : 
+[ check-target-builds zlibtest "DynamO: zlib " : : <define>BUILDFAIL ]
+[ check-target-builds bzip2test "DynamO: bzip2 " : : <define>BUILDFAIL ]
+: : ;
+
+explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
+always gsltest zlibtest dynamoDependencies bzip2test ;
 
 alias dynamo_visualizer :
       coil//coil/<link>static
@@ -34,13 +44,10 @@ alias dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
       ../boost//program_options rt 
     : <include>extcode/include 
       <variant>debug:<define>DYNAMO_DEBUG <link>static
-[ check-target-builds gsltest "DynamO:GSL (RadiusGyration Plugin)" : <source>gsl <define>DYNAMO_GSL : ]
-[ check-target-builds coil//coilDependencies "DynamO:Coil Visualization Enabled" : <source>dynamo_visualizer : ]
+[ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
+[ check-target-builds coil//coilDependencies "DynamO: Coil enabled" : <source>dynamo_visualizer : ]
     : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static
     ;
 
 alias test : ;
-
-explicit dynamo_visualizer dynamo_core gsltest test ;
-always gsltest ; 

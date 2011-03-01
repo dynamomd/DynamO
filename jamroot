@@ -21,7 +21,12 @@ path-constant BOOST_ROOT : boost/tools/build/v2 ;
 ##########################################################################
 #If the build-dir doesn't exist at the very start of the build, all
 #config output goes to stdout. So we create the directory now
-SHELL "mkdir build-dir" ;
+import os ;
+local build-dir = "build-dir" ;
+if [ os.name ] = NT
+{ SHELL "mkdir "$(build-dir) ; }
+else
+{ SHELL "mkdir -p "$(build-dir) ; }
 
 ##########################################################################
 #Aliases for the libraries of dynamo
@@ -69,7 +74,7 @@ project	: requirements
           <threading>multi
           <link>static
 	: default-build release
-	: build-dir build-dir
+	: build-dir $(build-dir)
 	;
 
 ##########################################################################
@@ -79,18 +84,21 @@ always buildinfo.hpp ;
 
 obj dynarun_src : src/programs/dynarun.cpp
                 : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
-exe dynarun : dynarun_src src//dynamo_core ;
+exe dynarun : dynarun_src src//dynamo_core 
+    : [ check-target-builds src//dynamoDependencies "dynarun dependencies" :  : <build>no ] ;
 
 obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp : <implicit-dependency>buildinfo.hpp ;
 exe dynareplex_opt : dynareplex_opt_src boost//program_options ;
 
 obj dynahist_rw_src : src/programs/dynahist_rw.cpp 
                     : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynahist_rw : dynahist_rw_src src//dynamo_core ;
+exe dynahist_rw : dynahist_rw_src src//dynamo_core 
+    : [ check-target-builds src//dynamoDependencies "dynahist_rw dependencies" :  : <build>no ] ;
 
 obj dynamod_src : src/programs/dynamod.cpp 
                 : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynamod : dynamod_src src//dynamo_core ;
+exe dynamod : dynamod_src src//dynamo_core 
+        : [ check-target-builds src//dynamoDependencies "dynamod dependencies" :  : <build>no ] ;
 
 alias coil : src/coil//coil ;
 
