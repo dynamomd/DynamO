@@ -81,8 +81,9 @@ varying vec3 eyeVector;
 void main()
 {
   ///Shadow map calculations and PCF.
-  float shadow = 0 ;  
+  float shadow = 0.0 ;
   const int steps = 3;
+  const int stepsf = 3.0;
   const float stepoffset = (steps - 1.0) * 0.5;
   
   vec3 renormLightDir = normalize(lightDir);
@@ -93,26 +94,30 @@ void main()
   
   //Now get the diffuse term to smooth shadow acne on back faces
   float lightNormDot = dot(renormal, renormLightDir);
+
   if (shadowMapping == 1)
     {
       if (ShadowCoord.w > 0.0)
 	for (int x = 0; x < steps; ++x)
 	  for (int y = 0; y < steps; ++y)
 	    {
-	      vec4 sampleCoords = ShadowCoord + vec4((x - stepoffset) * xPixelOffset * ShadowCoord.w, 
-						     (y - stepoffset) * yPixelOffset * ShadowCoord.w, 
-						     0, 0);
-	      vec2 circle =  (sampleCoords.xy) / sampleCoords.w  - vec2(0.5,0.5);
+	      vec4 sampleCoords = ShadowCoord;
+	      sampleCoords.x 
+		+= (float(x) - stepoffset) * xPixelOffset * ShadowCoord.w;
+	      sampleCoords.y 
+		+= (float(y) - stepoffset) * yPixelOffset * ShadowCoord.w;
+	      vec2 circle = (sampleCoords.xy) / sampleCoords.w
+		- vec2(0.5, 0.5);
 	      
 	      //Makes the light source a spotlight (and fixes a wierd
 	      //line perpendicular to the light beam).
 	      if (dot(circle, circle) < 0.25) 
-		shadow += textureProj(ShadowMap, sampleCoords).r;
+		shadow += shadow2DProj(ShadowMap, sampleCoords).r;
 	    }
 	      
-      shadow /= steps * steps;
+      shadow /= stepsf * stepsf;
 
-      float shadeFactor = max(0, min(1, 1 + 2 * lightNormDot));
+      float shadeFactor = max(0.0, min(1.0, 1.0 + 2.0 * lightNormDot));
       
       //Now set a minimum on the shadow term depending on if the
       //surface is pointing away from the light source
@@ -132,7 +137,7 @@ void main()
 			     gl_LightSource[0].quadraticAttenuation * lightDist * lightDist);
  
   //Shadow intensity
-  float scaledShadow = (1 + shadowIntensity * (shadow - 1));
+  float scaledShadow = (1.0 + shadowIntensity * (shadow - 1.0));
 
   //Specular and ambient light calculation
   if (lightNormDot > 0.0)
