@@ -5,7 +5,6 @@ import pixbuf ;
 lib glut : : <link>shared ;
 lib GLU  : : <link>shared ;
 lib GL   : : <link>shared ;
-lib Xmu  : : <link>shared ;
 lib Xext : : <link>shared ;
 lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
@@ -26,7 +25,7 @@ exe GLEWtest : tests/glewtest.cpp ;
 
 exe coilDependencies : tests/buildreq.cpp : 
 [ check-target-builds ftgltest "Coil: FTGL" : : <define>BUILDFAIL ]
-[ check-target-builds OpenCLpptest "Coil: OpenCL C++" : : <define>BUILDFAIL ]
+[ check-target-builds OpenCLpptest "Coil: OpenCL C++ header" : : <define>BUILDFAIL ]
 [ check-target-builds OpenCLtest "Coil: OpenCL" : : <define>BUILDFAIL ]
 [ check-target-builds gluttest "Coil: FreeGlut" : : <define>BUILDFAIL ]
 [ check-target-builds gtkmmtest "Coil: GTKmm" : : <define>BUILDFAIL ]
@@ -37,7 +36,7 @@ always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest co
 explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
-      glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
+      glut GLU GL Xext X11 rt GLEW ../magnet//magnet
       OpenCL ftgl gtkmm
       : <include>.
       [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid <define>COIL_wiimote :  ]
