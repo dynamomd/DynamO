@@ -83,8 +83,8 @@ void main()
   ///Shadow map calculations and PCF.
   float shadow = 0.0 ;
   const int steps = 3;
-  const int stepsf = 3.0;
-  const float stepoffset = (steps - 1.0) * 0.5;
+  const float stepsf = 3.0;
+  const float stepoffset = (stepsf - 1.0) * 0.5;
   
   vec3 renormLightDir = normalize(lightDir);
 
