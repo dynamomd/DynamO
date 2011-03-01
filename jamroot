@@ -82,23 +82,24 @@ project	: requirements
 make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
 always buildinfo.hpp ;
 
+alias critical_dependencies : : : 
+      : [ check-target-builds src//dynamoDependencies "DynamO dependencies" :  : <build>no ] ;
+always critical_dependencies ;
+
 obj dynarun_src : src/programs/dynarun.cpp
                 : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
-exe dynarun : dynarun_src src//dynamo_core 
-    : [ check-target-builds src//dynamoDependencies "dynarun dependencies" :  : <build>no ] ;
+exe dynarun : dynarun_src src//dynamo_core critical_dependencies ;
 
 obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp : <implicit-dependency>buildinfo.hpp ;
 exe dynareplex_opt : dynareplex_opt_src boost//program_options ;
 
-obj dynahist_rw_src : src/programs/dynahist_rw.cpp 
-                    : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynahist_rw : dynahist_rw_src src//dynamo_core 
-    : [ check-target-builds src//dynamoDependencies "dynahist_rw dependencies" :  : <build>no ] ;
+obj dynahist_rw_src : src/programs/dynahist_rw.cpp
+    : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
+exe dynahist_rw : dynahist_rw_src src//dynamo_core critical_dependencies ;
 
 obj dynamod_src : src/programs/dynamod.cpp 
                 : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynamod : dynamod_src src//dynamo_core 
-        : [ check-target-builds src//dynamoDependencies "dynamod dependencies" :  : <build>no ] ;
+exe dynamod : dynamod_src src//dynamo_core critical_dependencies ;
 
 alias coil : src/coil//coil ;
 
