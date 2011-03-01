@@ -18,14 +18,16 @@
 #Location of the boost build root directory
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
-#using gcc ;
+##########################################################################
+#If the build-dir doesn't exist at the very start of the build, all
+#config output goes to stdout. So we create the directory now
+SHELL "mkdir build-dir" ;
 
 ##########################################################################
 #Aliases for the libraries of dynamo
 use-project dynamo_core : src/ ;
 use-project magnet : src/magnet ;
 use-project coil : src/coil ;
-
 
 ##########################################################################
 #These are the options that can be set when calling bjam
