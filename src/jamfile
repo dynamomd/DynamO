@@ -26,10 +26,13 @@ exe gsltest : tests/gsltest.cpp gsl ;
 exe zlibtest : tests/zlibtest.cpp ;
 exe bzip2test : tests/bzip2test.cpp ;
 
-exe dynamoDependencies : coil/tests/buildreq.cpp : 
+exe dynamoDependencies : tests/buildreq.cpp : 
 [ check-target-builds zlibtest "DynamO: zlib " : : <define>BUILDFAIL ]
 [ check-target-builds bzip2test "DynamO: bzip2 " : : <define>BUILDFAIL ]
 : : ;
+
+rule critical_dependencies ( )
+{ return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
 explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
 always gsltest zlibtest dynamoDependencies bzip2test ;
@@ -39,10 +42,10 @@ alias dynamo_visualizer :
       : : : <define>DYNAMO_visualizer
       ;
 
-alias dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
+lib dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
       magnet//magnet ../boost//iostreams ../boost//filesystem
       ../boost//program_options rt 
-    : <include>extcode/include 
+    : <include>extcode/include [ critical_dependencies ]
       <variant>debug:<define>DYNAMO_DEBUG <link>static
 [ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
 [ check-target-builds coil//coilDependencies "DynamO: Coil enabled" : <source>dynamo_visualizer : ]
