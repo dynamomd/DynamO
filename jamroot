@@ -89,9 +89,9 @@ obj dynarun_src : src/programs/dynarun.cpp
                 : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
 exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ]  ;
 
-obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp 
+obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp  boost//program_options
     : <implicit-dependency>buildinfo.hpp [ critical_dependencies ] ;
-exe dynareplex_opt : dynareplex_opt_src boost//program_options 
+exe dynareplex_opt : dynareplex_opt_src 
     : [ critical_dependencies ] ;
 
 obj dynahist_rw_src : src/programs/dynahist_rw.cpp
