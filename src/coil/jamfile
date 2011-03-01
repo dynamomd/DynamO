@@ -22,6 +22,7 @@ exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
 exe ftgltest : tests/ftgl.cpp ftgl ;
 exe gluttest : tests/gluttest.cpp glut ;
 exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
+exe GLEWtest : tests/glewtest.cpp ;
 
 exe coilDependencies : tests/buildreq.cpp : 
 [ check-target-builds ftgltest "Coil: FTGL" : : <define>BUILDFAIL ]
@@ -29,10 +30,11 @@ exe coilDependencies : tests/buildreq.cpp :
 [ check-target-builds OpenCLtest "Coil: OpenCL" : : <define>BUILDFAIL ]
 [ check-target-builds gluttest "Coil: FreeGlut" : : <define>BUILDFAIL ]
 [ check-target-builds gtkmmtest "Coil: GTKmm" : : <define>BUILDFAIL ]
+[ check-target-builds GLEWtest "Coil: GLEW" : : <define>BUILDFAIL ]
 : : ;
 
-always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest coilDependencies ;
-explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest coilDependencies ;
+always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
+explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
