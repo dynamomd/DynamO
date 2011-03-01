@@ -13,6 +13,7 @@ lib GLEW : : <link>shared ;
 lib ftgl : : <link>shared : : <linkflags>"`pkg-config ftgl --libs`" <cflags>"`pkg-config ftgl --cflags`" ;
 lib OpenCL : : <link>shared ;
 lib cwiid : : <link>shared ;
+alias gtkmm : : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
 exe cwiidtest : tests/wiimote.cpp cwiid ;
@@ -20,26 +21,25 @@ exe OpenCLtest : tests/opencl.cpp OpenCL ;
 exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
 exe ftgltest : tests/ftgl.cpp ftgl ;
 exe gluttest : tests/gluttest.cpp glut ;
+exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
 
 exe coilDependencies : tests/buildreq.cpp : 
-[ check-target-builds ftgltest "Coil: FTGL " : : <define>BUILDFAIL ]
-[ check-target-builds OpenCLpptest "Coil: OpenCL C++ " : : <define>BUILDFAIL ]
-[ check-target-builds OpenCLtest "Coil: OpenCL " : : <define>BUILDFAIL ]
-[ check-target-builds gluttest "Coil: FreeGlut " : : <define>BUILDFAIL ]
+[ check-target-builds ftgltest "Coil: FTGL" : : <define>BUILDFAIL ]
+[ check-target-builds OpenCLpptest "Coil: OpenCL C++" : : <define>BUILDFAIL ]
+[ check-target-builds OpenCLtest "Coil: OpenCL" : : <define>BUILDFAIL ]
+[ check-target-builds gluttest "Coil: FreeGlut" : : <define>BUILDFAIL ]
+[ check-target-builds gtkmmtest "Coil: GTKmm" : : <define>BUILDFAIL ]
 : : ;
 
-always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest coilDependencies ;
-explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest coilDependencies ;
+always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest coilDependencies ;
+explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest coilDependencies ;
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xmu Xext X11 rt GLEW ../magnet//magnet
-      OpenCL ftgl 
-      : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
-      #Check if the wii library is installed 
+      OpenCL ftgl gtkmm
+      : <include>.
       [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid <define>COIL_wiimote :  ]
       : : <define>GLVIEWER <include>.
-    <linkflags>"`pkg-config gtkmm-2.4 --libs`"
-    <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     ;
 
 alias test : ;
