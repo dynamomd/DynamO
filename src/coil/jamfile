@@ -36,9 +36,9 @@ lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       OpenCL ftgl 
       : <include>. <cflags>"`pkg-config gtkmm-2.4 --cflags`"
       #Check if the wii library is installed 
-      [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid <define>COIL_wiimote : ]
-      : : <define>GLVIEWER <include>. 
-    <linkflags>"`pkg-config gtkmm-2.4 --libs`" 
+      [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid <define>COIL_wiimote :  ]
+      : : <define>GLVIEWER <include>.
+    <linkflags>"`pkg-config gtkmm-2.4 --libs`"
     <cflags>"`pkg-config gtkmm-2.4 --cflags`"
     ;
 

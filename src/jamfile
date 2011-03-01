@@ -35,7 +35,7 @@ rule critical_dependencies ( )
 { return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
 explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
-always gsltest zlibtest dynamoDependencies bzip2test ;
+always gsltest zlibtest bzip2test dynamoDependencies ;
 
 alias dynamo_visualizer :
       coil//coil/<link>static
