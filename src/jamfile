@@ -34,8 +34,8 @@ alias dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
       ../boost//program_options rt 
     : <include>extcode/include 
       <variant>debug:<define>DYNAMO_DEBUG <link>static
-[ check-target-builds coil//coilDependencies "Coil Library Enabled" : <source>dynamo_visualizer : ]
-[ check-target-builds gsltest "GSL (RadiusGyration Plugin)" : <source>gsl <define>DYNAMO_GSL : ]
+[ check-target-builds gsltest "DynamO:GSL (RadiusGyration Plugin)" : <source>gsl <define>DYNAMO_GSL : ]
+[ check-target-builds coil//coilDependencies "DynamO:Coil Visualization Enabled" : <source>dynamo_visualizer : ]
     : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static
     ;
