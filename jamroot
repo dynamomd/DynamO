@@ -86,12 +86,11 @@ rule critical_dependencies ( )
 { return [ check-target-builds src//dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
 obj dynarun_src : src/programs/dynarun.cpp
-                : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp
-		[ critical_dependencies ] ;
-exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ] ;
+                : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
+exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ]  ;
 
 obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp 
-    : [ critical_dependencies ] <implicit-dependency>buildinfo.hpp ;
+    : <implicit-dependency>buildinfo.hpp [ critical_dependencies ] ;
 exe dynareplex_opt : dynareplex_opt_src boost//program_options 
     : [ critical_dependencies ] ;
 
@@ -102,22 +101,22 @@ exe dynahist_rw : dynahist_rw_src src//dynamo_core
 
 obj dynamod_src : src/programs/dynamod.cpp 
                 : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core 
-		: [ critical_dependencies ] ;
+		[ critical_dependencies ] ;
 exe dynamod : dynamod_src src//dynamo_core : [ critical_dependencies ] ;
 
 alias coil : src/coil//coil ;
 
 install install-coil
 	: coil
-	: <location>lib
+	: <location>lib [ critical_dependencies ]
 	;	
 
 install install-bin 
 	: dynarun dynahist_rw dynamod 
-	: <location>bin
+	: <location>bin [ critical_dependencies ]
 	;
 
-alias install : install-bin ;
+alias install : install-bin : [ critical_dependencies ] ;
 alias test : src/magnet//test src/coil//test src//test ;
 
 explicit install install-bin test buildinfo.hpp ;
