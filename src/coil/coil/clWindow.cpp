@@ -790,7 +790,7 @@ CLGLWindow::init()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     //This is the console and the simulation/system task queue
-    (*iPtr)->accessoryData(RenderObjects[1], _systemQueue, _CLState); 
+    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _CLState); 
   
   initOpenGL();
   initOpenCL();
