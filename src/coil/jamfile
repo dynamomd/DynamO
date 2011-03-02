@@ -11,7 +11,7 @@ lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
 lib ftgl : : <link>shared : : <linkflags>"`pkg-config ftgl --libs`" <cflags>"`pkg-config ftgl --cflags`" ;
 lib OpenCL : : <link>shared ;
-lib cwiid : : <link>shared ;
+lib cwiid : : <link>shared : : <define>COIL_wiimote ;
 alias gtkmm : : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
@@ -39,9 +39,8 @@ lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
       OpenCL ftgl gtkmm
       : <include>.
-      [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid <define>COIL_wiimote :  ]
-      : : <define>GLVIEWER <include>.
-    ;
+      [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid  :  ]
+      : : <define>GLVIEWER <include>. ;
 
 alias test : ;
 
