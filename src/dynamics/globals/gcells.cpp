@@ -300,8 +300,8 @@ CGCells::runEvent(const Particle& part, const double) const
 
 #ifdef DYNAMO_WallCollDebug
   {      
-    CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
-    CVector<int> tmp2 = cells[oldCell].coords;
+    CVector<int> tmp2 = cells[partCellData[part.getID()].cell].coords;
+    CVector<int> tmp = cells[oldCell].coords;
     
     std::cerr << "\nCGCells sysdt " 
 	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
@@ -453,8 +453,24 @@ CGCells::addCells(double maxdiam)
   //Required so particles find the right owning cell
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
-  ////initialise the data structures
+#ifdef DYNAMO_WallCollDebug
   BOOST_FOREACH(const Particle& part, Sim->particleList)
+    {
+      CVector<int> cellcoords = getCoordsFromID(getCellID(part.getPosition()));
+      std::cerr << "\n Adding ID=" << part.getID() 
+		<< " pos="  << part.getPosition()[0]
+		<< ","  << part.getPosition()[1]
+		<< ","  << part.getPosition()[2]
+		<< " cellID=" << getCellID(part.getPosition())
+		<< " cellCoords=" << cellcoords[0]
+		<< "," << cellcoords[1]
+		<< "," << cellcoords[2]
+	;
+    }
+#endif
+
+  ////initialise the data structures
+  BOOST_FOREACH(const Particle& part, Sim->particleList)    
     addToCell(part.getID(), getCellID(part.getPosition()));
 }
 
@@ -507,7 +523,7 @@ CVector<int>
 CGCells::getCoordsFromID(size_t i) const
 {
   CVector<int> tmp;
-  i = i % NCells; //PBC's for ID
+  i = i % NCells; //PBC's for ID //NOT NEEDED
   
   tmp[0] = i % cellCount[0];
   i /= cellCount[0];
@@ -524,7 +540,7 @@ CGCells::getCellID(Vector  pos) const
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) 
+    temp[iDim] = std::floor((pos[iDim] + 0.5 * Sim->aspectRatio[iDim] - cellOffset[iDim])
 		     / cellLatticeWidth[iDim]);
   
   return getCellID(temp);
