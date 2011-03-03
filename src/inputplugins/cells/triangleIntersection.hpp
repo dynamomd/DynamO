@@ -168,10 +168,12 @@ struct CUTriangleIntersect: public CUCell
     if (d > _diametersq) return false;
 
     if (d == _diametersq)
-      if ((t >= 0) && (t <= 1))
-	return true;
-      else
-	return false;
+      {
+	if ((t >= 0) && (t <= 1))
+	  return true;
+	else
+	  return false;
+      }
 
     double r = std::sqrt((_diametersq-d) / c);
     double t1 = t - r;

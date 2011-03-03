@@ -113,8 +113,11 @@ Engine::setupSim(Simulation& Sim, const std::string filename)
     Sim.loadPlugins(vm["plugin-file"].as<std::string>());
   
   if (vm.count("load-plugin"))
-    BOOST_FOREACH(const std::string& tmpString, vm["load-plugin"].as<std::vector<std::string> >())
-      Sim.addOutputPlugin(tmpString);
+    {
+      BOOST_FOREACH(const std::string& tmpString, 
+		    vm["load-plugin"].as<std::vector<std::string> >())
+	Sim.addOutputPlugin(tmpString);
+    }
   
   Sim.addOutputPlugin("ReverseEventsCheck");
   

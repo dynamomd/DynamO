@@ -34,6 +34,7 @@
 #include "../src/extcode/xmlParser.h"
 #include <magnet/exception.hpp>
 #include <fenv.h>
+#include <buildinfo.hpp>
 
 using namespace std;
 using namespace boost;
@@ -499,10 +500,12 @@ void outputMoments()
       {
 	double thisdt = iPtr->second - (iPtr - 1)->second;
 	if (std::signbit(olddt) != std::signbit(thisdt))
-	  if (std::signbit(olddt))
-	    CvMin << (iPtr-1)->first << " " << (iPtr-1)->second << "\n";
-	  else
-	    CvMax << (iPtr-1)->first << " " << (iPtr-1)->second << "\n";
+	  {
+	    if (std::signbit(olddt))
+	      CvMin << (iPtr-1)->first << " " << (iPtr-1)->second << "\n";
+	    else
+	      CvMax << (iPtr-1)->first << " " << (iPtr-1)->second << "\n";
+	  }
 	olddt = thisdt;
       }
     

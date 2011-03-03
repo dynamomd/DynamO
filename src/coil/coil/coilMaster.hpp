@@ -27,6 +27,7 @@
 #include <magnet/thread/refPtr.hpp>
 
 #include <map>
+#include <memory>
 
 class CoilMaster {
 public:
@@ -108,7 +109,9 @@ private:
     _viewPorts[window->GetWindowID()] = window;
   }
 
-  Gtk::Main _GTKit;
+
+
+  std::auto_ptr<Gtk::Main> _GTKit;
 
   bool glutIdleTimeout();
 

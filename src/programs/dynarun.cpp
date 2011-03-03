@@ -29,6 +29,7 @@
 #include <boost/program_options.hpp>
 #include "../src/coordinator/coordinator.hpp"
 #include <magnet/arg_share.hpp>
+#include <buildinfo.hpp>
 
 /*! \brief Starting point for the dynarun program.
  *

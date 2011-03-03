@@ -15,8 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPRGyration_H
-#define OPRGyration_H
+#pragma once
+
+#ifdef DYNAMO_GSL
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"

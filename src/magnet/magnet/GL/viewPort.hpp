@@ -19,10 +19,12 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
 
-#include <cmath>
 #include <magnet/math/matrix.hpp>
 #include <coil/Maths/VECTOR4D.h>
 #include <coil/Maths/MATRIX4X4.h>
+
+#include <magnet/exception.hpp>
+#include <cmath>
 
 namespace magnet {
   namespace GL {    
@@ -65,20 +67,16 @@ namespace magnet {
       
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
-	//Forward/Backward movement
-	_position[2] -= forward * std::cos(_tiltrotation * (M_PI/ 180)) 
-	  * std::sin(_panrotation  * (M_PI/ 180) + M_PI * 0.5);  
-	_position[0] -= forward * std::cos(_tiltrotation * (M_PI/ 180)) 
-	  * std::cos(_panrotation  * (M_PI/ 180) + M_PI * 0.5);
-	_position[1] += -forward * std::sin(_tiltrotation * (M_PI/ 180));
+	//Build a matrix to rotate from camera to world
+	Matrix Transformation = Rodrigues(Vector(0,-_panrotation * M_PI/180,0))
+	  * Rodrigues(Vector(-_tiltrotation * M_PI/180.0,0,0));
 	
-	//Strafe movement
-	_position[2] += sideways * std::sin(_panrotation * (M_PI/ 180));
-	_position[0] += sideways * std::cos(_panrotation * (M_PI/ 180));
-	
-	//Vertical movement
-	_position[1] += vertical;
-	
+	//This vector is the movement vector from the camera's
+	//viewpoint (not including the vertical component)
+	Vector movement(sideways,0,-forward); //Strafe direction (left-right)
+	  
+	_position += Transformation * movement + Vector(0,vertical,0);
+
 	buildMatrices();
       }
       
@@ -107,6 +105,12 @@ namespace magnet {
 	_cameraDirection =  viewTransform * Vector(0,0,-1);
 	_cameraUp = viewTransform * Vector(0,1,0);
 
+      }
+
+      inline void saveMatrices()
+      {
+	glGetFloatv(GL_PROJECTION_MATRIX, _projectionMatrix);
+	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
       }
 
       inline void loadMatrices()

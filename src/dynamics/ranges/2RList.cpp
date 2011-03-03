@@ -38,15 +38,19 @@ C2RList::isInRange(const Particle&p1, const Particle&p2) const
   if (a < b)
     {
       if ((iPtr = pairmap.find(a)) != pairmap.end())
-	BOOST_FOREACH(unsigned long val, iPtr->second)
-	  if (b == val)
-	    return true;
+	{
+	  BOOST_FOREACH(unsigned long val, iPtr->second)
+	    if (b == val)
+	      return true;
+	}
     }
   else
     if ((iPtr = pairmap.find(b))  != pairmap.end())
-      BOOST_FOREACH(unsigned long val, iPtr->second)
-	if (a == val)
-	  return true;
+      {
+	BOOST_FOREACH(unsigned long val, iPtr->second)
+	  if (a == val)
+	    return true;
+      }
   
   return false;
 }

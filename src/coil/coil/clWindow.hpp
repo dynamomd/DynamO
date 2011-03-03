@@ -39,6 +39,10 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <memory>
 
+#ifdef COIL_wiimote
+# include <coil/extcode/wiiheadtracking.hpp>
+#endif 
+
 class CLGLWindow : public CoilWindow
 {
 public:
@@ -100,6 +104,10 @@ protected:
   size_t _height, _width;
   int _windowX, _windowY;
 
+#ifdef COIL_wiimote
+  TrackWiimote _wiiMoteTracker;
+#endif
+
   std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
 
   void CallBackSpecialUpFunc(int key, int x, int y) {}
@@ -112,12 +120,11 @@ protected:
 
   void performPicking(int x, int y);
 
-
-
 private:
   //Task queue for the simulation thread
   magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   double _updateIntervalValue;
+  size_t _consoleID;
 
   magnet::thread::Mutex _destroyLock;
 
@@ -152,7 +159,7 @@ private:
 
   sigc::connection _renderTimeout;
 
-  magnet::GL::viewPort _viewPortInfo;
+  std::auto_ptr<magnet::GL::viewPort> _viewPortInfo;
     
   bool keyStates[256];
 
@@ -178,7 +185,7 @@ private:
 
   size_t _snapshot_counter;
 
-  magnet::GL::lightInfo _light0;
+  std::auto_ptr<magnet::GL::lightInfo> _light0;
 
   /////////GTK members
   virtual void initGTK();
@@ -208,8 +215,8 @@ private:
     Gtk::TreeModelColumn<size_t> m_id;
   };
 
-  FilterModelColumnsType _filterModelColumns;
-  RenderObjModelColumnsType _renderObjModelColumns;
+  std::auto_ptr<FilterModelColumnsType> _filterModelColumns;
+  std::auto_ptr<RenderObjModelColumnsType> _renderObjModelColumns;
 
   Glib::RefPtr<Gtk::ListStore> _filterStore;
   Glib::RefPtr<Gtk::ListStore> _renderObjStore;

@@ -21,7 +21,6 @@
 # include <boost/iostreams/filtering_stream.hpp>
 # include <boost/iostreams/filter/bzip2.hpp>
 # include <boost/iostreams/chain.hpp>
-namespace io = boost::iostreams;
 
 #include <boost/filesystem.hpp>
 #include <boost/progress.hpp>
@@ -60,9 +59,9 @@ struct CUFile: public CUCell
 	if (!boost::filesystem::exists(fileName))
 	  M_throw() << "Could not open XML configuration file";
 	
-	io::filtering_istream inputFile;
-	inputFile.push(io::bzip2_decompressor());
-	inputFile.push(io::file_source(fileName));
+	boost::iostreams::filtering_istream inputFile;
+	inputFile.push(boost::iostreams::bzip2_decompressor());
+	inputFile.push(boost::iostreams::file_source(fileName));
 	//Copy file to a string
 	std::string line, fileString;
 	

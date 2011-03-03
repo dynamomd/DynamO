@@ -1127,10 +1127,12 @@ LNewtonian::runOscilatingPlate
       */
       inelas = 1.0;
       if (fabs(rvdot / fL.maxWallVel()) < 0.001)
-	if (rvdot < 0)
-	  rvdot = -fL.maxWallVel() * 0.01;
-	else
-	  rvdot = fL.maxWallVel() * 0.01;
+	{
+	  if (rvdot < 0)
+	    rvdot = -fL.maxWallVel() * 0.01;
+	  else
+	    rvdot = fL.maxWallVel() * 0.01;
+	}
     }
 
   Vector delP =  nhat * mu * (1.0 + inelas) * rvdot;

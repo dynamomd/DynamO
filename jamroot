@@ -14,88 +14,109 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import feature : feature ;
-feature color : no yes : propagated optional ;
-feature visualizer : no yes : propagated ;
-
-#using intel-linux ;
-
+##########################################################################
+#Location of the boost build root directory
 path-constant BOOST_ROOT : boost/tools/build/v2 ;
 
+##########################################################################
+#If the build-dir doesn't exist at the very start of the build, all
+#config output goes to stdout. So we create the directory now
+import os ;
+local build-dir = "build-dir" ;
+if [ os.name ] = NT
+{ SHELL "mkdir "$(build-dir) ; }
+else
+{ SHELL "mkdir -p "$(build-dir) ; }
+
+##########################################################################
+#Aliases for the libraries of dynamo
+use-project dynamo_core : src/ ;
+use-project magnet : src/magnet ;
+use-project coil : src/coil ;
+
+##########################################################################
+#These are the options that can be set when calling bjam
+import feature : feature ;
+feature color : yes no : propagated ;
+
+##########################################################################
+#Imports 
+#This rule imports jam files in remote locations into a nice namespace
+rule cleanimport ( modules + )
+{
+  for local m in $(modules)
+  {
+    import $(m) ;
+    local r = [ RULENAMES $(m) ] ;
+    import $(m) : $(r) : $(m:B).$(r) ;
+  }
+}
+#this imports src/magnet/jam/buildinfo into buildinfo
+cleanimport src/magnet/jam/buildinfo ;
 import dynamo-tags ;
 
-rule trim-nl ( str )
-{
-   return [ MATCH "([^
-]*)" : $(str) ] ;
-}
+##########################################################################
+#Additional build variants
+#The fulldebug variant adds additional defines to help aid debugging
+#We might consider adding <cxxflags>ansi <cxxflags>pedantic <cxxflags>Weffc++
+#<define>_GLIBXX_DEBUG_PEDANTIC <define>_GLIBCXX_DEBUG_PEDANTIC  <define>_GLIBCXX_CONCEPT_CHECKS <define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG <define>_GLIBCPP_CONCEPT_CHECKS
+variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all <define>DYNAMO_OverlapTesting ;
 
-local githash = [ trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
+#The valgrind variant is useful for code analysis in tools like valgrind
+variant valgrind : <inlining>off <optimization>speed <debug-symbols>on <profiling>off ;
+variant valgrind_in : valgrind : <inlining>on  ;
 
+##########################################################################
+#Project definition
 project	: requirements
 	  <color>yes:<define>DYNAMO_Colour
-	  <color>yes
-	  <define>GITHASH=\\\"$(githash)\\\"
-	  <toolset>gcc:<cxxflags>-Wno-long-long
-	  <toolset>gcc:<cxxflags>-Wno-parentheses
 	  <tag>@dynamo-tags.naming
+          <threading>multi
+          <link>static
 	: default-build release
-	: build-dir build-dir
+	: build-dir $(build-dir)
 	;
 
-variant cachegrind : <inlining>off <optimization>speed <debug-symbols>on 
-	<profiling>off ;
+##########################################################################
+#Targets
+make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
+always buildinfo.hpp ;
 
-variant cachegrind_in : <inlining>on <optimization>speed <debug-symbols>on 
-	<profiling>off ;
+rule critical_dependencies ( )
+{ return [ check-target-builds src//dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
-variant massif : <inlining>off <optimization>speed <debug-symbols>on 
-	<profiling>off ;
+obj dynarun_src : src/programs/dynarun.cpp
+                : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
+exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ]  ;
 
-variant massif_in : <inlining>on <optimization>speed <debug-symbols>on 
-	<profiling>off ;
+obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp  boost//program_options
+    : <implicit-dependency>buildinfo.hpp [ critical_dependencies ] ;
+exe dynareplex_opt : dynareplex_opt_src boost//program_options
+    : [ critical_dependencies ] ;
 
-#
-variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all  <define>DYNAMO_OverlapTesting ; 
-#<cxxflags>ansi
-#<cxxflags>pedantic
-#<cxxflags>Weffc++
+obj dynahist_rw_src : src/programs/dynahist_rw.cpp
+    : [ critical_dependencies ] <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
+exe dynahist_rw : dynahist_rw_src src//dynamo_core 
+    : [ critical_dependencies ] ;
 
-#<define>_GLIBXX_DEBUG_PEDANTIC <define>_GLIBCXX_DEBUG_PEDANTIC  <define>_GLIBCXX_CONCEPT_CHECKS <define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG <define>_GLIBCPP_CONCEPT_CHECKS
-exe dynareplex_opt 
-    : src/programs/dynareplex_opt.cpp boost//program_options
-    : <link>static
-    ;
-
-exe dynahist_rw 
-    : src/programs/dynahist_rw.cpp src//dynamo_core 
-    : <link>static
-    ;
-
-exe dynarun 
-    : src/programs/dynarun.cpp src//dynamo_core 
-    : <link>static 
-    ;
-
-exe dynamod 
-    : src/programs/dynamod.cpp src//dynamo_core
-    : <link>static 
-    ;
+obj dynamod_src : src/programs/dynamod.cpp 
+                : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core 
+		[ critical_dependencies ] ;
+exe dynamod : dynamod_src src//dynamo_core : [ critical_dependencies ] ;
 
 alias coil : src/coil//coil ;
 
 install install-coil
 	: coil
-	: <location>lib
+	: <location>lib [ critical_dependencies ]
 	;	
 
 install install-bin 
-	: dynarun dynahist_rw dynamod
-	: <location>bin
-	;	
+	: dynarun dynahist_rw dynamod 
+	: <location>bin [ critical_dependencies ]
+	;
 
-
-alias install : install-bin ;
+alias install : install-bin : [ critical_dependencies ] ;
 alias test : src/magnet//test src/coil//test src//test ;
 
-explicit install install-bin test ;
+explicit install install-coil coil install-bin test buildinfo.hpp dynamod_src dynahist_rw_src dynareplex_opt_src dynarun_src ;

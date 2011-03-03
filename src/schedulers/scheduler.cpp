@@ -239,6 +239,10 @@ CScheduler::runNextEvent()
 	    //It's just another version of this event so we can execute it
 	  }
 	
+#ifdef DYNAMO_CollDebug
+		if (sorter->next_dt() < 0) I_cerr() << "Negative time " << sorter->next_dt() << "\n";
+#endif
+
 	//Reset the rejection watchdog, we will run an interaction event now
 	_interactionRejectionCounter = 0;
 	
@@ -265,7 +269,7 @@ CScheduler::runNextEvent()
 	
 	//Debug section
 #ifdef DYNAMO_CollDebug
-	std::cerr << "\nsysdt " << Event.getdt() + Sim->dSysTime
+	std::cerr << "\nsysdt " << (Event.getdt() + Sim->dSysTime) / Sim->dynamics.units().unitTime()
 		  << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
 		  << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
 		  << "  dt " << Event.getdt()
@@ -408,32 +412,30 @@ void
 CScheduler::addInteractionEventInit(const Particle& part, 
 					 const size_t& id) const
 {
-  //We'll be smart about memory and add evenly on initialisation. Not
-  //using sorting only as it's unbalanced on a system where the
-  //positions and ID's are correlated, e.g a lattice thats frozen on
-  //initialisation.
+  //We'll be smart about memory and try to add events evenly on
+  //initialisation to all particles
+  //
+  //This is achieved by only allowing one particle to store the
+  //event. But we can't just use sorting (e.g., part.getID() < id) to
+  //discriminate which particle gets the event as, on regular
+  //lattices, particle 0 will get all of the events for all the
+  //particles in its neighborhood!
+  //
+  //We can mix this up a little, by also testing for odd and evenness
+  //and using this to switch which particles are chosen
 
-  if (part.getID() % 2)
+  size_t val = (part.getID() % 2) + 2 * (id % 2);
+  switch (val)//part-id
     {
-      if (id % 2)
-	//1st odd  2nd odd
-	//Only take half these matches
-	if (part.getID() > id) return;
-      else
-	//1st odd  2nd even
-	//We allow these
-	{}
-    }
-  else
-    {
-      if (id % 2)
-	//1st even 2nd odd
-	//As we allow odd,even we deny even,odd
-	return;
-      else
-	//1st even 2nd even
-	//No reason to use < or > but we switch it from odd,odd anyway
-	if (part.getID() < id) return;
+    case 0: //even-even (accept half)
+      if (part.getID() > id) return;      
+      break;
+    case 1: //odd-even (accept)
+      break;
+    case 2: //even-odd (reject)
+      return;
+    case 3: //odd-odd (accept half)
+      if (part.getID() < id) return;      
     }
 
   addInteractionEvent(part, id);

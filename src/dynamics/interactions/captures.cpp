@@ -44,7 +44,7 @@ ISingleCapture::initCaptureMap()
 	   iPtr != Sim->particleList.end(); iPtr++) 
 	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
 	     iPtr2 != Sim->particleList.end(); iPtr2++)
-	  if (range->isInRange(*iPtr, *iPtr2))
+	  if (&(*(Sim->dynamics.getInteraction(*iPtr, *iPtr2))) == this)
 	    if (captureTest(*iPtr,*iPtr2))	      
 	      addToCaptureMap(*iPtr, *iPtr2); 
     }
@@ -164,7 +164,7 @@ IMultiCapture::initCaptureMap()
 	   iPtr != Sim->particleList.end(); iPtr++) 
 	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
 	     iPtr2 != Sim->particleList.end(); iPtr2++)
-	  if (range->isInRange(*iPtr, *iPtr2))
+	  if (&(*(Sim->dynamics.getInteraction(*iPtr, *iPtr2))) == this)
 	    {
 	      int capval = captureTest(*iPtr,*iPtr2);
 	      if (captureTest(*iPtr,*iPtr2))

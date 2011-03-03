@@ -15,37 +15,44 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 lib gslcblas ;
- 
-lib rt : : <link>shared ;
-
-lib gsl	
+lib gsl
     : gslcblas
     : <name>gsl
     ;
 
-#Feature visualizer handler
+lib rt : : <link>shared ;
+
+exe gsltest : tests/gsltest.cpp gsl ;
+exe zlibtest : tests/zlibtest.cpp ;
+exe bzip2test : tests/bzip2test.cpp ;
+
+exe dynamoDependencies : tests/buildreq.cpp : 
+[ check-target-builds zlibtest "DynamO: zlib " : : <define>BUILDFAIL ]
+[ check-target-builds bzip2test "DynamO: bzip2 " : : <define>BUILDFAIL ]
+: : ;
+
+rule critical_dependencies ( )
+{ return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
+
+explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
+always gsltest zlibtest bzip2test dynamoDependencies ;
+
 alias dynamo_visualizer :
       coil//coil/<link>static
-      : <visualizer>yes
-      : : <visualizer>yes <define>DYNAMO_visualizer 
+      : : : <define>DYNAMO_visualizer
       ;
 
-alias dynamo_visualizer :
-      : <visualizer>no
-      : : <visualizer>no
-      ;
-
-alias dynamo_core : [ glob-tree *.cpp : programs coil magnet ]
-    gsl dynamo_visualizer
-    magnet//magnet
-    ../boost//iostreams
-    ../boost//filesystem
-    ../boost//program_options
-    rt
-    : <include>extcode/include 
+lib dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
+      magnet//magnet ../boost//iostreams ../boost//filesystem
+      ../boost//program_options rt 
+    : <include>extcode/include [ critical_dependencies ]
       <variant>debug:<define>DYNAMO_DEBUG <link>static
+[ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
+[ check-target-builds coil//coilDependencies "DynamO: Coil enabled" : <source>dynamo_visualizer : ]
     : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static
     ;
 
 alias test : ;
+
+explicit dynamo_core visualizer test ;

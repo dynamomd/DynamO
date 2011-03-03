@@ -42,6 +42,7 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _width(setWidth),
   _windowX(initPosX),
   _windowY(initPosY),
+  _systemQueue(new magnet::thread::TaskQueue),
   _updateIntervalValue(updateIntervalValue),
   keyState(DEFAULT),
   windowTitle(title),
@@ -66,25 +67,6 @@ CLGLWindow::CLGLWindow(int setWidth, int setHeight,
   _dynamo(dynamo)
 {
   for (size_t i(0); i < 256; ++i) keyStates[i] = false;
-
-  _systemQueue = new magnet::thread::TaskQueue;
-  //First render object is the ground
-  RenderObjects.push_back(new RFunction((size_t)64,
-					Vector(-5, -0.6, -5),
-					Vector(10,0,0), Vector(0,0,10), Vector(0,1,0), //Axis of the function, x,y,z
-					-1, -1,//Start point of the functions evaluation (x,y)
-					1, 1,//Range of the function to evaluate (xrange,yrange
-					false, //Render a set of Axis as well?
-					true, //Is the shape static, i.e. is there no time dependence
-					"Ground",
-					"f=0;\n",
-					"normal = (float4)(0,0,1,0);\n",
-					"colors[0] = (uchar4)(255,255,255,255);"
-					));
-
-  //Second render object is the console
-  RenderObjects.push_back(new coil::Console(_width, _height));
-  RenderObjects.push_back(new coil::Axis());
 }
 
 CLGLWindow::~CLGLWindow()
@@ -147,7 +129,8 @@ CLGLWindow::initOpenGL()
   if (!_pickingEnabled)
     std::cout << "\nPicking won't work! Your screen color depth is too low! We need/want 32bits (24bit color plus 8bit alpha)";
 
-  _viewPortInfo.buildMatrices();
+  _viewPortInfo.reset(new magnet::GL::viewPort);
+  _viewPortInfo->buildMatrices();
 
   glDrawBuffer(GL_BACK);
 
@@ -197,15 +180,15 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
   //Light0 parameters
-  _light0 = magnet::GL::lightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
-				  Vector(0.0f, 0.0f, 0.0f),//Lookat
-				  GL_LIGHT0,
-				  75.0f,//Beam angle
-				  0.01,//rangeMin
-				  10//rangeMax
-				  );
+  _light0.reset(new magnet::GL::lightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
+					  Vector(0.0f, 0.0f, 0.0f),//Lookat
+					  GL_LIGHT0,
+					  75.0f,//Beam angle
+					  0.01,//rangeMin
+					  10//rangeMax
+					  ));
   
-  _light0.buildMatrices();
+  _light0->buildMatrices();
 
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
@@ -243,8 +226,9 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
   
-  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[1]);
-  _console << "Welcome to coil, part of the dynamo simulator..." << coil::Console::end();
+  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
+  _console << "Welcome to coil, part of the dynamo simulator..." 
+	   << coil::Console::end();
 }
 
 bool
@@ -297,6 +281,9 @@ extern const size_t coilicon_size;
 void
 CLGLWindow::initGTK()
 {
+  _filterModelColumns.reset(new FilterModelColumnsType);
+  _renderObjModelColumns.reset(new RenderObjModelColumnsType);
+
   {////////Glade XML loader 
     Glib::ustring glade_data
       (reinterpret_cast<const char *>(_binary_clwingtk_gladexml_start), 
@@ -422,7 +409,7 @@ CLGLWindow::initGTK()
   {///////Light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
-    FOVscale->set_value(_light0._fovY);
+    FOVscale->set_value(_light0->_fovY);
     FOVscale->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
@@ -552,13 +539,13 @@ CLGLWindow::initGTK()
 	///Tree view must be built
 	
 	//Build the store
-	_filterStore = Gtk::ListStore::create(_filterModelColumns);
+	_filterStore = Gtk::ListStore::create(*_filterModelColumns);
 
 	//Setup the filter store
 	_refXml->get_widget("filterView", _filterView);
 	_filterView->set_model(_filterStore);
-	_filterView->append_column("Active", _filterModelColumns.m_active);
-	_filterView->append_column("Filter Name", _filterModelColumns.m_name);
+	_filterView->append_column("Active", _filterModelColumns->m_active);
+	_filterView->append_column("Filter Name", _filterModelColumns->m_name);
 
 	//////Connect the filterView select callback
 	{
@@ -613,13 +600,13 @@ CLGLWindow::initGTK()
     ///Tree view must be built
     
     //Build the store
-    _renderObjStore = Gtk::ListStore::create(_renderObjModelColumns);
+    _renderObjStore = Gtk::ListStore::create(*_renderObjModelColumns);
     
     //Setup the filter store
     _refXml->get_widget("renderObjView", _renderObjView);
     _renderObjView->set_model(_renderObjStore);
-    _renderObjView->append_column("Visible", _renderObjModelColumns.m_visible);
-    _renderObjView->append_column("Object Name", _renderObjModelColumns.m_name);
+    _renderObjView->append_column("Visible", _renderObjModelColumns->m_visible);
+    _renderObjView->append_column("Object Name", _renderObjModelColumns->m_name);
     
     //Populate the render object view
     rebuildRenderView();
@@ -777,17 +764,38 @@ CLGLWindow::init()
 
   if (_readyFlag) return;
 
+  //First render object is the ground
+  RenderObjects.push_back(new RFunction((size_t)64,
+					Vector(-5, -0.6, -5),
+					Vector(10,0,0), Vector(0,0,10), Vector(0,1,0), //Axis of the function, x,y,z
+					-1, -1,//Start point of the functions evaluation (x,y)
+					1, 1,//Range of the function to evaluate (xrange,yrange
+					false, //Render a set of Axis as well?
+					true, //Is the shape static, i.e. is there no time dependence
+					"Ground",
+					"f=0;\n",
+					"normal = (float4)(0,0,1,0);\n",
+					"colors[0] = (uchar4)(255,255,255,255);"
+					));
+
+
+  //Second render object is the console
+  _consoleID = RenderObjects.size();
+  RenderObjects.push_back(new coil::Console(_width, _height));
+  RenderObjects.push_back(new coil::Axis());
+
   _CLState = new magnet::CL::CLGLState;
 
   //Inform objects about the accessory objects, like the console or the pointer
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     //This is the console and the simulation/system task queue
-    (*iPtr)->accessoryData(RenderObjects[1], _systemQueue, _CLState); 
+    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _CLState); 
   
   initOpenGL();
   initOpenCL();
   initGTK();
+  
   _readyFlag = true;
 }
 
@@ -860,20 +868,42 @@ CLGLWindow::CallBackDisplayFunc()
   //Run every objects OpenCL stage
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->clTick(_viewPortInfo);
+    (*iPtr)->clTick(*_viewPortInfo);
 
   //Camera Positioning
 
-  float moveAmp = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
+  float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
   float forward  = moveAmp * ( keyStates['w'] - keyStates['s']);
   float sideways = moveAmp * ( keyStates['d'] - keyStates['a']);
   float vertical = moveAmp * ( keyStates['q'] - keyStates['z']);
-  _viewPortInfo.CameraUpdate(forward, sideways, vertical);
+  _viewPortInfo->CameraUpdate(forward, sideways, vertical);
+
+#ifdef COIL_wiimote
+  _viewPortInfo->loadMatrices();
+  if (keyStates['l'])
+    {
+      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
+      _console << "Connecting to the wii remote" << coil::Console::end();  
+      if (!_wiiMoteTracker.connect())
+	_console << "Could not connect to the Wii remote!" << coil::Console::end();  
+      else
+	_console << "Wiimote connected" << coil::Console::end();  
+    }
+
+  if (keyStates['c']) _wiiMoteTracker.requestCalibration(); 
+      
+  if (_wiiMoteTracker.connected())
+    {
+      _wiiMoteTracker.updateState();
+      _wiiMoteTracker.glPerspective(*_viewPortInfo, _width, _height);
+      //Now tell the viewport to save the modified matricies
+      _viewPortInfo->saveMatrices();
+    }
+#endif
 
   //Flush the OpenCL queue, so GL can use the buffers
   _CLState->getCommandQueue().finish();
   
-
   //Prepare for the GL render
   if (_shaderPipeline)
     {
@@ -881,7 +911,7 @@ CLGLWindow::CallBackDisplayFunc()
 	{
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the lights perspective
-	  _light0.loadMatrices();
+	  _light0->loadMatrices();
 	  
 	  //Setup the FBO for shadow maps
 	  _shadowFBO.setup();
@@ -903,7 +933,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  glActiveTextureARB(GL_TEXTURE7);
 	  glMatrixMode(GL_TEXTURE);
 	  
-	  _light0.loadShadowTextureMatrix(_viewPortInfo);
+	  _light0->loadShadowTextureMatrix(*_viewPortInfo);
 	  
 	  glMatrixMode(GL_MODELVIEW);	  
 
@@ -914,11 +944,39 @@ CLGLWindow::CallBackDisplayFunc()
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      _viewPortInfo.loadMatrices();
+      _viewPortInfo->loadMatrices();
+
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
 			   7, _shadowMapping, _shadowIntensity, _width, _height);
 
-      drawScene();
+
+#ifdef COIL_wiimote
+      if (keyStates['b'])
+	{
+	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+	  _viewPortInfo->buildMatrices();
+	  _viewPortInfo->loadMatrices();
+
+	  const double eyedist = 8.5;
+	  Vector eyeDisplacement(0.5 *eyedist, 0, 0);
+	  
+	  _wiiMoteTracker.glPerspective(*_viewPortInfo, _width, _height, -eyeDisplacement);
+
+	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+	  drawScene();
+	  
+	  _viewPortInfo->loadMatrices();
+	  _wiiMoteTracker.glPerspective(*_viewPortInfo, _width, _height, eyeDisplacement);
+	  
+	  glClear(GL_DEPTH_BUFFER_BIT);
+	  glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
+	  drawScene();
+	  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	}
+      else	
+#endif
+	drawScene();
       
       _renderTarget->detach();
 
@@ -936,7 +994,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
 	    {
-	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	      void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
 
 	      if (static_cast<coil::filter*>(filter_ptr)->needsNormalDepth())
 		{ renderNormsAndDepth = true; break; }
@@ -965,10 +1023,10 @@ CLGLWindow::CallBackDisplayFunc()
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
 	    {
-	      void* filter_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	      void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
 	      coil::filter& filter = *static_cast<coil::filter*>(filter_ptr);
 
-	      if (!((*iPtr)[_filterModelColumns.m_active])) continue; //Only run active filters, skip to the next filter
+	      if (!((*iPtr)[_filterModelColumns->m_active])) continue; //Only run active filters, skip to the next filter
 
 	      if (filter.type_id() == coil::detail::filterEnum<coil::FlushToOriginal>::val)
 		{//Check if we're trying to flush the drawing
@@ -988,7 +1046,7 @@ CLGLWindow::CallBackDisplayFunc()
 		  else
 		    _filterTarget2.attach();
 		  
-		  filter.invoke(3, _width, _height, _viewPortInfo);
+		  filter.invoke(3, _width, _height, *_viewPortInfo);
 		  
 		  if (FBOalternate)
 		    _filterTarget1.detach();
@@ -1009,9 +1067,9 @@ CLGLWindow::CallBackDisplayFunc()
       lastFBO->blitToScreen(_width, _height);
     }
   else    
-    {      
+    {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-      _viewPortInfo.loadMatrices();
+      _viewPortInfo->loadMatrices();
       drawScene();
     }
   
@@ -1021,7 +1079,7 @@ CLGLWindow::CallBackDisplayFunc()
   //Enter the interface draw for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->interfaceRender(_viewPortInfo);
+    (*iPtr)->interfaceRender(*_viewPortInfo);
 
   glutSwapBuffers();
 
@@ -1092,7 +1150,7 @@ void
 CLGLWindow::drawScene()
 {
   //SSAO is buggered up by transparency somehow
-  GLfloat light0_position[] = {_light0._position.x, _light0._position.y, _light0._position.z, 1.0f};
+  GLfloat light0_position[] = {_light0->_position.x, _light0->_position.y, _light0->_position.z, 1.0f};
   glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
   
   //Enter the render ticks for all objects
@@ -1100,7 +1158,7 @@ CLGLWindow::drawScene()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender();
   
-  if (_showLight) _light0.drawLight();
+  if (_showLight) _light0->drawLight();
 }
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1114,8 +1172,8 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   glViewport(0, 0, _width, _height); 
 
   //Update the viewport
-  _viewPortInfo._aspectRatio = ((GLdouble)_width) / _height;
-  _viewPortInfo.buildMatrices();
+  _viewPortInfo->_aspectRatio = ((GLdouble)_width) / _height;
+  _viewPortInfo->buildMatrices();
   
   if (_shaderPipeline)
     {
@@ -1208,8 +1266,8 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
   switch (keyState)
     {
     case LEFTMOUSE:
-      _viewPortInfo._panrotation += diffX;
-      _viewPortInfo._tiltrotation = magnet::clamp(diffY + _viewPortInfo._tiltrotation, -90.0f, 90.0f);
+      _viewPortInfo->_panrotation += diffX;
+      _viewPortInfo->_tiltrotation = magnet::clamp(diffY + _viewPortInfo->_tiltrotation, -90.0f, 90.0f);
       break;
 //    case RIGHTMOUSE:
 //      break;
@@ -1285,7 +1343,7 @@ CLGLWindow::runCallback()
   togButtonImage->get_stock(origimage, origsize);
 
   //Set the icon depending on the state
-  if (_simrun = togButton->get_active())
+  if ((_simrun = togButton->get_active()))
     togButtonImage->set(Gtk::StockID("gtk-media-pause"), origsize);
   else
     togButtonImage->set(Gtk::StockID("gtk-media-play"), origsize);
@@ -1327,7 +1385,7 @@ CLGLWindow::lightShowCallback()
 void 
 CLGLWindow::lightPlaceCallback()
 {
-  _light0 = _viewPortInfo;
+  *_light0 = *_viewPortInfo;
 }
 
 void 
@@ -1380,7 +1438,7 @@ CLGLWindow::filterDeleteCallback()
   
   Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
   
-  void* tmp_ptr = (*iter)[_filterModelColumns.m_filter_ptr];
+  void* tmp_ptr = (*iter)[_filterModelColumns->m_filter_ptr];
   delete static_cast<coil::filter*>(tmp_ptr);
 
   _filterStore->erase(iter);
@@ -1403,13 +1461,13 @@ CLGLWindow::filterAddCallback()
   size_t type_id = (*filterSelectBox->get_active())
     [coil::filter::getSelectColumnsInstance().m_col_id];
 
-  (*iter)[_filterModelColumns.m_filter_ptr] 
+  (*iter)[_filterModelColumns->m_filter_ptr] 
     = coil::filter::createFromID(type_id);
 
-  (*iter)[_filterModelColumns.m_name]
+  (*iter)[_filterModelColumns->m_name]
     = coil::filter::getName(type_id);
   
-  (*iter)[_filterModelColumns.m_active]
+  (*iter)[_filterModelColumns->m_active]
     = true;
 
   filterSelectCallback();
@@ -1442,7 +1500,7 @@ CLGLWindow::filterSelectCallback()
       ++next_iter;
 
       coil::filter* filter_ptr
-	= (coil::filter*)((void*)((*iter)[_filterModelColumns.m_filter_ptr]));
+	= (coil::filter*)((void*)((*iter)[_filterModelColumns->m_filter_ptr]));
       
       //Enable the filter buttons
       upbtn    ->set_sensitive(iter != _filterStore->children().begin());
@@ -1488,9 +1546,9 @@ CLGLWindow::filterActiveCallback()
       bool newState = filterActive->get_active();
       
       coil::filter* filter_ptr
-	= (coil::filter*)((void*)((*iter)[_filterModelColumns.m_filter_ptr]));
+	= (coil::filter*)((void*)((*iter)[_filterModelColumns->m_filter_ptr]));
       filter_ptr->setActive(newState);
-      (*iter)[_filterModelColumns.m_active] = newState;
+      (*iter)[_filterModelColumns->m_active] = newState;
     }
 }
 
@@ -1512,7 +1570,7 @@ CLGLWindow::filterClearCallback()
 	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
 	     iPtr; ++iPtr)
 	  {
-	    void* tmp_ptr = (*iPtr)[_filterModelColumns.m_filter_ptr];
+	    void* tmp_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
 	    delete static_cast<coil::filter*>(tmp_ptr);
 	  }
 	
@@ -1599,7 +1657,7 @@ CLGLWindow::performPicking(int x, int y)
 {
   glUseProgramObjectARB(0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-  _viewPortInfo.loadMatrices();
+  _viewPortInfo->loadMatrices();
   //Perform unique coloring of screen objects
 
   cl_uint startVal = 0;
@@ -1649,13 +1707,13 @@ CLGLWindow::rebuildRenderView()
     {
       Gtk::TreeModel::iterator iter = _renderObjStore->append();
       
-      (*iter)[_renderObjModelColumns.m_name]
+      (*iter)[_renderObjModelColumns->m_name]
 	= (*iPtr)->getName();
       
-      (*iter)[_renderObjModelColumns.m_visible]
+      (*iter)[_renderObjModelColumns->m_visible]
 	= (*iPtr)->isVisible();
 
-      (*iter)[_renderObjModelColumns.m_id]
+      (*iter)[_renderObjModelColumns->m_id]
 	= iPtr - RenderObjects.begin();
     }
 }
@@ -1671,11 +1729,11 @@ void CLGLWindow::visibleRObjCallback()
 
   if(iter)
     {
-      size_t objID = (*iter)[_renderObjModelColumns.m_id]; 
+      size_t objID = (*iter)[_renderObjModelColumns->m_id]; 
       bool newState = visibleBtn->get_active();
 
       RenderObjects[objID]->setVisible(newState);
-      (*iter)[_renderObjModelColumns.m_visible] = newState;
+      (*iter)[_renderObjModelColumns->m_visible] = newState;
     }
 
   selectRObjCallback();
@@ -1709,7 +1767,7 @@ void CLGLWindow::selectRObjCallback()
       editBtn->set_sensitive(false); 
       visibleBtn->set_sensitive(true);
 
-      if (RenderObjects[(*iter)[_renderObjModelColumns.m_id]]->isVisible())
+      if (RenderObjects[(*iter)[_renderObjModelColumns->m_id]]->isVisible())
 	{//Object is visible
 	  visibleBtn->set_active(true);
 	  visibleImg->set(Gtk::Stock::YES, Gtk::ICON_SIZE_BUTTON);
@@ -1721,7 +1779,7 @@ void CLGLWindow::selectRObjCallback()
 	}
 
       //Load the controls for the window
-      RenderObjects[(*iter)[_renderObjModelColumns.m_id]]->showControls(win);
+      RenderObjects[(*iter)[_renderObjModelColumns->m_id]]->showControls(win);
     }
   else
     {
@@ -1753,8 +1811,8 @@ CLGLWindow::guiUpdateCallback()
   {///////light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
-    _light0._fovY = FOVscale->get_value();
-    _light0.buildMatrices();
+    _light0->_fovY = FOVscale->get_value();
+    _light0->buildMatrices();
   }
 
   {//Dynamo particle sync checkbox

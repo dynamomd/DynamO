@@ -229,10 +229,13 @@ ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
   Sim->dynamics.BCs().applyBC(rij);
 
 #ifdef DYNAMO_DEBUG
-  if (rij.nrm2() >= d2)
-    I_cerr() << "Warning! Two particles might be overlapping"
-	     << "\nrij^2 = " << (rij | rij)
-	     << "\nd^2 = " << d2;
+  if (rij.nrm2() < d2)
+    {
+      I_cerr() << "Warning! Two particles are overlapping"
+	       << "\nrij^2 = " << (rij | rij)
+	       << "\nd^2 = " << d2
+	       << "\np1 = " << p1.getID() << " p2 = " << p2.getID();
+    }
 #endif
 
   return (rij.nrm2() <= ld2);
@@ -253,6 +256,9 @@ ISWSequence::getEvent(const Particle &p1,
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
+#ifdef DYNAMO_CollDebug
+  std::cerr << "\n Testing p1 = " << p1.getID() << " p2 = " << p2.getID();
+#endif
   CPDData colldat(*Sim, p1, p2);
   
   if (isCaptured(p1, p2)) 

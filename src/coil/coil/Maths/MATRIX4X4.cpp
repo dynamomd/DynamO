@@ -102,7 +102,9 @@ VECTOR4D MATRIX4X4::GetColumn(int position) const
 
 void MATRIX4X4::LoadIdentity(void)
 {
-	memset(entries, 0, 16*sizeof(float));
+	entries[0]=entries[1]= entries[2]= entries[3]=entries[4]=entries[5]=entries[6]
+	  =entries[7]=entries[8]=entries[9]=entries[10]=entries[11]=entries[12]
+	  =entries[13]=entries[14]=entries[15]= 0;
 	entries[0]=1.0f;
 	entries[5]=1.0f;
 	entries[10]=1.0f;

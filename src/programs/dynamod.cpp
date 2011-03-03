@@ -33,6 +33,7 @@ namespace po = boost::program_options;
 #include "../src/schedulers/include.hpp"
 #include "../src/inputplugins/include.hpp"
 #include "../src/outputplugins/0partproperty/XMLconfig.hpp"
+#include <buildinfo.hpp>
 Simulation sim;
 
 int

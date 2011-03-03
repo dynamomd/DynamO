@@ -454,8 +454,8 @@ CGCellsMorton::getCellID(Vector pos) const
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = int((pos[iDim] + 0.5 * Sim->aspectRatio[iDim] - cellOffset)
-		     / cellLatticeWidth);
+    temp[iDim] = std::floor((pos[iDim] + 0.5 * Sim->aspectRatio[iDim] - cellOffset)
+			    / cellLatticeWidth);
   
   return getCellID(temp);
 }

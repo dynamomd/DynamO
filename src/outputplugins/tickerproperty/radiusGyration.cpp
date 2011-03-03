@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef DYNAMO_GSL
 #include "radiusGyration.hpp"
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
@@ -379,3 +380,4 @@ OPRGyration::output(xml::XmlStream& XML)
   XML << xml::endtag("ChainGyration");
   
 }
+#endif
