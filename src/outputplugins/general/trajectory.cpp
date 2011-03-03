@@ -95,9 +95,11 @@ OPTrajectory::eventUpdate(const IntEvent& eevent,
 	  << " t " << std::setw(5) << Sim->dSysTime / Sim->dynamics.units().unitTime() 
 	  << " dt " << std::setw(5) << eevent.getdt() / Sim->dynamics.units().unitTime();
 
-  logfile << " deltaP < ";
+  logfile << " deltaP1 < ";
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    logfile << std::setw(7) << pdat.dP[iDim] << " ";
+    logfile << std::setw(7) 
+	    << ((eevent.getParticle1ID() < eevent.getParticle2ID())? -1 : 1) 
+      * pdat.dP[iDim] << " ";
 
   logfile << " >";
   
