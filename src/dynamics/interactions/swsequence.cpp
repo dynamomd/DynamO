@@ -256,6 +256,9 @@ ISWSequence::getEvent(const Particle &p1,
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
+#ifdef DYNAMO_CollDebug
+  std::cerr << "\n Testing p1 = " << p1.getID() << " p2 = " << p2.getID();
+#endif
   CPDData colldat(*Sim, p1, p2);
   
   if (isCaptured(p1, p2)) 

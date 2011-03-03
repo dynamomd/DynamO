@@ -303,9 +303,9 @@ CGCells::runEvent(const Particle& part, const double) const
     CVector<int> tmp = cells[partCellData[part.getID()].cell].coords;
     CVector<int> tmp2 = cells[oldCell].coords;
     
-    std::cerr << "\nCGWall sysdt " 
+    std::cerr << "\nCGCells sysdt " 
 	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
-	      << "  WALL ID "
+	      << "  Global ID "
 	      << part.getID()
 	      << "  from <" 
 	      << tmp[0] << "," << tmp[1] << "," << tmp[2]

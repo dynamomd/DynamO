@@ -239,6 +239,10 @@ CScheduler::runNextEvent()
 	    //It's just another version of this event so we can execute it
 	  }
 	
+#ifdef DYNAMO_CollDebug
+		if (sorter->next_dt() < 0) I_cerr() << "Negative time " << sorter->next_dt() << "\n";
+#endif
+
 	//Reset the rejection watchdog, we will run an interaction event now
 	_interactionRejectionCounter = 0;
 	
@@ -265,7 +269,7 @@ CScheduler::runNextEvent()
 	
 	//Debug section
 #ifdef DYNAMO_CollDebug
-	std::cerr << "\nsysdt " << Event.getdt() + Sim->dSysTime
+	std::cerr << "\nsysdt " << (Event.getdt() + Sim->dSysTime) / Sim->dynamics.units().unitTime()
 		  << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
 		  << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
 		  << "  dt " << Event.getdt()
