@@ -104,7 +104,7 @@ namespace magnet {
       inline void queueTask(function::Task* threadfunc)
       {
 	TaskQueue::queueTask(threadfunc);
-	_need_thread_mutex.notify_one();
+	_need_thread_mutex.notify_all();
       }
   
       /*! \brief Destructor
