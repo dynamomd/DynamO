@@ -82,6 +82,7 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   void addSystem(System*);
 
   void setSimID(const size_t& n) { simID = n; }
+  size_t getSimID() { return simID; }
 
   System* getSystem(std::string);
 

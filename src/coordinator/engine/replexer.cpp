@@ -35,7 +35,9 @@ EReplicaExchangeSimulation::getOptions(boost::program_options::options_descripti
     ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max()), 
      "Simulation end time")
     ("replex-interval,i", boost::program_options::value<double>()->default_value(1.0), 
-     "Interval between attempting swaps")
+     "Interval between attempting swaps on the coldest temperature. Every"
+     "other systems exchange interval is scaled by (T_cold/T_i)^{1/2} to try"
+     "to keep the simulation run times approximately constant.")
     ("replex-swap-mode", boost::program_options::value<unsigned int>()->default_value(1), 
      "System Swap Mode:\n"
      " Values:\n"
@@ -106,10 +108,7 @@ EReplicaExchangeSimulation::initialisation()
 	if (sysPtr1->getName() == "Thermostat")
 	  {
 	    if (dynamic_cast<CSysGhost*>(sysPtr1.get_ptr()) == NULL)
-	      {
-		std::cout << "Could not upcast thermostat to Andersens";
-		exit(1);
-	      }
+	      M_throw() << "Could not upcast thermostat to Andersens";
 	    
 	    temperatureList.push_back
 	      (replexPair
@@ -230,8 +229,8 @@ EReplicaExchangeSimulation::setupSim(Simulation & Sim, const std::string filenam
 {
   Engine::setupSim(Sim, filename);
 
-  Sim.addSystem(new CStHalt(&Sim, vm["replex-interval"].as<double>(), 
-			    "ReplexHalt"));
+  //Add the halt time, set to zero so a replica exchange occurrs immediately
+  Sim.addSystem(new CStHalt(&Sim, 0, "ReplexHalt"));
 
   Sim.addOutputPlugin("UEnergy");
 }
@@ -275,7 +274,6 @@ EReplicaExchangeSimulation::printStatus()
 	  std::cin.ignore(1,0);
 	  std::cin.clear();
 	}
-      
     }
 }
 
@@ -486,7 +484,12 @@ void EReplicaExchangeSimulation::runSimulation()
 	      if (tmpRef == NULL)
 		M_throw() << "Could not find the time halt event error";
 #endif			
-	      tmpRef->increasedt(vm["replex-interval"].as<double>());
+	      //Each simulations exchange time is inversly proportional to its temperature
+	      double tFactor 
+		= std::sqrt(temperatureList.begin()->second.realTemperature
+			    / Simulations[i].getEnsemble()->getReducedEnsembleVals()[2]); 
+
+	      tmpRef->increasedt(vm["replex-interval"].as<double>() * tFactor);
 
 	      Simulations[i].ptrScheduler->rebuildSystemEvents();
 
