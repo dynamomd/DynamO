@@ -126,7 +126,7 @@ IDumbbells::getEvent(const Particle &p1,
     {
       //Run this to determine when the spheres no longer intersect
       Sim->dynamics.getLiouvillean()
-	.SphereSphereOutRoot(colldat, length*length + 4.0*r*r,
+	.SphereSphereOutRoot(colldat, (length + diameter) * (length + diameter) ,
 			     p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC));
 
       //colldat.dt has the upper limit of the line collision time
@@ -140,7 +140,7 @@ IDumbbells::getEvent(const Particle &p1,
       return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
-	   .SphereSphereInRoot(colldat, length*length + 4.0*r*r,
+	   .SphereSphereInRoot(colldat, (length + diameter) * (length + diameter),
 			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
     return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
   

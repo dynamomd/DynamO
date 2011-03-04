@@ -234,7 +234,7 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
   double t_high = PD.dt;
   double tolerance = 1e-16;
   
-  CDumbbellsFunc fL(PD.rij, PD.vij,
+  CDumbbellsFunc fL1(PD.rij, PD.vij,
 		    orientationData[p1.getID()].angularVelocity,
 		    orientationData[p2.getID()].angularVelocity,
 		    orientationData[p1.getID()].orientation,
@@ -244,96 +244,66 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
        || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
       && Sim->dSysTime == lastAbsoluteClock)
     //Shift the lower bound up so we don't find the same root again
-    t_low += fabs(2.0 * fL.F_firstDeriv())
-      / fL.F_secondDeriv_max();
+    t_low += fabs(2.0 * fL1.F_firstDeriv())
+      / fL1.F_secondDeriv_max();
   
   I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
-  std::pair<bool,double> root = frenkelRootSearch(fL, t_low, t_high,length*tolerance);
+  std::pair<bool,double> root1 = frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
 
-  if (root.first) 
-    { 
-      PD.dt = root.second;
-      return true; 
-    }
-  else {
-    //return false;
 
-    CDumbbellsFunc fL2(PD.rij, PD.vij,
-		       orientationData[p1.getID()].angularVelocity,
-		       orientationData[p2.getID()].angularVelocity,
-		       -orientationData[p1.getID()].orientation,
-		       orientationData[p2.getID()].orientation,length,diameter);
+  CDumbbellsFunc fL2(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     -orientationData[p1.getID()].orientation,
+		     orientationData[p2.getID()].orientation,length,diameter);
   
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
 	&& Sim->dSysTime == lastAbsoluteClock)
-      //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL2.F_firstDeriv())
-	/ fL2.F_secondDeriv_max();
+    t_low += fabs(2.0 * fL2.F_firstDeriv())
+      / fL2.F_secondDeriv_max();
   
-    I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
-    root = frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
+  std::pair<bool,double> root2 = frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
 
-    if (root.first) 
-      { 
-	PD.dt = root.second;
-	return true; 
-      }
-    else 
-      {
-	CDumbbellsFunc fL3(PD.rij, PD.vij,
-			   orientationData[p1.getID()].angularVelocity,
-			   orientationData[p2.getID()].angularVelocity,
-			   orientationData[p1.getID()].orientation,
-			   -orientationData[p2.getID()].orientation,length,diameter);
+  CDumbbellsFunc fL3(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     orientationData[p1.getID()].orientation,
+		     -orientationData[p2.getID()].orientation,length,diameter);
   
-	if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	     || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	    && Sim->dSysTime == lastAbsoluteClock)
-	  //Shift the lower bound up so we don't find the same root again
-	  t_low += fabs(2.0 * fL3.F_firstDeriv())
-	    / fL3.F_secondDeriv_max();
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    t_low += fabs(2.0 * fL3.F_firstDeriv())
+      / fL3.F_secondDeriv_max();
   
+  std::pair<bool,double> root3 = frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
 
-	I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
-	root = frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
-
-	if (root.first) 
-	  { 
-	    PD.dt = root.second;
-	    return true; 
-	  }
-	else
-	  {
-	    CDumbbellsFunc fL4(PD.rij, PD.vij,
-			       orientationData[p1.getID()].angularVelocity,
-			       orientationData[p2.getID()].angularVelocity,
-			      -orientationData[p1.getID()].orientation,
-			       -orientationData[p2.getID()].orientation,length,diameter);
+  CDumbbellsFunc fL4(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     -orientationData[p1.getID()].orientation,
+		     -orientationData[p2.getID()].orientation,length,diameter);
   
-	    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-		 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-		&& Sim->dSysTime == lastAbsoluteClock)
-	      //Shift the lower bound up so we don't find the same root again
-	      t_low += fabs(2.0 * fL4.F_firstDeriv())
-		/ fL4.F_secondDeriv_max();
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    t_low += fabs(2.0 * fL4.F_firstDeriv())
+      / fL4.F_secondDeriv_max();
   
-	    I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
-	    root = frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
+  std::pair<bool,double> root4 = frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
 
-	    if (root.first) 
-	      { 
-		PD.dt = root.second;
-		return true; 
-	      }
-	    else
-	      {
-		return false;
-	      }
-	  }
-      }
-  }
-  return false;
+  if (root1.first || root2.first || root3.first || root4.first )\
+    {
+      
+      double roots[4] = {root1.second, root2.second, root3.second, root4.second};  
+      I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
+      
+      PD.dt = *std::min_element(roots,roots+4);
+      return true;
+    }
+  else
+    return false;
 }
 
 PairEventData 
@@ -352,7 +322,7 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
-
+  I_cout()<<"Two sphere collision\n"; 
   double KE1before = getParticleKineticEnergy(particle1);
   double KE2before = getParticleKineticEnergy(particle2);
   //We need to figure out which two orientations are colliding
@@ -363,9 +333,11 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
     {
       for(int j=0;j<2;j++)
 	{
-	  norm = (retVal.rij + pow(-1,i) * orientationData[particle1.getID()].orientation 
-		  + pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
-	  if(norm < min)
+	  norm = (retVal.rij +  length * 0.5 * pow(-1,i) * orientationData[particle1.getID()].orientation 
+		  +  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
+	  I_cout()<<"norm " << norm << " dr " << diameter - norm;
+
+	  if(norm < min && fabs(norm - diameter)< 10e-10)
 	    {
 	      sign.first  = i;
 	      sign.second = j;
@@ -373,6 +345,8 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
 	    }
 	}
     }
+  I_cout()<<"i " << sign.first << " j " << sign.second; 
+  
   //Now the pair sign gives the right two particles
   CDumbbellsFunc fL(retVal.rij, retVal.vijold,
 		    orientationData[particle1.getID()].angularVelocity,
@@ -384,61 +358,69 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   // then apply collision rules
   Vector u1 = pow(-1,sign.first) * orientationData[particle1.getID()].orientation;
   Vector u2 =  pow(-1,sign.second) * orientationData[particle2.getID()].orientation;
-  Vector normal = retVal.rij + u1 - u2;
-  normal /= normal.nrm();
+  Vector rhat = retVal.rij + u1 - u2;
+  rhat /= rhat.nrm();
 
   Vector velContac1 = particle1.getVelocity() 
-    + (orientationData[particle1.getID()].angularVelocity) ^ (pow(-1,sign.first) * orientationData[particle1.getID()].orientation + normal * diameter / 2);
+    + (orientationData[particle1.getID()].angularVelocity) ^ (u1 + (rhat * diameter / 2));
   Vector velContac2 = particle2.getVelocity() 
-    + (orientationData[particle2.getID()].angularVelocity) ^ (pow(-1,sign.second) * orientationData[particle2.getID()].orientation - normal * diameter / 2);
+    + (orientationData[particle2.getID()].angularVelocity) ^ (u2 - (rhat * diameter / 2));
   
   Vector velContact = velContac1 - velContac2;
   double mass = retVal.particle1_.getSpecies().getMass();
   //van Zon's Formulas
   //We need the inertia tensor in the lab frame
-  Matrix I1(0,0,0,
-	    0,0,0,
-	    0,0,0);
-  Matrix I2(0,0,0,
-	    0,0,0,
-	    0,0,0);
-  Vector n1  = (pow(-1,sign.first) * orientationData[particle1.getID()].orientation)^normal;
-  Vector n2  = (pow(-1,sign.second) * orientationData[particle2.getID()].orientation)^normal;
-  //double dE1 = n1 | (Inverse(I1) * n1);
-  //double dE2 = n2 | (Inverse(I2) * n2);
-  //In the dumbbells case it simplifies to inertia moment and the arm of each force
-  double J = mass * length * length / 8;
-  double CG1 = (u1 + normal * diameter / 2).nrm();
-  double CG2 = (u2 - normal * diameter / 2).nrm();
-  double dE1 = 1/J * (CG1 * CG1);
-  double dE2 = 1/J * (CG2 * CG2);
-  double a   = 1/(mass) + (dE1 + dE2)/2;
-  double b   = velContact | normal;
+  Matrix I1(1.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Matrix I2(1.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Vector n1 = (u1 + rhat * diameter / 2)^rhat;
+  Vector n2 = (u2 - rhat * diameter / 2)^rhat;
+
+  Vector a1 = (rhat - ((rhat|u1) * u1))/((rhat - ((rhat|u1) * u1)).nrm());
+  Vector b1 = a1 ^ u1;
+  Vector a2 = (rhat - ((rhat|u2) * u2))/((rhat - ((rhat|u2) * u2)).nrm());
+  Vector b2 = a2 ^ u2;
+  Vector nI1 = (n1 | u1) * u1 + (n1 | a1) * a1 + (n1 | b1) * b1;  
+  Vector nI2 = (n2 | u2) * u2 + (n2 | a2) * a2 + (n2 | b2) * b2;  
   
-  double S = - b/a;
+  double dE1 = nI1 | (Inverse(I1) * nI1);
+  double dE2 = nI2 | (Inverse(I2) * nI2);
+
+  double a   = 1/(mass) + (dE1 + dE2)/2;
+  double b   = velContact | rhat;
+  
+  double S =  b/a;
   
   Vector vr = retVal.vijold;
   //  retVal.dP = normal * ((vr | normal) * (1.0 + elasticity))/a;
-    retVal.dP = normal * b/a;
-  //double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
-  //const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / mass;
-  //const_cast<Particle&>(particle2).getVelocity() += retVal.dP / mass;
+  retVal.dP = rhat * S;
+  I_cout()<<"Momentum transfer " << (rhat * S).nrm() << " S =" << S; 
+  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+  const_cast<Particle&>(particle1).getVelocity() += retVal.dP / mass;
+  const_cast<Particle&>(particle2).getVelocity() -= retVal.dP / mass;
+  // std::swap(const_cast<Particle&>(particle1).getVelocity(),
+  // 	    const_cast<Particle&>(particle2).getVelocity());
   
-  std::swap(const_cast<Particle&>(particle1).getVelocity(),
-  	    const_cast<Particle&>(particle2).getVelocity());
-
-  Vector aux =  orientationData[particle1.getID()].angularVelocity;
   orientationData[particle1.getID()].angularVelocity 
-    =   orientationData[particle2.getID()].angularVelocity;
-
-  orientationData[particle2.getID()].angularVelocity 
-    = aux;
+    -= S *  (Inverse(I1) * nI1);
   
-  // orientationData[particle1.getID()].angularVelocity 
-  //   -= (CG1 / J) * (fL.getu1() ^ retVal.dP);
+  orientationData[particle2.getID()].angularVelocity 
+    += S * (Inverse(I2) * nI2);
+  
+  //   Vector aux = orientationData[particle1.getID()].angularVelocity;
+  // orientationData[particle1.getID()].angularVelocity = orientationData[particle2.getID()].angularVelocity;
+  // orientationData[particle2.getID()].angularVelocity = aux;
+  Vector velContac1b = particle1.getVelocity() 
+    + (orientationData[particle1.getID()].angularVelocity) ^ (u1 + rhat * diameter / 2);
+  Vector velContac2b = particle2.getVelocity() 
+    + (orientationData[particle2.getID()].angularVelocity) ^ (u2 - rhat * diameter / 2);
+  
 
-  // orientationData[particle2.getID()].angularVelocity 
-  //   += (CG2 / J) * (fL.getu2() ^ retVal.dP);
+  Vector velContactb = velContac1b - velContac2b;
+  I_cout()<<"Contact Vel pre " << (velContact | rhat) << " Contact Vel post " << (velContactb | rhat);
 
   //Done with the collision; keeping track of energy
   retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
