@@ -29,11 +29,9 @@ rule naming ( name : type ? : property-set )
      {
      case debug : fullname += _d ;
      case fulldebug : fullname += _fd ;
-     case cachegrind_in : fullname += _cg_in ;
-     case cachegrind : fullname += _cg ;
+     case valgrind_in : fullname += _vg_in ;
+     case valgrind : fullname += _vg ;
      case profile : fullname += _p ;
-     case massif : fullname += _mf ;
-     case PGO : fullname += _pgo ;
      }
   }
 

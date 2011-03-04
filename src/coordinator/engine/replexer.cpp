@@ -36,14 +36,14 @@ EReplicaExchangeSimulation::getOptions(boost::program_options::options_descripti
      "Simulation end time")
     ("replex-interval,i", boost::program_options::value<double>()->default_value(1.0), 
      "Interval between attempting swaps")
-    ("replex-swap-mode", boost::program_options::value<unsigned int>()->default_value(4), 
+    ("replex-swap-mode", boost::program_options::value<unsigned int>()->default_value(1), 
      "System Swap Mode:\n"
      " Values:\n"
      "  0: \tDisable swapping (For debugging or 1 system)\n"
      "  1: \tAlternating sets of pairs (~Nsims/2 attempts per swap event)\n"
      "  2: \tRandom pair per swap\n"
      "  3: \t5 * Nsim random pairs per swap\n"
-     "  4: \tRandom selection of the most effective methods")
+     "  4: \tRandom selection of the above methods")
     ;
   
   opts.add(ropts);
