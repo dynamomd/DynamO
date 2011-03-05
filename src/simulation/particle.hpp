@@ -19,7 +19,7 @@
 
 #include <magnet/math/vector.hpp>
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

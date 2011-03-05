@@ -977,8 +977,8 @@ public:
       while(it1 != it1_end)
       {
          *(it1) = static_cast<unsigned char>((alpha * (*it2)) + (alpha_compliment * (*it1)));
-         *(it1++);
-         *(it2++);
+         ++it1;
+         ++it2;
       }
    }
 

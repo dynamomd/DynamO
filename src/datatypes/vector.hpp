@@ -23,7 +23,7 @@
 #include <magnet/exception.hpp>
 #include "../base/constants.hpp" //For the dimensions
 
-class XMLNode;
+struct XMLNode;
 
 namespace xml 
 {

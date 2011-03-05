@@ -268,9 +268,12 @@ namespace magnet {
       // Codeplay and VC4 can't cope with the unknown_inheritance case either.
       class GenericClass {};
 #else
+# ifdef __clang__
+      class GenericClass {};
+# else
       class GenericClass;
+# endif
 #endif
-
       // The size of a single inheritance member function pointer.
       const int SINGLE_MEMFUNCPTR_SIZE = sizeof(void (GenericClass::*)());
 

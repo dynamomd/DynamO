@@ -26,7 +26,7 @@
 
 namespace DYNAMO
 {
-  struct SimData;
+  class SimData;
 }
 
 class Interaction;

@@ -22,7 +22,7 @@
 #include <magnet/math/vector.hpp>
 #include "../../base/is_base.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
 class XmlStream;

@@ -26,7 +26,7 @@
 
 class PairEventData;
 class IntEvent;
-class XMLNode;
+struct XMLNode;
 class Species;
 class CRange;
 

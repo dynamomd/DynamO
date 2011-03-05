@@ -72,16 +72,11 @@ OPThermalConductivityE::initialise()
   Sim->getOutputPlugin<OPMisc>();
   Sim->getOutputPlugin<OPKEnergy>();
   
-  try {
-    dynamic_cast<const DYNAMO::CENVE *>(Sim->ensemble.get());
-  }
-  catch(std::exception)
-    {
-      M_throw() << "WARNING: This is only valid in the microcanonical"
-	" ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
-	"\n Essentially you need entropic data too for other ensembles";
-    }
-
+  if (dynamic_cast<const DYNAMO::CENVE* >(Sim->ensemble.get()) == NULL)
+    M_throw() << "WARNING: This is only valid in the microcanonical"
+      " ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
+      "\n Essentially you need entropic data too for other ensembles";
+  
   if (dt == 0.0)
     {
       if (Sim->lastRunMFT != 0.0)

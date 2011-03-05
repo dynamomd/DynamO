@@ -22,7 +22,7 @@
 
 namespace DYNAMO
 {
-  struct SimData;
+  class SimData;
 
   /*! \brief Associates a name and colour with a class.
    * 

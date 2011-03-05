@@ -22,7 +22,7 @@
 #include "../../base/is_base.hpp"
 #include "../eventtypes.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

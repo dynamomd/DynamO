@@ -24,7 +24,7 @@
 #include "../../base/is_simdata.hpp"
 #include "datastruct.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;
@@ -109,7 +109,7 @@ public:
 
   /*! \brief Rescales the translational kinetic energy vector of the system by a vector of factors
    */
-  virtual void rescaleSystemKineticEnergy(const Vector&);
+  void rescaleSystemKineticEnergy(const Vector&);
 
   /*! \brief Calculates the translational kinetic energy vector of the system
    */

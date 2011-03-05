@@ -29,7 +29,7 @@ namespace xml
   class XmlStream;
 }
 
-class XMLNode;
+struct XMLNode;
 class System;
 
 namespace DYNAMO {

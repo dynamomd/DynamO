@@ -36,7 +36,7 @@ class Topology;
 class Particle;
 template<class T> class CVector;
 class Liouvillean;
-class XMLNode;
+struct XMLNode;
 class NEventData;
 class PairEventData;
 class ParticleEventData;

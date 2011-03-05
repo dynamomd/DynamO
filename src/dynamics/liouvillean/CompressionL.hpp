@@ -47,11 +47,10 @@ public:
 
   virtual bool cubeOverlap(const CPDData& PD, const double& d) const { M_throw() << "Not Implemented"; }
 
-  virtual PairEventData parallelCubeColl(const IntEvent& event, 
-					  const double& e, 
-					  const double& d, 
-					  const EEventType& eType = CORE
-					  ) const;
+  virtual PairEventData parallelCubeColl(const IntEvent& event,
+					  const double& e, const double& d,
+					  const Matrix& rot,
+					  const EEventType& eType = CORE) const;
   
 protected:
   virtual void outputXML(xml::XmlStream& ) const;

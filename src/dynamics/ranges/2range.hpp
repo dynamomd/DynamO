@@ -18,7 +18,7 @@
 #ifndef C2Range_H
 #define C2Range_H
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

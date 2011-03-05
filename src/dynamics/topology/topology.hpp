@@ -22,7 +22,7 @@
 #include <string>
 #include <list>
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

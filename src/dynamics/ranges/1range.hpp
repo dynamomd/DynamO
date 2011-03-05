@@ -15,67 +15,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CRange_H
-#define CRange_H
+#pragma once
 
 #include <boost/range.hpp>
 #include <iterator>
 
-class XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+struct XMLNode;
 class Particle;
-namespace DYNAMO
-{
-  class SimData;
-}
+namespace xml { class XmlStream; }
+namespace DYNAMO { class SimData; }
+namespace { class RangeIterator; }
 
 class CRange
 {
 public:
-  class iterator
-  {
-  public:
-    iterator(unsigned long nPos, const CRange* nRangePtr):
-      pos(nPos), rangePtr(nRangePtr) {}
-
-    inline bool operator==(const iterator& nIT) const
-    { return nIT.pos == pos; }
-
-    inline bool operator!=(const iterator& nIT) const
-    { return nIT.pos != pos; }
-
-    inline iterator operator+(const unsigned long& i) const
-    { return iterator(pos+i, rangePtr); }
-
-    inline iterator operator-(const unsigned long& i) const
-    { return iterator(pos-i, rangePtr); }
-    
-    inline iterator& operator++()
-    { pos++; return *this; }
-
-    inline iterator& operator++(int)
-    { pos++; return *this; }
-
-    inline const unsigned long& operator*() const
-    { return rangePtr->getIteratorID(pos); }
-
-    typedef unsigned long difference_type;
-    typedef const unsigned long& value_type;
-    typedef const unsigned long& reference;
-    typedef const unsigned long* pointer;
-    typedef std::bidirectional_iterator_tag iterator_category;
-
-  private:
-    unsigned long pos;
-
-    const CRange* rangePtr;
-  };
-
-  //There are only const iterators to these sequences atm
-  typedef iterator const_iterator;
+  typedef RangeIterator iterator;
+  typedef RangeIterator const_iterator;
 
   virtual ~CRange() {};
 
@@ -99,10 +54,49 @@ public:
 
   virtual iterator end() const = 0;
 
-protected:
   virtual const unsigned long& getIteratorID(const unsigned long &) const =0;// { return i; }
+
+protected:
 
   virtual void outputXML(xml::XmlStream& ) const = 0;    
 };
 
-#endif
+namespace {
+  class RangeIterator
+  {
+  public:
+    RangeIterator(unsigned long nPos, const CRange* nRangePtr):
+      pos(nPos), rangePtr(nRangePtr) {}
+
+    inline bool operator==(const RangeIterator& nIT) const
+    { return nIT.pos == pos; }
+
+    inline bool operator!=(const RangeIterator& nIT) const
+    { return nIT.pos != pos; }
+
+    inline RangeIterator operator+(const unsigned long& i) const
+    { return RangeIterator(pos+i, rangePtr); }
+
+    inline RangeIterator operator-(const unsigned long& i) const
+    { return RangeIterator(pos-i, rangePtr); }
+    
+    inline RangeIterator& operator++()
+    { pos++; return *this; }
+
+    inline RangeIterator& operator++(int)
+    { pos++; return *this; }
+
+    inline const unsigned long& operator*() const
+    { return rangePtr->getIteratorID(pos); }
+
+    typedef unsigned long difference_type;
+    typedef const unsigned long& value_type;
+    typedef const unsigned long& reference;
+    typedef const unsigned long* pointer;
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+  private:
+    unsigned long pos;
+    const CRange* rangePtr;
+  };
+}

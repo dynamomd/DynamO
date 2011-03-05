@@ -85,13 +85,11 @@ EReplicaExchangeSimulation::initialisation()
     }
 
   //Ensure we are in the right ensemble for all simulations
-  try {
-    for (size_t i = nSims; i != 0;)
-      dynamic_cast<const DYNAMO::CENVT&>(*(Simulations[--i].getEnsemble()));
-  }
-  catch (std::bad_cast&)
-    { M_throw() << "One of the systems does not have an NVT ensemble"; }
-  
+  for (size_t i = nSims; i != 0;)
+    if (dynamic_cast<const DYNAMO::CENVT* >(Simulations[--i].getEnsemble().get()) == NULL)
+      M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
+		<< " does not have an NVT ensemble";
+    
   //Test a thermostat is available
   for (unsigned int i = 0; i < nSims; i++)
     if (Simulations[i].getSystem("Thermostat") == NULL)

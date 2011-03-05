@@ -156,7 +156,5 @@ public:
   //! Default constructor; buffer is not valid at this point.
   GLBuffer() {}
 
-  operator Buffer() {return *this;}
-  
 };
 };

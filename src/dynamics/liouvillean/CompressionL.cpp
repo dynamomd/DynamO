@@ -282,6 +282,8 @@ LCompression::getPBCSentinelTime(const Particle& part,
 }
 
 PairEventData 
-LCompression::parallelCubeColl(const IntEvent&, const double&,
-				const double&, const EEventType&) const
+LCompression::parallelCubeColl(const IntEvent&,
+			       const double&, const double&,
+			       const Matrix&,
+			       const EEventType&) const
 { M_throw() << "Not Implemented"; }

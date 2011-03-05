@@ -22,7 +22,7 @@
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

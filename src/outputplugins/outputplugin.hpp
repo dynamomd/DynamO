@@ -25,7 +25,7 @@
 
 class IntEvent;
 class GlobalEvent;
-class XMLNode;
+struct XMLNode;
 class PairEventData;
 class ParticleEventData;
 class NEventData;

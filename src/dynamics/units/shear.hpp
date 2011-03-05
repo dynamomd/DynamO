@@ -39,7 +39,7 @@
 class UShear: public UHardSphere
 {
 public:
-  static const double ShearRate = 1;
+  static double ShearRate() { return  1; }
 
   UShear(const DYNAMO::SimData* tmp): 
     UHardSphere(1.0, tmp)
@@ -63,7 +63,7 @@ public:
   virtual ~UShear() {}
   
   virtual double unitTime() const
-  { return 1.0 / ShearRate; }
+  { return 1.0 / ShearRate(); }
   
   virtual Units* Clone() const
   { return new UShear(*this); }

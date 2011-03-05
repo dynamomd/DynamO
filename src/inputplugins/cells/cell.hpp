@@ -20,8 +20,9 @@
 #include "../../datatypes/vector.hpp"
 #include <boost/scoped_ptr.hpp>
 
-struct CUCell
+class CUCell
 {
+public:
   CUCell(CUCell* nP): uc(nP) {}
 
   virtual ~CUCell() {}
@@ -34,8 +35,9 @@ struct CUCell
 };
 
 //A simple terminator, used to place a particle at this point
-struct CUParticle: public CUCell
+class CUParticle: public CUCell
 {
+public:
   CUParticle(): CUCell(NULL) {}
 
   //Terminate initialisation

@@ -791,7 +791,7 @@ CIPPacker::initialise()
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
 	BOOST_FOREACH(Particle& part, Sim->particleList)
-	  part.getVelocity()[0] += part.getPosition()[1] * UShear::ShearRate;
+	  part.getVelocity()[0] += part.getPosition()[1] * UShear::ShearRate();
 
 	Sim->ensemble.reset(new DYNAMO::CENVShear(Sim));
 	break;
@@ -3408,12 +3408,8 @@ CIPPacker::processOptions()
 			   * Sim->dynamics.units().unitEnergy(), "Thermostat"));
 	}
 
-      try {
-	dynamic_cast<const DYNAMO::CENVT&>(*(Sim->ensemble));
-      } catch (std::bad_cast)
-	{
-	  Sim->ensemble.reset(new DYNAMO::CENVT(Sim));
-	}
+      //Install a NVT Ensemble
+      Sim->ensemble.reset(new DYNAMO::CENVT(Sim));
     }
 }
 

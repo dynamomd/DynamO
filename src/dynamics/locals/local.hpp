@@ -23,7 +23,7 @@
 #include "../ranges/1range.hpp"
 #include <magnet/math/vector.hpp>
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

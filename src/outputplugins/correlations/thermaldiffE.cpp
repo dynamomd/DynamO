@@ -81,15 +81,10 @@ OPThermalDiffusionE::initialise()
 {
   species1 = Sim->dynamics.getSpecies(species1name).getID();
 
-  try {
-    dynamic_cast<const DYNAMO::CENVE *>(Sim->ensemble.get());
-  }
-  catch(std::exception)
-    {
-      M_throw() << "WARNING: This is only valid in the microcanonical"
-	" ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
-	"\n Essentially you need entropic data too for other ensembles";
-    }
+  if (dynamic_cast<const DYNAMO::CENVE* >(Sim->ensemble.get()) == NULL)
+    M_throw() << "WARNING: This is only valid in the microcanonical"
+      " ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
+      "\n Essentially you need entropic data too for other ensembles";
 
   G.resize(CorrelatorLength, Vector (0,0,0));
   accG2.resize(CorrelatorLength, Vector (0,0,0));

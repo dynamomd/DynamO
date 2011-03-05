@@ -88,7 +88,7 @@ BCRectangularLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
   
   //Adjust the velocity due to the box shift
   vel[0] -= rint(pos[1] / Sim->aspectRatio[1]) 
-    * UShear::ShearRate * Sim->aspectRatio[1];
+    * UShear::ShearRate() * Sim->aspectRatio[1];
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->aspectRatio[n] *
@@ -98,7 +98,7 @@ BCRectangularLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
 void 
 BCRectangularLeesEdwards::applyBC(Vector  &posVec, const double& dt) const 
 { 
-  double localdxd = dxd + dt * UShear::ShearRate * Sim->aspectRatio[1];
+  double localdxd = dxd + dt * UShear::ShearRate() * Sim->aspectRatio[1];
   
   //Shift the x distance due to the Lee's Edwards conditions
   posVec[0] -= rint(posVec[1] / Sim->aspectRatio[1]) * localdxd;
@@ -112,7 +112,7 @@ void
 BCRectangularLeesEdwards::update(const double& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * UShear::ShearRate * Sim->aspectRatio[1];
+  dxd += dt * UShear::ShearRate() * Sim->aspectRatio[1];
   
   //PBC for the shift to keep accuracy?
   dxd -= floor(dxd/Sim->aspectRatio[0])*Sim->aspectRatio[0];
@@ -182,7 +182,7 @@ BCSquareLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
   pos[0] -= rint(pos[1]) * dxd;
   
   //Adjust the velocity due to the box shift
-  vel[0] -= rint(pos[1]) * UShear::ShearRate;
+  vel[0] -= rint(pos[1]) * UShear::ShearRate();
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= rintfunc (pos[n]);
@@ -191,7 +191,7 @@ BCSquareLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
 void 
 BCSquareLeesEdwards::applyBC(Vector  &posVec, const double& dt) const 
 {
-  double localdxd = dxd + dt * UShear::ShearRate;
+  double localdxd = dxd + dt * UShear::ShearRate();
   
   //Shift the x distance due to the Lee's Edwards conditions
   posVec[0] -= rint(posVec[1]) * localdxd;
@@ -204,7 +204,7 @@ void
 BCSquareLeesEdwards::update(const double& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * UShear::ShearRate;
+  dxd += dt * UShear::ShearRate();
   
   //PBC for the shift to keep accuracy?
   dxd -= floor(dxd);

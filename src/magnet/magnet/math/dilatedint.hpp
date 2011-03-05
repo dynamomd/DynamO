@@ -146,7 +146,7 @@ namespace magnet {
 
 namespace std {
   template <>
-  class numeric_limits<magnet::math::DilatedInteger> 
+  struct numeric_limits<magnet::math::DilatedInteger> 
   {
   public:
     static const bool is_specialized = true;

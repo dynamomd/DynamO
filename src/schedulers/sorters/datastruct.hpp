@@ -35,9 +35,9 @@ class intPart
 public:   
   inline intPart():
     dt(HUGE_VAL),
-    collCounter2(-1),
+    collCounter2(std::numeric_limits<unsigned long>::max()),
     type(NONE),
-    p2(-1)    
+    p2(std::numeric_limits<size_t>::max())    
   {}
 
   inline intPart(const double& ndt, const EEventType& nT) throw():

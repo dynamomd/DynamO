@@ -22,7 +22,7 @@
 #include "../eventtypes.hpp"
 #include "../../simulation/particle.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

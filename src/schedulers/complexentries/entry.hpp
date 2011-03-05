@@ -23,7 +23,7 @@
 #include "../../dynamics/ranges/1range.hpp"
 #include "../../dynamics/globals/neighbourList.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;

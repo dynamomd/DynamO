@@ -142,7 +142,7 @@ namespace DYNAMO {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
-    EnsembleVals[2] = UShear::ShearRate;
+    EnsembleVals[2] = UShear::ShearRate();
 
     I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()

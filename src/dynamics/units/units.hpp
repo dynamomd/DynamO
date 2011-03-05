@@ -21,7 +21,7 @@
 #include "../../base/is_base.hpp"
 #include "../../base/constants.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace DYNAMO
 {
   class SimData;

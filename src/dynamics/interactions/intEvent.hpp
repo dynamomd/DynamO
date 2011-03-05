@@ -24,7 +24,7 @@
 #include "interaction.hpp"
 
 
-class XMLNode;
+struct XMLNode;
 class Interaction;
 namespace DYNAMO {
   class SimData;
@@ -37,7 +37,7 @@ namespace xml
 class IntEvent
 {
 public:  
-  friend struct intPart;
+  friend class intPart;
 
   inline IntEvent ():
     particle1(std::numeric_limits<size_t>::max()), particle2(std::numeric_limits<size_t>::max()), 

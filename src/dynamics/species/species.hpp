@@ -23,7 +23,7 @@
 #include <string>
 #include "../coilRenderObj.hpp"
 
-class XMLNode;
+struct XMLNode;
 namespace xml
 {
   class XmlStream;
