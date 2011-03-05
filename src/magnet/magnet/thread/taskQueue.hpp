@@ -33,6 +33,17 @@ namespace magnet {
 	_waitingFunctors.push(threadfunc);
       }
 
+      inline virtual void queueTasks(std::vector<function::Task*>& threadfuncs)
+      {
+	thread::ScopedLock lock1(_queue_mutex);
+
+	for (std::vector<function::Task*>::const_iterator iPtr = threadfuncs.begin();
+	     iPtr != threadfuncs.end(); ++iPtr)
+	  _waitingFunctors.push(*iPtr);
+
+	threadfuncs.clear();
+      }
+
       void drainQueue()
       {
 	thread::ScopedLock lock1(_queue_mutex);

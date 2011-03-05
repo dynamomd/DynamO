@@ -458,12 +458,15 @@ void EReplicaExchangeSimulation::runSimulation()
 	}
       else 
 	{
-	  //Run the simulations
-	  //This is reversed as the high temperature sims generally run longer
-	  for (unsigned int i = nSims; i != 0;)
-	    threads.queueTask(magnet::function::Task::makeTask(&Simulation::runSilentSimulation, 
-							       &(Simulations[--i])));
-		  
+	  //Run the simulations. We also generate all tasks at once
+	  //and submit them all at once to minimise lock contention.
+	  std::vector<magnet::function::Task*> tasks(nSims, NULL);
+	  
+	  for (size_t i(0); i < nSims; ++i)
+	    tasks[i] = magnet::function::Task::makeTask(&Simulation::runSilentSimulation, 
+							&(Simulations[i]));
+
+	  threads.queueTasks(tasks);
 	  threads.wait();//This syncs the systems for the replica exchange
 		  
 	  //Swap calculation

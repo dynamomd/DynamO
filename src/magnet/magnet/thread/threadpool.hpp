@@ -106,6 +106,13 @@ namespace magnet {
 	TaskQueue::queueTask(threadfunc);
 	_need_thread_mutex.notify_all();
       }
+
+      //Actual queuer
+      inline void queueTasks(std::vector<function::Task*>& threadfuncs)
+      {
+	TaskQueue::queueTasks(threadfuncs);
+	_need_thread_mutex.notify_all();
+      }
   
       /*! \brief Destructor
        *
