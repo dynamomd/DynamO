@@ -404,11 +404,25 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   // std::swap(const_cast<Particle&>(particle1).getVelocity(),
   // 	    const_cast<Particle&>(particle2).getVelocity());
   
+  //Matrix coordinate transformation
+  Matrix W1;
+  W1.setColumn(0,u1);
+  W1.setColumn(1,a1);
+  W1.setColumn(2,b1);
+  Matrix W2;
+  W2.setColumn(0,u2);
+  W2.setColumn(1,a2);
+  W2.setColumn(2,b2);
+
+
+
+
+
   orientationData[particle1.getID()].angularVelocity 
-    -= S *  (Inverse(I1) * nI1);
+    -= S * ((Inverse(W1) * Inverse(I1) * W1) * nI1);
   
   orientationData[particle2.getID()].angularVelocity 
-    += S * (Inverse(I2) * nI2);
+    += S * ((Inverse(W2) * Inverse(I2) * W2) * nI2);
   
   //   Vector aux = orientationData[particle1.getID()].angularVelocity;
   // orientationData[particle1.getID()].angularVelocity = orientationData[particle2.getID()].angularVelocity;
