@@ -59,7 +59,7 @@ CSCENBList::initialise()
 		<< "\n" << cep.what();
     }
 
-  if (dynamic_cast<CGNeighbourList* const>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
+  if (dynamic_cast<CGNeighbourList*>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
     M_throw() << "Global named " << name << " is not a CGNeighbourList";
   
   static_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])

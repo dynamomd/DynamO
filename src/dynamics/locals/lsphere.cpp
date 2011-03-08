@@ -53,7 +53,7 @@ CLSphere::getEvent(const Particle& part) const
     M_throw() << "Particle is not up to date";
 #endif
 
-  Particle fakeParticle(vPosition, Vector(0,0,0),-1);
+  Particle fakeParticle(vPosition, Vector(0,0,0),std::numeric_limits<size_t>::max());
     
   CPDData colldat(*Sim, part, fakeParticle);
 
