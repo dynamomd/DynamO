@@ -23,12 +23,18 @@
 #include <boost/array.hpp>
 #include <magnet/containers/MinMaxHeap.hpp>
 
+//! There is a trick used here to speed up comparisons between
+//! MinMaxHeaps.  The top element is set to HUGE_VAL, whenever the
+//! queue is cleared, or pop'd empty. This means no conditional logic
+//! is required to deal with the comparison of empty queues.
 template<size_t Size>
 class MinMaxHeapPList
 {
   magnet::containers::MinMaxHeap<Size, boost::array<intPart,Size> > _innerHeap;
 
 public:
+  MinMaxHeapPList() { _innerHeap.top().dt = HUGE_VAL; }
+
   inline size_t size() const { return _innerHeap.size(); }
   inline bool empty() const { return _innerHeap.empty(); }
   inline bool full() const { return _innerHeap.full(); }
@@ -36,33 +42,27 @@ public:
   inline const intPart& front() const { return _innerHeap.top(); }
   inline const intPart& top() const { return _innerHeap.top(); }  
 
-  inline void pop() { _innerHeap.pop(); }
+  inline void pop() 
+  { 
+    _innerHeap.pop(); 
+    if (empty())  _innerHeap.top().dt = HUGE_VAL; 
+  }
 
-  inline void clear() { _innerHeap.clear(); }
+  inline void clear() { _innerHeap.clear(); _innerHeap.top().dt = HUGE_VAL; }
 
   inline bool operator> (const MinMaxHeapPList& ip) const throw()
   { 
-    //If the other is empty this can never be longer
-    //If this is empty and the other isn't its always longer
-    //Otherwise compare
-    return (ip._innerHeap.empty()) 
-      ? false
-      : (empty() || (_innerHeap.top().dt > ip._innerHeap.top().dt)); 
+    return _innerHeap.top().dt > ip._innerHeap.top().dt; 
   }
 
   inline bool operator< (const MinMaxHeapPList& ip) const throw()
   { 
-    //If this is empty it can never be shorter
-    //If the other is empty its always shorter
-    //Otherwise compare
-    return (empty()) 
-      ? false 
-      : (ip._innerHeap.empty() || (_innerHeap.top().dt < ip._innerHeap.top().dt)); 
+    return _innerHeap.top().dt < ip._innerHeap.top().dt; 
   }
 
   inline double getdt() const 
   { 
-    return (empty()) ? HUGE_VAL : _innerHeap.top().dt; 
+    return _innerHeap.top().dt;
   }
   
   inline void stream(const double& ndt) throw()
@@ -79,12 +79,14 @@ public:
 
   inline void push(const intPart& __x)
   {
-    if (!_innerHeap.full()) { _innerHeap.insert(__x); return; }
-
-    if (__x < _innerHeap.bottom())
-      _innerHeap.replaceMax(__x);
-	
-    _innerHeap.unsafe_bottom().type = VIRTUAL;
+    if (!_innerHeap.full()) 
+      _innerHeap.insert(__x);
+    else 
+      {
+	if (__x < _innerHeap.bottom())
+	  _innerHeap.replaceMax(__x);
+	_innerHeap.unsafe_bottom().type = VIRTUAL;
+      }
   }
 
   inline void rescaleTimes(const double& scale) throw()
