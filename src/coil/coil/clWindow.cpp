@@ -808,6 +808,14 @@ CLGLWindow::deinit()
   _readyFlag = false;
 
   ////////////////////GTK
+  //Get rid of any filters, if we call the callback, a dialog will be instanced
+  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
+       iPtr; ++iPtr)
+    {
+      void* tmp_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
+      delete static_cast<coil::filter*>(tmp_ptr);
+    }
+  _filterStore->clear();
 
   _timeout_connection.disconnect();
   _renderTimeout.disconnect();
@@ -842,8 +850,6 @@ CLGLWindow::deinit()
       _shadowFBO.deinit();
       _shadowShader.deinit();
       _nrmlShader.deinit();
-
-      filterClearCallback();//Get rid of any filters
     }
 
   ///////////////////Finally, unregister with COIL
