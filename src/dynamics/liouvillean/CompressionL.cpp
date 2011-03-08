@@ -66,7 +66,7 @@ LCompression::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic
   if (arg > 0.0) 
     if (a > 0.0)
       {
-	if (std::signbit(b))
+	if (b < 0)
 	  dat.dt = (sqrt(arg) - b) / a;
 	else
 	  dat.dt = c / (sqrt(arg) + b);
@@ -181,7 +181,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
   retVal.rvdot = (urij | retVal.vijold);
 
   double sqrtArg = std::pow(retVal.rvdot - growthRate * sqrt(d2), 2)  + (2.0 * deltaKE / mu);
-  if (std::signbit(deltaKE) && std::signbit(sqrtArg))
+  if ((deltaKE < 0) && (sqrtArg < 0))
     {
       event.setType(BOUNCE);
       retVal.setType(BOUNCE);
@@ -196,7 +196,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
     }
   else
     {
-      if (std::signbit(deltaKE))
+      if (deltaKE < 0)
 	{
 	  event.setType(WELL_KEDOWN);
 	  retVal.setType(WELL_KEDOWN);
@@ -210,7 +210,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
       retVal.particle1_.setDeltaU(-0.5 * deltaKE);
       retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
-      if (std::signbit(retVal.rvdot))
+      if (retVal.rvdot < 0)
 	retVal.dP = urij 
 	  * (2.0 * deltaKE / (growthRate * sqrt(d2) + std::sqrt(sqrtArg) - retVal.rvdot ));
       else

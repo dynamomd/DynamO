@@ -48,7 +48,7 @@ LSLLOD::DSMCSpheresTest(const Particle& p1,
   pdat.vij[0] -= pdat.rij[1];
   pdat.rvdot = (pdat.rij | pdat.vij);
   
-  if (!std::signbit(pdat.rvdot))
+  if (pdat.rvdot >= 0)
     return false; //Positive rvdot
   
   double prob = factor * (-pdat.rvdot);

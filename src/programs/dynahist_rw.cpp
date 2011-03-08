@@ -499,9 +499,9 @@ void outputMoments()
     for (std::vector<std::pair<double,double> >::const_iterator iPtr = Cv.begin()+2; iPtr != Cv.end(); ++iPtr)
       {
 	double thisdt = iPtr->second - (iPtr - 1)->second;
-	if (std::signbit(olddt) != std::signbit(thisdt))
+	if ((olddt < 0) != (thisdt < 0))
 	  {
-	    if (std::signbit(olddt))
+	    if (olddt < 0)
 	      CvMin << (iPtr-1)->first << " " << (iPtr-1)->second << "\n";
 	    else
 	      CvMax << (iPtr-1)->first << " " << (iPtr-1)->second << "\n";
