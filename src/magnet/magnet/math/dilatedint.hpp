@@ -53,6 +53,9 @@ namespace magnet {
       //Constructor that takes the actual Dilated int as the arg
       inline DilatedInteger(const uint32_t val, void*):
 	value(val) {}
+
+      inline DilatedInteger(const DilatedInteger& d):
+	value(d.value) {}
       
       inline const uint32_t& getDilatedVal() const { return value; }
       
@@ -61,6 +64,7 @@ namespace magnet {
       inline void setDilatedVal(const uint32_t& i) { value = i & dilatedMask; }
       
       inline void operator=(const uint32_t& i) { value = dilate_3(i & undilatedMask); }
+      inline void operator=(const DilatedInteger& i) { value = i.value; }
       
       inline void zero() { value = 0; }
       
@@ -73,9 +77,25 @@ namespace magnet {
       inline DilatedInteger operator+(const DilatedInteger& d) const
       { return DilatedInteger((value + (~dilatedMask) + d.value) & dilatedMask, 0); }
       
-      inline DilatedInteger& operator++() { value = (value - dilatedMask) & dilatedMask; return *this; }
+      inline DilatedInteger& operator++() 
+      { value = (value - dilatedMask) & dilatedMask; return *this; }
       
-      inline DilatedInteger& operator--() { value = (value -    1) & dilatedMask; return *this; }
+      inline DilatedInteger& operator--() 
+      { value = (value - 1) & dilatedMask; return *this; }
+
+      inline DilatedInteger& operator-=(const DilatedInteger& d)
+      { 
+	value -= d.value; 
+	value &= dilatedMask; 
+	return *this;
+      }
+
+      inline DilatedInteger& operator+=(const DilatedInteger& d)
+      { 
+	value += (~dilatedMask) + d.value;
+	value &= dilatedMask;
+	return *this;
+      }
       
       inline bool operator==(const DilatedInteger& d) const
       { return value == d.value; }
@@ -135,10 +155,30 @@ namespace magnet {
 	data[1] = y;
 	data[2] = z;
       }
+
+      inline DilatedVector(const DilatedInteger& x, 
+			   const DilatedInteger& y, 
+			   const DilatedInteger& z)
+      {
+	data[0] = x;
+	data[1] = y;
+	data[2] = z;
+      }
       
       inline uint32_t getMortonNum()
-      { return data[0].getDilatedVal() + (data[1].getDilatedVal() << 1) + (data[2].getDilatedVal() << 2); }
+      { 
+	return data[0].getDilatedVal() 
+	  + (data[1].getDilatedVal() << 1) 
+	  + (data[2].getDilatedVal() << 2); 
+      }
       
+      inline DilatedVector operator+(const DilatedVector& d) const
+      {
+	return DilatedVector(d.data[0] + data[0],
+			     d.data[1] + data[1],
+			     d.data[2] + data[2]);
+      }
+
       DilatedInteger data[3];
     };
   }

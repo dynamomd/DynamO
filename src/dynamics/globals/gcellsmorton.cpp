@@ -465,55 +465,51 @@ void
 CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 					const nbHoodFunc& func) const
 {
-  magnet::math::DilatedVector coords(partCellData[part.getID()].cell);
+  BOOST_STATIC_ASSERT(NDIM==3);
+
+  const magnet::math::DilatedVector center_coords(partCellData[part.getID()].cell);
+  magnet::math::DilatedVector coords(center_coords);
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      coords.data[iDim] = coords.data[iDim] - dilatedOverlink;
-
-      if (coords.data[iDim] > dilatedCellMax) 
-	coords.data[iDim] = coords.data[iDim]
-	  - (std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax);
+      coords.data[iDim] -= dilatedOverlink;
+      if (coords.data[iDim] > dilatedCellMax)
+	coords.data[iDim] -= 
+	  std::numeric_limits<magnet::math::DilatedInteger>::max() - dilatedCellMax;
     }
-  
-  //This loop iterates through each neighbour position
-  BOOST_STATIC_ASSERT(NDIM==3);
 
-  int walkLength(2*overlink+1);
+  const magnet::math::DilatedVector zero_coords(coords);
 
-  const magnet::math::DilatedVector stored_coords(coords);
-
-  for (int iDim(0); iDim < walkLength; ++iDim)
+  coords = center_coords;
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      if (coords.data[2] > dilatedCellMax) 
-	coords.data[2].zero();
+      coords.data[iDim] += dilatedOverlink + 1;
+      if (coords.data[iDim] > dilatedCellMax)
+	coords.data[iDim] -= dilatedCellMax + 1;
+    }
 
-      for (int jDim(0); jDim < walkLength; ++jDim)
-	{	
-	  if (coords.data[1] > dilatedCellMax) 
-	    coords.data[1].zero();
-  
-	  for (int kDim(0); kDim < walkLength; ++kDim)
-	    {	      
-	      if (coords.data[0] > dilatedCellMax)
-		coords.data[0].zero();
+  const magnet::math::DilatedVector max_coords(coords);
 
-	      for (int next(list[coords.getMortonNum()]);
-		   next >= 0; next = partCellData[next].next)
-		if (next != int(part.getID()))
-		  func(part, next);
-
-	      ++coords.data[0];
-	    }
-
-	  coords.data[0] = stored_coords.data[0];
-
-	  ++coords.data[1];
-	}
+  coords = zero_coords;
+  while (coords.data[2] != max_coords.data[2])
+    {
+      for (int next(list[coords.getMortonNum()]);
+	   next >= 0; next = partCellData[next].next)
+	if (next != int(part.getID()))
+	  func(part, next);
       
-      coords.data[1] = stored_coords.data[1];
-
+      ++coords.data[0];
+      if (coords.data[0] > dilatedCellMax) coords.data[0].zero();
+      if (coords.data[0] != max_coords.data[0]) continue;
+      
+      ++coords.data[1];
+      coords.data[0] = zero_coords.data[0];
+      if (coords.data[1] > dilatedCellMax) coords.data[1].zero();
+      if (coords.data[1] != max_coords.data[1]) continue;
+      
       ++coords.data[2];
+      coords.data[1] = zero_coords.data[1];
+      if (coords.data[2] > dilatedCellMax) coords.data[2].zero();
     }
 }
 
