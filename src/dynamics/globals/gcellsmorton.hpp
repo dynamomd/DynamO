@@ -53,10 +53,6 @@ public:
   virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const;
   
-  void setLambda(const double&);
-
-  inline const double& getLambda() const { return lambda; }
-
   virtual void operator<<(const XMLNode&);
 
   double  getCellDimensions() const 
@@ -97,7 +93,6 @@ protected:
   double  cellLatticeWidth;
   double cellOffset;
   double _oversizeCells;
-  double lambda;
   size_t NCells;
   size_t overlink;
   magnet::math::DilatedInteger dilatedOverlink;

@@ -64,7 +64,8 @@ protected:
 public:
   CGNeighbourList(DYNAMO::SimData* a, 
 		  const char *b): 
-    Global(a,b)
+    Global(a,b),
+    lambda(0.9)
   {}
 
 //  CGNeighbourList(CRange* a, DYNAMO::SimData* b, 
@@ -172,6 +173,14 @@ public:
 
   void markAsUsedInScheduler() { isUsedInScheduler = true; }
 
+  void setCellOverlap(bool overlap) 
+  {
+    if (overlap)
+      lambda = 0.9; 
+    else
+      lambda = 0.001;
+  }
+  
 protected:
   virtual void outputXML(xml::XmlStream&) const = 0;
 
@@ -194,6 +203,7 @@ protected:
   sigReInitNotify;
 
   bool isUsedInScheduler;
+  double lambda; 
 };
 
 #endif

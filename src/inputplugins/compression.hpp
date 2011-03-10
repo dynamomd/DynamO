@@ -91,7 +91,6 @@ private:
   /*! \brief Stores a cell overlap parameter of the cellular scheduler
    * to be restored later.
    */
-  double oldLambda;
 };
 
 #endif

@@ -37,7 +37,6 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   cellCount(0),
   cellDimension(1),
   _oversizeCells(1.0),
-  lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
 {
@@ -50,7 +49,6 @@ CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   cellCount(0),
   cellDimension(1),
   _oversizeCells(1.0),
-  lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
 {
@@ -64,7 +62,6 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* ptrSim, const char* nom, void*):
   cellCount(0),
   cellDimension(1),
   _oversizeCells(1.0),
-  lambda(0.9), //Default to higher overlap
   NCells(0),
   overlink(1)
 {}
@@ -74,10 +71,6 @@ CGCellsMorton::operator<<(const XMLNode& XML)
 {
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
-    if (XML.isAttributeSet("Lambda"))
-      lambda = boost::lexical_cast<double>
-	(XML.getAttribute("Lambda"));
-
     if (XML.isAttributeSet("OverLink"))
       overlink = boost::lexical_cast<size_t>
 	(XML.getAttribute("OverLink"));
@@ -95,15 +88,6 @@ CGCellsMorton::operator<<(const XMLNode& XML)
     {
       M_throw() << "Error loading CGCellsMorton";
     }
-  
-  if (lambda < 0.0 || lambda > 1.0)
-    M_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
-}
-
-void 
-CGCellsMorton::setLambda(const double& nL)
-{
-  lambda = nL;
 }
 
 GlobalEvent 
@@ -318,7 +302,6 @@ CGCellsMorton::outputXML(xml::XmlStream& XML) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
   XML << xml::attr("Type") << "CellsMorton"
-      << xml::attr("Lambda") << lambda
       << xml::attr("Name") << globName;
 
   if (overlink > 1)   XML << xml::attr("OverLink") << overlink;

@@ -43,8 +43,7 @@ CSNBListCompressionFix::initialise(size_t nID)
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
     M_throw() << "Have the globals been shuffled? The cellID is no longer a CGNeighbourList.";
   
-  const CGNeighbourList& nblist(dynamic_cast<const CGNeighbourList&>
-			       (*Sim->dynamics.getGlobals()[cellID]));
+  CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[cellID]));
 
   dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
 

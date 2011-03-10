@@ -32,7 +32,7 @@
 #include "../dynamics/systems/nblistCompressionFix.hpp"
 #include "../dynamics/systems/tHalt.hpp"
 #include "../dynamics/species/species.hpp"
-#include "../dynamics/globals/gcells.hpp"
+#include "../dynamics/globals/neighbourList.hpp"
 
 CIPCompression::CIPCompression(DYNAMO::SimData* tmp, double GR): 
   CInputPlugin(tmp, "CompressionPlugin"),
@@ -69,13 +69,9 @@ CIPCompression::RestoreSystem()
   if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {
       BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
-	if (dynamic_cast<const CGCells*>(ptr.get_ptr()) != NULL)      
-	  {
-	    //Rebulid the collision scheduler without the overlapping cells!
-	    CGCells& cells(dynamic_cast<CGCells&>(*ptr));
-	    
-	    cells.setLambda(oldLambda);
-	  }
+	if (dynamic_cast<const CGNeighbourList*>(ptr.get_ptr()) != NULL)      
+	  //Rebulid the collision scheduler without the overlapping cells!
+	  dynamic_cast<CGNeighbourList&>(*ptr).setCellOverlap(true);
     }
   else
     I_cout() << "No cellular device to fix";
@@ -109,18 +105,11 @@ CIPCompression::CellSchedulerHack()
     {      
       if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[i].get_ptr()) != NULL)
 	{
-	  
-	  if (dynamic_cast<const CGCells*>(Sim->dynamics.getGlobals()[i]
-					   .get_ptr()) != NULL)
-	    {
-	      //Rebulid the collision scheduler without the overlapping
-	      //cells as it reduces the number of reinitialisations
-	      //required
-	      CGCells& cells(static_cast<CGCells&>
-			     (*Sim->dynamics.getGlobals()[i]));	    
-	      oldLambda = cells.getLambda();	    
-	      cells.setLambda(0.0);
-	    }
+	  //Rebulid the collision scheduler without the overlapping
+	  //cells, otherwise cells are always rebuilt as they overlap
+	  //such that the maximum supported interaction distance is
+	  //equal to the current maximum interaction distance.
+	  static_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[i]).setCellOverlap(false);
 	  
 	  //Add the system watcher
 	  Sim->dynamics.addSystem

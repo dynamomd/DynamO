@@ -50,7 +50,6 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
   CGNeighbourList(nSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
-  lambda(0.999), //Default to highest overlap
   _oversizeCells(1.0),
   NCells(0),
   overlink(overlink),
@@ -65,7 +64,6 @@ CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
-  lambda(0.999), //Default to highest overlap
   _oversizeCells(1.0),
   NCells(0),
   overlink(1),
@@ -81,7 +79,6 @@ CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1,1,1),
-  lambda(0.999), //Default to highest overlap
   _oversizeCells(1.0),
   NCells(0),
   overlink(1),
@@ -94,9 +91,6 @@ CGCells::operator<<(const XMLNode& XML)
 {
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
-    if (XML.isAttributeSet("Lambda"))
-      lambda = boost::lexical_cast<double>
-	(XML.getAttribute("Lambda"));
 
     if (XML.isAttributeSet("OverLink"))
       overlink = boost::lexical_cast<size_t>
@@ -123,16 +117,8 @@ CGCells::operator<<(const XMLNode& XML)
     {
       M_throw() << "Error loading CGCells";
     }
-  
-  if (lambda < 0.0 || lambda > 1.0)
-    M_throw() << "Lambda out of bounds [0,1), lambda = " << lambda;
 }
 
-void 
-CGCells::setLambda(const double& nL)
-{
-  lambda = nL;
-}
 
 GlobalEvent 
 CGCells::getEvent(const Particle& part) const
@@ -355,7 +341,6 @@ CGCells::outputXML(xml::XmlStream& XML, const std::string& name) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
   XML << xml::attr("Type") << name
-      << xml::attr("Lambda") << lambda
       << xml::attr("Name") << globName;
 
   if (MaxIntDist != 0.0)
