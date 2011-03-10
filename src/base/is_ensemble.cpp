@@ -61,7 +61,7 @@ namespace DYNAMO {
   CENVE::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->dynamics.units().unitVolume();
+    EnsembleVals[1] = Sim->aspectRatio[0] * Sim->aspectRatio[1] * Sim->aspectRatio[2];
     EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
     I_cout() << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
@@ -141,7 +141,7 @@ namespace DYNAMO {
   CENVShear::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->dynamics.units().unitVolume();
+    EnsembleVals[1] = Sim->aspectRatio[0] * Sim->aspectRatio[1] * Sim->aspectRatio[2];
     EnsembleVals[2] = UShear::ShearRate();
 
     I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
