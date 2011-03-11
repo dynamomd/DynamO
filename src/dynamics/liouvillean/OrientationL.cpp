@@ -334,9 +334,12 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
       for(int j=0;j<2;j++)
 	{
 	  norm = (retVal.rij +  length * 0.5 * pow(-1,i) * orientationData[particle1.getID()].orientation 
-		  +  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
+		  -  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
 	  I_cout()<<"norm " << norm << " dr " << diameter - norm;
-
+	  if(norm < (diameter-0.000001))
+	    {
+	      M_throw()<<"`Shit man, we overlap " ;
+	    }
 	  if(norm < min && fabs(norm - diameter)< 10e-10)
 	    {
 	      sign.first  = i;
@@ -352,94 +355,111 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
 		    orientationData[particle1.getID()].angularVelocity,
 		    orientationData[particle2.getID()].angularVelocity,
 		    pow(-1,sign.first) * orientationData[particle1.getID()].orientation,
-		    pow(-1,sign.second) * orientationData[particle2.getID()].orientation,length,diameter);
+		    -pow(-1,sign.second) * orientationData[particle2.getID()].orientation,length,diameter);
 
   // Now we have the particles in the moment of the collision
   // then apply collision rules
   Vector u1 = pow(-1,sign.first) * orientationData[particle1.getID()].orientation;
   Vector u2 =  pow(-1,sign.second) * orientationData[particle2.getID()].orientation;
-  Vector rhat = retVal.rij + u1 - u2;
+
+  Vector rhat = retVal.rij + u1 * length / 2 - u2 * length / 2;
   rhat /= rhat.nrm();
+  u1 /= u1.nrm();
+  u2 /= u2.nrm();
 
   Vector velContac1 = particle1.getVelocity() 
-    + (orientationData[particle1.getID()].angularVelocity) ^ (u1 + (rhat * diameter / 2));
+    + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
   Vector velContac2 = particle2.getVelocity() 
-    + (orientationData[particle2.getID()].angularVelocity) ^ (u2 - (rhat * diameter / 2));
+    + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
   
   Vector velContact = velContac1 - velContac2;
   double mass = retVal.particle1_.getSpecies().getMass();
   //van Zon's Formulas
   //We need the inertia tensor in the lab frame
-  Matrix I1(1.0 / 5.0 * mass * diameter * diameter,0,0,
-	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
-	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
-  Matrix I2(1.0 / 5.0 * mass * diameter * diameter,0,0,
-	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
-	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
-  Vector n1 = (u1 + rhat * diameter / 2)^rhat;
-  Vector n2 = (u2 - rhat * diameter / 2)^rhat;
+  Matrix I1(4.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Matrix I2(4.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Vector n1 = (u1 * length / 2 + rhat * diameter / 2)^rhat;
+  Vector n2 = (u2 * length / 2 - rhat * diameter / 2)^rhat;
 
   Vector a1 = (rhat - ((rhat|u1) * u1))/((rhat - ((rhat|u1) * u1)).nrm());
   Vector b1 = a1 ^ u1;
   Vector a2 = (rhat - ((rhat|u2) * u2))/((rhat - ((rhat|u2) * u2)).nrm());
   Vector b2 = a2 ^ u2;
+  b1 /= b1.nrm();
+  b2 /= b2.nrm();
+
   Vector nI1 = (n1 | u1) * u1 + (n1 | a1) * a1 + (n1 | b1) * b1;  
   Vector nI2 = (n2 | u2) * u2 + (n2 | a2) * a2 + (n2 | b2) * b2;  
   
   double dE1 = nI1 | (Inverse(I1) * nI1);
   double dE2 = nI2 | (Inverse(I2) * nI2);
 
-  double a   = 1/(mass) + (dE1 + dE2)/2;
+  double a   = 1/(2 * mass) + (dE1 + dE2)/2;
   double b   = velContact | rhat;
   
-  double S =  b/a;
+  double S = b/a;
   
   Vector vr = retVal.vijold;
   //  retVal.dP = normal * ((vr | normal) * (1.0 + elasticity))/a;
   retVal.dP = rhat * S;
-  I_cout()<<"Momentum transfer " << (rhat * S).nrm() << " S =" << S; 
+  I_cout()<<"Momentum transfer " << S; 
+  I_cout()<<"dv " << vr.nrm(); 
+  I_cout()<<"dv at contact " << velContact.nrm();
   double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
-  const_cast<Particle&>(particle1).getVelocity() += retVal.dP / mass;
-  const_cast<Particle&>(particle2).getVelocity() -= retVal.dP / mass;
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (2 * mass);
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (2 * mass);
   // std::swap(const_cast<Particle&>(particle1).getVelocity(),
   // 	    const_cast<Particle&>(particle2).getVelocity());
   
   //Matrix coordinate transformation
   Matrix W1;
-  W1.setColumn(0,u1);
-  W1.setColumn(1,a1);
-  W1.setColumn(2,b1);
+  W1.setRow(0,u1);
+  W1.setRow(1,a1);
+  W1.setRow(2,b1);
   Matrix W2;
-  W2.setColumn(0,u2);
-  W2.setColumn(1,a2);
-  W2.setColumn(2,b2);
+  W2.setRow(0,u2);
+  W2.setRow(1,a2);
+  W2.setRow(2,b2);
 
 
+  I_cout()<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm(); 
+  I_cout()<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm(); 
+  I_cout()<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm(); 
 
 
+  //Rotational energy before
+  I_cout()<<"Energy before " <<  KE1before +
+    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + KE2before +
+  (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
+  
 
   orientationData[particle1.getID()].angularVelocity 
-    -= S * ((Inverse(W1) * Inverse(I1) * W1) * nI1);
+    -= S * ((Inverse(W1) * Inverse(I1) * W1) * n1);
   
   orientationData[particle2.getID()].angularVelocity 
-    += S * ((Inverse(W2) * Inverse(I2) * W2) * nI2);
-  
-  //   Vector aux = orientationData[particle1.getID()].angularVelocity;
-  // orientationData[particle1.getID()].angularVelocity = orientationData[particle2.getID()].angularVelocity;
-  // orientationData[particle2.getID()].angularVelocity = aux;
+    += S * ((Inverse(W2) * Inverse(I2) * W2) * n2);
+
+    I_cout()<<"Energy after  " << getParticleKineticEnergy(particle1) +
+    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + getParticleKineticEnergy(particle2) +
+  (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
   Vector velContac1b = particle1.getVelocity() 
-    + (orientationData[particle1.getID()].angularVelocity) ^ (u1 + rhat * diameter / 2);
+    + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
   Vector velContac2b = particle2.getVelocity() 
-    + (orientationData[particle2.getID()].angularVelocity) ^ (u2 - rhat * diameter / 2);
+    + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
   
 
   Vector velContactb = velContac1b - velContac2b;
-  I_cout()<<"Contact Vel pre " << (velContact | rhat) << " Contact Vel post " << (velContactb | rhat);
+  I_cout()<<"Error in contact velocity " << 1 + (velContact | rhat)/(velContactb | rhat);
 
   //Done with the collision; keeping track of energy
   retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
   retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
-
+  I_cout()<<"delta energy  " << getParticleKineticEnergy(particle1) - KE1before ;
+  I_cout()<<"delta energy  " <<  getParticleKineticEnergy(particle2) - KE2before;
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
   lastAbsoluteClock = Sim->dSysTime;
