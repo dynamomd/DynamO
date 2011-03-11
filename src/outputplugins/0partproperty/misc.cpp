@@ -98,7 +98,7 @@ OPMisc::initialise()
 void
 OPMisc::eventUpdate(const IntEvent&, const PairEventData&)
 {
-  dualEvents++;
+  ++dualEvents;
 }
 
 void
@@ -183,6 +183,8 @@ OPMisc::output(xml::XmlStream &XML)
 
       << xml::tag("SimLength")
       << xml::attr("Collisions") << Sim->eventCount
+      << xml::attr("2ParticleEvents") << dualEvents
+      << xml::attr("1ParticleEvents") << singleEvents
       << xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
       << xml::endtag("SimLength")
 
