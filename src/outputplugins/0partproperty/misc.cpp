@@ -183,8 +183,8 @@ OPMisc::output(xml::XmlStream &XML)
 
       << xml::tag("SimLength")
       << xml::attr("Collisions") << Sim->eventCount
-      << xml::attr("2ParticleEvents") << dualEvents
-      << xml::attr("1ParticleEvents") << singleEvents
+      << xml::attr("OneParticleEvents") << singleEvents
+      << xml::attr("TwoParticleEvents") << dualEvents
       << xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
       << xml::endtag("SimLength")
 
