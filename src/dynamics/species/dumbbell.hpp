@@ -37,7 +37,6 @@ public:
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::CL::CLGLState&) const;
   virtual void sendRenderData(magnet::CL::CLGLState&) const;
-  virtual void updateColorObj(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
