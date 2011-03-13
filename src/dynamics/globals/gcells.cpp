@@ -90,8 +90,6 @@ void
 CGCells::operator<<(const XMLNode& XML)
 {
   try {
-    //If you add anything here then it needs to go in gListAndCells.cpp too
-
     if (XML.isAttributeSet("OverLink"))
       overlink = boost::lexical_cast<size_t>
 	(XML.getAttribute("OverLink"));
@@ -304,6 +302,7 @@ CGCells::runEvent(const Particle& part, const double) const
 void 
 CGCells::initialise(size_t nID)
 {
+  lambda=0.99;
   ID=nID;
   
   reinitialise(getMaxInteractionLength());

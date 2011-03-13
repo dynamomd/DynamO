@@ -19,8 +19,8 @@
 
 CGNeighbourList::CGNeighbourList(const CGNeighbourList& nb):
   Global(nb),
-  isUsedInScheduler(false)
-
+  isUsedInScheduler(false),
+  lambda(nb.lambda)
 {
   I_cout() << "On copy this class erases callbacks";
 }

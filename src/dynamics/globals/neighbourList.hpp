@@ -68,11 +68,6 @@ public:
     lambda(0.9)
   {}
 
-//  CGNeighbourList(CRange* a, DYNAMO::SimData* b, 
-//		  const char * c): 
-//    Global(a,b,c)
-//  {}
-
   CGNeighbourList(const CGNeighbourList&);
 
   virtual void getParticleNeighbourhood(const Particle&, 

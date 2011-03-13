@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGCells_HPP
-#define CGCells_HPP
+#pragma once
 
 #include "neighbourList.hpp"
 #include "../../extcode/mathtemplates.hpp"
@@ -101,9 +100,9 @@ protected:
 
   //Variables
   CVector<int> cellCount;
-  Vector  cellDimension;
-  Vector  cellLatticeWidth;
-  Vector  cellOffset;
+  Vector cellDimension;
+  Vector cellLatticeWidth;
+  Vector cellOffset;
   double _oversizeCells;
   size_t NCells;
   size_t overlink;
@@ -157,5 +156,3 @@ protected:
   }
 
 };
-
-#endif
