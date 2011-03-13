@@ -19,16 +19,24 @@ SpDumbbells::getCoilRenderObj() const
   return _renderObj;
 }
 
-void
-SpDumbbells::sendRenderData(magnet::CL::CLGLState& CLState) const
+void 
+SpDumbbells::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
-  SpPoint::sendRenderData(CLState);
+  SpPoint::updateColorObj(CLState);
   
-  //A second copy to just duplicate the data for the two spheres of the dumbbells
-  if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
+  {//A second copy to just duplicate the data for the two spheres of the dumbbells
     CLState.getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
        false, range->size() * sizeof(cl_uchar4), range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+  }
+}
+
+void
+SpDumbbells::sendRenderData(magnet::CL::CLGLState& CLState) const
+{
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
+     false, 0, 2 * range->size() * sizeof(cl_float4), &particleData[0]);
 }
 
 void
