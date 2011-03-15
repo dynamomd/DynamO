@@ -40,8 +40,8 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
 {
   _updateTime = tickFreq * Sim->dynamics.units().unitTime();
   dt = -HUGE_VAL;//We want to ensure we get at least one update before
-		 //anything occurs
-
+		 //anything occurs in the system
+  
   sysName = "Visualizer";
 
   //Build a window, ready to display it

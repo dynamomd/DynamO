@@ -33,36 +33,41 @@ class MinMaxHeapPList
   magnet::containers::MinMaxHeap<Size, boost::array<intPart,Size> > _innerHeap;
 
 public:
-  MinMaxHeapPList() { _innerHeap.top().dt = HUGE_VAL; }
+  MinMaxHeapPList() 
+  { 
+    //We use the iterators to do this as it doesn't check the size of
+    //the heap!
+    _innerHeap.begin()->dt = HUGE_VAL; 
+  }
 
   inline size_t size() const { return _innerHeap.size(); }
   inline bool empty() const { return _innerHeap.empty(); }
   inline bool full() const { return _innerHeap.full(); }
 
-  inline const intPart& front() const { return _innerHeap.top(); }
-  inline const intPart& top() const { return _innerHeap.top(); }  
+  inline const intPart& front() const { return *_innerHeap.begin(); }
+  inline const intPart& top() const { return front(); }  
 
   inline void pop() 
   { 
     _innerHeap.pop(); 
-    if (empty())  _innerHeap.top().dt = HUGE_VAL; 
+    if (empty())  _innerHeap.begin()->dt = HUGE_VAL; 
   }
 
-  inline void clear() { _innerHeap.clear(); _innerHeap.top().dt = HUGE_VAL; }
+  inline void clear() { _innerHeap.clear(); _innerHeap.begin()->dt = HUGE_VAL; }
 
   inline bool operator> (const MinMaxHeapPList& ip) const throw()
   { 
-    return _innerHeap.top().dt > ip._innerHeap.top().dt; 
+    return _innerHeap.begin()->dt > ip._innerHeap.begin()->dt; 
   }
 
   inline bool operator< (const MinMaxHeapPList& ip) const throw()
   { 
-    return _innerHeap.top().dt < ip._innerHeap.top().dt; 
+    return _innerHeap.begin()->dt < ip._innerHeap.begin()->dt; 
   }
 
   inline double getdt() const 
-  { 
-    return _innerHeap.top().dt;
+  {
+    return _innerHeap.begin()->dt;
   }
   
   inline void stream(const double& ndt) throw()

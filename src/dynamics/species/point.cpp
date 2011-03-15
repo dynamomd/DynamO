@@ -18,7 +18,6 @@
 #ifdef DYNAMO_visualizer
 # include "renderobjs/spheres.hpp"
 # include "../liouvillean/CompressionL.hpp"
-# include <magnet/gtk/colorMapSelector.hpp>
 #endif
 
 #include <boost/lexical_cast.hpp>
@@ -93,11 +92,14 @@ SpPoint::sendRenderData(magnet::CL::CLGLState& CLState) const
   CLState.getCommandQueue().enqueueWriteBuffer
     (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
      false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
+}
 
-  if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
-    CLState.getCommandQueue().enqueueWriteBuffer
-      (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-       false, 0, range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+void
+SpPoint::sendColorData(magnet::CL::CLGLState& CLState) const
+{
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
+     false, 0, range->size() * sizeof(cl_uchar4), &particleColorData[0]);
 }
 
 void
@@ -128,10 +130,14 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
     }
 
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
-    updateColorObj(CLState);
-
+    {
+      updateColorObj(CLState);
+      _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpPoint::sendColorData, this, 
+									 CLState));
+    }
+  
   _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpPoint::sendRenderData, this, 
-								    CLState));
+								     CLState));
 }
 
 void 
