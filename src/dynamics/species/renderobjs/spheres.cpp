@@ -175,6 +175,8 @@ SphereParticleRenderer::initGTK()
     box->show();
     _optList->add(*box);
   }
+
+  _optList->show();
     
   _singleColorMode->signal_toggled()
     .connect(sigc::mem_fun(*this, &SphereParticleRenderer::guiUpdate));
@@ -210,8 +212,6 @@ SphereParticleRenderer::initGTK()
     .connect(sigc::mem_fun(*this, &SphereParticleRenderer::guiUpdate));
   _AStatic->signal_value_changed()
     .connect(sigc::mem_fun(*this, &SphereParticleRenderer::guiUpdate));
-
-  _optList->show();
 
   guiUpdate();
 }
