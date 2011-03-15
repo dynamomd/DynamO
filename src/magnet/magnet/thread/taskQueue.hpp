@@ -46,14 +46,18 @@ namespace magnet {
 
       void drainQueue()
       {
-	thread::ScopedLock lock1(_queue_mutex);
+	_queue_mutex.lock();
 
 	while (!_waitingFunctors.empty())
 	  {
-	    (*_waitingFunctors.front())();
-	    delete _waitingFunctors.front();
+	    function::Task* task = _waitingFunctors.front();
 	    _waitingFunctors.pop();
+	    _queue_mutex.unlock();
+	    (*task)();
+	    delete task;
+	    _queue_mutex.lock();
 	  }
+	_queue_mutex.unlock();
       }
 
       ~TaskQueue()

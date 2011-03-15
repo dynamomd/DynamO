@@ -130,11 +130,7 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
     }
 
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
-    {
-      updateColorObj(CLState);
-      _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpPoint::sendColorData, this, 
-									 CLState));
-    }
+    updateColorObj(CLState);
   
   _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpPoint::sendRenderData, this, 
 								     CLState));
@@ -210,5 +206,8 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
     default:
       M_throw() << "Not Implemented";
     }
+
+  _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpPoint::sendColorData, this, 
+								     CLState));
 }
 #endif
