@@ -34,27 +34,35 @@ namespace magnet {
 	_initialised = true;
       }
  
-      inline cl::Platform getPlatform() 
+      inline cl::Platform& getPlatform() 
       { 
+#ifdef MAGNET_DEBUG
 	if (!_initialised) M_throw() << "Not initialised()!";
+#endif
 	return _platform; 
       }
 
-      inline cl::Context getContext() 
+      inline cl::Context& getContext() 
       { 
+#ifdef MAGNET_DEBUG
 	if (!_initialised) M_throw() << "Not initialised()!";
+#endif
 	return _context; 
       }
 
-      inline cl::Device getDevice() 
+      inline cl::Device& getDevice() 
       { 
+#ifdef MAGNET_DEBUG
 	if (!_initialised) M_throw() << "Not initialised()!";
+#endif
 	return _device; 
       }
 
-      inline cl::CommandQueue getCommandQueue() 
+      inline cl::CommandQueue& getCommandQueue() 
       { 
+#ifdef MAGNET_DEBUG
 	if (!_initialised) M_throw() << "Not initialised()!";
+#endif
 	return _commandQ; 
       }
       
