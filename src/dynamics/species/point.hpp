@@ -17,6 +17,10 @@
 
 #pragma once
 
+#ifdef DYNAMO_visualizer
+# include <coil/coilMaster.hpp>
+#endif
+
 #include "../../extcode/xmlwriter.hpp"
 #include "species.hpp"
 #include <memory>
@@ -60,6 +64,8 @@ protected:
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
   mutable std::vector<cl_float4> particleData;
   mutable std::vector<cl_uchar4> particleColorData;
+
+  mutable CoilRegister _coil;
 #endif
 
 protected:

@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../../dynamics/species/inertia.hpp"
 #include "misc.hpp"
 #include <boost/foreach.hpp>
 #include "../../extcode/xmlwriter.hpp"
@@ -24,7 +25,6 @@
 #include <ctime>
 #include <sys/time.h>
 #include <magnet/memUsage.hpp>
-#include "../../dynamics/species/inertia.hpp"
 
 OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   OutputPlugin(tmp,"Misc",0),

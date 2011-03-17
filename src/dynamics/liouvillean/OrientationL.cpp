@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../species/inertia.hpp"
 #include "OrientationL.hpp"
 #include "../2particleEventData.hpp"
 #include <boost/progress.hpp>
@@ -33,7 +34,6 @@
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
 #include "../../extcode/binaryHelper.hpp"
-#include "../species/inertia.hpp"
 #include <magnet/math/matrix.hpp>
 
 
