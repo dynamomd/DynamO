@@ -266,7 +266,7 @@ void CoilMaster::coilThreadEntryPoint()
 				   Glib::PRIORITY_DEFAULT_IDLE);
 
     Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, 
-				   Glib::PRIORITY_LOW);
+				   Glib::PRIORITY_DEFAULT_IDLE);
     
     _coilReadyFlag = true;
     _GTKit->run();
