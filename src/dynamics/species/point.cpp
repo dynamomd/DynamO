@@ -79,6 +79,7 @@ SpPoint::getCoilRenderObj() const
     {
       _renderObj = new SphereParticleRenderer(range->size(), "Species: " + spName,
 					      magnet::function::MakeDelegate(this, &SpPoint::updateColorObj));
+      _coil = new CoilRegister;
       particleData.resize(range->size());
       particleColorData.resize(range->size());
     }
@@ -132,9 +133,8 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
     updateColorObj(CLState);
   
-  _coil.getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpPoint::sendRenderData, 
-										this, 
-										CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpPoint::sendRenderData, 
+										 this, CLState));
 }
 
 void 
@@ -208,8 +208,7 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
       M_throw() << "Not Implemented";
     }
 
-  _coil.getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpPoint::sendColorData, 
-										this, 
-										CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpPoint::sendColorData, 
+										 this, CLState));
 }
 #endif

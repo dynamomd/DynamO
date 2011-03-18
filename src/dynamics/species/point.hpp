@@ -65,7 +65,7 @@ protected:
   mutable std::vector<cl_float4> particleData;
   mutable std::vector<cl_uchar4> particleColorData;
 
-  mutable CoilRegister _coil;
+  mutable magnet::thread::RefPtr<CoilRegister> _coil;
 #endif
 
 protected:
