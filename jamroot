@@ -87,7 +87,6 @@ project	: requirements
 ##########################################################################
 #Targets
 make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
-always buildinfo.hpp ;
 
 rule critical_dependencies ( )
 { return [ check-target-builds src//dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }

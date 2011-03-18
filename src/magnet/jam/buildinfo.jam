@@ -15,11 +15,11 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import stringmanip ;
-import "class" : new ;
 
 #This rule exists to set up the CONFIG variable for the associated action
 rule gen_buildinfo_data ( targets * : sources * : properties * )
 {
+  ALWAYS $(<) ;
   local define ;
   
   local hash = [ stringmanip.trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
