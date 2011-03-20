@@ -30,7 +30,7 @@ namespace {
   //for both dimensions is equal. Thus, only the calibration data is
   //needed for the X dimension. Although the FOV is stated to be less
   //than 45 degree's on other websites, this value yeilds accurate
-  //(+-5mm) measurements on my wiimote for all distances
+  //(+-5mm) measurements on my wiimote
   const double WiiFOVX = (45.0f / 180.0) * M_PI; 
   //The angle corresponding to a pixel (the camera only "sees" angles, not distances)
   const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX);  
@@ -40,12 +40,6 @@ namespace {
   //The screen dimensions in cm
   const double ScreenXlength = 41.1;
   const double ScreenYlength = 30.9;
-  //These resolutions are used to calculate your current OpenGL window
-  //size! (this is because my apps run in a window)
-  const double ScreenXres = 1600;
-  const double ScreenYres = 1200;
-
-  const double spacingOfEyes = 8.5;
 }
 
 TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
@@ -164,7 +158,7 @@ void TrackWiimote::updateHeadPos()
   eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
 }
 
-void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, size_t xpixels, size_t ypixels, const Vector offset)
+void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, const Vector offset)
 {
   //Build a matrix to rotate from camera to world
   Matrix Transformation 
@@ -197,10 +191,10 @@ void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, size_t xpixels,
   //
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum((-0.5f * (xpixels / double(ScreenXres)) * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// left
-	    (+0.5f * (xpixels / double(ScreenXres)) * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// right
-	    (-0.5f * (ypixels / double(ScreenYres)) * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// bottom 
-	    (+0.5f * (ypixels / double(ScreenYres)) * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// top
+  glFrustum((-0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// left
+	    (+0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// right
+	    (-0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// bottom 
+	    (+0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// top
 	    vp._zNearDist,//Near distance
 	    vp._zFarDist//Far distance
 	    );

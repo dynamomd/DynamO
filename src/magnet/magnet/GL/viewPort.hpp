@@ -56,7 +56,7 @@ namespace magnet {
 	directionNorm /= directionNorm.nrm();
 	double upprojection = (directionNorm | up);
 	Vector directionInXZplane = directionNorm - upprojection * up;
-	directionInXZplane /= directionInXZplane.nrm();
+	directionInXZplane /= (directionInXZplane.nrm() != 0) ? directionInXZplane.nrm() : 0;
 	_panrotation = -(180.0 / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
 		
 	Vector rotationAxis = up ^ directionInXZplane;
@@ -74,7 +74,7 @@ namespace magnet {
 	//This vector is the movement vector from the camera's
 	//viewpoint (not including the vertical component)
 	Vector movement(sideways,0,-forward); //Strafe direction (left-right)
-	  
+	
 	_position += Transformation * movement + Vector(0,vertical,0);
 
 	buildMatrices();

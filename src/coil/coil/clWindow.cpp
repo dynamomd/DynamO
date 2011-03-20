@@ -901,7 +901,7 @@ CLGLWindow::CallBackDisplayFunc()
   if (_wiiMoteTracker.connected())
     {
       _wiiMoteTracker.updateState();
-      _wiiMoteTracker.glPerspective(*_viewPortInfo, _width, _height);
+      _wiiMoteTracker.glPerspective(*_viewPortInfo);
       //Now tell the viewport to save the modified matricies
       _viewPortInfo->saveMatrices();
     }
@@ -960,20 +960,20 @@ CLGLWindow::CallBackDisplayFunc()
       if (keyStates['b'])
 	{
 	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	  _viewPortInfo->buildMatrices();
 	  _viewPortInfo->loadMatrices();
 
 	  const double eyedist = 8.5;
 	  Vector eyeDisplacement(0.5 *eyedist, 0, 0);
 	  
-	  _wiiMoteTracker.glPerspective(*_viewPortInfo, _width, _height, -eyeDisplacement);
+	  _wiiMoteTracker.glPerspective(*_viewPortInfo, -eyeDisplacement);
 
 	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  drawScene();
 	  
 	  _viewPortInfo->loadMatrices();
-	  _wiiMoteTracker.glPerspective(*_viewPortInfo, _width, _height, eyeDisplacement);
+	  _wiiMoteTracker.glPerspective(*_viewPortInfo, eyeDisplacement);
 	  
 	  glClear(GL_DEPTH_BUFFER_BIT);
 	  glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
