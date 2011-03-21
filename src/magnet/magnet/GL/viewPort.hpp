@@ -27,7 +27,7 @@
 #include <cmath>
 
 namespace magnet {
-  namespace GL {    
+  namespace GL {
     struct viewPort
     {
       //We need a default constructor as viewPorts may be created without GL being initialized
@@ -36,7 +36,8 @@ namespace magnet {
 		      GLfloat fovY = 45.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		      Vector up = Vector(0,1,0),
-		      GLfloat aspectRatio = 1
+		      GLfloat aspectRatio = 1,
+		      Vector headLocation = Vector(0,0,-1)
 		      ):
 	_panrotation(180),
 	_tiltrotation(0),
@@ -44,7 +45,8 @@ namespace magnet {
 	_fovY(fovY),
 	_aspectRatio(aspectRatio),
 	_zNearDist(zNearDist),
-	_zFarDist(zFarDist)
+	_zFarDist(zFarDist),
+	_headLocation(headLocation)
       {
 	if (_zNearDist > _zFarDist) 
 	  M_throw() << "zNearDist > _zFarDist!";
@@ -81,12 +83,41 @@ namespace magnet {
       }
       
       inline void buildMatrices()
-      {
+      {  
+	//We'll build the matricies on the modelview stack
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
 	//Build the projection matrix
 	glLoadIdentity();
+
+	//We will move the camera to the location of the head in sim
+	//space. So we must create a viewing frustrum which, in real
+	//space, cuts through the image on the screen. The trick is to
+	//take the real world relative coordinates of the screen and
+	//head transform them to simulation units.
+	//
+	//This allows us to calculate the left, right, bottom and top of
+	//the frustrum as if the near plane of the frustrum was at the
+	//screens location.
+	//
+	//Finally, all length scales are multiplied by
+	//(_zNearDist/headPos[2]).
+	//
+	//This is to allow the frustrum's near plane to be placed
+	//somewhere other than the screen (this factor places it at
+	//_zNearDist)!
+	//
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glFrustum((-0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// left
+	    (+0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// right
+	    (-0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// bottom 
+	    (+0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// top
+	    vp._zNearDist,//Near distance
+	    vp._zFarDist//Far distance
+	    );
+
 	gluPerspective(_fovY, _aspectRatio, _zNearDist, _zFarDist);
 	glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
 
@@ -94,9 +125,16 @@ namespace magnet {
 	glLoadIdentity();
 	glRotatef(_tiltrotation, 1.0, 0.0, 0.0);
 	glRotatef(_panrotation, 0.0, 1.0, 0.0);
-	glTranslatef(-_position[0], -_position[1], -_position[2]);	
+
+	//Now add in the movement of the head and the movement of the
+	//camera
+	Matrix Transformation 
+	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	Vector cameraLocation = (Transformation * headPos) + position;
+	glTranslatef(-cameraLocation[0], -cameraLocation[1], -cameraLocation[2]);
+
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
-	
 	glPopMatrix();
 
 	Matrix viewTransform = Rodrigues(Vector(0,-_panrotation * M_PI/180,0)) 
@@ -130,7 +168,7 @@ namespace magnet {
       GLdouble _aspectRatio;
       GLdouble _zNearDist;
       GLdouble _zFarDist;
-      
+      double _focalDistance;
       Vector _cameraDirection, _cameraUp;
       
       MATRIX4X4 _projectionMatrix;
