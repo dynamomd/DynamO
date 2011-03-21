@@ -127,10 +127,10 @@ OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const doubl
 void
 OPRdotV::periodicOutput()
 {
-  double P = _periodicRdotV 
+  double P = 1 + _periodicRdotV 
     / (3 * Sim->N * (Sim->dSysTime - _periodict) * Sim->dynamics.getLiouvillean().getkT());
 
-  I_Pcout() << "P " << P << ", ";
+  I_Pcout() << "P* " << P << ", ";
 
   _periodict = Sim->dSysTime;
   _periodicRdotV = 0;
