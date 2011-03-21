@@ -277,11 +277,11 @@ RTSpheres::sortTick(const magnet::GL::viewPort& _viewPortInfo)
   
   //Generate the sort data
   _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
-		     campos, camdir, camup,
-		     (cl_float)_viewPortInfo._aspectRatio,
-		     (cl_float)_viewPortInfo._zNearDist,
-		     (cl_float)_viewPortInfo._fovY,
-		     _N);
+		      campos, camdir, camup,
+		      (cl_float)_viewPortInfo._aspectRatio,
+		      (cl_float)_viewPortInfo._zNearDist,
+		      (cl_float)_viewPortInfo.getFOVY(),
+		      _N);
   
   if ((_renderDetailLevels.size() > 2) 
       || (_renderDetailLevels.front()._nSpheres != _N))

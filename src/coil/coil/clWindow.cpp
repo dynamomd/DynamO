@@ -409,7 +409,7 @@ CLGLWindow::initGTK()
   {///////Light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
-    FOVscale->set_value(_light0->_fovY);
+    FOVscale->set_value(_light0->getFOVY());
     FOVscale->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
@@ -1817,7 +1817,7 @@ CLGLWindow::guiUpdateCallback()
   {///////light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
-    _light0->_fovY = FOVscale->get_value();
+    _light0->setFOVY(FOVscale->get_value());
     _light0->buildMatrices();
   }
 

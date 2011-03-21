@@ -61,8 +61,10 @@ namespace magnet {
 	GLfloat r = 0.05f;
 	
 	glTranslatef(0.0f,0.0f,0.0025f);
-	glutSolidCone(r * std::sin(_fovY * M_PI / 360.0f), 
-		      r * std::cos(_fovY * M_PI / 360.0f), 
+	
+	double fovY = getFOVY();
+	glutSolidCone(r * std::sin(fovY * M_PI / 360.0f), 
+		      r * std::cos(fovY * M_PI / 360.0f), 
 		      15, 15);
 	glPopMatrix();
       }

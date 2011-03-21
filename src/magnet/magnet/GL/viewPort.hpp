@@ -36,17 +36,16 @@ namespace magnet {
 		      GLfloat fovY = 45.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		      Vector up = Vector(0,1,0),
-		      GLfloat aspectRatio = 1,
-		      Vector headLocation = Vector(0,0,-1)
+		      GLfloat aspectRatio = 1
 		      ):
 	_panrotation(180),
 	_tiltrotation(0),
 	_position(position),
-	_fovY(fovY),
 	_aspectRatio(aspectRatio),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
-	_headLocation(headLocation)
+	_simLength(50),
+	_screenWidth(41.1f / _simLength)
       {
 	if (_zNearDist > _zFarDist) 
 	  M_throw() << "zNearDist > _zFarDist!";
@@ -59,14 +58,26 @@ namespace magnet {
 	double upprojection = (directionNorm | up);
 	Vector directionInXZplane = directionNorm - upprojection * up;
 	directionInXZplane /= (directionInXZplane.nrm() != 0) ? directionInXZplane.nrm() : 0;
-	_panrotation = -(180.0 / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
+	_panrotation = -(180.0f / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
 		
 	Vector rotationAxis = up ^ directionInXZplane;
 	rotationAxis /= rotationAxis.nrm();
 
-	_tiltrotation = (180.0 / M_PI) * std::acos(directionInXZplane | directionNorm);
+	_tiltrotation = (180.0f / M_PI) * std::acos(directionInXZplane | directionNorm);
+
+	//We use the field of vision and the width of the screen in
+	//simulation units to calculate how far back the head should
+	//be at the start
+	setFOVY(fovY);
       }
+
+      inline void setFOVY(double fovY) 
+      { _headLocation = Vector(0, 0, 0.5f * _screenWidth / std::tan((fovY / 180.0f) * M_PI / 2)); }
       
+      inline double getFOVY() const
+      { return 2 * std::atan2(0.5f * _screenWidth,  _headLocation[2]) * (180.0f / M_PI); }
+
+
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
 	//Build a matrix to rotate from camera to world
@@ -102,23 +113,20 @@ namespace magnet {
 	//screens location.
 	//
 	//Finally, all length scales are multiplied by
-	//(_zNearDist/headPos[2]).
+	//(_zNearDist/_headLocation[2]).
 	//
 	//This is to allow the frustrum's near plane to be placed
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum((-0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// left
-	    (+0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// right
-	    (-0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// bottom 
-	    (+0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// top
-	    vp._zNearDist,//Near distance
-	    vp._zFarDist//Far distance
-	    );
+	glFrustum((-0.5f * _screenWidth                - _headLocation[0]) * _zNearDist / _headLocation[2],// left
+		  (+0.5f * _screenWidth                - _headLocation[0]) * _zNearDist / _headLocation[2],// right
+		  (-0.5f * _screenWidth / _aspectRatio - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
+		  (+0.5f * _screenWidth / _aspectRatio - _headLocation[1]) * _zNearDist / _headLocation[2],// top
+		  _zNearDist,//Near distance
+		  _zFarDist//Far distance
+		  );
 
-	gluPerspective(_fovY, _aspectRatio, _zNearDist, _zFarDist);
 	glGetFloatv(GL_MODELVIEW_MATRIX, _projectionMatrix);
 
 	//setup the view matrix
@@ -128,20 +136,18 @@ namespace magnet {
 
 	//Now add in the movement of the head and the movement of the
 	//camera
-	Matrix Transformation 
+	Matrix viewTransformation 
 	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
 	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	Vector cameraLocation = (Transformation * headPos) + position;
+
+	Vector cameraLocation = -(viewTransformation * _headLocation) + _position;
 	glTranslatef(-cameraLocation[0], -cameraLocation[1], -cameraLocation[2]);
 
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
 	glPopMatrix();
-
-	Matrix viewTransform = Rodrigues(Vector(0,-_panrotation * M_PI/180,0)) 
-	  * Rodrigues(Vector(-_tiltrotation * M_PI/180.0,0,0));
 	
-	_cameraDirection =  viewTransform * Vector(0,0,-1);
-	_cameraUp = viewTransform * Vector(0,1,0);
+	_cameraDirection = viewTransformation * Vector(0,0,-1);
+	_cameraUp = viewTransformation * Vector(0,1,0);
 
       }
 
@@ -164,15 +170,19 @@ namespace magnet {
       float _tiltrotation;
       Vector _position;
       
-      GLdouble _fovY;
       GLdouble _aspectRatio;
       GLdouble _zNearDist;
       GLdouble _zFarDist;
-      double _focalDistance;
+      Vector _headLocation;
       Vector _cameraDirection, _cameraUp;
       
       MATRIX4X4 _projectionMatrix;
       MATRIX4X4 _viewMatrix;
+
+      //!One simulation length in cm (real units)
+      double _simLength;
+      //!The width of the screen in simulation units
+      double _screenWidth;
     };
   }
 }
