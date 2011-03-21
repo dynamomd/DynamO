@@ -29,7 +29,10 @@ OPRdotV::OPRdotV(const DYNAMO::SimData* tmp, const XMLNode&):
 
 void 
 OPRdotV::initialise()
-{}
+{
+  _periodicRdotV = 0;
+  _periodict = 0;
+}
 
 void 
 OPRdotV::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
@@ -43,7 +46,10 @@ OPRdotV::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
   mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent),
 				 speciesIDlow, speciesIDhigh)];
 
-  ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
+  double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+  ref.addVal(rdotdelV);
+  _periodicRdotV += rdotdelV;
+
   ref.costheta.addVal(pDat.rij | pDat.vijold 
 		      / (pDat.rij.nrm() * pDat.vijold.nrm()));
 }
@@ -62,8 +68,11 @@ OPRdotV::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
       mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
 				     getClassKey(globEvent),
 				     speciesIDlow, speciesIDhigh)];
+
+      double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
       
-      ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
+      ref.addVal(rdotdelV);
+      _periodicRdotV += rdotdelV;
 
       ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
     }
@@ -84,7 +93,9 @@ OPRdotV::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
 				     getClassKey(localEvent),
 				     speciesIDlow, speciesIDhigh)];
       
-      ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
+      double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+      ref.addVal(rdotdelV);
+      _periodicRdotV += rdotdelV;
 
       ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
     }
@@ -105,10 +116,24 @@ OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const doubl
 				     getClassKey(sysEvent),
 				     speciesIDlow, speciesIDhigh)];
       
-      ref.addVal(pDat.rij | pDat.particle1_.getDeltaP());
+      double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+      ref.addVal(rdotdelV);
+      _periodicRdotV += rdotdelV;
 
       ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
     } 
+}
+
+void
+OPRdotV::periodicOutput()
+{
+  double P = _periodicRdotV 
+    / (3 * Sim->N * (Sim->dSysTime - _periodict) * Sim->dynamics.getLiouvillean().getkT());
+
+  I_Pcout() << "P " << P << ", ";
+
+  _periodict = Sim->dSysTime;
+  _periodicRdotV = 0;
 }
 
 void

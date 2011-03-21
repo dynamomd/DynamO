@@ -42,6 +42,8 @@ class OPRdotV: public OutputPlugin
 
   virtual void eventUpdate(const System&, const NEventData&, const double&);
 
+  virtual void periodicOutput();
+
   void output(xml::XmlStream &);
 
   virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPRdotV*>(plug)->Sim); }
@@ -69,6 +71,9 @@ class OPRdotV: public OutputPlugin
   typedef boost::tuple<EEventType, classKey, size_t, size_t> mapKey;
 
   std::map<mapKey, mapdata> rvdotacc;
+
+  double _periodicRdotV;
+  long double _periodict;
 };
 
 #endif
