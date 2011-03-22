@@ -271,15 +271,15 @@ RTSpheres::initOpenCL()
 void 
 RTSpheres::sortTick(const magnet::GL::viewPort& _viewPortInfo)
 {
-  cl_float4 campos = getclVec(_viewPortInfo._position);
-  cl_float4 camdir = getclVec(_viewPortInfo._cameraDirection);
-  cl_float4 camup = getclVec(_viewPortInfo._cameraUp);
+  cl_float4 campos = getclVec(_viewPortInfo.getEyeLocation());
+  cl_float4 camdir = getclVec(_viewPortInfo.getCameraDirection());
+  cl_float4 camup = getclVec(_viewPortInfo.getCameraUp());
   
   //Generate the sort data
   _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
 		      campos, camdir, camup,
-		      (cl_float)_viewPortInfo._aspectRatio,
-		      (cl_float)_viewPortInfo._zNearDist,
+		      (cl_float)_viewPortInfo.getAspectRatio(),
+		      (cl_float)_viewPortInfo.getZNear(),
 		      (cl_float)_viewPortInfo.getFOVY(),
 		      _N);
   
@@ -289,6 +289,7 @@ RTSpheres::sortTick(const magnet::GL::viewPort& _viewPortInfo)
   
   recolor();
 }
+
 void
 RTSpheres::recolor()
 {

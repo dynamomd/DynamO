@@ -83,6 +83,7 @@ namespace coil
 				    size_t width, size_t height,
 				    const magnet::GL::viewPort& vp) 
   {
-    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff, vp._zNearDist, vp._zFarDist); 
+    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff, 
+		   vp.getZNear(), vp.getZFar()); 
   }
 }

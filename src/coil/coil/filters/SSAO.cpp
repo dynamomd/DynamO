@@ -125,9 +125,7 @@ namespace coil
 
     _filter.invoke(colorTextureUnit, 1, 2, 7, width, height, 
 		   _radius, _totStrength, _dropoff, _randomTextureSize,
-		   vp._zNearDist, vp._zFarDist); 
+		   vp.getZNear(), vp.getZFar()); 
   }
-
-
 }
 

@@ -68,7 +68,7 @@ namespace coil
     inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::viewPort& vp)
     { _filter.invoke(colorTextureUnit, 0, 2, _focalLength, _focalWidth, width, 
-		     height, vp._zNearDist, vp._zFarDist); }
+		     height, vp.getZNear(), vp.getZFar()); }
 
     inline virtual bool needsNormalDepth()  { return false; }
 

@@ -208,7 +208,7 @@ RArrows::initOpenCL()
 void 
 RArrows::clTick(const magnet::GL::viewPort& _viewPortInfo)
 {
-  cl_float4 campos = getclVec(_viewPortInfo._position);
+  cl_float4 campos = getclVec(_viewPortInfo.getEyeLocation());
 
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(_CLState->getCommandQueue());

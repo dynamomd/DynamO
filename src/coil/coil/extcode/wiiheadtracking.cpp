@@ -162,8 +162,8 @@ void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, const Vector of
 {
   //Build a matrix to rotate from camera to world
   Matrix Transformation 
-    = Rodrigues(Vector(0, -vp._panrotation * M_PI/180, 0))
-    * Rodrigues(Vector(-vp._tiltrotation * M_PI / 180.0, 0, 0));
+    = Rodrigues(Vector(0, -vp.getPan() * M_PI/180, 0))
+    * Rodrigues(Vector(-vp.getTilt() * M_PI / 180.0, 0, 0));
   
   Vector movement = Transformation * (Vector(eye_pos[0], eye_pos[1], eye_pos[2]) + offset ) ;
 
@@ -191,12 +191,12 @@ void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, const Vector of
   //
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum((-0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// left
-	    (+0.5f * ScreenXlength - eye_pos[0]) * vp._zNearDist / eye_pos[2],// right
-	    (-0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// bottom 
-	    (+0.5f * ScreenYlength - eye_pos[1]) * vp._zNearDist / eye_pos[2],// top
-	    vp._zNearDist,//Near distance
-	    vp._zFarDist//Far distance
+  glFrustum((-0.5f * ScreenXlength - eye_pos[0]) * vp.getZNear() / eye_pos[2],// left
+	    (+0.5f * ScreenXlength - eye_pos[0]) * vp.getZNear() / eye_pos[2],// right
+	    (-0.5f * ScreenYlength - eye_pos[1]) * vp.getZNear() / eye_pos[2],// bottom 
+	    (+0.5f * ScreenYlength - eye_pos[1]) * vp.getZNear() / eye_pos[2],// top
+	    vp.getZNear(),//Near distance
+	    vp.getZFar()//Far distance
 	    );
   
   glMatrixMode(GL_MODELVIEW);

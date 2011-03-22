@@ -22,7 +22,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <magnet/clamp.hpp>
 
 #include <magnet/PNG.hpp>
 #include <coil/extcode/bitmap_image.hpp>
@@ -1155,9 +1154,7 @@ CLGLWindow::CallBackDisplayFunc()
 void 
 CLGLWindow::drawScene()
 {
-  //SSAO is buggered up by transparency somehow
-  GLfloat light0_position[] = {_light0->_position.x, _light0->_position.y, _light0->_position.z, 1.0f};
-  glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+  _light0->glUpdateLight();
   
   //Enter the render ticks for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -1178,7 +1175,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   glViewport(0, 0, _width, _height); 
 
   //Update the viewport
-  _viewPortInfo->_aspectRatio = ((GLdouble)_width) / _height;
+  _viewPortInfo->setAspectRatio(((GLdouble)_width) / _height);
   _viewPortInfo->buildMatrices();
   
   if (_shaderPipeline)
@@ -1272,16 +1269,13 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
   switch (keyState)
     {
     case LEFTMOUSE:
-      _viewPortInfo->_panrotation += diffX;
-      _viewPortInfo->_tiltrotation = magnet::clamp(diffY + _viewPortInfo->_tiltrotation, -90.0f, 90.0f);
-      break;
-//    case RIGHTMOUSE:
-//      break;
-//    case MIDDLEMOUSE:
+      _viewPortInfo->mouseMovement(diffX, diffY);
+    case RIGHTMOUSE:
+    case MIDDLEMOUSE:
     default:
-      break;
+      {}
     }
-
+  
   _oldMouseX = x;
   _oldMouseY = y;
 }
@@ -1290,12 +1284,6 @@ void
 CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
 {
   keyStates[std::tolower(key)] = true;
-
-  switch (key)
-    {
-    default:
-      break;
-    }
 }
 
 void 

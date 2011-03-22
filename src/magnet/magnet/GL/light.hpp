@@ -41,6 +41,14 @@ namespace magnet {
 	glLightfv(lightHandle, GL_SPECULAR, white);
       }
 
+      inline void glUpdateLight()
+      {
+	Vector cameraLocation(getEyeLocation());
+	
+	GLfloat light_position[4] = {cameraLocation[0], cameraLocation[1], cameraLocation[2], 1.0f};
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+      }
+
       inline void drawLight()
       {
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -53,9 +61,11 @@ namespace magnet {
 	RotationAxis /= norm;
 	if (norm < std::numeric_limits<double>::epsilon())
 	  RotationAxis = Vector(1,0,0);
+
+	Vector cameraLocation(getEyeLocation());
 	
 	glPushMatrix();
-	glTranslatef(_position.x, _position.y, _position.z);
+	glTranslatef(cameraLocation[0], cameraLocation[1], cameraLocation[2]);
 	glRotatef(rotationAngle, RotationAxis.x, RotationAxis.y, RotationAxis.z);
 	
 	GLfloat r = 0.05f;
@@ -70,10 +80,13 @@ namespace magnet {
       }
 
       lightInfo& operator=(const viewPort& vp)
-      { 
-	_panrotation = vp._panrotation;
-	_tiltrotation = vp._tiltrotation;
-	_position = vp._position;
+      {
+	//The FOV and the aspect ratio of the light must be maintained
+	GLdouble aspectRatio = _aspectRatio;
+	double fovY = getFOVY();
+	viewPort::operator=(vp);
+	_aspectRatio = aspectRatio;
+	setFOVY(fovY);
 	
 	buildMatrices();
 	return *this; 
@@ -87,7 +100,9 @@ namespace magnet {
 	glScalef(0.5f, 0.5f, 0.5f);
 	glMultMatrixf(_projectionMatrix);
 	glMultMatrixf(_viewMatrix);
-	MATRIX4X4 invView = vp._viewMatrix.GetInverse();
+
+	MATRIX4X4 invView = vp.getViewMatrix();
+	invView.Invert();
 	glMultMatrixf(invView);
       }
 

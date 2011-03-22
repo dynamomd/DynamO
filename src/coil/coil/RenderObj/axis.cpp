@@ -88,8 +88,8 @@ namespace coil {
     glVertex3f(-1, 1, 0);
     glEnd();
     
-    glRotatef(_viewPortInfo._tiltrotation, 1.0, 0.0, 0.0);
-    glRotatef(_viewPortInfo._panrotation, 0.0, 1.0, 0.0);
+    glRotatef(_viewPortInfo.getTilt(), 1.0, 0.0, 0.0);
+    glRotatef(_viewPortInfo.getPan(), 0.0, 1.0, 0.0);
     glScalef (axisScale, axisScale, axisScale);
     
     glLineWidth (2.0);

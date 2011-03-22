@@ -20,21 +20,28 @@
 #include <GL/glew.h>
 
 #include <magnet/math/matrix.hpp>
-#include <coil/Maths/VECTOR4D.h>
-#include <coil/Maths/MATRIX4X4.h>
+#include <magnet/clamp.hpp>
 
 #include <magnet/exception.hpp>
 #include <cmath>
 
 namespace magnet {
   namespace GL {
-    struct viewPort
+    class viewPort
     {
+    public:
+      enum Camera_Mode
+	{
+	  ROTATE_VIEWPLANE,
+	  ROTATE_CAMERA,
+	  ROTATE_WORLD
+	};
+
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline viewPort(Vector position = Vector(1,1,1), 
 		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 45.0f,
-		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
+		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
 		      Vector up = Vector(0,1,0),
 		      GLfloat aspectRatio = 1
 		      ):
@@ -45,7 +52,8 @@ namespace magnet {
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_simLength(50),
-	_screenWidth(41.1f / _simLength)
+	_screenWidth(41.1f / _simLength),
+	_camMode(ROTATE_CAMERA)
       {
 	if (_zNearDist > _zFarDist) 
 	  M_throw() << "zNearDist > _zFarDist!";
@@ -72,11 +80,54 @@ namespace magnet {
       }
 
       inline void setFOVY(double fovY) 
-      { _headLocation = Vector(0, 0, 0.5f * _screenWidth / std::tan((fovY / 180.0f) * M_PI / 2)); }
+      {
+	//When the FOV is adjusted, we move the head position away
+	//from the view plane, but we adjust the viewplane position to
+	//compensate this motion
+	Vector headLocationChange = Vector(0, 0, 0.5f * _screenWidth 
+					   / std::tan((fovY / 180.0f) * M_PI / 2) 
+					   - _headLocation[2]);
+
+	Matrix viewTransformation 
+	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+
+	_position -= viewTransformation * headLocationChange;	
+	_headLocation += headLocationChange;
+      }
       
       inline double getFOVY() const
       { return 2 * std::atan2(0.5f * _screenWidth,  _headLocation[2]) * (180.0f / M_PI); }
 
+      inline void mouseMovement(float diffX, float diffY)
+      {
+	switch (_camMode)
+	  {
+	  case ROTATE_VIEWPLANE:	
+	    { //The camera is rotated and appears to rotate around the
+	      //view plane
+	      _panrotation += diffX;
+	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);
+	      break;
+	    }
+	  case ROTATE_CAMERA:
+	    { //The camera is rotated and an additional movement is
+	      //added to make it appear to rotate around the head
+	      //position
+	      //Calculate the current camera position
+	      Vector cameraLocationOld(getEyeLocation());	      
+	      _panrotation += diffX;
+	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);	      
+	      Vector cameraLocationNew(getEyeLocation());
+
+	      _position -= cameraLocationNew - cameraLocationOld;	      
+	      break;
+	    }
+	  case ROTATE_WORLD:
+	  default:
+	    M_throw() << "Bad camera mode";
+	  }
+      }
 
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
@@ -140,7 +191,8 @@ namespace magnet {
 	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
 	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
-	Vector cameraLocation = -(viewTransformation * _headLocation) + _position;
+	Vector cameraLocation((viewTransformation * _headLocation) + _position);
+
 	glTranslatef(-cameraLocation[0], -cameraLocation[1], -cameraLocation[2]);
 
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
@@ -166,6 +218,31 @@ namespace magnet {
 	glLoadMatrixf(_viewMatrix);
       }
 
+      inline const GLdouble& getZNear() const { return _zNearDist; }
+      inline const GLdouble& getZFar() const { return _zFarDist; }
+      inline const float& getPan() const { return _panrotation; }
+      inline const float& getTilt() const { return _tiltrotation; }
+      inline const Vector& getViewPlanePosition() const { return _position; } 
+      inline const GLfloat* getViewMatrix() const { return _viewMatrix; }
+
+      inline const Vector 
+      getEyeLocation() const 
+      { 
+	Matrix viewTransformation 
+	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+
+	return (viewTransformation * _headLocation) + _position;
+      }
+
+      inline void setAspectRatio(GLdouble ar) { _aspectRatio = ar; }
+      inline const GLdouble& getAspectRatio() const { return _aspectRatio; }
+
+      inline const Vector& getCameraUp() const { return _cameraUp; } 
+      inline const Vector& getCameraDirection() const { return _cameraDirection; }
+
+    protected:
+
       float _panrotation;
       float _tiltrotation;
       Vector _position;
@@ -176,13 +253,15 @@ namespace magnet {
       Vector _headLocation;
       Vector _cameraDirection, _cameraUp;
       
-      MATRIX4X4 _projectionMatrix;
-      MATRIX4X4 _viewMatrix;
+      GLfloat _projectionMatrix[4*4];
+      GLfloat _viewMatrix[4*4];
 
       //!One simulation length in cm (real units)
       double _simLength;
       //!The width of the screen in simulation units
       double _screenWidth;
+
+      Camera_Mode _camMode;
     };
   }
 }
