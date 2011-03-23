@@ -20,7 +20,7 @@ SpDumbbells::getCoilRenderObj() const
 					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj));
 
       particleData.resize(2 * range->size());
-      particleColorData.resize(range->size()); //We just queue two copies
+      particleColorData.resize(2 * range->size()); //We just queue two copies
     }
 
   return _renderObj;
@@ -34,8 +34,9 @@ SpDumbbells::updateColorObj(magnet::CL::CLGLState& CLState) const
   {//A second copy to just duplicate the data for the two spheres of the dumbbells
     CLState.getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-       false, range->size() * sizeof(cl_uchar4), range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+       false,2*range->size() * sizeof(cl_uchar4), range->size() * sizeof(cl_uchar4), &particleColorData[0]);
   }
+
 }
 
 void

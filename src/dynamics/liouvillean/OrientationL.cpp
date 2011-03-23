@@ -247,7 +247,7 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
     t_low += fabs(2.0 * fL1.F_firstDeriv())
       / fL1.F_secondDeriv_max();
   
-  I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
+  //I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
   std::pair<bool,double> root1 = frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
 
 
@@ -293,11 +293,11 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
   
   std::pair<bool,double> root4 = frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
 
-  if (root1.first || root2.first || root3.first || root4.first )\
+  if (root1.first || root2.first || root3.first || root4.first )
     {
       
       double roots[4] = {root1.second, root2.second, root3.second, root4.second};  
-      I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
+      //I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
       
       PD.dt = *std::min_element(roots,roots+4);
       return true;
@@ -335,8 +335,8 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
 	{
 	  norm = (retVal.rij +  length * 0.5 * pow(-1,i) * orientationData[particle1.getID()].orientation 
 		  -  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
-	  I_cout()<<"norm " << norm << " dr " << diameter - norm;
-	  if(norm < (diameter-0.000001))
+	  I_cout()<<"norm " << norm << " dr " << norm - diameter;
+	  if(norm < (diameter - 1e-10))
 	    {
 	      M_throw()<<"`Shit man, we overlap " ;
 	    }
@@ -376,12 +376,12 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   double mass = retVal.particle1_.getSpecies().getMass();
   //van Zon's Formulas
   //We need the inertia tensor in the lab frame
-  Matrix I1(4.0 / 5.0 * mass * diameter * diameter,0,0,
-	    0,4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
-	    0,0, 4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
-  Matrix I2(4.0 / 5.0 * mass * diameter * diameter,0,0,
-	    0,4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
-	    0,0, 4.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Matrix I1(1.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Matrix I2(1.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
   Vector n1 = (u1 * length / 2 + rhat * diameter / 2)^rhat;
   Vector n2 = (u2 * length / 2 - rhat * diameter / 2)^rhat;
 
@@ -409,12 +409,11 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   I_cout()<<"Momentum transfer " << S; 
   I_cout()<<"dv " << vr.nrm(); 
   I_cout()<<"dv at contact " << velContact.nrm();
-  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+ 
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (2 * mass);
   const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (2 * mass);
-  // std::swap(const_cast<Particle&>(particle1).getVelocity(),
-  // 	    const_cast<Particle&>(particle2).getVelocity());
-  
+ 
+
   //Matrix coordinate transformation
   Matrix W1;
   W1.setRow(0,u1);
@@ -426,14 +425,14 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   W2.setRow(2,b2);
 
 
-  I_cout()<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm(); 
-  I_cout()<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm(); 
-  I_cout()<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm(); 
+  //I_cout()<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm(); 
+  //I_cout()<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm(); 
+  //I_cout()<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm(); 
 
 
-  //Rotational energy before
-  I_cout()<<"Energy before " <<  KE1before +
-    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + KE2before +
+ //Rotational energy before
+  I_cout()<<"Energy before " <<  2 * KE1before +
+    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * KE2before +
   (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
   
 
@@ -443,8 +442,8 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   orientationData[particle2.getID()].angularVelocity 
     += S * ((Inverse(W2) * Inverse(I2) * W2) * n2);
 
-    I_cout()<<"Energy after  " << getParticleKineticEnergy(particle1) +
-    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + getParticleKineticEnergy(particle2) +
+    I_cout()<<"Energy after  " << 2 * getParticleKineticEnergy(particle1) +
+    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * getParticleKineticEnergy(particle2) +
   (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
   Vector velContac1b = particle1.getVelocity() 
     + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
@@ -458,8 +457,8 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
   //Done with the collision; keeping track of energy
   retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
   retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
-  I_cout()<<"delta energy  " << getParticleKineticEnergy(particle1) - KE1before ;
-  I_cout()<<"delta energy  " <<  getParticleKineticEnergy(particle2) - KE2before;
+  //I_cout()<<"delta energy  " << getParticleKineticEnergy(particle1) - KE1before ;
+  //I_cout()<<"delta energy  " <<  getParticleKineticEnergy(particle2) - KE2before;
   lastCollParticle1 = particle1.getID();
   lastCollParticle2 = particle2.getID();
   lastAbsoluteClock = Sim->dSysTime;
