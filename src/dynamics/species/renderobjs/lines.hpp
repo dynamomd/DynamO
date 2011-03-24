@@ -16,32 +16,32 @@
 */
 
 #pragma once
+#ifdef DYNAMO_visualizer
+# include <gtkmm.h>
+# include <coil/RenderObj/Arrows.hpp>
+# include <memory>
+# include <magnet/gtk/colorMapSelector.hpp>
 
-#include "sphericalTop.hpp"
-
-class SpLines : public SpSphericalTop
+class LineParticleRenderer: public RArrows
 {
 public:
-  SpLines(DYNAMO::SimData* Sim, CRange* R, double nMass, std::string nName, 
-	  unsigned int ID, double r, std::string nIName="Bulk"):
-    SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
-  {}
+  LineParticleRenderer(size_t N, std::string name):
+    RArrows(N, name)
+  {
+    _particleData.resize(N * 6);
+  }
   
-  SpLines(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
-    SpSphericalTop(XML, Sim, ID)
-  {}
+  std::vector<cl_float> _particleData;
 
-  virtual Species* Clone() const { return new SpLines(*this); }
-
-#ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
-  virtual void updateRenderData(magnet::CL::CLGLState&) const;
-  virtual void updateColorObj(magnet::CL::CLGLState&) const {}
-#endif
+  void sendRenderData(magnet::CL::CLGLState& CLState)
+  {
+    CLState.getCommandQueue().enqueueWriteBuffer
+      (getPointData(), false, 0, 3 * _N * sizeof(cl_float), &_particleData[0]);
+    
+    CLState.getCommandQueue().enqueueWriteBuffer
+      (getDirectionData(), false, 0, 3 * _N * sizeof(cl_float), &_particleData[3 * _N]);
+  }
 
 protected:
-
-  virtual void outputXML(xml::XmlStream& XML) const 
-  { SpSphericalTop::outputXML(XML, "Lines"); }
 };
-
+#endif
