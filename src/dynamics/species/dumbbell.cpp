@@ -5,7 +5,7 @@
 # include "../interactions/dumbbells.hpp"
 # include <magnet/color/HSV.hpp>
 # include "dumbbell.hpp"
-
+# include "../liouvillean/CompressionL.hpp"
 
 magnet::thread::RefPtr<RenderObj>& 
 SpDumbbells::getCoilRenderObj() const
@@ -18,7 +18,7 @@ SpDumbbells::getCoilRenderObj() const
 
       _renderObj = new SphereParticleRenderer(2 * range->size(), "Species: " + spName,
 					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj));
-
+      _coil = new CoilRegister;
       particleData.resize(2 * range->size());
       particleColorData.resize(2 * range->size()); //We just queue two copies
     }
@@ -27,16 +27,16 @@ SpDumbbells::getCoilRenderObj() const
 }
 
 void 
-SpDumbbells::updateColorObj(magnet::CL::CLGLState& CLState) const
+SpDumbbells::sendColorData(magnet::CL::CLGLState& CLState) const
 {
-  SpPoint::updateColorObj(CLState);
-  
+  SpPoint::sendColorData(CLState);
+
   {//A second copy to just duplicate the data for the two spheres of the dumbbells
     CLState.getCommandQueue().enqueueWriteBuffer
       (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-       false,2*range->size() * sizeof(cl_uchar4), range->size() * sizeof(cl_uchar4), &particleColorData[0]);
+       false, range->size() * sizeof(cl_uchar4), 
+       range->size() * sizeof(cl_uchar4), &particleColorData[0]);
   }
-
 }
 
 void
@@ -50,9 +50,18 @@ SpDumbbells::sendRenderData(magnet::CL::CLGLState& CLState) const
 void
 SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
 {
+  if (!_renderObj.isValid())
+    M_throw() << "Updating before the render object has been fetched";
+  
+  ///////////////////////POSITION DATA UPDATE
+  //Check if the system is compressing and adjust the radius scaling factor
+  float factor = 1;
+  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
+    factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+ 
   double diam = static_cast<const IDumbbells&>(*getIntPtr()).getDiameter();
   double spacing = static_cast<const IDumbbells&>(*getIntPtr()).getLength();
-
+  
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
@@ -76,8 +85,11 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
       ++sphID;
     }
 
-  _renderObj->getQueue()->queueTask(magnet::function::Task::makeTask(&SpDumbbells::sendRenderData, this, 
-								    CLState));
+  if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
+    updateColorObj(CLState);
+  
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpDumbbells::sendRenderData, 
+										 this, CLState));
 }
 #endif
 
