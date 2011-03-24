@@ -192,12 +192,21 @@ namespace DYNAMO
      */
     double lastRunMFT;
 
-    /*! \brief This is just the ID number of the Simulation in its container.
+    /*! \brief This is just the ID number of the Simulation when
+     *  multiple are being run at once.
      *
      * This is used in the EReplicaExchangeSimulation engine.
      */
     size_t simID;
     
+    /*! \brief This is the number of replica exchange attempts
+     *  performed in the current simulation.
+     *
+     * This is used in the EReplicaExchangeSimulation engine.
+     */
+    size_t replexExchangeNumber;
+
+
     /*! \brief The current phase of the Simulation.
      */
     ESimulationStatus status;

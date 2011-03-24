@@ -40,6 +40,7 @@ namespace DYNAMO
     uniform_sampler(ranGenerator),
     lastRunMFT(0.0),
     simID(0),
+    replexExchangeNumber(0),
     status(START),
     binaryXML(true)
   {

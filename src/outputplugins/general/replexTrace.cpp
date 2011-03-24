@@ -100,8 +100,8 @@ OPReplexTrace::addPoint()
   const boost::array<double,3>& ensembleVals(Sim->ensemble->getReducedEnsembleVals());
     
   tmpfile << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	  << " " 
-	  << ensembleVals[0] << "," << ensembleVals[1] << "," << ensembleVals[2] << "\n";
+	  << " " << Sim->replexExchangeNumber << " "
+	  << ensembleVals[0] << " " << ensembleVals[1] << " " << ensembleVals[2] << "\n";
 }
 
 void 

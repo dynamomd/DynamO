@@ -360,9 +360,13 @@ EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode)
 void 
 EReplicaExchangeSimulation::ReplexSwapTicker()
 {
-  //Now update the histogramming
+  //Update the counters indicating the replexSwap count
   ++replexSwapCalls;
 
+  for (size_t i(0); i < nSims; ++i)
+    ++(Simulations[i].replexExchangeNumber);
+
+  //Now update the histogramming
   BOOST_FOREACH(replexPair& dat, temperatureList)
     if (SimDirection[dat.second.simID])
       {
