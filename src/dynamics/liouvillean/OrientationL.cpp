@@ -217,7 +217,6 @@ LNOrientation::randomGaussianEvent(const Particle& part,
 }
 //Here starts my code for offCenterSpheres
 bool 
-
 LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length,  const double& diameter, 
 							  const Particle& p1, const Particle& p2) const
 
@@ -307,7 +306,8 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
 }
 
 PairEventData 
-LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
+LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
+
 {
   const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];

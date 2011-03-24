@@ -34,9 +34,9 @@
 #include "../NparticleEventData.hpp"
 
 IDumbbells::IDumbbells(DYNAMO::SimData* tmp, double nd, 
-		       double ne, double nr, C2Range* nR):
+		       double ne, double ndiameter, C2Range* nR):
   ISingleCapture(tmp, nR),
-  length(nd), e(ne), r(nr) 
+  length(nd), e(ne), diameter(ndiameter) 
 {}
 
 IDumbbells::IDumbbells(const XMLNode& XML, DYNAMO::SimData* tmp):
@@ -72,8 +72,8 @@ IDumbbells::operator<<(const XMLNode& XML)
       
       e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
       
-      r = Sim->dynamics.units().unitLength() *
-	boost::lexical_cast<double>(XML.getAttribute("Radius"));
+      diameter = Sim->dynamics.units().unitLength() *
+	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
       
       intName = XML.getAttribute("Name");
       
@@ -87,18 +87,20 @@ IDumbbells::operator<<(const XMLNode& XML)
 
 double 
 IDumbbells::maxIntDist() const 
-{ return length + 2.0 * r; }
+{ return length + diameter; }
 
 double 
 IDumbbells::hardCoreDiam() const 
-{ return 2.0*4.0/3.0*M_PI*r*r*r; }
+{ return 1.0/3.0*M_PI*diameter*diameter*diameter; }
+
 
 void 
 IDumbbells::rescaleLengths(double scale) 
 { 
   length += scale * length;
 
-  r += scale * r;
+ diameter += scale * diameter;
+
 }
 
 Interaction* 
@@ -134,7 +136,7 @@ IDumbbells::getEvent(const Particle &p1,
       //Test for a line collision
       //Upper limit can be HUGE_VAL!
       if (Sim->dynamics.getLiouvillean().getOffCenterSphereOffCenterSphereCollision
-	  (colldat, length + 2.0 * r, p1, p2))
+	  (colldat, length, diameter, p1, p2))
 	return IntEvent(p1, p2, colldat.dt, CORE, *this);
       
       return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
@@ -159,7 +161,7 @@ IDumbbells::runEvent(const Particle& p1,
 	++Sim->eventCount;
 	//We have a line interaction! Run it
 	PairEventData retval(Sim->dynamics.getLiouvillean().runOffCenterSphereOffCenterSphereCollision
-			      (iEvent, e, length));
+			     (iEvent, e, length,diameter));
 
 	Sim->signalParticleUpdate(retval);
 	
@@ -206,7 +208,7 @@ IDumbbells::outputXML(xml::XmlStream& XML) const
   XML << xml::attr("Type") << "Dumbbells"
       << xml::attr("Length") << length / Sim->dynamics.units().unitLength()
       << xml::attr("Elasticity") << e
-      << xml::attr("Radius") <<  r / Sim->dynamics.units().unitLength()
+      << xml::attr("Diameter") <<  diameter / Sim->dynamics.units().unitLength()
       << xml::attr("Name") << intName
       << range;
 
@@ -219,7 +221,9 @@ IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
-  return (rij | rij) <= length*length + 4.0*r*r;
+
+  return (rij | rij) <= length*length + diameter*diameter;
+
 }
 
 void

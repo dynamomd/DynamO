@@ -71,11 +71,11 @@ Liouvillean::getLineLineCollision(CPDData&, const double&,
 
 PairEventData 
 Liouvillean::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
-				   const double&, const double&) const
+							const double&, const double&,const double&) const
 { M_throw() << "Not implemented for this Liouvillean."; }
 
 bool
-Liouvillean::getOffCenterSphereOffCenterSphereCollision(CPDData&, const double&, 
+Liouvillean::getOffCenterSphereOffCenterSphereCollision(CPDData&, const double&, const double&,  
 				   const Particle&, const Particle&
 				   ) const
 { M_throw() << "Not implemented for this Liouvillean."; }

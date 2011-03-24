@@ -264,7 +264,8 @@ public:
    * \param twindow Maximum time to check till.
    * \return Wether the event will occur or not.
    */    
-  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
+
+  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, const double& diameter,
 				    const Particle& p1, const Particle& p2
 				    ) const;
 
@@ -349,8 +350,9 @@ public:
    * \return Collision data
    */    
   virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent,
-					     const double& elasticity, 
-					     const double& length) const;
+								   const double& elasticity, 
+								   const double& length, const double& diameter) const;
+
 
   /*! \brief Determines when the particle center will hit a wall.
    *

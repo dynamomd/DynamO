@@ -48,12 +48,14 @@ public:
   virtual PairEventData runLineLineCollision(const IntEvent& eevent, 
 					     const double& elasticity, const double& length) const;
   
-  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
+  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, const double& diameter,
+
 							  const Particle& p1, const Particle& p2
 							  ) const;
   
   virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, 
-								   const double& elasticity, const double& length) const;
+								   const double& elasticity, const double& length, const double& diameter) const;
+
   
   virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
 						  const Vector & vNorm,
