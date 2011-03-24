@@ -79,9 +79,6 @@ EReplicaExchangeSimulation::initialisation()
 
       if (vm.count("ticker-period"))
 	Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>());
-
-      if (vm.count("scale-ticker"))
-	Simulations[i].scaleTickerPeriod(vm["scale-ticker"].as<double>());
     }
 
   //Ensure we are in the right ensemble for all simulations

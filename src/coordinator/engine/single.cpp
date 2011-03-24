@@ -77,10 +77,6 @@ ESingleSimulation::initialisation()
 
   if (vm.count("ticker-period"))
     simulation.setTickerPeriod(vm["ticker-period"].as<double>());
-
-  if (vm.count("scale-ticker"))
-    simulation.scaleTickerPeriod(vm["scale-ticker"].as<double>());
-      
 }
 
 void
