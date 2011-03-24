@@ -12,39 +12,16 @@ SpDumbbells::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-
       if (dynamic_cast<const IDumbbells*>(getIntPtr()) == NULL)
 	M_throw() << "You must use the IDumbbells interaction for the Dumbbells species type";
-
+      
       _renderObj = new SphereParticleRenderer(2 * range->size(), "Species: " + spName,
-					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj));
+					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj),
+					      2);
       _coil = new CoilRegister;
-      particleData.resize(2 * range->size());
-      particleColorData.resize(2 * range->size()); //We just queue two copies
     }
-
+  
   return _renderObj;
-}
-
-void 
-SpDumbbells::sendColorData(magnet::CL::CLGLState& CLState) const
-{
-  SpPoint::sendColorData(CLState);
-
-  {//A second copy to just duplicate the data for the two spheres of the dumbbells
-    CLState.getCommandQueue().enqueueWriteBuffer
-      (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-       false, range->size() * sizeof(cl_uchar4), 
-       range->size() * sizeof(cl_uchar4), &particleColorData[0]);
-  }
-}
-
-void
-SpDumbbells::sendRenderData(magnet::CL::CLGLState& CLState) const
-{
-  CLState.getCommandQueue().enqueueWriteBuffer
-    (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
-     false, 0, 2 * range->size() * sizeof(cl_float4), &particleData[0]);
 }
 
 void
@@ -53,6 +30,9 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
   
+  std::vector<cl_float4>& particleData 
+    = _renderObj.as<SphereParticleRenderer>()._particleData;
+
   ///////////////////////POSITION DATA UPDATE
   //Check if the system is compressing and adjust the radius scaling factor
   float factor = 1;
@@ -88,8 +68,8 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
     updateColorObj(CLState);
   
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpDumbbells::sendRenderData, 
-										 this, CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendRenderData, 
+										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
 }
 #endif
 

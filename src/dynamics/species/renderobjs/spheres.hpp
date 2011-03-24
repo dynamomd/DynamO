@@ -25,8 +25,16 @@
 class SphereParticleRenderer: public RTSpheres
 {
 public:
+  //! \param spheresPerObject Used when one simulation object is
+  //! represented by many spheres. If r_{i,a} is the a'th sphere of
+  //! object i, then _particleData should contain coordinates like
+  //! (r_(0,0),r_(1,0),r_(2,0)....r_(0,1),r_(1,1)...). But only
+  //! N/_spheresPerObject colors should be placed in
+  //! _particleColorData and the data is duplicated out automatically
+  //! to all spheres in a single object.
   SphereParticleRenderer(size_t N, std::string name, 
-			 magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc);
+			 magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc,
+			 size_t spheresPerObject = 1);
   
   virtual void initGTK();
 
@@ -46,7 +54,15 @@ public:
   inline volatile bool getColorIfStatic() { return _colorStaticParticles; }
 
   inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
+
+  std::vector<cl_float4> _particleData;
+  std::vector<cl_uchar4> _particleColorData;
+
+  void sendRenderData(magnet::CL::CLGLState& CLState);
+  void sendColorData(magnet::CL::CLGLState& CLState);
+
 protected:
+  size_t _spheresPerObject;
 
   void guiUpdate();
 
@@ -74,5 +90,6 @@ protected:
   volatile bool _colorStaticParticles;
 
   magnet::function::Delegate1<magnet::CL::CLGLState&, void> _updateColorFunc;
+
 };
 #endif

@@ -21,11 +21,16 @@
 # include <boost/lexical_cast.hpp>
 
 SphereParticleRenderer::SphereParticleRenderer(size_t N, std::string name, 
-					       magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc):
+					       magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc,
+					       size_t spheresPerObject):
   RTSpheres(N, name),
+  _spheresPerObject(spheresPerObject),
   _mode(SINGLE_COLOR),
   _updateColorFunc(updateColorFunc)
 {
+  _particleData.resize(N);
+  _particleColorData.resize(N);
+
   for (size_t i(0); i < 4; ++i)
     _colorStatic.s[i] = _colorFixed.s[i] = 255;
 
@@ -33,6 +38,22 @@ SphereParticleRenderer::SphereParticleRenderer(size_t N, std::string name,
   _colorFixed.s[1] = 0;
   _colorFixed.s[2] = 0;
   _colorFixed.s[3] = 255;
+}
+
+void 
+SphereParticleRenderer::sendRenderData(magnet::CL::CLGLState& CLState)
+{
+  CLState.getCommandQueue().enqueueWriteBuffer
+    (getSphereDataBuffer(), false, 0, _N * sizeof(cl_float4), &_particleData[0]);
+}
+
+void 
+SphereParticleRenderer::sendColorData(magnet::CL::CLGLState& CLState)
+{
+  const size_t segmentSize = _N / _spheresPerObject;
+  for (size_t i(0); i < _spheresPerObject; ++i)
+    CLState.getCommandQueue().enqueueWriteBuffer
+      (getColorDataBuffer(), false, i * segmentSize * sizeof(cl_uchar4), segmentSize * sizeof(cl_uchar4), &_particleColorData[0]);
 }
 
 void 

@@ -8,6 +8,7 @@
 magnet::thread::RefPtr<RenderObj>& 
 SpLines::getCoilRenderObj() const
 {
+  M_throw() << "Fix the race condition in here (migrate the particleData and particleColorData to a shared object)";
   if (!_renderObj.isValid())
     {
       _renderObj = new RArrows(range->size(), "Species: " + spName);

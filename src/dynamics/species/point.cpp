@@ -80,27 +80,9 @@ SpPoint::getCoilRenderObj() const
       _renderObj = new SphereParticleRenderer(range->size(), "Species: " + spName,
 					      magnet::function::MakeDelegate(this, &SpPoint::updateColorObj));
       _coil = new CoilRegister;
-      particleData.resize(range->size());
-      particleColorData.resize(range->size());
     }
 
   return _renderObj;
-}
-
-void
-SpPoint::sendRenderData(magnet::CL::CLGLState& CLState) const
-{
-  CLState.getCommandQueue().enqueueWriteBuffer
-    (static_cast<RTSpheres&>(*_renderObj).getSphereDataBuffer(),
-     false, 0, range->size() * sizeof(cl_float4), &particleData[0]);
-}
-
-void
-SpPoint::sendColorData(magnet::CL::CLGLState& CLState) const
-{
-  CLState.getCommandQueue().enqueueWriteBuffer
-    (static_cast<RTSpheres&>(*_renderObj).getColorDataBuffer(),
-     false, 0, range->size() * sizeof(cl_uchar4), &particleColorData[0]);
 }
 
 void
@@ -109,6 +91,9 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
   
+  std::vector<cl_float4>& particleData 
+    = _renderObj.as<SphereParticleRenderer>()._particleData;
+
   ///////////////////////POSITION DATA UPDATE
   //Check if the system is compressing and adjust the radius scaling factor
   float factor = 1;
@@ -133,13 +118,17 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
     updateColorObj(CLState);
   
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpPoint::sendRenderData, 
-										 this, CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendRenderData, 
+										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
 }
 
 void 
 SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
+
+  std::vector<cl_uchar4>& particleColorData 
+    = _renderObj.as<SphereParticleRenderer>()._particleColorData;
+
   bool colorIfSleeping = _renderObj.as<SphereParticleRenderer>().getColorIfStatic();
   cl_uchar4 sleepcolor;
   for (size_t cc(0); cc < 4; ++cc)
@@ -208,7 +197,7 @@ SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
       M_throw() << "Not Implemented";
     }
 
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SpPoint::sendColorData, 
-										 this, CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendColorData, 
+										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
 }
 #endif

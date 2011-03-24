@@ -49,6 +49,7 @@ protected:
 
 #ifdef DYNAMO_visualizer
   mutable std::vector<cl_float> particleData;
+  mutable std::vector<cl_uchar4> particleColorData;
 #endif
 
 };

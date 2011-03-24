@@ -68,7 +68,6 @@ public:
   static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
 
 #ifdef DYNAMO_visualizer
-  virtual void sendRenderData(magnet::CL::CLGLState&) const = 0;
   virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;
 #endif
 

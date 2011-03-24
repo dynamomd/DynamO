@@ -36,18 +36,11 @@ public:
 #ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::CL::CLGLState&) const;
-  virtual void sendRenderData(magnet::CL::CLGLState&) const;
-  virtual void sendColorData(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
 
   virtual void outputXML(xml::XmlStream& XML) const 
   { SpSphericalTop::outputXML(XML, "Dumbbells"); }
-
-#ifdef DYNAMO_visualizer
-  mutable std::vector<cl_float4> particleData;
-#endif
-
 };
 
