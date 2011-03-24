@@ -33,11 +33,14 @@ EReplicaExchangeSimulation::getOptions(boost::program_options::options_descripti
 
   ropts.add_options()
     ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max()), 
-     "Simulation end time")
+     "Simulation end time (Note, each systems end time is scaled by"
+     "(T_cold/T_i)^{1/2}, see replex-interval)")
     ("replex-interval,i", boost::program_options::value<double>()->default_value(1.0), 
      "Interval between attempting swaps on the coldest temperature. Every"
      "other systems exchange interval is scaled by (T_cold/T_i)^{1/2} to try"
-     "to keep the simulation run times approximately constant.")
+     "to keep the simulation calculation times approximately"
+     "constant. Otherwise the high temperature system would consume all the"
+     "calculation time.")
     ("replex-swap-mode", boost::program_options::value<unsigned int>()->default_value(1), 
      "System Swap Mode:\n"
      " Values:\n"
@@ -76,9 +79,6 @@ EReplicaExchangeSimulation::initialisation()
       Simulations[i].initialise();
 
       postSimInit(Simulations[i]);
-
-      if (vm.count("ticker-period"))
-	Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>());
     }
 
   //Ensure we are in the right ensemble for all simulations
@@ -131,6 +131,17 @@ EReplicaExchangeSimulation::initialisation()
   
   SimDirection[temperatureList.front().second.simID] = 1; //Going up
   SimDirection[temperatureList.back().second.simID] = -1; //Going down
+  
+  //If a system ticker is set we scale the ticker time such that the
+  //number of ticks in all systems is equal.
+  if (vm.count("ticker-period"))
+    for (size_t i = 0; i < nSims; ++i)
+      {
+	double tFactor 
+	  = std::sqrt(temperatureList.begin()->second.realTemperature
+		      / Simulations[i].getEnsemble()->getReducedEnsembleVals()[2]); 
+	Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>() * tFactor);
+      }
 }
 
 void 
