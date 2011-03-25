@@ -47,13 +47,16 @@ OPReplexTrace::changeSystem(OutputPlugin* OPP)
 void 
 OPReplexTrace::addPoint()
 {
-  const boost::array<double,3>& ensembleVals(Sim->ensemble->getReducedEnsembleVals());
+  const boost::array<double,3>& 
+    ensembleVals(Sim->ensemble->getReducedEnsembleVals());
 
   std::ostringstream op;
 
-  op << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	  << " " << Sim->replexExchangeNumber << " "
-	  << ensembleVals[0] << " " << ensembleVals[1] << " " << ensembleVals[2] << "\n";
+  op << Sim->replexExchangeNumber << " "
+     << Sim->dSysTime / Sim->dynamics.units().unitTime() << " "
+     << ensembleVals[0] << " " 
+     << ensembleVals[1] << " " 
+     << ensembleVals[2] << "\n";
 
   entries.push_back(op.str());
 }
