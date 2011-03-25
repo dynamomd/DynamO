@@ -70,4 +70,6 @@ OPReplexTrace::output(xml::XmlStream& XML)
     XML << str;
 
   XML << xml::endtag("ReplexTrace");
+
+  entries.pop_back();
 }

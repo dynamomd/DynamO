@@ -36,7 +36,7 @@ public:
 
   OutputPlugin *Clone() const { return new OPReplexTrace(*this); }
 
-  virtual void initialise() {}
+  virtual void initialise() { addPoint(); }
 
   virtual void output(xml::XmlStream&);
 
