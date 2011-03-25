@@ -15,21 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPReplexTrace_HPP
-#define OPReplexTrace_HPP
+#pragma once
 
 #include "../outputplugin.hpp"
-#include <fstream>
+#include <vector>
 #include <string>
 
 class OPReplexTrace: public OutputPlugin
 {
 public:
   OPReplexTrace(const DYNAMO::SimData*, const XMLNode&);
-
-  OPReplexTrace(const OPReplexTrace&);
-
-  ~OPReplexTrace();
 
   void eventUpdate(const IntEvent&, const PairEventData&) {}
 
@@ -41,7 +36,7 @@ public:
 
   OutputPlugin *Clone() const { return new OPReplexTrace(*this); }
 
-  virtual void initialise();
+  virtual void initialise() {}
 
   virtual void output(xml::XmlStream&);
 
@@ -50,8 +45,5 @@ public:
 private:
   void addPoint();
 
-  mutable std::fstream tmpfile;
-  std::string filename;
+  mutable std::vector<std::string> entries;
 };
-
-#endif

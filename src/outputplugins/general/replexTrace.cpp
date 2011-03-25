@@ -17,65 +17,13 @@
 
 #include "replexTrace.hpp"
 #include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../extcode/xmlwriter.hpp"
+#include <sstream>
 
 OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
-  OutputPlugin(t1,"ReplexTrace"),
-  filename(std::string("ReplexTrace.tmp.") 
-	   + boost::lexical_cast<std::string>(rand()))
-{
-  while (boost::filesystem::exists(filename))
-    {
-      filename = std::string("ReplexTrace.tmp.") 
-	+ boost::lexical_cast<std::string>(rand());
-    }
-  
-  tmpfile.open(filename.c_str(), std::ios::in | std::ios::out 
-	       | std::ios::trunc);
-
-  if (!tmpfile.is_open())
-    M_throw() << "Could not open temporary file!";
-}
-
-OPReplexTrace::~OPReplexTrace()
-{
-  //Clean up temporary files
-  tmpfile.close();
-  boost::filesystem::remove(filename);
-}
-
-OPReplexTrace::OPReplexTrace(const OPReplexTrace& cop2):
-  OutputPlugin(cop2),
-  filename(std::string("./ReplexTrace.tmp.") 
-	   + boost::lexical_cast<std::string>(rand()))
-{
-  while (boost::filesystem::exists(filename))
-    {
-      filename = std::string("./ReplexTrace.tmp.") 
-	+ boost::lexical_cast<std::string>(rand());
-    }
-
-  tmpfile.open(filename.c_str(), std::ios::in | std::ios::out 
-	       | std::ios::trunc);
-
-  if (!tmpfile.is_open())
-    M_throw() << "Could not open temporary file!";
-
-  //Copy the file stream
-  cop2.tmpfile.seekg (0, std::ios::beg);
-  std::copy(std::istreambuf_iterator<char>(cop2.tmpfile),
-	    std::istreambuf_iterator<char>(),
-	    std::ostreambuf_iterator<char>(tmpfile));
-}
-
-void 
-OPReplexTrace::initialise() 
-{ 
-  if (!(tmpfile.is_open()))
-    M_throw() << "OPReplexTrace temp file unopened!";
-}
+  OutputPlugin(t1,"ReplexTrace")
+{}
 
 void 
 OPReplexTrace::changeSystem(OutputPlugin* OPP)
@@ -89,19 +37,25 @@ OPReplexTrace::changeSystem(OutputPlugin* OPP)
   static_cast<OPReplexTrace*>(OPP)->addPoint();
 
   std::swap(Sim, static_cast<OPReplexTrace*>(OPP)->Sim);
-
+  
   addPoint(); 
-  static_cast<OPReplexTrace*>(OPP)->addPoint();  
+  static_cast<OPReplexTrace*>(OPP)->addPoint();
+
+  std::swap(entries, static_cast<OPReplexTrace*>(OPP)->entries);
 }
 
 void 
 OPReplexTrace::addPoint()
 {
   const boost::array<double,3>& ensembleVals(Sim->ensemble->getReducedEnsembleVals());
-    
-  tmpfile << Sim->dSysTime / Sim->dynamics.units().unitTime() 
+
+  std::ostringstream op;
+
+  op << Sim->dSysTime / Sim->dynamics.units().unitTime() 
 	  << " " << Sim->replexExchangeNumber << " "
 	  << ensembleVals[0] << " " << ensembleVals[1] << " " << ensembleVals[2] << "\n";
+
+  entries.push_back(op.str());
 }
 
 void 
@@ -112,10 +66,8 @@ OPReplexTrace::output(xml::XmlStream& XML)
   XML << xml::tag("ReplexTrace")
       << xml::chardata();
   
-  tmpfile.seekg (0, std::ios::beg);
-  std::copy(std::istreambuf_iterator<char>(tmpfile),
-	    std::istreambuf_iterator<char>(),
-	    std::ostreambuf_iterator<char>(XML.getUnderlyingStream()));  
+  BOOST_FOREACH(const std::string& str, entries)
+    XML << str;
 
   XML << xml::endtag("ReplexTrace");
 }

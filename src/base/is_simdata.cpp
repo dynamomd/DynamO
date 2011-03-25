@@ -78,7 +78,7 @@ namespace DYNAMO
     BOOST_FOREACH(magnet::ClonePtr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
-    //Rescale the velocities     
+    //Rescale the velocities 
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
 		     / ensemble->getEnsembleVals()[2]));
     
