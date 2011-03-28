@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2003  Oblutus <http://iridia.ulb.ac.be/~fvandenb/tools/xmlParser.html>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -14,20 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-//////////////////////////////////////////////////////////////////////
-//
-// xmlparser.h: interface & implementation for the XmlStream class.
-// 
-// Author: Oboltus, December 2003
-// Formatted output by Marcus Bannerman (http://marcusbannerman.co.uk)
-//
-// http://iridia.ulb.ac.be/~fvandenb/tools/xmlParser.html
-//
-// This code is provided "as is", with absolutely no warranty expressed
-// or implied. Any use is at your own risk.
-//
-//////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include <stack>
@@ -59,11 +46,7 @@ namespace xml {
       
       inline Controller(const Controller& c) : _type(c._type), str(c.str) {}
       inline Controller(const ControllerType type) : _type(type){}
-      
-      // use template constructor because string field <str> may be initialized 
-      // from different sources: char*, std::string etc
-      template<class t>
-      inline Controller(const ControllerType type, const t& _str):
+      inline Controller(const ControllerType type, const std::string& _str):
 	_type(type), str(_str) {}
     };
     
@@ -175,10 +158,8 @@ namespace xml {
     std::ostringstream	tagName;
     bool        FormatXML;
     
-    // I don't know any way easier (legal) to clear std::stringstream...
     inline void clearTagName() {
-      const std::string	empty_str;
-      tagName.rdbuf()->str(empty_str);
+      tagName.str(std::string());
     }
     
     // Close current tag
@@ -236,7 +217,7 @@ namespace xml {
     return XmlStream::Controller(XmlStream::Controller::Tag);
   }
   
-  inline const XmlStream::Controller tag(const char* const tag_name) {
+  inline const XmlStream::Controller tag(const std::string& tag_name) {
     return XmlStream::Controller(XmlStream::Controller::Tag, tag_name);
   }
   
@@ -244,11 +225,11 @@ namespace xml {
     return XmlStream::Controller(XmlStream::Controller::TagEnd);
   }
   
-  inline const XmlStream::Controller endtag(const char* const tag_name) {
+  inline const XmlStream::Controller endtag(const std::string& tag_name) {
     return XmlStream::Controller(XmlStream::Controller::TagEnd, tag_name);
   }
   
-  inline const XmlStream::Controller attr(const char* const attr_name) {
+  inline const XmlStream::Controller attr(const std::string& attr_name) {
     return XmlStream::Controller(XmlStream::Controller::Attribute, attr_name);
   }
   

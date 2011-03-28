@@ -16,10 +16,10 @@
 */
 
 #include "2RChainEnds.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 C2RChainEnds::C2RChainEnds(const XMLNode& XML, const DYNAMO::SimData*):
   rangeStart(0),rangeEnd(0), interval(0) 

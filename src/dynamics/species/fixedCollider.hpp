@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "../../extcode/xmlwriter.hpp"
 #include "point.hpp"
+#include <magnet/xmlwriter.hpp>
 
 class SpFixedCollider:public SpPoint
 {

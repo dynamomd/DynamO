@@ -17,10 +17,6 @@
 */
 
 #include "dumbbells.hpp"
-#include <boost/lexical_cast.hpp>
-#include <cmath>
-#include <iomanip>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
@@ -32,6 +28,11 @@
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cmath>
+#include <iomanip>
+
 
 IDumbbells::IDumbbells(DYNAMO::SimData* tmp, double nd, 
 		       double ne, double ndiameter, C2Range* nR):

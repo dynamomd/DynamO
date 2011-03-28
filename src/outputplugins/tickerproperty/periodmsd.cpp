@@ -16,15 +16,15 @@
 */
 
 #include "periodmsd.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
-#include <magnet/math/ctime_pow.hpp>
 #include "../../dynamics/ranges/1RAll.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/math/ctime_pow.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"PeriodicMSD"),

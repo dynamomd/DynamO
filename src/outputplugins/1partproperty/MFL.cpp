@@ -16,13 +16,13 @@
 */
 
 #include "MFL.hpp"
-#include <boost/foreach.hpp>
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/dynamics.hpp"
 #include "../../dynamics/species/species.hpp"
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPMFL::OPMFL(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OP1PP(tmp,"MeanFreeLength", 250),

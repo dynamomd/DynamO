@@ -16,11 +16,11 @@
 */
 
 #include "include.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../units/units.hpp"
+#include "../../extcode/binaryHelper.hpp"
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 #include <boost/lexical_cast.hpp>
@@ -32,7 +32,7 @@
 #include <boost/iostreams/device/stream_source.hpp>
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
-#include "../../extcode/binaryHelper.hpp"
+#include <magnet/xmlwriter.hpp>
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 {

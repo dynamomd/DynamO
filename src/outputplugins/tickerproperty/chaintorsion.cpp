@@ -16,17 +16,16 @@
 */
 
 #include "chaintorsion.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/ranges/1range.hpp"
-#include <boost/foreach.hpp>
-#include <vector>
 #include "../../datatypes/vector.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/BC/None.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <vector>
 
 OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"Torsion")

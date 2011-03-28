@@ -16,10 +16,10 @@
 */
 
 #include "2RChainGroups.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 C2RChainGroups::C2RChainGroups(const XMLNode& XML, const DYNAMO::SimData*):
   range1(0),range2(0), length(0) 

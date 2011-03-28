@@ -17,21 +17,19 @@
 
 #include "XMLconfig.hpp"
 
-# include <boost/iostreams/device/file.hpp>
-# include <boost/iostreams/filtering_stream.hpp>
-# include <boost/iostreams/filter/bzip2.hpp>
-# include <boost/iostreams/chain.hpp>
-
-#include <boost/foreach.hpp>
-#include <boost/progress.hpp>
-#include <iomanip>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "misc.hpp"
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/foreach.hpp>
+#include <boost/progress.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <iomanip>
 
 OPConfig::OPConfig(const DYNAMO::SimData* tmp):

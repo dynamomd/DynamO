@@ -16,10 +16,10 @@
 */
 
 #include "nullInteraction.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
+#include <magnet/xmlwriter.hpp>
 #include <cstring>
 
 INull::INull(DYNAMO::SimData* tmp, C2Range* nR):

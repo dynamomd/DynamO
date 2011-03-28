@@ -17,11 +17,11 @@
 
 #include "2RList.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
 
 C2RList::C2RList(const XMLNode& XML) 
 { operator<<(XML); }

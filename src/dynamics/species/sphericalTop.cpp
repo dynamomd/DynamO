@@ -16,10 +16,10 @@
 */
 
 #include "sphericalTop.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
+#include <magnet/xmlwriter.hpp>
 
 SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 			       std::string nName, unsigned int nID, double inertiaConst,

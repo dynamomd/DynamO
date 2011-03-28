@@ -20,18 +20,18 @@
 # include "../liouvillean/CompressionL.hpp"
 #endif
 
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <cstring>
 #include "include.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../ranges/1range.hpp"
 #include "../ranges/1RAll.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
-#include <boost/tokenizer.hpp>
 #include "../units/units.hpp"
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cstring>
 
 
 void 

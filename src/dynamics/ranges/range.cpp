@@ -15,11 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/lexical_cast.hpp>
 #include "include.hpp"
-
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 CRange* 
 CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)

@@ -18,7 +18,7 @@
 #pragma once
 
 #include "datastruct.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 #include <boost/array.hpp>
 #include <magnet/containers/MinMaxHeap.hpp>

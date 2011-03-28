@@ -16,13 +16,13 @@
 */
 
 #include "thermalCondE.hpp"
-#include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include "../../base/is_ensemble.hpp"
 #include "../0partproperty/misc.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPThermalConductivityE::OPThermalConductivityE(const DYNAMO::SimData* tmp,
 						 const XMLNode& XML):

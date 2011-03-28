@@ -19,6 +19,7 @@
 #include <string>
 #include <algorithm>
 #include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
 
 class Property
 {
@@ -33,26 +34,33 @@ public:
  
   bool operator==(const std::string& str) const { return _name == str; }
 
+  void XMLOutput(xml::XmlStream& XML, const size_t ID) const
+  {
+    XML << xml::attr(_name) << _storage[ID];
+  }
+
 protected:
   std::string _name;
   std::vector<double> _storage;
 };
 
-class PropertyStore
+class PropertyStore : public std::vector<Property>
 {
 public:
-
-  Property& getProperty(const std::string& name)
+  const Property& getProperty(const std::string& name) const
   {
-    std::vector<Property>::iterator it 
-      = std::find(_properties.begin(), _properties.end(), name);
-
-    if (it == _properties.end())
-      M_throw() << "Could not find the property";
-
+    const_iterator it = std::find(begin(), end(), name);
+    
+    if (it == end()) M_throw() << "Could not find the property";
+    
     return *it;
+  }
+
+  void XMLOutput(xml::XmlStream& XML, const size_t ID) const
+  {
+    for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
+      iPtr->XMLOutput(XML, ID);
   }
   
 private:
-  std::vector<Property> _properties;
 };

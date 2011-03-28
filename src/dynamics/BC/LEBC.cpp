@@ -16,14 +16,14 @@
 */
 
 #include "LEBC.hpp"
-#include <boost/lexical_cast.hpp>
-#include <cmath>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../units/shear.hpp"
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cmath>
 
 BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),

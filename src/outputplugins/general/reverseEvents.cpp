@@ -20,7 +20,7 @@
 #include "../../dynamics/globals/globEvent.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../dynamics/locals/localEvent.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 OPReverseEventsCheck::OPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
   OutputPlugin(t1,"ReverseEventsChecker"),

@@ -23,7 +23,6 @@
 #include "../dynamics/systems/system.hpp"
 #include "../dynamics/liouvillean/liouvillean.hpp"
 #include "../base/is_simdata.hpp"
-#include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include "include.hpp"
 #include "../dynamics/units/units.hpp"
@@ -32,6 +31,8 @@
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/NparticleEventData.hpp"
 #endif
+
+#include <magnet/xmlwriter.hpp>
 
 CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
 		       CSSorter* nS):

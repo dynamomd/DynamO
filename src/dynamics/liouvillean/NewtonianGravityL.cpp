@@ -16,7 +16,6 @@
 */
 
 #include "NewtonianGravityL.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
 #include "../NparticleEventData.hpp"
@@ -27,12 +26,13 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
+#include "../datatypes/vector.xml.hpp"
+#include "../units/units.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/cubic.hpp>
 #include <magnet/math/bisect.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <algorithm>
-#include "../datatypes/vector.xml.hpp"
-#include "../units/units.hpp"
 
 LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),

@@ -16,10 +16,10 @@
 */
 
 #include "2RChains.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 
 C2RChains::C2RChains(unsigned long r1, unsigned long r2, unsigned long r3):

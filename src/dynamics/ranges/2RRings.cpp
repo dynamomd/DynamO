@@ -16,10 +16,10 @@
 */
 
 #include "2RRings.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 
 C2RRings::C2RRings(unsigned long r1, unsigned long r2, unsigned long r3):

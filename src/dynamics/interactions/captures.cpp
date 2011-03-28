@@ -16,11 +16,11 @@
 */
 
 #include "captures.hpp"
-#include <boost/foreach.hpp>
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 ICapture::ICapture(DYNAMO::SimData* tmp,C2Range* nR): 
   Interaction(tmp,nR)

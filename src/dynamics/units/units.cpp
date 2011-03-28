@@ -17,9 +17,9 @@
 
 #include "include.hpp"
 #include "../../datatypes/vector.hpp"
-#include <boost/lexical_cast.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <magnet/exception.hpp>
 
 #include "../../base/is_simdata.hpp"

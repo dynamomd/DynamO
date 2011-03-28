@@ -16,9 +16,9 @@
 */
 
 #include "SW.hpp"
-#include <boost/lexical_cast.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <magnet/exception.hpp>
 #include <cmath>
 #include <cstring>

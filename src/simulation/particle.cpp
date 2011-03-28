@@ -16,7 +16,7 @@
 */
 
 #include "particle.hpp"
-#include "../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 #include "../extcode/xmlParser.h"
 #include "../datatypes/vector.xml.hpp"
 #include <ostream>

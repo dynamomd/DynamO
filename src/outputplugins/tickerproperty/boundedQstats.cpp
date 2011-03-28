@@ -16,11 +16,11 @@
 */
 
 #include "boundedQstats.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../../schedulers/sorters/boundedPQ.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPBoundedQStats::OPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"BoundedPQstats"),

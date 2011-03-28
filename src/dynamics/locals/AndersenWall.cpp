@@ -20,19 +20,19 @@
 #include "localEvent.hpp"
 #include "../NparticleEventData.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../datatypes/vector.xml.hpp"
-#include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
 #include "../../extcode/include/boost/random/normal_distribution.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../simulation/particle.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <boost/lexical_cast.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <cmath>
 
 CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):

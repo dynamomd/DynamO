@@ -16,7 +16,6 @@
 */
 
 #include "NewtonMCL.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
 #include "../NparticleEventData.hpp"
@@ -28,8 +27,9 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
-#include <boost/math/special_functions/fpclassify.hpp>
 #include "../units/units.hpp"
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/xmlwriter.hpp>
 
 LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
   LNewtonian(tmp),

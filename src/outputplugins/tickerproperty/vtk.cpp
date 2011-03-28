@@ -16,17 +16,16 @@
 */
 
 #include "vtk.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include <iomanip>
-
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../base/is_stream_op.hpp"
 #include "../../dynamics/systems/rescale.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
+#include <iomanip>
 
 OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"VTK"),

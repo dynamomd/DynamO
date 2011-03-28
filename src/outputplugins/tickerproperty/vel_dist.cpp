@@ -16,11 +16,11 @@
 */
 
 #include "vel_dist.hpp"
-#include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../1partproperty/kenergy.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPVelDist::OPVelDist(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):

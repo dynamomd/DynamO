@@ -17,9 +17,9 @@
 
 #include "1RRange.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 CRRange::CRRange(const XMLNode& XML) 
 { operator<<(XML); }

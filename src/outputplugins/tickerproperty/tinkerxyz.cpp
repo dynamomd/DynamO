@@ -16,9 +16,6 @@
 */
 
 #include "tinkerxyz.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
@@ -27,11 +24,12 @@
 #include "../../dynamics/ranges/2RList.hpp"
 #include "radiusGyration.hpp"
 #include "../../dynamics/topology/chain.hpp"
-
+#include "../../dynamics/liouvillean/CompressionL.hpp"
 #include "vmd_imd/vmdsock.h"
 #include "vmd_imd/imd.h"
-
-#include "../../dynamics/liouvillean/CompressionL.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
 
 static const size_t HEADERSIZE = 8;
 

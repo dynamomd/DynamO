@@ -20,7 +20,7 @@
 #include <vector>
 #include <cmath>
 #include <magnet/exception.hpp>
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 #include "datastruct.hpp"
 #include "sorter.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>

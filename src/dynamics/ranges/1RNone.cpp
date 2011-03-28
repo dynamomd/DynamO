@@ -16,8 +16,8 @@
 */
 
 #include "1RNone.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <magnet/xmlwriter.hpp>
 
 CRNone::CRNone(const XMLNode& XML)
 { operator<<(XML); }

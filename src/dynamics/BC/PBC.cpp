@@ -18,7 +18,7 @@
 #include "PBC.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/mathtemplates.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 BCSquarePeriodic::BCSquarePeriodic(const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "SPBC", IC_purple)

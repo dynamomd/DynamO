@@ -16,7 +16,7 @@
 */
 
 #include "None.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 BCNone::BCNone(const DYNAMO::SimData* Sim):
   BoundaryCondition(Sim, "NullBC", IC_purple)

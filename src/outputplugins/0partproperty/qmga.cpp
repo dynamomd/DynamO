@@ -16,12 +16,12 @@
 */
 
 #include "qmga.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
 
 OPQMGA::OPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
   OPCollTicker(tmp,"OPQMGA"),

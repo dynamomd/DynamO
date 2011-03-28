@@ -18,7 +18,7 @@
 #include "chatteringCorrelator.hpp"
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/include.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 OPChatteringCorrelator::OPChatteringCorrelator(const DYNAMO::SimData* t1,
 					       const XMLNode& XML):

@@ -16,13 +16,14 @@
 */
 
 #include "is_ensemble.hpp"
-#include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
-#include <magnet/exception.hpp>
 #include "../dynamics/systems/ghost.hpp"
 #include "../dynamics/liouvillean/CompressionL.hpp"
 #include "../dynamics/units/units.hpp"
 #include "../outputplugins/1partproperty/uenergy.hpp"
+
+#include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
 
 #include "../dynamics/units/shear.hpp"
 

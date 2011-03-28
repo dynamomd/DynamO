@@ -16,11 +16,11 @@
 */
 
 #include "velprof.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
 
 OPVelProfile::OPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
   OPTicker(tmp,"VelProfile"),

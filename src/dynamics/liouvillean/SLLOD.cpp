@@ -16,7 +16,6 @@
 */
 
 #include "SLLOD.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
 #include "../NparticleEventData.hpp"
@@ -25,6 +24,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include "../../schedulers/sorters/datastruct.hpp"
+#include <magnet/xmlwriter.hpp>
 
 LSLLOD::LSLLOD(DYNAMO::SimData* tmp):
   Liouvillean(tmp)

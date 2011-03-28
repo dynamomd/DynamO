@@ -16,8 +16,8 @@
 */
 
 #include "chain.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 CTChain::CTChain(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
   Topology(Sim, ID)

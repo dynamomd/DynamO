@@ -19,16 +19,16 @@
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
-#include <boost/static_assert.hpp>
-#include <cstdio>
 #include "../liouvillean/NewtonianGravityL.hpp"
+#include <boost/static_assert.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cstdio>
 
 Vector 
 CGCells::calcPosition(const Vector& primaryCell,

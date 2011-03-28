@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include "topology.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../ranges/1range.hpp"
 #include "../ranges/1RAll.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "include.hpp"
+#include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 Topology::Topology(DYNAMO::SimData* tmp, size_t nID):
   SimBase_const(tmp,"Species", IC_blue),

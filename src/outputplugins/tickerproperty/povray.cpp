@@ -16,15 +16,15 @@
 */
 
 #include "povray.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
 
 OPPovray::OPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"Povray"),

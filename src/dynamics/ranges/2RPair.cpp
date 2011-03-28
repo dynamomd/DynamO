@@ -16,8 +16,8 @@
 */
 
 #include "2RPair.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <magnet/xmlwriter.hpp>
 
 C2RPair::C2RPair(const XMLNode& XML, const DYNAMO::SimData* Sim):
   range1(NULL),range2(NULL) 

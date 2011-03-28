@@ -17,10 +17,9 @@
 
 #include "include.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
-#include <string.h>
 #include <magnet/exception.hpp>
-
+#include <magnet/xmlwriter.hpp>
+#include <cstring>
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const BoundaryCondition& g)
 {
@@ -32,28 +31,28 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 BoundaryCondition* 
 BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
 {
-  if (!strcmp(XML.getAttribute("Boundary"),"None")
-      || !strcmp(XML.getAttribute("Boundary"),"Null"))
+  if (!std::strcmp(XML.getAttribute("Boundary"),"None")
+      || !std::strcmp(XML.getAttribute("Boundary"),"Null"))
     return new BCNone(tmp);
-  else if (!strcmp(XML.getAttribute("Shape"),"Square"))
+  else if (!std::strcmp(XML.getAttribute("Shape"),"Square"))
     {
-      if (!strcmp(XML.getAttribute("Boundary"),"PBC"))
+      if (!std::strcmp(XML.getAttribute("Boundary"),"PBC"))
 	return new BCSquarePeriodic(tmp);
-      else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
+      else if (!std::strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new BCSquareLeesEdwards(XML,tmp);
       else 
 	M_throw()<< XML.getAttribute("Boundary") 
 		 << ", Unknown type of square boundary encountered";
     } 
-  else if (!strcmp(XML.getAttribute("Shape"),"Rectangular"))
+  else if (!std::strcmp(XML.getAttribute("Shape"),"Rectangular"))
     {
-      if (!strcmp(XML.getAttribute("Boundary"),"PBC"))
+      if (!std::strcmp(XML.getAttribute("Boundary"),"PBC"))
 	return new BCRectangularPeriodic(tmp);
-      else if (!strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
+      else if (!std::strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
 	return new BCSquarePeriodicExceptX(tmp);
-      else if (!strcmp(XML.getAttribute("Boundary"),"OnlyXPBC"))
+      else if (!std::strcmp(XML.getAttribute("Boundary"),"OnlyXPBC"))
 	return new BCSquarePeriodicXOnly(tmp);
-      else if (!strcmp(XML.getAttribute("Boundary"),"LE"))
+      else if (!std::strcmp(XML.getAttribute("Boundary"),"LE"))
 	return new BCRectangularLeesEdwards(XML,tmp);
       else 
 	M_throw() << XML.getAttribute("Boundary") 

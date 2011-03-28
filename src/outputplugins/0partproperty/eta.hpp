@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPETA_H
-#define OPETA_H
-
+#pragma once
 #include "../outputplugin.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 #include <ctime>
 
 class OPETA: public OutputPlugin
@@ -47,5 +45,3 @@ class OPETA: public OutputPlugin
   time_t start_Time;
   
 };
-
-#endif

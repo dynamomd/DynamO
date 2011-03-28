@@ -16,12 +16,11 @@
 */
 
 #include "msd.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
-
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPMSD::OPMSD(const DYNAMO::SimData* tmp, const XMLNode&):
   OutputPlugin(tmp,"MSD")

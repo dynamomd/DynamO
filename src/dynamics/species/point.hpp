@@ -21,8 +21,8 @@
 # include <coil/coilMaster.hpp>
 #endif
 
-#include "../../extcode/xmlwriter.hpp"
 #include "species.hpp"
+#include <magnet/xmlwriter.hpp>
 #include <memory>
 
 namespace Gtk {

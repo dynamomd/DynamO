@@ -17,7 +17,7 @@
 
 #include "histogram.hpp"
 #include <boost/foreach.hpp>
-#include "../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 void 
 C1DHistogram::outputHistogram(xml::XmlStream& XML, double scalex) const

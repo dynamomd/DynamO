@@ -17,9 +17,9 @@
 
 #include "2RRangeList.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 C2RRangeList::C2RRangeList(const XMLNode& XML, const DYNAMO::SimData* nSim):
   SimBase_const(nSim,"C2RRangeList", IC_red)

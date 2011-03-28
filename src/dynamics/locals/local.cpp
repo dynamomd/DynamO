@@ -18,10 +18,10 @@
 #include "include.hpp"
 #include "local.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"
 #include "localEvent.hpp"
 #include "../ranges/1RAll.hpp"
+#include <magnet/xmlwriter.hpp>
 
 Local::Local(DYNAMO::SimData* tmp, const char *name):
   SimBase(tmp,name,IC_blue),

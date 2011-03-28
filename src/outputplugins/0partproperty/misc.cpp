@@ -17,14 +17,14 @@
 
 #include "../../dynamics/species/inertia.hpp"
 #include "misc.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/memUsage.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <ctime>
 #include <sys/time.h>
-#include <magnet/memUsage.hpp>
 
 OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
   OutputPlugin(tmp,"Misc",0),

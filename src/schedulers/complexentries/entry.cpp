@@ -16,8 +16,8 @@
 */
 
 #include "include.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <magnet/xmlwriter.hpp>
 
 CSCEntry::CSCEntry(DYNAMO::SimData* const tmp, const char *aName):
   SimBase(tmp, aName, IC_cyan)

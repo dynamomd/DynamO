@@ -16,11 +16,11 @@
 */
 
 #include "intEvent.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"
+#include <magnet/xmlwriter.hpp>
 #include <cmath>
 
 xml::XmlStream& operator<<(xml::XmlStream &XML, 

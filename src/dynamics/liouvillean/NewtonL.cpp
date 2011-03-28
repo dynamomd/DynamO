@@ -16,7 +16,6 @@
 */
 
 #include "NewtonL.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
 #include "../NparticleEventData.hpp"
@@ -27,9 +26,10 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
+#include "../units/units.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/matrix.hpp>
-#include "../units/units.hpp"
+#include <magnet/xmlwriter.hpp>
 
 bool 
 LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const

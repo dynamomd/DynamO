@@ -16,13 +16,13 @@
 */
 
 #include "uenergy.hpp"
-#include <boost/foreach.hpp>
-#include <cmath>
 #include "../../dynamics/interactions/captures.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cmath>
 
 OPUEnergy::OPUEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
   OP1PP(tmp,"UEnergy", 250),

@@ -16,7 +16,6 @@
 */
 
 #include "CompressionL.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
 #include "../dynamics.hpp"
@@ -24,6 +23,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../species/species.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/xmlwriter.hpp>
 
 LCompression::LCompression(DYNAMO::SimData* tmp, double GR):
   LNewtonian(tmp),

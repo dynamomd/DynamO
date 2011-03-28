@@ -16,13 +16,13 @@
 */
 
 #include "msdOrientational.hpp"
-#include <boost/foreach.hpp>
-#include <boost/math/special_functions/legendre.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
+#include <boost/foreach.hpp>
+#include <boost/math/special_functions/legendre.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <vector>
 
 

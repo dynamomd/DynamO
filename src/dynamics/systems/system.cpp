@@ -24,11 +24,11 @@
 #include "visualizer.hpp"
 #include "sleep.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../globals/globEvent.hpp"
 #include "../ranges/1RAll.hpp"
+#include <magnet/xmlwriter.hpp>
 
 bool 
 System::operator<(const IntEvent& iEvent) const

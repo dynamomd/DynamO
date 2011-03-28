@@ -18,7 +18,7 @@
 #include "nblistentry.hpp"
 #include "../../dynamics/globals/neighbourList.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 
 CSCENBList::CSCENBList(const XMLNode& XML, DYNAMO::SimData* const nSim):
   CSCEntry(nSim, "ComplexNBlistEntry"),

@@ -16,9 +16,6 @@
 */
 
 #include "stepped.hpp"
-#include <boost/lexical_cast.hpp>
-#include <cmath>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
 #include "../dynamics.hpp"
@@ -32,8 +29,11 @@
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <iomanip>
 #include <boost/math/special_functions/pow.hpp>
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cmath>
+#include <iomanip>
 
 IStepped::IStepped(DYNAMO::SimData* tmp, 
 		     const std::vector<steppair>& vec, C2Range* nR):

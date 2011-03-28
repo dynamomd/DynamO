@@ -15,20 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPSelfDiffusionOrientationalGK_H
-#define OPSelfDiffusionOrientationalGK_H
-
+#pragma once
 #include "../outputplugin.hpp"
-#include <boost/circular_buffer.hpp>
-#include <vector>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/include.hpp"
 #include "../../datatypes/vector.xml.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/misc.hpp"
 #include "../1partproperty/kenergy.hpp"
+
+#include <boost/circular_buffer.hpp>
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <vector>
 
 class OPSelfDiffusionOrientationalGK: public OutputPlugin
 {
@@ -72,5 +71,3 @@ protected:
   size_t currCorrLen;
   bool notReady;
 };
-
-#endif

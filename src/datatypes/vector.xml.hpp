@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 #include "../extcode/xmlParser.h"
 #include "../base/constants.hpp"
 #include <boost/lexical_cast.hpp> //For xml Parsing

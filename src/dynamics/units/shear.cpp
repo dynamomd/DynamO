@@ -17,7 +17,7 @@
 
 #include "shear.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
+#include <magnet/xmlwriter.hpp>
 #include <magnet/exception.hpp>
 #include <cstring>
 

@@ -16,14 +16,14 @@
 */
 
 #include "msdcorrelator.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPMSDCorrelator::OPMSDCorrelator(const DYNAMO::SimData* tmp, 
 				   const XMLNode& XML):

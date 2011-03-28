@@ -16,9 +16,9 @@
 */
 
 #include "2RNone.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
+#include <magnet/xmlwriter.hpp>
 
 C2RNone::C2RNone(const XMLNode& XML, const DYNAMO::SimData*)
 { 

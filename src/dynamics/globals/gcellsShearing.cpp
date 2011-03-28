@@ -19,7 +19,6 @@
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
@@ -29,6 +28,7 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 #include "../liouvillean/NewtonianGravityL.hpp"
+#include <magnet/xmlwriter.hpp>
 
 CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
 				 const std::string& name):

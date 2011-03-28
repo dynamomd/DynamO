@@ -16,8 +16,8 @@
 */
 
 #include "2RSingle.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <magnet/xmlwriter.hpp>
 
 C2RSingle::C2RSingle(const XMLNode& XML, const DYNAMO::SimData* Sim):
   range(NULL)

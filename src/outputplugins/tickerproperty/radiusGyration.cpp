@@ -17,19 +17,18 @@
 
 #ifdef DYNAMO_GSL
 #include "radiusGyration.hpp"
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/ranges/1range.hpp"
-#include <boost/foreach.hpp>
-#include <vector>
 #include "../../datatypes/vector.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <boost/foreach.hpp>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
+#include <magnet/xmlwriter.hpp>
+#include <vector>
 #include <fstream>
 #include <cmath>
 

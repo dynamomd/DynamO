@@ -16,9 +16,9 @@
 */
 
 #include "2RAll.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
+#include <magnet/xmlwriter.hpp>
 
 C2RAll::C2RAll(const XMLNode& XML, const DYNAMO::SimData*)
 { 

@@ -16,11 +16,11 @@
 */
 
 #include "thermaldiffE.hpp"
-#include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPThermalDiffusionE::OPThermalDiffusionE(const DYNAMO::SimData* tmp,
 					 const XMLNode& XML):

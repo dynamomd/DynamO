@@ -16,7 +16,6 @@
 */
 
 #include "collenergychange.hpp"
-#include <boost/foreach.hpp>
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/dynamics.hpp"
@@ -24,7 +23,8 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 double OPCollEnergyChange::KEBinWidth = 0.01;
 

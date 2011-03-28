@@ -16,11 +16,11 @@
 */
 
 #include "radialdist.hpp"
-#include <boost/foreach.hpp>
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../extcode/mathtemplates.hpp"
-#include "../../extcode/xmlwriter.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
 
 OPRadialDistribution::OPRadialDistribution(const DYNAMO::SimData* tmp, 
 		       const XMLNode& XML):

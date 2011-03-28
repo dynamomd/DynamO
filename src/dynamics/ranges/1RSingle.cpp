@@ -17,9 +17,9 @@
 
 #include "1RSingle.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
 
 CRSingle::CRSingle(const XMLNode& XML) 
 { operator<<(XML); }

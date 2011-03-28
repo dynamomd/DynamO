@@ -16,10 +16,6 @@
 */
 
 #include "hardsphere.hpp"
-#include <boost/lexical_cast.hpp>
-#include <cmath>
-#include <iomanip>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
@@ -27,11 +23,14 @@
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../BC/BC.hpp"
-#include <sstream>
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 #include "../liouvillean/CompressionL.hpp"
+#include <boost/lexical_cast.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cmath>
+#include <iomanip>
 
 IHardSphere::IHardSphere(DYNAMO::SimData* tmp, double nd, 
 			   double ne, C2Range* nR):

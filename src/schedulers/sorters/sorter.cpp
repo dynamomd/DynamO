@@ -17,8 +17,8 @@
 
 #include "include.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <magnet/xmlwriter.hpp>
 
 CSSorter::CSSorter(const DYNAMO::SimData* const& SD, const char *aName):
   SimBase_const(SD, aName, IC_white_brown)

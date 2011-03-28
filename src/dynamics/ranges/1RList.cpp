@@ -16,12 +16,12 @@
 */
 
 #include "1RList.hpp"
-#include <boost/foreach.hpp>
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
+#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
 
 CRList::CRList(const XMLNode& XML) 
 { operator<<(XML); }

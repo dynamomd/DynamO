@@ -18,10 +18,10 @@
 #include "include.hpp"
 #include "global.hpp"
 #include "../../extcode/xmlParser.h"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../simulation/particle.hpp"
 #include "globEvent.hpp"
 #include "../ranges/1RAll.hpp"
+#include <magnet/xmlwriter.hpp>
 
 
 Global::Global(DYNAMO::SimData* tmp, const char *name):

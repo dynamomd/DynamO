@@ -16,10 +16,6 @@
 */
 
 #include "RingDSMC.hpp"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
@@ -30,6 +26,10 @@
 #include "../ranges/include.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <magnet/xmlwriter.hpp>
 
 CSRingDSMC::CSRingDSMC(const XMLNode& XML, DYNAMO::SimData* tmp): 
   System(tmp),

@@ -16,15 +16,15 @@
 */
 
 #include "SCparameter.hpp"
-#include <fstream>
-#include <cmath>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
-#include <limits>
 #include "../../dynamics/globals/neighbourList.hpp"
 #include "../../dynamics/units/units.hpp"
 #include "../../dynamics/BC/BC.hpp"
 #include <boost/math/special_functions/pow.hpp>  
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
+#include <cmath>
+#include <limits>
 
 OPSCParameter::OPSCParameter(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"SCParameter"),

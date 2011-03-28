@@ -20,9 +20,9 @@
 #include <boost/foreach.hpp>
 #include "../datatypes/vector.hpp"
 #include "../datatypes/vector.xml.hpp"
-#include "../extcode/xmlwriter.hpp"
 #include "../extcode/xmlParser.h"
 #include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <cmath>
 #include "../base/is_simdata.hpp"
 #include "NparticleEventData.hpp"

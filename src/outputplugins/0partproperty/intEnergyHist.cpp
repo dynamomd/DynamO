@@ -16,12 +16,12 @@
 */
 
 #include "intEnergyHist.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../1partproperty/uenergy.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
 
 OPIntEnergyHist::OPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy

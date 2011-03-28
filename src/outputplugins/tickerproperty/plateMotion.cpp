@@ -16,9 +16,6 @@
 */
 
 #include "plateMotion.hpp"
-#include <fstream>
-#include <boost/foreach.hpp>
-#include "../../extcode/xmlwriter.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../base/is_colormap.hpp"
@@ -27,6 +24,9 @@
 #include "../../dynamics/ranges/2RList.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../dynamics/locals/oscillatingplate.hpp"
+#include <boost/foreach.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <fstream>
 
 OPPlateMotion::OPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
   OPTicker(tmp,"PlateMotion"),

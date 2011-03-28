@@ -17,12 +17,12 @@
 
 #include "localEvent.hpp"
 #include "local.hpp"
-#include "../../extcode/xmlwriter.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"
 #include "../interactions/intEvent.hpp"
+#include <magnet/xmlwriter.hpp>
 #include <cmath>
 
 LocalEvent::LocalEvent(const Particle& part1, const double &delt, 
