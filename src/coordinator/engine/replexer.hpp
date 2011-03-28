@@ -18,8 +18,7 @@
  * Holds the definition of the EReplicaExchangeSimulation class.
  */
 
-#ifndef EReplicaExchangeSimulation_H
-#define EReplicaExchangeSimulation_H
+#pragma once
 
 #include "engine.hpp"
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -258,5 +257,3 @@ protected:
    */
   void AttemptSwap(const unsigned int id1, const unsigned int id2);
 };
-
-#endif

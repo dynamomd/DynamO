@@ -14,7 +14,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////	
 
 #pragma once
-#include "VECTOR3D.h"
 
 class VECTOR4D
 {
@@ -33,9 +32,6 @@ public:
 	VECTOR4D(const VECTOR4D & rhs):	x(rhs.x), y(rhs.y), z(rhs.z), w(rhs.w)
 	{}
 
-	//convert v3d to v4d
-	VECTOR4D(const VECTOR3D & rhs):	x(rhs.x), y(rhs.y), z(rhs.z), w(1.0f)
-	{}
 
 	~VECTOR4D() {}	//empty
 
@@ -70,8 +66,6 @@ public:
 	VECTOR4D GetRotatedY(double angle) const;
 	void RotateZ(double angle);
 	VECTOR4D GetRotatedZ(double angle) const;
-	void RotateAxis(double angle, const VECTOR3D & axis);
-	VECTOR4D GetRotatedAxis(double angle, const VECTOR3D & axis) const;
 	
 	VECTOR4D lerp(const VECTOR4D & v2, float factor) const
 	{	return (*this)*(1.0f-factor)+v2*factor;	}
@@ -124,8 +118,6 @@ public:
 	//cast to pointer to float for glVertex4fv etc
 	operator float* () const {return (float*) this;}
 	operator const float* () const {return (const float*) this;}
-
-	operator VECTOR3D();							//convert v4d to v3d
 
 	//member variables
 	float x;

@@ -17,8 +17,7 @@
 /*! \file simulation.hpp
  * \brief Contains the definition of the Simulation class.
  */
-#ifndef SIMULATION_H
-#define SIMULATION_H
+#pragma once
 
 #include "../base/is_base.hpp"
 #include "../base/is_simdata.hpp"
@@ -123,5 +122,3 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   void executeSysEvent();*/
 };
-
-#endif

@@ -18,8 +18,7 @@
  * \brief Contains the definition of Engine.
  */
 
-#ifndef Engine_H
-#define Engine_H
+#pragma once
 
 #include <boost/program_options.hpp>
 #include <boost/scoped_array.hpp>
@@ -155,5 +154,3 @@ protected:
 
   magnet::thread::ThreadPool& threads;
 };
-
-#endif

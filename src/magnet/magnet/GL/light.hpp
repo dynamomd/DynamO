@@ -36,6 +36,7 @@ namespace magnet {
 	viewPort(position, lookAtPoint, fovY, zNearDist, zFarDist, up, 1.0),
 	_lightHandle(lightHandle)
       {
+	const GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	//Setup a bright light
 	glLightfv(lightHandle, GL_DIFFUSE, white);
 	glLightfv(lightHandle, GL_SPECULAR, white);

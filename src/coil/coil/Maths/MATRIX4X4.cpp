@@ -371,30 +371,6 @@ VECTOR4D MATRIX4X4::operator*(const VECTOR4D rhs) const
 					+	entries[15]*rhs.w);
 }
 
-VECTOR3D MATRIX4X4::GetRotatedVector3D(const VECTOR3D & rhs) const
-{
-	return VECTOR3D(entries[0]*rhs.x + entries[4]*rhs.y + entries[8]*rhs.z,
-					entries[1]*rhs.x + entries[5]*rhs.y + entries[9]*rhs.z,
-					entries[2]*rhs.x + entries[6]*rhs.y + entries[10]*rhs.z);
-}
-
-VECTOR3D MATRIX4X4::GetInverseRotatedVector3D(const VECTOR3D & rhs) const
-{
-	//rotate by transpose:
-	return VECTOR3D(entries[0]*rhs.x + entries[1]*rhs.y + entries[2]*rhs.z,
-					entries[4]*rhs.x + entries[5]*rhs.y + entries[6]*rhs.z,
-					entries[8]*rhs.x + entries[9]*rhs.y + entries[10]*rhs.z);
-}
-
-VECTOR3D MATRIX4X4::GetTranslatedVector3D(const VECTOR3D & rhs) const
-{
-	return VECTOR3D(rhs.x+entries[12], rhs.y+entries[13], rhs.z+entries[14]);
-}
-
-VECTOR3D MATRIX4X4::GetInverseTranslatedVector3D(const VECTOR3D & rhs) const
-{
-	return VECTOR3D(rhs.x-entries[12], rhs.y-entries[13], rhs.z-entries[14]);
-}
 
 void MATRIX4X4::Invert(void)
 {
@@ -584,50 +560,11 @@ MATRIX4X4 MATRIX4X4::GetAffineInverseTranspose(void) const
 						0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void MATRIX4X4::SetTranslation(const VECTOR3D & translation)
-{
-	LoadIdentity();
-
-	SetTranslationPart(translation);
-}
-
-void MATRIX4X4::SetScale(const VECTOR3D & scaleFactor)
-{
-	LoadIdentity();
-
-	entries[0]=scaleFactor.x;
-	entries[5]=scaleFactor.y;
-	entries[10]=scaleFactor.z;
-}
-
 void MATRIX4X4::SetUniformScale(const float scaleFactor)
 {
 	LoadIdentity();
 
 	entries[0]=entries[5]=entries[10]=scaleFactor;
-}
-
-void MATRIX4X4::SetRotationAxis(const double angle, const VECTOR3D & axis)
-{
-	VECTOR3D u=axis.GetNormalized();
-
-	float sinAngle=(float)sin(M_PI*angle/180);
-	float cosAngle=(float)cos(M_PI*angle/180);
-	float oneMinusCosAngle=1.0f-cosAngle;
-
-	LoadIdentity();
-
-	entries[0]=(u.x)*(u.x) + cosAngle*(1-(u.x)*(u.x));
-	entries[4]=(u.x)*(u.y)*(oneMinusCosAngle) - sinAngle*u.z;
-	entries[8]=(u.x)*(u.z)*(oneMinusCosAngle) + sinAngle*u.y;
-
-	entries[1]=(u.x)*(u.y)*(oneMinusCosAngle) + sinAngle*u.z;
-	entries[5]=(u.y)*(u.y) + cosAngle*(1-(u.y)*(u.y));
-	entries[9]=(u.y)*(u.z)*(oneMinusCosAngle) - sinAngle*u.x;
-	
-	entries[2]=(u.x)*(u.z)*(oneMinusCosAngle) - sinAngle*u.y;
-	entries[6]=(u.y)*(u.z)*(oneMinusCosAngle) + sinAngle*u.x;
-	entries[10]=(u.z)*(u.z) + cosAngle*(1-(u.z)*(u.z));
 }
 
 void MATRIX4X4::SetRotationX(const double angle)
@@ -739,13 +676,6 @@ void MATRIX4X4::SetOrtho(	float left, float right, float bottom,
 	entries[12]=-(right+left)/(right-left);
 	entries[13]=-(top+bottom)/(top-bottom);
 	entries[14]=-(f+n)/(f-n);
-}
-
-void MATRIX4X4::SetTranslationPart(const VECTOR3D & translation)
-{
-	entries[12]=translation.x;
-	entries[13]=translation.y;
-	entries[14]=translation.z;
 }
 
 void MATRIX4X4::SetRotationPartEuler(const double angleX, const double angleY, const double angleZ)

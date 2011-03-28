@@ -20,14 +20,13 @@
  * \brief Contains the header code for the Coordinator class.
  */
 
-#ifndef Coordinator_H
-#define Coordinator_H
+#pragma once
 
-#include <boost/program_options.hpp>
-#include <vector>
 #include "engine/engine.hpp"
+#include <boost/program_options.hpp>
 #include <magnet/thread/threadpool.hpp>
 #include <magnet/cloneptr.hpp>
+#include <vector>
 #include <signal.h>
 
 /*! \brief The main class for the dynarun program.
@@ -116,5 +115,3 @@ private:
 
   struct sigaction _old_SIGINT_handler;
 };
-
-#endif

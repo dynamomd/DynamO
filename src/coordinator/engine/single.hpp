@@ -18,9 +18,7 @@
  * \brief Contains the simulation Engine ESingleSimulation
  */
 
-#ifndef ESingleSimulation_H
-#define ESingleSimulation_H
-
+#pragma once
 #include "engine.hpp"
 
 /*! \brief An Engine for simulating a single system.
@@ -85,5 +83,3 @@ protected:
    */
  bool peekMode; 
 };
-
-#endif

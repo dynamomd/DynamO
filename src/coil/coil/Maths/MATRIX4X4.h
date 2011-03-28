@@ -66,26 +66,6 @@ public:
 	//multiply a vector by this matrix
 	VECTOR4D operator*(const VECTOR4D rhs) const;
 
-	//rotate a 3d vector by rotation part
-	void RotateVector3D(VECTOR3D & rhs) const
-	{rhs=GetRotatedVector3D(rhs);}
-
-	void InverseRotateVector3D(VECTOR3D & rhs) const
-	{rhs=GetInverseRotatedVector3D(rhs);}
-
-	VECTOR3D GetRotatedVector3D(const VECTOR3D & rhs) const;
-	VECTOR3D GetInverseRotatedVector3D(const VECTOR3D & rhs) const;
-
-	//translate a 3d vector by translation part
-	void TranslateVector3D(VECTOR3D & rhs) const
-	{rhs=GetTranslatedVector3D(rhs);}
-
-	void InverseTranslateVector3D(VECTOR3D & rhs) const
-	{rhs=GetInverseTranslatedVector3D(rhs);}
-	
-	VECTOR3D GetTranslatedVector3D(const VECTOR3D & rhs) const;
-	VECTOR3D GetInverseTranslatedVector3D(const VECTOR3D & rhs) const;
-
 	//Other methods
 	void Invert(void);
 	MATRIX4X4 GetInverse(void) const;
@@ -101,10 +81,7 @@ public:
 	MATRIX4X4 GetAffineInverseTranspose(void) const;
 
 	//set to perform an operation on space - removes other entries
-	void SetTranslation(const VECTOR3D & translation);
-	void SetScale(const VECTOR3D & scaleFactor);
 	void SetUniformScale(const float scaleFactor);
-	void SetRotationAxis(const double angle, const VECTOR3D & axis);
 	void SetRotationX(const double angle);
 	void SetRotationY(const double angle);
 	void SetRotationZ(const double angle);
@@ -114,12 +91,7 @@ public:
 	void SetOrtho(float left, float right, float bottom, float top, float n, float f);
 
 	//set parts of the matrix
-	void SetTranslationPart(const VECTOR3D & translation);
 	void SetRotationPartEuler(const double angleX, const double angleY, const double angleZ);
-	void SetRotationPartEuler(const VECTOR3D & rotations)
-	{
-		SetRotationPartEuler((double)rotations.x, (double)rotations.y, (double)rotations.z);
-	}
 
 	//cast to pointer to a (float *) for glGetFloatv etc
 	operator float* () const {return (float*) this;}

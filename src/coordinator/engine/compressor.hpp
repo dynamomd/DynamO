@@ -17,8 +17,7 @@
 /*! \file compressor.hpp
  * Contains the definition of ECompressingSimulation.
  */
-#ifndef ECompressingSimulation_H
-#define ECompressingSimulation_H
+#pragma once
 
 #include "single.hpp"
 #include "../../inputplugins/compression.hpp"
@@ -78,5 +77,3 @@ protected:
    */
   magnet::ClonePtr<CIPCompression> compressPlug;
 };
-
-#endif
