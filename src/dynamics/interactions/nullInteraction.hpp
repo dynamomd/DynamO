@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CINull_H
-#define CINull_H
+#pragma once
 
 #include "interaction.hpp"
 
@@ -52,5 +51,3 @@ public:
  
 protected:
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2RRings_H
-#define C2RRings_H
-
+#pragma once
 #include "1range.hpp"
 #include "2range.hpp"
 #include <magnet/cloneptr.hpp>
@@ -44,5 +42,3 @@ protected:
   unsigned long range2;
   unsigned long interval;
 };
-
-#endif

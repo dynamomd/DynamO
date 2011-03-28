@@ -15,12 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2RList_H
-#define C2RList_H
-
+#pragma once
+#include "2range.hpp"
 #include <map>
 #include <list>
-#include "2range.hpp"
 
 class C2RList:public C2Range
 {
@@ -44,5 +42,3 @@ protected:
 
   std::map<unsigned long, std::list<unsigned long> > pairmap;
 };
-
-#endif

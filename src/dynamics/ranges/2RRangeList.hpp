@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2RRangeList_H
-#define C2RRangeList_H
-
-#include <list>
+#pragma once
 #include "2range.hpp"
-#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
+#include <magnet/cloneptr.hpp>
+#include <list>
 
 class C2RRangeList:public C2Range, DYNAMO::SimBase_const
 {
@@ -46,5 +44,3 @@ protected:
 
   std::list<magnet::ClonePtr<C2Range> > ranges;
 };
-
-#endif

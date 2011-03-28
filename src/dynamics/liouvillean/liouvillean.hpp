@@ -16,9 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Liouvillean_H
-#define Liouvillean_H
-
+#pragma once
 #include "../../base/is_base.hpp"
 #include "../eventtypes.hpp"
 #include "../../simulation/particle.hpp"
@@ -698,4 +696,3 @@ protected:
   virtual void streamParticle(Particle& part, const double& dt) const = 0;
 
 };
-#endif

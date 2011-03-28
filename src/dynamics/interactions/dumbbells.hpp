@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CIDumbbells_H
-#define CIDumbbells_H
+#pragma once
 
 #include "captures.hpp"
 
@@ -66,5 +65,3 @@ protected:
   double diameter;//Radius of the sphere 
 
 };
-
-#endif

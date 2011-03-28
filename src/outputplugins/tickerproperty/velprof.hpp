@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPVelProfile_H
-#define OPVelProfile_H
-
+#pragma once
 #include "ticker.hpp"
 #include <vector>
 
@@ -44,5 +42,3 @@ class OPVelProfile: public OPTicker
   size_t samplesTaken;
   double binWidth;
 };
-
-#endif

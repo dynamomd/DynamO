@@ -15,12 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OUTPUTPLUGIN_H
-#define OUTPUTPLUGIN_H
-
+#pragma once
 #include "../base/is_base.hpp"
 #include "../base/is_simdata.hpp"
-#include <boost/foreach.hpp>
 #include "../extcode/xmlParser.h"
 
 class IntEvent;
@@ -89,5 +86,3 @@ private:
   template<class T> static OutputPlugin* 
   testGeneratePlugin(const DYNAMO::SimData*, const XMLNode&);
 };
-
-#endif

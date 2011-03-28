@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INPUTPLUGIN_H
-#define INPUTPLUGIN_H
-
+#pragma once
 #include "../base/is_base.hpp"
 #include <magnet/math/vector.hpp>
 
@@ -47,5 +45,3 @@ class CInputPlugin: public DYNAMO::SimBase
   
  protected:  
 };
-
-#endif

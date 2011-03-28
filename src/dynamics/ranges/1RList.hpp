@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C1RList_H
-#define C1RList_H
-
+#pragma once
 #include "1range.hpp"
 #include <vector>
 
@@ -52,6 +50,3 @@ protected:
 
   std::vector<unsigned long> IDs;
 };
-
-#endif
-

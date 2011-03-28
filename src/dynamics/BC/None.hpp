@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BCNull_H
-#define BCNull_H
-
+#pragma once
 #include "BC.hpp"
 #include "../../base/is_base.hpp"
 
@@ -50,5 +48,3 @@ class BCNone: virtual public BoundaryCondition
 
   virtual void rounding(Vector &) const;
 };
-
-#endif

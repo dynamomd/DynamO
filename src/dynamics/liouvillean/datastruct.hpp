@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CPDData_H
-#define CPDData_H
+#pragma once
 #include "../../datatypes/vector.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../dynamics.hpp"
@@ -51,5 +50,3 @@ struct CPDData
   const Particle* const p1;
   const Particle* const p2;
 };
-
-#endif

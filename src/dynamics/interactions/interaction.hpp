@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CInteraction_H
-#define CInteraction_H
+#pragma once
 
 #include <string>
 #include <magnet/cloneptr.hpp>
@@ -102,5 +101,3 @@ protected:
   std::string intName;
   size_t ID;
 };
-
-#endif

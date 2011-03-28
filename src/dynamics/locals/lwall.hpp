@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLWall_HPP
-#define CLWall_HPP
-
+#pragma once
 #include "local.hpp"
 
 class CLWall: public Local
@@ -53,5 +51,3 @@ protected:
   double e;
   bool render;
 };
-
-#endif

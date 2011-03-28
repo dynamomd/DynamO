@@ -15,14 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCollMatrix_H
-#define OPCollMatrix_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../dynamics/eventtypes.hpp"
+#include "../eventtypetracking.hpp"
 #include <map>
 #include <vector>
-#include "../eventtypetracking.hpp"
 
 using namespace EventTypeTracking;
 
@@ -78,5 +76,3 @@ public:
 
   std::vector<lastEventData> lastEvent; 
 };
-
-#endif

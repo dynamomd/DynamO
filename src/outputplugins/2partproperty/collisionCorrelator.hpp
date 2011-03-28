@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCollisionCorrelator_HPP
-#define OPCollisionCorrelator_HPP
-
+#pragma once
 #include "2partproperty.hpp"
 #include "../../datatypes/histogram.hpp"
 #include <boost/circular_buffer.hpp>
@@ -46,5 +44,3 @@ private:
   C1DHistogram freetimehist;
   std::vector<std::vector<double> > lastColl;
 };
-
-#endif

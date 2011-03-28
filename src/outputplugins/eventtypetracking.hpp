@@ -16,13 +16,9 @@
 */
 
 #pragma once
-
-#ifndef EventTypeTracking_H
-#define EventTypeTracking_H
-
+#include "../dynamics/eventtypes.hpp"
 #include <utility>
 #include <string>
-#include "../dynamics/eventtypes.hpp"
 
 namespace DYNAMO
 {
@@ -50,5 +46,3 @@ namespace EventTypeTracking {
 
   classKey getClassKey(const LocalEvent&);
 }
-
-#endif

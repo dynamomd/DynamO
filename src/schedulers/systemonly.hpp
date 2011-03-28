@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSystemOnly_H
-#define CSSystemOnly_H
-
+#pragma once
 #include "scheduler.hpp"
 
 class CSSystemOnly: public CScheduler
@@ -38,5 +36,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 };
-
-#endif

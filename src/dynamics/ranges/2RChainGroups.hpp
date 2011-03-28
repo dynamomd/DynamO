@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2RChainGroups_H
-#define C2RChainGroups_H
-
+#pragma once
 #include "1range.hpp"
 #include "2range.hpp"
 #include <magnet/cloneptr.hpp>
@@ -43,5 +41,3 @@ protected:
   size_t range2;
   size_t length;
 };
-
-#endif

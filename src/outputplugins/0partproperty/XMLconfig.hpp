@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCONFIG_H
-#define OPCONFIG_H
-
+#pragma once
 #include "../outputplugin.hpp"
 
 class OPConfig: public OutputPlugin
@@ -51,5 +49,3 @@ private:
   bool rounding;
   bool compressedOutput;
 };
-
-#endif

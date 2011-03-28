@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPPlateMotion_H
-#define OPPlateMotion_H
-
+#pragma once
 #include "ticker.hpp"
 #include <fstream>
 #include <vector>
@@ -57,5 +55,3 @@ class OPPlateMotion: public OPTicker
   double oldPlateEnergy;
 
 };
-
-#endif

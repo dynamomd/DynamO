@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMutualDiffusionE_H
-#define OPMutualDiffusionE_H
-
-#include <boost/circular_buffer.hpp>
+#pragma once
 #include "../outputplugin.hpp"
+#include <boost/circular_buffer.hpp>
 
 class OPMutualDiffusionE: public OutputPlugin
 {
@@ -83,5 +81,3 @@ public:
   std::string species1name, species2name;
 
 };
-
-#endif

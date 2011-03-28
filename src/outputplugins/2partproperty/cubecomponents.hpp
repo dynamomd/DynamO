@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCubeComp_H
-#define OPCubeComp_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/histogram.hpp"
 #include "../eventtypetracking.hpp"
@@ -58,6 +56,3 @@ class OPCubeComp: public OutputPlugin
 
   std::map<mapKey, mapdata> angles;
 };
-
-#endif
-

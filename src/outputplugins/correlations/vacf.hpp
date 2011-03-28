@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPVACF_H
-#define OPVACF_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../extcode/xmlParser.h"
 #include "../../dynamics/include.hpp"
@@ -25,7 +23,6 @@
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/misc.hpp"
 #include "../1partproperty/kenergy.hpp"
-
 #include <boost/circular_buffer.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -71,5 +68,3 @@ protected:
   size_t currCorrLen;
   bool notReady;
 };
-
-#endif

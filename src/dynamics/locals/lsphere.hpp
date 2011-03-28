@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLSphere_HPP
-#define CLSphere_HPP
-
+#pragma once
 #include "local.hpp"
 
 class CLSphere: public Local
@@ -52,5 +50,3 @@ protected:
   double r2;
   bool render;
 };
-
-#endif

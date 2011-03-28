@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSComplex_H
-#define CSComplex_H
-
+#pragma once
 #include "scheduler.hpp"
 
 class CSCEntry;
@@ -44,5 +42,3 @@ protected:
 
   std::vector<magnet::ClonePtr<CSCEntry> > entries;
 };
-
-#endif

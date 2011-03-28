@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGCellsMorton_HPP
-#define CGCellsMorton_HPP
-
+#pragma once
 #include "neighbourList.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../../datatypes/vector.hpp"
@@ -141,5 +139,3 @@ protected:
   }
 
 };
-
-#endif

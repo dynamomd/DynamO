@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHistogram_H
-#define CHistogram_H
-
+#pragma once
 #include "fuzzy_array.hpp"
 
 namespace xml
@@ -84,6 +82,3 @@ class C1DWeightHistogram
   
   double sampleCount;
 };
-
-#endif
-

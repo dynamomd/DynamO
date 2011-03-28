@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Units_H
-#define Units_H
-
+#pragma once
 #include "../../base/is_base.hpp"
 #include "../../base/constants.hpp"
 
@@ -139,5 +137,3 @@ class Units: public DYNAMO::SimBase_const
  protected:
   virtual void outputXML(xml::XmlStream &) const = 0;
 };
-
-#endif

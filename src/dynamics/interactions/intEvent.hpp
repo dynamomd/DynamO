@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CIntEvent_H
-#define CIntEvent_H
+#pragma once
 
 #include <cfloat>
 #include "../eventtypes.hpp"
@@ -122,5 +121,3 @@ private:
   mutable EEventType CType;
   const size_t intID;
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPChatteringCorrelator_HPP
-#define OPChatteringCorrelator_HPP
-
+#pragma once
 #include "2partproperty.hpp"
 #include "../../datatypes/histogram.hpp"
 #include <boost/circular_buffer.hpp>
@@ -44,5 +42,3 @@ private:
   C1DWeightHistogram hist;
   std::vector<std::pair<double,double> > chatterTracker;
 };
-
-#endif

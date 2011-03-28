@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C1ParticleData_HPP
-#define C1ParticleData_HPP
-
+#pragma once
 #include "../datatypes/vector.hpp"
 #include "species/species.hpp"
 #include "../simulation/particle.hpp"
@@ -75,5 +73,3 @@ private:
   double deltaU;
   double deltaKE;
 };
-
-#endif

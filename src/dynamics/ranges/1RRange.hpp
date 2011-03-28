@@ -15,12 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C1RRange_H
-#define C1RRange_H
-
+#pragma once
 #include "1range.hpp"
-#include <magnet/exception.hpp>
 #include "../../simulation/particle.hpp"
+#include <magnet/exception.hpp>
 
 class CRRange: public CRange
 {
@@ -68,5 +66,3 @@ protected:
   unsigned long startID;
   unsigned long endID;
 };
-
-#endif

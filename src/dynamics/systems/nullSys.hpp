@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSysNull_HPP
-#define CSysNull_HPP
+#pragma once
 
 #include "system.hpp"
 #include "../../base/is_exception.hpp"
@@ -48,5 +47,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const {}
 };
-
-#endif

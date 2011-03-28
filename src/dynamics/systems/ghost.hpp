@@ -15,15 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSysGhost_HPP
-#define CSysGhost_HPP
-
+#pragma once
 #include "system.hpp"
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
 #include "../../extcode/include/boost/random/normal_distribution.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../ranges/1range.hpp"
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real.hpp>
 #include <magnet/cloneptr.hpp>
 
 class CSysGhost: public System
@@ -62,5 +60,3 @@ protected:
   
   magnet::ClonePtr<CRange> range;
 };
-
-#endif

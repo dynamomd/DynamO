@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PBC_H
-#define PBC_H
-
+#pragma once
 #include "../../base/is_base.hpp"
 #include "BC.hpp"
 
@@ -105,5 +103,3 @@ public:
   virtual void operator<<(const XMLNode&);
   virtual BoundaryCondition* Clone () const;
 };
-
-#endif

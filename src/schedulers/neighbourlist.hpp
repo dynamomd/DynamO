@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSNeighbourList_H
-#define CSNeighbourList_H
-
+#pragma once
 #include "scheduler.hpp"
 
 class CSNeighbourList: public CScheduler
@@ -42,5 +40,3 @@ protected:
   
   size_t NBListID;
 };
-
-#endif

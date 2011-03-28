@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPKEnergy_H
-#define OPKEnergy_H
-
+#pragma once
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
 
@@ -59,5 +57,3 @@ class OPKEnergy: public OP1PP
   double KEsqAcc;
   double KECurrent;  
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OP1PP_HPP
-#define OP1PP_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
 
 class OP1PP: public OutputPlugin
@@ -40,5 +38,3 @@ private:
   virtual void A1ParticleChange(const ParticleEventData&) = 0;
   virtual void stream(const double&) = 0;  
 };
-
-#endif

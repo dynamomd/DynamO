@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CILines_H
-#define CILines_H
+#pragma once
 
 #include "captures.hpp"
 
@@ -59,5 +58,3 @@ protected:
   double l2;
   double e;
 };
-
-#endif

@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSCEntry_H
-#define CSCEntry_H
-
+#pragma once
 #include "../../base/is_base.hpp"
-#include <magnet/cloneptr.hpp>
 #include "../../dynamics/ranges/1range.hpp"
 #include "../../dynamics/globals/neighbourList.hpp"
+#include <magnet/cloneptr.hpp>
 
 struct XMLNode;
 namespace xml
@@ -52,7 +50,9 @@ public:
 					const CGNeighbourList::nbHoodFunc&) const {}
 
   virtual void getParticleLocalNeighbourhood(const Particle&, 
-					     const CGNeighbourList::nbHoodFunc&) const {}
+					     const CGNeighbourList::nbHoodFunc&
+					     ) const 
+  {}
 
   virtual CSCEntry* Clone() const = 0;
 
@@ -62,5 +62,3 @@ protected:
   
   magnet::ClonePtr<CRange> range;
 };
-
-#endif

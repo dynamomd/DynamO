@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CICapsules_H
-#define CICapsules_H
+#pragma once
 
 #include "captures.hpp"
 
@@ -60,5 +59,3 @@ protected:
   double e;
   double r;
 };
-
-#endif

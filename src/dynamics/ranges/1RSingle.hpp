@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C1RSingle_H
-#define C1RSingle_H
-
+#pragma once
 #include "1range.hpp"
 #include <magnet/exception.hpp>
 
@@ -59,5 +57,3 @@ protected:
 
   unsigned long ID;
 };
-
-#endif

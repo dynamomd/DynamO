@@ -15,12 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGCellsShearing_HPP
-#define CGCellsShearing_HPP
-
+#pragma once
 #include "gcells.hpp"
 #include "../ranges/1range.hpp"
-
 
 class CGCellsShearing: public CGCells
 {
@@ -49,5 +46,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 };
-
-#endif

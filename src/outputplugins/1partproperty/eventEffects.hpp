@@ -15,14 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPEventEffects_H
-#define OPEventEffects_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../dynamics/eventtypes.hpp"
-#include <map>
-#include <vector>
 #include "../eventtypetracking.hpp"
+#include <map>
 
 using namespace EventTypeTracking;
 
@@ -68,5 +65,3 @@ public:
   
   std::map<eventKey, counterData> counters;
 };
-
-#endif

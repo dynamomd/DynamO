@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPGeomview_H
-#define OPGeomview_H
-
+#pragma once
 #include "ticker.hpp"
 
 class OPGeomview: public OPTicker
@@ -39,5 +37,3 @@ class OPGeomview: public OPTicker
 
   void printImage();
 };
-
-#endif

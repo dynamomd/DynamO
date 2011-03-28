@@ -15,9 +15,7 @@
  *
  ***************************************************************************/
 
-#ifndef IMD_H__
-#define IMD_H__
-
+#pragma once
 #include <limits.h>
 
 #if ( INT_MAX == 2147483647 )
@@ -113,6 +111,4 @@ extern int imd_recv_fcoords(void *, int32, float *);
 
 extern void fill_header(IMDheader *, IMDType, int32);
 extern int32 imd_writen(void *, const char *, int32);
-
-#endif
 

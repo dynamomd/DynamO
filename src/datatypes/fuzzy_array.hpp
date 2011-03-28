@@ -15,14 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CFuzzy_Array_H
-#define CFuzzy_Array_H
-
+#pragma once
+#include "../base/constants.hpp"
+#include <magnet/exception.hpp>
 #include <vector>
 #include <map>
 #include <cmath>
-#include <magnet/exception.hpp>
-#include "../base/constants.hpp"
 
 template<class T>
 class CFuzzyArray
@@ -174,5 +172,3 @@ class CFuzzyArray2<CFuzzyArray2<T> >
   double binWidth, origin;
   std::vector<CFuzzyArray2<T> > data;
 };
-
-#endif

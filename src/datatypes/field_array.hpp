@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CField_Array_H
-#define CField_Array_H
-
+#pragma once
 #include "../base/is_base.hpp"
 #include "fuzzy_array.hpp"
 #include "../datatypes/vector.hpp"
@@ -62,5 +60,3 @@ class CFieldArray: public DYNAMO::SimBase_const
 
   CFuzzyArray2<CFuzzyArray2<CFuzzyArray2<T> > > Field;
 };  
-
-#endif

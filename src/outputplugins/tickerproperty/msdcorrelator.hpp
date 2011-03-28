@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMSDCorrelator_H
-#define OPMSDCorrelator_H
-
+#pragma once
 #include "ticker.hpp"
 #include <boost/circular_buffer.hpp>
 
@@ -51,5 +49,3 @@ class OPMSDCorrelator: public OPTicker
   size_t ticksTaken;
   bool notReady;
 };
-
-#endif

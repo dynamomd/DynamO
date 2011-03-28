@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMSDOrientational_H
-#define OPMSDOrientational_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <vector>
@@ -57,5 +55,3 @@ class OPMSDOrientational: public OutputPlugin
   std::vector<RUpair> initialConfiguration;
 
 };
-
-#endif

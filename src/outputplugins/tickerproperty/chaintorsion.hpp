@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCTorsion_H
-#define OPCTorsion_H
-
+#pragma once
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
@@ -58,5 +56,3 @@ class OPCTorsion: public OPTicker
 
   std::list<CTCdata> chains;
 };
-
-#endif

@@ -15,19 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSDataStruct_H
-#define CSSDataStruct_H
-
+#pragma once
 #include "../../dynamics/eventtypes.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../../dynamics/globals/globEvent.hpp"
 #include "../../dynamics/locals/localEvent.hpp"
-#include <boost/foreach.hpp>
-#include <boost/pool/pool.hpp>
-#include <boost/pool/pool_alloc.hpp>
-#include <queue>
-#include <deque>
 #include "../../dynamics/globals/global.hpp"
+#include <boost/foreach.hpp>
+#include <queue>
 
 //Datatype for a single event, stored in lists for each particle
 class intPart
@@ -177,4 +172,3 @@ namespace std
     lhs.swap(rhs);
   }
 }
-#endif

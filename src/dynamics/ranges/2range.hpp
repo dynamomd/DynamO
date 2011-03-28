@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2Range_H
-#define C2Range_H
-
+#pragma once
 struct XMLNode;
 namespace xml
 {
@@ -47,5 +45,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream& XML) const = 0;
 };
-
-#endif

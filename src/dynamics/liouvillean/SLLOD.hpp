@@ -15,11 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLSLLOD_H
-#define CLSLLOD_H
-
+#pragma once
 #include "liouvillean.hpp"
-
 
 class LSLLOD: public Liouvillean
 {
@@ -84,4 +81,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 };
-#endif

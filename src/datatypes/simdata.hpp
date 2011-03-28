@@ -14,13 +14,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifndef SSimBase_H
-#define SSimBase_H
-
+#pragma once
 #include <vector>
 
-struct SSimBase
+struct SSimBase2
 {
   SSimBase(  const std::vector<Particle> &particleList2,
 	     const Dynamics * const dynamics2,
@@ -43,5 +40,3 @@ struct SSimBase
   const std::ostringstream &history;
 
 };
-
-#endif

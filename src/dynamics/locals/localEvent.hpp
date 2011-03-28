@@ -15,12 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLocalEvent_H
-#define CLocalEvent_H
-
-#include <cfloat>
+#pragma once
 #include "../eventtypes.hpp"
 #include "../../simulation/particle.hpp"
+#include <cfloat>
 
 struct XMLNode;
 namespace xml
@@ -82,5 +80,3 @@ protected:
   mutable EEventType CType;
   const size_t localID;
 };
-
-#endif

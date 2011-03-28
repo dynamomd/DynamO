@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CISWSequence_H
-#define CISWSequence_H
+#pragma once
 
 #include "captures.hpp"
 #include <vector>
@@ -70,5 +69,3 @@ protected:
   std::vector<size_t> sequence;
   std::vector<std::vector<double> > alphabet;
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPThermalConductivityE_H
-#define OPThermalConductivityE_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
@@ -71,6 +69,3 @@ protected:
   void updateConstDelG(const PairEventData&);
   void updateConstDelG(const ParticleEventData&);
 };
-
-#endif
-

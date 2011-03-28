@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CISquareBond_H
-#define CISquareBond_H
+#pragma once
 
 #include "interaction.hpp"
 
@@ -62,5 +61,3 @@ protected:
   double lambda, ld2;
   double elasticity;
 };
-
-#endif

@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CTChains_H
-#define CTChains_H
+#pragma once
 
 #include "topology.hpp"
 #include <magnet/cloneptr.hpp>
@@ -41,7 +40,3 @@ protected:
   
   virtual void outputXML(xml::XmlStream&) const;
 };
-
-
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPQMGA_H
-#define OPQMGA_H
-
+#pragma once
 #include "collticker.hpp"
 
 class OPQMGA: public OPCollTicker
@@ -39,5 +37,3 @@ class OPQMGA: public OPCollTicker
 
   void printImage();
 };
-
-#endif

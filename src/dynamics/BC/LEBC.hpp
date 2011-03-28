@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LEBC_H
-#define LEBC_H
-
+#pragma once
 #include "BC.hpp"
 #include "../../base/is_base.hpp"
 
@@ -89,5 +87,3 @@ class BCSquareLeesEdwards: virtual public BoundaryCondition, public CLEBC
   /*! \brief The current offset of the simulation boundary conditions.*/
   double dxd;
 };
-
-#endif

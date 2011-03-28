@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CISquareWell_H
-#define CISquareWell_H
+#pragma once
 
 #include "captures.hpp"
 
@@ -61,5 +60,3 @@ protected:
   double wellDepth;
   double e;
 };
-
-#endif

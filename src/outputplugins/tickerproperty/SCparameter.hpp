@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPSCParameter_H
-#define OPSCParameter_H
-
-#include <boost/math/special_functions/spherical_harmonic.hpp>
+#pragma once
 #include "ticker.hpp"
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 class OPSCParameter: public OPTicker
 {
@@ -45,6 +43,3 @@ class OPSCParameter: public OPTicker
   size_t count;
   std::vector<double> runningsum;
 };
-
-#endif
-

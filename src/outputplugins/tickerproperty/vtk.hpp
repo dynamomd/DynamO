@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef OPVTK_H
-#define OPVTK_H
-
+#pragma once
 #include "ticker.hpp"
 
 class OPVTK: public OPTicker
@@ -63,5 +61,3 @@ class OPVTK: public OPTicker
   size_t eventCounter;
   long collstatsfilecounter;
 };
-
-#endif

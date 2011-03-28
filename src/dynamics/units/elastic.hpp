@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Elas_Units_H
-#define Elas_Units_H
-
+#pragma once
 #include "units.hpp"
 
 /*! \brief For running a simulation in hard sphere units.
@@ -57,5 +55,3 @@ class UHardSphere: public Units
 
   double UnitOfLength;
 };
-
-#endif

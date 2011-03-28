@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CStHalt_HPP
-#define CStHalt_HPP
-
+#pragma once
 #include "system.hpp"
 
 class CStHalt: public System
@@ -40,5 +38,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const {}
 };
-
-#endif

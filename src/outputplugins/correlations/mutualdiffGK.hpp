@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMutualDiffusionGK_H
-#define OPMutualDiffusionGK_H
-
-#include <boost/circular_buffer.hpp>
+#pragma once
 #include "../outputplugin.hpp"
+#include <boost/circular_buffer.hpp>
 
 class OPMutualDiffusionGK: public OutputPlugin
 {
@@ -81,5 +79,3 @@ public:
 
   std::string species1name, species2name;
 };
-
-#endif

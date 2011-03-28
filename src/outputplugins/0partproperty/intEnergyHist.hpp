@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPIntEnergyHist_H
-#define OPIntEnergyHist_H
-
+#pragma once
 #include "collticker.hpp"
 #include "../../datatypes/histogram.hpp"
 
@@ -51,5 +49,3 @@ class OPIntEnergyHist: public OPCollTicker
   double binwidth;
 
 };
-
-#endif

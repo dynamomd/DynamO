@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPRijVij_H
-#define OPRijVij_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/histogram.hpp"
 #include "../eventtypetracking.hpp"
@@ -78,6 +76,3 @@ class OPRijVij: public OutputPlugin
 
   void process2PED(mapdata&, const PairEventData&);
 };
-
-#endif
-

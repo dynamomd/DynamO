@@ -15,13 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPThermalConductivitySpeciesSpeciesE_H
-#define OPThermalConductivitySpeciesSpeciesE_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
-
 
 /*! \brief The Correlator class for the Thermal Conductivity.*/
 class OPThermalConductivitySpeciesSpeciesE: public OutputPlugin
@@ -74,6 +71,3 @@ protected:
   void updateConstDelG(const PairEventData&);
   void updateConstDelG(const ParticleEventData&);
 };
-
-#endif
-

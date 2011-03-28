@@ -14,13 +14,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#ifndef Shear_Units_H
-#define Shear_Units_H
-
+#pragma once
 #include "elastic.hpp"
-
-
 
 /*! \brief For running a simulation with a time scale set by the shear
  * rate.
@@ -73,5 +68,3 @@ public:
 private:
   void outputXML(xml::XmlStream&) const;
 };
-
-#endif

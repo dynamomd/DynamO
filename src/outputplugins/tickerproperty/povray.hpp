@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPPovray_H
-#define OPPovray_H
-
+#pragma once
 #include "ticker.hpp"
 
 class OPPovray: public OPTicker
@@ -42,5 +40,3 @@ class OPPovray: public OPTicker
 
   void printImage();
 };
-
-#endif

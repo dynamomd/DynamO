@@ -18,9 +18,7 @@
  * Contains the definition of the class CIPCompression.
  */
 
-#ifndef CIPCompression_H
-#define CIPCompression_H
-
+#pragma once
 #include "inputplugin.hpp"
 
 class Liouvillean;
@@ -92,5 +90,3 @@ private:
    * to be restored later.
    */
 };
-
-#endif

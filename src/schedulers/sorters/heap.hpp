@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSHeap
-#define CSSHeap
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <boost/foreach.hpp>
+#pragma once
 #include "../../base/is_exception.hpp"
+#include <boost/foreach.hpp>
+#include <vector>
+#include <algorithm>
 
 template<typename dataType, typename idType>
 struct Node_type

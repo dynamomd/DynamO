@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGNeighbourList_HPP
-#define CGNeighbourList_HPP
-
+#pragma once
 #include "global.hpp"
 #include <boost/function.hpp>
-#include <vector>
 #include <magnet/function/delegate.hpp>
+#include <vector>
 
 class CGNeighbourList: public Global
 {
@@ -200,5 +198,3 @@ protected:
   bool isUsedInScheduler;
   double lambda; 
 };
-
-#endif

@@ -15,11 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSGeneralCBT_H
-#define CSSGeneralCBT_H
+#pragma once
+#include "../../base/is_exception.hpp"
 #include <vector>
 #include <cmath>
-#include "../../base/is_exception.hpp"
 
 template <typename data>
 class CSSGeneralCBT
@@ -154,4 +153,3 @@ private:
     --NP;
   }
 };
-#endif

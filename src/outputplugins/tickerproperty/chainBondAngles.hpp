@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPChainBondAngles_H
-#define OPChainBondAngles_H
-
+#pragma once
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 #include <boost/shared_array.hpp>
@@ -56,5 +54,3 @@ class OPChainBondAngles: public OPTicker
   std::list<Cdata> chains;
   double binwidth;
 };
-
-#endif

@@ -15,11 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LNewtonian_H
-#define LNewtonian_H
-
+#pragma once
 #include "liouvillean.hpp"
-
 
 class LNewtonian: public Liouvillean
 {
@@ -131,4 +128,3 @@ protected:
   mutable unsigned int lastCollParticle2;  
 
 };
-#endif

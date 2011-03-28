@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMFT_H
-#define OPMFT_H
-
+#pragma once
 #include "1partproperty.hpp"
+#include "../../datatypes/histogram.hpp"
 #include <vector>
 #include <boost/circular_buffer.hpp>
-#include "../../datatypes/histogram.hpp"
 
 class OPMFT: public OP1PP
 {
@@ -53,5 +51,3 @@ class OPMFT: public OP1PP
   //! A histogram for each species
   std::vector<std::vector<C1DHistogram> > data;
 };
-
-#endif

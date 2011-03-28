@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLAndersenWall_HPP
-#define CLAndersenWall_HPP
-
+#pragma once
 #include "local.hpp"
 #include <magnet/math/vector.hpp>
 
@@ -52,5 +50,3 @@ protected:
   Vector  vPosition;
   double sqrtT;
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMSD_H
-#define OPMSD_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <vector>
@@ -48,7 +46,5 @@ class OPMSD: public OutputPlugin
   
  protected:
   
-  std::vector<Vector  > initPos;
+  std::vector<Vector> initPos;
 };
-
-#endif

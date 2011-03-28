@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CIStepped_H
-#define CIStepped_H
+#pragma once
 
 #include "captures.hpp"
+#include <vector>
 
 class IStepped: public IMultiCapture
 {
@@ -63,5 +63,3 @@ protected:
 
   std::vector<steppair> runstepdata;
 };
-
-#endif

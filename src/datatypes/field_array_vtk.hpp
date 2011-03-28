@@ -15,11 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma once
 #ifdef DYNAMO_VTK
-
-#ifndef CField_Array_VTK_H
-#define CField_Array_VTK_H
-
 #include "field_array.hpp"
 
 #include <vtkFloatArray.h>
@@ -116,6 +113,5 @@ namespace DYNAMO
   }
 
 }
+#endif
 
-#endif
-#endif

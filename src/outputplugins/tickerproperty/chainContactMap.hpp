@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCContactMap_H
-#define OPCContactMap_H
-
+#pragma once
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
 #include <boost/shared_array.hpp>
@@ -58,5 +56,3 @@ class OPCContactMap: public OPTicker
   std::list<Cdata> chains;
 
 };
-
-#endif

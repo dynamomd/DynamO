@@ -15,15 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPRdotV_H
-#define OPRdotV_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/histogram.hpp"
 #include "../eventtypetracking.hpp"
-#include <map>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
+#include <map>
 
 using namespace EventTypeTracking;
 
@@ -75,6 +73,3 @@ class OPRdotV: public OutputPlugin
   double _periodicRdotV;
   long double _periodict;
 };
-
-#endif
-

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTrajectory_HPP
-#define OPTrajectory_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
 #include <fstream>
 
@@ -53,5 +51,3 @@ private:
 
   mutable std::ofstream logfile;
 };
-
-#endif

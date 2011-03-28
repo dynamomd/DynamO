@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CISoftCore_H
-#define CISoftCore_H
+#pragma once
 
 #include "captures.hpp"
 
@@ -55,5 +54,3 @@ protected:
   double diameter,d2;
   double wellDepth;
 };
-
-#endif

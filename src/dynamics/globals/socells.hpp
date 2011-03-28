@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGSOCells_HPP
-#define CGSOCells_HPP
-
+#pragma once
 #include "global.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../../datatypes/vector.hpp"
@@ -54,5 +52,3 @@ protected:
   Vector  cellDimension;
   size_t cuberootN;
 };
-
-#endif

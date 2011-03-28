@@ -18,8 +18,7 @@
 ***************************************************************************
 */
 
-#ifndef INCLUDE_BITMAP_IMAGE_HPP
-#define INCLUDE_BITMAP_IMAGE_HPP
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -3712,5 +3711,3 @@ const rgb_store yarg_colormap[1000] = {
    {253, 253, 253}, {253, 253, 253}, {253, 253, 253}, {253, 253, 253}, {254, 254, 254},
    {254, 254, 254}, {254, 254, 254}, {254, 254, 254}, {255, 255, 255}, {255, 255, 255}
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSTicker_HPP
-#define CSTicker_HPP
-
+#pragma once
 #include "system.hpp"
 
 class CSTicker: public System
@@ -45,5 +43,3 @@ protected:
 
   double period;
 };
-
-#endif

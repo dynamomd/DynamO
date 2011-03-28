@@ -15,12 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMFL_H
-#define OPMFL_H
-
+#pragma once 
 #include "1partproperty.hpp"
-#include <vector>
 #include "../../datatypes/histogram.hpp"
+#include <vector>
 
 class OPMFL: public OP1PP
 {
@@ -49,5 +47,3 @@ class OPMFL: public OP1PP
 
   double binwidth;
 };
-
-#endif

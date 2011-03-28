@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C2RPair_H
-#define C2RPair_H
-
+#pragma once
 #include "1range.hpp"
 #include "2range.hpp"
 #include <magnet/cloneptr.hpp>
@@ -42,5 +40,3 @@ protected:
   magnet::ClonePtr<CRange> range1;
   magnet::ClonePtr<CRange> range2;
 };
-
-#endif

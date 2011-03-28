@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SW_Units_H
-#define SW_Units_H
-
+#pragma once
 #include "units.hpp"
 
 /*! \brief For running a simulation with a distinct energy scale.
@@ -62,5 +60,3 @@ class USquareWell: public Units
   double UnitOfEnergy;
   double UnitOfLength;
 };
-
-#endif

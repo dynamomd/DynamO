@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMISC_H
-#define OPMISC_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include <ctime>
 #include <time.h>
@@ -59,5 +57,3 @@ protected:
   unsigned long singleEvents;
   unsigned long oldcoll;
 };
-
-#endif

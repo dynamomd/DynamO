@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CIPCONFIG_H
-#define CIPCONFIG_H
-
+#pragma once
 #include "inputplugin.hpp"
 #include <string>
 
@@ -32,5 +30,3 @@ class CIPConfig : public CInputPlugin
 
   std::string fileName;
 };
-
-#endif

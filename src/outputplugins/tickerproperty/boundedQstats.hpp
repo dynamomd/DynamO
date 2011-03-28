@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../schedulers/scheduler.hpp"
-#ifndef OPBoundedQStats_H
-#define OPBoundedQStats_H
-
+#pragma once
 #include "ticker.hpp"
+#include "../../schedulers/scheduler.hpp"
 #include "../../datatypes/histogram.hpp"
 
 class OPBoundedQStats: public OPTicker
@@ -42,5 +40,3 @@ class OPBoundedQStats: public OPTicker
   
   C1DHistogram treeSize;  
 };
-
-#endif

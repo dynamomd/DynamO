@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGPBCSentinel_HPP
-#define CGPBCSentinel_HPP
-
+#pragma once
 #include "global.hpp"
 #include <vector>
 
@@ -49,5 +47,3 @@ protected:
 
   mutable std::vector<double> cachedTimes;
 };
-
-#endif

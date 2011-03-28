@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPReverseEventsCheck_HPP
-#define OPReverseEventsCheck_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
 
 class OPCollMatrix;
@@ -49,5 +47,3 @@ private:
 
   unsigned long lReverseEvents;
 };
-
-#endif

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
-
+#pragma once
 #include "../base/is_base.hpp"
 #include "sorters/cbt.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
@@ -82,5 +80,3 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const = 0;
 };
-
-#endif

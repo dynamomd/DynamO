@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSDumb_H
-#define CSDumb_H
-
+#pragma once
 #include "scheduler.hpp"
 
 class CSDumb: public CScheduler
@@ -38,5 +36,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 };
-
-#endif

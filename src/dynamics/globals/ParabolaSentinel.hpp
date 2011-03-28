@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CGParabolaSentinel_HPP
-#define CGParabolaSentinel_HPP
-
+#pragma once
 #include "global.hpp"
 #include <vector>
 
@@ -43,5 +41,3 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 };
-
-#endif

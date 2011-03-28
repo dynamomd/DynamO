@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPViscosityE_H
-#define OPViscosityE_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
@@ -75,5 +73,3 @@ protected:
   std::vector<matrix> accG2;
   double dtfactor;
 };
-
-#endif

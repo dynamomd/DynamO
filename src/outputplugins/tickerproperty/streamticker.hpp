@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPStreamTicker_H
-#define OPStreamTicker_H
-
+#pragma once
 #include "ticker.hpp"
 
 class OPStreamTicker: public OPTicker
@@ -33,8 +31,4 @@ class OPStreamTicker: public OPTicker
   virtual void stream(double) {}
 
   virtual void ticker();
-  
- protected:
 };
-
-#endif

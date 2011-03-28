@@ -15,12 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSystem_HPP
-#define CSystem_HPP
-
-#include <string>
+#pragma once
 #include "../../base/is_base.hpp"
 #include "../eventtypes.hpp"
+#include <string>
 
 struct XMLNode;
 namespace xml
@@ -78,5 +76,3 @@ protected:
   EEventType type;
   size_t ID;
 };
-
-#endif

@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPThermalDiffusionE_H
-#define OPThermalDiffusionE_H
-
+#pragma once
 #include "../outputplugin.hpp"
 #include "../../datatypes/vector.hpp"
-#include <boost/circular_buffer.hpp>
 #include "../0partproperty/misc.hpp"
+#include <boost/circular_buffer.hpp>
 
 /*! \brief The Correlator class for the Thermal Diffusion.*/
 class OPThermalDiffusionE: public OutputPlugin
@@ -76,6 +74,3 @@ protected:
 
   void accPass();
 };
-
-#endif
-

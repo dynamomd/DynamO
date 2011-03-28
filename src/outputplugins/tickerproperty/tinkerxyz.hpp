@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTinkerXYZ_H
-#define OPTinkerXYZ_H
-
+#pragma once
 #include "ticker.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include <stdio.h>
@@ -50,7 +48,6 @@ class OPTinkerXYZ: public OPTicker
   bool blockForVMD;
   int max_frame_count;
 
-
   bool P1track;
 
   void *clientsock;
@@ -63,5 +60,3 @@ class OPTinkerXYZ: public OPTicker
   void printFileImage();
   void printLiveImage();
 };
-
-#endif

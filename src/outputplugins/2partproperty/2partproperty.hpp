@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OP2PP_HPP
-#define OP2PP_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
 
 class OP2PP: public OutputPlugin
@@ -37,5 +35,3 @@ private:
   virtual void A2ParticleChange(const PairEventData&) = 0;
   virtual void stream(const double&) = 0;  
 };
-
-#endif

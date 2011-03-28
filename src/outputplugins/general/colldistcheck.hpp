@@ -15,13 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCollDistCheck_HPP
-#define OPCollDistCheck_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
-#include <map>
 #include "../../datatypes/histogram.hpp"
 #include "../eventtypetracking.hpp"
+#include <map>
 
 using namespace EventTypeTracking;
 
@@ -58,5 +56,3 @@ private:
   
   double binwidth;
 };
-
-#endif

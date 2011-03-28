@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLCylinder_HPP
-#define CLCylinder_HPP
-
+#pragma once
 #include "local.hpp"
 
 class CLCylinder: public Local
@@ -52,5 +50,3 @@ protected:
   double radius;
   bool render;
 };
-
-#endif

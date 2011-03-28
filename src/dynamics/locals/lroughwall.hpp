@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LRoughWall_HPP
-#define LRoughWall_HPP
-
+#pragma once
 #include "local.hpp"
 
 class LRoughWall: public Local
@@ -55,5 +53,3 @@ protected:
   double r;
   bool render;
 };
-
-#endif

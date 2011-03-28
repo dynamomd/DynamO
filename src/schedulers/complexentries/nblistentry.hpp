@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSCENBList_H
-#define CSCENBList_H
-
+#pragma once
 #include "entry.hpp"
 
 class CSCENBList: public CSCEntry
@@ -44,5 +42,3 @@ protected:
   std::string name;
   size_t nblistID;
 };
-
-#endif

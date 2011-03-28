@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLDblWall_HPP
-#define CLDblWall_HPP
-
+#pragma once
 #include "local.hpp"
 #include <vector>
 
@@ -54,5 +52,3 @@ protected:
   double e;
   mutable size_t lastID;
 };
-
-#endif

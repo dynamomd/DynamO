@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPUEnergy_H
-#define OPUEnergy_H
-
+#pragma once
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
 
@@ -54,5 +52,3 @@ class OPUEnergy: public OP1PP
   double intEsqAcc;
   double intEAcc;
 };
-
-#endif

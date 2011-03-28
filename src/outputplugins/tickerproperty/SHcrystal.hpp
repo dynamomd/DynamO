@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPSHCrystal_H
-#define OPSHCrystal_H
-
-#include <boost/math/special_functions/spherical_harmonic.hpp>
+#pragma once
 #include "ticker.hpp"
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 class OPSHCrystal: public OPTicker
 {
@@ -67,6 +65,4 @@ class OPSHCrystal: public OPTicker
     mutable std::vector<std::vector<std::complex<double> > > coeffsum;
   };
 };
-
-#endif
 

@@ -15,15 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSCBT_H
-#define CSSCBT_H
-#include <vector>
-#include <cmath>
-#include <magnet/exception.hpp>
-#include <magnet/xmlwriter.hpp>
+#pragma once
 #include "datastruct.hpp"
 #include "sorter.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <vector>
+#include <cmath>
 
 class CSSCBT: public CSSorter
 {
@@ -224,4 +223,3 @@ private:
   { XML << xml::attr("Type") << "CBT"; }
 
 };
-#endif

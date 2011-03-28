@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPMomentum_H
-#define OPMomentum_H
-
+#pragma once
 #include "1partproperty.hpp"
 #include "../../datatypes/vector.hpp"
 
@@ -40,5 +38,3 @@ class OPMomentum: public OP1PP
 
   Vector  accMom, accMomsq, sysMom;
 };
-
-#endif

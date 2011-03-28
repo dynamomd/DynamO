@@ -15,15 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CICapture_H
-#define CICapture_H
+#pragma once
 
 #include "interaction.hpp"
-#include <set>
-#include <vector>
+#include "../../simulation/particle.hpp"
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
-#include "../../simulation/particle.hpp"
+#include <set>
 
 //Expose the boost TR1
 namespace std {
@@ -165,5 +163,3 @@ protected:
     captureMap.erase(cMapKey(p1.getID(), p2.getID()));
   }
 };
-
-#endif

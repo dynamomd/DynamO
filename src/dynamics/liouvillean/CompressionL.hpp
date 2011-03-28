@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LCompression_H
-#define LCompression_H
-
+#pragma once
 #include "NewtonL.hpp"
 
 class LCompression: public LNewtonian
@@ -57,4 +55,3 @@ protected:
   
   double growthRate;
 };
-#endif

@@ -15,15 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCollEnergyChange_H
-#define OPCollEnergyChange_H
-
+#pragma once
 #include "1partproperty.hpp"
-#include <vector>
-#include <map>
+#include "../../datatypes/histogram.hpp"
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
-#include "../../datatypes/histogram.hpp"
+#include <vector>
+#include <map>
 
 class OPCollEnergyChange: public OP1PP
 {
@@ -64,5 +62,3 @@ class OPCollEnergyChange: public OP1PP
   std::vector<C1DHistogram> data;
   C1DHistogram specialhist;
 };
-
-#endif

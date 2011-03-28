@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTicker_HPP
-#define OPTicker_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
 
 /*! \brief An output plugin marker class for periodically 'ticked'
@@ -48,5 +46,3 @@ protected:
 
   double getTickerTime() const;
 };
-
-#endif

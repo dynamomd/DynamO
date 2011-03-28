@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef C1RAll_H
-#define C1RAll_H
-
+#pragma once
 #include "1range.hpp"
 #include "../../base/is_base.hpp"
 #include "../../base/is_simdata.hpp"
@@ -61,5 +59,3 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
 };
-
-#endif

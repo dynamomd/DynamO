@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCollTicker_HPP
-#define OPCollTicker_HPP
-
+#pragma once
 #include "../outputplugin.hpp"
 
 class OPCollTicker: public OutputPlugin
@@ -39,5 +37,3 @@ private:
   virtual void stream(double) = 0;  
   virtual void ticker() = 0;
 };
-
-#endif

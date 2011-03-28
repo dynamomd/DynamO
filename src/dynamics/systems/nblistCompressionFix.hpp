@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSNBListCompressionFix_HPP
-#define CSNBListCompressionFix_HPP
-
+#pragma once
 #include "system.hpp"
 #include "../../datatypes/vector.hpp"
 
@@ -40,5 +38,3 @@ protected:
   double growthRate;
   size_t cellID;
 };
-
-#endif

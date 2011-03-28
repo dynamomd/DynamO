@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPStructureImaging_H
-#define OPStructureImaging_H
-
+#pragma once
 #include "ticker.hpp"
 
 class OPStructureImaging: public OPTicker
@@ -48,5 +46,3 @@ class OPStructureImaging: public OPTicker
   std::vector<std::vector<Vector  > > imagelist;
   std::string structureName;
 };
-
-#endif

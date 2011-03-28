@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSorter_H
-#define CSSorter_H
-
+#pragma once
 #include "../../base/is_base.hpp"
 
 class CSSorter: public DYNAMO::SimBase_const
@@ -65,5 +63,3 @@ private:
   virtual void outputXML(xml::XmlStream&) const = 0;
   
 };
-
-#endif

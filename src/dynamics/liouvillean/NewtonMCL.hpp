@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LNewtonianMC_H
-#define LNewtonianMC_H
-
+#pragma once
 #include "NewtonL.hpp"
 #include <boost/unordered_map.hpp>
 
@@ -46,4 +44,3 @@ protected:
   double EnergyPotentialStep;
   
 };
-#endif

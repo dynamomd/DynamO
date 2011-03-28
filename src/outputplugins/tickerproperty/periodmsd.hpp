@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPPeriodicMSD_H
-#define OPPeriodicMSD_H
-
+#pragma once
 #include "ticker.hpp"
 
 class OPMSD;
@@ -48,5 +46,3 @@ class OPPeriodicMSD: public OPTicker
 
   const OPMSD* ptrOPMSD;
 };
-
-#endif

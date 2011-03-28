@@ -15,19 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CSSBoundedPQ_H
-#define CSSBoundedPQ_H
-
-#include <vector>
-#include <cmath>
-#include <iostream>
-#include <magnet/exception.hpp>
+#pragma once
 #include "datastruct.hpp"
 #include "sorter.hpp"
 #include "../../dynamics/units/units.hpp"
 #include "../../base/is_simdata.hpp"
-#include <string>
 #include <boost/static_assert.hpp>
+#include <magnet/exception.hpp>
+#include <string>
+#include <vector>
+#include <cmath>
+#include <iostream>
 
 template<size_t Size>
 class MinMaxHeapPList;
@@ -511,4 +509,3 @@ private:
   { XML << xml::attr("Type") << CSSBoundedPQName<T>::name(); }
 
 };
-#endif

@@ -16,12 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LNOrientation_H
-#define LNOrientation_H
-
+#pragma once
 #include "NewtonL.hpp"
-#include <vector>
 #include "../../datatypes/vector.hpp"
+#include <vector>
 
 class CLinesFunc;
 class CDumbbellsFunc;
@@ -109,4 +107,3 @@ protected:
   
   mutable std::vector<rotData> orientationData;
 };
-#endif
