@@ -10,41 +10,33 @@ LICENCE=gpl3
 DEPENDS=", libbz2-1.0, zlib1g"
 SRC_DEPENDS=", libbz2-dev, zlib1g-dev"
 URL="http://www.marcusbannerman.co.uk/dynamo"
-###Make/Clean the build directory
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR
-rm -Rf *
 
-###Download the source, clean off the git cruft and add in the boost libraries
-git clone git://marcusbannerman.co.uk/dynamo.git
-wget http://downloads.sourceforge.net/project/boost/boost/1.46.1/$BOOST_FILE
-tar -xf $BOOST_FILE -C dynamo/
-mv dynamo/boost_* dynamo/boost
-rm boost*
-cd dynamo
-git checkout $GIT_BRANCH
-cd ..
-rm -Rf dynamo/.git
-mv dynamo dynamo-$DYNAMO_VER
-tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
-
-#Source file is created! Begin building a package
-cd dynamo-$DYNAMO_VER
+############################################################################
+################################ FUNCTIONS #################################
+############################################################################
+function files {
+cd $PACKAGENAME-$DYNAMO_VER
 DEBFULLNAME=$MAINTAINER_NAME dh_make \
     -e $MAINTAINER \
-    -f ../dynamo_$DYNAMO_VER.orig.tar.gz \
+    -f ../$PACKAGENAME_$DYNAMO_VER.orig.tar.gz \
     --multi \
     -c $LICENCE
 rm debian/*.ex debian/*.EX
 
-echo "dynamo ("$DYNAMO_VER-$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
+controlNcopyright
+
+mkdir -p debian/source
+echo "3.0 (native)" > debian/source/format
+> debian/info #Blank any info files from being created
+
+echo $PACKAGENAME" ("$DYNAMO_VER-$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
 
   * Direct build of the DynamO simulator, see the git repository or
     website http://www.marcusbannerman.co.uk for change information.
 
  -- "$MAINTAINER_NAME" <"$MAINTAINER">  "$(date -R) > debian/changelog
 
-echo "Source: dynamo
+echo "Source: "$PACKAGENAME"
 Section: science
 Priority: extra
 Maintainer: "$MAINTAINER_NAME" <"$MAINTAINER">
@@ -52,9 +44,10 @@ Build-Depends: debhelper (>= 7) "$SRC_DEPENDS"
 Standards-Version: 3.8.3
 Homepage: "$URL"
 
-Package: dynamo
+Package: "$PACKAGENAME"
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends} "$DEPENDS"
+Conflicts: "$CONFLICTS"
 Description: A general event-driven particle simulator.
  A general event-driven simulator capable of simulating millions of particles in real time. 
  Also includes an OpenGL/OpenCL visualization toolkit." > debian/control
@@ -99,34 +92,45 @@ The Debian packaging is:
 
 and is licensed under the GPL version 3, see above.
 " > debian/copyright
+}
 
-mkdir -p debian/source
-echo "3.0 (native)" > debian/source/format
-> debian/info #Blank any info files from being created
+############################################################################
+################################ Build System ##############################
+############################################################################
 
-#echo "#!/usr/bin/make -f
-## -*- makefile -*-
-#export DH_VERBOSE=1
-#
-#clean:
-#	dh_testdir
-#	cd boost; ./bootstrap.sh;
-#	./boost/bjam clean
-#
-#build:
-#	dh_testdir
-#	cd boost; ./bootstrap.sh;
-#	./boost/bjam -j4
-#
-#binary:
-#	dh_testroot
-#	dh_installdirs
-#	cd boost; ./bootstrap.sh;
-#	./boost/bjam -j4 install
-#	mkdir -p debian/dynamo/usr/bin/
-#	cp bin/* debian/dynamo/usr/bin/
-#
-#binary-arch:
-#	echo Not used
-#binary-indep:
-#	echo Not used" > debian/rules
+###Make/Clean the build directory
+mkdir -p $BUILD_DIR
+cd $BUILD_DIR
+rm -Rf *
+
+###Download the source, clean off the git cruft and add in the boost libraries
+git clone git://marcusbannerman.co.uk/dynamo.git
+cd dynamo
+git checkout $GIT_BRANCH
+cd ..
+rm -Rf dynamo/.git
+mv dynamo dynamo-$DYNAMO_VER
+tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
+cp -R dynamo-$DYNAMO_VER dynaview-$DYNAMO_VER
+tar czf dynaview_$DYNAMO_VER.orig.tar.gz dynaview-$DYNAMO_VER
+
+#Source file is created! Begin building a package
+############################################################################
+####WITHOUT VISUALIZATION SUPPORT
+############################################################################
+PACKAGENAME="dynamo"
+CONFLICTS="dynaview"
+files
+cd ../
+
+############################################################################
+####WITH VISUALIZATION SUPPORT
+############################################################################
+PACKAGENAME="dynaview"
+CONFLICTS="dynamo"
+
+DEPENDS=$DEPENDS" "
+SRC_DEPENDS=$SRC_DEPENDS" "
+
+files
+cd ../
