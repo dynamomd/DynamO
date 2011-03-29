@@ -36,7 +36,7 @@ DEBFULLNAME=$MAINTAINER_NAME dh_make \
     -c $LICENCE
 rm debian/*.ex debian/*.EX
 
-echo "dynamo ("$DYNAMO_VER-0ubuntu$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
+echo "dynamo ("$DYNAMO_VER-$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
 
   * Direct build of the DynamO simulator, see the git repository or
     website http://www.marcusbannerman.co.uk for change information.

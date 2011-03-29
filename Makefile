@@ -11,6 +11,7 @@ build_deps:
 	if [ ! -x ./boost/bjam ]; then cd boost; ./bootstrap.sh; fi
 
 install: build_deps
+	mkdir -p $(DESTDIR)/usr/bin/
 	cp bin/* $(DESTDIR)/usr/bin/
 
 distclean: build_deps
