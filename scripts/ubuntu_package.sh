@@ -23,8 +23,6 @@ DEBFULLNAME=$MAINTAINER_NAME dh_make \
     -c $LICENCE
 rm debian/*.ex debian/*.EX
 
-controlNcopyright
-
 mkdir -p debian/source
 echo "3.0 (native)" > debian/source/format
 > debian/info #Blank any info files from being created
@@ -129,8 +127,8 @@ cd ../
 PACKAGENAME="dynaview"
 CONFLICTS="dynamo"
 
-DEPENDS=$DEPENDS" "
-SRC_DEPENDS=$SRC_DEPENDS" "
+DEPENDS=$DEPENDS", libgtkmm-2.4, freeglut3 "
+SRC_DEPENDS=$SRC_DEPENDS", libgtkmm-2.4-dev, libgl1-mesa-dev, freeglut3-dev "
 
 files
 cd ../
