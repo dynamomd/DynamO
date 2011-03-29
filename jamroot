@@ -80,6 +80,10 @@ project	: requirements
 	  <tag>@dynamo-tags.naming
           <threading>multi
           <link>static
+	  ##Allow garbage collection of unused linked symbols
+	  <toolset>gcc:<cflags>-ffunction-sections
+	  <toolset>gcc:<cflags>-fdata-sections
+	  <toolset>gcc:<linkflags>-Wl,--gc-sections
 	: default-build release
 	: build-dir $(build-dir)
 	;
