@@ -47,8 +47,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends} "$DEPENDS"
 Conflicts: "$CONFLICTS"
 Description: A general event-driven particle simulator.
- A general event-driven simulator capable of simulating millions of particles in real time. 
- Also includes an OpenGL/OpenCL visualization toolkit." > debian/control
+ A general event-driven simulator capable of simulating millions of
+ particles in real time." > debian/control
 
 echo "This work was packaged for Debian by:
 
@@ -108,8 +108,12 @@ git checkout $GIT_BRANCH
 cd ..
 rm -Rf dynamo/.git
 mv dynamo dynamo-$DYNAMO_VER
-tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
 cp -R dynamo-$DYNAMO_VER dynaview-$DYNAMO_VER
+#Patch the dynamo package to not build the visualizer
+echo "WIBBLE" > dynamo-$DYNAMO_VER/src/coil/tests/openclpp.cpp
+
+#Make the source tarballs
+tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
 tar czf dynaview_$DYNAMO_VER.orig.tar.gz dynaview-$DYNAMO_VER
 
 #Source file is created! Begin building a package
@@ -131,4 +135,7 @@ DEPENDS=$DEPENDS", libgtkmm-2.4, freeglut3 "
 SRC_DEPENDS=$SRC_DEPENDS", libgtkmm-2.4-dev, libgl1-mesa-dev, freeglut3-dev "
 
 files
+
+echo "." >> $PACKAGENAME_$DYNAMO_VER debian/changelog
+echo "This version of dynamo is built with visualization support enabled." >> $PACKAGENAME_$DYNAMO_VER debian/changelog
 cd ../
