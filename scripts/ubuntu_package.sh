@@ -103,31 +103,29 @@ mkdir -p debian/source
 echo "3.0 (native)" > debian/source/format
 > debian/info #Blank any info files from being created
 
-echo "
-#!/usr/bin/make -f
+echo "#!/usr/bin/make -f
+# -*- makefile -*-
 export DH_VERBOSE=1
 
 clean:
-      dh_testdir
-      cd boost; ./bootstrap.sh;
-      boost/bjam clean
+	dh_testdir
+	cd boost; ./bootstrap.sh;
+	./boost/bjam clean
 
 build:
-      dh_testdir
-      cd boost; ./bootstrap.sh;
-      boost/bjam -j4
+	dh_testdir
+	cd boost; ./bootstrap.sh;
+	./boost/bjam -j4
 
 binary:
-      dh_testroot
-      dh_installdirs
-      cd boost; ./bootstrap.sh;
-      boost/bjam -j4 install
-      mkdir -p debian/dynamo/usr/bin/
-      cp bin/* debian/dynamo/usr/bin/
+	dh_testroot
+	dh_installdirs
+	cd boost; ./bootstrap.sh;
+	./boost/bjam -j4 install
+	mkdir -p debian/dynamo/usr/bin/
+	cp bin/* debian/dynamo/usr/bin/
 
 binary-arch:
-      echo Not used
+	echo Not used
 binary-indep:
-      echo Not used
-
-" > debian/rules
+	echo Not used" > debian/rules
