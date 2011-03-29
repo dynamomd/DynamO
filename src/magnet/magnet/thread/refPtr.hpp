@@ -107,6 +107,14 @@ namespace magnet {
       template<class T2> 
       T2& as() const { return dynamic_cast<const T2&>(*_obj); }
 
+      template<class T2>
+      inline bool operator==(const T2& other) const
+      { return *_obj == other; }
+
+      template<class T2>
+      inline bool operator==(const RefPtr<T2>& other) const
+      { return *_obj == *other; }
+
     private:
       T* _obj;
       size_t *_counter;
