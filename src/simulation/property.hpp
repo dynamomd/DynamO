@@ -42,7 +42,7 @@ public:
   bool operator==(const std::string& str) const { return _name == str; }
 
   void XMLOutput(xml::XmlStream& XML, const size_t ID) const
-  { XML << xml::attr(_name) << _storage[ID]; }
+  { XML << xml::attr(_name) << operator[](ID); }
 
 protected:
   std::string _name;
