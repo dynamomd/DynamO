@@ -109,20 +109,25 @@ export DH_VERBOSE=1
 
 clean:
       dh_testdir
-      bjam clean
+      cd boost; ./bootstrap.sh;
+      boost/bjam clean
 
 build:
       dh_testdir
-      bjam -j4
+      cd boost; ./bootstrap.sh;
+      boost/bjam -j4
 
 binary:
       dh_testroot
       dh_installdirs
-      bjam -j4 install
+      cd boost; ./bootstrap.sh;
+      boost/bjam -j4 install
+      mkdir -p debian/dynamo/usr/bin/
       cp bin/* debian/dynamo/usr/bin/
 
 binary-arch:
-
+      echo Not used
 binary-indep:
+      echo Not used
 
 " > debian/rules
