@@ -12,36 +12,36 @@ URL="http://www.marcusbannerman.co.uk/dynamo"
 ###Make/Clean the build directory
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
-rm -Rf *
-
-###Download the source, clean off the git cruft and add in the boost libraries
-git clone git://marcusbannerman.co.uk/dynamo.git
-wget http://downloads.sourceforge.net/project/boost/boost/1.46.1/$BOOST_FILE
-tar -xf $BOOST_FILE -C dynamo/
-mv dynamo/boost_* dynamo/boost
-rm boost*
-cd dynamo
-git checkout $GIT_BRANCH
-cd ..
-rm -Rf dynamo/.git
-mv dynamo dynamo-$DYNAMO_VER
-tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
+#rm -Rf *
+#
+####Download the source, clean off the git cruft and add in the boost libraries
+#git clone git://marcusbannerman.co.uk/dynamo.git
+#wget http://downloads.sourceforge.net/project/boost/boost/1.46.1/$BOOST_FILE
+#tar -xf $BOOST_FILE -C dynamo/
+#mv dynamo/boost_* dynamo/boost
+#rm boost*
+#cd dynamo
+#git checkout $GIT_BRANCH
+#cd ..
+#rm -Rf dynamo/.git
+#mv dynamo dynamo-$DYNAMO_VER
+#tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
 
 #Source file is created! Begin building a ubuntu package
 cd dynamo-$DYNAMO_VER
-DEBFULLNAME=$MAINTAINER_NAME dh_make \
-    -e $MAINTAINER \
-    -f ../dynamo_$DYNAMO_VER.orig.tar.gz \
-    --multi \
-    -c $LICENCE
-rm debian/*.ex debian/*.EX README.Debian dirs docs info
+#DEBFULLNAME=$MAINTAINER_NAME dh_make \
+#    -e $MAINTAINER \
+#    -f ../dynamo_$DYNAMO_VER.orig.tar.gz \
+#    --multi \
+#    -c $LICENCE
+#rm debian/*.ex debian/*.EX README.Debian dirs docs info
 
-echo "DynamO ("$DYNAMO_VER-0ubuntu$PACKAGE_REVISION") "`lsb_release -c -s`"; urgency=low
+echo "dynamo ("$DYNAMO_VER-0ubuntu$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
 
   * Direct build of the DynamO simulator, see the git repository or
     website http://www.marcusbannerman.co.uk for change information.
 
- -- "$MAINTAINER_NAME" <"$MAINTAINER">  "`date -R` > debian/changelog
+ -- "$MAINTAINER_NAME" <"$MAINTAINER">  "$(date -R) > debian/changelog
 
 echo "Source: dynamo
 Section: science
@@ -60,7 +60,7 @@ Description: A general event-driven particle simulator.
 
 echo "This work was packaged for Debian by:
 
-    "$MAINTAINER_NAME" <"$MAINTAINER"> on "`date -R`"
+    "$MAINTAINER_NAME" <"$MAINTAINER"> on "$(date -R)"
 
 It was downloaded from:
 
@@ -90,7 +90,7 @@ License:
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 On Debian systems, the complete text of the GNU General
-Public License version 3 can be found in `/usr/share/common-licenses/GPL-3'.
+Public License version 3 can be found in '/usr/share/common-licenses/GPL-3'.
 
 The Debian packaging is:
 
@@ -101,3 +101,4 @@ and is licensed under the GPL version 3, see above.
 
 mkdir -p debian/source
 echo "3.0 (native)" > debian/source/format
+> debian/info #Blank any info files from being created
