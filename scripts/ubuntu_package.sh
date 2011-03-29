@@ -90,6 +90,7 @@ The Debian packaging is:
 
 and is licensed under the GPL version 3, see above.
 " > debian/copyright
+cd ../
 }
 
 ############################################################################
@@ -123,7 +124,6 @@ tar czf dynaview_$DYNAMO_VER.orig.tar.gz dynaview-$DYNAMO_VER
 PACKAGENAME="dynamo"
 CONFLICTS="dynaview"
 files
-cd ../
 
 ############################################################################
 ####WITH VISUALIZATION SUPPORT
@@ -138,4 +138,3 @@ files
 
 echo "." >> $PACKAGENAME-$DYNAMO_VER/debian/changelog
 echo "This version of dynamo is built with visualization support enabled." >> $PACKAGENAME-$DYNAMO_VER/debian/changelog
-cd ../
