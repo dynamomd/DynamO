@@ -18,7 +18,7 @@ function files {
 cd $PACKAGENAME-$DYNAMO_VER
 DEBFULLNAME=$MAINTAINER_NAME dh_make \
     -e $MAINTAINER \
-    -f ../$PACKAGENAME_$DYNAMO_VER.orig.tar.gz \
+    -f ../$PACKAGENAME"_"$DYNAMO_VER.orig.tar.gz \
     --multi \
     -c $LICENCE
 rm debian/*.ex debian/*.EX
@@ -136,6 +136,6 @@ SRC_DEPENDS=$SRC_DEPENDS", libgtkmm-2.4-dev, libgl1-mesa-dev, freeglut3-dev "
 
 files
 
-echo "." >> $PACKAGENAME_$DYNAMO_VER/debian/changelog
+echo "." >> $PACKAGENAME"_"$DYNAMO_VER/debian/changelog
 echo "This version of dynamo is built with visualization support enabled." >> $PACKAGENAME_$DYNAMO_VER/debian/changelog
 cd ../
