@@ -34,7 +34,7 @@ DEBFULLNAME=$MAINTAINER_NAME dh_make \
     -f ../dynamo_$DYNAMO_VER.orig.tar.gz \
     --multi \
     -c $LICENCE
-rm debian/*.ex debian/*.EX README.Debian dirs docs info
+rm debian/*.ex debian/*.EX README.Debian
 
 echo "dynamo ("$DYNAMO_VER-0ubuntu$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
 

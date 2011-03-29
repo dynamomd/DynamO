@@ -1,0 +1,35 @@
+DynamO:- A general event driven simulator.
+http://www.marcusbannerman.co.uk/dynamo
+
+*** INSTALLATION
+
+ Please see a full tutorial on the DynamO website. A quick summary is
+ # make
+ # make install
+
+ Please pay attention to the output of the make command, as this scans
+ for required dependencies and will warn you if it is unable to build
+ DynamO!
+
+*** DOCUMENTATION
+ 
+ Some resources (doxygen, logo) are in the docs/ folder; however, the
+ bulk of the documentation will be available on the website or in the
+ forum.
+
+*** TESTING
+
+ There is a test script in scripts/test_dynarun.sh.
+ 
+ You can run some OpenCL and other tests by running
+ # ./boost/bjam test
+
+*** TROUBLESHOOTING/CONTRIBUTING 
+
+ Please mail questions/patches to the forum
+ http://www.marcusbannerman.co.uk/
+
+*** LICENSE
+ 
+ Everything in DynamO is licensed GPL3 unless otherwise marked. Please
+ see COPYING for details of this license.
