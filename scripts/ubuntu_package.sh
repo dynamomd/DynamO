@@ -12,29 +12,29 @@ URL="http://www.marcusbannerman.co.uk/dynamo"
 ###Make/Clean the build directory
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
-#rm -Rf *
-#
-####Download the source, clean off the git cruft and add in the boost libraries
-#git clone git://marcusbannerman.co.uk/dynamo.git
-#wget http://downloads.sourceforge.net/project/boost/boost/1.46.1/$BOOST_FILE
-#tar -xf $BOOST_FILE -C dynamo/
-#mv dynamo/boost_* dynamo/boost
-#rm boost*
-#cd dynamo
-#git checkout $GIT_BRANCH
-#cd ..
-#rm -Rf dynamo/.git
-#mv dynamo dynamo-$DYNAMO_VER
-#tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
+rm -Rf *
+
+###Download the source, clean off the git cruft and add in the boost libraries
+git clone git://marcusbannerman.co.uk/dynamo.git
+wget http://downloads.sourceforge.net/project/boost/boost/1.46.1/$BOOST_FILE
+tar -xf $BOOST_FILE -C dynamo/
+mv dynamo/boost_* dynamo/boost
+rm boost*
+cd dynamo
+git checkout $GIT_BRANCH
+cd ..
+rm -Rf dynamo/.git
+mv dynamo dynamo-$DYNAMO_VER
+tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
 
 #Source file is created! Begin building a ubuntu package
 cd dynamo-$DYNAMO_VER
-#DEBFULLNAME=$MAINTAINER_NAME dh_make \
-#    -e $MAINTAINER \
-#    -f ../dynamo_$DYNAMO_VER.orig.tar.gz \
-#    --multi \
-#    -c $LICENCE
-#rm debian/*.ex debian/*.EX README.Debian dirs docs info
+DEBFULLNAME=$MAINTAINER_NAME dh_make \
+    -e $MAINTAINER \
+    -f ../dynamo_$DYNAMO_VER.orig.tar.gz \
+    --multi \
+    -c $LICENCE
+rm debian/*.ex debian/*.EX README.Debian dirs docs info
 
 echo "dynamo ("$DYNAMO_VER-0ubuntu$PACKAGE_REVISION") "$(lsb_release -c -s)"; urgency=low
 
@@ -102,3 +102,27 @@ and is licensed under the GPL version 3, see above.
 mkdir -p debian/source
 echo "3.0 (native)" > debian/source/format
 > debian/info #Blank any info files from being created
+
+echo "
+#!/usr/bin/make -f
+export DH_VERBOSE=1
+
+clean:
+      dh_testdir
+      bjam clean
+
+build:
+      dh_testdir
+      bjam -j4
+
+binary:
+      dh_testroot
+      dh_installdirs
+      bjam -j4 install
+      cp bin/* debian/dynamo/usr/bin/
+
+binary-arch:
+
+binary-indep:
+
+" > debian/rules
