@@ -136,5 +136,5 @@ SRC_DEPENDS=$SRC_DEPENDS", libgtkmm-2.4-dev, libgl1-mesa-dev, freeglut3-dev, lib
 
 files
 
-echo "." >> $PACKAGENAME-$DYNAMO_VER/debian/control
+echo " ." >> $PACKAGENAME-$DYNAMO_VER/debian/control
 echo " This version of dynamo is built with visualization support enabled." >> $PACKAGENAME-$DYNAMO_VER/debian/control
