@@ -44,7 +44,7 @@ Homepage: "$URL"
 
 Package: "$PACKAGENAME"
 Architecture: any
-Depends: "'${shlibs:Depends}'", "'${misc:Depends}'"$DEPENDS"
+Depends: "'${shlibs:Depends}'", "'${misc:Depends}'$DEPENDS"
 Conflicts: "$CONFLICTS"
 Description: A general event-driven particle simulator.
  A general event-driven simulator capable of simulating millions of
