@@ -38,13 +38,13 @@ echo "Source: "$PACKAGENAME"
 Section: science
 Priority: extra
 Maintainer: "$MAINTAINER_NAME" <"$MAINTAINER">
-Build-Depends: debhelper (>= 7) "$SRC_DEPENDS"
+Build-Depends: debhelper (>= 7)"$SRC_DEPENDS"
 Standards-Version: 3.8.3
 Homepage: "$URL"
 
 Package: "$PACKAGENAME"
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends} "$DEPENDS"
+Depends: "'${shlibs:Depends}'", "'${misc:Depends}'"$DEPENDS"
 Conflicts: "$CONFLICTS"
 Description: A general event-driven particle simulator.
  A general event-driven simulator capable of simulating millions of
