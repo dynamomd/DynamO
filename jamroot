@@ -60,7 +60,7 @@ rule cleanimport ( modules + )
 }
 #this imports src/magnet/jam/buildinfo into buildinfo
 cleanimport src/magnet/jam/buildinfo ;
-import dynamo-tags ;
+cleanimport src/dynamo-tags ;
 
 ##########################################################################
 #Additional build variants
