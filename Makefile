@@ -11,10 +11,9 @@ build_deps:
 	if [ ! -x ./boost/bjam ]; then cd boost; ./bootstrap.sh; fi
 
 install: build_deps
-	cp bin/* /usr/bin/
+	cp bin/* $(DESTDIR)/usr/bin/
 
 distclean: build_deps
-	./boost/bjam -j4 clean
 	rm -Rf build-dir
 
 .PHONY : build_deps all install distclean
