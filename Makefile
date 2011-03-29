@@ -10,7 +10,7 @@ build_deps:
 	if [ ! -d ./boost ]; then wget $(BOOST_DL) && tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv boost_* boost; fi
 	if [ ! -x ./boost/bjam ]; then cd boost; ./bootstrap.sh; fi
 
-install: build_deps
+install: build_deps all
 	mkdir -p $(DESTDIR)/usr/bin/
 	cp bin/* $(DESTDIR)/usr/bin/
 
