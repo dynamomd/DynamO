@@ -7,7 +7,8 @@ MAINTAINER="dynamo@marcusbannerman.co.uk"
 MAINTAINER_NAME="Marcus Bannerman"
 PACKAGE_REVISION="0"
 LICENCE=gpl3
-DEPENDS=", libbz2-dev, zlib1g-dev"
+DEPENDS=", libbz2-1.0, zlib1g"
+SRC_DEPENDS=", libbz2-dev, zlib1g-dev"
 URL="http://www.marcusbannerman.co.uk/dynamo"
 ###Make/Clean the build directory
 mkdir -p $BUILD_DIR
@@ -27,7 +28,7 @@ rm -Rf dynamo/.git
 mv dynamo dynamo-$DYNAMO_VER
 tar czf dynamo_$DYNAMO_VER.orig.tar.gz dynamo-$DYNAMO_VER
 
-#Source file is created! Begin building a ubuntu package
+#Source file is created! Begin building a package
 cd dynamo-$DYNAMO_VER
 DEBFULLNAME=$MAINTAINER_NAME dh_make \
     -e $MAINTAINER \
@@ -47,7 +48,7 @@ echo "Source: dynamo
 Section: science
 Priority: extra
 Maintainer: "$MAINTAINER_NAME" <"$MAINTAINER">
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7) "$SRC_DEPENDS"
 Standards-Version: 3.8.3
 Homepage: "$URL"
 
