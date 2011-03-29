@@ -131,7 +131,7 @@ files
 PACKAGENAME="dynaview"
 CONFLICTS="dynamo"
 
-DEPENDS=$DEPENDS", libgtkmm-2.4, freeglut3, libftgl2 "
+DEPENDS=$DEPENDS", libgtkmm-2.4-1c2a, freeglut3, libftgl2 "
 SRC_DEPENDS=$SRC_DEPENDS", libgtkmm-2.4-dev, libgl1-mesa-dev, freeglut3-dev, libftgl-dev"
 
 files
