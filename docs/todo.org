@@ -4,6 +4,31 @@
 #+TAGS: OFFICE(o) CODE(c) HOME(h)
 
 * Code improvements
+** Version Milestones
+*** Dynamo 1.1
+    - [ ] New properties framework
+** Major Changes
+*** Optimise the insertion of locals into neighbour lists
+    - [ ] Cylinders can be inserted, just write the overlap test
+    - [ ] Oscillating plates????
+*** Coordinate Transformation Layer
+    Write a transformation layer for the liouvillean which wraps the
+    sim coordinates and allows simulations in arbitrary coordinate
+    systems.
+  - [ ] Mark or generalise the output plugins that cannot be used in
+    the co-ordinate transform.
+  - [ ] Make SLLOD coordinates work.
+*** Multi dimensional sims
+** Minor changes 
+   - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
+   - [-] Clean up the coordinator class
+    - [X] Move the replex and standard runs into a class Engine
+    - [ ] Split the replexer somehow and remove the ugly switch cases for speed
+    - [ ] Add a Coordinator output plugin scheme
+   - [ ] Compressibility <N^2>-<N>^2 for large HS sims
+   - [-] Stop the use of pointers in output sims for the benefit of Replexing
+    - [X] Add id numbers to every interaction
+    - [-] Change the output plugins to use the id numbers and get rid of RTTI
 ** Done/Not needed 						       :ARCHIVE:
   - [X] Cells smaller than required plus overlinking may be quicker
     with lightweight transitions
@@ -30,23 +55,3 @@
     - [X] Implement a stepped interaction potential
 *** DONE Implement Parallel Hard Cubes		:ARCHIVE:
     CLOSED: [2009-06-10 Wed 07:58]    
-** Do if you're bored  
-   - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
-   - [-] Clean up the coordinator class
-    - [X] Move the replex and standard runs into a class Engine
-    - [ ] Split the replexer somehow and remove the ugly switch cases for speed
-    - [ ] Add a Coordinator output plugin scheme
-   - [ ] Compressibility <N^2>-<N>^2 for large HS sims
-   - [-] Stop the use of pointers in output sims for the benefit of Replexing
-    - [X] Add id numbers to every interaction
-    - [-] Change the output plugins to use the id numbers and get rid of RTTI
-** Code Improvements
-*** Optimise the insertion of locals into neighbour lists
-    - [ ] Cylinders can be inserted, just write the overlap test
-    - [ ] Oscillating plates????
-*** [ ] Write a transformation for the liouvillean which wraps the sim coordinates
-  - [ ] Mark the output plugins that cannot be used in the
-    co-ordinate transform
-**** Fix the whole shearing problem
-*** Multi dimensional sims
-  
