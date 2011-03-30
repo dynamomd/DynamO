@@ -40,7 +40,7 @@ namespace magnet {
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline viewPort(Vector position = Vector(1,1,1), 
 		      Vector lookAtPoint = Vector(0,0,0),
-		      GLfloat fovY = 45.0f,
+		      GLfloat fovY = 60.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
 		      Vector up = Vector(0,1,0),
 		      GLfloat aspectRatio = 1
