@@ -15,21 +15,6 @@
 
 #include "Maths.h"
 
-void VECTOR4D::RotateX(double angle)
-{
-	(*this)=GetRotatedX(angle);
-}
-
-void VECTOR4D::RotateY(double angle)
-{
-	(*this)=GetRotatedY(angle);
-}
-
-void VECTOR4D::RotateZ(double angle)
-{
-	(*this)=GetRotatedZ(angle);
-}
-
 VECTOR4D operator*(float scaleFactor, const VECTOR4D & rhs)
 {
 	return rhs*scaleFactor;

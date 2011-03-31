@@ -66,39 +66,7 @@ float MATRIX4X4::GetEntry(int position) const
 	return 0.0f;
 }
 
-VECTOR4D MATRIX4X4::GetRow(int position) const
-{
-	if(position==0)
-		return VECTOR4D(entries[0], entries[4], entries[8], entries[12]);
-	
-	if(position==1)
-		return VECTOR4D(entries[1], entries[5], entries[9], entries[13]);
-	
-	if(position==2)
-		return VECTOR4D(entries[2], entries[6], entries[10], entries[14]);
-	
-	if(position==3)
-		return VECTOR4D(entries[3], entries[7], entries[11], entries[15]);
 
-	return VECTOR4D(0.0f, 0.0f, 0.0f, 0.0f);
-}
-
-VECTOR4D MATRIX4X4::GetColumn(int position) const
-{
-	if(position==0)
-		return VECTOR4D(entries[0], entries[1], entries[2], entries[3]);
-	
-	if(position==1)
-		return VECTOR4D(entries[4], entries[5], entries[6], entries[7]);
-	
-	if(position==2)
-		return VECTOR4D(entries[8], entries[9], entries[10], entries[11]);
-	
-	if(position==3)
-		return VECTOR4D(entries[12], entries[13], entries[14], entries[15]);
-
-	return VECTOR4D(0.0f, 0.0f, 0.0f, 0.0f);
-}
 
 void MATRIX4X4::LoadIdentity(void)
 {
@@ -326,51 +294,6 @@ MATRIX4X4 MATRIX4X4::operator-(void) const
 
 	return result;
 }
-
-VECTOR4D MATRIX4X4::operator*(const VECTOR4D rhs) const
-{
-	//Optimise for matrices in which bottom row is (0, 0, 0, 1)
-	if(entries[3]==0.0f && entries[7]==0.0f && entries[11]==0.0f && entries[15]==1.0f)
-	{
-		return VECTOR4D(entries[0]*rhs.x
-					+	entries[4]*rhs.y
-					+	entries[8]*rhs.z
-					+	entries[12]*rhs.w,
-
-						entries[1]*rhs.x
-					+	entries[5]*rhs.y
-					+	entries[9]*rhs.z
-					+	entries[13]*rhs.w,
-
-						entries[2]*rhs.x
-					+	entries[6]*rhs.y
-					+	entries[10]*rhs.z
-					+	entries[14]*rhs.w,
-
-						rhs.w);
-	}
-	
-	return VECTOR4D(	entries[0]*rhs.x
-					+	entries[4]*rhs.y
-					+	entries[8]*rhs.z
-					+	entries[12]*rhs.w,
-
-						entries[1]*rhs.x
-					+	entries[5]*rhs.y
-					+	entries[9]*rhs.z
-					+	entries[13]*rhs.w,
-
-						entries[2]*rhs.x
-					+	entries[6]*rhs.y
-					+	entries[10]*rhs.z
-					+	entries[14]*rhs.w,
-
-						entries[3]*rhs.x
-					+	entries[7]*rhs.y
-					+	entries[11]*rhs.z
-					+	entries[15]*rhs.w);
-}
-
 
 void MATRIX4X4::Invert(void)
 {

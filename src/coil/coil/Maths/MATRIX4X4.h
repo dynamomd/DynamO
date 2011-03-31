@@ -35,8 +35,6 @@ public:
 
 	void SetEntry(int position, float value);
 	float GetEntry(int position) const;
-	VECTOR4D GetRow(int position) const;
-	VECTOR4D GetColumn(int position) const;
 	
 	void LoadIdentity(void);
 	void LoadZero(void);
@@ -63,9 +61,6 @@ public:
 	MATRIX4X4 operator-(void) const;
 	MATRIX4X4 operator+(void) const {return (*this);}
 	
-	//multiply a vector by this matrix
-	VECTOR4D operator*(const VECTOR4D rhs) const;
-
 	//Other methods
 	void Invert(void);
 	MATRIX4X4 GetInverse(void) const;

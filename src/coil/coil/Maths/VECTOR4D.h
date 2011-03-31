@@ -59,14 +59,7 @@ public:
 	float DotProduct(const VECTOR4D & rhs)
 	{	return x*rhs.x + y*rhs.y + z*rhs.z + w*rhs.w;	}
 
-	//rotations
-	void RotateX(double angle);
-	VECTOR4D GetRotatedX(double angle) const;
-	void RotateY(double angle);
-	VECTOR4D GetRotatedY(double angle) const;
-	void RotateZ(double angle);
-	VECTOR4D GetRotatedZ(double angle) const;
-	
+	//rotations	
 	VECTOR4D lerp(const VECTOR4D & v2, float factor) const
 	{	return (*this)*(1.0f-factor)+v2*factor;	}
 
