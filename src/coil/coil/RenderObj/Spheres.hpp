@@ -46,8 +46,8 @@ public:
 
   RTSpheres(size_t N, std::string name);
 
-  virtual void clTick(const magnet::GL::viewPort&);
-  void sortTick(const magnet::GL::viewPort&);
+  virtual void clTick();
+  void sortTick();
 
   virtual void initOpenGL() {}
   virtual void initOpenCL();

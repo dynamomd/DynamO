@@ -18,6 +18,7 @@
 #include <magnet/CL/CLGL.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
+#include <magnet/GL/viewPort.hpp>
 
 namespace Gtk {
   class ScrolledWindow;
@@ -43,20 +44,22 @@ public:
   
   void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
 		     const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
-		     const magnet::thread::RefPtr<magnet::CL::CLGLState>& CLState)
+		     const magnet::thread::RefPtr<magnet::CL::CLGLState>& CLState,
+		     const magnet::thread::RefPtr<magnet::GL::viewPort>& viewPort)
   {
     _console = console;
     _systemQueue = systemQueue;
     _CLState = CLState;
+    _viewPort = viewPort;
   }
 
   virtual void initGTK() {}
   virtual void initOpenGL() {}
   virtual void initOpenCL() {}
   
-  virtual void clTick(const magnet::GL::viewPort&) {}
+  virtual void clTick() {}
   virtual void glRender() {}
-  virtual void interfaceRender(const magnet::GL::viewPort&) {}
+  virtual void interfaceRender() {}
 
   virtual void initPicking(cl_uint& offset) {}
   virtual void pickingRender() {}
@@ -94,4 +97,5 @@ protected:
   magnet::thread::RefPtr<RenderObj> _console;
   magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   magnet::thread::RefPtr<magnet::CL::CLGLState> _CLState;
+  magnet::thread::RefPtr<magnet::GL::viewPort> _viewPort;
 };

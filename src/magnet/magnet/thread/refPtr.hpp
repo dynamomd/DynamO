@@ -59,7 +59,6 @@ namespace magnet {
       inline RefPtr<T>& operator=(const RefPtr<T>& other)
       {
 	release();
-
 	if (other._obj != NULL)
 	  {
 	    other._mutex->lock();	    
@@ -69,15 +68,17 @@ namespace magnet {
 	    ++(*_counter);
 	    _mutex->unlock();
 	  }
+	else 
+	  M_throw() << "Another kettle of fish";
 
 	return *this;
       }
 
-      inline T& operator*() { return *_obj; }
-      inline const T& operator*() const { return *_obj; }
+      inline T& operator*() { checkValid(); return *_obj; }
+      inline const T& operator*() const { checkValid(); return *_obj; }
 
-      inline T* operator->() { return _obj; }
-      inline const T* operator->() const { return _obj; }
+      inline T* operator->() { checkValid(); return _obj; }
+      inline const T* operator->() const { checkValid(); return _obj; }
 
       inline void release()
       {
@@ -102,10 +103,10 @@ namespace magnet {
       }
 
       template<class T2> 
-      T2& as() { return dynamic_cast<T2&>(*_obj); }
+      T2& as() { checkValid(); return dynamic_cast<T2&>(*_obj); }
 
       template<class T2> 
-      T2& as() const { return dynamic_cast<const T2&>(*_obj); }
+      T2& as() const { checkValid(); return dynamic_cast<const T2&>(*_obj); }
 
       template<class T2>
       inline bool operator==(const T2& other) const
@@ -116,6 +117,14 @@ namespace magnet {
       { return *_obj == *other; }
 
     private:
+      void checkValid() const
+      {
+#ifdef MAGNET_DEBUG
+	if (_obj == NULL) 
+	  M_throw() << "Bad operation on invalid RefPtr";
+#endif
+      }
+      
       T* _obj;
       size_t *_counter;
       Mutex *_mutex;

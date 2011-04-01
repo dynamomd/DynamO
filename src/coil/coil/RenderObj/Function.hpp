@@ -36,7 +36,6 @@ public:
 	    std::string normalCalc = "normal = normalize((float4)(pos.y * native_sin(t), pos.x * native_sin(t),1,0));\n",
 	    std::string colorCalc = "\n");
 
-  virtual void clTick(const magnet::GL::viewPort&) { clTick(); }
   virtual void clTick();
 
   void initOpenGL();

@@ -19,7 +19,6 @@
 #include <coil/glprimatives/arrow.hpp>
 #include <magnet/color/HSV.hpp>
 #include <sstream>
-#include <magnet/GL/viewPort.hpp>
 
 #define STRINGIFY(A) #A
 
@@ -206,9 +205,9 @@ RArrows::initOpenCL()
 
 
 void 
-RArrows::clTick(const magnet::GL::viewPort& _viewPortInfo)
+RArrows::clTick()
 {
-  cl_float4 campos = getclVec(_viewPortInfo.getEyeLocation());
+  cl_float4 campos = getclVec(_viewPort->getEyeLocation());
 
   //Aqquire GL buffer objects
   _clbuf_Positions.acquire(_CLState->getCommandQueue());

@@ -25,7 +25,6 @@
 #include "Spheres.clh"
 #include <errno.h>
 #include <coil/RenderObj/console.hpp>
-#include <magnet/GL/viewPort.hpp>
 
 struct  SortDataType { cl_uint ID; cl_float dist; };
 
@@ -269,18 +268,18 @@ RTSpheres::initOpenCL()
 }
 
 void 
-RTSpheres::sortTick(const magnet::GL::viewPort& _viewPortInfo)
+RTSpheres::sortTick()
 {
-  cl_float4 campos = getclVec(_viewPortInfo.getEyeLocation());
-  cl_float4 camdir = getclVec(_viewPortInfo.getCameraDirection());
-  cl_float4 camup = getclVec(_viewPortInfo.getCameraUp());
+  cl_float4 campos = getclVec(_viewPort->getEyeLocation());
+  cl_float4 camdir = getclVec(_viewPort->getCameraDirection());
+  cl_float4 camup = getclVec(_viewPort->getCameraUp());
   
   //Generate the sort data
   _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
 		      campos, camdir, camup,
-		      (cl_float)_viewPortInfo.getAspectRatio(),
-		      (cl_float)_viewPortInfo.getZNear(),
-		      (cl_float)_viewPortInfo.getFOVY(),
+		      (cl_float)_viewPort->getAspectRatio(),
+		      (cl_float)_viewPort->getZNear(),
+		      (cl_float)_viewPort->getFOVY(),
 		      _N);
   
   if ((_renderDetailLevels.size() > 2) 
@@ -319,11 +318,11 @@ RTSpheres::recolor()
 }
 
 void 
-RTSpheres::clTick(const magnet::GL::viewPort&  _viewPortInfo)
+RTSpheres::clTick()
 {
   if (!_visible) return;
 
-  if (!(++_frameCount % _sortFrequency)) sortTick(_viewPortInfo);
+  if (!(++_frameCount % _sortFrequency)) sortTick();
   
 
   //Aqquire GL buffer objects

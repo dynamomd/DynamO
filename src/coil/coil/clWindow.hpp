@@ -158,7 +158,7 @@ private:
 
   sigc::connection _renderTimeout;
 
-  std::auto_ptr<magnet::GL::viewPort> _viewPortInfo;
+  magnet::thread::RefPtr<magnet::GL::viewPort> _viewPortInfo;
     
   bool keyStates[256];
 

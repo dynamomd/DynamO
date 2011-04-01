@@ -50,7 +50,7 @@ namespace coil {
   }
 
   void 
-  Axis::interfaceRender(const magnet::GL::viewPort& _viewPortInfo)
+  Axis::interfaceRender()
   {
     GLdouble nearPlane = 0.1,
       axisScale = 0.07;
@@ -88,8 +88,8 @@ namespace coil {
     glVertex3f(-1, 1, 0);
     glEnd();
     
-    glRotatef(_viewPortInfo.getTilt(), 1.0, 0.0, 0.0);
-    glRotatef(_viewPortInfo.getPan(), 0.0, 1.0, 0.0);
+    glRotatef(_viewPort->getTilt(), 1.0, 0.0, 0.0);
+    glRotatef(_viewPort->getPan(), 0.0, 1.0, 0.0);
     glScalef (axisScale, axisScale, axisScale);
     
     glLineWidth (2.0);

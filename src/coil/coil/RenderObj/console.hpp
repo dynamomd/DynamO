@@ -43,7 +43,7 @@ namespace coil {
     
     void resize(size_t width, size_t height);
 
-    virtual void interfaceRender(const magnet::GL::viewPort&);
+    virtual void interfaceRender();
 
     virtual void initOpenGL();
 

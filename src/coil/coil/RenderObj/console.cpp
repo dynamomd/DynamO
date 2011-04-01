@@ -75,7 +75,7 @@ namespace coil {
   }
 
   void 
-  Console::interfaceRender(const magnet::GL::viewPort&)
+  Console::interfaceRender()
   {
     //Only draw if the console has something in it or if it's visible
     if (_consoleEntries.empty() || !_visible) return;

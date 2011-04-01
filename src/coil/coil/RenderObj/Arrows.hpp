@@ -26,7 +26,7 @@ public:
 
   virtual void initOpenCL();
   virtual void initOpenGL();
-  virtual void clTick(const magnet::GL::viewPort&);
+  virtual void clTick();
 
   cl::Buffer& getPointData() { return _pointData; }
   cl::Buffer& getDirectionData() { return _directionData; }

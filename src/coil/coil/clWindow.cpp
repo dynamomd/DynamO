@@ -129,7 +129,6 @@ CLGLWindow::initOpenGL()
   if (!_pickingEnabled)
     std::cout << "\nPicking won't work! Your screen color depth is too low! We need/want 32bits (24bit color plus 8bit alpha)";
 
-  _viewPortInfo.reset(new magnet::GL::viewPort);
   _viewPortInfo->buildMatrices();
 
   glDrawBuffer(GL_BACK);
@@ -788,12 +787,14 @@ CLGLWindow::init()
   RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
   _CLState = new magnet::CL::CLGLState;
+  _viewPortInfo 
+    = magnet::thread::RefPtr<magnet::GL::viewPort>(new magnet::GL::viewPort);
 
   //Inform objects about the accessory objects, like the console or the pointer
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     //This is the console and the simulation/system task queue
-    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _CLState); 
+    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _CLState, _viewPortInfo); 
   
   initOpenGL();
   initOpenCL();
@@ -862,7 +863,8 @@ CLGLWindow::deinit()
 void 
 CLGLWindow::CallBackDisplayFunc()
 {
-  if (!CoilRegister::getCoilInstance().isRunning()) return;
+  if (!CoilRegister::getCoilInstance().isRunning()
+      || !_readyFlag) return;
   //Setup the timings
   int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
@@ -877,7 +879,7 @@ CLGLWindow::CallBackDisplayFunc()
   //Run every objects OpenCL stage
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->clTick(*_viewPortInfo);
+    (*iPtr)->clTick();
 
   //Camera Positioning
 
@@ -1088,7 +1090,7 @@ CLGLWindow::CallBackDisplayFunc()
   //Enter the interface draw for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->interfaceRender(*_viewPortInfo);
+    (*iPtr)->interfaceRender();
 
   glutSwapBuffers();
 

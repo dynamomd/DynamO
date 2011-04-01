@@ -27,11 +27,8 @@ public:
   ~RLines();
 
   virtual void glRender();
-
   virtual void initOpenGL();
-
   virtual void initOpenCL();
-  virtual void clTick(const magnet::GL::viewPort&) {}
 
   void setGLColors(std::vector<cl_uchar4>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);

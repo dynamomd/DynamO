@@ -27,7 +27,7 @@ namespace coil {
   public:
     Axis();
     
-    virtual void interfaceRender(const magnet::GL::viewPort&);
+    virtual void interfaceRender();
     virtual void initOpenGL();
 
     virtual void releaseCLGLResources() { _axisFont.reset(); }
