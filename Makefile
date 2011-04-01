@@ -13,6 +13,7 @@ build_deps:
 install: build_deps all
 	mkdir -p $(DESTDIR)/usr/bin/
 	cp bin/* $(DESTDIR)/usr/bin/
+	cp lib/* $(DESTDIR)/usr/lib/
 
 distclean: build_deps
 	rm -Rf build-dir
