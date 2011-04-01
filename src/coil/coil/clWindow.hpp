@@ -22,7 +22,6 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-#include <coil/Maths/Maths.h>
 #include <magnet/math/vector.hpp>
 #include <magnet/static_assert.hpp>
 

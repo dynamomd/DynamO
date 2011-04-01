@@ -16,8 +16,6 @@
 */
 
 #include <coil/filters/SSAO.hpp>
-#include <coil/Maths/VECTOR4D.h>
-#include <coil/Maths/MATRIX4X4.h>
 
 namespace coil 
 {
