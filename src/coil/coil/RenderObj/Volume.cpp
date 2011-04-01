@@ -24,4 +24,30 @@ namespace coil {
   RVolume::RVolume(std::string name):
     RQuads(name)
   {}
+
+  void 
+  RVolume::initOpenCL() 
+  {
+    {
+      float vertices[] = {0,0,0, 1,0,0, 1,1,0, 0,1,0,
+			  0,0,1, 0,1,1, 1,1,1, 1,0,1};
+      
+      std::vector<float> VertexPos(vertices, vertices + sizeof(vertices) / sizeof(float));
+      setGLPositions(VertexPos);
+    }
+    
+    {
+      int elements[] = {0,1,2,3, 2,1,7,6, 6,7,4,5, 5,4,0,3, 5,3,2,6, 1,0,4,7}; 
+      std::vector<int> ElementData(elements, elements + sizeof(elements) / sizeof(int));
+      setGLElements(ElementData);
+    }
+  }  
+
+  void 
+  RVolume::glRender()
+  {
+    RQuads::glRender();
+
+  }
+
 }

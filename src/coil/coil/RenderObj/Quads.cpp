@@ -25,19 +25,26 @@ void
 RQuads::glRender()
 {
   if (!_visible) return;
-  glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
-  glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+
+  if (_colBuffSize)
+    {
+      glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
+      glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+      glEnableClientState(GL_COLOR_ARRAY);
+    }
+
+  if (_normBuffSize)
+    {
+      glBindBufferARB(GL_ARRAY_BUFFER, _normBuff);
+      glNormalPointer(GL_FLOAT, 0, 0);
+      glEnableClientState(GL_NORMAL_ARRAY); 
+    }
 
   glBindBufferARB(GL_ARRAY_BUFFER, _posBuff);
   glVertexPointer(3, GL_FLOAT, 0, 0);
-  
-  glBindBufferARB(GL_ARRAY_BUFFER, _normBuff);
-  glNormalPointer(GL_FLOAT, 0, 0);
-  
+    
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, _elementBuff);
   
-  glEnableClientState(GL_COLOR_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY); 
   glEnableClientState(GL_VERTEX_ARRAY);
   
   switch (_RenderMode)
@@ -53,11 +60,13 @@ RQuads::glRender()
       break;
     }
  
-  glDisableClientState(GL_COLOR_ARRAY);	
-  glDisableClientState(GL_NORMAL_ARRAY);
+  if (_colBuffSize)
+    glDisableClientState(GL_COLOR_ARRAY);	
+  if (_normBuffSize)
+    glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  if (_renderNormals)
+  if (_renderNormals && _normBuffSize)
     {
       glBindBuffer(GL_ARRAY_BUFFER, _posBuff);
       const float* posPointer = (const float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);

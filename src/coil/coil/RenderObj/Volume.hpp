@@ -24,17 +24,9 @@ namespace coil {
   public:
     RVolume(std::string name);
   
-    virtual void clTick(const magnet::GL::viewPort&) { clTick(); }
-    virtual void clTick() {}
-  
-    void initOpenGL() {}
-    void initOpenCL() {}
+    void initOpenCL();
 
-    virtual void glRender() {}
-
-    virtual void initPicking(cl_uint& offset) {}
-    virtual void pickingRender() {}
-    virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
+    virtual void glRender();
 
   protected:
   };
