@@ -26,6 +26,12 @@ namespace coil {
   {}
 
   void 
+  RVolume::initOpenGL() 
+  {
+    _shader.build();
+  }
+
+  void 
   RVolume::initOpenCL() 
   {
     {
@@ -46,8 +52,12 @@ namespace coil {
   void 
   RVolume::glRender()
   {
+    GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
+
+    _shader.attach(1,1,1,Vector(1,1,1)/*FocalLength, width, height, Origin*/);
     RQuads::glRender();
 
+    glUseProgramObjectARB(oldshader);
   }
 
 }
