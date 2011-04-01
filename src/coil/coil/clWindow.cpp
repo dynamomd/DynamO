@@ -30,6 +30,7 @@
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/axis.hpp>
+#include <coil/RenderObj/Volume.hpp>
 
 CLGLWindow::CLGLWindow(int setWidth, int setHeight,
                        int initPosX, int initPosY,
@@ -782,6 +783,9 @@ CLGLWindow::init()
   _consoleID = RenderObjects.size();
   RenderObjects.push_back(new coil::Console(_width, _height));
   RenderObjects.push_back(new coil::Axis());
+
+  //Test render object
+  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
   _CLState = new magnet::CL::CLGLState;
 
