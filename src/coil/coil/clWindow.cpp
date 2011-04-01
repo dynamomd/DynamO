@@ -1113,7 +1113,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  if (_PNGFileFormat)
 	    png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, false, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _width, _height, true);
+	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _width, _height);
 	}
 
       if (_record)
@@ -1124,7 +1124,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  if (_PNGFileFormat)
 	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, _width, _height, true);
+	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, _width, _height);
 	}
     }
 

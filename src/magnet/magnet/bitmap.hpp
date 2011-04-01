@@ -87,8 +87,7 @@ namespace magnet {
     template<png::ColorType color>
     inline void writeBMPFile(const std::string& filename,
 			     const std::vector<png::Pixel<color> >& image, 
-			     size_t width, size_t height,
-			     bool flip = false)
+			     size_t width, size_t height)
     {
       std::ofstream bmpFile(filename.c_str(), std::fstream::binary);
       bmpFile << detail::bitmap_information_header(width, height);
