@@ -24,7 +24,7 @@
 #include <iomanip>
 
 #include <magnet/PNG.hpp>
-#include <coil/extcode/bitmap_image.hpp>
+#include <magnet/bitmap.hpp>
 #include <magnet/function/task.hpp>
 #include <gtkmm/volumebutton.h>
 #include <coil/RenderObj/Function.hpp>
@@ -1113,16 +1113,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  if (_PNGFileFormat)
 	    png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, false, true);
 	  else
-	    {
-	      bitmap_image img(_width, _height);	  	  
-	      for (size_t y(0); y < _height; ++y)
-		for (size_t x(0); x < _width; ++x)
-		  img.set_pixel(x, y, 
-				pixels[(_height -1 - y) * _width + x].red(),
-				pixels[(_height -1 - y) * _width + x].green(),
-				pixels[(_height -1 - y) * _width + x].blue());	  
-	      img.save_image(path + "/snapshot.bmp");
-	    }
+	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _width, _height, true);
 	}
 
       if (_record)
@@ -1133,16 +1124,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  if (_PNGFileFormat)
 	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true, true);
 	  else
-	    {
-	      bitmap_image img(_width, _height);	  	  
-	      for (size_t y(0); y < _height; ++y)	  
-		for (size_t x(0); x < _width; ++x)
-		  img.set_pixel(x, y, 
-				pixels[(_height -1 - y) * _width + x].red(),
-				pixels[(_height -1 - y) * _width + x].green(),
-				pixels[(_height -1 - y) * _width + x].blue());	  
-	      img.save_image(path + "/" + filename.str() +".bmp");
-	    }
+	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, _width, _height, true);
 	}
     }
 
