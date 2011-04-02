@@ -25,10 +25,25 @@ namespace coil {
     RQuads(name)
   {}
 
+  RVolume::~RVolume()
+  {
+//    if (_fbo.get() != NULL) 
+//      _fbo->deinit();
+  }
+
   void 
   RVolume::initOpenGL() 
   {
     _shader.build();
+//    _fbo.reset(new magnet::GL::FBO);
+//    _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
+  }
+
+  void 
+  RVolume::resize(size_t width, size_t height)
+  {
+//    if (_fbo.get() != NULL) 
+//      _fbo->resize(width, height);
   }
 
   void 
@@ -51,8 +66,9 @@ namespace coil {
   }  
 
   void 
-  RVolume::glRender()
+  RVolume::glRender(magnet::GL::FBO& fbo)
   {
+    //Before we render, we need the current depth buffer for depth testing.
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
     GLfloat FocalLength = 1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f));
@@ -67,5 +83,4 @@ namespace coil {
 
     glUseProgramObjectARB(oldshader);
   }
-
 }

@@ -130,7 +130,7 @@ private:
   virtual void initOpenGL();
   virtual void initOpenCL();
 
-  void drawScene();
+  void drawScene(magnet::GL::FBO&);
 
   enum KeyStateType
     {

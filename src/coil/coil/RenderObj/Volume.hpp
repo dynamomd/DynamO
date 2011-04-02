@@ -119,18 +119,24 @@ void main()
   }
 }
 
+#include <memory>
+
 namespace coil {
   class RVolume : public RQuads
   {
   public:
     RVolume(std::string name);
+    ~RVolume();
   
     virtual void initOpenGL();
     virtual void initOpenCL();
-    virtual void glRender();
+    virtual void glRender(magnet::GL::FBO& fbo);
+
+    virtual void resize(size_t width, size_t height);
 
   protected:
 
     magnet::GL::volumeRenderer _shader;
+    std::auto_ptr<magnet::GL::FBO> _fbo;
   };
 }

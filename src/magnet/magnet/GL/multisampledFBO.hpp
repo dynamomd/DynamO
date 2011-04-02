@@ -121,7 +121,6 @@ namespace magnet {
 
 	FBO::deinit();
       }
-
       
     private:
       GLuint _multisampleFBO;

@@ -927,7 +927,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  glPolygonOffset(5.0f, 10.0f);
 #endif 
 
-	  drawScene();
+	  drawScene(_shadowFBO);
 
 #ifdef GL_VERSION_1_1
 	  glDisable(GL_POLYGON_OFFSET_FILL);
@@ -943,7 +943,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  
 	  glMatrixMode(GL_MODELVIEW);	  
 
-	  glBindTexture(GL_TEXTURE_2D, _shadowFBO.getShadowTexture());
+	  glBindTexture(GL_TEXTURE_2D, _shadowFBO.getDepthTexture());
 	}
       
       //Bind to the multisample buffer
@@ -952,8 +952,9 @@ CLGLWindow::CallBackDisplayFunc()
 
       _viewPortInfo->loadMatrices();
 
-      _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
-			   7, _shadowMapping, _shadowIntensity, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+      _shadowShader.attach(_shadowFBO.getDepthTexture(), _shadowFBO.getWidth(),
+			   7, _shadowMapping, _shadowIntensity, 
+			   _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
 
 #ifdef COIL_wiimote
@@ -970,19 +971,19 @@ CLGLWindow::CallBackDisplayFunc()
 	  _wiiMoteTracker.glPerspective(*_viewPortInfo, -eyeDisplacement);
 
 	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	  drawScene();
+	  drawScene(*_renderTarget);
 	  
 	  _viewPortInfo->loadMatrices();
 	  _wiiMoteTracker.glPerspective(*_viewPortInfo, eyeDisplacement);
 	  
 	  glClear(GL_DEPTH_BUFFER_BIT);
 	  glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
-	  drawScene();
+	  drawScene(*_renderTarget);
 	  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
       else	
 #endif
-	drawScene();
+	drawScene(*_renderTarget);
       
       _renderTarget->detach();
 
@@ -1010,14 +1011,14 @@ CLGLWindow::CallBackDisplayFunc()
 	    {
 	      _normalsFBO.attach();
 	      _nrmlShader.attach();
-	      drawScene();
+	      drawScene(_normalsFBO);
 	      _normalsFBO.detach();
 	    }
 
 	  //Bind the original image to texture (unit 0)
 	  glActiveTextureARB(GL_TEXTURE0);
 	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getColorTexture());
-
+	  
 	  //Now bind the texture which has the normals and depths (unit 1)
 	  glActiveTextureARB(GL_TEXTURE1);
 	  glBindTexture(GL_TEXTURE_2D, _normalsFBO.getColorTexture());
@@ -1076,7 +1077,8 @@ CLGLWindow::CallBackDisplayFunc()
     {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       _viewPortInfo->loadMatrices();
-      drawScene();
+      M_throw() << "Low quality mode is not available in this version";
+      //drawScene();
     }
   
   //We clear the depth as merely disabling gives artifacts
@@ -1135,14 +1137,14 @@ CLGLWindow::CallBackDisplayFunc()
 }
 
 void 
-CLGLWindow::drawScene()
+CLGLWindow::drawScene(magnet::GL::FBO& fbo)
 {
   _light0->glUpdateLight();
   
   //Enter the render ticks for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->glRender();
+    (*iPtr)->glRender(fbo);
   
   if (_showLight) _light0->drawLight();
 }

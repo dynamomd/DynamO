@@ -19,6 +19,7 @@
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/viewPort.hpp>
+#include <magnet/GL/FBO.hpp>
 
 namespace Gtk {
   class ScrolledWindow;
@@ -58,6 +59,7 @@ public:
   virtual void initOpenCL() {}
   
   virtual void clTick() {}
+  virtual void glRender(magnet::GL::FBO& fbo) { glRender(); }
   virtual void glRender() {}
   virtual void interfaceRender() {}
 
