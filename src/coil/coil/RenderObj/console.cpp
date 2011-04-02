@@ -31,10 +31,8 @@ extern const unsigned char _binary_coilfont_ttf_start[];
 extern const unsigned char _binary_coilfont_ttf_end[];
 
 namespace coil {
-  Console::Console(size_t width, size_t height, float r, float g, float b):
-    RenderObj("Console"),
-    _width(width),
-    _height(height)
+  Console::Console(float r, float g, float b):
+    RenderObj("Console")
   {
     _color[0] = r;
     _color[1] = g;
@@ -63,15 +61,13 @@ namespace coil {
 
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    resize(_width, _height);
+    resize(_viewPort->getWidth(), _viewPort->getHeight());
   }
 
   void 
   Console::resize(size_t width, size_t height)
   {
-    _width = width;
-    _height = height;
-    _consoleLayout->SetLineLength(_width);
+    _consoleLayout->SetLineLength(width);
   }
 
   void 
@@ -92,7 +88,7 @@ namespace coil {
     glPushMatrix();
     glLoadIdentity();
 
-    float lineHeight = _consoleFont->FaceSize() / (0.5f * _height);
+    float lineHeight = _consoleFont->FaceSize() / (0.5f * _viewPort->getHeight());
     float consoleHeight = 1.0f - lineHeight;
 
     //Calculate how long since the last redraw

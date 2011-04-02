@@ -45,9 +45,7 @@ SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFr
   sysName = "Visualizer";
 
   //Build a window, ready to display it
-  _CLWindow = new CLGLWindow(800, 600,//height, width
-			     0, 0,//initPosition (x,y)
-			     "Visualizer : " + nName,
+  _CLWindow = new CLGLWindow("Visualizer : " + nName,
 			     tickFreq,
 			     true);
   

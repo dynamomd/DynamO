@@ -45,9 +45,7 @@
 class CLGLWindow : public CoilWindow
 {
 public:
-  CLGLWindow(int setWidth, int setHeight,
-	     int setInitPositionX, int setInitPositionY,
-	     std::string title, double updateIntervalValue,
+  CLGLWindow(std::string title, double updateIntervalValue,
 	     bool dynamo = false);
 
   ~CLGLWindow();
@@ -99,9 +97,6 @@ protected:
 
   magnet::GL::NormalShader _nrmlShader;
   magnet::GL::FBO _normalsFBO;
-
-  size_t _height, _width;
-  int _windowX, _windowY;
 
 #ifdef COIL_wiimote
   TrackWiimote _wiiMoteTracker;

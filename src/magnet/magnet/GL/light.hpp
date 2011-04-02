@@ -25,7 +25,8 @@ namespace magnet {
     {
     public:
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline lightInfo() {}
+      inline lightInfo():
+	viewPort(1,1) {}
 
       inline lightInfo(Vector position, 
 		       Vector lookAtPoint,
@@ -33,7 +34,7 @@ namespace magnet {
 		       GLfloat fovY = 45.0f,
 		       GLfloat zNearDist = 0.01f, GLfloat zFarDist = 10.0f,
 		       Vector up = Vector(0,1,0)):
-	viewPort(position, lookAtPoint, fovY, zNearDist, zFarDist, up, 1.0),
+	viewPort(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up, 1.0),
 	_lightHandle(lightHandle)
       {
 	const GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -83,11 +84,13 @@ namespace magnet {
       lightInfo& operator=(const viewPort& vp)
       {
 	//The FOV and the aspect ratio of the light must be maintained
-	GLdouble aspectRatio = _aspectRatio;
+	size_t width = _width;
+	size_t height = _height;
 	double fovY = getFOVY();
 	viewPort::operator=(vp);
-	_aspectRatio = aspectRatio;
 	setFOVY(fovY);
+	_width = width;
+	_height = height;
 	
 	buildMatrices();
 	return *this; 

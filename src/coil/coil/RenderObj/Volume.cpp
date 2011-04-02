@@ -35,10 +35,11 @@ namespace coil {
   RVolume::initOpenCL() 
   {
     {
-      float vertices[] = {0,0,0, 1,0,0, 1,1,0, 0,1,0,
-			  0,0,1, 0,1,1, 1,1,1, 1,0,1};
+      float vertices[] = {-1,-1,-1,  1,-1,-1,  1, 1,-1, -1, 1,-1,
+			  -1,-1, 1, -1, 1, 1,  1, 1, 1,  1,-1, 1};
       
-      std::vector<float> VertexPos(vertices, vertices + sizeof(vertices) / sizeof(float));
+      std::vector<float> VertexPos(vertices, vertices 
+				   + sizeof(vertices) / sizeof(float));
       setGLPositions(VertexPos);
     }
     
@@ -54,7 +55,9 @@ namespace coil {
   {
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
-    _shader.attach(1,1,1,Vector(1,1,1)/*FocalLength, width, height, Origin*/);
+    GLfloat FocalLength = 1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f));
+
+    _shader.attach(FocalLength, 1, 1, Vector(1,1,1)/*FocalLength, width, height, Origin*/);
     RQuads::glRender();
 
     glUseProgramObjectARB(oldshader);

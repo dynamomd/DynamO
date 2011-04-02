@@ -29,8 +29,7 @@ namespace coil {
   public:
     struct end {};
 
-    Console(size_t width, size_t height,
-	    float r = 0.5, float g = 0.5, float b = 0.5);
+    Console(float r = 0.5, float g = 0.5, float b = 0.5);
 
     template<class T>
     Console& operator<<(const T& value) 
@@ -54,7 +53,6 @@ namespace coil {
     std::ostringstream os;
     std::auto_ptr<FTGLPixmapFont> _consoleFont;
     std::auto_ptr<FTSimpleLayout> _consoleLayout;
-    size_t _width, _height;
     typedef std::pair<float, std::string> consoleEntry;
     std::list<consoleEntry> _consoleEntries;
     

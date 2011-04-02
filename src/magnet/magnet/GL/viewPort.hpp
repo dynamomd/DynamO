@@ -38,17 +38,20 @@ namespace magnet {
 	};
 
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline viewPort(Vector position = Vector(1,1,1), 
+      inline viewPort(size_t height = 600, 
+		      size_t width = 800,
+		      Vector position = Vector(1,1,1), 
 		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 60.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
 		      Vector up = Vector(0,1,0),
 		      GLfloat aspectRatio = 1
 		      ):
+	_height(height),
+	_width(width),
 	_panrotation(180),
 	_tiltrotation(0),
 	_position(position),
-	_aspectRatio(aspectRatio),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_simLength(50),
@@ -172,8 +175,8 @@ namespace magnet {
 	//
 	glFrustum((-0.5f * _screenWidth                - _headLocation[0]) * _zNearDist / _headLocation[2],// left
 		  (+0.5f * _screenWidth                - _headLocation[0]) * _zNearDist / _headLocation[2],// right
-		  (-0.5f * _screenWidth / _aspectRatio - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
-		  (+0.5f * _screenWidth / _aspectRatio - _headLocation[1]) * _zNearDist / _headLocation[2],// top
+		  (-0.5f * _screenWidth / getAspectRatio() - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
+		  (+0.5f * _screenWidth / getAspectRatio() - _headLocation[1]) * _zNearDist / _headLocation[2],// top
 		  _zNearDist,//Near distance
 		  _zFarDist//Far distance
 		  );
@@ -235,19 +238,24 @@ namespace magnet {
 	return (viewTransformation * _headLocation) + _position;
       }
 
-      inline void setAspectRatio(GLdouble ar) { _aspectRatio = ar; }
-      inline const GLdouble& getAspectRatio() const { return _aspectRatio; }
+      inline void setHeightWidth(size_t height, size_t width)
+      { _height = height; _width = width; }
+
+      inline GLdouble getAspectRatio() const 
+      { return ((GLdouble)_width) / _height; }
 
       inline const Vector& getCameraUp() const { return _cameraUp; } 
       inline const Vector& getCameraDirection() const { return _cameraDirection; }
 
-    protected:
+      inline const size_t& getHeight() const { return _height; }
+      inline const size_t& getWidth() const { return _width; }
 
+    protected:
+      size_t _height, _width;
       float _panrotation;
       float _tiltrotation;
       Vector _position;
       
-      GLdouble _aspectRatio;
       GLdouble _zNearDist;
       GLdouble _zFarDist;
       Vector _headLocation;

@@ -32,16 +32,10 @@
 #include <coil/RenderObj/axis.hpp>
 #include <coil/RenderObj/Volume.hpp>
 
-CLGLWindow::CLGLWindow(int setWidth, int setHeight,
-                       int initPosX, int initPosY,
-                       std::string title,
+CLGLWindow::CLGLWindow(std::string title,
 		       double updateIntervalValue,
 		       bool dynamo
 		       ):
-  _height(setHeight),
-  _width(setWidth),
-  _windowX(initPosX),
-  _windowY(initPosY),
   _systemQueue(new magnet::thread::TaskQueue),
   _updateIntervalValue(updateIntervalValue),
   keyState(DEFAULT),
@@ -76,12 +70,12 @@ void
 CLGLWindow::initOpenGL()
 {
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
-  glutInitWindowSize(_width, _height);
-  glutInitWindowPosition(_windowX, _windowY);
+  glutInitWindowSize(800, 600);
+  glutInitWindowPosition(0, 0);
 
   CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
 
-  glViewport(0, 0, _width, _height);   // This may have to be moved to after the next line on some platforms
+  glViewport(0, 0, 800, 600);   // This may have to be moved to after the next line on some platforms
 
   if (glewInit() != GLEW_OK)
     std::runtime_error("Failed initialising GLEW (GL Extension Wrangler)");
@@ -163,7 +157,7 @@ CLGLWindow::initOpenGL()
   glShadeModel(GL_SMOOTH);
 
   //Setup the viewport
-  CallBackReshapeFunc(_width, _height);
+  CallBackReshapeFunc(800, 600);
 
   glReadBuffer(GL_BACK);
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
@@ -212,9 +206,9 @@ CLGLWindow::initOpenGL()
   //Build the offscreen rendering FBO's
   if (_shaderPipeline)
     {
-      _filterTarget1.init(_width, _height);
-      _filterTarget2.init(_width, _height);
-      _normalsFBO.init(_width, _height, GL_RGBA, GL_RGBA, GL_FLOAT);
+      _filterTarget1.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+      _filterTarget2.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+      _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA, GL_RGBA, GL_FLOAT);
       _shadowFBO.init(1024);
       _shadowShader.build();
       _nrmlShader.build();
@@ -225,7 +219,8 @@ CLGLWindow::initOpenGL()
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->initOpenGL();
   
-  coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
+  coil::Console& _console 
+    = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
   _console << "Welcome to coil, part of the dynamo simulator..." 
 	   << coil::Console::end();
 }
@@ -507,7 +502,7 @@ CLGLWindow::initGTK()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
 	}
 
-      _renderTarget->init(_width, _height);
+      _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
       ///////////////////////Shadow Mapping//////////////////////////////////
       {
@@ -729,12 +724,12 @@ CLGLWindow::multisampleEnableCallback()
       _refXml->get_widget("multisampleLevels", aliasSelections);
 
       _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
-      _renderTarget->init(_width, _height);
+      _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
   else
     {
       _renderTarget.reset(new magnet::GL::FBO());
-      _renderTarget->init(_width, _height);
+      _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
 }
 
@@ -780,7 +775,7 @@ CLGLWindow::init()
 
   //Second render object is the console
   _consoleID = RenderObjects.size();
-  RenderObjects.push_back(new coil::Console(_width, _height));
+  RenderObjects.push_back(new coil::Console());
   RenderObjects.push_back(new coil::Axis());
 
   //Test render object
@@ -958,7 +953,7 @@ CLGLWindow::CallBackDisplayFunc()
       _viewPortInfo->loadMatrices();
 
       _shadowShader.attach(_shadowFBO.getShadowTexture(), _shadowFBO.getLength(), 
-			   7, _shadowMapping, _shadowIntensity, _width, _height);
+			   7, _shadowMapping, _shadowIntensity, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
 
 #ifdef COIL_wiimote
@@ -1044,7 +1039,7 @@ CLGLWindow::CallBackDisplayFunc()
 		  lastFBO->attach();
 		  glActiveTextureARB(GL_TEXTURE0);
 		  //Now copy the texture 
-		  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _width, _height);
+		  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 		}
 	      else
 		{
@@ -1057,7 +1052,7 @@ CLGLWindow::CallBackDisplayFunc()
 		  else
 		    _filterTarget2.attach();
 		  
-		  filter.invoke(3, _width, _height, *_viewPortInfo);
+		  filter.invoke(3, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), *_viewPortInfo);
 		  
 		  if (FBOalternate)
 		    _filterTarget1.detach();
@@ -1075,7 +1070,7 @@ CLGLWindow::CallBackDisplayFunc()
       //And turn off the shadow texture
       glUseProgramObjectARB(0);
       //Now blit the stored scene to the screen
-      lastFBO->blitToScreen(_width, _height);
+      lastFBO->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
   else    
     {
@@ -1101,9 +1096,9 @@ CLGLWindow::CallBackDisplayFunc()
       _newData = false;
 
       std::vector<png::Pixel<png::RGBA> > pixels;
-      pixels.resize(_width * _height);
+      pixels.resize(_viewPortInfo->getWidth() * _viewPortInfo->getHeight());
       //Read the pixels into our container
-      glReadPixels(0,0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+      glReadPixels(0,0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
       
       std::string path;
       {
@@ -1117,9 +1112,9 @@ CLGLWindow::CallBackDisplayFunc()
 	  _snapshot = false;
 
 	  if (_PNGFileFormat)
-	    png::Image::writeFile(path + "/snapshot.png", pixels, _width, _height, 9, false, true);
+	    png::Image::writeFile(path + "/snapshot.png", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), 9, false, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _width, _height);
+	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 	}
 
       if (_record)
@@ -1128,9 +1123,9 @@ CLGLWindow::CallBackDisplayFunc()
 	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	  
 	  if (_PNGFileFormat)
-	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _width, _height, 1, true, true);
+	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), 1, true, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, _width, _height);
+	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 	}
     }
 
@@ -1156,27 +1151,24 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
   if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
-  _width = w;
-  _height = h;
-  
+  _viewPortInfo->setHeightWidth(h,w);
   //Setup the viewport
-  glViewport(0, 0, _width, _height); 
+  glViewport(0, 0, w, h); 
 
   //Update the viewport
-  _viewPortInfo->setAspectRatio(((GLdouble)_width) / _height);
   _viewPortInfo->buildMatrices();
   
   if (_shaderPipeline)
     {
-      _renderTarget->resize(_width, _height);
-      _filterTarget1.resize(_width, _height);
-      _filterTarget2.resize(_width, _height);
-      _normalsFBO.resize(_width, _height);
+      _renderTarget->resize(w, h);
+      _filterTarget1.resize(w, h);
+      _filterTarget2.resize(w, h);
+      _normalsFBO.resize(w, h);
     }
 
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->resize(_width, _height);
+    (*iPtr)->resize(w, h);
 }
 
 void 
