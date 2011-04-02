@@ -112,7 +112,7 @@ void main()
   rayDirection = normalize(rayDirection);
 
   //Cube ray intersection test
-  vec3 invR = 1.0 / normalize(rayDirection);
+  vec3 invR = 1.0 / rayDirection;
   vec3 boxMin = vec3(-1.0,-1.0,-1.0);
   vec3 boxMax = vec3( 1.0, 1.0, 1.0);
   vec3 tbot = invR * (boxMin - RayOrigin);
@@ -135,7 +135,20 @@ void main()
   float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
   if (tfar > depth) tfar = depth;
   
-  gl_FragColor = vec4(1.0, 0.0, 0.0, (tfar-tnear)/3.4642);
+  const float stepSize = 0.1;
+  vec3 rayPos = RayOrigin + rayDirection * tnear;
+  float length = tfar - tnear;
+  vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+  for (; (length > 0.0) && (color.a < 0.95); 
+       length -= stepSize, rayPos += rayDirection * stepSize)
+    {
+      const vec4 sample = vec4(1.0, 1.0, 1.0, 0.1);
+
+      //Front to back blending
+      color += (1.0 - color.a) * sample;
+    }
+
+  gl_FragColor = color;
 }
 );
     }
