@@ -36,14 +36,20 @@ namespace magnet {
 	_WindowSizeUniform = glGetUniformLocationARB(_shaderID,"WindowSize");
 	_RayOriginUniform = glGetUniformLocationARB(_shaderID,"RayOrigin");
 	_depthTexUniform = glGetUniformLocationARB(_shaderID,"DepthTexture");
+	_nearUniform = glGetUniformLocationARB(_shaderID,"NearDist");
+	_farUniform = glGetUniformLocationARB(_shaderID,"FarDist");
       }
 
-      inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin)
+      inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin, GLint depthTex,
+			 GLfloat NearDist, GLfloat FarDist)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1fARB(_FocalLengthUniform, FocalLength);
 	glUniform2fARB(_WindowSizeUniform, width, height);
 	glUniform3fARB(_RayOriginUniform, Origin[0], Origin[1], Origin[2]);
+	glUniform1iARB(_depthTexUniform, depthTex);
+	glUniform1fARB(_farUniform, FarDist);
+	glUniform1fARB(_nearUniform, NearDist);
       }
 
       static inline std::string vertexShaderSource();
@@ -54,6 +60,8 @@ namespace magnet {
       GLuint _WindowSizeUniform;
       GLuint _RayOriginUniform;
       GLuint _depthTexUniform;
+      GLuint _nearUniform;
+      GLuint _farUniform;
     };
   }
 }
@@ -84,9 +92,18 @@ uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
 uniform sampler2D DepthTexture;
+uniform float NearDist;
+uniform float FarDist;
+
+float recalcZCoord(float zoverw)
+{
+  return (2.0 * NearDist * FarDist) 
+    / (FarDist + NearDist - (2.0 * zoverw - 1.0) * (FarDist - NearDist));
+}
 
 void main()
 {
+  vec3 rayDirection;
   rayDirection.x = 2.0 * gl_FragCoord.x / WindowSize.x - 1.0;
   rayDirection.y = 2.0 * gl_FragCoord.y / WindowSize.y - 1.0;
   rayDirection.y *= WindowSize.y / WindowSize.x;
@@ -114,10 +131,11 @@ void main()
   t = min(tmax.xx, tmax.yz);//Find the first plane to be exited
   float tfar = min(t.x, t.y);//..
 
-  //Check what the screen depth is to make sure we don't sample into any objects
-  float depth = texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
+  //Check what the screen depth is to make sure we don't sample the volume past any objects
+  float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
+  if (tfar > depth) tfar = depth;
   
-  gl_FragColor = vec4(1, 0, 0.0, (tfar-tnear)/3.4642);
+  gl_FragColor = vec4(1.0, 0.0, 0.0, (tfar-tnear)/3.4642);
 }
 );
     }

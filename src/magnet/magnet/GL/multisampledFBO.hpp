@@ -114,8 +114,8 @@ namespace magnet {
 			  | GL_DEPTH_BUFFER_BIT)
       {
 	//First blit between the two FBO's
-	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _multisampledFBO);
-	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
+	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _multisampleFBO);
+	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other.getFBO());
 	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, 
 			     _width, _height, opts, GL_NEAREST);
 	

@@ -73,11 +73,13 @@ namespace coil {
   RVolume::glRender(magnet::GL::FBO& fbo)
   {
     //Before we render, we need the current depth buffer for depth testing.
+    fbo.detach();   
     fbo.copyto(*_fbo, GL_DEPTH_BUFFER_BIT);
+    fbo.attach();
 
     //Now bind this copied depth texture to texture unit 0
     glActiveTextureARB(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _fbo.getDepthTexture());
+    glBindTexture(GL_TEXTURE_2D, _fbo->getDepthTexture());
 
     //Now we can render
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
@@ -85,7 +87,8 @@ namespace coil {
     GLfloat FocalLength = 1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f));
 
     _shader.attach(FocalLength, _viewPort->getWidth(), 
-		   _viewPort->getHeight(), _viewPort->getEyeLocation());
+		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
+		   0, _viewPort->getZNear(), _viewPort->getZFar());
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
