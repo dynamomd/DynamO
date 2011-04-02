@@ -44,7 +44,7 @@ namespace coil {
     }
     
     {
-      int elements[] = {3,2,1,0, 6,7,1,2, 5,4,7,6, 3,0,4,5, 6,2,3,5, 7,4,0,1 }; 
+      int elements[] = {3,2,1,0, 6,7,1,2, 5,4,7,6, 3,0,4,5, 6,2,3,5, 7,4,0,1 };
       std::vector<int> ElementData(elements, elements + sizeof(elements) / sizeof(int));
       setGLElements(ElementData);
     }
@@ -57,8 +57,13 @@ namespace coil {
 
     GLfloat FocalLength = 1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f));
 
-    _shader.attach(FocalLength, 1, 1, Vector(1,1,1)/*FocalLength, width, height, Origin*/);
+    _shader.attach(FocalLength, _viewPort->getWidth(), 
+		   _viewPort->getHeight(), _viewPort->getEyeLocation());
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     RQuads::glRender();
+    glDisable(GL_CULL_FACE);
 
     glUseProgramObjectARB(oldshader);
   }

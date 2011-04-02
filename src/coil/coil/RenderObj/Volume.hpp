@@ -41,7 +41,7 @@ namespace magnet {
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1fARB(_FocalLengthUniform, FocalLength);
-	glUniform2iARB(_WindowSizeUniform, width, height);
+	glUniform2fARB(_WindowSizeUniform, width, height);
 	glUniform3fARB(_RayOriginUniform, Origin[0], Origin[1], Origin[2]);
       }
 
@@ -84,7 +84,34 @@ uniform vec3 RayOrigin;
 
 void main()
 {
-  gl_FragColor = vec4(1,0,0,1);
+  vec3 rayDirection;
+  rayDirection.xy = 2.0 * gl_FragCoord.xy / WindowSize - 1.0;
+  rayDirection.z = -FocalLength;
+  rayDirection = (vec4(rayDirection, 0.0) * gl_ModelViewMatrix).xyz;
+  rayDirection = normalize(rayDirection);
+
+  //Cube ray intersection test
+  vec3 invR = 1.0 / normalize(rayDirection);
+  vec3 boxMin = vec3(-1.0,-1.0,-1.0);
+  vec3 boxMax = vec3( 1.0, 1.0, 1.0);
+  vec3 tbot = invR * (boxMin - RayOrigin);
+  vec3 ttop = invR * (boxMax - RayOrigin);
+  
+  //Now sort all elements of tbot and ttop to find the two min and max elements
+  vec3 tmin = min(ttop, tbot); //Closest planes
+  vec2 t = max(tmin.xx, tmin.yz); //Out of the closest planes, find the last to be entered (collision point)
+  float tnear = max(t.x, t.y);//...
+
+  //If we're penetrating the volume, make sure to only cast the ray
+  //from the eye position
+  if (tnear < 0) tnear = 0.0;
+
+  vec3 tmax = max(ttop, tbot); //Distant planes
+  t = min(tmax.xx, tmax.yz);//Find the first plane to leave
+  float tfar = min(t.x, t.y);
+
+  gl_FragColor = vec4(1, 0, 0, (tfar-tnear)/3.4642);
+  //gl_FragColor = vec4(abs(rayDirection), 1.0);
 }
 );
     }
