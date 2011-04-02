@@ -85,7 +85,9 @@ uniform vec3 RayOrigin;
 void main()
 {
   vec3 rayDirection;
-  rayDirection.xy = 2.0 * gl_FragCoord.xy / WindowSize - 1.0;
+  rayDirection.x = 2.0 * gl_FragCoord.x / WindowSize.x - 1.0;
+  rayDirection.y = 2.0 * gl_FragCoord.y / WindowSize.y - 1.0;
+  rayDirection.y *= WindowSize.y / WindowSize.x;
   rayDirection.z = -FocalLength;
   rayDirection = (vec4(rayDirection, 0.0) * gl_ModelViewMatrix).xyz;
   rayDirection = normalize(rayDirection);
@@ -103,15 +105,14 @@ void main()
   float tnear = max(t.x, t.y);//...
 
   //If we're penetrating the volume, make sure to only cast the ray
-  //from the eye position
+  //from the eye position, not behind it
   if (tnear < 0) tnear = 0.0;
 
   vec3 tmax = max(ttop, tbot); //Distant planes
-  t = min(tmax.xx, tmax.yz);//Find the first plane to leave
-  float tfar = min(t.x, t.y);
+  t = min(tmax.xx, tmax.yz);//Find the first plane to be exited
+  float tfar = min(t.x, t.y);//..
 
-  gl_FragColor = vec4(1, 0, 0, (tfar-tnear)/3.4642);
-  //gl_FragColor = vec4(abs(rayDirection), 1.0);
+  gl_FragColor = vec4(1, 0, 0.0, (tfar-tnear)/3.4642);
 }
 );
     }
