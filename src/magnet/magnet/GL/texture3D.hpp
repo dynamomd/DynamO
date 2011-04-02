@@ -19,6 +19,7 @@
 #include <magnet/GL/detail/filter.hpp>
 #include <magnet/exception.hpp>
 #include <fstream>
+#include <algorithm>
 
 namespace magnet {
   namespace GL {
@@ -59,25 +60,16 @@ namespace magnet {
       inline void readFromRawFile(std::string filename)
       {
 	std::ifstream file(filename.c_str(), std::ifstream::binary);
-
-	std::vector<unsigned char> buffer(_width * _height * _depth);
-	file.read(reinterpret_cast<char*>(&buffer[0]), buffer.size());
 	
-	//Now we must dilate the array, placing the value in the alpha
-	//channel and calculate gradients
-	std::vector<unsigned char> buffer2(4 * _width * _height * _depth);
-	for (size_t i(0); i < buffer.size(); ++i)
-	  {
-	    buffer2[4 * i + 0] = buffer[i];
-	    buffer2[4 * i + 1] = buffer[i];
-	    buffer2[4 * i + 2] = buffer[i];
-	    buffer2[4 * i + 3] = (buffer[i] > 16) ? 16 : 0;
-	  }
+	ClampedVector inbuffer(_width, _height, _depth);
+	file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
+	
+	std::vector<unsigned char> buffer = calcVolData(inbuffer);
 
 	glTexSubImage3D(GL_TEXTURE_3D, 0, //level of detail
 			0, 0, 0,//offset
 			_width, _height, _depth, //size of the texture
-			_format, _type, &buffer2[0]
+			_format, _type, &buffer[0]
 			);
       }
       
@@ -91,6 +83,56 @@ namespace magnet {
       }
 
     private:
+      //This stuff is for volume rendering
+      class ClampedVector: public std::vector<unsigned char>
+      {
+      public:
+	ClampedVector(int w, int h, int d):
+	  std::vector<unsigned char>(w * h * d),
+	  _width(w), _height(h), _depth(d)
+	{}
+	
+	const unsigned char& operator()(int x, int y, int z) const
+	{
+	  size_t coord = std::min(_width - 1, std::max(x, 0))
+	    + _width * (std::min(_height - 1, std::max(y, 0))
+			+ _height * std::min(_depth - 1, std::max(z, 0)));
+	  return operator[](coord);
+	}
+
+      private:
+	int _width, _height, _depth;
+      };
+
+      std::vector<unsigned char> calcVolData(const ClampedVector& buff)
+      {
+	size_t n = 1;
+	std::vector<unsigned char> retval(4 * _width * _height * _depth);
+
+	for (size_t z(0); z < _depth; ++z)
+	  for (size_t y(0); y < _height; ++y)
+	    for (size_t x(0); x < _width; ++x)
+	      {
+		Vector sample1(buff(x - n, y, z),
+			       buff(x, y - n, z),
+			       buff(x, y, z - n));
+
+		Vector sample2(buff(x + n, y, z),
+			       buff(x, y + n, z),
+			       buff(x, y, z + n));
+		
+		Vector grad = sample2 - sample1;
+		grad /= grad.nrm();
+		
+		size_t coord = x + _width * (y + _height * z);
+		retval[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) / 255);
+		retval[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) / 255);
+		retval[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) / 255);
+		retval[4 * coord + 3] = buff(x, y, z);
+	      }
+	return retval;
+      }
+      
       GLuint _handle;
       bool _valid;
       size_t _width, _height, _depth;
