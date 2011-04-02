@@ -140,7 +140,7 @@ void main()
   float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
   if (tfar > depth) tfar = depth;
   
-  const float stepSize = 0.01;
+  const float stepSize = 0.02;
   vec3 rayPos = RayOrigin + rayDirection * tnear;
   float length = tfar - tnear;
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
@@ -148,7 +148,6 @@ void main()
        length -= stepSize, rayPos += rayDirection * stepSize)
     {
       vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
-      sample *= 0.5;
       //Front to back blending
       color += (1.0 - color.a) * sample;
     }
