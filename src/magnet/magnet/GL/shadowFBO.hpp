@@ -88,10 +88,6 @@ namespace magnet {
 	//Restore the default FB
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
       }
-
-      //inline GLuint getFBO() { return _FBO; }
-      //inline GLuint getShadowTexture() { return _depthTexture; }
-      //inline GLsizei getLength() { return _length; }
     };
   }
 }

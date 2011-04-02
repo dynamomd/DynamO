@@ -26,24 +26,28 @@ namespace coil {
   {}
 
   RVolume::~RVolume()
+  {}
+
+  void 
+  RVolume::releaseCLGLResources()
   {
-//    if (_fbo.get() != NULL) 
-//      _fbo->deinit();
+    if (_fbo.get() != NULL) _fbo->deinit();
+    _fbo.release();
   }
 
   void 
   RVolume::initOpenGL() 
   {
     _shader.build();
-//    _fbo.reset(new magnet::GL::FBO);
-//    _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
+    _fbo.reset(new magnet::GL::FBO);
+    _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
   }
 
   void 
   RVolume::resize(size_t width, size_t height)
   {
-//    if (_fbo.get() != NULL) 
-//      _fbo->resize(width, height);
+    if (_fbo.get() != NULL) 
+      _fbo->resize(width, height);
   }
 
   void 
@@ -69,6 +73,13 @@ namespace coil {
   RVolume::glRender(magnet::GL::FBO& fbo)
   {
     //Before we render, we need the current depth buffer for depth testing.
+    fbo.copyto(*_fbo, GL_DEPTH_BUFFER_BIT);
+
+    //Now bind this copied depth texture to texture unit 0
+    glActiveTextureARB(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _fbo.getDepthTexture());
+
+    //Now we can render
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
     GLfloat FocalLength = 1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f));

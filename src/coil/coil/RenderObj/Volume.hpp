@@ -35,6 +35,7 @@ namespace magnet {
 	_FocalLengthUniform = glGetUniformLocationARB(_shaderID,"FocalLength");
 	_WindowSizeUniform = glGetUniformLocationARB(_shaderID,"WindowSize");
 	_RayOriginUniform = glGetUniformLocationARB(_shaderID,"RayOrigin");
+	_depthTexUniform = glGetUniformLocationARB(_shaderID,"DepthTexture");
       }
 
       inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin)
@@ -52,6 +53,7 @@ namespace magnet {
       GLuint _FocalLengthUniform;
       GLuint _WindowSizeUniform;
       GLuint _RayOriginUniform;
+      GLuint _depthTexUniform;
     };
   }
 }
@@ -81,10 +83,10 @@ STRINGIFY(
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
+uniform sampler2D DepthTexture;
 
 void main()
 {
-  vec3 rayDirection;
   rayDirection.x = 2.0 * gl_FragCoord.x / WindowSize.x - 1.0;
   rayDirection.y = 2.0 * gl_FragCoord.y / WindowSize.y - 1.0;
   rayDirection.y *= WindowSize.y / WindowSize.x;
@@ -112,6 +114,9 @@ void main()
   t = min(tmax.xx, tmax.yz);//Find the first plane to be exited
   float tfar = min(t.x, t.y);//..
 
+  //Check what the screen depth is to make sure we don't sample into any objects
+  float depth = texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
+  
   gl_FragColor = vec4(1, 0, 0.0, (tfar-tnear)/3.4642);
 }
 );
@@ -134,6 +139,7 @@ namespace coil {
 
     virtual void resize(size_t width, size_t height);
 
+    virtual void releaseCLGLResources();
   protected:
 
     magnet::GL::volumeRenderer _shader;

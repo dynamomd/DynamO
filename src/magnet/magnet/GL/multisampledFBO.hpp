@@ -110,6 +110,20 @@ namespace magnet {
       }
 
       inline 
+      virtual void copyto(FBO& other, GLbitfield opts = GL_COLOR_BUFFER_BIT 
+			  | GL_DEPTH_BUFFER_BIT)
+      {
+	//First blit between the two FBO's
+	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _multisampledFBO);
+	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
+	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, 
+			     _width, _height, opts, GL_NEAREST);
+	
+	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
+      }
+
+      inline 
       virtual void deinit()
       {
 	if (_width)
