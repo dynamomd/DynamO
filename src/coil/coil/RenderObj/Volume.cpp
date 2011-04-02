@@ -68,10 +68,11 @@ namespace coil {
       setGLElements(ElementData);
     }
   }  
-
+  
   void 
   RVolume::glRender(magnet::GL::FBO& fbo)
   {
+    if (!_visible) return;
     //Before we render, we need the current depth buffer for depth testing.
     fbo.detach();   
     fbo.copyto(*_fbo, GL_DEPTH_BUFFER_BIT);
@@ -92,7 +93,9 @@ namespace coil {
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glDepthMask(GL_FALSE);
     RQuads::glRender();
+    glDepthMask(GL_TRUE);
     glDisable(GL_CULL_FACE);
 
     glUseProgramObjectARB(oldshader);
