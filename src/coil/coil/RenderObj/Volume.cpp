@@ -33,6 +33,7 @@ namespace coil {
   {
     if (_fbo.get() != NULL) _fbo->deinit();
     _fbo.release();
+    _data.deinit();
   }
 
   void 
@@ -41,6 +42,8 @@ namespace coil {
     _shader.build();
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
+    _data.init(256, 256, 256);
+    _data.readFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw");
   }
 
   void 
@@ -82,6 +85,8 @@ namespace coil {
     glActiveTextureARB(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _fbo->getDepthTexture());
 
+    _data.bind(1);
+
     //Now we can render
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
@@ -89,7 +94,7 @@ namespace coil {
 
     _shader.attach(FocalLength, _viewPort->getWidth(), 
 		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
-		   0, _viewPort->getZNear(), _viewPort->getZFar());
+		   0, 1, _viewPort->getZNear(), _viewPort->getZFar());
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);

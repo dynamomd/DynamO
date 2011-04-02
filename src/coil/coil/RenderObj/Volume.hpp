@@ -38,9 +38,11 @@ namespace magnet {
 	_depthTexUniform = glGetUniformLocationARB(_shaderID,"DepthTexture");
 	_nearUniform = glGetUniformLocationARB(_shaderID,"NearDist");
 	_farUniform = glGetUniformLocationARB(_shaderID,"FarDist");
+	_dataTexUniform = glGetUniformLocationARB(_shaderID,"DataTexture");
       }
 
-      inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin, GLint depthTex,
+      inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin, 
+			 GLint depthTex, GLint dataTex,
 			 GLfloat NearDist, GLfloat FarDist)
       {
 	glUseProgramObjectARB(_shaderID);
@@ -50,6 +52,7 @@ namespace magnet {
 	glUniform1iARB(_depthTexUniform, depthTex);
 	glUniform1fARB(_farUniform, FarDist);
 	glUniform1fARB(_nearUniform, NearDist);
+	glUniform1iARB(_dataTexUniform, dataTex);
       }
 
       static inline std::string vertexShaderSource();
@@ -62,6 +65,7 @@ namespace magnet {
       GLuint _depthTexUniform;
       GLuint _nearUniform;
       GLuint _farUniform;
+      GLuint _dataTexUniform;
     };
   }
 }
@@ -92,6 +96,7 @@ uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
 uniform sampler2D DepthTexture;
+uniform sampler3D DataTexture;
 uniform float NearDist;
 uniform float FarDist;
 
@@ -135,15 +140,15 @@ void main()
   float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
   if (tfar > depth) tfar = depth;
   
-  const float stepSize = 0.1;
+  const float stepSize = 0.01;
   vec3 rayPos = RayOrigin + rayDirection * tnear;
   float length = tfar - tnear;
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   for (; (length > 0.0) && (color.a < 0.95); 
        length -= stepSize, rayPos += rayDirection * stepSize)
     {
-      const vec4 sample = vec4(1.0, 1.0, 1.0, 0.1);
-
+      vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
+      sample *= 0.5;
       //Front to back blending
       color += (1.0 - color.a) * sample;
     }
@@ -156,6 +161,7 @@ void main()
 }
 
 #include <memory>
+#include <magnet/GL/texture3D.hpp>
 
 namespace coil {
   class RVolume : public RQuads
@@ -175,5 +181,7 @@ namespace coil {
 
     magnet::GL::volumeRenderer _shader;
     std::auto_ptr<magnet::GL::FBO> _fbo;
+
+    magnet::GL::Texture3D _data;
   };
 }
