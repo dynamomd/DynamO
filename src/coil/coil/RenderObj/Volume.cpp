@@ -19,10 +19,13 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
+#include <magnet/gtk/numericEntry.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace coil {
   RVolume::RVolume(std::string name):
-    RQuads(name)
+    RQuads(name),
+    _stepSizeVal(0.01)
   {}
 
   RVolume::~RVolume()
@@ -94,7 +97,9 @@ namespace coil {
 
     _shader.attach(FocalLength, _viewPort->getWidth(), 
 		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
-		   0, 1, _viewPort->getZNear(), _viewPort->getZFar());
+		   0, 1, _viewPort->getZNear(), _viewPort->getZFar(),
+		   _stepSizeVal, _diffusiveLighting->get_active(),
+		   _specularLighting->get_active());
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -106,5 +111,70 @@ namespace coil {
     glDisable(GL_CULL_FACE);
 
     glUseProgramObjectARB(oldshader);
+  }
+
+  void
+  RVolume::initGTK()
+  {
+    _optList.reset(new Gtk::VBox);//The Vbox of options   
+    _specularLighting.reset(new Gtk::CheckButton);
+
+    {//Volume renderer step size
+      _stepSize.reset(new Gtk::Entry);
+      Gtk::HBox* box = manage(new Gtk::HBox);	
+      Gtk::Label* label = manage(new Gtk::Label("Raytrace Step Size"));
+    
+      box->pack_start(*label, false, false); label->show();
+      box->pack_end(*_stepSize, false, false);
+      _stepSize->show(); _stepSize->set_text("0.01");
+      
+      box->show();
+      _optList->add(*box);
+    }
+
+    {//Diffusive lighting
+      _diffusiveLighting.reset(new Gtk::CheckButton("Diffusive Lighting"));
+      _diffusiveLighting->show();      
+      _diffusiveLighting->set_active();
+      _optList->add(*_diffusiveLighting);
+    }
+
+    {//Specular lighting
+      _specularLighting.reset(new Gtk::CheckButton("Specular Lighting"));
+      _specularLighting->show();      
+      _specularLighting->set_active();
+      _optList->add(*_specularLighting);
+    }
+    
+    _optList->show();
+    //Callbacks
+    _stepSize->signal_changed()
+      .connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, *_stepSize));
+    _stepSize->signal_activate()
+      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+    _diffusiveLighting->signal_toggled()
+      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+    _specularLighting->signal_toggled()
+      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+
+    guiUpdate();
+  }
+
+  void
+  RVolume::showControls(Gtk::ScrolledWindow* win)
+  {
+    win->remove();
+    _optList->unparent();
+    win->add(*_optList);
+    win->show();
+  }
+
+  void 
+  RVolume::guiUpdate()
+  {
+    std::string val = _stepSize->get_text();
+    if (val.empty()) {val = "0.01"; _stepSize->set_text("0.01"); }
+    
+    _stepSizeVal = boost::lexical_cast<double>(val);
   }
 }

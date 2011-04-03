@@ -16,7 +16,7 @@
 */
 #pragma once
 
-#include "Quads.hpp"
+#include <gtkmm.h>
 
 #include <magnet/GL/detail/shader.hpp>
 #include <magnet/math/vector.hpp>
@@ -39,11 +39,16 @@ namespace magnet {
 	_nearUniform = glGetUniformLocationARB(_shaderID,"NearDist");
 	_farUniform = glGetUniformLocationARB(_shaderID,"FarDist");
 	_dataTexUniform = glGetUniformLocationARB(_shaderID,"DataTexture");
+	_stepSizeUniform = glGetUniformLocationARB(_shaderID,"StepSize");
+	_diffusiveLightingUniform = glGetUniformLocationARB(_shaderID,"DiffusiveLighting");
+	_specularLightingUniform = glGetUniformLocationARB(_shaderID,"SpecularLighting");
       }
 
       inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin, 
 			 GLint depthTex, GLint dataTex,
-			 GLfloat NearDist, GLfloat FarDist)
+			 GLfloat NearDist, GLfloat FarDist,
+			 GLfloat stepSize, bool diff,
+			 bool spec)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1fARB(_FocalLengthUniform, FocalLength);
@@ -53,6 +58,9 @@ namespace magnet {
 	glUniform1fARB(_farUniform, FarDist);
 	glUniform1fARB(_nearUniform, NearDist);
 	glUniform1iARB(_dataTexUniform, dataTex);
+	glUniform1fARB(_stepSizeUniform, stepSize);
+	glUniform1fARB(_diffusiveLightingUniform, diff);
+	glUniform1fARB(_specularLightingUniform, spec);
       }
 
       static inline std::string vertexShaderSource();
@@ -66,6 +74,9 @@ namespace magnet {
       GLuint _nearUniform;
       GLuint _farUniform;
       GLuint _dataTexUniform;
+      GLuint _stepSizeUniform;
+      GLuint _diffusiveLightingUniform;
+      GLuint _specularLightingUniform;
     };
   }
 }
@@ -99,6 +110,9 @@ uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
 uniform float NearDist;
 uniform float FarDist;
+uniform float StepSize;
+uniform float DiffusiveLighting;
+uniform float SpecularLighting;
 
 float recalcZCoord(float zoverw)
 {
@@ -140,7 +154,6 @@ void main()
   float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
   if (tfar > depth) tfar = depth;
   
-  const float stepSize = 0.01;
   const float baseStepSize = 0.01;
 
   vec3 rayPos = RayOrigin + rayDirection * tnear;
@@ -151,38 +164,40 @@ void main()
   vec3 Specular = (gl_FrontMaterial.specular * gl_LightSource[0].specular).xyz;
 
   for (; (length > 0.0) && (color.a < 0.95); 
-       length -= stepSize, rayPos.xyz += rayDirection * stepSize)
+       length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       vec4 sample = texture3D(DataTexture, vec4((rayPos + 1.0) * 0.5, 0.0));
 
-      vec4 src = vec4(1.0,1.0,1.0,sample.a);
+      vec4 src = vec4(sample.a);
 
       //This corrects the transparency change caused by changing step
       //size
-      src.a = 1.0 - pow((1-src.a), stepSize / baseStepSize);
+      src.a = 1.0 - pow((1-src.a), StepSize / baseStepSize);
 
       //This term is to make the object more transparent
-      //src.a *= 0.5;
+      src.a *= 0.5;
       
       ////////////Lighting
       vec3 norm = normalize(sample.xyz * 2.0 - 1.0);
       vec3 lightDir = normalize(lightPos - rayPos);
       float lightNormDot = dot(norm, lightDir);
-
-      //Diffuse lighting term
-      float diffTerm = 0.5 * lightNormDot  + 0.5;
-
+      
+      //Diffuse lighting
+      float diffTerm = DiffusiveLighting * 0.5 * lightNormDot  + 0.5;
+      diffTerm *= diffTerm; //Quadratic falloff of the diffusive term
+      
+      //We either use diffusive lighting plus an ambient or we just
+      //use the original color
+      src.rgb *= diffTerm + (1.0 - DiffusiveLighting);
+      src.rgb += DiffusiveLighting * gl_LightModel.ambient * src.rgb;
+      
       //Specular lighting term
       vec3 ReflectedRay = normalize(reflect(normalize(lightDir), normalize(norm)));
-      vec3 spec = 
-	(lightNormDot > 0) //Test to ensure that specular is only
-			   //applied to front facing voxels
+      src.rgb += SpecularLighting
+	* (lightNormDot > 0) //Test to ensure that specular is only
+	//applied to front facing voxels
 	* Specular * pow(max(dot(ReflectedRay, normalize(rayDirection)), 0), 
-		       gl_FrontMaterial.shininess);
-      //Sum of terms 
-      src.rgb = spec + diffTerm * diffTerm * src.rgb + gl_LightModel.ambient * src.rgb;
-      
-      
+			 gl_FrontMaterial.shininess);
       
       ///////////Front to back blending
       src.rgb *= src.a;
@@ -196,8 +211,10 @@ void main()
   }
 }
 
-#include <memory>
+#include "Quads.hpp"
 #include <magnet/GL/texture3D.hpp>
+#include <magnet/math/vector.hpp>
+#include <memory>
 
 namespace coil {
   class RVolume : public RQuads
@@ -208,16 +225,28 @@ namespace coil {
   
     virtual void initOpenGL();
     virtual void initOpenCL();
+    virtual void initGTK();
     virtual void glRender(magnet::GL::FBO& fbo);
 
     virtual void resize(size_t width, size_t height);
 
     virtual void releaseCLGLResources();
+
+    virtual void showControls(Gtk::ScrolledWindow* win);
+
   protected:
+    void guiUpdate();
 
     magnet::GL::volumeRenderer _shader;
     std::auto_ptr<magnet::GL::FBO> _fbo;
 
     magnet::GL::Texture3D _data;
+
+    //GTK gui stuff
+    std::auto_ptr<Gtk::VBox> _optList;
+    std::auto_ptr<Gtk::Entry> _stepSize;
+    std::auto_ptr<Gtk::CheckButton> _diffusiveLighting;
+    std::auto_ptr<Gtk::CheckButton> _specularLighting;
+    GLfloat _stepSizeVal;
   };
 }
