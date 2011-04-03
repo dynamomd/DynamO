@@ -95,11 +95,13 @@ namespace coil {
     _shader.attach(FocalLength, _viewPort->getWidth(), 
 		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
 		   0, 1, _viewPort->getZNear(), _viewPort->getZFar());
-
+    
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);
     glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
     RQuads::glRender();
+    glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDisable(GL_CULL_FACE);
 

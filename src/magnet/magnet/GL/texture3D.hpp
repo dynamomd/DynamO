@@ -122,12 +122,14 @@ namespace magnet {
 			       buff(x, y, z + n));
 		
 		Vector grad = sample2 - sample1;
-		grad /= grad.nrm();
+
+		float nrm = grad.nrm();
+		if (nrm > 0) grad /= nrm;
 		
 		size_t coord = x + _width * (y + _height * z);
-		retval[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) / 255);
-		retval[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) / 255);
-		retval[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) / 255);
+		retval[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
+		retval[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
+		retval[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
 		retval[4 * coord + 3] = buff(x, y, z);
 	      }
 	return retval;
