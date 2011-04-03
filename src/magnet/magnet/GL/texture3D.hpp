@@ -72,7 +72,7 @@ namespace magnet {
 	//	= (std::sqrt(  std::pow(x - _width / 2.0, 2) 
 	//		     + std::pow(y - _height / 2.0, 2) 
 	//		     + std::pow(z - _depth / 2.0, 2))
-	//		     < 64.0) ? 128 : 0;
+	//		     < 128.0) ? 128.0 : 0;
 
 	std::vector<unsigned char> buffer = calcVolData(inbuffer);
 
@@ -131,7 +131,9 @@ namespace magnet {
 			       buff(x, y + n, z),
 			       buff(x, y, z + n));
 		
-		Vector grad = sample2 - sample1;
+		//Note, we store the negative gradient (we point down
+		//the slope)
+		Vector grad = sample1 - sample2;
 
 		float nrm = grad.nrm();
 		if (nrm > 0) grad /= nrm;

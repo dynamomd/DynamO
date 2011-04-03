@@ -148,12 +148,13 @@ void main()
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
 
   vec3 lightPos = (gl_ModelViewMatrixInverse * gl_LightSource[0].position).xyz;
+  vec3 Specular = (gl_FrontMaterial.specular * gl_LightSource[0].specular).xyz;
 
   for (; (length > 0.0) && (color.a < 0.95); 
        length -= stepSize, rayPos.xyz += rayDirection * stepSize)
     {
       vec4 sample = texture3D(DataTexture, vec4((rayPos + 1.0) * 0.5, 0.0));
-      
+
       vec4 src = vec4(1.0,1.0,1.0,sample.a);
 
       //This corrects the transparency change caused by changing step
@@ -161,15 +162,29 @@ void main()
       src.a = 1.0 - pow((1-src.a), stepSize / baseStepSize);
 
       //This term is to make the object more transparent
-      src.a *= 0.5;
+      //src.a *= 0.5;
       
-      //Lighting term
-      vec3 lightDir = normalize(lightPos - rayPos);
+      ////////////Lighting
       vec3 norm = normalize(sample.xyz * 2.0 - 1.0);
-      float diffTerm = 0.5 * dot(-norm, lightDir) + 0.5;
-      src.rgb = diffTerm * diffTerm * src.rgb + gl_LightModel.ambient * src.rgb;
+      vec3 lightDir = normalize(lightPos - rayPos);
+      float lightNormDot = dot(norm, lightDir);
 
-      //Front to back blending
+      //Diffuse lighting term
+      float diffTerm = 0.5 * lightNormDot  + 0.5;
+
+      //Specular lighting term
+      vec3 ReflectedRay = normalize(reflect(normalize(lightDir), normalize(norm)));
+      vec3 spec = 
+	(lightNormDot > 0) //Test to ensure that specular is only
+			   //applied to front facing voxels
+	* Specular * pow(max(dot(ReflectedRay, normalize(rayDirection)), 0), 
+		       gl_FrontMaterial.shininess);
+      //Sum of terms 
+      src.rgb = spec + diffTerm * diffTerm * src.rgb + gl_LightModel.ambient * src.rgb;
+      
+      
+      
+      ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
     }
