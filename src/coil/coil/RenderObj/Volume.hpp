@@ -140,32 +140,34 @@ void main()
   float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
   if (tfar > depth) tfar = depth;
   
-  const float stepSize = 0.005;
-  const float baseStepSize = 0.005;
+  const float stepSize = 0.01;
+  const float baseStepSize = 0.01;
 
   vec3 rayPos = RayOrigin + rayDirection * tnear;
   float length = tfar - tnear;
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+
+  vec3 lightPos = (gl_ModelViewMatrixInverse * gl_LightSource[0].position).xyz;
+
   for (; (length > 0.0) && (color.a < 0.95); 
        length -= stepSize, rayPos.xyz += rayDirection * stepSize)
     {
       vec4 sample = texture3D(DataTexture, vec4((rayPos + 1.0) * 0.5, 0.0));
       
-      vec4 src = vec4(sample.a,sample.a,sample.a,sample.a);
+      vec4 src = vec4(1.0,1.0,1.0,sample.a);
 
       //This corrects the transparency change caused by changing step
       //size
       src.a = 1.0 - pow((1-src.a), stepSize / baseStepSize);
 
-      //This term
+      //This term is to make the object more transparent
       src.a *= 0.5;
       
       //Lighting term
-      vec3 lightDir = normalize(rayPos - gl_LightSource[0].position);
-      float diffTerm = 0.5 * dot(sample.xyz * 2.0 - 1.0, lightDir) +0.5;
-      src.r = diffTerm;
-//      src.rgb =  
-//	* src.rgb + gl_LightModel.ambient * src.rgb;
+      vec3 lightDir = normalize(lightPos - rayPos);
+      vec3 norm = normalize(sample.xyz * 2.0 - 1.0);
+      float diffTerm = 0.5 * dot(-norm, lightDir) + 0.5;
+      src.rgb = diffTerm * diffTerm * src.rgb + gl_LightModel.ambient * src.rgb;
 
       //Front to back blending
       src.rgb *= src.a;

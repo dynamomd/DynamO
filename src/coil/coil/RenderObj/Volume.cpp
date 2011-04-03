@@ -43,7 +43,7 @@ namespace coil {
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
     _data.init(256, 256, 256);
-    _data.readFromRawFile("/home/mss/Desktop/bonsai.raw");
+    _data.readFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw");
   }
 
   void 

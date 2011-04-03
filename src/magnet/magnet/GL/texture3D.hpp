@@ -64,6 +64,16 @@ namespace magnet {
 	ClampedVector inbuffer(_width, _height, _depth);
 	file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
 	
+	//Sphere test pattern
+	//for (size_t z(0); z < _depth; ++z)
+	//  for (size_t y(0); y < _height; ++y)
+	//    for (size_t x(0); x < _width; ++x)
+	//      inbuffer[x + _width * (y + _height * z)] 
+	//	= (std::sqrt(  std::pow(x - _width / 2.0, 2) 
+	//		     + std::pow(y - _height / 2.0, 2) 
+	//		     + std::pow(z - _depth / 2.0, 2))
+	//		     < 64.0) ? 128 : 0;
+
 	std::vector<unsigned char> buffer = calcVolData(inbuffer);
 
 	glTexSubImage3D(GL_TEXTURE_3D, 0, //level of detail

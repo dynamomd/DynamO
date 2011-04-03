@@ -127,7 +127,7 @@ CLGLWindow::initOpenGL()
 
   glDrawBuffer(GL_BACK);
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
   glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
