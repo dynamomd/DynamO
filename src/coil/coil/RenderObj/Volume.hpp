@@ -144,7 +144,7 @@ void main()
 
   //If we're penetrating the volume, make sure to only cast the ray
   //from the eye position, not behind it
-  if (tnear < 0) tnear = 0.0;
+  if (tnear < 0.0) tnear = 0.0;
 
   vec3 tmax = max(ttop, tbot); //Distant planes
   t = min(tmax.xx, tmax.yz);//Find the first plane to be exited
@@ -163,45 +163,56 @@ void main()
   vec3 lightPos = (gl_ModelViewMatrixInverse * gl_LightSource[0].position).xyz;
   vec3 Specular = (gl_FrontMaterial.specular * gl_LightSource[0].specular).xyz;
 
-  for (; (length > 0.0) && (color.a < 0.95); 
+  for (; length > 0.0; 
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
-      vec4 sample = texture3D(DataTexture, vec4((rayPos + 1.0) * 0.5, 0.0));
+      vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
 
-      vec4 src = vec4(sample.a);
+      vec4 src = vec4(1.0, 1.0, 1.0, sample.a);
 
       //This corrects the transparency change caused by changing step
       //size
-      src.a = 1.0 - pow((1-src.a), StepSize / baseStepSize);
+      src.a = 1.0 - pow((1.0 - src.a), StepSize / baseStepSize);
 
-      //This term is to make the object more transparent
-      src.a *= 0.5;
-      
       ////////////Lighting
-      vec3 norm = normalize(sample.xyz * 2.0 - 1.0);
       vec3 lightDir = normalize(lightPos - rayPos);
+      vec3 norm = sample.xyz * 2.0 - 1.0;
       float lightNormDot = dot(norm, lightDir);
-      
+
+      //This allows you to visualize the normals of the system (albeit without direction)
+//      src.rgb = vec3(abs(dot(norm, vec3(1.0,0.0,0.0))),
+//		     abs(dot(norm, vec3(0.0,1.0,0.0))),
+//		     abs(dot(norm, vec3(0.0,0.0,1.0))));
+
       //Diffuse lighting
-      float diffTerm = DiffusiveLighting * 0.5 * lightNormDot  + 0.5;
+      float diffTerm =  DiffusiveLighting * (0.5 * lightNormDot  + 0.5);
       diffTerm *= diffTerm; //Quadratic falloff of the diffusive term
-      
+      //Brighten the system as the normals are never right
+      //diffTerm = min(1.0, diffTerm);
+
+
       //We either use diffusive lighting plus an ambient or we just
       //use the original color
       src.rgb *= diffTerm + (1.0 - DiffusiveLighting);
       src.rgb += DiffusiveLighting * gl_LightModel.ambient * src.rgb;
       
       //Specular lighting term
-      vec3 ReflectedRay = normalize(reflect(normalize(lightDir), normalize(norm)));
+      vec3 ReflectedRay = reflect(lightDir, norm);
       src.rgb += SpecularLighting
 	* (lightNormDot > 0) //Test to ensure that specular is only
 	//applied to front facing voxels
-	* Specular * pow(max(dot(ReflectedRay, normalize(rayDirection)), 0), 
+	* Specular * pow(max(dot(ReflectedRay, rayDirection), 0.0), 
 			 gl_FrontMaterial.shininess);
       
       ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
+
+      if (color.a >= 0.95)
+	{
+	  color.a = 1.0;
+	  break;
+	}
     }
 
   gl_FragColor = color;

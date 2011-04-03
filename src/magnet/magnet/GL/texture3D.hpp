@@ -61,7 +61,7 @@ namespace magnet {
       {
 	std::ifstream file(filename.c_str(), std::ifstream::binary);
 	
-	ClampedVector inbuffer(_width, _height, _depth);
+	std::vector<unsigned char> inbuffer(_width * _height * _depth);
 	file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
 	
 	//Sphere test pattern
@@ -72,7 +72,7 @@ namespace magnet {
 	//	= (std::sqrt(  std::pow(x - _width / 2.0, 2) 
 	//		     + std::pow(y - _height / 2.0, 2) 
 	//		     + std::pow(z - _depth / 2.0, 2))
-	//		     < 128.0) ? 128.0 : 0;
+	//		     < 122.0) ? 255.0 : 0;
 
 	std::vector<unsigned char> buffer = calcVolData(inbuffer);
 
@@ -94,42 +94,41 @@ namespace magnet {
 
     private:
       //This stuff is for volume rendering
-      class ClampedVector: public std::vector<unsigned char>
+      class ClampedVector
       {
       public:
 	ClampedVector(int w, int h, int d):
-	  std::vector<unsigned char>(w * h * d),
 	  _width(w), _height(h), _depth(d)
 	{}
 	
-	const unsigned char& operator()(int x, int y, int z) const
+	size_t operator()(int x, int y, int z) const
 	{
 	  size_t coord = std::min(_width - 1, std::max(x, 0))
 	    + _width * (std::min(_height - 1, std::max(y, 0))
 			+ _height * std::min(_depth - 1, std::max(z, 0)));
-	  return operator[](coord);
+	  return coord;
 	}
 
       private:
 	int _width, _height, _depth;
       };
 
-      std::vector<unsigned char> calcVolData(const ClampedVector& buff)
+      std::vector<unsigned char> calcVolData(const std::vector<unsigned char>& buff)
       {
-	size_t n = 1;
-	std::vector<unsigned char> retval(4 * _width * _height * _depth);
+	std::vector<unsigned char> unsmoothed(4 * _width * _height * _depth);
+	ClampedVector coordc(_width, _height, _depth);
 
 	for (size_t z(0); z < _depth; ++z)
 	  for (size_t y(0); y < _height; ++y)
 	    for (size_t x(0); x < _width; ++x)
 	      {
-		Vector sample1(buff(x - n, y, z),
-			       buff(x, y - n, z),
-			       buff(x, y, z - n));
+		Vector sample1(buff[coordc(x - 2, y, z)],
+			       buff[coordc(x, y - 2, z)],
+			       buff[coordc(x, y, z - 2)]);
 
-		Vector sample2(buff(x + n, y, z),
-			       buff(x, y + n, z),
-			       buff(x, y, z + n));
+		Vector sample2(buff[coordc(x + 2, y, z)],
+			       buff[coordc(x, y + 2, z)],
+			       buff[coordc(x, y, z + 2)]);
 		
 		//Note, we store the negative gradient (we point down
 		//the slope)
@@ -139,12 +138,39 @@ namespace magnet {
 		if (nrm > 0) grad /= nrm;
 		
 		size_t coord = x + _width * (y + _height * z);
-		retval[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
-		retval[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
-		retval[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
-		retval[4 * coord + 3] = buff(x, y, z);
+		unsmoothed[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
+		unsmoothed[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
+		unsmoothed[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
+		unsmoothed[4 * coord + 3] = buff[coordc(x, y, z)];
 	      }
-	return retval;
+
+//	std::vector<unsigned char> retval(4 * _width * _height * _depth);
+//
+//	int n = 5;
+//	float count = n*n*n;
+//	n = (n-1)/2;
+//	//Now smooth the gradients
+//	for (size_t z(0); z < _depth; ++z)
+//	  for (size_t y(0); y < _height; ++y)
+//	    for (size_t x(0); x < _width; ++x)
+//	      {
+//		size_t coord = x + _width * (y + _height * z);
+//		//Store the actual val
+//		retval[4 * coord + 3] = unsmoothed[4 * coord + 3];
+//
+//		//Now smooth the gradients
+//		for (size_t c(0); c < 3; ++c)
+//		  {
+//		    float sum = 0;
+//		    for (int i(-n); i < n; ++i)
+//		      for (int j(-n); j < n; ++j)
+//			for (int k(-n); k < n; ++k)
+//			  sum += unsmoothed[4 * coordc(x+i, y+j, z+k) + c];
+//		    retval[4 * coord + c] = uint8_t(sum * 255.0 / count);
+//		  }
+//	      }
+//
+	return unsmoothed;
       }
       
       GLuint _handle;
