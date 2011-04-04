@@ -27,7 +27,7 @@ namespace Gtk {
 
 namespace magnet {
   namespace GL {
-    struct viewPort;
+    class viewPort;
   }
 }
 

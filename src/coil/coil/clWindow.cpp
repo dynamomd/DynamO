@@ -745,7 +745,7 @@ CLGLWindow::shadowEnableCallback()
       Gtk::SpinButton* shadowmapSize;
       _refXml->get_widget("shadowmapSize", shadowmapSize);
       
-      _shadowFBO.resize(shadowmapSize->get_value());
+      _shadowFBO.resize(shadowmapSize->get_value(), shadowmapSize->get_value());
     }
 }
 

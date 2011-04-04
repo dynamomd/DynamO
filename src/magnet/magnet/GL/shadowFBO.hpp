@@ -22,7 +22,10 @@ namespace magnet {
     class shadowFBO : public FBO
     {
     public:
-      inline void init(GLsizei length)
+      virtual void init(GLsizei, GLsizei, GLint, GLenum, GLenum)
+      { M_throw() << "Cannot use this initializer"; }
+
+      virtual void init(GLsizei length)
       {
 	FBO::init(length, length);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
@@ -49,12 +52,15 @@ namespace magnet {
       }
       
       inline 
-      virtual void resize(GLsizei length)
+      virtual void resize(GLsizei width, GLsizei height)
       {
-	//Skip identity operations
-	if (length == _width) return;
+	if (width  != height) 
+	  M_throw() << "Shadow maps should be square!";
 
-	FBO::resize(length, length);
+	//Skip identity operations
+	if (width  == _width) return;
+
+	FBO::resize(width, height);
       }
 
       inline void setup()

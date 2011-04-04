@@ -216,6 +216,7 @@ void main()
 	}
     }
 
+  color.rgb /= (color.a == 0.0) +  color.a;
   gl_FragColor = color;
 }
 );
