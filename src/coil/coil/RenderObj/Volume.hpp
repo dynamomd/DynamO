@@ -168,8 +168,8 @@ void main()
     {
       vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
 
-      vec4 src = vec4(1.0, 1.0, 1.0, sample.a);
-
+      vec4 src = vec4(1.0,1.0,1.0,sample.a);
+      sample.a *= 0.5;
       //This corrects the transparency change caused by changing step
       //size
       src.a = 1.0 - pow((1.0 - src.a), StepSize / baseStepSize);
@@ -178,7 +178,8 @@ void main()
       vec3 lightDir = normalize(lightPos - rayPos);
       vec3 norm = sample.xyz * 2.0 - 1.0;
       float lightNormDot = dot(norm, lightDir);
-
+      //For areas without a gradient defined, we just use a medium level of lighting
+      if (dot(norm,norm) < 0.5) lightNormDot = 0.5; 
       //This allows you to visualize the normals of the system (albeit without direction)
 //      src.rgb = vec3(abs(dot(norm, vec3(1.0,0.0,0.0))),
 //		     abs(dot(norm, vec3(0.0,1.0,0.0))),
