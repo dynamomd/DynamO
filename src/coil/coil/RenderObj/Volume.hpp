@@ -211,6 +211,7 @@ void main()
 
       if (color.a >= 0.95)
 	{
+	  color.rgb /= color.a;
 	  color.a = 1.0;
 	  break;
 	}
