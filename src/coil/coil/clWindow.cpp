@@ -176,9 +176,7 @@ CLGLWindow::initOpenGL()
   _light0.reset(new magnet::GL::lightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
 					  Vector(0.0f, 0.0f, 0.0f),//Lookat
 					  GL_LIGHT0,
-					  75.0f,//Beam angle
-					  0.01,//rangeMin
-					  10//rangeMax
+					  75.0f//Beam angle
 					  ));
   
   _light0->buildMatrices();

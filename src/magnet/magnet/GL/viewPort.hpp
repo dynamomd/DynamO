@@ -43,7 +43,7 @@ namespace magnet {
 		      Vector position = Vector(1,1,1), 
 		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 60.0f,
-		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
+		      GLfloat zNearDist = 0.05f, GLfloat zFarDist = 20.0f,
 		      Vector up = Vector(0,1,0),
 		      GLfloat aspectRatio = 1
 		      ):
