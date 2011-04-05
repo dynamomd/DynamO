@@ -15,24 +15,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "spline.hpp"
+#include <magnet/math/spline.hpp>
 #include <iostream>
+#include <fstream>
 
 int main(int argc, char *argv[])
 {
   magnet::math::Spline spline;
 
-  spline.addPoint(0,0);
-  spline.addPoint(0.5,0.5);
-  spline.addPoint(1,1);  
-  spline.generate();
+  spline.addPoint(0, 0);
+  spline.addPoint(0.75, 0.5);
+  spline.addPoint(1, 1);  
 
-  std::cout << "\nOriginal points";
-  for (std::vector<std::pair<double, double> >::const_iterator iPtr = spline.begin();
-       iPtr != spline.end(); ++iPtr)
-    std::cout << "\n" << iPtr->first << " " << iPtr->second;
+  {
+    std::ofstream of("orig.dat");
+    for (magnet::math::Spline::const_iterator iPtr = spline.begin();
+	 iPtr != spline.end(); ++iPtr)
+      of << iPtr->first << " " << iPtr->second << "\n";
+  }
   
-  std::cout << "\nSplined points";
-  for (double x(-0.05); x <= 1.06; x += 0.005)
-    std::cout << "\n" << x << " " << spline(x);
+  {
+    std::ofstream of("spline.natural.dat");
+    for (double x(-0.05); x <= 1.06; x += 0.005)
+      of << x << " " << spline(x) << "\n";
+  }
+
+  {
+    std::ofstream of("spline.fixedy1.dat");
+    spline.setBoundaryConditions(0, 0, magnet::math::Spline::FIXED_1ST_DERIV_BC);
+    for (double x(-0.05); x <= 1.06; x += 0.005)
+      of << x << " " << spline(x) << "\n";
+  }
+
 }
