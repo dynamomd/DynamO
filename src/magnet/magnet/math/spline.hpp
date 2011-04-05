@@ -30,22 +30,22 @@ namespace magnet {
     public:
       //The boundary conditions available
       enum BC_type {FIXED_1ST_DERIV_BC,
-		    FIXED_2ND_DERIV_BC};
+		    FIXED_2ND_DERIV_BC,
+		    PARABOLIC_RUNOUT_BC};
 
       //Constructor takes the boundary conditions as arguments, this
       //sets the first derivative (gradient) at the lower and upper
       //end points
-      Spline(double lowBoundaryCondition = 0, double highBoundaryCondition = 0,
-	     BC_type BC = FIXED_2ND_DERIV_BC):
+      Spline():
 	_valid(false),
-	_BC(BC),
-	_lowBoundaryCondition(lowBoundaryCondition),
-	_highBoundaryCondition(highBoundaryCondition)	
+	_BCLow(FIXED_2ND_DERIV_BC), _BCHigh(FIXED_2ND_DERIV_BC),
+	_BCLowVal(0), _BCHighVal(0)
       {}
 
-      //Standard STL read-only container stuff
       typedef std::vector<std::pair<double, double> > base;
-      typedef base::const_iterator const_iterator;           
+      typedef base::const_iterator const_iterator;
+
+      //Standard STL read-only container stuff
       const_iterator begin() const { return base::begin(); }
       const_iterator end() const { return base::end(); }
       void clear() { _valid = false; base::clear(); _data.clear(); }
@@ -63,15 +63,11 @@ namespace magnet {
       }
 
       //Reset the boundary conditions
-      inline void setBoundaryConditions(double lowBoundaryCondition,
-					double highBoundaryCondition,
-					BC_type BC)
-      {
-	_BC = BC;
-	_lowBoundaryCondition = lowBoundaryCondition;
-	_highBoundaryCondition = highBoundaryCondition;	
-	_valid = false;
-      }
+      inline void setLowBC(BC_type BC, double val = 0)
+      { _BCLow = BC; _BCLowVal = val; _valid = false; }
+
+      inline void setHighBC(BC_type BC, double val = 0)
+      { _BCHigh = BC; _BCHighVal = val; _valid = false; }
       
       //Check if the spline has been calculated, then generate the
       //spline interpolated value
@@ -95,17 +91,18 @@ namespace magnet {
     private:
 
       ///////PRIVATE DATA MEMBERS
-      //Data structure to store the calculated spline
       struct SplineData { double x,a,b,c,d; };
-      //vector of spline data
+      //vector of calculated spline data
       std::vector<SplineData> _data;
+      //Second derivative at each point
+      ublas::vector<double> _ddy;
       //Tracks whether the spline parameters have been calculated for
       //the current set of points
       bool _valid;
-      //The current boundary condition
-      BC_type _BC; 
-      //The values of the boundary condition
-      double _lowBoundaryCondition, _highBoundaryCondition;
+      //The boundary conditions
+      BC_type _BCLow, _BCHigh; 
+      //The values of the boundary conditions
+      double _BCLowVal, _BCHighVal;
 
       ///////PRIVATE FUNCTIONS
       //Function to calculate the value of a given spline at a point xval
@@ -118,31 +115,30 @@ namespace magnet {
       inline double lowCalc(double xval)
       {
 	const double lx = xval - x(0);
-	switch(_BC)
+	const double firstDeriv = (y(1) - y(0)) / h(0) - 2 * h(0) * (_data[0].b + 2 * _data[1].b) / 6;
+	switch(_BCLow)
 	  {
 	  case FIXED_1ST_DERIV_BC:
-	    return lx * _lowBoundaryCondition + y(0);
+	    return lx * _BCLowVal + y(0);
 	  case FIXED_2ND_DERIV_BC:
-	    {
-	      double firstDeriv = (y(1) - y(0)) / h(0) - 2 * h(0) * (_data[0].b + 2 * _data[1].b) / 6;
-	      return lx * lx * _lowBoundaryCondition + firstDeriv * lx + y(0);
-	    }
+	      return lx * lx * _BCLowVal + firstDeriv * lx + y(0);
+	  case PARABOLIC_RUNOUT_BC:
+	    return lx * lx * _ddy[0] + lx * firstDeriv  + y(0);
 	  }
       }
 
       inline double highCalc(double xval)
       {
 	const double lx = xval - x(size() - 1);
-	switch(_BC)
+	const double firstDeriv = 2 * h(size() - 2) * (_ddy[size() - 2] + 2 * _ddy[size() - 1]) / 6 + (y(size() - 1) - y(size() - 2)) / h(size() - 2);
+	switch(_BCHigh)
 	  {
 	  case FIXED_1ST_DERIV_BC:
-	    return lx * _highBoundaryCondition + y(size()-1);
+	    return lx * _BCHighVal + y(size() - 1);
 	  case FIXED_2ND_DERIV_BC:
-	    {
-	      double firstDeriv = 2 * h(size() - 2) * (_data[size() - 2].b + 2 * _data[size() - 1].b) / 6 
-		+ (y(size() - 1) - y(size() - 2)) / h(size() - 2);
-	      return lx * lx * _highBoundaryCondition + firstDeriv * lx + y(size() - 1);
-	    }
+	    return lx * lx * _BCHighVal + firstDeriv * lx + y(size() - 1);
+	  case PARABOLIC_RUNOUT_BC:
+	    return lx * lx * _ddy[size()-1] + lx * firstDeriv  + y(size() - 1);
 	  }
       }
 
@@ -183,6 +179,10 @@ namespace magnet {
 	const size_t e = size() - 1;
 
 	ublas::matrix<double> A(size(), size());
+	for (size_t yv(0); yv <= e; ++yv)
+	  for (size_t xv(0); xv <= e; ++xv)
+	    A(xv,yv) = 0;
+
 	for (size_t i(1); i < e; ++i)
 	  {
 	    A(i-1,i) = h(i-1);
@@ -191,43 +191,59 @@ namespace magnet {
 	  }
 
 	ublas::vector<double> C(size());
+	for (size_t xv(0); xv <= e; ++xv)
+	  C(xv) = 0;
+
 	for (size_t i(1); i < e; ++i)
 	  C(i) = 6 * 
 	    ((y(i+1) - y(i)) / h(i)
 	     - (y(i) - y(i-1)) / h(i-1));
 
 	//Boundary conditions
-	switch(_BC)
+	switch(_BCLow)
 	  {
 	  case FIXED_1ST_DERIV_BC:
-	    std::cout << "h(0) = " << h(0) << ", y(0) = " << y(0) << ", y(1) = " << y(1) << "\n";
-	    C(0) = 6 * (_lowBoundaryCondition - (y(1) - y(0)) / h(0));
-	    C(e) = 6 * (_highBoundaryCondition - (y(e) - y(e-1)) / h(e-1));
+	    C(0) = 6 * ((y(1) - y(0)) / h(0) - _BCLowVal);
 	    A(0,0) = 2 * h(0);
 	    A(1,0) = h(0);
+	    break;
+	  case FIXED_2ND_DERIV_BC:
+	    C(0) = _BCLowVal;
+	    A(0,0) = 1;
+	    break;
+	  case PARABOLIC_RUNOUT_BC:
+	    C(0) = 0; A(0,0) = 1; A(1,0) = -1;
+	    break;
+	  }
+
+	switch(_BCHigh)
+	  {
+	  case FIXED_1ST_DERIV_BC:
+	    C(e) = 6 * (_BCHighVal - (y(e) - y(e-1)) / h(e-1));
 	    A(e,e) = 2 * h(e - 1);
 	    A(e-1,e) = h(e - 1);
 	    break;
 	  case FIXED_2ND_DERIV_BC:
-	    C(0) = _lowBoundaryCondition;
-	    C(e) = _highBoundaryCondition;
-	    A(0,0) = 1;
+	    C(e) = _BCHighVal;
 	    A(e,e) = 1;
+	    break;
+	  case PARABOLIC_RUNOUT_BC:
+	    C(e) = 0; A(e,e) = 1; A(e-1,e) = -1;	    
 	    break;
 	  }
 
 	ublas::matrix<double> AInv(size(), size());
 	InvertMatrix(A,AInv);
 	
-	ublas::vector<double> B = ublas::prod(C, AInv);
+        _ddy = ublas::prod(C, AInv);
 
-	_data.resize(size() - 1);
+	_data.resize(size()-1);
 	for (size_t i(0); i < e; ++i)
 	  {
 	    _data[i].x = x(i);
-	    _data[i].a = (B(i+1) - B(i)) / (6 * h(i));
-	    _data[i].b = B(i) / 2;
-	    _data[i].c = (y(i+1) - y(i)) / h(i) - B(i+1) * h(i) / 6 - B(i) * h(i) / 3;
+	    _data[i].a = (_ddy(i+1) - _ddy(i)) / (6 * h(i));
+	    _data[i].b = _ddy(i) / 2;
+	    _data[i].c = (y(i+1) - y(i)) / h(i) - _ddy(i+1) * h(i) / 6 - _ddy(i) * h(i) / 3;
 	    _data[i].d = y(i);
 	  }
 	_valid = true;
