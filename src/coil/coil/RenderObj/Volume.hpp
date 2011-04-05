@@ -255,6 +255,7 @@ namespace coil {
     std::auto_ptr<magnet::GL::FBO> _fbo;
 
     magnet::GL::Texture3D _data;
+    magnet::GL::Texture1D _transferFuncTexture;
 
     //GTK gui stuff
     std::auto_ptr<Gtk::VBox> _optList;

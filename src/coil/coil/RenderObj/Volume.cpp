@@ -38,6 +38,7 @@ namespace coil {
     if (_fbo.get() != NULL) _fbo->deinit();
     _fbo.release();
     _data.deinit();
+    _transferFuncTexture.deinit();
   }
 
   void 
@@ -46,6 +47,9 @@ namespace coil {
     _shader.build();
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
+
+    _transferFuncTexture.init(256);
+
     _data.init(256, 256, 256);
     magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw", _data);
   }
