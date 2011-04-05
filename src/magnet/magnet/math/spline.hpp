@@ -16,11 +16,13 @@
 */
 
 #pragma once
+
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
 #include <boost/numeric/ublas/lu.hpp>
+#include <exception>
 
 namespace ublas = boost::numeric::ublas;
 namespace magnet {
@@ -174,8 +176,11 @@ namespace magnet {
       //them in _data, ready for spline interpolation
       void generate()
       {
-	std::sort(base::begin(), base::end());
+	if (size() < 2) 
+	  throw std::runtime_error("Spline requires at least 2 points");
 
+	std::sort(base::begin(), base::end());
+	
 	const size_t e = size() - 1;
 
 	ublas::matrix<double> A(size(), size());

@@ -17,7 +17,9 @@
 
 #pragma once
 #include <gtkmm.h>
-#include <magnet/color/colormaps.hpp>
+#include <magnet/color/sebastian.hpp>
+#include <magnet/color/marcus.hpp>
+#include <magnet/color/HSV.hpp>
 
 namespace magnet {
   namespace Gtk {

@@ -22,6 +22,7 @@
 #include <magnet/gtk/numericEntry.hpp>
 #include <boost/lexical_cast.hpp>
 #include <magnet/GL/textureLoaderRAW.hpp>
+#include <magnet/color/transferFunction.hpp>
 
 namespace coil {
   RVolume::RVolume(std::string name):
@@ -52,6 +53,8 @@ namespace coil {
 
     _data.init(256, 256, 256);
     magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw", _data);
+
+    
   }
 
   void 
