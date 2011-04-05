@@ -23,6 +23,7 @@
 #include <boost/lexical_cast.hpp>
 #include <magnet/GL/textureLoaderRAW.hpp>
 #include <magnet/color/transferFunction.hpp>
+#include <magnet/PNG.hpp>
 
 namespace coil {
   RVolume::RVolume(std::string name):
@@ -49,12 +50,28 @@ namespace coil {
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
 
+    //_data.init(256, 256, 256);
+    //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw", _data);
+
+    //_data.init(512, 512, 106);
+    //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/cadaver512x512x106.raw", _data, 2);
+    _data.init(128, 256, 256);
+    magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/Male128x256x256.raw", _data);
+
+    //_data.init(384, 384, 240);
+    //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/female384x384x240.raw", _data);
+
     _transferFuncTexture.init(256);
 
-    _data.init(256, 256, 256);
-    magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw", _data);
-
-    
+    magnet::color::TransferFunction tf;
+    tf.addKnot(0,        0.91, 0.7, 0.61, 0.0);
+    tf.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
+    tf.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
+    tf.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
+    tf.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
+    tf.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
+    tf.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
+    _transferFuncTexture.subImage(tf.getColorMap(), GL_RGBA);
   }
 
   void 
@@ -81,6 +98,8 @@ namespace coil {
       std::vector<int> ElementData(elements, elements + sizeof(elements) / sizeof(int));
       setGLElements(ElementData);
     }
+
+    
   }  
   
   void 
@@ -97,6 +116,7 @@ namespace coil {
     glBindTexture(GL_TEXTURE_2D, _fbo->getDepthTexture());
 
     _data.bind(1);
+    _transferFuncTexture.bind(2);
 
     //Now we can render
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
@@ -105,7 +125,7 @@ namespace coil {
 
     _shader.attach(FocalLength, _viewPort->getWidth(), 
 		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
-		   0, 1, _viewPort->getZNear(), _viewPort->getZFar(),
+		   0, 1, 2, _viewPort->getZNear(), _viewPort->getZFar(),
 		   _stepSizeVal, _diffusiveLighting->get_active(),
 		   _specularLighting->get_active());
     

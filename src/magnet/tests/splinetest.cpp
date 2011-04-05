@@ -16,8 +16,10 @@
 */
 
 #include <magnet/math/spline.hpp>
-#include <iostream>
 #include <fstream>
+#include <magnet/color/transferFunction.hpp>
+#include <iostream>
+
 
 int main(int argc, char *argv[])
 {
@@ -26,11 +28,19 @@ int main(int argc, char *argv[])
   //Add points to the spline in any order, they're sorted in ascending
   //x later. (If you want to spline a circle you'll need to change the
   //class)
-  spline.addPoint(0, 0);
-  spline.addPoint(0.75, 0.5);
-  spline.addPoint(1, 1);  
-  spline.addPoint(0.2, 0.6);
-  spline.addPoint(0.5, 0.6);
+  spline.addPoint(0,        0.0);
+  spline.addPoint(40.0/255, 0.0);
+  spline.addPoint(60.0/255, 0.2);
+  spline.addPoint(63.0/255, 0.05);
+  spline.addPoint(80.0/255, 0.0);
+  spline.addPoint(82.0/255, 0.9);
+  spline.addPoint(1.0, 1.0);
+
+  //spline.addPoint(0, 0);
+  //spline.addPoint(0.75, 0.5);
+  //spline.addPoint(1, 1);  
+  //spline.addPoint(0.2, 0.6);
+  //spline.addPoint(0.5, 0.6);
 
   { //We can extract the original data points by treating the spline as
     //a read-only STL container.
@@ -92,4 +102,18 @@ int main(int argc, char *argv[])
     for (double x(-0.2); x <= 1.2001; x += 0.005)
       of << x << " " << spline(x) << "\n";
   }
+
+  {
+    magnet::color::TransferFunction tf;
+    tf.addKnot(0,        0.91, 0.7, 0.61, 0.0);
+    tf.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
+    tf.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
+    tf.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
+    tf.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
+    tf.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
+    tf.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
+    
+    //tf.getColorMap();
+  }
+
 }

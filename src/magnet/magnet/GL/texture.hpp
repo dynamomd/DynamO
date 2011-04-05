@@ -92,7 +92,7 @@ namespace magnet {
 		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
       }
 
-      inline void subImage(const std::vector<GLubyte>& data, GLenum pixelformat,
+      inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
 			   GLint xoffset = 0, GLint width = -1, GLint level = 0)
       { 
 	//If there are negative values, assume they mean to use the

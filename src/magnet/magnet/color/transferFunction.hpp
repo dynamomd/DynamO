@@ -21,6 +21,7 @@
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
 #include <cmath>
+#include <stdint.h>
 
 namespace magnet {
   namespace color {
@@ -56,9 +57,9 @@ namespace magnet {
 	      spline.addPoint(iPtr->_x, (*iPtr)(channel));
 
 	    for (size_t i(0); i < 256; ++i)
-	      _colorMap[4 * i + channel] = spline(double(i) / 255.0);
+	      _colorMap[4 * i + channel] = clamp(255 * spline(double(i) / 255.0), 0.0, 255.0);
 	  }
-
+	
 	_valid = true;
       }
       

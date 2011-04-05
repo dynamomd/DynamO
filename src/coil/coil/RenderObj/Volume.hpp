@@ -42,10 +42,11 @@ namespace magnet {
 	_stepSizeUniform = glGetUniformLocationARB(_shaderID,"StepSize");
 	_diffusiveLightingUniform = glGetUniformLocationARB(_shaderID,"DiffusiveLighting");
 	_specularLightingUniform = glGetUniformLocationARB(_shaderID,"SpecularLighting");
+	_transferTexUniform = glGetUniformLocationARB(_shaderID,"TransferTexture");
       }
 
       inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin, 
-			 GLint depthTex, GLint dataTex,
+			 GLint depthTex, GLint dataTex, GLint transferTex,
 			 GLfloat NearDist, GLfloat FarDist,
 			 GLfloat stepSize, bool diff,
 			 bool spec)
@@ -61,6 +62,7 @@ namespace magnet {
 	glUniform1fARB(_stepSizeUniform, stepSize);
 	glUniform1fARB(_diffusiveLightingUniform, diff);
 	glUniform1fARB(_specularLightingUniform, spec);
+	glUniform1iARB(_transferTexUniform, transferTex);
       }
 
       static inline std::string vertexShaderSource();
@@ -77,6 +79,7 @@ namespace magnet {
       GLuint _stepSizeUniform;
       GLuint _diffusiveLightingUniform;
       GLuint _specularLightingUniform;
+      GLuint _transferTexUniform;
     };
   }
 }
@@ -106,6 +109,7 @@ STRINGIFY(
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
+uniform sampler1D TransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
 uniform float NearDist;
@@ -167,8 +171,7 @@ void main()
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
-
-      vec4 src = vec4(1.0,1.0,1.0,sample.a);
+      vec4 src = texture1D(TransferTexture, sample.a);
 
       //This corrects the transparency change caused by changing step
       //size

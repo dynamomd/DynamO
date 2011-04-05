@@ -38,7 +38,7 @@ namespace magnet {
     //
     // Load fails if the file is not big enough to fill the passed
     //texture
-    inline void loadVolumeFromRawFile(std::string filename, Texture3D& tex)
+    inline void loadVolumeFromRawFile(std::string filename, Texture3D& tex, size_t bytes = 1)
     {
       GLint _width = tex.getWidth();
       GLint _height = tex.getHeight();
@@ -47,9 +47,28 @@ namespace magnet {
       std::ifstream file(filename.c_str(), std::ifstream::binary);
 	
       std::vector<unsigned char> inbuffer(_width * _height * _depth);
-      file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
-      if (file.fail()) M_throw() << "Failed to load the texture from the file";
-	
+
+      switch (bytes)
+	{
+	case 1:
+	  {
+	    file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
+	    if (file.fail()) M_throw() << "Failed to load the texture from the file";
+	  }
+	  break;
+	case 2:
+	  {
+	    std::vector<uint16_t> tempBuffer(_width * _height * _depth);
+	    file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
+	    if (file.fail()) M_throw() << "Failed to load the texture from the file";
+	    for (size_t i(0); i < tempBuffer.size(); ++i)
+	      inbuffer[i] = uint8_t(tempBuffer[i] >> 8);
+	  }
+	  break;
+	default:
+	  M_throw() << "Cannot load at that bit depth yet";
+	}
+
       std::vector<GLubyte> voldata(4 * _width * _height * _depth);
       
       for (GLint z(0); z < _depth; ++z)

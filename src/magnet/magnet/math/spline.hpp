@@ -126,7 +126,8 @@ namespace magnet {
 	      return lx * lx * _BCLowVal + firstDeriv * lx + y(0);
 	  case PARABOLIC_RUNOUT_BC:
 	    return lx * lx * _ddy[0] + lx * firstDeriv  + y(0);
-	  }
+	  }	
+	throw std::runtime_error("Unknown BC");
       }
 
       inline double highCalc(double xval)
@@ -142,6 +143,7 @@ namespace magnet {
 	  case PARABOLIC_RUNOUT_BC:
 	    return lx * lx * _ddy[size()-1] + lx * firstDeriv  + y(size() - 1);
 	  }
+	throw std::runtime_error("Unknown BC");
       }
 
       //These just provide access to the point data in a clean way
