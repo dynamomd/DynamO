@@ -21,6 +21,7 @@
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <boost/lexical_cast.hpp>
+#include <magnet/GL/textureLoaderRAW.hpp>
 
 namespace coil {
   RVolume::RVolume(std::string name):
@@ -46,7 +47,7 @@ namespace coil {
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
     _data.init(256, 256, 256);
-    _data.readFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw");
+    magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw", _data);
   }
 
   void 

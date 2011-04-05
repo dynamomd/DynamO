@@ -877,9 +877,12 @@ CLGLWindow::CallBackDisplayFunc()
   //Camera Positioning
 
   float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
-  float forward  = moveAmp * ( keyStates['w'] - keyStates['s']);
-  float sideways = moveAmp * ( keyStates['d'] - keyStates['a']);
-  float vertical = moveAmp * ( keyStates['q'] - keyStates['z']);
+  float forward  = moveAmp * ( keyStates[static_cast<size_t>('w')] 
+			       - keyStates[static_cast<size_t>('s')]);
+  float sideways = moveAmp * ( keyStates[static_cast<size_t>('d')] 
+			       - keyStates[static_cast<size_t>('a')]);
+  float vertical = moveAmp * ( keyStates[static_cast<size_t>('q')] 
+			       - keyStates[static_cast<size_t>('z')]);
   _viewPortInfo->CameraUpdate(forward, sideways, vertical);
 
 #ifdef COIL_wiimote

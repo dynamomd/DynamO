@@ -226,7 +226,7 @@ void main()
 }
 
 #include "Quads.hpp"
-#include <magnet/GL/texture3D.hpp>
+#include <magnet/GL/texture.hpp>
 #include <magnet/math/vector.hpp>
 #include <memory>
 
