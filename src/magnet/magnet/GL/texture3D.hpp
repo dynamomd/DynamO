@@ -24,37 +24,100 @@
 namespace magnet {
   namespace GL {
 
-    class Texture3D
+    class TextureBasic
     {
     public:
-      Texture3D():_valid(false) {}
-      ~Texture3D() { deinit(); }
+      inline TextureBasic(GLenum texType):
+	_valid(false),
+	_texType(texType)
+      {}
 
-      inline void init(size_t width, size_t height, size_t depth, 
-		       GLint internalformat = GL_RGBA8, 
-		       GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
+      inline ~TextureBasic() { deinit(); }
+
+      inline void init()
       {
-	_width = width; _height = height; _depth = depth;
-	_format = format; _type = type;
 	if (_valid) M_throw() << "Already init()ed!";
-
 	glGenTextures(1, &_handle);
-	glBindTexture(GL_TEXTURE_3D, _handle);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexImage3D(GL_TEXTURE_3D, 0, internalformat, _width, _height, _depth, 0, 
-		     format, type, NULL);
+	_valid = true;
+      }
 
-	_valid = false;
+      inline void deinit()
+      {
+	if (_valid)
+	  {
+	    glDeleteTextures(1, &_handle);
+	    _valid = false;
+	  }
       }
 
       inline void bind(int unit)
       {
 	glActiveTextureARB(GL_TEXTURE0 + unit);
-	glBindTexture(GL_TEXTURE_3D, _handle);
+	glBindTexture(_texType, _handle);
+      }
+
+      inline void parameter(GLenum paramname, GLint param)
+      { bind(0); glTexParameteri(_texType, paramname, param); }
+
+      inline void parameter(GLenum paramname, GLfloat param)
+      { bind(0); glTexParameterf(_texType, paramname, param); }
+
+    protected:
+      
+      GLuint _handle;
+      bool _valid;
+      GLenum _format;
+      GLenum _type;
+      GLint _internalFormat;
+      const GLenum _texType;
+    };
+
+    class Texture3D: public TextureBasic
+    {
+    public:
+      Texture3D():TextureBasic(GL_TEXTURE_3D) {}
+      
+      inline void init(size_t width, size_t height, size_t depth, 
+		       GLint internalformat = GL_RGBA8, 
+		       GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
+      {
+	_width = width; _height = height; _depth = depth;
+	_format = format; _type = type; _internalFormat = internalformat;
+	TextureBasic::init();
+	bind(0);
+
+	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	image();
+      }
+
+      inline void image(GLint level=0, const GLvoid* data = NULL, GLint border = 0)
+      { 
+	bind(0); 
+	glTexImage3D(_texType, level, _internalFormat, 
+		     _width, _height, _depth, 
+		     border, _format, _type, data); 
+      }
+
+      inline void subImage(const GLvoid* data, 
+			   GLint xoffset = 0, GLint yoffset = 0, GLint zoffset = 0,
+			   GLint width = -1, GLint height = -1, GLint depth = -1,
+			   GLint level = 0)
+      { 
+	if (width  < 0) width  = _width;
+	if (height < 0) height = _height;
+	if (depth  < 0) depth  = _depth;
+	
+	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+	if (yoffset + height > _height) M_throw() << "Texture write y overrun";
+	if (zoffset + depth > _depth) M_throw() << "Texture write z overrun";
+
+	bind(0);
+	glTexSubImage3D(_texType, level, xoffset, yoffset, zoffset, width, height, depth,
+			_format, _type, data);
       }
 
       inline void readFromRawFile(std::string filename)
@@ -76,59 +139,33 @@ namespace magnet {
 
 	std::vector<unsigned char> buffer = calcVolData(inbuffer);
 
-	glTexSubImage3D(GL_TEXTURE_3D, 0, //level of detail
-			0, 0, 0,//offset
-			_width, _height, _depth, //size of the texture
-			_format, _type, &buffer[0]
-			);
-      }
-      
-      inline void deinit()
-      {
-	if (_valid)
-	  {
-	    glDeleteTextures(1, &_handle);
-	    _valid = false;
-	  }
+	subImage(&buffer[0]);
       }
 
     private:
       //This stuff is for volume rendering
-      class ClampedVector
-      {
-      public:
-	ClampedVector(int w, int h, int d):
-	  _width(w), _height(h), _depth(d)
-	{}
-	
-	size_t operator()(int x, int y, int z) const
-	{
-	  size_t coord = std::min(_width - 1, std::max(x, 0))
-	    + _width * (std::min(_height - 1, std::max(y, 0))
-			+ _height * std::min(_depth - 1, std::max(z, 0)));
-	  return coord;
-	}
-
-      private:
-	int _width, _height, _depth;
-      };
-
+      size_t coordCalc(int x, int y, int z) const
+      { 
+	x = std::min(std::max(x, 0), _width  - 1); 
+	y = std::min(std::max(y, 0), _height - 1); 
+	z = std::min(std::max(z, 0), _depth  - 1); 
+	return x + _width * (y + _height * z);
+      }
       std::vector<unsigned char> calcVolData(const std::vector<unsigned char>& buff)
       {
 	std::vector<unsigned char> unsmoothed(4 * _width * _height * _depth);
-	ClampedVector coordc(_width, _height, _depth);
 
-	for (size_t z(0); z < _depth; ++z)
-	  for (size_t y(0); y < _height; ++y)
-	    for (size_t x(0); x < _width; ++x)
+	for (GLint z(0); z < _depth; ++z)
+	  for (GLint y(0); y < _height; ++y)
+	    for (GLint x(0); x < _width; ++x)
 	      {
-		Vector sample1(buff[coordc(x - 2, y, z)],
-			       buff[coordc(x, y - 2, z)],
-			       buff[coordc(x, y, z - 2)]);
+		Vector sample1(buff[coordCalc(x - 2, y, z)],
+			       buff[coordCalc(x, y - 2, z)],
+			       buff[coordCalc(x, y, z - 2)]);
 
-		Vector sample2(buff[coordc(x + 2, y, z)],
-			       buff[coordc(x, y + 2, z)],
-			       buff[coordc(x, y, z + 2)]);
+		Vector sample2(buff[coordCalc(x + 2, y, z)],
+			       buff[coordCalc(x, y + 2, z)],
+			       buff[coordCalc(x, y, z + 2)]);
 		
 		//Note, we store the negative gradient (we point down
 		//the slope)
@@ -141,43 +178,13 @@ namespace magnet {
 		unsmoothed[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
 		unsmoothed[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
 		unsmoothed[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
-		unsmoothed[4 * coord + 3] = buff[coordc(x, y, z)];
+		unsmoothed[4 * coord + 3] = buff[coordCalc(x, y, z)];
 	      }
 
-//	std::vector<unsigned char> retval(4 * _width * _height * _depth);
-//
-//	int n = 5;
-//	float count = n*n*n;
-//	n = (n-1)/2;
-//	//Now smooth the gradients
-//	for (size_t z(0); z < _depth; ++z)
-//	  for (size_t y(0); y < _height; ++y)
-//	    for (size_t x(0); x < _width; ++x)
-//	      {
-//		size_t coord = x + _width * (y + _height * z);
-//		//Store the actual val
-//		retval[4 * coord + 3] = unsmoothed[4 * coord + 3];
-//
-//		//Now smooth the gradients
-//		for (size_t c(0); c < 3; ++c)
-//		  {
-//		    float sum = 0;
-//		    for (int i(-n); i < n; ++i)
-//		      for (int j(-n); j < n; ++j)
-//			for (int k(-n); k < n; ++k)
-//			  sum += unsmoothed[4 * coordc(x+i, y+j, z+k) + c];
-//		    retval[4 * coord + c] = uint8_t(sum * 255.0 / count);
-//		  }
-//	      }
-//
 	return unsmoothed;
       }
       
-      GLuint _handle;
-      bool _valid;
-      size_t _width, _height, _depth;
-      GLenum _format;
-      GLenum _type;
+      GLint _width, _height, _depth;
     };
   }
 }
