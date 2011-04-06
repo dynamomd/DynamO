@@ -50,19 +50,8 @@ namespace coil {
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
 
-    //_data.init(256, 256, 256);
-    //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/bonsai.raw", _data);
-
-    //_data.init(512, 512, 106);
-    //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/cadaver512x512x106.raw", _data, 2);
-    _data.init(128, 256, 256);
-    magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/Male128x256x256.raw", _data);
-    
-    //_data.init(384, 384, 240);
-    //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/female384x384x240.raw", _data);
-
+    //Default transfer function
     _transferFuncTexture.init(256);
-
     magnet::color::TransferFunction tf;
     tf.addKnot(0,        0.91, 0.7, 0.61, 0.0);
     tf.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
@@ -72,6 +61,20 @@ namespace coil {
     tf.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
     tf.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
     _transferFuncTexture.subImage(tf.getColorMap(), GL_RGBA);
+  }
+
+  void 
+  RVolume::loadRawFile(std::string filename, size_t width, size_t height, size_t depth,
+		       size_t bytes)
+  {
+    _data.init(width, height, depth);
+    try {
+      magnet::GL::loadVolumeFromRawFile(filename, _data);
+    } catch (magnet::exception& tmp)
+      {
+	_data.deinit();
+	throw;
+      }
   }
 
   void 
@@ -105,7 +108,8 @@ namespace coil {
   void 
   RVolume::glRender(magnet::GL::FBO& fbo)
   {
-    if (!_visible) return;
+    if (!_visible || !_data.isValid()) return;
+
     //Before we render, we need the current depth buffer for depth testing.
     fbo.detach();   
     fbo.copyto(*_fbo, GL_DEPTH_BUFFER_BIT);

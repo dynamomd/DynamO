@@ -776,8 +776,8 @@ CLGLWindow::init()
   RenderObjects.push_back(new coil::Console());
   RenderObjects.push_back(new coil::Axis());
 
-  //Test render object
-  RenderObjects.push_back(new coil::RVolume("Test Volume"));
+  //Test volume render object
+//  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
   _CLState = new magnet::CL::CLGLState;
   _viewPortInfo 
@@ -793,6 +793,22 @@ CLGLWindow::init()
   initOpenCL();
   initGTK();
   
+  //bonsai plant test
+//  RenderObjects.back().as<coil::RVolume>()
+//    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
+//
+//  //Cadaver
+//  RenderObjects.back().as<coil::RVolume>()
+//    .loadRawFile("cadaver512x512x106.raw", 512, 512, 106, 2);
+//
+//  //Male 
+//  RenderObjects.back().as<coil::RVolume>()
+//    .loadRawFile("Male128x256x256.raw", 128, 256, 256, 1);
+//
+//  //Female
+//  RenderObjects.back().as<coil::RVolume>()
+//    .loadRawFile("female384x384x240.raw", 384, 384, 240, 1);
+
   _readyFlag = true;
 }
 

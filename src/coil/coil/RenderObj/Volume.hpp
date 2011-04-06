@@ -41,6 +41,9 @@ namespace coil {
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
+    void loadRawFile(std::string filename, size_t width, size_t height, 
+		     size_t depth, size_t bytes);
+
   protected:
     void guiUpdate();
 

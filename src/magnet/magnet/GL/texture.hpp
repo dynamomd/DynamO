@@ -61,6 +61,8 @@ namespace magnet {
       inline void parameter(GLenum paramname, GLfloat param)
       { bind(0); glTexParameterf(_texType, paramname, param); }
 
+      inline bool isValid() const { return _valid; }
+
     protected:
       
       GLuint _handle;
