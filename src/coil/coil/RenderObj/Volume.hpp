@@ -186,10 +186,10 @@ void main()
       vec3 lightDir = normalize(lightPos - rayPos);
       vec3 norm = sample.xyz * 2.0 - 1.0;
       //If there is no normal available, just use the last one
-      if (dot(norm,norm) < 0.75) norm = lastnorm; 
+      if (dot(norm,norm) < 0.5) norm = lastnorm; 
       lastnorm = norm; 
 
-      float lightNormDot = dot(norm, lightDir);
+      float lightNormDot = dot(normalize(norm), lightDir);
 
       ////////////Normal viewer
       //This allows you to visualize the normals of the system (albeit without direction)
@@ -198,11 +198,8 @@ void main()
 //		     abs(dot(norm, vec3(0.0,0.0,1.0))));
 
       //Diffuse lighting
-      float diffTerm =  DiffusiveLighting * (0.5 * lightNormDot  + 0.5);
+      float diffTerm =  max(DiffusiveLighting * (0.5 * lightNormDot  + 0.5), 0.5);
       diffTerm *= diffTerm; //Quadratic falloff of the diffusive term
-      //Brighten the system as the normals are never right
-      //diffTerm = min(1.0, diffTerm);
-
 
       //We either use diffusive lighting plus an ambient or we just
       //use the original color
