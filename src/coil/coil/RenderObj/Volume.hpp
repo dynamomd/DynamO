@@ -152,7 +152,7 @@ void main()
 
   vec3 tmax = max(ttop, tbot); //Distant planes
   t = min(tmax.xx, tmax.yz);//Find the first plane to be exited
-  float tfar = min(t.x, t.y);//..
+  float tfar = min(t.x, t.y);//...
 
   //Check what the screen depth is to make sure we don't sample the volume past any objects
   float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
@@ -163,19 +163,24 @@ void main()
   float random = fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453); 
 
   vec3 rayPos = RayOrigin + rayDirection * (tnear + StepSize * random);
-  float length = tfar - tnear;
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-
   vec3 lightPos = (gl_ModelViewMatrixInverse * gl_LightSource[0].position).xyz;
   vec3 Specular = (gl_FrontMaterial.specular * gl_LightSource[0].specular).xyz;
 
   //We store the last normal, incase we hit a homogeneous region
   vec3 lastnorm = vec3(0,0,0); 
 
-  for (; length > 0.0; 
+  for (float length = tfar - tnear; length > 0.0; 
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
+      //Grab the volume sample
       vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
+      //Sort out the normal data for caching
+      vec3 norm = sample.xyz * 2.0 - 1.0;
+      if (dot(norm,norm) < 0.5) norm = lastnorm; 
+      lastnorm = norm; 
+
+      //Calculate the transfer function
       vec4 src = texture1D(TransferTexture, sample.a);
       
       //This corrects the transparency change caused by changing step
@@ -184,13 +189,10 @@ void main()
 
       ////////////Lighting
       vec3 lightDir = normalize(lightPos - rayPos);
-      vec3 norm = sample.xyz * 2.0 - 1.0;
       //If there is no normal available, just use the last one
-      if (dot(norm,norm) < 0.5) norm = lastnorm; 
-      lastnorm = norm; 
 
       float lightNormDot = dot(normalize(norm), lightDir);
-
+      
       ////////////Normal viewer
       //This allows you to visualize the normals of the system (albeit without direction)
 //      src.rgb = vec3(abs(dot(norm, vec3(1.0,0.0,0.0))),
