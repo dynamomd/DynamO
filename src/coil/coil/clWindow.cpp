@@ -80,13 +80,14 @@ CLGLWindow::initOpenGL()
   if (glewInit() != GLEW_OK)
     std::runtime_error("Failed initialising GLEW (GL Extension Wrangler)");
 
-  if (!glewIsSupported("GL_VERSION_2_0 GL_ARB_pixel_buffer_object"))
-    std::cout << "WARNING: ARB Pixel Buffer Objects are not supported!\n"
-      "WARNING: Maybe due to indirect rendering but probably because you have a poor Graphics Card/Driver.\n"
-      "WARNING: Continuing anyway as we don't manipulate pixel data, yet!";
+  if (!GLEW_VERSION_2_0)
+    std::runtime_error("OpenGL 2.0 is not supported, coil is not supported in this mode");
 
-  if (!glewIsSupported("GL_VERSION_2_0 GL_ARB_vertex_buffer_object"))
-    std::runtime_error("Vertex Buffer Objects are not supported by your GPU/Driver, sorry."); 
+  if (!GLEW_EXT_framebuffer_object)
+    std::runtime_error("Frame buffers are not supported, coil is not supported without them");
+
+  if (!GLEW_ARB_vertex_buffer_object)
+    std::runtime_error("Vertex Buffer Objects are not supported by your GPU/Driver, this is critical for Coil."); 
 
   //Check for shadow support
   _shaderPipeline = true;
@@ -95,6 +96,7 @@ CLGLWindow::initOpenGL()
       std::cout << "GL_ARB_depth_texture or GL_ARB_shadow not supported.\n";
       _shaderPipeline = false;
     }
+
   else if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
 	   || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
     {
@@ -104,7 +106,7 @@ CLGLWindow::initOpenGL()
   
   if (!_shaderPipeline)
     std::cout << "Shader pipeline disabled.\n"
-	      << "This also disables all other effects.\n";
+	      << "This also disables all nice effects and alot of speed.\n";
 
   
   _pickingEnabled = true;
@@ -202,6 +204,8 @@ CLGLWindow::initOpenGL()
   _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
   _frameRenderTime = 0;
   //Build the offscreen rendering FBO's
+  _renderTarget.reset(new magnet::GL::FBO());
+
   if (_shaderPipeline)
     {
       _filterTarget1.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
@@ -443,10 +447,6 @@ CLGLWindow::initGTK()
       ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
       GLint maxSamples;
       glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
-
-      
-      //Put the default FBO on
-      _renderTarget.reset(new magnet::GL::FBO());
 
       if (GLEW_EXT_framebuffer_multisample && (maxSamples > 1))
 	{//Offer anti aliasing
@@ -1092,10 +1092,12 @@ CLGLWindow::CallBackDisplayFunc()
     }
   else    
     {
+      _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
       _viewPortInfo->loadMatrices();
-      M_throw() << "Low quality mode is not available in this version";
-      //drawScene();
+      drawScene(*_renderTarget);
+      _renderTarget->detach();
+      _renderTarget->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
   
   //We clear the depth as merely disabling gives artifacts
