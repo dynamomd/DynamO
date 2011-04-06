@@ -57,7 +57,7 @@ namespace coil {
     //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/cadaver512x512x106.raw", _data, 2);
     _data.init(128, 256, 256);
     magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/Male128x256x256.raw", _data);
-
+    
     //_data.init(384, 384, 240);
     //magnet::GL::loadVolumeFromRawFile("/home/mjki2mb2/Desktop/female384x384x240.raw", _data);
 

@@ -18,6 +18,7 @@
 
 #include <magnet/GL/texture.hpp>
 #include <magnet/math/vector.hpp>
+#include <magnet/clamp.hpp>
 
 namespace magnet {
   namespace GL {
@@ -27,9 +28,9 @@ namespace magnet {
       inline size_t coordCalc(GLint x, GLint y, GLint z, 
 			      GLint width, GLint height, GLint depth)
       {
-	x = std::min(std::max(x, 0), width  - 1); 
-	y = std::min(std::max(y, 0), height - 1); 
-	z = std::min(std::max(z, 0), depth  - 1); 	
+	x = clamp(x, 0, width  - 1);
+	y = clamp(y, 0, height - 1);
+	z = clamp(z, 0, depth  - 1);
 	return x + width * (y + height * z);
       }
     }
@@ -75,13 +76,13 @@ namespace magnet {
 	for (GLint y(0); y < _height; ++y)
 	  for (GLint x(0); x < _width; ++x)
 	    {
-	      Vector sample1(inbuffer[detail::coordCalc(x - 2, y, z, _width, _height, _depth)],
-			     inbuffer[detail::coordCalc(x, y - 2, z, _width, _height, _depth)],
-			     inbuffer[detail::coordCalc(x, y, z - 2, _width, _height, _depth)]);
+	      Vector sample1(inbuffer[detail::coordCalc(x - 1, y, z, _width, _height, _depth)],
+			     inbuffer[detail::coordCalc(x, y - 1, z, _width, _height, _depth)],
+			     inbuffer[detail::coordCalc(x, y, z - 1, _width, _height, _depth)]);
 
-	      Vector sample2(inbuffer[detail::coordCalc(x + 2, y, z, _width, _height, _depth)],
-			     inbuffer[detail::coordCalc(x, y + 2, z, _width, _height, _depth)],
-			     inbuffer[detail::coordCalc(x, y, z + 2, _width, _height, _depth)]);
+	      Vector sample2(inbuffer[detail::coordCalc(x + 1, y, z, _width, _height, _depth)],
+			     inbuffer[detail::coordCalc(x, y + 1, z, _width, _height, _depth)],
+			     inbuffer[detail::coordCalc(x, y, z + 1, _width, _height, _depth)]);
 		
 	      //Note, we store the negative gradient (we point down
 	      //the slope)
@@ -98,6 +99,44 @@ namespace magnet {
 		= inbuffer[detail::coordCalc(x, y, z, _width, _height, _depth)];
 	    }
       
+//      //Gaussian blur the system
+//      const double weights[5] = {0.0544886845,0.244201342,0.4026199469,0.244201342,0.0544886845};
+//
+//      for (size_t component(0); component < 3; ++component)
+//	for (GLint z(0); z < _depth; ++z)
+//	  for (GLint y(0); y < _height; ++y)
+//	    for (GLint x(0); x < _width; ++x)
+//	      {
+//		double sum(0);
+//		for (int i(0); i < 5; ++i)
+//		  {
+//		    GLint pos[3] = {x,y,z};
+//		    pos[component] += i - 2;
+//		    sum += weights[i] 
+//		      * voldata[4 * detail::coordCalc(pos[0], pos[1], pos[2], 
+//						      _width, _height, _depth) + component];
+//		  }
+//		voldata[4 * detail::coordCalc(x, y, z, _width, _height, _depth) 
+//			+ component] = sum;
+//	      }
+//      
+//      //Renormalize the gradients
+//      for (GLint z(0); z < _depth; ++z)
+//	for (GLint y(0); y < _height; ++y)
+//	  for (GLint x(0); x < _width; ++x)
+//	    {
+//	      std::vector<GLubyte>::iterator iPtr = voldata.begin()
+//		+ 4 * detail::coordCalc(x, y, z, _width, _height, _depth);
+//	      
+//	      Vector grad(*(iPtr + 0) - 128.0, *(iPtr + 1) - 128.0, *(iPtr + 2) - 128.0);
+//	      float nrm = grad.nrm();
+//	      if (nrm > 0) grad /= nrm;
+//
+//	      *(iPtr + 0) = uint8_t((grad[0] * 0.5 + 0.5) * 255);
+//	      *(iPtr + 1) = uint8_t((grad[1] * 0.5 + 0.5) * 255);
+//	      *(iPtr + 2) = uint8_t((grad[2] * 0.5 + 0.5) * 255);
+//	    }
+
       tex.subImage(voldata, GL_RGBA);
     }
   }

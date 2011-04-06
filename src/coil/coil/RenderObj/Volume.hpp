@@ -160,19 +160,24 @@ void main()
   
   const float baseStepSize = 0.01;
 
-  vec3 rayPos = RayOrigin + rayDirection * tnear;
+  float random = fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453); 
+
+  vec3 rayPos = RayOrigin + rayDirection * (tnear + StepSize * random);
   float length = tfar - tnear;
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
 
   vec3 lightPos = (gl_ModelViewMatrixInverse * gl_LightSource[0].position).xyz;
   vec3 Specular = (gl_FrontMaterial.specular * gl_LightSource[0].specular).xyz;
 
+  //We store the last normal, incase we hit a homogeneous region
+  vec3 lastnorm = vec3(0,0,0); 
+
   for (; length > 0.0; 
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
       vec4 src = texture1D(TransferTexture, sample.a);
-
+      
       //This corrects the transparency change caused by changing step
       //size
       src.a = 1.0 - pow((1.0 - src.a), StepSize / baseStepSize);
@@ -180,9 +185,13 @@ void main()
       ////////////Lighting
       vec3 lightDir = normalize(lightPos - rayPos);
       vec3 norm = sample.xyz * 2.0 - 1.0;
+      //If there is no normal available, just use the last one
+      if (dot(norm,norm) < 0.75) norm = lastnorm; 
+      lastnorm = norm; 
+
       float lightNormDot = dot(norm, lightDir);
-      //For areas without a gradient defined, we just use a medium level of lighting
-      if (dot(norm,norm) < 0.75) lightNormDot = 1.0; 
+
+      ////////////Normal viewer
       //This allows you to visualize the normals of the system (albeit without direction)
 //      src.rgb = vec3(abs(dot(norm, vec3(1.0,0.0,0.0))),
 //		     abs(dot(norm, vec3(0.0,1.0,0.0))),
