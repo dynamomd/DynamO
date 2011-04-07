@@ -11,9 +11,9 @@
      - [ ] Migrate the current ranges to the framework
 **** Migrate to RapidXML parser
 **** Volume Renderer
-     - [ ] Implement volume renderer
-     - [ ] Move to OpenCL generation of the gradients
-     - [ ] Make a transfer function interface
+     - [ ] Move to OpenCL generation of the gradients from live data
+     - [X] Implement volume renderer
+     - [X] Make a transfer function interface
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
     - [ ] Cylinders can be inserted, just write the overlap test
