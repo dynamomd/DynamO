@@ -20,6 +20,7 @@
 #include <magnet/color/transferFunction.hpp>
 #include <gtkmm/drawingarea.h>
 #include <gdk/gdkkeysyms.h>
+#include <gtkmm/colorselection.h>
 
 namespace magnet {
   namespace gtk {
@@ -31,8 +32,9 @@ namespace magnet {
 	set_events(Gdk::KEY_PRESS_MASK | Gdk::EXPOSURE_MASK | Gdk::BUTTON_PRESS_MASK
 		   | Gdk::BUTTON_RELEASE_MASK | Gdk::POINTER_MOTION_MASK);
 	set_flags(Gtk::CAN_FOCUS);
-	_transferFunction.addKnot(0,1,1,1,0);
-	_transferFunction.addKnot(0.5,1,1,1,0.1);
+	_transferFunction.addKnot(0,0.1,0.2,0.3,0);
+	_transferFunction.addKnot(0.5,0.4,0.5,0.2,0.1);
+	_transferFunction.addKnot(0.6,0.1,0.5,0.4,0.3);
 	_transferFunction.addKnot(1,1,1,1,1);
 
 	typedef magnet::color::TransferFunction::const_iterator it;
@@ -132,6 +134,48 @@ namespace magnet {
 
 		  forceRedraw();
 		}
+	      else
+		{//Color an existing node!
+		  Gtk::ColorSelectionDialog select("Node Color Selection");
+
+		  typedef magnet::color::TransferFunction::Knot Knot;
+
+		  magnet::color::TransferFunction::const_iterator 
+		    iPtr = _transferFunction.begin() + _selectedNode;
+		  
+		  Knot knot = *iPtr;
+		  
+		  {
+		    Gdk::Color val;
+		    val.set_red(knot._r * G_MAXUSHORT); val.set_green(knot._g * G_MAXUSHORT);
+		    val.set_blue(knot._b * G_MAXUSHORT); 
+		    
+		    select.get_color_selection()->set_current_color(val);
+		    select.get_color_selection()->set_current_alpha(knot._a * G_MAXUSHORT);
+		    select.get_color_selection()->set_has_opacity_control(true);
+		  }
+		    
+		  switch(select.run())
+		    {
+		    case Gtk::RESPONSE_OK:
+		      {
+			Gdk::Color val = select.get_color_selection()->get_current_color();
+			knot._r = double(val.get_red()) / G_MAXUSHORT;
+			knot._g = double(val.get_green()) / G_MAXUSHORT;
+			knot._b = double(val.get_blue()) / G_MAXUSHORT;
+			knot._a = double(select.get_color_selection()->get_current_alpha())
+			  / G_MAXUSHORT;
+
+			_transferFunction.setKnot(iPtr, knot);
+		      }
+		      break;
+		    case Gtk::RESPONSE_CANCEL:
+		      break;
+		    default:
+		      M_throw() << "Unexpected return value!";
+		    }
+		  _dragMode = false;
+		}
 	      break;
 	    }
 
@@ -174,7 +218,7 @@ namespace magnet {
       }
 
       inline double getPointSize() const
-      { return 10 * _grid_line_width; }
+      { return 15 * _grid_line_width; }
 
       std::pair<double, double> to_graph_transform(double x, double y)
       {
@@ -269,13 +313,19 @@ namespace magnet {
 		{
 		  const std::pair<double, double>& pos(to_graph_transform(iPtr->_x, iPtr->_a));
 		  cr->arc(pos.first, pos.second,  getPointSize() / 2, 0, 2 * M_PI);
-		  if (iPtr - _transferFunction.begin() == _selectedNode)
-		    cr->set_source_rgba(0.5, 0.5, 1, 1);    
-		  else
-		    cr->set_source_rgba(1, 1, 1, 1);    
+
+		  cr->set_source_rgba(iPtr->_r, iPtr->_g, iPtr->_b, 1);    
 		  cr->fill_preserve();
-		  cr->set_source_rgba(0, 0, 0, 1);    
-		  cr->stroke();
+
+		  if (iPtr - _transferFunction.begin() == _selectedNode)
+		    {
+		      cr->set_source_rgba(1, 1, 1, 1); cr->stroke();
+		      cr->arc(pos.first, pos.second,  
+			      (getPointSize() + 4 * _grid_line_width) /  2, 0, 2 * M_PI);
+		      cr->set_source_rgba(0, 0, 0, 1); cr->stroke();
+		    }
+		  else
+		    { cr->set_source_rgba(0, 0, 0, 1); cr->stroke(); }
 		}
 	    }
 	  }
