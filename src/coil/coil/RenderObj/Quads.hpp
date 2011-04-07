@@ -24,6 +24,8 @@ public:
 
   virtual void glRender();
 
+  virtual void releaseCLGLResources() { RTriangles::releaseCLGLResources(); }
+
   void setGLElements(std::vector<int>& Elements);
 
 protected:
