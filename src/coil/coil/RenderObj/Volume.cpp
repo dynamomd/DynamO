@@ -41,7 +41,7 @@ namespace coil {
     _fbo.release();
     _data.deinit();
     _transferFuncTexture.deinit();
-    shader.deinit();
+    _shader.deinit();
     RQuads::releaseCLGLResources();
   }
 
