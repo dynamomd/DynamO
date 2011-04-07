@@ -162,6 +162,7 @@ namespace coil {
     _transferFunction.reset(new magnet::gtk::TransferFunction
 			    (magnet::function::MakeDelegate
 			     (this, &RVolume::transferFunctionUpdated)));
+    _transferFunction->set_size_request(-1, 100);
     _optList->add(*_transferFunction); _transferFunction->show();
 
     {//Volume renderer step size
