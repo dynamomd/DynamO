@@ -135,6 +135,8 @@ namespace magnet {
 
       virtual bool on_button_press_event(GdkEventButton* event) 
       {
+	grab_focus();
+
 	if (event->button == 1)//Left mouse click
 	  switch (event->type)
 	    {
@@ -190,6 +192,7 @@ namespace magnet {
 							  select.get_color_selection()->get_current_alpha(), 
 							  knot._x));
 			_updatedCallback();
+			forceRedraw();
 		      }
 		      break;
 		    case Gtk::RESPONSE_CANCEL:
