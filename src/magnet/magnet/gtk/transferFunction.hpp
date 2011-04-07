@@ -21,6 +21,7 @@
 #include <gtkmm/drawingarea.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtkmm/colorselection.h>
+#include <magnet/function/delegate.hpp>
 
 namespace magnet {
   namespace gtk {
@@ -44,20 +45,29 @@ namespace magnet {
       }
 
     public:
-      TransferFunction(): _grid_line_width(1), _selectedNode(-1), _dragMode(false)
+      TransferFunction(function::Delegate0<void> updated):
+	_updatedCallback(updated),
+	_grid_line_width(1), _selectedNode(-1), _dragMode(false)
       {
 	set_events(Gdk::KEY_PRESS_MASK | Gdk::EXPOSURE_MASK | Gdk::BUTTON_PRESS_MASK
 		   | Gdk::BUTTON_RELEASE_MASK | Gdk::POINTER_MOTION_MASK);
 	set_flags(Gtk::CAN_FOCUS);
-	_transferFunction.addKnot(0,0.1,0.2,0.3,0);
-	_transferFunction.addKnot(0.5,0.4,0.5,0.2,0.1);
-	_transferFunction.addKnot(0.6,0.1,0.5,0.4,0.3);
-	_transferFunction.addKnot(1,1,1,1,1);
+
+	_transferFunction.addKnot(0,        0.91, 0.7, 0.61, 0.0);
+	_transferFunction.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
+	_transferFunction.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
+	_transferFunction.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
+	_transferFunction.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
+	_transferFunction.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
+	_transferFunction.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
 
 	typedef magnet::color::TransferFunction::const_iterator it;
 	it iPtr = _transferFunction.begin() + 1;
 	std::pair<float,float> pointpos = from_graph_transform(iPtr->_x, iPtr->_a);
       }
+
+      const std::vector<uint8_t>& getColorMap()
+      { return _transferFunction.getColorMap(); }
 
       virtual ~TransferFunction() {}
 
@@ -115,6 +125,7 @@ namespace magnet {
 	    _transferFunction.eraseKnot(_transferFunction.begin() + _selectedNode);
 	    _selectedNode = -1;
 	    forceRedraw();
+	    _updatedCallback();
 	  }
 	return Gtk::DrawingArea::on_key_press_event(event);
       }
@@ -153,6 +164,7 @@ namespace magnet {
 		}
 	      else
 		{//Color an existing node!
+		  _dragMode = false;
 		  Gtk::ColorSelectionDialog select("Node Color Selection");
 
 		  typedef magnet::color::TransferFunction::Knot Knot;
@@ -174,6 +186,7 @@ namespace magnet {
 			  .setKnot(iPtr, ConvertGdkToKnot(select.get_color_selection()->get_current_color(), 
 							  select.get_color_selection()->get_current_alpha(), 
 							  knot._x));
+			_updatedCallback();
 		      }
 		      break;
 		    case Gtk::RESPONSE_CANCEL:
@@ -181,8 +194,8 @@ namespace magnet {
 		    default:
 		      M_throw() << "Unexpected return value!";
 		    }
-		  _dragMode = false;
 		}
+	    default:
 	      break;
 	    }
 
@@ -191,13 +204,9 @@ namespace magnet {
   
       virtual bool on_button_release_event(GdkEventButton* event) 
       { 
-	if (event->button == 1)//Left mouse click
-	  switch (event->type)
-	    {
-	    case GDK_BUTTON_RELEASE: //Single click
-	      _dragMode = false;
-	      break;
-	    }
+	if ((event->button == 1)//Left mouse click
+	    && (event->type == GDK_BUTTON_RELEASE))
+	  _dragMode = false;
 
 	return Gtk::DrawingArea::on_button_release_event(event); 
       }
@@ -219,6 +228,7 @@ namespace magnet {
 	       (newPlace.first, iPtr->_r, iPtr->_g, iPtr->_b, newPlace.second));
 	
 	    forceRedraw();
+	    _updatedCallback();
 	  }
 
 	return Gtk::DrawingArea::on_motion_notify_event(event); 
@@ -368,8 +378,8 @@ namespace magnet {
 	return true;
       }
 
-      magnet::color::TransferFunction _transferFunction;
-
+      function::Delegate0<void> _updatedCallback;
+      color::TransferFunction _transferFunction;
       double _grid_line_width;
       int _selectedNode;
       bool _dragMode;
