@@ -26,6 +26,23 @@ namespace magnet {
   namespace gtk {
     class TransferFunction : public Gtk::DrawingArea
     {
+      typedef magnet::color::TransferFunction::Knot Knot;
+
+      Gdk::Color ConvertKnotToGdk(const Knot& knot)
+      {
+	Gdk::Color retval;
+	retval.set_red(knot._r * G_MAXUSHORT); retval.set_green(knot._g * G_MAXUSHORT);
+	retval.set_blue(knot._b * G_MAXUSHORT); 
+	return retval;
+      }
+
+      Knot ConvertGdkToKnot(const Gdk::Color& col, const guint16 alpha, double x)
+      {
+	Knot knot(x, double(col.get_red()) / G_MAXUSHORT, double(col.get_green()) / G_MAXUSHORT,
+		  double(col.get_blue()) / G_MAXUSHORT, double(alpha) / G_MAXUSHORT);
+	return knot;
+      }
+
     public:
       TransferFunction(): _grid_line_width(1), _selectedNode(-1), _dragMode(false)
       {
@@ -145,28 +162,18 @@ namespace magnet {
 		  
 		  Knot knot = *iPtr;
 		  
-		  {
-		    Gdk::Color val;
-		    val.set_red(knot._r * G_MAXUSHORT); val.set_green(knot._g * G_MAXUSHORT);
-		    val.set_blue(knot._b * G_MAXUSHORT); 
-		    
-		    select.get_color_selection()->set_current_color(val);
-		    select.get_color_selection()->set_current_alpha(knot._a * G_MAXUSHORT);
-		    select.get_color_selection()->set_has_opacity_control(true);
-		  }
+		  select.get_color_selection()->set_current_color(ConvertKnotToGdk(knot));
+		  select.get_color_selection()->set_current_alpha(knot._a * G_MAXUSHORT);
+		  select.get_color_selection()->set_has_opacity_control(true);
 		    
 		  switch(select.run())
 		    {
 		    case Gtk::RESPONSE_OK:
 		      {
-			Gdk::Color val = select.get_color_selection()->get_current_color();
-			knot._r = double(val.get_red()) / G_MAXUSHORT;
-			knot._g = double(val.get_green()) / G_MAXUSHORT;
-			knot._b = double(val.get_blue()) / G_MAXUSHORT;
-			knot._a = double(select.get_color_selection()->get_current_alpha())
-			  / G_MAXUSHORT;
-
-			_transferFunction.setKnot(iPtr, knot);
+			_transferFunction
+			  .setKnot(iPtr, ConvertGdkToKnot(select.get_color_selection()->get_current_color(), 
+							  select.get_color_selection()->get_current_alpha(), 
+							  knot._x));
 		      }
 		      break;
 		    case Gtk::RESPONSE_CANCEL:
@@ -250,6 +257,16 @@ namespace magnet {
 	cr->line_to(pos.first, pos.second);
       }
 
+      void graph_rectangle(Cairo::RefPtr<Cairo::Context>& cr, double x, double y,
+			   double width, double height)
+      {
+	const Gtk::Allocation& allocation = get_allocation();
+	const std::pair<double, double>& pos(to_graph_transform(x, y));
+	cr->rectangle(pos.first, pos.second, 
+		      width * (allocation.get_width() - getPointSize()), 
+		      -height * (allocation.get_height() - getPointSize()));
+      }
+
       bool on_expose_event(GdkEventExpose* event)
       {
 	// This is where we draw on the window
@@ -270,8 +287,29 @@ namespace magnet {
 		cr->clip();
 	      }
 
-	    //Draw Grid
+	    //Draw background colors
 	    cr->save();
+	    {
+	      //First build the gradient 
+	      const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
+	      Cairo::RefPtr<Cairo::LinearGradient> grad
+		= Cairo::LinearGradient::create(0.5 * getPointSize(), 0,
+						allocation.get_width() 
+						- 0.5 * getPointSize(), 0);
+	      for (size_t i(1); i < 256; ++i)
+		grad->add_color_stop_rgba(i / 255.0, 
+					  colmap[4 * i + 0] / 255.0,
+					  colmap[4 * i + 1] / 255.0,
+					  colmap[4 * i + 2] / 255.0,
+					  colmap[4 * i + 3] / 255.0);
+	      
+	      cr->set_source(grad);
+	      graph_rectangle(cr, 0, 0, 1, 1);
+	      cr->fill();
+	    }
+	    cr->restore();
+
+	    //Draw Grid
 	    cr->set_source_rgba(0, 0, 0, 1);
 	    cr->set_line_width(_grid_line_width);
 	    //horizontal lines
@@ -289,9 +327,7 @@ namespace magnet {
 		graph_line_to(cr, i / 4.0f, 1.0f);
 		cr->stroke();
 	      }
-	    cr->restore();
 
-	    cr->save();
 	    cr->set_source_rgba(0, 0, 0, 1);
 	    cr->set_line_width(5 * _grid_line_width);
 	    {//draw the curve of the graph
@@ -305,7 +341,6 @@ namespace magnet {
 	  
 	      cr->stroke();
 	    }
-	    cr->restore();
 
 	    { // draw the nodes of the graph
 	      typedef magnet::color::TransferFunction::const_iterator it;
