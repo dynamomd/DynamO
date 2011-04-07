@@ -117,6 +117,9 @@ namespace magnet {
 
       virtual bool on_key_press_event(GdkEventKey* event) 
       {
+#ifndef GDK_KEY_Delete
+# define GDK_KEY_Delete GDK_Delete 
+#endif
 	if ((event->type == GDK_KEY_PRESS)
 	    && (event->keyval == GDK_KEY_Delete)
 	    && (_selectedNode >= 0)
