@@ -181,8 +181,30 @@ namespace magnet {
 	if (size() < 2) 
 	  throw std::runtime_error("Spline requires at least 2 points");
 
-	std::sort(base::begin(), base::end());
 	
+	//If any spline points are at the same x location, we have to
+	//just slightly seperate them
+	{ 
+	  bool testPassed(false);
+	  while (!testPassed)
+	    {
+	      testPassed = true;
+	      std::sort(base::begin(), base::end());
+	      
+	      for (base::iterator iPtr = base::begin(); iPtr != base::end() - 1; ++iPtr)
+		if (iPtr->first == (iPtr+1)->first)
+		  {
+		    if ((iPtr+1)->first != 0)
+		      (iPtr+1)->first += (iPtr+1)->first 
+			* std::numeric_limits<double>::epsilon() * 10;
+		    else
+		      (iPtr+1)->first = std::numeric_limits<double>::epsilon() * 10;
+		    testPassed = false;
+		    break;
+		  }
+	    }
+	}	    
+
 	const size_t e = size() - 1;
 
 	ublas::matrix<double> A(size(), size());

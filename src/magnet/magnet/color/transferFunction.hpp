@@ -25,19 +25,90 @@
 
 namespace magnet {
   namespace color {
-    class TransferFunction
+    namespace detail {
+      struct Knot { 
+	Knot(double x, double r, double g, double b, double a):
+	  _x(clamp(x, 0.0, 1.0)), 
+	  _r(clamp(r, 0.0, 1.0)), 
+	  _g(clamp(g, 0.0, 1.0)), 
+	  _b(clamp(b, 0.0, 1.0)),
+	  _a(clamp(a, 0.0, 1.0)) 
+	{}
+	
+	const double& operator()(size_t i) const
+	{ switch (i)
+	    {
+	    case 0: return _r;
+	    case 1: return _g;
+	    case 2: return _b;
+	    case 3: return _a;
+	    }
+	  M_throw() << "Bad index";
+	}
+
+	double& operator()(size_t i)
+	{ switch (i)
+	    {
+	    case 0: return _r;
+	    case 1: return _g;
+	    case 2: return _b;
+	    case 3: return _a;
+	    }
+	  M_throw() << "Bad index";
+	}
+	
+	bool operator<(const Knot& ok) const { return _x < ok._x; }
+	
+	double _x, _r, _g, _b, _a;
+      };
+    }
+
+    class TransferFunction: protected std::vector<detail::Knot>
     {
-    public:
+    public:      
+      typedef detail::Knot Knot;
+      typedef std::vector<Knot> Base;
+      typedef Base::const_iterator const_iterator;
+
       TransferFunction():_valid(false) {}
       
       void addKnot(double x, double r, double g, double b, double a)
-      { _knots.push_back(Knot(x,r,g,b,a)); _valid = false; }
+      { 
+	push_back(Knot(x, r, g, b, a)); 
+	_valid = false; 
+      }
 
       const std::vector<uint8_t>& getColorMap()
       {
 	if (!_valid) generate();
 	return _colorMap;
       }
+      
+      void setKnot(const const_iterator& it, const Knot& val)
+      {
+	*(Base::begin() + (it - begin())) = val;
+	_valid = false; 
+      }
+
+      void eraseKnot(const const_iterator& it)
+      {
+	erase(Base::begin() + (it - begin()));
+	_valid = false; 
+      }
+
+      void setKnot(size_t index, const Knot& val)
+      {
+	*(Base::begin() + index) = val;
+      }
+
+      const_iterator begin() const { return Base::begin(); }
+      const_iterator end() const { return Base::end(); }
+      void clear() { _valid = false; Base::clear(); }
+      size_t size() const { return Base::size(); }
+      size_t max_size() const { return Base::max_size(); }
+      size_t capacity() const { return Base::capacity(); }
+      bool empty() const { return Base::empty(); }
+
 
     protected:
       void generate()
@@ -52,8 +123,7 @@ namespace magnet {
 	  {
 	    spline.clear();
 
-	    for (std::vector<Knot>::const_iterator iPtr = _knots.begin();
-		 iPtr != _knots.end(); ++iPtr)
+	    for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
 	      spline.addPoint(iPtr->_x, (*iPtr)(channel));
 
 	    for (size_t i(0); i < 256; ++i)
@@ -62,32 +132,7 @@ namespace magnet {
 	
 	_valid = true;
       }
-      
 
-      struct Knot { 
-	Knot(double x, double r, double g, double b, double a):
-	  _x(clamp(x, 0.0, 1.0)), 
-	  _r(clamp(r, 0.0, 1.0)), 
-	  _g(clamp(g, 0.0, 1.0)), 
-	  _b(clamp(b, 0.0, 1.0)),
-	  _a(clamp(a, 0.0, 1.0)) 
-	{}
-	
-	double operator()(size_t i) const
-	{ switch (i)
-	    {
-	    case 0: return _r;
-	    case 1: return _g;
-	    case 2: return _b;
-	    case 3: return _a;
-	    }
-	  M_throw() << "Bad index";
-	}
-
-	double _x, _r, _g, _b, _a;
-      };
-
-      std::vector<Knot> _knots;
       std::vector<uint8_t> _colorMap;
       bool _valid;
     };
