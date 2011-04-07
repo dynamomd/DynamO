@@ -147,11 +147,22 @@ namespace coil {
     glUseProgramObjectARB(oldshader);
   }
 
+  void 
+  RVolume::transferFunctionUpdated()
+  {
+    if (_transferFunction.get() != NULL)
+      _transferFuncTexture.subImage(_transferFunction->getColorMap(), GL_RGBA);
+  }
+  
   void
   RVolume::initGTK()
   {
     _optList.reset(new Gtk::VBox);//The Vbox of options   
     _specularLighting.reset(new Gtk::CheckButton);
+    _transferFunction.reset(new magnet::gtk::TransferFunction
+			    (magnet::function::MakeDelegate
+			     (this, &RVolume::transferFunctionUpdated)));
+    _optList->add(*_transferFunction); _transferFunction->show();
 
     {//Volume renderer step size
       _stepSize.reset(new Gtk::Entry);

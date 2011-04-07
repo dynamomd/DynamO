@@ -21,6 +21,7 @@
 #include "Quads.hpp"
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/volumeShader.hpp>
+#include <magnet/gtk/transferFunction.hpp>
 #include <memory>
 
 namespace coil {
@@ -47,6 +48,8 @@ namespace coil {
   protected:
     void guiUpdate();
 
+    void transferFunctionUpdated();
+
     magnet::GL::volumeRenderer _shader;
     std::auto_ptr<magnet::GL::FBO> _fbo;
 
@@ -58,6 +61,7 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _stepSize;
     std::auto_ptr<Gtk::CheckButton> _diffusiveLighting;
     std::auto_ptr<Gtk::CheckButton> _specularLighting;
+    std::auto_ptr<magnet::gtk::TransferFunction> _transferFunction;
     GLfloat _stepSizeVal;
   };
 }
