@@ -854,16 +854,13 @@ CLGLWindow::deinit()
 
   RenderObjects.clear();
 
-  if (_shaderPipeline)
-    {
-      _renderTarget->deinit();
-      _filterTarget1.deinit();
-      _filterTarget2.deinit();
-      _normalsFBO.deinit();
-      _shadowFBO.deinit();
-      _shadowShader.deinit();
-      _nrmlShader.deinit();
-    }
+  _renderTarget->deinit();
+  _filterTarget1.deinit();
+  _filterTarget2.deinit();
+  _normalsFBO.deinit();
+  _shadowFBO.deinit();
+  _shadowShader.deinit();
+  _nrmlShader.deinit();
 
   ///////////////////Finally, unregister with COIL
   CoilRegister::getCoilInstance().unregisterWindow(this);
