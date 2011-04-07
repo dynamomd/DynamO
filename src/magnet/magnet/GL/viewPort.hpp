@@ -54,6 +54,7 @@ namespace magnet {
 	_position(position),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
+	_headLocation(0, 0, 1),
 	_simLength(50),
 	_screenWidth(41.1f / _simLength),
 	_camMode(ROTATE_CAMERA)
@@ -63,6 +64,7 @@ namespace magnet {
 
 	up /= up.nrm();
 	
+      
 	//Now rotate about the up vector, we do tilt seperately
 	Vector directionNorm = (lookAtPoint - position);
 	directionNorm /= directionNorm.nrm();
