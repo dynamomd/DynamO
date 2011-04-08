@@ -27,7 +27,7 @@
 class OPTinkerXYZ: public OPTicker
 {
  public:
-  OPTinkerXYZ(const DYNAMO::SimData*, const XMLNode&);
+  OPTinkerXYZ(const DYNAMO::SimData*, const magnet::xml::Node&);
   ~OPTinkerXYZ();
 
   virtual OutputPlugin *Clone() const
@@ -39,7 +39,7 @@ class OPTinkerXYZ: public OPTicker
 
   virtual void ticker();
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
  protected:
   int frameCount;

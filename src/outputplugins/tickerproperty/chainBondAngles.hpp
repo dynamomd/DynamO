@@ -23,7 +23,7 @@
 class OPChainBondAngles: public OPTicker
 {
  public:
-  OPChainBondAngles(const DYNAMO::SimData*, const XMLNode&);
+  OPChainBondAngles(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPChainBondAngles(*this); }
@@ -38,7 +38,7 @@ class OPChainBondAngles: public OPTicker
 
   virtual void output(xml::XmlStream&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
  protected:
 

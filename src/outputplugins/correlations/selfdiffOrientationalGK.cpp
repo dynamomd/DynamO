@@ -21,7 +21,8 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include <magnet/math/matrix.hpp>
 
-OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const DYNAMO::SimData* tmp,const XMLNode& XML):
+OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const DYNAMO::SimData* tmp,
+							       const magnet::xml::Node& XML):
   OutputPlugin(tmp, "SelfDiffusionOrientationalGK", 60), //Note the sort order set later
   count(0),
   dt(0),
@@ -64,27 +65,18 @@ OPSelfDiffusionOrientationalGK::initialise()
 }
 
 void
-OPSelfDiffusionOrientationalGK::operator<<(const XMLNode& XML)
+OPSelfDiffusionOrientationalGK::operator<<(const magnet::xml::Node& XML)
 {
   try
   {
-    if (XML.isAttributeSet("Length"))
-    {
-      CorrelatorLength = boost::lexical_cast<unsigned int> (XML.getAttribute("Length"));
-    }
+    CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
+    if (XML.getAttribute("dt").valid())
+      dt = XML.getAttribute("dt").as<double>() * Sim->dynamics.units().unitTime();
 
-    if (XML.isAttributeSet("dt"))
-    {
-      dt = Sim->dynamics.units().unitTime() *
-      boost::lexical_cast<double>(XML.getAttribute("dt"));
-    }
-
-    if (XML.isAttributeSet("t"))
-    {
-      dt = Sim->dynamics.units().unitTime() * boost::lexical_cast<double> (XML.getAttribute("t"))/CorrelatorLength;
-    }
+    if (XML.getAttribute("t").valid())
+      dt = XML.getAttribute("t").as<double>() * Sim->dynamics.units().unitTime() 
+	/ CorrelatorLength;
   }
-
   catch (boost::bad_lexical_cast &)
   {
     M_throw() << "Failed a lexical cast in OPSelfDiffusionOrientationalGK";

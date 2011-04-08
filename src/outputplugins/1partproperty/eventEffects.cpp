@@ -17,18 +17,17 @@
 
 #include "eventEffects.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/include.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
-OPEventEffects::OPEventEffects(const DYNAMO::SimData* tmp, const XMLNode&):
+OPEventEffects::OPEventEffects(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"EventEffects")
-{
-}
+{}
 
 void 
 OPEventEffects::initialise()

@@ -25,7 +25,7 @@ class OPKEnergy;
 class OPVelDist: public OPTicker
 {
  public:
-  OPVelDist(const DYNAMO::SimData*, const XMLNode&);
+  OPVelDist(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPVelDist(*this); }
@@ -38,7 +38,7 @@ class OPVelDist: public OPTicker
   
   virtual void output(xml::XmlStream&);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
  protected:
   double binWidth;

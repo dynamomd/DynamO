@@ -23,7 +23,7 @@ class OPCollMatrix;
 class OPReverseEventsCheck: public OutputPlugin
 {
 public:
-  OPReverseEventsCheck(const DYNAMO::SimData*, const XMLNode&);
+  OPReverseEventsCheck(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   ~OPReverseEventsCheck() {}
 

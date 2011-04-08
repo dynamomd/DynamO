@@ -23,7 +23,7 @@ class OPMSD;
 class OPPeriodicMSD: public OPTicker
 {
  public:
-  OPPeriodicMSD(const DYNAMO::SimData*, const XMLNode&);
+  OPPeriodicMSD(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 

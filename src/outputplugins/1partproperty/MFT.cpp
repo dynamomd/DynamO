@@ -21,10 +21,11 @@
 #include "../../dynamics/species/species.hpp"
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
-OPMFT::OPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPMFT::OPMFT(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OP1PP(tmp,"MeanFreeLength", 250),
   collisionHistoryLength(10),
   binwidth(0.01)
@@ -33,16 +34,12 @@ OPMFT::OPMFT(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-OPMFT::operator<<(const XMLNode& XML)
+OPMFT::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
-      
-      if (XML.isAttributeSet("length"))
-	collisionHistoryLength 
-	  = boost::lexical_cast<size_t>(XML.getAttribute("length"));
+      binwidth = XML.getAttribute("binwidth").as<double>(0.01);
+      collisionHistoryLength = XML.getAttribute("length").as<size_t>(10);
     }
   catch (boost::bad_lexical_cast&)
     {

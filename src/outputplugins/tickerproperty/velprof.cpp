@@ -22,7 +22,8 @@
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
-OPVelProfile::OPVelProfile(const DYNAMO::SimData* tmp, const XMLNode&):
+OPVelProfile::OPVelProfile(const DYNAMO::SimData* tmp, 
+			   const magnet::xml::Node&):
   OPTicker(tmp,"VelProfile"),
   samplesTaken(0),
   binWidth(0.5)

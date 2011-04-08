@@ -22,11 +22,12 @@
 #include "../0partproperty/msd.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 OPMSDCorrelator::OPMSDCorrelator(const DYNAMO::SimData* tmp, 
-				   const XMLNode& XML):
+				 const magnet::xml::Node& XML):
   OPTicker(tmp,"MSDCorrelator"),
   length(20),
   currCorrLength(0),
@@ -37,13 +38,11 @@ OPMSDCorrelator::OPMSDCorrelator(const DYNAMO::SimData* tmp,
 }
 
 void 
-OPMSDCorrelator::operator<<(const XMLNode& XML)
+OPMSDCorrelator::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("Length"))
-	length = boost::lexical_cast<size_t>
-	  (XML.getAttribute("Length"));
+      length = XML.getAttribute("Length").as<size_t>(20);
     }
   catch (boost::bad_lexical_cast &)
     {

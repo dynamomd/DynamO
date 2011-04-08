@@ -24,7 +24,7 @@ class CTChain;
 class OPCTorsion: public OPTicker
 {
  public:
-  OPCTorsion(const DYNAMO::SimData*, const XMLNode&);
+  OPCTorsion(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPCTorsion(*this); }

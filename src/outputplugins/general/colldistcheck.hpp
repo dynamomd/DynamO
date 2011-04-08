@@ -28,7 +28,8 @@ class OPCollMatrix;
 class OPCollDistCheck: public OutputPlugin
 {
 public:
-  OPCollDistCheck(const DYNAMO::SimData*, const XMLNode&);
+  OPCollDistCheck(const DYNAMO::SimData*, 
+		  const magnet::xml::Node&);
 
   ~OPCollDistCheck();
 
@@ -46,7 +47,7 @@ public:
 
   virtual void output(xml::XmlStream&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 private:
 

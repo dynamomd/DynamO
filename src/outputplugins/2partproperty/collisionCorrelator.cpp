@@ -21,12 +21,12 @@
 #include <magnet/xmlwriter.hpp>
 
 OPCollisionCorrelator::OPCollisionCorrelator(const DYNAMO::SimData* t1,
-					       const XMLNode& XML):
+					       const magnet::xml::Node& XML):
   OP2PP(t1,"CollisionCorrelator")
 { operator<<(XML); }
 
 void 
-OPCollisionCorrelator::operator<<(const XMLNode& XML)
+OPCollisionCorrelator::operator<<(const magnet::xml::Node& XML)
 {
   try {
     /*if (XML.isAttributeSet("length"))

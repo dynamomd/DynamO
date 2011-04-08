@@ -23,7 +23,8 @@
 class OPRadialDistribution: public OPTicker
 {
  public:
-  OPRadialDistribution(const DYNAMO::SimData*, const XMLNode&);
+  OPRadialDistribution(const DYNAMO::SimData*, 
+		       const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPRadialDistribution(*this); }
@@ -36,7 +37,7 @@ class OPRadialDistribution: public OPTicker
   
   virtual void output(xml::XmlStream&);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
  protected:
   double binWidth;

@@ -26,7 +26,7 @@ using namespace EventTypeTracking;
 class OPCubeComp: public OutputPlugin
 {
  public:
-  OPCubeComp(const DYNAMO::SimData*, const XMLNode&);
+  OPCubeComp(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
   

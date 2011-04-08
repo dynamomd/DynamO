@@ -23,8 +23,9 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/interactions/captures.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <vector>
 
 OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
@@ -36,7 +37,7 @@ OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
 }
 
 OPChainBondAngles::OPChainBondAngles(const DYNAMO::SimData* tmp, 
-				       const XMLNode& XML):
+				     const magnet::xml::Node& XML):
   OPTicker(tmp,"ChainBondAngles"),
   binwidth(0.0001)
 {
@@ -44,12 +45,11 @@ OPChainBondAngles::OPChainBondAngles(const DYNAMO::SimData* tmp,
 }
 
 void 
-OPChainBondAngles::operator<<(const XMLNode& XML)
+OPChainBondAngles::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
+      binwidth = XML.getAttribute("binwidth").as<double>(0.0001);
     }
   catch (boost::bad_lexical_cast &)
     {

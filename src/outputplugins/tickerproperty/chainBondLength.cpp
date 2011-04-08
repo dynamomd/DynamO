@@ -33,7 +33,7 @@ OPChainBondLength::Cdata::Cdata(size_t ID, size_t CL):
   BondLengths.resize(CL-1, C1DHistogram(0.0001));
 }
 
-OPChainBondLength::OPChainBondLength(const DYNAMO::SimData* tmp, const XMLNode&):
+OPChainBondLength::OPChainBondLength(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"ChainBondLength")
 {}
 

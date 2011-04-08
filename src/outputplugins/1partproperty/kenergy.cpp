@@ -24,7 +24,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const XMLNode&):
+OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OP1PP(tmp,"KEnergy", 250),
   InitialKE(0.0),
   KEacc(0.0),

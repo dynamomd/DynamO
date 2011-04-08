@@ -22,7 +22,7 @@
 class OPTrajectory: public OutputPlugin
 {
 public:
-  OPTrajectory(const DYNAMO::SimData*, const XMLNode&);
+  OPTrajectory(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   OPTrajectory(const OPTrajectory&);
   

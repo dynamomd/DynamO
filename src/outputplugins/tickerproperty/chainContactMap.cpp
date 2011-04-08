@@ -35,7 +35,7 @@ OPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
     array[i] = 0;
 }
 
-OPCContactMap::OPCContactMap(const DYNAMO::SimData* tmp, const XMLNode&):
+OPCContactMap::OPCContactMap(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"ContactMap")
 {}
 

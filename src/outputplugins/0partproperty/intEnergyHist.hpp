@@ -24,7 +24,7 @@ class OPUEnergy;
 class OPIntEnergyHist: public OPCollTicker
 {
  public:
-  OPIntEnergyHist(const DYNAMO::SimData*, const XMLNode&);
+  OPIntEnergyHist(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPIntEnergyHist(*this); }
@@ -39,7 +39,7 @@ class OPIntEnergyHist: public OPCollTicker
 
   virtual void changeSystem(OutputPlugin*);
   
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
  protected:
 

@@ -33,7 +33,6 @@
 #include "../outputplugins/outputplugin.hpp"
 #include "../outputplugins/0partproperty/XMLconfig.hpp"
 #include "../inputplugins/XMLconfig.hpp"
-#include "../extcode/xmlParser.h"
 #include "../dynamics/liouvillean/liouvillean.hpp"
 #include "../dynamics/systems/system.hpp"
 #include "../dynamics/NparticleEventData.hpp"
@@ -269,35 +268,6 @@ Simulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 
   I_cout() << "Config written to " << fileName;
 }
-
-void
-Simulation::loadPlugins(std::string pluginFileName)
-{
-  I_cout() << "Loading outputplugins from file, " << pluginFileName;
-  
-  if (status >= INITIALISED)
-    M_throw() << "Cannot add plugins now";
-
-  XMLNode xMainNode;
-
-  if (!boost::filesystem::exists(pluginFileName))
-    M_throw() << "Plugin file \"" << pluginFileName << "\" doesn't exist";
-
-  if (std::string(pluginFileName.end()-4, pluginFileName.end()) == ".xml")
-    {
-      xMainNode=XMLNode::openFileHelper(pluginFileName.c_str(), "Plugins");
-      magnet::ClonePtr<OutputPlugin> tmpPlug(NULL);
-      for (int i = 0; i < xMainNode.nChildNode("Plugin"); ++i)
-	{
-	  tmpPlug.set_ptr(OutputPlugin::getPlugin(xMainNode.getChildNode("Plugin", i), this));
-	  //This next line copies the output plugins, a swap might be faster
-	  outputPlugins.push_back(tmpPlug);
-	}
-    }
-  else
-    M_throw() << "plugin filename should end in .xml and be xml";
-}
-
 
 void
 Simulation::outputData(const char* filename, bool uncompressed)

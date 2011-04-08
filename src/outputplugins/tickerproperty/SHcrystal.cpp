@@ -23,17 +23,39 @@
 #include <boost/foreach.hpp>
 #include <magnet/math/wigner3J.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <fstream>
 #include <cmath>
 #include <limits>
 
-OPSHCrystal::OPSHCrystal(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPSHCrystal::OPSHCrystal(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
   nblistID(std::numeric_limits<size_t>::max()),
   count(0)
 {
   operator<<(XML);
 }
+
+void 
+OPSHCrystal::operator<<(const magnet::xml::Node& XML)
+{
+  try
+    {
+      rg = XML.getAttribute("CutOffR").as<double>(1.2);
+      maxl = XML.getAttribute("MaxL").as<size_t>(7);
+    }
+  catch (boost::bad_lexical_cast &)
+    {
+      M_throw() << "Failed a lexical cast in OPSHCrystal";
+    }
+
+  rg *= Sim->dynamics.units().unitLength();
+
+
+  I_cout() << "Cut off radius of " 
+	   << rg / Sim->dynamics.units().unitLength();
+}
+
 
 void 
 OPSHCrystal::initialise() 
@@ -126,29 +148,6 @@ OPSHCrystal::output(xml::XmlStream& XML)
     }
 
   XML << xml::endtag("SHCrystal");
-}
-
-void 
-OPSHCrystal::operator<<(const XMLNode& XML)
-{
-  rg *= Sim->dynamics.units().unitLength();
-
-  try
-    {
-      if (XML.isAttributeSet("CutOffR"))
-	rg = boost::lexical_cast<double>(XML.getAttribute("CutOffR"))
-	  * Sim->dynamics.units().unitLength();
-
-      if (XML.isAttributeSet("MaxL"))
-	maxl = boost::lexical_cast<size_t>(XML.getAttribute("MaxL"));
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in OPSHCrystal";
-    }
-
-  I_cout() << "Cut off radius of " 
-	   << rg / Sim->dynamics.units().unitLength();
 }
 
 OPSHCrystal::sphericalsum::sphericalsum

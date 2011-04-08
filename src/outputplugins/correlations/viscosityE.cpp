@@ -22,7 +22,8 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPViscosityE::OPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPViscosityE::OPViscosityE(const DYNAMO::SimData* tmp, 
+			   const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ViscosityE", 60),
   count(0),
   dt(0),
@@ -53,24 +54,22 @@ OPViscosityE::OPViscosityE(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-OPViscosityE::operator<<(const XMLNode& XML)
+OPViscosityE::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("Length"))
-	CorrelatorLength = boost::lexical_cast<unsigned int>
-	  (XML.getAttribute("Length"));
+      CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
 
-      if (XML.isAttributeSet("dt"))
+      if (XML.getAttribute("dt").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("dt"));
+	  XML.getAttribute("dt").as<double>();
 
-      if (XML.isAttributeSet("dtfactor"))
-	dtfactor = boost::lexical_cast<double>(XML.getAttribute("dtfactor"));
+      if (XML.getAttribute("dtfactor").valid())
+	dtfactor = XML.getAttribute("dtfactor").as<double>();
       
-      if (XML.isAttributeSet("t"))
+      if (XML.getAttribute("t").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
+	  XML.getAttribute("t").as<double>() / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {

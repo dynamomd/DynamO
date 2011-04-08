@@ -24,7 +24,7 @@
 class OPThermalConductivityE: public OutputPlugin
 {
 public:
-  OPThermalConductivityE(const DYNAMO::SimData*, const XMLNode&);
+  OPThermalConductivityE(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 
@@ -41,7 +41,7 @@ public:
   
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   boost::circular_buffer<Vector  > G;

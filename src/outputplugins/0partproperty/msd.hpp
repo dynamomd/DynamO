@@ -23,7 +23,7 @@
 class OPMSD: public OutputPlugin
 {
  public:
-  OPMSD(const DYNAMO::SimData*, const XMLNode&);
+  OPMSD(const DYNAMO::SimData*, const magnet::xml::Node&);
   ~OPMSD();
 
   virtual void initialise();

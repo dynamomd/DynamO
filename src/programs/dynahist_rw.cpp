@@ -14,6 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <boost/program_options.hpp>
+#include <boost/foreach.hpp>
+#include <boost/array.hpp>
+#include <magnet/xmlreader.hpp>
+#include <magnet/exception.hpp>
+#include <fenv.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -22,18 +28,6 @@
 #include <cmath>
 #include <iomanip>
 #include <iosfwd>
-#include <boost/program_options.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <boost/array.hpp>
-#include "../src/extcode/xmlParser.h"
-#include <magnet/exception.hpp>
-#include <fenv.h>
 #include <buildinfo.hpp>
 
 using namespace std;
@@ -55,59 +49,29 @@ struct SimData
 {
   SimData(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
   {
-    namespace io = boost::iostreams;
-    XMLNode xMainNode;
-    if (std::string(fileName.end() - 4, fileName.end()) == ".xml")
-      {
-	if (!boost::filesystem::exists(fileName))
-	  M_throw() << "Could not open XML configuration file";
-	
-	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "OutputData");
-      }
-    else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-      {
-	if (!boost::filesystem::exists(fileName))
-	  M_throw() << "Could not open XML configuration file";
-	
-	io::filtering_istream inputFile;
-	inputFile.push(io::bzip2_decompressor());
-	inputFile.push(io::file_source(fileName));
-	//Copy file to a string
-	std::string line, fileString;
-	
-	while(getline(inputFile,line)) 
-	  {
-	    fileString.append(line);
-	    fileString.append("\n");
-	  }
-	
-	XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
-	xMainNode = tmpNode.getChildNode("OutputData");
-      }
-    else
-      M_throw() << "Unrecognised extension for input file";
+    using namespace magnet::xml;
+    Document doc(fileName);  
+    Node mainNode = doc.getNode("OutputData");
 
     //Now navigate to the histogram and load the data
-    std::istringstream HistogramData(xMainNode.getChildNode("EnergyHist")
-				     .getChildNode("WeightHistogram").getText());
+    std::istringstream HistogramData
+      (std::string(mainNode.getNode("EnergyHist").getNode("WeightHistogram")));
     
-    if (xMainNode.getChildNode("EnergyHist").isAttributeSet("binWidth"))
-      binWidth = boost::lexical_cast<long double>(xMainNode.getChildNode("EnergyHist").getAttribute("binWidth"));
+    if (mainNode.getNode("EnergyHist").getAttribute("binWidth").valid())
+      binWidth = mainNode.getNode("EnergyHist").getAttribute("binWidth").as<double>();
     else
       {
 	binWidth = 0.5;
-	std::cout << "Warning! Could not find a bin width set in " << fileName << ", assuming 0.5kT! If this is wrong the code will probably have a Floating Point Exception";
+	std::cout << "Warning! Could not find a bin width set in " 
+		  << fileName 
+		  << ", assuming 0.5kT! If this is wrong the code will probably have a Floating Point Exception";
       }
-    //Load gamma here
-    if (xMainNode.hasChild("Energy"))
-      gamma.push_back(-1.0 / boost::lexical_cast<long double>
-		      (xMainNode.getChildNode("Energy").getChildNode("T")
-		       .getAttribute("val")));
-    else
-      gamma.push_back(-1.0 / boost::lexical_cast<long double>
-		      (xMainNode.getChildNode("KEnergy").getChildNode("T")
-		       .getAttribute("val")));
 
+    //Load gamma here
+    if (mainNode.getNode("Energy").valid())
+      gamma.push_back(-1.0 / (mainNode.getNode("Energy").getNode("T").getAttribute("val").as<long double>()));
+    else
+      gamma.push_back(-1.0 / mainNode.getNode("KEnergy").getNode("T").getAttribute("val").as<long double>());
 
     histogramEntry tmpData;
 

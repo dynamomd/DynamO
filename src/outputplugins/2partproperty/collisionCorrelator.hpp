@@ -24,7 +24,7 @@
 class OPCollisionCorrelator: public OP2PP
 {
 public:
-  OPCollisionCorrelator(const DYNAMO::SimData*, const XMLNode&);
+  OPCollisionCorrelator(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 
@@ -33,7 +33,7 @@ public:
 
   void output(xml::XmlStream &XML);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
 private:
 

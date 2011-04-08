@@ -23,7 +23,7 @@
 class OPMFL: public OP1PP
 {
  public:
-  OPMFL(const DYNAMO::SimData*, const XMLNode&);
+  OPMFL(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 
@@ -37,7 +37,7 @@ class OPMFL: public OP1PP
 
   virtual OutputPlugin *Clone() const { return new OPMFL(*this); }
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
  protected:
 

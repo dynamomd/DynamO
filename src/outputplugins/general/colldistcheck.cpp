@@ -17,11 +17,12 @@
 
 #include "colldistcheck.hpp"
 #include "../../dynamics/include.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 OPCollDistCheck::OPCollDistCheck(const DYNAMO::SimData* t1, 
-				   const XMLNode& XML):
+				 const magnet::xml::Node& XML):
   OutputPlugin(t1,"CollDistCheck"),
   binwidth(0.01)
 {
@@ -37,12 +38,11 @@ OPCollDistCheck::initialise()
 {}
 
 void 
-OPCollDistCheck::operator<<(const XMLNode& XML)
+OPCollDistCheck::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
+      binwidth = XML.getAttribute("binwidth").as<double>(0.01);
     }
   catch (boost::bad_lexical_cast &)
     {

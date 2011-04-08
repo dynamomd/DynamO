@@ -16,7 +16,6 @@
 */
 
 #include "rotatedparallelcubes.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"

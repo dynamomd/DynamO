@@ -22,12 +22,13 @@
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/legendre.hpp>
-#include <magnet/xmlwriter.hpp>
 
 OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const DYNAMO::SimData* tmp,
-				   const XMLNode& XML):
+							   const magnet::xml::Node& XML):
   OPTicker(tmp,"MSDOrientationalCorrelator"),
   length(50),
   currCorrLength(0),
@@ -38,14 +39,10 @@ OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const DYNAMO::SimData
 }
 
 void
-OPMSDOrientationalCorrelator::operator<<(const XMLNode& XML)
+OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node& XML)
 {
-  try
-  {
-    if (XML.isAttributeSet("Length"))
-    {
-      length = boost::lexical_cast<size_t> (XML.getAttribute("Length"));
-    }
+  try {
+    length = XML.getAttribute("Length").as<size_t>(50);
   }
   catch (boost::bad_lexical_cast &)
   {

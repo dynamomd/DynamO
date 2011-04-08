@@ -23,7 +23,8 @@
 class OPMSDOrientationalCorrelator: public OPTicker
 {
  public:
-  OPMSDOrientationalCorrelator(const DYNAMO::SimData*, const XMLNode&);
+  OPMSDOrientationalCorrelator(const DYNAMO::SimData*, 
+			       const magnet::xml::Node&);
 
   virtual void initialise();
 
@@ -32,7 +33,7 @@ class OPMSDOrientationalCorrelator: public OPTicker
   virtual OutputPlugin *Clone() const
   { return new OPMSDOrientationalCorrelator(*this); };
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   typedef std::pair<Vector,Vector> RUpair;
 

@@ -21,7 +21,7 @@
 class OPGeomview: public OPTicker
 {
  public:
-  OPGeomview(const DYNAMO::SimData*, const XMLNode&);
+  OPGeomview(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPGeomview(*this); }

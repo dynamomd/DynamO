@@ -22,9 +22,9 @@
 class OPMutualDiffusionGK: public OutputPlugin
 {
 public:
-  OPMutualDiffusionGK(const DYNAMO::SimData*, const XMLNode&);
+  OPMutualDiffusionGK(const DYNAMO::SimData*, const magnet::xml::Node&);
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual OutputPlugin* Clone() const { return new OPMutualDiffusionGK(*this); }
 

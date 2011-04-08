@@ -22,7 +22,7 @@
 class OPUEnergy: public OP1PP
 {
  public:
-  OPUEnergy(const DYNAMO::SimData*, const XMLNode&);
+  OPUEnergy(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 

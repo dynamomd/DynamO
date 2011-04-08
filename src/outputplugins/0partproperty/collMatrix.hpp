@@ -31,7 +31,7 @@ class OPCollMatrix: public OutputPlugin
 private:
   
 public:
-  OPCollMatrix(const DYNAMO::SimData*, const XMLNode&);
+  OPCollMatrix(const DYNAMO::SimData*, const magnet::xml::Node&);
   ~OPCollMatrix();
 
   virtual void initialise();

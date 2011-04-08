@@ -19,11 +19,12 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 OPThermalDiffusionE::OPThermalDiffusionE(const DYNAMO::SimData* tmp,
-					 const XMLNode& XML):
+					 const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ThermalDiffusionE", 60),
   G(100),
   count(0),
@@ -44,31 +45,28 @@ OPThermalDiffusionE::OPThermalDiffusionE(const DYNAMO::SimData* tmp,
 }
 
 void 
-OPThermalDiffusionE::operator<<(const XMLNode& XML)
+OPThermalDiffusionE::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
       try {
-	species1name = boost::lexical_cast<std::string>
-	  (XML.getAttribute("Species"));
-	  
+	species1name = std::string(XML.getAttribute("Species"));
+	
       } catch (std::exception& nex)
 	{
 	  M_throw() << "The name of the Species must be specified"
 		    << nex.what();
 	}
+
+      CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
       
-      if (XML.isAttributeSet("Length"))
-	CorrelatorLength = boost::lexical_cast<unsigned int>
-	  (XML.getAttribute("Length"));
-      
-      if (XML.isAttributeSet("dt"))
+      if (XML.getAttribute("dt").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("dt"));
+	  XML.getAttribute("dt").as<double>();
       
-      if (XML.isAttributeSet("t"))
+      if (XML.getAttribute("t").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
+	  XML.getAttribute("t").as<double>() / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {

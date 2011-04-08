@@ -27,7 +27,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
-OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const XMLNode&):
+OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"Torsion")
 {}
 

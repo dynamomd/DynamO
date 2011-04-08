@@ -26,7 +26,7 @@ class CRange;
 class OPCContactMap: public OPTicker
 {
  public:
-  OPCContactMap(const DYNAMO::SimData*, const XMLNode&);
+  OPCContactMap(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPCContactMap(*this); }

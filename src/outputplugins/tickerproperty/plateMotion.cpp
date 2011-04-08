@@ -24,11 +24,12 @@
 #include "../../dynamics/ranges/2RList.hpp"
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../dynamics/locals/oscillatingplate.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <fstream>
 
-OPPlateMotion::OPPlateMotion(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPPlateMotion::OPPlateMotion(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"PlateMotion"),
   partpartEnergyLoss(0),
   oldPlateEnergy(0)
@@ -160,7 +161,7 @@ OPPlateMotion::ticker()
 }
 
 void 
-OPPlateMotion::operator<<(const XMLNode& XML)
+OPPlateMotion::operator<<(const magnet::xml::Node& XML)
 {
   try {
     plateName = std::string(XML.getAttribute("PlateName"));

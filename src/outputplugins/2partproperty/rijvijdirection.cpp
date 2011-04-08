@@ -23,7 +23,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPRijVij::OPRijVij(const DYNAMO::SimData* tmp, const XMLNode&):
+OPRijVij::OPRijVij(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp, "RdotV")
 {}
 

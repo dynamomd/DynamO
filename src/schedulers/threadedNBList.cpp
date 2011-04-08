@@ -23,7 +23,6 @@
 #include "../base/is_simdata.hpp"
 #include "../base/is_base.hpp"
 #include "../dynamics/systems/system.hpp"
-#include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/neighbourList.hpp"

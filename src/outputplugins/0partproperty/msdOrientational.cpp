@@ -26,7 +26,8 @@
 #include <vector>
 
 
-OPMSDOrientational::OPMSDOrientational(const DYNAMO::SimData* tmp, const XMLNode&):
+OPMSDOrientational::OPMSDOrientational(const DYNAMO::SimData* tmp, 
+				       const magnet::xml::Node&):
   OutputPlugin(tmp,"MSDOrientational")
 {}
 

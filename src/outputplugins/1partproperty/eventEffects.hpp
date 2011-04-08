@@ -30,7 +30,7 @@ class OPEventEffects: public OutputPlugin
 private:
   
 public:
-  OPEventEffects(const DYNAMO::SimData*, const XMLNode&);
+  OPEventEffects(const DYNAMO::SimData*, const magnet::xml::Node&);
   ~OPEventEffects();
 
   virtual void initialise();

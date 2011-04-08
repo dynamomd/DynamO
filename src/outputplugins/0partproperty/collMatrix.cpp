@@ -17,14 +17,13 @@
 
 #include "collMatrix.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/include.hpp"
 #include "../1partproperty/kenergy.hpp"
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPCollMatrix::OPCollMatrix(const DYNAMO::SimData* tmp, const XMLNode&):
+OPCollMatrix::OPCollMatrix(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"CollisionMatrix"),
   totalCount(0)
 {

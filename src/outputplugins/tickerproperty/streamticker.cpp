@@ -17,7 +17,7 @@
 
 #include "streamticker.hpp"
 
-OPStreamTicker::OPStreamTicker(const DYNAMO::SimData* tmp, const XMLNode&):
+OPStreamTicker::OPStreamTicker(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"StreamTicker")
 {}
 

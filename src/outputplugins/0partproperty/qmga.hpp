@@ -21,7 +21,7 @@
 class OPQMGA: public OPCollTicker
 {
  public:
-  OPQMGA(const DYNAMO::SimData*, const XMLNode&);
+  OPQMGA(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPQMGA(*this); }

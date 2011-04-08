@@ -21,7 +21,7 @@
 class OPStreamTicker: public OPTicker
 {
  public:
-  OPStreamTicker(const DYNAMO::SimData*, const XMLNode&);
+  OPStreamTicker(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPStreamTicker(*this); }

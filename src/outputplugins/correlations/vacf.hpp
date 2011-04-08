@@ -17,7 +17,6 @@
 
 #pragma once
 #include "../outputplugin.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/include.hpp"
 #include "../../datatypes/vector.xml.hpp"
 #include "../../base/is_simdata.hpp"
@@ -31,9 +30,9 @@
 class OPVACF: public OutputPlugin
 {
  public:
-  OPVACF(const DYNAMO::SimData*, const XMLNode&);
+  OPVACF(const DYNAMO::SimData*, const magnet::xml::Node&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 

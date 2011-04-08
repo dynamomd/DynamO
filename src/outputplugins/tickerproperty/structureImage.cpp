@@ -25,12 +25,14 @@
 #include "radiusGyration.hpp"
 #include "../../dynamics/topology/chain.hpp"
 #include "../../datatypes/vector.xml.hpp"
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
-#include <magnet/xmlwriter.hpp>
 #include <fstream>
 
-OPStructureImaging::OPStructureImaging(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPStructureImaging::OPStructureImaging(const DYNAMO::SimData* tmp, 
+				       const magnet::xml::Node& XML):
   OPTicker(tmp,"StructureImaging"),
   id(0),
   imageCount(500)
@@ -39,11 +41,11 @@ OPStructureImaging::OPStructureImaging(const DYNAMO::SimData* tmp, const XMLNode
 }
 
 void 
-OPStructureImaging::operator<<(const XMLNode& XML)
+OPStructureImaging::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (!(XML.isAttributeSet("Structure")))
+      if (!XML.getAttribute("Structure").valid())
 	M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
       
       structureName = XML.getAttribute("Structure");

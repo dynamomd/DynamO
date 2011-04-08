@@ -22,7 +22,7 @@
 class OPSCParameter: public OPTicker
 {
  public:
-  OPSCParameter(const DYNAMO::SimData*, const XMLNode&);
+  OPSCParameter(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPSCParameter(*this); }
@@ -35,7 +35,7 @@ class OPSCParameter: public OPTicker
   
   virtual void output(xml::XmlStream&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
  protected:
   

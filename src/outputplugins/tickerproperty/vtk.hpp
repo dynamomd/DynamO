@@ -20,7 +20,7 @@
 class OPVTK: public OPTicker
 {
  public:
-  OPVTK(const DYNAMO::SimData*, const XMLNode&);
+  OPVTK(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPVTK(*this); }
@@ -33,7 +33,7 @@ class OPVTK: public OPTicker
 
   virtual void output(xml::XmlStream&);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
   
   void eventUpdate(const IntEvent&, const PairEventData&);
 

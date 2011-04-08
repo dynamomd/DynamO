@@ -23,7 +23,7 @@
 class OPETA: public OutputPlugin
 {
  public:
-  OPETA(const DYNAMO::SimData*, const XMLNode&);
+  OPETA(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void periodicOutput();
 

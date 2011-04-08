@@ -19,7 +19,6 @@
 #include "../overlapFunc/CubePlane.hpp"
 #include "localEvent.hpp"
 #include "../NparticleEventData.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../datatypes/vector.xml.hpp"
 #include "../../extcode/include/boost/random/normal_distribution.hpp"
 #include "../../base/is_simdata.hpp"

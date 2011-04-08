@@ -19,23 +19,23 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../1partproperty/kenergy.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 OPVelDist::OPVelDist(const DYNAMO::SimData* tmp, 
-		       const XMLNode& XML):
+		     const magnet::xml::Node& XML):
   OPTicker(tmp,"VelDist"),
   binWidth(0.01),
   _ptrOPEnergy(NULL)
 { operator<<(XML); }
 
 void 
-OPVelDist::operator<<(const XMLNode& XML)
+OPVelDist::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    if (XML.isAttributeSet("binWidth"))
-      binWidth = boost::lexical_cast<double>(XML.getAttribute("binWidth"));
-      }
+    binWidth = XML.getAttribute("binWidth").as<double>(0.01);
+  }
   catch (std::exception& excep)
     {
       M_throw() << "Error while parsing " << name << "options\n"

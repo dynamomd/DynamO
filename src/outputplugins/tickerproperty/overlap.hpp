@@ -22,7 +22,7 @@
 class OPOverlapTest: public OPTicker
 {
  public:
-  OPOverlapTest(const DYNAMO::SimData*, const XMLNode&);
+  OPOverlapTest(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPOverlapTest(*this); }

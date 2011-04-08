@@ -25,7 +25,7 @@
 #include "../../dynamics/BC/BC.hpp"
 #include <iomanip>
 
-OPTrajectory::OPTrajectory(const DYNAMO::SimData* t1, const XMLNode&):
+OPTrajectory::OPTrajectory(const DYNAMO::SimData* t1, const magnet::xml::Node&):
   OutputPlugin(t1,"Trajectory")
 {}
 

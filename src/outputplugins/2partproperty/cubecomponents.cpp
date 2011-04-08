@@ -24,7 +24,7 @@
 #include <boost/array.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPCubeComp::OPCubeComp(const DYNAMO::SimData* tmp, const XMLNode&):
+OPCubeComp::OPCubeComp(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp, "CubeComponents")
 {}
 

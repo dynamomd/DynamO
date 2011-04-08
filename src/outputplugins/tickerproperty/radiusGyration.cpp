@@ -23,16 +23,17 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/topology/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
-#include <boost/foreach.hpp>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <vector>
 #include <fstream>
 #include <cmath>
 
-OPRGyration::OPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPRGyration::OPRGyration(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"GyrationRadius"),
   binwidth1(0.01),
   binwidth2(0.001),
@@ -42,18 +43,13 @@ OPRGyration::OPRGyration(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-OPRGyration::operator<<(const XMLNode& XML)
+OPRGyration::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("binwidth1"))
-	binwidth1 = boost::lexical_cast<double>(XML.getAttribute("binwidth1"));
-
-      if (XML.isAttributeSet("binwidth2"))
-	binwidth2 = boost::lexical_cast<double>(XML.getAttribute("binwidth2"));
-
-      if (XML.isAttributeSet("binwidth3"))
-	binwidth3 = boost::lexical_cast<double>(XML.getAttribute("binwidth3"));
+      binwidth1 = XML.getAttribute("binwidth1").as<double>(0.01);
+      binwidth2 = XML.getAttribute("binwidth2").as<double>(0.001);
+      binwidth3 = XML.getAttribute("binwidth3").as<double>(0.01);
     }
   catch (boost::bad_lexical_cast &)
     {

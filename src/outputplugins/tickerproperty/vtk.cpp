@@ -22,12 +22,13 @@
 #include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../base/is_stream_op.hpp"
 #include "../../dynamics/systems/rescale.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <fstream>
 #include <iomanip>
 
-OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPVTK::OPVTK(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"VTK"),
   binWidth(1,1,1),
   imageCounter(0),
@@ -41,20 +42,19 @@ OPVTK::OPVTK(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-OPVTK::operator<<(const XMLNode& XML)
+OPVTK::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    if (XML.isAttributeSet("binwidth"))
-      binWidth = Vector 
-	(boost::lexical_cast<double>(XML.getAttribute("binwidth")),
-	 boost::lexical_cast<double>(XML.getAttribute("binwidth")),
-	 boost::lexical_cast<double>(XML.getAttribute("binwidth")));
+    binWidth = 
+      Vector(XML.getAttribute("binwidth").as<double>(1),
+	     XML.getAttribute("binwidth").as<double>(1),
+	     XML.getAttribute("binwidth").as<double>(1));
     
-    if (XML.isAttributeSet("Snapshots")) snapshots = true;
-    if (XML.isAttributeSet("Fields")) fields = true;
-    if (XML.isAttributeSet("CollisionStats")) CollisionStats = true;
+    if (XML.getAttribute("Snapshots").valid()) snapshots = true;
+    if (XML.getAttribute("Fields").valid()) fields = true;
+    if (XML.getAttribute("CollisionStats").valid()) CollisionStats = true;
     
-      }
+  }
   catch (std::exception& excep)
     {
       M_throw() << "Error while parsing " << name << "options\n"

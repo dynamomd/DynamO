@@ -28,7 +28,7 @@ class CTChain;
 class OPRGyration: public OPTicker
 {
  public:
-  OPRGyration(const DYNAMO::SimData*, const XMLNode&);
+  OPRGyration(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPRGyration(*this); }
@@ -55,7 +55,7 @@ class OPRGyration: public OPTicker
   static Vector  NematicOrderParameter(const std::list<Vector  >&);
   static double CubaticOrderParameter(const std::list<Vector  >&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
  protected:
 

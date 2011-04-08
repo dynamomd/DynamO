@@ -21,7 +21,7 @@
 class OPStructureImaging: public OPTicker
 {
  public:
-  OPStructureImaging(const DYNAMO::SimData*, const XMLNode&);
+  OPStructureImaging(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPStructureImaging(*this); }
@@ -34,7 +34,7 @@ class OPStructureImaging: public OPTicker
 
   virtual void changeSystem(OutputPlugin*);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void output(xml::XmlStream&);
   

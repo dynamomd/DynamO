@@ -24,7 +24,7 @@ class OPMSD;
 class OPMSDCorrelator: public OPTicker
 {
  public:
-  OPMSDCorrelator(const DYNAMO::SimData*, const XMLNode&);
+  OPMSDCorrelator(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 
@@ -33,7 +33,7 @@ class OPMSDCorrelator: public OPTicker
   virtual OutputPlugin *Clone() const 
   { return new OPMSDCorrelator(*this); };
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
  protected:
   virtual void stream(double) {}

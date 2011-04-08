@@ -18,7 +18,6 @@
 #pragma once
 #include "../base/is_base.hpp"
 #include "../base/is_simdata.hpp"
-#include "../extcode/xmlParser.h"
 
 class IntEvent;
 class GlobalEvent;
@@ -28,10 +27,8 @@ class ParticleEventData;
 class NEventData;
 class System;
 
-namespace xml
-{
-  class XmlStream;
-}
+namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; } }
 
 class OutputPlugin: public DYNAMO::SimBase_const
 {
@@ -56,7 +53,7 @@ public:
   
   virtual void periodicOutput();
   
-  static OutputPlugin* getPlugin(const XMLNode&, const DYNAMO::SimData*);
+  static OutputPlugin* getPlugin(const magnet::xml::Node&, const DYNAMO::SimData*);
   static OutputPlugin* getPlugin(const std::string, const DYNAMO::SimData*);
   
   inline bool operator<(const OutputPlugin& OP) const
@@ -84,5 +81,5 @@ protected:
 private:
 
   template<class T> static OutputPlugin* 
-  testGeneratePlugin(const DYNAMO::SimData*, const XMLNode&);
+  testGeneratePlugin(const DYNAMO::SimData*, const magnet::xml::Node&);
 };

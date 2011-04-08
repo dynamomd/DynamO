@@ -16,13 +16,13 @@
 */
 
 #include "globEvent.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"
 #include "../interactions/intEvent.hpp"
 #include "global.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 
 GlobalEvent::GlobalEvent(const Particle& part1, const double &delt, 

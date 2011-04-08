@@ -23,7 +23,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
-OPQMGA::OPQMGA(const DYNAMO::SimData* tmp, const XMLNode&):
+OPQMGA::OPQMGA(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPCollTicker(tmp,"OPQMGA"),
   frameCount(0)
 {}

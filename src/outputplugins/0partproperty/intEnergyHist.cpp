@@ -19,11 +19,12 @@
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../1partproperty/uenergy.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <fstream>
 
-OPIntEnergyHist::OPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPIntEnergyHist::OPIntEnergyHist(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
   intEnergyHist(1.0),
   ptrOPEnergy(NULL),
@@ -34,13 +35,11 @@ OPIntEnergyHist::OPIntEnergyHist(const DYNAMO::SimData* tmp, const XMLNode& XML)
 }
 
 void 
-OPIntEnergyHist::operator<<(const XMLNode& XML)
+OPIntEnergyHist::operator<<(const magnet::xml::Node& XML)
 {  
   try 
     {
-      if (XML.isAttributeSet("BinWidth"))
-	binwidth = boost::lexical_cast<double>
-	   (XML.getAttribute("BinWidth"));
+      binwidth = XML.getAttribute("BinWidth").as<double>(1.0);
     }
   catch (boost::bad_lexical_cast &)
     {

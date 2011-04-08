@@ -23,7 +23,7 @@
 class OPMisc: public OutputPlugin
 {
 public:
-  OPMisc(const DYNAMO::SimData*, const XMLNode&);
+  OPMisc(const DYNAMO::SimData*, const magnet::xml::Node&);
   
   virtual void initialise();
   

@@ -27,7 +27,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
-OPGeomview::OPGeomview(const DYNAMO::SimData* tmp, const XMLNode&):
+OPGeomview::OPGeomview(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"Geomview"),
   frameCount(0)
 {}

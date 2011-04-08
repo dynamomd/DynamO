@@ -27,13 +27,14 @@
 #include "../../dynamics/liouvillean/CompressionL.hpp"
 #include "vmd_imd/vmdsock.h"
 #include "vmd_imd/imd.h"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <fstream>
 
 static const size_t HEADERSIZE = 8;
 
-OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),
   fileOutput(true),
@@ -66,21 +67,19 @@ OPTinkerXYZ::ticker()
   if (liveOutput) printLiveImage();
 }
 
-void 
-OPTinkerXYZ::operator<<(const XMLNode& XML)
+void
+OPTinkerXYZ::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("LiveVMD")) liveOutput = true;
-      if (XML.isAttributeSet("File")) fileOutput = true;
-      if (XML.isAttributeSet("NoFile")) fileOutput = false;
-      if (XML.isAttributeSet("NoBlock")) blockForVMD = false;
-      if (XML.isAttributeSet("P1Track")) P1track = true;
-      if (XML.isAttributeSet("Port")) 
-	port = boost::lexical_cast<int>(XML.getAttribute("Port"));
-
-      if (XML.isAttributeSet("MaxFrames")) 
-	max_frame_count = boost::lexical_cast<size_t>(XML.getAttribute("MaxFrames"));
+      if (XML.getAttribute("LiveVMD").valid()) liveOutput = true;
+      if (XML.getAttribute("File").valid()) fileOutput = true;
+      if (XML.getAttribute("NoFile").valid()) fileOutput = false;
+      if (XML.getAttribute("NoBlock").valid()) blockForVMD = false;
+      if (XML.getAttribute("P1Track").valid()) P1track = true;
+      
+      port = XML.getAttribute("Port").as<int>(3333);
+      max_frame_count = XML.getAttribute("MaxFrames").as<size_t>(1000);
     }
   catch (std::exception& excep)
     {

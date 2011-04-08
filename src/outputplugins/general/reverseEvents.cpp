@@ -22,7 +22,7 @@
 #include "../../dynamics/locals/localEvent.hpp"
 #include <magnet/xmlwriter.hpp>
 
-OPReverseEventsCheck::OPReverseEventsCheck(const DYNAMO::SimData* t1, const XMLNode&):
+OPReverseEventsCheck::OPReverseEventsCheck(const DYNAMO::SimData* t1, const magnet::xml::Node&):
   OutputPlugin(t1,"ReverseEventsChecker"),
   lReverseEvents(0)
 {

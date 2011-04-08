@@ -22,7 +22,8 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPBoundedQStats::OPBoundedQStats(const DYNAMO::SimData* tmp, const XMLNode&):
+OPBoundedQStats::OPBoundedQStats(const DYNAMO::SimData* tmp, 
+				 const magnet::xml::Node&):
   OPTicker(tmp,"BoundedPQstats"),
   treeSize(1)
 {}

@@ -24,7 +24,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPMomentum::OPMomentum(const DYNAMO::SimData* tmp, const XMLNode&):
+OPMomentum::OPMomentum(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OP1PP(tmp,"Momentum", 250),
   accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
 {}

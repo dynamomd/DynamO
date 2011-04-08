@@ -28,7 +28,7 @@ using namespace EventTypeTracking;
 class OPRdotV: public OutputPlugin
 {
  public:
-  OPRdotV(const DYNAMO::SimData*, const XMLNode&);
+  OPRdotV(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
   

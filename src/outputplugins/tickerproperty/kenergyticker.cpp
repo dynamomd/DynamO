@@ -22,13 +22,13 @@
 #include <magnet/xmlwriter.hpp>
 
 OPKEnergyTicker::OPKEnergyTicker(const DYNAMO::SimData* tmp, 
-		       const XMLNode& XML):
+				 const magnet::xml::Node& XML):
   OPTicker(tmp,"KEnergyTicker"),
   count(0)
 { operator<<(XML); }
 
 void 
-OPKEnergyTicker::operator<<(const XMLNode& XML)
+OPKEnergyTicker::operator<<(const magnet::xml::Node& XML)
 {}
 
 void 

@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
 
-OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const XMLNode&):
+OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const magnet::xml::Node&):
   OutputPlugin(t1,"ReplexTrace")
 {}
 

@@ -24,7 +24,7 @@
 class OPReplexTrace: public OutputPlugin
 {
 public:
-  OPReplexTrace(const DYNAMO::SimData*, const XMLNode&);
+  OPReplexTrace(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void eventUpdate(const IntEvent&, const PairEventData&) {}
 

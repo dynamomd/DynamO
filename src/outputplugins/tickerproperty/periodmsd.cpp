@@ -26,7 +26,7 @@
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const XMLNode&):
+OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"PeriodicMSD"),
   ptrOPMSD(NULL)
 {}

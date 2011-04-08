@@ -18,7 +18,7 @@
 #include "eta.hpp"
 #include "../../base/is_simdata.hpp"
 
-OPETA::OPETA(const DYNAMO::SimData* tmp, const XMLNode&):
+OPETA::OPETA(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"EstTime", 249)
 {}
 

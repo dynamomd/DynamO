@@ -23,7 +23,7 @@
 class OPKEnergyTicker: public OPTicker
 {
  public:
-  OPKEnergyTicker(const DYNAMO::SimData*, const XMLNode&);
+  OPKEnergyTicker(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   typedef boost::array<double, NDIM> col;
   typedef boost::array<col, NDIM> matrix;
@@ -39,7 +39,7 @@ class OPKEnergyTicker: public OPTicker
   
   virtual void output(xml::XmlStream&);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual void periodicOutput();
 

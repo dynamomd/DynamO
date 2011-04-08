@@ -24,7 +24,7 @@
 class OPMFT: public OP1PP
 {
  public:
-  OPMFT(const DYNAMO::SimData*, const XMLNode&);
+  OPMFT(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 
@@ -38,7 +38,7 @@ class OPMFT: public OP1PP
 
   virtual OutputPlugin *Clone() const { return new OPMFT(*this); }
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
  protected:
   size_t collisionHistoryLength;

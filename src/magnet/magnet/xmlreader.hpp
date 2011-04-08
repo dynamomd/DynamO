@@ -73,6 +73,17 @@ namespace magnet {
 	return boost::lexical_cast<T>(_attr->value()); 
       }
 
+      //! Converts the attributes value to a type.  This version of
+      //! as() will return the passed value if the Attribute is
+      //! invalid. 
+      //! \param defaultval The default value to be returned if the Attribute is invalid.
+      //! \sa as()
+      template<class T> inline T as(T defaultval) const 
+      { 
+	if (!valid()) return defaultval;
+	return boost::lexical_cast<T>(_attr->value()); 
+      }
+
       //! Conversion operator returning the value of the attribute.
       inline operator const char*() const 
       { 
@@ -136,12 +147,12 @@ namespace magnet {
 	if (!valid()) M_throw() << detail::xmlerror("Cannot decrement invalid node", _parent);
 	_node = _node->previous_sibling(_node->name()); 
       }
-   private:
-      friend class Document;
 
+      //! Constructor to build a Node from rapidxml::xml_node data.
       inline Node(rapidxml::xml_node<>* node,
 		  rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
 
+   private:
       rapidxml::xml_node<> *_node;
       rapidxml::xml_node<> *_parent;
     };

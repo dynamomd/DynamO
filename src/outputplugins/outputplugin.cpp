@@ -17,14 +17,14 @@
 
 #include "include.hpp"
 #include "outputplugin.hpp"
-#include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
 #include "../base/constants.hpp"
 #include "../simulation/particle.hpp"
-#include "../extcode/xmlParser.h"
 #include "correlations/include.hpp"
 #include "general/include.hpp"
+#include <magnet/xmlreader.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
 
 OutputPlugin::OutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsigned char order, const char *aColor):
   SimBase_const(tmp, aName, aColor),
@@ -50,10 +50,12 @@ OutputPlugin::I_Pcout() const
 OutputPlugin*
 OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 {
-  XMLNode XML = XMLNode::createXMLTopNode("Plugin");
-
   typedef boost::tokenizer<boost::char_separator<char> >
     tokenizer;
+
+  rapidxml::xml_document<> doc;
+  rapidxml::xml_node<> *node = doc.allocate_node(rapidxml::node_element, 
+						 doc.allocate_string("OP"));
 
   boost::char_separator<char> DetailsSep(":");
   boost::char_separator<char> OptionsSep(",");
@@ -62,7 +64,8 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
   tokenizer tokens(Details, DetailsSep);
   tokenizer::iterator details_iter = tokens.begin();
 
-  XML.addAttribute("Type", details_iter->c_str());
+  node->append_attribute(doc.allocate_attribute("Type", details_iter->c_str()));
+
   ++details_iter;
   if (details_iter != tokens.end())
     {
@@ -85,15 +88,15 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 	  else
 	    val = *value_iter;
 
-	  XML.addAttribute(opName.c_str(), val.c_str());
+	  node->append_attribute(doc.allocate_attribute(opName.c_str(), val.c_str()));
 	}
     }
 
-  return getPlugin(XML,Sim);
+  return getPlugin(magnet::xml::Node(node, NULL), Sim);
 }
 
 template<class T> OutputPlugin*
-OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
+OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const magnet::xml::Node& XML)
 {
   try {
     Sim->getOutputPlugin<T>();
@@ -107,25 +110,9 @@ OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const XMLNode& XML)
 }
 
 OutputPlugin*
-OutputPlugin::getPlugin(const XMLNode& XML, const DYNAMO::SimData* Sim)
+OutputPlugin::getPlugin(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
 {
-  std::string Name = XML.getAttribute("Type");
-
-  {
-    XMLSTR str = XML.createXMLString();
-    std::string XMLstring(str);
-    free(str);
-
-    std::string::size_type pos = XMLstring.find_last_of("\n");
-
-    if(pos != std::string::npos)
-      {
-	XMLstring.erase(pos);
-      }
-
-    std::cout << IC_purple << "\nOutputPluginParser:" << IC_reset
-	      <<  " Parsing XML " << XMLstring;
-  }
+  std::string Name(XML.getAttribute("Type"));
 
   if (!Name.compare("MSD"))
     return testGeneratePlugin<OPMSD>(Sim, XML);

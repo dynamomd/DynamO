@@ -22,7 +22,7 @@
 class OPMomentum: public OP1PP
 {
  public:
-  OPMomentum(const DYNAMO::SimData*, const XMLNode&);
+  OPMomentum(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 

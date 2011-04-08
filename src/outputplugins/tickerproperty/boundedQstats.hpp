@@ -23,7 +23,7 @@
 class OPBoundedQStats: public OPTicker
 {
  public:
-  OPBoundedQStats(const DYNAMO::SimData*, const XMLNode&);
+  OPBoundedQStats(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPBoundedQStats(*this); }

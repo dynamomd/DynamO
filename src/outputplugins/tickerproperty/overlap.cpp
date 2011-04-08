@@ -21,7 +21,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-OPOverlapTest::OPOverlapTest(const DYNAMO::SimData* tmp, const XMLNode&):
+OPOverlapTest::OPOverlapTest(const DYNAMO::SimData* tmp, 
+			     const magnet::xml::Node&):
   OPTicker(tmp,"OverlapTester")
 {}
 

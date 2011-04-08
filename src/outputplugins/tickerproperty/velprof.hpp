@@ -22,7 +22,7 @@
 class OPVelProfile: public OPTicker
 {
  public:
-  OPVelProfile(const DYNAMO::SimData*, const XMLNode&);
+  OPVelProfile(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPVelProfile(*this); }

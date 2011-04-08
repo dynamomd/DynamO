@@ -21,11 +21,12 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../base/is_ensemble.hpp"
 #include "../0partproperty/misc.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 OPThermalConductivityE::OPThermalConductivityE(const DYNAMO::SimData* tmp,
-						 const XMLNode& XML):
+					       const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ThermalConductivityE"),
   G(100),
   count(0),
@@ -41,21 +42,19 @@ OPThermalConductivityE::OPThermalConductivityE(const DYNAMO::SimData* tmp,
 }
 
 void 
-OPThermalConductivityE::operator<<(const XMLNode& XML)
+OPThermalConductivityE::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("Length"))
-	CorrelatorLength = boost::lexical_cast<unsigned int>
-	  (XML.getAttribute("Length"));
+      CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
       
-      if (XML.isAttributeSet("dt"))
+      if (XML.getAttribute("dt").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("dt"));
+	  XML.getAttribute("dt").as<double>();
       
-      if (XML.isAttributeSet("t"))
+      if (XML.getAttribute("t").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("t"))/CorrelatorLength;
+	  XML.getAttribute("t").as<double>() / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {

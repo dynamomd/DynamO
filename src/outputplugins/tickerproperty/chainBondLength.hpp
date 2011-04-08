@@ -23,7 +23,7 @@
 class OPChainBondLength: public OPTicker
 {
  public:
-  OPChainBondLength(const DYNAMO::SimData*, const XMLNode&);
+  OPChainBondLength(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPChainBondLength(*this); }

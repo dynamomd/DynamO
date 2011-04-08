@@ -22,11 +22,12 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../dynamics/interactions/squarebond.hpp"
 #include "../../dynamics/ranges/2RList.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 #include <fstream>
 
-OPPovray::OPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPPovray::OPPovray(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"Povray"),
   frameCount(0),
   zoomlevel(1.0)
@@ -35,13 +36,11 @@ OPPovray::OPPovray(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-OPPovray::operator<<(const XMLNode& XML)
+OPPovray::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("Zoom"))
-	zoomlevel = boost::lexical_cast<double>
-	  (XML.getAttribute("Zoom"));
+      zoomlevel = XML.getAttribute("Zoom").as<double>(1.0);
     }
   catch (boost::bad_lexical_cast &)
     {

@@ -26,7 +26,7 @@ using namespace EventTypeTracking;
 class OPRijVij: public OutputPlugin
 {
  public:
-  OPRijVij(const DYNAMO::SimData*, const XMLNode&);
+  OPRijVij(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
   

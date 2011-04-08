@@ -22,7 +22,7 @@
 class OPSHCrystal: public OPTicker
 {
  public:
-  OPSHCrystal(const DYNAMO::SimData*, const XMLNode&);
+  OPSHCrystal(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPSHCrystal(*this); }
@@ -35,7 +35,7 @@ class OPSHCrystal: public OPTicker
   
   virtual void output(xml::XmlStream&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
  protected:
 

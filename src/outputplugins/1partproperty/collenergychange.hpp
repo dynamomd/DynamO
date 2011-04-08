@@ -26,7 +26,7 @@
 class OPCollEnergyChange: public OP1PP
 {
  public:
-  OPCollEnergyChange(const DYNAMO::SimData*, const XMLNode&);
+  OPCollEnergyChange(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 
@@ -43,7 +43,7 @@ class OPCollEnergyChange: public OP1PP
   virtual OutputPlugin *Clone() const 
   { return new OPCollEnergyChange(*this); }
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
  protected:  
   double binWidth; 

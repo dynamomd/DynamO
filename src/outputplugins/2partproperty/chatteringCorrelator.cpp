@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 
 OPChatteringCorrelator::OPChatteringCorrelator(const DYNAMO::SimData* t1,
-					       const XMLNode& XML):
+					       const magnet::xml::Node& XML):
   OP2PP(t1,"ChatteringCorrelator") {}
 
 void

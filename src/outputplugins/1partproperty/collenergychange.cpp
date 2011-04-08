@@ -23,29 +23,27 @@
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/2particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 double OPCollEnergyChange::KEBinWidth = 0.01;
 
 
-OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, const XMLNode&XML):
+OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, 
+				       const magnet::xml::Node&XML):
   OP1PP(tmp,"CollEnergyChange", 250),
   binWidth(0.001)
 { operator<<(XML); }
 
 void 
-OPCollEnergyChange::operator<<(const XMLNode& XML)
+OPCollEnergyChange::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    if (XML.isAttributeSet("binWidth"))
-      binWidth = boost::lexical_cast<double>(XML.getAttribute("binWidth"));
-
-    if (XML.isAttributeSet("KEBinWidth"))
-      KEBinWidth = boost::lexical_cast<double>(XML.getAttribute("KEBinWidth"));
-
+    binWidth = XML.getAttribute("binWidth").as<double>(0.001);
+    KEBinWidth = XML.getAttribute("KEBinWidth").as<double>(0.1);
     KEBinWidth *= Sim->dynamics.units().unitEnergy();
-      }
+  }
   catch (std::exception& excep)
     {
       M_throw() << "Error while parsing " << name << "options\n"

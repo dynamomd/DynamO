@@ -24,7 +24,7 @@
 class OPChatteringCorrelator: public OP2PP
 {
 public:
-  OPChatteringCorrelator(const DYNAMO::SimData*, const XMLNode&);
+  OPChatteringCorrelator(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 

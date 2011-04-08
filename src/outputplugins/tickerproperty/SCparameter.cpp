@@ -26,7 +26,7 @@
 #include <cmath>
 #include <limits>
 
-OPSCParameter::OPSCParameter(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPSCParameter::OPSCParameter(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"SCParameter"),
   maxWaveNumber(0),
   count(0),
@@ -103,6 +103,6 @@ OPSCParameter::output(xml::XmlStream& XML)
 }
 
 void 
-OPSCParameter::operator<<(const XMLNode& XML)
+OPSCParameter::operator<<(const magnet::xml::Node& XML)
 {
 }

@@ -27,7 +27,7 @@ class OPViscosityCollisionalE: public OutputPlugin
   typedef boost::array<col, NDIM> matrix;
   
 public:
-  OPViscosityCollisionalE(const DYNAMO::SimData*, const XMLNode& XML);
+  OPViscosityCollisionalE(const DYNAMO::SimData*, const magnet::xml::Node& XML);
 
   virtual void initialise();
 
@@ -45,7 +45,7 @@ public:
 
   void stream(const double&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   void impulseDelG(const PairEventData&);

@@ -16,7 +16,6 @@
 */
 
 #include "intEvent.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"

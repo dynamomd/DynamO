@@ -21,7 +21,8 @@
 #include "../0partproperty/misc.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPMutualDiffusionE::OPMutualDiffusionE(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPMutualDiffusionE::OPMutualDiffusionE(const DYNAMO::SimData* tmp, 
+				       const magnet::xml::Node& XML):
   OutputPlugin(tmp, "MutualDiffusionE", 60), //Note the sort order set later
   count(0),
   dt(0.0),
@@ -41,20 +42,19 @@ OPMutualDiffusionE::OPMutualDiffusionE(const DYNAMO::SimData* tmp, const XMLNode
 }
 
 void 
-OPMutualDiffusionE::operator<<(const XMLNode& XML)
+OPMutualDiffusionE::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("Length"))
-	CorrelatorLength = boost::lexical_cast<unsigned int>(XML.getAttribute("Length"));
-
-      if (XML.isAttributeSet("dt"))
+      CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
+      
+      if (XML.getAttribute("dt").valid())
 	dt = Sim->dynamics.units().unitTime() * 
-	  boost::lexical_cast<double>(XML.getAttribute("dt"));
-
-	if (XML.isAttributeSet("t"))
-	  dt = Sim->dynamics.units().unitTime() * 
-	    boost::lexical_cast<double>(XML.getAttribute("t")) / CorrelatorLength;
+	  XML.getAttribute("dt").as<double>();
+      
+      if (XML.getAttribute("t").valid())
+	dt = Sim->dynamics.units().unitTime() * 
+	  XML.getAttribute("t").as<double>() / CorrelatorLength;
     }
   catch (boost::bad_lexical_cast &)
     {

@@ -23,7 +23,7 @@
 class OPPlateMotion: public OPTicker
 {
  public:
-  OPPlateMotion(const DYNAMO::SimData*, const XMLNode&);
+  OPPlateMotion(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   OPPlateMotion(const OPPlateMotion&);
   
@@ -36,7 +36,7 @@ class OPPlateMotion: public OPTicker
 
   virtual void ticker();
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
   virtual void eventUpdate(const LocalEvent&, const NEventData&);
 

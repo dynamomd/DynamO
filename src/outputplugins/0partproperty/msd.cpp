@@ -22,7 +22,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPMSD::OPMSD(const DYNAMO::SimData* tmp, const XMLNode&):
+OPMSD::OPMSD(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"MSD")
 {}
 

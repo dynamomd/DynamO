@@ -19,11 +19,12 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../extcode/mathtemplates.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 OPRadialDistribution::OPRadialDistribution(const DYNAMO::SimData* tmp, 
-		       const XMLNode& XML):
+					   const magnet::xml::Node& XML):
   OPTicker(tmp,"RadialDistribution"),
   binWidth(1.0),
   length(100),
@@ -36,17 +37,14 @@ OPRadialDistribution::OPRadialDistribution(const DYNAMO::SimData* tmp,
 }
 
 void 
-OPRadialDistribution::operator<<(const XMLNode& XML)
+OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    if (XML.isAttributeSet("binWidth"))
-      binWidth = boost::lexical_cast<double>(XML.getAttribute("binWidth")) 
-	* Sim->dynamics.units().unitLength();
-    else
-      binWidth = 0.1 * Sim->dynamics.units().unitLength();
-
-    if (XML.isAttributeSet("length"))
-      length = boost::lexical_cast<size_t>(XML.getAttribute("length"));
+    binWidth = XML.getAttribute("binWidth").as<double>(0.1)
+      * Sim->dynamics.units().unitLength();
+    
+    if (XML.getAttribute("length").valid())
+      length = XML.getAttribute("length").as<size_t>();
     else
       {
 	size_t mindir = 0;

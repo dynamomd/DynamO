@@ -21,10 +21,11 @@
 #include "../../dynamics/species/species.hpp"
 #include "../../dynamics/1particleEventData.hpp"
 #include "../../dynamics/units/units.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
-OPMFL::OPMFL(const DYNAMO::SimData* tmp, const XMLNode& XML):
+OPMFL::OPMFL(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   OP1PP(tmp,"MeanFreeLength", 250),
   binwidth(0.01)
 {
@@ -32,17 +33,16 @@ OPMFL::OPMFL(const DYNAMO::SimData* tmp, const XMLNode& XML):
 }
 
 void 
-OPMFL::operator<<(const XMLNode& XML)
+OPMFL::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.isAttributeSet("binwidth"))
-	binwidth = boost::lexical_cast<double>(XML.getAttribute("binwidth"));
-      }
+      binwidth = XML.getAttribute("binwidth").as<double>(0.01);
+    }
   catch (boost::bad_lexical_cast&)
-      {
-	M_throw() << "Failed a lexical cast in OPMFL";
-      }
+    {
+      M_throw() << "Failed a lexical cast in OPMFL";
+    }
 }
 
 void

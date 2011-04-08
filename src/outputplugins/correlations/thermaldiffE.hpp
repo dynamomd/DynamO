@@ -25,7 +25,7 @@
 class OPThermalDiffusionE: public OutputPlugin
 {
 public:
-  OPThermalDiffusionE(const DYNAMO::SimData*, const XMLNode&);
+  OPThermalDiffusionE(const DYNAMO::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 
@@ -39,7 +39,7 @@ public:
   virtual void eventUpdate(const System&, const NEventData&, const double&);
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
   
 protected:
   boost::circular_buffer<Vector  > G;

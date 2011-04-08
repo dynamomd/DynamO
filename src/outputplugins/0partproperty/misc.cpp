@@ -26,7 +26,7 @@
 #include <ctime>
 #include <sys/time.h>
 
-OPMisc::OPMisc(const DYNAMO::SimData* tmp, const XMLNode&):
+OPMisc::OPMisc(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"Misc",0),
   oldSysTime(0),
   dualEvents(0),
