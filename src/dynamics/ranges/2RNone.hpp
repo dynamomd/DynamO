@@ -23,7 +23,7 @@
 class C2RNone:public C2Range
 {
 public:
-  C2RNone(const XMLNode&, const DYNAMO::SimData*);
+  C2RNone(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   C2RNone() {}
   
@@ -33,7 +33,7 @@ public:
   virtual bool isInRange(const Particle&, const Particle&) const
   { return false; }
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;

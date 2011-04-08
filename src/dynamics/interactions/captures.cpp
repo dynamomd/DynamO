@@ -18,9 +18,9 @@
 #include "captures.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 ICapture::ICapture(DYNAMO::SimData* tmp,C2Range* nR): 
   Interaction(tmp,nR)
@@ -51,14 +51,11 @@ ISingleCapture::initCaptureMap()
 }
 
 void 
-ISingleCapture::loadCaptureMap(const XMLNode& XML)
+ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
 {
-  if (XML.nChildNode("CaptureMap"))
+  if (XML.getNode("CaptureMap").valid())
     {
-      XMLNode browseNode, subNode;
-      subNode = XML.getChildNode("CaptureMap");
-
-      if (!subNode.isAttributeSet("Size"))
+      if (!XML.getNode("CaptureMap").getAttribute("Size").valid())
 	{
 	  I_cout() << "Could not find size in capture map";
 	  noXmlLoad = true;
@@ -69,17 +66,10 @@ ISingleCapture::loadCaptureMap(const XMLNode& XML)
 
       captureMap.clear();
 
-      int xml_iter = 0;
-      long counter = subNode.nChildNode("Pair");
-      for (long i = 0; i < counter; i++)
-	{
-	  browseNode = subNode.getChildNode("Pair",&xml_iter);
-	  
-	  captureMap.insert
-	    (std::pair<size_t, size_t>
-	     (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
-	      boost::lexical_cast<size_t>(browseNode.getAttribute("ID2"))));
-	}
+      for (magnet::xml::Node node = XML.getNode("CaptureMap").getNode("Pair");
+	   node.valid(); ++node)
+	captureMap.insert(std::pair<size_t, size_t>(node.getAttribute("ID1").as<size_t>(),
+						    node.getAttribute("ID2").as<size_t>()));
     }
 }
 
@@ -175,14 +165,11 @@ IMultiCapture::initCaptureMap()
 }
 
 void 
-IMultiCapture::loadCaptureMap(const XMLNode& XML)
+IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
 {
-  if (XML.nChildNode("CaptureMap"))
+  if (XML.getNode("CaptureMap").valid())
     {
-      XMLNode browseNode, subNode;
-      subNode = XML.getChildNode("CaptureMap");
-
-      if (!subNode.isAttributeSet("Size"))
+      if (!XML.getNode("CaptureMap").getAttribute("Size").valid())
 	{
 	  I_cout() << "Could not find size in capture map";
 	  noXmlLoad = true;
@@ -190,21 +177,13 @@ IMultiCapture::loadCaptureMap(const XMLNode& XML)
 	}
 
       noXmlLoad = false;
-
       captureMap.clear();
 
-      int xml_iter = 0;
-      long counter = subNode.nChildNode("Pair");
-      for (long i = 0; i < counter; i++)
-	{
-	  browseNode = subNode.getChildNode("Pair",&xml_iter);
-	  
-	  captureMap
-	    [cMapKey
-	     (boost::lexical_cast<size_t>(browseNode.getAttribute("ID1")),
-	      boost::lexical_cast<size_t>(browseNode.getAttribute("ID2")))]
-	    = boost::lexical_cast<size_t>(browseNode.getAttribute("val"));
-	}
+      for (magnet::xml::Node node = XML.getNode("CaptureMap").getNode("Pair");
+	   node.valid(); ++node)
+	captureMap[cMapKey(node.getAttribute("ID1").as<size_t>(),
+			   node.getAttribute("ID2").as<size_t>())]
+	  = node.getAttribute("val").as<size_t>();
     }
 }
 

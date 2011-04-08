@@ -28,9 +28,9 @@ public:
   IStepped(DYNAMO::SimData*, const std::vector<steppair>&,
 	    C2Range*);
 
-  IStepped(const XMLNode&, DYNAMO::SimData*);
+  IStepped(const magnet::xml::Node&, DYNAMO::SimData*);
   
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 

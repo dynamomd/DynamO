@@ -22,7 +22,7 @@
 class CRSingle: public CRange
 {
 public:
-  CRSingle(const XMLNode&);
+  CRSingle(const magnet::xml::Node&);
 
   CRSingle():ID(0) {}
 
@@ -31,7 +31,7 @@ public:
   virtual bool isInRange(const Particle &) const;
 
   //The data output classes
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
   virtual unsigned long size() const { return 1; };
 

@@ -21,27 +21,24 @@
 #endif
 
 #include "include.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../ranges/1range.hpp"
 #include "../ranges/1RAll.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"
-#include <boost/tokenizer.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cstring>
 
 
 void 
-SpPoint::operator<<(const XMLNode& XML)
+SpPoint::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    mass = boost::lexical_cast<double>(XML.getAttribute("Mass"))
-      * Sim->dynamics.units().unitMass();
+    mass = XML.getAttribute("Mass").as<double>() * Sim->dynamics.units().unitMass();
     spName = XML.getAttribute("Name");
     intName = XML.getAttribute("IntName");
   } 

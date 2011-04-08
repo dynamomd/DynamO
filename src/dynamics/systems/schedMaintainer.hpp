@@ -30,7 +30,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&) {}
+  virtual void operator<<(const magnet::xml::Node&) {}
 
   void setdt(double);
 

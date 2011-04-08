@@ -16,17 +16,15 @@
 */
 
 #include "include.hpp"
-#include "../../extcode/xmlParser.h"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 CSCEntry::CSCEntry(DYNAMO::SimData* const tmp, const char *aName):
   SimBase(tmp, aName, IC_cyan)
-{
-
-}
+{}
 
 CSCEntry* 
-CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
+CSCEntry::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSCENBList(XML, Sim);      
@@ -35,8 +33,7 @@ CSCEntry::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
 	      << XML.getAttribute("Type") << "`encountered";
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
-			    const CSCEntry& g)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const CSCEntry& g)
 {
   g.outputXML(XML);
   return XML;

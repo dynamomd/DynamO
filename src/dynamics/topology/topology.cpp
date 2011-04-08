@@ -16,15 +16,14 @@
 */
 
 #include "topology.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../ranges/1range.hpp"
 #include "../ranges/1RAll.hpp"
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "include.hpp"
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
 Topology::Topology(DYNAMO::SimData* tmp, size_t nID):
   SimBase_const(tmp,"Species", IC_blue),
@@ -38,18 +37,16 @@ xml::XmlStream& operator<<(xml::XmlStream& XML, const Topology& g)
 }
 
 void 
-Topology::operator<<(const XMLNode& XML)
+Topology::operator<<(const magnet::xml::Node& XML)
 {
-    try {
-      spName = XML.getAttribute("Name");
-    } 
+    try { spName = XML.getAttribute("Name"); } 
     catch (boost::bad_lexical_cast &)
       {
 	M_throw() << "Failed a lexical cast in CTopology";
       }
     
-    for (int i = 0; i < XML.nChildNode(); i++)
-      ranges.push_back(magnet::ClonePtr<CRange>(CRange::loadClass(XML.getChildNode(i), Sim)));
+    for (magnet::xml::Node node = XML.getNode("Molecule"); node.valid(); ++node)
+      ranges.push_back(magnet::ClonePtr<CRange>(CRange::getClass(node, Sim)));
 }
 
 void
@@ -64,7 +61,7 @@ Topology::outputXML(xml::XmlStream& XML) const
 
 
 Topology* 
-Topology::loadClass(const XMLNode& XML, DYNAMO::SimData* Sim, size_t ID)
+Topology::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, size_t ID)
 {
   if (!strcmp(XML.getAttribute("Type"),"Chain"))
     return new CTChain(XML, Sim, ID);

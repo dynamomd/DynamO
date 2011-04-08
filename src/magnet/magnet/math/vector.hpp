@@ -25,22 +25,24 @@ namespace {
 };
 
 // list of operators that can act of Vectors and/or Matrices
-enum {
-  NoOp,         // tag to indicate no operation
-  RowOp,        // tag to indicate row operation
-  ColumnOp,     // tag to indicate columns operation
-  PlusOp,       // tag for addition operator    
-  MinusOp,      // tag for subtraction operator
-  TimesOp,      // tag for multiplication operator
-  NegativeOp,   // tag for negation operator
-  TransposeOp,  // tag to indicate transpose
-  DyadicOp      // tag for dyadic operator
-};
+namespace ops {
+  enum {
+    NoOp,         // tag to indicate no operation
+    RowOp,        // tag to indicate row operation
+    ColumnOp,     // tag to indicate columns operation
+    PlusOp,       // tag for addition operator    
+    MinusOp,      // tag for subtraction operator
+    TimesOp,      // tag for multiplication operator
+    NegativeOp,   // tag for negation operator
+    TransposeOp,  // tag to indicate transpose
+    DyadicOp      // tag for dyadic operator
+  };
+}
 
 // define vector expressions and matrix expressions 
 class Base;  
-template<class A=Base,int B=NoOp,class C=Base> class VectorExpression;
-template<class A=Base,int B=NoOp,class C=Base> class MatrixExpression;
+template<class A=Base,int B=ops::NoOp,class C=Base> class VectorExpression;
+template<class A=Base,int B=ops::NoOp,class C=Base> class MatrixExpression;
 
 // 'typedef' the defaults as the Vector and Matrix types
 typedef VectorExpression<> Vector; 
@@ -164,10 +166,10 @@ template <> inline double VectorExpression<>::eval<2>() const { return z; }
 // Expression template class for '+'  between two VectorExpressions
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Vector
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
 template<class A,int B,class C,class D,int E,class F>
-class VectorExpression<VectorExpression<A,B,C>,PlusOp,VectorExpression<D,E,F> >
+class VectorExpression<VectorExpression<A,B,C>,ops::PlusOp,VectorExpression<D,E,F> >
 {
  public:
 
@@ -197,10 +199,10 @@ class VectorExpression<VectorExpression<A,B,C>,PlusOp,VectorExpression<D,E,F> >
 // Expression template class for '-'  between two VectorExpressions
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Vector
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
 template<class A,int B,class C,class D,int E,class F>
-class VectorExpression<VectorExpression<A,B,C>,MinusOp,VectorExpression<D,E,F> >
+class VectorExpression<VectorExpression<A,B,C>,ops::MinusOp,VectorExpression<D,E,F> >
 {
  public:
 
@@ -231,10 +233,10 @@ class VectorExpression<VectorExpression<A,B,C>,MinusOp,VectorExpression<D,E,F> >
 // i.e. their outer product
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Vector
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
 template<class A,int B,class C,class D,int E,class F>
-class VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression<D,E,F> >
+class VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> >
 {
  public:
 
@@ -274,9 +276,9 @@ class VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression<D,E,F>
 // Expression template class for '*' between a Vector and a double
 //
 // A and C are classes, B is an Operator
-// if B=NoOp and A=C=Base, the VectorExpression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the VectorExpression is actually a Vector
 template<class A,int B,class C>
-class VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
+class VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
 {
  public:
 
@@ -319,12 +321,12 @@ class VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
   // be-friend multiplication operators that optimize further double
   // multiplication
   template<class D,int E,class F> 
-  friend VectorExpression < VectorExpression<D,E,F>, TimesOp, double >&
-  operator* (double b, VectorExpression < VectorExpression<D,E,F>, TimesOp, double > &a);
+  friend VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double >&
+  operator* (double b, VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double > &a);
 
   template<class D,int E,class F> 
-  friend VectorExpression < VectorExpression<D,E,F>, TimesOp, double >&
-  operator/ (double b, VectorExpression < VectorExpression<D,E,F>, TimesOp, double > &a);
+  friend VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double >&
+  operator/ (double b, VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double > &a);
 
 };
 
@@ -332,9 +334,9 @@ class VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
 // Expression template class for unary '-' acting on a VectorExpression
 //
 // A and C are classes, B is an Operator
-// if B=NoOp and A=C=Base, the VectorExpression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the VectorExpression is actually a Vector
 template<class A,int B,class C>
-class VectorExpression<VectorExpression<A,B,C>, NegativeOp, Base>
+class VectorExpression<VectorExpression<A,B,C>, ops::NegativeOp, Base>
 {
  public:
 
@@ -364,62 +366,62 @@ class VectorExpression<VectorExpression<A,B,C>, NegativeOp, Base>
 
 // Vector + Vector
 template<class A,int B,class C,class D,int E,class F> 
-inline VectorExpression<VectorExpression<A,B,C>, PlusOp, VectorExpression<D,E,F> >
+inline VectorExpression<VectorExpression<A,B,C>, ops::PlusOp, VectorExpression<D,E,F> >
 operator+ (const VectorExpression<A,B,C> & a, 
 	   const VectorExpression<D,E,F> & b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, PlusOp, VectorExpression<D,E,F> >(a,b);
+  return VectorExpression<VectorExpression<A,B,C>, ops::PlusOp, VectorExpression<D,E,F> >(a,b);
 }
 
 // Vector - Vector
 template<class A,int B,class C,class D,int E,class F> 
-inline VectorExpression<VectorExpression<A,B,C>, MinusOp, VectorExpression<D,E,F> >
+inline VectorExpression<VectorExpression<A,B,C>, ops::MinusOp, VectorExpression<D,E,F> >
 operator- (const VectorExpression<A,B,C> & a, 
 	   const VectorExpression<D,E,F> & b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, MinusOp, VectorExpression<D,E,F> >(a, b);
+  return VectorExpression<VectorExpression<A,B,C>, ops::MinusOp, VectorExpression<D,E,F> >(a, b);
 }
 
 // Vector ^ Vector
 template<class A,int B,class C,class D,int E,class F> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression< D,E,F> >
+inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, VectorExpression< D,E,F> >
 operator^ (const VectorExpression<A,B,C> & a, 
 	   const VectorExpression<D,E,F> & b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, VectorExpression< D,E,F> > (a, b);
+  return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, VectorExpression< D,E,F> > (a, b);
 }
 
 // double * Vector
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
+inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
 operator* (double b, 
 	   const VectorExpression<A,B,C> & a)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, double>(a, b);
+  return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>(a, b);
 }
 
 // Vector * double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
+inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
 operator* (const VectorExpression<A,B,C> & a, 
 	   double b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, double>(a, b);
+  return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>(a, b);
 }
 
 // Vector / double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>
+inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
 operator/ (const VectorExpression<A,B,C> & a, 
 	   double b)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, TimesOp, double>(a, 1.0/b);
+  return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>(a, 1.0/b);
 }
 
 // Vector * double * double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>&
-operator*(double b,VectorExpression<VectorExpression<A,B,C>,TimesOp,double>&a)
+inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>&
+operator*(double b,VectorExpression<VectorExpression<A,B,C>,ops::TimesOp,double>&a)
 { 
   a.b *= b; 
   return a; 
@@ -427,8 +429,8 @@ operator*(double b,VectorExpression<VectorExpression<A,B,C>,TimesOp,double>&a)
 
 // Vector * double / double
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, TimesOp, double>&
-operator/(double b,VectorExpression<VectorExpression<A,B,C>,TimesOp,double>&a)
+inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>&
+operator/(double b,VectorExpression<VectorExpression<A,B,C>,ops::TimesOp,double>&a)
 { 
   a.b /= b; 
   return a; 
@@ -436,10 +438,10 @@ operator/(double b,VectorExpression<VectorExpression<A,B,C>,TimesOp,double>&a)
 
 // - Vector
 template<class A,int B,class C> 
-inline VectorExpression<VectorExpression<A,B,C>, NegativeOp, Base>
+inline VectorExpression<VectorExpression<A,B,C>, ops::NegativeOp, Base>
 operator-(const VectorExpression<A,B,C> & a)
 { 
-  return VectorExpression<VectorExpression<A,B,C>, NegativeOp, Base> (a);
+  return VectorExpression<VectorExpression<A,B,C>, ops::NegativeOp, Base> (a);
 }
 
 // Vector | Vector

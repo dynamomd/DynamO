@@ -38,7 +38,7 @@ CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim,
   I_cout() << "Shearing Cells Loaded";
 }
 
-CGCellsShearing::CGCellsShearing(const XMLNode &XML, 
+CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
 				 DYNAMO::SimData* ptrSim):
   CGCells(ptrSim, "ShearingCells")
 {

@@ -16,19 +16,18 @@
 */
 
 #include "2RChain.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RChain::C2RChain(const XMLNode& XML, const DYNAMO::SimData*):
+C2RChain::C2RChain(const magnet::xml::Node& XML, const DYNAMO::SimData*):
   range1(0),range2(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"Chain"))
     M_throw() << "Attempting to load a chain from a non chain";
   
-  range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
-  range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
+  range1 = XML.getAttribute("Start").as<unsigned long>();
+  range2 = XML.getAttribute("End").as<unsigned long>();
 }
 
 bool 
@@ -50,7 +49,7 @@ C2RChain::isInRange(const Particle&p1, const Particle&p2) const
 }
 
 void 
-C2RChain::operator<<(const XMLNode&)
+C2RChain::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RChain operator<< cannot work for this class";
 }

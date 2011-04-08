@@ -27,7 +27,7 @@ public:
     SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
   {}
   
-  SpLines(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+  SpLines(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
     SpSphericalTop(XML, Sim, ID)
   {}
 

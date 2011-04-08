@@ -22,14 +22,14 @@
 class LNewtonianMC: public LNewtonian
 {
 public:
-  LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode&);
+  LNewtonianMC(DYNAMO::SimData* tmp, const magnet::xml::Node&);
 
   //Pair particle dynamics
   virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 
-					 const double&) const;
+					const double&) const;
   virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
-					   const double&, const double&, 
-					   EEventType&) const;
+				       const double&, const double&, 
+				       EEventType&) const;
 
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianMC(*this); }

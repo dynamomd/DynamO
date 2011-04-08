@@ -38,7 +38,7 @@ CLCylinder::CLCylinder(DYNAMO::SimData* nSim, double ne, Vector  nnorm,
   localName = nname;
 }
 
-CLCylinder::CLCylinder(const XMLNode& XML, DYNAMO::SimData* tmp):
+CLCylinder::CLCylinder(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Local(tmp, "CylinderWall")
 {
   operator<<(XML);
@@ -89,22 +89,21 @@ CLCylinder::initialise(size_t nID)
 }
 
 void 
-CLCylinder::operator<<(const XMLNode& XML)
+CLCylinder::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
+    e = XML.getAttribute("Elasticity").as<double>();
 
-    radius = boost::lexical_cast<double>(XML.getAttribute("Radius"))
-      * Sim->dynamics.units().unitLength();
+    radius = XML.getAttribute("Radius").as<double>() * Sim->dynamics.units().unitLength();
 
-    render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
-    XMLNode xBrowseNode = XML.getChildNode("Norm");
+    render = XML.getAttribute("Render").as<bool>();
+    magnet::xml::Node xBrowseNode = XML.getNode("Norm");
     localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
     vNorm /= vNorm.nrm();
-    xBrowseNode = XML.getChildNode("Origin");
+    xBrowseNode = XML.getNode("Origin");
     vPosition << xBrowseNode;
     vPosition *= Sim->dynamics.units().unitLength();
   } 

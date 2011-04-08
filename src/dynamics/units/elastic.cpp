@@ -16,11 +16,8 @@
 */
 
 #include "elastic.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/lexical_cast.hpp>
-#include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <cstring>
+#include <magnet/xmlreader.hpp>
 
 UHardSphere::UHardSphere(const DYNAMO::SimData* tmp): 
   Units(tmp),
@@ -36,7 +33,7 @@ UHardSphere::UHardSphere(double diameter, const DYNAMO::SimData* tmp):
   I_cout() << "HardSphere units loaded";
 }
 
-UHardSphere::UHardSphere(const XMLNode &XML, const DYNAMO::SimData* tmp):
+UHardSphere::UHardSphere(const magnet::xml::Node& XML, const DYNAMO::SimData* tmp):
   Units(tmp)
 { 
   operator<<(XML); 
@@ -66,10 +63,10 @@ UHardSphere::rescaleLength(double rs)
 { UnitOfLength += rs * UnitOfLength; }
   
 void 
-UHardSphere::operator<<(const XMLNode &XML)
+UHardSphere::operator<<(const magnet::xml::Node& XML)
 {  
   try {
-    UnitOfLength = 1.0/(boost::lexical_cast<double>(XML.getAttribute("BoxLength")));
+    UnitOfLength = 1.0 / XML.getAttribute("BoxLength").as<double>();
   }
   catch (boost::bad_lexical_cast &)
     {

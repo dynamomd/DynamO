@@ -23,17 +23,18 @@
 #include "../base/is_simdata.hpp"
 #include "../base/is_base.hpp"
 #include "../dynamics/systems/system.hpp"
-#include <cmath> //for huge val
 #include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
+#include <magnet/xmlreader.hpp>
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
+#include <cmath> //for huge val
 
-SThreadedNBList::SThreadedNBList(const XMLNode& XML, 
+SThreadedNBList::SThreadedNBList(const magnet::xml::Node& XML, 
 				 DYNAMO::SimData* const Sim):
   CSNeighbourList(XML, Sim)
 { 
@@ -53,11 +54,10 @@ SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns,
 }
 
 void 
-SThreadedNBList::operator<<(const XMLNode& XML)
+SThreadedNBList::operator<<(const magnet::xml::Node& XML)
 {
   CSNeighbourList::operator<<(XML);
-  _threadPool.setThreadCount(boost::lexical_cast<size_t>
-			     (XML.getAttribute("ThreadCount")));
+  _threadPool.setThreadCount(XML.getAttribute("ThreadCount").as<size_t>());
 }
 
 void 

@@ -23,7 +23,7 @@
 class C2RList:public C2Range
 {
 public:
-  C2RList(const XMLNode&);
+  C2RList(const magnet::xml::Node&);
   C2RList() {}
 
   virtual C2Range* Clone() const 
@@ -33,7 +33,7 @@ public:
 
   void addPair(unsigned long, unsigned long);
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   const std::map<unsigned long, std::list<unsigned long> >& getPairMap() const;
   

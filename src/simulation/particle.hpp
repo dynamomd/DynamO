@@ -19,11 +19,8 @@
 
 #include <magnet/math/vector.hpp>
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 
 class Particle
 {
@@ -38,7 +35,7 @@ public:
     _state(DEFAULT)
   {}
   
-  Particle(const XMLNode&, unsigned long);
+  Particle(const magnet::xml::Node&, unsigned long);
   
   inline bool operator==(const Particle &p) const { return (_ID == p._ID); }
   inline bool operator!=(const Particle &p) const { return (_ID != p._ID); }

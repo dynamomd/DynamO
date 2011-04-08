@@ -36,13 +36,12 @@ class Topology;
 class Particle;
 template<class T> class CVector;
 class Liouvillean;
-struct XMLNode;
 class NEventData;
 class PairEventData;
 class ParticleEventData;
-namespace xml
-{
-  class XmlStream;
+namespace magnet {
+  namespace xml
+  { class Node; }
 }
 
 class Dynamics: public DYNAMO::SimBase
@@ -51,7 +50,7 @@ public:
   //Constructors
   Dynamics(DYNAMO::SimData*);
 
-  Dynamics(const XMLNode&, DYNAMO::SimData*);
+  Dynamics(const magnet::xml::Node& XML, DYNAMO::SimData*);
 
   explicit Dynamics(const Dynamics &);
 
@@ -95,7 +94,7 @@ public:
     M_throw() << "Could not find the right interaction to test for";
   }
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   void initialise();
   

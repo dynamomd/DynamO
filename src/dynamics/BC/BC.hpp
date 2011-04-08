@@ -22,11 +22,8 @@
 #include <magnet/math/vector.hpp>
 #include "../../base/is_base.hpp"
 
-struct XMLNode;
-namespace xml
-{
-class XmlStream;
-}
+namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; } }
 
 class IntEvent;
 namespace DYNAMO
@@ -100,7 +97,7 @@ class BoundaryCondition: public DYNAMO::SimBase_const
   virtual void update(const double&) {};
 
   /*! \brief Load the Boundary condition from an XML file. */
-  virtual void operator<<(const XMLNode &) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
 
   /*! \brief A polymorphic class copy helper. */
   virtual BoundaryCondition* Clone () const = 0;
@@ -109,7 +106,7 @@ class BoundaryCondition: public DYNAMO::SimBase_const
   friend xml::XmlStream& operator<<(xml::XmlStream&, const BoundaryCondition&);
 
   /*! \brief The class loader for boundary conditions. */
-  static BoundaryCondition* loadClass(const XMLNode& ,DYNAMO::SimData*);
+  static BoundaryCondition* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
 
  protected:
   /*! \brief The XML output for a BoundaryCondition class*/

@@ -25,7 +25,7 @@
 class CGSOCells: public Global
 {
 public:
-  CGSOCells(const XMLNode&, DYNAMO::SimData*);
+  CGSOCells(const magnet::xml::Node&, DYNAMO::SimData*);
 
   CGSOCells(DYNAMO::SimData*, const std::string&);
 
@@ -42,7 +42,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void outputXML(xml::XmlStream& XML) const;
 

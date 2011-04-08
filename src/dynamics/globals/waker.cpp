@@ -24,6 +24,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../units/units.hpp"
 #include "neighbourList.hpp"
+#include <magnet/xmlreader.hpp>
 
 GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range, 
 	       const double wt,const double wv, std::string nblist):
@@ -36,7 +37,7 @@ GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range,
   I_cout() << "GWaker Loaded";
 }
 
-GWaker::GWaker(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+GWaker::GWaker(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
   Global(NULL, ptrSim, "GWaker")
 {
   operator<<(XML);
@@ -67,18 +68,17 @@ GWaker::initialise(size_t nID)
 }
 
 void 
-GWaker::operator<<(const XMLNode& XML)
+GWaker::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML, Sim));
+  range.set_ptr(CRange::getClass(XML, Sim));
 
   try {
     globName = XML.getAttribute("Name");
 
-    _wakeTime = Sim->dynamics.units().unitTime() * 
-      boost::lexical_cast<double>(XML.getAttribute("WakeTime"));
+    _wakeTime = XML.getAttribute("WakeTime").as<double>() * Sim->dynamics.units().unitTime();
 
-    _wakeVelocity = Sim->dynamics.units().unitVelocity() * 
-      boost::lexical_cast<double>(XML.getAttribute("WakeVelocity"));
+    _wakeVelocity = XML.getAttribute("WakeVelocity").as<double>() 
+      * Sim->dynamics.units().unitVelocity();
 
     _nblistName = XML.getAttribute("NBList");
   }

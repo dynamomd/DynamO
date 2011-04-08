@@ -32,17 +32,17 @@ class BCNone: virtual public BoundaryCondition
   
   virtual ~BCNone();
     
-  virtual void applyBC(Vector  &)const;
+  virtual void applyBC(Vector&)const;
 
-  virtual void applyBC(Vector  &, Vector  &) const;
+  virtual void applyBC(Vector&, Vector&) const;
 
-  virtual void applyBC(Vector  &, const double&) const;
+  virtual void applyBC(Vector&, const double&) const;
 
   virtual void update(const double&);
 
   virtual void outputXML(xml::XmlStream &XML) const;
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual BoundaryCondition* Clone () const;
 

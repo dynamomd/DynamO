@@ -24,9 +24,9 @@ class ILines: public ISingleCapture
 public:
   ILines(DYNAMO::SimData*, double, double, C2Range*);
 
-  ILines(const XMLNode&, DYNAMO::SimData*);
+  ILines(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual double getInternalEnergy() const { return 0.0; }
 

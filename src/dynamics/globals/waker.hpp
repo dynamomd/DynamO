@@ -21,12 +21,11 @@
 #include "global.hpp"
 #include <vector>
 #include <map>
-#include "../../datatypes/vector.hpp"
 
 class GWaker: public Global
 {
 public:
-  GWaker(const XMLNode&, DYNAMO::SimData*);
+  GWaker(const magnet::xml::Node&, DYNAMO::SimData*);
 
   GWaker(DYNAMO::SimData*, const std::string&, CRange*, const double, const double,
 	 std::string nblist);
@@ -41,7 +40,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   void particlesUpdated(const NEventData&);

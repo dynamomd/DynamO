@@ -16,7 +16,6 @@
 */
 
 #include "ghost.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -30,8 +29,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-CSysGhost::CSysGhost(const XMLNode& XML, DYNAMO::SimData* tmp): 
+CSysGhost::CSysGhost(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   meanFreeTime(100000),
@@ -129,31 +129,24 @@ CSysGhost::initialise(size_t nID)
 }
 
 void 
-CSysGhost::operator<<(const XMLNode& XML)
+CSysGhost::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Andersen"))
     M_throw() << "Attempting to load Andersen from non Andersen entry"; 
   
   try {
-    meanFreeTime = boost::lexical_cast<double>(XML.getAttribute("MFT"))
-      * Sim->dynamics.units().unitTime();
-    
-    Temp = boost::lexical_cast<double>(XML.getAttribute("Temperature")) 
-      * Sim->dynamics.units().unitEnergy();
-    
+    meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->dynamics.units().unitTime();
+    Temp = XML.getAttribute("Temperature").as<double>() * Sim->dynamics.units().unitEnergy();
     sysName = XML.getAttribute("Name");
 
-    if (XML.isAttributeSet("SetFrequency") && XML.isAttributeSet("SetPoint"))
+    if (XML.getAttribute("SetFrequency").valid() && XML.getAttribute("SetPoint").valid())
       {
 	tune = true;
-	
-	setFrequency = boost::lexical_cast<unsigned long>
-	  (XML.getAttribute("SetFrequency"));
-
+	setFrequency = XML.getAttribute("SetFrequency").as<unsigned long long>();
 	setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
       }
 
-    range.set_ptr(CRange::loadClass(XML,Sim));
+    range.set_ptr(CRange::getClass(XML,Sim));
   }
   catch (boost::bad_lexical_cast &)
     {

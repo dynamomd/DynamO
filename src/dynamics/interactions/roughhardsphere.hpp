@@ -24,9 +24,9 @@ class IRoughHardSphere: public Interaction
 public:
   IRoughHardSphere(DYNAMO::SimData*, double, double, double, C2Range*);
 
-  IRoughHardSphere(const XMLNode&, DYNAMO::SimData*);
+  IRoughHardSphere(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual double getInternalEnergy() const { return 0.0; }
 

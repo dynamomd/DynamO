@@ -16,18 +16,18 @@
 */
 
 #include "2RNone.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RNone::C2RNone(const XMLNode& XML, const DYNAMO::SimData*)
+C2RNone::C2RNone(const magnet::xml::Node& XML, const DYNAMO::SimData*)
 { 
   if (strcmp(XML.getAttribute("Range"),"2None"))
     M_throw() << "Attempting to load a 2None from a non 2None";
 }
 
 void 
-C2RNone::operator<<(const XMLNode&)
+C2RNone::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RNone operator<< cannot work for this class";
 }

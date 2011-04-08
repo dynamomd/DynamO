@@ -27,7 +27,7 @@
 class CSDSMCSpheres: public System
 {
 public:
-  CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData*);
+  CSDSMCSpheres(const magnet::xml::Node& XML, DYNAMO::SimData*);
 
   CSDSMCSpheres(DYNAMO::SimData*, double, double, double, double, std::string, CRange*, CRange*);
   
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const;

@@ -27,7 +27,7 @@
 class CSysGhost: public System
 {
 public:
-  CSysGhost(const XMLNode& XML, DYNAMO::SimData*);
+  CSysGhost(const magnet::xml::Node& XML, DYNAMO::SimData*);
 
   CSysGhost(DYNAMO::SimData*, double, double, std::string);
   
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   double getTemperature() const { return Temp; }
   double getReducedTemperature() const;

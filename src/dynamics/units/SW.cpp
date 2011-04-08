@@ -16,10 +16,8 @@
 */
 
 #include "SW.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <magnet/exception.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <cstring>
 
@@ -39,7 +37,7 @@ USquareWell::USquareWell(double diameter, double energy, const DYNAMO::SimData* 
   I_cout() << "SW units loaded";
 }
 
-USquareWell::USquareWell(const XMLNode &XML, const DYNAMO::SimData* tmp):
+USquareWell::USquareWell(const magnet::xml::Node& XML, const DYNAMO::SimData* tmp):
   Units(tmp)
 { 
   operator<<(XML); 
@@ -71,14 +69,14 @@ USquareWell::Clone() const
 { return new USquareWell(*this); }
   
 void 
-USquareWell::operator<<(const XMLNode &XML)
+USquareWell::operator<<(const magnet::xml::Node& XML)
 {
   if (std::strcmp(XML.getAttribute("Type"),"SW"))
     M_throw() << "Attempting to load USquareWell from non elastic type";
   
   try {
-    UnitOfLength = 1.0/(boost::lexical_cast<double>(XML.getAttribute("BoxLength")));
-    UnitOfEnergy = boost::lexical_cast<double>(XML.getAttribute("Energy"));
+    UnitOfLength = 1.0/XML.getAttribute("BoxLength").as<double>();
+    UnitOfEnergy = XML.getAttribute("Energy").as<double>();
   }
   catch (boost::bad_lexical_cast &)
     {

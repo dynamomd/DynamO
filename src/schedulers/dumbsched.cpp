@@ -26,15 +26,15 @@
 #include "../base/is_base.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/systems/system.hpp"
-#include <cmath> //for huge val
-#include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
+#include <magnet/xmlreader.hpp>
+#include <cmath> //for huge val
 
-CSDumb::CSDumb(const XMLNode& XML, DYNAMO::SimData* const Sim):
+CSDumb::CSDumb(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim):
   CScheduler(Sim,"DumbScheduler", NULL)
 { 
   I_cout() << "Dumb Scheduler Algorithmn";
@@ -46,9 +46,9 @@ CSDumb::CSDumb(DYNAMO::SimData* const Sim, CSSorter* ns):
 { I_cout() << "Dumb Scheduler Algorithmn"; }
 
 void 
-CSDumb::operator<<(const XMLNode& XML)
+CSDumb::operator<<(const magnet::xml::Node& XML)
 {
-  sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
+  sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
 }
 
 void

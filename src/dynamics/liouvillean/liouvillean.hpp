@@ -23,11 +23,7 @@
 #include "../../base/is_simdata.hpp"
 #include "datastruct.hpp"
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace xml { class XmlStream; }
 class Particle;
 class PairEventData;
 class ParticleEventData;
@@ -79,7 +75,7 @@ public:
   /*! \brief Parses the XML data to see if it can load XML particle
    * data or if it needs to decode the binary data. Then loads the particle data.
    */
-  virtual void loadParticleXMLData(const XMLNode&);
+  virtual void loadParticleXMLData(const magnet::xml::Node&);
   
   /*! \brief Writes the XML particle data, either the base64 header or
    * the entire XML form.
@@ -562,7 +558,7 @@ public:
   /*! \brief Instantiates and loads CLiovillean classes from an XML
    * entry.
    */
-  static Liouvillean* loadClass(const XMLNode& ,DYNAMO::SimData*);
+  static Liouvillean* loadClass(const magnet::xml::Node& ,DYNAMO::SimData*);
     
   /*! \brief Free streams all particles up to the current time.
    * 

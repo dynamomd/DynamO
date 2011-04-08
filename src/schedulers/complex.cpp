@@ -23,27 +23,27 @@
 #include "../base/is_simdata.hpp"
 #include "../base/is_base.hpp"
 #include "../dynamics/systems/system.hpp"
-#include <cmath> //for huge val
-#include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
-#include <boost/bind.hpp>
-#include <boost/progress.hpp>
-
 #include "complexentries/include.hpp"
 
-void 
-CSComplex::operator<<(const XMLNode& XML)
-{
-  sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
+#include <magnet/xmlreader.hpp>
+#include <boost/bind.hpp>
+#include <boost/progress.hpp>
+#include <cmath> //for huge val
 
-  XMLNode xSubNode = XML.getChildNode("Entries");  
-  for (long i=0; i < xSubNode.nChildNode("Entry"); i++)
-    entries.push_back(magnet::ClonePtr<CSCEntry>
-		      (CSCEntry::getClass(xSubNode.getChildNode("Entry", i), Sim)));
+
+void 
+CSComplex::operator<<(const magnet::xml::Node& XML)
+{
+  sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
+
+  for (magnet::xml::Node node = XML.getNode("Entries").getNode("Entry"); 
+       node.valid(); ++node)
+    entries.push_back(magnet::ClonePtr<CSCEntry>(CSCEntry::getClass(node, Sim)));
 }
 
 void
@@ -121,8 +121,7 @@ CSComplex::outputXML(xml::XmlStream& XML) const
   XML << xml::endtag("Entries");
 }
 
-CSComplex::CSComplex(const XMLNode& XML, 
-		     DYNAMO::SimData* const Sim):
+CSComplex::CSComplex(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim):
   CScheduler(Sim,"ComplexScheduler", NULL)
 { 
   I_cout() << "Complex Scheduler Algorithmn Loaded";

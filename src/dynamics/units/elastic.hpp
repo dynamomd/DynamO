@@ -34,7 +34,7 @@ class UHardSphere: public Units
   
   UHardSphere(double, const DYNAMO::SimData*);
 
-  UHardSphere(const XMLNode&, const DYNAMO::SimData*);
+  UHardSphere(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   virtual ~UHardSphere();
 
@@ -48,7 +48,7 @@ class UHardSphere: public Units
   
   virtual Units* Clone() const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
  protected:
   virtual void outputXML(xml::XmlStream&) const;

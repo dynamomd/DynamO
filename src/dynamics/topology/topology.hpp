@@ -22,15 +22,12 @@
 #include <string>
 #include <list>
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 class Particle;
 class Interaction;
 
-class Topology:public DYNAMO::SimBase_const
+class Topology: public DYNAMO::SimBase_const
 {
 public:  
   virtual ~Topology() {}
@@ -39,7 +36,7 @@ public:
   
   const size_t& getID() const { return ID; }
   
-  void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void initialise() {}
 
@@ -48,7 +45,7 @@ public:
   const std::string& getName() const
   { return spName; }
   
-  static Topology* loadClass(const XMLNode& ,DYNAMO::SimData*, size_t);
+  static Topology* getClass(const magnet::xml::Node& ,DYNAMO::SimData*, size_t);
 
   virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
 

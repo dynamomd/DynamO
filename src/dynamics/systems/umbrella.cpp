@@ -16,7 +16,6 @@
 */
 
 #include "umbrella.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -26,12 +25,13 @@
 #include "../ranges/include.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
-#include <magnet/xmlwriter.hpp>
 
-CSUmbrella::CSUmbrella(const XMLNode& XML, DYNAMO::SimData* tmp): 
+CSUmbrella::CSUmbrella(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   System(tmp),
   a(1.0),
   b(1.0),
@@ -257,7 +257,7 @@ CSUmbrella::particlesUpdated(const NEventData& PDat)
 }
 
 void
-CSUmbrella::operator<<(const XMLNode& XML)
+CSUmbrella::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Umbrella"))
     M_throw() << "Attempting to load Umbrella from a " 
@@ -266,23 +266,20 @@ CSUmbrella::operator<<(const XMLNode& XML)
   try {
     sysName = XML.getAttribute("Name");
 
-    a = boost::lexical_cast<double>(XML.getAttribute("a"))
+    a = XML.getAttribute("a").as<double>()
       * Sim->dynamics.units().unitEnergy() 
       / Sim->dynamics.units().unitArea();
 
-    b = boost::lexical_cast<double>(XML.getAttribute("b"))
+    b = XML.getAttribute("b").as<double>()
       * Sim->dynamics.units().unitLength();
 
-    delU = boost::lexical_cast<double>(XML.getAttribute("delU"))
-      * Sim->dynamics.units().unitEnergy();
-
-    range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
-
-    range2.set_ptr(CRange::loadClass(XML.getChildNode("Range2"), Sim));
+    delU = XML.getAttribute("delU").as<double>() * Sim->dynamics.units().unitEnergy();
+    range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
+    range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
     
-    if (XML.isAttributeSet("currentulevel"))
+    if (XML.getAttribute("currentulevel").valid())
       {
-	ulevel = boost::lexical_cast<size_t>(XML.getAttribute("currentulevel"));
+	ulevel = XML.getAttribute("currentulevel").as<size_t>();
 	ulevelset = true;
       }
     

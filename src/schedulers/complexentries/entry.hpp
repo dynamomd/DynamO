@@ -21,11 +21,8 @@
 #include "../../dynamics/globals/neighbourList.hpp"
 #include <magnet/cloneptr.hpp>
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 
 class Particle;
 
@@ -40,9 +37,9 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CSCEntry&);
 
-  static CSCEntry* getClass(const XMLNode&, DYNAMO::SimData* const);
+  static CSCEntry* getClass(const magnet::xml::Node&, DYNAMO::SimData* const);
  
-  virtual void operator<<(const XMLNode&) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
 
   bool isApplicable(const Particle& part) const;
   

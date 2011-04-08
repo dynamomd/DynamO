@@ -21,11 +21,11 @@
 class CSCENBList: public CSCEntry
 {
 public:
-  CSCENBList(const XMLNode&, DYNAMO::SimData* const);
+  CSCENBList(const magnet::xml::Node&, DYNAMO::SimData* const);
   
   virtual void initialise();
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void getParticleNeighbourhood(const Particle&, 
 					const CGNeighbourList::nbHoodFunc&) const;

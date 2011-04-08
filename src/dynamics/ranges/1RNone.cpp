@@ -16,14 +16,14 @@
 */
 
 #include "1RNone.hpp"
-#include "../../extcode/xmlParser.h"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-CRNone::CRNone(const XMLNode& XML)
+CRNone::CRNone(const magnet::xml::Node& XML)
 { operator<<(XML); }
 
 void 
-CRNone::operator<<(const XMLNode& XML)
+CRNone::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"None"))
     M_throw() << "Attempting to load CRNone from non None type";

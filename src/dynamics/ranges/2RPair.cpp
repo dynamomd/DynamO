@@ -16,21 +16,18 @@
 */
 
 #include "2RPair.hpp"
-#include "../../extcode/xmlParser.h"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RPair::C2RPair(const XMLNode& XML, const DYNAMO::SimData* Sim):
-  range1(NULL),range2(NULL) 
+C2RPair::C2RPair(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim):
+  range1(NULL), range2(NULL) 
 { 
 
-  if (strcmp(XML.getAttribute("Range"),"Pair"))
+  if (strcmp(XML.getAttribute("Range"), "Pair"))
     M_throw() << "Attempting to load a pair from a non pair";
   
-  XMLNode xSubNode = XML.getChildNode("Range1");
-  range1.set_ptr(CRange::loadClass(xSubNode, Sim));
-  
-  xSubNode = XML.getChildNode("Range2");
-  range2.set_ptr(CRange::loadClass(xSubNode, Sim));
+  range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
+  range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
 }
 
 bool 
@@ -43,7 +40,7 @@ C2RPair::isInRange(const Particle&p1, const Particle&p2) const
 }
 
 void 
-C2RPair::operator<<(const XMLNode&)
+C2RPair::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RPair operator<< cannot work for this class";
 }

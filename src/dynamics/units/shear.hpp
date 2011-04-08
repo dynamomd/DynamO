@@ -48,7 +48,7 @@ public:
     I_cout() << "Shearing units loaded";
   }
   
-  UShear(const XMLNode& XML, const DYNAMO::SimData* tmp):
+  UShear(const magnet::xml::Node& XML, const DYNAMO::SimData* tmp):
     UHardSphere(1.0, tmp)
   { 
     operator<<(XML); 
@@ -63,7 +63,7 @@ public:
   virtual Units* Clone() const
   { return new UShear(*this); }
   
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
 private:
   void outputXML(xml::XmlStream&) const;

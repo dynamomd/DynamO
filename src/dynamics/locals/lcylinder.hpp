@@ -21,7 +21,7 @@
 class CLCylinder: public Local
 {
 public:
-  CLCylinder(const XMLNode&, DYNAMO::SimData*);
+  CLCylinder(const magnet::xml::Node&, DYNAMO::SimData*);
   CLCylinder(DYNAMO::SimData*, double, Vector , Vector , double, 
 	 std::string, CRange*, bool nrender = true);
 
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void write_povray_info(std::ostream&) const;
 

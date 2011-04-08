@@ -18,7 +18,6 @@
 #include "gcells.hpp"
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
@@ -26,8 +25,9 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 #include "../liouvillean/NewtonianGravityL.hpp"
-#include <boost/static_assert.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/static_assert.hpp>
 #include <cstdio>
 
 Vector 
@@ -60,7 +60,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
   I_cout() << "Cells Loaded, Overlinking set to " << overlink;
 }
 
-CGCells::CGCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+CGCells::CGCells(const magnet::xml::Node &XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -87,27 +87,23 @@ CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
 {}
 
 void 
-CGCells::operator<<(const XMLNode& XML)
+CGCells::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    if (XML.isAttributeSet("OverLink"))
-      overlink = boost::lexical_cast<size_t>
-	(XML.getAttribute("OverLink"));
+    if (XML.getAttribute("OverLink").valid())
+      overlink = XML.getAttribute("OverLink").as<size_t>();
 
-    if (XML.isAttributeSet("Oversize"))
-      _oversizeCells = boost::lexical_cast<double>
-	(XML.getAttribute("Oversize"));
+    if (XML.getAttribute("Oversize").valid())
+      _oversizeCells = XML.getAttribute("Oversize").as<double>();
 
     if (_oversizeCells < 1.0)
       M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
 
-    if (XML.isAttributeSet("Interaction"))
-      interaction = boost::lexical_cast<std::string>
-	(XML.getAttribute("Interaction"));
+    if (XML.getAttribute("Interaction").valid())
+      interaction = XML.getAttribute("Interaction");
 
-    if (XML.isAttributeSet("CellWidth"))
-      MaxIntDist = boost::lexical_cast<double>
-	(XML.getAttribute("CellWidth")) * Sim->dynamics.units().unitLength();
+    if (XML.getAttribute("CellWidth").valid())
+      MaxIntDist = XML.getAttribute("CellWidth").as<double>() * Sim->dynamics.units().unitLength();
     
     globName = XML.getAttribute("Name");	
   }

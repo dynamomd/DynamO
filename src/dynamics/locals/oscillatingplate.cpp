@@ -39,7 +39,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
   localName = nname;
 }
 
-CLOscillatingPlate::CLOscillatingPlate(const XMLNode& XML, DYNAMO::SimData* tmp):
+CLOscillatingPlate::CLOscillatingPlate(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Local(tmp, "OscillatingPlate"),
   lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
 {
@@ -111,38 +111,26 @@ CLOscillatingPlate::initialise(size_t nID)
 }
 
 void 
-CLOscillatingPlate::operator<<(const XMLNode& XML)
+CLOscillatingPlate::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-
-    XMLNode xBrowseNode = XML.getChildNode("Norm");
-    nhat << xBrowseNode;
+    e = XML.getAttribute("Elasticity").as<double>();
+    nhat << XML.getNode("Norm");
     nhat /= nhat.nrm();
 
-    xBrowseNode = XML.getChildNode("Origin");
-    rw0 << xBrowseNode;
+    rw0 << XML.getNode("Origin");
     rw0 *= Sim->dynamics.units().unitLength();
 
-    if (XML.isAttributeSet("StrongPlate"))
-      strongPlate = boost::lexical_cast<double>(XML.getAttribute("StrongPlate"));
+    if (XML.getAttribute("StrongPlate").valid())
+      strongPlate = XML.getAttribute("StrongPlate").as<double>();
 
-    omega0 =  boost::lexical_cast<double>(XML.getAttribute("Omega0"))
-      / Sim->dynamics.units().unitTime();
-
-    sigma = boost::lexical_cast<double>(XML.getAttribute("Sigma"))
-      * Sim->dynamics.units().unitLength();
-
-    delta = boost::lexical_cast<double>(XML.getAttribute("Delta"))
-      * Sim->dynamics.units().unitLength();
-
-    mass = boost::lexical_cast<double>(XML.getAttribute("Mass"))
-      * Sim->dynamics.units().unitMass();
-
-    timeshift = boost::lexical_cast<double>(XML.getAttribute("TimeShift"))
-      * Sim->dynamics.units().unitTime();
+    omega0 = XML.getAttribute("Omega0").as<double>() / Sim->dynamics.units().unitTime();
+    sigma = XML.getAttribute("Sigma").as<double>() * Sim->dynamics.units().unitLength();
+    delta = XML.getAttribute("Delta").as<double>() * Sim->dynamics.units().unitLength();
+    mass = XML.getAttribute("Mass").as<double>()  * Sim->dynamics.units().unitMass();
+    timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->dynamics.units().unitTime();
 
     localName = XML.getAttribute("Name");
   } 

@@ -17,13 +17,12 @@
 
 #include "1RList.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
-CRList::CRList(const XMLNode& XML) 
+CRList::CRList(const magnet::xml::Node& XML) 
 { operator<<(XML); }
 
 bool 
@@ -36,16 +35,14 @@ CRList::isInRange(const Particle &part) const
 }
 
 void 
-CRList::operator<<(const XMLNode& XML)
+CRList::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"List"))
     M_throw() << "Attempting to load CRList from non list";
   try {
     
-    XMLNode xSubNode;
-    for (long i=0; i < XML.nChildNode("ID"); i++)
-      IDs.push_back(boost::lexical_cast<unsigned long>
-		    (XML.getChildNode("ID",i).getAttribute("val")));
+    for (magnet::xml::Node node = XML.getNode("ID"); node.valid(); ++node)
+      IDs.push_back(node.getAttribute("val").as<unsigned long>());
   }
   catch (boost::bad_lexical_cast &)
     {

@@ -17,19 +17,6 @@
 
 #include "XMLconfig.hpp"
 
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/copy.hpp>
-
-namespace io = boost::iostreams;
-
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include "../extcode/xmlParser.h"
 #include "../dynamics/dynamics.hpp"
 #include "../schedulers/scheduler.hpp"
 #include "../dynamics/BC/LEBC.hpp"
@@ -39,6 +26,7 @@ namespace io = boost::iostreams;
 #include "../base/is_simdata.hpp"
 #include "../dynamics/liouvillean/liouvillean.hpp"
 
+#include <magnet/xmlreader.hpp>
 
 CIPConfig::CIPConfig(std::string fn, DYNAMO::SimData* Sim):
   CInputPlugin(Sim,"initXMLFile"),
@@ -48,47 +36,12 @@ CIPConfig::CIPConfig(std::string fn, DYNAMO::SimData* Sim):
 void
 CIPConfig::initialise()
 {
-  XMLNode xMainNode;
-
-  if (!boost::filesystem::exists(fileName))
-    M_throw() << "Could not open XML configuration file";
-
-  //This scopes out the file objects
-  {
-    //We use the boost iostreams library to load the file into a string
-    std::string fileString;
-
-    //We make our filtering iostream
-    io::filtering_istream inputFile;
-    
-    //Now check if we should add a decompressor filter
-    if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-      {
-	I_cout() << "Bzip compressed XML input file " << fileName << " loading";
-	inputFile.push(io::bzip2_decompressor());
-      }
-    else if (std::string(fileName.end()-4, fileName.end()) == ".xml")
-      I_cout() << "Uncompressed XML input file " << fileName << " loading";
-    else
-      M_throw() << "Unrecognized extension for input files";
-
-    std::cout.flush();
-
-    //Finally, add the file as a source
-    inputFile.push(io::file_source(fileName));
-
-    //Force the copy to occur
-    io::copy(inputFile, io::back_inserter(fileString));
-    
-    I_cout() << "File loaded, parsing XML";
-    std::cout.flush();  
-
-    XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
-    xMainNode = tmpNode.getChildNode("DYNAMOconfig");
-  }
+  using namespace magnet::xml;
+  Document doc(fileName);  
+  Node mainNode = doc.getNode("DYNAMOconfig");
 
   {
-    std::string version(xMainNode.getAttribute("version"));
+    std::string version(mainNode.getAttribute("version"));
     
     I_cout() << "Parsing XML file v" << version;
     
@@ -99,28 +52,27 @@ CIPConfig::initialise()
 	;
   }
 
-  XMLNode xSubNode= xMainNode.getChildNode("Simulation");
-  XMLNode xBrowseNode = xSubNode.getChildNode("Trajectory");
+  Node subNode= mainNode.getNode("Simulation");
+  Node browseNode = subNode.getNode("Trajectory");
+  
+  if (browseNode.getAttribute("lastMFT").valid())
+    Sim->lastRunMFT = browseNode.getAttribute("lastMFT").as<double>();
 
-  if (xBrowseNode.isAttributeSet("lastMFT"))
-    Sim->lastRunMFT = atof(xBrowseNode.getAttribute("lastMFT"));
-
-  xBrowseNode = xSubNode.getChildNode("History");
-  Sim->ssHistory << xBrowseNode.getText();
+  Sim->ssHistory << subNode.getNode("History");
 
   I_cout() << "Loading dynamics";
 
-  Sim->dynamics << xMainNode;
+  Sim->dynamics << mainNode;
 
   I_cout() << "Loading Scheduler";
 
-  Sim->ptrScheduler = 
-    CScheduler::getClass(xSubNode.getChildNode("Scheduler"),Sim);
+  Sim->ptrScheduler 
+    = CScheduler::getClass(subNode.getNode("Scheduler"), Sim);
 
   I_cout() << "Loading Ensemble";
-  if (xSubNode.nChildNode("Ensemble"))
+  if (subNode.getNode("Ensemble").valid())
     Sim->ensemble.reset
-      (DYNAMO::CEnsemble::getClass(xSubNode.getChildNode("Ensemble"), Sim));
+      (DYNAMO::CEnsemble::getClass(subNode.getNode("Ensemble"), Sim));
   else
     //Try and determine the Ensemble
     try {
@@ -134,9 +86,7 @@ CIPConfig::initialise()
 
   I_cout() << "Loading Particle data";
 
-  xSubNode = xMainNode.getChildNode("ParticleData");
-
-  Sim->dynamics.getLiouvillean().loadParticleXMLData(xMainNode);
+  Sim->dynamics.getLiouvillean().loadParticleXMLData(mainNode);
   
   //Fixes or conversions once system is loaded
   Sim->lastRunMFT *= Sim->dynamics.units().unitTime();

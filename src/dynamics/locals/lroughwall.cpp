@@ -39,7 +39,7 @@ LRoughWall::LRoughWall(DYNAMO::SimData* nSim, double ne, double net, double nr, 
   localName = nname;
 }
 
-LRoughWall::LRoughWall(const XMLNode& XML, DYNAMO::SimData* tmp):
+LRoughWall::LRoughWall(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Local(tmp, "LocalRoughWall")
 {
   operator<<(XML);
@@ -89,22 +89,21 @@ LRoughWall::initialise(size_t nID)
 }
 
 void 
-LRoughWall::operator<<(const XMLNode& XML)
+LRoughWall::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-    et = boost::lexical_cast<double>(XML.getAttribute("TangentialElasticity"));
-    r = boost::lexical_cast<double>(XML.getAttribute("Radius"))
-      * Sim->dynamics.units().unitLength();
-    render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
-    XMLNode xBrowseNode = XML.getChildNode("Norm");
+    e = XML.getAttribute("Elasticity").as<double>();
+    et = XML.getAttribute("TangentialElasticity").as<double>();
+    r = XML.getAttribute("Radius").as<double>() * Sim->dynamics.units().unitLength();
+    render = XML.getAttribute("Render").as<double>();
     localName = XML.getAttribute("Name");
-    vNorm << xBrowseNode;
+
+    vNorm << XML.getNode("Norm");
     vNorm /= vNorm.nrm();
-    xBrowseNode = XML.getChildNode("Origin");
-    vPosition << xBrowseNode;
+
+    vPosition << XML.getNode("Origin");
     vPosition *= Sim->dynamics.units().unitLength();
   } 
   catch (boost::bad_lexical_cast &)

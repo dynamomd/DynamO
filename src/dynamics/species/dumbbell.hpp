@@ -27,7 +27,7 @@ public:
     SpSphericalTop(Sim, R, nMass, nName, ID, r,  nIName)
   {}
   
-  SpDumbbells(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+  SpDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
     SpSphericalTop(XML, Sim, ID)
   {}
 

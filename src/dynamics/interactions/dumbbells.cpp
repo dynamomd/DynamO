@@ -17,7 +17,6 @@
 */
 
 #include "dumbbells.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../liouvillean/OrientationL.hpp"
@@ -28,8 +27,8 @@
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -40,7 +39,7 @@ IDumbbells::IDumbbells(DYNAMO::SimData* tmp, double nd,
   length(nd), e(ne), diameter(ndiameter) 
 {}
 
-IDumbbells::IDumbbells(const XMLNode& XML, DYNAMO::SimData* tmp):
+IDumbbells::IDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL)
 {
   operator<<(XML);
@@ -59,25 +58,19 @@ IDumbbells::initialise(size_t nID)
 }
 
 void 
-IDumbbells::operator<<(const XMLNode& XML)
+IDumbbells::operator<<(const magnet::xml::Node& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"Dumbbells"))
     M_throw() << "Attempting to load Dumbbells from non Dumbbells entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try 
     {
-      length = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<double>(XML.getAttribute("Length"));
-      
-      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-      
-      diameter = Sim->dynamics.units().unitLength() *
-	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
-      
+      length = XML.getAttribute("Length").as<double>() * Sim->dynamics.units().unitLength();
+      e = XML.getAttribute("Elasticity").as<double>();
+      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
       intName = XML.getAttribute("Name");
-      
       ISingleCapture::loadCaptureMap(XML);   
     }
   catch (boost::bad_lexical_cast &)

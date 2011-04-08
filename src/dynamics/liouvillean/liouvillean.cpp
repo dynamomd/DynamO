@@ -16,14 +16,13 @@
 */
 
 #include "include.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../units/units.hpp"
 #include "../../extcode/binaryHelper.hpp"
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
-#include <boost/progress.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/iostreams/filter/base64.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -32,7 +31,6 @@
 #include <boost/iostreams/device/stream_source.hpp>
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
-#include <magnet/xmlwriter.hpp>
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 {
@@ -41,7 +39,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 }
 
 Liouvillean* 
-Liouvillean::loadClass(const XMLNode& XML, DYNAMO::SimData* tmp)
+Liouvillean::loadClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
 {
   if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
     return new LNewtonian(tmp);
@@ -84,30 +82,24 @@ Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
 { M_throw() << "Not implemented for this Liouvillean."; }
 
 void 
-Liouvillean::loadParticleXMLData(const XMLNode& XML)
+Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
 {
   I_cout() << "Loading Particle Data";
   std::cout.flush();
-  
-  XMLNode xSubNode = XML.getChildNode("ParticleData");
 
-  if (xSubNode.isAttributeSet("AttachedBinary")
-      && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
+  if (XML.getNode("ParticleData").getAttribute("AttachedBinary").valid()
+      && (std::toupper(XML.getNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
     {
       Sim->binaryXML = true;
 
-      unsigned long nPart 
-	= boost::lexical_cast<unsigned long>(xSubNode.getAttribute("N"));
-
-      boost::progress_display prog(nPart);
+      size_t nPart = XML.getNode("ParticleData").getAttribute("N").as<size_t>();
 
       boost::iostreams::filtering_istream base64Convertor;
-      
       base64Convertor.push(boost::iostreams::base64_decoder());
       base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
       
       {
-	const char* start = XML.getChildNode("AppendedBinaryVelPos").getText();
+	const char* start = XML.getNode("AppendedBinaryVelPos");
 	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
       }
 
@@ -136,32 +128,24 @@ Liouvillean::loadParticleXMLData(const XMLNode& XML)
 	  Sim->particleList.push_back(Particle(pos, vel, ID));
 
 	  binaryread(base64Convertor, Sim->particleList.back().getState());
-
-	  ++prog;
 	}
     }
   else
     {
-      int xml_iter = 0;
-      
-      unsigned long nPart = xSubNode.nChildNode("Pt");
-      boost::progress_display prog(nPart);
       bool outofsequence = false;  
       
-      for (unsigned long i = 0; i < nPart; i++)
+      for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
+	   node.valid(); ++node)
 	{
-	  XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
-	  
-	  if (boost::lexical_cast<unsigned long>
-	      (xBrowseNode.getAttribute("ID")) != i)
+	  if (node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
 	    outofsequence = true;
 	  
-	  Particle part(xBrowseNode, i);
+	  Particle part(node, Sim->particleList.size());
 	  part.scaleVelocity(Sim->dynamics.units().unitVelocity());
 	  part.scalePosition(Sim->dynamics.units().unitLength());
 	  Sim->particleList.push_back(part);
-	  ++prog;
 	}
+
       if (outofsequence)
 	I_cout() << IC_red << "Particle ID's out of sequence!\n"
 		 << IC_red << "This can result in incorrect capture map loads etc.\n"
@@ -191,8 +175,6 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
 	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
 	
-	boost::progress_display prog(Sim->N);
-	
 	BOOST_FOREACH(const Particle& part, Sim->particleList)
 	  {
 	    Particle tmp(part);
@@ -210,8 +192,6 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 	      binarywrite(base64Convertor, tmp.getPosition()[iDim]);
 	    
 	    binarywrite(base64Convertor, tmp.getState());	  
-	    
-	    ++prog;
 	  }
       }
 
@@ -224,8 +204,6 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 	  << xml::attr("AttachedBinary") << ("N");
 
       I_cout() << "Writing Particles ";
-      
-      boost::progress_display prog(Sim->N);
       
       for (unsigned long i = 0; i < Sim->N; ++i)
 	{
@@ -240,8 +218,6 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 	  extraXMLParticleData(XML, i);
 
 	  XML << xml::endtag("Pt");
-
-	  ++prog;
 	}
 
       XML << xml::endtag("ParticleData");

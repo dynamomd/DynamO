@@ -23,7 +23,7 @@
 class C2RRing:public C2Range
 {
 public:
-  C2RRing(const XMLNode&, const DYNAMO::SimData*);
+  C2RRing(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   C2RRing(unsigned long r1, unsigned long r2 ):range1(r1),range2(r2) {}
   
@@ -32,7 +32,7 @@ public:
 
   virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;

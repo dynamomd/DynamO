@@ -17,13 +17,11 @@
 
 #include "2RList.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
 
-C2RList::C2RList(const XMLNode& XML) 
+C2RList::C2RList(const magnet::xml::Node& XML) 
 { operator<<(XML); }
 
 bool 
@@ -72,21 +70,16 @@ C2RList::getPairMap() const
 
 
 void 
-C2RList::operator<<(const XMLNode& XML)
+C2RList::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"List"))
     M_throw() << "Attempting to load a List from a non List";    
   
   try 
     {
-      XMLNode xSubNode;
-      
-      for (long i=0; i < XML.nChildNode("RangePair"); i++)
-	{ 
-	  xSubNode = XML.getChildNode("RangePair",i);
-	  addPair(boost::lexical_cast<unsigned long>(xSubNode.getAttribute("ID1")), 
-		  boost::lexical_cast<unsigned long>(xSubNode.getAttribute("ID2")));
-	}
+      for (magnet::xml::Node node = XML.getNode("RangePair"); node.valid(); ++node)
+	addPair(node.getAttribute("ID1").as<unsigned long>(), 
+		node.getAttribute("ID2").as<unsigned long>());
     }
   catch (boost::bad_lexical_cast &)
     {

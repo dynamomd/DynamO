@@ -21,7 +21,7 @@
 class CLWall: public Local
 {
 public:
-  CLWall(const XMLNode&, DYNAMO::SimData*);
+  CLWall(const magnet::xml::Node&, DYNAMO::SimData*);
   CLWall(DYNAMO::SimData*, double, Vector , Vector , 
 	 std::string, CRange*, bool nrender = true);
 
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void write_povray_info(std::ostream&) const;
 

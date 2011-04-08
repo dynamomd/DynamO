@@ -17,26 +17,24 @@
 
 #include "1RRange.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-CRRange::CRRange(const XMLNode& XML) 
+CRRange::CRRange(const magnet::xml::Node& XML) 
 { operator<<(XML); }
 
 void 
-CRRange::operator<<(const XMLNode& XML)
+CRRange::operator<<(const magnet::xml::Node& XML)
 {
-  if (strcmp(XML.getAttribute("Range"),"Ranged"))
+  if (strcmp(XML.getAttribute("Range"), "Ranged"))
     M_throw() << "Attempting to load CRRange from non range";
+
   try {
-    startID = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
-    endID = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
+    startID = XML.getAttribute("Start").as<unsigned long>();
+    endID = XML.getAttribute("End").as<unsigned long>();
   }
   catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in CRRange";
-    }
+    { M_throw() << "Failed a lexical cast in CRRange"; }
 }
 
 void 

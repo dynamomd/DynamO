@@ -17,11 +17,10 @@
 
 #include "interaction.hpp"
 #include "include.hpp"
-#include <boost/lexical_cast.hpp>
 #include "../interactions/intEvent.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../species/species.hpp"
 #include "../../base/is_simdata.hpp"
+#include <magnet/xmlreader.hpp>
 #include <cstring>
 
 Interaction::Interaction(DYNAMO::SimData* tmp, C2Range* nR):
@@ -58,7 +57,7 @@ Interaction::getRange() const
 { return range; }
 
 Interaction*
-Interaction::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
+Interaction::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
 {
   if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
     return new IHardSphere(XML, Sim);

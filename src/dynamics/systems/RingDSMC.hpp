@@ -27,7 +27,7 @@
 class CSRingDSMC: public System
 {
 public:
-  CSRingDSMC(const XMLNode& XML, DYNAMO::SimData*);
+  CSRingDSMC(const magnet::xml::Node& XML, DYNAMO::SimData*);
 
   CSRingDSMC(DYNAMO::SimData*, double, double, double, double, double, std::string, CRange*);
   
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const;

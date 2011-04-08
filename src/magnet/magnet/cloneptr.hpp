@@ -18,9 +18,7 @@
 #pragma once
 #include <magnet/exception.hpp>
 
-namespace xml {
-  class XmlStream;
-}
+namespace xml { class XmlStream; }
 
 namespace magnet {
   /*! \brief A smart pointer with the ability to copy the polymorphic class it 
@@ -47,8 +45,8 @@ namespace magnet {
      * 
      * \return The xmlw::XmlStream so further writing can take place.
      */
-    friend inline xml::XmlStream& operator<<(xml::XmlStream& XML, 
-					     const ClonePtr<T>& plugptr)
+    friend inline ::xml::XmlStream& operator<<(::xml::XmlStream& XML, 
+					       const ClonePtr<T>& plugptr)
     { return XML << *(plugptr._obj); };
   
 

@@ -28,37 +28,39 @@
 #include "shapes/oscillatingplate.hpp"
 #include "../datatypes/vector.xml.hpp"
 #include "../units/units.hpp"
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/cubic.hpp>
 #include <magnet/math/bisect.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const XMLNode& XML):
+LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
   elasticV(0),
   g(0, -1, 0),
   _tc(-HUGE_VAL)
 {
-  if (strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
+  if (strcmp(XML.getAttribute("Type"), "NewtonianGravity"))
     M_throw() << "Attempting to load NewtonianGravity from "
 	      << XML.getAttribute("Type")
 	      << " entry";
   try 
     {
-      if (XML.isAttributeSet("ElasticV"))
-	elasticV = boost::lexical_cast<double>(XML.getAttribute("ElasticV")) 
+      if (XML.getAttribute("ElasticV").valid())
+	elasticV = XML.getAttribute("ElasticV").as<double>()
 	  * Sim->dynamics.units().unitVelocity();
 
-      if (XML.isAttributeSet("tc"))
+      if (XML.getAttribute("tc").valid())
 	{
-	  _tc = boost::lexical_cast<double>(XML.getAttribute("tc")) 
-	    * Sim->dynamics.units().unitTime();
+	  _tc = XML.getAttribute("tc").as<double>() * Sim->dynamics.units().unitTime();
 
-	  if (_tc <= 0) M_throw() << "tc must be positive! (tc = " << _tc/ Sim->dynamics.units().unitTime() << ")";
+	  if (_tc <= 0) 
+	    M_throw() << "tc must be positive! (tc = " 
+		      << _tc/ Sim->dynamics.units().unitTime() << ")";
 	}
 
-      g << XML.getChildNode("g");
+      g << XML.getNode("g");
     }
   catch (boost::bad_lexical_cast &)
     {

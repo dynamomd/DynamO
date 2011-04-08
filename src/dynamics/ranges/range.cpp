@@ -16,12 +16,11 @@
 */
 
 #include "include.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 CRange* 
-CRange::loadClass(const XMLNode& XML, const DYNAMO::SimData * Sim)
+CRange::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData * Sim)
 {
   if (!strcmp(XML.getAttribute("Range"),"All"))
     return new CRAll(XML, Sim);
@@ -52,7 +51,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 }
 
 C2Range*
-C2Range::loadClass(const XMLNode& XML , const DYNAMO::SimData* Sim)
+C2Range::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Range"),"Pair"))
     return new C2RPair(XML, Sim);

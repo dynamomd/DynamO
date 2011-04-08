@@ -16,7 +16,6 @@
 */
 
 #include "squarebond.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
@@ -29,8 +28,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -39,32 +38,27 @@ ISquareBond::ISquareBond(DYNAMO::SimData* tmp, double nd, double nl, double e, C
   diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl), elasticity(e) 
 {}
   
-ISquareBond::ISquareBond(const XMLNode& XML, DYNAMO::SimData* tmp):
+ISquareBond::ISquareBond(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Interaction(tmp,NULL) //A temporary value!
 { operator<<(XML); }
 	    
 void 
-ISquareBond::operator<<(const XMLNode& XML)
+ISquareBond::operator<<(const magnet::xml::Node& XML)
 {
-if (strcmp(XML.getAttribute("Type"),"SquareBond"))
-  M_throw() << "Attempting to load SquareBond from non SquareBond entry";
-      
-    range.set_ptr(C2Range::loadClass(XML,Sim));
-      
-      try {
-    diameter = boost::lexical_cast<double>(XML.getAttribute("Diameter"))
-      * Sim->dynamics.units().unitLength();
-
-    lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
-
+  if (strcmp(XML.getAttribute("Type"),"SquareBond"))
+    M_throw() << "Attempting to load SquareBond from non SquareBond entry";
+  
+  range.set_ptr(C2Range::getClass(XML,Sim));
+  
+  try {
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+    lambda = XML.getAttribute("Lambda").as<double>();
     elasticity = 1.0;
-    if (XML.isAttributeSet("Elasticity"))
-      elasticity = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-
-    intName = XML.getAttribute("Name");
+    if (XML.getAttribute("Elasticity").valid())
+      elasticity = XML.getAttribute("Elasticity").as<double>();
     
+    intName = XML.getAttribute("Name");
     d2 = diameter * diameter;
-
     ld2 = d2 * lambda * lambda;
   }
   catch (boost::bad_lexical_cast &)

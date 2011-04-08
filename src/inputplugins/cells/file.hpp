@@ -17,16 +17,15 @@
 
 #pragma once
 #include "cell.hpp"
-# include <boost/iostreams/device/file.hpp>
-# include <boost/iostreams/filtering_stream.hpp>
-# include <boost/iostreams/filter/bzip2.hpp>
-# include <boost/iostreams/chain.hpp>
-
-#include <boost/filesystem.hpp>
-#include <boost/progress.hpp>
-#include <boost/lexical_cast.hpp>
-#include "../../extcode/xmlParser.h"
 #include "../../datatypes/vector.xml.hpp"
+
+#include <magnet/xmlreader.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 struct CUFile: public CUCell
 {
@@ -41,74 +40,27 @@ struct CUFile: public CUCell
   std::vector<Vector  > particleCache;
  
   virtual void initialise() 
-  { 
-    uc->initialise();
-    //Open the file for XML parsing
-    XMLNode xMainNode;
+  {
+    { 
+      uc->initialise();
+      //Open the file for XML parsing
+      magnet::xml::Document doc(fileName);  
 
-    if (std::string(fileName.end()-4, fileName.end()) == ".xml")
-      {
-	if (!boost::filesystem::exists(fileName))
-	  M_throw() << "Could not open XML configuration file";
-	
-	std::cout << "Uncompressed XML input file " << fileName << " loading";
-	xMainNode=XMLNode::openFileHelper(fileName.c_str(), "DYNAMOconfig");
-      }
-    else if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-      {
-	if (!boost::filesystem::exists(fileName))
-	  M_throw() << "Could not open XML configuration file";
-	
-	boost::iostreams::filtering_istream inputFile;
-	inputFile.push(boost::iostreams::bzip2_decompressor());
-	inputFile.push(boost::iostreams::file_source(fileName));
-	//Copy file to a string
-	std::string line, fileString;
-	
-	std::cout << "Bzip compressed XML input file found\nDecompressing file "
-		 << fileName;
-	
-	while(getline(inputFile,line)) 
-	  {
-	  fileString.append(line);
-	  fileString.append("\n");
-	  }
-	
-	std::cout << "File Decompressed, parsing XML";
-	fflush(stdout);
-	
-	XMLNode tmpNode = XMLNode::parseString(fileString.c_str());
-	xMainNode = tmpNode.getChildNode("DYNAMOconfig");
-      }
-    else
-      M_throw() << "Unrecognised extension for input file";
-    
-    std::cout << "Parsing XML file";
-    XMLNode xSubNode = xMainNode.getChildNode("ParticleData");
-
-    if (xSubNode.isAttributeSet("AttachedBinary")
-	&& (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
-      M_throw() << "This packer only works on XML config files without binary data,"
-		<< " please unscramble using dynamod --text";
-
-    unsigned long nPart = xSubNode.nChildNode("Pt");
-    
-    std::cout << "Loading Particle Data ";
-    fflush(stdout);
-    
-    int xml_iter = 0;
-    boost::progress_display prog(nPart);
-    
-    for (unsigned long i = 0; i < nPart; i++)
-      {
-	XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
-	Vector  posVector;
-	posVector << xBrowseNode.getChildNode("P");
-	
-	particleCache.push_back(posVector);
-	
-	++prog;
-      }	
+      magnet::xml::Node xSubNode = doc.getNode("DYNAMOconfig").getNode("ParticleData");
+      
+      if (xSubNode.getAttribute("AttachedBinary").valid()
+	  && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
+	M_throw() << "This packer only works on XML config files without binary data,"
+		  << " please convert to plain xml using \"dynamod --text\"";
+      
+      for (magnet::xml::Node node = xSubNode.getNode("Pt");
+	   node.valid(); ++node)
+	{
+	  Vector  posVector;
+	  posVector << node.getNode("P");
+	  particleCache.push_back(posVector);
+	}
+    }
 
     //The file has been loaded now, just clean up the positions
     Vector  centreOPoints(0,0,0);

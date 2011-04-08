@@ -23,13 +23,13 @@
 class SThreadedNBList: public CSNeighbourList
 {
 public:
-  SThreadedNBList(const XMLNode&, DYNAMO::SimData* const);
+  SThreadedNBList(const magnet::xml::Node&, DYNAMO::SimData* const);
 
   SThreadedNBList(DYNAMO::SimData* const, CSSorter*, size_t threadCount);
 
   virtual void addEvents(const Particle&);
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void fullUpdate(const Particle& part);
 

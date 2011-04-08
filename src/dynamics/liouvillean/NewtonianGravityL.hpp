@@ -22,7 +22,7 @@
 class LNewtonianGravity: public LNewtonian
 {
 public:
-  LNewtonianGravity(DYNAMO::SimData*, const XMLNode&);
+  LNewtonianGravity(DYNAMO::SimData*, const magnet::xml::Node&);
 
   LNewtonianGravity(DYNAMO::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 

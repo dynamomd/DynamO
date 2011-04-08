@@ -27,7 +27,7 @@
 class CSysRescale: public System
 {
 public:
-  CSysRescale(const XMLNode& XML, DYNAMO::SimData*);
+  CSysRescale(const magnet::xml::Node& XML, DYNAMO::SimData*);
   CSysRescale(DYNAMO::SimData*, size_t frequency, std::string name);
 
   virtual System* Clone() const { return new CSysRescale(*this); }
@@ -36,7 +36,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   void checker(const NEventData&);
   

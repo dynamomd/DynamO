@@ -23,20 +23,20 @@
 #include "../base/is_simdata.hpp"
 #include "../base/is_base.hpp"
 #include "../dynamics/systems/system.hpp"
-#include <cmath> //for huge val
-#include "../extcode/xmlParser.h"
 #include "../dynamics/globals/global.hpp"
 #include "../dynamics/globals/globEvent.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/locals/local.hpp"
 #include "../dynamics/locals/localEvent.hpp"
+#include <magnet/xmlreader.hpp>
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
+#include <cmath> //for huge val
 
 void 
-CSNeighbourList::operator<<(const XMLNode& XML)
+CSNeighbourList::operator<<(const magnet::xml::Node& XML)
 {
-  sorter.set_ptr(CSSorter::getClass(XML.getChildNode("Sorter"), Sim));
+  sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
 }
 
 void
@@ -117,7 +117,7 @@ CSNeighbourList::outputXML(xml::XmlStream& XML) const
       << xml::endtag("Sorter");
 }
 
-CSNeighbourList::CSNeighbourList(const XMLNode& XML, 
+CSNeighbourList::CSNeighbourList(const magnet::xml::Node& XML, 
 				 DYNAMO::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL)
 { 

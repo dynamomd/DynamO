@@ -19,8 +19,9 @@
 #include "../../dynamics/globals/neighbourList.hpp"
 #include "../../base/is_simdata.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-CSCENBList::CSCENBList(const XMLNode& XML, DYNAMO::SimData* const nSim):
+CSCENBList::CSCENBList(const magnet::xml::Node& XML, DYNAMO::SimData* const nSim):
   CSCEntry(nSim, "ComplexNBlistEntry"),
   nblistID(std::numeric_limits<size_t>::max())
 {
@@ -28,9 +29,9 @@ CSCENBList::CSCENBList(const XMLNode& XML, DYNAMO::SimData* const nSim):
 }
 
 void 
-CSCENBList::operator<<(const XMLNode& XML)
+CSCENBList::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML, Sim));
+  range.set_ptr(CRange::getClass(XML, Sim));
   
   try 
     {

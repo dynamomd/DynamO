@@ -30,7 +30,7 @@
 class SSleep: public System
 {
 public:
-  SSleep(const XMLNode& XML, DYNAMO::SimData*);
+  SSleep(const magnet::xml::Node& XML, DYNAMO::SimData*);
 
   SSleep(DYNAMO::SimData*, std::string, CRange*, double);
   
@@ -40,7 +40,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const;

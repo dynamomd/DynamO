@@ -22,7 +22,7 @@
 class CGCellsShearing: public CGCells
 {
 public:
-  CGCellsShearing(const XMLNode&, DYNAMO::SimData*);
+  CGCellsShearing(const magnet::xml::Node&, DYNAMO::SimData*);
   
   CGCellsShearing(DYNAMO::SimData*, const std::string&);
   

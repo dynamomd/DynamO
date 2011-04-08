@@ -28,13 +28,13 @@ public:
     SpPoint(sim, r, 0, nName, ID, nIName)
   { name = "SpFixedCollider"; }
   
-  SpFixedCollider(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
+  SpFixedCollider(const magnet::xml::Node& XML, DYNAMO::SimData* nSim, unsigned int nID):
     SpPoint(nSim, NULL, 0, "", nID,"")
   { name = "SpFixedCollider"; operator<<(XML); }
   
   virtual void initialise();
 
-  virtual void operator<<(const XMLNode& XML);
+  virtual void operator<<(const magnet::xml::Node& XML);
 
   virtual SpFixedCollider* Clone() const { return new SpFixedCollider(*this); }
 

@@ -17,7 +17,6 @@
 */
 
 #include "sleep.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -27,12 +26,13 @@
 #include "../ranges/include.hpp"
 #include "../liouvillean/NewtonianGravityL.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
-#include <magnet/xmlwriter.hpp>
 
-SSleep::SSleep(const XMLNode& XML, DYNAMO::SimData* tmp): 
+SSleep::SSleep(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   System(tmp),
   _range(NULL)
 {
@@ -69,22 +69,19 @@ SSleep::initialise(size_t nID)
 }
 
 void
-SSleep::operator<<(const XMLNode& XML)
+SSleep::operator<<(const magnet::xml::Node& XML)
 {
-  if (strcmp(XML.getAttribute("Type"),"Sleep"))
+  if (strcmp(XML.getAttribute("Type"), "Sleep"))
     M_throw() << "Attempting to load Sleep from a " 
 	      << XML.getAttribute("Type") <<  " entry"; 
   
   try {
     sysName = XML.getAttribute("Name");
     
-    _sleepVelocity = Sim->dynamics.units().unitVelocity() * 
-      boost::lexical_cast<double>(XML.getAttribute("SleepV"));
-
+    _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->dynamics.units().unitVelocity();
     _sleepDistance = Sim->dynamics.units().unitLength() * 0.01;
     _sleepTime = Sim->dynamics.units().unitTime() * 0.0001;
-
-    _range.set_ptr(CRange::loadClass(XML, Sim));
+    _range.set_ptr(CRange::getClass(XML, Sim));
   }
   catch (boost::bad_lexical_cast &)
     { M_throw() << "Failed a lexical cast in SSleep"; }

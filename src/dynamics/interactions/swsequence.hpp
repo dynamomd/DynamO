@@ -25,9 +25,9 @@ class ISWSequence: public ISingleCapture
 public:
   ISWSequence(DYNAMO::SimData*, double, double, double, std::vector<size_t>, C2Range*);
 
-  ISWSequence(const XMLNode&, DYNAMO::SimData*);
+  ISWSequence(const magnet::xml::Node&, DYNAMO::SimData*);
   
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 

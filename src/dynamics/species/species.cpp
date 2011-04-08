@@ -16,19 +16,13 @@
 */
 
 #include "include.hpp"
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <cstring>
-#include "../../extcode/xmlParser.h"
-#include "../ranges/1range.hpp"
-#include "../../simulation/particle.hpp"
-#include "../../base/is_simdata.hpp"
+#include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
 
 Species* 
-Species::getClass(const XMLNode& XML, DYNAMO::SimData* tmp, unsigned int nID)
+Species::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp, size_t nID)
 {
-  if ((!XML.isAttributeSet("Type")) 
-      || (!std::strcmp(XML.getAttribute("Type"), "Point")))
+  if (!std::strcmp(XML.getAttribute("Type"), "Point"))
     return new SpPoint(XML, tmp, nID);
   else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
     return new SpSphericalTop(XML, tmp, nID);

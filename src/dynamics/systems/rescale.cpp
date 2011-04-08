@@ -16,7 +16,6 @@
 */
 
 #include "rescale.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -27,11 +26,11 @@
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <fstream>
 
-CSysRescale::CSysRescale(const XMLNode& XML, DYNAMO::SimData* tmp): 
+CSysRescale::CSysRescale(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   System(tmp),
   scaleFactor(1),
   LastTime(0),
@@ -154,15 +153,14 @@ CSysRescale::initialise(size_t nID)
 }
 
 void 
-CSysRescale::operator<<(const XMLNode& XML)
+CSysRescale::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Rescale"))
     M_throw() << "Attempting to load Rescale from " 
 	      << XML.getAttribute("Type") << " entry"; 
   
   try {
-    _frequency = boost::lexical_cast<size_t>(XML.getAttribute("Freq"));
-    
+    _frequency = XML.getAttribute("Freq").as<size_t>();    
     sysName = XML.getAttribute("Name");
   }
   catch (boost::bad_lexical_cast &)

@@ -16,20 +16,19 @@
 */
 
 #include "is_ensemble.hpp"
-#include "../extcode/xmlParser.h"
 #include "../dynamics/systems/ghost.hpp"
 #include "../dynamics/liouvillean/CompressionL.hpp"
 #include "../dynamics/units/units.hpp"
 #include "../outputplugins/1partproperty/uenergy.hpp"
+#include "../dynamics/units/shear.hpp"
 
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
-
-#include "../dynamics/units/shear.hpp"
+#include <magnet/xmlreader.hpp>
 
 namespace DYNAMO {
   CEnsemble* 
-  CEnsemble::getClass(const XMLNode& XML, const DYNAMO::SimData* Sim)
+  CEnsemble::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"), "NVT"))
       return new CENVT(Sim);

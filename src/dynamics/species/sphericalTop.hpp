@@ -25,13 +25,13 @@ public:
   SpSphericalTop(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
 		 unsigned int ID, double iC, std::string nIName="Bulk");
   
-  SpSphericalTop(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
+  SpSphericalTop(const magnet::xml::Node&, DYNAMO::SimData*, unsigned int ID);
 
   virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
   virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
 

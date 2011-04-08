@@ -23,22 +23,12 @@
 #include <string>
 #include "../coilRenderObj.hpp"
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 class Particle;
 class Interaction;
 class RenderObj;
-namespace magnet {
-  namespace GL {
-    class CLGLState;
-  }
-}
-namespace Gtk {
-  class ScrolledWindow;
-}
+namespace magnet { namespace GL { class CLGLState; } }
 
 class Species:public DYNAMO::SimBase, public CoilRenderObj
 {
@@ -57,7 +47,7 @@ public:
   inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
   virtual double getScalarMomentOfInertia() const = 0;
 
-  virtual void operator<<(const XMLNode&) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
 
   virtual void initialise() = 0;
 
@@ -65,7 +55,7 @@ public:
   
   virtual Species* Clone() const = 0;
 
-  static Species* getClass(const XMLNode&, DYNAMO::SimData*, unsigned int);
+  static Species* getClass(const magnet::xml::Node&, DYNAMO::SimData*, size_t);
 
 #ifdef DYNAMO_visualizer
   virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;

@@ -22,7 +22,7 @@
 class CLDblWall: public Local
 {
 public:
-  CLDblWall(const XMLNode&, DYNAMO::SimData*);
+  CLDblWall(const magnet::xml::Node&, DYNAMO::SimData*);
   CLDblWall(DYNAMO::SimData*, double, Vector , Vector , 
 	 std::string, CRange*);
 
@@ -38,7 +38,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void write_povray_info(std::ostream&) const;
 

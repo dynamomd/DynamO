@@ -22,7 +22,7 @@
 class CLAndersenWall: public Local
 {
 public:
-  CLAndersenWall(const XMLNode&, DYNAMO::SimData*);
+  CLAndersenWall(const magnet::xml::Node&, DYNAMO::SimData*);
 
   CLAndersenWall(DYNAMO::SimData*, double, Vector , Vector , 
 		 std::string, CRange*);
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual bool isInCell(const Vector &, const Vector &) const;
 

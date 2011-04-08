@@ -17,11 +17,11 @@
 
 #include "include.hpp"
 #include "global.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "globEvent.hpp"
 #include "../ranges/1RAll.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 
 Global::Global(DYNAMO::SimData* tmp, const char *name):
@@ -40,15 +40,14 @@ Global::isInteraction(const Particle &p1) const
   return range->isInRange(p1);
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
-			    const Global& g)
+xml::XmlStream& operator<<(xml::XmlStream& XML, const Global& g)
 {
   g.outputXML(XML);
   return XML;
 }
 
 Global* 
-Global::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
+Global::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Cells2")
       || !strcmp(XML.getAttribute("Type"),"Cells"))

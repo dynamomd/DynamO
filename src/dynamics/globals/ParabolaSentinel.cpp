@@ -21,6 +21,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <magnet/xmlreader.hpp>
 
 CGParabolaSentinel::CGParabolaSentinel(DYNAMO::SimData* nSim, const std::string& name):
   Global(nSim, "ParabolaSentinel")
@@ -29,7 +30,7 @@ CGParabolaSentinel::CGParabolaSentinel(DYNAMO::SimData* nSim, const std::string&
   I_cout() << "ParabolaSentinel Loaded";
 }
 
-CGParabolaSentinel::CGParabolaSentinel(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+CGParabolaSentinel::CGParabolaSentinel(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
   Global(ptrSim, "ParabolaSentinel")
 {
   operator<<(XML);
@@ -44,15 +45,9 @@ CGParabolaSentinel::initialise(size_t nID)
 }
 
 void 
-CGParabolaSentinel::operator<<(const XMLNode& XML)
+CGParabolaSentinel::operator<<(const magnet::xml::Node& XML)
 {
-  try {
-    globName = XML.getAttribute("Name");	
-  }
-  catch(...)
-    {
-      M_throw() << "Error loading CGParabolaSentinel";
-    }
+  globName = XML.getAttribute("Name");	
 }
 
 GlobalEvent 

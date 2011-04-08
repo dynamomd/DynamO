@@ -23,16 +23,16 @@
 class C2RChain:public C2Range
 {
 public:
-  C2RChain(const XMLNode&, const DYNAMO::SimData*);
+  C2RChain(const magnet::xml::Node&, const DYNAMO::SimData*);
 
-  C2RChain(unsigned long r1, unsigned long r2 ):range1(r1),range2(r2) {}
+  C2RChain(unsigned long r1, unsigned long r2 ):range1(r1), range2(r2) {}
   
   virtual C2Range* Clone() const 
   { return new C2RChain(*this); };
 
   virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;

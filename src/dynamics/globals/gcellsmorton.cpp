@@ -18,7 +18,6 @@
 #include "gcellsmorton.hpp"
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
@@ -26,9 +25,10 @@
 #include "../locals/local.hpp"
 #include "../BC/LEBC.hpp"
 #include "../liouvillean/NewtonianGravityL.hpp"
-#include <boost/static_assert.hpp>
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/static_assert.hpp>
 #include <cstdio>
 
 
@@ -44,7 +44,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Cells Loaded";
 }
 
-CGCellsMorton::CGCellsMorton(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
   CGNeighbourList(ptrSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
@@ -67,17 +67,15 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* ptrSim, const char* nom, void*):
 {}
 
 void 
-CGCellsMorton::operator<<(const XMLNode& XML)
+CGCellsMorton::operator<<(const magnet::xml::Node& XML)
 {
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
-    if (XML.isAttributeSet("OverLink"))
-      overlink = boost::lexical_cast<size_t>
-	(XML.getAttribute("OverLink"));
+    if (XML.getAttribute("OverLink").valid())
+      overlink = XML.getAttribute("OverLink").as<size_t>();
 
-    if (XML.isAttributeSet("Oversize"))
-      _oversizeCells = boost::lexical_cast<double>
-	(XML.getAttribute("Oversize"));
+    if (XML.getAttribute("Oversize").valid())
+      _oversizeCells = XML.getAttribute("Oversize").as<double>();
 
     if (_oversizeCells < 1.0)
       M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";

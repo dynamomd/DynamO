@@ -16,17 +16,16 @@
 */
 
 #include "1RAll.hpp"
-#include "../../extcode/xmlParser.h"
-#include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-CRAll::CRAll(const XMLNode& XML, const DYNAMO::SimData* SimDat):
+CRAll::CRAll(const magnet::xml::Node& XML, const DYNAMO::SimData* SimDat):
   SimBase_const(SimDat,"CRAll",IC_red)
 { operator<<(XML); }
 
 //The data output classes
 void 
-CRAll::operator<<(const XMLNode& XML)
+CRAll::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"All"))
     M_throw() << "Attempting to load CRAll from non All type";

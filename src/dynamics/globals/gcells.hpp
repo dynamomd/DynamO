@@ -26,16 +26,13 @@
 class CGCells: public CGNeighbourList
 {
 public:
-  CGCells(const XMLNode&, DYNAMO::SimData*);
+  CGCells(const magnet::xml::Node&, DYNAMO::SimData*);
 
   CGCells(DYNAMO::SimData*, const std::string&, const size_t& overlink = 1);
 
   virtual ~CGCells() {}
 
-  virtual Global* Clone() const 
-  { 
-    return new CGCells(*this); 
-  }
+  virtual Global* Clone() const { return new CGCells(*this); }
 
   virtual GlobalEvent getEvent(const Particle &) const;
 
@@ -51,7 +48,7 @@ public:
   virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   Vector  getCellDimensions() const 
   { return cellDimension; }

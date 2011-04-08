@@ -39,7 +39,7 @@ CLSphere::CLSphere(DYNAMO::SimData* nSim, double ne,
   localName = nname;
 }
 
-CLSphere::CLSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
+CLSphere::CLSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Local(tmp, "SphereWall")
 {
   operator<<(XML);
@@ -95,23 +95,17 @@ CLSphere::initialise(size_t nID)
 }
 
 void 
-CLSphere::operator<<(const XMLNode& XML)
+CLSphere::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-
-    radius = boost::lexical_cast<double>(XML.getAttribute("Radius"))
-      * Sim->dynamics.units().unitLength();
-
+    e = XML.getAttribute("Elasticity").as<double>();
+    radius = XML.getAttribute("Radius").as<double>() * Sim->dynamics.units().unitLength();
     r2 = radius * radius;
-
-    render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
+    render = XML.getAttribute("Render").as<bool>();
     localName = XML.getAttribute("Name");
-
-    XMLNode xBrowseNode = XML.getChildNode("Origin");
-    vPosition << xBrowseNode;
+    vPosition << XML.getNode("Origin");
     vPosition *= Sim->dynamics.units().unitLength();
   } 
   catch (boost::bad_lexical_cast &)

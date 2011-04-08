@@ -21,6 +21,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
+#include <magnet/xmlreader.hpp>
 
 CGPBCSentinel::CGPBCSentinel(DYNAMO::SimData* nSim, const std::string& name):
   Global(nSim, "PBCSentinel"),
@@ -30,7 +31,7 @@ CGPBCSentinel::CGPBCSentinel(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "PBCSentinel Loaded";
 }
 
-CGPBCSentinel::CGPBCSentinel(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
   Global(ptrSim, "PBCSentinel"),
   maxintdist(0)
 {
@@ -83,15 +84,9 @@ CGPBCSentinel::particlesUpdated(const NEventData& PDat)
 }
 
 void 
-CGPBCSentinel::operator<<(const XMLNode& XML)
+CGPBCSentinel::operator<<(const magnet::xml::Node& XML)
 {
-  try {
-    globName = XML.getAttribute("Name");	
-  }
-  catch(...)
-    {
-      M_throw() << "Error loading CGPBCSentinel";
-    }
+  globName = XML.getAttribute("Name");	
 }
 
 GlobalEvent 

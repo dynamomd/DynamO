@@ -16,14 +16,10 @@
 */
 
 #include "packer.hpp"
-#include <cmath>
-#include <magnet/math/matrix.hpp>
 #include "../datatypes/vector.hpp"
 #include "../simulation/particle.hpp"
 #include "../base/is_simdata.hpp"
 #include "cells/include.hpp"
-#include <boost/foreach.hpp>
-#include <boost/random/uniform_int.hpp>
 #include "../simulation/particle.hpp"
 #include "../schedulers/include.hpp"
 #include "../schedulers/sorters/include.hpp"
@@ -36,7 +32,6 @@
 #include "../dynamics/BC/include.hpp"
 #include "../dynamics/liouvillean/include.hpp"
 #include "../dynamics/systems/ghost.hpp"
-#include <magnet/exception.hpp>
 #include "../base/is_simdata.hpp"
 #include "../dynamics/topology/include.hpp"
 #include "../base/is_ensemble.hpp"
@@ -45,7 +40,12 @@
 #include "../dynamics/systems/RingDSMC.hpp"
 #include "../dynamics/systems/rescale.hpp"
 #include "../dynamics/systems/sleep.hpp"
+#include <magnet/math/matrix.hpp>
+#include <magnet/exception.hpp>
+#include <boost/random/uniform_int.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
+#include <cmath>
 
 
 namespace {
@@ -138,7 +138,7 @@ CIPPacker::initialise()
 	"       --f1 : Lambda [1.5] (well width factor)\n"
 	"       --f2 : Well Depth (negative for square shoulders) [1]\n"
 	"       --s1 : Instead of f1 and f2, you can specify a multicomponent system using this option.\n"
-	"              Write \"diameter(d),lambda(l),mass(m),welldepth(e),molefrac(x):d,l,m,e,x[:...]\""
+	"              Write \"diameter(d),lambda(l),mass(m),welldepth(e),molefrac(x):d,l,m,e,x[:...]\"\n"
 	"  2:  Random walk of an isolated attractive polymer\n"
 	"       --i1 : Chain length [20]\n"
 	"       --f1 : Diameter [1.6]\n"

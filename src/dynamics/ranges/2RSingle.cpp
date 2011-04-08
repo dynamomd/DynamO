@@ -16,17 +16,16 @@
 */
 
 #include "2RSingle.hpp"
-#include "../../extcode/xmlParser.h"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RSingle::C2RSingle(const XMLNode& XML, const DYNAMO::SimData* Sim):
+C2RSingle::C2RSingle(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim):
   range(NULL)
 { 
-
   if (strcmp(XML.getAttribute("Range"),"2Single"))
     M_throw() << "Attempting to load a 2Single from a non pair";
   
-  range.set_ptr(CRange::loadClass(XML.getChildNode("SingleRange"), Sim));
+  range.set_ptr(CRange::getClass(XML.getNode("SingleRange"), Sim));
 }
 
 bool 
@@ -36,7 +35,7 @@ C2RSingle::isInRange(const Particle&p1, const Particle&p2) const
 }
 
 void 
-C2RSingle::operator<<(const XMLNode&)
+C2RSingle::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
 }

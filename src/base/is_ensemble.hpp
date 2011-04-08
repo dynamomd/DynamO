@@ -24,12 +24,9 @@
 #include "constants.hpp"
 #include "is_base.hpp"
 
-namespace xml
-{
-  class XmlStream;
-}
+namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; } }
 
-struct XMLNode;
 class System;
 
 namespace DYNAMO {
@@ -48,7 +45,7 @@ namespace DYNAMO {
     
     virtual ~CEnsemble() {}
 
-    static CEnsemble* getClass(const XMLNode& XML, 
+    static CEnsemble* getClass(const magnet::xml::Node& XML, 
 			       const DYNAMO::SimData* Sim);
 
     friend xml::XmlStream& operator<<(xml::XmlStream&, const CEnsemble&);

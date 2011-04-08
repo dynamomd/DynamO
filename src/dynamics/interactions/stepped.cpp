@@ -16,7 +16,6 @@
 */
 
 #include "stepped.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
@@ -29,9 +28,9 @@
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/math/special_functions/pow.hpp>
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/math/special_functions/pow.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -41,43 +40,32 @@ IStepped::IStepped(DYNAMO::SimData* tmp,
   steps(vec)
 {}
 
-IStepped::IStepped(const XMLNode& XML, DYNAMO::SimData* tmp):
+IStepped::IStepped(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   IMultiCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 void 
-IStepped::operator<<(const XMLNode& XML)
+IStepped::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Stepped"))
     M_throw() << "Attempting to load Stepped from non Stepped entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try {
     intName = XML.getAttribute("Name");
 
-    if (XML.nChildNode("Step"))
-      {
-	int xml_iter = 0;
-	long counter = XML.nChildNode("Step");
-	for (long i = 0; i < counter; ++i)
-	  {
-	    XMLNode browseNode = XML.getChildNode("Step",&xml_iter);
-	    steps.push_back(steppair(boost::lexical_cast<double>
-				     (browseNode.getAttribute("R"))
-				     * Sim->dynamics.units().unitLength(),
-				     boost::lexical_cast<double>
-				     (browseNode.getAttribute("E"))
-				     * Sim->dynamics.units().unitEnergy()
-				     ));
-	    
-	  }
-      }
-    else
+    if (!XML.getNode("Step").valid())
       M_throw() << "No steppings defined for stepped potential " 
 		<< intName;
+
+    for (magnet::xml::Node node = XML.getNode("Step"); node.valid(); ++node)
+      steps.push_back(steppair(node.getAttribute("R").as<double>()
+			       * Sim->dynamics.units().unitLength(),
+			       node.getAttribute("E").as<double>()
+			       * Sim->dynamics.units().unitEnergy()));
     
     std::sort(steps.rbegin(), steps.rend());
 

@@ -18,8 +18,7 @@
 #include "fixedCollider.hpp"
 #include <boost/foreach.hpp>
 #include "../../base/is_simdata.hpp"
-#include <boost/tokenizer.hpp>
-
+#include <magnet/xmlreader.hpp>
 void 
 SpFixedCollider::initialise()
 {
@@ -30,9 +29,9 @@ SpFixedCollider::initialise()
 }
 
 void 
-SpFixedCollider::operator<<(const XMLNode& XML)
+SpFixedCollider::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML, Sim));
   
   try {
     mass = 0;

@@ -28,7 +28,7 @@ class CShape;
 class LNOrientation: public LNewtonian
 {
 public:  
-  LNOrientation(DYNAMO::SimData* Sim, const XMLNode& XML):
+  LNOrientation(DYNAMO::SimData* Sim, const magnet::xml::Node& XML):
     LNewtonian(Sim) {}
 
   LNOrientation(DYNAMO::SimData* Sim): LNewtonian(Sim) {}
@@ -37,7 +37,7 @@ public:
 
   virtual Liouvillean* Clone() const { return new LNOrientation(*this); }
 
-  virtual void loadParticleXMLData(const XMLNode&);
+  virtual void loadParticleXMLData(const magnet::xml::Node&);
 
   virtual bool getLineLineCollision(CPDData& PD, const double& length, 
 				    const Particle& p1, const Particle& p2

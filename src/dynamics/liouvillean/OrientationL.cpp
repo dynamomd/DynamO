@@ -19,9 +19,14 @@
 #include "../species/inertia.hpp"
 #include "OrientationL.hpp"
 #include "../2particleEventData.hpp"
-#include <boost/progress.hpp>
 #include "../../datatypes/vector.xml.hpp"
 #include "../units/units.hpp"
+#include "shapes/frenkelroot.hpp"
+#include "../../extcode/mathtemplates.hpp"
+#include "shapes/lines.hpp"
+#include "shapes/dumbbells.hpp"
+#include "../../extcode/binaryHelper.hpp"
+#include <magnet/math/matrix.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/iostreams/filter/base64.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -31,13 +36,6 @@
 #include <boost/iostreams/device/stream_source.hpp>
 #include <boost/iostreams/filter/base64cleaner.hpp>
 #include <boost/iostreams/filter/linewrapout.hpp>
-#include "shapes/frenkelroot.hpp"
-#include "../../extcode/mathtemplates.hpp"
-#include "shapes/lines.hpp"
-#include "shapes/dumbbells.hpp"
-#include "../../extcode/binaryHelper.hpp"
-#include <magnet/math/matrix.hpp>
-
 
 void 
 LNOrientation::initialise() 
@@ -498,25 +496,23 @@ LNOrientation::initLineOrientations(const double& length)
 }
 
 void 
-LNOrientation::loadParticleXMLData(const XMLNode& XML)
+LNOrientation::loadParticleXMLData(const magnet::xml::Node& XML)
 {
   Liouvillean::loadParticleXMLData(XML);
 
-  if (XML.getChildNode("ParticleData").isAttributeSet("AttachedBinary")
-      && (std::toupper(XML.getChildNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
+  if (XML.getNode("ParticleData").getAttribute("AttachedBinary").valid()
+      && (std::toupper(XML.getNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
     {
-      boost::progress_display prog(Sim->N);
       boost::iostreams::filtering_istream base64Convertor;	  
       base64Convertor.push(boost::iostreams::base64_decoder());
       base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
       
       {
-	const char* start = XML.getChildNode("AppendedBinaryOrientation").getText();
+	const char* start = XML.getNode("AppendedBinaryOrientation");
 	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
       }
       
       orientationData.resize(Sim->N);
-      
       for (unsigned long i = 0; i < Sim->N; ++i)
 	{
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -524,25 +520,18 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    binaryread(base64Convertor, orientationData[i].angularVelocity[iDim]);
-	  
-	  ++prog;
 	}
     }
   else
     {
-      XMLNode xSubNode = XML.getChildNode("ParticleData");
-      int xml_iter = 0;
-      
-      boost::progress_display prog(Sim->N);
-      
       orientationData.resize(Sim->N);
       
-      for (unsigned long i = 0; i < Sim->N; ++i)
+      size_t i(0);
+      for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
+	   node.valid(); ++node, ++i)
 	{
-	  XMLNode xBrowseNode = xSubNode.getChildNode("Pt", &xml_iter);
-	  
-	  orientationData[i].orientation << xBrowseNode.getChildNode("U");
-	  orientationData[i].angularVelocity << xBrowseNode.getChildNode("O");
+	  orientationData[i].orientation << node.getNode("U");
+	  orientationData[i].angularVelocity << node.getNode("O");
 	  
 	  double oL = orientationData[i].orientation.nrm();
 	  
@@ -552,8 +541,6 @@ LNOrientation::loadParticleXMLData(const XMLNode& XML)
 	  
 	  //Makes the vector a unit vector
 	  orientationData[i].orientation /= oL;
-	  
-	  ++prog;
 	}
     }
 }
@@ -583,8 +570,6 @@ LNOrientation::extraXMLData(xml::XmlStream& XML) const
 	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
 	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
 	
-	boost::progress_display prog(Sim->N);
-	
 	BOOST_FOREACH(const Particle& part, Sim->particleList)
 	  {
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -592,8 +577,6 @@ LNOrientation::extraXMLData(xml::XmlStream& XML) const
 	    
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      binarywrite(base64Convertor, orientationData[part.getID()].angularVelocity[iDim]);
-	    
-	    ++prog;
 	  }
       }
 

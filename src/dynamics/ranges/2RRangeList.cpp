@@ -17,11 +17,11 @@
 
 #include "2RRangeList.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlParser.h"
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RRangeList::C2RRangeList(const XMLNode& XML, const DYNAMO::SimData* nSim):
+C2RRangeList::C2RRangeList(const magnet::xml::Node& XML, const DYNAMO::SimData* nSim):
   SimBase_const(nSim,"C2RRangeList", IC_red)
 { operator<<(XML); }
 
@@ -36,17 +36,15 @@ C2RRangeList::isInRange(const Particle&p1, const Particle&p2) const
 }
 
 void 
-C2RRangeList::operator<<(const XMLNode& XML)
+C2RRangeList::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"RangeList"))
     M_throw() << "Attempting to load a List from a non List";    
   
   try 
     {
-      XMLNode xSubNode;
-      
-      for (long i=0; i < XML.nChildNode("RangeListItem"); i++)
-	ranges.push_back(magnet::ClonePtr<C2Range>(C2Range::loadClass(XML.getChildNode("RangeListItem",i), Sim)));
+      for (magnet::xml::Node node = XML.getNode("RangeListItem"); node.valid(); ++node)
+	ranges.push_back(magnet::ClonePtr<C2Range>(C2Range::getClass(node, Sim)));
     }
   catch (boost::bad_lexical_cast &)
     {

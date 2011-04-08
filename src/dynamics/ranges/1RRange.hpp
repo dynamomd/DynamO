@@ -23,7 +23,7 @@
 class CRRange: public CRange
 {
 public:
-  CRRange(const XMLNode&);
+  CRRange(const magnet::xml::Node&);
   CRRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
 
   virtual CRange* Clone() const { return new CRRange(*this); }
@@ -36,7 +36,7 @@ public:
   }
 
   //The data output classes
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
   virtual unsigned long size() const { return (endID - startID + 1); };
 

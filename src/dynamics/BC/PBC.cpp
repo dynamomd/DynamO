@@ -43,7 +43,7 @@ BCSquarePeriodic::Clone () const
 
 
 void 
-BCSquarePeriodic::operator<<(const XMLNode&) 
+BCSquarePeriodic::operator<<(const magnet::xml::Node&) 
 {}
 
 void 
@@ -105,7 +105,7 @@ BCRectangularPeriodic::outputXML(xml::XmlStream &XML) const
 }
 
 void 
-BCRectangularPeriodic::operator<<(const XMLNode&) 
+BCRectangularPeriodic::operator<<(const magnet::xml::Node&) 
 {}
 
 BoundaryCondition* 
@@ -127,7 +127,7 @@ BCSquarePeriodicExceptX::outputXML(xml::XmlStream &XML) const
 }
 
 void 
-BCSquarePeriodicExceptX::operator<<(const XMLNode&) 
+BCSquarePeriodicExceptX::operator<<(const magnet::xml::Node&) 
 {}
 
 BoundaryCondition* 
@@ -186,7 +186,7 @@ BCSquarePeriodicXOnly::outputXML(xml::XmlStream &XML) const
 }
 
 void 
-BCSquarePeriodicXOnly::operator<<(const XMLNode&) 
+BCSquarePeriodicXOnly::operator<<(const magnet::xml::Node&) 
 {}
 
 BoundaryCondition* 

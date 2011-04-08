@@ -19,11 +19,11 @@
  */
 #pragma once
 
-#include <cmath> //for length
-#include <magnet/exception.hpp>
 #include "../base/constants.hpp" //For the dimensions
+#include <magnet/exception.hpp>
+#include <cmath> //for length
 
-struct XMLNode;
+namespace magnet { namespace xml { class Node; } }
 
 namespace xml 
 {
@@ -232,7 +232,7 @@ class CVector
   }
   
   /*! \brief Will load a CVector from an XMLNode.*/
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
   
   /*! \brief A helper function to write out a CVector to an XMLStream*/
   template<class S>

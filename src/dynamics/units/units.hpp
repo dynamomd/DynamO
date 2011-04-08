@@ -19,15 +19,9 @@
 #include "../../base/is_base.hpp"
 #include "../../base/constants.hpp"
 
-struct XMLNode;
-namespace DYNAMO
-{
-  class SimData;
-}
-namespace xml
-{
-  class  XmlStream;
-}
+namespace DYNAMO { class SimData; }
+namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; } }
 
 /*! \brief The class used to convert in and out of simulation units.
  *
@@ -130,9 +124,9 @@ class Units: public DYNAMO::SimBase_const
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Units&);
   
-  virtual void operator<<(const XMLNode &) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
   
-  static Units* loadUnits(const XMLNode&, const DYNAMO::SimData*);
+  static Units* getClass(const magnet::xml::Node&, const DYNAMO::SimData*);
   
  protected:
   virtual void outputXML(xml::XmlStream &) const = 0;

@@ -16,13 +16,10 @@
 */
 
 #include "include.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/lexical_cast.hpp>
-#include <magnet/xmlwriter.hpp>
-#include <magnet/exception.hpp>
-
 #include "../../base/is_simdata.hpp"
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <magnet/exception.hpp>
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
 			    const Units& g)
@@ -42,7 +39,7 @@ Units::simVolume() const
 }
 
 Units* 
-Units::loadUnits(const XMLNode &XML, const DYNAMO::SimData* Sim)
+Units::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Elastic")
       || !strcmp(XML.getAttribute("Type"),"HardSphere"))

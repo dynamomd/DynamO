@@ -16,12 +16,12 @@
 */
 
 #include "include.hpp"
-#include "../../extcode/xmlParser.h"
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <cstring>
+#include <magnet/xmlreader.hpp>
+
 xml::XmlStream& operator<<(xml::XmlStream& XML, 
-			    const BoundaryCondition& g)
+			   const BoundaryCondition& g)
 {
   g.outputXML(XML);
   return XML;
@@ -29,7 +29,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 
 
 BoundaryCondition* 
-BoundaryCondition::loadClass(const XMLNode &XML, DYNAMO::SimData* tmp)
+BoundaryCondition::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
 {
   if (!std::strcmp(XML.getAttribute("Boundary"),"None")
       || !std::strcmp(XML.getAttribute("Boundary"),"Null"))

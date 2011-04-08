@@ -23,7 +23,7 @@
 class C2RSingle:public C2Range
 {
 public:
-  C2RSingle(const XMLNode&, const DYNAMO::SimData*);
+  C2RSingle(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   C2RSingle(CRange* r1):range(r1) {}
   
@@ -32,7 +32,7 @@ public:
 
   virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
   const magnet::ClonePtr<CRange>& getRange() const { return range; }
 

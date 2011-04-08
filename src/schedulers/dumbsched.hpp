@@ -21,7 +21,7 @@
 class CSDumb: public CScheduler
 {
 public:
-  CSDumb(const XMLNode&, DYNAMO::SimData* const);
+  CSDumb(const magnet::xml::Node&, DYNAMO::SimData* const);
 
   CSDumb(DYNAMO::SimData* const, CSSorter*);
 
@@ -31,7 +31,7 @@ public:
 
   virtual void addEvents(const Particle&);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const;

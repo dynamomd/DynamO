@@ -28,10 +28,11 @@
 #include "shapes/oscillatingplate.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
 #include "../units/units.hpp"
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 
-LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
+LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
   EnergyPotentialStep(1)
 {
@@ -41,41 +42,23 @@ LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const XMLNode& XML):
 	      << " entry";
   try 
     {
-      if (XML.isAttributeSet("EnergyStep"))
-	EnergyPotentialStep = boost::lexical_cast<double>
-	  (XML.getAttribute("EnergyStep"));
+      if (XML.getAttribute("EnergyStep").valid())
+	EnergyPotentialStep = XML.getAttribute("EnergyStep").as<double>();
       
       EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
-
-      if (XML.hasChild("PotentialDeformation"))
-	{
-	  
-	  const XMLNode xSubNode(XML.getChildNode("PotentialDeformation"));
-	  
-	  int xml_iter = 0;
-	  
-	  unsigned long nEnergies = xSubNode.nChildNode("Entry");
-	  
-	  //Reserve some space for the entries
-	  _MCEnergyPotential.rehash(nEnergies);
-
-	  for (unsigned long i = 0; i < nEnergies; ++i)
-	    {
-	      XMLNode xBrowseNode = xSubNode.getChildNode("Entry", &xml_iter);
-
-	      double key = 
-		boost::lexical_cast<double>(xBrowseNode.getAttribute("Energy")) 
-		/ Sim->dynamics.units().unitEnergy();
-
-	      key /= EnergyPotentialStep;
-
-	      double entry = 
-		boost::lexical_cast<double>(xBrowseNode.getAttribute("Shift"))
-		/ Sim->dynamics.units().unitEnergy();
-	      
-	      _MCEnergyPotential[int(key + 0.5 - (key < 0))] = entry;
-	    }
-	}
+      
+      if (XML.getNode("PotentialDeformation").valid())
+	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").getNode("Entry"); 
+	     node.valid(); ++node)
+	  {
+	    double key = node.getAttribute("Energy").as<double>()
+	      / Sim->dynamics.units().unitEnergy();
+	    
+	    key /= EnergyPotentialStep;
+	    _MCEnergyPotential[int(key + 0.5 - (key < 0))] 
+	      = node.getAttribute("Shift").as<double>()
+	      / Sim->dynamics.units().unitEnergy();
+	  }
     }
   catch (boost::bad_lexical_cast &)
     {

@@ -76,7 +76,7 @@ protected:
 
   void initCaptureMap();
 
-  void loadCaptureMap(const XMLNode&);
+  void loadCaptureMap(const magnet::xml::Node&);
 
   void outputCaptureMap(xml::XmlStream&) const;
 
@@ -135,7 +135,7 @@ protected:
 
   void initCaptureMap();
 
-  void loadCaptureMap(const XMLNode&);
+  void loadCaptureMap(const magnet::xml::Node&);
 
   void outputCaptureMap(xml::XmlStream&) const;
 

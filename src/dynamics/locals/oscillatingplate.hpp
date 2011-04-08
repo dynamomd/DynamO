@@ -23,7 +23,7 @@
 class CLOscillatingPlate: public Local, public CoilRenderObj
 {
 public:
-  CLOscillatingPlate(const XMLNode&, DYNAMO::SimData*);
+  CLOscillatingPlate(const magnet::xml::Node&, DYNAMO::SimData*);
   CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, double, 
 		     double, double, double, double, std::string, CRange*, 
 		     double timeshift = 0, bool nstrongPlate = false);
@@ -40,7 +40,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void write_povray_info(std::ostream&) const;
 

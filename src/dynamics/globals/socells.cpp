@@ -18,7 +18,6 @@
 #include "socells.hpp"
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
 #include "../ranges/1RAll.hpp"
@@ -29,6 +28,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/math/special_functions/pow.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 
 CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
@@ -41,7 +41,7 @@ CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Single occupancy cells loaded";
 }
 
-CGSOCells::CGSOCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
+CGSOCells::CGSOCells(const magnet::xml::Node&XML, DYNAMO::SimData* ptrSim):
   Global(ptrSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -53,15 +53,9 @@ CGSOCells::CGSOCells(const XMLNode &XML, DYNAMO::SimData* ptrSim):
 }
 
 void 
-CGSOCells::operator<<(const XMLNode& XML)
+CGSOCells::operator<<(const magnet::xml::Node& XML)
 {
-  try {
-    globName = XML.getAttribute("Name");	
-  }
-  catch(...)
-    {
-      M_throw() << "Error loading CGSOCells";
-    }
+  globName = XML.getAttribute("Name");	
 }
 
 GlobalEvent 

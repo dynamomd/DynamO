@@ -24,7 +24,7 @@
 class C2RRangeList:public C2Range, DYNAMO::SimBase_const
 {
 public:
-  C2RRangeList(const XMLNode&, const DYNAMO::SimData*);
+  C2RRangeList(const magnet::xml::Node&, const DYNAMO::SimData*);
   C2RRangeList(const DYNAMO::SimData* nSim):SimBase_const(nSim,"C2RRangeList",IC_red) {}
 
   virtual C2Range* Clone() const 
@@ -35,7 +35,7 @@ public:
   void addRange(C2Range* nRange)
   { ranges.push_back(magnet::ClonePtr<C2Range>(nRange)); }
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   const std::list<magnet::ClonePtr<C2Range> >& getRanges() const;
   

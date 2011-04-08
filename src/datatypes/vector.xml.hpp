@@ -22,25 +22,24 @@
 #pragma once
 
 #include <magnet/xmlwriter.hpp>
-#include "../extcode/xmlParser.h"
+#include <magnet/xmlreader.hpp>
 #include "../base/constants.hpp"
-#include <boost/lexical_cast.hpp> //For xml Parsing
 #include <magnet/math/vector.hpp>
 #include "vector.hpp"
 
 template<class T>
 void 
-CVector<T>::operator<<(const XMLNode &XML)
+CVector<T>::operator<<(const magnet::xml::Node& XML)
 {
   for (int iDim = 0; iDim < NDIM; iDim++) 
     {
       char name[2] = "x";
       name[0] = 'x' + iDim; //Write the name
-      if (!XML.isAttributeSet(name))
+      if (!XML.getAttribute(name).valid())
 	name[0] = '0'+iDim;
       
       try {
-	data[iDim] = boost::lexical_cast<T>(XML.getAttribute(name));
+	data[iDim] = XML.getAttribute(name).as<T>();
       }
       catch (boost::bad_lexical_cast &)
 	{
@@ -100,17 +99,17 @@ inline xml::XmlStream& operator<<(xml::XmlStream& XML,
 
 inline
 VectorExpression<>& 
-operator<<(VectorExpression<>& data, const XMLNode &XML)
+operator<<(VectorExpression<>& data, const magnet::xml::Node& XML)
 {
   for (size_t iDim = 0; iDim < NDIM; iDim++) 
     {
       char name[2] = "x";
       name[0] = 'x' + iDim; //Write the name
-      if (!XML.isAttributeSet(name))
+      if (!XML.getAttribute(name))
 	name[0] = '0'+iDim;
       
       try {
-	data[iDim] = boost::lexical_cast<double>(XML.getAttribute(name));
+	data[iDim] = XML.getAttribute(name).as<double>();
       }
       catch (boost::bad_lexical_cast &)
 	{
@@ -149,7 +148,7 @@ inline xml::XmlStream& operator<<(xml::XmlStream& XML,
 #ifdef MATRIX_HEADER
 inline
 MatrixExpression<>& 
-operator<<(MatrixExpression<>& data, const XMLNode &XML)
+operator<<(MatrixExpression<>& data, const magnet::xml::Node& XML)
 {
   char name[2] = "x";
   
@@ -157,19 +156,17 @@ operator<<(MatrixExpression<>& data, const XMLNode &XML)
     {
       name[0] = 'x'+iDim;
 
-      XMLNode BrowseNode = XML.getChildNode(name);
-
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	{
 	  char name2[2] = "x";
 	  name2[0] = 'x'+jDim;
 
 	  try {
-	    data(iDim,jDim) = boost::lexical_cast<double>(BrowseNode.getAttribute(name2));
+	    data(iDim,jDim) = XML.getNode(name).getAttribute(name2).as<double>();
 	  }
 	  catch (boost::bad_lexical_cast &)
 	    {
-	      M_throw() << "Failed a lexical cast in CVector";
+	      M_throw() << "Failed a lexical cast";
 	    }
 	}
     }

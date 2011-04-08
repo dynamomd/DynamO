@@ -47,7 +47,7 @@ BCNone::outputXML(xml::XmlStream &XML) const
 }
 
 void 
-BCNone::operator<<(const XMLNode &)
+BCNone::operator<<(const magnet::xml::Node&)
 {}
 
 BoundaryCondition* 

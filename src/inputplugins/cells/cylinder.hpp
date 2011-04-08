@@ -17,11 +17,12 @@
 
 #pragma once
 #include "cell.hpp"
-#include "../../datatypes/vector.hpp"
-#include <cmath>
+#include <magnet/math/vector.hpp>
+#include <magnet/math/matrix.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_01.hpp>
+#include <cmath>
 
 struct CUCylinder: public CUCell
 {

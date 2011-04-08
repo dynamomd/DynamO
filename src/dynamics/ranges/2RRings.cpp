@@ -16,10 +16,9 @@
 */
 
 #include "2RRings.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 
 C2RRings::C2RRings(unsigned long r1, unsigned long r2, unsigned long r3):
@@ -29,15 +28,15 @@ C2RRings::C2RRings(unsigned long r1, unsigned long r2, unsigned long r3):
     M_throw() << "Range of C2RRings does not split evenly into interval";
 }
 
-C2RRings::C2RRings(const XMLNode& XML, const DYNAMO::SimData*):
+C2RRings::C2RRings(const magnet::xml::Node& XML, const DYNAMO::SimData*):
   range1(0),range2(0), interval(0)
 { 
   if (strcmp(XML.getAttribute("Range"),"Rings"))
     M_throw() << "Attempting to load a rings from a non rings";
   
-  range1 = boost::lexical_cast<unsigned long>(XML.getAttribute("Start"));
-  range2 = boost::lexical_cast<unsigned long>(XML.getAttribute("End"));
-  interval = boost::lexical_cast<unsigned long>(XML.getAttribute("Interval"));
+  range1 = XML.getAttribute("Start").as<unsigned long>();
+  range2 = XML.getAttribute("End").as<unsigned long>();
+  interval = XML.getAttribute("Interval").as<unsigned long>();
 
   if ((range2-range1 + 1) % interval)
     M_throw() << "Range of C2RChains does not split evenly into interval";
@@ -78,7 +77,7 @@ C2RRings::isInRange(const Particle&p1, const Particle&p2) const
 }
 
 void 
-C2RRings::operator<<(const XMLNode&)
+C2RRings::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RRings::operator<< cannot work for this class";
 }

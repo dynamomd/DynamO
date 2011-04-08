@@ -17,11 +17,10 @@
 
 #include "1RSingle.hpp"
 #include "../../simulation/particle.hpp"
-#include "../../extcode/xmlParser.h"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-CRSingle::CRSingle(const XMLNode& XML) 
+CRSingle::CRSingle(const magnet::xml::Node& XML) 
 { operator<<(XML); }
 
 bool 
@@ -35,17 +34,15 @@ CRSingle::isInRange(const Particle &part) const
 
 //The data output classes
 void 
-CRSingle::operator<<(const XMLNode& XML)
+CRSingle::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Range"),"Single"))
     M_throw() << "Attempting to load CRSingle from non single";
     try {
-      ID = boost::lexical_cast<unsigned long>(XML.getAttribute("ID"));
+      ID = XML.getAttribute("ID").as<size_t>();
     }
     catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CRRange";
-      }
+      { M_throw() << "Failed a lexical cast in CRRange"; }
 }
 
 void 

@@ -29,7 +29,7 @@ public:
     SpPoint(sim, r, nMass, nName, ID, nIName)
   {}
 
-  SpInertia(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int ID):
+  SpInertia(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
     SpPoint(XML,Sim,ID)
   {}
 

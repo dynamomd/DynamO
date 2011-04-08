@@ -37,7 +37,7 @@ CLWall::CLWall(DYNAMO::SimData* nSim, double ne, Vector  nnorm,
   localName = nname;
 }
 
-CLWall::CLWall(const XMLNode& XML, DYNAMO::SimData* tmp):
+CLWall::CLWall(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Local(tmp, "LocalWall")
 {
   operator<<(XML);
@@ -86,18 +86,18 @@ CLWall::initialise(size_t nID)
 }
 
 void 
-CLWall::operator<<(const XMLNode& XML)
+CLWall::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-    render = boost::lexical_cast<bool>(XML.getAttribute("Render"));
-    XMLNode xBrowseNode = XML.getChildNode("Norm");
+    e = XML.getAttribute("Elasticity").as<double>();
+    render = XML.getAttribute("Render").as<bool>();
+    magnet::xml::Node xBrowseNode = XML.getNode("Norm");
     localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
     vNorm /= vNorm.nrm();
-    xBrowseNode = XML.getChildNode("Origin");
+    xBrowseNode = XML.getNode("Origin");
     vPosition << xBrowseNode;
     vPosition *= Sim->dynamics.units().unitLength();
   } 

@@ -16,7 +16,6 @@
 */
 
 #include "squarewell.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
@@ -29,8 +28,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -42,37 +41,28 @@ ISquareWell::ISquareWell(DYNAMO::SimData* tmp, double nd, double nl,
   ld2(nd*nd*nl*nl), wellDepth(nWD),
   e(ne) {}
 
-ISquareWell::ISquareWell(const XMLNode& XML, DYNAMO::SimData* tmp):
+ISquareWell::ISquareWell(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 void 
-ISquareWell::operator<<(const XMLNode& XML)
+ISquareWell::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SquareWell"))
     M_throw() << "Attempting to load SquareWell from non SquareWell entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try {
-    diameter = Sim->dynamics.units().unitLength() 
-      * boost::lexical_cast<double>(XML.getAttribute("Diameter"));
-    
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-    
-    wellDepth = boost::lexical_cast<double>(XML.getAttribute("WellDepth"))
-      * Sim->dynamics.units().unitEnergy();
-    
-    lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
-    
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+    e = XML.getAttribute("Elasticity").as<double>();
+    wellDepth = XML.getAttribute("WellDepth").as<double>() * Sim->dynamics.units().unitEnergy();
+    lambda = XML.getAttribute("Lambda").as<double>();
     d2 = diameter * diameter;
-    
     ld2 = d2 * lambda * lambda;
-    
     intName = XML.getAttribute("Name");
-
     ISingleCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)

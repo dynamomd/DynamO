@@ -31,19 +31,19 @@ class BCRectangularLeesEdwards: virtual public BoundaryCondition, public CLEBC
  public:
   BCRectangularLeesEdwards(const DYNAMO::SimData*);
 
-  BCRectangularLeesEdwards(const XMLNode&, const DYNAMO::SimData*);
+  BCRectangularLeesEdwards(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual BoundaryCondition* Clone () const;
 
-  virtual void applyBC(Vector &) const; 
+  virtual void applyBC(Vector&) const; 
 
-  virtual void applyBC(Vector &, Vector &) const;
+  virtual void applyBC(Vector&, Vector&) const;
 
-  virtual void applyBC(Vector &, const double& dt) const;
+  virtual void applyBC(Vector&, const double& dt) const;
 
   virtual void update(const double&);
 
@@ -67,19 +67,19 @@ class BCSquareLeesEdwards: virtual public BoundaryCondition, public CLEBC
  public:
   BCSquareLeesEdwards(const DYNAMO::SimData*);
 
-  BCSquareLeesEdwards(const XMLNode&, const DYNAMO::SimData*);
+  BCSquareLeesEdwards(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual BoundaryCondition* Clone () const;
 
-  virtual void applyBC(Vector &) const; 
+  virtual void applyBC(Vector&) const; 
 
-  virtual void applyBC(Vector &, Vector &) const;
+  virtual void applyBC(Vector&, Vector&) const;
 
-  virtual void applyBC(Vector &, const double&) const;
+  virtual void applyBC(Vector&, const double&) const;
 
   virtual void update(const double&);
 

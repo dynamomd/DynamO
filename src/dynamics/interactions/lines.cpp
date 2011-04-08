@@ -16,7 +16,6 @@
 */
 
 #include "lines.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../liouvillean/OrientationL.hpp"
@@ -27,8 +26,8 @@
 #include "../ranges/1range.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -38,7 +37,7 @@ ILines::ILines(DYNAMO::SimData* tmp, double nd,
   length(nd), l2(nd*nd), e(ne) 
 {}
 
-ILines::ILines(const XMLNode& XML, DYNAMO::SimData* tmp):
+ILines::ILines(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL)
 {
   operator<<(XML);
@@ -57,24 +56,19 @@ ILines::initialise(size_t nID)
 }
 
 void 
-ILines::operator<<(const XMLNode& XML)
+ILines::operator<<(const magnet::xml::Node& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"Lines"))
     M_throw() << "Attempting to load Lines from non Lines entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try 
     {
-      length = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<double>(XML.getAttribute("Length"));
-      
+      length = XML.getAttribute("Length").as<double>() * Sim->dynamics.units().unitLength();
       l2 = length * length;
-      
-      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-      
+      e = XML.getAttribute("Elasticity").as<double>();
       intName = XML.getAttribute("Name");
-      
       ISingleCapture::loadCaptureMap(XML);   
     }
   catch (boost::bad_lexical_cast &)

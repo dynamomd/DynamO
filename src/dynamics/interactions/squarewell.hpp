@@ -24,9 +24,9 @@ class ISquareWell: public ISingleCapture
 public:
   ISquareWell(DYNAMO::SimData*, double, double, double, double, C2Range*);
 
-  ISquareWell(const XMLNode&, DYNAMO::SimData*);
+  ISquareWell(const magnet::xml::Node&, DYNAMO::SimData*);
   
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 

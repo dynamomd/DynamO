@@ -20,7 +20,6 @@
 #define MATRIX_HEADER
 #include <magnet/math/vector.hpp>
 
-
 // define default MatrixExpression, which is the Matrix type
 template <>
 class MatrixExpression<>
@@ -98,9 +97,9 @@ class MatrixExpression<>
   inline double& operator()(int i, int j) { return *(&xx+3*i+j); }
   inline const double& operator() (int i, int j) const { return *(&xx+3*i+j); }  
 
-  inline VectorExpression<MatrixExpression<>,RowOp,Base> row(int i);// return i-th row   
+  inline VectorExpression<MatrixExpression<>,ops::RowOp,Base> row(int i);// return i-th row   
   
-  inline VectorExpression<MatrixExpression<>,ColumnOp,Base> column(int j); // return j-th column
+  inline VectorExpression<MatrixExpression<>,ops::ColumnOp,Base> column(int j); // return j-th column
   
   // set the elements of a row equal to those of a vector
   template<class A, int B, class C> inline 
@@ -161,68 +160,68 @@ template <> inline double MatrixExpression<>::eval<2,2>() const { return zz; }
 // operator+ takes two matrix expressions and returns an appropriate
 // matrix expression
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F> >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >
 operator+(const MatrixExpression<A,B,C> & a, 
 	  const MatrixExpression<D,E,F> & b);
 
 // operator- takes two matrix expressions and returns an appropriate
 // matrix expression
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,F> >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >
 operator- (const MatrixExpression<A,B,C> & a,
 	   const MatrixExpression<D,E,F> & b);
 
 // operator* takes two matrix expressions and returns an appropriate
 // matrix expression
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,F> >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> >
 operator*(const MatrixExpression<A,B,C> & a, 
 	  const MatrixExpression<D,E,F> & b);
 
 // operator* takes a matrix expressions and a vector expression, and
 // returns an appropriate vector expression
 template<class A,int B,class C,class D,int E,class F>
-inline VectorExpression < MatrixExpression<A,B,C>, TimesOp, VectorExpression<D,E,F> >
+inline VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> >
 operator*(const MatrixExpression<A,B,C> & a, 
 	  const VectorExpression<D,E,F> & b);
 
 // operator* takes a scalar and a matrix expression, and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 operator* (double b, 
 	   const MatrixExpression<A,B,C> & a);
 
 // operator* takes a matrix expression and a scalar, and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 operator* (const MatrixExpression<A,B,C> & a, 
 	   double b);
 
 // operator/ takes a matrix expression and a scalar, and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 operator/ (const MatrixExpression<A,B,C> & a, 
 	   double b);
 
 // unary operator- takes a matrix expression and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base >
 operator- (const MatrixExpression<A,B,C> & a);
 
 // Transpose function, takes a matrix expression and returns an
 // appropriate matrix expression
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base> 
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base> 
 Transpose(const MatrixExpression<A,B,C> & a);
 
 // Dyadic function, takes two vector expressions and returns an
 // appropriate matrix expression
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E,F> > 
+inline MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> > 
 Dyadic(const VectorExpression<A,B,C> & a, 
        const VectorExpression<D,E,F> & b);
 
@@ -394,26 +393,26 @@ inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression
 
 // to get the i-th row of a matrix expression
 // note: the class of the matrix expression has to be defined in CLASS
-#define MATROW VectorExpression<CLASS,RowOp,Base> row(int i) const \
+#define MATROW VectorExpression<CLASS,ops::RowOp,Base> row(int i) const \
 { \
-  return VectorExpression<CLASS,RowOp,Base>( *this, i ); \
+  return VectorExpression<CLASS,ops::RowOp,Base>( *this, i ); \
 }
 
 // to get the j-th column of a matrix expression
 // note: the class of the matrix expression has to be defined in CLASS
-#define MATCOLUMN VectorExpression<CLASS,ColumnOp,Base> column(int j) const \
+#define MATCOLUMN VectorExpression<CLASS,ops::ColumnOp,Base> column(int j) const \
 { \
-  return VectorExpression<CLASS,ColumnOp,Base>( *this, j ); \
+  return VectorExpression<CLASS,ops::ColumnOp,Base>( *this, j ); \
 }
 
 
 // Expression template class for '+' between two MatrixExpressions
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Matrix
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Matrix
 template<class A,int B,class C,class D,int E,class F>
-class MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F> >
+class MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >
 {
  public:
 
@@ -426,7 +425,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,PlusOp,MatrixExpression<D,E,F> >
+#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::PlusOp,MatrixExpression<D,E,F> >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -453,10 +452,10 @@ class MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F
 // Expression template class for '-' between two MatrixExpressions
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Matrix
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Matrix
 template<class A,int B,class C,class D,int E,class F>
-class MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,F> >
+class MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >
 {
  public:
 
@@ -470,7 +469,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,MinusOp,MatrixExpression<D,E,F> >
+#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::MinusOp,MatrixExpression<D,E,F> >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -497,9 +496,9 @@ class MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,
 // Expression template class for '*' between a MatrixExpression and a double
 //
 // A and C are classes, B is an operator
-// if B=NoOp and A=C=Base, the sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
 template<class A,int B,class C>
-class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+class MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 {
  public:
   
@@ -513,7 +512,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,TimesOp,double >
+#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::TimesOp,double >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -546,22 +545,22 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
   double b;
 
   template<class D,int E,class F> 
-  friend MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double >&
-  operator* (double b, MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double > &a);
+  friend MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double >&
+  operator* (double b, MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double > &a);
 
   template<class D,int E,class F> 
-  friend MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double >&
-  operator/ (double b, MatrixExpression < MatrixExpression<D,E,F>, TimesOp, double > &a);
+  friend MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double >&
+  operator/ (double b, MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double > &a);
 };
 
 
 // Expression template class for '*' between two MatrixExpressions
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Matrix
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Matrix
 template<class A,int B,class C,class D,int E,class F>
-class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,F> >
+class MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> >
 {
  public:
 
@@ -575,7 +574,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,TimesOp,MatrixExpression<D,E,F> >
+#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::TimesOp,MatrixExpression<D,E,F> >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -602,9 +601,9 @@ class MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,
 // Expression template class for unary '-' acting on a MatrixExpression 
 //
 // A and C are classes, B is an operator
-// if B=NoOp and A=C=Base, the sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
 template<class A,int B,class C>
-class MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
+class MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base >
 {
  public:
 
@@ -618,7 +617,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression< MatrixExpression<A,B,C>, NegativeOp, Base >
+#define CLASS MatrixExpression< MatrixExpression<A,B,C>, ops::NegativeOp, Base >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -642,9 +641,9 @@ class MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
 // Expression template class for transpose function 
 //
 // A and C are classes, B is an operator
-// if B=NoOp and A=C=Base, the sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
 template<class A,int B,class C>
-class MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base >
+class MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base >
 {
  public:
 
@@ -658,7 +657,7 @@ class MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base >
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression< MatrixExpression<A,B,C>, TransposeOp, Base >
+#define CLASS MatrixExpression< MatrixExpression<A,B,C>, ops::TransposeOp, Base >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -683,10 +682,10 @@ class MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base >
 // Expression template class for Dyadic operation between two VectorExpressions
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Vector
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
 template<class A,int B,class C,class D,int E,class F>
-class MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E,F> >
+class MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> >
 {
  public:
 
@@ -700,7 +699,7 @@ class MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E
 
   // define row and column access as if they were Vectors
   // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression< VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E,F> >
+#define CLASS MatrixExpression< VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> >
   inline MATROW
   inline MATCOLUMN
 #undef CLASS
@@ -727,9 +726,9 @@ class MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E
 // Expression template class for row operation acting on a MatrixExpression 
 //
 // A and C are classes, B is an operator
-// if B=NoOp and A=C=Base, the sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
 template<class A,int B,class C>
-class VectorExpression < MatrixExpression<A,B,C>, RowOp, Base >
+class VectorExpression < MatrixExpression<A,B,C>, ops::RowOp, Base >
 {
  public:
 
@@ -766,9 +765,9 @@ class VectorExpression < MatrixExpression<A,B,C>, RowOp, Base >
 // Expression template class for column operation acting on a MatrixExpression 
 //
 // A and C are classes, B is an operator
-// if B=NoOp and A=C=Base, the sub-expression is actually a Matrix
+// if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
 template<class A,int B,class C>
-class VectorExpression < MatrixExpression<A,B,C>, ColumnOp, Base>
+class VectorExpression < MatrixExpression<A,B,C>, ops::ColumnOp, Base>
 {
  public:
 
@@ -806,10 +805,10 @@ class VectorExpression < MatrixExpression<A,B,C>, ColumnOp, Base>
 // VectorExpression
 //
 // A, C, D, and F are classes, B and E are Operators
-// if B=NoOp and A=C=Base, the first sub-expression is actually a Matrix
-// if E=NoOp and D=F=Base, the second sub-expression is actually a Vector
+// if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
+// if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
 template<class A,int B,class C,class D,int E,class F>
-class VectorExpression < MatrixExpression<A,B,C>, TimesOp, VectorExpression <D,E,F> >
+class VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression <D,E,F> >
 {
  public:
 
@@ -840,53 +839,53 @@ class VectorExpression < MatrixExpression<A,B,C>, TimesOp, VectorExpression <D,E
 
 // Matrix + Matrix
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F> >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >
 operator+ (const MatrixExpression<A,B,C> & a, 
 	   const MatrixExpression<D,E,F> & b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, PlusOp, MatrixExpression<D,E,F> >(a,b);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >(a,b);
 }
 
 // Matrix - Matrix
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,F> >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >
 operator- (const MatrixExpression<A,B,C> & a, 
 	   const MatrixExpression<D,E,F> & b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, MinusOp, MatrixExpression<D,E,F> >(a, b);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >(a, b);
 }
 
 // double * Matrix
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 operator* (double b, 
 	   const MatrixExpression<A,B,C> & a)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >(a, b);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >(a, b);
 }
 
 // Matrix * double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 operator* (const MatrixExpression<A,B,C> & a, 
 	   double b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >(a, b);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >(a, b);
 }
 
 // Matrix / double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
 operator/ (const MatrixExpression<A,B,C> & a, 
 	   double b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >(a, 1.0/b);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >(a, 1.0/b);
 }
 
 // Matrix * double * double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >&
-operator* (double b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double > &a)
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >&
+operator* (double b, MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double > &a)
 { 
   a.b *= b; 
   return a; 
@@ -894,8 +893,8 @@ operator* (double b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double
 
 // Matrix * double / double
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double >&
-operator/ (double b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double > &a)
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >&
+operator/ (double b, MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double > &a)
 { 
   a.b /= b; 
   return a; 
@@ -903,44 +902,44 @@ operator/ (double b, MatrixExpression < MatrixExpression<A,B,C>, TimesOp, double
 
 // Matrix * Matrix
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,F> >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> >
 operator*(const MatrixExpression<A,B,C> & a, 
 	  const MatrixExpression<D,E,F> & b)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TimesOp, MatrixExpression<D,E,F> > (a, b);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> > (a, b);
 }
 
 // -Matrix 
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base >
 operator- (const MatrixExpression<A,B,C> & a)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, NegativeOp, Base > (a);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base > (a);
 }
 
 // Matrix * Vector
 template<class A,int B,class C,class D,int E,class F>
-inline VectorExpression < MatrixExpression<A,B,C>, TimesOp, VectorExpression<D,E,F> >
+inline VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> >
 operator*(const MatrixExpression<A,B,C> & a, 
 	  const VectorExpression<D,E,F> & b)
 { 
-  return VectorExpression < MatrixExpression<A,B,C>, TimesOp, VectorExpression<D,E,F> > (a, b);
+  return VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> > (a, b);
 }
 
 //
 // Implementation of the row and column member functions of MatrixExpression
 //
 
-inline VectorExpression<MatrixExpression<>,RowOp,Base> 
+inline VectorExpression<MatrixExpression<>,ops::RowOp,Base> 
 MatrixExpression<>::row(int i)
 {
-  return VectorExpression<MatrixExpression<>,RowOp,Base>(*this,i);
+  return VectorExpression<MatrixExpression<>,ops::RowOp,Base>(*this,i);
 }
 
-inline VectorExpression<MatrixExpression<>,ColumnOp,Base> 
+inline VectorExpression<MatrixExpression<>,ops::ColumnOp,Base> 
 MatrixExpression<>::column(int j)
 {
-  return VectorExpression<MatrixExpression<>,ColumnOp,Base>(*this,j);
+  return VectorExpression<MatrixExpression<>,ops::ColumnOp,Base>(*this,j);
 }
 
 // Can now implement Gramm-Schmidt orthogonalization of the rows of the matrix
@@ -1008,19 +1007,19 @@ inline MatrixExpression<> Rodrigues(const Vector &V)
 
 // transpose of a matrix
 template<class A,int B,class C>
-inline MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base >
+inline MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base >
 Transpose (const MatrixExpression<A,B,C> & a)
 { 
-  return MatrixExpression < MatrixExpression<A,B,C>, TransposeOp, Base > (a);
+  return MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base > (a);
 }
 
 // dyadic product of two vectors
 template<class A,int B,class C,class D,int E,class F>
-inline MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E,F> >
+inline MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> >
 Dyadic (const VectorExpression<A,B,C> & a, 
 	const VectorExpression<D,E,F> & b)
 { 
-  return MatrixExpression < VectorExpression<A,B,C>, DyadicOp, VectorExpression<D,E,F> > (a,b);
+  return MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> > (a,b);
 }
 
 #undef MATNRM

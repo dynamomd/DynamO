@@ -24,9 +24,9 @@ class ISoftCore: public ISingleCapture
 public:
   ISoftCore(DYNAMO::SimData*, double, double, C2Range*);
 
-  ISoftCore(const XMLNode&, DYNAMO::SimData*);
+  ISoftCore(const magnet::xml::Node&, DYNAMO::SimData*);
   
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 

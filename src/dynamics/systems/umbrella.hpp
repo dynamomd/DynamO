@@ -27,7 +27,7 @@
 class CSUmbrella: public System
 {
 public:
-  CSUmbrella(const XMLNode& XML, DYNAMO::SimData*);
+  CSUmbrella(const magnet::xml::Node& XML, DYNAMO::SimData*);
 
   CSUmbrella(DYNAMO::SimData*, double, double, double, std::string, CRange*, CRange*);
   
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   virtual void outputXML(xml::XmlStream&) const;

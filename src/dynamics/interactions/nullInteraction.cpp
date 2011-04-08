@@ -16,17 +16,17 @@
 */
 
 #include "nullInteraction.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../2particleEventData.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cstring>
 
 INull::INull(DYNAMO::SimData* tmp, C2Range* nR):
   Interaction(tmp, nR) {}
 
-INull::INull(const XMLNode& XML, DYNAMO::SimData* tmp):
-  Interaction(tmp,NULL)
+INull::INull(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+  Interaction(tmp, NULL)
 {
   operator<<(XML);
 }
@@ -36,18 +36,16 @@ INull::initialise(size_t nID)
 { ID=nID; }
 
 void 
-INull::operator<<(const XMLNode& XML)
+INull::operator<<(const magnet::xml::Node& XML)
 { 
   if (std::strcmp(XML.getAttribute("Type"),"Null"))
     M_throw() << "Attempting to load NullInteraction from " 
 	      << XML.getAttribute("Type") <<" entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try 
-    {
-      intName = XML.getAttribute("Name");
-    }
+    { intName = XML.getAttribute("Name"); }
   catch (boost::bad_lexical_cast &)
     {
       M_throw() << "Failed a lexical cast in CINull";

@@ -26,7 +26,7 @@
 class CGCellsMorton: public CGNeighbourList
 {
 public:
-  CGCellsMorton(const XMLNode&, DYNAMO::SimData*);
+  CGCellsMorton(const magnet::xml::Node&, DYNAMO::SimData*);
 
   CGCellsMorton(DYNAMO::SimData*, const std::string&);
 
@@ -51,7 +51,7 @@ public:
   virtual void getParticleLocalNeighbourhood(const Particle&, 
 					     const nbHoodFunc&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   double  getCellDimensions() const 
   { return cellDimension; }

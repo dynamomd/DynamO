@@ -20,11 +20,8 @@
 #include "../eventtypes.hpp"
 #include <string>
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 class IntEvent;
 class GlobalEvent;
 class NEventData;
@@ -44,7 +41,7 @@ public:
 
   virtual void initialise(size_t) = 0;
 
-  virtual void operator<<(const XMLNode&) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
 
   bool operator<(const IntEvent&) const;
 
@@ -56,7 +53,7 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const System&);
   
-  static System* getClass(const XMLNode&, DYNAMO::SimData*);
+  static System* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
   
   void setName(const std::string& tmp) { sysName = tmp; }
 

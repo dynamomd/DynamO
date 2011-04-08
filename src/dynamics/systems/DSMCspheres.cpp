@@ -16,7 +16,6 @@
 */
 
 #include "DSMCspheres.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -26,12 +25,12 @@
 #include "../ranges/include.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
+#include <boost/random/uniform_int.hpp>
 
-CSDSMCSpheres::CSDSMCSpheres(const XMLNode& XML, DYNAMO::SimData* tmp): 
+CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   maxprob(0.0),
@@ -203,33 +202,22 @@ CSDSMCSpheres::initialise(size_t nID)
 }
 
 void
-CSDSMCSpheres::operator<<(const XMLNode& XML)
+CSDSMCSpheres::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"DSMCSpheres"))
     M_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
   
   try {
-    tstep = boost::lexical_cast<double>(XML.getAttribute("tStep"))
-      * Sim->dynamics.units().unitTime();
-    
-    chi = boost::lexical_cast<double>(XML.getAttribute("Chi"));
-    
+    tstep = XML.getAttribute("tStep").as<double>() * Sim->dynamics.units().unitTime();
+    chi = XML.getAttribute("Chi").as<double>();
     sysName = XML.getAttribute("Name");
-
-    diameter = boost::lexical_cast<double>(XML.getAttribute("Diameter"))
-      * Sim->dynamics.units().unitLength();
-
-    e = boost::lexical_cast<double>(XML.getAttribute("Inelasticity"));
-
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+    e = XML.getAttribute("Inelasticity").as<double>();
     d2 = diameter * diameter;
-
-    range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
-
-    range2.set_ptr(CRange::loadClass(XML.getChildNode("Range2"), Sim));
-
-    if (XML.isAttributeSet("MaxProbability"))
-      maxprob = boost::lexical_cast<double>(XML.getAttribute("MaxProbability"));
-	
+    range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
+    range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
+    if (XML.getAttribute("MaxProbability").valid())
+      maxprob = XML.getAttribute("MaxProbability").as<double>();
   }
   catch (boost::bad_lexical_cast &)
     {

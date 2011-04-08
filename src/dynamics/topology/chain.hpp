@@ -23,16 +23,16 @@
 #include <string>
 #include <list>
 
-class CTChain:public Topology
+class CTChain: public Topology
 {
 public:  
-  CTChain(const XMLNode&, DYNAMO::SimData*, unsigned int ID);
+  CTChain(const magnet::xml::Node&, DYNAMO::SimData*, unsigned int ID);
 
   CTChain(DYNAMO::SimData*, unsigned int ID, std::string);
 
   virtual ~CTChain() {}
   
-  void operator<<(const XMLNode&) {}
+  virtual void operator<<(const magnet::xml::Node&) {}
 
   virtual CTChain* Clone() const { return new CTChain(*this); }
 

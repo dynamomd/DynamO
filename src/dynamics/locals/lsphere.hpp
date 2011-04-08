@@ -21,7 +21,7 @@
 class CLSphere: public Local
 {
 public:
-  CLSphere(const XMLNode&, DYNAMO::SimData*);
+  CLSphere(const magnet::xml::Node&, DYNAMO::SimData*);
   CLSphere(DYNAMO::SimData*, double, Vector , double, 
 	 std::string, CRange*, bool nrender = true);
 
@@ -37,7 +37,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void write_povray_info(std::ostream&) const;
 

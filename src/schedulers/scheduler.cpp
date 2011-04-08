@@ -23,7 +23,6 @@
 #include "../dynamics/systems/system.hpp"
 #include "../dynamics/liouvillean/liouvillean.hpp"
 #include "../base/is_simdata.hpp"
-#include "../extcode/xmlParser.h"
 #include "include.hpp"
 #include "../dynamics/units/units.hpp"
 
@@ -33,6 +32,7 @@
 #endif
 
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
 		       CSSorter* nS):
@@ -46,7 +46,7 @@ CScheduler::~CScheduler()
 {}
 
 CScheduler* 
-CScheduler::getClass(const XMLNode& XML, DYNAMO::SimData* const Sim)
+CScheduler::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSNeighbourList(XML, Sim);

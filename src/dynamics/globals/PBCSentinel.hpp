@@ -22,7 +22,7 @@
 class CGPBCSentinel: public Global
 {
 public:
-  CGPBCSentinel(const XMLNode&, DYNAMO::SimData*);
+  CGPBCSentinel(const magnet::xml::Node&, DYNAMO::SimData*);
 
   CGPBCSentinel(DYNAMO::SimData*, const std::string&);
   
@@ -36,7 +36,7 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
 protected:
   void particlesUpdated(const NEventData&);

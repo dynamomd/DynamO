@@ -17,20 +17,19 @@
 
 #include "particle.hpp"
 #include <magnet/xmlwriter.hpp>
-#include "../extcode/xmlParser.h"
+#include <magnet/xmlreader.hpp>
 #include "../datatypes/vector.xml.hpp"
 #include <ostream>
 
-Particle::Particle(const XMLNode& XML, unsigned long nID):
+Particle::Particle(const magnet::xml::Node& XML, unsigned long nID):
   _ID(nID),
   _peculiarTime(0.0),
   _state(DEFAULT)
 {
-  if (XML.isAttributeSet("Static"))
-    clearState(DYNAMIC);
+  if (XML.getAttribute("Static").valid()) clearState(DYNAMIC);
 
-  _pos << XML.getChildNode("P");
-  _vel << XML.getChildNode("V");
+  _pos << XML.getNode("P");
+  _vel << XML.getNode("V");
 }
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, 

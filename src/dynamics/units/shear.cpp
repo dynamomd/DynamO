@@ -16,20 +16,18 @@
 */
 
 #include "shear.hpp"
-#include "../../extcode/xmlParser.h"
 #include <magnet/xmlwriter.hpp>
-#include <magnet/exception.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cstring>
 
 void 
-UShear::operator<<(const XMLNode& XML)
+UShear::operator<<(const magnet::xml::Node& XML)
 {
   if (std::strcmp(XML.getAttribute("Type"),"Shear"))
     M_throw() << "Attempting to load UShear from non shear type";
   
   try {
-    UnitOfLength = 1.0 / boost::lexical_cast<double>
-      (XML.getAttribute("BoxLength"));
+    UnitOfLength = 1.0 / XML.getAttribute("BoxLength").as<double>();
   }
   catch (boost::bad_lexical_cast &)
     {

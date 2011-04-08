@@ -23,11 +23,8 @@
 #include "../ranges/1range.hpp"
 #include <magnet/math/vector.hpp>
 
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 class IntEvent;
 class NEventData;
 class LocalEvent;
@@ -55,9 +52,9 @@ public:
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Local&);
 
-  static Local* getClass(const XMLNode&, DYNAMO::SimData*);
+  static Local* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  virtual void operator<<(const XMLNode&) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
 
   void setName(const std::string& tmp) { localName = tmp; }
 

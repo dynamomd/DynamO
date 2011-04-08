@@ -16,18 +16,18 @@
 */
 
 #include "2RAll.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RAll::C2RAll(const XMLNode& XML, const DYNAMO::SimData*)
+C2RAll::C2RAll(const magnet::xml::Node& XML, const DYNAMO::SimData*)
 { 
   if (strcmp(XML.getAttribute("Range"),"2All"))
     M_throw() << "Attempting to load a 2All from a non 2All";
 }
 
 void 
-C2RAll::operator<<(const XMLNode&)
+C2RAll::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RAll operator<< cannot work for this class";
 }

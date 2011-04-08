@@ -24,9 +24,9 @@ class IDumbbells: public ISingleCapture
 public:
   IDumbbells(DYNAMO::SimData*, double, double, double, C2Range*);
 
-  IDumbbells(const XMLNode&, DYNAMO::SimData*);
+  IDumbbells(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
   
 
   double getDiameter() const { return diameter; }

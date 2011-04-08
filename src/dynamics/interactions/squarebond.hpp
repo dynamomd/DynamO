@@ -24,9 +24,9 @@ class ISquareBond: public Interaction
 public:
   ISquareBond(DYNAMO::SimData*, double, double, double, C2Range*);
 
-  ISquareBond(const XMLNode&, DYNAMO::SimData*);
+  ISquareBond(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 

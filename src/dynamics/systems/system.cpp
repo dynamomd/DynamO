@@ -23,12 +23,12 @@
 #include "umbrella.hpp"
 #include "visualizer.hpp"
 #include "sleep.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../globals/globEvent.hpp"
 #include "../ranges/1RAll.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 bool 
 System::operator<(const IntEvent& iEvent) const
@@ -64,7 +64,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 }
 
 System* 
-System::getClass(const XMLNode& XML, DYNAMO::SimData* Sim)
+System::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Andersen"))
     return new CSysGhost(XML,Sim);

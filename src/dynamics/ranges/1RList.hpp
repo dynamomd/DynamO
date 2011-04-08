@@ -22,7 +22,7 @@
 class CRList: public CRange
 {
 public:
-  CRList(const XMLNode&);
+  CRList(const magnet::xml::Node&);
 
   CRList() {}
 
@@ -31,7 +31,7 @@ public:
   virtual bool isInRange(const Particle &) const;
 
   //The data output classes
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
   virtual unsigned long size() const { return IDs.size(); };
 

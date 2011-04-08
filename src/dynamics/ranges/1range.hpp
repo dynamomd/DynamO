@@ -20,8 +20,8 @@
 #include <boost/range.hpp>
 #include <iterator>
 
-struct XMLNode;
 class Particle;
+namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
 namespace DYNAMO { class SimData; }
 namespace { class RangeIterator; }
@@ -36,7 +36,7 @@ public:
 
   virtual bool isInRange(const Particle&) const = 0;
 
-  virtual void operator<<(const XMLNode&) = 0;  
+  virtual void operator<<(const magnet::xml::Node&) = 0;  
 
   virtual CRange* Clone() const = 0;
 
@@ -46,7 +46,7 @@ public:
 
   virtual unsigned long at(unsigned long) const = 0;
 
-  static CRange* loadClass(const XMLNode&, const DYNAMO::SimData * Sim);
+  static CRange* getClass(const magnet::xml::Node&, const DYNAMO::SimData * Sim);
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CRange&);
 

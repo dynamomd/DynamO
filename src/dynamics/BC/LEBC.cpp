@@ -16,13 +16,12 @@
 */
 
 #include "LEBC.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../units/shear.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 
 BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
@@ -33,7 +32,8 @@ BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
   I_cout() << "Rectangular Lee's Edwards BC loaded"; 
 }
 
-BCRectangularLeesEdwards::BCRectangularLeesEdwards(const XMLNode& XML, const DYNAMO::SimData* tmp):
+BCRectangularLeesEdwards::BCRectangularLeesEdwards(const magnet::xml::Node& XML, 
+						   const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -52,12 +52,12 @@ BCRectangularLeesEdwards::outputXML(xml::XmlStream &XML) const
 }
 
 void 
-BCRectangularLeesEdwards::operator<<(const XMLNode& XML)
+BCRectangularLeesEdwards::operator<<(const magnet::xml::Node& XML)
 { 
   try 
     {
-      if (XML.isAttributeSet("DXD"))
-	dxd = boost::lexical_cast<double>(XML.getAttribute("DXD"));
+      if (XML.getAttribute("DXD").valid())
+	dxd = XML.getAttribute("DXD").as<double>();
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -129,7 +129,7 @@ BCSquareLeesEdwards::BCSquareLeesEdwards(const DYNAMO::SimData* tmp):
   I_cout() << "Square Lee's Edwards BC loaded"; 
 }
 
-BCSquareLeesEdwards::BCSquareLeesEdwards(const XMLNode& XML, const DYNAMO::SimData* tmp):
+BCSquareLeesEdwards::BCSquareLeesEdwards(const magnet::xml::Node& XML, const DYNAMO::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -148,12 +148,12 @@ BCSquareLeesEdwards::outputXML(xml::XmlStream &XML) const
 }
 
 void 
-BCSquareLeesEdwards::operator<<(const XMLNode& XML)
+BCSquareLeesEdwards::operator<<(const magnet::xml::Node& XML)
 { 
   try 
     {
-      if (XML.isAttributeSet("DXD"))
-	dxd = boost::lexical_cast<double>(XML.getAttribute("DXD"));
+      if (XML.getAttribute("DXD").valid())
+	dxd = XML.getAttribute("DXD").as<double>();
     }
   catch (boost::bad_lexical_cast &)
     {

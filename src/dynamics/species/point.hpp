@@ -38,13 +38,13 @@ public:
     Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
   {}
   
-  SpPoint(const XMLNode& XML, DYNAMO::SimData* nSim, unsigned int nID):
+  SpPoint(const magnet::xml::Node& XML, DYNAMO::SimData* nSim, unsigned int nID):
     Species(nSim, "", NULL, 0, "", nID,"")
   { operator<<(XML); }
 
   virtual void initialise();
 
-  virtual void operator<<(const XMLNode& XML);
+  virtual void operator<<(const magnet::xml::Node& XML);
 
   virtual Species* Clone() const { return new SpPoint(*this); }
 

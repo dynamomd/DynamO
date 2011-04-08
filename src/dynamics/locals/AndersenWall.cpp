@@ -35,7 +35,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-CLAndersenWall::CLAndersenWall(const XMLNode& XML, DYNAMO::SimData* ptrSim):
+CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
   Local(ptrSim, "GlobalAndersenWall"),
   sqrtT(1.0)
 {
@@ -96,21 +96,19 @@ CLAndersenWall::initialise(size_t nID)
 }
 
 void 
-CLAndersenWall::operator<<(const XMLNode& XML)
+CLAndersenWall::operator<<(const magnet::xml::Node& XML)
 {
-  range.set_ptr(CRange::loadClass(XML,Sim));
+  range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
     
-    sqrtT = sqrt(boost::lexical_cast<double>(XML.getAttribute("Temperature")) 
+    sqrtT = sqrt(XML.getAttribute("Temperature").as<double>() 
 		 * Sim->dynamics.units().unitEnergy());
 
-    XMLNode xBrowseNode = XML.getChildNode("Norm");
     localName = XML.getAttribute("Name");
-    vNorm << xBrowseNode;
+    vNorm << XML.getNode("Norm");
     vNorm /= vNorm.nrm();
-    xBrowseNode = XML.getChildNode("Origin");
-    vPosition << xBrowseNode;
+    vPosition << XML.getNode("Origin");
     vPosition *= Sim->dynamics.units().unitLength();
 
   } 

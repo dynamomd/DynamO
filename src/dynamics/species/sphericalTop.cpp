@@ -16,10 +16,10 @@
 */
 
 #include "sphericalTop.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
 			       std::string nName, unsigned int nID, double inertiaConst,
@@ -30,7 +30,8 @@ SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass,
   spName = "SpSphericalTop";
 }
 
-SpSphericalTop::SpSphericalTop(const XMLNode& XML, DYNAMO::SimData* Sim, unsigned int nID):
+SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, 
+			       unsigned int nID):
   SpInertia(XML, Sim, nID)
 { operator<<(XML); }
 
@@ -48,14 +49,13 @@ SpSphericalTop::outputXML(xml::XmlStream& XML, std::string type) const
 }
 
 void 
-SpSphericalTop::operator<<(const XMLNode& XML)
+SpSphericalTop::operator<<(const magnet::xml::Node& XML)
 {
   SpPoint::operator<<(XML);
 
   try {
     inertiaConstant 
-      = boost::lexical_cast<double>(XML.getAttribute("InertiaConstant"))
-      * Sim->dynamics.units().unitArea();
+      = XML.getAttribute("InertiaConstant").as<double>() * Sim->dynamics.units().unitArea();
   } 
   catch (boost::bad_lexical_cast &)
     {

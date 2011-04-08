@@ -16,7 +16,6 @@
 */
 
 #include "roughhardsphere.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../units/units.hpp"
@@ -27,7 +26,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
 #include "../liouvillean/CompressionL.hpp"
-#include <boost/lexical_cast.hpp>
+#include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 #include <iomanip>
@@ -37,7 +36,7 @@ IRoughHardSphere::IRoughHardSphere(DYNAMO::SimData* tmp, double nd,
   Interaction(tmp, nR),
   diameter(nd), d2(nd*nd), e(ne), et(net) {}
 
-IRoughHardSphere::IRoughHardSphere(const XMLNode& XML, DYNAMO::SimData* tmp):
+IRoughHardSphere::IRoughHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Interaction(tmp,NULL)
 {
   operator<<(XML);
@@ -48,24 +47,19 @@ IRoughHardSphere::initialise(size_t nID)
 { ID=nID; }
 
 void 
-IRoughHardSphere::operator<<(const XMLNode& XML)
+IRoughHardSphere::operator<<(const magnet::xml::Node& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
     M_throw() << "Attempting to load Hardsphere from non RoughHardSphere entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try 
     {
-      diameter = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
-      
-      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-
-      et = boost::lexical_cast<double>(XML.getAttribute("TangentialElasticity"));
-      
+      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+      e = XML.getAttribute("Elasticity").as<double>();
+      et = XML.getAttribute("TangentialElasticity").as<double>();
       d2 = diameter * diameter;
-      
       intName = XML.getAttribute("Name");
     }
   catch (boost::bad_lexical_cast &)

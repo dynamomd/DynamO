@@ -24,9 +24,9 @@ class INull: public Interaction
 public:
   INull(DYNAMO::SimData*, C2Range*);
 
-  INull(const XMLNode&, DYNAMO::SimData*);
+  INull(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual double getInternalEnergy() const { return 0.0; }
 

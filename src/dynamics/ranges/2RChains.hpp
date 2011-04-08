@@ -23,7 +23,7 @@
 class C2RChains:public C2Range
 {
 public:
-  C2RChains(const XMLNode&, const DYNAMO::SimData*);
+  C2RChains(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   //Start, End, Interval
   C2RChains(unsigned long, unsigned long, unsigned long);
@@ -33,7 +33,7 @@ public:
 
   virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;

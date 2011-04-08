@@ -17,17 +17,18 @@
 
 #include "dynamics.hpp"
 #include "include.hpp"
-#include <boost/foreach.hpp>
 #include "../datatypes/vector.hpp"
 #include "../datatypes/vector.xml.hpp"
-#include "../extcode/xmlParser.h"
-#include <magnet/exception.hpp>
-#include <magnet/xmlwriter.hpp>
-#include <cmath>
 #include "../base/is_simdata.hpp"
 #include "NparticleEventData.hpp"
 #include "systems/sysTicker.hpp"
 #include "../schedulers/scheduler.hpp"
+
+#include <magnet/xmlreader.hpp>
+#include <magnet/exception.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <boost/foreach.hpp>
+#include <cmath>
 
 Dynamics::Dynamics(DYNAMO::SimData* tmp): 
   SimBase(tmp,"Dynamics",IC_purple),
@@ -36,7 +37,7 @@ Dynamics::Dynamics(DYNAMO::SimData* tmp):
   p_units(NULL)
 {}
 
-Dynamics::Dynamics(const XMLNode& XML, DYNAMO::SimData* tmp): 
+Dynamics::Dynamics(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   SimBase(tmp, "Dynamics", IC_purple),
   p_BC(NULL), 
   p_units(NULL)
@@ -418,50 +419,45 @@ Dynamics::setCOMVelocity(const Vector COMVelocity)
 }
 
 void
-Dynamics::operator<<(const XMLNode& XML)
+Dynamics::operator<<(const magnet::xml::Node& XML)
 {
   I_cout() << "Loading dynamics from XML";
   
-  XMLNode xDynamics=XML.getChildNode("Dynamics"), xSubNode;
+  magnet::xml::Node xDynamics = XML.getNode("Dynamics");
   
   //Load the aspect ratio
-  if (xDynamics.hasChild("Aspect_Ratio"))
-    {
-      xSubNode = xDynamics.getChildNode("Aspect_Ratio");
-      Sim->aspectRatio << xSubNode;
-    }
+  if (xDynamics.getNode("Aspect_Ratio").valid())
+    Sim->aspectRatio << xDynamics.getNode("Aspect_Ratio");
   
-  xSubNode = xDynamics.getChildNode("Units");
-  p_units.set_ptr(Units::loadUnits(xSubNode,Sim));
+  p_units.set_ptr(Units::getClass(xDynamics.getNode("Units"), Sim));
   
   //Now load the BC part, after the aspect ratio!
-  xSubNode = xDynamics.getChildNode("BC");
-  p_BC.set_ptr(BoundaryCondition::loadClass(xSubNode, Sim));
+  p_BC.set_ptr(BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim));
   
-  if (xDynamics.hasChild("Topology"))
+  if (xDynamics.getNode("Topology").valid())
     {
-      xSubNode = xDynamics.getChildNode("Topology");  
-      for (long i=0; i < xSubNode.nChildNode("Structure"); i++)
+      size_t i(0);
+      for (magnet::xml::Node node = xDynamics.getNode("Topology").getNode("Structure");
+	   node.valid(); ++node, ++i)
 	{
-	  magnet::ClonePtr<Topology> tempPlug(Topology::loadClass(xSubNode.getChildNode("Structure",i),Sim,i));
+	  magnet::ClonePtr<Topology> tempPlug(Topology::getClass(node, Sim, i));
 	  topology.push_back(tempPlug);
 	}
     }
   
-  xSubNode = xDynamics.getChildNode("Genus");  
-  for (long i=0; i < xSubNode.nChildNode("Species"); i++)
-    species.push_back(magnet::ClonePtr<Species>
-		      (Species::getClass(xSubNode.getChildNode("Species",i),Sim,i)));
+  { 
+    size_t i(0);
+    for (magnet::xml::Node node = xDynamics.getNode("Genus").getNode("Species");
+	 node.valid(); ++node, ++i)
+      species.push_back(magnet::ClonePtr<Species>(Species::getClass(node, Sim, i)));
+  }
+
+  p_liouvillean.set_ptr(Liouvillean::loadClass(xDynamics.getNode("Liouvillean"), Sim));  
   
-  xSubNode = xDynamics.getChildNode("Liouvillean");
-  p_liouvillean.set_ptr(Liouvillean::loadClass(xSubNode,Sim));  
-  
-  xSubNode = xDynamics.getChildNode("Interactions");
-  for (long i=0; i < xSubNode.nChildNode("Interaction"); i++)
+  for (magnet::xml::Node node = xDynamics.getNode("Interactions").getNode("Interaction");
+       node.valid(); ++node)
     {
-      magnet::ClonePtr<Interaction> tempPlug(Interaction::getClass
-					 (xSubNode.getChildNode("Interaction",
-								i),Sim));
+      magnet::ClonePtr<Interaction> tempPlug(Interaction::getClass(node, Sim));
       interactions.push_back(tempPlug);
     }  
   
@@ -474,43 +470,29 @@ Dynamics::operator<<(const XMLNode& XML)
 	break;
       }
   
-  if (xDynamics.hasChild("Globals"))
-    {
-      xSubNode = xDynamics.getChildNode("Globals");  
-      for (long i = 0; i < xSubNode.nChildNode("Global"); ++i)
-	{
-	  magnet::ClonePtr<Global> 
-	    tempPlug(Global::getClass(xSubNode.getChildNode("Global", i), Sim));
-	  
-	  globals.push_back(tempPlug);
-	}
-    }
+  if (xDynamics.getNode("Globals").valid())
+    for (magnet::xml::Node node = xDynamics.getNode("Globals").getNode("Global"); 
+	 node.valid(); ++node)
+      {
+	magnet::ClonePtr<Global> tempPlug(Global::getClass(node, Sim));
+	globals.push_back(tempPlug);
+      }
 
-  if (xDynamics.hasChild("Locals"))
-    {
-      xSubNode = xDynamics.getChildNode("Locals");
-      
-      for (long i = 0; i < xSubNode.nChildNode("Local"); ++i)
-	{
-	  magnet::ClonePtr<Local> 
-	    tempPlug(Local::getClass(xSubNode.getChildNode("Local", i), Sim));
-	  
-	  locals.push_back(tempPlug);
-	}
-    }
+  if (xDynamics.getNode("Locals").valid())
+    for (magnet::xml::Node node = xDynamics.getNode("Locals").getNode("Local"); 
+	 node.valid(); ++node)
+      {
+	magnet::ClonePtr<Local> tempPlug(Local::getClass(node, Sim));
+	locals.push_back(tempPlug);
+      }
   
-  if (xDynamics.hasChild("SystemEvents"))
-    {
-      xSubNode = xDynamics.getChildNode("SystemEvents");
-      
-      for (long i=0; i < xSubNode.nChildNode("System"); i++)
-	{
-	  magnet::ClonePtr<System> 
-	    tempPlug(System::getClass(xSubNode.getChildNode("System",i),Sim));
-	  
-	  systems.push_back(tempPlug);
-	}
-    }
+  if (xDynamics.getNode("SystemEvents").valid())
+    for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").getNode("System"); 
+	 node.valid(); ++node)
+      {
+	magnet::ClonePtr<System> tempPlug(System::getClass(node, Sim));
+	systems.push_back(tempPlug);
+      }
 }
 
 void

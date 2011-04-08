@@ -23,7 +23,7 @@
 class C2RPair:public C2Range
 {
 public:
-  C2RPair(const XMLNode&, const DYNAMO::SimData*);
+  C2RPair(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   C2RPair(CRange* r1, CRange* r2 ):range1(r1),range2(r2) {}
   
@@ -32,7 +32,7 @@ public:
 
   virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;

@@ -17,22 +17,19 @@
 
 #pragma once
 
-#include <string>
-#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/2range.hpp"
 #include "../../base/is_colormap.hpp"
+#include <magnet/cloneptr.hpp>
+#include <string>
 
 class PairEventData;
 class IntEvent;
-struct XMLNode;
 class Species;
 class CRange;
 
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
 
 class Interaction: public DYNAMO::SimBase
 {
@@ -58,11 +55,11 @@ public:
 
   virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  virtual void operator<<(const XMLNode&) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Interaction&);
  
-  static Interaction* getClass(const XMLNode&, DYNAMO::SimData*);
+  static Interaction* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
 
   bool isInteraction(const Particle &p1, const Particle &p2) const
   { return range->isInRange(p1,p2); }

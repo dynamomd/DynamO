@@ -24,9 +24,9 @@ class IRotatedParallelCubes: public Interaction
 public:
   IRotatedParallelCubes(DYNAMO::SimData*, double, double, const Matrix&, C2Range*);
 
-  IRotatedParallelCubes(const XMLNode&, DYNAMO::SimData*);
+  IRotatedParallelCubes(const magnet::xml::Node&, DYNAMO::SimData*);
 
-  void operator<<(const XMLNode&);
+  void operator<<(const magnet::xml::Node&);
 
   virtual double getInternalEnergy() const { return 0.0; }
 

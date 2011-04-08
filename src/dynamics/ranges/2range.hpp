@@ -16,17 +16,11 @@
 */
 
 #pragma once
-struct XMLNode;
-namespace xml
-{
-  class XmlStream;
-}
-class Particle;
 
-namespace DYNAMO
-{
-  class SimData;
-}
+class Particle;
+namespace magnet { namespace xml { class Node; } }
+namespace xml { class XmlStream; }
+namespace DYNAMO { class SimData; }
 
 class C2Range
 {
@@ -34,11 +28,11 @@ public:
   virtual ~C2Range() {};
  
   virtual bool isInRange(const Particle&, const Particle&) const =0;  
-  virtual void operator<<(const XMLNode& XML) = 0;
+  virtual void operator<<(const magnet::xml::Node& XML) = 0;
   
   virtual C2Range* Clone() const = 0;
 
-  static C2Range* loadClass(const XMLNode&, const DYNAMO::SimData*);
+  static C2Range* getClass(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const C2Range&);
 

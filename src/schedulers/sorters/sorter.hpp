@@ -55,7 +55,7 @@ public:
   virtual intPart   copyNextEvent() const               = 0;
   virtual CSSorter* Clone()                          const = 0;
 
-  static CSSorter* getClass(const XMLNode&, const DYNAMO::SimData*);
+  static CSSorter* getClass(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CSSorter&);
 

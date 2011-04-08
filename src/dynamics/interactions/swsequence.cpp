@@ -16,7 +16,6 @@
 */
 
 #include "swsequence.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
@@ -29,8 +28,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -52,7 +51,7 @@ ISWSequence::ISWSequence(DYNAMO::SimData* tmp, double nd, double nl,
     vec.resize(letters.size(), 0.0);
 }
 
-ISWSequence::ISWSequence(const XMLNode& XML, DYNAMO::SimData* tmp):
+ISWSequence::ISWSequence(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
@@ -101,50 +100,34 @@ ISWSequence::outputXML(xml::XmlStream& XML) const
 }
 
 void 
-ISWSequence::operator<<(const XMLNode& XML)
+ISWSequence::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
     M_throw() << "Attempting to load SquareWell from non SquareWell entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try { 
-    diameter = Sim->dynamics.units().unitLength() 
-      * boost::lexical_cast<double>(XML.getAttribute("Diameter"));
-    
-    e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-        
-    lambda = boost::lexical_cast<double>(XML.getAttribute("Lambda"));
-    
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+    e = XML.getAttribute("Elasticity").as<double>();
+    lambda = XML.getAttribute("Lambda").as<double>();
     d2 = diameter * diameter;
-    
     ld2 = d2 * lambda * lambda;
-    
     intName = XML.getAttribute("Name");
-
     ISingleCapture::loadCaptureMap(XML);
-  
     //Load the sequence
-    XMLNode subNode = XML.getChildNode("Sequence");
-
     sequence.clear();
-    sequence.resize(subNode.nChildNode("Element"), 0);
-
-    int xml_iter = 0;
     std::set<size_t> letters;
-
-    for (size_t i = 0; i < sequence.size(); i++)
+    
+    for (magnet::xml::Node node = XML.getNode("Sequence").getNode("Element");
+	 node.valid(); ++node)
       {
-	XMLNode browseNode = subNode.getChildNode("Element", &xml_iter);
+	if (node.getAttribute("seqID").as<size_t>() != sequence.size())
+	  M_throw() << "Sequence of letters not in order, missing element " << sequence.size();
 
-	//Check if the letter is there before
-	size_t letter = boost::lexical_cast<size_t>(browseNode.getAttribute("Letter"));
-	if (letters.find(letter) == letters.end())
-	  //Count the letter
-	  letters.insert(letter);
-
-	sequence[boost::lexical_cast<size_t>(browseNode.getAttribute("seqID"))] 
-	  = letter;
+	size_t letter = node.getAttribute("Letter").as<size_t>();
+	letters.insert(letter);
+	sequence.push_back(letter);
       }
 
     //Initialise all the well depths to 1.0
@@ -153,26 +136,19 @@ ISWSequence::operator<<(const XMLNode& XML)
     BOOST_FOREACH(std::vector<double>& vec, alphabet)
       vec.resize(letters.size(), 0.0);
 
-    //Load the sequence
-    subNode = XML.getChildNode("Alphabet");
-    size_t count = subNode.nChildNode("Word");
-
-    xml_iter = 0;
-    for (size_t i = 0; i < count; ++i)
+    for (magnet::xml::Node node = XML.getNode("Alphabet").getNode("Word");
+	 node.valid(); ++node)
       {
-	XMLNode browseNode = subNode.getChildNode("Word", &xml_iter);
-	
 	alphabet
-	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter1")))
-	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter2")))
-	  = boost::lexical_cast<double>(browseNode.getAttribute("Depth"));
+	  .at(node.getAttribute("Letter1").as<size_t>())
+	  .at(node.getAttribute("Letter2").as<size_t>())
+	  = node.getAttribute("Depth").as<double>();
 
 	alphabet
-	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter2")))
-	  .at(boost::lexical_cast<size_t>(browseNode.getAttribute("Letter1")))
-	  = boost::lexical_cast<double>(browseNode.getAttribute("Depth"));
+	  .at(node.getAttribute("Letter2").as<size_t>())
+	  .at(node.getAttribute("Letter1").as<size_t>())
+	  = node.getAttribute("Depth").as<double>();
       }
-
   }
   catch (boost::bad_lexical_cast &)
     {

@@ -16,7 +16,6 @@
 */
 
 #include "RingDSMC.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
 #include "../BC/BC.hpp"
@@ -26,12 +25,12 @@
 #include "../ranges/include.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <boost/foreach.hpp>
+#include <boost/random/uniform_int.hpp>
 
-CSRingDSMC::CSRingDSMC(const XMLNode& XML, DYNAMO::SimData* tmp): 
+CSRingDSMC::CSRingDSMC(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   maxprob12(0.0),
@@ -292,34 +291,27 @@ CSRingDSMC::initialise(size_t nID)
 }
 
 void
-CSRingDSMC::operator<<(const XMLNode& XML)
+CSRingDSMC::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"RingDSMC"))
-    M_throw() << "Attempting to load RingDSMC from a " << XML.getAttribute("Type") <<  " entry"; 
+    M_throw() << "Attempting to load RingDSMC from a " 
+	      << XML.getAttribute("Type") <<  " entry"; 
   
   try {
-    tstep = boost::lexical_cast<double>(XML.getAttribute("tStep"))
-      * Sim->dynamics.units().unitTime();
-    
-    chi12 = boost::lexical_cast<double>(XML.getAttribute("Chi12"));
-    chi13 = boost::lexical_cast<double>(XML.getAttribute("Chi13"));
-    
+    tstep = XML.getAttribute("tStep").as<double>() * Sim->dynamics.units().unitTime();    
+    chi12 = XML.getAttribute("Chi12").as<double>();
+    chi13 = XML.getAttribute("Chi13").as<double>();
     sysName = XML.getAttribute("Name");
-
-    diameter = boost::lexical_cast<double>(XML.getAttribute("Diameter"))
-      * Sim->dynamics.units().unitLength();
-
-    e = boost::lexical_cast<double>(XML.getAttribute("Inelasticity"));
-
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+    e = XML.getAttribute("Inelasticity").as<double>();
     d2 = diameter * diameter;
+    range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
 
-    range1.set_ptr(CRange::loadClass(XML.getChildNode("Range1"), Sim));
-
-    if (XML.isAttributeSet("MaxProbability12"))
-      maxprob12 = boost::lexical_cast<double>(XML.getAttribute("MaxProbability12"));
+    if (XML.getAttribute("MaxProbability12").valid())
+      maxprob12 = XML.getAttribute("MaxProbability12").as<double>();
 	
-    if (XML.isAttributeSet("MaxProbability13"))
-      maxprob13 = boost::lexical_cast<double>(XML.getAttribute("MaxProbability13"));
+    if (XML.getAttribute("MaxProbability13").valid())
+      maxprob13 = XML.getAttribute("MaxProbability13").as<double>();
   }
   catch (boost::bad_lexical_cast &)
     {

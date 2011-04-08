@@ -16,25 +16,23 @@
 */
 
 #include "2RChainEnds.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RChainEnds::C2RChainEnds(const XMLNode& XML, const DYNAMO::SimData*):
+C2RChainEnds::C2RChainEnds(const magnet::xml::Node& XML, const DYNAMO::SimData*):
   rangeStart(0),rangeEnd(0), interval(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"ChainEnds"))
     M_throw() << "Attempting to load a ChainEnds from a "
 	      << XML.getAttribute("Range");
   
-  rangeStart = boost::lexical_cast<size_t>(XML.getAttribute("Start"));
-  rangeEnd = boost::lexical_cast<size_t>(XML.getAttribute("End"));
-  interval = boost::lexical_cast<size_t>(XML.getAttribute("Interval"));
+  rangeStart = XML.getAttribute("Start").as<size_t>();
+  rangeEnd = XML.getAttribute("End").as<size_t>();
+  interval = XML.getAttribute("Interval").as<size_t>();
 
   //Guarrantee that they are ordered
-  if (rangeStart > rangeEnd)
-    std::swap(rangeStart, rangeEnd);
+  if (rangeStart > rangeEnd) std::swap(rangeStart, rangeEnd);
   
   if ((rangeEnd - rangeStart + 1) % interval)
     M_throw() << "Length of range does not split into an integer"
@@ -68,7 +66,7 @@ C2RChainEnds::isInRange(const Particle&p1, const Particle&p2) const
 }
 
 void 
-C2RChainEnds::operator<<(const XMLNode&)
+C2RChainEnds::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RChainEnds operator<<"
     " cannot work for this class";

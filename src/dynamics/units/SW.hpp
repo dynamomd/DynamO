@@ -20,7 +20,7 @@
 
 /*! \brief For running a simulation with a distinct energy scale.
  *
- * Scientifically there is no reason for this class and a simulation
+ * Mathematically there is no reason for this class and a simulation
  * can be performed using hard sphere units; however, this class is
  * useful for debugging with a certain energy scale. The unit of this
  * scale can then be set to one by adjusting the time scale, which is
@@ -38,7 +38,7 @@ class USquareWell: public Units
 
   USquareWell(double, double, const DYNAMO::SimData*);
 
-  USquareWell(const XMLNode&, const DYNAMO::SimData*);
+  USquareWell(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   virtual ~USquareWell();
 
@@ -50,7 +50,7 @@ class USquareWell: public Units
   
   virtual Units* Clone() const;
   
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual void rescaleLength(double);
 

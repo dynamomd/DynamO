@@ -35,7 +35,7 @@ public:
   virtual void applyBC(Vector &, const double&) const;
 
   inline virtual void outputXML(xml::XmlStream &) const;  
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };
 
@@ -55,7 +55,7 @@ public:
   virtual void applyBC(Vector &, const double&) const;
 
   virtual void outputXML(xml::XmlStream&) const;
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };
 
@@ -70,14 +70,14 @@ class BCSquarePeriodicExceptX: public BoundaryCondition
 public:
   BCSquarePeriodicExceptX(const DYNAMO::SimData*);
 
-  virtual void applyBC(Vector & pos) const;
+  virtual void applyBC(Vector& pos) const;
   
-  virtual void applyBC(Vector & pos, Vector &) const;
+  virtual void applyBC(Vector& pos, Vector&) const;
   
-  virtual void applyBC(Vector  &pos, const double&) const;
+  virtual void applyBC(Vector& pos, const double&) const;
 
   virtual void outputXML(xml::XmlStream&) const;
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };
 
@@ -93,13 +93,13 @@ class BCSquarePeriodicXOnly: public BoundaryCondition
 public:
   BCSquarePeriodicXOnly(const DYNAMO::SimData*);
 
-  virtual void applyBC(Vector & pos) const;
+  virtual void applyBC(Vector& pos) const;
   
-  virtual void applyBC(Vector & pos, Vector &) const;
+  virtual void applyBC(Vector& pos, Vector&) const;
   
-  virtual void applyBC(Vector  &pos, const double&) const;
+  virtual void applyBC(Vector& pos, const double&) const;
 
   virtual void outputXML(xml::XmlStream&) const;
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };

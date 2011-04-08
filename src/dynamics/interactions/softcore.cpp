@@ -16,7 +16,6 @@
 */
 
 #include "softcore.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../BC/BC.hpp"
 #include "../dynamics.hpp"
 #include "../units/units.hpp"
@@ -29,8 +28,8 @@
 #include "../../base/is_simdata.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../NparticleEventData.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
 
@@ -41,31 +40,27 @@ ISoftCore::ISoftCore(DYNAMO::SimData* tmp, double nd, double nWD,
   diameter(nd),d2(nd*nd),wellDepth(nWD) 
 {}
 
-ISoftCore::ISoftCore(const XMLNode& XML, DYNAMO::SimData* tmp):
+ISoftCore::ISoftCore(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp,NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
 void 
-ISoftCore::operator<<(const XMLNode& XML)
+ISoftCore::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"SoftCore"))
     M_throw() << "Attempting to load SoftCore from non SoftCore entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try {
-    diameter = Sim->dynamics.units().unitLength() 
-      * boost::lexical_cast<double>(XML.getAttribute("Diameter"));
-    
-    wellDepth = boost::lexical_cast<double>(XML.getAttribute("WellDepth"))
+    diameter = XML.getAttribute("Diameter").as<double>()
+      * Sim->dynamics.units().unitLength();
+    wellDepth = XML.getAttribute("WellDepth").as<double>()
       * Sim->dynamics.units().unitEnergy();
-    
     d2 = diameter * diameter;
-    
     intName = XML.getAttribute("Name");
-
     ISingleCapture::loadCaptureMap(XML);   
   }
   catch (boost::bad_lexical_cast &)

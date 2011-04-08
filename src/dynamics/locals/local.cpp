@@ -17,11 +17,11 @@
 
 #include "include.hpp"
 #include "local.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
 #include "localEvent.hpp"
 #include "../ranges/1RAll.hpp"
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 Local::Local(DYNAMO::SimData* tmp, const char *name):
   SimBase(tmp,name,IC_blue),
@@ -47,7 +47,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 }
 
 Local* 
-Local::getClass(const XMLNode &XML, DYNAMO::SimData* Sim)
+Local::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Wall"))
     return new CLWall(XML, Sim);

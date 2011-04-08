@@ -41,11 +41,9 @@ IRotatedParallelCubes::IRotatedParallelCubes(DYNAMO::SimData* tmp, double nd,
   diameter(nd), e(ne)
 {}
 
-IRotatedParallelCubes::IRotatedParallelCubes(const XMLNode& XML, DYNAMO::SimData* tmp):
+IRotatedParallelCubes::IRotatedParallelCubes(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Interaction(tmp,NULL)
-{
-  operator<<(XML);
-}
+{ operator<<(XML); }
 
 void 
 IRotatedParallelCubes::initialise(size_t nID)
@@ -54,24 +52,20 @@ IRotatedParallelCubes::initialise(size_t nID)
 }
 
 void 
-IRotatedParallelCubes::operator<<(const XMLNode& XML)
+IRotatedParallelCubes::operator<<(const magnet::xml::Node& XML)
 { 
   if (strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
     M_throw() << "Attempting to load RotatedParallelCubes from " 
 	      << XML.getAttribute("Type") << " entry";
   
-  range.set_ptr(C2Range::loadClass(XML,Sim));
+  range.set_ptr(C2Range::getClass(XML,Sim));
   
   try 
     {
-      diameter = Sim->dynamics.units().unitLength() * 
-	boost::lexical_cast<double>(XML.getAttribute("Diameter"));
-      
-      e = boost::lexical_cast<double>(XML.getAttribute("Elasticity"));
-            
+      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+      e = XML.getAttribute("Elasticity").as<double>();
       intName = XML.getAttribute("Name");
-
-      ::operator<<(Rotation, XML.getChildNode("Rotation"));
+      ::operator<<(Rotation, XML.getNode("Rotation"));
     }
   catch (boost::bad_lexical_cast &)
     {

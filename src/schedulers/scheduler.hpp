@@ -23,6 +23,7 @@
 #include <vector>
 
 class Particle;
+namespace magnet { namespace xml { class Node; } }
 
 class CScheduler: public DYNAMO::SimBase
 {
@@ -55,9 +56,9 @@ public:
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CScheduler&);
 
-  static CScheduler* getClass(const XMLNode&, DYNAMO::SimData* const);
+  static CScheduler* getClass(const magnet::xml::Node&, DYNAMO::SimData* const);
 
-  virtual void operator<<(const XMLNode&) = 0;
+  virtual void operator<<(const magnet::xml::Node&) = 0;
   
   void rescaleTimes(const double& scale) { sorter->rescaleTimes(scale); }
 

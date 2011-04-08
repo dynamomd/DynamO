@@ -26,7 +26,7 @@ public:
   CRAll(const DYNAMO::SimData* SimDat):
     SimBase_const(SimDat,"CRAll",IC_red){}
 
-  CRAll(const XMLNode&, const DYNAMO::SimData*);
+  CRAll(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   virtual CRange* Clone() const { return new CRAll(*this); };
 
@@ -34,7 +34,7 @@ public:
   { return true; }
 
   //The data output classes
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual unsigned long size() const { return Sim->particleList.size(); }
 

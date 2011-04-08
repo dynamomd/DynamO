@@ -25,7 +25,7 @@ class CRNone: public CRange
 public:
   CRNone() {}
 
-  CRNone(const XMLNode&);
+  CRNone(const magnet::xml::Node&);
 
   virtual CRange* Clone() const { return new CRNone(*this); };
 
@@ -33,7 +33,7 @@ public:
   { return false; }
 
   //The data output classes
-  virtual void operator<<(const XMLNode&);
+  virtual void operator<<(const magnet::xml::Node&);
 
   virtual unsigned long size() const { return 0; }
 

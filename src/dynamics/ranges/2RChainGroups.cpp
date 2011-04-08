@@ -16,21 +16,20 @@
 */
 
 #include "2RChainGroups.hpp"
-#include "../../extcode/xmlParser.h"
 #include "../../simulation/particle.hpp"
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
-C2RChainGroups::C2RChainGroups(const XMLNode& XML, const DYNAMO::SimData*):
+C2RChainGroups::C2RChainGroups(const magnet::xml::Node& XML, const DYNAMO::SimData*):
   range1(0),range2(0), length(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"ChainGroups"))
     M_throw() << "Attempting to load a ChainGroups from a "
 	      << XML.getAttribute("Range");
   
-  range1 = boost::lexical_cast<size_t>(XML.getAttribute("Start1"));
-  range2 = boost::lexical_cast<size_t>(XML.getAttribute("Start2"));
-  length = boost::lexical_cast<size_t>(XML.getAttribute("Length"));
+  range1 = XML.getAttribute("Start1").as<size_t>();
+  range2 = XML.getAttribute("Start2").as<size_t>();
+  length = XML.getAttribute("Length").as<size_t>();
 
   //Guarrantee that they are ordered
   if (range1 > range2)
@@ -61,7 +60,7 @@ C2RChainGroups::isInRange(const Particle&p1, const Particle&p2) const
 		== ((p2.getID() - range2) % length)));	    
 }
 void 
-C2RChainGroups::operator<<(const XMLNode&)
+C2RChainGroups::operator<<(const magnet::xml::Node&)
 {
   M_throw() << "Due to problems with CRAll C2RChainGroups operator<<"
     " cannot work for this class";
