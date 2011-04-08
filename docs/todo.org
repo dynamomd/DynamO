@@ -6,11 +6,11 @@
 * Code improvements
 ** Version Milestones
 *** Dynamo 1.1
-**** New properties framework
+**** TODO New properties framework
      - [ ] Start with the framework
      - [ ] Migrate the current ranges to the framework
-**** Migrate to RapidXML parser
-**** Volume Renderer
+**** DONE Migrate to RapidXML parser
+**** TODO Volume Renderer
      - [ ] Move to OpenCL generation of the gradients from live data
      - [X] Implement volume renderer
      - [X] Make a transfer function interface
