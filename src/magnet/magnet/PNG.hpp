@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Severin Strobl <-->
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
