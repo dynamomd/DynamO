@@ -159,12 +159,14 @@ namespace magnet {
 		    iPtr = _transferFunction.begin() + _selectedNode;
 		  
 		  const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
-		  size_t index = 4 * (255 * newPlace.first);
+		  size_t index = 4 * size_t(255 * newPlace.first);
 		  _transferFunction.addKnot
 		    (newPlace.first, colmap[index + 0] / 255.0, 
 		     colmap[index + 1] / 255.0, 
-		     colmap[index + 2] / 255.0, newPlace.second);
+		     colmap[index + 2] / 255.0,
+		     newPlace.second);
 
+		  _updatedCallback();
 		  forceRedraw();
 		}
 	      else
@@ -317,7 +319,7 @@ namespace magnet {
 					  colmap[4 * i + 0] / 255.0,
 					  colmap[4 * i + 1] / 255.0,
 					  colmap[4 * i + 2] / 255.0,
-					  colmap[4 * i + 3] / 255.0);
+					  1.0);
 	      
 	      cr->set_source(grad);
 	      graph_rectangle(cr, 0, 0, 1, 1);
