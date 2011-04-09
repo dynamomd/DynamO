@@ -34,6 +34,7 @@ namespace coil {
   Console::Console(float r, float g, float b):
     RenderObj("Console")
   {
+    _visible = false;
     _color[0] = r;
     _color[1] = g;
     _color[2] = b;
