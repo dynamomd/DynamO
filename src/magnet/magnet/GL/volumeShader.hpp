@@ -40,6 +40,7 @@ namespace magnet {
 	_stepSizeUniform = glGetUniformLocationARB(_shaderID,"StepSize");
 	_diffusiveLightingUniform = glGetUniformLocationARB(_shaderID,"DiffusiveLighting");
 	_specularLightingUniform = glGetUniformLocationARB(_shaderID,"SpecularLighting");
+	_ditherRayUniform = glGetUniformLocationARB(_shaderID,"DitherRay");
 	_transferTexUniform = glGetUniformLocationARB(_shaderID,"TransferTexture");
       }
 
@@ -47,7 +48,7 @@ namespace magnet {
 			 GLint depthTex, GLint dataTex, GLint transferTex,
 			 GLfloat NearDist, GLfloat FarDist,
 			 GLfloat stepSize, bool diff,
-			 bool spec)
+			 bool spec, bool dither)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1fARB(_FocalLengthUniform, FocalLength);
@@ -60,6 +61,7 @@ namespace magnet {
 	glUniform1fARB(_stepSizeUniform, stepSize);
 	glUniform1fARB(_diffusiveLightingUniform, diff);
 	glUniform1fARB(_specularLightingUniform, spec);
+	glUniform1fARB(_ditherRayUniform, dither);
 	glUniform1iARB(_transferTexUniform, transferTex);
       }
 
@@ -77,6 +79,7 @@ namespace magnet {
       GLuint _stepSizeUniform;
       GLuint _diffusiveLightingUniform;
       GLuint _specularLightingUniform;
+      GLuint _ditherRayUniform;
       GLuint _transferTexUniform;
     };
   }

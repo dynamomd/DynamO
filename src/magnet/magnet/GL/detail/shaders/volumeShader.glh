@@ -48,6 +48,7 @@ uniform float FarDist;
 uniform float StepSize;
 uniform float DiffusiveLighting;
 uniform float SpecularLighting;
+uniform float DitherRay;
 
 //This function converts a value in a depth buffer back into a object-space distance
 float recalcZCoord(float zoverw)
@@ -101,7 +102,7 @@ void main()
   //We need to calculate the ray's starting position. We add a random
   //fraction of the stepsize to the original starting point to dither
   //the output
-  float random = fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453); 
+  float random = DitherRay * fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453); 
   vec3 rayPos = RayOrigin + rayDirection * (tnear + StepSize * random);
 
   //The color accumulation variable

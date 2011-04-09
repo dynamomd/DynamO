@@ -216,7 +216,9 @@ namespace coil {
 		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
 		   0, 1, 2, _viewPort->getZNear(), _viewPort->getZFar(),
 		   _stepSizeVal, _diffusiveLighting->get_active(),
-		   _specularLighting->get_active());
+		   _specularLighting->get_active(),
+		   _ditherRay->get_active()
+		   );
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -241,12 +243,15 @@ namespace coil {
   RVolume::initGTK()
   {
     _optList.reset(new Gtk::VBox);//The Vbox of options   
-    _specularLighting.reset(new Gtk::CheckButton);
-    _transferFunction.reset(new magnet::gtk::TransferFunction
-			    (magnet::function::MakeDelegate
-			     (this, &RVolume::transferFunctionUpdated)));
-    _transferFunction->set_size_request(-1, 100);
-    _optList->add(*_transferFunction); _transferFunction->show();
+
+    {//Transfer function widget
+      _transferFunction.reset(new magnet::gtk::TransferFunction
+			      (magnet::function::MakeDelegate
+			       (this, &RVolume::transferFunctionUpdated)));
+      _transferFunction->set_size_request(-1, 100);
+      
+      _optList->add(*_transferFunction); _transferFunction->show();
+    }
 
     {//Volume renderer step size
       _stepSize.reset(new Gtk::Entry);
@@ -273,6 +278,13 @@ namespace coil {
       _specularLighting->show();      
       _specularLighting->set_active();
       _optList->add(*_specularLighting);
+    }
+
+    {//Specular lighting
+      _ditherRay.reset(new Gtk::CheckButton("Ray Dithering"));
+      _ditherRay->show();
+      _ditherRay->set_active();
+      _optList->add(*_ditherRay);
     }
     
     _optList->show();
