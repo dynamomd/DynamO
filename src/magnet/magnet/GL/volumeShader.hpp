@@ -47,8 +47,8 @@ namespace magnet {
       inline void attach(GLfloat FocalLength, GLint width, GLint height, Vector Origin, 
 			 GLint depthTex, GLint dataTex, GLint transferTex,
 			 GLfloat NearDist, GLfloat FarDist,
-			 GLfloat stepSize, bool diff,
-			 bool spec, bool dither)
+			 GLfloat stepSize, GLfloat diff,
+			 GLfloat spec, GLfloat dither)
       {
 	glUseProgramObjectARB(_shaderID);
 	glUniform1fARB(_FocalLengthUniform, FocalLength);

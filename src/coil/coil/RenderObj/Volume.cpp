@@ -215,9 +215,9 @@ namespace coil {
     _shader.attach(FocalLength, _viewPort->getWidth(), 
 		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
 		   0, 1, 2, _viewPort->getZNear(), _viewPort->getZFar(),
-		   _stepSizeVal, _diffusiveLighting->get_active(),
-		   _specularLighting->get_active(),
-		   _ditherRay->get_active()
+		   _stepSizeVal, _diffusiveLighting->get_value(),
+		   _specularLighting->get_value(),
+		   _ditherRay->get_value()
 		   );
     
     glEnable(GL_CULL_FACE);
@@ -257,46 +257,56 @@ namespace coil {
       _stepSize.reset(new Gtk::Entry);
       Gtk::HBox* box = manage(new Gtk::HBox);	
       Gtk::Label* label = manage(new Gtk::Label("Raytrace Step Size"));
-    
       box->pack_start(*label, false, false); label->show();
       box->pack_end(*_stepSize, false, false);
-      _stepSize->show(); _stepSize->set_text("0.01");
-      
-      box->show();
-      _optList->add(*box);
+      _stepSize->show(); _stepSize->set_text("0.01");      
+      _optList->add(*box); box->show();
     }
 
     {//Diffusive lighting
-      _diffusiveLighting.reset(new Gtk::CheckButton("Diffusive Lighting"));
+      Gtk::HBox* box = manage(new Gtk::HBox);	
+      Gtk::Label* label = manage(new Gtk::Label("Diffuse Lighting"));
+      box->pack_start(*label, false, false); label->show();
+      _diffusiveLighting.reset(new Gtk::HScale);
+      box->pack_end(*_diffusiveLighting, true, true);
+      _diffusiveLighting->set_range(0,2);
+      _diffusiveLighting->set_digits(3);
       _diffusiveLighting->show();      
-      _diffusiveLighting->set_active();
-      _optList->add(*_diffusiveLighting);
+      _diffusiveLighting->set_value(1.0);
+      _optList->add(*box); box->show();
     }
 
     {//Specular lighting
-      _specularLighting.reset(new Gtk::CheckButton("Specular Lighting"));
+      Gtk::HBox* box = manage(new Gtk::HBox);	
+      Gtk::Label* label = manage(new Gtk::Label("Specular Lighting"));
+      box->pack_start(*label, false, false); label->show();
+      _specularLighting.reset(new Gtk::HScale);
+      box->pack_end(*_specularLighting, true, true);
+      _specularLighting->set_range(0,2);
+      _specularLighting->set_digits(3);
       _specularLighting->show();      
-      _specularLighting->set_active();
-      _optList->add(*_specularLighting);
+      _specularLighting->set_value(1.0);
+      _optList->add(*box); box->show();
     }
 
-    {//Specular lighting
-      _ditherRay.reset(new Gtk::CheckButton("Ray Dithering"));
+    {//Ray Dithering
+      Gtk::HBox* box = manage(new Gtk::HBox);	
+      Gtk::Label* label = manage(new Gtk::Label("Ray Dithering"));
+      box->pack_start(*label, false, false); label->show();
+      _ditherRay.reset(new Gtk::HScale);
+      box->pack_end(*_ditherRay, true, true);
+      _ditherRay->set_range(0, 1);
+      _ditherRay->set_digits(3);
       _ditherRay->show();
-      _ditherRay->set_active();
-      _optList->add(*_ditherRay);
+      _ditherRay->set_value(1.0);
+      _optList->add(*box); box->show();
     }
     
     _optList->show();
     //Callbacks
     _stepSize->signal_changed()
       .connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, *_stepSize));
-    _stepSize->signal_activate()
-      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
-    _diffusiveLighting->signal_toggled()
-      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
-    _specularLighting->signal_toggled()
-      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+    _stepSize->signal_activate().connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     guiUpdate();
   }

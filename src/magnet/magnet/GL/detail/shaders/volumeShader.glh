@@ -149,15 +149,14 @@ void main()
 //		     abs(dot(norm, vec3(0.0,0.0,1.0))));
 
       //Diffuse lighting
-      float diffTerm =  max(DiffusiveLighting * (0.5 * lightNormDot  + 0.5), 0.5);
+      float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
       //Quadratic falloff of the diffusive term
-      diffTerm *= diffTerm; 
+      diffTerm *= diffTerm;
 
       //We either use diffusive lighting plus an ambient, or if its
       //disabled (DiffusiveLighting = 0), we just use the original
       //color.
-      src.rgb *= diffTerm + (1.0 - DiffusiveLighting);
-      src.rgb += DiffusiveLighting * gl_LightModel.ambient * src.rgb;
+      src.rgb *= DiffusiveLighting * (diffTerm + gl_LightModel.ambient) + (1.0 - DiffusiveLighting);
       
       //Specular lighting term
       //This is enabled if (SpecularLighting == 1)
