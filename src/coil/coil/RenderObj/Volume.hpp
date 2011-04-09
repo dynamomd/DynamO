@@ -44,6 +44,9 @@ namespace coil {
 
     void loadRawFile(std::string filename, size_t width, size_t height, 
 		     size_t depth, size_t bytes);
+    void loadSphereTestPattern();
+
+    void loadData(const std::vector<GLubyte>& inbuffer, size_t width, size_t height, size_t depth);
 
   protected:
     void guiUpdate();

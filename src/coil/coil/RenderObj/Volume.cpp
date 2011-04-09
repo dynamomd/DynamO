@@ -16,14 +16,13 @@
 */
 
 #include "Volume.hpp"
-#include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
-#include <boost/lexical_cast.hpp>
-#include <magnet/GL/textureLoaderRAW.hpp>
 #include <magnet/color/transferFunction.hpp>
 #include <magnet/PNG.hpp>
+#include <magnet/clamp.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace coil {
   RVolume::RVolume(std::string name):
@@ -51,7 +50,7 @@ namespace coil {
     _shader.build();
     _fbo.reset(new magnet::GL::FBO);
     _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
-
+    
     //Default transfer function
     _transferFuncTexture.init(256);
     magnet::color::TransferFunction tf;
@@ -69,16 +68,100 @@ namespace coil {
   RVolume::loadRawFile(std::string filename, size_t width, size_t height, size_t depth,
 		       size_t bytes)
   {
-    _data.init(width, height, depth);
-    try {
-      magnet::GL::loadVolumeFromRawFile(filename, _data);
-    } catch (magnet::exception& tmp)
+    std::ifstream file(filename.c_str(), std::ifstream::binary);
+    std::vector<GLubyte> inbuffer(width * height * depth);
+    
+    switch (bytes)
       {
-	_data.deinit();
-	throw;
+      case 1:
+	{
+	  file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
+	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
+	}
+	break;
+      case 2:
+	{
+	  std::vector<uint16_t> tempBuffer(width * height * depth);
+	  file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
+	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
+	  for (size_t i(0); i < tempBuffer.size(); ++i)
+	    inbuffer[i] = uint8_t(tempBuffer[i] >> 8);
+	}
+	break;
+      default:
+	M_throw() << "Cannot load at that bit depth yet";
       }
+
+    loadData(inbuffer, width, height, depth);
   }
 
+  void
+  RVolume::loadSphereTestPattern()
+  {
+    const size_t size(256);
+
+    std::vector<GLubyte> inbuffer(size * size * size);
+
+    //Sphere test pattern
+    for (size_t z(0); z < size; ++z)
+      for (size_t y(0); y < size; ++y)
+        for (size_t x(0); x < size; ++x)
+          inbuffer[x + size * (y + size * z)] 
+	    = (std::sqrt(std::pow(x - size / 2.0, 2) 
+			 + std::pow(y - size / 2.0, 2) 
+			 + std::pow(z - size / 2.0, 2))
+	       < 122.0) ? 255.0 : 0;
+    
+    loadData(inbuffer, size, size, size);
+  }
+
+  namespace {
+    inline size_t coordCalc(GLint x, GLint y, GLint z, 
+			    GLint width, GLint height, GLint depth)
+    {
+      x = magnet::clamp(x, 0, width  - 1);
+      y = magnet::clamp(y, 0, height - 1);
+      z = magnet::clamp(z, 0, depth  - 1);
+      return x + width * (y + height * z);
+    }
+  }
+
+  void 
+  RVolume::loadData(const std::vector<GLubyte>& inbuffer, size_t width, size_t height, size_t depth)
+  {
+    std::vector<GLubyte> voldata(4 * width * height * depth);
+    
+    for (int z(0); z < int(depth); ++z)
+      for (int y(0); y < int(height); ++y)
+	for (int x(0); x < int(width); ++x)
+	  {
+	    Vector sample1(inbuffer[coordCalc(x - 1, y, z, width, height, depth)],
+			   inbuffer[coordCalc(x, y - 1, z, width, height, depth)],
+			   inbuffer[coordCalc(x, y, z - 1, width, height, depth)]);
+	    
+	    Vector sample2(inbuffer[coordCalc(x + 1, y, z, width, height, depth)],
+			   inbuffer[coordCalc(x, y + 1, z, width, height, depth)],
+			   inbuffer[coordCalc(x, y, z + 1, width, height, depth)]);
+	    
+	    //Note, we store the negative gradient (we point down
+	    //the slope)
+	    Vector grad = sample1 - sample2;
+	    
+	    float nrm = grad.nrm();
+	    if (nrm > 0) grad /= nrm;
+	    
+	    size_t coord = x + width * (y + height * z);
+	    voldata[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 3] 
+	      = inbuffer[coordCalc(x, y, z, width, height, depth)];
+	  }
+
+    _data.init(width, height, depth);
+    _data.subImage(voldata, GL_RGBA);
+  }
+  
   void 
   RVolume::resize(size_t width, size_t height)
   {
@@ -224,3 +307,42 @@ namespace coil {
     _stepSizeVal = boost::lexical_cast<double>(val);
   }
 }
+
+//////////////////SOME OLD CODE THAT MIGHT BE USEFUL
+//      //Gaussian blur the system
+//      const double weights[5] = {0.0544886845,0.244201342,0.4026199469,0.244201342,0.0544886845};
+//
+//      for (size_t component(0); component < 3; ++component)
+//	for (GLint z(0); z < _depth; ++z)
+//	  for (GLint y(0); y < _height; ++y)
+//	    for (GLint x(0); x < _width; ++x)
+//	      {
+//		double sum(0);
+//		for (int i(0); i < 5; ++i)
+//		  {
+//		    GLint pos[3] = {x,y,z};
+//		    pos[component] += i - 2;
+//		    sum += weights[i] 
+//		      * voldata[4 * detail::coordCalc(pos[0], pos[1], pos[2], 
+//						      _width, _height, _depth) + component];
+//		  }
+//		voldata[4 * detail::coordCalc(x, y, z, _width, _height, _depth) 
+//			+ component] = sum;
+//	      }
+//      
+//      //Renormalize the gradients
+//      for (GLint z(0); z < _depth; ++z)
+//	for (GLint y(0); y < _height; ++y)
+//	  for (GLint x(0); x < _width; ++x)
+//	    {
+//	      std::vector<GLubyte>::iterator iPtr = voldata.begin()
+//		+ 4 * detail::coordCalc(x, y, z, _width, _height, _depth);
+//	      
+//	      Vector grad(*(iPtr + 0) - 128.0, *(iPtr + 1) - 128.0, *(iPtr + 2) - 128.0);
+//	      float nrm = grad.nrm();
+//	      if (nrm > 0) grad /= nrm;
+//
+//	      *(iPtr + 0) = uint8_t((grad[0] * 0.5 + 0.5) * 255);
+//	      *(iPtr + 1) = uint8_t((grad[1] * 0.5 + 0.5) * 255);
+//	      *(iPtr + 2) = uint8_t((grad[2] * 0.5 + 0.5) * 255);
+//	    }
