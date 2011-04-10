@@ -53,17 +53,28 @@ namespace magnet {
 		   | Gdk::BUTTON_RELEASE_MASK | Gdk::POINTER_MOTION_MASK);
 	set_flags(Gtk::CAN_FOCUS);
 
-	_transferFunction.addKnot(0,        0.91, 0.7, 0.61, 0.0);
-	_transferFunction.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
-	_transferFunction.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
-	_transferFunction.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
-	_transferFunction.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
-	_transferFunction.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
-	_transferFunction.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
+	//Male head transfer function
+//	_transferFunction.addKnot(0,        0.91, 0.7, 0.61, 0.0);
+//	_transferFunction.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
+//	_transferFunction.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
+//	_transferFunction.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
+//	_transferFunction.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
+//	_transferFunction.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
+//	_transferFunction.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
 
-	typedef magnet::color::TransferFunction::const_iterator it;
-	it iPtr = _transferFunction.begin() + 1;
-	std::pair<float,float> pointpos = from_graph_transform(iPtr->_x, iPtr->_a);
+	//Bonsai transfer function
+	_transferFunction.addKnot(0, 1, 1, 1, 0.0);
+	_transferFunction.addKnot(0.563063, 1, 1, 1, 0);
+	_transferFunction.addKnot(0.487387, 1, 1, 1, 0.0176471);
+	_transferFunction.addKnot(0.525225, 0.718364, 0.337743, 0.0011902, 0.947051);
+	_transferFunction.addKnot(0.35045, 1, 1, 1, 0);
+	_transferFunction.addKnot(0.26036, 1, 1, 1, 0);
+	_transferFunction.addKnot(0.303604, 0.691081, 0.493706, 0.0336309, 1);
+	_transferFunction.addKnot(0.215315, 1, 1, 1, 0);
+	_transferFunction.addKnot(0.127027, 0.952941, 0.921569, 0.854902, 0);
+	_transferFunction.addKnot(0.15045, 0.394034, 1, 0.0628672, 0.194118);
+	_transferFunction.addKnot(0.191892, 0.52549, 0.996078, 0.262745, 0.217647);
+	_transferFunction.addKnot(0.7, 1, 1, 1, 1);
       }
 
       const std::vector<uint8_t>& getColorMap()

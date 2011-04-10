@@ -19,7 +19,6 @@
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
-#include <magnet/color/transferFunction.hpp>
 #include <magnet/PNG.hpp>
 #include <magnet/clamp.hpp>
 #include <boost/lexical_cast.hpp>
@@ -53,15 +52,6 @@ namespace coil {
     
     //Default transfer function
     _transferFuncTexture.init(256);
-    magnet::color::TransferFunction tf;
-    tf.addKnot(0,        0.91, 0.7, 0.61, 0.0);
-    tf.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
-    tf.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
-    tf.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
-    tf.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
-    tf.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
-    tf.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
-    _transferFuncTexture.subImage(tf.getColorMap(), GL_RGBA);
   }
 
   void 
@@ -271,6 +261,7 @@ namespace coil {
       _transferFunction->set_size_request(-1, 100);
       
       _optList->add(*_transferFunction); _transferFunction->show();
+      transferFunctionUpdated(); //Force an update of the transfer function now we have the widget
     }
 
     {//Volume renderer step size

@@ -23,63 +23,11 @@
 #include <magnet/thread/refPtr.hpp>
 
 
-/*! \brief A container to hold a property every particle in the system
- * has.
- *
- * 
+/*! A class which allows other classes to access a property of a particle.
  */
-class Property : public std::vector<double>
+class Property
 {
 public:
-  Property(std::string name, size_t N):
-    std::vector<double>(N),
-    _name(name)
-  {}
-  
-  inline double& getProperty(size_t ID) { return operator[](ID); }
-  inline const double& getProperty(size_t ID) const { return operator[](ID); }
- 
-  bool operator==(const std::string& str) const { return _name == str; }
-
-  void XMLOutput(xml::XmlStream& XML, const size_t ID) const
-  { XML << xml::attr(_name) << operator[](ID); }
-
-protected:
-  std::string _name;
-};
-
-class PropertyStore : public std::vector<magnet::thread::RefPtr<Property> >
-{
-public:
-  const magnet::thread::RefPtr<Property>& getProperty(const std::string& name) const
-  {
-    const_iterator it = std::find(begin(), end(), name);    
-    if (it == end()) M_throw() << "Could not find the property";    
-    return *it;
-  }
-
-  void XMLOutput(xml::XmlStream& XML, const size_t ID) const
-  {
-    for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
-      (*iPtr)->XMLOutput(XML, ID);
-  }
-  
-private:
-};
-
-
-class PropertyHandle
-{
-public:  
-  virtual double getProperty(size_t ID) = 0;
-};
-
-class PropertyReference : public PropertyHandle
-{
-public:  
-  virtual double getProperty(size_t ID) 
-  { return _ref->getProperty(ID); }
-
-protected:
-  const magnet::thread::RefPtr<Property> _ref;
+  virtual double& getProperty(size_t ID) = 0;
+  virtual const double& getProperty(size_t ID) const = 0;
 };
