@@ -56,7 +56,7 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   inline void runSimulation() { runSimulation(false); }
   void runSimulation(bool silentMode);
   
-  void loadXMLfile(const char *);
+  void loadXMLfile(std::string);
   
   void writeXMLfile(const char *, bool round = false, bool uncompressed = false);
 

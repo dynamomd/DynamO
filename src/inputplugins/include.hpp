@@ -16,5 +16,5 @@
 */
 
 //All input plugins
-#include "XMLconfig.hpp"
+#include "inputplugin.hpp"
 #include "packer.hpp"

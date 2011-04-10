@@ -32,7 +32,6 @@ namespace po = boost::program_options;
 #include <magnet/exception.hpp>
 #include "../src/schedulers/include.hpp"
 #include "../src/inputplugins/include.hpp"
-#include "../src/outputplugins/0partproperty/XMLconfig.hpp"
 #include <buildinfo.hpp>
 Simulation sim;
 
@@ -109,7 +108,6 @@ main(int argc, char *argv[])
       
       ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
       //Now load the config
-      sim.configLoaded();
 
       {
 	std::string fileName(vm["out-config-file"].as<std::string>());
@@ -131,12 +129,10 @@ main(int argc, char *argv[])
 	      CInputPlugin(&sim, "Rescaler").zeroMomentum();
 	      CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
 	    }
+	  sim.configLoaded();
 	}
       else
-	{
-	  CIPConfig XMLconfig(vm["config-file"].as<string>().c_str(), &sim);
-	  XMLconfig.initialise();	  
-	}
+	sim.loadXMLfile(vm["config-file"].as<string>());
   
       sim.setTrajectoryLength(0);
 

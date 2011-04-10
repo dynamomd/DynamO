@@ -16,28 +16,25 @@
 */
 
 #include "simulation.hpp"
-#include <iomanip>
-
-# include <boost/iostreams/device/file.hpp>
-# include <boost/iostreams/filtering_stream.hpp>
-# include <boost/iostreams/filter/bzip2.hpp>
-# include <boost/iostreams/chain.hpp>
-
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include "../dynamics/include.hpp"
 #include "../schedulers/scheduler.hpp"
-#include <magnet/exception.hpp>
 #include "../dynamics/include.hpp"
 #include "../dynamics/interactions/intEvent.hpp"
 #include "../outputplugins/outputplugin.hpp"
-#include "../outputplugins/0partproperty/XMLconfig.hpp"
-#include "../inputplugins/XMLconfig.hpp"
 #include "../dynamics/liouvillean/liouvillean.hpp"
 #include "../dynamics/systems/system.hpp"
 #include "../dynamics/NparticleEventData.hpp"
 #include "../outputplugins/tickerproperty/ticker.hpp"
+#include "../outputplugins/0partproperty/misc.hpp"
 #include "../dynamics/systems/sysTicker.hpp"
+#include <magnet/exception.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <iomanip>
 
 Simulation::Simulation():
   Base_Class("Simulation",IC_green)
@@ -237,14 +234,68 @@ Simulation::configLoaded()
 }
 
 void
-Simulation::loadXMLfile(const char *fileName)
+Simulation::loadXMLfile(std::string fileName)
 {
   //Handled by an input plugin
   if (status != START)
-    M_throw() << "Loading config at wrong time";
+    M_throw() << "Loading config at wrong time, status = " << status;
   
-  CIPConfig XMLconfig(fileName,this);
-  XMLconfig.initialise();
+  using namespace magnet::xml;
+  Document doc(fileName.c_str());  
+  Node mainNode = doc.getNode("DYNAMOconfig");
+
+  {
+    std::string version(mainNode.getAttribute("version"));
+    
+    I_cout() << "Parsing XML file v" << version;
+    
+    if (version != configFileVersion)
+      M_throw() << "This version of the config file is obsolete"
+		<< "\nThe current version is " << configFileVersion
+		<< "\nPlease look at the XMLFILE.VERSION file in the root directory of the dynamo source."
+	;
+  }
+
+  Node subNode= mainNode.getNode("Simulation");
+  Node browseNode = subNode.getNode("Trajectory");
+  
+  if (browseNode.getAttribute("lastMFT").valid())
+    lastRunMFT = browseNode.getAttribute("lastMFT").as<double>();
+
+  ssHistory << subNode.getNode("History");
+
+  I_cout() << "Loading dynamics";
+
+  dynamics << mainNode;
+
+  I_cout() << "Loading Scheduler";
+
+  ptrScheduler 
+    = CScheduler::getClass(subNode.getNode("Scheduler"), this);
+
+  I_cout() << "Loading Ensemble";
+  if (subNode.getNode("Ensemble").valid())
+    ensemble.reset
+      (DYNAMO::CEnsemble::getClass(subNode.getNode("Ensemble"), this));
+  else
+    //Try and determine the Ensemble
+    try {
+      dynamics.getSystem("Thermostat");
+      ensemble.reset(new DYNAMO::CENVT(this));
+    }
+    catch (std::exception&)
+      {
+	ensemble.reset(new DYNAMO::CENVE(this));
+      }
+
+  I_cout() << "Loading Particle data";
+
+  dynamics.getLiouvillean().loadParticleXMLData(mainNode);
+  
+  //Fixes or conversions once system is loaded
+  lastRunMFT *= dynamics.units().unitTime();
+
+  I_cout() << "Configuration loaded";
 	  
   status = CONFIG_LOADED;
 }
@@ -255,16 +306,53 @@ Simulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot write out configuration in this state";
   
-  //Particle data output handled by an output plugin
-  OPConfig XMLconfig(this);
+  namespace io = boost::iostreams;
+  io::filtering_ostream coutputFile;
+  if (!uncompressed) 
+    coutputFile.push(io::bzip2_compressor());
   
-  if (round)
-    XMLconfig.setRounding();
+  coutputFile.push(io::file_sink(fileName));
+  
+  xml::XmlStream XML(coutputFile);
+  XML.setFormatXML(true);
 
-  if (uncompressed)
-    XMLconfig.setUncompressed();
+  dynamics.getLiouvillean().updateAllParticles();
 
-  XMLconfig.fileOutput(fileName);
+  XML << std::scientific
+    //This has a minus one due to the digit in front of the decimal
+    //An extra one is added if we're rounding
+      << std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
+      << xml::prolog() << xml::tag("DYNAMOconfig") 
+      << xml::attr("version") << configFileVersion
+      << xml::tag("Simulation")
+      << xml::tag("Trajectory")
+      << xml::attr("Coll") << endEventCount
+      << xml::attr("nCollPrint") << eventPrintInterval;
+
+  //Allow this block to fail if need be
+  try {
+    double mft = getOutputPlugin<OPMisc>()->getMFT();
+    XML << xml::attr("lastMFT") 
+	<< mft;
+  }
+  catch (std::exception&)
+    {}
+
+  XML << xml::endtag("Trajectory")
+      << *ensemble
+      << xml::tag("Scheduler")
+      << *ptrScheduler
+      << xml::endtag("Scheduler")
+      << xml::tag("History") 
+      << xml::chardata()
+      << ssHistory.str()
+      << "\nRun for " << eventCount << " collisions"
+      << xml::endtag("History") << xml::endtag("Simulation")
+      << dynamics;
+
+  dynamics.getLiouvillean().outputParticleXMLData(XML);
+
+  XML << xml::endtag("DYNAMOconfig");
 
   I_cout() << "Config written to " << fileName;
 }
