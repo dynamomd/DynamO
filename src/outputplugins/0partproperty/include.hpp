@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "XMLconfig.hpp"
 #include "collMatrix.hpp"
 #include "msd.hpp"
 #include "eta.hpp"

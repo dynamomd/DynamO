@@ -36,10 +36,10 @@ class Property
 {
 public:
   //! Fetch the value of this property for a particle with a certain ID
-  inline virtual const double& getProperty(size_t ID) const = 0;
+  inline virtual const double& getProperty(size_t ID) const { M_throw() << "Unimplemented"; }
   
   //! Fetch the name of this property
-  inline virtual std::string getName() const = 0;
+  inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
 };
 
 class NumericProperty: public Property
