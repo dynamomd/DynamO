@@ -264,7 +264,11 @@ Simulation::loadXMLfile(std::string fileName)
 
   ssHistory << subNode.getNode("History");
 
-  I_cout() << "Loading dynamics";
+  I_cout() << "Loading Properties";
+
+  _properties << mainNode;
+
+  I_cout() << "Loading Dynamics";
 
   dynamics << mainNode;
 
@@ -348,7 +352,8 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
       << ssHistory.str()
       << "\nRun for " << eventCount << " collisions"
       << xml::endtag("History") << xml::endtag("Simulation")
-      << dynamics;
+      << dynamics
+      << _properties;
 
   dynamics.getLiouvillean().outputParticleXMLData(XML);
 

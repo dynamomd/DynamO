@@ -40,6 +40,13 @@ public:
   
   //! Fetch the name of this property
   inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
+
+  //! Helper to write out derived classes
+  friend xml::XmlStream operator<<(xml::XmlStream& XML, const Property& prop)
+  { prop.outputXML(XML); return XML; }
+
+protected:
+  virtual void outputXML(xml::XmlStream& XML) const = 0;
 };
 
 class NumericProperty: public Property
@@ -50,6 +57,8 @@ public:
   inline virtual const double& getProperty(size_t ID) const { return _val; }
   inline virtual std::string getName() const { return boost::lexical_cast<std::string>(_val); }
 private:
+  virtual void outputXML(xml::XmlStream& XML) const {}
+
   double _val;
 };
 
@@ -97,13 +106,29 @@ public:
   /*! Method which loads the properties from the XML configuration file. 
     \param node A xml Node at the root DYNAMOconfig Node of the config file.
    */
-  inline void loadProperties(const magnet::xml::Node& node)
+  inline PropertyStore& operator<<(const magnet::xml::Node& node)
   {
-    if (!node.getNode("Properties").valid()) return;
+    if (!node.getNode("Properties").valid()) return *this;
 
     for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
 	 propNode.valid(); ++propNode)
       M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
+
+    return *this;
   }
+
+  inline friend xml::XmlStream operator<<(xml::XmlStream& XML, const PropertyStore& propStore)
+  {
+    XML << xml::tag("Properties");
+
+    for (const_iterator iPtr = propStore.Base::begin(); 
+	 iPtr != propStore.Base::end(); ++iPtr)
+      XML << (*(*iPtr));
+
+    XML << xml::endtag("Properties");
+
+    return XML;
+  }
+
 private:
 };
