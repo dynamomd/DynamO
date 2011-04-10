@@ -301,7 +301,7 @@ Simulation::loadXMLfile(std::string fileName)
 }
 
 void
-Simulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
+Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot write out configuration in this state";
@@ -358,51 +358,32 @@ Simulation::writeXMLfile(const char *fileName, bool round, bool uncompressed)
 }
 
 void
-Simulation::outputData(const char* filename, bool uncompressed)
+Simulation::outputData(std::string filename, bool uncompressed)
 {
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot output data when not initialised!";
 
-  if (!uncompressed)
-    {
-      namespace io = boost::iostreams;
-      
-      io::filtering_ostream coutputFile;
-      
-      coutputFile.push(io::bzip2_compressor());
-      
-      coutputFile.push(io::file_sink(filename));
-
-      xml::XmlStream XML(coutputFile);
-      XML.setFormatXML(true);
-
-      XML << std::setprecision(std::numeric_limits<double>::digits10)
-	  << xml::prolog() << xml::tag("OutputData");
-      
-      
-      //Output the data and delete the outputplugins
-      BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-	Ptr->output(XML);
-      
-      XML << xml::endtag("OutputData");
-    }
-  else
-    {
-      std::ofstream coutputFile(filename, std::ios::out | std::ios::trunc);
-      xml::XmlStream XML(coutputFile);
-      XML.setFormatXML(true);
-
-      XML << std::setprecision(std::numeric_limits<double>::digits10)
-	  << xml::prolog() << xml::tag("OutputData");
-      
-      
-      //Output the data and delete the outputplugins
-      BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-	Ptr->output(XML);
-      
-      XML << xml::endtag("OutputData");
-    }
+  namespace io = boost::iostreams;
+  io::filtering_ostream coutputFile;
   
+  if (!uncompressed)
+    coutputFile.push(io::bzip2_compressor());
+  
+  coutputFile.push(io::file_sink(filename));
+  
+  xml::XmlStream XML(coutputFile);
+  XML.setFormatXML(true);
+  
+  XML << std::setprecision(std::numeric_limits<double>::digits10)
+      << xml::prolog() << xml::tag("OutputData");
+  
+  
+  //Output the data and delete the outputplugins
+  BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+    Ptr->output(XML);
+  
+  XML << xml::endtag("OutputData");
+
   I_cout() << "Output written to " << filename;
 }
 
