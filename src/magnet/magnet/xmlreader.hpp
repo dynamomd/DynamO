@@ -33,11 +33,7 @@ namespace magnet {
   //!Namespace enclosing the XML tools included in magnet.
   namespace xml {
     namespace detail {
-      //! Generates an error string including the full XML path of the passed node.
-      //! \param error A custom error message to incorporate into the whole message.
-      //! \param _node A valid node whose path is written in the error message.
-      //! \return A error message string.
-      inline std::string xmlerror(const std::string error, rapidxml::xml_node<> *_node)
+      inline std::string getPath(rapidxml::xml_node<> *_node)
       {
 	std::vector<std::pair<std::string, size_t> > pathTree;
 	while (_node != 0)
@@ -46,19 +42,17 @@ namespace magnet {
 	    { rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name());
 	      while (sibling) { sibling = sibling->previous_sibling(); ++index; }
 	    }
-
+	    
 	    pathTree.push_back(std::pair<std::string, size_t>(_node->name(), index));
 	    _node = _node->parent();
 	  }
+	
 	std::ostringstream os;
-	os << "XML error: " << error << "\n"
-	   << "XML Path: ";
-
+	
 	for (std::vector<std::pair<std::string, size_t> >::const_reverse_iterator 
 	       iPtr = pathTree.rbegin(); iPtr != pathTree.rend(); ++iPtr)
 	  os << "/" << iPtr->first << "[" << iPtr->second << "]";
-
-	os << "/INVALID";
+	
 	return os.str();
       }
     }
@@ -69,7 +63,9 @@ namespace magnet {
       //! Converts the attributes value to a type.
       template<class T> inline T as() const 
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Missing attribute being converted", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Missing attribute being converted\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	return boost::lexical_cast<T>(_attr->value()); 
       }
 
@@ -87,12 +83,24 @@ namespace magnet {
       //! Conversion operator returning the value of the attribute.
       inline operator const char*() const 
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Missing attribute being read", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Missing attribute being converted\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	return _attr->value(); 
       }
 
+      const char* getValue() const { return _attr->value(); }
+
       //! Test if this Attribute is valid and has a value.
       inline bool valid() const { return _attr != NULL; }
+
+      inline std::string getPath() const
+      {	
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot get path of invalid attribute\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
+	return detail::getPath(_parent) + std::string("/@") + std::string(_attr->name()); 
+      }
 
     private:
       friend class Node;
@@ -112,7 +120,9 @@ namespace magnet {
       //! \param name The name of the attribute to return.
       template<class T> inline Attribute getAttribute(T name) const 
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Missing node's attribute being accessed", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Missing node's attribute being accessed\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	return Attribute(_node->first_attribute(name), _node); 
       }
 
@@ -121,14 +131,18 @@ namespace magnet {
       //! \param name The name of the Node to return.
       template<class T> inline Node getNode(T name) const 
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Cannot fetch sub node of invalid node", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot fetch sub node of invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	return Node(_node->first_node(name), _node); 
       }
 
       //! Returns the value of the Node.
       inline operator const char*() const 
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Cannot read invalid node", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot read invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	return _node->value(); 
       }
 
@@ -138,13 +152,17 @@ namespace magnet {
       //! Replace this Node with the next Node in the parent Node with the same name.
       inline void operator++()
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Cannot increment invalid node", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot increment invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	_node = _node->next_sibling(_node->name()); 
       }
       //! Replace this Node with the previous Node in the parent Node with the same name.
       inline void operator--() 
       { 
-	if (!valid()) M_throw() << detail::xmlerror("Cannot decrement invalid node", _parent);
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot decrement invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
 	_node = _node->previous_sibling(_node->name()); 
       }
 
@@ -152,6 +170,14 @@ namespace magnet {
       inline Node(rapidxml::xml_node<>* node,
 		  rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
 
+      inline std::string getPath() const 
+      { 
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot get path of invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
+
+	return detail::getPath(_node); 
+      }
    private:
       rapidxml::xml_node<> *_node;
       rapidxml::xml_node<> *_parent;
@@ -160,14 +186,18 @@ namespace magnet {
     template<>
     inline Attribute Node::getAttribute<const std::string&>(const std::string& name) const
     { 
-      if (!valid()) M_throw() << detail::xmlerror("Missing node's attribute being accessed", _parent);
+      if (!valid()) 
+	M_throw() << (std::string("XML error: Missing node's attribute being accessed\nXML Path: ")
+		      + detail::getPath(_parent) + "/INVALID");
       return Attribute(_node->first_attribute(name.c_str()), _node); 
     }
 
     template<>
     inline Node Node::getNode<const std::string&>(const std::string& name) const
     { 
-      if (!valid()) M_throw() << detail::xmlerror("Cannot fetch sub node of invalid node", _parent);
+      if (!valid()) 
+	M_throw() << (std::string("XML error: Cannot fetch sub node of invalid node\nXML Path: ")
+		      + detail::getPath(_parent) + "/INVALID");
       return Node(_node->first_node(name.c_str()), _node); 
     }
 
