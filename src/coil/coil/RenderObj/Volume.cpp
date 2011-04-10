@@ -131,6 +131,9 @@ namespace coil {
   {
     std::vector<GLubyte> voldata(4 * width * height * depth);
     
+    std::vector<float>& histogram = _transferFunction->getHistogram();
+    histogram = std::vector<float>(256, 0);
+    
     for (int z(0); z < int(depth); ++z)
       for (int y(0); y < int(height); ++y)
 	for (int x(0); x < int(width); ++x)
@@ -154,9 +157,26 @@ namespace coil {
 	    voldata[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
 	    voldata[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
 	    voldata[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
+	    
+	    GLubyte val = inbuffer[coordCalc(x, y, z, width, height, depth)];
 	    voldata[4 * coord + 3] 
-	      = inbuffer[coordCalc(x, y, z, width, height, depth)];
+	      = val;
+
+	    histogram[val] += 1;
 	  }
+    
+    {
+      float logMaxVal = std::log(*std::max_element(histogram.begin(), histogram.end()));
+      float logMinVal = std::log(std::max(*std::min_element(histogram.begin(), histogram.end()), 1.0f));
+      float normalization = 1.0 / (logMaxVal - logMinVal);
+
+      for (std::vector<float>::iterator iPtr = histogram.begin();
+	   iPtr != histogram.end(); ++iPtr)
+	{
+	  if (*iPtr == 0) *iPtr = 1.0;
+	  *iPtr = (std::log(*iPtr) - logMinVal) * normalization;
+	}
+    }
 
     _data.init(width, height, depth);
     _data.subImage(voldata, GL_RGBA);

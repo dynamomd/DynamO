@@ -69,6 +69,8 @@ namespace magnet {
       const std::vector<uint8_t>& getColorMap()
       { return _transferFunction.getColorMap(); }
 
+      std::vector<float>& getHistogram() { return _histogram; }
+
       virtual ~TransferFunction() {}
 
     protected:
@@ -319,7 +321,7 @@ namespace magnet {
 					  colmap[4 * i + 0] / 255.0,
 					  colmap[4 * i + 1] / 255.0,
 					  colmap[4 * i + 2] / 255.0,
-					  1.0);
+					  colmap[4 * i + 3] / 255.0);
 	      
 	      cr->set_source(grad);
 	      graph_rectangle(cr, 0, 0, 1, 1);
@@ -346,9 +348,9 @@ namespace magnet {
 		cr->stroke();
 	      }
 
-	    cr->set_source_rgba(0, 0, 0, 1);
-	    cr->set_line_width(5 * _grid_line_width);
-	    {//draw the curve of the graph
+	    { //draw the curve of the graph
+	      cr->set_source_rgba(0, 0, 0, 1);
+	      cr->set_line_width(5 * _grid_line_width);
 	      const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
 
 	      //Initial point
@@ -360,10 +362,24 @@ namespace magnet {
 	      cr->stroke();
 	    }
 
+	    if (_histogram.size() == 256)
+	      { //Draw the histogram of the data set
+		cr->set_source_rgba(0.2, 0.2, 0.2, 1);
+		cr->set_line_width(2 * _grid_line_width);
+		//Initial point
+		graph_move_to(cr, 0, _histogram[0]);
+		for (size_t i(1); i < 256; ++i)
+		  graph_line_to(cr, i / 255.0, _histogram[i]);
+		cr->stroke();
+	      }
+
+	    
 	    { // draw the nodes of the graph
 	      typedef magnet::color::TransferFunction::const_iterator it;
 	      for (it iPtr = _transferFunction.begin(); iPtr != _transferFunction.end(); ++iPtr)
 		{
+		  cr->set_source_rgba(0, 0, 0, 1);
+		  cr->set_line_width(5 * _grid_line_width);
 		  const std::pair<double, double>& pos(to_graph_transform(iPtr->_x, iPtr->_a));
 		  cr->arc(pos.first, pos.second,  getPointSize() / 2, 0, 2 * M_PI);
 
@@ -388,6 +404,7 @@ namespace magnet {
 
       function::Delegate0<void> _updatedCallback;
       color::TransferFunction _transferFunction;
+      std::vector<float> _histogram;
       double _grid_line_width;
       int _selectedNode;
       bool _dragMode;
