@@ -21,18 +21,17 @@
 #include "../datatypes/vector.hpp"
 #include "../simulation/particle.hpp"
 #include "../outputplugins/outputplugin.hpp"
-#include <vector>
-#include <list>
-
-#include <boost/foreach.hpp>
-#include <boost/scoped_ptr.hpp>
 #include "is_ensemble.hpp"
-
+#include "../simulation/property.hpp"
+#include <magnet/function/delegate.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_01.hpp>
+#include <boost/foreach.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "../extcode/include/boost/random/01_normal_distribution.hpp"
-#include <magnet/function/delegate.hpp>
+#include <vector>
+#include <list>
 
 class CScheduler;
 class Particle;
@@ -166,6 +165,9 @@ namespace DYNAMO
     /*! \brief The Dynamics of the system. */
     Dynamics dynamics;
     
+    /*! The property store, a list of properties the particles have. */
+    PropertyStore _properties;
+
     /*! \brief A vector of the ratio's of the simulation box/images sides.
      *
      * At least one ratio must be 1 as this is assumed when using the

@@ -53,9 +53,9 @@ private:
   double _val;
 };
 
-/*! This class stores the properties loaded from a configuration file
- * and hands out reference counting pointers to the properties to
- * other classes when they're requested by name.
+/*! This class stores the properties of the particles loaded from the
+ * configuration file and hands out reference counting pointers to the
+ * properties to other classes when they're requested by name.
  */
 class PropertyStore: private std::vector<magnet::thread::RefPtr<Property> >
 {
@@ -65,6 +65,18 @@ class PropertyStore: private std::vector<magnet::thread::RefPtr<Property> >
 public:
   typedef Base::const_iterator const_iterator;
 
+  /*! Request a handle to a property using an xml attribute containing
+    the properties name.  If the name is a numeric type, the look-up
+    in the property store will fail but a one-time NumericProperty is
+    create. You may then have lines in the configuration file like so
+
+    <Interaction Elasticity="0.9" ... For a fixed value or
+
+    <Interaction Elasticity="e" ... For a lookup of the particle property "e"
+
+    \param name An Attribute containing either the name or the value of a property.
+    \return A reference to the property requested or an instance of NumericProperty.
+  */
   inline magnet::thread::RefPtr<Property> getProperty(const magnet::xml::Attribute& name)
   {
     //Try name based lookup first
@@ -72,7 +84,7 @@ public:
       if ((*iPtr)->getName() == name.getValue())
 	return *iPtr;
 
-    //Try name is value lookup
+    //Try name-is-the-value lookup
     try { 
       double value = boost::lexical_cast<double>(name);
       return Value(new NumericProperty(value));
@@ -80,6 +92,18 @@ public:
       {
 	M_throw() << "Could not find the property named by " << name.getPath();
       }
+  }
+
+  /*! Method which loads the properties from the XML configuration file. 
+    \param node A xml Node at the root DYNAMOconfig Node of the config file.
+   */
+  inline void loadProperties(const magnet::xml::Node& node)
+  {
+    if (!node.getNode("Properties").valid()) return;
+
+    for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
+	 propNode.valid(); ++propNode)
+      M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
   }
 private:
 };

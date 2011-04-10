@@ -39,9 +39,10 @@ namespace magnet {
 	while (_node != 0)
 	  {
 	    size_t index(0);
-	    { rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name());
-	      while (sibling) { sibling = sibling->previous_sibling(); ++index; }
-	    }
+	    if (_node->parent())
+	      { rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name());
+		while (sibling) { sibling = sibling->previous_sibling(); ++index; }
+	      }
 	    
 	    pathTree.push_back(std::pair<std::string, size_t>(_node->name(), index));
 	    _node = _node->parent();
@@ -66,7 +67,12 @@ namespace magnet {
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Missing attribute being converted\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	return boost::lexical_cast<T>(_attr->value()); 
+	try {
+	  return boost::lexical_cast<T>(_attr->value()); 
+	} catch (boost::bad_lexical_cast&)
+	  {
+	    M_throw() << "Failed to cast XML attribute to type, XMLPath: " << getPath();
+	  }
       }
 
       //! Converts the attributes value to a type.  This version of
