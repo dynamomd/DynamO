@@ -59,8 +59,9 @@ OPConfig::output(xml::XmlStream &XML)
 
   //Allow this block to fail if need be
   try {
+    double mft = Sim->getOutputPlugin<OPMisc>()->getMFT();
     XML << xml::attr("lastMFT") 
-	<< Sim->getOutputPlugin<OPMisc>()->getMFT();
+	<< mft;
   }
   catch (std::exception&)
     {}
