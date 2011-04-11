@@ -74,34 +74,44 @@ class PropertyStore: private std::vector<magnet::thread::RefPtr<Property> >
 public:
   typedef Base::const_iterator const_iterator;
 
-  /*! Request a handle to a property using an xml attribute containing
-    the properties name.  If the name is a numeric type, the look-up
-    in the property store will fail but a one-time NumericProperty is
-    create. You may then have lines in the configuration file like so
+  /*! Request a handle to a property using a string containing the
+    properties name.  If the name is a string representation of a
+    numeric type, the look-up in the property store will fail but a
+    one-time NumericProperty is created. You may then have lines in
+    the configuration file like so
 
-    <Interaction Elasticity="0.9" ... For a fixed value or
+    For a fixed value
+    <Interaction Elasticity="0.9" ... 
 
+    or for a lookup in the property store
     <Interaction Elasticity="e" ... For a lookup of the particle property "e"
 
     \param name An Attribute containing either the name or the value of a property.
     \return A reference to the property requested or an instance of NumericProperty.
   */
+  inline magnet::thread::RefPtr<Property> getProperty(const std::string& name)
+  {
+    try { return getPropertyBase(name); }
+    catch (boost::bad_lexical_cast&)
+      { M_throw() << "Could not find the property named by " << name; }
+  }
+
+  /*! Request a handle to a property using an xml attribute containing
+    the properties name. See getProperty(const std::string& name) for
+    usage info. */
   inline magnet::thread::RefPtr<Property> getProperty(const magnet::xml::Attribute& name)
   {
-    //Try name based lookup first
-    for (const_iterator iPtr = Base::begin(); iPtr != Base::end(); ++iPtr)
-      if ((*iPtr)->getName() == name.getValue())
-	return *iPtr;
-
-    //Try name-is-the-value lookup
-    try { 
-      double value = boost::lexical_cast<double>(name);
-      return Value(new NumericProperty(value));
-    } catch (boost::bad_lexical_cast&)
-      {
-	M_throw() << "Could not find the property named by " << name.getPath();
-      }
+    try { return getPropertyBase(name.getValue()); }
+    catch (boost::bad_lexical_cast&)
+      { M_throw() << "Could not find the property named by " << name.getPath(); }
   }
+
+  /*! Request a handle to a property, but this specialization always
+      returns a new instance of NumericProperty.
+      \sa getProperty(const std::string& name)
+  */
+  inline magnet::thread::RefPtr<Property> getProperty(const double& name)
+  { return Value(new NumericProperty(name)); }
 
   /*! Method which loads the properties from the XML configuration file. 
     \param node A xml Node at the root DYNAMOconfig Node of the config file.
@@ -131,4 +141,17 @@ public:
   }
 
 private:
+
+  inline magnet::thread::RefPtr<Property> getPropertyBase(const std::string name)
+  {
+    //Try name based lookup first
+    for (const_iterator iPtr = Base::begin(); iPtr != Base::end(); ++iPtr)
+      if ((*iPtr)->getName() == name)
+	return *iPtr;
+
+    //Try name-is-the-value lookup, if this fails a
+    //boost::bad_lexical_cast& will be thrown and must be caught by
+    //the caller. 
+    return Value(new NumericProperty(boost::lexical_cast<double>(name)));
+  }
 };
