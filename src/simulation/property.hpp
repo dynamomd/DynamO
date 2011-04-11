@@ -37,6 +37,9 @@ class Property
 public:
   //! Fetch the value of this property for a particle with a certain ID
   inline virtual const double& getProperty(size_t ID) const { M_throw() << "Unimplemented"; }
+
+  //! Fetch the maximum value of this property
+  inline virtual const double& getMaxValue() const { M_throw() << "Unimplemented"; }
   
   //! Fetch the name of this property
   inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
@@ -56,6 +59,8 @@ public:
   
   inline virtual const double& getProperty(size_t ID) const { return _val; }
   inline virtual std::string getName() const { return boost::lexical_cast<std::string>(_val); }
+  inline virtual const double& getMaxValue() const { return _val; }
+
 private:
   virtual void outputXML(xml::XmlStream& XML) const {}
 

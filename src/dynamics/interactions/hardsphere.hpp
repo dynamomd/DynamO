@@ -18,11 +18,17 @@
 #pragma once
 
 #include "interaction.hpp"
+#include "../../base/is_simdata.hpp"
 
 class IHardSphere: public Interaction
 {
 public:
-  IHardSphere(DYNAMO::SimData*, double, double, C2Range*);
+  template<class T1, class T2>
+  IHardSphere(DYNAMO::SimData* tmp, T1 diameter, T2 e, C2Range* nR):
+  Interaction(tmp, nR),
+  _diameter(Sim->_properties.getProperty(diameter)),
+  _e(Sim->_properties.getProperty(e))
+  {}
 
   IHardSphere(const magnet::xml::Node&, DYNAMO::SimData*);
 
@@ -52,6 +58,6 @@ public:
   write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
 
 protected:
-  double diameter,d2;
-  double e;
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _e;
 };
