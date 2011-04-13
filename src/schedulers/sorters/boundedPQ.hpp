@@ -47,7 +47,7 @@ struct CSSBoundedPQName<pList>
 template<size_t I>
 struct CSSBoundedPQName<MinMaxHeapPList<I> >
 {
-  inline static std::string name() { return "BoundedPQMinMax"; }
+  inline static std::string name() { return std::string("BoundedPQMinMax") + boost::lexical_cast<std::string>(I); }
 };
 
 template<typename T = pList>
@@ -82,8 +82,7 @@ public:
   CSSBoundedPQ(const DYNAMO::SimData* const& SD):
     CSSorter(SD, "BoundedPQ"),
     exceptionCount(0) 
-  {   
-  }
+  {}
 
   ~CSSBoundedPQ() 
   { 

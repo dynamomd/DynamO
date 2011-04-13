@@ -29,10 +29,20 @@ CSSorter::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
 {
   if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<pList>::name())
     return new CSSBoundedPQ<>(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<2> >::name())
+    return new CSSBoundedPQ<MinMaxHeapPList<2> >(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<3> >::name())
+    return new CSSBoundedPQ<MinMaxHeapPList<3> >(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<4> >::name())
+    return new CSSBoundedPQ<MinMaxHeapPList<4> >(Sim);
   if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<5> >::name())
-    {
-      return new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim);
-    }
+    return new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<6> >::name())
+    return new CSSBoundedPQ<MinMaxHeapPList<6> >(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<7> >::name())
+    return new CSSBoundedPQ<MinMaxHeapPList<7> >(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<8> >::name())
+    return new CSSBoundedPQ<MinMaxHeapPList<8> >(Sim);
   else if (std::string(XML.getAttribute("Type")) == std::string("CBT"))
     return new CSSCBT(Sim);
   else 

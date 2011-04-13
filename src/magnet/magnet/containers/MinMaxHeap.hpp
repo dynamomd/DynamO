@@ -21,20 +21,30 @@
 #pragma once
 
 #include <magnet/exception.hpp>
+#include <boost/array.hpp>
+
 namespace magnet {
   namespace containers {
+    template <typename T, std::size_t N> class MinMaxHeap;
+    
+    //The unsupported sizes of the MinMax heap
+    template <typename T> class MinMaxHeap<T,0> {};
+    template <typename T> class MinMaxHeap<T,1> {};
+
     //The size parameter is one less than the size of the heap!!!
     //An extra element is added to the start to simplify the math!
-    template <size_t Size, class Container>
+    template <typename T, std::size_t N>
     class MinMaxHeap
     {
+      //The container should be 1 bigger than requested to ease the
+      //array math
+      typedef typename boost::array<T, N + 1> Container;
       typedef typename Container::value_type Comparable;
       Container _array; // The heap array
-      size_t _currentSize;            // Number of elements currently in heap
+      size_t _currentSize;// Number of elements currently in heap
 
     public:
-      MinMaxHeap(): _currentSize(0) 
-      {}
+      MinMaxHeap(): _currentSize(0) {}
 
       typedef typename Container::iterator iterator;
       typedef typename Container::const_iterator const_iterator;
@@ -64,7 +74,6 @@ namespace magnet {
 	if (empty())
 	  M_throw() << "*** FindMin failed: Heap is empty ***";
 #endif
-    
 	return _array[ 1 ];
       }
 
@@ -78,7 +87,6 @@ namespace magnet {
 	if ( empty() )
 	  M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
-    
 	if ( _currentSize == 1 )
 	  return _array[ 1 ];
 	else if ( _currentSize == 2 )
@@ -203,7 +211,7 @@ namespace magnet {
       // Returns: true if full, false if not
       inline bool full() const { return _currentSize == _array.size() - 1; }
 
-      inline void swap(MinMaxHeap<Size,Container>& rhs)
+      inline void swap(MinMaxHeap<T, N>& rhs)
       {
 	std::swap(_currentSize, rhs._currentSize);
 	_array.swap(rhs._array);
@@ -445,18 +453,17 @@ namespace magnet {
       // Swaps elements of two indices
       // Parameter indexOne: first index of array of item to be swapped
       // Parameter indexTwo: second index of array of item to be swapped
-      inline void swapElements( size_t indexOne, size_t indexTwo )
+      inline void swapElements(size_t indexOne, size_t indexTwo)
       {std::swap(_array[ indexOne ], _array[ indexTwo]);}
     };
-
-    namespace std
-    {
-      /*! \brief Template specialisation of the std::swap function for pList*/
-      template<size_t Size, typename C> inline
-      void swap(MinMaxHeap<Size,C>& lhs, MinMaxHeap<Size,C>& rhs)
-      {
-	lhs.swap(rhs);
-      }
-    }
   }
+}
+
+namespace std
+{
+  /*! \brief Template specialisation of the std::swap function for pList*/
+  template<typename T, std::size_t N> inline
+  void swap(magnet::containers::MinMaxHeap<T, N>& lhs, 
+	    magnet::containers::MinMaxHeap<T, N>& rhs)
+  { lhs.swap(rhs); }
 }

@@ -30,7 +30,7 @@
 template<size_t Size>
 class MinMaxHeapPList
 {
-  magnet::containers::MinMaxHeap<Size, boost::array<intPart,Size> > _innerHeap;
+  magnet::containers::MinMaxHeap<intPart,Size> _innerHeap;
 
 public:
   MinMaxHeapPList() 

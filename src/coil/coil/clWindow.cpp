@@ -792,7 +792,7 @@ CLGLWindow::init()
   initOpenCL();
   initGTK();
 
-//  //bonsai plant test
+//  //Fabian Test
 //  RenderObjects.back().as<coil::RVolume>()
 //    .loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
 //  
