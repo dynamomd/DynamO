@@ -48,7 +48,6 @@ for elas in 1.0; do # 0.4 0.5 0.6 0.7 0.8 0.9
 	done
     done
 done
->>>>>>> opencl
 
 for elas in 1.0; do # 0.4 0.5 0.6 0.7 0.8 0.9 
     for dens in 0.5 1.1; do
