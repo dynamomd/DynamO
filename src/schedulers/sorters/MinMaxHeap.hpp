@@ -84,7 +84,7 @@ public:
 
   inline void push(const intPart& __x)
   {
-    if (!_innerHeap.full()) 
+    if (!_innerHeap.full())
       _innerHeap.insert(__x);
     else 
       {

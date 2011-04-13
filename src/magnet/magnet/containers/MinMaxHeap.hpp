@@ -56,7 +56,7 @@ namespace magnet {
 
       inline void pop()
       {
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if( empty() )
 	  M_throw() << "*** DeleteMin failed: Heap is empty ***";
 #endif
@@ -70,7 +70,7 @@ namespace magnet {
       // Returns: minimum item in the heap
       inline const Comparable & top() const
       {
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if (empty())
 	  M_throw() << "*** FindMin failed: Heap is empty ***";
 #endif
@@ -83,22 +83,24 @@ namespace magnet {
       // Returns: maximum item in the heap
       inline const Comparable & bottom() const
       {
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if ( empty() )
 	  M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
-	if ( _currentSize == 1 )
+	if ( _currentSize <= 1 )
 	  return _array[ 1 ];
-	else if ( _currentSize == 2 )
+	else if (_currentSize == 2)
 	  return _array[ 2 ];
-	else
+	else if (N > 2) //This is just to stop a compiler warning for N=2 containers
 	  return _array[ 2 ] > _array[ 3 ] ? _array[ 2 ] : _array[ 3 ];
+	else 
+	  M_throw() << "Bad _currentSize when accessing heap bottom";
       }
 
 
       inline Comparable & unsafe_bottom()
       {
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if ( empty() )
 	  M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
@@ -107,8 +109,10 @@ namespace magnet {
 	  return _array[ 1 ];
 	else if ( _currentSize == 2 )
 	  return _array[ 2 ];
-	else
+	else if (N > 2) //This is just to stop a compiler warning for N=2 containers
 	  return _array[ 2 ] > _array[ 3 ] ? _array[ 2 ] : _array[ 3 ];
+	else 
+	  M_throw() << "Bad _currentSize when accessing heap bottom in N=2 MinMaxHeap";
       }
 
       // Insert
@@ -118,11 +122,11 @@ namespace magnet {
       // Side Effects: throws Overflow if heap is full
       inline void insert( const Comparable & x )
       {
-#ifdef DYNAMO_DEBUG
-	if( full() )
+#ifdef MAGNET_DEBUG
+	if (full())
 	  M_throw() << "*** Insert failed: Heap is full ***";
 #endif
-    
+
 	size_t hole = ++_currentSize;
 	_array[ hole ] = x;
     
@@ -138,7 +142,7 @@ namespace magnet {
       // Side Effects: throws Underflow if heap is empty
       inline void deleteMin( Comparable & minItem )
       {
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if( empty() )
 	  M_throw() << "*** DeleteMin failed: Heap is empty ***";
 #endif
@@ -157,7 +161,7 @@ namespace magnet {
       {
 	size_t maxIndex;
     
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if ( empty() )
 	  M_throw() << "*** DeleteMax failed: Heap is empty ***";
 #endif
@@ -179,7 +183,7 @@ namespace magnet {
       {
 	size_t maxIndex;
 
-#ifdef DYNAMO_DEBUG
+#ifdef MAGNET_DEBUG
 	if ( empty() )
 	  M_throw() << "*** DeleteMax failed: Heap is empty ***";
 #endif
