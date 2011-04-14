@@ -1,6 +1,7 @@
 /*  DYNAMO:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2008  Todd Wease <->
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -14,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Based on a an original implementation kindly provided by Todd
+    Based on a an original implementation kindly released by Todd
     Wease.
   */
 
@@ -24,24 +25,27 @@
 #include <boost/array.hpp>
 
 namespace magnet {
-  namespace containers {
+  namespace containers {    
     template <typename T, std::size_t N> class MinMaxHeap;
     
     //The unsupported sizes of the MinMax heap
     template <typename T> class MinMaxHeap<T,0> {};
     template <typename T> class MinMaxHeap<T,1> {};
 
-    //The size parameter is one less than the size of the heap!!!
-    //An extra element is added to the start to simplify the math!
+    //! A fixed size MinMax heap implementation. This type of
+    //! container is optimized for access to the minimum and maximum
+    //! elements of the heap.
+    //! \tparam T Stored type in the heap.
+    //! \tparam N Size of the heap.
     template <typename T, std::size_t N>
     class MinMaxHeap
     {
-      //The container should be 1 bigger than requested to ease the
-      //array math
-      typedef typename boost::array<T, N + 1> Container;
+      typedef typename boost::array<T, N> Container;
       typedef typename Container::value_type Comparable;
-      Container _array; // The heap array
-      size_t _currentSize;// Number of elements currently in heap
+      //! The heap array
+      Container _array; 
+      //! Number of elements currently in heap
+      size_t _currentSize;
 
     public:
       MinMaxHeap(): _currentSize(0) {}
@@ -49,10 +53,10 @@ namespace magnet {
       typedef typename Container::iterator iterator;
       typedef typename Container::const_iterator const_iterator;
 
-      inline iterator begin() { return _array.begin() + 1; }
-      inline const_iterator begin() const { return _array.begin() + 1; }
-      inline iterator end() { return begin() + _currentSize; }
-      inline const_iterator end() const { return begin() + _currentSize; }
+      inline iterator begin() { return _array.begin(); }
+      inline const_iterator begin() const { return _array.begin(); }
+      inline iterator end() { return begin() + _currentSize - 1; }
+      inline const_iterator end() const { return begin() + _currentSize - 1; }
 
       inline void pop()
       {
@@ -61,8 +65,8 @@ namespace magnet {
 	  M_throw() << "*** DeleteMin failed: Heap is empty ***";
 #endif
     
-	_array[ 1 ] = _array[ _currentSize-- ];
-	percolateDown( 1 );
+	_array[0] = _array[--_currentSize];
+	percolateDown(1);
       }
 
       // FindMin
@@ -74,7 +78,7 @@ namespace magnet {
 	if (empty())
 	  M_throw() << "*** FindMin failed: Heap is empty ***";
 #endif
-	return _array[ 1 ];
+	return _array[0];
       }
 
 
@@ -87,12 +91,12 @@ namespace magnet {
 	if ( empty() )
 	  M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
-	if ( _currentSize <= 1 )
-	  return _array[ 1 ];
+	if (_currentSize <= 1)
+	  return _array[0];
 	else if (_currentSize == 2)
-	  return _array[ 2 ];
+	  return _array[1];
 	else if (N > 2) //This is just to stop a compiler warning for N=2 containers
-	  return _array[ 2 ] > _array[ 3 ] ? _array[ 2 ] : _array[ 3 ];
+	  return _array[1] > _array[2] ? _array[1] : _array[2];
 	else 
 	  M_throw() << "Bad _currentSize when accessing heap bottom";
       }
@@ -104,13 +108,12 @@ namespace magnet {
 	if ( empty() )
 	  M_throw() << "*** FindMax failed: Heap is empty ***";
 #endif
-    
-	if ( _currentSize == 1 )
-	  return _array[ 1 ];
+	if (_currentSize == 1)
+	  return _array[0];
 	else if ( _currentSize == 2 )
-	  return _array[ 2 ];
+	  return _array[1];
 	else if (N > 2) //This is just to stop a compiler warning for N=2 containers
-	  return _array[ 2 ] > _array[ 3 ] ? _array[ 2 ] : _array[ 3 ];
+	  return _array[1] > _array[2] ? _array[1] : _array[2];
 	else 
 	  M_throw() << "Bad _currentSize when accessing heap bottom in N=2 MinMaxHeap";
       }
@@ -126,11 +129,8 @@ namespace magnet {
 	if (full())
 	  M_throw() << "*** Insert failed: Heap is full ***";
 #endif
-
-	size_t hole = ++_currentSize;
-	_array[ hole ] = x;
-    
-	percolateUp( hole );
+	_array[_currentSize] = x;    
+	percolateUp(++_currentSize);
       }
 
 
@@ -166,16 +166,16 @@ namespace magnet {
 	  M_throw() << "*** DeleteMax failed: Heap is empty ***";
 #endif
     
-	if ( _currentSize == 1 )
-	  maxIndex = 1;
+	if (_currentSize ==1)
+	  maxIndex = 0;
 	else if ( _currentSize == 2 )
-	  maxIndex = 2;
+	  maxIndex = 1;
 	else
-	  maxIndex = _array[ 2 ] > _array[ 3 ] ? 2 : 3;
+	  maxIndex = _array[1] > _array[2] ? 1 : 2;
     
-	maxItem = _array[ maxIndex ];
-	_array[ maxIndex ] = _array[ _currentSize-- ];
-	percolateDown( maxIndex );   
+	maxItem = _array[maxIndex];
+	_array[maxIndex] = _array[--_currentSize];
+	percolateDown(maxIndex+1);   
       }
 
 
@@ -188,16 +188,16 @@ namespace magnet {
 	  M_throw() << "*** DeleteMax failed: Heap is empty ***";
 #endif
 
-	if ( _currentSize == 1 )
+	if (_currentSize == 1)
+	  maxIndex = 0;
+	else if (_currentSize == 2)
 	  maxIndex = 1;
-	else if ( _currentSize == 2 )
-	  maxIndex = 2;
 	else
-	  maxIndex = _array[ 2 ] > _array[ 3 ] ? 2 : 3;
+	  maxIndex = _array[1] > _array[2] ? 1 : 2;
 
   
-	_array[ maxIndex ] = _array[ _currentSize-- ];
-	percolateDown( maxIndex );
+	_array[ maxIndex ] = _array[--_currentSize];
+	percolateDown(maxIndex + 1);
 	insert(newMaxItem);
       }
 
@@ -213,7 +213,7 @@ namespace magnet {
       // IsFull
       // Checks to see if heap is logically full
       // Returns: true if full, false if not
-      inline bool full() const { return _currentSize == _array.size() - 1; }
+      inline bool full() const { return _currentSize == _array.size(); }
 
       inline void swap(MinMaxHeap<T, N>& rhs)
       {
@@ -239,22 +239,22 @@ namespace magnet {
 	// min level
 	if ( level % 2 == 0 ) {
       
-	  if ( parent > 0 && _array[ hole ] > _array[ parent ] ) {
-	    swapElements( hole, parent );
-	    percolateUpMax( parent );
+	  if ( parent > 0 && _array[hole - 1] > _array[parent-1] ) {
+	    swapElements(hole, parent);
+	    percolateUpMax(parent);
 	  }
 	  else
-	    percolateUpMin( hole );
+	    percolateUpMin(hole);
 	}
 	// max level
 	else {
       
-	  if ( parent > 0 && _array[ hole ] < _array[ parent ] ) {
+	  if ( parent > 0 && _array[hole-1] < _array[parent-1] ) {
 	    swapElements( hole, parent );
-	    percolateUpMin( parent );
+	    percolateUpMin(parent);
 	  }
 	  else
-	    percolateUpMax( hole );
+	    percolateUpMax(hole);
 	}
       }
 
@@ -266,9 +266,9 @@ namespace magnet {
       {
 	size_t grandparent = hole / 4;
 
-	if ( grandparent > 0 && _array[ hole ] < _array[ grandparent ] ) {
-	  swapElements( hole, grandparent );
-	  percolateUpMin( grandparent );
+	if ( grandparent > 0 && _array[hole-1] < _array[grandparent-1] ) {
+	  swapElements(hole, grandparent);
+	  percolateUpMin(grandparent);
 	}
       }
 
@@ -276,11 +276,11 @@ namespace magnet {
       // Called by percolateUp to maintain min-max heap order on
       //   the max levels.
       // Parameter hole: index in array of item to be percolated
-      inline void percolateUpMax( size_t hole )
+      inline void percolateUpMax(size_t hole)
       {
 	size_t grandparent = hole / 4;
 
-	if ( grandparent > 0 && _array[ hole ] > _array[ grandparent ] ) {
+	if ( grandparent > 0 && _array[hole -1] > _array[grandparent-1] ) {
 	  swapElements( hole, grandparent );
 	  percolateUpMax( grandparent );
 	}
@@ -298,9 +298,9 @@ namespace magnet {
 	for (size_t i = 2; i <= hole; i *= 2, ++level);
     
 	if ( level % 2 == 0 )
-	  percolateDownMin( hole );
+	  percolateDownMin(hole);
 	else
-	  percolateDownMax( hole );
+	  percolateDownMax(hole);
       }
 
       // PercolateDownMin
@@ -321,11 +321,11 @@ namespace magnet {
 	  if ( minIndex >= hole * 4 ) {
 
 	    // if less than grandparent, i.e value at hole, swap
-	    if ( _array[ minIndex ] < _array[ hole ] ) {
+	    if ( _array[minIndex-1] < _array[hole-1] ) {
 	      swapElements( hole, minIndex );
 
 	      // if greater than parent, swap
-	      if ( _array[ minIndex ] > _array[ minIndex / 2 ] )
+	      if ( _array[minIndex-1] > _array[minIndex / 2 -1] )
 		swapElements( minIndex, minIndex / 2 );
 
 	      percolateDownMin( minIndex );
@@ -335,8 +335,8 @@ namespace magnet {
 	  else {
 
 	    // if less than parent, i.e value at hole, swap
-	    if ( _array[ minIndex ] < _array[ hole ] )
-	      swapElements( hole, minIndex );
+	    if ( _array[minIndex-1] < _array[hole-1] )
+	      swapElements(hole, minIndex);
 	  }
 	}
       }
@@ -346,7 +346,7 @@ namespace magnet {
       // Called by percolateDown to maintain min-max heap order on
       //   the max levels.
       // Parameter hole: index in array of item to be percolated
-      inline void percolateDownMax( size_t hole )
+      inline void percolateDownMax(size_t hole)
       {
 	size_t maxIndex;
 
@@ -362,11 +362,11 @@ namespace magnet {
 	  if ( maxIndex >= hole * 4 ) {
 
 	    // if greater than grandparent, i.e value at hole, swap
-	    if ( _array[ maxIndex ] > _array[ hole ] ) {
+	    if ( _array[maxIndex-1] > _array[hole-1] ) {
 	      swapElements( hole, maxIndex );
 
 	      // if less than parent, swap
-	      if ( _array[ maxIndex ] < _array[ maxIndex / 2 ] )
+	      if ( _array[maxIndex-1] < _array[maxIndex / 2 - 1] )
 		swapElements( maxIndex, maxIndex / 2 );
 
 	      percolateDownMax( maxIndex );
@@ -376,7 +376,7 @@ namespace magnet {
 	  else {
 
 	    // if greater than parent, i.e value at hole, swap
-	    if ( _array[ maxIndex ] > _array[ hole ] )
+	    if ( _array[maxIndex-1] > _array[hole-1] )
 	      swapElements( hole, maxIndex );
 	  }
 	}
@@ -397,20 +397,20 @@ namespace magnet {
 
 	if ( child <= _currentSize ) {
 
-	  if ( child != _currentSize && _array[ child + 1 ] < _array[ minChild ] )
+	  if ( child != _currentSize && _array[child] < _array[minChild-1] )
 	    minChild = child + 1;
 
 	  minIndex = minChild;
 
-	  if ( grandchild <= _currentSize ) {
+	  if (grandchild <= _currentSize) {
 
 	    for ( size_t i = 1; grandchild < _currentSize && i < 4; i++, grandchild++ ) {
 
-	      if ( _array[ grandchild + 1 ] < _array[ minGrandchild ] )
+	      if ( _array[grandchild] < _array[minGrandchild-1] )
 		minGrandchild = grandchild + 1;
 	    }
 
-	    if ( _array[ minGrandchild ] < _array[ minChild ] )
+	    if ( _array[minGrandchild-1] < _array[minChild-1] )
 	      minIndex = minGrandchild;
 	  }
 	}
@@ -432,7 +432,7 @@ namespace magnet {
 
 	if ( child <= _currentSize ) {
 
-	  if ( child != _currentSize && _array[ child + 1 ] > _array[ maxChild ] )
+	  if ( child != _currentSize && _array[child] > _array[maxChild-1] )
 	    maxChild = child + 1;
 
 	  maxIndex = maxChild;
@@ -441,11 +441,11 @@ namespace magnet {
 
 	    for ( size_t i = 1; grandchild < _currentSize && i < 4; i++, grandchild++ ) {
 
-	      if ( _array[ grandchild + 1 ] > _array[ maxGrandchild ] )
+	      if ( _array[grandchild] > _array[maxGrandchild-1] )
 		maxGrandchild = grandchild + 1;
 	    }
 
-	    if ( _array[ maxGrandchild ] > _array[ maxChild ] )
+	    if ( _array[maxGrandchild-1] > _array[maxChild-1] )
 	      maxIndex = maxGrandchild;
 	  } 
 	}
@@ -458,7 +458,7 @@ namespace magnet {
       // Parameter indexOne: first index of array of item to be swapped
       // Parameter indexTwo: second index of array of item to be swapped
       inline void swapElements(size_t indexOne, size_t indexTwo)
-      {std::swap(_array[ indexOne ], _array[ indexTwo]);}
+      {std::swap(_array[indexOne-1], _array[indexTwo-1]);}
     };
   }
 }
