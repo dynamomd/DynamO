@@ -19,6 +19,9 @@
 **** TODO Improve the documentation
 **** TODO Move aspect ratio into BC class
 **** TODO Generalize the Morton ordered neighbour list
+*** Dynamo 1.2
+**** TODO Generalized scheduler for multiple neighborlists
+**** TODO Triangular Meshes
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
     - [ ] Cylinders can be inserted, just write the overlap test
