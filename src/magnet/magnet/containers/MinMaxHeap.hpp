@@ -55,8 +55,8 @@ namespace magnet {
 
       inline iterator begin() { return _array.begin(); }
       inline const_iterator begin() const { return _array.begin(); }
-      inline iterator end() { return begin() + _currentSize - 1; }
-      inline const_iterator end() const { return begin() + _currentSize - 1; }
+      inline iterator end() { return begin() + _currentSize; }
+      inline const_iterator end() const { return begin() + _currentSize; }
 
       inline void pop()
       {
