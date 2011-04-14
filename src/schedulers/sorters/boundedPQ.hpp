@@ -18,6 +18,7 @@
 #pragma once
 #include "datastruct.hpp"
 #include "sorter.hpp"
+
 #include "../../dynamics/units/units.hpp"
 #include "../../base/is_simdata.hpp"
 #include <boost/static_assert.hpp>
@@ -31,6 +32,8 @@ template<size_t Size>
 class MinMaxHeapPList;
 
 class pList;
+
+class PELSingleEvent;
 
 template<class T>
 struct CSSBoundedPQName
@@ -48,6 +51,12 @@ template<size_t I>
 struct CSSBoundedPQName<MinMaxHeapPList<I> >
 {
   inline static std::string name() { return std::string("BoundedPQMinMax") + boost::lexical_cast<std::string>(I); }
+};
+
+template<>
+struct CSSBoundedPQName<PELSingleEvent>
+{
+  inline static std::string name() { return "BoundedPQSingleEvent"; }
 };
 
 template<typename T = pList>

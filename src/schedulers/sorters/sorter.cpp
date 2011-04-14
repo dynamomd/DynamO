@@ -29,6 +29,8 @@ CSSorter::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
 {
   if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<pList>::name())
     return new CSSBoundedPQ<>(Sim);
+  if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<PELSingleEvent>::name())
+    return new CSSBoundedPQ<PELSingleEvent>(Sim);
   if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<2> >::name())
     return new CSSBoundedPQ<MinMaxHeapPList<2> >(Sim);
   if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<3> >::name())
