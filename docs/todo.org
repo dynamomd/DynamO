@@ -18,6 +18,7 @@
 **** TODO Optimize the MinMax Heap memory usage to remove the wasted element
 **** TODO Improve the documentation
 **** TODO Move aspect ratio into BC class
+**** TODO Generalize the Morton ordered neighbour list
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
     - [ ] Cylinders can be inserted, just write the overlap test
