@@ -41,12 +41,6 @@ Simulation::Simulation():
 {}
 
 void 
-Simulation::setBinaryXML(const bool& v) 
-{ 
-  binaryXML = v; 
-}
-
-void 
 Simulation::setTickerPeriod(double nP)
 {
   CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));

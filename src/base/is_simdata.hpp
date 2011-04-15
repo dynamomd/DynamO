@@ -213,9 +213,6 @@ namespace DYNAMO
      */
     ESimulationStatus status;
 
-    /*! \brief Marks whether to use binary data in XML output*/
-    bool binaryXML;
-
     /*! \brief Register a callback for particle changes.*/
     void registerParticleUpdateFunc(const particleUpdateFunc& func) const
     { _particleUpdateNotify.push_back(func); }

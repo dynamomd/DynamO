@@ -22,9 +22,6 @@
 #include <sstream>
 
 namespace xml {
-  //! The spacing unit to use when a tag is opened
-  const std::string XML_SPACING("  ");
-  
   class XmlStream {
   public:
     // XML version constants
@@ -81,7 +78,6 @@ namespace xml {
 	
       case Controller::Tag:
 	closeTagStart();
-	if (FormatXML) for (unsigned int i = 0; i < tags.size(); i++) s << XML_SPACING;
 	s << '<';
 	if (controller.str.empty()) {
 	  clearTagName();
@@ -120,7 +116,6 @@ namespace xml {
 	state = stateNone;
 	break;//Controller::whatCharData
       }
-    
       return	*this;
     }
 
@@ -189,13 +184,7 @@ namespace xml {
     
       while (tags.size() > 0 && !brk) {
 	if (stateNone == state)
-	  {
-	    if (FormatXML) 
-	      for (unsigned int i = 0; i < tags.size()-1; i++) 
-		s << XML_SPACING;
-
-	    s << "</" << tags.top() << '>' << '\n';
-	  }
+	  s << "</" << tags.top() << ">\n";
 	else {
 	  closeTagStart(true);
 	  state = stateNone;

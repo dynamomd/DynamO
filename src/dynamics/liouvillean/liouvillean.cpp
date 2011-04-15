@@ -19,7 +19,6 @@
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../units/units.hpp"
-#include "../../extcode/binaryHelper.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
@@ -87,71 +86,26 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
   I_cout() << "Loading Particle Data";
   std::cout.flush();
 
-  if (XML.getNode("ParticleData").getAttribute("AttachedBinary").valid()
-      && (std::toupper(XML.getNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
+  bool outofsequence = false;  
+  
+  for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
+       node.valid(); ++node)
     {
-      Sim->binaryXML = true;
-
-      size_t nPart = XML.getNode("ParticleData").getAttribute("N").as<size_t>();
-
-      boost::iostreams::filtering_istream base64Convertor;
-      base64Convertor.push(boost::iostreams::base64_decoder());
-      base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
+      if (node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
+	outofsequence = true;
       
-      {
-	const char* start = XML.getNode("AppendedBinaryVelPos");
-	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
-      }
-
-      for (unsigned long i = 0; i < nPart; ++i)
-	{
-	  unsigned long ID;
-	  Vector  vel;
-	  Vector  pos;
-	  
-	  binaryread(base64Convertor, ID);
-
-	  if (i != ID) 
-	    M_throw() << "Binary data corruption detected, id's don't match"
-		      << "\nMight be because this file was generated on another architecture (32/64bit)"
-		      << "\nTry using the --text option to avoid using the binary format";
-	  
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    binaryread(base64Convertor, vel[iDim]);
-	  
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    binaryread(base64Convertor, pos[iDim]);
-
-	  vel *= Sim->dynamics.units().unitVelocity();
-	  pos *= Sim->dynamics.units().unitLength();
-	  
-	  Sim->particleList.push_back(Particle(pos, vel, ID));
-
-	  binaryread(base64Convertor, Sim->particleList.back().getState());
-	}
+      Particle part(node, Sim->particleList.size());
+      part.scaleVelocity(Sim->dynamics.units().unitVelocity());
+      part.scalePosition(Sim->dynamics.units().unitLength());
+      Sim->particleList.push_back(part);
     }
-  else
-    {
-      bool outofsequence = false;  
-      
-      for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
-	   node.valid(); ++node)
-	{
-	  if (node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
-	    outofsequence = true;
-	  
-	  Particle part(node, Sim->particleList.size());
-	  part.scaleVelocity(Sim->dynamics.units().unitVelocity());
-	  part.scalePosition(Sim->dynamics.units().unitLength());
-	  Sim->particleList.push_back(part);
-	}
+  
+  if (outofsequence)
+    I_cout() << IC_red << "Particle ID's out of sequence!\n"
+	     << IC_red << "This can result in incorrect capture map loads etc.\n"
+	     << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
+	     << IC_reset;
 
-      if (outofsequence)
-	I_cout() << IC_red << "Particle ID's out of sequence!\n"
-		 << IC_red << "This can result in incorrect capture map loads etc.\n"
-		 << IC_red << "Erase any capture maps in the configuration file so they are regenerated."
-		 << IC_reset;            
-    }
   Sim->N = Sim->particleList.size();
 
   I_cout() << "Particle count " << Sim->N;
@@ -160,70 +114,27 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
 void 
 Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 {
-  if (Sim->binaryXML)
+  XML << xml::tag("ParticleData")
+      << xml::attr("N") << Sim->N;
+  
+  I_cout() << "Writing Particles ";
+  
+  for (unsigned long i = 0; i < Sim->N; ++i)
     {
-      XML << xml::tag("ParticleData")
-	  << xml::attr("N") << Sim->N
-	  << xml::attr("AttachedBinary") << "Y"
-	  << xml::endtag("ParticleData")
-	  << xml::tag("AppendedBinaryVelPos")
-	  << xml::chardata();
-
-      {//have to scope out the iostream writes before closing the XML
-	boost::iostreams::filtering_ostream base64Convertor;
-	base64Convertor.push(boost::iostreams::base64_encoder());
-	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
-	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
-	
-	BOOST_FOREACH(const Particle& part, Sim->particleList)
-	  {
-	    Particle tmp(part);
-	    Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
-	    
-	    tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
-	    tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());	  
-	    
-	    binarywrite(base64Convertor, tmp.getID());
-	    
-	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      binarywrite(base64Convertor, tmp.getVelocity()[iDim]);
-	    
-	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      binarywrite(base64Convertor, tmp.getPosition()[iDim]);
-	    
-	    binarywrite(base64Convertor, tmp.getState());	  
-	  }
-      }
-
-      XML << "\n" << xml::endtag("AppendedBinaryVelPos");
-    }
-  else
-    {
-      XML << xml::tag("ParticleData")
-	  << xml::attr("N") << Sim->N
-	  << xml::attr("AttachedBinary") << ("N");
-
-      I_cout() << "Writing Particles ";
+      Particle tmp(Sim->particleList[i]);
+      Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
       
-      for (unsigned long i = 0; i < Sim->N; ++i)
-	{
-	  Particle tmp(Sim->particleList[i]);
-	  Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
-	  
-	  tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
-	  tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
-	  
-	  XML << xml::tag("Pt") << tmp;
-
-	  extraXMLParticleData(XML, i);
-
-	  XML << xml::endtag("Pt");
-	}
-
-      XML << xml::endtag("ParticleData");
+      tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
+      tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
+      
+      XML << xml::tag("Pt") << tmp;
+      
+      extraXMLParticleData(XML, i);
+      
+      XML << xml::endtag("Pt");
     }
-
-  extraXMLData(XML);
+  
+  XML << xml::endtag("ParticleData");
 }
 
 double 

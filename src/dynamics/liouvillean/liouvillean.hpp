@@ -686,8 +686,6 @@ protected:
 
   virtual void extraXMLParticleData(xml::XmlStream&, const size_t) const {}
 
-  virtual void extraXMLData(xml::XmlStream&) const {}
-
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(Particle& part, const double& dt) const = 0;
 

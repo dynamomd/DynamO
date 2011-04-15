@@ -25,7 +25,6 @@
 #include "../../extcode/mathtemplates.hpp"
 #include "shapes/lines.hpp"
 #include "shapes/dumbbells.hpp"
-#include "../../extcode/binaryHelper.hpp"
 #include <magnet/math/matrix.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/iostreams/filter/base64.hpp>
@@ -500,48 +499,23 @@ LNOrientation::loadParticleXMLData(const magnet::xml::Node& XML)
 {
   Liouvillean::loadParticleXMLData(XML);
 
-  if (XML.getNode("ParticleData").getAttribute("AttachedBinary").valid()
-      && (std::toupper(XML.getNode("ParticleData").getAttribute("AttachedBinary")[0]) == 'Y'))
+  orientationData.resize(Sim->N);
+  
+  size_t i(0);
+  for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
+       node.valid(); ++node, ++i)
     {
-      boost::iostreams::filtering_istream base64Convertor;	  
-      base64Convertor.push(boost::iostreams::base64_decoder());
-      base64Convertor.push(boost::iostreams::base64cleaner_input_filter());
+      orientationData[i].orientation << node.getNode("U");
+      orientationData[i].angularVelocity << node.getNode("O");
       
-      {
-	const char* start = XML.getNode("AppendedBinaryOrientation");
-	base64Convertor.push(boost::make_iterator_range(std::make_pair(start, start + strlen(start))));
-      }
+      double oL = orientationData[i].orientation.nrm();
       
-      orientationData.resize(Sim->N);
-      for (unsigned long i = 0; i < Sim->N; ++i)
-	{
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    binaryread(base64Convertor, orientationData[i].orientation[iDim]);
-	  
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    binaryread(base64Convertor, orientationData[i].angularVelocity[iDim]);
-	}
-    }
-  else
-    {
-      orientationData.resize(Sim->N);
+      if (!(oL > 0.0))
+	M_throw() << "Particle ID " << i 
+		  << " orientation vector is zero!";
       
-      size_t i(0);
-      for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
-	   node.valid(); ++node, ++i)
-	{
-	  orientationData[i].orientation << node.getNode("U");
-	  orientationData[i].angularVelocity << node.getNode("O");
-	  
-	  double oL = orientationData[i].orientation.nrm();
-	  
-	  if (!(oL > 0.0))
-	    M_throw() << "Particle ID " << i 
-		      << " orientation vector is zero!";
-	  
-	  //Makes the vector a unit vector
-	  orientationData[i].orientation /= oL;
-	}
+      //Makes the vector a unit vector
+      orientationData[i].orientation /= oL;
     }
 }
 
@@ -554,34 +528,6 @@ LNOrientation::extraXMLParticleData(xml::XmlStream& XML, const size_t ID) const
       << xml::tag("U")
       << orientationData[ID].orientation
       << xml::endtag("U") ;
-}
-
-void 
-LNOrientation::extraXMLData(xml::XmlStream& XML) const
-{
-  if (Sim->binaryXML)
-    {
-      XML << xml::tag("AppendedBinaryOrientation")
-	  << xml::chardata();
-      
-      {
-	boost::iostreams::filtering_ostream base64Convertor;
-	base64Convertor.push(boost::iostreams::base64_encoder());
-	base64Convertor.push(boost::iostreams::line_wrapping_output_filter(80));
-	base64Convertor.push(boost::iostreams::stream_sink<std::ostream>(XML.getUnderlyingStream()));
-	
-	BOOST_FOREACH(const Particle& part, Sim->particleList)
-	  {
-	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      binarywrite(base64Convertor, orientationData[part.getID()].orientation[iDim]);
-	    
-	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      binarywrite(base64Convertor, orientationData[part.getID()].angularVelocity[iDim]);
-	  }
-      }
-
-      XML << "\n" << xml::endtag("AppendedBinaryOrientation");
-    }
 }
 
 size_t 
