@@ -95,8 +95,6 @@ protected:
 
   virtual void extraXMLParticleData(xml::XmlStream&, const size_t) const;
 
-  virtual void extraXMLData(xml::XmlStream&) const;
-
   virtual void outputXML(xml::XmlStream&) const;
 
   virtual void streamParticle(Particle&, const double&) const;

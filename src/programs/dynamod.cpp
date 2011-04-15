@@ -68,8 +68,6 @@ main(int argc, char *argv[])
 	("mirror-system,M",po::value<unsigned int>(), 
 	 "Mirror the particle co-ordinates and velocities. Argument is "
 	 "dimension to reverse/mirror.")
-	("binary", "Output the XML file with appended binary particle data for efficiency.")
-	("text", "Output the XML file with text/XML particle data for readability.")
 	("round", "Output the XML config file with one less digit to aid in removing rounding errors for"
 	 " test systems.")
 	("uncompressed", "Output the XML config file without bzip compression.")
@@ -139,12 +137,6 @@ main(int argc, char *argv[])
       CIPPacker(vm, &sim).processOptions();
 
       sim.initialise();      
-      
-      if (vm.count("binary"))
-	sim.setBinaryXML(true);
-
-      if (vm.count("text"))
-	sim.setBinaryXML(false);
       
       //Here we modify the sim accordingly      
 

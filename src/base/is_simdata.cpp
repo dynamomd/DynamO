@@ -41,8 +41,7 @@ namespace DYNAMO
     lastRunMFT(0.0),
     simID(0),
     replexExchangeNumber(0),
-    status(START),
-    binaryXML(true)
+    status(START)
   {
   }
 
