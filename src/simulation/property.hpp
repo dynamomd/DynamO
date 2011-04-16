@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <vector>
-#include <string>
-#include <algorithm>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/units.hpp>
-
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>
 
 /*! A interface class which allows other classes to access a property
  * of a particle.  These properties are looked up by a name, and the
@@ -46,6 +46,16 @@ public:
 
   //! Fetch the maximum value of this property
   inline virtual const double& getMaxValue() const { M_throw() << "Unimplemented"; }
+
+  //! This is called whenever a unit is rescaled.
+  //!
+  //! This function must check the _units of the property and raise
+  //! the rescale factor to the correct power.
+  //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
+  //! \param rescale The factor to rescale the unit by.
+  inline virtual const void rescaleUnit(const Units::Dimension dim, 
+					const double rescale)
+  { M_throw() << "Unimplemented"; }
   
   //! Fetch the name of this property
   inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
@@ -60,6 +70,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream& XML) const = 0;
 
+  //! The Units of the property.
   magnet::units::Units _units;
 };
 
@@ -72,6 +83,11 @@ public:
   inline virtual const double& getProperty(size_t ID) const { return _val; }
   inline virtual std::string getName() const { return boost::lexical_cast<std::string>(_val); }
   inline virtual const double& getMaxValue() const { return _val; }
+
+  //! \sa Property::rescaleUnit
+  inline virtual const void rescaleUnit(const Units::Dimension dim, 
+					const double rescale)
+  { _val *= std::pow(rescale, _units.getUnitsPower(dim));  }
 
 private:
   virtual void outputXML(xml::XmlStream& XML) const {}
@@ -95,6 +111,9 @@ class PropertyStore
 
   //!Contains the properties that are looked up by their name.
   Container _namedProperties;
+
+  typedef Container::iterator iterator;
+
 public:
   typedef Container::const_iterator const_iterator;
 
@@ -166,6 +185,23 @@ public:
 
     return XML;
   }
+
+  //! Function to rescale the units of all Property-s.
+  //!
+  //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
+  //! \param rescale The factor to rescale the unit by.
+  inline const void rescaleUnit(const Property::Units::Dimension dim, 
+				const double rescale)
+  {  
+    for (iterator iPtr = _namedProperties.begin(); 
+	 iPtr != _namedProperties.end(); ++iPtr)
+      (*iPtr)->rescaleUnit(dim, rescale);
+
+    for (iterator iPtr = _namedProperties.begin(); 
+	 iPtr != _namedProperties.end(); ++iPtr)
+      (*iPtr)->rescaleUnit(dim, rescale);
+  }
+
 
 private:
 

@@ -54,10 +54,10 @@ namespace magnet {
       typedef boost::rational<int> Value;
     public:
       //!Enumeration of the unit dimensions
-      enum {L=0, //!> Length units.
-	    T=1, //!> Time units.
-	    M=2, //!> Mass units.
-	    END=3//!> Value used to determine the number of unit dimensions available.
+      enum Dimension {L=0, //!> Length units.
+		      T=1, //!> Time units.
+		      M=2, //!> Mass units.
+		      END=3//!> Value used to determine the number of unit dimensions available.
       };
 
       //! Constructor, allowing RAII of the units with any types
@@ -101,7 +101,7 @@ namespace magnet {
       }
 
       //! Returns the power to which the unit is raised for this Units.
-      inline double getUnitsPower(const int dim) const
+      inline double getUnitsPower(const Dimension dim) const
       { 
 #ifdef MAGNET_DEBUG
 	if ((dim < 0) || (dim >= END)) 
