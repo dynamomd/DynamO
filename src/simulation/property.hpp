@@ -25,27 +25,25 @@
 #include <algorithm>
 #include <cmath>
 
-/*! A interface class which allows other classes to access a property
- * of a particle.  These properties are looked up by a name, and the
- * value extracted using the ID of a particle. Some properties are
- * just a single fixed value, their name is their value (see
- * NumericProperty). Others are more complicated and use look-up
- * tables or functions. These are usually defined in the PropertyStore
- * and PropertyHandles are used to access them.
- */
+//! A interface class which allows other classes to access a property
+//! of a particle.  These properties are looked up by a name, and the
+//! value extracted using the ID of a particle. Some properties are
+//! just a single fixed value, their name is their value (see
+//! NumericProperty). Others are more complicated and use look-up
+//! tables or functions. These are usually defined in the PropertyStore
+//! and PropertyHandles are used to access them.
 class Property
 {
 public:
   typedef magnet::units::Units Units;
 
-  Property(Units units): 
-    _units(units) {}
+  inline Property(Units units): _units(units) {}
 
   //! Fetch the value of this property for a particle with a certain ID
-  inline virtual const double& getProperty(size_t ID) const { M_throw() << "Unimplemented"; }
+  inline virtual const double& getProperty(size_t ID) const = 0;
 
   //! Fetch the maximum value of this property
-  inline virtual const double& getMaxValue() const { M_throw() << "Unimplemented"; }
+  inline virtual const double& getMaxValue() const = 0;
 
   //! This is called whenever a unit is rescaled.
   //!
@@ -54,8 +52,7 @@ public:
   //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
   //! \param rescale The factor to rescale the unit by.
   inline virtual const void rescaleUnit(const Units::Dimension dim, 
-					const double rescale)
-  { M_throw() << "Unimplemented"; }
+					const double rescale) = 0;
   
   //! Fetch the name of this property
   inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
@@ -66,6 +63,13 @@ public:
   //! Helper to write out derived classes
   friend xml::XmlStream operator<<(xml::XmlStream& XML, const Property& prop)
   { prop.outputXML(XML); return XML; }
+
+  //! Write any XML attributes that store this Property's data on a
+  //! single particle.
+  //! \param pID The ID number of the particle being written out.
+  //! \param rescale Amount to scale the Property values by.
+  inline virtual void outputParticleXMLData(xml::XmlStream& XML, 
+					    const size_t pID) const {}
 
 protected:
   virtual void outputXML(xml::XmlStream& XML) const = 0;
@@ -157,23 +161,26 @@ public:
   */
   inline magnet::thread::RefPtr<Property> getProperty(const double& name, 
 						      const Property::Units& units)
-  { return Value(new NumericProperty(name, units)); }
+  {
+    Value retval(new NumericProperty(name, units));
+    _numericProperties.push_back(retval);
+    return retval;
+  }
 
   /*! Method which loads the properties from the XML configuration file. 
     \param node A xml Node at the root DYNAMOconfig Node of the config file.
    */
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
   {
-    if (!node.getNode("Properties").valid()) return *this;
-
-    for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
-	 propNode.valid(); ++propNode)
-      M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
-
+    if (node.getNode("Properties").valid())
+      for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
+	   propNode.valid(); ++propNode)
+	M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
+    
     return *this;
   }
 
-  inline friend xml::XmlStream operator<<(xml::XmlStream& XML, const PropertyStore& propStore)
+  inline friend xml::XmlStream& operator<<(xml::XmlStream& XML, const PropertyStore& propStore)
   {
     XML << xml::tag("Properties");
 
@@ -193,8 +200,8 @@ public:
   inline const void rescaleUnit(const Property::Units::Dimension dim, 
 				const double rescale)
   {  
-    for (iterator iPtr = _namedProperties.begin(); 
-	 iPtr != _namedProperties.end(); ++iPtr)
+    for (iterator iPtr = _numericProperties.begin(); 
+	 iPtr != _numericProperties.end(); ++iPtr)
       (*iPtr)->rescaleUnit(dim, rescale);
 
     for (iterator iPtr = _namedProperties.begin(); 
@@ -202,6 +209,17 @@ public:
       (*iPtr)->rescaleUnit(dim, rescale);
   }
 
+  //! Write any XML attributes relevent to Property-s for a single
+  //! particle.
+  //! \param pID The ID number of the particle whose data is to be
+  //! written out.
+  inline void outputParticleXMLData(xml::XmlStream& XML, size_t pID) const 
+  {
+    //Try name based lookup first
+    for (const_iterator iPtr = _namedProperties.begin(); 
+	 iPtr != _namedProperties.end(); ++iPtr)
+      (*iPtr)->outputParticleXMLData(XML, pID);
+  }
 
 private:
 
@@ -223,6 +241,6 @@ private:
     //Try name-is-the-value lookup, if this fails a
     //boost::bad_lexical_cast& will be thrown and must be caught by
     //the caller. 
-    return Value(new NumericProperty(boost::lexical_cast<double>(name), units));
+    return getProperty(boost::lexical_cast<double>(name), units);
   }
 };

@@ -251,10 +251,9 @@ Simulation::loadXMLfile(std::string fileName)
   }
 
   Node subNode= mainNode.getNode("Simulation");
-  Node browseNode = subNode.getNode("Trajectory");
   
-  if (browseNode.getAttribute("lastMFT").valid())
-    lastRunMFT = browseNode.getAttribute("lastMFT").as<double>();
+  if (subNode.getNode("Trajectory").getAttribute("lastMFT").valid())
+    lastRunMFT = subNode.getNode("Trajectory").getAttribute("lastMFT").as<double>();
 
   ssHistory << subNode.getNode("History");
 
@@ -294,7 +293,17 @@ Simulation::loadXMLfile(std::string fileName)
   lastRunMFT *= dynamics.units().unitTime();
 
   I_cout() << "Configuration loaded";
-	  
+  
+  //Scale the loaded properties to the simulation units
+  _properties.rescaleUnit(Property::Units::L, 
+			  dynamics.units().unitLength());
+
+  _properties.rescaleUnit(Property::Units::T, 
+			  dynamics.units().unitTime());
+
+  _properties.rescaleUnit(Property::Units::M, 
+			  dynamics.units().unitMass());
+
   status = CONFIG_LOADED;
 }
 
@@ -315,6 +324,16 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
   XML.setFormatXML(true);
 
   dynamics.getLiouvillean().updateAllParticles();
+
+  //Rescale the properties to the configuration file units
+  _properties.rescaleUnit(Property::Units::L, 
+			  1.0 / dynamics.units().unitLength());
+
+  _properties.rescaleUnit(Property::Units::T, 
+			  1.0 / dynamics.units().unitTime());
+
+  _properties.rescaleUnit(Property::Units::M, 
+			  1.0 / dynamics.units().unitMass());
 
   XML << std::scientific
     //This has a minus one due to the digit in front of the decimal
@@ -354,6 +373,17 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
   XML << xml::endtag("DYNAMOconfig");
 
   I_cout() << "Config written to " << fileName;
+
+  //Rescale the properties back to the simulation units
+  _properties.rescaleUnit(Property::Units::L, 
+			  dynamics.units().unitLength());
+
+  _properties.rescaleUnit(Property::Units::T, 
+			  dynamics.units().unitTime());
+
+  _properties.rescaleUnit(Property::Units::M, 
+			  dynamics.units().unitMass());
+
 }
 
 void
