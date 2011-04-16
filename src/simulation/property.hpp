@@ -15,51 +15,83 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <vector>
-#include <string>
-#include <algorithm>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/thread/refPtr.hpp>
+#include <magnet/units.hpp>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>
 
-
-/*! A interface class which allows other classes to access a property
- * of a particle.  These properties are looked up by a name, and the
- * value extracted using the ID of a particle. Some properties are
- * just a single fixed value, their name is their value (see
- * NumericProperty). Others are more complicated and use look-up
- * tables or functions. These are usually defined in the PropertyStore
- * and PropertyHandles are used to access them.
- */
+//! A interface class which allows other classes to access a property
+//! of a particle.  These properties are looked up by a name, and the
+//! value extracted using the ID of a particle. Some properties are
+//! just a single fixed value, their name is their value (see
+//! NumericProperty). Others are more complicated and use look-up
+//! tables or functions. These are usually defined in the PropertyStore
+//! and PropertyHandles are used to access them.
 class Property
 {
 public:
+  typedef magnet::units::Units Units;
+
+  inline Property(Units units): _units(units) {}
+
   //! Fetch the value of this property for a particle with a certain ID
-  inline virtual const double& getProperty(size_t ID) const { M_throw() << "Unimplemented"; }
+  inline virtual const double& getProperty(size_t ID) const = 0;
 
   //! Fetch the maximum value of this property
-  inline virtual const double& getMaxValue() const { M_throw() << "Unimplemented"; }
+  inline virtual const double& getMaxValue() const = 0;
+
+  //! This is called whenever a unit is rescaled.
+  //!
+  //! This function must check the _units of the property and raise
+  //! the rescale factor to the correct power.
+  //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
+  //! \param rescale The factor to rescale the unit by.
+  inline virtual const void rescaleUnit(const Units::Dimension dim, 
+					const double rescale) = 0;
   
   //! Fetch the name of this property
   inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
+
+  //! Fetch the units of this property
+  inline const Units& getUnits() const { return _units; }
 
   //! Helper to write out derived classes
   friend xml::XmlStream operator<<(xml::XmlStream& XML, const Property& prop)
   { prop.outputXML(XML); return XML; }
 
+  //! Write any XML attributes that store this Property's data on a
+  //! single particle.
+  //! \param pID The ID number of the particle being written out.
+  //! \param rescale Amount to scale the Property values by.
+  inline virtual void outputParticleXMLData(xml::XmlStream& XML, 
+					    const size_t pID) const {}
+
 protected:
   virtual void outputXML(xml::XmlStream& XML) const = 0;
+
+  //! The Units of the property.
+  magnet::units::Units _units;
 };
 
 class NumericProperty: public Property
 {
 public:
-  inline NumericProperty(double val): _val(val) {}
+  inline NumericProperty(double val, const Property::Units& units):
+    Property(units), _val(val) {}
   
   inline virtual const double& getProperty(size_t ID) const { return _val; }
   inline virtual std::string getName() const { return boost::lexical_cast<std::string>(_val); }
   inline virtual const double& getMaxValue() const { return _val; }
+
+  //! \sa Property::rescaleUnit
+  inline virtual const void rescaleUnit(const Units::Dimension dim, 
+					const double rescale)
+  { _val *= std::pow(rescale, _units.getUnitsPower(dim));  }
 
 private:
   virtual void outputXML(xml::XmlStream& XML) const {}
@@ -71,13 +103,23 @@ private:
  * configuration file and hands out reference counting pointers to the
  * properties to other classes when they're requested by name.
  */
-class PropertyStore: private std::vector<magnet::thread::RefPtr<Property> >
+class PropertyStore
 {
   typedef magnet::thread::RefPtr<Property> Value;
-  typedef std::vector<Value> Base;
+  typedef std::vector<Value> Container;
   
+  //!Contains the NumericProperty's that are defined by their
+  //!name. These are only stored in the PropertyStore for unit
+  //!rescaling.
+  Container _numericProperties;
+
+  //!Contains the properties that are looked up by their name.
+  Container _namedProperties;
+
+  typedef Container::iterator iterator;
+
 public:
-  typedef Base::const_iterator const_iterator;
+  typedef Container::const_iterator const_iterator;
 
   /*! Request a handle to a property using a string containing the
     properties name.  If the name is a string representation of a
@@ -94,9 +136,10 @@ public:
     \param name An Attribute containing either the name or the value of a property.
     \return A reference to the property requested or an instance of NumericProperty.
   */
-  inline magnet::thread::RefPtr<Property> getProperty(const std::string& name)
+  inline magnet::thread::RefPtr<Property> getProperty(const std::string& name,
+						      const Property::Units& units)
   {
-    try { return getPropertyBase(name); }
+    try { return getPropertyBase(name, units); }
     catch (boost::bad_lexical_cast&)
       { M_throw() << "Could not find the property named by " << name; }
   }
@@ -104,9 +147,10 @@ public:
   /*! Request a handle to a property using an xml attribute containing
     the properties name. See getProperty(const std::string& name) for
     usage info. */
-  inline magnet::thread::RefPtr<Property> getProperty(const magnet::xml::Attribute& name)
+  inline magnet::thread::RefPtr<Property> getProperty(const magnet::xml::Attribute& name,
+						      const Property::Units& units)
   {
-    try { return getPropertyBase(name.getValue()); }
+    try { return getPropertyBase(name.getValue(), units); }
     catch (boost::bad_lexical_cast&)
       { M_throw() << "Could not find the property named by " << name.getPath(); }
   }
@@ -115,29 +159,33 @@ public:
       returns a new instance of NumericProperty.
       \sa getProperty(const std::string& name)
   */
-  inline magnet::thread::RefPtr<Property> getProperty(const double& name)
-  { return Value(new NumericProperty(name)); }
+  inline magnet::thread::RefPtr<Property> getProperty(const double& name, 
+						      const Property::Units& units)
+  {
+    Value retval(new NumericProperty(name, units));
+    _numericProperties.push_back(retval);
+    return retval;
+  }
 
   /*! Method which loads the properties from the XML configuration file. 
     \param node A xml Node at the root DYNAMOconfig Node of the config file.
    */
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
   {
-    if (!node.getNode("Properties").valid()) return *this;
-
-    for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
-	 propNode.valid(); ++propNode)
-      M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
-
+    if (node.getNode("Properties").valid())
+      for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
+	   propNode.valid(); ++propNode)
+	M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
+    
     return *this;
   }
 
-  inline friend xml::XmlStream operator<<(xml::XmlStream& XML, const PropertyStore& propStore)
+  inline friend xml::XmlStream& operator<<(xml::XmlStream& XML, const PropertyStore& propStore)
   {
     XML << xml::tag("Properties");
 
-    for (const_iterator iPtr = propStore.Base::begin(); 
-	 iPtr != propStore.Base::end(); ++iPtr)
+    for (const_iterator iPtr = propStore._namedProperties.begin(); 
+	 iPtr != propStore._namedProperties.end(); ++iPtr)
       XML << (*(*iPtr));
 
     XML << xml::endtag("Properties");
@@ -145,18 +193,54 @@ public:
     return XML;
   }
 
-private:
+  //! Function to rescale the units of all Property-s.
+  //!
+  //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
+  //! \param rescale The factor to rescale the unit by.
+  inline const void rescaleUnit(const Property::Units::Dimension dim, 
+				const double rescale)
+  {  
+    for (iterator iPtr = _numericProperties.begin(); 
+	 iPtr != _numericProperties.end(); ++iPtr)
+      (*iPtr)->rescaleUnit(dim, rescale);
 
-  inline magnet::thread::RefPtr<Property> getPropertyBase(const std::string name)
+    for (iterator iPtr = _namedProperties.begin(); 
+	 iPtr != _namedProperties.end(); ++iPtr)
+      (*iPtr)->rescaleUnit(dim, rescale);
+  }
+
+  //! Write any XML attributes relevent to Property-s for a single
+  //! particle.
+  //! \param pID The ID number of the particle whose data is to be
+  //! written out.
+  inline void outputParticleXMLData(xml::XmlStream& XML, size_t pID) const 
   {
     //Try name based lookup first
-    for (const_iterator iPtr = Base::begin(); iPtr != Base::end(); ++iPtr)
-      if ((*iPtr)->getName() == name)
-	return *iPtr;
+    for (const_iterator iPtr = _namedProperties.begin(); 
+	 iPtr != _namedProperties.end(); ++iPtr)
+      (*iPtr)->outputParticleXMLData(XML, pID);
+  }
 
+private:
+
+  inline magnet::thread::RefPtr<Property> getPropertyBase(const std::string name,
+							  const Property::Units& units)
+  {
+    //Try name based lookup first
+    for (const_iterator iPtr = _namedProperties.begin(); 
+	 iPtr != _namedProperties.end(); ++iPtr)
+      if ((*iPtr)->getName() == name)
+	if ((*iPtr)->getUnits() == units)
+	  return *iPtr;
+	else
+	  M_throw() << "Property \"" << name << "\" found with units of " 
+		    << std::string((*iPtr)->getUnits())
+		    << ", but the requested property has units of " 
+		    << std::string(units);
+    
     //Try name-is-the-value lookup, if this fails a
     //boost::bad_lexical_cast& will be thrown and must be caught by
     //the caller. 
-    return Value(new NumericProperty(boost::lexical_cast<double>(name)));
+    return getProperty(boost::lexical_cast<double>(name), units);
   }
 };

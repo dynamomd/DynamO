@@ -11,7 +11,7 @@
      - [ ] Start with the framework
      - [ ] Migrate the current ranges to the framework
 **** DONE Migrate to RapidXML parser
-**** TODO Benchmark binary XML mode and text mode to see if binary is still required
+**** DONE Benchmark binary XML mode and text mode to see if binary is still required
 **** TODO Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data
      - [X] Implement volume renderer

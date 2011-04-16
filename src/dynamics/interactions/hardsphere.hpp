@@ -26,8 +26,10 @@ public:
   template<class T1, class T2>
   IHardSphere(DYNAMO::SimData* tmp, T1 diameter, T2 e, C2Range* nR):
   Interaction(tmp, nR),
-  _diameter(Sim->_properties.getProperty(diameter)),
-  _e(Sim->_properties.getProperty(e))
+  _diameter(Sim->_properties.getProperty
+	    (diameter, Property::Units::Length())),
+  _e(Sim->_properties.getProperty
+     (e, Property::Units::Dimensionless()))
   {}
 
   IHardSphere(const magnet::xml::Node&, DYNAMO::SimData*);
