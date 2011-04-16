@@ -228,13 +228,9 @@ void
 IDumbbells::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
 			   std::ostream& os) const
 { // \todo{write this with dumbbells instead of cylinders}
-  try {
-    dynamic_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean());
-  }
-  catch(std::bad_cast)
-    {
-      M_throw() << "Liouvillean is not an orientation liouvillean!";
-    }
+
+  if (!Sim->dynamics.liouvilleanTypeTest<LNOrientation>())
+    M_throw() << "Liouvillean is not an orientation liouvillean!";
   
   BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
     {

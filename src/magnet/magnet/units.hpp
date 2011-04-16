@@ -155,7 +155,7 @@ namespace magnet {
       //!This attempts to determine a std::string representation for a
       //!Units instance. Useful if the Units has to be written to a
       //!file.
-      inline operator std::string()
+      inline operator std::string() const
       {
 #define CONVERTTOSTRINGMACRO(UNIT)\
 	if (UNIT () == *this) return #UNIT;

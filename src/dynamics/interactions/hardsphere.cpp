@@ -51,8 +51,10 @@ IHardSphere::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"));
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"));
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					       Property::Units::Length());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
       intName = XML.getAttribute("Name");
     }
   catch (boost::bad_lexical_cast &)
