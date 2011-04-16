@@ -18,6 +18,8 @@
 #pragma once
 #include "../../base/is_base.hpp"
 #include "../../base/constants.hpp"
+#include <magnet/units.hpp>
+#include <cmath>
 
 namespace DYNAMO { class SimData; }
 namespace xml { class XmlStream; }
@@ -67,6 +69,13 @@ class Units: public DYNAMO::SimBase_const
   virtual double unitk() const
     { return 1.0; }
 
+  inline double getScaling(const magnet::units::Units& units) const
+  {
+    return std::pow(unitLength(), units.getUnitsPower(magnet::units::Units::L))
+      * std::pow(unitTime(), units.getUnitsPower(magnet::units::Units::T))
+      * std::pow(unitMass(), units.getUnitsPower(magnet::units::Units::M));
+  }
+  
   /*! Helper function to generate the unit of velocity*/
   inline double unitVelocity() const
     { return unitLength() / unitTime(); }

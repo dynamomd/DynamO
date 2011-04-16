@@ -18,6 +18,7 @@
 #pragma once
 
 #include <boost/rational.hpp>
+#include <magnet/exception.hpp>
 
 //!A macro factory for generating the Units to std::string and std::string
 //!to Units conversions.
@@ -33,7 +34,7 @@
   F(Energy) \
   F(Diffusion) \
   F(MutualDiffusion) \
-  F(Thermalconductivity) \
+  F(ThermalConductivity) \
   F(ThermalDiffusion) \
   F(Viscosity) \
   F(Pressure)
@@ -52,18 +53,25 @@ namespace magnet {
       //! The type used to implement the value of each units dimension.
       typedef boost::rational<int> Value;
     public:
+      //!Enumeration of the unit dimensions
+      enum {L=0, //!> Length units.
+	    T=1, //!> Time units.
+	    M=2, //!> Mass units.
+	    END=3//!> Value used to determine the number of unit dimensions available.
+      };
+
       //! Constructor, allowing RAII of the units with any types
       //! supported by Value.
       template<typename T1, typename T2, typename T3>
       inline Units(T1 l, T2 t, T3 m)
       { _unitPowers[L] = l; _unitPowers[T] = t; _unitPowers[M] = m; }
-      
-      //!Enumeration of the unit dimensions
-      enum {L=0, //!> Length units.
-	    T=1, //!> Time units.
-	    M=2, //!> Mass units.
-	    END=3};
-      
+
+      inline Units(const Units& ou)
+      {
+	for (size_t i(0); i < END; ++i)
+	  _unitPowers[i] = ou._unitPowers[i];
+      }
+            
       //!Allows the generation of new units when two units scales are
       //!multiplied.
       inline Units operator*(const Units& ou) const
@@ -90,6 +98,16 @@ namespace magnet {
 	for (size_t i(0); i < END; ++i)
 	  if (_unitPowers[i] != ou._unitPowers[i]) return false;
 	return true;
+      }
+
+      //! Returns the power to which the unit is raised for this Units.
+      inline double getUnitsPower(const int dim) const
+      { 
+#ifdef MAGNET_DEBUG
+	if ((dim < 0) || (dim >= END)) 
+	  M_throw() << "Invalid unit dimension requested";
+#endif
+	return boost::rational_cast<double>(_unitPowers[dim]); 
       }
       
       //The definitions of many units of interest
@@ -134,6 +152,31 @@ namespace magnet {
       //!Returns a Units for pressue
       static inline Units Pressure() { return  Mass() / (Time() * Time() * Length()); }
       
+      //!This attempts to determine a std::string representation for a
+      //!Units instance. Useful if the Units has to be written to a
+      //!file.
+      inline operator std::string()
+      {
+#define CONVERTTOSTRINGMACRO(UNIT)\
+	if (UNIT () == *this) return #UNIT;
+	UNITS_FACTORY(CONVERTTOSTRINGMACRO);
+#undef CONVERTTOSTRINGMACRO
+
+	return "UNKNOWN UNITS";
+      }
+
+      //!This attempts to determine a std::string representation for a
+      //!Units instance. Useful if the Units has to be written to a
+      //!file.
+      inline Units(const std::string name)
+      {
+#define CONVERTFROMSTRINGMACRO(UNIT)\
+	if (UNIT () == *this) {*this = UNIT (); return;}
+	UNITS_FACTORY(CONVERTFROMSTRINGMACRO);
+#undef CONVERTFROMSTRINGMACRO
+	M_throw() << "Invalid name of Units, " << name;
+      }
+
     private:
 
       inline Units() {}
