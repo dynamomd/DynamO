@@ -18,6 +18,7 @@
 #pragma once
 
 #include "captures.hpp"
+#include "../../base/is_simdata.hpp"
 #include <vector>
 
 class IStepped: public IMultiCapture
@@ -38,8 +39,6 @@ public:
 
   virtual double maxIntDist() const;
 
-  virtual void rescaleLengths(double);
-
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
   virtual int captureTest(const Particle&, const Particle&) const;
@@ -55,11 +54,11 @@ public:
 
   virtual double getInternalEnergy() const;
 
-  virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
-
 protected:
-  std::vector<steppair> steps;
+  //!This class is used to track how the length scale changes in the system
+  magnet::thread::RefPtr<Property> _unitLength;
+  //!This class is used to track how the energy scale changes in the system
+  magnet::thread::RefPtr<Property> _unitEnergy;
 
-  std::vector<steppair> runstepdata;
+  std::vector<steppair> steps;
 };

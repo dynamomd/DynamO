@@ -33,14 +33,6 @@
 #include <cmath>
 #include <iomanip>
 
-ISquareWell::ISquareWell(DYNAMO::SimData* tmp, double nd, double nl, 
-			   double nWD, 
-			   double ne, C2Range* nR):
-  ISingleCapture(tmp,nR),
-  diameter(nd), d2(nd*nd), lambda(nl), 
-  ld2(nd*nd*nl*nl), wellDepth(nWD),
-  e(ne) {}
-
 ISquareWell::ISquareWell(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL) //A temporary value!
 {
@@ -56,12 +48,18 @@ ISquareWell::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(C2Range::getClass(XML,Sim));
   
   try {
-    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
-    e = XML.getAttribute("Elasticity").as<double>();
-    wellDepth = XML.getAttribute("WellDepth").as<double>() * Sim->dynamics.units().unitEnergy();
-    lambda = XML.getAttribute("Lambda").as<double>();
-    d2 = diameter * diameter;
-    ld2 = d2 * lambda * lambda;
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
+    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
+					      Property::Units::Energy());
+
+    if (XML.getAttribute("Elasticity").valid())
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					   Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
     ISingleCapture::loadCaptureMap(XML);   
   }
@@ -77,21 +75,11 @@ ISquareWell::Clone() const
 
 double 
 ISquareWell::hardCoreDiam() const 
-{ return diameter; }
+{ return _diameter->getMaxValue(); }
 
 double 
 ISquareWell::maxIntDist() const 
-{ return diameter * lambda; }
-
-void 
-ISquareWell::rescaleLengths(double scale) 
-{ 
-  diameter += scale*diameter; 
-
-  d2 = diameter*diameter;
-
-  ld2 = diameter*diameter*lambda*lambda;
-}
+{ return _diameter->getMaxValue() * _lambda->getMaxValue(); }
 
 void 
 ISquareWell::initialise(size_t nID)
@@ -106,7 +94,16 @@ ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
 
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
 #ifdef DYNAMO_DEBUG
+  double d2 = d * d;
   if ((rij | rij) < d2)
     I_cerr() << "Warning! Two particles might be overlapping"
 	     << "\nrij^2 = " << (rij | rij)
@@ -133,6 +130,14 @@ ISquareWell::getEvent(const Particle &p1,
 #endif 
 
   CPDData colldat(*Sim, p1, p2);
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double d2 = d * d;
+  double ld2 = d * l * d * l;
   
   if (isCaptured(p1, p2)) 
     {
@@ -195,6 +200,19 @@ ISquareWell::runEvent(const Particle& p1,
 {
   ++Sim->eventCount;
 
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+  double d2 = d * d;
+
+  double e = (_e->getProperty(p1.getID())
+	      + _e->getProperty(p2.getID())) * 0.5;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  double ld2 = d * l * d * l;
+
+  double wd = (_wellDepth->getProperty(p1.getID())
+	       + _wellDepth->getProperty(p2.getID())) * 0.5;
   switch (iEvent.getType())
     {
     case CORE:
@@ -212,7 +230,7 @@ ISquareWell::runEvent(const Particle& p1,
     case WELL_IN:
       {
 	PairEventData retVal(Sim->dynamics.getLiouvillean()
-			      .SphereWellEvent(iEvent, wellDepth, ld2));
+			      .SphereWellEvent(iEvent, wd, ld2));
 	
 	if (retVal.getType() != BOUNCE)
 	  addToCaptureMap(p1, p2);      
@@ -229,7 +247,7 @@ ISquareWell::runEvent(const Particle& p1,
     case WELL_OUT:
       {
 	PairEventData retVal(Sim->dynamics.getLiouvillean()
-			      .SphereWellEvent(iEvent, -wellDepth, ld2));
+			      .SphereWellEvent(iEvent, -wd, ld2));
 	
 	if (retVal.getType() != BOUNCE)
 	  removeFromCaptureMap(p1, p2);      
@@ -254,6 +272,15 @@ ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
   Sim->dynamics.BCs().applyBC(rij);
   double r2 = rij.nrm2();
 
+  double d = (_diameter->getProperty(part1.getID())
+	      + _diameter->getProperty(part2.getID())) * 0.5;
+
+  double l = (_lambda->getProperty(part1.getID())
+	       + _lambda->getProperty(part2.getID())) * 0.5;
+  
+  double d2 = d * d;
+  double ld2 = d * l * d * l;
+
   if (isCaptured(part1, part2))
     {
       if (r2 < d2)
@@ -264,7 +291,7 @@ ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
 		 << "\nd^2=" 
 		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
 
-      if (r2 > lambda * lambda * d2)
+      if (r2 > ld2)
 	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 		 << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
 		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
@@ -296,50 +323,12 @@ void
 ISquareWell::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "SquareWell"
-      << xml::attr("Diameter") 
-      << diameter / Sim->dynamics.units().unitLength() 
-      << xml::attr("Elasticity") << e
-      << xml::attr("Lambda") << lambda
-      << xml::attr("WellDepth") 
-      << wellDepth / Sim->dynamics.units().unitEnergy()
+      << xml::attr("Diameter") << _diameter->getName()
+      << xml::attr("Elasticity") << _e->getName()
+      << xml::attr("Lambda") << _lambda->getName()
+      << xml::attr("WellDepth") << _wellDepth->getName()
       << xml::attr("Name") << intName
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  
-}
-
-void 
-ISquareWell::write_povray_desc(const DYNAMO::RGB& rgb, 
-				const size_t& specID, 
-				std::ostream& os) const
-{
-  os << "#declare intrep" << ID << "center = " 
-     << "sphere {\n <0,0,0> " 
-     << diameter / 2.0
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
-     << "#declare intrep" << ID << "well = sphere {\n <0,0,0> " << diameter * lambda * 0.5
-     << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
-
-  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[part].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-      
-      os << "object {\n intrep" << ID << "center\n translate < "
-	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-    }
-  
-  os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[part].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      os << "object {\n intrep" << ID << "well\n translate < "
-	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-    }
-  
-  os << "}\n";
-
 }

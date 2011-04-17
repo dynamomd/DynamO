@@ -40,10 +40,12 @@ public:
   inline Property(Units units): _units(units) {}
 
   //! Fetch the value of this property for a particle with a certain ID
-  inline virtual const double& getProperty(size_t ID) const = 0;
+  inline virtual const double& getProperty(size_t ID) const 
+  { M_throw() << "Unimplemented"; }
 
   //! Fetch the maximum value of this property
-  inline virtual const double& getMaxValue() const = 0;
+  inline virtual const double& getMaxValue() const
+  { M_throw() << "Unimplemented"; }
 
   //! This is called whenever a unit is rescaled.
   //!
@@ -52,10 +54,12 @@ public:
   //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
   //! \param rescale The factor to rescale the unit by.
   inline virtual const void rescaleUnit(const Units::Dimension dim, 
-					const double rescale) = 0;
+					const double rescale)
+  { M_throw() << "Unimplemented"; }
   
   //! Fetch the name of this property
-  inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
+  inline virtual std::string getName() const 
+  { M_throw() << "Unimplemented"; }
 
   //! Fetch the units of this property
   inline const Units& getUnits() const { return _units; }
@@ -72,7 +76,8 @@ public:
 					    const size_t pID) const {}
 
 protected:
-  virtual void outputXML(xml::XmlStream& XML) const = 0;
+  virtual void outputXML(xml::XmlStream& XML) const 
+  { M_throw() << "Unimplemented"; }
 
   //! The Units of the property.
   magnet::units::Units _units;
@@ -230,14 +235,14 @@ private:
     for (const_iterator iPtr = _namedProperties.begin(); 
 	 iPtr != _namedProperties.end(); ++iPtr)
       if ((*iPtr)->getName() == name)
-	if ((*iPtr)->getUnits() == units)
-	  return *iPtr;
-	else
+	{
+	  if ((*iPtr)->getUnits() == units) return *iPtr;
+	  
 	  M_throw() << "Property \"" << name << "\" found with units of " 
 		    << std::string((*iPtr)->getUnits())
 		    << ", but the requested property has units of " 
 		    << std::string(units);
-    
+	}
     //Try name-is-the-value lookup, if this fails a
     //boost::bad_lexical_cast& will be thrown and must be caught by
     //the caller. 

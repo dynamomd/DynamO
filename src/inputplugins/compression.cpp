@@ -79,7 +79,11 @@ CIPCompression::RestoreSystem()
   Sim->dynamics.rescaleLengths(Sim->dSysTime * growthRate
 			       / Sim->dynamics.units().unitTime());
 
+  Sim->_properties.rescaleUnit(Property::Units::L, 
+			       1 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime());
+
   Sim->dynamics.setLiouvillean(oldLio->Clone());
+
 
   double volume = 0.0;
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())

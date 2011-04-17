@@ -60,10 +60,6 @@ double
 INull::hardCoreDiam() const 
 { return 0; }
 
-void 
-INull::rescaleLengths(double) 
-{}
-
 Interaction* 
 INull::Clone() const 
 { return new INull(*this); }
@@ -87,7 +83,3 @@ INull::outputXML(xml::XmlStream& XML) const
       << xml::attr("Name") << intName
       << range;
 }
-
-void
-INull::checkOverlaps(const Particle&, const Particle&) const
-{}

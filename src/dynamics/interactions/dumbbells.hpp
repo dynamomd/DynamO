@@ -18,31 +18,37 @@
 #pragma once
 
 #include "captures.hpp"
+#include "../../base/is_simdata.hpp"
 
 class IDumbbells: public ISingleCapture
 {
 public:
-  IDumbbells(DYNAMO::SimData*, double, double, double, C2Range*);
+  template<class T1, class T2, class T3>
+  IDumbbells(DYNAMO::SimData* tmp, T1 l, T2 e, T3 d, C2Range* nR):
+    ISingleCapture(tmp, nR),
+    _length(Sim->_properties.getProperty
+	    (l, Property::Units::Length())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless())),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length()))
+  {}
 
   IDumbbells(const magnet::xml::Node&, DYNAMO::SimData*);
 
   void operator<<(const magnet::xml::Node&);
   
+  double getDiameter() const { return _diameter->getMaxValue(); }
 
-  double getDiameter() const { return diameter; }
-
-
-  double getLength() const { return length; }
+  double getLength() const { return _length->getMaxValue(); }
   
-  virtual double getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0; }
 
   virtual void initialise(size_t);
 
   virtual double maxIntDist() const;
 
   virtual double hardCoreDiam() const;
-
-  virtual void rescaleLengths(double);
 
   virtual Interaction* Clone() const;
   
@@ -56,12 +62,8 @@ public:
  
   virtual bool captureTest(const Particle&, const Particle&) const;
 
-  virtual void write_povray_desc(const DYNAMO::RGB&, 
-				 const size_t&, std::ostream&) const;
-
 protected:
-  double length;
-  double e;
-  double diameter;//Radius of the sphere 
-
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _length;
+  magnet::thread::RefPtr<Property> _e;
 };

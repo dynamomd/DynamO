@@ -18,11 +18,24 @@
 #pragma once
 
 #include "captures.hpp"
+#include "../../base/is_simdata.hpp"
 
 class ISquareWell: public ISingleCapture
 {
 public:
-  ISquareWell(DYNAMO::SimData*, double, double, double, double, C2Range*);
+  template<class T1, class T2, class T3, class T4>
+  ISquareWell(DYNAMO::SimData* tmp, T1 d, T2 l, 
+	      T3 wd, T4 e, C2Range* nR):
+    ISingleCapture(tmp,nR),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _lambda(Sim->_properties.getProperty
+	    (l, Property::Units::Dimensionless())),
+    _wellDepth(Sim->_properties.getProperty
+	       (wd, Property::Units::Energy())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless()))
+  {}
 
   ISquareWell(const magnet::xml::Node&, DYNAMO::SimData*);
   
@@ -33,8 +46,6 @@ public:
   virtual double hardCoreDiam() const;
 
   virtual double maxIntDist() const;
-
-  virtual void rescaleLengths(double);
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
@@ -49,14 +60,11 @@ public:
   virtual void outputXML(xml::XmlStream&) const;
 
   virtual double getInternalEnergy() const 
-  { return -(getTotalCaptureCount() * wellDepth); }
-
-  virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
+  { return -(getTotalCaptureCount() * _wellDepth->getMaxValue()); }
 
 protected:
-  double diameter,d2;
-  double lambda, ld2;
-  double wellDepth;
-  double e;
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _lambda;
+  magnet::thread::RefPtr<Property> _wellDepth;
+  magnet::thread::RefPtr<Property> _e;
 };

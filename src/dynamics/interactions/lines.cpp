@@ -31,12 +31,6 @@
 #include <cmath>
 #include <iomanip>
 
-ILines::ILines(DYNAMO::SimData* tmp, double nd, 
-		 double ne, C2Range* nR):
-  ISingleCapture(tmp, nR),
-  length(nd), l2(nd*nd), e(ne) 
-{}
-
 ILines::ILines(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL)
 {
@@ -65,9 +59,10 @@ ILines::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      length = XML.getAttribute("Length").as<double>() * Sim->dynamics.units().unitLength();
-      l2 = length * length;
-      e = XML.getAttribute("Elasticity").as<double>();
+      _length = Sim->_properties.getProperty(XML.getAttribute("Length"),
+					     Property::Units::Length());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
       intName = XML.getAttribute("Name");
       ISingleCapture::loadCaptureMap(XML);   
     }
@@ -79,19 +74,11 @@ ILines::operator<<(const magnet::xml::Node& XML)
 
 double 
 ILines::maxIntDist() const 
-{ return length; }
+{ return _length->getMaxValue(); }
 
 double 
 ILines::hardCoreDiam() const 
 { return 0.0; }
-
-void 
-ILines::rescaleLengths(double scale) 
-{ 
-  length += scale * length;
-  
-  l2 = length * length;
-}
 
 Interaction* 
 ILines::Clone() const 
@@ -114,19 +101,23 @@ ILines::getEvent(const Particle &p1,
   
   CPDData colldat(*Sim, p1, p2);
   
+  double l = (_length->getProperty(p1.getID())
+	      + _length->getProperty(p2.getID())) * 0.5;
+  double l2 = l*l;
+
   if (isCaptured(p1, p2)) 
     {
       //Run this to determine when the spheres no longer intersect
       Sim->dynamics.getLiouvillean()
 	.SphereSphereOutRoot(colldat, l2,
 			     p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC));
-
+      
       //colldat.dt has the upper limit of the line collision time
       //Lower limit is right now
       //Test for a line collision
       //Upper limit can be HUGE_VAL!
       if (Sim->dynamics.getLiouvillean().getLineLineCollision
-	  (colldat, length, p1, p2))
+	  (colldat, l, p1, p2))
 	return IntEvent(p1, p2, colldat.dt, CORE, *this);
       
       return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
@@ -141,8 +132,8 @@ ILines::getEvent(const Particle &p1,
 
 void
 ILines::runEvent(const Particle& p1, 
-		  const Particle& p2,
-		  const IntEvent& iEvent) const
+		 const Particle& p2,
+		 const IntEvent& iEvent) const
 {
   switch (iEvent.getType())
     {
@@ -150,8 +141,12 @@ ILines::runEvent(const Particle& p1,
       {
 	++Sim->eventCount;
 	//We have a line interaction! Run it
+	double e = (_e->getProperty(p1.getID())
+		    + _e->getProperty(p2.getID())) * 0.5;
+	double l = (_length->getProperty(p1.getID())
+		    + _length->getProperty(p2.getID())) * 0.5;
 	PairEventData retval(Sim->dynamics.getLiouvillean().runLineLineCollision
-			      (iEvent, e, length));
+			      (iEvent, e, l));
 
 	Sim->signalParticleUpdate(retval);
 	
@@ -196,8 +191,8 @@ void
 ILines::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "Lines"
-      << xml::attr("Length") << length / Sim->dynamics.units().unitLength()
-      << xml::attr("Elasticity") << e
+      << xml::attr("Length") << _length->getName()
+      << xml::attr("Elasticity") << _e->getName()
       << xml::attr("Name") << intName
       << range;
 
@@ -209,47 +204,10 @@ ILines::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  
+ 
+  double l2 = (_length->getProperty(p1.getID())
+	       + _length->getProperty(p2.getID())) * 0.5;
+  l2 *= l2;
+ 
   return (rij | rij) <= l2;
-}
-
-void
-ILines::checkOverlaps(const Particle& part1, const Particle& part2) const
-{}
-
-void 
-ILines::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
-			   std::ostream& os) const
-{
-  if (!(Sim->dynamics.liouvilleanTypeTest<LNOrientation>()))
-    M_throw() << "Liouvillean is not an orientation liouvillean!";
-
-  BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      const Particle& part(Sim->particleList[pid]);
-
-      const LNOrientation::rotData& 
-	rdat(static_cast<const LNOrientation&>
-	     (Sim->dynamics.getLiouvillean()).getRotData(part));
-
-      Vector  pos(part.getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      Vector  point(pos - 0.5 * length * rdat.orientation);
-      
-      os << "cylinder {\n <" << point[0];
-      for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << point[iDim];
-
-      point = pos + 0.5 * length * rdat.orientation;
-
-      os << ">, \n <" << point[0];
-      for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << point[iDim];
-
-      os << ">, " << length *0.01 
-	 << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-	 << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
-    }
-
 }

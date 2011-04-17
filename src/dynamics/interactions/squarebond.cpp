@@ -33,10 +33,6 @@
 #include <cmath>
 #include <iomanip>
 
-ISquareBond::ISquareBond(DYNAMO::SimData* tmp, double nd, double nl, double e, C2Range* nR):
-  Interaction(tmp,nR),
-  diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl), elasticity(e) 
-{}
   
 ISquareBond::ISquareBond(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Interaction(tmp,NULL) //A temporary value!
@@ -51,15 +47,18 @@ ISquareBond::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(C2Range::getClass(XML,Sim));
   
   try {
-    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
-    lambda = XML.getAttribute("Lambda").as<double>();
-    elasticity = 1.0;
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
+
     if (XML.getAttribute("Elasticity").valid())
-      elasticity = XML.getAttribute("Elasticity").as<double>();
-    
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					   Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+
     intName = XML.getAttribute("Name");
-    d2 = diameter * diameter;
-    ld2 = d2 * lambda * lambda;
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -77,25 +76,16 @@ ISquareBond::getCaptureEnergy() const
 
 double 
 ISquareBond::hardCoreDiam() const 
-{ return diameter; }
+{ return _diameter->getMaxValue(); }
 
 double 
 ISquareBond::maxIntDist() const 
-{ return diameter*lambda; }
-
-void 
-ISquareBond::rescaleLengths(double scale) 
-{ 
-  diameter += scale*diameter;
-  d2 = diameter*diameter;
-  ld2 = diameter*diameter*lambda*lambda;
-}
+{ return _diameter->getMaxValue()
+    * _lambda->getMaxValue(); }
 
 void 
 ISquareBond::initialise(size_t nID)
-{
-  ID = nID;
-}
+{ ID = nID; }
 
 bool 
 ISquareBond::captureTest(const Particle& p1, const Particle& p2) const
@@ -103,7 +93,16 @@ ISquareBond::captureTest(const Particle& p1, const Particle& p2) const
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
 
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+  
 #ifdef DYNAMO_DEBUG
+  double d2 = d * d;
   if ((rij | rij) < d2)
     I_cerr() << "Warning! Two particles might be overlapping"
 	     << "\nrij^2 = " << (rij | rij)
@@ -119,6 +118,15 @@ ISquareBond::checkOverlaps(const Particle& part1, const Particle& part2) const
   Vector  rij = part1.getPosition() - part2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   double r2 = rij.nrm2();
+
+  double d = (_diameter->getProperty(part1.getID())
+	      + _diameter->getProperty(part2.getID())) * 0.5;
+  double d2 = d * d;
+  double l = (_lambda->getProperty(part1.getID())
+	       + _lambda->getProperty(part2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
 
   if (r2 < d2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
@@ -153,6 +161,15 @@ ISquareBond::getEvent(const Particle &p1,
 #endif 
 
   CPDData colldat(*Sim, p1, p2);
+
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+  double d2 = d * d;
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
 
   if (Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(colldat, d2,
@@ -189,8 +206,15 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
     M_throw() << "Unknown type found";
 #endif
 
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+  double d2 = d * d;
+
+  double e = (_e->getProperty(p1.getID())
+	      + _e->getProperty(p2.getID())) * 0.5;
+
   PairEventData EDat(Sim->dynamics.getLiouvillean().SmoothSpheresColl
-		      (iEvent, elasticity, d2, iEvent.getType()));
+		      (iEvent, e, d2, iEvent.getType()));
 
   Sim->signalParticleUpdate(EDat);
     
@@ -206,42 +230,9 @@ void
 ISquareBond::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "SquareBond"
-      << xml::attr("Diameter") 
-      << diameter / Sim->dynamics.units().unitLength()
-      << xml::attr("Lambda") << lambda
+      << xml::attr("Diameter") << _diameter->getName()
+      << xml::attr("Lambda") << _lambda->getName()
       << xml::attr("Name") << intName
-      << xml::attr("Elasticity") << elasticity
+      << xml::attr("Elasticity") << _e->getName()
       << range;
-}
-
-void 
-ISquareBond::write_povray_info(std::ostream& os) const
-{  
-  BOOST_FOREACH(const Particle& p1, Sim->particleList)
-    BOOST_FOREACH(const Particle& p2, Sim->particleList)
-    if (range->isInRange(p1,p2) && (p1 != p2))
-      {
-	Vector  pos1(p1.getPosition()), pos2(p2.getPosition());
-	Sim->dynamics.BCs().applyBC(pos1);
-	Sim->dynamics.BCs().applyBC(pos2);
-	
-	if ((pos1-pos2).nrm() > 0.5) continue;
-
-	Sim->dynamics.BCs().applyBC(pos1);
-	Sim->dynamics.BCs().applyBC(pos2);
-	
-	os << "cylinder {\n <"
-	   << pos1[0];
-	
-	for (size_t iDim(1); iDim < NDIM; ++iDim)
-	  os << "," << pos1[iDim];
-	
-	os << ">, <" << pos2[0];
-	
-	for (size_t iDim(1); iDim < NDIM; ++iDim)
-	  os << "," << pos2[iDim];
-	
-	os << ">, " << 0.1 * diameter << " pigment{color Green}}\n";
-      }
-
 }

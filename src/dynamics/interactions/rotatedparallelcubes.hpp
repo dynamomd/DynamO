@@ -18,11 +18,21 @@
 #pragma once
 #include "interaction.hpp"
 #include <magnet/math/matrix.hpp>
+#include "../../base/is_simdata.hpp"
 
 class IRotatedParallelCubes: public Interaction
 {
 public:
-  IRotatedParallelCubes(DYNAMO::SimData*, double, double, const Matrix&, C2Range*);
+  template<class T1, class T2>
+  IRotatedParallelCubes(DYNAMO::SimData* tmp, T1 d, T2 e, 
+			const Matrix& rot, C2Range* nR):
+    Interaction(tmp, nR),
+    Rotation(rot),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless()))
+  {}
 
   IRotatedParallelCubes(const magnet::xml::Node&, DYNAMO::SimData*);
 
@@ -36,8 +46,6 @@ public:
 
   virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(double);
-
   virtual Interaction* Clone() const;
   
   virtual IntEvent getEvent(const Particle&, const Particle&) const;
@@ -48,11 +56,8 @@ public:
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
-
 protected:
   Matrix Rotation;
-  double diameter;
-  double e;
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _e;
 };

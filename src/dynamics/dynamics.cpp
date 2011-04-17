@@ -575,9 +575,6 @@ Dynamics::getLongestInteraction() const
 void 
 Dynamics::rescaleLengths(double val)
 {
-  BOOST_FOREACH(magnet::ClonePtr<Interaction>& ptr, interactions)
-    ptr->rescaleLengths(val);
-
   p_units->rescaleLength(val);
 }
 

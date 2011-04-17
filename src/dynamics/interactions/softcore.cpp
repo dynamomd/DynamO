@@ -33,13 +33,6 @@
 #include <cmath>
 #include <iomanip>
 
-
-ISoftCore::ISoftCore(DYNAMO::SimData* tmp, double nd, double nWD, 
-		       C2Range* nR):
-  ISingleCapture(tmp,nR),
-  diameter(nd),d2(nd*nd),wellDepth(nWD) 
-{}
-
 ISoftCore::ISoftCore(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp,NULL) //A temporary value!
 {
@@ -55,11 +48,10 @@ ISoftCore::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(C2Range::getClass(XML,Sim));
   
   try {
-    diameter = XML.getAttribute("Diameter").as<double>()
-      * Sim->dynamics.units().unitLength();
-    wellDepth = XML.getAttribute("WellDepth").as<double>()
-      * Sim->dynamics.units().unitEnergy();
-    d2 = diameter * diameter;
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					      Property::Units::Energy());
     intName = XML.getAttribute("Name");
     ISingleCapture::loadCaptureMap(XML);   
   }
@@ -73,18 +65,11 @@ ISoftCore::Clone() const
 
 double 
 ISoftCore::hardCoreDiam() const 
-{ return diameter; }
+{ return _diameter->getMaxValue(); }
 
 double 
 ISoftCore::maxIntDist() const 
-{ return diameter; }
-
-void 
-ISoftCore::rescaleLengths(double scale) 
-{ 
-  diameter += scale*diameter; 
-  d2 = diameter*diameter;
-}
+{ return _diameter->getMaxValue(); }
 
 void 
 ISoftCore::initialise(size_t nID)
@@ -98,6 +83,10 @@ ISoftCore::captureTest(const Particle& p1, const Particle& p2) const
 {
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
+
+  double d2 = (_diameter->getProperty(p1.getID())
+	       + _diameter->getProperty(p2.getID())) * 0.5;
+  d2 *= d2;
   
   return (rij.nrm2() <= d2);
 }
@@ -118,6 +107,10 @@ ISoftCore::getEvent(const Particle &p1,
 #endif 
 
   CPDData colldat(*Sim, p1, p2);
+
+  double d2 = (_diameter->getProperty(p1.getID())
+	       + _diameter->getProperty(p2.getID())) * 0.5;
+  d2 *= d2;
     
   if (isCaptured(p1, p2)) 
     {
@@ -148,13 +141,20 @@ void
 ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEvent) const
 {
   ++Sim->eventCount;
+
+  double d2 = (_diameter->getProperty(p1.getID())
+	       + _diameter->getProperty(p2.getID())) * 0.5;
+  d2 *= d2;
   
+  double wd = (_wellDepth->getProperty(p1.getID())
+	       + _wellDepth->getProperty(p2.getID())) * 0.5;
+
   switch (iEvent.getType())
     {
     case WELL_IN:
       {
 	PairEventData retVal(Sim->dynamics.getLiouvillean()
-			      .SphereWellEvent(iEvent, wellDepth, d2));
+			      .SphereWellEvent(iEvent, wd, d2));
 	
 	if (retVal.getType() != BOUNCE)
 	  addToCaptureMap(p1, p2);      
@@ -172,7 +172,7 @@ ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEve
     case WELL_OUT:
       {
 	PairEventData retVal(Sim->dynamics.getLiouvillean()
-			      .SphereWellEvent(iEvent, -wellDepth, d2));
+			      .SphereWellEvent(iEvent, -wd, d2));
 	
 	if (retVal.getType() != BOUNCE)
 	  removeFromCaptureMap(p1, p2);      
@@ -200,6 +200,10 @@ ISoftCore::checkOverlaps(const Particle& part1, const Particle& part2) const
   Sim->dynamics.BCs().applyBC(rij);
   double r2 = rij.nrm2();
 
+  double d2 = (_diameter->getProperty(part1.getID())
+	       + _diameter->getProperty(part2.getID())) * 0.5;
+  d2 *= d2;
+
   if (isCaptured(part1, part2))
     {
       if (r2 > d2)
@@ -224,10 +228,8 @@ void
 ISoftCore::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "SoftCore"
-      << xml::attr("Diameter") 
-      << diameter / Sim->dynamics.units().unitLength() 
-      << xml::attr("WellDepth") 
-      << wellDepth / Sim->dynamics.units().unitEnergy()
+      << xml::attr("Diameter") << _diameter->getName()
+      << xml::attr("WellDepth") << _wellDepth->getName()
       << xml::attr("Name") << intName
       << range;
   

@@ -18,12 +18,20 @@
 #pragma once
 
 #include "captures.hpp"
+#include "../../base/is_simdata.hpp"
 
 class ISoftCore: public ISingleCapture
 {
 public:
-  ISoftCore(DYNAMO::SimData*, double, double, C2Range*);
-
+  template<class T1, class T2>
+  ISoftCore(DYNAMO::SimData* tmp, T1 d, T2 wd, C2Range* nR):
+    ISingleCapture(tmp,nR),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _wellDepth(Sim->_properties.getProperty
+	       (wd, Property::Units::Energy()))
+  {}
+  
   ISoftCore(const magnet::xml::Node&, DYNAMO::SimData*);
   
   void operator<<(const magnet::xml::Node&);
@@ -33,8 +41,6 @@ public:
   virtual double hardCoreDiam() const;
 
   virtual double maxIntDist() const;
-
-  virtual void rescaleLengths(double);
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
@@ -48,9 +54,10 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual double getInternalEnergy() const { return -(getTotalCaptureCount() * wellDepth); }
+  virtual double getInternalEnergy() const { return -(getTotalCaptureCount() 
+						      * _wellDepth->getMaxValue()); }
 
 protected:
-  double diameter,d2;
-  double wellDepth;
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _wellDepth;
 };

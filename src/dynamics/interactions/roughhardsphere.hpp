@@ -18,11 +18,21 @@
 #pragma once
 
 #include "interaction.hpp"
+#include "../../base/is_simdata.hpp"
 
 class IRoughHardSphere: public Interaction
 {
 public:
-  IRoughHardSphere(DYNAMO::SimData*, double, double, double, C2Range*);
+  template<class T1, class T2, class T3>
+  IRoughHardSphere(DYNAMO::SimData* tmp, T1 d, T2 e, T3 et, C2Range* nR):
+  Interaction(tmp, nR),
+  _diameter(Sim->_properties.getProperty
+	    (d, Property::Units::Length())),
+  _e(Sim->_properties.getProperty
+     (e, Property::Units::Dimensionless())),
+  _et(Sim->_properties.getProperty
+      (et, Property::Units::Dimensionless()))
+  {}
 
   IRoughHardSphere(const magnet::xml::Node&, DYNAMO::SimData*);
 
@@ -36,8 +46,6 @@ public:
 
   virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(double);
-
   virtual Interaction* Clone() const;
   
   virtual IntEvent getEvent(const Particle&, const Particle&) const;
@@ -48,11 +56,8 @@ public:
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
-
 protected:
-  double diameter,d2;
-  double e;
-  double et;
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _e;
+  magnet::thread::RefPtr<Property> _et;
 };

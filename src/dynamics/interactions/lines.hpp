@@ -18,11 +18,19 @@
 #pragma once
 
 #include "captures.hpp"
+#include "../../base/is_simdata.hpp"
 
 class ILines: public ISingleCapture
 {
 public:
-  ILines(DYNAMO::SimData*, double, double, C2Range*);
+  template<class T1, class T2>
+  ILines(DYNAMO::SimData* tmp, T1 l, T2 e, C2Range* nR):
+    ISingleCapture(tmp, nR),
+    _length(Sim->_properties.getProperty
+	    (l, Property::Units::Length())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless()))
+  {}
 
   ILines(const magnet::xml::Node&, DYNAMO::SimData*);
 
@@ -36,8 +44,6 @@ public:
 
   virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(double);
-
   virtual Interaction* Clone() const;
   
   virtual IntEvent getEvent(const Particle&, const Particle&) const;
@@ -46,15 +52,11 @@ public:
    
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const {}
  
   virtual bool captureTest(const Particle&, const Particle&) const;
 
-  virtual void write_povray_desc(const DYNAMO::RGB&, 
-				 const size_t&, std::ostream&) const;
-
 protected:
-  double length;
-  double l2;
-  double e;
+  magnet::thread::RefPtr<Property> _length;
+  magnet::thread::RefPtr<Property> _e;
 };

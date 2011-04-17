@@ -32,13 +32,6 @@
 #include <cmath>
 #include <iomanip>
 
-
-IDumbbells::IDumbbells(DYNAMO::SimData* tmp, double nd, 
-		       double ne, double ndiameter, C2Range* nR):
-  ISingleCapture(tmp, nR),
-  length(nd), e(ne), diameter(ndiameter) 
-{}
-
 IDumbbells::IDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL)
 {
@@ -67,11 +60,14 @@ IDumbbells::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      length = XML.getAttribute("Length").as<double>() * Sim->dynamics.units().unitLength();
-      e = XML.getAttribute("Elasticity").as<double>();
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+      _length = Sim->_properties.getProperty(XML.getAttribute("Length"),
+					     Property::Units::Length());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					       Property::Units::Dimensionless());
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					       Property::Units::Length());
       intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);   
+      ISingleCapture::loadCaptureMap(XML);
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -81,21 +77,11 @@ IDumbbells::operator<<(const magnet::xml::Node& XML)
 
 double 
 IDumbbells::maxIntDist() const 
-{ return length + diameter; }
+{ return _length->getMaxValue() + _diameter->getMaxValue(); }
 
 double 
 IDumbbells::hardCoreDiam() const 
-{ return 1.0/3.0*M_PI*diameter*diameter*diameter; }
-
-
-void 
-IDumbbells::rescaleLengths(double scale) 
-{ 
-  length += scale * length;
-
- diameter += scale * diameter;
-
-}
+{ return maxIntDist(); }
 
 Interaction* 
 IDumbbells::Clone() const 
@@ -118,11 +104,17 @@ IDumbbells::getEvent(const Particle &p1,
   
   CPDData colldat(*Sim, p1, p2);
   
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_length->getProperty(p1.getID())
+	      + _length->getProperty(p2.getID())) * 0.5;
+  
   if (isCaptured(p1, p2)) 
     {
       //Run this to determine when the spheres no longer intersect
       Sim->dynamics.getLiouvillean()
-	.SphereSphereOutRoot(colldat, (length + diameter) * (length + diameter) ,
+	.SphereSphereOutRoot(colldat, (l + d) * (l + d),
 			     p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC));
 
       //colldat.dt has the upper limit of the line collision time
@@ -130,14 +122,15 @@ IDumbbells::getEvent(const Particle &p1,
       //Test for a line collision
       //Upper limit can be HUGE_VAL!
       if (Sim->dynamics.getLiouvillean().getOffCenterSphereOffCenterSphereCollision
-	  (colldat, length, diameter, p1, p2))
+	  (colldat, l, d, p1, p2))
 	return IntEvent(p1, p2, colldat.dt, CORE, *this);
       
       return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
-	   .SphereSphereInRoot(colldat, (length + diameter) * (length + diameter),
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+	   .SphereSphereInRoot(colldat, (l + d) * (l + d),
+			       p1.testState(Particle::DYNAMIC), 
+			       p2.testState(Particle::DYNAMIC))) 
     return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
   
   return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -148,14 +141,24 @@ IDumbbells::runEvent(const Particle& p1,
 		  const Particle& p2,
 		  const IntEvent& iEvent) const
 {
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_length->getProperty(p1.getID())
+	      + _length->getProperty(p2.getID())) * 0.5;
+
+  double e = (_e->getProperty(p1.getID())
+	      + _e->getProperty(p2.getID())) * 0.5;
+
   switch (iEvent.getType())
     {
     case CORE:
       {
 	++Sim->eventCount;
 	//We have a line interaction! Run it
-	PairEventData retval(Sim->dynamics.getLiouvillean().runOffCenterSphereOffCenterSphereCollision
-			     (iEvent, e, length,diameter));
+	PairEventData retval(Sim->dynamics.getLiouvillean()
+			     .runOffCenterSphereOffCenterSphereCollision
+			     (iEvent, e, l, d));
 
 	Sim->signalParticleUpdate(retval);
 	
@@ -200,9 +203,9 @@ void
 IDumbbells::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "Dumbbells"
-      << xml::attr("Length") << length / Sim->dynamics.units().unitLength()
-      << xml::attr("Elasticity") << e
-      << xml::attr("Diameter") <<  diameter / Sim->dynamics.units().unitLength()
+      << xml::attr("Length") << _length->getName()
+      << xml::attr("Elasticity") << _e->getName()
+      << xml::attr("Diameter") <<  _diameter->getName()
       << xml::attr("Name") << intName
       << range;
 
@@ -212,52 +215,19 @@ IDumbbells::outputXML(xml::XmlStream& XML) const
 bool 
 IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
 {
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_length->getProperty(p1.getID())
+	      + _length->getProperty(p2.getID())) * 0.5;
+
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
-  
 
-  return (rij | rij) <= length*length + diameter*diameter;
+  return (rij | rij) <= (l + d) * (l + d);
 
 }
 
 void
 IDumbbells::checkOverlaps(const Particle& part1, const Particle& part2) const
 {}
-
-void 
-IDumbbells::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
-			   std::ostream& os) const
-{ // \todo{write this with dumbbells instead of cylinders}
-
-  if (!Sim->dynamics.liouvilleanTypeTest<LNOrientation>())
-    M_throw() << "Liouvillean is not an orientation liouvillean!";
-  
-  BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      const Particle& part(Sim->particleList[pid]);
-
-      const LNOrientation::rotData& 
-	rdat(static_cast<const LNOrientation&>
-	     (Sim->dynamics.getLiouvillean()).getRotData(part));
-
-      Vector  pos(part.getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      Vector  point(pos - 0.5 * length * rdat.orientation);
-      
-      os << "cylinder {\n <" << point[0];
-      for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << point[iDim];
-
-      point = pos + 0.5 * length * rdat.orientation;
-
-      os << ">, \n <" << point[0];
-      for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << point[iDim];
-
-      os << ">, " << length *0.01 
-	 << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-	 << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
-    }
-
-}
