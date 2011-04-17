@@ -19,7 +19,6 @@
 #include "chaintorsion.hpp"
 #include "radiusGyration.hpp"
 #include "tinkerxyz.hpp"
-#include "povray.hpp"
 #include "chainContactMap.hpp"
 #include "overlap.hpp"
 #include "periodmsd.hpp"

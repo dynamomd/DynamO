@@ -152,8 +152,6 @@ OutputPlugin::getPlugin(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim
     return testGeneratePlugin<OPQMGA>(Sim, XML);
   else if (!Name.compare("VTK"))
     return testGeneratePlugin<OPVTK>(Sim, XML);
-  else if (!Name.compare("Povray"))
-    return testGeneratePlugin<OPPovray>(Sim, XML);
   else if (!Name.compare("ContactMap"))
     return testGeneratePlugin<OPCContactMap>(Sim, XML);
   else if (!Name.compare("OverlapTester"))

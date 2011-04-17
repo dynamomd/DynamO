@@ -18,11 +18,21 @@
 #pragma once
 
 #include "interaction.hpp"
+#include "../../base/is_simdata.hpp"
 
 class ISquareBond: public Interaction
 {
 public:
-  ISquareBond(DYNAMO::SimData*, double, double, double, C2Range*);
+  template<class T1, class T2, class T3>
+  ISquareBond(DYNAMO::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR):
+    Interaction(tmp, nR),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _lambda(Sim->_properties.getProperty
+	    (l, Property::Units::Dimensionless())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless()))
+  {}
 
   ISquareBond(const magnet::xml::Node&, DYNAMO::SimData*);
 
@@ -33,8 +43,6 @@ public:
   virtual double hardCoreDiam() const;
 
   virtual double maxIntDist() const;
-
-  virtual void rescaleLengths(double);
 
   virtual double getCaptureEnergy() const;
 
@@ -52,12 +60,9 @@ public:
 
   virtual double getInternalEnergy() const { return 0.0; }
 
-  virtual void 
-  write_povray_info(std::ostream&) const;
-
 protected:
 
-  double diameter,d2;
-  double lambda, ld2;
-  double elasticity;
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _lambda;
+  magnet::thread::RefPtr<Property> _e;
 };

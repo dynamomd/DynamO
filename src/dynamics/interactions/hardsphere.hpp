@@ -56,9 +56,6 @@ public:
 
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const;
-
 protected:
   magnet::thread::RefPtr<Property> _diameter;
   magnet::thread::RefPtr<Property> _e;

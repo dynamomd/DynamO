@@ -36,8 +36,6 @@ public:
 
   virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(double);
-
   virtual Interaction* Clone() const;
   
   virtual IntEvent getEvent(const Particle&, const Particle&) const;
@@ -47,7 +45,7 @@ public:
    
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const;
+  virtual void checkOverlaps(const Particle&, const Particle&) const {}
  
 protected:
 };

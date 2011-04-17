@@ -31,11 +31,6 @@
 #include <cmath>
 #include <iomanip>
 
-IRoughHardSphere::IRoughHardSphere(DYNAMO::SimData* tmp, double nd, 
-			   double ne, double net, C2Range* nR):
-  Interaction(tmp, nR),
-  diameter(nd), d2(nd*nd), e(ne), et(net) {}
-
 IRoughHardSphere::IRoughHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   Interaction(tmp,NULL)
 {
@@ -56,10 +51,12 @@ IRoughHardSphere::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
-      e = XML.getAttribute("Elasticity").as<double>();
-      et = XML.getAttribute("TangentialElasticity").as<double>();
-      d2 = diameter * diameter;
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					       Property::Units::Length());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+      _et = Sim->_properties.getProperty(XML.getAttribute("TangentialElasticity"),
+					 Property::Units::Dimensionless());
       intName = XML.getAttribute("Name");
     }
   catch (boost::bad_lexical_cast &)
@@ -70,25 +67,18 @@ IRoughHardSphere::operator<<(const magnet::xml::Node& XML)
 
 double 
 IRoughHardSphere::maxIntDist() const 
-{ return diameter; }
+{ return _diameter->getMaxValue(); }
 
 double 
 IRoughHardSphere::hardCoreDiam() const 
-{ return diameter; }
-
-void 
-IRoughHardSphere::rescaleLengths(double scale) 
-{ 
-  diameter += scale*diameter;
-  d2 = diameter*diameter;
-}
+{ return _diameter->getMaxValue(); }
 
 Interaction* 
 IRoughHardSphere::Clone() const 
 { return new IRoughHardSphere(*this); }
   
 IntEvent 
-IRoughHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
+IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const 
 { 
 #ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -104,6 +94,10 @@ IRoughHardSphere::getEvent(const Particle &p1, const Particle &p2) const
 #endif 
 
   CPDData colldat(*Sim, p1, p2);
+
+  double d2 = (_diameter->getProperty(p1.getID())
+	       + _diameter->getProperty(p2.getID())) * 0.5;
+  d2 *= d2;
 
   if (Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(colldat, d2,
@@ -129,6 +123,16 @@ IRoughHardSphere::runEvent(const Particle& p1,
 {
   ++Sim->eventCount;
     
+  double e = (_e->getProperty(p1.getID())
+	       + _e->getProperty(p2.getID())) * 0.5;
+
+  double et = (_et->getProperty(p1.getID())
+	       + _et->getProperty(p2.getID())) * 0.5;
+
+  double d2 = (_diameter->getProperty(p1.getID())
+	       + _diameter->getProperty(p2.getID())) * 0.5;
+  d2 *= d2;
+
   //Run the collision and catch the data
   PairEventData EDat
     (Sim->dynamics.getLiouvillean().RoughSpheresColl(iEvent, e, et, d2)); 
@@ -146,9 +150,9 @@ void
 IRoughHardSphere::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "HardSphere"
-      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xml::attr("Elasticity") << e
-      << xml::attr("TangentialElasticity") << et
+      << xml::attr("Diameter") << _diameter->getName()
+      << xml::attr("Elasticity") << _e->getName()
+      << xml::attr("TangentialElasticity") << _et->getName()
       << xml::attr("Name") << intName
       << range;
 }
@@ -158,6 +162,10 @@ IRoughHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) co
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 
+
+  double d2 = (_diameter->getProperty(part1.getID())
+	       + _diameter->getProperty(part2.getID())) * 0.5;
+  d2 *= d2;
   
   if ((rij | rij) < d2)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
@@ -167,34 +175,3 @@ IRoughHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) co
 	     << "\nd^2=" 
 	     << d2 / pow(Sim->dynamics.units().unitLength(),2);
 }
-
-void 
-IRoughHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
-				std::ostream& os) const
-{ 
-  double locDiam = diameter;
-
-  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-    locDiam *= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
-
-  os << "#declare intrep" << ID << " = " 
-     << "sphere {\n <0,0,0> " 
-     << locDiam / 2.0
-    //<< "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G  << "," << rgb.B 
-     << "\n texture { pigment { color rgb<0.8,0.8,0.8" 
-     << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
-  
-  BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[pid].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      os << "object {\n intrep" << ID << "\n translate <"
-	 << pos[0];
-      os << "," << pos[1];
-      os << "," << pos[2];      
-      os << ">\n}\n";
-    }
-}
-
-

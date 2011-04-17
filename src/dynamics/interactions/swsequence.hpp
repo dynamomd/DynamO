@@ -18,12 +18,38 @@
 #pragma once
 
 #include "captures.hpp"
+#include "../../base/is_simdata.hpp"
 #include <vector>
 
 class ISWSequence: public ISingleCapture
 {
 public:
-  ISWSequence(DYNAMO::SimData*, double, double, double, std::vector<size_t>, C2Range*);
+  template<class T1, class T2, class T3>
+  ISWSequence(DYNAMO::SimData* tmp, T1 d, T2 l, T3 e, 
+	      std::vector<size_t> seq, C2Range* nR):
+    ISingleCapture(tmp,nR),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _lambda(Sim->_properties.getProperty
+	    (l, Property::Units::Dimensionless())),
+    _unitEnergy(Sim->_properties.getProperty
+		(1.0, Property::Units::Energy())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless())),
+    sequence(seq) 
+  {
+    std::set<size_t> letters;
+    
+    BOOST_FOREACH(const size_t& id, seq)
+      if (letters.find(id) == letters.end())
+	//Count the letter
+	letters.insert(id);
+    
+    alphabet.resize(letters.size());
+    
+    BOOST_FOREACH(std::vector<double>& vec, alphabet)
+      vec.resize(letters.size(), 0.0);
+  }
 
   ISWSequence(const magnet::xml::Node&, DYNAMO::SimData*);
   
@@ -37,8 +63,6 @@ public:
 
   virtual double getInternalEnergy() const;
 
-  virtual void rescaleLengths(double);
-
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
   virtual bool captureTest(const Particle&, const Particle&) const;
@@ -51,21 +75,17 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual double getColourFraction(const Particle&) const;
-
   std::vector<size_t>& getSequence() { return sequence; }
 
   std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
-  virtual void write_povray_desc(const DYNAMO::RGB&, 
-				 const size_t&, 
-				 std::ostream&) const;
-
 protected:
-  double diameter,d2;
-  double lambda, ld2;
-  double e;
-
+  magnet::thread::RefPtr<Property> _diameter;
+  magnet::thread::RefPtr<Property> _lambda;
+  //!This class is used to track how the energy scale changes in the system
+  magnet::thread::RefPtr<Property> _unitEnergy;
+  magnet::thread::RefPtr<Property> _e;
+  
   std::vector<size_t> sequence;
   std::vector<std::vector<double> > alphabet;
 };

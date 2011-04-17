@@ -35,8 +35,12 @@
 #include <iomanip>
 
 IStepped::IStepped(DYNAMO::SimData* tmp, 
-		     const std::vector<steppair>& vec, C2Range* nR):
+		   const std::vector<steppair>& vec, C2Range* nR):
   IMultiCapture(tmp,nR),
+  _unitLength(Sim->_properties.getProperty
+	      (1.0, Property::Units::Length())),
+  _unitEnergy(Sim->_properties.getProperty
+	      (1.0, Property::Units::Energy())),
   steps(vec)
 {}
 
@@ -62,14 +66,12 @@ IStepped::operator<<(const magnet::xml::Node& XML)
 		<< intName;
 
     for (magnet::xml::Node node = XML.getNode("Step"); node.valid(); ++node)
-      steps.push_back(steppair(node.getAttribute("R").as<double>()
-			       * Sim->dynamics.units().unitLength(),
-			       node.getAttribute("E").as<double>()
-			       * Sim->dynamics.units().unitEnergy()));
+      steps.push_back(steppair(node.getAttribute("R").as<double>(),
+			       node.getAttribute("E").as<double>()));
     
     std::sort(steps.rbegin(), steps.rend());
 
-    IMultiCapture::loadCaptureMap(XML);   
+    IMultiCapture::loadCaptureMap(XML);
   }
   catch (boost::bad_lexical_cast &)
     {
@@ -83,18 +85,11 @@ IStepped::Clone() const
 
 double 
 IStepped::hardCoreDiam() const 
-{ return steps.back().first; }
+{ return steps.back().first * _unitLength->getMaxValue(); }
 
 double 
 IStepped::maxIntDist() const 
-{ return steps.front().first; }
-
-void 
-IStepped::rescaleLengths(double scale) 
-{ 
-  BOOST_FOREACH(steppair& p, steps)
-    p.first += scale * p.first;
-}
+{ return steps.front().first * _unitLength->getMaxValue(); }
 
 void 
 IStepped::initialise(size_t nID)
@@ -102,20 +97,6 @@ IStepped::initialise(size_t nID)
   ID = nID;
   IMultiCapture::initCaptureMap();
   
-  runstepdata = steps;
-
-  //Make runstepdata hold r^2 and E_i - E_{i-1}
-  BOOST_FOREACH(steppair& pdat, runstepdata)
-    pdat.first *= pdat.first;
-
-  double oldE(0.0);
-  BOOST_FOREACH(steppair& pdat, runstepdata)
-    {
-      double tmp(pdat.second);
-      pdat.second -= oldE;
-      oldE = tmp;
-    }
-
   I_cout() << "Buckets in captureMap " << captureMap.bucket_count()
 	   << "\nMax bucket count " << captureMap.max_bucket_count()
 	   << "\nload Factor " << captureMap.load_factor()
@@ -131,7 +112,7 @@ IStepped::captureTest(const Particle& p1, const Particle& p2) const
   double r = rij.nrm();
 
   for (size_t i(0); i < steps.size(); ++i)
-    if (r > steps[i].first) return i;
+    if (r > steps[i].first * _unitLength->getMaxValue()) return i;
 
   return steps.size() - 1;
 }
@@ -145,7 +126,7 @@ IStepped::getInternalEnergy() const
   typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    Energy += steps[IDs.second - 1].second;
+    Energy += steps[IDs.second - 1].second * _unitEnergy->getMaxValue();
   
   return Energy; 
 }
@@ -166,26 +147,27 @@ IStepped::getEvent(const Particle &p1,
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-  CPDData colldat(*Sim, p1, p2);
-  
+  CPDData colldat(*Sim, p1, p2);  
   const_cmap_it capstat = getCMap_it(p1,p2);
 
   if (capstat == captureMap.end())
     {
+      double d = steps.front().first * _unitLength->getMaxValue();
+      double d2 = d * d;
+
       //Not captured, test for capture
       if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	  (colldat, runstepdata.front().first, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+	  (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
-	  if (Sim->dynamics.getLiouvillean().sphereOverlap
-	      (colldat, runstepdata.front().first))
+	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	    M_throw() << "Overlapping particles found" 
 		      << ", particle1 " << p1.getID() 
-		      << ", particle2 " 
-		      << p2.getID() << "\nOverlap = " 
+		      << ", particle2 " << p2.getID() 
+		      << "\nOverlap = " 
 		      << (sqrt(colldat.r2) - steps.front().first)
-	      /Sim->dynamics.units().unitLength();
+	      / Sim->dynamics.units().unitLength();
 #endif
 	  
 	  return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
@@ -193,32 +175,42 @@ IStepped::getEvent(const Particle &p1,
     }
   else
     {
+
       //Within the potential, look for further capture or release
       //First check if there is an inner step to interact with
       //Then check for that event first
-      if ((capstat->second < static_cast<int>(runstepdata.size()))
-	  && (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	      (colldat, runstepdata[capstat->second].first, 
-	       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))))
+      if (capstat->second < static_cast<int>(steps.size()))
 	{
+	  double d = steps[capstat->second].first * _unitLength->getMaxValue();
+	  double d2 = d * d;
+	  if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
+	      (colldat, d2, 
+	       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+	    {
 #ifdef DYNAMO_OverlapTesting
-	  //Check that there is no overlap 
-	  if (Sim->dynamics.getLiouvillean().sphereOverlap
-	      (colldat, runstepdata[capstat->second].first))
-	    M_throw() << "Overlapping particles found" 
-		      << ", particle1 " << p1.getID() 
-		      << ", particle2 " 
-		      << p2.getID() << "\nOverlap = " 
-		      << (sqrt(colldat.r2) - steps[capstat->second].first)
-	      /Sim->dynamics.units().unitLength();
+	      //Check that there is no overlap 
+	      if (Sim->dynamics.getLiouvillean().sphereOverlap
+		  (colldat, runstepdata[capstat->second].first * l2scale))
+		M_throw() << "Overlapping particles found" 
+			  << ", particle1 " << p1.getID() 
+			  << ", particle2 " 
+			  << p2.getID() << "\nOverlap = " 
+			  << (sqrt(colldat.r2) - steps[capstat->second].first)
+		  /Sim->dynamics.units().unitLength();
 #endif
-	  
-	  return IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
+	      
+	      return IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
+	    }
 	}
-      else if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
-	       (colldat, runstepdata[capstat->second-1].first,
-		p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+
+      {
+	double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
+	double d2 = d * d;
+	
+	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
+	    (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+      }
     }
 
   return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -237,9 +229,15 @@ IStepped::runEvent(const Particle& p1,
       {
 	cmap_it capstat = getCMap_it(p1,p2);
 	
+	double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
+	double d2 = d * d;
+	double dE = steps[capstat->second-1].second;
+	if (capstat->second > 1)
+	  dE -= steps[capstat->second - 2].second;
+	dE *= _unitEnergy->getMaxValue();
+
 	PairEventData retVal(Sim->dynamics.getLiouvillean().SphereWellEvent
-			      (iEvent, runstepdata[capstat->second-1].second, 
-			       runstepdata[capstat->second -1].first));
+			      (iEvent, dE, d2));
 	
 	if (retVal.getType() != BOUNCE)
 	  if (!(--capstat->second))
@@ -256,7 +254,7 @@ IStepped::runEvent(const Particle& p1,
       }
     case WELL_IN:
       {
-	cmap_it capstat = getCMap_it(p1,p2);
+	cmap_it capstat = getCMap_it(p1, p2);
 	
 	if (capstat == captureMap.end())
 	  capstat = captureMap.insert
@@ -266,14 +264,20 @@ IStepped::runEvent(const Particle& p1,
 	      : cMapKey(p2.getID(), p1.getID()),
 	      0)).first;
 	
-	PairEventData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent
-	  (iEvent, -runstepdata[capstat->second].second,
-	   runstepdata[capstat->second].first);
+	double d = steps[capstat->second].first * _unitLength->getMaxValue();
+	double d2 = d * d;
+	double dE = steps[capstat->second].second;
+	if (capstat->second > 0)
+	  dE -= steps[capstat->second - 1].second;
+	dE *= _unitEnergy->getMaxValue();
+
+
+	PairEventData retVal = Sim->dynamics.getLiouvillean().SphereWellEvent(iEvent, -dE, d2);
 	
 	if (retVal.getType() != BOUNCE)
 	  ++(capstat->second);
 	else if (!capstat->second)
-	  captureMap.erase(capstat);	    
+	  captureMap.erase(capstat);
 	
 	Sim->signalParticleUpdate(retVal);
 	
@@ -309,33 +313,9 @@ IStepped::outputXML(xml::XmlStream& XML) const
 
   BOOST_FOREACH(const steppair& s, steps)
     XML << xml::tag("Step")
-	<< xml::attr("R") 
-	<< s.first / Sim->dynamics.units().unitLength()
-	<< xml::attr("E")
-	<< s.second / Sim->dynamics.units().unitEnergy()
+	<< xml::attr("R") << s.first 
+	<< xml::attr("E") << s.second
 	<< xml::endtag("Step");
   
   IMultiCapture::outputCaptureMap(XML);  
-}
-
-void 
-IStepped::write_povray_desc(const DYNAMO::RGB& rgb, 
-				const size_t& specID, 
-				std::ostream& os) const
-{
-  os << "#declare intrep" << ID << "center = " 
-     << "sphere {\n <0,0,0> " 
-     << steps.back().first * 0.5
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n";
-
-  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[part].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-      
-      os << "object {\n intrep" << ID << "center\n translate < "
-	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-    }
-  
 }

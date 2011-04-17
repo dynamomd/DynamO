@@ -19,7 +19,6 @@
 
 #include "../../base/is_base.hpp"
 #include "../ranges/2range.hpp"
-#include "../../base/is_colormap.hpp"
 #include <magnet/cloneptr.hpp>
 #include <string>
 
@@ -51,8 +50,6 @@ public:
 
   virtual double hardCoreDiam() const = 0;
 
-  virtual void rescaleLengths(double) = 0;
-
   virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
 
   virtual void operator<<(const magnet::xml::Node&) = 0;
@@ -81,14 +78,6 @@ public:
   virtual double getColourFraction(const Particle&) const { return 0.5; } 
 
   inline const size_t& getID() const { return ID; }
-
-  virtual void 
-  write_povray_desc(const DYNAMO::RGB&, const size_t&, std::ostream&) const
-  {}
-
-  virtual void 
-  write_povray_info(std::ostream&) const 
-  {}
 
 protected:
   virtual void outputXML(xml::XmlStream& ) const = 0;

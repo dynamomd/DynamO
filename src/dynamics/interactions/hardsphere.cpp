@@ -117,8 +117,8 @@ IHardSphere::getEvent(const Particle &p1, const Particle &p2) const
 
 void
 IHardSphere::runEvent(const Particle& p1,
-		       const Particle& p2,
-		       const IntEvent& iEvent) const
+		      const Particle& p2,
+		      const IntEvent& iEvent) const
 {
   ++Sim->eventCount;
 
@@ -126,8 +126,11 @@ IHardSphere::runEvent(const Particle& p1,
 	       + _diameter->getProperty(p2.getID())) * 0.5;
   d2 *= d2;
 
+  double e = (_e->getProperty(p1.getID())
+	      + _e->getProperty(p2.getID())) * 0.5;
+
   PairEventData EDat
-    (Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, _e->getProperty(p1.getID()), d2)); 
+    (Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -167,34 +170,3 @@ IHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) const
 	     << "\nd^2=" 
 	     << d2 / pow(Sim->dynamics.units().unitLength(),2);
 }
-
-void 
-IHardSphere::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
-				std::ostream& os) const
-{ 
-  double locDiam = _diameter->getMaxValue();
-
-  if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-    locDiam *= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
-
-  os << "#declare intrep" << ID << " = " 
-     << "sphere {\n <0,0,0> " 
-     << locDiam / 2.0
-     << "\n texture { pigment { color rgb<" << rgb.R << "," << rgb.G  << "," << rgb.B 
-    //<< "\n texture { pigment { color rgb<0.8,0.8,0.8" 
-     << "> }}\nfinish { phong 0.9 phong_size 60 reflection 0.05 }\n}\n";
-  
-  BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[pid].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      os << "object {\n intrep" << ID << "\n translate <"
-	 << pos[0];
-      os << "," << pos[1];
-      os << "," << pos[2];      
-      os << ">\n}\n";
-    }
-}
-
-

@@ -32,15 +32,8 @@
 #include <cmath>
 #include <iomanip>
 
-IRotatedParallelCubes::IRotatedParallelCubes(DYNAMO::SimData* tmp, double nd, 
-					       double ne, const Matrix& rot,
-					       C2Range* nR):
-  Interaction(tmp, nR),
-  Rotation(rot),
-  diameter(nd), e(ne)
-{}
-
-IRotatedParallelCubes::IRotatedParallelCubes(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+IRotatedParallelCubes::IRotatedParallelCubes(const magnet::xml::Node& XML, 
+					     DYNAMO::SimData* tmp):
   Interaction(tmp,NULL)
 { operator<<(XML); }
 
@@ -61,8 +54,10 @@ IRotatedParallelCubes::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
-      e = XML.getAttribute("Elasticity").as<double>();
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					       Property::Units::Length());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
       intName = XML.getAttribute("Name");
       ::operator<<(Rotation, XML.getNode("Rotation"));
     }
@@ -74,17 +69,12 @@ IRotatedParallelCubes::operator<<(const magnet::xml::Node& XML)
 
 double 
 IRotatedParallelCubes::maxIntDist() const 
-{ return std::sqrt(NDIM) * diameter; }
+{ return std::sqrt(NDIM) * _diameter->getMaxValue(); }
 
 double 
 IRotatedParallelCubes::hardCoreDiam() const 
-{ return diameter; }
+{ return _diameter->getMaxValue(); }
 
-void 
-IRotatedParallelCubes::rescaleLengths(double scale) 
-{ 
-  diameter += scale*diameter;
-}
 
 Interaction* 
 IRotatedParallelCubes::Clone() const 
@@ -111,14 +101,17 @@ IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const
   colldat.rij = Rotation * Vector(colldat.rij);
   colldat.vij = Rotation * Vector(colldat.vij);
   
-  if (Sim->dynamics.getLiouvillean().CubeCubeInRoot(colldat, diameter))
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  if (Sim->dynamics.getLiouvillean().CubeCubeInRoot(colldat, d))
     {
 #ifdef DYNAMO_OverlapTesting
-      if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, diameter))
+      if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, d))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " 
-		  << (sqrt(colldat.r2) - diameter) 
+		  << (sqrt(colldat.r2) - d) 
 	  / Sim->dynamics.units().unitLength();
 #endif
 
@@ -133,12 +126,16 @@ IRotatedParallelCubes::runEvent(const Particle& p1,
 				 const Particle& p2,
 				 const IntEvent& iEvent) const
 {
-
   ++Sim->eventCount;
-    
+ 
+  double e = (_e->getProperty(p1.getID())
+	      + _e->getProperty(p2.getID())) * 0.5;
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+   
   //Run the collision and catch the data
   PairEventData EDat
-    (Sim->dynamics.getLiouvillean().parallelCubeColl(iEvent, e, diameter, Rotation)); 
+    (Sim->dynamics.getLiouvillean().parallelCubeColl(iEvent, e, d, Rotation)); 
 
   Sim->signalParticleUpdate(EDat);
 
@@ -153,8 +150,8 @@ void
 IRotatedParallelCubes::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "RotatedParallelCubes"
-      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xml::attr("Elasticity") << e
+      << xml::attr("Diameter") << _diameter->getName()
+      << xml::attr("Elasticity") << _e->getName()
       << xml::attr("Name") << intName
       << range
       << xml::tag("Rotation")
@@ -167,45 +164,15 @@ IRotatedParallelCubes::checkOverlaps(const Particle& part1, const Particle& part
 {
   Vector  rij = part1.getPosition() - part2.getPosition();  
   Sim->dynamics.BCs().applyBC(rij); 
+
+  double d = (_diameter->getProperty(part1.getID())
+	      + _diameter->getProperty(part2.getID())) * 0.5;
   
-  if ((rij | rij) < diameter*diameter)
+  if ((rij | rij) < d * d)
     I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 	     << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
 	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	     << (rij | rij) / pow(Sim->dynamics.units().unitLength(),2)
+	     << (rij | rij) / pow(Sim->dynamics.units().unitLength(), 2)
 	     << "\nd^2=" 
-	     << diameter * diameter / pow(Sim->dynamics.units().unitLength(),2);
+	     << d * d / pow(Sim->dynamics.units().unitLength(), 2);
 }
-
-void 
-IRotatedParallelCubes::write_povray_desc(const DYNAMO::RGB& rgb, const size_t& specID, 
-				std::ostream& os) const
-{ 
-  os << "#declare intrep" << ID << " = "
-     << "object {\n"
-     << " box {\n <" << -diameter / 2.0 << "," << -diameter / 2.0 << "," 
-     << -diameter / 2.0 << ">, " 
-     << " <" << diameter / 2.0 << "," << diameter / 2.0 << "," << diameter / 2.0 << "> "
-     << "\n  texture { pigment { color rgb<" << rgb.R << "," << rgb.G 
-     << "," << rgb.B << "> }}\n  finish { phong 0.9 phong_size 60 }\n}\n"
-     << " matrix < " << Rotation(0,0) << "," << Rotation(0,1) << "," << Rotation(0,2)
-     << ","<< Rotation(1,0) << "," << Rotation(1,1) << "," << Rotation(1,2)
-     << ","<< Rotation(2,0) << "," << Rotation(2,1) << "," << Rotation(2,2) 
-     << ",0,0,0>"
-     << "\n}\n";
-  
-  BOOST_FOREACH(const size_t& pid, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[pid].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-
-      os << "object {\n intrep" << ID << "\n translate <"
-	 << pos[0];
-
-      for (size_t iDim(1); iDim < NDIM; ++iDim)
-	os << "," << pos[iDim];
-      
-       os << ">\n}\n";
-    }
-}
-

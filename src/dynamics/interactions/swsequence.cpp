@@ -33,44 +33,19 @@
 #include <cmath>
 #include <iomanip>
 
-ISWSequence::ISWSequence(DYNAMO::SimData* tmp, double nd, double nl,
-			   double ne, std::vector<size_t> seq, C2Range* nR):
-  ISingleCapture(tmp,nR),
-  diameter(nd),d2(nd*nd),lambda(nl),ld2(nd*nd*nl*nl),e(ne), sequence(seq) 
-{
-  std::set<size_t> letters;
-
-  BOOST_FOREACH(const size_t& id, seq)
-    if (letters.find(id) == letters.end())
-      //Count the letter
-      letters.insert(id);
-  
-  alphabet.resize(letters.size());
-  
-  BOOST_FOREACH(std::vector<double>& vec, alphabet)
-    vec.resize(letters.size(), 0.0);
-}
-
 ISWSequence::ISWSequence(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   ISingleCapture(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
 
-double 
-ISWSequence::getColourFraction(const Particle& part) const
-{
-  return (sequence[part.getID() % sequence.size()] + 0.5) / static_cast<double>(alphabet.size());   
-}
-
 void 
 ISWSequence::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "SquareWellSeq"
-      << xml::attr("Diameter") 
-      << diameter / Sim->dynamics.units().unitLength() 
-      << xml::attr("Elasticity") << e
-      << xml::attr("Lambda") << lambda
+      << xml::attr("Diameter") << _diameter->getName()
+      << xml::attr("Elasticity") << _e->getName()
+      << xml::attr("Lambda") << _lambda->getName()
       << xml::attr("Name") << intName
       << range;
 
@@ -90,7 +65,7 @@ ISWSequence::outputXML(xml::XmlStream& XML) const
       XML << xml::tag("Word")
 	  << xml::attr("Letter1") << i
 	  << xml::attr("Letter2") << j
-	  << xml::attr("Depth") << alphabet[i][j]
+	  << xml::attr("Depth") << alphabet[i][j] * _unitEnergy->getMaxValue()
 	  << xml::endtag("Word");
 
   XML << xml::endtag("Alphabet");
@@ -108,13 +83,20 @@ ISWSequence::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(C2Range::getClass(XML,Sim));
   
   try { 
-    diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
-    e = XML.getAttribute("Elasticity").as<double>();
-    lambda = XML.getAttribute("Lambda").as<double>();
-    d2 = diameter * diameter;
-    ld2 = d2 * lambda * lambda;
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
+
+    if (XML.getAttribute("Elasticity").valid())
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					   Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+
     intName = XML.getAttribute("Name");
     ISingleCapture::loadCaptureMap(XML);
+
     //Load the sequence
     sequence.clear();
     std::set<size_t> letters;
@@ -170,26 +152,18 @@ ISWSequence::getInternalEnergy() const
   BOOST_FOREACH(const locpair& IDs, captureMap)
     Energy += alphabet
     [sequence[IDs.first % sequence.size()]]
-    [sequence[IDs.second % sequence.size()]];
+    [sequence[IDs.second % sequence.size()]] * _unitEnergy->getMaxValue();
   
   return -Energy; 
 }
 
 double 
 ISWSequence::hardCoreDiam() const 
-{ return diameter; }
+{ return _diameter->getMaxValue(); }
 
 double 
 ISWSequence::maxIntDist() const 
-{ return diameter * lambda; }
-
-void 
-ISWSequence::rescaleLengths(double scale) 
-{ 
-  diameter += scale * diameter; 
-  d2 = diameter * diameter;
-  ld2 = diameter * diameter * lambda * lambda;
-}
+{ return _diameter->getMaxValue() * _lambda->getMaxValue(); }
 
 void 
 ISWSequence::initialise(size_t nID)
@@ -204,7 +178,16 @@ ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
 
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
 #ifdef DYNAMO_DEBUG
+  double d2 = d * d;
   if (rij.nrm2() < d2)
     {
       I_cerr() << "Warning! Two particles are overlapping"
@@ -237,6 +220,16 @@ ISWSequence::getEvent(const Particle &p1,
 #endif
   CPDData colldat(*Sim, p1, p2);
   
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double d2 = d * d;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
   if (isCaptured(p1, p2)) 
     {
       if (Sim->dynamics.getLiouvillean()
@@ -290,6 +283,19 @@ ISWSequence::runEvent(const Particle& p1,
 {  
   ++Sim->eventCount;
 
+  double e = (_e->getProperty(p1.getID())
+	      + _e->getProperty(p2.getID())) * 0.5;
+
+  double d = (_diameter->getProperty(p1.getID())
+	      + _diameter->getProperty(p2.getID())) * 0.5;
+
+  double d2 = d * d;
+
+  double l = (_lambda->getProperty(p1.getID())
+	       + _lambda->getProperty(p2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
   switch (iEvent.getType())
     {
     case CORE:
@@ -310,7 +316,8 @@ ISWSequence::runEvent(const Particle& p1,
 			      .SphereWellEvent
 			      (iEvent, alphabet
 			       [sequence[p1.getID() % sequence.size()]]
-			       [sequence[p2.getID() % sequence.size()]], 
+			       [sequence[p2.getID() % sequence.size()]] 
+			       * _unitEnergy->getMaxValue(), 
 			       ld2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -331,7 +338,8 @@ ISWSequence::runEvent(const Particle& p1,
 			      .SphereWellEvent
 			      (iEvent, -alphabet
 			       [sequence[p1.getID() % sequence.size()]]
-			       [sequence[p2.getID() % sequence.size()]], 
+			       [sequence[p2.getID() % sequence.size()]]
+			       * _unitEnergy->getMaxValue(), 
 			       ld2));
 	
 	if (retVal.getType() != BOUNCE)
@@ -358,6 +366,16 @@ ISWSequence::checkOverlaps(const Particle& part1, const Particle& part2) const
   Sim->dynamics.BCs().applyBC(rij);
   double r2 = rij.nrm2();
 
+  double d = (_diameter->getProperty(part1.getID())
+	      + _diameter->getProperty(part2.getID())) * 0.5;
+
+  double d2 = d * d;
+
+  double l = (_lambda->getProperty(part1.getID())
+	       + _lambda->getProperty(part2.getID())) * 0.5;
+  
+  double ld2 = d * l * d * l;
+
   if (isCaptured(part1, part2))
     {
       if (r2 < d2)
@@ -368,7 +386,7 @@ ISWSequence::checkOverlaps(const Particle& part1, const Particle& part2) const
 		 << "\nd^2=" 
 		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
 
-      if (r2 > lambda * lambda * d2)
+      if (r2 > ld2)
 	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
 		 << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
 		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
@@ -397,48 +415,4 @@ ISWSequence::checkOverlaps(const Particle& part1, const Particle& part2) const
 		 << "\n(lambda * d)^2=" 
 		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
     }
-}
-
-void 
-ISWSequence::write_povray_desc(const DYNAMO::RGB& rgb, 
-				const size_t& specID, 
-				std::ostream& os) const
-{
-  DYNAMO::ColorMap<size_t> seqmap(0, alphabet.size() * Sim->dynamics.getSpecies().size() - 1);
-  
-  for (size_t i(0); i < alphabet.size(); ++i)
-    {
-      DYNAMO::RGB col(seqmap.getColor(i * Sim->dynamics.getSpecies().size() + specID));
-
-      os << "#declare intrep" << ID << "center"<< i << " = " 
-	 << "sphere {\n <0,0,0> " 
-	 << diameter / 2.0
-	 << "\n texture { pigment { color rgb<" << col.R << "," << col.G
-	 << "," << col.B << "> }}\nfinish { phong 0.9 phong_size 60 }\n}\n"
-	 << "#declare intrep" << ID << "seqwell" << i
-	 << " = sphere {\n <0,0,0> " << diameter * lambda * 0.5
-	 << "\n texture { pigment { color rgbt <1,1,1,0.9> }}\n}\n";
-    }
-
-  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[part].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-      
-      os << "object {\n intrep" << ID << "center"<< sequence[part % sequence.size()] << "\n translate < "
-	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-    }
-
-  os << "merge {\n";
-  BOOST_FOREACH(const size_t& part, *(Sim->dynamics.getSpecies()[specID]->getRange()))
-    {
-      Vector  pos(Sim->particleList[part].getPosition());
-      Sim->dynamics.BCs().applyBC(pos);
-      
-      os << "object {\n intrep" << ID << "seqwell" << sequence[part % sequence.size()] << "\n translate < "
-	 << pos[0] << ", " << pos[1] << ", " << pos[2] << ">\n}\n";
-    }
-  
-  os << "}\n";
-
 }

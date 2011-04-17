@@ -21,6 +21,11 @@
 **** TODO Improve the documentation
 **** TODO Move aspect ratio into BC class
 **** TODO Generalize the Morton ordered neighbour list
+**** TODO Change HardCoreDiam() to be ExcludedVolume in Interactions
+**** TODO Fix getInternalEnergy() in Interactions to work for polydispersity
+**** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions)
+**** TODO Think about the unit rescale in compression, what happens with energy scales? do the velocities rescale?
+**** TODO Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists
 **** TODO Triangular Meshes
