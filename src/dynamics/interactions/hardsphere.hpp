@@ -44,7 +44,7 @@ public:
 
   virtual double hardCoreDiam() const;
 
-  virtual void rescaleLengths(double);
+  virtual void rescaleLengths(double) {}
 
   virtual Interaction* Clone() const;
   

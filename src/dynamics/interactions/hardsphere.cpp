@@ -75,10 +75,6 @@ double
 IHardSphere::hardCoreDiam() const 
 { return _diameter->getMaxValue(); } //* Sim->dynamics.units().unitLength(); }
 
-void 
-IHardSphere::rescaleLengths(double scale) 
-{ M_throw() << "Not implemented"; } //diameter += scale*diameter; }
-
 Interaction* 
 IHardSphere::Clone() const 
 { return new IHardSphere(*this); }
