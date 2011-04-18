@@ -162,8 +162,8 @@ function wallsw {
     #doing 9995 as this stops any 2 periodicity
     $Dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
     
-    $Dynamod --text --round config.out.xml.bz2 > /dev/null
-    $Dynamod --text config.out.xml.bz2 > /dev/null
+    $Dynamod --round config.out.xml.bz2 > /dev/null
+    $Dynamod config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
@@ -197,8 +197,8 @@ function umbrella {
     $Dynarun -c 12 $2 tmp.xml.bz2 &> run.log
 
     ##This rounds the last digit off 
-    $Dynamod --text --round config.out.xml.bz2 > /dev/null
-    $Dynamod --text config.out.xml.bz2 > /dev/null
+    $Dynamod --round config.out.xml.bz2 > /dev/null
+    $Dynamod config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
@@ -521,7 +521,7 @@ function GravityPlateTest {
 
     $Dynamod -s1 -m 22 -d 0.1  &> run.log
     $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    MFT=3.56921819828845
+    MFT=3.43827101412647
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
