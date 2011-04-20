@@ -6,18 +6,17 @@
 * Code improvements
 ** Version Milestones
 *** Dynamo 1.1
-**** TODO Merge orientation and normal liouvillean
-**** TODO New properties framework
-     - [ ] Start with the framework
-     - [ ] Migrate the current ranges to the framework
+**** DONE Optimize the MinMax Heap memory usage to remove the wasted element.
+**** DONE New properties framework
 **** DONE Migrate to RapidXML parser
 **** DONE Benchmark binary XML mode and text mode to see if binary is still required
+**** TODO Add a multi-value property
+**** TODO Merge orientation and normal liouvillean
 **** TODO Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data
      - [X] Implement volume renderer
      - [X] Make a transfer function interface
      - [ ] Load the density data from some particles
-**** DONE Optimize the MinMax Heap memory usage to remove the wasted element
 **** TODO Improve the documentation
 **** TODO Move aspect ratio into BC class
 **** TODO Generalize the Morton ordered neighbour list
