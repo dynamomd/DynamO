@@ -56,8 +56,6 @@ main(int argc, char *argv[])
 	 "Configuration output file.")
 	("random-seed,s", po::value<unsigned int>(),
 	 "Random seed for generator.")
-	("packfrac,P", po::value<double>(), 
-	 "Rescale lengths to set the packing fraction.")
 	("rescale-T,r", po::value<double>(), 
 	 "Rescale kinetic temperature to this value.")
 	("zero-momentum,Z", "Zero the momentum.")
@@ -140,10 +138,6 @@ main(int argc, char *argv[])
       
       //Here we modify the sim accordingly      
 
-      if (vm.count("packfrac"))
-	CInputPlugin(&sim, "Resizer")
-	  .setPackFrac(vm["packfrac"].as<double>());
-      
       if (vm.count("zero-momentum"))
 	CInputPlugin(&sim, "MomentumZeroer")
 	  .zeroMomentum();	

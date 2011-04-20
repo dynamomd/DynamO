@@ -76,14 +76,11 @@ CIPCompression::RestoreSystem()
   else
     I_cout() << "No cellular device to fix";
 
-  Sim->dynamics.rescaleLengths(Sim->dSysTime * growthRate
-			       / Sim->dynamics.units().unitTime());
-
-  Sim->_properties.rescaleUnit(Property::Units::L, 
-			       1 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime());
+  double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
+  Sim->dynamics.units().rescaleLength(rescale_factor);
+  Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
 
   Sim->dynamics.setLiouvillean(oldLio->Clone());
-
 
   double volume = 0.0;
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())

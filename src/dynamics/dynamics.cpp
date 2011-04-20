@@ -572,11 +572,6 @@ Dynamics::getLongestInteraction() const
   return maxval;
 }
 
-void 
-Dynamics::rescaleLengths(double val)
-{
-  p_units->rescaleLength(val);
-}
 
 void 
 Dynamics::SystemOverlapTest()

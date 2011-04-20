@@ -108,19 +108,6 @@ CInputPlugin::zeroCentreOfMass()
 }
 
 void 
-CInputPlugin::setPackFrac(double tmp)
-{
-  double volume = 0.0;
-  
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
-  
-  volume *= M_PI / (6 * (Sim->dynamics.units().simVolume()));
-
-  Sim->dynamics.rescaleLengths(pow(tmp/volume, 1.0/3.0) -1.0);
-}
-
-void 
 CInputPlugin::mirrorDirection(unsigned int iDim)
 {
   BOOST_FOREACH(Particle& part, Sim->particleList)  

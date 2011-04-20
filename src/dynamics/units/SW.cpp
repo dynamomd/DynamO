@@ -55,8 +55,8 @@ USquareWell::setUnitLength(double scalar)
 { UnitOfLength = scalar; }
 
 void 
-USquareWell::rescaleLength(double rs)
-{ UnitOfLength += rs * UnitOfLength; }
+USquareWell::rescaleLength(double factor)
+{ UnitOfLength *= factor; }
 
 double 
 USquareWell::unitTime() const

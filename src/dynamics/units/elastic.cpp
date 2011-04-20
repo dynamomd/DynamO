@@ -59,8 +59,8 @@ UHardSphere::Clone() const
 { return new UHardSphere(*this); }
 
 void 
-UHardSphere::rescaleLength(double rs)
-{ UnitOfLength += rs * UnitOfLength; }
+UHardSphere::rescaleLength(double factor)
+{ UnitOfLength *= factor; }
   
 void 
 UHardSphere::operator<<(const magnet::xml::Node& XML)

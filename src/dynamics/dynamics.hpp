@@ -123,8 +123,6 @@ public:
    */  
   void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
 
-  void rescaleLengths(double);
-
   void SystemOverlapTest();
   
   double calcInternalEnergy() const;
