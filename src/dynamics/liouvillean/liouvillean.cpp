@@ -119,7 +119,7 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
   
   I_cout() << "Writing Particles ";
   
-  for (unsigned long i = 0; i < Sim->N; ++i)
+  for (size_t i = 0; i < Sim->N; ++i)
     {
       Particle tmp(Sim->particleList[i]);
       Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
@@ -128,6 +128,8 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
       tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
       
       XML << xml::tag("Pt") << tmp;
+
+      Sim->_properties.outputParticleXMLData(XML, i);
       
       extraXMLParticleData(XML, i);
       

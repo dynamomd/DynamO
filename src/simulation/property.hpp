@@ -132,10 +132,19 @@ public:
 			  const Property::Units& units, 
 			  std::string name,
 			  double val = 1.0):
-    Property(units), _name(name), 
+    Property(units), _name(name),
     _values(N, val) {}
   
-  //! Always returns a single value.
+  inline ParticleProperty(const magnet::xml::Node& node):
+    Property(Property::Units(node.getAttribute("Units").getValue())),
+    _name(node.getAttribute("Name").getValue())
+  {
+    //Move up to the particles nodes, and start loading the property values
+    for (magnet::xml::Node pNode = node.getParent().getNode("ParticleData").getNode("Pt");
+	 pNode.valid(); ++pNode)
+      _values.push_back(pNode.getAttribute(_name).as<double>());
+  }
+  
   inline virtual const double& getProperty(size_t ID) const 
   { 
 #ifdef DYNAMO_DEBUG
@@ -144,15 +153,20 @@ public:
     return _values[ID]; 
   }
 
-  //! Returns the value as a string.
+  inline virtual double& getProperty(size_t ID)
+  { 
+#ifdef DYNAMO_DEBUG
+    return _values.at(ID); 
+#endif
+    return _values[ID]; 
+  }
+  
   inline virtual std::string getName() const 
   { return _name; }
-
-  //! As this Property only stores a single value, it is always
-  //! returned as the max.
+  
   inline virtual const double& getMaxValue() const 
   { return *std::max_element(_values.begin(), _values.end()); }
-
+  
   //! \sa Property::rescaleUnit
   inline virtual const void rescaleUnit(const Units::Dimension dim, 
 					const double rescale)
@@ -163,9 +177,27 @@ public:
 	*it *= factor;  
   }
 
+  inline virtual void outputParticleXMLData(xml::XmlStream& XML, 
+					    const size_t pID) const
+  {
+#ifdef DYNAMO_DEBUG
+    XML << xml::attr(_name) << _values.at(pID);
+#else
+    XML << xml::attr(_name) << _values[pID];
+#endif
+  }
+  
+  
 private:
-  virtual void outputXML(xml::XmlStream& XML) const {}
-
+  virtual void outputXML(xml::XmlStream& XML) const 
+  { 
+    XML << xml::tag("Property") 
+	<< xml::attr("Type") << "PerParticle"
+	<< xml::attr("Name") << _name
+	<< xml::attr("Units") << std::string(_units)
+	<< xml::endtag("Property");
+  }
+  
   std::string _name;
   typedef std::vector<double> Container;
   typedef Container::iterator Iterator;
@@ -240,6 +272,19 @@ public:
     return retval;
   }
 
+  inline magnet::thread::RefPtr<Property> push(Property* newProp)
+  {
+    if (dynamic_cast<NumericProperty*>(newProp))
+      {
+	_numericProperties.push_back(newProp);
+	return _numericProperties.back();
+      }    
+    
+    _namedProperties.push_back(newProp);
+    return _namedProperties.back();
+
+  }
+
   /*! Method which loads the properties from the XML configuration file. 
     \param node A xml Node at the root DYNAMOconfig Node of the config file.
    */
@@ -248,7 +293,10 @@ public:
     if (node.getNode("Properties").valid())
       for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
 	   propNode.valid(); ++propNode)
-	M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
+	if (propNode.getAttribute("Type") == "PerParticle")
+	  _namedProperties.push_back(new ParticleProperty(propNode));
+	else
+	  M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
     
     return *this;
   }

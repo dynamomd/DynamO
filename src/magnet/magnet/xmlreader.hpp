@@ -172,6 +172,14 @@ namespace magnet {
 	_node = _node->previous_sibling(_node->name()); 
       }
 
+      inline Node getParent() const
+      {
+	if (_parent)
+	  return Node(_parent, _parent->parent());
+	else
+	  M_throw() << "No parent node for node " << detail::getPath(_node);
+      }
+
       //! Constructor to build a Node from rapidxml::xml_node data.
       inline Node(rapidxml::xml_node<>* node,
 		  rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
@@ -190,7 +198,7 @@ namespace magnet {
     };
 
     template<>
-    inline Attribute Node::getAttribute<const std::string&>(const std::string& name) const
+    inline Attribute Node::getAttribute<std::string>(std::string name) const
     { 
       if (!valid()) 
 	M_throw() << (std::string("XML error: Missing node's attribute being accessed\nXML Path: ")
@@ -199,7 +207,7 @@ namespace magnet {
     }
 
     template<>
-    inline Node Node::getNode<const std::string&>(const std::string& name) const
+    inline Node Node::getNode<std::string>(std::string name) const
     { 
       if (!valid()) 
 	M_throw() << (std::string("XML error: Cannot fetch sub node of invalid node\nXML Path: ")
