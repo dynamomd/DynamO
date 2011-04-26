@@ -130,8 +130,6 @@ OutputPlugin::getPlugin(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim
 #endif
   else if (!Name.compare("Torsion"))
     return testGeneratePlugin<OPCTorsion>(Sim, XML);
-  else if (!Name.compare("Geomview"))
-    return testGeneratePlugin<OPGeomview>(Sim, XML);
   else if (!Name.compare("Streamticker"))
     return testGeneratePlugin<OPStreamTicker>(Sim, XML);
   else if (!Name.compare("KEnergy"))

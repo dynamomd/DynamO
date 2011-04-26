@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "geomview.hpp"
 #include "chaintorsion.hpp"
 #include "radiusGyration.hpp"
 #include "tinkerxyz.hpp"

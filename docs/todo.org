@@ -17,6 +17,7 @@
      - [ ] Load the density data from some particles
 **** DONE *MINOR* Optimize the MinMax Heap memory usage to remove a wasted element (5% memory saving).
 **** DONE *MINOR* Auto detect if outputted files should be compressed based off their extension.
+**** DONE *MINOR* Removed the Geomview output plugin, the coil library supercedes these old plugins.
 **** TODO *BUG* Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
 **** DONE Add a multi-value property for Polydispersity.
 **** DONE Change HardCoreDiam() to be ExcludedVolume in Interactions

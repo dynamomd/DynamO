@@ -26,6 +26,7 @@
 #include "../../simulation/particle.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../units/units.hpp"
+#include "../interactions/representations/spherical.hpp"
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -74,6 +75,11 @@ SpPoint::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
+      if (dynamic_cast<const SphericalRepresentation*>(getIntPtr()) == NULL)
+	M_throw() << "The interaction " << getIntPtr()->getName() 
+		  << " is not able to be drawn using spheres, and yet it is used in the species " << getName()
+		  << " as the representative interaction.";
+
       _renderObj = new SphereParticleRenderer(range->size(), "Species: " + spName,
 					      magnet::function::MakeDelegate(this, &SpPoint::updateColorObj));
       _coil = new CoilRegister;
