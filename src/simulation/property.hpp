@@ -131,16 +131,17 @@ public:
   inline ParticleProperty(size_t N, 
 			  const Property::Units& units, 
 			  std::string name,
-			  double val = 1.0):
+			  double initalval):
     Property(units), _name(name),
-    _values(N, val) {}
+    _values(N, initalval) {}
   
   inline ParticleProperty(const magnet::xml::Node& node):
     Property(Property::Units(node.getAttribute("Units").getValue())),
     _name(node.getAttribute("Name").getValue())
   {
     //Move up to the particles nodes, and start loading the property values
-    for (magnet::xml::Node pNode = node.getParent().getNode("ParticleData").getNode("Pt");
+    for (magnet::xml::Node pNode = node.getParent().getParent()
+	   .getNode("ParticleData").getNode("Pt");
 	 pNode.valid(); ++pNode)
       _values.push_back(pNode.getAttribute(_name).as<double>());
   }
@@ -148,7 +149,10 @@ public:
   inline virtual const double& getProperty(size_t ID) const 
   { 
 #ifdef DYNAMO_DEBUG
-    return _values.at(ID); 
+    if (ID >= _values.size())
+      M_throw() << "Out of bounds access to ParticleProperty \"" 
+		<< _name << "\", which has " << _values.size() 
+		<< " entries and you're accessing " << ID;
 #endif
     return _values[ID]; 
   }
@@ -177,15 +181,8 @@ public:
 	*it *= factor;  
   }
 
-  inline virtual void outputParticleXMLData(xml::XmlStream& XML, 
-					    const size_t pID) const
-  {
-#ifdef DYNAMO_DEBUG
-    XML << xml::attr(_name) << _values.at(pID);
-#else
-    XML << xml::attr(_name) << _values[pID];
-#endif
-  }
+  inline void outputParticleXMLData(xml::XmlStream& XML, const size_t pID) const
+  { XML << xml::attr(_name) << getProperty(pID); }
   
   
 private:
@@ -293,7 +290,7 @@ public:
     if (node.getNode("Properties").valid())
       for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
 	   propNode.valid(); ++propNode)
-	if (propNode.getAttribute("Type") == "PerParticle")
+	if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
 	  _namedProperties.push_back(new ParticleProperty(propNode));
 	else
 	  M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
@@ -336,7 +333,6 @@ public:
   //! written out.
   inline void outputParticleXMLData(xml::XmlStream& XML, size_t pID) const 
   {
-    //Try name based lookup first
     for (const_iterator iPtr = _namedProperties.begin(); 
 	 iPtr != _namedProperties.end(); ++iPtr)
       (*iPtr)->outputParticleXMLData(XML, pID);

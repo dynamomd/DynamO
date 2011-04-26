@@ -3460,11 +3460,12 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  elasticity =  vm["f1"].as<double>();
 
-	Sim->_properties.push(new ParticleProperty(Sim->N, Property::Units::Length(),
-						   "D", 1.0));
+	Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
+						   Property::Units::Length(),
+						   "D", particleDiam));
 
-	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
-						      new C2RAll()
+
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, "D", elasticity, new C2RAll()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
@@ -3476,7 +3477,8 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() 
+					       * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
 	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));

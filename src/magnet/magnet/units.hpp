@@ -171,7 +171,7 @@ namespace magnet {
       inline Units(const std::string name)
       {
 #define CONVERTFROMSTRINGMACRO(UNIT)\
-	if (UNIT () == *this) {*this = UNIT (); return;}
+	if (!std::string(UNIT()).compare(name)) {*this = UNIT (); return;}
 	UNITS_FACTORY(CONVERTFROMSTRINGMACRO);
 #undef CONVERTFROMSTRINGMACRO
 	M_throw() << "Invalid name of Units, " << name;

@@ -127,9 +127,10 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
       tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
       
-      XML << xml::tag("Pt") << tmp;
-
+      XML << xml::tag("Pt");
       Sim->_properties.outputParticleXMLData(XML, i);
+      XML << tmp;
+      
       
       extraXMLParticleData(XML, i);
       

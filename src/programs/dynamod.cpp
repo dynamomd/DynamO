@@ -120,7 +120,9 @@ main(int argc, char *argv[])
 
 	  std::cout << "\nMain: Finialising the packing routines";
 
-	  if (vm["packer-mode"].as<size_t>() < 23)
+	  //We don't zero momentum and rescale for certain packer modes
+	  if ((vm["packer-mode"].as<size_t>() != 23)
+	      && (vm["packer-mode"].as<size_t>() != 25))
 	    {
 	      CInputPlugin(&sim, "Rescaler").zeroMomentum();
 	      CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
