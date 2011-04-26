@@ -254,6 +254,12 @@ CIPPacker::initialise()
 	"       --f3 : Sleep velocity [Disabled]\n"
 	"       --f4 : tc model time [Disabled]\n"
 	"       --f5 : If using a sleep velocity, this sets the periodic wake up time [Disabled]\n"
+	"  26: Polydisperse hard spheres\n"
+	"       --f1 : Sets the elasticity of the hard spheres\n"
+	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	"       --i2 : Adds a temperature rescale event every x events\n"
+	"       --b1 : Installs the collision sentinel for low densities\n"
+	"       --b2 : Forces the use of non-morton cells in square systems\n"
 	;
       std::cout << "\n";
       exit(1);
@@ -3379,6 +3385,105 @@ CIPPacker::initialise()
 	  }
 
 	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	break;
+      }
+    case 26:
+      {
+	//Pack of polydispers hard spheres
+	//Pack the system, determine the number of particles
+	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	packptr->initialise();
+
+	std::vector<Vector  >
+	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
+
+	if (vm.count("rectangular-box"))
+	  {
+	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
+	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	  }
+	else
+	  {
+	    Sim->dynamics.applyBC<BCSquarePeriodic>();
+
+	    if (vm.count("b2"))
+	      Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	    else
+	      Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
+	  }
+
+	double simVol = 1.0;
+
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  simVol *= Sim->aspectRatio[iDim];
+
+	double particleDiam = pow(simVol * vm["density"].as<double>()
+				/ latticeSites.size(), double(1.0 / 3.0));
+
+	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
+	  {
+	    CVector<long> cells = getCells();
+	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
+	      {
+		I_cerr() << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
+		  "I'm going to temporarily calculate the density by the 2D definition!";
+		
+		size_t dimension;
+		if (cells[0] == 1)
+		  dimension = 0;
+		if (cells[1] == 1)
+		  dimension = 1;
+		if (cells[2] == 1)
+		  dimension = 2;
+
+		particleDiam = std::sqrt(simVol * vm["density"].as<double>()
+					 / (Sim->aspectRatio[dimension] * latticeSites.size()));		
+		
+		I_cout() << "I'm changing what looks like the unused box dimension (" 
+			 << dimension << ") to the optimal 2D value (3 particle diameters)";
+
+		Sim->aspectRatio[dimension] = 3.0000001 * particleDiam;
+	      }
+	  }
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
+
+	if (vm.count("b1"))
+	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+
+	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
+
+	double elasticity = 1.0;
+
+	if (vm.count("f1"))
+	  elasticity =  vm["f1"].as<double>();
+
+	Sim->_properties.push(new ParticleProperty(Sim->N, Property::Units::Length(),
+						   "D", 1.0));
+
+	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
+						      new C2RAll()
+						      ))->setName("Bulk");
+
+	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+					      "Bulk")));
+
+	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+
+	unsigned long nParticles = 0;
+	Sim->particleList.reserve(latticeSites.size());
+	BOOST_FOREACH(const Vector & position, latticeSites)
+	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+						 nParticles++));
+
+	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	
+	if (vm.count("i2"))
+	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
+
 	break;
       }
     default:
