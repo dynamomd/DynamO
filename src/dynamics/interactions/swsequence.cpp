@@ -152,7 +152,9 @@ ISWSequence::getInternalEnergy() const
   BOOST_FOREACH(const locpair& IDs, captureMap)
     Energy += alphabet
     [sequence[IDs.first % sequence.size()]]
-    [sequence[IDs.second % sequence.size()]] * _unitEnergy->getMaxValue();
+    [sequence[IDs.second % sequence.size()]] 
+    * 0.5 * (_unitEnergy->getProperty(IDs.first)
+	     +_unitEnergy->getProperty(IDs.second));
   
   return -Energy; 
 }

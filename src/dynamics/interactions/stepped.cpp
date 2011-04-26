@@ -130,7 +130,9 @@ IStepped::getInternalEnergy() const
   typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    Energy += steps[IDs.second - 1].second * _unitEnergy->getMaxValue();
+    Energy += steps[IDs.second - 1].second 
+    * 0.5 * (_unitEnergy->getProperty(IDs.first.first)
+	     + _unitEnergy->getProperty(IDs.first.second));
   
   return Energy; 
 }

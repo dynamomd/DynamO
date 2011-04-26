@@ -115,7 +115,7 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
     updateColorObj(CLState);
   
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendRenderData, 
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendRenderData,
 										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
 }
 

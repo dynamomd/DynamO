@@ -231,3 +231,17 @@ ISoftCore::outputXML(xml::XmlStream& XML) const
   
   ISingleCapture::outputCaptureMap(XML);  
 }
+
+double 
+ISoftCore::getInternalEnergy() const
+{ 
+  //Once the capture maps are loaded just iterate through that determining energies
+  double Energy = 0.0;
+  typedef std::pair<size_t, size_t> locpair;
+
+  BOOST_FOREACH(const locpair& IDs, captureMap)
+    Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
+		     +_wellDepth->getProperty(IDs.second));
+  
+  return -Energy; 
+}

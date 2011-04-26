@@ -59,8 +59,7 @@ public:
   
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual double getInternalEnergy() const 
-  { return -(getTotalCaptureCount() * _wellDepth->getMaxValue()); }
+  virtual double getInternalEnergy() const;
 
 protected:
   magnet::thread::RefPtr<Property> _diameter;

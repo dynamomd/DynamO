@@ -36,7 +36,7 @@ public:
 
   void operator<<(const magnet::xml::Node&);
 
-  virtual double getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0; }
 
   virtual void initialise(size_t);
 

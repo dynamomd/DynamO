@@ -375,7 +375,7 @@ Dynamics::calcInternalEnergy() const
   return intECurrent;
 }
 
-double 
+double
 Dynamics::getNumberDensity() const
 {
   return Sim->N / Sim->dynamics.units().simVolume();
