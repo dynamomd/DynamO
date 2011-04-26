@@ -122,7 +122,6 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
 void 
 SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
-
   std::vector<cl_uchar4>& particleColorData 
     = _renderObj.as<SphereParticleRenderer>()._particleColorData;
 
