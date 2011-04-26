@@ -158,8 +158,12 @@ ISWSequence::getInternalEnergy() const
 }
 
 double 
-ISWSequence::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
+ISWSequence::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
+
 
 double 
 ISWSequence::maxIntDist() const 

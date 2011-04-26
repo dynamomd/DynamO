@@ -76,10 +76,6 @@ double
 ILines::maxIntDist() const 
 { return _length->getMaxValue(); }
 
-double 
-ILines::hardCoreDiam() const 
-{ return 0.0; }
-
 Interaction* 
 ILines::Clone() const 
 { return new ILines(*this); }

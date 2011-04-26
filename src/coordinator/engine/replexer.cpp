@@ -177,8 +177,7 @@ EReplicaExchangeSimulation::outputData()
   
   BOOST_FOREACH(replexPair p1, temperatureList)
     Simulations[p1.second.simID].outputData
-    ((DYNAMO::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str(),
-     vm.count("uncompressed"));
+    ((DYNAMO::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
 }
 
 void
@@ -435,8 +434,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	    {
 	      Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
 	      Simulations[p1.second.simID].outputData((DYNAMO::searchReplace(std::string("peek.data.%ID.xml.bz2"), 
-									   "%ID", boost::lexical_cast<std::string>(i++))
-						       ).c_str(), vm.count("uncompressed"));
+									   "%ID", boost::lexical_cast<std::string>(i++))));
 	    }
 		  
 	  peekMode = false;
@@ -524,6 +522,6 @@ EReplicaExchangeSimulation::outputConfigs()
     {
       TtoID << p1.second.realTemperature << " " << i << "\n";
       Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-      Simulations[p1.second.simID].writeXMLfile((DYNAMO::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str(), false, vm.count("uncompressed"));
+      Simulations[p1.second.simID].writeXMLfile(DYNAMO::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)));
     }
 }

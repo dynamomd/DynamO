@@ -46,9 +46,10 @@ public:
 
   virtual double maxIntDist() const = 0;  
 
+  //! Returns the internal energy "stored" in this interaction
   virtual double getInternalEnergy() const = 0; 
 
-  virtual double hardCoreDiam() const = 0;
+  virtual double getExcludedVolume(size_t) const = 0;
 
   virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
 

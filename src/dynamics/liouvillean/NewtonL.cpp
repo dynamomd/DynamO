@@ -722,7 +722,7 @@ LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2,
 
 PairEventData 
 LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
-			  const double &) const
+			    const double &) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];

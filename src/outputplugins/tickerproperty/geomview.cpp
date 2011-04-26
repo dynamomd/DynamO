@@ -124,7 +124,7 @@ OPGeomview::printImage()
 	       << "material {\ndiffuse "<< tmpCol.R  <<" "<< tmpCol.G <<" " 
 	       << tmpCol.B <<" }\n" << "}\n" 
 	       << "SPHERE " << 
-	      Sim->dynamics.getInteraction(part, part)->hardCoreDiam()/2.0 
+	      Sim->dynamics.getInteraction(part, part)->maxIntDist()/2.0 
 	       << " " << pos[0] << " " << pos[1] << " " << pos[2] << " \n";
 	  }
       of << "\n}\n";

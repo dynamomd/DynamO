@@ -97,7 +97,7 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
     factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
  
-  double diam = getIntPtr()->hardCoreDiam() * factor;
+  double diam = getIntPtr()->maxIntDist() * factor;
   
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)

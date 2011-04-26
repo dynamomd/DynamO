@@ -73,9 +73,13 @@ Interaction*
 ISquareWell::Clone() const 
 { return new ISquareWell(*this); }
 
+
 double 
-ISquareWell::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
+ISquareWell::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
 
 double 
 ISquareWell::maxIntDist() const 

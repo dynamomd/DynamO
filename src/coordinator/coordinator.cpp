@@ -108,7 +108,6 @@ Coordinator::parseOptions(int argc, char *argv[])
      "Default result output file (output.%ID.xml.bz2)")
     ("config-file", po::value<std::vector<std::string> >(), 
      "Specify a config file to load, or just list them on the command line")
-    ("uncompressed", "Output the XML config file without bzip compression, you have to specify out-data-file and out-config-file if you use this option")
     ;
 
   engineopts.add_options()
@@ -156,31 +155,6 @@ Coordinator::parseOptions(int argc, char *argv[])
   if (vm.count("config-file") == 0)
     M_throw() << "No configuration files to load specified";
 
-  if (vm.count("uncompressed") && !vm.count("out-config-file"))
-    M_throw() << "When using uncompressed output you must specify the output config file name";
-
-  if (vm.count("out-config-file"))
-    {
-      std::string fileName(vm["out-config-file"].as<std::string>());
-      if (vm.count("uncompressed") 
-	  && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
-	M_throw() << "You should not use a .bz2 extension for uncompressed"
-	  " config files";
-    }
-  
-  
-  if (vm.count("uncompressed") && !vm.count("out-data-file"))
-    M_throw() << "When using uncompressed output you must specify the output data file name";
-  
-  if (vm.count("out-data-file"))
-    {
-      std::string fileName(vm["out-data-file"].as<std::string>());
-      if (vm.count("uncompressed") 
-	  && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
-	M_throw() << "You should not use a .bz2 extension for uncompressed"
-	  " output files";
-    }
-  
   return vm;
 }
 

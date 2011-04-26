@@ -58,9 +58,9 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   
   void loadXMLfile(std::string filename);
   
-  void writeXMLfile(std::string filename, bool round = false, bool uncompressed = false);
+  void writeXMLfile(std::string filename, bool round = false);
 
-  void outputData(std::string filename = "output.xml.bz2", bool uncompressed = false);
+  void outputData(std::string filename = "output.xml.bz2");
   
   void configLoaded();
 

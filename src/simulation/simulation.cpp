@@ -235,7 +235,7 @@ Simulation::loadXMLfile(std::string fileName)
     M_throw() << "Loading config at wrong time, status = " << status;
   
   using namespace magnet::xml;
-  Document doc(fileName.c_str());  
+  Document doc(fileName.c_str());
   Node mainNode = doc.getNode("DYNAMOconfig");
 
   {
@@ -308,14 +308,15 @@ Simulation::loadXMLfile(std::string fileName)
 }
 
 void
-Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
+Simulation::writeXMLfile(std::string fileName, bool round)
 {
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot write out configuration in this state";
   
   namespace io = boost::iostreams;
   io::filtering_ostream coutputFile;
-  if (!uncompressed) 
+
+  if (std::string(fileName.end()-4, fileName.end()) == ".bz2")
     coutputFile.push(io::bzip2_compressor());
   
   coutputFile.push(io::file_sink(fileName));
@@ -387,7 +388,7 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
 }
 
 void
-Simulation::outputData(std::string filename, bool uncompressed)
+Simulation::outputData(std::string filename)
 {
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot output data when not initialised!";
@@ -395,7 +396,7 @@ Simulation::outputData(std::string filename, bool uncompressed)
   namespace io = boost::iostreams;
   io::filtering_ostream coutputFile;
   
-  if (!uncompressed)
+  if (std::string(filename.end()-4, filename.end()) == ".bz2")
     coutputFile.push(io::bzip2_compressor());
   
   coutputFile.push(io::file_sink(filename));
@@ -405,7 +406,6 @@ Simulation::outputData(std::string filename, bool uncompressed)
   
   XML << std::setprecision(std::numeric_limits<double>::digits10)
       << xml::prolog() << xml::tag("OutputData");
-  
   
   //Output the data and delete the outputplugins
   BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)

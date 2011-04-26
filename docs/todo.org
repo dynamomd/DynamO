@@ -7,22 +7,23 @@
 ** Version Milestones
 *** Dynamo 1.1
 **** DONE Optimize the MinMax Heap memory usage to remove the wasted element.
-**** DONE New properties framework
-**** DONE Migrate to RapidXML parser
-**** DONE Benchmark binary XML mode and text mode to see if binary is still required
-**** TODO Add a multi-value property
-**** TODO Merge orientation and normal liouvillean
+**** DONE New properties framework.
+**** DONE Migrate to RapidXML parser.
+**** DONE Benchmark binary XML mode and text mode to see if binary is still required.
+**** DONE Auto detect if outputted files should be compressed based off their extension.
+**** DONE Add a multi-value property for Polydispersity.
+**** TODO Fix getInternalEnergy() in Interactions to work for polydispersity
+**** TODO Change HardCoreDiam() to be ExcludedVolume in Interactions
+**** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions)
+**** TODO Move aspect ratio into BC class and fix that the units class calculates the box size.
 **** TODO Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data
      - [X] Implement volume renderer
      - [X] Make a transfer function interface
      - [ ] Load the density data from some particles
+**** TODO Merge orientation and normal liouvillean
 **** TODO Improve the documentation
-**** TODO Move aspect ratio into BC class
 **** TODO Generalize the Morton ordered neighbour list
-**** TODO Change HardCoreDiam() to be ExcludedVolume in Interactions
-**** TODO Fix getInternalEnergy() in Interactions to work for polydispersity
-**** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions)
 **** TODO Think about the unit rescale in compression, what happens with energy scales? do the velocities rescale?
 **** TODO Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
 *** Dynamo 1.2

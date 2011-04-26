@@ -52,14 +52,6 @@ INull::operator<<(const magnet::xml::Node& XML)
     }
 }
 
-double 
-INull::maxIntDist() const 
-{ return 0; }
-
-double 
-INull::hardCoreDiam() const 
-{ return 0; }
-
 Interaction* 
 INull::Clone() const 
 { return new INull(*this); }

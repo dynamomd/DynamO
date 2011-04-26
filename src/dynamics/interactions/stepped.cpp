@@ -84,8 +84,12 @@ IStepped::Clone() const
 { return new IStepped(*this); }
 
 double 
-IStepped::hardCoreDiam() const 
-{ return steps.back().first * _unitLength->getMaxValue(); }
+IStepped::getExcludedVolume(size_t ID) const 
+{ 
+  //Get the inner diameter
+  double diam = steps.back().first * _unitLength->getProperty(ID);
+  return (M_PI / 6) * diam * diam * diam; 
+}
 
 double 
 IStepped::maxIntDist() const 

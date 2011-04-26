@@ -80,8 +80,21 @@ IDumbbells::maxIntDist() const
 { return _length->getMaxValue() + _diameter->getMaxValue(); }
 
 double 
-IDumbbells::hardCoreDiam() const 
-{ return maxIntDist(); }
+IDumbbells::getExcludedVolume(size_t ID) const 
+{
+  double diam = _diameter->getProperty(ID);
+  double length = _length->getProperty(ID);
+
+  //The volume of the two spheres not overlapping
+  double vol = 2 * diam * diam * diam * M_PI / 6.0;;
+
+  //If the spheres are not overlapping just return the total volume
+  if (length >= diam) return vol;
+
+  //If they overlap, subtract the lens volume between the overlapping
+  //spheres
+  return vol - (1.0/12.0) * M_PI * (2 * diam + length) * std::pow(diam - length, 2); 
+}
 
 Interaction* 
 IDumbbells::Clone() const 

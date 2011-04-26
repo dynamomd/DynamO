@@ -72,9 +72,11 @@ IRotatedParallelCubes::maxIntDist() const
 { return std::sqrt(NDIM) * _diameter->getMaxValue(); }
 
 double 
-IRotatedParallelCubes::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
-
+IRotatedParallelCubes::getExcludedVolume(size_t ID) const 
+{
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam; 
+}
 
 Interaction* 
 IRotatedParallelCubes::Clone() const 

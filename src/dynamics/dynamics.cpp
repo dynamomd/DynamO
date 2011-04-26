@@ -387,9 +387,10 @@ Dynamics::getPackingFraction() const
   double volume = 0.0;
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
+    BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
+    volume += sp->getIntPtr()->getExcludedVolume(ID);
   
-  return  M_PI * volume / (6 * (Sim->dynamics.units().simVolume()));
+  return  volume / Sim->dynamics.units().simVolume();
 }
 
 void 

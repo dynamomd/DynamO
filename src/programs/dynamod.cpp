@@ -187,23 +187,18 @@ main(int argc, char *argv[])
 	sim.getHistory() << argv[i] << " ";
       sim.getHistory() << "\nGIT hash " << GITHASH;
       cout << "\nWriting out configuration";
-      sim.writeXMLfile(vm["out-config-file"].as<string>().c_str(), 
-		       vm.count("round"), vm.count("uncompressed"));
+      sim.writeXMLfile(vm["out-config-file"].as<string>(), vm.count("round"));
       cout << "\n";
     }
   catch (std::exception &cep)
     {
-      fflush(stdout);
       std::cout << "\nReached Main Error Loop"
 		<< "\nOutputting results so far and shutting down"
 		<< "\nBad configuration written to config.error.xml"
 		<< cep.what();
-
-
+      
       try
-	{
-	  sim.writeXMLfile("config.error.xml.bz2");
-	}
+	{ sim.writeXMLfile("config.error.xml.bz2"); }
       catch (std::exception &cep)
 	{
 	  std::cout << "\nFailed to output error config"

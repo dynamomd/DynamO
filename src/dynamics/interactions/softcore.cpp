@@ -64,10 +64,6 @@ ISoftCore::Clone() const
 { return new ISoftCore(*this); }
 
 double 
-ISoftCore::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
-
-double 
 ISoftCore::maxIntDist() const 
 { return _diameter->getMaxValue(); }
 

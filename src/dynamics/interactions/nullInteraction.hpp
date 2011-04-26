@@ -28,13 +28,13 @@ public:
 
   void operator<<(const magnet::xml::Node&);
 
-  virtual double getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0; }
 
   virtual void initialise(size_t);
 
-  virtual double maxIntDist() const;
+  virtual double maxIntDist() const { return 0; }
 
-  virtual double hardCoreDiam() const;
+  virtual double getExcludedVolume(size_t) const { return 0; }
 
   virtual Interaction* Clone() const;
   

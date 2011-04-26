@@ -39,7 +39,7 @@ ESingleSimulation::runSimulation()
 	if (peekMode)
 	  {
 	    simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	    simulation.outputData("peek.data.xml.bz2", vm.count("uncompressed"));
+	    simulation.outputData("peek.data.xml.bz2");
 	    peekMode = false;
 	  }
 	
@@ -51,7 +51,7 @@ ESingleSimulation::runSimulation()
     {
       try {
 	std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
-	simulation.writeXMLfile("config.error.xml.bz2", false, false);
+	simulation.writeXMLfile("config.error.xml.bz2");
       } catch (...)
 	{
 	  std::cerr << "\nEngine: Could not output Errored config";
@@ -82,13 +82,13 @@ ESingleSimulation::initialisation()
 void
 ESingleSimulation::outputData()
 {
-  simulation.outputData(outputFormat.c_str(),vm.count("uncompressed"));
+  simulation.outputData(outputFormat.c_str());
 }
 
 void
 ESingleSimulation::outputConfigs()
 {
-  simulation.writeXMLfile(configFormat.c_str(), false, vm.count("uncompressed"));
+  simulation.writeXMLfile(configFormat.c_str());
 }
 
 void 

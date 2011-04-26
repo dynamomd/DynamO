@@ -70,8 +70,11 @@ IRoughHardSphere::maxIntDist() const
 { return _diameter->getMaxValue(); }
 
 double 
-IRoughHardSphere::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
+IRoughHardSphere::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
 
 Interaction* 
 IRoughHardSphere::Clone() const 

@@ -48,7 +48,7 @@ public:
 
   virtual double maxIntDist() const;
 
-  virtual double hardCoreDiam() const;
+  virtual double getExcludedVolume(size_t) const;
 
   virtual Interaction* Clone() const;
   

@@ -72,8 +72,11 @@ IHardSphere::maxIntDist() const
 { return _diameter->getMaxValue(); } // * Sim->dynamics.units().unitLength(); }
 
 double 
-IHardSphere::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); } //* Sim->dynamics.units().unitLength(); }
+IHardSphere::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
 
 Interaction* 
 IHardSphere::Clone() const 

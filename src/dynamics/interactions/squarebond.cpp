@@ -75,10 +75,6 @@ ISquareBond::getCaptureEnergy() const
 { return 0.0; }
 
 double 
-ISquareBond::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
-
-double 
 ISquareBond::maxIntDist() const 
 { return _diameter->getMaxValue()
     * _lambda->getMaxValue(); }

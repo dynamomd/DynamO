@@ -81,14 +81,10 @@ CIPCompression::RestoreSystem()
   Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
 
   Sim->dynamics.setLiouvillean(oldLio->Clone());
-
-  double volume = 0.0;
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Sim->ssHistory << "\nCompression dynamics run"
 		 << "\nEnd packing fraction" 
-		 << M_PI * volume / (6 * Sim->dynamics.units().simVolume());
+		 << Sim->dynamics.getPackingFraction();
 }
 
 void
@@ -125,12 +121,8 @@ void
 CIPCompression::limitPackingFraction(double targetp)
 {
   I_cout() << "Limiting maximum packing fraction to " << targetp;
-  double volume = 0.0;
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
-  
-  double packfrac = M_PI * volume / (6 * (Sim->dynamics.units().simVolume()));
+  double packfrac = Sim->dynamics.getPackingFraction();
   
   if (targetp < packfrac)
     M_throw() << "Target packing fraction is lower than current!";
@@ -144,15 +136,10 @@ void
 CIPCompression::limitDensity(double targetrho)
 {
   I_cout() << "Limiting maximum density to " << targetrho;
-
-  //Get the avg molecular volume
-  double volume = 0.0;
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += std::pow(sp->getIntPtr()->hardCoreDiam(), static_cast<int>(NDIM)) * sp->getCount();
-  
-  double molVol = M_PI * volume / (6.0 * Sim->particleList.size()
-			       * Sim->dynamics.units().unitVolume());
+  double molVol = (Sim->dynamics.getPackingFraction() 
+		   * Sim->dynamics.units().simVolume())
+    / (Sim->N * Sim->dynamics.units().unitVolume());
 
   I_cout() << "Corresponding packing fraction for that density is "
 	   << molVol * targetrho;
