@@ -48,7 +48,8 @@ public:
 
   virtual Species* Clone() const { return new SpPoint(*this); }
 
-  virtual double getScalarMomentOfInertia() const { return 0; }
+  virtual double getScalarMomentOfInertia(size_t ID) const 
+  { M_throw() << "Species has no intertia"; }
 
 #ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;

@@ -147,11 +147,11 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const do
     }
 
 
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass(particle1.getID())
+  retVal.particle1_.setDeltaKE(0.5 * p1Mass
 			       * (particle1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass(particle2.getID())
+  retVal.particle2_.setDeltaKE(0.5 * p2Mass
 			       * (particle2.getVelocity().nrm2()
 				  - retVal.particle2_.getOldVel().nrm2()));
   
@@ -237,11 +237,11 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass(particle1.getID())
+  retVal.particle1_.setDeltaKE(0.5 * p1Mass
 			       * (particle1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass(particle2.getID())
+  retVal.particle2_.setDeltaKE(0.5 * p2Mass
 			       * (particle2.getVelocity().nrm2() 
 				  - retVal.particle2_.getOldVel().nrm2()));
   

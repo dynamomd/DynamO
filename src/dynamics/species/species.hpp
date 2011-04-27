@@ -46,7 +46,7 @@ public:
   inline const magnet::ClonePtr<CRange>& getRange() const { return range; }
   inline const Interaction* getIntPtr() const { return IntPtr; }
   inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
-  virtual double getScalarMomentOfInertia() const = 0;
+  virtual double getScalarMomentOfInertia(size_t ID) const = 0;
 
   virtual void operator<<(const magnet::xml::Node&) = 0;
 

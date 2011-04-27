@@ -44,7 +44,7 @@ LNOrientation::initialise()
   double sumEnergy(0.0);
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)  
-    sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()
+    sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
     * orientationData[part.getID()].angularVelocity.nrm2();
   
   //Check if any of the species are overridden
@@ -157,7 +157,7 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
     - (cp.second * fL.getw2() ^ fL.getu2());
   
   double mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
-  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia(particle1.getID());
 
   retVal.dP = uPerp
     * (((vr | uPerp) * (1.0 + elasticity))
@@ -539,7 +539,7 @@ LNOrientation::getParticleKineticEnergy(const Particle& part) const
   return 0.5 * ((Sim->dynamics.getSpecies(part).getMass(part.getID())
     * part.getVelocity().nrm2())
       + (orientationData[part.getID()].angularVelocity.nrm2()
-      * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()));
+	 * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())));
 }
  
 void 
@@ -593,7 +593,7 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
   
   Vector gijt = (eijn ^ gij) ^ eijn;
 
-  double Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia() 
+  double Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia(particle1.getID()) 
     / (p1Mass * d2 * 0.25);
   
   retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
@@ -634,7 +634,7 @@ LNOrientation::runRoughWallCollision(const Particle& part,
 
   double p1Mass = retVal.getSpecies().getMass(part.getID()); 
 
-  double Jbar = retVal.getSpecies().getScalarMomentOfInertia()
+  double Jbar = retVal.getSpecies().getScalarMomentOfInertia(part.getID())
     / (p1Mass * r * r);
 
   Vector gij = part.getVelocity() - r
