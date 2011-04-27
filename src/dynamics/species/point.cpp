@@ -16,7 +16,7 @@
 */
 
 #ifdef DYNAMO_visualizer
-# include "renderobjs/spheres.hpp"
+# include <coil/RenderObj/SphericalParticles.hpp>
 # include "../liouvillean/CompressionL.hpp"
 #endif
 
@@ -75,13 +75,12 @@ SpPoint::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-      if (dynamic_cast<const SphericalRepresentation*>(getIntPtr()) == NULL)
-	M_throw() << "The interaction " << getIntPtr()->getName() 
-		  << " is not able to be drawn using spheres, and yet it is used in the species " << getName()
-		  << " as the representative interaction.";
+//      if (dynamic_cast<const SphericalRepresentation*>(getIntPtr()) == NULL)
+//	M_throw() << "The interaction " << getIntPtr()->getName() 
+//		  << " is not able to be drawn using spheres, and yet it is used in the species " << getName()
+//		  << " as the representative interaction.";
 
-      _renderObj = new SphereParticleRenderer(range->size(), "Species: " + spName,
-					      magnet::function::MakeDelegate(this, &SpPoint::updateColorObj));
+      _renderObj = new RSphericalParticles(range->size(), "Species: " + spName);
       _coil = new CoilRegister;
     }
 
@@ -95,7 +94,7 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
     M_throw() << "Updating before the render object has been fetched";
   
   std::vector<cl_float4>& particleData 
-    = _renderObj.as<SphereParticleRenderer>()._particleData;
+    = _renderObj.as<RSphericalParticles>()._particleData;
 
   ///////////////////////POSITION DATA UPDATE
   //Check if the system is compressing and adjust the radius scaling factor
@@ -118,88 +117,15 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
       particleData[sphID++].w = diam * 0.5;
     }
 
-  if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
+  if (_renderObj.as<RSphericalParticles>().getRecolorOnUpdate())
     updateColorObj(CLState);
   
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendRenderData,
-										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendRenderData,
+										 &(_renderObj.as<RSphericalParticles>()), CLState));
 }
 
 void 
 SpPoint::updateColorObj(magnet::CL::CLGLState& CLState) const
 {
-  std::vector<cl_uchar4>& particleColorData 
-    = _renderObj.as<SphereParticleRenderer>()._particleColorData;
-
-  bool colorIfSleeping = _renderObj.as<SphereParticleRenderer>().getColorIfStatic();
-  cl_uchar4 sleepcolor;
-  for (size_t cc(0); cc < 4; ++cc)
-    sleepcolor.s[cc] = _renderObj.as<SphereParticleRenderer>().getColorStatic().s[cc];
-
-  switch (_renderObj.as<SphereParticleRenderer>().getDrawMode())
-    {
-    case SphereParticleRenderer::SINGLE_COLOR:
-      {
-	cl_uchar4 color;
-	for (size_t cc(0); cc < 4; ++cc)
-	  color.s[cc] = _renderObj.as<SphereParticleRenderer>().getColorFixed().s[cc];
-
-	size_t sphID(0);
-	BOOST_FOREACH(unsigned long ID, *range)
-	  {
-	    if (colorIfSleeping && !Sim->particleList[ID].testState(Particle::DYNAMIC))
-	      for (size_t cc(0); cc < 4; ++cc)
-		particleColorData[sphID].s[cc] = sleepcolor.s[cc];
-	    else
-	      for (size_t cc(0); cc < 4; ++cc)
-		particleColorData[sphID].s[cc] = color.s[cc];
-
-	    ++sphID;
-	  }
-	break;
-      }
-    case SphereParticleRenderer::COLOR_BY_ID:
-      {
-	size_t np = range->size();
-
-	size_t sphID(0);
-	BOOST_FOREACH(unsigned long ID, *range)
-	  {
-	    if (colorIfSleeping && !Sim->particleList[ID].testState(Particle::DYNAMIC))
-	      for (size_t cc(0); cc < 4; ++cc)
-		particleColorData[sphID].s[cc] = sleepcolor.s[cc];
-	    else
-	      _renderObj.as<SphereParticleRenderer>().map(particleColorData[sphID], ((float)(sphID)) / np);
-
-	    ++sphID;
-	  }
-	break;
-      }
-    case SphereParticleRenderer::COLOR_BY_SPEED:
-      {
-	double scaleV = _renderObj.as<SphereParticleRenderer>().getScaleV() 
-	  * Sim->dynamics.units().unitVelocity();
-	size_t sphID(0);
-	BOOST_FOREACH(unsigned long ID, *range)
-	  {
-	    if (colorIfSleeping && !Sim->particleList[ID].testState(Particle::DYNAMIC))
-	      for (size_t cc(0); cc < 4; ++cc)
-		particleColorData[sphID].s[cc] = sleepcolor.s[cc];
-	    else
-	      {
-		Vector vel = Sim->particleList[ID].getVelocity();
-		_renderObj.as<SphereParticleRenderer>()
-		  .map(particleColorData[sphID], magnet::clamp(vel.nrm() / scaleV, 0.0, 1.0));
-	      }
-	    ++sphID;
-	  }
-	break;
-      }
-    default:
-      M_throw() << "Not Implemented";
-    }
-
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendColorData, 
-										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
 }
 #endif

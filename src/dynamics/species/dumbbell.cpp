@@ -1,5 +1,5 @@
 #ifdef DYNAMO_visualizer
-# include "renderobjs/spheres.hpp"
+# include <coil/RenderObj/SphericalParticles.hpp>
 # include <magnet/thread/mutex.hpp>
 # include "../liouvillean/OrientationL.hpp"
 # include "../interactions/dumbbells.hpp"
@@ -15,9 +15,7 @@ SpDumbbells::getCoilRenderObj() const
       if (dynamic_cast<const IDumbbells*>(getIntPtr()) == NULL)
 	M_throw() << "You must use the IDumbbells interaction for the Dumbbells species type";
       
-      _renderObj = new SphereParticleRenderer(2 * range->size(), "Species: " + spName,
-					      magnet::function::MakeDelegate(this, &SpDumbbells::updateColorObj),
-					      2);
+      _renderObj = new RSphericalParticles(2 * range->size(), "Species: " + spName, 2);
       _coil = new CoilRegister;
     }
   
@@ -31,7 +29,7 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
     M_throw() << "Updating before the render object has been fetched";
   
   std::vector<cl_float4>& particleData 
-    = _renderObj.as<SphereParticleRenderer>()._particleData;
+    = _renderObj.as<RSphericalParticles>()._particleData;
 
   ///////////////////////POSITION DATA UPDATE
   //Check if the system is compressing and adjust the radius scaling factor
@@ -65,11 +63,11 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
       ++sphID;
     }
 
-  if (_renderObj.as<SphereParticleRenderer>().getRecolorOnUpdate())
+  if (_renderObj.as<RSphericalParticles>().getRecolorOnUpdate())
     updateColorObj(CLState);
   
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&SphereParticleRenderer::sendRenderData, 
-										 &(_renderObj.as<SphereParticleRenderer>()), CLState));
+  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendRenderData, 
+										 &(_renderObj.as<RSphericalParticles>()), CLState));
 }
 #endif
 
