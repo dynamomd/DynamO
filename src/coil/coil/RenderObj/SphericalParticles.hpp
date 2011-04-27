@@ -44,7 +44,9 @@ public:
   } DrawMode;
 
   inline volatile const DrawMode& getDrawMode() { return _mode; }
-  inline volatile bool getRecolorOnUpdate() { return _recolorOnUpdate; }
+
+  inline void recolor(magnet::CL::CLGLState& CLState) 
+  { if (_recolorOnUpdate) updateColorData(CLState); }
 
   inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
 

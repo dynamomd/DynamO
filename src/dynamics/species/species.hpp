@@ -57,10 +57,6 @@ public:
 
   static Species* getClass(const magnet::xml::Node&, DYNAMO::SimData*, size_t);
 
-#ifdef DYNAMO_visualizer
-  virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;
-#endif
-
 protected:
   Species(DYNAMO::SimData* tmp, std::string name, 
 	  CRange* nr, double nMass, std::string nName, 

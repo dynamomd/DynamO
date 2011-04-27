@@ -63,8 +63,7 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
       ++sphID;
     }
 
-  if (_renderObj.as<RSphericalParticles>().getRecolorOnUpdate())
-    updateColorObj(CLState);
+  _renderObj.as<RSphericalParticles>().recolor(CLState);
   
   _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendRenderData, 
 										 &(_renderObj.as<RSphericalParticles>()), CLState));
