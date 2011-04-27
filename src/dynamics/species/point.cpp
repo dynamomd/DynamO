@@ -32,7 +32,6 @@
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
-
 void 
 SpPoint::operator<<(const magnet::xml::Node& XML)
 {
@@ -76,10 +75,10 @@ SpPoint::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
     {
-//      if (dynamic_cast<const SphericalRepresentation*>(getIntPtr()) == NULL)
-//	M_throw() << "The interaction " << getIntPtr()->getName() 
-//		  << " is not able to be drawn using spheres, and yet it is used in the species " << getName()
-//		  << " as the representative interaction.";
+      if (dynamic_cast<const SphericalRepresentation*>(getIntPtr()) == NULL)
+	M_throw() << "The interaction " << getIntPtr()->getName() 
+		  << " is not able to be drawn using spheres, and yet it is used in the species " << getName()
+		  << " as the representative interaction.";
 
       _renderObj = new RSphericalParticles(range->size(), "Species: " + spName);
       _coil = new CoilRegister;
@@ -103,19 +102,18 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
     factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
  
-  double diam = getIntPtr()->maxIntDist() * factor;
-  
+  const SphericalRepresentation& data
+    = dynamic_cast<const SphericalRepresentation&>(*getIntPtr());
+
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
-      Vector pos = Sim->particleList[ID].getPosition();
-      
-      Sim->dynamics.BCs().applyBC(pos);
+      Vector pos = data.getPosition(ID, 0);
       
       for (size_t i(0); i < NDIM; ++i)
 	particleData[sphID].s[i] = pos[i];
       
-      particleData[sphID++].w = diam * 0.5;
+      particleData[sphID++].w = 0.5 * factor * data.getDiameter(ID, 0);
     }
 
   _renderObj.as<RSphericalParticles>().recolor(CLState);

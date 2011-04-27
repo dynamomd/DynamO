@@ -17,14 +17,20 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
+#include "../interaction.hpp"
 
 //! This class is inherited by Interaction -s that can be represented
 //! as a collection of spheres.
 //!
 //! The methods provided in this base class allow a spherical representation to be created by a Species to pass to the coil visualizer. 
-class SphericalRepresentation
+class SphericalRepresentation : public Interaction
 {
 public:
+  SphericalRepresentation(DYNAMO::SimData* sim, C2Range* r):
+    Interaction(sim, r)
+  {}
+
+
   //! This function returns how many spheres must be rendered per
   //! particle. Typically it is only one but Interaction classes like
   //! IDumbbells need two or more.

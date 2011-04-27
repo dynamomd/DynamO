@@ -32,10 +32,8 @@
 #include <iomanip>
 
 IHardSphere::IHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  Interaction(tmp,NULL)
-{
-  operator<<(XML);
-}
+  SphericalRepresentation(tmp,NULL)
+{ operator<<(XML); }
 
 void 
 IHardSphere::initialise(size_t nID)
@@ -65,6 +63,18 @@ IHardSphere::operator<<(const magnet::xml::Node& XML)
   I_cout() << "Diameter is " << _diameter->getMaxValue();
   I_cout() << "Elasticity is " << _e->getMaxValue();
   
+}
+
+double 
+IHardSphere::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+IHardSphere::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
 }
 
 double 
