@@ -174,8 +174,8 @@ SSleep::particlesUpdated(const NEventData& PDat)
       //If the static particle sleeps
       if ((sleepCondition(sp, g)))
 	{
-	  double massRatio = Sim->dynamics.getSpecies(sp).getMass() 
-	    / Sim->dynamics.getSpecies(dp).getMass();
+	  double massRatio = Sim->dynamics.getSpecies(sp).getMass(sp.getID()) 
+	    / Sim->dynamics.getSpecies(dp).getMass(dp.getID());
 
 	  stateChange[sp.getID()] = Vector(0,0,0);
 	  stateChange[dp.getID()] = -sp.getVelocity() * massRatio;
@@ -195,7 +195,8 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	  //(in comparison to the other components). This means the
 	  //particle will just keep having an event, we sleep it
 	  //instead.
-	  if ((pdat.dP.nrm() / Sim->dynamics.getSpecies(dp).getMass()) < _sleepVelocity)
+	  if ((pdat.dP.nrm() / Sim->dynamics.getSpecies(dp).getMass(dp.getID())) 
+	      < _sleepVelocity)
 	    {
 	      stateChange[dp.getID()] = Vector(0,0,0);
 	      continue;
@@ -295,7 +296,7 @@ SSleep::runEvent() const
 	  M_throw() << "Bad event type!";
 	}
 	  
-      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
+      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
 			 - EDat.getOldVel().nrm2()));
 

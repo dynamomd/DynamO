@@ -101,25 +101,29 @@ OPThermalDiffusionE::initialise()
 		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
-  double sysMass = 0.0;
+  double sysMass = 0;
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    sysMass += sp->getMass() * sp->getCount();
+    BOOST_FOREACH(const size_t ID, *(sp->getRange()))
+    sysMass += sp->getMass(ID);
 
-  //Sum up the constant Del G.
+  //Sum up the constant Del G and the mass fraction of the species
+  double speciesMass = 0;
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
-      constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
-      sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
+      double mass = Sim->dynamics.getSpecies(part).getMass(part.getID());
+
+      constDelG += part.getVelocity() * mass
+	* Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
+      sysMom += part.getVelocity() * mass;
       
       if (Sim->dynamics.getSpecies(part).getID() == species1)
-	constDelGsp1 += part.getVelocity();
+	{
+	  constDelGsp1 += part.getVelocity();
+	  speciesMass += mass;
+	}
     }
 
-  constDelGsp1 *= Sim->dynamics.getSpecies()[species1]->getMass();
-  
-  massFracSp1 = Sim->dynamics.getSpecies()[species1]->getCount() 
-    * Sim->dynamics.getSpecies()[species1]->getMass() / sysMass;
-
+  massFracSp1 = speciesMass / sysMass;
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 

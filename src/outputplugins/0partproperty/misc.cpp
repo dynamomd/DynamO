@@ -74,8 +74,7 @@ OPMisc::initialise()
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       Sim->dynamics.BCs().applyBC(pos, vel);
-
-      sumMV += vel * Sim->dynamics.getSpecies(Part).getMass();
+      sumMV += vel * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
     }
 
   I_cout() << "Total momentum <x,y,z> <";
@@ -224,24 +223,10 @@ OPMisc::output(xml::XmlStream &XML)
 
   XML << xml::endtag("SystemBoxLength");
 
-  // Output scalar moment of inertia for any species which may have it
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-  {
-    if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
-    {
-      XML << xml::tag("ScalarInertia")
-	  << xml::attr("Species") << spec->getName()
-	  << xml::attr("Mass") << spec->getMass()
-	  << xml::attr("inertiaConst") << (spec->getScalarMomentOfInertia() / (Sim->dynamics.units().unitArea() * spec->getMass()))
-	  << xml::endtag("ScalarInertia");
-    }
-  }
-
-  Vector  sumMV (0,0,0);
-
+  Vector sumMV(0, 0, 0);
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const Particle & Part, Sim->particleList)
-    sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
+    sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
 
   XML << xml::tag("Total_momentum")
       << sumMV / Sim->dynamics.units().unitMomentum()

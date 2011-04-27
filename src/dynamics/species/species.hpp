@@ -17,11 +17,12 @@
 
 #pragma once
 
-#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
-#include <string>
 #include "../coilRenderObj.hpp"
+#include "../../base/is_simdata.hpp"
+#include <magnet/cloneptr.hpp>
+#include <string>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
@@ -37,7 +38,7 @@ public:
 
   inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
 
-  inline const double& getMass() const { return mass; }
+  inline const double& getMass(size_t ID) const { return _mass->getProperty(ID); }
   inline unsigned long getCount() const { return range->size(); }
   inline unsigned int getID() const { return ID; }
   inline const std::string& getName() const { return spName; }
@@ -58,17 +59,22 @@ public:
   static Species* getClass(const magnet::xml::Node&, DYNAMO::SimData*, size_t);
 
 protected:
+  template<class T1>
   Species(DYNAMO::SimData* tmp, std::string name, 
-	  CRange* nr, double nMass, std::string nName, 
+	  CRange* nr, T1 mass, std::string nName, 
 	  unsigned int nID, std::string nIName):
     SimBase(tmp,name, IC_blue),
-    mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
+    _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
+    range(nr),
+    spName(nName),
+    intName(nIName),
+    IntPtr(NULL),
     ID(nID)
   {}
 
   virtual void outputXML(xml::XmlStream&) const = 0;
   
-  double mass;
+  magnet::thread::RefPtr<Property> _mass;
   magnet::ClonePtr<CRange> range;
   std::string spName;
   std::string intName;

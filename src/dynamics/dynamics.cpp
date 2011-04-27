@@ -407,8 +407,8 @@ Dynamics::setCOMVelocity(const Vector COMVelocity)
       BCs().applyBC(pos,vel);
 
       //Note we sum the negatives!
-      sumMV -= vel * getSpecies(Part).getMass();
-      sumMass += getSpecies(Part).getMass();
+      sumMV -= vel * getSpecies(Part).getMass(Part.getID());
+      sumMass += getSpecies(Part).getMass(Part.getID());
     }
   
   sumMV /= sumMass;

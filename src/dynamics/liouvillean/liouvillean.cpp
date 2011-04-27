@@ -143,13 +143,15 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 double 
 Liouvillean::getParticleKineticEnergy(const Particle& part) const
 {
-  return 0.5 * (part.getVelocity().nrm2()) * Sim->dynamics.getSpecies(part).getMass();
+  return 0.5 * (part.getVelocity().nrm2()) 
+    * Sim->dynamics.getSpecies(part).getMass(part.getID());
 }
 
 Vector  
 Liouvillean::getVectorParticleKineticEnergy(const Particle& part) const
 {
-  Vector  tmp(0.5 * part.getVelocity() * Sim->dynamics.getSpecies(part).getMass());
+  Vector  tmp(0.5 * part.getVelocity() 
+	      * Sim->dynamics.getSpecies(part).getMass(part.getID()));
 
   for (size_t i = 0; i < NDIM; ++i)
     tmp[i] *= part.getVelocity()[i];

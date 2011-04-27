@@ -98,8 +98,8 @@ CInputPlugin::zeroCentreOfMass()
   double totmass = 0.0;
   BOOST_FOREACH(Particle& part, Sim->particleList)  
     {
-      totmass += Sim->dynamics.getSpecies(part).getMass();
-      com += part.getPosition() * Sim->dynamics.getSpecies(part).getMass();
+      totmass += Sim->dynamics.getSpecies(part).getMass(part.getID());
+      com += part.getPosition() * Sim->dynamics.getSpecies(part).getMass(part.getID());
     }
   com /= totmass;
   

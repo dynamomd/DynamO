@@ -96,7 +96,7 @@ OPViscosityE::initialise()
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	constDelG[iDim][jDim] 
 	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->dynamics.getSpecies(part).getMass();
+	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
 
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
@@ -311,12 +311,12 @@ OPViscosityE::updateConstDelG(const PairEventData& PDat)
 	 * PDat.particle1_.getParticle().getVelocity()[jDim]
 	 - PDat.particle1_.getOldVel()[iDim]
 	 * PDat.particle1_.getOldVel()[jDim])
-	* PDat.particle1_.getSpecies().getMass()
+	* PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID())
 	+ (PDat.particle2_.getParticle().getVelocity()[iDim]
 	   * PDat.particle2_.getParticle().getVelocity()[jDim]
 	   - PDat.particle2_.getOldVel()[iDim]
 	   * PDat.particle2_.getOldVel()[jDim])
-	* PDat.particle2_.getSpecies().getMass();
+	* PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID());
 }
 
 void 
@@ -328,7 +328,7 @@ OPViscosityE::updateConstDelG(const ParticleEventData& PDat)
 	(PDat.getParticle().getVelocity()[iDim]
 	 * PDat.getParticle().getVelocity()[jDim]
 	 - PDat.getOldVel()[iDim] * PDat.getOldVel()[jDim]
-	 ) * PDat.getSpecies().getMass();
+	 ) * PDat.getSpecies().getMass(PDat.getParticle().getID());
 }
 
 void 

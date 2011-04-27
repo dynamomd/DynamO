@@ -106,10 +106,9 @@ OPMSDCorrelator::accPass()
 
       BOOST_FOREACH(const size_t& ID, *range)
 	{
-	  molCOM += posHistory[ID][0] 
-	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass();
-
-	  molMass += Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass();
+	  double mass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	  molCOM += posHistory[ID][0] * mass;
+	  molMass += mass;
 	}
 
       molCOM /= molMass;
@@ -120,7 +119,7 @@ OPMSDCorrelator::accPass()
 	  
 	  BOOST_FOREACH(const size_t& ID, *range)
 	    molCOM2 += posHistory[ID][step] 
-	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass();
+	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
 	  
 	  molCOM2 /= molMass;
 	  

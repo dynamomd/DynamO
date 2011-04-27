@@ -34,7 +34,6 @@ SpFixedCollider::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(CRange::getClass(XML, Sim));
   
   try {
-    mass = 0;
     spName = XML.getAttribute("Name");
     intName = XML.getAttribute("IntName");
   } 

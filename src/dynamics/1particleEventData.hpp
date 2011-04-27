@@ -61,9 +61,7 @@ public:
   { return Type_; }
   
   Vector  getDeltaP() const
-  {
-    return species_.getMass() * (particle_.getVelocity() - oldVelVec);
-  }
+  { return species_.getMass(particle_.getID()) * (particle_.getVelocity() - oldVelVec); }
 
 private:
   const Particle& particle_;

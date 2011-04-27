@@ -258,13 +258,13 @@ OPVTK::ticker()
 	  //Samples
 	  ++SampleCounter[id];
 	  
+	  double mass = Sim->dynamics.getSpecies(Part).getMass(Part.getID());
+
 	  //Velocity Vectors
-	  Momentum[id] += velocity 
-	    * Sim->dynamics.getSpecies(Part).getMass();
+	  Momentum[id] += velocity * mass;
 	  
 	  //Energy Field
-	  mVsquared[id] += velocity.nrm2()
-	    * Sim->dynamics.getSpecies(Part).getMass();
+	  mVsquared[id] += velocity.nrm2() * mass;
 	}
     }
 

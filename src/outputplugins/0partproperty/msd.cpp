@@ -105,8 +105,7 @@ OPMSD::calcStructMSD(const Topology& Itop) const
       double totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
-	  double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID])
-	    .getMass();
+	  double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
 
 	  totmass += pmass;
 	  currPos += Sim->particleList[ID].getPosition() * pmass;

@@ -39,7 +39,8 @@ SpPoint::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    mass = XML.getAttribute("Mass").as<double>() * Sim->dynamics.units().unitMass();
+    _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
+					 Property::Units::Mass());
     spName = XML.getAttribute("Name");
     intName = XML.getAttribute("IntName");
   } 
@@ -53,7 +54,7 @@ void
 SpPoint::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Mass") 
-      << mass / Sim->dynamics.units().unitMass()
+      << _mass->getName()
       << xml::attr("Name") << spName
       << xml::attr("IntName") << intName
       << xml::attr("Type") << "Point"

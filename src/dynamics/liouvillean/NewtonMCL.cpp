@@ -131,8 +131,8 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
   
-  double p1Mass = retVal.particle1_.getSpecies().getMass();
-  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
+  double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
   double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
   double R2 = retVal.rij.nrm2();
 
@@ -196,11 +196,11 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass(particle1.getID())
 			       * (particle1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass(particle2.getID())
 			       * (particle2.getVelocity().nrm2() 
 				  - retVal.particle2_.getOldVel().nrm2()));
 

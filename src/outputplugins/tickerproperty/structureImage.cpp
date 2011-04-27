@@ -114,7 +114,7 @@ OPStructureImaging::printImage()
 	  
 	  sumrij += rij;
 	  
-	  double pmass = Sim->dynamics.getSpecies(part).getMass();
+	  double pmass = Sim->dynamics.getSpecies(part).getMass(pid);
 	  sysMass += pmass;
 	  masspos += sumrij * pmass;
 	  

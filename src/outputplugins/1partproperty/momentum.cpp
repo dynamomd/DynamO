@@ -38,7 +38,7 @@ OPMomentum::initialise()
 
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
-    sysMom += spec->getMass() * Sim->particleList[ID].getVelocity();
+    sysMom += spec->getMass(ID) * Sim->particleList[ID].getVelocity();
 }
 
 void 

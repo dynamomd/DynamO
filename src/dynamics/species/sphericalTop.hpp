@@ -29,7 +29,8 @@ public:
 
   virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
-  virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
+  virtual double getScalarMomentOfInertia(size_t ID) const 
+  { return inertiaConstant * getMass(ID); }
 
   virtual void operator<<(const magnet::xml::Node&);
 

@@ -41,7 +41,7 @@ SpSphericalTop::outputXML(xml::XmlStream& XML, std::string type) const
 {
   XML << xml::attr("InertiaConstant") 
       << inertiaConstant / Sim->dynamics.units().unitArea()
-      << xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
+      << xml::attr("Mass") << _mass->getName()
       << xml::attr("Name") << spName
       << xml::attr("IntName") << intName
       << xml::attr("Type") << type

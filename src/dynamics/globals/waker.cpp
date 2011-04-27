@@ -145,7 +145,7 @@ GWaker::runEvent(const Particle& part, const double dt) const
       const_cast<Particle&>(part).getVelocity() = newVel;
       const_cast<Particle&>(part).setState(Particle::DYNAMIC);
       
-      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
+      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
 			 - EDat.getOldVel().nrm2()));
       

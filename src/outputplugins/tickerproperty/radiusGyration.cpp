@@ -102,7 +102,7 @@ OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const
   molGyrationDat retVal;
   retVal.MassCentre = Vector (0,0,0);
 
-  double totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass();
+  double totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass(*(range->begin()));
   std::vector<Vector> relVecs;
   relVecs.reserve(range->size());
   relVecs.push_back(Vector(0,0,0));
@@ -117,10 +117,10 @@ OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const
 
       relVecs.push_back(currRelPos + relVecs.back());
 
-      retVal.MassCentre += relVecs.back() 
-	* Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass();
+      double mass = Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass(*iPtr);
 
-      totmass += Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass();
+      retVal.MassCentre += relVecs.back() * mass;
+      totmass += mass;
     }
 
   retVal.MassCentre /= totmass;
