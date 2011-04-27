@@ -32,8 +32,9 @@ namespace Gtk {
 
 class SpPoint: public Species
 {
-public:  
-  SpPoint(DYNAMO::SimData* sim, CRange* r, double nmass, std::string nName,
+public:
+  template<class T1>
+  SpPoint(DYNAMO::SimData* sim, CRange* r, T1 nmass, std::string nName,
 	  unsigned int ID, std::string nIName="Bulk"):
     Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
   {}

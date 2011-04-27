@@ -42,6 +42,7 @@
 #include "../dynamics/systems/sleep.hpp"
 #include <magnet/math/matrix.hpp>
 #include <magnet/exception.hpp>
+#include <boost/random/lognormal_distribution.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
@@ -3460,17 +3461,40 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  elasticity =  vm["f1"].as<double>();
 
-	Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
-						   Property::Units::Length(),
-						   "D", particleDiam));
+	magnet::thread::RefPtr<Property> D
+	  =  Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
+							Property::Units::Length(),
+							"D", particleDiam));
 
+	magnet::thread::RefPtr<Property> M
+	  = Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
+						       Property::Units::Mass(),
+						       "M", 1.0));
 
+	typedef boost::lognormal_distribution<double> Distribution;
+	const double mean = 0.5 * particleDiam;
+	const double variance = 0.2  * particleDiam;
+	boost::variate_generator<DYNAMO::baseRNG&, Distribution>
+	  logsampler(Sim->ranGenerator, Distribution(mean, variance));
+
+	for (size_t i(0); i < latticeSites.size(); ++i)
+	  {
+	    double diameter(logsampler());
+	    while (diameter > particleDiam) { diameter = logsampler(); }
+	    
+	    D.as<ParticleProperty>().getProperty(i) = diameter;
+	    
+	    //A particle with unit diameter has unit mass
+	    double mass = diameter * diameter * diameter / (particleDiam * particleDiam * particleDiam);
+	    
+	    M.as<ParticleProperty>().getProperty(i) = mass;
+	  }
+	
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, "D", elasticity, new C2RAll()
 						      ))->setName("Bulk");
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
-				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
-					      "Bulk")));
+				 (new SpPoint(Sim, new CRAll(Sim), "M", "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
 

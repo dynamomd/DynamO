@@ -15,6 +15,7 @@
      - [X] Implement volume renderer
      - [X] Make a transfer function interface
      - [ ] Load the density data from some particles
+**** DONE *MAJOR* New dynamod mode (-m 26) - Example Polydisperse Hard Spheres Configuration!
 **** DONE *MINOR* Optimize the MinMax Heap memory usage to remove a wasted element (5% memory saving).
 **** DONE *MINOR* Auto detect if outputted files should be compressed based off their extension.
 **** DONE *MINOR* Removed the Geomview output plugin, the coil library supercedes these old plugins.
@@ -24,13 +25,13 @@
 **** DONE Fix getInternalEnergy() in Interactions to work for polydispersity
 **** TODO Fix the segfault when a simulation closes coil through a shutdown.
 **** TODO Fix Coil renderer to visualize polydisperse particles.
-**** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions)
+**** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions).
 **** TODO Move aspect ratio into BC class and fix that the units class calculates the box size.
-**** TODO Improve the documentation
-**** TODO Generalize the Morton ordered neighbour list
+**** TODO Update the tutorials.
 **** TODO Think about the unit rescale in compression, what happens with energy scales? do the velocities rescale?
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists
+**** TODO Generalize the Morton ordered neighbour list.
 **** TODO Triangular Meshes
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
