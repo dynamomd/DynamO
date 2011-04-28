@@ -18,6 +18,7 @@
 #pragma once
 
 #include "../../simulation/particle.hpp"
+#include <magnet/exception.hpp>
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
 #include <vector>

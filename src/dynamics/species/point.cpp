@@ -80,7 +80,9 @@ SpPoint::getCoilRenderObj() const
 		  << " is not able to be drawn using spheres, and yet it is used in the species " << getName()
 		  << " as the representative interaction.";
 
-      _renderObj = new RSphericalParticles(range->size(), "Species: " + spName);
+      size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();
+
+      _renderObj = new RSphericalParticles(nsph * range->size(), "Species: " + spName);
       _coil = new CoilRegister;
     }
 
@@ -105,15 +107,22 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   const SphericalRepresentation& data
     = dynamic_cast<const SphericalRepresentation&>(*getIntPtr());
 
+  size_t nsph = data.spheresPerParticle();
+
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
-      Vector pos = data.getPosition(ID, 0);
-      
-      for (size_t i(0); i < NDIM; ++i)
-	particleData[sphID].s[i] = pos[i];
-      
-      particleData[sphID++].w = 0.5 * factor * data.getDiameter(ID, 0);
+      for (size_t s(0); s < nsph; ++s)
+	{
+	  Vector pos = data.getPosition(ID, s);
+	  
+	  for (size_t i(0); i < NDIM; ++i)
+	    particleData[s * range->size() + sphID].s[i] = pos[i];
+	  
+	  particleData[s * range->size() + sphID].w = 0.5 * factor * data.getDiameter(ID, s);
+	}
+
+      ++sphID;
     }
 
   _renderObj.as<RSphericalParticles>().recolor(CLState);

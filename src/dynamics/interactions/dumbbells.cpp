@@ -80,6 +80,27 @@ IDumbbells::maxIntDist() const
 { return _length->getMaxValue() + _diameter->getMaxValue(); }
 
 double 
+IDumbbells::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+IDumbbells::getPosition(size_t ID, size_t subID) const
+{
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+
+  double l = _length->getProperty(ID);
+  //Flip the direction depending on if the ID is odd or even
+  l *=  0.5 * ( 1 - 2 * (subID % 2));
+
+  retval += static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
+    .getRotData(Sim->particleList[ID]).orientation * l;
+
+  return retval;
+}
+
+
+double 
 IDumbbells::getExcludedVolume(size_t ID) const 
 {
   double diam = _diameter->getProperty(ID);

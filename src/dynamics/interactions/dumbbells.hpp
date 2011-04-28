@@ -20,8 +20,9 @@
 #include "captures.hpp"
 #include "interaction.hpp"
 #include "../../base/is_simdata.hpp"
+#include "representations/spherical.hpp"
 
-class IDumbbells: public ISingleCapture, public Interaction
+class IDumbbells: public ISingleCapture, public Interaction, public SphericalRepresentation
 {
 public:
   template<class T1, class T2, class T3>
@@ -34,6 +35,10 @@ public:
     _e(Sim->_properties.getProperty
        (e, Property::Units::Dimensionless()))
   {}
+
+  virtual size_t spheresPerParticle() const { return 2; }
+  virtual double getDiameter(size_t ID, size_t subID) const;
+  virtual Vector getPosition(size_t ID, size_t subID) const;
 
   IDumbbells(const magnet::xml::Node&, DYNAMO::SimData*);
 
