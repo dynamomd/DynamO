@@ -25,7 +25,7 @@ class IDumbbells: public ISingleCapture
 public:
   template<class T1, class T2, class T3>
   IDumbbells(DYNAMO::SimData* tmp, T1 l, T2 e, T3 d, C2Range* nR):
-    ISingleCapture(tmp, nR),
+    Interaction(tmp, nR),
     _length(Sim->_properties.getProperty
 	    (l, Property::Units::Length())),
     _diameter(Sim->_properties.getProperty

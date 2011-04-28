@@ -28,32 +28,39 @@ namespace std {
   using namespace tr1;
 }
 
-class ICapture: public Interaction
+//! This class is a general interface to Interaction classes that
+//! allow particles to capture each other and store internal energy.
+class ICapture
 {
 public:
-  ICapture(DYNAMO::SimData*, C2Range*);
-
+  //! Returns the number of particles that are captured in some way
   virtual size_t getTotalCaptureCount() const = 0;
   
+  //! A test if two particles are captured
   virtual bool isCaptured(const Particle&, const Particle&) const = 0;
 
+  //! Returns the total internal energy stored in this Interaction.
   virtual double getInternalEnergy() const = 0;
   
 protected:
 
 };
 
-
-class ISingleCapture: public ICapture
+//! This base class is for Interaction classes which only capture in
+//! one state. 
+//!
+//! There is only one state a pair of particles can be in, either
+//! captured or not.  This can be contrasted with IMultiCapture where
+//! a pair of particles may be in a range of captured states.
+class ISingleCapture: public ICapture, virtual public Interaction
 {
 public:
-  ISingleCapture(DYNAMO::SimData* Sim, C2Range* r):
-    ICapture(Sim,r),
-    noXmlLoad(true)
-  {}
+  ISingleCapture():noXmlLoad(true) {}
 
+  //! \sa ICapture::getTotalCaptureCount()
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   
+  //! \sa ICapture::isCaptured()
   virtual bool isCaptured(const Particle& p1, const Particle& p2) const
   {
 #ifdef DYNAMO_DEBUG
@@ -70,29 +77,42 @@ protected:
 
   mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
 
+  //! This function should provide a test of the particles current
+  //! position and velocity to determine if they're captured. Used in
+  //! rebuilding the captureMap.
   virtual bool captureTest(const Particle&, const Particle&) const = 0;
 
   bool noXmlLoad;
 
   void initCaptureMap();
 
+  //! Function to load the capture map. Should be called by the
+  //! derived classes Interaction::operator<<(const magnet::xml::Node&) function.
   void loadCaptureMap(const magnet::xml::Node&);
 
+  //! Function to write out the capture map. Should be called by the
+  //! derived classes Interaction::outputXML() function.
   void outputCaptureMap(xml::XmlStream&) const;
 
+  //! Add a pair of particles to the capture map.
   void addToCaptureMap(const Particle&, const Particle&) const;
   
+  //! Remove a pair of particles to the capture map.
   void removeFromCaptureMap(const Particle&, const Particle&) const;
   
 };
 
-class IMultiCapture: public ICapture
+//! This base class is for Interaction classes which only capture in
+//! one state. 
+//!
+//! There is only one state a pair of particles can be in, either
+//! captured or not.  This can be contrasted with IMultiCapture where
+//! a pair of particles may be in a range of captured states.
+//!
+class IMultiCapture: public ICapture, virtual public Interaction
 {
 public:
-  IMultiCapture(DYNAMO::SimData* Sim, C2Range* r):
-    ICapture(Sim,r),
-    noXmlLoad(true)
-  {}
+  IMultiCapture():noXmlLoad(true) {}
 
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   

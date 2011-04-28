@@ -25,7 +25,7 @@ class ISoftCore: public ISingleCapture
 public:
   template<class T1, class T2>
   ISoftCore(DYNAMO::SimData* tmp, T1 d, T2 wd, C2Range* nR):
-    ISingleCapture(tmp,nR),
+    Interaction(tmp,nR),
     _diameter(Sim->_properties.getProperty
 	      (d, Property::Units::Length())),
     _wellDepth(Sim->_properties.getProperty

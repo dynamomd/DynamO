@@ -34,10 +34,8 @@
 #include <iomanip>
 
 ISWSequence::ISWSequence(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL) //A temporary value!
-{
-  operator<<(XML);
-}
+  Interaction(tmp, NULL) //A temporary value!
+{ operator<<(XML); }
 
 void 
 ISWSequence::outputXML(xml::XmlStream& XML) const

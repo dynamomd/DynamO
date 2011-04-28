@@ -36,7 +36,7 @@
 
 IStepped::IStepped(DYNAMO::SimData* tmp, 
 		   const std::vector<steppair>& vec, C2Range* nR):
-  IMultiCapture(tmp,nR),
+  Interaction(tmp,nR),
   _unitLength(Sim->_properties.getProperty
 	      (1.0, Property::Units::Length())),
   _unitEnergy(Sim->_properties.getProperty
@@ -45,7 +45,7 @@ IStepped::IStepped(DYNAMO::SimData* tmp,
 {}
 
 IStepped::IStepped(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  IMultiCapture(tmp, NULL) //A temporary value!
+  Interaction(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }

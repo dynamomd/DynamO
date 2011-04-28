@@ -87,7 +87,7 @@ OPCContactMap::ticker()
 	      BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
 		if (ptr->isInteraction(part1,part2))
 		  if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
-		    if (static_cast<const ICapture*>(ptr.get_ptr())
+		    if (dynamic_cast<const ICapture*>(ptr.get_ptr())
 			->isCaptured(part1,part2))
 		      dat.array[i * dat.chainlength + j]++;
 	    }

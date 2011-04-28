@@ -112,8 +112,13 @@ public:
   inline const size_t& getID() const { return ID; }
 
 protected:
+  //! This constructor is only to be used when using virtual
+  //! inheritance, the bottom derived class must explicitly call the
+  //! other Interaction ctor.
+  Interaction() { M_throw() << "Default constructor called!"; }
+
   //! Write out an XML tag that describes this Interaction and stores its Property -s.
-  virtual void outputXML(xml::XmlStream& ) const = 0;
+  virtual void outputXML(xml::XmlStream&) const = 0;
 
   magnet::ClonePtr<C2Range> range;
 

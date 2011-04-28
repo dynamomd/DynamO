@@ -32,7 +32,7 @@
 #include <iomanip>
 
 IHardSphere::IHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  SphericalRepresentation(tmp,NULL)
+  Interaction(tmp, NULL)
 { operator<<(XML); }
 
 void 

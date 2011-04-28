@@ -34,7 +34,7 @@
 #include <iomanip>
 
 ISquareWell::ISquareWell(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL) //A temporary value!
+  Interaction(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }

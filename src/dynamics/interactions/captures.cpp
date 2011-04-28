@@ -22,10 +22,6 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-ICapture::ICapture(DYNAMO::SimData* tmp,C2Range* nR): 
-  Interaction(tmp,nR)
-{}
-
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 

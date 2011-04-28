@@ -33,7 +33,7 @@
 #include <iomanip>
 
 IDumbbells::IDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL)
+  Interaction(tmp, NULL)
 {
   operator<<(XML);
 }

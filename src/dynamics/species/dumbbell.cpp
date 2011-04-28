@@ -37,8 +37,8 @@ SpDumbbells::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
     factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
  
-  double diam = static_cast<const IDumbbells&>(*getIntPtr()).getDiameter();
-  double spacing = static_cast<const IDumbbells&>(*getIntPtr()).getLength();
+  double diam = dynamic_cast<const IDumbbells&>(*getIntPtr()).getDiameter();
+  double spacing = dynamic_cast<const IDumbbells&>(*getIntPtr()).getLength();
   
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)

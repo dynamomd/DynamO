@@ -625,7 +625,7 @@ CIPPacker::initialise()
 				    seq, new C2RAll()))->setName("Bulk");
 		
 		ISWSequence& interaction
-		  (static_cast<ISWSequence&>
+		  (dynamic_cast<ISWSequence&>
 		   (*(Sim->dynamics.getInteraction("Bulk"))));
 		interaction.getAlphabet().at(0).at(0) = 1.0;
 		
@@ -3108,7 +3108,7 @@ CIPPacker::initialise()
 			     seq, new C2RAll()))->setName("Bulk");
 		
 	  ISWSequence& interaction
-	    (static_cast<ISWSequence&>
+	    (dynamic_cast<ISWSequence&>
 	     (*(Sim->dynamics.getInteraction("Bulk"))));
 
 	  //	    interaction.getAlphabet().at(0).at(0) = 1.0;

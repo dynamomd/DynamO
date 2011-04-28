@@ -27,7 +27,7 @@ public:
   typedef std::pair<double,double> steppair;
 
   IStepped(DYNAMO::SimData*, const std::vector<steppair>&,
-	    C2Range*);
+	   C2Range*);
 
   IStepped(const magnet::xml::Node&, DYNAMO::SimData*);
   

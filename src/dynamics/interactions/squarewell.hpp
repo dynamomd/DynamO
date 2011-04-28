@@ -26,7 +26,7 @@ public:
   template<class T1, class T2, class T3, class T4>
   ISquareWell(DYNAMO::SimData* tmp, T1 d, T2 l, 
 	      T3 wd, T4 e, C2Range* nR):
-    ISingleCapture(tmp,nR),
+    Interaction(tmp,nR),
     _diameter(Sim->_properties.getProperty
 	      (d, Property::Units::Length())),
     _lambda(Sim->_properties.getProperty

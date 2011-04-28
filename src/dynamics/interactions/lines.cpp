@@ -32,7 +32,7 @@
 #include <iomanip>
 
 ILines::ILines(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL)
+  Interaction(tmp, NULL)
 {
   operator<<(XML);
 }

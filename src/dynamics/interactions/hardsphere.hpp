@@ -21,14 +21,13 @@
 #include "../../base/is_simdata.hpp"
 #include "representations/spherical.hpp"
 
-class IHardSphere: public SphericalRepresentation
+class IHardSphere: public SingleSphereRep
 {
 public:
   template<class T1, class T2>
   IHardSphere(DYNAMO::SimData* tmp, T1 diameter, T2 e, C2Range* nR):
-    SphericalRepresentation(tmp, nR),
-    _diameter(Sim->_properties.getProperty
-	      (diameter, Property::Units::Length())),
+    Interaction(tmp, nR),
+    SingleSphereRep(diameter),
     _e(Sim->_properties.getProperty
        (e, Property::Units::Dimensionless()))
   {}
@@ -62,6 +61,5 @@ public:
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
 protected:
-  magnet::thread::RefPtr<Property> _diameter;
   magnet::thread::RefPtr<Property> _e;
 };
