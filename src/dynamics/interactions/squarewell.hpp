@@ -20,7 +20,7 @@
 #include "captures.hpp"
 #include "../../base/is_simdata.hpp"
 
-class ISquareWell: public ISingleCapture
+class ISquareWell: public ISingleCapture, virtual public Interaction
 {
 public:
   template<class T1, class T2, class T3, class T4>

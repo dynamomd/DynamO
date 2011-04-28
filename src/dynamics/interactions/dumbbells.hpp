@@ -18,9 +18,10 @@
 #pragma once
 
 #include "captures.hpp"
+#include "interaction.hpp"
 #include "../../base/is_simdata.hpp"
 
-class IDumbbells: public ISingleCapture
+class IDumbbells: public ISingleCapture, public Interaction
 {
 public:
   template<class T1, class T2, class T3>

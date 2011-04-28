@@ -47,7 +47,7 @@ IDumbbells::initialise(size_t nID)
   
   ID = nID; 
   
-  ISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap(Sim->particleList);
 }
 
 void 
@@ -228,6 +228,8 @@ IDumbbells::outputXML(xml::XmlStream& XML) const
 bool 
 IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+
   double d = (_diameter->getProperty(p1.getID())
 	      + _diameter->getProperty(p2.getID())) * 0.5;
 

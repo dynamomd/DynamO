@@ -20,8 +20,9 @@
 #include "captures.hpp"
 #include "../../base/is_simdata.hpp"
 #include <vector>
+#include <set>
 
-class ISWSequence: public ISingleCapture
+class ISWSequence: public ISingleCapture, virtual public Interaction
 {
 public:
   template<class T1, class T2, class T3>

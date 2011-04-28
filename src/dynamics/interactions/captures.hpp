@@ -17,11 +17,10 @@
 
 #pragma once
 
-#include "interaction.hpp"
 #include "../../simulation/particle.hpp"
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
-#include <set>
+#include <vector>
 
 //Expose the boost TR1
 namespace std {
@@ -52,7 +51,7 @@ protected:
 //! There is only one state a pair of particles can be in, either
 //! captured or not.  This can be contrasted with IMultiCapture where
 //! a pair of particles may be in a range of captured states.
-class ISingleCapture: public ICapture, virtual public Interaction
+class ISingleCapture: public ICapture
 {
 public:
   ISingleCapture():noXmlLoad(true) {}
@@ -84,7 +83,7 @@ protected:
 
   bool noXmlLoad;
 
-  void initCaptureMap();
+  void initCaptureMap(const std::vector<Particle>& particleList);
 
   //! Function to load the capture map. Should be called by the
   //! derived classes Interaction::operator<<(const magnet::xml::Node&) function.
@@ -109,7 +108,7 @@ protected:
 //! captured or not.  This can be contrasted with IMultiCapture where
 //! a pair of particles may be in a range of captured states.
 //!
-class IMultiCapture: public ICapture, virtual public Interaction
+class IMultiCapture: public ICapture
 {
 public:
   IMultiCapture():noXmlLoad(true) {}
@@ -153,7 +152,7 @@ protected:
 
   bool noXmlLoad;
 
-  void initCaptureMap();
+  void initCaptureMap(const std::vector<Particle>& particleList);
 
   void loadCaptureMap(const magnet::xml::Node&);
 

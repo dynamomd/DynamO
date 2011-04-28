@@ -21,7 +21,7 @@
 #include "../../base/is_simdata.hpp"
 #include <vector>
 
-class IStepped: public IMultiCapture
+class IStepped: public IMultiCapture, virtual public Interaction
 {
 public:
   typedef std::pair<double,double> steppair;

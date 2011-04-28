@@ -23,7 +23,7 @@
 //! as a collection of spheres.
 //!
 //! The methods provided in this base class allow a spherical representation to be created by a Species to pass to the coil visualizer. 
-class SphericalRepresentation : public virtual Interaction
+class SphericalRepresentation
 {
 public:
 
@@ -44,43 +44,3 @@ public:
   //! \param subID The index of one of the spheres used to render the particle. This must be in the range [0, spheresPerParticle()-1].
   virtual Vector getPosition(size_t ID, size_t subID) const = 0;
 };
-
-//! This class is inherited by Interaction -s that can be represented
-//! as a collection of spheres.
-//!
-//! The methods provided in this base class allow a spherical representation to be created by a Species to pass to the coil visualizer. 
-class SingleSphereRep : public SphericalRepresentation, virtual Interaction
-{
-public:
-  SingleSphereRep() {}
-
-  template<class T1>
-  SingleSphereRep(T1 d):
-    _diameter(Sim->_properties.getProperty
-	      (d, Property::Units::Length()))
-  {}
-
-  //! This function returns how many spheres must be rendered per
-  //! particle. Typically it is only one but Interaction classes like
-  //! IDumbbells need two or more.
-  virtual size_t spheresPerParticle() const 
-  { return 1; }
-
-  //! Returns the diameter of the one of the spheres used to represent
-  //! a particle.
-  //! \param ID The id of the particle to fetch the diameter for.
-  //! \param subID The index of one of the spheres used to render the particle. This must be in the range [0, spheresPerParticle()-1].
-  virtual double getDiameter(size_t ID, size_t subID) const
-  { return _diameter->getProperty(ID); }
-
-  //! Returns the location of the one of the spheres used to represent
-  //! a particle.
-  //! \param ID The id of the particle to fetch the location for.
-  //! \param subID The index of one of the spheres used to render the particle. This must be in the range [0, spheresPerParticle()-1].
-  virtual Vector getPosition(size_t ID, size_t subID) const
-  { return Sim->particleList[ID].getPosition(); }
-
-protected:
-  magnet::thread::RefPtr<Property> _diameter;
-};
-

@@ -99,7 +99,7 @@ void
 IStepped::initialise(size_t nID)
 {
   ID = nID;
-  IMultiCapture::initCaptureMap();
+  IMultiCapture::initCaptureMap(Sim->particleList);
   
   I_cout() << "Buckets in captureMap " << captureMap.bucket_count()
 	   << "\nMax bucket count " << captureMap.max_bucket_count()
@@ -110,6 +110,8 @@ IStepped::initialise(size_t nID)
 int 
 IStepped::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+  
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
