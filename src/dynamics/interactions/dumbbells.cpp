@@ -91,7 +91,7 @@ IDumbbells::getPosition(size_t ID, size_t subID) const
 
   double l = _length->getProperty(ID);
   //Flip the direction depending on if the ID is odd or even
-  l *=  0.5 * ( 1 - 2 * (subID % 2));
+  l *=  0.5 * (1 - int(2 * (subID % 2)));
 
   retval += static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
     .getRotData(Sim->particleList[ID]).orientation * l;
