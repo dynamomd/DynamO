@@ -74,6 +74,19 @@ ISoftCore::initialise(size_t nID)
   ISingleCapture::initCaptureMap(Sim->particleList);
 }
 
+double 
+ISoftCore::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+ISoftCore::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
+
 bool 
 ISoftCore::captureTest(const Particle& p1, const Particle& p2) const
 {

@@ -182,7 +182,7 @@ main(int argc, char *argv[])
 
 
       //Write out now we've changed the system
-      sim.getHistory() << "\nconfigmod run as so\n";
+      sim.getHistory() << "configmod run as so\n";
       for (int i = 0; i< argc; i++)
 	sim.getHistory() << argv[i] << " ";
       sim.getHistory() << "\nGIT hash " << GITHASH;

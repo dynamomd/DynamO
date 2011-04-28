@@ -79,7 +79,7 @@ IHardSphere::getPosition(size_t ID, size_t subID) const
 
 double 
 IHardSphere::maxIntDist() const 
-{ return _diameter->getMaxValue(); } // * Sim->dynamics.units().unitLength(); }
+{ return _diameter->getMaxValue(); }
 
 double 
 IHardSphere::getExcludedVolume(size_t ID) const 

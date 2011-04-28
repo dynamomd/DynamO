@@ -92,6 +92,18 @@ IStepped::getExcludedVolume(size_t ID) const
 }
 
 double 
+IStepped::getDiameter(size_t ID, size_t subID) const
+{ return steps.back().first * _unitLength->getProperty(ID); }
+
+Vector 
+IStepped::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
+double 
 IStepped::maxIntDist() const 
 { return steps.front().first * _unitLength->getMaxValue(); }
 

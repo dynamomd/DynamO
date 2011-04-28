@@ -76,6 +76,19 @@ IRoughHardSphere::getExcludedVolume(size_t ID) const
   return diam * diam * diam * M_PI / 6.0; 
 }
 
+double 
+IRoughHardSphere::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+IRoughHardSphere::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
+
 Interaction* 
 IRoughHardSphere::Clone() const 
 { return new IRoughHardSphere(*this); }

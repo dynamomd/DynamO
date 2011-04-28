@@ -141,6 +141,18 @@ ISWSequence::Clone() const
 { return new ISWSequence(*this); }
 
 double 
+ISWSequence::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+ISWSequence::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
+double 
 ISWSequence::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
