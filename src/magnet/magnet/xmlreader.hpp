@@ -255,7 +255,7 @@ namespace magnet {
 	  io::copy(inputFile, io::back_inserter(_data));
 	}
 
-	_doc.parse<0>(&_data[0]);
+	_doc.parse<rapidxml::parse_trim_whitespace>(&_data[0]);
       }
       
       //! Return the first Node with a certain name in the
