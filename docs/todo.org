@@ -23,6 +23,7 @@
 **** DONE Add a multi-value property for Polydispersity.
 **** DONE Change HardCoreDiam() to be ExcludedVolume in Interactions
 **** DONE Fix getInternalEnergy() in Interactions to work for polydispersity
+**** TODO Rename and document the CEnsemble class.
 **** TODO Fix the segfault when a simulation closes coil through a shutdown.
 **** TODO Fix Coil renderer to visualize polydisperse particles.
 **** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions).

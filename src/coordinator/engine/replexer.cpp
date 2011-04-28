@@ -473,8 +473,8 @@ void EReplicaExchangeSimulation::runSimulation()
 	  std::vector<magnet::function::Task*> tasks(nSims, NULL);
 	  
 	  for (size_t i(0); i < nSims; ++i)
-	    tasks[i] = magnet::function::Task::makeTask(&Simulation::runSilentSimulation, 
-							&(Simulations[i]));
+	    tasks[i] = magnet::function::Task::makeTask(&Simulation::runSimulation, 
+							&(Simulations[i]), true);
 
 	  threads.queueTasks(tasks);
 	  threads.wait();//This syncs the systems for the replica exchange
