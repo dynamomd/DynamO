@@ -27,8 +27,6 @@ public:
   virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
   virtual bool sphereOverlap(const CPDData&, const double&) const;
 
-  virtual void streamParticle(Particle&, const double&) const;
-
   virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
 
   virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;

@@ -86,13 +86,6 @@ LCompression::sphereOverlap(const CPDData& dat, const double& d2) const
   return ((dat.r2 - currd2) < 0.0);
 }
 
-void
-LCompression::streamParticle(Particle &particle, const double &dt) const
-{
-  if (particle.testState(Particle::DYNAMIC))
-    particle.getPosition() +=  particle.getVelocity() * dt;
-}
-
 PairEventData 
 LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
 {
