@@ -19,19 +19,23 @@
 #include "BC.hpp"
 #include "../../base/is_base.hpp"
 
-class CLEBC {};
+class CLEBC 
+{ 
+public: 
+  static inline double shearRate() { return 1; }
+};
 
 /*! \brief A simple rectangular Lees-Edwards simple shear boundary
  * condition.
  *
  * See the square version for more details (BCSquareLeesEdwards)
  */
-class BCRectangularLeesEdwards: virtual public BoundaryCondition, public CLEBC
+class BCLeesEdwards: virtual public BoundaryCondition, public CLEBC
 {
  public:
-  BCRectangularLeesEdwards(const DYNAMO::SimData*);
+  BCLeesEdwards(const DYNAMO::SimData*);
 
-  BCRectangularLeesEdwards(const magnet::xml::Node&, const DYNAMO::SimData*);
+  BCLeesEdwards(const magnet::xml::Node&, const DYNAMO::SimData*);
 
   virtual void outputXML(xml::XmlStream&) const;
 
@@ -44,42 +48,6 @@ class BCRectangularLeesEdwards: virtual public BoundaryCondition, public CLEBC
   virtual void applyBC(Vector&, Vector&) const;
 
   virtual void applyBC(Vector&, const double& dt) const;
-
-  virtual void update(const double&);
-
- protected:  
-  /*! \brief The current offset of the simulation boundary conditions.*/
-  double dxd;
-};
-
-
-/*! \brief A simple square Lees-Edwards simple shear boundary condition.
- * 
- * This class implements the sliding brick boundary condtion. In this
- * the simulation images above and below the primary image are set in
- * motion. This affects the particle velocities and positions on a
- * transition of the boundary.
- *
- * See BoundaryCondition for a general description of the member functions.
- */
-class BCSquareLeesEdwards: virtual public BoundaryCondition, public CLEBC
-{
- public:
-  BCSquareLeesEdwards(const DYNAMO::SimData*);
-
-  BCSquareLeesEdwards(const magnet::xml::Node&, const DYNAMO::SimData*);
-
-  virtual void outputXML(xml::XmlStream&) const;
-
-  virtual void operator<<(const magnet::xml::Node&);
-
-  virtual BoundaryCondition* Clone () const;
-
-  virtual void applyBC(Vector&) const; 
-
-  virtual void applyBC(Vector&, Vector&) const;
-
-  virtual void applyBC(Vector&, const double&) const;
 
   virtual void update(const double&);
 

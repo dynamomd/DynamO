@@ -173,7 +173,7 @@ namespace DYNAMO
      * At least one ratio must be 1 as this is assumed when using the
      * ratio. i.e. it is normalised.
      */
-    Vector  aspectRatio;
+    Vector  primaryCellSize;
 
     /*! \brief The random number generator of the system.
      */

@@ -150,7 +150,7 @@ CSDSMCSpheres::initialise(size_t nID)
 
   factor = 4.0 * range2->size()
     * diameter * M_PI * chi * tstep 
-    / Sim->dynamics.units().simVolume();
+    / Sim->dynamics.getSimVolume();
   
   if (maxprob == 0.0)
     {

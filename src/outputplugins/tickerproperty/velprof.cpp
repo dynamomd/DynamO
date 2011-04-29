@@ -37,9 +37,9 @@ OPVelProfile::initialise()
 {    
   binWidth *= Sim->dynamics.units().unitLength();
   
-  vx.resize(static_cast<size_t>(Sim->aspectRatio[1]/binWidth)+1,
+  vx.resize(static_cast<size_t>(Sim->primaryCellSize[1]/binWidth)+1,
 	    std::vector<std::pair<size_t, double> >
-	    (static_cast<size_t>(Sim->aspectRatio[2]/binWidth)+1,
+	    (static_cast<size_t>(Sim->primaryCellSize[2]/binWidth)+1,
 	     std::pair<size_t, double>(0, 0)));
 
 }
@@ -54,7 +54,7 @@ OPVelProfile::ticker()
 
       Sim->dynamics.BCs().applyBC(pos, vel);
 
-      pos += Sim->aspectRatio / 2.0;
+      pos += Sim->primaryCellSize / 2.0;
 
       std::pair<size_t, double>& locpair(vx[static_cast<size_t>(pos[1]/binWidth)]
 				       [static_cast<size_t>(pos[2]/binWidth)]);
@@ -71,8 +71,8 @@ OPVelProfile::output(xml::XmlStream& XML)
   XML << xml::tag("VelProfile")
       << xml::chardata();
   
-  size_t nybins = static_cast<size_t>(Sim->aspectRatio[1]/binWidth)+1;
-  size_t nzbins = static_cast<size_t>(Sim->aspectRatio[2]/binWidth)+1;
+  size_t nybins = static_cast<size_t>(Sim->primaryCellSize[1]/binWidth)+1;
+  size_t nzbins = static_cast<size_t>(Sim->primaryCellSize[2]/binWidth)+1;
 
   for (size_t y = 0; y < nybins; ++y)
     {

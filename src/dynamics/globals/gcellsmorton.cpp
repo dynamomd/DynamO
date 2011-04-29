@@ -316,13 +316,11 @@ CGCellsMorton::addCells(double maxdiam)
   NCells = 1;
   cellCount = 0;
 
-#ifdef DYNAMO_DEBUG
-  for (size_t iDim = 0; iDim < NDIM; iDim++)
-    if (Sim->aspectRatio[iDim] != 1.0) 
-      I_cerr() << "Warning! A non-square system is certainly not optimal for memory usage when using Morton Ordered Lists";
-#endif
+  if ((Sim->primaryCellSize[0] != Sim->primaryCellSize[1]) 
+      || (Sim->primaryCellSize[0] != Sim->primaryCellSize[2])) 
+    M_throw() << "This cellular neighbor list does not work unless the primary cell is square";
 
-  cellCount = int(1 / maxdiam);
+  cellCount = int(Sim->primaryCellSize[0] / maxdiam);
   
   if (cellCount < 3)
     M_throw() << "Not enough cells, sim too small, need 3+";
@@ -342,7 +340,7 @@ CGCellsMorton::addCells(double maxdiam)
 
   NCells = cellCount * cellCount * cellCount;
 
-  cellLatticeWidth = 1.0 / cellCount;
+  cellLatticeWidth = Sim->primaryCellSize[0] / cellCount;
   
   cellDimension = cellLatticeWidth + (cellLatticeWidth - maxdiam) 
       * lambda;
@@ -435,7 +433,7 @@ CGCellsMorton::getCellID(Vector pos) const
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = std::floor((pos[iDim] + 0.5 * Sim->aspectRatio[iDim] - cellOffset)
+    temp[iDim] = std::floor((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim] - cellOffset)
 			    / cellLatticeWidth);
   
   return getCellID(temp);
@@ -522,14 +520,14 @@ CGCellsMorton::calcPosition(const magnet::math::DilatedVector& coords, const Par
   Vector primaryCell;
   
   for (size_t i(0); i < NDIM; ++i)
-    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->aspectRatio[i] + cellOffset;
+    primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth - 0.5 * Sim->primaryCellSize[i] + cellOffset;
 
   
   Vector imageCell;
   
   for (size_t i = 0; i < NDIM; ++i)
     imageCell[i] = primaryCell[i]
-      - Sim->aspectRatio[i] * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
+      - Sim->primaryCellSize[i] * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->primaryCellSize[i]);
 
   return imageCell;
 }
@@ -542,7 +540,7 @@ CGCellsMorton::calcPosition(const magnet::math::DilatedVector& coords) const
   
   for (size_t i(0); i < NDIM; ++i)
     primaryCell[i] = coords.data[i].getRealVal() * cellLatticeWidth 
-      - 0.5 * Sim->aspectRatio[i] + cellOffset;
+      - 0.5 * Sim->primaryCellSize[i] + cellOffset;
   
   return primaryCell;
 }

@@ -45,7 +45,7 @@ namespace magnet {
 		      GLfloat fovY = 60.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
 		      Vector up = Vector(0,1,0),
-		      GLfloat aspectRatio = 1
+		      GLfloat primaryCellSize = 1
 		      ):
 	_height(height),
 	_width(width),

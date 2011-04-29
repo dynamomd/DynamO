@@ -49,13 +49,13 @@ OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
       {
 	size_t mindir = 0;
 	for (size_t iDim = 1; iDim < NDIM; ++iDim)
-	  if (Sim->aspectRatio[iDim] > Sim->aspectRatio[mindir])
+	  if (Sim->primaryCellSize[iDim] > Sim->primaryCellSize[mindir])
 	    mindir = iDim;
 	
 	//Times 2 as the max dist is half a box length
 	//+2 for rounding truncation and for a zero bin       
 	length = 2 
-	  + static_cast<size_t>(Sim->aspectRatio[mindir] / (2 * binWidth));
+	  + static_cast<size_t>(Sim->primaryCellSize[mindir] / (2 * binWidth));
       }
 
     I_cout() << "Binwidth = " << binWidth / Sim->dynamics.units().unitLength()
@@ -114,7 +114,7 @@ OPRadialDistribution::output(xml::XmlStream& XML)
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp1, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const magnet::ClonePtr<Species>& sp2, Sim->dynamics.getSpecies())
     {
-      double density = sp2->getCount() / Sim->dynamics.units().simVolume();
+      double density = sp2->getCount() / Sim->dynamics.getSimVolume();
 
       unsigned long originsTaken = sampleCount * sp1->getCount();
 

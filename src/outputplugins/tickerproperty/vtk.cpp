@@ -97,7 +97,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  XML << xml::attr("Origin");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    XML << (Sim->aspectRatio[iDim] * (-0.5))
+	    XML << (Sim->primaryCellSize[iDim] * (-0.5))
 	      / Sim->dynamics.units().unitLength()
 		<< " ";
 	  
@@ -170,16 +170,16 @@ OPVTK::initialise()
     {
       binWidth[iDim] *= Sim->dynamics.units().unitLength();
       
-      if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
+      if (binWidth[iDim] > 0.5 * Sim->primaryCellSize[iDim])
 	M_throw() << "Your bin width is too large for the " << iDim 
 		  << " dimension";
       
       nBins[iDim] = static_cast<size_t>
-	(Sim->aspectRatio[iDim] / binWidth[iDim]);
+	(Sim->primaryCellSize[iDim] / binWidth[iDim]);
       
       //This is just to ensure the bin width fits an integer number of
       //times into the simulation
-      binWidth[iDim] = Sim->aspectRatio[iDim] / nBins[iDim];
+      binWidth[iDim] = Sim->primaryCellSize[iDim] / nBins[iDim];
       
       invBinWidth[iDim] = 1.0 / binWidth[iDim];
       
@@ -231,7 +231,7 @@ OPVTK::getCellID(Vector  pos)
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
       retval += factor 
-	* static_cast<size_t>((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) 
+	* static_cast<size_t>((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim]) 
 			      * invBinWidth[iDim]);
       factor *= nBins[iDim];
     }
@@ -393,7 +393,7 @@ OPVTK::output(xml::XmlStream& XML)
   XML << xml::attr("Origin");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    XML << (Sim->aspectRatio[iDim] * (-0.5))
+    XML << (Sim->primaryCellSize[iDim] * (-0.5))
       / Sim->dynamics.units().unitLength()
 	<< " ";
   

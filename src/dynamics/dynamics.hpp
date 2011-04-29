@@ -23,9 +23,9 @@
 #include "interactions/interaction.hpp"
 #include "interactions/intEvent.hpp"
 #include <boost/foreach.hpp>
+#include "units/units.hpp"
 
 class BoundaryCondition;
-class Units;
 class Species;
 class GlobalEvent;
 class Global;
@@ -165,12 +165,9 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Dynamics&);
 
-  //Inlines
-  inline const Units& units() const 
-  { return *p_units; }
+  inline const Units& units() const { return _units; }
 
-  inline Units& units()
-  { return *p_units; }
+  inline Units& units() { return _units; }
   
   inline const BoundaryCondition& BCs() const 
   { return *p_BC; }
@@ -189,10 +186,6 @@ public:
   inline bool BCTypeTest() const
   { return dynamic_cast<const T*>(p_BC.get_ptr()) != NULL; }
 
-  template<class T>
-  inline bool unitTypeTest() const
-  { return dynamic_cast<const T*>(p_units.get_ptr()) != NULL; }
-
   //templates
   template<class T> void applyBC()
     {
@@ -201,6 +194,8 @@ public:
       
       p_BC.set_ptr(new T(Sim));
     }
+
+  double getSimVolume() const;
 
   double getNumberDensity() const;
   
@@ -217,5 +212,5 @@ public:
   std::vector<magnet::ClonePtr<Species> > species;
   magnet::ClonePtr<BoundaryCondition> p_BC;
   magnet::ClonePtr<Liouvillean> p_liouvillean;
-  mutable magnet::ClonePtr<Units> p_units;
+  Units _units;
 };

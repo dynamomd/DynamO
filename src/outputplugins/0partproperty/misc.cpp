@@ -65,7 +65,7 @@ OPMisc::initialise()
   I_cout() << "No. of Species " << Sim->dynamics.getSpecies().size()
       << "\nSimulation box length <x,y,z> ";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    std::cout  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength() << " ";
+    std::cout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
 
   Vector  sumMV (0,0,0);
 
@@ -217,7 +217,7 @@ OPMisc::output(xml::XmlStream &XML)
     {
       name[0] = 'x' + iDim;
       XML << xml::tag(name) << xml::attr("val")
-	  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength()
+	  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength()
 	  << xml::endtag(name);
     }
 

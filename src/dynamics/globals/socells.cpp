@@ -76,7 +76,7 @@ CGSOCells::getEvent(const Particle& part) const
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->aspectRatio[iDim];
+      CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->primaryCellSize[iDim];
       ID /= cuberootN;
     }
 
@@ -99,7 +99,7 @@ CGSOCells::runEvent(const Particle& part, const double) const
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
-      CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->aspectRatio[iDim];
+      CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->primaryCellSize[iDim];
       ID /= cuberootN;
     }
   
@@ -164,7 +164,7 @@ CGSOCells::initialise(size_t nID)
 	      << "\nN^(1/3) = " << cuberootN;
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    cellDimension[iDim] = Sim->aspectRatio[iDim] / cuberootN;
+    cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
 
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
     I_cout() << "Warning, in order for SingleOccupancyCells to work in gravity\n"

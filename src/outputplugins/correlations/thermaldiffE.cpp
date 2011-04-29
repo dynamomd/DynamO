@@ -166,7 +166,7 @@ OPThermalDiffusionE::rescaleFactor()
        //correlator time as well
        * Sim->dynamics.units().unitThermalDiffusion() * 2.0 
        * count * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT()
-       * Sim->dynamics.units().simVolume());
+       * Sim->dynamics.getSimVolume());
 }
 
 void 

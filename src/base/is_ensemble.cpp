@@ -18,9 +18,8 @@
 #include "is_ensemble.hpp"
 #include "../dynamics/systems/ghost.hpp"
 #include "../dynamics/liouvillean/CompressionL.hpp"
-#include "../dynamics/units/units.hpp"
+#include "../dynamics/BC/LEBC.hpp"
 #include "../outputplugins/1partproperty/uenergy.hpp"
-#include "../dynamics/units/shear.hpp"
 
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -61,7 +60,7 @@ namespace DYNAMO {
   CENVE::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->aspectRatio[0] * Sim->aspectRatio[1] * Sim->aspectRatio[2];
+    EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
     I_cout() << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
@@ -140,9 +139,11 @@ namespace DYNAMO {
   void
   CENVShear::initialise()
   {
+    const double shearRate = 1.0;
+
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->aspectRatio[0] * Sim->aspectRatio[1] * Sim->aspectRatio[2];
-    EnsembleVals[2] = UShear::ShearRate();
+    EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
+    EnsembleVals[2] = CLEBC::shearRate();
 
     I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()

@@ -55,9 +55,9 @@ OPQMGA::printImage()
     M_throw() << "Could not open QMGA file for writing";
 
   of << Sim->N << "\n"
-     << Sim->aspectRatio[0] / Sim->dynamics.units().unitLength() << "\n"
-     << Sim->aspectRatio[1] / Sim->dynamics.units().unitLength() << "\n"
-     << Sim->aspectRatio[2] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->primaryCellSize[0] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->primaryCellSize[1] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->primaryCellSize[2] / Sim->dynamics.units().unitLength() << "\n"
      << "0.0 0.0\n";
   
   std::list<unsigned long> tmpList;

@@ -33,14 +33,12 @@
 Dynamics::Dynamics(DYNAMO::SimData* tmp): 
   SimBase(tmp,"Dynamics",IC_purple),
   p_BC(NULL), 
-  p_liouvillean(NULL),
-  p_units(NULL)
+  p_liouvillean(NULL)
 {}
 
 Dynamics::Dynamics(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
   SimBase(tmp, "Dynamics", IC_purple),
-  p_BC(NULL), 
-  p_units(NULL)
+  p_BC(NULL)
 { operator<<(XML); }
 
 Dynamics::~Dynamics() {}
@@ -348,7 +346,7 @@ Dynamics::getInteraction(const Particle& p1, const Particle& p2) const
 Dynamics::Dynamics(const Dynamics &dyn):
   SimBase(dyn),
   p_BC(dyn.p_BC), 
-  p_units(dyn.p_units)
+  _units(dyn._units)
 {}
 
 void 
@@ -376,9 +374,19 @@ Dynamics::calcInternalEnergy() const
 }
 
 double
+Dynamics::getSimVolume() const
+{ 
+  double vol = 1.0;
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
+    vol *= Sim->primaryCellSize[iDim];
+  return vol;
+}
+
+
+double
 Dynamics::getNumberDensity() const
 {
-  return Sim->N / Sim->dynamics.units().simVolume();
+  return Sim->N / getSimVolume();
 }
 
 double 
@@ -390,7 +398,7 @@ Dynamics::getPackingFraction() const
     BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
     volume += sp->getIntPtr()->getExcludedVolume(ID);
   
-  return  volume / Sim->dynamics.units().simVolume();
+  return  volume / getSimVolume();
 }
 
 void 
@@ -425,14 +433,12 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
   I_cout() << "Loading dynamics from XML";
   
   magnet::xml::Node xDynamics = XML.getNode("Dynamics");
-  
-  //Load the aspect ratio
-  if (xDynamics.getNode("Aspect_Ratio").valid())
-    Sim->aspectRatio << xDynamics.getNode("Aspect_Ratio");
-  
-  p_units.set_ptr(Units::getClass(xDynamics.getNode("Units"), Sim));
-  
-  //Now load the BC part, after the aspect ratio!
+
+  //Load the Primary cell's size
+  Sim->primaryCellSize << xDynamics.getNode("SimulationSize");
+  Sim->primaryCellSize /= Sim->dynamics.units().unitLength();
+
+  //Now load the BC
   p_BC.set_ptr(BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim));
   
   if (xDynamics.getNode("Topology").valid())
@@ -500,12 +506,9 @@ void
 Dynamics::outputXML(xml::XmlStream &XML) const
 {
   XML << xml::tag("Dynamics")
-      << xml::tag("Aspect_Ratio")
-      << Sim->aspectRatio
-      << xml::endtag("Aspect_Ratio")
-      << xml::tag("Units")
-      << p_units
-      << xml::endtag("Units")
+      << xml::tag("SimulationSize")
+      << Sim->primaryCellSize / Sim->dynamics.units().unitLength()
+      << xml::endtag("SimulationSize")
       << xml::tag("BC")
       << p_BC
       << xml::endtag("BC")
@@ -591,10 +594,6 @@ Dynamics::SystemOverlapTest()
       lcl->checkOverlaps(part);
     
 }
-
-void 
-Dynamics::setUnits(Units* Uptr) 
-{ p_units.set_ptr(Uptr); }
 
 void 
 Dynamics::setLiouvillean(Liouvillean* Uptr) 

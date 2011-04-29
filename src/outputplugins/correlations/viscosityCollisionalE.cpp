@@ -202,7 +202,7 @@ OPViscosityCollisionalE::output(xml::XmlStream &XML)
        //This line should be 1 however we have scaled the correlator time as well
        * Sim->dynamics.units().unitViscosity() * 2.0 
        //Count has been taken out due to the extra averaging of the constant piece 
-       * Sim->dynamics.units().simVolume());
+       * Sim->dynamics.getSimVolume());
   
   XML << xml::tag("EinsteinCorrelator")
       << xml::attr("name") << "ViscosityTimesT"
@@ -231,7 +231,7 @@ OPViscosityCollisionalE::output(xml::XmlStream &XML)
       {
 	traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((double) G.size()) + ((double) count));
 	
-	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.units().simVolume());
+	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.getSimVolume());
       }
   
   XML << xml::tag("Pressure");

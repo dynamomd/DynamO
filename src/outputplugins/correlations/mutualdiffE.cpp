@@ -158,7 +158,7 @@ OPMutualDiffusionE::rescaleFactor()
 {
   return 0.5 / (Sim->dynamics.units().unitTime()
 		* Sim->dynamics.units().unitMutualDiffusion()
-		* count * Sim->dynamics.units().simVolume()
+		* count * Sim->dynamics.getSimVolume()
 		* Sim->getOutputPlugin<OPKEnergy>()->getAvgkT());
 }
 

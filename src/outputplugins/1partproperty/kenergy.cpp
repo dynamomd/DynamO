@@ -98,7 +98,7 @@ OPKEnergy::output(xml::XmlStream &XML)
 {
   double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
-    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
+    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
 
   XML << xml::tag("KEnergy")
       << xml::tag("T") << xml::attr("val") << getAvgTheta()
@@ -121,7 +121,7 @@ OPKEnergy::periodicOutput()
 {
   double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
-    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
+    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
 
 
   I_Pcout() << "T "

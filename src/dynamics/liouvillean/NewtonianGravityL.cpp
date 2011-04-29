@@ -450,21 +450,21 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) 
   for (size_t i(0); i < NDIM; ++i)
     if (g[i] == 0)
       {
-	double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
+	double tmp = (0.5 * Sim->primaryCellSize[i] - lMax) / fabs(vel[i]);
 	
 	if (tmp < retval) retval = tmp;
       }
     else
       {
 	double roots[2];
-	if (magnet::math::quadSolve((0.5 * Sim->aspectRatio[i] - lMax),
+	if (magnet::math::quadSolve((0.5 * Sim->primaryCellSize[i] - lMax),
 				    vel[i], 0.5 * g[i], roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
 	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
 	  }
 
-	if (magnet::math::quadSolve(-(0.5 * Sim->aspectRatio[i] - lMax),
+	if (magnet::math::quadSolve(-(0.5 * Sim->primaryCellSize[i] - lMax),
 				    vel[i], 0.5 * g[i], roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];

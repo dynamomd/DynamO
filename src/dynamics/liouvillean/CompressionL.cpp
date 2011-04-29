@@ -268,11 +268,11 @@ LCompression::getPBCSentinelTime(const Particle& part,
 
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  double retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
+  double retval = (0.5 * Sim->primaryCellSize[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 
   for (size_t i(1); i < NDIM; ++i)
     {
-      double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
+      double tmp = (0.5 * Sim->primaryCellSize[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
       
       if (tmp < retval)
 	retval = tmp;

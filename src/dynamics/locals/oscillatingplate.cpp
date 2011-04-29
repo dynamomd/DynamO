@@ -206,13 +206,13 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "> }"
 
      << "\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+     << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+     << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 
@@ -224,13 +224,13 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "> }"
 
      << "\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+     << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+     << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }
@@ -262,8 +262,8 @@ CLOscillatingPlate::getCoilRenderObj() const
 	 << axis3[1] << ", "
 	 << axis3[2] << ", 0";
 
-      axis1 *= Sim->aspectRatio[1] / axis1.nrm();
-      axis2 *= Sim->aspectRatio[2] / axis2.nrm();
+      axis1 *= Sim->primaryCellSize[1] / axis1.nrm();
+      axis2 *= Sim->primaryCellSize[2] / axis2.nrm();
 
       _renderObj = new RFunction(10, 
 				 rw0 - 0.5 * (axis1 + axis2), 

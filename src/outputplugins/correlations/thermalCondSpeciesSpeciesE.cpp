@@ -111,7 +111,7 @@ OPThermalConductivitySpeciesSpeciesE::rescaleFactor()
       Sim->dynamics.units().unitTime() 
       * Sim->dynamics.units().unitThermalCond() * 2.0 
       * count * pow(Sim->getOutputPlugin<OPKEnergy>()->getAvgkT(), 2)
-      * Sim->dynamics.units().simVolume());
+      * Sim->dynamics.getSimVolume());
 }
 
 void 

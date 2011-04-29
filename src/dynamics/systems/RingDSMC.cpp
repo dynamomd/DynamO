@@ -199,11 +199,11 @@ CSRingDSMC::initialise(size_t nID)
 
   factor12 = range1->size()
     * diameter * M_PI * chi12 * tstep 
-    / Sim->dynamics.units().simVolume();
+    / Sim->dynamics.getSimVolume();
   
   factor13 = range1->size()
     * diameter * M_PI * chi13 * tstep 
-    / Sim->dynamics.units().simVolume();
+    / Sim->dynamics.getSimVolume();
   
   if (maxprob12 == 0.0)
     { 

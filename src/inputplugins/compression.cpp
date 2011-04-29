@@ -137,8 +137,7 @@ CIPCompression::limitDensity(double targetrho)
 {
   I_cout() << "Limiting maximum density to " << targetrho;
   
-  double molVol = (Sim->dynamics.getPackingFraction() 
-		   * Sim->dynamics.units().simVolume())
+  double molVol = (Sim->dynamics.getPackingFraction() * Sim->dynamics.getSimVolume())
     / (Sim->N * Sim->dynamics.units().unitVolume());
 
   I_cout() << "Corresponding packing fraction for that density is "

@@ -150,7 +150,7 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
       //Determine the x position (in cell coords) of the particle and
       //add it to the endCellID
       Sim->dynamics.BCs().applyBC(tmpPos, dt);
-      endCell += int((tmpPos[0] + 0.5 * Sim->aspectRatio[0]) 
+      endCell += int((tmpPos[0] + 0.5 * Sim->primaryCellSize[0]) 
 		     / cellLatticeWidth[0]);
 
       removeFromCell(part.getID());

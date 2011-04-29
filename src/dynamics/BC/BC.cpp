@@ -34,32 +34,15 @@ BoundaryCondition::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
   if (!std::strcmp(XML.getAttribute("Boundary"),"None")
       || !std::strcmp(XML.getAttribute("Boundary"),"Null"))
     return new BCNone(tmp);
-  else if (!std::strcmp(XML.getAttribute("Shape"),"Square"))
-    {
-      if (!std::strcmp(XML.getAttribute("Boundary"),"PBC"))
-	return new BCSquarePeriodic(tmp);
-      else if (!std::strcmp(XML.getAttribute("Boundary"),"LE"))
-	return new BCSquareLeesEdwards(XML,tmp);
-      else 
-	M_throw()<< XML.getAttribute("Boundary") 
-		 << ", Unknown type of square boundary encountered";
-    } 
-  else if (!std::strcmp(XML.getAttribute("Shape"),"Rectangular"))
-    {
-      if (!std::strcmp(XML.getAttribute("Boundary"),"PBC"))
-	return new BCRectangularPeriodic(tmp);
-      else if (!std::strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
-	return new BCSquarePeriodicExceptX(tmp);
-      else if (!std::strcmp(XML.getAttribute("Boundary"),"OnlyXPBC"))
-	return new BCSquarePeriodicXOnly(tmp);
-      else if (!std::strcmp(XML.getAttribute("Boundary"),"LE"))
-	return new BCRectangularLeesEdwards(XML,tmp);
-      else 
-	M_throw() << XML.getAttribute("Boundary") 
-		  << ", Unknown type of rectangular boundary encountered";
-    }
-  else
-    M_throw() << XML.getAttribute("Shape")
-      << "Unknown shape of Boundary encountered";
-
+  else if (!std::strcmp(XML.getAttribute("Boundary"),"PBC"))
+    return new BCPeriodic(tmp);
+  else if (!std::strcmp(XML.getAttribute("Boundary"),"NoXPBC"))
+    return new BCPeriodicExceptX(tmp);
+  else if (!std::strcmp(XML.getAttribute("Boundary"),"OnlyXPBC"))
+    return new BCPeriodicXOnly(tmp);
+  else if (!std::strcmp(XML.getAttribute("Boundary"),"LE"))
+    return new BCLeesEdwards(XML,tmp);
+  else 
+    M_throw() << XML.getAttribute("Boundary") 
+	      << ", Unknown type of rectangular boundary encountered";
 }

@@ -16,12 +16,10 @@
 */
 
 #pragma once
-#include "../../base/is_base.hpp"
 #include "../../base/constants.hpp"
 #include <magnet/units.hpp>
 #include <cmath>
 
-namespace DYNAMO { class SimData; }
 namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }
 
@@ -41,33 +39,31 @@ namespace magnet { namespace xml { class Node; } }
  * initialised on construction so that other classes may directly
  * start conversions on the loading of configurations.
  */
-class Units: public DYNAMO::SimBase_const
+class Units
 {
  public:
-  Units(const DYNAMO::SimData* const tmp): 
-    SimBase_const(tmp, "Units",IC_blue)
-    {};
+  Units(double unitLength = 1, double unitTime = 1):
+    _unitLength(unitLength),
+    _unitTime(unitTime)
+  {}
 
-  virtual ~Units() {};
+  /*! \brief Returns the simulation unit of time */
+  double unitTime() const { return _unitTime; }
 
-  virtual Units* Clone() const = 0;
+  /*! \brief Returns the simulation unit of length */
+  double unitLength() const { return _unitLength; }
 
-  /*! \brief Pure virtual function returning the simulation unit of time */
-  virtual double unitTime() const = 0;
+  /*! \brief Sets the unit length */
+  void setUnitLength(double ul) { _unitLength = ul; }
 
-  /*! \brief Pure virtual function returning the simulation unit of length */
-  virtual double unitLength() const = 0;
+  /*! \brief Sets the unit length */
+  void setUnitTime(double ut) { _unitTime = ut; }
 
-  /*! \brief Pure virtual function returning the method to change the unit length */
-  virtual void setUnitLength(double) = 0;
-
-  /*! \brief Overridable simulation unit of mass */
-  virtual double unitMass() const
-    { return 1.0; }
+  /*! \brief Simulation unit of mass */
+  double unitMass() const { return 1.0; }
   
-  /*! \brief Overridable Boltzmanns constant */
-  virtual double unitk() const
-    { return 1.0; }
+  /*! \brief Boltzmanns constant */
+  double unitk() const { return 1.0; }
 
   inline double getScaling(const magnet::units::Units& units) const
   {
@@ -126,17 +122,15 @@ class Units: public DYNAMO::SimBase_const
   { return unitMass() / (unitLength()*unitTime()*unitTime()); }
 
   /*! \brief Used to rescale the system size after a system compression*/
-  virtual void rescaleLength(double) = 0;
+  inline void rescaleLength(double r) { _unitLength *= r; }
 
-  /*! \brief Calculates the volume of the system*/
-  double simVolume() const;
-
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Units&);
+  inline friend xml::XmlStream& operator<<(xml::XmlStream& XML, const Units& u)
+  { u.outputXML(XML); return XML; }
   
-  virtual void operator<<(const magnet::xml::Node&) = 0;
-  
-  static Units* getClass(const magnet::xml::Node&, const DYNAMO::SimData*);
+  inline void operator<<(const magnet::xml::Node&) {}
   
  protected:
-  virtual void outputXML(xml::XmlStream &) const = 0;
+  inline void outputXML(xml::XmlStream &) const {}
+  double _unitLength;
+  double _unitTime;
 };

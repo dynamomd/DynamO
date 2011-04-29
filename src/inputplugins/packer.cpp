@@ -25,7 +25,6 @@
 #include "../schedulers/sorters/include.hpp"
 #include "../dynamics/dynamics.hpp"
 #include "../dynamics/species/include.hpp"
-#include "../dynamics/units/include.hpp"
 #include "../dynamics/globals/include.hpp"
 #include "../dynamics/interactions/include.hpp"
 #include "../dynamics/ranges/include.hpp"
@@ -280,24 +279,23 @@ CIPPacker::initialise()
 
 	if (vm.count("rectangular-box"))
 	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
 	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
-	    Sim->dynamics.applyBC<BCSquarePeriodic>();
-
 	    if (vm.count("b2"))
 	      Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	    else
 	      Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 
+	Sim->dynamics.applyBC<BCPeriodic>();
+
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -319,12 +317,12 @@ CIPPacker::initialise()
 		  dimension = 2;
 
 		particleDiam = std::sqrt(simVol * vm["density"].as<double>()
-					 / (Sim->aspectRatio[dimension] * latticeSites.size()));		
+					 / (Sim->primaryCellSize[dimension] * latticeSites.size()));		
 		
 		I_cout() << "I'm changing what looks like the unused box dimension (" 
 			 << dimension << ") to the optimal 2D value (3 particle diameters)";
 
-		Sim->aspectRatio[dimension] = 3.0000001 * particleDiam;
+		Sim->primaryCellSize[dimension] = 3.0000001 * particleDiam;
 	      }
 	  }
 
@@ -348,8 +346,8 @@ CIPPacker::initialise()
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					      "Bulk")));
-
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -375,17 +373,14 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
         double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -399,7 +394,9 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
-	Sim->dynamics.setUnits(new USquareWell(particleDiam,1.0, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
+	//Set the unit energy to 1 (assuming the unit of mass is 1);
+	Sim->dynamics.units().setUnitTime(particleDiam); 
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -655,7 +652,9 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
+	Sim->dynamics.units().setUnitLength(diamScale);
+	//Set the unit energy to 1 (assuming the unit of mass is 1);
+	Sim->dynamics.units().setUnitTime(diamScale); 
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
 
@@ -718,7 +717,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
 
-	Sim->dynamics.applyBC<BCSquarePeriodic>();
+	Sim->dynamics.applyBC<BCPeriodic>();
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
@@ -730,7 +729,9 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
+	Sim->dynamics.units().setUnitLength(diamScale);
+	//Set the unit energy to 1 (assuming the unit of mass is 1);
+	Sim->dynamics.units().setUnitTime(diamScale); 
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -754,13 +755,13 @@ CIPPacker::initialise()
 
 	if (vm.count("rectangular-box"))
 	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
 	  }
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -774,10 +775,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
-	if (vm.count("rectangular-box"))
-	  Sim->dynamics.applyBC<BCRectangularLeesEdwards>();
-	else
-	  Sim->dynamics.applyBC<BCSquareLeesEdwards>();
+	Sim->dynamics.applyBC<BCLeesEdwards>();
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -789,7 +787,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -800,7 +798,7 @@ CIPPacker::initialise()
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
 	BOOST_FOREACH(Particle& part, Sim->particleList)
-	  part.getVelocity()[0] += part.getPosition()[1] * UShear::ShearRate();
+	  part.getVelocity()[0] += part.getPosition()[1] * CLEBC::shearRate();
 
 	Sim->ensemble.reset(new DYNAMO::CENVShear(Sim));
 	break;
@@ -875,7 +873,9 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
+	Sim->dynamics.units().setUnitLength(diamScale);
+	//Set the unit energy to 1 (assuming the unit of mass is 1);
+	Sim->dynamics.units().setUnitTime(diamScale); 
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
 
@@ -899,20 +899,20 @@ CIPPacker::initialise()
 	std::vector<Vector  >
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
-	Sim->aspectRatio = getNormalisedCellDimensions();
+	Sim->primaryCellSize = getNormalisedCellDimensions();
 	//Cut off the x periodic boundaries
-	Sim->dynamics.applyBC<BCSquarePeriodicExceptX>();
+	Sim->dynamics.applyBC<BCPeriodicExceptX>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
@@ -927,10 +927,10 @@ CIPPacker::initialise()
 	  elasticity =  vm["f1"].as<double>();
 
 	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(1,0,0), 
-					  Vector(-Sim->aspectRatio[0] / 2, 0, 0),
+					  Vector(-Sim->primaryCellSize[0] / 2, 0, 0),
 					  "LowWall", new CRAll(Sim)));
 	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(-1,0,0), 
-					  Vector(Sim->aspectRatio[0] / 2, 0, 0),
+					  Vector(Sim->primaryCellSize[0] / 2, 0, 0),
 					  "HighWall", new CRAll(Sim)));
 
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
@@ -991,7 +991,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
-	Sim->dynamics.applyBC<BCSquarePeriodic>();
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1004,7 +1004,9 @@ CIPPacker::initialise()
 
 	if (lambda >= 1.0)
 	  {
-	    Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
+	    Sim->dynamics.units().setUnitLength(diamScale);
+	    //Set the unit energy to 1 (assuming the unit of mass is 1);
+	    Sim->dynamics.units().setUnitTime(diamScale); 
 
 	    Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
 							  lambda, 1.0,
@@ -1014,7 +1016,7 @@ CIPPacker::initialise()
 	  }
 	else
 	  {
-	    Sim->dynamics.setUnits(new UHardSphere(diamScale, Sim));
+	    Sim->dynamics.units().setUnitLength(diamScale);
 
 	    Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
 							  new C2RAll()
@@ -1064,17 +1066,14 @@ CIPPacker::initialise()
 	  molFrac = vm["f3"].as<double>();
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+	
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -1115,7 +1114,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 					       massFrac, "B", 0, "BBInt")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -1140,7 +1139,7 @@ CIPPacker::initialise()
 	std::vector<Vector  >
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 
-	Sim->dynamics.applyBC<BCSquarePeriodic>();
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double particleDiam = pow(vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -1181,7 +1180,7 @@ CIPPacker::initialise()
 					      std::sqrt(inertiaMultiplicativeFactor) * particleDiam,
 					      "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -1205,22 +1204,19 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1278,12 +1274,9 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double alpha = 1.0;
 
@@ -1293,12 +1286,12 @@ CIPPacker::initialise()
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1349,12 +1342,9 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -1370,12 +1360,12 @@ CIPPacker::initialise()
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -1546,7 +1536,7 @@ CIPPacker::initialise()
 	std::vector<Vector  >
 	  latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 
-	Sim->dynamics.applyBC<BCSquareLeesEdwards>();
+	Sim->dynamics.applyBC<BCLeesEdwards>();
 
 	double particleDiam = pow(vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -1568,7 +1558,7 @@ CIPPacker::initialise()
 				 (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					      particleDiam, "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -1613,17 +1603,14 @@ CIPPacker::initialise()
 	size_t nPartA = size_t(nPart * molfrac);
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ nPart, 1.0 / 3.0);
@@ -1685,7 +1672,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRRange(nPartA, latticeSites.size()-1),
 					       massFrac / chainlength, "B", 0, "BBInt")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -1716,17 +1703,14 @@ CIPPacker::initialise()
 	    " use an even number of particles";
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -1763,7 +1747,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0,
 					       "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	size_t nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -1785,7 +1769,7 @@ CIPPacker::initialise()
 	  Vector wobblespacing;
 
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    wobblespacing[iDim] = (Sim->aspectRatio[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
+	    wobblespacing[iDim] = (Sim->primaryCellSize[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
 
 	  BOOST_FOREACH(Particle& part, Sim->particleList)
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -1825,17 +1809,14 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
         double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -1857,7 +1838,9 @@ CIPPacker::initialise()
 					      overlink));
 	}
 
-	Sim->dynamics.setUnits(new USquareWell(particleDiam,1.0, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
+	//Set the unit energy to 1 (assuming the unit of mass is 1);
+	Sim->dynamics.units().setUnitTime(particleDiam); 
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1947,22 +1930,19 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+	
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -2033,17 +2013,14 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
-	  }
-	else
-	  Sim->dynamics.applyBC<BCSquarePeriodic>();
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -2053,7 +2030,7 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  inelasticity = vm["f1"].as<double>();
 
-	Sim->dynamics.setUnits(new UShear(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSSystemOnly(Sim, new CSSCBT(Sim));
@@ -2146,7 +2123,7 @@ CIPPacker::initialise()
 
 
 	//This slight exaggeration is required to stop the cells failing with walls near the edge of the simulation
-	Sim->aspectRatio = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
+	Sim->primaryCellSize = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
 
 //	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L ,
 //				     0.9 * Aspect, 0.9 * Aspect);
@@ -2199,7 +2176,7 @@ CIPPacker::initialise()
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = 1.0 / boxL;
 
@@ -2235,7 +2212,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, 
 					       "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	size_t maxPart;
 	if (vm.count("i2"))
@@ -2277,20 +2254,18 @@ CIPPacker::initialise()
 
 	if (vm.count("rectangular-box"))
 	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
 	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 	else
-	  {
-	    Sim->dynamics.applyBC<BCSquarePeriodic>();
-	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-	  }
+	  Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+
+	Sim->dynamics.applyBC<BCPeriodic>();
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>() / N, double(1.0 / 3.0));
 
@@ -2327,7 +2302,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -2354,7 +2329,7 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  LoverD = vm["f1"].as<double>();
 
-	Sim->aspectRatio = Vector(1,1,1);
+	Sim->primaryCellSize = Vector(1,1,1);
 	
 	double boxlimit;
 	double cylRad = 0.5;
@@ -2367,13 +2342,13 @@ CIPPacker::initialise()
 	    if ((1.0 / std::sqrt(2.0)) < LoverD)
 	      boxlimit = (1.0 / std::sqrt(2.0));
 
-	    Sim->aspectRatio[0] = LoverD;
+	    Sim->primaryCellSize[0] = LoverD;
 	  }
 	else
 	  {
 	    //L is unity
-	    Sim->aspectRatio[1] = 1.0 / LoverD;
-	    Sim->aspectRatio[2] = 1.0 / LoverD;
+	    Sim->primaryCellSize[1] = 1.0 / LoverD;
+	    Sim->primaryCellSize[2] = 1.0 / LoverD;
 
 	    boxlimit = 1.0;
 
@@ -2386,7 +2361,7 @@ CIPPacker::initialise()
 	//Shrink the box a little more
 	boxlimit *= 0.9;
 
-	Sim->dynamics.applyBC<BCSquarePeriodicXOnly>();
+	Sim->dynamics.applyBC<BCPeriodicXOnly>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	double particleDiam 
@@ -2414,7 +2389,7 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
@@ -2435,14 +2410,14 @@ CIPPacker::initialise()
 	std::vector<Vector>
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
-	Sim->aspectRatio = getNormalisedCellDimensions();
+	Sim->primaryCellSize = getNormalisedCellDimensions();
 	Sim->dynamics.applyBC<BCNone>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -2450,7 +2425,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0)));
 
@@ -2472,7 +2447,7 @@ CIPPacker::initialise()
 	//initialised touching the wall and to insert the wall just
 	//inside the primary image
 	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, Vector(0,1,0), 
-					  Vector(0, - 0.9995 * 0.5 * Sim->aspectRatio[1], 0),
+					  Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
 					  "GroundPlate", new CRAll(Sim), false));
 	
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
@@ -2511,12 +2486,12 @@ CIPPacker::initialise()
 	double Sr = 1.0; //Radial spacing
 	const double elasticV = 1.0;
 
-	Sim->aspectRatio = Vector(1,1,1);
+	Sim->primaryCellSize = Vector(1,1,1);
 	
 	double particleDiam = std::min(1 / (2 * R + 1), 1 / (H + 1));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
-	Sim->dynamics.applyBC<BCSquarePeriodic>();
+	Sim->dynamics.units().setUnitLength(particleDiam);
+	Sim->dynamics.applyBC<BCPeriodic>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
 
@@ -3143,7 +3118,9 @@ CIPPacker::initialise()
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 					       "Bulk")));
 
-	Sim->dynamics.setUnits(new USquareWell(diamScale, 1.0, Sim));
+	Sim->dynamics.units().setUnitLength(diamScale);
+	//Set the unit energy to 1 (assuming the unit of mass is 1);
+	Sim->dynamics.units().setUnitTime(diamScale); 
 
 	Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
 
@@ -3183,14 +3160,14 @@ CIPPacker::initialise()
 	if (vm.count("f5"))
 	  wakeTime = vm["f5"].as<double>();
 
-	Sim->aspectRatio = Vector(1,1,1);
+	Sim->primaryCellSize = Vector(1,1,1);
 	
 	double Rmax = 0.01999;
 	double l= 4;
 	double particleDiam = (2 * Rmax) / l;
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
-	Sim->dynamics.applyBC<BCSquarePeriodic>();
+	Sim->dynamics.units().setUnitLength(particleDiam);
+	Sim->dynamics.applyBC<BCPeriodic>();
 	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	
 
@@ -3398,16 +3375,15 @@ CIPPacker::initialise()
 	std::vector<Vector  >
 	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
+	Sim->dynamics.applyBC<BCPeriodic>();
+
 	if (vm.count("rectangular-box"))
 	  {
-	    Sim->aspectRatio = getNormalisedCellDimensions();
-	    Sim->dynamics.applyBC<BCRectangularPeriodic>();
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
 	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
-	    Sim->dynamics.applyBC<BCSquarePeriodic>();
-
 	    if (vm.count("b2"))
 	      Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	    else
@@ -3417,7 +3393,7 @@ CIPPacker::initialise()
 	double simVol = 1.0;
 
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  simVol *= Sim->aspectRatio[iDim];
+	  simVol *= Sim->primaryCellSize[iDim];
 
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
@@ -3439,12 +3415,12 @@ CIPPacker::initialise()
 		  dimension = 2;
 
 		particleDiam = std::sqrt(simVol * vm["density"].as<double>()
-					 / (Sim->aspectRatio[dimension] * latticeSites.size()));		
+					 / (Sim->primaryCellSize[dimension] * latticeSites.size()));		
 		
 		I_cout() << "I'm changing what looks like the unused box dimension (" 
 			 << dimension << ") to the optimal 2D value (3 particle diameters)";
 
-		Sim->aspectRatio[dimension] = 3.0000001 * particleDiam;
+		Sim->primaryCellSize[dimension] = 3.0000001 * particleDiam;
 	      }
 	  }
 
@@ -3496,7 +3472,7 @@ CIPPacker::initialise()
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
 				 (new SpPoint(Sim, new CRAll(Sim), "M", "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.setUnits(new UHardSphere(particleDiam, Sim));
+	Sim->dynamics.units().setUnitLength(particleDiam);
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());

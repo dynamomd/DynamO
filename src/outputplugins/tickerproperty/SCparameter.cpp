@@ -39,7 +39,7 @@ void
 OPSCParameter::initialise() 
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    if (Sim->aspectRatio[iDim] != 1.0) 
+    if (Sim->primaryCellSize[iDim] != 1.0) 
       M_throw() << "Cannot use this parameter in a non-cubic box";
   
   maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));

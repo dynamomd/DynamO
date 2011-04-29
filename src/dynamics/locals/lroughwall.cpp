@@ -142,13 +142,13 @@ LRoughWall::write_povray_info(std::ostream& os) const
 	   << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
 	   <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
 	   << "box { <" 
-	   << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-	   << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-	   << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+	   << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
+	   << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
+	   << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
 	   << ">,"
-	   << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-	   << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-	   << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+	   << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
+	   << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
+	   << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
 	   << "> }\n"
 	   << "} pigment { Col_Glass_Bluish }   }\n";
       else

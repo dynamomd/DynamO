@@ -34,7 +34,7 @@ namespace DYNAMO
     N(0),
     ptrScheduler(NULL),
     dynamics(this),
-    aspectRatio(1,1,1),
+    primaryCellSize(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
     normal_sampler(ranGenerator, boost::normal_distribution_01<double>()),
     uniform_sampler(ranGenerator),

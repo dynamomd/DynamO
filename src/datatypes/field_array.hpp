@@ -39,9 +39,9 @@ class CFieldArray: public DYNAMO::SimBase_const
   T& operator[](const Vector  &cv)
     { 
       return Field
-	[cv.data[0]/Sim->aspectRatio[0]]
-	[cv.data[1]/Sim->aspectRatio[1]]
-	[cv.data[2]/Sim->aspectRatio[2]]; 
+	[cv.data[0]/Sim->primaryCellSize[0]]
+	[cv.data[1]/Sim->primaryCellSize[1]]
+	[cv.data[2]/Sim->primaryCellSize[2]]; 
     }
     
   long getnBins() const
