@@ -37,7 +37,7 @@
 #include <iomanip>
 
 //! The configuration file version, a version mismatch prevents an XML file load.
-const char configFileVersion[] = "1.3.0";
+const char configFileVersion[] = "1.4.0";
 
 Simulation::Simulation():
   Base_Class("Simulation",IC_green)
@@ -239,7 +239,7 @@ Simulation::loadXMLfile(std::string fileName)
   
   using namespace magnet::xml;
   Document doc(fileName.c_str());
-  Node mainNode = doc.getNode("dynamoconfig");
+  Node mainNode = doc.getNode("DynamOconfig");
 
   {
     std::string version(mainNode.getAttribute("version"));
@@ -343,7 +343,7 @@ Simulation::writeXMLfile(std::string fileName, bool round)
     //This has a minus one due to the digit in front of the decimal
     //An extra one is added if we're rounding
       << std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
-      << xml::prolog() << xml::tag("dynamoconfig") 
+      << xml::prolog() << xml::tag("DynamOconfig") 
       << xml::attr("version") << configFileVersion
       << xml::tag("Simulation")
       << xml::tag("Trajectory")
@@ -374,7 +374,7 @@ Simulation::writeXMLfile(std::string fileName, bool round)
 
   dynamics.getLiouvillean().outputParticleXMLData(XML);
 
-  XML << xml::endtag("dynamoconfig");
+  XML << xml::endtag("DynamOconfig");
 
   I_cout() << "Config written to " << fileName;
 
