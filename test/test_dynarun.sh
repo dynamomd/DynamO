@@ -157,7 +157,6 @@ function wallsw {
     bzcat wallsw.xml.bz2 | \
 	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
-    
     #Any multiple of 5 will/should always give the original configuration
     #doing 9995 as this stops any 2 periodicity
     $Dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
@@ -429,8 +428,9 @@ function IsolatedPolymerTest {
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.05) && (var > -0.05))}') != "1" ]; then
-	    echo "IsolatedPolymerTest -: FAILED"
+	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.08) && (var > -0.08))}') != "1" ]; then
+	    echo "IsolatedPolymerTest -: FAILED MFT_expected=" $MFT " MFT_measured=" $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val')
 	    exit 1
 	else
 	    echo "IsolatedPolymerTest -: PASSED"

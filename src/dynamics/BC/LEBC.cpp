@@ -45,7 +45,7 @@ BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML,
 void 
 BCLeesEdwards::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Boundary") << "LE"
+  XML << xml::attr("Type") << "LE"
       << xml::attr("DXD") << dxd;
 }
 

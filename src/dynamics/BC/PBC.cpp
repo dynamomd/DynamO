@@ -53,7 +53,7 @@ BCPeriodic::applyBC(Vector  &pos, const double&) const
 void 
 BCPeriodic::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Boundary") << "PBC";
+  XML << xml::attr("Type") << "PBC";
 }
 
 void 
@@ -72,7 +72,7 @@ BCPeriodicExceptX::BCPeriodicExceptX(const DYNAMO::SimData* tmp):
 void 
 BCPeriodicExceptX::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Boundary") << "NoXPBC";
+  XML << xml::attr("Type") << "NoXPBC";
 }
 
 void 
@@ -130,7 +130,7 @@ BCPeriodicXOnly::BCPeriodicXOnly(const DYNAMO::SimData* tmp):
 void 
 BCPeriodicXOnly::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Boundary") << "OnlyXPBC";
+  XML << xml::attr("Type") << "OnlyXPBC";
 }
 
 void 
