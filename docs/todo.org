@@ -9,25 +9,25 @@
 **** DONE *MAJOR* New properties framework, allowing polydispersity and a very general way to attach values to particles.
 **** DONE *MAJOR* Migrate to RapidXML parser, cleaning up the XML loading code, reducing memory usage and speeding up loading of the config files.
 **** DONE *MAJOR* Remove binary XML mode, new parser is fast enough anyway and binary blobs in the XML is just confusing people.
-**** TODO *MAJOR* Merge orientation and normal liouvillean
-**** TODO *MAJOR* Volume Renderer
-     - [X] Move to OpenCL generation of the gradients from live data
-     - [X] Implement volume renderer
-     - [X] Make a transfer function interface
-     - [ ] Load the density data from some particles
 **** DONE *MAJOR* New dynamod mode (-m 26) - Example Polydisperse Hard Spheres Configuration!
 **** DONE *MINOR* Optimize the MinMax Heap memory usage to remove a wasted element (5% memory saving).
 **** DONE *MINOR* Auto detect if outputted files should be compressed based off their extension.
 **** DONE *MINOR* Removed the Geomview output plugin, the coil library supercedes these old plugins.
-**** TODO *BUG* Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
 **** DONE Add a multi-value property for Polydispersity.
 **** DONE Change HardCoreDiam() to be ExcludedVolume in Interactions
 **** DONE Fix getInternalEnergy() in Interactions to work for polydispersity
+**** DONE Fix Coil renderer to visualize polydisperse particles.
+**** TODO *MAJOR* Merge orientation and normal liouvillean
+**** TODO *MAJOR* Volume Renderer
+     - [X] Move to OpenCL generation of the gradients from live data.
+     - [X] Implement volume renderer.
+     - [X] Make a transfer function interface.
+     - [ ] Make a interface class for render objects that share points with attached data.
+**** TODO *BUG* Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
+**** TODO Move aspect ratio into BC class and fix that the units class calculates the box size.
 **** TODO Rename and document the CEnsemble class.
 **** TODO Fix the segfault when a simulation closes coil through a shutdown.
-**** TODO Fix Coil renderer to visualize polydisperse particles.
 **** TODO Remove the d2 argument to the smoothspherecoll (and any other run event functions).
-**** TODO Move aspect ratio into BC class and fix that the units class calculates the box size.
 **** TODO Update the tutorials.
 **** TODO Think about the unit rescale in compression, what happens with energy scales? do the velocities rescale?
 *** Dynamo 1.2
