@@ -18,7 +18,6 @@
 #pragma once
 
 #include "is_stream_op.hpp"
-#include "constants.hpp"
 #include <magnet/exception.hpp>
 
 

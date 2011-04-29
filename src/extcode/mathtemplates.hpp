@@ -18,7 +18,6 @@
 #pragma once
 
 #include <cmath>
-#include "../base/constants.hpp"
 #include <magnet/exception.hpp>
 #include <algorithm>
 

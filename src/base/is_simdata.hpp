@@ -21,7 +21,7 @@
 #include "../datatypes/vector.hpp"
 #include "../simulation/particle.hpp"
 #include "../outputplugins/outputplugin.hpp"
-#include "is_ensemble.hpp"
+#include "../simulation/ensemble.hpp"
 #include "../simulation/property.hpp"
 #include <magnet/function/delegate.hpp>
 #include <boost/random/mersenne_twister.hpp>

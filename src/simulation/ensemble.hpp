@@ -21,8 +21,7 @@
 
 #include <boost/array.hpp>
 #include <string>
-#include "constants.hpp"
-#include "is_base.hpp"
+#include "../base/is_base.hpp"
 
 namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }

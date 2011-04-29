@@ -36,6 +36,9 @@
 #include <boost/foreach.hpp>
 #include <iomanip>
 
+//! The configuration file version, a version mismatch prevents an XML file load.
+const char configFileVersion[] = "1.3.0";
+
 Simulation::Simulation():
   Base_Class("Simulation",IC_green)
 {}

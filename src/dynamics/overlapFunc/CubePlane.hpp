@@ -16,9 +16,7 @@
 */
 #pragma once
 
-#include "../../base/constants.hpp"
 #include <magnet/math/vector.hpp>
-
 #include <limits>
 
 namespace dynamo

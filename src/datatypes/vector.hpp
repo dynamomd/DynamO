@@ -19,7 +19,7 @@
  */
 #pragma once
 
-#include "../base/constants.hpp" //For the dimensions
+#include <magnet/math/vector.hpp>
 #include <magnet/exception.hpp>
 #include <cmath> //for length
 

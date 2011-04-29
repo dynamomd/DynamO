@@ -18,7 +18,6 @@
 #include "include.hpp"
 #include "outputplugin.hpp"
 #include "../dynamics/include.hpp"
-#include "../base/constants.hpp"
 #include "../simulation/particle.hpp"
 #include "correlations/include.hpp"
 #include "general/include.hpp"

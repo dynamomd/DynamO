@@ -33,7 +33,7 @@
 #include "../dynamics/systems/ghost.hpp"
 #include "../base/is_simdata.hpp"
 #include "../dynamics/topology/include.hpp"
-#include "../base/is_ensemble.hpp"
+#include "../simulation/ensemble.hpp"
 #include "../dynamics/locals/include.hpp"
 #include "../dynamics/systems/DSMCspheres.hpp"
 #include "../dynamics/systems/RingDSMC.hpp"

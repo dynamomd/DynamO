@@ -23,7 +23,6 @@
 
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include "../base/constants.hpp"
 #include <magnet/math/vector.hpp>
 #include "vector.hpp"
 

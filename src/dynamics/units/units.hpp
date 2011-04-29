@@ -16,7 +16,6 @@
 */
 
 #pragma once
-#include "../../base/constants.hpp"
 #include <magnet/units.hpp>
 #include <cmath>
 

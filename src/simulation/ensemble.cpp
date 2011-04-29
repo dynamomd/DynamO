@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "is_ensemble.hpp"
+#include "ensemble.hpp"
 #include "../dynamics/systems/ghost.hpp"
 #include "../dynamics/liouvillean/CompressionL.hpp"
 #include "../dynamics/BC/LEBC.hpp"

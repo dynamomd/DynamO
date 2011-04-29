@@ -20,6 +20,8 @@
 #include <cmath>
 #include <algorithm>
 
+const size_t NDIM(3);
+
 namespace {
   template<typename T> inline T SQR(T a) { return a * a; }
 };

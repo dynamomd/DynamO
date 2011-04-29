@@ -19,7 +19,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../1partproperty/kenergy.hpp"
-#include "../../base/is_ensemble.hpp"
+#include "../../simulation/ensemble.hpp"
 #include "../0partproperty/misc.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
