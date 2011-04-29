@@ -132,15 +132,13 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const do
       bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
 
       //If both particles have infinite mass we just collide them as identical masses
-      if (isInfInf) p1Mass = p2Mass = 1;
-
-      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
+      double mu = isInfInf ? 0.5 : p1Mass * p2Mass / (p1Mass + p2Mass);
 
       retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
 
       //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (p1Mass + isInfInf);
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (p2Mass + isInfInf);
 
       //If both particles have infinite mass we pretend no momentum was transferred
       retVal.dP *= !isInfInf;
