@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file is_ensemble.hpp
- * \brief Contains the definition of the CEnsemble class.
+ * \brief Contains the definition of the Ensemble class.
  */
 #pragma once
 
@@ -29,7 +29,7 @@ namespace magnet { namespace xml { class Node; } }
 
 class System;
 
-namespace DYNAMO {
+namespace dynamo {
   class SimData;
 
   /*! \brief This class specifies the simulation ensemble that the
@@ -37,18 +37,18 @@ namespace DYNAMO {
    *
    *
    */
-  class CEnsemble : public SimBase_const
+  class Ensemble : public SimBase_const
   {
   public:
-    CEnsemble(const SimData* const& SD, const char *aName):
+    Ensemble(const SimData* const& SD, const char *aName):
       SimBase_const(SD, aName, IC_blue) {}
     
-    virtual ~CEnsemble() {}
+    virtual ~Ensemble() {}
 
-    static CEnsemble* getClass(const magnet::xml::Node& XML, 
-			       const DYNAMO::SimData* Sim);
+    static Ensemble* getClass(const magnet::xml::Node& XML, 
+			       const dynamo::SimData* Sim);
 
-    friend xml::XmlStream& operator<<(xml::XmlStream&, const CEnsemble&);
+    friend xml::XmlStream& operator<<(xml::XmlStream&, const Ensemble&);
     
     virtual std::string getName() const = 0;
 
@@ -56,9 +56,9 @@ namespace DYNAMO {
 
     virtual boost::array<double,3> getReducedEnsembleVals() const = 0;
     
-    virtual void exchange(CEnsemble& rhs) { std::swap(EnsembleVals, rhs.EnsembleVals); }
+    virtual void exchange(Ensemble& rhs) { std::swap(EnsembleVals, rhs.EnsembleVals); }
 
-    virtual double exchangeProbability(const CEnsemble&) const;
+    virtual double exchangeProbability(const Ensemble&) const;
     
     const boost::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
 
@@ -66,11 +66,11 @@ namespace DYNAMO {
     boost::array<double,3> EnsembleVals;
   };
   
-  class CENVE           : public CEnsemble 
+  class EnsembleNVE           : public Ensemble 
   {
   public:
-    CENVE(const DYNAMO::SimData* SD): 
-      CEnsemble(SD, "CENVE") {}
+    EnsembleNVE(const dynamo::SimData* SD): 
+      Ensemble(SD, "EnsembleNVE") {}
 
     virtual void initialise();
 
@@ -80,11 +80,11 @@ namespace DYNAMO {
     { return std::string("NVE"); }
   };
 
-  class CENVT           : public CEnsemble 
+  class EnsembleNVT           : public Ensemble 
   {
   public:
-    CENVT(const DYNAMO::SimData* SD): 
-      CEnsemble(SD, "CENVT") {}
+    EnsembleNVT(const dynamo::SimData* SD): 
+      Ensemble(SD, "EnsembleNVT") {}
 
     virtual void initialise();
 
@@ -93,17 +93,17 @@ namespace DYNAMO {
     virtual std::string getName() const
     { return std::string("NVT"); }
 
-    virtual double exchangeProbability(const CEnsemble&) const;
+    virtual double exchangeProbability(const Ensemble&) const;
 
   protected:
     const System* thermostat;
   };
 
-  class CENVShear       : public CEnsemble 
+  class EnsembleNVShear       : public Ensemble 
   {
   public:
-    CENVShear(const DYNAMO::SimData* SD): 
-      CEnsemble(SD, "CENVShear") {}
+    EnsembleNVShear(const dynamo::SimData* SD): 
+      Ensemble(SD, "EnsembleNVShear") {}
 
     virtual void initialise();
 
@@ -113,11 +113,11 @@ namespace DYNAMO {
     { return std::string("NVShear"); }
   };
 
-  class CENECompression : public CEnsemble 
+  class EnsembleNECompression : public Ensemble 
   {
   public:
-    CENECompression(const DYNAMO::SimData* SD): 
-      CEnsemble(SD, "CENECompression") {}
+    EnsembleNECompression(const dynamo::SimData* SD): 
+      Ensemble(SD, "EnsembleNECompression") {}
 
     virtual void initialise();
 
@@ -127,11 +127,11 @@ namespace DYNAMO {
     { return std::string("NECompression"); }
   };
 
-  class CENTCompression : public CEnsemble 
+  class EnsembleNTCompression : public Ensemble 
   {
   public:
-    CENTCompression(const DYNAMO::SimData* SD): 
-      CEnsemble(SD, "CENTCompression") {}
+    EnsembleNTCompression(const dynamo::SimData* SD): 
+      Ensemble(SD, "EnsembleNTCompression") {}
 
     virtual void initialise();
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,13 +30,13 @@
 #include <boost/foreach.hpp>
 #include <cmath>
 
-Dynamics::Dynamics(DYNAMO::SimData* tmp): 
+Dynamics::Dynamics(dynamo::SimData* tmp): 
   SimBase(tmp,"Dynamics",IC_purple),
   p_BC(NULL), 
   p_liouvillean(NULL)
 {}
 
-Dynamics::Dynamics(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+Dynamics::Dynamics(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   SimBase(tmp, "Dynamics", IC_purple),
   p_BC(NULL)
 { operator<<(XML); }

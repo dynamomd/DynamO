@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,7 +27,7 @@ namespace xml { class XmlStream; }
 class Particle;
 class Interaction;
 
-class Topology: public DYNAMO::SimBase_const
+class Topology: public dynamo::SimBase_const
 {
 public:  
   virtual ~Topology() {}
@@ -45,7 +45,7 @@ public:
   const std::string& getName() const
   { return spName; }
   
-  static Topology* getClass(const magnet::xml::Node& ,DYNAMO::SimData*, size_t);
+  static Topology* getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
 
   virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
 
@@ -58,7 +58,7 @@ public:
   inline size_t getMoleculeCount() const { return ranges.size(); }
 
 protected:
-  Topology(DYNAMO::SimData*, size_t ID);
+  Topology(dynamo::SimData*, size_t ID);
 
   virtual void outputXML(xml::XmlStream&) const;
   

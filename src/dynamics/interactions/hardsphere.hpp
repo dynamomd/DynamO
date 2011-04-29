@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@ class IHardSphere: public SphericalRepresentation, public Interaction
 {
 public:
   template<class T1, class T2>
-  IHardSphere(DYNAMO::SimData* tmp, T1 d, T2 e, C2Range* nR):
+  IHardSphere(dynamo::SimData* tmp, T1 d, T2 e, C2Range* nR):
     Interaction(tmp, nR),
     _diameter(Sim->_properties.getProperty
 	      (d, Property::Units::Length())),
@@ -33,7 +33,7 @@ public:
        (e, Property::Units::Dimensionless()))
   {}
 
-  IHardSphere(const magnet::xml::Node&, DYNAMO::SimData*);
+  IHardSphere(const magnet::xml::Node&, dynamo::SimData*);
 
   void operator<<(const magnet::xml::Node&);
 

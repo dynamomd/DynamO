@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -29,7 +29,7 @@
 #include "../liouvillean/NewtonianGravityL.hpp"
 #include <magnet/xmlwriter.hpp>
 
-CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
+CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim, 
 				 const std::string& name):
   CGCells(nSim, "ShearingCells", NULL)
 {
@@ -38,7 +38,7 @@ CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim,
 }
 
 CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
-				 DYNAMO::SimData* ptrSim):
+				 dynamo::SimData* ptrSim):
   CGCells(ptrSim, "ShearingCells")
 {
   operator<<(XML);
@@ -318,7 +318,7 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
   //This doesn't stream the system as its a virtual event
 
   //Debug section
-#ifdef DYNAMO_WallCollDebug
+#ifdef dynamo_WallCollDebug
   {      
     CVector<int> tmp = cells[oldCell].coords;
     CVector<int> tmp2 = cells[endCell].coords;
@@ -355,7 +355,7 @@ CGCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
   size_t cellID = partCellData[part.getID()].cell;
   CVector<int> coords(cells[cellID].coords);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if ((coords[1] != 0) && (coords[1] != cellCount[1] - 1))
     M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
 #endif 

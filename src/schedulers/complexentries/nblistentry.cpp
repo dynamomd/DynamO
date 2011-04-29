@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CSCENBList::CSCENBList(const magnet::xml::Node& XML, DYNAMO::SimData* const nSim):
+CSCENBList::CSCENBList(const magnet::xml::Node& XML, dynamo::SimData* const nSim):
   CSCEntry(nSim, "ComplexNBlistEntry"),
   nblistID(std::numeric_limits<size_t>::max())
 {
@@ -71,7 +71,7 @@ void
 CSCENBList::getParticleNeighbourhood(const Particle& part, 
 				     const CGNeighbourList::nbHoodFunc& func) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isApplicable(part))
     M_throw() << "This complexNBlist entry ("
 	      << name << ") is not valid for this particle (" 
@@ -86,7 +86,7 @@ void
 CSCENBList::getParticleLocalNeighbourhood(const Particle& part, 
 					  const CGNeighbourList::nbHoodFunc& func) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isApplicable(part))
     M_throw() << "This complexNBlist entry ("
 	      << name << ") is not valid for this particle (" 

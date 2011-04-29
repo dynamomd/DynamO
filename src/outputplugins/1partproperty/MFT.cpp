@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPMFT::OPMFT(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPMFT::OPMFT(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OP1PP(tmp,"MeanFreeLength", 250),
   collisionHistoryLength(10),
   binwidth(0.01)

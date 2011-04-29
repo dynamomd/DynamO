@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,9 +22,9 @@
 class INull: public Interaction
 {
 public:
-  INull(DYNAMO::SimData*, C2Range*);
+  INull(dynamo::SimData*, C2Range*);
 
-  INull(const magnet::xml::Node&, DYNAMO::SimData*);
+  INull(const magnet::xml::Node&, dynamo::SimData*);
 
   void operator<<(const magnet::xml::Node&);
 

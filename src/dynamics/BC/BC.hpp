@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@ namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }
 
 class IntEvent;
-namespace DYNAMO
+namespace dynamo
 {
   class SimData;
 }
@@ -41,7 +41,7 @@ namespace DYNAMO
  * boundary condition and one for studying confined systems in the x
  * direction BCSquarePeriodicExceptX.
  */
-class BoundaryCondition: public DYNAMO::SimBase_const
+class BoundaryCondition: public dynamo::SimBase_const
 {
  public:
   /*! \brief Just the constructor
@@ -50,7 +50,7 @@ class BoundaryCondition: public DYNAMO::SimBase_const
    * \param aName The name of the overall class.
    * \param aColor The colour of the class output.
    */
-  BoundaryCondition(const DYNAMO::SimData* const SD, const char *aName, 
+  BoundaryCondition(const dynamo::SimData* const SD, const char *aName, 
       const char *aColor):
     SimBase_const(SD, aName, aColor)
   {}
@@ -106,7 +106,7 @@ class BoundaryCondition: public DYNAMO::SimBase_const
   friend xml::XmlStream& operator<<(xml::XmlStream&, const BoundaryCondition&);
 
   /*! \brief The class loader for boundary conditions. */
-  static BoundaryCondition* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
+  static BoundaryCondition* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
  protected:
   /*! \brief The XML output for a BoundaryCondition class*/

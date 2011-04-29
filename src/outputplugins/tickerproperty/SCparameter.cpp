@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <cmath>
 #include <limits>
 
-OPSCParameter::OPSCParameter(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPSCParameter::OPSCParameter(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"SCParameter"),
   maxWaveNumber(0),
   count(0),

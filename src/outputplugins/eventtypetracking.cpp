@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,7 +20,7 @@
 
 namespace EventTypeTracking {
 
-  std::string getName(const classKey& key, const DYNAMO::SimData* Sim)
+  std::string getName(const classKey& key, const dynamo::SimData* Sim)
   {
   switch (key.second)
     {

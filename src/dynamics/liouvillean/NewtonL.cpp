@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -89,7 +89,7 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2, bool, bool) const
 	  //formula
 	  dat.dt = (d2 - dat.r2) / (dat.rvdot-sqrt(arg));
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	  if (boost::math::isnan(dat.dt))
 	    M_throw() << "dat.dt is nan";
 #endif
@@ -147,7 +147,7 @@ LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT) const
   return tmpDat;
 }
 
-LNewtonian::LNewtonian(DYNAMO::SimData* tmp):
+LNewtonian::LNewtonian(dynamo::SimData* tmp):
   Liouvillean(tmp),
   lastAbsoluteClock(-1),
   lastCollParticle1(0),
@@ -239,7 +239,7 @@ LNewtonian::getSquareCellCollision2(const Particle& part,
   Vector  vel(part.getVelocity());
   Sim->dynamics.BCs().applyBC(rpos, vel);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
       M_throw() << "You have negative zero velocities, don't use them.";
@@ -277,7 +277,7 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
   int retVal(0);
   double time(HUGE_VAL);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
       M_throw() << "You have negative zero velocities, dont use them."
@@ -761,7 +761,7 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE,
 	  * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
     }
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred";
 #endif
@@ -791,7 +791,7 @@ LNewtonian::outputXML(xml::XmlStream& XML) const
 double 
 LNewtonian::getPBCSentinelTime(const Particle& part, const double& lMax) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif
@@ -819,7 +819,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 				 const double& Omega, const double& Sigma,
 				 const double& t, bool lastpart) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle1 " << part.getID() << " is not up to date";
 #endif
@@ -839,7 +839,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 
   COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (Sigma < 0) M_throw() << "Assuming a positive Sigma here";
 #endif
 
@@ -847,14 +847,14 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   //We can just adjust the seperation vector till the particle is on the surface of the plate
   if (fL.F_zeroDeriv() > 0)
     {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       I_cerr() << "Particle is penetrating the \"upper\" plate"
 	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
 	       << "\nThis is fine if it is a rare event.";
 #endif
       fL.fixFZeroSign(false);
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       //This is just incase the oscillating plate shape function is broken
       if (fL.F_zeroDeriv() > 0)
 	M_throw() << "Failed to adjust the plate position";
@@ -884,14 +884,14 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 
   if (fL.F_zeroDeriv() < 0)
     {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       I_cerr() << "Particle is penetrating the \"lower\" plate"
 	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
 	       << "\nThis is fine if it is a rare event.";
 #endif
       fL.fixFZeroSign(true);
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       //This is just incase the oscillating plate shape function is broken
       if (fL.F_zeroDeriv() < 0)
 	M_throw() << "Failed to adjust the plate position";
@@ -908,7 +908,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
       || ((t_low1 > t_high) && (t_low2 > t_high)))
     {
       //This can be a problem
-#ifdef DYNAMO_DEBUG      
+#ifdef dynamo_DEBUG      
       I_cerr() << "Particle " << part.getID() 
 	       << " may be outside/heading out of the plates"
 	       << "\nerror = "
@@ -923,7 +923,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
       //If the particle is going out of bounds, collide now
       if (fL.test_root())
 	{
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	  {
 	    COscillatingPlateFunc ftmp(fL);
 	    COscillatingPlateFunc ftmp2(fL);
@@ -1000,13 +1000,13 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	  tmpt /= fL.F_secondDeriv_max();
 	  if (tmpt < currRoot)
 	    {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
 #endif
 
 	      return std::pair<bool,double>(true, tmpt);
 	    }
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	  else
 	    I_cout() << "The current root is lower than the fake one";	    
 #endif

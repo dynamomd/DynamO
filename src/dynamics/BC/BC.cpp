@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -29,7 +29,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 
 
 BoundaryCondition* 
-BoundaryCondition::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
+BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
 {
   if (!std::strcmp(XML.getAttribute("Type"),"None")
       || !std::strcmp(XML.getAttribute("Type"),"Null"))

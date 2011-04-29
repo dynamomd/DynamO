@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -77,7 +77,7 @@ public:
 
   inline const T& operator[](idType a) const 
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -87,7 +87,7 @@ public:
   
   inline T& operator[](idType a) 
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -97,7 +97,7 @@ public:
 
   void init()
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -119,7 +119,7 @@ public:
   {
     CRanIt first = local_heap.begin();
 
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 
@@ -141,7 +141,7 @@ public:
 
   inline const T& next_Data() const
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (idMap.empty())
       M_throw() << "Heap not yet initialised";
 #endif
@@ -150,7 +150,7 @@ public:
 
   inline T& next_Data()
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (idMap.empty())
       M_throw() << "Heap not yet initialised";
 #endif
@@ -159,7 +159,7 @@ public:
 
   inline const idType next_ID() const
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (idMap.empty())
       M_throw() << "Heap not yet initialised";
 #endif

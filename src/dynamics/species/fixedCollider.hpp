@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,12 +23,12 @@
 class SpFixedCollider:public SpPoint
 {
 public:  
-  SpFixedCollider(DYNAMO::SimData* sim, CRange* r, std::string nName, 
+  SpFixedCollider(dynamo::SimData* sim, CRange* r, std::string nName, 
 		  unsigned int ID, std::string nIName="Bulk"):
     SpPoint(sim, r, 0, nName, ID, nIName)
   { name = "SpFixedCollider"; }
   
-  SpFixedCollider(const magnet::xml::Node& XML, DYNAMO::SimData* nSim, unsigned int nID):
+  SpFixedCollider(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
     SpPoint(nSim, NULL, 0, "", nID,"")
   { name = "SpFixedCollider"; operator<<(XML); }
   

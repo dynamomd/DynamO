@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@
 #include "../dynamics/species/species.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 
-CIPCompression::CIPCompression(DYNAMO::SimData* tmp, double GR): 
+CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR): 
   CInputPlugin(tmp, "CompressionPlugin"),
   growthRate(GR)
 {

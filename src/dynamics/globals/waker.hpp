@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -25,9 +25,9 @@
 class GWaker: public Global
 {
 public:
-  GWaker(const magnet::xml::Node&, DYNAMO::SimData*);
+  GWaker(const magnet::xml::Node&, dynamo::SimData*);
 
-  GWaker(DYNAMO::SimData*, const std::string&, CRange*, const double, const double,
+  GWaker(dynamo::SimData*, const std::string&, CRange*, const double, const double,
 	 std::string nblist);
   
   virtual ~GWaker() {}

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@ class ISquareWell: public ISingleCapture, public Interaction, public SphericalRe
 {
 public:
   template<class T1, class T2, class T3, class T4>
-  ISquareWell(DYNAMO::SimData* tmp, T1 d, T2 l, 
+  ISquareWell(dynamo::SimData* tmp, T1 d, T2 l, 
 	      T3 wd, T4 e, C2Range* nR):
     Interaction(tmp,nR),
     _diameter(Sim->_properties.getProperty
@@ -38,7 +38,7 @@ public:
        (e, Property::Units::Dimensionless()))
   {}
 
-  ISquareWell(const magnet::xml::Node&, DYNAMO::SimData*);
+  ISquareWell(const magnet::xml::Node&, dynamo::SimData*);
   
   void operator<<(const magnet::xml::Node&);
 

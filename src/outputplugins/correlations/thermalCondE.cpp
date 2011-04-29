@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPThermalConductivityE::OPThermalConductivityE(const DYNAMO::SimData* tmp,
+OPThermalConductivityE::OPThermalConductivityE(const dynamo::SimData* tmp,
 					       const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ThermalConductivityE"),
   G(100),
@@ -71,7 +71,7 @@ OPThermalConductivityE::initialise()
   Sim->getOutputPlugin<OPMisc>();
   Sim->getOutputPlugin<OPKEnergy>();
   
-  if (dynamic_cast<const DYNAMO::CENVE* >(Sim->ensemble.get()) == NULL)
+  if (dynamic_cast<const dynamo::EnsembleNVE* >(Sim->ensemble.get()) == NULL)
     M_throw() << "WARNING: This is only valid in the microcanonical"
       " ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
       "\n Essentially you need entropic data too for other ensembles";

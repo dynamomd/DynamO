@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -53,7 +53,7 @@ typedef enum
     ERROR         = 4  /*!< The simulation has failed. */
   } ESimulationStatus;
 
-namespace DYNAMO
+namespace dynamo
 {  
   typedef boost::mt19937 baseRNG;
   
@@ -116,8 +116,8 @@ namespace DYNAMO
       M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
-    /*! \brief The CEnsemble of the Simulation. */
-    boost::scoped_ptr<CEnsemble> ensemble;
+    /*! \brief The Ensemble of the Simulation. */
+    boost::scoped_ptr<Ensemble> ensemble;
 
     /*! \brief The current system time of the simulation. 
      * 
@@ -179,9 +179,9 @@ namespace DYNAMO
      */
     mutable baseRNG ranGenerator;
 
-    mutable boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution_01<double> > normal_sampler;
+    mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution_01<double> > normal_sampler;
 
-    mutable boost::uniform_01<DYNAMO::baseRNG, double> uniform_sampler;  
+    mutable boost::uniform_01<dynamo::baseRNG, double> uniform_sampler;  
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */

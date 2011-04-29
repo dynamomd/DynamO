@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,12 +22,12 @@
 class SpDumbbells : public SpSphericalTop
 {
 public:
-  inline SpDumbbells(DYNAMO::SimData* Sim, CRange* R, double nMass, std::string nName, 
+  inline SpDumbbells(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
 	  unsigned int ID, double r, std::string nIName="Bulk"):
     SpSphericalTop(Sim, R, nMass, nName, ID, r,  nIName)
   {}
   
-  inline SpDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
+  inline SpDumbbells(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
     SpSphericalTop(XML, Sim, ID)
   {}
 

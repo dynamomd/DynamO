@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 class OPOverlapTest: public OPTicker
 {
  public:
-  OPOverlapTest(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPOverlapTest(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPOverlapTest(*this); }

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@ using namespace EventTypeTracking;
 class OPRdotV: public OutputPlugin
 {
  public:
-  OPRdotV(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPRdotV(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
   

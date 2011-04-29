@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 
-#ifdef DYNAMO_Colour
+#ifdef dynamo_Colour
 # define IC_black "\033[22;30m" 
 # define IC_red "\033[22;31m"
 # define IC_green "\033[22;32m"
@@ -50,7 +50,7 @@
 
 #define IC_exception "\033[5m\033[41m\033[01;37m"
 
-namespace DYNAMO
+namespace dynamo
 {
   /*! \brief Can search and replace elements in a std::string. */
   inline std::string searchReplace(std::string in, const std::string& from, const std::string& to)

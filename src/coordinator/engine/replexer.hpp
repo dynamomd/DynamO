@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -220,7 +220,7 @@ protected:
 
   /*! \brief Sets up each simulation.
    *
-   * Ensures the systems are in the right CEnsemble, have a thermostat,
+   * Ensures the systems are in the right Ensemble, have a thermostat,
    * etc.
    */
   virtual void setupSim(Simulation&, const std::string);

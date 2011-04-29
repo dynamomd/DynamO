@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPMSDCorrelator::OPMSDCorrelator(const DYNAMO::SimData* tmp, 
+OPMSDCorrelator::OPMSDCorrelator(const dynamo::SimData* tmp, 
 				 const magnet::xml::Node& XML):
   OPTicker(tmp,"MSDCorrelator"),
   length(20),

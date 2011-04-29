@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -29,12 +29,12 @@ class IntEvent;
 class NEventData;
 class LocalEvent;
 
-class Local: public DYNAMO::SimBase
+class Local: public dynamo::SimBase
 {
 public:
-  Local(DYNAMO::SimData*, const char *);
+  Local(dynamo::SimData*, const char *);
 
-  Local(CRange*, DYNAMO::SimData*, const char *);
+  Local(CRange*, dynamo::SimData*, const char *);
   
   virtual ~Local() {}
 
@@ -52,7 +52,7 @@ public:
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Local&);
 
-  static Local* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
+  static Local* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
   virtual void operator<<(const magnet::xml::Node&) = 0;
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -39,10 +39,10 @@ namespace xml { class XmlStream; }
 //! - Storing the "state" of the interaction, to ensure only correct dynamics occur (e.g., a square well particle must capture a particle before it can be released or it can hit the inner core). This state storing often uses one of the ICapture classes (ISingleCapture or IMultiCapture).
 //! - Performing high level calculations or optimizations for the interactions (e.g., for hard lines (ILines), we use a bounding sphere before testing for the expensive line-line collision, the bounding sphere test is organised in here).
 //! \warning You must only perform high level calculations here. All actual collision testing should use the "primative" functions defined in the Liouvillean class. This allows an interaction to be easily ported to alternative dynamics (like compression or gravity).
-class Interaction: public DYNAMO::SimBase
+class Interaction: public dynamo::SimBase
 {
 public:
-  Interaction(DYNAMO::SimData*, C2Range*);
+  Interaction(dynamo::SimData*, C2Range*);
   
   virtual ~Interaction() {}
 
@@ -78,7 +78,7 @@ public:
   //! This static function will instantiate a new interaction of the correct type specified by the xml node passed. 
   //!
   //! This is the birth point for all Interactions loaded from a configuration file.
-  static Interaction* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
+  static Interaction* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
   //! Tests if this interaction is meant to be used between the two passed Particle -s.
   bool isInteraction(const Particle &p1, const Particle &p2) const

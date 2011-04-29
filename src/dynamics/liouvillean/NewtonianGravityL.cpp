@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,7 +35,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
   elasticV(0),
   g(0, -1, 0),
@@ -70,7 +70,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const magnet::xml::No
   g *= Sim->dynamics.units().unitAcceleration();
 }
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, Vector gravity, double eV, double tc):
+LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV, double tc):
   LNewtonian(tmp), 
   elasticV(eV),
   g(gravity),
@@ -270,7 +270,7 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
   Vector vel(part.getVelocity());
   Sim->dynamics.BCs().applyBC(rpos, vel);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
       M_throw() << "You have negative zero velocities, dont use them."
@@ -348,7 +348,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
   int retVal(0);
   double time(HUGE_VAL);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
       M_throw() << "You have negative zero velocities, dont use them."
@@ -434,7 +434,7 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
 double 
 LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif
@@ -548,7 +548,7 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
 double 
 LNewtonianGravity::getParabolaSentinelTime(const Particle& part) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif
@@ -591,7 +591,7 @@ LNewtonianGravity::enforceParabola(const Particle& part) const
 	  }
       }
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (dim >= NDIM) M_throw() << "Could not find a dimension to enforce the parabola in!";
 #endif
 

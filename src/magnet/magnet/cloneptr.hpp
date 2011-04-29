@@ -1,5 +1,5 @@
 
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -149,7 +149,7 @@ namespace magnet {
      */
     inline T* operator->()
     { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -161,7 +161,7 @@ namespace magnet {
      */
     inline T& operator*()
     { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -174,7 +174,7 @@ namespace magnet {
     */
     inline T* release()
     { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -187,7 +187,7 @@ namespace magnet {
      */
     inline const T* operator->() const
     { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -199,7 +199,7 @@ namespace magnet {
      */
     inline const T& operator*() const
     { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif

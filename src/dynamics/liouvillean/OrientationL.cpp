@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -73,7 +73,7 @@ bool
 LNOrientation::getLineLineCollision(CPDData& PD, const double& length, 
 				     const Particle& p1, const Particle& p2) const
 {  
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(p1))
     M_throw() << "Particle1 " << p1.getID() << " is not up to date";
 
@@ -218,7 +218,7 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
 							  const Particle& p1, const Particle& p2) const
 
 {  
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(p1))
     M_throw() << "Particle1 " << p1.getID() << " is not up to date";
 

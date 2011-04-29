@@ -1,5 +1,5 @@
 
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
 
-OPTicker::OPTicker(const DYNAMO::SimData* t1,const char *t2):
+OPTicker::OPTicker(const dynamo::SimData* t1,const char *t2):
   OutputPlugin(t1,t2)
 {}
 

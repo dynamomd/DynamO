@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 class OPMSDOrientational: public OutputPlugin
 {
  public:
-  OPMSDOrientational(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPMSDOrientational(const dynamo::SimData*, const magnet::xml::Node&);
   ~OPMSDOrientational();
 
   virtual void initialise();

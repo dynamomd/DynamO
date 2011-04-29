@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,9 +26,9 @@
 class CTChain: public Topology
 {
 public:  
-  CTChain(const magnet::xml::Node&, DYNAMO::SimData*, unsigned int ID);
+  CTChain(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
 
-  CTChain(DYNAMO::SimData*, unsigned int ID, std::string);
+  CTChain(dynamo::SimData*, unsigned int ID, std::string);
 
   virtual ~CTChain() {}
   

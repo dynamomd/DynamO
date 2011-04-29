@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@
 #include <cmath>
 #include <iomanip>
 
-IStepped::IStepped(DYNAMO::SimData* tmp, 
+IStepped::IStepped(dynamo::SimData* tmp, 
 		   const std::vector<steppair>& vec, C2Range* nR):
   Interaction(tmp,nR),
   _unitLength(Sim->_properties.getProperty
@@ -44,7 +44,7 @@ IStepped::IStepped(DYNAMO::SimData* tmp,
   steps(vec)
 {}
 
-IStepped::IStepped(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
@@ -156,7 +156,7 @@ IStepped::getEvent(const Particle &p1,
 		    const Particle &p2) const
 {
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -179,7 +179,7 @@ IStepped::getEvent(const Particle &p1,
       if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
 	  (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	{
-#ifdef DYNAMO_OverlapTesting
+#ifdef dynamo_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	    M_throw() << "Overlapping particles found" 
@@ -207,7 +207,7 @@ IStepped::getEvent(const Particle &p1,
 	      (colldat, d2, 
 	       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	    {
-#ifdef DYNAMO_OverlapTesting
+#ifdef dynamo_OverlapTesting
 	      //Check that there is no overlap 
 	      if (Sim->dynamics.getLiouvillean().sphereOverlap
 		  (colldat, runstepdata[capstat->second].first * l2scale))

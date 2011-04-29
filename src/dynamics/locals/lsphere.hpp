@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,8 +21,8 @@
 class CLSphere: public Local
 {
 public:
-  CLSphere(const magnet::xml::Node&, DYNAMO::SimData*);
-  CLSphere(DYNAMO::SimData*, double, Vector , double, 
+  CLSphere(const magnet::xml::Node&, dynamo::SimData*);
+  CLSphere(dynamo::SimData*, double, Vector , double, 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~CLSphere() {}

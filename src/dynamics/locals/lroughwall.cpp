@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-LRoughWall::LRoughWall(DYNAMO::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 
+LRoughWall::LRoughWall(dynamo::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 
 		       Vector  norigin, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "LocalRoughWall"),
@@ -39,7 +39,7 @@ LRoughWall::LRoughWall(DYNAMO::SimData* nSim, double ne, double net, double nr, 
   localName = nname;
 }
 
-LRoughWall::LRoughWall(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+LRoughWall::LRoughWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "LocalRoughWall")
 {
   operator<<(XML);
@@ -78,7 +78,7 @@ LRoughWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 bool 
 LRoughWall::isInCell(const Vector & Origin, const Vector& CellDim) const
 {
-  return DYNAMO::OverlapFunctions::CubePlane
+  return dynamo::OverlapFunctions::CubePlane
     (Origin, CellDim, vPosition, vNorm);
 }
 

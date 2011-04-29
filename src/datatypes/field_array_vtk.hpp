@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#ifdef DYNAMO_VTK
+#ifdef dynamo_VTK
 #include "field_array.hpp"
 
 #include <vtkFloatArray.h>
@@ -26,9 +26,9 @@
 #include <vtkPointData.h>
 #include <vtkXMLImageDataWriter.h>
 
-namespace DYNAMO
+namespace dynamo
 {
-  inline vtkImageData* getVTKImage(const DYNAMO::SimData* const Sim)
+  inline vtkImageData* getVTKImage(const dynamo::SimData* const Sim)
   {
     vtkImageData *vol = vtkImageData::New();
     vol->SetDimensions(NBins,NBins,NBins);
@@ -38,7 +38,7 @@ namespace DYNAMO
     return vol;
   }
   
-  inline vtkRectilinearGrid* getVTKRectilinearGrid(const DYNAMO::SimData* const Sim)
+  inline vtkRectilinearGrid* getVTKRectilinearGrid(const dynamo::SimData* const Sim)
   {
     vtkRectilinearGrid *rgrid = vtkRectilinearGrid::New();
     vtkFloatArray *xCoords = vtkFloatArray::New();

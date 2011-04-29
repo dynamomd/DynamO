@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,9 +22,9 @@
 class CGPBCSentinel: public Global
 {
 public:
-  CGPBCSentinel(const magnet::xml::Node&, DYNAMO::SimData*);
+  CGPBCSentinel(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGPBCSentinel(DYNAMO::SimData*, const std::string&);
+  CGPBCSentinel(dynamo::SimData*, const std::string&);
   
   virtual ~CGPBCSentinel() {}
 

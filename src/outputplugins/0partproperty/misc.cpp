@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <ctime>
 #include <sys/time.h>
 
-OPMisc::OPMisc(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPMisc::OPMisc(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"Misc",0),
   oldSysTime(0),
   dualEvents(0),

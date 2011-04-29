@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/xmlwriter.hpp>
 
-LCompression::LCompression(DYNAMO::SimData* tmp, double GR):
+LCompression::LCompression(dynamo::SimData* tmp, double GR):
   LNewtonian(tmp),
   growthRate(GR) {}
 
@@ -212,7 +212,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
 
   retVal.rvdot *= retVal.rij.nrm();
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred"
 	      << "\ndeltaKE = " << deltaKE
@@ -250,7 +250,7 @@ double
 LCompression::getPBCSentinelTime(const Particle& part,
 				  const double& lMax) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif

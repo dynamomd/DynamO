@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,10 +26,10 @@ class IntEvent;
 class GlobalEvent;
 class NEventData;
 
-class System: public DYNAMO::SimBase
+class System: public dynamo::SimBase
 {
 public:
-  System(DYNAMO::SimData*);
+  System(dynamo::SimData*);
   
   virtual ~System() {}
   
@@ -53,7 +53,7 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const System&);
   
-  static System* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
+  static System* getClass(const magnet::xml::Node&, dynamo::SimData*);
   
   void setName(const std::string& tmp) { sysName = tmp; }
 
@@ -61,7 +61,7 @@ public:
 
   EEventType getType() const { return type; }
 
-  virtual void changeSystem(DYNAMO::SimData* ptr) { Sim = ptr; }
+  virtual void changeSystem(dynamo::SimData* ptr) { Sim = ptr; }
 
   inline const size_t& getID() const { return ID; }
 

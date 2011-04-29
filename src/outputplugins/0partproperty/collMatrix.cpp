@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPCollMatrix::OPCollMatrix(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPCollMatrix::OPCollMatrix(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"CollisionMatrix"),
   totalCount(0)
 {

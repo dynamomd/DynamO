@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -59,7 +59,7 @@ public:
 
   inline const data& operator[](size_t a) const 
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (Min.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -69,7 +69,7 @@ public:
   
   inline data& operator[](size_t a) 
   {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
     if (Min.empty())
       M_throw() << "Heap not yet sized";
 #endif

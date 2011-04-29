@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 #include "../../dynamics/locals/localEvent.hpp"
 #include <magnet/xmlwriter.hpp>
 
-OPReverseEventsCheck::OPReverseEventsCheck(const DYNAMO::SimData* t1, const magnet::xml::Node&):
+OPReverseEventsCheck::OPReverseEventsCheck(const dynamo::SimData* t1, const magnet::xml::Node&):
   OutputPlugin(t1,"ReverseEventsChecker"),
   lReverseEvents(0)
 {

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 # include <coil/coilMaster.hpp>
 #endif
 
@@ -34,12 +34,12 @@ class SpPoint: public Species
 {
 public:
   template<class T1>
-  SpPoint(DYNAMO::SimData* sim, CRange* r, T1 nmass, std::string nName,
+  SpPoint(dynamo::SimData* sim, CRange* r, T1 nmass, std::string nName,
 	  unsigned int ID, std::string nIName="Bulk"):
     Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
   {}
   
-  SpPoint(const magnet::xml::Node& XML, DYNAMO::SimData* nSim, unsigned int nID):
+  SpPoint(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
     Species(nSim, "", NULL, 0, "", nID,"")
   { operator<<(XML); }
 
@@ -52,14 +52,14 @@ public:
   virtual double getScalarMomentOfInertia(size_t ID) const 
   { M_throw() << "Species has no intertia"; }
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
   mutable magnet::thread::RefPtr<CoilRegister> _coil;
 #endif

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CSysGhost::CSysGhost(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+CSysGhost::CSysGhost(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   meanFreeTime(100000),
@@ -49,7 +49,7 @@ CSysGhost::CSysGhost(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   type = GAUSSIAN;
 }
 
-CSysGhost::CSysGhost(DYNAMO::SimData* nSim, double mft, double t, 
+CSysGhost::CSysGhost(dynamo::SimData* nSim, double mft, double t, 
 		     std::string nName):
   System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
@@ -83,7 +83,7 @@ CSysGhost::runEvent() const
 
   double locdt = dt;
   
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
   if (boost::math::isnan(locdt))
     M_throw() << "A NAN system event time has been found";
 #endif
@@ -100,7 +100,7 @@ CSysGhost::runEvent() const
   dt = getGhostt();
 
   unsigned int step = boost::variate_generator
-    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
+    <dynamo::baseRNG&, boost::uniform_int<unsigned int> >
     (Sim->ranGenerator, 
      boost::uniform_int<unsigned int>(0, range->size() - 1))();
 

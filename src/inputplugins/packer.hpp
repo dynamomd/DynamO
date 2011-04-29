@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,10 +28,10 @@ namespace po = boost::program_options;
 
 class CUCell;
 
-class CIPPacker: public DYNAMO::SimBase
+class CIPPacker: public dynamo::SimBase
 {
  public:
-  CIPPacker(po::variables_map&, DYNAMO::SimData* tmp);
+  CIPPacker(po::variables_map&, dynamo::SimData* tmp);
 
   void initialise();
 

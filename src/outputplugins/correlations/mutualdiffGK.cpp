@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../0partproperty/misc.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPMutualDiffusionGK::OPMutualDiffusionGK(const DYNAMO::SimData* tmp, 
+OPMutualDiffusionGK::OPMutualDiffusionGK(const dynamo::SimData* tmp, 
 					 const magnet::xml::Node& XML):
   OutputPlugin(tmp, "MutualDiffusionGK", 60), //Note the sort order set later
   count(0),

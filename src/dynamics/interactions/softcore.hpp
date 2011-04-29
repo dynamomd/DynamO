@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@ class ISoftCore: public ISingleCapture, public Interaction, public SphericalRepr
 {
 public:
   template<class T1, class T2>
-  ISoftCore(DYNAMO::SimData* tmp, T1 d, T2 wd, C2Range* nR):
+  ISoftCore(dynamo::SimData* tmp, T1 d, T2 wd, C2Range* nR):
     Interaction(tmp,nR),
     _diameter(Sim->_properties.getProperty
 	      (d, Property::Units::Length())),
@@ -33,7 +33,7 @@ public:
 	       (wd, Property::Units::Energy()))
   {}
   
-  ISoftCore(const magnet::xml::Node&, DYNAMO::SimData*);
+  ISoftCore(const magnet::xml::Node&, dynamo::SimData*);
   
   virtual size_t spheresPerParticle() const { return 1; }
   virtual double getDiameter(size_t ID, size_t subID) const;

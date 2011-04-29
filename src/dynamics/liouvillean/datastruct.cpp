@@ -2,7 +2,7 @@
 #include <boost/foreach.hpp>
 #include "../include.hpp"
 
-CPDData::CPDData(const DYNAMO::SimData& Sim, const CRange& range1, 
+CPDData::CPDData(const dynamo::SimData& Sim, const CRange& range1, 
 		 const CRange& range2):
   dt(HUGE_VAL),
   p1(NULL),

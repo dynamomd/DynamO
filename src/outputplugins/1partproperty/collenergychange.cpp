@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,7 +30,7 @@
 double OPCollEnergyChange::KEBinWidth = 0.01;
 
 
-OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, 
+OPCollEnergyChange::OPCollEnergyChange(const dynamo::SimData* tmp, 
 				       const magnet::xml::Node&XML):
   OP1PP(tmp,"CollEnergyChange", 250),
   binWidth(0.001)

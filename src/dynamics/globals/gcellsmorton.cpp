@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -32,7 +32,7 @@
 #include <cstdio>
 
 
-CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
+CGCellsMorton::CGCellsMorton(dynamo::SimData* nSim, const std::string& name):
   CGNeighbourList(nSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
@@ -44,7 +44,7 @@ CGCellsMorton::CGCellsMorton(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Cells Loaded";
 }
 
-CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
+CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   CGNeighbourList(ptrSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1),
@@ -57,7 +57,7 @@ CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, DYNAMO::SimData* ptrS
   I_cout() << "Cells Loaded";
 }
 
-CGCellsMorton::CGCellsMorton(DYNAMO::SimData* ptrSim, const char* nom, void*):
+CGCellsMorton::CGCellsMorton(dynamo::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1),
@@ -247,7 +247,7 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
   //This doesn't stream the system as its a virtual event
 
   //Debug section
-#ifdef DYNAMO_WallCollDebug
+#ifdef dynamo_WallCollDebug
   {
     magnet::math::DilatedVector inCellv(oldCell);
     magnet::math::DilatedVector endCellv(endCell);

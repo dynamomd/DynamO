@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DYNAMO_GSL
+#ifdef dynamo_GSL
 #include "radiusGyration.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/ranges/1range.hpp"
@@ -33,7 +33,7 @@
 #include <fstream>
 #include <cmath>
 
-OPRGyration::OPRGyration(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPRGyration::OPRGyration(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"GyrationRadius"),
   binwidth1(0.01),
   binwidth2(0.001),
@@ -75,14 +75,14 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 
   std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<OPRGyration*>(plug)->chains.begin();
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (chains.size() != static_cast<OPRGyration*>(plug)->chains.size())
     M_throw() << "Size mismatch when exchanging!";
 #endif
 
   while (iPtr1 != chains.end())
     {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
 	M_throw() << "Name mismatch while replexing!";
 #endif
@@ -94,7 +94,7 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 }
 
 OPRGyration::molGyrationDat
-OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const DYNAMO::SimData* Sim)
+OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const dynamo::SimData* Sim)
 {
   //Determine the centre of mass. Watch for periodic images
   Vector  tmpVec;  

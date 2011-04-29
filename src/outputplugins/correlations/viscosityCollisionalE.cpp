@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPViscosityCollisionalE::OPViscosityCollisionalE(const DYNAMO::SimData* tmp, 
+OPViscosityCollisionalE::OPViscosityCollisionalE(const dynamo::SimData* tmp, 
 						 const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ViscosityCollisionalE", 60),
   count(0),

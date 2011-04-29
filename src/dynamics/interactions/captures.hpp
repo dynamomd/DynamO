@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -63,7 +63,7 @@ public:
   //! \sa ICapture::isCaptured()
   virtual bool isCaptured(const Particle& p1, const Particle& p2) const
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (p1.getID() == p2.getID())
       M_throw() << "Particle is testing if it captured itself";
 #endif 
@@ -166,7 +166,7 @@ protected:
 
   inline void addToCaptureMap(const Particle& p1, const Particle& p2) const
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (captureMap.find(cMapKey(p1.getID(), p2.getID())) != captureMap.end())
       M_throw() << "Adding a particle while its already added!";
 #endif
@@ -176,7 +176,7 @@ protected:
 
   inline void delFromCaptureMap(const Particle& p1, const Particle& p2) const
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())
       M_throw() << "Deleting a particle while its already gone!";
 #endif 

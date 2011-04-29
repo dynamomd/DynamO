@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 class CStHalt: public System
 {
 public:
-  CStHalt(DYNAMO::SimData*, double, std::string);
+  CStHalt(dynamo::SimData*, double, std::string);
   
   virtual System* Clone() const { return new CStHalt(*this); }
 

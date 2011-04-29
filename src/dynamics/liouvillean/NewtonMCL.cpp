@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -32,7 +32,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
-LNewtonianMC::LNewtonianMC(DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
   EnergyPotentialStep(1)
 {
@@ -187,7 +187,7 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
 	  * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
     }
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred";
 #endif

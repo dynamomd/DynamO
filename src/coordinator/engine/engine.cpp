@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include "../../outputplugins/0partproperty/misc.hpp"
 #include "../../outputplugins/general/reverseEvents.hpp"
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 #include "../../dynamics/systems/visualizer.hpp"
 #endif
 void
@@ -41,7 +41,7 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
      "Random seed for generator (To make the simulation reproduceable - Not for production use!)")
     ("ticker-period,t",boost::program_options::value<double>(), 
      "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
-#ifdef DYNAMO_visualizer    
+#ifdef dynamo_visualizer    
     ("visualizer,V", boost::program_options::value<double>(), 
      "Enables the visualizer and sets the initial update frequency")
 #endif
@@ -100,7 +100,7 @@ Engine::setupSim(Simulation& Sim, const std::string filename)
   if (vm.count("scheduler-maintainance"))
     Sim.addSystem(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder"));
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
   if (vm.count("visualizer"))
     Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
 #endif  

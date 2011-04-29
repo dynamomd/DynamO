@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
-Interaction::Interaction(DYNAMO::SimData* tmp, C2Range* nR):
+Interaction::Interaction(dynamo::SimData* tmp, C2Range* nR):
   SimBase(tmp,"Interaction",IC_blue),
   range(nR)
 {}
@@ -57,7 +57,7 @@ Interaction::getRange() const
 { return range; }
 
 Interaction*
-Interaction::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
+Interaction::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
 {
   if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
     return new IHardSphere(XML, Sim);

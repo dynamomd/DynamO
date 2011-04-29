@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -92,7 +92,7 @@ main(int argc, char *argv[])
       std::cerr << cep.what();
       std::cerr << "\n" << IC_red 
 		<< "MAIN:" << IC_reset << " Reached Main Error Loop"
-#ifndef DYNAMO_DEBUG
+#ifndef dynamo_DEBUG
 		<< IC_red << "\nMAIN:" << IC_reset << "If this error is vauge, try using the debugging executable"
 #endif
 		<< "\n";

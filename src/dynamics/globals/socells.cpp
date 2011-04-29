@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@
 #include <magnet/xmlreader.hpp>
 
 
-CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
+CGSOCells::CGSOCells(dynamo::SimData* nSim, const std::string& name):
   Global(nSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -41,7 +41,7 @@ CGSOCells::CGSOCells(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "Single occupancy cells loaded";
 }
 
-CGSOCells::CGSOCells(const magnet::xml::Node&XML, DYNAMO::SimData* ptrSim):
+CGSOCells::CGSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
   Global(ptrSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -113,7 +113,7 @@ CGSOCells::runEvent(const Particle& part, const double) const
 
   GlobalEvent iEvent(getEvent(part));
 
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,9 +23,9 @@
 class SThreadedNBList: public CSNeighbourList
 {
 public:
-  SThreadedNBList(const magnet::xml::Node&, DYNAMO::SimData* const);
+  SThreadedNBList(const magnet::xml::Node&, dynamo::SimData* const);
 
-  SThreadedNBList(DYNAMO::SimData* const, CSSorter*, size_t threadCount);
+  SThreadedNBList(dynamo::SimData* const, CSSorter*, size_t threadCount);
 
   virtual void addEvents(const Particle&);
   

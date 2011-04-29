@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,9 +26,9 @@
 class CGCells: public CGNeighbourList
 {
 public:
-  CGCells(const magnet::xml::Node&, DYNAMO::SimData*);
+  CGCells(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGCells(DYNAMO::SimData*, const std::string&, const size_t& overlink = 1);
+  CGCells(dynamo::SimData*, const std::string&, const size_t& overlink = 1);
 
   virtual ~CGCells() {}
 
@@ -62,7 +62,7 @@ public:
 protected:
   void outputXML(xml::XmlStream&, const std::string&) const;
 
-  CGCells(DYNAMO::SimData*, const char*, void*);
+  CGCells(dynamo::SimData*, const char*, void*);
 
   struct partCEntry
   {
@@ -117,7 +117,7 @@ protected:
 
   inline void addToCell(const int& ID, const int& cellID) const
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (cells.at(cellID).list != -1)
       partCellData.at(cells.at(cellID).list).prev = ID;
     
@@ -147,7 +147,7 @@ protected:
     if (partCellData[ID].next != -1)
       partCellData[partCellData[ID].next].prev = partCellData[ID].prev;
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     partCellData[ID].cell = -1;
 #endif
   }

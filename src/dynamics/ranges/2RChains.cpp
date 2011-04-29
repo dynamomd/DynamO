@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@ C2RChains::C2RChains(unsigned long r1, unsigned long r2, unsigned long r3):
     M_throw() << "Range of C2RChains does not split evenly into interval";
 }
 
-C2RChains::C2RChains(const magnet::xml::Node& XML, const DYNAMO::SimData*):
+C2RChains::C2RChains(const magnet::xml::Node& XML, const dynamo::SimData*):
   range1(0),range2(0), interval(0)
 { 
   if (strcmp(XML.getAttribute("Range"),"Chains"))

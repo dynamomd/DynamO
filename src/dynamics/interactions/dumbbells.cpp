@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -32,7 +32,7 @@
 #include <cmath>
 #include <iomanip>
 
-IDumbbells::IDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp, NULL)
 {
   operator<<(XML);
@@ -125,7 +125,7 @@ IntEvent
 IDumbbells::getEvent(const Particle &p1,
 		  const Particle &p2) const 
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@ class IRoughHardSphere: public Interaction, public SphericalRepresentation
 {
 public:
   template<class T1, class T2, class T3>
-  IRoughHardSphere(DYNAMO::SimData* tmp, T1 d, T2 e, T3 et, C2Range* nR):
+  IRoughHardSphere(dynamo::SimData* tmp, T1 d, T2 e, T3 et, C2Range* nR):
   Interaction(tmp, nR),
   _diameter(Sim->_properties.getProperty
 	    (d, Property::Units::Length())),
@@ -35,7 +35,7 @@ public:
       (et, Property::Units::Dimensionless()))
   {}
 
-  IRoughHardSphere(const magnet::xml::Node&, DYNAMO::SimData*);
+  IRoughHardSphere(const magnet::xml::Node&, dynamo::SimData*);
 
   virtual size_t spheresPerParticle() const { return 1; }
   virtual double getDiameter(size_t ID, size_t subID) const;

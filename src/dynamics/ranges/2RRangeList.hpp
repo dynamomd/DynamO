@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,11 +21,11 @@
 #include <magnet/cloneptr.hpp>
 #include <list>
 
-class C2RRangeList:public C2Range, DYNAMO::SimBase_const
+class C2RRangeList:public C2Range, dynamo::SimBase_const
 {
 public:
-  C2RRangeList(const magnet::xml::Node&, const DYNAMO::SimData*);
-  C2RRangeList(const DYNAMO::SimData* nSim):SimBase_const(nSim,"C2RRangeList",IC_red) {}
+  C2RRangeList(const magnet::xml::Node&, const dynamo::SimData*);
+  C2RRangeList(const dynamo::SimData* nSim):SimBase_const(nSim,"C2RRangeList",IC_red) {}
 
   virtual C2Range* Clone() const 
   { return new C2RRangeList(*this); };

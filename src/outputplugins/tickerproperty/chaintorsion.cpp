@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,7 +27,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
-OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPCTorsion::OPCTorsion(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"Torsion")
 {}
 
@@ -49,7 +49,7 @@ OPCTorsion::changeSystem(OutputPlugin* plug)
 {
   std::swap(Sim, static_cast<OPCTorsion*>(plug)->Sim);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
     M_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
@@ -60,7 +60,7 @@ OPCTorsion::changeSystem(OutputPlugin* plug)
   while(iPtr1 != chains.end())
     {
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
 	M_throw() << "Chain name mismatch when swapping chain plugins";
 #endif
@@ -84,7 +84,7 @@ OPCTorsion::ticker()
 	  if (range->size() < 3)//Need three for curv and torsion
 	    break;
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	  if (NDIM != 3)
 	    M_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,10 +27,10 @@ class IStepped: public IMultiCapture, public SphericalRepresentation, public Int
 public:
   typedef std::pair<double,double> steppair;
 
-  IStepped(DYNAMO::SimData*, const std::vector<steppair>&,
+  IStepped(dynamo::SimData*, const std::vector<steppair>&,
 	   C2Range*);
 
-  IStepped(const magnet::xml::Node&, DYNAMO::SimData*);
+  IStepped(const magnet::xml::Node&, dynamo::SimData*);
   
   void operator<<(const magnet::xml::Node&);
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@
 #include <cmath> //for huge val
 
 SThreadedNBList::SThreadedNBList(const magnet::xml::Node& XML, 
-				 DYNAMO::SimData* const Sim):
+				 dynamo::SimData* const Sim):
   CSNeighbourList(XML, Sim)
 { 
   //The operator<<(XML) is virtual but the object is of type
@@ -44,7 +44,7 @@ SThreadedNBList::SThreadedNBList(const magnet::xml::Node& XML,
 	   << " threads in the pool";
 }
 
-SThreadedNBList::SThreadedNBList(DYNAMO::SimData* const Sim, CSSorter* ns, 
+SThreadedNBList::SThreadedNBList(dynamo::SimData* const Sim, CSSorter* ns, 
 				 size_t threadCount):
   CSNeighbourList(Sim, ns)
 { 
@@ -79,7 +79,7 @@ SThreadedNBList::addEvents(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
@@ -113,7 +113,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
@@ -143,7 +143,7 @@ struct NBlistData {
 void 
 SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)  M_throw() << "Not a CGNeighbourList!";
 #endif

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,7 +27,7 @@ class OPViscosityCollisionalE: public OutputPlugin
   typedef boost::array<col, NDIM> matrix;
   
 public:
-  OPViscosityCollisionalE(const DYNAMO::SimData*, const magnet::xml::Node& XML);
+  OPViscosityCollisionalE(const dynamo::SimData*, const magnet::xml::Node& XML);
 
   virtual void initialise();
 

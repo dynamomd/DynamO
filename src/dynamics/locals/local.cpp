@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,12 +23,12 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-Local::Local(DYNAMO::SimData* tmp, const char *name):
+Local::Local(dynamo::SimData* tmp, const char *name):
   SimBase(tmp,name,IC_blue),
   range(new CRAll(tmp))
 {}
 
-Local::Local(CRange* nR, DYNAMO::SimData* tmp, const char *name):
+Local::Local(CRange* nR, dynamo::SimData* tmp, const char *name):
   SimBase(tmp, name,IC_blue),
   range(nR)
 {}
@@ -47,7 +47,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 }
 
 Local* 
-Local::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
+Local::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Wall"))
     return new CLWall(XML, Sim);

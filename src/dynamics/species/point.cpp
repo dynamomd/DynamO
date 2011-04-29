@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 # include <coil/RenderObj/SphericalParticles.hpp>
 # include "../liouvillean/CompressionL.hpp"
 #endif
@@ -68,7 +68,7 @@ SpPoint::initialise()
 }
 
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 
 magnet::thread::RefPtr<RenderObj>& 
 SpPoint::getCoilRenderObj() const

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 class OPMFT: public OP1PP
 {
  public:
-  OPMFT(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPMFT(const dynamo::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 

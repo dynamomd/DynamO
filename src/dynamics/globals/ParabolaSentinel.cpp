@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,14 +23,14 @@
 #include "../../schedulers/scheduler.hpp"
 #include <magnet/xmlreader.hpp>
 
-CGParabolaSentinel::CGParabolaSentinel(DYNAMO::SimData* nSim, const std::string& name):
+CGParabolaSentinel::CGParabolaSentinel(dynamo::SimData* nSim, const std::string& name):
   Global(nSim, "ParabolaSentinel")
 {
   globName = name;
   I_cout() << "ParabolaSentinel Loaded";
 }
 
-CGParabolaSentinel::CGParabolaSentinel(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
+CGParabolaSentinel::CGParabolaSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   Global(ptrSim, "ParabolaSentinel")
 {
   operator<<(XML);
@@ -75,7 +75,7 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
       return;
     }
 
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
 	      << iEvent.stringData(Sim);
@@ -89,7 +89,7 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
 
   Sim->dynamics.getLiouvillean().enforceParabola(part);
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   iEvent.addTime(Sim->freestreamAcc);
   
   Sim->freestreamAcc = 0;

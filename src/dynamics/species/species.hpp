@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@ class Interaction;
 class RenderObj;
 namespace magnet { namespace GL { class CLGLState; } }
 
-class Species:public DYNAMO::SimBase, public CoilRenderObj
+class Species:public dynamo::SimBase, public CoilRenderObj
 {
 public:
   virtual ~Species() {}
@@ -56,11 +56,11 @@ public:
   
   virtual Species* Clone() const = 0;
 
-  static Species* getClass(const magnet::xml::Node&, DYNAMO::SimData*, size_t);
+  static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
 
 protected:
   template<class T1>
-  Species(DYNAMO::SimData* tmp, std::string name, 
+  Species(dynamo::SimData* tmp, std::string name, 
 	  CRange* nr, T1 mass, std::string nName, 
 	  unsigned int nID, std::string nIName):
     SimBase(tmp,name, IC_blue),

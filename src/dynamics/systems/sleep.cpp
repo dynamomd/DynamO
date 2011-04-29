@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -32,7 +32,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 
-SSleep::SSleep(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+SSleep::SSleep(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   _range(NULL)
 {
@@ -41,7 +41,7 @@ SSleep::SSleep(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   type = SLEEP;
 }
 
-SSleep::SSleep(DYNAMO::SimData* nSim, std::string nName, CRange* r1, double sleepV):
+SSleep::SSleep(dynamo::SimData* nSim, std::string nName, CRange* r1, double sleepV):
   System(nSim),
   _range(r1),
   _sleepVelocity(sleepV)
@@ -141,7 +141,7 @@ SSleep::particlesUpdated(const NEventData& PDat)
       if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) continue; 
       
       //SP-[FC/SP/OSP]
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (!p1.testState(Particle::DYNAMIC) && !p2.testState(Particle::DYNAMIC))
 	M_throw() << "Static particles colliding!";
 #endif
@@ -234,7 +234,7 @@ SSleep::runEvent() const
 
   dt = HUGE_VAL;
     
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
   if (boost::math::isnan(locdt))
     M_throw() << "A NAN system event time has been found";
 #endif
@@ -255,7 +255,7 @@ SSleep::runEvent() const
       const Particle& part = Sim->particleList[p.first];
       Sim->dynamics.getLiouvillean().updateParticle(part);
       
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
       if (stateChange.find(part.getID()) == stateChange.end())
 	M_throw() << "Running an event for a particle with no state change!";
 #endif

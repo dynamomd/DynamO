@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,13 +23,13 @@
 class SpInertia: public SpPoint
 {
 public:
-  SpInertia(DYNAMO::SimData* sim, CRange* r, 
+  SpInertia(dynamo::SimData* sim, CRange* r, 
 	    double nMass, std::string nName,
 	    unsigned int ID, std::string nIName="Bulk"):
     SpPoint(sim, r, nMass, nName, ID, nIName)
   {}
 
-  SpInertia(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
+  SpInertia(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
     SpPoint(XML,Sim,ID)
   {}
 

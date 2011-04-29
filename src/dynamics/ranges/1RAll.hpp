@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,13 +20,13 @@
 #include "../../base/is_base.hpp"
 #include "../../base/is_simdata.hpp"
 
-class CRAll: public CRange, public DYNAMO::SimBase_const
+class CRAll: public CRange, public dynamo::SimBase_const
 {
 public:
-  CRAll(const DYNAMO::SimData* SimDat):
+  CRAll(const dynamo::SimData* SimDat):
     SimBase_const(SimDat,"CRAll",IC_red){}
 
-  CRAll(const magnet::xml::Node&, const DYNAMO::SimData*);
+  CRAll(const magnet::xml::Node&, const dynamo::SimData*);
 
   virtual CRange* Clone() const { return new CRAll(*this); };
 

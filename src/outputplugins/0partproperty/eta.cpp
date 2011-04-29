@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,7 +18,7 @@
 #include "eta.hpp"
 #include "../../base/is_simdata.hpp"
 
-OPETA::OPETA(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPETA::OPETA(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"EstTime", 249)
 {}
 

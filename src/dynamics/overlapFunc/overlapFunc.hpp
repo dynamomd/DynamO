@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,7 +18,7 @@
  *  \brief Just a documentation header for the OverlapFunctions Namespace
  */
 
-namespace DYNAMO
+namespace dynamo
 {
   /*! \brief Overlap functions between two specified shapes.
    *

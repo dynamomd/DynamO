@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -63,7 +63,7 @@ namespace {
   };
 }
 
-CIPPacker::CIPPacker(po::variables_map& vm2, DYNAMO::SimData* tmp):
+CIPPacker::CIPPacker(po::variables_map& vm2, dynamo::SimData* tmp):
   SimBase(tmp,"SysPacker", IC_blue),
   vm(vm2)
 {}
@@ -355,7 +355,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	
 	if (vm.count("i2"))
 	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
@@ -530,7 +530,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 2:
@@ -667,7 +667,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 
 	break;
       }
@@ -740,7 +740,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 4:
@@ -800,7 +800,7 @@ CIPPacker::initialise()
 	BOOST_FOREACH(Particle& part, Sim->particleList)
 	  part.getVelocity()[0] += part.getPosition()[1] * CLEBC::shearRate();
 
-	Sim->ensemble.reset(new DYNAMO::CENVShear(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
 	break;
       }
     case 5:
@@ -888,7 +888,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 6:
@@ -946,7 +946,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 
 	break;
       }
@@ -1039,7 +1039,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 8:
@@ -1123,7 +1123,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 9:
@@ -1190,7 +1190,7 @@ CIPPacker::initialise()
 
 	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 10:
@@ -1260,7 +1260,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 11:
@@ -1328,7 +1328,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 12:
@@ -1520,7 +1520,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
       case 13:
@@ -1568,7 +1568,7 @@ CIPPacker::initialise()
 
 	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 14:
@@ -1681,7 +1681,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 15:
@@ -1761,7 +1761,7 @@ CIPPacker::initialise()
 
 	{
 	  boost::uniform_real<double> normdist(-0.5,0.5);
-	  boost::variate_generator<DYNAMO::baseRNG&, boost::uniform_real<double> >
+	  boost::variate_generator<dynamo::baseRNG&, boost::uniform_real<double> >
 	    unisampler(Sim->ranGenerator, normdist);
 
 	  CVector<long> tmp = getCells();
@@ -1778,7 +1778,7 @@ CIPPacker::initialise()
 
 	{
 	  boost::variate_generator
-	    <DYNAMO::baseRNG&, boost::uniform_int<unsigned int> >
+	    <dynamo::baseRNG&, boost::uniform_int<unsigned int> >
 	    rangen(Sim->ranGenerator,
 		   boost::uniform_int<unsigned int>
 		   (0, nParticles - 1));
@@ -1795,7 +1795,7 @@ CIPPacker::initialise()
 		  = -Sim->dynamics.units().unitVelocity();
 	      }
 	}
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 16:
@@ -1916,7 +1916,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 17:
@@ -1999,7 +1999,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 18:
@@ -2079,7 +2079,7 @@ CIPPacker::initialise()
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		     nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 19:
@@ -2241,7 +2241,7 @@ CIPPacker::initialise()
 				  MassRatio * nParticles, "Plate1", 
 				  new CRAll(Sim), 0.0, strongPlate));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 20:
@@ -2311,7 +2311,7 @@ CIPPacker::initialise()
 					       * Sim->dynamics.units().unitVelocity(),
 					       nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 21:
@@ -2397,7 +2397,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 22:
@@ -2458,7 +2458,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(0.999 * position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 					       nParticles++));
 	
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	
 	break;
       }
@@ -2576,7 +2576,7 @@ CIPPacker::initialise()
 	    Sim->particleList.push_back(Particle(position, vel, nParticles++));
 	  }
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 24:
@@ -3133,7 +3133,7 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back
 	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 
 	break;
       }
@@ -3362,7 +3362,7 @@ CIPPacker::initialise()
 	    Sim->particleList.push_back(Particle(position, vel, nParticles++));
 	  }
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
       }
     case 26:
@@ -3450,7 +3450,7 @@ CIPPacker::initialise()
 	typedef boost::lognormal_distribution<double> Distribution;
 	const double mean = 0.5 * particleDiam;
 	const double variance = 0.2  * particleDiam;
-	boost::variate_generator<DYNAMO::baseRNG&, Distribution>
+	boost::variate_generator<dynamo::baseRNG&, Distribution>
 	  logsampler(Sim->ranGenerator, Distribution(mean, variance));
 
 	for (size_t i(0); i < latticeSites.size(); ++i)
@@ -3481,7 +3481,7 @@ CIPPacker::initialise()
 					       * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	Sim->ensemble.reset(new DYNAMO::CENVE(Sim));
+	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	
 	if (vm.count("i2"))
 	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
@@ -3518,7 +3518,7 @@ CIPPacker::processOptions()
 	}
 
       //Install a NVT Ensemble
-      Sim->ensemble.reset(new DYNAMO::CENVT(Sim));
+      Sim->ensemble.reset(new dynamo::EnsembleNVT(Sim));
     }
 }
 
@@ -3605,7 +3605,7 @@ CIPPacker::getRandVelVec()
   //See http://mathworld.wolfram.com/SpherePointPicking.html
   boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(NDIM)));
 
-  boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<double> >
+  boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> >
     normal_sampler(Sim->ranGenerator, normdist);
 
   Vector  tmpVec;

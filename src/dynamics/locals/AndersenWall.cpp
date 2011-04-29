@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,14 +34,14 @@
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
+CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   Local(ptrSim, "GlobalAndersenWall"),
   sqrtT(1.0)
 {
   operator<<(XML);
 }
 
-CLAndersenWall::CLAndersenWall(DYNAMO::SimData* nSim, double nsqrtT,
+CLAndersenWall::CLAndersenWall(dynamo::SimData* nSim, double nsqrtT,
 			       Vector  nnorm, Vector norigin, 
 			       std::string nname, CRange* nRange):
   Local(nRange, nSim, "AndersenWall"),
@@ -84,7 +84,7 @@ bool
 CLAndersenWall::isInCell(const Vector & Origin, 
 			 const Vector & CellDim) const
 {
-  return DYNAMO::OverlapFunctions::CubePlane
+  return dynamo::OverlapFunctions::CubePlane
     (Origin, CellDim, vPosition, vNorm);
 }
 

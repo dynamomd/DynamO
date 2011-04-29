@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 class LNewtonianMC: public LNewtonian
 {
 public:
-  LNewtonianMC(DYNAMO::SimData* tmp, const magnet::xml::Node&);
+  LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node&);
 
   //Pair particle dynamics
   virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 

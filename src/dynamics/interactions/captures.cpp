@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -77,7 +77,7 @@ ISingleCapture::outputCaptureMap(xml::XmlStream& XML) const
 void
 ISingleCapture::addToCaptureMap(const Particle& p1, const Particle& p2) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (p1.getID() == p2.getID())
     M_throw() << "Particle captured itself";
 
@@ -101,7 +101,7 @@ ISingleCapture::addToCaptureMap(const Particle& p1, const Particle& p2) const
 void 
 ISingleCapture::removeFromCaptureMap(const Particle& p1, const Particle& p2) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (p1.getID() == p2.getID())
     M_throw() << "Particle disassociated itself";
 
@@ -183,7 +183,7 @@ IMultiCapture::outputCaptureMap(xml::XmlStream& XML) const
 bool 
 IMultiCapture::isCaptured(const Particle& p1, const Particle& p2) const
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (p1.getID() == p2.getID())
     M_throw() << "Particle is testing if it captured itself";
 #endif 

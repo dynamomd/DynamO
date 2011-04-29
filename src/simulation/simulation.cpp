@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -236,7 +236,7 @@ Simulation::loadXMLfile(std::string fileName)
   
   using namespace magnet::xml;
   Document doc(fileName.c_str());
-  Node mainNode = doc.getNode("DYNAMOconfig");
+  Node mainNode = doc.getNode("dynamoconfig");
 
   {
     std::string version(mainNode.getAttribute("version"));
@@ -273,16 +273,16 @@ Simulation::loadXMLfile(std::string fileName)
   I_cout() << "Loading Ensemble";
   if (subNode.getNode("Ensemble").valid())
     ensemble.reset
-      (DYNAMO::CEnsemble::getClass(subNode.getNode("Ensemble"), this));
+      (dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
   else
     //Try and determine the Ensemble
     try {
       dynamics.getSystem("Thermostat");
-      ensemble.reset(new DYNAMO::CENVT(this));
+      ensemble.reset(new dynamo::EnsembleNVT(this));
     }
     catch (std::exception&)
       {
-	ensemble.reset(new DYNAMO::CENVE(this));
+	ensemble.reset(new dynamo::EnsembleNVE(this));
       }
 
   I_cout() << "Loading Particle data";
@@ -340,7 +340,7 @@ Simulation::writeXMLfile(std::string fileName, bool round)
     //This has a minus one due to the digit in front of the decimal
     //An extra one is added if we're rounding
       << std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
-      << xml::prolog() << xml::tag("DYNAMOconfig") 
+      << xml::prolog() << xml::tag("dynamoconfig") 
       << xml::attr("version") << configFileVersion
       << xml::tag("Simulation")
       << xml::tag("Trajectory")
@@ -371,7 +371,7 @@ Simulation::writeXMLfile(std::string fileName, bool round)
 
   dynamics.getLiouvillean().outputParticleXMLData(XML);
 
-  XML << xml::endtag("DYNAMOconfig");
+  XML << xml::endtag("dynamoconfig");
 
   I_cout() << "Config written to " << fileName;
 

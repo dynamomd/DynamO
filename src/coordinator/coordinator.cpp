@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 #include "coordinator.hpp"
 #include "engine/include.hpp"
 #include <cstdio>
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 # include <typeinfo>
 #endif
 

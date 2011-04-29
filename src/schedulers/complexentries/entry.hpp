@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,10 +26,10 @@ namespace xml { class XmlStream; }
 
 class Particle;
 
-class CSCEntry: public DYNAMO::SimBase
+class CSCEntry: public dynamo::SimBase
 {
 public:
-  CSCEntry(DYNAMO::SimData* const, const char *);
+  CSCEntry(dynamo::SimData* const, const char *);
   
   virtual ~CSCEntry() {};
 
@@ -37,7 +37,7 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CSCEntry&);
 
-  static CSCEntry* getClass(const magnet::xml::Node&, DYNAMO::SimData* const);
+  static CSCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
  
   virtual void operator<<(const magnet::xml::Node&) = 0;
 

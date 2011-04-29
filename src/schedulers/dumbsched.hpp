@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,9 +21,9 @@
 class CSDumb: public CScheduler
 {
 public:
-  CSDumb(const magnet::xml::Node&, DYNAMO::SimData* const);
+  CSDumb(const magnet::xml::Node&, dynamo::SimData* const);
 
-  CSDumb(DYNAMO::SimData* const, CSSorter*);
+  CSDumb(dynamo::SimData* const, CSSorter*);
 
   virtual void rebuildList();
 

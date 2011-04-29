@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -44,13 +44,13 @@ namespace magnet {
   { class Node; }
 }
 
-class Dynamics: public DYNAMO::SimBase
+class Dynamics: public dynamo::SimBase
 {
 public:
   //Constructors
-  Dynamics(DYNAMO::SimData*);
+  Dynamics(dynamo::SimData*);
 
-  Dynamics(const magnet::xml::Node& XML, DYNAMO::SimData*);
+  Dynamics(const magnet::xml::Node& XML, dynamo::SimData*);
 
   explicit Dynamics(const Dynamics &);
 
@@ -84,7 +84,7 @@ public:
     BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	{
-#ifdef DYNAMO_UpdateCollDebug
+#ifdef dynamo_UpdateCollDebug
 	  std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
 		    << p2.getID() << " NAME = " << typeid(*ptr.get_ptr()).name();
 #endif

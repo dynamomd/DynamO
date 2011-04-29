@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,7 +33,7 @@
 #include <iomanip>
 
 IRotatedParallelCubes::IRotatedParallelCubes(const magnet::xml::Node& XML, 
-					     DYNAMO::SimData* tmp):
+					     dynamo::SimData* tmp):
   Interaction(tmp,NULL)
 { operator<<(XML); }
 
@@ -85,7 +85,7 @@ IRotatedParallelCubes::Clone() const
 IntEvent 
 IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
 { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -93,7 +93,7 @@ IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const
     M_throw() << "Particle 2 is not up to date";
 #endif
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (p1 == p2)
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
@@ -108,7 +108,7 @@ IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const
 
   if (Sim->dynamics.getLiouvillean().CubeCubeInRoot(colldat, d))
     {
-#ifdef DYNAMO_OverlapTesting
+#ifdef dynamo_OverlapTesting
       if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, d))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 

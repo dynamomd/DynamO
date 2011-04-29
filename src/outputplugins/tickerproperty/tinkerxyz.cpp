@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@
 
 static const size_t HEADERSIZE = 8;
 
-OPTinkerXYZ::OPTinkerXYZ(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPTinkerXYZ::OPTinkerXYZ(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"TinkerXYZ"),
   frameCount(0),
   fileOutput(true),
@@ -206,7 +206,7 @@ OPTinkerXYZ::printFileImage()
   if (!of.is_open())
     M_throw() << "Could not open file for writing";
 
-  of << Sim->N << "\nDYNAMO Tinker TXYZ file, t = " 
+  of << Sim->N << "\ndynamo Tinker TXYZ file, t = " 
      << Sim->dSysTime / Sim->dynamics.units().unitLength() 
      << ", NOTE: All units here have been scaled by 3.4 "
     "(the van-der-Walls radius of Carbon!)\n";
@@ -223,7 +223,7 @@ OPTinkerXYZ::printFileImage()
       of << "\n";
     }
 
-#ifdef DYNAMO_GSL
+#ifdef dynamo_GSL
   if ( asprintf(&fileName, "tinker.frame%05d.r3d", frameCount++) < 0)
     M_throw() << "asprintf error in tinkerXYZ";
 

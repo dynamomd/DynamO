@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -55,10 +55,10 @@ class CVector;
  * particles being tested.
  */
 
-class Liouvillean: public DYNAMO::SimBase
+class Liouvillean: public dynamo::SimBase
 {
 public:  
-  Liouvillean(DYNAMO::SimData* tmp):
+  Liouvillean(dynamo::SimData* tmp):
     SimBase(tmp,"FreeStream", IC_blue),
     partPecTime(0.0),
     streamCount(0),
@@ -558,7 +558,7 @@ public:
   /*! \brief Instantiates and loads CLiovillean classes from an XML
    * entry.
    */
-  static Liouvillean* loadClass(const magnet::xml::Node& ,DYNAMO::SimData*);
+  static Liouvillean* loadClass(const magnet::xml::Node& ,dynamo::SimData*);
     
   /*! \brief Free streams all particles up to the current time.
    * 

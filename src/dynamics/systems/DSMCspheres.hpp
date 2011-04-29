@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,9 +27,9 @@
 class CSDSMCSpheres: public System
 {
 public:
-  CSDSMCSpheres(const magnet::xml::Node& XML, DYNAMO::SimData*);
+  CSDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  CSDSMCSpheres(DYNAMO::SimData*, double, double, double, double, std::string, CRange*, CRange*);
+  CSDSMCSpheres(dynamo::SimData*, double, double, double, double, std::string, CRange*, CRange*);
   
   virtual System* Clone() const { return new CSDSMCSpheres(*this); }
 
@@ -42,7 +42,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
-  mutable boost::variate_generator<DYNAMO::baseRNG&, 
+  mutable boost::variate_generator<dynamo::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  
 
   double tstep;

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,8 +22,8 @@
 class CLDblWall: public Local
 {
 public:
-  CLDblWall(const magnet::xml::Node&, DYNAMO::SimData*);
-  CLDblWall(DYNAMO::SimData*, double, Vector , Vector , 
+  CLDblWall(const magnet::xml::Node&, dynamo::SimData*);
+  CLDblWall(dynamo::SimData*, double, Vector , Vector , 
 	 std::string, CRange*);
 
   virtual ~CLDblWall() {}

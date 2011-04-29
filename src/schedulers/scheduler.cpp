@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include "include.hpp"
 #include "../dynamics/units/units.hpp"
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 #include "../dynamics/globals/neighbourList.hpp"
 #include "../dynamics/NparticleEventData.hpp"
 #endif
@@ -34,7 +34,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CScheduler::CScheduler(DYNAMO::SimData* const tmp, const char * aName,
+CScheduler::CScheduler(dynamo::SimData* const tmp, const char * aName,
 		       CSSorter* nS):
   SimBase(tmp, aName, IC_purple),
   sorter(nS),
@@ -46,7 +46,7 @@ CScheduler::~CScheduler()
 {}
 
 CScheduler* 
-CScheduler::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim)
+CScheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSNeighbourList(XML, Sim);
@@ -114,7 +114,7 @@ CScheduler::runNextEvent()
 {
   sorter->sort();
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (sorter->nextPELEmpty())
     M_throw() << "Next particle list is empty but top of list!";
 #endif  
@@ -130,7 +130,7 @@ CScheduler::runNextEvent()
       sorter->update(sorter->next_ID());
       sorter->sort();
       
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (sorter->nextPELEmpty())
 	M_throw() << "Next particle list is empty but top of list!";
 #endif
@@ -157,7 +157,7 @@ CScheduler::runNextEvent()
 	Sim->endEventCount = Sim->eventCount;
 	return;
       }
-  //#ifdef DYNAMO_DEBUG
+  //#ifdef dynamo_DEBUG
   ////////////////////////////////////////////////////////////////////
   // We can't perform such strict testing as commented out
   // below. Sometimes negative event times occur, usually at the start
@@ -229,7 +229,7 @@ CScheduler::runNextEvent()
 		|| ((p2.getID() != np1) && (p2.getID() != np2)))
 	      {
 		
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 		I_cerr() << "Interaction event found to occur later than the next "
 		  "FEL event [" << p1.getID() << "," << p2.getID()
 			 << "] (small numerical error), recalculating";
@@ -240,7 +240,7 @@ CScheduler::runNextEvent()
 	    //It's just another version of this event so we can execute it
 	  }
 	
-#ifdef DYNAMO_CollDebug
+#ifdef dynamo_CollDebug
 		if (sorter->next_dt() < 0) I_cerr() << "Negative time " << sorter->next_dt() << "\n";
 #endif
 
@@ -249,7 +249,7 @@ CScheduler::runNextEvent()
 	
 	if (Event.getType() == NONE)
 	  {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	    I_cerr() << "Interaction event found not to occur [" << p1.getID() << "," << p2.getID()
 		     << "] (possible glancing collision canceled due to numerical error)";
 #endif		
@@ -257,7 +257,7 @@ CScheduler::runNextEvent()
 	    return;
 	  }
 	
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 
 	if (boost::math::isnan(Event.getdt()))
 	  M_throw() << "A NAN Interaction collision time has been found"
@@ -269,7 +269,7 @@ CScheduler::runNextEvent()
 #endif
 	
 	//Debug section
-#ifdef DYNAMO_CollDebug
+#ifdef dynamo_CollDebug
 	std::cerr << "\nsysdt " << (Event.getdt() + Sim->dSysTime) / Sim->dynamics.units().unitTime()
 		  << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
 		  << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
@@ -320,7 +320,7 @@ CScheduler::runNextEvent()
 
 	if (iEvent.getType() == NONE)
 	  {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	    I_cerr() << "Local event found not to occur [" << part.getID()
 		     << "] (possible glancing/tenuous event canceled due to numerical error)";
 #endif		
@@ -332,7 +332,7 @@ CScheduler::runNextEvent()
 
 	if ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit))
 	  {
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
 	    I_cerr() << "Recalculated LOCAL event time is greater than the next event time, recalculating";
 #endif
 	    this->fullUpdate(part);
@@ -341,7 +341,7 @@ CScheduler::runNextEvent()
 
 	_localRejectionCounter = 0;
 
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
 	if (boost::math::isnan(iEvent.getdt()))
 	  M_throw() << "A NAN Global collision time has been found\n"
 		    << iEvent.stringData(Sim);

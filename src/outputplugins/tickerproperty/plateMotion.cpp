@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -29,7 +29,7 @@
 #include <boost/foreach.hpp>
 #include <fstream>
 
-OPPlateMotion::OPPlateMotion(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPPlateMotion::OPPlateMotion(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"PlateMotion"),
   partpartEnergyLoss(0),
   oldPlateEnergy(0)

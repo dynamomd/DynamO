@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -148,7 +148,7 @@ public:
   
   inline virtual const double& getProperty(size_t ID) const 
   { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (ID >= _values.size())
       M_throw() << "Out of bounds access to ParticleProperty \"" 
 		<< _name << "\", which has " << _values.size() 
@@ -159,7 +159,7 @@ public:
 
   inline virtual double& getProperty(size_t ID)
   { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     return _values.at(ID); 
 #endif
     return _values[ID]; 
@@ -283,7 +283,7 @@ public:
   }
 
   /*! Method which loads the properties from the XML configuration file. 
-    \param node A xml Node at the root DYNAMOconfig Node of the config file.
+    \param node A xml Node at the root dynamoconfig Node of the config file.
    */
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
   {

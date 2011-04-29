@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,14 +34,14 @@
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 
-CSDumb::CSDumb(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim):
+CSDumb::CSDumb(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
   CScheduler(Sim,"DumbScheduler", NULL)
 { 
   I_cout() << "Dumb Scheduler Algorithmn";
   operator<<(XML);
 }
 
-CSDumb::CSDumb(DYNAMO::SimData* const Sim, CSSorter* ns):
+CSDumb::CSDumb(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"DumbScheduler", ns)
 { I_cout() << "Dumb Scheduler Algorithmn"; }
 
@@ -72,7 +72,7 @@ CSDumb::initialise()
 void 
 CSDumb::rebuildList()
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   initialise();
 #else
   sorter->clear();

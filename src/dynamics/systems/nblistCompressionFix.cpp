@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include "../NparticleEventData.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-CSNBListCompressionFix::CSNBListCompressionFix(DYNAMO::SimData* nSim, double nGR, size_t nblistID):
+CSNBListCompressionFix::CSNBListCompressionFix(dynamo::SimData* nSim, double nGR, size_t nblistID):
   System(nSim),
   growthRate(nGR),
   cellID(nblistID)
@@ -65,7 +65,7 @@ CSNBListCompressionFix::runEvent() const
 {
   double locdt = dt;
   
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
   if (boost::math::isnan(dt))
     M_throw() << "A NAN system event time has been found";
 #endif

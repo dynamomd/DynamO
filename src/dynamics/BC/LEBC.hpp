@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,9 +33,9 @@ public:
 class BCLeesEdwards: virtual public BoundaryCondition, public CLEBC
 {
  public:
-  BCLeesEdwards(const DYNAMO::SimData*);
+  BCLeesEdwards(const dynamo::SimData*);
 
-  BCLeesEdwards(const magnet::xml::Node&, const DYNAMO::SimData*);
+  BCLeesEdwards(const magnet::xml::Node&, const dynamo::SimData*);
 
   virtual void outputXML(xml::XmlStream&) const;
 

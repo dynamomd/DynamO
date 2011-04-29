@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@ class OPCollMatrix;
 class OPReverseEventsCheck: public OutputPlugin
 {
 public:
-  OPReverseEventsCheck(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPReverseEventsCheck(const dynamo::SimData*, const magnet::xml::Node&);
 
   ~OPReverseEventsCheck() {}
 

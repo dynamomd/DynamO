@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -83,7 +83,7 @@ EReplicaExchangeSimulation::initialisation()
 
   //Ensure we are in the right ensemble for all simulations
   for (size_t i = nSims; i != 0;)
-    if (dynamic_cast<const DYNAMO::CENVT* >(Simulations[--i].getEnsemble().get()) == NULL)
+    if (dynamic_cast<const dynamo::EnsembleNVT* >(Simulations[--i].getEnsemble().get()) == NULL)
       M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		<< " does not have an NVT ensemble";
     
@@ -114,7 +114,7 @@ EReplicaExchangeSimulation::initialisation()
 	    break;
 	  }
       
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
       if (!didWork)
 	{	 
 	  std::cout << "Could not find thermostat system event";
@@ -177,7 +177,7 @@ EReplicaExchangeSimulation::outputData()
   
   BOOST_FOREACH(replexPair p1, temperatureList)
     Simulations[p1.second.simID].outputData
-    ((DYNAMO::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
+    ((dynamo::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
 }
 
 void
@@ -299,7 +299,7 @@ EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode)
 	  {
 	    //Select a image to mess with
 	    boost::uniform_int<unsigned int> tmpDist(0, temperatureList.size()-2);
-	    size_t ID = boost::variate_generator<DYNAMO::baseRNG&,
+	    size_t ID = boost::variate_generator<dynamo::baseRNG&,
 	      boost::uniform_int<unsigned int> >
 	      (Simulations[0].ranGenerator, tmpDist)();
 	    AttemptSwap(ID, ID+1);
@@ -316,7 +316,7 @@ EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode)
       break;
     case RandomPairs:
       {
-	boost::variate_generator<DYNAMO::baseRNG&,
+	boost::variate_generator<dynamo::baseRNG&,
 	  boost::uniform_int<unsigned int> >
 	  rPID(Simulations[0].ranGenerator, boost::uniform_int<unsigned int>(0, temperatureList.size()-1));
 	
@@ -335,7 +335,7 @@ EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode)
       break;
     case RandomSelection:
       {
-	boost::variate_generator<DYNAMO::baseRNG&,
+	boost::variate_generator<dynamo::baseRNG&,
 	  boost::uniform_int<> >
 	  rPID(Simulations[0].ranGenerator, boost::uniform_int<>(0, 1));
 	
@@ -407,7 +407,7 @@ EReplicaExchangeSimulation::AttemptSwap(const unsigned int sim1ID, const unsigne
   //No need to check sign, it will just accept the move anyway due to
   //the [0,1) limits of the random number generator
   if (exp(sim1.getEnsemble()->exchangeProbability(*sim2.getEnsemble()))
-      > boost::uniform_01<DYNAMO::baseRNG, double>(sim1.ranGenerator)())
+      > boost::uniform_01<dynamo::baseRNG, double>(sim1.ranGenerator)())
     {
       sim1.replexerSwap(sim2);
 
@@ -433,7 +433,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	  BOOST_FOREACH(replexPair p1, temperatureList)
 	    {
 	      Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	      Simulations[p1.second.simID].outputData((DYNAMO::searchReplace(std::string("peek.data.%ID.xml.bz2"), 
+	      Simulations[p1.second.simID].outputData((dynamo::searchReplace(std::string("peek.data.%ID.xml.bz2"), 
 									   "%ID", boost::lexical_cast<std::string>(i++))));
 	    }
 		  
@@ -491,7 +491,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	      CStHalt* tmpRef = dynamic_cast<CStHalt*>
 		(Simulations[--i].getSystem("ReplexHalt"));
 		      
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	      if (tmpRef == NULL)
 		M_throw() << "Could not find the time halt event error";
 #endif			
@@ -522,6 +522,6 @@ EReplicaExchangeSimulation::outputConfigs()
     {
       TtoID << p1.second.realTemperature << " " << i << "\n";
       Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-      Simulations[p1.second.simID].writeXMLfile(DYNAMO::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)));
+      Simulations[p1.second.simID].writeXMLfile(dynamo::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)));
     }
 }

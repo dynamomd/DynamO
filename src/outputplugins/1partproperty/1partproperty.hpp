@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 class OP1PP: public OutputPlugin
 {
 public:
-  OP1PP(const DYNAMO::SimData*, const char*, unsigned char order = 100);
+  OP1PP(const dynamo::SimData*, const char*, unsigned char order = 100);
 
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 
 #include "system.hpp"
 #include <coil/clWindow.hpp>
@@ -25,7 +25,7 @@
 class SVisualizer: public System
 {
 public:
-  SVisualizer(DYNAMO::SimData*, std::string, double);
+  SVisualizer(dynamo::SimData*, std::string, double);
   
   virtual System* Clone() const { return new SVisualizer(*this); }
 

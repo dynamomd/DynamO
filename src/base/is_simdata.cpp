@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../dynamics/systems/system.hpp"
 
-namespace DYNAMO
+namespace dynamo
 {
   SimData::SimData():
     ensemble(NULL),
@@ -97,7 +97,7 @@ namespace DYNAMO
     other.ptrScheduler->rebuildSystemEvents();    
 
     //Globals?
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (outputPlugins.size() != other.outputPlugins.size())
       std::cerr << "Error, could not swap output plugin lists as they are not equal in size";
 #endif
@@ -110,7 +110,7 @@ namespace DYNAMO
       
       while (iPtr1 != outputPlugins.end())
 	{
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
 	  if (typeid(*(*iPtr1)) != typeid(*(*iPtr2)))
 	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif

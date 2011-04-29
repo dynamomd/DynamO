@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@
 class OPTicker: public OutputPlugin
 {
 public:
-  OPTicker(const DYNAMO::SimData*, const char*);
+  OPTicker(const dynamo::SimData*, const char*);
 
   //Non virtual to warn if you use them,
   void eventUpdate(const IntEvent&, const PairEventData&) {}

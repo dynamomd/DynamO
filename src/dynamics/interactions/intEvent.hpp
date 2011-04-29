@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 
 struct XMLNode;
 class Interaction;
-namespace DYNAMO {
+namespace dynamo {
   class SimData;
 }
 namespace xml
@@ -100,7 +100,7 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const IntEvent&);
 
-  std::string stringData(const DYNAMO::SimData*) const;
+  std::string stringData(const dynamo::SimData*) const;
   
   inline void setType(EEventType a) const
   { 

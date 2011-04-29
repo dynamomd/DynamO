@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,9 +27,9 @@
 class CSUmbrella: public System
 {
 public:
-  CSUmbrella(const magnet::xml::Node& XML, DYNAMO::SimData*);
+  CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  CSUmbrella(DYNAMO::SimData*, double, double, double, std::string, CRange*, CRange*);
+  CSUmbrella(dynamo::SimData*, double, double, double, std::string, CRange*, CRange*);
   
   virtual System* Clone() const { return new CSUmbrella(*this); }
 

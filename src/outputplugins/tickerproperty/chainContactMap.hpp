@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@ class CRange;
 class OPCContactMap: public OPTicker
 {
  public:
-  OPCContactMap(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPCContactMap(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPCContactMap(*this); }

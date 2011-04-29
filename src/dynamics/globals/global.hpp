@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,12 +28,12 @@ class IntEvent;
 class NEventData;
 class GlobalEvent;
 
-class Global: public DYNAMO::SimBase
+class Global: public dynamo::SimBase
 {
 public:
-  Global(DYNAMO::SimData*, const char *);
+  Global(dynamo::SimData*, const char *);
 
-  Global(CRange*, DYNAMO::SimData*, const char *);
+  Global(CRange*, dynamo::SimData*, const char *);
   
   virtual ~Global() {}
 
@@ -49,7 +49,7 @@ public:
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Global&);
 
-  static Global* getClass(const magnet::xml::Node&, DYNAMO::SimData*);
+  static Global* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
   virtual void operator<<(const magnet::xml::Node&) = 0;
 

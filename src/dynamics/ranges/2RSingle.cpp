@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,7 +19,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-C2RSingle::C2RSingle(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim):
+C2RSingle::C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim):
   range(NULL)
 { 
   if (strcmp(XML.getAttribute("Range"),"2Single"))

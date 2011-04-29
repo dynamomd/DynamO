@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPViscosityE::OPViscosityE(const DYNAMO::SimData* tmp, 
+OPViscosityE::OPViscosityE(const dynamo::SimData* tmp, 
 			   const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ViscosityE", 60),
   count(0),

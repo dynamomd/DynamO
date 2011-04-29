@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,9 +25,9 @@
 class CGSOCells: public Global
 {
 public:
-  CGSOCells(const magnet::xml::Node&, DYNAMO::SimData*);
+  CGSOCells(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGSOCells(DYNAMO::SimData*, const std::string&);
+  CGSOCells(dynamo::SimData*, const std::string&);
 
   virtual ~CGSOCells() {}
 

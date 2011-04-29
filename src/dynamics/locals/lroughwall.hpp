@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,8 +21,8 @@
 class LRoughWall: public Local
 {
 public:
-  LRoughWall(const magnet::xml::Node&, DYNAMO::SimData*);
-  LRoughWall(DYNAMO::SimData*, double, double, double, Vector , Vector , 
+  LRoughWall(const magnet::xml::Node&, dynamo::SimData*);
+  LRoughWall(dynamo::SimData*, double, double, double, Vector , Vector , 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~LRoughWall() {}

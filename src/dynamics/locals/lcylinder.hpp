@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,8 +21,8 @@
 class CLCylinder: public Local
 {
 public:
-  CLCylinder(const magnet::xml::Node&, DYNAMO::SimData*);
-  CLCylinder(DYNAMO::SimData*, double, Vector , Vector , double, 
+  CLCylinder(const magnet::xml::Node&, dynamo::SimData*);
+  CLCylinder(dynamo::SimData*, double, Vector , Vector , double, 
 	 std::string, CRange*, bool nrender = true);
 
   virtual ~CLCylinder() {}

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -45,7 +45,7 @@ CGCells::calcPosition(const Vector& primaryCell,
 }
 
 
-CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name, 
+CGCells::CGCells(dynamo::SimData* nSim, const std::string& name, 
 		 const size_t& overlink):
   CGNeighbourList(nSim, "CellNeighbourList"),
   cellCount(0),
@@ -60,7 +60,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
   I_cout() << "Cells Loaded, Overlinking set to " << overlink;
 }
 
-CGCells::CGCells(const magnet::xml::Node &XML, DYNAMO::SimData* ptrSim):
+CGCells::CGCells(const magnet::xml::Node &XML, dynamo::SimData* ptrSim):
   CGNeighbourList(ptrSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -75,7 +75,7 @@ CGCells::CGCells(const magnet::xml::Node &XML, DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
-CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
+CGCells::CGCells(dynamo::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1,1,1),
@@ -278,7 +278,7 @@ CGCells::runEvent(const Particle& part, const double) const
 
   //Debug section
 
-#ifdef DYNAMO_WallCollDebug
+#ifdef dynamo_WallCollDebug
   {      
     CVector<int> tmp2 = cells[partCellData[part.getID()].cell].coords;
     CVector<int> tmp = cells[oldCell].coords;
@@ -433,7 +433,7 @@ CGCells::addCells(double maxdiam)
   //Required so particles find the right owning cell
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
-#ifdef DYNAMO_WallCollDebug
+#ifdef dynamo_WallCollDebug
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       CVector<int> cellcoords = getCoordsFromID(getCellID(part.getPosition()));

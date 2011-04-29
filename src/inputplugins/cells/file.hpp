@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -46,7 +46,7 @@ struct CUFile: public CUCell
       //Open the file for XML parsing
       magnet::xml::Document doc(fileName);  
 
-      magnet::xml::Node xSubNode = doc.getNode("DYNAMOconfig").getNode("ParticleData");
+      magnet::xml::Node xSubNode = doc.getNode("dynamoconfig").getNode("ParticleData");
       
       if (xSubNode.getAttribute("AttachedBinary").valid()
 	  && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))

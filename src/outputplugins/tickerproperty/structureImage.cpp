@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@
 #include <boost/foreach.hpp>
 #include <fstream>
 
-OPStructureImaging::OPStructureImaging(const DYNAMO::SimData* tmp, 
+OPStructureImaging::OPStructureImaging(const dynamo::SimData* tmp, 
 				       const magnet::xml::Node& XML):
   OPTicker(tmp,"StructureImaging"),
   id(0),

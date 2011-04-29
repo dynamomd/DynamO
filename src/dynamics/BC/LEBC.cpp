@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 
-BCLeesEdwards::BCLeesEdwards(const DYNAMO::SimData* tmp):
+BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
@@ -32,7 +32,7 @@ BCLeesEdwards::BCLeesEdwards(const DYNAMO::SimData* tmp):
 }
 
 BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
-						   const DYNAMO::SimData* tmp):
+						   const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -38,7 +38,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 }
 
 Liouvillean* 
-Liouvillean::loadClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
+Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
 {
   if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
     return new LNewtonian(tmp);

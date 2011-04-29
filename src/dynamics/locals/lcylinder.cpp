@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLCylinder::CLCylinder(DYNAMO::SimData* nSim, double ne, Vector  nnorm, 
+CLCylinder::CLCylinder(dynamo::SimData* nSim, double ne, Vector  nnorm, 
 		       Vector  norigin, double nr, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "CylinderWall"),
@@ -38,7 +38,7 @@ CLCylinder::CLCylinder(DYNAMO::SimData* nSim, double ne, Vector  nnorm,
   localName = nname;
 }
 
-CLCylinder::CLCylinder(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+CLCylinder::CLCylinder(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "CylinderWall")
 {
   operator<<(XML);
@@ -78,7 +78,7 @@ bool
 CLCylinder::isInCell(const Vector & Origin, const Vector& CellDim) const
 {
   return true;
-  //DYNAMO::OverlapFunctions::CubePlane
+  //dynamo::OverlapFunctions::CubePlane
   //(Origin, CellDim, vPosition, vNorm);
 }
 

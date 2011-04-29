@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -37,7 +37,7 @@ class OutputPlugin;
  *
  *
  */
-class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
+class Simulation: public dynamo::Base_Class, public dynamo::SimData
 {
  public:
   /*! \brief Just initialises the Base_Class
@@ -102,7 +102,7 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
 
   //! Sets the random seed used by the Simulation random number
   //! generator.
-  //! \sa DYNAMO::SimData::ranGenerator
+  //! \sa dynamo::SimData::ranGenerator
   void setRandSeed(unsigned int);
 
   //! Allows the Coordinator class to add Global events to the
@@ -141,12 +141,12 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
   //! \sa getnColl
   long double getSysTime();
 
-  //! Get the CEnsemble of the Simulation.
-  inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const 
+  //! Get the Ensemble of the Simulation.
+  inline const boost::scoped_ptr<dynamo::Ensemble>& getEnsemble() const 
   { return ensemble; }
 
-  //! Get the CEnsemble of the Simulation.
-  inline boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() 
+  //! Get the Ensemble of the Simulation.
+  inline boost::scoped_ptr<dynamo::Ensemble>& getEnsemble() 
   { return ensemble; }
   
   //! Get the std::ostringstream storing the Simulation history.

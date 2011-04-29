@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -90,7 +90,7 @@ CSNeighbourList::initialise()
 void 
 CSNeighbourList::rebuildList()
 { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   initialise();
 #else
   sorter->clear();
@@ -118,14 +118,14 @@ CSNeighbourList::outputXML(xml::XmlStream& XML) const
 }
 
 CSNeighbourList::CSNeighbourList(const magnet::xml::Node& XML, 
-				 DYNAMO::SimData* const Sim):
+				 dynamo::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL)
 { 
   I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
-CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
+CSNeighbourList::CSNeighbourList(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 
@@ -139,7 +139,7 @@ CSNeighbourList::addEvents(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
@@ -170,7 +170,7 @@ CSNeighbourList::addEventsInit(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)

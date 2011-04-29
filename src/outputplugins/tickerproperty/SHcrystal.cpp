@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@
 #include <cmath>
 #include <limits>
 
-OPSHCrystal::OPSHCrystal(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPSHCrystal::OPSHCrystal(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
   nblistID(std::numeric_limits<size_t>::max()),
   count(0)
@@ -151,7 +151,7 @@ OPSHCrystal::output(xml::XmlStream& XML)
 }
 
 OPSHCrystal::sphericalsum::sphericalsum
-(const DYNAMO::SimData * const nSim, const double& nrg, const size_t& nl):
+(const dynamo::SimData * const nSim, const double& nrg, const size_t& nl):
   Sim(nSim), rg(nrg), maxl(nl), count(0)
 {
   coeffsum.resize(maxl);

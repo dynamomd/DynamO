@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -144,7 +144,7 @@ class CVector
   /*! \brief Only defined for 3d but outputs the cross product. */  
   inline CVector<T> Cross(const CVector<T> &val)
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (NDIM != 3) 
       M_throw() << "Cross product defined only in 3D";
 #endif
@@ -202,7 +202,7 @@ class CVector
   /*! \brief Non-const accessor to a dimension of the vector */
   inline T & operator[] (const size_t &indx)
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (indx >= NDIM) M_throw() << "CVector out of bounds error";
 #endif
 
@@ -212,7 +212,7 @@ class CVector
   /*! \brief const accessor to a dimension of the vector */
   inline const T & operator[] (const size_t &indx) const
   {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
     if (indx >= NDIM) M_throw() << "CVector out of bounds error";
 #endif
 

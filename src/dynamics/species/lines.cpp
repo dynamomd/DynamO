@@ -1,6 +1,6 @@
 #include "lines.hpp"
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 # include <magnet/thread/mutex.hpp>
 # include "renderobjs/lines.hpp"
 # include "../liouvillean/OrientationL.hpp"

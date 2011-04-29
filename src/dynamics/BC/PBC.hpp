@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 class BCPeriodic: public BoundaryCondition
 {
 public:
-  BCPeriodic(const DYNAMO::SimData*);
+  BCPeriodic(const dynamo::SimData*);
 
   virtual void applyBC(Vector &) const;
   
@@ -48,7 +48,7 @@ public:
 class BCPeriodicExceptX: public BoundaryCondition
 {
 public:
-  BCPeriodicExceptX(const DYNAMO::SimData*);
+  BCPeriodicExceptX(const dynamo::SimData*);
 
   virtual void applyBC(Vector& pos) const;
   
@@ -71,7 +71,7 @@ public:
 class BCPeriodicXOnly: public BoundaryCondition
 {
 public:
-  BCPeriodicXOnly(const DYNAMO::SimData*);
+  BCPeriodicXOnly(const dynamo::SimData*);
 
   virtual void applyBC(Vector& pos) const;
   

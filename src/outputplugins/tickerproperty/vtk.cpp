@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@
 #include <fstream>
 #include <iomanip>
 
-OPVTK::OPVTK(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPVTK::OPVTK(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"VTK"),
   binWidth(1,1,1),
   imageCounter(0),
@@ -116,7 +116,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  
 	  
 	  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
-	  DYNAMO::Line_Breaker lb(6);
+	  dynamo::Line_Breaker lb(6);
 	  
 	  ////////////SAMPLE COUNTS
 	  XML << xml::tag("DataArray")
@@ -412,7 +412,7 @@ OPVTK::output(xml::XmlStream& XML)
 
 
   //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
-  DYNAMO::Line_Breaker lb(6);
+  dynamo::Line_Breaker lb(6);
 
   ////////////SAMPLE COUNTS
   XML << xml::tag("DataArray")

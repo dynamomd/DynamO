@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@
 #include <cmath>
 #include <iomanip>
 
-IHardSphere::IHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+IHardSphere::IHardSphere(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp, NULL)
 { operator<<(XML); }
 
@@ -95,7 +95,7 @@ IHardSphere::Clone() const
 IntEvent 
 IHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
 { 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay1=" << Sim->dynamics.getLiouvillean().getParticleDelay(p1);
   
@@ -115,7 +115,7 @@ IHardSphere::getEvent(const Particle &p1, const Particle &p2) const
   if (Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
     {
-#ifdef DYNAMO_OverlapTesting
+#ifdef dynamo_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 

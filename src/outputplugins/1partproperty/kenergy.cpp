@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPKEnergy::OPKEnergy(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OP1PP(tmp,"KEnergy", 250),
   InitialKE(0.0),
   KEacc(0.0),

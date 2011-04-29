@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLSphere::CLSphere(DYNAMO::SimData* nSim, double ne,
+CLSphere::CLSphere(dynamo::SimData* nSim, double ne,
 		       Vector  norigin, double nr, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "SphereWall"),
@@ -39,7 +39,7 @@ CLSphere::CLSphere(DYNAMO::SimData* nSim, double ne,
   localName = nname;
 }
 
-CLSphere::CLSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+CLSphere::CLSphere(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "SphereWall")
 {
   operator<<(XML);

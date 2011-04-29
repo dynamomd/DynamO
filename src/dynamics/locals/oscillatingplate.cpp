@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
+CLOscillatingPlate::CLOscillatingPlate(dynamo::SimData* nSim,
 				       Vector nrw0, Vector nnhat,
 				       double nomega0, double nsigma, double ne,
 				       double ndelta, double nmass, std::string nname, 
@@ -39,7 +39,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
   localName = nname;
 }
 
-CLOscillatingPlate::CLOscillatingPlate(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+CLOscillatingPlate::CLOscillatingPlate(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "OscillatingPlate"),
   lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
 {
@@ -235,7 +235,7 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }
 
-#ifdef DYNAMO_visualizer
+#ifdef dynamo_visualizer
 # include <coil/RenderObj/Function.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 

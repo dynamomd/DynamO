@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,7 +30,7 @@
 #include <boost/foreach.hpp>
 #include <boost/random/uniform_int.hpp>
 
-CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   maxprob(0.0),
@@ -42,7 +42,7 @@ CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
   type = DSMC;
 }
 
-CSDSMCSpheres::CSDSMCSpheres(DYNAMO::SimData* nSim, double nd, double ntstp, double nChi, 
+CSDSMCSpheres::CSDSMCSpheres(dynamo::SimData* nSim, double nd, double ntstp, double nChi, 
 			     double ne, std::string nName, CRange* r1, CRange* r2):
   System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
@@ -64,7 +64,7 @@ CSDSMCSpheres::runEvent() const
 {
   double locdt = dt;
   
-#ifdef DYNAMO_DEBUG 
+#ifdef dynamo_DEBUG 
   if (boost::math::isnan(locdt))
     M_throw() << "A NAN system event time has been found";
 #endif
@@ -82,12 +82,12 @@ CSDSMCSpheres::runEvent() const
   Sim->freestreamAcc = 0;
 
   boost::variate_generator
-    <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+    <dynamo::baseRNG&, boost::uniform_int<size_t> >
     id1sampler(Sim->ranGenerator, 
 	      boost::uniform_int<size_t>(0, range1->size() - 1));
 
   boost::variate_generator
-    <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+    <dynamo::baseRNG&, boost::uniform_int<size_t> >
     id2sampler(Sim->ranGenerator, 
 	       boost::uniform_int<size_t>(0, range2->size() - 1));
 
@@ -155,12 +155,12 @@ CSDSMCSpheres::initialise(size_t nID)
   if (maxprob == 0.0)
     {
       boost::variate_generator
-	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	<dynamo::baseRNG&, boost::uniform_int<size_t> >
 	id1sampler(Sim->ranGenerator, 
 		   boost::uniform_int<size_t>(0, range1->size() - 1));
       
       boost::variate_generator
-	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	<dynamo::baseRNG&, boost::uniform_int<size_t> >
 	id2sampler(Sim->ranGenerator, 
 		   boost::uniform_int<size_t>(0, range2->size() - 1));
       

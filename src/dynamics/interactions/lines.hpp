@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@ class ILines: public ISingleCapture, public Interaction
 {
 public:
   template<class T1, class T2>
-  ILines(DYNAMO::SimData* tmp, T1 l, T2 e, C2Range* nR):
+  ILines(dynamo::SimData* tmp, T1 l, T2 e, C2Range* nR):
     Interaction(tmp, nR),
     _length(Sim->_properties.getProperty
 	    (l, Property::Units::Length())),
@@ -32,7 +32,7 @@ public:
        (e, Property::Units::Dimensionless()))
   {}
 
-  ILines(const magnet::xml::Node&, DYNAMO::SimData*);
+  ILines(const magnet::xml::Node&, dynamo::SimData*);
 
   void operator<<(const magnet::xml::Node&);
 

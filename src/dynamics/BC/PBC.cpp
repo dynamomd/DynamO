@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,7 +20,7 @@
 #include "../../extcode/mathtemplates.hpp"
 #include <magnet/xmlwriter.hpp>
 
-BCPeriodic::BCPeriodic(const DYNAMO::SimData* tmp):
+BCPeriodic::BCPeriodic(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "RPBC", IC_purple)
 {
   Sim = tmp;
@@ -65,7 +65,7 @@ BCPeriodic::Clone () const
 { return new BCPeriodic(*this); }
 
 
-BCPeriodicExceptX::BCPeriodicExceptX(const DYNAMO::SimData* tmp):
+BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "NoXPBC",IC_purple)
 { Sim = tmp; }
 
@@ -121,7 +121,7 @@ BCPeriodicExceptX::applyBC(Vector  &pos, const double&) const
   pos[0] = x;
 }
 
-BCPeriodicXOnly::BCPeriodicXOnly(const DYNAMO::SimData* tmp):
+BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "NoXPBC",IC_purple)
 {
   Sim = tmp;

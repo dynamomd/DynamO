@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -81,7 +81,7 @@ CSComplex::initialise()
 void 
 CSComplex::rebuildList()
 {
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   initialise();
 #else
   BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
@@ -121,14 +121,14 @@ CSComplex::outputXML(xml::XmlStream& XML) const
   XML << xml::endtag("Entries");
 }
 
-CSComplex::CSComplex(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim):
+CSComplex::CSComplex(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
   CScheduler(Sim,"ComplexScheduler", NULL)
 { 
   I_cout() << "Complex Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
-CSComplex::CSComplex(DYNAMO::SimData* const Sim, CSSorter* ns):
+CSComplex::CSComplex(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"ComplexScheduler", ns)
 { I_cout() << "Complex Scheduler Algorithmn Loaded"; }
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -43,7 +43,7 @@ struct CURandWalk: public CUCell
     //See http://mathworld.wolfram.com/SpherePointPicking.html
     boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(NDIM)));
     
-    boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution<double> >
+    boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> >
       normal_sampler(ranGenerator, normdist);
     
     Vector  tmpVec;

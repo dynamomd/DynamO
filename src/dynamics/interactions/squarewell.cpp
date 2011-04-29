@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,7 +33,7 @@
 #include <cmath>
 #include <iomanip>
 
-ISquareWell::ISquareWell(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+ISquareWell::ISquareWell(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
@@ -120,7 +120,7 @@ ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
   
   double ld2 = d * l * d * l;
 
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   double d2 = d * d;
   if ((rij | rij) < d2)
     I_cerr() << "Warning! Two particles might be overlapping"
@@ -136,7 +136,7 @@ ISquareWell::getEvent(const Particle &p1,
 		       const Particle &p2) const 
 {
   
-#ifdef DYNAMO_DEBUG
+#ifdef dynamo_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -163,7 +163,7 @@ ISquareWell::getEvent(const Particle &p1,
 	  .SphereSphereInRoot(colldat, d2,
 			      p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
 	{
-#ifdef DYNAMO_OverlapTesting
+#ifdef dynamo_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	    M_throw() << "Overlapping particles found" 
@@ -186,7 +186,7 @@ ISquareWell::getEvent(const Particle &p1,
 	   .SphereSphereInRoot(colldat, ld2, 
 			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
     {
-#ifdef DYNAMO_OverlapTesting
+#ifdef dynamo_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
 	{
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))

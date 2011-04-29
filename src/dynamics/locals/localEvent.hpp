@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@ namespace xml
 {
   class XmlStream;
 }
-namespace DYNAMO {
+namespace dynamo {
   class SimData;
 }
 class IntEvent;
@@ -67,7 +67,7 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const LocalEvent&);
 
-  std::string stringData(const DYNAMO::SimData*) const;
+  std::string stringData(const dynamo::SimData*) const;
 
   const size_t& getLocalID() const { return localID; } 
 
