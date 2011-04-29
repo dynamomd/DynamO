@@ -105,7 +105,7 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
   //Check if the system is compressing and adjust the radius scaling factor
   float rfactor = lengthRescale;
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-    rfactor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+    rfactor *= (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
   
   const SphericalRepresentation& data
     = dynamic_cast<const SphericalRepresentation&>(*getIntPtr());
@@ -124,7 +124,6 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
 	  
 	  particleData[s * range->size() + sphID].w = 0.5 * rfactor * data.getDiameter(ID, s);
 	}
-
       ++sphID;
     }
 
