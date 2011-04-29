@@ -58,8 +58,8 @@ public:
   virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
   virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, 
-					   const double&, 
-					   const EEventType& eType) const;
+					  const double&, 
+					  const EEventType& eType) const;
 
   virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
 			       double&, const double&, CPDData&) const;

@@ -139,8 +139,6 @@ namespace DYNAMO {
   void
   CENVShear::initialise()
   {
-    const double shearRate = 1.0;
-
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = CLEBC::shearRate();
