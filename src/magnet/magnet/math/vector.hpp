@@ -76,14 +76,16 @@ class VectorExpression<>
   inline double nrm2() const { return x*x+y*y+z*z; }
   inline double nrm() const
   {
-    double biggest=std::max(std::max(std::abs(x), std::abs(y)), std::abs(z));
+    double biggest = maxElement();
     if (biggest!=0)
-      return biggest*(double)(std::sqrt(SQR(x/biggest)
-					+SQR(y/biggest)
-					+SQR(z/biggest)));
+      return biggest * (double)(std::sqrt(SQR(x/biggest)
+					  +SQR(y/biggest)
+					  +SQR(z/biggest)));
     else
       return 0;
   }
+
+  inline double maxElement() const { return std::max(std::max(std::abs(x), std::abs(y)), std::abs(z)); }
 
   inline double& operator()(int i) { return *(&x+i); }// return element i
   inline const double& operator()(int i) const { return *(&x+i); }// return element i

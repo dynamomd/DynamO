@@ -99,11 +99,14 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
     = _renderObj.as<RSphericalParticles>()._particleData;
 
   ///////////////////////POSITION DATA UPDATE
+  //Divide by the maximum box length, to have a natural scale for the visualizer
+  const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+  
   //Check if the system is compressing and adjust the radius scaling factor
-  float factor = 1;
+  float rfactor = lengthRescale;
   if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-    factor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
- 
+    rfactor = (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+  
   const SphericalRepresentation& data
     = dynamic_cast<const SphericalRepresentation&>(*getIntPtr());
 
@@ -117,9 +120,9 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
 	  Vector pos = data.getPosition(ID, s);
 	  
 	  for (size_t i(0); i < NDIM; ++i)
-	    particleData[s * range->size() + sphID].s[i] = pos[i];
+	    particleData[s * range->size() + sphID].s[i] = pos[i] * lengthRescale;
 	  
-	  particleData[s * range->size() + sphID].w = 0.5 * factor * data.getDiameter(ID, s);
+	  particleData[s * range->size() + sphID].w = 0.5 * rfactor * data.getDiameter(ID, s);
 	}
 
       ++sphID;
