@@ -21,7 +21,6 @@
 #include "../0partproperty/misc.hpp"
 #include <boost/circular_buffer.hpp>
 
-/*! \brief The Correlator class for the Thermal Diffusion.*/
 class OPThermalDiffusionE: public OutputPlugin
 {
 public:

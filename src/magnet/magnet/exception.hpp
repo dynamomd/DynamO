@@ -74,8 +74,6 @@ namespace magnet
      * threaded environment this is still thread safe provided the
      * exception try/catch statements are local to the thread, which
      * ThreadPool ensures.
-     * 
-     * \bug Fix the non reentrant behaviour.
      */
     const char* what() const throw()
      {

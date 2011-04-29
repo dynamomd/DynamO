@@ -20,7 +20,6 @@
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
 
-/*! \brief The Correlator class for the viscosity.*/
 class OPViscosityE: public OutputPlugin
 {
   typedef boost::array<double, NDIM> col;

@@ -20,7 +20,6 @@
 #include "../../datatypes/vector.hpp"
 #include <boost/circular_buffer.hpp>
 
-/*! \brief The Correlator class for the Thermal Conductivity.*/
 class OPThermalConductivitySpeciesSpeciesE: public OutputPlugin
 {
 public:

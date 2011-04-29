@@ -99,17 +99,14 @@ namespace dynamo
       return *this;
     }
 
-    /*! \brief Associates the Stream_Operator with a stream.
-     *
-     * \bug Is this buggy as it must be performed first before output?
-     */
+    /*! \brief Associates the Stream_Operator with a stream */
     friend Stream_Operator operator <<(std::ostream &os, Stream_Operator SO)
     {
       SO.OutputStream = &os;
       return SO;
     }
 
-    /*! Not really needed but is here. */
+    /*! Get the underlying std::ostream object. */
     std::ostream& getStream() const
     { return *OutputStream; }
     
