@@ -22,7 +22,7 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 
-#ifdef dynamo_Colour
+#ifdef DYNAMO_Colour
 # define IC_black "\033[22;30m" 
 # define IC_red "\033[22;31m"
 # define IC_green "\033[22;32m"

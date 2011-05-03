@@ -18,14 +18,14 @@
 **** DONE *API-CHANGE* Change HardCoreDiam() to be ExcludedVolume() in Interactions
 **** DONE *API-CHANGE* Renamed and document the CEnsemble class.
 **** DONE *BUG* Now both the length and time scales are rescaled after a compression. This holds the energy and velocity scales constant. The new properties framework has fixed several errors in the original rescaling.
+**** DONE *BUG* All Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
+**** TODO *BUG* Fix the segfault when a simulation closes coil through a shutdown.
 **** TODO *MAJOR* Merge orientation and normal liouvillean
 **** TODO *MAJOR* Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data.
      - [X] Implement volume renderer.
      - [X] Make a transfer function interface.
      - [ ] Make a interface class for render objects that share points with attached data.
-**** TODO *BUG* All Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
-**** TODO Fix the segfault when a simulation closes coil through a shutdown.
 **** TODO Update the tutorials.
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists
