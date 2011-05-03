@@ -59,8 +59,6 @@ public:
   void updateColorData(magnet::CL::CLGLState& CLState);
 
 protected:
-  CoilRegister _coil;
-
   size_t _spheresPerObject;
 
   void guiUpdate();

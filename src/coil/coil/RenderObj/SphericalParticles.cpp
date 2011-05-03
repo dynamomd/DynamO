@@ -74,7 +74,7 @@ RSphericalParticles::updateColorData(magnet::CL::CLGLState& CLState)
       M_throw() << "Not Implemented";
     }
 
-  _coil.getInstance().getTaskQueue()
+  CoilRegister::getCoilInstance().getTaskQueue()
     .queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendColorData, 
 						this, CLState));
 }

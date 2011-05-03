@@ -139,6 +139,7 @@ public:
 private:
   friend class CoilMaster;
   friend class CLGLWindow;
+  friend class RSphericalParticles;
   //! This instance is only for the CoilMaster and window classes to
   //! use, Everything else should use an instance of the register class
   //! to access coil!
