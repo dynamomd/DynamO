@@ -77,8 +77,17 @@ CIPCompression::RestoreSystem()
     I_cout() << "No cellular device to fix";
 
   double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
+
+  // The length scale is rescaled as the particles have grown. We want
+  // that if a particle had a radius of 1 before the compression, it
+  // will have a radius of 1 after the compression (but the simulation
+  // volume will be less).
   Sim->dynamics.units().rescaleLength(rescale_factor);
+  // The time scale is also rescaled, so that the energy and velocity
+  // scales are unchanged.
+  Sim->dynamics.units().rescaleTime(rescale_factor);
   Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
+  Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
   Sim->dynamics.setLiouvillean(oldLio->Clone());
   

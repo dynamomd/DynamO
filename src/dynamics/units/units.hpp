@@ -120,8 +120,15 @@ class Units
   inline double unitPressure() const
   { return unitMass() / (unitLength()*unitTime()*unitTime()); }
 
-  /*! \brief Used to rescale the system size after a system compression*/
+  /*! \brief Used to rescale the length scale after a system compression*/
   inline void rescaleLength(double r) { _unitLength *= r; }
+
+  /*! \brief Used to rescale the time scale after a system compression.
+   *
+   * This rescaling is done in proportion to the length rescale, so
+   * that the energy and velocity scales are unchanged.
+   */
+  inline void rescaleTime(double r) { _unitTime *= r; }
 
   inline friend xml::XmlStream& operator<<(xml::XmlStream& XML, const Units& u)
   { u.outputXML(XML); return XML; }
