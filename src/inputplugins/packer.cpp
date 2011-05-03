@@ -3484,41 +3484,27 @@ CIPPacker::initialise()
       }
     case 26:
       {
-	//Pack of polydispers hard spheres
+	//Pack of polydisperse sheared hard spheres
 	if (vm.count("help"))
 	  {
 	    std::cout<<
 	      "Mode specific options:\n"
-	      "  26: Polydisperse hard spheres\n"
-	      "       --f1 : Sets the elasticity of the hard spheres\n"
+	      "  26: Polydisperse (in)elastic hard spheres in LEBC (shearing)\n"
 	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	      "       --i2 : Adds a temperature rescale event every x events\n"
-	      "       --b1 : Installs the collision sentinel for low densities\n"
-	      "       --b2 : Forces the use of non-morton cells in square systems\n";
+	      "       --f1 : Inelasticity [1.0]\n";
 	    exit(1);
 	  }
 
+	//FCC simple cubic pack of hard spheres with inelasticity and shearing
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 
 	std::vector<Vector  >
-	  latticeSites(packptr->placeObjects(Vector(0,0,0)));
-
-	Sim->dynamics.applyBC<BCPeriodic>();
+	  latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	if (vm.count("rectangular-box"))
-	  {
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
-	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-	  }
-	else
-	  {
-	    if (vm.count("b2"))
-	      Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
-	    else
-	      Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
-	  }
+	  Sim->primaryCellSize = getNormalisedCellDimensions();
 
 	double simVol = 1.0;
 
@@ -3528,44 +3514,18 @@ CIPPacker::initialise()
 	double particleDiam = pow(simVol * vm["density"].as<double>()
 				/ latticeSites.size(), double(1.0 / 3.0));
 
-	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
-	  {
-	    CVector<long> cells = getCells();
-	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
-	      {
-		I_cerr() << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
-		  "I'm going to temporarily calculate the density by the 2D definition!";
-		
-		size_t dimension;
-		if (cells[0] == 1)
-		  dimension = 0;
-		if (cells[1] == 1)
-		  dimension = 1;
-		if (cells[2] == 1)
-		  dimension = 2;
-
-		particleDiam = std::sqrt(simVol * vm["density"].as<double>()
-					 / (Sim->primaryCellSize[dimension] * latticeSites.size()));		
-		
-		I_cout() << "I'm changing what looks like the unused box dimension (" 
-			 << dimension << ") to the optimal 2D value (3 particle diameters)";
-
-		Sim->primaryCellSize[dimension] = 3.0000001 * particleDiam;
-	      }
-	  }
-
-	//Set up a standard simulation
-	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
-
-	if (vm.count("b1"))
-	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
-
-	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	double elasticity = 1.0;
 
 	if (vm.count("f1"))
-	  elasticity =  vm["f1"].as<double>();
+	  elasticity = vm["f1"].as<double>();
+
+	//Set up a standard simulation
+	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
+
+	Sim->dynamics.applyBC<BCLeesEdwards>();
+
+	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	magnet::thread::RefPtr<Property> D
 	  =  Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
@@ -3607,15 +3567,15 @@ CIPPacker::initialise()
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
-	  Sim->particleList.push_back(Particle(position, getRandVelVec() 
-					       * Sim->dynamics.units().unitVelocity(),
-						 nParticles++));
+	  Sim->particleList.push_back
+	  (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(), nParticles++));
 
-	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-	
-	if (vm.count("i2"))
-	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
+	//Insert a linear profile, zero momentum then add a vel gradient
+	Sim->dynamics.setCOMVelocity();
+	BOOST_FOREACH(Particle& part, Sim->particleList)
+	  part.getVelocity()[0] += part.getPosition()[1] * CLEBC::shearRate();
 
+	Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
 	break;
       }
     default:

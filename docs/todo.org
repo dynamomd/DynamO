@@ -20,6 +20,7 @@
 **** DONE *BUG* Now both the length and time scales are rescaled after a compression. This holds the energy and velocity scales constant. The new properties framework has fixed several errors in the original rescaling.
 **** DONE *BUG* All Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
 **** DONE *BUG* Fix the segfault when a simulation closes coil through a shutdown.
+**** DONE *BUG* Fixed compression of shearing systems failing due to an incorrect unit in the BC'S.
 **** TODO *MAJOR* New dynamod mode (-m 26) - Polydisperse Hard Spheres
 **** TODO *MAJOR* Merge orientation and normal liouvillean
 **** TODO *MAJOR* Volume Renderer

@@ -55,10 +55,6 @@ CGCellsShearing::initialise(size_t nID)
     I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
 	     << "You must add the ParabolaSentinel Global event.";
 
-  if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
-    M_throw() << "You cannot use the shearing neighbour list"
-	      << " in a system without Lees Edwards BC's";
-
   if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
 
   reinitialise(Sim->dynamics.getLongestInteraction());

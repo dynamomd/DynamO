@@ -46,7 +46,7 @@ void
 BCLeesEdwards::outputXML(xml::XmlStream &XML) const
 {
   XML << xml::attr("Type") << "LE"
-      << xml::attr("DXD") << dxd;
+      << xml::attr("DXD") << dxd / Sim->dynamics.units().unitLength();
 }
 
 void 
@@ -55,7 +55,7 @@ BCLeesEdwards::operator<<(const magnet::xml::Node& XML)
   try 
     {
       if (XML.getAttribute("DXD").valid())
-	dxd = XML.getAttribute("DXD").as<double>();
+	dxd = XML.getAttribute("DXD").as<double>() * Sim->dynamics.units().unitLength();
     }
   catch (boost::bad_lexical_cast &)
     {
