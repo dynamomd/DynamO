@@ -34,7 +34,7 @@ namespace dynamo {
   /*! \brief This class specifies the simulation ensemble that the
    * simulation is being performed in.
    *
-   *
+   * This is the abstract base class defining the Ensemble interface.
    */
   class Ensemble : public SimBase_const
   {
@@ -44,27 +44,48 @@ namespace dynamo {
     
     virtual ~Ensemble() {}
 
+    //! Used to load an xml tag corresponding to an Ensemble and
+    //! generate the correct derived Ensemble type.
+    //! \param XML The XML node containing the type of the Ensemble
+    //! \param Sim A pointer to the simulation data this Ensemble is valid for.
     static Ensemble* getClass(const magnet::xml::Node& XML, 
 			       const dynamo::SimData* Sim);
 
+    //! Helper function which generates an Ensemble XML tag.
+    //! \sa getName
     friend xml::XmlStream& operator<<(xml::XmlStream&, const Ensemble&);
     
+    //! This function returns a string corresponding to the type of
+    //! Ensemble. This name is used to load the Ensemble again from
+    //! the config file.
     virtual std::string getName() const = 0;
 
+    //! Called to generate and store the Ensemble variables.
     virtual void initialise() = 0;
 
+    //! Returns an array containing the control values of the Ensemble
+    //! (e.g., NVE) in the units of the output.
+    //! \sa getEnsembleVals
     virtual boost::array<double,3> getReducedEnsembleVals() const = 0;
     
-    virtual void exchange(Ensemble& rhs) { std::swap(EnsembleVals, rhs.EnsembleVals); }
+    //! Swaps the underlying ensemble control values.
+    //! \sa EReplicaExchangeSimulation
+    virtual void swap(Ensemble& rhs) { std::swap(EnsembleVals, rhs.EnsembleVals); }
 
+    //! Calculates the probability of carrying out a replica exchange
+    //! move between this Ensemble and another.
     virtual double exchangeProbability(const Ensemble&) const;
     
+    //! Returns an array containing the ensemble values in simulation units.
+    //! \sa getReducedEnsembleVals
     const boost::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
 
   protected:
     boost::array<double,3> EnsembleVals;
   };
-  
+
+  //! \brief An Ensemble where N (no. of particles), V (simulation volume),
+  //! and E (total energy) are held constant.
   class EnsembleNVE           : public Ensemble 
   {
   public:
@@ -79,6 +100,11 @@ namespace dynamo {
     { return std::string("NVE"); }
   };
 
+  //! \brief An Ensemble where N (no. of particles), V (simulation volume),
+  //! and T (temperature) are held constant.
+  //! 
+  //! This class also stores a pointer to the thermostat used to hold
+  //! the temperature constant
   class EnsembleNVT           : public Ensemble 
   {
   public:
@@ -98,6 +124,8 @@ namespace dynamo {
     const System* thermostat;
   };
 
+  //! \brief An Ensemble where N (no. of particles), V (simulation volume),
+  //! and shear rate are held constant.
   class EnsembleNVShear       : public Ensemble 
   {
   public:
@@ -112,6 +140,8 @@ namespace dynamo {
     { return std::string("NVShear"); }
   };
 
+  //! \brief An Ensemble where N (no. of particles), E (total energy),
+  //! and isotropic compression rate are held constant.
   class EnsembleNECompression : public Ensemble 
   {
   public:
@@ -126,6 +156,11 @@ namespace dynamo {
     { return std::string("NECompression"); }
   };
 
+  //! \brief An Ensemble where N (no. of particles), T (Temperature),
+  //! and isotropic compression rate are held constant.
+  //! 
+  //! This class also stores a pointer to the thermostat used to hold
+  //! the temperature constant.
   class EnsembleNTCompression : public Ensemble 
   {
   public:

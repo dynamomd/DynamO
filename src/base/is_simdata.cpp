@@ -126,6 +126,6 @@ namespace dynamo
     }
 
     //This is swapped last as things need it for calcs
-    ensemble->exchange(*other.ensemble);
+    ensemble->swap(*other.ensemble);
   }
 }
