@@ -42,6 +42,7 @@ public:
   double getTemperature() const { return Temp; }
   double getReducedTemperature() const;
   void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
+  void setReducedTemperature(double nT);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;

@@ -185,3 +185,10 @@ CSysGhost::getReducedTemperature() const
 {
   return Temp / Sim->dynamics.units().unitEnergy();
 }
+
+
+void 
+CSysGhost::setReducedTemperature(double nT)
+{ 
+  Temp = nT * Sim->dynamics.units().unitEnergy(); 
+}

@@ -76,48 +76,23 @@ bool mySortPredictate(const Vector& v1, const Vector& v2)
 po::options_description
 CIPPacker::getOptions()
 {
-  po::options_description retval("System Packer General Options"),
-    hiddenopts("Packing Mode Options (description of each for each mode is "
-	       "given by --packer-mode-help)");
+  po::options_description retval("Packer options");
 
   retval.add_options()
-    ("packer-mode,m", po::value<size_t>(), "Chooses the system to initialise.")
-    ("packer-mode-help,h",
-     "Outputs the possible packer modes and their options.")
+    ("packer-mode,m", po::value<size_t>(), "Chooses the system to pack/construct, (see below)")
     ("NCells,C", po::value<unsigned long>()->default_value(7),
-     "Number of unit cells to a dimension.")
+     "Default number of unit cells per dimension, used for crystal packing of particles.")
     ("xcell,x", po::value<unsigned long>(),
-     "For rectlinear co-ordinates, number of unit cells in the x direction.")
+     "Number of unit cells in the x dimension.")
     ("ycell,y", po::value<unsigned long>(),
-     "For rectlinear co-ordinates, number of unit cells in the y direction.")
+     "Number of unit cells in the y dimension.")
     ("zcell,z", po::value<unsigned long>(),
-     "For rectlinear co-ordinates, number of unit cells in the z direction.")
-    ("rectangular-box", "This will cause the simulation box to be deformed so "
-     "that the x,y,z ecells specify the aspect ratio.")
+     "Number of unit cells in the z dimension.")
+    ("rectangular-box", "Force the simulation box to be deformed so "
+     "that the x,y,z cells also specify the box aspect ratio.")
     ("density,d", po::value<double>()->default_value(0.5),
      "System number density.")
-    ("Thermostat,T", po::value<double>(),
-     "Apply/Change the Andersen thermostat and set the Ensemble to NVT.")
-    //("Sentinel,S", "Installs the collision sentinal to study low densities")
     ;
-
-  hiddenopts.add_options()
-    ("b1", "boolean option one.")
-    ("b2", "boolean option two.")
-    ("i1", po::value<size_t>(), "integer option one.")
-    ("i2", po::value<size_t>(), "integer option two.")
-    ("s1", po::value<std::string>(), "string option one.")
-    ("s2", po::value<std::string>(), "string option two.")
-    ("f1", po::value<double>(), "double option one.")
-    ("f2", po::value<double>(), "double option two.")
-    ("f3", po::value<double>(), "double option three.")
-    ("f4", po::value<double>(), "double option four.")
-    ("f5", po::value<double>(), "double option five.")
-    ("f6", po::value<double>(), "double option six.")
-    ("f7", po::value<double>(), "double option seven.")
-    ;
-
-  retval.add(hiddenopts);
 
   return retval;
 }
@@ -125,150 +100,22 @@ CIPPacker::getOptions()
 void
 CIPPacker::initialise()
 {
-  if (vm.count("packer-mode-help"))
-    {
-      I_cout() <<
-	"Modes available:\n"
-	"  0:  Monocomponent hard spheres\n"
-	"       --f1 : Sets the elasticity of the hard spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Adds a temperature rescale event every x events\n"
-	"       --b1 : Installs the collision sentinel for low densities\n"
-	"       --b2 : Forces the use of non-morton cells in square systems\n"
-	"  1:  Mono/Multi-component square wells\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Lambda [1.5] (well width factor)\n"
-	"       --f2 : Well Depth (negative for square shoulders) [1]\n"
-	"       --s1 : Instead of f1 and f2, you can specify a multicomponent system using this option.\n"
-	"              Write \"diameter(d),lambda(l),mass(m),welldepth(e),molefrac(x):d,l,m,e,x[:...]\"\n"
-	"  2:  Random walk of an isolated attractive polymer\n"
-	"       --i1 : Chain length [20]\n"
-	"       --f1 : Diameter [1.6]\n"
-	"       --f2 : Well width factor [1.5]\n"
-	"       --f3 : Bond inner core [0.9]\n"
-	"       --f4 : Bond outer well [1.1]\n"
-	"       --s1 : HP sequence to use (eg 0001010) [defaults to homopolymer if unset]\n"
-	"  3:  Load a config and pack it, you will need to reset the interactions etc.\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Chiral fraction (0-1) [Unloaded]\n"
-	"       --s1 : File to load and use as unit cell [config.out.xml.bz2]\n"
-	"  4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Inelasticity [1.0]\n"
-	"  5:  Walk an isolated spiral/helix\n"
-	"       --i1 : Chain length [20]\n"
-	"       --i2 : Ring length (atoms in one spiral turn)[9]\n"
-	"       --f1 : Diameter [1.6]\n"
-	"       --f2 : Well width factor [1.5]\n"
-	"       --f3 : Bond inner core (>0) [0.9]\n"
-	"       --f4 : Bond outer well (>0) [1.1]\n"
-	"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n"
-	"  6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells\n"
-	"       --f1 : Elasticity of the particle and wall collisions [1]\n"	
-	"  7:  Ring/Linear polymer, dropped as a straight rod\n"
-	"       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
-	"       --f1 : Bond inner core (>0) [1.0]\n"
-	"       --f2 : Bond outer well (>0) [1.05]\n"
-	"       --f3 : Well width factor, values <= 1 use a hard sphere [1.5]\n"
-	"       --b1 : If set it drops a linear chain instead of a ring\n"
-	"  8:  Binary Hard Spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
-	"       --f2 : Mass Ratio (B/A) [0.001]\n"
-	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
-	"  9:  Hard needle system\n"
-	"       --f1 : Inelasticity [1.0]\n"
-	"       --f2 : Inertia multiplicative factor [1.0]\n"
-	"  10: Monocomponent hard spheres using DSMC interactions\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Inelasticity [1.0]\n"
-	"  12: Binary hard spheres using DSMC interactions\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Picks the g(r) to use (0:BMCSL, 1:VS, 2:HC2)\n"
-	"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
-	"       --f2 : Mass Ratio (B/A) [0.001]\n"
-	"       --f3 : Mol Fraction of large system (A) [0.95]\n"
-	"  13: Crystal pack of sheared lines\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-        "       --f1 : Inelasticity [1.0]\n"
-	"  14: Packing of spheres and linear rods made from stiff polymers\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Number of spheres in chain\n"
-        "       --f1 : Mol fraction of spheres [0.5]\n"
-        "       --f2 : Rod Length [1.0]\n"
-	"  15: Monocomponent hard-parallel cubes\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --b1 : If set it enables the single occupancy model\n"
-	"       --b2 : If set it bounds the system with mirrors\n"
-	"  16: Stepped Potential\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
-	"       --s1 : Sets the form of the stepped potential, list in r1,E1:r2,E2\n"
-	"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Sets the fraction of T(j,k) events [1/3rd] (do not use with b1/b2)\n"
-	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
-	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
-	"  18: Monocomponent sheared hard spheres using Ring DSMC interactions\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Inelasticity [0.9]\n"
-	"       --b1 : Sets chi12 to 1 [BMCSL]\n"
-	"       --b2 : Sets chi13 to 1 [BMCSL]\n"
-	"  19: Oscillating plates bounding a system\n"
-	"       --b1 : Makes the particle collisions not affect the plate\n"	
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Upper limit on the particles inserted [All]\n"
-	"       --f1 : Mass ratio [1]\n"
-	"       --f2 : Length in particle radii [4.5]\n"
-	"       --f3 : Hertz, if the unit of time is seconds [1]\n"
-	"       --f4 : Initial displacement [130]\n"
-	"       --f5 : Particle-Particle inelasticity [0.88]\n"
-	"       --f6 : Particle-Wall inelasticity [0.96]\n"
-	"       --f7 : Cross section area [0.96]\n"
-	"  20: Load a set of triangles and plate it with spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --s1 : File name to load the triangles from\n"
-	"       --f1 : Size scale factor of the spheres when checking for overlaps with triangles [1 = no scaling]\n"
-	"  21: Pack a cylinder with spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --f1 : Length over diameter of the cylinder\n"
-	"  22: Infinite system with spheres falling onto a plate with gravity\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"  23: Funnel test for static spheres in gravity\n"
-	"       --i1 : Number of rows to remove when making the cone hole [3]\n"	
-	"       --f1 : Height of the cone in particle diameters [10]\n"	
-	"       --f2 : Max radius of the cone in particle diameters [7.5]\n"	
-	"       --f3 : Elasticity of the particles [0.4]\n"	
-	"  24: Random walk of an isolated MJ model polymer\n"
-	"      (DOI:10.1002/(SICI)1097-0134(19990101)34:1<49::AID-PROT5>3.0.CO;2-L)\n"
-	"       --f1 : Diameter [1.6]\n"
-	"       --f2 : Well width factor [1.5]\n"
-	"       --f3 : Bond inner core [0.9]\n"
-	"       --f4 : Bond outer well [1.1]\n"
-	"       --s1 : Sequence to use [GVGTGSGRGQGVGTGSGRGQ]\n"
-	"  25: Funnel and cup simulation (with sleepy particles)\n"
-	"       --f1 : Elasticity [0.4]\n"
-	"       --f2 : Elastic Velocity [Disabled]\n"
-	"       --f3 : Sleep velocity [Disabled]\n"
-	"       --f4 : tc model time [Disabled]\n"
-	"       --f5 : If using a sleep velocity, this sets the periodic wake up time [Disabled]\n"
-	"  26: Polydisperse hard spheres\n"
-	"       --f1 : Sets the elasticity of the hard spheres\n"
-	"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	"       --i2 : Adds a temperature rescale event every x events\n"
-	"       --b1 : Installs the collision sentinel for low densities\n"
-	"       --b2 : Forces the use of non-morton cells in square systems\n"
-	;
-      std::cout << "\n";
-      exit(1);
-    }
-
   switch (vm["packer-mode"].as<size_t>())
     {
     case 0:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  0:  Monocomponent hard spheres\n"
+	      "       --f1 : Sets the elasticity of the hard spheres\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --i2 : Adds a temperature rescale event every x events\n"
+	      "       --b1 : Installs the collision sentinel for low densities\n"
+	      "       --b2 : Forces the use of non-morton cells in square systems\n";
+	      exit(1);
+	  }
 	//Pack of hard spheres
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
@@ -364,6 +211,18 @@ CIPPacker::initialise()
       }
     case 1:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  1:  Mono/Multi-component square wells\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Lambda [1.5] (well width factor)\n"
+	      "       --f2 : Well Depth (negative for square shoulders) [1]\n"
+	      "       --s1 : Instead of f1 and f2, you can specify a multicomponent system using this option.\n"
+	      "              Write \"diameter(d),lambda(l),mass(m),welldepth(e),molefrac(x):d,l,m,e,x[:...]\"\n";
+	      exit(1);
+	  }
 	//Pack of square well molecules
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
@@ -535,6 +394,19 @@ CIPPacker::initialise()
       }
     case 2:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  2:  Random walk of an isolated attractive polymer\n"
+	      "       --i1 : Chain length [20]\n"
+	      "       --f1 : Diameter [1.6]\n"
+	      "       --f2 : Well width factor [1.5]\n"
+	      "       --f3 : Bond inner core [0.9]\n"
+	      "       --f4 : Bond outer well [1.1]\n"
+	      "       --s1 : HP sequence to use (eg 0001010) [defaults to homopolymer if unset]\n";
+	      exit(1);
+	  }
 	//Random walk an isolated attractive homopolymer
 	size_t chainlength = 20;
 
@@ -673,6 +545,16 @@ CIPPacker::initialise()
       }
     case 3:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  3:  Load a config and pack it, you will need to reset the interactions etc.\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Chiral fraction (0-1) [Unloaded]\n"
+	      "       --s1 : File to load and use as unit cell [config.out.xml.bz2]\n";
+	      exit(1);
+	  }
 	//This packs a system using a file for the unit cell, the
 	//density should just be adjusted by hand
 	std::string fileName("config.out.xml.bz2");
@@ -745,6 +627,15 @@ CIPPacker::initialise()
       }
     case 4:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Inelasticity [1.0]\n";
+	      exit(1);
+	  }
 	//FCC simple cubic pack of hard spheres with inelasticity and shearing
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
@@ -805,6 +696,20 @@ CIPPacker::initialise()
       }
     case 5:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  5:  Walk an isolated spiral/helix\n"
+	      "       --i1 : Chain length [20]\n"
+	      "       --i2 : Ring length (atoms in one spiral turn)[9]\n"
+	      "       --f1 : Diameter [1.6]\n"
+	      "       --f2 : Well width factor [1.5]\n"
+	      "       --f3 : Bond inner core (>0) [0.9]\n"
+	      "       --f4 : Bond outer well (>0) [1.1]\n"
+	      "       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n";
+	      exit(1);
+	  }
 	//Helix/spiral layout of molecules
 	size_t chainlength = 20;
 
@@ -893,6 +798,14 @@ CIPPacker::initialise()
       }
     case 6:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells\n"
+	      "       --f1 : Elasticity of the particle and wall collisions [1]\n";
+	      exit(1);
+	  }
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle(), true));
 	packptr->initialise();
 
@@ -952,6 +865,18 @@ CIPPacker::initialise()
       }
     case 7:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  7:  Ring/Linear polymer, dropped as a straight rod\n"
+	      "       --i1 : Chain length (number supplied is multiplied by 2, e.g. default of 10 gives a 20mer) [10]\n"
+	      "       --f1 : Bond inner core (>0) [1.0]\n"
+	      "       --f2 : Bond outer well (>0) [1.05]\n"
+	      "       --f3 : Well width factor, values <= 1 use a hard sphere [1.5]\n"
+	      "       --b1 : If set it drops a linear chain instead of a ring\n";
+	      exit(1);
+	  }
 	//Just drops a ring polymer, you should crystalize it then
 	//pack it for bulk
 
@@ -1045,6 +970,17 @@ CIPPacker::initialise()
     case 8:
       {
 	//Pack of binary hard spheres
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  8:  Binary Hard Spheres\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
+	      "       --f2 : Mass Ratio (B/A) [0.001]\n"
+	      "       --f3 : Mol Fraction of large system (A) [0.95]\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr
 	  (new CURandomise(standardPackingHelper(new CUParticle())));
@@ -1128,6 +1064,16 @@ CIPPacker::initialise()
       }
     case 9:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  9:  Hard needle system\n"
+	      "       --f1 : Inelasticity [1.0]\n"
+	      "       --f2 : Inertia multiplicative factor [1.0]\n"
+	      ;
+	    exit(1);
+	  }
 	//Pack of lines
 	//Pack the system, determine the number of particles
 	CURandom packroutine(vm["NCells"].as<unsigned long>(),
@@ -1195,6 +1141,14 @@ CIPPacker::initialise()
       }
     case 10:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  10: Monocomponent hard spheres using DSMC interactions\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n";
+	      exit(1);
+	  }
 	//Pack of DSMC hard spheres
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
@@ -1267,6 +1221,16 @@ CIPPacker::initialise()
       {
 	//Pack of DSMC hard spheres
 	//Pack the system, determine the number of particles
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  11: Monocomponent hard spheres sheared using DSMC interactions\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Inelasticity [1.0]\n";
+	      exit(1);
+	  }
+
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
 
@@ -1334,6 +1298,18 @@ CIPPacker::initialise()
     case 12:
       {
 	//Pack of DSMC hard sphere mixture
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  12: Binary hard spheres using DSMC interactions\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --i2 : Picks the g(r) to use (0:BMCSL, 1:VS, 2:HC2)\n"
+	      "       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
+	      "       --f2 : Mass Ratio (B/A) [0.001]\n"
+	      "       --f3 : Mol Fraction of large system (A) [0.95]\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -1526,6 +1502,14 @@ CIPPacker::initialise()
       case 13:
       {
 	//Pack of lines
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "  13: Crystal pack of sheared lines\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Inelasticity [1.0]\n";
+	      exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	CURandom packroutine(vm["NCells"].as<unsigned long>(),
 			     Vector (1,1,1), Sim->uniform_sampler,
@@ -1574,6 +1558,17 @@ CIPPacker::initialise()
     case 14:
       {
 	//Pack of Mings system
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  14: Packing of spheres and linear rods made from stiff polymers\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --i2 : Number of spheres in chain\n"
+	      "       --f1 : Mol fraction of spheres [0.5]\n"
+	      "       --f2 : Rod Length [1.0]\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	double molfrac(0.5), massFrac(1.0), rodlength(1.0);
 	size_t chainlength(10);
@@ -1687,6 +1682,16 @@ CIPPacker::initialise()
     case 15:
       {
 	//Pack of hard spheres
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  15: Monocomponent hard-parallel cubes\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --b1 : If set it enables the single occupancy model\n"
+	      "       --b2 : If set it bounds the system with mirrors\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 
 	if (!vm.count("i1") || vm["i1"].as<size_t>() != 2)
@@ -1801,6 +1806,16 @@ CIPPacker::initialise()
     case 16:
       {
 	//Pack of Lennard Jones stepped molecules
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  16: Stepped Potential\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --i2 : Sets the level of overlinking in the cell lists [1]\n"
+	      "       --s1 : Sets the form of the stepped potential, list in r1,E1:r2,E2\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -1922,6 +1937,17 @@ CIPPacker::initialise()
     case 17:
       {
 	//Pack of Ring DSMC hard spheres
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  17: Monocomponent hard spheres using Ring DSMC interactions\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Sets the fraction of T(j,k) events [1/3rd] (do not use with b1/b2)\n"
+	      "       --b1 : Sets chi12 to 1 [BMCSL]\n"
+	      "       --b2 : Sets chi13 to 1 [BMCSL]\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -2004,7 +2030,17 @@ CIPPacker::initialise()
       }
     case 18:
       {
-	//Pack of Ring DSMC hard spheres
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  18: Monocomponent sheared hard spheres using Ring DSMC interactions\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Inelasticity [0.9]\n"
+	      "       --b1 : Sets chi12 to 1 [BMCSL]\n"
+	      "       --b2 : Sets chi13 to 1 [BMCSL]\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -2084,6 +2120,23 @@ CIPPacker::initialise()
       }
     case 19:
       {
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  19: Oscillating plates bounding a system\n"
+	      "       --b1 : Makes the particle collisions not affect the plate\n"	
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --i2 : Upper limit on the particles inserted [All]\n"
+	      "       --f1 : Mass ratio [1]\n"
+	      "       --f2 : Length in particle radii [4.5]\n"
+	      "       --f3 : Hertz, if the unit of time is seconds [1]\n"
+	      "       --f4 : Initial displacement [130]\n"
+	      "       --f5 : Particle-Particle inelasticity [0.88]\n"
+	      "       --f6 : Particle-Wall inelasticity [0.96]\n"
+	      "       --f7 : Cross section area [0.96]\n";
+	    exit(1);
+	  }
 	double L = 4.0;
 	if (vm.count("f2"))
 	  L = vm["f2"].as<double>();
@@ -2247,8 +2300,18 @@ CIPPacker::initialise()
     case 20:
       {
 	//Pack of hard spheres then check overlaps against a set of triangles
-	//Pack the system, determine the number of particles
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  20: Load a set of triangles and plate it with spheres\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --s1 : File name to load the triangles from\n"
+	      "       --f1 : Size scale factor of the spheres when checking for overlaps with triangles [1 = no scaling]\n";
+	    exit(1);
+	  }
 
+	//Pack the system, determine the number of particles
 	size_t N = boost::scoped_ptr<CUCell>(standardPackingHelper(new CUParticle()))
 	  ->placeObjects(Vector(0,0,0)).size();
 
@@ -2317,6 +2380,15 @@ CIPPacker::initialise()
     case 21:
       {
 	//Pack of hard spheres in a cylinder
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  21: Pack a cylinder with spheres\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --f1 : Length over diameter of the cylinder\n";
+	    exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -2403,6 +2475,14 @@ CIPPacker::initialise()
     case 22:
       {
 	//Pack of hard spheres on a plate
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  22: Infinite system with spheres falling onto a plate with gravity\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n";
+	      exit(1);
+	  }
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -2465,6 +2545,17 @@ CIPPacker::initialise()
     case 23:
       {
 	//Pack of hard spheres to form a funnel
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  23: Funnel test for static spheres in gravity\n"
+	      "       --i1 : Number of rows to remove when making the cone hole [3]\n"	
+	      "       --f1 : Height of the cone in particle diameters [10]\n"	
+	      "       --f2 : Max radius of the cone in particle diameters [7.5]\n"	
+	      "       --f3 : Elasticity of the particles [0.4]\n";
+	    exit(1);
+	  }
 
 	double H = 10;
 	if (vm.count("f1"))
@@ -2582,6 +2673,19 @@ CIPPacker::initialise()
     case 24:
       {
 	//An isolated MJ model polymer
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  24: Random walk of an isolated MJ model polymer\n"
+	      "      (DOI:10.1002/(SICI)1097-0134(19990101)34:1<49::AID-PROT5>3.0.CO;2-L)\n"
+	      "       --f1 : Diameter [1.6]\n"
+	      "       --f2 : Well width factor [1.5]\n"
+	      "       --f3 : Bond inner core [0.9]\n"
+	      "       --f4 : Bond outer well [1.1]\n"
+	      "       --s1 : Sequence to use [GVGTGSGRGQGVGTGSGRGQ]\n";
+	    exit(1);
+	  }
 	std::string stringseq =  "GVGTGSGRGQGVGTGSGRGQ";	
 	if (vm.count("s1"))
 	  stringseq = vm["s1"].as<std::string>();
@@ -3140,6 +3244,19 @@ CIPPacker::initialise()
     case 25:
       {
 	//Pack of hard spheres to form a funnel, slide and cup
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  25: Funnel and cup simulation (with sleepy particles)\n"
+	      "       --f1 : Elasticity [0.4]\n"
+	      "       --f2 : Elastic Velocity [Disabled]\n"
+	      "       --f3 : Sleep velocity [Disabled]\n"
+	      "       --f4 : tc model time [Disabled]\n"
+	      "       --f5 : If using a sleep velocity, this sets the periodic wake up time [Disabled]\n";
+	    exit(1);
+	  }
+
 	double elasticity = 0.4;
 	if (vm.count("f1"))
 	  elasticity = vm["f1"].as<double>();
@@ -3368,6 +3485,19 @@ CIPPacker::initialise()
     case 26:
       {
 	//Pack of polydispers hard spheres
+	if (vm.count("help"))
+	  {
+	    std::cout<<
+	      "Mode specific options:\n"
+	      "  26: Polydisperse hard spheres\n"
+	      "       --f1 : Sets the elasticity of the hard spheres\n"
+	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+	      "       --i2 : Adds a temperature rescale event every x events\n"
+	      "       --b1 : Installs the collision sentinel for low densities\n"
+	      "       --b2 : Forces the use of non-morton cells in square systems\n";
+	    exit(1);
+	  }
+
 	//Pack the system, determine the number of particles
 	boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
 	packptr->initialise();
@@ -3493,33 +3623,6 @@ CIPPacker::initialise()
     }
 
   Sim->N = Sim->particleList.size();
-}
-
-void
-CIPPacker::processOptions()
-{
-  if (vm.count("Thermostat"))
-    {
-      try {
-	System* thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
-
-	//Only one kind of thermostat so far!
-	if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
-	  M_throw() << "Could not upcast thermostat to Andersens";
-
-	static_cast<CSysGhost*>(thermostat)->setTemperature
-	  (vm["Thermostat"].as<double>() * Sim->dynamics.units().unitEnergy());
-      } catch (std::exception&)
-	{
-	  //No thermostat added yet
-	  Sim->dynamics.addSystem
-	    (new CSysGhost(Sim, 2.0, vm["Thermostat"].as<double>()
-			   * Sim->dynamics.units().unitEnergy(), "Thermostat"));
-	}
-
-      //Install a NVT Ensemble
-      Sim->ensemble.reset(new dynamo::EnsembleNVT(Sim));
-    }
 }
 
 Vector

@@ -37,8 +37,6 @@ class CIPPacker: public dynamo::SimBase
 
   static po::options_description getOptions();
 
-  void processOptions();
-
  protected:
   CVector<long> getCells();
   Vector  getNormalisedCellDimensions();

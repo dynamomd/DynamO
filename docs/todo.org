@@ -28,8 +28,10 @@
      - [ ] Make a interface class for render objects that share points with attached data.
 **** TODO Update the tutorials.
 *** Dynamo 1.2
-**** TODO Generalized scheduler for multiple neighborlists
+**** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Generalize the Morton ordered neighbour list.
+**** TODO Move Dynamos classes into its own folder in the src directory.
+**** TODO Move dynamo classes into the dynamo namespace.
 **** TODO Triangular Meshes
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
