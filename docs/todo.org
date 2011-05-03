@@ -21,13 +21,13 @@
 **** DONE *BUG* All Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
 **** DONE *BUG* Fix the segfault when a simulation closes coil through a shutdown.
 **** DONE *BUG* Fixed compression of shearing systems failing due to an incorrect rescaling of the box shift in the BC's.
-**** TODO *MAJOR* New dynamod mode (-m 26) - Polydisperse Hard Spheres
-**** TODO *MAJOR* Merge orientation and normal liouvillean
+**** DONE *MAJOR* New dynamod mode (-m 26) - Polydisperse Hard Spheres
 **** TODO *MAJOR* Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data.
      - [X] Implement volume renderer.
      - [X] Make a transfer function interface.
      - [ ] Make a interface class for render objects that share points with attached data.
+**** TODO *MAJOR* Merge orientation and normal liouvillean
 **** TODO Update the tutorials.
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists.

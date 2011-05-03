@@ -435,6 +435,7 @@
                               <object class="GtkImage" id="image2">
                                 <property name="visible">True</property>
                                 <property name="stock">gtk-delete</property>
+                                <property name="icon-size">3</property>
                               </object>
                             </child>
                           </object>
@@ -452,6 +453,7 @@
                               <object class="GtkImage" id="image3">
                                 <property name="visible">True</property>
                                 <property name="stock">gtk-edit</property>
+                                <property name="icon-size">3</property>
                               </object>
                             </child>
                           </object>
@@ -469,6 +471,7 @@
                               <object class="GtkImage" id="robjVisibleImg">
                                 <property name="visible">True</property>
                                 <property name="stock">gtk-yes</property>
+                                <property name="icon-size">3</property>
                               </object>
                             </child>
                           </object>
@@ -491,7 +494,7 @@
                   <object class="GtkHBox" id="hbox14">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkComboBoxEntry" id="comboboxentry1">
+                      <object class="GtkComboBoxEntry" id="robjOptions">
                         <property name="visible">True</property>
                       </object>
                       <packing>
@@ -508,6 +511,7 @@
                           <object class="GtkImage" id="image1">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">3</property>
                           </object>
                         </child>
                       </object>
