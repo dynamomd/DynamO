@@ -3489,11 +3489,24 @@ CIPPacker::initialise()
 	  {
 	    std::cout<<
 	      "Mode specific options:\n"
-	      "  26: Polydisperse (in)elastic hard spheres in LEBC (shearing)\n"
+	      "  26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)\n"
+	      "      Note: Generated particle diameters are restricted to the range (0,1].\n"
+	      "            Mass is distributed according to volume (constant density).\n"
+	      "            A particle with diameter of 1 has a mass of 1.\n"
 	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	      "       --f1 : Inelasticity [1.0]\n";
+	      "       --f2 : Mean size [0.5]\n";
+	      "       --f3 : Standard deviation [0.1]\n";
 	    exit(1);
 	  }
+
+	double mean = 0.5;
+	if (vm.count("f2"))
+	  mean = vm["f2"].as<double>();
+
+	double variance = 0.1;
+	if (vm.count("f3"))
+	  variance = vm["f3"].as<double>();
 
 	//FCC simple cubic pack of hard spheres with inelasticity and shearing
 	//Pack the system, determine the number of particles
@@ -3537,21 +3550,24 @@ CIPPacker::initialise()
 						       Property::Units::Mass(),
 						       "M", 1.0));
 
-	typedef boost::lognormal_distribution<double> Distribution;
-	const double mean = 0.5 * particleDiam;
-	const double variance = 0.2  * particleDiam;
+	typedef boost::normal_distribution<double> Distribution;
 	boost::variate_generator<dynamo::baseRNG&, Distribution>
 	  logsampler(Sim->ranGenerator, Distribution(mean, variance));
 
 	for (size_t i(0); i < latticeSites.size(); ++i)
 	  {
-	    double diameter(logsampler());
-	    while (diameter > particleDiam) { diameter = logsampler(); }
-	    
-	    D.as<ParticleProperty>().getProperty(i) = diameter;
+	    double diameter = logsampler();
+	    for (size_t attempt(0); ((diameter <= 0) || (diameter > 1)) && (attempt < 100); ++attempt)
+	      diameter = logsampler();
+
+	    if ((diameter <= 0) || (diameter > 1))
+	      M_throw() << "After 100 attempts, not a single valid particle diameter could be generated."
+			<< "Please recheck the distribution parameters";
+
+	    D.as<ParticleProperty>().getProperty(i) = diameter * particleDiam;
 	    
 	    //A particle with unit diameter has unit mass
-	    double mass = diameter * diameter * diameter / (particleDiam * particleDiam * particleDiam);
+	    double mass = diameter * diameter * diameter;
 	    
 	    M.as<ParticleProperty>().getProperty(i) = mass;
 	  }

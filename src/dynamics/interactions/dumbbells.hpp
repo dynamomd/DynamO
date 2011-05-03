@@ -69,7 +69,7 @@ public:
   virtual bool captureTest(const Particle&, const Particle&) const;
 
 protected:
-  magnet::thread::RefPtr<Property> _diameter;
   magnet::thread::RefPtr<Property> _length;
+  magnet::thread::RefPtr<Property> _diameter;
   magnet::thread::RefPtr<Property> _e;
 };

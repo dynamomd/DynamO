@@ -145,7 +145,7 @@ main(int argc, char *argv[])
 	    "  23: Funnel test for static spheres in gravity\n"
 	    "  24: Random walk of an isolated MJ model polymer\n"
 	    "  25: Funnel and cup simulation (with sleepy particles)\n"
-	    "  26: Polydisperse hard spheres\n";
+	    "  26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)\n";
 	  return 1;
 	}
 
