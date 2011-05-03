@@ -106,7 +106,7 @@ IntEvent
 ISoftCore::getEvent(const Particle &p1, 
 		     const Particle &p2) const 
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -134,7 +134,7 @@ ISoftCore::getEvent(const Particle &p1,
 	   .SphereSphereInRoot(colldat, d2,
 			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
     {
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
 	M_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
 		  << "\nparticle1 " << p1.getID() << ", particle2 " 

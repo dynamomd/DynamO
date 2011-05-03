@@ -262,7 +262,7 @@ public:
 
   inline void push(const intPart& tmpVal, const size_t& pID)
   {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (boost::math::isnan(tmpVal.dt))
       M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif 
@@ -279,7 +279,7 @@ public:
 
 //  inline const T& operator[](const size_t& a) const 
 //  {
-//#ifdef dynamo_DEBUG 
+//#ifdef DYNAMO_DEBUG 
 //    if (Min.empty())
 //      M_throw() << "Heap not yet sized";
 //#endif
@@ -289,7 +289,7 @@ public:
   
 //  inline T& operator[](const size_t& a) 
 //  {
-//#ifdef dynamo_DEBUG 
+//#ifdef DYNAMO_DEBUG 
 //    if (Min.empty())
 //      M_throw() << "Heap not yet sized";
 //#endif

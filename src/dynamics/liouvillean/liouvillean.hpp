@@ -150,7 +150,7 @@ public:
    *
    * \param d2 Square of the interaction distance
    *
-   * \return Whether the event will occur (Always false for LNewtonian
+   * \return Whether the event will occur (Always true for LNewtonian
    * but not for LCompression!)
    */
   virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const = 0;  

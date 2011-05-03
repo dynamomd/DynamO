@@ -73,7 +73,7 @@ bool
 LNOrientation::getLineLineCollision(CPDData& PD, const double& length, 
 				     const Particle& p1, const Particle& p2) const
 {  
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isUpToDate(p1))
     M_throw() << "Particle1 " << p1.getID() << " is not up to date";
 
@@ -218,7 +218,7 @@ LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const dou
 							  const Particle& p1, const Particle& p2) const
 
 {  
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isUpToDate(p1))
     M_throw() << "Particle1 " << p1.getID() << " is not up to date";
 

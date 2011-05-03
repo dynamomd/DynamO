@@ -223,7 +223,7 @@ OPTinkerXYZ::printFileImage()
       of << "\n";
     }
 
-#ifdef dynamo_GSL
+#ifdef DYNAMO_GSL
   if ( asprintf(&fileName, "tinker.frame%05d.r3d", frameCount++) < 0)
     M_throw() << "asprintf error in tinkerXYZ";
 

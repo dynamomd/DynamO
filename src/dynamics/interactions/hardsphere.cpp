@@ -95,7 +95,7 @@ IHardSphere::Clone() const
 IntEvent 
 IHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
 { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay1=" << Sim->dynamics.getLiouvillean().getParticleDelay(p1);
   
@@ -115,7 +115,7 @@ IHardSphere::getEvent(const Particle &p1, const Particle &p2) const
   if (Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
     {
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 

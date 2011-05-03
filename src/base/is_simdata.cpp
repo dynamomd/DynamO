@@ -97,7 +97,7 @@ namespace dynamo
     other.ptrScheduler->rebuildSystemEvents();    
 
     //Globals?
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (outputPlugins.size() != other.outputPlugins.size())
       std::cerr << "Error, could not swap output plugin lists as they are not equal in size";
 #endif
@@ -110,7 +110,7 @@ namespace dynamo
       
       while (iPtr1 != outputPlugins.end())
 	{
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 	  if (typeid(*(*iPtr1)) != typeid(*(*iPtr2)))
 	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif

@@ -59,7 +59,7 @@ public:
 
   inline const data& operator[](size_t a) const 
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (Min.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -69,7 +69,7 @@ public:
   
   inline data& operator[](size_t a) 
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (Min.empty())
       M_throw() << "Heap not yet sized";
 #endif

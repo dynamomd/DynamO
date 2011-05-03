@@ -100,7 +100,7 @@ CGPBCSentinel::runEvent(const Particle& part, const double) const
 {
   GlobalEvent iEvent(getEvent(part));
 
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);
@@ -120,7 +120,7 @@ CGPBCSentinel::runEvent(const Particle& part, const double) const
   cachedTimes[part.getID()] 
     = Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist);
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   iEvent.addTime(Sim->freestreamAcc);
   
   Sim->freestreamAcc = 0;

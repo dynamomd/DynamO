@@ -72,7 +72,7 @@ CSDumb::initialise()
 void 
 CSDumb::rebuildList()
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   initialise();
 #else
   sorter->clear();

@@ -235,7 +235,7 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 # include <coil/RenderObj/Function.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 

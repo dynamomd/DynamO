@@ -141,7 +141,7 @@ SSleep::particlesUpdated(const NEventData& PDat)
       if (p1.testState(Particle::DYNAMIC) && p2.testState(Particle::DYNAMIC)) continue; 
       
       //SP-[FC/SP/OSP]
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (!p1.testState(Particle::DYNAMIC) && !p2.testState(Particle::DYNAMIC))
 	M_throw() << "Static particles colliding!";
 #endif
@@ -234,7 +234,7 @@ SSleep::runEvent() const
 
   dt = HUGE_VAL;
     
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(locdt))
     M_throw() << "A NAN system event time has been found";
 #endif
@@ -255,7 +255,7 @@ SSleep::runEvent() const
       const Particle& part = Sim->particleList[p.first];
       Sim->dynamics.getLiouvillean().updateParticle(part);
       
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
       if (stateChange.find(part.getID()) == stateChange.end())
 	M_throw() << "Running an event for a particle with no state change!";
 #endif

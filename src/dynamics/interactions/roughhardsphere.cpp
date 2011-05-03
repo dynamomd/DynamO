@@ -96,7 +96,7 @@ IRoughHardSphere::Clone() const
 IntEvent 
 IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const 
 { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -104,7 +104,7 @@ IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const
     M_throw() << "Particle 2 is not up to date";
 #endif
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (p1 == p2)
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
@@ -119,7 +119,7 @@ IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const
       .SphereSphereInRoot(colldat, d2,
 			  p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
     {
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() << ", particle2 " 

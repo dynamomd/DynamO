@@ -247,7 +247,7 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
   //This doesn't stream the system as its a virtual event
 
   //Debug section
-#ifdef dynamo_WallCollDebug
+#ifdef DYNAMO_WallCollDebug
   {
     magnet::math::DilatedVector inCellv(oldCell);
     magnet::math::DilatedVector endCellv(endCell);

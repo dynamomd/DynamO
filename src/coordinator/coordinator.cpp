@@ -22,7 +22,7 @@
 #include "coordinator.hpp"
 #include "engine/include.hpp"
 #include <cstdio>
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 # include <typeinfo>
 #endif
 

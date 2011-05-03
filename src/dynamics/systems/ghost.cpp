@@ -83,7 +83,7 @@ CSysGhost::runEvent() const
 
   double locdt = dt;
   
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(locdt))
     M_throw() << "A NAN system event time has been found";
 #endif

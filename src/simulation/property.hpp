@@ -148,7 +148,7 @@ public:
   
   inline virtual const double& getProperty(size_t ID) const 
   { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (ID >= _values.size())
       M_throw() << "Out of bounds access to ParticleProperty \"" 
 		<< _name << "\", which has " << _values.size() 
@@ -159,7 +159,7 @@ public:
 
   inline virtual double& getProperty(size_t ID)
   { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     return _values.at(ID); 
 #endif
     return _values[ID]; 

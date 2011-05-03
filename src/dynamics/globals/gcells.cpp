@@ -278,7 +278,7 @@ CGCells::runEvent(const Particle& part, const double) const
 
   //Debug section
 
-#ifdef dynamo_WallCollDebug
+#ifdef DYNAMO_WallCollDebug
   {      
     CVector<int> tmp2 = cells[partCellData[part.getID()].cell].coords;
     CVector<int> tmp = cells[oldCell].coords;
@@ -433,7 +433,7 @@ CGCells::addCells(double maxdiam)
   //Required so particles find the right owning cell
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
 
-#ifdef dynamo_WallCollDebug
+#ifdef DYNAMO_WallCollDebug
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       CVector<int> cellcoords = getCoordsFromID(getCellID(part.getPosition()));

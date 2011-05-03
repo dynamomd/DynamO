@@ -71,7 +71,7 @@ void
 CSCENBList::getParticleNeighbourhood(const Particle& part, 
 				     const CGNeighbourList::nbHoodFunc& func) const
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isApplicable(part))
     M_throw() << "This complexNBlist entry ("
 	      << name << ") is not valid for this particle (" 
@@ -86,7 +86,7 @@ void
 CSCENBList::getParticleLocalNeighbourhood(const Particle& part, 
 					  const CGNeighbourList::nbHoodFunc& func) const
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isApplicable(part))
     M_throw() << "This complexNBlist entry ("
 	      << name << ") is not valid for this particle (" 

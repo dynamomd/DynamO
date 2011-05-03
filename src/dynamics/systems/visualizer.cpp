@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 
 #include "visualizer.hpp"
 #include "../../base/is_simdata.hpp"

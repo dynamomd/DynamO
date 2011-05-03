@@ -75,7 +75,7 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
       return;
     }
 
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
 	      << iEvent.stringData(Sim);
@@ -89,7 +89,7 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
 
   Sim->dynamics.getLiouvillean().enforceParabola(part);
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   iEvent.addTime(Sim->freestreamAcc);
   
   Sim->freestreamAcc = 0;

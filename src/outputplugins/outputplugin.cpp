@@ -123,7 +123,7 @@ OutputPlugin::getPlugin(const magnet::xml::Node& XML, const dynamo::SimData* Sim
     return testGeneratePlugin<OPReplexTrace>(Sim, XML);
   else if (!Name.compare("IntEnergyHist"))
     return testGeneratePlugin<OPIntEnergyHist>(Sim, XML);
-#ifdef dynamo_GSL
+#ifdef DYNAMO_GSL
   else if (!Name.compare("RadiusGyration"))
     return testGeneratePlugin<OPRGyration>(Sim, XML);
 #endif

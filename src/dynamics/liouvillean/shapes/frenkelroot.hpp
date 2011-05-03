@@ -38,21 +38,21 @@ std::pair<bool,double> quadRootHunter(const T& fL, double& t_low, double& t_high
 
       if(++w > 1000)
       {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 	std::cerr << "\nThe Frenkel rootfinder is converging too slowly."
 	  << "\nt_low = " << t_low << ", t_high = " << t_high;
 #endif
 
 	if(fabs(t_high - t_low) < timescale)
 	{
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 	  std::cerr << "\nThe gap is small enough to consider the root solved at t_low";
 #endif
 	  return std::pair<bool,double>(true, t_low);
 	}
 	else
 	{
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 	  std::cerr << "\nThe gap is too large and is converging too slowly."
 	    << "\n This rootfinding attempt will be aborted and a fake collision returned.";
 #endif

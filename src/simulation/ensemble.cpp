@@ -119,7 +119,7 @@ namespace dynamo {
   double 
   EnsembleNVT::exchangeProbability(const Ensemble& oE) const
   {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     try {
       dynamic_cast<const EnsembleNVT&>(oE);
     } catch (std::bad_cast)

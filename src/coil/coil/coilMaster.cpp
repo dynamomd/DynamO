@@ -57,7 +57,7 @@ void CoilMaster::bootRenderThread()
 void CoilMaster::CallBackDisplayFunc(){
    int windowID = glutGetWindow();   
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -69,7 +69,7 @@ void CoilMaster::CallBackCloseWindow()
 {
   int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -81,7 +81,7 @@ void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -93,7 +93,7 @@ void CoilMaster::CallBackKeyboardUpFunc(unsigned char key, int x, int y){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -105,7 +105,7 @@ void CoilMaster::CallBackMotionFunc(int x, int y){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -117,7 +117,7 @@ void CoilMaster::CallBackMouseFunc(int button, int state, int x, int y){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -129,7 +129,7 @@ void CoilMaster::CallBackMouseWheelFunc(int button, int dir, int x, int y){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -142,7 +142,7 @@ void CoilMaster::CallBackMouseWheelFunc(int button, int dir, int x, int y){
 void CoilMaster::CallBackPassiveMotionFunc(int x, int y){
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -154,7 +154,7 @@ void CoilMaster::CallBackReshapeFunc(int w, int h){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -166,7 +166,7 @@ void CoilMaster::CallBackSpecialFunc(int key, int x, int y){
 
   int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -178,7 +178,7 @@ void CoilMaster::CallBackSpecialUpFunc(int key, int x, int y){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif
@@ -190,7 +190,7 @@ void CoilMaster::CallBackVisibilityFunc(int visible){
 
    int windowID = glutGetWindow();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!CoilRegister::getCoilInstance()._viewPorts.count(windowID))
     M_throw() << "Missing viewport!";
 #endif

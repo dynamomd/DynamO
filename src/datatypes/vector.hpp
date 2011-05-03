@@ -144,7 +144,7 @@ class CVector
   /*! \brief Only defined for 3d but outputs the cross product. */  
   inline CVector<T> Cross(const CVector<T> &val)
   {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (NDIM != 3) 
       M_throw() << "Cross product defined only in 3D";
 #endif
@@ -202,7 +202,7 @@ class CVector
   /*! \brief Non-const accessor to a dimension of the vector */
   inline T & operator[] (const size_t &indx)
   {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (indx >= NDIM) M_throw() << "CVector out of bounds error";
 #endif
 
@@ -212,7 +212,7 @@ class CVector
   /*! \brief const accessor to a dimension of the vector */
   inline const T & operator[] (const size_t &indx) const
   {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (indx >= NDIM) M_throw() << "CVector out of bounds error";
 #endif
 

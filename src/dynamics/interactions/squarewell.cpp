@@ -120,7 +120,7 @@ ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
   
   double ld2 = d * l * d * l;
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   double d2 = d * d;
   if ((rij | rij) < d2)
     I_cerr() << "Warning! Two particles might be overlapping"
@@ -136,7 +136,7 @@ ISquareWell::getEvent(const Particle &p1,
 		       const Particle &p2) const 
 {
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -163,7 +163,7 @@ ISquareWell::getEvent(const Particle &p1,
 	  .SphereSphereInRoot(colldat, d2,
 			      p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
 	{
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	    M_throw() << "Overlapping particles found" 
@@ -186,7 +186,7 @@ ISquareWell::getEvent(const Particle &p1,
 	   .SphereSphereInRoot(colldat, ld2, 
 			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
     {
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
 	{
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))

@@ -90,7 +90,7 @@ CSNeighbourList::initialise()
 void 
 CSNeighbourList::rebuildList()
 { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   initialise();
 #else
   sorter->clear();
@@ -139,7 +139,7 @@ CSNeighbourList::addEvents(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
@@ -170,7 +170,7 @@ CSNeighbourList::addEventsInit(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)

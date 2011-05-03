@@ -212,7 +212,7 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
 
   retVal.rvdot *= retVal.rij.nrm();
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred"
 	      << "\ndeltaKE = " << deltaKE
@@ -250,7 +250,7 @@ double
 LCompression::getPBCSentinelTime(const Particle& part,
 				  const double& lMax) const
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif

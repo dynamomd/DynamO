@@ -156,7 +156,7 @@ IStepped::getEvent(const Particle &p1,
 		    const Particle &p2) const
 {
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -179,7 +179,7 @@ IStepped::getEvent(const Particle &p1,
       if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
 	  (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	{
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
 	  if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
 	    M_throw() << "Overlapping particles found" 
@@ -207,7 +207,7 @@ IStepped::getEvent(const Particle &p1,
 	      (colldat, d2, 
 	       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	    {
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
 	      //Check that there is no overlap 
 	      if (Sim->dynamics.getLiouvillean().sphereOverlap
 		  (colldat, runstepdata[capstat->second].first * l2scale))

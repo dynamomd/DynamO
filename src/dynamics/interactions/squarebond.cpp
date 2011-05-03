@@ -97,7 +97,7 @@ ISquareBond::captureTest(const Particle& p1, const Particle& p2) const
   
   double ld2 = d * l * d * l;
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   double d2 = d * d;
   if ((rij | rij) < d2)
     I_cerr() << "Warning! Two particles might be overlapping"
@@ -145,7 +145,7 @@ IntEvent
 ISquareBond::getEvent(const Particle &p1, 
 		       const Particle &p2) const 
 {    
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -171,7 +171,7 @@ ISquareBond::getEvent(const Particle &p1,
       .SphereSphereInRoot(colldat, d2,
 			  p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
     {
-#ifdef dynamo_OverlapTesting
+#ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
 	M_throw() << "Overlapping particles found" 
 		  << ", particle1 " << p1.getID() 
@@ -197,7 +197,7 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
 {
   ++Sim->eventCount;
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if ((iEvent.getType() != BOUNCE) && (iEvent.getType() != CORE))
     M_throw() << "Unknown type found";
 #endif

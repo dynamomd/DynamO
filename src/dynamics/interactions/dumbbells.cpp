@@ -125,7 +125,7 @@ IntEvent
 IDumbbells::getEvent(const Particle &p1,
 		  const Particle &p2) const 
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
     M_throw() << "Particle 1 is not up to date";
   
@@ -161,10 +161,11 @@ IDumbbells::getEvent(const Particle &p1,
       
       return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
-  else if (Sim->dynamics.getLiouvillean()
-	   .SphereSphereInRoot(colldat, (l + d) * (l + d),
-			       p1.testState(Particle::DYNAMIC), 
-			       p2.testState(Particle::DYNAMIC))) 
+  
+  if (Sim->dynamics.getLiouvillean()
+      .SphereSphereInRoot(colldat, (l + d) * (l + d),
+			  p1.testState(Particle::DYNAMIC), 
+			  p2.testState(Particle::DYNAMIC))) 
     return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
   
   return IntEvent(p1, p2, HUGE_VAL, NONE, *this);

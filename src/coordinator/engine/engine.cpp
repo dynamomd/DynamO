@@ -23,7 +23,7 @@
 #include "../../outputplugins/0partproperty/misc.hpp"
 #include "../../outputplugins/general/reverseEvents.hpp"
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 #include "../../dynamics/systems/visualizer.hpp"
 #endif
 void
@@ -41,7 +41,7 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
      "Random seed for generator (To make the simulation reproduceable - Not for production use!)")
     ("ticker-period,t",boost::program_options::value<double>(), 
      "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
-#ifdef dynamo_visualizer    
+#ifdef DYNAMO_visualizer    
     ("visualizer,V", boost::program_options::value<double>(), 
      "Enables the visualizer and sets the initial update frequency")
 #endif
@@ -100,7 +100,7 @@ Engine::setupSim(Simulation& Sim, const std::string filename)
   if (vm.count("scheduler-maintainance"))
     Sim.addSystem(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder"));
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
   if (vm.count("visualizer"))
     Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
 #endif  

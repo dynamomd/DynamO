@@ -71,7 +71,7 @@ CSSystemOnly::initialise()
 void
 CSSystemOnly::rebuildList()
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   initialise();
 #else
   if (Sim->dynamics.getSystemEvents().empty())

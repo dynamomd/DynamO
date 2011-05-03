@@ -318,7 +318,7 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
   //This doesn't stream the system as its a virtual event
 
   //Debug section
-#ifdef dynamo_WallCollDebug
+#ifdef DYNAMO_WallCollDebug
   {      
     CVector<int> tmp = cells[oldCell].coords;
     CVector<int> tmp2 = cells[endCell].coords;
@@ -355,7 +355,7 @@ CGCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
   size_t cellID = partCellData[part.getID()].cell;
   CVector<int> coords(cells[cellID].coords);
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if ((coords[1] != 0) && (coords[1] != cellCount[1] - 1))
     M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
 #endif 

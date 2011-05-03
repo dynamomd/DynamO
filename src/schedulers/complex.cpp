@@ -81,7 +81,7 @@ CSComplex::initialise()
 void 
 CSComplex::rebuildList()
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   initialise();
 #else
   BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)

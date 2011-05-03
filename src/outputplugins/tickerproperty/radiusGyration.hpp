@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifdef dynamo_GSL
+#ifdef DYNAMO_GSL
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"

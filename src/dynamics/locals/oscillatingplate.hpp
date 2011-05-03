@@ -52,13 +52,13 @@ public:
 
   const Vector& getCentre() const { return rw0; }
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
 #endif
 

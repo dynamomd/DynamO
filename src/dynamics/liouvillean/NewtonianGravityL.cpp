@@ -270,7 +270,7 @@ LNewtonianGravity::getSquareCellCollision2(const Particle& part,
   Vector vel(part.getVelocity());
   Sim->dynamics.BCs().applyBC(rpos, vel);
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
       M_throw() << "You have negative zero velocities, dont use them."
@@ -348,7 +348,7 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
   int retVal(0);
   double time(HUGE_VAL);
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
       M_throw() << "You have negative zero velocities, dont use them."
@@ -434,7 +434,7 @@ LNewtonianGravity::outputXML(xml::XmlStream& XML) const
 double 
 LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif
@@ -548,7 +548,7 @@ LNewtonianGravity::getCylinderWallCollision(const Particle& part,
 double 
 LNewtonianGravity::getParabolaSentinelTime(const Particle& part) const
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
     M_throw() << "Particle is not up to date";
 #endif
@@ -591,7 +591,7 @@ LNewtonianGravity::enforceParabola(const Particle& part) const
 	  }
       }
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dim >= NDIM) M_throw() << "Could not find a dimension to enforce the parabola in!";
 #endif
 

@@ -114,7 +114,7 @@ EReplicaExchangeSimulation::initialisation()
 	    break;
 	  }
       
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (!didWork)
 	{	 
 	  std::cout << "Could not find thermostat system event";
@@ -491,7 +491,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	      CStHalt* tmpRef = dynamic_cast<CStHalt*>
 		(Simulations[--i].getSystem("ReplexHalt"));
 		      
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 	      if (tmpRef == NULL)
 		M_throw() << "Could not find the time halt event error";
 #endif			

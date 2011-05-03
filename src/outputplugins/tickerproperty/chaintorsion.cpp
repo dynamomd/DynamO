@@ -49,7 +49,7 @@ OPCTorsion::changeSystem(OutputPlugin* plug)
 {
   std::swap(Sim, static_cast<OPCTorsion*>(plug)->Sim);
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
     M_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
@@ -60,7 +60,7 @@ OPCTorsion::changeSystem(OutputPlugin* plug)
   while(iPtr1 != chains.end())
     {
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
 	M_throw() << "Chain name mismatch when swapping chain plugins";
 #endif
@@ -84,7 +84,7 @@ OPCTorsion::ticker()
 	  if (range->size() < 3)//Need three for curv and torsion
 	    break;
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
 	  if (NDIM != 3)
 	    M_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif

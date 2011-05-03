@@ -187,7 +187,7 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
 	  * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
     }
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (boost::math::isnan(retVal.dP[0]))
     M_throw() << "A nan dp has ocurred";
 #endif

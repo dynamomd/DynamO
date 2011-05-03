@@ -28,7 +28,7 @@ OPReplexTrace::OPReplexTrace(const dynamo::SimData* t1, const magnet::xml::Node&
 void 
 OPReplexTrace::changeSystem(OutputPlugin* OPP)
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dynamic_cast<OPReplexTrace*>(OPP) == NULL)
     M_throw() << "Not the correct plugin to change System with";
 #endif

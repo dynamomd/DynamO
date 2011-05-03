@@ -149,7 +149,7 @@ namespace magnet {
      */
     inline T* operator->()
     { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -161,7 +161,7 @@ namespace magnet {
      */
     inline T& operator*()
     { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -174,7 +174,7 @@ namespace magnet {
     */
     inline T* release()
     { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -187,7 +187,7 @@ namespace magnet {
      */
     inline const T* operator->() const
     { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif
@@ -199,7 +199,7 @@ namespace magnet {
      */
     inline const T& operator*() const
     { 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (_obj == NULL)
 	M_throw() << "Attempting to dereference a null pluginpointer";
 #endif

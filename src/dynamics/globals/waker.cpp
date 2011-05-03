@@ -104,7 +104,7 @@ GWaker::runEvent(const Particle& part, const double dt) const
   iEvent.setdt(dt); //We only trust the schedulers time, as we don't
 		    //track the motion of the system in Globals
   
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
     M_throw() << "A NAN Interaction collision time has been found"
 	      << iEvent.stringData(Sim);

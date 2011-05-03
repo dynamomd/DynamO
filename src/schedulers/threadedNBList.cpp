@@ -79,7 +79,7 @@ SThreadedNBList::addEvents(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
@@ -113,7 +113,7 @@ SThreadedNBList::addEventsInit(const Particle& part)
     if (glob->isInteraction(part))
       sorter->push(glob->getEvent(part), part.getID());
   
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
@@ -143,7 +143,7 @@ struct NBlistData {
 void 
 SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
 {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)  M_throw() << "Not a CGNeighbourList!";
 #endif

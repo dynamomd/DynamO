@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 # include <gtkmm.h>
 # include <coil/RenderObj/Arrows.hpp>
 # include <memory>

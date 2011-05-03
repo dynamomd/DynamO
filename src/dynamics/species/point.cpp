@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 # include <coil/RenderObj/SphericalParticles.hpp>
 # include "../liouvillean/CompressionL.hpp"
 #endif
@@ -68,7 +68,7 @@ SpPoint::initialise()
 }
 
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 
 magnet::thread::RefPtr<RenderObj>& 
 SpPoint::getCoilRenderObj() const

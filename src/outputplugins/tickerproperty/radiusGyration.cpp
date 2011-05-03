@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef dynamo_GSL
+#ifdef DYNAMO_GSL
 #include "radiusGyration.hpp"
 #include "../../dynamics/include.hpp"
 #include "../../dynamics/ranges/1range.hpp"
@@ -75,14 +75,14 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 
   std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<OPRGyration*>(plug)->chains.begin();
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
   if (chains.size() != static_cast<OPRGyration*>(plug)->chains.size())
     M_throw() << "Size mismatch when exchanging!";
 #endif
 
   while (iPtr1 != chains.end())
     {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
       if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
 	M_throw() << "Name mismatch while replexing!";
 #endif

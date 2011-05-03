@@ -77,7 +77,7 @@ public:
 
   inline const T& operator[](idType a) const 
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -87,7 +87,7 @@ public:
   
   inline T& operator[](idType a) 
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -97,7 +97,7 @@ public:
 
   void init()
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 #endif
@@ -119,7 +119,7 @@ public:
   {
     CRanIt first = local_heap.begin();
 
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (data_stack.empty())
       M_throw() << "Heap not yet sized";
 
@@ -141,7 +141,7 @@ public:
 
   inline const T& next_Data() const
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (idMap.empty())
       M_throw() << "Heap not yet initialised";
 #endif
@@ -150,7 +150,7 @@ public:
 
   inline T& next_Data()
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (idMap.empty())
       M_throw() << "Heap not yet initialised";
 #endif
@@ -159,7 +159,7 @@ public:
 
   inline const idType next_ID() const
   {
-#ifdef dynamo_DEBUG 
+#ifdef DYNAMO_DEBUG 
     if (idMap.empty())
       M_throw() << "Heap not yet initialised";
 #endif

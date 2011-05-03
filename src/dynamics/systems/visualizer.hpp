@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 
 #include "system.hpp"
 #include <coil/clWindow.hpp>

@@ -103,7 +103,7 @@ protected:
 
   inline void addToCell(const int& ID, const int& cellID) const
   {
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (list.at(cellID) != -1)
       partCellData.at(list.at(cellID)).prev = ID;
     
@@ -133,7 +133,7 @@ protected:
     if (partCellData[ID].next != -1)
       partCellData[partCellData[ID].next].prev = partCellData[ID].prev;
 
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     partCellData[ID].cell = -1;
 #endif
   }

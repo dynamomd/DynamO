@@ -117,7 +117,7 @@ public:
   inline void push(const intPart& tmpVal, const size_t& pID)
   {
     //Exit early
-#ifdef dynamo_DEBUG
+#ifdef DYNAMO_DEBUG
     if (boost::math::isnan(tmpVal.dt))
       M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif

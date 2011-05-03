@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
 # include <coil/coilMaster.hpp>
 #endif
 
@@ -52,14 +52,14 @@ public:
   virtual double getScalarMomentOfInertia(size_t ID) const 
   { M_throw() << "Species has no intertia"; }
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::CL::CLGLState&) const;
 #endif
 
 protected:
 
-#ifdef dynamo_visualizer
+#ifdef DYNAMO_visualizer
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
   mutable magnet::thread::RefPtr<CoilRegister> _coil;
 #endif
