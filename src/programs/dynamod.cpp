@@ -177,21 +177,17 @@ main(int argc, char *argv[])
 
       if (vm.count("thermostat"))
 	{
-	  try {
-	    System* thermostat = sim.getSystem("thermostat");
-	    
-	    //Only one kind of thermostat so far!
-	    if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
-	      M_throw() << "Could not upcast thermostat to Andersens";
-	    
-	    static_cast<CSysGhost*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
-	  } catch (std::exception&)
+	  System* thermostat = sim.getSystem("Thermostat");
+	  if (thermostat == NULL)
 	    {
-	      //No thermostat added yet
-	      System* thermostat = new CSysGhost(&sim, 1.0, 1.0, "Thermostat");
-	      sim.addSystem(thermostat);
-	      static_cast<CSysGhost*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
+	      sim.addSystem(new CSysGhost(&sim, 1.0, 1.0, "Thermostat"));
+	      thermostat = sim.getSystem("Thermostat");
 	    }
+
+	  if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
+	    M_throw() << "Could not upcast thermostat to Andersens";
+	  
+	  static_cast<CSysGhost*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
 	  
 	  //Install a NVT Ensemble
 	  sim.getEnsemble().reset(new dynamo::EnsembleNVT(&sim));

@@ -15,6 +15,7 @@
 **** DONE *MINOR* Auto detect if outputted files should be compressed based off their file extension.
 **** DONE *MINOR* Removed the Geomview output plugin, the coil library supercedes these very old plugins.
 **** DONE *MINOR* Remove aspect ratio and instead load the primary image cell size.
+**** DONE *MINOR* Cleaned up dynamod's command line options and --help flag to make it more user friendly.
 **** DONE *API-CHANGE* Change HardCoreDiam() to be ExcludedVolume() in Interactions
 **** DONE *API-CHANGE* Renamed and document the CEnsemble class.
 **** DONE *BUG* Now both the length and time scales are rescaled after a compression. This holds the energy and velocity scales constant. The new properties framework has fixed several errors in the original rescaling.
