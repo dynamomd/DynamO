@@ -170,6 +170,8 @@ IStepped::getEvent(const Particle &p1,
   CPDData colldat(*Sim, p1, p2);  
   const_cmap_it capstat = getCMap_it(p1,p2);
 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+
   if (capstat == captureMap.end())
     {
       double d = steps.front().first * _unitLength->getMaxValue();
@@ -190,15 +192,13 @@ IStepped::getEvent(const Particle &p1,
 	      / Sim->dynamics.units().unitLength();
 #endif
 	  
-	  return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	  retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
 	}
     }
   else
     {
-
       //Within the potential, look for further capture or release
       //First check if there is an inner step to interact with
-      //Then check for that event first
       if (capstat->second < static_cast<int>(steps.size()))
 	{
 	  double d = steps[capstat->second].first * _unitLength->getMaxValue();
@@ -219,21 +219,22 @@ IStepped::getEvent(const Particle &p1,
 		  /Sim->dynamics.units().unitLength();
 #endif
 	      
-	      return IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
+	      retval = IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	    }
 	}
 
-      {
+      {//Now test for the outward step
 	double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
 	double d2 = d * d;
 	
 	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
 	    (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  if (retval.getdt() > colldat.dt)
+	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
       }
     }
 
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void

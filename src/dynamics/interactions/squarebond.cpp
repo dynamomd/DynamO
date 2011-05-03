@@ -166,6 +166,7 @@ ISquareBond::getEvent(const Particle &p1,
   
   double ld2 = d * l * d * l;
 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
   if (Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(colldat, d2,
@@ -178,17 +179,16 @@ ISquareBond::getEvent(const Particle &p1,
 		  << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif      
-      return IntEvent(p1, p2, colldat.dt, CORE, *this);
+      retval = IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
-  else
-    if (Sim->dynamics.getLiouvillean()
-	.SphereSphereOutRoot(colldat, ld2,
-			     p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-      {
-	return IntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
-      }
+
+  if (Sim->dynamics.getLiouvillean()
+      .SphereSphereOutRoot(colldat, ld2,
+			   p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+    if (retval.getdt() > colldat.dt)
+      retval = IntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
   
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void

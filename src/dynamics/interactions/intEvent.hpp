@@ -115,9 +115,9 @@ public:
   { return intID; }
 
 private:
-  const size_t  particle1;
-  const size_t  particle2;
+  size_t  particle1;
+  size_t  particle2;
   double dt;
   mutable EEventType CType;
-  const size_t intID;
+  size_t intID;
 };

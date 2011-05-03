@@ -248,6 +248,8 @@ ISWSequence::getEvent(const Particle &p1,
   
   double ld2 = d * l * d * l;
 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+
   if (isCaptured(p1, p2)) 
     {
       if (Sim->dynamics.getLiouvillean()
@@ -262,13 +264,14 @@ ISWSequence::getEvent(const Particle &p1,
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif	  
-	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
+	  retval = IntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
-      else
+      
 	if (Sim->dynamics.getLiouvillean()
 	    .SphereSphereOutRoot(colldat, ld2,
 				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  if (retval.getdt() > colldat.dt)
+	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
 	   .SphereSphereInRoot(colldat, ld2,
@@ -288,10 +291,10 @@ ISWSequence::getEvent(const Particle &p1,
 	  
 	}
 #endif
-      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+      retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void
