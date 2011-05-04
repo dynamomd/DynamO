@@ -3494,8 +3494,8 @@ CIPPacker::initialise()
 	      "            Mass is distributed according to volume (constant density).\n"
 	      "            A particle with diameter of 1 has a mass of 1.\n"
 	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-	      "       --f1 : Inelasticity [1.0]\n";
-	      "       --f2 : Mean size [0.5]\n";
+	      "       --f1 : Inelasticity [1.0]\n"
+	      "       --f2 : Mean size [0.5]\n"
 	      "       --f3 : Standard deviation [0.1]\n";
 	    exit(1);
 	  }
