@@ -1093,8 +1093,8 @@ CLGLWindow::CallBackDisplayFunc()
   else    
     {
       _renderTarget->attach();
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       _viewPortInfo->loadMatrices();
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawScene(*_renderTarget);
       _renderTarget->detach();
       _renderTarget->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());

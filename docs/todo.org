@@ -24,6 +24,7 @@
 **** DONE *BUG* Stepped potentials would not work for static & dynamic particle collisions.
 **** DONE *BUG* Fixed the segfault when a simulation closes coil through a shutdown.
 **** DONE *BUG* Fixed compression of shearing systems failing due to an incorrect rescaling of the box shift in the BC's.
+**** TODO *BUG* Fixed rendering on low end GPU's, the render target was not getting resized.
 **** TODO *MAJOR* Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data.
      - [X] Implement volume renderer.
