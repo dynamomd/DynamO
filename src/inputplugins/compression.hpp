@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -41,7 +41,7 @@ class CIPCompression: public CInputPlugin
    * \param sim The Simulation this plugin is in control of
    * \param cr The compression rate of the Simulation.
    */
-  CIPCompression(DYNAMO::SimData* sim, double cr);
+  CIPCompression(dynamo::SimData* sim, double cr);
 
   /*! \brief Stores the old CLiovillean and installs the LCompression.
    */  

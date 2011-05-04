@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CSCENBList::CSCENBList(const magnet::xml::Node& XML, DYNAMO::SimData* const nSim):
+CSCENBList::CSCENBList(const magnet::xml::Node& XML, dynamo::SimData* const nSim):
   CSCEntry(nSim, "ComplexNBlistEntry"),
   nblistID(std::numeric_limits<size_t>::max())
 {

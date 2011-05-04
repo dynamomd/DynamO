@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,7 +27,7 @@
 struct CUCylinder: public CUCell
 {
   CUCylinder(double partD, double cylD, Vector naxis,
-	     boost::uniform_01<DYNAMO::baseRNG, double>& rng, 
+	     boost::uniform_01<dynamo::baseRNG, double>& rng, 
 	     CUCell* nextCell):
     CUCell(nextCell),
     diameter(cylD),
@@ -39,7 +39,7 @@ struct CUCylinder: public CUCell
   double diameter;
   double minSpacing;
   Vector axis;
-  boost::uniform_01<DYNAMO::baseRNG, double>& uniformRng;
+  boost::uniform_01<dynamo::baseRNG, double>& uniformRng;
 
   virtual std::vector<Vector> placeObjects(const Vector & centre)
   {

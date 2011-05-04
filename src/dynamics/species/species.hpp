@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,11 +17,12 @@
 
 #pragma once
 
-#include <magnet/cloneptr.hpp>
 #include "../../base/is_base.hpp"
 #include "../ranges/1range.hpp"
-#include <string>
 #include "../coilRenderObj.hpp"
+#include "../../base/is_simdata.hpp"
+#include <magnet/cloneptr.hpp>
+#include <string>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
@@ -30,14 +31,14 @@ class Interaction;
 class RenderObj;
 namespace magnet { namespace GL { class CLGLState; } }
 
-class Species:public DYNAMO::SimBase, public CoilRenderObj
+class Species:public dynamo::SimBase, public CoilRenderObj
 {
 public:
   virtual ~Species() {}
 
   inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
 
-  inline const double& getMass() const { return mass; }
+  inline const double& getMass(size_t ID) const { return _mass->getProperty(ID); }
   inline unsigned long getCount() const { return range->size(); }
   inline unsigned int getID() const { return ID; }
   inline const std::string& getName() const { return spName; }
@@ -45,7 +46,7 @@ public:
   inline const magnet::ClonePtr<CRange>& getRange() const { return range; }
   inline const Interaction* getIntPtr() const { return IntPtr; }
   inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
-  virtual double getScalarMomentOfInertia() const = 0;
+  virtual double getScalarMomentOfInertia(size_t ID) const = 0;
 
   virtual void operator<<(const magnet::xml::Node&) = 0;
 
@@ -55,24 +56,25 @@ public:
   
   virtual Species* Clone() const = 0;
 
-  static Species* getClass(const magnet::xml::Node&, DYNAMO::SimData*, size_t);
-
-#ifdef DYNAMO_visualizer
-  virtual void updateColorObj(magnet::CL::CLGLState&) const = 0;
-#endif
+  static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
 
 protected:
-  Species(DYNAMO::SimData* tmp, std::string name, 
-	  CRange* nr, double nMass, std::string nName, 
+  template<class T1>
+  Species(dynamo::SimData* tmp, std::string name, 
+	  CRange* nr, T1 mass, std::string nName, 
 	  unsigned int nID, std::string nIName):
     SimBase(tmp,name, IC_blue),
-    mass(nMass),range(nr),spName(nName),intName(nIName),IntPtr(NULL),
+    _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
+    range(nr),
+    spName(nName),
+    intName(nIName),
+    IntPtr(NULL),
     ID(nID)
   {}
 
   virtual void outputXML(xml::XmlStream&) const = 0;
   
-  double mass;
+  magnet::thread::RefPtr<Property> _mass;
   magnet::ClonePtr<CRange> range;
   std::string spName;
   std::string intName;

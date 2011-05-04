@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,6 +35,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <iomanip>
+
+//! The configuration file version, a version mismatch prevents an XML file load.
+const char configFileVersion[] = "1.4.0";
 
 Simulation::Simulation():
   Base_Class("Simulation",IC_green)
@@ -235,8 +238,8 @@ Simulation::loadXMLfile(std::string fileName)
     M_throw() << "Loading config at wrong time, status = " << status;
   
   using namespace magnet::xml;
-  Document doc(fileName.c_str());  
-  Node mainNode = doc.getNode("DYNAMOconfig");
+  Document doc(fileName.c_str());
+  Node mainNode = doc.getNode("DynamOconfig");
 
   {
     std::string version(mainNode.getAttribute("version"));
@@ -273,16 +276,16 @@ Simulation::loadXMLfile(std::string fileName)
   I_cout() << "Loading Ensemble";
   if (subNode.getNode("Ensemble").valid())
     ensemble.reset
-      (DYNAMO::CEnsemble::getClass(subNode.getNode("Ensemble"), this));
+      (dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
   else
     //Try and determine the Ensemble
     try {
       dynamics.getSystem("Thermostat");
-      ensemble.reset(new DYNAMO::CENVT(this));
+      ensemble.reset(new dynamo::EnsembleNVT(this));
     }
     catch (std::exception&)
       {
-	ensemble.reset(new DYNAMO::CENVE(this));
+	ensemble.reset(new dynamo::EnsembleNVE(this));
       }
 
   I_cout() << "Loading Particle data";
@@ -308,14 +311,15 @@ Simulation::loadXMLfile(std::string fileName)
 }
 
 void
-Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
+Simulation::writeXMLfile(std::string fileName, bool round)
 {
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot write out configuration in this state";
   
   namespace io = boost::iostreams;
   io::filtering_ostream coutputFile;
-  if (!uncompressed) 
+
+  if (std::string(fileName.end()-4, fileName.end()) == ".bz2")
     coutputFile.push(io::bzip2_compressor());
   
   coutputFile.push(io::file_sink(fileName));
@@ -339,7 +343,7 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
     //This has a minus one due to the digit in front of the decimal
     //An extra one is added if we're rounding
       << std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
-      << xml::prolog() << xml::tag("DYNAMOconfig") 
+      << xml::prolog() << xml::tag("DynamOconfig") 
       << xml::attr("version") << configFileVersion
       << xml::tag("Simulation")
       << xml::tag("Trajectory")
@@ -370,7 +374,7 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
 
   dynamics.getLiouvillean().outputParticleXMLData(XML);
 
-  XML << xml::endtag("DYNAMOconfig");
+  XML << xml::endtag("DynamOconfig");
 
   I_cout() << "Config written to " << fileName;
 
@@ -387,7 +391,7 @@ Simulation::writeXMLfile(std::string fileName, bool round, bool uncompressed)
 }
 
 void
-Simulation::outputData(std::string filename, bool uncompressed)
+Simulation::outputData(std::string filename)
 {
   if (status < INITIALISED || status == ERROR)
     M_throw() << "Cannot output data when not initialised!";
@@ -395,7 +399,7 @@ Simulation::outputData(std::string filename, bool uncompressed)
   namespace io = boost::iostreams;
   io::filtering_ostream coutputFile;
   
-  if (!uncompressed)
+  if (std::string(filename.end()-4, filename.end()) == ".bz2")
     coutputFile.push(io::bzip2_compressor());
   
   coutputFile.push(io::file_sink(filename));
@@ -405,7 +409,6 @@ Simulation::outputData(std::string filename, bool uncompressed)
   
   XML << std::setprecision(std::numeric_limits<double>::digits10)
       << xml::prolog() << xml::tag("OutputData");
-  
   
   //Output the data and delete the outputplugins
   BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include <magnet/xmlwriter.hpp>
 
-LSLLOD::LSLLOD(DYNAMO::SimData* tmp):
+LSLLOD::LSLLOD(dynamo::SimData* tmp):
   Liouvillean(tmp)
 {}
 
@@ -77,8 +77,8 @@ LSLLOD::DSMCSpheresRun(const Particle& p1,
   retVal.rij = pdat.rij;
   retVal.rvdot = pdat.rvdot;
 
-  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double p1Mass = retVal.particle1_.getSpecies().getMass(p1.getID()); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass(p2.getID());
   double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
   retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
@@ -88,11 +88,11 @@ LSLLOD::DSMCSpheresRun(const Particle& p1,
   const_cast<Particle&>(p1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<Particle&>(p2).getVelocity() += retVal.dP / p2Mass;
 
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+  retVal.particle1_.setDeltaKE(0.5 * p1Mass
 			       * (p1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+  retVal.particle2_.setDeltaKE(0.5 * p2Mass
 			       * (p2.getVelocity().nrm2() 
 				  - retVal.particle2_.getOldVel().nrm2()));
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#ifdef DYNAMO_VTK
+#ifdef dynamo_VTK
 #include "field_array.hpp"
 
 #include <vtkFloatArray.h>
@@ -26,27 +26,27 @@
 #include <vtkPointData.h>
 #include <vtkXMLImageDataWriter.h>
 
-namespace DYNAMO
+namespace dynamo
 {
-  inline vtkImageData* getVTKImage(const DYNAMO::SimData* const Sim)
+  inline vtkImageData* getVTKImage(const dynamo::SimData* const Sim)
   {
     vtkImageData *vol = vtkImageData::New();
     vol->SetDimensions(NBins,NBins,NBins);
-    vol->SetOrigin(-0.5*Sim->aspectRatio[0],-0.5*Sim->aspectRatio[1],-0.5*Sim->aspectRatio[2]);
-    vol->SetSpacing(Sim->aspectRatio[0]/NBins, Sim->aspectRatio[1]/NBins, Sim->aspectRatio[2]/NBins);
+    vol->SetOrigin(-0.5*Sim->primaryCellSize[0],-0.5*Sim->primaryCellSize[1],-0.5*Sim->primaryCellSize[2]);
+    vol->SetSpacing(Sim->primaryCellSize[0]/NBins, Sim->primaryCellSize[1]/NBins, Sim->primaryCellSize[2]/NBins);
     
     return vol;
   }
   
-  inline vtkRectilinearGrid* getVTKRectilinearGrid(const DYNAMO::SimData* const Sim)
+  inline vtkRectilinearGrid* getVTKRectilinearGrid(const dynamo::SimData* const Sim)
   {
     vtkRectilinearGrid *rgrid = vtkRectilinearGrid::New();
     vtkFloatArray *xCoords = vtkFloatArray::New();
     vtkFloatArray *yCoords = vtkFloatArray::New();
     vtkFloatArray *zCoords = vtkFloatArray::New();
-    for (int i=0; i < NBins; i++) xCoords->InsertNextValue(i*(Sim->aspectRatio[0])/NBins - 0.5*(Sim->aspectRatio[0]));  
-    for (int i=0; i < NBins; i++) yCoords->InsertNextValue(i*Sim->aspectRatio[1]/NBins - 0.5*Sim->aspectRatio[1]);  
-    for (int i=0; i < NBins; i++) zCoords->InsertNextValue(i*Sim->aspectRatio[2]/NBins - 0.5*Sim->aspectRatio[2]);
+    for (int i=0; i < NBins; i++) xCoords->InsertNextValue(i*(Sim->primaryCellSize[0])/NBins - 0.5*(Sim->primaryCellSize[0]));  
+    for (int i=0; i < NBins; i++) yCoords->InsertNextValue(i*Sim->primaryCellSize[1]/NBins - 0.5*Sim->primaryCellSize[1]);  
+    for (int i=0; i < NBins; i++) zCoords->InsertNextValue(i*Sim->primaryCellSize[2]/NBins - 0.5*Sim->primaryCellSize[2]);
     
     rgrid->SetDimensions(NBins,NBins,NBins);
     rgrid->SetXCoordinates(xCoords);

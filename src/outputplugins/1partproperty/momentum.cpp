@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPMomentum::OPMomentum(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPMomentum::OPMomentum(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OP1PP(tmp,"Momentum", 250),
   accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
 {}
@@ -38,7 +38,7 @@ OPMomentum::initialise()
 
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     BOOST_FOREACH(const size_t& ID, *spec->getRange())
-    sysMom += spec->getMass() * Sim->particleList[ID].getVelocity();
+    sysMom += spec->getMass(ID) * Sim->particleList[ID].getVelocity();
 }
 
 void 

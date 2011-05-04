@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 class CSNBListCompressionFix: public System
 {
 public:
-  CSNBListCompressionFix(DYNAMO::SimData*, double, size_t);
+  CSNBListCompressionFix(dynamo::SimData*, double, size_t);
   
   virtual System* Clone() const { return new CSNBListCompressionFix(*this); }
 

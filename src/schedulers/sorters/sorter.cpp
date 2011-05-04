@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,12 +20,12 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CSSorter::CSSorter(const DYNAMO::SimData* const& SD, const char *aName):
+CSSorter::CSSorter(const dynamo::SimData* const& SD, const char *aName):
   SimBase_const(SD, aName, IC_white_brown)
 {}
 
 CSSorter* 
-CSSorter::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
+CSSorter::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
 {
   if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<pList>::name())
     return new CSSBoundedPQ<>(Sim);

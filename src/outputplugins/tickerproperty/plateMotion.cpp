@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -29,7 +29,7 @@
 #include <boost/foreach.hpp>
 #include <fstream>
 
-OPPlateMotion::OPPlateMotion(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPPlateMotion::OPPlateMotion(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"PlateMotion"),
   partpartEnergyLoss(0),
   oldPlateEnergy(0)
@@ -125,7 +125,7 @@ OPPlateMotion::ticker()
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
       Vector pos(part.getPosition()), vel(part.getVelocity());
-      double pmass(Sim->dynamics.getSpecies(part).getMass());
+      double pmass(Sim->dynamics.getSpecies(part).getMass(part.getID()));
       Sim->dynamics.BCs().applyBC(pos, vel);
       momentum += vel * pmass;
       sqmom += (vel | vel) * (pmass * pmass);

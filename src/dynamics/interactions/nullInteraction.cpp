@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,10 +22,10 @@
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
-INull::INull(DYNAMO::SimData* tmp, C2Range* nR):
+INull::INull(dynamo::SimData* tmp, C2Range* nR):
   Interaction(tmp, nR) {}
 
-INull::INull(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+INull::INull(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp, NULL)
 {
   operator<<(XML);
@@ -51,14 +51,6 @@ INull::operator<<(const magnet::xml::Node& XML)
       M_throw() << "Failed a lexical cast in CINull";
     }
 }
-
-double 
-INull::maxIntDist() const 
-{ return 0; }
-
-double 
-INull::hardCoreDiam() const 
-{ return 0; }
 
 Interaction* 
 INull::Clone() const 

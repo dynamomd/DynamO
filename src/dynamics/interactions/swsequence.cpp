@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,11 +33,9 @@
 #include <cmath>
 #include <iomanip>
 
-ISWSequence::ISWSequence(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL) //A temporary value!
-{
-  operator<<(XML);
-}
+ISWSequence::ISWSequence(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp, NULL) //A temporary value!
+{ operator<<(XML); }
 
 void 
 ISWSequence::outputXML(xml::XmlStream& XML) const
@@ -143,6 +141,18 @@ ISWSequence::Clone() const
 { return new ISWSequence(*this); }
 
 double 
+ISWSequence::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+ISWSequence::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
+double 
 ISWSequence::getInternalEnergy() const 
 { 
   //Once the capture maps are loaded just iterate through that determining energies
@@ -152,14 +162,20 @@ ISWSequence::getInternalEnergy() const
   BOOST_FOREACH(const locpair& IDs, captureMap)
     Energy += alphabet
     [sequence[IDs.first % sequence.size()]]
-    [sequence[IDs.second % sequence.size()]] * _unitEnergy->getMaxValue();
+    [sequence[IDs.second % sequence.size()]] 
+    * 0.5 * (_unitEnergy->getProperty(IDs.first)
+	     +_unitEnergy->getProperty(IDs.second));
   
   return -Energy; 
 }
 
 double 
-ISWSequence::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
+ISWSequence::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
+
 
 double 
 ISWSequence::maxIntDist() const 
@@ -169,12 +185,14 @@ void
 ISWSequence::initialise(size_t nID)
 {
   ID = nID;
-  ISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap(Sim->particleList);
 }
 
 bool 
 ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
 
@@ -230,6 +248,8 @@ ISWSequence::getEvent(const Particle &p1,
   
   double ld2 = d * l * d * l;
 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+
   if (isCaptured(p1, p2)) 
     {
       if (Sim->dynamics.getLiouvillean()
@@ -244,13 +264,14 @@ ISWSequence::getEvent(const Particle &p1,
 		      << ", particle2 " 
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif	  
-	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
+	  retval = IntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
-      else
+      
 	if (Sim->dynamics.getLiouvillean()
 	    .SphereSphereOutRoot(colldat, ld2,
 				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  if (retval.getdt() > colldat.dt)
+	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
 	   .SphereSphereInRoot(colldat, ld2,
@@ -270,10 +291,10 @@ ISWSequence::getEvent(const Particle &p1,
 	  
 	}
 #endif
-      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+      retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void

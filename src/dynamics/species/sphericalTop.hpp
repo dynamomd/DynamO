@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,14 +22,15 @@
 class SpSphericalTop: public SpInertia
 {
 public:
-  SpSphericalTop(DYNAMO::SimData*, CRange*, double nMass, std::string nName, 
+  SpSphericalTop(dynamo::SimData*, CRange*, double nMass, std::string nName, 
 		 unsigned int ID, double iC, std::string nIName="Bulk");
   
-  SpSphericalTop(const magnet::xml::Node&, DYNAMO::SimData*, unsigned int ID);
+  SpSphericalTop(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
 
   virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
-  virtual double getScalarMomentOfInertia() const { return inertiaConstant * mass; }
+  virtual double getScalarMomentOfInertia(size_t ID) const 
+  { return inertiaConstant * getMass(ID); }
 
   virtual void operator<<(const magnet::xml::Node&);
 

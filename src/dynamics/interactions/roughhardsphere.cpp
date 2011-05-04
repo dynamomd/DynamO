@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@
 #include <cmath>
 #include <iomanip>
 
-IRoughHardSphere::IRoughHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+IRoughHardSphere::IRoughHardSphere(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp,NULL)
 {
   operator<<(XML);
@@ -70,8 +70,24 @@ IRoughHardSphere::maxIntDist() const
 { return _diameter->getMaxValue(); }
 
 double 
-IRoughHardSphere::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
+IRoughHardSphere::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
+
+double 
+IRoughHardSphere::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+IRoughHardSphere::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
 
 Interaction* 
 IRoughHardSphere::Clone() const 

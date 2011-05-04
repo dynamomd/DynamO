@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,31 +22,24 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-ICapture::ICapture(DYNAMO::SimData* tmp,C2Range* nR): 
-  Interaction(tmp,nR)
-{}
-
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
 void 
-ISingleCapture::initCaptureMap()
+ISingleCapture::initCaptureMap(const std::vector<Particle>& particleList)
 {
   //If not loaded or invalidated
   if (noXmlLoad)
-    {      
-      I_cout() << "Capture map reinitialising";
-      
+    {
       captureMap.clear();
       
-      for (std::vector<Particle>::const_iterator iPtr 
-	     = Sim->particleList.begin();
-	   iPtr != Sim->particleList.end(); iPtr++) 
+      for (std::vector<Particle>::const_iterator iPtr
+	     = particleList.begin();
+	   iPtr != particleList.end(); iPtr++)
 	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
-	     iPtr2 != Sim->particleList.end(); iPtr2++)
-	  if (&(*(Sim->dynamics.getInteraction(*iPtr, *iPtr2))) == this)
-	    if (captureTest(*iPtr,*iPtr2))	      
-	      addToCaptureMap(*iPtr, *iPtr2); 
+	     iPtr2 != particleList.end(); iPtr2++)
+	  if (captureTest(*iPtr,*iPtr2))
+	    addToCaptureMap(*iPtr, *iPtr2);
     }
 }
 
@@ -55,15 +48,7 @@ ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
 {
   if (XML.getNode("CaptureMap").valid())
     {
-      if (!XML.getNode("CaptureMap").getAttribute("Size").valid())
-	{
-	  I_cout() << "Could not find size in capture map";
-	  noXmlLoad = true;
-	  return;
-	}
-
       noXmlLoad = false;
-
       captureMap.clear();
 
       for (magnet::xml::Node node = XML.getNode("CaptureMap").getNode("Pair");
@@ -76,7 +61,7 @@ ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
 void 
 ISingleCapture::outputCaptureMap(xml::XmlStream& XML) const 
 {
-  XML << xml::tag("CaptureMap") << xml::attr("Size") << Sim->N;
+  XML << xml::tag("CaptureMap");
 
   typedef std::pair<size_t, size_t> locpair;
 
@@ -140,27 +125,24 @@ ISingleCapture::removeFromCaptureMap(const Particle& p1, const Particle& p2) con
 //////////////////////////////////////////////////////
 
 void 
-IMultiCapture::initCaptureMap()
+IMultiCapture::initCaptureMap(const std::vector<Particle>& particleList)
 {
   //If not loaded or invalidated
   if (noXmlLoad)
     {      
-      I_cout() << "Capture map reinitialising";
-      
       captureMap.clear();
       
       for (std::vector<Particle>::const_iterator iPtr 
-	     = Sim->particleList.begin();
-	   iPtr != Sim->particleList.end(); iPtr++) 
+	     = particleList.begin();
+	   iPtr != particleList.end(); iPtr++) 
 	for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
-	     iPtr2 != Sim->particleList.end(); iPtr2++)
-	  if (&(*(Sim->dynamics.getInteraction(*iPtr, *iPtr2))) == this)
-	    {
-	      int capval = captureTest(*iPtr,*iPtr2);
-	      if (captureTest(*iPtr,*iPtr2))
-		captureMap[cMapKey(iPtr->getID(), iPtr2->getID())] 
-		  = capval; 
-	    }
+	     iPtr2 != particleList.end(); iPtr2++)
+	  {
+	    int capval = captureTest(*iPtr,*iPtr2);
+	    if (captureTest(*iPtr,*iPtr2))
+	      captureMap[cMapKey(iPtr->getID(), iPtr2->getID())] 
+		= capval; 
+	  }
     }
 }
 
@@ -169,13 +151,6 @@ IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
 {
   if (XML.getNode("CaptureMap").valid())
     {
-      if (!XML.getNode("CaptureMap").getAttribute("Size").valid())
-	{
-	  I_cout() << "Could not find size in capture map";
-	  noXmlLoad = true;
-	  return;
-	}
-
       noXmlLoad = false;
       captureMap.clear();
 
@@ -190,7 +165,7 @@ IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
 void 
 IMultiCapture::outputCaptureMap(xml::XmlStream& XML) const 
 {
-  XML << xml::tag("CaptureMap") << xml::attr("Size") << Sim->N;
+  XML << xml::tag("CaptureMap");
 
   typedef std::pair<const cMapKey, int> locpair;
 

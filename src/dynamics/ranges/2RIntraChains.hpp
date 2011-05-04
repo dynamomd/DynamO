@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 class C2RIntraChains:public C2Range
 {
 public:
-  C2RIntraChains(const magnet::xml::Node&, const DYNAMO::SimData*);
+  C2RIntraChains(const magnet::xml::Node&, const dynamo::SimData*);
 
   //Start, End, Interval
   C2RIntraChains(unsigned long, unsigned long, unsigned long);

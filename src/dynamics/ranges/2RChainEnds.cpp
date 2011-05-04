@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,7 +20,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-C2RChainEnds::C2RChainEnds(const magnet::xml::Node& XML, const DYNAMO::SimData*):
+C2RChainEnds::C2RChainEnds(const magnet::xml::Node& XML, const dynamo::SimData*):
   rangeStart(0),rangeEnd(0), interval(0) 
 { 
   if (strcmp(XML.getAttribute("Range"),"ChainEnds"))

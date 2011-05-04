@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPMSDCorrelator::OPMSDCorrelator(const DYNAMO::SimData* tmp, 
+OPMSDCorrelator::OPMSDCorrelator(const dynamo::SimData* tmp, 
 				 const magnet::xml::Node& XML):
   OPTicker(tmp,"MSDCorrelator"),
   length(20),
@@ -106,10 +106,9 @@ OPMSDCorrelator::accPass()
 
       BOOST_FOREACH(const size_t& ID, *range)
 	{
-	  molCOM += posHistory[ID][0] 
-	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass();
-
-	  molMass += Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass();
+	  double mass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	  molCOM += posHistory[ID][0] * mass;
+	  molMass += mass;
 	}
 
       molCOM /= molMass;
@@ -120,7 +119,7 @@ OPMSDCorrelator::accPass()
 	  
 	  BOOST_FOREACH(const size_t& ID, *range)
 	    molCOM2 += posHistory[ID][step] 
-	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass();
+	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
 	  
 	  molCOM2 /= molMass;
 	  

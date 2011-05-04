@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,8 +23,8 @@
 class CLOscillatingPlate: public Local, public CoilRenderObj
 {
 public:
-  CLOscillatingPlate(const magnet::xml::Node&, DYNAMO::SimData*);
-  CLOscillatingPlate(DYNAMO::SimData*, Vector, Vector, double, 
+  CLOscillatingPlate(const magnet::xml::Node&, dynamo::SimData*);
+  CLOscillatingPlate(dynamo::SimData*, Vector, Vector, double, 
 		     double, double, double, double, std::string, CRange*, 
 		     double timeshift = 0, bool nstrongPlate = false);
 

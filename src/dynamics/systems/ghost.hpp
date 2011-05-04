@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,9 +27,9 @@
 class CSysGhost: public System
 {
 public:
-  CSysGhost(const magnet::xml::Node& XML, DYNAMO::SimData*);
+  CSysGhost(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  CSysGhost(DYNAMO::SimData*, double, double, std::string);
+  CSysGhost(dynamo::SimData*, double, double, std::string);
   
   virtual System* Clone() const { return new CSysGhost(*this); }
 
@@ -42,11 +42,12 @@ public:
   double getTemperature() const { return Temp; }
   double getReducedTemperature() const;
   void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
+  void setReducedTemperature(double nT);
   
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
-  mutable boost::variate_generator<DYNAMO::baseRNG&, 
+  mutable boost::variate_generator<dynamo::baseRNG&, 
 				   boost::uniform_real<> > uniformRand;  
   mutable double meanFreeTime;
   double Temp, sqrtTemp;

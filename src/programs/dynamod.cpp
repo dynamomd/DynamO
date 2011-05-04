@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -47,39 +47,62 @@ main(int argc, char *argv[])
   ////////////////////////PROGRAM OPTIONS!!!!!!!!!!!!!!!!!!!!!!!
   try 
     {
-      po::options_description allopts("General Options"), loadopts("Load Config File Options");
-      
+      po::options_description allopts("General Options"), loadopts("Load Config File Options"),
+	hiddenopts("Packing Mode Options (description of each for each mode is given by --packer-mode-help)"),
+	helpOpts;
+
       allopts.add_options()
-	("help", "Produces this message.")
+	("help,h", "Produces this message OR if --packer-mode/-m is set, it lists the specific options available for that packer mode.")
 	("out-config-file,o", 
 	 po::value<string>()->default_value("config.out.xml.bz2"), 
 	 "Configuration output file.")
 	("random-seed,s", po::value<unsigned int>(),
-	 "Random seed for generator.")
-	("packfrac,P", po::value<double>(), 
-	 "Rescale lengths to set the packing fraction.")
+	 "Seed value for the random number generator.")
 	("rescale-T,r", po::value<double>(), 
-	 "Rescale kinetic temperature to this value.")
-	("zero-momentum,Z", "Zero the momentum.")
-	("zero-com", "Zero the centre of mass.")
-	("zero-vel", po::value<size_t>(), "Set all particles velocity component (arg) to zero.")
+	 "Rescales the kinetic temperature of the input/generated config to this value.")
+	("thermostat,T", po::value<double>(),
+	 "Change the thermostat temperature (will add a thermostat and set the Ensemble to NVT if needed).")
+	("zero-momentum,Z", "Zeros the total momentum of the input/generated config.")
+	("zero-com", "Zeros the centre of mass of the input/generated config.")
+	("zero-vel", po::value<size_t>(), "Sets the velocity in the [arg=0,1,or 2] dimension of each particle to zero.")
 	("set-com-vel", po::value<std::string>(), 
 	 "Sets the velocity of the COM of the system (format x,y,z no spaces).")
 	("mirror-system,M",po::value<unsigned int>(), 
-	 "Mirror the particle co-ordinates and velocities. Argument is "
+	 "Mirrors the particle co-ordinates and velocities. Argument is "
 	 "dimension to reverse/mirror.")
-	("round", "Output the XML config file with one less digit to aid in removing rounding errors for"
-	 " test systems.")
-	("uncompressed", "Output the XML config file without bzip compression.")
+	("round", "Output the XML config file with one less digit of accuracy to remove"
+	 "rounding errors (used in the test harness).")
 	;
 
       loadopts.add_options()
 	("config-file", po::value<string>(), 
 	 "Config file to initialise from (Non packer mode).")
 	;
-       
+      
+      
+      helpOpts.add(allopts);
+      helpOpts.add(CIPPacker::getOptions());
+             
       allopts.add(loadopts);
       allopts.add(CIPPacker::getOptions());
+      
+      hiddenopts.add_options()
+	("b1", "boolean option one.")
+	("b2", "boolean option two.")
+	("i1", po::value<size_t>(), "integer option one.")
+	("i2", po::value<size_t>(), "integer option two.")
+	("s1", po::value<std::string>(), "string option one.")
+	("s2", po::value<std::string>(), "string option two.")
+	("f1", po::value<double>(), "double option one.")
+	("f2", po::value<double>(), "double option two.")
+	("f3", po::value<double>(), "double option three.")
+	("f4", po::value<double>(), "double option four.")
+	("f5", po::value<double>(), "double option five.")
+	("f6", po::value<double>(), "double option six.")
+	("f7", po::value<double>(), "double option seven.")
+	;
+
+      allopts.add(hiddenopts);
 
       po::positional_options_description p;
       p.add("config-file", 1);
@@ -89,15 +112,40 @@ main(int argc, char *argv[])
 		options(allopts).positional(p).run(), vm);
       po::notify(vm);
       
-      if ((vm.count("help") 
-	   || (!vm.count("packer-mode") 
-	       && !vm.count("config-file")))
-	  && !vm.count("packer-mode-help"))
+      if ((!vm.count("packer-mode")
+	   && (vm.count("help") || !vm.count("config-file"))))
 	{
-	  cout << "Usage : dynamod <OPTION>...[CONFIG FILE]\n"
-	       << " Modifies a config file (if provided) or generates a new"
-	    " config file\n" << allopts << "\n";
-
+	  cout << "Usage : dynamod <OPTIONS>...[CONFIG FILE]\n"
+	       << " Either modifies a config file (if a file name is passed as an argument) OR generates a new config file depending on the packing mode (if --packer-mode/-m is used).\n" 
+	       << helpOpts
+	       << "\nPacker Modes (used with --packer-mode/-m X):\n"
+	    "  0:  Monocomponent hard spheres\n"
+	    "  1:  Mono/Multi-component square wells\n"
+	    "  2:  Random walk of an isolated attractive polymer\n"
+	    "  3:  Load a config and pack it, you will need to reset the interactions etc.\n"
+	    "  4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
+	    "  5:  Walk an isolated spiral/helix\n"
+	    "  6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells\n"
+	    "  7:  Ring/Linear polymer, dropped as a straight rod\n"
+	    "  8:  Binary Hard Spheres\n"
+	    "  9:  Hard needle system\n"
+	    "  10: Monocomponent hard spheres using DSMC interactions\n"
+	    "  11: Monocomponent hard spheres sheared using DSMC interactions\n"
+	    "  12: Binary hard spheres using DSMC interactions\n"
+	    "  13: Crystal pack of sheared lines\n"
+	    "  14: Packing of spheres and linear rods made from stiff polymers\n"
+	    "  15: Monocomponent hard-parallel cubes\n"
+	    "  16: Stepped Potential\n"
+	    "  17: Monocomponent hard spheres using Ring DSMC interactions\n"
+	    "  18: Monocomponent sheared hard spheres using Ring DSMC interactions\n"
+	    "  19: Oscillating plates bounding a system\n"
+	    "  20: Load a set of triangles and plate it with spheres\n"
+	    "  21: Pack a cylinder with spheres\n"
+	    "  22: Infinite system with spheres falling onto a plate with gravity\n"
+	    "  23: Funnel test for static spheres in gravity\n"
+	    "  24: Random walk of an isolated MJ model polymer\n"
+	    "  25: Funnel and cup simulation (with sleepy particles)\n"
+	    "  26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)\n";
 	  return 1;
 	}
 
@@ -106,15 +154,6 @@ main(int argc, char *argv[])
       
       ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
       //Now load the config
-
-      {
-	std::string fileName(vm["out-config-file"].as<std::string>());
-	if (vm.count("uncompressed") 
-	    && (std::string(fileName.end()-4, fileName.end()) == ".bz2"))
-	  M_throw() << "You should not use a .bz2 extension for uncompressed"
-	    " comfig files";
-      }
-
       if (!vm.count("config-file"))
 	{
 	  CIPPacker plug(vm, &sim);
@@ -122,7 +161,9 @@ main(int argc, char *argv[])
 
 	  std::cout << "\nMain: Finialising the packing routines";
 
-	  if (vm["packer-mode"].as<size_t>() < 23)
+	  //We don't zero momentum and rescale for certain packer modes
+	  if ((vm["packer-mode"].as<size_t>() != 23)
+	      && (vm["packer-mode"].as<size_t>() != 25))
 	    {
 	      CInputPlugin(&sim, "Rescaler").zeroMomentum();
 	      CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
@@ -134,16 +175,28 @@ main(int argc, char *argv[])
   
       sim.setTrajectoryLength(0);
 
-      CIPPacker(vm, &sim).processOptions();
+      if (vm.count("thermostat"))
+	{
+	  System* thermostat = sim.getSystem("Thermostat");
+	  if (thermostat == NULL)
+	    {
+	      sim.addSystem(new CSysGhost(&sim, 1.0, 1.0, "Thermostat"));
+	      thermostat = sim.getSystem("Thermostat");
+	    }
+
+	  if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
+	    M_throw() << "Could not upcast thermostat to Andersens";
+	  
+	  static_cast<CSysGhost*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
+	  
+	  //Install a NVT Ensemble
+	  sim.getEnsemble().reset(new dynamo::EnsembleNVT(&sim));
+	}
 
       sim.initialise();      
       
       //Here we modify the sim accordingly      
 
-      if (vm.count("packfrac"))
-	CInputPlugin(&sim, "Resizer")
-	  .setPackFrac(vm["packfrac"].as<double>());
-      
       if (vm.count("zero-momentum"))
 	CInputPlugin(&sim, "MomentumZeroer")
 	  .zeroMomentum();	
@@ -186,28 +239,23 @@ main(int argc, char *argv[])
 
 
       //Write out now we've changed the system
-      sim.getHistory() << "\nconfigmod run as so\n";
+      sim.getHistory() << "configmod run as so\n";
       for (int i = 0; i< argc; i++)
 	sim.getHistory() << argv[i] << " ";
       sim.getHistory() << "\nGIT hash " << GITHASH;
       cout << "\nWriting out configuration";
-      sim.writeXMLfile(vm["out-config-file"].as<string>().c_str(), 
-		       vm.count("round"), vm.count("uncompressed"));
+      sim.writeXMLfile(vm["out-config-file"].as<string>(), vm.count("round"));
       cout << "\n";
     }
   catch (std::exception &cep)
     {
-      fflush(stdout);
       std::cout << "\nReached Main Error Loop"
 		<< "\nOutputting results so far and shutting down"
 		<< "\nBad configuration written to config.error.xml"
 		<< cep.what();
-
-
+      
       try
-	{
-	  sim.writeXMLfile("config.error.xml.bz2");
-	}
+	{ sim.writeXMLfile("config.error.xml.bz2"); }
       catch (std::exception &cep)
 	{
 	  std::cout << "\nFailed to output error config"

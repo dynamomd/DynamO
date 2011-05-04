@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,7 +20,7 @@
 #include <magnet/xmlwriter.hpp>
 
 Species* 
-Species::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp, size_t nID)
+Species::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp, size_t nID)
 {
   if (!std::strcmp(XML.getAttribute("Type"), "Point"))
     return new SpPoint(XML, tmp, nID);

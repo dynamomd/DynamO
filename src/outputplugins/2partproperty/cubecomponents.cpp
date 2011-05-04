@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 #include <boost/array.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPCubeComp::OPCubeComp(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPCubeComp::OPCubeComp(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp, "CubeComponents")
 {}
 

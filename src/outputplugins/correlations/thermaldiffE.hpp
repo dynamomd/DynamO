@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,11 +21,10 @@
 #include "../0partproperty/misc.hpp"
 #include <boost/circular_buffer.hpp>
 
-/*! \brief The Correlator class for the Thermal Diffusion.*/
 class OPThermalDiffusionE: public OutputPlugin
 {
 public:
-  OPThermalDiffusionE(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPThermalDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 

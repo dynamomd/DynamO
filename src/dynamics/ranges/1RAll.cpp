@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,7 +19,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CRAll::CRAll(const magnet::xml::Node& XML, const DYNAMO::SimData* SimDat):
+CRAll::CRAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
   SimBase_const(SimDat,"CRAll",IC_red)
 { operator<<(XML); }
 

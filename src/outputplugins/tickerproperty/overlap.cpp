@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 
-OPOverlapTest::OPOverlapTest(const DYNAMO::SimData* tmp, 
+OPOverlapTest::OPOverlapTest(const dynamo::SimData* tmp, 
 			     const magnet::xml::Node&):
   OPTicker(tmp,"OverlapTester")
 {}

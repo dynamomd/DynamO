@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,7 +30,7 @@
 double OPCollEnergyChange::KEBinWidth = 0.01;
 
 
-OPCollEnergyChange::OPCollEnergyChange(const DYNAMO::SimData* tmp, 
+OPCollEnergyChange::OPCollEnergyChange(const dynamo::SimData* tmp, 
 				       const magnet::xml::Node&XML):
   OP1PP(tmp,"CollEnergyChange", 250),
   binWidth(0.001)
@@ -78,9 +78,9 @@ OPCollEnergyChange::A2ParticleChange(const PairEventData& PDat)
   data[PDat.particle2_.getSpecies().getID()]
     .addVal(PDat.particle2_.getDeltaKE());
 
-  double p1Mass = PDat.particle1_.getSpecies().getMass(); 
-  double p2Mass = PDat.particle2_.getSpecies().getMass();
-  double mu = p1Mass * p2Mass / (p1Mass+p2Mass);
+  double p1Mass = PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID()); 
+  double p2Mass = PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID());
+  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
   specialhist.addVal((PDat.dP.nrm2() / (2.0 * mu)) - (PDat.vijold | PDat.dP));
 

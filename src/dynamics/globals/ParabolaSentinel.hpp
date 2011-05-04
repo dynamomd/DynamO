@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,9 +22,9 @@
 class CGParabolaSentinel: public Global
 {
 public:
-  CGParabolaSentinel(const magnet::xml::Node&, DYNAMO::SimData*);
+  CGParabolaSentinel(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGParabolaSentinel(DYNAMO::SimData*, const std::string&);
+  CGParabolaSentinel(dynamo::SimData*, const std::string&);
   
   virtual ~CGParabolaSentinel() {}
 

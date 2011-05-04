@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,8 +33,8 @@
 #include <cmath>
 #include <iomanip>
 
-ISoftCore::ISoftCore(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp,NULL) //A temporary value!
+ISoftCore::ISoftCore(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp,NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -64,10 +64,6 @@ ISoftCore::Clone() const
 { return new ISoftCore(*this); }
 
 double 
-ISoftCore::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
-
-double 
 ISoftCore::maxIntDist() const 
 { return _diameter->getMaxValue(); }
 
@@ -75,12 +71,27 @@ void
 ISoftCore::initialise(size_t nID)
 {
   ID = nID;
-  ISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap(Sim->particleList);
 }
+
+double 
+ISoftCore::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+ISoftCore::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
 
 bool 
 ISoftCore::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
 
@@ -234,4 +245,18 @@ ISoftCore::outputXML(xml::XmlStream& XML) const
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  
+}
+
+double 
+ISoftCore::getInternalEnergy() const
+{ 
+  //Once the capture maps are loaded just iterate through that determining energies
+  double Energy = 0.0;
+  typedef std::pair<size_t, size_t> locpair;
+
+  BOOST_FOREACH(const locpair& IDs, captureMap)
+    Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
+		     +_wellDepth->getProperty(IDs.second));
+  
+  return -Energy; 
 }

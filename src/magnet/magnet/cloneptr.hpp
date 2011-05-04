@@ -1,5 +1,5 @@
 
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -220,23 +220,15 @@ namespace magnet {
       _obj = A; 
     }
   
-    /*! \brief Returns the pointer currently stored! UNSAFE
-     *
-     * \bug Remove this function as its unsafe.
-     *
-     * \return Current object stored in obj
+    /*! \brief Returns the pointer currently stored.
+     * \return Current object stored in _obj
      */
     inline T* get_ptr() { return _obj; }
 
     /*! \brief Returns the const pointer currently stored.
-     *
-     * \bug I believe this is memory safe as I don't think you can
-     * delete a const *.
-     *
-     * \return Current object stored in obj.
+     * \return Current object stored in _obj.
      */
     inline const T* get_ptr() const { return _obj; }
-  
   
     /*! \brief Returns true if no object is stored by the smrtPlugPtr.
      */

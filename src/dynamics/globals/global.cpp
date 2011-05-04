@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,12 +24,12 @@
 #include <magnet/xmlreader.hpp>
 
 
-Global::Global(DYNAMO::SimData* tmp, const char *name):
+Global::Global(dynamo::SimData* tmp, const char *name):
   SimBase(tmp,name, IC_blue),
   range(new CRAll(tmp))
 {}
 
-Global::Global(CRange* nR, DYNAMO::SimData* tmp, const char *name):
+Global::Global(CRange* nR, dynamo::SimData* tmp, const char *name):
   SimBase(tmp, name, IC_blue),
   range(nR)
 {}
@@ -47,7 +47,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML, const Global& g)
 }
 
 Global* 
-Global::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
+Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Cells2")
       || !strcmp(XML.getAttribute("Type"),"Cells"))

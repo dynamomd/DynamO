@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,6 @@ SpFixedCollider::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(CRange::getClass(XML, Sim));
   
   try {
-    mass = 0;
     spName = XML.getAttribute("Name");
     intName = XML.getAttribute("IntName");
   } 

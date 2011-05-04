@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,45 +19,43 @@
 #include "../interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../extcode/mathtemplates.hpp"
-#include "../units/shear.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 
-BCRectangularLeesEdwards::BCRectangularLeesEdwards(const DYNAMO::SimData* tmp):
+BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
-  I_cout() << "Rectangular Lee's Edwards BC loaded"; 
+  I_cout() << " Lee's Edwards BC loaded"; 
 }
 
-BCRectangularLeesEdwards::BCRectangularLeesEdwards(const magnet::xml::Node& XML, 
-						   const DYNAMO::SimData* tmp):
+BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
+						   const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC",IC_purple),
   dxd(0.0) 
 {
   Sim = tmp;
   operator<<(XML);
-  I_cout() << "Rectangular Lee's Edwards BC loaded"; 
+  I_cout() << " Lee's Edwards BC loaded"; 
   I_cout() << "DXD = " << dxd;
 }
 
 void 
-BCRectangularLeesEdwards::outputXML(xml::XmlStream &XML) const
+BCLeesEdwards::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Shape") << "Rectangular"
-      << xml::attr("Boundary") << "LE"
-      << xml::attr("DXD") << dxd;
+  XML << xml::attr("Type") << "LE"
+      << xml::attr("DXD") << dxd / Sim->dynamics.units().unitLength();
 }
 
 void 
-BCRectangularLeesEdwards::operator<<(const magnet::xml::Node& XML)
+BCLeesEdwards::operator<<(const magnet::xml::Node& XML)
 { 
   try 
     {
       if (XML.getAttribute("DXD").valid())
-	dxd = XML.getAttribute("DXD").as<double>();
+	dxd = XML.getAttribute("DXD").as<double>() * Sim->dynamics.units().unitLength();
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -66,147 +64,54 @@ BCRectangularLeesEdwards::operator<<(const magnet::xml::Node& XML)
 }
 
 BoundaryCondition* 
-BCRectangularLeesEdwards::Clone () const 
-{ return new BCRectangularLeesEdwards(*this); }
+BCLeesEdwards::Clone () const 
+{ return new BCLeesEdwards(*this); }
 
 void 
-BCRectangularLeesEdwards::applyBC(Vector  &pos) const 
+BCLeesEdwards::applyBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1] / Sim->aspectRatio[1])*dxd;
+  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1])*dxd;
   
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
-BCRectangularLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
+BCLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1] / Sim->aspectRatio[1]) * dxd;
+  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * dxd;
   
   //Adjust the velocity due to the box shift
-  vel[0] -= rint(pos[1] / Sim->aspectRatio[1]) 
-    * UShear::ShearRate() * Sim->aspectRatio[1];
+  vel[0] -= rint(pos[1] / Sim->primaryCellSize[1]) 
+    * shearRate() * Sim->primaryCellSize[1];
   
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
-BCRectangularLeesEdwards::applyBC(Vector  &posVec, const double& dt) const 
+BCLeesEdwards::applyBC(Vector& posVec, const double& dt) const 
 { 
-  double localdxd = dxd + dt * UShear::ShearRate() * Sim->aspectRatio[1];
+  double localdxd = dxd + dt * shearRate() * Sim->primaryCellSize[1];
   
   //Shift the x distance due to the Lee's Edwards conditions
-  posVec[0] -= rint(posVec[1] / Sim->aspectRatio[1]) * localdxd;
+  posVec[0] -= rint(posVec[1] / Sim->primaryCellSize[1]) * localdxd;
   
   for (size_t n = 0; n < NDIM; ++n)
-    posVec[n] -= Sim->aspectRatio[n] *
-      rintfunc (posVec[n] / Sim->aspectRatio[n]);    
+    posVec[n] -= Sim->primaryCellSize[n] *
+      rintfunc (posVec[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
-BCRectangularLeesEdwards::update(const double& dt) 
+BCLeesEdwards::update(const double& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * UShear::ShearRate() * Sim->aspectRatio[1];
+  dxd += dt * shearRate() * Sim->primaryCellSize[1];
   
   //PBC for the shift to keep accuracy?
-  dxd -= floor(dxd/Sim->aspectRatio[0])*Sim->aspectRatio[0];
+  dxd -= floor(dxd/Sim->primaryCellSize[0])*Sim->primaryCellSize[0];
 }
-
-
-/////////////////////////////Rectangular/////////////////////////////////////
-
-BCSquareLeesEdwards::BCSquareLeesEdwards(const DYNAMO::SimData* tmp):
-  BoundaryCondition(tmp, "LEBC",IC_purple),
-  dxd(0.0) 
-{
-  Sim = tmp;
-  I_cout() << "Square Lee's Edwards BC loaded"; 
-}
-
-BCSquareLeesEdwards::BCSquareLeesEdwards(const magnet::xml::Node& XML, const DYNAMO::SimData* tmp):
-  BoundaryCondition(tmp, "LEBC",IC_purple),
-  dxd(0.0) 
-{
-  Sim = tmp;
-  operator<<(XML);
-  I_cout() << "Square Lee's Edwards BC loaded"; 
-  I_cout() << "DXD = " << dxd;
-}
-
-void 
-BCSquareLeesEdwards::outputXML(xml::XmlStream &XML) const
-{
-  XML << xml::attr("Shape") << "Square"
-      << xml::attr("Boundary") << "LE"
-      << xml::attr("DXD") << dxd;
-}
-
-void 
-BCSquareLeesEdwards::operator<<(const magnet::xml::Node& XML)
-{ 
-  try 
-    {
-      if (XML.getAttribute("DXD").valid())
-	dxd = XML.getAttribute("DXD").as<double>();
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in LEBC";
-    }
-}
-
-BoundaryCondition* 
-BCSquareLeesEdwards::Clone () const 
-{ return new BCSquareLeesEdwards(*this); }
-
-void 
-BCSquareLeesEdwards::applyBC(Vector  &pos) const 
-{
-  //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1]) * dxd;
-  
-  for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= rintfunc (pos[n]);
-}
-
-void 
-BCSquareLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
-{
-  //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1]) * dxd;
-  
-  //Adjust the velocity due to the box shift
-  vel[0] -= rint(pos[1]) * UShear::ShearRate();
-  
-  for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= rintfunc (pos[n]);
-}
-
-void 
-BCSquareLeesEdwards::applyBC(Vector  &posVec, const double& dt) const 
-{
-  double localdxd = dxd + dt * UShear::ShearRate();
-  
-  //Shift the x distance due to the Lee's Edwards conditions
-  posVec[0] -= rint(posVec[1]) * localdxd;
-  
-  for (size_t n = 0; n < NDIM; ++n)
-    posVec[n] -= rintfunc (posVec[n]);
-}
-
-void 
-BCSquareLeesEdwards::update(const double& dt) 
-{
-  //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * UShear::ShearRate();
-  
-  //PBC for the shift to keep accuracy?
-  dxd -= floor(dxd);
-}
-

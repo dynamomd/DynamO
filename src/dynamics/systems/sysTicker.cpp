@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include "../units/units.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-CSTicker::CSTicker(DYNAMO::SimData* nSim, double nPeriod, std::string nName):
+CSTicker::CSTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
   System(nSim)
 {
   if (nPeriod <= 0.0)

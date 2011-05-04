@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 class C2RChainGroups:public C2Range
 {
 public:
-  C2RChainGroups(const magnet::xml::Node&, const DYNAMO::SimData*);
+  C2RChainGroups(const magnet::xml::Node&, const dynamo::SimData*);
 
   C2RChainGroups(size_t, size_t, size_t);
   

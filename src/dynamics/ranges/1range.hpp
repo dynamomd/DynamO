@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 class Particle;
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
-namespace DYNAMO { class SimData; }
+namespace dynamo { class SimData; }
 namespace { class RangeIterator; }
 
 class CRange
@@ -46,7 +46,7 @@ public:
 
   virtual unsigned long at(unsigned long) const = 0;
 
-  static CRange* getClass(const magnet::xml::Node&, const DYNAMO::SimData * Sim);
+  static CRange* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CRange&);
 

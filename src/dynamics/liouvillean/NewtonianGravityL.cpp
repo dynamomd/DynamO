@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,7 +35,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
   elasticV(0),
   g(0, -1, 0),
@@ -70,7 +70,7 @@ LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, const magnet::xml::No
   g *= Sim->dynamics.units().unitAcceleration();
 }
 
-LNewtonianGravity::LNewtonianGravity(DYNAMO::SimData* tmp, Vector gravity, double eV, double tc):
+LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV, double tc):
   LNewtonian(tmp), 
   elasticV(eV),
   g(gravity),
@@ -450,21 +450,21 @@ LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) 
   for (size_t i(0); i < NDIM; ++i)
     if (g[i] == 0)
       {
-	double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / fabs(vel[i]);
+	double tmp = (0.5 * Sim->primaryCellSize[i] - lMax) / fabs(vel[i]);
 	
 	if (tmp < retval) retval = tmp;
       }
     else
       {
 	double roots[2];
-	if (magnet::math::quadSolve((0.5 * Sim->aspectRatio[i] - lMax),
+	if (magnet::math::quadSolve((0.5 * Sim->primaryCellSize[i] - lMax),
 				    vel[i], 0.5 * g[i], roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
 	    if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
 	  }
 
-	if (magnet::math::quadSolve(-(0.5 * Sim->aspectRatio[i] - lMax),
+	if (magnet::math::quadSolve(-(0.5 * Sim->primaryCellSize[i] - lMax),
 				    vel[i], 0.5 * g[i], roots[0], roots[1]))
 	  {
 	    if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];

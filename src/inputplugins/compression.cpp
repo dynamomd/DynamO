@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@
 #include "../dynamics/species/species.hpp"
 #include "../dynamics/globals/neighbourList.hpp"
 
-CIPCompression::CIPCompression(DYNAMO::SimData* tmp, double GR): 
+CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR): 
   CInputPlugin(tmp, "CompressionPlugin"),
   growthRate(GR)
 {
@@ -76,22 +76,24 @@ CIPCompression::RestoreSystem()
   else
     I_cout() << "No cellular device to fix";
 
-  Sim->dynamics.rescaleLengths(Sim->dSysTime * growthRate
-			       / Sim->dynamics.units().unitTime());
+  double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
 
-  Sim->_properties.rescaleUnit(Property::Units::L, 
-			       1 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime());
+  // The length scale is rescaled as the particles have grown. We want
+  // that if a particle had a radius of 1 before the compression, it
+  // will have a radius of 1 after the compression (but the simulation
+  // volume will be less).
+  Sim->dynamics.units().rescaleLength(rescale_factor);
+  // The time scale is also rescaled, so that the energy and velocity
+  // scales are unchanged.
+  Sim->dynamics.units().rescaleTime(rescale_factor);
+  Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
+  Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
   Sim->dynamics.setLiouvillean(oldLio->Clone());
-
-
-  double volume = 0.0;
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
   
   Sim->ssHistory << "\nCompression dynamics run"
 		 << "\nEnd packing fraction" 
-		 << M_PI * volume / (6 * Sim->dynamics.units().simVolume());
+		 << Sim->dynamics.getPackingFraction();
 }
 
 void
@@ -128,12 +130,8 @@ void
 CIPCompression::limitPackingFraction(double targetp)
 {
   I_cout() << "Limiting maximum packing fraction to " << targetp;
-  double volume = 0.0;
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
-  
-  double packfrac = M_PI * volume / (6 * (Sim->dynamics.units().simVolume()));
+  double packfrac = Sim->dynamics.getPackingFraction();
   
   if (targetp < packfrac)
     M_throw() << "Target packing fraction is lower than current!";
@@ -147,15 +145,9 @@ void
 CIPCompression::limitDensity(double targetrho)
 {
   I_cout() << "Limiting maximum density to " << targetrho;
-
-  //Get the avg molecular volume
-  double volume = 0.0;
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += std::pow(sp->getIntPtr()->hardCoreDiam(), static_cast<int>(NDIM)) * sp->getCount();
-  
-  double molVol = M_PI * volume / (6.0 * Sim->particleList.size()
-			       * Sim->dynamics.units().unitVolume());
+  double molVol = (Sim->dynamics.getPackingFraction() * Sim->dynamics.getSimVolume())
+    / (Sim->N * Sim->dynamics.units().unitVolume());
 
   I_cout() << "Corresponding packing fraction for that density is "
 	   << molVol * targetrho;

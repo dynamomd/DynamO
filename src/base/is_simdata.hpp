@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../datatypes/vector.hpp"
 #include "../simulation/particle.hpp"
 #include "../outputplugins/outputplugin.hpp"
-#include "is_ensemble.hpp"
+#include "../simulation/ensemble.hpp"
 #include "../simulation/property.hpp"
 #include <magnet/function/delegate.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -53,7 +53,7 @@ typedef enum
     ERROR         = 4  /*!< The simulation has failed. */
   } ESimulationStatus;
 
-namespace DYNAMO
+namespace dynamo
 {  
   typedef boost::mt19937 baseRNG;
   
@@ -116,8 +116,8 @@ namespace DYNAMO
       M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
-    /*! \brief The CEnsemble of the Simulation. */
-    boost::scoped_ptr<CEnsemble> ensemble;
+    /*! \brief The Ensemble of the Simulation. */
+    boost::scoped_ptr<Ensemble> ensemble;
 
     /*! \brief The current system time of the simulation. 
      * 
@@ -173,15 +173,15 @@ namespace DYNAMO
      * At least one ratio must be 1 as this is assumed when using the
      * ratio. i.e. it is normalised.
      */
-    Vector  aspectRatio;
+    Vector  primaryCellSize;
 
     /*! \brief The random number generator of the system.
      */
     mutable baseRNG ranGenerator;
 
-    mutable boost::variate_generator<DYNAMO::baseRNG&, boost::normal_distribution_01<double> > normal_sampler;
+    mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution_01<double> > normal_sampler;
 
-    mutable boost::uniform_01<DYNAMO::baseRNG, double> uniform_sampler;  
+    mutable boost::uniform_01<dynamo::baseRNG, double> uniform_sampler;  
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */

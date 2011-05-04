@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,9 +23,9 @@
 #include "interactions/interaction.hpp"
 #include "interactions/intEvent.hpp"
 #include <boost/foreach.hpp>
+#include "units/units.hpp"
 
 class BoundaryCondition;
-class Units;
 class Species;
 class GlobalEvent;
 class Global;
@@ -44,13 +44,13 @@ namespace magnet {
   { class Node; }
 }
 
-class Dynamics: public DYNAMO::SimBase
+class Dynamics: public dynamo::SimBase
 {
 public:
   //Constructors
-  Dynamics(DYNAMO::SimData*);
+  Dynamics(dynamo::SimData*);
 
-  Dynamics(const magnet::xml::Node& XML, DYNAMO::SimData*);
+  Dynamics(const magnet::xml::Node& XML, dynamo::SimData*);
 
   explicit Dynamics(const Dynamics &);
 
@@ -84,7 +84,7 @@ public:
     BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	{
-#ifdef DYNAMO_UpdateCollDebug
+#ifdef dynamo_UpdateCollDebug
 	  std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
 		    << p2.getID() << " NAME = " << typeid(*ptr.get_ptr()).name();
 #endif
@@ -122,8 +122,6 @@ public:
    * \param COMVelocity The target velocity for the COM of the system.
    */  
   void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
-
-  void rescaleLengths(double);
 
   void SystemOverlapTest();
   
@@ -167,12 +165,9 @@ public:
   
   friend xml::XmlStream& operator<<(xml::XmlStream&, const Dynamics&);
 
-  //Inlines
-  inline const Units& units() const 
-  { return *p_units; }
+  inline const Units& units() const { return _units; }
 
-  inline Units& units()
-  { return *p_units; }
+  inline Units& units() { return _units; }
   
   inline const BoundaryCondition& BCs() const 
   { return *p_BC; }
@@ -191,10 +186,6 @@ public:
   inline bool BCTypeTest() const
   { return dynamic_cast<const T*>(p_BC.get_ptr()) != NULL; }
 
-  template<class T>
-  inline bool unitTypeTest() const
-  { return dynamic_cast<const T*>(p_units.get_ptr()) != NULL; }
-
   //templates
   template<class T> void applyBC()
     {
@@ -203,6 +194,8 @@ public:
       
       p_BC.set_ptr(new T(Sim));
     }
+
+  double getSimVolume() const;
 
   double getNumberDensity() const;
   
@@ -219,5 +212,5 @@ public:
   std::vector<magnet::ClonePtr<Species> > species;
   magnet::ClonePtr<BoundaryCondition> p_BC;
   magnet::ClonePtr<Liouvillean> p_liouvillean;
-  mutable magnet::ClonePtr<Units> p_units;
+  Units _units;
 };

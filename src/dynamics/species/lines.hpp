@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,12 +22,12 @@
 class SpLines : public SpSphericalTop
 {
 public:
-  SpLines(DYNAMO::SimData* Sim, CRange* R, double nMass, std::string nName, 
+  SpLines(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
 	  unsigned int ID, double r, std::string nIName="Bulk"):
     SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
   {}
   
-  SpLines(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
+  SpLines(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
     SpSphericalTop(XML, Sim, ID)
   {}
 

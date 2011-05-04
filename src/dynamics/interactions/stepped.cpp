@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,9 +34,9 @@
 #include <cmath>
 #include <iomanip>
 
-IStepped::IStepped(DYNAMO::SimData* tmp, 
+IStepped::IStepped(dynamo::SimData* tmp, 
 		   const std::vector<steppair>& vec, C2Range* nR):
-  IMultiCapture(tmp,nR),
+  Interaction(tmp,nR),
   _unitLength(Sim->_properties.getProperty
 	      (1.0, Property::Units::Length())),
   _unitEnergy(Sim->_properties.getProperty
@@ -44,8 +44,8 @@ IStepped::IStepped(DYNAMO::SimData* tmp,
   steps(vec)
 {}
 
-IStepped::IStepped(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  IMultiCapture(tmp, NULL) //A temporary value!
+IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -84,8 +84,24 @@ IStepped::Clone() const
 { return new IStepped(*this); }
 
 double 
-IStepped::hardCoreDiam() const 
-{ return steps.back().first * _unitLength->getMaxValue(); }
+IStepped::getExcludedVolume(size_t ID) const 
+{ 
+  //Get the inner diameter
+  double diam = steps.back().first * _unitLength->getProperty(ID);
+  return (M_PI / 6) * diam * diam * diam; 
+}
+
+double 
+IStepped::getDiameter(size_t ID, size_t subID) const
+{ return steps.back().first * _unitLength->getProperty(ID); }
+
+Vector 
+IStepped::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
 
 double 
 IStepped::maxIntDist() const 
@@ -95,7 +111,7 @@ void
 IStepped::initialise(size_t nID)
 {
   ID = nID;
-  IMultiCapture::initCaptureMap();
+  IMultiCapture::initCaptureMap(Sim->particleList);
   
   I_cout() << "Buckets in captureMap " << captureMap.bucket_count()
 	   << "\nMax bucket count " << captureMap.max_bucket_count()
@@ -106,6 +122,8 @@ IStepped::initialise(size_t nID)
 int 
 IStepped::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+  
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   
@@ -126,7 +144,9 @@ IStepped::getInternalEnergy() const
   typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    Energy += steps[IDs.second - 1].second * _unitEnergy->getMaxValue();
+    Energy += steps[IDs.second - 1].second 
+    * 0.5 * (_unitEnergy->getProperty(IDs.first.first)
+	     + _unitEnergy->getProperty(IDs.first.second));
   
   return Energy; 
 }
@@ -150,6 +170,8 @@ IStepped::getEvent(const Particle &p1,
   CPDData colldat(*Sim, p1, p2);  
   const_cmap_it capstat = getCMap_it(p1,p2);
 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+
   if (capstat == captureMap.end())
     {
       double d = steps.front().first * _unitLength->getMaxValue();
@@ -170,15 +192,13 @@ IStepped::getEvent(const Particle &p1,
 	      / Sim->dynamics.units().unitLength();
 #endif
 	  
-	  return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	  retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
 	}
     }
   else
     {
-
       //Within the potential, look for further capture or release
       //First check if there is an inner step to interact with
-      //Then check for that event first
       if (capstat->second < static_cast<int>(steps.size()))
 	{
 	  double d = steps[capstat->second].first * _unitLength->getMaxValue();
@@ -199,21 +219,22 @@ IStepped::getEvent(const Particle &p1,
 		  /Sim->dynamics.units().unitLength();
 #endif
 	      
-	      return IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
+	      retval = IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
 	    }
 	}
 
-      {
+      {//Now test for the outward step
 	double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
 	double d2 = d * d;
 	
 	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
 	    (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  if (retval.getdt() > colldat.dt)
+	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
       }
     }
 
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void

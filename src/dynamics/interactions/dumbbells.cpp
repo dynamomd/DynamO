@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -32,8 +32,8 @@
 #include <cmath>
 #include <iomanip>
 
-IDumbbells::IDumbbells(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL)
+IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp, NULL)
 {
   operator<<(XML);
 }
@@ -47,7 +47,7 @@ IDumbbells::initialise(size_t nID)
   
   ID = nID; 
   
-  ISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap(Sim->particleList);
 }
 
 void 
@@ -80,8 +80,42 @@ IDumbbells::maxIntDist() const
 { return _length->getMaxValue() + _diameter->getMaxValue(); }
 
 double 
-IDumbbells::hardCoreDiam() const 
-{ return maxIntDist(); }
+IDumbbells::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+IDumbbells::getPosition(size_t ID, size_t subID) const
+{
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+
+  double l = _length->getProperty(ID);
+  //Flip the direction depending on if the ID is odd or even
+  l *=  0.5 * (1 - int(2 * (subID % 2)));
+
+  retval += static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
+    .getRotData(Sim->particleList[ID]).orientation * l;
+
+  return retval;
+}
+
+
+double 
+IDumbbells::getExcludedVolume(size_t ID) const 
+{
+  double diam = _diameter->getProperty(ID);
+  double length = _length->getProperty(ID);
+
+  //The volume of the two spheres not overlapping
+  double vol = 2 * diam * diam * diam * M_PI / 6.0;;
+
+  //If the spheres are not overlapping just return the total volume
+  if (length >= diam) return vol;
+
+  //If they overlap, subtract the lens volume between the overlapping
+  //spheres
+  return vol - (1.0/12.0) * M_PI * (2 * diam + length) * std::pow(diam - length, 2); 
+}
 
 Interaction* 
 IDumbbells::Clone() const 
@@ -127,10 +161,11 @@ IDumbbells::getEvent(const Particle &p1,
       
       return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
-  else if (Sim->dynamics.getLiouvillean()
-	   .SphereSphereInRoot(colldat, (l + d) * (l + d),
-			       p1.testState(Particle::DYNAMIC), 
-			       p2.testState(Particle::DYNAMIC))) 
+  
+  if (Sim->dynamics.getLiouvillean()
+      .SphereSphereInRoot(colldat, (l + d) * (l + d),
+			  p1.testState(Particle::DYNAMIC), 
+			  p2.testState(Particle::DYNAMIC))) 
     return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
   
   return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
@@ -215,6 +250,8 @@ IDumbbells::outputXML(xml::XmlStream& XML) const
 bool 
 IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+
   double d = (_diameter->getProperty(p1.getID())
 	      + _diameter->getProperty(p2.getID())) * 0.5;
 

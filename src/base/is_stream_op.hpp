@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -50,7 +50,7 @@
 
 #define IC_exception "\033[5m\033[41m\033[01;37m"
 
-namespace DYNAMO
+namespace dynamo
 {
   /*! \brief Can search and replace elements in a std::string. */
   inline std::string searchReplace(std::string in, const std::string& from, const std::string& to)
@@ -99,17 +99,14 @@ namespace DYNAMO
       return *this;
     }
 
-    /*! \brief Associates the Stream_Operator with a stream.
-     *
-     * \bug Is this buggy as it must be performed first before output?
-     */
+    /*! \brief Associates the Stream_Operator with a stream */
     friend Stream_Operator operator <<(std::ostream &os, Stream_Operator SO)
     {
       SO.OutputStream = &os;
       return SO;
     }
 
-    /*! Not really needed but is here. */
+    /*! Get the underlying std::ostream object. */
     std::ostream& getStream() const
     { return *OutputStream; }
     

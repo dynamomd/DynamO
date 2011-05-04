@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -32,7 +32,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 
-SSleep::SSleep(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+SSleep::SSleep(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   _range(NULL)
 {
@@ -41,7 +41,7 @@ SSleep::SSleep(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   type = SLEEP;
 }
 
-SSleep::SSleep(DYNAMO::SimData* nSim, std::string nName, CRange* r1, double sleepV):
+SSleep::SSleep(dynamo::SimData* nSim, std::string nName, CRange* r1, double sleepV):
   System(nSim),
   _range(r1),
   _sleepVelocity(sleepV)
@@ -174,8 +174,8 @@ SSleep::particlesUpdated(const NEventData& PDat)
       //If the static particle sleeps
       if ((sleepCondition(sp, g)))
 	{
-	  double massRatio = Sim->dynamics.getSpecies(sp).getMass() 
-	    / Sim->dynamics.getSpecies(dp).getMass();
+	  double massRatio = Sim->dynamics.getSpecies(sp).getMass(sp.getID()) 
+	    / Sim->dynamics.getSpecies(dp).getMass(dp.getID());
 
 	  stateChange[sp.getID()] = Vector(0,0,0);
 	  stateChange[dp.getID()] = -sp.getVelocity() * massRatio;
@@ -195,7 +195,8 @@ SSleep::particlesUpdated(const NEventData& PDat)
 	  //(in comparison to the other components). This means the
 	  //particle will just keep having an event, we sleep it
 	  //instead.
-	  if ((pdat.dP.nrm() / Sim->dynamics.getSpecies(dp).getMass()) < _sleepVelocity)
+	  if ((pdat.dP.nrm() / Sim->dynamics.getSpecies(dp).getMass(dp.getID())) 
+	      < _sleepVelocity)
 	    {
 	      stateChange[dp.getID()] = Vector(0,0,0);
 	      continue;
@@ -295,7 +296,7 @@ SSleep::runEvent() const
 	  M_throw() << "Bad event type!";
 	}
 	  
-      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
+      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
 			 - EDat.getOldVel().nrm2()));
 

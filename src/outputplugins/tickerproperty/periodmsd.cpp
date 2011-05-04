@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPPeriodicMSD::OPPeriodicMSD(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPPeriodicMSD::OPPeriodicMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"PeriodicMSD"),
   ptrOPMSD(NULL)
 {}

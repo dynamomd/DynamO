@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <cmath>
 #include <limits>
 
-OPSCParameter::OPSCParameter(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPSCParameter::OPSCParameter(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"SCParameter"),
   maxWaveNumber(0),
   count(0),
@@ -39,7 +39,7 @@ void
 OPSCParameter::initialise() 
 {
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    if (Sim->aspectRatio[iDim] != 1.0) 
+    if (Sim->primaryCellSize[iDim] != 1.0) 
       M_throw() << "Cannot use this parameter in a non-cubic box";
   
   maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));

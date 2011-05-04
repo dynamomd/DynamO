@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,7 +19,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-CTChain::CTChain(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned int ID):
+CTChain::CTChain(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
   Topology(Sim, ID)
 {
   Topology::operator<<(XML);
@@ -31,7 +31,7 @@ CTChain::CTChain(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, unsigned in
 		<< spName << "\"";
 }
 
-CTChain::CTChain(DYNAMO::SimData* Sim, unsigned int ID, std::string nName):
+CTChain::CTChain(dynamo::SimData* Sim, unsigned int ID, std::string nName):
   Topology(Sim,ID)
 {
   spName = nName;

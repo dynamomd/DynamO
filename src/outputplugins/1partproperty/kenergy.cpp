@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-OPKEnergy::OPKEnergy(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPKEnergy::OPKEnergy(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OP1PP(tmp,"KEnergy", 250),
   InitialKE(0.0),
   KEacc(0.0),
@@ -98,7 +98,7 @@ OPKEnergy::output(xml::XmlStream &XML)
 {
   double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
-    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
+    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
 
   XML << xml::tag("KEnergy")
       << xml::tag("T") << xml::attr("val") << getAvgTheta()
@@ -121,7 +121,7 @@ OPKEnergy::periodicOutput()
 {
   double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
-    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.units().simVolume());
+    / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
 
 
   I_Pcout() << "T "

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 class OPSHCrystal: public OPTicker
 {
  public:
-  OPSHCrystal(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPSHCrystal(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPSHCrystal(*this); }
@@ -51,14 +51,14 @@ class OPSHCrystal: public OPTicker
 
   struct sphericalsum
   {
-    sphericalsum(const DYNAMO::SimData * const, 
+    sphericalsum(const dynamo::SimData * const, 
 		 const double&, const size_t&);
     
     void operator()(const Particle&, const size_t&) const;
     
     void clear();
 
-    const DYNAMO::SimData* const Sim;
+    const dynamo::SimData* const Sim;
     const double rg;
     const size_t maxl;
     mutable size_t count;

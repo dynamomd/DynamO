@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
 
-OPReplexTrace::OPReplexTrace(const DYNAMO::SimData* t1, const magnet::xml::Node&):
+OPReplexTrace::OPReplexTrace(const dynamo::SimData* t1, const magnet::xml::Node&):
   OutputPlugin(t1,"ReplexTrace")
 {}
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -30,9 +30,9 @@
 class SSleep: public System
 {
 public:
-  SSleep(const magnet::xml::Node& XML, DYNAMO::SimData*);
+  SSleep(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  SSleep(DYNAMO::SimData*, std::string, CRange*, double);
+  SSleep(dynamo::SimData*, std::string, CRange*, double);
   
   virtual System* Clone() const { return new SSleep(*this); }
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,6 @@
 
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include "../base/constants.hpp"
 #include <magnet/math/vector.hpp>
 #include "vector.hpp"
 

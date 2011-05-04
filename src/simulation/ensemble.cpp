@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,41 +15,40 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "is_ensemble.hpp"
+#include "ensemble.hpp"
 #include "../dynamics/systems/ghost.hpp"
 #include "../dynamics/liouvillean/CompressionL.hpp"
-#include "../dynamics/units/units.hpp"
+#include "../dynamics/BC/LEBC.hpp"
 #include "../outputplugins/1partproperty/uenergy.hpp"
-#include "../dynamics/units/shear.hpp"
 
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-namespace DYNAMO {
-  CEnsemble* 
-  CEnsemble::getClass(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
+namespace dynamo {
+  Ensemble* 
+  Ensemble::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"), "NVT"))
-      return new CENVT(Sim);
+      return new EnsembleNVT(Sim);
     else if (!strcmp(XML.getAttribute("Type"), "NVE"))
-      return new CENVE(Sim);
+      return new EnsembleNVE(Sim);
     else if (!strcmp(XML.getAttribute("Type"), "NVShear"))
-      return new CENVShear(Sim);
+      return new EnsembleNVShear(Sim);
     else if (!strcmp(XML.getAttribute("Type"), "NECompression"))
-      return new CENECompression(Sim);
+      return new EnsembleNECompression(Sim);
     else if (!strcmp(XML.getAttribute("Type"), "NTCompression"))
-      return new CENTCompression(Sim);
+      return new EnsembleNTCompression(Sim);
     else
       M_throw() << "Cannot correctly identify the ensemble";
   }
 
   double 
-  CEnsemble::exchangeProbability(const CEnsemble&) const
+  Ensemble::exchangeProbability(const Ensemble&) const
   { M_throw() << "Exchange move not written for this Ensemble"; }
 
   xml::XmlStream& operator<<(xml::XmlStream& XML, 
-			      const CEnsemble& g)
+			      const Ensemble& g)
   {
     XML << xml::tag("Ensemble")
 	<< xml::attr("Type") << g.getName()
@@ -58,10 +57,10 @@ namespace DYNAMO {
   }
 
   void
-  CENVE::initialise()
+  EnsembleNVE::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->aspectRatio[0] * Sim->aspectRatio[1] * Sim->aspectRatio[2];
+    EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
     I_cout() << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
@@ -70,7 +69,7 @@ namespace DYNAMO {
   }
 
   boost::array<double,3> 
-  CENVE::getReducedEnsembleVals() const
+  EnsembleNVE::getReducedEnsembleVals() const
   {
     boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
@@ -81,7 +80,7 @@ namespace DYNAMO {
   }
 
   void
-  CENVT::initialise()
+  EnsembleNVT::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
@@ -107,7 +106,7 @@ namespace DYNAMO {
   }
 
   boost::array<double,3> 
-  CENVT::getReducedEnsembleVals() const
+  EnsembleNVT::getReducedEnsembleVals() const
   {
     boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
@@ -118,11 +117,11 @@ namespace DYNAMO {
   }
 
   double 
-  CENVT::exchangeProbability(const CEnsemble& oE) const
+  EnsembleNVT::exchangeProbability(const Ensemble& oE) const
   {
 #ifdef DYNAMO_DEBUG
     try {
-      dynamic_cast<const CENVT&>(oE);
+      dynamic_cast<const EnsembleNVT&>(oE);
     } catch (std::bad_cast)
       {
 	M_throw() << "The ensembles types differ";
@@ -132,17 +131,17 @@ namespace DYNAMO {
     //Must use static cast to allow access to protected members
 
     //This is -\Delta in the Sugita_Okamoto paper
-    return ((1.0/static_cast<const CENVT&>(oE).getEnsembleVals()[2])-(1.0/EnsembleVals[2]))
-      * (static_cast<const CENVT&>(oE).Sim->getOutputPlugin<OPUEnergy>()->getSimU() 
+    return ((1.0/static_cast<const EnsembleNVT&>(oE).getEnsembleVals()[2])-(1.0/EnsembleVals[2]))
+      * (static_cast<const EnsembleNVT&>(oE).Sim->getOutputPlugin<OPUEnergy>()->getSimU() 
 	 - Sim->getOutputPlugin<OPUEnergy>()->getSimU());    
   }
 
   void
-  CENVShear::initialise()
+  EnsembleNVShear::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->aspectRatio[0] * Sim->aspectRatio[1] * Sim->aspectRatio[2];
-    EnsembleVals[2] = UShear::ShearRate();
+    EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
+    EnsembleVals[2] = CLEBC::shearRate();
 
     I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
@@ -150,7 +149,7 @@ namespace DYNAMO {
   }
 
   boost::array<double,3> 
-  CENVShear::getReducedEnsembleVals() const
+  EnsembleNVShear::getReducedEnsembleVals() const
   {
     boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
@@ -161,7 +160,7 @@ namespace DYNAMO {
   }
 
   void
-  CENECompression::initialise()
+  EnsembleNECompression::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.calcInternalEnergy() 
@@ -182,7 +181,7 @@ namespace DYNAMO {
   }
 
   boost::array<double,3> 
-  CENECompression::getReducedEnsembleVals() const
+  EnsembleNECompression::getReducedEnsembleVals() const
   {
     boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];
@@ -193,7 +192,7 @@ namespace DYNAMO {
   }
 
   void
-  CENTCompression::initialise()
+  EnsembleNTCompression::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
 
@@ -228,7 +227,7 @@ namespace DYNAMO {
   }
 
   boost::array<double,3> 
-  CENTCompression::getReducedEnsembleVals() const
+  EnsembleNTCompression::getReducedEnsembleVals() const
   {
     boost::array<double,3> retval;
     retval[0] = EnsembleVals[0];

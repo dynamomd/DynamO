@@ -1,39 +1,22 @@
-/*! \mainpage DYNAMO source code documentation
+/*! \mainpage DynamO source code documentation
  *
- * The C++ code consists of several programs. dynarun and dynamod are
- * very large programs but share a common code base. This code base is
- * in the src/ directory, but the unique parts of the programs are
- * contained in the programs/ directory. The description of the
- * programs are
+ * The C++ code consists of several programs which share a common code base. This code base is in the src/ directory. The main programs are:
  * 
- * - dynarun (programs/dynarun.cpp) - The simulation program, runs
- * trajectories and collects/outputs data.
+ * - dynarun (src/programs/dynarun.cpp) - The main simulation program. dynarun takes configuration files as input and runs them in a simulation. OutputPlugin(s) can be used to collect data on the simulation as it runs (e.g., viscosity).
  * 
- * - dynamod (programs/dynamod.cpp) - The configuration
- * editor/generator. This can generate example configuration files and
- * can edit/modify existing configuration files
+ * - dynamod (src/programs/dynamod.cpp) - The configuration
+ * editor/generator. Its primary purpose is to generate starting configurations for dynarun or configurations to be used as a basis for your Simulation. However, dynamod can also edit/modify existing configuration files (e.g., rescale the temperature, zero the total momentum, add a thermostat).
  *
- * - dynahist_rw (programs/dynahist_rw.cpp) - Can perform histogram
- * reweighting on output from a replica exchange/ parallel tempering
- * program (see the simulation engine EReplicaExchangeSimulation).
+ * - dynahist_rw (src/programs/dynahist_rw.cpp) - Used to perform histogram
+ * reweighting on the output from a replica exchange/ parallel tempering
+ * Simulation (see the simulation engine EReplicaExchangeSimulation).
  *
  * - dynareplex_opt (programs/dynareplex_opt.cpp) - This is an
  * implementation of the replica exchange optimisation described by
  * Katzgraber et
  * al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
  *
- * - dynavmd (bin/dynavmd) - A script to render a single
- * configuration using Povray. A complete viewer however it is quite
- * slow for large/complex systems as it tries to render a professional
- * image.
- *
- * - dynaview (bin/dynaview) - A simple script to render a single
- * configuration using Geomview. A complete viewer however it
- * is quite slow for large systems.
- *
- * - dynavmd (bin/dynavmd) - A simple script to render a single
- * configuration using VMD. This very good at imaging bulk systems
- * however we have no way of controlling the atom size at the moment.
+ * \note To learn how to use these executables, see the tutorial section of the DynamO site, or just run "dyna*** --help" on the command line.
  *
  * Unfortunately doxygen doesn't support multiple programs in one
  * documentation, thus only the main() function of dynarun is
@@ -45,5 +28,12 @@
  * is the very inner loop of a single simulation.
  */
 
-/*! \brief The namespace for the dynamo simulation program */
-namespace DYNAMO {}
+/*! \brief Namespace for the components of the DynamO simulation package. */
+namespace dynamo {}
+
+/*! \brief Namespace for the magnet library. 
+    
+    The magnet library is a collection of generic classes and
+    functions I've implemented which have a wider range of application
+    than just in dynamo. (Think of magnet as an extension to boost) */
+namespace magnet {}

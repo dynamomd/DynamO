@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@ class CTChain;
 class OPRGyration: public OPTicker
 {
  public:
-  OPRGyration(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPRGyration(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual OutputPlugin *Clone() const
   { return new OPRGyration(*this); }
@@ -50,7 +50,7 @@ class OPRGyration: public OPTicker
     Vector  MassCentre;
   };
   
-  static molGyrationDat getGyrationEigenSystem(const magnet::ClonePtr<CRange>&, const DYNAMO::SimData*);
+  static molGyrationDat getGyrationEigenSystem(const magnet::ClonePtr<CRange>&, const dynamo::SimData*);
 
   static Vector  NematicOrderParameter(const std::list<Vector  >&);
   static double CubaticOrderParameter(const std::list<Vector  >&);

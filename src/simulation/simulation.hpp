@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,11 +33,11 @@ class OutputPlugin;
  * can pretty much perform a standard simulation without any other
  * supporting class structure like the Engine and Coordinator. This
  * class handles the interface to the simulation and also stores the
- * Simulation data by deriving from the SimData class.
+ * Simulation data by deriving from the dynamo::SimData class.
  *
  *
  */
-class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
+class Simulation: public dynamo::Base_Class, public dynamo::SimData
 {
  public:
   /*! \brief Just initialises the Base_Class
@@ -51,70 +51,134 @@ class Simulation: public DYNAMO::Base_Class, public DYNAMO::SimData
    */
   void initialise();
 
-  inline void runSilentSimulation() { runSimulation(true); }
-  //Gives a function signature to use
-  inline void runSimulation() { runSimulation(false); }
-  void runSimulation(bool silentMode);
+  //! Main loop for the Simulation
+  //! \param silentMode If true, the periodic output of the simulation is supressed. 
+  void runSimulation(bool silentMode = false);
   
+  //! Loads a Simulation from the passed XML file.
+
+  //! \param filename The path to the XML file to load. The filename must
+  //! end in either ".xml" for uncompressed xml files or ".bz2" for
+  //! bzip2 compressed configuration files.
   void loadXMLfile(std::string filename);
   
-  void writeXMLfile(std::string filename, bool round = false, bool uncompressed = false);
+  //! Writes the Simulation configuration to a file at the passed path.
+  //! \param filename The path to the XML file to write (this file
+  //! will either be created or overwritten). The filename must end in
+  //! either ".xml" for uncompressed xml files or ".bz2" for bzip2
+  //! compressed configuration files.
+  //! \param round If true, the data in the XML file will be written
+  //! out at 2 s.f. lower precision to round all the values. This is
+  //! used in the test harness to remove rounding error ready for a
+  //! comparison to a "correct" configuration file.
+  void writeXMLfile(std::string filename, bool round = false);
 
-  void outputData(std::string filename = "output.xml.bz2", bool uncompressed = false);
-  
+  //! Writes the results of the Simulation to a file at the passed path.
+  //! \param filename The path to the XML file to write (this file
+  //! will either be created or overwritten). The filename must end in
+  //! either ".xml" for uncompressed xml files or ".bz2" for bzip2
+  //! compressed configuration files.
+  void outputData(std::string filename = "output.xml.bz2");
+
+  //! Used by dynamod to inform the Simulation that the configuration
+  //! of the simulation is complete. This updates the Simulation
+  //! status.
+  //! \sa getStatus()
   void configLoaded();
 
+  //! This function makes the Simulation exit the runSimulation loop
+  //! at the next opportunity. Used when forcing the simulation to
+  //! stop.
   void simShutdown();
 
+  //! Sets how many events the Simulation loop should run for.
+  //! \sa runSimulation
   void setTrajectoryLength(unsigned long long);
 
+  //! Sets how many events should occur between outputting the
+  //! Simulation state on the screen.
+  //! \sa runSimulation
   void setnPrint(unsigned long long);
 
-  void setnImage(unsigned long long);
-
+  //! Sets the random seed used by the Simulation random number
+  //! generator.
+  //! \sa dynamo::SimData::ranGenerator
   void setRandSeed(unsigned int);
 
+  //! Allows the Coordinator class to add Global events to the
+  //! Simulation.
+  //!
+  //! This is only allowed before the simulation is initialised.
   void addGlobal(Global*);
 
+  //! Allows the Coordinator class to add System events to the
+  //! Simulation.
+  //!
+  //! This is only allowed before the simulation is initialised.
   void addSystem(System*);
 
+  //! Sets the ID of the simulation.
+  //!
+  //! This is used when running multiple simulations concurrently, and
+  //! a ID is used to distinguish between them.
+  //! \sa EReplicaExchangeSimulation
+  //! \sa getSimID
   void setSimID(const size_t& n) { simID = n; }
+
+  //! Returns the ID of the simulation.
+  //! \sa setSimID
   size_t getSimID() { return simID; }
 
+  //! Allows a Engine or the Coordinator class to access a named
+  //! System event.
+  //!
+  //! This function is used by Engine classes like the
+  //! EReplicaExchangeSimulation class to fetch System events like the
+  //! Thermostat (e.g. CSysGhost).
   System* getSystem(std::string);
 
+  //! Get the current time of the Simulation.
+  //! \sa getnColl
   long double getSysTime();
 
-  inline const boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() const 
+  //! Get the Ensemble of the Simulation.
+  inline const boost::scoped_ptr<dynamo::Ensemble>& getEnsemble() const 
   { return ensemble; }
 
-  inline boost::scoped_ptr<DYNAMO::CEnsemble>& getEnsemble() 
+  //! Get the Ensemble of the Simulation.
+  inline boost::scoped_ptr<dynamo::Ensemble>& getEnsemble() 
   { return ensemble; }
   
+  //! Get the std::ostringstream storing the Simulation history.
+  //!
+  //! This is used to add more lines to the Simulation's history,
+  //! adding notes on what was done to create or run the Simulation.
   std::ostringstream &getHistory()
     { return ssHistory; }
 
+  //! Get the number of Events executed.
+  //! \sa getSysTime
   inline const unsigned long long &getnColl() const 
   { return eventCount; }
 
+  //! Get the state of the Simulation.
+  //! \sa ESimulationStatus
   inline const ESimulationStatus& getStatus() const
   { return status; }
 
-  void addOutputPlugin(std::string);
   
+  //! Allows a Engine or the Coordinator class to add an OutputPlugin
+  //! to the Simulation.
+  //! \param pluginDescriptor A string identifying a type of
+  //! OutputPlugin to load and the values of any options to be
+  //! parsed. E.g., "Plugin:OptA=1,OptB=2"
+  void addOutputPlugin(std::string pluginDescriptor);
+  
+  //! Sets the frequency of the CSTicker event.
   void setTickerPeriod(double);
 
+  //! Scales the frequency of the CSTicker event by the passed factor.
   void scaleTickerPeriod(double);
   
  private:
-
-  /*void executeEvent();
-
-  void executeIntEvent();
-
-  void executeGlobEvent();
-
-  void executeLocalEvent();
-
-  void executeSysEvent();*/
 };

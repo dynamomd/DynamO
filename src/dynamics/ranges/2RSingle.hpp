@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 class C2RSingle:public C2Range
 {
 public:
-  C2RSingle(const magnet::xml::Node&, const DYNAMO::SimData*);
+  C2RSingle(const magnet::xml::Node&, const dynamo::SimData*);
 
   C2RSingle(CRange* r1):range(r1) {}
   

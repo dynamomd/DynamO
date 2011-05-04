@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@
 #include <ctime>
 #include <sys/time.h>
 
-OPMisc::OPMisc(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPMisc::OPMisc(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"Misc",0),
   oldSysTime(0),
   dualEvents(0),
@@ -65,7 +65,7 @@ OPMisc::initialise()
   I_cout() << "No. of Species " << Sim->dynamics.getSpecies().size()
       << "\nSimulation box length <x,y,z> ";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    std::cout  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength() << " ";
+    std::cout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
 
   Vector  sumMV (0,0,0);
 
@@ -74,8 +74,7 @@ OPMisc::initialise()
     {
       Vector  pos(Part.getPosition()), vel(Part.getVelocity());
       Sim->dynamics.BCs().applyBC(pos, vel);
-
-      sumMV += vel * Sim->dynamics.getSpecies(Part).getMass();
+      sumMV += vel * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
     }
 
   I_cout() << "Total momentum <x,y,z> <";
@@ -218,30 +217,16 @@ OPMisc::output(xml::XmlStream &XML)
     {
       name[0] = 'x' + iDim;
       XML << xml::tag(name) << xml::attr("val")
-	  << Sim->aspectRatio[iDim]/Sim->dynamics.units().unitLength()
+	  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength()
 	  << xml::endtag(name);
     }
 
   XML << xml::endtag("SystemBoxLength");
 
-  // Output scalar moment of inertia for any species which may have it
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-  {
-    if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
-    {
-      XML << xml::tag("ScalarInertia")
-	  << xml::attr("Species") << spec->getName()
-	  << xml::attr("Mass") << spec->getMass()
-	  << xml::attr("inertiaConst") << (spec->getScalarMomentOfInertia() / (Sim->dynamics.units().unitArea() * spec->getMass()))
-	  << xml::endtag("ScalarInertia");
-    }
-  }
-
-  Vector  sumMV (0,0,0);
-
+  Vector sumMV(0, 0, 0);
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const Particle & Part, Sim->particleList)
-    sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass();
+    sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
 
   XML << xml::tag("Total_momentum")
       << sumMV / Sim->dynamics.units().unitMomentum()

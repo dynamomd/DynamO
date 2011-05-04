@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,7 +33,7 @@
 #include <fstream>
 #include <cmath>
 
-OPRGyration::OPRGyration(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPRGyration::OPRGyration(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"GyrationRadius"),
   binwidth1(0.01),
   binwidth2(0.001),
@@ -94,7 +94,7 @@ OPRGyration::changeSystem(OutputPlugin* plug)
 }
 
 OPRGyration::molGyrationDat
-OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const DYNAMO::SimData* Sim)
+OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const dynamo::SimData* Sim)
 {
   //Determine the centre of mass. Watch for periodic images
   Vector  tmpVec;  
@@ -102,7 +102,7 @@ OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const
   molGyrationDat retVal;
   retVal.MassCentre = Vector (0,0,0);
 
-  double totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass();
+  double totmass = Sim->dynamics.getSpecies(Sim->particleList[*(range->begin())]).getMass(*(range->begin()));
   std::vector<Vector> relVecs;
   relVecs.reserve(range->size());
   relVecs.push_back(Vector(0,0,0));
@@ -117,10 +117,10 @@ OPRGyration::getGyrationEigenSystem(const magnet::ClonePtr<CRange>& range, const
 
       relVecs.push_back(currRelPos + relVecs.back());
 
-      retVal.MassCentre += relVecs.back() 
-	* Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass();
+      double mass = Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass(*iPtr);
 
-      totmass += Sim->dynamics.getSpecies(Sim->particleList[*iPtr]).getMass();
+      retVal.MassCentre += relVecs.back() * mass;
+      totmass += mass;
     }
 
   retVal.MassCentre /= totmass;

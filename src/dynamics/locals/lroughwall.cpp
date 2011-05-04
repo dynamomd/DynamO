@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-LRoughWall::LRoughWall(DYNAMO::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 
+LRoughWall::LRoughWall(dynamo::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 
 		       Vector  norigin, std::string nname, 
 		       CRange* nRange, bool nrender):
   Local(nRange, nSim, "LocalRoughWall"),
@@ -39,7 +39,7 @@ LRoughWall::LRoughWall(DYNAMO::SimData* nSim, double ne, double net, double nr, 
   localName = nname;
 }
 
-LRoughWall::LRoughWall(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+LRoughWall::LRoughWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "LocalRoughWall")
 {
   operator<<(XML);
@@ -78,7 +78,7 @@ LRoughWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 bool 
 LRoughWall::isInCell(const Vector & Origin, const Vector& CellDim) const
 {
-  return DYNAMO::OverlapFunctions::CubePlane
+  return dynamo::OverlapFunctions::CubePlane
     (Origin, CellDim, vPosition, vNorm);
 }
 
@@ -142,13 +142,13 @@ LRoughWall::write_povray_info(std::ostream& os) const
 	   << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">) translate <"
 	   <<  vPosition[0] << "," <<  vPosition[1] << "," <<  vPosition[2] << ">  }\n"
 	   << "box { <" 
-	   << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-	   << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-	   << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+	   << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
+	   << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
+	   << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
 	   << ">,"
-	   << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-	   << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-	   << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+	   << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
+	   << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
+	   << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
 	   << "> }\n"
 	   << "} pigment { Col_Glass_Bluish }   }\n";
       else

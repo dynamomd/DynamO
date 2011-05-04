@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,14 +22,14 @@
  * to dynarun is carried out by the Coordinator class.
  */
 
+#include "../src/coordinator/coordinator.hpp"
+#include <buildinfo.hpp>
+#include <magnet/arg_share.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <signal.h>
-#include <boost/program_options.hpp>
-#include "../src/coordinator/coordinator.hpp"
-#include <magnet/arg_share.hpp>
-#include <buildinfo.hpp>
 
 /*! \brief Starting point for the dynarun program.
  *

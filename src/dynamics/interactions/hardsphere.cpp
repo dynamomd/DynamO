@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,11 +31,9 @@
 #include <cmath>
 #include <iomanip>
 
-IHardSphere::IHardSphere(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  Interaction(tmp,NULL)
-{
-  operator<<(XML);
-}
+IHardSphere::IHardSphere(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp, NULL)
+{ operator<<(XML); }
 
 void 
 IHardSphere::initialise(size_t nID)
@@ -68,12 +66,27 @@ IHardSphere::operator<<(const magnet::xml::Node& XML)
 }
 
 double 
-IHardSphere::maxIntDist() const 
-{ return _diameter->getMaxValue(); } // * Sim->dynamics.units().unitLength(); }
+IHardSphere::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+IHardSphere::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
 
 double 
-IHardSphere::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); } //* Sim->dynamics.units().unitLength(); }
+IHardSphere::maxIntDist() const 
+{ return _diameter->getMaxValue(); }
+
+double 
+IHardSphere::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
 
 Interaction* 
 IHardSphere::Clone() const 

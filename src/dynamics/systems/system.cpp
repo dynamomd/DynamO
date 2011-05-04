@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -49,7 +49,7 @@ System::operator<(const System& sEvent) const
 }
 
 
-System::System(DYNAMO::SimData* tmp):
+System::System(dynamo::SimData* tmp):
   SimBase(tmp, "SystemInteraction", IC_blue),
   dt(HUGE_VAL)
 {
@@ -64,7 +64,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML,
 }
 
 System* 
-System::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim)
+System::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Andersen"))
     return new CSysGhost(XML,Sim);

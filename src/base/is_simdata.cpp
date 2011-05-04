@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include "../dynamics/systems/system.hpp"
 
-namespace DYNAMO
+namespace dynamo
 {
   SimData::SimData():
     ensemble(NULL),
@@ -34,7 +34,7 @@ namespace DYNAMO
     N(0),
     ptrScheduler(NULL),
     dynamics(this),
-    aspectRatio(1,1,1),
+    primaryCellSize(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
     normal_sampler(ranGenerator, boost::normal_distribution_01<double>()),
     uniform_sampler(ranGenerator),
@@ -126,6 +126,6 @@ namespace DYNAMO
     }
 
     //This is swapped last as things need it for calcs
-    ensemble->exchange(*other.ensemble);
+    ensemble->swap(*other.ensemble);
   }
 }

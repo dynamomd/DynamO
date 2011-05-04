@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -29,7 +29,7 @@
 #include "../liouvillean/NewtonianGravityL.hpp"
 #include <magnet/xmlwriter.hpp>
 
-CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim, 
+CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim, 
 				 const std::string& name):
   CGCells(nSim, "ShearingCells", NULL)
 {
@@ -38,7 +38,7 @@ CGCellsShearing::CGCellsShearing(DYNAMO::SimData* nSim,
 }
 
 CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
-				 DYNAMO::SimData* ptrSim):
+				 dynamo::SimData* ptrSim):
   CGCells(ptrSim, "ShearingCells")
 {
   operator<<(XML);
@@ -55,9 +55,10 @@ CGCellsShearing::initialise(size_t nID)
     I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
 	     << "You must add the ParabolaSentinel Global event.";
 
+ 
   if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
-    M_throw() << "You cannot use the shearing neighbour list"
-	      << " in a system without Lees Edwards BC's";
+    I_cerr() << "You should not use the shearing neighbour list"
+	     << " in a system without Lees Edwards BC's";
 
   if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
 
@@ -150,7 +151,7 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
       //Determine the x position (in cell coords) of the particle and
       //add it to the endCellID
       Sim->dynamics.BCs().applyBC(tmpPos, dt);
-      endCell += int((tmpPos[0] + 0.5 * Sim->aspectRatio[0]) 
+      endCell += int((tmpPos[0] + 0.5 * Sim->primaryCellSize[0]) 
 		     / cellLatticeWidth[0]);
 
       removeFromCell(part.getID());

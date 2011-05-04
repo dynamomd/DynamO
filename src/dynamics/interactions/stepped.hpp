@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,24 +18,29 @@
 #pragma once
 
 #include "captures.hpp"
+#include "representations/spherical.hpp"
 #include "../../base/is_simdata.hpp"
 #include <vector>
 
-class IStepped: public IMultiCapture
+class IStepped: public IMultiCapture, public SphericalRepresentation, public Interaction
 {
 public:
   typedef std::pair<double,double> steppair;
 
-  IStepped(DYNAMO::SimData*, const std::vector<steppair>&,
-	    C2Range*);
+  IStepped(dynamo::SimData*, const std::vector<steppair>&,
+	   C2Range*);
 
-  IStepped(const magnet::xml::Node&, DYNAMO::SimData*);
+  IStepped(const magnet::xml::Node&, dynamo::SimData*);
   
   void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 
-  virtual double hardCoreDiam() const;
+  virtual size_t spheresPerParticle() const { return 1; }
+  virtual double getDiameter(size_t ID, size_t subID) const;
+  virtual Vector getPosition(size_t ID, size_t subID) const;
+
+  virtual double getExcludedVolume(size_t) const;
 
   virtual double maxIntDist() const;
 

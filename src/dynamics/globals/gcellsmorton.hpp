@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,9 +26,9 @@
 class CGCellsMorton: public CGNeighbourList
 {
 public:
-  CGCellsMorton(const magnet::xml::Node&, DYNAMO::SimData*);
+  CGCellsMorton(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGCellsMorton(DYNAMO::SimData*, const std::string&);
+  CGCellsMorton(dynamo::SimData*, const std::string&);
 
   virtual ~CGCellsMorton() {}
 
@@ -61,7 +61,7 @@ public:
   virtual double getMaxInteractionLength() const;
 
 protected:
-  CGCellsMorton(DYNAMO::SimData*, const char*, void*);
+  CGCellsMorton(dynamo::SimData*, const char*, void*);
 
   struct partCEntry
   {

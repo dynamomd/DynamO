@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/xmlwriter.hpp>
 
-LCompression::LCompression(DYNAMO::SimData* tmp, double GR):
+LCompression::LCompression(dynamo::SimData* tmp, double GR):
   LNewtonian(tmp),
   growthRate(GR) {}
 
@@ -86,13 +86,6 @@ LCompression::sphereOverlap(const CPDData& dat, const double& d2) const
   return ((dat.r2 - currd2) < 0.0);
 }
 
-void
-LCompression::streamParticle(Particle &particle, const double &dt) const
-{
-  if (particle.testState(Particle::DYNAMIC))
-    particle.getPosition() +=  particle.getVelocity() * dt;
-}
-
 PairEventData 
 LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
 {
@@ -108,8 +101,8 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const do
 
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
-  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  double p2Mass = retVal.particle2_.getSpecies().getMass(); 
+  double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID()); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID()); 
   double r2 = retVal.rij.nrm2();
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
@@ -132,26 +125,24 @@ LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const do
       bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
 
       //If both particles have infinite mass we just collide them as identical masses
-      if (isInfInf) p1Mass = p2Mass = 1;
-
-      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
+      double mu = isInfInf ? 0.5 : p1Mass * p2Mass / (p1Mass + p2Mass);
 
       retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
 
       //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (p1Mass + isInfInf);
+      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (p2Mass + isInfInf);
 
       //If both particles have infinite mass we pretend no momentum was transferred
       retVal.dP *= !isInfInf;
     }
 
 
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+  retVal.particle1_.setDeltaKE(0.5 * p1Mass
 			       * (particle1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+  retVal.particle2_.setDeltaKE(0.5 * p2Mass
 			       * (particle2.getVelocity().nrm2()
 				  - retVal.particle2_.getOldVel().nrm2()));
   
@@ -173,8 +164,8 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
     
-  double p1Mass = retVal.particle1_.getSpecies().getMass();
-  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
+  double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
   double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
   Vector  urij = retVal.rij / retVal.rij.nrm();
 
@@ -237,11 +228,11 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
   const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
-  retVal.particle1_.setDeltaKE(0.5 * retVal.particle1_.getSpecies().getMass()
+  retVal.particle1_.setDeltaKE(0.5 * p1Mass
 			       * (particle1.getVelocity().nrm2() 
 				  - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * retVal.particle2_.getSpecies().getMass()
+  retVal.particle2_.setDeltaKE(0.5 * p2Mass
 			       * (particle2.getVelocity().nrm2() 
 				  - retVal.particle2_.getOldVel().nrm2()));
   
@@ -268,11 +259,11 @@ LCompression::getPBCSentinelTime(const Particle& part,
 
   Sim->dynamics.BCs().applyBC(pos, vel);
 
-  double retval = (0.5 * Sim->aspectRatio[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
+  double retval = (0.5 * Sim->primaryCellSize[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 
   for (size_t i(1); i < NDIM; ++i)
     {
-      double tmp = (0.5 * Sim->aspectRatio[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
+      double tmp = (0.5 * Sim->primaryCellSize[i] - lMax) / (fabs(vel[0]) + lMax * growthRate);
       
       if (tmp < retval)
 	retval = tmp;

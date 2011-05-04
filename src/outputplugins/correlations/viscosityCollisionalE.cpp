@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPViscosityCollisionalE::OPViscosityCollisionalE(const DYNAMO::SimData* tmp, 
+OPViscosityCollisionalE::OPViscosityCollisionalE(const dynamo::SimData* tmp, 
 						 const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ViscosityCollisionalE", 60),
   count(0),
@@ -202,7 +202,7 @@ OPViscosityCollisionalE::output(xml::XmlStream &XML)
        //This line should be 1 however we have scaled the correlator time as well
        * Sim->dynamics.units().unitViscosity() * 2.0 
        //Count has been taken out due to the extra averaging of the constant piece 
-       * Sim->dynamics.units().simVolume());
+       * Sim->dynamics.getSimVolume());
   
   XML << xml::tag("EinsteinCorrelator")
       << xml::attr("name") << "ViscosityTimesT"
@@ -231,7 +231,7 @@ OPViscosityCollisionalE::output(xml::XmlStream &XML)
       {
 	traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((double) G.size()) + ((double) count));
 	
-	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.units().simVolume());
+	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.getSimVolume());
       }
   
   XML << xml::tag("Pressure");

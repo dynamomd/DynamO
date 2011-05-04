@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -44,7 +44,7 @@ LNOrientation::initialise()
   double sumEnergy(0.0);
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)  
-    sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()
+    sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
     * orientationData[part.getID()].angularVelocity.nrm2();
   
   //Check if any of the species are overridden
@@ -156,8 +156,8 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
     + (cp.first * fL.getw1() ^ fL.getu1()) 
     - (cp.second * fL.getw2() ^ fL.getu2());
   
-  double mass = retVal.particle1_.getSpecies().getMass();
-  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia();
+  double mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
+  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia(particle1.getID());
 
   retVal.dP = uPerp
     * (((vr | uPerp) * (1.0 + elasticity))
@@ -370,7 +370,7 @@ LNOrientation::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent
     + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
   
   Vector velContact = velContac1 - velContac2;
-  double mass = retVal.particle1_.getSpecies().getMass();
+  double mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
   //van Zon's Formulas
   //We need the inertia tensor in the lab frame
   Matrix I1(1.0 / 5.0 * mass * diameter * diameter,0,0,
@@ -536,10 +536,10 @@ LNOrientation::getParticleDOF() const { return NDIM+2; }
 double
 LNOrientation::getParticleKineticEnergy(const Particle& part) const
 {
-  return 0.5 * ((Sim->dynamics.getSpecies(part).getMass()
+  return 0.5 * ((Sim->dynamics.getSpecies(part).getMass(part.getID())
     * part.getVelocity().nrm2())
       + (orientationData[part.getID()].angularVelocity.nrm2()
-      * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia()));
+	 * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())));
 }
  
 void 
@@ -575,8 +575,8 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
-  double p1Mass = retVal.particle1_.getSpecies().getMass(); 
-  double p2Mass = retVal.particle2_.getSpecies().getMass();
+  double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID()); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
   double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
   
   retVal.rvdot = (retVal.rij | retVal.vijold);
@@ -593,7 +593,7 @@ LNOrientation::RoughSpheresColl(const IntEvent& event,
   
   Vector gijt = (eijn ^ gij) ^ eijn;
 
-  double Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia() 
+  double Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia(particle1.getID()) 
     / (p1Mass * d2 * 0.25);
   
   retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
@@ -632,9 +632,9 @@ LNOrientation::runRoughWallCollision(const Particle& part,
 
   double KE1before = getParticleKineticEnergy(part);
 
-  double p1Mass = retVal.getSpecies().getMass(); 
+  double p1Mass = retVal.getSpecies().getMass(part.getID()); 
 
-  double Jbar = retVal.getSpecies().getScalarMomentOfInertia()
+  double Jbar = retVal.getSpecies().getScalarMomentOfInertia(part.getID())
     / (p1Mass * r * r);
 
   Vector gij = part.getVelocity() - r

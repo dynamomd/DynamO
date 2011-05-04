@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -26,7 +26,7 @@ struct CPDData
 {
   inline CPDData(): p1(NULL), p2(NULL) {}
 
-  inline CPDData(const DYNAMO::SimData& Sim, const Particle& np1, 
+  inline CPDData(const dynamo::SimData& Sim, const Particle& np1, 
 		 const Particle& np2):
     rij(np1.getPosition() - np2.getPosition()),
     vij(np1.getVelocity() - np2.getVelocity()),    
@@ -40,7 +40,7 @@ struct CPDData
     v2 = vij.nrm2();
   }
 
-  CPDData(const DYNAMO::SimData&, const CRange&, const CRange&);
+  CPDData(const dynamo::SimData&, const CRange&, const CRange&);
 
   Vector  rij, vij;
   double rvdot;

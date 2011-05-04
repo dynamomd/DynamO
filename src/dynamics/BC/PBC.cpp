@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,194 +20,142 @@
 #include "../../extcode/mathtemplates.hpp"
 #include <magnet/xmlwriter.hpp>
 
-BCSquarePeriodic::BCSquarePeriodic(const DYNAMO::SimData* tmp):
-  BoundaryCondition(tmp, "SPBC", IC_purple)
-{
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    if (Sim->aspectRatio[iDim] != 1.0)
-      M_throw() << "The simulation aspect ratio is not unity for the use of "
-	"square PBC's";
-  Sim = tmp;
-}
-  
-void 
-BCSquarePeriodic::outputXML(xml::XmlStream &XML) const
-{
-  XML << xml::attr("Shape") << "Square"
-      << xml::attr("Boundary") << "PBC";
-}
-
-BoundaryCondition* 
-BCSquarePeriodic::Clone () const 
-{ return new BCSquarePeriodic(*this); }
-
-
-void 
-BCSquarePeriodic::operator<<(const magnet::xml::Node&) 
-{}
-
-void 
-BCSquarePeriodic::applyBC(Vector & pos) const
-{ 
-  for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= rintfunc (pos[n]);
-}
-
-void 
-BCSquarePeriodic::applyBC(Vector & pos, Vector&) const
-{ 
-  for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= rintfunc (pos[n]);
-}
-
-void 
-BCSquarePeriodic::applyBC(Vector  &pos, const double&) const 
-{ 
-  for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= rintfunc (pos[n]);
-}
-
-BCRectangularPeriodic::BCRectangularPeriodic(const DYNAMO::SimData* tmp):
+BCPeriodic::BCPeriodic(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "RPBC", IC_purple)
 {
   Sim = tmp;
 }
 
 void 
-BCRectangularPeriodic::applyBC(Vector & pos) const
+BCPeriodic::applyBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n]/Sim->primaryCellSize[n]);    
 }
 
 void 
-BCRectangularPeriodic::applyBC(Vector & pos, Vector&) const
+BCPeriodic::applyBC(Vector & pos, Vector&) const
 {
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
-BCRectangularPeriodic::applyBC(Vector  &pos, const double&) const 
+BCPeriodic::applyBC(Vector  &pos, const double&) const 
 {
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
-BCRectangularPeriodic::outputXML(xml::XmlStream &XML) const
+BCPeriodic::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Shape") << "Rectangular"
-      << xml::attr("Boundary") << "PBC";
+  XML << xml::attr("Type") << "PBC";
 }
 
 void 
-BCRectangularPeriodic::operator<<(const magnet::xml::Node&) 
+BCPeriodic::operator<<(const magnet::xml::Node&) 
 {}
 
 BoundaryCondition* 
-BCRectangularPeriodic::Clone () const 
-{ return new BCRectangularPeriodic(*this); }
+BCPeriodic::Clone () const 
+{ return new BCPeriodic(*this); }
 
 
-BCSquarePeriodicExceptX::BCSquarePeriodicExceptX(const DYNAMO::SimData* tmp):
-  BoundaryCondition(tmp, "RNoXPBC",IC_purple)
+BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::SimData* tmp):
+  BoundaryCondition(tmp, "NoXPBC",IC_purple)
+{ Sim = tmp; }
+
+void 
+BCPeriodicExceptX::outputXML(xml::XmlStream &XML) const
 {
-  Sim = tmp;
+  XML << xml::attr("Type") << "NoXPBC";
 }
 
 void 
-BCSquarePeriodicExceptX::outputXML(xml::XmlStream &XML) const
-{
-  XML << xml::attr("Shape") << "Rectangular"
-      << xml::attr("Boundary") << "NoXPBC";
-}
-
-void 
-BCSquarePeriodicExceptX::operator<<(const magnet::xml::Node&) 
+BCPeriodicExceptX::operator<<(const magnet::xml::Node&) 
 {}
 
 BoundaryCondition* 
-BCSquarePeriodicExceptX::Clone () const 
-{ return new BCSquarePeriodicExceptX(*this); }
+BCPeriodicExceptX::Clone () const 
+{ return new BCPeriodicExceptX(*this); }
 
 void 
-BCSquarePeriodicExceptX::applyBC(Vector & pos) const
+BCPeriodicExceptX::applyBC(Vector & pos) const
 { 
   double x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
 
   pos[0] = x;
 }
   
 void 
-BCSquarePeriodicExceptX::applyBC(Vector & pos, Vector&) const
+BCPeriodicExceptX::applyBC(Vector & pos, Vector&) const
 { 
   double x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n]/Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n]/Sim->primaryCellSize[n]);    
 
   pos[0] = x;
 }
 
 void 
-BCSquarePeriodicExceptX::applyBC(Vector  &pos, const double&) const 
+BCPeriodicExceptX::applyBC(Vector  &pos, const double&) const 
 { 
   double x = pos[0];
 
   for (size_t n = 0; n < NDIM; ++n)
-    pos[n] -= Sim->aspectRatio[n] *
-      rintfunc (pos[n] / Sim->aspectRatio[n]);    
+    pos[n] -= Sim->primaryCellSize[n] *
+      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
   
   applyBC(pos); 
 
   pos[0] = x;
 }
 
-BCSquarePeriodicXOnly::BCSquarePeriodicXOnly(const DYNAMO::SimData* tmp):
-  BoundaryCondition(tmp, "RNoXPBC",IC_purple)
+BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::SimData* tmp):
+  BoundaryCondition(tmp, "NoXPBC",IC_purple)
 {
   Sim = tmp;
 }
 
 void 
-BCSquarePeriodicXOnly::outputXML(xml::XmlStream &XML) const
+BCPeriodicXOnly::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Shape") << "Rectangular"
-      << xml::attr("Boundary") << "OnlyXPBC";
+  XML << xml::attr("Type") << "OnlyXPBC";
 }
 
 void 
-BCSquarePeriodicXOnly::operator<<(const magnet::xml::Node&) 
+BCPeriodicXOnly::operator<<(const magnet::xml::Node&) 
 {}
 
 BoundaryCondition* 
-BCSquarePeriodicXOnly::Clone () const 
-{ return new BCSquarePeriodicXOnly(*this); }
+BCPeriodicXOnly::Clone () const 
+{ return new BCPeriodicXOnly(*this); }
 
 void 
-BCSquarePeriodicXOnly::applyBC(Vector & pos) const
+BCPeriodicXOnly::applyBC(Vector & pos) const
 { 
-  pos[0] -= Sim->aspectRatio[0] 
-    * rintfunc (pos[0] / Sim->aspectRatio[0]);
+  pos[0] -= Sim->primaryCellSize[0] 
+    * rintfunc (pos[0] / Sim->primaryCellSize[0]);
 }
   
 void 
-BCSquarePeriodicXOnly::applyBC(Vector & pos, Vector&) const
+BCPeriodicXOnly::applyBC(Vector & pos, Vector&) const
 { 
   applyBC(pos);
 }
 
 void 
-BCSquarePeriodicXOnly::applyBC(Vector  &pos, const double&) const 
+BCPeriodicXOnly::applyBC(Vector  &pos, const double&) const 
 { 
   applyBC(pos); 
 }

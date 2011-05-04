@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../NparticleEventData.hpp"
 #include "../units/units.hpp"
 
-CSSchedMaintainer::CSSchedMaintainer(DYNAMO::SimData* nSim, double ndt, std::string nName):
+CSSchedMaintainer::CSSchedMaintainer(dynamo::SimData* nSim, double ndt, std::string nName):
   System(nSim),
   periodt(ndt * nSim->dynamics.units().unitTime())
 {

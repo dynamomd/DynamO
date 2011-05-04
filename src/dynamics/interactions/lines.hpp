@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,29 +20,29 @@
 #include "captures.hpp"
 #include "../../base/is_simdata.hpp"
 
-class ILines: public ISingleCapture
+class ILines: public ISingleCapture, public Interaction
 {
 public:
   template<class T1, class T2>
-  ILines(DYNAMO::SimData* tmp, T1 l, T2 e, C2Range* nR):
-    ISingleCapture(tmp, nR),
+  ILines(dynamo::SimData* tmp, T1 l, T2 e, C2Range* nR):
+    Interaction(tmp, nR),
     _length(Sim->_properties.getProperty
 	    (l, Property::Units::Length())),
     _e(Sim->_properties.getProperty
        (e, Property::Units::Dimensionless()))
   {}
 
-  ILines(const magnet::xml::Node&, DYNAMO::SimData*);
+  ILines(const magnet::xml::Node&, dynamo::SimData*);
 
   void operator<<(const magnet::xml::Node&);
 
-  virtual double getInternalEnergy() const { return 0.0; }
+  virtual double getInternalEnergy() const { return 0; }
 
   virtual void initialise(size_t);
 
   virtual double maxIntDist() const;
 
-  virtual double hardCoreDiam() const;
+  virtual double getExcludedVolume(size_t) const { return 0; }
 
   virtual Interaction* Clone() const;
   

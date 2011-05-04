@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -74,8 +74,6 @@ namespace magnet
      * threaded environment this is still thread safe provided the
      * exception try/catch statements are local to the thread, which
      * ThreadPool ensures.
-     * 
-     * \bug Fix the non reentrant behaviour.
      */
     const char* what() const throw()
      {

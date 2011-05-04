@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -88,7 +88,7 @@ private:
   size_t exceptionCount;
 
 public:  
-  CSSBoundedPQ(const DYNAMO::SimData* const& SD):
+  CSSBoundedPQ(const dynamo::SimData* const& SD):
     CSSorter(SD, "BoundedPQ"),
     exceptionCount(0) 
   {}
@@ -406,7 +406,7 @@ private:
   {
     while(NP==0)/*if priority queue exhausted*/
       {
-#ifdef DYNAMO_UpdateCollDebug
+#ifdef dynamo_UpdateCollDebug
 	    std::cerr << "\nQueue exhausted";
 #endif
 	/* change current index */
@@ -419,7 +419,7 @@ private:
 	    //Stream every event by the list width!
 	    BOOST_FOREACH(eventQEntry& dat, Min)
 	      dat.data.stream(listWidth);
-#ifdef DYNAMO_UpdateCollDebug
+#ifdef dynamo_UpdateCollDebug
 	    std::cerr << "\nPecTime Stream occuring";
 #endif
 	    //update the peculiar time

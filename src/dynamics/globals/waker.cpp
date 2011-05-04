@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -26,7 +26,7 @@
 #include "neighbourList.hpp"
 #include <magnet/xmlreader.hpp>
 
-GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range, 
+GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, CRange* range, 
 	       const double wt,const double wv, std::string nblist):
   Global(range, nSim, "GWaker"),
   _wakeTime(wt),
@@ -37,7 +37,7 @@ GWaker::GWaker(DYNAMO::SimData* nSim, const std::string& name, CRange* range,
   I_cout() << "GWaker Loaded";
 }
 
-GWaker::GWaker(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
+GWaker::GWaker(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   Global(NULL, ptrSim, "GWaker")
 {
   operator<<(XML);
@@ -145,7 +145,7 @@ GWaker::runEvent(const Particle& part, const double dt) const
       const_cast<Particle&>(part).getVelocity() = newVel;
       const_cast<Particle&>(part).setState(Particle::DYNAMIC);
       
-      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass()
+      EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
 			 - EDat.getOldVel().nrm2()));
       

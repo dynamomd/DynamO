@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@ class OPMSD;
 class OPMSDCorrelator: public OPTicker
 {
  public:
-  OPMSDCorrelator(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPMSDCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
 
   virtual void initialise();
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 class OPTrajectory: public OutputPlugin
 {
 public:
-  OPTrajectory(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPTrajectory(const dynamo::SimData*, const magnet::xml::Node&);
 
   OPTrajectory(const OPTrajectory&);
   

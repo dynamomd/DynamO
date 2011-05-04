@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -34,7 +34,7 @@
 #include <iomanip>
 
   
-ISquareBond::ISquareBond(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+ISquareBond::ISquareBond(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Interaction(tmp,NULL) //A temporary value!
 { operator<<(XML); }
 	    
@@ -73,10 +73,6 @@ ISquareBond::Clone() const
 double 
 ISquareBond::getCaptureEnergy() const 
 { return 0.0; }
-
-double 
-ISquareBond::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
 
 double 
 ISquareBond::maxIntDist() const 
@@ -170,6 +166,7 @@ ISquareBond::getEvent(const Particle &p1,
   
   double ld2 = d * l * d * l;
 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
   if (Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(colldat, d2,
@@ -182,17 +179,16 @@ ISquareBond::getEvent(const Particle &p1,
 		  << ", particle2 " 
 		  << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif      
-      return IntEvent(p1, p2, colldat.dt, CORE, *this);
+      retval = IntEvent(p1, p2, colldat.dt, CORE, *this);
     }
-  else
-    if (Sim->dynamics.getLiouvillean()
-	.SphereSphereOutRoot(colldat, ld2,
-			     p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-      {
-	return IntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
-      }
+
+  if (Sim->dynamics.getLiouvillean()
+      .SphereSphereOutRoot(colldat, ld2,
+			   p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+    if (retval.getdt() > colldat.dt)
+      retval = IntEvent(p1, p2, colldat.dt, BOUNCE, *this); 
   
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void

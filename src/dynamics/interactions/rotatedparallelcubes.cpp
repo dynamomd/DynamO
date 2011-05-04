@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,7 +33,7 @@
 #include <iomanip>
 
 IRotatedParallelCubes::IRotatedParallelCubes(const magnet::xml::Node& XML, 
-					     DYNAMO::SimData* tmp):
+					     dynamo::SimData* tmp):
   Interaction(tmp,NULL)
 { operator<<(XML); }
 
@@ -72,9 +72,11 @@ IRotatedParallelCubes::maxIntDist() const
 { return std::sqrt(NDIM) * _diameter->getMaxValue(); }
 
 double 
-IRotatedParallelCubes::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
-
+IRotatedParallelCubes::getExcludedVolume(size_t ID) const 
+{
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam; 
+}
 
 Interaction* 
 IRotatedParallelCubes::Clone() const 

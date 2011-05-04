@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 class OPUEnergy: public OP1PP
 {
  public:
-  OPUEnergy(const DYNAMO::SimData*, const magnet::xml::Node&);
+  OPUEnergy(const dynamo::SimData*, const magnet::xml::Node&);
 
   void A1ParticleChange(const ParticleEventData&);
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,10 +24,10 @@
 #define NBins 32
 
 template<class T>
-class CFieldArray: public DYNAMO::SimBase_const
+class CFieldArray: public dynamo::SimBase_const
 {
  public:
-  CFieldArray(const DYNAMO::SimData* tmp):
+  CFieldArray(const dynamo::SimData* tmp):
     SimBase_const(tmp,"FieldArray",IC_cyan),
     Field(1.0/NBins, -0.5, NBins)
     {};
@@ -39,9 +39,9 @@ class CFieldArray: public DYNAMO::SimBase_const
   T& operator[](const Vector  &cv)
     { 
       return Field
-	[cv.data[0]/Sim->aspectRatio[0]]
-	[cv.data[1]/Sim->aspectRatio[1]]
-	[cv.data[2]/Sim->aspectRatio[2]]; 
+	[cv.data[0]/Sim->primaryCellSize[0]]
+	[cv.data[1]/Sim->primaryCellSize[1]]
+	[cv.data[2]/Sim->primaryCellSize[2]]; 
     }
     
   long getnBins() const

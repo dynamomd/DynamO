@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 #include <boost/foreach.hpp>
 #include <fstream>
 
-OPIntEnergyHist::OPIntEnergyHist(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPIntEnergyHist::OPIntEnergyHist(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
   intEnergyHist(1.0),
   ptrOPEnergy(NULL),

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -43,7 +43,7 @@ xml::XmlStream& operator<<(xml::XmlStream &XML,
 }
 
 std::string 
-LocalEvent::stringData(const DYNAMO::SimData* Sim) const
+LocalEvent::stringData(const dynamo::SimData* Sim) const
 {
   std::ostringstream tmpstring;
   tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()

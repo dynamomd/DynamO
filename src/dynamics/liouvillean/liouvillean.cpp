@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -38,7 +38,7 @@ xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 }
 
 Liouvillean* 
-Liouvillean::loadClass(const magnet::xml::Node& XML, DYNAMO::SimData* tmp)
+Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
 {
   if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
     return new LNewtonian(tmp);
@@ -119,7 +119,7 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
   
   I_cout() << "Writing Particles ";
   
-  for (unsigned long i = 0; i < Sim->N; ++i)
+  for (size_t i = 0; i < Sim->N; ++i)
     {
       Particle tmp(Sim->particleList[i]);
       Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
@@ -127,7 +127,10 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
       tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
       
-      XML << xml::tag("Pt") << tmp;
+      XML << xml::tag("Pt");
+      Sim->_properties.outputParticleXMLData(XML, i);
+      XML << tmp;
+      
       
       extraXMLParticleData(XML, i);
       
@@ -140,13 +143,15 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
 double 
 Liouvillean::getParticleKineticEnergy(const Particle& part) const
 {
-  return 0.5 * (part.getVelocity().nrm2()) * Sim->dynamics.getSpecies(part).getMass();
+  return 0.5 * (part.getVelocity().nrm2()) 
+    * Sim->dynamics.getSpecies(part).getMass(part.getID());
 }
 
 Vector  
 Liouvillean::getVectorParticleKineticEnergy(const Particle& part) const
 {
-  Vector  tmp(0.5 * part.getVelocity() * Sim->dynamics.getSpecies(part).getMass());
+  Vector  tmp(0.5 * part.getVelocity() 
+	      * Sim->dynamics.getSpecies(part).getMass(part.getID()));
 
   for (size_t i = 0; i < NDIM; ++i)
     tmp[i] *= part.getVelocity()[i];

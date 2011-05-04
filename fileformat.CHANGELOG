@@ -4,6 +4,12 @@ the file format is in use in the opening tag, e.g.,
 <DYNAMOconfig version="1.X.X">
 This file details the changes, and how to upgrade an old configuration.
 
+v1.4.0 - Major overhaul of the XML file format. Binary sections
+         disabled. Particle properties added. Aspect ratio and units
+         removed, replaced with Simulation size tag. BoundedPQMinMax
+         Sorter types now have a number at the end to denominate the
+         MinMax heap size. The main node of the XML file is now DynamOconfig.
+
 v1.3.0 - The binary/XML format has been changed to now store particle
          states. If you want to convert a "text" v1.2.0 file, just
          change the version to 1.3.0. If you have a binary file, you

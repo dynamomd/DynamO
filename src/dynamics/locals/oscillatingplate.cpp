@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
+CLOscillatingPlate::CLOscillatingPlate(dynamo::SimData* nSim,
 				       Vector nrw0, Vector nnhat,
 				       double nomega0, double nsigma, double ne,
 				       double ndelta, double nmass, std::string nname, 
@@ -39,7 +39,7 @@ CLOscillatingPlate::CLOscillatingPlate(DYNAMO::SimData* nSim,
   localName = nname;
 }
 
-CLOscillatingPlate::CLOscillatingPlate(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+CLOscillatingPlate::CLOscillatingPlate(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "OscillatingPlate"),
   lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
 {
@@ -206,13 +206,13 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "> }"
 
      << "\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+     << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+     << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 
@@ -224,13 +224,13 @@ CLOscillatingPlate::write_povray_info(std::ostream& os) const
      << "> }"
 
      << "\nbox { <" 
-     << -Sim->aspectRatio[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->aspectRatio[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->aspectRatio[2]/2 - Sim->dynamics.units().unitLength() 
+     << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
+     << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
+     << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
      << ">,"
-     << "<" << Sim->aspectRatio[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->aspectRatio[2]/2 + Sim->dynamics.units().unitLength()
+     << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
+     << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
      << "> }\n"
      << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
 }
@@ -262,8 +262,8 @@ CLOscillatingPlate::getCoilRenderObj() const
 	 << axis3[1] << ", "
 	 << axis3[2] << ", 0";
 
-      axis1 *= Sim->aspectRatio[1] / axis1.nrm();
-      axis2 *= Sim->aspectRatio[2] / axis2.nrm();
+      axis1 *= Sim->primaryCellSize[1] / axis1.nrm();
+      axis2 *= Sim->primaryCellSize[2] / axis2.nrm();
 
       _renderObj = new RFunction(10, 
 				 rw0 - 0.5 * (axis1 + axis2), 

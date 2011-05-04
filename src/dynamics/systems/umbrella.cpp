@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,7 +31,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 
-CSUmbrella::CSUmbrella(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+CSUmbrella::CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   a(1.0),
   b(1.0),
@@ -47,7 +47,7 @@ CSUmbrella::CSUmbrella(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   type = UMBRELLA;
 }
 
-CSUmbrella::CSUmbrella(DYNAMO::SimData* nSim, double na, double nb, double ndelu, 
+CSUmbrella::CSUmbrella(dynamo::SimData* nSim, double na, double nb, double ndelu, 
 		       std::string nName, CRange* r1, CRange* r2):
   System(nSim),
   a(na),

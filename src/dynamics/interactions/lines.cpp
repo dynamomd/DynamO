@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -31,8 +31,8 @@
 #include <cmath>
 #include <iomanip>
 
-ILines::ILines(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL)
+ILines::ILines(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp, NULL)
 {
   operator<<(XML);
 }
@@ -46,7 +46,7 @@ ILines::initialise(size_t nID)
   
   ID = nID; 
   
-  ISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap(Sim->particleList);
 }
 
 void 
@@ -75,10 +75,6 @@ ILines::operator<<(const magnet::xml::Node& XML)
 double 
 ILines::maxIntDist() const 
 { return _length->getMaxValue(); }
-
-double 
-ILines::hardCoreDiam() const 
-{ return 0.0; }
 
 Interaction* 
 ILines::Clone() const 
@@ -202,6 +198,8 @@ ILines::outputXML(xml::XmlStream& XML) const
 bool 
 ILines::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
  

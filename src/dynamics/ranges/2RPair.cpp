@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,7 +19,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-C2RPair::C2RPair(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim):
+C2RPair::C2RPair(const magnet::xml::Node& XML, const dynamo::SimData* Sim):
   range1(NULL), range2(NULL) 
 { 
 

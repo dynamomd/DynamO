@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,9 +18,10 @@
 #pragma once
 
 #include "is_stream_op.hpp"
-#include "constants.hpp"
+#include <magnet/exception.hpp>
 
-namespace DYNAMO
+
+namespace dynamo
 {
   class SimData;
 
@@ -53,6 +54,11 @@ namespace DYNAMO
     }
     
   protected:
+    //! This constructor is only available for virtual
+    //! inheritance. The concrete derived class must call the other
+    //! constructor.
+    Base_Class() { M_throw() << "Calling the default constructor!"; }
+
     /*! \brief A pointer to a const definition of the class name. */
     std::string name;
 
@@ -78,10 +84,15 @@ namespace DYNAMO
     SimBase(SimData* const SD,const std::string aName, 
 	    const std::string aColor):
       Base_Class(aName, aColor),
-      Sim(SD)    
+      Sim(SD)
     {};
     
   protected:
+    //! This constructor is only available for virtual
+    //! inheritance. The concrete derived class must call the other
+    //! constructor.
+    SimBase() { M_throw() << "Calling the default constructor!"; }
+
     /*! \brief A writable pointer to a simulations data.*/
     SimData* Sim;
   };
@@ -107,6 +118,11 @@ namespace DYNAMO
     {};
 
   protected:
+    //! This constructor is only available for virtual
+    //! inheritance. The concrete derived class must call the other
+    //! constructor.
+    SimBase_const() { M_throw() << "Calling the default constructor!"; }
+
     /*! \brief A un-writable pointer to a simulations data.*/
     const SimData* Sim;
   };

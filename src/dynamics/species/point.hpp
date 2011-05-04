@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -32,13 +32,14 @@ namespace Gtk {
 
 class SpPoint: public Species
 {
-public:  
-  SpPoint(DYNAMO::SimData* sim, CRange* r, double nmass, std::string nName,
+public:
+  template<class T1>
+  SpPoint(dynamo::SimData* sim, CRange* r, T1 nmass, std::string nName,
 	  unsigned int ID, std::string nIName="Bulk"):
     Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
   {}
   
-  SpPoint(const magnet::xml::Node& XML, DYNAMO::SimData* nSim, unsigned int nID):
+  SpPoint(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
     Species(nSim, "", NULL, 0, "", nID,"")
   { operator<<(XML); }
 
@@ -48,12 +49,12 @@ public:
 
   virtual Species* Clone() const { return new SpPoint(*this); }
 
-  virtual double getScalarMomentOfInertia() const { return 0; }
+  virtual double getScalarMomentOfInertia(size_t ID) const 
+  { M_throw() << "Species has no intertia"; }
 
 #ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::CL::CLGLState&) const;
-  virtual void updateColorObj(magnet::CL::CLGLState&) const;
 #endif
 
 protected:

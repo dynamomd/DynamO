@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -60,7 +60,7 @@ protected:
   };
 
 public:
-  CGNeighbourList(DYNAMO::SimData* a, 
+  CGNeighbourList(dynamo::SimData* a, 
 		  const char *b): 
     Global(a,b),
     lambda(0.9)

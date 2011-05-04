@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 #include "../1partproperty/kenergy.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPViscosityE::OPViscosityE(const DYNAMO::SimData* tmp, 
+OPViscosityE::OPViscosityE(const dynamo::SimData* tmp, 
 			   const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ViscosityE", 60),
   count(0),
@@ -96,7 +96,7 @@ OPViscosityE::initialise()
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	constDelG[iDim][jDim] 
 	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->dynamics.getSpecies(part).getMass();
+	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
 
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
@@ -225,7 +225,7 @@ OPViscosityE::output(xml::XmlStream &XML)
        * Sim->dynamics.units().unitViscosity() * 2.0 
        * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT() 
        //Count has been taken out due to the extra averaging of the constant piece 
-       * Sim->dynamics.units().simVolume());
+       * Sim->dynamics.getSimVolume());
   
   XML << xml::tag("EinsteinCorrelator")
       << xml::attr("name") << name
@@ -254,7 +254,7 @@ OPViscosityE::output(xml::XmlStream &XML)
       {
 	traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((double) G.size()) + ((double) count));
 	
-	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.units().simVolume());
+	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.getSimVolume());
       }
   
   XML << xml::tag("Pressure");
@@ -311,12 +311,12 @@ OPViscosityE::updateConstDelG(const PairEventData& PDat)
 	 * PDat.particle1_.getParticle().getVelocity()[jDim]
 	 - PDat.particle1_.getOldVel()[iDim]
 	 * PDat.particle1_.getOldVel()[jDim])
-	* PDat.particle1_.getSpecies().getMass()
+	* PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID())
 	+ (PDat.particle2_.getParticle().getVelocity()[iDim]
 	   * PDat.particle2_.getParticle().getVelocity()[jDim]
 	   - PDat.particle2_.getOldVel()[iDim]
 	   * PDat.particle2_.getOldVel()[jDim])
-	* PDat.particle2_.getSpecies().getMass();
+	* PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID());
 }
 
 void 
@@ -328,7 +328,7 @@ OPViscosityE::updateConstDelG(const ParticleEventData& PDat)
 	(PDat.getParticle().getVelocity()[iDim]
 	 * PDat.getParticle().getVelocity()[jDim]
 	 - PDat.getOldVel()[iDim] * PDat.getOldVel()[jDim]
-	 ) * PDat.getSpecies().getMass();
+	 ) * PDat.getSpecies().getMass(PDat.getParticle().getID());
 }
 
 void 

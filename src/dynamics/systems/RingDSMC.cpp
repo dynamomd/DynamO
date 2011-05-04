@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,7 +30,7 @@
 #include <boost/foreach.hpp>
 #include <boost/random/uniform_int.hpp>
 
-CSRingDSMC::CSRingDSMC(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+CSRingDSMC::CSRingDSMC(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
   maxprob12(0.0),
@@ -42,7 +42,7 @@ CSRingDSMC::CSRingDSMC(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   type = DSMC;
 }
 
-CSRingDSMC::CSRingDSMC(DYNAMO::SimData* nSim, double nd, double ntstp, double nChi1, double nChi2,
+CSRingDSMC::CSRingDSMC(dynamo::SimData* nSim, double nd, double ntstp, double nChi1, double nChi2,
 			     double ne, std::string nName, CRange* r1):
   System(nSim),
   uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
@@ -96,7 +96,7 @@ CSRingDSMC::runEvent() const
   
   {
     boost::variate_generator
-      <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+      <dynamo::baseRNG&, boost::uniform_int<size_t> >
       id1sampler(Sim->ranGenerator, 
 		 boost::uniform_int<size_t>(0, (range1->size()/2) - 1));
     
@@ -141,7 +141,7 @@ CSRingDSMC::runEvent() const
     nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
     
     boost::variate_generator
-      <DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+      <dynamo::baseRNG&, boost::uniform_int<size_t> >
       id1sampler(Sim->ranGenerator, 
 		 boost::uniform_int<size_t>(0, range1->size() - 1));
     
@@ -199,16 +199,16 @@ CSRingDSMC::initialise(size_t nID)
 
   factor12 = range1->size()
     * diameter * M_PI * chi12 * tstep 
-    / Sim->dynamics.units().simVolume();
+    / Sim->dynamics.getSimVolume();
   
   factor13 = range1->size()
     * diameter * M_PI * chi13 * tstep 
-    / Sim->dynamics.units().simVolume();
+    / Sim->dynamics.getSimVolume();
   
   if (maxprob12 == 0.0)
     { 
       boost::variate_generator
-	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	<dynamo::baseRNG&, boost::uniform_int<size_t> >
 	id1sampler(Sim->ranGenerator, 
 		   boost::uniform_int<size_t>(0, (range1->size()/2) - 1));
       
@@ -236,7 +236,7 @@ CSRingDSMC::initialise(size_t nID)
   if (maxprob13 == 0.0)
     { 
       boost::variate_generator
-	<DYNAMO::baseRNG&, boost::uniform_int<size_t> >
+	<dynamo::baseRNG&, boost::uniform_int<size_t> >
 	id1sampler(Sim->ranGenerator, 
 		   boost::uniform_int<size_t>(0, range1->size() - 1));
       

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,7 +30,7 @@
 #include <magnet/xmlreader.hpp>
 #include <fstream>
 
-CSysRescale::CSysRescale(const magnet::xml::Node& XML, DYNAMO::SimData* tmp): 
+CSysRescale::CSysRescale(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   scaleFactor(1),
   LastTime(0),
@@ -42,7 +42,7 @@ CSysRescale::CSysRescale(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
   I_cout() << "Velocity Rescaler Loaded";
 }
 
-CSysRescale::CSysRescale(DYNAMO::SimData* tmp, size_t frequency, std::string name): 
+CSysRescale::CSysRescale(dynamo::SimData* tmp, size_t frequency, std::string name): 
   System(tmp),
   _frequency(frequency),
   scaleFactor(0),

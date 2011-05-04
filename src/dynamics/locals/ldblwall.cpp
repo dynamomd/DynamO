@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include "../../schedulers/scheduler.hpp"
 
 
-CLDblWall::CLDblWall(DYNAMO::SimData* nSim, double ne, Vector  nnorm, 
+CLDblWall::CLDblWall(dynamo::SimData* nSim, double ne, Vector  nnorm, 
 	       Vector  norigin, std::string nname, CRange* nRange):
   Local(nRange, nSim, "LocalWall"),
   vNorm(nnorm),
@@ -35,7 +35,7 @@ CLDblWall::CLDblWall(DYNAMO::SimData* nSim, double ne, Vector  nnorm,
   localName = nname;
 }
 
-CLDblWall::CLDblWall(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
+CLDblWall::CLDblWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "LocalDoubleWall")
 {
   operator<<(XML);
@@ -94,7 +94,7 @@ CLDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
 bool 
 CLDblWall::isInCell(const Vector & Origin, const Vector& CellDim) const
 {
-  return DYNAMO::OverlapFunctions::CubePlane
+  return dynamo::OverlapFunctions::CubePlane
     (Origin, CellDim, vPosition, vNorm);
 }
 
@@ -170,9 +170,9 @@ void
 CLDblWall::write_povray_info(std::ostream& os) const
 {
   os << "object {\n plane {\n  <" << vNorm[0] << ", " << vNorm[1] 
-     << ", " << vNorm[2] << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}}\n clipped_by{box {\n  <" << -Sim->aspectRatio[0]/2 
-     << ", " << -Sim->aspectRatio[1]/2 << ", " << -Sim->aspectRatio[2]/2 
-     << ">, <" << Sim->aspectRatio[0]/2 << ", " << Sim->aspectRatio[1]/2 
-     << ", " << Sim->aspectRatio[2]/2 << "> }\n}\n translate <" << vPosition[0] << 
+     << ", " << vNorm[2] << ">, 0 texture{pigment { color rgb<0.5,0.5,0.5>}}}\n clipped_by{box {\n  <" << -Sim->primaryCellSize[0]/2 
+     << ", " << -Sim->primaryCellSize[1]/2 << ", " << -Sim->primaryCellSize[2]/2 
+     << ">, <" << Sim->primaryCellSize[0]/2 << ", " << Sim->primaryCellSize[1]/2 
+     << ", " << Sim->primaryCellSize[2]/2 << "> }\n}\n translate <" << vPosition[0] << 
     ","<< vPosition[1] << "," << vPosition[2] << ">\n}\n";
 }

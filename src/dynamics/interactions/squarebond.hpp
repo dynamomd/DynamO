@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@ class ISquareBond: public Interaction
 {
 public:
   template<class T1, class T2, class T3>
-  ISquareBond(DYNAMO::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR):
+  ISquareBond(dynamo::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR):
     Interaction(tmp, nR),
     _diameter(Sim->_properties.getProperty
 	      (d, Property::Units::Length())),
@@ -34,13 +34,14 @@ public:
        (e, Property::Units::Dimensionless()))
   {}
 
-  ISquareBond(const magnet::xml::Node&, DYNAMO::SimData*);
+  ISquareBond(const magnet::xml::Node&, dynamo::SimData*);
 
   void operator<<(const magnet::xml::Node&);
 
   virtual Interaction* Clone() const;
 
-  virtual double hardCoreDiam() const;
+  virtual double getExcludedVolume(size_t) const 
+  { M_throw() << "Bonds don't have excluded volumes! They shouldn't be used as the defining interaction for a species."; }
 
   virtual double maxIntDist() const;
 

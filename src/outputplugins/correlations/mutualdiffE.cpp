@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../0partproperty/misc.hpp"
 #include "../../datatypes/vector.xml.hpp"
 
-OPMutualDiffusionE::OPMutualDiffusionE(const DYNAMO::SimData* tmp, 
+OPMutualDiffusionE::OPMutualDiffusionE(const dynamo::SimData* tmp, 
 				       const magnet::xml::Node& XML):
   OutputPlugin(tmp, "MutualDiffusionE", 60), //Note the sort order set later
   count(0),
@@ -158,7 +158,7 @@ OPMutualDiffusionE::rescaleFactor()
 {
   return 0.5 / (Sim->dynamics.units().unitTime()
 		* Sim->dynamics.units().unitMutualDiffusion()
-		* count * Sim->dynamics.units().simVolume()
+		* count * Sim->dynamics.getSimVolume()
 		* Sim->getOutputPlugin<OPKEnergy>()->getAvgkT());
 }
 
@@ -207,30 +207,31 @@ OPMutualDiffusionE::initialise()
   dt = getdt();
   
   double sysMass = 0.0;
-
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    sysMass += sp->getMass() * sp->getCount();
   
+  massFracSp1 = 0;
+  massFracSp2 = 0;
+
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
-      sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
+      double mass = Sim->dynamics.getSpecies(part).getMass(part.getID());
+      sysMass += mass;
+      sysMom += part.getVelocity() * mass;
       
       if (Sim->dynamics.getSpecies()[species1]->isSpecies(part))
-	delGsp1 += part.getVelocity();
+	{
+	  delGsp1 += part.getVelocity() * mass;
+	  massFracSp1 += mass;
+	}
       
       if (Sim->dynamics.getSpecies()[species2]->isSpecies(part))
-	delGsp2 += part.getVelocity();
+	{
+	  delGsp2 += part.getVelocity() * mass;
+	  massFracSp2 += mass;
+	}
     }
-  
-  delGsp1 *= Sim->dynamics.getSpecies()[species1]->getMass();
-  delGsp2 *= Sim->dynamics.getSpecies()[species2]->getMass();
-  
-  massFracSp1 = (Sim->dynamics.getSpecies()[species1]->getCount() 
-		 * Sim->dynamics.getSpecies()[species1]->getMass()) 
-    / sysMass; 
-
-  massFracSp2 = (Sim->dynamics.getSpecies()[species2]->getCount() 
-		 * Sim->dynamics.getSpecies()[species2]->getMass()) / sysMass;
+    
+  massFracSp1 /= sysMass; 
+  massFracSp2 /= sysMass;
 
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }

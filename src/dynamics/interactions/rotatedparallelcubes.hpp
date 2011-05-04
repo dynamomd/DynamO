@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@ class IRotatedParallelCubes: public Interaction
 {
 public:
   template<class T1, class T2>
-  IRotatedParallelCubes(DYNAMO::SimData* tmp, T1 d, T2 e, 
+  IRotatedParallelCubes(dynamo::SimData* tmp, T1 d, T2 e, 
 			const Matrix& rot, C2Range* nR):
     Interaction(tmp, nR),
     Rotation(rot),
@@ -34,7 +34,7 @@ public:
        (e, Property::Units::Dimensionless()))
   {}
 
-  IRotatedParallelCubes(const magnet::xml::Node&, DYNAMO::SimData*);
+  IRotatedParallelCubes(const magnet::xml::Node&, dynamo::SimData*);
 
   void operator<<(const magnet::xml::Node&);
 
@@ -44,7 +44,7 @@ public:
 
   virtual double maxIntDist() const;
 
-  virtual double hardCoreDiam() const;
+  virtual double getExcludedVolume(size_t) const;
 
   virtual Interaction* Clone() const;
   

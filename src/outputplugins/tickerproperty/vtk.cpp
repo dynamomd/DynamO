@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -28,7 +28,7 @@
 #include <fstream>
 #include <iomanip>
 
-OPVTK::OPVTK(const DYNAMO::SimData* tmp, const magnet::xml::Node& XML):
+OPVTK::OPVTK(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
   OPTicker(tmp,"VTK"),
   binWidth(1,1,1),
   imageCounter(0),
@@ -97,7 +97,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  XML << xml::attr("Origin");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    XML << (Sim->aspectRatio[iDim] * (-0.5))
+	    XML << (Sim->primaryCellSize[iDim] * (-0.5))
 	      / Sim->dynamics.units().unitLength()
 		<< " ";
 	  
@@ -116,7 +116,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  
 	  
 	  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
-	  DYNAMO::Line_Breaker lb(6);
+	  dynamo::Line_Breaker lb(6);
 	  
 	  ////////////SAMPLE COUNTS
 	  XML << xml::tag("DataArray")
@@ -170,16 +170,16 @@ OPVTK::initialise()
     {
       binWidth[iDim] *= Sim->dynamics.units().unitLength();
       
-      if (binWidth[iDim] > 0.5 * Sim->aspectRatio[iDim])
+      if (binWidth[iDim] > 0.5 * Sim->primaryCellSize[iDim])
 	M_throw() << "Your bin width is too large for the " << iDim 
 		  << " dimension";
       
       nBins[iDim] = static_cast<size_t>
-	(Sim->aspectRatio[iDim] / binWidth[iDim]);
+	(Sim->primaryCellSize[iDim] / binWidth[iDim]);
       
       //This is just to ensure the bin width fits an integer number of
       //times into the simulation
-      binWidth[iDim] = Sim->aspectRatio[iDim] / nBins[iDim];
+      binWidth[iDim] = Sim->primaryCellSize[iDim] / nBins[iDim];
       
       invBinWidth[iDim] = 1.0 / binWidth[iDim];
       
@@ -231,7 +231,7 @@ OPVTK::getCellID(Vector  pos)
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     {
       retval += factor 
-	* static_cast<size_t>((pos[iDim] + 0.5 * Sim->aspectRatio[iDim]) 
+	* static_cast<size_t>((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim]) 
 			      * invBinWidth[iDim]);
       factor *= nBins[iDim];
     }
@@ -258,13 +258,13 @@ OPVTK::ticker()
 	  //Samples
 	  ++SampleCounter[id];
 	  
+	  double mass = Sim->dynamics.getSpecies(Part).getMass(Part.getID());
+
 	  //Velocity Vectors
-	  Momentum[id] += velocity 
-	    * Sim->dynamics.getSpecies(Part).getMass();
+	  Momentum[id] += velocity * mass;
 	  
 	  //Energy Field
-	  mVsquared[id] += velocity.nrm2()
-	    * Sim->dynamics.getSpecies(Part).getMass();
+	  mVsquared[id] += velocity.nrm2() * mass;
 	}
     }
 
@@ -393,7 +393,7 @@ OPVTK::output(xml::XmlStream& XML)
   XML << xml::attr("Origin");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    XML << (Sim->aspectRatio[iDim] * (-0.5))
+    XML << (Sim->primaryCellSize[iDim] * (-0.5))
       / Sim->dynamics.units().unitLength()
 	<< " ";
   
@@ -412,7 +412,7 @@ OPVTK::output(xml::XmlStream& XML)
 
 
   //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
-  DYNAMO::Line_Breaker lb(6);
+  dynamo::Line_Breaker lb(6);
 
   ////////////SAMPLE COUNTS
   XML << xml::tag("DataArray")

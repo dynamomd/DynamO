@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -38,14 +38,14 @@ CGCells::calcPosition(const Vector& primaryCell,
   Vector imageCell;
   
   for (size_t i = 0; i < NDIM; ++i)
-    imageCell[i] = primaryCell[i] - Sim->aspectRatio[i]
-      * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->aspectRatio[i]);
+    imageCell[i] = primaryCell[i] - Sim->primaryCellSize[i]
+      * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->primaryCellSize[i]);
   
   return imageCell;
 }
 
 
-CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name, 
+CGCells::CGCells(dynamo::SimData* nSim, const std::string& name, 
 		 const size_t& overlink):
   CGNeighbourList(nSim, "CellNeighbourList"),
   cellCount(0),
@@ -60,7 +60,7 @@ CGCells::CGCells(DYNAMO::SimData* nSim, const std::string& name,
   I_cout() << "Cells Loaded, Overlinking set to " << overlink;
 }
 
-CGCells::CGCells(const magnet::xml::Node &XML, DYNAMO::SimData* ptrSim):
+CGCells::CGCells(const magnet::xml::Node &XML, dynamo::SimData* ptrSim):
   CGNeighbourList(ptrSim, "CellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -75,7 +75,7 @@ CGCells::CGCells(const magnet::xml::Node &XML, DYNAMO::SimData* ptrSim):
   I_cout() << "Cells Loaded";
 }
 
-CGCells::CGCells(DYNAMO::SimData* ptrSim, const char* nom, void*):
+CGCells::CGCells(dynamo::SimData* ptrSim, const char* nom, void*):
   CGNeighbourList(ptrSim, nom),
   cellCount(0),
   cellDimension(1,1,1),
@@ -358,7 +358,7 @@ CGCells::addCells(double maxdiam)
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
-      cellCount[iDim] = int(Sim->aspectRatio[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
+      cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
       
       if (cellCount[iDim] < 3)
 	M_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
@@ -374,7 +374,7 @@ CGCells::addCells(double maxdiam)
     }
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    cellLatticeWidth[iDim] = Sim->aspectRatio[iDim] / cellCount[iDim];
+    cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / cellCount[iDim];
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     cellDimension[iDim] = cellLatticeWidth[iDim] 
@@ -425,7 +425,7 @@ CGCells::addCells(double maxdiam)
       for (size_t iDim = 0; iDim < NDIM; iDim++)
 	cells[id].origin[iDim] = cells[id].coords[iDim] 
 	  * cellLatticeWidth[iDim] 
-	  - 0.5 * Sim->aspectRatio[iDim]
+	  - 0.5 * Sim->primaryCellSize[iDim]
 	  + cellOffset[iDim];
     }
 
@@ -520,7 +520,7 @@ CGCells::getCellID(Vector  pos) const
   CVector<int> temp;
   
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    temp[iDim] = std::floor((pos[iDim] + 0.5 * Sim->aspectRatio[iDim] - cellOffset[iDim])
+    temp[iDim] = std::floor((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim] - cellOffset[iDim])
 		     / cellLatticeWidth[iDim]);
   
   return getCellID(temp);

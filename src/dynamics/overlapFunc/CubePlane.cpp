@@ -4,7 +4,7 @@
 
 
 bool 
-DYNAMO::OverlapFunctions::CubePlane(const Vector& CubeOrigin, 
+dynamo::OverlapFunctions::CubePlane(const Vector& CubeOrigin, 
 				    const Vector& CubeDimensions,
 				    const Vector& PlaneOrigin, 
 				    const Vector& PlaneNormal,

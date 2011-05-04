@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,10 +30,10 @@ class System;
 namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }
 
-class OutputPlugin: public DYNAMO::SimBase_const
+class OutputPlugin: public dynamo::SimBase_const
 {
 public:
-  OutputPlugin(const DYNAMO::SimData*, const char*, unsigned char order=100, const char *aColor=IC_blue);
+  OutputPlugin(const dynamo::SimData*, const char*, unsigned char order=100, const char *aColor=IC_blue);
   
   inline virtual ~OutputPlugin() {}
   
@@ -53,8 +53,8 @@ public:
   
   virtual void periodicOutput();
   
-  static OutputPlugin* getPlugin(const magnet::xml::Node&, const DYNAMO::SimData*);
-  static OutputPlugin* getPlugin(const std::string, const DYNAMO::SimData*);
+  static OutputPlugin* getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
+  static OutputPlugin* getPlugin(const std::string, const dynamo::SimData*);
   
   inline bool operator<(const OutputPlugin& OP) const
   { return updateOrder < OP.updateOrder; }
@@ -68,7 +68,7 @@ public:
   virtual void temperatureRescale(const double&) {}
   
 protected:
-  DYNAMO::Colorise_Text_Stream_Operator I_Pcout() const;
+  dynamo::Colorise_Text_Stream_Operator I_Pcout() const;
   
   // This sets the order in which these things are updated
   // 0 is first
@@ -81,5 +81,5 @@ protected:
 private:
 
   template<class T> static OutputPlugin* 
-  testGeneratePlugin(const DYNAMO::SimData*, const magnet::xml::Node&);
+  testGeneratePlugin(const dynamo::SimData*, const magnet::xml::Node&);
 };

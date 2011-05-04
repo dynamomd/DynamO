@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,7 +18,7 @@
 #include "None.hpp"
 #include <magnet/xmlwriter.hpp>
 
-BCNone::BCNone(const DYNAMO::SimData* Sim):
+BCNone::BCNone(const dynamo::SimData* Sim):
   BoundaryCondition(Sim, "NullBC", IC_purple)
 { I_cout() << "No boundary condition loaded"; }
 
@@ -43,7 +43,7 @@ BCNone::update(const double &)
 void 
 BCNone::outputXML(xml::XmlStream &XML) const
 {
-  XML << xml::attr("Boundary") << "None";
+  XML << xml::attr("Type") << "None";
 }
 
 void 

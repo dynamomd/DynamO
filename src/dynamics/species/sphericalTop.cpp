@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass, 
+SpSphericalTop::SpSphericalTop(dynamo::SimData* tmp, CRange* nr, double nMass, 
 			       std::string nName, unsigned int nID, double inertiaConst,
 			       std::string nIName):
   SpInertia(tmp, nr, nMass, nName, nID, nIName),
@@ -30,7 +30,7 @@ SpSphericalTop::SpSphericalTop(DYNAMO::SimData* tmp, CRange* nr, double nMass,
   spName = "SpSphericalTop";
 }
 
-SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, 
+SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::SimData* Sim, 
 			       unsigned int nID):
   SpInertia(XML, Sim, nID)
 { operator<<(XML); }
@@ -41,7 +41,7 @@ SpSphericalTop::outputXML(xml::XmlStream& XML, std::string type) const
 {
   XML << xml::attr("InertiaConstant") 
       << inertiaConstant / Sim->dynamics.units().unitArea()
-      << xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
+      << xml::attr("Mass") << _mass->getName()
       << xml::attr("Name") << spName
       << xml::attr("IntName") << intName
       << xml::attr("Type") << type

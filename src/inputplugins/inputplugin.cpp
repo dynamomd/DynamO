@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,6 @@
 #include "../schedulers/include.hpp"
 #include "../dynamics/dynamics.hpp"
 #include "../dynamics/species/species.hpp"
-#include "../dynamics/units/include.hpp"
 #include "../dynamics/interactions/include.hpp"
 #include "../dynamics/ranges/include.hpp"
 #include "../dynamics/BC/include.hpp"
@@ -32,7 +31,7 @@
 #include "../base/is_simdata.hpp"
 #include "../dynamics/topology/include.hpp"
 
-CInputPlugin::CInputPlugin(DYNAMO::SimData* tmp, const char *aName, 
+CInputPlugin::CInputPlugin(dynamo::SimData* tmp, const char *aName, 
 			   const char *aColor):
   SimBase(tmp, aName, aColor)
 {}
@@ -98,26 +97,13 @@ CInputPlugin::zeroCentreOfMass()
   double totmass = 0.0;
   BOOST_FOREACH(Particle& part, Sim->particleList)  
     {
-      totmass += Sim->dynamics.getSpecies(part).getMass();
-      com += part.getPosition() * Sim->dynamics.getSpecies(part).getMass();
+      totmass += Sim->dynamics.getSpecies(part).getMass(part.getID());
+      com += part.getPosition() * Sim->dynamics.getSpecies(part).getMass(part.getID());
     }
   com /= totmass;
   
   BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getPosition() -= com;
-}
-
-void 
-CInputPlugin::setPackFrac(double tmp)
-{
-  double volume = 0.0;
-  
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    volume += pow(sp->getIntPtr()->hardCoreDiam(), NDIM) * sp->getCount();
-  
-  volume *= M_PI / (6 * (Sim->dynamics.units().simVolume()));
-
-  Sim->dynamics.rescaleLengths(pow(tmp/volume, 1.0/3.0) -1.0);
 }
 
 void 

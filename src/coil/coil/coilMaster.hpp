@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -139,6 +139,7 @@ public:
 private:
   friend class CoilMaster;
   friend class CLGLWindow;
+  friend class RSphericalParticles;
   //! This instance is only for the CoilMaster and window classes to
   //! use, Everything else should use an instance of the register class
   //! to access coil!

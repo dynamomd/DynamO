@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,7 +22,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPMSD::OPMSD(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPMSD::OPMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"MSD")
 {}
 
@@ -105,8 +105,7 @@ OPMSD::calcStructMSD(const Topology& Itop) const
       double totmass = 0.0;
       BOOST_FOREACH(const unsigned long& ID, *molRange)
 	{
-	  double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID])
-	    .getMass();
+	  double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
 
 	  totmass += pmass;
 	  currPos += Sim->particleList[ID].getPosition() * pmass;

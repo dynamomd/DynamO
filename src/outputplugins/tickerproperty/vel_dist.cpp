@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPVelDist::OPVelDist(const DYNAMO::SimData* tmp, 
+OPVelDist::OPVelDist(const dynamo::SimData* tmp, 
 		     const magnet::xml::Node& XML):
   OPTicker(tmp,"VelDist"),
   binWidth(0.01),

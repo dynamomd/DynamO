@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,7 +18,6 @@
 #include "include.hpp"
 #include "outputplugin.hpp"
 #include "../dynamics/include.hpp"
-#include "../base/constants.hpp"
 #include "../simulation/particle.hpp"
 #include "correlations/include.hpp"
 #include "general/include.hpp"
@@ -26,7 +25,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
 
-OutputPlugin::OutputPlugin(const DYNAMO::SimData* tmp, const char *aName, unsigned char order, const char *aColor):
+OutputPlugin::OutputPlugin(const dynamo::SimData* tmp, const char *aName, unsigned char order, const char *aColor):
   SimBase_const(tmp, aName, aColor),
   updateOrder(order)
 {
@@ -41,14 +40,14 @@ void
 OutputPlugin::periodicOutput()
 {}
 
-DYNAMO::Colorise_Text_Stream_Operator
+dynamo::Colorise_Text_Stream_Operator
 OutputPlugin::I_Pcout() const
 {
-  return DYNAMO::Colorise_Text_Stream_Operator(IC_blue);
+  return dynamo::Colorise_Text_Stream_Operator(IC_blue);
 }
 
 OutputPlugin*
-OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
+OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
 {
   typedef boost::tokenizer<boost::char_separator<char> >
     tokenizer;
@@ -96,7 +95,7 @@ OutputPlugin::getPlugin(std::string Details, const DYNAMO::SimData* Sim)
 }
 
 template<class T> OutputPlugin*
-OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const magnet::xml::Node& XML)
+OutputPlugin::testGeneratePlugin(const dynamo::SimData* Sim, const magnet::xml::Node& XML)
 {
   try {
     Sim->getOutputPlugin<T>();
@@ -110,7 +109,7 @@ OutputPlugin::testGeneratePlugin(const DYNAMO::SimData* Sim, const magnet::xml::
 }
 
 OutputPlugin*
-OutputPlugin::getPlugin(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim)
+OutputPlugin::getPlugin(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
 {
   std::string Name(XML.getAttribute("Type"));
 
@@ -130,8 +129,6 @@ OutputPlugin::getPlugin(const magnet::xml::Node& XML, const DYNAMO::SimData* Sim
 #endif
   else if (!Name.compare("Torsion"))
     return testGeneratePlugin<OPCTorsion>(Sim, XML);
-  else if (!Name.compare("Geomview"))
-    return testGeneratePlugin<OPGeomview>(Sim, XML);
   else if (!Name.compare("Streamticker"))
     return testGeneratePlugin<OPStreamTicker>(Sim, XML);
   else if (!Name.compare("KEnergy"))

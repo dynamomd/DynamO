@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,9 +22,9 @@
 class LNewtonianGravity: public LNewtonian
 {
 public:
-  LNewtonianGravity(DYNAMO::SimData*, const magnet::xml::Node&);
+  LNewtonianGravity(dynamo::SimData*, const magnet::xml::Node&);
 
-  LNewtonianGravity(DYNAMO::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
+  LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 
   void initialise();
 

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,14 +35,14 @@
 #include <cmath> //for huge val
 
 CSSystemOnly::CSSystemOnly(const magnet::xml::Node& XML, 
-			   DYNAMO::SimData* const Sim):
+			   dynamo::SimData* const Sim):
   CScheduler(Sim,"SystemOnlyScheduler", NULL)
 { 
   I_cout() << "System Events Only Scheduler Algorithmn";
   operator<<(XML);
 }
 
-CSSystemOnly::CSSystemOnly(DYNAMO::SimData* const Sim, CSSorter* ns):
+CSSystemOnly::CSSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"SystemOnlyScheduler", ns)
 { I_cout() << "System Events Only Scheduler Algorithmn"; }
 

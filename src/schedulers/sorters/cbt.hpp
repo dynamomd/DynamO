@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,7 +35,7 @@ private:
   double pecTime;
 
 public:  
-  CSSCBT(const DYNAMO::SimData* const& SD):
+  CSSCBT(const dynamo::SimData* const& SD):
     CSSorter(SD, "CBT")
   {}
 
@@ -88,7 +88,7 @@ public:
 
     if (!(nUpdate % streamFreq))
       {
-#ifdef DYNAMO_UpdateCollDebug
+#ifdef dynamo_UpdateCollDebug
 	std::cerr << "PecTime Stream occuring";
 #endif
 	BOOST_FOREACH(pList& pDat, Min)

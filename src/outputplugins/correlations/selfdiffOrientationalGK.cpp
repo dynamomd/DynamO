@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include <magnet/math/matrix.hpp>
 
-OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const DYNAMO::SimData* tmp,
+OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const dynamo::SimData* tmp,
 							       const magnet::xml::Node& XML):
   OutputPlugin(tmp, "SelfDiffusionOrientationalGK", 60), //Note the sort order set later
   count(0),

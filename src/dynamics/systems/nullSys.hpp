@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,7 +24,7 @@
 class CSysNull: public System
 {
 public:
-  CSysNull(DYNAMO::SimData* tmp): System(tmp) 
+  CSysNull(dynamo::SimData* tmp): System(tmp) 
   {  sysName = "NULL"; }
   
   virtual System* Clone() const { return new CSysNull(*this); }

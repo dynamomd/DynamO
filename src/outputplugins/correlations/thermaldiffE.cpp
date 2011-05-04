@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPThermalDiffusionE::OPThermalDiffusionE(const DYNAMO::SimData* tmp,
+OPThermalDiffusionE::OPThermalDiffusionE(const dynamo::SimData* tmp,
 					 const magnet::xml::Node& XML):
   OutputPlugin(tmp,"ThermalDiffusionE", 60),
   G(100),
@@ -79,7 +79,7 @@ OPThermalDiffusionE::initialise()
 {
   species1 = Sim->dynamics.getSpecies(species1name).getID();
 
-  if (dynamic_cast<const DYNAMO::CENVE* >(Sim->ensemble.get()) == NULL)
+  if (dynamic_cast<const dynamo::EnsembleNVE* >(Sim->ensemble.get()) == NULL)
     M_throw() << "WARNING: This is only valid in the microcanonical"
       " ensemble!\nSee J.J. Erpenbeck, Phys. Rev. A 39, 4718 (1989) for more"
       "\n Essentially you need entropic data too for other ensembles";
@@ -101,25 +101,29 @@ OPThermalDiffusionE::initialise()
 		     * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
   
-  double sysMass = 0.0;
+  double sysMass = 0;
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    sysMass += sp->getMass() * sp->getCount();
+    BOOST_FOREACH(const size_t ID, *(sp->getRange()))
+    sysMass += sp->getMass(ID);
 
-  //Sum up the constant Del G.
+  //Sum up the constant Del G and the mass fraction of the species
+  double speciesMass = 0;
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
-      constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
-      sysMom += part.getVelocity() * Sim->dynamics.getSpecies(part).getMass();
+      double mass = Sim->dynamics.getSpecies(part).getMass(part.getID());
+
+      constDelG += part.getVelocity() * mass
+	* Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
+      sysMom += part.getVelocity() * mass;
       
       if (Sim->dynamics.getSpecies(part).getID() == species1)
-	constDelGsp1 += part.getVelocity();
+	{
+	  constDelGsp1 += part.getVelocity();
+	  speciesMass += mass;
+	}
     }
 
-  constDelGsp1 *= Sim->dynamics.getSpecies()[species1]->getMass();
-  
-  massFracSp1 = Sim->dynamics.getSpecies()[species1]->getCount() 
-    * Sim->dynamics.getSpecies()[species1]->getMass() / sysMass;
-
+  massFracSp1 = speciesMass / sysMass;
   I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
 }
 
@@ -162,7 +166,7 @@ OPThermalDiffusionE::rescaleFactor()
        //correlator time as well
        * Sim->dynamics.units().unitThermalDiffusion() * 2.0 
        * count * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT()
-       * Sim->dynamics.units().simVolume());
+       * Sim->dynamics.getSimVolume());
 }
 
 void 

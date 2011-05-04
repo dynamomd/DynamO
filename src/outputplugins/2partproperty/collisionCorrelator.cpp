@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,7 +20,7 @@
 #include "../../dynamics/include.hpp"
 #include <magnet/xmlwriter.hpp>
 
-OPCollisionCorrelator::OPCollisionCorrelator(const DYNAMO::SimData* t1,
+OPCollisionCorrelator::OPCollisionCorrelator(const dynamo::SimData* t1,
 					       const magnet::xml::Node& XML):
   OP2PP(t1,"CollisionCorrelator")
 { operator<<(XML); }

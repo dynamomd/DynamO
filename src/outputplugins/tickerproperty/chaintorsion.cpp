@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,7 +27,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
-OPCTorsion::OPCTorsion(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPCTorsion::OPCTorsion(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"Torsion")
 {}
 

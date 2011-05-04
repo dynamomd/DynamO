@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,12 +19,12 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CSCEntry::CSCEntry(DYNAMO::SimData* const tmp, const char *aName):
+CSCEntry::CSCEntry(dynamo::SimData* const tmp, const char *aName):
   SimBase(tmp, aName, IC_cyan)
 {}
 
 CSCEntry* 
-CSCEntry::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* const Sim)
+CSCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
     return new CSCENBList(XML, Sim);      

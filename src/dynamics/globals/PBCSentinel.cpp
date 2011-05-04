@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include "../../schedulers/scheduler.hpp"
 #include <magnet/xmlreader.hpp>
 
-CGPBCSentinel::CGPBCSentinel(DYNAMO::SimData* nSim, const std::string& name):
+CGPBCSentinel::CGPBCSentinel(dynamo::SimData* nSim, const std::string& name):
   Global(nSim, "PBCSentinel"),
   maxintdist(0)
 {
@@ -31,7 +31,7 @@ CGPBCSentinel::CGPBCSentinel(DYNAMO::SimData* nSim, const std::string& name):
   I_cout() << "PBCSentinel Loaded";
 }
 
-CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, DYNAMO::SimData* ptrSim):
+CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   Global(ptrSim, "PBCSentinel"),
   maxintdist(0)
 {

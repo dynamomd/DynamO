@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,7 +35,7 @@ OPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
     array[i] = 0;
 }
 
-OPCContactMap::OPCContactMap(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPCContactMap::OPCContactMap(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OPTicker(tmp,"ContactMap")
 {}
 
@@ -87,7 +87,7 @@ OPCContactMap::ticker()
 	      BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
 		if (ptr->isInteraction(part1,part2))
 		  if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
-		    if (static_cast<const ICapture*>(ptr.get_ptr())
+		    if (dynamic_cast<const ICapture*>(ptr.get_ptr())
 			->isCaptured(part1,part2))
 		      dat.array[i * dat.chainlength + j]++;
 	    }

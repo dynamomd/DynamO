@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -33,8 +33,8 @@
 #include <cmath>
 #include <iomanip>
 
-ISquareWell::ISquareWell(const magnet::xml::Node& XML, DYNAMO::SimData* tmp):
-  ISingleCapture(tmp, NULL) //A temporary value!
+ISquareWell::ISquareWell(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  Interaction(tmp, NULL) //A temporary value!
 {
   operator<<(XML);
 }
@@ -74,8 +74,24 @@ ISquareWell::Clone() const
 { return new ISquareWell(*this); }
 
 double 
-ISquareWell::hardCoreDiam() const 
-{ return _diameter->getMaxValue(); }
+ISquareWell::getDiameter(size_t ID, size_t subID) const
+{ return _diameter->getProperty(ID); }
+
+Vector 
+ISquareWell::getPosition(size_t ID, size_t subID) const
+{ 
+  Vector retval = Sim->particleList[ID].getPosition();
+  Sim->dynamics.BCs().applyBC(retval);
+  return retval;
+}
+
+
+double 
+ISquareWell::getExcludedVolume(size_t ID) const 
+{ 
+  double diam = _diameter->getProperty(ID);
+  return diam * diam * diam * M_PI / 6.0; 
+}
 
 double 
 ISquareWell::maxIntDist() const 
@@ -85,12 +101,14 @@ void
 ISquareWell::initialise(size_t nID)
 {
   ID = nID;
-  ISingleCapture::initCaptureMap();
+  ISingleCapture::initCaptureMap(Sim->particleList);
 }
 
 bool 
 ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
 {
+  if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+
   Vector  rij = p1.getPosition() - p2.getPosition();
   Sim->dynamics.BCs().applyBC(rij);
 
@@ -139,7 +157,9 @@ ISquareWell::getEvent(const Particle &p1,
   double d2 = d * d;
   double ld2 = d * l * d * l;
   
-  if (isCaptured(p1, p2)) 
+  IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+
+  if (isCaptured(p1, p2))
     {
       if (Sim->dynamics.getLiouvillean()
 	  .SphereSphereInRoot(colldat, d2,
@@ -154,15 +174,14 @@ ISquareWell::getEvent(const Particle &p1,
 		      << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif
 	  
-	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
+	  retval = IntEvent(p1, p2, colldat.dt, CORE, *this);
 	}
-      else
-	if (Sim->dynamics.getLiouvillean()
-	    .SphereSphereOutRoot(colldat, ld2,
-				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  {  
-	    return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
-	  }
+
+      if (Sim->dynamics.getLiouvillean()
+	  .SphereSphereOutRoot(colldat, ld2,
+			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+	if (retval.getdt() > colldat.dt)
+	  retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
 	   .SphereSphereInRoot(colldat, ld2, 
@@ -187,10 +206,10 @@ ISquareWell::getEvent(const Particle &p1,
 	}
 #endif
 
-      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+      retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
     }
 
-  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+  return retval;
 }
 
 void
@@ -331,4 +350,18 @@ ISquareWell::outputXML(xml::XmlStream& XML) const
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  
+}
+
+double 
+ISquareWell::getInternalEnergy() const
+{ 
+  //Once the capture maps are loaded just iterate through that determining energies
+  double Energy = 0.0;
+  typedef std::pair<size_t, size_t> locpair;
+
+  BOOST_FOREACH(const locpair& IDs, captureMap)
+    Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
+		     +_wellDepth->getProperty(IDs.second));
+  
+  return -Energy; 
 }

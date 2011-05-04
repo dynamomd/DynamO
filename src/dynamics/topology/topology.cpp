@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -25,7 +25,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-Topology::Topology(DYNAMO::SimData* tmp, size_t nID):
+Topology::Topology(dynamo::SimData* tmp, size_t nID):
   SimBase_const(tmp,"Species", IC_blue),
   ID(nID)
 { }
@@ -61,7 +61,7 @@ Topology::outputXML(xml::XmlStream& XML) const
 
 
 Topology* 
-Topology::getClass(const magnet::xml::Node& XML, DYNAMO::SimData* Sim, size_t ID)
+Topology::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim, size_t ID)
 {
   if (!strcmp(XML.getAttribute("Type"),"Chain"))
     return new CTChain(XML, Sim, ID);

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,8 +27,8 @@
 class CSysRescale: public System
 {
 public:
-  CSysRescale(const magnet::xml::Node& XML, DYNAMO::SimData*);
-  CSysRescale(DYNAMO::SimData*, size_t frequency, std::string name);
+  CSysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
+  CSysRescale(dynamo::SimData*, size_t frequency, std::string name);
 
   virtual System* Clone() const { return new CSysRescale(*this); }
 

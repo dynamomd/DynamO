@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -36,7 +36,7 @@ OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
   BondCorrelationsSamples.resize(CL-2, 0);
 }
 
-OPChainBondAngles::OPChainBondAngles(const DYNAMO::SimData* tmp, 
+OPChainBondAngles::OPChainBondAngles(const dynamo::SimData* tmp, 
 				     const magnet::xml::Node& XML):
   OPTicker(tmp,"ChainBondAngles"),
   binwidth(0.0001)

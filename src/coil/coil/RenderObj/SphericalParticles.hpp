@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,13 +16,13 @@
 */
 
 #pragma once
-#ifdef DYNAMO_visualizer
-# include <gtkmm.h>
-# include <coil/RenderObj/Spheres.hpp>
-# include <memory>
-# include <magnet/gtk/colorMapSelector.hpp>
+#include <gtkmm.h>
+#include <coil/RenderObj/Spheres.hpp>
+#include <coil/coilMaster.hpp>
+#include <magnet/gtk/colorMapSelector.hpp>
+#include <memory>
 
-class SphereParticleRenderer: public RTSpheres
+class RSphericalParticles: public RTSpheres
 {
 public:
   //! \param spheresPerObject Used when one simulation object is
@@ -32,9 +32,7 @@ public:
   //! N/_spheresPerObject colors should be placed in
   //! _particleColorData and the data is duplicated out automatically
   //! to all spheres in a single object.
-  SphereParticleRenderer(size_t N, std::string name, 
-			 magnet::function::Delegate1<magnet::CL::CLGLState&, void> updateColorFunc,
-			 size_t spheresPerObject = 1);
+  RSphericalParticles(size_t N, std::string name, size_t spheresPerObject = 1);
   
   virtual void initGTK();
 
@@ -42,16 +40,13 @@ public:
     
   typedef enum {
     SINGLE_COLOR = 1,
-    COLOR_BY_ID = 2,
-    COLOR_BY_SPEED = 3
+    COLOR_BY_ID = 2
   } DrawMode;
 
   inline volatile const DrawMode& getDrawMode() { return _mode; }
-  inline volatile const double& getScaleV() { return _scaleV; }
-  inline volatile const cl_uchar4& getColorFixed() { return _colorFixed; }
-  inline volatile const cl_uchar4& getColorStatic() { return _colorStatic; }
-  inline volatile bool getRecolorOnUpdate() { return _colorStaticParticles || _recolorOnUpdate; }
-  inline volatile bool getColorIfStatic() { return _colorStaticParticles; }
+
+  inline void recolor(magnet::CL::CLGLState& CLState) 
+  { if (_recolorOnUpdate) updateColorData(CLState); }
 
   inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
 
@@ -61,6 +56,8 @@ public:
   void sendRenderData(magnet::CL::CLGLState& CLState);
   void sendColorData(magnet::CL::CLGLState& CLState);
 
+  void updateColorData(magnet::CL::CLGLState& CLState);
+
 protected:
   size_t _spheresPerObject;
 
@@ -68,28 +65,14 @@ protected:
 
   std::auto_ptr<Gtk::VBox> _optList;
   std::auto_ptr<magnet::Gtk::ColorMapSelector> _colorMap;
-  std::auto_ptr<Gtk::CheckButton> _colorIfStatic;
-  std::auto_ptr<Gtk::SpinButton> _RStatic;
-  std::auto_ptr<Gtk::SpinButton> _GStatic;
-  std::auto_ptr<Gtk::SpinButton> _BStatic;
-  std::auto_ptr<Gtk::SpinButton> _AStatic;
   std::auto_ptr<Gtk::RadioButton> _singleColorMode;
   std::auto_ptr<Gtk::RadioButton> _colorByIDMode;
-  std::auto_ptr<Gtk::RadioButton> _colorBySpeedMode;
   std::auto_ptr<Gtk::SpinButton> _RFixed;
   std::auto_ptr<Gtk::SpinButton> _GFixed;
   std::auto_ptr<Gtk::SpinButton> _BFixed;
   std::auto_ptr<Gtk::SpinButton> _AFixed;
-  std::auto_ptr<Gtk::Entry> _characteristicV;
     
   volatile cl_uchar4 _colorFixed;
-  volatile cl_uchar4 _colorStatic;
   volatile DrawMode _mode;
-  volatile double _scaleV;
   volatile bool _recolorOnUpdate;
-  volatile bool _colorStaticParticles;
-
-  magnet::function::Delegate1<magnet::CL::CLGLState&, void> _updateColorFunc;
-
 };
-#endif

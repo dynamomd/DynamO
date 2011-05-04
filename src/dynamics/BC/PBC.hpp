@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,34 +19,14 @@
 #include "../../base/is_base.hpp"
 #include "BC.hpp"
 
-/*! \brief A simple cubic/square periodic boundary condition.
- * 
- * See the BoundaryCondition base class for member descriptions.
- */
-class BCSquarePeriodic: public BoundaryCondition
-{
-public:
-  BCSquarePeriodic(const DYNAMO::SimData*);
-
-  virtual void applyBC(Vector &) const;
-
-  virtual void applyBC(Vector &, Vector &) const;
-
-  virtual void applyBC(Vector &, const double&) const;
-
-  inline virtual void outputXML(xml::XmlStream &) const;  
-  virtual void operator<<(const magnet::xml::Node&);
-  virtual BoundaryCondition* Clone () const;
-};
-
 /*! \brief A simple rectangular periodic boundary condition.
  * 
  * See the BoundaryCondition base class for member descriptions.
  */
-class BCRectangularPeriodic: public BoundaryCondition
+class BCPeriodic: public BoundaryCondition
 {
 public:
-  BCRectangularPeriodic(const DYNAMO::SimData*);
+  BCPeriodic(const dynamo::SimData*);
 
   virtual void applyBC(Vector &) const;
   
@@ -65,10 +45,10 @@ public:
  * no leaks as these are not rounded and would show up in animations
  * or inspections.
  */
-class BCSquarePeriodicExceptX: public BoundaryCondition
+class BCPeriodicExceptX: public BoundaryCondition
 {
 public:
-  BCSquarePeriodicExceptX(const DYNAMO::SimData*);
+  BCPeriodicExceptX(const dynamo::SimData*);
 
   virtual void applyBC(Vector& pos) const;
   
@@ -88,10 +68,10 @@ public:
  * no leaks as these are not rounded and would show up in animations
  * or inspections.
  */
-class BCSquarePeriodicXOnly: public BoundaryCondition
+class BCPeriodicXOnly: public BoundaryCondition
 {
 public:
-  BCSquarePeriodicXOnly(const DYNAMO::SimData*);
+  BCPeriodicXOnly(const dynamo::SimData*);
 
   virtual void applyBC(Vector& pos) const;
   

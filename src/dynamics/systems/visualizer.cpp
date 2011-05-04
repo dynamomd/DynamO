@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -35,7 +35,7 @@
 #include "../liouvillean/CompressionL.hpp"
 #include "../coilRenderObj.hpp"
 
-SVisualizer::SVisualizer(DYNAMO::SimData* nSim, std::string nName, double tickFreq):
+SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
   System(nSim)
 {
   _updateTime = tickFreq * Sim->dynamics.units().unitTime();

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,10 +18,10 @@
 #pragma once
 #include "../../base/is_base.hpp"
 
-class CSSorter: public DYNAMO::SimBase_const
+class CSSorter: public dynamo::SimBase_const
 {
 public:
-  CSSorter(const DYNAMO::SimData* const& SD, const char *aName);
+  CSSorter(const dynamo::SimData* const& SD, const char *aName);
 
   virtual ~CSSorter() {}
   virtual size_t size()                              const = 0;
@@ -55,7 +55,7 @@ public:
   virtual intPart   copyNextEvent() const               = 0;
   virtual CSSorter* Clone()                          const = 0;
 
-  static CSSorter* getClass(const magnet::xml::Node&, const DYNAMO::SimData*);
+  static CSSorter* getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
   friend xml::XmlStream& operator<<(xml::XmlStream&, const CSSorter&);
 

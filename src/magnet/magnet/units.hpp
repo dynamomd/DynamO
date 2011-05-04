@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -171,7 +171,7 @@ namespace magnet {
       inline Units(const std::string name)
       {
 #define CONVERTFROMSTRINGMACRO(UNIT)\
-	if (UNIT () == *this) {*this = UNIT (); return;}
+	if (!std::string(UNIT()).compare(name)) {*this = UNIT (); return;}
 	UNITS_FACTORY(CONVERTFROMSTRINGMACRO);
 #undef CONVERTFROMSTRINGMACRO
 	M_throw() << "Invalid name of Units, " << name;

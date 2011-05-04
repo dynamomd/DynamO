@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -28,10 +28,10 @@ class CShape;
 class LNOrientation: public LNewtonian
 {
 public:  
-  LNOrientation(DYNAMO::SimData* Sim, const magnet::xml::Node& XML):
+  LNOrientation(dynamo::SimData* Sim, const magnet::xml::Node& XML):
     LNewtonian(Sim) {}
 
-  LNOrientation(DYNAMO::SimData* Sim): LNewtonian(Sim) {}
+  LNOrientation(dynamo::SimData* Sim): LNewtonian(Sim) {}
 
   virtual void initialise();
 

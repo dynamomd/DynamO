@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -23,7 +23,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
-OPQMGA::OPQMGA(const DYNAMO::SimData* tmp, const magnet::xml::Node&):
+OPQMGA::OPQMGA(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OPCollTicker(tmp,"OPQMGA"),
   frameCount(0)
 {}
@@ -55,9 +55,9 @@ OPQMGA::printImage()
     M_throw() << "Could not open QMGA file for writing";
 
   of << Sim->N << "\n"
-     << Sim->aspectRatio[0] / Sim->dynamics.units().unitLength() << "\n"
-     << Sim->aspectRatio[1] / Sim->dynamics.units().unitLength() << "\n"
-     << Sim->aspectRatio[2] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->primaryCellSize[0] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->primaryCellSize[1] / Sim->dynamics.units().unitLength() << "\n"
+     << Sim->primaryCellSize[2] / Sim->dynamics.units().unitLength() << "\n"
      << "0.0 0.0\n";
   
   std::list<unsigned long> tmpList;

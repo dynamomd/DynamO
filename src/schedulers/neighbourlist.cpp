@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -118,14 +118,14 @@ CSNeighbourList::outputXML(xml::XmlStream& XML) const
 }
 
 CSNeighbourList::CSNeighbourList(const magnet::xml::Node& XML, 
-				 DYNAMO::SimData* const Sim):
+				 dynamo::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL)
 { 
   I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
   operator<<(XML);
 }
 
-CSNeighbourList::CSNeighbourList(DYNAMO::SimData* const Sim, CSSorter* ns):
+CSNeighbourList::CSNeighbourList(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns)
 { I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
 

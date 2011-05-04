@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,10 +19,10 @@
 #include "../base/is_base.hpp"
 #include <magnet/math/vector.hpp>
 
-class CInputPlugin: public DYNAMO::SimBase
+class CInputPlugin: public dynamo::SimBase
 {
  public:
-  CInputPlugin(DYNAMO::SimData*, const char *aName, const char *aColor=IC_cyan);
+  CInputPlugin(dynamo::SimData*, const char *aName, const char *aColor=IC_cyan);
 
   virtual ~CInputPlugin() {};
 

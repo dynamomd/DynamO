@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPKEnergyTicker::OPKEnergyTicker(const DYNAMO::SimData* tmp, 
+OPKEnergyTicker::OPKEnergyTicker(const dynamo::SimData* tmp, 
 				 const magnet::xml::Node& XML):
   OPTicker(tmp,"KEnergyTicker"),
   count(0)
@@ -54,7 +54,7 @@ OPKEnergyTicker::ticker()
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->dynamics.getSpecies(part).getMass();
+	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
 
   //Try and stop round off error this way
     for (size_t iDim = 0; iDim < NDIM; ++iDim)

@@ -1,4 +1,4 @@
-/*  DYNAMO:- Event driven molecular dynamics simulator
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.marcusbannerman.co.uk/dynamo
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -27,7 +27,7 @@
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/legendre.hpp>
 
-OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const DYNAMO::SimData* tmp,
+OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const dynamo::SimData* tmp,
 							   const magnet::xml::Node& XML):
   OPTicker(tmp,"MSDOrientationalCorrelator"),
   length(50),
