@@ -1093,7 +1093,7 @@ CLGLWindow::CallBackDisplayFunc()
   else    
     {
       _renderTarget->attach();
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       _viewPortInfo->loadMatrices();
       drawScene(*_renderTarget);
       _renderTarget->detach();
@@ -1178,10 +1178,10 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 
   //Update the viewport
   _viewPortInfo->buildMatrices();
+  _renderTarget->resize(w, h);
   
   if (_shaderPipeline)
     {
-      _renderTarget->resize(w, h);
       _filterTarget1.resize(w, h);
       _filterTarget2.resize(w, h);
       _normalsFBO.resize(w, h);
