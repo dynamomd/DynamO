@@ -129,24 +129,3 @@ CLCylinder::outputXML(xml::XmlStream& XML) const
       << vPosition / Sim->dynamics.units().unitLength()
       << xml::endtag("Origin");
 }
-
-void 
-CLCylinder::write_povray_info(std::ostream& os) const
-{
-  if (render)
-    os << "intersection { cylinder { <0, -0.5, 0>, <0, 0.5, 0>," 
-       << radius << " "
-       << "Point_At_Trans(<"
-       << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << ">)"
-       << " translate <" << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] << "> }"
-       << "box { <" 
-       << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
-       << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
-       << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
-       << ">,"
-       << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
-       << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
-       << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
-       << "> }\n"
-       << "pigment { Col_Glass_Bluish } }";
-}

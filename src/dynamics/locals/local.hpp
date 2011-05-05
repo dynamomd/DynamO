@@ -62,8 +62,6 @@ public:
 
   inline const size_t& getID() const { return ID; }
 
-  virtual void write_povray_info(std::ostream&) const {}
-
   virtual void checkOverlaps(const Particle&) const  {}
 
 protected:

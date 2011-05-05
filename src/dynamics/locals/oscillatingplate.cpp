@@ -186,61 +186,14 @@ CLOscillatingPlate::getPlateEnergy() const
        +  std::pow(omega0 * delta * std::sin(omega0 * (Sim->dSysTime + timeshift)), 2));
 }
 
-void 
-CLOscillatingPlate::write_povray_info(std::ostream& os) const
-{
-  Vector pos = getPosition();
-  //The walls are \pm0.25 thick and are set 0.5 away from the COM surface
-  //to give the appearance of proper walls, not COM walls
-  Vector WallLoc1 = pos + nhat * (sigma + 0.75 * Sim->dynamics.units().unitLength());
-  Vector WallLoc2 = pos - nhat * (sigma + 0.75 * Sim->dynamics.units().unitLength());
-
-  Sim->dynamics.BCs().applyBC(WallLoc1);
-  Sim->dynamics.BCs().applyBC(WallLoc2);
-
-  os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->dynamics.units().unitLength() 
-     << ", -0.5>, <0.5, " << +0.25 * Sim->dynamics.units().unitLength() 
-     << ", 0.5> } Point_At_Trans(<"
-     << nhat[0] << "," << nhat[1] << "," << nhat[2] << ">) translate <"
-     <<  WallLoc1[0] << "," <<  WallLoc1[1] << "," <<  WallLoc1[2] 
-     << "> }"
-
-     << "\nbox { <" 
-     << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
-     << ">,"
-     << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
-     << "> }\n"
-     << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
-
-  os << "object { intersection { object { box { <-0.5, " << -0.25 * Sim->dynamics.units().unitLength()
-     << ", -0.5>, <0.5, " << 0.25 * Sim->dynamics.units().unitLength() 
-     << ", 0.5> } Point_At_Trans(<"
-     << -nhat[0] << "," << -nhat[1] << "," << -nhat[2] << ">) translate <"
-     <<  WallLoc2[0] << "," <<  WallLoc2[1] << "," <<  WallLoc2[2] 
-     << "> }"
-
-     << "\nbox { <" 
-     << -Sim->primaryCellSize[0]/2 - Sim->dynamics.units().unitLength() 
-     << "," << -Sim->primaryCellSize[1]/2 - Sim->dynamics.units().unitLength()  
-     << "," << -Sim->primaryCellSize[2]/2 - Sim->dynamics.units().unitLength() 
-     << ">,"
-     << "<" << Sim->primaryCellSize[0]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->primaryCellSize[1]/2 + Sim->dynamics.units().unitLength()
-     << "," << Sim->primaryCellSize[2]/2 + Sim->dynamics.units().unitLength()
-     << "> }\n"
-     << "} pigment { Col_Glass_Bluish } finish { F_Glass5 } }\n";
-}
-
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/Function.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 CLOscillatingPlate::getCoilRenderObj() const
 {
+  const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+
   if (!_renderObj.isValid())
     {
       Vector axis3 = nhat / nhat.nrm();
@@ -262,8 +215,8 @@ CLOscillatingPlate::getCoilRenderObj() const
 	 << axis3[1] << ", "
 	 << axis3[2] << ", 0";
 
-      axis1 *= Sim->primaryCellSize[1] / axis1.nrm();
-      axis2 *= Sim->primaryCellSize[2] / axis2.nrm();
+      axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
+      axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
 
       _renderObj = new RFunction(10, 
 				 rw0 - 0.5 * (axis1 + axis2), 
@@ -281,9 +234,11 @@ CLOscillatingPlate::getCoilRenderObj() const
 void 
 CLOscillatingPlate::updateRenderData(magnet::CL::CLGLState&) const
 {
+  const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+
   if (_renderObj.isValid())
     static_cast<RFunction&>(*_renderObj)
-      .setConstantA(delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
-		    - (sigma + 0.5 * Sim->dynamics.units().unitLength()));
+      .setConstantA((delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
+		     - (sigma + 0.5 * Sim->dynamics.units().unitLength())) *  lengthRescale);
 }
 #endif

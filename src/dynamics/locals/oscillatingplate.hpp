@@ -42,8 +42,6 @@ public:
 
   virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void write_povray_info(std::ostream&) const;
-
   Vector getPosition() const;
 
   Vector getVelocity() const;

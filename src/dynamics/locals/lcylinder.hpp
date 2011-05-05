@@ -39,8 +39,6 @@ public:
 
   virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void write_povray_info(std::ostream&) const;
-
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 

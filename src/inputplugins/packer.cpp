@@ -2128,52 +2128,53 @@ CIPPacker::initialise()
 	      "       --b1 : Makes the particle collisions not affect the plate\n"	
 	      "       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 	      "       --i2 : Upper limit on the particles inserted [All]\n"
-	      "       --f1 : Mass ratio [1]\n"
-	      "       --f2 : Length in particle radii [4.5]\n"
-	      "       --f3 : Hertz, if the unit of time is seconds [1]\n"
-	      "       --f4 : Initial displacement [130]\n"
-	      "       --f5 : Particle-Particle inelasticity [0.88]\n"
-	      "       --f6 : Particle-Wall inelasticity [0.96]\n"
-	      "       --f7 : Cross section area [0.96]\n";
+	      "       --f1 : Box to total particle mass ratio [2.93]\n"
+	      "       --f2 : Length in particle radii [4]\n"
+	      "       --f3 : Box frequency [1.23]\n"
+	      "       --f4 : Initial displacement [10.7]\n"
+	      "       --f5 : Particle-Particle inelasticity [0.75]\n"
+	      "       --f6 : Particle-Wall inelasticity [0.76]\n"
+	      "       --f7 : Cross section length [5.2]\n";
 	    exit(1);
 	  }
+
+	double MassRatio = 2.93;
+	if (vm.count("f1"))
+	  MassRatio = vm["f1"].as<double>();
+
 	double L = 4.0;
 	if (vm.count("f2"))
 	  L = vm["f2"].as<double>();
-
 	L -= 1; //This is to account for centre of mass walls
 
-	double Delta = 13.0;
+	double Omega0 = 1.23 * M_PI * 2.0;
+	if (vm.count("f3"))
+	  Omega0 = vm["f3"].as<double>() * M_PI * 2.0;
+
+	double Delta = 10.7;
 	if (vm.count("f4"))
 	  Delta = vm["f4"].as<double>();
 
-	//the  2.0 * L is to give an extra half box width on each side of the sim
-	double boxL = 2.0 * L + 2.0 * Delta;
+	double ParticleInelas = 0.75;
+	if (vm.count("f5"))
+	  ParticleInelas = vm["f5"].as<double>();
+
+	double PlateInelas = 0.76;
+	if (vm.count("f6"))
+	  PlateInelas = vm["f6"].as<double>();
 
 	double xy = 5.2;
 	if (vm.count("f7"))
 	  xy = vm["f7"].as<double>();
 
+	//the  2.0 * L is to give an extra half box width on each side of the sim
+	double boxL = 2.0 * L + 2.0 * Delta;
+
 	xy -= 1;//Again to account for centre of mass walls
 
 	double Aspect =  xy / boxL;
-	double MassRatio = 1.0;
-	double PlateInelas = 0.96;
-	if (vm.count("f6"))
-	  PlateInelas = vm["f6"].as<double>();
 
-	double ParticleInelas = 0.88;
-	if (vm.count("f5"))
-	  ParticleInelas = vm["f5"].as<double>();
 	double boundaryInelas = PlateInelas;
-	double Omega0 = M_PI * 2.0;
-
-	if (vm.count("f1"))
-	  MassRatio = vm["f1"].as<double>();
-
-	if (vm.count("f3"))
-	  Omega0 *= vm["f3"].as<double>();
-
 
 	//This slight exaggeration is required to stop the cells failing with walls near the edge of the simulation
 	Sim->primaryCellSize = Vector(1, 1.1 * Aspect, 1.1 * Aspect);

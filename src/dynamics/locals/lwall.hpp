@@ -39,8 +39,6 @@ public:
 
   virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void write_povray_info(std::ostream&) const;
-
   virtual void checkOverlaps(const Particle&) const;
 
 protected:
