@@ -104,7 +104,7 @@ Simulation::addOutputPlugin(std::string Name)
   if (status >= INITIALISED)
     M_throw() << "Cannot add plugins now";
   
-  I_cout() << "Loading output plugin, " << Name;
+  I_cout() << "Loading output plugin string " << Name;
 
   magnet::ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);

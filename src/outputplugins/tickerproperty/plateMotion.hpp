@@ -53,5 +53,6 @@ class OPPlateMotion: public OPTicker
   std::vector<localEntry> localEnergyLoss;
   double partpartEnergyLoss;
   double oldPlateEnergy;
+  Vector momentumChange;
 
 };

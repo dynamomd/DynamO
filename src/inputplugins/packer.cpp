@@ -2145,7 +2145,8 @@ CIPPacker::initialise()
 	double L = 4.0;
 	if (vm.count("f2"))
 	  L = vm["f2"].as<double>();
-	L -= 1; //This is to account for centre of mass walls
+	//The available area to place the particle centers is actually -1 particle diameter to the actual area 
+	L -= 1; 
 
 	double Omega0 = 1.23 * M_PI * 2.0;
 	if (vm.count("f3"))
@@ -2166,17 +2167,16 @@ CIPPacker::initialise()
 	double xy = 5.2;
 	if (vm.count("f7"))
 	  xy = vm["f7"].as<double>();
+	//The available area to place the particle centers is actually -1 particle diameter to the actual area 
+	xy -= 1;
 
-	//the  2.0 * L is to give an extra half box width on each side of the sim
+
+	//the  2.0 * L is to give an extra half box width on each side of the sim,
+	//boxL is used as our unit length from now on.
 	double boxL = 2.0 * L + 2.0 * Delta;
-
-	xy -= 1;//Again to account for centre of mass walls
-
 	double Aspect =  xy / boxL;
 
-	double boundaryInelas = PlateInelas;
-
-	//This slight exaggeration is required to stop the cells failing with walls near the edge of the simulation
+	//Our simulation is set to be boxL X (1.1 * xy) X (1.1 * xy)
 	Sim->primaryCellSize = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
 
 //	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L ,
@@ -2185,15 +2185,13 @@ CIPPacker::initialise()
 //	Vector particleCOM = Vector(-(0.25 * (L - 2.0 * Sigma) + Delta - 0.5)/L,
 //				    0, 0);
 
-	Vector particleArea = Vector((L + 1) / boxL, (xy + 1) / boxL, 
-				     (xy + 1) / boxL);
+	//The area in which we can place particle centers
+	Vector particleArea = Vector(L / boxL, xy / boxL, xy / boxL);
 
-	//The system starts at a full extention, always plus 0.1 to
-	//stop instant collisions
+	//The system starts at a full extention
 	Vector particleCOM = Vector(Delta / boxL, 0, 0);
 
 	CUCell* sysPack;
-
 	if (!vm.count("i1"))
 	  sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
 	else
@@ -2247,18 +2245,18 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,1), 
+	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,0,1), 
 					  Vector(0, 0, -0.5 * Aspect),
 					  "Plate2", new CRAll(Sim), false));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
+	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
 					  "Plate3", new CRAll(Sim), false));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,+1,0), 
+	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,+1,0), 
 					  Vector(0, -0.5 * Aspect, 0),
 					  "Plate4", new CRAll(Sim), false));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, boundaryInelas, Vector(0,-1,0), 
+	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,-1,0), 
 					  Vector(0, +0.5 * Aspect, 0),
 					  "Plate5", new CRAll(Sim), false));
 

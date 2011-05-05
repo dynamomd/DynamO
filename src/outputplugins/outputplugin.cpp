@@ -49,8 +49,7 @@ OutputPlugin::I_Pcout() const
 OutputPlugin*
 OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
 {
-  typedef boost::tokenizer<boost::char_separator<char> >
-    tokenizer;
+  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
   rapidxml::xml_document<> doc;
   rapidxml::xml_node<> *node = doc.allocate_node(rapidxml::node_element, 
@@ -63,7 +62,8 @@ OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
   tokenizer tokens(Details, DetailsSep);
   tokenizer::iterator details_iter = tokens.begin();
 
-  node->append_attribute(doc.allocate_attribute("Type", details_iter->c_str()));
+  node->append_attribute(doc.allocate_attribute
+			 ("Type", doc.allocate_string(details_iter->c_str())));
 
   ++details_iter;
   if (details_iter != tokens.end())
@@ -87,7 +87,9 @@ OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
 	  else
 	    val = *value_iter;
 
-	  node->append_attribute(doc.allocate_attribute(opName.c_str(), val.c_str()));
+	  node->append_attribute(doc.allocate_attribute
+				 (doc.allocate_string(opName.c_str()), 
+				  doc.allocate_string(val.c_str())));
 	}
     }
 

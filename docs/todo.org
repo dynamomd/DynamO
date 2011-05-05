@@ -31,10 +31,11 @@
 **** TODO Update the tutorials.
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists.
+**** TODO Clean up the overlap tests and make a dynamod --check mode.
 **** TODO Generalize the Morton ordered neighbour list.
 **** TODO Move Dynamos classes into its own folder in the src directory.
 **** TODO Move dynamo classes into the dynamo namespace.
-**** TODO Triangular Meshes
+**** TODO Triangular Meshes.
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
     - [ ] Cylinders can be inserted, just write the overlap test
@@ -83,3 +84,4 @@
     - [X] Implement a stepped interaction potential
 *** DONE Implement Parallel Hard Cubes		:ARCHIVE:
     CLOSED: [2009-06-10 Wed 07:58]    
+    

@@ -72,6 +72,7 @@ OPPlateMotion::initialise()
   oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
   partpartEnergyLoss = 0;
 
+  momentumChange = Vector(0, 0, 0);
   ticker();
 }
 
@@ -96,6 +97,9 @@ OPPlateMotion::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
   localEnergyLoss[localEvent.getLocalID()].first += EnergyChange + newPlateEnergy - oldPlateEnergy;
 
   oldPlateEnergy = newPlateEnergy;
+
+  BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    momentumChange += pData.getDeltaP();
 }
 
 void 
@@ -145,7 +149,10 @@ OPPlateMotion::ticker()
 
   Vector plateSpeed = plate.getVelocity() / Sim->dynamics.units().unitVelocity();
 
+  momentumChange /= Sim->dynamics.units().unitMomentum();
+
   logfile << Sim->dSysTime / Sim->dynamics.units().unitTime()
+	  << " " << momentumChange[0] << " " << momentumChange[1] << " " << momentumChange[2]
 	  << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
 	  << " " << com[0] << " " << com[1] << " " << com[2]
 	  << " " << comvel[0] << " " << comvel[1] << " " << comvel[2]
@@ -157,6 +164,8 @@ OPPlateMotion::ticker()
 	  << " " << partpartEnergyLoss / Sim->dynamics.units().unitEnergy()
 	  << "\n";
   
+  momentumChange = Vector(0, 0, 0);
+
   //partpartEnergyLoss = 0.0;
 }
 
