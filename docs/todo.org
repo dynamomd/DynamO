@@ -5,29 +5,33 @@
 
 * Code improvements
 ** Version Milestones
+*** Dynamo 1.0
+    First major release of DynamO.
 *** Dynamo 1.1
 **** DONE *MAJOR* New properties framework, allowing polydispersity and a very general way to attach values to particles.
 **** DONE *MAJOR-API* Migrate to RapidXML parser, cleaning up the XML loading code, reducing memory usage and speeding up loading of the config files.
 **** DONE *MAJOR* Remove binary XML mode, new parser is fast enough anyway and binary blobs in the XML is just confusing people.
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
+**** DONE *MAJOR* New dynamod mode (-m 26) - Polydisperse Sheared Hard Spheres
 **** DONE *MINOR* Optimize the MinMax Heap memory usage to remove a wasted element (5-10% memory saving).
 **** DONE *MINOR* Auto detect if outputted files should be compressed based off their file extension.
 **** DONE *MINOR* Removed the Geomview output plugin, the coil library supercedes these very old plugins.
 **** DONE *MINOR* Remove aspect ratio and instead load the primary image cell size.
 **** DONE *MINOR* Cleaned up dynamod's command line options and --help flag to make it more user friendly.
-**** DONE *API-CHANGE* Change HardCoreDiam() to be ExcludedVolume() in Interactions
+**** DONE *API-CHANGE* Replace HardCoreDiam() with ExcludedVolume() in Interactions
 **** DONE *API-CHANGE* Renamed and document the CEnsemble class.
 **** DONE *BUG* Now both the length and time scales are rescaled after a compression. This holds the energy and velocity scales constant. The new properties framework has fixed several errors in the original rescaling.
-**** DONE *BUG* All Stepped potential will not work for static & dynamic particle collisions, if an inner collision occurs an escape may occur earlier
-**** DONE *BUG* Fix the segfault when a simulation closes coil through a shutdown.
+**** DONE *BUG* Stepped potentials would not work for static & dynamic particle collisions.
+**** DONE *BUG* Fixed the segfault when a simulation closes coil through a shutdown.
 **** DONE *BUG* Fixed compression of shearing systems failing due to an incorrect rescaling of the box shift in the BC's.
-**** DONE *MAJOR* New dynamod mode (-m 26) - Polydisperse Hard Spheres
+**** TODO *BUG* Fixed rendering on low end GPU's, the render target was not getting resized.
 **** TODO *MAJOR* Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data.
      - [X] Implement volume renderer.
      - [X] Make a transfer function interface.
      - [ ] Make a interface class for render objects that share points with attached data.
 **** TODO *MAJOR* Merge orientation and normal liouvillean
+**** TODO *BUG* Fixed compression of shearing systems failing due to an incorrect rescaling of the box shift in the BC's.
 **** TODO Update the tutorials.
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists.
