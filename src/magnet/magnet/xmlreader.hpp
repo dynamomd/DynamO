@@ -233,7 +233,8 @@ namespace magnet {
 	namespace io = boost::iostreams;
 
 	if (!boost::filesystem::exists(fileName))
-	  M_throw() << "Could not open XML file";
+	  M_throw() << "Could not find the XML file named " << fileName
+		    << "\nPlease check the file exists.";
 	{ //This scopes out the file objects
 	  
 	  //We use the boost iostreams library to load the file into a
