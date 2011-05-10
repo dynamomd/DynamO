@@ -117,35 +117,7 @@ main(int argc, char *argv[])
 	{
 	  cout << "Usage : dynamod <OPTIONS>...[CONFIG FILE]\n"
 	       << " Either modifies a config file (if a file name is passed as an argument) OR generates a new config file depending on the packing mode (if --packer-mode/-m is used).\n" 
-	       << helpOpts
-	       << "\nPacker Modes (used with --packer-mode/-m X):\n"
-	    "  0:  Monocomponent hard spheres\n"
-	    "  1:  Mono/Multi-component square wells\n"
-	    "  2:  Random walk of an isolated attractive polymer\n"
-	    "  3:  Load a config and pack it, you will need to reset the interactions etc.\n"
-	    "  4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
-	    "  5:  Walk an isolated spiral/helix\n"
-	    "  6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells\n"
-	    "  7:  Ring/Linear polymer, dropped as a straight rod\n"
-	    "  8:  Binary Hard Spheres\n"
-	    "  9:  Hard needle system\n"
-	    "  10: Monocomponent hard spheres using DSMC interactions\n"
-	    "  11: Monocomponent hard spheres sheared using DSMC interactions\n"
-	    "  12: Binary hard spheres using DSMC interactions\n"
-	    "  13: Crystal pack of sheared lines\n"
-	    "  14: Packing of spheres and linear rods made from stiff polymers\n"
-	    "  15: Monocomponent hard-parallel cubes\n"
-	    "  16: Stepped Potential\n"
-	    "  17: Monocomponent hard spheres using Ring DSMC interactions\n"
-	    "  18: Monocomponent sheared hard spheres using Ring DSMC interactions\n"
-	    "  19: Oscillating plates bounding a system\n"
-	    "  20: Load a set of triangles and plate it with spheres\n"
-	    "  21: Pack a cylinder with spheres\n"
-	    "  22: Infinite system with spheres falling onto a plate with gravity\n"
-	    "  23: Funnel test for static spheres in gravity\n"
-	    "  24: Random walk of an isolated MJ model polymer\n"
-	    "  25: Funnel and cup simulation (with sleepy particles)\n"
-	    "  26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)\n";
+	       << helpOpts;
 	  return 1;
 	}
 

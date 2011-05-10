@@ -78,8 +78,40 @@ CIPPacker::getOptions()
 {
   po::options_description retval("Packer options");
 
+  const char* packerOpts =
+    "Chooses the system to pack (construct)"
+    "\nPacker Modes:"
+    "\n0:  Monocomponent hard spheres"
+    "\n1:  Mono/Multi-component square wells"
+    "\n2:  Random walk of an isolated attractive polymer"
+    "\n3:  Load a config and pack it, you will need to reset the interactions etc."
+    "\n4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)"
+    "\n5:  Walk an isolated spiral/helix"
+    "\n6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells"
+    "\n7:  Ring/Linear polymer, dropped as a straight rod"
+    "\n8:  Binary Hard Spheres"
+    "\n9:  Hard needle system"
+    "\n10: Monocomponent hard spheres using DSMC interactions"
+    "\n11: Monocomponent hard spheres sheared using DSMC interactions"
+    "\n12: Binary hard spheres using DSMC interactions"
+    "\n13: Crystal pack of sheared lines"
+    "\n14: Packing of spheres and linear rods made from stiff polymers"
+    "\n15: Monocomponent hard-parallel cubes"
+    "\n16: Stepped Potential"
+    "\n17: Monocomponent hard spheres using Ring DSMC interactions"
+    "\n18: Monocomponent sheared hard spheres using Ring DSMC interactions"
+    "\n19: Oscillating plates bounding a system"
+    "\n20: Load a set of triangles and plate it with spheres"
+    "\n21: Pack a cylinder with spheres"
+    "\n22: Infinite system with spheres falling onto a plate with gravity"
+    "\n23: Funnel test for static spheres in gravity"
+    "\n24: Random walk of an isolated MJ model polymer"
+    "\n25: Funnel and cup simulation (with sleepy particles)"
+    "\n26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)"
+    ;
+
   retval.add_options()
-    ("packer-mode,m", po::value<size_t>(), "Chooses the system to pack/construct, (see below)")
+    ("packer-mode,m", po::value<size_t>(), packerOpts)
     ("NCells,C", po::value<unsigned long>()->default_value(7),
      "Default number of unit cells per dimension, used for crystal packing of particles.")
     ("xcell,x", po::value<unsigned long>(),
