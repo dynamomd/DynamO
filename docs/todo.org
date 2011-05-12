@@ -24,14 +24,14 @@
 **** DONE *BUG* Stepped potentials would not work for static & dynamic particle collisions.
 **** DONE *BUG* Fixed the segfault when a simulation closes coil through a shutdown.
 **** DONE *BUG* Fixed compression of shearing systems failing due to an incorrect rescaling of the box shift in the BC's.
-**** TODO *BUG* Fixed rendering on low end GPU's, the render target was not getting resized.
+**** TODO *BUG* Fixed render target not getting resized on low-end GPUs, breaking rendering
 **** TODO *MAJOR* Volume Renderer
      - [X] Move to OpenCL generation of the gradients from live data.
      - [X] Implement volume renderer.
      - [X] Make a transfer function interface.
      - [ ] Make a interface class for render objects that share points with attached data.
 **** TODO *MAJOR* Merge orientation and normal liouvillean
-**** TODO *BUG* Fixed compression of shearing systems failing due to an incorrect rescaling of the box shift in the BC's.
+**** TODO *MINOR* Made it easier to take snapshots, without using the ticker plugin.
 **** TODO Update the tutorials.
 *** Dynamo 1.2
 **** TODO Generalized scheduler for multiple neighborlists.
