@@ -116,6 +116,23 @@ namespace dynamo
       M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
 
+    //! Loads a Simulation from the passed XML file.
+    //! \param filename The path to the XML file to load. The filename must
+    //! end in either ".xml" for uncompressed xml files or ".bz2" for
+    //! bzip2 compressed configuration files.
+    void loadXMLfile(std::string filename);
+    
+    //! Writes the Simulation configuration to a file at the passed path.
+    //! \param filename The path to the XML file to write (this file
+    //! will either be created or overwritten). The filename must end in
+    //! either ".xml" for uncompressed xml files or ".bz2" for bzip2
+    //! compressed configuration files.
+    //! \param round If true, the data in the XML file will be written
+    //! out at 2 s.f. lower precision to round all the values. This is
+    //! used in the test harness to remove rounding error ready for a
+    //! comparison to a "correct" configuration file.
+    void writeXMLfile(std::string filename, bool applyBC = true, bool round = false);
+
     /*! \brief The Ensemble of the Simulation. */
     boost::scoped_ptr<Ensemble> ensemble;
 

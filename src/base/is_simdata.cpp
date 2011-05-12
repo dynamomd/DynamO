@@ -20,6 +20,16 @@
 #include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../dynamics/systems/system.hpp"
+#include "../outputplugins/0partproperty/misc.hpp"
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/filesystem.hpp>
+#include <iomanip>
+
+//! The configuration file version, a version mismatch prevents an XML file load.
+const char configFileVersion[] = "1.4.0";
 
 namespace dynamo
 {
@@ -48,6 +58,148 @@ namespace dynamo
   SimData::~SimData()
   {
     if (ptrScheduler != NULL) delete ptrScheduler;
+  }
+
+  void
+  SimData::loadXMLfile(std::string fileName)
+  {
+    //Handled by an input plugin
+    if (status != START)
+      M_throw() << "Loading config at wrong time, status = " << status;
+  
+    using namespace magnet::xml;
+    Document doc(fileName.c_str());
+    Node mainNode = doc.getNode("DynamOconfig");
+
+    {
+      std::string version(mainNode.getAttribute("version"));
+      if (version != configFileVersion)
+	M_throw() << "This version of the config file is obsolete"
+		  << "\nThe current version is " << configFileVersion
+		  << "\nPlease look at the XMLFILE.VERSION file in the root directory of the dynamo source."
+	  ;
+    }
+
+    Node subNode= mainNode.getNode("Simulation");
+  
+    if (subNode.getNode("Trajectory").getAttribute("lastMFT").valid())
+      lastRunMFT = subNode.getNode("Trajectory").getAttribute("lastMFT").as<double>();
+
+    ssHistory << subNode.getNode("History");
+
+    _properties << mainNode;
+    dynamics << mainNode;
+    ptrScheduler 
+      = CScheduler::getClass(subNode.getNode("Scheduler"), this);
+
+    if (subNode.getNode("Ensemble").valid())
+      ensemble.reset
+	(dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
+    else
+      //Try and determine the Ensemble
+      try {
+	dynamics.getSystem("Thermostat");
+	ensemble.reset(new dynamo::EnsembleNVT(this));
+      }
+      catch (std::exception&)
+	{
+	  ensemble.reset(new dynamo::EnsembleNVE(this));
+	}
+
+    dynamics.getLiouvillean().loadParticleXMLData(mainNode);
+  
+    //Fixes or conversions once system is loaded
+    lastRunMFT *= dynamics.units().unitTime();
+    //Scale the loaded properties to the simulation units
+    _properties.rescaleUnit(Property::Units::L, 
+			    dynamics.units().unitLength());
+
+    _properties.rescaleUnit(Property::Units::T, 
+			    dynamics.units().unitTime());
+
+    _properties.rescaleUnit(Property::Units::M, 
+			    dynamics.units().unitMass());
+
+    status = CONFIG_LOADED;
+  }
+
+  void
+  SimData::writeXMLfile(std::string fileName, bool applyBC, bool round)
+  {
+    if (status < INITIALISED || status == ERROR)
+      M_throw() << "Cannot write out configuration in this state";
+  
+    namespace io = boost::iostreams;
+    io::filtering_ostream coutputFile;
+
+    if (std::string(fileName.end()-4, fileName.end()) == ".bz2")
+      coutputFile.push(io::bzip2_compressor());
+  
+    coutputFile.push(io::file_sink(fileName));
+  
+    xml::XmlStream XML(coutputFile);
+    XML.setFormatXML(true);
+
+    dynamics.getLiouvillean().updateAllParticles();
+
+    //Rescale the properties to the configuration file units
+    _properties.rescaleUnit(Property::Units::L, 
+			    1.0 / dynamics.units().unitLength());
+
+    _properties.rescaleUnit(Property::Units::T, 
+			    1.0 / dynamics.units().unitTime());
+
+    _properties.rescaleUnit(Property::Units::M, 
+			    1.0 / dynamics.units().unitMass());
+
+    XML << std::scientific
+      //This has a minus one due to the digit in front of the decimal
+      //An extra one is added if we're rounding
+	<< std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
+	<< xml::prolog() << xml::tag("DynamOconfig") 
+	<< xml::attr("version") << configFileVersion
+	<< xml::tag("Simulation")
+	<< xml::tag("Trajectory")
+	<< xml::attr("Coll") << endEventCount
+	<< xml::attr("nCollPrint") << eventPrintInterval;
+
+    //Allow this block to fail if need be
+    try {
+      double mft = getOutputPlugin<OPMisc>()->getMFT();
+      XML << xml::attr("lastMFT")
+	  << mft;
+    }
+    catch (std::exception&)
+      {}
+
+    XML << xml::endtag("Trajectory")
+	<< *ensemble
+	<< xml::tag("Scheduler")
+	<< *ptrScheduler
+	<< xml::endtag("Scheduler")
+	<< xml::tag("History") 
+	<< xml::chardata()
+	<< ssHistory.str()
+	<< "\nRun for " << eventCount << " collisions"
+	<< xml::endtag("History") << xml::endtag("Simulation")
+	<< dynamics
+	<< _properties;
+
+    dynamics.getLiouvillean().outputParticleXMLData(XML, applyBC);
+
+    XML << xml::endtag("DynamOconfig");
+
+    std::cout << "\nConfig written to " << fileName;
+
+    //Rescale the properties back to the simulation units
+    _properties.rescaleUnit(Property::Units::L, 
+			    dynamics.units().unitLength());
+
+    _properties.rescaleUnit(Property::Units::T, 
+			    dynamics.units().unitTime());
+
+    _properties.rescaleUnit(Property::Units::M, 
+			    dynamics.units().unitMass());
   }
   
   void 
@@ -79,7 +231,7 @@ namespace dynamo
 
     //Rescale the velocities 
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
-		     / ensemble->getEnsembleVals()[2]));
+		       / ensemble->getEnsembleVals()[2]));
     
     BOOST_FOREACH(Particle& part, particleList)
       part.scaleVelocity(scale1);

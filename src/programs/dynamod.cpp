@@ -72,6 +72,7 @@ main(int argc, char *argv[])
 	 "dimension to reverse/mirror.")
 	("round", "Output the XML config file with one less digit of accuracy to remove"
 	 "rounding errors (used in the test harness).")
+	("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
 	;
 
       loadopts.add_options()
@@ -216,7 +217,8 @@ main(int argc, char *argv[])
 	sim.getHistory() << argv[i] << " ";
       sim.getHistory() << "\nGIT hash " << GITHASH;
       cout << "\nWriting out configuration";
-      sim.writeXMLfile(vm["out-config-file"].as<string>(), vm.count("round"));
+      sim.writeXMLfile(vm["out-config-file"].as<string>(), 
+		       !vm.count("unwrapped"), vm.count("round"));
       cout << "\n";
     }
   catch (std::exception &cep)

@@ -112,7 +112,7 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
 }
 
 void 
-Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
+Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
 {
   XML << xml::tag("ParticleData")
       << xml::attr("N") << Sim->N;
@@ -122,7 +122,8 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML) const
   for (size_t i = 0; i < Sim->N; ++i)
     {
       Particle tmp(Sim->particleList[i]);
-      Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
+      if (applyBC) 
+	Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
       
       tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
       tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());

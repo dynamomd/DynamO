@@ -51,7 +51,7 @@ ESingleSimulation::runSimulation()
     {
       try {
 	std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
-	simulation.writeXMLfile("config.error.xml.bz2");
+	simulation.writeXMLfile("config.error.xml.bz2", !vm.count("unwrapped"));
       } catch (...)
 	{
 	  std::cerr << "\nEngine: Could not output Errored config";
@@ -88,7 +88,7 @@ ESingleSimulation::outputData()
 void
 ESingleSimulation::outputConfigs()
 {
-  simulation.writeXMLfile(configFormat.c_str());
+  simulation.writeXMLfile(configFormat.c_str(), !vm.count("unwrapped"));
 }
 
 void 

@@ -48,9 +48,12 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
     ("equilibrate,E", "Turns off most output for a fast silent run")
     ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), 
      "Additional individual plugins to load")
-    ("halt-time,h", boost::program_options::value<double>(),"Halt the system at this time")
-    ("scheduler-maintainance,m", boost::program_options::value<double>(),"Rebuild the scheduler"
-     " periodically, for systems where we've not built the scheduler correctly")
+    ("halt-time,h", boost::program_options::value<double>(),
+     "Halt the system at this time")
+    ("scheduler-maintainance,m", boost::program_options::value<double>(),
+     "Rebuild the scheduler periodically, for systems where we've not built "
+     "the scheduler correctly")
+    ("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
     ;
   
   opts.add(simopts);

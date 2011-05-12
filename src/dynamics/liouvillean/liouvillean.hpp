@@ -73,14 +73,19 @@ public:
   }
 
   /*! \brief Parses the XML data to see if it can load XML particle
-   * data or if it needs to decode the binary data. Then loads the particle data.
+   * data or if it needs to decode the binary data. Then loads the
+   * particle data.
+   *
+   * \param XML The root xml::Node of the xml::Document which has the ParticleData tag within.
    */
-  virtual void loadParticleXMLData(const magnet::xml::Node&);
+  virtual void loadParticleXMLData(const magnet::xml::Node& XML);
   
   /*! \brief Writes the XML particle data, either the base64 header or
    * the entire XML form.
+   * \param XML The XMLStream to write the configuration data to.
+   * \param applyBC Wether to apply the boundary conditions to the final particle positions before writing them out.
    */
-  void outputParticleXMLData(xml::XmlStream&) const;
+  void outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const;
 
   /*! \brief Returns the degrees of freedom per particle.
    */
