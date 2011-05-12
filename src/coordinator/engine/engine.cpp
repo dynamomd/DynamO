@@ -22,6 +22,7 @@
 #include "../../dynamics/systems/schedMaintainer.hpp"
 #include "../../outputplugins/0partproperty/misc.hpp"
 #include "../../outputplugins/general/reverseEvents.hpp"
+#include "../../dynamics/systems/snapshot.hpp"
 
 #ifdef DYNAMO_visualizer
 #include "../../dynamics/systems/visualizer.hpp"
@@ -54,6 +55,8 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
      "Rebuild the scheduler periodically, for systems where we've not built "
      "the scheduler correctly")
     ("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
+    ("snapshot", boost::program_options::value<double>(),
+     "Sets the system time inbetween saving snapshots of the system.")
     ;
   
   opts.add(simopts);
@@ -107,6 +110,9 @@ Engine::setupSim(Simulation& Sim, const std::string filename)
   if (vm.count("visualizer"))
     Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
 #endif  
+
+  if (vm.count("snapshot"))
+    Sim.addSystem(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent"));
 
   if (vm.count("load-plugin"))
     {

@@ -59,7 +59,7 @@ class Liouvillean: public dynamo::SimBase
 {
 public:  
   Liouvillean(dynamo::SimData* tmp):
-    SimBase(tmp,"FreeStream", IC_blue),
+    SimBase(tmp,"Liouvillean", IC_blue),
     partPecTime(0.0),
     streamCount(0),
     streamFreq(1)

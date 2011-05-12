@@ -54,7 +54,7 @@ ESingleSimulation::runSimulation()
 	simulation.writeXMLfile("config.error.xml.bz2", !vm.count("unwrapped"));
       } catch (...)
 	{
-	  std::cerr << "\nEngine: Could not output Errored config";
+	  std::cerr << "\nEngine: Could not output error config";
 	}
       throw;
     }
@@ -77,6 +77,7 @@ ESingleSimulation::initialisation()
 
   if (vm.count("ticker-period"))
     simulation.setTickerPeriod(vm["ticker-period"].as<double>());
+
 }
 
 void

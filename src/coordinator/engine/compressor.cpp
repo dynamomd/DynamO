@@ -49,6 +49,9 @@ ECompressingSimulation::preSimInit()
 {
   ESingleSimulation::preSimInit();
 
+  if (vm.count("snapshot"))
+    M_throw() << "Snapshots do not currently work in compressing systems.";
+
   compressPlug.set_ptr(new CIPCompression
 		       (&simulation, vm["growth-rate"].as<double>()));
 }

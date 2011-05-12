@@ -117,8 +117,6 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
   XML << xml::tag("ParticleData")
       << xml::attr("N") << Sim->N;
   
-  I_cout() << "Writing Particles ";
-  
   for (size_t i = 0; i < Sim->N; ++i)
     {
       Particle tmp(Sim->particleList[i]);
