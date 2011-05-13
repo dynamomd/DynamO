@@ -25,13 +25,13 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = "DYNAMO-Event Driven Simulator "
+PROJECT_NAME           = "DynamO-Event Driven Simulator "
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = "1.0 "
+PROJECT_NUMBER         = "1.1"
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
@@ -91,14 +91,14 @@ ABBREVIATE_BRIEF       =
 # Doxygen will generate a detailed section even if there is only a brief 
 # description.
 
-ALWAYS_DETAILED_SEC    = NO
+ALWAYS_DETAILED_SEC    = YES
 
 # If the INLINE_INHERITED_MEMB tag is set to YES, doxygen will show all 
 # inherited members of a class in the documentation of that class as if those 
 # members were ordinary class members. Constructors, destructors and assignment 
 # operators of the base classes will not be shown.
 
-INLINE_INHERITED_MEMB  = NO
+INLINE_INHERITED_MEMB  = YES
 
 # If the FULL_PATH_NAMES tag is set to YES then Doxygen will prepend the full 
 # path before files name in the file list and in the header files. If set 
@@ -128,7 +128,7 @@ STRIP_FROM_INC_PATH    =
 # (but less readable) file names. This can be useful is your file systems 
 # doesn't support long names like on DOS, Mac, or CD-ROM.
 
-SHORT_NAMES            = YES
+SHORT_NAMES            = NO
 
 # If the JAVADOC_AUTOBRIEF tag is set to YES then Doxygen 
 # will interpret the first line (until the first dot) of a JavaDoc-style 
@@ -365,7 +365,7 @@ SORT_BRIEF_DOCS        = YES
 # Note: This option applies only to the class list, not to the 
 # alphabetical list.
 
-SORT_BY_SCOPE_NAME     = NO
+SORT_BY_SCOPE_NAME     = YES
 
 # The GENERATE_TODOLIST tag can be used to enable (YES) or 
 # disable (NO) the todo list. This list is created by putting \todo 
@@ -530,6 +530,7 @@ RECURSIVE              = YES
 EXCLUDE                = src/extcode/include/boost/ \
 		       src/extcode/include/FastDelegate \
 		       src/magnet/tests \
+		       src/magnet/magnet/detail/rapidXML
 		       src/coil/tests
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 

@@ -216,7 +216,7 @@ namespace magnet {
     }
 
 
-    //! A class which represents a whole XML Document, including
+    //! \brief A class which represents a whole XML Document, including
     //! storage. 
     //!
     //! This class thinly wraps the rapidXML parser, providing a
