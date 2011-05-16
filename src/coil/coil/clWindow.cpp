@@ -1190,6 +1190,10 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->resize(w, h);
+  
+  std::ostringstream os;
+  os << "Coil visualizer (" << w << "," << h << ")";
+  setWindowtitle(os.str());
 }
 
 void 

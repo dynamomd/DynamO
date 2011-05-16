@@ -20,7 +20,11 @@ SpLines::updateRenderData(magnet::CL::CLGLState& CLState) const
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
   
-  double diam = getIntPtr()->maxIntDist();
+  ///////////////////////POSITION DATA UPDATE
+  //Divide by the maximum box length, to have a natural scale for the visualizer
+  const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+
+  double diam = getIntPtr()->maxIntDist() * lengthRescale;
 
   std::vector<cl_float>& particleData 
     = _renderObj.as<LineParticleRenderer>()._particleData;
@@ -33,7 +37,7 @@ SpLines::updateRenderData(magnet::CL::CLGLState& CLState) const
       Vector pos = Sim->particleList[ID].getPosition();
       Sim->dynamics.BCs().applyBC(pos);
       for (size_t i(0); i < NDIM; ++i)
-	particleData[3 * lineID + i] = pos[i];
+	particleData[3 * lineID + i] = pos[i] * lengthRescale;
       
       //Vector
       Vector orientation 
