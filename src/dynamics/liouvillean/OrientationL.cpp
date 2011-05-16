@@ -71,7 +71,7 @@ LNOrientation::outputXML(xml::XmlStream& XML) const
 
 bool 
 LNOrientation::getLineLineCollision(CPDData& PD, const double& length, 
-				     const Particle& p1, const Particle& p2) const
+				    const Particle& p1, const Particle& p2) const
 {  
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(p1))
@@ -181,37 +181,7 @@ LNOrientation::runLineLineCollision(const IntEvent& eevent, const double& elasti
 
   return retVal;
 }
-
-void
-LNOrientation::streamParticle(Particle& part, const double& dt) const
-{
-  part.getPosition() += part.getVelocity() * dt;
   
-  //The Vector copy is required to make sure that the cached
-  //orientation doesn't change during calculation
-  orientationData[part.getID()].orientation 
-    = Rodrigues(orientationData[part.getID()].angularVelocity * dt)
-    * Vector(orientationData[part.getID()].orientation); 
-}
-
-
-ParticleEventData 
-LNOrientation::runAndersenWallCollision(const Particle& part, 
-					 const Vector & vNorm,
-					 const double& sqrtT
-					 ) const
-{
-  M_throw() << "Need to implement thermostating of the rotational degrees"
-    " of freedom";
-}
-  
-ParticleEventData 
-LNOrientation::randomGaussianEvent(const Particle& part, 
-				    const double& sqrtT) const
-{
-  M_throw() << "Need to implement thermostating of the rotational degrees"
-    " of freedom";  
-}
 //Here starts my code for offCenterSpheres
 bool 
 LNOrientation::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length,  const double& diameter, 

@@ -128,6 +128,10 @@ LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT) const
 {
   //See http://mathworld.wolfram.com/SpherePointPicking.html
 
+  if (hasOrientationData())
+    M_throw() << "Need to implement thermostating of the rotational degrees"
+      " of freedom";  
+
   //Ensure the particle is free streamed first
   updateParticle(part);
 
@@ -158,6 +162,13 @@ void
 LNewtonian::streamParticle(Particle &particle, const double &dt) const
 {
   particle.getPosition() += particle.getVelocity() * dt;
+
+  //The Vector copy is required to make sure that the cached
+  //orientation doesn't change during calculation
+  if (hasOrientationData())
+    orientationData[particle.getID()].orientation 
+      = Rodrigues(orientationData[particle.getID()].angularVelocity * dt)
+      * Vector(orientationData[particle.getID()].orientation); 
 }
 
 double 
@@ -208,6 +219,10 @@ LNewtonian::runAndersenWallCollision(const Particle& part,
 				   ) const
 {  
   updateParticle(part);
+
+  if (hasOrientationData())
+    M_throw() << "Need to implement thermostating of the rotational degrees"
+      " of freedom";
 
   //This gives a completely new random unit vector with a properly
   //distributed Normal component. See Granular Simulation Book

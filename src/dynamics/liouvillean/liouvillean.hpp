@@ -58,6 +58,12 @@ class CVector;
 class Liouvillean: public dynamo::SimBase
 {
 public:  
+  struct rotData
+  {
+    Vector  orientation;
+    Vector  angularVelocity;
+  };
+
   Liouvillean(dynamo::SimData* tmp):
     SimBase(tmp,"Liouvillean", IC_blue),
     partPecTime(0.0),
@@ -660,6 +666,14 @@ public:
 					       const double& r
 					       ) const;
 
+  const rotData& getRotData(const Particle& part) const
+  { return orientationData[part.getID()]; }
+  
+  const std::vector<rotData>& getCompleteRotData() const
+  { return orientationData; }
+
+  inline bool hasOrientationData() const { return orientationData.size(); }
+
 protected:
   friend class CGCellsShearing;
 
@@ -694,4 +708,5 @@ protected:
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(Particle& part, const double& dt) const = 0;
 
+  mutable std::vector<rotData> orientationData;
 };

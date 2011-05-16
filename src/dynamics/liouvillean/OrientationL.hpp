@@ -55,26 +55,6 @@ public:
 								   const double& elasticity, const double& length, const double& diameter) const;
 
   
-  virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
-						  const Vector & vNorm,
-						  const double& sqrtT
-						  ) const;
-  
-  virtual ParticleEventData randomGaussianEvent(const Particle& part, 
-					     const double& sqrtT) const;
-
-  struct rotData
-  {
-    Vector  orientation;
-    Vector  angularVelocity;
-  };
-
-  const rotData& getRotData(const Particle& part) const
-  { return orientationData[part.getID()]; }
-
-  const std::vector<rotData>& getCompleteRotData() const
-  { return orientationData; }
-  
   void initLineOrientations(const double&);
 
   virtual PairEventData RoughSpheresColl(const IntEvent& event, 
@@ -97,11 +77,7 @@ protected:
 
   virtual void outputXML(xml::XmlStream&) const;
 
-  virtual void streamParticle(Particle&, const double&) const;
-  
   virtual size_t getParticleDOF() const;
   virtual double getParticleKineticEnergy(const Particle& part) const;
   virtual void rescaleSystemKineticEnergy(const double&);
-  
-  mutable std::vector<rotData> orientationData;
 };
