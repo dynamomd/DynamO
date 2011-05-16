@@ -26,7 +26,10 @@
 #include "../../schedulers/sorters/datastruct.hpp"
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
+#include "shapes/lines.hpp"
+#include "shapes/dumbbells.hpp"
 #include "../units/units.hpp"
+#include "../../datatypes/vector.xml.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -173,8 +176,8 @@ LNewtonian::streamParticle(Particle &particle, const double &dt) const
 
 double 
 LNewtonian::getWallCollision(const Particle &part, 
-			   const Vector  &wallLoc, 
-			   const Vector  &wallNorm) const
+			     const Vector  &wallLoc, 
+			     const Vector  &wallNorm) const
 {
   Vector  rij = part.getPosition(),
     vel = part.getVelocity();
@@ -194,9 +197,9 @@ LNewtonian::getWallCollision(const Particle &part,
 
 ParticleEventData 
 LNewtonian::runWallCollision(const Particle &part, 
-			   const Vector  &vNorm,
-			   const double& e
-			   ) const
+			     const Vector  &vNorm,
+			     const double& e
+			     ) const
 {
   updateParticle(part);
 
@@ -214,9 +217,9 @@ LNewtonian::runWallCollision(const Particle &part,
 
 ParticleEventData 
 LNewtonian::runAndersenWallCollision(const Particle& part, 
-				   const Vector & vNorm,
-				   const double& sqrtT
-				   ) const
+				     const Vector & vNorm,
+				     const double& sqrtT
+				     ) const
 {  
   updateParticle(part);
 
@@ -247,8 +250,8 @@ LNewtonian::runAndersenWallCollision(const Particle& part,
 
 double
 LNewtonian::getSquareCellCollision2(const Particle& part, 
-				 const Vector & origin, 
-				 const Vector & width) const
+				    const Vector & origin, 
+				    const Vector & width) const
 {
   Vector  rpos(part.getPosition() - origin);
   Vector  vel(part.getVelocity());
@@ -269,8 +272,8 @@ LNewtonian::getSquareCellCollision2(const Particle& part,
   for (size_t iDim = 1; iDim < NDIM; ++iDim)
     {
       double tmpdt((vel[iDim] < 0)
-		 ? -rpos[iDim]/vel[iDim] 
-		 : (width[iDim]-rpos[iDim]) / vel[iDim]);
+		   ? -rpos[iDim]/vel[iDim] 
+		   : (width[iDim]-rpos[iDim]) / vel[iDim]);
       
       if (tmpdt < retVal)
 	retVal = tmpdt;
@@ -302,8 +305,8 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
       double tmpdt = ((vel[iDim] < 0) 
-		  ? -rpos[iDim]/vel[iDim] 
-		  : (width[iDim]-rpos[iDim]) / vel[iDim]);
+		      ? -rpos[iDim]/vel[iDim] 
+		      : (width[iDim]-rpos[iDim]) / vel[iDim]);
 
       if (tmpdt < time)
 	{
@@ -322,10 +325,10 @@ LNewtonian::getSquareCellCollision3(const Particle& part,
 
 bool 
 LNewtonian::DSMCSpheresTest(const Particle& p1, 
-			  const Particle& p2, 
-			  double& maxprob,
-			  const double& factor,
-			  CPDData& pdat) const
+			    const Particle& p2, 
+			    double& maxprob,
+			    const double& factor,
+			    CPDData& pdat) const
 {
   pdat.vij = p1.getVelocity() - p2.getVelocity();
 
@@ -345,16 +348,16 @@ LNewtonian::DSMCSpheresTest(const Particle& p1,
 
 PairEventData
 LNewtonian::DSMCSpheresRun(const Particle& p1, 
-			 const Particle& p2, 
-			 const double& e,
-			 CPDData& pdat) const
+			   const Particle& p2, 
+			   const double& e,
+			   CPDData& pdat) const
 {
   updateParticlePair(p1, p2);  
 
   PairEventData retVal(p1, p2,
-			Sim->dynamics.getSpecies(p1),
-			Sim->dynamics.getSpecies(p2),
-			CORE);
+		       Sim->dynamics.getSpecies(p1),
+		       Sim->dynamics.getSpecies(p2),
+		       CORE);
   
   retVal.rij = pdat.rij;
   retVal.rvdot = pdat.rvdot;
@@ -389,9 +392,9 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
   updateParticlePair(particle1, particle2);  
 
   PairEventData retVal(particle1, particle2,
-			Sim->dynamics.getSpecies(particle1),
-			Sim->dynamics.getSpecies(particle2),
-			eType);
+		       Sim->dynamics.getSpecies(particle1),
+		       Sim->dynamics.getSpecies(particle2),
+		       eType);
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
@@ -411,29 +414,29 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
   else 
     if ((p1Mass != 0) && (p2Mass == 0))
       //if (particle1.testState(Particle::DYNAMIC) && !particle2.testState(Particle::DYNAMIC))
-    {
-      retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
-      //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    }
-  else
-    {
-      bool isInfInf = (p1Mass == 0) && (p2Mass == 0);
+      {
+	retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
+	//This function must edit particles so it overrides the const!
+	const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+      }
+    else
+      {
+	bool isInfInf = (p1Mass == 0) && (p2Mass == 0);
 
-      //If both particles have infinite mass we just collide them as identical masses
-      if (isInfInf) p1Mass = p2Mass = 1;
+	//If both particles have infinite mass we just collide them as identical masses
+	if (isInfInf) p1Mass = p2Mass = 1;
 
-      double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
+	double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
-      retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+	retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
-      //This function must edit particles so it overrides the const!
-      const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-      const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+	//This function must edit particles so it overrides the const!
+	const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+	const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
 
-      //If both particles have infinite mass we pretend no momentum was transferred
-      retVal.dP *= !isInfInf;
-    }
+	//If both particles have infinite mass we pretend no momentum was transferred
+	retVal.dP *= !isInfInf;
+      }
 
   retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2()
 					       - retVal.particle1_.getOldVel().nrm2()));
@@ -450,8 +453,8 @@ LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 
 PairEventData 
 LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
-			   const double&, const Matrix& rot,
-			   const EEventType& eType) const
+			     const double&, const Matrix& rot,
+			     const EEventType& eType) const
 {
   const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
   const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -459,9 +462,9 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
   updateParticlePair(particle1, particle2);
 
   PairEventData retVal(particle1, particle2,
-			Sim->dynamics.getSpecies(particle1),
-			Sim->dynamics.getSpecies(particle2),
-			eType);
+		       Sim->dynamics.getSpecies(particle1),
+		       Sim->dynamics.getSpecies(particle2),
+		       eType);
     
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
@@ -507,7 +510,7 @@ LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
 
 NEventData 
 LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2, 
-			    const double&, const EEventType& eType) const
+			      const double&, const EEventType& eType) const
 {
   Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -602,7 +605,7 @@ LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2,
 
 NEventData 
 LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2, 
-			    const double&, const double& deltaKE, EEventType& eType) const
+			      const double&, const double& deltaKE, EEventType& eType) const
 {
   Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -726,9 +729,9 @@ LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE,
   updateParticlePair(particle1, particle2);  
 
   PairEventData retVal(particle1, particle2,
-			Sim->dynamics.getSpecies(particle1),
-			Sim->dynamics.getSpecies(particle2),
-			event.getType());
+		       Sim->dynamics.getSpecies(particle1),
+		       Sim->dynamics.getSpecies(particle2),
+		       event.getType());
     
   Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
   
@@ -830,9 +833,9 @@ LNewtonian::getPBCSentinelTime(const Particle& part, const double& lMax) const
 
 std::pair<bool,double>
 LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
-				 const Vector& nhat, const double& Delta,
-				 const double& Omega, const double& Sigma,
-				 const double& t, bool lastpart) const
+				   const Vector& nhat, const double& Delta,
+				   const double& Omega, const double& Sigma,
+				   const double& t, bool lastpart) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isUpToDate(part))
@@ -1056,19 +1059,19 @@ LNewtonian::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-//  I_cerr() << "Running event for part " << part.getID() <<
-//	   "\ndSysTime = " << Sim->dSysTime << "\nlNColl = " <<
-//	   Sim->lNColl << "\nVel = " << part.getVelocity()[0] <<
-//	   "\nPos = " << part.getPosition()[0] << "\nVwall[0] = " <<
-//	   fL.wallVelocity()[0] << "\nRwall[0] = " <<
-//	   fL.wallPosition()[0] << "\nRwall[0]+sigma = " <<
-//	   fL.wallPosition()[0] + sigma << "\nRwall[0]-sigma = " <<
-//	   fL.wallPosition()[0] - sigma << "\nsigma + Del = " <<
-//	   sigma+delta << "\nf(0)* = " << fL.F_zeroDeriv() << "\nf'(0)
-//	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
-//	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
-//	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
-//	   << t << "+ x) * " << omega0 << ") - " << sigma;
+  //  I_cerr() << "Running event for part " << part.getID() <<
+  //	   "\ndSysTime = " << Sim->dSysTime << "\nlNColl = " <<
+  //	   Sim->lNColl << "\nVel = " << part.getVelocity()[0] <<
+  //	   "\nPos = " << part.getPosition()[0] << "\nVwall[0] = " <<
+  //	   fL.wallVelocity()[0] << "\nRwall[0] = " <<
+  //	   fL.wallPosition()[0] << "\nRwall[0]+sigma = " <<
+  //	   fL.wallPosition()[0] + sigma << "\nRwall[0]-sigma = " <<
+  //	   fL.wallPosition()[0] - sigma << "\nsigma + Del = " <<
+  //	   sigma+delta << "\nf(0)* = " << fL.F_zeroDeriv() << "\nf'(0)
+  //	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
+  //	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
+  //	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
+  //	   << t << "+ x) * " << omega0 << ") - " << sigma;
 
   
   //Check the root is valid
@@ -1117,9 +1120,9 @@ LNewtonian::runOscilatingPlate
   if (fabs(rvdot / fL.maxWallVel()) < 0.002)
     {
       /*
-      I_cerr() <<"<<!!!>>Particle " << part.getID() 
-	       << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm())
-	       << "\nCount is " << ++elascount;
+	I_cerr() <<"<<!!!>>Particle " << part.getID() 
+	<< " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm())
+	<< "\nCount is " << ++elascount;
       */
       inelas = 1.0;
       if (fabs(rvdot / fL.maxWallVel()) < 0.001)
@@ -1165,9 +1168,9 @@ LNewtonian::runOscilatingPlate
 
 double 
 LNewtonian::getCylinderWallCollision(const Particle& part, 
-				   const Vector& wallLoc, 
-				   const Vector& wallNorm,
-				   const double& radius) const
+				     const Vector& wallLoc, 
+				     const Vector& wallNorm,
+				     const double& radius) const
 {
   Vector  rij = part.getPosition() - wallLoc,
     vel = part.getVelocity();
@@ -1192,10 +1195,10 @@ LNewtonian::getCylinderWallCollision(const Particle& part,
 
 ParticleEventData 
 LNewtonian::runCylinderWallCollision(const Particle& part, 
-				   const Vector& origin,
-				   const Vector& vNorm,
-				   const double& e
-				   ) const
+				     const Vector& origin,
+				     const Vector& vNorm,
+				     const double& e
+				     ) const
 {
   updateParticle(part);
 
@@ -1243,4 +1246,539 @@ LNewtonian::runSphereWallCollision(const Particle& part,
 		       - retVal.getOldVel().nrm2()));
   
   return retVal; 
+}
+
+bool 
+LNewtonian::getLineLineCollision(CPDData& PD, const double& length, 
+				 const Particle& p1, const Particle& p2) const
+{  
+#ifdef DYNAMO_DEBUG
+  if (!hasOrientationData())
+    M_throw() << "Cannot use this function without orientational data";
+
+  if (!isUpToDate(p1))
+    M_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+  if (!isUpToDate(p2))
+    M_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
+  double t_low = 0.0;
+  double t_high = PD.dt;
+  
+  CLinesFunc fL(PD.rij, PD.vij,
+		orientationData[p1.getID()].angularVelocity,
+		orientationData[p2.getID()].angularVelocity,
+		orientationData[p1.getID()].orientation,
+		orientationData[p2.getID()].orientation,
+		length);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += fabs(2.0 * fL.F_firstDeriv())
+      / fL.F_secondDeriv_max();
+  
+  //Find window delimited by discs
+  std::pair<double,double> dtw = fL.discIntersectionWindow();
+  
+  if(dtw.first > t_low)
+    t_low = dtw.first;
+  
+  if(dtw.second < t_high)
+    t_high = dtw.second;
+  
+  std::pair<bool,double> root = frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
+
+  if (root.first) 
+    { 
+      PD.dt = root.second;
+      return true; 
+    }
+  else 
+    return false;
+}
+
+PairEventData 
+LNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!hasOrientationData())
+    M_throw() << "Cannot use this function without orientational data";
+#endif
+
+  const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  PairEventData retVal(particle1, particle2,
+		       Sim->dynamics.getSpecies(particle1),
+		       Sim->dynamics.getSpecies(particle2),
+		       CORE);
+  
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  double KE1before = getParticleKineticEnergy(particle1);
+  double KE2before = getParticleKineticEnergy(particle2);
+
+  CLinesFunc fL(retVal.rij, retVal.vijold,
+		orientationData[particle1.getID()].angularVelocity,
+		orientationData[particle2.getID()].angularVelocity,
+		orientationData[particle1.getID()].orientation,
+		orientationData[particle2.getID()].orientation,
+		length);
+
+  Vector uPerp = fL.getu1() ^ fL.getu2();
+
+  uPerp /= uPerp.nrm();
+
+  std::pair<double, double> cp = fL.getCollisionPoints();
+
+  // \Delta {\bf v}_{imp}
+  Vector  vr = retVal.vijold
+    + (cp.first * fL.getw1() ^ fL.getu1()) 
+    - (cp.second * fL.getw2() ^ fL.getu2());
+  
+  double mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
+  double inertia = retVal.particle1_.getSpecies().getScalarMomentOfInertia(particle1.getID());
+
+  retVal.dP = uPerp
+    * (((vr | uPerp) * (1.0 + elasticity))
+       / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
+  
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / mass;
+
+  orientationData[particle1.getID()].angularVelocity 
+    -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
+
+  orientationData[particle2.getID()].angularVelocity 
+    += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
+
+  retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
+  retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
+
+  lastCollParticle1 = particle1.getID();
+  lastCollParticle2 = particle2.getID();
+  lastAbsoluteClock = Sim->dSysTime;
+
+  return retVal;
+}
+
+
+//Here starts my code for offCenterSpheres
+bool 
+LNewtonian::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length,  const double& diameter, 
+						       const Particle& p1, const Particle& p2) const
+
+{  
+#ifdef DYNAMO_DEBUG
+  if (!hasOrientationData())
+    M_throw() << "Cannot use this function without orientational data";
+
+  if (!isUpToDate(p1))
+    M_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+  if (!isUpToDate(p2))
+    M_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
+  double t_low = 0.0;
+  double t_high = PD.dt;
+  double tolerance = 1e-16;
+  
+  CDumbbellsFunc fL1(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     orientationData[p1.getID()].orientation,
+		     orientationData[p2.getID()].orientation,length,diameter);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    //Shift the lower bound up so we don't find the same root again
+    t_low += fabs(2.0 * fL1.F_firstDeriv())
+      / fL1.F_secondDeriv_max();
+  
+  //I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
+  std::pair<bool,double> root1 = frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
+
+
+  CDumbbellsFunc fL2(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     -orientationData[p1.getID()].orientation,
+		     orientationData[p2.getID()].orientation,length,diameter);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    t_low += fabs(2.0 * fL2.F_firstDeriv())
+      / fL2.F_secondDeriv_max();
+  
+  std::pair<bool,double> root2 = frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
+
+  CDumbbellsFunc fL3(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     orientationData[p1.getID()].orientation,
+		     -orientationData[p2.getID()].orientation,length,diameter);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    t_low += fabs(2.0 * fL3.F_firstDeriv())
+      / fL3.F_secondDeriv_max();
+  
+  std::pair<bool,double> root3 = frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
+
+  CDumbbellsFunc fL4(PD.rij, PD.vij,
+		     orientationData[p1.getID()].angularVelocity,
+		     orientationData[p2.getID()].angularVelocity,
+		     -orientationData[p1.getID()].orientation,
+		     -orientationData[p2.getID()].orientation,length,diameter);
+  
+  if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+       || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+      && Sim->dSysTime == lastAbsoluteClock)
+    t_low += fabs(2.0 * fL4.F_firstDeriv())
+      / fL4.F_secondDeriv_max();
+  
+  std::pair<bool,double> root4 = frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
+
+  if (root1.first || root2.first || root3.first || root4.first )
+    {
+      
+      double roots[4] = {root1.second, root2.second, root3.second, root4.second};  
+      //I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
+      
+      PD.dt = *std::min_element(roots,roots+4);
+      return true;
+    }
+  else
+    return false;
+}
+
+PairEventData 
+LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
+
+{
+#ifdef DYNAMO_DEBUG
+  if (!hasOrientationData())
+    M_throw() << "Cannot use this function without orientational data";
+#endif
+
+  const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  PairEventData retVal(particle1, particle2,
+		       Sim->dynamics.getSpecies(particle1),
+		       Sim->dynamics.getSpecies(particle2),
+		       CORE);
+  
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+  I_cout()<<"Two sphere collision\n"; 
+  double KE1before = getParticleKineticEnergy(particle1);
+  double KE2before = getParticleKineticEnergy(particle2);
+  //We need to figure out which two orientations are colliding
+  std::pair<int,int> sign;
+  double min = HUGE_VAL;
+  double norm;
+  for (int i=0;i<2;i++)
+    {
+      for(int j=0;j<2;j++)
+	{
+	  norm = (retVal.rij +  length * 0.5 * pow(-1,i) * orientationData[particle1.getID()].orientation 
+		  -  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
+	  I_cout()<<"norm " << norm << " dr " << norm - diameter;
+	  if(norm < (diameter - 1e-10))
+	    {
+	      M_throw()<<"`Shit man, we overlap " ;
+	    }
+	  if(norm < min && fabs(norm - diameter)< 10e-10)
+	    {
+	      sign.first  = i;
+	      sign.second = j;
+	      min = norm;
+	    }
+	}
+    }
+  I_cout()<<"i " << sign.first << " j " << sign.second; 
+  
+  //Now the pair sign gives the right two particles
+  CDumbbellsFunc fL(retVal.rij, retVal.vijold,
+		    orientationData[particle1.getID()].angularVelocity,
+		    orientationData[particle2.getID()].angularVelocity,
+		    pow(-1,sign.first) * orientationData[particle1.getID()].orientation,
+		    -pow(-1,sign.second) * orientationData[particle2.getID()].orientation,length,diameter);
+
+  // Now we have the particles in the moment of the collision
+  // then apply collision rules
+  Vector u1 = pow(-1,sign.first) * orientationData[particle1.getID()].orientation;
+  Vector u2 =  pow(-1,sign.second) * orientationData[particle2.getID()].orientation;
+
+  Vector rhat = retVal.rij + u1 * length / 2 - u2 * length / 2;
+  rhat /= rhat.nrm();
+  u1 /= u1.nrm();
+  u2 /= u2.nrm();
+
+  Vector velContac1 = particle1.getVelocity() 
+    + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
+  Vector velContac2 = particle2.getVelocity() 
+    + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
+  
+  Vector velContact = velContac1 - velContac2;
+  double mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
+  //van Zon's Formulas
+  //We need the inertia tensor in the lab frame
+  Matrix I1(1.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Matrix I2(1.0 / 5.0 * mass * diameter * diameter,0,0,
+	    0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
+	    0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
+  Vector n1 = (u1 * length / 2 + rhat * diameter / 2)^rhat;
+  Vector n2 = (u2 * length / 2 - rhat * diameter / 2)^rhat;
+
+  Vector a1 = (rhat - ((rhat|u1) * u1))/((rhat - ((rhat|u1) * u1)).nrm());
+  Vector b1 = a1 ^ u1;
+  Vector a2 = (rhat - ((rhat|u2) * u2))/((rhat - ((rhat|u2) * u2)).nrm());
+  Vector b2 = a2 ^ u2;
+  b1 /= b1.nrm();
+  b2 /= b2.nrm();
+
+  Vector nI1 = (n1 | u1) * u1 + (n1 | a1) * a1 + (n1 | b1) * b1;  
+  Vector nI2 = (n2 | u2) * u2 + (n2 | a2) * a2 + (n2 | b2) * b2;  
+  
+  double dE1 = nI1 | (Inverse(I1) * nI1);
+  double dE2 = nI2 | (Inverse(I2) * nI2);
+
+  double a   = 1/(2 * mass) + (dE1 + dE2)/2;
+  double b   = velContact | rhat;
+  
+  double S = b/a;
+  
+  Vector vr = retVal.vijold;
+  //  retVal.dP = normal * ((vr | normal) * (1.0 + elasticity))/a;
+  retVal.dP = rhat * S;
+  I_cout()<<"Momentum transfer " << S; 
+  I_cout()<<"dv " << vr.nrm(); 
+  I_cout()<<"dv at contact " << velContact.nrm();
+ 
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (2 * mass);
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (2 * mass);
+ 
+
+  //Matrix coordinate transformation
+  Matrix W1;
+  W1.setRow(0,u1);
+  W1.setRow(1,a1);
+  W1.setRow(2,b1);
+  Matrix W2;
+  W2.setRow(0,u2);
+  W2.setRow(1,a2);
+  W2.setRow(2,b2);
+
+
+  //I_cout()<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm(); 
+  //I_cout()<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm(); 
+  //I_cout()<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm(); 
+
+
+  //Rotational energy before
+  I_cout()<<"Energy before " <<  2 * KE1before +
+    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * KE2before +
+    (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
+  
+
+  orientationData[particle1.getID()].angularVelocity 
+    -= S * ((Inverse(W1) * Inverse(I1) * W1) * n1);
+  
+  orientationData[particle2.getID()].angularVelocity 
+    += S * ((Inverse(W2) * Inverse(I2) * W2) * n2);
+
+  I_cout()<<"Energy after  " << 2 * getParticleKineticEnergy(particle1) +
+    (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * getParticleKineticEnergy(particle2) +
+    (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
+  Vector velContac1b = particle1.getVelocity() 
+    + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
+  Vector velContac2b = particle2.getVelocity() 
+    + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
+  
+
+  Vector velContactb = velContac1b - velContac2b;
+  I_cout()<<"Error in contact velocity " << 1 + (velContact | rhat)/(velContactb | rhat);
+
+  //Done with the collision; keeping track of energy
+  retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
+  retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
+  //I_cout()<<"delta energy  " << getParticleKineticEnergy(particle1) - KE1before ;
+  //I_cout()<<"delta energy  " <<  getParticleKineticEnergy(particle2) - KE2before;
+  lastCollParticle1 = particle1.getID();
+  lastCollParticle2 = particle2.getID();
+  lastAbsoluteClock = Sim->dSysTime;
+
+  return retVal;
+}
+//Here ends offCenterSpheres
+
+PairEventData 
+LNewtonian::RoughSpheresColl(const IntEvent& event, 
+			     const double& e, 
+			     const double& et, 
+			     const double& d2, 
+			     const EEventType& eType
+			     ) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!hasOrientationData())
+    M_throw() << "Cannot use this function without orientational data";
+#endif
+
+  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+
+  updateParticlePair(particle1, particle2);  
+
+  PairEventData retVal(particle1, particle2,
+		       Sim->dynamics.getSpecies(particle1),
+		       Sim->dynamics.getSpecies(particle2),
+		       eType);
+    
+  Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+  
+  double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID()); 
+  double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
+  double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+  
+  retVal.rvdot = (retVal.rij | retVal.vijold);
+
+  //The normal impulse
+  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
+
+  Vector eijn = retVal.rij / retVal.rij.nrm();
+
+  //Now the tangential impulse
+  Vector gij = retVal.vijold - std::sqrt(d2) * 0.5 
+    * ((orientationData[particle1.getID()].angularVelocity
+	+ orientationData[particle2.getID()].angularVelocity) ^ eijn);
+  
+  Vector gijt = (eijn ^ gij) ^ eijn;
+
+  double Jbar = retVal.particle1_.getSpecies().getScalarMomentOfInertia(particle1.getID()) 
+    / (p1Mass * d2 * 0.25);
+  
+  retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
+
+  double KE1before = getParticleKineticEnergy(particle1);
+  double KE2before = getParticleKineticEnergy(particle2);
+
+  //This function must edit particles so it overrides the const!
+  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+
+  Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
+ 
+  orientationData[particle1.getID()].angularVelocity
+    += angularVchange;
+  orientationData[particle2.getID()].angularVelocity 
+    += angularVchange;
+
+  retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
+  retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
+
+  return retVal;
+}
+
+ParticleEventData 
+LNewtonian::runRoughWallCollision(const Particle& part, 
+				  const Vector & vNorm,
+				  const double& e,
+				  const double& et,
+				  const double& r
+				  ) const
+{
+#ifdef DYNAMO_DEBUG
+  if (!hasOrientationData())
+    M_throw() << "Cannot use this function without orientational data";
+#endif
+
+  updateParticle(part);
+
+  ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
+
+  double KE1before = getParticleKineticEnergy(part);
+
+  double p1Mass = retVal.getSpecies().getMass(part.getID()); 
+
+  double Jbar = retVal.getSpecies().getScalarMomentOfInertia(part.getID())
+    / (p1Mass * r * r);
+
+  Vector gij = part.getVelocity() - r
+    * (orientationData[part.getID()].angularVelocity ^ vNorm);
+  
+  Vector gijt = (vNorm ^ gij) ^ vNorm;
+  
+  const_cast<Particle&>(part).getVelocity()
+    -= (1+e) * (vNorm | part.getVelocity()) * vNorm
+    + (Jbar * (1-et) / (Jbar + 1)) * gijt;
+
+  Vector angularVchange = (1-et) / (r * (Jbar+1)) * (vNorm ^ gijt);
+ 
+  orientationData[part.getID()].angularVelocity
+    += angularVchange;
+
+  retVal.setDeltaKE(getParticleKineticEnergy(part) - KE1before);
+  return retVal; 
+}
+
+void 
+LNewtonian::initLineOrientations(const double& length)
+{
+  orientationData.resize(Sim->particleList.size());
+  
+  I_cout() << "Initialising the line orientations";
+
+  double factor = std::sqrt(6.0/(length*length));
+
+  Vector  angVelCrossing;
+
+  for (size_t i = 0; i < Sim->particleList.size(); ++i)
+    {
+      //Assign the new velocities
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+        orientationData[i].orientation[iDim] = Sim->normal_sampler();
+      
+      orientationData[i].orientation /= orientationData[i].orientation.nrm();
+      
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+        angVelCrossing[iDim] = Sim->normal_sampler();
+      
+      orientationData[i].angularVelocity
+        = orientationData[i].orientation ^ angVelCrossing;
+      
+      orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
+	/ orientationData[i].angularVelocity.nrm();
+    }
+}
+
+void 
+LNewtonian::extraXMLParticleData(xml::XmlStream& XML, const size_t ID) const
+{
+
+  if (hasOrientationData())
+    XML << xml::tag("O")
+	<< orientationData[ID].angularVelocity
+	<< xml::endtag("O")
+	<< xml::tag("U")
+	<< orientationData[ID].orientation
+	<< xml::endtag("U") ;
 }

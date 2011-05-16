@@ -142,8 +142,14 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
 double 
 Liouvillean::getParticleKineticEnergy(const Particle& part) const
 {
-  return 0.5 * (part.getVelocity().nrm2()) 
+  double energy = part.getVelocity().nrm2()
     * Sim->dynamics.getSpecies(part).getMass(part.getID());
+  
+  if (hasOrientationData())
+    energy += orientationData[part.getID()].angularVelocity.nrm2()
+      * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID());
+
+  return 0.5 * energy;
 }
 
 Vector  
@@ -193,6 +199,9 @@ Liouvillean::rescaleSystemKineticEnergy(const double& scale)
 
   BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getVelocity() *= scalefactor;
+
+  BOOST_FOREACH(rotData& rdat, orientationData)
+    rdat.angularVelocity *= scalefactor;
 }
 
 void

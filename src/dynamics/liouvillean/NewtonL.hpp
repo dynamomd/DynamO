@@ -120,6 +120,41 @@ public:
 					  const Matrix& rot,
 					  const EEventType& eType = CORE) const;
 
+  virtual bool getLineLineCollision(CPDData& PD, const double& length, 
+				    const Particle& p1, const Particle& p2
+				    ) const;
+  
+  virtual PairEventData runLineLineCollision(const IntEvent& eevent, 
+					     const double& elasticity, const double& length) const;
+
+  virtual PairEventData RoughSpheresColl(const IntEvent& event, 
+					  const double& e, 
+					  const double& et, 
+					  const double& d2, 
+					  const EEventType& eType = CORE
+					  ) const;
+
+  virtual ParticleEventData runRoughWallCollision(const Particle& part, 
+					       const Vector & vNorm,
+					       const double& e,
+					       const double& et,
+					       const double& r
+					       ) const;
+
+  virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
+							  const double& diameter,
+							  const Particle& p1, const Particle& p2
+							  ) const;
+  
+  virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, 
+								   const double& elasticity, 
+								   const double& length, 
+								   const double& diameter) const;
+
+  void initLineOrientations(const double&);
+
+  virtual void extraXMLParticleData(xml::XmlStream&, const size_t) const;
+
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 

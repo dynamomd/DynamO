@@ -95,7 +95,8 @@ public:
 
   /*! \brief Returns the degrees of freedom per particle.
    */
-  virtual size_t getParticleDOF() const { return NDIM; }
+  virtual size_t getParticleDOF() const 
+  { return NDIM + 2 * hasOrientationData(); }
   
   /*! \brief Calculates the kinetic energy of a single particle
    */
