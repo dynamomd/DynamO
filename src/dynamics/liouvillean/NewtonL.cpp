@@ -29,7 +29,6 @@
 #include "shapes/lines.hpp"
 #include "shapes/dumbbells.hpp"
 #include "../units/units.hpp"
-#include "../../datatypes/vector.xml.hpp"
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -1768,17 +1767,4 @@ LNewtonian::initLineOrientations(const double& length)
       orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
 	/ orientationData[i].angularVelocity.nrm();
     }
-}
-
-void 
-LNewtonian::extraXMLParticleData(xml::XmlStream& XML, const size_t ID) const
-{
-
-  if (hasOrientationData())
-    XML << xml::tag("O")
-	<< orientationData[ID].angularVelocity
-	<< xml::endtag("O")
-	<< xml::tag("U")
-	<< orientationData[ID].orientation
-	<< xml::endtag("U") ;
 }

@@ -15,10 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../species/inertia.hpp"
 #include "include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
 #include "../units/units.hpp"
+#include "../../datatypes/vector.xml.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
@@ -53,6 +55,35 @@ Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
   else 
     M_throw() << XML.getAttribute("Type")
 	      << ", Unknown type of Liouvillean encountered";
+}
+
+
+void 
+Liouvillean::initialise()
+{
+  streamFreq = 10 * Sim->N;
+    
+  if (hasOrientationData())
+    {
+      double sumEnergy(0.0);
+      BOOST_FOREACH(const Particle& part, Sim->particleList)  
+	sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
+	* orientationData[part.getID()].angularVelocity.nrm2();
+      
+      //Check if any of the species are overridden
+      bool hasInertia(false);
+      BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+	if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
+	  hasInertia = true;
+
+      if (!hasInertia)
+	M_throw() << "No species have inertia, yet the particles have orientational degrees of freedom set!";
+
+      sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
+  
+      I_cout() << "System Rotational Energy " << sumEnergy
+	       << "\nRotational kT " << sumEnergy / Sim->N;
+    }
 }
 
 PairEventData 
@@ -99,7 +130,7 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
       part.scalePosition(Sim->dynamics.units().unitLength());
       Sim->particleList.push_back(part);
     }
-  
+
   if (outofsequence)
     I_cout() << IC_red << "Particle ID's out of sequence!\n"
 	     << IC_red << "This can result in incorrect capture map loads etc.\n"
@@ -109,14 +140,37 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
   Sim->N = Sim->particleList.size();
 
   I_cout() << "Particle count " << Sim->N;
+
+  if (XML.getNode("ParticleData").getAttribute("OrientationData").valid())
+    {
+      orientationData.resize(Sim->N);
+      size_t i(0);
+      for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
+	   node.valid(); ++node, ++i)
+	{
+	  orientationData[i].orientation << node.getNode("U");
+	  orientationData[i].angularVelocity << node.getNode("O");
+      
+	  double oL = orientationData[i].orientation.nrm();
+      
+	  if (!(oL > 0.0))
+	    M_throw() << "Particle ID " << i 
+		      << " orientation vector is zero!";
+      
+	  //Makes the vector a unit vector
+	  orientationData[i].orientation /= oL;
+	}
+    }
 }
 
 void 
 Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
 {
-  XML << xml::tag("ParticleData")
-      << xml::attr("N") << Sim->N;
+  XML << xml::tag("ParticleData");
   
+  if (hasOrientationData())
+    XML << xml::attr("OrientationData") << "Y";
+
   for (size_t i = 0; i < Sim->N; ++i)
     {
       Particle tmp(Sim->particleList[i]);
@@ -129,10 +183,15 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
       XML << xml::tag("Pt");
       Sim->_properties.outputParticleXMLData(XML, i);
       XML << tmp;
-      
-      
-      extraXMLParticleData(XML, i);
-      
+
+      if (hasOrientationData())
+	XML << xml::tag("O")
+	    << orientationData[i].angularVelocity
+	    << xml::endtag("O")
+	    << xml::tag("U")
+	    << orientationData[i].orientation
+	    << xml::endtag("U") ;
+
       XML << xml::endtag("Pt");
     }
   

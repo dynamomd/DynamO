@@ -73,10 +73,7 @@ public:
 
   virtual ~Liouvillean() {}
   
-  virtual void initialise() 
-  {
-    streamFreq = 10 * Sim->N;
-  }
+  virtual void initialise();
 
   /*! \brief Parses the XML data to see if it can load XML particle
    * data or if it needs to decode the binary data. Then loads the
@@ -703,8 +700,6 @@ protected:
   
   /*! \brief Writes out the liouvilleans data to XML. */
   virtual void outputXML(xml::XmlStream&) const = 0;
-
-  virtual void extraXMLParticleData(xml::XmlStream&, const size_t) const {}
 
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(Particle& part, const double& dt) const = 0;

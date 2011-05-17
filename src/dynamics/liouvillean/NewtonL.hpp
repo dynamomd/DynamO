@@ -153,8 +153,6 @@ public:
 
   void initLineOrientations(const double&);
 
-  virtual void extraXMLParticleData(xml::XmlStream&, const size_t) const;
-
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 

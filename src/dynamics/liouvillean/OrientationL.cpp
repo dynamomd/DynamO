@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../species/inertia.hpp"
 #include "OrientationL.hpp"
 #include "../2particleEventData.hpp"
 #include "../../datatypes/vector.xml.hpp"
@@ -35,26 +34,6 @@ void
 LNOrientation::initialise() 
 {
   Liouvillean::initialise();
-
-  double sumEnergy(0.0);
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)  
-    sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
-    * orientationData[part.getID()].angularVelocity.nrm2();
-  
-  //Check if any of the species are overridden
-  bool hasInertia(false);
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
-      hasInertia = true;
-
-  if (!hasInertia)
-    M_throw() << "No species have inertia, using the orientational liouvillean is pointless";
-
-  sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
-  
-  I_cout() << "System Rotational Energy " << sumEnergy
-	   << "\nRotational kT " << sumEnergy / Sim->N;
 }
 
 void
@@ -62,30 +41,5 @@ LNOrientation::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type")
       << "NOrientation";
-}
-  
-void 
-LNOrientation::loadParticleXMLData(const magnet::xml::Node& XML)
-{
-  Liouvillean::loadParticleXMLData(XML);
-
-  orientationData.resize(Sim->N);
-  
-  size_t i(0);
-  for (magnet::xml::Node node = XML.getNode("ParticleData").getNode("Pt"); 
-       node.valid(); ++node, ++i)
-    {
-      orientationData[i].orientation << node.getNode("U");
-      orientationData[i].angularVelocity << node.getNode("O");
-      
-      double oL = orientationData[i].orientation.nrm();
-      
-      if (!(oL > 0.0))
-	M_throw() << "Particle ID " << i 
-		  << " orientation vector is zero!";
-      
-      //Makes the vector a unit vector
-      orientationData[i].orientation /= oL;
-    }
 }
  

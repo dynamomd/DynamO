@@ -37,8 +37,6 @@ public:
 
   virtual Liouvillean* Clone() const { return new LNOrientation(*this); }
 
-  virtual void loadParticleXMLData(const magnet::xml::Node&);
-    
 protected:
 
   virtual void outputXML(xml::XmlStream&) const;
