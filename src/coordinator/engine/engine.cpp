@@ -34,7 +34,7 @@ Engine::getCommonOptions(boost::program_options::options_description& opts)
 
   simopts.add_options()
     ("ncoll,c", boost::program_options::value<unsigned long long>()
-     ->default_value(std::numeric_limits<unsigned long long>::max()),
+     ->default_value(std::numeric_limits<unsigned long long>::max(), "no-limit"),
      "No. of collisions in a trajectory")
     ("print-coll,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
      "Default No. of collisions between periodic screen output")

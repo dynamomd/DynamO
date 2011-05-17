@@ -29,10 +29,10 @@ void
 EReplicaExchangeSimulation::getOptions(boost::program_options::options_description& opts)
 {
   boost::program_options::options_description 
-    ropts("REplica EXchange Engine Options");
+    ropts("REplica EXchange Engine Options (--engine=2)");
 
   ropts.add_options()
-    ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max()), 
+    ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max(), "no limit"), 
      "Simulation end time (Note, each systems end time is scaled by"
      "(T_cold/T_i)^{1/2}, see replex-interval)")
     ("replex-interval,i", boost::program_options::value<double>()->default_value(1.0), 

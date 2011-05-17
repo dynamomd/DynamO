@@ -20,7 +20,7 @@
 void 
 ECompressingSimulation::getOptions(boost::program_options::options_description& opts)
 {
-  boost::program_options::options_description ropts("Compression Engine");
+  boost::program_options::options_description ropts("Compression Engine (--engine=3)");
 
   ropts.add_options()
     ("growth-rate",boost::program_options::value<double>()->default_value(1.0),

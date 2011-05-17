@@ -94,30 +94,29 @@ Coordinator::parseOptions(int argc, char *argv[])
   namespace po = boost::program_options;
 
   boost::program_options::options_description allopts(""),
-    basicOpts, detailedEngineOpts, systemopts("System Options"), 
+    basicOpts, detailedEngineOpts, systemopts("System Options"),
     engineopts("Engine Options")
     ;
   
   systemopts.add_options()
-    ("help", "Produces this message")   
-    ("n-_threads,N", po::value<unsigned int>(), 
-     "Number of _threads to spawn for concurrent processing. (Only utilised by some engine/sim configurations)")
-    ("out-config-file,o", po::value<std::string>(), 
+    ("help", "Produces this message")
+    ("n-threads,N", po::value<unsigned int>(),
+     "Number of _threads to spawn for concurrent processing. (Only utilised by certain engine/sim configurations)")
+    ("out-config-file,o", po::value<std::string>(),
      "Default config output file,(config.%ID.end.xml.bz2)")
-    ("out-data-file", po::value<std::string>(), 
+    ("out-data-file", po::value<std::string>(),
      "Default result output file (output.%ID.xml.bz2)")
-    ("config-file", po::value<std::vector<std::string> >(), 
+    ("config-file", po::value<std::vector<std::string> >(),
      "Specify a config file to load, or just list them on the command line")
     ;
 
   engineopts.add_options()
-    ("engine-help", "Detailed options for the available engines")
     ("engine",boost::program_options::value<size_t>()->default_value(1),
-     "Select Engine for simulation:\n"
+     "Select the Engine used to run the simulation:\n"
      " Values:\n"
-     "  1: \tSingle System Engine\n"
-     "  2: \tNVT Replica Exchange\n"
-     "  3: \tCompression dynamics")
+     "  1: \tStandard Engine\n"
+     "  2: \tNVT Replica Exchange Engine\n"
+     "  3: \tCompression Engine")
     ;
 
   basicOpts.add(systemopts).add(engineopts);
@@ -138,19 +137,13 @@ Coordinator::parseOptions(int argc, char *argv[])
   if (vm.count("help") || (argc==1)) 
     {
       std::cout << "Usage : dynarun <OPTION>...<config-file(s)>\n"
-		<< "Initialises a configuration or loads a previous "
-		<< "configuration, then calculates or loads the " 
-		<< "trajectory and outputs data\n"
-		<< basicOpts << "\n";
-      exit(1);
-    }
-
-  if (vm.count("engine-help")) 
-    {
-      std::cout << "Engine Options:-"
+		<< "Loads a configuration file, calculates the trajectory of the system using the specified engine and" 
+		<< "outputs any collected data, including a the final configuration file.\n"
+		<< basicOpts << "\n"
 		<< detailedEngineOpts << "\n";
       exit(1);
     }
+
   
   if (vm.count("config-file") == 0)
     M_throw() << "No configuration files to load specified";

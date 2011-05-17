@@ -29,6 +29,7 @@
 **** DONE *API-CHANGE* Renamed and documented the CEnsemble class.
 **** TODO Update the tutorials.
 *** Dynamo 1.2
+**** TODO Change the build configurations to features.
 **** TODO Triangular Meshes.
 **** TODO Multicanonical simulations.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
