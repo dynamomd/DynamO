@@ -1738,33 +1738,3 @@ LNewtonian::runRoughWallCollision(const Particle& part,
   retVal.setDeltaKE(getParticleKineticEnergy(part) - KE1before);
   return retVal; 
 }
-
-void 
-LNewtonian::initLineOrientations(const double& length)
-{
-  orientationData.resize(Sim->particleList.size());
-  
-  I_cout() << "Initialising the line orientations";
-
-  double factor = std::sqrt(6.0/(length*length));
-
-  Vector  angVelCrossing;
-
-  for (size_t i = 0; i < Sim->particleList.size(); ++i)
-    {
-      //Assign the new velocities
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-        orientationData[i].orientation[iDim] = Sim->normal_sampler();
-      
-      orientationData[i].orientation /= orientationData[i].orientation.nrm();
-      
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-        angVelCrossing[iDim] = Sim->normal_sampler();
-      
-      orientationData[i].angularVelocity
-        = orientationData[i].orientation ^ angVelCrossing;
-      
-      orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
-	/ orientationData[i].angularVelocity.nrm();
-    }
-}

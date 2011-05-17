@@ -19,7 +19,6 @@
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../base/is_stream_op.hpp"
 #include "../../dynamics/systems/rescale.hpp"
 #include <magnet/xmlwriter.hpp>
@@ -344,27 +343,6 @@ OPVTK::ticker()
 	    << part.getVelocity()[2] / Sim->dynamics.units().unitVelocity() << "\n";
     
       XML << xml::endtag("DataArray");
-
-      if (Sim->dynamics.liouvilleanTypeTest<LNOrientation>())
-	{
-	  //Orientation data
-	  XML << xml::tag("DataArray")
-	      << xml::attr("type") << "Float32"
-	      << xml::attr("Name") << "Orientations"
-	      << xml::attr("NumberOfComponents") << "3"
-	      << xml::attr("format") << "ascii"
-	      << xml::chardata();
-    
-	  BOOST_FOREACH(const Particle& part, Sim->particleList)
-	    {
-	      const Vector& tmp = static_cast<const LNOrientation&>
-		(Sim->dynamics.getLiouvillean()).getRotData(part).orientation;
-	     
-	      XML << tmp[0] << " " << tmp[1] << " " << tmp[2] << "\n";
-	    }
-
-	  XML << xml::endtag("DataArray");
-	}
 
       XML << xml::endtag("PointData")
 	  << xml::endtag("Piece")

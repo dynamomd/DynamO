@@ -19,7 +19,6 @@
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../../dynamics/liouvillean/OrientationL.hpp"
 #include "../../extcode/mathtemplates.hpp"
 #include "../../dynamics/systems/sysTicker.hpp"
 #include <magnet/xmlwriter.hpp>
@@ -53,11 +52,6 @@ OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node& XML)
 void
 OPMSDOrientationalCorrelator::initialise()
 {
-  if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
-  {
-    M_throw() << "Plugin requires species to define an orientation";
-  }
-
   I_cout() << "The length of the MSD orientational correlator is " << length;
 
   historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
@@ -73,7 +67,7 @@ OPMSDOrientationalCorrelator::initialise()
 
   currCorrLength = 1.0;
 
-  const std::vector<LNOrientation::rotData>& initial_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
+  const std::vector<Liouvillean::rotData>& initial_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)
   {
@@ -84,7 +78,7 @@ OPMSDOrientationalCorrelator::initialise()
 void
 OPMSDOrientationalCorrelator::ticker()
 {
-  const std::vector<LNOrientation::rotData>& current_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
+  const std::vector<Liouvillean::rotData>& current_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
   BOOST_FOREACH(const Particle& part, Sim->particleList)
   {
     historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));

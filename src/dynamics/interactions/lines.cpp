@@ -18,7 +18,6 @@
 #include "lines.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
-#include "../liouvillean/OrientationL.hpp"
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
@@ -40,10 +39,6 @@ ILines::ILines(const magnet::xml::Node& XML, dynamo::SimData* tmp):
 void 
 ILines::initialise(size_t nID)
 {
-  if (dynamic_cast<const LNOrientation*>(&(Sim->dynamics.getLiouvillean()))
-      == NULL)
-    M_throw() << "Interaction requires an orientation capable Liouvillean.";
-  
   ID = nID; 
   
   ISingleCapture::initCaptureMap(Sim->particleList);

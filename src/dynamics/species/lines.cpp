@@ -1,9 +1,10 @@
 #include "lines.hpp"
+#include "../BC/BC.hpp"
+#include "../liouvillean/liouvillean.hpp"
 
 #ifdef DYNAMO_visualizer
 # include <magnet/thread/mutex.hpp>
 # include "renderobjs/lines.hpp"
-# include "../liouvillean/OrientationL.hpp"
 
 magnet::thread::RefPtr<RenderObj>& 
 SpLines::getCoilRenderObj() const
@@ -41,7 +42,7 @@ SpLines::updateRenderData(magnet::CL::CLGLState& CLState) const
       
       //Vector
       Vector orientation 
-	= diam * static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
+	= diam * Sim->dynamics.getLiouvillean()
 	.getRotData(Sim->particleList[ID]).orientation;
       for (size_t i(0); i < NDIM; ++i)
 	particleData[3 * (range->size() + lineID) + i] = orientation[i];

@@ -17,7 +17,6 @@
 
 #include "NewtonL.hpp"
 #include "CompressionL.hpp"
-#include "OrientationL.hpp"
 #include "SLLOD.hpp"
 #include "NewtonianGravityL.hpp"
 #include "NewtonMCL.hpp"

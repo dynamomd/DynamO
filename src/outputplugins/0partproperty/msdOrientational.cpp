@@ -19,7 +19,6 @@
 #include "../../dynamics/include.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../../dynamics/liouvillean/OrientationL.hpp"
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/legendre.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -37,15 +36,10 @@ OPMSDOrientational::~OPMSDOrientational()
 void
 OPMSDOrientational::initialise()
 {
-  if (dynamic_cast<const LNOrientation*>(&Sim->dynamics.getLiouvillean()) == NULL)
-  {
-    M_throw() << "Plugin requires species to define an orientation";
-  }
-
   initialConfiguration.clear();
   initialConfiguration.resize(Sim->N);
 
-  const std::vector<LNOrientation::rotData>& rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
+  const std::vector<Liouvillean::rotData>& rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
 
   for (size_t ID = 0; ID < Sim->N; ++ID)
   {
@@ -103,7 +97,7 @@ OPMSDOrientational::calculate() const
 
   Vector displacement_term(0,0,0);
 
-  const std::vector<LNOrientation::rotData>& latest_rdat(static_cast<const LNOrientation&> (Sim->dynamics.getLiouvillean()).getCompleteRotData());
+  const std::vector<Liouvillean::rotData>& latest_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
 
   BOOST_FOREACH(const Particle& part, Sim->particleList)
   {

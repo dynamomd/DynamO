@@ -89,7 +89,7 @@ CLGLWindow::initOpenGL()
   if (!GLEW_ARB_vertex_buffer_object)
     std::runtime_error("Vertex Buffer Objects are not supported by your GPU/Driver, this is critical for Coil."); 
 
-  //Check for shadow support
+  //Check for all of the shader pipeline support
   _shaderPipeline = true;
   if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
     {
@@ -204,6 +204,7 @@ CLGLWindow::initOpenGL()
   _frameRenderTime = 0;
   //Build the offscreen rendering FBO's
   _renderTarget.reset(new magnet::GL::FBO());
+  _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
   if (_shaderPipeline)
     {
@@ -494,12 +495,12 @@ CLGLWindow::initGTK()
 	  
 	  _renderTarget.reset(new magnet::GL::multisampledFBO
 			      (2 << aliasSelections->get_active_row_number()));
+	  
+	  _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
 	  aliasSelections->signal_changed()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
 	}
-
-      _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
       ///////////////////////Shadow Mapping//////////////////////////////////
       {
@@ -776,7 +777,7 @@ CLGLWindow::init()
   RenderObjects.push_back(new coil::Axis());
 
 //  //Test volume render object
-  RenderObjects.push_back(new coil::RVolume("Test Volume"));
+//  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
   _CLState = new magnet::CL::CLGLState;
   _viewPortInfo 
@@ -796,9 +797,9 @@ CLGLWindow::init()
 //  RenderObjects.back().as<coil::RVolume>()
 //    .loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
 //  
-  //bonsai plant test
-  RenderObjects.back().as<coil::RVolume>()
-    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
+//  //bonsai plant test
+//  RenderObjects.back().as<coil::RVolume>()
+//    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
 //
 //  //Cadaver
 //  RenderObjects.back().as<coil::RVolume>()
@@ -1000,7 +1001,10 @@ CLGLWindow::CallBackDisplayFunc()
 	}
       else	
 #endif
-	drawScene(*_renderTarget);
+	{
+	  _renderTarget->attach();
+	  drawScene(*_renderTarget);
+	}
       
       _renderTarget->detach();
 

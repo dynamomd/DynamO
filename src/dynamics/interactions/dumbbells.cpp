@@ -19,7 +19,6 @@
 #include "dumbbells.hpp"
 #include "../../dynamics/interactions/intEvent.hpp"
 #include "../liouvillean/liouvillean.hpp"
-#include "../liouvillean/OrientationL.hpp"
 #include "../units/units.hpp"
 #include "../../base/is_simdata.hpp"
 #include "../2particleEventData.hpp"
@@ -41,10 +40,6 @@ IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::SimData* tmp):
 void 
 IDumbbells::initialise(size_t nID)
 {
-  if (dynamic_cast<const LNOrientation*>(&(Sim->dynamics.getLiouvillean()))
-      == NULL)
-    M_throw() << "Interaction requires an orientation capable Liouvillean.";
-  
   ID = nID; 
   
   ISingleCapture::initCaptureMap(Sim->particleList);
@@ -93,7 +88,7 @@ IDumbbells::getPosition(size_t ID, size_t subID) const
   //Flip the direction depending on if the ID is odd or even
   l *=  0.5 * (1 - int(2 * (subID % 2)));
 
-  retval += static_cast<const LNOrientation&>(Sim->dynamics.getLiouvillean())
+  retval += Sim->dynamics.getLiouvillean()
     .getRotData(Sim->particleList[ID]).orientation * l;
 
   return retval;

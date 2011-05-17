@@ -151,8 +151,6 @@ public:
 								   const double& length, 
 								   const double& diameter) const;
 
-  void initLineOrientations(const double&);
-
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 

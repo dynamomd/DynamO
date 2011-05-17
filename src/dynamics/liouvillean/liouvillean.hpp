@@ -670,7 +670,20 @@ public:
   const std::vector<rotData>& getCompleteRotData() const
   { return orientationData; }
 
+  /*! \brief Used to test if the liouvillean has orientation data
+   *  available.
+   */
   inline bool hasOrientationData() const { return orientationData.size(); }
+
+  /*! \brief Initialises the orientation data of the system.
+   *
+   *  This is used by the packer to insert random orientations and
+   *  angular velocities into the system.
+   *
+   * \param ToI The mean square gaussian angular velocity to
+   * assign. AKA k_B T / I
+   */
+  void initOrientations(double ToI);
 
 protected:
   friend class CGCellsShearing;

@@ -46,8 +46,6 @@ Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
     return new LNewtonian(tmp);
   if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
     return new LNewtonianGravity(tmp, XML);
-  else if (!strcmp(XML.getAttribute("Type"),"NOrientation"))
-    return new LNOrientation(tmp, XML);
   else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
     return new LSLLOD(tmp);
   else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
@@ -347,4 +345,34 @@ Liouvillean::runRoughWallCollision(const Particle& part,
 				   ) const
 {
   M_throw() << "Not Implemented, you need rotational dynamics";
+}
+
+void 
+Liouvillean::initOrientations(double ToI)
+{
+  orientationData.resize(Sim->particleList.size());
+  
+  I_cout() << "Initialising the line orientations";
+
+  double factor = ToI * 0.5;
+
+  Vector angVelCrossing;
+
+  for (size_t i = 0; i < Sim->particleList.size(); ++i)
+    {
+      //Assign the new velocities
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+        orientationData[i].orientation[iDim] = Sim->normal_sampler();
+      
+      orientationData[i].orientation /= orientationData[i].orientation.nrm();
+      
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+        angVelCrossing[iDim] = Sim->normal_sampler();
+      
+      orientationData[i].angularVelocity
+        = orientationData[i].orientation ^ angVelCrossing;
+      
+      orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
+	/ orientationData[i].angularVelocity.nrm();
+    }
 }

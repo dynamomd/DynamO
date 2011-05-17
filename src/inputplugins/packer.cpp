@@ -1141,7 +1141,7 @@ CIPPacker::initialise()
 	  Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	}
 
-	Sim->dynamics.setLiouvillean(new LNOrientation(Sim));
+	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
 
@@ -1166,7 +1166,9 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
+	const double length = 1;
+	Sim->dynamics.getLiouvillean()
+	  .initOrientations(std::sqrt(12.0/ (length * length)));
 
 	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
@@ -1560,7 +1562,7 @@ CIPPacker::initialise()
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	Sim->dynamics.setLiouvillean(new LNOrientation(Sim));
+	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
@@ -1582,7 +1584,9 @@ CIPPacker::initialise()
 	  Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 						 nParticles++));
 
-	static_cast<LNOrientation&>(Sim->dynamics.getLiouvillean()).initLineOrientations(1.0);
+	const double length = 1;
+	Sim->dynamics.getLiouvillean()
+	  .initOrientations(std::sqrt(12.0/ (length * length)));
 
 	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	break;
