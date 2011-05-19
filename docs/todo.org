@@ -27,7 +27,7 @@
 **** DONE *BUG* Fixed render target not getting resized or initialised on old GPUs, breaking rendering in the Coil library.
 **** DONE *API-CHANGE* Replace HardCoreDiam() with ExcludedVolume() in Interactions
 **** DONE *API-CHANGE* Renamed and documented the CEnsemble class.
-**** TODO Update the tutorials.
+**** DONE Update the tutorials.
 *** Dynamo 1.2
 **** TODO Change the build configurations to features.
 **** TODO Triangular Meshes.
