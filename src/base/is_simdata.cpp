@@ -166,8 +166,9 @@ namespace dynamo
     //Allow this block to fail if need be
     try {
       double mft = getOutputPlugin<OPMisc>()->getMFT();
-      XML << xml::attr("lastMFT")
-	  << mft;
+      if (!std::isinf(mft))
+	XML << xml::attr("lastMFT")
+	    << mft;
     }
     catch (std::exception&)
       {}

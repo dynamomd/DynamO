@@ -29,7 +29,8 @@
 **** DONE *API-CHANGE* Renamed and documented the CEnsemble class.
 **** DONE Update the tutorials.
 *** Dynamo 1.2
-**** DONE XML errors are now much more verbose and tell you exactly what went wrong.
+**** DONE *Improvement* XML errors are now much more verbose and tell you exactly what went wrong.
+**** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** TODO Triangular Meshes.
 **** TODO Change the build configuration steps to setting features.
 **** TODO Multicanonical simulations.
