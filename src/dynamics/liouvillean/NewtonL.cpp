@@ -194,6 +194,40 @@ LNewtonian::getWallCollision(const Particle &part,
   return HUGE_VAL;
 }
 
+double 
+LNewtonian::getParticleTriangleEvent(const Particle& part, 
+				     const Vector & A, 
+				     const Vector & B, 
+				     const Vector & C
+				     ) const
+{
+  //The edge vectors
+  Vector E1 = B - A;
+  Vector E2 = C - A;
+
+  //The Origin, relative to the first vertex
+  Vector T = part.getPosition() - A;
+  //The ray direction
+  Vector D = part.getVelocity();
+  Sim->dynamics.BCs().applyBC(T, D);
+  
+  Vector P = D ^ E2;
+  double det = E1 | P;
+  
+  //Ray is parallel (0) or the ray is leaving the triangle (not entering it)
+  if (det <= 0) return HUGE_VAL;
+  
+  double u = T | P;
+  if ((u < 0) || (u > det)) return HUGE_VAL;
+
+  Vector Q = T ^ E1;
+  double v = D | Q;
+
+  if ((v < 0) || ((u + v) > det)) return HUGE_VAL;
+
+  return (E2 | Q) / det;
+}
+
 
 ParticleEventData 
 LNewtonian::runWallCollision(const Particle &part, 

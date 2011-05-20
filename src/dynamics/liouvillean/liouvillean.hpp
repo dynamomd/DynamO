@@ -370,6 +370,20 @@ public:
 				const Vector & norm
 				) const = 0;
 
+  /*! \brief Determines when a particle center will hit a triangle.
+   *
+   * \param part The particle to test.
+   * \param A First vertex of the triangle.
+   * \param B Second vertex of the triangle.
+   * \param C Third vertex of the triangle.
+   * \return The time till collision.
+   */    
+  virtual double getParticleTriangleEvent(const Particle& part, 
+					  const Vector & A, 
+					  const Vector & B, 
+					  const Vector & C
+					  ) const;
+
   /*! \brief Determines when the particle center will hit a cylindrical wall.
    *
    *

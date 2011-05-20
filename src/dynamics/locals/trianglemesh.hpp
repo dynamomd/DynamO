@@ -17,6 +17,7 @@
 
 #pragma once
 #include "local.hpp"
+#include <boost/tuple/tuple.hpp>
 #include <vector>
 
 class LTriangleMesh: public Local
@@ -45,6 +46,9 @@ protected:
   virtual void outputXML(xml::XmlStream&) const;
 
   std::vector<Vector> _verticies;
-  std::vector<int> _elements;
+
+  typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
+  std::vector<TriangleElements> _elements;
+
   double _e;
 };

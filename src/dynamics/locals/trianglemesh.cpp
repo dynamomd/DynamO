@@ -46,13 +46,26 @@ LTriangleMesh::getEvent(const Particle& part) const
     M_throw() << "Particle is not up to date";
 #endif
 
-  M_throw() << "Not implemented";
+  double tmin = HUGE_VAL;
+  BOOST_FOREACH(const TriangleElements& e, _elements)
+    {
+      double t = Sim->dynamics.getLiouvillean()
+	.getParticleTriangleEvent(part,
+				  _verticies[e.get<0>()],
+				  _verticies[e.get<1>()],
+				  _verticies[e.get<2>()]);
+      tmin = std::min(tmin, t);
+    }
+
+  return LocalEvent(part, tmin, WALL, *this);
 }
 
 void
 LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
-{
-  M_throw() << "Not implemented";
+{ 
+
+  M_throw() << "Not implemented"; 
+
 }
 
 bool 
@@ -70,6 +83,49 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   
   try {
     _e = XML.getAttribute("Elasticity").as<double>();
+    localName = XML.getAttribute("Name");
+
+    {//Load the vertex coordinates
+      std::istringstream is(XML.getNode("Vertices").getValue());
+      
+      Vector tmp;
+      while (!(is.eof()))
+	{
+	  is >> tmp[0];
+	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
+	  
+	  is >> tmp[1];
+	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
+	  
+	  is >> tmp[2];
+	  
+	  _verticies.push_back(tmp);
+	}
+    }
+
+    {//Load the triangle elements
+      std::istringstream is(XML.getNode("Elements").getValue());
+      
+      TriangleElements tmp;
+      while (!(is.eof()))
+	{
+	  is >> tmp.get<0>();
+	  if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
+	  
+	  is >> tmp.get<1>();
+	  if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
+	  
+	  is >> tmp.get<2>();
+
+	  if ((tmp.get<2>() >= _vertices.size()) 
+	      || (tmp.get<2>() >= _vertices.size()) 
+	      || (tmp.get<2>() >= _vertices.size()))
+	    M_throw() << "Element " << _elements.size() << " has an out of range vertex ID";
+
+	  _elements.push_back(tmp);
+	}
+    }
+
   } 
   catch (boost::bad_lexical_cast &)
     {
@@ -84,6 +140,20 @@ LTriangleMesh::outputXML(xml::XmlStream& XML) const
       << xml::attr("Name") << localName
       << xml::attr("Elasticity") << _e
       << range;
+
+  XML << xml::tag("Vertices") << xml::chardata();
+  BOOST_FOREACH(Vector vert, _verticies)
+    XML << vert[0] / Sim->dynamics.units().unitLength() << " " 
+	<< vert[1] / Sim->dynamics.units().unitLength() << " "
+	<< vert[2] / Sim->dynamics.units().unitLength() << "\n";
+  XML << xml::endtag("Vertices");
+
+  XML << xml::tag("Elements") << xml::chardata();
+  BOOST_FOREACH(TriangleElements elements, _elements)
+    XML << elements.get<0>() << " " 
+	<< elements.get<1>() << " "
+	<< elements.get<2>() << "\n";
+  XML << xml::endtag("Elements");
 }
 
 void 

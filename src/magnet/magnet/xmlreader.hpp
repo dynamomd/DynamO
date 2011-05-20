@@ -144,7 +144,9 @@ namespace magnet {
       }
 
       //! Returns the value of the Node.
-      inline operator const char*() const 
+      inline operator const char*() const { return getValue(); }
+
+      const char* getValue() const
       { 
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Cannot read invalid node\nXML Path: ")

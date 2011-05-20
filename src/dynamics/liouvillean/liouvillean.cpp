@@ -376,3 +376,13 @@ Liouvillean::initOrientations(double ToI)
 	/ orientationData[i].angularVelocity.nrm();
     }
 }
+
+double 
+Liouvillean::getParticleTriangleEvent(const Particle& part, 
+				      const Vector & A, 
+				      const Vector & B, 
+				      const Vector & C
+				      ) const
+{
+  M_throw() << "Not implemented";
+}

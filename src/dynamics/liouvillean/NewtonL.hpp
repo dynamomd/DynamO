@@ -75,6 +75,12 @@ public:
 				const Vector &, 
 				const Vector &) const;
 
+  virtual double getParticleTriangleEvent(const Particle& part, 
+					  const Vector & A, 
+					  const Vector & B, 
+					  const Vector & C
+					  ) const;
+
   virtual double getCylinderWallCollision(const Particle&, 
 					const Vector &, 
 					const Vector &,
