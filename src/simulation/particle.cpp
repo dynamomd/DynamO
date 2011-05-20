@@ -26,7 +26,7 @@ Particle::Particle(const magnet::xml::Node& XML, unsigned long nID):
   _peculiarTime(0.0),
   _state(DEFAULT)
 {
-  if (XML.getAttribute("Static").valid()) clearState(DYNAMIC);
+  if (XML.hasAttribute("Static")) clearState(DYNAMIC);
 
   _pos << XML.getNode("P");
   _vel << XML.getNode("V");

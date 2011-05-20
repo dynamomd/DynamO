@@ -51,9 +51,9 @@ LTriangleMesh::getEvent(const Particle& part) const
     {
       double t = Sim->dynamics.getLiouvillean()
 	.getParticleTriangleEvent(part,
-				  _verticies[e.get<0>()],
-				  _verticies[e.get<1>()],
-				  _verticies[e.get<2>()]);
+				  _vertices[e.get<0>()],
+				  _vertices[e.get<1>()],
+				  _vertices[e.get<2>()]);
       tmin = std::min(tmin, t);
     }
 
@@ -87,38 +87,40 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
 
     {//Load the vertex coordinates
       std::istringstream is(XML.getNode("Vertices").getValue());
-      
+      is.exceptions(std::ostringstream::badbit | std::ostringstream::failbit);
+      is.peek(); //Set the eof flag if needed
       Vector tmp;
-      while (!(is.eof()))
+      while (!is.eof())
 	{
 	  is >> tmp[0];
 	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
-	  
+
 	  is >> tmp[1];
 	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
-	  
-	  is >> tmp[2];
-	  
-	  _verticies.push_back(tmp);
+
+	  is >> tmp[2];	  
+	  _vertices.push_back(tmp);
 	}
     }
 
     {//Load the triangle elements
       std::istringstream is(XML.getNode("Elements").getValue());
-      
+      is.exceptions(std::ostringstream::badbit | std::ostringstream::failbit);
+      is.peek(); //Set the eof flag if needed
+
       TriangleElements tmp;
-      while (!(is.eof()))
+      while (!is.eof())
 	{
 	  is >> tmp.get<0>();
 	  if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
 	  
-	  is >> tmp.get<1>();
+	  is >> tmp.get<1>();;
 	  if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
-	  
-	  is >> tmp.get<2>();
 
-	  if ((tmp.get<2>() >= _vertices.size()) 
-	      || (tmp.get<2>() >= _vertices.size()) 
+	  is >> tmp.get<2>();;
+
+	  if ((tmp.get<0>() >= _vertices.size()) 
+	      || (tmp.get<1>() >= _vertices.size()) 
 	      || (tmp.get<2>() >= _vertices.size()))
 	    M_throw() << "Element " << _elements.size() << " has an out of range vertex ID";
 
@@ -126,7 +128,7 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
 	}
     }
 
-  } 
+  }
   catch (boost::bad_lexical_cast &)
     {
       M_throw() << "Failed a lexical cast in LTriangleMesh";
@@ -142,7 +144,7 @@ LTriangleMesh::outputXML(xml::XmlStream& XML) const
       << range;
 
   XML << xml::tag("Vertices") << xml::chardata();
-  BOOST_FOREACH(Vector vert, _verticies)
+  BOOST_FOREACH(Vector vert, _vertices)
     XML << vert[0] / Sim->dynamics.units().unitLength() << " " 
 	<< vert[1] / Sim->dynamics.units().unitLength() << " "
 	<< vert[2] / Sim->dynamics.units().unitLength() << "\n";

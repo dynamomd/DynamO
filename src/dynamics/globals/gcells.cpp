@@ -90,19 +90,19 @@ void
 CGCells::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    if (XML.getAttribute("OverLink").valid())
+    if (XML.hasAttribute("OverLink"))
       overlink = XML.getAttribute("OverLink").as<size_t>();
 
-    if (XML.getAttribute("Oversize").valid())
+    if (XML.hasAttribute("Oversize"))
       _oversizeCells = XML.getAttribute("Oversize").as<double>();
 
     if (_oversizeCells < 1.0)
       M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
 
-    if (XML.getAttribute("Interaction").valid())
+    if (XML.hasAttribute("Interaction"))
       interaction = XML.getAttribute("Interaction");
 
-    if (XML.getAttribute("CellWidth").valid())
+    if (XML.hasAttribute("CellWidth"))
       MaxIntDist = XML.getAttribute("CellWidth").as<double>() * Sim->dynamics.units().unitLength();
     
     globName = XML.getAttribute("Name");	

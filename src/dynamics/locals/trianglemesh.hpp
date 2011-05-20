@@ -45,7 +45,7 @@ public:
 protected:
   virtual void outputXML(xml::XmlStream&) const;
 
-  std::vector<Vector> _verticies;
+  std::vector<Vector> _vertices;
 
   typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
   std::vector<TriangleElements> _elements;

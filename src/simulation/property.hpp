@@ -287,8 +287,8 @@ public:
    */
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
   {
-    if (node.getNode("Properties").valid())
-      for (magnet::xml::Node propNode = node.getNode("Properties").getNode("Property");
+    if (node.hasNode("Properties"))
+      for (magnet::xml::Node propNode = node.getNode("Properties").fastGetNode("Property");
 	   propNode.valid(); ++propNode)
 	if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
 	  _namedProperties.push_back(new ParticleProperty(propNode));

@@ -444,7 +444,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
   if (xDynamics.getNode("Topology").valid())
     {
       size_t i(0);
-      for (magnet::xml::Node node = xDynamics.getNode("Topology").getNode("Structure");
+      for (magnet::xml::Node node = xDynamics.getNode("Topology").fastGetNode("Structure");
 	   node.valid(); ++node, ++i)
 	{
 	  magnet::ClonePtr<Topology> tempPlug(Topology::getClass(node, Sim, i));
@@ -454,14 +454,14 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
   
   { 
     size_t i(0);
-    for (magnet::xml::Node node = xDynamics.getNode("Genus").getNode("Species");
+    for (magnet::xml::Node node = xDynamics.getNode("Genus").fastGetNode("Species");
 	 node.valid(); ++node, ++i)
       species.push_back(magnet::ClonePtr<Species>(Species::getClass(node, Sim, i)));
   }
 
   p_liouvillean.set_ptr(Liouvillean::loadClass(xDynamics.getNode("Liouvillean"), Sim));  
   
-  for (magnet::xml::Node node = xDynamics.getNode("Interactions").getNode("Interaction");
+  for (magnet::xml::Node node = xDynamics.getNode("Interactions").fastGetNode("Interaction");
        node.valid(); ++node)
     {
       magnet::ClonePtr<Interaction> tempPlug(Interaction::getClass(node, Sim));
@@ -478,7 +478,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
       }
   
   if (xDynamics.getNode("Globals").valid())
-    for (magnet::xml::Node node = xDynamics.getNode("Globals").getNode("Global"); 
+    for (magnet::xml::Node node = xDynamics.getNode("Globals").fastGetNode("Global"); 
 	 node.valid(); ++node)
       {
 	magnet::ClonePtr<Global> tempPlug(Global::getClass(node, Sim));
@@ -486,7 +486,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
       }
 
   if (xDynamics.getNode("Locals").valid())
-    for (magnet::xml::Node node = xDynamics.getNode("Locals").getNode("Local"); 
+    for (magnet::xml::Node node = xDynamics.getNode("Locals").fastGetNode("Local"); 
 	 node.valid(); ++node)
       {
 	magnet::ClonePtr<Local> tempPlug(Local::getClass(node, Sim));
@@ -494,7 +494,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
       }
   
   if (xDynamics.getNode("SystemEvents").valid())
-    for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").getNode("System"); 
+    for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").fastGetNode("System"); 
 	 node.valid(); ++node)
       {
 	magnet::ClonePtr<System> tempPlug(System::getClass(node, Sim));

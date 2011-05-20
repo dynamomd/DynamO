@@ -71,10 +71,10 @@ CGCellsMorton::operator<<(const magnet::xml::Node& XML)
 {
   try {
     //If you add anything here then it needs to go in gListAndCells.cpp too
-    if (XML.getAttribute("OverLink").valid())
+    if (XML.hasAttribute("OverLink"))
       overlink = XML.getAttribute("OverLink").as<size_t>();
 
-    if (XML.getAttribute("Oversize").valid())
+    if (XML.hasAttribute("Oversize"))
       _oversizeCells = XML.getAttribute("Oversize").as<double>();
 
     if (_oversizeCells < 1.0)

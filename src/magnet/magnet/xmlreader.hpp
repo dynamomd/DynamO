@@ -127,20 +127,60 @@ namespace magnet {
       template<class T> inline Attribute getAttribute(T name) const 
       { 
 	if (!valid()) 
-	  M_throw() << (std::string("XML error: Missing node's attribute being accessed\nXML Path: ")
+	  M_throw() << (std::string("XML error: Invalid node's attribute being accessed\nXML Path:")
 			+ detail::getPath(_parent) + "/INVALID");
-	return Attribute(_node->first_attribute(name), _node); 
+
+	Attribute attr(_node->first_attribute(name), _node);
+
+	if (!attr.valid())
+	  M_throw() << "XML error: Attribute does not exist."
+		    << name << (std::string("\nXML Path: ") + detail::getPath(_node) + "/@" + std::string(name));
+
+	return attr; 
       }
 
-      //! Fetches the first Node with a given name. Test if the
-      //! Node is Node::valid() before using it.
+      //! Fetches the first Node with a given name.
       //! \param name The name of the Node to return.
       template<class T> inline Node getNode(T name) const 
+      { 
+	Node child(fastGetNode(name));
+	
+	if (!child.valid())
+	  M_throw() << "XML error: Node does not exist."
+		    << (std::string("\nXML Path: ") + detail::getPath(_node) + "/" + std::string(name));
+	return child;
+      }
+
+      //! Fetches the first Node with a given name without testing if
+      //! its a valid node.
+      //!\param name The name of the Node to return.
+      template<class T> inline Node fastGetNode(T name) const 
+      { 
+	if (!valid())
+	  M_throw() << (std::string("XML error: Cannot fetch sub node of invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/INVALID");
+	return Node(_node->first_node(name), _node);
+      }
+
+      //! Tests if the Node has a named child Node.
+      //!\param name The name of the child Node to test for.
+      template<class T> inline bool hasNode(T name) const 
       { 
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Cannot fetch sub node of invalid node\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	return Node(_node->first_node(name), _node); 
+	
+	return _node->first_node(name);
+      }
+
+      //! Tests if the Node has a named child Node.
+      //!\param name The name of the child Node to test for.
+      template<class T> inline bool hasAttribute(T name) const 
+      { 
+	if (!valid()) 
+	  M_throw() << (std::string("XML error: Cannot fetch attribute of invalid node\nXML Path: ")
+			+ detail::getPath(_parent) + "/@" + std::string(name));	
+	return _node->first_attribute(name);
       }
 
       //! Returns the value of the Node.
@@ -149,7 +189,7 @@ namespace magnet {
       const char* getValue() const
       { 
 	if (!valid()) 
-	  M_throw() << (std::string("XML error: Cannot read invalid node\nXML Path: ")
+	  M_throw() << (std::string("XML error: Cannot get the value of an invalid node\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
 	return _node->value(); 
       }
