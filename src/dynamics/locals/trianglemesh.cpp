@@ -161,3 +161,43 @@ LTriangleMesh::outputXML(xml::XmlStream& XML) const
 void 
 LTriangleMesh::checkOverlaps(const Particle& p1) const
 {}
+
+
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/TriangleMesh.hpp>
+
+magnet::thread::RefPtr<RenderObj>& 
+LTriangleMesh::getCoilRenderObj() const
+{
+  const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+
+  if (!_renderObj.isValid())
+    {
+      std::vector<float> verts;
+      verts.reserve(3 * _vertices.size());
+      BOOST_FOREACH(const Vector& v, _vertices)
+	{
+	  verts.push_back(v[0] * lengthRescale);
+	  verts.push_back(v[1] * lengthRescale);
+	  verts.push_back(v[2] * lengthRescale);
+	}
+
+      std::vector<int> elems;
+      elems.reserve(3 * _elements.size());
+      BOOST_FOREACH(const TriangleElements& e, _elements)
+	{
+	  elems.push_back(e.get<0>());
+	  elems.push_back(e.get<1>());
+	  elems.push_back(e.get<2>());
+	}
+      
+      _renderObj = new RTriangleMesh(getName(), verts, elems);
+    }
+  
+  return _renderObj;
+}
+
+void 
+LTriangleMesh::updateRenderData(magnet::CL::CLGLState&) const
+{}
+#endif

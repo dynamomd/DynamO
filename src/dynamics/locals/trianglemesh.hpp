@@ -17,10 +17,11 @@
 
 #pragma once
 #include "local.hpp"
+#include "../coilRenderObj.hpp"
 #include <boost/tuple/tuple.hpp>
 #include <vector>
 
-class LTriangleMesh: public Local
+class LTriangleMesh: public Local, public CoilRenderObj
 {
 public:
   LTriangleMesh(const magnet::xml::Node&, dynamo::SimData*);
@@ -42,7 +43,16 @@ public:
 
   virtual void checkOverlaps(const Particle&) const;
 
+#ifdef DYNAMO_visualizer
+  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
+  virtual void updateRenderData(magnet::CL::CLGLState&) const;
+#endif
+
 protected:
+#ifdef DYNAMO_visualizer
+  mutable magnet::thread::RefPtr<RenderObj> _renderObj;
+#endif
+
   virtual void outputXML(xml::XmlStream&) const;
 
   std::vector<Vector> _vertices;
