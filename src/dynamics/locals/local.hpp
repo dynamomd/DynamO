@@ -29,6 +29,15 @@ class IntEvent;
 class NEventData;
 class LocalEvent;
 
+/*! \brief Represents 1-particle event sources which are Local in space.
+ *
+ * The purpose of this specialized class is to allow 1-particle
+ * events, which are localized in space, to be inserted into a
+ * neighbor list for efficiency.
+ *
+ * To do this, the Local class provides the isInCell method, used by a
+ * CGNeighbourList to check if this Local is in a certain cell.
+ */
 class Local: public dynamo::SimBase
 {
 public:

@@ -5,9 +5,9 @@
 
 * Code improvements
 ** Version Milestones
-*** Dynamo 1.0
+*** Dynamo 1.0							    :ARCHIVE:
     First major release of DynamO.
-*** Dynamo 1.1
+*** Dynamo 1.1							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.
 **** DONE *MAJOR* Remove binary XML mode, new parser is fast enough and binary blobs are not XML.
@@ -29,7 +29,7 @@
 **** DONE *API-CHANGE* Renamed and documented the CEnsemble class.
 **** DONE Update the tutorials.
 *** Dynamo 1.2
-**** TODO Change the build configurations to features.
+**** TODO Change the build configuration steps to setting features.
 **** TODO Triangular Meshes.
 **** TODO Multicanonical simulations.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.

@@ -22,3 +22,4 @@
 #include "lcylinder.hpp"
 #include "lsphere.hpp"
 #include "lroughwall.hpp"
+#include "trianglemesh.hpp"
