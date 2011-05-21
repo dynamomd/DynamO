@@ -229,6 +229,11 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
       if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
     }
 
+
+  I_cerr() << "overlap t1 " << magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)
+	   << "overlap t2 " << magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)
+	   << ", t1 is " << t1 << ", t2 is " << t2;
+
   return std::min(t1, t2);
 }
 
