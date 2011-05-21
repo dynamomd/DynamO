@@ -47,6 +47,9 @@ LTriangleMesh::getEvent(const Particle& part) const
 #endif
 
   double tmin = HUGE_VAL;
+  
+  std::cout << "\n\nTesting for collision\n\n";
+  
   BOOST_FOREACH(const TriangleElements& e, _elements)
     {
       double t = Sim->dynamics.getLiouvillean()
@@ -54,7 +57,7 @@ LTriangleMesh::getEvent(const Particle& part) const
 				  _vertices[e.get<0>()],
 				  _vertices[e.get<1>()],
 				  _vertices[e.get<2>()]);
-      tmin = std::min(tmin, t);
+      if (t < tmin) tmin = t;
     }
 
   return LocalEvent(part, tmin, WALL, *this);
@@ -99,7 +102,7 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
 	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
 
 	  is >> tmp[2];	  
-	  _vertices.push_back(tmp);
+	  _vertices.push_back(tmp * Sim->dynamics.units().unitLength());
 	}
     }
 

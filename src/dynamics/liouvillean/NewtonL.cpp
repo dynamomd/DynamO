@@ -215,16 +215,32 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
   double det = E1 | P;
   
   //Ray is parallel (0) or the ray is leaving the triangle (not entering it)
-  if (det <= 0) return HUGE_VAL;
+  if (det <= 0) 
+    {
+      std::cout << "\n\nRay is parallel or leaving triangle" << std::endl;
+      return HUGE_VAL;
+    }
   
   double u = T | P;
-  if ((u < 0) || (u > det)) return HUGE_VAL;
+  if ((u < 0) || (u > det))
+    {
+      std::cout << "\n\nBad u range" << std::endl;
+      return HUGE_VAL;
+    }
+
 
   Vector Q = T ^ E1;
   double v = D | Q;
 
-  if ((v < 0) || ((u + v) > det)) return HUGE_VAL;
+  if ((v < 0) || ((u + v) > det)) 
+    {
+      std::cout << "\n\nBad Barycentric coords" << std::endl;
+      return HUGE_VAL;
+    }
 
+  std::cout << "\n\nFound triangle Ray collision at " << (E2 | Q) / det
+	    << "\n\n" << std::endl;
+ 
   return (E2 | Q) / det;
 }
 
