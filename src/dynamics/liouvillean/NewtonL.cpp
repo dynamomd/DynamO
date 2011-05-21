@@ -30,6 +30,7 @@
 #include "shapes/lines.hpp"
 #include "shapes/dumbbells.hpp"
 #include "../units/units.hpp"
+#include <magnet/overlap/point_prism.hpp>
 #include <magnet/intersection/ray_triangle.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/math/matrix.hpp>
@@ -206,13 +207,34 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
   //The edge vectors
   Vector E1 = B - A;
   Vector E2 = C - A;
-
-  double t = magnet::intersection::ray_triangle<true, true>(T, D, E1, E2);
   
-  //if we have a negative time, check that we're not somewhere on the
-  //other side of the triangle.
+  Vector N = E1 ^ E2;
+  double nrm2 = N.nrm2();
+  if (!nrm2) return false;
+  N /= std::sqrt(nrm2);
+  
+  double t1 = magnet::intersection::ray_triangle<true, true>(T - N * dist, D, E1, E2);
+    
+  if (t1 < 0)
+    {
+      t1 = HUGE_VAL;
+      if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
+    }
 
-  return t;
+  double t2 = magnet::intersection::ray_triangle<true, true>(T + N * dist, D, E2, E1);
+
+  if (t2 < 0)
+    {
+      t2 = HUGE_VAL;
+      if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
+    }
+
+
+  I_cerr() << "overlap t1 " << magnet::overlap::point_prism(T + N * dist, E1, E2, N, dist)
+	   << "overlap t2 " << magnet::overlap::point_prism(T - N * dist, E2, E1, -N, dist)
+	   << ", t1 is " << t1 << ", t2 is " << t2;
+
+  return std::min(t1, t2);
 }
 
 

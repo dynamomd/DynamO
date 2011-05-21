@@ -39,7 +39,7 @@ LTriangleMesh::getEvent(const Particle& part) const
   double tmin = HUGE_VAL;
   size_t triangleid = 0;
 
-  double diam = _diameter->getProperty(part.getID());
+  double diam = 0.5 * _diameter->getProperty(part.getID());
 
   for (size_t id(0); id < _elements.size(); ++id)
     {

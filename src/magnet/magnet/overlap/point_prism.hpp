@@ -16,40 +16,30 @@
 */
 
 #pragma once
-#include <magnet/math/vector.hpp>
+#include <magnet/overlap/point_triangle.hpp>
 
 namespace magnet {
   namespace overlap {
-    //! A point-triangle overlap test.
-    //!
-    //! This function assumes the point passed lies somewhere in the
-    //! plane of the triangle and is defined relative to the first
-    //! vertex of the triangle (V0).
-    //!
-    //! See http://softsurfer.com/Archive/algorithm_0105/algorithm_0105.htm
+    //! A point-prism (extruded triangle) overlap test.
     //!
     //! \param P The point's position, relative to V0.
-    //! \param E1 The first edge vector of the triangle (V1-V0).
-    //! \param E2 The second edge vector of the triangle (V2-V0).
+    //! \param E1 The first edge vector of the prism face triangle (V1-V0).
+    //! \param E2 The second edge vector of the prism face triangle (V2-V0).
+    //! \param N Normal of the triangle.
+    //! \param d The depth of the prism.
     //! \return Whether the point is inside the triangle.
-    inline bool point_triangle(const Vector& P, 
-			       const Vector& E1, 
-			       const Vector& E2)
+    inline bool point_prism(const Vector& P, 
+			    const Vector& E1, 
+			    const Vector& E2,
+			    const Vector& N,
+			    const double d)
     {
-      double uu = E1 | E1;
-      double uv = E1 | E2;
-      double vv = E2 | E2;
-      double wu = P  | E1;
-      double wv = P  | E2;
-      double denom = uv * uv - uu * vv;
 
-      double s = (uv * wv - vv * wu) / denom;
-      if (s < 0.0 || s > 1.0) return false;
+      //Check the point is in the allowed depth range of the prism
+      double dr = N | P;
+      if ((dr > 0) || (dr < -d)) return false;
 
-      double t = (uv * wu - uu * wv) / denom;
-      if (t < 0.0 || (s + t) > 1.0) return false;
-      
-      return true;
+      return point_triangle(P, E1, E2);
     }
   }
 }
