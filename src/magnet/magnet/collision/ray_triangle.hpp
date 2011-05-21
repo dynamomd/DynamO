@@ -34,12 +34,18 @@ namespace magnet {
     //!
     //! \tparam BACKFACE_CULLING Ignores ray triangle intersections
     //! where the ray enters the back face of the triangle.
+
+    //! \tparam DIAGONAL_TEST Enables one of the checks used to make
+    //! sure the intersection point is within the triangle. This is
+    //! turned off to implement other ray-shape intersection tests
+    //! (\sa ray_quadrilateral). Defaults to enabled.
+    //!
     //! \param T The origin of the ray relative to the first vertex.
     //! \param D The velocity of the ray.
     //! \param E1 The first edge vector of the triangle (V1-V0).
     //! \param E2 The second edge vector of the triangle (V2-V0).
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    template<bool BACKFACE_CULLING>
+    template<bool BACKFACE_CULLING, bool DIAGONAL_TEST>
     inline double ray_triangle(const Vector& T, 
 			       const Vector& D,
 			       const Vector& E1, 
@@ -59,7 +65,8 @@ namespace magnet {
 	  Vector Q = T ^ E1;
 	  double v = D | Q;
 	  
-	  if ((v < 0) || ((u + v) > det))  return HUGE_VAL;
+	  if ((v < 0) 
+	      || (DIAGONAL_TEST && ((u + v) > det)))  return HUGE_VAL;
 	  
 	  return (E2 | Q) / det;
 	}
@@ -78,10 +85,17 @@ namespace magnet {
 	  Vector Q = T ^ E1;
 	  double v = (D | Q) * invdet;
 
-	  if ((v < 0) || ((u + v) > 1))  return HUGE_VAL;
+	  if ((v < 0) || (DIAGONAL_TEST && ((u + v) > 1)))  return HUGE_VAL;
 
 	  return (E2 | Q) * invdet;
 	}
     }
+
+    template<bool BACKFACE_CULLING>
+    inline double ray_triangle(const Vector& T, 
+			       const Vector& D,
+			       const Vector& E1, 
+			       const Vector& E2)
+    { return ray_triangle<BACKFACE_CULLING, true>(T, D, E1, E2); }
   }
 }
