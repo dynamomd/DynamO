@@ -35,7 +35,7 @@ class LocalEvent
 {
 public:  
   LocalEvent(const Particle&, const double&,
-	      EEventType, const Local&);
+	     EEventType, const Local&, const size_t extraData = 0);
 
   inline bool operator== (const Particle &partx) const 
     { return (*particle_ == partx); }
@@ -69,14 +69,17 @@ public:
 
   std::string stringData(const dynamo::SimData*) const;
 
-  const size_t& getLocalID() const { return localID; } 
+  const size_t& getLocalID() const { return localID; }
 
   inline void scaleTime(const double& scale)
   { dt *= scale; }
+
+  inline size_t getExtraData() const { return _extraData; }
 
 protected:
   const Particle*  particle_;
   double dt;
   mutable EEventType CType;
   const size_t localID;
+  const size_t _extraData;
 };

@@ -25,9 +25,11 @@
 #include <cmath>
 
 LocalEvent::LocalEvent(const Particle& part1, const double &delt, 
-			 EEventType nType, const Local& local):
+		       EEventType nType, const Local& local,
+		       const size_t extraData):
   particle_(&part1), dt(delt), 
-  CType(nType), localID(local.getID())
+  CType(nType), localID(local.getID()),
+  _extraData(extraData)
 {}
   
 

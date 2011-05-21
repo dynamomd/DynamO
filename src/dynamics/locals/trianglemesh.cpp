@@ -47,28 +47,45 @@ LTriangleMesh::getEvent(const Particle& part) const
 #endif
 
   double tmin = HUGE_VAL;
-  
-  std::cout << "\n\nTesting for collision\n\n";
-  
-  BOOST_FOREACH(const TriangleElements& e, _elements)
+  size_t triangleid = 0;
+
+  for (size_t id(0); id < _elements.size(); ++id)
     {
       double t = Sim->dynamics.getLiouvillean()
 	.getParticleTriangleEvent(part,
-				  _vertices[e.get<0>()],
-				  _vertices[e.get<1>()],
-				  _vertices[e.get<2>()]);
-      if (t < tmin) tmin = t;
+				  _vertices[_elements[id].get<0>()],
+				  _vertices[_elements[id].get<1>()],
+				  _vertices[_elements[id].get<2>()]);
+      if (t < tmin) { tmin = t; triangleid = id; } 
     }
 
-  return LocalEvent(part, tmin, WALL, *this);
+  return LocalEvent(part, tmin, WALL, *this, triangleid);
 }
 
 void
 LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
 { 
+  ++Sim->eventCount;
+  
+  const TriangleElements& e = _elements[iEvent.getExtraData()];
 
-  M_throw() << "Not implemented"; 
+  Vector normal
+    = (_vertices[e.get<1>()] - _vertices[e.get<0>()])
+    ^ (_vertices[e.get<2>()] - _vertices[e.get<1>()]);
 
+  normal /= normal.nrm();
+
+  //Run the collision and catch the data
+  NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+		  (part, normal, _e));
+
+  Sim->signalParticleUpdate(EDat);
+
+  //Now we're past the event update the scheduler and plugins
+  Sim->ptrScheduler->fullUpdate(part);
+  
+  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    Ptr->eventUpdate(iEvent, EDat);
 }
 
 bool 
@@ -125,7 +142,15 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
 	  if ((tmp.get<0>() >= _vertices.size()) 
 	      || (tmp.get<1>() >= _vertices.size()) 
 	      || (tmp.get<2>() >= _vertices.size()))
-	    M_throw() << "Element " << _elements.size() << " has an out of range vertex ID";
+	    M_throw() << "Triangle " << _elements.size() << " has an out of range vertex ID";
+
+	  Vector normal
+	    = (_vertices[tmp.get<1>()] - _vertices[tmp.get<0>()])
+	    ^ (_vertices[tmp.get<2>()] - _vertices[tmp.get<1>()]);
+
+	  if (normal.nrm() == 0) 
+	    M_throw() << "Triangle " << _elements.size() << " has a zero normal!";
+
 
 	  _elements.push_back(tmp);
 	}
