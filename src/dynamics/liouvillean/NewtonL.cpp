@@ -30,9 +30,11 @@
 #include "shapes/lines.hpp"
 #include "shapes/dumbbells.hpp"
 #include "../units/units.hpp"
-#include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/collision/ray_triangle.hpp>
+#include <magnet/collision/ray_plane.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 
 bool 
 LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const
@@ -175,23 +177,16 @@ LNewtonian::streamParticle(Particle &particle, const double &dt) const
 }
 
 double 
-LNewtonian::getWallCollision(const Particle &part, 
-			     const Vector  &wallLoc, 
-			     const Vector  &wallNorm) const
+LNewtonian::getWallCollision(const Particle& part, 
+			     const Vector& wallLoc, 
+			     const Vector& wallNorm) const
 {
-  Vector  rij = part.getPosition(),
+  Vector  rij = part.getPosition() - wallLoc,
     vel = part.getVelocity();
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  double rvdot = (vel | wallNorm);
-
-  rij -= wallLoc;
-
-  if (rvdot < 0)
-    return  - ((rij | wallNorm) / rvdot);
-  
-  return HUGE_VAL;
+  return magnet::collision::ray_plane<true>(rij, vel, wallNorm);
 }
 
 double 
@@ -202,40 +197,19 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
 				     const double dist
 				     ) const
 {
-  //The edge vectors
-  Vector E1 = B - A;
-  Vector E2 = C - A;
-
   //The Origin, relative to the first vertex
   Vector T = part.getPosition() - A;
   //The ray direction
   Vector D = part.getVelocity();
   Sim->dynamics.BCs().applyBC(T, D);
-  
-  Vector P = D ^ E2;
-  double det = E1 | P;
-  
-  //Ray is parallel (0) or the ray is leaving the triangle (not entering it)
-  if (det <= 0) 
-    {
-      return HUGE_VAL;
-    }
-  
-  double u = T | P;
-  if ((u < 0) || (u > det))
-    {
-      return HUGE_VAL;
-    }
 
-  Vector Q = T ^ E1;
-  double v = D | Q;
+  //The edge vectors
+  Vector E1 = B - A;
+  Vector E2 = C - A;
 
-  if ((v < 0) || ((u + v) > det)) 
-    {
-      return HUGE_VAL;
-    }
- 
-  return (E2 | Q) / det;
+  double t = magnet::collision::ray_triangle<true>(T, D, E1, E2);
+  
+  return t;
 }
 
 
