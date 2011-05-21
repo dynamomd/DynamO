@@ -31,9 +31,23 @@
 /*! \brief Namespace for the components of the DynamO simulation package. */
 namespace dynamo {}
 
-/*! \brief Namespace for the magnet library. 
-    
-    The magnet library is a collection of generic classes and
-    functions I've implemented which have a wider range of application
-    than just in dynamo. (Think of magnet as an extension to boost) */
-namespace magnet {}
+//! \brief Namespace for the magnet library. 
+//!  
+//!  The magnet library is a collection of generic classes and
+//!  functions which have a wider range of application than just Event
+//!  Driven Simulation (DynamO). 
+namespace magnet {
+  
+  //! \brief Namespace for the magnet shape-line intersection functions.
+  //!
+  //! These functions determine the intersection points between lines
+  //! and surfaces.
+  namespace intersection {}
+
+  //! \brief Namespace for the magnet shape-line intersection functions.
+  //!
+  //! These functions determine if two objects are currently
+  //! overlapping in a 3D space.
+  namespace overlap {}
+
+}

@@ -34,11 +34,10 @@ namespace magnet {
     //!
     //! \tparam BACKFACE_CULLING Ignores ray triangle intersections
     //! where the ray enters the back face of the triangle.
-
     //! \tparam DIAGONAL_TEST Enables one of the checks used to make
-    //! sure the intersection point is within the triangle. This is
-    //! turned off to implement other ray-shape intersection tests
-    //! (\sa ray_quadrilateral). Defaults to enabled.
+    //! sure the intersection point is within the triangle. This
+    //! should only be turned off to implement other ray-shape
+    //! intersection tests (\sa ray_quadrilateral).
     //!
     //! \param T The origin of the ray relative to the first vertex.
     //! \param D The direction/velocity of the ray.
@@ -90,12 +89,5 @@ namespace magnet {
 	  return (E2 | Q) * invdet;
 	}
     }
-
-    template<bool BACKFACE_CULLING>
-    inline double ray_triangle(const Vector& T, 
-			       const Vector& D,
-			       const Vector& E1, 
-			       const Vector& E2)
-    { return ray_triangle<BACKFACE_CULLING, true>(T, D, E1, E2); }
   }
 }

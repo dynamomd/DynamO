@@ -207,7 +207,7 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
   Vector E1 = B - A;
   Vector E2 = C - A;
 
-  double t = magnet::intersection::ray_triangle<true>(T, D, E1, E2);
+  double t = magnet::intersection::ray_triangle<true, true>(T, D, E1, E2);
   
   //if we have a negative time, check that we're not somewhere on the
   //other side of the triangle.
