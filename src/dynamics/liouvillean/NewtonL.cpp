@@ -30,8 +30,8 @@
 #include "shapes/lines.hpp"
 #include "shapes/dumbbells.hpp"
 #include "../units/units.hpp"
-#include <magnet/collision/ray_triangle.hpp>
-#include <magnet/collision/ray_plane.hpp>
+#include <magnet/intersection/ray_triangle.hpp>
+#include <magnet/intersection/ray_plane.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -186,7 +186,7 @@ LNewtonian::getWallCollision(const Particle& part,
 
   Sim->dynamics.BCs().applyBC(rij, vel);
 
-  return magnet::collision::ray_plane<true>(rij, vel, wallNorm);
+  return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
 }
 
 double 
@@ -207,7 +207,7 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
   Vector E1 = B - A;
   Vector E2 = C - A;
 
-  double t = magnet::collision::ray_triangle<true>(T, D, E1, E2);
+  double t = magnet::intersection::ray_triangle<true>(T, D, E1, E2);
   
   //if we have a negative time, check that we're not somewhere on the
   //other side of the triangle.

@@ -19,7 +19,7 @@
 #include <magnet/collision/ray_triangle.hpp>
 
 namespace magnet {
-  namespace collision {
+  namespace intersection {
     //! A ray-quadrangle intersection test.
     //!
     //! The method used here is described in "An Efficient

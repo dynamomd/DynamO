@@ -19,7 +19,7 @@
 #include <magnet/math/vector.hpp>
 
 namespace magnet {
-  namespace collision {
+  namespace intersection {
     //! A ray-sphere intersection test with backface culling.
     //!
     //! \param T The origin of the ray relative to the sphere center.

@@ -19,7 +19,7 @@
 #include <magnet/math/vector.hpp>
 
 namespace magnet {
-  namespace collision {
+  namespace intersection {
     //! A ray-plane intersection test.
     //!
     //! \tparam BACKFACE_CULLING Ignores ray plane intersections

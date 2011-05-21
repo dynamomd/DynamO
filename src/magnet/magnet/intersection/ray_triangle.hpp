@@ -19,7 +19,7 @@
 #include <magnet/math/vector.hpp>
 
 namespace magnet {
-  namespace collision {
+  namespace intersection {
     //! A ray-triangle intersection test.
     //!
     //! The method used is described in "Fast, minimum storage
