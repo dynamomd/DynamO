@@ -29,7 +29,7 @@ namespace magnet {
     //! \tparam BACKFACE_CULLING Ignores ray plane intersections
     //! where the ray enters the back of the plane.
     //! \param T The origin of the ray relative to a point on the plane.
-    //! \param D The direction of the ray.
+    //! \param D The direction/velocity of the ray.
     //! \param N The normal of the plane.
     //! \param E1 An edge of the quadrangle (V1 - V0);
     //! \param E2 Another edge of the quadrangle (V2 - V0);

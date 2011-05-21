@@ -41,7 +41,7 @@ namespace magnet {
     //! (\sa ray_quadrilateral). Defaults to enabled.
     //!
     //! \param T The origin of the ray relative to the first vertex.
-    //! \param D The velocity of the ray.
+    //! \param D The direction/velocity of the ray.
     //! \param E1 The first edge vector of the triangle (V1-V0).
     //! \param E2 The second edge vector of the triangle (V2-V0).
     //! \return The time until the intersection, or HUGE_VAL if no intersection.

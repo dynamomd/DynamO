@@ -25,7 +25,7 @@ namespace magnet {
     //! \tparam BACKFACE_CULLING Ignores ray plane intersections
     //! where the ray enters the back of the plane.
     //! \param T The origin of the ray relative to a point on the plane.
-    //! \param D The direction of the ray.
+    //! \param D The direction/velocity of the ray.
     //! \param N The normal of the plane.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     template<bool BACKFACE_CULLING>

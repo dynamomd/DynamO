@@ -209,6 +209,9 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
 
   double t = magnet::collision::ray_triangle<true>(T, D, E1, E2);
   
+  //if we have a negative time, check that we're not somewhere on the
+  //other side of the triangle.
+
   return t;
 }
 
