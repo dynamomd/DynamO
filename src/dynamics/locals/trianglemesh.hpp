@@ -18,14 +18,24 @@
 #pragma once
 #include "local.hpp"
 #include "../coilRenderObj.hpp"
+#include "../../base/is_simdata.hpp"
 #include <boost/tuple/tuple.hpp>
 #include <vector>
+
 
 class LTriangleMesh: public Local, public CoilRenderObj
 {
 public:
   LTriangleMesh(const magnet::xml::Node&, dynamo::SimData*);
-  LTriangleMesh(dynamo::SimData*, double e, std::string, CRange*);
+
+  template<class T1, class T2>
+  LTriangleMesh(dynamo::SimData* nSim, T1 e, T2 d, std::string name, CRange* nRange):
+    Local(nRange, nSim, "LocalWall"),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless()))
+  { localName = name; }
 
   virtual ~LTriangleMesh() {}
 
@@ -60,5 +70,6 @@ protected:
   typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
   std::vector<TriangleElements> _elements;
 
-  double _e;
+  magnet::thread::RefPtr<Property> _e;
+  magnet::thread::RefPtr<Property> _diameter;
 };

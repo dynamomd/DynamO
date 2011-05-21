@@ -376,12 +376,14 @@ public:
    * \param A First vertex of the triangle.
    * \param B Second vertex of the triangle.
    * \param C Third vertex of the triangle.
+   * \param dist The diameter of the particle.
    * \return The time till collision.
    */    
   virtual double getParticleTriangleEvent(const Particle& part, 
 					  const Vector & A, 
 					  const Vector & B, 
-					  const Vector & C
+					  const Vector & C,
+					  const double dist
 					  ) const;
 
   /*! \brief Determines when the particle center will hit a cylindrical wall.

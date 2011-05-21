@@ -24,19 +24,9 @@
 #include "../../datatypes/vector.xml.hpp"
 #include "../../schedulers/scheduler.hpp"
 
-
-LTriangleMesh::LTriangleMesh(dynamo::SimData* nSim, double e, std::string name, CRange* nRange):
-  Local(nRange, nSim, "LocalWall"),
-  _e(e)
-{
-  localName = name;
-}
-
 LTriangleMesh::LTriangleMesh(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   Local(tmp, "LocalWall")
-{
-  operator<<(XML);
-}
+{ operator<<(XML); }
 
 LocalEvent 
 LTriangleMesh::getEvent(const Particle& part) const
@@ -49,13 +39,16 @@ LTriangleMesh::getEvent(const Particle& part) const
   double tmin = HUGE_VAL;
   size_t triangleid = 0;
 
+  double diam = _diameter->getProperty(part.getID());
+
   for (size_t id(0); id < _elements.size(); ++id)
     {
       double t = Sim->dynamics.getLiouvillean()
 	.getParticleTriangleEvent(part,
 				  _vertices[_elements[id].get<0>()],
 				  _vertices[_elements[id].get<1>()],
-				  _vertices[_elements[id].get<2>()]);
+				  _vertices[_elements[id].get<2>()],
+				  diam);
       if (t < tmin) { tmin = t; triangleid = id; } 
     }
 
@@ -67,17 +60,17 @@ LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
 { 
   ++Sim->eventCount;
   
-  const TriangleElements& e = _elements[iEvent.getExtraData()];
+  const TriangleElements& elem = _elements[iEvent.getExtraData()];
 
   Vector normal
-    = (_vertices[e.get<1>()] - _vertices[e.get<0>()])
-    ^ (_vertices[e.get<2>()] - _vertices[e.get<1>()]);
+    = (_vertices[elem.get<1>()] - _vertices[elem.get<0>()])
+    ^ (_vertices[elem.get<2>()] - _vertices[elem.get<1>()]);
 
   normal /= normal.nrm();
 
   //Run the collision and catch the data
   NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
-		  (part, normal, _e));
+		  (part, normal, _e->getProperty(part.getID())));
 
   Sim->signalParticleUpdate(EDat);
 
@@ -102,7 +95,11 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   range.set_ptr(CRange::getClass(XML,Sim));
   
   try {
-    _e = XML.getAttribute("Elasticity").as<double>();
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+
     localName = XML.getAttribute("Name");
 
     {//Load the vertex coordinates
@@ -168,7 +165,8 @@ LTriangleMesh::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "TriangleMesh" 
       << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << _e
+      << xml::attr("Elasticity") << _e->getName()
+      << xml::attr("Diameter") << _diameter->getName()
       << range;
 
   XML << xml::tag("Vertices") << xml::chardata();

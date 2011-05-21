@@ -381,7 +381,8 @@ double
 Liouvillean::getParticleTriangleEvent(const Particle& part, 
 				      const Vector & A, 
 				      const Vector & B, 
-				      const Vector & C
+				      const Vector & C,
+				      const double d
 				      ) const
 {
   M_throw() << "Not implemented";
