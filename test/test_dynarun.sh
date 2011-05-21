@@ -40,7 +40,7 @@ function HS_replex_test {
 	    -o config.$i.start1.xml.bz2 > /dev/null
 
 	bzcat config.$i.start1.xml.bz2 | \
-	    $Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	    $Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	    | bzip2 > config.$i.start.xml.bz2
 	
 	rm config.$i.start1.xml.bz2
@@ -116,7 +116,7 @@ function HS_compressiontest {
 
     #Set the scheduler
     bzcat config.out.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
 
     #Run the simulation
@@ -155,7 +155,7 @@ function wallsw_bailout {
 function wallsw {
 #Just tests the square shoulder interaction between two walls
     bzcat wallsw.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
     #Any multiple of 5 will/should always give the original configuration
     #doing 9995 as this stops any 2 periodicity
@@ -165,10 +165,10 @@ function wallsw {
     $Dynamod config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
-	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
+	$Xml sel -t -c '//ParticleData' > testresult.dat
 
     bzcat wallsw.xml.bz2 | \
-	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > correct.dat
+	$Xml sel -t -c '//ParticleData' > correct.dat
     
     diff testresult.dat correct.dat &> /dev/null \
 	|| wallsw_bailout $1
@@ -188,7 +188,7 @@ function umbrella_bailout {
 function umbrella {
 #Just tests the square shoulder interaction between two walls
     bzcat umbrella.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
     
     #Any multiple of 12 will/should always give the original configuration
@@ -200,10 +200,10 @@ function umbrella {
     $Dynamod config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
-	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > testresult.dat
+	$Xml sel -t -c '//ParticleData' > testresult.dat
 
     bzcat umbrella.xml.bz2 | \
-	$Xml sel -t -c '/DYNAMOconfig/ParticleData' > correct.dat
+	$Xml sel -t -c '//ParticleData' > correct.dat
     
     diff testresult.dat correct.dat &> /dev/null \
 	|| umbrella_bailout $1
@@ -218,11 +218,11 @@ function umbrella {
 function cannon {
     #collision cannon test
     bzcat cannon.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp2.xml.bz2
 
     bzcat tmp2.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/Sorter/@Type' -v "$2" \
+	$Xml ed -u '//Simulation/Scheduler/Sorter/@Type' -v "$2" \
 	| bzip2 > tmp.xml.bz2
     
     rm tmp2.xml.bz2
@@ -252,11 +252,11 @@ function cannon {
 function linescannon {
     #collision cannon test
     bzcat config.lines-cannon.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/@Type' -v "$1" \
+	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp2.xml.bz2
 
     bzcat config.lines-cannon.xml.bz2 | \
-	$Xml ed -u '/DYNAMOconfig/Simulation/Scheduler/Sorter/@Type' -v "$2" \
+	$Xml ed -u '//Simulation/Scheduler/Sorter/@Type' -v "$2" \
 	| bzip2 > tmp.xml.bz2
     
     rm tmp2.xml.bz2

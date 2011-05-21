@@ -92,7 +92,7 @@ namespace dynamo
     ptrScheduler 
       = CScheduler::getClass(subNode.getNode("Scheduler"), this);
 
-    if (subNode.getNode("Ensemble").valid())
+    if (subNode.hasNode("Ensemble"))
       ensemble.reset
 	(dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
     else

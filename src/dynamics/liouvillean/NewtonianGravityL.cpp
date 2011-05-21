@@ -47,11 +47,11 @@ LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::No
 	      << " entry";
   try 
     {
-      if (XML.getAttribute("ElasticV").valid())
+      if (XML.hasAttribute("ElasticV"))
 	elasticV = XML.getAttribute("ElasticV").as<double>()
 	  * Sim->dynamics.units().unitVelocity();
 
-      if (XML.getAttribute("tc").valid())
+      if (XML.hasAttribute("tc"))
 	{
 	  _tc = XML.getAttribute("tc").as<double>() * Sim->dynamics.units().unitTime();
 

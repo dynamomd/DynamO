@@ -46,12 +46,12 @@ ISingleCapture::initCaptureMap(const std::vector<Particle>& particleList)
 void 
 ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
 {
-  if (XML.getNode("CaptureMap").valid())
+  if (XML.hasNode("CaptureMap"))
     {
       noXmlLoad = false;
       captureMap.clear();
 
-      for (magnet::xml::Node node = XML.getNode("CaptureMap").getNode("Pair");
+      for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
 	   node.valid(); ++node)
 	captureMap.insert(std::pair<size_t, size_t>(node.getAttribute("ID1").as<size_t>(),
 						    node.getAttribute("ID2").as<size_t>()));
@@ -149,12 +149,12 @@ IMultiCapture::initCaptureMap(const std::vector<Particle>& particleList)
 void 
 IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
 {
-  if (XML.getNode("CaptureMap").valid())
+  if (XML.hasNode("CaptureMap"))
     {
       noXmlLoad = false;
       captureMap.clear();
 
-      for (magnet::xml::Node node = XML.getNode("CaptureMap").getNode("Pair");
+      for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
 	   node.valid(); ++node)
 	captureMap[cMapKey(node.getAttribute("ID1").as<size_t>(),
 			   node.getAttribute("ID2").as<size_t>())]

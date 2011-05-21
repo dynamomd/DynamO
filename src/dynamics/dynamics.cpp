@@ -441,7 +441,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
   //Now load the BC
   p_BC.set_ptr(BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim));
   
-  if (xDynamics.getNode("Topology").valid())
+  if (xDynamics.hasNode("Topology"))
     {
       size_t i(0);
       for (magnet::xml::Node node = xDynamics.getNode("Topology").fastGetNode("Structure");
@@ -477,7 +477,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
 	break;
       }
   
-  if (xDynamics.getNode("Globals").valid())
+  if (xDynamics.hasNode("Globals"))
     for (magnet::xml::Node node = xDynamics.getNode("Globals").fastGetNode("Global"); 
 	 node.valid(); ++node)
       {
@@ -485,7 +485,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
 	globals.push_back(tempPlug);
       }
 
-  if (xDynamics.getNode("Locals").valid())
+  if (xDynamics.hasNode("Locals"))
     for (magnet::xml::Node node = xDynamics.getNode("Locals").fastGetNode("Local"); 
 	 node.valid(); ++node)
       {
@@ -493,7 +493,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
 	locals.push_back(tempPlug);
       }
   
-  if (xDynamics.getNode("SystemEvents").valid())
+  if (xDynamics.hasNode("SystemEvents"))
     for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").fastGetNode("System"); 
 	 node.valid(); ++node)
       {
