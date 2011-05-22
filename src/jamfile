@@ -14,11 +14,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import feature ;
+
 lib gslcblas ;
-lib gsl
-    : gslcblas
-    : <name>gsl
-    ;
+lib gsl : gslcblas : <name>gsl ;
 
 lib rt : : <link>shared ;
 
@@ -37,18 +36,14 @@ rule critical_dependencies ( )
 explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
 always gsltest zlibtest bzip2test dynamoDependencies ;
 
-alias dynamo_visualizer :
-      coil//coil/<link>static
-      : : : <define>DYNAMO_visualizer
-      ;
-
 lib dynamo_core : [ glob-tree *.cpp : programs coil magnet tests ]
       magnet//magnet ../boost//iostreams ../boost//filesystem
       ../boost//program_options rt 
     : <include>extcode/include [ critical_dependencies ]
       <variant>debug:<define>DYNAMO_DEBUG <link>static
-[ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
-[ check-target-builds coil//coilDependencies "DynamO: Coil enabled" : <source>dynamo_visualizer : ]
+     [ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
+      <coil-integration>yes:<source>coil//coil/<link>static
+      <coil-integration>yes:<define>DYNAMO_visualizer
     : : <include>extcode/include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static
     ;

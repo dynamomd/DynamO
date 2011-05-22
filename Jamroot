@@ -45,8 +45,12 @@ use-project coil : src/coil ;
 
 ##########################################################################
 #These are the options that can be set when calling bjam
-import feature : feature ;
-feature color : yes no : propagated ; #This feature controls if the console output is colored or not
+
+#If this feature is unset, its value will be determined from configuration tests
+feature.feature coil-integration : no yes : propagated optional ;
+
+#This feature controls if the console output is colored or not
+feature.feature color : yes no : propagated ; 
 
 ##########################################################################
 #Imports (jam includes)
@@ -85,15 +89,33 @@ variant valgrind : <inlining>off <optimization>speed <debug-symbols>on <profilin
 variant valgrind_in : valgrind : <inlining>on  ;
 
 ##########################################################################
+#Dependency calculations
+
+#Parses the command line (to see if a property has been set by the user)
+rule cmd-line-feature-value ( feature )
+{ return [ MATCH "^$(feature)=(.*)" :  [ modules.peek : ARGV ] ] ; }
+
+rule coil-integration-check ( )
+{
+  if ! [ cmd-line-feature-value coil-integration ]
+  { 
+  
+    return [ check-target-builds src/coil//coilDependencies "Dynamo-Coil Integration" 
+    	   : "<coil-integration>yes"  : "<coil-integration>no" ] ;
+  }
+}
+
+##########################################################################
 #Main project definition
 project	: requirements
-	  <color>yes:<define>DYNAMO_Colour
 	  <tag>@dynamo-tags.naming
           <threading>multi
 	  ##Allow garbage collection of unused linked symbols
+	  <color>yes:<define>DYNAMO_Colour
 	  <toolset>gcc:<cflags>-ffunction-sections
 	  <toolset>gcc:<cflags>-fdata-sections
 	  <toolset>gcc:<linkflags>-Wl,--gc-sections
+	  [ coil-integration-check ]
 	: default-build release
 	: build-dir $(build-dir)
 	;

@@ -30,6 +30,7 @@
 **** DONE Update the tutorials.
 *** Dynamo 1.2
 **** DONE *Improvement* XML errors are now much more verbose and tell you exactly what went wrong.
+**** DONE *Improvement* The DynamO-Coil integration can be forcibly enabled or disabled at build time.
 **** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Triangular Meshes.
