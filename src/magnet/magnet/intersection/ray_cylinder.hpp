@@ -16,32 +16,50 @@
 */
 
 #pragma once
-#include <magnet/math/vector.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 
 namespace magnet {
   namespace intersection {
-    //! A ray-cylinder intersection test.
+    //! A ray-inverse_cylinder intersection test.
     //!
+    //! This test ignores the back face of the cylinder, it is used to
+    //! detect when a ray inside a cylinder will escape.
+    //! 
     //! \param T The origin of the ray relative to a point on the cylinder axis.
     //! \param D The direction/velocity of the ray.
     //! \param A A normalized vector parallel to the axis of the cylinder.
     //! \param r Radius of the cylinder.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double ray_cylinder(Vector T,
-			       Vector D,
-			       const Vector& A,
-			       const double r)
+    inline double ray_inv_cylinder_bfc(Vector T, 
+				       Vector D, 
+				       const Vector& A, 
+				       const double r)
     {
+      //Project off the axial component of the position and velocity
       T -= Vector((T | A) * A);
       D -= Vector((D | A) * A);
 
-      double TD = T | D;
-      double D2 = D.nrm2();
-      double arg = TD * TD - D2 * (T.nrm2() - r * r);
-      
-      if (arg < 0) return HUGE_VAL;
+      return ray_inv_sphere(T, D, r);
+    }
 
-      return  (std::sqrt(arg) - TD) / D2;
+
+    //! A ray-inverse_cylinder intersection test.
+    //!
+    //! This test ignores the back face of the cylinder, it is used to
+    //! detect when a ray will enter a cylinder.
+    //! 
+    //! \param T The origin of the ray relative to a point on the cylinder axis.
+    //! \param D The direction/velocity of the ray.
+    //! \param A A normalized vector parallel to the axis of the cylinder.
+    //! \param r Radius of the cylinder.
+    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    inline double ray_cylinder_bfc(Vector T, Vector D, const Vector& A, const double r)
+    {
+      //Project off the axial component of the position and velocity
+      T -= Vector((T | A) * A);
+      D -= Vector((D | A) * A);
+
+      return ray_sphere(T, D, r);
     }
   }
 }

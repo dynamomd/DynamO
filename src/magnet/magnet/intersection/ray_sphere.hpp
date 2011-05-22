@@ -24,23 +24,22 @@ namespace magnet {
     //!
     //! \param T The origin of the ray relative to the sphere center.
     //! \param D The direction/velocity of the ray.
-    //! \param d The diameter of the sphere.
+    //! \param r The radius of the sphere.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     inline double ray_sphere_bfc(const Vector& T,
 				 const Vector& D,
-				 const double& d)
+				 const double& r)
     {
       double TD = (T | D);
 
       if (TD > 0) return HUGE_VAL;
       
-      double c = T.nrm2() - d * d;
+      double c = T.nrm2() - r * r;
       double arg = TD * TD - D.nrm2() * c;
       
-      if (arg > 0)
-	return  - c / (TD - std::sqrt(arg));
-      
-      return HUGE_VAL;
+      if (arg < 0) return HUGE_VAL;
+
+      return  - c / (TD - std::sqrt(arg));
     }
 
     //! A ray-inverse_sphere intersection test with backface culling.
@@ -54,14 +53,14 @@ namespace magnet {
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     inline double ray_inv_sphere_bfc(const Vector& T,
 				     const Vector& D,
-				     const double& d)
+				     const double& r)
     {
       double D2 = D.nrm2();
 
       if (D2 == 0) return HUGE_VAL;
       
       double TD = T | D;
-      double arg = TD * TD - D2 * (T.nrm2() - d * d);
+      double arg = TD * TD - D2 * (T.nrm2() - r * r);
 
       if (arg < 0) return HUGE_VAL;
 
