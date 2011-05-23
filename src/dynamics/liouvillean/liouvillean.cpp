@@ -377,7 +377,7 @@ Liouvillean::initOrientations(double ToI)
     }
 }
 
-std::pair<double, size_t> 
+std::pair<double, Liouvillean::TriangleIntersectingPart> 
 Liouvillean::getSphereTriangleEvent(const Particle& part, 
 				    const Vector & A, 
 				    const Vector & B, 

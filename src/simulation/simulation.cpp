@@ -206,7 +206,7 @@ Simulation::runSimulation(bool silentMode)
       }
     catch (std::exception &cep)
       {
-	M_throw() << "\nWhile executing collision "
+	M_throw() << "\nWhile executing event "
 		  << eventCount << cep.what();
       }
 }

@@ -39,7 +39,7 @@ namespace magnet {
       T -= Vector((T | A) * A);
       D -= Vector((D | A) * A);
 
-      return ray_inv_sphere(T, D, r);
+      return ray_inv_sphere_bfc(T, D, r);
     }
 
 
@@ -59,7 +59,7 @@ namespace magnet {
       T -= Vector((T | A) * A);
       D -= Vector((D | A) * A);
 
-      return ray_sphere(T, D, r);
+      return ray_sphere_bfc(T, D, r);
     }
   }
 }

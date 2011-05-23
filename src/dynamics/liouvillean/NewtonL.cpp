@@ -32,6 +32,8 @@
 #include "../units/units.hpp"
 #include <magnet/overlap/point_prism.hpp>
 #include <magnet/intersection/ray_triangle.hpp>
+#include <magnet/intersection/ray_rod.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -190,7 +192,7 @@ LNewtonian::getWallCollision(const Particle& part,
   return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
 }
 
-std::pair<double, size_t>
+std::pair<double, Liouvillean::TriangleIntersectingPart>
 LNewtonian::getSphereTriangleEvent(const Particle& part, 
 				   const Vector & A, 
 				   const Vector & B, 
@@ -198,6 +200,7 @@ LNewtonian::getSphereTriangleEvent(const Particle& part,
 				   const double dist
 				   ) const
 {
+  typedef std::pair<double, Liouvillean::TriangleIntersectingPart> RetType;
   //The Origin, relative to the first vertex
   Vector T = part.getPosition() - A;
   //The ray direction
@@ -215,6 +218,8 @@ LNewtonian::getSphereTriangleEvent(const Particle& part,
 #endif
   N /= std::sqrt(nrm2);
   
+
+  //First test for intersections with the triangle face.
   double t1 = magnet::intersection::ray_triangle<true, true>(T - N * dist, D, E1, E2);
     
   if (t1 < 0)
@@ -230,10 +235,30 @@ LNewtonian::getSphereTriangleEvent(const Particle& part,
       t2 = HUGE_VAL;
       if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
     }
+  
+  RetType retval(std::min(t1, t2), T_FACE);
+  
+  //Early jump out, to make sure that if we have zero time
+  //interactions for the triangle faces, we take them.
+  if (retval.first == 0) return retval;
+  
+  //Now test for intersections with the triangle corners
+  double t = magnet::intersection::ray_sphere_bfc(T, D, dist);
+  if (t < retval.first) retval = RetType(t, T_A_CORNER);
+  t = magnet::intersection::ray_sphere_bfc(T + E1, D, dist);
+  if (t < retval.first) retval = RetType(t, T_B_CORNER);
+  t = magnet::intersection::ray_sphere_bfc(T + E2, D, dist);
+  if (t < retval.first) retval = RetType(t, T_C_CORNER);
 
-  std::pair<double, size_t> retval(std::min(t1, t2), 0);
+  //Now for the edge collision detection
+  t = magnet::intersection::ray_rod_bfc(T, D, B - A, dist);
+  if (t < retval.first) retval = RetType(t, T_AB_EDGE);
+  t = magnet::intersection::ray_rod_bfc(T, D, C - A, dist);
+  if (t < retval.first) retval = RetType(t, T_AC_EDGE);
+  t = magnet::intersection::ray_rod_bfc(T + E2, D, B - C, dist);
+  if (t < retval.first) retval = RetType(t, T_BC_EDGE);
 
-  //double magnet::intersection()
+  if (retval.first < 0) retval.first = 0;
 
   return retval;
 }

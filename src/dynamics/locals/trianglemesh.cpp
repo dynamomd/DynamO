@@ -39,7 +39,7 @@ LTriangleMesh::getEvent(const Particle& part) const
   size_t triangleid = 0; //The id of the triangle for which the event is for
   double diam = 0.5 * _diameter->getProperty(part.getID());
 
-  std::pair<double, size_t> tmin(HUGE_VAL, 7); //Default to no collision
+  std::pair<double, size_t> tmin(HUGE_VAL, 0); //Default to no collision
 
   for (size_t id(0); id < _elements.size(); ++id)
     {
@@ -60,20 +60,30 @@ LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
 { 
   ++Sim->eventCount;
   
-  const size_t triangleID = iEvent.getExtraData() / 8;
-  const size_t trianglepart = iEvent.getExtraData() % 8;
+  const size_t triangleID = iEvent.getExtraData() / Liouvillean::T_COUNT;
+  const size_t trianglepart = iEvent.getExtraData() % Liouvillean::T_COUNT;
 
   const TriangleElements& elem = _elements[triangleID];
-
-  Vector normal
-    = (_vertices[elem.get<1>()] - _vertices[elem.get<0>()])
-    ^ (_vertices[elem.get<2>()] - _vertices[elem.get<1>()]);
-
+  
+  const Vector& A(_vertices[elem.get<0>()]);
+  const Vector& B(_vertices[elem.get<1>()]);
+  const Vector& C(_vertices[elem.get<2>()]);
+    
+  Vector normal = (B - A) ^ (C - B);
   normal /= normal.nrm();
 
   //Run the collision and catch the data
-  NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
-		  (part, normal, _e->getProperty(part.getID())));
+  NEventData EDat;
+
+  switch (trianglepart)
+    {
+    case Liouvillean::T_FACE:
+      EDat += Sim->dynamics.getLiouvillean().runWallCollision
+	(part, normal, _e->getProperty(part.getID()));
+      break;
+    default:
+      M_throw() << "Unhandled triangle sphere intersection type encountered";
+    }
 
   Sim->signalParticleUpdate(EDat);
 

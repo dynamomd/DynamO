@@ -370,6 +370,17 @@ public:
 				const Vector & norm
 				) const = 0;
 
+  typedef enum {
+    T_FACE = 0,
+    T_A_CORNER = 1,
+    T_B_CORNER = 2,
+    T_C_CORNER = 3,
+    T_AB_EDGE = 4,
+    T_AC_EDGE = 5,
+    T_BC_EDGE = 6,
+    T_COUNT = 8 //!< This value is the upper limit +1 of the enum tags
+  } TriangleIntersectingPart;
+
   //! \brief Determines when a spherical particle will intersect a
   //! triangle.
   //!
@@ -388,12 +399,13 @@ public:
   //!
   //! \return A pair containing the time till collision and an index
   //! of the colliding part.
-  virtual std::pair<double, size_t> getSphereTriangleEvent(const Particle& part,
-							   const Vector & A, 
-							   const Vector & B, 
-							   const Vector & C,
-							   const double dist
-							   ) const;
+  virtual std::pair<double, TriangleIntersectingPart> 
+  getSphereTriangleEvent(const Particle& part,
+			 const Vector & A, 
+			 const Vector & B, 
+			 const Vector & C,
+			 const double dist
+			 ) const;
 
   /*! \brief Determines when the particle center will hit a cylindrical wall.
    *
