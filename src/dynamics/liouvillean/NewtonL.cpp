@@ -255,7 +255,7 @@ LNewtonian::getSphereTriangleEvent(const Particle& part,
   if (t < retval.first) retval = RetType(t, T_AB_EDGE);
   t = magnet::intersection::ray_rod_bfc(T, D, C - A, dist);
   if (t < retval.first) retval = RetType(t, T_AC_EDGE);
-  t = magnet::intersection::ray_rod_bfc(T + E2, D, B - C, dist);
+  t = magnet::intersection::ray_rod_bfc(T - E2, D, B - C, dist);
   if (t < retval.first) retval = RetType(t, T_BC_EDGE);
 
   if (retval.first < 0) retval.first = 0;

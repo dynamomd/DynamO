@@ -69,21 +69,76 @@ LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
   const Vector& B(_vertices[elem.get<1>()]);
   const Vector& C(_vertices[elem.get<2>()]);
     
-  Vector normal = (B - A) ^ (C - B);
-  normal /= normal.nrm();
-
   //Run the collision and catch the data
-  NEventData EDat;
-
+  Vector normal;
   switch (trianglepart)
     {
     case Liouvillean::T_FACE:
-      EDat += Sim->dynamics.getLiouvillean().runWallCollision
-	(part, normal, _e->getProperty(part.getID()));
-      break;
+      {
+	normal = (B - A) ^ (C - B);
+	normal /= normal.nrm();
+	break;
+      }
+    case Liouvillean::T_A_CORNER: 
+      { 
+	normal = part.getPosition() - A; 
+	Sim->dynamics.BCs().applyBC(normal);
+	normal /= normal.nrm();
+	break; 
+      }
+    case Liouvillean::T_B_CORNER: 
+      { 
+	normal = part.getPosition() - B; 
+	Sim->dynamics.BCs().applyBC(normal);
+	normal /= normal.nrm();
+	break; 
+      }
+    case Liouvillean::T_C_CORNER: 
+      { 
+	normal = part.getPosition() - C; 
+	Sim->dynamics.BCs().applyBC(normal);
+	normal /= normal.nrm();
+	break; 
+      }
+    case Liouvillean::T_AB_EDGE:
+      {
+	Vector edge = B - A;
+	edge /= edge.nrm();
+
+	normal = part.getPosition() - A;
+	Sim->dynamics.BCs().applyBC(normal);
+	normal -= (normal | edge) * edge;	
+	normal /= normal.nrm();
+	break; 	
+      }
+    case Liouvillean::T_AC_EDGE:
+      {
+	Vector edge = C - A;
+	edge /= edge.nrm();
+
+	normal = part.getPosition() - A;
+	Sim->dynamics.BCs().applyBC(normal);
+	normal -= (normal | edge) * edge;	
+	normal /= normal.nrm();
+	break; 	
+      }
+    case Liouvillean::T_BC_EDGE:
+      {
+	Vector edge = B - C;
+	edge /= edge.nrm();
+
+	normal = part.getPosition() - C;
+	Sim->dynamics.BCs().applyBC(normal);
+	normal -= (normal | edge) * edge;	
+	normal /= normal.nrm();
+	break; 	
+      }
     default:
       M_throw() << "Unhandled triangle sphere intersection type encountered";
     }
+
+  NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+		  (part, normal, _e->getProperty(part.getID())));
 
   Sim->signalParticleUpdate(EDat);
 
