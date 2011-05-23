@@ -370,21 +370,30 @@ public:
 				const Vector & norm
 				) const = 0;
 
-  /*! \brief Determines when a particle center will hit a triangle.
-   *
-   * \param part The particle to test.
-   * \param A First vertex of the triangle.
-   * \param B Second vertex of the triangle.
-   * \param C Third vertex of the triangle.
-   * \param dist The diameter of the particle.
-   * \return The time till collision.
-   */    
-  virtual double getParticleTriangleEvent(const Particle& part, 
-					  const Vector & A, 
-					  const Vector & B, 
-					  const Vector & C,
-					  const double dist
-					  ) const;
+  //! \brief Determines when a spherical particle will intersect a
+  //! triangle.
+  //!
+  //! This function returns both the time of the intersection and the
+  //! part of the colliding triangle. There are 7 possible collision
+  //! zones
+  //! 0: Face (plane)
+  //! 1,2,3: Corners (A, B, C) (sphere)
+  //! 4,5,6: Edges (B-A, C-A, C-B)
+  //!
+  //! \param part The particle to test.
+  //! \param A First vertex of the triangle.
+  //! \param B Second vertex of the triangle.
+  //! \param C Third vertex of the triangle.
+  //! \param dist The diameter of the particle.
+  //!
+  //! \return A pair containing the time till collision and an index
+  //! of the colliding part.
+  virtual std::pair<double, size_t> getSphereTriangleEvent(const Particle& part,
+							   const Vector & A, 
+							   const Vector & B, 
+							   const Vector & C,
+							   const double dist
+							   ) const;
 
   /*! \brief Determines when the particle center will hit a cylindrical wall.
    *

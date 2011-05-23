@@ -377,13 +377,13 @@ Liouvillean::initOrientations(double ToI)
     }
 }
 
-double 
-Liouvillean::getParticleTriangleEvent(const Particle& part, 
-				      const Vector & A, 
-				      const Vector & B, 
-				      const Vector & C,
-				      const double d
-				      ) const
+std::pair<double, size_t> 
+Liouvillean::getSphereTriangleEvent(const Particle& part, 
+				    const Vector & A, 
+				    const Vector & B, 
+				    const Vector & C,
+				    const double d
+				    ) const
 {
   M_throw() << "Not implemented";
 }

@@ -190,13 +190,13 @@ LNewtonian::getWallCollision(const Particle& part,
   return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
 }
 
-double 
-LNewtonian::getParticleTriangleEvent(const Particle& part, 
-				     const Vector & A, 
-				     const Vector & B, 
-				     const Vector & C,
-				     const double dist
-				     ) const
+std::pair<double, size_t>
+LNewtonian::getSphereTriangleEvent(const Particle& part, 
+				   const Vector & A, 
+				   const Vector & B, 
+				   const Vector & C,
+				   const double dist
+				   ) const
 {
   //The Origin, relative to the first vertex
   Vector T = part.getPosition() - A;
@@ -210,7 +210,9 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
   
   Vector N = E1 ^ E2;
   double nrm2 = N.nrm2();
-  if (!nrm2) return false;
+#ifdef DYNAMO_DEBUG
+  if (!nrm2) M_throw() << "Degenerate triangle detected!";
+#endif
   N /= std::sqrt(nrm2);
   
   double t1 = magnet::intersection::ray_triangle<true, true>(T - N * dist, D, E1, E2);
@@ -229,12 +231,11 @@ LNewtonian::getParticleTriangleEvent(const Particle& part,
       if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
     }
 
+  std::pair<double, size_t> retval(std::min(t1, t2), 0);
 
-  I_cerr() << "overlap t1 " << magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)
-	   << "overlap t2 " << magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)
-	   << ", t1 is " << t1 << ", t2 is " << t2;
+  //double magnet::intersection()
 
-  return std::min(t1, t2);
+  return retval;
 }
 
 

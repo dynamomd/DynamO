@@ -36,23 +36,23 @@ LTriangleMesh::getEvent(const Particle& part) const
     M_throw() << "Particle is not up to date";
 #endif
 
-  double tmin = HUGE_VAL;
-  size_t triangleid = 0;
-
+  size_t triangleid = 0; //The id of the triangle for which the event is for
   double diam = 0.5 * _diameter->getProperty(part.getID());
+
+  std::pair<double, size_t> tmin(HUGE_VAL, 7); //Default to no collision
 
   for (size_t id(0); id < _elements.size(); ++id)
     {
-      double t = Sim->dynamics.getLiouvillean()
-	.getParticleTriangleEvent(part,
-				  _vertices[_elements[id].get<0>()],
-				  _vertices[_elements[id].get<1>()],
-				  _vertices[_elements[id].get<2>()],
-				  diam);
-      if (t < tmin) { tmin = t; triangleid = id; } 
+      std::pair<double, size_t> t = Sim->dynamics.getLiouvillean()
+	.getSphereTriangleEvent(part,
+				_vertices[_elements[id].get<0>()],
+				_vertices[_elements[id].get<1>()],
+				_vertices[_elements[id].get<2>()],
+				diam);
+      if (t < tmin) { tmin = t; triangleid = id; }
     }
 
-  return LocalEvent(part, tmin, WALL, *this, triangleid);
+  return LocalEvent(part, tmin.first, WALL, *this, 8 * triangleid + tmin.second);
 }
 
 void
@@ -60,7 +60,10 @@ LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
 { 
   ++Sim->eventCount;
   
-  const TriangleElements& elem = _elements[iEvent.getExtraData()];
+  const size_t triangleID = iEvent.getExtraData() / 8;
+  const size_t trianglepart = iEvent.getExtraData() % 8;
+
+  const TriangleElements& elem = _elements[triangleID];
 
   Vector normal
     = (_vertices[elem.get<1>()] - _vertices[elem.get<0>()])
