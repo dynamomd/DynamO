@@ -32,7 +32,7 @@ namespace magnet {
     {
       double TD = (T | D);
 
-      if (TD > 0) return HUGE_VAL;
+      if (TD >= 0) return HUGE_VAL;
       
       double c = T.nrm2() - r * r;
       double arg = TD * TD - D.nrm2() * c;
