@@ -41,9 +41,6 @@ namespace magnet {
     {
       
       double t = ray_cylinder_bfc(T, D, A / A.nrm(), r);
-
-      if (t == HUGE_VAL) return HUGE_VAL;
-
       double Tproj = ((T + t * D) | A);
       
       if ((Tproj < 0) || (Tproj > A.nrm2())) return HUGE_VAL;
@@ -71,9 +68,6 @@ namespace magnet {
 				  const double r)
     {
       double t = ray_inv_cylinder_bfc(T, D, A / A.nrm(), r);
-
-      if (t == HUGE_VAL) return HUGE_VAL;
-
       double Tproj = ((T + t * D) | A);
       
       if ((Tproj < 0) || (Tproj > A.nrm2())) return HUGE_VAL;
