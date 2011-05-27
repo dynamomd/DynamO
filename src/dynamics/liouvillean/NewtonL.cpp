@@ -219,7 +219,7 @@ LNewtonian::getSphereTriangleEvent(const Particle& part,
   N /= std::sqrt(nrm2);
   
 
-  //First test for intersections with the triangle face.
+  //First test for intersections with the triangle faces.
   double t1 = magnet::intersection::ray_triangle<true, true>(T - N * dist, D, E1, E2);
     
   if (t1 < 0)
