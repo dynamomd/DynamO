@@ -39,7 +39,7 @@ namespace magnet {
     //!
     //! \param T The origin of the ray relative to the sphere center.
     //! \param D The direction/velocity of the ray.
-    //! \param D The acceleration of the ray.
+    //! \param G The acceleration of the ray.
     //! \param r The radius of the sphere.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     inline double parabola_sphere_bfc(const Vector& T,
@@ -54,7 +54,7 @@ namespace magnet {
 
       magnet::math::Bisect<detail::QuarticFunc> quartic;
       quartic.coeffs[0] = 0.25 * G.nrm2();
-      quartic.coeffs[1] = G | T;
+      quartic.coeffs[1] = G | D;
       quartic.coeffs[2] = D.nrm2() + (G | T);
       quartic.coeffs[3] = 2 * DdotT;
       quartic.coeffs[4] = T.nrm2()- r * r;
@@ -87,13 +87,11 @@ namespace magnet {
       //touching/overlapping and approaching. We may get some kind of
       //inelastic collapse, which is fair, but it may be avoided by
       //sleeping the particles or by other dynamics
-      if (quartic(0.0) <= 0)
+      if (quartic(0) <= 0)
 	{//We're overlapping! We need the overlapped dynamics!
 	  if (DdotT < 0)
-	    {
-	      //We're overlapping and approaching! Cause an instantaneous collision
-	      return 0.0;
-	    }
+	    //We're overlapping and approaching! Cause an instantaneous collision
+	    return 0;
       
 	  //We're overlapping but receeding. If there's only one cubic
 	  //root, then we're fine, we've passed the local minimum (we're
@@ -116,8 +114,8 @@ namespace magnet {
 		{//We do reenter! So return the time of this reentry as the next event
 		  return std::max(0.0, quartic.bisectRoot(roots[1], roots[2], rootthreshold));
 		}
-	      //We wont reenter, so return false as we'll escape
-	      return false;
+	      //We wont reenter, so return no intersection
+	      return HUGE_VAL;
 	    }
       
 	  //Our local maxima is in the future, and it's still an
