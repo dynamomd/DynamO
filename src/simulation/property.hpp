@@ -25,13 +25,15 @@
 #include <algorithm>
 #include <cmath>
 
-//! A interface class which allows other classes to access a property
-//! of a particle.  These properties are looked up by a name, and the
-//! value extracted using the ID of a particle. Some properties are
-//! just a single fixed value, their name is their value (see
+//! \brief A interface class which allows other classes to access a property
+//! of a particle.  
+//!
+//! These properties are looked up by a name, and the value extracted
+//! using the ID of a particle. Some properties are just a single
+//! fixed value, their name is their value (see
 //! NumericProperty). Others are more complicated and use look-up
-//! tables or functions. These are usually defined in the PropertyStore
-//! and PropertyHandles are used to access them.
+//! tables or functions. These are usually defined in the
+//! PropertyStore and PropertyHandles are used to access them.
 class Property
 {
 public:
@@ -83,7 +85,7 @@ protected:
   magnet::units::Units _units;
 };
 
-//! A class where the name is the value of the property.
+//! \brief A class where the name is the value of the property.
 //!
 //! This property is used whenever a single value is set for a
 //! property, e.g., in an interaction the interaction diameter might
@@ -115,16 +117,15 @@ private:
   //! XML for it. So no extra XML tag is needed.
   virtual void outputXML(xml::XmlStream& XML) const {}
 
-  //! The single value stored in the property
+  //! \brief The single value stored in the property
   double _val;
 };
 
-//! A class which stores a single value for each particle.
+//! \brief A class which stores a single value for each particle.
 //!
 //! This is the second most common property after NumericProperty. It
 //! stores a single float per particle, allowing polydisperse values
 //! to be used in the simulation.
-
 class ParticleProperty: public Property
 {
 public:
@@ -201,7 +202,7 @@ private:
   Container _values;
 };
 
-/*! This class stores the properties of the particles loaded from the
+/*! \brief This class stores the properties of the particles loaded from the
  * configuration file and hands out reference counting pointers to the
  * properties to other classes when they're requested by name.
  */
@@ -210,9 +211,10 @@ class PropertyStore
   typedef magnet::thread::RefPtr<Property> Value;
   typedef std::vector<Value> Container;
   
-  //!Contains the NumericProperty's that are defined by their
-  //!name. These are only stored in the PropertyStore for unit
-  //!rescaling.
+  //!\brief Contains the NumericProperty's that are defined by their
+  //!name.
+  //!
+  //!These are only stored in the PropertyStore for unit rescaling.
   Container _numericProperties;
 
   //!Contains the properties that are looked up by their name.
@@ -223,11 +225,12 @@ class PropertyStore
 public:
   typedef Container::const_iterator const_iterator;
 
-  /*! Request a handle to a property using a string containing the
-    properties name.  If the name is a string representation of a
-    numeric type, the look-up in the property store will fail but a
-    one-time NumericProperty is created. You may then have lines in
-    the configuration file like so
+  /*! \brief Request a handle to a property using a string containing
+     the properties name.
+
+    If the name is a string representation of a numeric type, the look-up
+    in the property store will fail but a one-time NumericProperty is
+    created. You may then have lines in the configuration file like so
 
     For a fixed value
     <Interaction Elasticity="0.9" ... 
@@ -246,9 +249,10 @@ public:
       { M_throw() << "Could not find the property named by " << name; }
   }
 
-  /*! Request a handle to a property using an xml attribute containing
-    the properties name. See getProperty(const std::string& name) for
-    usage info. */
+  //! \brief Request a handle to a property using an xml attribute
+  //!  containing the properties name. 
+  //!
+  //! See getProperty(const std::string& name) for usage info.
   inline magnet::thread::RefPtr<Property> getProperty(const magnet::xml::Attribute& name,
 						      const Property::Units& units)
   {
@@ -257,10 +261,9 @@ public:
       { M_throw() << "Could not find the property named by " << name.getPath(); }
   }
 
-  /*! Request a handle to a property, but this specialization always
-      returns a new instance of NumericProperty.
-      \sa getProperty(const std::string& name)
-  */
+  //! \brief Request a handle to a property, but this specialization always
+  //!  returns a new instance of NumericProperty.
+  //!  \sa getProperty(const std::string& name)
   inline magnet::thread::RefPtr<Property> getProperty(const double& name, 
 						      const Property::Units& units)
   {
@@ -282,9 +285,8 @@ public:
 
   }
 
-  /*! Method which loads the properties from the XML configuration file. 
-    \param node A xml Node at the root dynamoconfig Node of the config file.
-   */
+  //! \brief Method which loads the properties from the XML configuration file. 
+  //! \param node A xml Node at the root dynamoconfig Node of the config file.
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
   {
     if (node.hasNode("Properties"))
@@ -311,7 +313,7 @@ public:
     return XML;
   }
 
-  //! Function to rescale the units of all Property-s.
+  //! \brief Function to rescale the units of all Property-s.
   //!
   //! \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
   //! \param rescale The factor to rescale the unit by.
@@ -327,8 +329,9 @@ public:
       (*iPtr)->rescaleUnit(dim, rescale);
   }
 
-  //! Write any XML attributes relevent to Property-s for a single
+  //! \brief Write any XML attributes relevent to Property-s for a single
   //! particle.
+  //!
   //! \param pID The ID number of the particle whose data is to be
   //! written out.
   inline void outputParticleXMLData(xml::XmlStream& XML, size_t pID) const 

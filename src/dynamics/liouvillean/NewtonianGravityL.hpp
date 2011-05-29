@@ -19,6 +19,12 @@
 
 #include "NewtonL.hpp"
 
+//! \brief A Liouvillean which implements standard Newtonian dynamics
+//! with an additional constant force vector.
+
+//! This Liouvillean specializes the Local and Global events to
+//! systems with a parabolic motion of a particle. If a particle has its 
+
 class LNewtonianGravity: public LNewtonian
 {
 public:

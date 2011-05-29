@@ -235,14 +235,14 @@ namespace dynamo
 		       / ensemble->getEnsembleVals()[2]));
     
     BOOST_FOREACH(Particle& part, particleList)
-      part.scaleVelocity(scale1);
+      part.getVelocity() *= scale1;
     
     other.ptrScheduler->rescaleTimes(scale1);
     
     double scale2(1.0 / scale1);
 
     BOOST_FOREACH(Particle& part, other.particleList)
-      part.scaleVelocity(scale2);
+      part.getVelocity() *= scale2;
     
     ptrScheduler->rescaleTimes(scale2);
     

@@ -124,8 +124,8 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
 	outofsequence = true;
       
       Particle part(node, Sim->particleList.size());
-      part.scaleVelocity(Sim->dynamics.units().unitVelocity());
-      part.scalePosition(Sim->dynamics.units().unitLength());
+      part.getVelocity() *= Sim->dynamics.units().unitVelocity();
+      part.getPosition() *= Sim->dynamics.units().unitLength();
       Sim->particleList.push_back(part);
     }
 
@@ -175,8 +175,8 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
       if (applyBC) 
 	Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
       
-      tmp.scaleVelocity(1.0 / Sim->dynamics.units().unitVelocity());
-      tmp.scalePosition(1.0 / Sim->dynamics.units().unitLength());
+      tmp.getVelocity() /= Sim->dynamics.units().unitVelocity();
+      tmp.getPosition() /= Sim->dynamics.units().unitLength();
       
       XML << xml::tag("Pt");
       Sim->_properties.outputParticleXMLData(XML, i);

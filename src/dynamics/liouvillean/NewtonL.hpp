@@ -19,6 +19,14 @@
 #pragma once
 #include "liouvillean.hpp"
 
+//! \brief A Liouvillean which implements standard Newtonian dynamics.
+//!
+//! This Liouvillean provides the dynamics of a system particles
+//! evolving only under interparticle Interaction(s) and Local or
+//! Global forces. More complex systems are available as derivations
+//! of this liouvillean, such as a Liouvillean including a constant
+//! gravity force (LNewtonianGravity), or a Liouvillean specialized
+//! for multicanonical simulations.
 class LNewtonian: public Liouvillean
 {
 public:
