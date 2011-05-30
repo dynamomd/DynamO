@@ -168,7 +168,7 @@ public:
   void init(bool quiet)
   {
       {
-	double minVal(HUGE_VAL), maxVal(-HUGE_VAL);
+	double minVal(0), maxVal(-HUGE_VAL);
 	size_t counter(0);
 	
 	try {
@@ -184,15 +184,15 @@ public:
 		++counter;
 	      }
 	  
-	  if (counter < 2)
+	  if (counter < 10)
 	    {
 	      //Something is peculiar about the system
 	      I_cerr() <<
-		"The event queue doesn't have more than 2 VALID events in it"
-		"\nThis means the queue cannot be instrumented to"
-		"\ndetermine the settings for the bounded queue, just"
-		"\nusing something that hopes the events in sim time"
-		"\narent close to 10000";
+		"The event queue doesn't have more than 10 VALID events in it"
+		"\nThis means the queue cannot be instrumented properly to"
+		"\ndetermine the optimal settings for the bounded queue, now"
+		"\nusing some (probably inefficient) defaults."
+		"\nIf this is a proper simulation, consider using a different Sorter (e.g., CBT).";
 	      scale = 10;
 	      nlists = 1000;
 	    }
