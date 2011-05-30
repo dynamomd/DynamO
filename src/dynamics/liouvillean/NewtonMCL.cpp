@@ -47,16 +47,18 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
       
       EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
       
+      if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
+	M_throw() << "Multi-canonical simulations require an NVT ensemble";
+
       if (XML.getNode("PotentialDeformation").valid())
-	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("Entry"); 
+	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
 	     node.valid(); ++node)
 	  {
-	    double energy = node.getAttribute("Energy").as<double>()
-	      / Sim->dynamics.units().unitEnergy();
-	    
+	    double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
+	    double Wval = node.getAttribute("Value").as<double>();
+
 	    _MCEnergyPotential[lrint(energy / EnergyPotentialStep)]
-	      = node.getAttribute("Shift").as<double>()
-	      / Sim->dynamics.units().unitEnergy();
+	      = Wval * Sim->ensemble->getEnsembleVals()[2];
 	  }
     }
   catch (boost::bad_lexical_cast &)
