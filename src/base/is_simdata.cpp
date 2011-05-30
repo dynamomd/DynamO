@@ -87,24 +87,12 @@ namespace dynamo
 
     ssHistory << subNode.getNode("History");
 
+    ensemble.reset(dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
+
     _properties << mainNode;
     dynamics << mainNode;
     ptrScheduler 
       = CScheduler::getClass(subNode.getNode("Scheduler"), this);
-
-    if (subNode.hasNode("Ensemble"))
-      ensemble.reset
-	(dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
-    else
-      //Try and determine the Ensemble
-      try {
-	dynamics.getSystem("Thermostat");
-	ensemble.reset(new dynamo::EnsembleNVT(this));
-      }
-      catch (std::exception&)
-	{
-	  ensemble.reset(new dynamo::EnsembleNVE(this));
-	}
 
     dynamics.getLiouvillean().loadParticleXMLData(mainNode);
   

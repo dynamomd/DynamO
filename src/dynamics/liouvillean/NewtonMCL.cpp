@@ -41,30 +41,32 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
 	      << XML.getAttribute("Type")
 	      << " entry";
   try 
-    {
-      if (XML.getAttribute("EnergyStep").valid())
-	EnergyPotentialStep = XML.getAttribute("EnergyStep").as<double>();
+    {     
+      if (XML.hasNode("PotentialDeformation"))
+	if (XML.getNode("PotentialDeformation").getAttribute("EnergyStep").valid())
+	  EnergyPotentialStep 
+	    = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>();
       
       EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
       
-      if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
+      if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
 	M_throw() << "Multi-canonical simulations require an NVT ensemble";
 
-      if (XML.getNode("PotentialDeformation").valid())
+      if (XML.hasNode("PotentialDeformation"))
 	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
 	     node.valid(); ++node)
 	  {
 	    double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
 	    double Wval = node.getAttribute("Value").as<double>();
-
-	    _MCEnergyPotential[lrint(energy / EnergyPotentialStep)]
-	      = Wval * Sim->ensemble->getEnsembleVals()[2];
+	    
+	    //Here, the Wval needs to be multiplied by kT to turn it
+	    //into an Energy, but the Ensemble is not yet initialised,
+	    //we must do this conversion later, when we actually use the W val.
+	    _W[lrint(energy / EnergyPotentialStep)] = Wval;
 	  }
     }
   catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in LNewtonianMC";
-    }
+    { M_throw() << "Failed a lexical cast in LNewtonianMC"; }
 }
 
 void 
@@ -72,24 +74,23 @@ LNewtonianMC::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") 
       << "NewtonianMC"
+      << xml::tag("PotentialDeformation")
       << xml::attr("EnergyStep")
       << EnergyPotentialStep
-	  * Sim->dynamics.units().unitEnergy()
-      << xml::tag("PotentialDeformation");
+    * Sim->dynamics.units().unitEnergy();
+
 
   typedef std::pair<const double,double> locpair;
 
-  BOOST_FOREACH(const locpair& val, _MCEnergyPotential)
+  BOOST_FOREACH(const locpair& val, _W)
     {
       double key = val.first * EnergyPotentialStep 
 	* Sim->dynamics.units().unitEnergy();
       
-      double entry = val.second * Sim->dynamics.units().unitEnergy();
-	      
-      XML << xml::tag("Entry")
+      XML << xml::tag("W")
 	  << xml::attr("Energy") << key
-	  << xml::attr("Shift") << entry
-	  << xml::endtag("Entry");
+	  << xml::attr("Value") << val.second
+	  << xml::endtag("W");
     }
     
   XML << xml::endtag("PotentialDeformation");
@@ -144,11 +145,15 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
 
   //Calculate the deformed energy change of the system (the one used in the dynamics)
   double MCDeltaKE = deltaKE;
+
   {//If there are entries for the current and possible future energy, then take them into account
-    boost::unordered_map<int, double>::const_iterator iPtr = _MCEnergyPotential.find(oldKey);
-    if (iPtr != _MCEnergyPotential.end()) MCDeltaKE += iPtr->second;  
-    iPtr = _MCEnergyPotential.find(newKey);
-    if (iPtr != _MCEnergyPotential.end()) MCDeltaKE -= iPtr->second;
+    boost::unordered_map<int, double>::const_iterator iPtr = _W.find(oldKey);
+    if (iPtr != _W.end()) 
+      MCDeltaKE += iPtr->second * Sim->ensemble->getEnsembleVals()[2];
+
+    iPtr = _W.find(newKey);
+    if (iPtr != _W.end()) 
+      MCDeltaKE -= iPtr->second * Sim->ensemble->getEnsembleVals()[2];
   }
 
   //Test if the deformed energy change allows a capture event to occur

@@ -44,10 +44,13 @@ public:
 
   virtual void initialise();
 
+  inline const boost::unordered_map<int, double>& getMap() const { return _W; }
+  inline const double& getEnergyStep() const { return EnergyPotentialStep; }
+
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 
-  boost::unordered_map<int, double> _MCEnergyPotential; 
+  boost::unordered_map<int, double> _W; 
 
   double EnergyPotentialStep;
   
