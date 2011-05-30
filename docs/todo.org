@@ -29,14 +29,17 @@
 **** DONE *API-CHANGE* Renamed and documented the CEnsemble class.
 **** DONE Update the tutorials.
 *** Dynamo 1.2
-**** DONE *Improvement* XML errors are now much more verbose and tell you exactly what went wrong.
-**** DONE *Improvement* The DynamO-Coil integration can be forcibly enabled or disabled at build time.
+**** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
+**** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
+**** DONE Multicanonical simulations are implemented.
+**** TODO Multicanonical, replica-exchange simulations.
 **** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
+**** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
+**** TODO *Improvement* Allow adjustable shear rates.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Triangular Meshes.
-**** TODO Multicanonical simulations.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
      - [X] Move to OpenCL generation of the gradients from live data.
