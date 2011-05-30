@@ -48,14 +48,13 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
       EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
       
       if (XML.getNode("PotentialDeformation").valid())
-	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").getNode("Entry"); 
+	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("Entry"); 
 	     node.valid(); ++node)
 	  {
-	    double key = node.getAttribute("Energy").as<double>()
+	    double energy = node.getAttribute("Energy").as<double>()
 	      / Sim->dynamics.units().unitEnergy();
 	    
-	    key /= EnergyPotentialStep;
-	    _MCEnergyPotential[int(key + 0.5 - (key < 0))] 
+	    _MCEnergyPotential[lrint(energy / EnergyPotentialStep)]
 	      = node.getAttribute("Shift").as<double>()
 	      / Sim->dynamics.units().unitEnergy();
 	  }
@@ -138,25 +137,20 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
 
   double CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
 
-  double Key1FloatVal = CurrentE / EnergyPotentialStep;
-  int Key1 = int(Key1FloatVal + 0.5 - (Key1FloatVal < 0));
+  int oldKey = lrint(CurrentE / EnergyPotentialStep);
+  int newKey = lrint((CurrentE - deltaKE) / EnergyPotentialStep);
 
-  double Key2FloatVal = (CurrentE - deltaKE) / EnergyPotentialStep;
-  int Key2 = int(Key2FloatVal + 0.5 - (Key2FloatVal < 0));
-
+  //Calculate the deformed energy change of the system (the one used in the dynamics)
   double MCDeltaKE = deltaKE;
+  {//If there are entries for the current and possible future energy, then take them into account
+    boost::unordered_map<int, double>::const_iterator iPtr = _MCEnergyPotential.find(oldKey);
+    if (iPtr != _MCEnergyPotential.end()) MCDeltaKE += iPtr->second;  
+    iPtr = _MCEnergyPotential.find(newKey);
+    if (iPtr != _MCEnergyPotential.end()) MCDeltaKE -= iPtr->second;
+  }
 
-  boost::unordered_map<int, double>::const_iterator iPtr = _MCEnergyPotential.find(Key1);
-  if (iPtr != _MCEnergyPotential.end())
-    MCDeltaKE -= iPtr->second;
-
-  iPtr = _MCEnergyPotential.find(Key2);
-
-  if (iPtr != _MCEnergyPotential.end())
-    MCDeltaKE -= iPtr->second;
-
+  //Test if the deformed energy change allows a capture event to occur
   double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
-
   if ((MCDeltaKE < 0) && (sqrtArg < 0))
     {
       event.setType(BOUNCE);

@@ -1,0 +1,12 @@
+#A rule which imports 
+rule cleanimport ( modules + )
+{
+  for local m in $(modules)
+  {
+    import $(m) ;
+    local r = [ RULENAMES $(m) ] ;
+    import $(m) : $(r) : $(m:B).$(r) ;
+  }
+}
+
+IMPORT $(__name__) : cleanimport :  : cleanimport ;

@@ -16,25 +16,29 @@
 
 import type ;
 
-rule naming ( name : type ? : property-set )
+rule suffix ( variant )
 {
-  local fullname	;
+  switch $(variant)
+  {
+  case debug : return "_d" ;
+  case fulldebug : return "_fd" ;
+  case valgrind_in : return "_vg_in" ;
+  case valgrind : return "_vg" ;
+  case profile : return "_p" ;
+  }
+}
+
+rule exe-naming ( name : type ? : property-set )
+{
+  local fullname ;
 
   fullname = [ type.generated-target-prefix $(type) : $(property-set) ] ;
   fullname += $(name) ;
 
   if [ type.is-derived $(type) EXE ]
-  {  
-     switch [ $(property-set).get <variant> ]
-     {
-     case debug : fullname += _d ;
-     case fulldebug : fullname += _fd ;
-     case valgrind_in : fullname += _vg_in ;
-     case valgrind : fullname += _vg ;
-     case profile : fullname += _p ;
-     }
+  {
+    fullname += [ suffix [ $(property-set).get <variant> ] ] ;
   }
-
 
   local suffix = [ type.generated-target-suffix $(type) : $(property-set) ] ;
   if $(suffix) {
@@ -45,3 +49,25 @@ rule naming ( name : type ? : property-set )
   return $(fullname:J=) ;
 }
 
+rule lib-naming ( name : type ? : property-set )
+{
+  local fullname ;
+
+  fullname = [ type.generated-target-prefix $(type) : $(property-set) ] ;
+  fullname += $(name) ;
+
+  if [ type.is-derived $(type) LIB ]
+  {
+    fullname += [ suffix [ $(property-set).get <variant> ] ] ;
+  }
+
+  local suf = [ type.generated-target-suffix $(type) : $(property-set) ] ;
+  if $(suf) {
+    fullname += . ;
+    fullname += $(suf) ;
+  }
+
+  return $(fullname:J=) ;
+}
+
+IMPORT $(__name__) : exe-naming lib-naming : : tags.exe-naming tags.lib-naming ;

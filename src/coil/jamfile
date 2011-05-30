@@ -1,6 +1,7 @@
 import glade ;
 import ttf ;
 import pixbuf ;
+import ../magnet/jam/tags ;
 
 lib glut : : <link>shared ;
 lib GLU  : : <link>shared ;
@@ -37,8 +38,8 @@ explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest 
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
-      OpenCL ftgl gtkmm
-      : <include>. <include>../../boost
+      OpenCL ftgl gtkmm 
+      : <include>. <include>../../boost <tag>@tags.lib-naming
       [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid  :  ]
       : : <define>GLVIEWER <include>. ;
 

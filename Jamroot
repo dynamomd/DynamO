@@ -45,31 +45,15 @@ use-project coil : src/coil ;
 
 ##########################################################################
 #These are the options that can be set when calling bjam
-
 #If this feature is unset, its value will be determined from configuration tests
 feature.feature coil-integration : no yes : propagated optional ;
-
 #This feature controls if the console output is colored or not
 feature.feature color : yes no : propagated ; 
 
 ##########################################################################
 #Imports (jam includes)
-#
-#The following rule imports jam files from remote locations into a
-#nice namespace. 
-rule cleanimport ( modules + )
-{
-  for local m in $(modules)
-  {
-    import $(m) ;
-    local r = [ RULENAMES $(m) ] ;
-    import $(m) : $(r) : $(m:B).$(r) ;
-  }
-}
-#Import src/magnet/jam/buildinfo into the buildinfo namespace
-cleanimport src/magnet/jam/buildinfo ;
-#Import src/dynamo-tags into the dynamo-tags namespace
-cleanimport src/dynamo-tags ;
+import src/magnet/jam/buildinfo ;
+import src/magnet/jam/tags ;
 
 ##########################################################################
 #Additional build variants
@@ -90,7 +74,6 @@ variant valgrind_in : valgrind : <inlining>on  ;
 
 ##########################################################################
 #Dependency calculations
-
 #Parses the command line (to see if a property has been set by the user)
 rule cmd-line-feature-value ( feature )
 { return [ MATCH "^$(feature)=(.*)" :  [ modules.peek : ARGV ] ] ; }
@@ -108,7 +91,6 @@ rule coil-integration-check ( )
 ##########################################################################
 #Main project definition
 project	: requirements
-	  <tag>@dynamo-tags.naming
           <threading>multi
 	  ##Allow garbage collection of unused linked symbols
 	  <color>yes:<define>DYNAMO_Colour
@@ -136,24 +118,24 @@ rule critical_dependencies ( )
 #dynarun
 obj dynarun_src : src/programs/dynarun.cpp
                 : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
-exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ] ;
+exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
 
 #dynareplex_opt
 obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp  boost//program_options
     : <implicit-dependency>buildinfo.hpp ;
 exe dynareplex_opt : dynareplex_opt_src boost//program_options
-    : [ critical_dependencies ] ;
+    : [ critical_dependencies ] <tag>@tags.exe-naming ;
 
 #dynahist_rw
 obj dynahist_rw_src : src/programs/dynahist_rw.cpp
     : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
 exe dynahist_rw : dynahist_rw_src src//dynamo_core 
-    : [ critical_dependencies ] ;
+    : [ critical_dependencies ] <tag>@tags.exe-naming ;
 
 #dynamod
 obj dynamod_src : src/programs/dynamod.cpp 
                 : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynamod : dynamod_src src//dynamo_core : [ critical_dependencies ] ;
+exe dynamod : dynamod_src src//dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
 
 
 ##########INSTALL TARGETS

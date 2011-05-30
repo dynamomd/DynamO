@@ -39,3 +39,5 @@ actions gen_buildinfo_data
 $(CONFIG:J=$(NL))
 ) > "$(<)"
 }
+
+IMPORT $(__name__) : gen_buildinfo_data :  : buildinfo.gen_buildinfo_data ;
