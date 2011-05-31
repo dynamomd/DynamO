@@ -5,9 +5,30 @@
 
 * Code improvements
 ** Version Milestones
-*** Dynamo 1.0							    :ARCHIVE:
-    First major release of DynamO.
-*** Dynamo 1.1							    :ARCHIVE:
+*** DynamO 1.3
+**** Optimized triangle meshes by inserting them into the neighbor lists.
+*** DynamO 1.2
+**** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
+**** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
+**** DONE Initial support for triangular meshes. The current version is not optimized using a neighbor list.
+**** TODO Multicanonical and replica-exchange simulations.
+**** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
+**** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
+**** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
+**** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
+**** TODO *Improvement* Allow adjustable shear rates.
+**** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
+**** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
+**** TODO Coil library volume renderer (blocking on above)
+     - [X] Move to OpenCL generation of the gradients from live data.
+     - [X] Implement volume renderer.
+     - [X] Make a transfer function interface.
+**** TODO Generalized scheduler for multiple neighborlists.
+**** TODO Clean up the overlap tests and make a dynamod --check mode.
+**** TODO Generalize the Morton ordered neighbour list.
+**** TODO Move the dynamo classes into its own folder in the src directory.
+**** TODO Move all the dynamo classes into the dynamo namespace.
+*** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.
 **** DONE *MAJOR* Remove binary XML mode, new parser is fast enough and binary blobs are not XML.
@@ -28,28 +49,8 @@
 **** DONE *API-CHANGE* Replace HardCoreDiam() with ExcludedVolume() in Interactions
 **** DONE *API-CHANGE* Renamed and documented the CEnsemble class.
 **** DONE Update the tutorials.
-*** Dynamo 1.2
-**** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
-**** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
-**** DONE Multicanonical simulations are implemented.
-**** TODO Multicanonical, replica-exchange simulations.
-**** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
-**** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
-**** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
-**** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
-**** TODO *Improvement* Allow adjustable shear rates.
-**** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
-**** TODO Triangular Meshes.
-**** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
-**** TODO Coil library volume renderer (blocking on above)
-     - [X] Move to OpenCL generation of the gradients from live data.
-     - [X] Implement volume renderer.
-     - [X] Make a transfer function interface.
-**** TODO Generalized scheduler for multiple neighborlists.
-**** TODO Clean up the overlap tests and make a dynamod --check mode.
-**** TODO Generalize the Morton ordered neighbour list.
-**** TODO Move the dynamo classes into its own folder in the src directory.
-**** TODO Move all the dynamo classes into the dynamo namespace.
+*** DynamO 1.0 							    :ARCHIVE:
+    First major release of DynamO.
 ** Major Changes
 *** Optimise the insertion of locals into neighbour lists
     - [ ] Cylinders can be inserted, just write the overlap test

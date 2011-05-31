@@ -140,21 +140,12 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
 
   double CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
 
-  int oldKey = lrint(CurrentE / EnergyPotentialStep);
-  int newKey = lrint((CurrentE - deltaKE) / EnergyPotentialStep);
-
   //Calculate the deformed energy change of the system (the one used in the dynamics)
   double MCDeltaKE = deltaKE;
 
-  {//If there are entries for the current and possible future energy, then take them into account
-    boost::unordered_map<int, double>::const_iterator iPtr = _W.find(oldKey);
-    if (iPtr != _W.end()) 
-      MCDeltaKE += iPtr->second * Sim->ensemble->getEnsembleVals()[2];
-
-    iPtr = _W.find(newKey);
-    if (iPtr != _W.end()) 
-      MCDeltaKE -= iPtr->second * Sim->ensemble->getEnsembleVals()[2];
-  }
+  //If there are entries for the current and possible future energy, then take them into account
+  MCDeltaKE += W(CurrentE) * Sim->ensemble->getEnsembleVals()[2];
+  MCDeltaKE -= W(CurrentE - deltaKE) * Sim->ensemble->getEnsembleVals()[2];
 
   //Test if the deformed energy change allows a capture event to occur
   double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;

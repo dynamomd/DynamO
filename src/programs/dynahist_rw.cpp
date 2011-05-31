@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <boost/unordered_map.hpp>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/array.hpp>
@@ -53,28 +54,41 @@ struct SimData
     Document doc(fileName);  
     Node mainNode = doc.getNode("OutputData");
 
+    //Find the bin width
+    if (!(mainNode.hasNode("EnergyHist")))
+      M_throw() << "Could not find the Internal Energy Histogram in output file " << nfn;
+
+    if (!(mainNode.getNode("EnergyHist").hasAttribute("BinWidth")))
+      M_throw() << "Could not find the BinWidth attribute in the Internal Energy Histogram";
+
+    if (!(mainNode.getNode("EnergyHist").hasAttribute("T")))
+      M_throw() << "Could not find the Temperature attribute in the Internal Energy Histogram";
+
+    binWidth = mainNode.getNode("EnergyHist").getAttribute("BinWidth").as<double>();
+
+    gamma.push_back(-1.0 / (mainNode.getNode("EnergyHist").getAttribute("T").as<long double>()));
+
+    //Load the W factor for each energy
+    if (mainNode.getNode("EnergyHist").hasNode("PotentialDeformation"))
+      {
+	for (magnet::xml::Node node = mainNode.getNode("EnergyHist").getNode("PotentialDeformation").fastGetNode("W"); 
+	     node.valid(); ++node)
+	  {
+	    double energy = node.getAttribute("Energy").as<double>();
+	    double Wval = node.getAttribute("OldValue").as<double>();
+	    
+	    //Here, the Wval needs to be multiplied by kT to turn it
+	    //into an Energy, but the Ensemble is not yet initialised,
+	    //we must do this conversion later, when we actually use the W val.
+	    _W[lrint(energy / binWidth)] = Wval;
+	  }
+      }
+
     //Now navigate to the histogram and load the data
     std::istringstream HistogramData
       (std::string(mainNode.getNode("EnergyHist").getNode("WeightHistogram")));
-    
-    if (mainNode.getNode("EnergyHist").getAttribute("binWidth").valid())
-      binWidth = mainNode.getNode("EnergyHist").getAttribute("binWidth").as<double>();
-    else
-      {
-	binWidth = 0.5;
-	std::cout << "Warning! Could not find a bin width set in " 
-		  << fileName 
-		  << ", assuming 0.5kT! If this is wrong the code will probably have a Floating Point Exception";
-      }
-
-    //Load gamma here
-    if (mainNode.getNode("Energy").valid())
-      gamma.push_back(-1.0 / (mainNode.getNode("Energy").getNode("T").getAttribute("val").as<long double>()));
-    else
-      gamma.push_back(-1.0 / mainNode.getNode("KEnergy").getNode("T").getAttribute("val").as<long double>());
-
+    //Load the histogram data from string to array
     histogramEntry tmpData;
-
     while (HistogramData >> tmpData.X[0])
       {
 	for (size_t i = 1; i < NGamma; ++i)
@@ -112,6 +126,8 @@ struct SimData
   };
   std::vector<histogramEntry> data;
 
+  boost::unordered_map<int, double> _W;
+
 
   //Bottom and top contain the window of systems used for the calculation
   long double calc_logZ(size_t bottom=0, size_t top=0) const
@@ -130,8 +146,14 @@ struct SimData
 	    {
 	      //Determine (\gamma_i- \gamma) \cdot X 
 	      long double dot = 0.0;
-	      for (size_t i = 0; i < NGamma; ++i)
-		dot += (SimulationData[j].gamma[i] - gamma[i]) * simdat.X[i];
+
+	      if (NGamma != 1) 
+		M_throw() << "For multiple gamma reweighting, one must be designated as E and used in the W lookup";
+
+	      { const int i = 0;
+		dot += (SimulationData[j].gamma[i] - gamma[i]) * simdat.X[i]
+		  + SimulationData[i].W(simdat.X[i]) - SimulationData[j].W(simdat.X[i]);
+	      }
 
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
 	      sum2 += exp(dot - SimulationData[j].logZ);
@@ -171,6 +193,14 @@ struct SimData
 
   void iterate_logZ() { logZ = new_logZ; }
 
+  inline double W(double E) const 
+  { 
+    boost::unordered_map<int, double>::const_iterator 
+      iPtr = _W.find(lrint(E / binWidth));
+    if (iPtr != _W.end())
+      return iPtr->second;
+    return 0;
+  }
 };
 
 struct ldbl 

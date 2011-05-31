@@ -94,9 +94,14 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
 {
   XML << xml::tag("EnergyHist")
       << xml::attr("BinWidth") << binwidth;
-  intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
-  XML << xml::endtag("EnergyHist");
 
+  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
+      XML << xml::attr("T") 
+	  << static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
+      
+  intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
+  
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
     {
       I_cout() << "Detected a Multi-canonical Liouvillean, outputting w parameters";
@@ -117,25 +122,21 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
 	  double E = p1.first * intEnergyHist.data.binWidth;
 	  
 	  //Fetch the current W value
-	  double W = 0;
-	  {
-	    boost::unordered_map<int, double>::const_iterator iPtr = liouvillean.getMap().find(lrint(E / liouvillean.getEnergyStep()));
-	    if (iPtr != liouvillean.getMap().end()) W += iPtr->second ;
-	  }
+	  double W = liouvillean.W(E);
 
 	  double Pc = static_cast<double>(p1.second)
 	    / (intEnergyHist.data.binWidth * intEnergyHist.sampleCount 
 	       * Sim->dynamics.units().unitEnergy());
 	  
-	  W += std::log(Pc);
-
 	  XML << xml::tag("W")
 	      << xml::attr("Energy") << E * Sim->dynamics.units().unitEnergy()
-	      << xml::attr("Value") << W
+	      << xml::attr("Value") << W + std::log(Pc)
+	      << xml::attr("OldValue") << W
 	      << xml::endtag("W");
 	}
       
       XML << xml::endtag("PotentialDeformation");
     }
+  XML << xml::endtag("EnergyHist");
 
 }

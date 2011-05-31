@@ -20,6 +20,7 @@
 #include "../dynamics/liouvillean/CompressionL.hpp"
 #include "../dynamics/BC/LEBC.hpp"
 #include "../outputplugins/1partproperty/uenergy.hpp"
+#include "../../dynamics/liouvillean/NewtonMCL.hpp"
 
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -129,11 +130,28 @@ namespace dynamo {
 #endif
 
     //Must use static cast to allow access to protected members
-
     //This is -\Delta in the Sugita_Okamoto paper
-    return ((1.0/static_cast<const EnsembleNVT&>(oE).getEnsembleVals()[2])-(1.0/EnsembleVals[2]))
-      * (static_cast<const EnsembleNVT&>(oE).Sim->getOutputPlugin<OPUEnergy>()->getSimU() 
-	 - Sim->getOutputPlugin<OPUEnergy>()->getSimU());    
+
+    double beta1 = 1 / EnsembleVals[2];
+    double E1 = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+    double beta2 = 1 / static_cast<const EnsembleNVT&>(oE).getEnsembleVals()[2];
+    double E2 = static_cast<const EnsembleNVT&>(oE).Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+    
+    double factor = (beta2 - beta1) * (E2 - E1);
+    
+    if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+      {
+	factor += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E2);
+	factor -= static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E1);
+      }
+
+    if (static_cast<const EnsembleNVT&>(oE).Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+      {
+	factor += static_cast<const LNewtonianMC&>(static_cast<const EnsembleNVT&>(oE).Sim->dynamics.getLiouvillean()).W(E1);
+	factor -= static_cast<const LNewtonianMC&>(static_cast<const EnsembleNVT&>(oE).Sim->dynamics.getLiouvillean()).W(E2);
+      }
+
+    return std::exp(factor);
   }
 
   void

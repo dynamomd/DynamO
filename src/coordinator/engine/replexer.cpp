@@ -406,7 +406,7 @@ EReplicaExchangeSimulation::AttemptSwap(const unsigned int sim1ID, const unsigne
     
   //No need to check sign, it will just accept the move anyway due to
   //the [0,1) limits of the random number generator
-  if (exp(sim1.getEnsemble()->exchangeProbability(*sim2.getEnsemble()))
+  if (sim1.getEnsemble()->exchangeProbability(*sim2.getEnsemble())
       > boost::uniform_01<dynamo::baseRNG, double>(sim1.ranGenerator)())
     {
       sim1.replexerSwap(sim2);

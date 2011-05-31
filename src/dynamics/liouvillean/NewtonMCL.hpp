@@ -88,6 +88,17 @@ public:
    */
   inline const double& getEnergyStep() const { return EnergyPotentialStep; }
 
+  /*! \brief Returns \f$ W(E)\f$.
+   */
+  inline double W(double E) const 
+  { 
+    boost::unordered_map<int, double>::const_iterator 
+      iPtr = _W.find(lrint(E / EnergyPotentialStep));
+    if (iPtr != _W.end())
+      return iPtr->second;
+    return 0;
+  }
+
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 
