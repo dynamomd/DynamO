@@ -147,6 +147,8 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
   MCDeltaKE += W(CurrentE) * Sim->ensemble->getEnsembleVals()[2];
   MCDeltaKE -= W(CurrentE - deltaKE) * Sim->ensemble->getEnsembleVals()[2];
 
+  if (MCDeltaKE != deltaKE) I_cerr() << "Testing with an energy difference of " <<  deltaKE -MCDeltaKE;
+
   //Test if the deformed energy change allows a capture event to occur
   double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
   if ((MCDeltaKE < 0) && (sqrtArg < 0))
