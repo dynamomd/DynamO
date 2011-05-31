@@ -152,7 +152,7 @@ struct SimData
 
 	      { const int i = 0;
 		dot += (SimulationData[j].gamma[i] - gamma[i]) * simdat.X[i]
-		  + SimulationData[i].W(simdat.X[i]) - SimulationData[j].W(simdat.X[i]);
+		  + SimulationData[j].W(simdat.X[i]) - W(simdat.X[i]);
 	      }
 
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
@@ -330,8 +330,15 @@ void calcDensityOfStates()
       BOOST_FOREACH(const SimData& dat2, SimulationData)
 	{
 	  long double tmp = 0;
+
+	  //Adding in the W factor
+	  if (NGamma != 1) 
+	    M_throw() << "For multiple gamma reweighting, one must be designated as E and used in the W lookup";
+	  tmp += dat2.W(dat.first[0]);
+
 	  for (size_t i(0); i < NGamma; ++i)
 	    tmp += dat2.gamma[i] * dat.first[i];
+	  
 
 	  sum += exp(tmp - dat2.logZ);
 	}
