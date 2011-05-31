@@ -72,7 +72,7 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
 void 
 LNewtonianMC::outputXML(xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") 
+  XML << xml::attr("Type")
       << "NewtonianMC"
       << xml::tag("PotentialDeformation")
       << xml::attr("EnergyStep")
@@ -147,8 +147,6 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
   MCDeltaKE += W(CurrentE) * Sim->ensemble->getEnsembleVals()[2];
   MCDeltaKE -= W(CurrentE - deltaKE) * Sim->ensemble->getEnsembleVals()[2];
 
-  if (MCDeltaKE != deltaKE) I_cerr() << "Testing with an energy difference of " <<  deltaKE -MCDeltaKE;
-
   //Test if the deformed energy change allows a capture event to occur
   double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
   if ((MCDeltaKE < 0) && (sqrtArg < 0))
@@ -199,3 +197,16 @@ LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE,
   return retVal;
 }
 
+void 
+LNewtonianMC::swapSystem(Liouvillean& oLiouvillean)
+{
+#ifdef DYNAMO_DEBUG
+  if (dynamic_cast<const LNewtonianMC*>(&oLiouvillean) == NULL)
+    M_throw() << "Trying to swap Liouvilleans with different derived types!";
+#endif
+
+  LNewtonianMC& ol(static_cast<LNewtonianMC&>(oLiouvillean));
+
+  std::swap(EnergyPotentialStep, ol.EnergyPotentialStep);
+  std::swap(_W, ol._W);
+}

@@ -147,7 +147,6 @@ class Simulation: public dynamo::Base_Class, public dynamo::SimData
   //! \sa ESimulationStatus
   inline const ESimulationStatus& getStatus() const
   { return status; }
-
   
   //! Allows a Engine or the Coordinator class to add an OutputPlugin
   //! to the Simulation.

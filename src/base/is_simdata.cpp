@@ -218,6 +218,8 @@ namespace dynamo
     BOOST_FOREACH(magnet::ClonePtr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
+    dynamics.getLiouvillean().swapSystem(other.dynamics.getLiouvillean());
+
     //Rescale the velocities 
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
 		       / ensemble->getEnsembleVals()[2]));

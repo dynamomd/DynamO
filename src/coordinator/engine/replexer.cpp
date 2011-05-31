@@ -18,6 +18,7 @@
 #include "replexer.hpp"
 #include "../../dynamics/systems/tHalt.hpp"
 #include "../../dynamics/systems/ghost.hpp"
+#include "../../dynamics/liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
 #include <magnet/thread/threadpool.hpp>
@@ -86,7 +87,15 @@ EReplicaExchangeSimulation::initialisation()
     if (dynamic_cast<const dynamo::EnsembleNVT* >(Simulations[--i].getEnsemble().get()) == NULL)
       M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		<< " does not have an NVT ensemble";
-    
+
+  //Ensure the types of the simulation Liouvilleans match
+  for (size_t i(1); i < nSims; ++i)
+    if (typeid(Simulations[i].dynamics.getLiouvillean())
+	!= typeid(Simulations[0].dynamics.getLiouvillean()))
+      M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
+		<< " does not have the same Liouvillean type as "
+		<< vm["config-file"].as<std::vector<std::string> >()[0];
+
   //Test a thermostat is available
   for (unsigned int i = 0; i < nSims; i++)
     if (Simulations[i].getSystem("Thermostat") == NULL)

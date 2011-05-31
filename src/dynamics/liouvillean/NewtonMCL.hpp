@@ -99,6 +99,8 @@ public:
     return 0;
   }
 
+  virtual void swapSystem(Liouvillean& oLiouvillean);
+
 protected:
   virtual void outputXML(xml::XmlStream& ) const;
 

@@ -75,6 +75,12 @@ public:
   
   virtual void initialise();
 
+  /*! \brief Called when a replica exchange move is being performed on the system.
+   *
+   * \param oLiouvillean the Liouvillean of the other system in the exchange move.
+   */
+  virtual void swapSystem(Liouvillean& oLiouvillean) {}
+
   /*! \brief Parses the XML data to see if it can load XML particle
    * data or if it needs to decode the binary data. Then loads the
    * particle data.
