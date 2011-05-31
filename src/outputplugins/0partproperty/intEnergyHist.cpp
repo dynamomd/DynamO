@@ -95,11 +95,10 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
   XML << xml::tag("EnergyHist")
       << xml::attr("BinWidth") << binwidth;
 
-  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
-    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
-      XML << xml::attr("T") 
-	  << static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
-      
+  if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
+    XML << xml::attr("T") 
+	<< static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
+  
   intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
   
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
