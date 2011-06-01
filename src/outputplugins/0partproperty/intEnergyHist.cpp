@@ -89,6 +89,48 @@ OPIntEnergyHist::ticker()
   weight = 0.0;
 }
 
+boost::unordered_map<int, double> 
+OPIntEnergyHist::getImprovedW() const
+{
+  boost::unordered_map<int, double> retval;
+
+  bool isMC(Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>());
+
+  typedef std::pair<const long, double> lv1pair;
+  BOOST_FOREACH(const lv1pair &p1, intEnergyHist.data.data)
+    {
+      double E = p1.first * intEnergyHist.data.binWidth;
+      
+      //Fetch the current W value
+      double W = 0;
+      
+      if (isMC) W += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E);
+      
+      double Pc = static_cast<double>(p1.second)
+	/ (intEnergyHist.data.binWidth * intEnergyHist.sampleCount 
+	   * Sim->dynamics.units().unitEnergy());
+
+      //We only try to optimize parts of the histogram with greater
+      //than 1% probability
+      if (Pc > 0.01)
+	retval[lrint(E / intEnergyHist.data.binWidth)] = W + std::log(Pc);
+    }
+  
+  //Now center the energy warps about 0 to not cause funny changes in the tails.
+  typedef std::pair<const int, double> locpair;
+  double avg = 0;
+  BOOST_FOREACH(const locpair& p, retval)
+    avg += p.second;
+
+  avg /= retval.size();
+
+  BOOST_FOREACH(locpair& p, retval)
+    p.second -= avg;
+
+  return retval;
+}
+
+
 void 
 OPIntEnergyHist::output(xml::XmlStream& XML)
 {
@@ -104,17 +146,16 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
     {
       I_cout() << "Detected a Multi-canonical Liouvillean, outputting w parameters";
-
       const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()));
-      
+  
 #ifdef DYNAMO_DEBUG      
       if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
 	M_throw() << "Multi-canonical simulations require an NVT ensemble";
 #endif
-
+      
       XML << xml::tag("PotentialDeformation")
 	  << xml::attr("EnergyStep") << intEnergyHist.data.binWidth * Sim->dynamics.units().unitEnergy();
-            
+      
       typedef std::pair<const long, double> lv1pair;
       BOOST_FOREACH(const lv1pair &p1, intEnergyHist.data.data)
 	{
@@ -122,7 +163,7 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
 	  
 	  //Fetch the current W value
 	  double W = liouvillean.W(E);
-
+	  
 	  double Pc = static_cast<double>(p1.second)
 	    / (intEnergyHist.data.binWidth * intEnergyHist.sampleCount 
 	       * Sim->dynamics.units().unitEnergy());
@@ -135,6 +176,7 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
 	}
       
       XML << xml::endtag("PotentialDeformation");
+      
     }
   XML << xml::endtag("EnergyHist");
 

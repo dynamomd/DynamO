@@ -27,6 +27,7 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include "../../outputplugins/1partproperty/uenergy.hpp"
+#include "../../outputplugins/0partproperty/intEnergyHist.hpp"
 #include "../units/units.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -72,17 +73,24 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
 void 
 LNewtonianMC::outputXML(xml::XmlStream& XML) const
 {
+  double step = EnergyPotentialStep;
+  boost::unordered_map<int, double> wout = _W;
+
+  try {
+    wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
+    step = Sim->getOutputPlugin<OPIntEnergyHist>()->getBinWidth();
+  } catch (std::exception&)
+    {}
+
   XML << xml::attr("Type")
       << "NewtonianMC"
       << xml::tag("PotentialDeformation")
       << xml::attr("EnergyStep")
-      << EnergyPotentialStep
-    * Sim->dynamics.units().unitEnergy();
-
+      << step * Sim->dynamics.units().unitEnergy();
 
   typedef std::pair<const double,double> locpair;
 
-  BOOST_FOREACH(const locpair& val, _W)
+  BOOST_FOREACH(const locpair& val, wout)
     {
       double key = val.first * EnergyPotentialStep 
 	* Sim->dynamics.units().unitEnergy();
@@ -90,6 +98,7 @@ LNewtonianMC::outputXML(xml::XmlStream& XML) const
       XML << xml::tag("W")
 	  << xml::attr("Energy") << key
 	  << xml::attr("Value") << val.second
+	  << xml::attr("OldValue") << W(key)
 	  << xml::endtag("W");
     }
     
@@ -101,9 +110,6 @@ LNewtonianMC::outputXML(xml::XmlStream& XML) const
 void LNewtonianMC::initialise()
 {
   LNewtonian::initialise();
-
-  if (Sim->getOutputPlugin<OPUEnergy>() == NULL)
-    M_throw() << "This liouvillean needs the UEnergy plugin";
 }
 
 

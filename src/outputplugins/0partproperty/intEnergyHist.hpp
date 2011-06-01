@@ -18,6 +18,7 @@
 #pragma once
 #include "collticker.hpp"
 #include "../../datatypes/histogram.hpp"
+#include <boost/unordered_map.hpp>
 
 class OPUEnergy;
 
@@ -41,6 +42,8 @@ class OPIntEnergyHist: public OPCollTicker
   
   void operator<<(const magnet::xml::Node&);
 
+  boost::unordered_map<int, double> getImprovedW() const;
+  inline double getBinWidth() const { return intEnergyHist.data.binWidth; }
  protected:
 
   C1DWeightHistogram intEnergyHist;
